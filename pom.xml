@@ -51,6 +51,7 @@
     <mapkeeper.version>1.0</mapkeeper.version>
     <mongodb.version>2.9.0</mongodb.version>
     <orientdb.version>1.0.1</orientdb.version>
+    <neo4j.version>1.8.2</neo4j.version>
     <redis.version>2.0.0</redis.version>
     <voldemort.version>0.81</voldemort.version>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -72,6 +73,7 @@
     <module>mapkeeper</module>
     <module>mongodb</module>
     <module>orientdb</module>
+    <module>neo4j</module>
     <!--module>nosqldb</module-->
     <module>redis</module>
     <module>voldemort</module>
