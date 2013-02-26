@@ -8,80 +8,95 @@
 package com.yahoo.ycsb.db;
 
 import java.util.HashMap;
-import java.util.Enumeration;
 import java.util.Properties;
 import java.util.Set;
 import java.util.Vector;
 
+import org.neo4j.graphdb.Node;
+import org.neo4j.graphdb.index.AutoIndexer;
+import org.neo4j.helpers.collection.MapUtil;
+import org.neo4j.rest.graphdb.RestAPI;
+import org.neo4j.rest.graphdb.RestGraphDatabase;
+import org.neo4j.rest.graphdb.query.RestCypherQueryEngine;
+
+import com.sun.jersey.api.client.ClientHandlerException;
 import com.yahoo.ycsb.ByteIterator;
 import com.yahoo.ycsb.DB;
+import com.yahoo.ycsb.DBException;
+import com.yahoo.ycsb.StringByteIterator;
 import com.yahoo.ycsb.Utils;
 
 /**
- * OrientDB client for YCSB framework.
+ * Neo4j client for YCSB framework.
  * 
  * Properties to set:
  * 
- * neo4j.x = x <br>
+ * neo4j.url=http://localhost:7474/db/data <br>
+ * neo4j.primarykey=primarykey <br>
+ * neo4j.table=usertable <br>
  * 
  * @author Alex Averbuch
- * 
  */
 public class Neo4jClient extends DB
 {
-    public static final String VERBOSE = "basicdb.verbose";
-    public static final String VERBOSE_DEFAULT = "true";
+    private RestCypherQueryEngine queryEngine;
+    private RestAPI restAPI;
 
-    public static final String SIMULATE_DELAY = "basicdb.simulatedelay";
-    public static final String SIMULATE_DELAY_DEFAULT = "0";
-
-    boolean verbose;
-    int todelay;
-
-    public Neo4jClient()
-    {
-        todelay = 0;
-    }
-
-    void delay()
-    {
-        if ( todelay > 0 )
-        {
-            try
-            {
-                Thread.sleep( (long) Utils.random().nextInt( todelay ) );
-            }
-            catch ( InterruptedException e )
-            {
-                // do nothing
-            }
-        }
-    }
+    private String url;
+    private String primaryKeyProperty;
+    private String table;
 
     /**
      * Initialize any state for this DB. Called once per DB instance; there is
      * one DB instance per client thread.
+     * 
+     * @throws DBException
      */
-    @SuppressWarnings( "unchecked" )
-    public void init()
+    public void init() throws DBException
     {
-        verbose = Boolean.parseBoolean( getProperties().getProperty( VERBOSE, VERBOSE_DEFAULT ) );
-        todelay = Integer.parseInt( getProperties().getProperty( SIMULATE_DELAY, SIMULATE_DELAY_DEFAULT ) );
+        // Initialize Neo4j driver
+        Properties props = getProperties();
+        this.url = props.getProperty( "neo4j.url", "http://localhost:7474/db/data" );
+        this.primaryKeyProperty = props.getProperty( "neo4j.primarykey", "primarykey" );
+        // TODO use "table" when 2.0 is released
+        this.table = props.getProperty( "neo4j.table", "usertable" );
 
-        if ( verbose )
+        try
         {
-            System.out.println( "***************** properties *****************" );
-            Properties p = getProperties();
-            if ( p != null )
-            {
-                for ( Enumeration e = p.propertyNames(); e.hasMoreElements(); )
-                {
-                    String k = (String) e.nextElement();
-                    System.out.println( "\"" + k + "\"=\"" + p.getProperty( k ) + "\"" );
-                }
-            }
-            System.out.println( "**********************************************" );
+            System.out.println( "Neo4j loading database url = " + this.url );
+
+            // Connect to database server
+            this.restAPI = new RestGraphDatabase( url ).getRestAPI();
+            this.queryEngine = new RestCypherQueryEngine( this.restAPI );
+
+            // Clear DB
+            this.queryEngine.query( "START r=rel(*) DELETE r", MapUtil.map() );
+            this.queryEngine.query( "START n=node(*) DELETE n", MapUtil.map() );
+
+            // Configure indexes
+            AutoIndexer<Node> nodeAutoIndexer = this.restAPI.index().getNodeAutoIndexer();
+            nodeAutoIndexer.setEnabled( true );
+            nodeAutoIndexer.startAutoIndexingProperty( this.primaryKeyProperty );
         }
+        catch ( ClientHandlerException che )
+        {
+            throw new DBException( "Could not connect Neo4j server: " + this.url, che.getCause() );
+        }
+        catch ( Exception e )
+        {
+            throw new DBException( "Could not initialize Neo4j database client" + this.url, e.getCause() );
+        }
+    }
+
+    /**
+     * Cleanup any state for this DB. Called once per DB instance; there is one
+     * DB instance per client thread.
+     */
+    @Override
+    public void cleanup() throws DBException
+    {
+        super.cleanup();
+        this.restAPI.close();
     }
 
     /**
@@ -96,28 +111,28 @@ public class Neo4jClient extends DB
      */
     public int read( String table, String key, Set<String> fields, HashMap<String, ByteIterator> result )
     {
-        delay();
-
-        if ( verbose )
+        try
         {
-            System.out.print( "READ " + table + " " + key + " [ " );
-            if ( fields != null )
-            {
-                for ( String f : fields )
-                {
-                    System.out.print( f + " " );
-                }
-            }
-            else
-            {
-                System.out.print( "<all fields>" );
-            }
+            // TODO use "table" when 2.0 is released
+            final String queryString = String.format( "START n=node:node_auto_index(%s={key}) RETURN n",
+                    this.primaryKeyProperty );
+            final Node resultNode = (Node) this.queryEngine.query( queryString, MapUtil.map( "key", key ) ).to(
+                    Node.class ).single();
 
-            System.out.println( "]" );
+            Iterable<String> fieldsToReturn = ( null == fields ) ? resultNode.getPropertyKeys() : fields;
+
+            for ( String field : fieldsToReturn )
+                result.put( field, new StringByteIterator( (String) resultNode.getProperty( field ) ) );
+
+            return 1;
         }
-
-        return 0;
+        catch ( Exception e )
+        {
+            return 0;
+        }
     }
+
+    // TODO up to here
 
     /**
      * Perform a range scan for a set of records in the database. Each
@@ -134,26 +149,6 @@ public class Neo4jClient extends DB
     public int scan( String table, String startkey, int recordcount, Set<String> fields,
             Vector<HashMap<String, ByteIterator>> result )
     {
-        delay();
-
-        if ( verbose )
-        {
-            System.out.print( "SCAN " + table + " " + startkey + " " + recordcount + " [ " );
-            if ( fields != null )
-            {
-                for ( String f : fields )
-                {
-                    System.out.print( f + " " );
-                }
-            }
-            else
-            {
-                System.out.print( "<all fields>" );
-            }
-
-            System.out.println( "]" );
-        }
-
         return 0;
     }
 
@@ -169,21 +164,6 @@ public class Neo4jClient extends DB
      */
     public int update( String table, String key, HashMap<String, ByteIterator> values )
     {
-        delay();
-
-        if ( verbose )
-        {
-            System.out.print( "UPDATE " + table + " " + key + " [ " );
-            if ( values != null )
-            {
-                for ( String k : values.keySet() )
-                {
-                    System.out.print( k + "=" + values.get( k ) + " " );
-                }
-            }
-            System.out.println( "]" );
-        }
-
         return 0;
     }
 
@@ -199,22 +179,6 @@ public class Neo4jClient extends DB
      */
     public int insert( String table, String key, HashMap<String, ByteIterator> values )
     {
-        delay();
-
-        if ( verbose )
-        {
-            System.out.print( "INSERT " + table + " " + key + " [ " );
-            if ( values != null )
-            {
-                for ( String k : values.keySet() )
-                {
-                    System.out.print( k + "=" + values.get( k ) + " " );
-                }
-            }
-
-            System.out.println( "]" );
-        }
-
         return 0;
     }
 
@@ -227,38 +191,19 @@ public class Neo4jClient extends DB
      */
     public int delete( String table, String key )
     {
-        delay();
-
-        if ( verbose )
-        {
-            System.out.println( "DELETE " + table + " " + key );
-        }
-
         return 0;
     }
 
-    /**
-     * Short test of BasicDB
-     */
-    /*
-     * public static void main(String[] args) { BasicDB bdb=new BasicDB();
-     * 
-     * Properties p=new Properties(); p.setProperty("Sky","Blue");
-     * p.setProperty("Ocean","Wet");
-     * 
-     * bdb.setProperties(p);
-     * 
-     * bdb.init();
-     * 
-     * HashMap<String,String> fields=new HashMap<String,String>();
-     * fields.put("A","X"); fields.put("B","Y");
-     * 
-     * bdb.read("table","key",null,null); bdb.insert("table","key",fields);
-     * 
-     * fields=new HashMap<String,String>(); fields.put("C","Z");
-     * 
-     * bdb.update("table","key",fields);
-     * 
-     * bdb.delete("table","key"); }
-     */
+    private String asDelimitedString( Iterable<String> strings, String prefix )
+    {
+        StringBuilder sb = new StringBuilder();
+        for ( String s : strings )
+        {
+            sb.append( prefix );
+            sb.append( s );
+            sb.append( "," );
+        }
+        return sb.toString().substring( 0, sb.toString().length() - 1 );
+    }
+
 }
