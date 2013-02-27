@@ -12,6 +12,7 @@ import java.util.HashMap;
 import java.util.Properties;
 import java.util.Set;
 import java.util.Vector;
+import java.util.Map.Entry;
 
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.index.AutoIndexer;
@@ -172,7 +173,8 @@ public class Neo4jClient extends DB
 
             // TODO use "table" when 2.0 is released
             final String queryString = String.format( "START n=node:node_auto_index(%s={key}) SET n={properties}",
-                    this.primaryKeyProperty, stringValues );
+                    this.primaryKeyProperty );
+            this.queryEngine.query( queryString, MapUtil.map( "key", key, "properties", stringValues ) );
 
             return 0;
         }
@@ -195,7 +197,23 @@ public class Neo4jClient extends DB
      */
     public int insert( String table, String key, HashMap<String, ByteIterator> values )
     {
-        return 0;
+        try
+        {
+            HashMap<String, String> stringValues = StringByteIterator.getStringMap( values );
+
+            // TODO use "table" when 2.0 is released
+            stringValues.put( this.primaryKeyProperty, key );
+            final String queryString = "CREATE n = {properties}";
+            this.queryEngine.query( queryString, MapUtil.map( "properties", stringValues ) );
+
+            return 0;
+        }
+        catch ( Exception e )
+        {
+            e.printStackTrace();
+        }
+
+        return 1;
     }
 
     /**
