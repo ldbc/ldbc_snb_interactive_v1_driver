@@ -7,6 +7,7 @@
 
 package com.yahoo.ycsb.db;
 
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Properties;
 import java.util.Set;
@@ -19,6 +20,7 @@ import org.neo4j.rest.graphdb.RestAPI;
 import org.neo4j.rest.graphdb.RestGraphDatabase;
 import org.neo4j.rest.graphdb.query.RestCypherQueryEngine;
 
+import com.orientechnologies.orient.core.record.impl.ODocument;
 import com.sun.jersey.api.client.ClientHandlerException;
 import com.yahoo.ycsb.ByteIterator;
 import com.yahoo.ycsb.DB;
@@ -119,20 +121,19 @@ public class Neo4jClient extends DB
             final Node resultNode = (Node) this.queryEngine.query( queryString, MapUtil.map( "key", key ) ).to(
                     Node.class ).single();
 
-            Iterable<String> fieldsToReturn = ( null == fields ) ? resultNode.getPropertyKeys() : fields;
+            final Iterable<String> fieldsToReturn = ( null == fields ) ? resultNode.getPropertyKeys() : fields;
 
             for ( String field : fieldsToReturn )
                 result.put( field, new StringByteIterator( (String) resultNode.getProperty( field ) ) );
 
-            return 1;
+            return 0;
         }
         catch ( Exception e )
         {
-            return 0;
+            e.printStackTrace();
         }
+        return 1;
     }
-
-    // TODO up to here
 
     /**
      * Perform a range scan for a set of records in the database. Each
@@ -149,7 +150,8 @@ public class Neo4jClient extends DB
     public int scan( String table, String startkey, int recordcount, Set<String> fields,
             Vector<HashMap<String, ByteIterator>> result )
     {
-        return 0;
+        System.out.println( "SCAN not supported" );
+        return 1;
     }
 
     /**
@@ -164,7 +166,21 @@ public class Neo4jClient extends DB
      */
     public int update( String table, String key, HashMap<String, ByteIterator> values )
     {
-        return 0;
+        try
+        {
+            HashMap<String, String> stringValues = StringByteIterator.getStringMap( values );
+
+            // TODO use "table" when 2.0 is released
+            final String queryString = String.format( "START n=node:node_auto_index(%s={key}) SET n={properties}",
+                    this.primaryKeyProperty, stringValues );
+
+            return 0;
+        }
+        catch ( Exception e )
+        {
+            e.printStackTrace();
+        }
+        return 1;
     }
 
     /**
