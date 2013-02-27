@@ -7,12 +7,10 @@
 
 package com.yahoo.ycsb.db;
 
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.Properties;
 import java.util.Set;
 import java.util.Vector;
-import java.util.Map.Entry;
 
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.index.AutoIndexer;
@@ -21,7 +19,6 @@ import org.neo4j.rest.graphdb.RestAPI;
 import org.neo4j.rest.graphdb.RestGraphDatabase;
 import org.neo4j.rest.graphdb.query.RestCypherQueryEngine;
 
-import com.orientechnologies.orient.core.record.impl.ODocument;
 import com.sun.jersey.api.client.ClientHandlerException;
 import com.yahoo.ycsb.ByteIterator;
 import com.yahoo.ycsb.DB;
@@ -225,9 +222,27 @@ public class Neo4jClient extends DB
      */
     public int delete( String table, String key )
     {
-        return 0;
+        try
+        {
+            // TODO use "table" when 2.0 is released
+            final String queryString = String.format( "START n=node:node_auto_index(%s={key}) DELETE n",
+                    this.primaryKeyProperty );
+            final int nodesDeleted = this.queryEngine.query( queryString, MapUtil.map( "key", key ) ).to( Integer.class ).single();
+
+            if ( nodesDeleted == 1 )
+                return 0;
+            else
+                throw new DBException( String.format( "%s nodes deleted, 1 expected", nodesDeleted ) );
+        }
+        catch ( Exception e )
+        {
+            e.printStackTrace();
+        }
+
+        return 1;
     }
 
+    // May use later as helper to construct Cypher queries
     private String asDelimitedString( Iterable<String> strings, String prefix )
     {
         StringBuilder sb = new StringBuilder();
