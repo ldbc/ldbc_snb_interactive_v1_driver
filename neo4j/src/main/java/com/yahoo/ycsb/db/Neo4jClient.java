@@ -7,6 +7,8 @@
 
 package com.yahoo.ycsb.db;
 
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.util.HashMap;
 import java.util.Properties;
 import java.util.Set;
@@ -24,7 +26,6 @@ import com.yahoo.ycsb.ByteIterator;
 import com.yahoo.ycsb.DB;
 import com.yahoo.ycsb.DBException;
 import com.yahoo.ycsb.StringByteIterator;
-import com.yahoo.ycsb.Utils;
 
 /**
  * Neo4j client for YCSB framework.
@@ -44,6 +45,7 @@ public class Neo4jClient extends DB
 
     private String url;
     private String primaryKeyProperty;
+    // TODO use "table" when 2.0 is released
     private String table;
 
     /**
@@ -54,37 +56,50 @@ public class Neo4jClient extends DB
      */
     public void init() throws DBException
     {
-        // Initialize Neo4j driver
-        Properties props = getProperties();
-        this.url = props.getProperty( "neo4j.url", "http://localhost:7474/db/data" );
-        this.primaryKeyProperty = props.getProperty( "neo4j.primarykey", "primarykey" );
-        // TODO use "table" when 2.0 is released
-        this.table = props.getProperty( "neo4j.table", "usertable" );
-
         try
         {
-            System.out.println( "Neo4j loading database url = " + this.url );
+            // Initialize Neo4j driver
+            Properties props = getProperties();
+            this.url = props.getProperty( "neo4j.url", "http://localhost:7474/db/data" );
+            this.primaryKeyProperty = props.getProperty( "neo4j.primarykey", "primarykey" );
+            // TODO use "table" when 2.0 is released
+            this.table = props.getProperty( "neo4j.table", "usertable" );
+
+            System.out.println( "Neo4j \"primary key\" = " + this.primaryKeyProperty );
+            System.out.println( "Neo4j database url = " + this.url );
+            System.out.println( "Neo4j connecting to " + this.url );
 
             // Connect to database server
             this.restAPI = new RestGraphDatabase( url ).getRestAPI();
             this.queryEngine = new RestCypherQueryEngine( this.restAPI );
 
+            System.out.println( "Neo4j clearing database" );
+
             // Clear DB
             this.queryEngine.query( "START r=rel(*) DELETE r", MapUtil.map() );
             this.queryEngine.query( "START n=node(*) DELETE n", MapUtil.map() );
+
+            System.out.println( "Neo4j configuring autoindexing" );
 
             // Configure indexes
             AutoIndexer<Node> nodeAutoIndexer = this.restAPI.index().getNodeAutoIndexer();
             nodeAutoIndexer.setEnabled( true );
             nodeAutoIndexer.startAutoIndexingProperty( this.primaryKeyProperty );
+
+            System.out.println( "Neo4j initialization complete" );
         }
         catch ( ClientHandlerException che )
         {
-            throw new DBException( "Could not connect Neo4j server: " + this.url, che.getCause() );
+            String errString = "[Neo4jClient] Could not connect to server: " + this.url;
+            System.err.println( errString + "\n" + che.toString() );
+            throw new DBException( errString, che.getCause() );
+
         }
         catch ( Exception e )
         {
-            throw new DBException( "Could not initialize Neo4j database client" + this.url, e.getCause() );
+            String errString = "[Neo4jClient] Could not initialize Neo4j database client";
+            System.err.println( errString + "\n" + e.toString() );
+            throw new DBException( errString, e.getCause() );
         }
     }
 
@@ -95,8 +110,17 @@ public class Neo4jClient extends DB
     @Override
     public void cleanup() throws DBException
     {
-        super.cleanup();
-        this.restAPI.close();
+        try
+        {
+            super.cleanup();
+            this.restAPI.close();
+        }
+        catch ( Exception e )
+        {
+            String errString = "[Neo4jClient] Error encountered during cleanup";
+            System.err.println( errString + "\n" + e.toString() );
+            throw new DBException( errString, e.getCause() );
+        }
     }
 
     /**
@@ -128,7 +152,8 @@ public class Neo4jClient extends DB
         }
         catch ( Exception e )
         {
-            e.printStackTrace();
+            String errString = "[Neo4jClient] Error in READ";
+            System.err.println( errString + "\n" + e.toString() );
         }
         return 1;
     }
@@ -177,7 +202,8 @@ public class Neo4jClient extends DB
         }
         catch ( Exception e )
         {
-            e.printStackTrace();
+            String errString = "[Neo4jClient] Error in UPDATE";
+            System.err.println( errString + "\n" + e.toString() );
         }
         return 1;
     }
@@ -207,7 +233,8 @@ public class Neo4jClient extends DB
         }
         catch ( Exception e )
         {
-            e.printStackTrace();
+            String errString = "[Neo4jClient] Error in INSERT";
+            System.err.println( errString + "\n" + e.toString() );
         }
 
         return 1;
@@ -236,10 +263,37 @@ public class Neo4jClient extends DB
         }
         catch ( Exception e )
         {
-            e.printStackTrace();
+            String errString = "[Neo4jClient] Error in DELETE";
+            System.err.println( errString + "\n" + e.toString() );
         }
 
         return 1;
+    }
+
+    private void error( String msg, Exception e ) throws DBException
+    {
+        debug( msg, e );
+        throw new DBException( msg, e.getCause() );
+    }
+
+    private void debug( String msg, Exception e )
+    {
+        msg = "[Neo4jClient] " + msg;
+        System.err.println( msg + "\n" + exceptionToString( e ) );
+    }
+
+    private void info( String msg, Exception e )
+    {
+        msg = "[Neo4jClient] " + msg;
+        System.out.println( msg + "\n" + exceptionToString( e ) );
+    }
+
+    private String exceptionToString( Exception e )
+    {
+        StringWriter sw = new StringWriter();
+        PrintWriter pw = new PrintWriter( sw );
+        e.printStackTrace( pw );
+        return sw.toString();
     }
 
     // May use later as helper to construct Cypher queries
