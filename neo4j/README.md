@@ -1,6 +1,4 @@
-# Neo4j YCSB Implementation
-
-## Quick Start
+## Neo4j YCSB Client - Quick Start
 
 This section describes how to run YCSB on Neo4j running on a server.
 
