@@ -35,12 +35,12 @@
 			<artifactId>neo4j-rest-graphdb</artifactId>
 			<version>${neo4j-client-version}</version>
 		</dependency>
-		<!-- <dependency> -->
-		<!-- <groupId>junit</groupId> -->
-		<!-- <artifactId>junit</artifactId> -->
-		<!-- <scope>test</scope> -->
-		<!-- <version>${junit-version}</version> -->
-		<!-- </dependency> -->
+		<dependency>
+			<groupId>junit</groupId>
+			<artifactId>junit</artifactId>
+			<scope>test</scope>
+			<version>${junit-version}</version>
+		</dependency>
 	</dependencies>
 
 	<repositories>
