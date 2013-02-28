@@ -40,10 +40,10 @@ Then, run the workload:
 
 ## 5. Neo4j Configuration Parameters
 
-### `neo4j.url` (default: `http://localhost:7474/db/data`) --> location of neo4j server
+#### `neo4j.url` (default: `http://localhost:7474/db/data`) --> location of neo4j server
 
-### `neo4j.primarykey` (default: `primarykey`) --> property to index
+#### `neo4j.primarykey` (default: `primarykey`) --> property to index
 
-### `neo4j.table` (default: `usertable`) --> name of table (i.e. label)
+#### `neo4j.table` (default: `usertable`) --> name of table (i.e. label)
 
-### `neo4j.clear` (default: `false`) --> clear database
+#### `neo4j.clear` (default: `false`) --> clear database
