@@ -1,4 +1,4 @@
-Neo4j YCSB Implementation
+# Neo4j YCSB Implementation
 
 ## Quick Start
 
