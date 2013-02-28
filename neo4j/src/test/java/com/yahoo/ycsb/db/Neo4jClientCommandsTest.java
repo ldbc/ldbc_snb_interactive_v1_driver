@@ -17,6 +17,7 @@ import com.yahoo.ycsb.ByteIterator;
 import com.yahoo.ycsb.DBException;
 import com.yahoo.ycsb.StringByteIterator;
 
+@Ignore
 public class Neo4jClientCommandsTest
 {
     private final String TABLE = "_neo4j_usertable";
