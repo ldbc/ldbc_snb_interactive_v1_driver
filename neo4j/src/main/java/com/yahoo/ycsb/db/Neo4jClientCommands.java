@@ -85,20 +85,23 @@ public class Neo4jClientCommands
 
     public void update( String table, String key, Map<String, ByteIterator> values )
     {
-        // final Map<String, Object> neo4jValues =
-        // Neo4jClientUtils.toStringObjectMap( values, this.autoIndexKey, key );
+         final Map<String, Object> neo4jValues =
+         Neo4jClientUtils.toStringObjectMap( values, this.autoIndexKey, key );
+         final String queryString = String.format(
+         "START n=node:node_auto_index(%s={key}) SET n={properties}",
+         this.autoIndexKey );
+         this.queryEngine.query( queryString, MapUtil.map( "key", key,
+         "properties", neo4jValues ) );
+
+        // TODO add escaping to Neo4jClientUtils.toCypherPropertiesString before
+        // this works
+        // final String cypherPropertiesString =
+        // Neo4jClientUtils.toCypherPropertiesString( values, "n" );
         // final String queryString = String.format(
-        // "START n=node:node_auto_index(%s={key}) SET n={properties}",
-        // this.autoIndexKey );
-        // this.queryEngine.query( queryString, MapUtil.map( "key", key,
-        // "properties", neo4jValues ) );
-
-        final String cypherPropertiesString = Neo4jClientUtils.toCypherPropertiesString( values, "n" );
-        final String queryString = String.format( "START n=node:node_auto_index(%s={key}) SET %s", this.autoIndexKey,
-                cypherPropertiesString );
-        System.out.println( queryString );
-        this.queryEngine.query( queryString, MapUtil.map( "key", key ) );
-
+        // "START n=node:node_auto_index(%s={key}) SET %s", this.autoIndexKey,
+        // cypherPropertiesString );
+        // System.out.println( queryString );
+        // this.queryEngine.query( queryString, MapUtil.map( "key", key ) );
     }
 
     public void insert( String table, String key, Map<String, ByteIterator> values )

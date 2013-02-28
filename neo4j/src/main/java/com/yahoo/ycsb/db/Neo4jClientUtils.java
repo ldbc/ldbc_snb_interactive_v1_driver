@@ -22,6 +22,7 @@ public class Neo4jClientUtils
     }
 
     // TODO test
+    // TODO add escaping to Neo4jClientUtils.toCypherPropertiesString before
     public static String toCypherPropertiesString( Map<String, ByteIterator> values, String nodeName )
     {
         StringBuilder sb = new StringBuilder();
