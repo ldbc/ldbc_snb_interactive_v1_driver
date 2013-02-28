@@ -85,30 +85,25 @@ public class Neo4jClientCommands
 
     public void update( String table, String key, Map<String, ByteIterator> values )
     {
-        Map<String, Object> neo4jValues = new HashMap<String, Object>();
-        for ( String valueKey : values.keySet() )
-        {
-            neo4jValues.put( valueKey, values.get( valueKey ).toString() );
-        }
+        // final Map<String, Object> neo4jValues =
+        // Neo4jClientUtils.toStringObjectMap( values, this.autoIndexKey, key );
+        // final String queryString = String.format(
+        // "START n=node:node_auto_index(%s={key}) SET n={properties}",
+        // this.autoIndexKey );
+        // this.queryEngine.query( queryString, MapUtil.map( "key", key,
+        // "properties", neo4jValues ) );
 
-        // TODO use "table" when 2.0 is released
-        // TODO FIX! this overwrites ALL PROPERTIES (deletes some)
-        neo4jValues.put( this.autoIndexKey, key );
-        final String queryString = String.format( "START n=node:node_auto_index(%s={key}) SET n={properties}",
-                this.autoIndexKey );
-        this.queryEngine.query( queryString, MapUtil.map( "key", key, "properties", neo4jValues ) );
+        final String cypherPropertiesString = Neo4jClientUtils.toCypherPropertiesString( values, "n" );
+        final String queryString = String.format( "START n=node:node_auto_index(%s={key}) SET %s", this.autoIndexKey,
+                cypherPropertiesString );
+        System.out.println( queryString );
+        this.queryEngine.query( queryString, MapUtil.map( "key", key ) );
+
     }
 
     public void insert( String table, String key, Map<String, ByteIterator> values )
     {
-        Map<String, Object> neo4jValues = new HashMap<String, Object>();
-        for ( String valueKey : values.keySet() )
-        {
-            neo4jValues.put( valueKey, values.get( valueKey ).toString() );
-        }
-
-        // TODO use "table" when 2.0 is released
-        neo4jValues.put( this.autoIndexKey, key );
+        final Map<String, Object> neo4jValues = Neo4jClientUtils.toStringObjectMap( values, this.autoIndexKey, key );
         final String queryString = "CREATE n = {properties}";
         this.queryEngine.query( queryString, MapUtil.map( "properties", neo4jValues ) );
     }
@@ -136,5 +131,4 @@ public class Neo4jClientCommands
     {
         return this.queryEngine.query( "START r=rel(*) RETURN count(r)", MapUtil.map() ).to( Integer.class ).single();
     }
-
 }

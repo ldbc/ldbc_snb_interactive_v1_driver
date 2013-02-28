@@ -87,9 +87,6 @@ public class Neo4jClientCommandsTest
         Map<String, ByteIterator> writeValues = new HashMap<String, ByteIterator>();
         writeValues.put( "country", ByteArrayByteIterator.fromString( "sweden" ) );
         writeValues.put( "name", ByteArrayByteIterator.fromString( "jacob" ) );
-        // TODO remove "age" line
-        // currently breaks, as Cypher deletes fields not in SET command
-        writeValues.put( "age", ByteArrayByteIterator.fromString( "25" ) );
 
         commands.update( TABLE, "2", writeValues );
 

@@ -231,19 +231,4 @@ public class Neo4jClient extends DB
         }
         return 1;
     }
-
-    // TODO use something like this to construct UPDATE Cypher queries
-    // May use later as helper to construct Cypher queries
-    private String asDelimitedString( Iterable<String> strings, String prefix )
-    {
-        StringBuilder sb = new StringBuilder();
-        for ( String s : strings )
-        {
-            sb.append( prefix );
-            sb.append( s );
-            sb.append( "," );
-        }
-        return sb.toString().substring( 0, sb.toString().length() - 1 );
-    }
-
 }
