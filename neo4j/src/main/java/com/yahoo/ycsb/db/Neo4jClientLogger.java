@@ -13,10 +13,16 @@ public class Neo4jClientLogger
         throw new DBException( msg, e.getCause() );
     }
 
+    public void debug( String msg )
+    {
+        debug( msg, null );
+    }
+
     public void debug( String msg, Exception e )
     {
         msg = "[Neo4jClient] " + msg;
-        System.err.println( msg + "\n" + exceptionToString( e ) );
+        final String exceptionMsg = ( null != e ) ? exceptionToString( e ) : "";
+        System.err.println( msg + "\n" + exceptionMsg );
     }
 
     public void info( String msg )

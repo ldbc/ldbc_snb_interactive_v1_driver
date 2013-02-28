@@ -9,10 +9,12 @@ import java.util.Map;
 import java.util.Set;
 
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import com.yahoo.ycsb.ByteArrayByteIterator;
 import com.yahoo.ycsb.ByteIterator;
+import com.yahoo.ycsb.DBException;
 import com.yahoo.ycsb.StringByteIterator;
 
 public class Neo4jClientCommandsTest
@@ -30,24 +32,30 @@ public class Neo4jClientCommandsTest
         this.commands.clearDb();
         assertEquals( "Database should contain zero nodes", 0, commands.nodeCount() );
         doPopulate();
-        assertEquals( "Database should contain two nodes", 2, commands.nodeCount() );
+        assertEquals( "Database should contain two nodes", 3, commands.nodeCount() );
     }
 
     @Test
     public void insert()
     {
-        assertEquals( "Database should contain two nodes", 2, commands.nodeCount() );
+        assertEquals( "Database should contain two nodes", 3, commands.nodeCount() );
 
         Map<String, ByteIterator> values = new HashMap<String, ByteIterator>();
         values.put( "name", ByteArrayByteIterator.fromString( "nico" ) );
         values.put( "age", ByteArrayByteIterator.fromString( "26" ) );
-        this.commands.insert( TABLE, "3", values );
+        this.commands.insert( TABLE, "4", values );
 
-        assertEquals( "Database should contain three nodes", 3, commands.nodeCount() );
+        assertEquals( "Database should contain three nodes", 4, commands.nodeCount() );
     }
 
     @Test
-    public void readAllFields()
+    public void readNonExistentNode() throws DBException
+    {
+        assertNodeDoesNotExist( "99" );
+    }
+
+    @Test
+    public void readAllFields() throws DBException
     {
         Map<String, ByteIterator> result = commands.read( TABLE, "1", null );
         result.remove( PRIMARY_KEY );
@@ -58,7 +66,7 @@ public class Neo4jClientCommandsTest
     }
 
     @Test
-    public void readSomeFields()
+    public void readSomeFields() throws DBException
     {
         Set<String> values = new HashSet<String>();
         values.add( "age" );
@@ -69,7 +77,7 @@ public class Neo4jClientCommandsTest
     }
 
     @Test
-    public void update()
+    public void update() throws DBException
     {
         Map<String, ByteIterator> result = commands.read( TABLE, "2", null );
         assertEquals( "jake", result.get( "name" ).toString() );
@@ -92,24 +100,28 @@ public class Neo4jClientCommandsTest
     }
 
     @Test
-    public void scan()
+    public void delete() throws DBException
+    {
+        Map<String, ByteIterator> result = commands.read( TABLE, "3", null );
+        assertEquals( "temp guy", result.get( "name" ).toString() );
+
+        commands.delete( TABLE, "3" );
+
+        assertNodeDoesNotExist( "3" );
+    }
+
+    @Ignore
+    @Test
+    public void deleteNonExistentNode() throws DBException
     {
         assertEquals( false, true );
     }
 
-    private void doPopulate()
+    @Ignore
+    @Test
+    public void scan()
     {
-        Map<String, ByteIterator> values = new HashMap<String, ByteIterator>();
-        values.put( "name", ByteArrayByteIterator.fromString( "alex" ) );
-        values.put( "age", ByteArrayByteIterator.fromString( "31" ) );
-        values.put( "country", ByteArrayByteIterator.fromString( "nz" ) );
-        this.commands.insert( TABLE, "1", values );
-
-        values = new HashMap<String, ByteIterator>();
-        values.put( "name", ByteArrayByteIterator.fromString( "jake" ) );
-        values.put( "age", ByteArrayByteIterator.fromString( "25" ) );
-        values.put( "country", ByteArrayByteIterator.fromString( "se" ) );
-        this.commands.insert( TABLE, "2", values );
+        assertEquals( false, true );
     }
 
     @Test
@@ -125,6 +137,40 @@ public class Neo4jClientCommandsTest
     public void stringByteIteratorTest()
     {
         assertEquals( "hello", new StringByteIterator( "hello" ).toString() );
+    }
+
+    private void doPopulate()
+    {
+        Map<String, ByteIterator> values = new HashMap<String, ByteIterator>();
+        values.put( "name", ByteArrayByteIterator.fromString( "alex" ) );
+        values.put( "age", ByteArrayByteIterator.fromString( "31" ) );
+        values.put( "country", ByteArrayByteIterator.fromString( "nz" ) );
+        this.commands.insert( TABLE, "1", values );
+
+        values = new HashMap<String, ByteIterator>();
+        values.put( "name", ByteArrayByteIterator.fromString( "jake" ) );
+        values.put( "age", ByteArrayByteIterator.fromString( "25" ) );
+        values.put( "country", ByteArrayByteIterator.fromString( "se" ) );
+        this.commands.insert( TABLE, "2", values );
+
+        values = new HashMap<String, ByteIterator>();
+        values.put( "name", ByteArrayByteIterator.fromString( "temp guy" ) );
+        this.commands.insert( TABLE, "3", values );
+    }
+
+    private void assertNodeDoesNotExist( String key )
+    {
+        boolean readSucceeded = true;
+        try
+        {
+            commands.read( TABLE, key, null );
+            readSucceeded = true;
+        }
+        catch ( DBException dbe )
+        {
+            readSucceeded = false;
+        }
+        assertEquals( false, readSucceeded );
     }
 
 }

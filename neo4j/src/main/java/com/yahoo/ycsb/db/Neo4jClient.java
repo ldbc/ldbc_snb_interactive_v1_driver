@@ -12,18 +12,10 @@ import java.util.Properties;
 import java.util.Set;
 import java.util.Vector;
 
-import org.neo4j.graphdb.Node;
-import org.neo4j.graphdb.index.AutoIndexer;
-import org.neo4j.helpers.collection.MapUtil;
-import org.neo4j.rest.graphdb.RestAPI;
-import org.neo4j.rest.graphdb.RestGraphDatabase;
-import org.neo4j.rest.graphdb.query.RestCypherQueryEngine;
-
 import com.sun.jersey.api.client.ClientHandlerException;
 import com.yahoo.ycsb.ByteIterator;
 import com.yahoo.ycsb.DB;
 import com.yahoo.ycsb.DBException;
-import com.yahoo.ycsb.StringByteIterator;
 
 /**
  * Neo4j client for YCSB framework.
@@ -39,14 +31,13 @@ import com.yahoo.ycsb.StringByteIterator;
  */
 public class Neo4jClient extends DB
 {
-    private RestCypherQueryEngine queryEngine;
-    private RestAPI restAPI;
+    private Neo4jClientCommands commands;
 
     private String url;
     private String primaryKeyProperty;
+    private boolean clear;
     // TODO use "table" when 2.0 is released
     private String table;
-    private boolean clear;
 
     // TODO Remove if/when YCSB provides a real logger
     final private Neo4jClientLogger log = new Neo4jClientLogger();
@@ -76,21 +67,15 @@ public class Neo4jClient extends DB
             log.info( "clear database = " + this.clear );
             log.info( "************************" );
 
-            log.info( "Connecting to " + this.url );
-            this.restAPI = new RestGraphDatabase( url ).getRestAPI();
-            this.queryEngine = new RestCypherQueryEngine( this.restAPI );
+            log.info( "Connecting to database: " + this.url );
+            this.commands = new Neo4jClientCommands( this.url, this.primaryKeyProperty );
+            this.commands.init();
 
             if ( this.clear )
             {
                 log.info( "Clearing database" );
-                this.queryEngine.query( "START r=rel(*) DELETE r", MapUtil.map() );
-                this.queryEngine.query( "START n=node(*) DELETE n", MapUtil.map() );
+                this.commands.clearDb();
             }
-
-            log.info( "Configuring autoindexing" );
-            AutoIndexer<Node> nodeAutoIndexer = this.restAPI.index().getNodeAutoIndexer();
-            nodeAutoIndexer.setEnabled( true );
-            nodeAutoIndexer.startAutoIndexingProperty( this.primaryKeyProperty );
 
             log.info( "Initialization complete" );
         }
@@ -113,7 +98,7 @@ public class Neo4jClient extends DB
     {
         try
         {
-            this.restAPI.close();
+            this.commands.cleanUp();
         }
         catch ( Exception e )
         {
@@ -133,19 +118,12 @@ public class Neo4jClient extends DB
      */
     public int read( String table, String key, Set<String> fields, HashMap<String, ByteIterator> result )
     {
+        // TODO remove
+        // log.debug( "READ: " + key );
+
         try
         {
-            // TODO use "table" when 2.0 is released
-            final String queryString = String.format( "START n=node:node_auto_index(%s={key}) RETURN n",
-                    this.primaryKeyProperty );
-            final Node resultNode = (Node) this.queryEngine.query( queryString, MapUtil.map( "key", key ) ).to(
-                    Node.class ).single();
-
-            final Iterable<String> fieldsToReturn = ( null == fields ) ? resultNode.getPropertyKeys() : fields;
-
-            for ( String field : fieldsToReturn )
-                result.put( field, new StringByteIterator( (String) resultNode.getProperty( field ) ) );
-
+            result = this.commands.read( table, key, fields );
             return 0;
         }
         catch ( Exception e )
@@ -170,7 +148,15 @@ public class Neo4jClient extends DB
     public int scan( String table, String startkey, int recordcount, Set<String> fields,
             Vector<HashMap<String, ByteIterator>> result )
     {
-        log.debug( "SCAN not supported", new UnsupportedOperationException( "Scan not supported" ) );
+        try
+        {
+            result = this.commands.scan( table, startkey, recordcount, fields );
+            return 0;
+        }
+        catch ( Exception e )
+        {
+            log.debug( "Error in SCAN", e );
+        }
         return 1;
     }
 
@@ -188,13 +174,7 @@ public class Neo4jClient extends DB
     {
         try
         {
-            HashMap<String, String> stringValues = StringByteIterator.getStringMap( values );
-
-            // TODO use "table" when 2.0 is released
-            final String queryString = String.format( "START n=node:node_auto_index(%s={key}) SET n={properties}",
-                    this.primaryKeyProperty );
-            this.queryEngine.query( queryString, MapUtil.map( "key", key, "properties", stringValues ) );
-
+            this.commands.update( table, key, values );
             return 0;
         }
         catch ( Exception e )
@@ -216,22 +196,18 @@ public class Neo4jClient extends DB
      */
     public int insert( String table, String key, HashMap<String, ByteIterator> values )
     {
+        // TODO remove
+        // log.debug( "INSERT: " + key );
+
         try
         {
-            HashMap<String, String> stringValues = StringByteIterator.getStringMap( values );
-
-            // TODO use "table" when 2.0 is released
-            stringValues.put( this.primaryKeyProperty, key );
-            final String queryString = "CREATE n = {properties}";
-            this.queryEngine.query( queryString, MapUtil.map( "properties", stringValues ) );
-
+            this.commands.insert( table, key, values );
             return 0;
         }
         catch ( Exception e )
         {
             log.debug( "Error in INSERT", e );
         }
-
         return 1;
     }
 
@@ -246,24 +222,17 @@ public class Neo4jClient extends DB
     {
         try
         {
-            // TODO use "table" when 2.0 is released
-            final String queryString = String.format( "START n=node:node_auto_index(%s={key}) DELETE n",
-                    this.primaryKeyProperty );
-            final int nodesDeleted = this.queryEngine.query( queryString, MapUtil.map( "key", key ) ).to( Integer.class ).single();
-
-            if ( nodesDeleted == 1 )
-                return 0;
-            else
-                throw new DBException( String.format( "%s nodes deleted, 1 expected", nodesDeleted ) );
+            this.commands.delete( table, key );
+            return 0;
         }
         catch ( Exception e )
         {
             log.debug( "Error in DELETE", e );
         }
-
         return 1;
     }
 
+    // TODO use something like this to construct UPDATE Cypher queries
     // May use later as helper to construct Cypher queries
     private String asDelimitedString( Iterable<String> strings, String prefix )
     {

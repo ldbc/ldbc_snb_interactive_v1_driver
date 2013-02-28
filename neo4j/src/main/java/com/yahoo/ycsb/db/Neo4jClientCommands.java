@@ -2,6 +2,7 @@ package com.yahoo.ycsb.db;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.NoSuchElementException;
 import java.util.Set;
 import java.util.Vector;
 
@@ -14,6 +15,7 @@ import org.neo4j.rest.graphdb.query.RestCypherQueryEngine;
 
 import com.yahoo.ycsb.ByteArrayByteIterator;
 import com.yahoo.ycsb.ByteIterator;
+import com.yahoo.ycsb.DBException;
 
 public class Neo4jClientCommands
 {
@@ -44,15 +46,24 @@ public class Neo4jClientCommands
         this.restAPI.close();
     }
 
-    public Map<String, ByteIterator> read( String table, String key, Set<String> fields )
+    public HashMap<String, ByteIterator> read( String table, String key, Set<String> fields ) throws DBException
     {
         // TODO use "table" when 2.0 is released
         final String queryString = String.format( "START n=node:node_auto_index(%s={key}) RETURN n", this.autoIndexKey );
-        final Node resultNode = (Node) this.queryEngine.query( queryString, MapUtil.map( "key", key ) ).to( Node.class ).single();
+
+        Node resultNode = null;
+        try
+        {
+            resultNode = (Node) this.queryEngine.query( queryString, MapUtil.map( "key", key ) ).to( Node.class ).single();
+        }
+        catch ( NoSuchElementException nsee )
+        {
+            throw new DBException( "Key not found", nsee.getCause() );
+        }
 
         final Iterable<String> fieldsToReturn = ( null == fields ) ? resultNode.getPropertyKeys() : fields;
 
-        Map<String, ByteIterator> result = new HashMap<String, ByteIterator>();
+        HashMap<String, ByteIterator> result = new HashMap<String, ByteIterator>();
 
         for ( String field : fieldsToReturn )
         {
@@ -66,7 +77,8 @@ public class Neo4jClientCommands
         return result;
     }
 
-    public Vector<Map<String, ByteIterator>> scan( String table, String startkey, int recordcount, Set<String> fields )
+    public Vector<HashMap<String, ByteIterator>> scan( String table, String startkey, int recordcount,
+            Set<String> fields )
     {
         throw new UnsupportedOperationException( "SCAN not supported" );
     }
@@ -99,6 +111,14 @@ public class Neo4jClientCommands
         neo4jValues.put( this.autoIndexKey, key );
         final String queryString = "CREATE n = {properties}";
         this.queryEngine.query( queryString, MapUtil.map( "properties", neo4jValues ) );
+    }
+
+    public void delete( String table, String key )
+    {
+        // TODO use "table" when 2.0 is released
+        final String queryString = String.format( "START n=node:node_auto_index(%s={key}) DELETE n", this.autoIndexKey );
+        // TODO use result from DELETE when client provides it (does not now)
+        this.queryEngine.query( queryString, MapUtil.map( "key", key ) );
     }
 
     public void clearDb()
