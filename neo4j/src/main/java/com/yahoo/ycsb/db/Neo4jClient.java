@@ -26,6 +26,8 @@ import com.yahoo.ycsb.DBException;
  * neo4j.primarykey=primarykey <br>
  * neo4j.table=usertable <br>
  * neo4j.clear=false <br>
+ * neo4j.path=/tmp/db <br>
+ * neo4j.dbtype=embedded <br>
  * 
  * @author Alex Averbuch
  */
@@ -36,6 +38,8 @@ public class Neo4jClient extends DB
     private String url;
     private String primaryKeyProperty;
     private boolean clear;
+    private String dbtype;
+    private String path;
     // TODO use "table" when 2.0 is released
     private String table;
 
@@ -54,34 +58,51 @@ public class Neo4jClient extends DB
         {
             // Initialize Neo4j driver
             Properties props = getProperties();
-            this.url = props.getProperty( "neo4j.url", "http://localhost:7474/db/data" );
-            this.primaryKeyProperty = props.getProperty( "neo4j.primarykey", "primarykey" );
+            url = props.getProperty( "neo4j.url", "http://localhost:7474/db/data" );
+            primaryKeyProperty = props.getProperty( "neo4j.primarykey", "primarykey" );
             // TODO use "table" when 2.0 is released
-            this.table = props.getProperty( "neo4j.table", "usertable" );
-            this.clear = Boolean.parseBoolean( props.getProperty( "neo4j.clear", "false" ) );
+            table = props.getProperty( "neo4j.table", "usertable" );
+            clear = Boolean.parseBoolean( props.getProperty( "neo4j.clear", "false" ) );
+            path = props.getProperty( "neo4j.path", "/tmp/db" );
+            dbtype = props.getProperty( "neo4j.dbtype", "embedded" );
 
             log.info( "*** Neo4j Properties ***" );
-            log.info( "table = " + this.table );
-            log.info( "primary key = " + this.primaryKeyProperty );
-            log.info( "url = " + this.url );
-            log.info( "clear database = " + this.clear );
+            log.info( "table = " + table );
+            log.info( "primary key = " + primaryKeyProperty );
+            log.info( "clear database = " + clear );
+            log.info( "database type = " + dbtype );
+            log.info( "url = " + url );
+            log.info( "path = " + path );
             log.info( "************************" );
 
-            log.info( "Connecting to database: " + this.url );
-            this.commands = new Neo4jClientCommands( this.url, this.primaryKeyProperty );
-            this.commands.init();
+            if ( dbtype.equals( "server" ) )
+            {
+                log.info( "Connecting to database: " + url );
+                commands = new Neo4jClientCommandsRest( url, primaryKeyProperty );
+            }
+            else if ( dbtype.equals( "embedded" ) )
+            {
+                log.info( "Connecting to database: " + path );
+                commands = new Neo4jClientCommandsEmbedded( path, primaryKeyProperty );
+            }
+            else
+            {
+                log.error( String.format( "Invalid database type: %s. Must be 'server' or 'embedded'", dbtype ) );
+            }
 
-            if ( this.clear )
+            commands.init();
+
+            if ( clear )
             {
                 log.info( "Clearing database" );
-                this.commands.clearDb();
+                commands.clearDb();
             }
 
             log.info( "Initialization complete" );
         }
         catch ( ClientHandlerException che )
         {
-            log.error( "Could not connect to server: " + this.url, che );
+            log.error( "Could not connect to server: " + url, che );
         }
         catch ( Exception e )
         {
@@ -98,7 +119,7 @@ public class Neo4jClient extends DB
     {
         try
         {
-            this.commands.cleanUp();
+            commands.cleanUp();
         }
         catch ( Exception e )
         {
@@ -123,7 +144,7 @@ public class Neo4jClient extends DB
 
         try
         {
-            result = this.commands.read( table, key, fields );
+            result = commands.read( table, key, fields );
             return 0;
         }
         catch ( Exception e )
@@ -150,7 +171,7 @@ public class Neo4jClient extends DB
     {
         try
         {
-            result = this.commands.scan( table, startkey, recordcount, fields );
+            result = commands.scan( table, startkey, recordcount, fields );
             return 0;
         }
         catch ( Exception e )
@@ -174,7 +195,7 @@ public class Neo4jClient extends DB
     {
         try
         {
-            this.commands.update( table, key, values );
+            commands.update( table, key, values );
             return 0;
         }
         catch ( Exception e )
@@ -201,7 +222,7 @@ public class Neo4jClient extends DB
 
         try
         {
-            this.commands.insert( table, key, values );
+            commands.insert( table, key, values );
             return 0;
         }
         catch ( Exception e )
@@ -222,7 +243,7 @@ public class Neo4jClient extends DB
     {
         try
         {
-            this.commands.delete( table, key );
+            commands.delete( table, key );
             return 0;
         }
         catch ( Exception e )

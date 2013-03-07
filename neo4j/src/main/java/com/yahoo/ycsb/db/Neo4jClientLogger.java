@@ -7,10 +7,17 @@ import com.yahoo.ycsb.DBException;
 
 public class Neo4jClientLogger
 {
+
+    public void error( String msg ) throws DBException
+    {
+        error( msg, null );
+    }
+
     public void error( String msg, Exception e ) throws DBException
     {
-        debug( msg, e );
-        throw new DBException( msg, e.getCause() );
+        msg = "[Neo4jClient] " + msg;
+        final String exceptionMsg = ( null != e ) ? exceptionToString( e ) : "";
+        throw new DBException( msg + "\n" + exceptionMsg );
     }
 
     public void debug( String msg )
