@@ -17,7 +17,6 @@ import com.yahoo.ycsb.ByteIterator;
 import com.yahoo.ycsb.DBException;
 import com.yahoo.ycsb.StringByteIterator;
 
-@Ignore
 public class Neo4jClientCommandsTest
 {
     private final String TABLE = "_neo4j_usertable";
@@ -42,8 +41,8 @@ public class Neo4jClientCommandsTest
         assertEquals( "Database should contain two nodes", 3, commands.nodeCount() );
 
         Map<String, ByteIterator> values = new HashMap<String, ByteIterator>();
-        values.put( "name", ByteArrayByteIterator.fromString( "nico" ) );
-        values.put( "age", ByteArrayByteIterator.fromString( "26" ) );
+        values.put( "name", new StringByteIterator( "nico" ) );
+        values.put( "age", new StringByteIterator( "26" ) );
         this.commands.insert( TABLE, "4", values );
 
         assertEquals( "Database should contain three nodes", 4, commands.nodeCount() );
@@ -86,10 +85,8 @@ public class Neo4jClientCommandsTest
         assertEquals( "se", result.get( "country" ).toString() );
 
         Map<String, ByteIterator> writeValues = new HashMap<String, ByteIterator>();
-        writeValues.put( "country", ByteArrayByteIterator.fromString( "sweden" ) );
-        writeValues.put( "name", ByteArrayByteIterator.fromString( "jacob" ) );
-        // TODO remove "age" line. Cypher SET deletes fields
-        writeValues.put( "age", ByteArrayByteIterator.fromString( "25" ) );
+        writeValues.put( "country", new StringByteIterator( "sweden" ) );
+        writeValues.put( "name", new StringByteIterator( "jacob" ) );
 
         commands.update( TABLE, "2", writeValues );
 
@@ -97,6 +94,26 @@ public class Neo4jClientCommandsTest
         assertEquals( "jacob", result.get( "name" ).toString() );
         assertEquals( "25", result.get( "age" ).toString() );
         assertEquals( "sweden", result.get( "country" ).toString() );
+    }
+
+    @Test
+    public void updateSpecialCharacters() throws DBException
+    {
+        Map<String, ByteIterator> result = commands.read( TABLE, "2", null );
+        assertEquals( "jake", result.get( "name" ).toString() );
+        assertEquals( "25", result.get( "age" ).toString() );
+        assertEquals( "se", result.get( "country" ).toString() );
+
+        Map<String, ByteIterator> writeValues = new HashMap<String, ByteIterator>();
+        writeValues.put( "country", new StringByteIterator( "/\\<>():;.,1a#%$£&*?!+-=='\"" ) );
+        writeValues.put( "name", new StringByteIterator( "jacob" ) );
+
+        commands.update( TABLE, "2", writeValues );
+
+        result = commands.read( TABLE, "2", null );
+        assertEquals( "jacob", result.get( "name" ).toString() );
+        assertEquals( "25", result.get( "age" ).toString() );
+        assertEquals( "/\\<>():;.,1a#%$£&*?!+-=='\"", result.get( "country" ).toString() );
     }
 
     @Test
@@ -128,7 +145,7 @@ public class Neo4jClientCommandsTest
     public void byteArrayByteIteratorTest()
     {
         assertEquals( "hello", new String( new ByteArrayByteIterator( "hello".getBytes() ).toArray() ) );
-        assertEquals( "hello", ByteArrayByteIterator.fromString( "hello" ).toString() );
+        assertEquals( "hello", new StringByteIterator( "hello" ).toString() );
         assertEquals( true,
                 Arrays.equals( new ByteArrayByteIterator( new byte[] { 1, 2 } ).toArray(), new byte[] { 1, 2 } ) );
     }
@@ -142,19 +159,19 @@ public class Neo4jClientCommandsTest
     private void doPopulate()
     {
         Map<String, ByteIterator> values = new HashMap<String, ByteIterator>();
-        values.put( "name", ByteArrayByteIterator.fromString( "alex" ) );
-        values.put( "age", ByteArrayByteIterator.fromString( "31" ) );
-        values.put( "country", ByteArrayByteIterator.fromString( "nz" ) );
+        values.put( "name", new StringByteIterator( "alex" ) );
+        values.put( "age", new StringByteIterator( "31" ) );
+        values.put( "country", new StringByteIterator( "nz" ) );
         this.commands.insert( TABLE, "1", values );
 
         values = new HashMap<String, ByteIterator>();
-        values.put( "name", ByteArrayByteIterator.fromString( "jake" ) );
-        values.put( "age", ByteArrayByteIterator.fromString( "25" ) );
-        values.put( "country", ByteArrayByteIterator.fromString( "se" ) );
+        values.put( "name", new StringByteIterator( "jake" ) );
+        values.put( "age", new StringByteIterator( "25" ) );
+        values.put( "country", new StringByteIterator( "se" ) );
         this.commands.insert( TABLE, "2", values );
 
         values = new HashMap<String, ByteIterator>();
-        values.put( "name", ByteArrayByteIterator.fromString( "temp guy" ) );
+        values.put( "name", new StringByteIterator( "temp guy" ) );
         this.commands.insert( TABLE, "3", values );
     }
 

@@ -13,9 +13,9 @@ import org.neo4j.rest.graphdb.RestAPI;
 import org.neo4j.rest.graphdb.RestGraphDatabase;
 import org.neo4j.rest.graphdb.query.RestCypherQueryEngine;
 
-import com.yahoo.ycsb.ByteArrayByteIterator;
 import com.yahoo.ycsb.ByteIterator;
 import com.yahoo.ycsb.DBException;
+import com.yahoo.ycsb.StringByteIterator;
 
 public class Neo4jClientCommands
 {
@@ -68,10 +68,10 @@ public class Neo4jClientCommands
         for ( String field : fieldsToReturn )
         {
             if ( this.autoIndexKey.equals( field ) )
-                result.put( field, ByteArrayByteIterator.fromString( (String) resultNode.getProperty( field ) ) );
+                result.put( field, new StringByteIterator( (String) resultNode.getProperty( field ) ) );
             else
                 // TODO kept separate, likely byte[] when remoting updated
-                result.put( field, ByteArrayByteIterator.fromString( (String) resultNode.getProperty( field ) ) );
+                result.put( field, new StringByteIterator( (String) resultNode.getProperty( field ) ) );
         }
 
         return result;
@@ -85,30 +85,22 @@ public class Neo4jClientCommands
 
     public void update( String table, String key, Map<String, ByteIterator> values )
     {
-         final Map<String, Object> neo4jValues =
-         Neo4jClientUtils.toStringObjectMap( values, this.autoIndexKey, key );
-         final String queryString = String.format(
-         "START n=node:node_auto_index(%s={key}) SET n={properties}",
-         this.autoIndexKey );
-         this.queryEngine.query( queryString, MapUtil.map( "key", key,
-         "properties", neo4jValues ) );
+        final String cypherPropertiesString = Neo4jClientUtils.toCypherPropertiesString( values, "n" );
+        final Map<String, Object> cypherMap = Neo4jClientUtils.toStringObjectMap( values );
+        final String queryString = String.format( "START n=node:node_auto_index(%s={key}) SET %s", this.autoIndexKey,
+                cypherPropertiesString );
+        cypherMap.put( "key", key );
+        this.queryEngine.query( queryString, cypherMap );
 
-        // TODO add escaping to Neo4jClientUtils.toCypherPropertiesString before
-        // this works
-        // final String cypherPropertiesString =
-        // Neo4jClientUtils.toCypherPropertiesString( values, "n" );
-        // final String queryString = String.format(
-        // "START n=node:node_auto_index(%s={key}) SET %s", this.autoIndexKey,
-        // cypherPropertiesString );
-        // System.out.println( queryString );
-        // this.queryEngine.query( queryString, MapUtil.map( "key", key ) );
     }
 
     public void insert( String table, String key, Map<String, ByteIterator> values )
     {
-        final Map<String, Object> neo4jValues = Neo4jClientUtils.toStringObjectMap( values, this.autoIndexKey, key );
+        // // TODO use "table" when 2.0 is released
+        final Map<String, Object> cypherMap = Neo4jClientUtils.toStringObjectMap( values );
+        cypherMap.put( this.autoIndexKey, key );
         final String queryString = "CREATE n = {properties}";
-        this.queryEngine.query( queryString, MapUtil.map( "properties", neo4jValues ) );
+        this.queryEngine.query( queryString, MapUtil.map( "properties", cypherMap ) );
     }
 
     public void delete( String table, String key )

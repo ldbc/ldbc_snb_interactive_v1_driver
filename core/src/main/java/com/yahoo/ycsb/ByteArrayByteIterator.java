@@ -56,9 +56,4 @@ public class ByteArrayByteIterator extends ByteIterator
         return len - off;
     }
 
-    public static ByteArrayByteIterator fromString( String s )
-    {
-        return new ByteArrayByteIterator( s.getBytes() );
-    }
-
 }
