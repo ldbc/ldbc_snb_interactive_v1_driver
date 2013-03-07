@@ -47,3 +47,9 @@ Then, run the workload:
 ##### `neo4j.table` (default: `usertable`) --> name of table (i.e. label)
 
 ##### `neo4j.clear` (default: `false`) --> clear database
+
+##### `neo4j.url` (default: `http://localhost:7474/db/data`) --> url to database, if 'server' selected
+
+##### `neo4j.path` (default: `/tmp/db`) --> path to database, if 'embedded' selected
+
+##### `neo4j.dbtype` (default: `embedded`) --> can be 'embedded' or 'server'
