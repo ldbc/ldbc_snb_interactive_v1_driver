@@ -8,8 +8,8 @@ import java.util.Set;
 
 import static org.junit.Assert.assertEquals;
 
+import org.junit.After;
 import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.Ignore;
 import org.junit.Test;
 
@@ -24,47 +24,38 @@ public abstract class Neo4jClientCommandsTest
     protected final String PRIMARY_KEY = "_neo4j_primary_key";
 
     private static Neo4jClientCommands commands;
-    private static boolean setUpIsDone;
 
     public abstract Neo4jClientCommands getClientCommandsImpl() throws DBException;
-
-    @BeforeClass
-    public static void cleanSlate()
-    {
-        setUpIsDone = false;
-    }
 
     @Before
     public void setUp() throws DBException
     {
-        if ( setUpIsDone )
-        {
-            return;
-        }
-
         commands = getClientCommandsImpl();
         commands.init();
         commands.clearDb();
 
         assertEquals( "Database should contain zero nodes", 0, commands.nodeCount() );
         doPopulate();
-        assertEquals( "Database should contain two nodes", 3, commands.nodeCount() );
+        assertEquals( "Database should contain two nodes", 2, commands.nodeCount() );
+    }
 
-        setUpIsDone = true;
+    @After
+    public void tearDown() throws DBException
+    {
+        commands.cleanUp();
     }
 
     @Test
     public void insert() throws DBException
     {
-        long nodeCountBefore = commands.nodeCount();
+        assertEquals( "Database should contain two nodes", 2, commands.nodeCount() );
 
         Map<String, ByteIterator> values = new HashMap<String, ByteIterator>();
         values.put( "name", new StringByteIterator( "nico" ) );
         values.put( "age", new StringByteIterator( "26" ) );
-        commands.insert( TABLE, "4", values );
+        commands.insert( TABLE, "3", values );
 
-        assertEquals( String.format( "Database contained %s nodes, should now contain %s nodes", nodeCountBefore,
-                nodeCountBefore + 1 ), nodeCountBefore + 1, commands.nodeCount() );
+        assertEquals( "Database should now contain three nodes", 3, commands.nodeCount() );
     }
 
     @Test
@@ -98,24 +89,19 @@ public abstract class Neo4jClientCommandsTest
     @Test
     public void update() throws DBException
     {
-        String newName = "jacob";
-
         Map<String, ByteIterator> result = commands.read( TABLE, "2", null );
-
-        String ageBefore = result.get( "age" ).toString();
-        String countryBefore = result.get( "country" ).toString();
 
         assertEquals( "jake", result.get( "name" ).toString() );
 
         Map<String, ByteIterator> writeValues = new HashMap<String, ByteIterator>();
-        writeValues.put( "name", new StringByteIterator( newName ) );
+        writeValues.put( "name", new StringByteIterator( "jacob" ) );
 
         commands.update( TABLE, "2", writeValues );
 
         result = commands.read( TABLE, "2", null );
-        assertEquals( newName, result.get( "name" ).toString() );
-        assertEquals( ageBefore, result.get( "age" ).toString() );
-        assertEquals( countryBefore, result.get( "country" ).toString() );
+        assertEquals( "jacob", result.get( "name" ).toString() );
+        assertEquals( "25", result.get( "age" ).toString() );
+        assertEquals( "se", result.get( "country" ).toString() );
     }
 
     @Test
@@ -125,9 +111,6 @@ public abstract class Neo4jClientCommandsTest
 
         Map<String, ByteIterator> result = commands.read( TABLE, "2", null );
 
-        String nameBefore = result.get( "name" ).toString();
-        String ageBefore = result.get( "age" ).toString();
-
         assertEquals( "se", result.get( "country" ).toString() );
 
         Map<String, ByteIterator> writeValues = new HashMap<String, ByteIterator>();
@@ -136,20 +119,20 @@ public abstract class Neo4jClientCommandsTest
         commands.update( TABLE, "2", writeValues );
 
         result = commands.read( TABLE, "2", null );
-        assertEquals( nameBefore, result.get( "name" ).toString() );
-        assertEquals( ageBefore, result.get( "age" ).toString() );
+        assertEquals( "jake", result.get( "name" ).toString() );
+        assertEquals( "25", result.get( "age" ).toString() );
         assertEquals( newCountry, result.get( "country" ).toString() );
     }
 
     @Test
     public void delete() throws DBException
     {
-        Map<String, ByteIterator> result = commands.read( TABLE, "3", null );
-        assertEquals( "temp guy", result.get( "name" ).toString() );
+        Map<String, ByteIterator> result = commands.read( TABLE, "1", null );
+        assertEquals( "alex", result.get( "name" ).toString() );
 
-        commands.delete( TABLE, "3" );
+        commands.delete( TABLE, "1" );
 
-        assertNodeDoesNotExist( "3" );
+        assertNodeDoesNotExist( "1" );
     }
 
     @Ignore
@@ -194,10 +177,6 @@ public abstract class Neo4jClientCommandsTest
         values.put( "age", new StringByteIterator( "25" ) );
         values.put( "country", new StringByteIterator( "se" ) );
         commands.insert( TABLE, "2", values );
-
-        values = new HashMap<String, ByteIterator>();
-        values.put( "name", new StringByteIterator( "temp guy" ) );
-        commands.insert( TABLE, "3", values );
     }
 
     private void assertNodeDoesNotExist( String key )
