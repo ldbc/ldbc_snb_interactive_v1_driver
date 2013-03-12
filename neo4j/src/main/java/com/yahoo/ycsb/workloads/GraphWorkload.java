@@ -1,6 +1,5 @@
 package com.yahoo.ycsb.workloads;
 
-import java.io.IOException;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Properties;
@@ -9,16 +8,13 @@ import java.util.Vector;
 import com.yahoo.ycsb.ByteIterator;
 import com.yahoo.ycsb.Client;
 import com.yahoo.ycsb.DB;
-import com.yahoo.ycsb.RandomByteIterator;
-import com.yahoo.ycsb.Utils;
+import com.yahoo.ycsb.DBException;
 import com.yahoo.ycsb.Workload;
 import com.yahoo.ycsb.WorkloadException;
-import com.yahoo.ycsb.generator.ConstantIntegerGenerator;
 import com.yahoo.ycsb.generator.CounterGenerator;
 import com.yahoo.ycsb.generator.DiscreteGenerator;
 import com.yahoo.ycsb.generator.ExponentialGenerator;
 import com.yahoo.ycsb.generator.Generator;
-import com.yahoo.ycsb.generator.HistogramGenerator;
 import com.yahoo.ycsb.generator.HotspotIntegerGenerator;
 import com.yahoo.ycsb.generator.IntegerGenerator;
 import com.yahoo.ycsb.generator.ScrambledZipfianGenerator;
@@ -31,22 +27,20 @@ public class GraphWorkload extends Workload
 {
     public static String table;
 
-    int fieldcount;
-    boolean readallfields;
-    boolean writeallfields;
-    boolean orderedinserts;
-    int recordcount;
+    int fieldCount;
+    boolean readAllFields;
+    boolean writeAllFields;
+    boolean orderedInserts;
+    int recordCount;
 
-    /**
-     * value depends on "FIELD_LENGTH_" properties.
-     */
-    IntegerGenerator fieldlengthgenerator;
-    IntegerGenerator keysequence;
-    DiscreteGenerator operationchooser;
-    IntegerGenerator keychooser;
-    Generator fieldchooser;
-    CounterGenerator transactioninsertkeysequence;
-    IntegerGenerator scanlength;
+    // value depends on "FIELD_LENGTH_" properties.
+    IntegerGenerator fieldLengthGenerator;
+    IntegerGenerator keySequence;
+    DiscreteGenerator operationChooser;
+    IntegerGenerator keyChooser;
+    Generator fieldChooser;
+    CounterGenerator transactionInsertKeySequence;
+    IntegerGenerator scanLength;
 
     /**
      * Initialize scenario. Called once, in main client thread, before
@@ -58,17 +52,18 @@ public class GraphWorkload extends Workload
         super.init( p );
         table = p.getProperty( WorkloadProperties.TABLENAME, WorkloadProperties.TABLENAME_DEFAULT );
 
-        fieldcount = Integer.parseInt( p.getProperty( WorkloadProperties.FIELD_COUNT,
+        fieldCount = Integer.parseInt( p.getProperty( WorkloadProperties.FIELD_COUNT,
                 WorkloadProperties.FIELD_COUNT_DEFAULT ) );
-        recordcount = Integer.parseInt( p.getProperty( Client.RECORD_COUNT_PROPERTY ) );
+        recordCount = Integer.parseInt( p.getProperty( Client.RECORD_COUNT_PROPERTY ) );
 
-        String fieldlengthdistribution = p.getProperty( WorkloadProperties.FIELD_LENGTH_DISTRIBUTION,
+        String fieldLengthDistribution = p.getProperty( WorkloadProperties.FIELD_LENGTH_DISTRIBUTION,
                 WorkloadProperties.FIELD_LENGTH_DISTRIBUTION_DEFAULT );
-        int fieldlength = Integer.parseInt( p.getProperty( WorkloadProperties.FIELD_LENGTH,
+        int fieldLength = Integer.parseInt( p.getProperty( WorkloadProperties.FIELD_LENGTH,
                 WorkloadProperties.FIELD_LENGTH_DEFAULT ) );
-        String fieldlengthhistogram = p.getProperty( WorkloadProperties.FIELD_LENGTH_HISTOGRAM_FILE,
+        String fieldLengthHistogram = p.getProperty( WorkloadProperties.FIELD_LENGTH_HISTOGRAM_FILE,
                 WorkloadProperties.FIELD_LENGTH_HISTOGRAM_FILE_DEFAULT );
-        fieldlengthgenerator = getFieldLengthGenerator( fieldlengthdistribution, fieldlength, fieldlengthhistogram );
+        fieldLengthGenerator = WorkloadUtils.buildFieldLengthGenerator( fieldLengthDistribution, fieldLength,
+                fieldLengthHistogram );
 
         double readproportion = Double.parseDouble( p.getProperty( WorkloadProperties.READ_PROPORTION,
                 WorkloadProperties.READ_PROPORTION_DEFAULT ) );
@@ -89,15 +84,15 @@ public class GraphWorkload extends Workload
         String scanlengthdistrib = p.getProperty( WorkloadProperties.SCAN_LENGTH_DISTRIBUTION,
                 WorkloadProperties.SCAN_LENGTH_DISTRIBUTION_DEFAULT );
 
-        readallfields = Boolean.parseBoolean( p.getProperty( WorkloadProperties.READ_ALL_FIELDS,
+        readAllFields = Boolean.parseBoolean( p.getProperty( WorkloadProperties.READ_ALL_FIELDS,
                 WorkloadProperties.READ_ALL_FIELDS_DEFAULT ) );
-        writeallfields = Boolean.parseBoolean( p.getProperty( WorkloadProperties.WRITE_ALL_FIELDS,
+        writeAllFields = Boolean.parseBoolean( p.getProperty( WorkloadProperties.WRITE_ALL_FIELDS,
                 WorkloadProperties.WRITE_ALL_FIELDS_DEFAULT ) );
 
         if ( p.getProperty( WorkloadProperties.INSERT_ORDER, WorkloadProperties.INSERT_ORDER_DEFAULT ).compareTo(
                 "hashed" ) == 0 )
         {
-            orderedinserts = false;
+            orderedInserts = false;
         }
         else if ( requestdistrib.compareTo( "exponential" ) == 0 )
         {
@@ -106,24 +101,24 @@ public class GraphWorkload extends Workload
                     ExponentialGenerator.EXPONENTIAL_PERCENTILE_DEFAULT ) );
             double frac = Double.parseDouble( p.getProperty( ExponentialGenerator.EXPONENTIAL_FRAC_PROPERTY,
                     ExponentialGenerator.EXPONENTIAL_FRAC_DEFAULT ) );
-            keychooser = new ExponentialGenerator( percentile, recordcount * frac );
+            keyChooser = new ExponentialGenerator( percentile, recordCount * frac );
         }
         else
         {
-            orderedinserts = true;
+            orderedInserts = true;
         }
 
         int insertstart = Integer.parseInt( p.getProperty( Workload.INSERT_START_PROPERTY,
                 Workload.INSERT_START_PROPERTY_DEFAULT ) );
-        keysequence = new CounterGenerator( insertstart );
+        keySequence = new CounterGenerator( insertstart );
 
-        operationchooser = getOperationChooser( readproportion, updateproportion, insertproportion, scanproportion,
-                readmodifywriteproportion );
+        operationChooser = WorkloadUtils.buildOperationChooser( readproportion, updateproportion, insertproportion,
+                scanproportion, readmodifywriteproportion );
 
-        transactioninsertkeysequence = new CounterGenerator( recordcount );
+        transactionInsertKeySequence = new CounterGenerator( recordCount );
         if ( requestdistrib.compareTo( "uniform" ) == 0 )
         {
-            keychooser = new UniformIntegerGenerator( 0, recordcount - 1 );
+            keyChooser = new UniformIntegerGenerator( 0, recordCount - 1 );
         }
         else if ( requestdistrib.compareTo( "zipfian" ) == 0 )
         {
@@ -131,11 +126,11 @@ public class GraphWorkload extends Workload
             // 2 is fudge factor
             int expectednewkeys = (int) ( ( (double) opcount ) * insertproportion * 2.0 );
 
-            keychooser = new ScrambledZipfianGenerator( recordcount + expectednewkeys );
+            keyChooser = new ScrambledZipfianGenerator( recordCount + expectednewkeys );
         }
         else if ( requestdistrib.compareTo( "latest" ) == 0 )
         {
-            keychooser = new SkewedLatestGenerator( transactioninsertkeysequence );
+            keyChooser = new SkewedLatestGenerator( transactionInsertKeySequence );
         }
         else if ( requestdistrib.equals( "hotspot" ) )
         {
@@ -143,22 +138,22 @@ public class GraphWorkload extends Workload
                     WorkloadProperties.HOTSPOT_DATA_FRACTION_DEFAULT ) );
             double hotopnfraction = Double.parseDouble( p.getProperty( WorkloadProperties.HOTSPOT_OPN_FRACTION,
                     WorkloadProperties.HOTSPOT_OPN_FRACTION_DEFAULT ) );
-            keychooser = new HotspotIntegerGenerator( 0, recordcount - 1, hotsetfraction, hotopnfraction );
+            keyChooser = new HotspotIntegerGenerator( 0, recordCount - 1, hotsetfraction, hotopnfraction );
         }
         else
         {
             throw new WorkloadException( "Unknown request distribution \"" + requestdistrib + "\"" );
         }
 
-        fieldchooser = new UniformIntegerGenerator( 0, fieldcount - 1 );
+        fieldChooser = new UniformIntegerGenerator( 0, fieldCount - 1 );
 
         if ( scanlengthdistrib.compareTo( "uniform" ) == 0 )
         {
-            scanlength = new UniformIntegerGenerator( 1, maxscanlength );
+            scanLength = new UniformIntegerGenerator( 1, maxscanlength );
         }
         else if ( scanlengthdistrib.compareTo( "zipfian" ) == 0 )
         {
-            scanlength = new ZipfianGenerator( 1, maxscanlength );
+            scanLength = new ZipfianGenerator( 1, maxscanlength );
         }
         else
         {
@@ -181,11 +176,11 @@ public class GraphWorkload extends Workload
     @Override
     public boolean doInsert( DB db, Object threadstate )
     {
-        int keynum = keysequence.nextInt();
+        int keynum = keySequence.nextInt();
 
-        String dbkey = buildKeyName( keynum );
+        String dbkey = WorkloadUtils.buildKeyName( keynum, orderedInserts );
 
-        HashMap<String, ByteIterator> values = buildValues();
+        HashMap<String, ByteIterator> values = WorkloadUtils.buildValues( fieldCount, fieldLengthGenerator );
 
         if ( db.insert( table, dbkey, values ) == 0 )
             return true;
@@ -199,319 +194,43 @@ public class GraphWorkload extends Workload
      * avoid synchronized, or the threads will block waiting for each other, and
      * it will be difficult to reach the target throughput. Ideally, this
      * function would have no side effects other than DB operations.
+     * 
+     * @throws DBException
      */
     @Override
     public boolean doTransaction( DB db, Object threadstate )
     {
-        String op = operationchooser.nextString();
+        String op = operationChooser.nextString();
 
         if ( op.compareTo( "READ" ) == 0 )
         {
-            return doTransactionRead( db );
+            return WorkloadOperation.doRead( db, keyChooser, transactionInsertKeySequence, orderedInserts,
+                    readAllFields, fieldChooser, table );
         }
         else if ( op.compareTo( "UPDATE" ) == 0 )
         {
-            return doTransactionUpdate( db );
+            return WorkloadOperation.doUpdate( db, keyChooser, transactionInsertKeySequence, orderedInserts,
+                    writeAllFields, fieldCount, fieldLengthGenerator, fieldChooser, table );
         }
         else if ( op.compareTo( "INSERT" ) == 0 )
         {
-            return doTransactionInsert( db );
+            return WorkloadOperation.doInsert( db, transactionInsertKeySequence, orderedInserts, fieldCount,
+                    fieldLengthGenerator, table );
         }
         else if ( op.compareTo( "SCAN" ) == 0 )
         {
-            return doTransactionScan( db );
+            return WorkloadOperation.doScan( db, keyChooser, transactionInsertKeySequence, orderedInserts, scanLength,
+                    readAllFields, fieldChooser, table );
+        }
+        else if ( op.compareTo( "READMODIFYWRITE" ) == 0 )
+        {
+            return WorkloadOperation.doReadModifyWrite( db, keyChooser, transactionInsertKeySequence, orderedInserts,
+                    readAllFields, writeAllFields, fieldChooser, table, fieldCount, fieldLengthGenerator );
+
         }
         else
         {
-            return doTransactionReadModifyWrite( db );
-        }
-    }
-
-    @Override
-    public void cleanup() throws WorkloadException
-    {
-        super.cleanup();
-    }
-
-    @Override
-    public void requestStop()
-    {
-        super.requestStop();
-    }
-
-    @Override
-    public boolean isStopRequested()
-    {
-        return super.isStopRequested();
-    }
-
-    /**
-     * Operations
-     */
-
-    public boolean doTransactionRead( DB db )
-    {
-        // choose a random key
-        int keynum = nextKeynum();
-
-        String keyname = buildKeyName( keynum );
-
-        HashSet<String> fields = null;
-
-        if ( !readallfields )
-        {
-            // read a random field
-            String fieldname = "field" + fieldchooser.nextString();
-
-            fields = new HashSet<String>();
-            fields.add( fieldname );
-        }
-
-        if ( db.read( table, keyname, fields, new HashMap<String, ByteIterator>() ) == 0 )
-            return true;
-        else
             return false;
+        }
     }
-
-    public boolean doTransactionReadModifyWrite( DB db )
-    {
-        // choose a random key
-        int keynum = nextKeynum();
-
-        String keyname = buildKeyName( keynum );
-
-        HashSet<String> fields = null;
-
-        if ( !readallfields )
-        {
-            // read a random field
-            String fieldname = "field" + fieldchooser.nextString();
-
-            fields = new HashSet<String>();
-            fields.add( fieldname );
-        }
-
-        HashMap<String, ByteIterator> values;
-
-        if ( writeallfields )
-        {
-            // new data for all the fields
-            values = buildValues();
-        }
-        else
-        {
-            // update a random field
-            values = buildUpdate();
-        }
-
-        // do the transaction
-
-        long st = System.nanoTime();
-
-        int result = db.read( table, keyname, fields, new HashMap<String, ByteIterator>() );
-
-        result += db.update( table, keyname, values );
-
-        long en = System.nanoTime();
-
-        Measurements.getMeasurements().measure( "READ-MODIFY-WRITE", (int) ( ( en - st ) / 1000 ) );
-
-        if ( result == 0 )
-            return true;
-        else
-            return false;
-
-    }
-
-    public boolean doTransactionScan( DB db )
-    {
-        // choose a random key
-        int keynum = nextKeynum();
-
-        String startkeyname = buildKeyName( keynum );
-
-        // choose a random scan length
-        int len = scanlength.nextInt();
-
-        HashSet<String> fields = null;
-
-        if ( !readallfields )
-        {
-            // read a random field
-            String fieldname = "field" + fieldchooser.nextString();
-
-            fields = new HashSet<String>();
-            fields.add( fieldname );
-        }
-
-        if ( db.scan( table, startkeyname, len, fields, new Vector<HashMap<String, ByteIterator>>() ) == 0 )
-            return true;
-        else
-            return false;
-    }
-
-    public boolean doTransactionUpdate( DB db )
-    {
-        // choose a random key
-        int keynum = nextKeynum();
-
-        String keyname = buildKeyName( keynum );
-
-        HashMap<String, ByteIterator> values;
-
-        if ( writeallfields )
-        {
-            // new data for all the fields
-            values = buildValues();
-        }
-        else
-        {
-            // update a random field
-            values = buildUpdate();
-        }
-
-        if ( db.update( table, keyname, values ) == 0 )
-            return true;
-        else
-            return false;
-    }
-
-    public boolean doTransactionInsert( DB db )
-    {
-        // choose the next key
-        int keynum = transactioninsertkeysequence.nextInt();
-
-        String dbkey = buildKeyName( keynum );
-
-        HashMap<String, ByteIterator> values = buildValues();
-
-        if ( db.insert( table, dbkey, values ) == 0 )
-            return true;
-        else
-            return false;
-    }
-
-    /**
-     * Helpers
-     */
-
-    private IntegerGenerator getFieldLengthGenerator( String fieldlengthdistribution, int fieldlength,
-            String fieldlengthhistogram ) throws WorkloadException
-    {
-        IntegerGenerator fieldlengthgenerator;
-        if ( fieldlengthdistribution.compareTo( "constant" ) == 0 )
-        {
-            fieldlengthgenerator = new ConstantIntegerGenerator( fieldlength );
-        }
-        else if ( fieldlengthdistribution.compareTo( "uniform" ) == 0 )
-        {
-            fieldlengthgenerator = new UniformIntegerGenerator( 1, fieldlength );
-        }
-        else if ( fieldlengthdistribution.compareTo( "zipfian" ) == 0 )
-        {
-            fieldlengthgenerator = new ZipfianGenerator( 1, fieldlength );
-        }
-        else if ( fieldlengthdistribution.compareTo( "histogram" ) == 0 )
-        {
-            try
-            {
-                fieldlengthgenerator = new HistogramGenerator( fieldlengthhistogram );
-            }
-            catch ( IOException e )
-            {
-                throw new WorkloadException( "Couldn't read field length histogram file: " + fieldlengthhistogram, e );
-            }
-        }
-        else
-        {
-            throw new WorkloadException( "Unknown field length distribution \"" + fieldlengthdistribution + "\"" );
-        }
-        return fieldlengthgenerator;
-    }
-
-    private DiscreteGenerator getOperationChooser( double readproportion, double updateproportion,
-            double insertproportion, double scanproportion, double readmodifywriteproportion )
-    {
-        DiscreteGenerator tempOperationchooser = new DiscreteGenerator();
-        if ( readproportion > 0 )
-        {
-            tempOperationchooser.addValue( readproportion, "READ" );
-        }
-
-        if ( updateproportion > 0 )
-        {
-            tempOperationchooser.addValue( updateproportion, "UPDATE" );
-        }
-
-        if ( insertproportion > 0 )
-        {
-            tempOperationchooser.addValue( insertproportion, "INSERT" );
-        }
-
-        if ( scanproportion > 0 )
-        {
-            tempOperationchooser.addValue( scanproportion, "SCAN" );
-        }
-
-        if ( readmodifywriteproportion > 0 )
-        {
-            tempOperationchooser.addValue( readmodifywriteproportion, "READMODIFYWRITE" );
-        }
-
-        return tempOperationchooser;
-    }
-
-    private String buildKeyName( long keynum )
-    {
-        if ( !orderedinserts )
-        {
-            keynum = Utils.hash( keynum );
-        }
-        return "user" + keynum;
-    }
-
-    private HashMap<String, ByteIterator> buildValues()
-    {
-        HashMap<String, ByteIterator> values = new HashMap<String, ByteIterator>();
-        for ( int i = 0; i < fieldcount; i++ )
-        {
-            String fieldkey = "field" + i;
-            ByteIterator data = new RandomByteIterator( fieldlengthgenerator.nextInt() );
-            values.put( fieldkey, data );
-        }
-        return values;
-    }
-
-    private HashMap<String, ByteIterator> buildUpdate()
-    {
-        // update a random field
-        HashMap<String, ByteIterator> values = new HashMap<String, ByteIterator>();
-        String fieldname = "field" + fieldchooser.nextString();
-        ByteIterator data = new RandomByteIterator( fieldlengthgenerator.nextInt() );
-        values.put( fieldname, data );
-        return values;
-    }
-
-    private int nextKeynum()
-    {
-        int keynum;
-        if ( keychooser instanceof ExponentialGenerator )
-        {
-            do
-            {
-                keynum = transactioninsertkeysequence.lastInt() - keychooser.nextInt();
-            }
-            while ( keynum < 0 );
-        }
-        else
-        {
-            do
-            {
-                keynum = keychooser.nextInt();
-            }
-            while ( keynum > transactioninsertkeysequence.lastInt() );
-        }
-        return keynum;
-    }
-
 }
