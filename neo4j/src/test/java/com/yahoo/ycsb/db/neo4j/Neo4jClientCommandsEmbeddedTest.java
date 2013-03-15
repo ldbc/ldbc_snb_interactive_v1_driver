@@ -1,4 +1,4 @@
-package com.yahoo.ycsb.db;
+package com.yahoo.ycsb.db.neo4j;
 
 import java.io.File;
 import java.io.IOException;
@@ -8,6 +8,8 @@ import org.junit.BeforeClass;
 import org.neo4j.kernel.impl.util.FileUtils;
 
 import com.yahoo.ycsb.DBException;
+import com.yahoo.ycsb.db.neo4j.Neo4jClientCommands;
+import com.yahoo.ycsb.db.neo4j.Neo4jClientCommandsEmbedded;
 
 public class Neo4jClientCommandsEmbeddedTest extends Neo4jClientCommandsTest
 {

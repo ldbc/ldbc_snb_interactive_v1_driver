@@ -1,6 +1,6 @@
-package com.yahoo.ycsb.workloads;
+package com.yahoo.ycsb.graph.workloads;
 
-public class WorkloadProperties
+public class CoreWorkloadProperties
 {
     /**
      * length distribution: "uniform", "zipfian" (favoring short records),

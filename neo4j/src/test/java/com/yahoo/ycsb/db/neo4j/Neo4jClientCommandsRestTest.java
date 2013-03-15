@@ -1,6 +1,9 @@
-package com.yahoo.ycsb.db;
+package com.yahoo.ycsb.db.neo4j;
 
 import org.junit.Ignore;
+
+import com.yahoo.ycsb.db.neo4j.Neo4jClientCommands;
+import com.yahoo.ycsb.db.neo4j.Neo4jClientCommandsRest;
 
 @Ignore
 public class Neo4jClientCommandsRestTest extends Neo4jClientCommandsTest

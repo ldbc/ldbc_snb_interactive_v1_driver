@@ -1,4 +1,4 @@
-package com.yahoo.ycsb.db;
+package com.yahoo.ycsb.db.neo4j;
 
 import java.util.HashMap;
 import java.util.Map;

@@ -1,4 +1,4 @@
-package com.yahoo.ycsb.db;
+package com.yahoo.ycsb.db.neo4j;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -7,7 +7,6 @@ import com.yahoo.ycsb.ByteIterator;
 
 public class Neo4jClientUtils
 {
-    // TODO test
     public static String toCypherPropertiesString( Map<String, ByteIterator> values, String nodeName )
     {
         StringBuilder sb = new StringBuilder();
@@ -24,7 +23,6 @@ public class Neo4jClientUtils
 
     }
 
-    // TODO test
     public static Map<String, Object> toStringObjectMap( Map<String, ByteIterator> values )
     {
         Map<String, Object> cypherMap = new HashMap<String, Object>();

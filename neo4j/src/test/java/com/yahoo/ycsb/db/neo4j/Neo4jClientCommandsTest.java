@@ -1,4 +1,4 @@
-package com.yahoo.ycsb.db;
+package com.yahoo.ycsb.db.neo4j;
 
 import java.util.Arrays;
 import java.util.HashMap;
@@ -17,6 +17,7 @@ import com.yahoo.ycsb.ByteArrayByteIterator;
 import com.yahoo.ycsb.ByteIterator;
 import com.yahoo.ycsb.DBException;
 import com.yahoo.ycsb.StringByteIterator;
+import com.yahoo.ycsb.db.neo4j.Neo4jClientCommands;
 
 public abstract class Neo4jClientCommandsTest
 {
@@ -48,13 +49,15 @@ public abstract class Neo4jClientCommandsTest
     @Test
     public void insert() throws DBException
     {
-        assertEquals( "Database should contain two nodes", 2, commands.nodeCount() );
-
+        // Given
         Map<String, ByteIterator> values = new HashMap<String, ByteIterator>();
         values.put( "name", new StringByteIterator( "nico" ) );
         values.put( "age", new StringByteIterator( "26" ) );
+
+        // When
         commands.insert( TABLE, "3", values );
 
+        // Then
         assertEquals( "Database should now contain three nodes", 3, commands.nodeCount() );
     }
 
@@ -67,8 +70,13 @@ public abstract class Neo4jClientCommandsTest
     @Test
     public void readAllFields() throws DBException
     {
+        // Given
         Map<String, ByteIterator> result = commands.read( TABLE, "1", null );
+
+        // When
         result.remove( PRIMARY_KEY );
+
+        // Then
         assertEquals( 3, result.size() );
         assertEquals( "alex", result.get( "name" ).toString() );
         assertEquals( "31", result.get( "age" ).toString() );
@@ -78,10 +86,15 @@ public abstract class Neo4jClientCommandsTest
     @Test
     public void readSomeFields() throws DBException
     {
+        // Given
         Set<String> values = new HashSet<String>();
         values.add( "age" );
+
+        // When
         Map<String, ByteIterator> result = commands.read( TABLE, "1", values );
         result.remove( PRIMARY_KEY );
+
+        // Then
         assertEquals( 1, result.size() );
         assertEquals( "31", result.get( "age" ).toString() );
     }
@@ -89,49 +102,55 @@ public abstract class Neo4jClientCommandsTest
     @Test
     public void update() throws DBException
     {
-        Map<String, ByteIterator> result = commands.read( TABLE, "2", null );
+        // Given
+        Map<String, ByteIterator> resultBefore = commands.read( TABLE, "2", null );
 
-        assertEquals( "jake", result.get( "name" ).toString() );
-
+        // When
         Map<String, ByteIterator> writeValues = new HashMap<String, ByteIterator>();
         writeValues.put( "name", new StringByteIterator( "jacob" ) );
-
         commands.update( TABLE, "2", writeValues );
+        Map<String, ByteIterator> resultAfter = commands.read( TABLE, "2", null );
 
-        result = commands.read( TABLE, "2", null );
-        assertEquals( "jacob", result.get( "name" ).toString() );
-        assertEquals( "25", result.get( "age" ).toString() );
-        assertEquals( "se", result.get( "country" ).toString() );
+        // Then
+        assertEquals( "jake", resultBefore.get( "name" ).toString() );
+        assertEquals( "jacob", resultAfter.get( "name" ).toString() );
+        assertEquals( "25", resultAfter.get( "age" ).toString() );
+        assertEquals( "se", resultAfter.get( "country" ).toString() );
     }
 
     @Test
     public void updateSpecialCharacters() throws DBException
     {
+        // Given
         String newCountry = "/\\<>():;.,1a#%$£&*?!+-=='\"";
 
-        Map<String, ByteIterator> result = commands.read( TABLE, "2", null );
+        Map<String, ByteIterator> resultBefore = commands.read( TABLE, "2", null );
 
-        assertEquals( "se", result.get( "country" ).toString() );
-
+        // When
         Map<String, ByteIterator> writeValues = new HashMap<String, ByteIterator>();
         writeValues.put( "country", new StringByteIterator( newCountry ) );
-
         commands.update( TABLE, "2", writeValues );
 
-        result = commands.read( TABLE, "2", null );
-        assertEquals( "jake", result.get( "name" ).toString() );
-        assertEquals( "25", result.get( "age" ).toString() );
-        assertEquals( newCountry, result.get( "country" ).toString() );
+        Map<String, ByteIterator> resultAfter = commands.read( TABLE, "2", null );
+
+        // Then
+        assertEquals( "se", resultBefore.get( "country" ).toString() );
+        assertEquals( "jake", resultAfter.get( "name" ).toString() );
+        assertEquals( "25", resultAfter.get( "age" ).toString() );
+        assertEquals( newCountry, resultAfter.get( "country" ).toString() );
     }
 
     @Test
     public void delete() throws DBException
     {
-        Map<String, ByteIterator> result = commands.read( TABLE, "1", null );
-        assertEquals( "alex", result.get( "name" ).toString() );
+        // Given
+        Map<String, ByteIterator> resultBefore = commands.read( TABLE, "1", null );
 
+        // When
         commands.delete( TABLE, "1" );
 
+        // Then
+        assertEquals( "alex", resultBefore.get( "name" ).toString() );
         assertNodeDoesNotExist( "1" );
     }
 

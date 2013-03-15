@@ -5,12 +5,14 @@
  *
  */
 
-package com.yahoo.ycsb.db;
+package com.yahoo.ycsb.db.neo4j;
 
 import java.util.HashMap;
 import java.util.Properties;
 import java.util.Set;
 import java.util.Vector;
+
+import org.apache.log4j.Logger;
 
 import com.sun.jersey.api.client.ClientHandlerException;
 import com.yahoo.ycsb.ByteIterator;
@@ -43,8 +45,7 @@ public class Neo4jClient extends DB
     // TODO use "table" when 2.0 is released
     private String table;
 
-    // TODO Remove if/when YCSB provides a real logger
-    final private Neo4jClientLogger log = new Neo4jClientLogger();
+    private static Logger logger = Logger.getLogger( Neo4jClient.class );
 
     /**
      * Initialize any state for this DB. Called once per DB instance; there is
@@ -66,47 +67,52 @@ public class Neo4jClient extends DB
             path = props.getProperty( "neo4j.path", "/tmp/db" );
             dbtype = props.getProperty( "neo4j.dbtype", "embedded" );
 
-            log.info( "*** Neo4j Properties ***" );
-            log.info( "table = " + table );
-            log.info( "primary key = " + primaryKeyProperty );
-            log.info( "clear database = " + clear );
-            log.info( "database type = " + dbtype );
-            log.info( "url = " + url );
-            log.info( "path = " + path );
-            log.info( "************************" );
+            logger.info( "*** Neo4j Properties ***" );
+            logger.info( "table = " + table );
+            logger.info( "primary key = " + primaryKeyProperty );
+            logger.info( "clear database = " + clear );
+            logger.info( "database type = " + dbtype );
+            logger.info( "url = " + url );
+            logger.info( "path = " + path );
+            logger.info( "************************" );
 
             if ( dbtype.equals( "server" ) )
             {
-                log.info( "Connecting to database: " + url );
+                logger.info( "Connecting to database: " + url );
                 commands = new Neo4jClientCommandsRest( url, primaryKeyProperty );
             }
             else if ( dbtype.equals( "embedded" ) )
             {
-                log.info( "Connecting to database: " + path );
+                logger.info( "Connecting to database: " + path );
                 commands = new Neo4jClientCommandsEmbedded( path, primaryKeyProperty );
             }
             else
             {
-                log.error( String.format( "Invalid database type: %s. Must be 'server' or 'embedded'", dbtype ) );
+                logger.error( String.format( "Invalid database type: %s. Must be 'server' or 'embedded'", dbtype ) );
             }
 
             commands.init();
 
             if ( clear )
             {
-                log.info( "Clearing database" );
+                logger.info( "Clearing database" );
                 commands.clearDb();
             }
 
-            log.info( "Initialization complete" );
+            logger.info( "Initialization complete" );
         }
+        // TODO (1) can never happen? (2) should be caught in REST client?
         catch ( ClientHandlerException che )
         {
-            log.error( "Could not connect to server: " + url, che );
+            String msg = "Could not connect to server: " + url;
+            logger.error( msg, che.getCause() );
+            throw new DBException( msg, che.getCause() );
         }
         catch ( Exception e )
         {
-            log.error( "Could not initialize Neo4j database client", e );
+            String msg = "Could not initialize Neo4j database client";
+            logger.error( msg, e.getCause() );
+            throw new DBException( msg, e.getCause() );
         }
     }
 
@@ -123,7 +129,9 @@ public class Neo4jClient extends DB
         }
         catch ( Exception e )
         {
-            log.error( "Error encountered during cleanup", e );
+            String msg = "Error encountered during cleanup";
+            logger.error( msg, e.getCause() );
+            throw new DBException( msg, e.getCause() );
         }
     }
 
@@ -139,9 +147,6 @@ public class Neo4jClient extends DB
      */
     public int read( String table, String key, Set<String> fields, HashMap<String, ByteIterator> result )
     {
-        // TODO remove
-        // log.debug( "READ: " + key );
-
         try
         {
             result = commands.read( table, key, fields );
@@ -149,7 +154,7 @@ public class Neo4jClient extends DB
         }
         catch ( Exception e )
         {
-            log.debug( "Error in READ", e );
+            logger.debug( "Error in READ", e.getCause() );
         }
         return 1;
     }
@@ -176,7 +181,7 @@ public class Neo4jClient extends DB
         }
         catch ( Exception e )
         {
-            log.debug( "Error in SCAN", e );
+            logger.debug( "Error in SCAN", e.getCause() );
         }
         return 1;
     }
@@ -200,7 +205,7 @@ public class Neo4jClient extends DB
         }
         catch ( Exception e )
         {
-            log.debug( "Error in UPDATE", e );
+            logger.debug( "Error in UPDATE", e.getCause() );
         }
         return 1;
     }
@@ -217,9 +222,6 @@ public class Neo4jClient extends DB
      */
     public int insert( String table, String key, HashMap<String, ByteIterator> values )
     {
-        // TODO remove
-        // log.debug( "INSERT: " + key );
-
         try
         {
             commands.insert( table, key, values );
@@ -227,7 +229,7 @@ public class Neo4jClient extends DB
         }
         catch ( Exception e )
         {
-            log.debug( "Error in INSERT", e );
+            logger.debug( "Error in INSERT", e.getCause() );
         }
         return 1;
     }
@@ -248,7 +250,7 @@ public class Neo4jClient extends DB
         }
         catch ( Exception e )
         {
-            log.debug( "Error in DELETE", e );
+            logger.debug( "Error in DELETE", e.getCause() );
         }
         return 1;
     }
