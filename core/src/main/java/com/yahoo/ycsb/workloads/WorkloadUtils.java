@@ -1,4 +1,4 @@
-package com.yahoo.ycsb.graph.workloads;
+package com.yahoo.ycsb.workloads;
 
 import java.util.HashMap;
 
@@ -7,11 +7,10 @@ import com.yahoo.ycsb.ByteIterator;
 import com.yahoo.ycsb.RandomByteIterator;
 import com.yahoo.ycsb.Utils;
 import com.yahoo.ycsb.WorkloadException;
-import com.yahoo.ycsb.graph.generator.Distribution;
-import com.yahoo.ycsb.graph.generator.ExponentialGenerator;
-import com.yahoo.ycsb.graph.generator.Generator;
-import com.yahoo.ycsb.graph.generator.GeneratorFactory;
-import com.yahoo.ycsb.graph.generator.exceptions.GeneratorException;
+import com.yahoo.ycsb.generator.ExponentialGenerator;
+import com.yahoo.ycsb.generator.Generator;
+import com.yahoo.ycsb.generator.GeneratorException;
+import com.yahoo.ycsb.generator.GeneratorFactory;
 
 public class WorkloadUtils
 {

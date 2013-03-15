@@ -1,13 +1,13 @@
-package com.yahoo.ycsb.generator.graph;
+package com.yahoo.ycsb.generator;
 
 import static org.junit.Assert.assertEquals;
 
 import org.junit.Test;
 
 import com.yahoo.ycsb.WorkloadException;
-import com.yahoo.ycsb.graph.generator.DiscreteGenerator;
-import com.yahoo.ycsb.graph.generator.GeneratorFactory;
-import com.yahoo.ycsb.graph.generator.Pair;
+import com.yahoo.ycsb.generator.DiscreteGenerator;
+import com.yahoo.ycsb.generator.GeneratorFactory;
+import com.yahoo.ycsb.generator.Pair;
 
 public class DiscreteGeneratorTest
 {

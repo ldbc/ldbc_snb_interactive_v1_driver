@@ -20,25 +20,26 @@ package com.yahoo.ycsb.generator;
  * A trivial integer generator that always returns the same value.
  * 
  * @author sears
- *
+ * 
  */
-public class ConstantIntegerGenerator extends IntegerGenerator {
-	private final int i;
-	/**
-	 * @param i The integer that this generator will always return.
-	 */
-	public ConstantIntegerGenerator(int i) {
-		this.i = i;
-	}
+public class ConstantIntegerGenerator extends Generator<Integer> implements HasMean
+{
+    private final int constantNumber;
 
-	@Override
-	public int nextInt() {
-		return i;
-	}
+    public ConstantIntegerGenerator( int constantNumber )
+    {
+        this.constantNumber = constantNumber;
+    }
 
-	@Override
-	public double mean() {
-		return i;
-	}
+    @Override
+    protected Integer doNext()
+    {
+        return constantNumber;
+    }
 
+    @Override
+    public double mean()
+    {
+        return constantNumber;
+    }
 }

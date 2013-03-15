@@ -335,7 +335,6 @@ class ClientThread extends Thread
  */
 public class Client
 {
-
     public static final String OPERATION_COUNT_PROPERTY = "operationcount";
 
     public static final String RECORD_COUNT_PROPERTY = "recordcount";

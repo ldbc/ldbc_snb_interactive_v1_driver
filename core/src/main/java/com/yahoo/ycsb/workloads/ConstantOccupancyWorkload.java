@@ -18,9 +18,11 @@ package com.yahoo.ycsb.workloads;
 
 import java.util.Properties;
 
+import com.google.common.collect.Range;
 import com.yahoo.ycsb.WorkloadException;
 import com.yahoo.ycsb.Client;
-import com.yahoo.ycsb.generator.IntegerGenerator;
+import com.yahoo.ycsb.generator.Generator;
+import com.yahoo.ycsb.generator.HasMean;
 
 /**
  * A disk-fragmenting workload.
@@ -28,64 +30,82 @@ import com.yahoo.ycsb.generator.IntegerGenerator;
  * Properties to control the client:
  * </p>
  * <UL>
- * <LI><b>disksize</b>: how many bytes of storage can the disk store? (default 100,000,000)
- * <LI><b>occupancy</b>: what fraction of the available storage should be used? (default 0.9)
- * <LI><b>requestdistribution</b>: what distribution should be used to select the records to operate on - uniform, zipfian or latest (default: histogram)
- * </ul> 
- *
- *
- * <p> See also:
- * Russell Sears, Catharine van Ingen.
- * <a href='https://database.cs.wisc.edu/cidr/cidr2007/papers/cidr07p34.pdf'>Fragmentation in Large Object Repositories</a>,
- * CIDR 2006. [<a href='https://database.cs.wisc.edu/cidr/cidr2007/slides/p34-sears.ppt'>Presentation</a>]
+ * <LI><b>disksize</b>: how many bytes of storage can the disk store? (default
+ * 100,000,000)
+ * <LI><b>occupancy</b>: what fraction of the available storage should be used?
+ * (default 0.9)
+ * <LI><b>requestdistribution</b>: what distribution should be used to select
+ * the records to operate on - uniform, zipfian or latest (default: histogram)
+ * </ul>
+ * 
+ * 
+ * <p>
+ * See also: Russell Sears, Catharine van Ingen. <a href=
+ * 'https://database.cs.wisc.edu/cidr/cidr2007/papers/cidr07p34.pdf'>Fragmentati
+ * o n in Large Object Repositories</a>, CIDR 2006. [<a href=
+ * 'https://database.cs.wisc.edu/cidr/cidr2007/slides/p34-sears.ppt'>Presentatio
+ * n < / a > ]
  * </p>
- *
- *
+ * 
+ * 
  * @author sears
- *
+ * 
  */
-public class ConstantOccupancyWorkload extends CoreWorkload {
-	long disksize;
-	long storageages;
-	IntegerGenerator objectsizes;
-	double occupancy;
-	
-	long object_count;
-	
-	public static final String STORAGE_AGE_PROPERTY = "storageages";
-	public static final long   STORAGE_AGE_PROPERTY_DEFAULT = 10;
-	
-	public static final String DISK_SIZE_PROPERTY = "disksize";
-	public static final long   DISK_SIZE_PROPERTY_DEFAULT = 100 * 1000 * 1000;
-	
-	public static final String OCCUPANCY_PROPERTY = "occupancy";
-	public static final double OCCUPANCY_PROPERTY_DEFAULT = 0.9;
-	
-	@Override
-	public void init(Properties p) throws WorkloadException
-	{
-		disksize    = Long.parseLong(    p.getProperty(DISK_SIZE_PROPERTY, DISK_SIZE_PROPERTY_DEFAULT+""));
-		storageages = Long.parseLong(    p.getProperty(STORAGE_AGE_PROPERTY, STORAGE_AGE_PROPERTY_DEFAULT+""));
-		occupancy   = Double.parseDouble(p.getProperty(OCCUPANCY_PROPERTY, OCCUPANCY_PROPERTY_DEFAULT+""));
-		
-		if(p.getProperty(Client.RECORD_COUNT_PROPERTY) != null ||
-		   p.getProperty(Client.INSERT_COUNT_PROPERTY) != null ||
-		   p.getProperty(Client.OPERATION_COUNT_PROPERTY) != null) {
-			System.err.println("Warning: record, insert or operation count was set prior to initting ConstantOccupancyWorkload.  Overriding old values.");
-		}
-		IntegerGenerator g = CoreWorkload.getFieldLengthGenerator(p);
-		double fieldsize = g.mean();
-		int fieldcount = Integer.parseInt(p.getProperty(FIELD_COUNT_PROPERTY, FIELD_COUNT_PROPERTY_DEFAULT));
+public class ConstantOccupancyWorkload extends CoreWorkload
+{
+    long disksize;
+    long storageages;
+    Generator<Integer> objectsizes;
+    double occupancy;
 
-		object_count = (long)(occupancy * ((double)disksize / (fieldsize * (double)fieldcount)));
-                if(object_count == 0) {
-                    throw new IllegalStateException("Object count was zero.  Perhaps disksize is too low?");
-                }
-		p.setProperty(Client.RECORD_COUNT_PROPERTY, object_count+"");
-		p.setProperty(Client.OPERATION_COUNT_PROPERTY, (storageages*object_count)+"");
-		p.setProperty(Client.INSERT_COUNT_PROPERTY, object_count+"");
+    long object_count;
 
-		super.init(p);
-	}
+    public static final String STORAGE_AGE_PROPERTY = "storageages";
+    public static final long STORAGE_AGE_PROPERTY_DEFAULT = 10;
 
+    public static final String DISK_SIZE_PROPERTY = "disksize";
+    public static final long DISK_SIZE_PROPERTY_DEFAULT = 100 * 1000 * 1000;
+
+    public static final String OCCUPANCY_PROPERTY = "occupancy";
+    public static final double OCCUPANCY_PROPERTY_DEFAULT = 0.9;
+
+    @Override
+    public void init( Properties p ) throws WorkloadException
+    {
+        disksize = Long.parseLong( p.getProperty( DISK_SIZE_PROPERTY, DISK_SIZE_PROPERTY_DEFAULT + "" ) );
+        storageages = Long.parseLong( p.getProperty( STORAGE_AGE_PROPERTY, STORAGE_AGE_PROPERTY_DEFAULT + "" ) );
+        occupancy = Double.parseDouble( p.getProperty( OCCUPANCY_PROPERTY, OCCUPANCY_PROPERTY_DEFAULT + "" ) );
+
+        if ( p.getProperty( Client.RECORD_COUNT_PROPERTY ) != null
+             || p.getProperty( Client.INSERT_COUNT_PROPERTY ) != null
+             || p.getProperty( Client.OPERATION_COUNT_PROPERTY ) != null )
+        {
+            System.err.println( "Warning: record, insert or operation count was set prior to initting ConstantOccupancyWorkload.  Overriding old values." );
+        }
+
+        Distribution fieldLengthDistribution = Distribution.valueOf( p.getProperty(
+                CoreWorkloadProperties.FIELD_LENGTH_DISTRIBUTION,
+                CoreWorkloadProperties.FIELD_LENGTH_DISTRIBUTION_DEFAULT ).toUpperCase() );
+        int fieldLength = Integer.parseInt( p.getProperty( CoreWorkloadProperties.FIELD_LENGTH,
+                CoreWorkloadProperties.FIELD_LENGTH_DEFAULT ) );
+        String fieldLengthHistogramFilePath = p.getProperty( CoreWorkloadProperties.FIELD_LENGTH_HISTOGRAM_FILE,
+                CoreWorkloadProperties.FIELD_LENGTH_HISTOGRAM_FILE_DEFAULT );
+        Generator<Integer> g = WorkloadUtils.buildFieldLengthGenerator( fieldLengthDistribution,
+                Range.closed( 1, fieldLength ), fieldLengthHistogramFilePath );
+        double fieldsize = ( (HasMean) g ).mean();
+
+        int fieldcount = Integer.parseInt( p.getProperty( CoreWorkloadProperties.FIELD_COUNT,
+                CoreWorkloadProperties.FIELD_COUNT_DEFAULT ) );
+
+        object_count = (long) ( occupancy * ( (double) disksize / ( fieldsize * (double) fieldcount ) ) );
+        if ( object_count == 0 )
+        {
+            throw new IllegalStateException( "Object count was zero.  Perhaps disksize is too low?" );
+        }
+        p.setProperty( Client.RECORD_COUNT_PROPERTY, object_count + "" );
+        p.setProperty( Client.OPERATION_COUNT_PROPERTY, ( storageages * object_count ) + "" );
+        p.setProperty( Client.INSERT_COUNT_PROPERTY, object_count + "" );
+
+        super.init( p );
+    }
 }

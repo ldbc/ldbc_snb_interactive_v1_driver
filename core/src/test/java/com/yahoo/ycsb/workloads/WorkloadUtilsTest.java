@@ -1,4 +1,4 @@
-package com.yahoo.ycsb.workloads.graph;
+package com.yahoo.ycsb.workloads;
 
 import static org.junit.Assert.assertEquals;
 
@@ -14,14 +14,14 @@ import com.google.common.collect.Range;
 import com.yahoo.ycsb.ByteIterator;
 import com.yahoo.ycsb.Utils;
 import com.yahoo.ycsb.WorkloadException;
-import com.yahoo.ycsb.graph.generator.ConstantIntegerGenerator;
-import com.yahoo.ycsb.graph.generator.Distribution;
-import com.yahoo.ycsb.graph.generator.Generator;
-import com.yahoo.ycsb.graph.generator.GeneratorFactory;
-import com.yahoo.ycsb.graph.generator.HistogramGenerator;
-import com.yahoo.ycsb.graph.generator.UniformIntegerGenerator;
-import com.yahoo.ycsb.graph.generator.ZipfianGenerator;
-import com.yahoo.ycsb.graph.workloads.WorkloadUtils;
+import com.yahoo.ycsb.generator.ConstantIntegerGenerator;
+import com.yahoo.ycsb.generator.Generator;
+import com.yahoo.ycsb.generator.GeneratorFactory;
+import com.yahoo.ycsb.generator.HistogramGenerator;
+import com.yahoo.ycsb.generator.UniformIntegerGenerator;
+import com.yahoo.ycsb.generator.ZipfianGenerator;
+import com.yahoo.ycsb.workloads.Distribution;
+import com.yahoo.ycsb.workloads.WorkloadUtils;
 
 public class WorkloadUtilsTest
 {

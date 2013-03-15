@@ -1,4 +1,4 @@
-package com.yahoo.ycsb.graph.generator.exceptions;
+package com.yahoo.ycsb.generator;
 
 public class GeneratorException extends Exception
 {

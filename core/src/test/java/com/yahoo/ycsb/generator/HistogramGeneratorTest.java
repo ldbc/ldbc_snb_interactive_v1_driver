@@ -1,4 +1,4 @@
-package com.yahoo.ycsb.generator.graph;
+package com.yahoo.ycsb.generator;
 
 import static org.junit.Assert.assertEquals;
 

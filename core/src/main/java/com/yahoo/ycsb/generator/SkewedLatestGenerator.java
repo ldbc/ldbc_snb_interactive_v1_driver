@@ -17,45 +17,53 @@
 
 package com.yahoo.ycsb.generator;
 
+import com.yahoo.ycsb.WorkloadException;
+
 /**
- * Generate a popularity distribution of items, skewed to favor recent items significantly more than older items.
+ * Generate a popularity distribution of items, skewed to favor recent items
+ * significantly more than older items.
  */
-public class SkewedLatestGenerator extends IntegerGenerator
+public class SkewedLatestGenerator extends Generator<Long> implements HasMean
 {
-	CounterGenerator _basis;
-	ZipfianGenerator _zipfian;
+    CounterGenerator _basis;
+    ZipfianGenerator _zipfian;
 
-	public SkewedLatestGenerator(CounterGenerator basis)
-	{
-		_basis=basis;
-		_zipfian=new ZipfianGenerator(_basis.lastInt());
-		nextInt();
-	}
+    public SkewedLatestGenerator( CounterGenerator basis ) throws WorkloadException
+    {
+        _basis = basis;
+        _zipfian = new ZipfianGenerator( _basis.last() );
+    }
 
-	/**
-	 * Generate the next string in the distribution, skewed Zipfian favoring the items most recently returned by the basis generator.
-	 */
-	public int nextInt()
-	{
-		int max=_basis.lastInt();
-		int nextint=max-_zipfian.nextInt(max);
-		setLastInt(nextint);
-		return nextint;
-	}
+    /**
+     * Generate the next string in the distribution, skewed Zipfian favoring the
+     * items most recently returned by the basis generator.
+     * 
+     * @throws WorkloadException
+     */
+    @Override
+    protected Long doNext() throws WorkloadException
+    {
+        long max = _basis.last();
+        // TODO ZipfianGenerator needs parameterized next, e.g.next(max)?
+        // return max - _zipfian.next( max );
+        return max - _zipfian.next();
+    }
 
-	public static void main(String[] args)
-	{
-		SkewedLatestGenerator gen=new SkewedLatestGenerator(new CounterGenerator(1000));
-		for (int i=0; i<Integer.parseInt(args[0]); i++)
-		{
-			System.out.println(gen.nextString());
-		}
+    // TODO is this a lame halftest?
+    // TODO turn into test
+    public static void main( String[] args ) throws WorkloadException
+    {
+        SkewedLatestGenerator generator = new SkewedLatestGenerator( new CounterGenerator( 1000 ) );
+        for ( int i = 0; i < Integer.parseInt( args[0] ); i++ )
+        {
+            System.out.println( generator.next() );
+        }
 
-	}
+    }
 
-	@Override
-	public double mean() {
-		throw new UnsupportedOperationException("Can't compute mean of non-stationary distribution!");
-	}
+    public double mean()
+    {
+        throw new UnsupportedOperationException( "Can't compute mean of non-stationary distribution!" );
+    }
 
 }

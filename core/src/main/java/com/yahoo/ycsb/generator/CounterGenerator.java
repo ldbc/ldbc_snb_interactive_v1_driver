@@ -22,17 +22,16 @@ import java.util.concurrent.atomic.AtomicInteger;
 /**
  * Generates a sequence of integers 0, 1, ...
  */
-public class CounterGenerator extends IntegerGenerator
+public class CounterGenerator extends Generator<Integer> implements HasMean
 {
     final AtomicInteger counter;
 
     /**
      * Create a counter that starts at countstart
      */
-    public CounterGenerator( int countstart )
+    public CounterGenerator( Integer countstart )
     {
         counter = new AtomicInteger( countstart );
-        setLastInt( counter.get() - 1 );
     }
 
     /**
@@ -40,22 +39,16 @@ public class CounterGenerator extends IntegerGenerator
      * as an int. Default is to return -1, which is appropriate for generators
      * that do not return numeric values.
      */
-    public int nextInt()
+    @Override
+    protected Integer doNext()
     {
         int ret = counter.getAndIncrement();
-        setLastInt( ret );
         return ret;
-    }
-
-    @Override
-    public int lastInt()
-    {
-        return counter.get() - 1;
     }
 
     @Override
     public double mean()
     {
-        throw new UnsupportedOperationException( "Can't compute mean of non-stationary distribution!" );
+        throw new UnsupportedOperationException( "Can't compute mean of non-stationary distribution" );
     }
 }

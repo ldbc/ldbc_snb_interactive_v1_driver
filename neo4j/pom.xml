@@ -16,9 +16,7 @@
 		<junit-version>4.10</junit-version>
 		<neo4j-version>1.9.M04</neo4j-version>
 		<neo4j-client-version>1.8.M07</neo4j-client-version>
-		<!-- <neo4j-client-version>1.9.M04</neo4j-client-version> -->
 		<log4j-version>1.2.17</log4j-version>
-		<guava-version>14.0</guava-version>
 	</properties>
 
 	<dependencies>
@@ -47,11 +45,6 @@
 			<groupId>log4j</groupId>
 			<artifactId>log4j</artifactId>
 			<version>${log4j-version}</version>
-		</dependency>
-		<dependency>
-			<groupId>com.google.guava</groupId>
-			<artifactId>guava</artifactId>
-			<version>${guava-version}</version>
 		</dependency>
 	</dependencies>
 

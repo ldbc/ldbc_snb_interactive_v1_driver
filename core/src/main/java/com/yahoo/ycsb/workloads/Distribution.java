@@ -1,4 +1,4 @@
-package com.yahoo.ycsb.graph.generator;
+package com.yahoo.ycsb.workloads;
 
 public enum Distribution
 {

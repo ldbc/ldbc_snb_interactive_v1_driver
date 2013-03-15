@@ -1,9 +1,8 @@
-package com.yahoo.ycsb.graph.generator;
+package com.yahoo.ycsb.generator;
 
 import java.lang.reflect.Array;
 import com.google.common.collect.Range;
 import com.yahoo.ycsb.WorkloadException;
-import com.yahoo.ycsb.graph.generator.exceptions.GeneratorException;
 
 public class GeneratorFactory
 {

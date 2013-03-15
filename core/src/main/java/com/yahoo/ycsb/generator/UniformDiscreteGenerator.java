@@ -15,62 +15,37 @@
  * LICENSE file.                                                                                                                                                                   
  */
 
-package com.yahoo.ycsb.graph.generator;
+package com.yahoo.ycsb.generator;
 
 import java.util.Vector;
 
-import com.yahoo.ycsb.Utils;
 import com.yahoo.ycsb.WorkloadException;
 
 /**
- * Generates a distribution by choosing from a discrete set of values.
+ * An expression that generates a random integer in the specified range
  */
-// TODO make it work better with UniformDiscreteGenerator
-public class DiscreteGenerator extends Generator<Pair<Double, Object>>
+// TODO change to DiscreteGenerator
+// do this by converting "values" into Pair items, all with equal value
+// TODO subclass UniformDiscreteGenerator
+// TODO subclass "Custom"DiscreteGenerator
+public class UniformDiscreteGenerator<T> extends Generator<T>
 {
-    private Vector<Pair<Double, Object>> items;
+    Vector<T> items;
+    UniformIntegerGenerator generator;
 
-    public DiscreteGenerator( Pair<Double, Object>... newItems )
+    /**
+     * Generator will return items from the specified set uniformly randomly
+     */
+    public UniformDiscreteGenerator( Vector<T> values )
     {
-        items = new Vector<Pair<Double, Object>>();
-        for ( Pair<Double, Object> item : newItems )
-        {
-            items.add( item );
-        }
+        items = (Vector<T>) values.clone();
+        // TODO do another way, don't like using subclass in baseclass!
+        generator = new UniformIntegerGenerator( 0, values.size() - 1 );
     }
 
     @Override
-    protected Pair<Double, Object> doNext() throws WorkloadException
+    protected T doNext() throws WorkloadException
     {
-        if ( 0 == items.size() ) throw new WorkloadException( "DiscreteGenerator cannot be empty" );
-
-        double sum = 0;
-
-        for ( Pair<Double, Object> item : items )
-        {
-            sum += item._1();
-        }
-
-        double val = Utils.random().nextDouble();
-
-        for ( Pair<Double, Object> item : items )
-        {
-            if ( val < item._1() / sum )
-            {
-                // TODO need this?
-                // lastItem = item;
-                return item;
-            }
-
-            val -= item._1() / sum;
-        }
-
-        throw new WorkloadException( "Unexpected Error - DiscreteGenerator.next() should never get to this line" );
-    }
-
-    @Override
-    public String toString()
-    {
-        return "DiscreteGenerator [items=" + items.toString() + "]";
+        return items.elementAt( generator.next() );
     }
 }

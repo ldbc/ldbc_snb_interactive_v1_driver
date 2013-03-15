@@ -21,68 +21,86 @@ import java.io.InputStreamReader;
 import java.io.BufferedReader;
 import java.io.IOException;
 
+import com.yahoo.ycsb.WorkloadException;
+
 /**
  * A generator, whose sequence is the lines of a file.
  */
-public class FileGenerator extends Generator
+public class FileGenerator extends Generator<String>
 {
-	String filename;
-	String current;
-	BufferedReader reader;
+    String filename;
+    BufferedReader reader;
 
-	/**
-	 * Create a FileGenerator with the given file.
-	 * @param _filename The file to read lines from.
-	 */
-	public FileGenerator(String _filename)
-	{
-		try {
-			filename = _filename;
-			File file = new File(filename);
-			FileInputStream in = new FileInputStream(file);
-			reader = new BufferedReader(new InputStreamReader(in));
-		} catch(IOException e) {
-			System.err.println("Exception: " + e);
-		}
-	}
+    /**
+     * Create a FileGenerator with the given file.
+     * 
+     * @param _filename The file to read lines from.
+     * @throws WorkloadException
+     */
+    public FileGenerator( String _filename ) throws WorkloadException
+    {
+        try
+        {
+            filename = _filename;
+            File file = new File( filename );
+            FileInputStream in = new FileInputStream( file );
+            reader = new BufferedReader( new InputStreamReader( in ) );
+        }
+        catch ( IOException e )
+        {
+            throw new WorkloadException( String.format( "Error creating FileGenerator : %s", _filename, last() ),
+                    e.getCause() );
+        }
+    }
 
-	/**
-	 * Return the next string of the sequence, ie the next line of the file.
-	 */
-	public synchronized String nextString()
-	{
-		try {
-			return current = reader.readLine();
-		} catch(NullPointerException e) {
-			System.err.println("NullPointerException: " + filename + ':' + current);
-			throw e;
-		} catch(IOException e) {
-			System.err.println("Exception: " + e);
-			return null;
-		}
-	}
+    /**
+     * Return the next string of the sequence, ie the next line of the file.
+     * 
+     * @throws WorkloadException
+     */
+    @Override
+    protected String doNext() throws WorkloadException
+    {
+        return readNextLine();
+    }
 
-	/**
-	 * Return the previous read line.
-	 */
-	public String lastString()
-	{
-		return current;
-	}
+    private synchronized String readNextLine() throws WorkloadException
+    {
+        try
+        {
+            return reader.readLine();
+        }
+        catch ( NullPointerException e )
+        {
+            throw new WorkloadException( String.format( "Error encountered reading next line\nFile : %s\nLine : %s",
+                    filename, last() ), e.getCause() );
+        }
+        catch ( IOException e )
+        {
+            throw new WorkloadException( String.format( "Error encountered reading next line\nFile : %s\nLine : %s",
+                    filename, last() ), e.getCause() );
+        }
+    }
 
-	/**
-	 * Reopen the file to reuse values.
-	 */
-	public synchronized void reloadFile()
-	{
-		try {
-			System.err.println("Reload " + filename);
-			reader.close();
-			File file = new File(filename);
-			FileInputStream in = new FileInputStream(file);
-			reader = new BufferedReader(new InputStreamReader(in));
-		} catch(IOException e) {
-			System.err.println("Exception: " + e);
-		}
-	}
+    /**
+     * Reopen the file to reuse values.
+     * 
+     * @throws WorkloadException
+     */
+    public synchronized void reloadFile() throws WorkloadException
+    {
+        try
+        {
+            System.err.println( "Reload " + filename );
+            reader.close();
+            File file = new File( filename );
+            FileInputStream in = new FileInputStream( file );
+            reader = new BufferedReader( new InputStreamReader( in ) );
+        }
+        catch ( IOException e )
+        {
+            throw new WorkloadException( String.format( "Error encountered reloading file : %s", filename ),
+                    e.getCause() );
+        }
+    }
 }

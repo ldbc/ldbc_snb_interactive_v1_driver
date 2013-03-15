@@ -1,4 +1,4 @@
-package com.yahoo.ycsb.graph.generator;
+package com.yahoo.ycsb.generator;
 
 public class Pair<T1, T2>
 {

@@ -1,4 +1,4 @@
-package com.yahoo.ycsb.graph.workloads;
+package com.yahoo.ycsb.workloads;
 
 public class CoreWorkloadProperties
 {
