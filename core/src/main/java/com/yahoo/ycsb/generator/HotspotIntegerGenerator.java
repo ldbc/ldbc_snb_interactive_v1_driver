@@ -49,8 +49,10 @@ public class HotspotIntegerGenerator extends Generator<Integer> implements HasMe
      * @param hotsetFraction percentage of data item
      * @param hotOpnFraction percentage of operations accessing the hot set.
      */
-    public HotspotIntegerGenerator( int lowerBound, int upperBound, double hotsetFraction, double hotOpnFraction )
+    public HotspotIntegerGenerator( Random random, int lowerBound, int upperBound, double hotsetFraction,
+            double hotOpnFraction )
     {
+        super( random );
         if ( hotsetFraction < 0.0 || hotsetFraction > 1.0 )
         {
             System.err.println( "Hotset fraction out of range. Setting to 0.0" );

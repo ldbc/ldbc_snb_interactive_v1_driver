@@ -23,7 +23,8 @@ package com.yahoo.ycsb.generator;
  * @author cooperb
  * 
  */
-// TODO consider renaming
+// TODO delete after DiscreteGenerator, ContinuousGenerator,
+// TODO ContinuousRangeGenerator are added
 public interface HasMean
 {
     /**

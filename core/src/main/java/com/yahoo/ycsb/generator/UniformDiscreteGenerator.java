@@ -17,6 +17,7 @@
 
 package com.yahoo.ycsb.generator;
 
+import java.util.Random;
 import java.util.Vector;
 
 import com.yahoo.ycsb.WorkloadException;
@@ -36,11 +37,12 @@ public class UniformDiscreteGenerator<T> extends Generator<T>
     /**
      * Generator will return items from the specified set uniformly randomly
      */
-    public UniformDiscreteGenerator( Vector<T> values )
+    public UniformDiscreteGenerator( Random random, Vector<T> values )
     {
+        super( random );
         items = (Vector<T>) values.clone();
         // TODO do another way, don't like using subclass in baseclass!
-        generator = new UniformIntegerGenerator( 0, values.size() - 1 );
+        generator = new UniformIntegerGenerator( random, 0, values.size() - 1 );
     }
 
     @Override

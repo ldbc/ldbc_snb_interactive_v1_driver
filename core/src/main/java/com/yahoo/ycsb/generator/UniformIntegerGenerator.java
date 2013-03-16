@@ -17,6 +17,8 @@
 
 package com.yahoo.ycsb.generator;
 
+import java.util.Random;
+
 import com.yahoo.ycsb.Utils;
 
 /**
@@ -29,8 +31,9 @@ public class UniformIntegerGenerator extends Generator<Integer> implements HasMe
     /**
      * Return integers uniformly randomly from interval [lb,ub] inclusive
      */
-    public UniformIntegerGenerator( Integer lb, Integer ub )
+    public UniformIntegerGenerator( Random random, Integer lb, Integer ub )
     {
+        super( random );
         lowerBound = lb;
         upperBound = ub;
         interval = upperBound - lowerBound + 1;

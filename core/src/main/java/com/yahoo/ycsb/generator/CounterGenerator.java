@@ -17,6 +17,7 @@
 
 package com.yahoo.ycsb.generator;
 
+import java.util.Random;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
@@ -29,15 +30,14 @@ public class CounterGenerator extends Generator<Integer> implements HasMean
     /**
      * Create a counter that starts at countstart
      */
-    public CounterGenerator( Integer countstart )
+    public CounterGenerator( Random random, Integer countstart )
     {
+        super( random );
         counter = new AtomicInteger( countstart );
     }
 
     /**
-     * If the generator returns numeric (integer) values, return the next value
-     * as an int. Default is to return -1, which is appropriate for generators
-     * that do not return numeric values.
+     * Return the next value (usually integral type)
      */
     @Override
     protected Integer doNext()

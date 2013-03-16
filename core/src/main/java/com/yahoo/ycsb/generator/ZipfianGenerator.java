@@ -17,6 +17,8 @@
 
 package com.yahoo.ycsb.generator;
 
+import java.util.Random;
+
 import com.yahoo.ycsb.Utils;
 import com.yahoo.ycsb.WorkloadException;
 
@@ -104,9 +106,9 @@ public class ZipfianGenerator extends Generator<Long> implements HasMean
      * @param _items The number of items in the distribution.
      * @throws WorkloadException
      */
-    public ZipfianGenerator( long _items ) throws WorkloadException
+    public ZipfianGenerator( Random random, long items )
     {
-        this( 0, _items - 1 );
+        this( random, 0, items - 1 );
     }
 
     /**
@@ -116,9 +118,10 @@ public class ZipfianGenerator extends Generator<Long> implements HasMean
      * @param _max The largest integer to generate in the sequence.
      * @throws WorkloadException
      */
-    public ZipfianGenerator( long _min, long _max ) throws WorkloadException
+    // TODO use Range
+    public ZipfianGenerator( Random random, long min, long max )
     {
-        this( _min, _max, ZIPFIAN_CONSTANT );
+        this( random, min, max, ZIPFIAN_CONSTANT );
     }
 
     /**
@@ -129,9 +132,10 @@ public class ZipfianGenerator extends Generator<Long> implements HasMean
      * @param _zipfianconstant The zipfian constant to use.
      * @throws WorkloadException
      */
-    public ZipfianGenerator( long _items, double _zipfianconstant ) throws WorkloadException
+    // TODO use Range
+    public ZipfianGenerator( Random random, long items, double zipfianConstant )
     {
-        this( 0, _items - 1, _zipfianconstant );
+        this( random, 0, items - 1, zipfianConstant );
     }
 
     /**
@@ -140,12 +144,13 @@ public class ZipfianGenerator extends Generator<Long> implements HasMean
      * 
      * @param min The smallest integer to generate in the sequence.
      * @param max The largest integer to generate in the sequence.
-     * @param _zipfianconstant The zipfian constant to use.
+     * @param zipfianConstant The zipfian constant to use.
      * @throws WorkloadException
      */
-    public ZipfianGenerator( long min, long max, double _zipfianconstant ) throws WorkloadException
+    // TODO use Range
+    public ZipfianGenerator( Random random, long min, long max, double zipfianConstant )
     {
-        this( min, max, _zipfianconstant, zetastatic( max - min + 1, _zipfianconstant ) );
+        this( random, min, max, zipfianConstant, zetastatic( max - min + 1, zipfianConstant ) );
     }
 
     /**
@@ -154,16 +159,17 @@ public class ZipfianGenerator extends Generator<Long> implements HasMean
      * 
      * @param min The smallest integer to generate in the sequence.
      * @param max The largest integer to generate in the sequence.
-     * @param _zipfianconstant The zipfian constant to use.
-     * @param _zetan The precomputed zeta constant.
+     * @param zipfianConstant The zipfian constant to use.
+     * @param zetan The precomputed zeta constant.
      * @throws WorkloadException
      */
-    public ZipfianGenerator( long min, long max, double _zipfianconstant, double _zetan ) throws WorkloadException
+    // TODO use Range
+    public ZipfianGenerator( Random random, long min, long max, double zipfianConstant, double zetan )
     {
-
+        super( random );
         items = max - min + 1;
         base = min;
-        zipfianconstant = _zipfianconstant;
+        zipfianconstant = zipfianConstant;
 
         theta = zipfianconstant;
 
@@ -171,7 +177,7 @@ public class ZipfianGenerator extends Generator<Long> implements HasMean
 
         alpha = 1.0 / ( 1.0 - theta );
         // zetan=zeta(items,theta);
-        zetan = _zetan;
+        zetan = zetan;
         countforzeta = items;
         eta = ( 1 - Math.pow( 2.0 / items, 1 - theta ) ) / ( 1 - zeta2theta / zetan );
 
@@ -338,7 +344,7 @@ public class ZipfianGenerator extends Generator<Long> implements HasMean
     // TODO is this just a lame test?
     public static void main( String[] args ) throws WorkloadException
     {
-        new ZipfianGenerator( ScrambledZipfianGenerator.ITEM_COUNT );
+        new ZipfianGenerator( Utils.random(), ScrambledZipfianGenerator.ITEM_COUNT );
     }
 
     // TODO Implement ZipfianGenerator.mean()

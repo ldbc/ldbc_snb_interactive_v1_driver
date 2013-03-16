@@ -20,31 +20,31 @@ package com.yahoo.ycsb;
 /**
  * The workload tried to do something bad.
  */
-public class WorkloadException extends Exception
+public class WorkloadException extends RuntimeException
 {
-	/**
+    /**
 	 * 
 	 */
-	private static final long serialVersionUID = 8844396756042772132L;
+    private static final long serialVersionUID = 8844396756042772132L;
 
-	public WorkloadException(String message) 
-	{
-		super(message);
-	}
+    public WorkloadException( String message )
+    {
+        super( message );
+    }
 
-	public WorkloadException()
-	{
-		super();
-	}
+    public WorkloadException()
+    {
+        super();
+    }
 
-	public WorkloadException(String message, Throwable cause)
-	{
-		super(message,cause);
-	}
+    public WorkloadException( String message, Throwable cause )
+    {
+        super( message, cause );
+    }
 
-	public WorkloadException(Throwable cause)
-	{
-		super(cause);
-	}
+    public WorkloadException( Throwable cause )
+    {
+        super( cause );
+    }
 
 }

@@ -16,6 +16,8 @@
  */
 package com.yahoo.ycsb.generator;
 
+import java.util.Random;
+
 /**
  * A trivial integer generator that always returns the same value.
  * 
@@ -26,8 +28,9 @@ public class ConstantIntegerGenerator extends Generator<Integer> implements HasM
 {
     private final int constantNumber;
 
-    public ConstantIntegerGenerator( int constantNumber )
+    public ConstantIntegerGenerator( Random random, int constantNumber )
     {
+        super( random );
         this.constantNumber = constantNumber;
     }
 

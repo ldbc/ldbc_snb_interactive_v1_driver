@@ -17,6 +17,8 @@
 
 package com.yahoo.ycsb.generator;
 
+import java.util.Random;
+
 import com.yahoo.ycsb.Utils;
 import com.yahoo.ycsb.WorkloadException;
 
@@ -43,7 +45,7 @@ public class ScrambledZipfianGenerator extends Generator<Long> implements HasMea
     public static final long ITEM_COUNT = 10000000000L;
 
     ZipfianGenerator gen;
-    long _min, _max, _itemcount;
+    long min, max, itemCount;
 
     /******************************* Constructors **************************************/
 
@@ -53,21 +55,21 @@ public class ScrambledZipfianGenerator extends Generator<Long> implements HasMea
      * @param _items The number of items in the distribution.
      * @throws WorkloadException
      */
-    public ScrambledZipfianGenerator( long _items ) throws WorkloadException
+    public ScrambledZipfianGenerator( Random random, long _items ) throws WorkloadException
     {
-        this( 0, _items - 1 );
+        this( random, 0, _items - 1 );
     }
 
     /**
      * Create a zipfian generator for items between min and max.
      * 
-     * @param _min The smallest integer to generate in the sequence.
-     * @param _max The largest integer to generate in the sequence.
+     * @param min The smallest integer to generate in the sequence.
+     * @param max The largest integer to generate in the sequence.
      * @throws WorkloadException
      */
-    public ScrambledZipfianGenerator( long _min, long _max ) throws WorkloadException
+    public ScrambledZipfianGenerator( Random random, long min, long max ) throws WorkloadException
     {
-        this( _min, _max, ZipfianGenerator.ZIPFIAN_CONSTANT );
+        this( random, min, max, ZipfianGenerator.ZIPFIAN_CONSTANT );
     }
 
     /**
@@ -93,21 +95,22 @@ public class ScrambledZipfianGenerator extends Generator<Long> implements HasMea
      * 
      * @param min The smallest integer to generate in the sequence.
      * @param max The largest integer to generate in the sequence.
-     * @param _zipfianconstant The zipfian constant to use.
+     * @param zipfianconstant The zipfian constant to use.
      * @throws WorkloadException
      */
-    public ScrambledZipfianGenerator( long min, long max, double _zipfianconstant ) throws WorkloadException
+    public ScrambledZipfianGenerator( Random random, long min, long max, double zipfianconstant )
     {
-        _min = min;
-        _max = max;
-        _itemcount = _max - _min + 1;
-        if ( _zipfianconstant == USED_ZIPFIAN_CONSTANT )
+        super( random );
+        this.min = min;
+        this.max = max;
+        this.itemCount = max - min + 1;
+        if ( zipfianconstant == USED_ZIPFIAN_CONSTANT )
         {
-            gen = new ZipfianGenerator( 0, ITEM_COUNT, _zipfianconstant, ZETAN );
+            gen = new ZipfianGenerator( random, 0, ITEM_COUNT, zipfianconstant, ZETAN );
         }
         else
         {
-            gen = new ZipfianGenerator( 0, ITEM_COUNT, _zipfianconstant );
+            gen = new ZipfianGenerator( random, 0, ITEM_COUNT, zipfianconstant );
         }
     }
 
@@ -121,7 +124,7 @@ public class ScrambledZipfianGenerator extends Generator<Long> implements HasMea
     protected Long doNext() throws WorkloadException
     {
         long ret = gen.next();
-        ret = _min + Utils.FNVhash64( ret ) % _itemcount;
+        ret = min + Utils.FNVhash64( ret ) % itemCount;
         return ret;
     }
 
@@ -133,7 +136,7 @@ public class ScrambledZipfianGenerator extends Generator<Long> implements HasMea
         System.out.println( "zetan: " + newzetan );
         System.exit( 0 );
 
-        ScrambledZipfianGenerator generator = new ScrambledZipfianGenerator( 10000 );
+        ScrambledZipfianGenerator generator = new ScrambledZipfianGenerator( Utils.random(), 10000 );
 
         for ( int i = 0; i < 1000000; i++ )
         {
@@ -147,6 +150,6 @@ public class ScrambledZipfianGenerator extends Generator<Long> implements HasMea
      */
     public double mean()
     {
-        return ( (double) ( ( (long) _min ) + (long) _max ) ) / 2.0;
+        return ( (double) ( ( (long) min ) + (long) max ) ) / 2.0;
     }
 }

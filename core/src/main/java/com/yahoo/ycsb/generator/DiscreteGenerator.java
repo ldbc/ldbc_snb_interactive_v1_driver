@@ -17,6 +17,7 @@
 
 package com.yahoo.ycsb.generator;
 
+import java.util.Random;
 import java.util.Vector;
 
 import com.yahoo.ycsb.Utils;
@@ -30,8 +31,9 @@ public class DiscreteGenerator extends Generator<Pair<Double, Object>>
 {
     private Vector<Pair<Double, Object>> items;
 
-    public DiscreteGenerator( Pair<Double, Object>... newItems )
+    public DiscreteGenerator( Random random, Pair<Double, Object>... newItems )
     {
+        super( random );
         items = new Vector<Pair<Double, Object>>();
         for ( Pair<Double, Object> item : newItems )
         {

@@ -21,6 +21,7 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Random;
 
 import com.yahoo.ycsb.Utils;
 
@@ -47,8 +48,10 @@ public class HistogramGenerator extends Generator<Integer> implements HasMean
     long weighted_area = 0;
     double mean_size = 0;
 
-    public HistogramGenerator( String histogramFilePath ) throws GeneratorException
+    public HistogramGenerator( Random random, String histogramFilePath ) throws GeneratorException
     {
+        // TODO this constructor should call the other constructor
+        super( random );
         BufferedReader in;
         try
         {
@@ -100,8 +103,9 @@ public class HistogramGenerator extends Generator<Integer> implements HasMean
         }
     }
 
-    public HistogramGenerator( long[] buckets, int block_size )
+    public HistogramGenerator( Random random, long[] buckets, int block_size )
     {
+        super( random );
         this.block_size = block_size;
         this.buckets = buckets;
         init();

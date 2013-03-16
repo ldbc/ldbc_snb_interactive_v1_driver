@@ -17,6 +17,9 @@
 
 package com.yahoo.ycsb.generator;
 
+import java.util.Random;
+
+import com.yahoo.ycsb.Utils;
 import com.yahoo.ycsb.WorkloadException;
 
 /**
@@ -25,13 +28,14 @@ import com.yahoo.ycsb.WorkloadException;
  */
 public class SkewedLatestGenerator extends Generator<Long> implements HasMean
 {
-    CounterGenerator _basis;
-    ZipfianGenerator _zipfian;
+    CounterGenerator basis;
+    ZipfianGenerator zipfian;
 
-    public SkewedLatestGenerator( CounterGenerator basis ) throws WorkloadException
+    public SkewedLatestGenerator( Random random, CounterGenerator basis ) throws WorkloadException
     {
-        _basis = basis;
-        _zipfian = new ZipfianGenerator( _basis.last() );
+        super( random );
+        this.basis = basis;
+        zipfian = new ZipfianGenerator( random, basis.last() );
     }
 
     /**
@@ -43,17 +47,18 @@ public class SkewedLatestGenerator extends Generator<Long> implements HasMean
     @Override
     protected Long doNext() throws WorkloadException
     {
-        long max = _basis.last();
+        long max = basis.last();
         // TODO ZipfianGenerator needs parameterized next, e.g.next(max)?
         // return max - _zipfian.next( max );
-        return max - _zipfian.next();
+        return max - zipfian.next();
     }
 
     // TODO is this a lame halftest?
     // TODO turn into test
     public static void main( String[] args ) throws WorkloadException
     {
-        SkewedLatestGenerator generator = new SkewedLatestGenerator( new CounterGenerator( 1000 ) );
+        SkewedLatestGenerator generator = new SkewedLatestGenerator( Utils.random(), new CounterGenerator(
+                Utils.random(), 1000 ) );
         for ( int i = 0; i < Integer.parseInt( args[0] ); i++ )
         {
             System.out.println( generator.next() );

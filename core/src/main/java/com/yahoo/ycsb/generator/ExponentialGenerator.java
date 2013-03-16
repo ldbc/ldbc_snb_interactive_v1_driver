@@ -53,13 +53,15 @@ public class ExponentialGenerator extends Generator<Long> implements HasMean
      * Create an exponential generator with a mean arrival rate of gamma. (And
      * half life of 1/gamma).
      */
-    public ExponentialGenerator( double mean )
+    public ExponentialGenerator( Random random, double mean )
     {
+        super( random );
         _gamma = 1.0 / mean;
     }
 
-    public ExponentialGenerator( double percentile, double range )
+    public ExponentialGenerator( Random random, double percentile, double range )
     {
+        super( random );
         _gamma = -Math.log( 1.0 - percentile / 100.0 ) / range; // 1.0/mean;
     }
 
@@ -87,7 +89,7 @@ public class ExponentialGenerator extends Generator<Long> implements HasMean
     // TODO is this just a lame test?
     public static void main( String args[] ) throws WorkloadException
     {
-        ExponentialGenerator e = new ExponentialGenerator( 90, 100 );
+        ExponentialGenerator e = new ExponentialGenerator( Utils.random(), 90, 100 );
         int j = 0;
         for ( int i = 0; i < 1000; i++ )
         {

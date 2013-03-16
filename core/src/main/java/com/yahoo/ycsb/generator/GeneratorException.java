@@ -1,6 +1,6 @@
 package com.yahoo.ycsb.generator;
 
-public class GeneratorException extends Exception
+public class GeneratorException extends RuntimeException
 {
     private static final long serialVersionUID = -5243628117143814942L;
 
