@@ -19,10 +19,7 @@ package com.yahoo.ycsb;
 import java.util.Vector;
 
 /**
- * A thread that waits for the maximum specified time and then interrupts all
- * the client threads passed as the Vector at initialization of this thread.
- * 
- * The maximum execution time passed is assumed to be in seconds.
+ * Terminates all client threads after maximum specified time has passed
  * 
  * @author sudipto
  * 
@@ -30,49 +27,55 @@ import java.util.Vector;
 public class TerminatorThread extends Thread
 {
 
-    private Vector<Thread> threads;
-    private long maxExecutionTime;
-    private Workload workload;
-    private long waitTimeOutInMS;
+    private final Vector<ClientThread> clientThreads;
+    private final long maxExecutionTimeSeconds;
+    private final Workload workload;
+    private final long waitTimeoutInMS;
 
-    public TerminatorThread( long maxExecutionTime, Vector<Thread> threads, Workload workload )
+    /**
+     * @param maxExecutionTime (seconds)
+     * @param clientThreads
+     * @param workload
+     */
+    public TerminatorThread( long maxExecutionTime, Vector<ClientThread> clientThreads, Workload workload )
     {
-        this.maxExecutionTime = maxExecutionTime;
-        this.threads = threads;
+        this.maxExecutionTimeSeconds = maxExecutionTime;
+        this.clientThreads = clientThreads;
         this.workload = workload;
-        waitTimeOutInMS = 2000;
-        System.err.println( "Maximum execution time specified as: " + maxExecutionTime + " secs" );
+        this.waitTimeoutInMS = 2000;
+        System.err.println( "Maximum execution time specified as: " + maxExecutionTime + " seconds" );
     }
 
     public void run()
     {
         try
         {
-            Thread.sleep( maxExecutionTime * 1000 );
+            Thread.sleep( maxExecutionTimeSeconds * 1000 );
         }
         catch ( InterruptedException e )
         {
-            System.err.println( "Could not wait until max specified time, TerminatorThread interrupted." );
+            System.err.println( "Could not wait until max specified time, TerminatorThread interrupted" );
             return;
         }
-        System.err.println( "Maximum time elapsed. Requesting stop for the workload." );
+        System.err.println( "Maximum time elapsed, requesting stop for the workload" );
         workload.requestStop();
         System.err.println( "Stop requested for workload. Now Joining!" );
-        for ( Thread t : threads )
+        for ( ClientThread clientThread : clientThreads )
         {
-            while ( t.isAlive() )
+            while ( clientThread.isAlive() )
             {
                 try
                 {
-                    t.join( waitTimeOutInMS );
-                    if ( t.isAlive() )
+                    clientThread.join( waitTimeoutInMS );
+                    if ( clientThread.isAlive() )
                     {
-                        System.err.println( "Still waiting for thread " + t.getName() + " to complete. "
+                        System.err.println( "Still waiting for thread " + clientThread.getName() + " to complete. "
                                             + "Workload status: " + workload.isStopRequested() );
                     }
                 }
                 catch ( InterruptedException e )
                 {
+                    // TODO message below is suspect, maybe throw exception here
                     // Do nothing. Don't know why I was interrupted.
                 }
             }
