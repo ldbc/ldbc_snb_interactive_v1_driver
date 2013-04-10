@@ -21,6 +21,9 @@ import java.io.*;
 import java.text.DecimalFormat;
 import java.util.*;
 
+import org.apache.commons.math3.random.RandomDataGenerator;
+
+import com.yahoo.ycsb.generator.AbstractGeneratorFactory;
 import com.yahoo.ycsb.measurements.Measurements;
 import com.yahoo.ycsb.measurements.exporter.MeasurementsExporter;
 import com.yahoo.ycsb.measurements.exporter.TextMeasurementsExporter;
@@ -136,63 +139,65 @@ class StatusThread extends Thread
 }
 
 /**
- * A thread for executing transactions or data inserts to the database.
+ * A thread for executing operations against the database
  * 
  * @author cooperb
  * 
  */
 class ClientThread extends Thread
 {
-    DB _db;
-    boolean _dotransactions;
-    Workload _workload;
-    int _opcount;
-    double _target;
+    final DB db;
+    final boolean doTransactions;
+    final Workload workload;
+    final int operationCount;
+    final double target;
+    final int threadId;
+    final int threadCount;
+    final Properties properties;
+    final RandomDataGenerator random;
 
-    int _opsdone;
-    int _threadid;
-    int _threadcount;
-    Object _workloadstate;
-    Properties _props;
+    // TODO can this be final too?
+    Object workloadState;
+
+    int operationsDone;
 
     /**
-     * Constructor.
-     * 
      * @param db the DB implementation to use
-     * @param dotransactions true to do transactions, false to insert data
+     * @param doTransactions true to do transactions, false to insert data
      * @param workload the workload to use
-     * @param threadid the id of this thread
-     * @param threadcount the total number of threads
-     * @param props the properties defining the experiment
-     * @param opcount the number of operations (transactions or inserts) to do
-     * @param targetperthreadperms target number of operations per thread per ms
+     * @param threadId the id of this thread
+     * @param threadCount the total number of threads
+     * @param properties the properties defining the experiment
+     * @param operationCount number of operations (transactions/inserts) to do
+     * @param targetPerThreadPerMs target number of operations per thread per ms
      */
-    public ClientThread( DB db, boolean dotransactions, Workload workload, int threadid, int threadcount,
-            Properties props, int opcount, double targetperthreadperms )
+    public ClientThread( DB db, boolean doTransactions, Workload workload, int threadId, int threadCount,
+            Properties properties, int operationCount, double targetPerThreadPerMs,
+            RandomDataGenerator randomDataGenerator )
     {
-        // TODO: consider removing threadcount and threadid
-        _db = db;
-        _dotransactions = dotransactions;
-        _workload = workload;
-        _opcount = opcount;
-        _opsdone = 0;
-        _target = targetperthreadperms;
-        _threadid = threadid;
-        _threadcount = threadcount;
-        _props = props;
-        // System.out.println("Interval = "+interval);
+        // TODO: consider removing threadCount and threadId
+        this.db = db;
+        this.doTransactions = doTransactions;
+        this.workload = workload;
+        this.operationCount = operationCount;
+        this.operationsDone = 0;
+        this.target = targetPerThreadPerMs;
+        this.threadId = threadId;
+        this.threadCount = threadCount;
+        this.properties = properties;
+        this.random = randomDataGenerator;
     }
 
     public int getOpsDone()
     {
-        return _opsdone;
+        return operationsDone;
     }
 
     public void run()
     {
         try
         {
-            _db.init();
+            db.init();
         }
         catch ( DBException e )
         {
@@ -203,7 +208,7 @@ class ClientThread extends Thread
 
         try
         {
-            _workloadstate = _workload.initThread( _props, _threadid, _threadcount );
+            workloadState = workload.initThread( properties, threadId, threadCount );
         }
         catch ( WorkloadException e )
         {
@@ -220,9 +225,9 @@ class ClientThread extends Thread
             // argument must be >0
             // and the sleep() doesn't make sense for granularities < 1 ms
             // anyway
-            if ( ( _target > 0 ) && ( _target <= 1.0 ) )
+            if ( ( target > 0 ) && ( target <= 1.0 ) )
             {
-                sleep( Utils.random().nextInt( (int) ( 1.0 / _target ) ) );
+                sleep( random.nextInt( 0, (int) ( 1.0 / target ) ) );
             }
         }
         catch ( InterruptedException e )
@@ -232,22 +237,23 @@ class ClientThread extends Thread
 
         try
         {
-            if ( _dotransactions )
+            if ( doTransactions )
             {
                 long st = System.currentTimeMillis();
 
-                while ( ( ( _opcount == 0 ) || ( _opsdone < _opcount ) ) && !_workload.isStopRequested() )
+                while ( ( ( operationCount == 0 ) || ( operationsDone < operationCount ) )
+                        && !workload.isStopRequested() )
                 {
 
-                    if ( !_workload.doTransaction( _db, _workloadstate ) )
+                    if ( !workload.doTransaction( db, workloadState ) )
                     {
                         break;
                     }
 
-                    _opsdone++;
+                    operationsDone++;
 
                     // throttle the operations
-                    if ( _target > 0 )
+                    if ( target > 0 )
                     {
                         // this is more accurate than other throttling
                         // approaches we have tried,
@@ -256,7 +262,7 @@ class ClientThread extends Thread
                         // because it smooths timing inaccuracies (from sleep()
                         // taking an int,
                         // current time in millis) over many operations
-                        while ( System.currentTimeMillis() - st < ( (double) _opsdone ) / _target )
+                        while ( System.currentTimeMillis() - st < ( (double) operationsDone ) / target )
                         {
                             try
                             {
@@ -275,18 +281,19 @@ class ClientThread extends Thread
             {
                 long st = System.currentTimeMillis();
 
-                while ( ( ( _opcount == 0 ) || ( _opsdone < _opcount ) ) && !_workload.isStopRequested() )
+                while ( ( ( operationCount == 0 ) || ( operationsDone < operationCount ) )
+                        && !workload.isStopRequested() )
                 {
 
-                    if ( !_workload.doInsert( _db, _workloadstate ) )
+                    if ( !workload.doInsert( db, workloadState ) )
                     {
                         break;
                     }
 
-                    _opsdone++;
+                    operationsDone++;
 
                     // throttle the operations
-                    if ( _target > 0 )
+                    if ( target > 0 )
                     {
                         // this is more accurate than other throttling
                         // approaches we have tried,
@@ -295,7 +302,7 @@ class ClientThread extends Thread
                         // because it smooths timing inaccuracies (from sleep()
                         // taking an int,
                         // current time in millis) over many operations
-                        while ( System.currentTimeMillis() - st < ( (double) _opsdone ) / _target )
+                        while ( System.currentTimeMillis() - st < ( (double) operationsDone ) / target )
                         {
                             try
                             {
@@ -319,7 +326,7 @@ class ClientThread extends Thread
 
         try
         {
-            _db.cleanup();
+            db.cleanup();
         }
         catch ( DBException e )
         {
@@ -331,27 +338,27 @@ class ClientThread extends Thread
 }
 
 /**
- * Main class for executing YCSB.
+ * Main class for executing YCSB
  */
 public class Client
 {
-    public static final String OPERATION_COUNT_PROPERTY = "operationcount";
+    public static final String OPERATION_COUNT = "operationcount";
+    public static final String RECORD_COUNT = "recordcount";
+    public static final String WORKLOAD = "workload";
 
-    public static final String RECORD_COUNT_PROPERTY = "recordcount";
-
-    public static final String WORKLOAD_PROPERTY = "workload";
+    public static final String EXPORTER = "exporter";
+    public static final String EXPORT_FILE_PATH = "exportfile";
 
     /**
-     * Indicates how many inserts to do, if less than recordcount. Useful for
-     * partitioning the load among multiple servers, if the client is the
-     * bottleneck. Additionally, workloads should support the "insertstart"
-     * property, which tells them which record to start at.
+     * For partitioning load among machines when client is bottleneck.
+     * INSERT_COUNT specifies number of inserts client should do, if less than
+     * RECORD_COUNT. Workloads should support the INSERT_START property, which
+     * specifies the record to start at (offset).
      */
-    public static final String INSERT_COUNT_PROPERTY = "insertcount";
+    public static final String INSERT_COUNT = "insertcount";
 
     /**
-     * The maximum amount of time (in seconds) for which the benchmark will be
-     * run.
+     * Maximum time (seconds) the benchmark will be run
      */
     public static final String MAX_EXECUTION_TIME = "maxexecutiontime";
 
@@ -376,7 +383,7 @@ public class Client
         System.out.println( "  -l label:  use label for status (e.g. to label one experiment out of a whole batch)" );
         System.out.println( "" );
         System.out.println( "Required properties:" );
-        System.out.println( "  " + WORKLOAD_PROPERTY
+        System.out.println( "  " + WORKLOAD
                             + ": the name of the workload class to use (e.g. com.yahoo.ycsb.workloads.CoreWorkload)" );
         System.out.println( "" );
         System.out.println( "To run the transaction phase from multiple servers, start a separate client on each." );
@@ -386,9 +393,10 @@ public class Client
 
     public static boolean checkRequiredProperties( Properties props )
     {
-        if ( props.getProperty( WORKLOAD_PROPERTY ) == null )
+        if ( !props.containsKey( WORKLOAD ) )
         {
-            System.out.println( "Missing property: " + WORKLOAD_PROPERTY );
+            // TODO use logger
+            System.out.println( "Missing property: " + WORKLOAD );
             return false;
         }
 
@@ -396,8 +404,8 @@ public class Client
     }
 
     /**
-     * Exports the measurements to either sysout or a file using the exporter
-     * loaded from conf.
+     * Exports measurements to either sysout or file, using the exporter loaded
+     * from configuration
      * 
      * @throws IOException Either failed to write to output stream or failed to
      *             close it.
@@ -407,30 +415,18 @@ public class Client
         MeasurementsExporter exporter = null;
         try
         {
-            // if no destination file is provided the results will be written to
-            // stdout
-            OutputStream out;
-            String exportFile = props.getProperty( "exportfile" );
-            if ( exportFile == null )
-            {
-                out = System.out;
-            }
-            else
-            {
-                out = new FileOutputStream( exportFile );
-            }
-
-            // if no exporter is provided the default text one will be used
-            String exporterStr = props.getProperty( "exporter",
-                    "com.yahoo.ycsb.measurements.exporter.TextMeasurementsExporter" );
+            String exportFilePath = props.getProperty( EXPORT_FILE_PATH );
+            OutputStream out = ( exportFilePath == null ) ? System.out : new FileOutputStream( exportFilePath );
+            String exporterClassName = props.getProperty( EXPORTER, TextMeasurementsExporter.class.getName() );
             try
             {
-                exporter = (MeasurementsExporter) Class.forName( exporterStr ).getConstructor( OutputStream.class ).newInstance(
+                exporter = (MeasurementsExporter) Class.forName( exporterClassName ).getConstructor( OutputStream.class ).newInstance(
                         out );
             }
             catch ( Exception e )
             {
-                System.err.println( "Could not find exporter " + exporterStr + ", will use default text reporter." );
+                System.err.println( "Could not find exporter " + exporterClassName
+                                    + ", will use default text reporter." );
                 e.printStackTrace();
                 exporter = new TextMeasurementsExporter( out );
             }
@@ -450,9 +446,13 @@ public class Client
         }
     }
 
-    @SuppressWarnings( "unchecked" )
     public static void main( String[] args )
     {
+        final long seed = System.currentTimeMillis();
+        final RandomDataGeneratorFactory randomFactory = new RandomDataGeneratorFactory( seed );
+        final AbstractGeneratorFactory abstractGeneratorFactory = new AbstractGeneratorFactory(
+                randomFactory.newRandom() );
+
         String dbname;
         Properties props = new Properties();
         Properties fileprops = new Properties();
@@ -683,7 +683,7 @@ public class Client
 
         try
         {
-            Class workloadclass = classLoader.loadClass( props.getProperty( WORKLOAD_PROPERTY ) );
+            Class workloadclass = classLoader.loadClass( props.getProperty( WORKLOAD ) );
 
             workload = (Workload) workloadclass.newInstance();
         }
@@ -696,7 +696,7 @@ public class Client
 
         try
         {
-            workload.init( props );
+            workload.init( props, abstractGeneratorFactory.newGeneratorFactory() );
         }
         catch ( WorkloadException e )
         {
@@ -714,17 +714,17 @@ public class Client
         int opcount;
         if ( dotransactions )
         {
-            opcount = Integer.parseInt( props.getProperty( OPERATION_COUNT_PROPERTY, "0" ) );
+            opcount = Integer.parseInt( props.getProperty( OPERATION_COUNT, "0" ) );
         }
         else
         {
-            if ( props.containsKey( INSERT_COUNT_PROPERTY ) )
+            if ( props.containsKey( INSERT_COUNT ) )
             {
-                opcount = Integer.parseInt( props.getProperty( INSERT_COUNT_PROPERTY, "0" ) );
+                opcount = Integer.parseInt( props.getProperty( INSERT_COUNT, "0" ) );
             }
             else
             {
-                opcount = Integer.parseInt( props.getProperty( RECORD_COUNT_PROPERTY, "0" ) );
+                opcount = Integer.parseInt( props.getProperty( RECORD_COUNT, "0" ) );
             }
         }
 
@@ -743,9 +743,11 @@ public class Client
                 System.exit( 0 );
             }
 
+            // TODO multiple ClientThreads SHARE a Workload instance? Why?
+
             Thread t = new ClientThread( db, dotransactions, workload, threadid, threadcount, props, opcount
                                                                                                      / threadcount,
-                    targetperthreadperms );
+                    targetperthreadperms, randomFactory.newRandom() );
 
             threads.add( t );
             // t.start();

@@ -17,18 +17,28 @@
 
 package com.yahoo.ycsb.generator;
 
-/**
- * A generator that is capable of generating ints as well as strings
- * 
- * @author cooperb
- * 
- */
-// TODO delete after DiscreteGenerator, ContinuousGenerator,
-// TODO ContinuousRangeGenerator are added
-public interface HasMean
+import org.apache.commons.math3.random.RandomDataGenerator;
+
+public class UniformDoubleGenerator extends Generator<Double>
 {
-    /**
-     * Return expected value (mean) of the values this generator will return
-     */
-    public abstract double mean();
+    private final double lowerBound;
+    private final double upperBound;
+
+    UniformDoubleGenerator( RandomDataGenerator random, double lowerBound, double upperBound )
+    {
+        super( random );
+        this.lowerBound = lowerBound;
+        this.upperBound = upperBound;
+    }
+
+    @Override
+    protected Double doNext()
+    {
+        return getRandom().nextUniform( lowerBound, upperBound );
+    }
+
+    // public double mean()
+    // {
+    // return ( lowerBound + upperBound ) / 2.0;
+    // }
 }

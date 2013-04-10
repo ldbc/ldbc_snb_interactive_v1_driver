@@ -2,6 +2,8 @@ package com.yahoo.ycsb.generator;
 
 import static org.junit.Assert.assertEquals;
 
+import org.apache.commons.math3.random.RandomDataGenerator;
+import org.junit.Before;
 import org.junit.Test;
 
 import com.yahoo.ycsb.WorkloadException;
@@ -11,12 +13,19 @@ import com.yahoo.ycsb.generator.Pair;
 
 public class DiscreteGeneratorTest
 {
+    GeneratorFactory generatorFactory = null;
+
+    @Before
+    public void initGeneratorFactory()
+    {
+        generatorFactory = new AbstractGeneratorFactory( new RandomDataGenerator() ).newGeneratorFactory();
+    }
 
     @Test( expected = WorkloadException.class )
     public void emptyConstructorTest() throws WorkloadException
     {
         // Given
-        DiscreteGenerator generator = new GeneratorFactory().buildDiscreteGenerator();
+        DiscreteGenerator<Object> generator = generatorFactory.newDiscreteGenerator();
 
         // When
         generator.next();
@@ -31,11 +40,9 @@ public class DiscreteGeneratorTest
         // Given
         Pair<Double, Object> p1 = new Pair<Double, Object>( 3.0, "1" );
         Pair<Double, Object> p2 = new Pair<Double, Object>( 7.0, "2" );
-        DiscreteGenerator generator1 = new GeneratorFactory().buildDiscreteGenerator( p1, p2 );
-        DiscreteGenerator generator2 = new GeneratorFactory().convertToDiscreteGenerator( 3.0, "1", 7.0, "2" );
+        DiscreteGenerator<Object> generator1 = generatorFactory.newDiscreteGenerator( p1, p2 );
 
         assertCorrectProportions( generator1, p1, p2 );
-        assertCorrectProportions( generator2, p1, p2 );
     }
 
     @Test
@@ -44,39 +51,42 @@ public class DiscreteGeneratorTest
         // Given
         Pair<Double, Object> p1 = new Pair<Double, Object>( 3.0, "1" );
         Pair<Double, Object> p2 = new Pair<Double, Object>( 7.0, "2" );
-        DiscreteGenerator generator = new GeneratorFactory().buildDiscreteGenerator( p1, p2 );
+        DiscreteGenerator<Object> generator = generatorFactory.newDiscreteGenerator( p1, p2 );
 
         // When
-        Pair<Double, Object> lastP = generator.next();
-        assertEquals( "last() should equal previous next()", lastP, generator.last() );
+        Object last = generator.next();
+        assertEquals( "last() should equal previous next()", last, generator.last() );
         boolean lastEqualsPreviousNext = true;
         final int generationCount = 1000000;
         for ( int i = 0; i < generationCount; i++ )
         {
-            lastP = generator.next();
-            lastEqualsPreviousNext = lastEqualsPreviousNext && ( lastP.equals( generator.last() ) );
+            last = generator.next();
+            lastEqualsPreviousNext = lastEqualsPreviousNext && ( last.equals( generator.last() ) );
         }
 
         // Then
         assertEquals( "last() should always equal the previous next()", true, lastEqualsPreviousNext );
     }
 
-    public void assertCorrectProportions( DiscreteGenerator generator, Pair<Double, Object> p1, Pair<Double, Object> p2 )
-            throws WorkloadException
+    public void assertCorrectProportions( DiscreteGenerator<Object> generator, Pair<Double, Object> p1,
+            Pair<Double, Object> p2 ) throws WorkloadException
     {
         // Given
 
         // When
-        Pair<Double, Object> p = null;
+        Object thing = null;
+        // final int generationCount = 1000000;
         final int generationCount = 1000000;
         Double p1Count = 0.0;
         Double p2Count = 0.0;
         for ( int i = 0; i < generationCount; i++ )
         {
-            p = generator.next();
-            assertEquals( "DiscreteGenerator must output an item it was given", true, p.equals( p1 ) || p.equals( p2 ) );
-            if ( p1.equals( p ) ) p1Count++;
-            if ( p2.equals( p ) ) p2Count++;
+            thing = generator.next();
+
+            assertEquals( "DiscreteGenerator must output an item it was given", true,
+                    thing.equals( p1._2() ) || thing.equals( p2._2() ) );
+            if ( p1._2().equals( thing ) ) p1Count++;
+            if ( p2._2().equals( thing ) ) p2Count++;
         }
         p1Count = p1Count / generationCount;
         p2Count = p2Count / generationCount;

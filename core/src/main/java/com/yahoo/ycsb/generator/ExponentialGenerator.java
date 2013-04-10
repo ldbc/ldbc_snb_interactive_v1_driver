@@ -17,79 +17,61 @@
 
 package com.yahoo.ycsb.generator;
 
-import java.util.Random;
+import org.apache.commons.math3.random.RandomDataGenerator;
 
-import com.yahoo.ycsb.Utils;
+import com.yahoo.ycsb.RandomDataGeneratorFactory;
 import com.yahoo.ycsb.WorkloadException;
 
 /**
- * A generator of an exponential distribution. It produces a sequence of time
- * intervals (integers) according to an exponential distribution. Smaller
- * intervals are more frequent than larger ones, and there is no bound on the
- * length of an interval. When you construct an instance of this class, you
- * specify a parameter gamma, which corresponds to the rate at which events
- * occur. Alternatively, 1/gamma is the average length of an interval.
+ * Produces a sequence of longs according to an exponential distribution.
+ * Smaller intervals are more frequent than larger ones, and there is no bound
+ * on the length of an interval.
+ * 
+ * gamma: mean rate events occur. 1/gamma: half life - average interval length
  */
-public class ExponentialGenerator extends Generator<Long> implements HasMean
+public class ExponentialGenerator extends Generator<Long>
 {
-    // What percentage of the readings should be within the most recent
-    // exponential.frac portion of the dataset?
-    public static final String EXPONENTIAL_PERCENTILE_PROPERTY = "exponential.percentile";
+    // % of readings within most recent exponential.frac portion of dataset
+    public static final String EXPONENTIAL_PERCENTILE = "exponential.percentile";
     public static final String EXPONENTIAL_PERCENTILE_DEFAULT = "95";
 
-    // What fraction of the dataset should be accessed exponential.percentile of
-    // the time?
-    public static final String EXPONENTIAL_FRAC_PROPERTY = "exponential.frac";
+    // Fraction of the dataset accessed exponential.percentile of the time
+    public static final String EXPONENTIAL_FRAC = "exponential.frac";
     public static final String EXPONENTIAL_FRAC_DEFAULT = "0.8571428571"; // 1/7
 
-    /**
-     * The exponential constant to use.
-     */
-    double _gamma;
+    // Exponential constant
+    private double gamma;
 
-    /******************************* Constructors **************************************/
-
-    /**
-     * Create an exponential generator with a mean arrival rate of gamma. (And
-     * half life of 1/gamma).
-     */
-    public ExponentialGenerator( Random random, double mean )
+    ExponentialGenerator( RandomDataGenerator random, double mean )
     {
         super( random );
-        _gamma = 1.0 / mean;
+        gamma = 1.0 / mean;
     }
 
-    public ExponentialGenerator( Random random, double percentile, double range )
+    ExponentialGenerator( RandomDataGenerator random, double percentile, double range )
     {
         super( random );
-        _gamma = -Math.log( 1.0 - percentile / 100.0 ) / range; // 1.0/mean;
+        gamma = -Math.log( 1.0 - percentile / 100.0 ) / range;
     }
 
-    /****************************************************************************************/
-
-    /**
-     * Generate the next item. this distribution will be skewed toward lower
-     * integers; e.g. 0 will be the most popular, 1 the next most popular, etc.
-     * 
-     * @param itemcount The number of items in the distribution.
-     * @return The next item in the sequence.
-     */
     @Override
     protected Long doNext()
     {
-        return (long) ( -Math.log( Utils.random().nextDouble() ) / _gamma );
+        // TODO replace with internal class variable random
+        return (long) ( -Math.log( getRandom().nextUniform( 0, 1 ) ) / gamma );
     }
 
-    @Override
-    public double mean()
-    {
-        return 1.0 / _gamma;
-    }
+    // public double mean()
+    // {
+    // return 1.0 / gamma;
+    // }
 
     // TODO is this just a lame test?
     public static void main( String args[] ) throws WorkloadException
     {
-        ExponentialGenerator e = new ExponentialGenerator( Utils.random(), 90, 100 );
+        GeneratorFactory gf = new GeneratorFactory( new RandomDataGeneratorFactory( 42l ) );
+
+        ExponentialGenerator e = (ExponentialGenerator) gf.newExponentialGenerator( 90, 100 );
         int j = 0;
         for ( int i = 0; i < 1000; i++ )
         {
@@ -100,5 +82,4 @@ public class ExponentialGenerator extends Generator<Long> implements HasMean
         }
         System.out.println( "Got " + j + " hits.  Expect 900" );
     }
-
 }

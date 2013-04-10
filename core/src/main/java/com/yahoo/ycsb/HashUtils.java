@@ -17,59 +17,30 @@
 
 package com.yahoo.ycsb;
 
-import java.util.Random;
-
-/**
- * Utility functions.
- */
-public class Utils
+public class HashUtils
 {
-    private static final Random random = new Random();
-    private static final ThreadLocal<Random> localRandom = new ThreadLocal<Random>();
-
-    // private static final ThreadLocal<Random> uniqueNum = new
-    // ThreadLocal<Random>()
+    // /**
+    // * Generate a random ASCII string of a given length.
+    // */
+    // public static String ASCIIString( int length )
     // {
-    // @Override
-    // protected Random initialValue()
+    // int interval = '~' - ' ' + 1;
+    //
+    // byte[] buf = new byte[length];
+    // random().nextBytes( buf );
+    // for ( int i = 0; i < length; i++ )
     // {
-    // return ;
+    // if ( buf[i] < 0 )
+    // {
+    // buf[i] = (byte) ( ( -buf[i] % interval ) + ' ' );
     // }
-    // };
-
-    public static Random random()
-    {
-        Random rng = localRandom.get();
-        if ( rng == null )
-        {
-            rng = new Random( random.nextLong() );
-            localRandom.set( rng );
-        }
-        return rng;
-    }
-
-    /**
-     * Generate a random ASCII string of a given length.
-     */
-    public static String ASCIIString( int length )
-    {
-        int interval = '~' - ' ' + 1;
-
-        byte[] buf = new byte[length];
-        random().nextBytes( buf );
-        for ( int i = 0; i < length; i++ )
-        {
-            if ( buf[i] < 0 )
-            {
-                buf[i] = (byte) ( ( -buf[i] % interval ) + ' ' );
-            }
-            else
-            {
-                buf[i] = (byte) ( ( buf[i] % interval ) + ' ' );
-            }
-        }
-        return new String( buf );
-    }
+    // else
+    // {
+    // buf[i] = (byte) ( ( buf[i] % interval ) + ' ' );
+    // }
+    // }
+    // return new String( buf );
+    // }
 
     /**
      * Hash an integer value.

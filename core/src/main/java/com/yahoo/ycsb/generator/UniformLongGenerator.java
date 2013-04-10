@@ -17,37 +17,31 @@
 
 package com.yahoo.ycsb.generator;
 
-import java.util.Random;
+import org.apache.commons.math3.random.RandomDataGenerator;
 
-import com.yahoo.ycsb.Utils;
-
-/**
- * Generates integers randomly uniform from an interval.
- */
-public class UniformIntegerGenerator extends Generator<Integer> implements HasMean
+public class UniformLongGenerator extends Generator<Long>
 {
-    int lowerBound, upperBound, interval;
+    private final long lowerBound;
+    private final long upperBound;
 
     /**
-     * Return integers uniformly randomly from interval [lb,ub] inclusive
+     * Long integers uniformly from interval [lowerBound,upperBound] inclusive
      */
-    public UniformIntegerGenerator( Random random, Integer lb, Integer ub )
+    UniformLongGenerator( RandomDataGenerator random, long lowerBound, long upperBound )
     {
         super( random );
-        lowerBound = lb;
-        upperBound = ub;
-        interval = upperBound - lowerBound + 1;
+        this.lowerBound = lowerBound;
+        this.upperBound = upperBound;
     }
 
     @Override
-    protected Integer doNext()
+    protected Long doNext()
     {
-        return Utils.random().nextInt( interval ) + lowerBound;
+        return getRandom().nextLong( lowerBound, upperBound );
     }
 
-    @Override
-    public double mean()
-    {
-        return ( (double) ( (long) ( lowerBound + (long) upperBound ) ) ) / 2.0;
-    }
+    // public double mean()
+    // {
+    // return ( lowerBound + upperBound ) / 2.0;
+    // }
 }

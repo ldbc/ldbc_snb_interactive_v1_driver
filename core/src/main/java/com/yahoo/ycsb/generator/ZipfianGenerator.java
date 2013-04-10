@@ -17,9 +17,8 @@
 
 package com.yahoo.ycsb.generator;
 
-import java.util.Random;
+import org.apache.commons.math3.random.RandomDataGenerator;
 
-import com.yahoo.ycsb.Utils;
 import com.yahoo.ycsb.WorkloadException;
 
 /**
@@ -51,7 +50,7 @@ import com.yahoo.ycsb.WorkloadException;
  * "Quickly Generating Billion-Record Synthetic Databases", Jim Gray et al,
  * SIGMOD 1994.
  */
-public class ZipfianGenerator extends Generator<Long> implements HasMean
+public class ZipfianGenerator extends Generator<Long>
 {
     public static final double ZIPFIAN_CONSTANT = 0.99;
 
@@ -101,44 +100,6 @@ public class ZipfianGenerator extends Generator<Long> implements HasMean
     /******************************* Constructors **************************************/
 
     /**
-     * Create a zipfian generator for the specified number of items.
-     * 
-     * @param _items The number of items in the distribution.
-     * @throws WorkloadException
-     */
-    public ZipfianGenerator( Random random, long items )
-    {
-        this( random, 0, items - 1 );
-    }
-
-    /**
-     * Create a zipfian generator for items between min and max.
-     * 
-     * @param _min The smallest integer to generate in the sequence.
-     * @param _max The largest integer to generate in the sequence.
-     * @throws WorkloadException
-     */
-    // TODO use Range
-    public ZipfianGenerator( Random random, long min, long max )
-    {
-        this( random, min, max, ZIPFIAN_CONSTANT );
-    }
-
-    /**
-     * Create a zipfian generator for the specified number of items using the
-     * specified zipfian constant.
-     * 
-     * @param _items The number of items in the distribution.
-     * @param _zipfianconstant The zipfian constant to use.
-     * @throws WorkloadException
-     */
-    // TODO use Range
-    public ZipfianGenerator( Random random, long items, double zipfianConstant )
-    {
-        this( random, 0, items - 1, zipfianConstant );
-    }
-
-    /**
      * Create a zipfian generator for items between min and max (inclusive) for
      * the specified zipfian constant.
      * 
@@ -148,9 +109,9 @@ public class ZipfianGenerator extends Generator<Long> implements HasMean
      * @throws WorkloadException
      */
     // TODO use Range
-    public ZipfianGenerator( Random random, long min, long max, double zipfianConstant )
+    ZipfianGenerator( RandomDataGenerator random, long min, long max, double zipfianConstant )
     {
-        this( random, min, max, zipfianConstant, zetastatic( max - min + 1, zipfianConstant ) );
+        this( random, min, max, zipfianConstant, zetaStatic( max - min + 1, zipfianConstant ) );
     }
 
     /**
@@ -164,7 +125,7 @@ public class ZipfianGenerator extends Generator<Long> implements HasMean
      * @throws WorkloadException
      */
     // TODO use Range
-    public ZipfianGenerator( Random random, long min, long max, double zipfianConstant, double zetan )
+    ZipfianGenerator( RandomDataGenerator random, long min, long max, double zipfianConstant, double zetan )
     {
         super( random );
         items = max - min + 1;
@@ -177,7 +138,7 @@ public class ZipfianGenerator extends Generator<Long> implements HasMean
 
         alpha = 1.0 / ( 1.0 - theta );
         // zetan=zeta(items,theta);
-        zetan = zetan;
+        this.zetan = zetan;
         countforzeta = items;
         eta = ( 1 - Math.pow( 2.0 / items, 1 - theta ) ) / ( 1 - zeta2theta / zetan );
 
@@ -200,7 +161,7 @@ public class ZipfianGenerator extends Generator<Long> implements HasMean
     double zeta( long n, double theta )
     {
         countforzeta = n;
-        return zetastatic( n, theta );
+        return zetaStatic( n, theta );
     }
 
     /**
@@ -212,9 +173,9 @@ public class ZipfianGenerator extends Generator<Long> implements HasMean
      * @param n The number of items to compute zeta over.
      * @param theta The zipfian constant.
      */
-    static double zetastatic( long n, double theta )
+    static double zetaStatic( long n, double theta )
     {
-        return zetastatic( 0, n, theta, 0 );
+        return zetaStatic( 0, n, theta, 0 );
     }
 
     /**
@@ -231,7 +192,7 @@ public class ZipfianGenerator extends Generator<Long> implements HasMean
     double zeta( long st, long n, double theta, double initialsum )
     {
         countforzeta = n;
-        return zetastatic( st, n, theta, initialsum );
+        return zetaStatic( st, n, theta, initialsum );
     }
 
     /**
@@ -245,12 +206,11 @@ public class ZipfianGenerator extends Generator<Long> implements HasMean
      * @param theta The zipfian constant.
      * @param initialsum The value of zeta we are computing incrementally from.
      */
-    static double zetastatic( long st, long n, double theta, double initialsum )
+    static double zetaStatic( long st, long n, double theta, double initialsum )
     {
         double sum = initialsum;
         for ( long i = st; i < n; i++ )
         {
-
             sum += 1 / ( Math.pow( i + 1, theta ) );
         }
 
@@ -311,7 +271,7 @@ public class ZipfianGenerator extends Generator<Long> implements HasMean
             }
         }
 
-        double u = Utils.random().nextDouble();
+        double u = getRandom().nextUniform( 0, 1 );
         double uz = u * zetan;
 
         if ( uz < 1.0 )
@@ -340,17 +300,4 @@ public class ZipfianGenerator extends Generator<Long> implements HasMean
     {
         return nextLong( items );
     }
-
-    // TODO is this just a lame test?
-    public static void main( String[] args ) throws WorkloadException
-    {
-        new ZipfianGenerator( Utils.random(), ScrambledZipfianGenerator.ITEM_COUNT );
-    }
-
-    // TODO Implement ZipfianGenerator.mean()
-    public double mean()
-    {
-        throw new UnsupportedOperationException( "@todo implement ZipfianGenerator.mean()" );
-    }
-
 }

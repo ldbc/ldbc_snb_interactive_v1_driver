@@ -16,33 +16,26 @@
  */
 package com.yahoo.ycsb.generator;
 
-import java.util.Random;
+import org.apache.commons.math3.random.RandomDataGenerator;
 
-/**
- * A trivial integer generator that always returns the same value.
- * 
- * @author sears
- * 
- */
-public class ConstantIntegerGenerator extends Generator<Integer> implements HasMean
+public class ConstantNumberGenerator<T extends Number> extends Generator<T>
 {
-    private final int constantNumber;
+    private final T constantNumber;
 
-    public ConstantIntegerGenerator( Random random, int constantNumber )
+    ConstantNumberGenerator( RandomDataGenerator random, T number )
     {
         super( random );
-        this.constantNumber = constantNumber;
+        this.constantNumber = number;
     }
 
     @Override
-    protected Integer doNext()
+    protected T doNext()
     {
         return constantNumber;
     }
 
-    @Override
-    public double mean()
-    {
-        return constantNumber;
-    }
+    // public double mean()
+    // {
+    // return (Double) constantNumber;
+    // }
 }

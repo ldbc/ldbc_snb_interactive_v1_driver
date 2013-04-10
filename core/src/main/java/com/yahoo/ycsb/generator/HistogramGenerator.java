@@ -21,16 +21,14 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Random;
 
-import com.yahoo.ycsb.Utils;
+import org.apache.commons.math3.random.RandomDataGenerator;
 
 /**
- * Generate integers according to a histogram distribution. The histogram
- * buckets are of width one, but the values are multiplied by a block size.
- * Therefore, instead of drawing sizes uniformly at random within each bucket,
- * we always draw the largest value in the current bucket, so the value drawn is
- * always a multiple of block_size.
+ * Histogram distribution. Histogram buckets are of width one, but the values
+ * are multiplied by a block size. Therefore, instead of drawing sizes uniformly
+ * at random within each bucket, we always draw the largest value in the current
+ * bucket, so the value drawn is always a multiple of block_size.
  * 
  * The minimum value this distribution returns is block_size (not zero).
  * 
@@ -39,7 +37,7 @@ import com.yahoo.ycsb.Utils;
  * @author snjones
  * 
  */
-public class HistogramGenerator extends Generator<Integer> implements HasMean
+public class HistogramGenerator extends Generator<Long>
 {
 
     long block_size;
@@ -48,7 +46,7 @@ public class HistogramGenerator extends Generator<Integer> implements HasMean
     long weighted_area = 0;
     double mean_size = 0;
 
-    public HistogramGenerator( Random random, String histogramFilePath ) throws GeneratorException
+    HistogramGenerator( RandomDataGenerator random, String histogramFilePath ) throws GeneratorException
     {
         // TODO this constructor should call the other constructor
         super( random );
@@ -103,7 +101,7 @@ public class HistogramGenerator extends Generator<Integer> implements HasMean
         }
     }
 
-    public HistogramGenerator( Random random, long[] buckets, int block_size )
+    HistogramGenerator( RandomDataGenerator random, long[] buckets, int block_size )
     {
         super( random );
         this.block_size = block_size;
@@ -123,9 +121,9 @@ public class HistogramGenerator extends Generator<Integer> implements HasMean
     }
 
     @Override
-    protected Integer doNext()
+    protected Long doNext()
     {
-        int number = Utils.random().nextInt( (int) area );
+        int number = getRandom().nextInt( 0, (int) area );
         int i;
 
         for ( i = 0; i < ( buckets.length - 1 ); i++ )
@@ -133,16 +131,15 @@ public class HistogramGenerator extends Generator<Integer> implements HasMean
             number -= buckets[i];
             if ( number <= 0 )
             {
-                return (int) ( ( i + 1 ) * block_size );
+                return (long) ( ( i + 1 ) * block_size );
             }
         }
 
-        return (int) ( i * block_size );
+        return (long) ( i * block_size );
     }
 
-    @Override
-    public double mean()
-    {
-        return mean_size;
-    }
+    // public double mean()
+    // {
+    // return mean_size;
+    // }
 }

@@ -17,38 +17,27 @@
 
 package com.yahoo.ycsb.generator;
 
-import java.util.Random;
-import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicLong;
+
+import org.apache.commons.math3.random.RandomDataGenerator;
 
 /**
- * Generates a sequence of integers 0, 1, ...
+ * Generates a sequence of long integers
  */
-public class CounterGenerator extends Generator<Integer> implements HasMean
+public class CounterGenerator extends Generator<Long>
 {
-    final AtomicInteger counter;
+    // TODO AtomicLong not be necessary if only one generator per thread
+    private final AtomicLong counter;
 
-    /**
-     * Create a counter that starts at countstart
-     */
-    public CounterGenerator( Random random, Integer countstart )
+    CounterGenerator( RandomDataGenerator random, Long start )
     {
         super( random );
-        counter = new AtomicInteger( countstart );
-    }
-
-    /**
-     * Return the next value (usually integral type)
-     */
-    @Override
-    protected Integer doNext()
-    {
-        int ret = counter.getAndIncrement();
-        return ret;
+        counter = new AtomicLong( start );
     }
 
     @Override
-    public double mean()
+    protected Long doNext()
     {
-        throw new UnsupportedOperationException( "Can't compute mean of non-stationary distribution" );
+        return counter.getAndIncrement();
     }
 }

@@ -16,72 +16,97 @@
  */
 package com.yahoo.ycsb;
 
+import org.apache.commons.math3.random.RandomDataGenerator;
+
 /**
- *  A ByteIterator that generates a random sequence of bytes.
+ * A ByteIterator that generates a random sequence of bytes.
  */
-public class RandomByteIterator extends ByteIterator {
-  private long len;
-  private long off;
-  private int bufOff;
-  private byte[] buf;
+public class RandomByteIterator extends ByteIterator
+{
+    private long length;
+    private long offset;
+    private int bufferOffset;
+    private byte[] buffer;
 
-  @Override
-  public boolean hasNext() {
-    return (off + bufOff) < len;
-  }
+    private final RandomDataGenerator rdg;
 
-  private void fillBytesImpl(byte[] buffer, int base) {
-    int bytes = Utils.random().nextInt();
-    try {
-      buffer[base+0] = (byte)(((bytes) & 31) + ' ');
-      buffer[base+1] = (byte)(((bytes >> 5) & 31) + ' ');
-      buffer[base+2] = (byte)(((bytes >> 10) & 31) + ' ');
-      buffer[base+3] = (byte)(((bytes >> 15) & 31) + ' ');
-      buffer[base+4] = (byte)(((bytes >> 20) & 31) + ' ');
-      buffer[base+5] = (byte)(((bytes >> 25) & 31) + ' ');
-    } catch (ArrayIndexOutOfBoundsException e) { /* ignore it */ }
-  }
-
-  private void fillBytes() {
-    if(bufOff ==  buf.length) {
-      fillBytesImpl(buf, 0);
-      bufOff = 0;
-      off += buf.length;
+    public RandomByteIterator( long length, RandomDataGenerator rdg )
+    {
+        this.length = length;
+        this.buffer = new byte[6];
+        this.bufferOffset = buffer.length;
+        this.rdg = rdg;
+        fillBytes();
+        this.offset = 0;
     }
-  }
 
-  public RandomByteIterator(long len) {
-    this.len = len;
-    this.buf = new byte[6];
-    this.bufOff = buf.length;
-    fillBytes();
-    this.off = 0;
-  }
-
-  public byte nextByte() {
-    fillBytes();
-    bufOff++;
-    return buf[bufOff-1];
-  }
-
-  @Override
-  public int nextBuf(byte[] buffer, int bufferOffset) {
-    int ret;
-    if(len - off < buffer.length - bufferOffset) {
-      ret = (int)(len - off);
-    } else {
-      ret = buffer.length - bufferOffset;
+    @Override
+    public boolean hasNext()
+    {
+        return ( offset + bufferOffset ) < length;
     }
-    int i;
-    for(i = 0; i < ret; i+=6) {
-      fillBytesImpl(buffer, i + bufferOffset);
-    }
-    off+=ret;
-    return ret + bufferOffset;
-  }
 
-  @Override
-  public long bytesLeft() {
-    return len - off - bufOff;
-  }
+    private void fillBytesImpl( byte[] buffer, int base )
+    {
+        // TODO remove
+        // int bytes = Utils.random().nextInt();
+        int bytes = rdg.nextInt( 0, 2 ^ 32 );
+        try
+        {
+            buffer[base + 0] = (byte) ( ( ( bytes ) & 31 ) + ' ' );
+            buffer[base + 1] = (byte) ( ( ( bytes >> 5 ) & 31 ) + ' ' );
+            buffer[base + 2] = (byte) ( ( ( bytes >> 10 ) & 31 ) + ' ' );
+            buffer[base + 3] = (byte) ( ( ( bytes >> 15 ) & 31 ) + ' ' );
+            buffer[base + 4] = (byte) ( ( ( bytes >> 20 ) & 31 ) + ' ' );
+            buffer[base + 5] = (byte) ( ( ( bytes >> 25 ) & 31 ) + ' ' );
+        }
+        catch ( ArrayIndexOutOfBoundsException e )
+        { /* ignore it */
+            // TODO wtf is going on here?!
+        }
+    }
+
+    private void fillBytes()
+    {
+        if ( bufferOffset == buffer.length )
+        {
+            fillBytesImpl( buffer, 0 );
+            bufferOffset = 0;
+            offset += buffer.length;
+        }
+    }
+
+    public byte nextByte()
+    {
+        fillBytes();
+        bufferOffset++;
+        return buffer[bufferOffset - 1];
+    }
+
+    @Override
+    public int nextBuf( byte[] buffer, int bufferOffset )
+    {
+        int ret;
+        if ( length - offset < buffer.length - bufferOffset )
+        {
+            ret = (int) ( length - offset );
+        }
+        else
+        {
+            ret = buffer.length - bufferOffset;
+        }
+        int i;
+        for ( i = 0; i < ret; i += 6 )
+        {
+            fillBytesImpl( buffer, i + bufferOffset );
+        }
+        offset += ret;
+        return ret + bufferOffset;
+    }
+
+    @Override
+    public long bytesLeft()
+    {
+        return length - offset - bufferOffset;
+    }
 }

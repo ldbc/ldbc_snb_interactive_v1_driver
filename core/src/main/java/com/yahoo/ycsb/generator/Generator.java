@@ -19,27 +19,18 @@ package com.yahoo.ycsb.generator;
 
 import java.util.Iterator;
 import java.util.NoSuchElementException;
-import java.util.Random;
+
+import org.apache.commons.math3.random.RandomDataGenerator;
 
 import com.yahoo.ycsb.WorkloadException;
 
-/**
- * An expression that generates a sequence of string values, following some
- * distribution (Uniform, Zipfian, Sequential, etc.)
- */
 public abstract class Generator<T> implements Iterator<T>
 {
-    // TODO implement CounterGenerator to test new Iterator stuff
-    // TODO implement DiscreteGenerator & ContinuousGenerator as base classes
-    // TODO maybe a ContinuousRangeGenerator too
-    // TODO only ContinuousRangeGenerator would have mean()
-    // TODO make all integral Generator<Long> by default?
-
     private T last = null;
     private T next = null;
-    private final Random random;
+    private final RandomDataGenerator random;
 
-    protected Generator( Random random )
+    Generator( RandomDataGenerator random )
     {
         this.random = random;
     }
@@ -55,6 +46,7 @@ public abstract class Generator<T> implements Iterator<T>
         next = ( next == null ) ? doNext() : next;
         if ( null == next ) throw new NoSuchElementException( "Generator has nothing more to generate" );
         last = next;
+        next = null;
         return last;
     }
 
@@ -91,7 +83,7 @@ public abstract class Generator<T> implements Iterator<T>
         return last;
     }
 
-    protected final Random getRandom()
+    protected final RandomDataGenerator getRandom()
     {
         return random;
     }

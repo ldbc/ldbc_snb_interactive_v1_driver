@@ -16,9 +16,7 @@
  */
 package com.yahoo.ycsb.generator;
 
-import java.util.Random;
-
-import com.yahoo.ycsb.Utils;
+import org.apache.commons.math3.random.RandomDataGenerator;
 
 /**
  * Generate integers resembling a hotspot distribution where x% of operations
@@ -31,7 +29,7 @@ import com.yahoo.ycsb.Utils;
  * @author sudipto
  * 
  */
-public class HotspotIntegerGenerator extends Generator<Integer> implements HasMean
+public class HotspotLongGenerator extends Generator<Long>
 {
 
     private final int lowerBound;
@@ -49,7 +47,7 @@ public class HotspotIntegerGenerator extends Generator<Integer> implements HasMe
      * @param hotsetFraction percentage of data item
      * @param hotOpnFraction percentage of operations accessing the hot set.
      */
-    public HotspotIntegerGenerator( Random random, int lowerBound, int upperBound, double hotsetFraction,
+    HotspotLongGenerator( RandomDataGenerator random, int lowerBound, int upperBound, double hotsetFraction,
             double hotOpnFraction )
     {
         super( random );
@@ -81,26 +79,22 @@ public class HotspotIntegerGenerator extends Generator<Integer> implements HasMe
     }
 
     @Override
-    protected Integer doNext()
+    protected Long doNext()
     {
-        int value = 0;
-        Random random = Utils.random();
-        if ( random.nextDouble() < hotOpnFraction )
+        long value = 0;
+        if ( getRandom().nextUniform( 0, 1 ) < hotOpnFraction )
         {
-            // Choose a value from the hot set.
-            value = lowerBound + random.nextInt( hotInterval );
+            // Choose a value from the hot set
+            value = lowerBound + getRandom().nextInt( 0, hotInterval );
         }
         else
         {
-            // Choose a value from the cold set.
-            value = lowerBound + hotInterval + random.nextInt( coldInterval );
+            // Choose a value from the cold set
+            value = lowerBound + hotInterval + getRandom().nextInt( 0, coldInterval );
         }
         return value;
     }
 
-    /**
-     * @return the lowerBound
-     */
     public int getLowerBound()
     {
         return lowerBound;
@@ -130,9 +124,10 @@ public class HotspotIntegerGenerator extends Generator<Integer> implements HasMe
         return hotOpnFraction;
     }
 
-    public double mean()
-    {
-        return hotOpnFraction * ( lowerBound + hotInterval / 2.0 ) + ( 1 - hotOpnFraction )
-               * ( lowerBound + hotInterval + coldInterval / 2.0 );
-    }
+    // public double mean()
+    // {
+    // return hotOpnFraction * ( lowerBound + hotInterval / 2.0 ) + ( 1 -
+    // hotOpnFraction )
+    // * ( lowerBound + hotInterval + coldInterval / 2.0 );
+    // }
 }

@@ -16,7 +16,7 @@
 		<jackson.api.version>1.9.4</jackson.api.version>
 		<junit-version>4.10</junit-version>
 		<guava-version>14.0</guava-version>
-		<common-math-version>2.2</common-math-version>
+		<common-math-version>3.2</common-math-version>
 		<log4j-version>1.2.17</log4j-version>
 	</properties>
 
@@ -55,7 +55,7 @@
 		</dependency>
 		<dependency>
 			<groupId>org.apache.commons</groupId>
-			<artifactId>commons-math</artifactId>
+			<artifactId>commons-math3</artifactId>
 			<version>${common-math-version}</version>
 		</dependency>
 	</dependencies>

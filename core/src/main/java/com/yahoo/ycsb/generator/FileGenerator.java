@@ -20,7 +20,8 @@ import java.io.FileInputStream;
 import java.io.InputStreamReader;
 import java.io.BufferedReader;
 import java.io.IOException;
-import java.util.Random;
+
+import org.apache.commons.math3.random.RandomDataGenerator;
 
 import com.yahoo.ycsb.WorkloadException;
 
@@ -29,28 +30,28 @@ import com.yahoo.ycsb.WorkloadException;
  */
 public class FileGenerator extends Generator<String>
 {
-    String filename;
+    String filenameX;
     BufferedReader reader;
 
     /**
      * Create a FileGenerator with the given file.
      * 
-     * @param _filename The file to read lines from.
+     * @param filename The file to read lines from.
      * @throws WorkloadException
      */
-    public FileGenerator( Random random, String _filename ) throws WorkloadException
+    FileGenerator( RandomDataGenerator random, String filename ) throws WorkloadException
     {
         super( random );
         try
         {
-            filename = _filename;
-            File file = new File( filename );
+            filenameX = filename;
+            File file = new File( filenameX );
             FileInputStream in = new FileInputStream( file );
             reader = new BufferedReader( new InputStreamReader( in ) );
         }
         catch ( IOException e )
         {
-            throw new WorkloadException( String.format( "Error creating FileGenerator : %s", _filename, last() ),
+            throw new WorkloadException( String.format( "Error creating FileGenerator : %s", filename, last() ),
                     e.getCause() );
         }
     }
@@ -75,12 +76,12 @@ public class FileGenerator extends Generator<String>
         catch ( NullPointerException e )
         {
             throw new WorkloadException( String.format( "Error encountered reading next line\nFile : %s\nLine : %s",
-                    filename, last() ), e.getCause() );
+                    filenameX, last() ), e.getCause() );
         }
         catch ( IOException e )
         {
             throw new WorkloadException( String.format( "Error encountered reading next line\nFile : %s\nLine : %s",
-                    filename, last() ), e.getCause() );
+                    filenameX, last() ), e.getCause() );
         }
     }
 
@@ -93,15 +94,15 @@ public class FileGenerator extends Generator<String>
     {
         try
         {
-            System.err.println( "Reload " + filename );
+            System.err.println( "Reload " + filenameX );
             reader.close();
-            File file = new File( filename );
+            File file = new File( filenameX );
             FileInputStream in = new FileInputStream( file );
             reader = new BufferedReader( new InputStreamReader( in ) );
         }
         catch ( IOException e )
         {
-            throw new WorkloadException( String.format( "Error encountered reloading file : %s", filename ),
+            throw new WorkloadException( String.format( "Error encountered reloading file : %s", filenameX ),
                     e.getCause() );
         }
     }

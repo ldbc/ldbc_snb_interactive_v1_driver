@@ -17,52 +17,47 @@
 
 package com.yahoo.ycsb.generator;
 
-import java.util.Random;
 import java.util.Vector;
 
-import com.yahoo.ycsb.Utils;
+import org.apache.commons.math3.random.RandomDataGenerator;
+
 import com.yahoo.ycsb.WorkloadException;
 
 /**
- * Generates a distribution by choosing from a discrete set of values.
+ * Chooses from a discrete set of values according to some distribution
  */
-// TODO make it work better with UniformDiscreteGenerator
-public class DiscreteGenerator extends Generator<Pair<Double, Object>>
+public class DiscreteGenerator<T> extends Generator<T>
 {
-    private Vector<Pair<Double, Object>> items;
+    private final Vector<Pair<Double, T>> items;
+    private final double probabilitiesSum;
 
-    public DiscreteGenerator( Random random, Pair<Double, Object>... newItems )
+    DiscreteGenerator( RandomDataGenerator random, Pair<Double, T>... discreteItems )
     {
         super( random );
-        items = new Vector<Pair<Double, Object>>();
-        for ( Pair<Double, Object> item : newItems )
+        if ( 0 == discreteItems.length ) throw new WorkloadException( "DiscreteGenerator cannot be empty" );
+        this.items = new Vector<Pair<Double, T>>();
+        double sum = 0;
+
+        for ( Pair<Double, T> item : discreteItems )
         {
-            items.add( item );
+            this.items.add( item );
+            sum += item._1();
         }
+        probabilitiesSum = sum;
     }
 
     @Override
-    protected Pair<Double, Object> doNext() throws WorkloadException
+    protected T doNext() throws WorkloadException
     {
-        if ( 0 == items.size() ) throw new WorkloadException( "DiscreteGenerator cannot be empty" );
+        double val = getRandom().nextUniform( 0, 1 );
 
-        double sum = 0;
-
-        for ( Pair<Double, Object> item : items )
+        for ( Pair<Double, T> item : items )
         {
-            sum += item._1();
-        }
-
-        double val = Utils.random().nextDouble();
-
-        for ( Pair<Double, Object> item : items )
-        {
-            if ( val < item._1() / sum )
+            if ( val < item._1() / probabilitiesSum )
             {
-                return item;
+                return item._2();
             }
-
-            val -= item._1() / sum;
+            val -= item._1() / probabilitiesSum;
         }
 
         throw new WorkloadException( "Unexpected Error - DiscreteGenerator.next() should never get to this line" );

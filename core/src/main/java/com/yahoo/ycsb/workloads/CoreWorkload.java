@@ -10,15 +10,10 @@ import com.yahoo.ycsb.DBException;
 import com.yahoo.ycsb.Workload;
 import com.yahoo.ycsb.WorkloadException;
 import com.yahoo.ycsb.generator.CounterGenerator;
-import com.yahoo.ycsb.generator.DiscreteGenerator;
 import com.yahoo.ycsb.generator.ExponentialGenerator;
 import com.yahoo.ycsb.generator.Generator;
 import com.yahoo.ycsb.generator.GeneratorFactory;
-import com.yahoo.ycsb.generator.HotspotIntegerGenerator;
-import com.yahoo.ycsb.generator.ScrambledZipfianGenerator;
-import com.yahoo.ycsb.generator.SkewedLatestGenerator;
-import com.yahoo.ycsb.generator.UniformIntegerGenerator;
-import com.yahoo.ycsb.generator.ZipfianGenerator;
+import com.yahoo.ycsb.generator.Pair;
 
 public class CoreWorkload extends Workload
 {
@@ -30,29 +25,27 @@ public class CoreWorkload extends Workload
     boolean orderedInserts;
     int recordCount;
 
-    // TODO change class hierarchy to avoid unparameterized warnings?
-    // value depends on "FIELD_LENGTH_" properties.
-    Generator<Integer> fieldLengthGenerator;
-    Generator<Integer> keySequence;
-    Generator keyChooser;
-    Generator<Integer> fieldChooser;
-    Generator scanLength;
+    Generator<Long> fieldLengthGenerator;
+    Generator<Long> keySequence;
+    Generator<Long> keyChooser;
+    Generator<Long> fieldChooser;
+    Generator<Long> scanLength;
     CounterGenerator transactionInsertKeySequence;
-    DiscreteGenerator operationChooser;
+    Generator<? extends Object> operationGenerator;
 
     /**
      * Initialize scenario. Called once, in main client thread, before
      * operations are started.
      */
     @Override
-    public void init( Properties p ) throws WorkloadException
+    public void init( Properties p, GeneratorFactory generatorFactory ) throws WorkloadException
     {
-        super.init( p );
+        super.init( p, generatorFactory );
         table = p.getProperty( CoreWorkloadProperties.TABLENAME, CoreWorkloadProperties.TABLENAME_DEFAULT );
 
         fieldCount = Integer.parseInt( p.getProperty( CoreWorkloadProperties.FIELD_COUNT,
                 CoreWorkloadProperties.FIELD_COUNT_DEFAULT ) );
-        recordCount = Integer.parseInt( p.getProperty( Client.RECORD_COUNT_PROPERTY ) );
+        recordCount = Integer.parseInt( p.getProperty( Client.RECORD_COUNT ) );
 
         Distribution fieldLengthDistribution = Distribution.valueOf( p.getProperty(
                 CoreWorkloadProperties.FIELD_LENGTH_DISTRIBUTION,
@@ -62,7 +55,7 @@ public class CoreWorkload extends Workload
         String fieldLengthHistogramFilePath = p.getProperty( CoreWorkloadProperties.FIELD_LENGTH_HISTOGRAM_FILE,
                 CoreWorkloadProperties.FIELD_LENGTH_HISTOGRAM_FILE_DEFAULT );
         fieldLengthGenerator = WorkloadUtils.buildFieldLengthGenerator( fieldLengthDistribution,
-                Range.closed( 1, fieldLength ), fieldLengthHistogramFilePath );
+                Range.closed( (long) 1, (long) fieldLength ), fieldLengthHistogramFilePath );
 
         double readProp = Double.parseDouble( p.getProperty( CoreWorkloadProperties.READ_PROPORTION,
                 CoreWorkloadProperties.READ_PROPORTION_DEFAULT ) );
@@ -79,9 +72,9 @@ public class CoreWorkload extends Workload
         String requestdistrib = p.getProperty( CoreWorkloadProperties.REQUEST_DISTRIBUTION,
                 CoreWorkloadProperties.REQUEST_DISTRIBUTION_DEFAULT );
 
-        int maxscanlength = Integer.parseInt( p.getProperty( CoreWorkloadProperties.MAX_SCAN_LENGTH,
+        int maxScanlength = Integer.parseInt( p.getProperty( CoreWorkloadProperties.MAX_SCAN_LENGTH,
                 CoreWorkloadProperties.MAX_SCAN_LENGTH_DEFAULT ) );
-        String scanlengthdistrib = p.getProperty( CoreWorkloadProperties.SCAN_LENGTH_DISTRIBUTION,
+        String scanLengthDistribution = p.getProperty( CoreWorkloadProperties.SCAN_LENGTH_DISTRIBUTION,
                 CoreWorkloadProperties.SCAN_LENGTH_DISTRIBUTION_DEFAULT );
 
         readAllFields = Boolean.parseBoolean( p.getProperty( CoreWorkloadProperties.READ_ALL_FIELDS,
@@ -96,41 +89,47 @@ public class CoreWorkload extends Workload
         }
         else if ( requestdistrib.compareTo( "exponential" ) == 0 )
         {
-            double percentile = Double.parseDouble( p.getProperty(
-                    ExponentialGenerator.EXPONENTIAL_PERCENTILE_PROPERTY,
+            double percentile = Double.parseDouble( p.getProperty( ExponentialGenerator.EXPONENTIAL_PERCENTILE,
                     ExponentialGenerator.EXPONENTIAL_PERCENTILE_DEFAULT ) );
-            double frac = Double.parseDouble( p.getProperty( ExponentialGenerator.EXPONENTIAL_FRAC_PROPERTY,
+            double frac = Double.parseDouble( p.getProperty( ExponentialGenerator.EXPONENTIAL_FRAC,
                     ExponentialGenerator.EXPONENTIAL_FRAC_DEFAULT ) );
-            keyChooser = new ExponentialGenerator( percentile, recordCount * frac );
+            keyChooser = generatorFactory.newExponentialGenerator( percentile, recordCount * frac );
         }
         else
         {
             orderedInserts = true;
         }
 
-        int insertstart = Integer.parseInt( p.getProperty( Workload.INSERT_START_PROPERTY,
-                Workload.INSERT_START_PROPERTY_DEFAULT ) );
-        keySequence = new CounterGenerator( insertstart );
+        int insertStart = Integer.parseInt( p.getProperty( Workload.INSERT_START, Workload.INSERT_START_DEFAULT ) );
+        keySequence = generatorFactory.newCounterGenerator( insertStart );
 
-        operationChooser = new GeneratorFactory().convertToDiscreteGenerator( readProp, "READ", updateProp, "UPDATE",
-                insertProp, "INSERT", scanProp, "SCAN", readModifyWriteProp, "READMODIFYWRITE" );
+        // proportion of transactions reads/update/insert/scan/read-modify-write
+        Pair<Double, Object> readOperation = new Pair<Double, Object>( readProp, "READ" );
+        Pair<Double, Object> updateOperation = new Pair<Double, Object>( updateProp, "UPDATE" );
+        Pair<Double, Object> insertOperation = new Pair<Double, Object>( insertProp, "INSERT" );
+        Pair<Double, Object> scanOperation = new Pair<Double, Object>( scanProp, "READ" );
+        Pair<Double, Object> readModifyWriteOperation = new Pair<Double, Object>( readModifyWriteProp,
+                "READMODIFYWRITE" );
 
-        transactionInsertKeySequence = new CounterGenerator( recordCount );
+        operationGenerator = generatorFactory.newDiscreteGenerator( readOperation, updateOperation, insertOperation,
+                scanOperation, readModifyWriteOperation );
+
+        transactionInsertKeySequence = generatorFactory.newCounterGenerator( recordCount );
         if ( requestdistrib.compareTo( "uniform" ) == 0 )
         {
-            keyChooser = new UniformIntegerGenerator( 0, recordCount - 1 );
+            keyChooser = generatorFactory.newUniformIntegerGenerator( Range.closed( (long) 0, (long) ( recordCount - 1 ) ) );
         }
         else if ( requestdistrib.compareTo( "zipfian" ) == 0 )
         {
-            int opcount = Integer.parseInt( p.getProperty( Client.OPERATION_COUNT_PROPERTY ) );
+            int opcount = Integer.parseInt( p.getProperty( Client.OPERATION_COUNT ) );
             // 2 is fudge factor
-            int expectednewkeys = (int) ( ( (double) opcount ) * insertProp * 2.0 );
+            long expectednewkeys = (long) ( ( (double) opcount ) * insertProp * 2.0 );
 
-            keyChooser = new ScrambledZipfianGenerator( recordCount + expectednewkeys );
+            keyChooser = generatorFactory.newScrambledZipfianGenerator( Range.closed( 0l, recordCount + expectednewkeys ) );
         }
         else if ( requestdistrib.compareTo( "latest" ) == 0 )
         {
-            keyChooser = new SkewedLatestGenerator( transactionInsertKeySequence );
+            keyChooser = generatorFactory.newSkewedLatestGenerator( transactionInsertKeySequence );
         }
         else if ( requestdistrib.equals( "hotspot" ) )
         {
@@ -138,26 +137,28 @@ public class CoreWorkload extends Workload
                     CoreWorkloadProperties.HOTSPOT_DATA_FRACTION_DEFAULT ) );
             double hotopnfraction = Double.parseDouble( p.getProperty( CoreWorkloadProperties.HOTSPOT_OPN_FRACTION,
                     CoreWorkloadProperties.HOTSPOT_OPN_FRACTION_DEFAULT ) );
-            keyChooser = new HotspotIntegerGenerator( 0, recordCount - 1, hotsetfraction, hotopnfraction );
+            keyChooser = generatorFactory.newHotspotIntegerGenerator( 0, recordCount - 1, hotsetfraction,
+                    hotopnfraction );
         }
         else
         {
             throw new WorkloadException( "Unknown request distribution \"" + requestdistrib + "\"" );
         }
 
-        fieldChooser = new UniformIntegerGenerator( 0, fieldCount - 1 );
+        fieldChooser = generatorFactory.newUniformIntegerGenerator( Range.closed( (long) 0, (long) ( fieldCount - 1 ) ) );
 
-        if ( scanlengthdistrib.compareTo( "uniform" ) == 0 )
+        if ( scanLengthDistribution.equals( "uniform" ) )
         {
-            scanLength = new UniformIntegerGenerator( 1, maxscanlength );
+            scanLength = generatorFactory.newUniformIntegerGenerator( Range.closed( (long) 1, (long) maxScanlength ) );
         }
-        else if ( scanlengthdistrib.compareTo( "zipfian" ) == 0 )
+        else if ( scanLengthDistribution.equals( "zipfian" ) )
         {
-            scanLength = new ZipfianGenerator( 1, maxscanlength );
+            scanLength = generatorFactory.newZipfianGenerator( Range.closed( (long) 1, (long) maxScanlength ) );
         }
         else
         {
-            throw new WorkloadException( "Distribution \"" + scanlengthdistrib + "\" not allowed for scan length" );
+            throw new WorkloadException( String.format( "Distributed [%s] not supported for scan length generator",
+                    scanLengthDistribution ) );
         }
     }
 
@@ -199,7 +200,7 @@ public class CoreWorkload extends Workload
         String op;
         try
         {
-            op = (String) operationChooser.next()._2();
+            op = (String) operationGenerator.next();
         }
         catch ( WorkloadException e )
         {

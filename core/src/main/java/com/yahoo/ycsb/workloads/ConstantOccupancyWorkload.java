@@ -22,7 +22,7 @@ import com.google.common.collect.Range;
 import com.yahoo.ycsb.WorkloadException;
 import com.yahoo.ycsb.Client;
 import com.yahoo.ycsb.generator.Generator;
-import com.yahoo.ycsb.generator.HasMean;
+import com.yahoo.ycsb.generator.GeneratorFactory;
 
 /**
  * A disk-fragmenting workload.
@@ -70,15 +70,16 @@ public class ConstantOccupancyWorkload extends CoreWorkload
     public static final double OCCUPANCY_PROPERTY_DEFAULT = 0.9;
 
     @Override
-    public void init( Properties p ) throws WorkloadException
+    public void init( Properties p, GeneratorFactory generatorFactory ) throws WorkloadException
     {
+        super.init( p, generatorFactory );
+
         disksize = Long.parseLong( p.getProperty( DISK_SIZE_PROPERTY, DISK_SIZE_PROPERTY_DEFAULT + "" ) );
         storageages = Long.parseLong( p.getProperty( STORAGE_AGE_PROPERTY, STORAGE_AGE_PROPERTY_DEFAULT + "" ) );
         occupancy = Double.parseDouble( p.getProperty( OCCUPANCY_PROPERTY, OCCUPANCY_PROPERTY_DEFAULT + "" ) );
 
-        if ( p.getProperty( Client.RECORD_COUNT_PROPERTY ) != null
-             || p.getProperty( Client.INSERT_COUNT_PROPERTY ) != null
-             || p.getProperty( Client.OPERATION_COUNT_PROPERTY ) != null )
+        if ( p.getProperty( Client.RECORD_COUNT ) != null || p.getProperty( Client.INSERT_COUNT ) != null
+             || p.getProperty( Client.OPERATION_COUNT ) != null )
         {
             System.err.println( "Warning: record, insert or operation count was set prior to initting ConstantOccupancyWorkload.  Overriding old values." );
         }
@@ -90,9 +91,11 @@ public class ConstantOccupancyWorkload extends CoreWorkload
                 CoreWorkloadProperties.FIELD_LENGTH_DEFAULT ) );
         String fieldLengthHistogramFilePath = p.getProperty( CoreWorkloadProperties.FIELD_LENGTH_HISTOGRAM_FILE,
                 CoreWorkloadProperties.FIELD_LENGTH_HISTOGRAM_FILE_DEFAULT );
-        Generator<Integer> g = WorkloadUtils.buildFieldLengthGenerator( fieldLengthDistribution,
-                Range.closed( 1, fieldLength ), fieldLengthHistogramFilePath );
-        double fieldsize = ( (HasMean) g ).mean();
+        Generator<Long> g = WorkloadUtils.buildFieldLengthGenerator( fieldLengthDistribution,
+                Range.closed( (long) 1, (long) fieldLength ), fieldLengthHistogramFilePath );
+        // TODO is mean() necessary? set to constant for now, fix later
+        double fieldsize = fieldLength / 2;
+        // double fieldsize = g.mean();
 
         int fieldcount = Integer.parseInt( p.getProperty( CoreWorkloadProperties.FIELD_COUNT,
                 CoreWorkloadProperties.FIELD_COUNT_DEFAULT ) );
@@ -102,10 +105,8 @@ public class ConstantOccupancyWorkload extends CoreWorkload
         {
             throw new IllegalStateException( "Object count was zero.  Perhaps disksize is too low?" );
         }
-        p.setProperty( Client.RECORD_COUNT_PROPERTY, object_count + "" );
-        p.setProperty( Client.OPERATION_COUNT_PROPERTY, ( storageages * object_count ) + "" );
-        p.setProperty( Client.INSERT_COUNT_PROPERTY, object_count + "" );
-
-        super.init( p );
+        p.setProperty( Client.RECORD_COUNT, object_count + "" );
+        p.setProperty( Client.OPERATION_COUNT, ( storageages * object_count ) + "" );
+        p.setProperty( Client.INSERT_COUNT, object_count + "" );
     }
 }
