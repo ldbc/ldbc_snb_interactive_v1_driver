@@ -151,7 +151,7 @@ public class Client
         String dbname;
         Properties properties = new Properties();
         Properties fileprops = new Properties();
-        boolean doTransactions = true;
+        BenchmarkPhase benchmarkPhase = BenchmarkPhase.TRANSACTION_PHASE;
         int threadCount = 1;
         int target = 0;
         boolean status = false;
@@ -168,7 +168,7 @@ public class Client
 
         while ( args[argindex].startsWith( "-" ) )
         {
-            if ( args[argindex].compareTo( "-threads" ) == 0 )
+            if ( args[argindex].equals( "-threads" ) )
             {
                 argindex++;
                 if ( argindex >= args.length )
@@ -180,7 +180,7 @@ public class Client
                 properties.setProperty( "threadcount", tcount + "" );
                 argindex++;
             }
-            else if ( args[argindex].compareTo( "-target" ) == 0 )
+            else if ( args[argindex].equals( "-target" ) )
             {
                 argindex++;
                 if ( argindex >= args.length )
@@ -192,22 +192,22 @@ public class Client
                 properties.setProperty( "target", ttarget + "" );
                 argindex++;
             }
-            else if ( args[argindex].compareTo( "-load" ) == 0 )
+            else if ( args[argindex].equals( "-load" ) )
             {
-                doTransactions = false;
+                benchmarkPhase = BenchmarkPhase.LOAD_PHASE;
                 argindex++;
             }
-            else if ( args[argindex].compareTo( "-t" ) == 0 )
+            else if ( args[argindex].equals( "-t" ) )
             {
-                doTransactions = true;
+                benchmarkPhase = BenchmarkPhase.TRANSACTION_PHASE;
                 argindex++;
             }
-            else if ( args[argindex].compareTo( "-s" ) == 0 )
+            else if ( args[argindex].equals( "-s" ) )
             {
                 status = true;
                 argindex++;
             }
-            else if ( args[argindex].compareTo( "-db" ) == 0 )
+            else if ( args[argindex].equals( "-db" ) )
             {
                 argindex++;
                 if ( argindex >= args.length )
@@ -251,6 +251,7 @@ public class Client
                     System.exit( 0 );
                 }
 
+                // TODO replace Properties with HashMap whereever possible
                 // Issue #5 - remove call to stringPropertyNames to make
                 // compilable under Java 1.5
                 for ( Enumeration e = myfileprops.propertyNames(); e.hasMoreElements(); )
@@ -405,15 +406,17 @@ public class Client
 
         // run the workload
 
-        System.err.println( "Starting test." );
+        System.err.println( "Starting Benchmark" );
 
-        int operationCount;
-        if ( doTransactions )
+        int operationCount = 0;
+
+        switch ( benchmarkPhase )
         {
+        case TRANSACTION_PHASE:
             operationCount = Integer.parseInt( properties.getProperty( OPERATION_COUNT, "0" ) );
-        }
-        else
-        {
+            break;
+
+        case LOAD_PHASE:
             if ( properties.containsKey( INSERT_COUNT ) )
             {
                 operationCount = Integer.parseInt( properties.getProperty( INSERT_COUNT, "0" ) );
@@ -422,6 +425,7 @@ public class Client
             {
                 operationCount = Integer.parseInt( properties.getProperty( RECORD_COUNT, "0" ) );
             }
+            break;
         }
 
         Vector<ClientThread> clientThreads = new Vector<ClientThread>();
@@ -443,7 +447,7 @@ public class Client
             // TODO should I make it as difficult to start multiple threads on
             // TODO machine as multiple threads on multiple machines
 
-            ClientThread clientThread = new ClientThread( db, doTransactions, workload, threadId, threadCount,
+            ClientThread clientThread = new ClientThread( db, benchmarkPhase, workload, threadId, threadCount,
                     properties, operationCount / threadCount, targetPerformancePerMs, randomFactory.newRandom() );
 
             clientThreads.add( clientThread );

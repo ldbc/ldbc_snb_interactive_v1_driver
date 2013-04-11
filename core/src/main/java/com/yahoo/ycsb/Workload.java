@@ -44,26 +44,30 @@ public abstract class Workload
 
     private volatile AtomicBoolean stopRequested = new AtomicBoolean( false );
 
-    /**
-     * Initialize the scenario. Create any generators and other shared objects
-     * here. Called once, in the main client thread, before any operations are
-     * started.
+    /*
+     * Initialize the benchmark scenario: create generators and shared objects. 
+     * Called once, by main Client, at the beginning of a benchmark execution.
      */
     public void init( Properties p, GeneratorFactory generatorFactory ) throws WorkloadException
     {
     }
 
-    /**
-     * Initialize any state for a particular client thread. Since the scenario
-     * object will be shared among all threads, this is the place to create any
-     * state that is specific to one thread. To be clear, this means the
-     * returned object should be created anew on each call to initThread(); do
-     * not return the same object multiple times. The returned object will be
-     * passed to invocations of doInsert() and doTransaction() for this thread.
+    // TODO this seems back the front, default should be local state
+    // TODO make all state local, with ability to specify shared state
+    // TODO don't use object, create a class for this
+    /*
+     * Initialize any state for a particular ClientThread 
+     * 
+     * One Workload instance is shared among all ClientThreads instances, 
+     * this is the place to create any state that is specific to one thread. 
+     * 
+     * Return new instance on each call; DO NOT return same object multiple times. 
+     * Object will be passed to invocations of doInsert()/doTransaction() for this thread.
+     * 
      * There should be no side effects from this call; all state should be
-     * encapsulated in the returned object. If you have no state to retain for
-     * this thread, return null. (But if you have no state to retain for this
-     * thread, probably you don't need to override initThread().)
+     * encapsulated in the returned object. 
+     * 
+     * If no thread-specific state to retain, return null. 
      * 
      * @return false if the workload knows it is done for this thread. Client
      *         will terminate the thread. Return true otherwise. Return true for
@@ -71,60 +75,57 @@ public abstract class Workload
      *         traces from a file, return true when there are more to do, false
      *         when you are done.
      */
-    public Object initThread( Properties p, int mythreadid, int threadcount ) throws WorkloadException
+    public Object initThread( Properties p, int myThreadId, int threadCount ) throws WorkloadException
     {
         return null;
     }
 
-    /**
-     * Cleanup the scenario. Called once, in the main client thread, after all
-     * operations have completed.
+    /*
+     * Called once by main Client after all operations have completed
      */
     public void cleanup() throws WorkloadException
     {
     }
 
-    /**
-     * Do one insert operation. Because it will be called concurrently from
-     * multiple client threads, this function must be thread safe. However,
-     * avoid synchronized, or the threads will block waiting for each other, and
-     * it will be difficult to reach the target throughput. Ideally, this
-     * function would have no side effects other than DB operations and
-     * mutations on threadstate. Mutations to threadstate do not need to be
-     * synchronized, since each thread has its own threadstate instance.
-     */
-    public abstract boolean doInsert( DB db, Object threadstate );
-
-    /**
-     * Do one transaction operation. Because it will be called concurrently from
-     * multiple client threads, this function must be thread safe. However,
-     * avoid synchronized, or the threads will block waiting for each other, and
-     * it will be difficult to reach the target throughput. Ideally, this
-     * function would have no side effects other than DB operations and
-     * mutations on threadstate. Mutations to threadstate do not need to be
-     * synchronized, since each thread has its own threadstate instance.
+    // TODO consider removing and replacing with a "bulk load" phase
+    /*
+     * Perform one insert operation. 
+     * Called concurrently from multiple ClientThread instances. 
+     * DO NOT USE synchronize: threads will block and it will be difficult to reach target throughput. 
      * 
-     * @return false if the workload knows it is done for this thread. Client
-     *         will terminate the thread. Return true otherwise. Return true for
-     *         workloads that rely on operationcount. For workloads that read
-     *         traces from a file, return true when there are more to do, false
-     *         when you are done.
+     * Must be thread safe - no side effects other than: 
+     *  - DB operations 
+     *  - threadState mutations (no need to synchronize, threadState is not shared)
+     *  - shared Generator mutations (Generator.next() mutates internal Generator state)
      */
-    public abstract boolean doTransaction( DB db, Object threadstate );
+    public abstract boolean doInsert( DB db, Object threadState ) throws WorkloadException;
 
-    /**
-     * Allows scheduling a request to stop the workload.
+    /*
+     * Perform one transaction operation. 
+     * Called concurrently from multiple ClientThread instances.
+     * DO NOT USE synchronize: threads will block and it will be difficult to reach target throughput.
+     *
+     * Must be thread safe - no side effects other than: 
+     *  - DB operations 
+     *  - threadState mutations (no need to synchronize, threadState is not shared)
+     *  - shared Generator mutations (Generator.next() mutates internal Generator state)
+     *  
+     * Return false if Workload knows it is done for this thread - Client will terminate the thread.
+     * Return true otherwise. 
+     * 
+     * For Workloads that rely on operationCount return true.
+     * For workloads that read traces from a file, return true until nothing more to read.
+     */
+    public abstract boolean doTransaction( DB db, Object threadState ) throws WorkloadException;
+
+    /*
+     * Schedule a request to stop the Workload
      */
     public void requestStop()
     {
         stopRequested.set( true );
     }
 
-    /**
-     * Check the status of the stop request flag.
-     * 
-     * @return true if stop was requested, false otherwise.
-     */
     public boolean isStopRequested()
     {
         if ( stopRequested.get() == true )

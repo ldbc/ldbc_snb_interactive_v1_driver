@@ -15,7 +15,7 @@ class ClientThread extends Thread
     final BenchmarkPhase benchmarkPhase;
     final Workload workload;
     final int operationCount;
-    final double target;
+    final double targetPerformancePerMs;
     final int threadId;
     final int threadCount;
     final Properties properties;
@@ -46,7 +46,7 @@ class ClientThread extends Thread
         this.workload = workload;
         this.operationCount = operationCount;
         this.operationsDone = 0;
-        this.target = targetPerformancePerMs;
+        this.targetPerformancePerMs = targetPerformancePerMs;
         this.threadId = threadId;
         this.threadCount = threadCount;
         this.properties = properties;
@@ -58,148 +58,132 @@ class ClientThread extends Thread
         return operationsDone;
     }
 
+    @Override
     public void run()
     {
         try
         {
-            db.init();
+            workloadState = initBenchmark();
+            randomizeClients();
+            runBenchmark( benchmarkPhase );
+            cleanupBenchmark();
         }
-        catch ( DBException e )
+        catch ( ClientException e )
         {
+            // TODO complete bullshit, fix error handling
             e.printStackTrace();
             e.printStackTrace( System.out );
-            return;
+            System.exit( 0 );
         }
+    }
 
+    // TODO WorkloadGenerator (control timing) could probably replace this
+    // prevents clients from all sending requests at the same time
+    // spread thread operations out so they do not all hit DB simultaneously
+    private void randomizeClients()
+    {
         try
         {
-            workloadState = workload.initThread( properties, threadId, threadCount );
-        }
-        catch ( WorkloadException e )
-        {
-            e.printStackTrace();
-            e.printStackTrace( System.out );
-            return;
-        }
-
-        // spread the thread operations out so they don't all hit the DB at the
-        // same time
-        try
-        {
-            // GH issue 4 - throws exception if _target>1 because random.nextInt
+            // GH issue 4 - throws exception if target>1 because random.nextInt
             // argument must be >0
-            // and the sleep() doesn't make sense for granularities < 1 ms
-            // anyway
-            if ( ( target > 0 ) && ( target <= 1.0 ) )
+            // and sleep() doesn't make sense for granularities < 1 ms anyway
+            if ( ( targetPerformancePerMs > 0 ) && ( targetPerformancePerMs <= 1.0 ) )
             {
-                sleep( random.nextInt( 0, (int) ( 1.0 / target ) ) );
+                sleep( random.nextInt( 0, (int) ( 1.0 / targetPerformancePerMs ) ) );
             }
         }
         catch ( InterruptedException e )
         {
             // do nothing.
         }
+    }
+
+    private Object initBenchmark() throws ClientException
+    {
+        try
+        {
+            db.init();
+        }
+        catch ( DBException dbe )
+        {
+            throw new ClientException( "Error initializing database", dbe.getCause() );
+        }
 
         try
         {
-            long st = System.currentTimeMillis();
+            return workload.initThread( properties, threadId, threadCount );
+        }
+        catch ( WorkloadException dbe )
+        {
+            throw new ClientException( "Error initializing thread-specific workload settings", dbe.getCause() );
+        }
 
-            switch ( benchmarkPhase )
+    }
+
+    private void runBenchmark( BenchmarkPhase benchmarkPhase ) throws ClientException
+    {
+        long startTime = System.currentTimeMillis();
+        while ( ( ( operationCount == 0 ) || ( operationsDone < operationCount ) ) && !workload.isStopRequested() )
+        {
+            try
             {
-            case DATA_IMPORT:
-                while ( ( ( operationCount == 0 ) || ( operationsDone < operationCount ) )
-                        && !workload.isStopRequested() )
+                if ( benchmarkPhase.equals( BenchmarkPhase.LOAD_PHASE ) )
                 {
-
-                    if ( !workload.doTransaction( db, workloadState ) )
+                    if ( false == workload.doInsert( db, workloadState ) )
                     {
                         break;
                     }
-
-                    operationsDone++;
-
-                    // throttle the operations
-                    if ( target > 0 )
-                    {
-                        // this is more accurate than other throttling
-                        // approaches we have tried,
-                        // like sleeping for (1/target throughput)-operation
-                        // latency,
-                        // because it smooths timing inaccuracies (from sleep()
-                        // taking an int,
-                        // current time in millis) over many operations
-                        while ( System.currentTimeMillis() - st < ( (double) operationsDone ) / target )
-                        {
-                            try
-                            {
-                                sleep( 1 );
-                            }
-                            catch ( InterruptedException e )
-                            {
-                                // do nothing.
-                            }
-
-                        }
-                    }
                 }
-                break;
-
-            case TRANSACTIONS:
-                while ( ( ( operationCount == 0 ) || ( operationsDone < operationCount ) )
-                        && !workload.isStopRequested() )
+                else if ( benchmarkPhase.equals( BenchmarkPhase.TRANSACTION_PHASE ) )
                 {
-
-                    if ( !workload.doTransaction( db, workloadState ) )
+                    if ( false == workload.doTransaction( db, workloadState ) )
                     {
                         break;
                     }
-
-                    operationsDone++;
-
-                    // throttle the operations
-                    if ( target > 0 )
-                    {
-                        // this is more accurate than other throttling
-                        // approaches we have tried,
-                        // like sleeping for (1/target throughput)-operation
-                        // latency,
-                        // because it smooths timing inaccuracies (from sleep()
-                        // taking an int,
-                        // current time in millis) over many operations
-                        while ( System.currentTimeMillis() - st < ( (double) operationsDone ) / target )
-                        {
-                            try
-                            {
-                                sleep( 1 );
-                            }
-                            catch ( InterruptedException e )
-                            {
-                                // do nothing.
-                            }
-
-                        }
-                    }
                 }
-                break;
+            }
+            catch ( WorkloadException e )
+            {
+                throw new ClientException( "Error encountered generating benchmark load", e.getCause() );
+            }
+            operationsDone++;
+            doThrottleOperations( startTime );
+        }
+    }
+
+    // TODO this seems super shit, what is it doing?
+    // TODO probably needs removed and replaced with different abstraction
+    private void doThrottleOperations( long startTime )
+    {
+        /*
+         * more accurate than other strategies tried, like sleeping for (1/target)-operation_latency.
+         * this way smoothes timing inaccuracies, (sleep() takes int, current time in millis) over many operations
+         */
+        if ( targetPerformancePerMs > 0 )
+        {
+            while ( System.currentTimeMillis() - startTime < ( (double) operationsDone ) / targetPerformancePerMs )
+            {
+                try
+                {
+                    sleep( 1 );
+                }
+                catch ( InterruptedException e )
+                {
+                    // do nothing.
+                }
             }
         }
-        catch ( Exception e )
-        {
-            // TODO this is bullshit, add proper error handling
-            e.printStackTrace();
-            e.printStackTrace( System.out );
-            System.exit( 0 );
-        }
+    }
 
+    private void cleanupBenchmark() throws ClientException
+    {
         try
         {
             db.cleanup();
         }
         catch ( DBException e )
         {
-            e.printStackTrace();
-            e.printStackTrace( System.out );
-            return;
+            throw new ClientException( "Error encountered during benchmark cleanup", e.getCause() );
         }
     }
 }

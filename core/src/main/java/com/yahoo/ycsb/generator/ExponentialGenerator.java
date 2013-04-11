@@ -20,7 +20,6 @@ package com.yahoo.ycsb.generator;
 import org.apache.commons.math3.random.RandomDataGenerator;
 
 import com.yahoo.ycsb.RandomDataGeneratorFactory;
-import com.yahoo.ycsb.WorkloadException;
 
 /**
  * Produces a sequence of longs according to an exponential distribution.
@@ -67,7 +66,7 @@ public class ExponentialGenerator extends Generator<Long>
     // }
 
     // TODO is this just a lame test?
-    public static void main( String args[] ) throws WorkloadException
+    public static void main( String args[] ) throws GeneratorException
     {
         GeneratorFactory gf = new GeneratorFactory( new RandomDataGeneratorFactory( 42l ) );
 

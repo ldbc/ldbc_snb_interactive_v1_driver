@@ -19,8 +19,6 @@ package com.yahoo.ycsb.generator;
 
 import org.apache.commons.math3.random.RandomDataGenerator;
 
-import com.yahoo.ycsb.WorkloadException;
-
 /**
  * Skewed distribution to favor recent items significantly more than older items
  */
@@ -30,7 +28,6 @@ public class SkewedLatestGenerator extends Generator<Long>
     private ZipfianGenerator zipfian;
 
     SkewedLatestGenerator( RandomDataGenerator random, CounterGenerator basis, ZipfianGenerator zipfianGenerator )
-                                                                                                                  throws WorkloadException
     {
         super( random );
         this.basis = basis;
@@ -38,7 +35,7 @@ public class SkewedLatestGenerator extends Generator<Long>
     }
 
     @Override
-    protected Long doNext() throws WorkloadException
+    protected Long doNext()
     {
         long max = basis.last();
         // TODO ZipfianGenerator needs parameterized next, e.g.next(max)?

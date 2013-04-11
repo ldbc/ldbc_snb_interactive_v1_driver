@@ -2,6 +2,6 @@ package com.yahoo.ycsb;
 
 public enum BenchmarkPhase
 {
-    DATA_IMPORT,
-    TRANSACTIONS
+    LOAD_PHASE,
+    TRANSACTION_PHASE
 }

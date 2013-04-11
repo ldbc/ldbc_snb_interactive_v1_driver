@@ -21,8 +21,6 @@ import java.util.Vector;
 
 import org.apache.commons.math3.random.RandomDataGenerator;
 
-import com.yahoo.ycsb.WorkloadException;
-
 /**
  * Chooses from a discrete set of values according to some distribution
  */
@@ -34,7 +32,7 @@ public class DiscreteGenerator<T> extends Generator<T>
     DiscreteGenerator( RandomDataGenerator random, Pair<Double, T>... discreteItems )
     {
         super( random );
-        if ( 0 == discreteItems.length ) throw new WorkloadException( "DiscreteGenerator cannot be empty" );
+        if ( 0 == discreteItems.length ) throw new GeneratorException( "DiscreteGenerator cannot be empty" );
         this.items = new Vector<Pair<Double, T>>();
         double sum = 0;
 
@@ -47,7 +45,7 @@ public class DiscreteGenerator<T> extends Generator<T>
     }
 
     @Override
-    protected T doNext() throws WorkloadException
+    protected T doNext() throws GeneratorException
     {
         double val = getRandom().nextUniform( 0, 1 );
 
@@ -60,7 +58,7 @@ public class DiscreteGenerator<T> extends Generator<T>
             val -= item._1() / probabilitiesSum;
         }
 
-        throw new WorkloadException( "Unexpected Error - DiscreteGenerator.next() should never get to this line" );
+        throw new GeneratorException( "Unexpected Error - DiscreteGenerator.next() should never get to this line" );
     }
 
     @Override

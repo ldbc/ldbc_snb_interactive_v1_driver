@@ -102,19 +102,10 @@ public class SimplestWorkload extends Workload
      * @throws WorkloadException
      */
     @Override
-    public boolean doInsert( DB db, Object threadstate )
+    public boolean doInsert( DB db, Object threadstate ) throws WorkloadException
     {
-        try
-        {
-            return WorkloadOperation.doInsert( db, keySequenceGenerator, orderedInserts, fieldCount,
-                    fieldLengthGenerator, table );
-        }
-        catch ( WorkloadException e )
-        {
-            // TODO should rethrow here, but Workload class needs to be modified
-            System.out.println( "Error in doInsert : " + e.toString() );
-            return false;
-        }
+        return WorkloadOperation.doInsert( db, keySequenceGenerator, orderedInserts, fieldCount, fieldLengthGenerator,
+                table );
     }
 
     /**
@@ -124,60 +115,43 @@ public class SimplestWorkload extends Workload
      * it will be difficult to reach the target throughput. Ideally, this
      * function would have no side effects other than DB operations.
      * 
+     * @throws WorkloadException
+     * 
      * @throws DBException
      */
     @Override
-    public boolean doTransaction( DB db, Object threadstate )
+    public boolean doTransaction( DB db, Object threadstate ) throws WorkloadException
     {
-        String op;
-        try
-        {
-            op = (String) operationGenerator.next();
-        }
-        catch ( WorkloadException e )
-        {
-            // TODO throw exception (to do this Workload needs modifying)
-            System.out.println( "Error generating next operation: " + e.toString() );
-            return false;
-        }
+        String op = (String) operationGenerator.next();
 
-        try
+        if ( op.equals( "INSERT" ) )
         {
-            if ( op.equals( "INSERT" ) )
-            {
-                return WorkloadOperation.doInsert( db, transactionInsertKeySequenceGenerator, orderedInserts,
-                        fieldCount, fieldLengthGenerator, table );
-            }
-            else if ( op.equals( "READ" ) )
-            {
-                return WorkloadOperation.doRead( db, keyGenerator, transactionInsertKeySequenceGenerator,
-                        orderedInserts, readAllFields, fieldNameGenerator, table );
-            }
-            else if ( op.equals( "UPDATE" ) )
-            {
-                return WorkloadOperation.doUpdate( db, keyGenerator, transactionInsertKeySequenceGenerator,
-                        orderedInserts, writeAllFields, fieldCount, fieldLengthGenerator, fieldNameGenerator, table );
-            }
-            else if ( op.equals( "SCAN" ) )
-            {
-                return WorkloadOperation.doScan( db, keyGenerator, transactionInsertKeySequenceGenerator,
-                        orderedInserts, scanLengthGenerator, readAllFields, fieldNameGenerator, table );
-            }
-            else if ( op.equals( "READMODIFYWRITE" ) )
-            {
-                return WorkloadOperation.doReadModifyWrite( db, keyGenerator, transactionInsertKeySequenceGenerator,
-                        orderedInserts, readAllFields, writeAllFields, fieldNameGenerator, table, fieldCount,
-                        fieldLengthGenerator );
-            }
-            else
-            {
-                return false;
-            }
+            return WorkloadOperation.doInsert( db, transactionInsertKeySequenceGenerator, orderedInserts, fieldCount,
+                    fieldLengthGenerator, table );
         }
-        catch ( WorkloadException e )
+        else if ( op.equals( "READ" ) )
         {
-            // TODO should rethrow here, but Workload class needs to be modified
-            System.out.println( "Error executing operation: " + e.toString() );
+            return WorkloadOperation.doRead( db, keyGenerator, transactionInsertKeySequenceGenerator, orderedInserts,
+                    readAllFields, fieldNameGenerator, table );
+        }
+        else if ( op.equals( "UPDATE" ) )
+        {
+            return WorkloadOperation.doUpdate( db, keyGenerator, transactionInsertKeySequenceGenerator, orderedInserts,
+                    writeAllFields, fieldCount, fieldLengthGenerator, fieldNameGenerator, table );
+        }
+        else if ( op.equals( "SCAN" ) )
+        {
+            return WorkloadOperation.doScan( db, keyGenerator, transactionInsertKeySequenceGenerator, orderedInserts,
+                    scanLengthGenerator, readAllFields, fieldNameGenerator, table );
+        }
+        else if ( op.equals( "READMODIFYWRITE" ) )
+        {
+            return WorkloadOperation.doReadModifyWrite( db, keyGenerator, transactionInsertKeySequenceGenerator,
+                    orderedInserts, readAllFields, writeAllFields, fieldNameGenerator, table, fieldCount,
+                    fieldLengthGenerator );
+        }
+        else
+        {
             return false;
         }
     }

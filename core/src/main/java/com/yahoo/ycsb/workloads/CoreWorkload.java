@@ -137,8 +137,7 @@ public class CoreWorkload extends Workload
                     CoreWorkloadProperties.HOTSPOT_DATA_FRACTION_DEFAULT ) );
             double hotopnfraction = Double.parseDouble( p.getProperty( CoreWorkloadProperties.HOTSPOT_OPN_FRACTION,
                     CoreWorkloadProperties.HOTSPOT_OPN_FRACTION_DEFAULT ) );
-            keyChooser = generatorFactory.newHotspotIntegerGenerator( 0, recordCount - 1, hotsetfraction,
-                    hotopnfraction );
+            keyChooser = generatorFactory.newHotspotGenerator( 0, recordCount - 1, hotsetfraction, hotopnfraction );
         }
         else
         {
@@ -171,18 +170,9 @@ public class CoreWorkload extends Workload
      * @throws WorkloadException
      */
     @Override
-    public boolean doInsert( DB db, Object threadstate )
+    public boolean doInsert( DB db, Object threadstate ) throws WorkloadException
     {
-        try
-        {
-            return WorkloadOperation.doInsert( db, keySequence, orderedInserts, fieldCount, fieldLengthGenerator, table );
-        }
-        catch ( WorkloadException e )
-        {
-            // TODO should rethrow here, but Workload class needs to be modified
-            System.out.println( "Error in doInsert : " + e.toString() );
-            return false;
-        }
+        return WorkloadOperation.doInsert( db, keySequence, orderedInserts, fieldCount, fieldLengthGenerator, table );
     }
 
     /**
@@ -192,60 +182,40 @@ public class CoreWorkload extends Workload
      * it will be difficult to reach the target throughput. Ideally, this
      * function would have no side effects other than DB operations.
      * 
-     * @throws DBException
+     * @throws WorkloadException
      */
     @Override
-    public boolean doTransaction( DB db, Object threadstate )
+    public boolean doTransaction( DB db, Object threadstate ) throws WorkloadException
     {
-        String op;
-        try
-        {
-            op = (String) operationGenerator.next();
-        }
-        catch ( WorkloadException e )
-        {
-            // TODO throw exception (to do this Workload needs modifying)
-            System.out.println( "Error in doTransaction 1: " + e.toString() );
-            return false;
-        }
+        String op = (String) operationGenerator.next();
 
-        try
+        if ( op.equals( "READ" ) )
         {
-            if ( op.equals( "READ" ) )
-            {
-                return WorkloadOperation.doRead( db, keyChooser, transactionInsertKeySequence, orderedInserts,
-                        readAllFields, fieldChooser, table );
-            }
-            else if ( op.equals( "UPDATE" ) )
-            {
-                return WorkloadOperation.doUpdate( db, keyChooser, transactionInsertKeySequence, orderedInserts,
-                        writeAllFields, fieldCount, fieldLengthGenerator, fieldChooser, table );
-            }
-            else if ( op.equals( "INSERT" ) )
-            {
-                return WorkloadOperation.doInsert( db, transactionInsertKeySequence, orderedInserts, fieldCount,
-                        fieldLengthGenerator, table );
-            }
-            else if ( op.equals( "SCAN" ) )
-            {
-                return WorkloadOperation.doScan( db, keyChooser, transactionInsertKeySequence, orderedInserts,
-                        scanLength, readAllFields, fieldChooser, table );
-            }
-            else if ( op.equals( "READMODIFYWRITE" ) )
-            {
-                return WorkloadOperation.doReadModifyWrite( db, keyChooser, transactionInsertKeySequence,
-                        orderedInserts, readAllFields, writeAllFields, fieldChooser, table, fieldCount,
-                        fieldLengthGenerator );
-            }
-            else
-            {
-                return false;
-            }
+            return WorkloadOperation.doRead( db, keyChooser, transactionInsertKeySequence, orderedInserts,
+                    readAllFields, fieldChooser, table );
         }
-        catch ( WorkloadException e )
+        else if ( op.equals( "UPDATE" ) )
         {
-            // TODO should rethrow here, but Workload class needs to be modified
-            System.out.println( "Error in doTransaction 2: " + e.toString() );
+            return WorkloadOperation.doUpdate( db, keyChooser, transactionInsertKeySequence, orderedInserts,
+                    writeAllFields, fieldCount, fieldLengthGenerator, fieldChooser, table );
+        }
+        else if ( op.equals( "INSERT" ) )
+        {
+            return WorkloadOperation.doInsert( db, transactionInsertKeySequence, orderedInserts, fieldCount,
+                    fieldLengthGenerator, table );
+        }
+        else if ( op.equals( "SCAN" ) )
+        {
+            return WorkloadOperation.doScan( db, keyChooser, transactionInsertKeySequence, orderedInserts, scanLength,
+                    readAllFields, fieldChooser, table );
+        }
+        else if ( op.equals( "READMODIFYWRITE" ) )
+        {
+            return WorkloadOperation.doReadModifyWrite( db, keyChooser, transactionInsertKeySequence, orderedInserts,
+                    readAllFields, writeAllFields, fieldChooser, table, fieldCount, fieldLengthGenerator );
+        }
+        else
+        {
             return false;
         }
     }

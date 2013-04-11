@@ -23,8 +23,6 @@ import java.io.IOException;
 
 import org.apache.commons.math3.random.RandomDataGenerator;
 
-import com.yahoo.ycsb.WorkloadException;
-
 /**
  * A generator, whose sequence is the lines of a file.
  */
@@ -37,9 +35,8 @@ public class FileGenerator extends Generator<String>
      * Create a FileGenerator with the given file.
      * 
      * @param filename The file to read lines from.
-     * @throws WorkloadException
      */
-    FileGenerator( RandomDataGenerator random, String filename ) throws WorkloadException
+    FileGenerator( RandomDataGenerator random, String filename ) throws GeneratorException
     {
         super( random );
         try
@@ -51,23 +48,21 @@ public class FileGenerator extends Generator<String>
         }
         catch ( IOException e )
         {
-            throw new WorkloadException( String.format( "Error creating FileGenerator : %s", filename, last() ),
+            throw new GeneratorException( String.format( "Error creating FileGenerator : %s", filename, last() ),
                     e.getCause() );
         }
     }
 
     /**
      * Return the next string of the sequence, ie the next line of the file.
-     * 
-     * @throws WorkloadException
      */
     @Override
-    protected String doNext() throws WorkloadException
+    protected String doNext() throws GeneratorException
     {
         return readNextLine();
     }
 
-    private synchronized String readNextLine() throws WorkloadException
+    private synchronized String readNextLine() throws GeneratorException
     {
         try
         {
@@ -75,22 +70,20 @@ public class FileGenerator extends Generator<String>
         }
         catch ( NullPointerException e )
         {
-            throw new WorkloadException( String.format( "Error encountered reading next line\nFile : %s\nLine : %s",
+            throw new GeneratorException( String.format( "Error encountered reading next line\nFile : %s\nLine : %s",
                     filenameX, last() ), e.getCause() );
         }
         catch ( IOException e )
         {
-            throw new WorkloadException( String.format( "Error encountered reading next line\nFile : %s\nLine : %s",
+            throw new GeneratorException( String.format( "Error encountered reading next line\nFile : %s\nLine : %s",
                     filenameX, last() ), e.getCause() );
         }
     }
 
     /**
      * Reopen the file to reuse values.
-     * 
-     * @throws WorkloadException
      */
-    public synchronized void reloadFile() throws WorkloadException
+    public synchronized void reloadFile() throws GeneratorException
     {
         try
         {
@@ -102,7 +95,7 @@ public class FileGenerator extends Generator<String>
         }
         catch ( IOException e )
         {
-            throw new WorkloadException( String.format( "Error encountered reloading file : %s", filenameX ),
+            throw new GeneratorException( String.format( "Error encountered reloading file : %s", filenameX ),
                     e.getCause() );
         }
     }

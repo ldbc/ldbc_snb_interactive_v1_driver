@@ -29,7 +29,7 @@ import org.apache.commons.math3.random.RandomDataGenerator;
  * @author sudipto
  * 
  */
-public class HotspotLongGenerator extends Generator<Long>
+public class HotspotGenerator extends Generator<Long>
 {
 
     private final int lowerBound;
@@ -47,7 +47,7 @@ public class HotspotLongGenerator extends Generator<Long>
      * @param hotsetFraction percentage of data item
      * @param hotOpnFraction percentage of operations accessing the hot set.
      */
-    HotspotLongGenerator( RandomDataGenerator random, int lowerBound, int upperBound, double hotsetFraction,
+    HotspotGenerator( RandomDataGenerator random, int lowerBound, int upperBound, double hotsetFraction,
             double hotOpnFraction )
     {
         super( random );

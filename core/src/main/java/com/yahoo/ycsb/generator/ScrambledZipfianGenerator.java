@@ -20,7 +20,6 @@ package com.yahoo.ycsb.generator;
 import org.apache.commons.math3.random.RandomDataGenerator;
 
 import com.yahoo.ycsb.HashUtils;
-import com.yahoo.ycsb.WorkloadException;
 
 /**
  * A generator of a zipfian distribution. It produces a sequence of items, such
@@ -38,7 +37,7 @@ import com.yahoo.ycsb.WorkloadException;
  */
 // TODO or should this extend ZipfianGenerator?
 // TODO is it a subtype, or does it delegate to?
-public class ScrambledZipfianLongGenerator extends Generator<Long>
+public class ScrambledZipfianGenerator extends Generator<Long>
 {
     public static final double ZETAN = 26.46902820178302;
     public static final long ITEM_COUNT = 10000000000L;
@@ -55,9 +54,8 @@ public class ScrambledZipfianLongGenerator extends Generator<Long>
      * @param min The smallest integer to generate in the sequence.
      * @param max The largest integer to generate in the sequence.
      * @param zipfianConstant The zipfian constant to use.
-     * @throws WorkloadException
      */
-    ScrambledZipfianLongGenerator( RandomDataGenerator random, long min, long max, ZipfianGenerator zipfianGenerator )
+    ScrambledZipfianGenerator( RandomDataGenerator random, long min, long max, ZipfianGenerator zipfianGenerator )
     {
         super( random );
         this.min = min;
@@ -70,10 +68,8 @@ public class ScrambledZipfianLongGenerator extends Generator<Long>
 
     /**
      * Return the next long in the sequence.
-     * 
-     * @throws WorkloadException
      */
-    protected Long doNext() throws WorkloadException
+    protected Long doNext()
     {
         long ret = gen.next();
         ret = min + HashUtils.FNVhash64( ret ) % itemCount;

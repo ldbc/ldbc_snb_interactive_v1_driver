@@ -22,29 +22,25 @@ package com.yahoo.ycsb;
  */
 public class DBException extends Exception
 {
-      /**
-	 * 
-	 */
-	private static final long serialVersionUID = 6646883591588721475L;
+    private static final long serialVersionUID = 6646883591588721475L;
 
-	public DBException(String message) 
-      {
-	 super(message);
-      }
-      
-      public DBException()
-      {
-	 super();
-      }
+    public DBException( String message )
+    {
+        super( message );
+    }
 
-      public DBException(String message, Throwable cause)
-      {
-	 super(message,cause);
-      }
-      
-      public DBException(Throwable cause)
-      {
-	 super(cause);
-      }
-      
+    public DBException()
+    {
+        super();
+    }
+
+    public DBException( String message, Throwable cause )
+    {
+        super( message, cause );
+    }
+
+    public DBException( Throwable cause )
+    {
+        super( cause );
+    }
 }

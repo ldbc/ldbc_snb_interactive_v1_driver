@@ -6,7 +6,6 @@ import org.apache.commons.math3.random.RandomDataGenerator;
 import org.junit.Before;
 import org.junit.Test;
 
-import com.yahoo.ycsb.WorkloadException;
 import com.yahoo.ycsb.generator.DiscreteGenerator;
 import com.yahoo.ycsb.generator.GeneratorFactory;
 import com.yahoo.ycsb.generator.Pair;
@@ -21,8 +20,8 @@ public class DiscreteGeneratorTest
         generatorFactory = new AbstractGeneratorFactory( new RandomDataGenerator() ).newGeneratorFactory();
     }
 
-    @Test( expected = WorkloadException.class )
-    public void emptyConstructorTest() throws WorkloadException
+    @Test( expected = GeneratorException.class )
+    public void emptyConstructorTest()
     {
         // Given
         DiscreteGenerator<Object> generator = generatorFactory.newDiscreteGenerator();
@@ -35,7 +34,7 @@ public class DiscreteGeneratorTest
     }
 
     @Test
-    public void proportionsConstructorTest() throws WorkloadException
+    public void proportionsConstructorTest()
     {
         // Given
         Pair<Double, Object> p1 = new Pair<Double, Object>( 3.0, "1" );
@@ -46,7 +45,7 @@ public class DiscreteGeneratorTest
     }
 
     @Test
-    public void nextLastTest() throws WorkloadException
+    public void nextLastTest()
     {
         // Given
         Pair<Double, Object> p1 = new Pair<Double, Object>( 3.0, "1" );
@@ -69,7 +68,7 @@ public class DiscreteGeneratorTest
     }
 
     public void assertCorrectProportions( DiscreteGenerator<Object> generator, Pair<Double, Object> p1,
-            Pair<Double, Object> p2 ) throws WorkloadException
+            Pair<Double, Object> p2 )
     {
         // Given
 

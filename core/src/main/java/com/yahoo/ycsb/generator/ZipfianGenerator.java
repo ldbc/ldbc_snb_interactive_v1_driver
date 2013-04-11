@@ -19,8 +19,6 @@ package com.yahoo.ycsb.generator;
 
 import org.apache.commons.math3.random.RandomDataGenerator;
 
-import com.yahoo.ycsb.WorkloadException;
-
 /**
  * A generator of a zipfian distribution. It produces a sequence of items, such
  * that some items are more popular than others, according to a zipfian
@@ -106,7 +104,6 @@ public class ZipfianGenerator extends Generator<Long>
      * @param min The smallest integer to generate in the sequence.
      * @param max The largest integer to generate in the sequence.
      * @param zipfianConstant The zipfian constant to use.
-     * @throws WorkloadException
      */
     // TODO use Range
     ZipfianGenerator( RandomDataGenerator random, long min, long max, double zipfianConstant )
@@ -122,7 +119,6 @@ public class ZipfianGenerator extends Generator<Long>
      * @param max The largest integer to generate in the sequence.
      * @param zipfianConstant The zipfian constant to use.
      * @param zetan The precomputed zeta constant.
-     * @throws WorkloadException
      */
     // TODO use Range
     ZipfianGenerator( RandomDataGenerator random, long min, long max, double zipfianConstant, double zetan )
