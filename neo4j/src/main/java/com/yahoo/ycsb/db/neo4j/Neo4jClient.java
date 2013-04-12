@@ -8,7 +8,6 @@
 package com.yahoo.ycsb.db.neo4j;
 
 import java.util.HashMap;
-import java.util.Properties;
 import java.util.Set;
 import java.util.Vector;
 
@@ -18,6 +17,7 @@ import com.sun.jersey.api.client.ClientHandlerException;
 import com.yahoo.ycsb.ByteIterator;
 import com.yahoo.ycsb.DB;
 import com.yahoo.ycsb.DBException;
+import com.yahoo.ycsb.Utils;
 
 /**
  * Neo4j client for YCSB framework.
@@ -58,14 +58,13 @@ public class Neo4jClient extends DB
         try
         {
             // Initialize Neo4j driver
-            Properties props = getProperties();
-            url = props.getProperty( "neo4j.url", "http://localhost:7474/db/data" );
-            primaryKeyProperty = props.getProperty( "neo4j.primarykey", "primarykey" );
+            url = Utils.mapGetDefault( getProperties(), "neo4j.url", "http://localhost:7474/db/data" );
+            primaryKeyProperty = Utils.mapGetDefault( getProperties(), "neo4j.primarykey", "primarykey" );
             // TODO use "table" when 2.0 is released
-            table = props.getProperty( "neo4j.table", "usertable" );
-            clear = Boolean.parseBoolean( props.getProperty( "neo4j.clear", "false" ) );
-            path = props.getProperty( "neo4j.path", "/tmp/db" );
-            dbtype = props.getProperty( "neo4j.dbtype", "embedded" );
+            table = Utils.mapGetDefault( getProperties(), "neo4j.table", "usertable" );
+            clear = Boolean.parseBoolean( Utils.mapGetDefault( getProperties(), "neo4j.clear", "false" ) );
+            path = Utils.mapGetDefault( getProperties(), "neo4j.path", "/tmp/db" );
+            dbtype = Utils.mapGetDefault( getProperties(), "neo4j.dbtype", "embedded" );
 
             logger.info( "*** Neo4j Properties ***" );
             logger.info( "table = " + table );

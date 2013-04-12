@@ -1,15 +1,15 @@
 package com.yahoo.ycsb;
 
 // TODO test
-public class DBKey
+public class DBRecordKey
 {
     private final String keyNumber;
     private final String hashedKeyNumber;
 
-    public DBKey( long keyNumber )
+    public DBRecordKey( long keyNumber )
     {
         this.keyNumber = Long.toString( keyNumber );
-        this.hashedKeyNumber = Long.toString( HashUtils.hash( keyNumber ) );
+        this.hashedKeyNumber = Long.toString( Utils.hash( keyNumber ) );
     }
 
     public String get()

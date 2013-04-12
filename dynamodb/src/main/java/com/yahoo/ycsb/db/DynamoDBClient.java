@@ -50,12 +50,14 @@ import com.yahoo.ycsb.ByteIterator;
 import com.yahoo.ycsb.DB;
 import com.yahoo.ycsb.DBException;
 import com.yahoo.ycsb.StringByteIterator;
+import com.yahoo.ycsb.Utils;
 
 /**
  * DynamoDB v1.3.14 client for YCSB
  */
 
-public class DynamoDBClient extends DB {
+public class DynamoDBClient extends DB
+{
 
     private static final int OK = 0;
     private static final int SERVER_ERROR = 1;
@@ -66,137 +68,168 @@ public class DynamoDBClient extends DB {
     private boolean consistentRead = false;
     private String endpoint = "http://dynamodb.us-east-1.amazonaws.com";
     private int maxConnects = 50;
-    private static Logger logger = Logger.getLogger(DynamoDBClient.class);
-    public DynamoDBClient() {}
+    private static Logger logger = Logger.getLogger( DynamoDBClient.class );
+
+    public DynamoDBClient()
+    {
+    }
 
     /**
      * Initialize any state for this DB. Called once per DB instance; there is
      * one DB instance per client thread.
      */
-    public void init() throws DBException {
+    public void init() throws DBException
+    {
         // initialize DynamoDb driver & table.
-        String debug = getProperties().getProperty("dynamodb.debug",null);
+        String debug = getProperties().get( "dynamodb.debug" );
 
-        if (null != debug && "true".equalsIgnoreCase(debug)) {
-            logger.setLevel(Level.DEBUG);
+        if ( null != debug && "true".equalsIgnoreCase( debug ) )
+        {
+            logger.setLevel( Level.DEBUG );
         }
 
-        String endpoint = getProperties().getProperty("dynamodb.endpoint",null);
-        String credentialsFile = getProperties().getProperty("dynamodb.awsCredentialsFile",null);
-        String primaryKey = getProperties().getProperty("dynamodb.primaryKey",null);
-        String consistentReads = getProperties().getProperty("dynamodb.consistentReads",null);
-        String connectMax = getProperties().getProperty("dynamodb.connectMax",null);
+        String endpoint = Utils.mapGetDefault( getProperties(), "dynamodb.endpoint", null );
+        String credentialsFile = Utils.mapGetDefault( getProperties(), "dynamodb.awsCredentialsFile", null );
+        String primaryKey = Utils.mapGetDefault( getProperties(), "dynamodb.primaryKey", null );
+        String consistentReads = Utils.mapGetDefault( getProperties(), "dynamodb.consistentReads", null );
+        String connectMax = Utils.mapGetDefault( getProperties(), "dynamodb.connectMax", null );
 
-        if (null != connectMax) {
-            this.maxConnects = Integer.parseInt(connectMax);
+        if ( null != connectMax )
+        {
+            this.maxConnects = Integer.parseInt( connectMax );
         }
 
-        if (null != consistentReads && "true".equalsIgnoreCase(consistentReads)) {
+        if ( null != consistentReads && "true".equalsIgnoreCase( consistentReads ) )
+        {
             this.consistentRead = true;
         }
 
-        if (null != endpoint) {
+        if ( null != endpoint )
+        {
             this.endpoint = endpoint;
         }
 
-        if (null == primaryKey || primaryKey.length() < 1) {
+        if ( null == primaryKey || primaryKey.length() < 1 )
+        {
             String errMsg = "Missing primary key attribute name, cannot continue";
-            logger.error(errMsg);
+            logger.error( errMsg );
         }
 
-        try {
-            AWSCredentials credentials = new PropertiesCredentials(new File(credentialsFile));
+        try
+        {
+            AWSCredentials credentials = new PropertiesCredentials( new File( credentialsFile ) );
             ClientConfiguration cconfig = new ClientConfiguration();
-            cconfig.setMaxConnections(maxConnects);
-            dynamoDB = new AmazonDynamoDBClient(credentials,cconfig);
-            dynamoDB.setEndpoint(this.endpoint);
+            cconfig.setMaxConnections( maxConnects );
+            dynamoDB = new AmazonDynamoDBClient( credentials, cconfig );
+            dynamoDB.setEndpoint( this.endpoint );
             primaryKeyName = primaryKey;
-            logger.info("dynamodb connection created with " + this.endpoint);
-        } catch (Exception e1) {
+            logger.info( "dynamodb connection created with " + this.endpoint );
+        }
+        catch ( Exception e1 )
+        {
             String errMsg = "DynamoDBClient.init(): Could not initialize DynamoDB client: " + e1.getMessage();
-            logger.error(errMsg);
+            logger.error( errMsg );
         }
     }
 
     @Override
-    public int read(String table, String key, Set<String> fields,
-            HashMap<String, ByteIterator> result) {
+    public int read( String table, String key, Set<String> fields, HashMap<String, ByteIterator> result )
+    {
 
-        logger.debug("readkey: " + key + " from table: " + table);
-        GetItemRequest req = new GetItemRequest(table, createPrimaryKey(key));
-        req.setAttributesToGet(fields);
-        req.setConsistentRead(consistentRead);
+        logger.debug( "readkey: " + key + " from table: " + table );
+        GetItemRequest req = new GetItemRequest( table, createPrimaryKey( key ) );
+        req.setAttributesToGet( fields );
+        req.setConsistentRead( consistentRead );
         GetItemResult res = null;
 
-        try {
-            res = dynamoDB.getItem(req);
-        }catch (AmazonServiceException ex) {
-            logger.error(ex.getMessage());
+        try
+        {
+            res = dynamoDB.getItem( req );
+        }
+        catch ( AmazonServiceException ex )
+        {
+            logger.error( ex.getMessage() );
             return SERVER_ERROR;
-        }catch (AmazonClientException ex){
-            logger.error(ex.getMessage());
+        }
+        catch ( AmazonClientException ex )
+        {
+            logger.error( ex.getMessage() );
             return CLIENT_ERROR;
         }
 
-        if (null != res.getItem())
+        if ( null != res.getItem() )
         {
-            result.putAll(extractResult(res.getItem()));
-            logger.debug("Result: " + res.toString());
+            result.putAll( extractResult( res.getItem() ) );
+            logger.debug( "Result: " + res.toString() );
         }
         return OK;
     }
 
     @Override
-    public int scan(String table, String startkey, int recordcount,
-        Set<String> fields, Vector<HashMap<String, ByteIterator>> result) {
-        logger.debug("scan " + recordcount + " records from key: " + startkey + " on table: " + table);
+    public int scan( String table, String startkey, int recordcount, Set<String> fields,
+            Vector<HashMap<String, ByteIterator>> result )
+    {
+        logger.debug( "scan " + recordcount + " records from key: " + startkey + " on table: " + table );
         /*
          * on DynamoDB's scan, startkey is *exclusive* so we need to
          * getItem(startKey) and then use scan for the res
          */
-        GetItemRequest greq = new GetItemRequest(table, createPrimaryKey(startkey));
-        greq.setAttributesToGet(fields);
+        GetItemRequest greq = new GetItemRequest( table, createPrimaryKey( startkey ) );
+        greq.setAttributesToGet( fields );
 
         GetItemResult gres = null;
 
-        try {
-            gres = dynamoDB.getItem(greq);
-        }catch (AmazonServiceException ex) {
-            logger.error(ex.getMessage());
+        try
+        {
+            gres = dynamoDB.getItem( greq );
+        }
+        catch ( AmazonServiceException ex )
+        {
+            logger.error( ex.getMessage() );
             return SERVER_ERROR;
-        }catch (AmazonClientException ex){
-            logger.error(ex.getMessage());
-           return CLIENT_ERROR;
+        }
+        catch ( AmazonClientException ex )
+        {
+            logger.error( ex.getMessage() );
+            return CLIENT_ERROR;
         }
 
-        if (null != gres.getItem()) {
-            result.add(extractResult(gres.getItem()));
+        if ( null != gres.getItem() )
+        {
+            result.add( extractResult( gres.getItem() ) );
         }
 
         int count = 1; // startKey is done, rest to go.
 
-        Key startKey = createPrimaryKey(startkey);
-        ScanRequest req = new ScanRequest(table);
-        req.setAttributesToGet(fields);
-        while (count < recordcount) {
-            req.setExclusiveStartKey(startKey);
-            req.setLimit(recordcount - count);
+        Key startKey = createPrimaryKey( startkey );
+        ScanRequest req = new ScanRequest( table );
+        req.setAttributesToGet( fields );
+        while ( count < recordcount )
+        {
+            req.setExclusiveStartKey( startKey );
+            req.setLimit( recordcount - count );
             ScanResult res = null;
-            try {
-                res = dynamoDB.scan(req);
-            }catch (AmazonServiceException ex) {
-                logger.error(ex.getMessage());
-              ex.printStackTrace();
-             return SERVER_ERROR;
-            }catch (AmazonClientException ex){
-                logger.error(ex.getMessage());
-               ex.printStackTrace();
-             return CLIENT_ERROR;
+            try
+            {
+                res = dynamoDB.scan( req );
+            }
+            catch ( AmazonServiceException ex )
+            {
+                logger.error( ex.getMessage() );
+                ex.printStackTrace();
+                return SERVER_ERROR;
+            }
+            catch ( AmazonClientException ex )
+            {
+                logger.error( ex.getMessage() );
+                ex.printStackTrace();
+                return CLIENT_ERROR;
             }
 
             count += res.getCount();
-            for (Map<String, AttributeValue> items : res.getItems()) {
-                result.add(extractResult(items));
+            for ( Map<String, AttributeValue> items : res.getItems() )
+            {
+                result.add( extractResult( items ) );
             }
             startKey = res.getLastEvaluatedKey();
 
@@ -206,95 +239,117 @@ public class DynamoDBClient extends DB {
     }
 
     @Override
-    public int update(String table, String key, HashMap<String, ByteIterator> values) {
-        logger.debug("updatekey: " + key + " from table: " + table);
+    public int update( String table, String key, HashMap<String, ByteIterator> values )
+    {
+        logger.debug( "updatekey: " + key + " from table: " + table );
 
-        Map<String, AttributeValueUpdate> attributes = new HashMap<String, AttributeValueUpdate>(
-                values.size());
-        for (Entry<String, ByteIterator> val : values.entrySet()) {
-            AttributeValue v = new AttributeValue(val.getValue().toString());
-            attributes.put(val.getKey(), new AttributeValueUpdate()
-                    .withValue(v).withAction("PUT"));
+        Map<String, AttributeValueUpdate> attributes = new HashMap<String, AttributeValueUpdate>( values.size() );
+        for ( Entry<String, ByteIterator> val : values.entrySet() )
+        {
+            AttributeValue v = new AttributeValue( val.getValue().toString() );
+            attributes.put( val.getKey(), new AttributeValueUpdate().withValue( v ).withAction( "PUT" ) );
         }
 
-        UpdateItemRequest req = new UpdateItemRequest(table, createPrimaryKey(key), attributes);
+        UpdateItemRequest req = new UpdateItemRequest( table, createPrimaryKey( key ), attributes );
 
-        try {
-            dynamoDB.updateItem(req);
-        }catch (AmazonServiceException ex) {
-            logger.error(ex.getMessage());
+        try
+        {
+            dynamoDB.updateItem( req );
+        }
+        catch ( AmazonServiceException ex )
+        {
+            logger.error( ex.getMessage() );
             return SERVER_ERROR;
-        }catch (AmazonClientException ex){
-            logger.error(ex.getMessage());
+        }
+        catch ( AmazonClientException ex )
+        {
+            logger.error( ex.getMessage() );
             return CLIENT_ERROR;
         }
         return OK;
     }
 
     @Override
-    public int insert(String table, String key,HashMap<String, ByteIterator> values) {
-        logger.debug("insertkey: " + primaryKeyName + "-" + key + " from table: " + table);
-        Map<String, AttributeValue> attributes = createAttributes(values);
+    public int insert( String table, String key, HashMap<String, ByteIterator> values )
+    {
+        logger.debug( "insertkey: " + primaryKeyName + "-" + key + " from table: " + table );
+        Map<String, AttributeValue> attributes = createAttributes( values );
         // adding primary key
-        attributes.put(primaryKeyName, new AttributeValue(key));
+        attributes.put( primaryKeyName, new AttributeValue( key ) );
 
-        PutItemRequest putItemRequest = new PutItemRequest(table, attributes);
+        PutItemRequest putItemRequest = new PutItemRequest( table, attributes );
         PutItemResult res = null;
-        try {
-            res = dynamoDB.putItem(putItemRequest);
-        }catch (AmazonServiceException ex) {
-            logger.error(ex.getMessage());
+        try
+        {
+            res = dynamoDB.putItem( putItemRequest );
+        }
+        catch ( AmazonServiceException ex )
+        {
+            logger.error( ex.getMessage() );
             return SERVER_ERROR;
-        }catch (AmazonClientException ex){
-            logger.error(ex.getMessage());
+        }
+        catch ( AmazonClientException ex )
+        {
+            logger.error( ex.getMessage() );
             return CLIENT_ERROR;
         }
         return OK;
     }
 
     @Override
-    public int delete(String table, String key) {
-        logger.debug("deletekey: " + key + " from table: " + table);
-        DeleteItemRequest req = new DeleteItemRequest(table, createPrimaryKey(key));
+    public int delete( String table, String key )
+    {
+        logger.debug( "deletekey: " + key + " from table: " + table );
+        DeleteItemRequest req = new DeleteItemRequest( table, createPrimaryKey( key ) );
         DeleteItemResult res = null;
 
-        try {
-            res = dynamoDB.deleteItem(req);
-        }catch (AmazonServiceException ex) {
-            logger.error(ex.getMessage());
+        try
+        {
+            res = dynamoDB.deleteItem( req );
+        }
+        catch ( AmazonServiceException ex )
+        {
+            logger.error( ex.getMessage() );
             return SERVER_ERROR;
-        }catch (AmazonClientException ex){
-            logger.error(ex.getMessage());
+        }
+        catch ( AmazonClientException ex )
+        {
+            logger.error( ex.getMessage() );
             return CLIENT_ERROR;
         }
         return OK;
     }
 
-    private static Map<String, AttributeValue> createAttributes(
-            HashMap<String, ByteIterator> values) {
-        Map<String, AttributeValue> attributes = new HashMap<String, AttributeValue>(
-                values.size() + 1); //leave space for the PrimaryKey
-        for (Entry<String, ByteIterator> val : values.entrySet()) {
-            attributes.put(val.getKey(), new AttributeValue(val.getValue()
-                    .toString()));
+    private static Map<String, AttributeValue> createAttributes( HashMap<String, ByteIterator> values )
+    {
+        Map<String, AttributeValue> attributes = new HashMap<String, AttributeValue>( values.size() + 1 ); // leave
+                                                                                                           // space
+                                                                                                           // for
+                                                                                                           // the
+                                                                                                           // PrimaryKey
+        for ( Entry<String, ByteIterator> val : values.entrySet() )
+        {
+            attributes.put( val.getKey(), new AttributeValue( val.getValue().toString() ) );
         }
         return attributes;
     }
 
-    private HashMap<String, ByteIterator> extractResult(Map<String, AttributeValue> item) {
-        if(null == item)
-            return null;
-        HashMap<String, ByteIterator> rItems = new HashMap<String, ByteIterator>(item.size());
+    private HashMap<String, ByteIterator> extractResult( Map<String, AttributeValue> item )
+    {
+        if ( null == item ) return null;
+        HashMap<String, ByteIterator> rItems = new HashMap<String, ByteIterator>( item.size() );
 
-        for (Entry<String, AttributeValue> attr : item.entrySet()) {
-            logger.debug(String.format("Result- key: %s, value: %s", attr.getKey(), attr.getValue()) );
-            rItems.put(attr.getKey(), new StringByteIterator(attr.getValue().getS()));
+        for ( Entry<String, AttributeValue> attr : item.entrySet() )
+        {
+            logger.debug( String.format( "Result- key: %s, value: %s", attr.getKey(), attr.getValue() ) );
+            rItems.put( attr.getKey(), new StringByteIterator( attr.getValue().getS() ) );
         }
         return rItems;
     }
 
-    private static Key createPrimaryKey(String key) {
-        Key k = new Key().withHashKeyElement(new AttributeValue().withS(key));
+    private static Key createPrimaryKey( String key )
+    {
+        Key k = new Key().withHashKeyElement( new AttributeValue().withS( key ) );
         return k;
     }
 }

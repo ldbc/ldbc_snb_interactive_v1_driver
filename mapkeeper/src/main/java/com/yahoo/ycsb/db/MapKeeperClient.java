@@ -2,6 +2,7 @@ package com.yahoo.ycsb.db;
 
 import java.nio.ByteBuffer;
 import java.util.HashMap;
+import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 import java.util.Vector;
@@ -22,6 +23,7 @@ import com.yahoo.mapkeeper.ScanOrder;
 import com.yahoo.ycsb.ByteIterator;
 import com.yahoo.ycsb.DB;
 import com.yahoo.ycsb.StringByteIterator;
+import com.yahoo.ycsb.Utils;
 import com.yahoo.ycsb.workloads.CoreWorkload;
 import com.yahoo.ycsb.workloads.CoreWorkloadProperties;
 
@@ -35,20 +37,20 @@ public class MapKeeperClient extends DB
     boolean writeallfields;
     static boolean initteddb = false;
 
-    private synchronized static void initDB( Properties p, MapKeeper.Client c ) throws TException
+    private synchronized static void initDB( Map<String, String> p, MapKeeper.Client c ) throws TException
     {
         if ( !initteddb )
         {
             initteddb = true;
 
-            c.addMap( p.getProperty( CoreWorkloadProperties.TABLENAME, CoreWorkloadProperties.TABLENAME_DEFAULT ) );
+            c.addMap( p.put( CoreWorkloadProperties.TABLENAME, CoreWorkloadProperties.TABLENAME_DEFAULT ) );
         }
     }
 
     public void init()
     {
-        String host = getProperties().getProperty( HOST, HOST_DEFAULT );
-        int port = Integer.parseInt( getProperties().getProperty( PORT, PORT_DEFAULT ) );
+        String host = Utils.mapGetDefault( getProperties(), HOST, HOST_DEFAULT );
+        int port = Integer.parseInt( Utils.mapGetDefault( getProperties(), PORT, PORT_DEFAULT ) );
         TTransport tr = new TFramedTransport( new TSocket( host, port ) );
         TProtocol proto = new TBinaryProtocol( tr );
         c = new MapKeeper.Client( proto );
@@ -61,8 +63,8 @@ public class MapKeeperClient extends DB
         {
             throw new RuntimeException( e );
         }
-        writeallfields = Boolean.parseBoolean( getProperties().getProperty( CoreWorkloadProperties.WRITE_ALL_FIELDS,
-                CoreWorkloadProperties.WRITE_ALL_FIELDS_DEFAULT ) );
+        writeallfields = Boolean.parseBoolean( Utils.mapGetDefault( getProperties(),
+                CoreWorkloadProperties.WRITE_ALL_FIELDS, CoreWorkloadProperties.WRITE_ALL_FIELDS_DEFAULT ) );
     }
 
     ByteBuffer encode( HashMap<String, ByteIterator> values )

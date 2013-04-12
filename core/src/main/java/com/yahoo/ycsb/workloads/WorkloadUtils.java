@@ -6,7 +6,7 @@ import org.apache.commons.math3.random.RandomDataGenerator;
 
 import com.google.common.collect.Range;
 import com.yahoo.ycsb.ByteIterator;
-import com.yahoo.ycsb.DBKey;
+import com.yahoo.ycsb.DBRecordKey;
 import com.yahoo.ycsb.RandomByteIterator;
 import com.yahoo.ycsb.RandomDataGeneratorFactory;
 import com.yahoo.ycsb.WorkloadException;
@@ -55,7 +55,7 @@ public class WorkloadUtils
     // Seems to generate random numbers UNTIL it finds one matching a given
     // criteria (e.g. in range)
     // Seems inefficient and generally a bad approach
-    public static DBKey nextKey( Generator<Long> keyChooser, Generator<Long> keySequence ) throws WorkloadException
+    public static DBRecordKey nextKey( Generator<Long> keyChooser, Generator<Long> keySequence ) throws WorkloadException
     {
         // TODO lots of casting here, sign of bad code
         long keyNumber;
@@ -77,7 +77,7 @@ public class WorkloadUtils
             }
             while ( keyNumber > keySequence.last() );
         }
-        return new DBKey( keyNumber );
+        return new DBRecordKey( keyNumber );
     }
 
     public static Generator<Long> buildFieldLengthGenerator( Distribution distribution, Range<Long> range,

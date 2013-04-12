@@ -21,11 +21,10 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
-import java.util.Enumeration;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Properties;
 import java.util.Vector;
-
-import org.apache.commons.math3.random.RandomDataGenerator;
 
 import com.yahoo.ycsb.generator.AbstractGeneratorFactory;
 import com.yahoo.ycsb.measurements.Measurements;
@@ -86,9 +85,9 @@ public class Client
         System.out.println( "use the \"insertcount\" and \"insertstart\" properties to divide up the records to be inserted" );
     }
 
-    public static boolean checkRequiredProperties( Properties props )
+    public static boolean checkRequiredProperties( Map<String, String> properties )
     {
-        if ( !props.containsKey( WORKLOAD ) )
+        if ( false == properties.containsKey( WORKLOAD ) )
         {
             // TODO use logger
             System.out.println( "Missing property: " + WORKLOAD );
@@ -105,14 +104,16 @@ public class Client
      * @throws IOException Either failed to write to output stream or failed to
      *             close it.
      */
-    private static void exportMeasurements( Properties props, int opcount, long runtime ) throws IOException
+    private static void exportMeasurements( Map<String, String> properties, int opcount, long runtime )
+            throws IOException
     {
         MeasurementsExporter exporter = null;
         try
         {
-            String exportFilePath = props.getProperty( EXPORT_FILE_PATH );
+            String exportFilePath = properties.get( EXPORT_FILE_PATH );
             OutputStream out = ( exportFilePath == null ) ? System.out : new FileOutputStream( exportFilePath );
-            String exporterClassName = props.getProperty( EXPORTER, TextMeasurementsExporter.class.getName() );
+            String exporterClassName = Utils.mapGetDefault( properties, EXPORTER,
+                    TextMeasurementsExporter.class.getName() );
             try
             {
                 exporter = (MeasurementsExporter) Class.forName( exporterClassName ).getConstructor( OutputStream.class ).newInstance(
@@ -141,24 +142,31 @@ public class Client
         }
     }
 
-    public static void main( String[] args )
+    public static void main( String[] args ) throws IOException
     {
         final long seed = System.currentTimeMillis();
         final RandomDataGeneratorFactory randomFactory = new RandomDataGeneratorFactory( seed );
         final AbstractGeneratorFactory abstractGeneratorFactory = new AbstractGeneratorFactory(
                 randomFactory.newRandom() );
 
+        final DBFactory dbFactory = new DBFactory();
+
         String dbname;
-        Properties properties = new Properties();
-        Properties fileprops = new Properties();
-        BenchmarkPhase benchmarkPhase = BenchmarkPhase.TRANSACTION_PHASE;
+
+        // TODO remove now
+        // Properties commandlineProperties = new Properties();
+        Map<String, String> commandlineProperties = new HashMap<String, String>();
+
+        Properties fileProperties = new Properties();
+
+        BenchmarkPhase argBenchmarkPhase = BenchmarkPhase.TRANSACTION_PHASE;
         int threadCount = 1;
         int target = 0;
-        boolean status = false;
-        String label = "";
+        boolean argStatus = false;
+        String argLabel = "";
 
         // parse arguments
-        int argindex = 0;
+        int argIndex = 0;
 
         if ( args.length == 0 )
         {
@@ -166,137 +174,157 @@ public class Client
             System.exit( 0 );
         }
 
-        while ( args[argindex].startsWith( "-" ) )
+        while ( args[argIndex].startsWith( "-" ) )
         {
-            if ( args[argindex].equals( "-threads" ) )
+            if ( args[argIndex].equals( "-threads" ) )
             {
-                argindex++;
-                if ( argindex >= args.length )
+                argIndex++;
+                if ( argIndex >= args.length )
                 {
                     usageMessage();
                     System.exit( 0 );
                 }
-                int tcount = Integer.parseInt( args[argindex] );
-                properties.setProperty( "threadcount", tcount + "" );
-                argindex++;
-            }
-            else if ( args[argindex].equals( "-target" ) )
-            {
-                argindex++;
-                if ( argindex >= args.length )
-                {
-                    usageMessage();
-                    System.exit( 0 );
-                }
-                int ttarget = Integer.parseInt( args[argindex] );
-                properties.setProperty( "target", ttarget + "" );
-                argindex++;
-            }
-            else if ( args[argindex].equals( "-load" ) )
-            {
-                benchmarkPhase = BenchmarkPhase.LOAD_PHASE;
-                argindex++;
-            }
-            else if ( args[argindex].equals( "-t" ) )
-            {
-                benchmarkPhase = BenchmarkPhase.TRANSACTION_PHASE;
-                argindex++;
-            }
-            else if ( args[argindex].equals( "-s" ) )
-            {
-                status = true;
-                argindex++;
-            }
-            else if ( args[argindex].equals( "-db" ) )
-            {
-                argindex++;
-                if ( argindex >= args.length )
-                {
-                    usageMessage();
-                    System.exit( 0 );
-                }
-                properties.setProperty( "db", args[argindex] );
-                argindex++;
-            }
-            else if ( args[argindex].compareTo( "-l" ) == 0 )
-            {
-                argindex++;
-                if ( argindex >= args.length )
-                {
-                    usageMessage();
-                    System.exit( 0 );
-                }
-                label = args[argindex];
-                argindex++;
-            }
-            else if ( args[argindex].compareTo( "-P" ) == 0 )
-            {
-                argindex++;
-                if ( argindex >= args.length )
-                {
-                    usageMessage();
-                    System.exit( 0 );
-                }
-                String propfile = args[argindex];
-                argindex++;
+                int argThreadCount = Integer.parseInt( args[argIndex] );
 
-                Properties myfileprops = new Properties();
-                try
-                {
-                    myfileprops.load( new FileInputStream( propfile ) );
-                }
-                catch ( IOException e )
-                {
-                    System.out.println( e.getMessage() );
-                    System.exit( 0 );
-                }
+                // TODO remove now
+                // commandlineProperties.setProperty( "threadcount",
+                // argThreadCount + "" );
+                commandlineProperties.put( "threadcount", Integer.toString( argThreadCount ) );
 
-                // TODO replace Properties with HashMap whereever possible
-                // Issue #5 - remove call to stringPropertyNames to make
-                // compilable under Java 1.5
-                for ( Enumeration e = myfileprops.propertyNames(); e.hasMoreElements(); )
-                {
-                    String prop = (String) e.nextElement();
-
-                    fileprops.setProperty( prop, myfileprops.getProperty( prop ) );
-                }
-
+                argIndex++;
             }
-            else if ( args[argindex].compareTo( "-p" ) == 0 )
+            else if ( args[argIndex].equals( "-target" ) )
             {
-                argindex++;
-                if ( argindex >= args.length )
+                argIndex++;
+                if ( argIndex >= args.length )
                 {
                     usageMessage();
                     System.exit( 0 );
                 }
-                int eq = args[argindex].indexOf( '=' );
-                if ( eq < 0 )
+                int argTarget = Integer.parseInt( args[argIndex] );
+
+                // TODO remove now
+                // commandlineProperties.setProperty( "target", ttarget + "" );
+                commandlineProperties.put( "target", Integer.toString( argTarget ) );
+
+                argIndex++;
+            }
+            else if ( args[argIndex].equals( "-load" ) )
+            {
+                argBenchmarkPhase = BenchmarkPhase.LOAD_PHASE;
+                argIndex++;
+            }
+            else if ( args[argIndex].equals( "-t" ) )
+            {
+                argBenchmarkPhase = BenchmarkPhase.TRANSACTION_PHASE;
+                argIndex++;
+            }
+            else if ( args[argIndex].equals( "-s" ) )
+            {
+                argStatus = true;
+                argIndex++;
+            }
+            else if ( args[argIndex].equals( "-db" ) )
+            {
+                argIndex++;
+                if ( argIndex >= args.length )
+                {
+                    usageMessage();
+                    System.exit( 0 );
+                }
+                String argDb = args[argIndex];
+
+                // TODO remove now
+                // commandlineProperties.setProperty( "db", args[argIndex] );
+                commandlineProperties.put( "db", argDb );
+
+                argIndex++;
+            }
+            else if ( args[argIndex].equals( "-l" ) )
+            {
+                argIndex++;
+                if ( argIndex >= args.length )
+                {
+                    usageMessage();
+                    System.exit( 0 );
+                }
+                argLabel = args[argIndex];
+                argIndex++;
+            }
+            else if ( args[argIndex].equals( "-P" ) )
+            {
+                argIndex++;
+                if ( argIndex >= args.length )
+                {
+                    usageMessage();
+                    System.exit( 0 );
+                }
+                String argPropertiesFile = args[argIndex];
+                argIndex++;
+
+                fileProperties.load( new FileInputStream( argPropertiesFile ) );
+
+                // // TODO how is this different from fileProperties?
+                // // TODO clean this up
+                // Properties argfileProperties = new Properties();
+                // try
+                // {
+                // argfileProperties.load( new FileInputStream(
+                // argPropertiesFile ) );
+                // }
+                // catch ( IOException e )
+                // {
+                // // TODO bullshit error handling
+                // System.out.println( e.getMessage() );
+                // System.exit( 0 );
+                // }
+
+                // // TODO once Properties to Map complete, fix issue below
+                // // Issue #5 - remove call to stringPropertyNames to make
+                // // compilable under Java 1.5
+                // for ( Enumeration e = argfileProperties.propertyNames();
+                // e.hasMoreElements(); )
+                // {
+                // String prop = (String) e.nextElement();
+                //
+                // fileProperties.setProperty( prop,
+                // argfileProperties.getProperty( prop ) );
+                // }
+            }
+            else if ( args[argIndex].equals( "-p" ) )
+            {
+                argIndex++;
+                if ( argIndex >= args.length )
+                {
+                    usageMessage();
+                    System.exit( 0 );
+                }
+                int equalsCharPosition = args[argIndex].indexOf( '=' );
+                if ( equalsCharPosition < 0 )
                 {
                     usageMessage();
                     System.exit( 0 );
                 }
 
-                String name = args[argindex].substring( 0, eq );
-                String value = args[argindex].substring( eq + 1 );
-                properties.put( name, value );
-                // System.out.println("["+name+"]=["+value+"]");
-                argindex++;
+                String argPropertyName = args[argIndex].substring( 0, equalsCharPosition );
+                String argPropertyValue = args[argIndex].substring( equalsCharPosition + 1 );
+                commandlineProperties.put( argPropertyName, argPropertyValue );
+                argIndex++;
             }
             else
             {
-                System.out.println( "Unknown option " + args[argindex] );
+                System.out.println( "Unknown option " + args[argIndex] );
                 usageMessage();
                 System.exit( 0 );
             }
 
-            if ( argindex >= args.length )
+            if ( argIndex >= args.length )
             {
                 break;
             }
         }
 
-        if ( argindex != args.length )
+        if ( argIndex != args.length )
         {
             usageMessage();
             System.exit( 0 );
@@ -305,38 +333,54 @@ public class Client
         // set up logging
         // BasicConfigurator.configure();
 
+        // TODO remove now
         // overwrite file properties with properties from the command line
-
         // Issue #5 - remove call to stringPropertyNames to make compilable
         // under Java 1.5
-        for ( Enumeration e = properties.propertyNames(); e.hasMoreElements(); )
-        {
-            String prop = (String) e.nextElement();
+        // for ( Enumeration e = commandlineProperties.propertyNames();
+        // e.hasMoreElements(); )
+        // {
+        // String prop = (String) e.nextElement();
+        //
+        // fileProperties.setProperty( prop, commandlineProperties.getProperty(
+        // prop ) );
+        // }
 
-            fileprops.setProperty( prop, properties.getProperty( prop ) );
-        }
+        commandlineProperties = Utils.mergePropertiesToMap( fileProperties, commandlineProperties, false );
 
-        properties = fileprops;
-
-        if ( !checkRequiredProperties( properties ) )
+        if ( !checkRequiredProperties( commandlineProperties ) )
         {
             System.exit( 0 );
         }
 
         // TODO change to milliseconds instead of seconds
-        long maxExecutionTime = Long.parseLong( properties.getProperty( MAX_EXECUTION_TIME, "0" ) );
+        // TODO remove now
+        // long maxExecutionTime = Long.parseLong(
+        // commandlineProperties.getProperty( MAX_EXECUTION_TIME, "0" ) );
+        long maxExecutionTime = Long.parseLong( Utils.mapGetDefault( commandlineProperties, MAX_EXECUTION_TIME, "0" ) );
 
         // get number of threads, target and db
-        threadCount = Integer.parseInt( properties.getProperty( "threadcount", "1" ) );
-        dbname = properties.getProperty( "db", "com.yahoo.ycsb.BasicDB" );
-        target = Integer.parseInt( properties.getProperty( "target", "0" ) );
+        // TODO remove now
+        // threadCount = Integer.parseInt( commandlineProperties.getProperty(
+        // "threadcount", "1" ) );
+        threadCount = Integer.parseInt( Utils.mapGetDefault( commandlineProperties, "threadcount", "1" ) );
+
+        // TODO remove now
+        // dbname = commandlineProperties.getProperty( "db",
+        // "com.yahoo.ycsb.BasicDB" );
+        dbname = Utils.mapGetDefault( commandlineProperties, "db", "com.yahoo.ycsb.BasicDB" );
+
+        // TODO remove now
+        // target = Integer.parseInt( commandlineProperties.getProperty(
+        // "target", "0" ) );
+        target = Integer.parseInt( Utils.mapGetDefault( commandlineProperties, "target", "0" ) );
 
         // compute the target throughput
         double targetPerformancePerMs = -1;
         if ( target > 0 )
         {
-            double targetperthread = ( (double) target ) / ( (double) threadCount );
-            targetPerformancePerMs = targetperthread / 1000.0;
+            double targetPerThreadPerS = ( (double) target ) / ( (double) threadCount );
+            targetPerformancePerMs = targetPerThreadPerS / 1000.0;
         }
 
         System.out.println( "YCSB Client 0.1" );
@@ -371,7 +415,7 @@ public class Client
         warningthread.start();
 
         // set up measurements
-        Measurements.setProperties( properties );
+        Measurements.setProperties( commandlineProperties );
 
         // load the workload
         ClassLoader classLoader = Client.class.getClassLoader();
@@ -380,9 +424,9 @@ public class Client
 
         try
         {
-            Class workloadclass = classLoader.loadClass( properties.getProperty( WORKLOAD ) );
-
-            workload = (Workload) workloadclass.newInstance();
+            String workloadClassName = commandlineProperties.get( WORKLOAD );
+            Class<? extends Workload> workloadclass = (Class<? extends Workload>) classLoader.loadClass( workloadClassName );
+            workload = workloadclass.newInstance();
         }
         catch ( Exception e )
         {
@@ -393,7 +437,7 @@ public class Client
 
         try
         {
-            workload.init( properties, abstractGeneratorFactory.newGeneratorFactory() );
+            workload.init( commandlineProperties, abstractGeneratorFactory.newGeneratorFactory() );
         }
         catch ( WorkloadException e )
         {
@@ -410,20 +454,20 @@ public class Client
 
         int operationCount = 0;
 
-        switch ( benchmarkPhase )
+        switch ( argBenchmarkPhase )
         {
         case TRANSACTION_PHASE:
-            operationCount = Integer.parseInt( properties.getProperty( OPERATION_COUNT, "0" ) );
+            operationCount = Integer.parseInt( Utils.mapGetDefault( commandlineProperties, OPERATION_COUNT, "0" ) );
             break;
 
         case LOAD_PHASE:
-            if ( properties.containsKey( INSERT_COUNT ) )
+            if ( commandlineProperties.containsKey( INSERT_COUNT ) )
             {
-                operationCount = Integer.parseInt( properties.getProperty( INSERT_COUNT, "0" ) );
+                operationCount = Integer.parseInt( Utils.mapGetDefault( commandlineProperties, INSERT_COUNT, "0" ) );
             }
             else
             {
-                operationCount = Integer.parseInt( properties.getProperty( RECORD_COUNT, "0" ) );
+                operationCount = Integer.parseInt( Utils.mapGetDefault( commandlineProperties, RECORD_COUNT, "0" ) );
             }
             break;
         }
@@ -435,7 +479,7 @@ public class Client
             DB db = null;
             try
             {
-                db = DBFactory.newDB( dbname, properties );
+                db = dbFactory.newDB( dbname, commandlineProperties );
             }
             catch ( UnknownDBException e )
             {
@@ -447,22 +491,23 @@ public class Client
             // TODO should I make it as difficult to start multiple threads on
             // TODO machine as multiple threads on multiple machines
 
-            ClientThread clientThread = new ClientThread( db, benchmarkPhase, workload, threadId, threadCount,
-                    properties, operationCount / threadCount, targetPerformancePerMs, randomFactory.newRandom() );
+            ClientThread clientThread = new ClientThread( db, argBenchmarkPhase, workload, threadId, threadCount,
+                    commandlineProperties, operationCount / threadCount, targetPerformancePerMs,
+                    randomFactory.newRandom() );
 
             clientThreads.add( clientThread );
         }
 
         StatusThread statusThread = null;
 
-        if ( status )
+        if ( argStatus )
         {
             boolean standardstatus = false;
-            if ( properties.getProperty( "measurementtype", "" ).compareTo( "timeseries" ) == 0 )
+            if ( Utils.mapGetDefault( commandlineProperties, "measurementtype", "" ).equals( "timeseries" ) )
             {
                 standardstatus = true;
             }
-            statusThread = new StatusThread( clientThreads, label, standardstatus );
+            statusThread = new StatusThread( clientThreads, argLabel, standardstatus );
             statusThread.start();
         }
 
@@ -502,7 +547,7 @@ public class Client
             terminatorThread.interrupt();
         }
 
-        if ( status )
+        if ( argStatus )
         {
             statusThread.interrupt();
         }
@@ -520,7 +565,7 @@ public class Client
 
         try
         {
-            exportMeasurements( properties, opsDone, en - st );
+            exportMeasurements( commandlineProperties, opsDone, en - st );
         }
         catch ( IOException e )
         {

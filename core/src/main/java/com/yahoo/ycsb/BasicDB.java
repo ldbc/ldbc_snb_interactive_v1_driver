@@ -18,11 +18,13 @@
 package com.yahoo.ycsb;
 
 import java.util.HashMap;
-import java.util.Properties;
-import java.util.Random;
+import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
-import java.util.Enumeration;
 import java.util.Vector;
+
+import org.apache.commons.math3.random.RandomDataGenerator;
+import com.yahoo.ycsb.RandomDataGeneratorFactory;
 
 /**
  * Basic DB that just prints out the requested operations, instead of doing them
@@ -36,23 +38,26 @@ public class BasicDB extends DB
     public static final String SIMULATE_DELAY = "basicdb.simulatedelay";
     public static final String SIMULATE_DELAY_DEFAULT = "0";
 
-    boolean verbose;
-    int todelay;
+    private boolean verbose;
+    private int toDelay;
 
-    final Random random = new Random( 42 );
+    private boolean isInitialized;
+
+    final RandomDataGenerator random = new RandomDataGeneratorFactory( 42l ).newRandom();
 
     public BasicDB()
     {
-        todelay = 0;
+        this.toDelay = 0;
+        this.isInitialized = false;
     }
 
     void delay()
     {
-        if ( todelay > 0 )
+        if ( toDelay > 0 )
         {
             try
             {
-                Thread.sleep( random.nextInt( todelay ) );
+                Thread.sleep( random.nextInt( 0, toDelay ) );
             }
             catch ( InterruptedException e )
             {
@@ -62,25 +67,30 @@ public class BasicDB extends DB
     }
 
     /**
-     * Initialize any state for this DB. Called once per DB instance; there is
-     * one DB instance per client thread.
+     * Initialize DB state . There is one DB instance per client thread.
+     * 
+     * @throws DBException
      */
-    @SuppressWarnings( "unchecked" )
-    public void init()
+    public void init() throws DBException
     {
-        verbose = Boolean.parseBoolean( getProperties().getProperty( VERBOSE, VERBOSE_DEFAULT ) );
-        todelay = Integer.parseInt( getProperties().getProperty( SIMULATE_DELAY, SIMULATE_DELAY_DEFAULT ) );
+        // TODO stuff like this should be in the base DB class
+        if ( true == isInitialized )
+        {
+            throw new DBException( "DB may be initialized only once" );
+        }
+
+        verbose = Boolean.parseBoolean( Utils.mapGetDefault( getProperties(), VERBOSE, VERBOSE_DEFAULT ) );
+        toDelay = Integer.parseInt( Utils.mapGetDefault( getProperties(), SIMULATE_DELAY, SIMULATE_DELAY_DEFAULT ) );
 
         if ( verbose )
         {
             System.out.println( "***************** properties *****************" );
-            Properties p = getProperties();
-            if ( p != null )
+            Map<String, String> properties = getProperties();
+            if ( properties != null )
             {
-                for ( Enumeration e = p.propertyNames(); e.hasMoreElements(); )
+                for ( Entry<String, String> property : properties.entrySet() )
                 {
-                    String k = (String) e.nextElement();
-                    System.out.println( "\"" + k + "\"=\"" + p.getProperty( k ) + "\"" );
+                    System.out.println( "\"" + property.getKey() + "\"=\"" + property.getValue() + "\"" );
                 }
             }
             System.out.println( "**********************************************" );

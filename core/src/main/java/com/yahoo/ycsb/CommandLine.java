@@ -19,7 +19,9 @@ package com.yahoo.ycsb;
 
 import java.util.Properties;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.PrintStream;
 import java.util.Enumeration;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
@@ -37,188 +39,196 @@ import com.yahoo.ycsb.workloads.*;
  */
 public class CommandLine
 {
-    public static final String DEFAULT_DB = "com.yahoo.ycsb.BasicDB";
+    private static final String DEFAULT_DB = "com.yahoo.ycsb.BasicDB";
 
-    public static void usageMessage()
+    private static void printUsageMessage( PrintStream printStream )
     {
-        System.out.println( "YCSB Command Line Client" );
-        System.out.println( "Usage: java com.yahoo.ycsb.CommandLine [options]" );
-        System.out.println( "Options:" );
-        System.out.println( "  -P filename: Specify a property file" );
-        System.out.println( "  -p name=value: Specify a property value" );
-        System.out.println( "  -db classname: Use a specified DB class (can also set the \"db\" property)" );
-        System.out.println( "  -table tablename: Use the table name instead of the default \""
-                            + CoreWorkloadProperties.TABLENAME_DEFAULT + "\"" );
-        System.out.println();
+        printStream.println( "YCSB Command Line Client" );
+        printStream.println( "Usage: java com.yahoo.ycsb.CommandLine [options]" );
+        printStream.println( "Options:" );
+        printStream.println( "  -P filename: Specify a property file" );
+        printStream.println( "  -p name=value: Specify a property value" );
+        printStream.println( "  -db classname: Use a specified DB class (can also set the \"db\" property)" );
+        printStream.println( "  -table tablename: Use the table name instead of the default \""
+                             + CoreWorkloadProperties.TABLENAME_DEFAULT + "\"" );
+        printStream.println();
     }
 
-    public static void help()
+    private static void printHelpMessage( PrintStream printStream )
     {
-        System.out.println( "Commands:" );
-        System.out.println( "  read key [field1 field2 ...] - Read a record" );
-        System.out.println( "  scan key recordcount [field1 field2 ...] - Scan starting at key" );
-        System.out.println( "  insert key name1=value1 [name2=value2 ...] - Insert a new record" );
-        System.out.println( "  update key name1=value1 [name2=value2 ...] - Update a record" );
-        System.out.println( "  delete key - Delete a record" );
-        System.out.println( "  table [tablename] - Get or [set] the name of the table" );
-        System.out.println( "  quit - Quit" );
+        printStream.println( "Commands:" );
+        printStream.println( "  read key [field1 field2 ...] - Read a record" );
+        printStream.println( "  scan key recordcount [field1 field2 ...] - Scan starting at key" );
+        printStream.println( "  insert key name1=value1 [name2=value2 ...] - Insert a new record" );
+        printStream.println( "  update key name1=value1 [name2=value2 ...] - Update a record" );
+        printStream.println( "  delete key - Delete a record" );
+        printStream.println( "  table [tablename] - Get or [set] the name of the table" );
+        printStream.println( "  quit - Quit" );
     }
 
-    public static void main( String[] args )
+    private static void printIntroductionMessage( PrintStream printStream )
     {
-        int argindex = 0;
+        printStream.println( "YCSB Command Line client" );
+        printStream.println( "Type \"help\" for command line help" );
+        printStream.println( "Start with \"-help\" for usage info" );
+    }
 
-        Properties props = new Properties();
-        Properties fileprops = new Properties();
-        String table = CoreWorkloadProperties.TABLENAME_DEFAULT;
+    public static void main( String[] args ) throws ClientException
+    {
+        int argIndex = 0;
 
-        while ( ( argindex < args.length ) && ( args[argindex].startsWith( "-" ) ) )
+        Map<String, String> commandlineProperties = new HashMap<String, String>();
+        Properties fileProperties = new Properties();
+        String argTableName = CoreWorkloadProperties.TABLENAME_DEFAULT;
+
+        while ( ( argIndex < args.length ) && ( args[argIndex].startsWith( "-" ) ) )
         {
-            if ( ( args[argindex].compareTo( "-help" ) == 0 ) || ( args[argindex].compareTo( "--help" ) == 0 )
-                 || ( args[argindex].compareTo( "-?" ) == 0 ) || ( args[argindex].compareTo( "--?" ) == 0 ) )
+            if ( ( args[argIndex].equals( "-help" ) ) || ( args[argIndex].equals( "--help" ) )
+                 || ( args[argIndex].equals( "-?" ) ) || ( args[argIndex].equals( "--?" ) ) )
             {
-                usageMessage();
+                printUsageMessage( System.out );
                 System.exit( 0 );
             }
 
-            if ( args[argindex].compareTo( "-db" ) == 0 )
+            if ( args[argIndex].equals( "-db" ) )
             {
-                argindex++;
-                if ( argindex >= args.length )
+                argIndex++;
+                if ( argIndex >= args.length )
                 {
-                    usageMessage();
+                    printUsageMessage( System.out );
                     System.exit( 0 );
                 }
-                props.setProperty( "db", args[argindex] );
-                argindex++;
+                String argDb = args[argIndex];
+                commandlineProperties.put( "db", argDb );
+                argIndex++;
             }
-            else if ( args[argindex].compareTo( "-P" ) == 0 )
+            else if ( args[argIndex].equals( "-P" ) )
             {
-                argindex++;
-                if ( argindex >= args.length )
+                argIndex++;
+                if ( argIndex >= args.length )
                 {
-                    usageMessage();
+                    printUsageMessage( System.out );
                     System.exit( 0 );
                 }
-                String propfile = args[argindex];
-                argindex++;
+                String argPropertyFile = args[argIndex];
+                argIndex++;
 
-                Properties myfileprops = new Properties();
+                // TODO remove now
+                // Properties myfileprops = new Properties();
+                // try
+                // {
+                // myfileprops.load( new FileInputStream( propfile ) );
+                // }
+                // catch ( IOException e )
+                // {
+                // System.out.println( e.getMessage() );
+                // System.exit( 0 );
+                // }
+                //
+                // for ( Enumeration e = myfileprops.propertyNames();
+                // e.hasMoreElements(); )
+                // {
+                // String prop = (String) e.nextElement();
+                //
+                // fileProperties.setProperty( prop, myfileprops.getProperty(
+                // prop ) );
+                // }
                 try
                 {
-                    myfileprops.load( new FileInputStream( propfile ) );
+                    fileProperties.load( new FileInputStream( argPropertyFile ) );
                 }
-                catch ( IOException e )
+                catch ( Exception e )
                 {
-                    System.out.println( e.getMessage() );
-                    System.exit( 0 );
-                }
-
-                for ( Enumeration e = myfileprops.propertyNames(); e.hasMoreElements(); )
-                {
-                    String prop = (String) e.nextElement();
-
-                    fileprops.setProperty( prop, myfileprops.getProperty( prop ) );
+                    throw new ClientException( "Error encountered loading properties from file", e.getCause() );
                 }
 
             }
-            else if ( args[argindex].compareTo( "-p" ) == 0 )
+            else if ( args[argIndex].equals( "-p" ) )
             {
-                argindex++;
-                if ( argindex >= args.length )
+                argIndex++;
+                if ( argIndex >= args.length )
                 {
-                    usageMessage();
+                    printUsageMessage( System.out );
                     System.exit( 0 );
                 }
-                int eq = args[argindex].indexOf( '=' );
-                if ( eq < 0 )
+                int equalsCharPosition = args[argIndex].indexOf( '=' );
+                if ( equalsCharPosition < 0 )
                 {
-                    usageMessage();
+                    printUsageMessage( System.out );
                     System.exit( 0 );
                 }
 
-                String name = args[argindex].substring( 0, eq );
-                String value = args[argindex].substring( eq + 1 );
-                props.put( name, value );
-                // System.out.println("["+name+"]=["+value+"]");
-                argindex++;
+                String argPropertyName = args[argIndex].substring( 0, equalsCharPosition );
+                String argPropertyValue = args[argIndex].substring( equalsCharPosition + 1 );
+                commandlineProperties.put( argPropertyName, argPropertyValue );
+                argIndex++;
             }
-            else if ( args[argindex].compareTo( "-table" ) == 0 )
+            else if ( args[argIndex].equals( "-table" ) )
             {
-                argindex++;
-                if ( argindex >= args.length )
+                argIndex++;
+                if ( argIndex >= args.length )
                 {
-                    usageMessage();
+                    printUsageMessage( System.out );
                     System.exit( 0 );
                 }
-                table = args[argindex];
-                argindex++;
+                argTableName = args[argIndex];
+                argIndex++;
             }
             else
             {
-                System.out.println( "Unknown option " + args[argindex] );
-                usageMessage();
+                System.out.println( "Unknown option " + args[argIndex] );
+                printUsageMessage( System.out );
                 System.exit( 0 );
             }
 
-            if ( argindex >= args.length )
+            if ( argIndex >= args.length )
             {
                 break;
             }
         }
 
-        if ( argindex != args.length )
+        if ( argIndex != args.length )
         {
-            usageMessage();
+            printUsageMessage( System.out );
             System.exit( 0 );
         }
 
-        for ( Enumeration e = props.propertyNames(); e.hasMoreElements(); )
-        {
-            String prop = (String) e.nextElement();
+        commandlineProperties = Utils.mergePropertiesToMap( fileProperties, commandlineProperties, false );
 
-            fileprops.setProperty( prop, props.getProperty( prop ) );
-        }
-
-        props = fileprops;
-
-        System.out.println( "YCSB Command Line client" );
-        System.out.println( "Type \"help\" for command line help" );
-        System.out.println( "Start with \"-help\" for usage info" );
-
-        // create a DB
-        String dbname = props.getProperty( "db", DEFAULT_DB );
-
-        ClassLoader classLoader = CommandLine.class.getClassLoader();
+        printIntroductionMessage( System.out );
 
         DB db = null;
-
         try
         {
-            Class dbclass = classLoader.loadClass( dbname );
-            db = (DB) dbclass.newInstance();
+            // TODO remove now
+            // String dbname = commandlineProperties.getProperty( "db",
+            // DEFAULT_DB
+            // );
+            String dbName = Utils.mapGetDefault( commandlineProperties, "db", DEFAULT_DB );
+            ClassLoader classLoader = CommandLine.class.getClassLoader();
+            Class<? extends DB> dbClass = (Class<? extends DB>) classLoader.loadClass( dbName );
+            db = dbClass.newInstance();
         }
         catch ( Exception e )
         {
-            e.printStackTrace();
-            System.exit( 0 );
+            throw new ClientException( "Error encountered creating db from dynamically loaded class", e.getCause() );
         }
 
-        db.setProperties( props );
+        db.setProperties( commandlineProperties );
+
         try
         {
             db.init();
         }
         catch ( DBException e )
         {
-            e.printStackTrace();
-            System.exit( 0 );
+            throw new ClientException( "Error encountered initializing db", e.getCause() );
         }
 
-        System.out.println( "Connected." );
+        System.out.println( "Connected" );
 
         // main loop
-        BufferedReader br = new BufferedReader( new InputStreamReader( System.in ) );
+        BufferedReader commandlineReader = new BufferedReader( new InputStreamReader( System.in ) );
 
         for ( ;; )
         {
@@ -229,51 +239,51 @@ public class CommandLine
 
             try
             {
-                input = br.readLine();
+                input = commandlineReader.readLine();
             }
             catch ( IOException e )
             {
-                e.printStackTrace();
-                System.exit( 1 );
+                throw new ClientException( "Error encountered reading from commandline", e.getCause() );
             }
 
-            if ( input.compareTo( "" ) == 0 )
+            if ( input.equals( "" ) )
             {
                 continue;
             }
 
-            if ( input.compareTo( "help" ) == 0 )
+            if ( input.equals( "help" ) )
             {
-                help();
+                printHelpMessage( System.out );
                 continue;
             }
 
-            if ( input.compareTo( "quit" ) == 0 )
+            if ( input.equals( "quit" ) )
             {
                 break;
             }
 
             String[] tokens = input.split( " " );
 
-            long st = System.currentTimeMillis();
+            long startTime = System.currentTimeMillis();
+
             // handle commands
-            if ( tokens[0].compareTo( "table" ) == 0 )
+            if ( tokens[0].equals( "table" ) )
             {
                 if ( tokens.length == 1 )
                 {
-                    System.out.println( "Using table \"" + table + "\"" );
+                    System.out.println( "Using table \"" + argTableName + "\"" );
                 }
                 else if ( tokens.length == 2 )
                 {
-                    table = tokens[1];
-                    System.out.println( "Using table \"" + table + "\"" );
+                    argTableName = tokens[1];
+                    System.out.println( "Using table \"" + argTableName + "\"" );
                 }
                 else
                 {
                     System.out.println( "Error: syntax is \"table tablename\"" );
                 }
             }
-            else if ( tokens[0].compareTo( "read" ) == 0 )
+            else if ( tokens[0].equals( "read" ) )
             {
                 if ( tokens.length == 1 )
                 {
@@ -294,11 +304,11 @@ public class CommandLine
                     }
 
                     HashMap<String, ByteIterator> result = new HashMap<String, ByteIterator>();
-                    int ret = db.read( table, tokens[1], fields, result );
-                    System.out.println( "Return code: " + ret );
-                    for ( Map.Entry<String, ByteIterator> ent : result.entrySet() )
+                    int returnCode = db.read( argTableName, tokens[1], fields, result );
+                    System.out.println( "Return code: " + returnCode );
+                    for ( Map.Entry<String, ByteIterator> resultEntry : result.entrySet() )
                     {
-                        System.out.println( ent.getKey() + "=" + ent.getValue() );
+                        System.out.println( resultEntry.getKey() + "=" + resultEntry.getValue() );
                     }
                 }
             }
@@ -323,8 +333,8 @@ public class CommandLine
                     }
 
                     Vector<HashMap<String, ByteIterator>> results = new Vector<HashMap<String, ByteIterator>>();
-                    int ret = db.scan( table, tokens[1], Integer.parseInt( tokens[2] ), fields, results );
-                    System.out.println( "Return code: " + ret );
+                    int returnCode = db.scan( argTableName, tokens[1], Integer.parseInt( tokens[2] ), fields, results );
+                    System.out.println( "Return code: " + returnCode );
                     int record = 0;
                     if ( results.size() == 0 )
                     {
@@ -337,15 +347,15 @@ public class CommandLine
                     for ( HashMap<String, ByteIterator> result : results )
                     {
                         System.out.println( "Record " + ( record++ ) );
-                        for ( Map.Entry<String, ByteIterator> ent : result.entrySet() )
+                        for ( Map.Entry<String, ByteIterator> resultEntry : result.entrySet() )
                         {
-                            System.out.println( ent.getKey() + "=" + ent.getValue() );
+                            System.out.println( resultEntry.getKey() + "=" + resultEntry.getValue() );
                         }
                         System.out.println( "--------------------------------" );
                     }
                 }
             }
-            else if ( tokens[0].compareTo( "update" ) == 0 )
+            else if ( tokens[0].equals( "update" ) )
             {
                 if ( tokens.length < 3 )
                 {
@@ -361,11 +371,11 @@ public class CommandLine
                         values.put( nv[0], new StringByteIterator( nv[1] ) );
                     }
 
-                    int ret = db.update( table, tokens[1], values );
+                    int ret = db.update( argTableName, tokens[1], values );
                     System.out.println( "Return code: " + ret );
                 }
             }
-            else if ( tokens[0].compareTo( "insert" ) == 0 )
+            else if ( tokens[0].equals( "insert" ) )
             {
                 if ( tokens.length < 3 )
                 {
@@ -381,11 +391,11 @@ public class CommandLine
                         values.put( nv[0], new StringByteIterator( nv[1] ) );
                     }
 
-                    int ret = db.insert( table, tokens[1], values );
-                    System.out.println( "Return code: " + ret );
+                    int returnCode = db.insert( argTableName, tokens[1], values );
+                    System.out.println( "Return code: " + returnCode );
                 }
             }
-            else if ( tokens[0].compareTo( "delete" ) == 0 )
+            else if ( tokens[0].equals( "delete" ) )
             {
                 if ( tokens.length != 2 )
                 {
@@ -393,8 +403,8 @@ public class CommandLine
                 }
                 else
                 {
-                    int ret = db.delete( table, tokens[1] );
-                    System.out.println( "Return code: " + ret );
+                    int returnCode = db.delete( argTableName, tokens[1] );
+                    System.out.println( "Return code: " + returnCode );
                 }
             }
             else
@@ -402,7 +412,7 @@ public class CommandLine
                 System.out.println( "Error: unknown command \"" + tokens[0] + "\"" );
             }
 
-            System.out.println( ( System.currentTimeMillis() - st ) + " ms" );
+            System.out.println( ( System.currentTimeMillis() - startTime ) + " ms" );
 
         }
     }

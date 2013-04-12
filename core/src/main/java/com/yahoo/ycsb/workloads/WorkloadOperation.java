@@ -6,7 +6,7 @@ import java.util.Vector;
 
 import com.yahoo.ycsb.ByteIterator;
 import com.yahoo.ycsb.DB;
-import com.yahoo.ycsb.DBKey;
+import com.yahoo.ycsb.DBRecordKey;
 import com.yahoo.ycsb.WorkloadException;
 import com.yahoo.ycsb.generator.Generator;
 import com.yahoo.ycsb.measurements.Measurements;
@@ -21,7 +21,7 @@ public abstract class WorkloadOperation
             Generator<Long> fieldNameGenerator, String table ) throws WorkloadException
     {
         // choose a random key
-        DBKey key = WorkloadUtils.nextKey( keyGenerator, transactionInsertKeySequenceGenerator );
+        DBRecordKey key = WorkloadUtils.nextKey( keyGenerator, transactionInsertKeySequenceGenerator );
 
         boolean hashKeyNumber = !orderedInserts;
         String keyName = ( hashKeyNumber ) ? key.getHashed() : key.getPrefixed( KEY_NAME_PREFIX );
@@ -49,7 +49,7 @@ public abstract class WorkloadOperation
             Generator<Long> fieldLengthGenerator ) throws WorkloadException
     {
         // choose a random key
-        DBKey key = WorkloadUtils.nextKey( keyChooser, transactionInsertKeySequence );
+        DBRecordKey key = WorkloadUtils.nextKey( keyChooser, transactionInsertKeySequence );
 
         boolean hashKeyNumber = !orderedInserts;
         String keyName = ( hashKeyNumber ) ? key.getHashed() : key.getPrefixed( KEY_NAME_PREFIX );
@@ -103,7 +103,7 @@ public abstract class WorkloadOperation
             throws WorkloadException
     {
         // choose a random key
-        DBKey startKey = WorkloadUtils.nextKey( keyGenerator, transactionInsertKeySequenceGenerator );
+        DBRecordKey startKey = WorkloadUtils.nextKey( keyGenerator, transactionInsertKeySequenceGenerator );
 
         boolean hashKeyNumber = !orderedInserts;
         String startKeyName = ( hashKeyNumber ) ? startKey.getHashed() : startKey.getPrefixed( KEY_NAME_PREFIX );
@@ -136,7 +136,7 @@ public abstract class WorkloadOperation
             throws WorkloadException
     {
         // choose a random key
-        DBKey key = WorkloadUtils.nextKey( keyGenerator, transactionInsertKeySequenceGenerator );
+        DBRecordKey key = WorkloadUtils.nextKey( keyGenerator, transactionInsertKeySequenceGenerator );
 
         boolean hashKeyNumber = !orderedInserts;
         String keyName = ( hashKeyNumber ) ? key.getHashed() : key.getPrefixed( KEY_NAME_PREFIX );
@@ -163,7 +163,7 @@ public abstract class WorkloadOperation
     public static boolean doInsert( DB db, Generator<Long> keyGenerator, boolean orderedInserts, int fieldCount,
             Generator<Long> fieldLengthGenerator, String table ) throws WorkloadException
     {
-        DBKey key = new DBKey( keyGenerator.next() );
+        DBRecordKey key = new DBRecordKey( keyGenerator.next() );
 
         boolean hashKeyNumber = !orderedInserts;
         String keyName = ( hashKeyNumber ) ? key.getHashed() : key.getPrefixed( KEY_NAME_PREFIX );

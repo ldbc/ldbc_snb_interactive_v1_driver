@@ -17,36 +17,40 @@
 
 package com.yahoo.ycsb;
 
-import java.util.Properties;
+import java.util.Map;
 
 /**
- * Creates a DB layer by dynamically classloading the specified DB class.
+ * Creates a DB layer by dynamically class loading the specified DB class
  */
 public class DBFactory
 {
-      @SuppressWarnings("unchecked")
-	public static DB newDB(String dbname, Properties properties) throws UnknownDBException
-      {
-	 ClassLoader classLoader = DBFactory.class.getClassLoader();
+    public DBFactory()
+    {
 
-	 DB ret=null;
+    }
 
-	 try 
-	 {
-	    Class dbclass = classLoader.loadClass(dbname);
-	    //System.out.println("dbclass.getName() = " + dbclass.getName());
-	    
-	    ret=(DB)dbclass.newInstance();
-	 }
-	 catch (Exception e) 
-	 {  
-	    e.printStackTrace();
-	    return null;
-	 }
-	 
-	 ret.setProperties(properties);
+    public DB newDB( String dbClassName, Map<String, String> properties ) throws UnknownDBException
+    {
+        try
+        {
+            ClassLoader classLoader = DBFactory.class.getClassLoader();
+            Class<? extends DB> dbclass = (Class<? extends DB>) classLoader.loadClass( dbClassName );
+            DB db = (DB) dbclass.newInstance();
+            db.setProperties( properties );
+            return new DBWrapper( db );
+        }
+        catch ( InstantiationException e )
+        {
+            throw new UnknownDBException( "Error creating DB from dynamically loaded class", e.getCause() );
+        }
+        catch ( IllegalAccessException e )
+        {
+            throw new UnknownDBException( "Error creating DB from dynamically loaded class", e.getCause() );
+        }
+        catch ( ClassNotFoundException e )
+        {
+            throw new UnknownDBException( "Error creating DB from dynamically loaded class", e.getCause() );
+        }
+    }
 
-	 return new DBWrapper(ret);
-      }
-      
 }

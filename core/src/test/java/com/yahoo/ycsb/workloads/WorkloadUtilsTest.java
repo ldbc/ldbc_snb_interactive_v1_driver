@@ -14,7 +14,7 @@ import org.junit.Test;
 
 import com.google.common.collect.Range;
 import com.yahoo.ycsb.ByteIterator;
-import com.yahoo.ycsb.HashUtils;
+import com.yahoo.ycsb.Utils;
 import com.yahoo.ycsb.WorkloadException;
 import com.yahoo.ycsb.generator.AbstractGeneratorFactory;
 import com.yahoo.ycsb.generator.ConstantNumberGenerator;

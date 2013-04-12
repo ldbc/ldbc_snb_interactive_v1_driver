@@ -1,12 +1,13 @@
 package com.yahoo.ycsb.workloads;
 
-import java.util.Properties;
+import java.util.Map;
 
 import com.google.common.collect.Range;
 
 import com.yahoo.ycsb.Client;
 import com.yahoo.ycsb.DB;
 import com.yahoo.ycsb.DBException;
+import com.yahoo.ycsb.Utils;
 import com.yahoo.ycsb.Workload;
 import com.yahoo.ycsb.WorkloadException;
 import com.yahoo.ycsb.generator.CounterGenerator;
@@ -25,6 +26,7 @@ public class CoreWorkload extends Workload
     boolean orderedInserts;
     int recordCount;
 
+    // TODO make composite generator with dynamic upper limit
     Generator<Long> fieldLengthGenerator;
     Generator<Long> keySequence;
     Generator<Long> keyChooser;
@@ -38,60 +40,60 @@ public class CoreWorkload extends Workload
      * operations are started.
      */
     @Override
-    public void init( Properties p, GeneratorFactory generatorFactory ) throws WorkloadException
+    public void init( Map<String, String> properties, GeneratorFactory generatorFactory ) throws WorkloadException
     {
-        super.init( p, generatorFactory );
-        table = p.getProperty( CoreWorkloadProperties.TABLENAME, CoreWorkloadProperties.TABLENAME_DEFAULT );
-
-        fieldCount = Integer.parseInt( p.getProperty( CoreWorkloadProperties.FIELD_COUNT,
+        super.init( properties, generatorFactory );
+        table = Utils.mapGetDefault( properties, CoreWorkloadProperties.TABLENAME,
+                CoreWorkloadProperties.TABLENAME_DEFAULT );
+        fieldCount = Integer.parseInt( Utils.mapGetDefault( properties, CoreWorkloadProperties.FIELD_COUNT,
                 CoreWorkloadProperties.FIELD_COUNT_DEFAULT ) );
-        recordCount = Integer.parseInt( p.getProperty( Client.RECORD_COUNT ) );
+        recordCount = Integer.parseInt( properties.get( Client.RECORD_COUNT ) );
 
-        Distribution fieldLengthDistribution = Distribution.valueOf( p.getProperty(
+        Distribution fieldLengthDistribution = Distribution.valueOf( Utils.mapGetDefault( properties,
                 CoreWorkloadProperties.FIELD_LENGTH_DISTRIBUTION,
                 CoreWorkloadProperties.FIELD_LENGTH_DISTRIBUTION_DEFAULT ).toUpperCase() );
-        int fieldLength = Integer.parseInt( p.getProperty( CoreWorkloadProperties.FIELD_LENGTH,
+        int fieldLength = Integer.parseInt( Utils.mapGetDefault( properties, CoreWorkloadProperties.FIELD_LENGTH,
                 CoreWorkloadProperties.FIELD_LENGTH_DEFAULT ) );
-        String fieldLengthHistogramFilePath = p.getProperty( CoreWorkloadProperties.FIELD_LENGTH_HISTOGRAM_FILE,
+        String fieldLengthHistogramFilePath = Utils.mapGetDefault( properties,
+                CoreWorkloadProperties.FIELD_LENGTH_HISTOGRAM_FILE,
                 CoreWorkloadProperties.FIELD_LENGTH_HISTOGRAM_FILE_DEFAULT );
         fieldLengthGenerator = WorkloadUtils.buildFieldLengthGenerator( fieldLengthDistribution,
                 Range.closed( (long) 1, (long) fieldLength ), fieldLengthHistogramFilePath );
-
-        double readProp = Double.parseDouble( p.getProperty( CoreWorkloadProperties.READ_PROPORTION,
+        double readProp = Double.parseDouble( Utils.mapGetDefault( properties, CoreWorkloadProperties.READ_PROPORTION,
                 CoreWorkloadProperties.READ_PROPORTION_DEFAULT ) );
-        double updateProp = Double.parseDouble( p.getProperty( CoreWorkloadProperties.UPDATE_PROPORTION,
-                CoreWorkloadProperties.UPDATE_PROPORTION_DEFAULT ) );
-        double insertProp = Double.parseDouble( p.getProperty( CoreWorkloadProperties.INSERT_PROPORTION,
-                CoreWorkloadProperties.INSERT_PROPORTION_DEFAULT ) );
-        double scanProp = Double.parseDouble( p.getProperty( CoreWorkloadProperties.SCAN_PROPORTION,
+        double updateProp = Double.parseDouble( Utils.mapGetDefault( properties,
+                CoreWorkloadProperties.UPDATE_PROPORTION, CoreWorkloadProperties.UPDATE_PROPORTION_DEFAULT ) );
+        double insertProp = Double.parseDouble( Utils.mapGetDefault( properties,
+                CoreWorkloadProperties.INSERT_PROPORTION, CoreWorkloadProperties.INSERT_PROPORTION_DEFAULT ) );
+        double scanProp = Double.parseDouble( Utils.mapGetDefault( properties, CoreWorkloadProperties.SCAN_PROPORTION,
                 CoreWorkloadProperties.SCAN_PROPORTION_DEFAULT ) );
-        double readModifyWriteProp = Double.parseDouble( p.getProperty(
+        double readModifyWriteProp = Double.parseDouble( Utils.mapGetDefault( properties,
                 CoreWorkloadProperties.READMODIFYWRITE_PROPORTION,
                 CoreWorkloadProperties.READMODIFYWRITE_PROPORTION_DEFAULT ) );
 
-        String requestdistrib = p.getProperty( CoreWorkloadProperties.REQUEST_DISTRIBUTION,
+        String requestdistrib = Utils.mapGetDefault( properties, CoreWorkloadProperties.REQUEST_DISTRIBUTION,
                 CoreWorkloadProperties.REQUEST_DISTRIBUTION_DEFAULT );
 
-        int maxScanlength = Integer.parseInt( p.getProperty( CoreWorkloadProperties.MAX_SCAN_LENGTH,
+        int maxScanlength = Integer.parseInt( Utils.mapGetDefault( properties, CoreWorkloadProperties.MAX_SCAN_LENGTH,
                 CoreWorkloadProperties.MAX_SCAN_LENGTH_DEFAULT ) );
-        String scanLengthDistribution = p.getProperty( CoreWorkloadProperties.SCAN_LENGTH_DISTRIBUTION,
+        String scanLengthDistribution = Utils.mapGetDefault( properties,
+                CoreWorkloadProperties.SCAN_LENGTH_DISTRIBUTION,
                 CoreWorkloadProperties.SCAN_LENGTH_DISTRIBUTION_DEFAULT );
-
-        readAllFields = Boolean.parseBoolean( p.getProperty( CoreWorkloadProperties.READ_ALL_FIELDS,
+        readAllFields = Boolean.parseBoolean( Utils.mapGetDefault( properties, CoreWorkloadProperties.READ_ALL_FIELDS,
                 CoreWorkloadProperties.READ_ALL_FIELDS_DEFAULT ) );
-        writeAllFields = Boolean.parseBoolean( p.getProperty( CoreWorkloadProperties.WRITE_ALL_FIELDS,
-                CoreWorkloadProperties.WRITE_ALL_FIELDS_DEFAULT ) );
+        writeAllFields = Boolean.parseBoolean( Utils.mapGetDefault( properties,
+                CoreWorkloadProperties.WRITE_ALL_FIELDS, CoreWorkloadProperties.WRITE_ALL_FIELDS_DEFAULT ) );
 
-        if ( p.getProperty( CoreWorkloadProperties.INSERT_ORDER, CoreWorkloadProperties.INSERT_ORDER_DEFAULT ).compareTo(
-                "hashed" ) == 0 )
+        if ( Utils.mapGetDefault( properties, CoreWorkloadProperties.INSERT_ORDER,
+                CoreWorkloadProperties.INSERT_ORDER_DEFAULT ).equals( "hashed" ) )
         {
             orderedInserts = false;
         }
         else if ( requestdistrib.compareTo( "exponential" ) == 0 )
         {
-            double percentile = Double.parseDouble( p.getProperty( ExponentialGenerator.EXPONENTIAL_PERCENTILE,
-                    ExponentialGenerator.EXPONENTIAL_PERCENTILE_DEFAULT ) );
-            double frac = Double.parseDouble( p.getProperty( ExponentialGenerator.EXPONENTIAL_FRAC,
+            double percentile = Double.parseDouble( Utils.mapGetDefault( properties,
+                    ExponentialGenerator.EXPONENTIAL_PERCENTILE, ExponentialGenerator.EXPONENTIAL_PERCENTILE_DEFAULT ) );
+            double frac = Double.parseDouble( Utils.mapGetDefault( properties, ExponentialGenerator.EXPONENTIAL_FRAC,
                     ExponentialGenerator.EXPONENTIAL_FRAC_DEFAULT ) );
             keyChooser = generatorFactory.newExponentialGenerator( percentile, recordCount * frac );
         }
@@ -100,7 +102,8 @@ public class CoreWorkload extends Workload
             orderedInserts = true;
         }
 
-        int insertStart = Integer.parseInt( p.getProperty( Workload.INSERT_START, Workload.INSERT_START_DEFAULT ) );
+        int insertStart = Integer.parseInt( Utils.mapGetDefault( properties, Workload.INSERT_START,
+                Workload.INSERT_START_DEFAULT ) );
         keySequence = generatorFactory.newCounterGenerator( insertStart );
 
         // proportion of transactions reads/update/insert/scan/read-modify-write
@@ -121,7 +124,8 @@ public class CoreWorkload extends Workload
         }
         else if ( requestdistrib.compareTo( "zipfian" ) == 0 )
         {
-            int opcount = Integer.parseInt( p.getProperty( Client.OPERATION_COUNT ) );
+            int opcount = Integer.parseInt( properties.get( Client.OPERATION_COUNT ) );
+
             // 2 is fudge factor
             long expectednewkeys = (long) ( ( (double) opcount ) * insertProp * 2.0 );
 
@@ -133,10 +137,10 @@ public class CoreWorkload extends Workload
         }
         else if ( requestdistrib.equals( "hotspot" ) )
         {
-            double hotsetfraction = Double.parseDouble( p.getProperty( CoreWorkloadProperties.HOTSPOT_DATA_FRACTION,
-                    CoreWorkloadProperties.HOTSPOT_DATA_FRACTION_DEFAULT ) );
-            double hotopnfraction = Double.parseDouble( p.getProperty( CoreWorkloadProperties.HOTSPOT_OPN_FRACTION,
-                    CoreWorkloadProperties.HOTSPOT_OPN_FRACTION_DEFAULT ) );
+            double hotsetfraction = Double.parseDouble( Utils.mapGetDefault( properties,
+                    CoreWorkloadProperties.HOTSPOT_DATA_FRACTION, CoreWorkloadProperties.HOTSPOT_DATA_FRACTION_DEFAULT ) );
+            double hotopnfraction = Double.parseDouble( Utils.mapGetDefault( properties,
+                    CoreWorkloadProperties.HOTSPOT_OPN_FRACTION, CoreWorkloadProperties.HOTSPOT_OPN_FRACTION_DEFAULT ) );
             keyChooser = generatorFactory.newHotspotGenerator( 0, recordCount - 1, hotsetfraction, hotopnfraction );
         }
         else

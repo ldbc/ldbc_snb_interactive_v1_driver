@@ -17,7 +17,10 @@
 
 package com.yahoo.ycsb;
 
-public class HashUtils
+import java.util.Map;
+import java.util.Properties;
+
+public class Utils
 {
     // /**
     // * Generate a random ASCII string of a given length.
@@ -103,4 +106,62 @@ public class HashUtils
         }
         return Math.abs( hashval );
     }
+
+    public static <K, V> V mapGetDefault( Map<K, V> map, K key, V defaultValue )
+    {
+        return ( map.containsKey( key ) ) ? map.get( key ) : defaultValue;
+    }
+
+    // public static Map<String, String> propertiesToMap( Properties
+    // fromProperties, Map<String, String> toMap,
+    // boolean overwrite )
+    // {
+    // for ( Object fromPropertyKey : fromProperties.keySet() )
+    // {
+    // if ( ( overwrite ) || ( false == toMap.containsKey( (String)
+    // fromPropertyKey ) ) )
+    // {
+    // toMap.put( (String) fromPropertyKey, (String) fromProperties.get(
+    // fromPropertyKey ) );
+    // }
+    // }
+    // return toMap;
+    // }
+
+    public static <K, V> Map<K, V> mergePropertiesToMap( Properties fromProperties, Map<K, V> toMap, boolean overwrite )
+    {
+        for ( Object fromPropertyKey : fromProperties.keySet() )
+        {
+            if ( ( overwrite ) || ( false == toMap.containsKey( (K) fromPropertyKey ) ) )
+            {
+                toMap.put( (K) fromPropertyKey, (V) fromProperties.get( (K) fromPropertyKey ) );
+            }
+        }
+        return toMap;
+    }
+
+    public static <K, V> Properties mergeMapToProperties( Map<K, V> fromMap, Properties toProperties, boolean overwrite )
+    {
+        for ( K fromMapKey : fromMap.keySet() )
+        {
+            if ( ( overwrite ) || ( false == toProperties.containsKey( fromMapKey ) ) )
+            {
+                toProperties.put( fromMapKey, fromMap.get( fromMapKey ) );
+            }
+        }
+        return toProperties;
+    }
+
+    public static <K, V> Map<K, V> mergeMaps( Map<K, V> fromMap, Map<K, V> toMap, boolean overwrite )
+    {
+        for ( K fromMapKey : fromMap.keySet() )
+        {
+            if ( ( overwrite ) || ( false == toMap.containsKey( fromMapKey ) ) )
+            {
+                toMap.put( fromMapKey, fromMap.get( fromMapKey ) );
+            }
+        }
+        return toMap;
+    }
+
 }

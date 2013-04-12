@@ -16,9 +16,11 @@
  */
 package com.yahoo.ycsb.workloads;
 
-import java.util.Properties;
+import java.util.Map;
 
 import com.google.common.collect.Range;
+
+import com.yahoo.ycsb.Utils;
 import com.yahoo.ycsb.WorkloadException;
 import com.yahoo.ycsb.Client;
 import com.yahoo.ycsb.generator.Generator;
@@ -53,12 +55,12 @@ import com.yahoo.ycsb.generator.GeneratorFactory;
  */
 public class ConstantOccupancyWorkload extends CoreWorkload
 {
-    long disksize;
-    long storageages;
-    Generator<Integer> objectsizes;
+    long diskSize;
+    long storageAges;
+    Generator<Integer> objectSizes;
     double occupancy;
 
-    long object_count;
+    long objectCount;
 
     public static final String STORAGE_AGE_PROPERTY = "storageages";
     public static final long STORAGE_AGE_PROPERTY_DEFAULT = 10;
@@ -70,43 +72,46 @@ public class ConstantOccupancyWorkload extends CoreWorkload
     public static final double OCCUPANCY_PROPERTY_DEFAULT = 0.9;
 
     @Override
-    public void init( Properties p, GeneratorFactory generatorFactory ) throws WorkloadException
+    public void init( Map<String, String> properties, GeneratorFactory generatorFactory ) throws WorkloadException
     {
-        super.init( p, generatorFactory );
+        super.init( properties, generatorFactory );
 
-        disksize = Long.parseLong( p.getProperty( DISK_SIZE_PROPERTY, DISK_SIZE_PROPERTY_DEFAULT + "" ) );
-        storageages = Long.parseLong( p.getProperty( STORAGE_AGE_PROPERTY, STORAGE_AGE_PROPERTY_DEFAULT + "" ) );
-        occupancy = Double.parseDouble( p.getProperty( OCCUPANCY_PROPERTY, OCCUPANCY_PROPERTY_DEFAULT + "" ) );
+        diskSize = Long.parseLong( Utils.mapGetDefault( properties, DISK_SIZE_PROPERTY,
+                Long.toString( DISK_SIZE_PROPERTY_DEFAULT ) ) );
+        storageAges = Long.parseLong( Utils.mapGetDefault( properties, STORAGE_AGE_PROPERTY,
+                Long.toString( STORAGE_AGE_PROPERTY_DEFAULT ) ) );
+        occupancy = Double.parseDouble( Utils.mapGetDefault( properties, OCCUPANCY_PROPERTY,
+                Double.toString( OCCUPANCY_PROPERTY_DEFAULT ) ) );
 
-        if ( p.getProperty( Client.RECORD_COUNT ) != null || p.getProperty( Client.INSERT_COUNT ) != null
-             || p.getProperty( Client.OPERATION_COUNT ) != null )
+        if ( properties.get( Client.RECORD_COUNT ) != null || properties.get( Client.INSERT_COUNT ) != null
+             || properties.get( Client.OPERATION_COUNT ) != null )
         {
             System.err.println( "Warning: record, insert or operation count was set prior to initting ConstantOccupancyWorkload.  Overriding old values." );
         }
 
-        Distribution fieldLengthDistribution = Distribution.valueOf( p.getProperty(
+        Distribution fieldLengthDistribution = Distribution.valueOf( Utils.mapGetDefault( properties,
                 CoreWorkloadProperties.FIELD_LENGTH_DISTRIBUTION,
                 CoreWorkloadProperties.FIELD_LENGTH_DISTRIBUTION_DEFAULT ).toUpperCase() );
-        int fieldLength = Integer.parseInt( p.getProperty( CoreWorkloadProperties.FIELD_LENGTH,
+        long fieldLength = Integer.parseInt( Utils.mapGetDefault( properties, CoreWorkloadProperties.FIELD_LENGTH,
                 CoreWorkloadProperties.FIELD_LENGTH_DEFAULT ) );
-        String fieldLengthHistogramFilePath = p.getProperty( CoreWorkloadProperties.FIELD_LENGTH_HISTOGRAM_FILE,
+        String fieldLengthHistogramFilePath = Utils.mapGetDefault( properties,
+                CoreWorkloadProperties.FIELD_LENGTH_HISTOGRAM_FILE,
                 CoreWorkloadProperties.FIELD_LENGTH_HISTOGRAM_FILE_DEFAULT );
         Generator<Long> g = WorkloadUtils.buildFieldLengthGenerator( fieldLengthDistribution,
-                Range.closed( (long) 1, (long) fieldLength ), fieldLengthHistogramFilePath );
+                Range.closed( 1l, fieldLength ), fieldLengthHistogramFilePath );
         // TODO is mean() necessary? set to constant for now, fix later
         double fieldsize = fieldLength / 2;
         // double fieldsize = g.mean();
 
-        int fieldcount = Integer.parseInt( p.getProperty( CoreWorkloadProperties.FIELD_COUNT,
+        int fieldcount = Integer.parseInt( Utils.mapGetDefault( properties, CoreWorkloadProperties.FIELD_COUNT,
                 CoreWorkloadProperties.FIELD_COUNT_DEFAULT ) );
-
-        object_count = (long) ( occupancy * ( (double) disksize / ( fieldsize * (double) fieldcount ) ) );
-        if ( object_count == 0 )
+        objectCount = (long) ( occupancy * ( (double) diskSize / ( fieldsize * (double) fieldcount ) ) );
+        if ( objectCount == 0 )
         {
             throw new IllegalStateException( "Object count was zero.  Perhaps disksize is too low?" );
         }
-        p.setProperty( Client.RECORD_COUNT, object_count + "" );
-        p.setProperty( Client.OPERATION_COUNT, ( storageages * object_count ) + "" );
-        p.setProperty( Client.INSERT_COUNT, object_count + "" );
+        properties.put( Client.RECORD_COUNT, Long.toString( objectCount ) );
+        properties.put( Client.OPERATION_COUNT, Long.toString( storageAges * objectCount ) );
+        properties.put( Client.INSERT_COUNT, Long.toString( objectCount ) );
     }
 }

@@ -19,7 +19,7 @@ package com.yahoo.ycsb.generator;
 
 import org.apache.commons.math3.random.RandomDataGenerator;
 
-import com.yahoo.ycsb.HashUtils;
+import com.yahoo.ycsb.Utils;
 
 /**
  * A generator of a zipfian distribution. It produces a sequence of items, such
@@ -72,7 +72,7 @@ public class ScrambledZipfianGenerator extends Generator<Long>
     protected Long doNext()
     {
         long ret = gen.next();
-        ret = min + HashUtils.FNVhash64( ret ) % itemCount;
+        ret = min + Utils.FNVhash64( ret ) % itemCount;
         return ret;
     }
 

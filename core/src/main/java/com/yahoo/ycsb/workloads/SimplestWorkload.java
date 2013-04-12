@@ -1,12 +1,13 @@
 package com.yahoo.ycsb.workloads;
 
-import java.util.Properties;
+import java.util.Map;
 
 import com.google.common.collect.Range;
 
 import com.yahoo.ycsb.Client;
 import com.yahoo.ycsb.DB;
 import com.yahoo.ycsb.DBException;
+import com.yahoo.ycsb.Utils;
 import com.yahoo.ycsb.Workload;
 import com.yahoo.ycsb.WorkloadException;
 import com.yahoo.ycsb.generator.Generator;
@@ -35,10 +36,10 @@ public class SimplestWorkload extends Workload
      * Called once, in main client thread, before operations are started
      */
     @Override
-    public void init( Properties p, GeneratorFactory generatorFactory ) throws WorkloadException
+    public void init( Map<String, String> properties, GeneratorFactory generatorFactory ) throws WorkloadException
     {
-        super.init( p, generatorFactory );
-        recordCount = Integer.parseInt( p.getProperty( Client.RECORD_COUNT ) );
+        super.init( properties, generatorFactory );
+        recordCount = Integer.parseInt( properties.get( Client.RECORD_COUNT ) );
         table = "usertable";
         // number of fields in a record
         fieldCount = 10;
@@ -84,7 +85,8 @@ public class SimplestWorkload extends Workload
          * client 2 --> insertStart=50,000
          *          --> insertCount=500,000
         */
-        int insertStart = Integer.parseInt( p.getProperty( Workload.INSERT_START, Workload.INSERT_START_DEFAULT ) );
+        int insertStart = Integer.parseInt( Utils.mapGetDefault( properties, Workload.INSERT_START,
+                Workload.INSERT_START_DEFAULT ) );
         keySequenceGenerator = generatorFactory.newCounterGenerator( insertStart );
 
         operationGenerator = generatorFactory.newDiscreteGenerator( readOperation, updateOperation, insertOperation,

@@ -1,6 +1,6 @@
 package com.yahoo.ycsb;
 
-import java.util.Properties;
+import java.util.Map;
 
 import org.apache.commons.math3.random.RandomDataGenerator;
 
@@ -18,11 +18,16 @@ class ClientThread extends Thread
     final double targetPerformancePerMs;
     final int threadId;
     final int threadCount;
-    final Properties properties;
+
+    // TODO remove now
+    // final Properties properties;
+    final Map<String, String> properties;
+
     final RandomDataGenerator random;
 
     // TODO can this be final too?
-    Object workloadState;
+    // TODO it could if it were properly defined class, not Object
+    Object workloadShareThreadState;
 
     int operationsDone;
 
@@ -37,7 +42,7 @@ class ClientThread extends Thread
      * @param targetPerformancePerMs target operations-count per thread per ms
      */
     public ClientThread( DB db, BenchmarkPhase benchmarkPhase, Workload workload, int threadId, int threadCount,
-            Properties properties, int operationCount, double targetPerformancePerMs,
+            Map<String, String> properties, int operationCount, double targetPerformancePerMs,
             RandomDataGenerator randomDataGenerator )
     {
         // TODO: consider removing threadCount and threadId
@@ -63,7 +68,7 @@ class ClientThread extends Thread
     {
         try
         {
-            workloadState = initBenchmark();
+            workloadShareThreadState = initBenchmark();
             randomizeClients();
             runBenchmark( benchmarkPhase );
             cleanupBenchmark();
@@ -129,14 +134,14 @@ class ClientThread extends Thread
             {
                 if ( benchmarkPhase.equals( BenchmarkPhase.LOAD_PHASE ) )
                 {
-                    if ( false == workload.doInsert( db, workloadState ) )
+                    if ( false == workload.doInsert( db, workloadShareThreadState ) )
                     {
                         break;
                     }
                 }
                 else if ( benchmarkPhase.equals( BenchmarkPhase.TRANSACTION_PHASE ) )
                 {
-                    if ( false == workload.doTransaction( db, workloadState ) )
+                    if ( false == workload.doTransaction( db, workloadShareThreadState ) )
                     {
                         break;
                     }
