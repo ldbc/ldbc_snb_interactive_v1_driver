@@ -22,6 +22,11 @@ public class GeneratorFactory
         return randomDataGeneratorFactory.newRandom();
     }
 
+    public <T extends Number> UniformNumberGenerator<T> newUniformNumberGenerator( T lowerBound, T upperBound )
+    {
+        return new UniformNumberGenerator( getRandom(), lowerBound, upperBound );
+    }
+
     public <T> DiscreteGenerator<T> newDiscreteGenerator( Pair<Double, T>... pairs )
     {
         return new DiscreteGenerator<T>( getRandom(), pairs );
