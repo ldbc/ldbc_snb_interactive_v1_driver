@@ -4,6 +4,7 @@ import static org.junit.Assert.assertEquals;
 
 import java.io.File;
 import java.io.IOException;
+import java.lang.reflect.ParameterizedType;
 import java.util.HashMap;
 import java.util.Map.Entry;
 
@@ -12,7 +13,6 @@ import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
 
-import com.google.common.collect.Range;
 import com.yahoo.ycsb.ByteIterator;
 import com.yahoo.ycsb.Utils;
 import com.yahoo.ycsb.WorkloadException;
@@ -21,7 +21,7 @@ import com.yahoo.ycsb.generator.ConstantNumberGenerator;
 import com.yahoo.ycsb.generator.Generator;
 import com.yahoo.ycsb.generator.GeneratorFactory;
 import com.yahoo.ycsb.generator.HistogramGenerator;
-import com.yahoo.ycsb.generator.UniformLongGenerator;
+import com.yahoo.ycsb.generator.UniformNumberGenerator;
 import com.yahoo.ycsb.generator.ZipfianGenerator;
 import com.yahoo.ycsb.workloads.Distribution;
 import com.yahoo.ycsb.workloads.WorkloadUtils;
@@ -42,8 +42,8 @@ public class WorkloadUtilsTest
         // Given
         int lowerBound = 3;
         int upperBound = 6;
-        Generator<Long> valueLengthGenerator = generatorFactory.newUniformIntegerGenerator( Range.closed(
-                (long) lowerBound, (long) upperBound ) );
+        Generator<Long> valueLengthGenerator = generatorFactory.newUniformNumberGenerator( (long) lowerBound,
+                (long) upperBound );
         int fieldCount = 10;
         String fieldNamePrefix = "field";
 
@@ -66,13 +66,13 @@ public class WorkloadUtilsTest
         // Given
         int keyLowerBound = 1;
         int keyUpperBound = 3;
-        Generator<Long> keyChooser = generatorFactory.newUniformIntegerGenerator( Range.closed( (long) keyLowerBound,
-                (long) keyUpperBound ) );
+        Generator<Long> keyChooser = generatorFactory.newUniformNumberGenerator( (long) keyLowerBound,
+                (long) keyUpperBound );
 
         int valueLengthLowerBound = 3;
         int valueLengthUpperBound = 6;
-        Generator<Long> valueLengthGenerator = generatorFactory.newUniformIntegerGenerator( Range.closed(
-                (long) valueLengthLowerBound, (long) valueLengthUpperBound ) );
+        Generator<Long> valueLengthGenerator = generatorFactory.newUniformNumberGenerator(
+                (long) valueLengthLowerBound, (long) valueLengthUpperBound );
 
         String keyNamePrefix = "field";
 
@@ -126,12 +126,11 @@ public class WorkloadUtilsTest
     public void buildConstantGeneratorTest() throws WorkloadException
     {
         // Given
-        Range<Long> range = Range.closed( (long) 1, (long) 10 );
         String histogramFilePath = null;
 
         // When
-        Generator<Long> constantIntegerGenerator = WorkloadUtils.buildFieldLengthGenerator( Distribution.CONSTANT,
-                range, histogramFilePath );
+        Generator<Long> constantIntegerGenerator = WorkloadUtils.buildFieldLengthGenerator( Distribution.CONSTANT, 1l,
+                10l, histogramFilePath );
 
         // Then
         assertEquals( ConstantNumberGenerator.class, constantIntegerGenerator.getClass() );
@@ -141,27 +140,26 @@ public class WorkloadUtilsTest
     public void buildUniformGeneratorTest() throws WorkloadException
     {
         // Given
-        Range<Long> range = Range.closed( (long) 1, (long) 10 );
         String histogramFilePath = null;
 
         // When
-        Generator<Long> uniformIntegerGenerator = WorkloadUtils.buildFieldLengthGenerator( Distribution.UNIFORM, range,
+        Generator<Long> uniformLongGenerator = WorkloadUtils.buildFieldLengthGenerator( Distribution.UNIFORM, 1l, 10l,
                 histogramFilePath );
 
         // Then
-        assertEquals( UniformLongGenerator.class, uniformIntegerGenerator.getClass() );
+        assertEquals( UniformNumberGenerator.class, uniformLongGenerator.getClass() );
+        assertEquals( UniformNumberGenerator.class, getGeneticTypeParameter( uniformLongGenerator.getClass() ) );
     }
 
     @Test
     public void buildZipfianGeneratorTest() throws WorkloadException
     {
         // Given
-        Range<Long> range = Range.closed( (long) 1, (long) 10 );
         String histogramFilePath = null;
 
         // When
-        Generator<Long> zipfianIntegerGenerator = WorkloadUtils.buildFieldLengthGenerator( Distribution.ZIPFIAN, range,
-                histogramFilePath );
+        Generator<Long> zipfianIntegerGenerator = WorkloadUtils.buildFieldLengthGenerator( Distribution.ZIPFIAN, 1l,
+                10l, histogramFilePath );
 
         // Then
         assertEquals( ZipfianGenerator.class, zipfianIntegerGenerator.getClass() );
@@ -172,14 +170,13 @@ public class WorkloadUtilsTest
     public void buildHistogramGeneratorTest() throws WorkloadException, IOException
     {
         // Given
-        Range<Long> range = Range.closed( (long) 1, (long) 10 );
         String histogramFilePath = "/tmp/histogram";
         new File( "/tmp/histogram" ).createNewFile();
         // TODO populate histogram file with real data
 
         // When
         Generator<Long> histogramIntegerGenerator = WorkloadUtils.buildFieldLengthGenerator( Distribution.HISTOGRAM,
-                range, histogramFilePath );
+                1l, 10l, histogramFilePath );
 
         // Then
         assertEquals( HistogramGenerator.class, histogramIntegerGenerator.getClass() );
@@ -189,11 +186,10 @@ public class WorkloadUtilsTest
     public void buildHistogramGeneratorWhenNoFileTest() throws WorkloadException
     {
         // Given
-        Range<Long> range = Range.closed( (long) 1, (long) 10 );
         String histogramFilePath = null;
 
         // When
-        WorkloadUtils.buildFieldLengthGenerator( Distribution.HISTOGRAM, range, histogramFilePath );
+        WorkloadUtils.buildFieldLengthGenerator( Distribution.HISTOGRAM, 1l, 10l, histogramFilePath );
 
         // Then
     }
@@ -202,5 +198,11 @@ public class WorkloadUtilsTest
     {
         assertEquals( "Should be above or equal to lower bound", true, ( lowerInclusive <= value ) );
         assertEquals( "Should be lower or equal to upper bound", true, ( value <= upperInclusive ) );
+    }
+
+    public Class getGeneticTypeParameter( Class genericClass )
+    {
+        ParameterizedType parameterizedType = (ParameterizedType) genericClass.getGenericSuperclass();
+        return (Class) parameterizedType.getActualTypeArguments()[0];
     }
 }

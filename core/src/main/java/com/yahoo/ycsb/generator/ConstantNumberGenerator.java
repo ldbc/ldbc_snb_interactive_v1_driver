@@ -33,9 +33,4 @@ public class ConstantNumberGenerator<T extends Number> extends Generator<T>
     {
         return constantNumber;
     }
-
-    // public double mean()
-    // {
-    // return (Double) constantNumber;
-    // }
 }

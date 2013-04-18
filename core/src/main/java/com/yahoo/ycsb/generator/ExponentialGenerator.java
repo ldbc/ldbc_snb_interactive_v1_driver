@@ -19,8 +19,6 @@ package com.yahoo.ycsb.generator;
 
 import org.apache.commons.math3.random.RandomDataGenerator;
 
-import com.yahoo.ycsb.RandomDataGeneratorFactory;
-
 /**
  * Produces a sequence of longs according to an exponential distribution.
  * Smaller intervals are more frequent than larger ones, and there is no bound
@@ -56,29 +54,6 @@ public class ExponentialGenerator extends Generator<Long>
     @Override
     protected Long doNext()
     {
-        // TODO replace with internal class variable random
         return (long) ( -Math.log( getRandom().nextUniform( 0, 1 ) ) / gamma );
-    }
-
-    // public double mean()
-    // {
-    // return 1.0 / gamma;
-    // }
-
-    // TODO is this just a lame test?
-    public static void main( String args[] ) throws GeneratorException
-    {
-        GeneratorFactory gf = new GeneratorFactory( new RandomDataGeneratorFactory( 42l ) );
-
-        ExponentialGenerator e = (ExponentialGenerator) gf.newExponentialGenerator( 90, 100 );
-        int j = 0;
-        for ( int i = 0; i < 1000; i++ )
-        {
-            if ( e.next() < 100 )
-            {
-                j++;
-            }
-        }
-        System.out.println( "Got " + j + " hits.  Expect 900" );
     }
 }

@@ -4,7 +4,6 @@ import java.util.HashMap;
 
 import org.apache.commons.math3.random.RandomDataGenerator;
 
-import com.google.common.collect.Range;
 import com.yahoo.ycsb.ByteIterator;
 import com.yahoo.ycsb.DBRecordKey;
 import com.yahoo.ycsb.RandomByteIterator;
@@ -55,7 +54,8 @@ public class WorkloadUtils
     // Seems to generate random numbers UNTIL it finds one matching a given
     // criteria (e.g. in range)
     // Seems inefficient and generally a bad approach
-    public static DBRecordKey nextKey( Generator<Long> keyChooser, Generator<Long> keySequence ) throws WorkloadException
+    public static DBRecordKey nextKey( Generator<Long> keyChooser, Generator<Long> keySequence )
+            throws WorkloadException
     {
         // TODO lots of casting here, sign of bad code
         long keyNumber;
@@ -80,19 +80,19 @@ public class WorkloadUtils
         return new DBRecordKey( keyNumber );
     }
 
-    public static Generator<Long> buildFieldLengthGenerator( Distribution distribution, Range<Long> range,
-            String histogramFilePath ) throws WorkloadException
+    public static Generator<Long> buildFieldLengthGenerator( Distribution distribution, Long lowerBound,
+            Long upperBound, String histogramFilePath ) throws WorkloadException
     {
         switch ( distribution )
         {
         case CONSTANT:
-            return generatorFactory.newConstantIntegerGenerator( range.upperEndpoint() );
+            return generatorFactory.newConstantIntegerGenerator( upperBound );
 
         case UNIFORM:
-            return generatorFactory.newUniformIntegerGenerator( range );
+            return generatorFactory.newUniformNumberGenerator( lowerBound, upperBound );
 
         case ZIPFIAN:
-            return generatorFactory.newZipfianGenerator( range );
+            return generatorFactory.newZipfianGenerator( lowerBound, upperBound );
 
         case HISTOGRAM:
             try

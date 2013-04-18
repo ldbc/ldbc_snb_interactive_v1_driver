@@ -6,10 +6,11 @@ import org.apache.commons.math3.random.RandomDataGenerator;
 import org.junit.Before;
 import org.junit.Test;
 
+import com.yahoo.ycsb.Pair;
 import com.yahoo.ycsb.generator.DiscreteGenerator;
 import com.yahoo.ycsb.generator.GeneratorFactory;
-import com.yahoo.ycsb.generator.Pair;
 
+// TODO rewrite using new utils and/or base test class
 public class DiscreteGeneratorTest
 {
     GeneratorFactory generatorFactory = null;

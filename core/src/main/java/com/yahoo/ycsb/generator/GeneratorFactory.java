@@ -2,7 +2,7 @@ package com.yahoo.ycsb.generator;
 
 import org.apache.commons.math3.random.RandomDataGenerator;
 
-import com.google.common.collect.Range;
+import com.yahoo.ycsb.Pair;
 import com.yahoo.ycsb.RandomDataGeneratorFactory;
 
 /**
@@ -24,7 +24,7 @@ public class GeneratorFactory
 
     public <T extends Number> UniformNumberGenerator<T> newUniformNumberGenerator( T lowerBound, T upperBound )
     {
-        return new UniformNumberGenerator( getRandom(), lowerBound, upperBound );
+        return new UniformNumberGenerator<T>( getRandom(), lowerBound, upperBound );
     }
 
     public <T> DiscreteGenerator<T> newDiscreteGenerator( Pair<Double, T>... pairs )
@@ -33,97 +33,103 @@ public class GeneratorFactory
     }
 
     // TODO test
+    // TODO Generic
     public ConstantNumberGenerator<Long> newConstantIntegerGenerator( long constant )
     {
         return new ConstantNumberGenerator<Long>( getRandom(), constant );
     }
 
     // TODO test
-    public UniformLongGenerator newUniformIntegerGenerator( Range<Long> range )
+    // TODO Generic
+    public ZipfianGenerator newZipfianGenerator( Long lowerBound, Long upperBound )
     {
-        return new UniformLongGenerator( getRandom(), range.lowerEndpoint(), range.upperEndpoint() );
+        return newZipfianGenerator( lowerBound, upperBound, ZipfianGenerator.ZIPFIAN_CONSTANT );
     }
 
     // TODO test
-    public ZipfianGenerator newZipfianGenerator( Range<Long> range )
+    // TODO Generic
+    public ZipfianGenerator newZipfianGenerator( Long lowerBound, Long upperBound, double zipfianConstant )
     {
-        return newZipfianGenerator( range, ZipfianGenerator.ZIPFIAN_CONSTANT );
+        return new ZipfianGenerator( getRandom(), lowerBound, upperBound, zipfianConstant );
     }
 
     // TODO test
-    public ZipfianGenerator newZipfianGenerator( Range<Long> range, double zipfianConstant )
+    // TODO Generic
+    public ZipfianGenerator newZipfianGenerator( Long lowerBound, Long upperBound, double zipfianConstant, double zetan )
     {
-        return new ZipfianGenerator( getRandom(), range.lowerEndpoint(), range.upperEndpoint(), zipfianConstant );
+        return new ZipfianGenerator( getRandom(), lowerBound, upperBound, zipfianConstant, zetan );
     }
 
     // TODO test
-    public ZipfianGenerator newZipfianGenerator( Range<Long> range, double zipfianConstant, double zetan )
-    {
-        return new ZipfianGenerator( getRandom(), range.lowerEndpoint(), range.upperEndpoint(), zipfianConstant, zetan );
-    }
-
-    // TODO test
+    // TODO Generic
     public HistogramGenerator newHistogramIntegerGenerator( String histogramFilePath ) throws GeneratorException
     {
         return new HistogramGenerator( getRandom(), histogramFilePath );
     }
 
     // TODO test
+    // TODO Generic
     public ExponentialGenerator newExponentialGenerator( double percentile, double range )
     {
         return new ExponentialGenerator( getRandom(), percentile, range );
     }
 
     // TODO test
+    // TODO Generic
     public ExponentialGenerator newExponentialGenerator( double mean )
     {
         return new ExponentialGenerator( getRandom(), mean );
     }
 
     // TODO test
+    // TODO Generic
     public CounterGenerator newCounterGenerator( long start )
     {
         return new CounterGenerator( getRandom(), start );
     }
 
     // TODO test
+    // TODO Generic
     // Create a zipfian generator for the specified number of items
-    public ScrambledZipfianGenerator newScrambledZipfianGenerator( Range<Long> range )
+    public ScrambledZipfianGenerator newScrambledZipfianGenerator( Long lowerBound, Long upperBound )
     {
-        return newScrambledZipfianGenerator( range, ZipfianGenerator.ZIPFIAN_CONSTANT );
+        return newScrambledZipfianGenerator( lowerBound, upperBound, ZipfianGenerator.ZIPFIAN_CONSTANT );
     }
 
     // TODO test
+    // TODO Generic
     /* 
      * Create a zipfian generator for items between min and max (inclusive) for
      * the specified zipfian constant. a zipfian constant other than 0.99 will take 
      * a long time to complete because we need to recompute zeta
      */
-    public ScrambledZipfianGenerator newScrambledZipfianGenerator( Range<Long> range, double zipfianConstant )
+    public ScrambledZipfianGenerator newScrambledZipfianGenerator( Long lowerBound, Long upperBound,
+            double zipfianConstant )
     {
         ZipfianGenerator zipfianGenerator = null;
         if ( ZipfianGenerator.ZIPFIAN_CONSTANT == zipfianConstant )
         {
-            zipfianGenerator = (ZipfianGenerator) newZipfianGenerator( range, zipfianConstant,
+            zipfianGenerator = (ZipfianGenerator) newZipfianGenerator( lowerBound, upperBound, zipfianConstant,
                     ScrambledZipfianGenerator.ZETAN );
         }
         else
         {
             // Slower, has to recompute Zetan
-            zipfianGenerator = (ZipfianGenerator) newZipfianGenerator( range, zipfianConstant );
+            zipfianGenerator = (ZipfianGenerator) newZipfianGenerator( lowerBound, upperBound, zipfianConstant );
         }
-        return new ScrambledZipfianGenerator( getRandom(), range.lowerEndpoint(), range.upperEndpoint(),
-                zipfianGenerator );
+        return new ScrambledZipfianGenerator( getRandom(), lowerBound, upperBound, zipfianGenerator );
     }
 
     // TODO test
+    // TODO Generic
     public SkewedLatestGenerator newSkewedLatestGenerator( CounterGenerator basis )
     {
-        ZipfianGenerator zipfianGenerator = (ZipfianGenerator) newZipfianGenerator( Range.closed( 0l, basis.last() ) );
+        ZipfianGenerator zipfianGenerator = (ZipfianGenerator) newZipfianGenerator( 0l, basis.last() );
         return new SkewedLatestGenerator( getRandom(), basis, zipfianGenerator );
     }
 
     // TODO test
+    // TODO Generic
     public HotspotGenerator newHotspotGenerator( int lowerBound, int upperBound, double hotsetFraction,
             double hotOpnFraction )
     {

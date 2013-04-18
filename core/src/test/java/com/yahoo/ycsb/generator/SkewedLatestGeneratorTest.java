@@ -4,8 +4,22 @@ import java.util.Map;
 
 import com.google.common.collect.Range;
 
-public class HistogramGeneratorTest extends NumberGeneratorTest
+public class SkewedLatestGeneratorTest extends NumberGeneratorTest
 {
+
+    @Override
+    public double getMeanTolerance()
+    {
+        // TODO Auto-generated method stub
+        return 0;
+    }
+
+    @Override
+    public double getDistributionTolerance()
+    {
+        // TODO Auto-generated method stub
+        return 0;
+    }
 
     @Override
     public Generator<? extends Number> getGeneratorImpl()
@@ -28,17 +42,4 @@ public class HistogramGeneratorTest extends NumberGeneratorTest
         return null;
     }
 
-    @Override
-    public double getMeanTolerance()
-    {
-        // TODO Auto-generated method stub
-        return 0;
-    }
-
-    @Override
-    public double getDistributionTolerance()
-    {
-        // TODO Auto-generated method stub
-        return 0;
-    }
 }

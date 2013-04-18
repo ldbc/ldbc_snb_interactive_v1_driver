@@ -26,7 +26,8 @@ import org.apache.commons.math3.random.RandomDataGenerator;
  */
 public class CounterGenerator extends Generator<Long>
 {
-    // TODO AtomicLong not be necessary if only one generator per thread
+    // TODO AtomicLong not necessary if only one generator per thread (or if
+    // next() is synchronized)
     private final AtomicLong counter;
 
     CounterGenerator( RandomDataGenerator random, Long start )

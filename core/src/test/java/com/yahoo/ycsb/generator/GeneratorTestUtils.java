@@ -9,12 +9,14 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.junit.Test;
-
 import com.google.common.collect.Range;
 
 public class GeneratorTestUtils
 {
+
+    /**
+     * Asserts
+     */
 
     public static <T> void assertLastEqualsLastNext( Generator<T> generator, int timesToTestLast )
     {
@@ -51,18 +53,25 @@ public class GeneratorTestUtils
         }
     }
 
-    public static void assertWithinTolerance( String message, Double expectedBucketValue, Double generatedBucketValue,
-            Double tolerance )
+    public static void assertWithinTolerance( String message, Double expectedValue, Double actualValue, Double tolerance )
     {
-        Double difference = Math.abs( ( (double) expectedBucketValue - (double) generatedBucketValue ) );
+        Double difference = Math.abs( ( expectedValue - actualValue ) );
         assertEquals( message, true, difference <= tolerance );
-
     }
+
+    /**
+     * Helpers
+     */
 
     public static <T extends Number> Map<Range<Double>, Double> sequenceToBuckets( List<T> sequence,
             List<Range<Double>> bucketList )
     {
         Map<Range<Double>, Double> buckets = new HashMap<Range<Double>, Double>();
+        // Initialize empty buckets
+        for ( Range<Double> bucket : bucketList )
+        {
+            buckets.put( bucket, 0.0 );
+        }
         // Buckets as total value/count
         for ( T number : sequence )
         {
@@ -79,7 +88,62 @@ public class GeneratorTestUtils
         return buckets;
     }
 
-    public static Map<Range<Double>, Double> incrementBucketEntry( Map<Range<Double>, Double> buckets,
+    public static Map<Range<Double>, Double> fillBucketsUniformly( List<Range<Double>> bucketRanges )
+    {
+        int bucketCount = bucketRanges.size();
+        Map<Range<Double>, Double> buckets = new HashMap<Range<Double>, Double>();
+        for ( Range<Double> bucket : bucketRanges )
+        {
+            buckets.put( bucket, 1.0 / bucketCount );
+        }
+        return buckets;
+    }
+
+    public static List<Range<Double>> makeEqualBucketRanges( Double min, Double max, Integer bucketCount )
+    {
+        List<Range<Double>> buckets = new ArrayList<Range<Double>>();
+        Double interval = max - min;
+        Double bucketInterval = interval / bucketCount;
+        Double lowerBound = min;
+        Double upperBound = lowerBound + bucketInterval;
+        for ( int i = 0; i < bucketCount - 1; i++ )
+        {
+            // [a..b) <--> {x | a <= x < b}
+            Range<Double> bucket = Range.closedOpen( lowerBound, upperBound );
+            buckets.add( bucket );
+            lowerBound = upperBound;
+            upperBound = lowerBound + bucketInterval;
+        }
+        // [a..b] <--> {x | a <= x <= b}
+        Range<Double> bucket = Range.closed( lowerBound, max );
+        buckets.add( bucket );
+        Collections.sort( buckets, new BucketComparator() );
+        return buckets;
+    }
+
+    public static <T extends Number> Double getSequenceMean( List<T> sequence )
+    {
+        int sequenceLength = sequence.size();
+        double sum = 0d;
+        for ( T number : sequence )
+        {
+            sum += number.doubleValue();
+        }
+        return sum / sequenceLength;
+    }
+
+    public static <T extends Number> List<T> makeSequence( Generator<T> generator, Integer size )
+    {
+        List<T> generatedNumberSequence = new ArrayList<T>();
+        for ( int i = 0; i < size; i++ )
+        {
+            T next = generator.next();
+            generatedNumberSequence.add( next );
+        }
+        return generatedNumberSequence;
+    }
+
+    private static Map<Range<Double>, Double> incrementBucketEntry( Map<Range<Double>, Double> buckets,
             Range<Double> bucket )
     {
         Double bucketCount = buckets.get( bucket );
@@ -88,7 +152,7 @@ public class GeneratorTestUtils
         return buckets;
     }
 
-    public static <T extends Number> Range<Double> getBucket( T number, List<Range<Double>> bucketList )
+    private static <T extends Number> Range<Double> getBucket( T number, List<Range<Double>> bucketList )
     {
         List<Range<Double>> bucketHits = new ArrayList<Range<Double>>();
         for ( Range<Double> bucket : bucketList )
@@ -112,38 +176,6 @@ public class GeneratorTestUtils
             throw new RuntimeException( errorMessage );
         }
         return bucketHits.get( 0 );
-    }
-
-    public static List<Range<Double>> makeEqualBucketRanges( Double min, Double max, Integer bucketCount )
-    {
-        List<Range<Double>> buckets = new ArrayList<Range<Double>>();
-        Double interval = max - min;
-        Double bucketInterval = interval / bucketCount;
-        Double lowerBound = min;
-        Double upperBound = lowerBound + bucketInterval;
-        for ( int i = 0; i < bucketCount - 1; i++ )
-        {
-            // [a..b) <--> {x | a <= x < b}
-            Range<Double> bucket = Range.closedOpen( lowerBound, upperBound );
-            buckets.add( bucket );
-            lowerBound = upperBound;
-            upperBound = lowerBound + bucketInterval;
-        }
-        // [a..b] <--> {x | a <= x <= b}
-        Range<Double> bucket = Range.closed( lowerBound, upperBound );
-        buckets.add( bucket );
-        Collections.sort( buckets, new BucketComparator() );
-        return buckets;
-    }
-
-    public static <T extends Number> List<T> makeSequence( Generator<T> generator, Integer size )
-    {
-        List<T> generatedNumberSequence = new ArrayList<T>();
-        for ( int i = 0; i < size; i++ )
-        {
-            generatedNumberSequence.add( generator.next() );
-        }
-        return generatedNumberSequence;
     }
 
     private static class BucketComparator implements Comparator<Range<Double>>

@@ -2,11 +2,9 @@ package com.yahoo.ycsb.workloads;
 
 import java.util.Map;
 
-import com.google.common.collect.Range;
-
 import com.yahoo.ycsb.Client;
 import com.yahoo.ycsb.DB;
-import com.yahoo.ycsb.DBException;
+import com.yahoo.ycsb.Pair;
 import com.yahoo.ycsb.Utils;
 import com.yahoo.ycsb.Workload;
 import com.yahoo.ycsb.WorkloadException;
@@ -14,7 +12,6 @@ import com.yahoo.ycsb.generator.CounterGenerator;
 import com.yahoo.ycsb.generator.ExponentialGenerator;
 import com.yahoo.ycsb.generator.Generator;
 import com.yahoo.ycsb.generator.GeneratorFactory;
-import com.yahoo.ycsb.generator.Pair;
 
 public class CoreWorkload extends Workload
 {
@@ -57,8 +54,8 @@ public class CoreWorkload extends Workload
         String fieldLengthHistogramFilePath = Utils.mapGetDefault( properties,
                 CoreWorkloadProperties.FIELD_LENGTH_HISTOGRAM_FILE,
                 CoreWorkloadProperties.FIELD_LENGTH_HISTOGRAM_FILE_DEFAULT );
-        fieldLengthGenerator = WorkloadUtils.buildFieldLengthGenerator( fieldLengthDistribution,
-                Range.closed( (long) 1, (long) fieldLength ), fieldLengthHistogramFilePath );
+        fieldLengthGenerator = WorkloadUtils.buildFieldLengthGenerator( fieldLengthDistribution, (long) 1,
+                (long) fieldLength, fieldLengthHistogramFilePath );
         double readProp = Double.parseDouble( Utils.mapGetDefault( properties, CoreWorkloadProperties.READ_PROPORTION,
                 CoreWorkloadProperties.READ_PROPORTION_DEFAULT ) );
         double updateProp = Double.parseDouble( Utils.mapGetDefault( properties,
@@ -120,7 +117,7 @@ public class CoreWorkload extends Workload
         transactionInsertKeySequence = generatorFactory.newCounterGenerator( recordCount );
         if ( requestdistrib.compareTo( "uniform" ) == 0 )
         {
-            keyChooser = generatorFactory.newUniformIntegerGenerator( Range.closed( (long) 0, (long) ( recordCount - 1 ) ) );
+            keyChooser = generatorFactory.newUniformNumberGenerator( (long) 0, (long) ( recordCount - 1 ) );
         }
         else if ( requestdistrib.compareTo( "zipfian" ) == 0 )
         {
@@ -129,7 +126,7 @@ public class CoreWorkload extends Workload
             // 2 is fudge factor
             long expectednewkeys = (long) ( ( (double) opcount ) * insertProp * 2.0 );
 
-            keyChooser = generatorFactory.newScrambledZipfianGenerator( Range.closed( 0l, recordCount + expectednewkeys ) );
+            keyChooser = generatorFactory.newScrambledZipfianGenerator( 0l, recordCount + expectednewkeys );
         }
         else if ( requestdistrib.compareTo( "latest" ) == 0 )
         {
@@ -148,15 +145,15 @@ public class CoreWorkload extends Workload
             throw new WorkloadException( "Unknown request distribution \"" + requestdistrib + "\"" );
         }
 
-        fieldChooser = generatorFactory.newUniformIntegerGenerator( Range.closed( (long) 0, (long) ( fieldCount - 1 ) ) );
+        fieldChooser = generatorFactory.newUniformNumberGenerator( (long) 0, (long) ( fieldCount - 1 ) );
 
         if ( scanLengthDistribution.equals( "uniform" ) )
         {
-            scanLength = generatorFactory.newUniformIntegerGenerator( Range.closed( (long) 1, (long) maxScanlength ) );
+            scanLength = generatorFactory.newUniformNumberGenerator( (long) 1, (long) maxScanlength );
         }
         else if ( scanLengthDistribution.equals( "zipfian" ) )
         {
-            scanLength = generatorFactory.newZipfianGenerator( Range.closed( (long) 1, (long) maxScanlength ) );
+            scanLength = generatorFactory.newZipfianGenerator( (long) 1, (long) maxScanlength );
         }
         else
         {

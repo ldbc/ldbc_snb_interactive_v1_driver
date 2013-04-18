@@ -21,6 +21,8 @@ import java.util.Vector;
 
 import org.apache.commons.math3.random.RandomDataGenerator;
 
+import com.yahoo.ycsb.Pair;
+
 /**
  * Chooses from a discrete set of values according to some distribution
  */

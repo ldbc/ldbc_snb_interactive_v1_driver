@@ -1,10 +1,10 @@
-package com.yahoo.ycsb.generator;
+package com.yahoo.ycsb;
 
 import static org.junit.Assert.assertEquals;
 
 import org.junit.Test;
 
-import com.yahoo.ycsb.generator.Pair;
+import com.yahoo.ycsb.Pair;
 
 public class PairTest
 {

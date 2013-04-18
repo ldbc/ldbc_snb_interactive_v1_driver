@@ -2,17 +2,15 @@ package com.yahoo.ycsb.workloads;
 
 import java.util.Map;
 
-import com.google.common.collect.Range;
-
 import com.yahoo.ycsb.Client;
 import com.yahoo.ycsb.DB;
 import com.yahoo.ycsb.DBException;
+import com.yahoo.ycsb.Pair;
 import com.yahoo.ycsb.Utils;
 import com.yahoo.ycsb.Workload;
 import com.yahoo.ycsb.WorkloadException;
 import com.yahoo.ycsb.generator.Generator;
 import com.yahoo.ycsb.generator.GeneratorFactory;
-import com.yahoo.ycsb.generator.Pair;
 
 public class SimplestWorkload extends Workload
 {
@@ -45,9 +43,9 @@ public class SimplestWorkload extends Workload
         fieldCount = 10;
 
         // field key name
-        fieldNameGenerator = generatorFactory.newUniformIntegerGenerator( Range.closed( 0l, (long) ( fieldCount - 1 ) ) );
+        fieldNameGenerator = generatorFactory.newUniformNumberGenerator( (long) 0, (long) ( fieldCount - 1 ) );
         // field value size: length in bytes
-        fieldLengthGenerator = generatorFactory.newUniformIntegerGenerator( Range.closed( 1l, 100l ) );
+        fieldLengthGenerator = generatorFactory.newUniformNumberGenerator( 1l, 100l );
 
         // proportion of transactions reads/update/insert/scan/read-modify-write
         Pair<Double, Object> readOperation = new Pair<Double, Object>( 0.95, "READ" );
@@ -57,11 +55,11 @@ public class SimplestWorkload extends Workload
         Pair<Double, Object> readModifyWriteOperation = new Pair<Double, Object>( 0.00, "READMODIFYWRITE" );
 
         // distribution of requests across keyspace
-        keyGenerator = generatorFactory.newUniformIntegerGenerator( Range.closed( 0l, ( recordCount - 1 ) ) );
+        keyGenerator = generatorFactory.newUniformNumberGenerator( 0l, ( recordCount - 1 ) );
 
         // max scan length (number of records)
         long maxScanlength = 1000;
-        scanLengthGenerator = generatorFactory.newUniformIntegerGenerator( Range.closed( 1l, maxScanlength ) );
+        scanLengthGenerator = generatorFactory.newUniformNumberGenerator( 1l, maxScanlength );
 
         // read one field (false) or all fields (true) of a record
         readAllFields = true;
