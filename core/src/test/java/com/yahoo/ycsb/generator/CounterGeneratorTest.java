@@ -1,13 +1,13 @@
 package com.yahoo.ycsb.generator;
 
 import java.util.List;
-import java.util.Map;
 
 import com.google.common.collect.Range;
+import com.yahoo.ycsb.Histogram;
 
-public class CounterGeneratorTest extends NumberGeneratorTest
+public class CounterGeneratorTest extends NumberGeneratorTest<Long>
 {
-    private final int start = 0;
+    private final long start = 0;
 
     @Override
     public double getMeanTolerance()
@@ -22,22 +22,26 @@ public class CounterGeneratorTest extends NumberGeneratorTest
     }
 
     @Override
-    public Generator<? extends Number> getGeneratorImpl()
+    public Generator<Long> getGeneratorImpl()
     {
         return getGeneratorFactory().newCounterGenerator( start );
     }
 
     @Override
-    public Map<Range<Double>, Double> getExpectedDistribution()
+    public Histogram<Long> getExpectedDistribution()
     {
-        List<Range<Double>> bucketList = GeneratorTestUtils.makeEqualBucketRanges( (double) start,
-                (double) getSampleSize(), 10 );
-        Map<Range<Double>, Double> uniformlyFilledBuckets = GeneratorTestUtils.fillBucketsUniformly( bucketList );
-        return uniformlyFilledBuckets;
+        Histogram<Long> expectedDistribution = new Histogram<Long>( 0l );
+
+        double min = (double) start;
+        double max = (double) getSampleSize();
+        int bucketCount = 10;
+        List<Range<Double>> buckets = Histogram.makeEqualBucketRanges( min, max, bucketCount );
+        expectedDistribution.addBuckets( buckets, 1l );
+        return expectedDistribution;
     }
 
     @Override
-    public Double getExpectedMean()
+    public double getExpectedMean()
     {
         return ( getSampleSize() - 1 ) / 2.0;
     }

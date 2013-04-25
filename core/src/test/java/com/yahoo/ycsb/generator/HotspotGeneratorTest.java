@@ -1,12 +1,9 @@
 package com.yahoo.ycsb.generator;
 
-import java.util.Map;
+import com.yahoo.ycsb.Histogram;
 
-import com.google.common.collect.Range;
-
-public class HotspotGeneratorTest extends NumberGeneratorTest
+public class HotspotGeneratorTest<T extends Number> extends NumberGeneratorTest<T>
 {
-
     @Override
     public double getMeanTolerance()
     {
@@ -22,24 +19,24 @@ public class HotspotGeneratorTest extends NumberGeneratorTest
     }
 
     @Override
-    public Generator<? extends Number> getGeneratorImpl()
+    public Generator<T> getGeneratorImpl()
     {
         // TODO Auto-generated method stub
         return null;
     }
 
     @Override
-    public Map<Range<Double>, Double> getExpectedDistribution()
+    public Histogram<T> getExpectedDistribution()
     {
         // TODO Auto-generated method stub
         return null;
     }
 
     @Override
-    public Double getExpectedMean()
+    public double getExpectedMean()
     {
         // TODO Auto-generated method stub
-        return null;
+        return 0;
     }
 
 }

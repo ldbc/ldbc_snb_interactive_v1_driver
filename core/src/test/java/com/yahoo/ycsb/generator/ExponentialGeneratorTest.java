@@ -1,11 +1,9 @@
 package com.yahoo.ycsb.generator;
 
-import java.util.HashMap;
-import java.util.Map;
-
 import com.google.common.collect.Range;
+import com.yahoo.ycsb.Histogram;
 
-public class ExponentialGeneratorTest extends NumberGeneratorTest
+public class ExponentialGeneratorTest extends NumberGeneratorTest<Long>
 {
     // TODO fix this test and/or the generator class itself
 
@@ -31,7 +29,7 @@ public class ExponentialGeneratorTest extends NumberGeneratorTest
     }
 
     @Override
-    public Generator<? extends Number> getGeneratorImpl()
+    public Generator<Long> getGeneratorImpl()
     {
         return getGeneratorFactory().newExponentialGenerator( percentile, range );
         // TODO test this too
@@ -39,16 +37,16 @@ public class ExponentialGeneratorTest extends NumberGeneratorTest
     }
 
     @Override
-    public Map<Range<Double>, Double> getExpectedDistribution()
+    public Histogram<Long> getExpectedDistribution()
     {
-        Map<Range<Double>, Double> expectedBuckets = new HashMap<Range<Double>, Double>();
-        expectedBuckets.put( Range.closedOpen( 0d, 90d ), 0.9 );
-        expectedBuckets.put( Range.closed( 90d, Double.MAX_VALUE ), 0.1 );
-        return expectedBuckets;
+        Histogram<Long> expectedDistribution = new Histogram<Long>( 0l );
+        expectedDistribution.addBucket( Range.closedOpen( 0d, 90d ), 9l );
+        expectedDistribution.addBucket( Range.closed( 90d, Double.MAX_VALUE ), 1l );
+        return expectedDistribution;
     }
 
     @Override
-    public Double getExpectedMean()
+    public double getExpectedMean()
     {
         return mean;
     }

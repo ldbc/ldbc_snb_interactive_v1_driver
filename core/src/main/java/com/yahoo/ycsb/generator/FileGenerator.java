@@ -28,7 +28,7 @@ import org.apache.commons.math3.random.RandomDataGenerator;
  */
 public class FileGenerator extends Generator<String>
 {
-    String filenameX;
+    String filename;
     BufferedReader reader;
 
     /**
@@ -41,10 +41,10 @@ public class FileGenerator extends Generator<String>
         super( random );
         try
         {
-            filenameX = filename;
-            File file = new File( filenameX );
+            this.filename = filename;
+            File file = new File( filename );
             FileInputStream in = new FileInputStream( file );
-            reader = new BufferedReader( new InputStreamReader( in ) );
+            this.reader = new BufferedReader( new InputStreamReader( in ) );
         }
         catch ( IOException e )
         {
@@ -71,12 +71,12 @@ public class FileGenerator extends Generator<String>
         catch ( NullPointerException e )
         {
             throw new GeneratorException( String.format( "Error encountered reading next line\nFile : %s\nLine : %s",
-                    filenameX, last() ), e.getCause() );
+                    filename, last() ), e.getCause() );
         }
         catch ( IOException e )
         {
             throw new GeneratorException( String.format( "Error encountered reading next line\nFile : %s\nLine : %s",
-                    filenameX, last() ), e.getCause() );
+                    filename, last() ), e.getCause() );
         }
     }
 
@@ -87,15 +87,15 @@ public class FileGenerator extends Generator<String>
     {
         try
         {
-            System.err.println( "Reload " + filenameX );
+            System.err.println( "Reload " + filename );
             reader.close();
-            File file = new File( filenameX );
+            File file = new File( filename );
             FileInputStream in = new FileInputStream( file );
             reader = new BufferedReader( new InputStreamReader( in ) );
         }
         catch ( IOException e )
         {
-            throw new GeneratorException( String.format( "Error encountered reloading file : %s", filenameX ),
+            throw new GeneratorException( String.format( "Error encountered reloading file : %s", filename ),
                     e.getCause() );
         }
     }

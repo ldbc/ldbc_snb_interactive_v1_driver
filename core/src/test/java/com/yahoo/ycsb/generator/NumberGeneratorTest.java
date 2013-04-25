@@ -1,32 +1,30 @@
 package com.yahoo.ycsb.generator;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
 import java.util.List;
-import java.util.Map;
 
 import org.apache.commons.math3.random.RandomDataGenerator;
 import org.junit.Before;
 import org.junit.Test;
 
-import com.google.common.collect.Range;
+import com.yahoo.ycsb.Histogram;
+import com.yahoo.ycsb.NumberHelper;
 
-public abstract class NumberGeneratorTest
+import static org.junit.Assert.assertEquals;
+
+public abstract class NumberGeneratorTest<T extends Number>
 {
     private final int SAMPLE_SIZE = 1000000;
     private GeneratorFactory generatorFactory = null;
-    private List<Range<Double>> bucketRanges = null;
+
+    public abstract double getExpectedMean();
 
     public abstract double getMeanTolerance();
 
+    public abstract Histogram<T> getExpectedDistribution();
+
     public abstract double getDistributionTolerance();
 
-    public abstract Generator<? extends Number> getGeneratorImpl();
-
-    public abstract Map<Range<Double>, Double> getExpectedDistribution();
-
-    public abstract Double getExpectedMean();
+    public abstract Generator<T> getGeneratorImpl();
 
     protected final int getSampleSize()
     {
@@ -42,24 +40,29 @@ public abstract class NumberGeneratorTest
     public void initGeneratorFactory()
     {
         generatorFactory = new AbstractGeneratorFactory( new RandomDataGenerator() ).newGeneratorFactory();
-        bucketRanges = new ArrayList<Range<Double>>( getExpectedDistribution().keySet() );
-        Collections.sort( bucketRanges, new BucketComparator() );
     }
 
     @Test
     public void distributionTest()
     {
+        NumberHelper<T> number = NumberHelper.createNumberHelper( getGeneratorImpl().next().getClass() );
+
         // Given
-        Generator<? extends Number> generator = getGeneratorImpl();
-        Map<Range<Double>, Double> expectedBuckets = getExpectedDistribution();
+        Generator<T> generator = getGeneratorImpl();
+        Histogram<T> expectedDistribution = getExpectedDistribution();
 
         // When
-        List<? extends Number> generatedSequence = GeneratorTestUtils.makeSequence( generator, SAMPLE_SIZE );
-        Map<Range<Double>, Double> generatedBuckets = GeneratorTestUtils.sequenceToBuckets( generatedSequence,
-                bucketRanges );
+        List<T> generatedSequence = GeneratorTestUtils.makeSequence( generator, getSampleSize() );
+        Histogram<T> generatedDistribution = getExpectedDistribution();
+        generatedDistribution.setAllBucketValues( number.zero() );
+        generatedDistribution.importValueSequence( generatedSequence );
 
         // Then
-        GeneratorTestUtils.assertDistributionCorrect( expectedBuckets, generatedBuckets, getDistributionTolerance() );
+        assertEquals(
+                "Expected and generated distributions should be equal (with tolerance)",
+                true,
+                generatedDistribution.toPercentageValues().equalsWithinTolerance( expectedDistribution.toPercentageValues(),
+                        getDistributionTolerance() ) );
     }
 
     @Test
@@ -67,16 +70,17 @@ public abstract class NumberGeneratorTest
     {
         // Given
         Generator<? extends Number> generator = getGeneratorImpl();
-        double expectedMean = getExpectedMean();
+        Double expectedMean = getExpectedMean();
 
         // When
-        List<? extends Number> sequence = GeneratorTestUtils.makeSequence( generator, SAMPLE_SIZE );
-        double actualMean = GeneratorTestUtils.getSequenceMean( sequence );
+        List<? extends Number> sequence = GeneratorTestUtils.makeSequence( generator, getSampleSize() );
+        Double actualMean = GeneratorTestUtils.getSequenceMean( sequence );
 
         // Then
         String assertMessage = String.format( "Expected mean(%s) should equal actual mean(%s) within tolerance(%s)",
                 expectedMean, actualMean, getMeanTolerance() );
-        GeneratorTestUtils.assertWithinTolerance( assertMessage, expectedMean, actualMean, getMeanTolerance() );
+        assertEquals( assertMessage, true, NumberHelper.withinTolerance( expectedMean, actualMean, getMeanTolerance() ) );
+
     }
 
     @Test
@@ -88,14 +92,6 @@ public abstract class NumberGeneratorTest
         // When
 
         // Then
-        GeneratorTestUtils.assertLastEqualsLastNext( generator, SAMPLE_SIZE );
-    }
-
-    private static class BucketComparator implements Comparator<Range<Double>>
-    {
-        public int compare( Range<Double> bucket1, Range<Double> bucket2 )
-        {
-            return bucket1.lowerEndpoint() < bucket2.lowerEndpoint() ? -1 : 1;
-        }
+        GeneratorTestUtils.assertLastEqualsLastNext( generator, getSampleSize() );
     }
 }

@@ -21,6 +21,7 @@ import java.util.Vector;
 
 import org.apache.commons.math3.random.RandomDataGenerator;
 
+import com.google.common.collect.Range;
 import com.yahoo.ycsb.Pair;
 
 /**

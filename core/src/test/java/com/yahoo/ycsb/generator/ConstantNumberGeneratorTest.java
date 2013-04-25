@@ -1,11 +1,9 @@
 package com.yahoo.ycsb.generator;
 
-import java.util.HashMap;
-import java.util.Map;
-
 import com.google.common.collect.Range;
+import com.yahoo.ycsb.Histogram;
 
-public class ConstantNumberGeneratorTest extends NumberGeneratorTest
+public class ConstantNumberGeneratorTest extends NumberGeneratorTest<Long>
 {
     private final long constant = 42;
 
@@ -22,23 +20,22 @@ public class ConstantNumberGeneratorTest extends NumberGeneratorTest
     }
 
     @Override
-    public Generator<? extends Number> getGeneratorImpl()
+    public Generator<Long> getGeneratorImpl()
     {
         return getGeneratorFactory().newConstantIntegerGenerator( constant );
     }
 
     @Override
-    public Map<Range<Double>, Double> getExpectedDistribution()
+    public Histogram<Long> getExpectedDistribution()
     {
-        Map<Range<Double>, Double> expectedBuckets = new HashMap<Range<Double>, Double>();
-        expectedBuckets.put( Range.closedOpen( 41.99d, 42.01d ), 1.0 );
-        return expectedBuckets;
+        Histogram<Long> expectedDistribution = new Histogram<Long>( 0l );
+        expectedDistribution.addBucket( Range.closedOpen( 41.99d, 42.01d ), 1l );
+        return expectedDistribution;
     }
 
     @Override
-    public Double getExpectedMean()
+    public double getExpectedMean()
     {
         return 42.0;
     }
-
 }

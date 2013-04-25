@@ -17,6 +17,7 @@
 
 package com.yahoo.ycsb;
 
+import java.lang.reflect.ParameterizedType;
 import java.util.Map;
 import java.util.Properties;
 
@@ -162,6 +163,11 @@ public class Utils
             }
         }
         return toMap;
+    }
+
+    public static <T> Class<?> extractGenericType( T generic )
+    {
+        return (Class<?>) ( (ParameterizedType) generic.getClass().getGenericSuperclass() ).getActualTypeArguments()[0];
     }
 
 }

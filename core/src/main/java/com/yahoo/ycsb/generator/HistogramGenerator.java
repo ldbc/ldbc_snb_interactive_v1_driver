@@ -24,11 +24,13 @@ import java.util.ArrayList;
 
 import org.apache.commons.math3.random.RandomDataGenerator;
 
+import com.yahoo.ycsb.Pair;
+
 /**
- * Histogram distribution. Histogram buckets are of width one, but the values
- * are multiplied by a block size. Therefore, instead of drawing sizes uniformly
- * at random within each bucket, we always draw the largest value in the current
- * bucket, so the value drawn is always a multiple of block_size.
+ * Histogram buckets are of width one, but the values are multiplied by a block
+ * size. Therefore, instead of drawing sizes uniformly at random within each
+ * bucket, we always draw the largest value in the current bucket, so the value
+ * drawn is always a multiple of block_size.
  * 
  * The minimum value this distribution returns is block_size (not zero).
  * 
@@ -40,52 +42,82 @@ import org.apache.commons.math3.random.RandomDataGenerator;
 public class HistogramGenerator extends Generator<Long>
 {
 
-    long block_size;
-    long[] buckets;
+    long blockSize;
+    Long[] buckets;
     long area;
-    long weighted_area = 0;
-    double mean_size = 0;
+    long weightedArea = 0;
+    double meanSize = 0;
 
-    HistogramGenerator( RandomDataGenerator random, String histogramFilePath ) throws GeneratorException
+    HistogramGenerator( RandomDataGenerator random, String histogramFilePath )
     {
-        // TODO this constructor should call the other constructor
+        this( random, loadHistogramFromFile( histogramFilePath ) );
+    }
+
+    HistogramGenerator( RandomDataGenerator random, Long[] buckets, Long blockSize )
+    {
+        this( random, new Pair<Long[], Long>( buckets, blockSize ) );
+    }
+
+    private HistogramGenerator( RandomDataGenerator random, Pair<Long[], Long> histogram )
+    {
         super( random );
-        BufferedReader in;
+        this.buckets = histogram._1();
+        this.blockSize = histogram._2();
+        init();
+    }
+
+    private void init()
+    {
+        for ( int i = 0; i < buckets.length; i++ )
+        {
+            area += buckets[i];
+            weightedArea = i * buckets[i];
+        }
+        // calculate average file size
+        meanSize = ( (double) blockSize ) * ( (double) weightedArea ) / (double) ( area );
+    }
+
+    // TODO return a Histogram class instead of pair
+    private static Pair<Long[], Long> loadHistogramFromFile( String histogramFilePath )
+    {
         try
         {
-            in = new BufferedReader( new FileReader( histogramFilePath ) );
-            String str;
-            String[] line;
+            Long[] tempBuckets = null;
+            Long tempBlockSize = null;
 
-            ArrayList<Integer> a = new ArrayList<Integer>();
+            BufferedReader histogramFileReader = new BufferedReader( new FileReader( histogramFilePath ) );
+            String histogramFileLine;
+            String[] histogramFileLineTokens;
 
-            str = in.readLine();
-            if ( str == null )
+            ArrayList<Integer> bucketValueList = new ArrayList<Integer>();
+
+            histogramFileLine = histogramFileReader.readLine();
+            if ( histogramFileLine == null )
             {
-                throw new IOException( "Empty input file!\n" );
+                throw new GeneratorException( "Empty input file!\n" );
             }
-            line = str.split( "\t" );
-            if ( line[0].compareTo( "BlockSize" ) != 0 )
+            histogramFileLineTokens = histogramFileLine.split( "\t" );
+            if ( histogramFileLineTokens[0].equals( "BlockSize" ) == false )
             {
-                throw new IOException( "First line of histogram is not the BlockSize!\n" );
+                throw new GeneratorException( "First line of histogram is not the BlockSize!\n" );
             }
-            block_size = Integer.parseInt( line[1] );
+            tempBlockSize = Long.parseLong( histogramFileLineTokens[1] );
 
-            while ( ( str = in.readLine() ) != null )
+            while ( ( histogramFileLine = histogramFileReader.readLine() ) != null )
             {
                 // [0] is the bucket, [1] is the value
-                line = str.split( "\t" );
+                histogramFileLineTokens = histogramFileLine.split( "\t" );
 
-                a.add( Integer.parseInt( line[0] ), Integer.parseInt( line[1] ) );
-            }
-            buckets = new long[a.size()];
-            for ( int i = 0; i < a.size(); i++ )
-            {
-                buckets[i] = a.get( i );
+                int bucket = Integer.parseInt( histogramFileLineTokens[0] );
+                int value = Integer.parseInt( histogramFileLineTokens[1] );
+                bucketValueList.add( bucket, value );
             }
 
-            in.close();
-            init();
+            tempBuckets = bucketValueList.toArray( new Long[bucketValueList.size()] );
+
+            histogramFileReader.close();
+
+            return new Pair<Long[], Long>( tempBuckets, tempBlockSize );
         }
         catch ( FileNotFoundException fnfe )
         {
@@ -95,29 +127,6 @@ public class HistogramGenerator extends Generator<Long>
         {
             throw new GeneratorException( "Could not load histogram file", ioe.getCause() );
         }
-        catch ( Exception e )
-        {
-            throw new GeneratorException( "Could not load histogram file", e.getCause() );
-        }
-    }
-
-    HistogramGenerator( RandomDataGenerator random, long[] buckets, int block_size )
-    {
-        super( random );
-        this.block_size = block_size;
-        this.buckets = buckets;
-        init();
-    }
-
-    private void init()
-    {
-        for ( int i = 0; i < buckets.length; i++ )
-        {
-            area += buckets[i];
-            weighted_area = i * buckets[i];
-        }
-        // calculate average file size
-        mean_size = ( (double) block_size ) * ( (double) weighted_area ) / (double) ( area );
     }
 
     @Override
@@ -131,11 +140,11 @@ public class HistogramGenerator extends Generator<Long>
             number -= buckets[i];
             if ( number <= 0 )
             {
-                return (long) ( ( i + 1 ) * block_size );
+                return (long) ( ( i + 1 ) * blockSize );
             }
         }
 
-        return (long) ( i * block_size );
+        return (long) ( i * blockSize );
     }
 
     // public double mean()

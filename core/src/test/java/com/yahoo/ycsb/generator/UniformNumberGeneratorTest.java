@@ -1,11 +1,9 @@
 package com.yahoo.ycsb.generator;
 
-import java.util.HashMap;
-import java.util.Map;
-
 import com.google.common.collect.Range;
+import com.yahoo.ycsb.Histogram;
 
-public class UniformNumberGeneratorTest extends NumberGeneratorTest
+public class UniformNumberGeneratorTest extends NumberGeneratorTest<Long>
 {
     private final long min = 0;
     private final long max = 100;
@@ -23,25 +21,25 @@ public class UniformNumberGeneratorTest extends NumberGeneratorTest
     }
 
     @Override
-    public Generator<? extends Number> getGeneratorImpl()
+    public Generator<Long> getGeneratorImpl()
     {
         return getGeneratorFactory().newUniformNumberGenerator( min, max );
     }
 
     @Override
-    public Map<Range<Double>, Double> getExpectedDistribution()
+    public Histogram<Long> getExpectedDistribution()
     {
-        Map<Range<Double>, Double> expectedBuckets = new HashMap<Range<Double>, Double>();
-        expectedBuckets.put( Range.closedOpen( 0d, 20d ), 0.2 );
-        expectedBuckets.put( Range.closedOpen( 20d, 40d ), 0.2 );
-        expectedBuckets.put( Range.closedOpen( 40d, 60d ), 0.2 );
-        expectedBuckets.put( Range.closedOpen( 60d, 80d ), 0.2 );
-        expectedBuckets.put( Range.closed( 80d, 100d ), 0.2 );
-        return expectedBuckets;
+        Histogram<Long> expectedDistribution = new Histogram<Long>( 0l );
+        expectedDistribution.addBucket( Range.closedOpen( 0d, 20d ), 1l );
+        expectedDistribution.addBucket( Range.closedOpen( 20d, 40d ), 1l );
+        expectedDistribution.addBucket( Range.closedOpen( 40d, 60d ), 1l );
+        expectedDistribution.addBucket( Range.closedOpen( 60d, 80d ), 1l );
+        expectedDistribution.addBucket( Range.closed( 80d, 100d ), 1l );
+        return expectedDistribution;
     }
 
     @Override
-    public Double getExpectedMean()
+    public double getExpectedMean()
     {
         return ( (double) max - (double) min ) / 2;
     }
