@@ -5,7 +5,6 @@ public enum Distribution
     CONSTANT,
     UNIFORM,
     ZIPFIAN,
-    HISTOGRAM,
     EXPONENTIAL,
     LATEST
 }

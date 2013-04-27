@@ -2,9 +2,6 @@ package com.yahoo.ycsb.workloads;
 
 import static org.junit.Assert.assertEquals;
 
-import java.io.File;
-import java.io.IOException;
-import java.lang.reflect.ParameterizedType;
 import java.util.HashMap;
 import java.util.Map.Entry;
 
@@ -14,13 +11,11 @@ import org.junit.Ignore;
 import org.junit.Test;
 
 import com.yahoo.ycsb.ByteIterator;
-import com.yahoo.ycsb.Utils;
 import com.yahoo.ycsb.WorkloadException;
 import com.yahoo.ycsb.generator.AbstractGeneratorFactory;
 import com.yahoo.ycsb.generator.ConstantNumberGenerator;
 import com.yahoo.ycsb.generator.Generator;
 import com.yahoo.ycsb.generator.GeneratorFactory;
-import com.yahoo.ycsb.generator.HistogramGenerator;
 import com.yahoo.ycsb.generator.UniformNumberGenerator;
 import com.yahoo.ycsb.generator.ZipfianGenerator;
 import com.yahoo.ycsb.workloads.Distribution;
@@ -148,7 +143,6 @@ public class WorkloadUtilsTest
 
         // Then
         assertEquals( UniformNumberGenerator.class, uniformLongGenerator.getClass() );
-        assertEquals( UniformNumberGenerator.class, getGeneticTypeParameter( uniformLongGenerator.getClass() ) );
     }
 
     @Test
@@ -165,44 +159,9 @@ public class WorkloadUtilsTest
         assertEquals( ZipfianGenerator.class, zipfianIntegerGenerator.getClass() );
     }
 
-    @Ignore
-    @Test
-    public void buildHistogramGeneratorTest() throws WorkloadException, IOException
-    {
-        // Given
-        String histogramFilePath = "/tmp/histogram";
-        new File( "/tmp/histogram" ).createNewFile();
-        // TODO populate histogram file with real data
-
-        // When
-        Generator<Long> histogramIntegerGenerator = WorkloadUtils.buildFieldLengthGenerator( Distribution.HISTOGRAM,
-                1l, 10l, histogramFilePath );
-
-        // Then
-        assertEquals( HistogramGenerator.class, histogramIntegerGenerator.getClass() );
-    }
-
-    @Test( expected = WorkloadException.class )
-    public void buildHistogramGeneratorWhenNoFileTest() throws WorkloadException
-    {
-        // Given
-        String histogramFilePath = null;
-
-        // When
-        WorkloadUtils.buildFieldLengthGenerator( Distribution.HISTOGRAM, 1l, 10l, histogramFilePath );
-
-        // Then
-    }
-
     private void assertInRange( double lowerInclusive, double value, double upperInclusive )
     {
         assertEquals( "Should be above or equal to lower bound", true, ( lowerInclusive <= value ) );
         assertEquals( "Should be lower or equal to upper bound", true, ( value <= upperInclusive ) );
-    }
-
-    public Class getGeneticTypeParameter( Class genericClass )
-    {
-        ParameterizedType parameterizedType = (ParameterizedType) genericClass.getGenericSuperclass();
-        return (Class) parameterizedType.getActualTypeArguments()[0];
     }
 }

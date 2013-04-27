@@ -2,6 +2,7 @@ package com.yahoo.ycsb;
 
 import static org.junit.Assert.assertEquals;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -79,13 +80,15 @@ public class HistogramTest
     {
         // Given
         Histogram<Integer> histogram = new Histogram<Integer>( 2 );
-
-        Range<Double>[] buckets = new Range[] { Range.closedOpen( 0d, 2d ), Range.closedOpen( 2d, 4d ),
-                Range.closedOpen( 4d, 6d ), Range.closed( 6d, 8d ) };
-
+        List<Range<Double>> buckets = new ArrayList<Range<Double>>();
+        buckets.add( Range.closedOpen( 0d, 2d ) );
+        buckets.add( Range.closedOpen( 2d, 4d ) );
+        buckets.add( Range.closedOpen( 4d, 6d ) );
+        buckets.add( Range.closed( 6d, 8d ) );
         assertEquals( 0, histogram.getBucketCount() );
+
         // When
-        histogram.addBuckets( Arrays.asList( buckets ) );
+        histogram.addBuckets( buckets );
 
         // Then
         assertEquals( 4, histogram.getBucketCount() );
@@ -117,11 +120,12 @@ public class HistogramTest
     {
         // Given
         Histogram<Integer> histogram = new Histogram<Integer>( 2 );
-
-        Range<Double>[] buckets = new Range[] { Range.closedOpen( 0d, 2d ), Range.closedOpen( 2d, 4d ),
-                Range.closedOpen( 4d, 6d ), Range.closed( 6d, 8d ) };
-
-        histogram.addBuckets( Arrays.asList( buckets ) );
+        List<Range<Double>> buckets = new ArrayList<Range<Double>>();
+        buckets.add( Range.closedOpen( 0d, 2d ) );
+        buckets.add( Range.closedOpen( 2d, 4d ) );
+        buckets.add( Range.closedOpen( 4d, 6d ) );
+        buckets.add( Range.closed( 6d, 8d ) );
+        histogram.addBuckets( buckets );
 
         for ( Range<Double> bucket : buckets )
         {
@@ -144,18 +148,20 @@ public class HistogramTest
     {
         // Given
         Histogram<Integer> histogram = new Histogram<Integer>( 2 );
+        List<Range<Double>> buckets = new ArrayList<Range<Double>>();
+        buckets.add( Range.closedOpen( 0d, 2d ) );
+        buckets.add( Range.closedOpen( 2d, 4d ) );
+        buckets.add( Range.closedOpen( 4d, 6d ) );
+        buckets.add( Range.closed( 6d, 8d ) );
+        histogram.addBuckets( buckets, 2 );
 
-        Range<Double>[] buckets = new Range[] { Range.closedOpen( 0d, 2d ), Range.closedOpen( 2d, 4d ),
-                Range.closedOpen( 4d, 6d ), Range.closed( 6d, 8d ) };
-
-        histogram.addBuckets( Arrays.asList( buckets ), 2 );
         for ( Range<Double> bucket : buckets )
         {
             assertEquals( 2, (int) histogram.getBucketValue( bucket ) );
         }
 
         // When
-        histogram.setBucketValues( Arrays.asList( buckets ), 9 );
+        histogram.setBucketValues( buckets, 9 );
 
         // Then
         assertEquals( 4, histogram.getBucketCount() );

@@ -2,6 +2,8 @@ package com.yahoo.ycsb.generator;
 
 import static org.junit.Assert.assertEquals;
 
+import java.util.ArrayList;
+
 import org.apache.commons.math3.random.RandomDataGenerator;
 import org.junit.Before;
 import org.junit.Test;
@@ -25,7 +27,8 @@ public class DiscreteGeneratorTest
     public void emptyConstructorTest()
     {
         // Given
-        DiscreteGenerator<Object> generator = generatorFactory.newDiscreteGenerator();
+        ArrayList<Pair<Double, Object>> emptyItems = new ArrayList<Pair<Double, Object>>();
+        DiscreteGenerator<Object> generator = generatorFactory.newDiscreteGenerator( emptyItems );
 
         // When
         generator.next();
@@ -40,7 +43,10 @@ public class DiscreteGeneratorTest
         // Given
         Pair<Double, Object> p1 = new Pair<Double, Object>( 3.0, "1" );
         Pair<Double, Object> p2 = new Pair<Double, Object>( 7.0, "2" );
-        DiscreteGenerator<Object> generator1 = generatorFactory.newDiscreteGenerator( p1, p2 );
+        ArrayList<Pair<Double, Object>> items = new ArrayList<Pair<Double, Object>>();
+        items.add( p1 );
+        items.add( p2 );
+        DiscreteGenerator<Object> generator1 = generatorFactory.newDiscreteGenerator( items );
 
         assertCorrectProportions( generator1, p1, p2 );
     }
@@ -51,7 +57,10 @@ public class DiscreteGeneratorTest
         // Given
         Pair<Double, Object> p1 = new Pair<Double, Object>( 3.0, "1" );
         Pair<Double, Object> p2 = new Pair<Double, Object>( 7.0, "2" );
-        DiscreteGenerator<Object> generator = generatorFactory.newDiscreteGenerator( p1, p2 );
+        ArrayList<Pair<Double, Object>> items = new ArrayList<Pair<Double, Object>>();
+        items.add( p1 );
+        items.add( p2 );
+        DiscreteGenerator<Object> generator = generatorFactory.newDiscreteGenerator( items );
 
         // When
         Object last = generator.next();

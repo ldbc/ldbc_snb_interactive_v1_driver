@@ -21,7 +21,6 @@ import java.util.Vector;
 
 import org.apache.commons.math3.random.RandomDataGenerator;
 
-import com.google.common.collect.Range;
 import com.yahoo.ycsb.Pair;
 
 /**
@@ -32,10 +31,13 @@ public class DiscreteGenerator<T> extends Generator<T>
     private final Vector<Pair<Double, T>> items;
     private final double probabilitiesSum;
 
-    DiscreteGenerator( RandomDataGenerator random, Pair<Double, T>... discreteItems )
+    DiscreteGenerator( RandomDataGenerator random, Iterable<Pair<Double, T>> discreteItems )
     {
         super( random );
-        if ( 0 == discreteItems.length ) throw new GeneratorException( "DiscreteGenerator cannot be empty" );
+        if ( false == discreteItems.iterator().hasNext() )
+        {
+            throw new GeneratorException( "DiscreteGenerator cannot be empty" );
+        }
         this.items = new Vector<Pair<Double, T>>();
         double sum = 0;
 

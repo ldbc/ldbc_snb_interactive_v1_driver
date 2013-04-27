@@ -19,21 +19,6 @@ public abstract class NumberHelper<T extends Number>
                 type.getName() ) );
     }
 
-    public static NumberHelper<Integer> createIntegerNumberHelper()
-    {
-        return new IntegerNumberHelper();
-    }
-
-    public static NumberHelper<Long> createLongNumberHelper()
-    {
-        return new LongNumberHelper();
-    }
-
-    public static NumberHelper<Double> createDoubleNumberHelper()
-    {
-        return new DoubleNumberHelper();
-    }
-
     public final T sum( Iterable<T> ts )
     {
         T sum = zero();
@@ -57,10 +42,10 @@ public abstract class NumberHelper<T extends Number>
 
     public abstract T div( T a, T b );
 
-    public static <T1 extends Number> boolean withinTolerance( T1 a, T1 b, Double tolerance )
+    public static <T1 extends Number> boolean withinTolerance( T1 a, T1 b, Number tolerance )
     {
         Double difference = Math.abs( ( a.doubleValue() - b.doubleValue() ) );
-        return difference <= tolerance;
+        return difference <= tolerance.doubleValue();
     }
 
     private static class IntegerNumberHelper extends NumberHelper<Integer>

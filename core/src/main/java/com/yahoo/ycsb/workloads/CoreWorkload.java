@@ -1,5 +1,6 @@
 package com.yahoo.ycsb.workloads;
 
+import java.util.ArrayList;
 import java.util.Map;
 
 import com.yahoo.ycsb.Client;
@@ -29,7 +30,7 @@ public class CoreWorkload extends Workload
     Generator<Long> keyChooser;
     Generator<Long> fieldChooser;
     Generator<Long> scanLength;
-    CounterGenerator transactionInsertKeySequence;
+    CounterGenerator<Long> transactionInsertKeySequence;
     Generator<? extends Object> operationGenerator;
 
     /**
@@ -99,22 +100,22 @@ public class CoreWorkload extends Workload
             orderedInserts = true;
         }
 
-        int insertStart = Integer.parseInt( Utils.mapGetDefault( properties, Workload.INSERT_START,
+        long insertStart = Long.parseLong( Utils.mapGetDefault( properties, Workload.INSERT_START,
                 Workload.INSERT_START_DEFAULT ) );
         keySequence = generatorFactory.newCounterGenerator( insertStart );
 
         // proportion of transactions reads/update/insert/scan/read-modify-write
-        Pair<Double, Object> readOperation = new Pair<Double, Object>( readProp, "READ" );
-        Pair<Double, Object> updateOperation = new Pair<Double, Object>( updateProp, "UPDATE" );
-        Pair<Double, Object> insertOperation = new Pair<Double, Object>( insertProp, "INSERT" );
-        Pair<Double, Object> scanOperation = new Pair<Double, Object>( scanProp, "READ" );
-        Pair<Double, Object> readModifyWriteOperation = new Pair<Double, Object>( readModifyWriteProp,
-                "READMODIFYWRITE" );
+        ArrayList<Pair<Double, Object>> operations = new ArrayList<Pair<Double, Object>>();
+        operations.add( new Pair<Double, Object>( readProp, "READ" ) );
+        operations.add( new Pair<Double, Object>( updateProp, "UPDATE" ) );
+        operations.add( new Pair<Double, Object>( insertProp, "INSERT" ) );
+        operations.add( new Pair<Double, Object>( scanProp, "SCAN" ) );
+        operations.add( new Pair<Double, Object>( readModifyWriteProp, "READMODIFYWRITE" ) );
 
-        operationGenerator = generatorFactory.newDiscreteGenerator( readOperation, updateOperation, insertOperation,
-                scanOperation, readModifyWriteOperation );
+        operationGenerator = generatorFactory.newDiscreteGenerator( operations );
 
-        transactionInsertKeySequence = generatorFactory.newCounterGenerator( recordCount );
+        // TODO should not cast
+        transactionInsertKeySequence = generatorFactory.newCounterGenerator( (long) recordCount );
         if ( requestdistrib.compareTo( "uniform" ) == 0 )
         {
             keyChooser = generatorFactory.newUniformNumberGenerator( (long) 0, (long) ( recordCount - 1 ) );

@@ -24,10 +24,10 @@ import org.apache.commons.math3.random.RandomDataGenerator;
  */
 public class SkewedLatestGenerator extends Generator<Long>
 {
-    private CounterGenerator basis;
+    private CounterGenerator<Long> basis;
     private ZipfianGenerator zipfian;
 
-    SkewedLatestGenerator( RandomDataGenerator random, CounterGenerator basis, ZipfianGenerator zipfianGenerator )
+    SkewedLatestGenerator( RandomDataGenerator random, CounterGenerator<Long> basis, ZipfianGenerator zipfianGenerator )
     {
         super( random );
         this.basis = basis;

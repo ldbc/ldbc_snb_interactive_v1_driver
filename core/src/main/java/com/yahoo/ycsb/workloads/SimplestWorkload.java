@@ -1,5 +1,6 @@
 package com.yahoo.ycsb.workloads;
 
+import java.util.ArrayList;
 import java.util.Map;
 
 import com.yahoo.ycsb.Client;
@@ -28,7 +29,7 @@ public class SimplestWorkload extends Workload
     Generator<Long> fieldNameGenerator;
     Generator<Long> scanLengthGenerator;
     Generator<Long> transactionInsertKeySequenceGenerator;
-    Generator<? extends Object> operationGenerator;
+    Generator<Object> operationGenerator;
 
     /**
      * Called once, in main client thread, before operations are started
@@ -48,11 +49,12 @@ public class SimplestWorkload extends Workload
         fieldLengthGenerator = generatorFactory.newUniformNumberGenerator( 1l, 100l );
 
         // proportion of transactions reads/update/insert/scan/read-modify-write
-        Pair<Double, Object> readOperation = new Pair<Double, Object>( 0.95, "READ" );
-        Pair<Double, Object> updateOperation = new Pair<Double, Object>( 0.05, "UPDATE" );
-        Pair<Double, Object> insertOperation = new Pair<Double, Object>( 0.00, "INSERT" );
-        Pair<Double, Object> scanOperation = new Pair<Double, Object>( 0.00, "READ" );
-        Pair<Double, Object> readModifyWriteOperation = new Pair<Double, Object>( 0.00, "READMODIFYWRITE" );
+        ArrayList<Pair<Double, Object>> operations = new ArrayList<Pair<Double, Object>>();
+        operations.add( new Pair<Double, Object>( 0.95, "READ" ) );
+        operations.add( new Pair<Double, Object>( 0.05, "UPDATE" ) );
+        operations.add( new Pair<Double, Object>( 0.00, "INSERT" ) );
+        operations.add( new Pair<Double, Object>( 0.00, "SCAN" ) );
+        operations.add( new Pair<Double, Object>( 0.00, "READMODIFYWRITE" ) );
 
         // distribution of requests across keyspace
         keyGenerator = generatorFactory.newUniformNumberGenerator( 0l, ( recordCount - 1 ) );
@@ -83,12 +85,11 @@ public class SimplestWorkload extends Workload
          * client 2 --> insertStart=50,000
          *          --> insertCount=500,000
         */
-        int insertStart = Integer.parseInt( Utils.mapGetDefault( properties, Workload.INSERT_START,
+        long insertStart = Long.parseLong( Utils.mapGetDefault( properties, Workload.INSERT_START,
                 Workload.INSERT_START_DEFAULT ) );
         keySequenceGenerator = generatorFactory.newCounterGenerator( insertStart );
 
-        operationGenerator = generatorFactory.newDiscreteGenerator( readOperation, updateOperation, insertOperation,
-                scanOperation, readModifyWriteOperation );
+        operationGenerator = generatorFactory.newDiscreteGenerator( operations );
 
         transactionInsertKeySequenceGenerator = generatorFactory.newCounterGenerator( recordCount );
     }

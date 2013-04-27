@@ -11,7 +11,6 @@ import com.yahoo.ycsb.RandomDataGeneratorFactory;
 import com.yahoo.ycsb.WorkloadException;
 import com.yahoo.ycsb.generator.ExponentialGenerator;
 import com.yahoo.ycsb.generator.Generator;
-import com.yahoo.ycsb.generator.GeneratorException;
 import com.yahoo.ycsb.generator.GeneratorFactory;
 
 public class WorkloadUtils
@@ -94,20 +93,9 @@ public class WorkloadUtils
         case ZIPFIAN:
             return generatorFactory.newZipfianGenerator( lowerBound, upperBound );
 
-        case HISTOGRAM:
-            try
-            {
-                return generatorFactory.newHistogramIntegerGenerator( histogramFilePath );
-            }
-            catch ( GeneratorException e )
-            {
-                throw new WorkloadException( "Error encountered while creating HistogramGenerator", e.getCause() );
-            }
-
         default:
             String errMsg = String.format( "Invalid Distribution [%s], use one of the following: %s, %s, %s, %s",
-                    distribution, Distribution.CONSTANT, Distribution.UNIFORM, Distribution.ZIPFIAN,
-                    Distribution.HISTOGRAM );
+                    distribution, Distribution.CONSTANT, Distribution.UNIFORM, Distribution.ZIPFIAN );
             throw new WorkloadException( errMsg );
         }
     }

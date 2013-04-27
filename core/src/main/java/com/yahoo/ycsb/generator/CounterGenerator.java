@@ -17,28 +17,30 @@
 
 package com.yahoo.ycsb.generator;
 
-import java.util.concurrent.atomic.AtomicLong;
-
 import org.apache.commons.math3.random.RandomDataGenerator;
+
+import com.yahoo.ycsb.NumberHelper;
 
 /**
  * Generates a sequence of long integers
  */
-public class CounterGenerator extends Generator<Long>
+public class CounterGenerator<T extends Number> extends Generator<T>
 {
-    // TODO AtomicLong not necessary if only one generator per thread (or if
-    // next() is synchronized)
-    private final AtomicLong counter;
+    private final NumberHelper<T> number;
+    private T counter;
 
-    CounterGenerator( RandomDataGenerator random, Long start )
+    CounterGenerator( RandomDataGenerator random, T start )
     {
         super( random );
-        counter = new AtomicLong( start );
+        counter = start;
+        number = NumberHelper.createNumberHelper( start.getClass() );
     }
 
     @Override
-    protected Long doNext()
+    protected T doNext()
     {
-        return counter.getAndIncrement();
+        T next = counter;
+        counter = number.inc( counter );
+        return next;
     }
 }

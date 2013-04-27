@@ -11,6 +11,8 @@ import com.yahoo.ycsb.WorkloadException;
 import com.yahoo.ycsb.generator.Generator;
 import com.yahoo.ycsb.measurements.Measurements;
 
+// TODO Generator parameters should all be generics
+
 public abstract class WorkloadOperation
 {
     private final static String FIELD_NAME_PREFIX = "field";

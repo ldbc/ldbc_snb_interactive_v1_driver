@@ -27,16 +27,15 @@ public class GeneratorFactory
         return new UniformNumberGenerator<T>( getRandom(), lowerBound, upperBound );
     }
 
-    public <T> DiscreteGenerator<T> newDiscreteGenerator( Pair<Double, T>... pairs )
+    public <T> DiscreteGenerator<T> newDiscreteGenerator( Iterable<Pair<Double, T>> pairs )
     {
         return new DiscreteGenerator<T>( getRandom(), pairs );
     }
 
     // TODO test
-    // TODO Generic
-    public ConstantNumberGenerator<Long> newConstantIntegerGenerator( long constant )
+    public <T extends Number> ConstantNumberGenerator<T> newConstantIntegerGenerator( T constant )
     {
-        return new ConstantNumberGenerator<Long>( getRandom(), constant );
+        return new ConstantNumberGenerator<T>( getRandom(), constant );
     }
 
     // TODO test
@@ -62,13 +61,6 @@ public class GeneratorFactory
 
     // TODO test
     // TODO Generic
-    public HistogramGenerator newHistogramIntegerGenerator( String histogramFilePath ) throws GeneratorException
-    {
-        return new HistogramGenerator( getRandom(), histogramFilePath );
-    }
-
-    // TODO test
-    // TODO Generic
     public ExponentialGenerator newExponentialGenerator( double percentile, double range )
     {
         return new ExponentialGenerator( getRandom(), percentile, range );
@@ -82,10 +74,9 @@ public class GeneratorFactory
     }
 
     // TODO test
-    // TODO Generic
-    public CounterGenerator newCounterGenerator( long start )
+    public <T extends Number> CounterGenerator<T> newCounterGenerator( T start )
     {
-        return new CounterGenerator( getRandom(), start );
+        return new CounterGenerator<T>( getRandom(), start );
     }
 
     // TODO test
@@ -122,7 +113,8 @@ public class GeneratorFactory
 
     // TODO test
     // TODO Generic
-    public SkewedLatestGenerator newSkewedLatestGenerator( CounterGenerator basis )
+    // TODO use a "MaxMinLastGenerator" instead of CounterGenerator
+    public SkewedLatestGenerator newSkewedLatestGenerator( CounterGenerator<Long> basis )
     {
         ZipfianGenerator zipfianGenerator = (ZipfianGenerator) newZipfianGenerator( 0l, basis.last() );
         return new SkewedLatestGenerator( getRandom(), basis, zipfianGenerator );

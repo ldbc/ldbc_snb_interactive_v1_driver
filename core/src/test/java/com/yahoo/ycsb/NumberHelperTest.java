@@ -25,9 +25,6 @@ public class NumberHelperTest
         assertEquals( Double.class, NumberHelper.createNumberHelper( new Double( 1 ).getClass() ).zero().getClass() );
         assertEquals( Integer.class, NumberHelper.createNumberHelper( new Integer( 1 ).getClass() ).zero().getClass() );
         assertEquals( Long.class, NumberHelper.createNumberHelper( new Long( 1 ).getClass() ).zero().getClass() );
-        assertEquals( Double.class, NumberHelper.createDoubleNumberHelper().zero().getClass() );
-        assertEquals( Integer.class, NumberHelper.createIntegerNumberHelper().zero().getClass() );
-        assertEquals( Long.class, NumberHelper.createLongNumberHelper().zero().getClass() );
     }
 
     @Test
@@ -102,7 +99,7 @@ public class NumberHelperTest
     public void functionsTest()
     {
         // Given
-        NumberHelper<Integer> number = NumberHelper.createIntegerNumberHelper();
+        NumberHelper<Integer> number = NumberHelper.createNumberHelper( Integer.class );
 
         // When
 
