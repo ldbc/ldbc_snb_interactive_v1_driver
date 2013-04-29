@@ -11,7 +11,7 @@ import org.junit.Test;
 import com.google.common.collect.Range;
 import com.yahoo.ycsb.Bucket.NumberRangeBucket;
 
-public class BucketHistogramTest
+public class HistogramTest
 {
     @Test
     public void makeEqualBucketRangesTest()
