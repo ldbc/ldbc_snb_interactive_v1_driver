@@ -6,17 +6,27 @@ import java.util.List;
 import java.util.Map;
 
 import com.google.common.collect.Range;
+import com.yahoo.ycsb.Bucket.NumberRangeBucket;
 import com.yahoo.ycsb.generator.GeneratorException;
 
-public class Histogram<N extends Number>
-{
-    private final Map<Range<Double>, N> valuedBuckets;
-    private final NumberHelper<N> number;
-    private final N defaultBucketValue;
+// TODO remove?
+// T - Things - type of things being counted
+//   ---> Bucket must be able to compare this
+//   ---> Histogram must be able to get/put this
+// C - Count - type of Number used to count the Things
+//   ---> Histogram must be able to get
+//   ---> Histogram must be able to inc
 
-    public static List<Range<Double>> makeEqualBucketRanges( Double min, Double max, Integer bucketCount )
+public class Histogram<T, C extends Number>
+{
+    private final Map<Bucket<T>, C> valuedBuckets;
+    private final NumberHelper<C> number;
+    private final C defaultBucketValue;
+
+    public static <N extends Number> List<Bucket<N>> makeBucketsOfEqualRange( Double min, Double max,
+            Integer bucketCount, Class<N> bucketType )
     {
-        List<Range<Double>> buckets = new ArrayList<Range<Double>>();
+        List<Bucket<N>> buckets = new ArrayList<Bucket<N>>();
         Double interval = max - min;
         Double bucketInterval = interval / bucketCount;
         Double lowerBound = min;
@@ -24,34 +34,34 @@ public class Histogram<N extends Number>
         for ( int i = 0; i < bucketCount - 1; i++ )
         {
             // [a..b) <--> {x | a <= x < b}
-            Range<Double> bucket = Range.closedOpen( lowerBound, upperBound );
+            Bucket<N> bucket = new NumberRangeBucket<N>( Range.closedOpen( lowerBound, upperBound ) );
             buckets.add( bucket );
             lowerBound = upperBound;
             upperBound = lowerBound + bucketInterval;
         }
         // [a..b] <--> {x | a <= x <= b}
-        Range<Double> bucket = Range.closed( lowerBound, max );
+        Bucket<N> bucket = new NumberRangeBucket<N>( Range.closed( lowerBound, max ) );
         buckets.add( bucket );
         return buckets;
     }
 
-    public Histogram( N defaultBucketValue )
+    public Histogram( C defaultBucketValue )
     {
-        this( new HashMap<Range<Double>, N>(), defaultBucketValue );
+        this( new HashMap<Bucket<T>, C>(), defaultBucketValue );
     }
 
-    private Histogram( Map<Range<Double>, N> valuedBuckets, N defaultBucketValue )
+    private Histogram( Map<Bucket<T>, C> valuedBuckets, C defaultBucketValue )
     {
         this.valuedBuckets = valuedBuckets;
         this.defaultBucketValue = defaultBucketValue;
         this.number = NumberHelper.createNumberHelper( defaultBucketValue.getClass() );
     }
 
-    public void importValueSequence( Iterable<N> numberSequence )
+    public void importValueSequence( Iterable<T> numberSequence )
     {
-        for ( N value : numberSequence )
+        for ( T value : numberSequence )
         {
-            Range<Double> bucket = getBucketFor( value );
+            Bucket<T> bucket = getBucketFor( value );
             incBucketValue( bucket, number.one() );
         }
     }
@@ -61,74 +71,79 @@ public class Histogram<N extends Number>
         return valuedBuckets.size();
     }
 
-    public void addBuckets( Iterable<Range<Double>> buckets )
+    public void addBuckets( Iterable<Bucket<T>> buckets )
     {
         addBuckets( buckets, defaultBucketValue );
     }
 
-    public void addBuckets( Iterable<Range<Double>> buckets, N initialValue )
+    public void addBuckets( Iterable<Bucket<T>> buckets, C initialValue )
     {
-        for ( Range<Double> bucket : buckets )
+        for ( Bucket<T> bucket : buckets )
         {
             addBucket( bucket, initialValue );
         }
     }
 
-    public void addBucket( Range<Double> bucket )
+    public void addBucket( Bucket<T> bucket )
     {
         addBucket( bucket, defaultBucketValue );
     }
 
-    public void addBucket( Range<Double> bucket, N initialValue )
+    public void addBucket( Bucket<T> bucket, C initialValue )
     {
         valuedBuckets.put( bucket, initialValue );
     }
 
-    public void setAllBucketValues( N value )
+    public void setAllBucketValues( C value )
     {
         setBucketValues( valuedBuckets.keySet(), value );
     }
 
-    public void setBucketValues( Iterable<Range<Double>> buckets, N value )
+    public void setBucketValues( Iterable<Bucket<T>> buckets, C value )
     {
-        for ( Range<Double> bucket : buckets )
+        for ( Bucket<T> bucket : buckets )
         {
             setBucketValue( bucket, value );
         }
     }
 
-    public void setBucketValue( Range<Double> bucket, N value )
+    public void setBucketValue( Bucket<T> bucket, C value )
     {
         assertBucketExists( bucket );
         valuedBuckets.put( bucket, value );
     }
 
     // Returns new bucket value
-    public N incBucketValue( Range<Double> bucket, N amount )
+    public C incBucketValue( Bucket<T> bucket, C amount )
     {
         assertBucketExists( bucket );
-        N bucketValue = valuedBuckets.get( bucket );
+        C bucketValue = valuedBuckets.get( bucket );
         bucketValue = number.sum( bucketValue, amount );
         valuedBuckets.put( bucket, bucketValue );
         return bucketValue;
     }
 
-    public N getBucketValue( Range<Double> bucket )
+    public C getBucketValue( Bucket<T> bucket )
     {
         return valuedBuckets.get( bucket );
     }
 
-    public Histogram<Double> toPercentageValues()
+    public C getDefaultBucketValue()
     {
-        Map<Range<Double>, Double> percentageValuedBuckets = new HashMap<Range<Double>, Double>();
+        return defaultBucketValue;
+    }
+
+    public Histogram<T, Double> toPercentageValues()
+    {
+        Map<Bucket<T>, Double> percentageValuedBuckets = new HashMap<Bucket<T>, Double>();
         Double sumOfAllBucketValues = number.sum( valuedBuckets.values() ).doubleValue();
-        for ( Range<Double> bucket : valuedBuckets.keySet() )
+        for ( Bucket<T> bucket : valuedBuckets.keySet() )
         {
-            N bucketValue = valuedBuckets.get( bucket );
+            C bucketValue = valuedBuckets.get( bucket );
             Double percentageBucketValue = bucketValue.doubleValue() / sumOfAllBucketValues;
             percentageValuedBuckets.put( bucket, percentageBucketValue );
         }
-        return new Histogram<Double>( percentageValuedBuckets, 1d );
+        return new Histogram<T, Double>( percentageValuedBuckets, 1d );
     }
 
     @Override
@@ -137,33 +152,33 @@ public class Histogram<N extends Number>
         return "Histogram [valuedBuckets=" + valuedBuckets + ", defaultBucketValue=" + defaultBucketValue + "]";
     }
 
-    private Range<Double> getBucketFor( N value )
+    private Bucket<T> getBucketFor( T value )
     {
-        List<Pair<Range<Double>, N>> bucketHits = new ArrayList<Pair<Range<Double>, N>>();
-        for ( Range<Double> bucket : valuedBuckets.keySet() )
+        List<Pair<Bucket<T>, T>> bucketHits = new ArrayList<Pair<Bucket<T>, T>>();
+        for ( Bucket<T> bucket : valuedBuckets.keySet() )
         {
-            if ( bucket.contains( value.doubleValue() ) )
+            if ( bucket.contains( value ) )
             {
-                bucketHits.add( new Pair<Range<Double>, N>( bucket, value ) );
+                bucketHits.add( new Pair<Bucket<T>, T>( bucket, value ) );
             }
         }
         if ( bucketHits.size() < 1 )
         {
             String errorMessage = String.format( "0 buckets found matching %s, expected 1. Buckets(%s) BucketHits(%s)",
-                    value.doubleValue(), valuedBuckets.keySet().toString(), bucketHits.toString() );
+                    value, valuedBuckets.keySet().toString(), bucketHits.toString() );
             throw new RuntimeException( errorMessage );
         }
         if ( bucketHits.size() > 1 )
         {
             String errorMessage = String.format(
-                    "%s buckets found matching %s, expected 1. Buckets(%s) BucketHits(%s)", bucketHits.size(),
-                    value.doubleValue(), valuedBuckets.keySet().toString(), bucketHits.toString() );
+                    "%s buckets found matching %s, expected 1. Buckets(%s) BucketHits(%s)", bucketHits.size(), value,
+                    valuedBuckets.keySet().toString(), bucketHits.toString() );
             throw new RuntimeException( errorMessage );
         }
         return bucketHits.get( 0 )._1();
     }
 
-    private void assertBucketExists( Range<Double> bucket )
+    private void assertBucketExists( Bucket<T> bucket )
     {
         if ( false == valuedBuckets.containsKey( bucket ) )
         {
@@ -172,7 +187,7 @@ public class Histogram<N extends Number>
         }
     }
 
-    public boolean equalsWithinTolerance( Histogram<N> other, Double tolerance )
+    public boolean equalsWithinTolerance( Histogram<T, C> other, Number tolerance )
     {
         if ( this == other ) return true;
         if ( other == null ) return false;
@@ -183,7 +198,7 @@ public class Histogram<N extends Number>
         return doEqualsWithinTolerance( other, tolerance );
     }
 
-    private boolean doEqualsWithinTolerance( Histogram<N> other, Double tolerance )
+    private boolean doEqualsWithinTolerance( Histogram<T, C> other, Number tolerance )
     {
         if ( other.getBucketCount() != this.getBucketCount() )
         {
@@ -193,10 +208,10 @@ public class Histogram<N extends Number>
             // System.out.println( errMsg );
             return false;
         }
-        for ( Range<Double> thisBucket : this.valuedBuckets.keySet() )
+        for ( Bucket<T> thisBucket : this.valuedBuckets.keySet() )
         {
-            N thisBucketValue = this.valuedBuckets.get( thisBucket );
-            N otherBucketValue = other.valuedBuckets.get( thisBucket );
+            C thisBucketValue = this.valuedBuckets.get( thisBucket );
+            C otherBucketValue = other.valuedBuckets.get( thisBucket );
 
             if ( null == otherBucketValue )
             {

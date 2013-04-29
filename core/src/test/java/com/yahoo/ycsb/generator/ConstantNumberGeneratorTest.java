@@ -2,8 +2,9 @@ package com.yahoo.ycsb.generator;
 
 import com.google.common.collect.Range;
 import com.yahoo.ycsb.Histogram;
+import com.yahoo.ycsb.Bucket.NumberRangeBucket;
 
-public class ConstantNumberGeneratorTest extends NumberGeneratorTest<Long>
+public class ConstantNumberGeneratorTest extends NumberGeneratorTest<Long, Long>
 {
     private final long constant = 42;
 
@@ -26,10 +27,10 @@ public class ConstantNumberGeneratorTest extends NumberGeneratorTest<Long>
     }
 
     @Override
-    public Histogram<Long> getExpectedDistribution()
+    public Histogram<Long, Long> getExpectedDistribution()
     {
-        Histogram<Long> expectedDistribution = new Histogram<Long>( 0l );
-        expectedDistribution.addBucket( Range.closedOpen( 41.99d, 42.01d ), 1l );
+        Histogram<Long, Long> expectedDistribution = new Histogram<Long, Long>( 0l );
+        expectedDistribution.addBucket( new NumberRangeBucket<Long>( Range.closedOpen( 41.99d, 42.01d ) ), 1l );
         return expectedDistribution;
     }
 

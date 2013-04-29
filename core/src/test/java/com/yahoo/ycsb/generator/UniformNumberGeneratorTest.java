@@ -2,8 +2,9 @@ package com.yahoo.ycsb.generator;
 
 import com.google.common.collect.Range;
 import com.yahoo.ycsb.Histogram;
+import com.yahoo.ycsb.Bucket.NumberRangeBucket;
 
-public class UniformNumberGeneratorTest extends NumberGeneratorTest<Long>
+public class UniformNumberGeneratorTest extends NumberGeneratorTest<Long, Long>
 {
     private final long min = 0;
     private final long max = 100;
@@ -27,14 +28,14 @@ public class UniformNumberGeneratorTest extends NumberGeneratorTest<Long>
     }
 
     @Override
-    public Histogram<Long> getExpectedDistribution()
+    public Histogram<Long, Long> getExpectedDistribution()
     {
-        Histogram<Long> expectedDistribution = new Histogram<Long>( 0l );
-        expectedDistribution.addBucket( Range.closedOpen( 0d, 20d ), 1l );
-        expectedDistribution.addBucket( Range.closedOpen( 20d, 40d ), 1l );
-        expectedDistribution.addBucket( Range.closedOpen( 40d, 60d ), 1l );
-        expectedDistribution.addBucket( Range.closedOpen( 60d, 80d ), 1l );
-        expectedDistribution.addBucket( Range.closed( 80d, 100d ), 1l );
+        Histogram<Long, Long> expectedDistribution = new Histogram<Long, Long>( 0l );
+        expectedDistribution.addBucket( new NumberRangeBucket<Long>( Range.closedOpen( 0d, 20d ) ), 1l );
+        expectedDistribution.addBucket( new NumberRangeBucket<Long>( Range.closedOpen( 20d, 40d ) ), 1l );
+        expectedDistribution.addBucket( new NumberRangeBucket<Long>( Range.closedOpen( 40d, 60d ) ), 1l );
+        expectedDistribution.addBucket( new NumberRangeBucket<Long>( Range.closedOpen( 60d, 80d ) ), 1l );
+        expectedDistribution.addBucket( new NumberRangeBucket<Long>( Range.closed( 80d, 100d ) ), 1l );
         return expectedDistribution;
     }
 

@@ -22,7 +22,7 @@ public class BucketHistogramTest
         int bucketCount = 5;
 
         // When
-        List<Bucket<Integer>> buckets = BucketHistogram.makeEqualBucketRanges( min, max, bucketCount, Integer.class );
+        List<Bucket<Integer>> buckets = Histogram.makeBucketsOfEqualRange( min, max, bucketCount, Integer.class );
 
         // Then
         assertEquals( bucketCount, buckets.size() );
@@ -34,7 +34,7 @@ public class BucketHistogramTest
         // Given
 
         // When
-        BucketHistogram<Integer, Integer> h = new BucketHistogram<Integer, Integer>( 0 );
+        Histogram<Integer, Integer> h = new Histogram<Integer, Integer>( 0 );
 
         // Then
         assertEquals( 0, h.getBucketCount() );
@@ -48,7 +48,7 @@ public class BucketHistogramTest
         Bucket<Integer> bucket2 = new NumberRangeBucket<Integer>( Range.closedOpen( 2d, 4d ) );
         Bucket<Integer> bucket3 = new NumberRangeBucket<Integer>( Range.closedOpen( 4d, 6d ) );
         Bucket<Integer> bucket4 = new NumberRangeBucket<Integer>( Range.closed( 6d, 8d ) );
-        BucketHistogram<Integer, Integer> histogram = new BucketHistogram<Integer, Integer>( 0 );
+        Histogram<Integer, Integer> histogram = new Histogram<Integer, Integer>( 0 );
         histogram.addBucket( bucket1 ); // 3
         histogram.addBucket( bucket2 ); // 2
         histogram.addBucket( bucket3 ); // 0
@@ -78,7 +78,7 @@ public class BucketHistogramTest
     public void addBucketsTest()
     {
         // Given
-        BucketHistogram<Integer, Integer> histogram = new BucketHistogram<Integer, Integer>( 2 );
+        Histogram<Integer, Integer> histogram = new Histogram<Integer, Integer>( 2 );
         List<Bucket<Integer>> buckets = new ArrayList<Bucket<Integer>>();
         buckets.add( new NumberRangeBucket<Integer>( Range.closedOpen( 0d, 2d ) ) );
         buckets.add( new NumberRangeBucket<Integer>( Range.closedOpen( 2d, 4d ) ) );
@@ -101,7 +101,7 @@ public class BucketHistogramTest
     public void addThenGetBucketTest()
     {
         // Given
-        BucketHistogram<Integer, Integer> histogram = new BucketHistogram<Integer, Integer>( 5 );
+        Histogram<Integer, Integer> histogram = new Histogram<Integer, Integer>( 5 );
 
         assertEquals( 0, histogram.getBucketCount() );
 
@@ -117,7 +117,7 @@ public class BucketHistogramTest
     public void setAllBucketValuesTest()
     {
         // Given
-        BucketHistogram<Integer, Integer> histogram = new BucketHistogram<Integer, Integer>( 2 );
+        Histogram<Integer, Integer> histogram = new Histogram<Integer, Integer>( 2 );
         List<Bucket<Integer>> buckets = new ArrayList<Bucket<Integer>>();
         buckets.add( new NumberRangeBucket<Integer>( Range.closedOpen( 0d, 2d ) ) );
         buckets.add( new NumberRangeBucket<Integer>( Range.closedOpen( 2d, 4d ) ) );
@@ -145,7 +145,7 @@ public class BucketHistogramTest
     public void setBucketValuesTest()
     {
         // Given
-        BucketHistogram<Integer, Integer> histogram = new BucketHistogram<Integer, Integer>( 2 );
+        Histogram<Integer, Integer> histogram = new Histogram<Integer, Integer>( 2 );
         List<Bucket<Integer>> buckets = new ArrayList<Bucket<Integer>>();
         buckets.add( new NumberRangeBucket<Integer>( Range.closedOpen( 0d, 2d ) ) );
         buckets.add( new NumberRangeBucket<Integer>( Range.closedOpen( 2d, 4d ) ) );
@@ -173,7 +173,7 @@ public class BucketHistogramTest
     public void incBucketValueTest()
     {
         // Given
-        BucketHistogram<Integer, Integer> histogram = new BucketHistogram<Integer, Integer>( 5 );
+        Histogram<Integer, Integer> histogram = new Histogram<Integer, Integer>( 5 );
 
         assertEquals( 0, histogram.getBucketCount() );
 
@@ -198,7 +198,7 @@ public class BucketHistogramTest
         Bucket<Integer> bucket1 = new NumberRangeBucket<Integer>( Range.closedOpen( 0d, 2d ) );
         Bucket<Integer> bucket2 = new NumberRangeBucket<Integer>( Range.closedOpen( 2d, 4d ) );
         Bucket<Integer> bucket3 = new NumberRangeBucket<Integer>( Range.closed( 4d, 6d ) );
-        BucketHistogram<Integer, Integer> histogramAbsolute = new BucketHistogram<Integer, Integer>( 0 );
+        Histogram<Integer, Integer> histogramAbsolute = new Histogram<Integer, Integer>( 0 );
         histogramAbsolute.addBucket( bucket1, 1 );
         histogramAbsolute.addBucket( bucket2, 1 );
         histogramAbsolute.addBucket( bucket3, 2 );
@@ -208,7 +208,7 @@ public class BucketHistogramTest
         assertEquals( 2, (int) histogramAbsolute.getBucketValue( bucket3 ) );
 
         // When
-        BucketHistogram<Integer, Double> histogramPercentage = histogramAbsolute.toPercentageValues();
+        Histogram<Integer, Double> histogramPercentage = histogramAbsolute.toPercentageValues();
 
         // Then
         assertEquals( 1, (int) histogramAbsolute.getBucketValue( bucket1 ) );
@@ -226,10 +226,10 @@ public class BucketHistogramTest
         // Given
         Bucket<Integer> bucket1 = new NumberRangeBucket<Integer>( Range.closedOpen( 0d, 2d ) );
         Bucket<Integer> bucket2 = new NumberRangeBucket<Integer>( Range.closedOpen( 2d, 4d ) );
-        BucketHistogram<Integer, Double> histogram1 = new BucketHistogram<Integer, Double>( 0d );
+        Histogram<Integer, Double> histogram1 = new Histogram<Integer, Double>( 0d );
         histogram1.addBucket( bucket1, 0.5 );
         histogram1.addBucket( bucket2, 0.2 );
-        BucketHistogram<Integer, Double> histogram2 = new BucketHistogram<Integer, Double>( 0d );
+        Histogram<Integer, Double> histogram2 = new Histogram<Integer, Double>( 0d );
         histogram2.addBucket( bucket1, 0.6 );
         histogram2.addBucket( bucket2, 0.2 );
 

@@ -1,11 +1,8 @@
 package com.yahoo.ycsb.generator;
 
-import java.util.Map;
-
-import com.google.common.collect.Range;
 import com.yahoo.ycsb.Histogram;
 
-public class ScrambledZipfianGeneratorTest<T extends Number> extends NumberGeneratorTest<T>
+public class ScrambledZipfianGeneratorTest<T extends Number, C extends Number> extends NumberGeneratorTest<T, C>
 {
 
     @Override
@@ -30,7 +27,7 @@ public class ScrambledZipfianGeneratorTest<T extends Number> extends NumberGener
     }
 
     @Override
-    public Histogram<T> getExpectedDistribution()
+    public Histogram<T, C> getExpectedDistribution()
     {
         // TODO Auto-generated method stub
         return null;

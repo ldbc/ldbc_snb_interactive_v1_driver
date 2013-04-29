@@ -2,7 +2,7 @@ package com.yahoo.ycsb.generator;
 
 import com.yahoo.ycsb.Histogram;
 
-public class ZipfianGeneratorTest<T extends Number> extends NumberGeneratorTest<T>
+public class ZipfianGeneratorTest<T extends Number, C extends Number> extends NumberGeneratorTest<T, C>
 {
 
     @Override
@@ -27,7 +27,7 @@ public class ZipfianGeneratorTest<T extends Number> extends NumberGeneratorTest<
     }
 
     @Override
-    public Histogram<T> getExpectedDistribution()
+    public Histogram<T, C> getExpectedDistribution()
     {
         // TODO Auto-generated method stub
         return null;

@@ -2,10 +2,10 @@ package com.yahoo.ycsb.generator;
 
 import java.util.List;
 
-import com.google.common.collect.Range;
+import com.yahoo.ycsb.Bucket;
 import com.yahoo.ycsb.Histogram;
 
-public class CounterGeneratorTest extends NumberGeneratorTest<Long>
+public class CounterGeneratorTest extends NumberGeneratorTest<Long, Long>
 {
     private final long start = 0;
 
@@ -28,14 +28,14 @@ public class CounterGeneratorTest extends NumberGeneratorTest<Long>
     }
 
     @Override
-    public Histogram<Long> getExpectedDistribution()
+    public Histogram<Long, Long> getExpectedDistribution()
     {
-        Histogram<Long> expectedDistribution = new Histogram<Long>( 0l );
+        Histogram<Long, Long> expectedDistribution = new Histogram<Long, Long>( 0l );
 
         double min = (double) start;
         double max = (double) getSampleSize();
         int bucketCount = 10;
-        List<Range<Double>> buckets = Histogram.makeEqualBucketRanges( min, max, bucketCount );
+        List<Bucket<Long>> buckets = Histogram.makeBucketsOfEqualRange( min, max, bucketCount, Long.class );
         expectedDistribution.addBuckets( buckets, 1l );
         return expectedDistribution;
     }

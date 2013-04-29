@@ -1,11 +1,13 @@
 package com.yahoo.ycsb.generator;
 
 import com.google.common.collect.Range;
+import com.yahoo.ycsb.Bucket.NumberRangeBucket;
+
 import com.yahoo.ycsb.Histogram;
 
-public class ExponentialGeneratorTest extends NumberGeneratorTest<Long>
+public class ExponentialGeneratorTest extends NumberGeneratorTest<Long, Integer>
 {
-    // TODO fix this test and/or the generator class itself
+    // TODO fix this test (see TODOs below) and/or the generator class itself
 
     private final double percentile = 90.0;
     private final double range = 100.0;
@@ -37,11 +39,11 @@ public class ExponentialGeneratorTest extends NumberGeneratorTest<Long>
     }
 
     @Override
-    public Histogram<Long> getExpectedDistribution()
+    public Histogram<Long, Integer> getExpectedDistribution()
     {
-        Histogram<Long> expectedDistribution = new Histogram<Long>( 0l );
-        expectedDistribution.addBucket( Range.closedOpen( 0d, 90d ), 9l );
-        expectedDistribution.addBucket( Range.closed( 90d, Double.MAX_VALUE ), 1l );
+        Histogram<Long, Integer> expectedDistribution = new Histogram<Long, Integer>( 0 );
+        expectedDistribution.addBucket( new NumberRangeBucket<Long>( Range.closedOpen( 0d, 90d ) ), 9 );
+        expectedDistribution.addBucket( new NumberRangeBucket<Long>( Range.closed( 90d, Double.MAX_VALUE ) ), 1 );
         return expectedDistribution;
     }
 
