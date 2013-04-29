@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Map;
 
 import com.google.common.collect.Range;
+import com.yahoo.ycsb.Bucket.NumberRangeBucket;
 import com.yahoo.ycsb.generator.GeneratorException;
 
 // TODO remove?
@@ -22,9 +23,10 @@ public class BucketHistogram<T, C extends Number>
     private final NumberHelper<C> number;
     private final C defaultBucketValue;
 
-    public static List<RangeBucket> makeEqualBucketRanges( Double min, Double max, Integer bucketCount )
+    public static <N extends Number> List<Bucket<N>> makeEqualBucketRanges( Double min, Double max,
+            Integer bucketCount, Class<N> bucketType )
     {
-        List<RangeBucket> buckets = new ArrayList<RangeBucket>();
+        List<Bucket<N>> buckets = new ArrayList<Bucket<N>>();
         Double interval = max - min;
         Double bucketInterval = interval / bucketCount;
         Double lowerBound = min;
@@ -32,13 +34,13 @@ public class BucketHistogram<T, C extends Number>
         for ( int i = 0; i < bucketCount - 1; i++ )
         {
             // [a..b) <--> {x | a <= x < b}
-            RangeBucket bucket = new RangeBucket( Range.closedOpen( lowerBound, upperBound ) );
+            Bucket<N> bucket = new NumberRangeBucket<N>( Range.closedOpen( lowerBound, upperBound ) );
             buckets.add( bucket );
             lowerBound = upperBound;
             upperBound = lowerBound + bucketInterval;
         }
         // [a..b] <--> {x | a <= x <= b}
-        RangeBucket bucket = new RangeBucket( Range.closed( lowerBound, max ) );
+        Bucket<N> bucket = new NumberRangeBucket<N>( Range.closed( lowerBound, max ) );
         buckets.add( bucket );
         return buckets;
     }
@@ -121,7 +123,7 @@ public class BucketHistogram<T, C extends Number>
         return bucketValue;
     }
 
-    public C getBucketValue( Bucket<Double> bucket )
+    public C getBucketValue( Bucket<T> bucket )
     {
         return valuedBuckets.get( bucket );
     }
