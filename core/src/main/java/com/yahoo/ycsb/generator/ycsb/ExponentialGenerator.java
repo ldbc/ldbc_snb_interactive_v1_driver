@@ -1,5 +1,5 @@
 /**                                                                                                                                                                                
- * Copyright (c) 2010 Yahoo! Inc. All rights reserved.                                                                                                                             
+ * Copyright (c) 2011 Yahoo! Inc. All rights reserved.                                                                                                                             
  *                                                                                                                                                                                 
  * Licensed under the Apache License, Version 2.0 (the "License"); you                                                                                                             
  * may not use this file except in compliance with the License. You                                                                                                                
@@ -15,94 +15,47 @@
  * LICENSE file.                                                                                                                                                                   
  */
 
-package com.yahoo.ycsb;
+package com.yahoo.ycsb.generator.ycsb;
 
-import java.util.Map;
-import java.util.HashMap;
+import org.apache.commons.math3.random.RandomDataGenerator;
 
-public class StringByteIterator extends ByteIterator {
-	String str;
-	int off;
+import com.yahoo.ycsb.generator.Generator;
 
-	/**
-	 * Put all of the entries of one map into the other, converting
-	 * String values into ByteIterators.
-	 */
-	public static void putAllAsByteIterators(Map<String, ByteIterator> out, Map<String, String> in) {
-	       for(String s: in.keySet()) { out.put(s, new StringByteIterator(in.get(s))); }
-	} 
+/**
+ * Produces a sequence of longs according to an exponential distribution.
+ * Smaller intervals are more frequent than larger ones, and there is no bound
+ * on the length of an interval.
+ * 
+ * gamma: mean rate events occur. 1/gamma: half life - average interval length
+ */
+public class ExponentialGenerator extends Generator<Long>
+{
+    // % of readings within most recent exponential.frac portion of dataset
+    public static final String EXPONENTIAL_PERCENTILE = "exponential.percentile";
+    public static final String EXPONENTIAL_PERCENTILE_DEFAULT = "95";
 
-	/**
-	 * Put all of the entries of one map into the other, converting
-	 * ByteIterator values into Strings.
-	 */
-	public static void putAllAsStrings(Map<String, String> out, Map<String, ByteIterator> in) {
-	       for(String s: in.keySet()) { out.put(s, in.get(s).toString()); }
-	} 
+    // Fraction of the dataset accessed exponential.percentile of the time
+    public static final String EXPONENTIAL_FRAC = "exponential.frac";
+    public static final String EXPONENTIAL_FRAC_DEFAULT = "0.8571428571"; // 1/7
 
-	/**
-	 * Create a copy of a map, converting the values from Strings to
-	 * StringByteIterators.
-	 */
-	public static HashMap<String, ByteIterator> getByteIteratorMap(Map<String, String> m) {
-		HashMap<String, ByteIterator> ret =
-			new HashMap<String,ByteIterator>();
+    // Exponential constant
+    private double gamma;
 
-		for(String s: m.keySet()) {
-			ret.put(s, new StringByteIterator(m.get(s)));
-		}
-		return ret;
-	}
+    public ExponentialGenerator( RandomDataGenerator random, double mean )
+    {
+        super( random );
+        gamma = 1.0 / mean;
+    }
 
-	/**
-	 * Create a copy of a map, converting the values from
-	 * StringByteIterators to Strings.
-	 */
-	public static HashMap<String, String> getStringMap(Map<String, ByteIterator> m) {
-		HashMap<String, String> ret = new HashMap<String,String>();
+    public ExponentialGenerator( RandomDataGenerator random, double percentile, double range )
+    {
+        super( random );
+        gamma = -Math.log( 1.0 - percentile / 100.0 ) / range;
+    }
 
-		for(String s: m.keySet()) {
-			ret.put(s, m.get(s).toString());;
-		}
-		return ret;
-	}
-
-	public StringByteIterator(String s) {
-		this.str = s;
-		this.off = 0;
-	}
-	@Override
-	public boolean hasNext() {
-		return off < str.length();
-	}
-
-	@Override
-	public byte nextByte() {
-		byte ret = (byte)str.charAt(off);
-		off++;
-		return ret;
-	}
-
-	@Override
-	public long bytesLeft() {
-		return str.length() - off;
-	}
-
-	/**
-	 * Specialization of general purpose toString() to avoid unnecessary
-	 * copies.
-	 * <p>
-	 * Creating a new StringByteIterator, then calling toString()
-	 * yields the original String object, and does not perform any copies
-	 * or String conversion operations.
-	 * </p>
-	 */
-	@Override
-	public String toString() {
-		if(off > 0) {
-			return super.toString();
-		} else {
-			return str;
-		}
-	}
+    @Override
+    protected Long doNext()
+    {
+        return (long) ( -Math.log( getRandom().nextUniform( 0, 1 ) ) / gamma );
+    }
 }

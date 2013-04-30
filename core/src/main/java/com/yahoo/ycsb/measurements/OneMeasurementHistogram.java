@@ -23,8 +23,8 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
 
-import com.yahoo.ycsb.Utils;
 import com.yahoo.ycsb.measurements.exporter.MeasurementsExporter;
+import com.yahoo.ycsb.util.Utils;
 
 /**
  * Take measurements and maintain a histogram of a given metric, such as READ

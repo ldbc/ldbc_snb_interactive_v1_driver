@@ -2,21 +2,21 @@ package com.yahoo.ycsb.generator;
 
 import org.apache.commons.math3.random.RandomDataGenerator;
 
-import com.yahoo.ycsb.RandomDataGeneratorFactory;
+import com.yahoo.ycsb.util.RandomDataGeneratorFactory;
 
-public class AbstractGeneratorFactory
+public class GeneratorBuilderFactory
 {
     final private RandomDataGenerator random;
 
-    public AbstractGeneratorFactory( RandomDataGenerator random )
+    public GeneratorBuilderFactory( RandomDataGenerator random )
     {
         this.random = random;
     }
 
-    public GeneratorFactory newGeneratorFactory()
+    public GeneratorBuilder newGeneratorBuilder()
     {
         long seed = random.nextLong( Long.MIN_VALUE, Long.MAX_VALUE );
         RandomDataGeneratorFactory randomFactory = new RandomDataGeneratorFactory( seed );
-        return new GeneratorFactory( randomFactory );
+        return new GeneratorBuilder( randomFactory );
     }
 }

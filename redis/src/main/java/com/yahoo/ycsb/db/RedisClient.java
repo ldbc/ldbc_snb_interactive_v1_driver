@@ -9,8 +9,8 @@ package com.yahoo.ycsb.db;
 
 import com.yahoo.ycsb.DB;
 import com.yahoo.ycsb.DBException;
-import com.yahoo.ycsb.ByteIterator;
-import com.yahoo.ycsb.StringByteIterator;
+import com.yahoo.ycsb.util.ByteIterator;
+import com.yahoo.ycsb.util.StringByteIterator;
 
 import java.util.Map;
 import java.util.HashMap;

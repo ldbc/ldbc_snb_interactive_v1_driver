@@ -20,7 +20,7 @@ package com.yahoo.ycsb;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-import com.yahoo.ycsb.generator.GeneratorFactory;
+import com.yahoo.ycsb.generator.GeneratorBuilder;
 
 /**
  * One experiment scenario. One object of this type will be instantiated and
@@ -48,7 +48,7 @@ public abstract class Workload
      * Initialize the benchmark scenario: create generators and shared objects. 
      * Called once, by main Client, at the beginning of a benchmark execution.
      */
-    public void init( Map<String, String> properties, GeneratorFactory generatorFactory ) throws WorkloadException
+    public void init( Map<String, String> properties, GeneratorBuilder generatorBuilder ) throws WorkloadException
     {
     }
 

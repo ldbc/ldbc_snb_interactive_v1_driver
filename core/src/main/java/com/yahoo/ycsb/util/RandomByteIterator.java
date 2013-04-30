@@ -14,9 +14,10 @@
  * permissions and limitations under the License. See accompanying
  * LICENSE file.
  */
-package com.yahoo.ycsb;
+package com.yahoo.ycsb.util;
 
 import org.apache.commons.math3.random.RandomDataGenerator;
+
 
 /**
  * A ByteIterator that generates a random sequence of bytes.

@@ -46,11 +46,11 @@ import com.amazonaws.services.dynamodb.model.PutItemResult;
 import com.amazonaws.services.dynamodb.model.ScanRequest;
 import com.amazonaws.services.dynamodb.model.ScanResult;
 import com.amazonaws.services.dynamodb.model.UpdateItemRequest;
-import com.yahoo.ycsb.ByteIterator;
 import com.yahoo.ycsb.DB;
 import com.yahoo.ycsb.DBException;
-import com.yahoo.ycsb.StringByteIterator;
-import com.yahoo.ycsb.Utils;
+import com.yahoo.ycsb.util.ByteIterator;
+import com.yahoo.ycsb.util.StringByteIterator;
+import com.yahoo.ycsb.util.Utils;
 
 /**
  * DynamoDB v1.3.14 client for YCSB

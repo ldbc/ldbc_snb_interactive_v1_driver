@@ -17,9 +17,9 @@ import voldemort.versioning.Versioned;
 
 import com.yahoo.ycsb.DB;
 import com.yahoo.ycsb.DBException;
-import com.yahoo.ycsb.ByteIterator;
-import com.yahoo.ycsb.StringByteIterator;
-import com.yahoo.ycsb.Utils;
+import com.yahoo.ycsb.util.ByteIterator;
+import com.yahoo.ycsb.util.StringByteIterator;
+import com.yahoo.ycsb.util.Utils;
 
 public class VoldemortClient extends DB
 {

@@ -1,4 +1,4 @@
-package com.yahoo.ycsb;
+package com.yahoo.ycsb.util;
 
 import static org.junit.Assert.assertEquals;
 
@@ -9,7 +9,9 @@ import java.util.List;
 import org.junit.Test;
 
 import com.google.common.collect.Range;
-import com.yahoo.ycsb.Bucket.NumberRangeBucket;
+import com.yahoo.ycsb.util.Bucket;
+import com.yahoo.ycsb.util.Histogram;
+import com.yahoo.ycsb.util.Bucket.NumberRangeBucket;
 
 public class HistogramTest
 {

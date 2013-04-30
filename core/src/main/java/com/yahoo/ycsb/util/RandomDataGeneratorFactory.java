@@ -1,4 +1,4 @@
-package com.yahoo.ycsb;
+package com.yahoo.ycsb.util;
 
 import org.apache.commons.math3.random.RandomDataGenerator;
 import org.apache.commons.math3.random.RandomGenerator;

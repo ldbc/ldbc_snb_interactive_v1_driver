@@ -2,8 +2,8 @@ package com.yahoo.ycsb.generator;
 
 import java.util.List;
 
-import com.yahoo.ycsb.Bucket;
-import com.yahoo.ycsb.Histogram;
+import com.yahoo.ycsb.util.Bucket;
+import com.yahoo.ycsb.util.Histogram;
 
 public class CounterGeneratorTest extends NumberGeneratorTest<Long, Long>
 {
@@ -24,7 +24,7 @@ public class CounterGeneratorTest extends NumberGeneratorTest<Long, Long>
     @Override
     public Generator<Long> getGeneratorImpl()
     {
-        return getGeneratorFactory().newCounterGenerator( start );
+        return getGeneratorBuilder().newCounterGenerator( start, 1l ).build();
     }
 
     @Override

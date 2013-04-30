@@ -15,9 +15,11 @@
  * LICENSE file.                                                                                                                                                                   
  */
 
-package com.yahoo.ycsb.generator;
+package com.yahoo.ycsb.generator.ycsb;
 
 import org.apache.commons.math3.random.RandomDataGenerator;
+
+import com.yahoo.ycsb.generator.Generator;
 
 /**
  * A generator of a zipfian distribution. It produces a sequence of items, such
@@ -106,7 +108,7 @@ public class ZipfianGenerator extends Generator<Long>
      * @param zipfianConstant The zipfian constant to use.
      */
     // TODO use Range
-    ZipfianGenerator( RandomDataGenerator random, long min, long max, double zipfianConstant )
+    public ZipfianGenerator( RandomDataGenerator random, long min, long max, double zipfianConstant )
     {
         this( random, min, max, zipfianConstant, zetaStatic( max - min + 1, zipfianConstant ) );
     }
@@ -121,7 +123,7 @@ public class ZipfianGenerator extends Generator<Long>
      * @param zetan The precomputed zeta constant.
      */
     // TODO use Range
-    ZipfianGenerator( RandomDataGenerator random, long min, long max, double zipfianConstant, double zetan )
+    public ZipfianGenerator( RandomDataGenerator random, long min, long max, double zipfianConstant, double zetan )
     {
         super( random );
         items = max - min + 1;

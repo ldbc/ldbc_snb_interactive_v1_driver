@@ -1,4 +1,4 @@
-package com.yahoo.ycsb;
+package com.yahoo.ycsb.util;
 
 import com.yahoo.ycsb.generator.GeneratorException;
 
@@ -42,6 +42,12 @@ public abstract class NumberHelper<T extends Number>
 
     public abstract T div( T a, T b );
 
+    public abstract T min();
+
+    public abstract T max();
+
+    public abstract T round( Number number );
+
     public static <T1 extends Number> boolean withinTolerance( T1 a, T1 b, Number tolerance )
     {
         Double difference = Math.abs( ( a.doubleValue() - b.doubleValue() ) );
@@ -73,6 +79,24 @@ public abstract class NumberHelper<T extends Number>
         {
             return a / b;
         }
+
+        @Override
+        public Integer min()
+        {
+            return Integer.MIN_VALUE;
+        }
+
+        @Override
+        public Integer max()
+        {
+            return Integer.MAX_VALUE;
+        }
+
+        @Override
+        public Integer round( Number number )
+        {
+            return (int) Math.round( number.doubleValue() );
+        }
     }
 
     private static class LongNumberHelper extends NumberHelper<Long>
@@ -100,6 +124,24 @@ public abstract class NumberHelper<T extends Number>
         {
             return a / b;
         }
+
+        @Override
+        public Long min()
+        {
+            return Long.MIN_VALUE;
+        }
+
+        @Override
+        public Long max()
+        {
+            return Long.MAX_VALUE;
+        }
+
+        @Override
+        public Long round( Number number )
+        {
+            return Math.round( number.doubleValue() );
+        }
     }
 
     private static class DoubleNumberHelper extends NumberHelper<Double>
@@ -126,6 +168,24 @@ public abstract class NumberHelper<T extends Number>
         public Double div( Double a, Double b )
         {
             return a / b;
+        }
+
+        @Override
+        public Double min()
+        {
+            return Double.MIN_VALUE;
+        }
+
+        @Override
+        public Double max()
+        {
+            return Double.MAX_VALUE;
+        }
+
+        @Override
+        public Double round( Number number )
+        {
+            return number.doubleValue();
         }
     }
 }

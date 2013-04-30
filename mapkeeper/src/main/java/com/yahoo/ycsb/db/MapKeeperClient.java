@@ -20,10 +20,10 @@ import com.yahoo.mapkeeper.Record;
 import com.yahoo.mapkeeper.RecordListResponse;
 import com.yahoo.mapkeeper.ResponseCode;
 import com.yahoo.mapkeeper.ScanOrder;
-import com.yahoo.ycsb.ByteIterator;
 import com.yahoo.ycsb.DB;
-import com.yahoo.ycsb.StringByteIterator;
-import com.yahoo.ycsb.Utils;
+import com.yahoo.ycsb.util.ByteIterator;
+import com.yahoo.ycsb.util.StringByteIterator;
+import com.yahoo.ycsb.util.Utils;
 import com.yahoo.ycsb.workloads.CoreWorkload;
 import com.yahoo.ycsb.workloads.CoreWorkloadProperties;
 

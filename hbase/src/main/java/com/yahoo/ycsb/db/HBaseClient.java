@@ -18,9 +18,6 @@
 package com.yahoo.ycsb.db;
 
 import com.yahoo.ycsb.DBException;
-import com.yahoo.ycsb.ByteIterator;
-import com.yahoo.ycsb.ByteArrayByteIterator;
-import com.yahoo.ycsb.StringByteIterator;
 
 import java.io.IOException;
 import java.util.*;
@@ -30,6 +27,10 @@ import java.util.*;
 //import java.util.Vector;
 
 import com.yahoo.ycsb.measurements.Measurements;
+import com.yahoo.ycsb.util.ByteArrayByteIterator;
+import com.yahoo.ycsb.util.ByteIterator;
+import com.yahoo.ycsb.util.StringByteIterator;
+
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.hbase.KeyValue;
 import org.apache.hadoop.hbase.client.HTable;

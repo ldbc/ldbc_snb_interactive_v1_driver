@@ -22,8 +22,8 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
 
-import com.yahoo.ycsb.Utils;
 import com.yahoo.ycsb.measurements.exporter.MeasurementsExporter;
+import com.yahoo.ycsb.util.Utils;
 
 /**
  * Collects latency measurements, and reports them when requested

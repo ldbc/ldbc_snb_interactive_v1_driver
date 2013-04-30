@@ -1,7 +1,12 @@
-package com.yahoo.ycsb;
+package com.yahoo.ycsb.util;
 
 import org.apache.commons.math3.random.RandomDataGenerator;
 import org.junit.Test;
+
+import com.yahoo.ycsb.util.ByteIterator;
+import com.yahoo.ycsb.util.RandomByteIterator;
+
+
 import static org.junit.Assert.assertEquals;
 
 public class TestByteIterator

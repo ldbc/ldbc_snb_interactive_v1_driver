@@ -4,7 +4,7 @@ import java.util.List;
 
 import org.junit.Test;
 
-import com.yahoo.ycsb.NumberHelper;
+import com.yahoo.ycsb.util.NumberHelper;
 
 import static org.junit.Assert.assertEquals;
 
@@ -26,8 +26,9 @@ public abstract class NumberGeneratorTest<T extends Number, C extends Number> ex
         Double actualMean = getSequenceMean( sequence );
 
         // Then
-        String assertMessage = String.format( "Expected mean(%s) should equal actual mean(%s) within tolerance(%s)",
-                expectedMean, actualMean, getMeanTolerance() );
+        String assertMessage = String.format(
+                "Mean values should be within tolerance[%s]\nExpected mean[%s]\n Actual mean[%s]", getMeanTolerance(),
+                expectedMean, actualMean );
         assertEquals( assertMessage, true, NumberHelper.withinTolerance( expectedMean, actualMean, getMeanTolerance() ) );
 
     }

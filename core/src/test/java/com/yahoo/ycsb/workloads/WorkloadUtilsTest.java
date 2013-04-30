@@ -10,25 +10,25 @@ import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
 
-import com.yahoo.ycsb.ByteIterator;
 import com.yahoo.ycsb.WorkloadException;
-import com.yahoo.ycsb.generator.AbstractGeneratorFactory;
+import com.yahoo.ycsb.generator.GeneratorBuilder;
+import com.yahoo.ycsb.generator.GeneratorBuilderFactory;
 import com.yahoo.ycsb.generator.ConstantNumberGenerator;
 import com.yahoo.ycsb.generator.Generator;
-import com.yahoo.ycsb.generator.GeneratorFactory;
 import com.yahoo.ycsb.generator.UniformNumberGenerator;
-import com.yahoo.ycsb.generator.ZipfianGenerator;
+import com.yahoo.ycsb.generator.ycsb.ZipfianGenerator;
+import com.yahoo.ycsb.util.ByteIterator;
 import com.yahoo.ycsb.workloads.Distribution;
 import com.yahoo.ycsb.workloads.WorkloadUtils;
 
 public class WorkloadUtilsTest
 {
-    GeneratorFactory generatorFactory = null;
+    GeneratorBuilder generatorBuilder = null;
 
     @Before
     public void initGeneratorFactory()
     {
-        generatorFactory = new AbstractGeneratorFactory( new RandomDataGenerator() ).newGeneratorFactory();
+        generatorBuilder = new GeneratorBuilderFactory( new RandomDataGenerator() ).newGeneratorBuilder();
     }
 
     @Test
@@ -37,8 +37,8 @@ public class WorkloadUtilsTest
         // Given
         int lowerBound = 3;
         int upperBound = 6;
-        Generator<Long> valueLengthGenerator = generatorFactory.newUniformNumberGenerator( (long) lowerBound,
-                (long) upperBound );
+        Generator<Long> valueLengthGenerator = generatorBuilder.newUniformNumberGenerator( (long) lowerBound,
+                (long) upperBound ).build();
         int fieldCount = 10;
         String fieldNamePrefix = "field";
 
@@ -61,13 +61,13 @@ public class WorkloadUtilsTest
         // Given
         int keyLowerBound = 1;
         int keyUpperBound = 3;
-        Generator<Long> keyChooser = generatorFactory.newUniformNumberGenerator( (long) keyLowerBound,
-                (long) keyUpperBound );
+        Generator<Long> keyChooser = generatorBuilder.newUniformNumberGenerator( (long) keyLowerBound,
+                (long) keyUpperBound ).build();
 
         int valueLengthLowerBound = 3;
         int valueLengthUpperBound = 6;
-        Generator<Long> valueLengthGenerator = generatorFactory.newUniformNumberGenerator(
-                (long) valueLengthLowerBound, (long) valueLengthUpperBound );
+        Generator<Long> valueLengthGenerator = generatorBuilder.newUniformNumberGenerator(
+                (long) valueLengthLowerBound, (long) valueLengthUpperBound ).build();
 
         String keyNamePrefix = "field";
 

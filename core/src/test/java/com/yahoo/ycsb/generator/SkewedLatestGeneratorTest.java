@@ -1,7 +1,10 @@
 package com.yahoo.ycsb.generator;
 
-import com.yahoo.ycsb.Histogram;
+import org.junit.Ignore;
 
+import com.yahoo.ycsb.util.Histogram;
+
+@Ignore
 public class SkewedLatestGeneratorTest<T extends Number, C extends Number> extends NumberGeneratorTest<T, C>
 {
 

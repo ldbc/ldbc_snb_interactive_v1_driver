@@ -6,12 +6,12 @@ import java.util.Map;
 import com.yahoo.ycsb.Client;
 import com.yahoo.ycsb.DB;
 import com.yahoo.ycsb.DBException;
-import com.yahoo.ycsb.Pair;
-import com.yahoo.ycsb.Utils;
 import com.yahoo.ycsb.Workload;
 import com.yahoo.ycsb.WorkloadException;
 import com.yahoo.ycsb.generator.Generator;
-import com.yahoo.ycsb.generator.GeneratorFactory;
+import com.yahoo.ycsb.generator.GeneratorBuilder;
+import com.yahoo.ycsb.util.Pair;
+import com.yahoo.ycsb.util.Utils;
 
 public class SimplestWorkload extends Workload
 {
@@ -35,18 +35,18 @@ public class SimplestWorkload extends Workload
      * Called once, in main client thread, before operations are started
      */
     @Override
-    public void init( Map<String, String> properties, GeneratorFactory generatorFactory ) throws WorkloadException
+    public void init( Map<String, String> properties, GeneratorBuilder generatorBuilder ) throws WorkloadException
     {
-        super.init( properties, generatorFactory );
+        super.init( properties, generatorBuilder );
         recordCount = Integer.parseInt( properties.get( Client.RECORD_COUNT ) );
         table = "usertable";
         // number of fields in a record
         fieldCount = 10;
 
         // field key name
-        fieldNameGenerator = generatorFactory.newUniformNumberGenerator( (long) 0, (long) ( fieldCount - 1 ) );
+        fieldNameGenerator = generatorBuilder.newUniformNumberGenerator( (long) 0, (long) ( fieldCount - 1 ) ).build();
         // field value size: length in bytes
-        fieldLengthGenerator = generatorFactory.newUniformNumberGenerator( 1l, 100l );
+        fieldLengthGenerator = generatorBuilder.newUniformNumberGenerator( 1l, 100l ).build();
 
         // proportion of transactions reads/update/insert/scan/read-modify-write
         ArrayList<Pair<Double, Object>> operations = new ArrayList<Pair<Double, Object>>();
@@ -57,11 +57,11 @@ public class SimplestWorkload extends Workload
         operations.add( new Pair<Double, Object>( 0.00, "READMODIFYWRITE" ) );
 
         // distribution of requests across keyspace
-        keyGenerator = generatorFactory.newUniformNumberGenerator( 0l, ( recordCount - 1 ) );
+        keyGenerator = generatorBuilder.newUniformNumberGenerator( 0l, ( recordCount - 1 ) ).build();
 
         // max scan length (number of records)
         long maxScanlength = 1000;
-        scanLengthGenerator = generatorFactory.newUniformNumberGenerator( 1l, maxScanlength );
+        scanLengthGenerator = generatorBuilder.newUniformNumberGenerator( 1l, maxScanlength ).build();
 
         // read one field (false) or all fields (true) of a record
         readAllFields = true;
@@ -87,11 +87,11 @@ public class SimplestWorkload extends Workload
         */
         long insertStart = Long.parseLong( Utils.mapGetDefault( properties, Workload.INSERT_START,
                 Workload.INSERT_START_DEFAULT ) );
-        keySequenceGenerator = generatorFactory.newCounterGenerator( insertStart );
+        keySequenceGenerator = generatorBuilder.newCounterGenerator( insertStart, 1l ).build();
 
-        operationGenerator = generatorFactory.newDiscreteGenerator( operations );
+        operationGenerator = generatorBuilder.newDiscreteGenerator( operations ).build();
 
-        transactionInsertKeySequenceGenerator = generatorFactory.newCounterGenerator( recordCount );
+        transactionInsertKeySequenceGenerator = generatorBuilder.newCounterGenerator( recordCount, 1l ).build();
     }
 
     /**

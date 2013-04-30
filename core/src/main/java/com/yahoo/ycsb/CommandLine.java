@@ -31,6 +31,9 @@ import java.util.Set;
 import java.util.HashSet;
 import java.util.Vector;
 
+import com.yahoo.ycsb.util.ByteIterator;
+import com.yahoo.ycsb.util.StringByteIterator;
+import com.yahoo.ycsb.util.Utils;
 import com.yahoo.ycsb.workloads.*;
 
 /**

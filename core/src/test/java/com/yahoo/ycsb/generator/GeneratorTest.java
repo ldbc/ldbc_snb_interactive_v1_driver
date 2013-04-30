@@ -7,15 +7,15 @@ import org.apache.commons.math3.random.RandomDataGenerator;
 import org.junit.Before;
 import org.junit.Test;
 
-import com.yahoo.ycsb.Histogram;
-import com.yahoo.ycsb.NumberHelper;
+import com.yahoo.ycsb.util.Histogram;
+import com.yahoo.ycsb.util.NumberHelper;
 
 import static org.junit.Assert.assertEquals;
 
 public abstract class GeneratorTest<T, C extends Number>
 {
     private final int SAMPLE_SIZE = 1000000;
-    private GeneratorFactory generatorFactory = null;
+    private GeneratorBuilder generatorBuilder = null;
 
     public abstract Histogram<T, C> getExpectedDistribution();
 
@@ -28,15 +28,15 @@ public abstract class GeneratorTest<T, C extends Number>
         return SAMPLE_SIZE;
     }
 
-    protected final GeneratorFactory getGeneratorFactory()
+    protected final GeneratorBuilder getGeneratorBuilder()
     {
-        return generatorFactory;
+        return generatorBuilder;
     }
 
     @Before
     public final void initGeneratorFactory()
     {
-        generatorFactory = new AbstractGeneratorFactory( new RandomDataGenerator() ).newGeneratorFactory();
+        generatorBuilder = new GeneratorBuilderFactory( new RandomDataGenerator() ).newGeneratorBuilder();
     }
 
     @Test
@@ -54,11 +54,12 @@ public abstract class GeneratorTest<T, C extends Number>
         generatedDistribution.importValueSequence( generatedSequence );
 
         // Then
-        assertEquals(
-                "Expected and generated distributions should be equal (with tolerance)",
-                true,
-                generatedDistribution.toPercentageValues().equalsWithinTolerance(
-                        expectedDistribution.toPercentageValues(), getDistributionTolerance() ) );
+        Histogram<T, Double> expectedDistributionAsPercentage = expectedDistribution.toPercentageValues();
+        Histogram<T, Double> generatedDistributionAsPercentage = generatedDistribution.toPercentageValues();
+        String errMsg = String.format( "Distributions should be within tolerance[%s]\nExpected[%s]\nGenerated[%s]",
+                getDistributionTolerance(), expectedDistributionAsPercentage, generatedDistributionAsPercentage );
+        assertEquals( errMsg, true, generatedDistributionAsPercentage.equalsWithinTolerance(
+                expectedDistributionAsPercentage, getDistributionTolerance() ) );
     }
 
     @Test

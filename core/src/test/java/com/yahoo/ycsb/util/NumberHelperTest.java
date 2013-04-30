@@ -1,4 +1,4 @@
-package com.yahoo.ycsb;
+package com.yahoo.ycsb.util;
 
 import static org.junit.Assert.assertEquals;
 
@@ -11,6 +11,7 @@ import java.util.concurrent.atomic.AtomicLong;
 import org.junit.Test;
 
 import com.yahoo.ycsb.generator.GeneratorException;
+import com.yahoo.ycsb.util.NumberHelper;
 
 public class NumberHelperTest
 {

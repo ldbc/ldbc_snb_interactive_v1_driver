@@ -1,4 +1,4 @@
-package com.yahoo.ycsb;
+package com.yahoo.ycsb.util;
 
 public class Pair<T1, T2>
 {

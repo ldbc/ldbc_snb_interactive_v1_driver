@@ -14,79 +14,96 @@
  * permissions and limitations under the License. See accompanying                                                                                                                 
  * LICENSE file.                                                                                                                                                                   
  */
-package com.yahoo.ycsb;
 
-import java.util.Iterator;
-import java.util.ArrayList;
-/**
- * YCSB-specific buffer class.  ByteIterators are designed to support
- * efficient field generation, and to allow backend drivers that can stream
- * fields (instead of materializing them in RAM) to do so.
- * <p>
- * YCSB originially used String objects to represent field values.  This led to
- * two performance issues.
- * </p><p>
- * First, it leads to unnecessary conversions between UTF-16 and UTF-8, both
- * during field generation, and when passing data to byte-based backend
- * drivers.
- * </p><p>
- * Second, Java strings are represented internally using UTF-16, and are
- * built by appending to a growable array type (StringBuilder or
- * StringBuffer), then calling a toString() method.  This leads to a 4x memory
- * overhead as field values are being built, which prevented YCSB from
- * driving large object stores.
- * </p>
- * The StringByteIterator class contains a number of convenience methods for
- * backend drivers that convert between Map&lt;String,String&gt; and
- * Map&lt;String,ByteBuffer&gt;.
- *
- * @author sears
- */
-public abstract class ByteIterator implements Iterator<Byte> {
+package com.yahoo.ycsb.util;
 
-	@Override
-	public abstract boolean hasNext();
+import java.util.Map;
+import java.util.HashMap;
 
-	@Override
-	public Byte next() {
-		throw new UnsupportedOperationException();
-		//return nextByte();
-	}
 
-	public abstract byte nextByte();
-        /** @return byte offset immediately after the last valid byte */
-	public int nextBuf(byte[] buf, int buf_off) {
-		int sz = buf_off;
-		while(sz < buf.length && hasNext()) {
-			buf[sz] = nextByte();
-			sz++;
+public class StringByteIterator extends ByteIterator {
+	String str;
+	int off;
+
+	/**
+	 * Put all of the entries of one map into the other, converting
+	 * String values into ByteIterators.
+	 */
+	public static void putAllAsByteIterators(Map<String, ByteIterator> out, Map<String, String> in) {
+	       for(String s: in.keySet()) { out.put(s, new StringByteIterator(in.get(s))); }
+	} 
+
+	/**
+	 * Put all of the entries of one map into the other, converting
+	 * ByteIterator values into Strings.
+	 */
+	public static void putAllAsStrings(Map<String, String> out, Map<String, ByteIterator> in) {
+	       for(String s: in.keySet()) { out.put(s, in.get(s).toString()); }
+	} 
+
+	/**
+	 * Create a copy of a map, converting the values from Strings to
+	 * StringByteIterators.
+	 */
+	public static HashMap<String, ByteIterator> getByteIteratorMap(Map<String, String> m) {
+		HashMap<String, ByteIterator> ret =
+			new HashMap<String,ByteIterator>();
+
+		for(String s: m.keySet()) {
+			ret.put(s, new StringByteIterator(m.get(s)));
 		}
-		return sz;
+		return ret;
 	}
 
-	public abstract long bytesLeft();
-	
+	/**
+	 * Create a copy of a map, converting the values from
+	 * StringByteIterators to Strings.
+	 */
+	public static HashMap<String, String> getStringMap(Map<String, ByteIterator> m) {
+		HashMap<String, String> ret = new HashMap<String,String>();
+
+		for(String s: m.keySet()) {
+			ret.put(s, m.get(s).toString());;
+		}
+		return ret;
+	}
+
+	public StringByteIterator(String s) {
+		this.str = s;
+		this.off = 0;
+	}
 	@Override
-	public void remove() {
-		throw new UnsupportedOperationException();
+	public boolean hasNext() {
+		return off < str.length();
 	}
 
-	/** Consumes remaining contents of this object, and returns them as a string. */
+	@Override
+	public byte nextByte() {
+		byte ret = (byte)str.charAt(off);
+		off++;
+		return ret;
+	}
+
+	@Override
+	public long bytesLeft() {
+		return str.length() - off;
+	}
+
+	/**
+	 * Specialization of general purpose toString() to avoid unnecessary
+	 * copies.
+	 * <p>
+	 * Creating a new StringByteIterator, then calling toString()
+	 * yields the original String object, and does not perform any copies
+	 * or String conversion operations.
+	 * </p>
+	 */
+	@Override
 	public String toString() {
-		StringBuilder sb = new StringBuilder();
-		while(this.hasNext()) { sb.append((char)nextByte()); }
-		return sb.toString();
+		if(off > 0) {
+			return super.toString();
+		} else {
+			return str;
+		}
 	}
-	/** Consumes remaining contents of this object, and returns them as a byte array. */
-	public byte[] toArray() {
-	    long left = bytesLeft();
-	    if(left != (int)left) { throw new ArrayIndexOutOfBoundsException("Too much data to fit in one array!"); }
-	    byte[] ret = new byte[(int)left];
-	    int off = 0;
-	    while(off < ret.length) {
-		off = nextBuf(ret, off);
-	    }
-	    return ret;
-	}
-
 }

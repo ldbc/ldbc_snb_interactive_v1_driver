@@ -1,5 +1,5 @@
 /**                                                                                                                                                                                
- * Copyright (c) 2011 Yahoo! Inc. All rights reserved.                                                                                                                             
+ * Copyright (c) 2010 Yahoo! Inc. All rights reserved.                                                                                                                             
  *                                                                                                                                                                                 
  * Licensed under the Apache License, Version 2.0 (the "License"); you                                                                                                             
  * may not use this file except in compliance with the License. You                                                                                                                
@@ -14,46 +14,43 @@
  * permissions and limitations under the License. See accompanying                                                                                                                 
  * LICENSE file.                                                                                                                                                                   
  */
+package com.yahoo.ycsb.util;
 
-package com.yahoo.ycsb.generator;
+import java.io.InputStream;
 
-import org.apache.commons.math3.random.RandomDataGenerator;
 
-/**
- * Produces a sequence of longs according to an exponential distribution.
- * Smaller intervals are more frequent than larger ones, and there is no bound
- * on the length of an interval.
- * 
- * gamma: mean rate events occur. 1/gamma: half life - average interval length
- */
-public class ExponentialGenerator extends Generator<Long>
-{
-    // % of readings within most recent exponential.frac portion of dataset
-    public static final String EXPONENTIAL_PERCENTILE = "exponential.percentile";
-    public static final String EXPONENTIAL_PERCENTILE_DEFAULT = "95";
+public class InputStreamByteIterator extends ByteIterator {
+	long len;
+	InputStream ins;
+	long off;
+	
+	public InputStreamByteIterator(InputStream ins, long len) {
+		this.len = len;
+		this.ins = ins;
+		off = 0;
+	}
+	
+	@Override
+	public boolean hasNext() {
+		return off < len;
+	}
 
-    // Fraction of the dataset accessed exponential.percentile of the time
-    public static final String EXPONENTIAL_FRAC = "exponential.frac";
-    public static final String EXPONENTIAL_FRAC_DEFAULT = "0.8571428571"; // 1/7
+	@Override
+	public byte nextByte() {
+		int ret;
+		try {
+			ret = ins.read();
+		} catch(Exception e) {
+			throw new IllegalStateException(e);
+		}
+		if(ret == -1) { throw new IllegalStateException("Past EOF!"); }
+		off++;
+		return (byte)ret;
+	}
 
-    // Exponential constant
-    private double gamma;
+	@Override
+	public long bytesLeft() {
+		return len - off;
+	}
 
-    ExponentialGenerator( RandomDataGenerator random, double mean )
-    {
-        super( random );
-        gamma = 1.0 / mean;
-    }
-
-    ExponentialGenerator( RandomDataGenerator random, double percentile, double range )
-    {
-        super( random );
-        gamma = -Math.log( 1.0 - percentile / 100.0 ) / range;
-    }
-
-    @Override
-    protected Long doNext()
-    {
-        return (long) ( -Math.log( getRandom().nextUniform( 0, 1 ) ) / gamma );
-    }
 }

@@ -15,11 +15,12 @@
  * LICENSE file.                                                                                                                                                                   
  */
 
-package com.yahoo.ycsb.generator;
+package com.yahoo.ycsb.generator.ycsb;
 
 import org.apache.commons.math3.random.RandomDataGenerator;
 
-import com.yahoo.ycsb.Utils;
+import com.yahoo.ycsb.generator.Generator;
+import com.yahoo.ycsb.util.Utils;
 
 /**
  * A generator of a zipfian distribution. It produces a sequence of items, such
@@ -55,7 +56,7 @@ public class ScrambledZipfianGenerator extends Generator<Long>
      * @param max The largest integer to generate in the sequence.
      * @param zipfianConstant The zipfian constant to use.
      */
-    ScrambledZipfianGenerator( RandomDataGenerator random, long min, long max, ZipfianGenerator zipfianGenerator )
+    public ScrambledZipfianGenerator( RandomDataGenerator random, long min, long max, ZipfianGenerator zipfianGenerator )
     {
         super( random );
         this.min = min;

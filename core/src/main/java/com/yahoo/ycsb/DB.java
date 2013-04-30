@@ -22,6 +22,9 @@ import java.util.Map;
 import java.util.Set;
 import java.util.Vector;
 
+import com.yahoo.ycsb.util.ByteIterator;
+
+
 /**
  * A layer for accessing a database to be benchmarked. Each thread in the client
  * will be given its own instance of whatever DB class is to be used in the

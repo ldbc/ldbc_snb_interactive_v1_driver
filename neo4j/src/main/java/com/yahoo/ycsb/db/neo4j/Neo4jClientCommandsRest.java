@@ -13,9 +13,9 @@ import org.neo4j.rest.graphdb.RestAPI;
 import org.neo4j.rest.graphdb.RestGraphDatabase;
 import org.neo4j.rest.graphdb.query.RestCypherQueryEngine;
 
-import com.yahoo.ycsb.ByteIterator;
 import com.yahoo.ycsb.DBException;
-import com.yahoo.ycsb.StringByteIterator;
+import com.yahoo.ycsb.util.ByteIterator;
+import com.yahoo.ycsb.util.StringByteIterator;
 
 public class Neo4jClientCommandsRest implements Neo4jClientCommands
 {

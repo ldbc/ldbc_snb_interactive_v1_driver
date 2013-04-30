@@ -33,9 +33,9 @@ import org.hypertable.thriftgen.RowInterval;
 import org.hypertable.thriftgen.ScanSpec;
 import org.hypertable.thrift.SerializedCellsReader;
 
-import com.yahoo.ycsb.ByteArrayByteIterator;
-import com.yahoo.ycsb.ByteIterator;
 import com.yahoo.ycsb.DBException;
+import com.yahoo.ycsb.util.ByteArrayByteIterator;
+import com.yahoo.ycsb.util.ByteIterator;
 
 /**
  * Hypertable client for YCSB framework

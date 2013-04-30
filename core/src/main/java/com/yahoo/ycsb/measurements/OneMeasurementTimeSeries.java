@@ -24,8 +24,8 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.Vector;
 
-import com.yahoo.ycsb.Utils;
 import com.yahoo.ycsb.measurements.exporter.MeasurementsExporter;
+import com.yahoo.ycsb.util.Utils;
 
 class SeriesUnit
 {

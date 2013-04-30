@@ -14,32 +14,47 @@
  * permissions and limitations under the License. See accompanying                                                                                                                 
  * LICENSE file.                                                                                                                                                                   
  */
+package com.yahoo.ycsb.util;
 
-package com.yahoo.ycsb.generator;
 
-import org.apache.commons.math3.random.RandomDataGenerator;
-
-/**
- * Skewed distribution to favor recent items significantly more than older items
- */
-public class SkewedLatestGenerator extends Generator<Long>
+public class ByteArrayByteIterator extends ByteIterator
 {
-    private CounterGenerator<Long> basis;
-    private ZipfianGenerator zipfian;
+    byte[] str;
+    int off;
+    final int len;
 
-    SkewedLatestGenerator( RandomDataGenerator random, CounterGenerator<Long> basis, ZipfianGenerator zipfianGenerator )
+    public ByteArrayByteIterator( byte[] s )
     {
-        super( random );
-        this.basis = basis;
-        this.zipfian = zipfianGenerator;
+        this.str = s;
+        this.off = 0;
+        this.len = s.length;
+    }
+
+    public ByteArrayByteIterator( byte[] s, int off, int len )
+    {
+        this.str = s;
+        this.off = off;
+        this.len = off + len;
     }
 
     @Override
-    protected Long doNext()
+    public boolean hasNext()
     {
-        long max = basis.last();
-        // TODO ZipfianGenerator needs parameterized next, e.g.next(max)?
-        // return max - _zipfian.next( max );
-        return max - zipfian.next();
+        return off < len;
     }
+
+    @Override
+    public byte nextByte()
+    {
+        byte ret = str[off];
+        off++;
+        return ret;
+    }
+
+    @Override
+    public long bytesLeft()
+    {
+        return len - off;
+    }
+
 }

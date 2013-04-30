@@ -1,4 +1,4 @@
-package com.yahoo.ycsb;
+package com.yahoo.ycsb.util;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -6,8 +6,8 @@ import java.util.List;
 import java.util.Map;
 
 import com.google.common.collect.Range;
-import com.yahoo.ycsb.Bucket.NumberRangeBucket;
 import com.yahoo.ycsb.generator.GeneratorException;
+import com.yahoo.ycsb.util.Bucket.NumberRangeBucket;
 
 // TODO remove?
 // T - Things - type of things being counted

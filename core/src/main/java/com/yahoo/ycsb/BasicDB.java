@@ -24,7 +24,10 @@ import java.util.Set;
 import java.util.Vector;
 
 import org.apache.commons.math3.random.RandomDataGenerator;
-import com.yahoo.ycsb.RandomDataGeneratorFactory;
+
+import com.yahoo.ycsb.util.ByteIterator;
+import com.yahoo.ycsb.util.RandomDataGeneratorFactory;
+import com.yahoo.ycsb.util.Utils;
 
 /**
  * Basic DB that just prints out the requested operations, instead of doing them

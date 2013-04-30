@@ -15,7 +15,7 @@
  * LICENSE file.                                                                                                                                                                   
  */
 
-package com.yahoo.ycsb;
+package com.yahoo.ycsb.util;
 
 import java.lang.reflect.ParameterizedType;
 import java.util.Map;

@@ -14,46 +14,36 @@
  * permissions and limitations under the License. See accompanying                                                                                                                 
  * LICENSE file.                                                                                                                                                                   
  */
-package com.yahoo.ycsb;
 
-public class ByteArrayByteIterator extends ByteIterator
+package com.yahoo.ycsb.generator.ycsb;
+
+import org.apache.commons.math3.random.RandomDataGenerator;
+
+import com.yahoo.ycsb.generator.Generator;
+import com.yahoo.ycsb.generator.MinMaxGeneratorWrapper;
+
+/**
+ * Skewed distribution to favor recent items significantly more than older items
+ */
+public class SkewedLatestGenerator extends Generator<Long>
 {
-    byte[] str;
-    int off;
-    final int len;
+    private final MinMaxGeneratorWrapper<Long> basis;
+    private final ZipfianGenerator zipfian;
 
-    public ByteArrayByteIterator( byte[] s )
+    public SkewedLatestGenerator( RandomDataGenerator random, MinMaxGeneratorWrapper<Long> basis,
+            ZipfianGenerator zipfianGenerator )
     {
-        this.str = s;
-        this.off = 0;
-        this.len = s.length;
-    }
-
-    public ByteArrayByteIterator( byte[] s, int off, int len )
-    {
-        this.str = s;
-        this.off = off;
-        this.len = off + len;
+        super( random );
+        this.basis = basis;
+        this.zipfian = zipfianGenerator;
     }
 
     @Override
-    public boolean hasNext()
+    protected Long doNext()
     {
-        return off < len;
+        long max = basis.getMax();
+        // TODO ZipfianGenerator needs parameterized next, e.g.next(max)?
+        // return max - _zipfian.next( max );
+        return max - zipfian.next();
     }
-
-    @Override
-    public byte nextByte()
-    {
-        byte ret = str[off];
-        off++;
-        return ret;
-    }
-
-    @Override
-    public long bytesLeft()
-    {
-        return len - off;
-    }
-
 }

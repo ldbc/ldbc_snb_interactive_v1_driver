@@ -14,42 +14,79 @@
  * permissions and limitations under the License. See accompanying                                                                                                                 
  * LICENSE file.                                                                                                                                                                   
  */
-package com.yahoo.ycsb;
+package com.yahoo.ycsb.util;
 
-import java.io.InputStream;
+import java.util.Iterator;
+import java.util.ArrayList;
+/**
+ * YCSB-specific buffer class.  ByteIterators are designed to support
+ * efficient field generation, and to allow backend drivers that can stream
+ * fields (instead of materializing them in RAM) to do so.
+ * <p>
+ * YCSB originially used String objects to represent field values.  This led to
+ * two performance issues.
+ * </p><p>
+ * First, it leads to unnecessary conversions between UTF-16 and UTF-8, both
+ * during field generation, and when passing data to byte-based backend
+ * drivers.
+ * </p><p>
+ * Second, Java strings are represented internally using UTF-16, and are
+ * built by appending to a growable array type (StringBuilder or
+ * StringBuffer), then calling a toString() method.  This leads to a 4x memory
+ * overhead as field values are being built, which prevented YCSB from
+ * driving large object stores.
+ * </p>
+ * The StringByteIterator class contains a number of convenience methods for
+ * backend drivers that convert between Map&lt;String,String&gt; and
+ * Map&lt;String,ByteBuffer&gt;.
+ *
+ * @author sears
+ */
+public abstract class ByteIterator implements Iterator<Byte> {
 
-public class InputStreamByteIterator extends ByteIterator {
-	long len;
-	InputStream ins;
-	long off;
-	
-	public InputStreamByteIterator(InputStream ins, long len) {
-		this.len = len;
-		this.ins = ins;
-		off = 0;
-	}
-	
 	@Override
-	public boolean hasNext() {
-		return off < len;
-	}
+	public abstract boolean hasNext();
 
 	@Override
-	public byte nextByte() {
-		int ret;
-		try {
-			ret = ins.read();
-		} catch(Exception e) {
-			throw new IllegalStateException(e);
+	public Byte next() {
+		throw new UnsupportedOperationException();
+		//return nextByte();
+	}
+
+	public abstract byte nextByte();
+        /** @return byte offset immediately after the last valid byte */
+	public int nextBuf(byte[] buf, int buf_off) {
+		int sz = buf_off;
+		while(sz < buf.length && hasNext()) {
+			buf[sz] = nextByte();
+			sz++;
 		}
-		if(ret == -1) { throw new IllegalStateException("Past EOF!"); }
-		off++;
-		return (byte)ret;
+		return sz;
 	}
 
+	public abstract long bytesLeft();
+	
 	@Override
-	public long bytesLeft() {
-		return len - off;
+	public void remove() {
+		throw new UnsupportedOperationException();
+	}
+
+	/** Consumes remaining contents of this object, and returns them as a string. */
+	public String toString() {
+		StringBuilder sb = new StringBuilder();
+		while(this.hasNext()) { sb.append((char)nextByte()); }
+		return sb.toString();
+	}
+	/** Consumes remaining contents of this object, and returns them as a byte array. */
+	public byte[] toArray() {
+	    long left = bytesLeft();
+	    if(left != (int)left) { throw new ArrayIndexOutOfBoundsException("Too much data to fit in one array!"); }
+	    byte[] ret = new byte[(int)left];
+	    int off = 0;
+	    while(off < ret.length) {
+		off = nextBuf(ret, off);
+	    }
+	    return ret;
 	}
 
 }

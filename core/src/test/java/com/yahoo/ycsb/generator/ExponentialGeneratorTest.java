@@ -1,9 +1,8 @@
 package com.yahoo.ycsb.generator;
 
 import com.google.common.collect.Range;
-import com.yahoo.ycsb.Bucket.NumberRangeBucket;
-
-import com.yahoo.ycsb.Histogram;
+import com.yahoo.ycsb.util.Histogram;
+import com.yahoo.ycsb.util.Bucket.NumberRangeBucket;
 
 public class ExponentialGeneratorTest extends NumberGeneratorTest<Long, Integer>
 {
@@ -33,7 +32,7 @@ public class ExponentialGeneratorTest extends NumberGeneratorTest<Long, Integer>
     @Override
     public Generator<Long> getGeneratorImpl()
     {
-        return getGeneratorFactory().newExponentialGenerator( percentile, range );
+        return getGeneratorBuilder().newExponentialGenerator( percentile, range ).build();
         // TODO test this too
         // return getGeneratorFactory().newExponentialGenerator( mean );
     }

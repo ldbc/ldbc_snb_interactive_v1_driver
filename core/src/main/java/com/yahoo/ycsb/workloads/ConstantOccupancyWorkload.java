@@ -18,11 +18,11 @@ package com.yahoo.ycsb.workloads;
 
 import java.util.Map;
 
-import com.yahoo.ycsb.Utils;
 import com.yahoo.ycsb.WorkloadException;
 import com.yahoo.ycsb.Client;
 import com.yahoo.ycsb.generator.Generator;
-import com.yahoo.ycsb.generator.GeneratorFactory;
+import com.yahoo.ycsb.generator.GeneratorBuilder;
+import com.yahoo.ycsb.util.Utils;
 
 /**
  * A disk-fragmenting workload.
@@ -70,9 +70,9 @@ public class ConstantOccupancyWorkload extends CoreWorkload
     public static final double OCCUPANCY_PROPERTY_DEFAULT = 0.9;
 
     @Override
-    public void init( Map<String, String> properties, GeneratorFactory generatorFactory ) throws WorkloadException
+    public void init( Map<String, String> properties, GeneratorBuilder generatorBuilder ) throws WorkloadException
     {
-        super.init( properties, generatorFactory );
+        super.init( properties, generatorBuilder );
 
         diskSize = Long.parseLong( Utils.mapGetDefault( properties, DISK_SIZE_PROPERTY,
                 Long.toString( DISK_SIZE_PROPERTY_DEFAULT ) ) );

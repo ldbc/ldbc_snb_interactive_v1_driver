@@ -4,19 +4,19 @@ import java.util.HashMap;
 
 import org.apache.commons.math3.random.RandomDataGenerator;
 
-import com.yahoo.ycsb.ByteIterator;
 import com.yahoo.ycsb.DBRecordKey;
-import com.yahoo.ycsb.RandomByteIterator;
-import com.yahoo.ycsb.RandomDataGeneratorFactory;
 import com.yahoo.ycsb.WorkloadException;
-import com.yahoo.ycsb.generator.ExponentialGenerator;
 import com.yahoo.ycsb.generator.Generator;
-import com.yahoo.ycsb.generator.GeneratorFactory;
+import com.yahoo.ycsb.generator.GeneratorBuilder;
+import com.yahoo.ycsb.generator.ycsb.ExponentialGenerator;
+import com.yahoo.ycsb.util.ByteIterator;
+import com.yahoo.ycsb.util.RandomByteIterator;
+import com.yahoo.ycsb.util.RandomDataGeneratorFactory;
 
 public class WorkloadUtils
 {
     // TODO temp, this should be given in the constructor, remove later
-    static GeneratorFactory generatorFactory = new GeneratorFactory( new RandomDataGeneratorFactory( 42l ) );
+    static GeneratorBuilder generatorFactory = new GeneratorBuilder( new RandomDataGeneratorFactory( 42l ) );
 
     // TODO temp, this should be given in the constructor, remove later
     static RandomDataGenerator random = new RandomDataGenerator();
@@ -85,13 +85,13 @@ public class WorkloadUtils
         switch ( distribution )
         {
         case CONSTANT:
-            return generatorFactory.newConstantIntegerGenerator( upperBound );
+            return generatorFactory.newConstantIntegerGenerator( upperBound ).build();
 
         case UNIFORM:
-            return generatorFactory.newUniformNumberGenerator( lowerBound, upperBound );
+            return generatorFactory.newUniformNumberGenerator( lowerBound, upperBound ).build();
 
         case ZIPFIAN:
-            return generatorFactory.newZipfianGenerator( lowerBound, upperBound );
+            return generatorFactory.newZipfianGenerator( lowerBound, upperBound ).build();
 
         default:
             String errMsg = String.format( "Invalid Distribution [%s], use one of the following: %s, %s, %s, %s",

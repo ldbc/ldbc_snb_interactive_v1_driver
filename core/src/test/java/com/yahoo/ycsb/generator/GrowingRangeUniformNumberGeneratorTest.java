@@ -1,43 +1,58 @@
 package com.yahoo.ycsb.generator;
 
-import com.yahoo.ycsb.Histogram;
+import com.google.common.collect.Range;
+import com.yahoo.ycsb.util.Histogram;
+import com.yahoo.ycsb.util.Bucket.NumberRangeBucket;
 
-public class GrowingRangeUniformNumberGeneratorTest<T extends Number, C extends Number> extends
-        NumberGeneratorTest<T, C>
+public class GrowingRangeUniformNumberGeneratorTest extends NumberGeneratorTest<Long, Long>
 {
+    private final long uniformMin = 50;
+    private final long uniformMax = 60;
+    private final long counterStart = 0;
+    private final long counterIterations = 101;
+
     @Override
     public double getMeanTolerance()
     {
-        // TODO Auto-generated method stub
-        return 0;
+        return 0.1;
     }
 
     @Override
     public double getDistributionTolerance()
     {
-        // TODO Auto-generated method stub
-        return 0;
+        return 0.01;
     }
 
     @Override
-    public Generator<T> getGeneratorImpl()
+    public Generator<Long> getGeneratorImpl()
     {
-        // TODO Auto-generated method stub
-        return null;
+        MinMaxGeneratorWrapper<Long> counterGenerator = (MinMaxGeneratorWrapper<Long>) getGeneratorBuilder().newCounterGenerator(
+                counterStart, 1l ).withMinMaxLast( uniformMin, uniformMax ).build();
+        Generator<Long> growingRangeUniformGenerator = getGeneratorBuilder().newGrowingRangeUniformNumberGenerator(
+                counterGenerator ).build();
+        for ( int i = 0; i < counterIterations; i++ )
+        {
+            counterGenerator.next();
+        }
+        return growingRangeUniformGenerator;
     }
 
     @Override
-    public Histogram<T, C> getExpectedDistribution()
+    public Histogram<Long, Long> getExpectedDistribution()
     {
-        // TODO Auto-generated method stub
-        return null;
+        Histogram<Long, Long> expectedDistribution = new Histogram<Long, Long>( 0l );
+        expectedDistribution.addBucket( new NumberRangeBucket<Long>( Range.closedOpen( 0d, 20d ) ), 1l );
+        expectedDistribution.addBucket( new NumberRangeBucket<Long>( Range.closedOpen( 20d, 40d ) ), 1l );
+        expectedDistribution.addBucket( new NumberRangeBucket<Long>( Range.closedOpen( 40d, 60d ) ), 1l );
+        expectedDistribution.addBucket( new NumberRangeBucket<Long>( Range.closedOpen( 60d, 80d ) ), 1l );
+        expectedDistribution.addBucket( new NumberRangeBucket<Long>( Range.closed( 80d, 100d ) ), 1l );
+        return expectedDistribution;
     }
 
     @Override
     public double getExpectedMean()
     {
-        // TODO Auto-generated method stub
-        return 0;
+        return ( (double) ( counterIterations - 1 ) - (double) counterStart ) / 2;
     }
 
 }

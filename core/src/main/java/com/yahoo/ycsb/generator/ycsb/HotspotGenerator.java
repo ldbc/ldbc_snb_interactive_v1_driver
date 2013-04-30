@@ -14,9 +14,11 @@
  * permissions and limitations under the License. See accompanying                                                                                                                 
  * LICENSE file.
  */
-package com.yahoo.ycsb.generator;
+package com.yahoo.ycsb.generator.ycsb;
 
 import org.apache.commons.math3.random.RandomDataGenerator;
+
+import com.yahoo.ycsb.generator.Generator;
 
 /**
  * Generate integers resembling a hotspot distribution where x% of operations
@@ -40,14 +42,12 @@ public class HotspotGenerator extends Generator<Long>
     private final double hotOpnFraction;
 
     /**
-     * Create a generator for Hotspot distributions.
-     * 
-     * @param lowerBound lower bound of the distribution.
-     * @param upperBound upper bound of the distribution.
+     * @param lowerBound lower bound of the distribution
+     * @param upperBound upper bound of the distribution
      * @param hotsetFraction percentage of data item
-     * @param hotOpnFraction percentage of operations accessing the hot set.
+     * @param hotOpnFraction percentage of operations accessing the hot set
      */
-    HotspotGenerator( RandomDataGenerator random, int lowerBound, int upperBound, double hotsetFraction,
+    public HotspotGenerator( RandomDataGenerator random, int lowerBound, int upperBound, double hotsetFraction,
             double hotOpnFraction )
     {
         super( random );
@@ -100,34 +100,28 @@ public class HotspotGenerator extends Generator<Long>
         return lowerBound;
     }
 
-    /**
-     * @return the upperBound
-     */
     public int getUpperBound()
     {
         return upperBound;
     }
 
-    /**
-     * @return the hotsetFraction
-     */
     public double getHotsetFraction()
     {
         return hotsetFraction;
     }
 
-    /**
-     * @return the hotOpnFraction
-     */
     public double getHotOpnFraction()
     {
         return hotOpnFraction;
     }
 
-    // public double mean()
-    // {
-    // return hotOpnFraction * ( lowerBound + hotInterval / 2.0 ) + ( 1 -
-    // hotOpnFraction )
-    // * ( lowerBound + hotInterval + coldInterval / 2.0 );
-    // }
+    public int getColdInterval()
+    {
+        return coldInterval;
+    }
+
+    public int getHotInterval()
+    {
+        return hotInterval;
+    }
 }

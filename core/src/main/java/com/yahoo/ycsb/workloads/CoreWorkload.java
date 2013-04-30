@@ -5,14 +5,14 @@ import java.util.Map;
 
 import com.yahoo.ycsb.Client;
 import com.yahoo.ycsb.DB;
-import com.yahoo.ycsb.Pair;
-import com.yahoo.ycsb.Utils;
 import com.yahoo.ycsb.Workload;
 import com.yahoo.ycsb.WorkloadException;
-import com.yahoo.ycsb.generator.CounterGenerator;
-import com.yahoo.ycsb.generator.ExponentialGenerator;
 import com.yahoo.ycsb.generator.Generator;
-import com.yahoo.ycsb.generator.GeneratorFactory;
+import com.yahoo.ycsb.generator.GeneratorBuilder;
+import com.yahoo.ycsb.generator.MinMaxGeneratorWrapper;
+import com.yahoo.ycsb.generator.ycsb.ExponentialGenerator;
+import com.yahoo.ycsb.util.Pair;
+import com.yahoo.ycsb.util.Utils;
 
 public class CoreWorkload extends Workload
 {
@@ -30,7 +30,7 @@ public class CoreWorkload extends Workload
     Generator<Long> keyChooser;
     Generator<Long> fieldChooser;
     Generator<Long> scanLength;
-    CounterGenerator<Long> transactionInsertKeySequence;
+    MinMaxGeneratorWrapper<Long> transactionInsertKeySequence;
     Generator<? extends Object> operationGenerator;
 
     /**
@@ -38,9 +38,9 @@ public class CoreWorkload extends Workload
      * operations are started.
      */
     @Override
-    public void init( Map<String, String> properties, GeneratorFactory generatorFactory ) throws WorkloadException
+    public void init( Map<String, String> properties, GeneratorBuilder generatorBuilder ) throws WorkloadException
     {
-        super.init( properties, generatorFactory );
+        super.init( properties, generatorBuilder );
         table = Utils.mapGetDefault( properties, CoreWorkloadProperties.TABLENAME,
                 CoreWorkloadProperties.TABLENAME_DEFAULT );
         fieldCount = Integer.parseInt( Utils.mapGetDefault( properties, CoreWorkloadProperties.FIELD_COUNT,
@@ -93,7 +93,7 @@ public class CoreWorkload extends Workload
                     ExponentialGenerator.EXPONENTIAL_PERCENTILE, ExponentialGenerator.EXPONENTIAL_PERCENTILE_DEFAULT ) );
             double frac = Double.parseDouble( Utils.mapGetDefault( properties, ExponentialGenerator.EXPONENTIAL_FRAC,
                     ExponentialGenerator.EXPONENTIAL_FRAC_DEFAULT ) );
-            keyChooser = generatorFactory.newExponentialGenerator( percentile, recordCount * frac );
+            keyChooser = generatorBuilder.newExponentialGenerator( percentile, recordCount * frac ).build();
         }
         else
         {
@@ -102,7 +102,7 @@ public class CoreWorkload extends Workload
 
         long insertStart = Long.parseLong( Utils.mapGetDefault( properties, Workload.INSERT_START,
                 Workload.INSERT_START_DEFAULT ) );
-        keySequence = generatorFactory.newCounterGenerator( insertStart );
+        keySequence = generatorBuilder.newCounterGenerator( insertStart, 1l ).build();
 
         // proportion of transactions reads/update/insert/scan/read-modify-write
         ArrayList<Pair<Double, Object>> operations = new ArrayList<Pair<Double, Object>>();
@@ -112,13 +112,14 @@ public class CoreWorkload extends Workload
         operations.add( new Pair<Double, Object>( scanProp, "SCAN" ) );
         operations.add( new Pair<Double, Object>( readModifyWriteProp, "READMODIFYWRITE" ) );
 
-        operationGenerator = generatorFactory.newDiscreteGenerator( operations );
+        operationGenerator = generatorBuilder.newDiscreteGenerator( operations ).build();
 
         // TODO should not cast
-        transactionInsertKeySequence = generatorFactory.newCounterGenerator( (long) recordCount );
+        transactionInsertKeySequence = (MinMaxGeneratorWrapper<Long>) generatorBuilder.newCounterGenerator(
+                (long) recordCount, 1l ).withMinMaxLast( (long) recordCount, (long) recordCount ).build();
         if ( requestdistrib.compareTo( "uniform" ) == 0 )
         {
-            keyChooser = generatorFactory.newUniformNumberGenerator( (long) 0, (long) ( recordCount - 1 ) );
+            keyChooser = generatorBuilder.newUniformNumberGenerator( (long) 0, (long) ( recordCount - 1 ) ).build();
         }
         else if ( requestdistrib.compareTo( "zipfian" ) == 0 )
         {
@@ -127,11 +128,11 @@ public class CoreWorkload extends Workload
             // 2 is fudge factor
             long expectednewkeys = (long) ( ( (double) opcount ) * insertProp * 2.0 );
 
-            keyChooser = generatorFactory.newScrambledZipfianGenerator( 0l, recordCount + expectednewkeys );
+            keyChooser = generatorBuilder.newScrambledZipfianGenerator( 0l, recordCount + expectednewkeys ).build();
         }
         else if ( requestdistrib.compareTo( "latest" ) == 0 )
         {
-            keyChooser = generatorFactory.newSkewedLatestGenerator( transactionInsertKeySequence );
+            keyChooser = generatorBuilder.newSkewedLatestGenerator( transactionInsertKeySequence ).build();
         }
         else if ( requestdistrib.equals( "hotspot" ) )
         {
@@ -139,22 +140,22 @@ public class CoreWorkload extends Workload
                     CoreWorkloadProperties.HOTSPOT_DATA_FRACTION, CoreWorkloadProperties.HOTSPOT_DATA_FRACTION_DEFAULT ) );
             double hotopnfraction = Double.parseDouble( Utils.mapGetDefault( properties,
                     CoreWorkloadProperties.HOTSPOT_OPN_FRACTION, CoreWorkloadProperties.HOTSPOT_OPN_FRACTION_DEFAULT ) );
-            keyChooser = generatorFactory.newHotspotGenerator( 0, recordCount - 1, hotsetfraction, hotopnfraction );
+            keyChooser = generatorBuilder.newHotspotGenerator( 0, recordCount - 1, hotsetfraction, hotopnfraction ).build();
         }
         else
         {
             throw new WorkloadException( "Unknown request distribution \"" + requestdistrib + "\"" );
         }
 
-        fieldChooser = generatorFactory.newUniformNumberGenerator( (long) 0, (long) ( fieldCount - 1 ) );
+        fieldChooser = generatorBuilder.newUniformNumberGenerator( (long) 0, (long) ( fieldCount - 1 ) ).build();
 
         if ( scanLengthDistribution.equals( "uniform" ) )
         {
-            scanLength = generatorFactory.newUniformNumberGenerator( (long) 1, (long) maxScanlength );
+            scanLength = generatorBuilder.newUniformNumberGenerator( (long) 1, (long) maxScanlength ).build();
         }
         else if ( scanLengthDistribution.equals( "zipfian" ) )
         {
-            scanLength = generatorFactory.newZipfianGenerator( (long) 1, (long) maxScanlength );
+            scanLength = generatorBuilder.newZipfianGenerator( (long) 1, (long) maxScanlength ).build();
         }
         else
         {

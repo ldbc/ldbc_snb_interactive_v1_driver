@@ -5,8 +5,8 @@ import java.util.Map;
 import java.util.Set;
 import java.util.Vector;
 
-import com.yahoo.ycsb.ByteIterator;
 import com.yahoo.ycsb.DBException;
+import com.yahoo.ycsb.util.ByteIterator;
 
 public interface Neo4jClientCommands
 {

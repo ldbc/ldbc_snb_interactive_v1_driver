@@ -1,5 +1,7 @@
 package com.yahoo.ycsb;
 
+import com.yahoo.ycsb.util.Utils;
+
 // TODO test
 public class DBRecordKey
 {

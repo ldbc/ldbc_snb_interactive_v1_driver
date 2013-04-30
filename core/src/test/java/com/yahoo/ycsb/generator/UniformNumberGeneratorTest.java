@@ -1,8 +1,8 @@
 package com.yahoo.ycsb.generator;
 
 import com.google.common.collect.Range;
-import com.yahoo.ycsb.Histogram;
-import com.yahoo.ycsb.Bucket.NumberRangeBucket;
+import com.yahoo.ycsb.util.Histogram;
+import com.yahoo.ycsb.util.Bucket.NumberRangeBucket;
 
 public class UniformNumberGeneratorTest extends NumberGeneratorTest<Long, Long>
 {
@@ -24,7 +24,7 @@ public class UniformNumberGeneratorTest extends NumberGeneratorTest<Long, Long>
     @Override
     public Generator<Long> getGeneratorImpl()
     {
-        return getGeneratorFactory().newUniformNumberGenerator( min, max );
+        return getGeneratorBuilder().newUniformNumberGenerator( min, max ).build();
     }
 
     @Override

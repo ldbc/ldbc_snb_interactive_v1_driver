@@ -6,10 +6,9 @@ import java.util.ArrayList;
 
 import org.junit.Test;
 
-import com.yahoo.ycsb.Histogram;
-import com.yahoo.ycsb.Pair;
-import com.yahoo.ycsb.Bucket.DiscreteBucket;
-import com.yahoo.ycsb.generator.DiscreteGenerator;
+import com.yahoo.ycsb.util.Histogram;
+import com.yahoo.ycsb.util.Pair;
+import com.yahoo.ycsb.util.Bucket.DiscreteBucket;
 
 public class DiscreteGeneratorTest extends GeneratorTest<String, Integer>
 {
@@ -43,7 +42,7 @@ public class DiscreteGeneratorTest extends GeneratorTest<String, Integer>
         items.add( p2 );
         items.add( p3 );
         items.add( p4 );
-        return getGeneratorFactory().newDiscreteGenerator( items );
+        return getGeneratorBuilder().newDiscreteGenerator( items ).build();
     }
 
     @Test( expected = GeneratorException.class )
@@ -51,7 +50,7 @@ public class DiscreteGeneratorTest extends GeneratorTest<String, Integer>
     {
         // Given
         ArrayList<Pair<Double, String>> emptyItems = new ArrayList<Pair<Double, String>>();
-        DiscreteGenerator<String> generator = getGeneratorFactory().newDiscreteGenerator( emptyItems );
+        Generator<String> generator = getGeneratorBuilder().newDiscreteGenerator( emptyItems ).build();
 
         // When
         generator.next();

@@ -26,10 +26,12 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.Vector;
 
-import com.yahoo.ycsb.generator.AbstractGeneratorFactory;
+import com.yahoo.ycsb.generator.GeneratorBuilderFactory;
 import com.yahoo.ycsb.measurements.Measurements;
 import com.yahoo.ycsb.measurements.exporter.MeasurementsExporter;
 import com.yahoo.ycsb.measurements.exporter.TextMeasurementsExporter;
+import com.yahoo.ycsb.util.RandomDataGeneratorFactory;
+import com.yahoo.ycsb.util.Utils;
 
 /**
  * Main class for executing YCSB
@@ -146,7 +148,7 @@ public class Client
     {
         final long seed = System.currentTimeMillis();
         final RandomDataGeneratorFactory randomFactory = new RandomDataGeneratorFactory( seed );
-        final AbstractGeneratorFactory abstractGeneratorFactory = new AbstractGeneratorFactory(
+        final GeneratorBuilderFactory abstractGeneratorFactory = new GeneratorBuilderFactory(
                 randomFactory.newRandom() );
 
         final DBFactory dbFactory = new DBFactory();
@@ -437,7 +439,7 @@ public class Client
 
         try
         {
-            workload.init( commandlineProperties, abstractGeneratorFactory.newGeneratorFactory() );
+            workload.init( commandlineProperties, abstractGeneratorFactory.newGeneratorBuilder() );
         }
         catch ( WorkloadException e )
         {

@@ -23,6 +23,7 @@ import java.util.Set;
 import java.util.Vector;
 
 import com.yahoo.ycsb.measurements.Measurements;
+import com.yahoo.ycsb.util.ByteIterator;
 
 /**
  * Wrapper around another DB instance that measures latencies and return codes

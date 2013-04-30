@@ -13,7 +13,7 @@
  * LICENSE file.                                                                                                                                                                   
  */
 
-package com.yahoo.ycsb.generator;
+package com.yahoo.ycsb.generator.ycsb;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -22,6 +22,9 @@ import java.io.BufferedReader;
 import java.io.IOException;
 
 import org.apache.commons.math3.random.RandomDataGenerator;
+
+import com.yahoo.ycsb.generator.Generator;
+import com.yahoo.ycsb.generator.GeneratorException;
 
 /**
  * A generator, whose sequence is the lines of a file.
@@ -36,7 +39,7 @@ public class FileGenerator extends Generator<String>
      * 
      * @param filename The file to read lines from.
      */
-    FileGenerator( RandomDataGenerator random, String filename ) throws GeneratorException
+    public FileGenerator( RandomDataGenerator random, String filename ) throws GeneratorException
     {
         super( random );
         try
