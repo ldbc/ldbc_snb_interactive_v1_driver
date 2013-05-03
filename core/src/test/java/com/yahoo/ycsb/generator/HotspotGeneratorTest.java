@@ -34,7 +34,7 @@ public class HotspotGeneratorTest<T extends Number> extends NumberGeneratorTest<
     @Override
     public Generator<Long> getGeneratorImpl()
     {
-        return getGeneratorBuilder().newHotspotGenerator( lowerBound, upperBound, hotsetFraction, hotOpnFraction ).build();
+        return getGeneratorBuilder().hotspotGenerator( lowerBound, upperBound, hotsetFraction, hotOpnFraction ).build();
     }
 
     @Override

@@ -3,11 +3,9 @@ package com.yahoo.ycsb.workloads;
 public class CoreWorkloadProperties
 {
     /**
-     * length distribution: "uniform", "zipfian" (favoring short records),
-     * "constant", "histogram"
+     * "uniform", "zipfian" (favors short records), "constant", "histogram"
      * 
      * "uniform", "zipfian", "constant": "fieldlength" defines max field length
-     * 
      * "histogram": histogram read from "fieldlengthhistogram" filename
      */
     public static final String FIELD_LENGTH_DISTRIBUTION = "fieldlengthdistribution";

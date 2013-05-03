@@ -56,6 +56,7 @@ public abstract class GeneratorTest<T, C extends Number>
         // Then
         Histogram<T, Double> expectedDistributionAsPercentage = expectedDistribution.toPercentageValues();
         Histogram<T, Double> generatedDistributionAsPercentage = generatedDistribution.toPercentageValues();
+
         String errMsg = String.format( "Distributions should be within tolerance[%s]\nExpected[%s]\nGenerated[%s]",
                 getDistributionTolerance(), expectedDistributionAsPercentage, generatedDistributionAsPercentage );
         assertEquals( errMsg, true, generatedDistributionAsPercentage.equalsWithinTolerance(

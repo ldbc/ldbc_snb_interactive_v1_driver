@@ -21,8 +21,6 @@ public class UniformNumberGenerator<T extends Number> extends Generator<T>
     @Override
     protected T doNext()
     {
-        double min = lowerBound.doubleValue();
-        double max = upperBound.doubleValue();
-        return number.round( getRandom().nextUniform( min, max ) );
+        return number.uniform( getRandom(), lowerBound, upperBound );
     }
 }

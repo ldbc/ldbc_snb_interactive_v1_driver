@@ -11,38 +11,36 @@ import com.yahoo.ycsb.generator.GeneratorBuilder;
 import com.yahoo.ycsb.generator.ycsb.ExponentialGenerator;
 import com.yahoo.ycsb.util.ByteIterator;
 import com.yahoo.ycsb.util.RandomByteIterator;
-import com.yahoo.ycsb.util.RandomDataGeneratorFactory;
 
 public class WorkloadUtils
 {
     // TODO temp, this should be given in the constructor, remove later
-    static GeneratorBuilder generatorFactory = new GeneratorBuilder( new RandomDataGeneratorFactory( 42l ) );
-
-    // TODO temp, this should be given in the constructor, remove later
     static RandomDataGenerator random = new RandomDataGenerator();
 
     // Build map for updating the values of all fields
-    public static HashMap<String, ByteIterator> buildAllValues( int fieldCount, Generator<Long> valueLengthGenerator,
-            String fieldNamePrefix ) throws WorkloadException
+    public static HashMap<String, ByteIterator> buildRecordWithAllFields( long fieldCount,
+            Generator<Long> valueLengthGenerator, String fieldNamePrefix ) throws WorkloadException
     {
         HashMap<String, ByteIterator> values = new HashMap<String, ByteIterator>();
-        for ( int i = 0; i < fieldCount; i++ )
+
+        for ( long i = 0; i < fieldCount; i++ )
         {
             String fieldname = fieldNamePrefix + i;
             ByteIterator data = new RandomByteIterator( valueLengthGenerator.next(), random );
             values.put( fieldname, data );
         }
+
         return values;
     }
 
     // Build map for updating the values of only one, random, field
-    public static HashMap<String, ByteIterator> buildOneValue( Generator<Long> keyNumberGenerator,
+    public static HashMap<String, ByteIterator> buildRecordWithOneField( Generator<Long> keyNumberGenerator,
             Generator<Long> valueLengthGenerator, String keyNamePrefix ) throws WorkloadException
     {
         HashMap<String, ByteIterator> values = new HashMap<String, ByteIterator>();
-        String fieldname = keyNamePrefix + keyNumberGenerator.next();
+        String fieldName = keyNamePrefix + keyNumberGenerator.next();
         ByteIterator data = new RandomByteIterator( valueLengthGenerator.next(), random );
-        values.put( fieldname, data );
+        values.put( fieldName, data );
         return values;
     }
 
@@ -79,19 +77,20 @@ public class WorkloadUtils
         return new DBRecordKey( keyNumber );
     }
 
-    public static Generator<Long> buildFieldLengthGenerator( Distribution distribution, Long lowerBound,
-            Long upperBound, String histogramFilePath ) throws WorkloadException
+    public static Generator<Long> buildFieldLengthGenerator( GeneratorBuilder generatorBuilder,
+            Distribution distribution, Long lowerBound, Long upperBound, String histogramFilePath )
+            throws WorkloadException
     {
         switch ( distribution )
         {
         case CONSTANT:
-            return generatorFactory.newConstantIntegerGenerator( upperBound ).build();
+            return generatorBuilder.constantNumberGenerator( upperBound ).build();
 
         case UNIFORM:
-            return generatorFactory.newUniformNumberGenerator( lowerBound, upperBound ).build();
+            return generatorBuilder.uniformNumberGenerator( lowerBound, upperBound ).build();
 
         case ZIPFIAN:
-            return generatorFactory.newZipfianGenerator( lowerBound, upperBound ).build();
+            return generatorBuilder.zipfianGenerator( lowerBound, upperBound ).build();
 
         default:
             String errMsg = String.format( "Invalid Distribution [%s], use one of the following: %s, %s, %s, %s",

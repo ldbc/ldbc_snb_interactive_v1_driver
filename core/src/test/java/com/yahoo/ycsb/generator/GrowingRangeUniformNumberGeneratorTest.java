@@ -26,9 +26,9 @@ public class GrowingRangeUniformNumberGeneratorTest extends NumberGeneratorTest<
     @Override
     public Generator<Long> getGeneratorImpl()
     {
-        MinMaxGeneratorWrapper<Long> counterGenerator = (MinMaxGeneratorWrapper<Long>) getGeneratorBuilder().newCounterGenerator(
+        MinMaxGeneratorWrapper<Long> counterGenerator = (MinMaxGeneratorWrapper<Long>) getGeneratorBuilder().counterGenerator(
                 counterStart, 1l ).withMinMaxLast( uniformMin, uniformMax ).build();
-        Generator<Long> growingRangeUniformGenerator = getGeneratorBuilder().newGrowingRangeUniformNumberGenerator(
+        Generator<Long> growingRangeUniformGenerator = getGeneratorBuilder().growingRangeUniformNumberGenerator(
                 counterGenerator ).build();
         for ( int i = 0; i < counterIterations; i++ )
         {

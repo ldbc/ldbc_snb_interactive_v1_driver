@@ -95,8 +95,8 @@ public class ConstantOccupancyWorkload extends CoreWorkload
         String fieldLengthHistogramFilePath = Utils.mapGetDefault( properties,
                 CoreWorkloadProperties.FIELD_LENGTH_HISTOGRAM_FILE,
                 CoreWorkloadProperties.FIELD_LENGTH_HISTOGRAM_FILE_DEFAULT );
-        Generator<Long> g = WorkloadUtils.buildFieldLengthGenerator( fieldLengthDistribution, 1l, fieldLength,
-                fieldLengthHistogramFilePath );
+        Generator<Long> g = WorkloadUtils.buildFieldLengthGenerator( generatorBuilder, fieldLengthDistribution, 1l,
+                fieldLength, fieldLengthHistogramFilePath );
         // TODO is mean() necessary? set to constant for now, fix later
         double fieldsize = fieldLength / 2;
         // double fieldsize = g.mean();

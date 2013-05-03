@@ -6,24 +6,25 @@ import org.apache.commons.math3.random.RandomDataGenerator;
 
 import com.yahoo.ycsb.util.Pair;
 
+// TODO use DiscreteMultiGenerator internally?
 public class DiscreteGenerator<T> extends Generator<T>
 {
-    private final Vector<Pair<Double, T>> items;
+    private final Vector<Pair<Double, T>> itemsProbabilities;
     private final double probabilitiesSum;
 
-    DiscreteGenerator( RandomDataGenerator random, Iterable<Pair<Double, T>> discreteItems )
+    DiscreteGenerator( RandomDataGenerator random, Iterable<Pair<Double, T>> itemsProbabilities )
     {
         super( random );
-        if ( false == discreteItems.iterator().hasNext() )
+        if ( false == itemsProbabilities.iterator().hasNext() )
         {
             throw new GeneratorException( "DiscreteGenerator cannot be empty" );
         }
-        this.items = new Vector<Pair<Double, T>>();
+        this.itemsProbabilities = new Vector<Pair<Double, T>>();
         double sum = 0;
 
-        for ( Pair<Double, T> item : discreteItems )
+        for ( Pair<Double, T> item : itemsProbabilities )
         {
-            this.items.add( item );
+            this.itemsProbabilities.add( item );
             sum += item._1();
         }
         probabilitiesSum = sum;
@@ -32,23 +33,23 @@ public class DiscreteGenerator<T> extends Generator<T>
     @Override
     protected T doNext() throws GeneratorException
     {
-        double val = getRandom().nextUniform( 0, 1 );
+        double randomValue = getRandom().nextUniform( 0, 1 );
 
-        for ( Pair<Double, T> item : items )
+        for ( Pair<Double, T> item : itemsProbabilities )
         {
-            if ( val < item._1() / probabilitiesSum )
+            if ( randomValue < item._1() / probabilitiesSum )
             {
                 return item._2();
             }
-            val -= item._1() / probabilitiesSum;
+            randomValue = randomValue - ( item._1() / probabilitiesSum );
         }
 
-        throw new GeneratorException( "Unexpected Error - DiscreteGenerator.next() should never get to this line" );
+        throw new GeneratorException( "Unexpected Error - should never get to this line" );
     }
 
     @Override
     public String toString()
     {
-        return "DiscreteGenerator [items=" + items.toString() + "]";
+        return "DiscreteGenerator [items=" + itemsProbabilities.toString() + "]";
     }
 }

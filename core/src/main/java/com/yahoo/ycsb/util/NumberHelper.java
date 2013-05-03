@@ -1,5 +1,7 @@
 package com.yahoo.ycsb.util;
 
+import org.apache.commons.math3.random.RandomDataGenerator;
+
 import com.yahoo.ycsb.generator.GeneratorException;
 
 public abstract class NumberHelper<T extends Number>
@@ -47,6 +49,8 @@ public abstract class NumberHelper<T extends Number>
     public abstract T max();
 
     public abstract T round( Number number );
+
+    public abstract T uniform( RandomDataGenerator random, T min, T max );
 
     public static <T1 extends Number> boolean withinTolerance( T1 a, T1 b, Number tolerance )
     {
@@ -97,6 +101,12 @@ public abstract class NumberHelper<T extends Number>
         {
             return (int) Math.round( number.doubleValue() );
         }
+
+        @Override
+        public Integer uniform( RandomDataGenerator random, Integer min, Integer max )
+        {
+            return random.nextInt( min, max );
+        }
     }
 
     private static class LongNumberHelper extends NumberHelper<Long>
@@ -142,6 +152,12 @@ public abstract class NumberHelper<T extends Number>
         {
             return Math.round( number.doubleValue() );
         }
+
+        @Override
+        public Long uniform( RandomDataGenerator random, Long min, Long max )
+        {
+            return random.nextLong( min, max );
+        }
     }
 
     private static class DoubleNumberHelper extends NumberHelper<Double>
@@ -186,6 +202,12 @@ public abstract class NumberHelper<T extends Number>
         public Double round( Number number )
         {
             return number.doubleValue();
+        }
+
+        @Override
+        public Double uniform( RandomDataGenerator random, Double min, Double max )
+        {
+            return random.nextUniform( min, max, true );
         }
     }
 }

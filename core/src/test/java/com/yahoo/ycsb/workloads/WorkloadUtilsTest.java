@@ -37,14 +37,14 @@ public class WorkloadUtilsTest
         // Given
         int lowerBound = 3;
         int upperBound = 6;
-        Generator<Long> valueLengthGenerator = generatorBuilder.newUniformNumberGenerator( (long) lowerBound,
+        Generator<Long> valueLengthGenerator = generatorBuilder.uniformNumberGenerator( (long) lowerBound,
                 (long) upperBound ).build();
         int fieldCount = 10;
         String fieldNamePrefix = "field";
 
         // When
-        HashMap<String, ByteIterator> values = WorkloadUtils.buildAllValues( fieldCount, valueLengthGenerator,
-                fieldNamePrefix );
+        HashMap<String, ByteIterator> values = WorkloadUtils.buildRecordWithAllFields( fieldCount,
+                valueLengthGenerator, fieldNamePrefix );
 
         // Then
         assertEquals( fieldCount, values.size() );
@@ -61,18 +61,18 @@ public class WorkloadUtilsTest
         // Given
         int keyLowerBound = 1;
         int keyUpperBound = 3;
-        Generator<Long> keyChooser = generatorBuilder.newUniformNumberGenerator( (long) keyLowerBound,
+        Generator<Long> keyChooser = generatorBuilder.uniformNumberGenerator( (long) keyLowerBound,
                 (long) keyUpperBound ).build();
 
         int valueLengthLowerBound = 3;
         int valueLengthUpperBound = 6;
-        Generator<Long> valueLengthGenerator = generatorBuilder.newUniformNumberGenerator(
-                (long) valueLengthLowerBound, (long) valueLengthUpperBound ).build();
+        Generator<Long> valueLengthGenerator = generatorBuilder.uniformNumberGenerator( (long) valueLengthLowerBound,
+                (long) valueLengthUpperBound ).build();
 
         String keyNamePrefix = "field";
 
         // When
-        HashMap<String, ByteIterator> values = WorkloadUtils.buildOneValue( keyChooser, valueLengthGenerator,
+        HashMap<String, ByteIterator> values = WorkloadUtils.buildRecordWithOneField( keyChooser, valueLengthGenerator,
                 keyNamePrefix );
 
         // Then
@@ -124,8 +124,8 @@ public class WorkloadUtilsTest
         String histogramFilePath = null;
 
         // When
-        Generator<Long> constantIntegerGenerator = WorkloadUtils.buildFieldLengthGenerator( Distribution.CONSTANT, 1l,
-                10l, histogramFilePath );
+        Generator<Long> constantIntegerGenerator = WorkloadUtils.buildFieldLengthGenerator( generatorBuilder,
+                Distribution.CONSTANT, 1l, 10l, histogramFilePath );
 
         // Then
         assertEquals( ConstantNumberGenerator.class, constantIntegerGenerator.getClass() );
@@ -138,8 +138,8 @@ public class WorkloadUtilsTest
         String histogramFilePath = null;
 
         // When
-        Generator<Long> uniformLongGenerator = WorkloadUtils.buildFieldLengthGenerator( Distribution.UNIFORM, 1l, 10l,
-                histogramFilePath );
+        Generator<Long> uniformLongGenerator = WorkloadUtils.buildFieldLengthGenerator( generatorBuilder,
+                Distribution.UNIFORM, 1l, 10l, histogramFilePath );
 
         // Then
         assertEquals( UniformNumberGenerator.class, uniformLongGenerator.getClass() );
@@ -152,8 +152,8 @@ public class WorkloadUtilsTest
         String histogramFilePath = null;
 
         // When
-        Generator<Long> zipfianIntegerGenerator = WorkloadUtils.buildFieldLengthGenerator( Distribution.ZIPFIAN, 1l,
-                10l, histogramFilePath );
+        Generator<Long> zipfianIntegerGenerator = WorkloadUtils.buildFieldLengthGenerator( generatorBuilder,
+                Distribution.ZIPFIAN, 1l, 10l, histogramFilePath );
 
         // Then
         assertEquals( ZipfianGenerator.class, zipfianIntegerGenerator.getClass() );

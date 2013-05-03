@@ -23,7 +23,7 @@ public class ConstantNumberGeneratorTest extends NumberGeneratorTest<Long, Long>
     @Override
     public Generator<Long> getGeneratorImpl()
     {
-        return getGeneratorBuilder().newConstantIntegerGenerator( constant ).build();
+        return getGeneratorBuilder().constantNumberGenerator( constant ).build();
     }
 
     @Override

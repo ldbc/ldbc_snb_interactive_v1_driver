@@ -27,23 +27,23 @@ import com.yahoo.ycsb.generator.MinMaxGeneratorWrapper;
  */
 public class SkewedLatestGenerator extends Generator<Long>
 {
-    private final MinMaxGeneratorWrapper<Long> basis;
-    private final ZipfianGenerator zipfian;
+    private final MinMaxGeneratorWrapper<Long> maxGenerator;
+    private final ZipfianGenerator zipfianGenerator;
 
-    public SkewedLatestGenerator( RandomDataGenerator random, MinMaxGeneratorWrapper<Long> basis,
+    public SkewedLatestGenerator( RandomDataGenerator random, MinMaxGeneratorWrapper<Long> maxGenerator,
             ZipfianGenerator zipfianGenerator )
     {
         super( random );
-        this.basis = basis;
-        this.zipfian = zipfianGenerator;
+        this.maxGenerator = maxGenerator;
+        this.zipfianGenerator = zipfianGenerator;
     }
 
     @Override
     protected Long doNext()
     {
-        long max = basis.getMax();
+        long max = maxGenerator.getMax();
         // TODO ZipfianGenerator needs parameterized next, e.g.next(max)?
         // return max - _zipfian.next( max );
-        return max - zipfian.next();
+        return max - zipfianGenerator.next();
     }
 }

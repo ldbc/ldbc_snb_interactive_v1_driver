@@ -32,7 +32,7 @@ public class ExponentialGeneratorTest extends NumberGeneratorTest<Long, Integer>
     @Override
     public Generator<Long> getGeneratorImpl()
     {
-        return getGeneratorBuilder().newExponentialGenerator( percentile, range ).build();
+        return getGeneratorBuilder().exponentialGenerator( percentile, range ).build();
         // TODO test this too
         // return getGeneratorFactory().newExponentialGenerator( mean );
     }

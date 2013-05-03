@@ -44,9 +44,9 @@ public class SimplestWorkload extends Workload
         fieldCount = 10;
 
         // field key name
-        fieldNameGenerator = generatorBuilder.newUniformNumberGenerator( (long) 0, (long) ( fieldCount - 1 ) ).build();
+        fieldNameGenerator = generatorBuilder.uniformNumberGenerator( (long) 0, (long) ( fieldCount - 1 ) ).build();
         // field value size: length in bytes
-        fieldLengthGenerator = generatorBuilder.newUniformNumberGenerator( 1l, 100l ).build();
+        fieldLengthGenerator = generatorBuilder.uniformNumberGenerator( 1l, 100l ).build();
 
         // proportion of transactions reads/update/insert/scan/read-modify-write
         ArrayList<Pair<Double, Object>> operations = new ArrayList<Pair<Double, Object>>();
@@ -57,11 +57,11 @@ public class SimplestWorkload extends Workload
         operations.add( new Pair<Double, Object>( 0.00, "READMODIFYWRITE" ) );
 
         // distribution of requests across keyspace
-        keyGenerator = generatorBuilder.newUniformNumberGenerator( 0l, ( recordCount - 1 ) ).build();
+        keyGenerator = generatorBuilder.uniformNumberGenerator( 0l, ( recordCount - 1 ) ).build();
 
         // max scan length (number of records)
         long maxScanlength = 1000;
-        scanLengthGenerator = generatorBuilder.newUniformNumberGenerator( 1l, maxScanlength ).build();
+        scanLengthGenerator = generatorBuilder.uniformNumberGenerator( 1l, maxScanlength ).build();
 
         // read one field (false) or all fields (true) of a record
         readAllFields = true;
@@ -87,11 +87,11 @@ public class SimplestWorkload extends Workload
         */
         long insertStart = Long.parseLong( Utils.mapGetDefault( properties, Workload.INSERT_START,
                 Workload.INSERT_START_DEFAULT ) );
-        keySequenceGenerator = generatorBuilder.newCounterGenerator( insertStart, 1l ).build();
+        keySequenceGenerator = generatorBuilder.counterGenerator( insertStart, 1l ).build();
 
-        operationGenerator = generatorBuilder.newDiscreteGenerator( operations ).build();
+        operationGenerator = generatorBuilder.discreteGenerator( operations ).build();
 
-        transactionInsertKeySequenceGenerator = generatorBuilder.newCounterGenerator( recordCount, 1l ).build();
+        transactionInsertKeySequenceGenerator = generatorBuilder.counterGenerator( recordCount, 1l ).build();
     }
 
     /**

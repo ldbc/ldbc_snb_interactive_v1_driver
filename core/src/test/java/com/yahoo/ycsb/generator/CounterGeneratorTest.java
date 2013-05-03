@@ -24,7 +24,7 @@ public class CounterGeneratorTest extends NumberGeneratorTest<Long, Long>
     @Override
     public Generator<Long> getGeneratorImpl()
     {
-        return getGeneratorBuilder().newCounterGenerator( start, 1l ).build();
+        return getGeneratorBuilder().counterGenerator( start, 1l ).build();
     }
 
     @Override
