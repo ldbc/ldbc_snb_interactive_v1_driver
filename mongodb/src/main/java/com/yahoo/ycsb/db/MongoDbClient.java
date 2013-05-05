@@ -16,6 +16,11 @@ import java.util.Set;
 import java.util.Vector;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import com.ldbc.DB;
+import com.ldbc.DBException;
+import com.ldbc.util.ByteArrayByteIterator;
+import com.ldbc.util.ByteIterator;
+import com.ldbc.util.Utils;
 import com.mongodb.BasicDBObject;
 import com.mongodb.DBAddress;
 import com.mongodb.DBCollection;
@@ -25,11 +30,6 @@ import com.mongodb.Mongo;
 import com.mongodb.MongoOptions;
 import com.mongodb.WriteConcern;
 import com.mongodb.WriteResult;
-import com.yahoo.ycsb.DB;
-import com.yahoo.ycsb.DBException;
-import com.yahoo.ycsb.util.ByteArrayByteIterator;
-import com.yahoo.ycsb.util.ByteIterator;
-import com.yahoo.ycsb.util.Utils;
 
 /**
  * MongoDB client for YCSB framework.

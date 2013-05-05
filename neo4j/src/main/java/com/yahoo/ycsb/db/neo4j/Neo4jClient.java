@@ -13,11 +13,11 @@ import java.util.Vector;
 
 import org.apache.log4j.Logger;
 
+import com.ldbc.DB;
+import com.ldbc.DBException;
+import com.ldbc.util.ByteIterator;
+import com.ldbc.util.Utils;
 import com.sun.jersey.api.client.ClientHandlerException;
-import com.yahoo.ycsb.DB;
-import com.yahoo.ycsb.DBException;
-import com.yahoo.ycsb.util.ByteIterator;
-import com.yahoo.ycsb.util.Utils;
 
 /**
  * Neo4j client for YCSB framework.

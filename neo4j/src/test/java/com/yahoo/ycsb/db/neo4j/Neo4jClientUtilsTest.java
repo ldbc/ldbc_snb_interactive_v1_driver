@@ -9,9 +9,9 @@ import java.util.Set;
 
 import org.junit.Test;
 
+import com.ldbc.util.ByteIterator;
+import com.ldbc.util.StringByteIterator;
 import com.yahoo.ycsb.db.neo4j.Neo4jClientUtils;
-import com.yahoo.ycsb.util.ByteIterator;
-import com.yahoo.ycsb.util.StringByteIterator;
 
 public class Neo4jClientUtilsTest
 {

@@ -4,9 +4,9 @@
  */
 package com.yahoo.ycsb.db;
 
-import com.yahoo.ycsb.DBException;
-import com.yahoo.ycsb.util.ByteIterator;
-import com.yahoo.ycsb.util.StringByteIterator;
+import com.ldbc.DBException;
+import com.ldbc.util.ByteIterator;
+import com.ldbc.util.StringByteIterator;
 
 import java.util.HashMap;
 import java.util.Map;

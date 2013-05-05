@@ -13,9 +13,9 @@ import org.neo4j.graphdb.factory.GraphDatabaseFactory;
 import org.neo4j.graphdb.index.AutoIndexer;
 import org.neo4j.helpers.collection.MapUtil;
 
-import com.yahoo.ycsb.DBException;
-import com.yahoo.ycsb.util.ByteIterator;
-import com.yahoo.ycsb.util.StringByteIterator;
+import com.ldbc.DBException;
+import com.ldbc.util.ByteIterator;
+import com.ldbc.util.StringByteIterator;
 
 public class Neo4jClientCommandsEmbedded implements Neo4jClientCommands
 {

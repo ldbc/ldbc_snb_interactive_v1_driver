@@ -15,11 +15,11 @@ import voldemort.client.StoreClient;
 import voldemort.versioning.VectorClock;
 import voldemort.versioning.Versioned;
 
-import com.yahoo.ycsb.DB;
-import com.yahoo.ycsb.DBException;
-import com.yahoo.ycsb.util.ByteIterator;
-import com.yahoo.ycsb.util.StringByteIterator;
-import com.yahoo.ycsb.util.Utils;
+import com.ldbc.DB;
+import com.ldbc.DBException;
+import com.ldbc.util.ByteIterator;
+import com.ldbc.util.StringByteIterator;
+import com.ldbc.util.Utils;
 
 public class VoldemortClient extends DB
 {

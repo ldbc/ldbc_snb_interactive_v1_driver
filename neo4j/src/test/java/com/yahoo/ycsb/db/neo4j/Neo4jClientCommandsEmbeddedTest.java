@@ -7,7 +7,7 @@ import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.neo4j.kernel.impl.util.FileUtils;
 
-import com.yahoo.ycsb.DBException;
+import com.ldbc.DBException;
 import com.yahoo.ycsb.db.neo4j.Neo4jClientCommands;
 import com.yahoo.ycsb.db.neo4j.Neo4jClientCommandsEmbedded;
 

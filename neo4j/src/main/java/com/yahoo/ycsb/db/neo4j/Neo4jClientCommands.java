@@ -4,8 +4,8 @@ import java.util.Map;
 import java.util.Set;
 import java.util.Vector;
 
-import com.yahoo.ycsb.DBException;
-import com.yahoo.ycsb.util.ByteIterator;
+import com.ldbc.DBException;
+import com.ldbc.util.ByteIterator;
 
 public interface Neo4jClientCommands
 {

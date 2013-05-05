@@ -13,11 +13,11 @@ import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
 
-import com.yahoo.ycsb.DBException;
+import com.ldbc.DBException;
+import com.ldbc.util.ByteArrayByteIterator;
+import com.ldbc.util.ByteIterator;
+import com.ldbc.util.StringByteIterator;
 import com.yahoo.ycsb.db.neo4j.Neo4jClientCommands;
-import com.yahoo.ycsb.util.ByteArrayByteIterator;
-import com.yahoo.ycsb.util.ByteIterator;
-import com.yahoo.ycsb.util.StringByteIterator;
 
 public abstract class Neo4jClientCommandsTest
 {

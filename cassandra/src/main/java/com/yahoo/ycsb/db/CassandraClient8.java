@@ -17,9 +17,9 @@
 
 package com.yahoo.ycsb.db;
 
-import com.yahoo.ycsb.DB;
-import com.yahoo.ycsb.DBException;
-import com.yahoo.ycsb.util.*;
+import com.ldbc.DB;
+import com.ldbc.DBException;
+import com.ldbc.util.*;
 
 import java.util.ArrayList;
 import java.util.List;

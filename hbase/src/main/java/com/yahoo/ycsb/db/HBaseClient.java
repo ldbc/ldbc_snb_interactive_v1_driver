@@ -17,7 +17,10 @@
 
 package com.yahoo.ycsb.db;
 
-import com.yahoo.ycsb.DBException;
+import com.ldbc.DBException;
+import com.ldbc.measurements.Measurements;
+import com.ldbc.util.ByteArrayByteIterator;
+import com.ldbc.util.ByteIterator;
 
 import java.io.IOException;
 import java.util.*;
@@ -26,9 +29,6 @@ import java.util.*;
 //import java.util.Set;
 //import java.util.Vector;
 
-import com.yahoo.ycsb.measurements.Measurements;
-import com.yahoo.ycsb.util.ByteArrayByteIterator;
-import com.yahoo.ycsb.util.ByteIterator;
 
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.hbase.KeyValue;
@@ -48,7 +48,7 @@ import org.apache.hadoop.hbase.HBaseConfiguration;
 /**
  * HBase client for YCSB framework
  */
-public class HBaseClient extends com.yahoo.ycsb.DB
+public class HBaseClient extends com.ldbc.DB
 {
     // BFC: Change to fix broken build (with HBase 0.20.6)
     // private static final Configuration config = HBaseConfiguration.create();
