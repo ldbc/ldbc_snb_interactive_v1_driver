@@ -80,8 +80,7 @@ public class Neo4jClientCommandsEmbedded implements Neo4jClientCommands
         return result;
     }
 
-    public Vector<HashMap<String, ByteIterator>> scan( String table, String startkey, int recordcount,
-            Set<String> fields )
+    public Vector<Map<String, ByteIterator>> scan( String table, String startkey, int recordcount, Set<String> fields )
     {
         throw new UnsupportedOperationException( "SCAN not supported" );
     }

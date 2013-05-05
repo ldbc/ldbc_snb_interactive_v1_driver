@@ -9,7 +9,6 @@ import com.yahoo.ycsb.util.Utils;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.Properties;
 import java.util.Set;
 import java.util.Vector;
 import org.elasticsearch.action.get.GetResponse;
@@ -116,7 +115,7 @@ public class ElasticSearchClient extends DB
      *         description for a discussion of error codes.
      */
     @Override
-    public int insert( String table, String key, HashMap<String, ByteIterator> values )
+    public int insert( String table, String key, Map<String, ByteIterator> values )
     {
         try
         {
@@ -174,7 +173,7 @@ public class ElasticSearchClient extends DB
      * @return Zero on success, a non-zero error code on error or "not found".
      */
     @Override
-    public int read( String table, String key, Set<String> fields, HashMap<String, ByteIterator> result )
+    public int read( String table, String key, Set<String> fields, Map<String, ByteIterator> result )
     {
         try
         {
@@ -218,7 +217,7 @@ public class ElasticSearchClient extends DB
      *         description for a discussion of error codes.
      */
     @Override
-    public int update( String table, String key, HashMap<String, ByteIterator> values )
+    public int update( String table, String key, Map<String, ByteIterator> values )
     {
         try
         {
@@ -259,7 +258,7 @@ public class ElasticSearchClient extends DB
      */
     @Override
     public int scan( String table, String startkey, int recordcount, Set<String> fields,
-            Vector<HashMap<String, ByteIterator>> result )
+            Vector<Map<String, ByteIterator>> result )
     {
         try
         {

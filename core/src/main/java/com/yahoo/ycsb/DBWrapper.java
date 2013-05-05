@@ -17,7 +17,6 @@
 
 package com.yahoo.ycsb;
 
-import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 import java.util.Vector;
@@ -93,7 +92,7 @@ public class DBWrapper extends DB
      * @param result A HashMap of field/value pairs for the result
      * @return Zero on success, a non-zero error code on error
      */
-    public int read( String table, String key, Set<String> fields, HashMap<String, ByteIterator> result )
+    public int read( String table, String key, Set<String> fields, Map<String, ByteIterator> result )
     {
         long startTime = System.nanoTime();
         int resultCode = db.read( table, key, fields, result );
@@ -116,7 +115,7 @@ public class DBWrapper extends DB
      * @return Zero on success, a non-zero error code on error
      */
     public int scan( String table, String startKey, int recordCount, Set<String> fields,
-            Vector<HashMap<String, ByteIterator>> result )
+            Vector<Map<String, ByteIterator>> result )
     {
         long startTime = System.nanoTime();
         int resultCode = db.scan( table, startKey, recordCount, fields, result );
@@ -136,7 +135,7 @@ public class DBWrapper extends DB
      * @param values A HashMap of field/value pairs to update in the record
      * @return Zero on success, a non-zero error code on error
      */
-    public int update( String table, String key, HashMap<String, ByteIterator> values )
+    public int update( String table, String key, Map<String, ByteIterator> values )
     {
         long startTime = System.nanoTime();
         int resultCode = db.update( table, key, values );
@@ -156,7 +155,7 @@ public class DBWrapper extends DB
      * @param values A HashMap of field/value pairs to insert in the record
      * @return Zero on success, a non-zero error code on error
      */
-    public int insert( String table, String key, HashMap<String, ByteIterator> values )
+    public int insert( String table, String key, Map<String, ByteIterator> values )
     {
         long startTime = System.nanoTime();
         int resultCode = db.insert( table, key, values );

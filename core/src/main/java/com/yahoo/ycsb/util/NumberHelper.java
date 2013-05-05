@@ -31,16 +31,18 @@ public abstract class NumberHelper<T extends Number>
         return sum;
     }
 
-    public abstract T inc( T a );
-
-    public abstract T zero();
-
     public final T one()
     {
         return inc( zero() );
     }
 
+    public abstract T inc( T a );
+
+    public abstract T zero();
+
     public abstract T sum( T a, T b );
+
+    public abstract T sub( T a, T b );
 
     public abstract T div( T a, T b );
 
@@ -51,6 +53,10 @@ public abstract class NumberHelper<T extends Number>
     public abstract T round( Number number );
 
     public abstract T uniform( RandomDataGenerator random, T min, T max );
+
+    public abstract boolean lt( T a, T b );
+
+    public abstract boolean gt( T a, T b );
 
     public static <T1 extends Number> boolean withinTolerance( T1 a, T1 b, Number tolerance )
     {
@@ -76,6 +82,12 @@ public abstract class NumberHelper<T extends Number>
         public Integer sum( Integer a, Integer b )
         {
             return a + b;
+        }
+
+        @Override
+        public Integer sub( Integer a, Integer b )
+        {
+            return a - b;
         }
 
         @Override
@@ -107,6 +119,18 @@ public abstract class NumberHelper<T extends Number>
         {
             return random.nextInt( min, max );
         }
+
+        @Override
+        public boolean lt( Integer a, Integer b )
+        {
+            return a < b;
+        }
+
+        @Override
+        public boolean gt( Integer a, Integer b )
+        {
+            return a > b;
+        }
     }
 
     private static class LongNumberHelper extends NumberHelper<Long>
@@ -127,6 +151,12 @@ public abstract class NumberHelper<T extends Number>
         public Long sum( Long a, Long b )
         {
             return a + b;
+        }
+
+        @Override
+        public Long sub( Long a, Long b )
+        {
+            return a - b;
         }
 
         @Override
@@ -158,6 +188,18 @@ public abstract class NumberHelper<T extends Number>
         {
             return random.nextLong( min, max );
         }
+
+        @Override
+        public boolean lt( Long a, Long b )
+        {
+            return a < b;
+        }
+
+        @Override
+        public boolean gt( Long a, Long b )
+        {
+            return a > b;
+        }
     }
 
     private static class DoubleNumberHelper extends NumberHelper<Double>
@@ -178,6 +220,12 @@ public abstract class NumberHelper<T extends Number>
         public Double sum( Double a, Double b )
         {
             return a + b;
+        }
+
+        @Override
+        public Double sub( Double a, Double b )
+        {
+            return a - b;
         }
 
         @Override
@@ -208,6 +256,18 @@ public abstract class NumberHelper<T extends Number>
         public Double uniform( RandomDataGenerator random, Double min, Double max )
         {
             return random.nextUniform( min, max, true );
+        }
+
+        @Override
+        public boolean lt( Double a, Double b )
+        {
+            return a < b;
+        }
+
+        @Override
+        public boolean gt( Double a, Double b )
+        {
+            return a > b;
         }
     }
 }

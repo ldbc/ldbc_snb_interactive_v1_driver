@@ -7,7 +7,7 @@
 
 package com.yahoo.ycsb.db.neo4j;
 
-import java.util.HashMap;
+import java.util.Map;
 import java.util.Set;
 import java.util.Vector;
 
@@ -144,7 +144,8 @@ public class Neo4jClient extends DB
      * @param result A HashMap of field/value pairs for the result
      * @return Zero on success, a non-zero error code on error
      */
-    public int read( String table, String key, Set<String> fields, HashMap<String, ByteIterator> result )
+    @Override
+    public int read( String table, String key, Set<String> fields, Map<String, ByteIterator> result )
     {
         try
         {
@@ -170,8 +171,9 @@ public class Neo4jClient extends DB
      *            field/value pairs for one record
      * @return Zero on success, a non-zero error code on error
      */
+    @Override
     public int scan( String table, String startkey, int recordcount, Set<String> fields,
-            Vector<HashMap<String, ByteIterator>> result )
+            Vector<Map<String, ByteIterator>> result )
     {
         try
         {
@@ -195,7 +197,8 @@ public class Neo4jClient extends DB
      * @param values A HashMap of field/value pairs to update in the record
      * @return Zero on success, a non-zero error code on error
      */
-    public int update( String table, String key, HashMap<String, ByteIterator> values )
+    @Override
+    public int update( String table, String key, Map<String, ByteIterator> values )
     {
         try
         {
@@ -219,7 +222,8 @@ public class Neo4jClient extends DB
      * @param values A HashMap of field/value pairs to insert in the record
      * @return Zero on success, a non-zero error code on error
      */
-    public int insert( String table, String key, HashMap<String, ByteIterator> values )
+    @Override
+    public int insert( String table, String key, Map<String, ByteIterator> values )
     {
         try
         {
@@ -240,6 +244,7 @@ public class Neo4jClient extends DB
      * @param key The record key of the record to delete.
      * @return Zero on success, a non-zero error code on error
      */
+    @Override
     public int delete( String table, String key )
     {
         try

@@ -29,7 +29,6 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Vector;
 import java.util.Random;
-import java.util.Properties;
 import java.nio.ByteBuffer;
 
 import org.apache.thrift.transport.TTransport;
@@ -84,6 +83,7 @@ public class CassandraClient7 extends DB
      * Initialize any state for this DB. Called once per DB instance; there is
      * one DB instance per client thread.
      */
+    @Override
     public void init() throws DBException
     {
         String hosts = getProperties().get( "hosts" );
@@ -161,6 +161,7 @@ public class CassandraClient7 extends DB
      * Cleanup any state for this DB. Called once per DB instance; there is one
      * DB instance per client thread.
      */
+    @Override
     public void cleanup() throws DBException
     {
         tr.close();
@@ -176,7 +177,8 @@ public class CassandraClient7 extends DB
      * @param result A HashMap of field/value pairs for the result
      * @return Zero on success, a non-zero error code on error
      */
-    public int read( String table, String key, Set<String> fields, HashMap<String, ByteIterator> result )
+    @Override
+    public int read( String table, String key, Set<String> fields, Map<String, ByteIterator> result )
     {
         if ( !_table.equals( table ) )
         {
@@ -283,8 +285,9 @@ public class CassandraClient7 extends DB
      *            field/value pairs for one record
      * @return Zero on success, a non-zero error code on error
      */
+    @Override
     public int scan( String table, String startkey, int recordcount, Set<String> fields,
-            Vector<HashMap<String, ByteIterator>> result )
+            Vector<Map<String, ByteIterator>> result )
     {
         if ( !_table.equals( table ) )
         {
@@ -395,7 +398,8 @@ public class CassandraClient7 extends DB
      * @param values A HashMap of field/value pairs to update in the record
      * @return Zero on success, a non-zero error code on error
      */
-    public int update( String table, String key, HashMap<String, ByteIterator> values )
+    @Override
+    public int update( String table, String key, Map<String, ByteIterator> values )
     {
         return insert( table, key, values );
     }
@@ -410,7 +414,8 @@ public class CassandraClient7 extends DB
      * @param values A HashMap of field/value pairs to insert in the record
      * @return Zero on success, a non-zero error code on error
      */
-    public int insert( String table, String key, HashMap<String, ByteIterator> values )
+    @Override
+    public int insert( String table, String key, Map<String, ByteIterator> values )
     {
         if ( !_table.equals( table ) )
         {

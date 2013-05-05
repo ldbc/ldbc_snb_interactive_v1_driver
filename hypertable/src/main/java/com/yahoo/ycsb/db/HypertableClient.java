@@ -129,7 +129,7 @@ public class HypertableClient extends com.yahoo.ycsb.DB
      * @return Zero on success, a non-zero error code on error
      */
     @Override
-    public int read( String table, String key, Set<String> fields, HashMap<String, ByteIterator> result )
+    public int read( String table, String key, Set<String> fields, Map<String, ByteIterator> result )
     {
         // SELECT _column_family:field[i]
         // FROM table WHERE ROW=key MAX_VERSIONS 1;
@@ -144,7 +144,7 @@ public class HypertableClient extends com.yahoo.ycsb.DB
         {
             if ( null != fields )
             {
-                Vector<HashMap<String, ByteIterator>> resMap = new Vector<HashMap<String, ByteIterator>>();
+                Vector<Map<String, ByteIterator>> resMap = new Vector<Map<String, ByteIterator>>();
                 if ( 0 != scan( table, key, 1, fields, resMap ) )
                 {
                     return SERVERERROR;
@@ -193,7 +193,7 @@ public class HypertableClient extends com.yahoo.ycsb.DB
      */
     @Override
     public int scan( String table, String startkey, int recordcount, Set<String> fields,
-            Vector<HashMap<String, ByteIterator>> result )
+            Vector<Map<String, ByteIterator>> result )
     {
         // SELECT _columnFamily:fields FROM table WHERE (ROW >= startkey)
         // LIMIT recordcount MAX_VERSIONS 1;
@@ -272,7 +272,7 @@ public class HypertableClient extends com.yahoo.ycsb.DB
      * @return Zero on success, a non-zero error code on error
      */
     @Override
-    public int update( String table, String key, HashMap<String, ByteIterator> values )
+    public int update( String table, String key, Map<String, ByteIterator> values )
     {
         return insert( table, key, values );
     }
@@ -288,7 +288,7 @@ public class HypertableClient extends com.yahoo.ycsb.DB
      * @return Zero on success, a non-zero error code on error
      */
     @Override
-    public int insert( String table, String key, HashMap<String, ByteIterator> values )
+    public int insert( String table, String key, Map<String, ByteIterator> values )
     {
         // INSERT INTO table VALUES
         // (key, _column_family:entry,getKey(), entry.getValue()), (...);

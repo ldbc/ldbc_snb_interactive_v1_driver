@@ -3,7 +3,6 @@ package com.yahoo.ycsb.db;
 import java.nio.ByteBuffer;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Properties;
 import java.util.Set;
 import java.util.Vector;
 
@@ -24,7 +23,6 @@ import com.yahoo.ycsb.DB;
 import com.yahoo.ycsb.util.ByteIterator;
 import com.yahoo.ycsb.util.StringByteIterator;
 import com.yahoo.ycsb.util.Utils;
-import com.yahoo.ycsb.workloads.CoreWorkload;
 import com.yahoo.ycsb.workloads.CoreWorkloadProperties;
 
 public class MapKeeperClient extends DB
@@ -67,7 +65,7 @@ public class MapKeeperClient extends DB
                 CoreWorkloadProperties.WRITE_ALL_FIELDS, CoreWorkloadProperties.WRITE_ALL_FIELDS_DEFAULT ) );
     }
 
-    ByteBuffer encode( HashMap<String, ByteIterator> values )
+    ByteBuffer encode( Map<String, ByteIterator> values )
     {
         int len = 0;
         for ( String k : values.keySet() )
@@ -97,7 +95,7 @@ public class MapKeeperClient extends DB
         return buf;
     }
 
-    void decode( Set<String> fields, String tups, HashMap<String, ByteIterator> tup )
+    void decode( Set<String> fields, String tups, Map<String, ByteIterator> tup )
     {
         String[] tok = tups.split( "\\t" );
         if ( tok.length == 0 )
@@ -145,7 +143,7 @@ public class MapKeeperClient extends DB
     }
 
     @Override
-    public int read( String table, String key, Set<String> fields, HashMap<String, ByteIterator> result )
+    public int read( String table, String key, Set<String> fields, Map<String, ByteIterator> result )
     {
         try
         {
@@ -170,7 +168,7 @@ public class MapKeeperClient extends DB
 
     @Override
     public int scan( String table, String startkey, int recordcount, Set<String> fields,
-            Vector<HashMap<String, ByteIterator>> result )
+            Vector<Map<String, ByteIterator>> result )
     {
         try
         {
@@ -203,7 +201,7 @@ public class MapKeeperClient extends DB
     }
 
     @Override
-    public int update( String table, String key, HashMap<String, ByteIterator> values )
+    public int update( String table, String key, Map<String, ByteIterator> values )
     {
         try
         {
@@ -228,7 +226,7 @@ public class MapKeeperClient extends DB
     }
 
     @Override
-    public int insert( String table, String key, HashMap<String, ByteIterator> values )
+    public int insert( String table, String key, Map<String, ByteIterator> values )
     {
         try
         {

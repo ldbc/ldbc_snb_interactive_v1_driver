@@ -1,6 +1,5 @@
 package com.yahoo.ycsb.db.neo4j;
 
-import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 import java.util.Vector;
@@ -14,10 +13,10 @@ public interface Neo4jClientCommands
 
     public void cleanUp();
 
-    public HashMap<String, ByteIterator> read( String table, String key, Set<String> fields ) throws DBException;
+    public Map<String, ByteIterator> read( String table, String key, Set<String> fields ) throws DBException;
 
-    public Vector<HashMap<String, ByteIterator>> scan( String table, String startkey, int recordcount,
-            Set<String> fields ) throws DBException;
+    public Vector<Map<String, ByteIterator>> scan( String table, String startkey, int recordcount, Set<String> fields )
+            throws DBException;
 
     public void update( String table, String key, Map<String, ByteIterator> values ) throws DBException;
 

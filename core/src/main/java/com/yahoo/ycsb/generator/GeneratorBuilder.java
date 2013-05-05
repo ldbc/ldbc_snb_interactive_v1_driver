@@ -7,6 +7,7 @@ import com.yahoo.ycsb.generator.ycsb.HotspotGenerator;
 import com.yahoo.ycsb.generator.ycsb.ScrambledZipfianGenerator;
 import com.yahoo.ycsb.generator.ycsb.SkewedLatestGenerator;
 import com.yahoo.ycsb.generator.ycsb.ZipfianGenerator;
+import com.yahoo.ycsb.generator.ycsb.ZipfianNumberGenerator;
 import com.yahoo.ycsb.util.Pair;
 import com.yahoo.ycsb.util.RandomDataGeneratorFactory;
 
@@ -65,7 +66,7 @@ public class GeneratorBuilder
     public <T> GeneratorBuilderDelegate<DiscreteMultiGenerator<T>, T> discreteMultiGenerator(
             Iterable<Pair<Double, T>> pairs, Integer amountToRetrieve )
     {
-        Generator<Integer> amountToRetrieveGenerator = constantNumberGenerator( amountToRetrieve ).build();
+        Generator<Integer> amountToRetrieveGenerator = constantGenerator( amountToRetrieve ).build();
         DiscreteMultiGenerator<T> generator = new DiscreteMultiGenerator<T>( getRandom(), pairs,
                 amountToRetrieveGenerator );
         return new GeneratorBuilderDelegate<DiscreteMultiGenerator<T>, T>( generator );
@@ -94,11 +95,10 @@ public class GeneratorBuilder
         return new NumberGeneratorBuilderDelegate<GrowingRangeUniformNumberGenerator<T>, T>( generator );
     }
 
-    public <T extends Number> NumberGeneratorBuilderDelegate<ConstantNumberGenerator<T>, T> constantNumberGenerator(
-            T constant )
+    public <T> GeneratorBuilderDelegate<ConstantGenerator<T>, T> constantGenerator( T constant )
     {
-        ConstantNumberGenerator<T> generator = new ConstantNumberGenerator<T>( getRandom(), constant );
-        return new NumberGeneratorBuilderDelegate<ConstantNumberGenerator<T>, T>( generator );
+        ConstantGenerator<T> generator = new ConstantGenerator<T>( getRandom(), constant );
+        return new GeneratorBuilderDelegate<ConstantGenerator<T>, T>( generator );
     }
 
     public <T extends Number> NumberGeneratorBuilderDelegate<CounterGenerator<T>, T> counterGenerator( T start,
@@ -108,13 +108,37 @@ public class GeneratorBuilder
         return new NumberGeneratorBuilderDelegate<CounterGenerator<T>, T>( generator );
     }
 
+    public <T extends Number> NumberGeneratorBuilderDelegate<ZipfianNumberGenerator<T>, T> zipfianNumberGenerator(
+            T lowerBound, T upperBound )
+    {
+        return zipfianNumberGenerator( lowerBound, upperBound, ZipfianGenerator.ZIPFIAN_CONSTANT );
+    }
+
+    public <T extends Number> NumberGeneratorBuilderDelegate<ZipfianNumberGenerator<T>, T> zipfianNumberGenerator(
+            T lowerBound, T upperBound, double zipfianConstant )
+    {
+        ZipfianNumberGenerator<T> generator = new ZipfianNumberGenerator<T>( getRandom(), lowerBound, upperBound,
+                zipfianConstant );
+        return new NumberGeneratorBuilderDelegate<ZipfianNumberGenerator<T>, T>( generator );
+    }
+
+    public <T extends Number> NumberGeneratorBuilderDelegate<ZipfianNumberGenerator<T>, T> zipfianNumberGenerator(
+            T lowerBound, T upperBound, double zipfianConstant, double zetan )
+    {
+        ZipfianNumberGenerator<T> generator = new ZipfianNumberGenerator<T>( getRandom(), lowerBound, upperBound,
+                zipfianConstant, zetan );
+        return new NumberGeneratorBuilderDelegate<ZipfianNumberGenerator<T>, T>( generator );
+    }
+
     // TODO Generic
+    @Deprecated
     public NumberGeneratorBuilderDelegate<ZipfianGenerator, Long> zipfianGenerator( Long lowerBound, Long upperBound )
     {
         return zipfianGenerator( lowerBound, upperBound, ZipfianGenerator.ZIPFIAN_CONSTANT );
     }
 
     // TODO Generic
+    @Deprecated
     public NumberGeneratorBuilderDelegate<ZipfianGenerator, Long> zipfianGenerator( Long lowerBound, Long upperBound,
             double zipfianConstant )
     {
@@ -123,6 +147,7 @@ public class GeneratorBuilder
     }
 
     // TODO Generic
+    @Deprecated
     public NumberGeneratorBuilderDelegate<ZipfianGenerator, Long> zipfianGenerator( Long lowerBound, Long upperBound,
             double zipfianConstant, double zetan )
     {

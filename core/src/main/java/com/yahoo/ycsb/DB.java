@@ -24,7 +24,6 @@ import java.util.Vector;
 
 import com.yahoo.ycsb.util.ByteIterator;
 
-
 /**
  * A layer for accessing a database to be benchmarked. Each thread in the client
  * will be given its own instance of whatever DB class is to be used in the
@@ -51,14 +50,14 @@ public abstract class DB
     /**
      * Properties for configuring this DB.
      */
-    Map<String, String> _p = new HashMap<String, String>();
+    Map<String, String> properties = new HashMap<String, String>();
 
     /**
      * Set the properties for this DB.
      */
-    public void setProperties( Map<String, String> p )
+    public void setProperties( Map<String, String> properties )
     {
-        _p = p;
+        this.properties = properties;
 
     }
 
@@ -67,7 +66,7 @@ public abstract class DB
      */
     public Map<String, String> getProperties()
     {
-        return _p;
+        return properties;
     }
 
     /**
@@ -96,7 +95,7 @@ public abstract class DB
      * @param result A HashMap of field/value pairs for the result
      * @return Zero on success, a non-zero error code on error or "not found".
      */
-    public abstract int read( String table, String key, Set<String> fields, HashMap<String, ByteIterator> result );
+    public abstract int read( String table, String key, Set<String> fields, Map<String, ByteIterator> result );
 
     /**
      * Perform a range scan for a set of records in the database. Each
@@ -112,7 +111,7 @@ public abstract class DB
      *         description for a discussion of error codes.
      */
     public abstract int scan( String table, String startkey, int recordcount, Set<String> fields,
-            Vector<HashMap<String, ByteIterator>> result );
+            Vector<Map<String, ByteIterator>> result );
 
     /**
      * Update a record in the database. Any field/value pairs in the specified
@@ -125,7 +124,7 @@ public abstract class DB
      * @return Zero on success, a non-zero error code on error. See this class's
      *         description for a discussion of error codes.
      */
-    public abstract int update( String table, String key, HashMap<String, ByteIterator> values );
+    public abstract int update( String table, String key, Map<String, ByteIterator> values );
 
     /**
      * Insert a record in the database. Any field/value pairs in the specified
@@ -138,7 +137,7 @@ public abstract class DB
      * @return Zero on success, a non-zero error code on error. See this class's
      *         description for a discussion of error codes.
      */
-    public abstract int insert( String table, String key, HashMap<String, ByteIterator> values );
+    public abstract int insert( String table, String key, Map<String, ByteIterator> values );
 
     /**
      * Delete a record from the database.

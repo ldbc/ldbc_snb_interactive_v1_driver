@@ -17,7 +17,6 @@
 
 package com.yahoo.ycsb;
 
-import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
@@ -110,7 +109,7 @@ public class BasicDB extends DB
      * @param result A HashMap of field/value pairs for the result
      * @return Zero on success, a non-zero error code on error
      */
-    public int read( String table, String key, Set<String> fields, HashMap<String, ByteIterator> result )
+    public int read( String table, String key, Set<String> fields, Map<String, ByteIterator> result )
     {
         delay();
 
@@ -148,7 +147,7 @@ public class BasicDB extends DB
      * @return Zero on success, a non-zero error code on error
      */
     public int scan( String table, String startkey, int recordcount, Set<String> fields,
-            Vector<HashMap<String, ByteIterator>> result )
+            Vector<Map<String, ByteIterator>> result )
     {
         delay();
 
@@ -183,7 +182,7 @@ public class BasicDB extends DB
      * @param values A HashMap of field/value pairs to update in the record
      * @return Zero on success, a non-zero error code on error
      */
-    public int update( String table, String key, HashMap<String, ByteIterator> values )
+    public int update( String table, String key, Map<String, ByteIterator> values )
     {
         delay();
 
@@ -213,7 +212,7 @@ public class BasicDB extends DB
      * @param values A HashMap of field/value pairs to insert in the record
      * @return Zero on success, a non-zero error code on error
      */
-    public int insert( String table, String key, HashMap<String, ByteIterator> values )
+    public int insert( String table, String key, Map<String, ByteIterator> values )
     {
         delay();
 

@@ -12,7 +12,6 @@ package com.yahoo.ycsb.db;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
-import java.util.Properties;
 import java.util.Set;
 import java.util.Vector;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -209,7 +208,7 @@ public class MongoDbClient extends DB
      *         description for a discussion of error codes.
      */
     @Override
-    public int insert( String table, String key, HashMap<String, ByteIterator> values )
+    public int insert( String table, String key, Map<String, ByteIterator> values )
     {
         com.mongodb.DB db = null;
         try
@@ -253,7 +252,7 @@ public class MongoDbClient extends DB
      */
     @Override
     @SuppressWarnings( "unchecked" )
-    public int read( String table, String key, Set<String> fields, HashMap<String, ByteIterator> result )
+    public int read( String table, String key, Set<String> fields, Map<String, ByteIterator> result )
     {
         com.mongodb.DB db = null;
         try
@@ -313,7 +312,7 @@ public class MongoDbClient extends DB
      *         description for a discussion of error codes.
      */
     @Override
-    public int update( String table, String key, HashMap<String, ByteIterator> values )
+    public int update( String table, String key, Map<String, ByteIterator> values )
     {
         com.mongodb.DB db = null;
         try
@@ -366,7 +365,7 @@ public class MongoDbClient extends DB
      */
     @Override
     public int scan( String table, String startkey, int recordcount, Set<String> fields,
-            Vector<HashMap<String, ByteIterator>> result )
+            Vector<Map<String, ByteIterator>> result )
     {
         com.mongodb.DB db = null;
         try

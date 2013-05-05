@@ -18,20 +18,19 @@ package com.yahoo.ycsb.util;
 
 import org.apache.commons.math3.random.RandomDataGenerator;
 
-
 /**
  * A ByteIterator that generates a random sequence of bytes.
  */
 public class RandomByteIterator extends ByteIterator
 {
-    private long length;
-    private long offset;
+    private int length;
+    private int offset;
     private int bufferOffset;
     private byte[] buffer;
 
     private final RandomDataGenerator rdg;
 
-    public RandomByteIterator( long length, RandomDataGenerator rdg )
+    public RandomByteIterator( int length, RandomDataGenerator rdg )
     {
         this.length = length;
         this.buffer = new byte[6];
@@ -106,7 +105,7 @@ public class RandomByteIterator extends ByteIterator
     }
 
     @Override
-    public long bytesLeft()
+    public int bytesLeft()
     {
         return length - offset - bufferOffset;
     }

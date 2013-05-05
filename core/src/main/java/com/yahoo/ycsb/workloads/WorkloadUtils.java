@@ -1,6 +1,9 @@
 package com.yahoo.ycsb.workloads;
 
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
 
 import org.apache.commons.math3.random.RandomDataGenerator;
 
@@ -8,8 +11,10 @@ import com.yahoo.ycsb.DBRecordKey;
 import com.yahoo.ycsb.WorkloadException;
 import com.yahoo.ycsb.generator.Generator;
 import com.yahoo.ycsb.generator.GeneratorBuilder;
+import com.yahoo.ycsb.generator.MinMaxGeneratorWrapper;
 import com.yahoo.ycsb.generator.ycsb.ExponentialGenerator;
 import com.yahoo.ycsb.util.ByteIterator;
+import com.yahoo.ycsb.util.Pair;
 import com.yahoo.ycsb.util.RandomByteIterator;
 
 public class WorkloadUtils
@@ -17,30 +22,15 @@ public class WorkloadUtils
     // TODO temp, this should be given in the constructor, remove later
     static RandomDataGenerator random = new RandomDataGenerator();
 
-    // Build map for updating the values of all fields
-    public static HashMap<String, ByteIterator> buildRecordWithAllFields( long fieldCount,
-            Generator<Long> valueLengthGenerator, String fieldNamePrefix ) throws WorkloadException
+    public static Map<String, ByteIterator> buildValuedFields( Generator<Set<String>> fieldSelectionGenerator,
+            Generator<Integer> valueLengthGenerator ) throws WorkloadException
     {
-        HashMap<String, ByteIterator> values = new HashMap<String, ByteIterator>();
-
-        for ( long i = 0; i < fieldCount; i++ )
+        Map<String, ByteIterator> values = new HashMap<String, ByteIterator>();
+        for ( String fieldName : fieldSelectionGenerator.next() )
         {
-            String fieldname = fieldNamePrefix + i;
             ByteIterator data = new RandomByteIterator( valueLengthGenerator.next(), random );
-            values.put( fieldname, data );
+            values.put( fieldName, data );
         }
-
-        return values;
-    }
-
-    // Build map for updating the values of only one, random, field
-    public static HashMap<String, ByteIterator> buildRecordWithOneField( Generator<Long> keyNumberGenerator,
-            Generator<Long> valueLengthGenerator, String keyNamePrefix ) throws WorkloadException
-    {
-        HashMap<String, ByteIterator> values = new HashMap<String, ByteIterator>();
-        String fieldName = keyNamePrefix + keyNumberGenerator.next();
-        ByteIterator data = new RandomByteIterator( valueLengthGenerator.next(), random );
-        values.put( fieldName, data );
         return values;
     }
 
@@ -51,51 +41,75 @@ public class WorkloadUtils
     // Seems to generate random numbers UNTIL it finds one matching a given
     // criteria (e.g. in range)
     // Seems inefficient and generally a bad approach
-    public static DBRecordKey nextKey( Generator<Long> keyChooser, Generator<Long> keySequence )
-            throws WorkloadException
+    public static DBRecordKey nextKey( Generator<Long> requestKeyGenerator,
+            MinMaxGeneratorWrapper<Long> transactionInsertKeyGenerator ) throws WorkloadException
     {
-        // TODO lots of casting here, sign of bad code
         long keyNumber;
-        if ( keyChooser instanceof ExponentialGenerator )
+        if ( requestKeyGenerator instanceof ExponentialGenerator )
         {
             do
             {
-                keyNumber = keySequence.last() - keyChooser.next();
+                keyNumber = transactionInsertKeyGenerator.getMax() - requestKeyGenerator.next();
             }
             while ( keyNumber < 0 );
         }
         else
         {
-            // TODO this bullshit isn't necessary
-            // TODO just generated 0..1 double, then multiply by last()
             do
             {
-                keyNumber = keyChooser.next();
+                keyNumber = requestKeyGenerator.next();
             }
-            while ( keyNumber > keySequence.last() );
+            while ( keyNumber > transactionInsertKeyGenerator.getMax() );
         }
         return new DBRecordKey( keyNumber );
     }
 
-    public static Generator<Long> buildFieldLengthGenerator( GeneratorBuilder generatorBuilder,
-            Distribution distribution, Long lowerBound, Long upperBound, String histogramFilePath )
-            throws WorkloadException
+    public static <T extends Number> Generator<T> buildFieldLengthGenerator( GeneratorBuilder generatorBuilder,
+            Distribution distribution, T lowerBound, T upperBound ) throws WorkloadException
     {
         switch ( distribution )
         {
         case CONSTANT:
-            return generatorBuilder.constantNumberGenerator( upperBound ).build();
-
+            if ( false == lowerBound.equals( upperBound ) )
+            {
+                throw new WorkloadException( "For ConstantGenerator lowerbound must equal upperbound" );
+            }
+            return generatorBuilder.constantGenerator( lowerBound ).build();
         case UNIFORM:
             return generatorBuilder.uniformNumberGenerator( lowerBound, upperBound ).build();
-
         case ZIPFIAN:
-            return generatorBuilder.zipfianGenerator( lowerBound, upperBound ).build();
-
+            return generatorBuilder.zipfianNumberGenerator( lowerBound, upperBound ).build();
         default:
             String errMsg = String.format( "Invalid Distribution [%s], use one of the following: %s, %s, %s, %s",
                     distribution, Distribution.CONSTANT, Distribution.UNIFORM, Distribution.ZIPFIAN );
             throw new WorkloadException( errMsg );
+        }
+    }
+
+    public static Generator<Set<String>> buildFieldSelectionGenerator( GeneratorBuilder generatorBuilder,
+            String fieldNamePrefix, int fieldCount, boolean isReturnAllFields )
+    {
+        if ( false == isReturnAllFields )
+        {
+            Set<Pair<Double, String>> fields = new HashSet<Pair<Double, String>>();
+            for ( int i = 0; i < fieldCount; i++ )
+            {
+                Pair<Double, String> field = new Pair<Double, String>( 1d, fieldNamePrefix + i );
+                fields.add( field );
+            }
+            int fieldsToRetrieve = 1;
+            Generator<Integer> fieldsToRetrieveGenerator = generatorBuilder.constantGenerator( fieldsToRetrieve ).build();
+            return generatorBuilder.discreteMultiGenerator( fields, fieldsToRetrieveGenerator ).build();
+        }
+        else
+        {
+            Set<String> fields = new HashSet<String>();
+            for ( int i = 0; i < fieldCount; i++ )
+            {
+                String field = fieldNamePrefix + i;
+                fields.add( field );
+            }
+            return generatorBuilder.constantGenerator( fields ).build();
         }
     }
 }

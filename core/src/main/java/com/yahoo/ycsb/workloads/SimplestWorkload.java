@@ -2,6 +2,7 @@ package com.yahoo.ycsb.workloads;
 
 import java.util.ArrayList;
 import java.util.Map;
+import java.util.Set;
 
 import com.yahoo.ycsb.Client;
 import com.yahoo.ycsb.DB;
@@ -10,66 +11,67 @@ import com.yahoo.ycsb.Workload;
 import com.yahoo.ycsb.WorkloadException;
 import com.yahoo.ycsb.generator.Generator;
 import com.yahoo.ycsb.generator.GeneratorBuilder;
+import com.yahoo.ycsb.generator.MinMaxGeneratorWrapper;
 import com.yahoo.ycsb.util.Pair;
 import com.yahoo.ycsb.util.Utils;
 
 public class SimplestWorkload extends Workload
 {
-    public static String table;
+    final String KEY_NAME_PREFIX = "user";
+    final String FIELD_NAME_PREFIX = "field";
+    final String TABLE = "usertable";
+    final int NUMBER_OF_FIELDS_IN_A_RECORD = 10;
 
-    int fieldCount;
-    boolean readAllFields;
-    boolean writeAllFields;
-    boolean orderedInserts;
-    long recordCount;
+    boolean IS_ORDERED_INSERTS;
 
-    Generator<Long> keySequenceGenerator;
-    Generator<Long> fieldLengthGenerator;
-    Generator<Long> keyGenerator;
-    Generator<Long> fieldNameGenerator;
-    Generator<Long> scanLengthGenerator;
-    Generator<Long> transactionInsertKeySequenceGenerator;
-    Generator<Object> operationGenerator;
+    Generator<Long> loadInsertKeyGenerator;
+    Generator<Integer> fieldValuelengthGenerator;
+    Generator<Long> requestKeyGenerator;
+    Generator<Set<String>> insertFieldSelectionGenerator;
+    Generator<Set<String>> updateFieldSelectionGenerator;
+    Generator<Set<String>> readFieldSelectionGenerator;
+    Generator<Integer> scanLengthGenerator;
+    MinMaxGeneratorWrapper<Long> transactionInsertKeyGenerator;
+    Generator<String> operationGenerator;
 
-    /**
-     * Called once, in main client thread, before operations are started
-     */
     @Override
     public void init( Map<String, String> properties, GeneratorBuilder generatorBuilder ) throws WorkloadException
     {
         super.init( properties, generatorBuilder );
-        recordCount = Integer.parseInt( properties.get( Client.RECORD_COUNT ) );
-        table = "usertable";
-        // number of fields in a record
-        fieldCount = 10;
-
-        // field key name
-        fieldNameGenerator = generatorBuilder.uniformNumberGenerator( (long) 0, (long) ( fieldCount - 1 ) ).build();
-        // field value size: length in bytes
-        fieldLengthGenerator = generatorBuilder.uniformNumberGenerator( 1l, 100l ).build();
-
-        // proportion of transactions reads/update/insert/scan/read-modify-write
-        ArrayList<Pair<Double, Object>> operations = new ArrayList<Pair<Double, Object>>();
-        operations.add( new Pair<Double, Object>( 0.95, "READ" ) );
-        operations.add( new Pair<Double, Object>( 0.05, "UPDATE" ) );
-        operations.add( new Pair<Double, Object>( 0.00, "INSERT" ) );
-        operations.add( new Pair<Double, Object>( 0.00, "SCAN" ) );
-        operations.add( new Pair<Double, Object>( 0.00, "READMODIFYWRITE" ) );
-
-        // distribution of requests across keyspace
-        keyGenerator = generatorBuilder.uniformNumberGenerator( 0l, ( recordCount - 1 ) ).build();
-
-        // max scan length (number of records)
-        long maxScanlength = 1000;
-        scanLengthGenerator = generatorBuilder.uniformNumberGenerator( 1l, maxScanlength ).build();
+        long recordCount = Long.parseLong( properties.get( Client.RECORD_COUNT ) );
 
         // read one field (false) or all fields (true) of a record
-        readAllFields = true;
+        boolean isReadAllFields = false;
         // write one field (false) or all fields (true) of a record
-        writeAllFields = false;
+        boolean isWriteAllFields = false;
+
+        insertFieldSelectionGenerator = WorkloadUtils.buildFieldSelectionGenerator( generatorBuilder,
+                FIELD_NAME_PREFIX, NUMBER_OF_FIELDS_IN_A_RECORD, true );
+        updateFieldSelectionGenerator = WorkloadUtils.buildFieldSelectionGenerator( generatorBuilder,
+                FIELD_NAME_PREFIX, NUMBER_OF_FIELDS_IN_A_RECORD, isWriteAllFields );
+        readFieldSelectionGenerator = WorkloadUtils.buildFieldSelectionGenerator( generatorBuilder, FIELD_NAME_PREFIX,
+                NUMBER_OF_FIELDS_IN_A_RECORD, isReadAllFields );
+
+        // field value size: length in bytes
+        fieldValuelengthGenerator = generatorBuilder.uniformNumberGenerator( 1, 100 ).build();
+
+        // proportion of transactions reads/update/insert/scan/read-modify-write
+        ArrayList<Pair<Double, String>> operations = new ArrayList<Pair<Double, String>>();
+        operations.add( new Pair<Double, String>( 0.95, "READ" ) );
+        operations.add( new Pair<Double, String>( 0.05, "UPDATE" ) );
+        operations.add( new Pair<Double, String>( 0.00, "INSERT" ) );
+        operations.add( new Pair<Double, String>( 0.00, "SCAN" ) );
+        operations.add( new Pair<Double, String>( 0.00, "READMODIFYWRITE" ) );
+
+        // distribution of requests across keyspace
+        requestKeyGenerator = generatorBuilder.uniformNumberGenerator( 0l, ( recordCount - 1 ) ).build();
+
+        // max scan length (number of records)
+        int maxScanlength = 1000;
+        scanLengthGenerator = generatorBuilder.uniformNumberGenerator( 1, maxScanlength ).build();
 
         // order to insert records: "ordered" (true), "hashed" (false)
-        orderedInserts = false;
+        IS_ORDERED_INSERTS = false;
 
         /* 
          * INSERT_START
@@ -87,26 +89,19 @@ public class SimplestWorkload extends Workload
         */
         long insertStart = Long.parseLong( Utils.mapGetDefault( properties, Workload.INSERT_START,
                 Workload.INSERT_START_DEFAULT ) );
-        keySequenceGenerator = generatorBuilder.counterGenerator( insertStart, 1l ).build();
+        loadInsertKeyGenerator = generatorBuilder.counterGenerator( insertStart, 1l ).build();
 
         operationGenerator = generatorBuilder.discreteGenerator( operations ).build();
 
-        transactionInsertKeySequenceGenerator = generatorBuilder.counterGenerator( recordCount, 1l ).build();
+        transactionInsertKeyGenerator = generatorBuilder.counterGenerator( recordCount, 1l ).withMinMaxLast(
+                recordCount, recordCount ).build();
     }
 
-    /**
-     * One insert operation. Called concurrently from multiple client threads,
-     * must be thread safe. Avoid synchronized or threads will block waiting for
-     * each other, and it will be difficult to reach target throughput. Function
-     * should have no side effects other than DB operations.
-     * 
-     * @throws WorkloadException
-     */
     @Override
     public boolean doInsert( DB db, Object threadstate ) throws WorkloadException
     {
-        return WorkloadOperation.doInsert( db, keySequenceGenerator, orderedInserts, fieldCount, fieldLengthGenerator,
-                table );
+        return WorkloadOperation.doInsert( db, loadInsertKeyGenerator, insertFieldSelectionGenerator,
+                fieldValuelengthGenerator, IS_ORDERED_INSERTS, TABLE );
     }
 
     /**
@@ -123,33 +118,32 @@ public class SimplestWorkload extends Workload
     @Override
     public boolean doTransaction( DB db, Object threadstate ) throws WorkloadException
     {
-        String op = (String) operationGenerator.next();
+        String op = operationGenerator.next();
 
         if ( op.equals( "INSERT" ) )
         {
-            return WorkloadOperation.doInsert( db, transactionInsertKeySequenceGenerator, orderedInserts, fieldCount,
-                    fieldLengthGenerator, table );
+            return WorkloadOperation.doInsert( db, transactionInsertKeyGenerator, insertFieldSelectionGenerator,
+                    fieldValuelengthGenerator, IS_ORDERED_INSERTS, TABLE );
         }
         else if ( op.equals( "READ" ) )
         {
-            return WorkloadOperation.doRead( db, keyGenerator, transactionInsertKeySequenceGenerator, orderedInserts,
-                    readAllFields, fieldNameGenerator, table );
+            return WorkloadOperation.doRead( db, requestKeyGenerator, transactionInsertKeyGenerator,
+                    readFieldSelectionGenerator, IS_ORDERED_INSERTS, TABLE );
         }
         else if ( op.equals( "UPDATE" ) )
         {
-            return WorkloadOperation.doUpdate( db, keyGenerator, transactionInsertKeySequenceGenerator, orderedInserts,
-                    writeAllFields, fieldCount, fieldLengthGenerator, fieldNameGenerator, table );
+            return WorkloadOperation.doUpdate( db, requestKeyGenerator, transactionInsertKeyGenerator,
+                    fieldValuelengthGenerator, readFieldSelectionGenerator, IS_ORDERED_INSERTS, TABLE );
         }
         else if ( op.equals( "SCAN" ) )
         {
-            return WorkloadOperation.doScan( db, keyGenerator, transactionInsertKeySequenceGenerator, orderedInserts,
-                    scanLengthGenerator, readAllFields, fieldNameGenerator, table );
+            return WorkloadOperation.doScan( db, requestKeyGenerator, transactionInsertKeyGenerator,
+                    scanLengthGenerator, readFieldSelectionGenerator, IS_ORDERED_INSERTS, TABLE );
         }
         else if ( op.equals( "READMODIFYWRITE" ) )
         {
-            return WorkloadOperation.doReadModifyWrite( db, keyGenerator, transactionInsertKeySequenceGenerator,
-                    orderedInserts, readAllFields, writeAllFields, fieldNameGenerator, table, fieldCount,
-                    fieldLengthGenerator );
+            return WorkloadOperation.doReadModifyWrite( db, requestKeyGenerator, transactionInsertKeyGenerator,
+                    readFieldSelectionGenerator, fieldValuelengthGenerator, IS_ORDERED_INSERTS, TABLE );
         }
         else
         {

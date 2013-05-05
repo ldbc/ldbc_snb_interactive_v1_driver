@@ -29,7 +29,6 @@ import java.util.*;
 import com.yahoo.ycsb.measurements.Measurements;
 import com.yahoo.ycsb.util.ByteArrayByteIterator;
 import com.yahoo.ycsb.util.ByteIterator;
-import com.yahoo.ycsb.util.StringByteIterator;
 
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.hbase.KeyValue;
@@ -140,7 +139,7 @@ public class HBaseClient extends com.yahoo.ycsb.DB
      * @param result A HashMap of field/value pairs for the result
      * @return Zero on success, a non-zero error code on error
      */
-    public int read( String table, String key, Set<String> fields, HashMap<String, ByteIterator> result )
+    public int read( String table, String key, Set<String> fields, Map<String, ByteIterator> result )
     {
         // if this is a "new" table, init HTable object. Else, use existing one
         if ( !_table.equals( table ) )
@@ -218,7 +217,7 @@ public class HBaseClient extends com.yahoo.ycsb.DB
      * @return Zero on success, a non-zero error code on error
      */
     public int scan( String table, String startkey, int recordcount, Set<String> fields,
-            Vector<HashMap<String, ByteIterator>> result )
+            Vector<Map<String, ByteIterator>> result )
     {
         // if this is a "new" table, init HTable object. Else, use existing one
         if ( !_table.equals( table ) )
@@ -314,7 +313,7 @@ public class HBaseClient extends com.yahoo.ycsb.DB
      * @param values A HashMap of field/value pairs to update in the record
      * @return Zero on success, a non-zero error code on error
      */
-    public int update( String table, String key, HashMap<String, ByteIterator> values )
+    public int update( String table, String key, Map<String, ByteIterator> values )
     {
         // if this is a "new" table, init HTable object. Else, use existing one
         if ( !_table.equals( table ) )
@@ -377,7 +376,7 @@ public class HBaseClient extends com.yahoo.ycsb.DB
      * @param values A HashMap of field/value pairs to insert in the record
      * @return Zero on success, a non-zero error code on error
      */
-    public int insert( String table, String key, HashMap<String, ByteIterator> values )
+    public int insert( String table, String key, Map<String, ByteIterator> values )
     {
         return update( table, key, values );
     }
@@ -494,7 +493,7 @@ public class HBaseClient extends com.yahoo.ycsb.DB
                             HashSet<String> scanFields = new HashSet<String>();
                             scanFields.add( "field1" );
                             scanFields.add( "field3" );
-                            Vector<HashMap<String, ByteIterator>> scanResults = new Vector<HashMap<String, ByteIterator>>();
+                            Vector<Map<String, ByteIterator>> scanResults = new Vector<Map<String, ByteIterator>>();
                             rescode = cli.scan( "table1", "user2", 20, null, scanResults );
 
                             long en = System.currentTimeMillis();

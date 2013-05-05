@@ -16,7 +16,6 @@
  */
 package com.yahoo.ycsb.util;
 
-
 public class ByteArrayByteIterator extends ByteIterator
 {
     byte[] str;
@@ -52,7 +51,7 @@ public class ByteArrayByteIterator extends ByteIterator
     }
 
     @Override
-    public long bytesLeft()
+    public int bytesLeft()
     {
         return len - off;
     }

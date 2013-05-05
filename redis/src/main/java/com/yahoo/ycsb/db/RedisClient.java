@@ -16,7 +16,6 @@ import java.util.Map;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Properties;
 import java.util.Set;
 import java.util.Vector;
 
@@ -34,6 +33,7 @@ public class RedisClient extends DB
 
     public static final String INDEX_KEY = "_indices";
 
+    @Override
     public void init() throws DBException
     {
         int port;
@@ -59,6 +59,7 @@ public class RedisClient extends DB
         }
     }
 
+    @Override
     public void cleanup() throws DBException
     {
         jedis.disconnect();
@@ -77,7 +78,7 @@ public class RedisClient extends DB
     // XXX jedis.select(int index) to switch to `table`
 
     @Override
-    public int read( String table, String key, Set<String> fields, HashMap<String, ByteIterator> result )
+    public int read( String table, String key, Set<String> fields, Map<String, ByteIterator> result )
     {
         if ( fields == null )
         {
@@ -101,7 +102,7 @@ public class RedisClient extends DB
     }
 
     @Override
-    public int insert( String table, String key, HashMap<String, ByteIterator> values )
+    public int insert( String table, String key, Map<String, ByteIterator> values )
     {
         if ( jedis.hmset( key, StringByteIterator.getStringMap( values ) ).equals( "OK" ) )
         {
@@ -118,14 +119,14 @@ public class RedisClient extends DB
     }
 
     @Override
-    public int update( String table, String key, HashMap<String, ByteIterator> values )
+    public int update( String table, String key, Map<String, ByteIterator> values )
     {
         return jedis.hmset( key, StringByteIterator.getStringMap( values ) ).equals( "OK" ) ? 0 : 1;
     }
 
     @Override
     public int scan( String table, String startkey, int recordcount, Set<String> fields,
-            Vector<HashMap<String, ByteIterator>> result )
+            Vector<Map<String, ByteIterator>> result )
     {
         Set<String> keys = jedis.zrangeByScore( INDEX_KEY, hash( startkey ), Double.POSITIVE_INFINITY, 0, recordcount );
 

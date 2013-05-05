@@ -16,11 +16,9 @@
 
 package com.yahoo.ycsb.db;
 
-import java.io.FileInputStream;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.Properties;
 import java.util.Set;
 import java.util.Vector;
 import java.io.File;
@@ -133,7 +131,7 @@ public class DynamoDBClient extends DB
     }
 
     @Override
-    public int read( String table, String key, Set<String> fields, HashMap<String, ByteIterator> result )
+    public int read( String table, String key, Set<String> fields, Map<String, ByteIterator> result )
     {
 
         logger.debug( "readkey: " + key + " from table: " + table );
@@ -167,7 +165,7 @@ public class DynamoDBClient extends DB
 
     @Override
     public int scan( String table, String startkey, int recordcount, Set<String> fields,
-            Vector<HashMap<String, ByteIterator>> result )
+            Vector<Map<String, ByteIterator>> result )
     {
         logger.debug( "scan " + recordcount + " records from key: " + startkey + " on table: " + table );
         /*
@@ -239,7 +237,7 @@ public class DynamoDBClient extends DB
     }
 
     @Override
-    public int update( String table, String key, HashMap<String, ByteIterator> values )
+    public int update( String table, String key, Map<String, ByteIterator> values )
     {
         logger.debug( "updatekey: " + key + " from table: " + table );
 
@@ -270,7 +268,7 @@ public class DynamoDBClient extends DB
     }
 
     @Override
-    public int insert( String table, String key, HashMap<String, ByteIterator> values )
+    public int insert( String table, String key, Map<String, ByteIterator> values )
     {
         logger.debug( "insertkey: " + primaryKeyName + "-" + key + " from table: " + table );
         Map<String, AttributeValue> attributes = createAttributes( values );
@@ -320,7 +318,7 @@ public class DynamoDBClient extends DB
         return OK;
     }
 
-    private static Map<String, AttributeValue> createAttributes( HashMap<String, ByteIterator> values )
+    private static Map<String, AttributeValue> createAttributes( Map<String, ByteIterator> values )
     {
         Map<String, AttributeValue> attributes = new HashMap<String, AttributeValue>( values.size() + 1 ); // leave
                                                                                                            // space

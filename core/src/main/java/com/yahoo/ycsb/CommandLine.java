@@ -19,10 +19,8 @@ package com.yahoo.ycsb;
 
 import java.util.Properties;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.PrintStream;
-import java.util.Enumeration;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.util.HashMap;
@@ -335,7 +333,7 @@ public class CommandLine
                         }
                     }
 
-                    Vector<HashMap<String, ByteIterator>> results = new Vector<HashMap<String, ByteIterator>>();
+                    Vector<Map<String, ByteIterator>> results = new Vector<Map<String, ByteIterator>>();
                     int returnCode = db.scan( argTableName, tokens[1], Integer.parseInt( tokens[2] ), fields, results );
                     System.out.println( "Return code: " + returnCode );
                     int record = 0;
@@ -347,7 +345,7 @@ public class CommandLine
                     {
                         System.out.println( "--------------------------------" );
                     }
-                    for ( HashMap<String, ByteIterator> result : results )
+                    for ( Map<String, ByteIterator> result : results )
                     {
                         System.out.println( "Record " + ( record++ ) );
                         for ( Map.Entry<String, ByteIterator> resultEntry : result.entrySet() )

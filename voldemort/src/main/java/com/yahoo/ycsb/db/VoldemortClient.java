@@ -43,6 +43,7 @@ public class VoldemortClient extends DB
      * http://project-voldemort.com/javadoc/client/voldemort/client/
      * ClientConfig.html}
      */
+    @Override
     public void init() throws DBException
     {
         Properties properties = new Properties();
@@ -58,6 +59,7 @@ public class VoldemortClient extends DB
 
     }
 
+    @Override
     public void cleanup() throws DBException
     {
         socketFactory.close();
@@ -78,7 +80,7 @@ public class VoldemortClient extends DB
     }
 
     @Override
-    public int insert( String table, String key, HashMap<String, ByteIterator> values )
+    public int insert( String table, String key, Map<String, ByteIterator> values )
     {
         if ( checkStore( table ) == ERROR )
         {
@@ -89,7 +91,7 @@ public class VoldemortClient extends DB
     }
 
     @Override
-    public int read( String table, String key, Set<String> fields, HashMap<String, ByteIterator> result )
+    public int read( String table, String key, Set<String> fields, Map<String, ByteIterator> result )
     {
         if ( checkStore( table ) == ERROR )
         {
@@ -117,14 +119,14 @@ public class VoldemortClient extends DB
 
     @Override
     public int scan( String table, String startkey, int recordcount, Set<String> fields,
-            Vector<HashMap<String, ByteIterator>> result )
+            Vector<Map<String, ByteIterator>> result )
     {
         logger.warn( "Voldemort does not support Scan semantics" );
         return OK;
     }
 
     @Override
-    public int update( String table, String key, HashMap<String, ByteIterator> values )
+    public int update( String table, String key, Map<String, ByteIterator> values )
     {
         if ( checkStore( table ) == ERROR )
         {

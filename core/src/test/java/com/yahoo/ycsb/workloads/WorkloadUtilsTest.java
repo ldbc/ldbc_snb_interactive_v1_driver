@@ -2,8 +2,9 @@ package com.yahoo.ycsb.workloads;
 
 import static org.junit.Assert.assertEquals;
 
-import java.util.HashMap;
+import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Set;
 
 import org.apache.commons.math3.random.RandomDataGenerator;
 import org.junit.Before;
@@ -13,7 +14,7 @@ import org.junit.Test;
 import com.yahoo.ycsb.WorkloadException;
 import com.yahoo.ycsb.generator.GeneratorBuilder;
 import com.yahoo.ycsb.generator.GeneratorBuilderFactory;
-import com.yahoo.ycsb.generator.ConstantNumberGenerator;
+import com.yahoo.ycsb.generator.ConstantGenerator;
 import com.yahoo.ycsb.generator.Generator;
 import com.yahoo.ycsb.generator.UniformNumberGenerator;
 import com.yahoo.ycsb.generator.ycsb.ZipfianGenerator;
@@ -32,59 +33,31 @@ public class WorkloadUtilsTest
     }
 
     @Test
-    public void buildAllValuesTest() throws WorkloadException
+    public void buildValuedFieldsReturnAllTest() throws WorkloadException
     {
         // Given
-        int lowerBound = 3;
-        int upperBound = 6;
-        Generator<Long> valueLengthGenerator = generatorBuilder.uniformNumberGenerator( (long) lowerBound,
-                (long) upperBound ).build();
+        int fieldLength = 3;
         int fieldCount = 10;
+        boolean returnAllFields = true;
         String fieldNamePrefix = "field";
 
         // When
-        HashMap<String, ByteIterator> values = WorkloadUtils.buildRecordWithAllFields( fieldCount,
-                valueLengthGenerator, fieldNamePrefix );
+        Generator<Set<String>> fieldSelectionGenerator = WorkloadUtils.buildFieldSelectionGenerator( generatorBuilder,
+                fieldNamePrefix, fieldCount, returnAllFields );
+
+        Generator<Integer> constantFieldLengthGenerator = WorkloadUtils.buildFieldLengthGenerator( generatorBuilder,
+                Distribution.CONSTANT, fieldLength, fieldLength );
+
+        Map<String, ByteIterator> valuedFields = WorkloadUtils.buildValuedFields( fieldSelectionGenerator,
+                constantFieldLengthGenerator );
 
         // Then
-        assertEquals( fieldCount, values.size() );
-        for ( Entry<String, ByteIterator> entry : values.entrySet() )
+        assertEquals( fieldCount, valuedFields.size() );
+        for ( Entry<String, ByteIterator> entry : valuedFields.entrySet() )
         {
             assertEquals( true, entry.getKey().startsWith( fieldNamePrefix ) );
-            assertInRange( lowerBound, entry.getValue().toString().length(), upperBound );
+            assertInRange( fieldLength, entry.getValue().toString().length(), fieldLength );
         }
-    }
-
-    @Test
-    public void buildOneValueTest() throws WorkloadException
-    {
-        // Given
-        int keyLowerBound = 1;
-        int keyUpperBound = 3;
-        Generator<Long> keyChooser = generatorBuilder.uniformNumberGenerator( (long) keyLowerBound,
-                (long) keyUpperBound ).build();
-
-        int valueLengthLowerBound = 3;
-        int valueLengthUpperBound = 6;
-        Generator<Long> valueLengthGenerator = generatorBuilder.uniformNumberGenerator( (long) valueLengthLowerBound,
-                (long) valueLengthUpperBound ).build();
-
-        String keyNamePrefix = "field";
-
-        // When
-        HashMap<String, ByteIterator> values = WorkloadUtils.buildRecordWithOneField( keyChooser, valueLengthGenerator,
-                keyNamePrefix );
-
-        // Then
-        assertEquals( 1, values.size() );
-        Entry<String, ByteIterator> entry = values.entrySet().iterator().next();
-        assertEquals( true, entry.getKey().startsWith( keyNamePrefix ) );
-
-        int keyNumber = Integer.parseInt( entry.getKey().substring( entry.getKey().length() - 1 ) );
-        assertInRange( keyLowerBound, keyNumber, keyUpperBound );
-
-        int valueLength = entry.getValue().toString().length();
-        assertInRange( valueLengthLowerBound, valueLength, valueLengthUpperBound );
     }
 
     @Ignore
@@ -118,45 +91,57 @@ public class WorkloadUtilsTest
     }
 
     @Test
-    public void buildConstantGeneratorTest() throws WorkloadException
+    public void buildConstantFieldLengthGeneratorTest() throws WorkloadException
     {
         // Given
-        String histogramFilePath = null;
+        int lowerBound = 1;
+        int upperBound = 1;
+        Distribution distribution = Distribution.CONSTANT;
 
         // When
-        Generator<Long> constantIntegerGenerator = WorkloadUtils.buildFieldLengthGenerator( generatorBuilder,
-                Distribution.CONSTANT, 1l, 10l, histogramFilePath );
+        Generator<Integer> constantGenerator = WorkloadUtils.buildFieldLengthGenerator( generatorBuilder, distribution,
+                lowerBound, upperBound );
 
         // Then
-        assertEquals( ConstantNumberGenerator.class, constantIntegerGenerator.getClass() );
+        assertEquals( ConstantGenerator.class, constantGenerator.getClass() );
     }
 
     @Test
-    public void buildUniformGeneratorTest() throws WorkloadException
+    public void buildUniformFieldLengthGeneratorTest() throws WorkloadException
     {
         // Given
-        String histogramFilePath = null;
+        long lowerBound = 1;
+        long upperBound = 1;
+        Distribution distribution = Distribution.UNIFORM;
 
         // When
-        Generator<Long> uniformLongGenerator = WorkloadUtils.buildFieldLengthGenerator( generatorBuilder,
-                Distribution.UNIFORM, 1l, 10l, histogramFilePath );
+        Generator<Long> uniformLongGenerator = WorkloadUtils.buildFieldLengthGenerator( generatorBuilder, distribution,
+                lowerBound, upperBound );
 
         // Then
         assertEquals( UniformNumberGenerator.class, uniformLongGenerator.getClass() );
     }
 
     @Test
-    public void buildZipfianGeneratorTest() throws WorkloadException
+    public void buildZipfianFieldLengthGeneratorTest() throws WorkloadException
     {
         // Given
-        String histogramFilePath = null;
+        long lowerBound = 1;
+        long upperBound = 1;
+        Distribution distribution = Distribution.UNIFORM;
 
         // When
         Generator<Long> zipfianIntegerGenerator = WorkloadUtils.buildFieldLengthGenerator( generatorBuilder,
-                Distribution.ZIPFIAN, 1l, 10l, histogramFilePath );
+                distribution, lowerBound, upperBound );
 
         // Then
         assertEquals( ZipfianGenerator.class, zipfianIntegerGenerator.getClass() );
+    }
+
+    @Test
+    public void buildFieldSelectionGeneratorTest()
+    {
+        assertEquals( false, true );
     }
 
     private void assertInRange( double lowerInclusive, double value, double upperInclusive )
