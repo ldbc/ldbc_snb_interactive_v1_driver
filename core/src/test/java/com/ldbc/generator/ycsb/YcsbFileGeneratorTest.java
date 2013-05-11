@@ -1,12 +1,12 @@
-package com.ldbc.generator;
+package com.ldbc.generator.ycsb;
 
 import org.junit.Ignore;
 
 import com.ldbc.generator.Generator;
+import com.ldbc.generator.NumberGeneratorTest;
 import com.ldbc.util.Histogram;
 
-@Ignore
-public class ZipfianNumberGeneratorTest<T extends Number, C extends Number> extends NumberGeneratorTest<T, C>
+public class YcsbFileGeneratorTest<T extends Number, C extends Number> extends NumberGeneratorTest<T, C>
 {
 
     @Override

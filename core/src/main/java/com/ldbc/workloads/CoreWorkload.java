@@ -10,9 +10,8 @@ import com.ldbc.Workload;
 import com.ldbc.WorkloadException;
 import com.ldbc.generator.Generator;
 import com.ldbc.generator.GeneratorBuilder;
-import com.ldbc.generator.GrowingRangeExponentialNumberGenerator;
+import com.ldbc.generator.BoundedRangeExponentialNumberGenerator;
 import com.ldbc.generator.MinMaxGeneratorWrapper;
-import com.ldbc.generator.ycsb.YcsbExponentialGenerator;
 import com.ldbc.util.Pair;
 import com.ldbc.util.Utils;
 
@@ -98,11 +97,11 @@ public class CoreWorkload extends Workload
         else if ( requestDistribution.equals( "exponential" ) )
         {
             double percentile = Double.parseDouble( Utils.mapGetDefault( properties,
-                    GrowingRangeExponentialNumberGenerator.EXPONENTIAL_PERCENTILE,
-                    GrowingRangeExponentialNumberGenerator.EXPONENTIAL_PERCENTILE_DEFAULT ) );
+                    BoundedRangeExponentialNumberGenerator.EXPONENTIAL_PERCENTILE,
+                    BoundedRangeExponentialNumberGenerator.EXPONENTIAL_PERCENTILE_DEFAULT ) );
             double frac = Double.parseDouble( Utils.mapGetDefault( properties,
-                    GrowingRangeExponentialNumberGenerator.EXPONENTIAL_FRAC,
-                    GrowingRangeExponentialNumberGenerator.EXPONENTIAL_FRAC_DEFAULT ) );
+                    BoundedRangeExponentialNumberGenerator.EXPONENTIAL_FRAC,
+                    BoundedRangeExponentialNumberGenerator.EXPONENTIAL_FRAC_DEFAULT ) );
             requestKeyGenerator = generatorBuilder.exponentialGenerator( percentile, recordCount * frac ).build();
         }
         else

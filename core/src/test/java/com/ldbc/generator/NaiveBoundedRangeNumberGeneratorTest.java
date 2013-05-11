@@ -1,46 +1,37 @@
 package com.ldbc.generator;
 
-import org.junit.Ignore;
-
 import com.ldbc.generator.Generator;
 import com.ldbc.util.Histogram;
 
-@Ignore
-public class FileGeneratorTest<T extends Number, C extends Number> extends NumberGeneratorTest<T, C>
+public class NaiveBoundedRangeNumberGeneratorTest extends NumberGeneratorTest<Long, Long>
 {
-
     @Override
     public double getMeanTolerance()
     {
-        // TODO Auto-generated method stub
         return 0;
     }
 
     @Override
     public double getDistributionTolerance()
     {
-        // TODO Auto-generated method stub
         return 0;
     }
 
     @Override
-    public Generator<T> getGeneratorImpl()
+    public Generator<Long> getGeneratorImpl()
     {
-        // TODO Auto-generated method stub
         return null;
     }
 
     @Override
-    public Histogram<T, C> getExpectedDistribution()
+    public Histogram<Long, Long> getExpectedDistribution()
     {
-        // TODO Auto-generated method stub
         return null;
     }
 
     @Override
     public double getExpectedMean()
     {
-        // TODO Auto-generated method stub
         return 0;
     }
 

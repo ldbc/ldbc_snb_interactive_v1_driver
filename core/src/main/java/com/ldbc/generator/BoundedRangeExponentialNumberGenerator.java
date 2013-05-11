@@ -9,7 +9,7 @@ import org.apache.commons.math3.random.RandomDataGenerator;
  * 
  * gamma: mean rate events occur. 1/gamma: half life - average interval length
  */
-public class GrowingRangeExponentialNumberGenerator extends Generator<Long>
+public class BoundedRangeExponentialNumberGenerator extends Generator<Long>
 {
     // % of readings within most recent exponential.frac portion of dataset
     public static final String EXPONENTIAL_PERCENTILE = "exponential.percentile";
@@ -26,19 +26,19 @@ public class GrowingRangeExponentialNumberGenerator extends Generator<Long>
     // Exponential constant
     private double gamma;
 
-    public GrowingRangeExponentialNumberGenerator( RandomDataGenerator random, double mean,
+    public BoundedRangeExponentialNumberGenerator( RandomDataGenerator random, double mean,
             MinMaxGeneratorWrapper<Long> lowerBoundGenerator, MinMaxGeneratorWrapper<Long> upperBoundGenerator )
     {
         this( random, lowerBoundGenerator, upperBoundGenerator, calculateGamma( mean ) );
     }
 
-    public GrowingRangeExponentialNumberGenerator( RandomDataGenerator random, double percentile, double range,
+    public BoundedRangeExponentialNumberGenerator( RandomDataGenerator random, double percentile, double range,
             MinMaxGeneratorWrapper<Long> lowerBoundGenerator, MinMaxGeneratorWrapper<Long> upperBoundGenerator )
     {
         this( random, lowerBoundGenerator, upperBoundGenerator, calculateGamma( percentile, range ) );
     }
 
-    private GrowingRangeExponentialNumberGenerator( RandomDataGenerator random,
+    private BoundedRangeExponentialNumberGenerator( RandomDataGenerator random,
             MinMaxGeneratorWrapper<Long> lowerBoundGenerator, MinMaxGeneratorWrapper<Long> upperBoundGenerator,
             double gamma )
     {

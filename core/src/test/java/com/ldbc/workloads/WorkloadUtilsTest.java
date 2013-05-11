@@ -16,7 +16,7 @@ import com.ldbc.generator.ConstantGenerator;
 import com.ldbc.generator.Generator;
 import com.ldbc.generator.GeneratorBuilder;
 import com.ldbc.generator.GeneratorBuilderFactory;
-import com.ldbc.generator.GrowingRangeUniformNumberGenerator;
+import com.ldbc.generator.DynamicRangeUniformNumberGenerator;
 import com.ldbc.generator.ycsb.YcsbZipfianNumberGenerator;
 import com.ldbc.util.ByteIterator;
 import com.ldbc.workloads.Distribution;
@@ -136,7 +136,7 @@ public class WorkloadUtilsTest
                 lowerBound, upperBound );
 
         // Then
-        assertEquals( GrowingRangeUniformNumberGenerator.class, uniformLongGenerator.getClass() );
+        assertEquals( DynamicRangeUniformNumberGenerator.class, uniformLongGenerator.getClass() );
     }
 
     @Test

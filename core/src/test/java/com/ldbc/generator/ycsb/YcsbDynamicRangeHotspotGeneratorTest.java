@@ -1,11 +1,12 @@
-package com.ldbc.generator;
+package com.ldbc.generator.ycsb;
 
 import com.google.common.collect.Range;
 import com.ldbc.generator.Generator;
+import com.ldbc.generator.NumberGeneratorTest;
 import com.ldbc.util.Histogram;
 import com.ldbc.util.Bucket.NumberRangeBucket;
 
-public class DynamicRangeHotspotGeneratorTest extends NumberGeneratorTest<Long, Integer>
+public class YcsbDynamicRangeHotspotGeneratorTest extends NumberGeneratorTest<Long, Integer>
 {
     private int lowerBound = 1;
     private int upperBound = 10;

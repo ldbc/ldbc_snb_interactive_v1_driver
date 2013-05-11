@@ -5,7 +5,7 @@ import com.ldbc.generator.Generator;
 import com.ldbc.util.Histogram;
 import com.ldbc.util.Bucket.NumberRangeBucket;
 
-public class ExponentialGeneratorTest extends NumberGeneratorTest<Long, Integer>
+public class BoundedRangeExponentialNumberGeneratorUnboundedTest extends NumberGeneratorTest<Long, Integer>
 {
     // TODO fix this test (see TODOs below) and/or the generator class itself
 

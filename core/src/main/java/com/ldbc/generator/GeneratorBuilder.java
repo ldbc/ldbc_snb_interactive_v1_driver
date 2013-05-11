@@ -83,30 +83,30 @@ public class GeneratorBuilder
     }
 
     /**
-     * (GrowingRange)UniformNumberGenerator
+     * UniformNumberGenerator
      */
-    public <T extends Number> NumberGeneratorBuilderDelegate<GrowingRangeUniformNumberGenerator<T>, T> uniformNumberGenerator(
+    public <T extends Number> NumberGeneratorBuilderDelegate<DynamicRangeUniformNumberGenerator<T>, T> uniformNumberGenerator(
             T lowerBound, T upperBound )
     {
         MinMaxGeneratorWrapper<T> lowerBoundGenerator = constantNumberGenerator( lowerBound ).withMinMaxLast(
                 lowerBound, lowerBound ).build();
         MinMaxGeneratorWrapper<T> upperBoundGenerator = constantNumberGenerator( upperBound ).withMinMaxLast(
                 upperBound, upperBound ).build();
-        return growingRangeUniformNumberGenerator( lowerBoundGenerator, upperBoundGenerator );
+        return boundedRangeUniformNumberGenerator( lowerBoundGenerator, upperBoundGenerator );
     }
 
-    public <T extends Number> NumberGeneratorBuilderDelegate<GrowingRangeUniformNumberGenerator<T>, T> growingRangeUniformNumberGenerator(
+    public <T extends Number> NumberGeneratorBuilderDelegate<DynamicRangeUniformNumberGenerator<T>, T> boundedRangeUniformNumberGenerator(
             MinMaxGeneratorWrapper<T> boundingGenerator )
     {
-        return growingRangeUniformNumberGenerator( boundingGenerator, boundingGenerator );
+        return boundedRangeUniformNumberGenerator( boundingGenerator, boundingGenerator );
     }
 
-    public <T extends Number> NumberGeneratorBuilderDelegate<GrowingRangeUniformNumberGenerator<T>, T> growingRangeUniformNumberGenerator(
+    public <T extends Number> NumberGeneratorBuilderDelegate<DynamicRangeUniformNumberGenerator<T>, T> boundedRangeUniformNumberGenerator(
             MinMaxGeneratorWrapper<T> lowerBoundGenerator, MinMaxGeneratorWrapper<T> upperBoundGenerator )
     {
-        GrowingRangeUniformNumberGenerator<T> generator = new GrowingRangeUniformNumberGenerator<T>( getRandom(),
+        DynamicRangeUniformNumberGenerator<T> generator = new DynamicRangeUniformNumberGenerator<T>( getRandom(),
                 lowerBoundGenerator, upperBoundGenerator );
-        return new NumberGeneratorBuilderDelegate<GrowingRangeUniformNumberGenerator<T>, T>( generator );
+        return new NumberGeneratorBuilderDelegate<DynamicRangeUniformNumberGenerator<T>, T>( generator );
     }
 
     /**
@@ -170,37 +170,37 @@ public class GeneratorBuilder
      * ExponentialNumberGenerator
      */
     // TODO Generic
-    public NumberGeneratorBuilderDelegate<GrowingRangeExponentialNumberGenerator, Long> exponentialGenerator(
+    public NumberGeneratorBuilderDelegate<BoundedRangeExponentialNumberGenerator, Long> exponentialGenerator(
             double mean )
     {
-        return growingRangeExponentialNumberGenerator( null, null, mean );
+        return boundedRangeExponentialNumberGenerator( null, null, mean );
     }
 
     // TODO Generic
-    public <T extends Number> NumberGeneratorBuilderDelegate<GrowingRangeExponentialNumberGenerator, Long> growingRangeExponentialNumberGenerator(
+    public <T extends Number> NumberGeneratorBuilderDelegate<BoundedRangeExponentialNumberGenerator, Long> boundedRangeExponentialNumberGenerator(
             MinMaxGeneratorWrapper<Long> lowerBoundGenerator, MinMaxGeneratorWrapper<Long> upperBoundGenerator,
             double mean )
     {
-        GrowingRangeExponentialNumberGenerator generator = new GrowingRangeExponentialNumberGenerator( getRandom(),
+        BoundedRangeExponentialNumberGenerator generator = new BoundedRangeExponentialNumberGenerator( getRandom(),
                 mean, lowerBoundGenerator, upperBoundGenerator );
-        return new NumberGeneratorBuilderDelegate<GrowingRangeExponentialNumberGenerator, Long>( generator );
+        return new NumberGeneratorBuilderDelegate<BoundedRangeExponentialNumberGenerator, Long>( generator );
     }
 
     // TODO Generic
-    public NumberGeneratorBuilderDelegate<GrowingRangeExponentialNumberGenerator, Long> exponentialGenerator(
+    public NumberGeneratorBuilderDelegate<BoundedRangeExponentialNumberGenerator, Long> exponentialGenerator(
             double percentile, double range )
     {
-        return growingRangeExponentialNumberGenerator( null, null, percentile, range );
+        return boundedRangeExponentialNumberGenerator( null, null, percentile, range );
     }
 
     // TODO Generic
-    public <T extends Number> NumberGeneratorBuilderDelegate<GrowingRangeExponentialNumberGenerator, Long> growingRangeExponentialNumberGenerator(
+    public <T extends Number> NumberGeneratorBuilderDelegate<BoundedRangeExponentialNumberGenerator, Long> boundedRangeExponentialNumberGenerator(
             MinMaxGeneratorWrapper<Long> lowerBoundGenerator, MinMaxGeneratorWrapper<Long> upperBoundGenerator,
             double percentile, double range )
     {
-        GrowingRangeExponentialNumberGenerator generator = new GrowingRangeExponentialNumberGenerator( getRandom(),
+        BoundedRangeExponentialNumberGenerator generator = new BoundedRangeExponentialNumberGenerator( getRandom(),
                 percentile, range, lowerBoundGenerator, upperBoundGenerator );
-        return new NumberGeneratorBuilderDelegate<GrowingRangeExponentialNumberGenerator, Long>( generator );
+        return new NumberGeneratorBuilderDelegate<BoundedRangeExponentialNumberGenerator, Long>( generator );
     }
 
     /**

@@ -11,9 +11,8 @@ import com.ldbc.DBRecordKey;
 import com.ldbc.WorkloadException;
 import com.ldbc.generator.Generator;
 import com.ldbc.generator.GeneratorBuilder;
-import com.ldbc.generator.GrowingRangeExponentialNumberGenerator;
+import com.ldbc.generator.BoundedRangeExponentialNumberGenerator;
 import com.ldbc.generator.MinMaxGeneratorWrapper;
-import com.ldbc.generator.ycsb.YcsbExponentialGenerator;
 import com.ldbc.util.ByteIterator;
 import com.ldbc.util.Pair;
 import com.ldbc.util.RandomByteIterator;
@@ -46,7 +45,7 @@ public class WorkloadUtils
             MinMaxGeneratorWrapper<Long> transactionInsertKeyGenerator ) throws WorkloadException
     {
         long keyNumber;
-        if ( requestKeyGenerator instanceof GrowingRangeExponentialNumberGenerator )
+        if ( requestKeyGenerator instanceof BoundedRangeExponentialNumberGenerator )
         {
             do
             {

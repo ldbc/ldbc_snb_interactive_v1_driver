@@ -4,13 +4,13 @@ import org.apache.commons.math3.random.RandomDataGenerator;
 
 import com.ldbc.util.NumberHelper;
 
-public class GrowingRangeUniformNumberGenerator<T extends Number> extends Generator<T>
+public class DynamicRangeUniformNumberGenerator<T extends Number> extends Generator<T>
 {
     private final MinMaxGeneratorWrapper<T> lowerBoundGenerator;
     private final MinMaxGeneratorWrapper<T> upperBoundGenerator;
     private final NumberHelper<T> number;
 
-    GrowingRangeUniformNumberGenerator( RandomDataGenerator random, MinMaxGeneratorWrapper<T> lowerBoundGenerator,
+    DynamicRangeUniformNumberGenerator( RandomDataGenerator random, MinMaxGeneratorWrapper<T> lowerBoundGenerator,
             MinMaxGeneratorWrapper<T> upperBoundGenerator )
     {
         super( random );

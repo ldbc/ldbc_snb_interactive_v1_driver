@@ -6,7 +6,7 @@ import com.ldbc.generator.MinMaxGeneratorWrapper;
 import com.ldbc.util.Histogram;
 import com.ldbc.util.Bucket.NumberRangeBucket;
 
-public class GrowingRangeUniformNumberGeneratorTest extends NumberGeneratorTest<Long, Long>
+public class DynamicRangeUniformNumberGeneratorTest extends NumberGeneratorTest<Long, Long>
 {
     private final long uniformMin = 50;
     private final long uniformMax = 60;
@@ -30,7 +30,7 @@ public class GrowingRangeUniformNumberGeneratorTest extends NumberGeneratorTest<
     {
         MinMaxGeneratorWrapper<Long> counterGenerator = (MinMaxGeneratorWrapper<Long>) getGeneratorBuilder().counterGenerator(
                 counterStart, 1l ).withMinMaxLast( uniformMin, uniformMax ).build();
-        Generator<Long> growingRangeUniformGenerator = getGeneratorBuilder().growingRangeUniformNumberGenerator(
+        Generator<Long> growingRangeUniformGenerator = getGeneratorBuilder().boundedRangeUniformNumberGenerator(
                 counterGenerator ).build();
         for ( int i = 0; i < counterIterations; i++ )
         {
