@@ -11,6 +11,7 @@ import com.ldbc.DBRecordKey;
 import com.ldbc.WorkloadException;
 import com.ldbc.generator.Generator;
 import com.ldbc.generator.GeneratorBuilder;
+import com.ldbc.generator.GrowingRangeExponentialNumberGenerator;
 import com.ldbc.generator.MinMaxGeneratorWrapper;
 import com.ldbc.generator.ycsb.YcsbExponentialGenerator;
 import com.ldbc.util.ByteIterator;
@@ -45,7 +46,7 @@ public class WorkloadUtils
             MinMaxGeneratorWrapper<Long> transactionInsertKeyGenerator ) throws WorkloadException
     {
         long keyNumber;
-        if ( requestKeyGenerator instanceof YcsbExponentialGenerator )
+        if ( requestKeyGenerator instanceof GrowingRangeExponentialNumberGenerator )
         {
             do
             {
@@ -87,21 +88,13 @@ public class WorkloadUtils
     }
 
     public static Generator<Set<String>> buildFieldSelectionGenerator( GeneratorBuilder generatorBuilder,
-            String fieldNamePrefix, int fieldCount, boolean isReturnAllFields )
+            String fieldNamePrefix, int fieldCount, int fieldCountToRetrieve ) throws WorkloadException
     {
-        if ( false == isReturnAllFields )
+        if ( 1 > fieldCountToRetrieve || fieldCountToRetrieve > fieldCount )
         {
-            Set<Pair<Double, String>> fields = new HashSet<Pair<Double, String>>();
-            for ( int i = 0; i < fieldCount; i++ )
-            {
-                Pair<Double, String> field = new Pair<Double, String>( 1d, fieldNamePrefix + i );
-                fields.add( field );
-            }
-            int fieldsToRetrieve = 1;
-            Generator<Integer> fieldsToRetrieveGenerator = generatorBuilder.constantGenerator( fieldsToRetrieve ).build();
-            return generatorBuilder.discreteMultiGenerator( fields, fieldsToRetrieveGenerator ).build();
+            throw new WorkloadException( "fieldCountToRetrieve must be in the range [1,fieldCount]" );
         }
-        else
+        else if ( fieldCount == fieldCountToRetrieve )
         {
             Set<String> fields = new HashSet<String>();
             for ( int i = 0; i < fieldCount; i++ )
@@ -110,6 +103,17 @@ public class WorkloadUtils
                 fields.add( field );
             }
             return generatorBuilder.constantGenerator( fields ).build();
+        }
+        else
+        {
+            Set<Pair<Double, String>> fields = new HashSet<Pair<Double, String>>();
+            for ( int i = 0; i < fieldCount; i++ )
+            {
+                Pair<Double, String> field = new Pair<Double, String>( 1d, fieldNamePrefix + i );
+                fields.add( field );
+            }
+            Generator<Integer> fieldsToRetrieveGenerator = generatorBuilder.constantGenerator( fieldCountToRetrieve ).build();
+            return generatorBuilder.discreteMultiGenerator( fields, fieldsToRetrieveGenerator ).build();
         }
     }
 }

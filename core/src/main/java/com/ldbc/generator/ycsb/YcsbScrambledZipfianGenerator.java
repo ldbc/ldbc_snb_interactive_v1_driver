@@ -36,14 +36,13 @@ import com.ldbc.util.Utils;
  * itemspace. Use this, instead of @ZipfianGenerator, if you don't want the head
  * of the distribution (the popular items) clustered together.
  */
-// TODO or should this extend ZipfianGenerator?
-// TODO is it a subtype, or does it delegate to?
+// TODO should this delegate or extend ZipfianGenerator?
 public class YcsbScrambledZipfianGenerator extends Generator<Long>
 {
     public static final double ZETAN = 26.46902820178302;
     public static final long ITEM_COUNT = 10000000000L;
 
-    YcsbZipfianGenerator gen;
+    YcsbZipfianNumberGenerator<Long> zipfianGenerator;
     long min, max, itemCount;
 
     /**
@@ -56,13 +55,14 @@ public class YcsbScrambledZipfianGenerator extends Generator<Long>
      * @param max The largest integer to generate in the sequence.
      * @param zipfianConstant The zipfian constant to use.
      */
-    public YcsbScrambledZipfianGenerator( RandomDataGenerator random, long min, long max, YcsbZipfianGenerator zipfianGenerator )
+    public YcsbScrambledZipfianGenerator( RandomDataGenerator random, long min, long max,
+            YcsbZipfianNumberGenerator<Long> zipfianGenerator )
     {
         super( random );
         this.min = min;
         this.max = max;
         this.itemCount = max - min + 1;
-        gen = zipfianGenerator;
+        this.zipfianGenerator = zipfianGenerator;
     }
 
     /**************************************************************************************************/
@@ -72,7 +72,7 @@ public class YcsbScrambledZipfianGenerator extends Generator<Long>
      */
     protected Long doNext()
     {
-        long ret = gen.next();
+        long ret = zipfianGenerator.next();
         ret = min + Utils.FNVhash64( ret ) % itemCount;
         return ret;
     }

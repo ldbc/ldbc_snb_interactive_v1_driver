@@ -6,7 +6,6 @@ public class MinMaxGeneratorWrapper<T extends Number> extends Generator<T>
     private T max = null;
     private final Generator<T> generator;
 
-    // TODO add "last()" to this as well
     public MinMaxGeneratorWrapper( Generator<T> generator, T initialMin, T initialMax )
     {
         super( generator.getRandom() );

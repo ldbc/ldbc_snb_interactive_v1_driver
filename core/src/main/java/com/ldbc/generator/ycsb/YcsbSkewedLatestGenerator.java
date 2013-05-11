@@ -28,10 +28,10 @@ import com.ldbc.generator.MinMaxGeneratorWrapper;
 public class YcsbSkewedLatestGenerator extends Generator<Long>
 {
     private final MinMaxGeneratorWrapper<Long> maxGenerator;
-    private final YcsbZipfianGenerator zipfianGenerator;
+    private final YcsbZipfianNumberGenerator<Long> zipfianGenerator;
 
     public YcsbSkewedLatestGenerator( RandomDataGenerator random, MinMaxGeneratorWrapper<Long> maxGenerator,
-            YcsbZipfianGenerator zipfianGenerator )
+            YcsbZipfianNumberGenerator<Long> zipfianGenerator )
     {
         super( random );
         this.maxGenerator = maxGenerator;

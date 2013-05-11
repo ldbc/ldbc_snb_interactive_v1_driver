@@ -6,21 +6,22 @@ import com.ldbc.util.NumberHelper;
 
 public class GrowingRangeUniformNumberGenerator<T extends Number> extends Generator<T>
 {
-    private final MinMaxGeneratorWrapper<T> boundingGenerator;
+    private final MinMaxGeneratorWrapper<T> lowerBoundGenerator;
+    private final MinMaxGeneratorWrapper<T> upperBoundGenerator;
     private final NumberHelper<T> number;
 
-    GrowingRangeUniformNumberGenerator( RandomDataGenerator random, MinMaxGeneratorWrapper<T> boundingGenerator )
+    GrowingRangeUniformNumberGenerator( RandomDataGenerator random, MinMaxGeneratorWrapper<T> lowerBoundGenerator,
+            MinMaxGeneratorWrapper<T> upperBoundGenerator )
     {
         super( random );
-        this.boundingGenerator = boundingGenerator;
-        this.number = NumberHelper.createNumberHelper( boundingGenerator.getMin().getClass() );
+        this.lowerBoundGenerator = lowerBoundGenerator;
+        this.upperBoundGenerator = upperBoundGenerator;
+        this.number = NumberHelper.createNumberHelper( lowerBoundGenerator.getMin().getClass() );
     }
 
     @Override
     protected T doNext() throws GeneratorException
     {
-        double min = boundingGenerator.getMin().doubleValue();
-        double max = boundingGenerator.getMax().doubleValue();
-        return number.round( getRandom().nextUniform( min, max ) );
+        return number.uniform( getRandom(), lowerBoundGenerator.getMin(), upperBoundGenerator.getMax() );
     }
 }

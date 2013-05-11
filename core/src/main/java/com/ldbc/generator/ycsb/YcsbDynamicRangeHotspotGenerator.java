@@ -20,106 +20,123 @@ import org.apache.commons.math3.random.RandomDataGenerator;
 
 import com.ldbc.generator.Generator;
 import com.ldbc.generator.GeneratorException;
+import com.ldbc.generator.MinMaxGeneratorWrapper;
 
 /**
- * Generate integers resembling a hotspot distribution where x% of operations
+ * Generate integrals resembling hot-spot distribution where x% of operations
  * access y% of data items. The parameters specify the bounds for the numbers,
  * the percentage of the of the interval which comprises the hot set and the
  * percentage of operations that access the hot set. Numbers of the hot set are
  * always smaller than any number in the cold set. Elements from the hot set and
  * the cold set are chose using a uniform distribution.
  * 
+ * <---------[hlb--------------hub][clb-----------cub]--------------->
+ * <---------HHHHHHHHHHHHHHHHHHHHHHCCCCCCCCCCCCCCCCCCC--------------->
+ * 
  * @author sudipto
+ * @author Alex Averbuch (alex.averbuch@gmail.com)
  * 
  */
-public class YcsbHotspotGenerator extends Generator<Long>
+// TODO Generalize class to accept multiple ranges, with probabilities for each
+// TODO HotSpotsGenerator
+public class YcsbDynamicRangeHotspotGenerator extends Generator<Long>
 {
+    private final double hotOperationFraction; // (0.0,1.0)
+    private final double hotSetFraction; // (0.0,1.0)
 
-    private final long lowerBound;
-    private final long upperBound;
-    private final long hotInterval;
-    private final long coldInterval;
-    private final double hotsetFraction;
-    private final double hotOpnFraction;
+    private final MinMaxGeneratorWrapper<Long> lowerBoundGenerator;
+    private final MinMaxGeneratorWrapper<Long> upperBoundGenerator;
 
     /**
-     * @param lowerBound lower bound of the distribution
-     * @param upperBound upper bound of the distribution
-     * @param hotsetFraction percentage of data item
-     * @param hotOpnFraction percentage of operations accessing the hot set
+     * @param lowerBound distribution lower bound
+     * @param upperBound distribution upper bound
+     * @param hotSetFraction percentage of data items
+     * @param hotOperationFraction percentage of operations accessing hot set
      */
-    public YcsbHotspotGenerator( RandomDataGenerator random, long lowerBound, long upperBound, double hotsetFraction,
-            double hotOpnFraction )
+    public YcsbDynamicRangeHotspotGenerator( RandomDataGenerator random,
+            MinMaxGeneratorWrapper<Long> lowerBoundGenerator, MinMaxGeneratorWrapper<Long> upperBoundGenerator,
+            double hotSetFraction, double hotOperationFraction )
     {
         super( random );
-        if ( hotsetFraction < 0.0 || hotsetFraction > 1.0 )
+        if ( 0.0 > hotSetFraction || hotSetFraction > 1.0 )
         {
-            throw new GeneratorException( String.format( "Hotset fraction [%s] is out of range[0.0-1.0]",
-                    hotsetFraction ) );
+            throw new GeneratorException( String.format( "Hotset fraction [%s] is out of range(0.0,1.0)",
+                    hotSetFraction ) );
         }
-        if ( hotOpnFraction < 0.0 || hotOpnFraction > 1.0 )
+        if ( 0.0 > hotOperationFraction || hotOperationFraction > 1.0 )
         {
-            throw new GeneratorException( String.format( "Hot operation fraction [%s] is out of range[0.0-1.0]",
-                    hotOpnFraction ) );
+            throw new GeneratorException( String.format( "Hot operation fraction [%s] is out of range(0.0,1.0)",
+                    hotOperationFraction ) );
         }
-        if ( lowerBound > upperBound )
+        if ( lowerBoundGenerator.getMax() > upperBoundGenerator.getMax() )
         {
-            throw new GeneratorException( String.format( "Upper bound[%s] is smaller than lower bound[%s]", upperBound,
-                    lowerBound ) );
+            throw new GeneratorException( String.format( "Upper bound[%s] is smaller than lower bound[%s]",
+                    upperBoundGenerator.getMax(), lowerBoundGenerator.getMax() ) );
         }
-        this.lowerBound = lowerBound;
-        this.upperBound = upperBound;
-        this.hotsetFraction = hotsetFraction;
-        long interval = upperBound - lowerBound + 1;
-        this.hotInterval = (int) ( interval * hotsetFraction );
-        this.coldInterval = interval - hotInterval;
-        this.hotOpnFraction = hotOpnFraction;
+
+        this.lowerBoundGenerator = lowerBoundGenerator;
+        this.upperBoundGenerator = upperBoundGenerator;
+
+        this.hotSetFraction = hotSetFraction;
+        this.hotOperationFraction = hotOperationFraction;
     }
 
     @Override
     protected Long doNext()
     {
-        long value = 0;
-        if ( getRandom().nextUniform( 0, 1 ) < hotOpnFraction )
+        if ( getRandom().nextUniform( 0, 1 ) < hotOperationFraction )
         {
-            // choose a value from the hot set
-            value = lowerBound + getRandom().nextLong( 0, hotInterval );
+            return getFromHotSet();
         }
         else
         {
-            // choose a value from the cold set
-            value = lowerBound + hotInterval + getRandom().nextLong( 0, coldInterval );
+            return getFromColdSet();
         }
-        return value;
     }
 
-    public long getLowerBound()
+    private Long getFromHotSet()
     {
-        return lowerBound;
+        return getRandom().nextLong( getHotSetLowerBound(), getHotSetUpperBound() );
     }
 
-    public long getUpperBound()
+    private Long getFromColdSet()
     {
-        return upperBound;
+        return getRandom().nextLong( getColdSetLowerBound(), getColdSetUpperBound() );
     }
 
-    public double getHotsetFraction()
+    private Long getHotInterval()
     {
-        return hotsetFraction;
+        long interval = getUpperBound() - getLowerBound() + 1;
+        return Math.round( interval * hotSetFraction );
     }
 
-    public double getHotOpnFraction()
+    private Long getHotSetLowerBound()
     {
-        return hotOpnFraction;
+        return getLowerBound();
     }
 
-    public long getColdInterval()
+    private Long getHotSetUpperBound()
     {
-        return coldInterval;
+        return getHotSetLowerBound() + getHotInterval() - 1;
     }
 
-    public long getHotInterval()
+    private Long getColdSetLowerBound()
     {
-        return hotInterval;
+        return getHotSetUpperBound() + 1;
+    }
+
+    private Long getColdSetUpperBound()
+    {
+        return getUpperBound();
+    }
+
+    private Long getLowerBound()
+    {
+        return lowerBoundGenerator.getMax();
+    }
+
+    private Long getUpperBound()
+    {
+        return upperBoundGenerator.getMax();
     }
 }

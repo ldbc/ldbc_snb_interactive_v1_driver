@@ -16,7 +16,7 @@ import com.ldbc.generator.ConstantGenerator;
 import com.ldbc.generator.Generator;
 import com.ldbc.generator.GeneratorBuilder;
 import com.ldbc.generator.GeneratorBuilderFactory;
-import com.ldbc.generator.UniformNumberGenerator;
+import com.ldbc.generator.GrowingRangeUniformNumberGenerator;
 import com.ldbc.generator.ycsb.YcsbZipfianNumberGenerator;
 import com.ldbc.util.ByteIterator;
 import com.ldbc.workloads.Distribution;
@@ -33,7 +33,7 @@ public class WorkloadUtilsTest
     }
 
     @Test
-    public void buildFieldSelectionGeneratorTest()
+    public void buildFieldSelectionGeneratorTest() throws WorkloadException
     {
         // Given
         int fieldCount = 10;
@@ -41,12 +41,12 @@ public class WorkloadUtilsTest
 
         // When
         Generator<Set<String>> singleFieldSelectionGenerator = WorkloadUtils.buildFieldSelectionGenerator(
-                generatorBuilder, fieldNamePrefix, fieldCount, false );
+                generatorBuilder, fieldNamePrefix, fieldCount, 2 );
         Generator<Set<String>> allFieldSelectionGenerator = WorkloadUtils.buildFieldSelectionGenerator(
-                generatorBuilder, fieldNamePrefix, fieldCount, true );
+                generatorBuilder, fieldNamePrefix, fieldCount, fieldCount );
 
         // Then
-        assertEquals( 1, singleFieldSelectionGenerator.next().size() );
+        assertEquals( 2, singleFieldSelectionGenerator.next().size() );
         assertEquals( 10, allFieldSelectionGenerator.next().size() );
     }
 
@@ -56,12 +56,11 @@ public class WorkloadUtilsTest
         // Given
         int fieldLength = 3;
         int fieldCount = 10;
-        boolean returnAllFields = true;
         String fieldNamePrefix = "field";
 
         // When
         Generator<Set<String>> fieldSelectionGenerator = WorkloadUtils.buildFieldSelectionGenerator( generatorBuilder,
-                fieldNamePrefix, fieldCount, returnAllFields );
+                fieldNamePrefix, fieldCount, fieldCount );
 
         Generator<Integer> constantFieldLengthGenerator = WorkloadUtils.buildFieldLengthGenerator( generatorBuilder,
                 Distribution.CONSTANT, fieldLength, fieldLength );
@@ -137,7 +136,7 @@ public class WorkloadUtilsTest
                 lowerBound, upperBound );
 
         // Then
-        assertEquals( UniformNumberGenerator.class, uniformLongGenerator.getClass() );
+        assertEquals( GrowingRangeUniformNumberGenerator.class, uniformLongGenerator.getClass() );
     }
 
     @Test

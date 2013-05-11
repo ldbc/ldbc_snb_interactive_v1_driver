@@ -51,8 +51,7 @@ public class YcsbFileGenerator extends Generator<String>
         }
         catch ( IOException e )
         {
-            throw new GeneratorException( String.format( "Error creating FileGenerator : %s", filename, last() ),
-                    e.getCause() );
+            throw new GeneratorException( String.format( "Error creating FileGenerator : %s", filename ), e.getCause() );
         }
     }
 
@@ -73,13 +72,13 @@ public class YcsbFileGenerator extends Generator<String>
         }
         catch ( NullPointerException e )
         {
-            throw new GeneratorException( String.format( "Error encountered reading next line\nFile : %s\nLine : %s",
-                    filename, last() ), e.getCause() );
+            throw new GeneratorException( String.format( "Error encountered reading next line\nFile : %s", filename ),
+                    e.getCause() );
         }
         catch ( IOException e )
         {
-            throw new GeneratorException( String.format( "Error encountered reading next line\nFile : %s\nLine : %s",
-                    filename, last() ), e.getCause() );
+            throw new GeneratorException( String.format( "Error encountered reading next line\nFile : %s", filename ),
+                    e.getCause() );
         }
     }
 

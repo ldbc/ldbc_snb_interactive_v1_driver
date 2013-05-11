@@ -56,7 +56,11 @@ public abstract class NumberHelper<T extends Number>
 
     public abstract boolean lt( T a, T b );
 
+    public abstract boolean lte( T a, T b );
+
     public abstract boolean gt( T a, T b );
+
+    public abstract boolean gte( T a, T b );
 
     public static <T1 extends Number> boolean withinTolerance( T1 a, T1 b, Number tolerance )
     {
@@ -131,6 +135,18 @@ public abstract class NumberHelper<T extends Number>
         {
             return a > b;
         }
+
+        @Override
+        public boolean lte( Integer a, Integer b )
+        {
+            return a <= b;
+        }
+
+        @Override
+        public boolean gte( Integer a, Integer b )
+        {
+            return a >= b;
+        }
     }
 
     private static class LongNumberHelper extends NumberHelper<Long>
@@ -200,6 +216,18 @@ public abstract class NumberHelper<T extends Number>
         {
             return a > b;
         }
+
+        @Override
+        public boolean lte( Long a, Long b )
+        {
+            return a <= b;
+        }
+
+        @Override
+        public boolean gte( Long a, Long b )
+        {
+            return a >= b;
+        }
     }
 
     private static class DoubleNumberHelper extends NumberHelper<Double>
@@ -268,6 +296,18 @@ public abstract class NumberHelper<T extends Number>
         public boolean gt( Double a, Double b )
         {
             return a > b;
+        }
+
+        @Override
+        public boolean lte( Double a, Double b )
+        {
+            return a <= b;
+        }
+
+        @Override
+        public boolean gte( Double a, Double b )
+        {
+            return a >= b;
         }
     }
 }

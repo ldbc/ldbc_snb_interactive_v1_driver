@@ -10,6 +10,7 @@ import com.ldbc.Workload;
 import com.ldbc.WorkloadException;
 import com.ldbc.generator.Generator;
 import com.ldbc.generator.GeneratorBuilder;
+import com.ldbc.generator.GrowingRangeExponentialNumberGenerator;
 import com.ldbc.generator.MinMaxGeneratorWrapper;
 import com.ldbc.generator.ycsb.YcsbExponentialGenerator;
 import com.ldbc.util.Pair;
@@ -29,13 +30,14 @@ public class CoreWorkload extends Workload
     private String TABLE;
     private boolean IS_ORDERED_INSERTS;
 
-    Generator<Integer> fieldValuelengthGenerator; // Insert/Update
-                                                  // Constant/Uniform/Zipfian
-    Generator<Long> loadInsertKeyGenerator; // Insert
-                                            // Counter
-    Generator<Long> requestKeyGenerator; // Update/Read
-                                         // Exponential/Uniform/Scambled/Skewed/Hotspot
-    Generator<Set<String>> insertFieldSelectionGenerator; // Insert
+    // Insert/Update --- Constant/Uniform/Zipfian
+    Generator<Integer> fieldValuelengthGenerator;
+    // Insert --- Counter
+    Generator<Long> loadInsertKeyGenerator;
+    // Update/Read --- Exponential/Uniform/Scambled/Skewed/Hotspot
+    Generator<Long> requestKeyGenerator;
+    // Insert
+    Generator<Set<String>> insertFieldSelectionGenerator;
     Generator<Set<String>> updateFieldSelectionGenerator; // Update
     Generator<Set<String>> readFieldSelectionGenerator; // Read
     Generator<Integer> scanLengthGenerator; // Read
@@ -96,9 +98,11 @@ public class CoreWorkload extends Workload
         else if ( requestDistribution.equals( "exponential" ) )
         {
             double percentile = Double.parseDouble( Utils.mapGetDefault( properties,
-                    YcsbExponentialGenerator.EXPONENTIAL_PERCENTILE, YcsbExponentialGenerator.EXPONENTIAL_PERCENTILE_DEFAULT ) );
-            double frac = Double.parseDouble( Utils.mapGetDefault( properties, YcsbExponentialGenerator.EXPONENTIAL_FRAC,
-                    YcsbExponentialGenerator.EXPONENTIAL_FRAC_DEFAULT ) );
+                    GrowingRangeExponentialNumberGenerator.EXPONENTIAL_PERCENTILE,
+                    GrowingRangeExponentialNumberGenerator.EXPONENTIAL_PERCENTILE_DEFAULT ) );
+            double frac = Double.parseDouble( Utils.mapGetDefault( properties,
+                    GrowingRangeExponentialNumberGenerator.EXPONENTIAL_FRAC,
+                    GrowingRangeExponentialNumberGenerator.EXPONENTIAL_FRAC_DEFAULT ) );
             requestKeyGenerator = generatorBuilder.exponentialGenerator( percentile, recordCount * frac ).build();
         }
         else
@@ -145,7 +149,7 @@ public class CoreWorkload extends Workload
                     CoreWorkloadProperties.HOTSPOT_DATA_FRACTION, CoreWorkloadProperties.HOTSPOT_DATA_FRACTION_DEFAULT ) );
             double hotOperationFraction = Double.parseDouble( Utils.mapGetDefault( properties,
                     CoreWorkloadProperties.HOTSPOT_OPN_FRACTION, CoreWorkloadProperties.HOTSPOT_OPN_FRACTION_DEFAULT ) );
-            requestKeyGenerator = generatorBuilder.hotspotGenerator( 0, recordCount - 1, hotSetFraction,
+            requestKeyGenerator = generatorBuilder.dynamicRangeHotspotGenerator( 0, recordCount - 1, hotSetFraction,
                     hotOperationFraction ).build();
         }
         else
@@ -154,11 +158,11 @@ public class CoreWorkload extends Workload
         }
 
         insertFieldSelectionGenerator = WorkloadUtils.buildFieldSelectionGenerator( generatorBuilder,
-                FIELD_NAME_PREFIX, fieldCount, true );
+                FIELD_NAME_PREFIX, fieldCount, fieldCount );
         updateFieldSelectionGenerator = WorkloadUtils.buildFieldSelectionGenerator( generatorBuilder,
-                FIELD_NAME_PREFIX, fieldCount, isWriteAllFields );
+                FIELD_NAME_PREFIX, fieldCount, ( isWriteAllFields ) ? fieldCount : 1 );
         readFieldSelectionGenerator = WorkloadUtils.buildFieldSelectionGenerator( generatorBuilder, FIELD_NAME_PREFIX,
-                fieldCount, isReadAllFields );
+                fieldCount, ( isReadAllFields ) ? fieldCount : 1 );
 
         if ( scanLengthDistribution.equals( "uniform" ) )
         {

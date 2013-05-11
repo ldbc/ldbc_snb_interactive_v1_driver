@@ -8,21 +8,27 @@ public class CounterGenerator<T extends Number> extends Generator<T>
 {
     private final NumberHelper<T> number;
     private final T incrementBy;
-    private T counter;
+    private final T max;
+    private T count;
 
-    CounterGenerator( RandomDataGenerator random, T start, T incrementBy )
+    CounterGenerator( RandomDataGenerator random, T start, T incrementBy, T max )
     {
         super( random );
-        counter = start;
+        this.count = start;
         this.incrementBy = incrementBy;
+        this.max = max;
         number = NumberHelper.createNumberHelper( start.getClass() );
     }
 
     @Override
     protected T doNext()
     {
-        T next = counter;
-        counter = number.sum( counter, incrementBy );
+        if ( null != max && number.gt( count, max ) )
+        {
+            return null;
+        }
+        T next = count;
+        count = number.sum( count, incrementBy );
         return next;
     }
 }

@@ -20,7 +20,7 @@ public class SimplestWorkload extends Workload
     final String KEY_NAME_PREFIX = "user";
     final String FIELD_NAME_PREFIX = "field";
     final String TABLE = "usertable";
-    final int NUMBER_OF_FIELDS_IN_A_RECORD = 10;
+    final int NUMBER_OF_FIELDS_IN_RECORD = 10;
 
     boolean IS_ORDERED_INSERTS;
 
@@ -46,11 +46,11 @@ public class SimplestWorkload extends Workload
         boolean isWriteAllFields = false;
 
         insertFieldSelectionGenerator = WorkloadUtils.buildFieldSelectionGenerator( generatorBuilder,
-                FIELD_NAME_PREFIX, NUMBER_OF_FIELDS_IN_A_RECORD, true );
+                FIELD_NAME_PREFIX, NUMBER_OF_FIELDS_IN_RECORD, NUMBER_OF_FIELDS_IN_RECORD );
         updateFieldSelectionGenerator = WorkloadUtils.buildFieldSelectionGenerator( generatorBuilder,
-                FIELD_NAME_PREFIX, NUMBER_OF_FIELDS_IN_A_RECORD, isWriteAllFields );
+                FIELD_NAME_PREFIX, NUMBER_OF_FIELDS_IN_RECORD, ( isWriteAllFields ) ? NUMBER_OF_FIELDS_IN_RECORD : 1 );
         readFieldSelectionGenerator = WorkloadUtils.buildFieldSelectionGenerator( generatorBuilder, FIELD_NAME_PREFIX,
-                NUMBER_OF_FIELDS_IN_A_RECORD, isReadAllFields );
+                NUMBER_OF_FIELDS_IN_RECORD, ( isReadAllFields ) ? NUMBER_OF_FIELDS_IN_RECORD : 1 );
 
         // field value size: length in bytes
         fieldValuelengthGenerator = generatorBuilder.uniformNumberGenerator( 1, 100 ).build();

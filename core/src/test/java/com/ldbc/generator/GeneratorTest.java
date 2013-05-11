@@ -66,36 +66,6 @@ public abstract class GeneratorTest<T, C extends Number>
                 expectedDistributionAsPercentage, getDistributionTolerance() ) );
     }
 
-    @Test
-    public final void nextLastTest()
-    {
-        // Given
-        Generator<T> generator = getGeneratorImpl();
-
-        // When
-
-        // Then
-        assertLastEqualsLastNext( generator, getSampleSize() );
-    }
-
-    public final void assertLastEqualsLastNext( Generator<T> generator, int timesToTestLast )
-    {
-        // Given
-
-        // When
-        T last = generator.next();
-        assertEquals( "last() should equal previous next()", last, generator.last() );
-        boolean lastEqualsPreviousNext = true;
-        for ( int i = 0; i < timesToTestLast; i++ )
-        {
-            last = generator.next();
-            lastEqualsPreviousNext = lastEqualsPreviousNext && ( last.equals( generator.last() ) );
-        }
-
-        // Then
-        assertEquals( "last() should always equal the previous next()", true, lastEqualsPreviousNext );
-    }
-
     public final List<T> generateSequence( Generator<T> generator, Integer size )
     {
         List<T> generatedNumberSequence = new ArrayList<T>();

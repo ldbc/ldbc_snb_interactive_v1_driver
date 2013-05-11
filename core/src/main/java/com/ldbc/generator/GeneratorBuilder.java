@@ -2,11 +2,9 @@ package com.ldbc.generator;
 
 import org.apache.commons.math3.random.RandomDataGenerator;
 
-import com.ldbc.generator.ycsb.YcsbExponentialGenerator;
-import com.ldbc.generator.ycsb.YcsbHotspotGenerator;
+import com.ldbc.generator.ycsb.YcsbDynamicRangeHotspotGenerator;
 import com.ldbc.generator.ycsb.YcsbScrambledZipfianGenerator;
 import com.ldbc.generator.ycsb.YcsbSkewedLatestGenerator;
-import com.ldbc.generator.ycsb.YcsbZipfianGenerator;
 import com.ldbc.generator.ycsb.YcsbZipfianNumberGenerator;
 import com.ldbc.util.Pair;
 import com.ldbc.util.RandomDataGeneratorFactory;
@@ -57,19 +55,23 @@ public class GeneratorBuilder
         return randomDataGeneratorFactory.newRandom();
     }
 
+    /**
+     * DiscreteGenerator
+     */
     public <T> GeneratorBuilderDelegate<DiscreteGenerator<T>, T> discreteGenerator( Iterable<Pair<Double, T>> pairs )
     {
         DiscreteGenerator<T> generator = new DiscreteGenerator<T>( getRandom(), pairs );
         return new GeneratorBuilderDelegate<DiscreteGenerator<T>, T>( generator );
     }
 
+    /**
+     * DiscreteMultiGenerator
+     */
     public <T> GeneratorBuilderDelegate<DiscreteMultiGenerator<T>, T> discreteMultiGenerator(
             Iterable<Pair<Double, T>> pairs, Integer amountToRetrieve )
     {
         Generator<Integer> amountToRetrieveGenerator = constantGenerator( amountToRetrieve ).build();
-        DiscreteMultiGenerator<T> generator = new DiscreteMultiGenerator<T>( getRandom(), pairs,
-                amountToRetrieveGenerator );
-        return new GeneratorBuilderDelegate<DiscreteMultiGenerator<T>, T>( generator );
+        return discreteMultiGenerator( pairs, amountToRetrieveGenerator );
     }
 
     public <T> GeneratorBuilderDelegate<DiscreteMultiGenerator<T>, T> discreteMultiGenerator(
@@ -80,38 +82,72 @@ public class GeneratorBuilder
         return new GeneratorBuilderDelegate<DiscreteMultiGenerator<T>, T>( generator );
     }
 
-    public <T extends Number> NumberGeneratorBuilderDelegate<UniformNumberGenerator<T>, T> uniformNumberGenerator(
+    /**
+     * (GrowingRange)UniformNumberGenerator
+     */
+    public <T extends Number> NumberGeneratorBuilderDelegate<GrowingRangeUniformNumberGenerator<T>, T> uniformNumberGenerator(
             T lowerBound, T upperBound )
     {
-        UniformNumberGenerator<T> generator = new UniformNumberGenerator<T>( getRandom(), lowerBound, upperBound );
-        return new NumberGeneratorBuilderDelegate<UniformNumberGenerator<T>, T>( generator );
+        MinMaxGeneratorWrapper<T> lowerBoundGenerator = constantNumberGenerator( lowerBound ).withMinMaxLast(
+                lowerBound, lowerBound ).build();
+        MinMaxGeneratorWrapper<T> upperBoundGenerator = constantNumberGenerator( upperBound ).withMinMaxLast(
+                upperBound, upperBound ).build();
+        return growingRangeUniformNumberGenerator( lowerBoundGenerator, upperBoundGenerator );
     }
 
     public <T extends Number> NumberGeneratorBuilderDelegate<GrowingRangeUniformNumberGenerator<T>, T> growingRangeUniformNumberGenerator(
             MinMaxGeneratorWrapper<T> boundingGenerator )
     {
+        return growingRangeUniformNumberGenerator( boundingGenerator, boundingGenerator );
+    }
+
+    public <T extends Number> NumberGeneratorBuilderDelegate<GrowingRangeUniformNumberGenerator<T>, T> growingRangeUniformNumberGenerator(
+            MinMaxGeneratorWrapper<T> lowerBoundGenerator, MinMaxGeneratorWrapper<T> upperBoundGenerator )
+    {
         GrowingRangeUniformNumberGenerator<T> generator = new GrowingRangeUniformNumberGenerator<T>( getRandom(),
-                boundingGenerator );
+                lowerBoundGenerator, upperBoundGenerator );
         return new NumberGeneratorBuilderDelegate<GrowingRangeUniformNumberGenerator<T>, T>( generator );
     }
 
+    /**
+     * ConstantGenerator
+     */
     public <T> GeneratorBuilderDelegate<ConstantGenerator<T>, T> constantGenerator( T constant )
     {
         ConstantGenerator<T> generator = new ConstantGenerator<T>( getRandom(), constant );
         return new GeneratorBuilderDelegate<ConstantGenerator<T>, T>( generator );
     }
 
+    public <T extends Number> NumberGeneratorBuilderDelegate<ConstantGenerator<T>, T> constantNumberGenerator(
+            T constant )
+    {
+        ConstantGenerator<T> generator = new ConstantGenerator<T>( getRandom(), constant );
+        return new NumberGeneratorBuilderDelegate<ConstantGenerator<T>, T>( generator );
+    }
+
+    /**
+     * CounterGenerator
+     */
     public <T extends Number> NumberGeneratorBuilderDelegate<CounterGenerator<T>, T> counterGenerator( T start,
             T incrementBy )
     {
-        CounterGenerator<T> generator = new CounterGenerator<T>( getRandom(), start, incrementBy );
+        return boundedCounterGenerator( start, incrementBy, null );
+    }
+
+    public <T extends Number> NumberGeneratorBuilderDelegate<CounterGenerator<T>, T> boundedCounterGenerator( T start,
+            T incrementBy, T max )
+    {
+        CounterGenerator<T> generator = new CounterGenerator<T>( getRandom(), start, incrementBy, max );
         return new NumberGeneratorBuilderDelegate<CounterGenerator<T>, T>( generator );
     }
 
+    /**
+     * ZipfianNumberGenerator
+     */
     public <T extends Number> NumberGeneratorBuilderDelegate<YcsbZipfianNumberGenerator<T>, T> zipfianNumberGenerator(
             T lowerBound, T upperBound )
     {
-        return zipfianNumberGenerator( lowerBound, upperBound, YcsbZipfianGenerator.ZIPFIAN_CONSTANT );
+        return zipfianNumberGenerator( lowerBound, upperBound, YcsbZipfianNumberGenerator.ZIPFIAN_CONSTANT );
     }
 
     public <T extends Number> NumberGeneratorBuilderDelegate<YcsbZipfianNumberGenerator<T>, T> zipfianNumberGenerator(
@@ -130,53 +166,52 @@ public class GeneratorBuilder
         return new NumberGeneratorBuilderDelegate<YcsbZipfianNumberGenerator<T>, T>( generator );
     }
 
+    /**
+     * ExponentialNumberGenerator
+     */
     // TODO Generic
-    @Deprecated
-    public NumberGeneratorBuilderDelegate<YcsbZipfianGenerator, Long> zipfianGenerator( Long lowerBound, Long upperBound )
+    public NumberGeneratorBuilderDelegate<GrowingRangeExponentialNumberGenerator, Long> exponentialGenerator(
+            double mean )
     {
-        return zipfianGenerator( lowerBound, upperBound, YcsbZipfianGenerator.ZIPFIAN_CONSTANT );
+        return growingRangeExponentialNumberGenerator( null, null, mean );
     }
 
     // TODO Generic
-    @Deprecated
-    public NumberGeneratorBuilderDelegate<YcsbZipfianGenerator, Long> zipfianGenerator( Long lowerBound,
-            Long upperBound, double zipfianConstant )
+    public <T extends Number> NumberGeneratorBuilderDelegate<GrowingRangeExponentialNumberGenerator, Long> growingRangeExponentialNumberGenerator(
+            MinMaxGeneratorWrapper<Long> lowerBoundGenerator, MinMaxGeneratorWrapper<Long> upperBoundGenerator,
+            double mean )
     {
-        YcsbZipfianGenerator generator = new YcsbZipfianGenerator( getRandom(), lowerBound, upperBound, zipfianConstant );
-        return new NumberGeneratorBuilderDelegate<YcsbZipfianGenerator, Long>( generator );
+        GrowingRangeExponentialNumberGenerator generator = new GrowingRangeExponentialNumberGenerator( getRandom(),
+                mean, lowerBoundGenerator, upperBoundGenerator );
+        return new NumberGeneratorBuilderDelegate<GrowingRangeExponentialNumberGenerator, Long>( generator );
     }
 
     // TODO Generic
-    @Deprecated
-    public NumberGeneratorBuilderDelegate<YcsbZipfianGenerator, Long> zipfianGenerator( Long lowerBound,
-            Long upperBound, double zipfianConstant, double zetan )
+    public NumberGeneratorBuilderDelegate<GrowingRangeExponentialNumberGenerator, Long> exponentialGenerator(
+            double percentile, double range )
     {
-        YcsbZipfianGenerator generator = new YcsbZipfianGenerator( getRandom(), lowerBound, upperBound,
-                zipfianConstant, zetan );
-        return new NumberGeneratorBuilderDelegate<YcsbZipfianGenerator, Long>( generator );
+        return growingRangeExponentialNumberGenerator( null, null, percentile, range );
     }
 
     // TODO Generic
-    public NumberGeneratorBuilderDelegate<YcsbExponentialGenerator, Long> exponentialGenerator( double percentile,
-            double range )
+    public <T extends Number> NumberGeneratorBuilderDelegate<GrowingRangeExponentialNumberGenerator, Long> growingRangeExponentialNumberGenerator(
+            MinMaxGeneratorWrapper<Long> lowerBoundGenerator, MinMaxGeneratorWrapper<Long> upperBoundGenerator,
+            double percentile, double range )
     {
-        YcsbExponentialGenerator generator = new YcsbExponentialGenerator( getRandom(), percentile, range );
-        return new NumberGeneratorBuilderDelegate<YcsbExponentialGenerator, Long>( generator );
+        GrowingRangeExponentialNumberGenerator generator = new GrowingRangeExponentialNumberGenerator( getRandom(),
+                percentile, range, lowerBoundGenerator, upperBoundGenerator );
+        return new NumberGeneratorBuilderDelegate<GrowingRangeExponentialNumberGenerator, Long>( generator );
     }
 
-    // TODO Generic
-    public NumberGeneratorBuilderDelegate<YcsbExponentialGenerator, Long> exponentialGenerator( double mean )
-    {
-        YcsbExponentialGenerator generator = new YcsbExponentialGenerator( getRandom(), mean );
-        return new NumberGeneratorBuilderDelegate<YcsbExponentialGenerator, Long>( generator );
-    }
-
+    /**
+     * ScrambledZipfianGenerator
+     */
     // TODO Generic
     // Create a zipfian generator for the specified number of items
     public NumberGeneratorBuilderDelegate<YcsbScrambledZipfianGenerator, Long> scrambledZipfianGenerator(
             Long lowerBound, Long upperBound )
     {
-        return scrambledZipfianGenerator( lowerBound, upperBound, YcsbZipfianGenerator.ZIPFIAN_CONSTANT );
+        return scrambledZipfianGenerator( lowerBound, upperBound, YcsbZipfianNumberGenerator.ZIPFIAN_CONSTANT );
     }
 
     // TODO Generic
@@ -188,38 +223,57 @@ public class GeneratorBuilder
     public NumberGeneratorBuilderDelegate<YcsbScrambledZipfianGenerator, Long> scrambledZipfianGenerator(
             Long lowerBound, Long upperBound, double zipfianConstant )
     {
-        YcsbZipfianGenerator zipfianGenerator = null;
-        if ( YcsbZipfianGenerator.ZIPFIAN_CONSTANT == zipfianConstant )
+        YcsbZipfianNumberGenerator<Long> zipfianGenerator = null;
+        if ( YcsbZipfianNumberGenerator.ZIPFIAN_CONSTANT == zipfianConstant )
         {
-            zipfianGenerator = (YcsbZipfianGenerator) zipfianGenerator( lowerBound, upperBound, zipfianConstant,
+            zipfianGenerator = zipfianNumberGenerator( lowerBound, upperBound, zipfianConstant,
                     YcsbScrambledZipfianGenerator.ZETAN ).build();
         }
         else
         {
             // Slower, has to recompute Zetan
-            zipfianGenerator = (YcsbZipfianGenerator) zipfianGenerator( lowerBound, upperBound, zipfianConstant ).build();
+            zipfianGenerator = zipfianNumberGenerator( lowerBound, upperBound, zipfianConstant ).build();
         }
         YcsbScrambledZipfianGenerator generator = new YcsbScrambledZipfianGenerator( getRandom(), lowerBound,
                 upperBound, zipfianGenerator );
         return new NumberGeneratorBuilderDelegate<YcsbScrambledZipfianGenerator, Long>( generator );
     }
 
+    /**
+     * SkewedLatestGenerator
+     */
     // TODO Generic
     public NumberGeneratorBuilderDelegate<YcsbSkewedLatestGenerator, Long> skewedLatestGenerator(
             MinMaxGeneratorWrapper<Long> maxGenerator )
     {
-        YcsbZipfianGenerator zipfianGenerator = (YcsbZipfianGenerator) zipfianGenerator( 0l, maxGenerator.getMax() ).build();
+        YcsbZipfianNumberGenerator<Long> zipfianGenerator = zipfianNumberGenerator( 0l, maxGenerator.getMax() ).build();
         YcsbSkewedLatestGenerator generator = new YcsbSkewedLatestGenerator( getRandom(), maxGenerator,
                 zipfianGenerator );
         return new NumberGeneratorBuilderDelegate<YcsbSkewedLatestGenerator, Long>( generator );
     }
 
+    /**
+     * HotspotGenerator
+     */
     // TODO Generic
-    public NumberGeneratorBuilderDelegate<YcsbHotspotGenerator, Long> hotspotGenerator( long lowerBound,
-            long upperBound, double hotsetFraction, double hotOpnFraction )
+    public NumberGeneratorBuilderDelegate<YcsbDynamicRangeHotspotGenerator, Long> dynamicRangeHotspotGenerator(
+            long lowerBound, long upperBound, double hotSetFraction, double hotOperationFraction )
     {
-        YcsbHotspotGenerator generator = new YcsbHotspotGenerator( getRandom(), lowerBound, upperBound, hotsetFraction,
-                hotOpnFraction );
-        return new NumberGeneratorBuilderDelegate<YcsbHotspotGenerator, Long>( generator );
+        MinMaxGeneratorWrapper<Long> lowerBoundGenerator = constantNumberGenerator( lowerBound ).withMinMaxLast(
+                lowerBound, lowerBound ).build();
+        MinMaxGeneratorWrapper<Long> upperBoundGenerator = constantNumberGenerator( upperBound ).withMinMaxLast(
+                upperBound, upperBound ).build();
+        return dynamicRangeHotspotGenerator( lowerBoundGenerator, upperBoundGenerator, hotSetFraction,
+                hotOperationFraction );
+    }
+
+    // TODO Generic
+    public NumberGeneratorBuilderDelegate<YcsbDynamicRangeHotspotGenerator, Long> dynamicRangeHotspotGenerator(
+            MinMaxGeneratorWrapper<Long> lowerBoundGenerator, MinMaxGeneratorWrapper<Long> upperBoundGenerator,
+            double hotSetFraction, double hotOperationFraction )
+    {
+        YcsbDynamicRangeHotspotGenerator generator = new YcsbDynamicRangeHotspotGenerator( getRandom(),
+                lowerBoundGenerator, upperBoundGenerator, hotSetFraction, hotOperationFraction );
+        return new NumberGeneratorBuilderDelegate<YcsbDynamicRangeHotspotGenerator, Long>( generator );
     }
 }
