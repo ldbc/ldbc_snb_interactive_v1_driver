@@ -7,12 +7,9 @@ import java.util.Set;
 
 import org.apache.commons.math3.random.RandomDataGenerator;
 
-import com.ldbc.DBRecordKey;
 import com.ldbc.WorkloadException;
 import com.ldbc.generator.Generator;
 import com.ldbc.generator.GeneratorBuilder;
-import com.ldbc.generator.BoundedRangeExponentialNumberGenerator;
-import com.ldbc.generator.MinMaxGeneratorWrapper;
 import com.ldbc.util.ByteIterator;
 import com.ldbc.util.Pair;
 import com.ldbc.util.RandomByteIterator;
@@ -32,36 +29,6 @@ public class WorkloadUtils
             values.put( fieldName, data );
         }
         return values;
-    }
-
-    // TODO test / or remove entirely
-    // Generate the next random keyNumber
-    // NOTES:
-    // Not sure how exactly this works
-    // Seems to generate random numbers UNTIL it finds one matching a given
-    // criteria (e.g. in range)
-    // Seems inefficient and generally a bad approach
-    public static DBRecordKey nextKey( Generator<Long> requestKeyGenerator,
-            MinMaxGeneratorWrapper<Long> transactionInsertKeyGenerator ) throws WorkloadException
-    {
-        long keyNumber;
-        if ( requestKeyGenerator instanceof BoundedRangeExponentialNumberGenerator )
-        {
-            do
-            {
-                keyNumber = transactionInsertKeyGenerator.getMax() - requestKeyGenerator.next();
-            }
-            while ( keyNumber < 0 );
-        }
-        else
-        {
-            do
-            {
-                keyNumber = requestKeyGenerator.next();
-            }
-            while ( keyNumber > transactionInsertKeyGenerator.getMax() );
-        }
-        return new DBRecordKey( keyNumber );
     }
 
     public static <T extends Number> Generator<T> buildFieldLengthGenerator( GeneratorBuilder generatorBuilder,

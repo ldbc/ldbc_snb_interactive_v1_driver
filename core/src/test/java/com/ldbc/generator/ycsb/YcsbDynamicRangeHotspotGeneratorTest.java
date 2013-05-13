@@ -28,7 +28,7 @@ public class YcsbDynamicRangeHotspotGeneratorTest extends NumberGeneratorTest<Lo
     @Override
     public Generator<Long> getGeneratorImpl()
     {
-        return getGeneratorBuilder().dynamicRangeHotspotGenerator( lowerBound, upperBound, hotSetFraction,
+        return getGeneratorBuilder().hotspotGenerator( lowerBound, upperBound, hotSetFraction,
                 hotOperationFraction ).build();
     }
 

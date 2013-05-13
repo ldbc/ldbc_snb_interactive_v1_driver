@@ -20,7 +20,7 @@ package com.ldbc.generator.ycsb;
 import org.apache.commons.math3.random.RandomDataGenerator;
 
 import com.ldbc.generator.Generator;
-import com.ldbc.util.Utils;
+import com.ldbc.util.HashUtils;
 
 /**
  * A generator of a zipfian distribution. It produces a sequence of items, such
@@ -73,7 +73,7 @@ public class YcsbScrambledZipfianGenerator extends Generator<Long>
     protected Long doNext()
     {
         long ret = zipfianGenerator.next();
-        ret = min + Utils.FNVhash64( ret ) % itemCount;
+        ret = min + HashUtils.FNVhash64( ret ) % itemCount;
         return ret;
     }
 

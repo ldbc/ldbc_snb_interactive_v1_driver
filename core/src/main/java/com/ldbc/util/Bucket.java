@@ -68,7 +68,7 @@ public abstract class Bucket<T>
         @Override
         public boolean contains( T2 thing )
         {
-            return this.thing.equals( thing );
+            return thing.equals( thing );
         }
 
         @Override

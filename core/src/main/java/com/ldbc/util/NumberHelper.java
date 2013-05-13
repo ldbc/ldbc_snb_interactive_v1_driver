@@ -62,6 +62,8 @@ public abstract class NumberHelper<T extends Number>
 
     public abstract boolean gte( T a, T b );
 
+    public abstract T hash( T a );
+
     public static <T1 extends Number> boolean withinTolerance( T1 a, T1 b, Number tolerance )
     {
         Double difference = Math.abs( ( a.doubleValue() - b.doubleValue() ) );
@@ -147,6 +149,12 @@ public abstract class NumberHelper<T extends Number>
         {
             return a >= b;
         }
+
+        @Override
+        public Integer hash( Integer a )
+        {
+            return HashUtils.FNVhash32( a );
+        }
     }
 
     private static class LongNumberHelper extends NumberHelper<Long>
@@ -228,6 +236,12 @@ public abstract class NumberHelper<T extends Number>
         {
             return a >= b;
         }
+
+        @Override
+        public Long hash( Long a )
+        {
+            return HashUtils.FNVhash64( a );
+        }
     }
 
     private static class DoubleNumberHelper extends NumberHelper<Double>
@@ -308,6 +322,12 @@ public abstract class NumberHelper<T extends Number>
         public boolean gte( Double a, Double b )
         {
             return a >= b;
+        }
+
+        @Override
+        public Double hash( Double a )
+        {
+            throw new UnsupportedOperationException( "hash() not supported for Double, only for Integer and Long" );
         }
     }
 }

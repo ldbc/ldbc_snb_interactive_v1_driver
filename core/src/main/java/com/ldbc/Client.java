@@ -31,7 +31,7 @@ import com.ldbc.measurements.Measurements;
 import com.ldbc.measurements.exporter.MeasurementsExporter;
 import com.ldbc.measurements.exporter.TextMeasurementsExporter;
 import com.ldbc.util.RandomDataGeneratorFactory;
-import com.ldbc.util.Utils;
+import com.ldbc.util.MapUtils;
 
 /**
  * Main class for executing YCSB
@@ -114,7 +114,7 @@ public class Client
         {
             String exportFilePath = properties.get( EXPORT_FILE_PATH );
             OutputStream out = ( exportFilePath == null ) ? System.out : new FileOutputStream( exportFilePath );
-            String exporterClassName = Utils.mapGetDefault( properties, EXPORTER,
+            String exporterClassName = MapUtils.mapGetDefault( properties, EXPORTER,
                     TextMeasurementsExporter.class.getName() );
             try
             {
@@ -348,7 +348,7 @@ public class Client
         // prop ) );
         // }
 
-        commandlineProperties = Utils.mergePropertiesToMap( fileProperties, commandlineProperties, false );
+        commandlineProperties = MapUtils.mergePropertiesToMap( fileProperties, commandlineProperties, false );
 
         if ( !checkRequiredProperties( commandlineProperties ) )
         {
@@ -359,23 +359,23 @@ public class Client
         // TODO remove now
         // long maxExecutionTime = Long.parseLong(
         // commandlineProperties.getProperty( MAX_EXECUTION_TIME, "0" ) );
-        long maxExecutionTime = Long.parseLong( Utils.mapGetDefault( commandlineProperties, MAX_EXECUTION_TIME, "0" ) );
+        long maxExecutionTime = Long.parseLong( MapUtils.mapGetDefault( commandlineProperties, MAX_EXECUTION_TIME, "0" ) );
 
         // get number of threads, target and db
         // TODO remove now
         // threadCount = Integer.parseInt( commandlineProperties.getProperty(
         // "threadcount", "1" ) );
-        threadCount = Integer.parseInt( Utils.mapGetDefault( commandlineProperties, "threadcount", "1" ) );
+        threadCount = Integer.parseInt( MapUtils.mapGetDefault( commandlineProperties, "threadcount", "1" ) );
 
         // TODO remove now
         // dbname = commandlineProperties.getProperty( "db",
         // "com.yahoo.ycsb.BasicDB" );
-        dbname = Utils.mapGetDefault( commandlineProperties, "db", "com.yahoo.ycsb.BasicDB" );
+        dbname = MapUtils.mapGetDefault( commandlineProperties, "db", "com.yahoo.ycsb.BasicDB" );
 
         // TODO remove now
         // target = Integer.parseInt( commandlineProperties.getProperty(
         // "target", "0" ) );
-        target = Integer.parseInt( Utils.mapGetDefault( commandlineProperties, "target", "0" ) );
+        target = Integer.parseInt( MapUtils.mapGetDefault( commandlineProperties, "target", "0" ) );
 
         // compute the target throughput
         double targetPerformancePerMs = -1;
@@ -459,17 +459,17 @@ public class Client
         switch ( argBenchmarkPhase )
         {
         case TRANSACTION_PHASE:
-            operationCount = Integer.parseInt( Utils.mapGetDefault( commandlineProperties, OPERATION_COUNT, "0" ) );
+            operationCount = Integer.parseInt( MapUtils.mapGetDefault( commandlineProperties, OPERATION_COUNT, "0" ) );
             break;
 
         case LOAD_PHASE:
             if ( commandlineProperties.containsKey( INSERT_COUNT ) )
             {
-                operationCount = Integer.parseInt( Utils.mapGetDefault( commandlineProperties, INSERT_COUNT, "0" ) );
+                operationCount = Integer.parseInt( MapUtils.mapGetDefault( commandlineProperties, INSERT_COUNT, "0" ) );
             }
             else
             {
-                operationCount = Integer.parseInt( Utils.mapGetDefault( commandlineProperties, RECORD_COUNT, "0" ) );
+                operationCount = Integer.parseInt( MapUtils.mapGetDefault( commandlineProperties, RECORD_COUNT, "0" ) );
             }
             break;
         }
@@ -505,7 +505,7 @@ public class Client
         if ( argStatus )
         {
             boolean standardstatus = false;
-            if ( Utils.mapGetDefault( commandlineProperties, "measurementtype", "" ).equals( "timeseries" ) )
+            if ( MapUtils.mapGetDefault( commandlineProperties, "measurementtype", "" ).equals( "timeseries" ) )
             {
                 standardstatus = true;
             }

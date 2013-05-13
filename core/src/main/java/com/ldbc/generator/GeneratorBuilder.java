@@ -83,6 +83,18 @@ public class GeneratorBuilder
     }
 
     /**
+     * NaiveBoundedRangeNumberGenerator
+     */
+    public <T extends Number> NumberGeneratorBuilderDelegate<NaiveBoundedRangeNumberGenerator<T>, T> naiveBoundedRangeNumberGenerator(
+            MinMaxGeneratorWrapper<T> lowerBoundGenerator, MinMaxGeneratorWrapper<T> upperBoundGenerator,
+            Generator<T> unboundedGenerator )
+    {
+        NaiveBoundedRangeNumberGenerator<T> boundedGenerator = new NaiveBoundedRangeNumberGenerator<T>( getRandom(),
+                unboundedGenerator, lowerBoundGenerator, upperBoundGenerator );
+        return new NumberGeneratorBuilderDelegate<NaiveBoundedRangeNumberGenerator<T>, T>( boundedGenerator );
+    }
+
+    /**
      * UniformNumberGenerator
      */
     public <T extends Number> NumberGeneratorBuilderDelegate<DynamicRangeUniformNumberGenerator<T>, T> uniformNumberGenerator(
@@ -92,16 +104,16 @@ public class GeneratorBuilder
                 lowerBound, lowerBound ).build();
         MinMaxGeneratorWrapper<T> upperBoundGenerator = constantNumberGenerator( upperBound ).withMinMaxLast(
                 upperBound, upperBound ).build();
-        return boundedRangeUniformNumberGenerator( lowerBoundGenerator, upperBoundGenerator );
+        return dynamicRangeUniformNumberGenerator( lowerBoundGenerator, upperBoundGenerator );
     }
 
-    public <T extends Number> NumberGeneratorBuilderDelegate<DynamicRangeUniformNumberGenerator<T>, T> boundedRangeUniformNumberGenerator(
+    public <T extends Number> NumberGeneratorBuilderDelegate<DynamicRangeUniformNumberGenerator<T>, T> dynamicRangeUniformNumberGenerator(
             MinMaxGeneratorWrapper<T> boundingGenerator )
     {
-        return boundedRangeUniformNumberGenerator( boundingGenerator, boundingGenerator );
+        return dynamicRangeUniformNumberGenerator( boundingGenerator, boundingGenerator );
     }
 
-    public <T extends Number> NumberGeneratorBuilderDelegate<DynamicRangeUniformNumberGenerator<T>, T> boundedRangeUniformNumberGenerator(
+    public <T extends Number> NumberGeneratorBuilderDelegate<DynamicRangeUniformNumberGenerator<T>, T> dynamicRangeUniformNumberGenerator(
             MinMaxGeneratorWrapper<T> lowerBoundGenerator, MinMaxGeneratorWrapper<T> upperBoundGenerator )
     {
         DynamicRangeUniformNumberGenerator<T> generator = new DynamicRangeUniformNumberGenerator<T>( getRandom(),
@@ -256,8 +268,8 @@ public class GeneratorBuilder
      * HotspotGenerator
      */
     // TODO Generic
-    public NumberGeneratorBuilderDelegate<YcsbDynamicRangeHotspotGenerator, Long> dynamicRangeHotspotGenerator(
-            long lowerBound, long upperBound, double hotSetFraction, double hotOperationFraction )
+    public NumberGeneratorBuilderDelegate<YcsbDynamicRangeHotspotGenerator, Long> hotspotGenerator( long lowerBound,
+            long upperBound, double hotSetFraction, double hotOperationFraction )
     {
         MinMaxGeneratorWrapper<Long> lowerBoundGenerator = constantNumberGenerator( lowerBound ).withMinMaxLast(
                 lowerBound, lowerBound ).build();

@@ -26,7 +26,7 @@ import org.apache.commons.math3.random.RandomDataGenerator;
 
 import com.ldbc.util.ByteIterator;
 import com.ldbc.util.RandomDataGeneratorFactory;
-import com.ldbc.util.Utils;
+import com.ldbc.util.MapUtils;
 
 /**
  * Basic DB that just prints out the requested operations, instead of doing them
@@ -81,8 +81,8 @@ public class BasicDB extends DB
             throw new DBException( "DB may be initialized only once" );
         }
 
-        verbose = Boolean.parseBoolean( Utils.mapGetDefault( getProperties(), VERBOSE, VERBOSE_DEFAULT ) );
-        toDelay = Integer.parseInt( Utils.mapGetDefault( getProperties(), SIMULATE_DELAY, SIMULATE_DELAY_DEFAULT ) );
+        verbose = Boolean.parseBoolean( MapUtils.mapGetDefault( getProperties(), VERBOSE, VERBOSE_DEFAULT ) );
+        toDelay = Integer.parseInt( MapUtils.mapGetDefault( getProperties(), SIMULATE_DELAY, SIMULATE_DELAY_DEFAULT ) );
 
         if ( verbose )
         {

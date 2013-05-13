@@ -25,7 +25,7 @@ import java.util.Properties;
 import java.util.Vector;
 
 import com.ldbc.measurements.exporter.MeasurementsExporter;
-import com.ldbc.util.Utils;
+import com.ldbc.util.MapUtils;
 
 class SeriesUnit
 {
@@ -78,7 +78,7 @@ public class OneMeasurementTimeSeries extends OneMeasurement
     public OneMeasurementTimeSeries( String name, Map<String, String> properties )
     {
         super( name );
-        granularity = Integer.parseInt( Utils.mapGetDefault( properties, GRANULARITY, GRANULARITY_DEFAULT ) );
+        granularity = Integer.parseInt( MapUtils.mapGetDefault( properties, GRANULARITY, GRANULARITY_DEFAULT ) );
         measurements = new Vector<SeriesUnit>();
         returncodes = new HashMap<Integer, int[]>();
     }

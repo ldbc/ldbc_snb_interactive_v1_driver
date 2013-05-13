@@ -16,7 +16,7 @@ import org.apache.log4j.Logger;
 import com.ldbc.DB;
 import com.ldbc.DBException;
 import com.ldbc.util.ByteIterator;
-import com.ldbc.util.Utils;
+import com.ldbc.util.MapUtils;
 import com.sun.jersey.api.client.ClientHandlerException;
 
 /**
@@ -58,13 +58,13 @@ public class Neo4jClient extends DB
         try
         {
             // Initialize Neo4j driver
-            url = Utils.mapGetDefault( getProperties(), "neo4j.url", "http://localhost:7474/db/data" );
-            primaryKeyProperty = Utils.mapGetDefault( getProperties(), "neo4j.primarykey", "primarykey" );
+            url = MapUtils.mapGetDefault( getProperties(), "neo4j.url", "http://localhost:7474/db/data" );
+            primaryKeyProperty = MapUtils.mapGetDefault( getProperties(), "neo4j.primarykey", "primarykey" );
             // TODO use "table" when 2.0 is released
-            table = Utils.mapGetDefault( getProperties(), "neo4j.table", "usertable" );
-            clear = Boolean.parseBoolean( Utils.mapGetDefault( getProperties(), "neo4j.clear", "false" ) );
-            path = Utils.mapGetDefault( getProperties(), "neo4j.path", "/tmp/db" );
-            dbtype = Utils.mapGetDefault( getProperties(), "neo4j.dbtype", "embedded" );
+            table = MapUtils.mapGetDefault( getProperties(), "neo4j.table", "usertable" );
+            clear = Boolean.parseBoolean( MapUtils.mapGetDefault( getProperties(), "neo4j.clear", "false" ) );
+            path = MapUtils.mapGetDefault( getProperties(), "neo4j.path", "/tmp/db" );
+            dbtype = MapUtils.mapGetDefault( getProperties(), "neo4j.dbtype", "embedded" );
 
             logger.info( "*** Neo4j Properties ***" );
             logger.info( "table = " + table );

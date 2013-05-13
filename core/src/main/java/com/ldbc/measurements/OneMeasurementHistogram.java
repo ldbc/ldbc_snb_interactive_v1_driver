@@ -24,7 +24,7 @@ import java.util.Map;
 import java.util.Properties;
 
 import com.ldbc.measurements.exporter.MeasurementsExporter;
-import com.ldbc.util.Utils;
+import com.ldbc.util.MapUtils;
 
 /**
  * Take measurements and maintain a histogram of a given metric, such as READ
@@ -55,7 +55,7 @@ public class OneMeasurementHistogram extends OneMeasurement
     public OneMeasurementHistogram( String name, Map<String, String> properties )
     {
         super( name );
-        buckets = Integer.parseInt( Utils.mapGetDefault( properties, BUCKETS, BUCKETS_DEFAULT ) );
+        buckets = Integer.parseInt( MapUtils.mapGetDefault( properties, BUCKETS, BUCKETS_DEFAULT ) );
         histogram = new int[buckets];
         histogramoverflow = 0;
         operations = 0;

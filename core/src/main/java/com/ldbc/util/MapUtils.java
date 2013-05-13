@@ -17,11 +17,10 @@
 
 package com.ldbc.util;
 
-import java.lang.reflect.ParameterizedType;
 import java.util.Map;
 import java.util.Properties;
 
-public class Utils
+public class MapUtils
 {
     // /**
     // * Generate a random ASCII string of a given length.
@@ -46,88 +45,10 @@ public class Utils
     // return new String( buf );
     // }
 
-    /**
-     * Hash an integer value.
-     */
-    public static long hash( long val )
-    {
-        return FNVhash64( val );
-    }
-
-    public static final int FNV_offset_basis_32 = 0x811c9dc5;
-    public static final int FNV_prime_32 = 16777619;
-
-    /**
-     * 32 bit FNV hash. Produces more "random" hashes than (say)
-     * String.hashCode().
-     * 
-     * @param val The value to hash.
-     * @return The hash value
-     */
-    public static int FNVhash32( int val )
-    {
-        // from http://en.wikipedia.org/wiki/Fowler_Noll_Vo_hash
-        int hashval = FNV_offset_basis_32;
-
-        for ( int i = 0; i < 4; i++ )
-        {
-            int octet = val & 0x00ff;
-            val = val >> 8;
-
-            hashval = hashval ^ octet;
-            hashval = hashval * FNV_prime_32;
-            // hashval = hashval ^ octet;
-        }
-        return Math.abs( hashval );
-    }
-
-    public static final long FNV_offset_basis_64 = 0xCBF29CE484222325L;
-    public static final long FNV_prime_64 = 1099511628211L;
-
-    /**
-     * 64 bit FNV hash. Produces more "random" hashes than (say)
-     * String.hashCode().
-     * 
-     * @param val The value to hash.
-     * @return The hash value
-     */
-    public static long FNVhash64( long val )
-    {
-        // from http://en.wikipedia.org/wiki/Fowler_Noll_Vo_hash
-        long hashval = FNV_offset_basis_64;
-
-        for ( int i = 0; i < 8; i++ )
-        {
-            long octet = val & 0x00ff;
-            val = val >> 8;
-
-            hashval = hashval ^ octet;
-            hashval = hashval * FNV_prime_64;
-            // hashval = hashval ^ octet;
-        }
-        return Math.abs( hashval );
-    }
-
     public static <K, V> V mapGetDefault( Map<K, V> map, K key, V defaultValue )
     {
         return ( map.containsKey( key ) ) ? map.get( key ) : defaultValue;
     }
-
-    // public static Map<String, String> propertiesToMap( Properties
-    // fromProperties, Map<String, String> toMap,
-    // boolean overwrite )
-    // {
-    // for ( Object fromPropertyKey : fromProperties.keySet() )
-    // {
-    // if ( ( overwrite ) || ( false == toMap.containsKey( (String)
-    // fromPropertyKey ) ) )
-    // {
-    // toMap.put( (String) fromPropertyKey, (String) fromProperties.get(
-    // fromPropertyKey ) );
-    // }
-    // }
-    // return toMap;
-    // }
 
     public static <K, V> Map<K, V> mergePropertiesToMap( Properties fromProperties, Map<K, V> toMap, boolean overwrite )
     {
@@ -163,11 +84,6 @@ public class Utils
             }
         }
         return toMap;
-    }
-
-    public static <T> Class<?> extractGenericType( T generic )
-    {
-        return (Class<?>) ( (ParameterizedType) generic.getClass().getGenericSuperclass() ).getActualTypeArguments()[0];
     }
 
 }

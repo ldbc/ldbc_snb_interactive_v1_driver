@@ -9,7 +9,6 @@ import com.ldbc.DB;
 import com.ldbc.DBRecordKey;
 import com.ldbc.WorkloadException;
 import com.ldbc.generator.Generator;
-import com.ldbc.generator.MinMaxGeneratorWrapper;
 import com.ldbc.measurements.Measurements;
 import com.ldbc.util.ByteIterator;
 
@@ -39,13 +38,12 @@ public abstract class WorkloadOperation
     }
 
     public static boolean doRead( DB db, Generator<Long> requestKeyGenerator,
-            MinMaxGeneratorWrapper<Long> transactionInsertKeyGenerator,
             Generator<Set<String>> fieldsSelectionGenerator, boolean isOrderedInserts, String table )
             throws WorkloadException
     {
         // TODO keyNameGenerator needs to be a Generator too
         // choose a random record key
-        DBRecordKey key = WorkloadUtils.nextKey( requestKeyGenerator, transactionInsertKeyGenerator );
+        DBRecordKey key = new DBRecordKey( requestKeyGenerator.next() );
         boolean hashKeyNumber = !isOrderedInserts;
         String keyName = ( hashKeyNumber ) ? key.getHashed() : key.getPrefixed( KEY_NAME_PREFIX );
 
@@ -60,13 +58,12 @@ public abstract class WorkloadOperation
     }
 
     public static boolean doUpdate( DB db, Generator<Long> requestKeyGenerator,
-            MinMaxGeneratorWrapper<Long> transactionInsertKeyGenerator, Generator<Integer> fieldValuelengthGenerator,
-            Generator<Set<String>> fieldSelectionGenerator, boolean isOrderedInserts, String table )
-            throws WorkloadException
+            Generator<Integer> fieldValuelengthGenerator, Generator<Set<String>> fieldSelectionGenerator,
+            boolean isOrderedInserts, String table ) throws WorkloadException
     {
         // TODO keyNameGenerator needs to be a Generator too
         // choose a random record key
-        DBRecordKey key = WorkloadUtils.nextKey( requestKeyGenerator, transactionInsertKeyGenerator );
+        DBRecordKey key = new DBRecordKey( requestKeyGenerator.next() );
         boolean hashKeyNumber = !isOrderedInserts;
         String keyName = ( hashKeyNumber ) ? key.getHashed() : key.getPrefixed( KEY_NAME_PREFIX );
 
@@ -80,14 +77,13 @@ public abstract class WorkloadOperation
             return false;
     }
 
-    public static boolean doScan( DB db, Generator<Long> requestKeyGenerator,
-            MinMaxGeneratorWrapper<Long> transactionInsertKeyGenerator, Generator<Integer> scanLengthGenerator,
+    public static boolean doScan( DB db, Generator<Long> requestKeyGenerator, Generator<Integer> scanLengthGenerator,
             Generator<Set<String>> fieldsSelectionGenerator, boolean isOrderedInserts, String table )
             throws WorkloadException
     {
         // TODO keyNameGenerator needs to be a Generator too
         // choose a random record key
-        DBRecordKey startKey = WorkloadUtils.nextKey( requestKeyGenerator, transactionInsertKeyGenerator );
+        DBRecordKey startKey = new DBRecordKey( requestKeyGenerator.next() );
         boolean hashKeyNumber = !isOrderedInserts;
         String startKeyName = ( hashKeyNumber ) ? startKey.getHashed() : startKey.getPrefixed( KEY_NAME_PREFIX );
 
@@ -104,13 +100,12 @@ public abstract class WorkloadOperation
     }
 
     public static boolean doReadModifyWrite( DB db, Generator<Long> requestKeyGenerator,
-            MinMaxGeneratorWrapper<Long> transactionInsertKeyGenerator, Generator<Set<String>> fieldSelectionGenerator,
-            Generator<Integer> fieldValuelengthGenerator, boolean isOrderedInserts, String table )
-            throws WorkloadException
+            Generator<Set<String>> fieldSelectionGenerator, Generator<Integer> fieldValuelengthGenerator,
+            boolean isOrderedInserts, String table ) throws WorkloadException
     {
         // TODO keyNameGenerator needs to be a Generator too
         // choose a random record key
-        DBRecordKey key = WorkloadUtils.nextKey( requestKeyGenerator, transactionInsertKeyGenerator );
+        DBRecordKey key = new DBRecordKey( requestKeyGenerator.next() );
         boolean hashKeyNumber = !isOrderedInserts;
         String keyName = ( hashKeyNumber ) ? key.getHashed() : key.getPrefixed( KEY_NAME_PREFIX );
 

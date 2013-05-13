@@ -21,7 +21,7 @@ import com.ldbc.DB;
 import com.ldbc.DBException;
 import com.ldbc.util.ByteIterator;
 import com.ldbc.util.StringByteIterator;
-import com.ldbc.util.Utils;
+import com.ldbc.util.MapUtils;
 
 import java.sql.*;
 import java.util.*;
@@ -186,9 +186,9 @@ public class JdbcDBClient extends DB implements JdbcDBClientConstants
             return;
         }
         props = getProperties();
-        String urls = Utils.mapGetDefault( props, CONNECTION_URL, DEFAULT_PROP );
-        String user = Utils.mapGetDefault( props, CONNECTION_USER, DEFAULT_PROP );
-        String passwd = Utils.mapGetDefault( props, CONNECTION_PASSWD, DEFAULT_PROP );
+        String urls = MapUtils.mapGetDefault( props, CONNECTION_URL, DEFAULT_PROP );
+        String user = MapUtils.mapGetDefault( props, CONNECTION_USER, DEFAULT_PROP );
+        String passwd = MapUtils.mapGetDefault( props, CONNECTION_PASSWD, DEFAULT_PROP );
         String driver = props.get( DRIVER_CLASS );
 
         String jdbcFetchSizeStr = props.get( JDBC_FETCH_SIZE );
@@ -205,7 +205,7 @@ public class JdbcDBClient extends DB implements JdbcDBClientConstants
             }
         }
 
-        String autoCommitStr = Utils.mapGetDefault( props, JDBC_AUTO_COMMIT, Boolean.TRUE.toString() );
+        String autoCommitStr = MapUtils.mapGetDefault( props, JDBC_AUTO_COMMIT, Boolean.TRUE.toString() );
         Boolean autoCommit = Boolean.parseBoolean( autoCommitStr );
 
         try

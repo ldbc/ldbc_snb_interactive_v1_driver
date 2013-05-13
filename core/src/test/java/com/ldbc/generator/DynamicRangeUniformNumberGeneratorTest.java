@@ -30,7 +30,7 @@ public class DynamicRangeUniformNumberGeneratorTest extends NumberGeneratorTest<
     {
         MinMaxGeneratorWrapper<Long> counterGenerator = (MinMaxGeneratorWrapper<Long>) getGeneratorBuilder().counterGenerator(
                 counterStart, 1l ).withMinMaxLast( uniformMin, uniformMax ).build();
-        Generator<Long> growingRangeUniformGenerator = getGeneratorBuilder().boundedRangeUniformNumberGenerator(
+        Generator<Long> growingRangeUniformGenerator = getGeneratorBuilder().dynamicRangeUniformNumberGenerator(
                 counterGenerator ).build();
         for ( int i = 0; i < counterIterations; i++ )
         {

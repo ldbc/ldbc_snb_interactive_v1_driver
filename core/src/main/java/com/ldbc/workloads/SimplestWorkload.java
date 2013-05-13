@@ -13,7 +13,7 @@ import com.ldbc.generator.Generator;
 import com.ldbc.generator.GeneratorBuilder;
 import com.ldbc.generator.MinMaxGeneratorWrapper;
 import com.ldbc.util.Pair;
-import com.ldbc.util.Utils;
+import com.ldbc.util.MapUtils;
 
 public class SimplestWorkload extends Workload
 {
@@ -52,7 +52,7 @@ public class SimplestWorkload extends Workload
         readFieldSelectionGenerator = WorkloadUtils.buildFieldSelectionGenerator( generatorBuilder, FIELD_NAME_PREFIX,
                 NUMBER_OF_FIELDS_IN_RECORD, ( isReadAllFields ) ? NUMBER_OF_FIELDS_IN_RECORD : 1 );
 
-        // field value size: length in bytes
+        // field value length in bytes
         fieldValuelengthGenerator = generatorBuilder.uniformNumberGenerator( 1, 100 ).build();
 
         // proportion of transactions reads/update/insert/scan/read-modify-write
@@ -62,9 +62,6 @@ public class SimplestWorkload extends Workload
         operations.add( new Pair<Double, String>( 0.00, "INSERT" ) );
         operations.add( new Pair<Double, String>( 0.00, "SCAN" ) );
         operations.add( new Pair<Double, String>( 0.00, "READMODIFYWRITE" ) );
-
-        // distribution of requests across keyspace
-        requestKeyGenerator = generatorBuilder.uniformNumberGenerator( 0l, ( recordCount - 1 ) ).build();
 
         // max scan length (number of records)
         int maxScanlength = 1000;
@@ -87,7 +84,7 @@ public class SimplestWorkload extends Workload
          * client 2 --> insertStart=50,000
          *          --> insertCount=500,000
         */
-        long insertStart = Long.parseLong( Utils.mapGetDefault( properties, Workload.INSERT_START,
+        long insertStart = Long.parseLong( MapUtils.mapGetDefault( properties, Workload.INSERT_START,
                 Workload.INSERT_START_DEFAULT ) );
         loadInsertKeyGenerator = generatorBuilder.counterGenerator( insertStart, 1l ).build();
 
@@ -95,6 +92,9 @@ public class SimplestWorkload extends Workload
 
         transactionInsertKeyGenerator = generatorBuilder.counterGenerator( recordCount, 1l ).withMinMaxLast(
                 recordCount, recordCount ).build();
+
+        requestKeyGenerator = generatorBuilder.dynamicRangeUniformNumberGenerator( transactionInsertKeyGenerator ).build();
+
     }
 
     @Override
@@ -127,23 +127,23 @@ public class SimplestWorkload extends Workload
         }
         else if ( op.equals( "READ" ) )
         {
-            return WorkloadOperation.doRead( db, requestKeyGenerator, transactionInsertKeyGenerator,
-                    readFieldSelectionGenerator, IS_ORDERED_INSERTS, TABLE );
+            return WorkloadOperation.doRead( db, requestKeyGenerator, readFieldSelectionGenerator, IS_ORDERED_INSERTS,
+                    TABLE );
         }
         else if ( op.equals( "UPDATE" ) )
         {
-            return WorkloadOperation.doUpdate( db, requestKeyGenerator, transactionInsertKeyGenerator,
-                    fieldValuelengthGenerator, readFieldSelectionGenerator, IS_ORDERED_INSERTS, TABLE );
+            return WorkloadOperation.doUpdate( db, requestKeyGenerator, fieldValuelengthGenerator,
+                    readFieldSelectionGenerator, IS_ORDERED_INSERTS, TABLE );
         }
         else if ( op.equals( "SCAN" ) )
         {
-            return WorkloadOperation.doScan( db, requestKeyGenerator, transactionInsertKeyGenerator,
-                    scanLengthGenerator, readFieldSelectionGenerator, IS_ORDERED_INSERTS, TABLE );
+            return WorkloadOperation.doScan( db, requestKeyGenerator, scanLengthGenerator, readFieldSelectionGenerator,
+                    IS_ORDERED_INSERTS, TABLE );
         }
         else if ( op.equals( "READMODIFYWRITE" ) )
         {
-            return WorkloadOperation.doReadModifyWrite( db, requestKeyGenerator, transactionInsertKeyGenerator,
-                    readFieldSelectionGenerator, fieldValuelengthGenerator, IS_ORDERED_INSERTS, TABLE );
+            return WorkloadOperation.doReadModifyWrite( db, requestKeyGenerator, readFieldSelectionGenerator,
+                    fieldValuelengthGenerator, IS_ORDERED_INSERTS, TABLE );
         }
         else
         {

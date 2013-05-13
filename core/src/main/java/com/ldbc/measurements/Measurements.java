@@ -23,7 +23,7 @@ import java.util.Map;
 import java.util.Properties;
 
 import com.ldbc.measurements.exporter.MeasurementsExporter;
-import com.ldbc.util.Utils;
+import com.ldbc.util.MapUtils;
 
 /**
  * Collects latency measurements, and reports them when requested
@@ -89,7 +89,7 @@ public class Measurements
         // {
         // histogram = false;
         // }
-        if ( Utils.mapGetDefault( properties, MEASUREMENT_TYPE, MEASUREMENT_TYPE_DEFAULT ).equals( "histogram" ) )
+        if ( MapUtils.mapGetDefault( properties, MEASUREMENT_TYPE, MEASUREMENT_TYPE_DEFAULT ).equals( "histogram" ) )
         {
             histogram = true;
         }

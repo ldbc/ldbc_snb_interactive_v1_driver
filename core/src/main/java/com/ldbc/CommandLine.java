@@ -31,7 +31,7 @@ import java.util.Vector;
 
 import com.ldbc.util.ByteIterator;
 import com.ldbc.util.StringByteIterator;
-import com.ldbc.util.Utils;
+import com.ldbc.util.MapUtils;
 import com.ldbc.workloads.*;
 
 /**
@@ -194,7 +194,7 @@ public class CommandLine
             System.exit( 0 );
         }
 
-        commandlineProperties = Utils.mergePropertiesToMap( fileProperties, commandlineProperties, false );
+        commandlineProperties = MapUtils.mergePropertiesToMap( fileProperties, commandlineProperties, false );
 
         printIntroductionMessage( System.out );
 
@@ -205,7 +205,7 @@ public class CommandLine
             // String dbname = commandlineProperties.getProperty( "db",
             // DEFAULT_DB
             // );
-            String dbName = Utils.mapGetDefault( commandlineProperties, "db", DEFAULT_DB );
+            String dbName = MapUtils.mapGetDefault( commandlineProperties, "db", DEFAULT_DB );
             ClassLoader classLoader = CommandLine.class.getClassLoader();
             Class<? extends DB> dbClass = (Class<? extends DB>) classLoader.loadClass( dbName );
             db = dbClass.newInstance();

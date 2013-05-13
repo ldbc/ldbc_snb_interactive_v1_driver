@@ -13,7 +13,7 @@ import com.ldbc.generator.GeneratorBuilder;
 import com.ldbc.generator.BoundedRangeExponentialNumberGenerator;
 import com.ldbc.generator.MinMaxGeneratorWrapper;
 import com.ldbc.util.Pair;
-import com.ldbc.util.Utils;
+import com.ldbc.util.MapUtils;
 
 // TODO there should not be a distinction between init() and initThread()
 // TODO init() should just return an OperationGenerator
@@ -37,79 +37,84 @@ public class CoreWorkload extends Workload
     Generator<Long> requestKeyGenerator;
     // Insert
     Generator<Set<String>> insertFieldSelectionGenerator;
-    Generator<Set<String>> updateFieldSelectionGenerator; // Update
-    Generator<Set<String>> readFieldSelectionGenerator; // Read
-    Generator<Integer> scanLengthGenerator; // Read
-                                            // Uniform/Zipfian
-    MinMaxGeneratorWrapper<Long> transactionInsertKeyGenerator; // Request
-                                                                // Counter
-    Generator<String> operationGenerator; // Insert/Update/Read
-                                          // Discrete
+    // Update
+    Generator<Set<String>> updateFieldSelectionGenerator;
+    // Read
+    Generator<Set<String>> readFieldSelectionGenerator;
+    // Read --- Uniform/Zipfian
+    Generator<Integer> scanLengthGenerator;
+    // Request --- Counter
+    MinMaxGeneratorWrapper<Long> transactionInsertKeyGenerator;
+    // Insert/Update/Read --- Discrete
+    Generator<String> operationGenerator;
 
     // Initialization called once by client thread before operations start
     @Override
     public void init( Map<String, String> properties, GeneratorBuilder generatorBuilder ) throws WorkloadException
     {
         super.init( properties, generatorBuilder );
-        TABLE = Utils.mapGetDefault( properties, CoreWorkloadProperties.TABLENAME,
+        TABLE = MapUtils.mapGetDefault( properties, CoreWorkloadProperties.TABLENAME,
                 CoreWorkloadProperties.TABLENAME_DEFAULT );
-        int fieldCount = Integer.parseInt( Utils.mapGetDefault( properties, CoreWorkloadProperties.FIELD_COUNT,
+        int fieldCount = Integer.parseInt( MapUtils.mapGetDefault( properties, CoreWorkloadProperties.FIELD_COUNT,
                 CoreWorkloadProperties.FIELD_COUNT_DEFAULT ) );
         long recordCount = Long.parseLong( properties.get( Client.RECORD_COUNT ) );
 
-        Distribution fieldLengthDistribution = Distribution.valueOf( Utils.mapGetDefault( properties,
+        Distribution fieldLengthDistribution = Distribution.valueOf( MapUtils.mapGetDefault( properties,
                 CoreWorkloadProperties.FIELD_LENGTH_DISTRIBUTION,
                 CoreWorkloadProperties.FIELD_LENGTH_DISTRIBUTION_DEFAULT ).toUpperCase() );
-        int maxFieldLength = Integer.parseInt( Utils.mapGetDefault( properties, CoreWorkloadProperties.FIELD_LENGTH,
+        int maxFieldLength = Integer.parseInt( MapUtils.mapGetDefault( properties, CoreWorkloadProperties.FIELD_LENGTH,
                 CoreWorkloadProperties.FIELD_LENGTH_DEFAULT ) );
         fieldValuelengthGenerator = WorkloadUtils.buildFieldLengthGenerator( generatorBuilder, fieldLengthDistribution,
                 1, maxFieldLength );
-        double readMixProportion = Double.parseDouble( Utils.mapGetDefault( properties,
+        double readMixProportion = Double.parseDouble( MapUtils.mapGetDefault( properties,
                 CoreWorkloadProperties.READ_PROPORTION, CoreWorkloadProperties.READ_PROPORTION_DEFAULT ) );
-        double updateMixProportion = Double.parseDouble( Utils.mapGetDefault( properties,
+        double updateMixProportion = Double.parseDouble( MapUtils.mapGetDefault( properties,
                 CoreWorkloadProperties.UPDATE_PROPORTION, CoreWorkloadProperties.UPDATE_PROPORTION_DEFAULT ) );
-        double insertMixProportion = Double.parseDouble( Utils.mapGetDefault( properties,
+        double insertMixProportion = Double.parseDouble( MapUtils.mapGetDefault( properties,
                 CoreWorkloadProperties.INSERT_PROPORTION, CoreWorkloadProperties.INSERT_PROPORTION_DEFAULT ) );
-        double scanMixProportion = Double.parseDouble( Utils.mapGetDefault( properties,
+        double scanMixProportion = Double.parseDouble( MapUtils.mapGetDefault( properties,
                 CoreWorkloadProperties.SCAN_PROPORTION, CoreWorkloadProperties.SCAN_PROPORTION_DEFAULT ) );
-        double readModifyWriteMixProportion = Double.parseDouble( Utils.mapGetDefault( properties,
+        double readModifyWriteMixProportion = Double.parseDouble( MapUtils.mapGetDefault( properties,
                 CoreWorkloadProperties.READMODIFYWRITE_PROPORTION,
                 CoreWorkloadProperties.READMODIFYWRITE_PROPORTION_DEFAULT ) );
 
-        String requestDistribution = Utils.mapGetDefault( properties, CoreWorkloadProperties.REQUEST_DISTRIBUTION,
+        String requestDistribution = MapUtils.mapGetDefault( properties, CoreWorkloadProperties.REQUEST_DISTRIBUTION,
                 CoreWorkloadProperties.REQUEST_DISTRIBUTION_DEFAULT );
 
-        int maxScanlength = Integer.parseInt( Utils.mapGetDefault( properties, CoreWorkloadProperties.MAX_SCAN_LENGTH,
-                CoreWorkloadProperties.MAX_SCAN_LENGTH_DEFAULT ) );
-        String scanLengthDistribution = Utils.mapGetDefault( properties,
+        int maxScanlength = Integer.parseInt( MapUtils.mapGetDefault( properties,
+                CoreWorkloadProperties.MAX_SCAN_LENGTH, CoreWorkloadProperties.MAX_SCAN_LENGTH_DEFAULT ) );
+        String scanLengthDistribution = MapUtils.mapGetDefault( properties,
                 CoreWorkloadProperties.SCAN_LENGTH_DISTRIBUTION,
                 CoreWorkloadProperties.SCAN_LENGTH_DISTRIBUTION_DEFAULT );
-        boolean isReadAllFields = Boolean.parseBoolean( Utils.mapGetDefault( properties,
+        boolean isReadAllFields = Boolean.parseBoolean( MapUtils.mapGetDefault( properties,
                 CoreWorkloadProperties.READ_ALL_FIELDS, CoreWorkloadProperties.READ_ALL_FIELDS_DEFAULT ) );
-        boolean isWriteAllFields = Boolean.parseBoolean( Utils.mapGetDefault( properties,
+        boolean isWriteAllFields = Boolean.parseBoolean( MapUtils.mapGetDefault( properties,
                 CoreWorkloadProperties.WRITE_ALL_FIELDS, CoreWorkloadProperties.WRITE_ALL_FIELDS_DEFAULT ) );
 
-        if ( Utils.mapGetDefault( properties, CoreWorkloadProperties.INSERT_ORDER,
+        if ( MapUtils.mapGetDefault( properties, CoreWorkloadProperties.INSERT_ORDER,
                 CoreWorkloadProperties.INSERT_ORDER_DEFAULT ).equals( "hashed" ) )
         {
             IS_ORDERED_INSERTS = false;
         }
         else if ( requestDistribution.equals( "exponential" ) )
         {
-            double percentile = Double.parseDouble( Utils.mapGetDefault( properties,
+            double percentile = Double.parseDouble( MapUtils.mapGetDefault( properties,
                     BoundedRangeExponentialNumberGenerator.EXPONENTIAL_PERCENTILE,
                     BoundedRangeExponentialNumberGenerator.EXPONENTIAL_PERCENTILE_DEFAULT ) );
-            double frac = Double.parseDouble( Utils.mapGetDefault( properties,
+            double frac = Double.parseDouble( MapUtils.mapGetDefault( properties,
                     BoundedRangeExponentialNumberGenerator.EXPONENTIAL_FRAC,
                     BoundedRangeExponentialNumberGenerator.EXPONENTIAL_FRAC_DEFAULT ) );
-            requestKeyGenerator = generatorBuilder.exponentialGenerator( percentile, recordCount * frac ).build();
+            double range = recordCount * frac;
+
+            requestKeyGenerator = generatorBuilder.boundedRangeExponentialNumberGenerator(
+                    transactionInsertKeyGenerator, transactionInsertKeyGenerator, percentile, range ).build();
         }
         else
         {
             IS_ORDERED_INSERTS = true;
         }
 
-        long insertStart = Long.parseLong( Utils.mapGetDefault( properties, Workload.INSERT_START,
+        long insertStart = Long.parseLong( MapUtils.mapGetDefault( properties, Workload.INSERT_START,
                 Workload.INSERT_START_DEFAULT ) );
         loadInsertKeyGenerator = generatorBuilder.counterGenerator( insertStart, 1l ).build();
 
@@ -127,7 +132,7 @@ public class CoreWorkload extends Workload
                 recordCount, recordCount ).build();
         if ( requestDistribution.equals( "uniform" ) )
         {
-            requestKeyGenerator = generatorBuilder.uniformNumberGenerator( 0l, recordCount - 1 ).build();
+            requestKeyGenerator = generatorBuilder.dynamicRangeUniformNumberGenerator( transactionInsertKeyGenerator ).build();
         }
         else if ( requestDistribution.equals( "zipfian" ) )
         {
@@ -136,20 +141,28 @@ public class CoreWorkload extends Workload
             // 2 is fudge factor
             long expectednewkeys = new Double( operationCount * insertMixProportion * 2.0 ).longValue();
 
-            requestKeyGenerator = generatorBuilder.scrambledZipfianGenerator( 0l, recordCount + expectednewkeys ).build();
+            Generator<Long> scrambledZipfianGenerator = generatorBuilder.scrambledZipfianGenerator( 0l,
+                    recordCount + expectednewkeys ).build();
+            requestKeyGenerator = generatorBuilder.naiveBoundedRangeNumberGenerator( transactionInsertKeyGenerator,
+                    transactionInsertKeyGenerator, scrambledZipfianGenerator ).build();
         }
         else if ( requestDistribution.equals( "latest" ) )
         {
-            requestKeyGenerator = generatorBuilder.skewedLatestGenerator( transactionInsertKeyGenerator ).build();
+            Generator<Long> skewedLatestGenerator = generatorBuilder.skewedLatestGenerator(
+                    transactionInsertKeyGenerator ).build();
+            requestKeyGenerator = generatorBuilder.naiveBoundedRangeNumberGenerator( transactionInsertKeyGenerator,
+                    transactionInsertKeyGenerator, skewedLatestGenerator ).build();
         }
         else if ( requestDistribution.equals( "hotspot" ) )
         {
-            double hotSetFraction = Double.parseDouble( Utils.mapGetDefault( properties,
+            double hotSetFraction = Double.parseDouble( MapUtils.mapGetDefault( properties,
                     CoreWorkloadProperties.HOTSPOT_DATA_FRACTION, CoreWorkloadProperties.HOTSPOT_DATA_FRACTION_DEFAULT ) );
-            double hotOperationFraction = Double.parseDouble( Utils.mapGetDefault( properties,
+            double hotOperationFraction = Double.parseDouble( MapUtils.mapGetDefault( properties,
                     CoreWorkloadProperties.HOTSPOT_OPN_FRACTION, CoreWorkloadProperties.HOTSPOT_OPN_FRACTION_DEFAULT ) );
-            requestKeyGenerator = generatorBuilder.dynamicRangeHotspotGenerator( 0, recordCount - 1, hotSetFraction,
+            Generator<Long> hotspotGenerator = generatorBuilder.hotspotGenerator( 0, recordCount - 1, hotSetFraction,
                     hotOperationFraction ).build();
+            requestKeyGenerator = generatorBuilder.naiveBoundedRangeNumberGenerator( transactionInsertKeyGenerator,
+                    transactionInsertKeyGenerator, hotspotGenerator ).build();
         }
         else
         {
@@ -214,23 +227,23 @@ public class CoreWorkload extends Workload
         }
         else if ( op.equals( "READ" ) )
         {
-            return WorkloadOperation.doRead( db, requestKeyGenerator, transactionInsertKeyGenerator,
-                    readFieldSelectionGenerator, IS_ORDERED_INSERTS, TABLE );
+            return WorkloadOperation.doRead( db, requestKeyGenerator, readFieldSelectionGenerator, IS_ORDERED_INSERTS,
+                    TABLE );
         }
         else if ( op.equals( "UPDATE" ) )
         {
-            return WorkloadOperation.doUpdate( db, requestKeyGenerator, transactionInsertKeyGenerator,
-                    fieldValuelengthGenerator, readFieldSelectionGenerator, IS_ORDERED_INSERTS, TABLE );
+            return WorkloadOperation.doUpdate( db, requestKeyGenerator, fieldValuelengthGenerator,
+                    readFieldSelectionGenerator, IS_ORDERED_INSERTS, TABLE );
         }
         else if ( op.equals( "SCAN" ) )
         {
-            return WorkloadOperation.doScan( db, requestKeyGenerator, transactionInsertKeyGenerator,
-                    scanLengthGenerator, readFieldSelectionGenerator, IS_ORDERED_INSERTS, TABLE );
+            return WorkloadOperation.doScan( db, requestKeyGenerator, scanLengthGenerator, readFieldSelectionGenerator,
+                    IS_ORDERED_INSERTS, TABLE );
         }
         else if ( op.equals( "READMODIFYWRITE" ) )
         {
-            return WorkloadOperation.doReadModifyWrite( db, requestKeyGenerator, transactionInsertKeyGenerator,
-                    readFieldSelectionGenerator, fieldValuelengthGenerator, IS_ORDERED_INSERTS, TABLE );
+            return WorkloadOperation.doReadModifyWrite( db, requestKeyGenerator, readFieldSelectionGenerator,
+                    fieldValuelengthGenerator, IS_ORDERED_INSERTS, TABLE );
         }
         else
         {
