@@ -12,7 +12,7 @@ public class RandomDataGeneratorFactory
 
     public RandomDataGeneratorFactory()
     {
-        this.random = getGenerator( System.currentTimeMillis() );
+        this.random = getRandomGenerator( System.currentTimeMillis() );
         this.seed = null;
     }
 
@@ -30,15 +30,15 @@ public class RandomDataGeneratorFactory
 
     public RandomDataGenerator newRandom( long seed )
     {
-        return new RandomDataGenerator( getGenerator( seed ) );
+        return new RandomDataGenerator( getRandomGenerator( seed ) );
     }
 
     public RandomDataGenerator newRandom()
     {
-        return new RandomDataGenerator( getGenerator( getSeed() ) );
+        return new RandomDataGenerator( getRandomGenerator( getSeed() ) );
     }
 
-    private RandomGenerator getGenerator( long seed )
+    private RandomGenerator getRandomGenerator( long seed )
     {
         /* 
          * From Docs: http://commons.apache.org/proper/commons-math/javadocs/api-3.2/index.html

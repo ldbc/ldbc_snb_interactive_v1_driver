@@ -6,10 +6,8 @@ import java.util.List;
 import java.util.Map;
 
 import com.google.common.collect.Range;
-import com.ldbc.generator.GeneratorException;
 import com.ldbc.util.Bucket.NumberRangeBucket;
 
-// TODO remove?
 // T - Things - type of things being counted
 //   ---> Bucket must be able to compare this
 //   ---> Histogram must be able to get/put this
@@ -159,7 +157,7 @@ public class Histogram<T, C extends Number>
         {
             if ( bucket.contains( value ) )
             {
-                bucketHits.add( new Pair<Bucket<T>, T>( bucket, value ) );
+                bucketHits.add( Pair.create( bucket, value ) );
             }
         }
         if ( bucketHits.size() < 1 )
@@ -183,7 +181,7 @@ public class Histogram<T, C extends Number>
         if ( false == valuedBuckets.containsKey( bucket ) )
         {
             // TODO other Exception type should be thrown?
-            throw new GeneratorException( String.format( "Bucket[%s] not found in Histogram", bucket ) );
+            throw new RuntimeException( String.format( "Bucket[%s] not found in Histogram", bucket ) );
         }
     }
 

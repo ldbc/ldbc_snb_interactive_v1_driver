@@ -19,10 +19,10 @@ public class DiscreteGeneratorTest extends GeneratorTest<String, Integer>
     public Histogram<String, Integer> getExpectedDistribution()
     {
         Histogram<String, Integer> expectedDistribution = new Histogram<String, Integer>( 0 );
-        expectedDistribution.addBucket( new DiscreteBucket<String>( "1" ), 1 );
-        expectedDistribution.addBucket( new DiscreteBucket<String>( "2" ), 2 );
-        expectedDistribution.addBucket( new DiscreteBucket<String>( "3" ), 4 );
-        expectedDistribution.addBucket( new DiscreteBucket<String>( "4" ), 8 );
+        expectedDistribution.addBucket( DiscreteBucket.create( "1" ), 1 );
+        expectedDistribution.addBucket( DiscreteBucket.create( "2" ), 2 );
+        expectedDistribution.addBucket( DiscreteBucket.create( "3" ), 4 );
+        expectedDistribution.addBucket( DiscreteBucket.create( "4" ), 8 );
         return expectedDistribution;
     }
 
@@ -35,10 +35,10 @@ public class DiscreteGeneratorTest extends GeneratorTest<String, Integer>
     @Override
     public Generator<String> getGeneratorImpl()
     {
-        Pair<Double, String> p1 = new Pair<Double, String>( 1.0, "1" );
-        Pair<Double, String> p2 = new Pair<Double, String>( 2.0, "2" );
-        Pair<Double, String> p3 = new Pair<Double, String>( 4.0, "3" );
-        Pair<Double, String> p4 = new Pair<Double, String>( 8.0, "4" );
+        Pair<Double, String> p1 = Pair.create( 1.0, "1" );
+        Pair<Double, String> p2 = Pair.create( 2.0, "2" );
+        Pair<Double, String> p3 = Pair.create( 4.0, "3" );
+        Pair<Double, String> p4 = Pair.create( 8.0, "4" );
         ArrayList<Pair<Double, String>> items = new ArrayList<Pair<Double, String>>();
         items.add( p1 );
         items.add( p2 );

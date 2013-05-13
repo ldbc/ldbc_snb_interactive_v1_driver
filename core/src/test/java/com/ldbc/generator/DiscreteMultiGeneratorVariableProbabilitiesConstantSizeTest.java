@@ -31,14 +31,14 @@ public class DiscreteMultiGeneratorVariableProbabilitiesConstantSizeTest extends
         Set<String> s23 = new HashSet<String>( Arrays.asList( new String[] { "2", "3" } ) );
         Set<String> s123 = new HashSet<String>( Arrays.asList( new String[] { "1", "2", "3" } ) );
         Histogram<Set<String>, Integer> expectedDistribution = new Histogram<Set<String>, Integer>( 0 );
-        expectedDistribution.addBucket( new DiscreteBucket<Set<String>>( s ), 0 );
-        expectedDistribution.addBucket( new DiscreteBucket<Set<String>>( s1 ), 1 );
-        expectedDistribution.addBucket( new DiscreteBucket<Set<String>>( s2 ), 2 );
-        expectedDistribution.addBucket( new DiscreteBucket<Set<String>>( s3 ), 4 );
-        expectedDistribution.addBucket( new DiscreteBucket<Set<String>>( s12 ), 0 );
-        expectedDistribution.addBucket( new DiscreteBucket<Set<String>>( s13 ), 0 );
-        expectedDistribution.addBucket( new DiscreteBucket<Set<String>>( s23 ), 0 );
-        expectedDistribution.addBucket( new DiscreteBucket<Set<String>>( s123 ), 0 );
+        expectedDistribution.addBucket( DiscreteBucket.create( s ), 0 );
+        expectedDistribution.addBucket( DiscreteBucket.create( s1 ), 1 );
+        expectedDistribution.addBucket( DiscreteBucket.create( s2 ), 2 );
+        expectedDistribution.addBucket( DiscreteBucket.create( s3 ), 4 );
+        expectedDistribution.addBucket( DiscreteBucket.create( s12 ), 0 );
+        expectedDistribution.addBucket( DiscreteBucket.create( s13 ), 0 );
+        expectedDistribution.addBucket( DiscreteBucket.create( s23 ), 0 );
+        expectedDistribution.addBucket( DiscreteBucket.create( s123 ), 0 );
         return expectedDistribution;
     }
 
@@ -51,9 +51,9 @@ public class DiscreteMultiGeneratorVariableProbabilitiesConstantSizeTest extends
     @Override
     public Generator<Set<String>> getGeneratorImpl()
     {
-        Pair<Double, String> p1 = new Pair<Double, String>( 1.0, "1" );
-        Pair<Double, String> p2 = new Pair<Double, String>( 2.0, "2" );
-        Pair<Double, String> p3 = new Pair<Double, String>( 4.0, "3" );
+        Pair<Double, String> p1 = Pair.create( 1.0, "1" );
+        Pair<Double, String> p2 = Pair.create( 2.0, "2" );
+        Pair<Double, String> p3 = Pair.create( 4.0, "3" );
         ArrayList<Pair<Double, String>> items = new ArrayList<Pair<Double, String>>();
         items.add( p1 );
         items.add( p2 );

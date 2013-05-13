@@ -12,11 +12,11 @@ public class PairTest
     public void equalsTest()
     {
         // Given
-        Pair<String, Integer> p1a = new Pair<String, Integer>( "1", 1 );
-        Pair<String, Integer> p2 = new Pair<String, Integer>( "2", 2 );
-        Pair<String, Integer> p3 = new Pair<String, Integer>( "1", 2 );
-        Pair<String, Integer> p4 = new Pair<String, Integer>( "2", 1 );
-        Pair<String, Integer> p1b = new Pair<String, Integer>( "1", 1 );
+        Pair<String, Integer> p1a = Pair.create( "1", 1 );
+        Pair<String, Integer> p2 = Pair.create( "2", 2 );
+        Pair<String, Integer> p3 = Pair.create( "1", 2 );
+        Pair<String, Integer> p4 = Pair.create( "2", 1 );
+        Pair<String, Integer> p1b = Pair.create( "1", 1 );
 
         // When
 
@@ -32,7 +32,7 @@ public class PairTest
     public void getterTest()
     {
         // Given
-        Pair<String, Integer> p = new Pair<String, Integer>( "1", 1 );
+        Pair<String, Integer> p = Pair.create( "1", 1 );
 
         // When
 

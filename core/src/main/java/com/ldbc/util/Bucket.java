@@ -60,15 +60,20 @@ public abstract class Bucket<T>
     {
         private final T2 thing;
 
+        public static <Type> DiscreteBucket<Type> create( Type thing )
+        {
+            return new DiscreteBucket<Type>( thing );
+        }
+
         public DiscreteBucket( T2 thing )
         {
             this.thing = thing;
         }
 
         @Override
-        public boolean contains( T2 thing )
+        public boolean contains( T2 otherThing )
         {
-            return thing.equals( thing );
+            return this.thing.equals( otherThing );
         }
 
         @Override

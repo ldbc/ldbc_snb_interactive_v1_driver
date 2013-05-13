@@ -120,11 +120,11 @@ public class CoreWorkload extends Workload
 
         // proportion of transactions reads/update/insert/scan/read-modify-write
         ArrayList<Pair<Double, String>> operations = new ArrayList<Pair<Double, String>>();
-        operations.add( new Pair<Double, String>( readMixProportion, "READ" ) );
-        operations.add( new Pair<Double, String>( updateMixProportion, "UPDATE" ) );
-        operations.add( new Pair<Double, String>( insertMixProportion, "INSERT" ) );
-        operations.add( new Pair<Double, String>( scanMixProportion, "SCAN" ) );
-        operations.add( new Pair<Double, String>( readModifyWriteMixProportion, "READMODIFYWRITE" ) );
+        operations.add( Pair.create( readMixProportion, "READ" ) );
+        operations.add( Pair.create( updateMixProportion, "UPDATE" ) );
+        operations.add( Pair.create( insertMixProportion, "INSERT" ) );
+        operations.add( Pair.create( scanMixProportion, "SCAN" ) );
+        operations.add( Pair.create( readModifyWriteMixProportion, "READMODIFYWRITE" ) );
 
         operationGenerator = generatorBuilder.discreteGenerator( operations ).build();
 

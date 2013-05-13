@@ -75,7 +75,7 @@ public class WorkloadUtils
             Set<Pair<Double, String>> fields = new HashSet<Pair<Double, String>>();
             for ( int i = 0; i < fieldCount; i++ )
             {
-                Pair<Double, String> field = new Pair<Double, String>( 1d, fieldNamePrefix + i );
+                Pair<Double, String> field = Pair.create( 1d, fieldNamePrefix + i );
                 fields.add( field );
             }
             Generator<Integer> fieldsToRetrieveGenerator = generatorBuilder.constantGenerator( fieldCountToRetrieve ).build();

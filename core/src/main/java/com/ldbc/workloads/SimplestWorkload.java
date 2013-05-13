@@ -57,11 +57,11 @@ public class SimplestWorkload extends Workload
 
         // proportion of transactions reads/update/insert/scan/read-modify-write
         ArrayList<Pair<Double, String>> operations = new ArrayList<Pair<Double, String>>();
-        operations.add( new Pair<Double, String>( 0.95, "READ" ) );
-        operations.add( new Pair<Double, String>( 0.05, "UPDATE" ) );
-        operations.add( new Pair<Double, String>( 0.00, "INSERT" ) );
-        operations.add( new Pair<Double, String>( 0.00, "SCAN" ) );
-        operations.add( new Pair<Double, String>( 0.00, "READMODIFYWRITE" ) );
+        operations.add( Pair.create( 0.95, "READ" ) );
+        operations.add( Pair.create( 0.05, "UPDATE" ) );
+        operations.add( Pair.create( 0.00, "INSERT" ) );
+        operations.add( Pair.create( 0.00, "SCAN" ) );
+        operations.add( Pair.create( 0.00, "READMODIFYWRITE" ) );
 
         // max scan length (number of records)
         int maxScanlength = 1000;

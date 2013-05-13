@@ -21,6 +21,20 @@ public abstract class NumberHelper<T extends Number>
                 type.getName() ) );
     }
 
+    public static boolean isNumber( Object thing )
+    {
+        if ( thing.getClass().isAssignableFrom( Integer.class ) ) return true;
+        if ( thing.getClass().isAssignableFrom( Long.class ) ) return true;
+        if ( thing.getClass().isAssignableFrom( Double.class ) ) return true;
+        return false;
+    }
+
+    public static <T1 extends Number> boolean withinTolerance( T1 a, T1 b, Number tolerance )
+    {
+        Double difference = Math.abs( ( a.doubleValue() - b.doubleValue() ) );
+        return difference <= tolerance.doubleValue();
+    }
+
     public final T sum( Iterable<T> ts )
     {
         T sum = zero();
@@ -63,12 +77,6 @@ public abstract class NumberHelper<T extends Number>
     public abstract boolean gte( T a, T b );
 
     public abstract T hash( T a );
-
-    public static <T1 extends Number> boolean withinTolerance( T1 a, T1 b, Number tolerance )
-    {
-        Double difference = Math.abs( ( a.doubleValue() - b.doubleValue() ) );
-        return difference <= tolerance.doubleValue();
-    }
 
     private static class IntegerNumberHelper extends NumberHelper<Integer>
     {

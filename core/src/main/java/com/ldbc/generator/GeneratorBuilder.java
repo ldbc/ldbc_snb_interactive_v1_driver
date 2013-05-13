@@ -1,5 +1,7 @@
 package com.ldbc.generator;
 
+import java.util.ArrayList;
+
 import org.apache.commons.math3.random.RandomDataGenerator;
 
 import com.ldbc.generator.ycsb.YcsbDynamicRangeHotspotGenerator;
@@ -8,11 +10,12 @@ import com.ldbc.generator.ycsb.YcsbSkewedLatestGenerator;
 import com.ldbc.generator.ycsb.YcsbZipfianNumberGenerator;
 import com.ldbc.util.Pair;
 import com.ldbc.util.RandomDataGeneratorFactory;
+import com.ldbc.util.Triple;
 
 public class GeneratorBuilder
 {
 
-    public static class GeneratorBuilderDelegate<G extends Generator<?>, T>
+    public static class GeneratorBuilderDelegate<G extends Generator<?>>
     {
         protected final G generator;
 
@@ -28,17 +31,17 @@ public class GeneratorBuilder
     }
 
     public static class NumberGeneratorBuilderDelegate<G extends Generator<T>, T extends Number> extends
-            GeneratorBuilderDelegate<G, T>
+            GeneratorBuilderDelegate<G>
     {
         private NumberGeneratorBuilderDelegate( G generator )
         {
             super( generator );
         }
 
-        public GeneratorBuilderDelegate<MinMaxGeneratorWrapper<T>, T> withMinMaxLast( T min, T max )
+        public GeneratorBuilderDelegate<MinMaxGeneratorWrapper<T>> withMinMaxLast( T min, T max )
         {
             MinMaxGeneratorWrapper<T> minMaxGenerator = new MinMaxGeneratorWrapper<T>( generator, min, max );
-            return new GeneratorBuilderDelegate<MinMaxGeneratorWrapper<T>, T>( minMaxGenerator );
+            return new GeneratorBuilderDelegate<MinMaxGeneratorWrapper<T>>( minMaxGenerator );
         }
     }
 
@@ -58,28 +61,59 @@ public class GeneratorBuilder
     /**
      * DiscreteGenerator
      */
-    public <T> GeneratorBuilderDelegate<DiscreteGenerator<T>, T> discreteGenerator( Iterable<Pair<Double, T>> pairs )
+    public <T> GeneratorBuilderDelegate<DiscreteGenerator<T>> discreteGenerator( Iterable<Pair<Double, T>> items )
     {
-        DiscreteGenerator<T> generator = new DiscreteGenerator<T>( getRandom(), pairs );
-        return new GeneratorBuilderDelegate<DiscreteGenerator<T>, T>( generator );
+        DiscreteGenerator<T> generator = new DiscreteGenerator<T>( getRandom(), items );
+        return new GeneratorBuilderDelegate<DiscreteGenerator<T>>( generator );
     }
 
     /**
      * DiscreteMultiGenerator
      */
-    public <T> GeneratorBuilderDelegate<DiscreteMultiGenerator<T>, T> discreteMultiGenerator(
-            Iterable<Pair<Double, T>> pairs, Integer amountToRetrieve )
+    public <T> GeneratorBuilderDelegate<DiscreteMultiGenerator<T>> discreteMultiGenerator(
+            Iterable<Pair<Double, T>> items, Integer amountToRetrieve )
     {
         Generator<Integer> amountToRetrieveGenerator = constantGenerator( amountToRetrieve ).build();
-        return discreteMultiGenerator( pairs, amountToRetrieveGenerator );
+        return discreteMultiGenerator( items, amountToRetrieveGenerator );
     }
 
-    public <T> GeneratorBuilderDelegate<DiscreteMultiGenerator<T>, T> discreteMultiGenerator(
+    public <T> GeneratorBuilderDelegate<DiscreteMultiGenerator<T>> discreteMultiGenerator(
             Iterable<Pair<Double, T>> pairs, Generator<Integer> amountToRetrieveGenerator )
     {
         DiscreteMultiGenerator<T> generator = new DiscreteMultiGenerator<T>( getRandom(), pairs,
                 amountToRetrieveGenerator );
-        return new GeneratorBuilderDelegate<DiscreteMultiGenerator<T>, T>( generator );
+        return new GeneratorBuilderDelegate<DiscreteMultiGenerator<T>>( generator );
+    }
+
+    /**
+     * DiscreteValuedMultiGenerator
+     */
+
+    public <K, V> GeneratorBuilderDelegate<DiscreteValuedMultiGenerator<K, V>> discreteValuedMultiGenerator(
+            Iterable<Triple<Double, K, Generator<V>>> items, Integer amountToRetrieve )
+    {
+        Generator<Integer> amountToRetrieveGenerator = constantGenerator( amountToRetrieve ).build();
+        return discreteValuedMultiGenerator( items, amountToRetrieveGenerator );
+    }
+
+    public <K, V> GeneratorBuilderDelegate<DiscreteValuedMultiGenerator<K, V>> discreteValuedMultiGenerator(
+            Iterable<Triple<Double, K, Generator<V>>> items, Generator<Integer> amountToRetrieveGenerator )
+    {
+        ArrayList<Pair<Double, Pair<K, Generator<V>>>> probabilityItems = new ArrayList<Pair<Double, Pair<K, Generator<V>>>>();
+        for ( Triple<Double, K, Generator<V>> item : items )
+        {
+            double probability = item._1();
+            Pair<K, Generator<V>> thingGeneratorPair = Pair.create( item._2(), item._3() );
+            probabilityItems.add( Pair.create( probability, thingGeneratorPair ) );
+        }
+
+        DiscreteMultiGenerator<Pair<K, Generator<V>>> discreteMultiGenerator = discreteMultiGenerator(
+                probabilityItems, amountToRetrieveGenerator ).build();
+
+        DiscreteValuedMultiGenerator<K, V> generator = new DiscreteValuedMultiGenerator<K, V>( getRandom(),
+                discreteMultiGenerator );
+
+        return new GeneratorBuilderDelegate<DiscreteValuedMultiGenerator<K, V>>( generator );
     }
 
     /**
@@ -124,10 +158,10 @@ public class GeneratorBuilder
     /**
      * ConstantGenerator
      */
-    public <T> GeneratorBuilderDelegate<ConstantGenerator<T>, T> constantGenerator( T constant )
+    public <T> GeneratorBuilderDelegate<ConstantGenerator<T>> constantGenerator( T constant )
     {
         ConstantGenerator<T> generator = new ConstantGenerator<T>( getRandom(), constant );
-        return new GeneratorBuilderDelegate<ConstantGenerator<T>, T>( generator );
+        return new GeneratorBuilderDelegate<ConstantGenerator<T>>( generator );
     }
 
     public <T extends Number> NumberGeneratorBuilderDelegate<ConstantGenerator<T>, T> constantNumberGenerator(

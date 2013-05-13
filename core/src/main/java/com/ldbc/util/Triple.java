@@ -1,19 +1,21 @@
 package com.ldbc.util;
 
-public class Pair<T1, T2>
+public class Triple<T1, T2, T3>
 {
     private T1 thing1;
     private T2 thing2;
+    private T3 thing3;
 
-    public static <Type1, Type2> Pair<Type1, Type2> create( Type1 t1, Type2 t2 )
+    public static <Type1, Type2, Type3> Triple<Type1, Type2, Type3> create( Type1 t1, Type2 t2, Type3 t3 )
     {
-        return new Pair<Type1, Type2>( t1, t2 );
+        return new Triple<Type1, Type2, Type3>( t1, t2, t3 );
     }
 
-    public Pair( T1 t1, T2 t2 )
+    public Triple( T1 t1, T2 t2, T3 t3 )
     {
         thing1 = t1;
         thing2 = t2;
+        thing3 = t3;
     }
 
     public T1 _1()
@@ -26,10 +28,15 @@ public class Pair<T1, T2>
         return thing2;
     }
 
+    public T3 _3()
+    {
+        return thing3;
+    }
+
     @Override
     public String toString()
     {
-        return "Pair [thing1=" + thing1 + ", thing2=" + thing2 + "]";
+        return "Triple [thing1=" + thing1 + ", thing2=" + thing2 + ", thing3=" + thing3 + "]";
     }
 
     @Override
@@ -39,6 +46,7 @@ public class Pair<T1, T2>
         int result = 1;
         result = prime * result + ( ( thing1 == null ) ? 0 : thing1.hashCode() );
         result = prime * result + ( ( thing2 == null ) ? 0 : thing2.hashCode() );
+        result = prime * result + ( ( thing3 == null ) ? 0 : thing3.hashCode() );
         return result;
     }
 
@@ -48,7 +56,7 @@ public class Pair<T1, T2>
         if ( this == obj ) return true;
         if ( obj == null ) return false;
         if ( getClass() != obj.getClass() ) return false;
-        Pair other = (Pair) obj;
+        Triple other = (Triple) obj;
         if ( thing1 == null )
         {
             if ( other.thing1 != null ) return false;
@@ -59,7 +67,11 @@ public class Pair<T1, T2>
             if ( other.thing2 != null ) return false;
         }
         else if ( !thing2.equals( other.thing2 ) ) return false;
+        if ( thing3 == null )
+        {
+            if ( other.thing3 != null ) return false;
+        }
+        else if ( !thing3.equals( other.thing3 ) ) return false;
         return true;
     }
-
 }
