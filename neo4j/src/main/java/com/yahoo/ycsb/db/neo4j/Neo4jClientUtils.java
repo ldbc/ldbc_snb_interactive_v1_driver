@@ -3,7 +3,7 @@ package com.yahoo.ycsb.db.neo4j;
 import java.util.HashMap;
 import java.util.Map;
 
-import com.ldbc.util.ByteIterator;
+import com.ldbc.data.ByteIterator;
 
 public class Neo4jClientUtils
 {

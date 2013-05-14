@@ -14,21 +14,26 @@
  * permissions and limitations under the License. See accompanying                                                                                                                 
  * LICENSE file.                                                                                                                                                                   
  */
-package com.ldbc.util;
+package com.ldbc.data;
 
-import java.io.InputStream;
-
-public class InputStreamByteIterator extends ByteIterator
+public class ByteArrayByteIterator extends ByteIterator
 {
-    int len;
-    InputStream ins;
+    byte[] str;
     int off;
+    final int len;
 
-    public InputStreamByteIterator( InputStream ins, int len )
+    public ByteArrayByteIterator( byte[] s )
     {
-        this.len = len;
-        this.ins = ins;
-        off = 0;
+        this.str = s;
+        this.off = 0;
+        this.len = s.length;
+    }
+
+    public ByteArrayByteIterator( byte[] s, int off, int len )
+    {
+        this.str = s;
+        this.off = off;
+        this.len = off + len;
     }
 
     @Override
@@ -40,21 +45,9 @@ public class InputStreamByteIterator extends ByteIterator
     @Override
     public byte nextByte()
     {
-        int ret;
-        try
-        {
-            ret = ins.read();
-        }
-        catch ( Exception e )
-        {
-            throw new IllegalStateException( e );
-        }
-        if ( ret == -1 )
-        {
-            throw new IllegalStateException( "Past EOF!" );
-        }
+        byte ret = str[off];
         off++;
-        return (byte) ret;
+        return ret;
     }
 
     @Override

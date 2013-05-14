@@ -1,4 +1,4 @@
-package com.ldbc.workloads;
+package com.ldbc.workloads.ycsb;
 
 public enum Distribution
 {

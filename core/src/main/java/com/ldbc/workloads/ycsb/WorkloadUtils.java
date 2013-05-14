@@ -1,4 +1,4 @@
-package com.ldbc.workloads;
+package com.ldbc.workloads.ycsb;
 
 import java.util.HashMap;
 import java.util.HashSet;
@@ -7,12 +7,12 @@ import java.util.Set;
 
 import org.apache.commons.math3.random.RandomDataGenerator;
 
-import com.ldbc.WorkloadException;
+import com.ldbc.data.ByteIterator;
+import com.ldbc.data.RandomByteIterator;
 import com.ldbc.generator.Generator;
 import com.ldbc.generator.GeneratorBuilder;
-import com.ldbc.util.ByteIterator;
 import com.ldbc.util.Pair;
-import com.ldbc.util.RandomByteIterator;
+import com.ldbc.workloads.WorkloadException;
 
 public class WorkloadUtils
 {

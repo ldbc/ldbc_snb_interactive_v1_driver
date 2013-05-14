@@ -14,101 +14,34 @@
  * permissions and limitations under the License. See accompanying                                                                                                                 
  * LICENSE file.                                                                                                                                                                   
  */
-package com.ldbc.util;
 
-import java.util.Iterator;
+package com.ldbc.workloads;
 
 /**
- * YCSB-specific buffer class. ByteIterators are designed to support efficient
- * field generation, and to allow backend drivers that can stream fields
- * (instead of materializing them in RAM) to do so.
- * <p>
- * YCSB originially used String objects to represent field values. This led to
- * two performance issues.
- * </p>
- * <p>
- * First, it leads to unnecessary conversions between UTF-16 and UTF-8, both
- * during field generation, and when passing data to byte-based backend drivers.
- * </p>
- * <p>
- * Second, Java strings are represented internally using UTF-16, and are built
- * by appending to a growable array type (StringBuilder or StringBuffer), then
- * calling a toString() method. This leads to a 4x memory overhead as field
- * values are being built, which prevented YCSB from driving large object
- * stores.
- * </p>
- * The StringByteIterator class contains a number of convenience methods for
- * backend drivers that convert between Map&lt;String,String&gt; and
- * Map&lt;String,ByteBuffer&gt;.
- * 
- * @author sears
+ * The workload tried to do something bad.
  */
-public abstract class ByteIterator implements Iterator<Byte>
+public class WorkloadException extends Exception
 {
+    private static final long serialVersionUID = 8844396756042772132L;
 
-    @Override
-    public abstract boolean hasNext();
-
-    @Override
-    public Byte next()
+    public WorkloadException( String message )
     {
-        throw new UnsupportedOperationException();
-        // return nextByte();
+        super( message );
     }
 
-    public abstract byte nextByte();
-
-    /** @return byte offset immediately after the last valid byte */
-    public int nextBuf( byte[] buf, int buf_off )
+    public WorkloadException()
     {
-        int sz = buf_off;
-        while ( sz < buf.length && hasNext() )
-        {
-            buf[sz] = nextByte();
-            sz++;
-        }
-        return sz;
+        super();
     }
 
-    public abstract int bytesLeft();
-
-    @Override
-    public void remove()
+    public WorkloadException( String message, Throwable cause )
     {
-        throw new UnsupportedOperationException();
+        super( message, cause );
     }
 
-    /**
-     * Consumes remaining contents of this object, and returns them as a string.
-     */
-    public String toString()
+    public WorkloadException( Throwable cause )
     {
-        StringBuilder sb = new StringBuilder();
-        while ( this.hasNext() )
-        {
-            sb.append( (char) nextByte() );
-        }
-        return sb.toString();
-    }
-
-    /**
-     * Consumes remaining contents of this object, and returns them as a byte
-     * array.
-     */
-    public byte[] toArray()
-    {
-        int left = bytesLeft();
-        if ( left != (int) left )
-        {
-            throw new ArrayIndexOutOfBoundsException( "Too much data to fit in one array!" );
-        }
-        byte[] ret = new byte[(int) left];
-        int off = 0;
-        while ( off < ret.length )
-        {
-            off = nextBuf( ret, off );
-        }
-        return ret;
+        super( cause );
     }
 
 }

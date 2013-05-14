@@ -4,6 +4,9 @@ import java.util.Map;
 
 import org.apache.commons.math3.random.RandomDataGenerator;
 
+import com.ldbc.workloads.Workload;
+import com.ldbc.workloads.WorkloadException;
+
 /**
  * Workload generating thread
  * 

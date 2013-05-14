@@ -22,7 +22,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.Vector;
 
-import com.ldbc.util.ByteIterator;
+import com.ldbc.data.ByteIterator;
 
 /**
  * A layer for accessing a database to be benchmarked. Each thread in the client

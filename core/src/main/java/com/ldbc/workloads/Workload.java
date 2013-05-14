@@ -15,11 +15,12 @@
  * LICENSE file.                                                                                                                                                                   
  */
 
-package com.ldbc;
+package com.ldbc.workloads;
 
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
 
+import com.ldbc.DB;
 import com.ldbc.generator.GeneratorBuilder;
 
 /**

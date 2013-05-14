@@ -18,6 +18,8 @@ package com.ldbc;
 
 import java.util.Vector;
 
+import com.ldbc.workloads.Workload;
+
 /**
  * Terminates all client threads after maximum specified time has passed
  * 

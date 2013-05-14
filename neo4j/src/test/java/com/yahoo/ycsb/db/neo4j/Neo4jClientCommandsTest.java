@@ -14,9 +14,9 @@ import org.junit.Ignore;
 import org.junit.Test;
 
 import com.ldbc.DBException;
-import com.ldbc.util.ByteArrayByteIterator;
-import com.ldbc.util.ByteIterator;
-import com.ldbc.util.StringByteIterator;
+import com.ldbc.data.ByteArrayByteIterator;
+import com.ldbc.data.ByteIterator;
+import com.ldbc.data.StringByteIterator;
 import com.yahoo.ycsb.db.neo4j.Neo4jClientCommands;
 
 public abstract class Neo4jClientCommandsTest

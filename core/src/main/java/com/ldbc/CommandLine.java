@@ -29,10 +29,11 @@ import java.util.Set;
 import java.util.HashSet;
 import java.util.Vector;
 
-import com.ldbc.util.ByteIterator;
-import com.ldbc.util.StringByteIterator;
+import com.ldbc.data.ByteIterator;
+import com.ldbc.data.StringByteIterator;
 import com.ldbc.util.MapUtils;
 import com.ldbc.workloads.*;
+import com.ldbc.workloads.ycsb.CoreWorkloadProperties;
 
 /**
  * A simple command line client to a database, using the appropriate

@@ -1,4 +1,4 @@
-package com.ldbc.workloads;
+package com.ldbc.workloads2.simple;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -7,12 +7,13 @@ import java.util.Vector;
 
 import com.ldbc.DB;
 import com.ldbc.DBRecordKey;
-import com.ldbc.WorkloadException;
+import com.ldbc.data.ByteIterator;
 import com.ldbc.generator.Generator;
 import com.ldbc.measurements.Measurements;
-import com.ldbc.util.ByteIterator;
+import com.ldbc.workloads.WorkloadException;
+import com.ldbc.workloads.ycsb.WorkloadUtils;
 
-public abstract class WorkloadOperation
+public abstract class WorkloadOperation2
 {
     // TODO replace, a duplicate exists in CoreWorkload
     private final static String KEY_NAME_PREFIX = "user";

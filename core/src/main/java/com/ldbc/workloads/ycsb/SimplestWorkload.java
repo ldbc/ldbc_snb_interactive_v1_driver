@@ -1,4 +1,4 @@
-package com.ldbc.workloads;
+package com.ldbc.workloads.ycsb;
 
 import java.util.ArrayList;
 import java.util.Map;
@@ -7,13 +7,13 @@ import java.util.Set;
 import com.ldbc.Client;
 import com.ldbc.DB;
 import com.ldbc.DBException;
-import com.ldbc.Workload;
-import com.ldbc.WorkloadException;
 import com.ldbc.generator.Generator;
 import com.ldbc.generator.GeneratorBuilder;
 import com.ldbc.generator.MinMaxGeneratorWrapper;
 import com.ldbc.util.Pair;
 import com.ldbc.util.MapUtils;
+import com.ldbc.workloads.Workload;
+import com.ldbc.workloads.WorkloadException;
 
 public class SimplestWorkload extends Workload
 {

@@ -88,7 +88,6 @@ public class GeneratorBuilder
     /**
      * DiscreteValuedMultiGenerator
      */
-
     public <K, V> GeneratorBuilderDelegate<DiscreteValuedMultiGenerator<K, V>> discreteValuedMultiGenerator(
             Iterable<Triple<Double, K, Generator<V>>> items, Integer amountToRetrieve )
     {
@@ -102,9 +101,9 @@ public class GeneratorBuilder
         ArrayList<Pair<Double, Pair<K, Generator<V>>>> probabilityItems = new ArrayList<Pair<Double, Pair<K, Generator<V>>>>();
         for ( Triple<Double, K, Generator<V>> item : items )
         {
-            double probability = item._1();
+            double thingProbability = item._1();
             Pair<K, Generator<V>> thingGeneratorPair = Pair.create( item._2(), item._3() );
-            probabilityItems.add( Pair.create( probability, thingGeneratorPair ) );
+            probabilityItems.add( Pair.create( thingProbability, thingGeneratorPair ) );
         }
 
         DiscreteMultiGenerator<Pair<K, Generator<V>>> discreteMultiGenerator = discreteMultiGenerator(
@@ -223,7 +222,7 @@ public class GeneratorBuilder
     }
 
     // TODO Generic
-    public <T extends Number> NumberGeneratorBuilderDelegate<BoundedRangeExponentialNumberGenerator, Long> boundedRangeExponentialNumberGenerator(
+    public NumberGeneratorBuilderDelegate<BoundedRangeExponentialNumberGenerator, Long> boundedRangeExponentialNumberGenerator(
             MinMaxGeneratorWrapper<Long> lowerBoundGenerator, MinMaxGeneratorWrapper<Long> upperBoundGenerator,
             double mean )
     {
@@ -240,7 +239,7 @@ public class GeneratorBuilder
     }
 
     // TODO Generic
-    public <T extends Number> NumberGeneratorBuilderDelegate<BoundedRangeExponentialNumberGenerator, Long> boundedRangeExponentialNumberGenerator(
+    public NumberGeneratorBuilderDelegate<BoundedRangeExponentialNumberGenerator, Long> boundedRangeExponentialNumberGenerator(
             MinMaxGeneratorWrapper<Long> lowerBoundGenerator, MinMaxGeneratorWrapper<Long> upperBoundGenerator,
             double percentile, double range )
     {

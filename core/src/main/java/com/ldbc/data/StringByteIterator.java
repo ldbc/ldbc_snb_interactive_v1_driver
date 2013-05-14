@@ -14,38 +14,87 @@
  * permissions and limitations under the License. See accompanying                                                                                                                 
  * LICENSE file.                                                                                                                                                                   
  */
-package com.ldbc.util;
 
-public class ByteArrayByteIterator extends ByteIterator
+package com.ldbc.data;
+
+import java.util.Map;
+import java.util.HashMap;
+
+public class StringByteIterator extends ByteIterator
 {
-    byte[] str;
+    String str;
     int off;
-    final int len;
 
-    public ByteArrayByteIterator( byte[] s )
+    /**
+     * Put all of the entries of one map into the other, converting String
+     * values into ByteIterators.
+     */
+    public static void putAllAsByteIterators( Map<String, ByteIterator> out, Map<String, String> in )
+    {
+        for ( String s : in.keySet() )
+        {
+            out.put( s, new StringByteIterator( in.get( s ) ) );
+        }
+    }
+
+    /**
+     * Put all of the entries of one map into the other, converting ByteIterator
+     * values into Strings.
+     */
+    public static void putAllAsStrings( Map<String, String> out, Map<String, ByteIterator> in )
+    {
+        for ( String s : in.keySet() )
+        {
+            out.put( s, in.get( s ).toString() );
+        }
+    }
+
+    /**
+     * Create a copy of a map, converting the values from Strings to
+     * StringByteIterators.
+     */
+    public static HashMap<String, ByteIterator> getByteIteratorMap( Map<String, String> m )
+    {
+        HashMap<String, ByteIterator> ret = new HashMap<String, ByteIterator>();
+
+        for ( String s : m.keySet() )
+        {
+            ret.put( s, new StringByteIterator( m.get( s ) ) );
+        }
+        return ret;
+    }
+
+    /**
+     * Create a copy of a map, converting the values from StringByteIterators to
+     * Strings.
+     */
+    public static Map<String, String> getStringMap( Map<String, ByteIterator> m )
+    {
+        HashMap<String, String> ret = new HashMap<String, String>();
+
+        for ( String s : m.keySet() )
+        {
+            ret.put( s, m.get( s ).toString() );;
+        }
+        return ret;
+    }
+
+    public StringByteIterator( String s )
     {
         this.str = s;
         this.off = 0;
-        this.len = s.length;
-    }
-
-    public ByteArrayByteIterator( byte[] s, int off, int len )
-    {
-        this.str = s;
-        this.off = off;
-        this.len = off + len;
     }
 
     @Override
     public boolean hasNext()
     {
-        return off < len;
+        return off < str.length();
     }
 
     @Override
     public byte nextByte()
     {
-        byte ret = str[off];
+        byte ret = (byte) str.charAt( off );
         off++;
         return ret;
     }
@@ -53,7 +102,27 @@ public class ByteArrayByteIterator extends ByteIterator
     @Override
     public int bytesLeft()
     {
-        return len - off;
+        return str.length() - off;
     }
 
+    /**
+     * Specialization of general purpose toString() to avoid unnecessary copies.
+     * <p>
+     * Creating a new StringByteIterator, then calling toString() yields the
+     * original String object, and does not perform any copies or String
+     * conversion operations.
+     * </p>
+     */
+    @Override
+    public String toString()
+    {
+        if ( off > 0 )
+        {
+            return super.toString();
+        }
+        else
+        {
+            return str;
+        }
+    }
 }

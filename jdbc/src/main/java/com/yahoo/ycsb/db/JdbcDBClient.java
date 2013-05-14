@@ -19,8 +19,8 @@ package com.yahoo.ycsb.db;
 
 import com.ldbc.DB;
 import com.ldbc.DBException;
-import com.ldbc.util.ByteIterator;
-import com.ldbc.util.StringByteIterator;
+import com.ldbc.data.ByteIterator;
+import com.ldbc.data.StringByteIterator;
 import com.ldbc.util.MapUtils;
 
 import java.sql.*;

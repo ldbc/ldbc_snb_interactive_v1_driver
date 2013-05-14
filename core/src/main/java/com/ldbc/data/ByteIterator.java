@@ -14,34 +14,83 @@
  * permissions and limitations under the License. See accompanying                                                                                                                 
  * LICENSE file.                                                                                                                                                                   
  */
-
-package com.ldbc;
+package com.ldbc.data;
 
 /**
- * The workload tried to do something bad.
+ * YCSB-specific buffer class. ByteIterators are designed to support efficient
+ * field generation, and to allow backend drivers that can stream fields
+ * (instead of materializing them in RAM) to do so.
+ * <p>
+ * YCSB originially used String objects to represent field values. This led to
+ * two performance issues.
+ * </p>
+ * <p>
+ * First, it leads to unnecessary conversions between UTF-16 and UTF-8, both
+ * during field generation, and when passing data to byte-based backend drivers.
+ * </p>
+ * <p>
+ * Second, Java strings are represented internally using UTF-16, and are built
+ * by appending to a growable array type (StringBuilder or StringBuffer), then
+ * calling a toString() method. This leads to a 4x memory overhead as field
+ * values are being built, which prevented YCSB from driving large object
+ * stores.
+ * </p>
+ * The StringByteIterator class contains a number of convenience methods for
+ * backend drivers that convert between Map&lt;String,String&gt; and
+ * Map&lt;String,ByteBuffer&gt;.
+ * 
+ * @author sears
  */
-public class WorkloadException extends Exception
+public abstract class ByteIterator
 {
-    private static final long serialVersionUID = 8844396756042772132L;
+    public abstract boolean hasNext();
 
-    public WorkloadException( String message )
+    public abstract int bytesLeft();
+
+    public abstract byte nextByte();
+
+    /** @return byte offset immediately after the last valid byte */
+    public int nextBuf( byte[] buf, int buf_off )
     {
-        super( message );
+        int sz = buf_off;
+        while ( sz < buf.length && hasNext() )
+        {
+            buf[sz] = nextByte();
+            sz++;
+        }
+        return sz;
     }
 
-    public WorkloadException()
+    /**
+     * Consumes remaining contents of this object, and returns them as a string.
+     */
+    public String toString()
     {
-        super();
+        StringBuilder sb = new StringBuilder();
+        while ( this.hasNext() )
+        {
+            sb.append( (char) nextByte() );
+        }
+        return sb.toString();
     }
 
-    public WorkloadException( String message, Throwable cause )
+    /**
+     * Consumes remaining contents of this object, and returns them as a byte
+     * array.
+     */
+    public byte[] toArray()
     {
-        super( message, cause );
+        int left = bytesLeft();
+        if ( left != (int) left )
+        {
+            throw new ArrayIndexOutOfBoundsException( "Too much data to fit in one array!" );
+        }
+        byte[] ret = new byte[(int) left];
+        int off = 0;
+        while ( off < ret.length )
+        {
+            off = nextBuf( ret, off );
+        }
+        return ret;
     }
-
-    public WorkloadException( Throwable cause )
-    {
-        super( cause );
-    }
-
 }

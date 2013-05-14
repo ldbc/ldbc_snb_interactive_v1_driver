@@ -24,7 +24,7 @@ import java.util.Vector;
 
 import org.apache.commons.math3.random.RandomDataGenerator;
 
-import com.ldbc.util.ByteIterator;
+import com.ldbc.data.ByteIterator;
 import com.ldbc.util.RandomDataGeneratorFactory;
 import com.ldbc.util.MapUtils;
 

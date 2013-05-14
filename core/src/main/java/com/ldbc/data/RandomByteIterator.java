@@ -14,7 +14,7 @@
  * permissions and limitations under the License. See accompanying
  * LICENSE file.
  */
-package com.ldbc.util;
+package com.ldbc.data;
 
 import org.apache.commons.math3.random.RandomDataGenerator;
 

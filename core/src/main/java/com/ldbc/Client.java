@@ -32,6 +32,8 @@ import com.ldbc.measurements.exporter.MeasurementsExporter;
 import com.ldbc.measurements.exporter.TextMeasurementsExporter;
 import com.ldbc.util.RandomDataGeneratorFactory;
 import com.ldbc.util.MapUtils;
+import com.ldbc.workloads.Workload;
+import com.ldbc.workloads.WorkloadException;
 
 /**
  * Main class for executing YCSB

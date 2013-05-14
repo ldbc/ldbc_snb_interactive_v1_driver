@@ -14,8 +14,8 @@ import org.neo4j.graphdb.index.AutoIndexer;
 import org.neo4j.helpers.collection.MapUtil;
 
 import com.ldbc.DBException;
-import com.ldbc.util.ByteIterator;
-import com.ldbc.util.StringByteIterator;
+import com.ldbc.data.ByteIterator;
+import com.ldbc.data.StringByteIterator;
 
 public class Neo4jClientCommandsEmbedded implements Neo4jClientCommands
 {
