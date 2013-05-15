@@ -14,17 +14,11 @@
     This is the top level project that builds, packages the core and all the DB bindings for YCSB infrastructure.
   </description>
 	<dependencies>
-		<!-- voldemort -->
-		<dependency>
-			<groupId>checkstyle</groupId>
-			<artifactId>checkstyle</artifactId>
-			<version>5.0</version>
-		</dependency>
-		<dependency>
-			<groupId>org.jdom</groupId>
-			<artifactId>jdom</artifactId>
-			<version>1.1</version>
-		</dependency>
+		<!-- <dependency> -->
+		<!-- <groupId>org.jdom</groupId> -->
+		<!-- <artifactId>jdom</artifactId> -->
+		<!-- <version>1.1</version> -->
+		<!-- </dependency> -->
 		<dependency>
 			<groupId>com.google.collections</groupId>
 			<artifactId>google-collections</artifactId>
@@ -50,7 +44,6 @@
 	<modules>
 		<!--module>build-tools</module -->
 		<module>core</module>
-		<module>jdbc</module>
 		<module>neo4j</module>
 		<module>distribution</module>
 	</modules>

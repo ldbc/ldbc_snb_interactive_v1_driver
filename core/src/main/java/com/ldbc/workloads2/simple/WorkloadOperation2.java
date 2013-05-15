@@ -127,6 +127,5 @@ public abstract class WorkloadOperation2
             return true;
         else
             return false;
-
     }
 }
