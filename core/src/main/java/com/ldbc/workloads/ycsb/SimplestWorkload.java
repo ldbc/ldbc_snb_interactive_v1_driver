@@ -90,7 +90,7 @@ public class SimplestWorkload extends Workload
 
         operationGenerator = generatorBuilder.discreteGenerator( operations ).build();
 
-        transactionInsertKeyGenerator = generatorBuilder.counterGenerator( recordCount, 1l ).withMinMaxLast(
+        transactionInsertKeyGenerator = generatorBuilder.counterGenerator( recordCount, 1l ).withMinMax(
                 recordCount, recordCount ).build();
 
         requestKeyGenerator = generatorBuilder.dynamicRangeUniformNumberGenerator( transactionInsertKeyGenerator ).build();

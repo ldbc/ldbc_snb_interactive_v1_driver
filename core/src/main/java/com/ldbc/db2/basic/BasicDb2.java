@@ -44,7 +44,7 @@ class InsertOperationHandler2 extends OperationHandler2<InsertOperation2>
 
         // TODO do things
 
-        int resultCode = -1;
+        int resultCode = 0;
         Object result = null;
 
         return operation.buildResult( resultCode, result );
@@ -62,7 +62,7 @@ class ReadOperationHandler2 extends OperationHandler2<ReadOperation2>
 
         // TODO do things
 
-        int resultCode = -1;
+        int resultCode = 0;
         Map<String, ByteIterator> result = null;
 
         return operation.buildResult( resultCode, result );
@@ -80,7 +80,7 @@ class UpdateOperationHandler2 extends OperationHandler2<UpdateOperation2>
 
         // TODO do things
 
-        int resultCode = -1;
+        int resultCode = 0;
         Object result = null;
 
         return operation.buildResult( resultCode, result );
@@ -99,7 +99,7 @@ class ScanOperationHandler2 extends OperationHandler2<ScanOperation2>
 
         // TODO do things
 
-        int resultCode = -1;
+        int resultCode = 0;
         Vector<Map<String, ByteIterator>> result = null;
 
         return operation.buildResult( resultCode, result );
@@ -118,7 +118,7 @@ class ReadModifyWriteOperationHandler2 extends OperationHandler2<ReadModifyWrite
 
         // TODO do things
 
-        int resultCode = -1;
+        int resultCode = 0;
         Object result = null;
 
         return operation.buildResult( resultCode, result );

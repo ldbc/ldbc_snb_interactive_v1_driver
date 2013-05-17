@@ -7,7 +7,7 @@ import java.util.Vector;
 import com.ldbc.data.ByteIterator;
 import com.ldbc.db2.Operation2;
 
-public abstract class ScanOperation2 extends Operation2<Vector<Map<String, ByteIterator>>>
+public class ScanOperation2 extends Operation2<Vector<Map<String, ByteIterator>>>
 {
     private final String table;
     private final String startKey;

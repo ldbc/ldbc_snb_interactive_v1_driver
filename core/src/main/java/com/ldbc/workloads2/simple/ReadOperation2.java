@@ -6,7 +6,7 @@ import java.util.Set;
 import com.ldbc.data.ByteIterator;
 import com.ldbc.db2.Operation2;
 
-public abstract class ReadOperation2 extends Operation2<Map<String, ByteIterator>>
+public class ReadOperation2 extends Operation2<Map<String, ByteIterator>>
 {
     private final String table;
     private final String key;

@@ -5,7 +5,7 @@ import java.util.Map;
 import com.ldbc.data.ByteIterator;
 import com.ldbc.db2.Operation2;
 
-public abstract class UpdateOperation2 extends Operation2<Object>
+public class UpdateOperation2 extends Operation2<Object>
 {
     private final String table;
     private final String key;

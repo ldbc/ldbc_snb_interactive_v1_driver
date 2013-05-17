@@ -1,5 +1,6 @@
 package com.ldbc.generator;
 
+
 public class MinMaxGeneratorWrapper<T extends Number> extends Generator<T>
 {
     private T min = null;

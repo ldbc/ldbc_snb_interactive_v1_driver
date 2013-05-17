@@ -7,7 +7,6 @@ import org.junit.Test;
 import com.ldbc.generator.Generator;
 import com.ldbc.generator.GeneratorBuilder;
 import com.ldbc.generator.GeneratorBuilderFactory;
-import com.ldbc.generator.MinMaxGeneratorWrapper;
 
 import static org.junit.Assert.assertEquals;
 

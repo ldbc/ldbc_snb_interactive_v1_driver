@@ -128,7 +128,7 @@ public class CoreWorkload extends Workload
 
         operationGenerator = generatorBuilder.discreteGenerator( operations ).build();
 
-        transactionInsertKeyGenerator = generatorBuilder.counterGenerator( recordCount, 1l ).withMinMaxLast(
+        transactionInsertKeyGenerator = generatorBuilder.counterGenerator( recordCount, 1l ).withMinMax(
                 recordCount, recordCount ).build();
         if ( requestDistribution.equals( "uniform" ) )
         {

@@ -16,7 +16,7 @@ import com.ldbc.workloads.Workload;
 import com.ldbc.workloads.WorkloadException;
 import com.ldbc.workloads.ycsb.WorkloadUtils;
 
-public class SimplestWorkload2 extends Workload
+public class SimplestWorkloadOLD2 extends Workload
 {
     final String KEY_NAME_PREFIX = "user";
     final String FIELD_NAME_PREFIX = "field";
@@ -91,7 +91,7 @@ public class SimplestWorkload2 extends Workload
 
         operationGenerator = generatorBuilder.discreteGenerator( operations ).build();
 
-        transactionInsertKeyGenerator = generatorBuilder.counterGenerator( recordCount, 1l ).withMinMaxLast(
+        transactionInsertKeyGenerator = generatorBuilder.counterGenerator( recordCount, 1l ).withMinMax(
                 recordCount, recordCount ).build();
 
         requestKeyGenerator = generatorBuilder.dynamicRangeUniformNumberGenerator( transactionInsertKeyGenerator ).build();
@@ -101,7 +101,7 @@ public class SimplestWorkload2 extends Workload
     @Override
     public boolean doInsert( DB db, Object threadstate ) throws WorkloadException
     {
-        return WorkloadOperation2.doInsert( db, loadInsertKeyGenerator, insertFieldSelectionGenerator,
+        return WorkloadOperationTEMP2.doInsert( db, loadInsertKeyGenerator, insertFieldSelectionGenerator,
                 fieldValuelengthGenerator, IS_ORDERED_INSERTS, TABLE );
     }
 
@@ -123,27 +123,27 @@ public class SimplestWorkload2 extends Workload
 
         if ( op.equals( "INSERT" ) )
         {
-            return WorkloadOperation2.doInsert( db, transactionInsertKeyGenerator, insertFieldSelectionGenerator,
+            return WorkloadOperationTEMP2.doInsert( db, transactionInsertKeyGenerator, insertFieldSelectionGenerator,
                     fieldValuelengthGenerator, IS_ORDERED_INSERTS, TABLE );
         }
         else if ( op.equals( "READ" ) )
         {
-            return WorkloadOperation2.doRead( db, requestKeyGenerator, readFieldSelectionGenerator, IS_ORDERED_INSERTS,
+            return WorkloadOperationTEMP2.doRead( db, requestKeyGenerator, readFieldSelectionGenerator, IS_ORDERED_INSERTS,
                     TABLE );
         }
         else if ( op.equals( "UPDATE" ) )
         {
-            return WorkloadOperation2.doUpdate( db, requestKeyGenerator, fieldValuelengthGenerator,
+            return WorkloadOperationTEMP2.doUpdate( db, requestKeyGenerator, fieldValuelengthGenerator,
                     readFieldSelectionGenerator, IS_ORDERED_INSERTS, TABLE );
         }
         else if ( op.equals( "SCAN" ) )
         {
-            return WorkloadOperation2.doScan( db, requestKeyGenerator, scanLengthGenerator,
+            return WorkloadOperationTEMP2.doScan( db, requestKeyGenerator, scanLengthGenerator,
                     readFieldSelectionGenerator, IS_ORDERED_INSERTS, TABLE );
         }
         else if ( op.equals( "READMODIFYWRITE" ) )
         {
-            return WorkloadOperation2.doReadModifyWrite( db, requestKeyGenerator, readFieldSelectionGenerator,
+            return WorkloadOperationTEMP2.doReadModifyWrite( db, requestKeyGenerator, readFieldSelectionGenerator,
                     fieldValuelengthGenerator, IS_ORDERED_INSERTS, TABLE );
         }
         else

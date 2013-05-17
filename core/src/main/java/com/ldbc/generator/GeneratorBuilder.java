@@ -38,7 +38,13 @@ public class GeneratorBuilder
             super( generator );
         }
 
-        public GeneratorBuilderDelegate<MinMaxGeneratorWrapper<T>> withMinMaxLast( T min, T max )
+        public final GeneratorBuilderDelegate<PrefixGeneratorWrapper> withPrefix( String prefix )
+        {
+            PrefixGeneratorWrapper prefixGenerator = new PrefixGeneratorWrapper( generator, prefix );
+            return new GeneratorBuilderDelegate<PrefixGeneratorWrapper>( prefixGenerator );
+        }
+
+        public GeneratorBuilderDelegate<MinMaxGeneratorWrapper<T>> withMinMax( T min, T max )
         {
             MinMaxGeneratorWrapper<T> minMaxGenerator = new MinMaxGeneratorWrapper<T>( generator, min, max );
             return new GeneratorBuilderDelegate<MinMaxGeneratorWrapper<T>>( minMaxGenerator );
@@ -58,6 +64,29 @@ public class GeneratorBuilder
         return randomDataGeneratorFactory.newRandom();
     }
 
+    // TODO rename/design Discrete* generators, "multi" & "valued" is confusing
+    // TODO "valued" -> "de(ref?)", "multi" is good, introduce "pair"
+
+    /**
+     * PrefixGeneratorWrapper
+     */
+    public <T extends Number> GeneratorBuilderDelegate<PrefixGeneratorWrapper> prefixGeneratorWrapper(
+            Generator<T> generator, String prefix )
+    {
+        PrefixGeneratorWrapper generatorWrapper = new PrefixGeneratorWrapper( generator, prefix );
+        return new GeneratorBuilderDelegate<PrefixGeneratorWrapper>( generatorWrapper );
+    }
+
+    /**
+     * MinMaxGeneratorWrapper
+     */
+    public <T extends Number> GeneratorBuilderDelegate<MinMaxGeneratorWrapper<T>> minMaxGeneratorWrapper(
+            Generator<T> generator, T initialMin, T initialMax )
+    {
+        MinMaxGeneratorWrapper<T> generatorWrapper = new MinMaxGeneratorWrapper<T>( generator, initialMin, initialMax );
+        return new GeneratorBuilderDelegate<MinMaxGeneratorWrapper<T>>( generatorWrapper );
+    }
+
     /**
      * DiscreteGenerator
      */
@@ -65,6 +94,17 @@ public class GeneratorBuilder
     {
         DiscreteGenerator<T> generator = new DiscreteGenerator<T>( getRandom(), items );
         return new GeneratorBuilderDelegate<DiscreteGenerator<T>>( generator );
+    }
+
+    /**
+     * DiscreteValuedGenerator
+     */
+    public <T> GeneratorBuilderDelegate<DiscreteValuedGenerator<T>> discreteValuedGenerator(
+            Iterable<Pair<Double, Generator<T>>> items )
+    {
+        DiscreteGenerator<Generator<T>> discreteGenerator = discreteGenerator( items ).build();
+        DiscreteValuedGenerator<T> generator = new DiscreteValuedGenerator<T>( discreteGenerator );
+        return new GeneratorBuilderDelegate<DiscreteValuedGenerator<T>>( generator );
     }
 
     /**
@@ -116,6 +156,22 @@ public class GeneratorBuilder
     }
 
     /**
+     * RandomByteIteratorGenerator
+     */
+    public GeneratorBuilderDelegate<RandomByteIteratorGenerator> randomByteIteratorGenerator( Integer length )
+    {
+        Generator<Integer> lengthGenerator = constantGenerator( length ).build();
+        return randomByteIteratorGenerator( lengthGenerator );
+    }
+
+    public GeneratorBuilderDelegate<RandomByteIteratorGenerator> randomByteIteratorGenerator(
+            Generator<Integer> lengthGenerator )
+    {
+        RandomByteIteratorGenerator generator = new RandomByteIteratorGenerator( getRandom(), lengthGenerator );
+        return new GeneratorBuilderDelegate<RandomByteIteratorGenerator>( generator );
+    }
+
+    /**
      * NaiveBoundedRangeNumberGenerator
      */
     public <T extends Number> NumberGeneratorBuilderDelegate<NaiveBoundedRangeNumberGenerator<T>, T> naiveBoundedRangeNumberGenerator(
@@ -133,10 +189,10 @@ public class GeneratorBuilder
     public <T extends Number> NumberGeneratorBuilderDelegate<DynamicRangeUniformNumberGenerator<T>, T> uniformNumberGenerator(
             T lowerBound, T upperBound )
     {
-        MinMaxGeneratorWrapper<T> lowerBoundGenerator = constantNumberGenerator( lowerBound ).withMinMaxLast(
-                lowerBound, lowerBound ).build();
-        MinMaxGeneratorWrapper<T> upperBoundGenerator = constantNumberGenerator( upperBound ).withMinMaxLast(
-                upperBound, upperBound ).build();
+        MinMaxGeneratorWrapper<T> lowerBoundGenerator = constantNumberGenerator( lowerBound ).withMinMax( lowerBound,
+                lowerBound ).build();
+        MinMaxGeneratorWrapper<T> upperBoundGenerator = constantNumberGenerator( upperBound ).withMinMax( upperBound,
+                upperBound ).build();
         return dynamicRangeUniformNumberGenerator( lowerBoundGenerator, upperBoundGenerator );
     }
 
@@ -304,9 +360,9 @@ public class GeneratorBuilder
     public NumberGeneratorBuilderDelegate<YcsbDynamicRangeHotspotGenerator, Long> hotspotGenerator( long lowerBound,
             long upperBound, double hotSetFraction, double hotOperationFraction )
     {
-        MinMaxGeneratorWrapper<Long> lowerBoundGenerator = constantNumberGenerator( lowerBound ).withMinMaxLast(
+        MinMaxGeneratorWrapper<Long> lowerBoundGenerator = constantNumberGenerator( lowerBound ).withMinMax(
                 lowerBound, lowerBound ).build();
-        MinMaxGeneratorWrapper<Long> upperBoundGenerator = constantNumberGenerator( upperBound ).withMinMaxLast(
+        MinMaxGeneratorWrapper<Long> upperBoundGenerator = constantNumberGenerator( upperBound ).withMinMax(
                 upperBound, upperBound ).build();
         return dynamicRangeHotspotGenerator( lowerBoundGenerator, upperBoundGenerator, hotSetFraction,
                 hotOperationFraction );

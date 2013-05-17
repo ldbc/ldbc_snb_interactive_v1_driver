@@ -2,7 +2,6 @@ package com.ldbc.generator;
 
 import com.google.common.collect.Range;
 import com.ldbc.generator.Generator;
-import com.ldbc.generator.MinMaxGeneratorWrapper;
 import com.ldbc.util.Histogram;
 import com.ldbc.util.Bucket.NumberRangeBucket;
 
@@ -29,7 +28,7 @@ public class DynamicRangeUniformNumberGeneratorTest extends NumberGeneratorTest<
     public Generator<Long> getGeneratorImpl()
     {
         MinMaxGeneratorWrapper<Long> counterGenerator = (MinMaxGeneratorWrapper<Long>) getGeneratorBuilder().counterGenerator(
-                counterStart, 1l ).withMinMaxLast( uniformMin, uniformMax ).build();
+                counterStart, 1l ).withMinMax( uniformMin, uniformMax ).build();
         Generator<Long> growingRangeUniformGenerator = getGeneratorBuilder().dynamicRangeUniformNumberGenerator(
                 counterGenerator ).build();
         for ( int i = 0; i < counterIterations; i++ )

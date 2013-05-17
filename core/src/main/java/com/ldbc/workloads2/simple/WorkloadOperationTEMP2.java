@@ -13,7 +13,7 @@ import com.ldbc.measurements.Measurements;
 import com.ldbc.workloads.WorkloadException;
 import com.ldbc.workloads.ycsb.WorkloadUtils;
 
-public abstract class WorkloadOperation2
+public abstract class WorkloadOperationTEMP2
 {
     // TODO replace, a duplicate exists in CoreWorkload
     private final static String KEY_NAME_PREFIX = "user";
