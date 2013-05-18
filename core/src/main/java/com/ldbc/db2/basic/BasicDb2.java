@@ -20,11 +20,11 @@ public class BasicDb2 extends Db2
     @Override
     public void init( Map<String, String> properties ) throws DbException2
     {
-        registerOperationHandler( InsertOperation2.class, new InsertOperationHandler2() );
-        registerOperationHandler( ReadOperation2.class, new ReadOperationHandler2() );
-        registerOperationHandler( UpdateOperation2.class, new UpdateOperationHandler2() );
-        registerOperationHandler( ScanOperation2.class, new ScanOperationHandler2() );
-        registerOperationHandler( ReadModifyWriteOperation2.class, new ReadModifyWriteOperationHandler2() );
+        registerOperationHandler( InsertOperation2.class, InsertOperationHandler2.class );
+        registerOperationHandler( ReadOperation2.class, ReadOperationHandler2.class );
+        registerOperationHandler( UpdateOperation2.class, UpdateOperationHandler2.class );
+        registerOperationHandler( ScanOperation2.class, ScanOperationHandler2.class );
+        registerOperationHandler( ReadModifyWriteOperation2.class, ReadModifyWriteOperationHandler2.class );
     }
 
     @Override
