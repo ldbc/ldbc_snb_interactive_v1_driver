@@ -3,6 +3,7 @@ package com.ldbc.db2;
 import com.ldbc.util.HashUtils;
 
 // TODO test
+// TODO move hash() to something like a HashGeneratorWrapper
 public class DBRecordKey2
 {
     private final String keyNumber;

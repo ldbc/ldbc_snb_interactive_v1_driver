@@ -4,6 +4,7 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.io.PrintStream;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
@@ -21,62 +22,99 @@ import com.ldbc.util.MapUtils;
 import com.ldbc.workloads2.Workload2;
 
 /**
- * Main class for executing YCSB
+ * Main class for executing LDBC Benchmark Driver
  */
 public class Client2
 {
     public static final String OPERATION_COUNT = "operationcount";
     public static final String RECORD_COUNT = "recordcount";
     public static final String WORKLOAD = "workload";
-
     public static final String EXPORTER = "exporter";
     public static final String EXPORT_FILE_PATH = "exportfile";
 
-    /**
-     * For partitioning load among machines when client is bottleneck.
-     * INSERT_COUNT specifies number of inserts client should do, if less than
-     * RECORD_COUNT. Workloads should support the INSERT_START property, which
-     * specifies the record to start at (offset).
-     */
-    public static final String INSERT_COUNT = "insertcount";
+    public static final String[] requiredProperties = new String[] { WORKLOAD };
 
-    public static void printUsageMessage()
+    /*
+     * For partitioning load among machines when client is bottleneck.
+    * 
+     * INSERT_START
+     * Specifies which record ID each client starts from - enables load phase to proceed from 
+     * multiple clients on different machines.
+     * 
+     * INSERT_COUNT
+     * Specifies number of inserts each client should do, if less than RECORD_COUNT.
+     * Works in conjunction with INSERT_START, which specifies the record to start at (offset).
+     *  
+     * E.g. to load 1,000,000 records from 2 machines: 
+     * client 1 --> insertStart=0
+     *          --> insertCount=500,000
+     * client 2 --> insertStart=50,000
+     *          --> insertCount=500,000
+    */
+    public static final String INSERT_COUNT = "insertcount";
+    public static final String INSERT_START = "insertstart";
+    public static final String INSERT_START_DEFAULT = "0";
+
+    public static String usageMessage()
     {
-        System.out.println( "Usage: java com.yahoo.ycsb.Client [options]" );
-        System.out.println( "Options:" );
-        System.out.println( "  -threads n: execute using n threads (default: 1) - can also be specified as the \n"
-                            + "              \"threadcount\" property using -p" );
-        System.out.println( "  -target n: attempt to do n operations per second (default: unlimited) - can also\n"
-                            + "             be specified as the \"target\" property using -p" );
-        System.out.println( "  -load:  run the loading phase of the workload" );
-        System.out.println( "  -t:  run the transactions phase of the workload (default)" );
-        System.out.println( "  -db dbname: specify the name of the DB to use (default: com.yahoo.ycsb.BasicDB) - \n"
-                            + "              can also be specified as the \"db\" property using -p" );
-        System.out.println( "  -P propertyfile: load properties from the given file. Multiple files can" );
-        System.out.println( "                   be specified, and will be processed in the order specified" );
-        System.out.println( "  -p name=value:  specify a property to be passed to the DB and workloads;" );
-        System.out.println( "                  multiple properties can be specified, and override any" );
-        System.out.println( "                  values in the propertyfile" );
-        System.out.println( "  -l label:  use label for status (e.g. to label one experiment out of a whole batch)" );
-        System.out.println( "" );
-        System.out.println( "Required properties:" );
-        System.out.println( "  " + WORKLOAD
-                            + ": the name of the workload class to use (e.g. com.yahoo.ycsb.workloads.CoreWorkload)" );
-        System.out.println( "" );
-        System.out.println( "To run the transaction phase from multiple servers, start a separate client on each." );
-        System.out.println( "To run the load phase from multiple servers, start a separate client on each; additionally," );
-        System.out.println( "use the \"insertcount\" and \"insertstart\" properties to divide up the records to be inserted" );
+        String usageMessage = "Usage: java com.yahoo.ycsb.Client [options]\n"
+
+        + "Options:\n"
+
+        + "  -threads n: execute using n threads (default: 1) - can also be specified as the \n"
+
+        + "              \"threadcount\" property using -p\n"
+
+        + "  -target n: attempt to do n operations per second (default: unlimited) - can also\n"
+
+        + "             be specified as the \"target\" property using -p\n"
+
+        + "  -load:  run the loading phase of the workload\n"
+
+        + "  -t:  run the transactions phase of the workload (default)\n"
+
+        + "  -db dbname: specify the name of the DB to use (default: com.yahoo.ycsb.BasicDB) - \n"
+
+        + "              can also be specified as the \"db\" property using -p\n"
+
+        + "  -P propertyfile: load properties from the given file. Multiple files can\n"
+
+        + "                   be specified, and will be processed in the order specified\n"
+
+        + "  -p name=value:  specify a property to be passed to the DB and workloads;\n"
+
+        + "                  multiple properties can be specified, and override any\n"
+
+        + "                  values in the propertyfile\n"
+
+        + "  -s:  show status during run (default: no status)\n"
+
+        + "  -l label:  use label for status (e.g. to label one experiment out of a whole batch)\n"
+
+        + "\nRequired properties:\n"
+
+        + "  " + WORKLOAD + ": the name of the workload class to use (e.g. com.yahoo.ycsb.workloads.CoreWorkload)\n"
+
+        + "\nTo run the transaction phase from multiple servers, start a separate client on each."
+
+        + "To run the load phase from multiple servers, start a separate client on each; additionally,\n"
+
+        + "use the \"insertcount\" and \"insertstart\" properties to divide up the records to be inserted";
+
+        return usageMessage;
     }
 
-    public static boolean checkRequiredProperties( Map<String, String> properties )
+    public static boolean checkRequiredProperties( Map<String, String> properties, String[] requiredProperties )
     {
-        if ( false == properties.containsKey( WORKLOAD ) )
+        for ( String property : requiredProperties )
         {
-            // TODO use logger
-            System.out.println( "Missing property: " + WORKLOAD );
-            return false;
+            if ( false == properties.containsKey( property ) )
+            {
+                // TODO use logger
+                System.out.println( "Missing property: " + WORKLOAD );
+                return false;
+            }
         }
-
         return true;
     }
 
@@ -136,8 +174,10 @@ public class Client2
         Properties fileProperties = new Properties();
 
         BenchmarkPhase2 argBenchmarkPhase = BenchmarkPhase2.TRANSACTION_PHASE;
-        int threadCount = 1;
+        // TODO thread-related, remove
+        // int threadCount = 1;
         int target = 0;
+        boolean argStatus = false;
         String argLabel;
 
         // parse arguments
@@ -145,8 +185,7 @@ public class Client2
 
         if ( args.length == 0 )
         {
-            printUsageMessage();
-            System.exit( 0 );
+            exit( usageMessage(), 0 );
         }
 
         while ( args[argIndex].startsWith( "-" ) )
@@ -156,12 +195,12 @@ public class Client2
                 argIndex++;
                 if ( argIndex >= args.length )
                 {
-                    printUsageMessage();
-                    System.exit( 0 );
+                    exit( usageMessage(), 0 );
                 }
-                int argThreadCount = Integer.parseInt( args[argIndex] );
-
-                commandlineProperties.put( "threadcount", Integer.toString( argThreadCount ) );
+                // TODO thread-related, remove
+                // int argThreadCount = Integer.parseInt( args[argIndex] );
+                // commandlineProperties.put( "threadcount", Integer.toString(
+                // argThreadCount ) );
 
                 argIndex++;
             }
@@ -170,8 +209,7 @@ public class Client2
                 argIndex++;
                 if ( argIndex >= args.length )
                 {
-                    printUsageMessage();
-                    System.exit( 0 );
+                    exit( usageMessage(), 0 );
                 }
                 int argTarget = Integer.parseInt( args[argIndex] );
 
@@ -189,13 +227,17 @@ public class Client2
                 argBenchmarkPhase = BenchmarkPhase2.TRANSACTION_PHASE;
                 argIndex++;
             }
+            else if ( args[argIndex].equals( "-s" ) )
+            {
+                argStatus = true;
+                argIndex++;
+            }
             else if ( args[argIndex].equals( "-db" ) )
             {
                 argIndex++;
                 if ( argIndex >= args.length )
                 {
-                    printUsageMessage();
-                    System.exit( 0 );
+                    exit( usageMessage(), 0 );
                 }
                 String argDb = args[argIndex];
 
@@ -208,8 +250,7 @@ public class Client2
                 argIndex++;
                 if ( argIndex >= args.length )
                 {
-                    printUsageMessage();
-                    System.exit( 0 );
+                    exit( usageMessage(), 0 );
                 }
                 argLabel = args[argIndex];
                 argIndex++;
@@ -219,8 +260,7 @@ public class Client2
                 argIndex++;
                 if ( argIndex >= args.length )
                 {
-                    printUsageMessage();
-                    System.exit( 0 );
+                    exit( usageMessage(), 0 );
                 }
                 String argPropertiesFile = args[argIndex];
                 argIndex++;
@@ -232,14 +272,12 @@ public class Client2
                 argIndex++;
                 if ( argIndex >= args.length )
                 {
-                    printUsageMessage();
-                    System.exit( 0 );
+                    exit( usageMessage(), 0 );
                 }
                 int equalsCharPosition = args[argIndex].indexOf( '=' );
                 if ( equalsCharPosition < 0 )
                 {
-                    printUsageMessage();
-                    System.exit( 0 );
+                    exit( usageMessage(), 0 );
                 }
 
                 String argPropertyName = args[argIndex].substring( 0, equalsCharPosition );
@@ -250,8 +288,7 @@ public class Client2
             else
             {
                 System.out.println( "Unknown option " + args[argIndex] );
-                printUsageMessage();
-                System.exit( 0 );
+                exit( usageMessage(), 0 );
             }
 
             if ( argIndex >= args.length )
@@ -262,8 +299,7 @@ public class Client2
 
         if ( argIndex != args.length )
         {
-            printUsageMessage();
-            System.exit( 0 );
+            exit( usageMessage(), 0 );
         }
 
         // TODO set up logging
@@ -271,13 +307,16 @@ public class Client2
 
         commandlineProperties = MapUtils.mergePropertiesToMap( fileProperties, commandlineProperties, false );
 
-        if ( !checkRequiredProperties( commandlineProperties ) )
+        if ( !checkRequiredProperties( commandlineProperties, requiredProperties ) )
         {
-            System.exit( 0 );
+            // TODO there should be a message here
+            exit( "", 0 );
         }
 
+        // TODO thread-related, remove
         // get number of threads, target and db
-        threadCount = Integer.parseInt( MapUtils.mapGetDefault( commandlineProperties, "threadcount", "1" ) );
+        // threadCount = Integer.parseInt( MapUtils.mapGetDefault(
+        // commandlineProperties, "threadcount", "1" ) );
 
         dbName = MapUtils.mapGetDefault( commandlineProperties, "db", "com.yahoo.ycsb.BasicDB" );
 
@@ -287,7 +326,10 @@ public class Client2
         double targetPerformancePerMs = -1;
         if ( target > 0 )
         {
-            double targetPerThreadPerS = ( (double) target ) / ( (double) threadCount );
+            // TODO thread-related, re-calculate (default to one thread?)
+            double targetPerThreadPerS = ( (double) target ) / ( 1d );
+            // double targetPerThreadPerS = ( (double) target ) / ( (double)
+            // threadCount );
             targetPerformancePerMs = targetPerThreadPerS / 1000.0;
         }
 
@@ -300,6 +342,7 @@ public class Client2
         System.out.println();
         System.err.println( "Loading workload..." );
 
+        // TODO thread-related, consider removing
         // show a warning message that creating the workload is taking a while
         // but only do so if it is taking longer than 2 seconds
         // (showing the message right away if the setup wasn't taking very long
@@ -319,7 +362,6 @@ public class Client2
                 System.err.println( " (might take a few minutes for large data sets)" );
             }
         };
-
         warningThread.start();
 
         // set up measurements
@@ -338,9 +380,11 @@ public class Client2
         }
         catch ( Exception e )
         {
+            // TODO get error msg and print it, rethrow, handle, or something...
             e.printStackTrace();
             e.printStackTrace( System.out );
-            System.exit( 0 );
+            // TODO should be message here
+            exit( "", 0 );
         }
 
         warningThread.interrupt();
@@ -369,6 +413,7 @@ public class Client2
             break;
         }
 
+        // TODO thread-related, remove
         Vector<ClientThread2> clientThreads = new Vector<ClientThread2>();
 
         for ( int threadId = 0; threadId < threadCount; threadId++ )
@@ -380,8 +425,7 @@ public class Client2
             }
             catch ( UnknownDBException2 e )
             {
-                System.out.println( "Unknown DB " + dbName );
-                System.exit( 0 );
+                exit( "Unknown DB " + dbName, 0 );
             }
 
             // TODO multiple ClientThreads SHARE a Workload instance? Why?
@@ -393,6 +437,20 @@ public class Client2
                     operationCount / threadCount, targetPerformancePerMs, randomFactory.newRandom(), generatorBuilder );
 
             clientThreads.add( clientThread );
+        }
+
+        if ( argStatus )
+        {
+            // TODO in non-threaded manner
+            // boolean standardstatus = false;
+            // if ( MapUtils.mapGetDefault( commandlineProperties,
+            // "measurementtype", "" ).equals( "timeseries" ) )
+            // {
+            // standardstatus = true;
+            // }
+            // statusThread = new StatusThread( clientThreads, argLabel,
+            // standardstatus );
+            // statusThread.start();
         }
 
         long st = System.currentTimeMillis();
@@ -418,7 +476,13 @@ public class Client2
 
         long en = System.currentTimeMillis();
 
-        // TODO new workload class doesn't have .cleanup(), is itnecessary?
+        // TODO in non-threaded manner
+        // if ( argStatus )
+        // {
+        // statusThread.interrupt();
+        // }
+
+        // TODO new workload class doesn't have .cleanup(), is it necessary?
         // try
         // {
         // workload.cleanup();
@@ -427,7 +491,7 @@ public class Client2
         // {
         // e.printStackTrace();
         // e.printStackTrace( System.out );
-        // System.exit( 0 );
+        // exit();
         // }
 
         try
@@ -438,9 +502,16 @@ public class Client2
         {
             System.err.println( "Could not export measurements, error: " + e.getMessage() );
             e.printStackTrace();
-            System.exit( -1 );
+            exit( "", -1 );
         }
 
+        // TODO what is this for?
+        exit( "", 0 );
+    }
+
+    private static void exit( String message, int errorCode )
+    {
+        System.out.println( message );
         System.exit( 0 );
     }
 }

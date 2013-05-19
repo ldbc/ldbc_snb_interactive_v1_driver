@@ -17,6 +17,7 @@ import com.ldbc.util.MapUtils;
 import com.ldbc.util.Triple;
 import com.ldbc.workloads2.Workload2;
 import com.ldbc.workloads2.WorkloadException2;
+import com.ldbc2.Client2;
 
 public class SimplestWorkloadNEW2 extends Workload2
 {
@@ -42,8 +43,8 @@ public class SimplestWorkloadNEW2 extends Workload2
     {
         super( properties );
         recordCount = Long.parseLong( properties.get( Client.RECORD_COUNT ) );
-        insertStart = Long.parseLong( MapUtils.mapGetDefault( properties, Workload2.INSERT_START,
-                Workload2.INSERT_START_DEFAULT ) );
+        insertStart = Long.parseLong( MapUtils.mapGetDefault( properties, Client2.INSERT_START,
+                Client2.INSERT_START_DEFAULT ) );
     }
 
     @Override

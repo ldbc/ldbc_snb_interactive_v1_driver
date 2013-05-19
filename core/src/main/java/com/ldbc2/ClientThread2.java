@@ -60,7 +60,8 @@ class ClientThread2 extends Thread
         }
         try
         {
-            runBenchmark( benchmarkPhase );
+            Generator<Operation2<?>> operationGenerator = getOperationGenerator( benchmarkPhase );
+            runBenchmark( operationGenerator );
         }
         catch ( ClientException2 e )
         {
@@ -76,7 +77,29 @@ class ClientThread2 extends Thread
         }
     }
 
-    private void runBenchmark( BenchmarkPhase2 benchmarkPhase ) throws ClientException2
+    private void runBenchmark( Generator<Operation2<?>> operationGenerator ) throws ClientException2
+    {
+        long startTime = System.currentTimeMillis();
+        while ( operationCount == 0 || operationsDone < operationCount )
+        {
+            Operation2<?> operation = operationGenerator.next();
+            try
+            {
+                OperationHandler2<?> operationHandler = db.getOperationHandler( operation );
+                operationHandler.execute( operation );
+                operationsDone++;
+                doThrottleOperations( startTime );
+            }
+            catch ( DbException2 e )
+            {
+                throw new ClientException2( String.format(
+                        "Error encountered trying to execute %s after %s of %s operations", operation, operationsDone,
+                        operationCount ), e.getCause() );
+            }
+        }
+    }
+
+    private Generator<Operation2<?>> getOperationGenerator( BenchmarkPhase2 benchmarkPhase ) throws ClientException2
     {
         Generator<Operation2<?>> operationGenerator = null;
         try
@@ -95,24 +118,7 @@ class ClientThread2 extends Thread
         {
             throw new ClientException2( "Error encounterd trying to get operation generator", e.getCause() );
         }
-
-        long startTime = System.currentTimeMillis();
-        while ( operationCount == 0 || operationsDone < operationCount )
-        {
-            Operation2<?> operation = operationGenerator.next();
-            try
-            {
-                OperationHandler2<?> operationHandler = db.getOperationHandler( operation );
-                operationHandler.execute( operation );
-                operationsDone++;
-                doThrottleOperations( startTime );
-            }
-            catch ( DbException2 e )
-            {
-                throw new ClientException2( String.format( "Error encounterd trying to execute %s", operation ),
-                        e.getCause() );
-            }
-        }
+        return operationGenerator;
     }
 
     // TODO this seems super shit, what is it doing?

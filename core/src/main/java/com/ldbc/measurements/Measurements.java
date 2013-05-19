@@ -20,7 +20,6 @@ package com.ldbc.measurements;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Properties;
 
 import com.ldbc.measurements.exporter.MeasurementsExporter;
 import com.ldbc.util.MapUtils;
@@ -30,6 +29,7 @@ import com.ldbc.util.MapUtils;
  * 
  * @author cooperb
  */
+// TODO make this NOT everything-static-and-untestable
 public class Measurements
 {
     private static final String MEASUREMENT_TYPE = "measurementtype";

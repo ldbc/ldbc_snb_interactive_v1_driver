@@ -18,7 +18,7 @@ import com.ldbc.workloads2.simple.UpdateOperation2;
 public class BasicDb2 extends Db2
 {
     @Override
-    public void init( Map<String, String> properties ) throws DbException2
+    public void onInit( Map<String, String> properties ) throws DbException2
     {
         registerOperationHandler( InsertOperation2.class, InsertOperationHandler2.class );
         registerOperationHandler( ReadOperation2.class, ReadOperationHandler2.class );
@@ -28,7 +28,7 @@ public class BasicDb2 extends Db2
     }
 
     @Override
-    public void cleanup() throws DbException2
+    public void onCleanup() throws DbException2
     {
     }
 }
