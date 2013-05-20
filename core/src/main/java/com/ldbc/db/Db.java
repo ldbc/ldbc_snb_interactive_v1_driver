@@ -3,6 +3,9 @@ package com.ldbc.db;
 import java.util.HashMap;
 import java.util.Map;
 
+import com.ldbc.Operation;
+import com.ldbc.OperationHandler;
+
 public abstract class Db
 {
     private final Map<Class<? extends Operation<?>>, Class<? extends OperationHandler<?>>> operationHandlers = new HashMap<Class<? extends Operation<?>>, Class<? extends OperationHandler<?>>>();

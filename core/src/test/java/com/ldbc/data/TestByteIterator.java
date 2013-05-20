@@ -1,4 +1,4 @@
-package com.ldbc.buffer;
+package com.ldbc.data;
 
 import org.apache.commons.math3.random.RandomDataGenerator;
 import org.junit.Test;

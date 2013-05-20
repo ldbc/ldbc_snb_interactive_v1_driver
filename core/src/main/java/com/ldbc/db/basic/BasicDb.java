@@ -4,11 +4,11 @@ import java.util.Map;
 import java.util.Set;
 import java.util.Vector;
 
+import com.ldbc.OperationHandler;
+import com.ldbc.OperationResult;
 import com.ldbc.data.ByteIterator;
 import com.ldbc.db.Db;
 import com.ldbc.db.DbException;
-import com.ldbc.db.OperationHandler;
-import com.ldbc.db.OperationResult;
 import com.ldbc.workloads.simple.InsertOperation;
 import com.ldbc.workloads.simple.ReadModifyWriteOperation;
 import com.ldbc.workloads.simple.ReadOperation;

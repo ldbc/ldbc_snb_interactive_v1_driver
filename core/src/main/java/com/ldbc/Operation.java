@@ -1,4 +1,4 @@
-package com.ldbc.db;
+package com.ldbc;
 
 public abstract class Operation<R>
 {

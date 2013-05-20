@@ -5,8 +5,8 @@ import java.util.Map;
 import java.util.Set;
 
 import com.ldbc.Client;
+import com.ldbc.Operation;
 import com.ldbc.data.ByteIterator;
-import com.ldbc.db.Operation;
 import com.ldbc.generator.Generator;
 import com.ldbc.generator.GeneratorBuilder;
 import com.ldbc.generator.GeneratorException;

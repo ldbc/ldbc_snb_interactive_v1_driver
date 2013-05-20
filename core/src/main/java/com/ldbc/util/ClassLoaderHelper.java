@@ -1,5 +1,7 @@
-package com.ldbc.db;
+package com.ldbc.util;
 
+import com.ldbc.db.Db;
+import com.ldbc.db.DbException;
 import com.ldbc.workloads.Workload;
 import com.ldbc.workloads.WorkloadException;
 

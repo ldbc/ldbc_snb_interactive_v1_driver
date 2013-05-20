@@ -4,8 +4,8 @@ import java.util.Map;
 import java.util.Set;
 import java.util.Vector;
 
+import com.ldbc.Operation;
 import com.ldbc.data.ByteIterator;
-import com.ldbc.db.Operation;
 
 public class ScanOperation extends Operation<Vector<Map<String, ByteIterator>>>
 {

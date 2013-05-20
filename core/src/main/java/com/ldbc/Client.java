@@ -10,13 +10,13 @@ import java.util.Properties;
 
 import org.apache.log4j.Logger;
 
-import com.ldbc.db.ClassLoaderHelper;
 import com.ldbc.db.Db;
 import com.ldbc.db.DbException;
 import com.ldbc.generator.GeneratorBuilder;
 import com.ldbc.measurements.Measurements;
 import com.ldbc.measurements.exporter.MeasurementsExporter;
 import com.ldbc.measurements.exporter.TextMeasurementsExporter;
+import com.ldbc.util.ClassLoaderHelper;
 import com.ldbc.util.Pair;
 import com.ldbc.util.RandomDataGeneratorFactory;
 import com.ldbc.util.MapUtils;

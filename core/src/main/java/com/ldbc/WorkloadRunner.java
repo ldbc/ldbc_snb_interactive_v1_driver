@@ -2,8 +2,6 @@ package com.ldbc;
 
 import com.ldbc.db.Db;
 import com.ldbc.db.DbException;
-import com.ldbc.db.Operation;
-import com.ldbc.db.OperationHandler;
 import com.ldbc.generator.Generator;
 import com.ldbc.generator.GeneratorBuilder;
 import com.ldbc.workloads.Workload;

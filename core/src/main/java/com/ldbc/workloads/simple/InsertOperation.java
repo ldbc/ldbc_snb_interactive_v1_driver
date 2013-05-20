@@ -2,8 +2,8 @@ package com.ldbc.workloads.simple;
 
 import java.util.Map;
 
+import com.ldbc.Operation;
 import com.ldbc.data.ByteIterator;
-import com.ldbc.db.Operation;
 
 public class InsertOperation extends Operation<Object>
 {

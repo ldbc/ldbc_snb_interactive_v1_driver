@@ -2,7 +2,7 @@ package com.ldbc.workloads;
 
 import java.util.Map;
 
-import com.ldbc.db.Operation;
+import com.ldbc.Operation;
 import com.ldbc.generator.Generator;
 import com.ldbc.generator.GeneratorBuilder;
 

@@ -3,8 +3,8 @@ package com.ldbc.workloads.simple;
 import java.util.Map;
 import java.util.Set;
 
+import com.ldbc.Operation;
 import com.ldbc.data.ByteIterator;
-import com.ldbc.db.Operation;
 
 public class ReadModifyWriteOperation extends Operation<Object>
 {
