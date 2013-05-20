@@ -11,6 +11,10 @@ import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
 
+import OLD_com.ldbc.workloads.WorkloadException;
+import OLD_com.ldbc.workloads.ycsb.Distribution;
+import OLD_com.ldbc.workloads.ycsb.WorkloadUtils;
+
 import com.ldbc.data.ByteIterator;
 import com.ldbc.generator.ConstantGenerator;
 import com.ldbc.generator.Generator;
@@ -18,8 +22,6 @@ import com.ldbc.generator.GeneratorBuilder;
 import com.ldbc.generator.GeneratorBuilderFactory;
 import com.ldbc.generator.DynamicRangeUniformNumberGenerator;
 import com.ldbc.generator.ycsb.YcsbZipfianNumberGenerator;
-import com.ldbc.workloads.ycsb.Distribution;
-import com.ldbc.workloads.ycsb.WorkloadUtils;
 
 public class WorkloadUtilsTest
 {

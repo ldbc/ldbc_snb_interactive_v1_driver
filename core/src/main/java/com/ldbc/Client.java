@@ -1,20 +1,3 @@
-/**                                                                                                                                                                                
- * Copyright (c) 2010 Yahoo! Inc. All rights reserved.                                                                                                                             
- *                                                                                                                                                                                 
- * Licensed under the Apache License, Version 2.0 (the "License"); you                                                                                                             
- * may not use this file except in compliance with the License. You                                                                                                                
- * may obtain a copy of the License at                                                                                                                                             
- *                                                                                                                                                                                 
- * http://www.apache.org/licenses/LICENSE-2.0                                                                                                                                      
- *                                                                                                                                                                                 
- * Unless required by applicable law or agreed to in writing, software                                                                                                             
- * distributed under the License is distributed on an "AS IS" BASIS,                                                                                                               
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or                                                                                                                 
- * implied. See the License for the specific language governing                                                                                                                    
- * permissions and limitations under the License. See accompanying                                                                                                                 
- * LICENSE file.                                                                                                                                                                   
- */
-
 package com.ldbc;
 
 import java.io.FileInputStream;
@@ -24,379 +7,194 @@ import java.io.OutputStream;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
-import java.util.Vector;
 
-import com.ldbc.generator.GeneratorBuilderFactory;
+import org.apache.log4j.Logger;
+
+import com.ldbc.db.ClassLoaderHelper;
+import com.ldbc.db.Db;
+import com.ldbc.db.DbException;
+import com.ldbc.generator.GeneratorBuilder;
 import com.ldbc.measurements.Measurements;
 import com.ldbc.measurements.exporter.MeasurementsExporter;
 import com.ldbc.measurements.exporter.TextMeasurementsExporter;
+import com.ldbc.util.Pair;
 import com.ldbc.util.RandomDataGeneratorFactory;
 import com.ldbc.util.MapUtils;
 import com.ldbc.workloads.Workload;
 import com.ldbc.workloads.WorkloadException;
 
-/**
- * Main class for executing YCSB
- */
 public class Client
 {
-    public static final String OPERATION_COUNT = "operationcount";
-    public static final String RECORD_COUNT = "recordcount";
-    public static final String WORKLOAD = "workload";
+    private static Logger logger = Logger.getLogger( Client.class );
 
-    public static final String EXPORTER = "exporter";
-    public static final String EXPORT_FILE_PATH = "exportfile";
-
-    /**
+    /*
      * For partitioning load among machines when client is bottleneck.
-     * INSERT_COUNT specifies number of inserts client should do, if less than
-     * RECORD_COUNT. Workloads should support the INSERT_START property, which
-     * specifies the record to start at (offset).
-     */
-    public static final String INSERT_COUNT = "insertcount";
-
-    /**
-     * Maximum time (seconds) the benchmark will be run
-     */
-    public static final String MAX_EXECUTION_TIME = "maxexecutiontime";
-
-    public static void printUsageMessage()
-    {
-        System.out.println( "Usage: java com.yahoo.ycsb.Client [options]" );
-        System.out.println( "Options:" );
-        System.out.println( "  -threads n: execute using n threads (default: 1) - can also be specified as the \n"
-                            + "              \"threadcount\" property using -p" );
-        System.out.println( "  -target n: attempt to do n operations per second (default: unlimited) - can also\n"
-                            + "             be specified as the \"target\" property using -p" );
-        System.out.println( "  -load:  run the loading phase of the workload" );
-        System.out.println( "  -t:  run the transactions phase of the workload (default)" );
-        System.out.println( "  -db dbname: specify the name of the DB to use (default: com.yahoo.ycsb.BasicDB) - \n"
-                            + "              can also be specified as the \"db\" property using -p" );
-        System.out.println( "  -P propertyfile: load properties from the given file. Multiple files can" );
-        System.out.println( "                   be specified, and will be processed in the order specified" );
-        System.out.println( "  -p name=value:  specify a property to be passed to the DB and workloads;" );
-        System.out.println( "                  multiple properties can be specified, and override any" );
-        System.out.println( "                  values in the propertyfile" );
-        System.out.println( "  -s:  show status during run (default: no status)" );
-        System.out.println( "  -l label:  use label for status (e.g. to label one experiment out of a whole batch)" );
-        System.out.println( "" );
-        System.out.println( "Required properties:" );
-        System.out.println( "  " + WORKLOAD
-                            + ": the name of the workload class to use (e.g. com.yahoo.ycsb.workloads.CoreWorkload)" );
-        System.out.println( "" );
-        System.out.println( "To run the transaction phase from multiple servers, start a separate client on each." );
-        System.out.println( "To run the load phase from multiple servers, start a separate client on each; additionally," );
-        System.out.println( "use the \"insertcount\" and \"insertstart\" properties to divide up the records to be inserted" );
-    }
-
-    public static boolean checkRequiredProperties( Map<String, String> properties )
-    {
-        if ( false == properties.containsKey( WORKLOAD ) )
-        {
-            // TODO use logger
-            System.out.println( "Missing property: " + WORKLOAD );
-            return false;
-        }
-
-        return true;
-    }
-
-    /**
-     * Exports measurements to either sysout or file, using the exporter loaded
-     * from configuration
+    * 
+     * INSERT_START
+     * Specifies which record ID each client starts from - enables load phase to proceed from 
+     * multiple clients on different machines.
      * 
-     * @throws IOException Either failed to write to output stream or failed to
-     *             close it.
-     */
-    private static void exportMeasurements( Map<String, String> properties, int opcount, long runtime )
-            throws IOException
+     * INSERT_COUNT
+     * Specifies number of inserts each client should do, if less than RECORD_COUNT.
+     * Works in conjunction with INSERT_START, which specifies the record to start at (offset).
+     *  
+     * E.g. to load 1,000,000 records from 2 machines: 
+     * client 1 --> insertStart=0
+     *          --> insertCount=500,000
+     * client 2 --> insertStart=50,000
+     *          --> insertCount=500,000
+    */
+    public static final String INSERT_COUNT = "insertcount";
+    public static final String INSERT_START = "insertstart";
+    public static final String INSERT_START_DEFAULT = "0";
+    public static final String RECORD_COUNT = "recordcount";
+
+    private final String OPERATION_COUNT = "operationcount";
+    private final String WORKLOAD = "workload";
+    private final String EXPORTER = "exporter";
+    private final String EXPORT_FILE_PATH = "exportfile";
+
+    private final String[] requiredProperties = new String[] { WORKLOAD };
+
+    private BenchmarkPhase benchmarkPhase = BenchmarkPhase.TRANSACTION_PHASE;
+    private int targetThroughput = 0;
+    private boolean showStatus = false;
+
+    public static void main( String[] args ) throws ClientException
     {
-        MeasurementsExporter exporter = null;
+        Client client = new Client();
+        client.start( args );
+    }
+
+    private void start( String[] args )
+    {
+        long seed = System.currentTimeMillis();
+        RandomDataGeneratorFactory randomFactory = new RandomDataGeneratorFactory( seed );
+        GeneratorBuilder generatorBuilder = new GeneratorBuilder( randomFactory );
+
+        ClassLoaderHelper classLoaderHelper = new ClassLoaderHelper();
+
+        Map<String, String> commandlineProperties = null;
         try
         {
-            String exportFilePath = properties.get( EXPORT_FILE_PATH );
-            OutputStream out = ( exportFilePath == null ) ? System.out : new FileOutputStream( exportFilePath );
-            String exporterClassName = MapUtils.mapGetDefault( properties, EXPORTER,
-                    TextMeasurementsExporter.class.getName() );
-            try
-            {
-                exporter = (MeasurementsExporter) Class.forName( exporterClassName ).getConstructor( OutputStream.class ).newInstance(
-                        out );
-            }
-            catch ( Exception e )
-            {
-                System.err.println( "Could not find exporter " + exporterClassName
-                                    + ", will use default text reporter." );
-                e.printStackTrace();
-                exporter = new TextMeasurementsExporter( out );
-            }
-
-            exporter.write( "OVERALL", "RunTime(ms)", runtime );
-            double throughput = 1000.0 * ( (double) opcount ) / ( (double) runtime );
-            exporter.write( "OVERALL", "Throughput(ops/sec)", throughput );
-
-            Measurements.getMeasurements().exportMeasurements( exporter );
+            commandlineProperties = parseArguments( args );
         }
-        finally
+        catch ( ClientException e )
         {
-            if ( exporter != null )
-            {
-                exporter.close();
-            }
+            logger.info( "Error while try to parse properties", e.getCause() );
         }
-    }
 
-    public static void main( String[] args ) throws IOException
-    {
-        final long seed = System.currentTimeMillis();
-        final RandomDataGeneratorFactory randomFactory = new RandomDataGeneratorFactory( seed );
-        final GeneratorBuilderFactory abstractGeneratorFactory = new GeneratorBuilderFactory( randomFactory.newRandom() );
-
-        final DBFactory dbFactory = new DBFactory();
-
-        String dbName;
-
-        Map<String, String> commandlineProperties = new HashMap<String, String>();
-
-        Properties fileProperties = new Properties();
-
-        BenchmarkPhase argBenchmarkPhase = BenchmarkPhase.TRANSACTION_PHASE;
-        int threadCount = 1;
-        int target = 0;
-        boolean argStatus = false;
-        String argLabel = "";
-
-        // parse arguments
-        int argIndex = 0;
-
-        if ( args.length == 0 )
+        Pair<Boolean, String> isRequiredProperties = checkRequiredProperties( commandlineProperties, requiredProperties );
+        if ( false == isRequiredProperties._1() )
         {
-            printUsageMessage();
+            String errMsg = isRequiredProperties._2();
+            logger.info( errMsg );
             System.exit( 0 );
         }
-
-        while ( args[argIndex].startsWith( "-" ) )
-        {
-            if ( args[argIndex].equals( "-threads" ) )
-            {
-                argIndex++;
-                if ( argIndex >= args.length )
-                {
-                    printUsageMessage();
-                    System.exit( 0 );
-                }
-                int argThreadCount = Integer.parseInt( args[argIndex] );
-
-                commandlineProperties.put( "threadcount", Integer.toString( argThreadCount ) );
-
-                argIndex++;
-            }
-            else if ( args[argIndex].equals( "-target" ) )
-            {
-                argIndex++;
-                if ( argIndex >= args.length )
-                {
-                    printUsageMessage();
-                    System.exit( 0 );
-                }
-                int argTarget = Integer.parseInt( args[argIndex] );
-
-                commandlineProperties.put( "target", Integer.toString( argTarget ) );
-
-                argIndex++;
-            }
-            else if ( args[argIndex].equals( "-load" ) )
-            {
-                argBenchmarkPhase = BenchmarkPhase.LOAD_PHASE;
-                argIndex++;
-            }
-            else if ( args[argIndex].equals( "-t" ) )
-            {
-                argBenchmarkPhase = BenchmarkPhase.TRANSACTION_PHASE;
-                argIndex++;
-            }
-            else if ( args[argIndex].equals( "-s" ) )
-            {
-                argStatus = true;
-                argIndex++;
-            }
-            else if ( args[argIndex].equals( "-db" ) )
-            {
-                argIndex++;
-                if ( argIndex >= args.length )
-                {
-                    printUsageMessage();
-                    System.exit( 0 );
-                }
-                String argDb = args[argIndex];
-
-                commandlineProperties.put( "db", argDb );
-
-                argIndex++;
-            }
-            else if ( args[argIndex].equals( "-l" ) )
-            {
-                argIndex++;
-                if ( argIndex >= args.length )
-                {
-                    printUsageMessage();
-                    System.exit( 0 );
-                }
-                argLabel = args[argIndex];
-                argIndex++;
-            }
-            else if ( args[argIndex].equals( "-P" ) )
-            {
-                argIndex++;
-                if ( argIndex >= args.length )
-                {
-                    printUsageMessage();
-                    System.exit( 0 );
-                }
-                String argPropertiesFile = args[argIndex];
-                argIndex++;
-
-                fileProperties.load( new FileInputStream( argPropertiesFile ) );
-            }
-            else if ( args[argIndex].equals( "-p" ) )
-            {
-                argIndex++;
-                if ( argIndex >= args.length )
-                {
-                    printUsageMessage();
-                    System.exit( 0 );
-                }
-                int equalsCharPosition = args[argIndex].indexOf( '=' );
-                if ( equalsCharPosition < 0 )
-                {
-                    printUsageMessage();
-                    System.exit( 0 );
-                }
-
-                String argPropertyName = args[argIndex].substring( 0, equalsCharPosition );
-                String argPropertyValue = args[argIndex].substring( equalsCharPosition + 1 );
-                commandlineProperties.put( argPropertyName, argPropertyValue );
-                argIndex++;
-            }
-            else
-            {
-                System.out.println( "Unknown option " + args[argIndex] );
-                printUsageMessage();
-                System.exit( 0 );
-            }
-
-            if ( argIndex >= args.length )
-            {
-                break;
-            }
-        }
-
-        if ( argIndex != args.length )
-        {
-            printUsageMessage();
-            System.exit( 0 );
-        }
-
-        // TODO set up logging
-        // BasicConfigurator.configure();
-
-        commandlineProperties = MapUtils.mergePropertiesToMap( fileProperties, commandlineProperties, false );
-
-        if ( !checkRequiredProperties( commandlineProperties ) )
-        {
-            System.exit( 0 );
-        }
-
-        // TODO change to milliseconds instead of seconds
-        long maxExecutionTime = Long.parseLong( MapUtils.mapGetDefault( commandlineProperties, MAX_EXECUTION_TIME, "0" ) );
-
-        // get number of threads, target and db
-        threadCount = Integer.parseInt( MapUtils.mapGetDefault( commandlineProperties, "threadcount", "1" ) );
-
-        dbName = MapUtils.mapGetDefault( commandlineProperties, "db", "com.yahoo.ycsb.BasicDB" );
-
-        target = Integer.parseInt( MapUtils.mapGetDefault( commandlineProperties, "target", "0" ) );
 
         // compute the target throughput
-        double targetPerformancePerMs = -1;
-        if ( target > 0 )
+        targetThroughput = Integer.parseInt( MapUtils.mapGetDefault( commandlineProperties, "target", "0" ) );
+        double targetThroughputPerMs = -1;
+        if ( targetThroughput > 0 )
         {
-            double targetPerThreadPerS = ( (double) target ) / ( (double) threadCount );
-            targetPerformancePerMs = targetPerThreadPerS / 1000.0;
+            targetThroughputPerMs = targetThroughput / 1000.0;
         }
 
-        System.out.println( "YCSB Client 0.1" );
-        System.out.print( "Command line:" );
+        logger.info( "YCSB Client 0.1" );
+        logger.info( "Command line:" );
         for ( int i = 0; i < args.length; i++ )
         {
-            System.out.print( " " + args[i] );
+            logger.info( " " + args[i] );
         }
-        System.out.println();
-        System.err.println( "Loading workload..." );
+        logger.info( "\nLoading workload..." );
 
-        // show a warning message that creating the workload is taking a while
-        // but only do so if it is taking longer than 2 seconds
-        // (showing the message right away if the setup wasn't taking very long
-        // was confusing people)
-        Thread warningthread = new Thread()
-        {
-            public void run()
-            {
-                try
-                {
-                    sleep( 2000 );
-                }
-                catch ( InterruptedException e )
-                {
-                    return;
-                }
-                System.err.println( " (might take a few minutes for large data sets)" );
-            }
-        };
-
-        warningthread.start();
-
-        // set up measurements
         Measurements.setProperties( commandlineProperties );
 
-        // load the workload
-        ClassLoader classLoader = Client.class.getClassLoader();
-
         Workload workload = null;
-
+        String workloadName = commandlineProperties.get( WORKLOAD );
         try
         {
-            String workloadClassName = commandlineProperties.get( WORKLOAD );
-            Class<? extends Workload> workloadclass = (Class<? extends Workload>) classLoader.loadClass( workloadClassName );
-            workload = workloadclass.newInstance();
+            workload = classLoaderHelper.loadWorkloadInstance( workloadName );
+            workload.init( commandlineProperties );
         }
         catch ( Exception e )
         {
-            e.printStackTrace();
-            e.printStackTrace( System.out );
+            logger.info( String.format( "Error loading Workload class: %s", workloadName ), e.getCause() );
+            System.exit( 0 );
+        }
+
+        Db db = null;
+        String dbName = MapUtils.mapGetDefault( commandlineProperties, "db", "com.yahoo.ycsb.BasicDB" );
+        try
+        {
+            db = classLoaderHelper.loadDbInstance( dbName );
+            db.init( commandlineProperties );
+        }
+        catch ( DbException e )
+        {
+            logger.info( String.format( "Error loading DB class: %s", dbName ), e.getCause() );
+            System.exit( 0 );
+        }
+
+        logger.info( "Starting Benchmark" );
+
+        int operationCount = getOperationCount( commandlineProperties );
+
+        WorkloadRunner workloadRunner = new WorkloadRunner( db, benchmarkPhase, workload, operationCount,
+                targetThroughputPerMs, generatorBuilder, showStatus );
+
+        long st = System.currentTimeMillis();
+
+        try
+        {
+            workloadRunner.run();
+        }
+        catch ( ClientException e )
+        {
+            logger.info( "Error running benchmark", e.getCause() );
+            System.exit( 0 );
+        }
+
+        long en = System.currentTimeMillis();
+
+        try
+        {
+            workload.cleanup();
+        }
+        catch ( WorkloadException e )
+        {
+            logger.info( "Error during Workload cleanup", e.getCause() );
             System.exit( 0 );
         }
 
         try
         {
-            workload.init( commandlineProperties, abstractGeneratorFactory.newGeneratorBuilder() );
+            db.cleanup();
         }
-        catch ( WorkloadException e )
+        catch ( DbException e )
         {
-            e.printStackTrace();
-            e.printStackTrace( System.out );
+            logger.info( "Error during DB cleanup", e.getCause() );
             System.exit( 0 );
         }
 
-        warningthread.interrupt();
+        try
+        {
+            exportMeasurements( commandlineProperties, operationCount, en - st );
+        }
+        catch ( IOException e )
+        {
+            logger.info( "Could not export measurements", e.getCause() );
+            System.exit( -1 );
+        }
 
-        // run the workload
+        // TODO what is this for?
+        System.exit( 0 );
+    }
 
-        System.err.println( "Starting Benchmark" );
-
+    private int getOperationCount( Map<String, String> commandlineProperties ) throws NumberFormatException
+    {
         int operationCount = 0;
-
-        switch ( argBenchmarkPhase )
+        switch ( benchmarkPhase )
         {
         case TRANSACTION_PHASE:
             operationCount = Integer.parseInt( MapUtils.mapGetDefault( commandlineProperties, OPERATION_COUNT, "0" ) );
@@ -413,111 +211,221 @@ public class Client
             }
             break;
         }
+        return operationCount;
+    }
 
-        Vector<ClientThread> clientThreads = new Vector<ClientThread>();
+    private Map<String, String> parseArguments( String[] args ) throws ClientException
+    {
+        Map<String, String> commandlineProperties = new HashMap<String, String>();
+        Properties fileProperties = new Properties();
 
-        for ( int threadId = 0; threadId < threadCount; threadId++ )
+        int argIndex = 0;
+
+        if ( args.length == 0 )
         {
-            DB db = null;
-            try
-            {
-                db = dbFactory.newDB( dbName, commandlineProperties );
-            }
-            catch ( UnknownDBException e )
-            {
-                System.out.println( "Unknown DB " + dbName );
-                System.exit( 0 );
-            }
-
-            // TODO multiple ClientThreads SHARE a Workload instance? Why?
-            // TODO should I make it as difficult to start multiple threads on
-            // TODO machine as multiple threads on multiple machines
-            // TODO REMOVE threading from this layer ENTIRELY
-            // TODO move threading to lowest level, per operation
-
-            ClientThread clientThread = new ClientThread( db, argBenchmarkPhase, workload, threadId, threadCount,
-                    commandlineProperties, operationCount / threadCount, targetPerformancePerMs,
-                    randomFactory.newRandom() );
-
-            clientThreads.add( clientThread );
-        }
-
-        StatusThread statusThread = null;
-
-        if ( argStatus )
-        {
-            boolean standardstatus = false;
-            if ( MapUtils.mapGetDefault( commandlineProperties, "measurementtype", "" ).equals( "timeseries" ) )
-            {
-                standardstatus = true;
-            }
-            statusThread = new StatusThread( clientThreads, argLabel, standardstatus );
-            statusThread.start();
-        }
-
-        long st = System.currentTimeMillis();
-
-        for ( ClientThread clientThread : clientThreads )
-        {
-            clientThread.start();
-        }
-
-        Thread terminatorThread = null;
-
-        if ( maxExecutionTime > 0 )
-        {
-            terminatorThread = new TerminatorThread( maxExecutionTime, clientThreads, workload );
-            terminatorThread.start();
-        }
-
-        int opsDone = 0;
-
-        for ( Thread t : clientThreads )
-        {
-            try
-            {
-                t.join();
-                opsDone += ( (ClientThread) t ).getOpsDone();
-            }
-            catch ( InterruptedException e )
-            {
-            }
-        }
-
-        long en = System.currentTimeMillis();
-
-        if ( terminatorThread != null && !terminatorThread.isInterrupted() )
-        {
-            terminatorThread.interrupt();
-        }
-
-        if ( argStatus )
-        {
-            statusThread.interrupt();
-        }
-
-        try
-        {
-            workload.cleanup();
-        }
-        catch ( WorkloadException e )
-        {
-            e.printStackTrace();
-            e.printStackTrace( System.out );
+            logger.info( usageMessage() );
             System.exit( 0 );
         }
 
-        try
+        while ( args[argIndex].startsWith( "-" ) )
         {
-            exportMeasurements( commandlineProperties, opsDone, en - st );
-        }
-        catch ( IOException e )
-        {
-            System.err.println( "Could not export measurements, error: " + e.getMessage() );
-            e.printStackTrace();
-            System.exit( -1 );
+            if ( args[argIndex].equals( "-target" ) )
+            {
+                argIndex++;
+                if ( argIndex >= args.length )
+                {
+                    logger.info( usageMessage() );
+                }
+                int argTarget = Integer.parseInt( args[argIndex] );
+
+                commandlineProperties.put( "target", Integer.toString( argTarget ) );
+
+                argIndex++;
+            }
+            else if ( args[argIndex].equals( "-load" ) )
+            {
+                benchmarkPhase = BenchmarkPhase.LOAD_PHASE;
+                argIndex++;
+            }
+            else if ( args[argIndex].equals( "-t" ) )
+            {
+                benchmarkPhase = BenchmarkPhase.TRANSACTION_PHASE;
+                argIndex++;
+            }
+            else if ( args[argIndex].equals( "-s" ) )
+            {
+                showStatus = true;
+                argIndex++;
+            }
+            else if ( args[argIndex].equals( "-db" ) )
+            {
+                argIndex++;
+                if ( argIndex >= args.length )
+                {
+                    logger.info( usageMessage() );
+                }
+                String argDb = args[argIndex];
+
+                commandlineProperties.put( "db", argDb );
+
+                argIndex++;
+            }
+            else if ( args[argIndex].equals( "-P" ) )
+            {
+                argIndex++;
+                if ( argIndex >= args.length )
+                {
+                    logger.info( usageMessage() );
+                }
+                String argPropertiesFile = args[argIndex];
+                argIndex++;
+
+                try
+                {
+                    fileProperties.load( new FileInputStream( argPropertiesFile ) );
+                }
+                catch ( IOException e )
+                {
+                    throw new ClientException(
+                            String.format( "Error loading properties file [%s]", argPropertiesFile ), e.getCause() );
+                }
+            }
+            else if ( args[argIndex].equals( "-p" ) )
+            {
+                argIndex++;
+                if ( argIndex >= args.length )
+                {
+                    logger.info( usageMessage() );
+                }
+                int equalsCharPosition = args[argIndex].indexOf( '=' );
+                if ( equalsCharPosition < 0 )
+                {
+                    logger.info( usageMessage() );
+                }
+
+                String argPropertyName = args[argIndex].substring( 0, equalsCharPosition );
+                String argPropertyValue = args[argIndex].substring( equalsCharPosition + 1 );
+                commandlineProperties.put( argPropertyName, argPropertyValue );
+                argIndex++;
+            }
+            else
+            {
+                logger.info( "Unknown option " + args[argIndex] );
+                logger.info( usageMessage() );
+                System.exit( 0 );
+            }
+
+            if ( argIndex >= args.length )
+            {
+                break;
+            }
         }
 
-        System.exit( 0 );
+        if ( argIndex != args.length )
+        {
+            logger.info( usageMessage() );
+        }
+
+        return MapUtils.mergePropertiesToMap( fileProperties, commandlineProperties, false );
+    }
+
+    private String usageMessage()
+    {
+        String usageMessage = "Usage: java com.yahoo.ycsb.Client [options]\n"
+
+        + "Options:\n"
+
+        + "  -threads n: execute using n threads (default: 1) - can also be specified as the \n"
+
+        + "              \"threadcount\" property using -p\n"
+
+        + "  -target n: attempt to do n operations per second (default: unlimited) - can also\n"
+
+        + "             be specified as the \"target\" property using -p\n"
+
+        + "  -load:  run the loading phase of the workload\n"
+
+        + "  -t:  run the transactions phase of the workload (default)\n"
+
+        + "  -db dbname: specify the name of the DB to use (default: com.yahoo.ycsb.BasicDB) - \n"
+
+        + "              can also be specified as the \"db\" property using -p\n"
+
+        + "  -P propertyfile: load properties from the given file. Multiple files can\n"
+
+        + "                   be specified, and will be processed in the order specified\n"
+
+        + "  -p name=value:  specify a property to be passed to the DB and workloads;\n"
+
+        + "                  multiple properties can be specified, and override any\n"
+
+        + "                  values in the propertyfile\n"
+
+        + "  -s:  show status during run (default: no status)\n"
+
+        + "  -l label:  use label for status (e.g. to label one experiment out of a whole batch)\n"
+
+        + "\nRequired properties:\n"
+
+        + "  " + WORKLOAD + ": the name of the workload class to use (e.g. com.yahoo.ycsb.workloads.CoreWorkload)\n"
+
+        + "\nTo run the transaction phase from multiple servers, start a separate client on each."
+
+        + "To run the load phase from multiple servers, start a separate client on each; additionally,\n"
+
+        + "use the \"insertcount\" and \"insertstart\" properties to divide up the records to be inserted";
+
+        return usageMessage;
+    }
+
+    private Pair<Boolean, String> checkRequiredProperties( Map<String, String> properties, String[] requiredProperties )
+    {
+        for ( String property : requiredProperties )
+        {
+            if ( false == properties.containsKey( property ) )
+            {
+                return Pair.create( false, "Missing property: " + property );
+            }
+        }
+        return Pair.create( true, "" );
+    }
+
+    /**
+     * Exports measurements using MeasurementsExporter loaded from config
+     */
+    private void exportMeasurements( Map<String, String> properties, int opcount, long runtime ) throws IOException
+    {
+        MeasurementsExporter exporter = null;
+        try
+        {
+            String exportFilePath = properties.get( EXPORT_FILE_PATH );
+            OutputStream out = ( exportFilePath == null ) ? System.out : new FileOutputStream( exportFilePath );
+            String exporterClassName = MapUtils.mapGetDefault( properties, EXPORTER,
+                    TextMeasurementsExporter.class.getName() );
+            try
+            {
+                exporter = (MeasurementsExporter) Class.forName( exporterClassName ).getConstructor( OutputStream.class ).newInstance(
+                        out );
+            }
+            catch ( Exception e )
+            {
+                logger.info( String.format( "Could not find exporter [%s], will use default [%s]", exporterClassName,
+                        TextMeasurementsExporter.class.getName() ), e.getCause() );
+                exporter = new TextMeasurementsExporter( out );
+            }
+
+            exporter.write( "OVERALL", "RunTime(ms)", runtime );
+            double throughput = 1000.0 * ( (double) opcount ) / ( (double) runtime );
+            exporter.write( "OVERALL", "Throughput(ops/sec)", throughput );
+
+            Measurements.getMeasurements().exportMeasurements( exporter );
+        }
+        finally
+        {
+            if ( exporter != null )
+            {
+                exporter.close();
+            }
+        }
     }
 }
