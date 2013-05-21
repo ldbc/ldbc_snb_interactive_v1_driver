@@ -17,7 +17,6 @@
 
 package com.ldbc.measurements;
 
-import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -163,7 +162,7 @@ public class Measurements
      * @param exporter Exporter representing the type of format to write to.
      * @throws IOException Thrown if the export failed.
      */
-    public void exportMeasurements( MeasurementsExporter exporter ) throws IOException
+    public void exportMeasurements( MeasurementsExporter exporter ) throws MeasurementsException
     {
         for ( OneMeasurement measurement : data.values() )
         {

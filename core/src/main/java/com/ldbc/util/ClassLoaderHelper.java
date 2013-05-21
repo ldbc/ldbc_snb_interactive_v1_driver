@@ -1,15 +1,17 @@
 package com.ldbc.util;
 
+import java.io.OutputStream;
+
 import com.ldbc.Db;
 import com.ldbc.DbException;
-import com.ldbc.OperationException;
-import com.ldbc.OperationHandler;
+import com.ldbc.measurements.MeasurementsException;
+import com.ldbc.measurements.exporter.MeasurementsExporter;
 import com.ldbc.workloads.Workload;
 import com.ldbc.workloads.WorkloadException;
 
 public class ClassLoaderHelper
 {
-    public Db loadDb( String dbClassName ) throws DbException
+    public static Db loadDb( String dbClassName ) throws DbException
     {
         try
         {
@@ -23,7 +25,7 @@ public class ClassLoaderHelper
         }
     }
 
-    public Workload loadWorkload( String workloadClassName ) throws WorkloadException
+    public static Workload loadWorkload( String workloadClassName ) throws WorkloadException
     {
         try
         {
@@ -36,7 +38,24 @@ public class ClassLoaderHelper
         }
     }
 
-    private <C> Class<? extends C> loadClass( String className, Class<C> baseClass ) throws ClassNotFoundException
+    public static MeasurementsExporter loadMeasurementsExporter( String measurementsExporterClassName, OutputStream out )
+            throws MeasurementsException
+    {
+        try
+        {
+            Class<? extends MeasurementsExporter> measurementsExporterClass = loadClass( measurementsExporterClassName,
+                    MeasurementsExporter.class );
+            return measurementsExporterClass.getConstructor( OutputStream.class ).newInstance( out );
+        }
+        catch ( Exception e )
+        {
+            throw new MeasurementsException( "Error creating MeasurementsExporter from dynamically loaded class",
+                    e.getCause() );
+        }
+    }
+
+    private static <C> Class<? extends C> loadClass( String className, Class<C> baseClass )
+            throws ClassNotFoundException
     {
         ClassLoader classLoader = ClassLoaderHelper.class.getClassLoader();
         Class<? extends C> loadedClass = (Class<? extends C>) classLoader.loadClass( className );

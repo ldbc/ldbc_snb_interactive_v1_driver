@@ -21,34 +21,54 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 
+import com.ldbc.measurements.MeasurementsException;
+
 /**
  * Write human readable text. Tries to emulate the previous print report method.
  */
 public class TextMeasurementsExporter implements MeasurementsExporter
 {
 
-  private BufferedWriter bw;
+    private BufferedWriter bw;
 
-  public TextMeasurementsExporter(OutputStream os)
-  {
-    this.bw = new BufferedWriter(new OutputStreamWriter(os));
-  }
+    public TextMeasurementsExporter( OutputStream os )
+    {
+        this.bw = new BufferedWriter( new OutputStreamWriter( os ) );
+    }
 
-  public void write(String metric, String measurement, int i) throws IOException
-  {
-    bw.write("[" + metric + "], " + measurement + ", " + i);
-    bw.newLine();
-  }
+    public void write( String metric, String measurement, int i ) throws MeasurementsException
+    {
+        try
+        {
+            bw.write( "[" + metric + "], " + measurement + ", " + i );
+            bw.newLine();
+        }
+        catch ( IOException e )
+        {
+            String errMsg = String.format( "Error writing measurement - metric[%s], measurement[%s], i[%s]", metric,
+                    measurement, i );
+            throw new MeasurementsException( errMsg, e.getCause() );
+        }
+    }
 
-  public void write(String metric, String measurement, double d) throws IOException
-  {
-    bw.write("[" + metric + "], " + measurement + ", " + d);
-    bw.newLine();
-  }
+    public void write( String metric, String measurement, double d ) throws MeasurementsException
+    {
+        try
+        {
+            bw.write( "[" + metric + "], " + measurement + ", " + d );
+            bw.newLine();
+        }
+        catch ( IOException e )
+        {
+            String errMsg = String.format( "Error writing measurement - metric[%s], measurement[%s], d[%s]", metric,
+                    measurement, d );
+            throw new MeasurementsException( errMsg, e.getCause() );
+        }
+    }
 
-  public void close() throws IOException
-  {
-    this.bw.close();
-  }
+    public void close() throws IOException
+    {
+        this.bw.close();
+    }
 
 }

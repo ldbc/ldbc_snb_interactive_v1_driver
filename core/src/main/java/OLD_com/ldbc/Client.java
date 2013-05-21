@@ -31,6 +31,7 @@ import OLD_com.ldbc.workloads.WorkloadException;
 
 import com.ldbc.generator.GeneratorBuilderFactory;
 import com.ldbc.measurements.Measurements;
+import com.ldbc.measurements.MeasurementsException;
 import com.ldbc.measurements.exporter.MeasurementsExporter;
 import com.ldbc.measurements.exporter.TextMeasurementsExporter;
 import com.ldbc.util.RandomDataGeneratorFactory;
@@ -108,9 +109,10 @@ public class Client
      * 
      * @throws IOException Either failed to write to output stream or failed to
      *             close it.
+     * @throws MeasurementsException
      */
     private static void exportMeasurements( Map<String, String> properties, int opcount, long runtime )
-            throws IOException
+            throws IOException, MeasurementsException
     {
         MeasurementsExporter exporter = null;
         try
@@ -512,7 +514,7 @@ public class Client
         {
             exportMeasurements( commandlineProperties, opsDone, en - st );
         }
-        catch ( IOException e )
+        catch ( Exception e )
         {
             System.err.println( "Could not export measurements, error: " + e.getMessage() );
             e.printStackTrace();

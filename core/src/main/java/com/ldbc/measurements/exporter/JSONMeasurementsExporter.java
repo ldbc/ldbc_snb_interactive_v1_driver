@@ -23,7 +23,9 @@ import java.io.OutputStreamWriter;
 
 import org.codehaus.jackson.JsonFactory;
 import org.codehaus.jackson.JsonGenerator;
-import org.codehaus.jackson.impl.DefaultPrettyPrinter;
+import org.codehaus.jackson.util.DefaultPrettyPrinter;
+
+import com.ldbc.measurements.MeasurementsException;
 
 /**
  * Export measurements into a machine readable JSON file.
@@ -31,41 +33,59 @@ import org.codehaus.jackson.impl.DefaultPrettyPrinter;
 public class JSONMeasurementsExporter implements MeasurementsExporter
 {
 
-  private JsonFactory factory = new JsonFactory();
-  private JsonGenerator g;
+    private JsonFactory factory = new JsonFactory();
+    private JsonGenerator g;
 
-  public JSONMeasurementsExporter(OutputStream os) throws IOException
-  {
-
-    BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(os));
-    g = factory.createJsonGenerator(bw);
-    g.setPrettyPrinter(new DefaultPrettyPrinter());
-  }
-
-  public void write(String metric, String measurement, int i) throws IOException
-  {
-    g.writeStartObject();
-    g.writeStringField("metric", metric);
-    g.writeStringField("measurement", measurement);
-    g.writeNumberField("value", i);
-    g.writeEndObject();
-  }
-
-  public void write(String metric, String measurement, double d) throws IOException
-  {
-    g.writeStartObject();
-    g.writeStringField("metric", metric);
-    g.writeStringField("measurement", measurement);
-    g.writeNumberField("value", d);
-    g.writeEndObject();
-  }
-
-  public void close() throws IOException
-  {
-    if (g != null)
+    public JSONMeasurementsExporter( OutputStream os ) throws IOException
     {
-      g.close();
+
+        BufferedWriter bw = new BufferedWriter( new OutputStreamWriter( os ) );
+        g = factory.createJsonGenerator( bw );
+        g.setPrettyPrinter( new DefaultPrettyPrinter() );
     }
-  }
+
+    public void write( String metric, String measurement, int i ) throws MeasurementsException
+    {
+        try
+        {
+            g.writeStartObject();
+            g.writeStringField( "metric", metric );
+            g.writeStringField( "measurement", measurement );
+            g.writeNumberField( "value", i );
+            g.writeEndObject();
+        }
+        catch ( Exception e )
+        {
+            String errMsg = String.format( "Error writing measurement - metric[%s], measurement[%s], i[%s]", metric,
+                    measurement, i );
+            throw new MeasurementsException( errMsg, e.getCause() );
+        }
+    }
+
+    public void write( String metric, String measurement, double d ) throws MeasurementsException
+    {
+        try
+        {
+            g.writeStartObject();
+            g.writeStringField( "metric", metric );
+            g.writeStringField( "measurement", measurement );
+            g.writeNumberField( "value", d );
+            g.writeEndObject();
+        }
+        catch ( Exception e )
+        {
+            String errMsg = String.format( "Error writing measurement - metric[%s], measurement[%s], d[%s]", metric,
+                    measurement, d );
+            throw new MeasurementsException( errMsg, e.getCause() );
+        }
+    }
+
+    public void close() throws IOException
+    {
+        if ( g != null )
+        {
+            g.close();
+        }
+    }
 
 }

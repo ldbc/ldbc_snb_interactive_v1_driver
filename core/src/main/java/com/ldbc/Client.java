@@ -1,6 +1,7 @@
 package com.ldbc;
 
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
@@ -13,6 +14,7 @@ import org.apache.log4j.Logger;
 import com.ldbc.db.basic.BasicDb;
 import com.ldbc.generator.GeneratorBuilder;
 import com.ldbc.measurements.Measurements;
+import com.ldbc.measurements.MeasurementsException;
 import com.ldbc.measurements.exporter.MeasurementsExporter;
 import com.ldbc.measurements.exporter.TextMeasurementsExporter;
 import com.ldbc.util.ClassLoaderHelper;
@@ -80,8 +82,6 @@ public class Client
         RandomDataGeneratorFactory randomFactory = new RandomDataGeneratorFactory( seed );
         GeneratorBuilder generatorBuilder = new GeneratorBuilder( randomFactory );
 
-        ClassLoaderHelper classLoaderHelper = new ClassLoaderHelper();
-
         Map<String, String> commandlineProperties = null;
         try
         {
@@ -130,7 +130,7 @@ public class Client
         String workloadName = commandlineProperties.get( WORKLOAD );
         try
         {
-            workload = classLoaderHelper.loadWorkload( workloadName );
+            workload = ClassLoaderHelper.loadWorkload( workloadName );
             workload.init( commandlineProperties );
         }
         catch ( Exception e )
@@ -143,7 +143,7 @@ public class Client
         String dbName = MapUtils.mapGetDefault( commandlineProperties, DB, DB_DEFAULT );
         try
         {
-            db = classLoaderHelper.loadDb( dbName );
+            db = ClassLoaderHelper.loadDb( dbName );
             db.init( commandlineProperties );
         }
         catch ( DbException e )
@@ -197,7 +197,7 @@ public class Client
         {
             exportMeasurements( commandlineProperties, operationCount, en - st );
         }
-        catch ( IOException e )
+        catch ( MeasurementsException e )
         {
             logger.info( "Could not export measurements", e.getCause() );
             exit();
@@ -414,25 +414,36 @@ public class Client
 
     /**
      * Exports measurements using MeasurementsExporter loaded from config
+     * 
+     * @throws MeasurementsException
      */
-    private void exportMeasurements( Map<String, String> properties, int opcount, long runtime ) throws IOException
+    private void exportMeasurements( Map<String, String> properties, int opcount, long runtime )
+            throws MeasurementsException
     {
         MeasurementsExporter exporter = null;
         try
         {
             String exportFilePath = properties.get( EXPORT_FILE_PATH );
-            OutputStream out = ( exportFilePath == null ) ? System.out : new FileOutputStream( exportFilePath );
+            OutputStream out = null;
+            try
+            {
+                out = ( exportFilePath == null ) ? System.out : new FileOutputStream( exportFilePath );
+            }
+            catch ( FileNotFoundException e )
+            {
+                throw new MeasurementsException( String.format( "Could not find file [%s]", exportFilePath ),
+                        e.getCause() );
+            }
+
             String exporterClassName = MapUtils.mapGetDefault( properties, EXPORTER, EXPORTER_DEFAULT );
             try
             {
-                exporter = (MeasurementsExporter) Class.forName( exporterClassName ).getConstructor( OutputStream.class ).newInstance(
-                        out );
+                exporter = ClassLoaderHelper.loadMeasurementsExporter( exporterClassName, out );
             }
             catch ( Exception e )
             {
-                logger.info( String.format( "Could not find exporter [%s], will use default [%s]", exporterClassName,
-                        TextMeasurementsExporter.class.getName() ), e.getCause() );
-                exporter = new TextMeasurementsExporter( out );
+                throw new MeasurementsException( String.format( "Could not find exporter [%s]", exporterClassName ),
+                        e.getCause() );
             }
 
             exporter.write( "OVERALL", "RunTime(ms)", runtime );
@@ -445,7 +456,14 @@ public class Client
         {
             if ( exporter != null )
             {
-                exporter.close();
+                try
+                {
+                    exporter.close();
+                }
+                catch ( IOException e )
+                {
+                    throw new MeasurementsException( "Error closing exporter", e.getCause() );
+                }
             }
         }
     }

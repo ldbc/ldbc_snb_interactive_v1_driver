@@ -17,11 +17,9 @@
 
 package com.ldbc.measurements;
 
-import java.io.IOException;
 import java.text.DecimalFormat;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Properties;
 import java.util.Vector;
 
 import com.ldbc.measurements.exporter.MeasurementsExporter;
@@ -131,7 +129,7 @@ public class OneMeasurementTimeSeries extends OneMeasurement
     }
 
     @Override
-    public void exportMeasurements( MeasurementsExporter exporter ) throws IOException
+    public void exportMeasurements( MeasurementsExporter exporter ) throws MeasurementsException
     {
         checkEndOfUnit( true );
 

@@ -17,11 +17,9 @@
 
 package com.ldbc.measurements;
 
-import java.io.IOException;
 import java.text.DecimalFormat;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Properties;
 
 import com.ldbc.measurements.exporter.MeasurementsExporter;
 import com.ldbc.util.MapUtils;
@@ -112,7 +110,7 @@ public class OneMeasurementHistogram extends OneMeasurement
     }
 
     @Override
-    public void exportMeasurements( MeasurementsExporter exporter ) throws IOException
+    public void exportMeasurements( MeasurementsExporter exporter ) throws MeasurementsException
     {
         exporter.write( getName(), "Operations", operations );
         exporter.write( getName(), "AverageLatency(us)", ( ( (double) totallatency ) / ( (double) operations ) ) );
