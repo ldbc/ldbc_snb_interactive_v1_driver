@@ -41,6 +41,7 @@ public class SimpleWorkload extends Workload
     @Override
     public void onInit( Map<String, String> properties )
     {
+        // TODO move this logic to Client and make available via local getters?
         recordCount = Long.parseLong( properties.get( Client.RECORD_COUNT ) );
         insertStart = Long.parseLong( MapUtils.mapGetDefault( properties, Client.INSERT_START,
                 Client.INSERT_START_DEFAULT ) );

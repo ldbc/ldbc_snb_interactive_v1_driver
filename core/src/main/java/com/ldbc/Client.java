@@ -10,6 +10,7 @@ import java.util.Properties;
 
 import org.apache.log4j.Logger;
 
+import com.ldbc.db.basic.BasicDb;
 import com.ldbc.generator.GeneratorBuilder;
 import com.ldbc.measurements.Measurements;
 import com.ldbc.measurements.exporter.MeasurementsExporter;
@@ -43,18 +44,26 @@ public class Client
      *          --> insertCount=500,000
     */
     public static final String INSERT_COUNT = "insertcount";
+    public static final String INSERT_COUNT_DEFAULT = "0";
     public static final String INSERT_START = "insertstart";
     public static final String INSERT_START_DEFAULT = "0";
     public static final String RECORD_COUNT = "recordcount";
+    public static final String RECORD_COUNT_DEFAULT = "0";
 
-    private final String OPERATION_COUNT = "operationcount";
     private final String WORKLOAD = "workload";
-    private final String EXPORTER = "exporter";
     private final String EXPORT_FILE_PATH = "exportfile";
-    private final String SHOW_STATUS = "show_status";
+    private final String OPERATION_COUNT = "operationcount";
+    private final String OPERATION_COUNT_DEFAULT = "0";
+    private final String EXPORTER = "exporter";
+    private final String EXPORTER_DEFAULT = TextMeasurementsExporter.class.getName();
+    private final String STATUS = "status";
+    private final String STATUS_DEFAULT = "false";
     private final String DB = "db";
+    private final String DB_DEFAULT = BasicDb.class.getName();
     private final String TARGET_THROUGHPUT = "target_throughput";
+    private final String TARGET_THROUGHPUT_DEFAULT = "0";
     private final String BENCHMARK_PHASE = "benchmark_phase";
+    private final String BENCHMARK_PHASE_DEFAULT = BenchmarkPhase.TRANSACTION_PHASE.toString();
 
     private final String[] requiredProperties = new String[] { WORKLOAD };
 
@@ -92,13 +101,15 @@ public class Client
             exit();
         }
 
-        boolean showStatus = Boolean.parseBoolean( MapUtils.mapGetDefault( commandlineProperties, SHOW_STATUS, "false" ) );
+        boolean showStatus = Boolean.parseBoolean( MapUtils.mapGetDefault( commandlineProperties, STATUS,
+                STATUS_DEFAULT ) );
 
         BenchmarkPhase benchmarkPhase = BenchmarkPhase.valueOf( MapUtils.mapGetDefault( commandlineProperties,
-                BENCHMARK_PHASE, BenchmarkPhase.TRANSACTION_PHASE.toString() ) );
+                BENCHMARK_PHASE, BENCHMARK_PHASE_DEFAULT ) );
 
         // compute the target throughput
-        int targetThroughput = Integer.parseInt( MapUtils.mapGetDefault( commandlineProperties, TARGET_THROUGHPUT, "0" ) );
+        int targetThroughput = Integer.parseInt( MapUtils.mapGetDefault( commandlineProperties, TARGET_THROUGHPUT,
+                TARGET_THROUGHPUT_DEFAULT ) );
         double targetThroughputPerMs = -1;
         if ( targetThroughput > 0 )
         {
@@ -129,7 +140,7 @@ public class Client
         }
 
         Db db = null;
-        String dbName = MapUtils.mapGetDefault( commandlineProperties, DB, "com.yahoo.ycsb.BasicDB" );
+        String dbName = MapUtils.mapGetDefault( commandlineProperties, DB, DB_DEFAULT );
         try
         {
             db = classLoaderHelper.loadDb( dbName );
@@ -200,17 +211,20 @@ public class Client
         switch ( benchmarkPhase )
         {
         case TRANSACTION_PHASE:
-            operationCount = Integer.parseInt( MapUtils.mapGetDefault( commandlineProperties, OPERATION_COUNT, "0" ) );
+            operationCount = Integer.parseInt( MapUtils.mapGetDefault( commandlineProperties, OPERATION_COUNT,
+                    OPERATION_COUNT_DEFAULT ) );
             break;
 
         case LOAD_PHASE:
             if ( commandlineProperties.containsKey( INSERT_COUNT ) )
             {
-                operationCount = Integer.parseInt( MapUtils.mapGetDefault( commandlineProperties, INSERT_COUNT, "0" ) );
+                operationCount = Integer.parseInt( MapUtils.mapGetDefault( commandlineProperties, INSERT_COUNT,
+                        INSERT_COUNT_DEFAULT ) );
             }
             else
             {
-                operationCount = Integer.parseInt( MapUtils.mapGetDefault( commandlineProperties, RECORD_COUNT, "0" ) );
+                operationCount = Integer.parseInt( MapUtils.mapGetDefault( commandlineProperties, RECORD_COUNT,
+                        RECORD_COUNT_DEFAULT ) );
             }
             break;
         }
@@ -255,7 +269,7 @@ public class Client
             }
             else if ( args[argIndex].equals( "-s" ) )
             {
-                commandlineProperties.put( SHOW_STATUS, "true" );
+                commandlineProperties.put( STATUS, "true" );
                 argIndex++;
             }
             else if ( args[argIndex].equals( "-db" ) )
@@ -408,8 +422,7 @@ public class Client
         {
             String exportFilePath = properties.get( EXPORT_FILE_PATH );
             OutputStream out = ( exportFilePath == null ) ? System.out : new FileOutputStream( exportFilePath );
-            String exporterClassName = MapUtils.mapGetDefault( properties, EXPORTER,
-                    TextMeasurementsExporter.class.getName() );
+            String exporterClassName = MapUtils.mapGetDefault( properties, EXPORTER, EXPORTER_DEFAULT );
             try
             {
                 exporter = (MeasurementsExporter) Class.forName( exporterClassName ).getConstructor( OutputStream.class ).newInstance(
