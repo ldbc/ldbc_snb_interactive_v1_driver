@@ -15,7 +15,7 @@
  * LICENSE file.                                                                                                                                                                   
  */
 
-package com.ldbc.db;
+package com.ldbc;
 
 /**
  * Something bad happened while interacting with the database.

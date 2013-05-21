@@ -1,10 +1,7 @@
-package com.ldbc.db;
+package com.ldbc;
 
 import java.util.HashMap;
 import java.util.Map;
-
-import com.ldbc.Operation;
-import com.ldbc.OperationHandler;
 
 public abstract class Db
 {
@@ -62,7 +59,10 @@ public abstract class Db
         }
         try
         {
-            return operationHandlerType.getConstructor().newInstance();
+            // TODO reassign from object pool rather than always new instances
+            OperationHandler<?> operationHandler = operationHandlerType.getConstructor().newInstance();
+            operationHandler.setOperation( operation );
+            return operationHandler;
         }
         catch ( Exception e )
         {

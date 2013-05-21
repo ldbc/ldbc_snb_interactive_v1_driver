@@ -4,13 +4,21 @@ import com.ldbc.measurements.Measurements;
 
 public abstract class OperationHandler<A extends Operation<?>>
 {
+    // TODO change the way this is done! no static
     private final Measurements measurements = Measurements.getMeasurements();
 
-    public final OperationResult execute( Operation<?> operation )
+    private A operation = null;
+
+    final void setOperation( Operation<?> operation )
+    {
+        this.operation = (A) operation;
+    }
+
+    final OperationResult execute()
     {
         long startTime = System.nanoTime();
 
-        OperationResult operationResult = executeOperation( (A) operation );
+        OperationResult operationResult = executeOperation( operation );
 
         long endTime = System.nanoTime();
 

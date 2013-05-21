@@ -1,13 +1,15 @@
 package com.ldbc.util;
 
-import com.ldbc.db.Db;
-import com.ldbc.db.DbException;
+import com.ldbc.Db;
+import com.ldbc.DbException;
+import com.ldbc.OperationException;
+import com.ldbc.OperationHandler;
 import com.ldbc.workloads.Workload;
 import com.ldbc.workloads.WorkloadException;
 
 public class ClassLoaderHelper
 {
-    public Db loadDbInstance( String dbClassName ) throws DbException
+    public Db loadDb( String dbClassName ) throws DbException
     {
         try
         {
@@ -21,7 +23,7 @@ public class ClassLoaderHelper
         }
     }
 
-    public Workload loadWorkloadInstance( String workloadClassName ) throws WorkloadException
+    public Workload loadWorkload( String workloadClassName ) throws WorkloadException
     {
         try
         {

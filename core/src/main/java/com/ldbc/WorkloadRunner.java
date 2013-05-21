@@ -1,7 +1,5 @@
 package com.ldbc;
 
-import com.ldbc.db.Db;
-import com.ldbc.db.DbException;
 import com.ldbc.generator.Generator;
 import com.ldbc.generator.GeneratorBuilder;
 import com.ldbc.workloads.Workload;
@@ -48,7 +46,7 @@ class WorkloadRunner
             {
                 OperationHandler<?> operationHandler = db.getOperationHandler( operation );
                 // TODO perform asynchronously
-                operationHandler.execute( operation );
+                operationHandler.execute();
                 operationsDone++;
                 doThrottleOperations( startTime );
 
@@ -97,8 +95,7 @@ class WorkloadRunner
         return operationGenerator;
     }
 
-    // TODO this seems super shit, what is it doing?
-    // TODO probably needs removed and replaced with different abstraction
+    // TODO remove/replace with more configurable (Generator-based) strategy
     private void doThrottleOperations( long startTime )
     {
         /*

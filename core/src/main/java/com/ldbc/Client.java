@@ -10,8 +10,6 @@ import java.util.Properties;
 
 import org.apache.log4j.Logger;
 
-import com.ldbc.db.Db;
-import com.ldbc.db.DbException;
 import com.ldbc.generator.GeneratorBuilder;
 import com.ldbc.measurements.Measurements;
 import com.ldbc.measurements.exporter.MeasurementsExporter;
@@ -114,7 +112,7 @@ public class Client
         String workloadName = commandlineProperties.get( WORKLOAD );
         try
         {
-            workload = classLoaderHelper.loadWorkloadInstance( workloadName );
+            workload = classLoaderHelper.loadWorkload( workloadName );
             workload.init( commandlineProperties );
         }
         catch ( Exception e )
@@ -127,7 +125,7 @@ public class Client
         String dbName = MapUtils.mapGetDefault( commandlineProperties, "db", "com.yahoo.ycsb.BasicDB" );
         try
         {
-            db = classLoaderHelper.loadDbInstance( dbName );
+            db = classLoaderHelper.loadDb( dbName );
             db.init( commandlineProperties );
         }
         catch ( DbException e )
