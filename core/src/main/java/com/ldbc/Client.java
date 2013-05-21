@@ -51,17 +51,18 @@ public class Client
     private final String WORKLOAD = "workload";
     private final String EXPORTER = "exporter";
     private final String EXPORT_FILE_PATH = "exportfile";
+    private final String SHOW_STATUS = "show_status";
+    private final String DB = "db";
+    private final String TARGET_THROUGHPUT = "target_throughput";
+    private final String BENCHMARK_PHASE = "benchmark_phase";
 
     private final String[] requiredProperties = new String[] { WORKLOAD };
-
-    private BenchmarkPhase benchmarkPhase = BenchmarkPhase.TRANSACTION_PHASE;
-    private int targetThroughput = 0;
-    private boolean showStatus = false;
 
     public static void main( String[] args ) throws ClientException
     {
         Client client = new Client();
         client.start( args );
+        client.exit();
     }
 
     private void start( String[] args )
@@ -80,6 +81,7 @@ public class Client
         catch ( ClientException e )
         {
             logger.info( "Error while try to parse properties", e.getCause() );
+            exit();
         }
 
         Pair<Boolean, String> isRequiredProperties = checkRequiredProperties( commandlineProperties, requiredProperties );
@@ -87,11 +89,16 @@ public class Client
         {
             String errMsg = isRequiredProperties._2();
             logger.info( errMsg );
-            System.exit( 0 );
+            exit();
         }
 
+        boolean showStatus = Boolean.parseBoolean( MapUtils.mapGetDefault( commandlineProperties, SHOW_STATUS, "false" ) );
+
+        BenchmarkPhase benchmarkPhase = BenchmarkPhase.valueOf( MapUtils.mapGetDefault( commandlineProperties,
+                BENCHMARK_PHASE, BenchmarkPhase.TRANSACTION_PHASE.toString() ) );
+
         // compute the target throughput
-        targetThroughput = Integer.parseInt( MapUtils.mapGetDefault( commandlineProperties, "target", "0" ) );
+        int targetThroughput = Integer.parseInt( MapUtils.mapGetDefault( commandlineProperties, TARGET_THROUGHPUT, "0" ) );
         double targetThroughputPerMs = -1;
         if ( targetThroughput > 0 )
         {
@@ -118,11 +125,11 @@ public class Client
         catch ( Exception e )
         {
             logger.info( String.format( "Error loading Workload class: %s", workloadName ), e.getCause() );
-            System.exit( 0 );
+            exit();
         }
 
         Db db = null;
-        String dbName = MapUtils.mapGetDefault( commandlineProperties, "db", "com.yahoo.ycsb.BasicDB" );
+        String dbName = MapUtils.mapGetDefault( commandlineProperties, DB, "com.yahoo.ycsb.BasicDB" );
         try
         {
             db = classLoaderHelper.loadDb( dbName );
@@ -131,12 +138,12 @@ public class Client
         catch ( DbException e )
         {
             logger.info( String.format( "Error loading DB class: %s", dbName ), e.getCause() );
-            System.exit( 0 );
+            exit();
         }
 
         logger.info( "Starting Benchmark" );
 
-        int operationCount = getOperationCount( commandlineProperties );
+        int operationCount = getOperationCount( commandlineProperties, benchmarkPhase );
 
         WorkloadRunner workloadRunner = new WorkloadRunner( db, benchmarkPhase, workload, operationCount,
                 targetThroughputPerMs, generatorBuilder, showStatus );
@@ -150,7 +157,7 @@ public class Client
         catch ( ClientException e )
         {
             logger.info( "Error running benchmark", e.getCause() );
-            System.exit( 0 );
+            exit();
         }
 
         long en = System.currentTimeMillis();
@@ -162,7 +169,7 @@ public class Client
         catch ( WorkloadException e )
         {
             logger.info( "Error during Workload cleanup", e.getCause() );
-            System.exit( 0 );
+            exit();
         }
 
         try
@@ -172,7 +179,7 @@ public class Client
         catch ( DbException e )
         {
             logger.info( "Error during DB cleanup", e.getCause() );
-            System.exit( 0 );
+            exit();
         }
 
         try
@@ -182,14 +189,12 @@ public class Client
         catch ( IOException e )
         {
             logger.info( "Could not export measurements", e.getCause() );
-            System.exit( -1 );
+            exit();
         }
-
-        // TODO what is this for?
-        System.exit( 0 );
     }
 
-    private int getOperationCount( Map<String, String> commandlineProperties ) throws NumberFormatException
+    private int getOperationCount( Map<String, String> commandlineProperties, BenchmarkPhase benchmarkPhase )
+            throws NumberFormatException
     {
         int operationCount = 0;
         switch ( benchmarkPhase )
@@ -222,7 +227,7 @@ public class Client
         if ( args.length == 0 )
         {
             logger.info( usageMessage() );
-            System.exit( 0 );
+            exit();
         }
 
         while ( args[argIndex].startsWith( "-" ) )
@@ -235,24 +240,22 @@ public class Client
                     logger.info( usageMessage() );
                 }
                 int argTarget = Integer.parseInt( args[argIndex] );
-
-                commandlineProperties.put( "target", Integer.toString( argTarget ) );
-
+                commandlineProperties.put( TARGET_THROUGHPUT, Integer.toString( argTarget ) );
                 argIndex++;
             }
             else if ( args[argIndex].equals( "-load" ) )
             {
-                benchmarkPhase = BenchmarkPhase.LOAD_PHASE;
+                commandlineProperties.put( BENCHMARK_PHASE, BenchmarkPhase.LOAD_PHASE.toString() );
                 argIndex++;
             }
             else if ( args[argIndex].equals( "-t" ) )
             {
-                benchmarkPhase = BenchmarkPhase.TRANSACTION_PHASE;
+                commandlineProperties.put( BENCHMARK_PHASE, BenchmarkPhase.TRANSACTION_PHASE.toString() );
                 argIndex++;
             }
             else if ( args[argIndex].equals( "-s" ) )
             {
-                showStatus = true;
+                commandlineProperties.put( SHOW_STATUS, "true" );
                 argIndex++;
             }
             else if ( args[argIndex].equals( "-db" ) )
@@ -263,9 +266,7 @@ public class Client
                     logger.info( usageMessage() );
                 }
                 String argDb = args[argIndex];
-
-                commandlineProperties.put( "db", argDb );
-
+                commandlineProperties.put( DB, argDb );
                 argIndex++;
             }
             else if ( args[argIndex].equals( "-P" ) )
@@ -310,7 +311,7 @@ public class Client
             {
                 logger.info( "Unknown option " + args[argIndex] );
                 logger.info( usageMessage() );
-                System.exit( 0 );
+                exit();
             }
 
             if ( argIndex >= args.length )
@@ -325,6 +326,15 @@ public class Client
         }
 
         return MapUtils.mergePropertiesToMap( fileProperties, commandlineProperties, false );
+    }
+
+    private void exit()
+    {
+        // TODO YCSB used System.exit(0) to kill its many driver threads. those
+        // threads no longer exist, but others will at the DB connection
+        // layer. What's the cleanest/safest/right way to terminate the
+        // application and clean up all threads?
+        System.exit( 0 );
     }
 
     private String usageMessage()
