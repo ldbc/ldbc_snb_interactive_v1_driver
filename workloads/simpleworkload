@@ -5,14 +5,4 @@
 
 recordcount=100
 operationcount=100
-workload=com.ldbc.workloads.simple.SimpleWorkload
-
-
-readallfields=true
-
-readproportion=0.25
-updateproportion=0.25
-scanproportion=0.25
-insertproportion=0.25
-
-requestdistribution=zipfian
+workload=com.ldbc.driver.workloads.simple.SimpleWorkload

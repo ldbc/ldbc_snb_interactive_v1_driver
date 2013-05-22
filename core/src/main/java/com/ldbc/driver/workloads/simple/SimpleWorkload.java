@@ -29,11 +29,11 @@ public class SimpleWorkload extends Workload
     final int MIN_SCAN_LENGTH = 1;
     final int MAX_SCAN_LENGTH = 1000;
 
-    final double READ_RATIO = 0.95;
-    final double UPDATE_RATIO = 0.05;
-    final double INSERT_RATIO = 0.00;
-    final double SCAN_RATIO = 0.00;
-    final double READ_MODIFY_WRITE_RATIO = 0.00;
+    final double READ_RATIO = 0.20;
+    final double UPDATE_RATIO = 0.20;
+    final double INSERT_RATIO = 0.20;
+    final double SCAN_RATIO = 0.20;
+    final double READ_MODIFY_WRITE_RATIO = 0.20;
 
     long insertStart;
     long recordCount;

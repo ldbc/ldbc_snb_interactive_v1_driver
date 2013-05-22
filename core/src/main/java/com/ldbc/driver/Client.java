@@ -126,7 +126,7 @@ public class Client
             targetThroughputPerMs = targetThroughput / 1000.0;
         }
 
-        logger.info( "YCSB Client 0.1" );
+        logger.info( "LDBC Driver 0.1" );
         logger.info( "Command line:" );
         for ( int i = 0; i < args.length; i++ )
         {
@@ -373,7 +373,7 @@ public class Client
 
     private String usageMessage()
     {
-        String usageMessage = "Usage: java com.yahoo.ycsb.Client [options]\n"
+        String usageMessage = "Usage: java com.ldbc.driver.Client [options]\n"
 
         + "Options:\n"
 
@@ -389,7 +389,7 @@ public class Client
 
         + "  -t:  run the transactions phase of the workload (default)\n"
 
-        + "  -db dbname: specify the name of the DB to use (default: com.yahoo.ycsb.BasicDB) - \n"
+        + "  -db dbname: specify the name of the DB to use (default: com.ldbc.driver.db.BasicDB) - \n"
 
         + "              can also be specified as the \"db\" property using -p\n"
 
@@ -409,7 +409,7 @@ public class Client
 
         + "\nRequired properties:\n"
 
-        + "  " + WORKLOAD + ": the name of the workload class to use (e.g. com.yahoo.ycsb.workloads.CoreWorkload)\n"
+        + "  " + WORKLOAD + ": the name of the workload class to use (e.g. com.ldbc.driver.workloads.CoreWorkload)\n"
 
         + "\nTo run the transaction phase from multiple servers, start a separate client on each."
 
