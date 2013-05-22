@@ -9,9 +9,9 @@ import OLD_com.ldbc.DB;
 import OLD_com.ldbc.DBRecordKey;
 import OLD_com.ldbc.workloads.WorkloadException;
 
-import com.ldbc.data.ByteIterator;
-import com.ldbc.generator.Generator;
-import com.ldbc.measurements.Measurements;
+import com.ldbc.driver.data.ByteIterator;
+import com.ldbc.driver.generator.Generator;
+import com.ldbc.driver.measurements.Measurements;
 
 public abstract class WorkloadOperation
 {

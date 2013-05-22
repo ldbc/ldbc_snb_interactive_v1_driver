@@ -22,7 +22,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 import OLD_com.ldbc.DB;
 
-import com.ldbc.generator.GeneratorBuilder;
+import com.ldbc.driver.generator.GeneratorBuilder;
 
 /**
  * One experiment scenario. One object of this type will be instantiated and

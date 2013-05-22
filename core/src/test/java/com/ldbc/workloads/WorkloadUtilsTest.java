@@ -15,13 +15,13 @@ import OLD_com.ldbc.workloads.WorkloadException;
 import OLD_com.ldbc.workloads.ycsb.Distribution;
 import OLD_com.ldbc.workloads.ycsb.WorkloadUtils;
 
-import com.ldbc.data.ByteIterator;
-import com.ldbc.generator.ConstantGenerator;
-import com.ldbc.generator.Generator;
-import com.ldbc.generator.GeneratorBuilder;
-import com.ldbc.generator.GeneratorBuilderFactory;
-import com.ldbc.generator.DynamicRangeUniformNumberGenerator;
-import com.ldbc.generator.ycsb.YcsbZipfianNumberGenerator;
+import com.ldbc.driver.data.ByteIterator;
+import com.ldbc.driver.generator.ConstantGenerator;
+import com.ldbc.driver.generator.DynamicRangeUniformNumberGenerator;
+import com.ldbc.driver.generator.Generator;
+import com.ldbc.driver.generator.GeneratorBuilder;
+import com.ldbc.driver.generator.GeneratorBuilderFactory;
+import com.ldbc.driver.generator.ycsb.YcsbZipfianNumberGenerator;
 
 public class WorkloadUtilsTest
 {

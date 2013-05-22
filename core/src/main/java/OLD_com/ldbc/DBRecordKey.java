@@ -1,6 +1,6 @@
 package OLD_com.ldbc;
 
-import com.ldbc.util.HashUtils;
+import com.ldbc.driver.util.HashUtils;
 
 // TODO test
 public class DBRecordKey

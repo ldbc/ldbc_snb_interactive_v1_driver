@@ -1,0 +1,18 @@
+# Linked Data Benchmark Council
+# Very simple workload for testing purposes only
+#                        
+#   Add more details here...
+
+recordcount=100
+operationcount=100
+workload=com.ldbc.workloads.simple.SimpleWorkload
+
+
+readallfields=true
+
+readproportion=0.25
+updateproportion=0.25
+scanproportion=0.25
+insertproportion=0.25
+
+requestdistribution=zipfian

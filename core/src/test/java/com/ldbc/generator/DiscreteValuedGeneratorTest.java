@@ -4,14 +4,16 @@ import static org.junit.Assert.assertEquals;
 
 import java.util.ArrayList;
 
+import org.junit.Ignore;
 import org.junit.Test;
 
-import com.ldbc.generator.Generator;
-import com.ldbc.generator.GeneratorException;
-import com.ldbc.util.Histogram;
-import com.ldbc.util.Pair;
-import com.ldbc.util.Bucket.DiscreteBucket;
+import com.ldbc.driver.generator.Generator;
+import com.ldbc.driver.generator.GeneratorException;
+import com.ldbc.driver.util.Histogram;
+import com.ldbc.driver.util.Pair;
+import com.ldbc.driver.util.Bucket.DiscreteBucket;
 
+@Ignore
 public class DiscreteValuedGeneratorTest extends GeneratorTest<String, Integer>
 {
 

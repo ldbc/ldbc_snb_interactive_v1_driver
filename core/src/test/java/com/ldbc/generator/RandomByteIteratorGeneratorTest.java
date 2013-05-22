@@ -2,10 +2,13 @@ package com.ldbc.generator;
 
 import java.util.List;
 
-import com.ldbc.generator.Generator;
-import com.ldbc.util.Bucket;
-import com.ldbc.util.Histogram;
+import org.junit.Ignore;
 
+import com.ldbc.driver.generator.Generator;
+import com.ldbc.driver.util.Bucket;
+import com.ldbc.driver.util.Histogram;
+
+@Ignore
 public class RandomByteIteratorGeneratorTest extends NumberGeneratorTest<Long, Long>
 {
     private final long start = 0;

@@ -15,8 +15,8 @@ import org.neo4j.rest.graphdb.query.RestCypherQueryEngine;
 
 import OLD_com.ldbc.DBException;
 
-import com.ldbc.data.ByteIterator;
-import com.ldbc.data.StringByteIterator;
+import com.ldbc.driver.data.ByteIterator;
+import com.ldbc.driver.data.StringByteIterator;
 
 public class Neo4jClientCommandsRest implements Neo4jClientCommands
 {

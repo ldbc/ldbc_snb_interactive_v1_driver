@@ -9,12 +9,12 @@ import OLD_com.ldbc.DB;
 import OLD_com.ldbc.workloads.Workload;
 import OLD_com.ldbc.workloads.WorkloadException;
 
-import com.ldbc.generator.Generator;
-import com.ldbc.generator.GeneratorBuilder;
-import com.ldbc.generator.BoundedRangeExponentialNumberGenerator;
-import com.ldbc.generator.MinMaxGeneratorWrapper;
-import com.ldbc.util.Pair;
-import com.ldbc.util.MapUtils;
+import com.ldbc.driver.generator.BoundedRangeExponentialNumberGenerator;
+import com.ldbc.driver.generator.Generator;
+import com.ldbc.driver.generator.GeneratorBuilder;
+import com.ldbc.driver.generator.MinMaxGeneratorWrapper;
+import com.ldbc.driver.util.MapUtils;
+import com.ldbc.driver.util.Pair;
 
 // TODO there should not be a distinction between init() and initThread()
 // TODO init() should just return an OperationGenerator

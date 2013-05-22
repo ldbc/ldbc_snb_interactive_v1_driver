@@ -9,12 +9,12 @@ import java.util.Set;
 
 import org.junit.Test;
 
-import com.ldbc.generator.DiscreteMultiGenerator;
-import com.ldbc.generator.Generator;
-import com.ldbc.generator.GeneratorException;
-import com.ldbc.util.Histogram;
-import com.ldbc.util.Pair;
-import com.ldbc.util.Bucket.DiscreteBucket;
+import com.ldbc.driver.generator.DiscreteMultiGenerator;
+import com.ldbc.driver.generator.Generator;
+import com.ldbc.driver.generator.GeneratorException;
+import com.ldbc.driver.util.Histogram;
+import com.ldbc.driver.util.Pair;
+import com.ldbc.driver.util.Bucket.DiscreteBucket;
 
 public class DiscreteMultiGeneratorVariableProbabilitiesConstantSizeTest extends GeneratorTest<Set<String>, Integer>
 {

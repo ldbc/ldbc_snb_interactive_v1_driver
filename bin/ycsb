@@ -9,23 +9,23 @@ COMMANDS = {
     "shell" : {
         "command"     : "",
         "description" : "Interactive mode",
-        "main"        : "com.yahoo.ycsb.CommandLine",
+        "main"        : "com.ldbc.CommandLine",
     },
     "load" : {
         "command"     : "-load",
         "description" : "Execute the load phase",
-        "main"        : "com.yahoo.ycsb.Client",
+        "main"        : "com.ldbc.Client",
     },
     "run" : {
         "command"     : "-t",
         "description" : "Execute the transaction phase",
-        "main"        : "com.yahoo.ycsb.Client",
+        "main"        : "com.ldbc.Client",
     },
 }
 
 DATABASES = {
-    "basic"        : "com.yahoo.ycsb.BasicDB",
-    "neo4j"        : "com.yahoo.ycsb.db.neo4j.Neo4jClient",
+    "basic"        : "com.ldbc.db.BasicDb",
+    "neo4j"        : "com.ldbc.db.neo4j.Neo4jClient",
 }
 
 OPTIONS = {
@@ -94,6 +94,7 @@ options = sys.argv[3:]
 
 ycsb_command = ["java", "-cp", os.pathsep.join(find_jars(ycsb_home, database)), \
                 COMMANDS[sys.argv[1]]["main"], "-db", db_classname] + options
+                
 if command:
     ycsb_command.append(command)
 print " ".join(ycsb_command)

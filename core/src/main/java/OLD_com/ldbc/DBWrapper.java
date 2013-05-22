@@ -21,8 +21,8 @@ import java.util.Map;
 import java.util.Set;
 import java.util.Vector;
 
-import com.ldbc.data.ByteIterator;
-import com.ldbc.measurements.Measurements;
+import com.ldbc.driver.data.ByteIterator;
+import com.ldbc.driver.measurements.Measurements;
 
 /**
  * Wrapper around another DB instance that measures latencies and return codes

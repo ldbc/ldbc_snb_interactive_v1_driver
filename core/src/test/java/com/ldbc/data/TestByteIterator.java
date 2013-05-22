@@ -3,8 +3,8 @@ package com.ldbc.data;
 import org.apache.commons.math3.random.RandomDataGenerator;
 import org.junit.Test;
 
-import com.ldbc.data.ByteIterator;
-import com.ldbc.data.RandomByteIterator;
+import com.ldbc.driver.data.ByteIterator;
+import com.ldbc.driver.data.RandomByteIterator;
 
 import static org.junit.Assert.assertEquals;
 

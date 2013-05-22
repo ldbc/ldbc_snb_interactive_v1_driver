@@ -4,7 +4,7 @@ import static org.junit.Assert.assertEquals;
 
 import org.junit.Test;
 
-import com.ldbc.util.Pair;
+import com.ldbc.driver.util.Pair;
 
 public class PairTest
 {

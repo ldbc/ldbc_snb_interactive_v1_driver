@@ -10,11 +10,11 @@ import OLD_com.ldbc.DBException;
 import OLD_com.ldbc.workloads.Workload;
 import OLD_com.ldbc.workloads.WorkloadException;
 
-import com.ldbc.generator.Generator;
-import com.ldbc.generator.GeneratorBuilder;
-import com.ldbc.generator.MinMaxGeneratorWrapper;
-import com.ldbc.util.Pair;
-import com.ldbc.util.MapUtils;
+import com.ldbc.driver.generator.Generator;
+import com.ldbc.driver.generator.GeneratorBuilder;
+import com.ldbc.driver.generator.MinMaxGeneratorWrapper;
+import com.ldbc.driver.util.MapUtils;
+import com.ldbc.driver.util.Pair;
 
 public class SimplestWorkload extends Workload
 {

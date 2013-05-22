@@ -24,9 +24,9 @@ import java.util.Vector;
 
 import org.apache.commons.math3.random.RandomDataGenerator;
 
-import com.ldbc.data.ByteIterator;
-import com.ldbc.util.RandomDataGeneratorFactory;
-import com.ldbc.util.MapUtils;
+import com.ldbc.driver.data.ByteIterator;
+import com.ldbc.driver.util.MapUtils;
+import com.ldbc.driver.util.RandomDataGeneratorFactory;
 
 /**
  * Basic DB that just prints out the requested operations, instead of doing them

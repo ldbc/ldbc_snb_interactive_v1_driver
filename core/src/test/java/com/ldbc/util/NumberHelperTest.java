@@ -10,8 +10,8 @@ import java.util.concurrent.atomic.AtomicLong;
 
 import org.junit.Test;
 
-import com.ldbc.generator.GeneratorException;
-import com.ldbc.util.NumberHelper;
+import com.ldbc.driver.generator.GeneratorException;
+import com.ldbc.driver.util.NumberHelper;
 
 public class NumberHelperTest
 {

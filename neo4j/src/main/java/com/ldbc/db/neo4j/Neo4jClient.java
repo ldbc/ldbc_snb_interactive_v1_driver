@@ -16,8 +16,8 @@ import org.apache.log4j.Logger;
 import OLD_com.ldbc.DB;
 import OLD_com.ldbc.DBException;
 
-import com.ldbc.data.ByteIterator;
-import com.ldbc.util.MapUtils;
+import com.ldbc.driver.data.ByteIterator;
+import com.ldbc.driver.util.MapUtils;
 import com.sun.jersey.api.client.ClientHandlerException;
 
 /**

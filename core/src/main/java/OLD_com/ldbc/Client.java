@@ -29,13 +29,13 @@ import java.util.Vector;
 import OLD_com.ldbc.workloads.Workload;
 import OLD_com.ldbc.workloads.WorkloadException;
 
-import com.ldbc.generator.GeneratorBuilderFactory;
-import com.ldbc.measurements.Measurements;
-import com.ldbc.measurements.MeasurementsException;
-import com.ldbc.measurements.exporter.MeasurementsExporter;
-import com.ldbc.measurements.exporter.TextMeasurementsExporter;
-import com.ldbc.util.RandomDataGeneratorFactory;
-import com.ldbc.util.MapUtils;
+import com.ldbc.driver.generator.GeneratorBuilderFactory;
+import com.ldbc.driver.measurements.Measurements;
+import com.ldbc.driver.measurements.MeasurementsException;
+import com.ldbc.driver.measurements.exporter.MeasurementsExporter;
+import com.ldbc.driver.measurements.exporter.TextMeasurementsExporter;
+import com.ldbc.driver.util.MapUtils;
+import com.ldbc.driver.util.RandomDataGeneratorFactory;
 
 /**
  * Main class for executing YCSB

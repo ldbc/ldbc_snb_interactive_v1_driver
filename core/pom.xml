@@ -3,13 +3,13 @@
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<parent>
-		<groupId>com.yahoo.ycsb</groupId>
+		<groupId>com.ldbc.driver</groupId>
 		<artifactId>root</artifactId>
-		<version>0.1.4</version>
+		<version>0.1</version>
 	</parent>
 
 	<artifactId>core</artifactId>
-	<name>Core YCSB</name>
+	<name>Core LDBC</name>
 	<packaging>jar</packaging>
 
 	<properties>

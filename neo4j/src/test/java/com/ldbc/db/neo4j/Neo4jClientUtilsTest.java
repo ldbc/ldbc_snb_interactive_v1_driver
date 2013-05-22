@@ -9,9 +9,9 @@ import java.util.Set;
 
 import org.junit.Test;
 
-import com.ldbc.data.ByteIterator;
-import com.ldbc.data.StringByteIterator;
 import com.ldbc.db.neo4j.Neo4jClientUtils;
+import com.ldbc.driver.data.ByteIterator;
+import com.ldbc.driver.data.StringByteIterator;
 
 public class Neo4jClientUtilsTest
 {

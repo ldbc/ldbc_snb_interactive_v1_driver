@@ -1,8 +1,11 @@
 package com.ldbc.generator;
 
-import com.ldbc.generator.Generator;
-import com.ldbc.util.Histogram;
+import org.junit.Ignore;
 
+import com.ldbc.driver.generator.Generator;
+import com.ldbc.driver.util.Histogram;
+
+@Ignore
 public class NaiveBoundedRangeNumberGeneratorTest extends NumberGeneratorTest<Long, Long>
 {
     @Override

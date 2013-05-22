@@ -3,17 +3,17 @@
 	<modelVersion>4.0.0</modelVersion>
 
 	<parent>
-		<groupId>com.yahoo.ycsb</groupId>
+		<groupId>com.ldbc.driver</groupId>
 		<artifactId>root</artifactId>
-		<version>0.1.4</version>
+		<version>0.1</version>
 	</parent>
 
-	<artifactId>ycsb</artifactId>
-	<name>YCSB Release Distribution Builder</name>
+	<artifactId>driver</artifactId>
+	<name>LDBC Driver Release Distribution Builder</name>
 	<packaging>pom</packaging>
 
 	<description>
-    This module creates the release package of the YCSB with all DB library bindings.
+    This module creates the release package of the LDBC Driver with all DB library bindings.
     It is only used by the build process and does not contain any real code of itself.
   </description>
 

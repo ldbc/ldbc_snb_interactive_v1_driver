@@ -15,10 +15,10 @@ import org.junit.Test;
 
 import OLD_com.ldbc.DBException;
 
-import com.ldbc.data.ByteArrayByteIterator;
-import com.ldbc.data.ByteIterator;
-import com.ldbc.data.StringByteIterator;
 import com.ldbc.db.neo4j.Neo4jClientCommands;
+import com.ldbc.driver.data.ByteArrayByteIterator;
+import com.ldbc.driver.data.ByteIterator;
+import com.ldbc.driver.data.StringByteIterator;
 
 public abstract class Neo4jClientCommandsTest
 {

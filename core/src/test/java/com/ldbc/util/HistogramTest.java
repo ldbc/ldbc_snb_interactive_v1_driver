@@ -9,9 +9,9 @@ import java.util.List;
 import org.junit.Test;
 
 import com.google.common.collect.Range;
-import com.ldbc.util.Bucket;
-import com.ldbc.util.Histogram;
-import com.ldbc.util.Bucket.NumberRangeBucket;
+import com.ldbc.driver.util.Bucket;
+import com.ldbc.driver.util.Histogram;
+import com.ldbc.driver.util.Bucket.NumberRangeBucket;
 
 public class HistogramTest
 {

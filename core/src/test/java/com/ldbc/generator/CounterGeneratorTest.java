@@ -2,9 +2,11 @@ package com.ldbc.generator;
 
 import java.util.List;
 
-import com.ldbc.generator.Generator;
-import com.ldbc.util.Bucket;
-import com.ldbc.util.Histogram;
+import org.junit.Ignore;
+
+import com.ldbc.driver.generator.Generator;
+import com.ldbc.driver.util.Bucket;
+import com.ldbc.driver.util.Histogram;
 
 public class CounterGeneratorTest extends NumberGeneratorTest<Long, Long>
 {
@@ -13,7 +15,7 @@ public class CounterGeneratorTest extends NumberGeneratorTest<Long, Long>
     @Override
     public double getMeanTolerance()
     {
-        return 0.0;
+        return 0.001;
     }
 
     @Override

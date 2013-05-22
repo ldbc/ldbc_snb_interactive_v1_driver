@@ -4,8 +4,8 @@ import java.util.List;
 
 import org.junit.Test;
 
-import com.ldbc.generator.Generator;
-import com.ldbc.util.NumberHelper;
+import com.ldbc.driver.generator.Generator;
+import com.ldbc.driver.util.NumberHelper;
 
 import static org.junit.Assert.assertEquals;
 

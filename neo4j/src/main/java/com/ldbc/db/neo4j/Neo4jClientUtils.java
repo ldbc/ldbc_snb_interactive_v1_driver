@@ -3,7 +3,7 @@ package com.ldbc.db.neo4j;
 import java.util.HashMap;
 import java.util.Map;
 
-import com.ldbc.data.ByteIterator;
+import com.ldbc.driver.data.ByteIterator;
 
 public class Neo4jClientUtils
 {

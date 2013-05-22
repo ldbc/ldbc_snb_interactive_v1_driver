@@ -3,7 +3,7 @@ package OLD_com.ldbc;
 import java.text.DecimalFormat;
 import java.util.Vector;
 
-import com.ldbc.measurements.Measurements;
+import com.ldbc.driver.measurements.Measurements;
 
 /**
  * Thread periodically displays benchmark status to show if progress being made

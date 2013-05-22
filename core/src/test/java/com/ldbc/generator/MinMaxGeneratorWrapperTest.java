@@ -4,9 +4,10 @@ import org.apache.commons.math3.random.RandomDataGenerator;
 import org.junit.Before;
 import org.junit.Test;
 
-import com.ldbc.generator.Generator;
-import com.ldbc.generator.GeneratorBuilder;
-import com.ldbc.generator.GeneratorBuilderFactory;
+import com.ldbc.driver.generator.Generator;
+import com.ldbc.driver.generator.GeneratorBuilder;
+import com.ldbc.driver.generator.GeneratorBuilderFactory;
+import com.ldbc.driver.generator.MinMaxGeneratorWrapper;
 
 import static org.junit.Assert.assertEquals;
 

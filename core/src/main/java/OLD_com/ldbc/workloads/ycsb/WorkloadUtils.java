@@ -9,11 +9,11 @@ import org.apache.commons.math3.random.RandomDataGenerator;
 
 import OLD_com.ldbc.workloads.WorkloadException;
 
-import com.ldbc.data.ByteIterator;
-import com.ldbc.data.RandomByteIterator;
-import com.ldbc.generator.Generator;
-import com.ldbc.generator.GeneratorBuilder;
-import com.ldbc.util.Pair;
+import com.ldbc.driver.data.ByteIterator;
+import com.ldbc.driver.data.RandomByteIterator;
+import com.ldbc.driver.generator.Generator;
+import com.ldbc.driver.generator.GeneratorBuilder;
+import com.ldbc.driver.util.Pair;
 
 public class WorkloadUtils
 {

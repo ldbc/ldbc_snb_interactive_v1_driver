@@ -2,10 +2,11 @@ package com.ldbc.generator.ycsb;
 
 import org.junit.Ignore;
 
-import com.ldbc.generator.Generator;
+import com.ldbc.driver.generator.Generator;
+import com.ldbc.driver.util.Histogram;
 import com.ldbc.generator.NumberGeneratorTest;
-import com.ldbc.util.Histogram;
 
+@Ignore
 public class YcsbZipfianNumberGeneratorTest<T extends Number, C extends Number> extends NumberGeneratorTest<T, C>
 {
 

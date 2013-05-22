@@ -5,13 +5,14 @@ import java.util.List;
 
 import org.apache.commons.math3.random.RandomDataGenerator;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 
-import com.ldbc.generator.Generator;
-import com.ldbc.generator.GeneratorBuilder;
-import com.ldbc.generator.GeneratorBuilderFactory;
-import com.ldbc.util.Histogram;
-import com.ldbc.util.NumberHelper;
+import com.ldbc.driver.generator.Generator;
+import com.ldbc.driver.generator.GeneratorBuilder;
+import com.ldbc.driver.generator.GeneratorBuilderFactory;
+import com.ldbc.driver.util.Histogram;
+import com.ldbc.driver.util.NumberHelper;
 
 import static org.junit.Assert.assertEquals;
 

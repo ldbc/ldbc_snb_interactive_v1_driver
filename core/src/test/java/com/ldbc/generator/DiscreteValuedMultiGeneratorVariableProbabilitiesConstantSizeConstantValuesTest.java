@@ -3,10 +3,12 @@ package com.ldbc.generator;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
-import com.ldbc.generator.Generator;
-import com.ldbc.util.Histogram;
-import com.ldbc.util.Triple;
-import com.ldbc.util.Bucket.DiscreteBucket;
+
+import com.ldbc.driver.generator.DiscreteValuedMultiGenerator;
+import com.ldbc.driver.generator.Generator;
+import com.ldbc.driver.util.Histogram;
+import com.ldbc.driver.util.Triple;
+import com.ldbc.driver.util.Bucket.DiscreteBucket;
 
 public class DiscreteValuedMultiGeneratorVariableProbabilitiesConstantSizeConstantValuesTest extends
         GeneratorTest<Map<String, Long>, Integer>

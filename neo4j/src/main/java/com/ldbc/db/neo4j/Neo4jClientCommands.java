@@ -6,7 +6,7 @@ import java.util.Vector;
 
 import OLD_com.ldbc.DBException;
 
-import com.ldbc.data.ByteIterator;
+import com.ldbc.driver.data.ByteIterator;
 
 public interface Neo4jClientCommands
 {

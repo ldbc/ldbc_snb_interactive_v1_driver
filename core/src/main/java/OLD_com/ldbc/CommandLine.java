@@ -32,9 +32,9 @@ import java.util.Vector;
 import OLD_com.ldbc.workloads.*;
 import OLD_com.ldbc.workloads.ycsb.CoreWorkloadProperties;
 
-import com.ldbc.data.ByteIterator;
-import com.ldbc.data.StringByteIterator;
-import com.ldbc.util.MapUtils;
+import com.ldbc.driver.data.ByteIterator;
+import com.ldbc.driver.data.StringByteIterator;
+import com.ldbc.driver.util.MapUtils;
 
 /**
  * A simple command line client to a database, using the appropriate
