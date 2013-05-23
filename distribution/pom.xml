@@ -19,15 +19,11 @@
 
 	<build>
 		<plugins>
-
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-assembly-plugin</artifactId>
 				<version>${maven.assembly.version}</version>
 				<configuration>
-					<!-- <descriptorRefs> -->
-					<!-- <descriptorRef>jar-with-dependencies</descriptorRef> -->
-					<!-- </descriptorRefs> -->
 					<descriptors>
 						<descriptor>src/main/assembly/distribution.xml</descriptor>
 					</descriptors>

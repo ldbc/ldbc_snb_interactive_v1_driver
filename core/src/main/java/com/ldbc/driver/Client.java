@@ -80,7 +80,7 @@ public class Client
         }
         catch ( ClientException e )
         {
-            logger.info( "Client terminated unexpectedly", e.getCause() );
+            logger.error( "Client terminated unexpectedly", e );
         }
         finally
         {
@@ -98,7 +98,7 @@ public class Client
         catch ( ClientException e )
         {
             String errMsg = "Error while trying to parse properties";
-            logger.info( errMsg, e.getCause() );
+            logger.error( errMsg, e );
             throw new ClientException( errMsg, e.getCause() );
         }
 
@@ -127,15 +127,17 @@ public class Client
         }
 
         logger.info( "LDBC Driver 0.1" );
-        logger.info( "Command line:" );
+        StringBuilder welcomeMessage = new StringBuilder();
+        welcomeMessage.append( "Command line:" );
         for ( int i = 0; i < args.length; i++ )
         {
-            logger.info( " " + args[i] );
+            welcomeMessage.append( " " + args[i] );
         }
-        logger.info( "\nLoading workload..." );
+        logger.info( welcomeMessage.toString() );
 
         Measurements.setProperties( properties );
 
+        logger.info( "Loading Workload..." );
         Workload workload = null;
         String workloadName = properties.get( WORKLOAD );
         try
@@ -146,11 +148,12 @@ public class Client
         catch ( Exception e )
         {
             String errMsg = String.format( "Error loading Workload class: %s", workloadName );
-            logger.info( errMsg, e.getCause() );
+            logger.error( errMsg, e );
             throw new ClientException( errMsg, e.getCause() );
 
         }
 
+        logger.info( "Loading Db..." );
         Db db = null;
         String dbName = MapUtils.mapGetDefault( properties, DB, DB_DEFAULT );
         try
@@ -161,7 +164,7 @@ public class Client
         catch ( DbException e )
         {
             String errMsg = String.format( "Error loading DB class: %s", dbName );
-            logger.info( errMsg, e.getCause() );
+            logger.error( errMsg, e );
             throw new ClientException( errMsg, e.getCause() );
         }
 
@@ -181,7 +184,7 @@ public class Client
         catch ( ClientException e )
         {
             String errMsg = "Error running benchmark";
-            logger.info( errMsg, e.getCause() );
+            logger.error( errMsg, e );
             throw new ClientException( errMsg, e.getCause() );
         }
 
@@ -194,7 +197,7 @@ public class Client
         catch ( WorkloadException e )
         {
             String errMsg = "Error during Workload cleanup";
-            logger.info( errMsg, e.getCause() );
+            logger.error( errMsg, e );
             throw new ClientException( errMsg, e.getCause() );
         }
 
@@ -205,7 +208,7 @@ public class Client
         catch ( DbException e )
         {
             String errMsg = "Error during DB cleanup";
-            logger.info( errMsg, e.getCause() );
+            logger.error( errMsg, e );
             throw new ClientException( errMsg, e.getCause() );
         }
 
@@ -216,7 +219,7 @@ public class Client
         catch ( MeasurementsException e )
         {
             String errMsg = "Could not export measurements";
-            logger.info( errMsg, e.getCause() );
+            logger.error( errMsg, e );
             throw new ClientException( errMsg, e.getCause() );
         }
     }
@@ -318,7 +321,7 @@ public class Client
                 catch ( IOException e )
                 {
                     String errMsg = String.format( "Error loading properties file [%s]", argPropertiesFile );
-                    logger.info( errMsg, e.getCause() );
+                    logger.error( errMsg, e );
                     throw new ClientException( errMsg, e.getCause() );
                 }
             }

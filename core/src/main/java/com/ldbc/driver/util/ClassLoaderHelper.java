@@ -2,6 +2,8 @@ package com.ldbc.driver.util;
 
 import java.io.OutputStream;
 
+import org.apache.log4j.Logger;
+
 import com.ldbc.driver.Db;
 import com.ldbc.driver.DbException;
 import com.ldbc.driver.Operation;
@@ -15,6 +17,7 @@ import com.ldbc.driver.workloads.WorkloadException;
 // TODO test
 public class ClassLoaderHelper
 {
+    private static Logger logger = Logger.getLogger( ClassLoaderHelper.class );
 
     /**
      * DB
@@ -25,7 +28,7 @@ public class ClassLoaderHelper
         {
             return loadDb( loadClass( dbClassName, Db.class ) );
         }
-        catch ( ClassNotFoundException e )
+        catch ( ClassLoadingException e )
         {
             String errMsg = String.format( "Error creating DB [%s]", dbClassName );
             throw new DbException( errMsg, e.getCause() );
@@ -54,7 +57,7 @@ public class ClassLoaderHelper
         {
             return loadWorkload( loadClass( workloadClassName, Workload.class ) );
         }
-        catch ( ClassNotFoundException e )
+        catch ( ClassLoadingException e )
         {
             String errMsg = String.format( "Error creating Workload [%s]", workloadClassName );
             throw new WorkloadException( errMsg, e.getCause() );
@@ -84,7 +87,7 @@ public class ClassLoaderHelper
         {
             return loadOperationHandler( loadClass( operationHandlerClassName, OperationHandler.class ), operation );
         }
-        catch ( ClassNotFoundException e )
+        catch ( ClassLoadingException e )
         {
             String errMsg = String.format( "Error creating OperationHandler [%s] with Operation [%s]",
                     operationHandlerClassName, operation.getClass().getName() );
@@ -120,7 +123,7 @@ public class ClassLoaderHelper
             return loadMeasurementsExporter( loadClass( measurementsExporterClassName, MeasurementsExporter.class ),
                     out );
         }
-        catch ( ClassNotFoundException e )
+        catch ( ClassLoadingException e )
         {
             String errMsg = String.format( "Error creating MeasurementsExporter [%s] with OutputStream [%s]",
                     measurementsExporterClassName, out.getClass().getName() );
@@ -148,10 +151,21 @@ public class ClassLoaderHelper
      * Helper Methods
      */
     private static <C> Class<? extends C> loadClass( String className, Class<C> baseClass )
-            throws ClassNotFoundException
-    {
-        ClassLoader classLoader = ClassLoaderHelper.class.getClassLoader();
-        return (Class<? extends C>) classLoader.loadClass( className );
-    }
+            throws ClassLoadingException
 
+    {
+        try
+        {
+            ClassLoader classLoader = ClassLoaderHelper.class.getClassLoader();
+            logger.debug( String.format( "Loading class [%s], descendant of [%s]", className, baseClass.getName() ) );
+            Class<?> loadedClass = classLoader.loadClass( className );
+            // Class.forName( className, false, classLoader );
+            logger.debug( String.format( "Loaded class [%s]", loadedClass.getName() ) );
+            return (Class<? extends C>) loadedClass;
+        }
+        catch ( ClassNotFoundException e )
+        {
+            throw new ClassLoadingException( String.format( "Error loading class [%s]", className ), e.getCause() );
+        }
+    }
 }

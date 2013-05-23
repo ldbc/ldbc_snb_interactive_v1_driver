@@ -6,7 +6,6 @@ import java.util.Vector;
 
 import com.ldbc.driver.Db;
 import com.ldbc.driver.DbException;
-import com.ldbc.driver.Operation;
 import com.ldbc.driver.OperationHandler;
 import com.ldbc.driver.OperationResult;
 import com.ldbc.driver.data.ByteIterator;
@@ -21,11 +20,11 @@ public class BasicDb extends Db
     @Override
     public void onInit( Map<String, String> properties ) throws DbException
     {
-        registerOperationHandler( InsertOperation.class, InsertOperationHandler2.class );
-        registerOperationHandler( ReadOperation.class, ReadOperationHandler2.class );
-        registerOperationHandler( UpdateOperation.class, UpdateOperationHandler2.class );
-        registerOperationHandler( ScanOperation.class, ScanOperationHandler2.class );
-        registerOperationHandler( ReadModifyWriteOperation.class, ReadModifyWriteOperationHandler2.class );
+        registerOperationHandler( InsertOperation.class, InsertOperationHandler.class );
+        registerOperationHandler( ReadOperation.class, ReadOperationHandler.class );
+        registerOperationHandler( UpdateOperation.class, UpdateOperationHandler.class );
+        registerOperationHandler( ScanOperation.class, ScanOperationHandler.class );
+        registerOperationHandler( ReadModifyWriteOperation.class, ReadModifyWriteOperationHandler.class );
     }
 
     @Override
@@ -34,7 +33,7 @@ public class BasicDb extends Db
     }
 }
 
-class InsertOperationHandler2 extends OperationHandler<InsertOperation>
+class InsertOperationHandler extends OperationHandler<InsertOperation>
 {
     @Override
     public OperationResult executeOperation( InsertOperation operation )
@@ -52,7 +51,7 @@ class InsertOperationHandler2 extends OperationHandler<InsertOperation>
     }
 }
 
-class ReadOperationHandler2 extends OperationHandler<ReadOperation>
+class ReadOperationHandler extends OperationHandler<ReadOperation>
 {
     @Override
     public OperationResult executeOperation( ReadOperation operation )
@@ -70,7 +69,7 @@ class ReadOperationHandler2 extends OperationHandler<ReadOperation>
     }
 }
 
-class UpdateOperationHandler2 extends OperationHandler<UpdateOperation>
+class UpdateOperationHandler extends OperationHandler<UpdateOperation>
 {
     @Override
     public OperationResult executeOperation( UpdateOperation operation )
@@ -88,7 +87,7 @@ class UpdateOperationHandler2 extends OperationHandler<UpdateOperation>
     }
 }
 
-class ScanOperationHandler2 extends OperationHandler<ScanOperation>
+class ScanOperationHandler extends OperationHandler<ScanOperation>
 {
     @Override
     public OperationResult executeOperation( ScanOperation operation )
@@ -107,7 +106,7 @@ class ScanOperationHandler2 extends OperationHandler<ScanOperation>
     }
 }
 
-class ReadModifyWriteOperationHandler2 extends OperationHandler<ReadModifyWriteOperation>
+class ReadModifyWriteOperationHandler extends OperationHandler<ReadModifyWriteOperation>
 {
     @Override
     public OperationResult executeOperation( ReadModifyWriteOperation operation )

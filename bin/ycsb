@@ -9,22 +9,22 @@ COMMANDS = {
     "shell" : {
         "command"     : "",
         "description" : "Interactive mode",
-        "main"        : "com.ldbc.CommandLine",
+        "main"        : "com.ldbc.driver.CommandLine",
     },
     "load" : {
         "command"     : "-load",
         "description" : "Execute the load phase",
-        "main"        : "com.ldbc.Client",
+        "main"        : "com.ldbc.driver.Client",
     },
     "run" : {
         "command"     : "-t",
         "description" : "Execute the transaction phase",
-        "main"        : "com.ldbc.Client",
+        "main"        : "com.ldbc.driver.Client",
     },
 }
 
 DATABASES = {
-    "basic"        : "com.ldbc.db.BasicDb",
+    "basic"        : "com.ldbc.db.basic.BasicDb",
     "neo4j"        : "com.ldbc.db.neo4j.Neo4jClient",
 }
 
