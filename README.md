@@ -1,7 +1,6 @@
 # LDBC Driver
 
 ![LDBC Logo](ldbc_logo.png) 
-Format: ![Alt Text](url)
 
 ### Credit where it's due
 Though it has now diverged significantly, this project started as a fork of the YCSB framework:
