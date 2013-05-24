@@ -1,4 +1,4 @@
-package com.ldbc.db.neo4j;
+package com.ldbc.driver.db.neo4j;
 
 import static org.junit.Assert.assertEquals;
 
@@ -9,9 +9,9 @@ import java.util.Set;
 
 import org.junit.Test;
 
-import com.ldbc.db.neo4j.Neo4jClientUtils;
 import com.ldbc.driver.data.ByteIterator;
 import com.ldbc.driver.data.StringByteIterator;
+import com.ldbc.driver.db.neo4j.Neo4jClientUtils;
 
 public class Neo4jClientUtilsTest
 {

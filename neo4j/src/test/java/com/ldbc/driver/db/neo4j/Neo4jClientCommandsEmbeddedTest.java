@@ -1,4 +1,4 @@
-package com.ldbc.db.neo4j;
+package com.ldbc.driver.db.neo4j;
 
 import java.io.File;
 import java.io.IOException;
@@ -9,8 +9,8 @@ import org.neo4j.kernel.impl.util.FileUtils;
 
 import OLD_com.ldbc.DBException;
 
-import com.ldbc.db.neo4j.Neo4jClientCommands;
-import com.ldbc.db.neo4j.Neo4jClientCommandsEmbedded;
+import com.ldbc.driver.db.neo4j.Neo4jClientCommands;
+import com.ldbc.driver.db.neo4j.Neo4jClientCommandsEmbedded;
 
 public class Neo4jClientCommandsEmbeddedTest extends Neo4jClientCommandsTest
 {

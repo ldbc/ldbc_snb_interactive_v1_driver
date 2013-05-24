@@ -52,31 +52,48 @@ public class Client
     public static final String RECORD_COUNT = "recordcount";
     public static final String RECORD_COUNT_DEFAULT = "0";
 
-    private final String WORKLOAD = "workload";
-    private final String EXPORT_FILE_PATH = "exportfile";
-    private final String OPERATION_COUNT = "operationcount";
-    private final String OPERATION_COUNT_DEFAULT = "0";
-    private final String EXPORTER = "exporter";
-    private final String EXPORTER_DEFAULT = TextMeasurementsExporter.class.getName();
-    private final String STATUS = "status";
-    private final String STATUS_DEFAULT = "false";
-    private final String DB = "db";
-    private final String DB_DEFAULT = BasicDb.class.getName();
-    private final String TARGET_THROUGHPUT = "target_throughput";
-    private final String TARGET_THROUGHPUT_DEFAULT = "0";
-    private final String BENCHMARK_PHASE = "benchmark_phase";
-    private final String BENCHMARK_PHASE_DEFAULT = BenchmarkPhase.TRANSACTION_PHASE.toString();
+    private static final String WORKLOAD = "workload";
+    private static final String EXPORT_FILE_PATH = "exportfile";
+    private static final String OPERATION_COUNT = "operationcount";
+    private static final String OPERATION_COUNT_DEFAULT = "0";
+    private static final String EXPORTER = "exporter";
+    private static final String EXPORTER_DEFAULT = TextMeasurementsExporter.class.getName();
+    private static final String STATUS = "status";
+    private static final String STATUS_DEFAULT = "false";
+    private static final String DB = "db";
+    private static final String DB_DEFAULT = BasicDb.class.getName();
+    private static final String TARGET_THROUGHPUT = "target_throughput";
+    private static final String TARGET_THROUGHPUT_DEFAULT = "0";
+    private static final String BENCHMARK_PHASE = "benchmark_phase";
+    private static final String BENCHMARK_PHASE_DEFAULT = BenchmarkPhase.TRANSACTION_PHASE.toString();
 
-    private final String[] REQUIRED_PROPERTIES = new String[] { WORKLOAD };
+    private static final String[] REQUIRED_PROPERTIES = new String[] { WORKLOAD };
 
-    private final long RANDOM_SEED = 42;
+    private static final long RANDOM_SEED = 42;
 
     public static void main( String[] args ) throws ClientException
     {
         Client client = new Client();
         try
         {
-            client.start( args );
+            logger.info( "LDBC Driver 0.1" );
+            StringBuilder welcomeMessage = new StringBuilder();
+            welcomeMessage.append( "Command line:" );
+            for ( int i = 0; i < args.length; i++ )
+            {
+                welcomeMessage.append( " " + args[i] );
+            }
+            logger.info( welcomeMessage );
+
+            Map<String, String> properties = parseArguments( args );
+
+            client.start( properties );
+        }
+        catch ( ClientException e )
+        {
+            String errMsg = "Error while trying to parse properties";
+            logger.error( errMsg, e );
+            throw new ClientException( errMsg, e.getCause() );
         }
         catch ( Exception e )
         {
@@ -88,169 +105,56 @@ public class Client
         }
     }
 
-    private void start( String[] args ) throws ClientException
+    private static String usageMessage()
     {
-        Map<String, String> properties = null;
-        try
-        {
-            properties = parseArguments( args );
-        }
-        catch ( ClientException e )
-        {
-            String errMsg = "Error while trying to parse properties";
-            logger.error( errMsg, e );
-            throw new ClientException( errMsg, e.getCause() );
-        }
+        String usageMessage = "Usage: java com.ldbc.driver.Client [options]\n"
 
-        Pair<Boolean, String> isRequiredProperties = checkRequiredProperties( properties, REQUIRED_PROPERTIES );
-        if ( false == isRequiredProperties._1() )
-        {
-            String errMsg = isRequiredProperties._2();
-            logger.info( errMsg );
-            throw new ClientException( errMsg );
-        }
+        + "Options:\n"
 
-        GeneratorBuilder generatorBuilder = new GeneratorBuilder( new RandomDataGeneratorFactory( RANDOM_SEED ) );
+        + "  -threads n: execute using n threads (default: 1) - can also be specified as the \n"
 
-        boolean showStatus = Boolean.parseBoolean( MapUtils.mapGetDefault( properties, STATUS, STATUS_DEFAULT ) );
+        + "              \"threadcount\" property using -p\n"
 
-        BenchmarkPhase benchmarkPhase = BenchmarkPhase.valueOf( MapUtils.mapGetDefault( properties, BENCHMARK_PHASE,
-                BENCHMARK_PHASE_DEFAULT ) );
+        + "  -target n: attempt to do n operations per second (default: unlimited) - can also\n"
 
-        // compute the target throughput
-        int targetThroughput = Integer.parseInt( MapUtils.mapGetDefault( properties, TARGET_THROUGHPUT,
-                TARGET_THROUGHPUT_DEFAULT ) );
-        double targetThroughputPerMs = -1;
-        if ( targetThroughput > 0 )
-        {
-            targetThroughputPerMs = targetThroughput / 1000.0;
-        }
+        + "             be specified as the \"target\" property using -p\n"
 
-        logger.info( "LDBC Driver 0.1" );
-        StringBuilder welcomeMessage = new StringBuilder();
-        welcomeMessage.append( "Command line:" );
-        for ( int i = 0; i < args.length; i++ )
-        {
-            welcomeMessage.append( " " + args[i] );
-        }
-        logger.info( welcomeMessage.toString() );
+        + "  -load:  run the loading phase of the workload\n"
 
-        Measurements.setProperties( properties );
+        + "  -t:  run the transactions phase of the workload (default)\n"
 
-        Workload workload = null;
-        String workloadName = properties.get( WORKLOAD );
-        try
-        {
-            workload = ClassLoaderHelper.loadWorkload( workloadName );
-            workload.init( properties );
-        }
-        catch ( Exception e )
-        {
-            String errMsg = String.format( "Error loading Workload class: %s", workloadName );
-            logger.error( errMsg, e );
-            throw new ClientException( errMsg, e.getCause() );
+        + "  -db dbname: specify the name of the DB to use (default: com.ldbc.driver.db.BasicDB) - \n"
 
-        }
-        logger.info( String.format( "Loaded Workload: %s", workload.getClass().getName() ) );
+        + "              can also be specified as the \"db\" property using -p\n"
 
-        Db db = null;
-        String dbName = MapUtils.mapGetDefault( properties, DB, DB_DEFAULT );
-        try
-        {
-            db = ClassLoaderHelper.loadDb( dbName );
-            db.init( properties );
-        }
-        catch ( DbException e )
-        {
-            String errMsg = String.format( "Error loading DB class: %s", dbName );
-            logger.error( errMsg, e );
-            throw new ClientException( errMsg, e.getCause() );
-        }
-        logger.info( String.format( "Loaded DB: %s", db.getClass().getName() ) );
+        + "  -P propertyfile: load properties from the given file. Multiple files can\n"
 
-        int operationCount = getOperationCount( properties, benchmarkPhase );
-        WorkloadRunner workloadRunner = new WorkloadRunner( db, benchmarkPhase, workload, operationCount,
-                targetThroughputPerMs, generatorBuilder, showStatus );
+        + "                   be specified, and will be processed in the order specified\n"
 
-        logger.info( String.format( "Starting Benchmark (%s operations)", operationCount ) );
-        long st = System.currentTimeMillis();
-        try
-        {
-            workloadRunner.run();
-        }
-        catch ( ClientException e )
-        {
-            String errMsg = "Error running Workload";
-            logger.error( errMsg, e );
-            throw new ClientException( errMsg, e.getCause() );
-        }
-        long en = System.currentTimeMillis();
+        + "  -p name=value:  specify a property to be passed to the DB and workloads;\n"
 
-        logger.info( "Cleaning up Workload..." );
-        try
-        {
-            workload.cleanup();
-        }
-        catch ( WorkloadException e )
-        {
-            String errMsg = "Error during Workload cleanup";
-            logger.error( errMsg, e );
-            throw new ClientException( errMsg, e.getCause() );
-        }
+        + "                  multiple properties can be specified, and override any\n"
 
-        logger.info( "Cleaning up DB..." );
-        try
-        {
-            db.cleanup();
-        }
-        catch ( DbException e )
-        {
-            String errMsg = "Error during DB cleanup";
-            logger.error( errMsg, e );
-            throw new ClientException( errMsg, e.getCause() );
-        }
+        + "                  values in the propertyfile\n"
 
-        logger.info( "Exporting Measurements..." );
-        try
-        {
-            exportMeasurements( properties, operationCount, en - st );
-        }
-        catch ( MeasurementsException e )
-        {
-            String errMsg = "Could not export Measurements";
-            logger.error( errMsg, e );
-            throw new ClientException( errMsg, e.getCause() );
-        }
+        + "  -s:  show status during run (default: no status)\n"
+
+        + "  -l label:  use label for status (e.g. to label one experiment out of a whole batch)\n"
+
+        + "\nRequired properties:\n"
+
+        + "  " + WORKLOAD + ": the name of the workload class to use (e.g. com.ldbc.driver.workloads.CoreWorkload)\n"
+
+        + "\nTo run the transaction phase from multiple servers, start a separate client on each."
+
+        + "To run the load phase from multiple servers, start a separate client on each; additionally,\n"
+
+        + "use the \"insertcount\" and \"insertstart\" properties to divide up the records to be inserted";
+
+        return usageMessage;
     }
 
-    private int getOperationCount( Map<String, String> commandlineProperties, BenchmarkPhase benchmarkPhase )
-            throws NumberFormatException
-    {
-        int operationCount = 0;
-        switch ( benchmarkPhase )
-        {
-        case TRANSACTION_PHASE:
-            operationCount = Integer.parseInt( MapUtils.mapGetDefault( commandlineProperties, OPERATION_COUNT,
-                    OPERATION_COUNT_DEFAULT ) );
-            break;
-
-        case LOAD_PHASE:
-            if ( commandlineProperties.containsKey( INSERT_COUNT ) )
-            {
-                operationCount = Integer.parseInt( MapUtils.mapGetDefault( commandlineProperties, INSERT_COUNT,
-                        INSERT_COUNT_DEFAULT ) );
-            }
-            else
-            {
-                operationCount = Integer.parseInt( MapUtils.mapGetDefault( commandlineProperties, RECORD_COUNT,
-                        RECORD_COUNT_DEFAULT ) );
-            }
-            break;
-        }
-        return operationCount;
-    }
-
-    private Map<String, String> parseArguments( String[] args ) throws ClientException
+    private static Map<String, String> parseArguments( String[] args ) throws ClientException
     {
         Map<String, String> commandlineProperties = new HashMap<String, String>();
         Properties fileProperties = new Properties();
@@ -364,62 +268,118 @@ public class Client
         return MapUtils.mergePropertiesToMap( fileProperties, commandlineProperties, false );
     }
 
-    private void exit()
+    private void start( Map<String, String> properties ) throws ClientException
     {
-        // TODO YCSB used System.exit(0) to kill its many driver threads. those
-        // threads no longer exist, but others will at the DB connection
-        // layer. What's the cleanest/safest/right way to terminate the
-        // application and clean up all threads?
-        System.exit( 0 );
-    }
+        Pair<Boolean, String> isRequiredProperties = checkRequiredProperties( properties, REQUIRED_PROPERTIES );
+        if ( false == isRequiredProperties._1() )
+        {
+            String errMsg = isRequiredProperties._2();
+            logger.info( errMsg );
+            throw new ClientException( errMsg );
+        }
 
-    private String usageMessage()
-    {
-        String usageMessage = "Usage: java com.ldbc.driver.Client [options]\n"
+        GeneratorBuilder generatorBuilder = new GeneratorBuilder( new RandomDataGeneratorFactory( RANDOM_SEED ) );
 
-        + "Options:\n"
+        boolean showStatus = Boolean.parseBoolean( MapUtils.mapGetDefault( properties, STATUS, STATUS_DEFAULT ) );
 
-        + "  -threads n: execute using n threads (default: 1) - can also be specified as the \n"
+        BenchmarkPhase benchmarkPhase = BenchmarkPhase.valueOf( MapUtils.mapGetDefault( properties, BENCHMARK_PHASE,
+                BENCHMARK_PHASE_DEFAULT ) );
 
-        + "              \"threadcount\" property using -p\n"
+        // compute the target throughput
+        int targetThroughput = Integer.parseInt( MapUtils.mapGetDefault( properties, TARGET_THROUGHPUT,
+                TARGET_THROUGHPUT_DEFAULT ) );
+        double targetThroughputPerMs = -1;
+        if ( targetThroughput > 0 )
+        {
+            targetThroughputPerMs = targetThroughput / 1000.0;
+        }
 
-        + "  -target n: attempt to do n operations per second (default: unlimited) - can also\n"
+        Measurements.setProperties( properties );
 
-        + "             be specified as the \"target\" property using -p\n"
+        Workload workload = null;
+        String workloadName = properties.get( WORKLOAD );
+        try
+        {
+            workload = ClassLoaderHelper.loadWorkload( workloadName );
+            workload.init( properties );
+        }
+        catch ( Exception e )
+        {
+            String errMsg = String.format( "Error loading Workload class: %s", workloadName );
+            logger.error( errMsg, e );
+            throw new ClientException( errMsg, e.getCause() );
 
-        + "  -load:  run the loading phase of the workload\n"
+        }
+        logger.info( String.format( "Loaded Workload: %s", workload.getClass().getName() ) );
 
-        + "  -t:  run the transactions phase of the workload (default)\n"
+        Db db = null;
+        String dbName = MapUtils.mapGetDefault( properties, DB, DB_DEFAULT );
+        try
+        {
+            db = ClassLoaderHelper.loadDb( dbName );
+            db.init( properties );
+        }
+        catch ( DbException e )
+        {
+            String errMsg = String.format( "Error loading DB class: %s", dbName );
+            logger.error( errMsg, e );
+            throw new ClientException( errMsg, e.getCause() );
+        }
+        logger.info( String.format( "Loaded DB: %s", db.getClass().getName() ) );
 
-        + "  -db dbname: specify the name of the DB to use (default: com.ldbc.driver.db.BasicDB) - \n"
+        int operationCount = getOperationCount( properties, benchmarkPhase );
+        WorkloadRunner workloadRunner = new WorkloadRunner( db, benchmarkPhase, workload, operationCount,
+                targetThroughputPerMs, generatorBuilder, showStatus );
 
-        + "              can also be specified as the \"db\" property using -p\n"
+        logger.info( String.format( "Starting Benchmark (%s operations)", operationCount ) );
+        long st = System.currentTimeMillis();
+        try
+        {
+            workloadRunner.run();
+        }
+        catch ( ClientException e )
+        {
+            String errMsg = "Error running Workload";
+            logger.error( errMsg, e );
+            throw new ClientException( errMsg, e.getCause() );
+        }
+        long en = System.currentTimeMillis();
 
-        + "  -P propertyfile: load properties from the given file. Multiple files can\n"
+        logger.info( "Cleaning up Workload..." );
+        try
+        {
+            workload.cleanup();
+        }
+        catch ( WorkloadException e )
+        {
+            String errMsg = "Error during Workload cleanup";
+            logger.error( errMsg, e );
+            throw new ClientException( errMsg, e.getCause() );
+        }
 
-        + "                   be specified, and will be processed in the order specified\n"
+        logger.info( "Cleaning up DB..." );
+        try
+        {
+            db.cleanup();
+        }
+        catch ( DbException e )
+        {
+            String errMsg = "Error during DB cleanup";
+            logger.error( errMsg, e );
+            throw new ClientException( errMsg, e.getCause() );
+        }
 
-        + "  -p name=value:  specify a property to be passed to the DB and workloads;\n"
-
-        + "                  multiple properties can be specified, and override any\n"
-
-        + "                  values in the propertyfile\n"
-
-        + "  -s:  show status during run (default: no status)\n"
-
-        + "  -l label:  use label for status (e.g. to label one experiment out of a whole batch)\n"
-
-        + "\nRequired properties:\n"
-
-        + "  " + WORKLOAD + ": the name of the workload class to use (e.g. com.ldbc.driver.workloads.CoreWorkload)\n"
-
-        + "\nTo run the transaction phase from multiple servers, start a separate client on each."
-
-        + "To run the load phase from multiple servers, start a separate client on each; additionally,\n"
-
-        + "use the \"insertcount\" and \"insertstart\" properties to divide up the records to be inserted";
-
-        return usageMessage;
+        logger.info( "Exporting Measurements..." );
+        try
+        {
+            exportMeasurements( properties, operationCount, en - st );
+        }
+        catch ( MeasurementsException e )
+        {
+            String errMsg = "Could not export Measurements";
+            logger.error( errMsg, e );
+            throw new ClientException( errMsg, e.getCause() );
+        }
     }
 
     private Pair<Boolean, String> checkRequiredProperties( Map<String, String> properties, String[] requiredProperties )
@@ -434,10 +394,44 @@ public class Client
         return Pair.create( true, "" );
     }
 
+    private int getOperationCount( Map<String, String> commandlineProperties, BenchmarkPhase benchmarkPhase )
+            throws NumberFormatException
+    {
+        int operationCount = 0;
+        switch ( benchmarkPhase )
+        {
+        case TRANSACTION_PHASE:
+            operationCount = Integer.parseInt( MapUtils.mapGetDefault( commandlineProperties, OPERATION_COUNT,
+                    OPERATION_COUNT_DEFAULT ) );
+            break;
+
+        case LOAD_PHASE:
+            if ( commandlineProperties.containsKey( INSERT_COUNT ) )
+            {
+                operationCount = Integer.parseInt( MapUtils.mapGetDefault( commandlineProperties, INSERT_COUNT,
+                        INSERT_COUNT_DEFAULT ) );
+            }
+            else
+            {
+                operationCount = Integer.parseInt( MapUtils.mapGetDefault( commandlineProperties, RECORD_COUNT,
+                        RECORD_COUNT_DEFAULT ) );
+            }
+            break;
+        }
+        return operationCount;
+    }
+
+    private void exit()
+    {
+        // TODO YCSB used System.exit(0) to kill its many driver threads. those
+        // threads no longer exist, but others will at the DB connection
+        // layer. What's the cleanest/safest/right way to terminate the
+        // application and clean up all threads?
+        System.exit( 0 );
+    }
+
     /**
      * Exports measurements using MeasurementsExporter loaded from config
-     * 
-     * @throws MeasurementsException
      */
     private void exportMeasurements( Map<String, String> properties, int opcount, long runtime )
             throws MeasurementsException

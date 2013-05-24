@@ -1,4 +1,4 @@
-package com.ldbc.db.neo4j;
+package com.ldbc.driver.db.neo4j;
 
 import java.util.HashMap;
 import java.util.Map;
