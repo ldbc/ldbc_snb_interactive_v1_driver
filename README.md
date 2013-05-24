@@ -12,9 +12,9 @@ It is still at an early stage of development, but the LDBC Driver is being devel
 * https://twitter.com/LDBCproject
 * https://www.facebook.com/ldbcproject
 
-### To try it out:
+### Try it:
 
-1. Clone and compile LDBC Driver (still called YCSB for now)
+1. Clone and compile LDBC Driver
 
 	git clone git@github.com:alexaverbuch/ldbc_driver.git
 	cd ldbc_driver
