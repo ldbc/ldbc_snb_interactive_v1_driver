@@ -66,6 +66,8 @@ public class Client
     private static final String TARGET_THROUGHPUT_DEFAULT = "0";
     private static final String BENCHMARK_PHASE = "benchmark_phase";
     private static final String BENCHMARK_PHASE_DEFAULT = BenchmarkPhase.TRANSACTION_PHASE.toString();
+    private static final String THREAD_COUNT = "thread_count";
+    private static final String THREAD_COUNT_DEFAULT = Integer.toString( defaultThreadCount() );
 
     private static final String[] REQUIRED_PROPERTIES = new String[] { WORKLOAD };
 
@@ -103,6 +105,15 @@ public class Client
         {
             client.exit();
         }
+    }
+
+    private static int defaultThreadCount()
+    {
+        // Client & OperationResultLoggingThread
+        int threadsUsedByDriver = 2;
+        int totalProcessors = Runtime.getRuntime().availableProcessors();
+        int availableThreads = totalProcessors - threadsUsedByDriver;
+        return Math.max( 1, availableThreads );
     }
 
     private static String usageMessage()
@@ -281,9 +292,14 @@ public class Client
         GeneratorBuilder generatorBuilder = new GeneratorBuilder( new RandomDataGeneratorFactory( RANDOM_SEED ) );
 
         boolean showStatus = Boolean.parseBoolean( MapUtils.mapGetDefault( properties, STATUS, STATUS_DEFAULT ) );
+        logger.info( String.format( "Show status: %s", showStatus ) );
+
+        int threadCount = Integer.parseInt( MapUtils.mapGetDefault( properties, THREAD_COUNT, THREAD_COUNT_DEFAULT ) );
+        logger.info( String.format( "Thread count: %s", threadCount ) );
 
         BenchmarkPhase benchmarkPhase = BenchmarkPhase.valueOf( MapUtils.mapGetDefault( properties, BENCHMARK_PHASE,
                 BENCHMARK_PHASE_DEFAULT ) );
+        logger.info( String.format( "Benchmark phase: %s", benchmarkPhase ) );
 
         // compute the target throughput
         int targetThroughput = Integer.parseInt( MapUtils.mapGetDefault( properties, TARGET_THROUGHPUT,
@@ -293,8 +309,12 @@ public class Client
         {
             targetThroughputPerMs = targetThroughput / 1000.0;
         }
+        logger.info( String.format( "Target throughput: %s", targetThroughput ) );
 
+        // TODO change the way this is done! no static
         Measurements.setProperties( properties );
+        Measurements measurements = Measurements.getMeasurements();
+        logger.info( String.format( "Measurements: %s", measurements.getClass().getName() ) );
 
         Workload workload = null;
         String workloadName = properties.get( WORKLOAD );
@@ -329,7 +349,7 @@ public class Client
 
         int operationCount = getOperationCount( properties, benchmarkPhase );
         WorkloadRunner workloadRunner = new WorkloadRunner( db, benchmarkPhase, workload, operationCount,
-                targetThroughputPerMs, generatorBuilder, showStatus );
+                targetThroughputPerMs, generatorBuilder, showStatus, threadCount, measurements );
 
         logger.info( String.format( "Starting Benchmark (%s operations)", operationCount ) );
         long st = System.currentTimeMillis();

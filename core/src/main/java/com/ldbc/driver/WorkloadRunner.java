@@ -4,6 +4,7 @@ import org.apache.log4j.Logger;
 
 import com.ldbc.driver.generator.Generator;
 import com.ldbc.driver.generator.GeneratorBuilder;
+import com.ldbc.driver.measurements.Measurements;
 import com.ldbc.driver.workloads.Workload;
 import com.ldbc.driver.workloads.WorkloadException;
 
@@ -18,11 +19,14 @@ class WorkloadRunner
     private final double targetPerformancePerMs;
     private final GeneratorBuilder generatorBuilder;
     private final boolean showStatus;
+    private final int threadCount;
+    private final Measurements measurements;
 
     int operationsDone;
 
     public WorkloadRunner( Db db, BenchmarkPhase benchmarkPhase, Workload workload, int operationCount,
-            double targetPerformancePerMs, GeneratorBuilder generatorBuilder, boolean showStatus )
+            double targetPerformancePerMs, GeneratorBuilder generatorBuilder, boolean showStatus, int threadCount,
+            Measurements measurements )
     {
         this.db = db;
         this.benchmarkPhase = benchmarkPhase;
@@ -32,19 +36,26 @@ class WorkloadRunner
         this.targetPerformancePerMs = targetPerformancePerMs;
         this.generatorBuilder = generatorBuilder;
         this.showStatus = showStatus;
+        this.threadCount = threadCount;
+        this.measurements = measurements;
     }
 
     public void run() throws ClientException
     {
+        OperationHandlerExecutor operationHandlerExecutor = new OperationHandlerExecutor( threadCount );
+        OperationResultLoggingThread operationResultLoggingThread = new OperationResultLoggingThread(
+                operationHandlerExecutor, measurements );
+        operationResultLoggingThread.start();
         Generator<Operation<?>> operationGenerator = getOperationGenerator( benchmarkPhase );
-        long startTime = System.currentTimeMillis();
+        // TODO
+        // long startTime = System.currentTimeMillis();
         while ( operationCount == 0 || operationsDone < operationCount )
         {
             Operation<?> operation = operationGenerator.next();
             try
             {
                 OperationHandler<?> operationHandler = db.getOperationHandler( operation );
-                operationHandler.execute();
+                operationHandlerExecutor.execute( operationHandler );
                 operationsDone++;
                 // TODO YCSB legacy shit, convert to Generator(Wrapper) solution
                 // doThrottleOperations( startTime );
@@ -69,6 +80,17 @@ class WorkloadRunner
                         "Error encountered trying to execute %s after %s of %s operations", operation, operationsDone,
                         operationCount ), e.getCause() );
             }
+        }
+
+        try
+        {
+            operationResultLoggingThread.finishLoggingRemainingResults();
+            operationResultLoggingThread.join();
+            operationHandlerExecutor.shutdown();
+        }
+        catch ( InterruptedException e )
+        {
+            logger.error( "Error encountered while waiting for logging thread to finish", e );
         }
     }
 

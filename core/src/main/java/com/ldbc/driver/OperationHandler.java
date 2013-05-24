@@ -1,12 +1,9 @@
 package com.ldbc.driver;
 
-import com.ldbc.driver.measurements.Measurements;
+import java.util.concurrent.Callable;
 
-public abstract class OperationHandler<A extends Operation<?>>
+public abstract class OperationHandler<A extends Operation<?>> implements Callable<OperationResult>
 {
-    // TODO change the way this is done! no static
-    private final Measurements measurements = Measurements.getMeasurements();
-
     private A operation;
 
     public final void setOperation( Operation<?> operation )
@@ -14,20 +11,19 @@ public abstract class OperationHandler<A extends Operation<?>>
         this.operation = (A) operation;
     }
 
-    final OperationResult execute()
+    @Override
+    public OperationResult call() throws Exception
     {
         long actualStartTime = System.nanoTime();
-
         OperationResult operationResult = executeOperation( operation );
-
         long actualEndTime = System.nanoTime();
 
-        String operationType = operation.getClass().getName();
-        // TODO report scheduleStartTime
-        // TODO report actualStartTime
-        // TODO report duration (why is /1000 necessary?)
-        measurements.measure( operationType, (int) ( ( actualEndTime - actualStartTime ) / 1000 ) );
-        measurements.reportReturnCode( operationType, operationResult.getResultCode() );
+        operationResult.setOperationType( operation.getClass().getName() );
+        // TODO ScheduledStartTime
+        operationResult.setScheduledStartTime( -1 );
+        operationResult.setActualStartTime( actualStartTime );
+        // TODO runtime: why /1000? why int?
+        operationResult.setRunTime( ( actualEndTime - actualStartTime ) / 1000 );
 
         return operationResult;
     }
