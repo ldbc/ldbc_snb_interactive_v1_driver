@@ -5,8 +5,6 @@ This started as a fork of the YCSB framework:
 -----
 http://wiki.github.com/brianfrankcooper/YCSB/
 http://research.yahoo.com/Web_Information_Management/YCSB
-ycsb-users@yahoogroups.com
-
 
 The LDBC Driver has now diverged a lot from YCSB and will soon be renamed.
 It is being developed as part of the Linked Data Benchmark Council EU-funded research project:
