@@ -1,4 +1,6 @@
-# ![LDBC Logo](ldbc_logo.png) LDBC Driver
+![LDBC Logo](ldbc_logo.png) 
+
+# LDBC Driver
 
 
 ### Credit where it's due
