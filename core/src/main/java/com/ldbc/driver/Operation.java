@@ -18,4 +18,10 @@ public abstract class Operation<R>
     {
         return new OperationResult( resultCode, result );
     }
+
+    @Override
+    public String toString()
+    {
+        return String.format( "Operation [type=%s, scheduledStartTime=%s]", getClass().getName(), scheduledStartTime );
+    }
 }

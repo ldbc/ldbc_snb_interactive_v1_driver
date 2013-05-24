@@ -1,5 +1,7 @@
 package com.ldbc.driver;
 
+import org.apache.log4j.Logger;
+
 import com.ldbc.driver.generator.Generator;
 import com.ldbc.driver.generator.GeneratorBuilder;
 import com.ldbc.driver.workloads.Workload;
@@ -7,6 +9,8 @@ import com.ldbc.driver.workloads.WorkloadException;
 
 class WorkloadRunner
 {
+    private static Logger logger = Logger.getLogger( WorkloadRunner.class );
+
     private final Db db;
     private final BenchmarkPhase benchmarkPhase;
     private final Workload workload;
@@ -40,12 +44,10 @@ class WorkloadRunner
             try
             {
                 OperationHandler<?> operationHandler = db.getOperationHandler( operation );
-                // TODO perform asynchronously
                 operationHandler.execute();
                 operationsDone++;
-                // TODO this is legacy from YCSB, it's also shit
-                // TODO convert to Generator(Wrapper)-based solution
-                doThrottleOperations( startTime );
+                // TODO YCSB legacy shit, convert to Generator(Wrapper) solution
+                // doThrottleOperations( startTime );
 
                 if ( showStatus )
                 {
@@ -61,7 +63,7 @@ class WorkloadRunner
                     // statusThread.start();
                 }
             }
-            catch ( DbException e )
+            catch ( Exception e )
             {
                 throw new ClientException( String.format(
                         "Error encountered trying to execute %s after %s of %s operations", operation, operationsDone,

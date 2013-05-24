@@ -131,6 +131,10 @@ public abstract class NumberHelper<T extends Number>
         @Override
         public Integer uniform( RandomDataGenerator random, Integer min, Integer max )
         {
+            if ( min == max )
+            {
+                return min;
+            }
             return random.nextInt( min, max );
         }
 
@@ -218,6 +222,10 @@ public abstract class NumberHelper<T extends Number>
         @Override
         public Long uniform( RandomDataGenerator random, Long min, Long max )
         {
+            if ( min == max )
+            {
+                return min;
+            }
             return random.nextLong( min, max );
         }
 
@@ -305,6 +313,10 @@ public abstract class NumberHelper<T extends Number>
         @Override
         public Double uniform( RandomDataGenerator random, Double min, Double max )
         {
+            if ( min == max )
+            {
+                return min;
+            }
             return random.nextUniform( min, max, true );
         }
 

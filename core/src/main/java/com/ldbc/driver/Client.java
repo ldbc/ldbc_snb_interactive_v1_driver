@@ -78,7 +78,7 @@ public class Client
         {
             client.start( args );
         }
-        catch ( ClientException e )
+        catch ( Exception e )
         {
             logger.error( "Client terminated unexpectedly", e );
         }
@@ -137,7 +137,6 @@ public class Client
 
         Measurements.setProperties( properties );
 
-        logger.info( "Loading Workload..." );
         Workload workload = null;
         String workloadName = properties.get( WORKLOAD );
         try
@@ -152,8 +151,8 @@ public class Client
             throw new ClientException( errMsg, e.getCause() );
 
         }
+        logger.info( String.format( "Loaded Workload: %s", workload.getClass().getName() ) );
 
-        logger.info( "Loading Db..." );
         Db db = null;
         String dbName = MapUtils.mapGetDefault( properties, DB, DB_DEFAULT );
         try
@@ -167,29 +166,27 @@ public class Client
             logger.error( errMsg, e );
             throw new ClientException( errMsg, e.getCause() );
         }
-
-        logger.info( "Starting Benchmark" );
+        logger.info( String.format( "Loaded DB: %s", db.getClass().getName() ) );
 
         int operationCount = getOperationCount( properties, benchmarkPhase );
-
         WorkloadRunner workloadRunner = new WorkloadRunner( db, benchmarkPhase, workload, operationCount,
                 targetThroughputPerMs, generatorBuilder, showStatus );
 
+        logger.info( String.format( "Starting Benchmark (%s operations)", operationCount ) );
         long st = System.currentTimeMillis();
-
         try
         {
             workloadRunner.run();
         }
         catch ( ClientException e )
         {
-            String errMsg = "Error running benchmark";
+            String errMsg = "Error running Workload";
             logger.error( errMsg, e );
             throw new ClientException( errMsg, e.getCause() );
         }
-
         long en = System.currentTimeMillis();
 
+        logger.info( "Cleaning up Workload..." );
         try
         {
             workload.cleanup();
@@ -201,6 +198,7 @@ public class Client
             throw new ClientException( errMsg, e.getCause() );
         }
 
+        logger.info( "Cleaning up DB..." );
         try
         {
             db.cleanup();
@@ -212,13 +210,14 @@ public class Client
             throw new ClientException( errMsg, e.getCause() );
         }
 
+        logger.info( "Exporting Measurements..." );
         try
         {
             exportMeasurements( properties, operationCount, en - st );
         }
         catch ( MeasurementsException e )
         {
-            String errMsg = "Could not export measurements";
+            String errMsg = "Could not export Measurements";
             logger.error( errMsg, e );
             throw new ClientException( errMsg, e.getCause() );
         }

@@ -139,11 +139,11 @@ public class SimpleWorkload extends Workload
          * **************************
          */
         // Update Fields: Names & Values
-        Generator<Map<String, ByteIterator>> updateValuedFieldGenerator = generatorBuilder.discreteValuedMultiGenerator(
+        Generator<Map<String, ByteIterator>> updateValuedFieldsGenerator = generatorBuilder.discreteValuedMultiGenerator(
                 valuedFields, NUMBER_OF_FIELDS_TO_UPDATE ).build();
 
         UpdateOperationGenerator updateOperationGenerator = new UpdateOperationGenerator( TABLE, requestKeyGenerator,
-                updateValuedFieldGenerator );
+                updateValuedFieldsGenerator );
 
         /**
          * **************************
@@ -153,7 +153,7 @@ public class SimpleWorkload extends Workload
          * **************************
          */
         // Scan Fields: Names & Values
-        Generator<Set<String>> scanFieldGenerator = generatorBuilder.discreteMultiGenerator( fields,
+        Generator<Set<String>> scanFieldsGenerator = generatorBuilder.discreteMultiGenerator( fields,
                 NUMBER_OF_FIELDS_TO_READ ).build();
 
         // Scan Length: Number of Records
@@ -161,7 +161,7 @@ public class SimpleWorkload extends Workload
                 MAX_SCAN_LENGTH ).build();
 
         ScanOperationGenerator scanOperationGenerator = new ScanOperationGenerator( TABLE, requestKeyGenerator,
-                scanLengthGenerator, scanFieldGenerator );
+                scanLengthGenerator, scanFieldsGenerator );
 
         /**
          * **************************
@@ -171,7 +171,7 @@ public class SimpleWorkload extends Workload
          * **************************
          */
         ReadModifyWriteOperationGenerator readModifyWriteOperationGenerator = new ReadModifyWriteOperationGenerator(
-                TABLE, requestKeyGenerator, readFieldsGenerator, updateValuedFieldGenerator );
+                TABLE, requestKeyGenerator, readFieldsGenerator, updateValuedFieldsGenerator );
 
         /**
          * **************************

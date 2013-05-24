@@ -33,4 +33,11 @@ public abstract class OperationHandler<A extends Operation<?>>
     }
 
     protected abstract OperationResult executeOperation( A operation );
+
+    @Override
+    public String toString()
+    {
+        return String.format( "OperationHandler [type=%s, operation=%s]", getClass().getName(), operation );
+
+    }
 }
