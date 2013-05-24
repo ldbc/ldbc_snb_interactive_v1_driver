@@ -1,7 +1,7 @@
 # LDBC Driver
 
-### Credits
-Credit where it's due, though it has now diverged significantly, this project started as a fork of the YCSB framework:
+### Credit where it's due
+Though it has now diverged significantly, this project started as a fork of the YCSB framework:
 * http://wiki.github.com/brianfrankcooper/YCSB/
 * http://research.yahoo.com/Web_Information_Management/YCSB
 
