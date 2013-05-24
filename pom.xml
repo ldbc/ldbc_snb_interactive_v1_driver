@@ -13,13 +13,6 @@
 	<description>
     This is the top level project that builds, packages the core and all the DB bindings for LDBC Driver infrastructure.
   </description>
-	<dependencies>
-		<dependency>
-			<groupId>com.google.collections</groupId>
-			<artifactId>google-collections</artifactId>
-			<version>1.0</version>
-		</dependency>
-	</dependencies>
 
 	<properties>
 		<maven.assembly.version>2.2.1</maven.assembly.version>

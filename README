@@ -1,33 +1,31 @@
-Yahoo! Cloud System Benchmark (YCSB)
+LDBC Driver
 ====================================
 
-Links
+This started as a fork of the YCSB framework:
 -----
 http://wiki.github.com/brianfrankcooper/YCSB/
 http://research.yahoo.com/Web_Information_Management/YCSB
 ycsb-users@yahoogroups.com
 
-Getting Started
+
+The LDBC Driver has now diverged a lot from YCSB and will soon be renamed.
+It is being developed as part of the Linked Data Benchmark Council EU-funded research project:
+---
+http://www.ldbc.eu
+http://www.linkedin.com/groups/LDBC-4955240
+https://twitter.com/LDBCproject
+https://www.facebook.com/ldbcproject
+
+The driver is still at an early stage, but to try it out:
 ---------------
 
-1. Download the latest release of YCSB:
+1. Clone and compile LDBC Driver (still called YCSB for now)
 
-    wget https://github.com/downloads/brianfrankcooper/YCSB/ycsb-0.1.4.tar.gz
-    tar xfvz ycsb-0.1.4
-    cd ycsb-0.1.4
+	git clone git://github.com/alexaverbuch/YCSB.git
+	cd YCSB
+	mvn clean package
 
-2. Set up a database to benchmark. There is a README file under each binding
-   directory.
+2. At the moment only one workload is supported, "simpleworkload", which has little configuration options and comprises of only basic key/value operations.
+To run it:
 
-3. Run YCSB command. 
-
-    bin/ycsb load basic -P workloads/workloada
-    bin/ycsb run basic -P workloads/workloada
-
-   Running the `ycsb` command without any argument will print the usage. 
-   
-   See https://github.com/brianfrankcooper/YCSB/wiki/Running-a-Workload
-   for a detailed documentation on how to run a workload.
-
-   See https://github.com/brianfrankcooper/YCSB/wiki/Core-Properties for 
-   the list of available workload properties.
+   java -cp core/target/core-0.1.jar com.ldbc.driver.Client -db com.ldbc.driver.db.basic.BasicDb -s -P workloads/simpleworkload -t
