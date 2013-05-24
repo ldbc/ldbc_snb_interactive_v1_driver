@@ -20,7 +20,6 @@ It is still at an early stage of development, but the LDBC Driver is being devel
 
 
 At the moment only one workload is supported, "simpleworkload", which has little configuration options and comprises of only basic key/value operations.
-
 To run it:
 
     java -cp core/target/core-0.1.jar com.ldbc.driver.Client -db com.ldbc.driver.db.basic.BasicDb -s -P workloads/simpleworkload -t
