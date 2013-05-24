@@ -1,19 +1,13 @@
-LDBC Driver
-====================================
+# LDBC Driver
 
-This started as a fork of the YCSB framework:
------
-http://wiki.github.com/brianfrankcooper/YCSB/
-http://research.yahoo.com/Web_Information_Management/YCSB
 
 LDBC Driver has now diverged significantly from YCSB.
 The driver is being developed as part of the Linked Data Benchmark Council EU-funded research project. 
 It will be used to run the benchmark workloads developed and released by LDBC:
----
-http://www.ldbc.eu
-http://www.linkedin.com/groups/LDBC-4955240
-https://twitter.com/LDBCproject
-https://www.facebook.com/ldbcproject
+* http://www.ldbc.eu
+* http://www.linkedin.com/groups/LDBC-4955240
+* https://twitter.com/LDBCproject
+* https://www.facebook.com/ldbcproject
 
 The driver is still at an early stage, but to try it out:
 ---------------
@@ -28,3 +22,8 @@ The driver is still at an early stage, but to try it out:
 To run it:
 
 	java -cp core/target/core-0.1.jar com.ldbc.driver.Client -db com.ldbc.driver.db.basic.BasicDb -s -P workloads/simpleworkload -t
+
+## Credits
+This started as a fork of the YCSB framework
+* http://wiki.github.com/brianfrankcooper/YCSB/
+* http://research.yahoo.com/Web_Information_Management/YCSB
