@@ -11,13 +11,13 @@ import java.util.Properties;
 
 import org.apache.log4j.Logger;
 
-import com.ldbc.driver.db.basic.BasicDb;
 import com.ldbc.driver.generator.GeneratorBuilder;
 import com.ldbc.driver.measurements.Measurements;
 import com.ldbc.driver.measurements.MeasurementsException;
+import com.ldbc.driver.measurements.OneMeasurement;
 import com.ldbc.driver.measurements.exporter.MeasurementsExporter;
-import com.ldbc.driver.measurements.exporter.TextMeasurementsExporter;
 import com.ldbc.driver.util.ClassLoaderHelper;
+import com.ldbc.driver.util.ClassLoadingException;
 import com.ldbc.driver.util.MapUtils;
 import com.ldbc.driver.util.Pair;
 import com.ldbc.driver.util.RandomDataGeneratorFactory;
@@ -30,7 +30,7 @@ public class Client
 
     /*
      * For partitioning load among machines when client is bottleneck.
-    * 
+     *
      * INSERT_START
      * Specifies which record ID each client starts from - enables load phase to proceed from 
      * multiple clients on different machines.
@@ -45,31 +45,41 @@ public class Client
      * client 2 --> insertStart=50,000
      *          --> insertCount=500,000
     */
-    public static final String INSERT_COUNT = "insertcount";
+    public static final String INSERT_COUNT_ARG = "insertcount";
     public static final String INSERT_COUNT_DEFAULT = "0";
-    public static final String INSERT_START = "insertstart";
+    public static final String INSERT_START_ARG = "insertstart";
     public static final String INSERT_START_DEFAULT = "0";
-    public static final String RECORD_COUNT = "recordcount";
+    // TODO undocumented, document somehow
+    public static final String RECORD_COUNT_ARG = "recordcount";
     public static final String RECORD_COUNT_DEFAULT = "0";
 
-    private static final String WORKLOAD = "workload";
-    private static final String EXPORT_FILE_PATH = "exportfile";
-    private static final String OPERATION_COUNT = "operationcount";
+    // --- COMPULSORY ---
+    private static final String WORKLOAD_ARG = "workload";
+    private static final String WORKLOAD_EXAMPLE = com.ldbc.driver.workloads.simple.SimpleWorkload.class.getName();
+    private static final String DB_ARG = "db";
+    private static final String DB_EXAMPLE = com.ldbc.driver.db.basic.BasicDb.class.getName();
+    private static final String OPERATION_COUNT_ARG = "operationcount";
     private static final String OPERATION_COUNT_DEFAULT = "0";
-    private static final String EXPORTER = "exporter";
-    private static final String EXPORTER_DEFAULT = TextMeasurementsExporter.class.getName();
-    private static final String STATUS = "status";
-    private static final String STATUS_DEFAULT = "false";
-    private static final String DB = "db";
-    private static final String DB_DEFAULT = BasicDb.class.getName();
-    private static final String TARGET_THROUGHPUT = "target_throughput";
-    private static final String TARGET_THROUGHPUT_DEFAULT = "0";
-    private static final String BENCHMARK_PHASE = "benchmark_phase";
-    private static final String BENCHMARK_PHASE_DEFAULT = BenchmarkPhase.TRANSACTION_PHASE.toString();
-    private static final String THREAD_COUNT = "thread_count";
-    private static final String THREAD_COUNT_DEFAULT = Integer.toString( defaultThreadCount() );
+    // --- OPTIONAL ---
+    private static final String THREADS_ARG = "threads";
+    private static final String THREADS_DEFAULT = Integer.toString( defaultThreadCount() );
+    private static final String BENCHMARK_PHASE_ARG = "phase";
+    private static final String BENCHMARK_PHASE_DEFAULT = com.ldbc.driver.BenchmarkPhase.TRANSACTION_PHASE.toString();
+    private static final String BENCHMARK_PHASE_LOAD = "load";
+    private static final String BENCHMARK_PHASE_TRANSACTION = "transaction";
+    private static final String SHOW_STATUS_ARG = "status";
+    private static final String SHOW_STATUS_DEFAULT = "false";
+    private static final String PROPERTY_FILE_ARG = "P";
+    private static final String PROPERTY_ARG = "p";
+    // TODO undocumented, document somehow
+    private static final String EXPORTER_ARG = "exporter";
+    private static final String EXPORTER_DEFAULT = com.ldbc.driver.measurements.exporter.TextMeasurementsExporter.class.getName();
+    // TODO undocumented, document somehow
+    private static final String EXPORT_FILE_PATH_ARG = "exportfile";
+    private static final String MEASUREMENT_TYPE_ARG = "measurementtype";
+    private static final String MEASUREMENT_TYPE_DEFAULT = com.ldbc.driver.measurements.OneMeasurementHistogram.class.getName();
 
-    private static final String[] REQUIRED_PROPERTIES = new String[] { WORKLOAD };
+    private static final String[] REQUIRED_PROPERTIES = new String[] { DB_ARG, WORKLOAD_ARG, OPERATION_COUNT_ARG };
 
     private static final long RANDOM_SEED = 42;
 
@@ -78,6 +88,17 @@ public class Client
         Client client = new Client();
         try
         {
+            Map<String, String> properties = parseArguments( args );
+
+            Pair<Boolean, String> hasRequiredProperties = checkRequiredProperties( properties, REQUIRED_PROPERTIES );
+            if ( false == hasRequiredProperties._1() )
+            {
+                String errMsg = hasRequiredProperties._2();
+                logger.error( errMsg );
+                logger.error( usageMessage() );
+                throw new ClientException( errMsg );
+            }
+
             logger.info( "LDBC Driver 0.1" );
             StringBuilder welcomeMessage = new StringBuilder();
             welcomeMessage.append( "Command line:" );
@@ -87,15 +108,12 @@ public class Client
             }
             logger.info( welcomeMessage );
 
-            Map<String, String> properties = parseArguments( args );
-
             client.start( properties );
         }
         catch ( ClientException e )
         {
             String errMsg = "Error while trying to parse properties";
             logger.error( errMsg, e );
-            throw new ClientException( errMsg, e.getCause() );
         }
         catch ( Exception e )
         {
@@ -118,119 +136,102 @@ public class Client
 
     private static String usageMessage()
     {
-        String usageMessage = "Usage: java com.ldbc.driver.Client [options]\n"
-
-        + "Options:\n"
-
-        + "  -threads n: execute using n threads (default: 1) - can also be specified as the \n"
-
-        + "              \"threadcount\" property using -p\n"
-
-        + "  -target n: attempt to do n operations per second (default: unlimited) - can also\n"
-
-        + "             be specified as the \"target\" property using -p\n"
-
-        + "  -load:  run the loading phase of the workload\n"
-
-        + "  -t:  run the transactions phase of the workload (default)\n"
-
-        + "  -db dbname: specify the name of the DB to use (default: com.ldbc.driver.db.BasicDB) - \n"
-
-        + "              can also be specified as the \"db\" property using -p\n"
-
-        + "  -P propertyfile: load properties from the given file. Multiple files can\n"
-
-        + "                   be specified, and will be processed in the order specified\n"
-
-        + "  -p name=value:  specify a property to be passed to the DB and workloads;\n"
-
-        + "                  multiple properties can be specified, and override any\n"
-
-        + "                  values in the propertyfile\n"
-
-        + "  -s:  show status during run (default: no status)\n"
-
-        + "  -l label:  use label for status (e.g. to label one experiment out of a whole batch)\n"
-
-        + "\nRequired properties:\n"
-
-        + "  " + WORKLOAD + ": the name of the workload class to use (e.g. com.ldbc.driver.workloads.CoreWorkload)\n"
-
-        + "\nTo run the transaction phase from multiple servers, start a separate client on each."
-
-        + "To run the load phase from multiple servers, start a separate client on each; additionally,\n"
-
-        + "use the \"insertcount\" and \"insertstart\" properties to divide up the records to be inserted";
-
+        String usageMessage = String.format( "Usage: java %s [parameters]\n", Client.class.getName() )
+                              + "\nRequired parameters:\n"
+                              + String.format( "  -%s db_name: specify the name of the DB to use (e.g.: %s)\n", DB_ARG,
+                                      DB_EXAMPLE )
+                              + String.format( "  %s: name of the workload class to use (e.g. %s)\n", WORKLOAD_ARG,
+                                      WORKLOAD_EXAMPLE )
+                              + String.format(
+                                      "  %s / %s: to run the transaction phase from multiple servers, start a separate client on each\n",
+                                      INSERT_COUNT_ARG, INSERT_START_ARG )
+                              + "  to run the load phase from multiple servers, start a separate client on each; additionally,\n"
+                              + String.format(
+                                      "  use the %s and %s properties to divide up the records to be inserted",
+                                      INSERT_COUNT_ARG, INSERT_START_ARG )
+                              + "\nOptional parameters:\n"
+                              + String.format( "  -%s:  run the loading phase of the workload\n", BENCHMARK_PHASE_LOAD )
+                              + String.format( "  -%s:  run the transactions phase of the workload (default)\n",
+                                      BENCHMARK_PHASE_TRANSACTION )
+                              + String.format( "  -%s number: execute using n threads (default: %s)\n", THREADS_ARG,
+                                      defaultThreadCount() )
+                              + String.format( "  -%s:  show status during run (default: %s)\n", SHOW_STATUS_ARG,
+                                      SHOW_STATUS_DEFAULT )
+                              + String.format(
+                                      "  -%s property_file: load properties from the given file. Multiple files can\n",
+                                      PROPERTY_FILE_ARG )
+                              + "                   be specified, and will be processed in the order specified\n"
+                              + String.format(
+                                      "  -%s name=value:  specify a property to be passed to the DB and Workload;\n",
+                                      PROPERTY_ARG )
+                              + "                  multiple properties can be specified, and override any\n"
+                              + "                  values in the property files\n";
         return usageMessage;
     }
 
     private static Map<String, String> parseArguments( String[] args ) throws ClientException
     {
         Map<String, String> commandlineProperties = new HashMap<String, String>();
-        Properties fileProperties = new Properties();
+        Map<String, String> fileProperties = new HashMap<String, String>();
 
         int argIndex = 0;
 
         if ( args.length == 0 )
         {
             String errMsg = usageMessage();
-            logger.info( errMsg );
+            logger.error( errMsg );
             throw new ClientException();
         }
 
         while ( args[argIndex].startsWith( "-" ) )
         {
-            if ( args[argIndex].equals( "-target" ) )
+            String arg = args[argIndex].substring( 1 );
+
+            // Singleton arguments
+            if ( arg.equals( BENCHMARK_PHASE_LOAD ) )
+            {
+                commandlineProperties.put( BENCHMARK_PHASE_ARG, BenchmarkPhase.LOAD_PHASE.toString() );
+                argIndex++;
+            }
+            else if ( arg.equals( BENCHMARK_PHASE_TRANSACTION ) )
+            {
+                commandlineProperties.put( BENCHMARK_PHASE_ARG, BenchmarkPhase.TRANSACTION_PHASE.toString() );
+                argIndex++;
+            }
+            else if ( arg.equals( SHOW_STATUS_ARG ) )
+            {
+                commandlineProperties.put( SHOW_STATUS_ARG, "true" );
+                argIndex++;
+            }
+            // Pair arguments
+            else if ( arg.equals( DB_ARG ) )
             {
                 argIndex++;
                 if ( argIndex >= args.length )
                 {
                     logger.info( usageMessage() );
-                }
-                int argTarget = Integer.parseInt( args[argIndex] );
-                commandlineProperties.put( TARGET_THROUGHPUT, Integer.toString( argTarget ) );
-                argIndex++;
-            }
-            else if ( args[argIndex].equals( "-load" ) )
-            {
-                commandlineProperties.put( BENCHMARK_PHASE, BenchmarkPhase.LOAD_PHASE.toString() );
-                argIndex++;
-            }
-            else if ( args[argIndex].equals( "-t" ) )
-            {
-                commandlineProperties.put( BENCHMARK_PHASE, BenchmarkPhase.TRANSACTION_PHASE.toString() );
-                argIndex++;
-            }
-            else if ( args[argIndex].equals( "-s" ) )
-            {
-                commandlineProperties.put( STATUS, "true" );
-                argIndex++;
-            }
-            else if ( args[argIndex].equals( "-db" ) )
-            {
-                argIndex++;
-                if ( argIndex >= args.length )
-                {
-                    logger.info( usageMessage() );
+                    // TODO exit here?
                 }
                 String argDb = args[argIndex];
-                commandlineProperties.put( DB, argDb );
+                commandlineProperties.put( DB_ARG, argDb );
                 argIndex++;
             }
-            else if ( args[argIndex].equals( "-P" ) )
+            else if ( arg.equals( PROPERTY_FILE_ARG ) )
             {
                 argIndex++;
                 if ( argIndex >= args.length )
                 {
                     logger.info( usageMessage() );
+                    // TODO exit here?
                 }
                 String argPropertiesFile = args[argIndex];
                 argIndex++;
 
                 try
                 {
-                    fileProperties.load( new FileInputStream( argPropertiesFile ) );
+                    Properties tempFileProperties = new Properties();
+                    tempFileProperties.load( new FileInputStream( argPropertiesFile ) );
+                    fileProperties = MapUtils.mergePropertiesToMap( tempFileProperties, fileProperties, true );
                 }
                 catch ( IOException e )
                 {
@@ -239,17 +240,19 @@ public class Client
                     throw new ClientException( errMsg, e.getCause() );
                 }
             }
-            else if ( args[argIndex].equals( "-p" ) )
+            else if ( arg.equals( PROPERTY_ARG ) )
             {
                 argIndex++;
                 if ( argIndex >= args.length )
                 {
                     logger.info( usageMessage() );
+                    // TODO exit here?
                 }
                 int equalsCharPosition = args[argIndex].indexOf( '=' );
                 if ( equalsCharPosition < 0 )
                 {
                     logger.info( usageMessage() );
+                    // TODO exit here?
                 }
 
                 String argPropertyName = args[argIndex].substring( 0, equalsCharPosition );
@@ -260,8 +263,8 @@ public class Client
             else
             {
                 String errMsg = "Unknown option " + args[argIndex];
-                logger.info( errMsg );
-                logger.info( usageMessage() );
+                logger.error( errMsg );
+                logger.error( usageMessage() );
                 throw new ClientException( errMsg );
             }
 
@@ -273,51 +276,59 @@ public class Client
 
         if ( argIndex != args.length )
         {
-            logger.info( usageMessage() );
+            logger.error( usageMessage() );
         }
 
-        return MapUtils.mergePropertiesToMap( fileProperties, commandlineProperties, false );
+        return MapUtils.mergeMaps( fileProperties, commandlineProperties, false );
+    }
+
+    private static Pair<Boolean, String> checkRequiredProperties( Map<String, String> properties,
+            String[] requiredProperties )
+    {
+        for ( String property : requiredProperties )
+        {
+            if ( false == properties.containsKey( property ) )
+            {
+                return Pair.create( false, "Missing property: " + property );
+            }
+        }
+        return Pair.create( true, "" );
     }
 
     private void start( Map<String, String> properties ) throws ClientException
     {
-        Pair<Boolean, String> isRequiredProperties = checkRequiredProperties( properties, REQUIRED_PROPERTIES );
-        if ( false == isRequiredProperties._1() )
-        {
-            String errMsg = isRequiredProperties._2();
-            logger.info( errMsg );
-            throw new ClientException( errMsg );
-        }
-
         GeneratorBuilder generatorBuilder = new GeneratorBuilder( new RandomDataGeneratorFactory( RANDOM_SEED ) );
 
-        boolean showStatus = Boolean.parseBoolean( MapUtils.mapGetDefault( properties, STATUS, STATUS_DEFAULT ) );
+        boolean showStatus = Boolean.parseBoolean( MapUtils.mapGetDefault( properties, SHOW_STATUS_ARG,
+                SHOW_STATUS_DEFAULT ) );
         logger.info( String.format( "Show status: %s", showStatus ) );
 
-        int threadCount = Integer.parseInt( MapUtils.mapGetDefault( properties, THREAD_COUNT, THREAD_COUNT_DEFAULT ) );
+        int threadCount = Integer.parseInt( MapUtils.mapGetDefault( properties, THREADS_ARG, THREADS_DEFAULT ) );
         logger.info( String.format( "Thread count: %s", threadCount ) );
 
-        BenchmarkPhase benchmarkPhase = BenchmarkPhase.valueOf( MapUtils.mapGetDefault( properties, BENCHMARK_PHASE,
-                BENCHMARK_PHASE_DEFAULT ) );
+        BenchmarkPhase benchmarkPhase = BenchmarkPhase.valueOf( MapUtils.mapGetDefault( properties,
+                BENCHMARK_PHASE_ARG, BENCHMARK_PHASE_DEFAULT ) );
         logger.info( String.format( "Benchmark phase: %s", benchmarkPhase ) );
 
-        // compute the target throughput
-        int targetThroughput = Integer.parseInt( MapUtils.mapGetDefault( properties, TARGET_THROUGHPUT,
-                TARGET_THROUGHPUT_DEFAULT ) );
-        double targetThroughputPerMs = -1;
-        if ( targetThroughput > 0 )
+        Measurements measurements = null;
+        String oneMeasurementName = MapUtils.mapGetDefault( properties, MEASUREMENT_TYPE_ARG, MEASUREMENT_TYPE_DEFAULT );
+        try
         {
-            targetThroughputPerMs = targetThroughput / 1000.0;
+            Class<? extends OneMeasurement> oneMeasurementType = ClassLoaderHelper.loadClass( oneMeasurementName,
+                    OneMeasurement.class );
+            measurements = new Measurements( oneMeasurementType, properties );
         }
-        logger.info( String.format( "Target throughput: %s", targetThroughput ) );
-
-        // TODO change the way this is done! no static
-        Measurements.setProperties( properties );
-        Measurements measurements = Measurements.getMeasurements();
-        logger.info( String.format( "Measurements: %s", measurements.getClass().getName() ) );
+        catch ( ClassLoadingException e )
+        {
+            String errMsg = String.format( "Error loading OneMeasurement class: %s", oneMeasurementName );
+            logger.error( errMsg, e );
+            throw new ClientException( errMsg, e.getCause() );
+        }
+        logger.info( String.format( "Loaded Measurements: %s(%s)", measurements.getClass().getName(),
+                oneMeasurementName ) );
 
         Workload workload = null;
-        String workloadName = properties.get( WORKLOAD );
+        String workloadName = properties.get( WORKLOAD_ARG );
         try
         {
             workload = ClassLoaderHelper.loadWorkload( workloadName );
@@ -333,7 +344,7 @@ public class Client
         logger.info( String.format( "Loaded Workload: %s", workload.getClass().getName() ) );
 
         Db db = null;
-        String dbName = MapUtils.mapGetDefault( properties, DB, DB_DEFAULT );
+        String dbName = MapUtils.mapGetDefault( properties, DB_ARG, DB_EXAMPLE );
         try
         {
             db = ClassLoaderHelper.loadDb( dbName );
@@ -349,7 +360,7 @@ public class Client
 
         int operationCount = getOperationCount( properties, benchmarkPhase );
         WorkloadRunner workloadRunner = new WorkloadRunner( db, benchmarkPhase, workload, operationCount,
-                targetThroughputPerMs, generatorBuilder, showStatus, threadCount, measurements );
+                generatorBuilder, showStatus, threadCount, measurements );
 
         logger.info( String.format( "Starting Benchmark (%s operations)", operationCount ) );
         long st = System.currentTimeMillis();
@@ -392,7 +403,7 @@ public class Client
         logger.info( "Exporting Measurements..." );
         try
         {
-            exportMeasurements( properties, operationCount, en - st );
+            exportMeasurements( measurements, properties, operationCount, en - st );
         }
         catch ( MeasurementsException e )
         {
@@ -402,18 +413,6 @@ public class Client
         }
     }
 
-    private Pair<Boolean, String> checkRequiredProperties( Map<String, String> properties, String[] requiredProperties )
-    {
-        for ( String property : requiredProperties )
-        {
-            if ( false == properties.containsKey( property ) )
-            {
-                return Pair.create( false, "Missing property: " + property );
-            }
-        }
-        return Pair.create( true, "" );
-    }
-
     private int getOperationCount( Map<String, String> commandlineProperties, BenchmarkPhase benchmarkPhase )
             throws NumberFormatException
     {
@@ -421,19 +420,19 @@ public class Client
         switch ( benchmarkPhase )
         {
         case TRANSACTION_PHASE:
-            operationCount = Integer.parseInt( MapUtils.mapGetDefault( commandlineProperties, OPERATION_COUNT,
+            operationCount = Integer.parseInt( MapUtils.mapGetDefault( commandlineProperties, OPERATION_COUNT_ARG,
                     OPERATION_COUNT_DEFAULT ) );
             break;
 
         case LOAD_PHASE:
-            if ( commandlineProperties.containsKey( INSERT_COUNT ) )
+            if ( commandlineProperties.containsKey( INSERT_COUNT_ARG ) )
             {
-                operationCount = Integer.parseInt( MapUtils.mapGetDefault( commandlineProperties, INSERT_COUNT,
+                operationCount = Integer.parseInt( MapUtils.mapGetDefault( commandlineProperties, INSERT_COUNT_ARG,
                         INSERT_COUNT_DEFAULT ) );
             }
             else
             {
-                operationCount = Integer.parseInt( MapUtils.mapGetDefault( commandlineProperties, RECORD_COUNT,
+                operationCount = Integer.parseInt( MapUtils.mapGetDefault( commandlineProperties, RECORD_COUNT_ARG,
                         RECORD_COUNT_DEFAULT ) );
             }
             break;
@@ -450,16 +449,13 @@ public class Client
         System.exit( 0 );
     }
 
-    /**
-     * Exports measurements using MeasurementsExporter loaded from config
-     */
-    private void exportMeasurements( Map<String, String> properties, int opcount, long runtime )
-            throws MeasurementsException
+    private void exportMeasurements( Measurements measurements, Map<String, String> properties, int opcount,
+            long runtime ) throws MeasurementsException
     {
         MeasurementsExporter exporter = null;
         try
         {
-            String exportFilePath = properties.get( EXPORT_FILE_PATH );
+            String exportFilePath = properties.get( EXPORT_FILE_PATH_ARG );
             OutputStream out = null;
             try
             {
@@ -471,7 +467,7 @@ public class Client
                         e.getCause() );
             }
 
-            String exporterClassName = MapUtils.mapGetDefault( properties, EXPORTER, EXPORTER_DEFAULT );
+            String exporterClassName = MapUtils.mapGetDefault( properties, EXPORTER_ARG, EXPORTER_DEFAULT );
             try
             {
                 exporter = ClassLoaderHelper.loadMeasurementsExporter( exporterClassName, out );
@@ -486,7 +482,7 @@ public class Client
             double throughput = 1000.0 * ( (double) opcount ) / ( (double) runtime );
             exporter.write( "OVERALL", "Throughput(ops/sec)", throughput );
 
-            Measurements.getMeasurements().exportMeasurements( exporter );
+            measurements.exportMeasurements( exporter );
         }
         finally
         {

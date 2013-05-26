@@ -22,8 +22,8 @@ public class OperationHandlerExecutor
     private final ExecutorService threadPool;
     private final CompletionService<OperationResult> operationHandlerCompletionPool;
 
-    private long handlersAlreadyExecuted = 0;
-    private long handlersStillExecuting = 0;
+    private long retrievedResults = 0;
+    private long submittedHandlers = 0;
 
     public static void main( String[] args )
     {
@@ -50,17 +50,42 @@ public class OperationHandlerExecutor
     public final void execute( OperationHandler<?> operationHandler )
     {
         operationHandlerCompletionPool.submit( operationHandler );
-        handlersStillExecuting++;
+        submittedHandlers++;
     }
 
+    /**
+     * Get next OperationResult returned by a submitted OperationHandler. If
+     * none are currently available, return null.
+     * 
+     * @return OperationResult if one available, null otherwise
+     * @throws InterruptedException
+     * @throws ExecutionException
+     */
     public final OperationResult nextOperationResult() throws InterruptedException, ExecutionException
     {
         Future<OperationResult> operationResultFuture = operationHandlerCompletionPool.poll( POLL_TIMEOUT_MS,
                 TimeUnit.MILLISECONDS );
         if ( null == operationResultFuture ) return null;
         OperationResult operationResult = operationResultFuture.get();
-        handlersAlreadyExecuted++;
-        handlersStillExecuting--;
+        retrievedResults++;
+        return operationResult;
+    }
+
+    /**
+     * Get next OperationResult returned by a submitted OperationHandler. Blocks
+     * to wait for the next OperationResult if any OperationHandler is still
+     * running. Returns immediately with null otherwise.
+     * 
+     * @return OperationResult if any are pending, null otherwise
+     * @throws InterruptedException
+     * @throws ExecutionException
+     */
+    public final OperationResult waitForNextOperationResult() throws InterruptedException, ExecutionException
+    {
+        if ( submittedHandlers == retrievedResults ) return null;
+        Future<OperationResult> operationResultFuture = operationHandlerCompletionPool.take();
+        OperationResult operationResult = operationResultFuture.get();
+        retrievedResults++;
         return operationResult;
     }
 
@@ -76,11 +101,11 @@ public class OperationHandlerExecutor
 
     public final long getHandlersAlreadyExecuted()
     {
-        return handlersAlreadyExecuted;
+        return retrievedResults;
     }
 
     public final long getHandlersStillExecuting()
     {
-        return handlersStillExecuting;
+        return submittedHandlers;
     }
 }

@@ -4,7 +4,6 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-import com.ldbc.driver.Client;
 import com.ldbc.driver.Operation;
 import com.ldbc.driver.data.ByteIterator;
 import com.ldbc.driver.generator.Generator;
@@ -12,7 +11,6 @@ import com.ldbc.driver.generator.GeneratorBuilder;
 import com.ldbc.driver.generator.GeneratorException;
 import com.ldbc.driver.generator.MinMaxGeneratorWrapper;
 import com.ldbc.driver.generator.PrefixGeneratorWrapper;
-import com.ldbc.driver.util.MapUtils;
 import com.ldbc.driver.util.Pair;
 import com.ldbc.driver.util.Triple;
 import com.ldbc.driver.workloads.Workload;
@@ -35,16 +33,9 @@ public class SimpleWorkload extends Workload
     final double SCAN_RATIO = 0.20;
     final double READ_MODIFY_WRITE_RATIO = 0.20;
 
-    long insertStart;
-    long recordCount;
-
     @Override
     public void onInit( Map<String, String> properties )
     {
-        // TODO move this logic to Client and make available via local getters?
-        recordCount = Long.parseLong( properties.get( Client.RECORD_COUNT ) );
-        insertStart = Long.parseLong( MapUtils.mapGetDefault( properties, Client.INSERT_START,
-                Client.INSERT_START_DEFAULT ) );
     }
 
     @Override
@@ -58,7 +49,7 @@ public class SimpleWorkload extends Workload
          * **************************
          */
         // Load Insert Keys
-        Generator<Long> loadInsertKeyGenerator = generatorBuilder.counterGenerator( insertStart, 1l ).build();
+        Generator<Long> loadInsertKeyGenerator = generatorBuilder.counterGenerator( getInsertStart(), 1l ).build();
 
         // Insert Fields: Names & Values
         Generator<Integer> fieldValuelengthGenerator = generatorBuilder.uniformNumberGenerator( 1, 100 ).build();
@@ -88,8 +79,8 @@ public class SimpleWorkload extends Workload
          * **************************
          */
         // Transaction Insert Keys
-        MinMaxGeneratorWrapper<Long> transactionInsertKeyGenerator = generatorBuilder.counterGenerator( recordCount, 1l ).withMinMax(
-                recordCount, recordCount ).build();
+        MinMaxGeneratorWrapper<Long> transactionInsertKeyGenerator = generatorBuilder.counterGenerator(
+                getRecordCount(), 1l ).withMinMax( getRecordCount(), getRecordCount() ).build();
 
         // Insert Fields: Names & Values
         Generator<Integer> fieldValuelengthGenerator = generatorBuilder.uniformNumberGenerator( 1, 100 ).build();

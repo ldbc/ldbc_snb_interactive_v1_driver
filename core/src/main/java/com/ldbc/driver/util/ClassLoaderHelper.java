@@ -151,8 +151,7 @@ public class ClassLoaderHelper
     /**
      * Helper Methods
      */
-    private static <C> Class<? extends C> loadClass( String className, Class<C> baseClass )
-            throws ClassLoadingException
+    public static <C> Class<? extends C> loadClass( String className, Class<C> baseClass ) throws ClassLoadingException
 
     {
         try

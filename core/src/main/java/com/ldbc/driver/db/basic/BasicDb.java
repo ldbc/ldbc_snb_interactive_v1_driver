@@ -32,6 +32,18 @@ public class BasicDb extends Db
     {
     }
 
+    // TODO remove
+    private static void sleep()
+    {
+        try
+        {
+            Thread.sleep( 100 );
+        }
+        catch ( InterruptedException e )
+        {
+        }
+    }
+
     public static class InsertOperationHandler extends OperationHandler<InsertOperation>
     {
         @Override
@@ -42,6 +54,7 @@ public class BasicDb extends Db
             Map<String, ByteIterator> valuedFields = operation.getValuedFields();
 
             // TODO do things
+            sleep();
 
             int resultCode = 0;
             Object result = null;
@@ -60,6 +73,7 @@ public class BasicDb extends Db
             Set<String> fields = operation.getFields();
 
             // TODO do things
+            sleep();
 
             int resultCode = 0;
             Map<String, ByteIterator> result = null;
@@ -78,6 +92,7 @@ public class BasicDb extends Db
             Map<String, ByteIterator> values = operation.getValues();
 
             // TODO do things
+            sleep();
 
             int resultCode = 0;
             Object result = null;
@@ -97,6 +112,7 @@ public class BasicDb extends Db
             Set<String> fields = operation.getFields();
 
             // TODO do things
+            sleep();
 
             int resultCode = 0;
             Vector<Map<String, ByteIterator>> result = null;
@@ -116,6 +132,7 @@ public class BasicDb extends Db
             Map<String, ByteIterator> values = operation.getValues();
 
             // TODO do things
+            sleep();
 
             int resultCode = 0;
             Object result = null;

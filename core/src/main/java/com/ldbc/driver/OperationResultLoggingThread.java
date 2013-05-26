@@ -5,6 +5,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import org.apache.log4j.Logger;
 
 import com.ldbc.driver.measurements.Measurements;
+import com.ldbc.driver.measurements.MeasurementsException;
 
 class OperationResultLoggingThread extends Thread
 {
@@ -41,7 +42,7 @@ class OperationResultLoggingThread extends Thread
             // Log remaining results
             while ( true )
             {
-                OperationResult operationResult = operationHandlerExecutor.nextOperationResult();
+                OperationResult operationResult = operationHandlerExecutor.waitForNextOperationResult();
                 if ( null == operationResult ) break;
                 log( operationResult );
             }
@@ -52,14 +53,23 @@ class OperationResultLoggingThread extends Thread
         }
     }
 
-    private void log( OperationResult operationResult )
+    private void log( OperationResult operationResult ) throws MeasurementsException
     {
-        // TODO make NOT int
-        measurements.measure( operationResult.getOperationType(), (int) operationResult.getRunTime() );
-        measurements.reportReturnCode( operationResult.getOperationType(), operationResult.getResultCode() );
-        // TODO log more stuff
-        // operationResult.getScheduledStartTime()
-        // operationResult.getActualStartTime()
-        // operationResult.getResult()
+        try
+        {
+            // TODO make NOT int
+            measurements.measure( operationResult.getOperationType(), (int) operationResult.getRunTime() );
+            measurements.reportReturnCode( operationResult.getOperationType(), operationResult.getResultCode() );
+            // TODO log more stuff
+            // operationResult.getScheduledStartTime()
+            // operationResult.getActualStartTime()
+            // operationResult.getResult()
+        }
+        catch ( MeasurementsException e )
+        {
+            String errMsg = String.format( "Error encountered while logging result - %s", operationResult );
+            logger.error( errMsg, e );
+            throw new MeasurementsException( errMsg, e.getCause() );
+        }
     }
 }

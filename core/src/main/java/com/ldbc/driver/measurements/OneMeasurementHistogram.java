@@ -36,26 +36,26 @@ public class OneMeasurementHistogram extends OneMeasurement
     public static final String BUCKETS = "histogram.buckets";
     public static final String BUCKETS_DEFAULT = "1000";
 
-    int buckets;
-    int[] histogram;
-    int histogramoverflow;
-    int operations;
-    long totallatency;
+    private int buckets;
+    private int[] histogram;
+    private int histogramOverflow;
+    private int operations;
+    private long totallatency;
 
     // keep a windowed version of these stats for printing status
-    int windowoperations;
-    long windowtotallatency;
+    private int windowoperations;
+    private long windowtotallatency;
 
-    int min;
-    int max;
-    HashMap<Integer, int[]> returncodes;
+    private int min;
+    private int max;
+    private HashMap<Integer, int[]> returncodes;
 
     public OneMeasurementHistogram( String name, Map<String, String> properties )
     {
         super( name );
         buckets = Integer.parseInt( MapUtils.mapGetDefault( properties, BUCKETS, BUCKETS_DEFAULT ) );
         histogram = new int[buckets];
-        histogramoverflow = 0;
+        histogramOverflow = 0;
         operations = 0;
         totallatency = 0;
         windowoperations = 0;
@@ -65,10 +65,8 @@ public class OneMeasurementHistogram extends OneMeasurement
         returncodes = new HashMap<Integer, int[]>();
     }
 
-    /* (non-Javadoc)
-     * @see com.yahoo.ycsb.OneMeasurement#reportReturnCode(int)
-     */
-    public synchronized void reportReturnCode( int code )
+    @Override
+    public void reportReturnCode( int code )
     {
         Integer Icode = code;
         if ( !returncodes.containsKey( Icode ) )
@@ -80,14 +78,12 @@ public class OneMeasurementHistogram extends OneMeasurement
         returncodes.get( Icode )[0]++;
     }
 
-    /* (non-Javadoc)
-     * @see com.yahoo.ycsb.OneMeasurement#measure(int)
-     */
-    public synchronized void measure( int latency )
+    @Override
+    public void measure( int latency )
     {
         if ( latency / 1000 >= buckets )
         {
-            histogramoverflow++;
+            histogramOverflow++;
         }
         else
         {
@@ -144,7 +140,7 @@ public class OneMeasurementHistogram extends OneMeasurement
         {
             exporter.write( getName(), Integer.toString( i ), histogram[i] );
         }
-        exporter.write( getName(), ">" + buckets, histogramoverflow );
+        exporter.write( getName(), ">" + buckets, histogramOverflow );
     }
 
     @Override

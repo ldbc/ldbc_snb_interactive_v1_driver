@@ -2,8 +2,12 @@ package com.ldbc.driver;
 
 import java.util.concurrent.Callable;
 
+import org.apache.log4j.Logger;
+
 public abstract class OperationHandler<A extends Operation<?>> implements Callable<OperationResult>
 {
+    private static Logger logger = Logger.getLogger( OperationHandler.class );
+
     private A operation;
 
     public final void setOperation( Operation<?> operation )
@@ -19,11 +23,9 @@ public abstract class OperationHandler<A extends Operation<?>> implements Callab
         long actualEndTime = System.nanoTime();
 
         operationResult.setOperationType( operation.getClass().getName() );
-        // TODO ScheduledStartTime
-        operationResult.setScheduledStartTime( -1 );
+        operationResult.setScheduledStartTime( operation.getScheduledStartTime() );
         operationResult.setActualStartTime( actualStartTime );
-        // TODO runtime: why /1000? why int?
-        operationResult.setRunTime( ( actualEndTime - actualStartTime ) / 1000 );
+        operationResult.setRunTime( actualEndTime - actualStartTime );
 
         return operationResult;
     }

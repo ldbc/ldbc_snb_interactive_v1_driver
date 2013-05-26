@@ -27,10 +27,6 @@ import com.ldbc.driver.util.MapUtils;
 
 class SeriesUnit
 {
-    /**
-     * @param time
-     * @param average
-     */
     public SeriesUnit( long time, double average )
     {
         this.time = time;
@@ -42,7 +38,7 @@ class SeriesUnit
 }
 
 /**
- * A time series measurement of a metric, such as READ LATENCY.
+ * A time series measurement of a metric, such as READ LATENCY
  */
 public class OneMeasurementTimeSeries extends OneMeasurement
 {
@@ -51,7 +47,6 @@ public class OneMeasurementTimeSeries extends OneMeasurement
      * this granularity. Units are milliseconds.
      */
     public static final String GRANULARITY = "timeseries.granularity";
-
     public static final String GRANULARITY_DEFAULT = "1000";
 
     int granularity;

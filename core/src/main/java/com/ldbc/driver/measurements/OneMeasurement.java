@@ -25,19 +25,16 @@ import com.ldbc.driver.measurements.exporter.MeasurementsExporter;
 public abstract class OneMeasurement
 {
 
-    String _name;
+    private final String name;
+
+    public OneMeasurement( String name )
+    {
+        this.name = name;
+    }
 
     public String getName()
     {
-        return _name;
-    }
-
-    /**
-     * @param _name
-     */
-    public OneMeasurement( String _name )
-    {
-        this._name = _name;
+        return name;
     }
 
     public abstract void reportReturnCode( int code );
@@ -47,10 +44,7 @@ public abstract class OneMeasurement
     public abstract String getSummary();
 
     /**
-     * Export the current measurements to a suitable format.
-     * 
-     * @param exporter Exporter representing the type of format to write to.
-     * @throws IOException Thrown if the export failed.
+     * Export the current measurements to the specified format
      */
     public abstract void exportMeasurements( MeasurementsExporter exporter ) throws MeasurementsException;
 }

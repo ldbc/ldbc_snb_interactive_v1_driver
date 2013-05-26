@@ -138,7 +138,7 @@ public class Client
             double throughput = 1000.0 * ( (double) opcount ) / ( (double) runtime );
             exporter.write( "OVERALL", "Throughput(ops/sec)", throughput );
 
-            Measurements.getMeasurements().exportMeasurements( exporter );
+//            Measurements.getMeasurements().exportMeasurements( exporter );
         }
         finally
         {
@@ -360,7 +360,7 @@ public class Client
         warningthread.start();
 
         // set up measurements
-        Measurements.setProperties( commandlineProperties );
+//        Measurements.setProperties( commandlineProperties );
 
         // load the workload
         ClassLoader classLoader = Client.class.getClassLoader();
@@ -445,18 +445,20 @@ public class Client
             clientThreads.add( clientThread );
         }
 
-        StatusThread statusThread = null;
-
-        if ( argStatus )
-        {
-            boolean standardstatus = false;
-            if ( MapUtils.mapGetDefault( commandlineProperties, "measurementtype", "" ).equals( "timeseries" ) )
-            {
-                standardstatus = true;
-            }
-            statusThread = new StatusThread( clientThreads, argLabel, standardstatus );
-            statusThread.start();
-        }
+        // StatusThread statusThread = null;
+        //
+        // if ( argStatus )
+        // {
+        // boolean standardstatus = false;
+        // if ( MapUtils.mapGetDefault( commandlineProperties,
+        // "measurementtype", "" ).equals( "timeseries" ) )
+        // {
+        // standardstatus = true;
+        // }
+        // statusThread = new StatusThread( clientThreads, argLabel,
+        // standardstatus );
+        // statusThread.start();
+        // }
 
         long st = System.currentTimeMillis();
 
@@ -494,10 +496,10 @@ public class Client
             terminatorThread.interrupt();
         }
 
-        if ( argStatus )
-        {
-            statusThread.interrupt();
-        }
+        // if ( argStatus )
+        // {
+        // statusThread.interrupt();
+        // }
 
         try
         {

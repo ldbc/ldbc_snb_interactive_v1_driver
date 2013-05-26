@@ -121,7 +121,7 @@ public abstract class WorkloadOperation
         result += db.update( table, keyName, valuedFields );
         long en = System.nanoTime();
 
-        Measurements.getMeasurements().measure( "READ-MODIFY-WRITE", (int) ( ( en - st ) / 1000 ) );
+//        Measurements.getMeasurements().measure( "READ-MODIFY-WRITE", (int) ( ( en - st ) / 1000 ) );
 
         if ( result == 0 )
             return true;

@@ -23,6 +23,7 @@ import java.util.Vector;
 
 import com.ldbc.driver.data.ByteIterator;
 import com.ldbc.driver.measurements.Measurements;
+import com.ldbc.driver.measurements.MeasurementsException;
 
 /**
  * Wrapper around another DB instance that measures latencies and return codes
@@ -38,7 +39,8 @@ public class DBWrapper extends DB
     public DBWrapper( DB db )
     {
         this.db = db;
-        this.measurements = Measurements.getMeasurements();
+        // this.measurements = Measurements.getMeasurements();
+        this.measurements = null;
         this.isInitialized = false;
         this.isCleanedUp = false;
     }
@@ -79,7 +81,15 @@ public class DBWrapper extends DB
         long startTime = System.nanoTime();
         db.cleanup();
         long endTime = System.nanoTime();
-        measurements.measure( "CLEANUP", (int) ( ( endTime - startTime ) / 1000 ) );
+        try
+        {
+            measurements.measure( "CLEANUP", (int) ( ( endTime - startTime ) / 1000 ) );
+        }
+        catch ( MeasurementsException e )
+        {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
     }
 
     /**
@@ -97,8 +107,16 @@ public class DBWrapper extends DB
         long startTime = System.nanoTime();
         int resultCode = db.read( table, key, fields, result );
         long endTime = System.nanoTime();
-        measurements.measure( "READ", (int) ( ( endTime - startTime ) / 1000 ) );
-        measurements.reportReturnCode( "READ", resultCode );
+        try
+        {
+            measurements.measure( "READ", (int) ( ( endTime - startTime ) / 1000 ) );
+            measurements.reportReturnCode( "READ", resultCode );
+        }
+        catch ( MeasurementsException e )
+        {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
         return resultCode;
     }
 
@@ -120,8 +138,16 @@ public class DBWrapper extends DB
         long startTime = System.nanoTime();
         int resultCode = db.scan( table, startKey, recordCount, fields, result );
         long endTime = System.nanoTime();
-        measurements.measure( "SCAN", (int) ( ( endTime - startTime ) / 1000 ) );
-        measurements.reportReturnCode( "SCAN", resultCode );
+        try
+        {
+            measurements.measure( "SCAN", (int) ( ( endTime - startTime ) / 1000 ) );
+            measurements.reportReturnCode( "SCAN", resultCode );
+        }
+        catch ( MeasurementsException e )
+        {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
         return resultCode;
     }
 
@@ -140,8 +166,16 @@ public class DBWrapper extends DB
         long startTime = System.nanoTime();
         int resultCode = db.update( table, key, values );
         long endTime = System.nanoTime();
-        measurements.measure( "UPDATE", (int) ( ( endTime - startTime ) / 1000 ) );
-        measurements.reportReturnCode( "UPDATE", resultCode );
+        try
+        {
+            measurements.measure( "UPDATE", (int) ( ( endTime - startTime ) / 1000 ) );
+            measurements.reportReturnCode( "UPDATE", resultCode );
+        }
+        catch ( MeasurementsException e )
+        {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
         return resultCode;
     }
 
@@ -160,8 +194,16 @@ public class DBWrapper extends DB
         long startTime = System.nanoTime();
         int resultCode = db.insert( table, key, values );
         long endTime = System.nanoTime();
-        measurements.measure( "INSERT", (int) ( ( endTime - startTime ) / 1000 ) );
-        measurements.reportReturnCode( "INSERT", resultCode );
+        try
+        {
+            measurements.measure( "INSERT", (int) ( ( endTime - startTime ) / 1000 ) );
+            measurements.reportReturnCode( "INSERT", resultCode );
+        }
+        catch ( MeasurementsException e )
+        {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
         return resultCode;
     }
 
@@ -177,8 +219,16 @@ public class DBWrapper extends DB
         long startTime = System.nanoTime();
         int resultCode = db.delete( table, key );
         long endTime = System.nanoTime();
-        measurements.measure( "DELETE", (int) ( ( endTime - startTime ) / 1000 ) );
-        measurements.reportReturnCode( "DELETE", resultCode );
+        try
+        {
+            measurements.measure( "DELETE", (int) ( ( endTime - startTime ) / 1000 ) );
+            measurements.reportReturnCode( "DELETE", resultCode );
+        }
+        catch ( MeasurementsException e )
+        {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
         return resultCode;
     }
 

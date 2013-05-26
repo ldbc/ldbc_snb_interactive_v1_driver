@@ -12,11 +12,12 @@ class WorkloadRunner
 {
     private static Logger logger = Logger.getLogger( WorkloadRunner.class );
 
+    private final int STATUS_INTERVAL_SECONDS = 1;
+
     private final Db db;
     private final BenchmarkPhase benchmarkPhase;
     private final Workload workload;
     private final int operationCount;
-    private final double targetPerformancePerMs;
     private final GeneratorBuilder generatorBuilder;
     private final boolean showStatus;
     private final int threadCount;
@@ -25,15 +26,13 @@ class WorkloadRunner
     int operationsDone;
 
     public WorkloadRunner( Db db, BenchmarkPhase benchmarkPhase, Workload workload, int operationCount,
-            double targetPerformancePerMs, GeneratorBuilder generatorBuilder, boolean showStatus, int threadCount,
-            Measurements measurements )
+            GeneratorBuilder generatorBuilder, boolean showStatus, int threadCount, Measurements measurements )
     {
         this.db = db;
         this.benchmarkPhase = benchmarkPhase;
         this.workload = workload;
         this.operationCount = operationCount;
         this.operationsDone = 0;
-        this.targetPerformancePerMs = targetPerformancePerMs;
         this.generatorBuilder = generatorBuilder;
         this.showStatus = showStatus;
         this.threadCount = threadCount;
@@ -47,8 +46,7 @@ class WorkloadRunner
                 operationHandlerExecutor, measurements );
         operationResultLoggingThread.start();
         Generator<Operation<?>> operationGenerator = getOperationGenerator( benchmarkPhase );
-        // TODO
-        // long startTime = System.currentTimeMillis();
+        WorkloadProgressStatus workloadProgressStatus = new WorkloadProgressStatus( System.nanoTime() );
         while ( operationCount == 0 || operationsDone < operationCount )
         {
             Operation<?> operation = operationGenerator.next();
@@ -59,19 +57,12 @@ class WorkloadRunner
                 operationsDone++;
                 // TODO YCSB legacy shit, convert to Generator(Wrapper) solution
                 // doThrottleOperations( startTime );
+                // TODO pause/wait/spinner here according to scheduled delay
 
-                if ( showStatus )
+                if ( showStatus && workloadProgressStatus.secondsSinceLastUpdate() >= STATUS_INTERVAL_SECONDS )
                 {
-                    // TODO
-                    // boolean standardstatus = false;
-                    // if ( MapUtils.mapGetDefault( commandlineProperties,
-                    // "measurementtype", "" ).equals( "timeseries" ) )
-                    // {
-                    // standardstatus = true;
-                    // }
-                    // statusThread = new StatusThread( clientThreads, argLabel,
-                    // standardstatus );
-                    // statusThread.start();
+                    String statusString = workloadProgressStatus.update( operationsDone );
+                    logger.info( statusString );
                 }
             }
             catch ( Exception e )
@@ -117,25 +108,28 @@ class WorkloadRunner
     }
 
     // TODO remove/replace with more configurable (Generator-based) strategy
-    private void doThrottleOperations( long startTime )
-    {
-        /*
-         * more accurate than other strategies tried, like sleeping for (1/target)-operation_latency.
-         * this way smoothes timing inaccuracies, (sleep() takes int, current time in millis) over many operations
-         */
-        if ( targetPerformancePerMs > 0 )
-        {
-            while ( System.currentTimeMillis() - startTime < ( (double) operationsDone ) / targetPerformancePerMs )
-            {
-                try
-                {
-                    Thread.sleep( 1 );
-                }
-                catch ( InterruptedException e )
-                {
-                    // do nothing.
-                }
-            }
-        }
-    }
+    // private void doThrottleOperations( long startTime )
+    // {
+    // /*
+    // * more accurate than other strategies tried, like sleeping for
+    // (1/target)-operation_latency.
+    // * this way smoothes timing inaccuracies, (sleep() takes int, current time
+    // in millis) over many operations
+    // */
+    // if ( targetPerformancePerMs > 0 )
+    // {
+    // while ( System.currentTimeMillis() - startTime < ( (double)
+    // operationsDone ) / targetPerformancePerMs )
+    // {
+    // try
+    // {
+    // Thread.sleep( 1 );
+    // }
+    // catch ( InterruptedException e )
+    // {
+    // // do nothing.
+    // }
+    // }
+    // }
+    // }
 }
