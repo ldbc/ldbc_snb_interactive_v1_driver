@@ -20,11 +20,6 @@
 			</includes>
 		</fileSet>
 		<fileSet>
-			<directory>../bin</directory>
-			<outputDirectory>bin</outputDirectory>
-			<fileMode>0755</fileMode>
-		</fileSet>
-		<fileSet>
 			<directory>../workloads</directory>
 			<outputDirectory>workloads</outputDirectory>
 			<fileMode>0644</fileMode>
