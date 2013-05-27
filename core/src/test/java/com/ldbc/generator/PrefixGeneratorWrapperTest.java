@@ -1,25 +1,25 @@
 package com.ldbc.generator;
 
-import org.apache.commons.math3.random.RandomDataGenerator;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
 
 import com.ldbc.driver.generator.Generator;
 import com.ldbc.driver.generator.GeneratorBuilder;
-import com.ldbc.driver.generator.GeneratorBuilderFactory;
+import com.ldbc.driver.util.RandomDataGeneratorFactory;
 
 import static org.junit.Assert.assertEquals;
 
 @Ignore
 public class PrefixGeneratorWrapperTest
 {
+    private final long RANDOM_SEED = 42;
     private GeneratorBuilder generatorBuilder = null;
 
     @Before
     public final void initGeneratorFactory()
     {
-        generatorBuilder = new GeneratorBuilderFactory( new RandomDataGenerator() ).newGeneratorBuilder();
+        generatorBuilder = new GeneratorBuilder( new RandomDataGeneratorFactory( RANDOM_SEED ) );
     }
 
     @Test

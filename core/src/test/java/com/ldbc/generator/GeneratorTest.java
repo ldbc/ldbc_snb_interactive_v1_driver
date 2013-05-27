@@ -3,21 +3,20 @@ package com.ldbc.generator;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.commons.math3.random.RandomDataGenerator;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 
 import com.ldbc.driver.generator.Generator;
 import com.ldbc.driver.generator.GeneratorBuilder;
-import com.ldbc.driver.generator.GeneratorBuilderFactory;
 import com.ldbc.driver.util.Histogram;
 import com.ldbc.driver.util.NumberHelper;
+import com.ldbc.driver.util.RandomDataGeneratorFactory;
 
 import static org.junit.Assert.assertEquals;
 
 public abstract class GeneratorTest<T, C extends Number>
 {
+    private final long RANDOM_SEED = 42;
     private final int SAMPLE_SIZE = 1000000;
     private GeneratorBuilder generatorBuilder = null;
 
@@ -40,7 +39,7 @@ public abstract class GeneratorTest<T, C extends Number>
     @Before
     public final void initGeneratorFactory()
     {
-        generatorBuilder = new GeneratorBuilderFactory( new RandomDataGenerator() ).newGeneratorBuilder();
+        generatorBuilder = new GeneratorBuilder( new RandomDataGeneratorFactory( RANDOM_SEED ) );
     }
 
     @Test

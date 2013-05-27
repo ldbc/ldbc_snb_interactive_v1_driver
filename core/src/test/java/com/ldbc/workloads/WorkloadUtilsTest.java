@@ -6,7 +6,6 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
-import org.apache.commons.math3.random.RandomDataGenerator;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -20,17 +19,18 @@ import com.ldbc.driver.generator.ConstantGenerator;
 import com.ldbc.driver.generator.DynamicRangeUniformNumberGenerator;
 import com.ldbc.driver.generator.Generator;
 import com.ldbc.driver.generator.GeneratorBuilder;
-import com.ldbc.driver.generator.GeneratorBuilderFactory;
 import com.ldbc.driver.generator.ycsb.YcsbZipfianNumberGenerator;
+import com.ldbc.driver.util.RandomDataGeneratorFactory;
 
 public class WorkloadUtilsTest
 {
+    private final long RANDOM_SEED = 42;
     GeneratorBuilder generatorBuilder = null;
 
     @Before
     public void initGeneratorFactory()
     {
-        generatorBuilder = new GeneratorBuilderFactory( new RandomDataGenerator() ).newGeneratorBuilder();
+        generatorBuilder = new GeneratorBuilder( new RandomDataGeneratorFactory( RANDOM_SEED ) );
     }
 
     @Test

@@ -1,4 +1,4 @@
-package OLD_com.ldbc.workloads.ycsb;
+package com.ldbc.driver.workloads.ycsb;
 
 import java.util.ArrayList;
 import java.util.Map;

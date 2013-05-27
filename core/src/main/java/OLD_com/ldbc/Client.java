@@ -29,7 +29,6 @@ import java.util.Vector;
 import OLD_com.ldbc.workloads.Workload;
 import OLD_com.ldbc.workloads.WorkloadException;
 
-import com.ldbc.driver.generator.GeneratorBuilderFactory;
 import com.ldbc.driver.measurements.Measurements;
 import com.ldbc.driver.measurements.MeasurementsException;
 import com.ldbc.driver.measurements.exporter.MeasurementsExporter;
@@ -138,7 +137,7 @@ public class Client
             double throughput = 1000.0 * ( (double) opcount ) / ( (double) runtime );
             exporter.write( "OVERALL", "Throughput(ops/sec)", throughput );
 
-//            Measurements.getMeasurements().exportMeasurements( exporter );
+            // Measurements.getMeasurements().exportMeasurements( exporter );
         }
         finally
         {
@@ -153,7 +152,6 @@ public class Client
     {
         final long seed = System.currentTimeMillis();
         final RandomDataGeneratorFactory randomFactory = new RandomDataGeneratorFactory( seed );
-        final GeneratorBuilderFactory abstractGeneratorFactory = new GeneratorBuilderFactory( randomFactory.newRandom() );
 
         final DBFactory dbFactory = new DBFactory();
 
@@ -360,7 +358,7 @@ public class Client
         warningthread.start();
 
         // set up measurements
-//        Measurements.setProperties( commandlineProperties );
+        // Measurements.setProperties( commandlineProperties );
 
         // load the workload
         ClassLoader classLoader = Client.class.getClassLoader();
@@ -382,7 +380,7 @@ public class Client
 
         try
         {
-            workload.init( commandlineProperties, abstractGeneratorFactory.newGeneratorBuilder() );
+            workload.init( commandlineProperties, null );
         }
         catch ( WorkloadException e )
         {

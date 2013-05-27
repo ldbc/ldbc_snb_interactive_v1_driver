@@ -58,8 +58,6 @@ public class OperationHandlerExecutor
      * none are currently available, return null.
      * 
      * @return OperationResult if one available, null otherwise
-     * @throws InterruptedException
-     * @throws ExecutionException
      */
     public final OperationResult nextOperationResult() throws InterruptedException, ExecutionException
     {
@@ -77,8 +75,6 @@ public class OperationHandlerExecutor
      * running. Returns immediately with null otherwise.
      * 
      * @return OperationResult if any are pending, null otherwise
-     * @throws InterruptedException
-     * @throws ExecutionException
      */
     public final OperationResult waitForNextOperationResult() throws InterruptedException, ExecutionException
     {

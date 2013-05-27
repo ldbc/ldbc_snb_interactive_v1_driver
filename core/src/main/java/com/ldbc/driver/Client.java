@@ -187,7 +187,7 @@ public class Client
         {
             String arg = args[argIndex].substring( 1 );
 
-            // Singleton arguments
+            // Binary arguments
             if ( arg.equals( BENCHMARK_PHASE_LOAD ) )
             {
                 commandlineProperties.put( BENCHMARK_PHASE_ARG, BenchmarkPhase.LOAD_PHASE.toString() );
@@ -203,7 +203,7 @@ public class Client
                 commandlineProperties.put( SHOW_STATUS_ARG, "true" );
                 argIndex++;
             }
-            // Pair arguments
+            // Key/Value arguments
             else if ( arg.equals( DB_ARG ) )
             {
                 argIndex++;
