@@ -1,11 +1,11 @@
-package OLD_com.ldbc;
+package OLD_com.ldbc.driver;
 
 import java.util.Map;
 
 import org.apache.commons.math3.random.RandomDataGenerator;
 
-import OLD_com.ldbc.workloads.Workload;
-import OLD_com.ldbc.workloads.WorkloadException;
+import OLD_com.ldbc.driver.workloads.Workload;
+import OLD_com.ldbc.driver.workloads.WorkloadException;
 
 /**
  * Workload generating thread

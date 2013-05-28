@@ -5,6 +5,7 @@ import org.apache.log4j.Logger;
 import com.ldbc.driver.generator.Generator;
 import com.ldbc.driver.generator.GeneratorBuilder;
 import com.ldbc.driver.measurements.Measurements;
+import com.ldbc.driver.util.Time;
 import com.ldbc.driver.workloads.Workload;
 import com.ldbc.driver.workloads.WorkloadException;
 
@@ -53,11 +54,9 @@ class WorkloadRunner
             try
             {
                 OperationHandler<?> operationHandler = db.getOperationHandler( operation );
+                waitForScheduledStartTime( operation.getScheduledStartTime() );
                 operationHandlerExecutor.execute( operationHandler );
                 operationsDone++;
-                // TODO YCSB legacy shit, convert to Generator(Wrapper) solution
-                // doThrottleOperations( startTime );
-                // TODO pause/wait/spinner here according to scheduled delay
 
                 if ( showStatus && workloadProgressStatus.secondsSinceLastUpdate() >= STATUS_INTERVAL_SECONDS )
                 {
@@ -107,29 +106,12 @@ class WorkloadRunner
         return operationGenerator;
     }
 
-    // TODO remove/replace with more configurable (Generator-based) strategy
-    // private void doThrottleOperations( long startTime )
-    // {
-    // /*
-    // * more accurate than other strategies tried, like sleeping for
-    // (1/target)-operation_latency.
-    // * this way smoothes timing inaccuracies, (sleep() takes int, current time
-    // in millis) over many operations
-    // */
-    // if ( targetPerformancePerMs > 0 )
-    // {
-    // while ( System.currentTimeMillis() - startTime < ( (double)
-    // operationsDone ) / targetPerformancePerMs )
-    // {
-    // try
-    // {
-    // Thread.sleep( 1 );
-    // }
-    // catch ( InterruptedException e )
-    // {
-    // // do nothing.
-    // }
-    // }
-    // }
-    // }
+    public void waitForScheduledStartTime( long scheduledNanoTime )
+    {
+        if ( scheduledNanoTime == Operation.unassignedScheduledStartTime() ) return;
+        while ( System.nanoTime() < scheduledNanoTime )
+        {
+            // busy wait
+        }
+    }
 }

@@ -1,9 +1,11 @@
 package com.ldbc.driver.util;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.TreeMap;
 
 import com.google.common.collect.Range;
 import com.ldbc.driver.util.Bucket.NumberRangeBucket;
@@ -150,6 +152,46 @@ public class Histogram<T, C extends Number>
         return "Histogram [valuedBuckets=" + valuedBuckets + ", defaultBucketValue=" + defaultBucketValue + "]";
     }
 
+    public String toPrettyString()
+    {
+        StringBuilder sb = new StringBuilder();
+        sb.append( "Histogram\n" );
+        sb.append( "    defaultBucketValue=" + defaultBucketValue + "\n" );
+        sb.append( MapUtils.prettyPrint( copyAndSortByBucketSize( valuedBuckets ), "    " ) );
+        return sb.toString();
+    }
+
+    private Map<Bucket<T>, C> copyAndSortByBucketSize( final Map<Bucket<T>, C> map )
+    {
+        ValueComparator bvc = new ValueComparator( map );
+        TreeMap<Bucket<T>, C> sortedMap = new TreeMap<Bucket<T>, C>( bvc );
+        sortedMap.putAll( map );
+        return sortedMap;
+    }
+
+    class ValueComparator implements Comparator<Bucket<T>>
+    {
+        Map<Bucket<T>, C> base;
+
+        public ValueComparator( Map<Bucket<T>, C> base )
+        {
+            this.base = base;
+        }
+
+        @Override
+        public int compare( Bucket<T> a, Bucket<T> b )
+        {
+            if ( number.gt( base.get( a ), base.get( b ) ) )
+            {
+                return -1;
+            }
+            else
+            {
+                return 1;
+            }
+        }
+    }
+
     private Bucket<T> getBucketFor( T value )
     {
         List<Pair<Bucket<T>, T>> bucketHits = new ArrayList<Pair<Bucket<T>, T>>();
@@ -180,7 +222,6 @@ public class Histogram<T, C extends Number>
     {
         if ( false == valuedBuckets.containsKey( bucket ) )
         {
-            // TODO other Exception type should be thrown?
             throw new RuntimeException( String.format( "Bucket[%s] not found in Histogram", bucket ) );
         }
     }

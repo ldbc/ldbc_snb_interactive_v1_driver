@@ -1,4 +1,4 @@
-package OLD_com.ldbc;
+package OLD_com.ldbc.driver;
 
 import com.ldbc.driver.util.HashUtils;
 

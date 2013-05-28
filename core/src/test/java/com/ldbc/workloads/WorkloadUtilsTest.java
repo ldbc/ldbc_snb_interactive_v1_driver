@@ -10,9 +10,9 @@ import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
 
-import OLD_com.ldbc.workloads.WorkloadException;
-import OLD_com.ldbc.workloads.ycsb.Distribution;
-import OLD_com.ldbc.workloads.ycsb.WorkloadUtils;
+import OLD_com.ldbc.driver.workloads.WorkloadException;
+import OLD_com.ldbc.driver.workloads.ycsb.Distribution;
+import OLD_com.ldbc.driver.workloads.ycsb.WorkloadUtils;
 
 import com.ldbc.driver.data.ByteIterator;
 import com.ldbc.driver.generator.ConstantGenerator;

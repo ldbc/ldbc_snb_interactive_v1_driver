@@ -15,33 +15,32 @@
  * LICENSE file.                                                                                                                                                                   
  */
 
-package OLD_com.ldbc.workloads;
+package OLD_com.ldbc.driver;
 
 /**
- * The workload tried to do something bad.
+ * Something bad happened while interacting with the database.
  */
-public class WorkloadException extends Exception
+public class DBException extends Exception
 {
-    private static final long serialVersionUID = 8844396756042772132L;
+    private static final long serialVersionUID = 6646883591588721475L;
 
-    public WorkloadException( String message )
+    public DBException( String message )
     {
         super( message );
     }
 
-    public WorkloadException()
+    public DBException()
     {
         super();
     }
 
-    public WorkloadException( String message, Throwable cause )
+    public DBException( String message, Throwable cause )
     {
         super( message, cause );
     }
 
-    public WorkloadException( Throwable cause )
+    public DBException( Throwable cause )
     {
         super( cause );
     }
-
 }

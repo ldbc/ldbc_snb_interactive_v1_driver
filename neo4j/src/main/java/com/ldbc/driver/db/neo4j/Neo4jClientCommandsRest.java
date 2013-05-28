@@ -13,7 +13,7 @@ import org.neo4j.rest.graphdb.RestAPI;
 import org.neo4j.rest.graphdb.RestGraphDatabase;
 import org.neo4j.rest.graphdb.query.RestCypherQueryEngine;
 
-import OLD_com.ldbc.DBException;
+import OLD_com.ldbc.driver.DBException;
 
 import com.ldbc.driver.data.ByteIterator;
 import com.ldbc.driver.data.StringByteIterator;

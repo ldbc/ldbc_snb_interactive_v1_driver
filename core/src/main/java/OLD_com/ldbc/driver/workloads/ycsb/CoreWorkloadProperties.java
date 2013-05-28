@@ -1,4 +1,4 @@
-package com.ldbc.driver.workloads.ycsb;
+package OLD_com.ldbc.driver.workloads.ycsb;
 
 public class CoreWorkloadProperties
 {

@@ -7,8 +7,7 @@ public class StartTimeGeneratorWrapper extends Generator<Operation<?>>
     private final Generator<Long> startTimeGenerator;
     private final Generator<Operation<?>> operationGenerator;
 
-    public StartTimeGeneratorWrapper( Generator<Long> startTimeGenerator,
-            Generator<Operation<?>> operationGenerator )
+    public StartTimeGeneratorWrapper( Generator<Long> startTimeGenerator, Generator<Operation<?>> operationGenerator )
     {
         super( startTimeGenerator.getRandom() );
         this.startTimeGenerator = startTimeGenerator;

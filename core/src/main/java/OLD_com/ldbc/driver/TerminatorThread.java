@@ -14,11 +14,11 @@
  * permissions and limitations under the License. See accompanying                                                                                                                 
  * LICENSE file.
  */
-package OLD_com.ldbc;
+package OLD_com.ldbc.driver;
 
 import java.util.Vector;
 
-import OLD_com.ldbc.workloads.Workload;
+import OLD_com.ldbc.driver.workloads.Workload;
 
 /**
  * Terminates all client threads after maximum specified time has passed

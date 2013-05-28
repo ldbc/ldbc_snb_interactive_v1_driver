@@ -18,6 +18,7 @@
 package com.ldbc.driver.util;
 
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Properties;
 
 public class MapUtils
@@ -44,6 +45,21 @@ public class MapUtils
     // }
     // return new String( buf );
     // }
+
+    public static <K, V> String prettyPrint( Map<K, V> map )
+    {
+        return prettyPrint( map, "" );
+    }
+
+    public static <K, V> String prettyPrint( Map<K, V> map, String prefix )
+    {
+        StringBuilder sb = new StringBuilder();
+        for ( Entry<K, V> entry : map.entrySet() )
+        {
+            sb.append( prefix ).append( entry.getKey() ).append( " = " ).append( entry.getValue() ).append( "\n" );
+        }
+        return sb.toString();
+    }
 
     public static <K, V> V mapGetDefault( Map<K, V> map, K key, V defaultValue )
     {

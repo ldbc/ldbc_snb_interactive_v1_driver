@@ -1,13 +1,13 @@
-package com.ldbc.driver.workloads.ycsb;
+package OLD_com.ldbc.driver.workloads.ycsb;
 
 import java.util.ArrayList;
 import java.util.Map;
 import java.util.Set;
 
-import OLD_com.ldbc.Client;
-import OLD_com.ldbc.DB;
-import OLD_com.ldbc.workloads.Workload;
-import OLD_com.ldbc.workloads.WorkloadException;
+import OLD_com.ldbc.driver.Client;
+import OLD_com.ldbc.driver.DB;
+import OLD_com.ldbc.driver.workloads.Workload;
+import OLD_com.ldbc.driver.workloads.WorkloadException;
 
 import com.ldbc.driver.generator.BoundedRangeExponentialNumberGenerator;
 import com.ldbc.driver.generator.Generator;

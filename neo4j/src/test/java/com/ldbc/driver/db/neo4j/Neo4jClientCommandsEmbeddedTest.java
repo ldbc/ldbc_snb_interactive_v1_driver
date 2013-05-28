@@ -7,7 +7,7 @@ import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.neo4j.kernel.impl.util.FileUtils;
 
-import OLD_com.ldbc.DBException;
+import OLD_com.ldbc.driver.DBException;
 
 import com.ldbc.driver.db.neo4j.Neo4jClientCommands;
 import com.ldbc.driver.db.neo4j.Neo4jClientCommandsEmbedded;

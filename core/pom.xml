@@ -58,6 +58,7 @@
 			<artifactId>commons-math3</artifactId>
 			<version>${common-math-version}</version>
 		</dependency>
+
 	</dependencies>
 
 	<build>

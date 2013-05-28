@@ -13,7 +13,7 @@ import org.neo4j.graphdb.factory.GraphDatabaseFactory;
 import org.neo4j.graphdb.index.AutoIndexer;
 import org.neo4j.helpers.collection.MapUtil;
 
-import OLD_com.ldbc.DBException;
+import OLD_com.ldbc.driver.DBException;
 
 import com.ldbc.driver.data.ByteIterator;
 import com.ldbc.driver.data.StringByteIterator;

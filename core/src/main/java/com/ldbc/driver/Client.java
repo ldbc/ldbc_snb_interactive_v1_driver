@@ -21,6 +21,7 @@ import com.ldbc.driver.util.ClassLoadingException;
 import com.ldbc.driver.util.MapUtils;
 import com.ldbc.driver.util.Pair;
 import com.ldbc.driver.util.RandomDataGeneratorFactory;
+import com.ldbc.driver.util.Time;
 import com.ldbc.driver.workloads.Workload;
 import com.ldbc.driver.workloads.WorkloadException;
 
@@ -363,7 +364,7 @@ public class Client
                 generatorBuilder, showStatus, threadCount, measurements );
 
         logger.info( String.format( "Starting Benchmark (%s operations)", operationCount ) );
-        long st = System.currentTimeMillis();
+        Time startTime = Time.fromMilli( System.currentTimeMillis() );
         try
         {
             workloadRunner.run();
@@ -374,7 +375,7 @@ public class Client
             logger.error( errMsg, e );
             throw new ClientException( errMsg, e.getCause() );
         }
-        long en = System.currentTimeMillis();
+        Time endTime = Time.fromMilli( System.currentTimeMillis() );
 
         logger.info( "Cleaning up Workload..." );
         try
@@ -403,7 +404,7 @@ public class Client
         logger.info( "Exporting Measurements..." );
         try
         {
-            exportMeasurements( measurements, properties, operationCount, en - st );
+            exportMeasurements( measurements, properties, operationCount, endTime.minus( startTime ) );
         }
         catch ( MeasurementsException e )
         {
@@ -449,8 +450,8 @@ public class Client
         System.exit( 0 );
     }
 
-    private void exportMeasurements( Measurements measurements, Map<String, String> properties, int opcount,
-            long runtime ) throws MeasurementsException
+    private void exportMeasurements( Measurements measurements, Map<String, String> properties, int operationCount,
+            Time runtime ) throws MeasurementsException
     {
         MeasurementsExporter exporter = null;
         try
@@ -478,8 +479,8 @@ public class Client
                         e.getCause() );
             }
 
-            exporter.write( "OVERALL", "RunTime(ms)", runtime );
-            double throughput = 1000.0 * ( (double) opcount ) / ( (double) runtime );
+            exporter.write( "OVERALL", "RunTime(ms)", runtime.toMilli() );
+            double throughput = 1000.0 * ( (double) operationCount ) / ( (double) runtime.toMilli() );
             exporter.write( "OVERALL", "Throughput(ops/sec)", throughput );
 
             measurements.exportMeasurements( exporter );

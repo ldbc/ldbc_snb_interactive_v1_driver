@@ -13,7 +13,7 @@ import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
 
-import OLD_com.ldbc.DBException;
+import OLD_com.ldbc.driver.DBException;
 
 import com.ldbc.driver.data.ByteArrayByteIterator;
 import com.ldbc.driver.data.ByteIterator;

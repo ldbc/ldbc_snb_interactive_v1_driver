@@ -1,4 +1,4 @@
-package OLD_com.ldbc;
+package OLD_com.ldbc.driver;
 
 public class ClientException extends Exception
 {

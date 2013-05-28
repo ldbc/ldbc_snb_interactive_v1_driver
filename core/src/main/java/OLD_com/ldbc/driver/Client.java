@@ -15,7 +15,7 @@
  * LICENSE file.                                                                                                                                                                   
  */
 
-package OLD_com.ldbc;
+package OLD_com.ldbc.driver;
 
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -26,8 +26,8 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.Vector;
 
-import OLD_com.ldbc.workloads.Workload;
-import OLD_com.ldbc.workloads.WorkloadException;
+import OLD_com.ldbc.driver.workloads.Workload;
+import OLD_com.ldbc.driver.workloads.WorkloadException;
 
 import com.ldbc.driver.measurements.Measurements;
 import com.ldbc.driver.measurements.MeasurementsException;

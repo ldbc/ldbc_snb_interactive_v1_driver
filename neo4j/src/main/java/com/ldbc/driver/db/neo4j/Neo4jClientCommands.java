@@ -4,7 +4,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.Vector;
 
-import OLD_com.ldbc.DBException;
+import OLD_com.ldbc.driver.DBException;
 
 import com.ldbc.driver.data.ByteIterator;
 

@@ -13,8 +13,8 @@ import java.util.Vector;
 
 import org.apache.log4j.Logger;
 
-import OLD_com.ldbc.DB;
-import OLD_com.ldbc.DBException;
+import OLD_com.ldbc.driver.DB;
+import OLD_com.ldbc.driver.DBException;
 
 import com.ldbc.driver.data.ByteIterator;
 import com.ldbc.driver.util.MapUtils;

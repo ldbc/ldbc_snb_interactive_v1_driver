@@ -15,32 +15,36 @@
  * LICENSE file.                                                                                                                                                                   
  */
 
-package OLD_com.ldbc;
+package OLD_com.ldbc.driver;
 
 /**
- * Something bad happened while interacting with the database.
+ * Could not create the specified DB.
  */
-public class DBException extends Exception
+public class UnknownDBException extends Exception
 {
-    private static final long serialVersionUID = 6646883591588721475L;
+      /**
+	 * 
+	 */
+	private static final long serialVersionUID = 459099842269616836L;
 
-    public DBException( String message )
-    {
-        super( message );
-    }
+	public UnknownDBException(String message) 
+      {
+	 super(message);
+      }
+      
+      public UnknownDBException()
+      {
+	 super();
+      }
 
-    public DBException()
-    {
-        super();
-    }
-
-    public DBException( String message, Throwable cause )
-    {
-        super( message, cause );
-    }
-
-    public DBException( Throwable cause )
-    {
-        super( cause );
-    }
+      public UnknownDBException(String message, Throwable cause)
+      {
+	 super(message,cause);
+      }
+      
+      public UnknownDBException(Throwable cause)
+      {
+	 super(cause);
+      }
+      
 }

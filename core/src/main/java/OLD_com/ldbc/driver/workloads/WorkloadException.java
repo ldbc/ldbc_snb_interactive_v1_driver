@@ -15,36 +15,33 @@
  * LICENSE file.                                                                                                                                                                   
  */
 
-package OLD_com.ldbc;
+package OLD_com.ldbc.driver.workloads;
 
 /**
- * Could not create the specified DB.
+ * The workload tried to do something bad.
  */
-public class UnknownDBException extends Exception
+public class WorkloadException extends Exception
 {
-      /**
-	 * 
-	 */
-	private static final long serialVersionUID = 459099842269616836L;
+    private static final long serialVersionUID = 8844396756042772132L;
 
-	public UnknownDBException(String message) 
-      {
-	 super(message);
-      }
-      
-      public UnknownDBException()
-      {
-	 super();
-      }
+    public WorkloadException( String message )
+    {
+        super( message );
+    }
 
-      public UnknownDBException(String message, Throwable cause)
-      {
-	 super(message,cause);
-      }
-      
-      public UnknownDBException(Throwable cause)
-      {
-	 super(cause);
-      }
-      
+    public WorkloadException()
+    {
+        super();
+    }
+
+    public WorkloadException( String message, Throwable cause )
+    {
+        super( message, cause );
+    }
+
+    public WorkloadException( Throwable cause )
+    {
+        super( cause );
+    }
+
 }

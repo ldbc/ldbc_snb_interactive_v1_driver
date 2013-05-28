@@ -15,7 +15,7 @@
  * LICENSE file.                                                                                                                                                                   
  */
 
-package OLD_com.ldbc;
+package OLD_com.ldbc.driver;
 
 import java.util.Map;
 import java.util.Set;

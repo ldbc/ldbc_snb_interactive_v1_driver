@@ -1,5 +1,5 @@
-package com.ldbc.driver.workloads.ycsb;
 
+package OLD_com.ldbc.driver.workloads.ycsb;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -7,7 +7,7 @@ import java.util.Set;
 
 import org.apache.commons.math3.random.RandomDataGenerator;
 
-import OLD_com.ldbc.workloads.WorkloadException;
+import OLD_com.ldbc.driver.workloads.WorkloadException;
 
 import com.ldbc.driver.data.ByteIterator;
 import com.ldbc.driver.data.RandomByteIterator;
