@@ -133,6 +133,11 @@ public class Histogram<T, C extends Number>
         return defaultBucketValue;
     }
 
+    public C sumOfAllBucketValues()
+    {
+        return number.sum( valuedBuckets.values() );
+    }
+
     public Histogram<T, Double> toPercentageValues()
     {
         Map<Bucket<T>, Double> percentageValuedBuckets = new HashMap<Bucket<T>, Double>();
