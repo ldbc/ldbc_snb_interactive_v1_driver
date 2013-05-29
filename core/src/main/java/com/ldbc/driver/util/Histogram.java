@@ -3,6 +3,7 @@ package com.ldbc.driver.util;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
@@ -57,10 +58,22 @@ public class Histogram<T, C extends Number>
         this.number = NumberHelper.createNumberHelper( defaultBucketValue.getClass() );
     }
 
+    // TODO remove this or the next?
     public void importValueSequence( Iterable<T> numberSequence )
     {
         for ( T value : numberSequence )
         {
+            Bucket<T> bucket = getBucketFor( value );
+            incBucketValue( bucket, number.one() );
+        }
+    }
+
+    // TODO remove this or the next?
+    public void importValueSequence( Iterator<T> numberSequence )
+    {
+        while ( numberSequence.hasNext() )
+        {
+            T value = numberSequence.next();
             Bucket<T> bucket = getBucketFor( value );
             incBucketValue( bucket, number.one() );
         }
@@ -154,7 +167,8 @@ public class Histogram<T, C extends Number>
     @Override
     public String toString()
     {
-        return "Histogram [valuedBuckets=" + valuedBuckets + ", defaultBucketValue=" + defaultBucketValue + "]";
+        return "Histogram [sumOfAllBucketValues=" + sumOfAllBucketValues() + ", valuedBuckets=" + valuedBuckets
+               + ", defaultBucketValue=" + defaultBucketValue + "]";
     }
 
     public String toPrettyString()
@@ -162,39 +176,9 @@ public class Histogram<T, C extends Number>
         StringBuilder sb = new StringBuilder();
         sb.append( "Histogram\n" );
         sb.append( "    defaultBucketValue=" + defaultBucketValue + "\n" );
+        sb.append( "    sumOfAllBucketValues=" + sumOfAllBucketValues() + "\n" );
         sb.append( MapUtils.prettyPrint( copyAndSortByBucketSize( valuedBuckets ), "    " ) );
         return sb.toString();
-    }
-
-    private Map<Bucket<T>, C> copyAndSortByBucketSize( final Map<Bucket<T>, C> map )
-    {
-        ValueComparator bvc = new ValueComparator( map );
-        TreeMap<Bucket<T>, C> sortedMap = new TreeMap<Bucket<T>, C>( bvc );
-        sortedMap.putAll( map );
-        return sortedMap;
-    }
-
-    class ValueComparator implements Comparator<Bucket<T>>
-    {
-        Map<Bucket<T>, C> base;
-
-        public ValueComparator( Map<Bucket<T>, C> base )
-        {
-            this.base = base;
-        }
-
-        @Override
-        public int compare( Bucket<T> a, Bucket<T> b )
-        {
-            if ( number.gt( base.get( a ), base.get( b ) ) )
-            {
-                return -1;
-            }
-            else
-            {
-                return 1;
-            }
-        }
     }
 
     private Bucket<T> getBucketFor( T value )
@@ -277,4 +261,36 @@ public class Histogram<T, C extends Number>
         }
         return true;
     }
+
+    private Map<Bucket<T>, C> copyAndSortByBucketSize( final Map<Bucket<T>, C> map )
+    {
+        ValueComparator bvc = new ValueComparator( map );
+        TreeMap<Bucket<T>, C> sortedMap = new TreeMap<Bucket<T>, C>( bvc );
+        sortedMap.putAll( map );
+        return sortedMap;
+    }
+
+    class ValueComparator implements Comparator<Bucket<T>>
+    {
+        Map<Bucket<T>, C> base;
+
+        public ValueComparator( Map<Bucket<T>, C> base )
+        {
+            this.base = base;
+        }
+
+        @Override
+        public int compare( Bucket<T> a, Bucket<T> b )
+        {
+            if ( number.gt( base.get( a ), base.get( b ) ) )
+            {
+                return -1;
+            }
+            else
+            {
+                return 1;
+            }
+        }
+    }
+
 }
