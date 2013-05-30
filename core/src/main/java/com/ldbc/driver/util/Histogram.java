@@ -58,17 +58,17 @@ public class Histogram<T, C extends Number>
         this.number = NumberHelper.createNumberHelper( defaultBucketValue.getClass() );
     }
 
-    // TODO remove this or the next?
     public void importValueSequence( Iterable<T> numberSequence )
     {
-        for ( T value : numberSequence )
-        {
-            Bucket<T> bucket = getBucketFor( value );
-            incBucketValue( bucket, number.one() );
-        }
+        importValueSequence( numberSequence.iterator() );
+        // TODO remove
+        // for ( T value : numberSequence )
+        // {
+        // Bucket<T> bucket = getBucketFor( value );
+        // incBucketValue( bucket, number.one() );
+        // }
     }
 
-    // TODO remove this or the next?
     public void importValueSequence( Iterator<T> numberSequence )
     {
         while ( numberSequence.hasNext() )
