@@ -17,13 +17,53 @@
 	<properties>
 		<maven.assembly.version>2.2.1</maven.assembly.version>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+		<jackson.api.version>1.9.4</jackson.api.version>
+		<junit-version>4.10</junit-version>
+		<commons-io-version>2.4</commons-io-version>
+		<common-math-version>3.2</common-math-version>
+		<log4j-version>1.2.17</log4j-version>
 	</properties>
 
 	<modules>
 		<module>core</module>
 		<module>neo4j</module>
+		<module>ldbc_driver-dshini</module>
 		<module>distribution</module>
 	</modules>
+
+	<dependencies>
+		<dependency>
+			<groupId>junit</groupId>
+			<artifactId>junit</artifactId>
+			<scope>test</scope>
+			<version>${junit-version}</version>
+		</dependency>
+		<dependency>
+			<groupId>log4j</groupId>
+			<artifactId>log4j</artifactId>
+			<version>${log4j-version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.codehaus.jackson</groupId>
+			<artifactId>jackson-mapper-asl</artifactId>
+			<version>${jackson.api.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.codehaus.jackson</groupId>
+			<artifactId>jackson-core-asl</artifactId>
+			<version>${jackson.api.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.commons</groupId>
+			<artifactId>commons-math3</artifactId>
+			<version>${common-math-version}</version>
+		</dependency>
+		<dependency>
+			<groupId>commons-io</groupId>
+			<artifactId>commons-io</artifactId>
+			<version>${commons-io-version}</version>
+		</dependency>
+	</dependencies>
 
 	<build>
 		<plugins>

@@ -66,7 +66,10 @@ public abstract class Db
         try
         {
             // TODO reassign from object pool rather than always new instances?
-            return ClassLoaderHelper.loadOperationHandler( operationHandlerType, operation );
+            OperationHandler<?> operationHandler = ClassLoaderHelper.loadOperationHandler( operationHandlerType,
+                    operation );
+            operationHandler.setDb( this );
+            return operationHandler;
         }
         catch ( Exception e )
         {

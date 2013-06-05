@@ -9,10 +9,21 @@ public abstract class OperationHandler<A extends Operation<?>> implements Callab
     private static Logger logger = Logger.getLogger( OperationHandler.class );
 
     private A operation;
+    private Db db;
 
     public final void setOperation( Operation<?> operation )
     {
         this.operation = (A) operation;
+    }
+
+    public final void setDb( Db db )
+    {
+        this.db = db;
+    }
+
+    public final Db getDb()
+    {
+        return db;
     }
 
     @Override

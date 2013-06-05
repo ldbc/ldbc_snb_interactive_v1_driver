@@ -15,3 +15,4 @@ neo4j/load.txt
 neo4j/run.txt
 out.txt
 .gitignore~
+ldbc_driver-dshini/
