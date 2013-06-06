@@ -118,7 +118,7 @@ public class Client
         {
             String exportFilePath = properties.get( EXPORT_FILE_PATH );
             OutputStream out = ( exportFilePath == null ) ? System.out : new FileOutputStream( exportFilePath );
-            String exporterClassName = MapUtils.mapGetDefault( properties, EXPORTER,
+            String exporterClassName = MapUtils.getDefault( properties, EXPORTER,
                     TextMeasurementsExporter.class.getName() );
             try
             {
@@ -309,14 +309,14 @@ public class Client
         }
 
         // TODO change to milliseconds instead of seconds
-        long maxExecutionTime = Long.parseLong( MapUtils.mapGetDefault( commandlineProperties, MAX_EXECUTION_TIME, "0" ) );
+        long maxExecutionTime = Long.parseLong( MapUtils.getDefault( commandlineProperties, MAX_EXECUTION_TIME, "0" ) );
 
         // get number of threads, target and db
-        threadCount = Integer.parseInt( MapUtils.mapGetDefault( commandlineProperties, "threadcount", "1" ) );
+        threadCount = Integer.parseInt( MapUtils.getDefault( commandlineProperties, "threadcount", "1" ) );
 
-        dbName = MapUtils.mapGetDefault( commandlineProperties, "db", "com.yahoo.ycsb.BasicDB" );
+        dbName = MapUtils.getDefault( commandlineProperties, "db", "com.yahoo.ycsb.BasicDB" );
 
-        target = Integer.parseInt( MapUtils.mapGetDefault( commandlineProperties, "target", "0" ) );
+        target = Integer.parseInt( MapUtils.getDefault( commandlineProperties, "target", "0" ) );
 
         // compute the target throughput
         double targetPerformancePerMs = -1;
@@ -400,17 +400,17 @@ public class Client
         switch ( argBenchmarkPhase )
         {
         case TRANSACTION_PHASE:
-            operationCount = Integer.parseInt( MapUtils.mapGetDefault( commandlineProperties, OPERATION_COUNT, "0" ) );
+            operationCount = Integer.parseInt( MapUtils.getDefault( commandlineProperties, OPERATION_COUNT, "0" ) );
             break;
 
         case LOAD_PHASE:
             if ( commandlineProperties.containsKey( INSERT_COUNT ) )
             {
-                operationCount = Integer.parseInt( MapUtils.mapGetDefault( commandlineProperties, INSERT_COUNT, "0" ) );
+                operationCount = Integer.parseInt( MapUtils.getDefault( commandlineProperties, INSERT_COUNT, "0" ) );
             }
             else
             {
-                operationCount = Integer.parseInt( MapUtils.mapGetDefault( commandlineProperties, RECORD_COUNT, "0" ) );
+                operationCount = Integer.parseInt( MapUtils.getDefault( commandlineProperties, RECORD_COUNT, "0" ) );
             }
             break;
         }

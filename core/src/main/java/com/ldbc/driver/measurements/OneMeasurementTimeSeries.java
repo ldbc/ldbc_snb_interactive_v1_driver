@@ -71,7 +71,7 @@ public class OneMeasurementTimeSeries extends OneMeasurement
     public OneMeasurementTimeSeries( String name, Map<String, String> properties )
     {
         super( name );
-        granularity = Integer.parseInt( MapUtils.mapGetDefault( properties, GRANULARITY, GRANULARITY_DEFAULT ) );
+        granularity = Integer.parseInt( MapUtils.getDefault( properties, GRANULARITY, GRANULARITY_DEFAULT ) );
         measurements = new Vector<SeriesUnit>();
         returncodes = new HashMap<Integer, int[]>();
     }
@@ -159,6 +159,12 @@ public class OneMeasurementTimeSeries extends OneMeasurement
         }
         returncodes.get( Icode )[0]++;
 
+    }
+
+    @Override
+    public int getOperationCount()
+    {
+        return operations;
     }
 
     @Override

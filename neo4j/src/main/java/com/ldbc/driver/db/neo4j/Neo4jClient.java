@@ -59,13 +59,13 @@ public class Neo4jClient extends DB
         try
         {
             // Initialize Neo4j driver
-            url = MapUtils.mapGetDefault( getProperties(), "neo4j.url", "http://localhost:7474/db/data" );
-            primaryKeyProperty = MapUtils.mapGetDefault( getProperties(), "neo4j.primarykey", "primarykey" );
+            url = MapUtils.getDefault( getProperties(), "neo4j.url", "http://localhost:7474/db/data" );
+            primaryKeyProperty = MapUtils.getDefault( getProperties(), "neo4j.primarykey", "primarykey" );
             // TODO use "table" when 2.0 is released
-            table = MapUtils.mapGetDefault( getProperties(), "neo4j.table", "usertable" );
-            clear = Boolean.parseBoolean( MapUtils.mapGetDefault( getProperties(), "neo4j.clear", "false" ) );
-            path = MapUtils.mapGetDefault( getProperties(), "neo4j.path", "/tmp/db" );
-            dbtype = MapUtils.mapGetDefault( getProperties(), "neo4j.dbtype", "embedded" );
+            table = MapUtils.getDefault( getProperties(), "neo4j.table", "usertable" );
+            clear = Boolean.parseBoolean( MapUtils.getDefault( getProperties(), "neo4j.clear", "false" ) );
+            path = MapUtils.getDefault( getProperties(), "neo4j.path", "/tmp/db" );
+            dbtype = MapUtils.getDefault( getProperties(), "neo4j.dbtype", "embedded" );
 
             logger.info( "*** Neo4j Properties ***" );
             logger.info( "table = " + table );

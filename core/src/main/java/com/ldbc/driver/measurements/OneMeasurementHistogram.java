@@ -33,49 +33,49 @@ import com.ldbc.driver.util.MapUtils;
  */
 public class OneMeasurementHistogram extends OneMeasurement
 {
-    public static final String BUCKETS = "histogram.buckets";
-    public static final String BUCKETS_DEFAULT = "1000";
+    private final String BUCKETS = "histogram.buckets";
+    private final String BUCKETS_DEFAULT = "1000";
 
     private int buckets;
     private int[] histogram;
     private int histogramOverflow;
     private int operations;
-    private long totallatency;
+    private long totalLatency;
 
     // keep a windowed version of these stats for printing status
-    private int windowoperations;
-    private long windowtotallatency;
+    private int windowOperations;
+    private long windowTotalLatency;
 
     private int min;
     private int max;
-    private HashMap<Integer, int[]> returncodes;
+    private HashMap<Integer, int[]> returnCodes;
 
     public OneMeasurementHistogram( String name, Map<String, String> properties )
     {
         super( name );
-        buckets = Integer.parseInt( MapUtils.mapGetDefault( properties, BUCKETS, BUCKETS_DEFAULT ) );
+        buckets = Integer.parseInt( MapUtils.getDefault( properties, BUCKETS, BUCKETS_DEFAULT ) );
         histogram = new int[buckets];
         histogramOverflow = 0;
         operations = 0;
-        totallatency = 0;
-        windowoperations = 0;
-        windowtotallatency = 0;
+        totalLatency = 0;
+        windowOperations = 0;
+        windowTotalLatency = 0;
         min = -1;
         max = -1;
-        returncodes = new HashMap<Integer, int[]>();
+        returnCodes = new HashMap<Integer, int[]>();
     }
 
     @Override
     public void reportReturnCode( int code )
     {
         Integer Icode = code;
-        if ( !returncodes.containsKey( Icode ) )
+        if ( !returnCodes.containsKey( Icode ) )
         {
             int[] val = new int[1];
             val[0] = 0;
-            returncodes.put( Icode, val );
+            returnCodes.put( Icode, val );
         }
-        returncodes.get( Icode )[0]++;
+        returnCodes.get( Icode )[0]++;
     }
 
     @Override
@@ -90,9 +90,9 @@ public class OneMeasurementHistogram extends OneMeasurement
             histogram[latency / 1000]++;
         }
         operations++;
-        totallatency += latency;
-        windowoperations++;
-        windowtotallatency += latency;
+        totalLatency += latency;
+        windowOperations++;
+        windowTotalLatency += latency;
 
         if ( ( min < 0 ) || ( latency < min ) )
         {
@@ -109,7 +109,7 @@ public class OneMeasurementHistogram extends OneMeasurement
     public void exportMeasurements( MeasurementsExporter exporter ) throws MeasurementsException
     {
         exporter.write( getName(), "Operations", operations );
-        exporter.write( getName(), "AverageLatency(us)", ( ( (double) totallatency ) / ( (double) operations ) ) );
+        exporter.write( getName(), "AverageLatency(us)", ( ( (double) totalLatency ) / ( (double) operations ) ) );
         exporter.write( getName(), "MinLatency(us)", min );
         exporter.write( getName(), "MaxLatency(us)", max );
 
@@ -130,9 +130,9 @@ public class OneMeasurementHistogram extends OneMeasurement
             }
         }
 
-        for ( Integer I : returncodes.keySet() )
+        for ( Integer I : returnCodes.keySet() )
         {
-            int[] val = returncodes.get( I );
+            int[] val = returnCodes.get( I );
             exporter.write( getName(), "Return=" + I, val[0] );
         }
 
@@ -144,16 +144,22 @@ public class OneMeasurementHistogram extends OneMeasurement
     }
 
     @Override
+    public int getOperationCount()
+    {
+        return operations;
+    }
+
+    @Override
     public String getSummary()
     {
-        if ( windowoperations == 0 )
+        if ( windowOperations == 0 )
         {
             return "";
         }
         DecimalFormat d = new DecimalFormat( "#.##" );
-        double report = ( (double) windowtotallatency ) / ( (double) windowoperations );
-        windowtotallatency = 0;
-        windowoperations = 0;
+        double report = ( (double) windowTotalLatency ) / ( (double) windowOperations );
+        windowTotalLatency = 0;
+        windowOperations = 0;
         return "[" + getName() + " AverageLatency(us)=" + d.format( report ) + "]";
     }
 

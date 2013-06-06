@@ -61,7 +61,7 @@ public class MapUtils
         return sb.toString();
     }
 
-    public static <K, V> V mapGetDefault( Map<K, V> map, K key, V defaultValue )
+    public static <K, V> V getDefault( Map<K, V> map, K key, V defaultValue )
     {
         return ( map.containsKey( key ) ) ? map.get( key ) : defaultValue;
     }

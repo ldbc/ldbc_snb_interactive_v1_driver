@@ -1,9 +1,7 @@
-package com.ldbc.driver.workloads;
+package com.ldbc.driver;
 
 import java.util.Map;
 
-import com.ldbc.driver.Client;
-import com.ldbc.driver.Operation;
 import com.ldbc.driver.generator.Generator;
 import com.ldbc.driver.generator.GeneratorBuilder;
 import com.ldbc.driver.util.MapUtils;
@@ -26,8 +24,9 @@ public abstract class Workload
             throw new WorkloadException( "DB may be initialized only once" );
         }
         isInitialized = true;
-        recordCount = Long.parseLong( properties.get( Client.RECORD_COUNT_ARG ) );
-        insertStart = Long.parseLong( MapUtils.mapGetDefault( properties, Client.INSERT_START_ARG,
+        recordCount = Long.parseLong( MapUtils.getDefault( properties, Client.RECORD_COUNT_ARG,
+                Client.RECORD_COUNT_DEFAULT ) );
+        insertStart = Long.parseLong( MapUtils.getDefault( properties, Client.INSERT_START_ARG,
                 Client.INSERT_START_DEFAULT ) );
         onInit( properties );
     }

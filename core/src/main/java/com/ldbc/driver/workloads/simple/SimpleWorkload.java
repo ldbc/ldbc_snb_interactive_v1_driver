@@ -5,6 +5,8 @@ import java.util.Map;
 import java.util.Set;
 
 import com.ldbc.driver.Operation;
+import com.ldbc.driver.Workload;
+import com.ldbc.driver.WorkloadException;
 import com.ldbc.driver.data.ByteIterator;
 import com.ldbc.driver.generator.Generator;
 import com.ldbc.driver.generator.GeneratorBuilder;
@@ -13,8 +15,6 @@ import com.ldbc.driver.generator.MinMaxGeneratorWrapper;
 import com.ldbc.driver.generator.PrefixGeneratorWrapper;
 import com.ldbc.driver.util.Pair;
 import com.ldbc.driver.util.Triple;
-import com.ldbc.driver.workloads.Workload;
-import com.ldbc.driver.workloads.WorkloadException;
 
 public class SimpleWorkload extends Workload
 {

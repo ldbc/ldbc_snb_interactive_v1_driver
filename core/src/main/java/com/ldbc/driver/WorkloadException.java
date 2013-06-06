@@ -1,4 +1,4 @@
-package com.ldbc.driver.workloads;
+package com.ldbc.driver;
 
 public class WorkloadException extends Exception
 {

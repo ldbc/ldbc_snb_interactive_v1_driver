@@ -54,55 +54,55 @@ public class CoreWorkload extends Workload
     public void init( Map<String, String> properties, GeneratorBuilder generatorBuilder ) throws WorkloadException
     {
         super.init( properties, generatorBuilder );
-        TABLE = MapUtils.mapGetDefault( properties, CoreWorkloadProperties.TABLENAME,
+        TABLE = MapUtils.getDefault( properties, CoreWorkloadProperties.TABLENAME,
                 CoreWorkloadProperties.TABLENAME_DEFAULT );
-        int fieldCount = Integer.parseInt( MapUtils.mapGetDefault( properties, CoreWorkloadProperties.FIELD_COUNT,
+        int fieldCount = Integer.parseInt( MapUtils.getDefault( properties, CoreWorkloadProperties.FIELD_COUNT,
                 CoreWorkloadProperties.FIELD_COUNT_DEFAULT ) );
         long recordCount = Long.parseLong( properties.get( Client.RECORD_COUNT ) );
 
-        Distribution fieldLengthDistribution = Distribution.valueOf( MapUtils.mapGetDefault( properties,
+        Distribution fieldLengthDistribution = Distribution.valueOf( MapUtils.getDefault( properties,
                 CoreWorkloadProperties.FIELD_LENGTH_DISTRIBUTION,
                 CoreWorkloadProperties.FIELD_LENGTH_DISTRIBUTION_DEFAULT ).toUpperCase() );
-        int maxFieldLength = Integer.parseInt( MapUtils.mapGetDefault( properties, CoreWorkloadProperties.FIELD_LENGTH,
+        int maxFieldLength = Integer.parseInt( MapUtils.getDefault( properties, CoreWorkloadProperties.FIELD_LENGTH,
                 CoreWorkloadProperties.FIELD_LENGTH_DEFAULT ) );
         fieldValuelengthGenerator = WorkloadUtils.buildFieldLengthGenerator( generatorBuilder, fieldLengthDistribution,
                 1, maxFieldLength );
-        double readMixProportion = Double.parseDouble( MapUtils.mapGetDefault( properties,
+        double readMixProportion = Double.parseDouble( MapUtils.getDefault( properties,
                 CoreWorkloadProperties.READ_PROPORTION, CoreWorkloadProperties.READ_PROPORTION_DEFAULT ) );
-        double updateMixProportion = Double.parseDouble( MapUtils.mapGetDefault( properties,
+        double updateMixProportion = Double.parseDouble( MapUtils.getDefault( properties,
                 CoreWorkloadProperties.UPDATE_PROPORTION, CoreWorkloadProperties.UPDATE_PROPORTION_DEFAULT ) );
-        double insertMixProportion = Double.parseDouble( MapUtils.mapGetDefault( properties,
+        double insertMixProportion = Double.parseDouble( MapUtils.getDefault( properties,
                 CoreWorkloadProperties.INSERT_PROPORTION, CoreWorkloadProperties.INSERT_PROPORTION_DEFAULT ) );
-        double scanMixProportion = Double.parseDouble( MapUtils.mapGetDefault( properties,
+        double scanMixProportion = Double.parseDouble( MapUtils.getDefault( properties,
                 CoreWorkloadProperties.SCAN_PROPORTION, CoreWorkloadProperties.SCAN_PROPORTION_DEFAULT ) );
-        double readModifyWriteMixProportion = Double.parseDouble( MapUtils.mapGetDefault( properties,
+        double readModifyWriteMixProportion = Double.parseDouble( MapUtils.getDefault( properties,
                 CoreWorkloadProperties.READMODIFYWRITE_PROPORTION,
                 CoreWorkloadProperties.READMODIFYWRITE_PROPORTION_DEFAULT ) );
 
-        String requestDistribution = MapUtils.mapGetDefault( properties, CoreWorkloadProperties.REQUEST_DISTRIBUTION,
+        String requestDistribution = MapUtils.getDefault( properties, CoreWorkloadProperties.REQUEST_DISTRIBUTION,
                 CoreWorkloadProperties.REQUEST_DISTRIBUTION_DEFAULT );
 
-        int maxScanlength = Integer.parseInt( MapUtils.mapGetDefault( properties,
+        int maxScanlength = Integer.parseInt( MapUtils.getDefault( properties,
                 CoreWorkloadProperties.MAX_SCAN_LENGTH, CoreWorkloadProperties.MAX_SCAN_LENGTH_DEFAULT ) );
-        String scanLengthDistribution = MapUtils.mapGetDefault( properties,
+        String scanLengthDistribution = MapUtils.getDefault( properties,
                 CoreWorkloadProperties.SCAN_LENGTH_DISTRIBUTION,
                 CoreWorkloadProperties.SCAN_LENGTH_DISTRIBUTION_DEFAULT );
-        boolean isReadAllFields = Boolean.parseBoolean( MapUtils.mapGetDefault( properties,
+        boolean isReadAllFields = Boolean.parseBoolean( MapUtils.getDefault( properties,
                 CoreWorkloadProperties.READ_ALL_FIELDS, CoreWorkloadProperties.READ_ALL_FIELDS_DEFAULT ) );
-        boolean isWriteAllFields = Boolean.parseBoolean( MapUtils.mapGetDefault( properties,
+        boolean isWriteAllFields = Boolean.parseBoolean( MapUtils.getDefault( properties,
                 CoreWorkloadProperties.WRITE_ALL_FIELDS, CoreWorkloadProperties.WRITE_ALL_FIELDS_DEFAULT ) );
 
-        if ( MapUtils.mapGetDefault( properties, CoreWorkloadProperties.INSERT_ORDER,
+        if ( MapUtils.getDefault( properties, CoreWorkloadProperties.INSERT_ORDER,
                 CoreWorkloadProperties.INSERT_ORDER_DEFAULT ).equals( "hashed" ) )
         {
             IS_ORDERED_INSERTS = false;
         }
         else if ( requestDistribution.equals( "exponential" ) )
         {
-            double percentile = Double.parseDouble( MapUtils.mapGetDefault( properties,
+            double percentile = Double.parseDouble( MapUtils.getDefault( properties,
                     BoundedRangeExponentialNumberGenerator.EXPONENTIAL_PERCENTILE,
                     BoundedRangeExponentialNumberGenerator.EXPONENTIAL_PERCENTILE_DEFAULT ) );
-            double frac = Double.parseDouble( MapUtils.mapGetDefault( properties,
+            double frac = Double.parseDouble( MapUtils.getDefault( properties,
                     BoundedRangeExponentialNumberGenerator.EXPONENTIAL_FRAC,
                     BoundedRangeExponentialNumberGenerator.EXPONENTIAL_FRAC_DEFAULT ) );
             double range = recordCount * frac;
@@ -115,7 +115,7 @@ public class CoreWorkload extends Workload
             IS_ORDERED_INSERTS = true;
         }
 
-        long insertStart = Long.parseLong( MapUtils.mapGetDefault( properties, Workload.INSERT_START,
+        long insertStart = Long.parseLong( MapUtils.getDefault( properties, Workload.INSERT_START,
                 Workload.INSERT_START_DEFAULT ) );
         loadInsertKeyGenerator = generatorBuilder.counterGenerator( insertStart, 1l ).build();
 
@@ -156,9 +156,9 @@ public class CoreWorkload extends Workload
         }
         else if ( requestDistribution.equals( "hotspot" ) )
         {
-            double hotSetFraction = Double.parseDouble( MapUtils.mapGetDefault( properties,
+            double hotSetFraction = Double.parseDouble( MapUtils.getDefault( properties,
                     CoreWorkloadProperties.HOTSPOT_DATA_FRACTION, CoreWorkloadProperties.HOTSPOT_DATA_FRACTION_DEFAULT ) );
-            double hotOperationFraction = Double.parseDouble( MapUtils.mapGetDefault( properties,
+            double hotOperationFraction = Double.parseDouble( MapUtils.getDefault( properties,
                     CoreWorkloadProperties.HOTSPOT_OPN_FRACTION, CoreWorkloadProperties.HOTSPOT_OPN_FRACTION_DEFAULT ) );
             Generator<Long> hotspotGenerator = generatorBuilder.hotspotGenerator( 0, recordCount - 1, hotSetFraction,
                     hotOperationFraction ).build();

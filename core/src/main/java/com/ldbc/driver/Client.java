@@ -22,8 +22,6 @@ import com.ldbc.driver.util.MapUtils;
 import com.ldbc.driver.util.Pair;
 import com.ldbc.driver.util.RandomDataGeneratorFactory;
 import com.ldbc.driver.util.Time;
-import com.ldbc.driver.workloads.Workload;
-import com.ldbc.driver.workloads.WorkloadException;
 
 public class Client
 {
@@ -49,10 +47,10 @@ public class Client
     public static final String INSERT_COUNT_ARG = "insertcount";
     public static final String INSERT_COUNT_DEFAULT = "0";
     public static final String INSERT_START_ARG = "insertstart";
-    public static final String INSERT_START_DEFAULT = "0";
+    public static final String INSERT_START_DEFAULT = "-1";
     // TODO undocumented, document somehow
     public static final String RECORD_COUNT_ARG = "recordcount";
-    public static final String RECORD_COUNT_DEFAULT = "0";
+    public static final String RECORD_COUNT_DEFAULT = "-1";
 
     // --- COMPULSORY ---
     private static final String WORKLOAD_ARG = "workload";
@@ -60,7 +58,7 @@ public class Client
     private static final String DB_ARG = "db";
     private static final String DB_EXAMPLE = com.ldbc.driver.db.basic.BasicDb.class.getName();
     private static final String OPERATION_COUNT_ARG = "operationcount";
-    private static final String OPERATION_COUNT_DEFAULT = "0";
+    private static final String OPERATION_COUNT_DEFAULT = "-1";
     // --- OPTIONAL ---
     private static final String THREADS_ARG = "threads";
     private static final String THREADS_DEFAULT = Integer.toString( defaultThreadCount() );
@@ -300,19 +298,19 @@ public class Client
     {
         GeneratorBuilder generatorBuilder = new GeneratorBuilder( new RandomDataGeneratorFactory( RANDOM_SEED ) );
 
-        boolean showStatus = Boolean.parseBoolean( MapUtils.mapGetDefault( properties, SHOW_STATUS_ARG,
+        boolean showStatus = Boolean.parseBoolean( MapUtils.getDefault( properties, SHOW_STATUS_ARG,
                 SHOW_STATUS_DEFAULT ) );
         logger.info( String.format( "Show status: %s", showStatus ) );
 
-        int threadCount = Integer.parseInt( MapUtils.mapGetDefault( properties, THREADS_ARG, THREADS_DEFAULT ) );
+        int threadCount = Integer.parseInt( MapUtils.getDefault( properties, THREADS_ARG, THREADS_DEFAULT ) );
         logger.info( String.format( "Thread count: %s", threadCount ) );
 
-        BenchmarkPhase benchmarkPhase = BenchmarkPhase.valueOf( MapUtils.mapGetDefault( properties,
-                BENCHMARK_PHASE_ARG, BENCHMARK_PHASE_DEFAULT ) );
+        BenchmarkPhase benchmarkPhase = BenchmarkPhase.valueOf( MapUtils.getDefault( properties, BENCHMARK_PHASE_ARG,
+                BENCHMARK_PHASE_DEFAULT ) );
         logger.info( String.format( "Benchmark phase: %s", benchmarkPhase ) );
 
         Measurements measurements = null;
-        String oneMeasurementName = MapUtils.mapGetDefault( properties, MEASUREMENT_TYPE_ARG, MEASUREMENT_TYPE_DEFAULT );
+        String oneMeasurementName = MapUtils.getDefault( properties, MEASUREMENT_TYPE_ARG, MEASUREMENT_TYPE_DEFAULT );
         try
         {
             Class<? extends OneMeasurement> oneMeasurementType = ClassLoaderHelper.loadClass( oneMeasurementName,
@@ -345,7 +343,7 @@ public class Client
         logger.info( String.format( "Loaded Workload: %s", workload.getClass().getName() ) );
 
         Db db = null;
-        String dbName = MapUtils.mapGetDefault( properties, DB_ARG, DB_EXAMPLE );
+        String dbName = MapUtils.getDefault( properties, DB_ARG, DB_EXAMPLE );
         try
         {
             db = ClassLoaderHelper.loadDb( dbName );
@@ -421,19 +419,19 @@ public class Client
         switch ( benchmarkPhase )
         {
         case TRANSACTION_PHASE:
-            operationCount = Integer.parseInt( MapUtils.mapGetDefault( commandlineProperties, OPERATION_COUNT_ARG,
+            operationCount = Integer.parseInt( MapUtils.getDefault( commandlineProperties, OPERATION_COUNT_ARG,
                     OPERATION_COUNT_DEFAULT ) );
             break;
 
         case LOAD_PHASE:
             if ( commandlineProperties.containsKey( INSERT_COUNT_ARG ) )
             {
-                operationCount = Integer.parseInt( MapUtils.mapGetDefault( commandlineProperties, INSERT_COUNT_ARG,
+                operationCount = Integer.parseInt( MapUtils.getDefault( commandlineProperties, INSERT_COUNT_ARG,
                         INSERT_COUNT_DEFAULT ) );
             }
             else
             {
-                operationCount = Integer.parseInt( MapUtils.mapGetDefault( commandlineProperties, RECORD_COUNT_ARG,
+                operationCount = Integer.parseInt( MapUtils.getDefault( commandlineProperties, RECORD_COUNT_ARG,
                         RECORD_COUNT_DEFAULT ) );
             }
             break;
@@ -468,7 +466,7 @@ public class Client
                         e.getCause() );
             }
 
-            String exporterClassName = MapUtils.mapGetDefault( properties, EXPORTER_ARG, EXPORTER_DEFAULT );
+            String exporterClassName = MapUtils.getDefault( properties, EXPORTER_ARG, EXPORTER_DEFAULT );
             try
             {
                 exporter = ClassLoaderHelper.loadMeasurementsExporter( exporterClassName, out );
@@ -479,6 +477,7 @@ public class Client
                         e.getCause() );
             }
 
+            exporter.write( "OVERALL", "Operations(op)", measurements.getOperationCount() );
             exporter.write( "OVERALL", "RunTime(ms)", runtime.toMilli() );
             double throughput = 1000.0 * ( (double) operationCount ) / ( (double) runtime.toMilli() );
             exporter.write( "OVERALL", "Throughput(ops/sec)", throughput );

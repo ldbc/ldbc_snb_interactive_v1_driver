@@ -81,8 +81,8 @@ public class BasicDB extends DB
             throw new DBException( "DB may be initialized only once" );
         }
 
-        verbose = Boolean.parseBoolean( MapUtils.mapGetDefault( getProperties(), VERBOSE, VERBOSE_DEFAULT ) );
-        toDelay = Integer.parseInt( MapUtils.mapGetDefault( getProperties(), SIMULATE_DELAY, SIMULATE_DELAY_DEFAULT ) );
+        verbose = Boolean.parseBoolean( MapUtils.getDefault( getProperties(), VERBOSE, VERBOSE_DEFAULT ) );
+        toDelay = Integer.parseInt( MapUtils.getDefault( getProperties(), SIMULATE_DELAY, SIMULATE_DELAY_DEFAULT ) );
 
         if ( verbose )
         {

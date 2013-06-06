@@ -77,6 +77,16 @@ public class Measurements
         }
     }
 
+    public int getOperationCount()
+    {
+        int sum = 0;
+        for ( OneMeasurement m : data.values() )
+        {
+            sum = sum + m.getOperationCount();
+        }
+        return sum;
+    }
+
     /**
      * Return a one line summary of the measurements
      */

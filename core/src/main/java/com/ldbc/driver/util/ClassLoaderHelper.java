@@ -9,10 +9,10 @@ import com.ldbc.driver.DbException;
 import com.ldbc.driver.Operation;
 import com.ldbc.driver.OperationException;
 import com.ldbc.driver.OperationHandler;
+import com.ldbc.driver.Workload;
+import com.ldbc.driver.WorkloadException;
 import com.ldbc.driver.measurements.MeasurementsException;
 import com.ldbc.driver.measurements.exporter.MeasurementsExporter;
-import com.ldbc.driver.workloads.Workload;
-import com.ldbc.driver.workloads.WorkloadException;
 
 // TODO test
 public class ClassLoaderHelper

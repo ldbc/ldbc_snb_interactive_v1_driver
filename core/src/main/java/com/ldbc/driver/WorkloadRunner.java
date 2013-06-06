@@ -6,8 +6,6 @@ import com.ldbc.driver.generator.Generator;
 import com.ldbc.driver.generator.GeneratorBuilder;
 import com.ldbc.driver.measurements.Measurements;
 import com.ldbc.driver.util.Time;
-import com.ldbc.driver.workloads.Workload;
-import com.ldbc.driver.workloads.WorkloadException;
 
 class WorkloadRunner
 {
@@ -48,7 +46,7 @@ class WorkloadRunner
         operationResultLoggingThread.start();
         Generator<Operation<?>> operationGenerator = getOperationGenerator( benchmarkPhase );
         WorkloadProgressStatus workloadProgressStatus = new WorkloadProgressStatus( System.nanoTime() );
-        while ( operationCount == 0 || operationsDone < operationCount )
+        while ( ( operationCount == -1 && operationGenerator.hasNext() ) || operationsDone < operationCount )
         {
             Operation<?> operation = operationGenerator.next();
             try
