@@ -20,7 +20,7 @@ package com.ldbc.driver.generator.ycsb;
 import org.apache.commons.math3.random.RandomDataGenerator;
 
 import com.ldbc.driver.generator.Generator;
-import com.ldbc.driver.generator.MinMaxGeneratorWrapper;
+import com.ldbc.driver.generator.wrapper.MinMaxGeneratorWrapper;
 
 /**
  * Skewed distribution to favor recent items significantly more than older items

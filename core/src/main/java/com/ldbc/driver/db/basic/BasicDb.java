@@ -5,6 +5,7 @@ import java.util.Set;
 import java.util.Vector;
 
 import com.ldbc.driver.Db;
+import com.ldbc.driver.DbConnectionState;
 import com.ldbc.driver.DbException;
 import com.ldbc.driver.OperationHandler;
 import com.ldbc.driver.OperationResult;
@@ -139,6 +140,13 @@ public class BasicDb extends Db
 
             return operation.buildResult( resultCode, result );
         }
+    }
+
+    @Override
+    protected DbConnectionState getConnectionState() throws DbException
+    {
+        // TODO Auto-generated method stub
+        return null;
     }
 
 }

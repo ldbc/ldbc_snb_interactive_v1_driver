@@ -11,8 +11,8 @@ import com.ldbc.driver.data.ByteIterator;
 import com.ldbc.driver.generator.Generator;
 import com.ldbc.driver.generator.GeneratorBuilder;
 import com.ldbc.driver.generator.GeneratorException;
-import com.ldbc.driver.generator.MinMaxGeneratorWrapper;
-import com.ldbc.driver.generator.PrefixGeneratorWrapper;
+import com.ldbc.driver.generator.wrapper.MinMaxGeneratorWrapper;
+import com.ldbc.driver.generator.wrapper.PrefixGeneratorWrapper;
 import com.ldbc.driver.util.Pair;
 import com.ldbc.driver.util.Triple;
 

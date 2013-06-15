@@ -2,7 +2,7 @@ package com.ldbc.driver.generator;
 
 import com.google.common.collect.Range;
 import com.ldbc.driver.generator.Generator;
-import com.ldbc.driver.generator.MinMaxGeneratorWrapper;
+import com.ldbc.driver.generator.wrapper.MinMaxGeneratorWrapper;
 import com.ldbc.driver.util.Histogram;
 import com.ldbc.driver.util.Bucket.NumberRangeBucket;
 

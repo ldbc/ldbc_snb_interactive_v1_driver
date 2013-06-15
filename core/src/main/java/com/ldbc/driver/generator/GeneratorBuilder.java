@@ -4,6 +4,8 @@ import java.util.ArrayList;
 
 import org.apache.commons.math3.random.RandomDataGenerator;
 
+import com.ldbc.driver.generator.wrapper.MinMaxGeneratorWrapper;
+import com.ldbc.driver.generator.wrapper.PrefixGeneratorWrapper;
 import com.ldbc.driver.generator.ycsb.YcsbDynamicRangeHotspotGenerator;
 import com.ldbc.driver.generator.ycsb.YcsbScrambledZipfianGenerator;
 import com.ldbc.driver.generator.ycsb.YcsbSkewedLatestGenerator;

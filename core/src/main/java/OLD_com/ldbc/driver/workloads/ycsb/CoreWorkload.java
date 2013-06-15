@@ -12,7 +12,7 @@ import OLD_com.ldbc.driver.workloads.WorkloadException;
 import com.ldbc.driver.generator.BoundedRangeExponentialNumberGenerator;
 import com.ldbc.driver.generator.Generator;
 import com.ldbc.driver.generator.GeneratorBuilder;
-import com.ldbc.driver.generator.MinMaxGeneratorWrapper;
+import com.ldbc.driver.generator.wrapper.MinMaxGeneratorWrapper;
 import com.ldbc.driver.util.MapUtils;
 import com.ldbc.driver.util.Pair;
 

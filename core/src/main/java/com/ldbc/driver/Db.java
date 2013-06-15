@@ -68,7 +68,7 @@ public abstract class Db
             // TODO reassign from object pool rather than always new instances?
             OperationHandler<?> operationHandler = ClassLoaderHelper.loadOperationHandler( operationHandlerType,
                     operation );
-            operationHandler.setDb( this );
+            operationHandler.setDbConnectionState( getConnectionState() );
             return operationHandler;
         }
         catch ( Exception e )
@@ -76,4 +76,11 @@ public abstract class Db
             throw new DbException( String.format( "Unable to instantiate handler %s", operationHandlerType ) );
         }
     }
+
+    /**
+     * Should return any state related to the database connection that can be
+     * reused by all operation handlers
+     */
+    protected abstract DbConnectionState getConnectionState() throws DbException;
+
 }

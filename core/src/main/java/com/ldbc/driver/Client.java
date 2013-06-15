@@ -215,6 +215,18 @@ public class Client
                 commandlineProperties.put( DB_ARG, argDb );
                 argIndex++;
             }
+            else if ( arg.equals( THREADS_ARG ) )
+            {
+                argIndex++;
+                if ( argIndex >= args.length )
+                {
+                    logger.info( usageMessage() );
+                    // TODO exit here?
+                }
+                String argDb = args[argIndex];
+                commandlineProperties.put( THREADS_ARG, argDb );
+                argIndex++;
+            }
             else if ( arg.equals( PROPERTY_FILE_ARG ) )
             {
                 argIndex++;

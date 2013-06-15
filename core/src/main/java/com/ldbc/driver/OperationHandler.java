@@ -9,21 +9,21 @@ public abstract class OperationHandler<A extends Operation<?>> implements Callab
     private static Logger logger = Logger.getLogger( OperationHandler.class );
 
     private A operation;
-    private Db db;
+    private DbConnectionState dbConnectionState;
 
     public final void setOperation( Operation<?> operation )
     {
         this.operation = (A) operation;
     }
 
-    public final void setDb( Db db )
+    public final void setDbConnectionState( DbConnectionState dbConnectionState )
     {
-        this.db = db;
+        this.dbConnectionState = dbConnectionState;
     }
 
-    public final Db getDb()
+    public final DbConnectionState getDbConnectionState()
     {
-        return db;
+        return dbConnectionState;
     }
 
     @Override
@@ -34,14 +34,14 @@ public abstract class OperationHandler<A extends Operation<?>> implements Callab
         long actualEndTime = System.nanoTime();
 
         operationResult.setOperationType( operation.getClass().getName() );
-        operationResult.setScheduledStartTime( operation.getScheduledStartTime() );
+        operationResult.setScheduledStartTime( operation.getScheduledStartTimeNanoSeconds() );
         operationResult.setActualStartTime( actualStartTime );
         operationResult.setRunTime( actualEndTime - actualStartTime );
 
         return operationResult;
     }
 
-    protected abstract OperationResult executeOperation( A operation );
+    protected abstract OperationResult executeOperation( A operation ) throws DbException;
 
     @Override
     public String toString()

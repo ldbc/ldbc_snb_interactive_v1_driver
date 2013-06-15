@@ -10,6 +10,7 @@ public abstract class Generator<T> implements Iterator<T>
 {
     private T next = null;
     private final RandomDataGenerator random;
+    private final Logger logger = Logger.getLogger( getClass() );
 
     protected Generator( RandomDataGenerator random )
     {
@@ -54,6 +55,6 @@ public abstract class Generator<T> implements Iterator<T>
 
     protected final Logger getLogger()
     {
-        return Logger.getLogger( this.getClass() );
+        return logger;
     }
 }

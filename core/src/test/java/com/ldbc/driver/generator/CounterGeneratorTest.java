@@ -3,10 +3,13 @@ package com.ldbc.driver.generator;
 import java.util.List;
 
 import org.junit.Ignore;
+import org.junit.Test;
 
 import com.ldbc.driver.generator.Generator;
 import com.ldbc.driver.util.Bucket;
 import com.ldbc.driver.util.Histogram;
+
+import static org.junit.Assert.assertEquals;
 
 public class CounterGeneratorTest extends NumberGeneratorTest<Long, Long>
 {
@@ -47,6 +50,21 @@ public class CounterGeneratorTest extends NumberGeneratorTest<Long, Long>
     public double getExpectedMean()
     {
         return ( getSampleSize() - 1 ) / 2.0;
+    }
+
+    @Test
+    public void firstNumberShouldEqualStartTest()
+    {
+        // Given
+        Generator<Long> generator = getGeneratorBuilder().counterGenerator( start, 1l ).build();
+
+        // When
+        long firstNumber = generator.next();
+        long secondNumber = generator.next();
+
+        // Then
+        assertEquals( start, firstNumber );
+        assertEquals( start + 1, secondNumber );
     }
 
 }

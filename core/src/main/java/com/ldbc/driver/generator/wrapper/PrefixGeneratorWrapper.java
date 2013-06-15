@@ -1,4 +1,7 @@
-package com.ldbc.driver.generator;
+package com.ldbc.driver.generator.wrapper;
+
+import com.ldbc.driver.generator.Generator;
+import com.ldbc.driver.generator.GeneratorException;
 
 public class PrefixGeneratorWrapper extends Generator<String>
 {
@@ -15,6 +18,7 @@ public class PrefixGeneratorWrapper extends Generator<String>
     @Override
     protected String doNext() throws GeneratorException
     {
-        return prefix + generator.doNext().toString();
+        if ( false == generator.hasNext() ) return null;
+        return prefix + generator.next().toString();
     }
 }

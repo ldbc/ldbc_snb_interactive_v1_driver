@@ -20,7 +20,7 @@ import org.apache.commons.math3.random.RandomDataGenerator;
 
 import com.ldbc.driver.generator.Generator;
 import com.ldbc.driver.generator.GeneratorException;
-import com.ldbc.driver.generator.MinMaxGeneratorWrapper;
+import com.ldbc.driver.generator.wrapper.MinMaxGeneratorWrapper;
 
 /**
  * Generate integrals resembling hot-spot distribution where x% of operations

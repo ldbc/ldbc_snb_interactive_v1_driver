@@ -1,5 +1,7 @@
-package com.ldbc.driver.generator;
+package com.ldbc.driver.generator.wrapper;
 
+import com.ldbc.driver.generator.Generator;
+import com.ldbc.driver.generator.GeneratorException;
 
 public class MinMaxGeneratorWrapper<T extends Number> extends Generator<T>
 {
@@ -9,7 +11,7 @@ public class MinMaxGeneratorWrapper<T extends Number> extends Generator<T>
 
     public MinMaxGeneratorWrapper( Generator<T> generator, T initialMin, T initialMax )
     {
-        super( generator.getRandom() );
+        super( null );
         this.min = initialMin;
         this.max = initialMax;
         this.generator = generator;
@@ -18,10 +20,12 @@ public class MinMaxGeneratorWrapper<T extends Number> extends Generator<T>
     @Override
     protected T doNext() throws GeneratorException
     {
-        T next = generator.doNext();
+        if ( false == generator.hasNext() ) return null;
+        T next = generator.next();
         min = ( next.doubleValue() < min.doubleValue() ) ? next : min;
         max = ( next.doubleValue() > max.doubleValue() ) ? next : max;
         return next;
+
     }
 
     public final T getMin()

@@ -2,6 +2,7 @@ package com.ldbc.driver.generator;
 
 import org.apache.commons.math3.random.RandomDataGenerator;
 
+import com.ldbc.driver.generator.wrapper.MinMaxGeneratorWrapper;
 import com.ldbc.driver.util.NumberHelper;
 
 public class DynamicRangeUniformNumberGenerator<T extends Number> extends Generator<T>

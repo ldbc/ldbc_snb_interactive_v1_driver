@@ -9,6 +9,7 @@ import java.util.Map;
 import java.util.TreeMap;
 
 import com.google.common.collect.Range;
+import com.ldbc.driver.util.Bucket.DiscreteBucket;
 import com.ldbc.driver.util.Bucket.NumberRangeBucket;
 
 // T - Things - type of things being counted
@@ -61,12 +62,6 @@ public class Histogram<T, C extends Number>
     public void importValueSequence( Iterable<T> numberSequence )
     {
         importValueSequence( numberSequence.iterator() );
-        // TODO remove
-        // for ( T value : numberSequence )
-        // {
-        // Bucket<T> bucket = getBucketFor( value );
-        // incBucketValue( bucket, number.one() );
-        // }
     }
 
     public void importValueSequence( Iterator<T> numberSequence )
@@ -74,7 +69,7 @@ public class Histogram<T, C extends Number>
         while ( numberSequence.hasNext() )
         {
             T value = numberSequence.next();
-            Bucket<T> bucket = getBucketFor( value );
+            Bucket<T> bucket = getExactlyOneBucketFor( value );
             incBucketValue( bucket, number.one() );
         }
     }
@@ -130,6 +125,25 @@ public class Histogram<T, C extends Number>
     public C incBucketValue( Bucket<T> bucket, C amount )
     {
         assertBucketExists( bucket );
+        return incBucketValue( bucket, amount );
+    }
+
+    // Returns new bucket value
+    public C incOrCreateBucket( Bucket<T> bucket, C amount )
+    {
+        if ( valuedBuckets.containsKey( bucket ) )
+        {
+            return incBucketValueWithoutAssert( bucket, amount );
+        }
+        else
+        {
+            addBucket( bucket, amount );
+            return amount;
+        }
+    }
+
+    private C incBucketValueWithoutAssert( Bucket<T> bucket, C amount )
+    {
         C bucketValue = valuedBuckets.get( bucket );
         bucketValue = number.sum( bucketValue, amount );
         valuedBuckets.put( bucket, bucketValue );
@@ -176,12 +190,13 @@ public class Histogram<T, C extends Number>
         StringBuilder sb = new StringBuilder();
         sb.append( "Histogram\n" );
         sb.append( "    defaultBucketValue=" + defaultBucketValue + "\n" );
+        sb.append( "    bucketCount=" + getBucketCount() + "\n" );
         sb.append( "    sumOfAllBucketValues=" + sumOfAllBucketValues() + "\n" );
         sb.append( MapUtils.prettyPrint( copyAndSortByBucketSize( valuedBuckets ), "    " ) );
         return sb.toString();
     }
 
-    private Bucket<T> getBucketFor( T value )
+    private Bucket<T> getExactlyOneBucketFor( T value )
     {
         List<Pair<Bucket<T>, T>> bucketHits = new ArrayList<Pair<Bucket<T>, T>>();
         for ( Bucket<T> bucket : valuedBuckets.keySet() )
@@ -285,6 +300,10 @@ public class Histogram<T, C extends Number>
             if ( number.gt( base.get( a ), base.get( b ) ) )
             {
                 return -1;
+            }
+            else if ( base.get( a ).equals( base.get( b ) ) )
+            {
+                return 0;
             }
             else
             {

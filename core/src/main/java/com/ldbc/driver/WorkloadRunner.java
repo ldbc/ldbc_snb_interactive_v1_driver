@@ -5,7 +5,6 @@ import org.apache.log4j.Logger;
 import com.ldbc.driver.generator.Generator;
 import com.ldbc.driver.generator.GeneratorBuilder;
 import com.ldbc.driver.measurements.Measurements;
-import com.ldbc.driver.util.Time;
 
 class WorkloadRunner
 {
@@ -52,7 +51,7 @@ class WorkloadRunner
             try
             {
                 OperationHandler<?> operationHandler = db.getOperationHandler( operation );
-                waitForScheduledStartTime( operation.getScheduledStartTime() );
+                waitForScheduledStartTime( operation.getScheduledStartTimeNanoSeconds() );
                 operationHandlerExecutor.execute( operationHandler );
                 operationsDone++;
 
@@ -106,7 +105,7 @@ class WorkloadRunner
 
     public void waitForScheduledStartTime( long scheduledNanoTime )
     {
-        if ( scheduledNanoTime == Operation.unassignedScheduledStartTime() ) return;
+        if ( scheduledNanoTime == Operation.UNASSIGNED_SCHEDULED_START_TIME ) return;
         while ( System.nanoTime() < scheduledNanoTime )
         {
             // busy wait

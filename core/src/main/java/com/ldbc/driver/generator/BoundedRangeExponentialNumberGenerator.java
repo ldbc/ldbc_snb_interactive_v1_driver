@@ -2,6 +2,8 @@ package com.ldbc.driver.generator;
 
 import org.apache.commons.math3.random.RandomDataGenerator;
 
+import com.ldbc.driver.generator.wrapper.MinMaxGeneratorWrapper;
+
 
 /**
  * Produces a sequence of longs according to an exponential distribution.
