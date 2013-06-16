@@ -125,7 +125,7 @@ public class Histogram<T, C extends Number>
     public C incBucketValue( Bucket<T> bucket, C amount )
     {
         assertBucketExists( bucket );
-        return incBucketValue( bucket, amount );
+        return incBucketValueWithoutAssert( bucket, amount );
     }
 
     // Returns new bucket value
@@ -187,13 +187,18 @@ public class Histogram<T, C extends Number>
 
     public String toPrettyString()
     {
-        StringBuilder sb = new StringBuilder();
-        sb.append( "Histogram\n" );
-        sb.append( "    defaultBucketValue=" + defaultBucketValue + "\n" );
-        sb.append( "    bucketCount=" + getBucketCount() + "\n" );
-        sb.append( "    sumOfAllBucketValues=" + sumOfAllBucketValues() + "\n" );
-        sb.append( MapUtils.prettyPrint( copyAndSortByBucketSize( valuedBuckets ), "    " ) );
-        return sb.toString();
+        return toPrettyString( "" );
+    }
+
+    public String toPrettyString( String prefix )
+    {
+        StringBuilder prettyStringBuilder = new StringBuilder();
+        prettyStringBuilder.append( prefix + "Histogram\n" );
+        prettyStringBuilder.append( prefix + "\tdefaultBucketValue=" + defaultBucketValue + "\n" );
+        prettyStringBuilder.append( prefix + "\tbucketCount=" + getBucketCount() + "\n" );
+        prettyStringBuilder.append( prefix + "\tsumOfAllBucketValues=" + sumOfAllBucketValues() + "\n" );
+        prettyStringBuilder.append( MapUtils.prettyPrint( copyAndSortByBucketSize( valuedBuckets ), prefix + "\t" ) );
+        return prettyStringBuilder.toString();
     }
 
     private Bucket<T> getExactlyOneBucketFor( T value )
@@ -279,8 +284,8 @@ public class Histogram<T, C extends Number>
 
     private Map<Bucket<T>, C> copyAndSortByBucketSize( final Map<Bucket<T>, C> map )
     {
-        ValueComparator bvc = new ValueComparator( map );
-        TreeMap<Bucket<T>, C> sortedMap = new TreeMap<Bucket<T>, C>( bvc );
+        ValueComparator valueComparator = new ValueComparator( map );
+        TreeMap<Bucket<T>, C> sortedMap = new TreeMap<Bucket<T>, C>( valueComparator );
         sortedMap.putAll( map );
         return sortedMap;
     }
@@ -300,10 +305,6 @@ public class Histogram<T, C extends Number>
             if ( number.gt( base.get( a ), base.get( b ) ) )
             {
                 return -1;
-            }
-            else if ( base.get( a ).equals( base.get( b ) ) )
-            {
-                return 0;
             }
             else
             {

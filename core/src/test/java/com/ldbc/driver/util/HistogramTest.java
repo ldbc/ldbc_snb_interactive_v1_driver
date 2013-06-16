@@ -56,7 +56,7 @@ public class HistogramTest
         histogram.addBucket( bucket3 ); // 0
         histogram.addBucket( bucket4 ); // 1
 
-        Integer[] sequenceArray = new Integer[] { 0, 1, 1, 2, 3, 8 };
+        Integer[] sequenceArray = new Integer[] { 0, 1, 1, 2, 2, 3, 8 };
         List<Integer> sequence = Arrays.asList( sequenceArray );
 
         assertEquals( 0, (int) histogram.getBucketValue( bucket1 ) );
@@ -69,7 +69,7 @@ public class HistogramTest
 
         // Then
         assertEquals( 3, (int) histogram.getBucketValue( bucket1 ) );
-        assertEquals( 2, (int) histogram.getBucketValue( bucket2 ) );
+        assertEquals( 3, (int) histogram.getBucketValue( bucket2 ) );
         assertEquals( 0, (int) histogram.getBucketValue( bucket3 ) );
         assertEquals( 1, (int) histogram.getBucketValue( bucket4 ) );
 
