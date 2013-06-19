@@ -22,6 +22,7 @@
 		<commons-io-version>2.4</commons-io-version>
 		<common-math-version>3.2</common-math-version>
 		<log4j-version>1.2.17</log4j-version>
+		<hdrhistogram-version>1.0-SNAPSHOT</hdrhistogram-version>
 	</properties>
 
 	<modules>
@@ -32,6 +33,11 @@
 	</modules>
 
 	<dependencies>
+		<dependency>
+			<groupId>org.hdrhistogram</groupId>
+			<artifactId>hdrhistogram</artifactId>
+			<version>${hdrhistogram-version}</version>
+		</dependency>
 		<dependency>
 			<groupId>junit</groupId>
 			<artifactId>junit</artifactId>
@@ -64,6 +70,19 @@
 			<version>${commons-io-version}</version>
 		</dependency>
 	</dependencies>
+
+	<!-- TO UPDATE IN-PROJECT REPOSITORY -->
+	<!-- mvn install:install-file -DlocalRepositoryPath=lib -DcreateChecksum=true 
+		-Dpackaging=jar -Dfile=path/to/hdrhistogram-1.0-SNAPSHOT.jar -DgroupId=org.hdrhistogram 
+		-DartifactId=hdrhistogram -Dversion=1.0-SNAPSHOT -->
+	<!-- http://blog.dub.podval.org/2010/01/maven-in-project-repository.html, 
+		http://stackoverflow.com/questions/364114/can-i-add-jars-to-maven-2-build-classpath-without-installing-them -->
+	<repositories>
+		<repository>
+			<id>in-project-repository</id>
+			<url>file://${project.basedir}/lib</url>
+		</repository>
+	</repositories>
 
 	<build>
 		<plugins>
