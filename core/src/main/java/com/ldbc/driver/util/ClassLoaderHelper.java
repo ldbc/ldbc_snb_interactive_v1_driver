@@ -11,8 +11,8 @@ import com.ldbc.driver.OperationException;
 import com.ldbc.driver.OperationHandler;
 import com.ldbc.driver.Workload;
 import com.ldbc.driver.WorkloadException;
-import com.ldbc.driver.measurements.MeasurementsException;
-import com.ldbc.driver.measurements.exporter.MeasurementsExporter;
+import com.ldbc.driver.measurements_OLD.MeasurementsException;
+import com.ldbc.driver.measurements_OLD.exporter_OLD.MeasurementsExporter;
 
 // TODO test
 public class ClassLoaderHelper

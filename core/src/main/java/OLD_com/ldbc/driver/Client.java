@@ -29,10 +29,10 @@ import java.util.Vector;
 import OLD_com.ldbc.driver.workloads.Workload;
 import OLD_com.ldbc.driver.workloads.WorkloadException;
 
-import com.ldbc.driver.measurements.Measurements;
-import com.ldbc.driver.measurements.MeasurementsException;
-import com.ldbc.driver.measurements.exporter.MeasurementsExporter;
-import com.ldbc.driver.measurements.exporter.TextMeasurementsExporter;
+import com.ldbc.driver.measurements_OLD.Measurements;
+import com.ldbc.driver.measurements_OLD.MeasurementsException;
+import com.ldbc.driver.measurements_OLD.exporter_OLD.MeasurementsExporter;
+import com.ldbc.driver.measurements_OLD.exporter_OLD.TextMeasurementsExporter;
 import com.ldbc.driver.util.MapUtils;
 import com.ldbc.driver.util.RandomDataGeneratorFactory;
 

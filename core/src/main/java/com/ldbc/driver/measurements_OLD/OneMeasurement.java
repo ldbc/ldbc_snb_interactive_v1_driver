@@ -15,9 +15,9 @@
  * LICENSE file.                                                                                                                                                                   
  */
 
-package com.ldbc.driver.measurements;
+package com.ldbc.driver.measurements_OLD;
 
-import com.ldbc.driver.measurements.exporter.MeasurementsExporter;
+import com.ldbc.driver.measurements_OLD.exporter_OLD.MeasurementsExporter;
 
 /**
  * A single measured metric (such as READ LATENCY)

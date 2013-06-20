@@ -12,10 +12,10 @@ import java.util.Properties;
 import org.apache.log4j.Logger;
 
 import com.ldbc.driver.generator.GeneratorBuilder;
-import com.ldbc.driver.measurements.Measurements;
-import com.ldbc.driver.measurements.MeasurementsException;
-import com.ldbc.driver.measurements.OneMeasurement;
-import com.ldbc.driver.measurements.exporter.MeasurementsExporter;
+import com.ldbc.driver.measurements_OLD.Measurements;
+import com.ldbc.driver.measurements_OLD.MeasurementsException;
+import com.ldbc.driver.measurements_OLD.OneMeasurement;
+import com.ldbc.driver.measurements_OLD.exporter_OLD.MeasurementsExporter;
 import com.ldbc.driver.util.ClassLoaderHelper;
 import com.ldbc.driver.util.ClassLoadingException;
 import com.ldbc.driver.util.MapUtils;
@@ -72,11 +72,11 @@ public class Client
     private static final String PROPERTY_ARG = "p";
     // TODO undocumented, document somehow
     private static final String EXPORTER_ARG = "exporter";
-    private static final String EXPORTER_DEFAULT = com.ldbc.driver.measurements.exporter.TextMeasurementsExporter.class.getName();
+    private static final String EXPORTER_DEFAULT = com.ldbc.driver.measurements_OLD.exporter_OLD.TextMeasurementsExporter.class.getName();
     // TODO undocumented, document somehow
     private static final String EXPORT_FILE_PATH_ARG = "exportfile";
     private static final String MEASUREMENT_TYPE_ARG = "measurementtype";
-    private static final String MEASUREMENT_TYPE_DEFAULT = com.ldbc.driver.measurements.OneMeasurementHistogram.class.getName();
+    private static final String MEASUREMENT_TYPE_DEFAULT = com.ldbc.driver.measurements_OLD.OneMeasurementHistogram.class.getName();
 
     private static final String[] REQUIRED_PROPERTIES = new String[] { DB_ARG, WORKLOAD_ARG, OPERATION_COUNT_ARG };
 

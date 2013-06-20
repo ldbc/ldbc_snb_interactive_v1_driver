@@ -14,78 +14,37 @@
  * permissions and limitations under the License. See accompanying                                                                                                                 
  * LICENSE file.                                                                                                                                                                   
  */
-package com.ldbc.driver.measurements.exporter;
+package com.ldbc.driver.measurements_OLD.exporter_OLD;
 
-import java.io.BufferedWriter;
+import java.io.Closeable;
 import java.io.IOException;
-import java.io.OutputStream;
-import java.io.OutputStreamWriter;
 
-import org.codehaus.jackson.JsonFactory;
-import org.codehaus.jackson.JsonGenerator;
-import org.codehaus.jackson.util.DefaultPrettyPrinter;
-
-import com.ldbc.driver.measurements.MeasurementsException;
+import com.ldbc.driver.measurements_OLD.MeasurementsException;
 
 /**
- * Export measurements into a machine readable JSON file.
+ * Used to export the collected measurements into a useful format, for example
+ * human readable text or machine readable JSON.
  */
-public class JSONMeasurementsExporter implements MeasurementsExporter
+public interface MeasurementsExporter extends Closeable
 {
 
-    private JsonFactory factory = new JsonFactory();
-    private JsonGenerator g;
+    /**
+     * Write a measurement to the exported format.
+     * 
+     * @param metric Metric name, for example "READ LATENCY".
+     * @param measurement Measurement name, for example "Average latency".
+     * @param i Measurement to write.
+     * @throws IOException if writing failed
+     */
+    public void write( String metric, String measurement, int i ) throws MeasurementsException;
 
-    public JSONMeasurementsExporter( OutputStream os ) throws IOException
-    {
-
-        BufferedWriter bw = new BufferedWriter( new OutputStreamWriter( os ) );
-        g = factory.createJsonGenerator( bw );
-        g.setPrettyPrinter( new DefaultPrettyPrinter() );
-    }
-
-    public void write( String metric, String measurement, int i ) throws MeasurementsException
-    {
-        try
-        {
-            g.writeStartObject();
-            g.writeStringField( "metric", metric );
-            g.writeStringField( "measurement", measurement );
-            g.writeNumberField( "value", i );
-            g.writeEndObject();
-        }
-        catch ( Exception e )
-        {
-            String errMsg = String.format( "Error writing measurement - metric[%s], measurement[%s], i[%s]", metric,
-                    measurement, i );
-            throw new MeasurementsException( errMsg, e.getCause() );
-        }
-    }
-
-    public void write( String metric, String measurement, double d ) throws MeasurementsException
-    {
-        try
-        {
-            g.writeStartObject();
-            g.writeStringField( "metric", metric );
-            g.writeStringField( "measurement", measurement );
-            g.writeNumberField( "value", d );
-            g.writeEndObject();
-        }
-        catch ( Exception e )
-        {
-            String errMsg = String.format( "Error writing measurement - metric[%s], measurement[%s], d[%s]", metric,
-                    measurement, d );
-            throw new MeasurementsException( errMsg, e.getCause() );
-        }
-    }
-
-    public void close() throws IOException
-    {
-        if ( g != null )
-        {
-            g.close();
-        }
-    }
-
+    /**
+     * Write a measurement to the exported format.
+     * 
+     * @param metric Metric name, for example "READ LATENCY".
+     * @param measurement Measurement name, for example "Average latency".
+     * @param d Measurement to write.
+     * @throws IOException if writing failed
+     */
+    public void write( String metric, String measurement, double d ) throws MeasurementsException;
 }

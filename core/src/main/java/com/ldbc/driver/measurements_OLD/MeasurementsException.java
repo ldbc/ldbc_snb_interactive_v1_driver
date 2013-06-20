@@ -1,4 +1,4 @@
-package com.ldbc.driver.measurements;
+package com.ldbc.driver.measurements_OLD;
 
 public class MeasurementsException extends Exception
 {

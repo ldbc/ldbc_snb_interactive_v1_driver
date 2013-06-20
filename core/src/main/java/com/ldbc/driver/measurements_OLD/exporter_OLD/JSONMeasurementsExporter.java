@@ -14,36 +14,47 @@
  * permissions and limitations under the License. See accompanying                                                                                                                 
  * LICENSE file.                                                                                                                                                                   
  */
-package com.ldbc.driver.measurements.exporter;
+package com.ldbc.driver.measurements_OLD.exporter_OLD;
 
 import java.io.BufferedWriter;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 
-import com.ldbc.driver.measurements.MeasurementsException;
+import org.codehaus.jackson.JsonFactory;
+import org.codehaus.jackson.JsonGenerator;
+import org.codehaus.jackson.util.DefaultPrettyPrinter;
+
+import com.ldbc.driver.measurements_OLD.MeasurementsException;
 
 /**
- * Write human readable text. Tries to emulate the previous print report method.
+ * Export measurements into a machine readable JSON file.
  */
-public class TextMeasurementsExporter implements MeasurementsExporter
+public class JSONMeasurementsExporter implements MeasurementsExporter
 {
 
-    private BufferedWriter bw;
+    private JsonFactory factory = new JsonFactory();
+    private JsonGenerator g;
 
-    public TextMeasurementsExporter( OutputStream os )
+    public JSONMeasurementsExporter( OutputStream os ) throws IOException
     {
-        this.bw = new BufferedWriter( new OutputStreamWriter( os ) );
+
+        BufferedWriter bw = new BufferedWriter( new OutputStreamWriter( os ) );
+        g = factory.createJsonGenerator( bw );
+        g.setPrettyPrinter( new DefaultPrettyPrinter() );
     }
 
     public void write( String metric, String measurement, int i ) throws MeasurementsException
     {
         try
         {
-            bw.write( "[" + metric + "], " + measurement + ", " + i );
-            bw.newLine();
+            g.writeStartObject();
+            g.writeStringField( "metric", metric );
+            g.writeStringField( "measurement", measurement );
+            g.writeNumberField( "value", i );
+            g.writeEndObject();
         }
-        catch ( IOException e )
+        catch ( Exception e )
         {
             String errMsg = String.format( "Error writing measurement - metric[%s], measurement[%s], i[%s]", metric,
                     measurement, i );
@@ -55,10 +66,13 @@ public class TextMeasurementsExporter implements MeasurementsExporter
     {
         try
         {
-            bw.write( "[" + metric + "], " + measurement + ", " + d );
-            bw.newLine();
+            g.writeStartObject();
+            g.writeStringField( "metric", metric );
+            g.writeStringField( "measurement", measurement );
+            g.writeNumberField( "value", d );
+            g.writeEndObject();
         }
-        catch ( IOException e )
+        catch ( Exception e )
         {
             String errMsg = String.format( "Error writing measurement - metric[%s], measurement[%s], d[%s]", metric,
                     measurement, d );
@@ -68,7 +82,10 @@ public class TextMeasurementsExporter implements MeasurementsExporter
 
     public void close() throws IOException
     {
-        this.bw.close();
+        if ( g != null )
+        {
+            g.close();
+        }
     }
 
 }

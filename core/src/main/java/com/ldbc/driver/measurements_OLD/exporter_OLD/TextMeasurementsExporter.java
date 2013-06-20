@@ -14,37 +14,61 @@
  * permissions and limitations under the License. See accompanying                                                                                                                 
  * LICENSE file.                                                                                                                                                                   
  */
-package com.ldbc.driver.measurements.exporter;
+package com.ldbc.driver.measurements_OLD.exporter_OLD;
 
-import java.io.Closeable;
+import java.io.BufferedWriter;
 import java.io.IOException;
+import java.io.OutputStream;
+import java.io.OutputStreamWriter;
 
-import com.ldbc.driver.measurements.MeasurementsException;
+import com.ldbc.driver.measurements_OLD.MeasurementsException;
 
 /**
- * Used to export the collected measurements into a useful format, for example
- * human readable text or machine readable JSON.
+ * Write human readable text. Tries to emulate the previous print report method.
  */
-public interface MeasurementsExporter extends Closeable
+public class TextMeasurementsExporter implements MeasurementsExporter
 {
 
-    /**
-     * Write a measurement to the exported format.
-     * 
-     * @param metric Metric name, for example "READ LATENCY".
-     * @param measurement Measurement name, for example "Average latency".
-     * @param i Measurement to write.
-     * @throws IOException if writing failed
-     */
-    public void write( String metric, String measurement, int i ) throws MeasurementsException;
+    private BufferedWriter bw;
 
-    /**
-     * Write a measurement to the exported format.
-     * 
-     * @param metric Metric name, for example "READ LATENCY".
-     * @param measurement Measurement name, for example "Average latency".
-     * @param d Measurement to write.
-     * @throws IOException if writing failed
-     */
-    public void write( String metric, String measurement, double d ) throws MeasurementsException;
+    public TextMeasurementsExporter( OutputStream os )
+    {
+        this.bw = new BufferedWriter( new OutputStreamWriter( os ) );
+    }
+
+    public void write( String metric, String measurement, int i ) throws MeasurementsException
+    {
+        try
+        {
+            bw.write( "[" + metric + "], " + measurement + ", " + i );
+            bw.newLine();
+        }
+        catch ( IOException e )
+        {
+            String errMsg = String.format( "Error writing measurement - metric[%s], measurement[%s], i[%s]", metric,
+                    measurement, i );
+            throw new MeasurementsException( errMsg, e.getCause() );
+        }
+    }
+
+    public void write( String metric, String measurement, double d ) throws MeasurementsException
+    {
+        try
+        {
+            bw.write( "[" + metric + "], " + measurement + ", " + d );
+            bw.newLine();
+        }
+        catch ( IOException e )
+        {
+            String errMsg = String.format( "Error writing measurement - metric[%s], measurement[%s], d[%s]", metric,
+                    measurement, d );
+            throw new MeasurementsException( errMsg, e.getCause() );
+        }
+    }
+
+    public void close() throws IOException
+    {
+        this.bw.close();
+    }
+
 }

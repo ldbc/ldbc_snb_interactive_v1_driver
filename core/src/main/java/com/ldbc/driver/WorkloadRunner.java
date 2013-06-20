@@ -4,7 +4,7 @@ import org.apache.log4j.Logger;
 
 import com.ldbc.driver.generator.Generator;
 import com.ldbc.driver.generator.GeneratorBuilder;
-import com.ldbc.driver.measurements.Measurements;
+import com.ldbc.driver.measurements_OLD.Measurements;
 
 class WorkloadRunner
 {

@@ -4,8 +4,8 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.apache.log4j.Logger;
 
-import com.ldbc.driver.measurements.Measurements;
-import com.ldbc.driver.measurements.MeasurementsException;
+import com.ldbc.driver.measurements_OLD.Measurements;
+import com.ldbc.driver.measurements_OLD.MeasurementsException;
 
 class OperationResultLoggingThread extends Thread
 {

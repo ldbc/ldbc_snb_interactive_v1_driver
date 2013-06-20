@@ -11,7 +11,7 @@ import OLD_com.ldbc.driver.workloads.WorkloadException;
 
 import com.ldbc.driver.data.ByteIterator;
 import com.ldbc.driver.generator.Generator;
-import com.ldbc.driver.measurements.Measurements;
+import com.ldbc.driver.measurements_OLD.Measurements;
 
 public abstract class WorkloadOperation
 {
