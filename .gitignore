@@ -14,5 +14,5 @@ neo4j/target/
 neo4j/*.txt
 *.txt
 .gitignore~
-ldbc_driver-dshini/
+dshini/
 HdrHistogram/
