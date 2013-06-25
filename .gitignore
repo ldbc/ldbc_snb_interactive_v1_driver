@@ -14,5 +14,4 @@ neo4j/target/
 neo4j/*.txt
 *.txt
 .gitignore~
-dshini/
-HdrHistogram/
+cleanbuild.sh

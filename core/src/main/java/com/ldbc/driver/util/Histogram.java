@@ -250,10 +250,6 @@ public class Histogram<T, C extends Number>
     {
         if ( other.getBucketCount() != this.getBucketCount() )
         {
-            // String errMsg = String.format(
-            // "Histograms should contain the same amount of buckets [%s,%s]",
-            // this.getBucketCount(), other.getBucketCount() );
-            // System.out.println( errMsg );
             return false;
         }
         for ( Bucket<T> thisBucket : this.valuedBuckets.keySet() )
@@ -263,19 +259,11 @@ public class Histogram<T, C extends Number>
 
             if ( null == otherBucketValue )
             {
-                // String errMsg = String.format(
-                // "Histograms should contain the same set of buckets [%s]",
-                // thisBucket );
-                // System.out.println( errMsg );
                 return false;
             }
 
             if ( false == NumberHelper.withinTolerance( thisBucketValue, otherBucketValue, tolerance ) )
             {
-                // String errMsg = String.format(
-                // "Bucket values [%s,%s] should be within tolerance [%s] of each other",
-                // thisBucketValue, otherBucketValue, tolerance );
-                // System.out.println( errMsg );
                 return false;
             }
         }

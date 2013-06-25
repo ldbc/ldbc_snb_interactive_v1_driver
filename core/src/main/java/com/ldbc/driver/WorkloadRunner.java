@@ -4,13 +4,15 @@ import org.apache.log4j.Logger;
 
 import com.ldbc.driver.generator.Generator;
 import com.ldbc.driver.generator.GeneratorBuilder;
-import com.ldbc.driver.measurements_OLD.Measurements;
+import com.ldbc.driver.measurements.WorkloadMetricsManager;
+import com.ldbc.driver.util.Duration;
+import com.ldbc.driver.util.Time;
 
-class WorkloadRunner
+public class WorkloadRunner
 {
     private static Logger logger = Logger.getLogger( WorkloadRunner.class );
 
-    private final int STATUS_INTERVAL_SECONDS = 1;
+    private final Duration STATUS_INTERVAL = Duration.fromSeconds( 1 );
 
     private final Db db;
     private final BenchmarkPhase benchmarkPhase;
@@ -19,12 +21,13 @@ class WorkloadRunner
     private final GeneratorBuilder generatorBuilder;
     private final boolean showStatus;
     private final int threadCount;
-    private final Measurements measurements;
+    private final WorkloadMetricsManager metricsManager;
 
     int operationsDone;
 
     public WorkloadRunner( Db db, BenchmarkPhase benchmarkPhase, Workload workload, int operationCount,
-            GeneratorBuilder generatorBuilder, boolean showStatus, int threadCount, Measurements measurements )
+            GeneratorBuilder generatorBuilder, boolean showStatus, int threadCount,
+            WorkloadMetricsManager metricsManager )
     {
         this.db = db;
         this.benchmarkPhase = benchmarkPhase;
@@ -34,28 +37,29 @@ class WorkloadRunner
         this.generatorBuilder = generatorBuilder;
         this.showStatus = showStatus;
         this.threadCount = threadCount;
-        this.measurements = measurements;
+        this.metricsManager = metricsManager;
     }
 
     public void run() throws ClientException
     {
         OperationHandlerExecutor operationHandlerExecutor = new OperationHandlerExecutor( threadCount );
         OperationResultLoggingThread operationResultLoggingThread = new OperationResultLoggingThread(
-                operationHandlerExecutor, measurements );
+                operationHandlerExecutor, metricsManager );
         operationResultLoggingThread.start();
         Generator<Operation<?>> operationGenerator = getOperationGenerator( benchmarkPhase );
-        WorkloadProgressStatus workloadProgressStatus = new WorkloadProgressStatus( System.nanoTime() );
+        WorkloadProgressStatus workloadProgressStatus = new WorkloadProgressStatus( Time.now() );
         while ( ( operationCount == -1 && operationGenerator.hasNext() ) || operationsDone < operationCount )
         {
             Operation<?> operation = operationGenerator.next();
             try
             {
                 OperationHandler<?> operationHandler = db.getOperationHandler( operation );
-                waitForScheduledStartTime( operation.getScheduledStartTimeNanoSeconds() );
+                waitForScheduledStartTime( operation.getScheduledStartTime() );
                 operationHandlerExecutor.execute( operationHandler );
                 operationsDone++;
 
-                if ( showStatus && workloadProgressStatus.secondsSinceLastUpdate() >= STATUS_INTERVAL_SECONDS )
+                if ( showStatus
+                     && workloadProgressStatus.durationSinceLastUpdate().asSeconds() >= STATUS_INTERVAL.asSeconds() )
                 {
                     String statusString = workloadProgressStatus.update( operationsDone );
                     logger.info( statusString );
@@ -103,10 +107,10 @@ class WorkloadRunner
         return operationGenerator;
     }
 
-    public void waitForScheduledStartTime( long scheduledNanoTime )
+    private void waitForScheduledStartTime( Time scheduledStartTime )
     {
-        if ( scheduledNanoTime == Operation.UNASSIGNED_SCHEDULED_START_TIME ) return;
-        while ( System.nanoTime() < scheduledNanoTime )
+        if ( scheduledStartTime.equals( Operation.UNASSIGNED_SCHEDULED_START_TIME ) ) return;
+        while ( Time.now().asNano() < scheduledStartTime.asNano() )
         {
             // busy wait
         }

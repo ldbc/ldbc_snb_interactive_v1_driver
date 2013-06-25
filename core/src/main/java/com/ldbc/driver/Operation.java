@@ -1,19 +1,21 @@
 package com.ldbc.driver;
 
+import com.ldbc.driver.util.Time;
+
 public abstract class Operation<R>
 {
-    public final static long UNASSIGNED_SCHEDULED_START_TIME = -1;
+    public final static Time UNASSIGNED_SCHEDULED_START_TIME = Time.fromNano( -1 );
 
-    private long scheduledStartTimeNanoSeconds = UNASSIGNED_SCHEDULED_START_TIME;
+    private Time scheduledStartTime = UNASSIGNED_SCHEDULED_START_TIME;
 
-    public final void setScheduledStartTimeNanoSeconds( long scheduledStartTimeNanoSeconds )
+    public final void setScheduledStartTime( Time scheduledStartTime )
     {
-        this.scheduledStartTimeNanoSeconds = scheduledStartTimeNanoSeconds;
+        this.scheduledStartTime = scheduledStartTime;
     }
 
-    public final Long getScheduledStartTimeNanoSeconds()
+    public final Time getScheduledStartTime()
     {
-        return scheduledStartTimeNanoSeconds;
+        return scheduledStartTime;
     }
 
     public final OperationResult buildResult( int resultCode, R result )
@@ -24,7 +26,6 @@ public abstract class Operation<R>
     @Override
     public String toString()
     {
-        return String.format( "Operation [type=%s, scheduledStartTime=%s]", getClass().getName(),
-                scheduledStartTimeNanoSeconds );
+        return String.format( "Operation [type=%s, scheduledStartTime=%s]", getClass().getName(), scheduledStartTime );
     }
 }

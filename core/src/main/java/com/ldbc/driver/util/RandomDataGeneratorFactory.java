@@ -12,7 +12,7 @@ public class RandomDataGeneratorFactory
 
     public RandomDataGeneratorFactory()
     {
-        this.random = getRandomGenerator( System.currentTimeMillis() );
+        this.random = getRandomGenerator( Time.now().asNano() );
         this.seed = null;
     }
 

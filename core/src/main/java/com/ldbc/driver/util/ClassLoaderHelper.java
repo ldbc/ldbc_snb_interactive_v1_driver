@@ -1,7 +1,5 @@
 package com.ldbc.driver.util;
 
-import java.io.OutputStream;
-
 import org.apache.log4j.Logger;
 
 import com.ldbc.driver.Db;
@@ -11,8 +9,6 @@ import com.ldbc.driver.OperationException;
 import com.ldbc.driver.OperationHandler;
 import com.ldbc.driver.Workload;
 import com.ldbc.driver.WorkloadException;
-import com.ldbc.driver.measurements_OLD.MeasurementsException;
-import com.ldbc.driver.measurements_OLD.exporter_OLD.MeasurementsExporter;
 
 // TODO test
 public class ClassLoaderHelper
@@ -110,41 +106,6 @@ public class ClassLoaderHelper
             String errMsg = String.format( "Error creating OperationHandler [%s] with Operation [%s]",
                     operationHandlerClass.getName(), operation.getClass().getName() );
             throw new OperationException( errMsg, e.getCause() );
-        }
-    }
-
-    /**
-     * MeasurementsExporter
-     */
-    public static MeasurementsExporter loadMeasurementsExporter( String measurementsExporterClassName, OutputStream out )
-            throws MeasurementsException
-    {
-        try
-        {
-            return loadMeasurementsExporter( loadClass( measurementsExporterClassName, MeasurementsExporter.class ),
-                    out );
-        }
-        catch ( ClassLoadingException e )
-        {
-            String errMsg = String.format( "Error creating MeasurementsExporter [%s] with OutputStream [%s]",
-                    measurementsExporterClassName, out.getClass().getName() );
-            throw new MeasurementsException( errMsg, e.getCause() );
-        }
-    }
-
-    public static MeasurementsExporter loadMeasurementsExporter(
-            Class<? extends MeasurementsExporter> measurementsExporterClass, OutputStream out )
-            throws MeasurementsException
-    {
-        try
-        {
-            return measurementsExporterClass.getConstructor( OutputStream.class ).newInstance( out );
-        }
-        catch ( Exception e )
-        {
-            String errMsg = String.format( "Error creating MeasurementsExporter [%s] with OutputStream [%s]",
-                    measurementsExporterClass.getName(), out.getClass().getName() );
-            throw new MeasurementsException( errMsg, e.getCause() );
         }
     }
 

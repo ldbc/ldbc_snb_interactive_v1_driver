@@ -1,10 +1,7 @@
 package com.ldbc.driver;
 
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.OutputStream;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
@@ -12,16 +9,19 @@ import java.util.Properties;
 import org.apache.log4j.Logger;
 
 import com.ldbc.driver.generator.GeneratorBuilder;
-import com.ldbc.driver.measurements_OLD.Measurements;
-import com.ldbc.driver.measurements_OLD.MeasurementsException;
-import com.ldbc.driver.measurements_OLD.OneMeasurement;
-import com.ldbc.driver.measurements_OLD.exporter_OLD.MeasurementsExporter;
+import com.ldbc.driver.measurements.MetricsExporterException;
+import com.ldbc.driver.measurements.WorkloadMetricsManager;
+import com.ldbc.driver.measurements.exporters.MetricsExporter;
+import com.ldbc.driver.measurements.exporters.OutputStreamMetricsExporter;
+import com.ldbc.driver.measurements.formatters.MetricsFormatter;
+import com.ldbc.driver.measurements.formatters.SimpleMetricsFormatter;
 import com.ldbc.driver.util.ClassLoaderHelper;
-import com.ldbc.driver.util.ClassLoadingException;
+import com.ldbc.driver.util.Duration;
 import com.ldbc.driver.util.MapUtils;
 import com.ldbc.driver.util.Pair;
 import com.ldbc.driver.util.RandomDataGeneratorFactory;
 import com.ldbc.driver.util.Time;
+import com.ldbc.driver.util.TimeUnit;
 
 public class Client
 {
@@ -70,13 +70,6 @@ public class Client
     private static final String SHOW_STATUS_DEFAULT = "false";
     private static final String PROPERTY_FILE_ARG = "P";
     private static final String PROPERTY_ARG = "p";
-    // TODO undocumented, document somehow
-    private static final String EXPORTER_ARG = "exporter";
-    private static final String EXPORTER_DEFAULT = com.ldbc.driver.measurements_OLD.exporter_OLD.TextMeasurementsExporter.class.getName();
-    // TODO undocumented, document somehow
-    private static final String EXPORT_FILE_PATH_ARG = "exportfile";
-    private static final String MEASUREMENT_TYPE_ARG = "measurementtype";
-    private static final String MEASUREMENT_TYPE_DEFAULT = com.ldbc.driver.measurements_OLD.OneMeasurementHistogram.class.getName();
 
     private static final String[] REQUIRED_PROPERTIES = new String[] { DB_ARG, WORKLOAD_ARG, OPERATION_COUNT_ARG };
 
@@ -124,7 +117,7 @@ public class Client
         }
     }
 
-    private static int defaultThreadCount()
+    public static int defaultThreadCount()
     {
         // Client & OperationResultLoggingThread
         int threadsUsedByDriver = 2;
@@ -321,23 +314,6 @@ public class Client
                 BENCHMARK_PHASE_DEFAULT ) );
         logger.info( String.format( "Benchmark phase: %s", benchmarkPhase ) );
 
-        Measurements measurements = null;
-        String oneMeasurementName = MapUtils.getDefault( properties, MEASUREMENT_TYPE_ARG, MEASUREMENT_TYPE_DEFAULT );
-        try
-        {
-            Class<? extends OneMeasurement> oneMeasurementType = ClassLoaderHelper.loadClass( oneMeasurementName,
-                    OneMeasurement.class );
-            measurements = new Measurements( oneMeasurementType, properties );
-        }
-        catch ( ClassLoadingException e )
-        {
-            String errMsg = String.format( "Error loading OneMeasurement class: %s", oneMeasurementName );
-            logger.error( errMsg, e );
-            throw new ClientException( errMsg, e.getCause() );
-        }
-        logger.info( String.format( "Loaded Measurements: %s(%s)", measurements.getClass().getName(),
-                oneMeasurementName ) );
-
         Workload workload = null;
         String workloadName = properties.get( WORKLOAD_ARG );
         try
@@ -369,12 +345,15 @@ public class Client
         }
         logger.info( String.format( "Loaded DB: %s", db.getClass().getName() ) );
 
+        WorkloadMetricsManager metricsManager = new WorkloadMetricsManager( TimeUnit.MILLI );
+
         int operationCount = getOperationCount( properties, benchmarkPhase );
+
         WorkloadRunner workloadRunner = new WorkloadRunner( db, benchmarkPhase, workload, operationCount,
-                generatorBuilder, showStatus, threadCount, measurements );
+                generatorBuilder, showStatus, threadCount, metricsManager );
 
         logger.info( String.format( "Starting Benchmark (%s operations)", operationCount ) );
-        Time startTime = Time.fromMilli( System.currentTimeMillis() );
+        Time startTime = Time.now();
         try
         {
             workloadRunner.run();
@@ -385,7 +364,7 @@ public class Client
             logger.error( errMsg, e );
             throw new ClientException( errMsg, e.getCause() );
         }
-        Time endTime = Time.fromMilli( System.currentTimeMillis() );
+        Time endTime = Time.now();
 
         logger.info( "Cleaning up Workload..." );
         try
@@ -411,12 +390,15 @@ public class Client
             throw new ClientException( errMsg, e.getCause() );
         }
 
+        logger.info( String.format( "Runtime: %s (s)", Duration.durationBetween( startTime, endTime ).asSeconds() ) );
         logger.info( "Exporting Measurements..." );
         try
         {
-            exportMeasurements( measurements, properties, operationCount, endTime.minus( startTime ) );
+            MetricsExporter metricsExporter = new OutputStreamMetricsExporter( System.out );
+            MetricsFormatter metricsFormatter = new SimpleMetricsFormatter();
+            metricsExporter.export( metricsFormatter, metricsManager.getAllMeasurements() );
         }
-        catch ( MeasurementsException e )
+        catch ( MetricsExporterException e )
         {
             String errMsg = "Could not export Measurements";
             logger.error( errMsg, e );
@@ -458,57 +440,5 @@ public class Client
         // layer. What's the cleanest/safest/right way to terminate the
         // application and clean up all threads?
         System.exit( 0 );
-    }
-
-    private void exportMeasurements( Measurements measurements, Map<String, String> properties, int operationCount,
-            Time runtime ) throws MeasurementsException
-    {
-        MeasurementsExporter exporter = null;
-        try
-        {
-            String exportFilePath = properties.get( EXPORT_FILE_PATH_ARG );
-            OutputStream out = null;
-            try
-            {
-                out = ( exportFilePath == null ) ? System.out : new FileOutputStream( exportFilePath );
-            }
-            catch ( FileNotFoundException e )
-            {
-                throw new MeasurementsException( String.format( "Could not find file [%s]", exportFilePath ),
-                        e.getCause() );
-            }
-
-            String exporterClassName = MapUtils.getDefault( properties, EXPORTER_ARG, EXPORTER_DEFAULT );
-            try
-            {
-                exporter = ClassLoaderHelper.loadMeasurementsExporter( exporterClassName, out );
-            }
-            catch ( Exception e )
-            {
-                throw new MeasurementsException( String.format( "Could not find exporter [%s]", exporterClassName ),
-                        e.getCause() );
-            }
-
-            exporter.write( "OVERALL", "Operations(op)", measurements.getOperationCount() );
-            exporter.write( "OVERALL", "RunTime(ms)", runtime.toMilli() );
-            double throughput = 1000.0 * ( (double) operationCount ) / ( (double) runtime.toMilli() );
-            exporter.write( "OVERALL", "Throughput(ops/sec)", throughput );
-
-            measurements.exportMeasurements( exporter );
-        }
-        finally
-        {
-            if ( exporter != null )
-            {
-                try
-                {
-                    exporter.close();
-                }
-                catch ( IOException e )
-                {
-                    throw new MeasurementsException( "Error closing exporter", e.getCause() );
-                }
-            }
-        }
     }
 }

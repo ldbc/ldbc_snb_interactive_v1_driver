@@ -4,22 +4,23 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.apache.log4j.Logger;
 
-import com.ldbc.driver.measurements_OLD.Measurements;
-import com.ldbc.driver.measurements_OLD.MeasurementsException;
+import com.ldbc.driver.measurements.MetricException;
+import com.ldbc.driver.measurements.WorkloadMetricsManager;
 
 class OperationResultLoggingThread extends Thread
 {
     private static Logger logger = Logger.getLogger( OperationResultLoggingThread.class );
 
-    private final Measurements measurements;
+    private final WorkloadMetricsManager metricsManager;
 
     private final OperationHandlerExecutor operationHandlerExecutor;
     private AtomicBoolean isMoreResultsComing = new AtomicBoolean( true );
 
-    OperationResultLoggingThread( OperationHandlerExecutor operationHandlerExecutor, Measurements measurements )
+    OperationResultLoggingThread( OperationHandlerExecutor operationHandlerExecutor,
+            WorkloadMetricsManager metricsManager )
     {
         this.operationHandlerExecutor = operationHandlerExecutor;
-        this.measurements = measurements;
+        this.metricsManager = metricsManager;
     }
 
     final void finishLoggingRemainingResults()
@@ -49,27 +50,22 @@ class OperationResultLoggingThread extends Thread
         }
         catch ( Exception e )
         {
-            logger.error( "Error encountered while logging results", e );
+            String errMsg = "Error encountered while logging results";
+            logger.error( errMsg, e );
+            throw new RuntimeException( errMsg, e.getCause() );
         }
     }
 
-    private void log( OperationResult operationResult ) throws MeasurementsException
+    private void log( OperationResult operationResult )
     {
         try
         {
-            // TODO make NOT int
-            measurements.measure( operationResult.getOperationType(), (int) operationResult.getRunTime() );
-            measurements.reportReturnCode( operationResult.getOperationType(), operationResult.getResultCode() );
-            // TODO log more stuff
-            // operationResult.getScheduledStartTime()
-            // operationResult.getActualStartTime()
-            // operationResult.getResult()
+            metricsManager.measure( operationResult );
         }
-        catch ( MeasurementsException e )
+        catch ( MetricException e )
         {
             String errMsg = String.format( "Error encountered while logging result - %s", operationResult );
-            logger.error( errMsg, e );
-            throw new MeasurementsException( errMsg, e.getCause() );
+            throw new MetricException( errMsg, e.getCause() );
         }
     }
 }

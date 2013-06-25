@@ -5,7 +5,7 @@
 
 	<groupId>com.ldbc.driver</groupId>
 	<artifactId>root</artifactId>
-	<version>0.1</version>
+	<version>0.1-SNAPSHOT</version>
 	<packaging>pom</packaging>
 
 	<name>LDBC Driver Root</name>
@@ -28,7 +28,7 @@
 	<modules>
 		<module>core</module>
 		<module>neo4j</module>
-		<module>dshini</module>
+		<!-- <module>dshini</module> -->
 		<module>distribution</module>
 	</modules>
 
@@ -81,6 +81,11 @@
 		<repository>
 			<id>in-project-repository</id>
 			<url>file://${project.basedir}/lib</url>
+			<releases>
+				<enabled>false</enabled>
+				<updatePolicy>always</updatePolicy>
+				<checksumPolicy>warn</checksumPolicy>
+			</releases>
 		</repository>
 	</repositories>
 

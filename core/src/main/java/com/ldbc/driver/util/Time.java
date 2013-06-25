@@ -1,62 +1,87 @@
 package com.ldbc.driver.util;
 
-public class Time
+public class Time implements Comparable<Time>, MultipleTimeUnitProvider
 {
-
-    private final long nanoDuration;
-
-    public static Time fromNano( long ns )
+    public static Time now()
     {
-        return new Time( ns );
+        return new Time( System.nanoTime() );
     }
 
-    public static Time fromMicro( long us )
+    public static Time fromNano( long nanoTime )
     {
-        return new Time( us * 1000 );
+        return new Time( nanoTime );
     }
 
-    public static Time fromMilli( long ms )
+    private final Long timeNano;
+
+    private Time( long timeNano )
     {
-        return new Time( ms * 1000000 );
+        this.timeNano = timeNano;
     }
 
-    public static Time fromSeconds( long s )
+    public Time plus( Duration duration )
     {
-        return new Time( s * 1000000000 );
+        return Time.fromNano( timeNano + duration.asNano() );
     }
 
-    private Time( long ns )
+    public Time minus( Duration duration )
     {
-        this.nanoDuration = ns;
+        return Time.fromNano( timeNano - duration.asNano() );
     }
 
-    public Time minus( Time that )
+    @Override
+    public String toString()
     {
-        return Time.fromNano( this.toNano() - that.toNano() );
+        return timeNano + "(ns)";
     }
 
-    public Time plus( Time that )
+    @Override
+    public int hashCode()
     {
-        return Time.fromNano( this.toNano() + that.toNano() );
+        final int prime = 31;
+        int result = 1;
+        result = prime * result + (int) ( timeNano ^ ( timeNano >>> 32 ) );
+        return result;
     }
 
-    public long toNano()
+    @Override
+    public boolean equals( Object obj )
     {
-        return nanoDuration;
+        if ( this == obj ) return true;
+        if ( obj == null ) return false;
+        if ( getClass() != obj.getClass() ) return false;
+        Time other = (Time) obj;
+        if ( timeNano != other.timeNano ) return false;
+        return true;
     }
 
-    public long toMicro()
+    @Override
+    public int compareTo( Time o )
     {
-        return toNano() / 1000;
+        return timeNano.compareTo( o.timeNano );
     }
 
-    public long toMilli()
+    @Override
+    public long asNano()
     {
-        return toMicro() / 1000;
+        return timeNano;
     }
 
-    public long toSeconds()
+    @Override
+    public long asMicro()
     {
-        return toMilli() / 1000;
+        return TimeUnitConvertor.nanoToMicro( timeNano );
+    }
+
+    @Override
+    public long asMilli()
+    {
+        return TimeUnitConvertor.nanoToMilli( timeNano );
+    }
+
+    @Override
+    public long asSeconds()
+    {
+        return TimeUnitConvertor.nanoToSecond( timeNano );
     }
 }

@@ -2,67 +2,55 @@ package com.ldbc.driver;
 
 import java.text.DecimalFormat;
 
+import com.ldbc.driver.util.Duration;
+import com.ldbc.driver.util.Time;
+
 public class WorkloadProgressStatus
 {
-    private long startTime;
-    private long lastUpdateTime;
+    private Time startTime;
+    private Time lastUpdateTime;
 
     private long totalOperations;
 
-    public WorkloadProgressStatus( long startTime )
+    public WorkloadProgressStatus( Time startTime )
     {
         this.startTime = startTime;
-        this.lastUpdateTime = this.startTime;
+        this.lastUpdateTime = Time.fromNano( this.startTime.asNano() );
         this.totalOperations = 0;
     }
 
     public String update( long totalOperations )
     {
-        lastUpdateTime = nowNanoSeconds();
+        lastUpdateTime = Time.now();
         this.totalOperations = totalOperations;
         return statusString( lastUpdateTime );
     }
 
-    public long secondsSinceLastUpdate()
+    public Duration durationSinceLastUpdate()
     {
-        return nanoSecondsToSeconds( nanoSecondsSinceLastUpdate() );
-    }
-
-    public long nanoSecondsSinceLastUpdate()
-    {
-        return nowNanoSeconds() - lastUpdateTime;
+        return Duration.durationBetween( lastUpdateTime, Time.now() );
     }
 
     public String getStatus()
     {
-        return statusString( nowNanoSeconds() );
+        return statusString( Time.now() );
     }
 
-    private String statusString( long atTimeNanoSeconds )
+    private String statusString( Time atTime )
     {
         DecimalFormat throughputFormat = new DecimalFormat( "#.00" );
         return String.format( "Status: Runtime (sec) [%s], Operations [%s], Throughput (op/sec) [%s]",
-                nanoSecondsToSeconds( getElapsedTime( atTimeNanoSeconds ) ), totalOperations,
-                throughputFormat.format( getThroughput( atTimeNanoSeconds ) ) );
+                getElapsedTime( atTime ).asSeconds(), totalOperations,
+                throughputFormat.format( getThroughput( atTime ) ) );
     }
 
-    private double getThroughput( long atTimeNanoSeconds )
+    private double getThroughput( Time atTime )
     {
-        return (double) totalOperations / nanoSecondsToSeconds( getElapsedTime( atTimeNanoSeconds ) );
+        return (double) totalOperations / getElapsedTime( atTime ).asSeconds();
     }
 
-    private long getElapsedTime( long atTimeNanoSeconds )
+    private Duration getElapsedTime( Time atTime )
     {
-        return atTimeNanoSeconds - startTime;
-    }
-
-    private long nowNanoSeconds()
-    {
-        return System.nanoTime();
-    }
-
-    private long nanoSecondsToSeconds( long nanoSeconds )
-    {
-        return nanoSeconds / 1000000000;
+        return Duration.durationBetween( startTime, atTime );
     }
 }

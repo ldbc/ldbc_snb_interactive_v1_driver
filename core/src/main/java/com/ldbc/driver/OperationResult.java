@@ -1,68 +1,76 @@
 package com.ldbc.driver;
 
+import com.ldbc.driver.util.Duration;
+import com.ldbc.driver.util.Time;
+
 public class OperationResult
 {
     private final int resultCode;
     private final Object result;
 
-    private long scheduledStartTime = -1;
-    private long actualStartTime = -1;
-    private long runTime = -1;
+    private Time scheduledStartTime = Time.fromNano( -1 );
+    private Time actualStartTime = Time.fromNano( -1 );
+    private Duration runTime = Duration.fromNano( -1 );
     private String operationType = null;
 
-    OperationResult( int resultCode, Object result )
+    // TODO public - just for testing at present?
+    public OperationResult( int resultCode, Object result )
     {
         super();
         this.resultCode = resultCode;
         this.result = result;
     }
 
-    int getResultCode()
+    public int getResultCode()
     {
         return resultCode;
     }
 
-    Object getResult()
+    public Object getResult()
     {
         return result;
     }
 
-    long getScheduledStartTime()
+    public Time getScheduledStartTime()
     {
         return scheduledStartTime;
     }
 
-    void setScheduledStartTime( long scheduledStartTime )
+    // TODO public - just for testing at present?
+    public void setScheduledStartTime( Time scheduledStartTime )
     {
         this.scheduledStartTime = scheduledStartTime;
     }
 
-    long getActualStartTime()
+    public Time getActualStartTime()
     {
         return actualStartTime;
     }
 
-    void setActualStartTime( long actualStartTime )
+    // TODO public - just for testing at present?
+    public void setActualStartTime( Time actualStartTime )
     {
         this.actualStartTime = actualStartTime;
     }
 
-    long getRunTime()
+    public Duration getRunTime()
     {
         return runTime;
     }
 
-    void setRunTime( long runTime )
+    // TODO public - just for testing at present?
+    public void setRunTime( Duration runTime )
     {
         this.runTime = runTime;
     }
 
-    String getOperationType()
+    public String getOperationType()
     {
         return operationType;
     }
 
-    void setOperationType( String operationType )
+    // TODO public - just for testing at present?
+    public void setOperationType( String operationType )
     {
         this.operationType = operationType;
     }

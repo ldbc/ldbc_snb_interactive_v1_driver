@@ -2,12 +2,11 @@ package com.ldbc.driver;
 
 import java.util.concurrent.Callable;
 
-import org.apache.log4j.Logger;
+import com.ldbc.driver.util.Duration;
+import com.ldbc.driver.util.Time;
 
 public abstract class OperationHandler<A extends Operation<?>> implements Callable<OperationResult>
 {
-    private static Logger logger = Logger.getLogger( OperationHandler.class );
-
     private A operation;
     private DbConnectionState dbConnectionState;
 
@@ -29,14 +28,14 @@ public abstract class OperationHandler<A extends Operation<?>> implements Callab
     @Override
     public OperationResult call() throws Exception
     {
-        long actualStartTime = System.nanoTime();
+        Time actualStartTime = Time.now();
         OperationResult operationResult = executeOperation( operation );
-        long actualEndTime = System.nanoTime();
+        Time actualEndTime = Time.now();
 
         operationResult.setOperationType( operation.getClass().getName() );
-        operationResult.setScheduledStartTime( operation.getScheduledStartTimeNanoSeconds() );
+        operationResult.setScheduledStartTime( operation.getScheduledStartTime() );
         operationResult.setActualStartTime( actualStartTime );
-        operationResult.setRunTime( actualEndTime - actualStartTime );
+        operationResult.setRunTime( Duration.durationBetween( actualStartTime, actualEndTime ) );
 
         return operationResult;
     }

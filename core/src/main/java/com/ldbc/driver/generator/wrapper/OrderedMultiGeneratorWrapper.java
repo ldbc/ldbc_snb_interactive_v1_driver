@@ -23,7 +23,7 @@ public class OrderedMultiGeneratorWrapper<T> extends Generator<T>
             @Override
             public int compare( Operation<?> o1, Operation<?> o2 )
             {
-                return o1.getScheduledStartTimeNanoSeconds().compareTo( o2.getScheduledStartTimeNanoSeconds() );
+                return o1.getScheduledStartTime().compareTo( o2.getScheduledStartTime() );
             }
         }, lookaheadDistance, operationGenerators );
     }
