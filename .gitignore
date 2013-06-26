@@ -4,6 +4,7 @@ core/.classpath
 core/.project
 core/.settings/
 core/target/
+core/lib
 distribution/.project
 distribution/.settings/
 distribution/target/
