@@ -4,7 +4,7 @@ core/.classpath
 core/.project
 core/.settings/
 core/target/
-core/lib
+core/lib/
 distribution/.project
 distribution/.settings/
 distribution/target/
@@ -15,4 +15,6 @@ neo4j/target/
 neo4j/*.txt
 *.txt
 .gitignore~
+build.sh~
 HdrHistogram/
+lib/
