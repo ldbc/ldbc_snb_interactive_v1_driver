@@ -18,11 +18,13 @@
 		<maven.assembly.version>2.2.1</maven.assembly.version>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<jackson.api.version>1.9.4</jackson.api.version>
-		<junit-version>4.10</junit-version>
-		<commons-io-version>2.4</commons-io-version>
-		<common-math-version>3.2</common-math-version>
-		<log4j-version>1.2.17</log4j-version>
-		<hdrhistogram-version>1.0-SNAPSHOT</hdrhistogram-version>
+		<junit.version>4.10</junit.version>
+		<commons-io.version>2.4</commons-io.version>
+		<common-math.version>3.2</common-math.version>
+		<log4j.version>1.2.17</log4j.version>
+		<hdrhistogram.version>1.0-SNAPSHOT</hdrhistogram.version>
+		<java.source.version>1.6</java.source.version>
+		<java.target.version>1.6</java.target.version>
 	</properties>
 
 	<modules>
@@ -35,18 +37,18 @@
 		<dependency>
 			<groupId>org.hdrhistogram</groupId>
 			<artifactId>hdrhistogram</artifactId>
-			<version>${hdrhistogram-version}</version>
+			<version>${hdrhistogram.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>junit</groupId>
 			<artifactId>junit</artifactId>
 			<scope>test</scope>
-			<version>${junit-version}</version>
+			<version>${junit.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>log4j</groupId>
 			<artifactId>log4j</artifactId>
-			<version>${log4j-version}</version>
+			<version>${log4j.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>org.codehaus.jackson</groupId>
@@ -61,12 +63,12 @@
 		<dependency>
 			<groupId>org.apache.commons</groupId>
 			<artifactId>commons-math3</artifactId>
-			<version>${common-math-version}</version>
+			<version>${common-math.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>commons-io</groupId>
 			<artifactId>commons-io</artifactId>
-			<version>${commons-io-version}</version>
+			<version>${commons-io.version}</version>
 		</dependency>
 	</dependencies>
 

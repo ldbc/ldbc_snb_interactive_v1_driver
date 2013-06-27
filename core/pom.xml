@@ -41,6 +41,8 @@
 						<descriptorRef>jar-with-dependencies</descriptorRef>
 					</descriptorRefs>
 					<appendAssemblyId>false</appendAssemblyId>
+					<source>${java.source.version}</source>
+					<target>${java.target.version}</target>
 				</configuration>
 				<executions>
 					<execution>
