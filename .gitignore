@@ -16,5 +16,4 @@ neo4j/*.txt
 *.txt
 .gitignore~
 build.sh~
-HdrHistogram/
 lib/
