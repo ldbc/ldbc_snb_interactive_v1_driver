@@ -1,4 +1,5 @@
 .project
+.classpath
 .settings/
 core/.classpath
 core/.project
