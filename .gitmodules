@@ -1,0 +1,3 @@
+[submodule "HdrHistogram"]
+	path = HdrHistogram
+	url = git@github.com:giltene/HdrHistogram.git
