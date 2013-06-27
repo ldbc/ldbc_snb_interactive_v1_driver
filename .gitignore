@@ -18,3 +18,4 @@ neo4j/*.txt
 .gitignore~
 build.sh~
 lib/
+README.md~
