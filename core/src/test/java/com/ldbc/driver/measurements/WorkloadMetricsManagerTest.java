@@ -51,7 +51,11 @@ public class WorkloadMetricsManagerTest
             metricTypeCount++;
         }
 
-        assertThat( metricTypeCount, is( 3 ) );
+        // Runtime
+        // Result Code
+        // Start Time Delay
+        // Start Time
+        assertThat( metricTypeCount, is( 4 ) );
 
         MetricsFormatter formatter = new SimpleMetricsFormatter();
         MetricsExporter exporter = new OutputStreamMetricsExporter( System.out );
