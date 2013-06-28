@@ -21,22 +21,22 @@ public class MetricGroup
         return name;
     }
 
+    public Metric getMetric( String name )
+    {
+        return metrics.get( name );
+    }
+
     public Metric getOrCreateMetric( String name )
-    {
-        return getMetric( name );
-    }
-
-    public Iterable<Metric> getMetrics()
-    {
-        return metrics.values();
-    }
-
-    private Metric getMetric( String name )
     {
         if ( false == metrics.containsKey( name ) )
         {
             metrics.put( name, metricFactory.create( name ) );
         }
         return metrics.get( name );
+    }
+
+    public Iterable<Metric> getMetrics()
+    {
+        return metrics.values();
     }
 }

@@ -345,7 +345,9 @@ public class Client
         }
         logger.info( String.format( "Loaded DB: %s", db.getClass().getName() ) );
 
-        WorkloadMetricsManager metricsManager = new WorkloadMetricsManager( TimeUnit.MILLI );
+        TimeUnit timeUnit = TimeUnit.MILLI;
+        TimeUnit durationUnit = TimeUnit.NANO;
+        WorkloadMetricsManager metricsManager = new WorkloadMetricsManager( timeUnit, durationUnit );
 
         int operationCount = getOperationCount( properties, benchmarkPhase );
 

@@ -18,7 +18,7 @@ public class HdrHistogramMetricTest
     @Test
     public void shouldReturnCorrectMeasurements() throws MetricsExporterException
     {
-        Metric testMetric = new HdrHistogramMetric( "Test", Duration.fromSeconds( 60 ) );
+        Metric testMetric = new HdrHistogramMetric( "Test", Duration.fromSeconds( 60 ).asNano() );
 
         testMetric.addMeasurement( 1 );
         testMetric.addMeasurement( 2 );
@@ -38,6 +38,8 @@ public class HdrHistogramMetricTest
         assertThat( testMetric.getPercentile( 20d ), is( 2l ) );
         assertThat( testMetric.getPercentile( 70d ), is( 7l ) );
         assertThat( testMetric.getPercentile( 90d ), is( 9l ) );
+        assertThat( testMetric.getCountAt( 0 ), is( 0l ) );
+        assertThat( testMetric.getCountAt( 1 ), is( 1l ) );
 
         System.out.println( testMetric.toPrettyString() );
         MetricsFormatter formatter = new SimpleMetricsFormatter();

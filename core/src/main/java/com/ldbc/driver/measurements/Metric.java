@@ -16,5 +16,7 @@ public interface Metric
 
     public long getCount();
 
+    public long getCountAt( long value );
+
     public String toPrettyString();
 }

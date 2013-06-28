@@ -18,7 +18,8 @@ public class MetricGroupTest
     @Test
     public void shouldReturnCorrectMeasurements() throws MetricsExporterException
     {
-        MetricGroup metricGroup = new MetricGroup( "Test", new HdrHistogramMetricFactory( Duration.fromSeconds( 60 ) ) );
+        MetricGroup metricGroup = new MetricGroup( "Test", new HdrHistogramMetricFactory(
+                Duration.fromSeconds( 60 ).asNano() ) );
 
         Metric operation1TestMetric = metricGroup.getOrCreateMetric( "Operation1" );
         operation1TestMetric = metricGroup.getOrCreateMetric( "Operation1" );

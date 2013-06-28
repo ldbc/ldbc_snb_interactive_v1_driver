@@ -7,6 +7,11 @@ public class Duration implements MultipleTimeUnitProvider
         return new Duration( ns );
     }
 
+    public static Duration fromMicro( long us )
+    {
+        return new Duration( TimeUnitConvertor.nanoFromMicro( us ) );
+    }
+
     public static Duration fromMilli( long ms )
     {
         return new Duration( TimeUnitConvertor.nanoFromMilli( ms ) );

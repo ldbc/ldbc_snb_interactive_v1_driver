@@ -3,21 +3,20 @@ package com.ldbc.driver.measurements;
 import org.HdrHistogram.Histogram;
 
 import com.ldbc.driver.measurements.formatters.SimpleMetricsFormatter;
-import com.ldbc.driver.util.Duration;
 
 public class HdrHistogramMetric implements Metric
 {
     private final Histogram histogram;
     private final String name;
 
-    public HdrHistogramMetric( Duration highestExpectedValue )
+    public HdrHistogramMetric( long highestExpectedValue )
     {
         this( null, highestExpectedValue );
     }
 
-    public HdrHistogramMetric( String name, Duration highestExpectedValue )
+    public HdrHistogramMetric( String name, long highestExpectedValue )
     {
-        histogram = new Histogram( highestExpectedValue.asNano(), 5 );
+        histogram = new Histogram( highestExpectedValue, 5 );
         this.name = name;
     }
 
@@ -61,6 +60,12 @@ public class HdrHistogramMetric implements Metric
     public long getCount()
     {
         return histogram.getHistogramData().getTotalCount();
+    }
+
+    @Override
+    public long getCountAt( long value )
+    {
+        return histogram.getHistogramData().getCountAtValue( value );
     }
 
     @Override

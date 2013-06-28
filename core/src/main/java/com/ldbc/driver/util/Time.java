@@ -12,6 +12,21 @@ public class Time implements Comparable<Time>, MultipleTimeUnitProvider
         return new Time( nanoTime );
     }
 
+    public static Time fromMicro( long microTime )
+    {
+        return new Time( TimeUnitConvertor.nanoFromMicro( microTime ) );
+    }
+
+    public static Time fromMilli( long milliTime )
+    {
+        return new Time( TimeUnitConvertor.nanoFromMilli( milliTime ) );
+    }
+
+    public static Time fromSeconds( long secondsTime )
+    {
+        return new Time( TimeUnitConvertor.nanoFromSecond( secondsTime ) );
+    }
+
     private final Long timeNano;
 
     private Time( long timeNano )

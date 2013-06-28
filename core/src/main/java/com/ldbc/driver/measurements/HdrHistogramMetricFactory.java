@@ -1,19 +1,17 @@
 package com.ldbc.driver.measurements;
 
-import com.ldbc.driver.util.Duration;
-
 public class HdrHistogramMetricFactory implements MetricFactory
 {
-    private final Duration highestExpectedDuration;
+    private final long highestExpectedValue;
 
-    public HdrHistogramMetricFactory( Duration highestExpectedDuration )
+    public HdrHistogramMetricFactory( long highestExpectedValue )
     {
-        this.highestExpectedDuration = highestExpectedDuration;
+        this.highestExpectedValue = highestExpectedValue;
     }
 
     @Override
     public Metric create( String name )
     {
-        return new HdrHistogramMetric( name, highestExpectedDuration );
+        return new HdrHistogramMetric( name, highestExpectedValue );
     }
 }
