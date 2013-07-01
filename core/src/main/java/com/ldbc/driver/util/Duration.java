@@ -1,6 +1,6 @@
 package com.ldbc.driver.util;
 
-public class Duration implements MultipleTimeUnitProvider
+public class Duration implements Comparable<Duration>, MultipleTimeUnitProvider
 {
     public static Duration fromNano( long ns )
     {
@@ -24,14 +24,19 @@ public class Duration implements MultipleTimeUnitProvider
 
     public static Duration durationBetween( Time firstTime, Time secondTime )
     {
+        if ( secondTime.asNano() < firstTime.asNano() )
+        {
+            // TODO different Exception type
+            throw new RuntimeException( "Second Time must be later than First Time" );
+        }
         return Duration.fromNano( secondTime.asNano() - firstTime.asNano() );
     }
 
-    private final long nanoDuration;
+    private final Long durationNano;
 
     private Duration( long ns )
     {
-        this.nanoDuration = ns;
+        this.durationNano = ns;
     }
 
     public Duration minus( Duration that )
@@ -47,31 +52,31 @@ public class Duration implements MultipleTimeUnitProvider
     @Override
     public long asSeconds()
     {
-        return TimeUnitConvertor.nanoToSecond( nanoDuration );
+        return TimeUnitConvertor.nanoToSecond( durationNano );
     }
 
     @Override
     public long asMilli()
     {
-        return TimeUnitConvertor.nanoToMilli( nanoDuration );
+        return TimeUnitConvertor.nanoToMilli( durationNano );
     }
 
     @Override
     public long asMicro()
     {
-        return TimeUnitConvertor.nanoToMicro( nanoDuration );
+        return TimeUnitConvertor.nanoToMicro( durationNano );
     }
 
     @Override
     public long asNano()
     {
-        return nanoDuration;
+        return durationNano;
     }
 
     @Override
     public String toString()
     {
-        return nanoDuration + "(ns)";
+        return durationNano + "(ns)";
     }
 
     @Override
@@ -79,7 +84,7 @@ public class Duration implements MultipleTimeUnitProvider
     {
         final int prime = 31;
         int result = 1;
-        result = prime * result + (int) ( nanoDuration ^ ( nanoDuration >>> 32 ) );
+        result = prime * result + (int) ( durationNano ^ ( durationNano >>> 32 ) );
         return result;
     }
 
@@ -90,7 +95,13 @@ public class Duration implements MultipleTimeUnitProvider
         if ( obj == null ) return false;
         if ( getClass() != obj.getClass() ) return false;
         Duration other = (Duration) obj;
-        if ( nanoDuration != other.nanoDuration ) return false;
+        if ( false == durationNano.equals( other.durationNano ) ) return false;
         return true;
+    }
+
+    @Override
+    public int compareTo( Duration o )
+    {
+        return durationNano.compareTo( o.durationNano );
     }
 }

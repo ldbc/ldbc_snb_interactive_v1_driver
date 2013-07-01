@@ -21,10 +21,12 @@ public class StartTimeOperationGeneratorWrapper extends Generator<Operation<?>>
     @Override
     protected Operation<?> doNext() throws GeneratorException
     {
-        if ( false == operationGenerator.hasNext() ) return null;
-        if ( false == startTimeGenerator.hasNext() ) return null;
-        Operation<?> operation = operationGenerator.next();
-        operation.setScheduledStartTime( startTimeGenerator.next() );
-        return operation;
+        if ( operationGenerator.hasNext() && startTimeGenerator.hasNext() )
+        {
+            Operation<?> operation = operationGenerator.next();
+            operation.setScheduledStartTime( startTimeGenerator.next() );
+            return operation;
+        }
+        return null;
     }
 }

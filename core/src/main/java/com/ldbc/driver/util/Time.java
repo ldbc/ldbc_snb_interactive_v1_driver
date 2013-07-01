@@ -66,7 +66,7 @@ public class Time implements Comparable<Time>, MultipleTimeUnitProvider
         if ( obj == null ) return false;
         if ( getClass() != obj.getClass() ) return false;
         Time other = (Time) obj;
-        if ( timeNano != other.timeNano ) return false;
+        if ( false == timeNano.equals( other.timeNano ) ) return false;
         return true;
     }
 

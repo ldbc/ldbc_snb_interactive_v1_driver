@@ -11,10 +11,13 @@ import com.ldbc.driver.generator.Generator;
 import com.ldbc.driver.generator.GeneratorBuilder;
 import com.ldbc.driver.util.RandomDataGeneratorFactory;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.*;
+import static org.hamcrest.CoreMatchers.*;
+import static org.junit.matchers.JUnitMatchers.*;
 
 public class FilterGeneratorWrapperTest
 {
+    // TODO make own version of Predicate
     @Test
     public void shouldIncludeOnly()
     {
