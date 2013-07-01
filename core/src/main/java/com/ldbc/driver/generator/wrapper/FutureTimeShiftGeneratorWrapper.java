@@ -4,20 +4,23 @@ import com.ldbc.driver.Operation;
 import com.ldbc.driver.generator.Generator;
 import com.ldbc.driver.generator.GeneratorException;
 import com.ldbc.driver.util.Duration;
+import com.ldbc.driver.util.Function;
 import com.ldbc.driver.util.Time;
 
 public class FutureTimeShiftGeneratorWrapper extends Generator<Operation<?>>
 {
     private final Generator<Operation<?>> operationGenerator;
-    private final Duration offsetDuration;
     private Operation<?> firstOperation;
 
     public FutureTimeShiftGeneratorWrapper( Generator<Operation<?>> operationGenerator, Time startTime )
     {
         super( null );
-        this.operationGenerator = operationGenerator;
-        this.firstOperation = this.operationGenerator.next();
-        this.offsetDuration = Duration.durationBetween( firstOperation.getScheduledStartTime(), startTime );
+        firstOperation = operationGenerator.next();
+        Duration offsetDuration = Duration.durationBetween( firstOperation.getScheduledStartTime(), startTime );
+        Function<Operation<?>, Operation<?>> timeShiftFun = new TimeShiftFunction( offsetDuration );
+        firstOperation = timeShiftFun.apply( firstOperation );
+        this.operationGenerator = new MapGeneratorWrapper<Operation<?>, Operation<?>>( operationGenerator,
+                new TimeShiftFunction( offsetDuration ) );
     }
 
     @Override
@@ -25,24 +28,36 @@ public class FutureTimeShiftGeneratorWrapper extends Generator<Operation<?>>
     {
         if ( null != firstOperation )
         {
-            Operation<?> next = offsetOperationScheduledStartTime( firstOperation );
+            Operation<?> next = firstOperation;
             firstOperation = null;
             return next;
         }
-        if ( false == operationGenerator.hasNext() ) return null;
+        if ( false == operationGenerator.hasNext() )
+        {
+            return null;
+        }
         Operation<?> operation = operationGenerator.next();
-
         if ( operation.getScheduledStartTime() == Operation.UNASSIGNED_SCHEDULED_START_TIME )
         {
             throw new GeneratorException( "Original Operation must have a scheduled start time" );
         }
-
-        return offsetOperationScheduledStartTime( operation );
-    }
-
-    private Operation<?> offsetOperationScheduledStartTime( Operation<?> operation )
-    {
-        operation.setScheduledStartTime( operation.getScheduledStartTime().plus( offsetDuration ) );
         return operation;
     }
+
+    static class TimeShiftFunction implements Function<Operation<?>, Operation<?>>
+    {
+        final Duration offsetDuration;
+
+        TimeShiftFunction( Duration offsetDuration )
+        {
+            this.offsetDuration = offsetDuration;
+        }
+
+        @Override
+        public Operation<?> apply( Operation<?> operation )
+        {
+            operation.setScheduledStartTime( operation.getScheduledStartTime().plus( offsetDuration ) );
+            return operation;
+        }
+    };
 }
