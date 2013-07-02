@@ -6,8 +6,8 @@ import com.ldbc.driver.Operation;
 import com.ldbc.driver.generator.Generator;
 import com.ldbc.driver.generator.GeneratorException;
 import com.ldbc.driver.util.Function;
-import com.ldbc.driver.util.time.Duration;
-import com.ldbc.driver.util.time.Time;
+import com.ldbc.driver.util.temporal.Duration;
+import com.ldbc.driver.util.temporal.Time;
 
 public class FutureTimeShiftGeneratorWrapper extends Generator<Operation<?>>
 {

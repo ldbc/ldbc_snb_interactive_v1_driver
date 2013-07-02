@@ -4,7 +4,7 @@ import org.apache.commons.math3.random.RandomDataGenerator;
 import org.apache.commons.math3.random.RandomGenerator;
 import org.apache.commons.math3.random.Well19937c;
 
-import com.ldbc.driver.util.time.Time;
+import com.ldbc.driver.util.temporal.Time;
 
 public class RandomDataGeneratorFactory
 {

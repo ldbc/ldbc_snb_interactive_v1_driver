@@ -7,7 +7,7 @@ import com.ldbc.driver.generator.Generator;
 import com.ldbc.driver.generator.GeneratorException;
 import com.ldbc.driver.generator.IdentityGenerator;
 import com.ldbc.driver.util.Function;
-import com.ldbc.driver.util.time.Time;
+import com.ldbc.driver.util.temporal.Time;
 
 import static org.junit.Assert.*;
 import static org.hamcrest.CoreMatchers.*;

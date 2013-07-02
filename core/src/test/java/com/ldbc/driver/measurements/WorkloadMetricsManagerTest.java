@@ -7,9 +7,9 @@ import com.ldbc.driver.measurements.exporters.MetricsExporter;
 import com.ldbc.driver.measurements.exporters.OutputStreamMetricsExporter;
 import com.ldbc.driver.measurements.formatters.MetricsFormatter;
 import com.ldbc.driver.measurements.formatters.SimpleMetricsFormatter;
-import com.ldbc.driver.util.time.Duration;
-import com.ldbc.driver.util.time.Time;
-import com.ldbc.driver.util.time.TimeUnit;
+import com.ldbc.driver.util.temporal.Duration;
+import com.ldbc.driver.util.temporal.Time;
+import com.ldbc.driver.util.temporal.TimeUnit;
 
 import static org.junit.Assert.*;
 import static org.hamcrest.CoreMatchers.*;

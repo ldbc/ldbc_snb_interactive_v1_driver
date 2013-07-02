@@ -19,9 +19,9 @@ import com.ldbc.driver.util.ClassLoaderHelper;
 import com.ldbc.driver.util.MapUtils;
 import com.ldbc.driver.util.Pair;
 import com.ldbc.driver.util.RandomDataGeneratorFactory;
-import com.ldbc.driver.util.time.Duration;
-import com.ldbc.driver.util.time.Time;
-import com.ldbc.driver.util.time.TimeUnit;
+import com.ldbc.driver.util.temporal.Duration;
+import com.ldbc.driver.util.temporal.Time;
+import com.ldbc.driver.util.temporal.TimeUnit;
 
 public class Client
 {

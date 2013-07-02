@@ -2,8 +2,8 @@ package com.ldbc.driver;
 
 import java.util.concurrent.Callable;
 
-import com.ldbc.driver.util.time.DurationMeasurement;
-import com.ldbc.driver.util.time.Time;
+import com.ldbc.driver.util.temporal.DurationMeasurement;
+import com.ldbc.driver.util.temporal.Time;
 
 public abstract class OperationHandler<A extends Operation<?>> implements Callable<OperationResult>
 {

@@ -1,4 +1,4 @@
-package com.ldbc.driver.util.time;
+package com.ldbc.driver.util.temporal;
 
 public interface MultipleTimeUnitProvider
 {
