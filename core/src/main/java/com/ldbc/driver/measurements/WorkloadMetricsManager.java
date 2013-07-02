@@ -4,10 +4,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.ldbc.driver.OperationResult;
-import com.ldbc.driver.util.Duration;
-import com.ldbc.driver.util.MultipleTimeUnitProvider;
-import com.ldbc.driver.util.Time;
-import com.ldbc.driver.util.TimeUnit;
+import com.ldbc.driver.util.time.Duration;
+import com.ldbc.driver.util.time.MultipleTimeUnitProvider;
+import com.ldbc.driver.util.time.Time;
+import com.ldbc.driver.util.time.TimeUnit;
 
 public class WorkloadMetricsManager
 {

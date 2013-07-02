@@ -2,8 +2,8 @@ package com.ldbc.driver;
 
 import java.util.concurrent.Callable;
 
-import com.ldbc.driver.util.Duration;
-import com.ldbc.driver.util.Time;
+import com.ldbc.driver.util.time.DurationMeasurement;
+import com.ldbc.driver.util.time.Time;
 
 public abstract class OperationHandler<A extends Operation<?>> implements Callable<OperationResult>
 {
@@ -28,14 +28,15 @@ public abstract class OperationHandler<A extends Operation<?>> implements Callab
     @Override
     public OperationResult call() throws Exception
     {
+        DurationMeasurement durationMeasurement = DurationMeasurement.startMeasurementNow();
         Time actualStartTime = Time.now();
+
         OperationResult operationResult = executeOperation( operation );
-        Time actualEndTime = Time.now();
 
         operationResult.setOperationType( operation.getClass().getName() );
         operationResult.setScheduledStartTime( operation.getScheduledStartTime() );
         operationResult.setActualStartTime( actualStartTime );
-        operationResult.setRunTime( Duration.durationBetween( actualStartTime, actualEndTime ) );
+        operationResult.setRunTime( durationMeasurement.getDurationUntilNow() );
 
         return operationResult;
     }

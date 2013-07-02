@@ -1,4 +1,4 @@
-package com.ldbc.driver.util;
+package com.ldbc.driver.util.time;
 
 public class Duration implements Comparable<Duration>, MultipleTimeUnitProvider
 {

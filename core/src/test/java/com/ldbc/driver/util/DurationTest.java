@@ -2,6 +2,9 @@ package com.ldbc.driver.util;
 
 import org.junit.Test;
 
+import com.ldbc.driver.util.time.Duration;
+import com.ldbc.driver.util.time.Time;
+
 import static org.junit.Assert.*;
 import static org.hamcrest.CoreMatchers.*;
 import static org.junit.matchers.JUnitMatchers.*;

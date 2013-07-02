@@ -2,6 +2,9 @@ package com.ldbc.driver.util;
 
 import org.junit.Test;
 
+import com.ldbc.driver.util.time.Duration;
+import com.ldbc.driver.util.time.Time;
+
 import static org.junit.Assert.*;
 import static org.hamcrest.CoreMatchers.*;
 import static org.junit.matchers.JUnitMatchers.*;
@@ -73,5 +76,19 @@ public class TimeTest
 
         // Then
         assertThat( time1.asNano(), equalTo( time2.asNano() ) );
+    }
+
+    @Test
+    public void shouldReturnNow()
+    {
+        // Given
+        Time now = Time.now();
+        long nowMilli = System.currentTimeMillis();
+
+        // When
+        long difference = Math.abs( now.asMilli() - nowMilli );
+
+        // Then
+        assertThat( difference < 10, is( true ) );
     }
 }

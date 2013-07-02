@@ -1,7 +1,7 @@
 package com.ldbc.driver;
 
-import com.ldbc.driver.util.Duration;
-import com.ldbc.driver.util.Time;
+import com.ldbc.driver.util.time.Duration;
+import com.ldbc.driver.util.time.Time;
 
 public class OperationResult
 {

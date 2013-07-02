@@ -5,8 +5,8 @@ import org.apache.log4j.Logger;
 import com.ldbc.driver.generator.Generator;
 import com.ldbc.driver.generator.GeneratorBuilder;
 import com.ldbc.driver.measurements.WorkloadMetricsManager;
-import com.ldbc.driver.util.Duration;
-import com.ldbc.driver.util.Time;
+import com.ldbc.driver.util.time.Duration;
+import com.ldbc.driver.util.time.Time;
 
 public class WorkloadRunner
 {

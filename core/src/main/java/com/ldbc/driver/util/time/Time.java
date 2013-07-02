@@ -1,10 +1,10 @@
-package com.ldbc.driver.util;
+package com.ldbc.driver.util.time;
 
 public class Time implements Comparable<Time>, MultipleTimeUnitProvider
 {
     public static Time now()
     {
-        return new Time( System.nanoTime() );
+        return new Time( TimeUnitConvertor.nanoFromMilli( System.currentTimeMillis() ) );
     }
 
     public static Time fromNano( long nanoTime )

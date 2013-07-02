@@ -18,7 +18,7 @@
 		<maven.assembly.version>2.2.1</maven.assembly.version>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<jackson.api.version>1.9.4</jackson.api.version>
-		<junit.version>4.10</junit.version>
+		<junit.version>4.11</junit.version>
 		<commons-io.version>2.4</commons-io.version>
 		<common-math.version>3.2</common-math.version>
 		<log4j.version>1.2.17</log4j.version>

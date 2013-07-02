@@ -1,11 +1,13 @@
 package com.ldbc.driver.generator.wrapper;
 
+import java.util.Date;
+
 import com.ldbc.driver.Operation;
 import com.ldbc.driver.generator.Generator;
 import com.ldbc.driver.generator.GeneratorException;
-import com.ldbc.driver.util.Duration;
 import com.ldbc.driver.util.Function;
-import com.ldbc.driver.util.Time;
+import com.ldbc.driver.util.time.Duration;
+import com.ldbc.driver.util.time.Time;
 
 public class FutureTimeShiftGeneratorWrapper extends Generator<Operation<?>>
 {

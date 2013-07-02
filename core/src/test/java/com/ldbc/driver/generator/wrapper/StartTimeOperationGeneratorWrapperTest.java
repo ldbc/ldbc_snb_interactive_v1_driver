@@ -4,10 +4,10 @@ import com.ldbc.driver.Operation;
 import com.ldbc.driver.generator.Generator;
 import com.ldbc.driver.generator.GeneratorBuilder;
 import com.ldbc.driver.generator.GeneratorException;
-import com.ldbc.driver.util.Duration;
 import com.ldbc.driver.util.Function;
 import com.ldbc.driver.util.RandomDataGeneratorFactory;
-import com.ldbc.driver.util.Time;
+import com.ldbc.driver.util.time.Duration;
+import com.ldbc.driver.util.time.Time;
 
 import org.junit.Test;
 
