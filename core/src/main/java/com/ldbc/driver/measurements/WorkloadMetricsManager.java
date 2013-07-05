@@ -46,9 +46,9 @@ public class WorkloadMetricsManager
     public WorkloadMetricsManager( TimeUnit durationUnit, Duration highestExpectedDuration )
     {
         this.durationUnit = durationUnit;
-        MetricFactory durationMetricFactory = new HdrHistogramMetricFactory(
-                highestExpectedDuration.as( this.durationUnit ), 5 );
-        MetricFactory resultCodeMetricFactory = new HdrHistogramMetricFactory( 1000, 5 );
+        MetricFactory durationMetricFactory = new HdrHistogramMetricFactory( durationUnit.toString(),
+                highestExpectedDuration.as( durationUnit ), 5 );
+        MetricFactory resultCodeMetricFactory = new HdrHistogramMetricFactory( null, 1000, 5 );
         runtimeMetrics = new MetricGroup( METRIC_RUNTIME, durationMetricFactory );
         startTimeDelayMetrics = new MetricGroup( METRIC_START_TIME_DELAY, durationMetricFactory );
         resultCodeMetrics = new MetricGroup( METRIC_RESULT_CODE, resultCodeMetricFactory );

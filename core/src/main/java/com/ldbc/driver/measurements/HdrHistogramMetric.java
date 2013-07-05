@@ -11,32 +11,30 @@ public class HdrHistogramMetric implements Metric
 
     private final Histogram histogram;
     private final String name;
-
-    public HdrHistogramMetric( long highestExpectedValue )
-    {
-        this( null, highestExpectedValue );
-    }
-
-    public HdrHistogramMetric( String name, long highestExpectedValue )
-    {
-        this( name, highestExpectedValue, 5 );
-    }
+    private final String unit;
 
     public HdrHistogramMetric( long highestExpectedValue, int numberOfSignificantDigits )
     {
-        this( null, highestExpectedValue, numberOfSignificantDigits );
+        this( null, null, highestExpectedValue, numberOfSignificantDigits );
     }
 
-    public HdrHistogramMetric( String name, long highestExpectedValue, int numberOfSignificantDigits )
+    public HdrHistogramMetric( String name, String unit, long highestExpectedValue, int numberOfSignificantDigits )
     {
         histogram = new Histogram( highestExpectedValue, numberOfSignificantDigits );
         this.name = name;
+        this.unit = unit;
     }
 
     @Override
     public String getName()
     {
         return name;
+    }
+
+    @Override
+    public String getUnit()
+    {
+        return unit;
     }
 
     @Override

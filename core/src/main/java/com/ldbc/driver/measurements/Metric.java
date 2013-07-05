@@ -6,6 +6,8 @@ public interface Metric
 
     public String getName();
 
+    public String getUnit();
+
     public double getMean();
 
     public long getPercentile( double percentile );

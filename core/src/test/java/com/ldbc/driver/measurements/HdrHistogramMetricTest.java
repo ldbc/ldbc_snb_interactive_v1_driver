@@ -100,7 +100,7 @@ public class HdrHistogramMetricTest
     @Test
     public void shouldReturnCorrectMeasurements() throws MetricsExporterException
     {
-        Metric testMetric = new HdrHistogramMetric( "Test", Duration.fromSeconds( 60 ).asNano() );
+        Metric testMetric = new HdrHistogramMetric( "Test", "Some Unit", Duration.fromSeconds( 60 ).asNano(), 5 );
 
         testMetric.addMeasurement( 1 );
         testMetric.addMeasurement( 2 );

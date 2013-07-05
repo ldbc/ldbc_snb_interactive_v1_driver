@@ -48,6 +48,7 @@ public class WorkloadRunner
                 operationHandlerExecutor, metricsManager );
         operationResultLoggingThread.start();
         Generator<Operation<?>> operationGenerator = getOperationGenerator( benchmarkPhase );
+        // TODO should not be Time.now(), no telling when first Operation starts
         WorkloadProgressStatus workloadProgressStatus = new WorkloadProgressStatus( Time.now() );
         while ( ( operationCount == -1 && operationGenerator.hasNext() ) || operationsDone < operationCount )
         {
@@ -58,7 +59,9 @@ public class WorkloadRunner
                 waitForScheduledStartTime( operation.getScheduledStartTime() );
                 operationHandlerExecutor.execute( operationHandler );
                 operationsDone++;
+                // TODO status should not be part of this loop, loop is blocking
                 if ( showStatus
+                // TODO seems silly to have this logic outside of status class
                      && workloadProgressStatus.durationSinceLastUpdate().asSeconds() >= STATUS_INTERVAL.asSeconds() )
                 {
                     String statusString = workloadProgressStatus.update( operationsDone );

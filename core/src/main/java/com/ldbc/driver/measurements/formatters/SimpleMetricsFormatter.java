@@ -6,6 +6,7 @@ import com.ldbc.driver.measurements.MetricGroup;
 public class SimpleMetricsFormatter implements MetricsFormatter
 {
     private static final String DEFAULT_NAME = "<no name given>";
+    private static final String DEFAULT_UNIT = "<no unit given>";
 
     @Override
     public String format( Metric... metrics )
@@ -46,7 +47,9 @@ public class SimpleMetricsFormatter implements MetricsFormatter
     {
         StringBuilder sb = new StringBuilder();
         String name = ( null == metric.getName() ) ? DEFAULT_NAME : metric.getName();
+        String unit = ( null == metric.getUnit() ) ? DEFAULT_UNIT : metric.getUnit();
         sb.append( offset ).append( String.format( "%s\n", name ) );
+        sb.append( offset ).append( String.format( "\tUnits:\t\t\t%s\n", unit ) );
         sb.append( offset ).append( String.format( "\tCount:\t\t\t%s\n", metric.getCount() ) );
         sb.append( offset ).append( String.format( "\tMin:\t\t\t%s\n", metric.getMin() ) );
         sb.append( offset ).append( String.format( "\tMax:\t\t\t%s\n", metric.getMax() ) );
