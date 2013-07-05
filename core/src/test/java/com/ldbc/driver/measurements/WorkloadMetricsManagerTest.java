@@ -21,7 +21,7 @@ public class WorkloadMetricsManagerTest
     @Test
     public void shouldReturnCorrectMeasurements() throws MetricsExporterException
     {
-        WorkloadMetricsManager workloadMeasurements = new WorkloadMetricsManager( TimeUnit.NANO, TimeUnit.NANO );
+        WorkloadMetricsManager workloadMeasurements = new WorkloadMetricsManager( TimeUnit.NANO );
 
         OperationResult operationResult1 = new OperationResult( 1, "result one" );
         operationResult1.setOperationType( "type one" );
@@ -54,11 +54,12 @@ public class WorkloadMetricsManagerTest
         // Runtime
         // Result Code
         // Start Time Delay
-        // Start Time
-        assertThat( metricTypeCount, is( 4 ) );
+        assertThat( metricTypeCount, is( 3 ) );
 
-        MetricsFormatter formatter = new SimpleMetricsFormatter();
-        MetricsExporter exporter = new OutputStreamMetricsExporter( System.out );
-        exporter.export( formatter, workloadMeasurements.getAllMeasurements() );
+        // MetricsFormatter formatter = new SimpleMetricsFormatter();
+        // MetricsExporter exporter = new OutputStreamMetricsExporter(
+        // System.out );
+        // exporter.export( formatter, workloadMeasurements.getAllMeasurements()
+        // );
     }
 }

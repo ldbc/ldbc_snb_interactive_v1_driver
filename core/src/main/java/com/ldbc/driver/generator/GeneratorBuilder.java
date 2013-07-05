@@ -229,20 +229,45 @@ public class GeneratorBuilder
     }
 
     /**
-     * CounterGenerator
+     * IncrementingGenerator
      */
-    public <T extends Number> NumberGeneratorBuilderDelegate<CounterGenerator<T>, T> counterGenerator( T start,
-            T incrementBy )
+
+    public <T extends Number> NumberGeneratorBuilderDelegate<IncrementingGenerator<T>, T> incrementingGenerator(
+            T start, T incrementBy )
     {
-        return boundedCounterGenerator( start, incrementBy, null );
+        return boundedIncrementingGenerator( start, new ConstantGenerator<T>( getRandom(), incrementBy ), null );
     }
 
-    public <T extends Number> NumberGeneratorBuilderDelegate<CounterGenerator<T>, T> boundedCounterGenerator( T start,
-            T incrementBy, T max )
+    public <T extends Number> NumberGeneratorBuilderDelegate<IncrementingGenerator<T>, T> incrementingGenerator(
+            T start, Generator<T> incrementByGenerator )
     {
-        CounterGenerator<T> generator = new CounterGenerator<T>( getRandom(), start, incrementBy, max );
-        return new NumberGeneratorBuilderDelegate<CounterGenerator<T>, T>( generator );
+        return boundedIncrementingGenerator( start, incrementByGenerator, null );
     }
+
+    public <T extends Number> NumberGeneratorBuilderDelegate<IncrementingGenerator<T>, T> boundedIncrementingGenerator(
+            T start, T incrementBy, T max )
+    {
+        return boundedIncrementingGenerator( start, new ConstantGenerator<T>( getRandom(), incrementBy ), max );
+    }
+
+    public <T extends Number> NumberGeneratorBuilderDelegate<IncrementingGenerator<T>, T> boundedIncrementingGenerator(
+            T start, Generator<T> incrementByGenerator, T max )
+    {
+        IncrementingGenerator<T> generator = new IncrementingGenerator<T>( getRandom(), start, incrementByGenerator,
+                max );
+        return new NumberGeneratorBuilderDelegate<IncrementingGenerator<T>, T>( generator );
+    }
+
+    // public <T extends Number>
+    // NumberGeneratorBuilderDelegate<IncrementingGenerator<T>, T>
+    // boundedIncrementingGenerator(
+    // T start, T incrementBy, T max )
+    // {
+    // IncrementingGenerator<T> generator = new IncrementingGenerator<T>(
+    // getRandom(), start, incrementBy, max );
+    // return new NumberGeneratorBuilderDelegate<IncrementingGenerator<T>, T>(
+    // generator );
+    // }
 
     /**
      * ZipfianNumberGenerator

@@ -25,6 +25,8 @@ public class OperationHandlerExecutor
     private long retrievedResults = 0;
     private long submittedHandlers = 0;
 
+    private boolean shutdown = false;
+
     public static void main( String[] args )
     {
         final int THREAD_COUNT = 4;
@@ -87,7 +89,9 @@ public class OperationHandlerExecutor
 
     public final void shutdown()
     {
+        if ( true == shutdown ) return;
         threadPool.shutdown();
+        shutdown = true;
     }
 
     public final int getThreadCount()

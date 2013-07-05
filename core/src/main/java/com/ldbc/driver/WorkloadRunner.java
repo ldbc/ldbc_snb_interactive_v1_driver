@@ -25,6 +25,7 @@ public class WorkloadRunner
 
     int operationsDone;
 
+    // TODO pass in Generator<Operation<<?>> instead of GeneratorBuilder?
     public WorkloadRunner( Db db, BenchmarkPhase benchmarkPhase, Workload workload, int operationCount,
             GeneratorBuilder generatorBuilder, boolean showStatus, int threadCount,
             WorkloadMetricsManager metricsManager )
@@ -40,7 +41,7 @@ public class WorkloadRunner
         this.metricsManager = metricsManager;
     }
 
-    public void run() throws ClientException
+    public void run() throws WorkloadException
     {
         OperationHandlerExecutor operationHandlerExecutor = new OperationHandlerExecutor( threadCount );
         OperationResultLoggingThread operationResultLoggingThread = new OperationResultLoggingThread(
@@ -57,7 +58,6 @@ public class WorkloadRunner
                 waitForScheduledStartTime( operation.getScheduledStartTime() );
                 operationHandlerExecutor.execute( operationHandler );
                 operationsDone++;
-
                 if ( showStatus
                      && workloadProgressStatus.durationSinceLastUpdate().asSeconds() >= STATUS_INTERVAL.asSeconds() )
                 {
@@ -67,7 +67,7 @@ public class WorkloadRunner
             }
             catch ( Exception e )
             {
-                throw new ClientException( String.format(
+                throw new WorkloadException( String.format(
                         "Error encountered trying to execute %s after %s of %s operations", operation, operationsDone,
                         operationCount ), e.getCause() );
             }
@@ -85,31 +85,26 @@ public class WorkloadRunner
         }
     }
 
-    private Generator<Operation<?>> getOperationGenerator( BenchmarkPhase benchmarkPhase ) throws ClientException
+    private Generator<Operation<?>> getOperationGenerator( BenchmarkPhase benchmarkPhase ) throws WorkloadException
     {
-        Generator<Operation<?>> operationGenerator = null;
-        try
+        switch ( benchmarkPhase )
         {
-            switch ( benchmarkPhase )
-            {
-            case LOAD_PHASE:
-                operationGenerator = workload.getLoadOperations( generatorBuilder );
-                break;
-            case TRANSACTION_PHASE:
-                operationGenerator = workload.getTransactionalOperations( generatorBuilder );
-                break;
-            }
+        case LOAD_PHASE:
+            return workload.getLoadOperations( generatorBuilder );
+        case TRANSACTION_PHASE:
+            return workload.getTransactionalOperations( generatorBuilder );
         }
-        catch ( WorkloadException e )
-        {
-            throw new ClientException( "Error encounterd trying to get operation generator", e.getCause() );
-        }
-        return operationGenerator;
+        throw new WorkloadException( "Error encounterd trying to get operation generator" );
     }
 
-    private void waitForScheduledStartTime( Time scheduledStartTime )
+    private void waitForScheduledStartTime( Time scheduledStartTime ) throws OperationException
     {
-        if ( scheduledStartTime.equals( Operation.UNASSIGNED_SCHEDULED_START_TIME ) ) return;
+        if ( scheduledStartTime.equals( Operation.UNASSIGNED_SCHEDULED_START_TIME ) )
+        {
+            String errMsg = String.format( "Operation must have an assigned Scheduled Start Time" );
+            logger.error( errMsg );
+            throw new OperationException( errMsg );
+        }
         while ( Time.now().asNano() < scheduledStartTime.asNano() )
         {
             // busy wait

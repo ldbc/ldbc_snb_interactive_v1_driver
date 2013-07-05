@@ -345,12 +345,12 @@ public class Client
         }
         logger.info( String.format( "Loaded DB: %s", db.getClass().getName() ) );
 
-        TimeUnit timeUnit = TimeUnit.MILLI;
         TimeUnit durationUnit = TimeUnit.NANO;
-        WorkloadMetricsManager metricsManager = new WorkloadMetricsManager( timeUnit, durationUnit );
+        WorkloadMetricsManager metricsManager = new WorkloadMetricsManager( durationUnit );
 
         int operationCount = getOperationCount( properties, benchmarkPhase );
 
+        // TODO pass in Generator<Operation<<?>> instead of GeneratorBuilder?
         WorkloadRunner workloadRunner = new WorkloadRunner( db, benchmarkPhase, workload, operationCount,
                 generatorBuilder, showStatus, threadCount, metricsManager );
 
@@ -360,7 +360,7 @@ public class Client
         {
             workloadRunner.run();
         }
-        catch ( ClientException e )
+        catch ( WorkloadException e )
         {
             String errMsg = "Error running Workload";
             logger.error( errMsg, e );
@@ -437,10 +437,8 @@ public class Client
 
     private void exit()
     {
-        // TODO YCSB used System.exit(0) to kill its many driver threads. those
-        // threads no longer exist, but others will at the DB connection
-        // layer. What's the cleanest/safest/right way to terminate the
-        // application and clean up all threads?
+        // TODO What's the cleanest/safest/right way to terminate the
+        // application and clean up all threads in threadpool?
         System.exit( 0 );
     }
 }

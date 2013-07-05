@@ -1,11 +1,14 @@
 package com.ldbc.driver.measurements;
 
 import org.HdrHistogram.Histogram;
+import org.apache.log4j.Logger;
 
 import com.ldbc.driver.measurements.formatters.SimpleMetricsFormatter;
 
 public class HdrHistogramMetric implements Metric
 {
+    private static Logger logger = Logger.getLogger( HdrHistogramMetric.class );
+
     private final Histogram histogram;
     private final String name;
 
@@ -16,7 +19,17 @@ public class HdrHistogramMetric implements Metric
 
     public HdrHistogramMetric( String name, long highestExpectedValue )
     {
-        histogram = new Histogram( highestExpectedValue, 5 );
+        this( name, highestExpectedValue, 5 );
+    }
+
+    public HdrHistogramMetric( long highestExpectedValue, int numberOfSignificantDigits )
+    {
+        this( null, highestExpectedValue, numberOfSignificantDigits );
+    }
+
+    public HdrHistogramMetric( String name, long highestExpectedValue, int numberOfSignificantDigits )
+    {
+        histogram = new Histogram( highestExpectedValue, numberOfSignificantDigits );
         this.name = name;
     }
 
@@ -29,7 +42,16 @@ public class HdrHistogramMetric implements Metric
     @Override
     public void addMeasurement( long value )
     {
-        histogram.recordValue( value );
+        try
+        {
+            histogram.recordValue( value );
+        }
+        catch ( ArrayIndexOutOfBoundsException e )
+        {
+            String errMsg = String.format( "Error encountered adding measurement [%s]", value );
+            logger.error( errMsg, e );
+            throw new MetricException( errMsg, e.getCause() );
+        }
     }
 
     @Override

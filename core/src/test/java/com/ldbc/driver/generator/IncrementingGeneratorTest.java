@@ -11,7 +11,7 @@ import com.ldbc.driver.util.Histogram;
 
 import static org.junit.Assert.assertEquals;
 
-public class CounterGeneratorTest extends NumberGeneratorTest<Long, Long>
+public class IncrementingGeneratorTest extends NumberGeneratorTest<Long, Long>
 {
     private final long start = 0;
 
@@ -30,7 +30,7 @@ public class CounterGeneratorTest extends NumberGeneratorTest<Long, Long>
     @Override
     public Generator<Long> getGeneratorImpl()
     {
-        return getGeneratorBuilder().counterGenerator( start, 1l ).build();
+        return getGeneratorBuilder().incrementingGenerator( start, 1l ).build();
     }
 
     @Override
@@ -56,7 +56,7 @@ public class CounterGeneratorTest extends NumberGeneratorTest<Long, Long>
     public void firstNumberShouldEqualStartTest()
     {
         // Given
-        Generator<Long> generator = getGeneratorBuilder().counterGenerator( start, 1l ).build();
+        Generator<Long> generator = getGeneratorBuilder().incrementingGenerator( start, 1l ).build();
 
         // When
         long firstNumber = generator.next();

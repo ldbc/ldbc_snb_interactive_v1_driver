@@ -15,6 +15,7 @@ public class OrderedMultiGeneratorWrapper<T> extends Generator<T>
     private final List<GeneratorHead<T>> generatorHeads;
     private final Comparator<T> comparator;
 
+    // TODO move to GeneratorUtils?
     public static OrderedMultiGeneratorWrapper<Operation<?>> operationsByScheduledStartTime( int lookaheadDistance,
             Generator<Operation<?>>... operationGenerators )
     {

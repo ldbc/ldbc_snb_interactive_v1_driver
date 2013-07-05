@@ -22,6 +22,22 @@ public class Duration implements Comparable<Duration>, MultipleTimeUnitProvider
         return new Duration( TimeUnitConvertor.nanoFromSecond( s ) );
     }
 
+    public static Duration from( TimeUnit timeUnit, long unitOfTime )
+    {
+        switch ( timeUnit )
+        {
+        case NANO:
+            return Duration.fromNano( unitOfTime );
+        case MICRO:
+            return Duration.fromMicro( unitOfTime );
+        case MILLI:
+            return Duration.fromMilli( unitOfTime );
+        case SECOND:
+            return Duration.fromSeconds( unitOfTime );
+        }
+        throw new RuntimeException( "Unexpected error - unsupported TimeUnit" );
+    }
+
     public static Duration durationBetween( Time firstTime, Time secondTime )
     {
         if ( secondTime.asNano() < firstTime.asNano() )
@@ -77,6 +93,23 @@ public class Duration implements Comparable<Duration>, MultipleTimeUnitProvider
     public String toString()
     {
         return durationNano + "(ns)";
+    }
+
+    @Override
+    public long as( TimeUnit timeUnit )
+    {
+        switch ( timeUnit )
+        {
+        case NANO:
+            return this.asNano();
+        case MICRO:
+            return this.asMicro();
+        case MILLI:
+            return this.asMilli();
+        case SECOND:
+            return this.asSeconds();
+        }
+        throw new RuntimeException( "Unexpected error - unsupported TimeUnit" );
     }
 
     @Override

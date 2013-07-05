@@ -4,18 +4,18 @@ import org.apache.commons.math3.random.RandomDataGenerator;
 
 import com.ldbc.driver.util.NumberHelper;
 
-public class CounterGenerator<T extends Number> extends Generator<T>
+public class IncrementingGenerator<T extends Number> extends Generator<T>
 {
     private final NumberHelper<T> number;
-    private final T incrementBy;
     private final T max;
+    private final Generator<T> incrementByGenerator;
     private T count;
 
-    CounterGenerator( RandomDataGenerator random, T start, T incrementBy, T max )
+    IncrementingGenerator( RandomDataGenerator random, T start, Generator<T> incrementByGenerator, T max )
     {
         super( random );
         this.count = start;
-        this.incrementBy = incrementBy;
+        this.incrementByGenerator = incrementByGenerator;
         this.max = max;
         number = NumberHelper.createNumberHelper( start.getClass() );
     }
@@ -28,7 +28,7 @@ public class CounterGenerator<T extends Number> extends Generator<T>
             return null;
         }
         T next = count;
-        count = number.sum( count, incrementBy );
+        count = number.sum( count, incrementByGenerator.next() );
         return next;
     }
 }

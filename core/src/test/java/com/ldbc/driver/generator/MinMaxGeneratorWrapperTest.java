@@ -34,7 +34,7 @@ public class MinMaxGeneratorWrapperTest
     @Test
     public void minMaxTest()
     {
-        Generator<Integer> generator = generatorBuilder.counterGenerator( 5, 1 ).build();
+        Generator<Integer> generator = generatorBuilder.incrementingGenerator( 5, 1 ).build();
         MinMaxGeneratorWrapper<Integer> minMaxGenerator = new MinMaxGeneratorWrapper<Integer>( generator, 10, 5 );
         assertEquals( 10, (int) minMaxGenerator.getMin() );
         assertEquals( 5, (int) minMaxGenerator.getMax() );

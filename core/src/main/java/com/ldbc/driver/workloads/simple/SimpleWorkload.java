@@ -13,8 +13,11 @@ import com.ldbc.driver.generator.GeneratorBuilder;
 import com.ldbc.driver.generator.GeneratorException;
 import com.ldbc.driver.generator.wrapper.MinMaxGeneratorWrapper;
 import com.ldbc.driver.generator.wrapper.PrefixGeneratorWrapper;
+import com.ldbc.driver.generator.wrapper.StartTimeOperationGeneratorWrapper;
+import com.ldbc.driver.util.GeneratorUtils;
 import com.ldbc.driver.util.Pair;
 import com.ldbc.driver.util.Triple;
+import com.ldbc.driver.util.temporal.Time;
 
 public class SimpleWorkload extends Workload
 {
@@ -49,7 +52,7 @@ public class SimpleWorkload extends Workload
          * **************************
          */
         // Load Insert Keys
-        Generator<Long> loadInsertKeyGenerator = generatorBuilder.counterGenerator( getInsertStart(), 1l ).build();
+        Generator<Long> loadInsertKeyGenerator = generatorBuilder.incrementingGenerator( getInsertStart(), 1l ).build();
 
         // Insert Fields: Names & Values
         Generator<Integer> fieldValuelengthGenerator = generatorBuilder.uniformNumberGenerator( 1, 100 ).build();
@@ -63,8 +66,12 @@ public class SimpleWorkload extends Workload
         Generator<Map<String, ByteIterator>> insertValuedFieldGenerator = generatorBuilder.discreteValuedMultiGenerator(
                 valuedFields, NUMBER_OF_FIELDS_IN_RECORD ).build();
 
-        return new InsertOperationGenerator( TABLE,
+        Generator<Operation<?>> insertOperationGenerator = new InsertOperationGenerator( TABLE,
                 new PrefixGeneratorWrapper( loadInsertKeyGenerator, KEY_NAME_PREFIX ), insertValuedFieldGenerator );
+
+        Generator<Time> startTimeGenerator = GeneratorUtils.randomTimeGeneratorFromNow( generatorBuilder, 1l, 100l );
+
+        return new StartTimeOperationGeneratorWrapper( startTimeGenerator, insertOperationGenerator );
     }
 
     @Override
@@ -79,7 +86,7 @@ public class SimpleWorkload extends Workload
          * **************************
          */
         // Transaction Insert Keys
-        MinMaxGeneratorWrapper<Long> transactionInsertKeyGenerator = generatorBuilder.counterGenerator(
+        MinMaxGeneratorWrapper<Long> transactionInsertKeyGenerator = generatorBuilder.incrementingGenerator(
                 getRecordCount(), 1l ).withMinMax( getRecordCount(), getRecordCount() ).build();
 
         // Insert Fields: Names & Values
@@ -179,7 +186,12 @@ public class SimpleWorkload extends Workload
         operations.add( Pair.create( SCAN_RATIO, (Generator<Operation<?>>) scanOperationGenerator ) );
         operations.add( Pair.create( READ_MODIFY_WRITE_RATIO,
                 (Generator<Operation<?>>) readModifyWriteOperationGenerator ) );
-        return generatorBuilder.discreteValuedGenerator( operations ).build();
+
+        Generator<Operation<?>> transactionalOperationGenerator = generatorBuilder.discreteValuedGenerator( operations ).build();
+
+        Generator<Time> startTimeGenerator = GeneratorUtils.randomTimeGeneratorFromNow( generatorBuilder, 1l, 100l );
+
+        return new StartTimeOperationGeneratorWrapper( startTimeGenerator, transactionalOperationGenerator );
     }
 
     @Override

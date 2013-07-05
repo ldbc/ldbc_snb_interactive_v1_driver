@@ -19,7 +19,7 @@ public class MetricGroupTest
     public void shouldReturnCorrectMeasurements() throws MetricsExporterException
     {
         MetricGroup metricGroup = new MetricGroup( "Test", new HdrHistogramMetricFactory(
-                Duration.fromSeconds( 60 ).asNano() ) );
+                Duration.fromSeconds( 60 ).asNano(), 5 ) );
 
         Metric operation1TestMetric = metricGroup.getOrCreateMetric( "Operation1" );
         operation1TestMetric = metricGroup.getOrCreateMetric( "Operation1" );
@@ -50,8 +50,9 @@ public class MetricGroupTest
         assertThat( metricGroup.getOrCreateMetric( "Operation2" ).getCount(), is( 4l ) );
         assertThat( metricGroup.getOrCreateMetric( "Operation2" ).getMean(), is( 6d ) );
 
-        MetricsFormatter formatter = new SimpleMetricsFormatter();
-        MetricsExporter exporter = new OutputStreamMetricsExporter( System.out );
-        exporter.export( formatter, metricGroup );
+        // MetricsFormatter formatter = new SimpleMetricsFormatter();
+        // MetricsExporter exporter = new OutputStreamMetricsExporter(
+        // System.out );
+        // exporter.export( formatter, metricGroup );
     }
 }

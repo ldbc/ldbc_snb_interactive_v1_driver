@@ -9,4 +9,6 @@ public interface MultipleTimeUnitProvider
     public long asMicro();
 
     public long asNano();
+
+    public long as( TimeUnit timeUnit );
 }

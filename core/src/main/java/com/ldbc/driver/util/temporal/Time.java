@@ -27,6 +27,22 @@ public class Time implements Comparable<Time>, MultipleTimeUnitProvider
         return new Time( TimeUnitConvertor.nanoFromSecond( secondsTime ) );
     }
 
+    public static Time from( TimeUnit timeUnit, long unitOfTime )
+    {
+        switch ( timeUnit )
+        {
+        case NANO:
+            return Time.fromNano( unitOfTime );
+        case MICRO:
+            return Time.fromMicro( unitOfTime );
+        case MILLI:
+            return Time.fromMilli( unitOfTime );
+        case SECOND:
+            return Time.fromSeconds( unitOfTime );
+        }
+        throw new RuntimeException( "Unexpected error - unsupported TimeUnit" );
+    }
+
     private final Long timeNano;
 
     private Time( long timeNano )
@@ -98,5 +114,22 @@ public class Time implements Comparable<Time>, MultipleTimeUnitProvider
     public long asSeconds()
     {
         return TimeUnitConvertor.nanoToSecond( timeNano );
+    }
+
+    @Override
+    public long as( TimeUnit timeUnit )
+    {
+        switch ( timeUnit )
+        {
+        case NANO:
+            return this.asNano();
+        case MICRO:
+            return this.asMicro();
+        case MILLI:
+            return this.asMilli();
+        case SECOND:
+            return this.asSeconds();
+        }
+        throw new RuntimeException( "Unexpected error - unsupported TimeUnit" );
     }
 }

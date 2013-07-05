@@ -38,7 +38,7 @@ public class StartTimeOperationGeneratorWrapperTest
             }
         };
 
-        Generator<Long> countGenerator = new GeneratorBuilder( new RandomDataGeneratorFactory() ).counterGenerator(
+        Generator<Long> countGenerator = new GeneratorBuilder( new RandomDataGeneratorFactory() ).incrementingGenerator(
                 firstNanoTime, incrementNanoTimeBy ).build();
         Generator<Time> counterStartTimeGenerator = new MapGeneratorWrapper<Long, Time>( countGenerator,
                 timeFromLongFun );

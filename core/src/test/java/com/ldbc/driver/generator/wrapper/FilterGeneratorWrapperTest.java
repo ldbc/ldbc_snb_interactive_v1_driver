@@ -22,7 +22,7 @@ public class FilterGeneratorWrapperTest
     public void shouldIncludeOnly()
     {
         // Given
-        Generator<Integer> counterGenerator = new GeneratorBuilder( new RandomDataGeneratorFactory() ).counterGenerator(
+        Generator<Integer> counterGenerator = new GeneratorBuilder( new RandomDataGeneratorFactory() ).incrementingGenerator(
                 1, 1 ).build();
         Generator<Integer> cappedCounterGenerator = new CappedGeneratorWrapper<Integer>( counterGenerator, 10 );
         Integer[] includeNumbers = new Integer[] { 1, 2, 3 };
@@ -44,7 +44,7 @@ public class FilterGeneratorWrapperTest
     public void shouldExcludeAll()
     {
         // Given
-        Generator<Integer> counterGenerator = new GeneratorBuilder( new RandomDataGeneratorFactory() ).counterGenerator(
+        Generator<Integer> counterGenerator = new GeneratorBuilder( new RandomDataGeneratorFactory() ).incrementingGenerator(
                 1, 1 ).build();
         Generator<Integer> cappedCounterGenerator = new CappedGeneratorWrapper<Integer>( counterGenerator, 10 );
         Integer[] excludeNumbers = new Integer[] { 1, 2, 3 };
@@ -66,7 +66,7 @@ public class FilterGeneratorWrapperTest
     public void shouldReturn5()
     {
         // Given
-        Generator<Integer> counterGenerator = new GeneratorBuilder( new RandomDataGeneratorFactory() ).counterGenerator(
+        Generator<Integer> counterGenerator = new GeneratorBuilder( new RandomDataGeneratorFactory() ).incrementingGenerator(
                 1, 1 ).build();
         Generator<Integer> cappedCounterGenerator = new CappedGeneratorWrapper<Integer>( counterGenerator, 10 );
         Generator<Integer> filteredCappedCounterGenerator = new FilterGeneratorWrapper<Integer>(

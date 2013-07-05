@@ -33,7 +33,6 @@ public class BasicDb extends Db
     {
     }
 
-    // TODO remove
     private static void sleep()
     {
         try
@@ -145,7 +144,6 @@ public class BasicDb extends Db
     @Override
     protected DbConnectionState getConnectionState() throws DbException
     {
-        // TODO Auto-generated method stub
         return null;
     }
 
