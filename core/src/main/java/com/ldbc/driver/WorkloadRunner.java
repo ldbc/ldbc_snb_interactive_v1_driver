@@ -17,7 +17,6 @@ public class WorkloadRunner
     private final Db db;
     private final BenchmarkPhase benchmarkPhase;
     private final Workload workload;
-    private final int operationCount;
     private final GeneratorBuilder generatorBuilder;
     private final boolean showStatus;
     private final int threadCount;
@@ -26,14 +25,12 @@ public class WorkloadRunner
     int operationsDone;
 
     // TODO pass in Generator<Operation<<?>> instead of GeneratorBuilder?
-    public WorkloadRunner( Db db, BenchmarkPhase benchmarkPhase, Workload workload, int operationCount,
-            GeneratorBuilder generatorBuilder, boolean showStatus, int threadCount,
-            WorkloadMetricsManager metricsManager )
+    public WorkloadRunner( Db db, BenchmarkPhase benchmarkPhase, Workload workload, GeneratorBuilder generatorBuilder,
+            boolean showStatus, int threadCount, WorkloadMetricsManager metricsManager )
     {
         this.db = db;
         this.benchmarkPhase = benchmarkPhase;
         this.workload = workload;
-        this.operationCount = operationCount;
         this.operationsDone = 0;
         this.generatorBuilder = generatorBuilder;
         this.showStatus = showStatus;
@@ -50,7 +47,7 @@ public class WorkloadRunner
         Generator<Operation<?>> operationGenerator = getOperationGenerator( benchmarkPhase );
         // TODO should not be Time.now(), no telling when first Operation starts
         WorkloadProgressStatus workloadProgressStatus = new WorkloadProgressStatus( Time.now() );
-        while ( ( operationCount == -1 && operationGenerator.hasNext() ) || operationsDone < operationCount )
+        while ( operationGenerator.hasNext() )
         {
             Operation<?> operation = operationGenerator.next();
             try
@@ -71,8 +68,8 @@ public class WorkloadRunner
             catch ( Exception e )
             {
                 throw new WorkloadException( String.format(
-                        "Error encountered trying to execute %s after %s of %s operations", operation, operationsDone,
-                        operationCount ), e.getCause() );
+                        "Error encountered trying to execute %s after %s operations", operation, operationsDone ),
+                        e.getCause() );
             }
         }
 

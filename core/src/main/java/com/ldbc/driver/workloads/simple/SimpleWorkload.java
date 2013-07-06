@@ -42,7 +42,7 @@ public class SimpleWorkload extends Workload
     }
 
     @Override
-    public Generator<Operation<?>> getLoadOperations( GeneratorBuilder generatorBuilder ) throws WorkloadException
+    public Generator<Operation<?>> createLoadOperations( GeneratorBuilder generatorBuilder ) throws WorkloadException
     {
         /**
          * **************************
@@ -52,7 +52,7 @@ public class SimpleWorkload extends Workload
          * **************************
          */
         // Load Insert Keys
-        Generator<Long> loadInsertKeyGenerator = generatorBuilder.incrementingGenerator( getInsertStart(), 1l ).build();
+        Generator<Long> loadInsertKeyGenerator = generatorBuilder.incrementingGenerator( getOperationStart(), 1l ).build();
 
         // Insert Fields: Names & Values
         Generator<Integer> fieldValuelengthGenerator = generatorBuilder.uniformNumberGenerator( 1, 100 ).build();
@@ -69,13 +69,13 @@ public class SimpleWorkload extends Workload
         Generator<Operation<?>> insertOperationGenerator = new InsertOperationGenerator( TABLE,
                 new PrefixGeneratorWrapper( loadInsertKeyGenerator, KEY_NAME_PREFIX ), insertValuedFieldGenerator );
 
-        Generator<Time> startTimeGenerator = GeneratorUtils.randomTimeGeneratorFromNow( generatorBuilder, 1l, 100l );
+        Generator<Time> startTimeGenerator = GeneratorUtils.randomTimeGeneratorFromNow( generatorBuilder );
 
         return new StartTimeOperationGeneratorWrapper( startTimeGenerator, insertOperationGenerator );
     }
 
     @Override
-    public Generator<Operation<?>> getTransactionalOperations( GeneratorBuilder generatorBuilder )
+    public Generator<Operation<?>> createTransactionalOperations( GeneratorBuilder generatorBuilder )
             throws WorkloadException
     {
         /**
@@ -189,7 +189,7 @@ public class SimpleWorkload extends Workload
 
         Generator<Operation<?>> transactionalOperationGenerator = generatorBuilder.discreteValuedGenerator( operations ).build();
 
-        Generator<Time> startTimeGenerator = GeneratorUtils.randomTimeGeneratorFromNow( generatorBuilder, 1l, 100l );
+        Generator<Time> startTimeGenerator = GeneratorUtils.randomTimeGeneratorFromNow( generatorBuilder );
 
         return new StartTimeOperationGeneratorWrapper( startTimeGenerator, transactionalOperationGenerator );
     }

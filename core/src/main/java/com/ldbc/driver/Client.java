@@ -44,21 +44,18 @@ public class Client
      * client 2 --> insertStart=50,000
      *          --> insertCount=500,000
     */
-    public static final String INSERT_COUNT_ARG = "insertcount";
-    public static final String INSERT_COUNT_DEFAULT = "0";
+    public static final String OPERATION_COUNT_ARG = "operationcount";
+    public static final String OPERATION_COUNT_DEFAULT = "0";
     public static final String INSERT_START_ARG = "insertstart";
-    public static final String INSERT_START_DEFAULT = "-1";
-    // TODO undocumented, document somehow
+    public static final String INSERT_START_DEFAULT = "0";
     public static final String RECORD_COUNT_ARG = "recordcount";
-    public static final String RECORD_COUNT_DEFAULT = "-1";
+    public static final String RECORD_COUNT_DEFAULT = "0";
 
     // --- COMPULSORY ---
     private static final String WORKLOAD_ARG = "workload";
     private static final String WORKLOAD_EXAMPLE = com.ldbc.driver.workloads.simple.SimpleWorkload.class.getName();
     private static final String DB_ARG = "db";
     private static final String DB_EXAMPLE = com.ldbc.driver.db.basic.BasicDb.class.getName();
-    private static final String OPERATION_COUNT_ARG = "operationcount";
-    private static final String OPERATION_COUNT_DEFAULT = "-1";
     // --- OPTIONAL ---
     private static final String THREADS_ARG = "threads";
     private static final String THREADS_DEFAULT = Integer.toString( defaultThreadCount() );
@@ -134,13 +131,6 @@ public class Client
                                       DB_EXAMPLE )
                               + String.format( "  %s: name of the workload class to use (e.g. %s)\n", WORKLOAD_ARG,
                                       WORKLOAD_EXAMPLE )
-                              + String.format(
-                                      "  %s / %s: to run the transaction phase from multiple servers, start a separate client on each\n",
-                                      INSERT_COUNT_ARG, INSERT_START_ARG )
-                              + "  to run the load phase from multiple servers, start a separate client on each; additionally,\n"
-                              + String.format(
-                                      "  use the %s and %s properties to divide up the records to be inserted",
-                                      INSERT_COUNT_ARG, INSERT_START_ARG )
                               + "\nOptional parameters:\n"
                               + String.format( "  -%s:  run the loading phase of the workload\n", BENCHMARK_PHASE_LOAD )
                               + String.format( "  -%s:  run the transactions phase of the workload (default)\n",
@@ -314,12 +304,21 @@ public class Client
                 BENCHMARK_PHASE_DEFAULT ) );
         logger.info( String.format( "Benchmark phase: %s", benchmarkPhase ) );
 
+        long operationCount = Long.parseLong( MapUtils.getDefault( properties, OPERATION_COUNT_ARG,
+                OPERATION_COUNT_DEFAULT ) );
+
         Workload workload = null;
         String workloadName = properties.get( WORKLOAD_ARG );
         try
         {
             workload = ClassLoaderHelper.loadWorkload( workloadName );
-            workload.init( properties );
+
+            long insertStart = Long.parseLong( MapUtils.getDefault( properties, Client.INSERT_START_ARG,
+                    Client.INSERT_START_DEFAULT ) );
+            long recordCount = Long.parseLong( MapUtils.getDefault( properties, Client.RECORD_COUNT_ARG,
+                    Client.RECORD_COUNT_DEFAULT ) );
+
+            workload.init( operationCount, insertStart, recordCount, properties );
         }
         catch ( Exception e )
         {
@@ -348,11 +347,9 @@ public class Client
         TimeUnit durationUnit = TimeUnit.NANO;
         WorkloadMetricsManager metricsManager = new WorkloadMetricsManager( durationUnit );
 
-        int operationCount = getOperationCount( properties, benchmarkPhase );
-
         // TODO pass in Generator<Operation<<?>> instead of GeneratorBuilder?
-        WorkloadRunner workloadRunner = new WorkloadRunner( db, benchmarkPhase, workload, operationCount,
-                generatorBuilder, showStatus, threadCount, metricsManager );
+        WorkloadRunner workloadRunner = new WorkloadRunner( db, benchmarkPhase, workload, generatorBuilder, showStatus,
+                threadCount, metricsManager );
 
         logger.info( String.format( "Starting Benchmark (%s operations)", operationCount ) );
         Time startTime = Time.now();
@@ -406,33 +403,6 @@ public class Client
             logger.error( errMsg, e );
             throw new ClientException( errMsg, e.getCause() );
         }
-    }
-
-    private int getOperationCount( Map<String, String> commandlineProperties, BenchmarkPhase benchmarkPhase )
-            throws NumberFormatException
-    {
-        int operationCount = 0;
-        switch ( benchmarkPhase )
-        {
-        case TRANSACTION_PHASE:
-            operationCount = Integer.parseInt( MapUtils.getDefault( commandlineProperties, OPERATION_COUNT_ARG,
-                    OPERATION_COUNT_DEFAULT ) );
-            break;
-
-        case LOAD_PHASE:
-            if ( commandlineProperties.containsKey( INSERT_COUNT_ARG ) )
-            {
-                operationCount = Integer.parseInt( MapUtils.getDefault( commandlineProperties, INSERT_COUNT_ARG,
-                        INSERT_COUNT_DEFAULT ) );
-            }
-            else
-            {
-                operationCount = Integer.parseInt( MapUtils.getDefault( commandlineProperties, RECORD_COUNT_ARG,
-                        RECORD_COUNT_DEFAULT ) );
-            }
-            break;
-        }
-        return operationCount;
     }
 
     private void exit()

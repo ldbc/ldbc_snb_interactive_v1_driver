@@ -8,16 +8,22 @@ import com.ldbc.driver.util.temporal.Time;
 
 public class GeneratorUtils
 {
-    private static final Duration _2_SECONDS = Duration.fromSeconds( 2 );
+    public static Generator<Time> randomTimeGeneratorFromNow( GeneratorBuilder generatorBuilder )
+    {
+        long minMsBetweenOperations = 1l;
+        long maxMsBetweenOperations = 100l;
+        Time aLittleBitAfterNow = Time.now().plus( Duration.fromSeconds( 2 ) );
+        Time startTime = aLittleBitAfterNow;
+        return randomTimeGeneratorFromNow( generatorBuilder, startTime, minMsBetweenOperations, maxMsBetweenOperations );
+    }
 
-    public static Generator<Time> randomTimeGeneratorFromNow( GeneratorBuilder generatorBuilder, long minMsIncrement,
-            long maxMsIncrement )
+    public static Generator<Time> randomTimeGeneratorFromNow( GeneratorBuilder generatorBuilder, Time startTime,
+            long minMsIncrement, long maxMsIncrement )
     {
         Generator<Long> incrementTimeByGenerator = generatorBuilder.uniformNumberGenerator( minMsIncrement,
                 maxMsIncrement ).build();
-        Time aLittleBitAfterNow = Time.now().plus( _2_SECONDS );
-        Generator<Long> startTimeMilliSecondsGenerator = generatorBuilder.incrementingGenerator(
-                aLittleBitAfterNow.asMilli(), incrementTimeByGenerator ).build();
+        Generator<Long> startTimeMilliSecondsGenerator = generatorBuilder.incrementingGenerator( startTime.asMilli(),
+                incrementTimeByGenerator ).build();
         return new TimeFromMilliSecondsGeneratorWrapper( startTimeMilliSecondsGenerator );
     }
 }
