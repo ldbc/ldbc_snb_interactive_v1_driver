@@ -83,7 +83,7 @@
 			<id>in-project-repository</id>
 			<url>file://${project.basedir}/lib</url>
 			<releases>
-				<enabled>false</enabled>
+				<enabled>true</enabled>
 				<updatePolicy>always</updatePolicy>
 				<checksumPolicy>warn</checksumPolicy>
 			</releases>
