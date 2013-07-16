@@ -43,27 +43,27 @@ public class Time implements Comparable<Time>, MultipleTimeUnitProvider
         throw new RuntimeException( "Unexpected error - unsupported TimeUnit" );
     }
 
-    private final Long timeNano;
+    private final Temporal time;
 
     private Time( long timeNano )
     {
-        this.timeNano = timeNano;
+        this.time = Temporal.fromNano( timeNano );
     }
 
     public Time plus( Duration duration )
     {
-        return Time.fromNano( timeNano + duration.asNano() );
+        return Time.fromNano( time.asNano() + duration.asNano() );
     }
 
     public Time minus( Duration duration )
     {
-        return Time.fromNano( timeNano - duration.asNano() );
+        return Time.fromNano( time.asNano() - duration.asNano() );
     }
 
     @Override
     public String toString()
     {
-        return timeNano + "(ns)";
+        return time.asNano() + "(ns)";
     }
 
     @Override
@@ -71,7 +71,7 @@ public class Time implements Comparable<Time>, MultipleTimeUnitProvider
     {
         final int prime = 31;
         int result = 1;
-        result = prime * result + (int) ( timeNano ^ ( timeNano >>> 32 ) );
+        result = prime * result + (int) ( time.asNano() ^ ( time.asNano() >>> 32 ) );
         return result;
     }
 
@@ -82,54 +82,43 @@ public class Time implements Comparable<Time>, MultipleTimeUnitProvider
         if ( obj == null ) return false;
         if ( getClass() != obj.getClass() ) return false;
         Time other = (Time) obj;
-        if ( false == timeNano.equals( other.timeNano ) ) return false;
+        if ( false == time.equals( other.time ) ) return false;
         return true;
     }
 
     @Override
     public int compareTo( Time o )
     {
-        return timeNano.compareTo( o.timeNano );
+        return new Long( time.asNano() ).compareTo( o.time.asNano() );
     }
 
     @Override
     public long asNano()
     {
-        return timeNano;
+        return time.asNano();
     }
 
     @Override
     public long asMicro()
     {
-        return TimeUnitConvertor.nanoToMicro( timeNano );
+        return time.asMicro();
     }
 
     @Override
     public long asMilli()
     {
-        return TimeUnitConvertor.nanoToMilli( timeNano );
+        return time.asMilli();
     }
 
     @Override
     public long asSeconds()
     {
-        return TimeUnitConvertor.nanoToSecond( timeNano );
+        return time.asSeconds();
     }
 
     @Override
     public long as( TimeUnit timeUnit )
     {
-        switch ( timeUnit )
-        {
-        case NANO:
-            return this.asNano();
-        case MICRO:
-            return this.asMicro();
-        case MILLI:
-            return this.asMilli();
-        case SECOND:
-            return this.asSeconds();
-        }
-        throw new RuntimeException( "Unexpected error - unsupported TimeUnit" );
+        return time.as( timeUnit );
     }
 }

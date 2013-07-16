@@ -48,11 +48,11 @@ public class Duration implements Comparable<Duration>, MultipleTimeUnitProvider
         return Duration.fromNano( secondTime.asNano() - firstTime.asNano() );
     }
 
-    private final Long durationNano;
+    private final Temporal duration;
 
     private Duration( long ns )
     {
-        this.durationNano = ns;
+        this.duration = Temporal.fromNano( ns );
     }
 
     public Duration minus( Duration that )
@@ -68,48 +68,37 @@ public class Duration implements Comparable<Duration>, MultipleTimeUnitProvider
     @Override
     public long asSeconds()
     {
-        return TimeUnitConvertor.nanoToSecond( durationNano );
+        return duration.asSeconds();
     }
 
     @Override
     public long asMilli()
     {
-        return TimeUnitConvertor.nanoToMilli( durationNano );
+        return duration.asMilli();
     }
 
     @Override
     public long asMicro()
     {
-        return TimeUnitConvertor.nanoToMicro( durationNano );
+        return duration.asMicro();
     }
 
     @Override
     public long asNano()
     {
-        return durationNano;
+        return duration.asNano();
     }
 
     @Override
     public String toString()
     {
-        return durationNano + "(ns)";
+        return duration.asNano() + "(ns)";
     }
 
     @Override
     public long as( TimeUnit timeUnit )
     {
-        switch ( timeUnit )
-        {
-        case NANO:
-            return this.asNano();
-        case MICRO:
-            return this.asMicro();
-        case MILLI:
-            return this.asMilli();
-        case SECOND:
-            return this.asSeconds();
-        }
-        throw new RuntimeException( "Unexpected error - unsupported TimeUnit" );
+        return duration.as( timeUnit );
     }
 
     @Override
@@ -117,7 +106,7 @@ public class Duration implements Comparable<Duration>, MultipleTimeUnitProvider
     {
         final int prime = 31;
         int result = 1;
-        result = prime * result + (int) ( durationNano ^ ( durationNano >>> 32 ) );
+        result = prime * result + (int) ( duration.asNano() ^ ( duration.asNano() >>> 32 ) );
         return result;
     }
 
@@ -128,13 +117,13 @@ public class Duration implements Comparable<Duration>, MultipleTimeUnitProvider
         if ( obj == null ) return false;
         if ( getClass() != obj.getClass() ) return false;
         Duration other = (Duration) obj;
-        if ( false == durationNano.equals( other.durationNano ) ) return false;
+        if ( false == this.duration.equals( other.duration ) ) return false;
         return true;
     }
 
     @Override
     public int compareTo( Duration o )
     {
-        return durationNano.compareTo( o.durationNano );
+        return new Long( duration.asNano() ).compareTo( o.duration.asNano() );
     }
 }
