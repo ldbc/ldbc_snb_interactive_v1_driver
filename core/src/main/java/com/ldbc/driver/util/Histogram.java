@@ -6,6 +6,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.TreeMap;
 
 import com.google.common.collect.Range;
@@ -153,6 +154,11 @@ public class Histogram<T, C extends Number>
     public C getBucketValue( Bucket<T> bucket )
     {
         return valuedBuckets.get( bucket );
+    }
+
+    public Iterable<Entry<Bucket<T>, C>> getAllBuckets()
+    {
+        return valuedBuckets.entrySet();
     }
 
     public C getDefaultBucketValue()
