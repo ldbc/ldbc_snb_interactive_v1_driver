@@ -13,16 +13,10 @@
 	<packaging>jar</packaging>
 
 	<properties>
-		<google.collections.version>1.0</google.collections.version>
 		<guava-version>14.0</guava-version>
 	</properties>
 
 	<dependencies>
-		<dependency>
-			<groupId>com.google.collections</groupId>
-			<artifactId>google-collections</artifactId>
-			<version>${google.collections.version}</version>
-		</dependency>
 		<dependency>
 			<groupId>com.google.guava</groupId>
 			<artifactId>guava</artifactId>
