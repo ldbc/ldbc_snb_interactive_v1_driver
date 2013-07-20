@@ -45,7 +45,7 @@ public abstract class Db
      */
     protected abstract void onCleanup() throws DbException;
 
-    protected final <A extends Operation<?>, H extends OperationHandler<A>> void registerOperationHandler(
+    public final <A extends Operation<?>, H extends OperationHandler<A>> void registerOperationHandler(
             Class<A> operationType, Class<H> operationHandlerType ) throws DbException
     {
         if ( null != operationHandlers.get( operationType ) )
