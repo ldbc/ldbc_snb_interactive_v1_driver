@@ -8,18 +8,18 @@ import java.util.Properties;
 
 import org.apache.log4j.Logger;
 
+import com.ldbc.driver.generator.Generator;
 import com.ldbc.driver.generator.GeneratorBuilder;
 import com.ldbc.driver.measurements.MetricsExporterException;
 import com.ldbc.driver.measurements.WorkloadMetricsManager;
-import com.ldbc.driver.measurements.exporters.MetricsExporter;
 import com.ldbc.driver.measurements.exporters.OutputStreamMetricsExporter;
-import com.ldbc.driver.measurements.formatters.MetricsFormatter;
-import com.ldbc.driver.measurements.formatters.SimpleMetricsFormatter;
+import com.ldbc.driver.measurements.formatters.DiscreteMetricSimpleFormatter;
+import com.ldbc.driver.measurements.formatters.HdrHistogramMetricSimpleFormatter;
+import com.ldbc.driver.runner.WorkloadRunner;
 import com.ldbc.driver.util.ClassLoaderHelper;
 import com.ldbc.driver.util.MapUtils;
 import com.ldbc.driver.util.Pair;
 import com.ldbc.driver.util.RandomDataGeneratorFactory;
-import com.ldbc.driver.util.temporal.Duration;
 import com.ldbc.driver.util.temporal.Time;
 import com.ldbc.driver.util.temporal.TimeUnit;
 
@@ -347,9 +347,19 @@ public class Client
         TimeUnit durationUnit = TimeUnit.NANO;
         WorkloadMetricsManager metricsManager = new WorkloadMetricsManager( durationUnit );
 
-        // TODO pass in Generator<Operation<<?>> instead of GeneratorBuilder?
-        WorkloadRunner workloadRunner = new WorkloadRunner( db, benchmarkPhase, workload, generatorBuilder, showStatus,
-                threadCount, metricsManager );
+        WorkloadRunner workloadRunner = null;
+        try
+        {
+            Generator<Operation<?>> operationGenerator = getOperationGenerator( workload, benchmarkPhase,
+                    generatorBuilder );
+            workloadRunner = new WorkloadRunner( db, operationGenerator, showStatus, threadCount, metricsManager );
+        }
+        catch ( WorkloadException e )
+        {
+            String errMsg = "Error instantiating WorkloadRunner";
+            logger.error( errMsg, e );
+            throw new ClientException( errMsg, e.getCause() );
+        }
 
         logger.info( String.format( "Starting Benchmark (%s operations)", operationCount ) );
         Time startTime = Time.now();
@@ -389,13 +399,13 @@ public class Client
             throw new ClientException( errMsg, e.getCause() );
         }
 
-        logger.info( String.format( "Runtime: %s (s)", Duration.durationBetween( startTime, endTime ).asSeconds() ) );
+        logger.info( String.format( "Runtime: %s (s)", endTime.greaterBy( startTime ).asSeconds() ) );
         logger.info( "Exporting Measurements..." );
         try
         {
-            MetricsExporter metricsExporter = new OutputStreamMetricsExporter( System.out );
-            MetricsFormatter metricsFormatter = new SimpleMetricsFormatter();
-            metricsExporter.export( metricsFormatter, metricsManager.getAllMeasurements() );
+            metricsManager.export( new OutputStreamMetricsExporter( System.out ),
+                    new HdrHistogramMetricSimpleFormatter(), new DiscreteMetricSimpleFormatter() );
+
         }
         catch ( MetricsExporterException e )
         {
@@ -403,6 +413,19 @@ public class Client
             logger.error( errMsg, e );
             throw new ClientException( errMsg, e.getCause() );
         }
+    }
+
+    private Generator<Operation<?>> getOperationGenerator( Workload workload, BenchmarkPhase benchmarkPhase,
+            GeneratorBuilder generatorBuilder ) throws WorkloadException
+    {
+        switch ( benchmarkPhase )
+        {
+        case LOAD_PHASE:
+            return workload.getLoadOperations( generatorBuilder );
+        case TRANSACTION_PHASE:
+            return workload.getTransactionalOperations( generatorBuilder );
+        }
+        throw new WorkloadException( "Error encounterd trying to get operation generator" );
     }
 
     private void exit()

@@ -1,23 +1,23 @@
-package com.ldbc.driver;
+package com.ldbc.driver.runner;
 
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.apache.log4j.Logger;
 
+import com.ldbc.driver.OperationResult;
 import com.ldbc.driver.measurements.MetricException;
 import com.ldbc.driver.measurements.WorkloadMetricsManager;
 
-class OperationResultLoggingThread extends Thread
+class MetricsLoggingThread extends Thread
 {
-    private static Logger logger = Logger.getLogger( OperationResultLoggingThread.class );
+    private static Logger logger = Logger.getLogger( MetricsLoggingThread.class );
 
     private final WorkloadMetricsManager metricsManager;
 
     private final OperationHandlerExecutor operationHandlerExecutor;
     private AtomicBoolean isMoreResultsComing = new AtomicBoolean( true );
 
-    OperationResultLoggingThread( OperationHandlerExecutor operationHandlerExecutor,
-            WorkloadMetricsManager metricsManager )
+    MetricsLoggingThread( OperationHandlerExecutor operationHandlerExecutor, WorkloadMetricsManager metricsManager )
     {
         this.operationHandlerExecutor = operationHandlerExecutor;
         this.metricsManager = metricsManager;
@@ -36,14 +36,14 @@ class OperationResultLoggingThread extends Thread
             // Log results
             while ( isMoreResultsComing.get() )
             {
-                OperationResult operationResult = operationHandlerExecutor.nextOperationResult();
+                OperationResult operationResult = operationHandlerExecutor.nextOperationResultNonBlocking();
                 if ( null == operationResult ) continue;
                 log( operationResult );
             }
             // Log remaining results
             while ( true )
             {
-                OperationResult operationResult = operationHandlerExecutor.waitForNextOperationResult();
+                OperationResult operationResult = operationHandlerExecutor.nextOperationResultBlocking();
                 if ( null == operationResult ) break;
                 log( operationResult );
             }

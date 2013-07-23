@@ -2,10 +2,8 @@ package com.ldbc.driver.measurements;
 
 import org.junit.Test;
 
-import com.ldbc.driver.measurements.exporters.MetricsExporter;
-import com.ldbc.driver.measurements.exporters.OutputStreamMetricsExporter;
-import com.ldbc.driver.measurements.formatters.MetricsFormatter;
-import com.ldbc.driver.measurements.formatters.SimpleMetricsFormatter;
+import com.ldbc.driver.measurements.metric.HdrHistogramMetric;
+import com.ldbc.driver.measurements.metric.Metric;
 import com.ldbc.driver.util.temporal.Duration;
 
 import static org.junit.Assert.*;
@@ -46,7 +44,7 @@ public class HdrHistogramMetricTest
     @Test
     public void shouldGiveExpectedMeasurements()
     {
-        Metric metric1 = new HdrHistogramMetric( 100000000l, 1 );
+        HdrHistogramMetric metric1 = new HdrHistogramMetric( 100000000l, 1 );
         metric1.addMeasurement( 31000000l );
         metric1.addMeasurement( 31000000l );
         metric1.addMeasurement( 31000000l );
@@ -54,7 +52,7 @@ public class HdrHistogramMetricTest
         assertThat( withinPercentage( 31000000, metric1.getMax(), 0.10 ), is( true ) );
         assertThat( withinPercentage( 31000000, metric1.getMean(), 0.10 ), is( true ) );
 
-        Metric metric2 = new HdrHistogramMetric( 100000000l, 2 );
+        HdrHistogramMetric metric2 = new HdrHistogramMetric( 100000000l, 2 );
         metric2.addMeasurement( 31000000l );
         metric2.addMeasurement( 31000000l );
         metric2.addMeasurement( 31000000l );
@@ -62,7 +60,7 @@ public class HdrHistogramMetricTest
         assertThat( withinPercentage( 31000000, metric2.getMax(), 0.01 ), is( true ) );
         assertThat( withinPercentage( 31000000, metric2.getMean(), 0.01 ), is( true ) );
 
-        Metric metric3 = new HdrHistogramMetric( 100000000l, 3 );
+        HdrHistogramMetric metric3 = new HdrHistogramMetric( 100000000l, 3 );
         metric3.addMeasurement( 31000000l );
         metric3.addMeasurement( 31000000l );
         metric3.addMeasurement( 31000000l );
@@ -70,7 +68,7 @@ public class HdrHistogramMetricTest
         assertThat( withinPercentage( 31000000, metric3.getMax(), 0.001 ), is( true ) );
         assertThat( withinPercentage( 31000000, metric3.getMean(), 0.001 ), is( true ) );
 
-        Metric metric4 = new HdrHistogramMetric( 100000000l, 4 );
+        HdrHistogramMetric metric4 = new HdrHistogramMetric( 100000000l, 4 );
         metric4.addMeasurement( 31000000l );
         metric4.addMeasurement( 31000000l );
         metric4.addMeasurement( 31000000l );
@@ -78,7 +76,7 @@ public class HdrHistogramMetricTest
         assertThat( withinPercentage( 31000000, metric4.getMax(), 0.0001 ), is( true ) );
         assertThat( withinPercentage( 31000000, metric4.getMean(), 0.0001 ), is( true ) );
 
-        Metric metric5 = new HdrHistogramMetric( 100000000l, 5 );
+        HdrHistogramMetric metric5 = new HdrHistogramMetric( 100000000l, 5 );
         metric5.addMeasurement( 31000000l );
         metric5.addMeasurement( 31000000l );
         metric5.addMeasurement( 31000000l );
@@ -100,7 +98,8 @@ public class HdrHistogramMetricTest
     @Test
     public void shouldReturnCorrectMeasurements() throws MetricsExporterException
     {
-        Metric testMetric = new HdrHistogramMetric( "Test", "Some Unit", Duration.fromSeconds( 60 ).asNano(), 5 );
+        HdrHistogramMetric testMetric = new HdrHistogramMetric( "Test", "Some Unit",
+                Duration.fromSeconds( 60 ).asNano(), 5 );
 
         testMetric.addMeasurement( 1 );
         testMetric.addMeasurement( 2 );

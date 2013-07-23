@@ -1,6 +1,6 @@
 package com.ldbc.driver.util.temporal;
 
-public class Duration implements Comparable<Duration>, MultipleTimeUnitProvider
+public class Duration implements Comparable<Duration>, MultipleTimeUnitProvider<Duration>
 {
     public static Duration fromNano( long ns )
     {
@@ -22,6 +22,11 @@ public class Duration implements Comparable<Duration>, MultipleTimeUnitProvider
         return new Duration( TimeUnitConvertor.nanoFromSecond( s ) );
     }
 
+    public static Duration fromMinutes( long m )
+    {
+        return new Duration( TimeUnitConvertor.nanoFromMinute( m ) );
+    }
+
     public static Duration from( TimeUnit timeUnit, long unitOfTime )
     {
         switch ( timeUnit )
@@ -38,31 +43,11 @@ public class Duration implements Comparable<Duration>, MultipleTimeUnitProvider
         throw new RuntimeException( "Unexpected error - unsupported TimeUnit" );
     }
 
-    public static Duration durationBetween( Time firstTime, Time secondTime )
-    {
-        if ( secondTime.asNano() < firstTime.asNano() )
-        {
-            // TODO different Exception type
-            throw new RuntimeException( "Second Time must be later than First Time" );
-        }
-        return Duration.fromNano( secondTime.asNano() - firstTime.asNano() );
-    }
-
     private final Temporal duration;
 
     private Duration( long ns )
     {
         this.duration = Temporal.fromNano( ns );
-    }
-
-    public Duration minus( Duration that )
-    {
-        return Duration.fromNano( this.asNano() - that.asNano() );
-    }
-
-    public Duration plus( Duration that )
-    {
-        return Duration.fromNano( this.asNano() + that.asNano() );
     }
 
     @Override
@@ -102,6 +87,42 @@ public class Duration implements Comparable<Duration>, MultipleTimeUnitProvider
     }
 
     @Override
+    public boolean greatThan( Duration other )
+    {
+        return duration.greatThan( other.duration );
+    }
+
+    @Override
+    public boolean lessThan( Duration other )
+    {
+        return duration.lessThan( other.duration );
+    }
+
+    @Override
+    public Duration greaterBy( Duration other )
+    {
+        return this.duration.greaterBy( other.duration );
+    }
+
+    @Override
+    public Duration lessBy( Duration other )
+    {
+        return this.duration.lessBy( other.duration );
+    }
+
+    @Override
+    public Duration plus( Duration duration )
+    {
+        return Duration.fromNano( this.duration.plus( duration ).asNano() );
+    }
+
+    @Override
+    public Duration minus( Duration duration )
+    {
+        return Duration.fromNano( this.duration.minus( duration ).asNano() );
+    }
+
+    @Override
     public int hashCode()
     {
         final int prime = 31;
@@ -122,8 +143,8 @@ public class Duration implements Comparable<Duration>, MultipleTimeUnitProvider
     }
 
     @Override
-    public int compareTo( Duration o )
+    public int compareTo( Duration other )
     {
-        return new Long( duration.asNano() ).compareTo( o.duration.asNano() );
+        return new Long( this.duration.asNano() ).compareTo( other.duration.asNano() );
     }
 }

@@ -1,6 +1,6 @@
 package com.ldbc.driver.util.temporal;
 
-public class Time implements Comparable<Time>, MultipleTimeUnitProvider
+public class Time implements Comparable<Time>, MultipleTimeUnitProvider<Time>
 {
     public static Time now()
     {
@@ -27,6 +27,11 @@ public class Time implements Comparable<Time>, MultipleTimeUnitProvider
         return new Time( TimeUnitConvertor.nanoFromSecond( secondsTime ) );
     }
 
+    public static Time fromMinutes( long m )
+    {
+        return new Time( TimeUnitConvertor.nanoFromMinute( m ) );
+    }
+
     public static Time from( TimeUnit timeUnit, long unitOfTime )
     {
         switch ( timeUnit )
@@ -48,16 +53,6 @@ public class Time implements Comparable<Time>, MultipleTimeUnitProvider
     private Time( long timeNano )
     {
         this.time = Temporal.fromNano( timeNano );
-    }
-
-    public Time plus( Duration duration )
-    {
-        return Time.fromNano( time.asNano() + duration.asNano() );
-    }
-
-    public Time minus( Duration duration )
-    {
-        return Time.fromNano( time.asNano() - duration.asNano() );
     }
 
     @Override
@@ -120,5 +115,41 @@ public class Time implements Comparable<Time>, MultipleTimeUnitProvider
     public long as( TimeUnit timeUnit )
     {
         return time.as( timeUnit );
+    }
+
+    @Override
+    public boolean greatThan( Time other )
+    {
+        return time.greatThan( other.time );
+    }
+
+    @Override
+    public boolean lessThan( Time other )
+    {
+        return time.lessThan( other.time );
+    }
+
+    @Override
+    public Duration greaterBy( Time other )
+    {
+        return time.greaterBy( other.time );
+    }
+
+    @Override
+    public Duration lessBy( Time other )
+    {
+        return time.lessBy( other.time );
+    }
+
+    @Override
+    public Time plus( Duration duration )
+    {
+        return Time.fromNano( time.plus( duration ).asNano() );
+    }
+
+    @Override
+    public Time minus( Duration duration )
+    {
+        return Time.fromNano( time.minus( duration ).asNano() );
     }
 }

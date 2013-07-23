@@ -77,18 +77,4 @@ public class DurationTest
         // Then
         assertThat( duration1.asNano(), equalTo( duration2.asNano() ) );
     }
-
-    @Test
-    public void shouldComputeDurationBetweenTwoTimes()
-    {
-        // Given
-        Time time1 = Time.fromNano( 100 );
-        Time time2 = Time.fromNano( 200 );
-
-        // When
-        Duration duration = Duration.durationBetween( time1, time2 );
-
-        // Then
-        assertThat( duration, equalTo( Duration.fromNano( 100 ) ) );
-    }
 }

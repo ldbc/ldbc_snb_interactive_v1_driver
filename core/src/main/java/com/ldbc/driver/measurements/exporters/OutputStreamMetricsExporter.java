@@ -4,10 +4,10 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.nio.charset.Charset;
 
-import com.ldbc.driver.measurements.Metric;
 import com.ldbc.driver.measurements.MetricGroup;
 import com.ldbc.driver.measurements.MetricsExporterException;
-import com.ldbc.driver.measurements.formatters.MetricsFormatter;
+import com.ldbc.driver.measurements.formatters.MetricFormatter;
+import com.ldbc.driver.measurements.metric.Metric;
 
 public class OutputStreamMetricsExporter implements MetricsExporter
 {
@@ -28,7 +28,7 @@ public class OutputStreamMetricsExporter implements MetricsExporter
     }
 
     @Override
-    public void export( MetricsFormatter metricsFormatter, MetricGroup... metricGroups )
+    public <M extends Metric> void export( MetricFormatter<M> metricsFormatter, MetricGroup<M>... metricGroups )
             throws MetricsExporterException
     {
         try
@@ -44,7 +44,8 @@ public class OutputStreamMetricsExporter implements MetricsExporter
     }
 
     @Override
-    public void export( MetricsFormatter metricsFormatter, Metric... metrics ) throws MetricsExporterException
+    public <M extends Metric> void export( MetricFormatter<M> metricsFormatter, M... metrics )
+            throws MetricsExporterException
     {
         try
         {

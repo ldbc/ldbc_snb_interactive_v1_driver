@@ -2,6 +2,7 @@ package com.ldbc.driver.util.temporal;
 
 public class TimeUnitConvertor
 {
+    private static final long MINUTE_OFFSET = 60 * 1000 * 1000 * 1000;
     private static final long SECOND_OFFSET = 1000 * 1000 * 1000;
     private static final long MILLI_OFFSET = 1000 * 1000;
     private static final long MICRO_OFFSET = 1000;
@@ -36,4 +37,8 @@ public class TimeUnitConvertor
         return timeSecond * SECOND_OFFSET;
     }
 
+    public static long nanoFromMinute( long timeMinute )
+    {
+        return timeMinute * MINUTE_OFFSET;
+    }
 }

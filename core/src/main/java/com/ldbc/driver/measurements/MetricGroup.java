@@ -3,17 +3,20 @@ package com.ldbc.driver.measurements;
 import java.util.HashMap;
 import java.util.Map;
 
-public class MetricGroup
+import com.ldbc.driver.measurements.metric.Metric;
+import com.ldbc.driver.measurements.metric.MetricFactory;
+
+public class MetricGroup<M extends Metric>
 {
     private final String name;
-    private final MetricFactory metricFactory;
-    private final Map<String, Metric> metrics;
+    private final MetricFactory<M> metricFactory;
+    private final Map<String, M> metrics;
 
-    public MetricGroup( String name, MetricFactory metricFactory )
+    public MetricGroup( String name, MetricFactory<M> metricFactory )
     {
         this.name = name;
         this.metricFactory = metricFactory;
-        this.metrics = new HashMap<String, Metric>();
+        this.metrics = new HashMap<String, M>();
     }
 
     public String getName()
@@ -35,7 +38,7 @@ public class MetricGroup
         return metrics.get( name );
     }
 
-    public Iterable<Metric> getMetrics()
+    public Iterable<M> getMetrics()
     {
         return metrics.values();
     }

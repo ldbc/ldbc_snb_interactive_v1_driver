@@ -1,6 +1,6 @@
 package com.ldbc.driver.util.temporal;
 
-public class Temporal implements MultipleTimeUnitProvider
+public class Temporal implements MultipleTimeUnitProvider<Temporal>
 {
     public static Temporal fromNano( long ns )
     {
@@ -14,26 +14,31 @@ public class Temporal implements MultipleTimeUnitProvider
         this.nanoValue = nanoValue;
     }
 
+    @Override
     public long asNano()
     {
         return nanoValue;
     }
 
+    @Override
     public long asMicro()
     {
         return TimeUnitConvertor.nanoToMicro( nanoValue );
     }
 
+    @Override
     public long asMilli()
     {
         return TimeUnitConvertor.nanoToMilli( nanoValue );
     }
 
+    @Override
     public long asSeconds()
     {
         return TimeUnitConvertor.nanoToSecond( nanoValue );
     }
 
+    @Override
     public long as( TimeUnit timeUnit )
     {
         switch ( timeUnit )
@@ -48,6 +53,42 @@ public class Temporal implements MultipleTimeUnitProvider
             return this.asSeconds();
         }
         throw new RuntimeException( "Unexpected error - unsupported TimeUnit" );
+    }
+
+    @Override
+    public boolean greatThan( Temporal other )
+    {
+        return this.asNano() > other.asNano();
+    }
+
+    @Override
+    public boolean lessThan( Temporal other )
+    {
+        return this.asNano() < other.asNano();
+    }
+
+    @Override
+    public Duration greaterBy( Temporal other )
+    {
+        return Duration.fromNano( this.asNano() - other.asNano() );
+    }
+
+    @Override
+    public Duration lessBy( Temporal other )
+    {
+        return Duration.fromNano( other.asNano() - this.asNano() );
+    }
+
+    @Override
+    public Temporal plus( Duration duration )
+    {
+        return fromNano( this.asNano() + duration.asNano() );
+    }
+
+    @Override
+    public Temporal minus( Duration duration )
+    {
+        return fromNano( this.asNano() - duration.asNano() );
     }
 
     @Override

@@ -1,11 +1,20 @@
 package com.ldbc.driver.measurements;
 
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.log4j.Logger;
 
 import com.ldbc.driver.OperationResult;
+import com.ldbc.driver.measurements.exporters.MetricsExporter;
+import com.ldbc.driver.measurements.formatters.MetricFormatter;
+import com.ldbc.driver.measurements.metric.DiscreteMetric;
+import com.ldbc.driver.measurements.metric.DiscreteMetricFactory;
+import com.ldbc.driver.measurements.metric.HdrHistogramMetric;
+import com.ldbc.driver.measurements.metric.HdrHistogramMetricFactory;
+import com.ldbc.driver.measurements.metric.Metric;
+import com.ldbc.driver.measurements.metric.MetricFactory;
 import com.ldbc.driver.util.temporal.Duration;
 import com.ldbc.driver.util.temporal.Time;
 import com.ldbc.driver.util.temporal.TimeUnit;
@@ -19,19 +28,19 @@ public class WorkloadMetricsManager
     public static final String METRIC_RESULT_CODE = "Result Code";
 
     private static final Duration MINUTES_10 = Duration.fromSeconds( 60 * 10 );
-    private static final Duration MINUTES_60 = Duration.fromSeconds( 60 * 60 );
 
     public static final Duration DEFAULT_HIGHEST_EXPECTED_DURATION = MINUTES_10;
     public static final TimeUnit DEFAULT_DURATION_UNIT = TimeUnit.MICRO;
 
-    private final MetricGroup runtimeMetrics;
-    private final MetricGroup startTimeDelayMetrics;
-    private final MetricGroup resultCodeMetrics;
+    private final MetricGroup<HdrHistogramMetric> runtimeMetrics;
+    private final MetricGroup<HdrHistogramMetric> startTimeDelayMetrics;
+    private final MetricGroup<DiscreteMetric> resultCodeMetrics;
 
     private final TimeUnit durationUnit;
 
-    private Time workloadStartTime = Time.now().plus( MINUTES_60 );
-    private Time workloadEndTime = Time.now();
+    private Time startTime;
+    private Time timeOfLastMeaurement = Time.now();
+    private int measurementCount = 0;
 
     public WorkloadMetricsManager()
     {
@@ -46,32 +55,34 @@ public class WorkloadMetricsManager
     public WorkloadMetricsManager( TimeUnit durationUnit, Duration highestExpectedDuration )
     {
         this.durationUnit = durationUnit;
-        MetricFactory durationMetricFactory = new HdrHistogramMetricFactory( durationUnit.toString(),
-                highestExpectedDuration.as( durationUnit ), 5 );
-        MetricFactory resultCodeMetricFactory = new HdrHistogramMetricFactory( null, 1000, 5 );
-        runtimeMetrics = new MetricGroup( METRIC_RUNTIME, durationMetricFactory );
-        startTimeDelayMetrics = new MetricGroup( METRIC_START_TIME_DELAY, durationMetricFactory );
-        resultCodeMetrics = new MetricGroup( METRIC_RESULT_CODE, resultCodeMetricFactory );
+        MetricFactory<HdrHistogramMetric> durationMetricFactory = new HdrHistogramMetricFactory(
+                durationUnit.toString(), highestExpectedDuration.as( durationUnit ), 5 );
+        MetricFactory<DiscreteMetric> resultCodeMetricFactory = new DiscreteMetricFactory( "Result" );
+        runtimeMetrics = new MetricGroup<HdrHistogramMetric>( METRIC_RUNTIME, durationMetricFactory );
+        startTimeDelayMetrics = new MetricGroup<HdrHistogramMetric>( METRIC_START_TIME_DELAY, durationMetricFactory );
+        resultCodeMetrics = new MetricGroup<DiscreteMetric>( METRIC_RESULT_CODE, resultCodeMetricFactory );
+        startTime = Time.now();
+    }
+
+    public void setStartTime( Time time )
+    {
+        startTime = time;
     }
 
     public void measure( OperationResult operationResult )
     {
         //
-        // Measure start of workload
+        // Number of operations measured
         //
-        Time operationStartTime = operationResult.getActualStartTime();
-        if ( workloadStartTime.asNano() > operationStartTime.asNano() )
-        {
-            workloadStartTime = operationStartTime;
-        }
+        measurementCount++;
 
         //
-        // Measure end of workload
+        // Time last operation was measured
         //
         Time operationEndTime = operationResult.getActualStartTime().plus( operationResult.getRunTime() );
-        if ( workloadEndTime.asNano() < operationEndTime.asNano() )
+        if ( timeOfLastMeaurement.asNano() < operationEndTime.asNano() )
         {
-            workloadEndTime = operationEndTime;
+            timeOfLastMeaurement = operationEndTime;
         }
 
         //
@@ -95,8 +106,8 @@ public class WorkloadMetricsManager
         // Measure driver performance - how close is it to target throughput
         //
         Metric operationStartTimeDelayMetric = startTimeDelayMetrics.getOrCreateMetric( operationResult.getOperationType() );
-        Duration startTimeDelay = Duration.durationBetween( operationResult.getScheduledStartTime(),
-                operationResult.getActualStartTime() );
+        Duration startTimeDelay = operationResult.getActualStartTime().greaterBy(
+                operationResult.getScheduledStartTime() );
         long startTimeDelayInAppropriateUnit = startTimeDelay.as( durationUnit );
         try
         {
@@ -127,40 +138,38 @@ public class WorkloadMetricsManager
         }
     }
 
-    public MetricGroup[] getAllMeasurements()
+    public MetricGroup<HdrHistogramMetric> getRuntimes()
     {
-        List<MetricGroup> allMetricGroups = new ArrayList<MetricGroup>();
-        allMetricGroups.add( runtimeMetrics );
-        allMetricGroups.add( startTimeDelayMetrics );
-        // TODO rather than returning all measurements this class should format
-        // and export itself
-        // allMetricGroups.add( resultCodeMetrics );
-        return allMetricGroups.toArray( new MetricGroup[allMetricGroups.size()] );
+        return runtimeMetrics;
     }
 
-    public Metric getRuntimeMeasurementsFor( String operationName )
+    public MetricGroup<HdrHistogramMetric> getStartTimeDelays()
     {
-        return runtimeMetrics.getMetric( operationName );
+        return startTimeDelayMetrics;
     }
 
-    public Metric getStartTimeDelayMeasurementsFor( String operationName )
+    public MetricGroup<DiscreteMetric> getResultCodes()
     {
-        return startTimeDelayMetrics.getMetric( operationName );
+        return resultCodeMetrics;
     }
 
-    public Metric getResultCodeMeasurementsFor( String operationName )
+    public Time getTimeOfFirstMeasurement()
     {
-        return resultCodeMetrics.getMetric( operationName );
+        return startTime;
     }
 
-    public Time getWorkloadStartTime()
+    public Time getTimeOfLastMeasurement()
     {
-        return workloadStartTime;
+        return timeOfLastMeaurement;
     }
 
-    public Time getWorkloadEndTime()
+    public void export( MetricsExporter metricsExporter,
+            MetricFormatter<HdrHistogramMetric> hdrHistogramMetricsFormatter,
+            MetricFormatter<DiscreteMetric> discreteMetricsFormatter ) throws MetricsExporterException
     {
-        return workloadEndTime;
+        metricsExporter.export( hdrHistogramMetricsFormatter, getRuntimes() );
+        metricsExporter.export( hdrHistogramMetricsFormatter, getStartTimeDelays() );
+        metricsExporter.export( discreteMetricsFormatter, getResultCodes() );
     }
 
     public String[] getAllMeasuredOperationTypes()
@@ -173,5 +182,33 @@ public class WorkloadMetricsManager
         }
 
         return allOperationTypes.toArray( new String[allOperationTypes.size()] );
+    }
+
+    public Integer getMeasurementCount()
+    {
+        return measurementCount;
+    }
+
+    public synchronized String getStatusString()
+    {
+        return statusString( Time.now() );
+    }
+
+    private String statusString( Time atTime )
+    {
+        DecimalFormat throughputFormat = new DecimalFormat( "#.00" );
+        return String.format( "Status: Runtime (sec) [%s], Operations [%s], Throughput (op/sec) [%s]",
+                getElapsedTime( atTime ).asSeconds(), measurementCount,
+                throughputFormat.format( getThroughputAt( atTime ) ) );
+    }
+
+    private double getThroughputAt( Time atTime )
+    {
+        return (double) measurementCount / getElapsedTime( atTime ).asSeconds();
+    }
+
+    private Duration getElapsedTime( Time atTime )
+    {
+        return atTime.greaterBy( startTime );
     }
 }

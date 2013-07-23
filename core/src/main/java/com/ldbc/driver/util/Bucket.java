@@ -70,6 +70,11 @@ public abstract class Bucket<T>
             this.thing = thing;
         }
 
+        public T2 getId()
+        {
+            return thing;
+        }
+
         @Override
         public boolean contains( T2 otherThing )
         {

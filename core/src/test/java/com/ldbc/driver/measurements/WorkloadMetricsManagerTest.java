@@ -3,10 +3,12 @@ package com.ldbc.driver.measurements;
 import org.junit.Test;
 
 import com.ldbc.driver.OperationResult;
+import com.ldbc.driver.WorkloadException;
 import com.ldbc.driver.measurements.exporters.MetricsExporter;
 import com.ldbc.driver.measurements.exporters.OutputStreamMetricsExporter;
-import com.ldbc.driver.measurements.formatters.MetricsFormatter;
-import com.ldbc.driver.measurements.formatters.SimpleMetricsFormatter;
+import com.ldbc.driver.measurements.formatters.MetricFormatter;
+import com.ldbc.driver.measurements.formatters.HdrHistogramMetricSimpleFormatter;
+import com.ldbc.driver.measurements.metric.Metric;
 import com.ldbc.driver.util.temporal.Duration;
 import com.ldbc.driver.util.temporal.Time;
 import com.ldbc.driver.util.temporal.TimeUnit;
@@ -19,7 +21,7 @@ public class WorkloadMetricsManagerTest
 {
 
     @Test
-    public void shouldReturnCorrectMeasurements() throws MetricsExporterException
+    public void shouldReturnCorrectMeasurements() throws MetricsExporterException, WorkloadException
     {
         WorkloadMetricsManager workloadMeasurements = new WorkloadMetricsManager( TimeUnit.NANO );
 
@@ -45,17 +47,28 @@ public class WorkloadMetricsManagerTest
         workloadMeasurements.measure( operationResult2 );
         workloadMeasurements.measure( operationResult3 );
 
-        int metricTypeCount = 0;
-        for ( MetricGroup metricGroup : workloadMeasurements.getAllMeasurements() )
-        {
-            metricTypeCount++;
-        }
+        int metricsCount;
 
-        // Runtime
-        // Start Time Delay
-        // TODO currently Result Code not returned, needs different format
-        // Result Code
-        assertThat( metricTypeCount, is( 2 ) );
+        metricsCount = 0;
+        for ( Metric metric : workloadMeasurements.getRuntimes().getMetrics() )
+        {
+            metricsCount++;
+        }
+        assertThat( metricsCount, is( 2 ) );
+
+        metricsCount = 0;
+        for ( Metric metric : workloadMeasurements.getResultCodes().getMetrics() )
+        {
+            metricsCount++;
+        }
+        assertThat( metricsCount, is( 2 ) );
+
+        metricsCount = 0;
+        for ( Metric metric : workloadMeasurements.getStartTimeDelays().getMetrics() )
+        {
+            metricsCount++;
+        }
+        assertThat( metricsCount, is( 2 ) );
 
         // MetricsFormatter formatter = new SimpleMetricsFormatter();
         // MetricsExporter exporter = new OutputStreamMetricsExporter(
