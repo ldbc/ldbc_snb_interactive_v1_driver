@@ -52,7 +52,7 @@ public class SimpleWorkload extends Workload
          * **************************
          */
         // Load Insert Keys
-        Generator<Long> loadInsertKeyGenerator = generatorBuilder.incrementingGenerator( getOperationStart(), 1l ).build();
+        Generator<Long> loadInsertKeyGenerator = generatorBuilder.incrementingGenerator( 0l, 1l ).build();
 
         // Insert Fields: Names & Values
         Generator<Integer> fieldValuelengthGenerator = generatorBuilder.uniformNumberGenerator( 1, 100 ).build();

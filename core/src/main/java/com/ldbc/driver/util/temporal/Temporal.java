@@ -1,5 +1,7 @@
 package com.ldbc.driver.util.temporal;
 
+//TODO use TimeUnit
+//e.g. TimeUnit.MILLISECONDS.toMinutes( runtime ),
 public class Temporal implements MultipleTimeUnitProvider<Temporal>
 {
     public static Temporal fromNano( long ns )

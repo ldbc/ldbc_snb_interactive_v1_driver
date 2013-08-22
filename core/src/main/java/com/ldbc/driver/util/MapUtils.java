@@ -2,7 +2,10 @@ package com.ldbc.driver.util;
 
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Properties;
+import java.util.Set;
 
 public class MapUtils
 {
@@ -19,6 +22,16 @@ public class MapUtils
             sb.append( prefix ).append( entry.getKey() ).append( " = " ).append( entry.getValue() ).append( "\n" );
         }
         return sb.toString();
+    }
+
+    public static <K, V> Map<K, V> copyExcludingKeys( Map<K, V> map, Set<K> excludedKeys )
+    {
+        Map<K, V> newMap = new HashMap<K, V>();
+        for ( Entry<K, V> entry : map.entrySet() )
+        {
+            if ( false == excludedKeys.contains( entry.getKey() ) ) newMap.put( entry.getKey(), entry.getValue() );
+        }
+        return newMap;
     }
 
     public static <K, V> V getDefault( Map<K, V> map, K key, V defaultValue )

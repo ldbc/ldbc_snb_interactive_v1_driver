@@ -1,5 +1,7 @@
 package com.ldbc.driver.util.temporal;
 
+// TODO use TimeUnit
+// e.g. TimeUnit.MILLISECONDS.toMinutes( runtime ),
 public class TimeUnitConvertor
 {
     private static final long MINUTE_OFFSET = 60 * 1000 * 1000 * 1000;

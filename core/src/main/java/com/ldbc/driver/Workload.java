@@ -12,13 +12,12 @@ public abstract class Workload
     private boolean isCleanedUp = false;
 
     private long operationCount;
-    private long operationStart;
     private long recordCount;
 
     /**
      * Called once to initialize state for workload
      */
-    public final void init( long operationCount, long operationStart, long recordCount, Map<String, String> properties )
+    public final void init( long operationCount, long recordCount, Map<String, String> properties )
             throws WorkloadException
     {
         if ( true == isInitialized )
@@ -27,7 +26,6 @@ public abstract class Workload
         }
         isInitialized = true;
         this.operationCount = operationCount;
-        this.operationStart = operationStart;
         this.recordCount = recordCount;
         onInit( properties );
     }
@@ -35,11 +33,6 @@ public abstract class Workload
     protected long getOperationCount()
     {
         return operationCount;
-    }
-
-    protected long getOperationStart()
-    {
-        return operationStart;
     }
 
     protected long getRecordCount()

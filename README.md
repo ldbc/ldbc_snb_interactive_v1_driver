@@ -21,6 +21,23 @@ It is still at an early stage of development, but the LDBC Driver is being devel
     cd ldbc_driver
     ./build.sh
 
+### Usage
+
+	java -cp core-0.1-SNAPSHOT.jar com.ldbc.driver.Client -db <classname> -l | -t -oc <count> [-P
+	       <file1:file2>] [-p <key=value>] -rc <count> [-s]  [-tc <count>] -w <classname>
+	       
+	   -db,--database <classname>       classname of the DB to use (e.g. com.ldbc.driver.db.basic.BasicDb)
+	   -l,--load                        run the loading phase of the workload
+	   -oc,--operationcount <count>     number of operations to execute (default: 0)
+	   -P <file1:file2>                 load properties from file(s) - files will be loaded in the order provided
+	   -p <key=value>                   properties to be passed to DB and Workload - these will override
+	                                    properties loaded from files
+	   -rc,--recordcount <count>        number of records to create during load phase (default: 0)
+	   -s,--status                      show status during run
+	   -t,--transaction                 run the transactions phase of the workload
+	   -tc,--threadcount <count>        number of worker threads to execute with (default: CPU cores - 2)
+	   -w,--workload <classname>        classname of the Workload to use (e.g.
+	                                    com.ldbc.driver.workloads.simple.SimpleWorkload)
 
 At the moment only one workload is supported, "simpleworkload", which has little configuration options and comprises of only basic key/value operations.
 To run it:

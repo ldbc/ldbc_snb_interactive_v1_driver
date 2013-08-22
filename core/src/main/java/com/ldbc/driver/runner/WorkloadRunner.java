@@ -25,6 +25,7 @@ public class WorkloadRunner
     private final WorkloadStatusThread workloadStatusThread;
     private final Generator<Operation<?>> operationGenerator;
     private final WorkloadMetricsManager metricsManager;
+    private final boolean showStatus;
 
     public WorkloadRunner( Db db, Generator<Operation<?>> operationGenerator, boolean showStatus, int threadCount,
             WorkloadMetricsManager metricsManager ) throws WorkloadException
@@ -34,17 +35,18 @@ public class WorkloadRunner
                 DEFAULT_TOLERATED_OPERATION_START_TIME_DELAY ) );
         this.operationHandlerExecutor = new ThreadPoolOperationHandlerExecutor( threadCount );
         this.metricsLoggingThread = new MetricsLoggingThread( operationHandlerExecutor, metricsManager );
-        Duration statusInterval = ( showStatus ) ? DEFAULT_STATUS_UPDATE_INTERVAL : Duration.fromMinutes( 60 );
+        Duration statusInterval = DEFAULT_STATUS_UPDATE_INTERVAL;
         this.workloadStatusThread = new WorkloadStatusThread( statusInterval, metricsManager );
         this.operationGenerator = operationGenerator;
         this.metricsManager = metricsManager;
+        this.showStatus = showStatus;
     }
 
     public void run() throws WorkloadException
     {
         metricsManager.setStartTime( Time.now() );
         metricsLoggingThread.start();
-        workloadStatusThread.start();
+        if ( true == showStatus ) workloadStatusThread.start();
         while ( operationGenerator.hasNext() )
         {
             Operation<?> operation = operationGenerator.next();
@@ -67,7 +69,7 @@ public class WorkloadRunner
         {
             metricsLoggingThread.finishLoggingRemainingResults();
             metricsLoggingThread.join();
-            workloadStatusThread.interrupt();
+            if ( true == showStatus ) workloadStatusThread.interrupt();
         }
         catch ( InterruptedException e )
         {
