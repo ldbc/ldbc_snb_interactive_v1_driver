@@ -26,7 +26,7 @@ public class Client
         Client client = new Client();
         try
         {
-            Params params = Params.fromArgs( args );
+            WorkloadParams params = WorkloadParams.fromArgs( args );
             client.start( params );
         }
         catch ( ParamsException e )
@@ -45,7 +45,7 @@ public class Client
         }
     }
 
-    private void start( Params params ) throws ClientException
+    public void start( WorkloadParams params ) throws ClientException
     {
         logger.info( "LDBC Workload Driver" );
         logger.info( params.toString() );
@@ -56,7 +56,7 @@ public class Client
         try
         {
             workload = ClassLoaderHelper.loadWorkload( params.getWorkloadClassName() );
-            workload.init( params.getOperationCount(), params.getRecordCount(), params.asMap() );
+            workload.init( params );
         }
         catch ( Exception e )
         {

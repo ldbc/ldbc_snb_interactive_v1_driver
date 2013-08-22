@@ -8,7 +8,7 @@ import java.util.Map;
 
 import org.junit.Test;
 
-public class ParamsTests
+public class WorkloadParamsTests
 {
 
     @Test
@@ -23,8 +23,8 @@ public class ParamsTests
         int threadCount = 3;
         boolean showStatus = true;
 
-        Params params = new Params( paramsMap, dbClassName, workloadClassName, operationCount, recordCount,
-                benchmarkPhase, threadCount, showStatus );
+        WorkloadParams params = new WorkloadParams( paramsMap, dbClassName, workloadClassName, operationCount,
+                recordCount, benchmarkPhase, threadCount, showStatus );
 
         assertThat( params.asMap(), is( paramsMap ) );
         assertThat( params.getDbClassName(), is( dbClassName ) );
@@ -69,7 +69,7 @@ public class ParamsTests
                 Long.toString( recordCount ), ( benchmarkPhase.equals( BenchmarkPhase.LOAD_PHASE ) ) ? "-l" : "-t",
                 "-tc", Integer.toString( threadCount ), ( showStatus ) ? "-s" : "", "-p", userKey, userVal };
 
-        Params params = Params.fromArgs( args );
+        WorkloadParams params = WorkloadParams.fromArgs( args );
 
         assertThat( params.getDbClassName(), is( dbClassName ) );
         assertThat( params.getWorkloadClassName(), is( workloadClassName ) );

@@ -28,7 +28,7 @@ import com.ldbc.driver.util.MapUtils;
 
 // TODO getOptionsString() to print config
 
-class Params
+public class WorkloadParams
 {
     /*
      * For partitioning load among machines when client is bottleneck.
@@ -52,6 +52,7 @@ class Params
     private static final String OPERATION_COUNT_DEFAULT = Integer.toString( 0 );
     private static final String OPERATION_COUNT_DESCRIPTION = String.format(
             "number of operations to execute (default: %s)", OPERATION_COUNT_DEFAULT );
+    public static final long UNBOUNDED_OPERATION_COUNT = -1;
 
     private static final String RECORD_COUNT_ARG = "rc";
     private static final String RECORD_COUNT_ARG_LONG = "recordcount";
@@ -74,11 +75,11 @@ class Params
     // --- OPTIONAL ---
     private static final String THREADS_ARG = "tc";
     private static final String THREADS_ARG_LONG = "threadcount";
-    private static final String THREADS_DEFAULT = Integer.toString( defaultThreadCount() );
+    private static final String THREADS_DEFAULT = Integer.toString( calculateDefaultThreadPoolSize() );
     private static final String THREADS_DESCRIPTION = String.format(
             "number of worker threads to execute with (default: %s)", THREADS_DEFAULT );
 
-    private static int defaultThreadCount()
+    public static int calculateDefaultThreadPoolSize()
     {
         // Client & OperationResultLoggingThread
         int threadsUsedByDriver = 2;
@@ -107,7 +108,7 @@ class Params
 
     private static final Options OPTIONS = buildOptions();
 
-    public static Params fromArgs( String[] args ) throws ParamsException
+    public static WorkloadParams fromArgs( String[] args ) throws ParamsException
     {
         Map<String, String> paramsMap;
         try
@@ -119,7 +120,7 @@ class Params
         {
             throw new ParamsException( String.format( "%s\n%s", e.getMessage(), helpString() ) );
         }
-        return new Params( paramsMap, paramsMap.get( DB_ARG ), paramsMap.get( WORKLOAD_ARG ),
+        return new WorkloadParams( paramsMap, paramsMap.get( DB_ARG ), paramsMap.get( WORKLOAD_ARG ),
                 Long.parseLong( paramsMap.get( OPERATION_COUNT_ARG ) ),
                 Long.parseLong( paramsMap.get( RECORD_COUNT_ARG ) ),
                 BenchmarkPhase.valueOf( paramsMap.get( BENCHMARK_PHASE_ARG ) ),
@@ -308,8 +309,8 @@ class Params
     private final int threadCount;
     private final boolean showStatus;
 
-    public Params( Map<String, String> paramsMap, String dbClassName, String workloadClassName, long operationCount,
-            long recordCount, BenchmarkPhase benchmarkPhase, int threadCount, boolean showStatus )
+    public WorkloadParams( Map<String, String> paramsMap, String dbClassName, String workloadClassName,
+            long operationCount, long recordCount, BenchmarkPhase benchmarkPhase, int threadCount, boolean showStatus )
     {
         this.paramsMap = paramsMap;
         this.dbClassName = dbClassName;

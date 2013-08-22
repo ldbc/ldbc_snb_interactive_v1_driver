@@ -17,17 +17,16 @@ public abstract class Workload
     /**
      * Called once to initialize state for workload
      */
-    public final void init( long operationCount, long recordCount, Map<String, String> properties )
-            throws WorkloadException
+    public final void init( WorkloadParams params ) throws WorkloadException
     {
         if ( true == isInitialized )
         {
             throw new WorkloadException( "DB may be initialized only once" );
         }
         isInitialized = true;
-        this.operationCount = operationCount;
-        this.recordCount = recordCount;
-        onInit( properties );
+        this.operationCount = params.getOperationCount();
+        this.recordCount = params.getRecordCount();
+        onInit( params.asMap() );
     }
 
     protected long getOperationCount()
@@ -57,7 +56,7 @@ public abstract class Workload
     public final Generator<Operation<?>> getLoadOperations( GeneratorBuilder generatorBuilder )
             throws WorkloadException
     {
-        if ( -1 == getOperationCount() )
+        if ( WorkloadParams.UNBOUNDED_OPERATION_COUNT == getOperationCount() )
         {
             return createLoadOperations( generatorBuilder );
         }
