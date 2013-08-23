@@ -1,5 +1,7 @@
 package com.ldbc.driver.measurements;
 
+import java.util.concurrent.TimeUnit;
+
 import org.junit.Test;
 
 import com.ldbc.driver.OperationResult;
@@ -11,7 +13,6 @@ import com.ldbc.driver.measurements.formatters.HdrHistogramMetricSimpleFormatter
 import com.ldbc.driver.measurements.metric.Metric;
 import com.ldbc.driver.util.temporal.Duration;
 import com.ldbc.driver.util.temporal.Time;
-import com.ldbc.driver.util.temporal.TimeUnit;
 
 import static org.junit.Assert.*;
 import static org.hamcrest.CoreMatchers.*;
@@ -23,7 +24,7 @@ public class WorkloadMetricsManagerTest
     @Test
     public void shouldReturnCorrectMeasurements() throws MetricsExporterException, WorkloadException
     {
-        WorkloadMetricsManager workloadMeasurements = new WorkloadMetricsManager( TimeUnit.NANO );
+        WorkloadMetricsManager workloadMeasurements = new WorkloadMetricsManager( TimeUnit.NANOSECONDS );
 
         OperationResult operationResult1 = new OperationResult( 1, "result one" );
         operationResult1.setOperationType( "type one" );

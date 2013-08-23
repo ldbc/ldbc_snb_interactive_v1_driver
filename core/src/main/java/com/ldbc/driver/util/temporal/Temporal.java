@@ -1,7 +1,7 @@
 package com.ldbc.driver.util.temporal;
 
-//TODO use TimeUnit
-//e.g. TimeUnit.MILLISECONDS.toMinutes( runtime ),
+import java.util.concurrent.TimeUnit;
+
 public class Temporal implements MultipleTimeUnitProvider<Temporal>
 {
     public static Temporal fromNano( long ns )
@@ -25,36 +25,36 @@ public class Temporal implements MultipleTimeUnitProvider<Temporal>
     @Override
     public long asMicro()
     {
-        return TimeUnitConvertor.nanoToMicro( nanoValue );
+        return convert( nanoValue, TimeUnit.NANOSECONDS, TimeUnit.MICROSECONDS );
     }
 
     @Override
     public long asMilli()
     {
-        return TimeUnitConvertor.nanoToMilli( nanoValue );
+        return convert( nanoValue, TimeUnit.NANOSECONDS, TimeUnit.MILLISECONDS );
     }
 
     @Override
-    public long asSeconds()
+    public long asSeconds() throws TemporalException
     {
-        return TimeUnitConvertor.nanoToSecond( nanoValue );
+        return convert( nanoValue, TimeUnit.NANOSECONDS, TimeUnit.SECONDS );
     }
 
     @Override
     public long as( TimeUnit timeUnit )
     {
-        switch ( timeUnit )
+        return convert( nanoValue, TimeUnit.NANOSECONDS, timeUnit );
+    }
+
+    static long convert( long unitOfTime, TimeUnit timeUnitFrom, TimeUnit timeUnitTo ) throws TemporalException
+    {
+        Long unitOfTimeInNewUnit = timeUnitTo.convert( unitOfTime, timeUnitFrom );
+        if ( unitOfTimeInNewUnit.equals( Long.MIN_VALUE ) || unitOfTimeInNewUnit.equals( Long.MAX_VALUE ) )
         {
-        case NANO:
-            return this.asNano();
-        case MICRO:
-            return this.asMicro();
-        case MILLI:
-            return this.asMilli();
-        case SECOND:
-            return this.asSeconds();
+            throw new TemporalException( String.format( "Overflow while converting %s %s to %s", unitOfTime,
+                    timeUnitFrom, timeUnitTo ) );
         }
-        throw new RuntimeException( "Unexpected error - unsupported TimeUnit" );
+        return unitOfTimeInNewUnit;
     }
 
     @Override

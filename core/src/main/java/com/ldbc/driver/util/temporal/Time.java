@@ -1,51 +1,42 @@
 package com.ldbc.driver.util.temporal;
 
+import java.util.concurrent.TimeUnit;
+
 public class Time implements Comparable<Time>, MultipleTimeUnitProvider<Time>
 {
     public static Time now()
     {
-        return new Time( TimeUnitConvertor.nanoFromMilli( System.currentTimeMillis() ) );
+        return Time.fromNano( Temporal.convert( System.currentTimeMillis(), TimeUnit.MILLISECONDS, TimeUnit.NANOSECONDS ) );
     }
 
-    public static Time fromNano( long nanoTime )
+    public static Time fromNano( long ns )
     {
-        return new Time( nanoTime );
+        return new Time( ns );
     }
 
-    public static Time fromMicro( long microTime )
+    public static Time fromMicro( long us )
     {
-        return new Time( TimeUnitConvertor.nanoFromMicro( microTime ) );
+        return Time.fromNano( Temporal.convert( us, TimeUnit.MICROSECONDS, TimeUnit.NANOSECONDS ) );
     }
 
-    public static Time fromMilli( long milliTime )
+    public static Time fromMilli( long ms )
     {
-        return new Time( TimeUnitConvertor.nanoFromMilli( milliTime ) );
+        return Time.fromNano( Temporal.convert( ms, TimeUnit.MILLISECONDS, TimeUnit.NANOSECONDS ) );
     }
 
-    public static Time fromSeconds( long secondsTime )
+    public static Time fromSeconds( long s )
     {
-        return new Time( TimeUnitConvertor.nanoFromSecond( secondsTime ) );
+        return Time.fromNano( Temporal.convert( s, TimeUnit.SECONDS, TimeUnit.NANOSECONDS ) );
     }
 
     public static Time fromMinutes( long m )
     {
-        return new Time( TimeUnitConvertor.nanoFromMinute( m ) );
+        return Time.fromNano( Temporal.convert( m, TimeUnit.MINUTES, TimeUnit.NANOSECONDS ) );
     }
 
     public static Time from( TimeUnit timeUnit, long unitOfTime )
     {
-        switch ( timeUnit )
-        {
-        case NANO:
-            return Time.fromNano( unitOfTime );
-        case MICRO:
-            return Time.fromMicro( unitOfTime );
-        case MILLI:
-            return Time.fromMilli( unitOfTime );
-        case SECOND:
-            return Time.fromSeconds( unitOfTime );
-        }
-        throw new RuntimeException( "Unexpected error - unsupported TimeUnit" );
+        return Time.fromNano( Temporal.convert( unitOfTime, timeUnit, TimeUnit.NANOSECONDS ) );
     }
 
     private final Temporal time;

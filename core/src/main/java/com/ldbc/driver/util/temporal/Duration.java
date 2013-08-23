@@ -1,5 +1,7 @@
 package com.ldbc.driver.util.temporal;
 
+import java.util.concurrent.TimeUnit;
+
 public class Duration implements Comparable<Duration>, MultipleTimeUnitProvider<Duration>
 {
     public static Duration fromNano( long ns )
@@ -9,38 +11,27 @@ public class Duration implements Comparable<Duration>, MultipleTimeUnitProvider<
 
     public static Duration fromMicro( long us )
     {
-        return new Duration( TimeUnitConvertor.nanoFromMicro( us ) );
+        return Duration.fromNano( Temporal.convert( us, TimeUnit.MICROSECONDS, TimeUnit.NANOSECONDS ) );
     }
 
     public static Duration fromMilli( long ms )
     {
-        return new Duration( TimeUnitConvertor.nanoFromMilli( ms ) );
+        return Duration.fromNano( Temporal.convert( ms, TimeUnit.MILLISECONDS, TimeUnit.NANOSECONDS ) );
     }
 
     public static Duration fromSeconds( long s )
     {
-        return new Duration( TimeUnitConvertor.nanoFromSecond( s ) );
+        return Duration.fromNano( Temporal.convert( s, TimeUnit.SECONDS, TimeUnit.NANOSECONDS ) );
     }
 
     public static Duration fromMinutes( long m )
     {
-        return new Duration( TimeUnitConvertor.nanoFromMinute( m ) );
+        return Duration.fromNano( Temporal.convert( m, TimeUnit.MINUTES, TimeUnit.NANOSECONDS ) );
     }
 
     public static Duration from( TimeUnit timeUnit, long unitOfTime )
     {
-        switch ( timeUnit )
-        {
-        case NANO:
-            return Duration.fromNano( unitOfTime );
-        case MICRO:
-            return Duration.fromMicro( unitOfTime );
-        case MILLI:
-            return Duration.fromMilli( unitOfTime );
-        case SECOND:
-            return Duration.fromSeconds( unitOfTime );
-        }
-        throw new RuntimeException( "Unexpected error - unsupported TimeUnit" );
+        return Duration.fromNano( Temporal.convert( unitOfTime, timeUnit, TimeUnit.NANOSECONDS ) );
     }
 
     private final Temporal duration;

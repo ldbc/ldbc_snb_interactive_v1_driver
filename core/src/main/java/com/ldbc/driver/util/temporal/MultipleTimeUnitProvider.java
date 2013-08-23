@@ -1,5 +1,7 @@
 package com.ldbc.driver.util.temporal;
 
+import java.util.concurrent.TimeUnit;
+
 public interface MultipleTimeUnitProvider<T>
 {
     public long asSeconds();

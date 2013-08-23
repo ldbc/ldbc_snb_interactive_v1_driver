@@ -3,6 +3,7 @@ package com.ldbc.driver.measurements;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 import org.apache.log4j.Logger;
 
@@ -17,7 +18,6 @@ import com.ldbc.driver.measurements.metric.Metric;
 import com.ldbc.driver.measurements.metric.MetricFactory;
 import com.ldbc.driver.util.temporal.Duration;
 import com.ldbc.driver.util.temporal.Time;
-import com.ldbc.driver.util.temporal.TimeUnit;
 
 public class WorkloadMetricsManager
 {
@@ -30,7 +30,7 @@ public class WorkloadMetricsManager
     private static final Duration MINUTES_10 = Duration.fromSeconds( 60 * 10 );
 
     public static final Duration DEFAULT_HIGHEST_EXPECTED_DURATION = MINUTES_10;
-    public static final TimeUnit DEFAULT_DURATION_UNIT = TimeUnit.MICRO;
+    public static final TimeUnit DEFAULT_DURATION_UNIT = TimeUnit.MICROSECONDS;
 
     private final MetricGroup<HdrHistogramMetric> runtimeMetrics;
     private final MetricGroup<HdrHistogramMetric> startTimeDelayMetrics;

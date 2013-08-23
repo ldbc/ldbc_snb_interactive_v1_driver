@@ -1,5 +1,7 @@
 package com.ldbc.driver;
 
+import java.util.concurrent.TimeUnit;
+
 import org.apache.log4j.Logger;
 
 import com.ldbc.driver.generator.Generator;
@@ -13,7 +15,6 @@ import com.ldbc.driver.runner.WorkloadRunner;
 import com.ldbc.driver.util.ClassLoaderHelper;
 import com.ldbc.driver.util.RandomDataGeneratorFactory;
 import com.ldbc.driver.util.temporal.Time;
-import com.ldbc.driver.util.temporal.TimeUnit;
 
 public class Client
 {
@@ -81,7 +82,7 @@ public class Client
         }
         logger.info( String.format( "Loaded DB: %s", db.getClass().getName() ) );
 
-        TimeUnit durationUnit = TimeUnit.NANO;
+        TimeUnit durationUnit = TimeUnit.NANOSECONDS;
         WorkloadMetricsManager metricsManager = new WorkloadMetricsManager( durationUnit );
 
         WorkloadRunner workloadRunner = null;
