@@ -1,7 +1,5 @@
 package com.ldbc.driver;
 
-import java.util.concurrent.TimeUnit;
-
 import org.apache.log4j.Logger;
 
 import com.ldbc.driver.generator.Generator;
@@ -32,8 +30,8 @@ public class Client
         }
         catch ( ParamsException e )
         {
-            String errMsg = "Error parse parameters";
-            logger.error( errMsg, e );
+            String errMsg = String.format( "Error parsing parameters: %s", e.getMessage() );
+            logger.error( errMsg );
         }
         catch ( Exception e )
         {
@@ -82,8 +80,7 @@ public class Client
         }
         logger.info( String.format( "Loaded DB: %s", db.getClass().getName() ) );
 
-        TimeUnit durationUnit = TimeUnit.NANOSECONDS;
-        WorkloadMetricsManager metricsManager = new WorkloadMetricsManager( durationUnit );
+        WorkloadMetricsManager metricsManager = new WorkloadMetricsManager( params.getTimeUnit() );
 
         WorkloadRunner workloadRunner = null;
         try

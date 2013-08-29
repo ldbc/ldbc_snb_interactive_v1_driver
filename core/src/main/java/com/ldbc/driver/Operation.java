@@ -23,9 +23,14 @@ public abstract class Operation<R>
         return new OperationResult( resultCode, result );
     }
 
+    public String getType()
+    {
+        return getClass().getName();
+    }
+
     @Override
     public String toString()
     {
-        return String.format( "Operation [type=%s, scheduledStartTime=%s]", getClass().getName(), scheduledStartTime );
+        return String.format( "Operation [type=%s, scheduledStartTime=%s]", getType(), scheduledStartTime );
     }
 }

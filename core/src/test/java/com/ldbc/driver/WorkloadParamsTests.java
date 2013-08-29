@@ -5,11 +5,17 @@ import static org.hamcrest.CoreMatchers.*;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 import org.junit.Test;
 
 public class WorkloadParamsTests
 {
+
+    enum Cows
+    {
+        Black
+    }
 
     @Test
     public void shouldReturnSameAsConstructedWith()
@@ -22,9 +28,10 @@ public class WorkloadParamsTests
         BenchmarkPhase benchmarkPhase = BenchmarkPhase.LOAD_PHASE;
         int threadCount = 3;
         boolean showStatus = true;
+        TimeUnit timeUnit = TimeUnit.SECONDS;
 
         WorkloadParams params = new WorkloadParams( paramsMap, dbClassName, workloadClassName, operationCount,
-                recordCount, benchmarkPhase, threadCount, showStatus );
+                recordCount, benchmarkPhase, threadCount, showStatus, timeUnit );
 
         assertThat( params.asMap(), is( paramsMap ) );
         assertThat( params.getDbClassName(), is( dbClassName ) );
@@ -34,6 +41,7 @@ public class WorkloadParamsTests
         assertThat( params.getBenchmarkPhase(), is( benchmarkPhase ) );
         assertThat( params.getThreadCount(), is( threadCount ) );
         assertThat( params.isShowStatus(), is( showStatus ) );
+        assertThat( params.getTimeUnit(), is( timeUnit ) );
     }
 
     @Test
@@ -64,10 +72,12 @@ public class WorkloadParamsTests
         boolean showStatus = true;
         String userKey = "userKey";
         String userVal = "userVal";
+        TimeUnit timeUnit = TimeUnit.MINUTES;
 
         String[] args = { "-db", dbClassName, "-w", workloadClassName, "-oc", Long.toString( operationCount ), "-rc",
                 Long.toString( recordCount ), ( benchmarkPhase.equals( BenchmarkPhase.LOAD_PHASE ) ) ? "-l" : "-t",
-                "-tc", Integer.toString( threadCount ), ( showStatus ) ? "-s" : "", "-p", userKey, userVal };
+                "-tc", Integer.toString( threadCount ), ( showStatus ) ? "-s" : "", "-p", userKey, userVal, "-tu",
+                timeUnit.toString(), "-x" };
 
         WorkloadParams params = WorkloadParams.fromArgs( args );
 
@@ -78,6 +88,7 @@ public class WorkloadParamsTests
         assertThat( params.getBenchmarkPhase(), is( benchmarkPhase ) );
         assertThat( params.getThreadCount(), is( threadCount ) );
         assertThat( params.isShowStatus(), is( showStatus ) );
+        assertThat( params.getTimeUnit(), is( timeUnit ) );
         assertThat( (String) params.asMap().get( userKey ), is( userVal ) );
     }
 }

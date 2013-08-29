@@ -12,6 +12,7 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.Map.Entry;
+import java.util.concurrent.TimeUnit;
 import java.util.Properties;
 
 import org.apache.commons.cli.BasicParser;
@@ -25,8 +26,6 @@ import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
 
 import com.ldbc.driver.util.MapUtils;
-
-// TODO getOptionsString() to print config
 
 public class WorkloadParams
 {
@@ -106,6 +105,15 @@ public class WorkloadParams
     private static final String PROPERTY_ARG = "p";
     private static final String PROPERTY_DESCRIPTION = "properties to be passed to DB and Workload - these will override properties loaded from files";
 
+    private static final String TIME_UNIT_ARG = "tu";
+    private static final String TIME_UNIT_ARG_LONG = "timeunit";
+    private static final String TIME_UNIT_DEFAULT = TimeUnit.MILLISECONDS.toString();
+    private static final TimeUnit[] VALID_TIME_UNITS = new TimeUnit[] { TimeUnit.NANOSECONDS, TimeUnit.MICROSECONDS,
+            TimeUnit.MILLISECONDS, TimeUnit.SECONDS, TimeUnit.MINUTES };
+    private static final String TIME_UNIT_DESCRIPTION = String.format(
+            "time unit to use when gathering metrics. default:%s, valid:%s", TIME_UNIT_DEFAULT,
+            Arrays.toString( VALID_TIME_UNITS ) );
+
     private static final Options OPTIONS = buildOptions();
 
     public static WorkloadParams fromArgs( String[] args ) throws ParamsException
@@ -115,8 +123,13 @@ public class WorkloadParams
         {
             paramsMap = parseArgs( args, OPTIONS );
             assertRequiredArgsProvided( paramsMap );
+            assertValidTimeUnit( paramsMap.get( TIME_UNIT_ARG ) );
         }
         catch ( ParseException e )
+        {
+            throw new ParamsException( e.getMessage() );
+        }
+        catch ( ParamsException e )
         {
             throw new ParamsException( String.format( "%s\n%s", e.getMessage(), helpString() ) );
         }
@@ -125,7 +138,8 @@ public class WorkloadParams
                 Long.parseLong( paramsMap.get( RECORD_COUNT_ARG ) ),
                 BenchmarkPhase.valueOf( paramsMap.get( BENCHMARK_PHASE_ARG ) ),
                 Integer.parseInt( paramsMap.get( THREADS_ARG ) ),
-                Boolean.parseBoolean( paramsMap.get( SHOW_STATUS_ARG ) ) );
+                Boolean.parseBoolean( paramsMap.get( SHOW_STATUS_ARG ) ),
+                TimeUnit.valueOf( paramsMap.get( TIME_UNIT_ARG ) ) );
     }
 
     private static void assertRequiredArgsProvided( Map<String, String> paramsMap ) throws ParamsException
@@ -138,6 +152,24 @@ public class WorkloadParams
         if ( false == paramsMap.containsKey( RECORD_COUNT_ARG ) ) missingOptions.add( RECORD_COUNT_ARG );
         if ( false == paramsMap.containsKey( BENCHMARK_PHASE_ARG ) ) missingOptions.add( BENCHMARK_PHASE_ARG );
         if ( false == missingOptions.isEmpty() ) throw new ParamsException( errMsg + missingOptions.toString() );
+    }
+
+    private static void assertValidTimeUnit( String timeUnitString ) throws ParamsException
+    {
+        try
+        {
+            TimeUnit timeUnit = TimeUnit.valueOf( timeUnitString );
+            Set<TimeUnit> validTimeUnits = new HashSet<TimeUnit>();
+            validTimeUnits.addAll( Arrays.asList( VALID_TIME_UNITS ) );
+            if ( false == validTimeUnits.contains( timeUnit ) )
+            {
+                throw new IllegalArgumentException();
+            }
+        }
+        catch ( IllegalArgumentException e )
+        {
+            throw new ParamsException( String.format( "Unsupported TimeUnit value: %s", timeUnitString ) );
+        }
     }
 
     private static Map<String, String> parseArgs( String[] args, Options options ) throws ParseException
@@ -171,6 +203,9 @@ public class WorkloadParams
         cmdParams.put( THREADS_ARG, threadCount );
 
         cmdParams.put( SHOW_STATUS_ARG, Boolean.toString( cmd.hasOption( SHOW_STATUS_ARG ) ) );
+
+        String timeUnit = ( cmd.hasOption( TIME_UNIT_ARG ) ) ? cmd.getOptionValue( TIME_UNIT_ARG ) : TIME_UNIT_DEFAULT;
+        cmdParams.put( TIME_UNIT_ARG, timeUnit );
 
         if ( cmd.hasOption( PROPERTY_FILE_ARG ) )
         {
@@ -209,6 +244,7 @@ public class WorkloadParams
         paramsMap = replaceKey( paramsMap, DB_ARG_LONG, DB_ARG );
         paramsMap = replaceKey( paramsMap, THREADS_ARG_LONG, THREADS_ARG );
         paramsMap = replaceKey( paramsMap, SHOW_STATUS_ARG_LONG, SHOW_STATUS_ARG );
+        paramsMap = replaceKey( paramsMap, TIME_UNIT_ARG_LONG, TIME_UNIT_ARG );
         paramsMap = replaceKey( paramsMap, BENCHMARK_PHASE_LOAD_LONG, BENCHMARK_PHASE_LOAD );
         paramsMap = replaceKey( paramsMap, BENCHMARK_PHASE_TRANSACTION_LONG, BENCHMARK_PHASE_TRANSACTION );
         return paramsMap;
@@ -269,6 +305,10 @@ public class WorkloadParams
                 SHOW_STATUS_ARG_LONG ).create( SHOW_STATUS_ARG );
         options.addOption( statusOption );
 
+        Option timeUnitOption = OptionBuilder.hasArgs( 1 ).withArgName( "unit" ).withDescription( TIME_UNIT_DESCRIPTION ).withLongOpt(
+                TIME_UNIT_ARG_LONG ).create( TIME_UNIT_ARG );
+        options.addOption( timeUnitOption );
+
         Option propertyFileOption = OptionBuilder.hasArgs().withValueSeparator( ':' ).withArgName( "file1:file2" ).withDescription(
                 PROPERTY_FILE_DESCRIPTION ).create( PROPERTY_FILE_ARG );
         options.addOption( propertyFileOption );
@@ -308,9 +348,11 @@ public class WorkloadParams
     private final BenchmarkPhase benchmarkPhase;
     private final int threadCount;
     private final boolean showStatus;
+    private final TimeUnit timeUnit;
 
     public WorkloadParams( Map<String, String> paramsMap, String dbClassName, String workloadClassName,
-            long operationCount, long recordCount, BenchmarkPhase benchmarkPhase, int threadCount, boolean showStatus )
+            long operationCount, long recordCount, BenchmarkPhase benchmarkPhase, int threadCount, boolean showStatus,
+            TimeUnit timeUnit )
     {
         this.paramsMap = paramsMap;
         this.dbClassName = dbClassName;
@@ -320,6 +362,7 @@ public class WorkloadParams
         this.benchmarkPhase = benchmarkPhase;
         this.threadCount = threadCount;
         this.showStatus = showStatus;
+        this.timeUnit = timeUnit;
     }
 
     public String getDbClassName()
@@ -357,6 +400,11 @@ public class WorkloadParams
         return showStatus;
     }
 
+    public TimeUnit getTimeUnit()
+    {
+        return timeUnit;
+    }
+
     public Map<String, String> asMap()
     {
         return paramsMap;
@@ -379,10 +427,11 @@ public class WorkloadParams
         sb.append( "\t" ).append( "Benchmark Phase:\t" ).append( benchmarkPhase ).append( "\n" );
         sb.append( "\t" ).append( "Worker Threads:\t\t" ).append( threadCount ).append( "\n" );
         sb.append( "\t" ).append( "Show Status:\t\t" ).append( showStatus ).append( "\n" );
+        sb.append( "\t" ).append( "Time Unit:\t\t" ).append( timeUnit ).append( "\n" );
 
         Set<String> excludedKeys = new HashSet<String>();
         excludedKeys.addAll( Arrays.asList( new String[] { DB_ARG, WORKLOAD_ARG, OPERATION_COUNT_ARG, RECORD_COUNT_ARG,
-                BENCHMARK_PHASE_ARG, THREADS_ARG, SHOW_STATUS_ARG } ) );
+                BENCHMARK_PHASE_ARG, THREADS_ARG, SHOW_STATUS_ARG, TIME_UNIT_ARG } ) );
         Map<String, String> filteredParamsMap = MapUtils.copyExcludingKeys( paramsMap, excludedKeys );
         if ( false == filteredParamsMap.isEmpty() )
         {
