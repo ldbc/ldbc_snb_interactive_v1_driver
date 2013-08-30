@@ -133,13 +133,25 @@ public class WorkloadParams
         {
             throw new ParamsException( String.format( "%s\n%s", e.getMessage(), helpString() ) );
         }
-        return new WorkloadParams( paramsMap, paramsMap.get( DB_ARG ), paramsMap.get( WORKLOAD_ARG ),
-                Long.parseLong( paramsMap.get( OPERATION_COUNT_ARG ) ),
-                Long.parseLong( paramsMap.get( RECORD_COUNT_ARG ) ),
-                BenchmarkPhase.valueOf( paramsMap.get( BENCHMARK_PHASE_ARG ) ),
-                Integer.parseInt( paramsMap.get( THREADS_ARG ) ),
-                Boolean.parseBoolean( paramsMap.get( SHOW_STATUS_ARG ) ),
-                TimeUnit.valueOf( paramsMap.get( TIME_UNIT_ARG ) ) );
+
+        try
+        {
+            String dbClassName = paramsMap.get( DB_ARG );
+            String workloadClassName = paramsMap.get( WORKLOAD_ARG );
+            long operationCount = Long.parseLong( paramsMap.get( OPERATION_COUNT_ARG ) );
+            long recordCount = Long.parseLong( paramsMap.get( RECORD_COUNT_ARG ) );
+            BenchmarkPhase benchmarkPhase = BenchmarkPhase.valueOf( paramsMap.get( BENCHMARK_PHASE_ARG ) );
+            int threadCount = Integer.parseInt( paramsMap.get( THREADS_ARG ) );
+            boolean showStatus = Boolean.parseBoolean( paramsMap.get( SHOW_STATUS_ARG ) );
+            TimeUnit timeUnit = TimeUnit.valueOf( paramsMap.get( TIME_UNIT_ARG ) );
+            return new WorkloadParams( paramsMap, dbClassName, workloadClassName, operationCount, recordCount,
+                    benchmarkPhase, threadCount, showStatus, timeUnit );
+        }
+        catch ( Exception e )
+        {
+            e.printStackTrace();
+            throw new RuntimeException( e.getCause() );
+        }
     }
 
     private static void assertRequiredArgsProvided( Map<String, String> paramsMap ) throws ParamsException
