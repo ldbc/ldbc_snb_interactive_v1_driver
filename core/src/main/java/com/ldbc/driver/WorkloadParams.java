@@ -134,36 +134,43 @@ public class WorkloadParams
             throw new ParamsException( String.format( "%s\n%s", e.getMessage(), helpString() ) );
         }
 
-        try
-        {
-            String dbClassName = paramsMap.get( DB_ARG );
-            String workloadClassName = paramsMap.get( WORKLOAD_ARG );
-            long operationCount = Long.parseLong( paramsMap.get( OPERATION_COUNT_ARG ) );
-            long recordCount = Long.parseLong( paramsMap.get( RECORD_COUNT_ARG ) );
-            BenchmarkPhase benchmarkPhase = BenchmarkPhase.valueOf( paramsMap.get( BENCHMARK_PHASE_ARG ) );
-            int threadCount = Integer.parseInt( paramsMap.get( THREADS_ARG ) );
-            boolean showStatus = Boolean.parseBoolean( paramsMap.get( SHOW_STATUS_ARG ) );
-            TimeUnit timeUnit = TimeUnit.valueOf( paramsMap.get( TIME_UNIT_ARG ) );
-            return new WorkloadParams( paramsMap, dbClassName, workloadClassName, operationCount, recordCount,
-                    benchmarkPhase, threadCount, showStatus, timeUnit );
-        }
-        catch ( Exception e )
-        {
-            e.printStackTrace();
-            throw new RuntimeException( e.getCause() );
-        }
+        /*
+         * TODO
+         * operation count appears to be null here when it's not set
+         * this should not happen, as an exception should be thrown further up during the assert
+         * is the assert failing? it is checking for key present, rather than key & not null
+         * TODO
+         * change has been made to assertRequiredArgsProvided, to check for null value, test it
+         */
+        String dbClassName = paramsMap.get( DB_ARG );
+        String workloadClassName = paramsMap.get( WORKLOAD_ARG );
+        long operationCount = Long.parseLong( paramsMap.get( OPERATION_COUNT_ARG ) );
+        long recordCount = Long.parseLong( paramsMap.get( RECORD_COUNT_ARG ) );
+        BenchmarkPhase benchmarkPhase = BenchmarkPhase.valueOf( paramsMap.get( BENCHMARK_PHASE_ARG ) );
+        int threadCount = Integer.parseInt( paramsMap.get( THREADS_ARG ) );
+        boolean showStatus = Boolean.parseBoolean( paramsMap.get( SHOW_STATUS_ARG ) );
+        TimeUnit timeUnit = TimeUnit.valueOf( paramsMap.get( TIME_UNIT_ARG ) );
+        return new WorkloadParams( paramsMap, dbClassName, workloadClassName, operationCount, recordCount,
+                benchmarkPhase, threadCount, showStatus, timeUnit );
     }
 
     private static void assertRequiredArgsProvided( Map<String, String> paramsMap ) throws ParamsException
     {
         List<String> missingOptions = new ArrayList<String>();
         String errMsg = "Missing required option: ";
-        if ( false == paramsMap.containsKey( DB_ARG ) ) missingOptions.add( DB_ARG );
-        if ( false == paramsMap.containsKey( WORKLOAD_ARG ) ) missingOptions.add( WORKLOAD_ARG );
-        if ( false == paramsMap.containsKey( OPERATION_COUNT_ARG ) ) missingOptions.add( OPERATION_COUNT_ARG );
-        if ( false == paramsMap.containsKey( RECORD_COUNT_ARG ) ) missingOptions.add( RECORD_COUNT_ARG );
-        if ( false == paramsMap.containsKey( BENCHMARK_PHASE_ARG ) ) missingOptions.add( BENCHMARK_PHASE_ARG );
+        if ( false == argIsProvided( paramsMap, DB_ARG ) ) missingOptions.add( DB_ARG );
+        if ( false == argIsProvided( paramsMap, WORKLOAD_ARG ) ) missingOptions.add( WORKLOAD_ARG );
+        if ( false == argIsProvided( paramsMap, OPERATION_COUNT_ARG ) ) missingOptions.add( OPERATION_COUNT_ARG );
+        if ( false == argIsProvided( paramsMap, RECORD_COUNT_ARG ) ) missingOptions.add( RECORD_COUNT_ARG );
+        if ( false == argIsProvided( paramsMap, BENCHMARK_PHASE_ARG ) ) missingOptions.add( BENCHMARK_PHASE_ARG );
         if ( false == missingOptions.isEmpty() ) throw new ParamsException( errMsg + missingOptions.toString() );
+    }
+
+    private static boolean argIsProvided( Map<String, String> params, String arg )
+    {
+        if ( false == params.containsKey( arg ) ) return false;
+        if ( null == params.get( arg ) ) return false;
+        return true;
     }
 
     private static void assertValidTimeUnit( String timeUnitString ) throws ParamsException
