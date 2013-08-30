@@ -68,7 +68,10 @@ public class Duration implements Comparable<Duration>, MultipleTimeUnitProvider<
     @Override
     public String toString()
     {
-        return duration.asNano() + "(ns)";
+        long m = TimeUnit.MILLISECONDS.toMinutes( duration.asMilli() );
+        long s = TimeUnit.MILLISECONDS.toSeconds( duration.asMilli() ) - TimeUnit.MINUTES.toSeconds( m );
+        long ms = duration.asMilli() - TimeUnit.MINUTES.toMillis( m ) - TimeUnit.SECONDS.toMillis( s );
+        return String.format( "%02d:%02d.%03d (m:s.ms)", m, s, ms );
     }
 
     @Override

@@ -40,7 +40,7 @@ public class CompulsoryStartTimeOperationSchedulingPolicy implements OperationSc
     @Override
     public void handleExcessiveDelay( Operation<?> operation ) throws OperationException
     {
-        String errMsg = String.format( "Tolerated scheduled start time delay (%s) exceeded on operation\n%s",
+        String errMsg = String.format( "Tolerated scheduled start time delay [%s] exceeded on operation:\n\t%s",
                 toleratedDelay, operation );
         logger.error( errMsg );
         throw new OperationException( errMsg );

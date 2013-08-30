@@ -1,9 +1,13 @@
 package com.ldbc.driver.util.temporal;
 
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.concurrent.TimeUnit;
 
 public class Time implements Comparable<Time>, MultipleTimeUnitProvider<Time>
 {
+    private static SimpleDateFormat timeFormat = new SimpleDateFormat( "HH:mm:ss.SSS" );
+
     public static Time now()
     {
         return Time.fromNano( Temporal.convert( System.currentTimeMillis(), TimeUnit.MILLISECONDS, TimeUnit.NANOSECONDS ) );
@@ -49,7 +53,7 @@ public class Time implements Comparable<Time>, MultipleTimeUnitProvider<Time>
     @Override
     public String toString()
     {
-        return time.asNano() + "(ns)";
+        return timeFormat.format( new Date( time.asMilli() ) );
     }
 
     @Override
