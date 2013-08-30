@@ -27,6 +27,7 @@ import org.apache.commons.cli.ParseException;
 
 import com.ldbc.driver.util.MapUtils;
 
+// TODO make --phase option one with an argument transaction/load
 public class WorkloadParams
 {
     /*
@@ -158,19 +159,13 @@ public class WorkloadParams
     {
         List<String> missingOptions = new ArrayList<String>();
         String errMsg = "Missing required option: ";
-        if ( false == argIsProvided( paramsMap, DB_ARG ) ) missingOptions.add( DB_ARG );
-        if ( false == argIsProvided( paramsMap, WORKLOAD_ARG ) ) missingOptions.add( WORKLOAD_ARG );
-        if ( false == argIsProvided( paramsMap, OPERATION_COUNT_ARG ) ) missingOptions.add( OPERATION_COUNT_ARG );
-        if ( false == argIsProvided( paramsMap, RECORD_COUNT_ARG ) ) missingOptions.add( RECORD_COUNT_ARG );
-        if ( false == argIsProvided( paramsMap, BENCHMARK_PHASE_ARG ) ) missingOptions.add( BENCHMARK_PHASE_ARG );
+        if ( null == paramsMap.get( DB_ARG ) ) missingOptions.add( DB_ARG );
+        if ( null == paramsMap.get( DB_ARG ) ) missingOptions.add( DB_ARG );
+        if ( null == paramsMap.get( WORKLOAD_ARG ) ) missingOptions.add( WORKLOAD_ARG );
+        if ( null == paramsMap.get( OPERATION_COUNT_ARG ) ) missingOptions.add( OPERATION_COUNT_ARG );
+        if ( null == paramsMap.get( RECORD_COUNT_ARG ) ) missingOptions.add( RECORD_COUNT_ARG );
+        if ( null == paramsMap.get( BENCHMARK_PHASE_ARG ) ) missingOptions.add( BENCHMARK_PHASE_ARG );
         if ( false == missingOptions.isEmpty() ) throw new ParamsException( errMsg + missingOptions.toString() );
-    }
-
-    private static boolean argIsProvided( Map<String, String> params, String arg )
-    {
-        if ( false == params.containsKey( arg ) ) return false;
-        if ( null == params.get( arg ) ) return false;
-        return true;
     }
 
     private static void assertValidTimeUnit( String timeUnitString ) throws ParamsException
