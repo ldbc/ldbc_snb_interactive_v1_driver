@@ -16,5 +16,6 @@ neo4j/target/
 neo4j/*.txt
 *.txt
 .gitignore~
+.gitmodules~
 build.sh~
 README.md~
