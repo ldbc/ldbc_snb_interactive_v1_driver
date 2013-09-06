@@ -2,6 +2,7 @@ package com.ldbc.driver.util;
 
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Properties;
 import java.util.Set;
@@ -18,7 +19,8 @@ public class MapUtils
         StringBuilder sb = new StringBuilder();
         for ( Entry<K, V> entry : map.entrySet() )
         {
-            sb.append( prefix ).append( entry.getKey() ).append( " = " ).append( entry.getValue() ).append( "\n" );
+            sb.append( prefix ).append( entry.getKey().toString() ).append( " = " ).append( entry.getValue().toString() ).append(
+                    "\n" );
         }
         return sb.toString();
     }

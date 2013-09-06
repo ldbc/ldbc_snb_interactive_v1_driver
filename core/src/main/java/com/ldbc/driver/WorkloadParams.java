@@ -160,7 +160,6 @@ public class WorkloadParams
         List<String> missingOptions = new ArrayList<String>();
         String errMsg = "Missing required option: ";
         if ( null == paramsMap.get( DB_ARG ) ) missingOptions.add( DB_ARG );
-        if ( null == paramsMap.get( DB_ARG ) ) missingOptions.add( DB_ARG );
         if ( null == paramsMap.get( WORKLOAD_ARG ) ) missingOptions.add( WORKLOAD_ARG );
         if ( null == paramsMap.get( OPERATION_COUNT_ARG ) ) missingOptions.add( OPERATION_COUNT_ARG );
         if ( null == paramsMap.get( RECORD_COUNT_ARG ) ) missingOptions.add( RECORD_COUNT_ARG );
