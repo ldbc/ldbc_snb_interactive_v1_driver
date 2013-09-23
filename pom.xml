@@ -5,7 +5,7 @@
 
 	<groupId>com.ldbc.driver</groupId>
 	<artifactId>root</artifactId>
-	<version>0.1-SNAPSHOT</version>
+	<version>0.11-SNAPSHOT</version>
 	<packaging>pom</packaging>
 
 	<name>LDBC Driver Root</name>
@@ -29,7 +29,6 @@
 
 	<modules>
 		<module>core</module>
-		<module>neo4j</module>
 		<module>distribution</module>
 	</modules>
 
