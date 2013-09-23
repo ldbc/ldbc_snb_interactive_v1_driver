@@ -10,20 +10,28 @@ public class GeneratorUtils
 {
     public static Generator<Time> randomTimeGeneratorFromNow( GeneratorBuilder generatorBuilder )
     {
-        long minMsBetweenOperations = 1l;
-        long maxMsBetweenOperations = 100l;
+        Duration minMsBetweenOperations = Duration.fromMilli( 1 );
+        Duration maxMsBetweenOperations = Duration.fromMilli( 100 );
         Time aLittleBitAfterNow = Time.now().plus( Duration.fromSeconds( 2 ) );
         Time startTime = aLittleBitAfterNow;
         return randomTimeGeneratorFromNow( generatorBuilder, startTime, minMsBetweenOperations, maxMsBetweenOperations );
     }
 
     public static Generator<Time> randomTimeGeneratorFromNow( GeneratorBuilder generatorBuilder, Time startTime,
-            long minMsIncrement, long maxMsIncrement )
+            Duration minIncrement, Duration maxIncrement )
     {
-        Generator<Long> incrementTimeByGenerator = generatorBuilder.uniformNumberGenerator( minMsIncrement,
-                maxMsIncrement ).build();
+        Generator<Long> incrementTimeByGenerator = generatorBuilder.uniformNumberGenerator( minIncrement.asMilli(),
+                maxIncrement.asMilli() ).build();
         Generator<Long> startTimeMilliSecondsGenerator = generatorBuilder.incrementingGenerator( startTime.asMilli(),
                 incrementTimeByGenerator ).build();
+        return new TimeFromMilliSecondsGeneratorWrapper( startTimeMilliSecondsGenerator );
+    }
+
+    public static Generator<Time> constantTimeGeneratorFromNow( GeneratorBuilder generatorBuilder, Time startTime,
+            Duration increment )
+    {
+        Generator<Long> startTimeMilliSecondsGenerator = generatorBuilder.incrementingGenerator( startTime.asMilli(),
+                increment.asMilli() ).build();
         return new TimeFromMilliSecondsGeneratorWrapper( startTimeMilliSecondsGenerator );
     }
 }
