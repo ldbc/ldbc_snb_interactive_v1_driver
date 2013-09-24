@@ -63,7 +63,7 @@ public class SimpleWorkload extends Workload
         {
             valuedFields.add( Triple.create( 1d, FIELD_NAME_PREFIX + i, randomFieldValueGenerator ) );
         }
-        Generator<Map<String, ByteIterator>> insertValuedFieldGenerator = generatorBuilder.discreteValuedMultiGenerator(
+        Generator<Map<String, ByteIterator>> insertValuedFieldGenerator = generatorBuilder.waitedDiscreteValuedMultiGenerator(
                 valuedFields, NUMBER_OF_FIELDS_IN_RECORD ).build();
 
         Generator<Operation<?>> insertOperationGenerator = new InsertOperationGenerator( TABLE,
@@ -98,7 +98,7 @@ public class SimpleWorkload extends Workload
         {
             valuedFields.add( Triple.create( 1d, FIELD_NAME_PREFIX + i, randomFieldValueGenerator ) );
         }
-        Generator<Map<String, ByteIterator>> insertValuedFieldGenerator = generatorBuilder.discreteValuedMultiGenerator(
+        Generator<Map<String, ByteIterator>> insertValuedFieldGenerator = generatorBuilder.waitedDiscreteValuedMultiGenerator(
                 valuedFields, NUMBER_OF_FIELDS_IN_RECORD ).build();
 
         InsertOperationGenerator insertOperationGenerator = new InsertOperationGenerator( TABLE,
@@ -123,7 +123,7 @@ public class SimpleWorkload extends Workload
             fields.add( Pair.create( 1d, FIELD_NAME_PREFIX + i ) );
         }
 
-        Generator<Set<String>> readFieldsGenerator = generatorBuilder.discreteMultiGenerator( fields,
+        Generator<Set<String>> readFieldsGenerator = generatorBuilder.waitedDiscreteMultiGenerator( fields,
                 NUMBER_OF_FIELDS_TO_READ ).build();
 
         ReadOperationGenerator readOperationGenerator = new ReadOperationGenerator( TABLE, requestKeyGenerator,
@@ -137,7 +137,7 @@ public class SimpleWorkload extends Workload
          * **************************
          */
         // Update Fields: Names & Values
-        Generator<Map<String, ByteIterator>> updateValuedFieldsGenerator = generatorBuilder.discreteValuedMultiGenerator(
+        Generator<Map<String, ByteIterator>> updateValuedFieldsGenerator = generatorBuilder.waitedDiscreteValuedMultiGenerator(
                 valuedFields, NUMBER_OF_FIELDS_TO_UPDATE ).build();
 
         UpdateOperationGenerator updateOperationGenerator = new UpdateOperationGenerator( TABLE, requestKeyGenerator,
@@ -151,7 +151,7 @@ public class SimpleWorkload extends Workload
          * **************************
          */
         // Scan Fields: Names & Values
-        Generator<Set<String>> scanFieldsGenerator = generatorBuilder.discreteMultiGenerator( fields,
+        Generator<Set<String>> scanFieldsGenerator = generatorBuilder.waitedDiscreteMultiGenerator( fields,
                 NUMBER_OF_FIELDS_TO_READ ).build();
 
         // Scan Length: Number of Records
@@ -187,7 +187,7 @@ public class SimpleWorkload extends Workload
         operations.add( Pair.create( READ_MODIFY_WRITE_RATIO,
                 (Generator<Operation<?>>) readModifyWriteOperationGenerator ) );
 
-        Generator<Operation<?>> transactionalOperationGenerator = generatorBuilder.discreteValuedGenerator( operations ).build();
+        Generator<Operation<?>> transactionalOperationGenerator = generatorBuilder.waitedDiscreteValuedGenerator( operations ).build();
 
         Generator<Time> startTimeGenerator = GeneratorUtils.randomTimeGeneratorFromNow( generatorBuilder );
 

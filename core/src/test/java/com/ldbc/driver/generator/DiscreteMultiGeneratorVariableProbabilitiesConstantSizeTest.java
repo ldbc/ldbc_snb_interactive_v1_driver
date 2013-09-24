@@ -59,7 +59,7 @@ public class DiscreteMultiGeneratorVariableProbabilitiesConstantSizeTest extends
         items.add( p2 );
         items.add( p3 );
         Generator<Integer> amountToRetrieveGenerator = getGeneratorBuilder().constantGenerator( 1 ).build();
-        DiscreteMultiGenerator<String> generator = getGeneratorBuilder().discreteMultiGenerator( items,
+        DiscreteMultiGenerator<String> generator = getGeneratorBuilder().waitedDiscreteMultiGenerator( items,
                 amountToRetrieveGenerator ).build();
         return generator;
     }
@@ -70,7 +70,7 @@ public class DiscreteMultiGeneratorVariableProbabilitiesConstantSizeTest extends
         // Given
         Generator<Integer> amountToRetrieveGenerator = getGeneratorBuilder().constantGenerator( 1 ).build();
         ArrayList<Pair<Double, String>> emptyItems = new ArrayList<Pair<Double, String>>();
-        Generator<Set<String>> generator = getGeneratorBuilder().discreteMultiGenerator( emptyItems,
+        Generator<Set<String>> generator = getGeneratorBuilder().waitedDiscreteMultiGenerator( emptyItems,
                 amountToRetrieveGenerator ).build();
 
         // When

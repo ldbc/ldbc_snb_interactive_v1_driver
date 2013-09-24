@@ -1,6 +1,7 @@
 package com.ldbc.driver.generator;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import org.apache.commons.math3.random.RandomDataGenerator;
 
@@ -92,7 +93,17 @@ public class GeneratorBuilder
     /**
      * DiscreteGenerator
      */
-    public <T> GeneratorBuilderDelegate<DiscreteGenerator<T>> discreteGenerator( Iterable<Pair<Double, T>> items )
+    public <T> GeneratorBuilderDelegate<DiscreteGenerator<T>> discreteGenerator( Iterable<T> items )
+    {
+        List<Pair<Double, T>> waitedItems = new ArrayList<Pair<Double, T>>();
+        for ( T item : items )
+        {
+            waitedItems.add( Pair.create( 1d, item ) );
+        }
+        return waitedDiscreteGenerator( waitedItems );
+    }
+
+    public <T> GeneratorBuilderDelegate<DiscreteGenerator<T>> waitedDiscreteGenerator( Iterable<Pair<Double, T>> items )
     {
         DiscreteGenerator<T> generator = new DiscreteGenerator<T>( getRandom(), items );
         return new GeneratorBuilderDelegate<DiscreteGenerator<T>>( generator );
@@ -101,10 +112,10 @@ public class GeneratorBuilder
     /**
      * DiscreteValuedGenerator
      */
-    public <T> GeneratorBuilderDelegate<DiscreteValuedGenerator<T>> discreteValuedGenerator(
+    public <T> GeneratorBuilderDelegate<DiscreteValuedGenerator<T>> waitedDiscreteValuedGenerator(
             Iterable<Pair<Double, Generator<T>>> items )
     {
-        DiscreteGenerator<Generator<T>> discreteGenerator = discreteGenerator( items ).build();
+        DiscreteGenerator<Generator<T>> discreteGenerator = waitedDiscreteGenerator( items ).build();
         DiscreteValuedGenerator<T> generator = new DiscreteValuedGenerator<T>( discreteGenerator );
         return new GeneratorBuilderDelegate<DiscreteValuedGenerator<T>>( generator );
     }
@@ -112,14 +123,14 @@ public class GeneratorBuilder
     /**
      * DiscreteMultiGenerator
      */
-    public <T> GeneratorBuilderDelegate<DiscreteMultiGenerator<T>> discreteMultiGenerator(
+    public <T> GeneratorBuilderDelegate<DiscreteMultiGenerator<T>> waitedDiscreteMultiGenerator(
             Iterable<Pair<Double, T>> items, Integer amountToRetrieve )
     {
         Generator<Integer> amountToRetrieveGenerator = constantGenerator( amountToRetrieve ).build();
-        return discreteMultiGenerator( items, amountToRetrieveGenerator );
+        return waitedDiscreteMultiGenerator( items, amountToRetrieveGenerator );
     }
 
-    public <T> GeneratorBuilderDelegate<DiscreteMultiGenerator<T>> discreteMultiGenerator(
+    public <T> GeneratorBuilderDelegate<DiscreteMultiGenerator<T>> waitedDiscreteMultiGenerator(
             Iterable<Pair<Double, T>> pairs, Generator<Integer> amountToRetrieveGenerator )
     {
         DiscreteMultiGenerator<T> generator = new DiscreteMultiGenerator<T>( getRandom(), pairs,
@@ -130,14 +141,14 @@ public class GeneratorBuilder
     /**
      * DiscreteValuedMultiGenerator
      */
-    public <K, V> GeneratorBuilderDelegate<DiscreteValuedMultiGenerator<K, V>> discreteValuedMultiGenerator(
+    public <K, V> GeneratorBuilderDelegate<DiscreteValuedMultiGenerator<K, V>> waitedDiscreteValuedMultiGenerator(
             Iterable<Triple<Double, K, Generator<V>>> items, Integer amountToRetrieve )
     {
         Generator<Integer> amountToRetrieveGenerator = constantGenerator( amountToRetrieve ).build();
-        return discreteValuedMultiGenerator( items, amountToRetrieveGenerator );
+        return waitedDiscreteValuedMultiGenerator( items, amountToRetrieveGenerator );
     }
 
-    public <K, V> GeneratorBuilderDelegate<DiscreteValuedMultiGenerator<K, V>> discreteValuedMultiGenerator(
+    public <K, V> GeneratorBuilderDelegate<DiscreteValuedMultiGenerator<K, V>> waitedDiscreteValuedMultiGenerator(
             Iterable<Triple<Double, K, Generator<V>>> items, Generator<Integer> amountToRetrieveGenerator )
     {
         ArrayList<Pair<Double, Pair<K, Generator<V>>>> probabilityItems = new ArrayList<Pair<Double, Pair<K, Generator<V>>>>();
@@ -148,7 +159,7 @@ public class GeneratorBuilder
             probabilityItems.add( Pair.create( thingProbability, thingGeneratorPair ) );
         }
 
-        DiscreteMultiGenerator<Pair<K, Generator<V>>> discreteMultiGenerator = discreteMultiGenerator(
+        DiscreteMultiGenerator<Pair<K, Generator<V>>> discreteMultiGenerator = waitedDiscreteMultiGenerator(
                 probabilityItems, amountToRetrieveGenerator ).build();
 
         DiscreteValuedMultiGenerator<K, V> generator = new DiscreteValuedMultiGenerator<K, V>( getRandom(),

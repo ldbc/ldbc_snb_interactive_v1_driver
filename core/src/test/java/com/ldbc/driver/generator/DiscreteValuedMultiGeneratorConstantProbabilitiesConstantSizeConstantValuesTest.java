@@ -61,7 +61,7 @@ public class DiscreteValuedMultiGeneratorConstantProbabilitiesConstantSizeConsta
         items.add( t2 );
         items.add( t3 );
         Integer amountToRetrieve = 2;
-        DiscreteValuedMultiGenerator<String, Long> generator = getGeneratorBuilder().discreteValuedMultiGenerator(
+        DiscreteValuedMultiGenerator<String, Long> generator = getGeneratorBuilder().waitedDiscreteValuedMultiGenerator(
                 items, amountToRetrieve ).build();
         return generator;
     }
