@@ -77,7 +77,7 @@ public class WorkloadParamsTests
         String[] args = { "-db", dbClassName, "-w", workloadClassName, "-oc", Long.toString( operationCount ), "-rc",
                 Long.toString( recordCount ), ( benchmarkPhase.equals( BenchmarkPhase.LOAD_PHASE ) ) ? "-l" : "-t",
                 "-tc", Integer.toString( threadCount ), ( showStatus ) ? "-s" : "", "-p", userKey, userVal, "-tu",
-                timeUnit.toString(), "-x" };
+                timeUnit.toString() };
 
         WorkloadParams params = WorkloadParams.fromArgs( args );
 

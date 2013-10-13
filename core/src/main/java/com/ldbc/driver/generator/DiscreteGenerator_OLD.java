@@ -7,22 +7,23 @@ import org.apache.commons.math3.random.RandomDataGenerator;
 import com.ldbc.driver.util.Pair;
 
 // TODO use DiscreteMultiGenerator internally?
-public class DiscreteGenerator<T> extends Generator<T>
+public class DiscreteGenerator_OLD<GENERATE_TYPE> extends Generator<GENERATE_TYPE>
 {
-    private final Vector<Pair<Double, T>> itemsProbabilities;
+    private final Vector<Pair<Double, GENERATE_TYPE>> itemsProbabilities;
     private final double probabilitiesSum;
+    private final RandomDataGenerator random;
 
-    DiscreteGenerator( RandomDataGenerator random, Iterable<Pair<Double, T>> itemsProbabilities )
+    DiscreteGenerator_OLD( RandomDataGenerator random, Iterable<Pair<Double, GENERATE_TYPE>> itemsProbabilities )
     {
-        super( random );
         if ( false == itemsProbabilities.iterator().hasNext() )
         {
             throw new GeneratorException( "DiscreteGenerator cannot be empty" );
         }
-        this.itemsProbabilities = new Vector<Pair<Double, T>>();
+        this.random = random;
+        this.itemsProbabilities = new Vector<Pair<Double, GENERATE_TYPE>>();
         double sum = 0;
 
-        for ( Pair<Double, T> item : itemsProbabilities )
+        for ( Pair<Double, GENERATE_TYPE> item : itemsProbabilities )
         {
             this.itemsProbabilities.add( item );
             sum += item._1();
@@ -31,11 +32,11 @@ public class DiscreteGenerator<T> extends Generator<T>
     }
 
     @Override
-    protected T doNext() throws GeneratorException
+    protected GENERATE_TYPE doNext() throws GeneratorException
     {
-        double randomValue = getRandom().nextUniform( 0, 1 );
+        double randomValue = random.nextUniform( 0, 1 );
 
-        for ( Pair<Double, T> item : itemsProbabilities )
+        for ( Pair<Double, GENERATE_TYPE> item : itemsProbabilities )
         {
             if ( randomValue < item._1() / probabilitiesSum )
             {

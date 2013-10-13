@@ -3,7 +3,7 @@ package com.ldbc.driver.generator.wrapper;
 import org.junit.Test;
 
 import com.ldbc.driver.generator.Generator;
-import com.ldbc.driver.generator.GeneratorBuilder;
+import com.ldbc.driver.generator.GeneratorFactory;
 import com.ldbc.driver.util.RandomDataGeneratorFactory;
 
 import static org.junit.Assert.assertEquals;
@@ -14,8 +14,8 @@ public class CappedGeneratorWrapperTest
     public void shouldStopAtLimitTest()
     {
         // Given
-        Generator<Integer> generator = new GeneratorBuilder( new RandomDataGeneratorFactory() ).uniformNumberGenerator(
-                1, 10 ).build();
+        Generator<Integer> generator = new GeneratorFactory( new RandomDataGeneratorFactory() ).uniformNumberGenerator(
+                1, 10 );
         Generator<Integer> cappedGenerator = new CappedGeneratorWrapper<Integer>( generator, 10 );
 
         // When

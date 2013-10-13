@@ -3,6 +3,7 @@ package com.ldbc.driver.generator.wrapper;
 import com.ldbc.driver.Operation;
 import com.ldbc.driver.generator.Generator;
 import com.ldbc.driver.generator.GeneratorException;
+import com.ldbc.driver.generator.MappingGenerator;
 import com.ldbc.driver.util.Function;
 import com.ldbc.driver.util.temporal.Duration;
 import com.ldbc.driver.util.temporal.Time;
@@ -14,15 +15,11 @@ public class FutureTimeShiftGeneratorWrapper extends Generator<Operation<?>>
 
     public FutureTimeShiftGeneratorWrapper( Generator<Operation<?>> operationGenerator, Time startTime )
     {
-        super( null );
         firstOperation = operationGenerator.next();
         Duration offsetDuration = startTime.greaterBy( firstOperation.getScheduledStartTime() );
-        // TODO remove if pass
-        // Duration offsetDuration = Duration.durationTo(
-        // firstOperation.getScheduledStartTime(), startTime );
         Function<Operation<?>, Operation<?>> timeShiftFun = new TimeShiftFunction( offsetDuration );
         firstOperation = timeShiftFun.apply( firstOperation );
-        this.operationGenerator = new MapGeneratorWrapper<Operation<?>, Operation<?>>( operationGenerator,
+        this.operationGenerator = new MappingGenerator<Operation<?>, Operation<?>>( operationGenerator,
                 new TimeShiftFunction( offsetDuration ) );
     }
 

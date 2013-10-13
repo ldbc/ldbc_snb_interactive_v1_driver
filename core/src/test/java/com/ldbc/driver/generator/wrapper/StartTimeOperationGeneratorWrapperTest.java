@@ -2,8 +2,9 @@ package com.ldbc.driver.generator.wrapper;
 
 import com.ldbc.driver.Operation;
 import com.ldbc.driver.generator.Generator;
-import com.ldbc.driver.generator.GeneratorBuilder;
+import com.ldbc.driver.generator.GeneratorFactory;
 import com.ldbc.driver.generator.GeneratorException;
+import com.ldbc.driver.generator.MappingGenerator;
 import com.ldbc.driver.util.Function;
 import com.ldbc.driver.util.RandomDataGeneratorFactory;
 import com.ldbc.driver.util.temporal.Duration;
@@ -38,9 +39,9 @@ public class StartTimeOperationGeneratorWrapperTest
             }
         };
 
-        Generator<Long> countGenerator = new GeneratorBuilder( new RandomDataGeneratorFactory() ).incrementingGenerator(
-                firstNanoTime, incrementNanoTimeBy ).build();
-        Generator<Time> counterStartTimeGenerator = new MapGeneratorWrapper<Long, Time>( countGenerator,
+        Generator<Long> countGenerator = new GeneratorFactory( new RandomDataGeneratorFactory() ).incrementingGenerator(
+                firstNanoTime, incrementNanoTimeBy );
+        Generator<Time> counterStartTimeGenerator = new MappingGenerator<Long, Time>( countGenerator,
                 timeFromLongFun );
         Generator<Operation<?>> startTimeOperationGenerator = new StartTimeOperationGeneratorWrapper(
                 counterStartTimeGenerator, operationGenerator );
@@ -61,11 +62,6 @@ public class StartTimeOperationGeneratorWrapperTest
 
     static class OperationGenerator extends Generator<Operation<?>>
     {
-        protected OperationGenerator()
-        {
-            super( null );
-        }
-
         @Override
         protected Operation<?> doNext() throws GeneratorException
         {

@@ -1,22 +1,20 @@
 package com.ldbc.driver.generator;
 
-import org.apache.commons.math3.random.RandomDataGenerator;
-
 import com.ldbc.driver.generator.wrapper.MinMaxGeneratorWrapper;
 import com.ldbc.driver.util.NumberHelper;
 
-public class NaiveBoundedRangeNumberGenerator<T extends Number> extends Generator<T>
+public class NaiveBoundedRangeNumberGenerator<GENERATE_TYPE extends Number> extends Generator<GENERATE_TYPE>
 {
     private final Integer maxIterations = 1000;
-    private final MinMaxGeneratorWrapper<T> lowerBoundGenerator;
-    private final MinMaxGeneratorWrapper<T> upperBoundGenerator;
-    private final Generator<T> generator;
-    private final NumberHelper<T> number;
+    private final MinMaxGeneratorWrapper<GENERATE_TYPE> lowerBoundGenerator;
+    private final MinMaxGeneratorWrapper<GENERATE_TYPE> upperBoundGenerator;
+    private final Generator<GENERATE_TYPE> generator;
+    private final NumberHelper<GENERATE_TYPE> number;
 
-    NaiveBoundedRangeNumberGenerator( RandomDataGenerator random, Generator<T> generator,
-            MinMaxGeneratorWrapper<T> lowerBoundGenerator, MinMaxGeneratorWrapper<T> upperBoundGenerator )
+    NaiveBoundedRangeNumberGenerator( Generator<GENERATE_TYPE> generator,
+            MinMaxGeneratorWrapper<GENERATE_TYPE> lowerBoundGenerator,
+            MinMaxGeneratorWrapper<GENERATE_TYPE> upperBoundGenerator )
     {
-        super( random );
         this.lowerBoundGenerator = lowerBoundGenerator;
         this.upperBoundGenerator = upperBoundGenerator;
         this.generator = generator;
@@ -24,9 +22,9 @@ public class NaiveBoundedRangeNumberGenerator<T extends Number> extends Generato
     }
 
     @Override
-    protected T doNext() throws GeneratorException
+    protected GENERATE_TYPE doNext() throws GeneratorException
     {
-        T next;
+        GENERATE_TYPE next;
         for ( int i = 0; i < maxIterations; i++ )
         {
             next = generator.next();
@@ -35,7 +33,7 @@ public class NaiveBoundedRangeNumberGenerator<T extends Number> extends Generato
                 return next;
             }
         }
-        throw new GeneratorException( String.format( "Random in-range number not be found within maxIterations[%s]",
+        throw new GeneratorException( String.format( "Random in-range number not found within maxIterations[%s]",
                 maxIterations ) );
     }
 }

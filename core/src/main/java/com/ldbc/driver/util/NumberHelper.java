@@ -1,5 +1,6 @@
 package com.ldbc.driver.util;
 
+import org.apache.commons.math3.distribution.ExponentialDistribution;
 import org.apache.commons.math3.random.RandomDataGenerator;
 
 import com.ldbc.driver.generator.GeneratorException;
@@ -50,6 +51,8 @@ public abstract class NumberHelper<T extends Number>
         return inc( zero() );
     }
 
+    public abstract T cast( Number n );
+
     public abstract T inc( T a );
 
     public abstract T zero();
@@ -68,6 +71,8 @@ public abstract class NumberHelper<T extends Number>
 
     public abstract T uniform( RandomDataGenerator random, T min, T max );
 
+    public abstract T exponential( ExponentialDistribution exponentialDistribution );
+
     public abstract boolean lt( T a, T b );
 
     public abstract boolean lte( T a, T b );
@@ -76,10 +81,14 @@ public abstract class NumberHelper<T extends Number>
 
     public abstract boolean gte( T a, T b );
 
-    public abstract T hash( T a );
-
     private static class IntegerNumberHelper extends NumberHelper<Integer>
     {
+        @Override
+        public Integer cast( Number n )
+        {
+            return n.intValue();
+        }
+
         @Override
         public Integer zero()
         {
@@ -139,6 +148,12 @@ public abstract class NumberHelper<T extends Number>
         }
 
         @Override
+        public Integer exponential( ExponentialDistribution exponentialDistribution )
+        {
+            return new Double( exponentialDistribution.sample() ).intValue();
+        }
+
+        @Override
         public boolean lt( Integer a, Integer b )
         {
             return a < b;
@@ -161,16 +176,16 @@ public abstract class NumberHelper<T extends Number>
         {
             return a >= b;
         }
-
-        @Override
-        public Integer hash( Integer a )
-        {
-            return HashUtils.FNVhash32( a );
-        }
     }
 
     private static class LongNumberHelper extends NumberHelper<Long>
     {
+        @Override
+        public Long cast( Number n )
+        {
+            return n.longValue();
+        }
+
         @Override
         public Long zero()
         {
@@ -230,6 +245,12 @@ public abstract class NumberHelper<T extends Number>
         }
 
         @Override
+        public Long exponential( ExponentialDistribution exponentialDistribution )
+        {
+            return new Double( exponentialDistribution.sample() ).longValue();
+        }
+
+        @Override
         public boolean lt( Long a, Long b )
         {
             return a < b;
@@ -252,16 +273,16 @@ public abstract class NumberHelper<T extends Number>
         {
             return a >= b;
         }
-
-        @Override
-        public Long hash( Long a )
-        {
-            return HashUtils.FNVhash64( a );
-        }
     }
 
     private static class DoubleNumberHelper extends NumberHelper<Double>
     {
+        @Override
+        public Double cast( Number n )
+        {
+            return n.doubleValue();
+        }
+
         @Override
         public Double zero()
         {
@@ -321,6 +342,12 @@ public abstract class NumberHelper<T extends Number>
         }
 
         @Override
+        public Double exponential( ExponentialDistribution exponentialDistribution )
+        {
+            return exponentialDistribution.sample();
+        }
+
+        @Override
         public boolean lt( Double a, Double b )
         {
             return a < b;
@@ -342,12 +369,6 @@ public abstract class NumberHelper<T extends Number>
         public boolean gte( Double a, Double b )
         {
             return a >= b;
-        }
-
-        @Override
-        public Double hash( Double a )
-        {
-            throw new UnsupportedOperationException( "hash() not supported for Double, only for Integer and Long" );
         }
     }
 }

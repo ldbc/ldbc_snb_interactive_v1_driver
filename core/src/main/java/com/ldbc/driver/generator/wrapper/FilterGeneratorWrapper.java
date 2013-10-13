@@ -8,10 +8,10 @@ import com.google.common.base.Predicate;
 import com.ldbc.driver.generator.Generator;
 import com.ldbc.driver.generator.GeneratorException;
 
-public class FilterGeneratorWrapper<T> extends Generator<T>
+public class FilterGeneratorWrapper<GENERATE_TYPE> extends Generator<GENERATE_TYPE>
 {
-    private final Generator<T> generator;
-    private final Predicate<T> filter;
+    private final Generator<GENERATE_TYPE> generator;
+    private final Predicate<GENERATE_TYPE> filter;
 
     public static <T1> Generator<T1> includeOnly( Generator<T1> generator, T1... includedItems )
     {
@@ -23,19 +23,18 @@ public class FilterGeneratorWrapper<T> extends Generator<T>
         return new FilterGeneratorWrapper<T1>( generator, new ExcludeAllPredicate<T1>( excludedItems ) );
     }
 
-    public FilterGeneratorWrapper( Generator<T> generator, Predicate<T> filter )
+    public FilterGeneratorWrapper( Generator<GENERATE_TYPE> generator, Predicate<GENERATE_TYPE> filter )
     {
-        super( null );
         this.generator = generator;
         this.filter = filter;
     }
 
     @Override
-    protected T doNext() throws GeneratorException
+    protected GENERATE_TYPE doNext() throws GeneratorException
     {
         while ( generator.hasNext() )
         {
-            T next = generator.next();
+            GENERATE_TYPE next = generator.next();
             if ( filter.apply( next ) ) return next;
         }
         return null;

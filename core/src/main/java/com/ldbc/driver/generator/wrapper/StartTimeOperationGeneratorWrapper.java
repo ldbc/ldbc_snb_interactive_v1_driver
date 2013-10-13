@@ -13,7 +13,6 @@ public class StartTimeOperationGeneratorWrapper extends Generator<Operation<?>>
     public StartTimeOperationGeneratorWrapper( Generator<Time> startTimeGenerator,
             Generator<Operation<?>> operationGenerator )
     {
-        super( null );
         this.startTimeGenerator = startTimeGenerator;
         this.operationGenerator = operationGenerator;
     }

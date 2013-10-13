@@ -9,17 +9,18 @@ import com.ldbc.driver.data.RandomByteIterator;
 public class RandomByteIteratorGenerator extends Generator<ByteIterator>
 {
     private final Generator<Integer> lengthGenerator;
+    private final RandomDataGenerator random;
 
     protected RandomByteIteratorGenerator( RandomDataGenerator random, Generator<Integer> lengthGenerator )
     {
-        super( random );
+        this.random = random;
         this.lengthGenerator = lengthGenerator;
     }
 
     @Override
     protected ByteIterator doNext() throws GeneratorException
     {
-        return new RandomByteIterator( lengthGenerator.next(), getRandom() );
+        return new RandomByteIterator( lengthGenerator.next(), random );
     }
 
 }

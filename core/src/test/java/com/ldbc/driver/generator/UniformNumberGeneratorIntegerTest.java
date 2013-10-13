@@ -25,7 +25,7 @@ public class UniformNumberGeneratorIntegerTest extends NumberGeneratorTest<Integ
     @Override
     public Generator<Integer> getGeneratorImpl()
     {
-        return getGeneratorBuilder().uniformNumberGenerator( min, max ).build();
+        return getGeneratorFactory().uniformNumberGenerator( min, max );
     }
 
     @Override

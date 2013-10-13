@@ -9,14 +9,13 @@ import java.util.Set;
 
 import org.junit.Test;
 
-import com.ldbc.driver.generator.DiscreteMultiGenerator;
 import com.ldbc.driver.generator.Generator;
 import com.ldbc.driver.generator.GeneratorException;
 import com.ldbc.driver.util.Histogram;
 import com.ldbc.driver.util.Pair;
 import com.ldbc.driver.util.Bucket.DiscreteBucket;
 
-public class DiscreteMultiGeneratorConstantProbabilitiesVariableSizeTest extends GeneratorTest<Set<String>, Integer>
+public class DiscreteSetGeneratorVariableProbabilitiesConstantSizeTest extends GeneratorTest<Set<String>, Integer>
 {
 
     @Override
@@ -31,14 +30,14 @@ public class DiscreteMultiGeneratorConstantProbabilitiesVariableSizeTest extends
         Set<String> s23 = new HashSet<String>( Arrays.asList( new String[] { "2", "3" } ) );
         Set<String> s123 = new HashSet<String>( Arrays.asList( new String[] { "1", "2", "3" } ) );
         Histogram<Set<String>, Integer> expectedDistribution = new Histogram<Set<String>, Integer>( 0 );
-        expectedDistribution.addBucket( DiscreteBucket.create( s ), 3 );
+        expectedDistribution.addBucket( DiscreteBucket.create( s ), 0 );
         expectedDistribution.addBucket( DiscreteBucket.create( s1 ), 1 );
-        expectedDistribution.addBucket( DiscreteBucket.create( s2 ), 1 );
-        expectedDistribution.addBucket( DiscreteBucket.create( s3 ), 1 );
-        expectedDistribution.addBucket( DiscreteBucket.create( s12 ), 1 );
-        expectedDistribution.addBucket( DiscreteBucket.create( s13 ), 1 );
-        expectedDistribution.addBucket( DiscreteBucket.create( s23 ), 1 );
-        expectedDistribution.addBucket( DiscreteBucket.create( s123 ), 3 );
+        expectedDistribution.addBucket( DiscreteBucket.create( s2 ), 2 );
+        expectedDistribution.addBucket( DiscreteBucket.create( s3 ), 4 );
+        expectedDistribution.addBucket( DiscreteBucket.create( s12 ), 0 );
+        expectedDistribution.addBucket( DiscreteBucket.create( s13 ), 0 );
+        expectedDistribution.addBucket( DiscreteBucket.create( s23 ), 0 );
+        expectedDistribution.addBucket( DiscreteBucket.create( s123 ), 0 );
         return expectedDistribution;
     }
 
@@ -52,15 +51,15 @@ public class DiscreteMultiGeneratorConstantProbabilitiesVariableSizeTest extends
     public Generator<Set<String>> getGeneratorImpl()
     {
         Pair<Double, String> p1 = Pair.create( 1.0, "1" );
-        Pair<Double, String> p2 = Pair.create( 1.0, "2" );
-        Pair<Double, String> p3 = Pair.create( 1.0, "3" );
+        Pair<Double, String> p2 = Pair.create( 2.0, "2" );
+        Pair<Double, String> p3 = Pair.create( 4.0, "3" );
         ArrayList<Pair<Double, String>> items = new ArrayList<Pair<Double, String>>();
         items.add( p1 );
         items.add( p2 );
         items.add( p3 );
-        Generator<Integer> amountToRetrieveGenerator = getGeneratorBuilder().uniformNumberGenerator( 0, 3 ).build();
-        DiscreteMultiGenerator<String> generator = getGeneratorBuilder().waitedDiscreteMultiGenerator( items,
-                amountToRetrieveGenerator ).build();
+        Generator<Integer> amountToRetrieveGenerator = getGeneratorFactory().constantGenerator( 1 );
+        Generator<Set<String>> generator = getGeneratorFactory().weightedDiscreteSetGenerator( items,
+                amountToRetrieveGenerator );
         return generator;
     }
 
@@ -68,10 +67,10 @@ public class DiscreteMultiGeneratorConstantProbabilitiesVariableSizeTest extends
     public void emptyConstructorTest()
     {
         // Given
-        Generator<Integer> amountToRetrieveGenerator = getGeneratorBuilder().uniformNumberGenerator( 0, 3 ).build();
+        Generator<Integer> amountToRetrieveGenerator = getGeneratorFactory().constantGenerator( 1 );
         ArrayList<Pair<Double, String>> emptyItems = new ArrayList<Pair<Double, String>>();
-        Generator<Set<String>> generator = getGeneratorBuilder().waitedDiscreteMultiGenerator( emptyItems,
-                amountToRetrieveGenerator ).build();
+        Generator<Set<String>> generator = getGeneratorFactory().weightedDiscreteSetGenerator( emptyItems,
+                amountToRetrieveGenerator );
 
         // When
         generator.next();

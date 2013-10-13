@@ -2,6 +2,7 @@ package com.ldbc.driver.generator.wrapper;
 
 import com.ldbc.driver.generator.Generator;
 import com.ldbc.driver.generator.GeneratorException;
+import com.ldbc.driver.generator.MappingGenerator;
 import com.ldbc.driver.util.Function;
 import com.ldbc.driver.util.temporal.Time;
 
@@ -11,7 +12,6 @@ public class TimeFromMilliSecondsGeneratorWrapper extends Generator<Time>
 
     public TimeFromMilliSecondsGeneratorWrapper( Generator<Long> milliSecondsGenerator )
     {
-        super( null );
         Function<Long, Time> timeFromNanoFun = new Function<Long, Time>()
         {
             @Override
@@ -20,7 +20,7 @@ public class TimeFromMilliSecondsGeneratorWrapper extends Generator<Time>
                 return Time.fromMilli( fromMilli );
             }
         };
-        this.timeGenerator = new MapGeneratorWrapper<Long, Time>( milliSecondsGenerator, timeFromNanoFun );
+        this.timeGenerator = new MappingGenerator<Long, Time>( milliSecondsGenerator, timeFromNanoFun );
     }
 
     @Override

@@ -5,7 +5,6 @@ import org.junit.Ignore;
 import org.junit.Test;
 
 import com.ldbc.driver.generator.Generator;
-import com.ldbc.driver.generator.GeneratorBuilder;
 import com.ldbc.driver.util.RandomDataGeneratorFactory;
 
 import static org.junit.Assert.assertEquals;
@@ -14,12 +13,12 @@ import static org.junit.Assert.assertEquals;
 public class PrefixGeneratorWrapperTest
 {
     private final long RANDOM_SEED = 42;
-    private GeneratorBuilder generatorBuilder = null;
+    private GeneratorFactory generatorFactory = null;
 
     @Before
     public final void initGeneratorFactory()
     {
-        generatorBuilder = new GeneratorBuilder( new RandomDataGeneratorFactory( RANDOM_SEED ) );
+        generatorFactory = new GeneratorFactory( new RandomDataGeneratorFactory( RANDOM_SEED ) );
     }
 
     @Test

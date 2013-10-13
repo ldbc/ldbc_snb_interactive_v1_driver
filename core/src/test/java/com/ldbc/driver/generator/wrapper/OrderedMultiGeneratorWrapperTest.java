@@ -5,7 +5,7 @@ import java.util.Comparator;
 import org.junit.Test;
 
 import com.ldbc.driver.generator.Generator;
-import com.ldbc.driver.generator.GeneratorBuilder;
+import com.ldbc.driver.generator.GeneratorFactory;
 import com.ldbc.driver.generator.IdentityGenerator;
 import com.ldbc.driver.util.RandomDataGeneratorFactory;
 
@@ -20,8 +20,8 @@ public class OrderedMultiGeneratorWrapperTest
         int lookaheadDistance = 1;
         Generator<Integer> g1 = new IdentityGenerator<Integer>( 1, 0, 3 );
 
-        Generator<Integer> orderedGenerator = new OrderedMultiGeneratorWrapper<Integer>(
-                new IntegerComparator(), lookaheadDistance, g1 );
+        Generator<Integer> orderedGenerator = new OrderedMultiGeneratorWrapper<Integer>( new IntegerComparator(),
+                lookaheadDistance, g1 );
 
         // When
         int count = 0;
@@ -47,8 +47,8 @@ public class OrderedMultiGeneratorWrapperTest
         int lookaheadDistance = 2;
         Generator<Integer> g1 = new IdentityGenerator<Integer>( 1, 0, 3 );
 
-        Generator<Integer> orderedGenerator = new OrderedMultiGeneratorWrapper<Integer>(
-                new IntegerComparator(), lookaheadDistance, g1 );
+        Generator<Integer> orderedGenerator = new OrderedMultiGeneratorWrapper<Integer>( new IntegerComparator(),
+                lookaheadDistance, g1 );
 
         // When
         int count = 0;
@@ -75,8 +75,8 @@ public class OrderedMultiGeneratorWrapperTest
         Generator<Integer> g2 = new IdentityGenerator<Integer>( numbers2 );
         Generator<Integer> g3 = new IdentityGenerator<Integer>( numbers3 );
 
-        Generator<Integer> orderedGenerator = new OrderedMultiGeneratorWrapper<Integer>(
-                new IntegerComparator(), lookaheadDistance, g1, g2, g3 );
+        Generator<Integer> orderedGenerator = new OrderedMultiGeneratorWrapper<Integer>( new IntegerComparator(),
+                lookaheadDistance, g1, g2, g3 );
 
         // When
         int count = 0;
@@ -105,8 +105,8 @@ public class OrderedMultiGeneratorWrapperTest
         Generator<Integer> g2 = new IdentityGenerator<Integer>( numbers2 );
         Generator<Integer> g3 = new IdentityGenerator<Integer>( numbers3 );
 
-        Generator<Integer> orderedGenerator = new OrderedMultiGeneratorWrapper<Integer>(
-                new IntegerComparator(), lookaheadDistance, g1, g2, g3 );
+        Generator<Integer> orderedGenerator = new OrderedMultiGeneratorWrapper<Integer>( new IntegerComparator(),
+                lookaheadDistance, g1, g2, g3 );
 
         // When
         int count = 0;

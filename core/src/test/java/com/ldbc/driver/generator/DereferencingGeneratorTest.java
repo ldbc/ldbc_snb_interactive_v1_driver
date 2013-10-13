@@ -14,7 +14,7 @@ import com.ldbc.driver.util.Pair;
 import com.ldbc.driver.util.Bucket.DiscreteBucket;
 
 @Ignore
-public class DiscreteValuedGeneratorTest extends GeneratorTest<String, Integer>
+public class DereferencingGeneratorTest extends GeneratorTest<String, Integer>
 {
 
     @Override

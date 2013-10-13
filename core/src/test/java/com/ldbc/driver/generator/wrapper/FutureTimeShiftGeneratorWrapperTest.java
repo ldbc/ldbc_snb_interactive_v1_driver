@@ -6,6 +6,7 @@ import com.ldbc.driver.Operation;
 import com.ldbc.driver.generator.Generator;
 import com.ldbc.driver.generator.GeneratorException;
 import com.ldbc.driver.generator.IdentityGenerator;
+import com.ldbc.driver.generator.MappingGenerator;
 import com.ldbc.driver.util.Function;
 import com.ldbc.driver.util.temporal.Time;
 
@@ -29,7 +30,7 @@ public class FutureTimeShiftGeneratorWrapperTest
                 return Time.fromNano( from );
             }
         };
-        Generator<Time> timeGenerator = new MapGeneratorWrapper<Long, Time>( timeInNanoGenerator, timeFromNanoFun );
+        Generator<Time> timeGenerator = new MappingGenerator<Long, Time>( timeInNanoGenerator, timeFromNanoFun );
 
         Generator<Operation<?>> operationGenerator = new StartTimeOperationGeneratorWrapper( timeGenerator,
                 new OperationGenerator() );
@@ -49,11 +50,6 @@ public class FutureTimeShiftGeneratorWrapperTest
 
     static class OperationGenerator extends Generator<Operation<?>>
     {
-        protected OperationGenerator()
-        {
-            super( null );
-        }
-
         @Override
         protected Operation<?> doNext() throws GeneratorException
         {

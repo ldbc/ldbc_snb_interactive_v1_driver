@@ -28,10 +28,10 @@ public class DynamicRangeUniformNumberGeneratorTest extends NumberGeneratorTest<
     @Override
     public Generator<Long> getGeneratorImpl()
     {
-        MinMaxGeneratorWrapper<Long> counterGenerator = (MinMaxGeneratorWrapper<Long>) getGeneratorBuilder().incrementingGenerator(
-                counterStart, 1l ).withMinMax( uniformMin, uniformMax ).build();
-        Generator<Long> growingRangeUniformGenerator = getGeneratorBuilder().dynamicRangeUniformNumberGenerator(
-                counterGenerator ).build();
+        MinMaxGeneratorWrapper<Long> counterGenerator = getGeneratorFactory().minMaxGeneratorWrapper(
+                getGeneratorFactory().incrementingGenerator( counterStart, 1l ), uniformMin, uniformMax );
+        Generator<Long> growingRangeUniformGenerator = getGeneratorFactory().dynamicRangeUniformNumberGenerator(
+                counterGenerator );
         for ( int i = 0; i < counterIterations; i++ )
         {
             counterGenerator.next();

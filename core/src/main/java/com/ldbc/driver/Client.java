@@ -3,7 +3,7 @@ package com.ldbc.driver;
 import org.apache.log4j.Logger;
 
 import com.ldbc.driver.generator.Generator;
-import com.ldbc.driver.generator.GeneratorBuilder;
+import com.ldbc.driver.generator.GeneratorFactory;
 import com.ldbc.driver.measurements.MetricsExporterException;
 import com.ldbc.driver.measurements.WorkloadMetricsManager;
 import com.ldbc.driver.measurements.exporters.OutputStreamMetricsExporter;
@@ -49,7 +49,7 @@ public class Client
         logger.info( "LDBC Workload Driver" );
         logger.info( params.toString() );
 
-        GeneratorBuilder generatorBuilder = new GeneratorBuilder( new RandomDataGeneratorFactory( RANDOM_SEED ) );
+        GeneratorFactory generators = new GeneratorFactory( new RandomDataGeneratorFactory( RANDOM_SEED ) );
 
         Workload workload = null;
         try
@@ -86,7 +86,7 @@ public class Client
         try
         {
             Generator<Operation<?>> operationGenerator = getOperationGenerator( workload, params.getBenchmarkPhase(),
-                    generatorBuilder );
+                    generators );
             workloadRunner = new WorkloadRunner( db, operationGenerator, params.isShowStatus(),
                     params.getThreadCount(), metricsManager );
         }
@@ -152,14 +152,14 @@ public class Client
     }
 
     private Generator<Operation<?>> getOperationGenerator( Workload workload, BenchmarkPhase benchmarkPhase,
-            GeneratorBuilder generatorBuilder ) throws WorkloadException
+            GeneratorFactory generators ) throws WorkloadException
     {
         switch ( benchmarkPhase )
         {
         case LOAD_PHASE:
-            return workload.getLoadOperations( generatorBuilder );
+            return workload.getLoadOperations( generators );
         case TRANSACTION_PHASE:
-            return workload.getTransactionalOperations( generatorBuilder );
+            return workload.getTransactionalOperations( generators );
         }
         throw new WorkloadException( "Error encounterd trying to get operation generator" );
     }

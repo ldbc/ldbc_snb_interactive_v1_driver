@@ -25,7 +25,7 @@ public class UniformNumberGeneratorDoubleTest extends NumberGeneratorTest<Double
     @Override
     public Generator<Double> getGeneratorImpl()
     {
-        return getGeneratorBuilder().uniformNumberGenerator( min, max ).build();
+        return getGeneratorFactory().uniformNumberGenerator( min, max );
     }
 
     @Override

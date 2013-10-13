@@ -9,7 +9,8 @@ import com.ldbc.driver.util.NumberHelper;
 
 import static org.junit.Assert.assertEquals;
 
-public abstract class NumberGeneratorTest<T extends Number, C extends Number> extends GeneratorTest<T, C>
+public abstract class NumberGeneratorTest<GENERATE_TYPE extends Number, COUNT extends Number> extends
+        GeneratorTest<GENERATE_TYPE, COUNT>
 {
     public abstract double getExpectedMean();
 
@@ -19,11 +20,11 @@ public abstract class NumberGeneratorTest<T extends Number, C extends Number> ex
     public final void meanTest()
     {
         // Given
-        Generator<T> generator = getGeneratorImpl();
+        Generator<GENERATE_TYPE> generator = getGeneratorImpl();
         Double expectedMean = getExpectedMean();
 
         // When
-        List<T> sequence = generateSequence( generator, getSampleSize() );
+        List<GENERATE_TYPE> sequence = generateSequence( generator, getSampleSize() );
         Double actualMean = getSequenceMean( sequence );
 
         // Then
@@ -34,11 +35,11 @@ public abstract class NumberGeneratorTest<T extends Number, C extends Number> ex
 
     }
 
-    public final Double getSequenceMean( List<T> sequence )
+    public final Double getSequenceMean( List<GENERATE_TYPE> sequence )
     {
         int sequenceLength = sequence.size();
         double sum = 0d;
-        for ( T number : sequence )
+        for ( GENERATE_TYPE number : sequence )
         {
             sum += number.doubleValue();
         }

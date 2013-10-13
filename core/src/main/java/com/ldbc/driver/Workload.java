@@ -3,7 +3,7 @@ package com.ldbc.driver;
 import java.util.Map;
 
 import com.ldbc.driver.generator.Generator;
-import com.ldbc.driver.generator.GeneratorBuilder;
+import com.ldbc.driver.generator.GeneratorFactory;
 import com.ldbc.driver.generator.wrapper.CappedGeneratorWrapper;
 
 public abstract class Workload
@@ -53,37 +53,35 @@ public abstract class Workload
 
     protected abstract void onCleanup() throws WorkloadException;
 
-    public final Generator<Operation<?>> getLoadOperations( GeneratorBuilder generatorBuilder )
-            throws WorkloadException
+    public final Generator<Operation<?>> getLoadOperations( GeneratorFactory generators ) throws WorkloadException
     {
         if ( WorkloadParams.UNBOUNDED_OPERATION_COUNT == getOperationCount() )
         {
-            return createLoadOperations( generatorBuilder );
+            return createLoadOperations( generators );
         }
         else
         {
-            return new CappedGeneratorWrapper<Operation<?>>( createLoadOperations( generatorBuilder ),
-                    getOperationCount() );
+            return new CappedGeneratorWrapper<Operation<?>>( createLoadOperations( generators ), getOperationCount() );
         }
     }
 
-    protected abstract Generator<Operation<?>> createLoadOperations( GeneratorBuilder generatorBuilder )
+    protected abstract Generator<Operation<?>> createLoadOperations( GeneratorFactory generators )
             throws WorkloadException;
 
-    public final Generator<Operation<?>> getTransactionalOperations( GeneratorBuilder generatorBuilder )
+    public final Generator<Operation<?>> getTransactionalOperations( GeneratorFactory generators )
             throws WorkloadException
     {
         if ( -1 == getOperationCount() )
         {
-            return createTransactionalOperations( generatorBuilder );
+            return createTransactionalOperations( generators );
         }
         else
         {
-            return new CappedGeneratorWrapper<Operation<?>>( createTransactionalOperations( generatorBuilder ),
+            return new CappedGeneratorWrapper<Operation<?>>( createTransactionalOperations( generators ),
                     getOperationCount() );
         }
     }
 
-    protected abstract Generator<Operation<?>> createTransactionalOperations( GeneratorBuilder generatorBuilder )
+    protected abstract Generator<Operation<?>> createTransactionalOperations( GeneratorFactory generators )
             throws WorkloadException;
 }

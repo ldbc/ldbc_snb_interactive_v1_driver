@@ -9,11 +9,11 @@ import com.ldbc.driver.Operation;
 import com.ldbc.driver.generator.Generator;
 import com.ldbc.driver.generator.GeneratorException;
 
-public class OrderedMultiGeneratorWrapper<T> extends Generator<T>
+public class OrderedMultiGeneratorWrapper<GENERATE_TYPE> extends Generator<GENERATE_TYPE>
 {
     private static final int DEFAULT_LOOK_AHEAD_DISTANCE = 1;
-    private final List<GeneratorHead<T>> generatorHeads;
-    private final Comparator<T> comparator;
+    private final List<GeneratorHead<GENERATE_TYPE>> generatorHeads;
+    private final Comparator<GENERATE_TYPE> comparator;
 
     // TODO move to GeneratorUtils?
     public static OrderedMultiGeneratorWrapper<Operation<?>> operationsByScheduledStartTime( int lookaheadDistance,
@@ -29,14 +29,14 @@ public class OrderedMultiGeneratorWrapper<T> extends Generator<T>
         }, lookaheadDistance, operationGenerators );
     }
 
-    public OrderedMultiGeneratorWrapper( Comparator<T> comparator, Generator<T>... generators )
+    public OrderedMultiGeneratorWrapper( Comparator<GENERATE_TYPE> comparator, Generator<GENERATE_TYPE>... generators )
     {
         this( comparator, DEFAULT_LOOK_AHEAD_DISTANCE, generators );
     }
 
-    public OrderedMultiGeneratorWrapper( Comparator<T> comparator, int lookaheadDistance, Generator<T>... generators )
+    public OrderedMultiGeneratorWrapper( Comparator<GENERATE_TYPE> comparator, int lookaheadDistance,
+            Generator<GENERATE_TYPE>... generators )
     {
-        super( null );
         this.comparator = comparator;
         if ( DEFAULT_LOOK_AHEAD_DISTANCE == lookaheadDistance )
         {
@@ -70,20 +70,20 @@ public class OrderedMultiGeneratorWrapper<T> extends Generator<T>
     }
 
     @Override
-    protected T doNext() throws GeneratorException
+    protected GENERATE_TYPE doNext() throws GeneratorException
     {
-        GeneratorHead<T> minGeneratorHead = getMinGeneratorHead();
+        GeneratorHead<GENERATE_TYPE> minGeneratorHead = getMinGeneratorHead();
         return ( null == minGeneratorHead ) ? null : minGeneratorHead.removeHead();
     }
 
-    private GeneratorHead<T> getMinGeneratorHead()
+    private GeneratorHead<GENERATE_TYPE> getMinGeneratorHead()
     {
-        GeneratorHead<T> minGeneratorHead = null;
-        Iterator<GeneratorHead<T>> generatorHeadsIterator = generatorHeads.iterator();
+        GeneratorHead<GENERATE_TYPE> minGeneratorHead = null;
+        Iterator<GeneratorHead<GENERATE_TYPE>> generatorHeadsIterator = generatorHeads.iterator();
 
         while ( generatorHeadsIterator.hasNext() )
         {
-            GeneratorHead<T> generatorHead = generatorHeadsIterator.next();
+            GeneratorHead<GENERATE_TYPE> generatorHead = generatorHeadsIterator.next();
             if ( null == generatorHead.inspectHead() )
             {
                 generatorHeadsIterator.remove();
@@ -95,7 +95,7 @@ public class OrderedMultiGeneratorWrapper<T> extends Generator<T>
 
         while ( generatorHeadsIterator.hasNext() )
         {
-            GeneratorHead<T> generatorHead = generatorHeadsIterator.next();
+            GeneratorHead<GENERATE_TYPE> generatorHead = generatorHeadsIterator.next();
             if ( null == generatorHead.inspectHead() )
             {
                 generatorHeadsIterator.remove();

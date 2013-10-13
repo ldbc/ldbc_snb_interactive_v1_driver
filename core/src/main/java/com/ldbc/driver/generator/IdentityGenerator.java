@@ -1,18 +1,17 @@
 package com.ldbc.driver.generator;
 
-public class IdentityGenerator<T> extends Generator<T>
+public class IdentityGenerator<GENERATE_TYPE> extends Generator<GENERATE_TYPE>
 {
-    private final T[] things;
+    private final GENERATE_TYPE[] things;
     private int index = 0;
 
-    public IdentityGenerator( T... things )
+    public IdentityGenerator( GENERATE_TYPE... things )
     {
-        super( null );
         this.things = things;
     }
 
     @Override
-    protected T doNext()
+    protected GENERATE_TYPE doNext()
     {
         if ( index >= things.length )
         {

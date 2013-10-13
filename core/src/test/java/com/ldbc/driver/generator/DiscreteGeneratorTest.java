@@ -44,7 +44,7 @@ public class DiscreteGeneratorTest extends GeneratorTest<String, Integer>
         items.add( p2 );
         items.add( p3 );
         items.add( p4 );
-        return getGeneratorBuilder().waitedDiscreteGenerator( items ).build();
+        return getGeneratorFactory().weightedDiscreteGenerator( items );
     }
 
     @Test( expected = GeneratorException.class )
@@ -52,7 +52,7 @@ public class DiscreteGeneratorTest extends GeneratorTest<String, Integer>
     {
         // Given
         ArrayList<Pair<Double, String>> emptyItems = new ArrayList<Pair<Double, String>>();
-        Generator<String> generator = getGeneratorBuilder().waitedDiscreteGenerator( emptyItems ).build();
+        Generator<String> generator = getGeneratorFactory().weightedDiscreteGenerator( emptyItems );
 
         // When
         generator.next();

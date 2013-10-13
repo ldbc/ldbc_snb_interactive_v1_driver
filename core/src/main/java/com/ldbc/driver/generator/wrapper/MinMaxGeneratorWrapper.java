@@ -3,37 +3,37 @@ package com.ldbc.driver.generator.wrapper;
 import com.ldbc.driver.generator.Generator;
 import com.ldbc.driver.generator.GeneratorException;
 
-public class MinMaxGeneratorWrapper<T extends Number> extends Generator<T>
+public class MinMaxGeneratorWrapper<GENERATE_TYPE extends Number> extends Generator<GENERATE_TYPE>
 {
-    private T min = null;
-    private T max = null;
-    private final Generator<T> generator;
+    private GENERATE_TYPE min = null;
+    private GENERATE_TYPE max = null;
+    private final Generator<GENERATE_TYPE> generator;
 
-    public MinMaxGeneratorWrapper( Generator<T> generator, T initialMin, T initialMax )
+    public MinMaxGeneratorWrapper( Generator<GENERATE_TYPE> generator, GENERATE_TYPE initialMin,
+            GENERATE_TYPE initialMax )
     {
-        super( null );
         this.min = initialMin;
         this.max = initialMax;
         this.generator = generator;
     }
 
     @Override
-    protected T doNext() throws GeneratorException
+    protected GENERATE_TYPE doNext() throws GeneratorException
     {
         if ( false == generator.hasNext() ) return null;
-        T next = generator.next();
+        GENERATE_TYPE next = generator.next();
         min = ( next.doubleValue() < min.doubleValue() ) ? next : min;
         max = ( next.doubleValue() > max.doubleValue() ) ? next : max;
         return next;
 
     }
 
-    public final T getMin()
+    public final GENERATE_TYPE getMin()
     {
         return min;
     }
 
-    public final T getMax()
+    public final GENERATE_TYPE getMax()
     {
         return max;
     }

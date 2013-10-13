@@ -2,7 +2,6 @@ package com.ldbc.driver.generator;
 
 import java.util.List;
 
-import org.junit.Ignore;
 import org.junit.Test;
 
 import com.ldbc.driver.generator.Generator;
@@ -30,7 +29,7 @@ public class IncrementingGeneratorTest extends NumberGeneratorTest<Long, Long>
     @Override
     public Generator<Long> getGeneratorImpl()
     {
-        return getGeneratorBuilder().incrementingGenerator( start, 1l ).build();
+        return getGeneratorFactory().incrementingGenerator( start, 1l );
     }
 
     @Override
@@ -56,7 +55,7 @@ public class IncrementingGeneratorTest extends NumberGeneratorTest<Long, Long>
     public void firstNumberShouldEqualStartTest()
     {
         // Given
-        Generator<Long> generator = getGeneratorBuilder().incrementingGenerator( start, 1l ).build();
+        Generator<Long> generator = getGeneratorFactory().incrementingGenerator( start, 1l );
 
         // When
         long firstNumber = generator.next();

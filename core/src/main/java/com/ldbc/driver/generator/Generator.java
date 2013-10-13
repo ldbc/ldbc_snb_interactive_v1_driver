@@ -4,27 +4,19 @@ import java.util.Iterator;
 import java.util.NoSuchElementException;
 import org.apache.log4j.Logger;
 
-import org.apache.commons.math3.random.RandomDataGenerator;
-
-public abstract class Generator<T> implements Iterator<T>
+public abstract class Generator<GENERATE_TYPE> implements Iterator<GENERATE_TYPE>
 {
-    private T next = null;
-    private final RandomDataGenerator random;
+    private GENERATE_TYPE next = null;
     private final Logger logger = Logger.getLogger( getClass() );
 
-    protected Generator( RandomDataGenerator random )
-    {
-        this.random = random;
-    }
-
     // Return null if nothing more to generate
-    protected abstract T doNext() throws GeneratorException;
+    protected abstract GENERATE_TYPE doNext() throws GeneratorException;
 
-    public final synchronized T next()
+    public final synchronized GENERATE_TYPE next()
     {
         next = ( next == null ) ? doNext() : next;
         if ( null == next ) throw new NoSuchElementException( "Generator has nothing more to generate" );
-        T tempNext = next;
+        GENERATE_TYPE tempNext = next;
         next = null;
         return tempNext;
     }
@@ -42,15 +34,10 @@ public abstract class Generator<T> implements Iterator<T>
         throw new UnsupportedOperationException( "Iterator.remove() not supported by Generator" );
     }
 
-    protected final RandomDataGenerator getRandom()
-    {
-        return random;
-    }
-
     @Override
     public String toString()
     {
-        return "Generator [next=" + next + ", random=" + random + "]";
+        return "Generator [next=" + next + "]";
     }
 
     protected final Logger getLogger()

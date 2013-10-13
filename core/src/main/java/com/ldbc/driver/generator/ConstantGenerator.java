@@ -1,19 +1,16 @@
 package com.ldbc.driver.generator;
 
-import org.apache.commons.math3.random.RandomDataGenerator;
-
-public class ConstantGenerator<T> extends Generator<T>
+public class ConstantGenerator<GENERATE_TYPE> extends Generator<GENERATE_TYPE>
 {
-    private final T thing;
+    private final GENERATE_TYPE thing;
 
-    ConstantGenerator( RandomDataGenerator random, T thing )
+    ConstantGenerator( GENERATE_TYPE thing )
     {
-        super( random );
         this.thing = thing;
     }
 
     @Override
-    protected T doNext()
+    protected GENERATE_TYPE doNext()
     {
         return thing;
     }

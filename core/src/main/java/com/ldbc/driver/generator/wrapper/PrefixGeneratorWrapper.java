@@ -10,7 +10,6 @@ public class PrefixGeneratorWrapper extends Generator<String>
 
     public PrefixGeneratorWrapper( Generator<?> generator, String prefix )
     {
-        super( null );
         this.generator = generator;
         this.prefix = prefix;
     }
