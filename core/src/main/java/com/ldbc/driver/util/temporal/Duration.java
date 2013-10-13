@@ -132,13 +132,13 @@ public class Duration implements Comparable<Duration>, MultipleTimeUnitProvider<
         if ( obj == null ) return false;
         if ( getClass() != obj.getClass() ) return false;
         Duration other = (Duration) obj;
-        if ( false == this.duration.equals( other.duration ) ) return false;
-        return true;
+        return this.duration.equals( other.duration );
     }
 
     @Override
     public int compareTo( Duration other )
     {
-        return new Long( this.duration.asNano() ).compareTo( other.duration.asNano() );
+        if ( this.duration.asNano() == other.duration.asNano() ) return 0;
+        return this.duration.asNano() < other.duration.asNano() ? -1 : 1;
     }
 }

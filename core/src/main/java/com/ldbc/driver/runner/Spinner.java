@@ -25,13 +25,16 @@ public class Spinner
             operationSchedulingPolicy.handleUnassignedScheduledStartTime();
         }
 
+        // TODO Temporal util methods take milli to avoid Time object creation
+        // TODO not urgent, only happens once per operation
         if ( Time.now().greaterBy( operation.getScheduledStartTime() ).greatThan(
                 operationSchedulingPolicy.toleratedDelay() ) )
         {
             operationSchedulingPolicy.handleExcessiveDelay( operation );
         }
 
-        while ( Time.now().asNano() < operation.getScheduledStartTime().asNano() )
+        // Time.nowAsMilli() to avoid object creation where possible
+        while ( Time.nowAsMilli() < operation.getScheduledStartTime().asMilli() )
         {
             // loop/wait until operation scheduled start time
         }

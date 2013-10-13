@@ -13,6 +13,12 @@ public class Time implements Comparable<Time>, MultipleTimeUnitProvider<Time>
         return Time.fromNano( Temporal.convert( System.currentTimeMillis(), TimeUnit.MILLISECONDS, TimeUnit.NANOSECONDS ) );
     }
 
+    // Avoid object creation where possible
+    public static long nowAsMilli()
+    {
+        return System.currentTimeMillis();
+    }
+
     public static Time fromNano( long ns )
     {
         return new Time( ns );
@@ -72,14 +78,15 @@ public class Time implements Comparable<Time>, MultipleTimeUnitProvider<Time>
         if ( obj == null ) return false;
         if ( getClass() != obj.getClass() ) return false;
         Time other = (Time) obj;
-        if ( false == time.equals( other.time ) ) return false;
-        return true;
+        return time.equals( other.time );
     }
 
     @Override
-    public int compareTo( Time o )
+    public int compareTo( Time other )
     {
-        return new Long( time.asNano() ).compareTo( o.time.asNano() );
+        if ( this.time.asNano() == other.time.asNano() ) return 0;
+        return this.time.asNano() < other.time.asNano() ? -1 : 1;
+
     }
 
     @Override

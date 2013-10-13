@@ -46,7 +46,7 @@ public class WorkloadRunner
     {
         metricsManager.setStartTime( Time.now() );
         metricsLoggingThread.start();
-        if ( true == showStatus ) workloadStatusThread.start();
+        if ( showStatus ) workloadStatusThread.start();
         while ( operationGenerator.hasNext() )
         {
             Operation<?> operation = operationGenerator.next();
@@ -69,7 +69,7 @@ public class WorkloadRunner
         {
             metricsLoggingThread.finishLoggingRemainingResults();
             metricsLoggingThread.join();
-            if ( true == showStatus ) workloadStatusThread.interrupt();
+            if ( showStatus ) workloadStatusThread.interrupt();
         }
         catch ( InterruptedException e )
         {

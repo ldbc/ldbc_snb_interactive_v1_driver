@@ -48,8 +48,8 @@ public class Temporal implements MultipleTimeUnitProvider<Temporal>
 
     static long convert( long unitOfTime, TimeUnit timeUnitFrom, TimeUnit timeUnitTo ) throws TemporalException
     {
-        Long unitOfTimeInNewUnit = timeUnitTo.convert( unitOfTime, timeUnitFrom );
-        if ( unitOfTimeInNewUnit.equals( Long.MIN_VALUE ) || unitOfTimeInNewUnit.equals( Long.MAX_VALUE ) )
+        long unitOfTimeInNewUnit = timeUnitTo.convert( unitOfTime, timeUnitFrom );
+        if ( unitOfTimeInNewUnit == Long.MIN_VALUE || unitOfTimeInNewUnit == Long.MAX_VALUE )
         {
             throw new TemporalException( String.format( "Overflow while converting %s %s to %s", unitOfTime,
                     timeUnitFrom, timeUnitTo ) );
@@ -109,7 +109,6 @@ public class Temporal implements MultipleTimeUnitProvider<Temporal>
         if ( obj == null ) return false;
         if ( getClass() != obj.getClass() ) return false;
         Temporal other = (Temporal) obj;
-        if ( nanoValue != other.nanoValue ) return false;
-        return true;
+        return this.nanoValue == other.nanoValue;
     }
 }
