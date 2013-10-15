@@ -5,7 +5,7 @@ import com.ldbc.driver.generator.Generator;
 import com.ldbc.driver.generator.GeneratorFactory;
 import com.ldbc.driver.generator.GeneratorException;
 import com.ldbc.driver.generator.MappingGenerator;
-import com.ldbc.driver.util.Function;
+import com.ldbc.driver.util.Function1;
 import com.ldbc.driver.util.RandomDataGeneratorFactory;
 import com.ldbc.driver.util.temporal.Duration;
 import com.ldbc.driver.util.temporal.Time;
@@ -30,7 +30,7 @@ public class StartTimeOperationGeneratorWrapperTest
         Generator<Operation<?>> operationGenerator = new CappedGeneratorWrapper<Operation<?>>(
                 new OperationGenerator(), testIterations );
 
-        Function<Long, Time> timeFromLongFun = new Function<Long, Time>()
+        Function1<Long, Time> timeFromLongFun = new Function1<Long, Time>()
         {
             @Override
             public Time apply( Long from )

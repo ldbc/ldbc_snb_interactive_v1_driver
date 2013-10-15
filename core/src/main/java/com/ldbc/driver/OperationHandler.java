@@ -20,7 +20,7 @@ public abstract class OperationHandler<A extends Operation<?>> implements Callab
         this.dbConnectionState = dbConnectionState;
     }
 
-    public final DbConnectionState getDbConnectionState()
+    public final DbConnectionState dbConnectionState()
     {
         return dbConnectionState;
     }

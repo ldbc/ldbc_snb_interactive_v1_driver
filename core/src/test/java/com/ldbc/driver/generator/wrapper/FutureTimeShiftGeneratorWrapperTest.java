@@ -7,7 +7,7 @@ import com.ldbc.driver.generator.Generator;
 import com.ldbc.driver.generator.GeneratorException;
 import com.ldbc.driver.generator.IdentityGenerator;
 import com.ldbc.driver.generator.MappingGenerator;
-import com.ldbc.driver.util.Function;
+import com.ldbc.driver.util.Function1;
 import com.ldbc.driver.util.temporal.Time;
 
 import static org.junit.Assert.*;
@@ -22,7 +22,7 @@ public class FutureTimeShiftGeneratorWrapperTest
         // Given
         Generator<Long> timeInNanoGenerator = new IdentityGenerator<Long>( 10l, 20l, 30l, 40l, 50l );
 
-        Function<Long, Time> timeFromNanoFun = new Function<Long, Time>()
+        Function1<Long, Time> timeFromNanoFun = new Function1<Long, Time>()
         {
             @Override
             public Time apply( Long from )

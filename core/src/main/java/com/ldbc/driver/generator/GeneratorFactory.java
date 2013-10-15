@@ -10,7 +10,7 @@ import org.apache.commons.math3.random.RandomDataGenerator;
 
 import com.ldbc.driver.generator.wrapper.MinMaxGeneratorWrapper;
 import com.ldbc.driver.generator.wrapper.PrefixGeneratorWrapper;
-import com.ldbc.driver.util.Function;
+import com.ldbc.driver.util.Function1;
 import com.ldbc.driver.util.Pair;
 import com.ldbc.driver.util.RandomDataGeneratorFactory;
 import com.ldbc.driver.util.Triple;
@@ -126,7 +126,7 @@ public class GeneratorFactory
         Generator<Set<Pair<K, Generator<V>>>> discreteSetGenerator = weightedDiscreteSetGenerator( probabilityItems,
                 amountToRetrieveGenerator );
 
-        Function<Set<Pair<K, Generator<V>>>, Map<K, V>> pairsToMap = new Function<Set<Pair<K, Generator<V>>>, Map<K, V>>()
+        Function1<Set<Pair<K, Generator<V>>>, Map<K, V>> pairsToMap = new Function1<Set<Pair<K, Generator<V>>>, Map<K, V>>()
         {
             @Override
             public Map<K, V> apply( Set<Pair<K, Generator<V>>> pairs )

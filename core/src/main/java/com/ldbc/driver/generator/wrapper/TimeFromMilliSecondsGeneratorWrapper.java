@@ -3,7 +3,7 @@ package com.ldbc.driver.generator.wrapper;
 import com.ldbc.driver.generator.Generator;
 import com.ldbc.driver.generator.GeneratorException;
 import com.ldbc.driver.generator.MappingGenerator;
-import com.ldbc.driver.util.Function;
+import com.ldbc.driver.util.Function1;
 import com.ldbc.driver.util.temporal.Time;
 
 public class TimeFromMilliSecondsGeneratorWrapper extends Generator<Time>
@@ -12,7 +12,7 @@ public class TimeFromMilliSecondsGeneratorWrapper extends Generator<Time>
 
     public TimeFromMilliSecondsGeneratorWrapper( Generator<Long> milliSecondsGenerator )
     {
-        Function<Long, Time> timeFromNanoFun = new Function<Long, Time>()
+        Function1<Long, Time> timeFromNanoFun = new Function1<Long, Time>()
         {
             @Override
             public Time apply( Long fromMilli )

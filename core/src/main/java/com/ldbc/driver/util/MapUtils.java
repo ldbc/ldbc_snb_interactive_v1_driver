@@ -2,7 +2,6 @@ package com.ldbc.driver.util;
 
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Properties;
 import java.util.Set;
@@ -25,14 +24,21 @@ public class MapUtils
         return sb.toString();
     }
 
+    /**
+     * Returns new Map
+     * 
+     * @param map
+     * @param excludedKeys
+     * @return
+     */
     public static <K, V> Map<K, V> copyExcludingKeys( Map<K, V> map, Set<K> excludedKeys )
     {
-        Map<K, V> newMap = new HashMap<K, V>();
+        Map<K, V> resultMap = new HashMap<K, V>();
         for ( Entry<K, V> entry : map.entrySet() )
         {
-            if ( false == excludedKeys.contains( entry.getKey() ) ) newMap.put( entry.getKey(), entry.getValue() );
+            if ( false == excludedKeys.contains( entry.getKey() ) ) resultMap.put( entry.getKey(), entry.getValue() );
         }
-        return newMap;
+        return resultMap;
     }
 
     public static <K, V> V getDefault( Map<K, V> map, K key, V defaultValue )
@@ -40,40 +46,103 @@ public class MapUtils
         return ( map.containsKey( key ) ) ? map.get( key ) : defaultValue;
     }
 
-    public static <K, V> Map<K, V> mergePropertiesToMap( Properties fromProperties, Map<K, V> toMap, boolean overwrite )
+    /**
+     * Returns new Map
+     * 
+     * @param properties
+     * @param map
+     * @param overwrite
+     * @return
+     */
+    public static <K, V> Map<K, V> mergePropertiesToMap( Properties properties, Map<K, V> map, boolean overwrite )
     {
-        for ( Object fromPropertyKey : fromProperties.keySet() )
+        Map<K, V> resultMap = new HashMap<K, V>();
+        for ( K mapKey : map.keySet() )
         {
-            if ( ( overwrite ) || ( false == toMap.containsKey( (K) fromPropertyKey ) ) )
+            resultMap.put( mapKey, map.get( mapKey ) );
+        }
+        for ( Object propertyKey : properties.keySet() )
+        {
+            if ( ( overwrite ) || ( false == resultMap.containsKey( (K) propertyKey ) ) )
             {
-                toMap.put( (K) fromPropertyKey, (V) fromProperties.get( (K) fromPropertyKey ) );
+                resultMap.put( (K) propertyKey, (V) properties.get( (K) propertyKey ) );
             }
         }
-        return toMap;
+        return resultMap;
     }
 
-    public static <K, V> Properties mergeMapToProperties( Map<K, V> fromMap, Properties toProperties, boolean overwrite )
+    /**
+     * Returns new Properties
+     * 
+     * @param map
+     * @param properties
+     * @param overwrite
+     * @return
+     */
+    public static <K, V> Properties mergeMapToProperties( Map<K, V> map, Properties properties, boolean overwrite )
     {
-        for ( K fromMapKey : fromMap.keySet() )
+        Properties resultProperties = new Properties();
+        for ( Object propertyKey : properties.keySet() )
         {
-            if ( ( overwrite ) || ( false == toProperties.containsKey( fromMapKey ) ) )
+            resultProperties.put( propertyKey, properties.get( propertyKey ) );
+        }
+        for ( K mapKey : map.keySet() )
+        {
+            if ( ( overwrite ) || ( false == resultProperties.containsKey( mapKey ) ) )
             {
-                toProperties.put( fromMapKey, fromMap.get( fromMapKey ) );
+                resultProperties.put( mapKey, map.get( mapKey ) );
             }
         }
-        return toProperties;
+        return resultProperties;
     }
 
-    public static <K, V> Map<K, V> mergeMaps( Map<K, V> fromMap, Map<K, V> toMap, boolean overwrite )
+    /**
+     * map1 value overwrites map2 value if they share a common key
+     * 
+     * @param map1
+     * @param map2
+     * @param mergeFun
+     * @return
+     */
+    public static <K, V> Map<K, V> mergeMaps( Map<K, V> map1, Map<K, V> map2, final boolean overwrite )
     {
-        for ( K fromMapKey : fromMap.keySet() )
+        Function2<V, V, V> overwriteFun = new Function2<V, V, V>()
         {
-            if ( ( overwrite ) || ( false == toMap.containsKey( fromMapKey ) ) )
+            @Override
+            public V apply( V from1, V from2 )
             {
-                toMap.put( fromMapKey, fromMap.get( fromMapKey ) );
+                return ( overwrite ) ? from1 : from2;
+            }
+        };
+        return mergeMaps( map1, map2, overwriteFun );
+    }
+
+    /**
+     * mergeFun only called for keys that exist in both Map instances
+     * 
+     * @param map1
+     * @param map2
+     * @param mergeFun
+     * @return
+     */
+    public static <K, V> Map<K, V> mergeMaps( Map<K, V> map1, Map<K, V> map2, Function2<V, V, V> mergeFun )
+    {
+        Map<K, V> resultMap = new HashMap<K, V>();
+        for ( K map1Key : map1.keySet() )
+        {
+            resultMap.put( map1Key, map1.get( map1Key ) );
+        }
+        for ( K map2Key : map2.keySet() )
+        {
+            if ( resultMap.containsKey( map2Key ) )
+            {
+                resultMap.put( map2Key, mergeFun.apply( map1.get( map2Key ), map2.get( map2Key ) ) );
+            }
+            else
+            {
+                resultMap.put( map2Key, map2.get( map2Key ) );
             }
         }
-        return toMap;
+        return resultMap;
     }
-
 }
