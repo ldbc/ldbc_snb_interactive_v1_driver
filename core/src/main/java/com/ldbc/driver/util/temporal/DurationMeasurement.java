@@ -4,18 +4,23 @@ public class DurationMeasurement
 {
     public static DurationMeasurement startMeasurementNow()
     {
-        return new DurationMeasurement( System.nanoTime() );
+        return new DurationMeasurement( Time.nowAsMilli() );
     }
 
-    private final long startTimeNano;
+    private final Time startTime;
 
-    private DurationMeasurement( long startTimeNano )
+    private DurationMeasurement( long startTimeMilli )
     {
-        this.startTimeNano = startTimeNano;
+        this.startTime = Time.fromMilli( startTimeMilli );
     }
 
-    public Duration getDurationUntilNow()
+    public Time startTime()
     {
-        return Duration.fromNano( System.nanoTime() - startTimeNano );
+        return startTime;
+    }
+
+    public Duration durationUntilNow()
+    {
+        return Duration.fromMilli( Time.nowAsMilli() - startTime.asMilli() );
     }
 }

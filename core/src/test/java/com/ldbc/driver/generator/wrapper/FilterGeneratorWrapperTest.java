@@ -6,9 +6,9 @@ import java.util.List;
 
 import org.junit.Test;
 
-import com.google.common.base.Predicate;
 import com.ldbc.driver.generator.Generator;
 import com.ldbc.driver.generator.GeneratorFactory;
+import com.ldbc.driver.util.Function1;
 import com.ldbc.driver.util.RandomDataGeneratorFactory;
 
 import static org.junit.Assert.*;
@@ -17,7 +17,6 @@ import static org.junit.matchers.JUnitMatchers.*;
 
 public class FilterGeneratorWrapperTest
 {
-    // TODO make own version of Predicate
     @Test
     public void shouldIncludeOnly()
     {
@@ -70,10 +69,10 @@ public class FilterGeneratorWrapperTest
                 1, 1 );
         Generator<Integer> cappedCounterGenerator = new CappedGeneratorWrapper<Integer>( counterGenerator, 10 );
         Generator<Integer> filteredCappedCounterGenerator = new FilterGeneratorWrapper<Integer>(
-                cappedCounterGenerator, new Predicate<Integer>()
+                cappedCounterGenerator, new Function1<Integer, Boolean>()
                 {
                     @Override
-                    public boolean apply( Integer input )
+                    public Boolean apply( Integer input )
                     {
                         return 5 == input;
                     }

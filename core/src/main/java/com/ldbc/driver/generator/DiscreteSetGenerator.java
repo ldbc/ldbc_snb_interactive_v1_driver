@@ -6,17 +6,17 @@ import java.util.Set;
 
 import org.apache.commons.math3.random.RandomDataGenerator;
 
-import com.ldbc.driver.util.Pair;
+import com.ldbc.driver.util.Tuple.Tuple2;
 
 public class DiscreteSetGenerator<GENERATE_TYPE> extends Generator<Set<GENERATE_TYPE>>
 {
     // generates the number of items to be selected upon next()
     private final Generator<Integer> amountToRetrieveGenerator;
-    private final ArrayList<Pair<Double, GENERATE_TYPE>> itemProbabilities;
+    private final ArrayList<Tuple2<Double, GENERATE_TYPE>> itemProbabilities;
     private final double probabilitiesSum;
     private final RandomDataGenerator random;
 
-    DiscreteSetGenerator( RandomDataGenerator random, Iterable<Pair<Double, GENERATE_TYPE>> itemProbabilities,
+    DiscreteSetGenerator( RandomDataGenerator random, Iterable<Tuple2<Double, GENERATE_TYPE>> itemProbabilities,
             Generator<Integer> amountToRetrieveGenerator )
     {
         if ( false == itemProbabilities.iterator().hasNext() )
@@ -25,9 +25,9 @@ public class DiscreteSetGenerator<GENERATE_TYPE> extends Generator<Set<GENERATE_
         }
 
         this.random = random;
-        this.itemProbabilities = new ArrayList<Pair<Double, GENERATE_TYPE>>();
+        this.itemProbabilities = new ArrayList<Tuple2<Double, GENERATE_TYPE>>();
         double sum = 0;
-        for ( Pair<Double, GENERATE_TYPE> item : itemProbabilities )
+        for ( Tuple2<Double, GENERATE_TYPE> item : itemProbabilities )
         {
             this.itemProbabilities.add( item );
             sum += item._1();
@@ -54,7 +54,7 @@ public class DiscreteSetGenerator<GENERATE_TYPE> extends Generator<Set<GENERATE_
 
         for ( int i = 0; i < amountToRetrieve; i++ )
         {
-            Pair<Double, GENERATE_TYPE> selectedItem = nextSelection( selectedItems, remainingProbabilitiesSum );
+            Tuple2<Double, GENERATE_TYPE> selectedItem = nextSelection( selectedItems, remainingProbabilitiesSum );
             selectedItems.add( selectedItem._2() );
             remainingProbabilitiesSum = remainingProbabilitiesSum - selectedItem._1();
         }
@@ -62,12 +62,12 @@ public class DiscreteSetGenerator<GENERATE_TYPE> extends Generator<Set<GENERATE_
         return selectedItems;
     }
 
-    private Pair<Double, GENERATE_TYPE> nextSelection( Set<GENERATE_TYPE> alreadySelectedItems,
+    private Tuple2<Double, GENERATE_TYPE> nextSelection( Set<GENERATE_TYPE> alreadySelectedItems,
             double remainingProbabilitiesSum )
     {
         double randomValue = random.nextUniform( 0, 1 );
 
-        for ( Pair<Double, GENERATE_TYPE> item : itemProbabilities )
+        for ( Tuple2<Double, GENERATE_TYPE> item : itemProbabilities )
         {
             if ( true == alreadySelectedItems.contains( item._2() ) )
             {

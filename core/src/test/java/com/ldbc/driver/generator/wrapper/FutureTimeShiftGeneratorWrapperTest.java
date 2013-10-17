@@ -40,11 +40,11 @@ public class FutureTimeShiftGeneratorWrapperTest
                 Time.fromNano( 60l ) );
 
         // Then
-        assertThat( shiftedOperationGenerator.next().getScheduledStartTime(), is( Time.fromNano( 60l ) ) );
-        assertThat( shiftedOperationGenerator.next().getScheduledStartTime(), is( Time.fromNano( 70l ) ) );
-        assertThat( shiftedOperationGenerator.next().getScheduledStartTime(), is( Time.fromNano( 80l ) ) );
-        assertThat( shiftedOperationGenerator.next().getScheduledStartTime(), is( Time.fromNano( 90l ) ) );
-        assertThat( shiftedOperationGenerator.next().getScheduledStartTime(), is( Time.fromNano( 100l ) ) );
+        assertThat( shiftedOperationGenerator.next().scheduledStartTime(), is( Time.fromNano( 60l ) ) );
+        assertThat( shiftedOperationGenerator.next().scheduledStartTime(), is( Time.fromNano( 70l ) ) );
+        assertThat( shiftedOperationGenerator.next().scheduledStartTime(), is( Time.fromNano( 80l ) ) );
+        assertThat( shiftedOperationGenerator.next().scheduledStartTime(), is( Time.fromNano( 90l ) ) );
+        assertThat( shiftedOperationGenerator.next().scheduledStartTime(), is( Time.fromNano( 100l ) ) );
         assertThat( shiftedOperationGenerator.hasNext(), is( false ) );
     }
 

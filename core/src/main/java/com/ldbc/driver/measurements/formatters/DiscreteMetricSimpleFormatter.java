@@ -4,7 +4,7 @@ import java.util.Iterator;
 
 import com.ldbc.driver.measurements.MetricGroup;
 import com.ldbc.driver.measurements.metric.DiscreteMetric;
-import com.ldbc.driver.util.Pair;
+import com.ldbc.driver.util.Tuple.Tuple2;
 
 public class DiscreteMetricSimpleFormatter implements MetricFormatter<DiscreteMetric>
 {
@@ -55,10 +55,10 @@ public class DiscreteMetricSimpleFormatter implements MetricFormatter<DiscreteMe
         sb.append( offset ).append( String.format( "\tUnits:\t\t\t%s\n", unit ) );
         sb.append( offset ).append( String.format( "\tCount:\t\t\t%s\n", metric.getCount() ) );
         sb.append( offset ).append( String.format( "\tValues:\n" ) );
-        Iterator<Pair<Long, Integer>> measurementValues = metric.getAllValues();
+        Iterator<Tuple2<Long, Integer>> measurementValues = metric.getAllValues();
         while ( measurementValues.hasNext() )
         {
-            Pair<Long, Integer> measurement = measurementValues.next();
+            Tuple2<Long, Integer> measurement = measurementValues.next();
             sb.append( offset ).append( String.format( "\t\t%s:\t\t%s\n", measurement._1(), measurement._2() ) );
         }
 

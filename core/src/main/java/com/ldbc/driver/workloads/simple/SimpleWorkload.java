@@ -15,8 +15,9 @@ import com.ldbc.driver.generator.wrapper.MinMaxGeneratorWrapper;
 import com.ldbc.driver.generator.wrapper.PrefixGeneratorWrapper;
 import com.ldbc.driver.generator.wrapper.StartTimeOperationGeneratorWrapper;
 import com.ldbc.driver.util.GeneratorUtils;
-import com.ldbc.driver.util.Pair;
-import com.ldbc.driver.util.Triple;
+import com.ldbc.driver.util.Tuple;
+import com.ldbc.driver.util.Tuple.Tuple2;
+import com.ldbc.driver.util.Tuple.Tuple3;
 import com.ldbc.driver.util.temporal.Time;
 
 public class SimpleWorkload extends Workload
@@ -57,10 +58,10 @@ public class SimpleWorkload extends Workload
         // Insert Fields: Names & Values
         Generator<Integer> fieldValuelengthGenerator = generatorBuilder.uniformNumberGenerator( 1, 100 );
         Generator<ByteIterator> randomFieldValueGenerator = generatorBuilder.randomByteIteratorGenerator( fieldValuelengthGenerator );
-        Set<Triple<Double, String, Generator<ByteIterator>>> valuedFields = new HashSet<Triple<Double, String, Generator<ByteIterator>>>();
+        Set<Tuple3<Double, String, Generator<ByteIterator>>> valuedFields = new HashSet<Tuple3<Double, String, Generator<ByteIterator>>>();
         for ( int i = 0; i < NUMBER_OF_FIELDS_IN_RECORD; i++ )
         {
-            valuedFields.add( Triple.create( 1d, FIELD_NAME_PREFIX + i, randomFieldValueGenerator ) );
+            valuedFields.add( Tuple.tuple3( 1d, FIELD_NAME_PREFIX + i, randomFieldValueGenerator ) );
         }
         Generator<Map<String, ByteIterator>> insertValuedFieldGenerator = generatorBuilder.weightedDiscreteMapGenerator(
                 valuedFields, NUMBER_OF_FIELDS_IN_RECORD );
@@ -91,10 +92,10 @@ public class SimpleWorkload extends Workload
         // Insert Fields: Names & Values
         Generator<Integer> fieldValuelengthGenerator = generators.uniformNumberGenerator( 1, 100 );
         Generator<ByteIterator> randomFieldValueGenerator = generators.randomByteIteratorGenerator( fieldValuelengthGenerator );
-        Set<Triple<Double, String, Generator<ByteIterator>>> valuedFields = new HashSet<Triple<Double, String, Generator<ByteIterator>>>();
+        Set<Tuple3<Double, String, Generator<ByteIterator>>> valuedFields = new HashSet<Tuple3<Double, String, Generator<ByteIterator>>>();
         for ( int i = 0; i < NUMBER_OF_FIELDS_IN_RECORD; i++ )
         {
-            valuedFields.add( Triple.create( 1d, FIELD_NAME_PREFIX + i, randomFieldValueGenerator ) );
+            valuedFields.add( Tuple.tuple3( 1d, FIELD_NAME_PREFIX + i, randomFieldValueGenerator ) );
         }
         Generator<Map<String, ByteIterator>> insertValuedFieldGenerator = generators.weightedDiscreteMapGenerator(
                 valuedFields, NUMBER_OF_FIELDS_IN_RECORD );
@@ -115,10 +116,10 @@ public class SimpleWorkload extends Workload
                 generators.dynamicRangeUniformNumberGenerator( transactionInsertKeyGenerator ), KEY_NAME_PREFIX );
 
         // Read Fields: Names
-        Set<Pair<Double, String>> fields = new HashSet<Pair<Double, String>>();
+        Set<Tuple2<Double, String>> fields = new HashSet<Tuple2<Double, String>>();
         for ( int i = 0; i < NUMBER_OF_FIELDS_IN_RECORD; i++ )
         {
-            fields.add( Pair.create( 1d, FIELD_NAME_PREFIX + i ) );
+            fields.add( Tuple.tuple2( 1d, FIELD_NAME_PREFIX + i ) );
         }
 
         Generator<Set<String>> readFieldsGenerator = generators.weightedDiscreteSetGenerator( fields,
@@ -176,12 +177,12 @@ public class SimpleWorkload extends Workload
          * **************************
          */
         // proportion of transactions reads/update/insert/scan/read-modify-write
-        Set<Pair<Double, Generator<Operation<?>>>> operations = new HashSet<Pair<Double, Generator<Operation<?>>>>();
-        operations.add( Pair.create( READ_RATIO, (Generator<Operation<?>>) readOperationGenerator ) );
-        operations.add( Pair.create( UPDATE_RATIO, (Generator<Operation<?>>) updateOperationGenerator ) );
-        operations.add( Pair.create( INSERT_RATIO, (Generator<Operation<?>>) insertOperationGenerator ) );
-        operations.add( Pair.create( SCAN_RATIO, (Generator<Operation<?>>) scanOperationGenerator ) );
-        operations.add( Pair.create( READ_MODIFY_WRITE_RATIO,
+        Set<Tuple2<Double, Generator<Operation<?>>>> operations = new HashSet<Tuple2<Double, Generator<Operation<?>>>>();
+        operations.add( Tuple.tuple2( READ_RATIO, (Generator<Operation<?>>) readOperationGenerator ) );
+        operations.add( Tuple.tuple2( UPDATE_RATIO, (Generator<Operation<?>>) updateOperationGenerator ) );
+        operations.add( Tuple.tuple2( INSERT_RATIO, (Generator<Operation<?>>) insertOperationGenerator ) );
+        operations.add( Tuple.tuple2( SCAN_RATIO, (Generator<Operation<?>>) scanOperationGenerator ) );
+        operations.add( Tuple.tuple2( READ_MODIFY_WRITE_RATIO,
                 (Generator<Operation<?>>) readModifyWriteOperationGenerator ) );
 
         Generator<Operation<?>> transactionalOperationGenerator = generators.weightedDiscreteDereferencingGenerator( operations );

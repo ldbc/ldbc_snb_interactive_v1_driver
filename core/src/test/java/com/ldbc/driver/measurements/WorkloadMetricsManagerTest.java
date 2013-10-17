@@ -6,10 +6,6 @@ import org.junit.Test;
 
 import com.ldbc.driver.OperationResult;
 import com.ldbc.driver.WorkloadException;
-import com.ldbc.driver.measurements.exporters.MetricsExporter;
-import com.ldbc.driver.measurements.exporters.OutputStreamMetricsExporter;
-import com.ldbc.driver.measurements.formatters.MetricFormatter;
-import com.ldbc.driver.measurements.formatters.HdrHistogramMetricSimpleFormatter;
 import com.ldbc.driver.measurements.metric.Metric;
 import com.ldbc.driver.util.temporal.Duration;
 import com.ldbc.driver.util.temporal.Time;
@@ -30,19 +26,19 @@ public class WorkloadMetricsManagerTest
         operationResult1.setOperationType( "type one" );
         operationResult1.setScheduledStartTime( Time.fromNano( 1 ) );
         operationResult1.setActualStartTime( Time.fromNano( 2 ) );
-        operationResult1.setRunTime( Duration.fromNano( 1 ) );
+        operationResult1.setRunDuration( Duration.fromNano( 1 ) );
 
         OperationResult operationResult2 = new OperationResult( 2, "result two" );
         operationResult2.setOperationType( "type one" );
         operationResult2.setScheduledStartTime( Time.fromNano( 1 ) );
         operationResult2.setActualStartTime( Time.fromNano( 8 ) );
-        operationResult2.setRunTime( Duration.fromNano( 3 ) );
+        operationResult2.setRunDuration( Duration.fromNano( 3 ) );
 
         OperationResult operationResult3 = new OperationResult( 2, "result three" );
         operationResult3.setOperationType( "type two" );
         operationResult3.setScheduledStartTime( Time.fromNano( 1 ) );
         operationResult3.setActualStartTime( Time.fromNano( 11 ) );
-        operationResult3.setRunTime( Duration.fromNano( 5 ) );
+        operationResult3.setRunDuration( Duration.fromNano( 5 ) );
 
         workloadMeasurements.measure( operationResult1 );
         workloadMeasurements.measure( operationResult2 );

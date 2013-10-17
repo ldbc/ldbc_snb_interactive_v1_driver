@@ -10,8 +10,8 @@ import java.util.Map.Entry;
 import java.util.TreeMap;
 
 import com.google.common.collect.Range;
-import com.ldbc.driver.util.Bucket.DiscreteBucket;
 import com.ldbc.driver.util.Bucket.NumberRangeBucket;
+import com.ldbc.driver.util.Tuple.Tuple2;
 
 // T - Things - type of things being counted
 //   ---> Bucket must be able to compare this
@@ -209,12 +209,12 @@ public class Histogram<T, C extends Number>
 
     private Bucket<T> getExactlyOneBucketFor( T value )
     {
-        List<Pair<Bucket<T>, T>> bucketHits = new ArrayList<Pair<Bucket<T>, T>>();
+        List<Tuple2<Bucket<T>, T>> bucketHits = new ArrayList<Tuple2<Bucket<T>, T>>();
         for ( Bucket<T> bucket : valuedBuckets.keySet() )
         {
             if ( bucket.contains( value ) )
             {
-                bucketHits.add( Pair.create( bucket, value ) );
+                bucketHits.add( Tuple.tuple2( bucket, value ) );
             }
         }
         if ( bucketHits.size() < 1 )

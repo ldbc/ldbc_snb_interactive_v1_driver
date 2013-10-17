@@ -20,21 +20,23 @@ public class Spinner
             return;
         }
 
-        if ( operation.getScheduledStartTime().equals( Operation.UNASSIGNED_SCHEDULED_START_TIME ) )
+        if ( operation.scheduledStartTime().equals( Operation.UNASSIGNED_SCHEDULED_START_TIME ) )
         {
             operationSchedulingPolicy.handleUnassignedScheduledStartTime();
         }
 
         // TODO Temporal util methods take milli to avoid Time object creation
         // TODO not urgent, only happens once per operation
-        if ( Time.now().greaterBy( operation.getScheduledStartTime() ).greatThan(
-                operationSchedulingPolicy.toleratedDelay() ) )
-        {
-            operationSchedulingPolicy.handleExcessiveDelay( operation );
-        }
+        // TODO move to other place? real delay occurs at OperationHandler
+        // if ( Time.now().greaterBy( operation.scheduledStartTime()
+        // ).greatThan(
+        // operationSchedulingPolicy.toleratedDelay() ) )
+        // {
+        // operationSchedulingPolicy.handleExcessiveDelay( operation );
+        // }
 
         // Time.nowAsMilli() to avoid object creation where possible
-        while ( Time.nowAsMilli() < operation.getScheduledStartTime().asMilli() )
+        while ( Time.nowAsMilli() < operation.scheduledStartTime().asMilli() )
         {
             // loop/wait until operation scheduled start time
         }

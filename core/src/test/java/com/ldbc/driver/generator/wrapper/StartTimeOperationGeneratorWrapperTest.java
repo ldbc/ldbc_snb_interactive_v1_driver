@@ -52,9 +52,9 @@ public class StartTimeOperationGeneratorWrapperTest
         while ( startTimeOperationGenerator.hasNext() )
         {
             Operation<?> operation = startTimeOperationGenerator.next();
-            assertThat( operation.getScheduledStartTime(),
+            assertThat( operation.scheduledStartTime(),
                     is( lastTime.plus( Duration.fromNano( incrementNanoTimeBy ) ) ) );
-            lastTime = operation.getScheduledStartTime();
+            lastTime = operation.scheduledStartTime();
             count++;
         }
         assertThat( count, is( testIterations ) );

@@ -4,14 +4,14 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 
-import com.google.common.base.Predicate;
 import com.ldbc.driver.generator.Generator;
 import com.ldbc.driver.generator.GeneratorException;
+import com.ldbc.driver.util.Function1;
 
 public class FilterGeneratorWrapper<GENERATE_TYPE> extends Generator<GENERATE_TYPE>
 {
     private final Generator<GENERATE_TYPE> generator;
-    private final Predicate<GENERATE_TYPE> filter;
+    private final Function1<GENERATE_TYPE, Boolean> filter;
 
     public static <T1> Generator<T1> includeOnly( Generator<T1> generator, T1... includedItems )
     {
@@ -23,7 +23,7 @@ public class FilterGeneratorWrapper<GENERATE_TYPE> extends Generator<GENERATE_TY
         return new FilterGeneratorWrapper<T1>( generator, new ExcludeAllPredicate<T1>( excludedItems ) );
     }
 
-    public FilterGeneratorWrapper( Generator<GENERATE_TYPE> generator, Predicate<GENERATE_TYPE> filter )
+    public FilterGeneratorWrapper( Generator<GENERATE_TYPE> generator, Function1<GENERATE_TYPE, Boolean> filter )
     {
         this.generator = generator;
         this.filter = filter;
@@ -40,7 +40,7 @@ public class FilterGeneratorWrapper<GENERATE_TYPE> extends Generator<GENERATE_TY
         return null;
     }
 
-    private static class IncludeOnlyPredicate<T1> implements Predicate<T1>
+    private static class IncludeOnlyPredicate<T1> implements Function1<T1, Boolean>
     {
         private final Set<T1> includedItems;
 
@@ -50,13 +50,13 @@ public class FilterGeneratorWrapper<GENERATE_TYPE> extends Generator<GENERATE_TY
         }
 
         @Override
-        public boolean apply( T1 input )
+        public Boolean apply( T1 input )
         {
             return true == includedItems.contains( input );
         }
     }
 
-    private static class ExcludeAllPredicate<T1> implements Predicate<T1>
+    private static class ExcludeAllPredicate<T1> implements Function1<T1, Boolean>
     {
         private final Set<T1> excludedItems;
 
@@ -66,7 +66,7 @@ public class FilterGeneratorWrapper<GENERATE_TYPE> extends Generator<GENERATE_TY
         }
 
         @Override
-        public boolean apply( T1 input )
+        public Boolean apply( T1 input )
         {
             return false == excludedItems.contains( input );
         }

@@ -13,7 +13,7 @@ public abstract class Operation<R>
         this.scheduledStartTime = scheduledStartTime;
     }
 
-    public final Time getScheduledStartTime()
+    public final Time scheduledStartTime()
     {
         return scheduledStartTime;
     }
@@ -23,7 +23,7 @@ public abstract class Operation<R>
         return new OperationResult( resultCode, result );
     }
 
-    public String getType()
+    public String type()
     {
         return getClass().getName();
     }
@@ -31,6 +31,6 @@ public abstract class Operation<R>
     @Override
     public String toString()
     {
-        return String.format( "Operation [type=%s, scheduledStartTime=%s]", getType(), scheduledStartTime );
+        return String.format( "Operation [type=%s, scheduledStartTime=%s]", type(), scheduledStartTime );
     }
 }

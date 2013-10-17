@@ -8,9 +8,9 @@ public class OperationResult
     private final int resultCode;
     private final Object result;
 
-    private Time scheduledStartTime = Time.fromNano( -1 );
-    private Time actualStartTime = Time.fromNano( -1 );
-    private Duration runTime = Duration.fromNano( -1 );
+    private Time scheduledStartTime = null;
+    private Time actualStartTime = null;
+    private Duration runDuration = null;
     private String operationType = null;
 
     // TODO public - just for testing at present?
@@ -21,17 +21,17 @@ public class OperationResult
         this.result = result;
     }
 
-    public int getResultCode()
+    public int resultCode()
     {
         return resultCode;
     }
 
-    public Object getResult()
+    public Object result()
     {
         return result;
     }
 
-    public Time getScheduledStartTime()
+    public Time scheduledStartTime()
     {
         return scheduledStartTime;
     }
@@ -42,7 +42,7 @@ public class OperationResult
         this.scheduledStartTime = scheduledStartTime;
     }
 
-    public Time getActualStartTime()
+    public Time actualStartTime()
     {
         return actualStartTime;
     }
@@ -53,18 +53,18 @@ public class OperationResult
         this.actualStartTime = actualStartTime;
     }
 
-    public Duration getRunTime()
+    public Duration runDuration()
     {
-        return runTime;
+        return runDuration;
     }
 
     // TODO public - just for testing at present?
-    public void setRunTime( Duration runTime )
+    public void setRunDuration( Duration runDuration )
     {
-        this.runTime = runTime;
+        this.runDuration = runDuration;
     }
 
-    public String getOperationType()
+    public String operationType()
     {
         return operationType;
     }
@@ -79,7 +79,7 @@ public class OperationResult
     public String toString()
     {
         return "OperationResult [resultCode=" + resultCode + ", result=" + result + ", scheduledStartTime="
-               + scheduledStartTime + ", actualStartTime=" + actualStartTime + ", runTime=" + runTime
+               + scheduledStartTime + ", actualStartTime=" + actualStartTime + ", runDuration=" + runDuration
                + ", operationType=" + operationType + "]";
     }
 }

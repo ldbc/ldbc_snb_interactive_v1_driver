@@ -24,7 +24,7 @@ public class OrderedMultiGeneratorWrapper<GENERATE_TYPE> extends Generator<GENER
             @Override
             public int compare( Operation<?> o1, Operation<?> o2 )
             {
-                return o1.getScheduledStartTime().compareTo( o2.getScheduledStartTime() );
+                return o1.scheduledStartTime().compareTo( o2.scheduledStartTime() );
             }
         }, lookaheadDistance, operationGenerators );
     }

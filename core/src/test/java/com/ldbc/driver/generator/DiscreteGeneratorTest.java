@@ -9,8 +9,9 @@ import org.junit.Test;
 import com.ldbc.driver.generator.Generator;
 import com.ldbc.driver.generator.GeneratorException;
 import com.ldbc.driver.util.Histogram;
-import com.ldbc.driver.util.Pair;
 import com.ldbc.driver.util.Bucket.DiscreteBucket;
+import com.ldbc.driver.util.Tuple;
+import com.ldbc.driver.util.Tuple.Tuple2;
 
 public class DiscreteGeneratorTest extends GeneratorTest<String, Integer>
 {
@@ -35,11 +36,11 @@ public class DiscreteGeneratorTest extends GeneratorTest<String, Integer>
     @Override
     public Generator<String> getGeneratorImpl()
     {
-        Pair<Double, String> p1 = Pair.create( 1.0, "1" );
-        Pair<Double, String> p2 = Pair.create( 2.0, "2" );
-        Pair<Double, String> p3 = Pair.create( 4.0, "3" );
-        Pair<Double, String> p4 = Pair.create( 8.0, "4" );
-        ArrayList<Pair<Double, String>> items = new ArrayList<Pair<Double, String>>();
+        Tuple2<Double, String> p1 = Tuple.tuple2( 1.0, "1" );
+        Tuple2<Double, String> p2 = Tuple.tuple2( 2.0, "2" );
+        Tuple2<Double, String> p3 = Tuple.tuple2( 4.0, "3" );
+        Tuple2<Double, String> p4 = Tuple.tuple2( 8.0, "4" );
+        ArrayList<Tuple2<Double, String>> items = new ArrayList<Tuple2<Double, String>>();
         items.add( p1 );
         items.add( p2 );
         items.add( p3 );
@@ -51,7 +52,7 @@ public class DiscreteGeneratorTest extends GeneratorTest<String, Integer>
     public void emptyConstructorTest()
     {
         // Given
-        ArrayList<Pair<Double, String>> emptyItems = new ArrayList<Pair<Double, String>>();
+        ArrayList<Tuple2<Double, String>> emptyItems = new ArrayList<Tuple2<Double, String>>();
         Generator<String> generator = getGeneratorFactory().weightedDiscreteGenerator( emptyItems );
 
         // When

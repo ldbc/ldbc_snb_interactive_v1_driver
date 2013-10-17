@@ -6,9 +6,10 @@ import java.util.Map.Entry;
 import com.google.common.base.Function;
 import com.google.common.collect.Iterators;
 import com.ldbc.driver.util.Bucket;
+import com.ldbc.driver.util.Tuple;
 import com.ldbc.driver.util.Bucket.DiscreteBucket;
 import com.ldbc.driver.util.Histogram;
-import com.ldbc.driver.util.Pair;
+import com.ldbc.driver.util.Tuple.Tuple2;
 
 public class DiscreteMetric implements Metric
 {
@@ -51,16 +52,16 @@ public class DiscreteMetric implements Metric
         return measurements.sumOfAllBucketValues();
     }
 
-    public Iterator<Pair<Long, Integer>> getAllValues()
+    public Iterator<Tuple2<Long, Integer>> getAllValues()
     {
-        Function<Entry<Bucket<Long>, Integer>, Pair<Long, Integer>> transformFun = new Function<Entry<Bucket<Long>, Integer>, Pair<Long, Integer>>()
+        Function<Entry<Bucket<Long>, Integer>, Tuple2<Long, Integer>> transformFun = new Function<Entry<Bucket<Long>, Integer>, Tuple2<Long, Integer>>()
         {
             @Override
-            public Pair<Long, Integer> apply( Entry<Bucket<Long>, Integer> arg0 )
+            public Tuple2<Long, Integer> apply( Entry<Bucket<Long>, Integer> arg0 )
             {
                 Long bucketId = ( (DiscreteBucket<Long>) arg0.getKey() ).getId();
                 Integer bucketValue = arg0.getValue();
-                return Pair.create( bucketId, bucketValue );
+                return Tuple.tuple2( bucketId, bucketValue );
             }
         };
         return Iterators.transform( measurements.getAllBuckets().iterator(), transformFun );

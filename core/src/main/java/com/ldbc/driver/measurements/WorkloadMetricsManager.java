@@ -79,7 +79,7 @@ public class WorkloadMetricsManager
         //
         // Time last operation was measured
         //
-        Time operationEndTime = operationResult.getActualStartTime().plus( operationResult.getRunTime() );
+        Time operationEndTime = operationResult.actualStartTime().plus( operationResult.runDuration() );
         if ( timeOfLastMeaurement.asNano() < operationEndTime.asNano() )
         {
             timeOfLastMeaurement = operationEndTime;
@@ -88,8 +88,8 @@ public class WorkloadMetricsManager
         //
         // Measure operation runtime
         //
-        Metric operationRuntimeMetric = runtimeMetrics.getOrCreateMetric( operationResult.getOperationType() );
-        long runtimeInAppropriateUnit = operationResult.getRunTime().as( durationUnit );
+        Metric operationRuntimeMetric = runtimeMetrics.getOrCreateMetric( operationResult.operationType() );
+        long runtimeInAppropriateUnit = operationResult.runDuration().as( durationUnit );
         try
         {
             operationRuntimeMetric.addMeasurement( runtimeInAppropriateUnit );
@@ -105,9 +105,8 @@ public class WorkloadMetricsManager
         //
         // Measure driver performance - how close is it to target throughput
         //
-        Metric operationStartTimeDelayMetric = startTimeDelayMetrics.getOrCreateMetric( operationResult.getOperationType() );
-        Duration startTimeDelay = operationResult.getActualStartTime().greaterBy(
-                operationResult.getScheduledStartTime() );
+        Metric operationStartTimeDelayMetric = startTimeDelayMetrics.getOrCreateMetric( operationResult.operationType() );
+        Duration startTimeDelay = operationResult.actualStartTime().greaterBy( operationResult.scheduledStartTime() );
         long startTimeDelayInAppropriateUnit = startTimeDelay.as( durationUnit );
         try
         {
@@ -124,8 +123,8 @@ public class WorkloadMetricsManager
         //
         // Measure result code
         //
-        Metric operationResultCodeMetric = resultCodeMetrics.getOrCreateMetric( operationResult.getOperationType() );
-        int operationResultCode = operationResult.getResultCode();
+        Metric operationResultCodeMetric = resultCodeMetrics.getOrCreateMetric( operationResult.operationType() );
+        int operationResultCode = operationResult.resultCode();
         try
         {
             operationResultCodeMetric.addMeasurement( operationResultCode );

@@ -11,9 +11,10 @@ import org.apache.commons.math3.random.RandomDataGenerator;
 import com.ldbc.driver.generator.wrapper.MinMaxGeneratorWrapper;
 import com.ldbc.driver.generator.wrapper.PrefixGeneratorWrapper;
 import com.ldbc.driver.util.Function1;
-import com.ldbc.driver.util.Pair;
 import com.ldbc.driver.util.RandomDataGeneratorFactory;
-import com.ldbc.driver.util.Triple;
+import com.ldbc.driver.util.Tuple;
+import com.ldbc.driver.util.Tuple.Tuple2;
+import com.ldbc.driver.util.Tuple.Tuple3;
 
 public class GeneratorFactory
 {
@@ -65,15 +66,15 @@ public class GeneratorFactory
      */
     public <T> Generator<T> discreteGenerator( Iterable<T> items )
     {
-        List<Pair<Double, T>> weightedItems = new ArrayList<Pair<Double, T>>();
+        List<Tuple2<Double, T>> weightedItems = new ArrayList<Tuple2<Double, T>>();
         for ( T item : items )
         {
-            weightedItems.add( Pair.create( 1d, item ) );
+            weightedItems.add( Tuple.tuple2( 1d, item ) );
         }
         return weightedDiscreteGenerator( weightedItems );
     }
 
-    public <T> Generator<T> weightedDiscreteGenerator( Iterable<Pair<Double, T>> items )
+    public <T> Generator<T> weightedDiscreteGenerator( Iterable<Tuple2<Double, T>> items )
     {
         return new PoppingGenerator<T>( weightedDiscreteSetGenerator( items, 1 ) );
     }
@@ -81,7 +82,7 @@ public class GeneratorFactory
     /**
      * DiscreteDereferencingGenerator
      */
-    public <T> Generator<T> weightedDiscreteDereferencingGenerator( Iterable<Pair<Double, Generator<T>>> items )
+    public <T> Generator<T> weightedDiscreteDereferencingGenerator( Iterable<Tuple2<Double, Generator<T>>> items )
     {
         Generator<Generator<T>> discreteGenerator = weightedDiscreteGenerator( items );
         return new DereferencingGenerator<T>( discreteGenerator );
@@ -90,13 +91,14 @@ public class GeneratorFactory
     /**
      * DiscreteSetGenerator
      */
-    public <T> Generator<Set<T>> weightedDiscreteSetGenerator( Iterable<Pair<Double, T>> items, Integer amountToRetrieve )
+    public <T> Generator<Set<T>> weightedDiscreteSetGenerator( Iterable<Tuple2<Double, T>> items,
+            Integer amountToRetrieve )
     {
         Generator<Integer> amountToRetrieveGenerator = constantGenerator( amountToRetrieve );
         return weightedDiscreteSetGenerator( items, amountToRetrieveGenerator );
     }
 
-    public <T> Generator<Set<T>> weightedDiscreteSetGenerator( Iterable<Pair<Double, T>> pairs,
+    public <T> Generator<Set<T>> weightedDiscreteSetGenerator( Iterable<Tuple2<Double, T>> pairs,
             Generator<Integer> amountToRetrieveGenerator )
     {
         return new DiscreteSetGenerator<T>( getRandom(), pairs, amountToRetrieveGenerator );
@@ -105,41 +107,41 @@ public class GeneratorFactory
     /**
      * DiscreteMapGenerator
      */
-    public <K, V> Generator<Map<K, V>> weightedDiscreteMapGenerator( Iterable<Triple<Double, K, Generator<V>>> items,
+    public <K, V> Generator<Map<K, V>> weightedDiscreteMapGenerator( Iterable<Tuple3<Double, K, Generator<V>>> items,
             Integer amountToRetrieve )
     {
         Generator<Integer> amountToRetrieveGenerator = constantGenerator( amountToRetrieve );
         return weightedDiscreteMapGenerator( items, amountToRetrieveGenerator );
     }
 
-    public <K, V> Generator<Map<K, V>> weightedDiscreteMapGenerator( Iterable<Triple<Double, K, Generator<V>>> items,
+    public <K, V> Generator<Map<K, V>> weightedDiscreteMapGenerator( Iterable<Tuple3<Double, K, Generator<V>>> items,
             Generator<Integer> amountToRetrieveGenerator )
     {
-        List<Pair<Double, Pair<K, Generator<V>>>> probabilityItems = new ArrayList<Pair<Double, Pair<K, Generator<V>>>>();
-        for ( Triple<Double, K, Generator<V>> item : items )
+        List<Tuple2<Double, Tuple2<K, Generator<V>>>> probabilityItems = new ArrayList<Tuple2<Double, Tuple2<K, Generator<V>>>>();
+        for ( Tuple3<Double, K, Generator<V>> item : items )
         {
             double thingProbability = item._1();
-            Pair<K, Generator<V>> thingGeneratorPair = Pair.create( item._2(), item._3() );
-            probabilityItems.add( Pair.create( thingProbability, thingGeneratorPair ) );
+            Tuple2<K, Generator<V>> thingGeneratorPair = Tuple.tuple2( item._2(), item._3() );
+            probabilityItems.add( Tuple.tuple2( thingProbability, thingGeneratorPair ) );
         }
 
-        Generator<Set<Pair<K, Generator<V>>>> discreteSetGenerator = weightedDiscreteSetGenerator( probabilityItems,
+        Generator<Set<Tuple2<K, Generator<V>>>> discreteSetGenerator = weightedDiscreteSetGenerator( probabilityItems,
                 amountToRetrieveGenerator );
 
-        Function1<Set<Pair<K, Generator<V>>>, Map<K, V>> pairsToMap = new Function1<Set<Pair<K, Generator<V>>>, Map<K, V>>()
+        Function1<Set<Tuple2<K, Generator<V>>>, Map<K, V>> pairsToMap = new Function1<Set<Tuple2<K, Generator<V>>>, Map<K, V>>()
         {
             @Override
-            public Map<K, V> apply( Set<Pair<K, Generator<V>>> pairs )
+            public Map<K, V> apply( Set<Tuple2<K, Generator<V>>> pairs )
             {
                 Map<K, V> keyedValues = new HashMap<K, V>();
-                for ( Pair<K, Generator<V>> pair : pairs )
+                for ( Tuple2<K, Generator<V>> pair : pairs )
                 {
                     keyedValues.put( pair._1(), pair._2().next() );
                 }
                 return keyedValues;
             }
         };
-        return new MappingGenerator<Set<Pair<K, Generator<V>>>, Map<K, V>>( discreteSetGenerator, pairsToMap );
+        return new MappingGenerator<Set<Tuple2<K, Generator<V>>>, Map<K, V>>( discreteSetGenerator, pairsToMap );
     }
 
     /**

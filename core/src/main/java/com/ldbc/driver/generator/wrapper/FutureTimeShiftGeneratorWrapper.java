@@ -16,7 +16,7 @@ public class FutureTimeShiftGeneratorWrapper extends Generator<Operation<?>>
     public FutureTimeShiftGeneratorWrapper( Generator<Operation<?>> operationGenerator, Time startTime )
     {
         firstOperation = operationGenerator.next();
-        Duration offsetDuration = startTime.greaterBy( firstOperation.getScheduledStartTime() );
+        Duration offsetDuration = startTime.greaterBy( firstOperation.scheduledStartTime() );
         Function1<Operation<?>, Operation<?>> timeShiftFun = new TimeShiftFunction( offsetDuration );
         firstOperation = timeShiftFun.apply( firstOperation );
         this.operationGenerator = new MappingGenerator<Operation<?>, Operation<?>>( operationGenerator,
@@ -37,7 +37,7 @@ public class FutureTimeShiftGeneratorWrapper extends Generator<Operation<?>>
             return null;
         }
         Operation<?> operation = operationGenerator.next();
-        if ( operation.getScheduledStartTime() == Operation.UNASSIGNED_SCHEDULED_START_TIME )
+        if ( operation.scheduledStartTime() == Operation.UNASSIGNED_SCHEDULED_START_TIME )
         {
             throw new GeneratorException( "Original Operation must have a scheduled start time" );
         }
@@ -56,7 +56,7 @@ public class FutureTimeShiftGeneratorWrapper extends Generator<Operation<?>>
         @Override
         public Operation<?> apply( Operation<?> operation )
         {
-            operation.setScheduledStartTime( operation.getScheduledStartTime().plus( offsetDuration ) );
+            operation.setScheduledStartTime( operation.scheduledStartTime().plus( offsetDuration ) );
             return operation;
         }
     };
