@@ -13,7 +13,7 @@
 	<packaging>jar</packaging>
 
 	<properties>
-		<guava-version>14.0</guava-version>
+		<guava-version>15.0</guava-version>
 		<commmons-cli-version>1.2</commmons-cli-version>
 	</properties>
 
