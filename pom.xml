@@ -22,7 +22,7 @@
 		<commons-io.version>2.4</commons-io.version>
 		<common-math.version>3.2</common-math.version>
 		<log4j.version>1.2.17</log4j.version>
-		<hdrhistogram.version>1.0-SNAPSHOT</hdrhistogram.version>
+		<hdrhistogram.version>1.0.2</hdrhistogram.version>
 		<java.source.version>1.6</java.source.version>
 		<java.target.version>1.6</java.target.version>
 	</properties>

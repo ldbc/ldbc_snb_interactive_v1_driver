@@ -9,14 +9,5 @@ core/lib/
 distribution/.project
 distribution/.settings/
 distribution/target/
-neo4j/.classpath
-neo4j/.project
-neo4j/.settings/
-neo4j/target/
-neo4j/*.txt
-neo4j/bin/
 *.txt
-.gitignore~
-.gitmodules~
-build.sh~
-README.md~
+*.*~
