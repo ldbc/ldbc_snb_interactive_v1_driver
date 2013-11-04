@@ -1,7 +1,7 @@
 #!/bin/bash
 HDR_HISTOGRAM="HdrHistogram"
 HDR_HISTOGRAM_JAR="HdrHistogram/target/hdrhistogram-1.0-SNAPSHOT.jar"
-HDR_HISTOGRAM_VER="1.0-SNAPSHOT"
+HDR_HISTOGRAM_VER="1.0.2"
 IN_PROJECT_MVN_REPO="core/lib"
 
 git submodule update --init
