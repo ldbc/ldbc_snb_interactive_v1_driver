@@ -7,14 +7,18 @@ import com.ldbc.driver.generator.GeneratorException;
 
 public abstract class NumberHelper<T extends Number>
 {
+    private static final NumberHelper<Integer> integerNumberHelper = new IntegerNumberHelper();
+    private static final NumberHelper<Long> longNumberHelper = new LongNumberHelper();
+    private static final NumberHelper<Double> doubleNumberHelper = new DoubleNumberHelper();
+
     public static <T1 extends Number> NumberHelper<T1> createNumberHelper( Class<?> type )
     {
         /* 
          * Supported: Double, Integer, Long
          */
-        if ( type.isAssignableFrom( Integer.class ) ) return (NumberHelper<T1>) new IntegerNumberHelper();
-        if ( type.isAssignableFrom( Long.class ) ) return (NumberHelper<T1>) new LongNumberHelper();
-        if ( type.isAssignableFrom( Double.class ) ) return (NumberHelper<T1>) new DoubleNumberHelper();
+        if ( type.isAssignableFrom( Integer.class ) ) return (NumberHelper<T1>) integerNumberHelper;
+        if ( type.isAssignableFrom( Long.class ) ) return (NumberHelper<T1>) longNumberHelper;
+        if ( type.isAssignableFrom( Double.class ) ) return (NumberHelper<T1>) doubleNumberHelper;
         /*  
          * Not supported: Byte, Float, Short, AtomicInteger, AtomicLong, BigDecimal, BigInteger
          */
