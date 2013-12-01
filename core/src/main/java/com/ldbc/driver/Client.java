@@ -1,8 +1,9 @@
 package com.ldbc.driver;
 
+import java.util.Iterator;
+
 import org.apache.log4j.Logger;
 
-import com.ldbc.driver.generator.Generator;
 import com.ldbc.driver.generator.GeneratorFactory;
 import com.ldbc.driver.measurements.MetricsExporterException;
 import com.ldbc.driver.measurements.WorkloadMetricsManager;
@@ -85,7 +86,7 @@ public class Client
         WorkloadRunner workloadRunner = null;
         try
         {
-            Generator<Operation<?>> operationGenerator = getOperationGenerator( workload, params.getBenchmarkPhase(),
+            Iterator<Operation<?>> operationGenerator = getOperationGenerator( workload, params.getBenchmarkPhase(),
                     generators );
             workloadRunner = new WorkloadRunner( db, operationGenerator, params.isShowStatus(),
                     params.getThreadCount(), metricsManager );
@@ -151,7 +152,7 @@ public class Client
         }
     }
 
-    private Generator<Operation<?>> getOperationGenerator( Workload workload, BenchmarkPhase benchmarkPhase,
+    private Iterator<Operation<?>> getOperationGenerator( Workload workload, BenchmarkPhase benchmarkPhase,
             GeneratorFactory generators ) throws WorkloadException
     {
         switch ( benchmarkPhase )

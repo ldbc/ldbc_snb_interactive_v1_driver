@@ -1,12 +1,13 @@
 package com.ldbc.driver.runner;
 
+import java.util.Iterator;
+
 import org.apache.log4j.Logger;
 
 import com.ldbc.driver.Db;
 import com.ldbc.driver.Operation;
 import com.ldbc.driver.OperationHandler;
 import com.ldbc.driver.WorkloadException;
-import com.ldbc.driver.generator.Generator;
 import com.ldbc.driver.measurements.WorkloadMetricsManager;
 import com.ldbc.driver.util.temporal.Duration;
 import com.ldbc.driver.util.temporal.Time;
@@ -23,11 +24,11 @@ public class WorkloadRunner
     private final OperationHandlerExecutor operationHandlerExecutor;
     private final MetricsLoggingThread metricsLoggingThread;
     private final WorkloadStatusThread workloadStatusThread;
-    private final Generator<Operation<?>> operationGenerator;
+    private final Iterator<Operation<?>> operationGenerator;
     private final WorkloadMetricsManager metricsManager;
     private final boolean showStatus;
 
-    public WorkloadRunner( Db db, Generator<Operation<?>> operationGenerator, boolean showStatus, int threadCount,
+    public WorkloadRunner( Db db, Iterator<Operation<?>> operationGenerator, boolean showStatus, int threadCount,
             WorkloadMetricsManager metricsManager ) throws WorkloadException
     {
         this.db = db;

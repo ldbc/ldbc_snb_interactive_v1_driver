@@ -1,8 +1,8 @@
 package com.ldbc.driver;
 
+import java.util.Iterator;
 import java.util.Map;
 
-import com.ldbc.driver.generator.Generator;
 import com.ldbc.driver.generator.GeneratorFactory;
 import com.ldbc.driver.generator.wrapper.CappedGeneratorWrapper;
 
@@ -53,7 +53,7 @@ public abstract class Workload
 
     protected abstract void onCleanup() throws WorkloadException;
 
-    public final Generator<Operation<?>> getLoadOperations( GeneratorFactory generators ) throws WorkloadException
+    public final Iterator<Operation<?>> getLoadOperations( GeneratorFactory generators ) throws WorkloadException
     {
         if ( WorkloadParams.UNBOUNDED_OPERATION_COUNT == getOperationCount() )
         {
@@ -65,10 +65,10 @@ public abstract class Workload
         }
     }
 
-    protected abstract Generator<Operation<?>> createLoadOperations( GeneratorFactory generators )
+    protected abstract Iterator<Operation<?>> createLoadOperations( GeneratorFactory generators )
             throws WorkloadException;
 
-    public final Generator<Operation<?>> getTransactionalOperations( GeneratorFactory generators )
+    public final Iterator<Operation<?>> getTransactionalOperations( GeneratorFactory generators )
             throws WorkloadException
     {
         if ( -1 == getOperationCount() )
@@ -82,6 +82,6 @@ public abstract class Workload
         }
     }
 
-    protected abstract Generator<Operation<?>> createTransactionalOperations( GeneratorFactory generators )
+    protected abstract Iterator<Operation<?>> createTransactionalOperations( GeneratorFactory generators )
             throws WorkloadException;
 }
