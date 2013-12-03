@@ -1,4 +1,4 @@
-package com.ldbc.driver.db.basic;
+package com.ldbc.driver.workloads.simple.db;
 
 import java.util.Map;
 import java.util.Set;

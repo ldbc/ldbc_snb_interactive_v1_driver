@@ -2,7 +2,7 @@
 HDR_HISTOGRAM="HdrHistogram"
 HDR_HISTOGRAM_VER="1.0.2"
 HDR_HISTOGRAM_JAR="HdrHistogram/target/HdrHistogram-"${HDR_HISTOGRAM_VER}".jar"
-IN_PROJECT_MVN_REPO="core/lib"
+IN_PROJECT_MVN_REPO="lib"
 
 git submodule update --init
 rm -rf $IN_PROJECT_MVN_REPO

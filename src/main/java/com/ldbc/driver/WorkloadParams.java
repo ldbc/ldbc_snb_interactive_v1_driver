@@ -69,7 +69,7 @@ public class WorkloadParams
 
     private static final String DB_ARG = "db";
     private static final String DB_ARG_LONG = "database";
-    private static final String DB_EXAMPLE = com.ldbc.driver.db.basic.BasicDb.class.getName();
+    private static final String DB_EXAMPLE = com.ldbc.driver.workloads.simple.db.BasicDb.class.getName();
     private static final String DB_DESCRIPTION = String.format( "classname of the DB to use (e.g. %s)", DB_EXAMPLE );
 
     // --- OPTIONAL ---

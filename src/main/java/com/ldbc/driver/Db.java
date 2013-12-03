@@ -3,8 +3,6 @@ package com.ldbc.driver;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.apache.log4j.Logger;
-
 import com.ldbc.driver.util.ClassLoaderHelper;
 
 public abstract class Db
