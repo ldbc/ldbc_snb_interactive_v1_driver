@@ -9,8 +9,6 @@ import com.ldbc.driver.util.ClassLoaderHelper;
 
 public abstract class Db
 {
-    private static Logger logger = Logger.getLogger( Db.class );
-
     private final Map<Class<? extends Operation<?>>, Class<? extends OperationHandler<?>>> operationHandlers = new HashMap<Class<? extends Operation<?>>, Class<? extends OperationHandler<?>>>();
     private boolean isInitialized = false;
     private boolean isCleanedUp = false;
