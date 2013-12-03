@@ -1,13 +1,9 @@
 .project
 .classpath
 .settings/
-core/.classpath
-core/.project
-core/.settings/
-core/target/
-core/lib/
-distribution/.project
-distribution/.settings/
-distribution/target/
 *.txt
 *.*~
+.*
+target/
+lib/
+
