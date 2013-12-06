@@ -6,8 +6,7 @@ import org.codehaus.jackson.annotate.JsonProperty;
 
 import com.ldbc.driver.measurements.MetricException;
 
-// TODO remove Metric abstraction?
-public class ContinuousMetric implements Metric
+public class ContinuousMetric
 {
     private static Logger logger = Logger.getLogger( ContinuousMetric.class );
 
@@ -27,7 +26,6 @@ public class ContinuousMetric implements Metric
         this.unit = unit;
     }
 
-    @Override
     public void addMeasurement( long value )
     {
         try
@@ -43,21 +41,18 @@ public class ContinuousMetric implements Metric
     }
 
     @JsonProperty( value = "name" )
-    @Override
     public String name()
     {
         return name;
     }
 
     @JsonProperty( value = "unit" )
-    @Override
     public String unit()
     {
         return unit;
     }
 
     @JsonProperty( value = "count" )
-    @Override
     public long count()
     {
         return histogram.getHistogramData().getTotalCount();

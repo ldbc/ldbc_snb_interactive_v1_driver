@@ -21,6 +21,7 @@ public class JsonOperationMetricsFormatter implements OperationMetricsFormatter
         }
         catch ( Exception e )
         {
+            e.printStackTrace();
             throw new RuntimeException( "Error encountered serializing metrics to JSON", e.getCause() );
         }
     }

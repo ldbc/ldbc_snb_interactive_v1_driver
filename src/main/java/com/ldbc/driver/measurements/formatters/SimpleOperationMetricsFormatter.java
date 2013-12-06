@@ -2,6 +2,7 @@ package com.ldbc.driver.measurements.formatters;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.Map.Entry;
 
 import com.google.common.collect.Lists;
 import com.ldbc.driver.measurements.metric.OperationMetrics;
@@ -85,9 +86,9 @@ public class SimpleOperationMetricsFormatter implements OperationMetricsFormatte
         sb.append( offset ).append( String.format( "\tUnits:\t\t\t%s\n", unit ) );
         sb.append( offset ).append( String.format( "\tCount:\t\t\t%s\n", metric.resultCodeMetric().count() ) );
         sb.append( offset ).append( String.format( "\tValues:\n" ) );
-        for ( Long[] measurement : metric.resultCodeMetric().getAllValues() )
+        for ( Entry<Long, Long> measurement : metric.resultCodeMetric().getAllValues().entrySet() )
         {
-            sb.append( offset ).append( String.format( "\t\t%s:\t\t%s\n", measurement[0], measurement[1] ) );
+            sb.append( offset ).append( String.format( "\t\t%s:\t\t%s\n", measurement.getKey(), measurement.getValue() ) );
         }
         return sb.toString();
     }

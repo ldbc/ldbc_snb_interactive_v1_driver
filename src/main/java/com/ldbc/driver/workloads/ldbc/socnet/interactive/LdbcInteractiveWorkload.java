@@ -172,6 +172,7 @@ public class LdbcInteractiveWorkload extends Workload
 
         final Set<Class<? extends Operation<?>>> operationsToInclude = new HashSet<Class<? extends Operation<?>>>();
         operationsToInclude.add( LdbcQuery1.class );
+        operationsToInclude.add( LdbcQuery2.class );
         operationsToInclude.add( LdbcQuery3.class );
         operationsToInclude.add( LdbcQuery4.class );
         operationsToInclude.add( LdbcQuery5.class );

@@ -6,6 +6,7 @@ import org.apache.log4j.Logger;
 
 import com.ldbc.driver.generator.GeneratorFactory;
 import com.ldbc.driver.measurements.WorkloadMetricsManager;
+import com.ldbc.driver.measurements.formatters.JsonOperationMetricsFormatter;
 import com.ldbc.driver.measurements.formatters.SimpleOperationMetricsFormatter;
 import com.ldbc.driver.runner.WorkloadRunner;
 import com.ldbc.driver.util.ClassLoaderHelper;
@@ -132,7 +133,9 @@ public class Client
         logger.info( "Exporting Measurements..." );
         try
         {
+            // TODO select which OutputStream from parameters & allow File
             metricsManager.export( new SimpleOperationMetricsFormatter(), System.out );
+            metricsManager.export( new JsonOperationMetricsFormatter(), System.out );
 
         }
         catch ( WorkloadException e )

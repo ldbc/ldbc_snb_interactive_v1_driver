@@ -1,6 +1,5 @@
 package com.ldbc.driver.measurements;
 
-import java.io.IOException;
 import java.io.OutputStream;
 import java.nio.charset.Charset;
 import java.text.DecimalFormat;
@@ -109,10 +108,10 @@ public class WorkloadMetricsManager
     {
         try
         {
-            String formattedMetricsGroups = "";
+            String formattedMetricsGroups = metricsFormatter.format( allOperationMetrics() );
             outputStream.write( formattedMetricsGroups.getBytes( DEFAULT_CHARSET ) );
         }
-        catch ( IOException e )
+        catch ( Exception e )
         {
             String errMsg = "Error encountered writing metrics to output stream";
             logger.error( errMsg );

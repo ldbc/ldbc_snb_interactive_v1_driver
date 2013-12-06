@@ -3,13 +3,14 @@ package com.ldbc.driver.measurements.metric;
 import java.util.Comparator;
 import java.util.concurrent.TimeUnit;
 
+import org.codehaus.jackson.annotate.JsonProperty;
+
 import com.ldbc.driver.OperationResult;
 import com.ldbc.driver.measurements.MetricException;
 import com.ldbc.driver.util.temporal.Duration;
 
 public class OperationMetrics
 {
-    // TODO do Metrics need a name?
     private static final String METRIC_RUNTIME = "Runtime";
     private static final String METRIC_START_TIME_DELAY = "Start Time Delay";
     private static final String METRIC_RESULT_CODE = "Result Code";
@@ -85,11 +86,13 @@ public class OperationMetrics
         }
     }
 
+    @JsonProperty( "name" )
     public String name()
     {
         return name;
     }
 
+    @JsonProperty( "unit" )
     public TimeUnit durationUnit()
     {
         return durationUnit;
@@ -99,16 +102,19 @@ public class OperationMetrics
      * Metrics
      */
 
+    @JsonProperty( "run_time" )
     public ContinuousMetric runTimeMetric()
     {
         return runTimeMetric;
     }
 
+    @JsonProperty( "start_time_delay" )
     public ContinuousMetric startTimeDelayMetric()
     {
         return startTimeDelayMetric;
     }
 
+    @JsonProperty( "result_code" )
     public DiscreteMetric resultCodeMetric()
     {
         return resultCodeMetric;

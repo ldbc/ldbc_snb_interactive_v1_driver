@@ -18,7 +18,7 @@ public class WorkloadMetricsManagerTest
 {
 
     @Test
-    public void shouldReturnCorrectMeasurements() throws MetricsExporterException, WorkloadException
+    public void shouldReturnCorrectMeasurements() throws WorkloadException
     {
         WorkloadMetricsManager workloadMeasurements = new WorkloadMetricsManager( TimeUnit.NANOSECONDS );
 
