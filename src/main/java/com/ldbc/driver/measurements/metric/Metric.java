@@ -4,9 +4,9 @@ public interface Metric
 {
     public void addMeasurement( long value );
 
-    public String getName();
+    public String name();
 
-    public String getUnit();
+    public String unit();
 
-    public long getCount();
+    public long count();
 }

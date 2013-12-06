@@ -1,7 +1,7 @@
 package com.ldbc.driver.measurements.metric;
 
 
-public class HdrHistogramMetricFactory implements MetricFactory<HdrHistogramMetric>
+public class HdrHistogramMetricFactory implements MetricFactory<ContinuousMetric>
 {
     private final long highestExpectedValue;
     private final int significantFigures;
@@ -15,8 +15,8 @@ public class HdrHistogramMetricFactory implements MetricFactory<HdrHistogramMetr
     }
 
     @Override
-    public HdrHistogramMetric create( String name )
+    public ContinuousMetric create( String name )
     {
-        return new HdrHistogramMetric( name, unit, highestExpectedValue, significantFigures );
+        return new ContinuousMetric( name, unit, highestExpectedValue, significantFigures );
     }
 }

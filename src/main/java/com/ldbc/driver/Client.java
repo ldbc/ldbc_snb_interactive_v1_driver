@@ -5,11 +5,8 @@ import java.util.Iterator;
 import org.apache.log4j.Logger;
 
 import com.ldbc.driver.generator.GeneratorFactory;
-import com.ldbc.driver.measurements.MetricsExporterException;
 import com.ldbc.driver.measurements.WorkloadMetricsManager;
-import com.ldbc.driver.measurements.exporters.OutputStreamMetricsExporter;
-import com.ldbc.driver.measurements.formatters.DiscreteMetricSimpleFormatter;
-import com.ldbc.driver.measurements.formatters.HdrHistogramMetricSimpleFormatter;
+import com.ldbc.driver.measurements.formatters.SimpleOperationMetricsFormatter;
 import com.ldbc.driver.runner.WorkloadRunner;
 import com.ldbc.driver.util.ClassLoaderHelper;
 import com.ldbc.driver.util.RandomDataGeneratorFactory;
@@ -37,11 +34,6 @@ public class Client
         catch ( Exception e )
         {
             logger.error( "Client terminated unexpectedly", e );
-        }
-        finally
-        {
-            // TODO is this the cleanest/safest/right way to cleanup?
-            System.exit( 0 );
         }
     }
 
@@ -140,11 +132,10 @@ public class Client
         logger.info( "Exporting Measurements..." );
         try
         {
-            metricsManager.export( new OutputStreamMetricsExporter( System.out ),
-                    new HdrHistogramMetricSimpleFormatter(), new DiscreteMetricSimpleFormatter() );
+            metricsManager.export( new SimpleOperationMetricsFormatter(), System.out );
 
         }
-        catch ( MetricsExporterException e )
+        catch ( WorkloadException e )
         {
             String errMsg = "Could not export Measurements";
             logger.error( errMsg, e );

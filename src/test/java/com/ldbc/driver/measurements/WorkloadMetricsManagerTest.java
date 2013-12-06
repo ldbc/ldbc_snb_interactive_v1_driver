@@ -4,9 +4,9 @@ import java.util.concurrent.TimeUnit;
 
 import org.junit.Test;
 
+import com.google.common.collect.Iterables;
 import com.ldbc.driver.OperationResult;
 import com.ldbc.driver.WorkloadException;
-import com.ldbc.driver.measurements.metric.Metric;
 import com.ldbc.driver.util.temporal.Duration;
 import com.ldbc.driver.util.temporal.Time;
 
@@ -44,33 +44,6 @@ public class WorkloadMetricsManagerTest
         workloadMeasurements.measure( operationResult2 );
         workloadMeasurements.measure( operationResult3 );
 
-        int metricsCount;
-
-        metricsCount = 0;
-        for ( Metric metric : workloadMeasurements.getRuntimes().getMetrics() )
-        {
-            metricsCount++;
-        }
-        assertThat( metricsCount, is( 2 ) );
-
-        metricsCount = 0;
-        for ( Metric metric : workloadMeasurements.getResultCodes().getMetrics() )
-        {
-            metricsCount++;
-        }
-        assertThat( metricsCount, is( 2 ) );
-
-        metricsCount = 0;
-        for ( Metric metric : workloadMeasurements.getStartTimeDelays().getMetrics() )
-        {
-            metricsCount++;
-        }
-        assertThat( metricsCount, is( 2 ) );
-
-        // MetricsFormatter formatter = new SimpleMetricsFormatter();
-        // MetricsExporter exporter = new OutputStreamMetricsExporter(
-        // System.out );
-        // exporter.export( formatter, workloadMeasurements.getAllMeasurements()
-        // );
+        assertThat( Iterables.size( workloadMeasurements.allOperationMetrics() ), is( 2 ) );
     }
 }

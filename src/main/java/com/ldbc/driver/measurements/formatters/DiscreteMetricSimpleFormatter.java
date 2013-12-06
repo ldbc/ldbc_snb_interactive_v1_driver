@@ -1,10 +1,7 @@
 package com.ldbc.driver.measurements.formatters;
 
-import java.util.Iterator;
-
 import com.ldbc.driver.measurements.MetricGroup;
 import com.ldbc.driver.measurements.metric.DiscreteMetric;
-import com.ldbc.driver.util.Tuple.Tuple2;
 
 public class DiscreteMetricSimpleFormatter implements MetricFormatter<DiscreteMetric>
 {
@@ -49,17 +46,15 @@ public class DiscreteMetricSimpleFormatter implements MetricFormatter<DiscreteMe
     private String formatOneMetric( String offset, DiscreteMetric metric )
     {
         StringBuilder sb = new StringBuilder();
-        String name = ( null == metric.getName() ) ? DEFAULT_NAME : metric.getName();
-        String unit = ( null == metric.getUnit() ) ? DEFAULT_UNIT : metric.getUnit();
+        String name = ( null == metric.name() ) ? DEFAULT_NAME : metric.name();
+        String unit = ( null == metric.unit() ) ? DEFAULT_UNIT : metric.unit();
         sb.append( offset ).append( String.format( "%s\n", name ) );
         sb.append( offset ).append( String.format( "\tUnits:\t\t\t%s\n", unit ) );
-        sb.append( offset ).append( String.format( "\tCount:\t\t\t%s\n", metric.getCount() ) );
+        sb.append( offset ).append( String.format( "\tCount:\t\t\t%s\n", metric.count() ) );
         sb.append( offset ).append( String.format( "\tValues:\n" ) );
-        Iterator<Tuple2<Long, Integer>> measurementValues = metric.getAllValues();
-        while ( measurementValues.hasNext() )
+        for ( Long[] measurement : metric.getAllValues() )
         {
-            Tuple2<Long, Integer> measurement = measurementValues.next();
-            sb.append( offset ).append( String.format( "\t\t%s:\t\t%s\n", measurement._1(), measurement._2() ) );
+            sb.append( offset ).append( String.format( "\t\t%s:\t\t%s\n", measurement[0], measurement[1] ) );
         }
 
         return sb.toString();

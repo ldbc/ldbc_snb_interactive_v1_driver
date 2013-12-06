@@ -5,7 +5,6 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 
-import org.codehaus.jackson.JsonGenerationException;
 import org.codehaus.jackson.JsonParseException;
 import org.codehaus.jackson.annotate.JsonProperty;
 import org.codehaus.jackson.map.JsonMappingException;
@@ -32,6 +31,16 @@ public class SubstitutionParameters
      - countryPairs.txt
      */
 
+    private static final String COUNTRY_PAIRS = "country_pairs";
+    private static final String FIRST_NAMES = "first_names";
+    private static final String POST_CREATION_DATES = "post_creation_dates";
+    private static final String PERSON_IDS = "person_ids";
+    private static final String TAG_URIS = "tag_uris";
+    private static final String HOROSCOPE_SIGNS = "horoscope_signs";
+    private static final String COUNTRY_URIS = "country_uris";
+    private static final String WORK_FROM_DATES = "work_from_dates";
+    private static final String TAG_CLASS_URIS = "tag_class_uris";
+
     @JsonProperty( value = COUNTRY_PAIRS )
     public List<String[]> countryPairs = null;
     @JsonProperty( value = FIRST_NAMES )
@@ -54,16 +63,6 @@ public class SubstitutionParameters
     public SubstitutionParameters()
     {
     }
-
-    private static final String COUNTRY_PAIRS = "countryPairs";
-    private static final String FIRST_NAMES = "first_names";
-    private static final String POST_CREATION_DATES = "post_creation_dates";
-    private static final String PERSON_IDS = "person_ids";
-    private static final String TAG_URIS = "tag_uris";
-    private static final String HOROSCOPE_SIGNS = "horoscope_signs";
-    private static final String COUNTRY_URIS = "country_uris";
-    private static final String WORK_FROM_DATES = "work_from_dates";
-    private static final String TAG_CLASS_URIS = "tag_class_uris";
 
     public static SubstitutionParameters fromJson( File jsonFile ) throws JsonParseException, JsonMappingException,
             IOException
