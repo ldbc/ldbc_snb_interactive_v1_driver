@@ -10,5 +10,4 @@ cd $HDR_HISTOGRAM
 mvn clean package
 cd ..
 mvn install:install-file -DlocalRepositoryPath=$IN_PROJECT_MVN_REPO -DcreateChecksum=true -Dpackaging=jar -Dfile=$HDR_HISTOGRAM_JAR -DgroupId=org.hdrhistogram -DartifactId=hdrhistogram -Dversion=$HDR_HISTOGRAM_VER
-#mvn clean package -Dmaven.compiler.source=1.6 -Dmaven.compiler.target=1.6
-mvn clean package
+mvn clean package -Dmaven.compiler.source=1.6 -Dmaven.compiler.target=1.6
