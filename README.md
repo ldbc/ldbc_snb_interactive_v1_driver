@@ -42,5 +42,5 @@ It is still at an early stage of development, but the LDBC Driver is being devel
 To test the driver try "simpleworkload", which has little configuration options and comprises of only basic key/value operations.
 To run it:
 
-    java -cp target/core-0.2-SNAPSHOT.jar com.ldbc.driver.Client -db com.ldbc.driver.db.basic.BasicDb -P workloads/simple/simpleworkload -load
-    java -cp target/core-0.2-SNAPSHOT.jar com.ldbc.driver.Client -db com.ldbc.driver.db.basic.BasicDb -P workloads/simple/simpleworkload -transaction
+    java -cp target/core-0.2-SNAPSHOT.jar com.ldbc.driver.Client -db com.ldbc.driver.workloads.simple.db.BasicDb -P workloads/simple/simpleworkload -load
+    java -cp target/core-0.2-SNAPSHOT.jar com.ldbc.driver.Client -db com.ldbc.driver.workloads.simple.db.BasicDb -P workloads/simple/simpleworkload -transaction
