@@ -26,7 +26,7 @@ public class UniformNumberGeneratorLongTest extends NumberGeneratorTest<Long, Lo
     @Override
     public Iterator<Long> getGeneratorImpl()
     {
-        return getGeneratorFactory().uniformNumberGenerator( min, max );
+        return getGeneratorFactory().uniform( min, max );
     }
 
     @Override

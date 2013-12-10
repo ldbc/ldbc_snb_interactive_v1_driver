@@ -29,7 +29,7 @@ public class IncrementingGeneratorTest extends NumberGeneratorTest<Long, Long>
     @Override
     public Iterator<Long> getGeneratorImpl()
     {
-        return getGeneratorFactory().incrementingGenerator( start, 1l );
+        return getGeneratorFactory().incrementing( start, 1l );
     }
 
     @Override
@@ -55,7 +55,7 @@ public class IncrementingGeneratorTest extends NumberGeneratorTest<Long, Long>
     public void firstNumberShouldEqualStartTest()
     {
         // Given
-        Iterator<Long> generator = getGeneratorFactory().incrementingGenerator( start, 1l );
+        Iterator<Long> generator = getGeneratorFactory().incrementing( start, 1l );
 
         // When
         long firstNumber = generator.next();

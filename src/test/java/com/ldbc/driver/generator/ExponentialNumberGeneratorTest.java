@@ -27,7 +27,7 @@ public class ExponentialNumberGeneratorTest extends NumberGeneratorTest<Double, 
     @Override
     public Iterator<Double> getGeneratorImpl()
     {
-        return getGeneratorFactory().exponentialGenerator( mean );
+        return getGeneratorFactory().exponential( mean );
     }
 
     @Override

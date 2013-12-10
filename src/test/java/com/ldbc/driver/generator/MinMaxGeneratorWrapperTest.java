@@ -23,7 +23,7 @@ public class MinMaxGeneratorWrapperTest
     @Test
     public void createMinMaxWrapperTest()
     {
-        Iterator<Integer> generator = generatorFactory.constantGenerator( 5 );
+        Iterator<Integer> generator = generatorFactory.constant( 5 );
         Iterator<Integer> minMaxGenerator = new MinMaxGenerator<Integer>( generator, 1, 10 );
         assertEquals( false, generator instanceof MinMaxGenerator );
         assertEquals( true, minMaxGenerator instanceof MinMaxGenerator );
@@ -33,7 +33,7 @@ public class MinMaxGeneratorWrapperTest
     @Test
     public void minMaxTest()
     {
-        Iterator<Integer> generator = generatorFactory.incrementingGenerator( 5, 1 );
+        Iterator<Integer> generator = generatorFactory.incrementing( 5, 1 );
         MinMaxGenerator<Integer> minMaxGenerator = new MinMaxGenerator<Integer>( generator, 10, 5 );
         assertEquals( 10, (int) minMaxGenerator.getMin() );
         assertEquals( 5, (int) minMaxGenerator.getMax() );

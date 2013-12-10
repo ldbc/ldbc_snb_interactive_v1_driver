@@ -25,7 +25,7 @@ public class ConstantNumberGeneratorTest extends NumberGeneratorTest<Long, Long>
     @Override
     public Iterator<Long> getGeneratorImpl()
     {
-        return getGeneratorFactory().constantGenerator( constant );
+        return getGeneratorFactory().constant( constant );
     }
 
     @Override

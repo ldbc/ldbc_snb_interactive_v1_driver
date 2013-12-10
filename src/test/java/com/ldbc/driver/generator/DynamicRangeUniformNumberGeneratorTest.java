@@ -29,8 +29,8 @@ public class DynamicRangeUniformNumberGeneratorTest extends NumberGeneratorTest<
     public Iterator<Long> getGeneratorImpl()
     {
         MinMaxGenerator<Long> counterGenerator = getGeneratorFactory().minMaxGenerator(
-                getGeneratorFactory().incrementingGenerator( counterStart, 1l ), uniformMin, uniformMax );
-        Iterator<Long> growingRangeUniformGenerator = getGeneratorFactory().dynamicRangeUniformNumberGenerator(
+                getGeneratorFactory().incrementing( counterStart, 1l ), uniformMin, uniformMax );
+        Iterator<Long> growingRangeUniformGenerator = getGeneratorFactory().dynamicRangeUniform(
                 counterGenerator );
         for ( int i = 0; i < counterIterations; i++ )
         {

@@ -43,7 +43,7 @@ public class StartTimeAssigningOperationGeneratorTest
             }
         };
 
-        Iterator<Long> countGenerator = new GeneratorFactory( new RandomDataGeneratorFactory() ).incrementingGenerator(
+        Iterator<Long> countGenerator = new GeneratorFactory( new RandomDataGeneratorFactory() ).incrementing(
                 firstNanoTime, incrementNanoTimeBy );
         Iterator<Time> counterStartTimeGenerator = new MappingGenerator<Long, Time>( countGenerator, timeFromLongFun );
         Iterator<Operation<?>> startTimeOperationGenerator = new StartTimeAssigningOperationGenerator(

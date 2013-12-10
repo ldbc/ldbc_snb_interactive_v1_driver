@@ -49,18 +49,18 @@ public class DiscreteMapGeneratorVariableProbabilitiesConstantSizeConstantValues
     public Iterator<Map<String, Long>> getGeneratorImpl()
     {
         Tuple3<Double, String, Iterator<Long>> t1 = Tuple.tuple3( 1.0, "1",
-                (Iterator<Long>) getGeneratorFactory().constantGenerator( 1l ) );
+                (Iterator<Long>) getGeneratorFactory().constant( 1l ) );
         Tuple3<Double, String, Iterator<Long>> t2 = Tuple.tuple3( 2.0, "2",
-                (Iterator<Long>) getGeneratorFactory().constantGenerator( 2l ) );
+                (Iterator<Long>) getGeneratorFactory().constant( 2l ) );
         Tuple3<Double, String, Iterator<Long>> t3 = Tuple.tuple3( 1.0, "3",
-                (Iterator<Long>) getGeneratorFactory().constantGenerator( 3l ) );
+                (Iterator<Long>) getGeneratorFactory().constant( 3l ) );
 
         ArrayList<Tuple3<Double, String, Iterator<Long>>> items = new ArrayList<Tuple3<Double, String, Iterator<Long>>>();
         items.add( t1 );
         items.add( t2 );
         items.add( t3 );
         Integer amountToRetrieve = 2;
-        Iterator<Map<String, Long>> generator = getGeneratorFactory().weightedDiscreteMapGenerator( items,
+        Iterator<Map<String, Long>> generator = getGeneratorFactory().weightedDiscreteMap( items,
                 amountToRetrieve );
         return generator;
     }

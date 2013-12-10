@@ -73,24 +73,24 @@ public class LdbcInteractiveWorkload extends Workload
 
         Set<Tuple2<Double, Iterator<Operation<?>>>> operations = new HashSet<Tuple2<Double, Iterator<Operation<?>>>>();
 
-        Iterator<String> firstNameGenerator = generators.discreteGenerator( substitutionParameters.firstNames );
-        Iterator<Long> personIdGenerator = generators.discreteGenerator( substitutionParameters.personIds );
-        Iterator<Long> postCreationDateGenerator00_66 = generators.uniformNumberGenerator(
+        Iterator<String> firstNameGenerator = generators.discrete( substitutionParameters.firstNames );
+        Iterator<Long> personIdGenerator = generators.discrete( substitutionParameters.personIds );
+        Iterator<Long> postCreationDateGenerator00_66 = generators.uniform(
                 substitutionParameters.postCreationDates.get( 0 ), substitutionParameters.postCreationDates.get( 66 ) );
-        Iterator<Long> postCreationDateGenerator33_66 = generators.uniformNumberGenerator(
+        Iterator<Long> postCreationDateGenerator33_66 = generators.uniform(
                 substitutionParameters.postCreationDates.get( 33 ), substitutionParameters.postCreationDates.get( 66 ) );
-        Iterator<Long> postCreationDateGenerator00_95 = generators.uniformNumberGenerator(
+        Iterator<Long> postCreationDateGenerator00_95 = generators.uniform(
                 substitutionParameters.postCreationDates.get( 0 ), substitutionParameters.postCreationDates.get( 95 ) );
-        Iterator<String[]> countryPairsGenerator = generators.discreteGenerator( substitutionParameters.countryPairs );
+        Iterator<String[]> countryPairsGenerator = generators.discrete( substitutionParameters.countryPairs );
         Long postCreationDateRangeDuration100 = substitutionParameters.postCreationDates.get( 100 )
                                                 - substitutionParameters.postCreationDates.get( 0 );
         Long postCreationDateRangeDuration002 = substitutionParameters.postCreationDates.get( 2 )
                                                 - substitutionParameters.postCreationDates.get( 0 );
         Long postCreationDateRangeDuration004 = substitutionParameters.postCreationDates.get( 4 )
                                                 - substitutionParameters.postCreationDates.get( 0 );
-        Iterator<Long> postCreationDateRangeDuration02_04 = generators.uniformNumberGenerator(
-                postCreationDateRangeDuration002, postCreationDateRangeDuration004 );
-        Iterator<String> tagUriGenerator = generators.discreteGenerator( substitutionParameters.tagUris );
+        Iterator<Long> postCreationDateRangeDuration02_04 = generators.uniform( postCreationDateRangeDuration002,
+                postCreationDateRangeDuration004 );
+        Iterator<String> tagUriGenerator = generators.discrete( substitutionParameters.tagUris );
 
         /*
          * Query1
@@ -164,7 +164,7 @@ public class LdbcInteractiveWorkload extends Workload
          * Create Discrete Generator from 
          */
 
-        Iterator<Operation<?>> operationGenerator = generators.weightedDiscreteDereferencingGenerator( operations );
+        Iterator<Operation<?>> operationGenerator = generators.weightedDiscreteDereferencing( operations );
 
         /*
          * Filter Interesting Operations

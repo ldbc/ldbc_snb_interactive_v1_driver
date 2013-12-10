@@ -16,7 +16,7 @@ public class LimitGeneratorTest
     public void shouldStopAtLimitTest()
     {
         // Given
-        Iterator<Integer> generator = new GeneratorFactory( new RandomDataGeneratorFactory() ).uniformNumberGenerator(
+        Iterator<Integer> generator = new GeneratorFactory( new RandomDataGeneratorFactory() ).uniform(
                 1, 10 );
         Iterator<Integer> cappedGenerator = new LimitGenerator<Integer>( generator, 10 );
 

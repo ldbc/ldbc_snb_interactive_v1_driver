@@ -24,7 +24,7 @@ public class GeneratorUtilsTest
     public void filterShouldIncludeOnly()
     {
         // Given
-        Iterator<Integer> counterGenerator = new GeneratorFactory( new RandomDataGeneratorFactory() ).incrementingGenerator(
+        Iterator<Integer> counterGenerator = new GeneratorFactory( new RandomDataGeneratorFactory() ).incrementing(
                 1, 1 );
         Iterator<Integer> cappedCounterGenerator = new LimitGenerator<Integer>( counterGenerator, 10 );
         Integer[] includeNumbers = new Integer[] { 1, 2, 3 };
@@ -46,7 +46,7 @@ public class GeneratorUtilsTest
     public void filterShouldExcludeAll()
     {
         // Given
-        Iterator<Integer> counterGenerator = new GeneratorFactory( new RandomDataGeneratorFactory() ).incrementingGenerator(
+        Iterator<Integer> counterGenerator = new GeneratorFactory( new RandomDataGeneratorFactory() ).incrementing(
                 1, 1 );
         Iterator<Integer> cappedCounterGenerator = new LimitGenerator<Integer>( counterGenerator, 10 );
         Integer[] excludeNumbers = new Integer[] { 1, 2, 3 };
@@ -68,7 +68,7 @@ public class GeneratorUtilsTest
     public void filterShouldReturn5()
     {
         // Given
-        Iterator<Integer> counterGenerator = new GeneratorFactory( new RandomDataGeneratorFactory() ).incrementingGenerator(
+        Iterator<Integer> counterGenerator = new GeneratorFactory( new RandomDataGeneratorFactory() ).incrementing(
                 1, 1 );
         Iterator<Integer> cappedCounterGenerator = new LimitGenerator<Integer>( counterGenerator, 10 );
         Iterator<Integer> filteredCappedCounterGenerator = Iterators.filter( cappedCounterGenerator,

@@ -3,6 +3,7 @@ package com.ldbc.driver;
 import java.util.Iterator;
 import java.util.Map;
 
+import com.google.common.collect.ImmutableList;
 import com.ldbc.driver.generator.GeneratorFactory;
 
 public abstract class Workload
@@ -56,11 +57,13 @@ public abstract class Workload
     {
         if ( WorkloadParams.UNBOUNDED_OPERATION_COUNT == getOperationCount() )
         {
-            return createLoadOperations( generators );
+            // Generate all workload operations before beginning
+            return ImmutableList.copyOf( createLoadOperations( generators ) ).iterator();
         }
         else
         {
-            return generators.limit( createLoadOperations( generators ), getOperationCount() );
+            // Generate all workload operations before beginning
+            return ImmutableList.copyOf( generators.limit( createLoadOperations( generators ), getOperationCount() ) ).iterator();
         }
     }
 
@@ -72,11 +75,14 @@ public abstract class Workload
     {
         if ( -1 == getOperationCount() )
         {
-            return createTransactionalOperations( generators );
+            // Generate all workload operations before beginning
+            return ImmutableList.copyOf( createTransactionalOperations( generators ) ).iterator();
         }
         else
         {
-            return generators.limit( createTransactionalOperations( generators ), getOperationCount() );
+            // Generate all workload operations before beginning
+            return ImmutableList.copyOf(
+                    generators.limit( createTransactionalOperations( generators ), getOperationCount() ) ).iterator();
         }
     }
 

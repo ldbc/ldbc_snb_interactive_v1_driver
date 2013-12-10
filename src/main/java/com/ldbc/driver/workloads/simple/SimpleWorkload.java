@@ -55,18 +55,18 @@ public class SimpleWorkload extends Workload
          * **************************
          */
         // Load Insert Keys
-        Iterator<Long> loadInsertKeyGenerator = generators.incrementingGenerator( 0l, 1l );
+        Iterator<Long> loadInsertKeyGenerator = generators.incrementing( 0l, 1l );
 
         // Insert Fields: Names & Values
-        Iterator<Integer> fieldValuelengthGenerator = generators.uniformNumberGenerator( 1, 100 );
-        Iterator<ByteIterator> randomFieldValueGenerator = generators.randomByteIteratorGenerator( fieldValuelengthGenerator );
+        Iterator<Integer> fieldValuelengthGenerator = generators.uniform( 1, 100 );
+        Iterator<ByteIterator> randomFieldValueGenerator = generators.randomByteIterator( fieldValuelengthGenerator );
         Set<Tuple3<Double, String, Iterator<ByteIterator>>> valuedFields = new HashSet<Tuple3<Double, String, Iterator<ByteIterator>>>();
         for ( int i = 0; i < NUMBER_OF_FIELDS_IN_RECORD; i++ )
         {
             valuedFields.add( Tuple.tuple3( 1d, FIELD_NAME_PREFIX + i, randomFieldValueGenerator ) );
         }
-        Iterator<Map<String, ByteIterator>> insertValuedFieldGenerator = generators.weightedDiscreteMapGenerator(
-                valuedFields, NUMBER_OF_FIELDS_IN_RECORD );
+        Iterator<Map<String, ByteIterator>> insertValuedFieldGenerator = generators.weightedDiscreteMap( valuedFields,
+                NUMBER_OF_FIELDS_IN_RECORD );
 
         Iterator<Operation<?>> insertOperationGenerator = new InsertOperationGenerator( TABLE, new PrefixGenerator(
                 loadInsertKeyGenerator, KEY_NAME_PREFIX ), insertValuedFieldGenerator );
@@ -89,18 +89,18 @@ public class SimpleWorkload extends Workload
          */
         // Transaction Insert Keys
         MinMaxGenerator<Long> transactionInsertKeyGenerator = generators.minMaxGenerator(
-                generators.incrementingGenerator( getRecordCount(), 1l ), getRecordCount(), getRecordCount() );
+                generators.incrementing( getRecordCount(), 1l ), getRecordCount(), getRecordCount() );
 
         // Insert Fields: Names & Values
-        Iterator<Integer> fieldValuelengthGenerator = generators.uniformNumberGenerator( 1, 100 );
-        Iterator<ByteIterator> randomFieldValueGenerator = generators.randomByteIteratorGenerator( fieldValuelengthGenerator );
+        Iterator<Integer> fieldValuelengthGenerator = generators.uniform( 1, 100 );
+        Iterator<ByteIterator> randomFieldValueGenerator = generators.randomByteIterator( fieldValuelengthGenerator );
         Set<Tuple3<Double, String, Iterator<ByteIterator>>> valuedFields = new HashSet<Tuple3<Double, String, Iterator<ByteIterator>>>();
         for ( int i = 0; i < NUMBER_OF_FIELDS_IN_RECORD; i++ )
         {
             valuedFields.add( Tuple.tuple3( 1d, FIELD_NAME_PREFIX + i, randomFieldValueGenerator ) );
         }
-        Iterator<Map<String, ByteIterator>> insertValuedFieldGenerator = generators.weightedDiscreteMapGenerator(
-                valuedFields, NUMBER_OF_FIELDS_IN_RECORD );
+        Iterator<Map<String, ByteIterator>> insertValuedFieldGenerator = generators.weightedDiscreteMap( valuedFields,
+                NUMBER_OF_FIELDS_IN_RECORD );
 
         InsertOperationGenerator insertOperationGenerator = new InsertOperationGenerator( TABLE, new PrefixGenerator(
                 transactionInsertKeyGenerator, KEY_NAME_PREFIX ), insertValuedFieldGenerator );
@@ -114,7 +114,7 @@ public class SimpleWorkload extends Workload
          */
         // Read/Update Keys
         Iterator<String> requestKeyGenerator = generators.prefix(
-                generators.dynamicRangeUniformNumberGenerator( transactionInsertKeyGenerator ), KEY_NAME_PREFIX );
+                generators.dynamicRangeUniform( transactionInsertKeyGenerator ), KEY_NAME_PREFIX );
 
         // Read Fields: Names
         Set<Tuple2<Double, String>> fields = new HashSet<Tuple2<Double, String>>();
@@ -123,8 +123,7 @@ public class SimpleWorkload extends Workload
             fields.add( Tuple.tuple2( 1d, FIELD_NAME_PREFIX + i ) );
         }
 
-        Iterator<Set<String>> readFieldsGenerator = generators.weightedDiscreteSetGenerator( fields,
-                NUMBER_OF_FIELDS_TO_READ );
+        Iterator<Set<String>> readFieldsGenerator = generators.weightedDiscreteSet( fields, NUMBER_OF_FIELDS_TO_READ );
 
         ReadOperationGenerator readOperationGenerator = new ReadOperationGenerator( TABLE, requestKeyGenerator,
                 readFieldsGenerator );
@@ -137,8 +136,8 @@ public class SimpleWorkload extends Workload
          * **************************
          */
         // Update Fields: Names & Values
-        Iterator<Map<String, ByteIterator>> updateValuedFieldsGenerator = generators.weightedDiscreteMapGenerator(
-                valuedFields, NUMBER_OF_FIELDS_TO_UPDATE );
+        Iterator<Map<String, ByteIterator>> updateValuedFieldsGenerator = generators.weightedDiscreteMap( valuedFields,
+                NUMBER_OF_FIELDS_TO_UPDATE );
 
         UpdateOperationGenerator updateOperationGenerator = new UpdateOperationGenerator( TABLE, requestKeyGenerator,
                 updateValuedFieldsGenerator );
@@ -151,11 +150,10 @@ public class SimpleWorkload extends Workload
          * **************************
          */
         // Scan Fields: Names & Values
-        Iterator<Set<String>> scanFieldsGenerator = generators.weightedDiscreteSetGenerator( fields,
-                NUMBER_OF_FIELDS_TO_READ );
+        Iterator<Set<String>> scanFieldsGenerator = generators.weightedDiscreteSet( fields, NUMBER_OF_FIELDS_TO_READ );
 
         // Scan Length: Number of Records
-        Iterator<Integer> scanLengthGenerator = generators.uniformNumberGenerator( MIN_SCAN_LENGTH, MAX_SCAN_LENGTH );
+        Iterator<Integer> scanLengthGenerator = generators.uniform( MIN_SCAN_LENGTH, MAX_SCAN_LENGTH );
 
         ScanOperationGenerator scanOperationGenerator = new ScanOperationGenerator( TABLE, requestKeyGenerator,
                 scanLengthGenerator, scanFieldsGenerator );
@@ -186,7 +184,7 @@ public class SimpleWorkload extends Workload
         operations.add( Tuple.tuple2( READ_MODIFY_WRITE_RATIO,
                 (Iterator<Operation<?>>) readModifyWriteOperationGenerator ) );
 
-        Iterator<Operation<?>> transactionalOperationGenerator = generators.weightedDiscreteDereferencingGenerator( operations );
+        Iterator<Operation<?>> transactionalOperationGenerator = generators.weightedDiscreteDereferencing( operations );
 
         Iterator<Time> startTimeGenerator = GeneratorUtils.constantIncrementStartTimeGenerator( generators, Time.now(),
                 Duration.fromMilli( 100 ) );

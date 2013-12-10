@@ -20,9 +20,9 @@ public class GeneratorUtils
     public static Iterator<Time> randomIncrementStartTimeGenerator( GeneratorFactory generators, Time startTime,
             Duration minIncrement, Duration maxIncrement )
     {
-        Iterator<Long> incrementTimeByGenerator = generators.uniformNumberGenerator( minIncrement.asMilli(),
+        Iterator<Long> incrementTimeByGenerator = generators.uniform( minIncrement.asMilli(),
                 maxIncrement.asMilli() );
-        Iterator<Long> startTimeMilliSecondsGenerator = generators.incrementingGenerator( startTime.asMilli(),
+        Iterator<Long> startTimeMilliSecondsGenerator = generators.incrementing( startTime.asMilli(),
                 incrementTimeByGenerator );
         return timeFromMilliSeconds( startTimeMilliSecondsGenerator );
     }
@@ -30,7 +30,7 @@ public class GeneratorUtils
     public static Iterator<Time> constantIncrementStartTimeGenerator( GeneratorFactory generators, Time startTime,
             Duration increment )
     {
-        Iterator<Long> startTimeMilliSecondsGenerator = generators.incrementingGenerator( startTime.asMilli(),
+        Iterator<Long> startTimeMilliSecondsGenerator = generators.incrementing( startTime.asMilli(),
                 increment.asMilli() );
         return timeFromMilliSeconds( startTimeMilliSecondsGenerator );
     }

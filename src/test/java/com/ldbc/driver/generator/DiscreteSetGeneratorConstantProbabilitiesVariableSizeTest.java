@@ -58,8 +58,8 @@ public class DiscreteSetGeneratorConstantProbabilitiesVariableSizeTest extends G
         items.add( p1 );
         items.add( p2 );
         items.add( p3 );
-        Iterator<Integer> amountToRetrieveGenerator = getGeneratorFactory().uniformNumberGenerator( 0, 3 );
-        Iterator<Set<String>> generator = getGeneratorFactory().weightedDiscreteSetGenerator( items,
+        Iterator<Integer> amountToRetrieveGenerator = getGeneratorFactory().uniform( 0, 3 );
+        Iterator<Set<String>> generator = getGeneratorFactory().weightedDiscreteSet( items,
                 amountToRetrieveGenerator );
         return generator;
     }
@@ -68,9 +68,9 @@ public class DiscreteSetGeneratorConstantProbabilitiesVariableSizeTest extends G
     public void emptyConstructorTest()
     {
         // Given
-        Iterator<Integer> amountToRetrieveGenerator = getGeneratorFactory().uniformNumberGenerator( 0, 3 );
+        Iterator<Integer> amountToRetrieveGenerator = getGeneratorFactory().uniform( 0, 3 );
         ArrayList<Tuple2<Double, String>> emptyItems = new ArrayList<Tuple2<Double, String>>();
-        Iterator<Set<String>> generator = getGeneratorFactory().weightedDiscreteSetGenerator( emptyItems,
+        Iterator<Set<String>> generator = getGeneratorFactory().weightedDiscreteSet( emptyItems,
                 amountToRetrieveGenerator );
 
         // When
