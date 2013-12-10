@@ -2,14 +2,15 @@ package com.ldbc.driver.generator;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
 import org.apache.commons.math3.random.RandomDataGenerator;
 
-import com.ldbc.driver.generator.wrapper.MinMaxGeneratorWrapper;
-import com.ldbc.driver.generator.wrapper.PrefixGeneratorWrapper;
+import com.ldbc.driver.data.ByteIterator;
+import com.ldbc.driver.data.LimitGenerator;
 import com.ldbc.driver.util.Function1;
 import com.ldbc.driver.util.RandomDataGeneratorFactory;
 import com.ldbc.driver.util.Tuple;
@@ -34,25 +35,16 @@ public class GeneratorFactory
 
     /*
      * ----------------------------------------------------------------------------------------------------
-     * ---------------------------------------- WRAPPERS --------------------------------------------------
+     * ---------------------------------------- DECORATORS ------------------------------------------------
      * ----------------------------------------------------------------------------------------------------
      */
 
     /**
-     * PrefixGeneratorWrapper
+     * MinMaxGenerator
      */
-    public <T extends Number> PrefixGeneratorWrapper prefixGeneratorWrapper( Generator<T> generator, String prefix )
+    public <T extends Number> MinMaxGenerator<T> minMaxGenerator( Iterator<T> generator, T initialMin, T initialMax )
     {
-        return new PrefixGeneratorWrapper( generator, prefix );
-    }
-
-    /**
-     * MinMaxGeneratorWrapper
-     */
-    public <T extends Number> MinMaxGeneratorWrapper<T> minMaxGeneratorWrapper( Generator<T> generator, T initialMin,
-            T initialMax )
-    {
-        return new MinMaxGeneratorWrapper<T>( generator, initialMin, initialMax );
+        return new MinMaxGenerator<T>( generator, initialMin, initialMax );
     }
 
     /*
@@ -62,9 +54,25 @@ public class GeneratorFactory
      */
 
     /**
+     * PrefixGenerator
+     */
+    public <T extends Number> Iterator<String> prefix( Iterator<T> generator, String prefix )
+    {
+        return new PrefixGenerator( generator, prefix );
+    }
+
+    /**
+     * CappedGenerator
+     */
+    public <T> Iterator<T> limit( Iterator<T> generator, long limit )
+    {
+        return new LimitGenerator<T>( generator, limit );
+    }
+
+    /**
      * DiscreteGenerator
      */
-    public <T> Generator<T> discreteGenerator( Iterable<T> items )
+    public <T> Iterator<T> discreteGenerator( Iterable<T> items )
     {
         List<Tuple2<Double, T>> weightedItems = new ArrayList<Tuple2<Double, T>>();
         for ( T item : items )
@@ -74,32 +82,32 @@ public class GeneratorFactory
         return weightedDiscreteGenerator( weightedItems );
     }
 
-    public <T> Generator<T> weightedDiscreteGenerator( Iterable<Tuple2<Double, T>> items )
+    public <T> Iterator<T> weightedDiscreteGenerator( Iterable<Tuple2<Double, T>> items )
     {
-        return new PoppingGenerator<T>( weightedDiscreteSetGenerator( items, 1 ) );
+        return new IterableDereferencingGenerator<T>( weightedDiscreteSetGenerator( items, 1 ) );
     }
 
     /**
      * DiscreteDereferencingGenerator
      */
-    public <T> Generator<T> weightedDiscreteDereferencingGenerator( Iterable<Tuple2<Double, Generator<T>>> items )
+    public <T> Iterator<T> weightedDiscreteDereferencingGenerator( Iterable<Tuple2<Double, Iterator<T>>> items )
     {
-        Generator<Generator<T>> discreteGenerator = weightedDiscreteGenerator( items );
-        return new DereferencingGenerator<T>( discreteGenerator );
+        Iterator<Iterator<T>> discreteGenerator = weightedDiscreteGenerator( items );
+        return new IteratorDereferencingGenerator<T>( discreteGenerator );
     }
 
     /**
      * DiscreteSetGenerator
      */
-    public <T> Generator<Set<T>> weightedDiscreteSetGenerator( Iterable<Tuple2<Double, T>> items,
+    public <T> Iterator<Set<T>> weightedDiscreteSetGenerator( Iterable<Tuple2<Double, T>> items,
             Integer amountToRetrieve )
     {
-        Generator<Integer> amountToRetrieveGenerator = constantGenerator( amountToRetrieve );
+        Iterator<Integer> amountToRetrieveGenerator = constantGenerator( amountToRetrieve );
         return weightedDiscreteSetGenerator( items, amountToRetrieveGenerator );
     }
 
-    public <T> Generator<Set<T>> weightedDiscreteSetGenerator( Iterable<Tuple2<Double, T>> pairs,
-            Generator<Integer> amountToRetrieveGenerator )
+    public <T> Iterator<Set<T>> weightedDiscreteSetGenerator( Iterable<Tuple2<Double, T>> pairs,
+            Iterator<Integer> amountToRetrieveGenerator )
     {
         return new DiscreteSetGenerator<T>( getRandom(), pairs, amountToRetrieveGenerator );
     }
@@ -107,53 +115,53 @@ public class GeneratorFactory
     /**
      * DiscreteMapGenerator
      */
-    public <K, V> Generator<Map<K, V>> weightedDiscreteMapGenerator( Iterable<Tuple3<Double, K, Generator<V>>> items,
+    public <K, V> Iterator<Map<K, V>> weightedDiscreteMapGenerator( Iterable<Tuple3<Double, K, Iterator<V>>> items,
             Integer amountToRetrieve )
     {
-        Generator<Integer> amountToRetrieveGenerator = constantGenerator( amountToRetrieve );
+        Iterator<Integer> amountToRetrieveGenerator = constantGenerator( amountToRetrieve );
         return weightedDiscreteMapGenerator( items, amountToRetrieveGenerator );
     }
 
-    public <K, V> Generator<Map<K, V>> weightedDiscreteMapGenerator( Iterable<Tuple3<Double, K, Generator<V>>> items,
-            Generator<Integer> amountToRetrieveGenerator )
+    public <K, V> Iterator<Map<K, V>> weightedDiscreteMapGenerator( Iterable<Tuple3<Double, K, Iterator<V>>> items,
+            Iterator<Integer> amountToRetrieveGenerator )
     {
-        List<Tuple2<Double, Tuple2<K, Generator<V>>>> probabilityItems = new ArrayList<Tuple2<Double, Tuple2<K, Generator<V>>>>();
-        for ( Tuple3<Double, K, Generator<V>> item : items )
+        List<Tuple2<Double, Tuple2<K, Iterator<V>>>> probabilityItems = new ArrayList<Tuple2<Double, Tuple2<K, Iterator<V>>>>();
+        for ( Tuple3<Double, K, Iterator<V>> item : items )
         {
             double thingProbability = item._1();
-            Tuple2<K, Generator<V>> thingGeneratorPair = Tuple.tuple2( item._2(), item._3() );
+            Tuple2<K, Iterator<V>> thingGeneratorPair = Tuple.tuple2( item._2(), item._3() );
             probabilityItems.add( Tuple.tuple2( thingProbability, thingGeneratorPair ) );
         }
 
-        Generator<Set<Tuple2<K, Generator<V>>>> discreteSetGenerator = weightedDiscreteSetGenerator( probabilityItems,
+        Iterator<Set<Tuple2<K, Iterator<V>>>> discreteSetGenerator = weightedDiscreteSetGenerator( probabilityItems,
                 amountToRetrieveGenerator );
 
-        Function1<Set<Tuple2<K, Generator<V>>>, Map<K, V>> pairsToMap = new Function1<Set<Tuple2<K, Generator<V>>>, Map<K, V>>()
+        Function1<Set<Tuple2<K, Iterator<V>>>, Map<K, V>> pairsToMap = new Function1<Set<Tuple2<K, Iterator<V>>>, Map<K, V>>()
         {
             @Override
-            public Map<K, V> apply( Set<Tuple2<K, Generator<V>>> pairs )
+            public Map<K, V> apply( Set<Tuple2<K, Iterator<V>>> pairs )
             {
                 Map<K, V> keyedValues = new HashMap<K, V>();
-                for ( Tuple2<K, Generator<V>> pair : pairs )
+                for ( Tuple2<K, Iterator<V>> pair : pairs )
                 {
                     keyedValues.put( pair._1(), pair._2().next() );
                 }
                 return keyedValues;
             }
         };
-        return new MappingGenerator<Set<Tuple2<K, Generator<V>>>, Map<K, V>>( discreteSetGenerator, pairsToMap );
+        return new MappingGenerator<Set<Tuple2<K, Iterator<V>>>, Map<K, V>>( discreteSetGenerator, pairsToMap );
     }
 
     /**
      * RandomByteIteratorGenerator
      */
-    public RandomByteIteratorGenerator randomByteIteratorGenerator( Integer length )
+    public Iterator<ByteIterator> randomByteIteratorGenerator( Integer length )
     {
-        Generator<Integer> lengthGenerator = constantGenerator( length );
+        Iterator<Integer> lengthGenerator = constantGenerator( length );
         return randomByteIteratorGenerator( lengthGenerator );
     }
 
-    public RandomByteIteratorGenerator randomByteIteratorGenerator( Generator<Integer> lengthGenerator )
+    public Iterator<ByteIterator> randomByteIteratorGenerator( Iterator<Integer> lengthGenerator )
     {
         return new RandomByteIteratorGenerator( getRandom(), lengthGenerator );
     }
@@ -161,9 +169,8 @@ public class GeneratorFactory
     /**
      * NaiveBoundedRangeNumberGenerator
      */
-    public <T extends Number> NaiveBoundedRangeNumberGenerator<T> naiveBoundedRangeNumberGenerator(
-            MinMaxGeneratorWrapper<T> lowerBoundGenerator, MinMaxGeneratorWrapper<T> upperBoundGenerator,
-            Generator<T> unboundedGenerator )
+    public <T extends Number> Iterator<T> naiveBoundedRangeNumberGenerator( MinMaxGenerator<T> lowerBoundGenerator,
+            MinMaxGenerator<T> upperBoundGenerator, Iterator<T> unboundedGenerator )
     {
         return new NaiveBoundedRangeNumberGenerator<T>( unboundedGenerator, lowerBoundGenerator, upperBoundGenerator );
     }
@@ -171,23 +178,22 @@ public class GeneratorFactory
     /**
      * UniformNumberGenerator
      */
-    public <T extends Number> DynamicRangeUniformNumberGenerator<T> uniformNumberGenerator( T lowerBound, T upperBound )
+    public <T extends Number> Iterator<T> uniformNumberGenerator( T lowerBound, T upperBound )
     {
-        MinMaxGeneratorWrapper<T> lowerBoundGenerator = minMaxGeneratorWrapper( constantNumberGenerator( lowerBound ),
-                lowerBound, lowerBound );
-        MinMaxGeneratorWrapper<T> upperBoundGenerator = minMaxGeneratorWrapper( constantNumberGenerator( upperBound ),
-                upperBound, upperBound );
+        MinMaxGenerator<T> lowerBoundGenerator = minMaxGenerator( constantNumberGenerator( lowerBound ), lowerBound,
+                lowerBound );
+        MinMaxGenerator<T> upperBoundGenerator = minMaxGenerator( constantNumberGenerator( upperBound ), upperBound,
+                upperBound );
         return dynamicRangeUniformNumberGenerator( lowerBoundGenerator, upperBoundGenerator );
     }
 
-    public <T extends Number> DynamicRangeUniformNumberGenerator<T> dynamicRangeUniformNumberGenerator(
-            MinMaxGeneratorWrapper<T> boundingGenerator )
+    public <T extends Number> Iterator<T> dynamicRangeUniformNumberGenerator( MinMaxGenerator<T> boundingGenerator )
     {
         return dynamicRangeUniformNumberGenerator( boundingGenerator, boundingGenerator );
     }
 
-    public <T extends Number> DynamicRangeUniformNumberGenerator<T> dynamicRangeUniformNumberGenerator(
-            MinMaxGeneratorWrapper<T> lowerBoundGenerator, MinMaxGeneratorWrapper<T> upperBoundGenerator )
+    public <T extends Number> Iterator<T> dynamicRangeUniformNumberGenerator( MinMaxGenerator<T> lowerBoundGenerator,
+            MinMaxGenerator<T> upperBoundGenerator )
     {
         return new DynamicRangeUniformNumberGenerator<T>( getRandom(), lowerBoundGenerator, upperBoundGenerator );
     }
@@ -195,12 +201,12 @@ public class GeneratorFactory
     /**
      * ConstantGenerator
      */
-    public <T> ConstantGenerator<T> constantGenerator( T constant )
+    public <T> Iterator<T> constantGenerator( T constant )
     {
         return new ConstantGenerator<T>( constant );
     }
 
-    public <T extends Number> ConstantGenerator<T> constantNumberGenerator( T constant )
+    public <T extends Number> Iterator<T> constantNumberGenerator( T constant )
     {
         return new ConstantGenerator<T>( constant );
     }
@@ -209,23 +215,22 @@ public class GeneratorFactory
      * IncrementingGenerator
      */
 
-    public <T extends Number> IncrementingGenerator<T> incrementingGenerator( T start, T incrementBy )
+    public <T extends Number> Iterator<T> incrementingGenerator( T start, T incrementBy )
     {
         return boundedIncrementingGenerator( start, new ConstantGenerator<T>( incrementBy ), null );
     }
 
-    public <T extends Number> IncrementingGenerator<T> incrementingGenerator( T start, Generator<T> incrementByGenerator )
+    public <T extends Number> Iterator<T> incrementingGenerator( T start, Iterator<T> incrementByGenerator )
     {
         return boundedIncrementingGenerator( start, incrementByGenerator, null );
     }
 
-    public <T extends Number> IncrementingGenerator<T> boundedIncrementingGenerator( T start, T incrementBy, T max )
+    public <T extends Number> Iterator<T> boundedIncrementingGenerator( T start, T incrementBy, T max )
     {
         return boundedIncrementingGenerator( start, new ConstantGenerator<T>( incrementBy ), max );
     }
 
-    public <T extends Number> IncrementingGenerator<T> boundedIncrementingGenerator( T start,
-            Generator<T> incrementByGenerator, T max )
+    public <T extends Number> Iterator<T> boundedIncrementingGenerator( T start, Iterator<T> incrementByGenerator, T max )
     {
         return new IncrementingGenerator<T>( start, incrementByGenerator, max );
     }
@@ -233,15 +238,15 @@ public class GeneratorFactory
     /**
      * ExponentialNumberGenerator
      */
-    public <T extends Number> ExponentialNumberGenerator<T> exponentialGenerator( T mean )
+    public <T extends Number> Iterator<T> exponentialGenerator( T mean )
     {
         return new ExponentialNumberGenerator<T>( getRandom(), mean );
     }
 
-    public <T extends Number> NaiveBoundedRangeNumberGenerator<T> boundedRangeExponentialNumberGenerator(
-            MinMaxGeneratorWrapper<T> lowerBoundGenerator, MinMaxGeneratorWrapper<T> upperBoundGenerator, T mean )
+    public <T extends Number> Iterator<T> boundedRangeExponentialNumberGenerator(
+            MinMaxGenerator<T> lowerBoundGenerator, MinMaxGenerator<T> upperBoundGenerator, T mean )
     {
-        Generator<T> generator = new ExponentialNumberGenerator<T>( getRandom(), mean );
+        Iterator<T> generator = new ExponentialNumberGenerator<T>( getRandom(), mean );
         return naiveBoundedRangeNumberGenerator( lowerBoundGenerator, upperBoundGenerator, generator );
     }
 }

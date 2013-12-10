@@ -1,19 +1,20 @@
 package com.ldbc.driver.generator;
 
-import com.ldbc.driver.generator.wrapper.MinMaxGeneratorWrapper;
+import java.util.Iterator;
+
 import com.ldbc.driver.util.NumberHelper;
 
 public class NaiveBoundedRangeNumberGenerator<GENERATE_TYPE extends Number> extends Generator<GENERATE_TYPE>
 {
     private final Integer maxIterations = 1000;
-    private final MinMaxGeneratorWrapper<GENERATE_TYPE> lowerBoundGenerator;
-    private final MinMaxGeneratorWrapper<GENERATE_TYPE> upperBoundGenerator;
-    private final Generator<GENERATE_TYPE> generator;
+    private final MinMaxGenerator<GENERATE_TYPE> lowerBoundGenerator;
+    private final MinMaxGenerator<GENERATE_TYPE> upperBoundGenerator;
+    private final Iterator<GENERATE_TYPE> generator;
     private final NumberHelper<GENERATE_TYPE> number;
 
-    NaiveBoundedRangeNumberGenerator( Generator<GENERATE_TYPE> generator,
-            MinMaxGeneratorWrapper<GENERATE_TYPE> lowerBoundGenerator,
-            MinMaxGeneratorWrapper<GENERATE_TYPE> upperBoundGenerator )
+    NaiveBoundedRangeNumberGenerator( Iterator<GENERATE_TYPE> generator,
+            MinMaxGenerator<GENERATE_TYPE> lowerBoundGenerator,
+            MinMaxGenerator<GENERATE_TYPE> upperBoundGenerator )
     {
         this.lowerBoundGenerator = lowerBoundGenerator;
         this.upperBoundGenerator = upperBoundGenerator;

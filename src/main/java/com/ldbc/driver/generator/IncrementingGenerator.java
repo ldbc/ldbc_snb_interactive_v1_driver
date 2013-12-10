@@ -1,15 +1,17 @@
 package com.ldbc.driver.generator;
 
+import java.util.Iterator;
+
 import com.ldbc.driver.util.NumberHelper;
 
 public class IncrementingGenerator<GENERATE_TYPE extends Number> extends Generator<GENERATE_TYPE>
 {
     private final NumberHelper<GENERATE_TYPE> number;
     private final GENERATE_TYPE max;
-    private final Generator<GENERATE_TYPE> incrementByGenerator;
+    private final Iterator<GENERATE_TYPE> incrementByGenerator;
     private GENERATE_TYPE count;
 
-    IncrementingGenerator( GENERATE_TYPE start, Generator<GENERATE_TYPE> incrementByGenerator, GENERATE_TYPE max )
+    IncrementingGenerator( GENERATE_TYPE start, Iterator<GENERATE_TYPE> incrementByGenerator, GENERATE_TYPE max )
     {
         this.count = start;
         this.incrementByGenerator = incrementByGenerator;

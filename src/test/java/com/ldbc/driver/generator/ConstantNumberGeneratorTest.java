@@ -1,7 +1,8 @@
 package com.ldbc.driver.generator;
 
+import java.util.Iterator;
+
 import com.google.common.collect.Range;
-import com.ldbc.driver.generator.Generator;
 import com.ldbc.driver.util.Histogram;
 import com.ldbc.driver.util.Bucket.NumberRangeBucket;
 
@@ -22,7 +23,7 @@ public class ConstantNumberGeneratorTest extends NumberGeneratorTest<Long, Long>
     }
 
     @Override
-    public Generator<Long> getGeneratorImpl()
+    public Iterator<Long> getGeneratorImpl()
     {
         return getGeneratorFactory().constantGenerator( constant );
     }

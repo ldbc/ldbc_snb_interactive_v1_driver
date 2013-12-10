@@ -3,10 +3,10 @@ package com.ldbc.driver.generator;
 import static org.junit.Assert.assertEquals;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 
 import org.junit.Test;
 
-import com.ldbc.driver.generator.Generator;
 import com.ldbc.driver.generator.GeneratorException;
 import com.ldbc.driver.util.Histogram;
 import com.ldbc.driver.util.Bucket.DiscreteBucket;
@@ -34,7 +34,7 @@ public class DiscreteGeneratorTest extends GeneratorTest<String, Integer>
     }
 
     @Override
-    public Generator<String> getGeneratorImpl()
+    public Iterator<String> getGeneratorImpl()
     {
         Tuple2<Double, String> p1 = Tuple.tuple2( 1.0, "1" );
         Tuple2<Double, String> p2 = Tuple.tuple2( 2.0, "2" );
@@ -53,7 +53,7 @@ public class DiscreteGeneratorTest extends GeneratorTest<String, Integer>
     {
         // Given
         ArrayList<Tuple2<Double, String>> emptyItems = new ArrayList<Tuple2<Double, String>>();
-        Generator<String> generator = getGeneratorFactory().weightedDiscreteGenerator( emptyItems );
+        Iterator<String> generator = getGeneratorFactory().weightedDiscreteGenerator( emptyItems );
 
         // When
         generator.next();

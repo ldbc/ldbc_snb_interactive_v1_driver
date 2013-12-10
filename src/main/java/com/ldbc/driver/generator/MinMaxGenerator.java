@@ -1,16 +1,15 @@
-package com.ldbc.driver.generator.wrapper;
+package com.ldbc.driver.generator;
 
-import com.ldbc.driver.generator.Generator;
-import com.ldbc.driver.generator.GeneratorException;
+import java.util.Iterator;
 
-public class MinMaxGeneratorWrapper<GENERATE_TYPE extends Number> extends Generator<GENERATE_TYPE>
+
+public class MinMaxGenerator<GENERATE_TYPE extends Number> extends Generator<GENERATE_TYPE>
 {
     private GENERATE_TYPE min = null;
     private GENERATE_TYPE max = null;
-    private final Generator<GENERATE_TYPE> generator;
+    private final Iterator<GENERATE_TYPE> generator;
 
-    public MinMaxGeneratorWrapper( Generator<GENERATE_TYPE> generator, GENERATE_TYPE initialMin,
-            GENERATE_TYPE initialMax )
+    public MinMaxGenerator( Iterator<GENERATE_TYPE> generator, GENERATE_TYPE initialMin, GENERATE_TYPE initialMax )
     {
         this.min = initialMin;
         this.max = initialMax;

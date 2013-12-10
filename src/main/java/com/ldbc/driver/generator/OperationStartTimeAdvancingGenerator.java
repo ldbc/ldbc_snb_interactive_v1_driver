@@ -1,19 +1,21 @@
-package com.ldbc.driver.generator.wrapper;
+package com.ldbc.driver.generator;
+
+import java.util.Iterator;
 
 import com.ldbc.driver.Operation;
-import com.ldbc.driver.generator.Generator;
-import com.ldbc.driver.generator.GeneratorException;
-import com.ldbc.driver.generator.MappingGenerator;
 import com.ldbc.driver.util.Function1;
 import com.ldbc.driver.util.temporal.Duration;
 import com.ldbc.driver.util.temporal.Time;
 
-public class FutureTimeShiftGeneratorWrapper extends Generator<Operation<?>>
+/*
+ * Advances the scheduled start time of an Operation by a given Duration 
+ */
+public class OperationStartTimeAdvancingGenerator extends Generator<Operation<?>>
 {
-    private final Generator<Operation<?>> operationGenerator;
+    private final Iterator<Operation<?>> operationGenerator;
     private Operation<?> firstOperation;
 
-    public FutureTimeShiftGeneratorWrapper( Generator<Operation<?>> operationGenerator, Time startTime )
+    public OperationStartTimeAdvancingGenerator( Iterator<Operation<?>> operationGenerator, Time startTime )
     {
         firstOperation = operationGenerator.next();
         Duration offsetDuration = startTime.greaterBy( firstOperation.scheduledStartTime() );

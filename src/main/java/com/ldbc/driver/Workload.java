@@ -4,7 +4,6 @@ import java.util.Iterator;
 import java.util.Map;
 
 import com.ldbc.driver.generator.GeneratorFactory;
-import com.ldbc.driver.generator.wrapper.CappedGeneratorWrapper;
 
 public abstract class Workload
 {
@@ -61,7 +60,7 @@ public abstract class Workload
         }
         else
         {
-            return new CappedGeneratorWrapper<Operation<?>>( createLoadOperations( generators ), getOperationCount() );
+            return generators.limit( createLoadOperations( generators ), getOperationCount() );
         }
     }
 
@@ -77,8 +76,7 @@ public abstract class Workload
         }
         else
         {
-            return new CappedGeneratorWrapper<Operation<?>>( createTransactionalOperations( generators ),
-                    getOperationCount() );
+            return generators.limit( createTransactionalOperations( generators ), getOperationCount() );
         }
     }
 

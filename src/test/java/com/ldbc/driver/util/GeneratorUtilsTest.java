@@ -1,31 +1,34 @@
-package com.ldbc.driver.generator.wrapper;
+package com.ldbc.driver.util;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Iterator;
 import java.util.List;
 
 import org.junit.Test;
 
-import com.ldbc.driver.generator.Generator;
+import com.google.common.base.Predicate;
+import com.google.common.collect.Iterators;
+import com.ldbc.driver.data.LimitGenerator;
 import com.ldbc.driver.generator.GeneratorFactory;
-import com.ldbc.driver.util.Function1;
+import com.ldbc.driver.util.GeneratorUtils;
 import com.ldbc.driver.util.RandomDataGeneratorFactory;
 
 import static org.junit.Assert.*;
 import static org.hamcrest.CoreMatchers.*;
 import static org.junit.matchers.JUnitMatchers.*;
 
-public class FilterGeneratorWrapperTest
+public class GeneratorUtilsTest
 {
     @Test
-    public void shouldIncludeOnly()
+    public void filterShouldIncludeOnly()
     {
         // Given
-        Generator<Integer> counterGenerator = new GeneratorFactory( new RandomDataGeneratorFactory() ).incrementingGenerator(
+        Iterator<Integer> counterGenerator = new GeneratorFactory( new RandomDataGeneratorFactory() ).incrementingGenerator(
                 1, 1 );
-        Generator<Integer> cappedCounterGenerator = new CappedGeneratorWrapper<Integer>( counterGenerator, 10 );
+        Iterator<Integer> cappedCounterGenerator = new LimitGenerator<Integer>( counterGenerator, 10 );
         Integer[] includeNumbers = new Integer[] { 1, 2, 3 };
-        Generator<Integer> filteredCappedCounterGenerator = FilterGeneratorWrapper.includeOnly( cappedCounterGenerator,
+        Iterator<Integer> filteredCappedCounterGenerator = GeneratorUtils.includeOnly( cappedCounterGenerator,
                 includeNumbers );
 
         // When
@@ -40,14 +43,14 @@ public class FilterGeneratorWrapperTest
     }
 
     @Test
-    public void shouldExcludeAll()
+    public void filterShouldExcludeAll()
     {
         // Given
-        Generator<Integer> counterGenerator = new GeneratorFactory( new RandomDataGeneratorFactory() ).incrementingGenerator(
+        Iterator<Integer> counterGenerator = new GeneratorFactory( new RandomDataGeneratorFactory() ).incrementingGenerator(
                 1, 1 );
-        Generator<Integer> cappedCounterGenerator = new CappedGeneratorWrapper<Integer>( counterGenerator, 10 );
+        Iterator<Integer> cappedCounterGenerator = new LimitGenerator<Integer>( counterGenerator, 10 );
         Integer[] excludeNumbers = new Integer[] { 1, 2, 3 };
-        Generator<Integer> filteredCappedCounterGenerator = FilterGeneratorWrapper.excludeAll( cappedCounterGenerator,
+        Iterator<Integer> filteredCappedCounterGenerator = GeneratorUtils.excludeAll( cappedCounterGenerator,
                 excludeNumbers );
 
         // When
@@ -62,17 +65,17 @@ public class FilterGeneratorWrapperTest
     }
 
     @Test
-    public void shouldReturn5()
+    public void filterShouldReturn5()
     {
         // Given
-        Generator<Integer> counterGenerator = new GeneratorFactory( new RandomDataGeneratorFactory() ).incrementingGenerator(
+        Iterator<Integer> counterGenerator = new GeneratorFactory( new RandomDataGeneratorFactory() ).incrementingGenerator(
                 1, 1 );
-        Generator<Integer> cappedCounterGenerator = new CappedGeneratorWrapper<Integer>( counterGenerator, 10 );
-        Generator<Integer> filteredCappedCounterGenerator = new FilterGeneratorWrapper<Integer>(
-                cappedCounterGenerator, new Function1<Integer, Boolean>()
+        Iterator<Integer> cappedCounterGenerator = new LimitGenerator<Integer>( counterGenerator, 10 );
+        Iterator<Integer> filteredCappedCounterGenerator = Iterators.filter( cappedCounterGenerator,
+                new Predicate<Integer>()
                 {
                     @Override
-                    public Boolean apply( Integer input )
+                    public boolean apply( Integer input )
                     {
                         return 5 == input;
                     }

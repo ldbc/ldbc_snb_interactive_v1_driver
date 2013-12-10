@@ -1,10 +1,10 @@
 package com.ldbc.driver.generator;
 
+import java.util.Iterator;
 import java.util.List;
 
 import org.junit.Test;
 
-import com.ldbc.driver.generator.Generator;
 import com.ldbc.driver.util.Bucket;
 import com.ldbc.driver.util.Histogram;
 
@@ -27,7 +27,7 @@ public class IncrementingGeneratorTest extends NumberGeneratorTest<Long, Long>
     }
 
     @Override
-    public Generator<Long> getGeneratorImpl()
+    public Iterator<Long> getGeneratorImpl()
     {
         return getGeneratorFactory().incrementingGenerator( start, 1l );
     }
@@ -55,7 +55,7 @@ public class IncrementingGeneratorTest extends NumberGeneratorTest<Long, Long>
     public void firstNumberShouldEqualStartTest()
     {
         // Given
-        Generator<Long> generator = getGeneratorFactory().incrementingGenerator( start, 1l );
+        Iterator<Long> generator = getGeneratorFactory().incrementingGenerator( start, 1l );
 
         // When
         long firstNumber = generator.next();

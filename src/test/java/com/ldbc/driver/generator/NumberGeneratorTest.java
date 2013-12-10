@@ -1,10 +1,10 @@
 package com.ldbc.driver.generator;
 
+import java.util.Iterator;
 import java.util.List;
 
 import org.junit.Test;
 
-import com.ldbc.driver.generator.Generator;
 import com.ldbc.driver.util.NumberHelper;
 
 import static org.junit.Assert.assertEquals;
@@ -20,7 +20,7 @@ public abstract class NumberGeneratorTest<GENERATE_TYPE extends Number, COUNT ex
     public final void meanTest()
     {
         // Given
-        Generator<GENERATE_TYPE> generator = getGeneratorImpl();
+        Iterator<GENERATE_TYPE> generator = getGeneratorImpl();
         Double expectedMean = getExpectedMean();
 
         // When

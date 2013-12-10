@@ -1,22 +1,24 @@
-package com.ldbc.driver.generator.wrapper;
+package com.ldbc.driver.generator;
+
+import java.util.Iterator;
 
 import org.junit.Test;
 
-import com.ldbc.driver.generator.Generator;
+import com.ldbc.driver.data.LimitGenerator;
 import com.ldbc.driver.generator.GeneratorFactory;
 import com.ldbc.driver.util.RandomDataGeneratorFactory;
 
 import static org.junit.Assert.assertEquals;
 
-public class CappedGeneratorWrapperTest
+public class LimitGeneratorTest
 {
     @Test
     public void shouldStopAtLimitTest()
     {
         // Given
-        Generator<Integer> generator = new GeneratorFactory( new RandomDataGeneratorFactory() ).uniformNumberGenerator(
+        Iterator<Integer> generator = new GeneratorFactory( new RandomDataGeneratorFactory() ).uniformNumberGenerator(
                 1, 10 );
-        Generator<Integer> cappedGenerator = new CappedGeneratorWrapper<Integer>( generator, 10 );
+        Iterator<Integer> cappedGenerator = new LimitGenerator<Integer>( generator, 10 );
 
         // When
         int count = 0;

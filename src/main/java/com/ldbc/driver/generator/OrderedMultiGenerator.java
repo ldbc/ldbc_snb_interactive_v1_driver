@@ -1,41 +1,24 @@
-package com.ldbc.driver.generator.wrapper;
+package com.ldbc.driver.generator;
 
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
 
-import com.ldbc.driver.Operation;
-import com.ldbc.driver.generator.Generator;
-import com.ldbc.driver.generator.GeneratorException;
 
-public class OrderedMultiGeneratorWrapper<GENERATE_TYPE> extends Generator<GENERATE_TYPE>
+public class OrderedMultiGenerator<GENERATE_TYPE> extends Generator<GENERATE_TYPE>
 {
     private static final int DEFAULT_LOOK_AHEAD_DISTANCE = 1;
     private final List<GeneratorHead<GENERATE_TYPE>> generatorHeads;
     private final Comparator<GENERATE_TYPE> comparator;
 
-    // TODO move to GeneratorUtils?
-    public static OrderedMultiGeneratorWrapper<Operation<?>> operationsByScheduledStartTime( int lookaheadDistance,
-            Generator<Operation<?>>... operationGenerators )
-    {
-        return new OrderedMultiGeneratorWrapper<Operation<?>>( new Comparator<Operation<?>>()
-        {
-            @Override
-            public int compare( Operation<?> o1, Operation<?> o2 )
-            {
-                return o1.scheduledStartTime().compareTo( o2.scheduledStartTime() );
-            }
-        }, lookaheadDistance, operationGenerators );
-    }
-
-    public OrderedMultiGeneratorWrapper( Comparator<GENERATE_TYPE> comparator, Generator<GENERATE_TYPE>... generators )
+    public OrderedMultiGenerator( Comparator<GENERATE_TYPE> comparator, Iterator<GENERATE_TYPE>... generators )
     {
         this( comparator, DEFAULT_LOOK_AHEAD_DISTANCE, generators );
     }
 
-    public OrderedMultiGeneratorWrapper( Comparator<GENERATE_TYPE> comparator, int lookaheadDistance,
-            Generator<GENERATE_TYPE>... generators )
+    public OrderedMultiGenerator( Comparator<GENERATE_TYPE> comparator, int lookaheadDistance,
+            Iterator<GENERATE_TYPE>... generators )
     {
         this.comparator = comparator;
         if ( DEFAULT_LOOK_AHEAD_DISTANCE == lookaheadDistance )
@@ -48,10 +31,10 @@ public class OrderedMultiGeneratorWrapper<GENERATE_TYPE> extends Generator<GENER
         }
     }
 
-    private static <T1> List<GeneratorHead<T1>> buildSimpleGeneratorHeads( Generator<T1>... generators )
+    private static <T1> List<GeneratorHead<T1>> buildSimpleGeneratorHeads( Iterator<T1>... generators )
     {
         List<GeneratorHead<T1>> heads = new ArrayList<GeneratorHead<T1>>();
-        for ( Generator<T1> generator : generators )
+        for ( Iterator<T1> generator : generators )
         {
             heads.add( new SimpleGeneratorHead<T1>( generator ) );
         }
@@ -59,10 +42,10 @@ public class OrderedMultiGeneratorWrapper<GENERATE_TYPE> extends Generator<GENER
     }
 
     private static <T1> List<GeneratorHead<T1>> buildLookaheadGeneratorHeads( Comparator<T1> c, int distance,
-            Generator<T1>... generators )
+            Iterator<T1>... generators )
     {
         List<GeneratorHead<T1>> heads = new ArrayList<GeneratorHead<T1>>();
-        for ( Generator<T1> generator : generators )
+        for ( Iterator<T1> generator : generators )
         {
             heads.add( new LookaheadGeneratorHead<T1>( generator, c, distance ) );
         }
@@ -118,10 +101,10 @@ public class OrderedMultiGeneratorWrapper<GENERATE_TYPE> extends Generator<GENER
 
     private static class SimpleGeneratorHead<T1> implements GeneratorHead<T1>
     {
-        private final Generator<T1> generator;
+        private final Iterator<T1> generator;
         private T1 head;
 
-        public SimpleGeneratorHead( Generator<T1> generator )
+        public SimpleGeneratorHead( Iterator<T1> generator )
         {
             this.generator = generator;
             this.head = ( this.generator.hasNext() ) ? this.generator.next() : null;
@@ -145,13 +128,13 @@ public class OrderedMultiGeneratorWrapper<GENERATE_TYPE> extends Generator<GENER
 
     private static class LookaheadGeneratorHead<T1> implements GeneratorHead<T1>
     {
-        private final Generator<T1> generator;
+        private final Iterator<T1> generator;
         private final Comparator<T1> comparator;
         private final int lookaheadDistance;
         private List<T1> lookaheadBuffer;
         private T1 head;
 
-        public LookaheadGeneratorHead( Generator<T1> generator, Comparator<T1> comparator, int lookaheadDistance )
+        public LookaheadGeneratorHead( Iterator<T1> generator, Comparator<T1> comparator, int lookaheadDistance )
         {
             this.generator = generator;
             this.comparator = comparator;

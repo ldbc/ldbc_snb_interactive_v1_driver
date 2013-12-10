@@ -1,26 +1,25 @@
-package com.ldbc.driver.generator.wrapper;
+package com.ldbc.driver.generator;
 
 import java.util.Comparator;
+import java.util.Iterator;
 
 import org.junit.Test;
 
-import com.ldbc.driver.generator.Generator;
-import com.ldbc.driver.generator.GeneratorFactory;
 import com.ldbc.driver.generator.IdentityGenerator;
-import com.ldbc.driver.util.RandomDataGeneratorFactory;
+import com.ldbc.driver.generator.OrderedMultiGenerator;
 
 import static org.junit.Assert.assertEquals;
 
-public class OrderedMultiGeneratorWrapperTest
+public class OrderedMultiGeneratorTest
 {
     @Test
     public void shouldFailWhenLookaheadIsTooShort()
     {
         // Given
         int lookaheadDistance = 1;
-        Generator<Integer> g1 = new IdentityGenerator<Integer>( 1, 0, 3 );
+        Iterator<Integer> g1 = new IdentityGenerator<Integer>( 1, 0, 3 );
 
-        Generator<Integer> orderedGenerator = new OrderedMultiGeneratorWrapper<Integer>( new IntegerComparator(),
+        Iterator<Integer> orderedGenerator = new OrderedMultiGenerator<Integer>( new IntegerComparator(),
                 lookaheadDistance, g1 );
 
         // When
@@ -45,9 +44,9 @@ public class OrderedMultiGeneratorWrapperTest
     {
         // Given
         int lookaheadDistance = 2;
-        Generator<Integer> g1 = new IdentityGenerator<Integer>( 1, 0, 3 );
+        Iterator<Integer> g1 = new IdentityGenerator<Integer>( 1, 0, 3 );
 
-        Generator<Integer> orderedGenerator = new OrderedMultiGeneratorWrapper<Integer>( new IntegerComparator(),
+        Iterator<Integer> orderedGenerator = new OrderedMultiGenerator<Integer>( new IntegerComparator(),
                 lookaheadDistance, g1 );
 
         // When
@@ -71,11 +70,11 @@ public class OrderedMultiGeneratorWrapperTest
         Integer[] numbers1 = new Integer[] { 1, 0, 3, 4 };
         Integer[] numbers2 = new Integer[] { 2, 4, 0, 8 };
         Integer[] numbers3 = new Integer[] { 1, 2, 3, 0 };
-        Generator<Integer> g1 = new IdentityGenerator<Integer>( numbers1 );
-        Generator<Integer> g2 = new IdentityGenerator<Integer>( numbers2 );
-        Generator<Integer> g3 = new IdentityGenerator<Integer>( numbers3 );
+        Iterator<Integer> g1 = new IdentityGenerator<Integer>( numbers1 );
+        Iterator<Integer> g2 = new IdentityGenerator<Integer>( numbers2 );
+        Iterator<Integer> g3 = new IdentityGenerator<Integer>( numbers3 );
 
-        Generator<Integer> orderedGenerator = new OrderedMultiGeneratorWrapper<Integer>( new IntegerComparator(),
+        Iterator<Integer> orderedGenerator = new OrderedMultiGenerator<Integer>( new IntegerComparator(),
                 lookaheadDistance, g1, g2, g3 );
 
         // When
@@ -101,11 +100,11 @@ public class OrderedMultiGeneratorWrapperTest
         Integer[] numbers1 = new Integer[] { 1, 0, 3, 4 };
         Integer[] numbers2 = new Integer[] { 2, 4, 0, 8 };
         Integer[] numbers3 = new Integer[] { 1, 2, 3, 0 };
-        Generator<Integer> g1 = new IdentityGenerator<Integer>( numbers1 );
-        Generator<Integer> g2 = new IdentityGenerator<Integer>( numbers2 );
-        Generator<Integer> g3 = new IdentityGenerator<Integer>( numbers3 );
+        Iterator<Integer> g1 = new IdentityGenerator<Integer>( numbers1 );
+        Iterator<Integer> g2 = new IdentityGenerator<Integer>( numbers2 );
+        Iterator<Integer> g3 = new IdentityGenerator<Integer>( numbers3 );
 
-        Generator<Integer> orderedGenerator = new OrderedMultiGeneratorWrapper<Integer>( new IntegerComparator(),
+        Iterator<Integer> orderedGenerator = new OrderedMultiGenerator<Integer>( new IntegerComparator(),
                 lookaheadDistance, g1, g2, g3 );
 
         // When

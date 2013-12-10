@@ -1,18 +1,16 @@
-package com.ldbc.driver.generator.wrapper;
+package com.ldbc.driver.generator;
 
 import java.util.Iterator;
 
 import com.ldbc.driver.Operation;
-import com.ldbc.driver.generator.Generator;
-import com.ldbc.driver.generator.GeneratorException;
 import com.ldbc.driver.util.temporal.Time;
 
-public class StartTimeOperationGeneratorWrapper extends Generator<Operation<?>>
+public class StartTimeAssigningOperationGenerator extends Generator<Operation<?>>
 {
     private final Iterator<Time> startTimeGenerator;
     private final Iterator<Operation<?>> operationGenerator;
 
-    public StartTimeOperationGeneratorWrapper( Iterator<Time> startTimeGenerator,
+    public StartTimeAssigningOperationGenerator( Iterator<Time> startTimeGenerator,
             Iterator<Operation<?>> operationGenerator )
     {
         this.startTimeGenerator = startTimeGenerator;

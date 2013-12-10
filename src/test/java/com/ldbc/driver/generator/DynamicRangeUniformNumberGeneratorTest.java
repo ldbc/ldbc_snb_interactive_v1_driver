@@ -1,8 +1,8 @@
 package com.ldbc.driver.generator;
 
+import java.util.Iterator;
+
 import com.google.common.collect.Range;
-import com.ldbc.driver.generator.Generator;
-import com.ldbc.driver.generator.wrapper.MinMaxGeneratorWrapper;
 import com.ldbc.driver.util.Histogram;
 import com.ldbc.driver.util.Bucket.NumberRangeBucket;
 
@@ -26,11 +26,11 @@ public class DynamicRangeUniformNumberGeneratorTest extends NumberGeneratorTest<
     }
 
     @Override
-    public Generator<Long> getGeneratorImpl()
+    public Iterator<Long> getGeneratorImpl()
     {
-        MinMaxGeneratorWrapper<Long> counterGenerator = getGeneratorFactory().minMaxGeneratorWrapper(
+        MinMaxGenerator<Long> counterGenerator = getGeneratorFactory().minMaxGenerator(
                 getGeneratorFactory().incrementingGenerator( counterStart, 1l ), uniformMin, uniformMax );
-        Generator<Long> growingRangeUniformGenerator = getGeneratorFactory().dynamicRangeUniformNumberGenerator(
+        Iterator<Long> growingRangeUniformGenerator = getGeneratorFactory().dynamicRangeUniformNumberGenerator(
                 counterGenerator );
         for ( int i = 0; i < counterIterations; i++ )
         {

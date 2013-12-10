@@ -5,11 +5,11 @@ import static org.junit.Assert.assertEquals;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.Set;
 
 import org.junit.Test;
 
-import com.ldbc.driver.generator.Generator;
 import com.ldbc.driver.generator.GeneratorException;
 import com.ldbc.driver.util.Histogram;
 import com.ldbc.driver.util.Bucket.DiscreteBucket;
@@ -49,7 +49,7 @@ public class DiscreteSetGeneratorVariableProbabilitiesConstantSizeTest extends G
     }
 
     @Override
-    public Generator<Set<String>> getGeneratorImpl()
+    public Iterator<Set<String>> getGeneratorImpl()
     {
         Tuple2<Double, String> p1 = Tuple.tuple2( 1.0, "1" );
         Tuple2<Double, String> p2 = Tuple.tuple2( 2.0, "2" );
@@ -58,8 +58,8 @@ public class DiscreteSetGeneratorVariableProbabilitiesConstantSizeTest extends G
         items.add( p1 );
         items.add( p2 );
         items.add( p3 );
-        Generator<Integer> amountToRetrieveGenerator = getGeneratorFactory().constantGenerator( 1 );
-        Generator<Set<String>> generator = getGeneratorFactory().weightedDiscreteSetGenerator( items,
+        Iterator<Integer> amountToRetrieveGenerator = getGeneratorFactory().constantGenerator( 1 );
+        Iterator<Set<String>> generator = getGeneratorFactory().weightedDiscreteSetGenerator( items,
                 amountToRetrieveGenerator );
         return generator;
     }
@@ -68,9 +68,9 @@ public class DiscreteSetGeneratorVariableProbabilitiesConstantSizeTest extends G
     public void emptyConstructorTest()
     {
         // Given
-        Generator<Integer> amountToRetrieveGenerator = getGeneratorFactory().constantGenerator( 1 );
+        Iterator<Integer> amountToRetrieveGenerator = getGeneratorFactory().constantGenerator( 1 );
         ArrayList<Tuple2<Double, String>> emptyItems = new ArrayList<Tuple2<Double, String>>();
-        Generator<Set<String>> generator = getGeneratorFactory().weightedDiscreteSetGenerator( emptyItems,
+        Iterator<Set<String>> generator = getGeneratorFactory().weightedDiscreteSetGenerator( emptyItems,
                 amountToRetrieveGenerator );
 
         // When

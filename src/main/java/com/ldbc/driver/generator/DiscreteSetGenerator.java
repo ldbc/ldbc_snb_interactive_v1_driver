@@ -2,6 +2,7 @@ package com.ldbc.driver.generator;
 
 import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.Set;
 
 import org.apache.commons.math3.random.RandomDataGenerator;
@@ -11,13 +12,13 @@ import com.ldbc.driver.util.Tuple.Tuple2;
 public class DiscreteSetGenerator<GENERATE_TYPE> extends Generator<Set<GENERATE_TYPE>>
 {
     // generates the number of items to be selected upon next()
-    private final Generator<Integer> amountToRetrieveGenerator;
+    private final Iterator<Integer> amountToRetrieveGenerator;
     private final ArrayList<Tuple2<Double, GENERATE_TYPE>> itemProbabilities;
     private final double probabilitiesSum;
     private final RandomDataGenerator random;
 
     DiscreteSetGenerator( RandomDataGenerator random, Iterable<Tuple2<Double, GENERATE_TYPE>> itemProbabilities,
-            Generator<Integer> amountToRetrieveGenerator )
+            Iterator<Integer> amountToRetrieveGenerator )
     {
         if ( false == itemProbabilities.iterator().hasNext() )
         {

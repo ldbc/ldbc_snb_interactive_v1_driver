@@ -2,9 +2,9 @@ package com.ldbc.driver.generator;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
 
-import com.ldbc.driver.generator.Generator;
 import com.ldbc.driver.util.Histogram;
 import com.ldbc.driver.util.Bucket.DiscreteBucket;
 import com.ldbc.driver.util.Tuple;
@@ -47,21 +47,21 @@ public class DiscreteMapGeneratorConstantProbabilitiesConstantSizeConstantValues
     }
 
     @Override
-    public Generator<Map<String, Long>> getGeneratorImpl()
+    public Iterator<Map<String, Long>> getGeneratorImpl()
     {
-        Tuple3<Double, String, Generator<Long>> t1 = Tuple.tuple3( 1.0, "1",
-                (Generator<Long>) getGeneratorFactory().constantGenerator( 1l ) );
-        Tuple3<Double, String, Generator<Long>> t2 = Tuple.tuple3( 1.0, "2",
-                (Generator<Long>) getGeneratorFactory().constantGenerator( 2l ) );
-        Tuple3<Double, String, Generator<Long>> t3 = Tuple.tuple3( 1.0, "3",
-                (Generator<Long>) getGeneratorFactory().constantGenerator( 3l ) );
+        Tuple3<Double, String, Iterator<Long>> t1 = Tuple.tuple3( 1.0, "1",
+                (Iterator<Long>) getGeneratorFactory().constantGenerator( 1l ) );
+        Tuple3<Double, String, Iterator<Long>> t2 = Tuple.tuple3( 1.0, "2",
+                (Iterator<Long>) getGeneratorFactory().constantGenerator( 2l ) );
+        Tuple3<Double, String, Iterator<Long>> t3 = Tuple.tuple3( 1.0, "3",
+                (Iterator<Long>) getGeneratorFactory().constantGenerator( 3l ) );
 
-        ArrayList<Tuple3<Double, String, Generator<Long>>> items = new ArrayList<Tuple3<Double, String, Generator<Long>>>();
+        ArrayList<Tuple3<Double, String, Iterator<Long>>> items = new ArrayList<Tuple3<Double, String, Iterator<Long>>>();
         items.add( t1 );
         items.add( t2 );
         items.add( t3 );
         Integer amountToRetrieve = 2;
-        Generator<Map<String, Long>> generator = getGeneratorFactory().weightedDiscreteMapGenerator( items,
+        Iterator<Map<String, Long>> generator = getGeneratorFactory().weightedDiscreteMapGenerator( items,
                 amountToRetrieve );
         return generator;
     }

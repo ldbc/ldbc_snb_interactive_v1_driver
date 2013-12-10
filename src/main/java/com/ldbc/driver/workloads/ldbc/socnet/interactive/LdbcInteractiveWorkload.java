@@ -15,7 +15,7 @@ import com.ldbc.driver.WorkloadException;
 import com.ldbc.driver.generator.Generator;
 import com.ldbc.driver.generator.GeneratorException;
 import com.ldbc.driver.generator.GeneratorFactory;
-import com.ldbc.driver.generator.wrapper.StartTimeOperationGeneratorWrapper;
+import com.ldbc.driver.generator.StartTimeAssigningOperationGenerator;
 import com.ldbc.driver.util.GeneratorUtils;
 import com.ldbc.driver.util.Tuple;
 import com.ldbc.driver.util.Tuple.Tuple2;
@@ -71,34 +71,34 @@ public class LdbcInteractiveWorkload extends Workload
          * Create Generators for desired Operations
          */
 
-        Set<Tuple2<Double, Generator<Operation<?>>>> operations = new HashSet<Tuple2<Double, Generator<Operation<?>>>>();
+        Set<Tuple2<Double, Iterator<Operation<?>>>> operations = new HashSet<Tuple2<Double, Iterator<Operation<?>>>>();
 
-        Generator<String> firstNameGenerator = generators.discreteGenerator( substitutionParameters.firstNames );
-        Generator<Long> personIdGenerator = generators.discreteGenerator( substitutionParameters.personIds );
-        Generator<Long> postCreationDateGenerator00_66 = generators.uniformNumberGenerator(
+        Iterator<String> firstNameGenerator = generators.discreteGenerator( substitutionParameters.firstNames );
+        Iterator<Long> personIdGenerator = generators.discreteGenerator( substitutionParameters.personIds );
+        Iterator<Long> postCreationDateGenerator00_66 = generators.uniformNumberGenerator(
                 substitutionParameters.postCreationDates.get( 0 ), substitutionParameters.postCreationDates.get( 66 ) );
-        Generator<Long> postCreationDateGenerator33_66 = generators.uniformNumberGenerator(
+        Iterator<Long> postCreationDateGenerator33_66 = generators.uniformNumberGenerator(
                 substitutionParameters.postCreationDates.get( 33 ), substitutionParameters.postCreationDates.get( 66 ) );
-        Generator<Long> postCreationDateGenerator00_95 = generators.uniformNumberGenerator(
+        Iterator<Long> postCreationDateGenerator00_95 = generators.uniformNumberGenerator(
                 substitutionParameters.postCreationDates.get( 0 ), substitutionParameters.postCreationDates.get( 95 ) );
-        Generator<String[]> countryPairsGenerator = generators.discreteGenerator( substitutionParameters.countryPairs );
+        Iterator<String[]> countryPairsGenerator = generators.discreteGenerator( substitutionParameters.countryPairs );
         Long postCreationDateRangeDuration100 = substitutionParameters.postCreationDates.get( 100 )
                                                 - substitutionParameters.postCreationDates.get( 0 );
         Long postCreationDateRangeDuration002 = substitutionParameters.postCreationDates.get( 2 )
                                                 - substitutionParameters.postCreationDates.get( 0 );
         Long postCreationDateRangeDuration004 = substitutionParameters.postCreationDates.get( 4 )
                                                 - substitutionParameters.postCreationDates.get( 0 );
-        Generator<Long> postCreationDateRangeDuration02_04 = generators.uniformNumberGenerator(
+        Iterator<Long> postCreationDateRangeDuration02_04 = generators.uniformNumberGenerator(
                 postCreationDateRangeDuration002, postCreationDateRangeDuration004 );
-        Generator<String> tagUriGenerator = generators.discreteGenerator( substitutionParameters.tagUris );
+        Iterator<String> tagUriGenerator = generators.discreteGenerator( substitutionParameters.tagUris );
 
         /*
          * Query1
          *  - Select uniformly randomly from person first names
          */
         int query1Limit = 10;
-        operations.add( Tuple.tuple2( 1d, (Generator<Operation<?>>) new Query1Generator( firstNameGenerator,
-                query1Limit ) ) );
+        operations.add( Tuple.tuple2( 1d,
+                (Iterator<Operation<?>>) new Query1Generator( firstNameGenerator, query1Limit ) ) );
 
         /*
          * Query2
@@ -106,7 +106,7 @@ public class LdbcInteractiveWorkload extends Workload
          *  - Post Creation Date - select uniformly randomly a post creation date from between 33perc-66perc of entire date range
          */
         int query2Limit = 20;
-        operations.add( Tuple.tuple2( 1d, (Generator<Operation<?>>) new Query2Generator( personIdGenerator,
+        operations.add( Tuple.tuple2( 1d, (Iterator<Operation<?>>) new Query2Generator( personIdGenerator,
                 postCreationDateGenerator33_66, query2Limit ) ) );
 
         /*
@@ -117,7 +117,7 @@ public class LdbcInteractiveWorkload extends Workload
          *  - Country1 - the first of country pair (file: countryPairs.txt)
          *  - Country2 - the second of country pair (file: countryPairs.txt)
          */
-        operations.add( Tuple.tuple2( 1d, (Generator<Operation<?>>) new Query3Generator( personIdGenerator,
+        operations.add( Tuple.tuple2( 1d, (Iterator<Operation<?>>) new Query3Generator( personIdGenerator,
                 countryPairsGenerator, postCreationDateGenerator00_66, postCreationDateRangeDuration100 / 3 ) ) );
 
         /*
@@ -126,7 +126,7 @@ public class LdbcInteractiveWorkload extends Workload
          * - Post Creation Date - select uniformly randomly a post creation date from between 0perc-95perc of entire date range
          * - Duration - a uniformly randomly selected duration between 2% and 4% of the length of post creation date range        
          */
-        operations.add( Tuple.tuple2( 1d, (Generator<Operation<?>>) new Query4Generator( personIdGenerator,
+        operations.add( Tuple.tuple2( 1d, (Iterator<Operation<?>>) new Query4Generator( personIdGenerator,
                 postCreationDateGenerator00_95, postCreationDateRangeDuration02_04 ) ) );
 
         /*
@@ -135,7 +135,7 @@ public class LdbcInteractiveWorkload extends Workload
          * - Join Date - select uniformly randomly a post creation date from between 0perc-95perc of entire date range
          * TODO (remove from Confluence Sub Params page) - Duration - a uniformly randomly selected duration between 2% and 4% of the length of post creation date range
          */
-        operations.add( Tuple.tuple2( 1d, (Generator<Operation<?>>) new Query5Generator( personIdGenerator,
+        operations.add( Tuple.tuple2( 1d, (Iterator<Operation<?>>) new Query5Generator( personIdGenerator,
                 postCreationDateGenerator00_95 ) ) );
 
         /*
@@ -144,7 +144,7 @@ public class LdbcInteractiveWorkload extends Workload
          * - Tag - select uniformly randomly from tag uris
          */
         int query6Limit = 10;
-        operations.add( Tuple.tuple2( 1d, (Generator<Operation<?>>) new Query6Generator( personIdGenerator,
+        operations.add( Tuple.tuple2( 1d, (Iterator<Operation<?>>) new Query6Generator( personIdGenerator,
                 tagUriGenerator, query6Limit ) ) );
 
         /*
@@ -157,14 +157,14 @@ public class LdbcInteractiveWorkload extends Workload
         int query7Limit = 10;
         // TODO Sub Params Confluence doesn't describe date sub policy
         // TODO Sub Params Confluence doesn't describe duration sub policy
-        operations.add( Tuple.tuple2( 1d, (Generator<Operation<?>>) new Query7Generator( personIdGenerator,
+        operations.add( Tuple.tuple2( 1d, (Iterator<Operation<?>>) new Query7Generator( personIdGenerator,
                 postCreationDateGenerator00_95, postCreationDateRangeDuration02_04, query7Limit ) ) );
 
         /*
          * Create Discrete Generator from 
          */
 
-        Generator<Operation<?>> operationGenerator = generators.weightedDiscreteDereferencingGenerator( operations );
+        Iterator<Operation<?>> operationGenerator = generators.weightedDiscreteDereferencingGenerator( operations );
 
         /*
          * Filter Interesting Operations
@@ -190,23 +190,19 @@ public class LdbcInteractiveWorkload extends Workload
 
         Iterator<Operation<?>> filteredGenerator = Iterators.filter( operationGenerator, allowedOperationsFilter );
 
-        // Generator<Time> startTimeGenerator =
-        // GeneratorUtils.randomTimeGeneratorFromNow( generatorBuilder,
-        // Time.now(),
-        // Time.fromMilli( 100 ).asMilli(), Time.fromMilli( 1000 ).asMilli() );
-
-        Generator<Time> startTimeGenerator = GeneratorUtils.constantTimeGeneratorFromNow( generators, Time.now(),
+        // TODO configurable from parameters
+        Iterator<Time> startTimeGenerator = GeneratorUtils.constantIncrementStartTimeGenerator( generators, Time.now(),
                 Duration.fromMilli( 100 ) );
 
-        return new StartTimeOperationGeneratorWrapper( startTimeGenerator, filteredGenerator );
+        return new StartTimeAssigningOperationGenerator( startTimeGenerator, filteredGenerator );
     }
 
     class Query1Generator extends Generator<Operation<?>>
     {
-        private final Generator<String> firstNames;
+        private final Iterator<String> firstNames;
         private final int limit;
 
-        protected Query1Generator( Generator<String> firstNames, int limit )
+        protected Query1Generator( Iterator<String> firstNames, int limit )
         {
             this.firstNames = firstNames;
             this.limit = limit;
@@ -221,11 +217,11 @@ public class LdbcInteractiveWorkload extends Workload
 
     class Query2Generator extends Generator<Operation<?>>
     {
-        private final Generator<Long> personIds;
-        private final Generator<Long> postCreationDates;
+        private final Iterator<Long> personIds;
+        private final Iterator<Long> postCreationDates;
         private final int limit;
 
-        protected Query2Generator( Generator<Long> personIds, Generator<Long> postCreationDates, int limit )
+        protected Query2Generator( Iterator<Long> personIds, Iterator<Long> postCreationDates, int limit )
         {
             this.personIds = personIds;
             this.postCreationDates = postCreationDates;
@@ -241,13 +237,13 @@ public class LdbcInteractiveWorkload extends Workload
 
     class Query3Generator extends Generator<Operation<?>>
     {
-        private final Generator<Long> personIds;
-        private final Generator<String[]> countryPairs;
-        private final Generator<Long> startDates;
+        private final Iterator<Long> personIds;
+        private final Iterator<String[]> countryPairs;
+        private final Iterator<Long> startDates;
         private final long durationMillis;
 
-        protected Query3Generator( Generator<Long> personIds, Generator<String[]> countryPairs,
-                Generator<Long> startDates, long durationDays )
+        protected Query3Generator( Iterator<Long> personIds, Iterator<String[]> countryPairs,
+                Iterator<Long> startDates, long durationDays )
         {
             this.personIds = personIds;
             this.countryPairs = countryPairs;
@@ -265,12 +261,12 @@ public class LdbcInteractiveWorkload extends Workload
 
     class Query4Generator extends Generator<Operation<?>>
     {
-        private final Generator<Long> personIds;
-        private final Generator<Long> postCreationDates;
-        private final Generator<Long> durationMillis;
+        private final Iterator<Long> personIds;
+        private final Iterator<Long> postCreationDates;
+        private final Iterator<Long> durationMillis;
 
-        protected Query4Generator( Generator<Long> personIds, Generator<Long> postCreationDates,
-                Generator<Long> durationMillis )
+        protected Query4Generator( Iterator<Long> personIds, Iterator<Long> postCreationDates,
+                Iterator<Long> durationMillis )
         {
             this.personIds = personIds;
             this.postCreationDates = postCreationDates;
@@ -286,10 +282,10 @@ public class LdbcInteractiveWorkload extends Workload
 
     class Query5Generator extends Generator<Operation<?>>
     {
-        private final Generator<Long> personIdGenerator;
-        private final Generator<Long> joinDates;
+        private final Iterator<Long> personIdGenerator;
+        private final Iterator<Long> joinDates;
 
-        protected Query5Generator( Generator<Long> personIdGenerator, Generator<Long> joinDates )
+        protected Query5Generator( Iterator<Long> personIdGenerator, Iterator<Long> joinDates )
         {
             this.personIdGenerator = personIdGenerator;
             this.joinDates = joinDates;
@@ -304,11 +300,11 @@ public class LdbcInteractiveWorkload extends Workload
 
     class Query6Generator extends Generator<Operation<?>>
     {
-        private final Generator<Long> personIdGenerator;
-        private final Generator<String> tagUriGenerator;
+        private final Iterator<Long> personIdGenerator;
+        private final Iterator<String> tagUriGenerator;
         private final int limit;
 
-        protected Query6Generator( Generator<Long> personIdGenerator, Generator<String> tagUriGenerator, int limit )
+        protected Query6Generator( Iterator<Long> personIdGenerator, Iterator<String> tagUriGenerator, int limit )
         {
             this.personIdGenerator = personIdGenerator;
             this.tagUriGenerator = tagUriGenerator;
@@ -324,13 +320,13 @@ public class LdbcInteractiveWorkload extends Workload
 
     class Query7Generator extends Generator<Operation<?>>
     {
-        private final Generator<Long> personIdGenerator;
-        private final Generator<Long> endDateGenerator;
-        private final Generator<Long> durationMillisGenerator;
+        private final Iterator<Long> personIdGenerator;
+        private final Iterator<Long> endDateGenerator;
+        private final Iterator<Long> durationMillisGenerator;
         private final int limit;
 
-        protected Query7Generator( Generator<Long> personIdGenerator, Generator<Long> endDateGenerator,
-                Generator<Long> durationMillisGenerator, int limit )
+        protected Query7Generator( Iterator<Long> personIdGenerator, Iterator<Long> endDateGenerator,
+                Iterator<Long> durationMillisGenerator, int limit )
         {
             this.personIdGenerator = personIdGenerator;
             this.endDateGenerator = endDateGenerator;

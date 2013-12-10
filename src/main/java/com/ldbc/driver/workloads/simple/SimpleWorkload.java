@@ -1,6 +1,7 @@
 package com.ldbc.driver.workloads.simple;
 
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 
@@ -11,13 +12,14 @@ import com.ldbc.driver.data.ByteIterator;
 import com.ldbc.driver.generator.Generator;
 import com.ldbc.driver.generator.GeneratorException;
 import com.ldbc.driver.generator.GeneratorFactory;
-import com.ldbc.driver.generator.wrapper.MinMaxGeneratorWrapper;
-import com.ldbc.driver.generator.wrapper.PrefixGeneratorWrapper;
-import com.ldbc.driver.generator.wrapper.StartTimeOperationGeneratorWrapper;
+import com.ldbc.driver.generator.MinMaxGenerator;
+import com.ldbc.driver.generator.PrefixGenerator;
+import com.ldbc.driver.generator.StartTimeAssigningOperationGenerator;
 import com.ldbc.driver.util.GeneratorUtils;
 import com.ldbc.driver.util.Tuple;
 import com.ldbc.driver.util.Tuple.Tuple2;
 import com.ldbc.driver.util.Tuple.Tuple3;
+import com.ldbc.driver.util.temporal.Duration;
 import com.ldbc.driver.util.temporal.Time;
 
 public class SimpleWorkload extends Workload
@@ -43,7 +45,7 @@ public class SimpleWorkload extends Workload
     }
 
     @Override
-    public Generator<Operation<?>> createLoadOperations( GeneratorFactory generatorBuilder ) throws WorkloadException
+    public Iterator<Operation<?>> createLoadOperations( GeneratorFactory generators ) throws WorkloadException
     {
         /**
          * **************************
@@ -53,30 +55,30 @@ public class SimpleWorkload extends Workload
          * **************************
          */
         // Load Insert Keys
-        Generator<Long> loadInsertKeyGenerator = generatorBuilder.incrementingGenerator( 0l, 1l );
+        Iterator<Long> loadInsertKeyGenerator = generators.incrementingGenerator( 0l, 1l );
 
         // Insert Fields: Names & Values
-        Generator<Integer> fieldValuelengthGenerator = generatorBuilder.uniformNumberGenerator( 1, 100 );
-        Generator<ByteIterator> randomFieldValueGenerator = generatorBuilder.randomByteIteratorGenerator( fieldValuelengthGenerator );
-        Set<Tuple3<Double, String, Generator<ByteIterator>>> valuedFields = new HashSet<Tuple3<Double, String, Generator<ByteIterator>>>();
+        Iterator<Integer> fieldValuelengthGenerator = generators.uniformNumberGenerator( 1, 100 );
+        Iterator<ByteIterator> randomFieldValueGenerator = generators.randomByteIteratorGenerator( fieldValuelengthGenerator );
+        Set<Tuple3<Double, String, Iterator<ByteIterator>>> valuedFields = new HashSet<Tuple3<Double, String, Iterator<ByteIterator>>>();
         for ( int i = 0; i < NUMBER_OF_FIELDS_IN_RECORD; i++ )
         {
             valuedFields.add( Tuple.tuple3( 1d, FIELD_NAME_PREFIX + i, randomFieldValueGenerator ) );
         }
-        Generator<Map<String, ByteIterator>> insertValuedFieldGenerator = generatorBuilder.weightedDiscreteMapGenerator(
+        Iterator<Map<String, ByteIterator>> insertValuedFieldGenerator = generators.weightedDiscreteMapGenerator(
                 valuedFields, NUMBER_OF_FIELDS_IN_RECORD );
 
-        Generator<Operation<?>> insertOperationGenerator = new InsertOperationGenerator( TABLE,
-                new PrefixGeneratorWrapper( loadInsertKeyGenerator, KEY_NAME_PREFIX ), insertValuedFieldGenerator );
+        Iterator<Operation<?>> insertOperationGenerator = new InsertOperationGenerator( TABLE, new PrefixGenerator(
+                loadInsertKeyGenerator, KEY_NAME_PREFIX ), insertValuedFieldGenerator );
 
-        Generator<Time> startTimeGenerator = GeneratorUtils.randomTimeGeneratorFromNow( generatorBuilder );
+        Iterator<Time> startTimeGenerator = GeneratorUtils.randomIncrementStartTimeGenerator( generators, Time.now(),
+                Duration.fromMilli( 100 ), Duration.fromMilli( 1000 ) );
 
-        return new StartTimeOperationGeneratorWrapper( startTimeGenerator, insertOperationGenerator );
+        return new StartTimeAssigningOperationGenerator( startTimeGenerator, insertOperationGenerator );
     }
 
     @Override
-    public Generator<Operation<?>> createTransactionalOperations( GeneratorFactory generators )
-            throws WorkloadException
+    public Iterator<Operation<?>> createTransactionalOperations( GeneratorFactory generators ) throws WorkloadException
     {
         /**
          * **************************
@@ -86,23 +88,22 @@ public class SimpleWorkload extends Workload
          * **************************
          */
         // Transaction Insert Keys
-        MinMaxGeneratorWrapper<Long> transactionInsertKeyGenerator = generators.minMaxGeneratorWrapper(
+        MinMaxGenerator<Long> transactionInsertKeyGenerator = generators.minMaxGenerator(
                 generators.incrementingGenerator( getRecordCount(), 1l ), getRecordCount(), getRecordCount() );
 
         // Insert Fields: Names & Values
-        Generator<Integer> fieldValuelengthGenerator = generators.uniformNumberGenerator( 1, 100 );
-        Generator<ByteIterator> randomFieldValueGenerator = generators.randomByteIteratorGenerator( fieldValuelengthGenerator );
-        Set<Tuple3<Double, String, Generator<ByteIterator>>> valuedFields = new HashSet<Tuple3<Double, String, Generator<ByteIterator>>>();
+        Iterator<Integer> fieldValuelengthGenerator = generators.uniformNumberGenerator( 1, 100 );
+        Iterator<ByteIterator> randomFieldValueGenerator = generators.randomByteIteratorGenerator( fieldValuelengthGenerator );
+        Set<Tuple3<Double, String, Iterator<ByteIterator>>> valuedFields = new HashSet<Tuple3<Double, String, Iterator<ByteIterator>>>();
         for ( int i = 0; i < NUMBER_OF_FIELDS_IN_RECORD; i++ )
         {
             valuedFields.add( Tuple.tuple3( 1d, FIELD_NAME_PREFIX + i, randomFieldValueGenerator ) );
         }
-        Generator<Map<String, ByteIterator>> insertValuedFieldGenerator = generators.weightedDiscreteMapGenerator(
+        Iterator<Map<String, ByteIterator>> insertValuedFieldGenerator = generators.weightedDiscreteMapGenerator(
                 valuedFields, NUMBER_OF_FIELDS_IN_RECORD );
 
-        InsertOperationGenerator insertOperationGenerator = new InsertOperationGenerator( TABLE,
-                new PrefixGeneratorWrapper( transactionInsertKeyGenerator, KEY_NAME_PREFIX ),
-                insertValuedFieldGenerator );
+        InsertOperationGenerator insertOperationGenerator = new InsertOperationGenerator( TABLE, new PrefixGenerator(
+                transactionInsertKeyGenerator, KEY_NAME_PREFIX ), insertValuedFieldGenerator );
 
         /**
          * **************************
@@ -112,7 +113,7 @@ public class SimpleWorkload extends Workload
          * **************************
          */
         // Read/Update Keys
-        Generator<String> requestKeyGenerator = generators.prefixGeneratorWrapper(
+        Iterator<String> requestKeyGenerator = generators.prefix(
                 generators.dynamicRangeUniformNumberGenerator( transactionInsertKeyGenerator ), KEY_NAME_PREFIX );
 
         // Read Fields: Names
@@ -122,7 +123,7 @@ public class SimpleWorkload extends Workload
             fields.add( Tuple.tuple2( 1d, FIELD_NAME_PREFIX + i ) );
         }
 
-        Generator<Set<String>> readFieldsGenerator = generators.weightedDiscreteSetGenerator( fields,
+        Iterator<Set<String>> readFieldsGenerator = generators.weightedDiscreteSetGenerator( fields,
                 NUMBER_OF_FIELDS_TO_READ );
 
         ReadOperationGenerator readOperationGenerator = new ReadOperationGenerator( TABLE, requestKeyGenerator,
@@ -136,7 +137,7 @@ public class SimpleWorkload extends Workload
          * **************************
          */
         // Update Fields: Names & Values
-        Generator<Map<String, ByteIterator>> updateValuedFieldsGenerator = generators.weightedDiscreteMapGenerator(
+        Iterator<Map<String, ByteIterator>> updateValuedFieldsGenerator = generators.weightedDiscreteMapGenerator(
                 valuedFields, NUMBER_OF_FIELDS_TO_UPDATE );
 
         UpdateOperationGenerator updateOperationGenerator = new UpdateOperationGenerator( TABLE, requestKeyGenerator,
@@ -150,11 +151,11 @@ public class SimpleWorkload extends Workload
          * **************************
          */
         // Scan Fields: Names & Values
-        Generator<Set<String>> scanFieldsGenerator = generators.weightedDiscreteSetGenerator( fields,
+        Iterator<Set<String>> scanFieldsGenerator = generators.weightedDiscreteSetGenerator( fields,
                 NUMBER_OF_FIELDS_TO_READ );
 
         // Scan Length: Number of Records
-        Generator<Integer> scanLengthGenerator = generators.uniformNumberGenerator( MIN_SCAN_LENGTH, MAX_SCAN_LENGTH );
+        Iterator<Integer> scanLengthGenerator = generators.uniformNumberGenerator( MIN_SCAN_LENGTH, MAX_SCAN_LENGTH );
 
         ScanOperationGenerator scanOperationGenerator = new ScanOperationGenerator( TABLE, requestKeyGenerator,
                 scanLengthGenerator, scanFieldsGenerator );
@@ -177,19 +178,20 @@ public class SimpleWorkload extends Workload
          * **************************
          */
         // proportion of transactions reads/update/insert/scan/read-modify-write
-        Set<Tuple2<Double, Generator<Operation<?>>>> operations = new HashSet<Tuple2<Double, Generator<Operation<?>>>>();
-        operations.add( Tuple.tuple2( READ_RATIO, (Generator<Operation<?>>) readOperationGenerator ) );
-        operations.add( Tuple.tuple2( UPDATE_RATIO, (Generator<Operation<?>>) updateOperationGenerator ) );
-        operations.add( Tuple.tuple2( INSERT_RATIO, (Generator<Operation<?>>) insertOperationGenerator ) );
-        operations.add( Tuple.tuple2( SCAN_RATIO, (Generator<Operation<?>>) scanOperationGenerator ) );
+        Set<Tuple2<Double, Iterator<Operation<?>>>> operations = new HashSet<Tuple2<Double, Iterator<Operation<?>>>>();
+        operations.add( Tuple.tuple2( READ_RATIO, (Iterator<Operation<?>>) readOperationGenerator ) );
+        operations.add( Tuple.tuple2( UPDATE_RATIO, (Iterator<Operation<?>>) updateOperationGenerator ) );
+        operations.add( Tuple.tuple2( INSERT_RATIO, (Iterator<Operation<?>>) insertOperationGenerator ) );
+        operations.add( Tuple.tuple2( SCAN_RATIO, (Iterator<Operation<?>>) scanOperationGenerator ) );
         operations.add( Tuple.tuple2( READ_MODIFY_WRITE_RATIO,
-                (Generator<Operation<?>>) readModifyWriteOperationGenerator ) );
+                (Iterator<Operation<?>>) readModifyWriteOperationGenerator ) );
 
-        Generator<Operation<?>> transactionalOperationGenerator = generators.weightedDiscreteDereferencingGenerator( operations );
+        Iterator<Operation<?>> transactionalOperationGenerator = generators.weightedDiscreteDereferencingGenerator( operations );
 
-        Generator<Time> startTimeGenerator = GeneratorUtils.randomTimeGeneratorFromNow( generators );
+        Iterator<Time> startTimeGenerator = GeneratorUtils.constantIncrementStartTimeGenerator( generators, Time.now(),
+                Duration.fromMilli( 100 ) );
 
-        return new StartTimeOperationGeneratorWrapper( startTimeGenerator, transactionalOperationGenerator );
+        return new StartTimeAssigningOperationGenerator( startTimeGenerator, transactionalOperationGenerator );
     }
 
     @Override
@@ -201,11 +203,11 @@ public class SimpleWorkload extends Workload
 class InsertOperationGenerator extends Generator<Operation<?>>
 {
     private final String table;
-    private final Generator<String> keyGenerator;
-    private final Generator<Map<String, ByteIterator>> valuedFieldsGenerator;
+    private final Iterator<String> keyGenerator;
+    private final Iterator<Map<String, ByteIterator>> valuedFieldsGenerator;
 
-    protected InsertOperationGenerator( String table, Generator<String> keyGenerator,
-            Generator<Map<String, ByteIterator>> valuedFieldsGenerator )
+    protected InsertOperationGenerator( String table, Iterator<String> keyGenerator,
+            Iterator<Map<String, ByteIterator>> valuedFieldsGenerator )
     {
         this.table = table;
         this.keyGenerator = keyGenerator;
@@ -222,11 +224,10 @@ class InsertOperationGenerator extends Generator<Operation<?>>
 class ReadOperationGenerator extends Generator<Operation<?>>
 {
     private final String table;
-    private final Generator<String> keyGenerator;
-    private final Generator<Set<String>> fieldsGenerator;
+    private final Iterator<String> keyGenerator;
+    private final Iterator<Set<String>> fieldsGenerator;
 
-    protected ReadOperationGenerator( String table, Generator<String> keyGenerator,
-            Generator<Set<String>> fieldsGenerator )
+    protected ReadOperationGenerator( String table, Iterator<String> keyGenerator, Iterator<Set<String>> fieldsGenerator )
     {
         this.table = table;
         this.keyGenerator = keyGenerator;
@@ -243,11 +244,11 @@ class ReadOperationGenerator extends Generator<Operation<?>>
 class UpdateOperationGenerator extends Generator<Operation<?>>
 {
     private final String table;
-    private final Generator<String> keyGenerator;
-    private final Generator<Map<String, ByteIterator>> valuedFieldsGenerator;
+    private final Iterator<String> keyGenerator;
+    private final Iterator<Map<String, ByteIterator>> valuedFieldsGenerator;
 
-    protected UpdateOperationGenerator( String table, Generator<String> keyGenerator,
-            Generator<Map<String, ByteIterator>> valuedFieldsGenerator )
+    protected UpdateOperationGenerator( String table, Iterator<String> keyGenerator,
+            Iterator<Map<String, ByteIterator>> valuedFieldsGenerator )
     {
         this.table = table;
         this.keyGenerator = keyGenerator;
@@ -264,12 +265,12 @@ class UpdateOperationGenerator extends Generator<Operation<?>>
 class ScanOperationGenerator extends Generator<Operation<?>>
 {
     private final String table;
-    private final Generator<String> startKeyGenerator;
-    private final Generator<Integer> recordCountGenerator;
-    private final Generator<Set<String>> fieldsGenerator;
+    private final Iterator<String> startKeyGenerator;
+    private final Iterator<Integer> recordCountGenerator;
+    private final Iterator<Set<String>> fieldsGenerator;
 
-    protected ScanOperationGenerator( String table, Generator<String> startKeyGenerator,
-            Generator<Integer> recordCountGenerator, Generator<Set<String>> fieldsGenerator )
+    protected ScanOperationGenerator( String table, Iterator<String> startKeyGenerator,
+            Iterator<Integer> recordCountGenerator, Iterator<Set<String>> fieldsGenerator )
     {
         this.table = table;
         this.startKeyGenerator = startKeyGenerator;
@@ -287,12 +288,12 @@ class ScanOperationGenerator extends Generator<Operation<?>>
 class ReadModifyWriteOperationGenerator extends Generator<Operation<?>>
 {
     private final String table;
-    private final Generator<String> keyGenerator;
-    private final Generator<Set<String>> fieldsGenerator;
-    private final Generator<Map<String, ByteIterator>> valuedFieldsGenerator;
+    private final Iterator<String> keyGenerator;
+    private final Iterator<Set<String>> fieldsGenerator;
+    private final Iterator<Map<String, ByteIterator>> valuedFieldsGenerator;
 
-    protected ReadModifyWriteOperationGenerator( String table, Generator<String> keyGenerator,
-            Generator<Set<String>> fieldsGenerator, Generator<Map<String, ByteIterator>> valuedFieldsGenerator )
+    protected ReadModifyWriteOperationGenerator( String table, Iterator<String> keyGenerator,
+            Iterator<Set<String>> fieldsGenerator, Iterator<Map<String, ByteIterator>> valuedFieldsGenerator )
     {
         this.table = table;
         this.keyGenerator = keyGenerator;

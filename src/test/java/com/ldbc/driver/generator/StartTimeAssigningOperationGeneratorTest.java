@@ -1,10 +1,14 @@
-package com.ldbc.driver.generator.wrapper;
+package com.ldbc.driver.generator;
+
+import java.util.Iterator;
 
 import com.ldbc.driver.Operation;
+import com.ldbc.driver.data.LimitGenerator;
 import com.ldbc.driver.generator.Generator;
 import com.ldbc.driver.generator.GeneratorFactory;
 import com.ldbc.driver.generator.GeneratorException;
 import com.ldbc.driver.generator.MappingGenerator;
+import com.ldbc.driver.generator.StartTimeAssigningOperationGenerator;
 import com.ldbc.driver.util.Function1;
 import com.ldbc.driver.util.RandomDataGeneratorFactory;
 import com.ldbc.driver.util.temporal.Duration;
@@ -16,7 +20,7 @@ import static org.junit.Assert.*;
 import static org.hamcrest.CoreMatchers.*;
 import static org.junit.matchers.JUnitMatchers.*;
 
-public class StartTimeOperationGeneratorWrapperTest
+public class StartTimeAssigningOperationGeneratorTest
 {
     @Test
     public void shouldAssignStartTimesToOperations()
@@ -27,8 +31,8 @@ public class StartTimeOperationGeneratorWrapperTest
         int testIterations = 10;
 
         // When
-        Generator<Operation<?>> operationGenerator = new CappedGeneratorWrapper<Operation<?>>(
-                new OperationGenerator(), testIterations );
+        Iterator<Operation<?>> operationGenerator = new LimitGenerator<Operation<?>>( new OperationGenerator(),
+                testIterations );
 
         Function1<Long, Time> timeFromLongFun = new Function1<Long, Time>()
         {
@@ -39,11 +43,10 @@ public class StartTimeOperationGeneratorWrapperTest
             }
         };
 
-        Generator<Long> countGenerator = new GeneratorFactory( new RandomDataGeneratorFactory() ).incrementingGenerator(
+        Iterator<Long> countGenerator = new GeneratorFactory( new RandomDataGeneratorFactory() ).incrementingGenerator(
                 firstNanoTime, incrementNanoTimeBy );
-        Generator<Time> counterStartTimeGenerator = new MappingGenerator<Long, Time>( countGenerator,
-                timeFromLongFun );
-        Generator<Operation<?>> startTimeOperationGenerator = new StartTimeOperationGeneratorWrapper(
+        Iterator<Time> counterStartTimeGenerator = new MappingGenerator<Long, Time>( countGenerator, timeFromLongFun );
+        Iterator<Operation<?>> startTimeOperationGenerator = new StartTimeAssigningOperationGenerator(
                 counterStartTimeGenerator, operationGenerator );
 
         // Then
@@ -52,8 +55,7 @@ public class StartTimeOperationGeneratorWrapperTest
         while ( startTimeOperationGenerator.hasNext() )
         {
             Operation<?> operation = startTimeOperationGenerator.next();
-            assertThat( operation.scheduledStartTime(),
-                    is( lastTime.plus( Duration.fromNano( incrementNanoTimeBy ) ) ) );
+            assertThat( operation.scheduledStartTime(), is( lastTime.plus( Duration.fromNano( incrementNanoTimeBy ) ) ) );
             lastTime = operation.scheduledStartTime();
             count++;
         }

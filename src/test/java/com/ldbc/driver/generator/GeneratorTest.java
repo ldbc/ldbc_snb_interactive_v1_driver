@@ -1,12 +1,12 @@
 package com.ldbc.driver.generator;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
 import org.junit.Before;
 import org.junit.Test;
 
-import com.ldbc.driver.generator.Generator;
 import com.ldbc.driver.util.Histogram;
 import com.ldbc.driver.util.NumberHelper;
 import com.ldbc.driver.util.RandomDataGeneratorFactory;
@@ -23,7 +23,7 @@ public abstract class GeneratorTest<GENERATE_TYPE, COUNT extends Number>
 
     public abstract double getDistributionTolerance();
 
-    public abstract Generator<GENERATE_TYPE> getGeneratorImpl();
+    public abstract Iterator<GENERATE_TYPE> getGeneratorImpl();
 
     protected final int getSampleSize()
     {
@@ -45,7 +45,7 @@ public abstract class GeneratorTest<GENERATE_TYPE, COUNT extends Number>
     public final void distributionTest()
     {
         // Given
-        Generator<GENERATE_TYPE> generator = getGeneratorImpl();
+        Iterator<GENERATE_TYPE> generator = getGeneratorImpl();
         Histogram<GENERATE_TYPE, COUNT> expectedDistribution = getExpectedDistribution();
 
         // When
@@ -67,7 +67,7 @@ public abstract class GeneratorTest<GENERATE_TYPE, COUNT extends Number>
                 expectedDistributionAsPercentage, getDistributionTolerance() ) );
     }
 
-    public final List<GENERATE_TYPE> generateSequence( Generator<GENERATE_TYPE> generator, Integer size )
+    public final List<GENERATE_TYPE> generateSequence( Iterator<GENERATE_TYPE> generator, Integer size )
     {
         List<GENERATE_TYPE> generatedNumberSequence = new ArrayList<GENERATE_TYPE>();
         for ( int i = 0; i < size; i++ )

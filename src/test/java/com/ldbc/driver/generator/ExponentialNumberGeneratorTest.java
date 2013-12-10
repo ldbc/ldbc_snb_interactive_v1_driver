@@ -1,7 +1,8 @@
 package com.ldbc.driver.generator;
 
+import java.util.Iterator;
+
 import com.google.common.collect.Range;
-import com.ldbc.driver.generator.Generator;
 import com.ldbc.driver.util.Histogram;
 import com.ldbc.driver.util.Bucket.NumberRangeBucket;
 
@@ -24,7 +25,7 @@ public class ExponentialNumberGeneratorTest extends NumberGeneratorTest<Double, 
     }
 
     @Override
-    public Generator<Double> getGeneratorImpl()
+    public Iterator<Double> getGeneratorImpl()
     {
         return getGeneratorFactory().exponentialGenerator( mean );
     }
