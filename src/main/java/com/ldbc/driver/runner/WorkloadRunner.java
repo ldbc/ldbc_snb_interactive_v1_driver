@@ -8,7 +8,7 @@ import com.ldbc.driver.Db;
 import com.ldbc.driver.Operation;
 import com.ldbc.driver.OperationHandler;
 import com.ldbc.driver.WorkloadException;
-import com.ldbc.driver.measurements.WorkloadMetricsManager;
+import com.ldbc.driver.metrics.WorkloadMetricsManager;
 import com.ldbc.driver.util.temporal.Duration;
 import com.ldbc.driver.util.temporal.Time;
 

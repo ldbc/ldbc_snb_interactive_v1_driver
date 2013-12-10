@@ -1,10 +1,9 @@
-package com.ldbc.driver.measurements.metric;
+package com.ldbc.driver.metrics;
 
 import org.HdrHistogram.Histogram;
 import org.apache.log4j.Logger;
 import org.codehaus.jackson.annotate.JsonProperty;
 
-import com.ldbc.driver.measurements.MetricException;
 
 public class ContinuousMetric
 {

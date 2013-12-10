@@ -5,8 +5,8 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import org.apache.log4j.Logger;
 
 import com.ldbc.driver.OperationResult;
-import com.ldbc.driver.measurements.MetricException;
-import com.ldbc.driver.measurements.WorkloadMetricsManager;
+import com.ldbc.driver.metrics.MetricException;
+import com.ldbc.driver.metrics.WorkloadMetricsManager;
 
 class MetricsLoggingThread extends Thread
 {

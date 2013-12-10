@@ -1,4 +1,4 @@
-package com.ldbc.driver.measurements.metric;
+package com.ldbc.driver.metrics;
 
 import java.util.Comparator;
 import java.util.concurrent.TimeUnit;
@@ -6,7 +6,6 @@ import java.util.concurrent.TimeUnit;
 import org.codehaus.jackson.annotate.JsonProperty;
 
 import com.ldbc.driver.OperationResult;
-import com.ldbc.driver.measurements.MetricException;
 import com.ldbc.driver.util.temporal.Duration;
 
 public class OperationMetrics

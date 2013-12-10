@@ -5,9 +5,9 @@ import java.util.Iterator;
 import org.apache.log4j.Logger;
 
 import com.ldbc.driver.generator.GeneratorFactory;
-import com.ldbc.driver.measurements.WorkloadMetricsManager;
-import com.ldbc.driver.measurements.formatters.JsonOperationMetricsFormatter;
-import com.ldbc.driver.measurements.formatters.SimpleOperationMetricsFormatter;
+import com.ldbc.driver.metrics.WorkloadMetricsManager;
+import com.ldbc.driver.metrics.formatters.JsonOperationMetricsFormatter;
+import com.ldbc.driver.metrics.formatters.SimpleOperationMetricsFormatter;
 import com.ldbc.driver.runner.WorkloadRunner;
 import com.ldbc.driver.util.ClassLoaderHelper;
 import com.ldbc.driver.util.RandomDataGeneratorFactory;

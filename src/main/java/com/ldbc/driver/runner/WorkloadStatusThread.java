@@ -2,7 +2,7 @@ package com.ldbc.driver.runner;
 
 import org.apache.log4j.Logger;
 
-import com.ldbc.driver.measurements.WorkloadMetricsManager;
+import com.ldbc.driver.metrics.WorkloadMetricsManager;
 import com.ldbc.driver.util.temporal.Duration;
 
 class WorkloadStatusThread extends Thread

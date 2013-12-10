@@ -1,4 +1,4 @@
-package com.ldbc.driver.measurements;
+package com.ldbc.driver.metrics;
 
 import java.io.OutputStream;
 import java.nio.charset.Charset;
@@ -14,9 +14,8 @@ import org.apache.log4j.Logger;
 import com.google.common.collect.Lists;
 import com.ldbc.driver.OperationResult;
 import com.ldbc.driver.WorkloadException;
-import com.ldbc.driver.measurements.formatters.OperationMetricsFormatter;
-import com.ldbc.driver.measurements.metric.OperationMetrics;
-import com.ldbc.driver.measurements.metric.OperationMetrics.OperationMetricsNameComparator;
+import com.ldbc.driver.metrics.OperationMetrics.OperationMetricsNameComparator;
+import com.ldbc.driver.metrics.formatters.OperationMetricsFormatter;
 import com.ldbc.driver.util.temporal.Duration;
 import com.ldbc.driver.util.temporal.Time;
 

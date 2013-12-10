@@ -1,12 +1,12 @@
-package com.ldbc.driver.measurements.formatters;
+package com.ldbc.driver.metrics.formatters;
 
 import java.util.Collections;
 import java.util.List;
 import java.util.Map.Entry;
 
 import com.google.common.collect.Lists;
-import com.ldbc.driver.measurements.metric.OperationMetrics;
-import com.ldbc.driver.measurements.metric.OperationMetrics.OperationMetricsNameComparator;
+import com.ldbc.driver.metrics.OperationMetrics;
+import com.ldbc.driver.metrics.OperationMetrics.OperationMetricsNameComparator;
 
 public class SimpleOperationMetricsFormatter implements OperationMetricsFormatter
 {

@@ -1,4 +1,4 @@
-package com.ldbc.driver.measurements;
+package com.ldbc.driver.metrics;
 
 public class MetricException extends RuntimeException
 {

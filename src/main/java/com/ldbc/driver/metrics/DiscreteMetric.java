@@ -1,4 +1,4 @@
-package com.ldbc.driver.measurements.metric;
+package com.ldbc.driver.metrics;
 
 import java.util.HashMap;
 import java.util.Map;
