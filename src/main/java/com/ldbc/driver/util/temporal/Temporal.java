@@ -17,31 +17,31 @@ public class Temporal implements MultipleTimeUnitProvider<Temporal>
     }
 
     @Override
-    public long asNano()
+    public Long asNano()
     {
         return nanoValue;
     }
 
     @Override
-    public long asMicro()
+    public Long asMicro()
     {
         return convert( nanoValue, TimeUnit.NANOSECONDS, TimeUnit.MICROSECONDS );
     }
 
     @Override
-    public long asMilli()
+    public Long asMilli()
     {
         return convert( nanoValue, TimeUnit.NANOSECONDS, TimeUnit.MILLISECONDS );
     }
 
     @Override
-    public long asSeconds() throws TemporalException
+    public Long asSeconds() throws TemporalException
     {
         return convert( nanoValue, TimeUnit.NANOSECONDS, TimeUnit.SECONDS );
     }
 
     @Override
-    public long as( TimeUnit timeUnit )
+    public Long as( TimeUnit timeUnit )
     {
         return convert( nanoValue, TimeUnit.NANOSECONDS, timeUnit );
     }

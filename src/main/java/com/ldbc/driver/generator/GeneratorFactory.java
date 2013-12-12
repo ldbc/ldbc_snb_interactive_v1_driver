@@ -10,7 +10,6 @@ import java.util.Set;
 import org.apache.commons.math3.random.RandomDataGenerator;
 
 import com.ldbc.driver.data.ByteIterator;
-import com.ldbc.driver.data.LimitGenerator;
 import com.ldbc.driver.util.Function1;
 import com.ldbc.driver.util.RandomDataGeneratorFactory;
 import com.ldbc.driver.util.Tuple;

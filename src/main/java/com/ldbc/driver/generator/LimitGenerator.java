@@ -1,9 +1,7 @@
-package com.ldbc.driver.data;
+package com.ldbc.driver.generator;
 
 import java.util.Iterator;
 
-import com.ldbc.driver.generator.Generator;
-import com.ldbc.driver.generator.GeneratorException;
 
 public class LimitGenerator<GENERATE_TYPE> extends Generator<GENERATE_TYPE>
 {

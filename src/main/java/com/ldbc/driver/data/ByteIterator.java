@@ -1,27 +1,14 @@
-/**                                                                                                                                                                                
- * Copyright (c) 2010 Yahoo! Inc. All rights reserved.                                                                                                                             
- *                                                                                                                                                                                 
- * Licensed under the Apache License, Version 2.0 (the "License"); you                                                                                                             
- * may not use this file except in compliance with the License. You                                                                                                                
- * may obtain a copy of the License at                                                                                                                                             
- *                                                                                                                                                                                 
- * http://www.apache.org/licenses/LICENSE-2.0                                                                                                                                      
- *                                                                                                                                                                                 
- * Unless required by applicable law or agreed to in writing, software                                                                                                             
- * distributed under the License is distributed on an "AS IS" BASIS,                                                                                                               
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or                                                                                                                 
- * implied. See the License for the specific language governing                                                                                                                    
- * permissions and limitations under the License. See accompanying                                                                                                                 
- * LICENSE file.                                                                                                                                                                   
- */
 package com.ldbc.driver.data;
+
+import com.ldbc.driver.WorkloadException;
+import com.ldbc.driver.generator.GeneratorException;
 
 /**
  * YCSB-specific buffer class. ByteIterators are designed to support efficient
  * field generation, and to allow backend drivers that can stream fields
  * (instead of materializing them in RAM) to do so.
  * <p>
- * YCSB originially used String objects to represent field values. This led to
+ * YCSB originaFlly used String objects to represent field values. This led to
  * two performance issues.
  * </p>
  * <p>
@@ -45,25 +32,23 @@ public abstract class ByteIterator
 {
     public abstract boolean hasNext();
 
-    public abstract int bytesLeft();
+    public abstract long bytesRemaining();
 
     public abstract byte nextByte();
 
-    /** @return byte offset immediately after the last valid byte */
-    public int nextBuf( byte[] buf, int buf_off )
+    // return byte offset immediately after the last valid byte
+    public int nextBuffer( byte[] buffer, int bufferOffset )
     {
-        int sz = buf_off;
-        while ( sz < buf.length && hasNext() )
+        int bufferIndex = bufferOffset;
+        while ( bufferIndex < buffer.length && hasNext() )
         {
-            buf[sz] = nextByte();
-            sz++;
+            buffer[bufferIndex] = nextByte();
+            bufferIndex++;
         }
-        return sz;
+        return bufferIndex;
     }
 
-    /**
-     * Consumes remaining contents of this object, and returns them as a string.
-     */
+    // Consumes remaining contents of this object and returns them as string
     public String toString()
     {
         StringBuilder sb = new StringBuilder();
@@ -74,23 +59,27 @@ public abstract class ByteIterator
         return sb.toString();
     }
 
-    /**
-     * Consumes remaining contents of this object, and returns them as a byte
-     * array.
-     */
+    // Consumes remaining contents of this object and returns them as byte array
     public byte[] toArray()
     {
-        int left = bytesLeft();
-        if ( left != (int) left )
+        try
         {
-            throw new ArrayIndexOutOfBoundsException( "Too much data to fit in one array!" );
+            long remaining = (int) bytesRemaining();
+            if ( remaining >= Integer.MAX_VALUE )
+            {
+                throw new WorkloadException( "Bytes remaining exceed maximum possible array length" );
+            }
+            byte[] remainingBytes = new byte[(int) remaining];
+            int offset = 0;
+            while ( offset < remainingBytes.length )
+            {
+                offset = nextBuffer( remainingBytes, offset );
+            }
+            return remainingBytes;
         }
-        byte[] ret = new byte[(int) left];
-        int off = 0;
-        while ( off < ret.length )
+        catch ( Exception e )
         {
-            off = nextBuf( ret, off );
+            throw new GeneratorException( "Error encountered while copying remaining bytes to array", e.getCause() );
         }
-        return ret;
     }
 }

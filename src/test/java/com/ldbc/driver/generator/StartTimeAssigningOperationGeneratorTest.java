@@ -3,7 +3,6 @@ package com.ldbc.driver.generator;
 import java.util.Iterator;
 
 import com.ldbc.driver.Operation;
-import com.ldbc.driver.data.LimitGenerator;
 import com.ldbc.driver.generator.Generator;
 import com.ldbc.driver.generator.GeneratorFactory;
 import com.ldbc.driver.generator.GeneratorException;

@@ -9,8 +9,8 @@ import org.junit.Test;
 
 import com.google.common.base.Predicate;
 import com.google.common.collect.Iterators;
-import com.ldbc.driver.data.LimitGenerator;
 import com.ldbc.driver.generator.GeneratorFactory;
+import com.ldbc.driver.generator.LimitGenerator;
 import com.ldbc.driver.util.GeneratorUtils;
 import com.ldbc.driver.util.RandomDataGeneratorFactory;
 

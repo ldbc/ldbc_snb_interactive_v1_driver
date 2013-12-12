@@ -90,31 +90,31 @@ public class Time implements Comparable<Time>, MultipleTimeUnitProvider<Time>
     }
 
     @Override
-    public long asNano()
+    public Long asNano()
     {
         return time.asNano();
     }
 
     @Override
-    public long asMicro()
+    public Long asMicro()
     {
         return time.asMicro();
     }
 
     @Override
-    public long asMilli()
+    public Long asMilli()
     {
         return time.asMilli();
     }
 
     @Override
-    public long asSeconds()
+    public Long asSeconds()
     {
         return time.asSeconds();
     }
 
     @Override
-    public long as( TimeUnit timeUnit )
+    public Long as( TimeUnit timeUnit )
     {
         return time.as( timeUnit );
     }

@@ -1,66 +1,50 @@
-/**                                                                                                                                                                                
- * Copyright (c) 2010 Yahoo! Inc. All rights reserved.                                                                                                                             
- *                                                                                                                                                                                 
- * Licensed under the Apache License, Version 2.0 (the "License"); you                                                                                                             
- * may not use this file except in compliance with the License. You                                                                                                                
- * may obtain a copy of the License at                                                                                                                                             
- *                                                                                                                                                                                 
- * http://www.apache.org/licenses/LICENSE-2.0                                                                                                                                      
- *                                                                                                                                                                                 
- * Unless required by applicable law or agreed to in writing, software                                                                                                             
- * distributed under the License is distributed on an "AS IS" BASIS,                                                                                                               
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or                                                                                                                 
- * implied. See the License for the specific language governing                                                                                                                    
- * permissions and limitations under the License. See accompanying                                                                                                                 
- * LICENSE file.                                                                                                                                                                   
- */
 package com.ldbc.driver.data;
 
 import java.io.InputStream;
 
 public class InputStreamByteIterator extends ByteIterator
 {
-    int len;
-    InputStream ins;
-    int off;
+    final long length;
+    final InputStream inputStream;
+    long offset;
 
-    public InputStreamByteIterator( InputStream ins, int len )
+    public InputStreamByteIterator( InputStream inputStream, long length )
     {
-        this.len = len;
-        this.ins = ins;
-        off = 0;
+        this.length = length;
+        this.inputStream = inputStream;
+        offset = 0;
     }
 
     @Override
     public boolean hasNext()
     {
-        return off < len;
+        return offset < length;
     }
 
     @Override
     public byte nextByte()
     {
-        int ret;
+        int nextByte;
         try
         {
-            ret = ins.read();
+            nextByte = inputStream.read();
         }
         catch ( Exception e )
         {
             throw new IllegalStateException( e );
         }
-        if ( ret == -1 )
+        if ( nextByte == -1 )
         {
             throw new IllegalStateException( "Past EOF!" );
         }
-        off++;
-        return (byte) ret;
+        offset++;
+        return (byte) nextByte;
     }
 
     @Override
-    public int bytesLeft()
+    public long bytesRemaining()
     {
-        return len - off;
+        return length - offset;
     }
 
 }

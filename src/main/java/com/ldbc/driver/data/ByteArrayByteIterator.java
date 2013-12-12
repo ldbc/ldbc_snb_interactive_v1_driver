@@ -1,59 +1,45 @@
-/**                                                                                                                                                                                
- * Copyright (c) 2010 Yahoo! Inc. All rights reserved.                                                                                                                             
- *                                                                                                                                                                                 
- * Licensed under the Apache License, Version 2.0 (the "License"); you                                                                                                             
- * may not use this file except in compliance with the License. You                                                                                                                
- * may obtain a copy of the License at                                                                                                                                             
- *                                                                                                                                                                                 
- * http://www.apache.org/licenses/LICENSE-2.0                                                                                                                                      
- *                                                                                                                                                                                 
- * Unless required by applicable law or agreed to in writing, software                                                                                                             
- * distributed under the License is distributed on an "AS IS" BASIS,                                                                                                               
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or                                                                                                                 
- * implied. See the License for the specific language governing                                                                                                                    
- * permissions and limitations under the License. See accompanying                                                                                                                 
- * LICENSE file.                                                                                                                                                                   
- */
 package com.ldbc.driver.data;
+
+import com.ldbc.driver.generator.GeneratorException;
 
 public class ByteArrayByteIterator extends ByteIterator
 {
-    byte[] str;
-    int off;
-    final int len;
+    final int maxByteIndex;
+    final byte[] bytes;
+    int offset;
 
-    public ByteArrayByteIterator( byte[] s )
+    public ByteArrayByteIterator( byte[] bytes )
     {
-        this.str = s;
-        this.off = 0;
-        this.len = s.length;
+        this( bytes, 0, bytes.length );
     }
 
-    public ByteArrayByteIterator( byte[] s, int off, int len )
+    public ByteArrayByteIterator( byte[] bytes, int offset, int length )
     {
-        this.str = s;
-        this.off = off;
-        this.len = off + len;
+        this.bytes = bytes;
+        this.offset = offset;
+        this.maxByteIndex = offset + length;
+        if ( maxByteIndex >= bytes.length )
+        {
+            throw new GeneratorException( "offset + length exceeds bytes.length" );
+        }
     }
 
     @Override
     public boolean hasNext()
     {
-        return off < len;
+        return offset < maxByteIndex;
     }
 
     @Override
     public byte nextByte()
     {
-        byte ret = str[off];
-        off++;
-        return ret;
+        return bytes[offset++];
     }
 
     @Override
-    public int bytesLeft()
+    public long bytesRemaining()
     {
-        return len - off;
+        return maxByteIndex - offset;
     }
 
 }

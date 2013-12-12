@@ -1,26 +1,8 @@
-/**
- * Copyright (c) 2010 Yahoo! Inc. All rights reserved.
- *
- * Licensed under the Apache License, Version 2.0 (the "License"); you
- * may not use this file except in compliance with the License. You
- * may obtain a copy of the License at
- *                                                              
- * http://www.apache.org/licenses/LICENSE-2.0
- *                                                            
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or
- * implied. See the License for the specific language governing
- * permissions and limitations under the License. See accompanying
- * LICENSE file.
- */
 package com.ldbc.driver.data;
 
 import org.apache.commons.math3.random.RandomDataGenerator;
 
-/**
- * A ByteIterator that generates a random sequence of bytes.
- */
+// generates a random sequence of bytes.
 public class RandomByteIterator extends ByteIterator
 {
     private int length;
@@ -46,10 +28,18 @@ public class RandomByteIterator extends ByteIterator
         return ( offset + bufferOffset ) < length;
     }
 
+    private void fillBytes()
+    {
+        if ( bufferOffset == buffer.length )
+        {
+            fillBytesImpl( buffer, 0 );
+            bufferOffset = 0;
+            offset += buffer.length;
+        }
+    }
+
     private void fillBytesImpl( byte[] buffer, int base )
     {
-        // TODO remove
-        // int bytes = Utils.random().nextInt();
         int bytes = rdg.nextInt( 0, 2 ^ 32 );
         try
         {
@@ -66,16 +56,6 @@ public class RandomByteIterator extends ByteIterator
         }
     }
 
-    private void fillBytes()
-    {
-        if ( bufferOffset == buffer.length )
-        {
-            fillBytesImpl( buffer, 0 );
-            bufferOffset = 0;
-            offset += buffer.length;
-        }
-    }
-
     public byte nextByte()
     {
         fillBytes();
@@ -84,7 +64,7 @@ public class RandomByteIterator extends ByteIterator
     }
 
     @Override
-    public int nextBuf( byte[] buffer, int bufferOffset )
+    public int nextBuffer( byte[] buffer, int bufferOffset )
     {
         int ret;
         if ( length - offset < buffer.length - bufferOffset )
@@ -105,7 +85,7 @@ public class RandomByteIterator extends ByteIterator
     }
 
     @Override
-    public int bytesLeft()
+    public long bytesRemaining()
     {
         return length - offset - bufferOffset;
     }

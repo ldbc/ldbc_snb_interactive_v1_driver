@@ -4,7 +4,6 @@ import java.util.Iterator;
 
 import org.junit.Test;
 
-import com.ldbc.driver.data.LimitGenerator;
 import com.ldbc.driver.generator.GeneratorFactory;
 import com.ldbc.driver.util.RandomDataGeneratorFactory;
 

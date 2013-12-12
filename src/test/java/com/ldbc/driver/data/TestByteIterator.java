@@ -18,14 +18,14 @@ public class TestByteIterator
         int size = 100;
         ByteIterator byteIterator = new RandomByteIterator( size, random );
         assertEquals( true, byteIterator.hasNext() );
-        assertEquals( size, byteIterator.bytesLeft() );
+        assertEquals( size, byteIterator.bytesRemaining() );
         assertEquals( size, byteIterator.toString().getBytes().length );
         assertEquals( false, byteIterator.hasNext() );
-        assertEquals( 0, byteIterator.bytesLeft() );
+        assertEquals( 0, byteIterator.bytesRemaining() );
 
         byteIterator = new RandomByteIterator( size, random );
         assertEquals( size, byteIterator.toArray().length );
         assertEquals( false, byteIterator.hasNext() );
-        assertEquals( 0, byteIterator.bytesLeft() );
+        assertEquals( 0, byteIterator.bytesRemaining() );
     }
 }
