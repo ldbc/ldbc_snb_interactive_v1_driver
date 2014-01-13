@@ -153,7 +153,7 @@ public class MapUtilsTest
 
         // Then
         assertThat( newMap123.size(), is( 3 ) );
-        assertThat( newMap123.get( 1 ), is( 1 ) );
+        assertThat( newMap123.get( 1 ), is( 2 ) );
         assertThat( newMap123.get( 2 ), is( 2 ) );
         assertThat( newMap123.get( 3 ), is( 3 ) );
     }
@@ -174,7 +174,7 @@ public class MapUtilsTest
 
         // Then
         assertThat( newMap123.size(), is( 3 ) );
-        assertThat( newMap123.get( 1 ), is( 2 ) );
+        assertThat( newMap123.get( 1 ), is( 1 ) );
         assertThat( newMap123.get( 2 ), is( 2 ) );
         assertThat( newMap123.get( 3 ), is( 3 ) );
     }

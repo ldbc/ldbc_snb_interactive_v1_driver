@@ -156,6 +156,6 @@ public class Client
         case TRANSACTION_PHASE:
             return workload.getTransactionalOperations( generators );
         }
-        throw new WorkloadException( "Error encounterd trying to get operation generator" );
+        throw new WorkloadException( "Error encountered trying to get operation generator" );
     }
 }

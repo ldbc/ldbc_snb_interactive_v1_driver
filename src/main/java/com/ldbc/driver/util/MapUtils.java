@@ -97,50 +97,52 @@ public class MapUtils
     }
 
     /**
-     * map1 value overwrites map2 value if they share a common key
-     * 
-     * @param map1
-     * @param map2
-     * @param mergeFun
+     * newMap value overwrites originalMap value if they share a common key
+     *
+     * @param originalMap
+     * @param newMap
+     * @param overwrite
+     * @param <K>
+     * @param <V>
      * @return
      */
-    public static <K, V> Map<K, V> mergeMaps( Map<K, V> map1, Map<K, V> map2, final boolean overwrite )
+    public static <K, V> Map<K, V> mergeMaps( Map<K, V> originalMap, Map<K, V> newMap, final boolean overwrite )
     {
         Function2<V, V, V> overwriteFun = new Function2<V, V, V>()
         {
             @Override
-            public V apply( V from1, V from2 )
+            public V apply( V originalVal, V newVal )
             {
-                return ( overwrite ) ? from1 : from2;
+                return ( overwrite ) ? newVal : originalVal;
             }
         };
-        return mergeMaps( map1, map2, overwriteFun );
+        return mergeMaps( originalMap, newMap, overwriteFun );
     }
 
     /**
      * mergeFun only called for keys that exist in both Map instances
      * 
-     * @param map1
-     * @param map2
+     * @param originalMap
+     * @param newMap
      * @param mergeFun
      * @return
      */
-    public static <K, V> Map<K, V> mergeMaps( Map<K, V> map1, Map<K, V> map2, Function2<V, V, V> mergeFun )
+    public static <K, V> Map<K, V> mergeMaps( Map<K, V> originalMap, Map<K, V> newMap, Function2<V, V, V> mergeFun )
     {
         Map<K, V> resultMap = new HashMap<K, V>();
-        for ( K map1Key : map1.keySet() )
+        for ( K originalMapKey : originalMap.keySet() )
         {
-            resultMap.put( map1Key, map1.get( map1Key ) );
+            resultMap.put( originalMapKey, originalMap.get( originalMapKey ) );
         }
-        for ( K map2Key : map2.keySet() )
+        for ( K newMapKey : newMap.keySet() )
         {
-            if ( resultMap.containsKey( map2Key ) )
+            if ( resultMap.containsKey( newMapKey ) )
             {
-                resultMap.put( map2Key, mergeFun.apply( map1.get( map2Key ), map2.get( map2Key ) ) );
+                resultMap.put( newMapKey, mergeFun.apply(originalMap.get(newMapKey), newMap.get(newMapKey)) );
             }
             else
             {
-                resultMap.put( map2Key, map2.get( map2Key ) );
+                resultMap.put( newMapKey, newMap.get( newMapKey ) );
             }
         }
         return resultMap;

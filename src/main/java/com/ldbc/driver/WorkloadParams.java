@@ -15,6 +15,7 @@ import java.util.Map.Entry;
 import java.util.concurrent.TimeUnit;
 import java.util.Properties;
 
+import com.sun.swing.internal.plaf.synth.resources.synth_sv;
 import org.apache.commons.cli.BasicParser;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
@@ -220,15 +221,27 @@ public class WorkloadParams
         String timeUnit = ( cmd.hasOption( TIME_UNIT_ARG ) ) ? cmd.getOptionValue( TIME_UNIT_ARG ) : TIME_UNIT_DEFAULT;
         cmdParams.put( TIME_UNIT_ARG, timeUnit );
 
+        // TODO remove
+        System.out.println("cmd.hasOption( PROPERTY_FILE_ARG ) " + cmd.hasOption( PROPERTY_FILE_ARG ));
+        System.out.println("fileParams " + fileParams.toString());
+
         if ( cmd.hasOption( PROPERTY_FILE_ARG ) )
         {
+            // TODO remove
+            System.out.println("cmd.getOptionValues( PROPERTY_FILE_ARG ) " + Arrays.toString(cmd.getOptionValues( PROPERTY_FILE_ARG )));
+
             for ( String propertyFilePath : cmd.getOptionValues( PROPERTY_FILE_ARG ) )
             {
+                // TODO remove
+                System.out.println("propertyFilePath " + propertyFilePath);
                 try
                 {
                     Properties tempFileProperties = new Properties();
                     tempFileProperties.load( new FileInputStream( propertyFilePath ) );
                     fileParams = MapUtils.mergePropertiesToMap( tempFileProperties, fileParams, true );
+
+                    // TODO remove
+                    System.out.println("fileParams " + fileParams.toString());
                 }
                 catch ( IOException e )
                 {
@@ -246,7 +259,12 @@ public class WorkloadParams
             }
         }
 
-        return convertLongKeysToShortKeys( MapUtils.mergeMaps( fileParams, cmdParams, false ) );
+        // TODO remove
+        System.out.println("fileParams " + fileParams.toString());
+        System.out.println("cmdParams " + cmdParams.toString());
+        System.out.println("MapUtils.mergeMaps( fileParams, cmdParams, false ) " + MapUtils.mergeMaps( fileParams, cmdParams, true ));
+
+        return convertLongKeysToShortKeys( MapUtils.mergeMaps( fileParams, cmdParams, true ) );
     }
 
     private static Map<String, String> convertLongKeysToShortKeys( Map<String, String> paramsMap )
@@ -342,7 +360,7 @@ public class WorkloadParams
         int spacesBeforeOption = 3;
         int spacesBeforeOptionDescription = 5;
         boolean displayUsage = true;
-        String commandLineSyntax = "java -cp core-0.1-SNAPSHOT.jar " + Client.class.getName();
+        String commandLineSyntax = "java -cp core-VERSION.jar " + Client.class.getName();
         ByteArrayOutputStream os = new ByteArrayOutputStream();
         PrintWriter writer = new PrintWriter( os );
         HelpFormatter helpFormatter = new HelpFormatter();
