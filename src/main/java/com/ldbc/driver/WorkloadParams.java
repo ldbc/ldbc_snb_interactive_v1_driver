@@ -11,9 +11,7 @@ import java.util.*;
 import java.util.Map.Entry;
 import java.util.concurrent.TimeUnit;
 
-// TODO parameters: DEFAULT < FILE < COMMANDLINE
 // TODO make --phase option one with an argument transaction/load
-// TODO fix bug where tc is overridden by default but threadcount is not (neither should be overridden)
 public class WorkloadParams {
     /*
      * For partitioning load among machines when client is bottleneck.
@@ -58,6 +56,11 @@ public class WorkloadParams {
     private static final String DB_DESCRIPTION = String.format("classname of the DB to use (e.g. %s)", DB_EXAMPLE);
 
     // --- OPTIONAL ---
+    private static final String RESULT_FILE_PATH_ARG = "rf";
+    private static final String RESULT_FILE_PATH_ARG_LONG = "resultfile";
+    private static final String RESULT_FILE_PATH_DESCRIPTION =
+            "where benchmark results JSON file will be written (null = file will not be created)";
+
     private static final String THREADS_ARG = "tc";
     private static final String THREADS_ARG_LONG = "threadcount";
     private static final String THREADS_DEFAULT = Integer.toString(calculateDefaultThreadPoolSize());
@@ -87,6 +90,7 @@ public class WorkloadParams {
 
     private static final String SHOW_STATUS_ARG = "s";
     private static final String SHOW_STATUS_ARG_LONG = "status";
+    private static final String SHOW_STATUS_DEFAULT = Boolean.toString(false);
     private static final String SHOW_STATUS_DESCRIPTION = "show status during run";
 
     private static final String PROPERTY_FILE_ARG = "P";
@@ -110,9 +114,9 @@ public class WorkloadParams {
         Map<String, String> paramsMap;
         try {
             paramsMap = parseArgs(args, OPTIONS);
-            paramsMap = MapUtils.mergeMaps(paramsMap, defaultParams(), false);
             assertRequiredArgsProvided(paramsMap);
             assertValidTimeUnit(paramsMap.get(TIME_UNIT_ARG));
+            paramsMap = MapUtils.mergeMaps(paramsMap, defaultParamValues(), false);
         } catch (ParseException e) {
             throw new ParamsException(e.getMessage());
         } catch (ParamsException e) {
@@ -135,7 +139,7 @@ public class WorkloadParams {
         int threadCount = Integer.parseInt(paramsMap.get(THREADS_ARG));
         boolean showStatus = Boolean.parseBoolean(paramsMap.get(SHOW_STATUS_ARG));
         TimeUnit timeUnit = TimeUnit.valueOf(paramsMap.get(TIME_UNIT_ARG));
-        String resultFilePath = paramsMap.get(RESULT_FILE_ARG);
+        String resultFilePath = paramsMap.get(RESULT_FILE_PATH_ARG);
         return new WorkloadParams(paramsMap, dbClassName, workloadClassName, operationCount, recordCount,
                 benchmarkPhase, threadCount, showStatus, timeUnit, resultFilePath);
     }
@@ -164,16 +168,17 @@ public class WorkloadParams {
         }
     }
 
-    private static Map<String, String> defaultParams() {
-        Map<String, String> defaultParams = new HashMap<>();
-        defaultParams.put(THREADS_ARG, THREADS_DEFAULT);
-        defaultParams.put(TIME_UNIT_ARG, TIME_UNIT_DEFAULT);
-        return defaultParams;
+    private static Map<String, String> defaultParamValues() {
+        Map<String, String> defaultParamValues = new HashMap<String, String>();
+        defaultParamValues.put(THREADS_ARG, THREADS_DEFAULT);
+        defaultParamValues.put(SHOW_STATUS_ARG, SHOW_STATUS_DEFAULT);
+        defaultParamValues.put(TIME_UNIT_ARG, TIME_UNIT_DEFAULT);
+        return defaultParamValues;
     }
 
     private static Map<String, String> parseArgs(String[] args, Options options) throws ParseException {
-        Map<String, String> cmdParams = new HashMap<>();
-        Map<String, String> fileParams = new HashMap<>();
+        Map<String, String> cmdParams = new HashMap<String, String>();
+        Map<String, String> fileParams = new HashMap<String, String>();
 
         CommandLineParser parser = new BasicParser();
 
@@ -182,16 +187,16 @@ public class WorkloadParams {
         /*
          * Required
          */
-        if (null != cmd.getOptionValue(DB_ARG))
+        if (cmd.hasOption(DB_ARG))
             cmdParams.put(DB_ARG, cmd.getOptionValue(DB_ARG));
 
-        if (null != cmd.getOptionValue(WORKLOAD_ARG))
+        if (cmd.hasOption(WORKLOAD_ARG))
             cmdParams.put(WORKLOAD_ARG, cmd.getOptionValue(WORKLOAD_ARG));
 
-        if (null != cmd.getOptionValue(OPERATION_COUNT_ARG))
+        if (cmd.hasOption(OPERATION_COUNT_ARG))
             cmdParams.put(OPERATION_COUNT_ARG, cmd.getOptionValue(OPERATION_COUNT_ARG));
 
-        if (null != cmd.getOptionValue(RECORD_COUNT_ARG))
+        if (cmd.hasOption(RECORD_COUNT_ARG))
             cmdParams.put(RECORD_COUNT_ARG, cmd.getOptionValue(RECORD_COUNT_ARG));
 
         if (cmd.hasOption(BENCHMARK_PHASE_LOAD) || cmd.hasOption(BENCHMARK_PHASE_TRANSACTION)) {
@@ -203,35 +208,25 @@ public class WorkloadParams {
         /*
          * Optional
          */
-        if (null != cmd.getOptionValue(RESULT_FILE_ARG))
-            cmdParams.put(RESULT_FILE_ARG, cmd.getOptionValue(RESULT_FILE_ARG));
+        if (cmd.hasOption(RESULT_FILE_PATH_ARG))
+            cmdParams.put(RESULT_FILE_PATH_ARG, cmd.getOptionValue(RESULT_FILE_PATH_ARG));
 
         if (cmd.hasOption(THREADS_ARG))
             cmdParams.put(THREADS_ARG, cmd.getOptionValue(THREADS_ARG));
 
-        cmdParams.put(SHOW_STATUS_ARG, Boolean.toString(cmd.hasOption(SHOW_STATUS_ARG)));
+        if (cmd.hasOption(SHOW_STATUS_ARG))
+            cmdParams.put(SHOW_STATUS_ARG, Boolean.toString(true));
 
         if (cmd.hasOption(TIME_UNIT_ARG))
             cmdParams.put(TIME_UNIT_ARG, cmd.getOptionValue(TIME_UNIT_ARG));
 
-        // TODO remove
-        System.out.println("cmd.hasOption( PROPERTY_FILE_ARG ) " + cmd.hasOption(PROPERTY_FILE_ARG));
-        System.out.println("fileParams " + fileParams.toString());
-
         if (cmd.hasOption(PROPERTY_FILE_ARG)) {
-            // TODO remove
-            System.out.println("cmd.getOptionValues( PROPERTY_FILE_ARG ) " + Arrays.toString(cmd.getOptionValues(PROPERTY_FILE_ARG)));
-
             for (String propertyFilePath : cmd.getOptionValues(PROPERTY_FILE_ARG)) {
-                // TODO remove
-                System.out.println("propertyFilePath " + propertyFilePath);
                 try {
                     Properties tempFileProperties = new Properties();
                     tempFileProperties.load(new FileInputStream(propertyFilePath));
-                    fileParams = MapUtils.mergePropertiesToMap(tempFileProperties, fileParams, true);
-
-                    // TODO remove
-                    System.out.println("fileParams " + fileParams.toString());
+                    Map<String, String> tempFileParams = MapUtils.propertiesToMap(tempFileProperties);
+                    fileParams = MapUtils.mergeMaps(convertLongKeysToShortKeys(tempFileParams), fileParams, true);
                 } catch (IOException e) {
                     throw new ParseException(String.format("Error loading properties file %s\n%s", propertyFilePath,
                             e.getMessage()));
@@ -244,13 +239,6 @@ public class WorkloadParams {
                 cmdParams.put((String) cmdProperty.getKey(), (String) cmdProperty.getValue());
             }
         }
-
-        // TODO remove
-        System.out.println("fileParams " + fileParams.toString());
-        System.out.println("convertLongKeysToShortKeys(fileParams) " + convertLongKeysToShortKeys(fileParams).toString());
-        System.out.println("cmdParams " + cmdParams.toString());
-        System.out.println("convertLongKeysToShortKeys(cmdParams) " + convertLongKeysToShortKeys(cmdParams).toString());
-        System.out.println("MapUtils.mergeMaps( fileParams, cmdParams, false ) " + MapUtils.mergeMaps(fileParams, cmdParams, true));
 
         return MapUtils.mergeMaps(convertLongKeysToShortKeys(fileParams), convertLongKeysToShortKeys(cmdParams), true);
     }
@@ -265,10 +253,11 @@ public class WorkloadParams {
         paramsMap = replaceKey(paramsMap, TIME_UNIT_ARG_LONG, TIME_UNIT_ARG);
         paramsMap = replaceKey(paramsMap, BENCHMARK_PHASE_LOAD_LONG, BENCHMARK_PHASE_LOAD);
         paramsMap = replaceKey(paramsMap, BENCHMARK_PHASE_TRANSACTION_LONG, BENCHMARK_PHASE_TRANSACTION);
-        paramsMap = replaceKey(paramsMap, RESULT_FILE_ARG_LONG, RESULT_FILE_ARG);
+        paramsMap = replaceKey(paramsMap, RESULT_FILE_PATH_ARG_LONG, RESULT_FILE_PATH_ARG);
         return paramsMap;
     }
 
+    // NOTE: not safe in general case, no check for duplicate keys
     private static Map<String, String> replaceKey(Map<String, String> paramsMap, String oldKey, String newKey) {
         if (false == paramsMap.containsKey(oldKey)) return paramsMap;
         String value = paramsMap.get(oldKey);
@@ -313,8 +302,8 @@ public class WorkloadParams {
         /*
          * Optional
          */
-        Option resultFileOption = OptionBuilder.hasArgs(1).withArgName("path").withDescription(RESULT_FILE_DESCRIPTION).withLongOpt(
-                RESULT_FILE_ARG_LONG).create(RESULT_FILE_ARG);
+        Option resultFileOption = OptionBuilder.hasArgs(1).withArgName("path").withDescription(RESULT_FILE_PATH_DESCRIPTION).withLongOpt(
+                RESULT_FILE_PATH_ARG_LONG).create(RESULT_FILE_PATH_ARG);
         options.addOption(resultFileOption);
 
         Option threadsOption = OptionBuilder.hasArgs(1).withArgName("count").withDescription(THREADS_DESCRIPTION).withLongOpt(
@@ -385,27 +374,27 @@ public class WorkloadParams {
         this.resultFilePath = resultFilePath;
     }
 
-    public String getDbClassName() {
+    public String dbClassName() {
         return dbClassName;
     }
 
-    public String getWorkloadClassName() {
+    public String workloadClassName() {
         return workloadClassName;
     }
 
-    public long getOperationCount() {
+    public long operationCount() {
         return operationCount;
     }
 
-    public long getRecordCount() {
+    public long recordCount() {
         return recordCount;
     }
 
-    public BenchmarkPhase getBenchmarkPhase() {
+    public BenchmarkPhase benchmarkPhase() {
         return benchmarkPhase;
     }
 
-    public int getThreadCount() {
+    public int threadCount() {
         return threadCount;
     }
 
@@ -413,11 +402,11 @@ public class WorkloadParams {
         return showStatus;
     }
 
-    public TimeUnit getTimeUnit() {
+    public TimeUnit timeUnit() {
         return timeUnit;
     }
 
-    public String getResultFilePath() {
+    public String resultFilePath() {
         return resultFilePath;
     }
 
@@ -441,7 +430,7 @@ public class WorkloadParams {
 
         Set<String> excludedKeys = new HashSet<String>();
         excludedKeys.addAll(Arrays.asList(new String[]{DB_ARG, WORKLOAD_ARG, OPERATION_COUNT_ARG, RECORD_COUNT_ARG,
-                BENCHMARK_PHASE_ARG, THREADS_ARG, SHOW_STATUS_ARG, TIME_UNIT_ARG, RESULT_FILE_ARG}));
+                BENCHMARK_PHASE_ARG, THREADS_ARG, SHOW_STATUS_ARG, TIME_UNIT_ARG, RESULT_FILE_PATH_ARG}));
         Map<String, String> filteredParamsMap = MapUtils.copyExcludingKeys(paramsMap, excludedKeys);
         if (false == filteredParamsMap.isEmpty()) {
             sb.append("\t").append("User-defined parameters:").append("\n");

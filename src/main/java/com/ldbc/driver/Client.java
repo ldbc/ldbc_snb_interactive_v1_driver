@@ -8,12 +8,11 @@ import com.ldbc.driver.runner.WorkloadRunner;
 import com.ldbc.driver.util.ClassLoaderHelper;
 import com.ldbc.driver.util.RandomDataGeneratorFactory;
 import com.ldbc.driver.util.temporal.Time;
-import org.apache.commons.io.FileUtils;
 import org.apache.log4j.Logger;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
-import java.io.IOException;
 import java.util.Iterator;
 
 public class Client {
@@ -34,113 +33,56 @@ public class Client {
         }
     }
 
-    private WorkloadParams params = null;
-    private Workload workload = null;
-    private Db db = null;
-    private WorkloadRunner workloadRunner = null;
-    private WorkloadMetricsManager metricsManager = null;
-
-    public WorkloadParams params() {
-        return params;
-    }
-
-    public Workload workload() {
-        return workload;
-    }
-
-    public Db db() {
-        return db;
-    }
+    private final WorkloadParams params;
+    private final Workload workload;
+    private final Db db;
+    private final WorkloadMetricsManager metricsManager;
 
     public Client(WorkloadParams params) throws ClientException {
         this.params = params;
-        logger.info("LDBC Workload Driver");
-        logger.info(params.toString());
-
-        GeneratorFactory generators = new GeneratorFactory(new RandomDataGeneratorFactory(RANDOM_SEED));
-
-//        Workload workload = null;
         try {
-            workload = ClassLoaderHelper.loadWorkload(params.getWorkloadClassName());
+            workload = ClassLoaderHelper.loadWorkload(params.workloadClassName());
             workload.init(params);
         } catch (Exception e) {
-            String errMsg = String.format("Error loading Workload class: %s", params.getWorkloadClassName());
+            String errMsg = String.format("Error loading Workload class: %s", params.workloadClassName());
             logger.error(errMsg, e);
             throw new ClientException(errMsg, e.getCause());
-
         }
         logger.info(String.format("Loaded Workload: %s", workload.getClass().getName()));
 
-//        Db db = null;
         try {
-            db = ClassLoaderHelper.loadDb(params.getDbClassName());
+            db = ClassLoaderHelper.loadDb(params.dbClassName());
             db.init(params.asMap());
         } catch (DbException e) {
-            String errMsg = String.format("Error loading DB class: %s", params.getDbClassName());
+            String errMsg = String.format("Error loading DB class: %s", params.dbClassName());
             logger.error(errMsg, e);
             throw new ClientException(errMsg, e.getCause());
         }
         logger.info(String.format("Loaded DB: %s", db.getClass().getName()));
 
-        metricsManager = new WorkloadMetricsManager(params.getTimeUnit());
+        metricsManager = new WorkloadMetricsManager(params.timeUnit());
+    }
 
-//        WorkloadRunner workloadRunner = null;
+    public void start() throws ClientException {
+        logger.info("LDBC Workload Driver");
+        logger.info(params.toString());
+
+        GeneratorFactory generators = new GeneratorFactory(new RandomDataGeneratorFactory(RANDOM_SEED));
+
+        WorkloadRunner workloadRunner = null;
         try {
-            Iterator<Operation<?>> operationGenerator = getOperationGenerator(workload, params.getBenchmarkPhase(),
+            Iterator<Operation<?>> operationGenerator = getOperationGenerator(workload, params.benchmarkPhase(),
                     generators);
             workloadRunner = new WorkloadRunner(db, operationGenerator, params.isShowStatus(),
-                    params.getThreadCount(), metricsManager);
+                    params.threadCount(), metricsManager);
         } catch (WorkloadException e) {
             String errMsg = "Error instantiating WorkloadRunner";
             logger.error(errMsg, e);
             throw new ClientException(errMsg, e.getCause());
         }
-    }
 
-    public void start() throws ClientException {
-//        logger.info("LDBC Workload Driver");
-//        logger.info(params.toString());
-//
-//        GeneratorFactory generators = new GeneratorFactory(new RandomDataGeneratorFactory(RANDOM_SEED));
-//
-//        Workload workload = null;
-//        try {
-//            workload = ClassLoaderHelper.loadWorkload(params.getWorkloadClassName());
-//            workload.init(params);
-//        } catch (Exception e) {
-//            String errMsg = String.format("Error loading Workload class: %s", params.getWorkloadClassName());
-//            logger.error(errMsg, e);
-//            throw new ClientException(errMsg, e.getCause());
-//
-//        }
-//        logger.info(String.format("Loaded Workload: %s", workload.getClass().getName()));
-//
-//        Db db = null;
-//        try {
-//            db = ClassLoaderHelper.loadDb(params.getDbClassName());
-//            db.init(params.asMap());
-//        } catch (DbException e) {
-//            String errMsg = String.format("Error loading DB class: %s", params.getDbClassName());
-//            logger.error(errMsg, e);
-//            throw new ClientException(errMsg, e.getCause());
-//        }
-//        logger.info(String.format("Loaded DB: %s", db.getClass().getName()));
-//
-//        WorkloadMetricsManager metricsManager = new WorkloadMetricsManager(params.getTimeUnit());
-//
-//        WorkloadRunner workloadRunner = null;
-//        try {
-//            Iterator<Operation<?>> operationGenerator = getOperationGenerator(workload, params.getBenchmarkPhase(),
-//                    generators);
-//            workloadRunner = new WorkloadRunner(db, operationGenerator, params.isShowStatus(),
-//                    params.getThreadCount(), metricsManager);
-//        } catch (WorkloadException e) {
-//            String errMsg = "Error instantiating WorkloadRunner";
-//            logger.error(errMsg, e);
-//            throw new ClientException(errMsg, e.getCause());
-//        }
+        logger.info(String.format("Starting Benchmark (%s operations)", params.operationCount()));
 
-        logger.info(String.format("Starting Benchmark (%s operations)", params.getOperationCount()));
         Time startTime = Time.now();
         try {
             workloadRunner.run();
@@ -173,19 +115,16 @@ public class Client {
         logger.info("Exporting Measurements...");
         try {
             metricsManager.export(new SimpleOperationMetricsFormatter(), System.out);
-            if (null != params.getResultFilePath()) {
-                try {
-                    File resultFile = new File(params.getResultFilePath());
-                    FileUtils.deleteDirectory(resultFile);
-                    if (false == resultFile.createNewFile())
-                        throw new WorkloadException(String.format("Could not create result file: %s", params.getResultFilePath()));
-                    metricsManager.export(new JsonOperationMetricsFormatter(), new FileOutputStream(resultFile));
-                } catch (IOException e) {
-                    throw new WorkloadException(String.format("Error encountered while trying to export results to: %s", params.getResultFilePath()), e.getCause());
-                }
+            if (null != params.resultFilePath()) {
+                File resultFile = new File(params.resultFilePath());
+                metricsManager.export(new JsonOperationMetricsFormatter(), new FileOutputStream(resultFile));
             }
         } catch (WorkloadException e) {
             String errMsg = "Could not export Measurements";
+            logger.error(errMsg, e);
+            throw new ClientException(errMsg, e.getCause());
+        } catch (FileNotFoundException e) {
+            String errMsg = String.format("Error encountered while trying to write result file: ", params.resultFilePath());
             logger.error(errMsg, e);
             throw new ClientException(errMsg, e.getCause());
         }
