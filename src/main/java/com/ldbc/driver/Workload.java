@@ -24,8 +24,8 @@ public abstract class Workload
             throw new WorkloadException( "DB may be initialized only once" );
         }
         isInitialized = true;
-        this.operationCount = params.getOperationCount();
-        this.recordCount = params.getRecordCount();
+        this.operationCount = params.operationCount();
+        this.recordCount = params.recordCount();
         onInit( params.asMap() );
     }
 

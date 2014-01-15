@@ -46,6 +46,14 @@ public class MapUtils
         return ( map.containsKey( key ) ) ? map.get( key ) : defaultValue;
     }
 
+    public static <K, V> Map<K, V> propertiesToMap(Properties properties) {
+        Map<K, V> resultMap = new HashMap<K, V>();
+        for (Object propertyKey : properties.keySet()) {
+            resultMap.put((K) propertyKey, (V) properties.get((K) propertyKey));
+        }
+        return resultMap;
+    }
+
     /**
      * Returns new Map
      * 
