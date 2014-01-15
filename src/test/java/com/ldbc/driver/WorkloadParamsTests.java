@@ -1,25 +1,24 @@
 package com.ldbc.driver;
 
-import static org.junit.Assert.*;
-import static org.hamcrest.CoreMatchers.*;
+import com.ldbc.driver.util.TestUtils;
+import org.junit.Test;
 
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
-import org.junit.Test;
+import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.CoreMatchers.nullValue;
+import static org.junit.Assert.assertThat;
 
-public class WorkloadParamsTests
-{
+public class WorkloadParamsTests {
 
-    enum Cows
-    {
+    enum Cows {
         Black
     }
 
     @Test
-    public void shouldReturnSameAsConstructedWith()
-    {
+    public void shouldReturnSameAsConstructedWith() {
         Map<String, String> paramsMap = new HashMap<String, String>();
         String dbClassName = "dbClassName";
         String workloadClassName = "workloadClassName";
@@ -29,24 +28,25 @@ public class WorkloadParamsTests
         int threadCount = 3;
         boolean showStatus = true;
         TimeUnit timeUnit = TimeUnit.SECONDS;
+        String resultFilePath = "resultFilePath";
 
-        WorkloadParams params = new WorkloadParams( paramsMap, dbClassName, workloadClassName, operationCount,
-                recordCount, benchmarkPhase, threadCount, showStatus, timeUnit );
+        WorkloadParams params = new WorkloadParams(paramsMap, dbClassName, workloadClassName, operationCount,
+                recordCount, benchmarkPhase, threadCount, showStatus, timeUnit, resultFilePath);
 
-        assertThat( params.asMap(), is( paramsMap ) );
-        assertThat( params.getDbClassName(), is( dbClassName ) );
-        assertThat( params.getWorkloadClassName(), is( workloadClassName ) );
-        assertThat( params.getOperationCount(), is( operationCount ) );
-        assertThat( params.getRecordCount(), is( recordCount ) );
-        assertThat( params.getBenchmarkPhase(), is( benchmarkPhase ) );
-        assertThat( params.getThreadCount(), is( threadCount ) );
-        assertThat( params.isShowStatus(), is( showStatus ) );
-        assertThat( params.getTimeUnit(), is( timeUnit ) );
+        assertThat(params.asMap(), is(paramsMap));
+        assertThat(params.getDbClassName(), is(dbClassName));
+        assertThat(params.getWorkloadClassName(), is(workloadClassName));
+        assertThat(params.getOperationCount(), is(operationCount));
+        assertThat(params.getRecordCount(), is(recordCount));
+        assertThat(params.getBenchmarkPhase(), is(benchmarkPhase));
+        assertThat(params.getThreadCount(), is(threadCount));
+        assertThat(params.isShowStatus(), is(showStatus));
+        assertThat(params.getTimeUnit(), is(timeUnit));
+        assertThat(params.getResultFilePath(), is(resultFilePath));
     }
 
     @Test
-    public void shouldResultSameAsCommandline() throws ParamsException
-    {
+    public void shouldReturnSameAsCommandline() throws ParamsException {
         /*
         java -cp core-0.1-SNAPSHOT.jar com.ldbc.driver.Client -db <classname> -l | -t -oc <count> [-P
            <file1:file2>] [-p <key=value>] -rc <count> [-s]  [-tc <count>] -w <classname>
@@ -74,21 +74,39 @@ public class WorkloadParamsTests
         String userVal = "userVal";
         TimeUnit timeUnit = TimeUnit.MINUTES;
 
-        String[] args = { "-db", dbClassName, "-w", workloadClassName, "-oc", Long.toString( operationCount ), "-rc",
-                Long.toString( recordCount ), ( benchmarkPhase.equals( BenchmarkPhase.LOAD_PHASE ) ) ? "-l" : "-t",
-                "-tc", Integer.toString( threadCount ), ( showStatus ) ? "-s" : "", "-p", userKey, userVal, "-tu",
-                timeUnit.toString() };
+        String[] args = {"-db", dbClassName, "-w", workloadClassName, "-oc", Long.toString(operationCount), "-rc",
+                Long.toString(recordCount), (benchmarkPhase.equals(BenchmarkPhase.LOAD_PHASE)) ? "-l" : "-t",
+                "-tc", Integer.toString(threadCount), (showStatus) ? "-s" : "", "-p", userKey, userVal, "-tu",
+                timeUnit.toString()};
 
-        WorkloadParams params = WorkloadParams.fromArgs( args );
+        WorkloadParams params = WorkloadParams.fromArgs(args);
 
-        assertThat( params.getDbClassName(), is( dbClassName ) );
-        assertThat( params.getWorkloadClassName(), is( workloadClassName ) );
-        assertThat( params.getOperationCount(), is( operationCount ) );
-        assertThat( params.getRecordCount(), is( recordCount ) );
-        assertThat( params.getBenchmarkPhase(), is( benchmarkPhase ) );
-        assertThat( params.getThreadCount(), is( threadCount ) );
-        assertThat( params.isShowStatus(), is( showStatus ) );
-        assertThat( params.getTimeUnit(), is( timeUnit ) );
-        assertThat( (String) params.asMap().get( userKey ), is( userVal ) );
+        assertThat(params.getDbClassName(), is(dbClassName));
+        assertThat(params.getWorkloadClassName(), is(workloadClassName));
+        assertThat(params.getOperationCount(), is(operationCount));
+        assertThat(params.getRecordCount(), is(recordCount));
+        assertThat(params.getBenchmarkPhase(), is(benchmarkPhase));
+        assertThat(params.getThreadCount(), is(threadCount));
+        assertThat(params.isShowStatus(), is(showStatus));
+        assertThat(params.getTimeUnit(), is(timeUnit));
+        assertThat(params.getResultFilePath(), is(nullValue()));
+        assertThat(params.asMap().get(userKey), is(userVal));
+    }
+
+    @Test
+    public void shouldReturnSameAsFile() throws ParamsException {
+        WorkloadParams params = WorkloadParams.fromArgs(new String[]{
+                "-P", TestUtils.getResource("/workload_params.properties").getAbsolutePath()});
+
+        assertThat(params.getDbClassName(), is("dbClassName"));
+        assertThat(params.getWorkloadClassName(), is("workloadClassName"));
+        assertThat(params.isShowStatus(), is(false));
+        assertThat(params.getOperationCount(), is(10l));
+        assertThat(params.getRecordCount(), is(-1l));
+        assertThat(params.getThreadCount(), is(1));
+        assertThat(params.getTimeUnit(), is(TimeUnit.MILLISECONDS));
+        assertThat(params.getBenchmarkPhase(), is(BenchmarkPhase.TRANSACTION_PHASE));
+        assertThat(params.getResultFilePath(), is("test_results.json"));
+        assertThat(params.asMap().get("parameters"), is("parametersFileName"));
     }
 }
