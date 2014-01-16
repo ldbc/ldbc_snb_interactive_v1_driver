@@ -162,7 +162,7 @@ public class LdbcInteractiveWorkload extends Workload {
         operationsToInclude.add(LdbcQuery2.class);
         operationsToInclude.add(LdbcQuery3.class);
         operationsToInclude.add(LdbcQuery4.class);
-        operationsToInclude.add(LdbcQuery5.class);
+//        operationsToInclude.add(LdbcQuery5.class);
         operationsToInclude.add(LdbcQuery6.class);
         operationsToInclude.add(LdbcQuery7.class);
 
