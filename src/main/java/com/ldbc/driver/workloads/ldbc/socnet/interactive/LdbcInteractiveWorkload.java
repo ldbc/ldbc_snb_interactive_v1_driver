@@ -192,7 +192,7 @@ public class LdbcInteractiveWorkload extends Workload
 
         // TODO configurable from parameters
         Iterator<Time> startTimeGenerator = GeneratorUtils.constantIncrementStartTimeGenerator( generators, Time.now(),
-                Duration.fromMilli( 100 ) );
+                Duration.fromMilli( 10000 ) );
 
         return new StartTimeAssigningOperationGenerator( startTimeGenerator, filteredGenerator );
     }
