@@ -13,14 +13,14 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
+import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
-import static org.hamcrest.CoreMatchers.equalTo;
 
 public class WorkloadTests {
 
     @Test
-    public void generatedWorkloadShouldBeDeterministicAndRepeatable() throws ClientException, ParamsException, WorkloadException {
+    public void shouldBeRepeatableWhenSameWorkloadIsUsedTwiceWithIdenticalGeneratorFactories() throws ClientException, ParamsException, WorkloadException {
         WorkloadParams params =
                 new WorkloadParams(null, "dbClassName", "workloadClassName", 100L, -1, BenchmarkPhase.TRANSACTION_PHASE, 1, false, TimeUnit.MILLISECONDS, "resultFilePath");
 
@@ -48,22 +48,18 @@ public class WorkloadTests {
 
         assertThat(operationsA.size(), is(operationsB.size()));
 
-        System.out.printf("%s %s\n", operationsA.size(), operationsB.size());
-        System.out.printf("%s\n%s\n", operationsA.toString(), operationsB.toString());
-
         Iterator<Class> operationsAIt = operationsA.iterator();
         Iterator<Class> operationsBIt = operationsB.iterator();
 
         while (operationsAIt.hasNext()) {
             Class a = operationsAIt.next();
             Class b = operationsBIt.next();
-            System.out.printf("%s\t%s\n", a.getSimpleName(), b.getSimpleName());
             assertThat(a, equalTo(b));
         }
     }
 
     @Test
-    public void generatedWorkloadShouldBeDeterministicAndRepeatable2() throws ClientException, ParamsException, WorkloadException {
+    public void shouldBeRepeatableWhenTwoIdenticalWorkloadsAreUsedWithIdenticalGeneratorFactories() throws ClientException, ParamsException, WorkloadException {
         WorkloadParams params =
                 new WorkloadParams(null, "dbClassName", "workloadClassName", 100L, -1, BenchmarkPhase.TRANSACTION_PHASE, 1, false, TimeUnit.MILLISECONDS, "resultFilePath");
 
@@ -104,8 +100,7 @@ public class WorkloadTests {
         while (operationsAIt.hasNext()) {
             Class a = operationsAIt.next();
             Class b = operationsBIt.next();
-            System.out.printf("%s\t%s\n", a.getSimpleName(), b.getSimpleName());
-//            assertThat(a, equalTo(b));
+            assertThat(a, equalTo(b));
         }
     }
 }

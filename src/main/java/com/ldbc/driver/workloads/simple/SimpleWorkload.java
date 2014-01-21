@@ -68,121 +68,6 @@ public class SimpleWorkload extends Workload {
         return new StartTimeAssigningOperationGenerator(startTimeGenerator, insertOperationGenerator);
     }
 
-//    @Override
-//    public Iterator<Operation<?>> createTransactionalOperations( GeneratorFactory generators ) throws WorkloadException
-//    {
-//        /**
-//         * **************************
-//         *
-//         * Insert Operation Generator
-//         *
-//         * **************************
-//         */
-//        // Transaction Insert Keys
-//        MinMaxGenerator<Long> transactionInsertKeyGenerator = generators.minMaxGenerator(
-//                generators.incrementing( getRecordCount(), 1l ), getRecordCount(), getRecordCount() );
-//
-//        // Insert Fields: Names & Values
-//        Iterator<Integer> fieldValuelengthGenerator = generators.uniform( 1, 100 );
-//        Iterator<ByteIterator> randomFieldValueGenerator = generators.randomByteIterator( fieldValuelengthGenerator );
-//        List<Tuple3<Double, String, Iterator<ByteIterator>>> valuedFields = new ArrayList<Tuple3<Double, String, Iterator<ByteIterator>>>();
-//        for ( int i = 0; i < NUMBER_OF_FIELDS_IN_RECORD; i++ )
-//        {
-//            valuedFields.add( Tuple.tuple3( 1d, FIELD_NAME_PREFIX + i, randomFieldValueGenerator ) );
-//        }
-//        Iterator<Map<String, ByteIterator>> insertValuedFieldGenerator = generators.weightedDiscreteMap( valuedFields,
-//                NUMBER_OF_FIELDS_IN_RECORD );
-//
-//        InsertOperationGenerator insertOperationGenerator = new InsertOperationGenerator( TABLE, new PrefixGenerator(
-//                transactionInsertKeyGenerator, KEY_NAME_PREFIX ), insertValuedFieldGenerator );
-//
-//        /**
-//         * **************************
-//         *
-//         * Read Operation Generator
-//         *
-//         * **************************
-//         */
-//        // Read/Update Keys
-//        Iterator<String> requestKeyGenerator = generators.prefix(
-//                generators.dynamicRangeUniform( transactionInsertKeyGenerator ), KEY_NAME_PREFIX );
-//
-//        // Read Fields: Names
-//        List<Tuple2<Double, String>> fields = new ArrayList<Tuple2<Double, String>>();
-//        for ( int i = 0; i < NUMBER_OF_FIELDS_IN_RECORD; i++ )
-//        {
-//            fields.add( Tuple.tuple2( 1d, FIELD_NAME_PREFIX + i ) );
-//        }
-//
-//        Iterator<List<String>> readFieldsGenerator = generators.weightedDiscreteList( fields, NUMBER_OF_FIELDS_TO_READ );
-//
-//        ReadOperationGenerator readOperationGenerator = new ReadOperationGenerator( TABLE, requestKeyGenerator,
-//                readFieldsGenerator );
-//
-//        /**
-//         * **************************
-//         *
-//         * Update Operation Generator
-//         *
-//         * **************************
-//         */
-//        // Update Fields: Names & Values
-//        Iterator<Map<String, ByteIterator>> updateValuedFieldsGenerator = generators.weightedDiscreteMap( valuedFields,
-//                NUMBER_OF_FIELDS_TO_UPDATE );
-//
-//        UpdateOperationGenerator updateOperationGenerator = new UpdateOperationGenerator( TABLE, requestKeyGenerator,
-//                updateValuedFieldsGenerator );
-//
-//        /**
-//         * **************************
-//         *
-//         * Scan Operation Generator
-//         *
-//         * **************************
-//         */
-//        // Scan Fields: Names & Values
-//        Iterator<List<String>> scanFieldsGenerator = generators.weightedDiscreteList( fields, NUMBER_OF_FIELDS_TO_READ );
-//
-//        // Scan Length: Number of Records
-//        Iterator<Integer> scanLengthGenerator = generators.uniform( MIN_SCAN_LENGTH, MAX_SCAN_LENGTH );
-//
-//        ScanOperationGenerator scanOperationGenerator = new ScanOperationGenerator( TABLE, requestKeyGenerator,
-//                scanLengthGenerator, scanFieldsGenerator );
-//
-//        /**
-//         * **************************
-//         *
-//         * ReadModifyWrite Operation Generator
-//         *
-//         * **************************
-//         */
-//        ReadModifyWriteOperationGenerator readModifyWriteOperationGenerator = new ReadModifyWriteOperationGenerator(
-//                TABLE, requestKeyGenerator, readFieldsGenerator, updateValuedFieldsGenerator );
-//
-//        /**
-//         * **************************
-//         *
-//         * Transactional Workload Operations
-//         *
-//         * **************************
-//         */
-//        // proportion of transactions reads/update/insert/scan/read-modify-write
-//        List<Tuple2<Double, Iterator<Operation<?>>>> operations = new ArrayList<Tuple2<Double, Iterator<Operation<?>>>>();
-//        operations.add( Tuple.tuple2( READ_RATIO, (Iterator<Operation<?>>) readOperationGenerator ) );
-//        operations.add( Tuple.tuple2( UPDATE_RATIO, (Iterator<Operation<?>>) updateOperationGenerator ) );
-//        operations.add( Tuple.tuple2( INSERT_RATIO, (Iterator<Operation<?>>) insertOperationGenerator ) );
-//        operations.add( Tuple.tuple2( SCAN_RATIO, (Iterator<Operation<?>>) scanOperationGenerator ) );
-//        operations.add( Tuple.tuple2( READ_MODIFY_WRITE_RATIO,
-//                (Iterator<Operation<?>>) readModifyWriteOperationGenerator ) );
-//
-//        Iterator<Operation<?>> transactionalOperationGenerator = generators.weightedDiscreteDereferencing( operations );
-//
-//        Iterator<Time> startTimeGenerator = GeneratorUtils.constantIncrementStartTimeGenerator( generators, Time.now(),
-//                Duration.fromMilli( 100 ) );
-//
-//        return new StartTimeAssigningOperationGenerator( startTimeGenerator, transactionalOperationGenerator );
-//    }
-
     @Override
     public Iterator<Operation<?>> createTransactionalOperations(GeneratorFactory generators) throws WorkloadException {
         /**
@@ -293,11 +178,6 @@ public class SimpleWorkload extends Workload {
                 Duration.fromMilli(100));
 
         return new StartTimeAssigningOperationGenerator(startTimeGenerator, transactionalOperationGenerator);
-
-//        List<Tuple2<Double, Iterator<Operation<?>>>> operationsX = new ArrayList<Tuple2<Double, Iterator<Operation<?>>>>();
-//        operations.add(Tuple.tuple2(READ_RATIO, (Iterator<Operation<?>>) readOperationGenerator));
-//        operations.add(Tuple.tuple2(UPDATE_RATIO, (Iterator<Operation<?>>) updateOperationGenerator));
-//        return generators.weightedDiscreteDereferencing(operations);
     }
 
     @Override
