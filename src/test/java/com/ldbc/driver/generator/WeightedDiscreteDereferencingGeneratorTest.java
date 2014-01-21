@@ -9,10 +9,11 @@ import org.junit.Test;
 
 import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
 
 import static org.junit.Assert.assertEquals;
 
-public class DiscreteGeneratorTest extends GeneratorTest<String, Integer> {
+public class WeightedDiscreteDereferencingGeneratorTest extends GeneratorTest<String, Integer> {
 
     @Override
     public Histogram<String, Integer> getExpectedDistribution() {
@@ -31,24 +32,21 @@ public class DiscreteGeneratorTest extends GeneratorTest<String, Integer> {
 
     @Override
     public Iterator<String> getGeneratorImpl(GeneratorFactory generatorFactory) {
-        Tuple2<Double, String> p1 = Tuple.tuple2(1.0, "1");
-        Tuple2<Double, String> p2 = Tuple.tuple2(2.0, "2");
-        Tuple2<Double, String> p3 = Tuple.tuple2(4.0, "3");
-        Tuple2<Double, String> p4 = Tuple.tuple2(8.0, "4");
-        ArrayList<Tuple2<Double, String>> items = new ArrayList<Tuple2<Double, String>>();
-        items.add(p1);
-        items.add(p2);
-        items.add(p3);
-        items.add(p4);
-        return generatorFactory.weightedDiscrete(items);
+        List<Tuple2<Double, Iterator<String>>> items = new ArrayList<Tuple2<Double, Iterator<String>>>();
+        items.add(Tuple.tuple2(1.0, generatorFactory.constant("1")));
+        items.add(Tuple.tuple2(2.0, generatorFactory.constant("2")));
+        items.add(Tuple.tuple2(4.0, generatorFactory.constant("3")));
+        items.add(Tuple.tuple2(8.0, generatorFactory.constant("4")));
+
+        return generatorFactory.weightedDiscreteDereferencing(items);
     }
 
     @Test(expected = GeneratorException.class)
     public void emptyConstructorTest() {
         // Given
         GeneratorFactory generatorFactory = new GeneratorFactory(new RandomDataGeneratorFactory());
-        ArrayList<Tuple2<Double, String>> emptyItems = new ArrayList<Tuple2<Double, String>>();
-        Iterator<String> generator = generatorFactory.weightedDiscrete(emptyItems);
+        List<Tuple2<Double, Iterator<String>>> emptyItems = new ArrayList<Tuple2<Double, Iterator<String>>>();
+        Iterator<String> generator = generatorFactory.weightedDiscreteDereferencing(emptyItems);
 
         // When
         generator.next();

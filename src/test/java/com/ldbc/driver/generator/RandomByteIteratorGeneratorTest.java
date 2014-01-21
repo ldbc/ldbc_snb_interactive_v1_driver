@@ -26,7 +26,7 @@ public class RandomByteIteratorGeneratorTest extends NumberGeneratorTest<Long, L
     }
 
     @Override
-    public Generator<Long> getGeneratorImpl()
+    public Generator<Long> getGeneratorImpl(GeneratorFactory generatorFactory)
     {
         return null;
     }

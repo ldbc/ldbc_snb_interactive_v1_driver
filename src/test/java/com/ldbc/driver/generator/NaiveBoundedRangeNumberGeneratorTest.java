@@ -1,40 +1,32 @@
 package com.ldbc.driver.generator;
 
+import com.ldbc.driver.util.Histogram;
 import org.junit.Ignore;
 
-import com.ldbc.driver.generator.Generator;
-import com.ldbc.driver.util.Histogram;
-
 @Ignore
-public class NaiveBoundedRangeNumberGeneratorTest extends NumberGeneratorTest<Long, Long>
-{
+public class NaiveBoundedRangeNumberGeneratorTest extends NumberGeneratorTest<Long, Long> {
     @Override
-    public double getMeanTolerance()
-    {
+    public double getMeanTolerance() {
         return 0;
     }
 
     @Override
-    public double getDistributionTolerance()
-    {
+    public double getDistributionTolerance() {
         return 0;
     }
 
     @Override
-    public Generator<Long> getGeneratorImpl()
-    {
+    public Generator<Long> getGeneratorImpl(GeneratorFactory generatorFactory) {
         return null;
     }
 
     @Override
-    public Histogram<Long, Long> getExpectedDistribution()
-    {
+    public Histogram<Long, Long> getExpectedDistribution() {
         return null;
     }
 
     @Override
-    public double getExpectedMean()
-    {
+    public double getExpectedMean() {
         return 0;
     }
 

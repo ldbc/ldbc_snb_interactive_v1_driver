@@ -37,6 +37,23 @@ public class Client {
     private final Workload workload;
     private final Db db;
     private final WorkloadMetricsManager metricsManager;
+    private final GeneratorFactory generators;
+
+    public WorkloadParams params() {
+        return params;
+    }
+
+//    public Workload workload() {
+//        return workload;
+//    }
+//
+//    public Db db() {
+//        return db;
+//    }
+
+    public GeneratorFactory generators() {
+        return generators;
+    }
 
     public Client(WorkloadParams params) throws ClientException {
         this.params = params;
@@ -61,13 +78,13 @@ public class Client {
         logger.info(String.format("Loaded DB: %s", db.getClass().getName()));
 
         metricsManager = new WorkloadMetricsManager(params.timeUnit());
+
+        generators = new GeneratorFactory(new RandomDataGeneratorFactory(RANDOM_SEED));
     }
 
     public void start() throws ClientException {
         logger.info("LDBC Workload Driver");
         logger.info(params.toString());
-
-        GeneratorFactory generators = new GeneratorFactory(new RandomDataGeneratorFactory(RANDOM_SEED));
 
         WorkloadRunner workloadRunner = null;
         try {

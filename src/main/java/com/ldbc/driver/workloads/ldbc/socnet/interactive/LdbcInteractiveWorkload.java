@@ -58,7 +58,7 @@ public class LdbcInteractiveWorkload extends Workload {
          * Create Generators for desired Operations
          */
 
-        Set<Tuple2<Double, Iterator<Operation<?>>>> operations = new HashSet<Tuple2<Double, Iterator<Operation<?>>>>();
+        List<Tuple2<Double, Iterator<Operation<?>>>> operations = new ArrayList<Tuple2<Double, Iterator<Operation<?>>>>();
 
         Iterator<String> firstNameGenerator = generators.discrete(substitutionParameters.firstNames);
         Iterator<Long> personIdGenerator = generators.discrete(substitutionParameters.personIds);

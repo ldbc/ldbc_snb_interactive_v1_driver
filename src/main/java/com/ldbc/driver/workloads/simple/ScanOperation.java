@@ -1,21 +1,19 @@
 package com.ldbc.driver.workloads.simple;
 
-import java.util.Map;
-import java.util.Set;
-import java.util.Vector;
-
 import com.ldbc.driver.Operation;
 import com.ldbc.driver.data.ByteIterator;
 
-public class ScanOperation extends Operation<Vector<Map<String, ByteIterator>>>
-{
+import java.util.List;
+import java.util.Map;
+import java.util.Vector;
+
+public class ScanOperation extends Operation<Vector<Map<String, ByteIterator>>> {
     private final String table;
     private final String startKey;
     private final int recordCount;
-    private final Set<String> fields;
+    private final List<String> fields;
 
-    public ScanOperation( String table, String startKey, int recordCount, Set<String> fields )
-    {
+    public ScanOperation(String table, String startKey, int recordCount, List<String> fields) {
         super();
         this.table = table;
         this.startKey = startKey;
@@ -23,23 +21,19 @@ public class ScanOperation extends Operation<Vector<Map<String, ByteIterator>>>
         this.fields = fields;
     }
 
-    public String getTable()
-    {
+    public String getTable() {
         return table;
     }
 
-    public String getStartkey()
-    {
+    public String getStartkey() {
         return startKey;
     }
 
-    public int getRecordcount()
-    {
+    public int getRecordcount() {
         return recordCount;
     }
 
-    public Set<String> getFields()
-    {
+    public List<String> getFields() {
         return fields;
     }
 }
