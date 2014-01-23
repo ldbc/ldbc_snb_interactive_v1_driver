@@ -39,22 +39,6 @@ public class Client {
     private final WorkloadMetricsManager metricsManager;
     private final GeneratorFactory generators;
 
-    public WorkloadParams params() {
-        return params;
-    }
-
-//    public Workload workload() {
-//        return workload;
-//    }
-//
-//    public Db db() {
-//        return db;
-//    }
-
-    public GeneratorFactory generators() {
-        return generators;
-    }
-
     public Client(WorkloadParams params) throws ClientException {
         this.params = params;
         try {

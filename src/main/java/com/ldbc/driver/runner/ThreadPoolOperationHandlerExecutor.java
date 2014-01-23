@@ -5,6 +5,7 @@ import com.ldbc.driver.OperationResult;
 import com.ldbc.driver.util.temporal.Duration;
 
 import java.util.concurrent.*;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicLong;
 
 public class ThreadPoolOperationHandlerExecutor implements OperationHandlerExecutor {
@@ -16,7 +17,7 @@ public class ThreadPoolOperationHandlerExecutor implements OperationHandlerExecu
     private AtomicLong retrievedResults = new AtomicLong(0);
     private AtomicLong submittedHandlers = new AtomicLong(0);
 
-    private boolean shutdown = false;
+    private AtomicBoolean shutdown = new AtomicBoolean(false);
 
     public ThreadPoolOperationHandlerExecutor(int threadCount) {
         this.threadPool = createThreadPool(threadCount);
@@ -63,8 +64,8 @@ public class ThreadPoolOperationHandlerExecutor implements OperationHandlerExecu
 
     @Override
     public final void shutdown() {
-        if (true == shutdown) return;
+        if (true == shutdown.get()) return;
         threadPool.shutdown();
-        shutdown = true;
+        shutdown.set(true);
     }
 }

@@ -1,5 +1,6 @@
 package com.ldbc.driver.runner;
 
+import java.text.DecimalFormat;
 import java.util.Iterator;
 
 import org.apache.log4j.Logger;
@@ -51,10 +52,6 @@ public class WorkloadRunner
         while ( operationGenerator.hasNext() )
         {
             Operation<?> operation = operationGenerator.next();
-
-            // TODO remove
-            logger.info(operation.getClass().getName());
-
             try
             {
                 OperationHandler<?> operationHandler = db.getOperationHandler( operation );
