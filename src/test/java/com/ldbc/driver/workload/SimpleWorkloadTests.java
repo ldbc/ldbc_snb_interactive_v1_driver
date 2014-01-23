@@ -17,7 +17,7 @@ import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
 
-public class WorkloadTests {
+public class SimpleWorkloadTests {
 
     @Test
     public void shouldBeRepeatableWhenSameWorkloadIsUsedTwiceWithIdenticalGeneratorFactories() throws ClientException, ParamsException, WorkloadException {
@@ -90,9 +90,6 @@ public class WorkloadTests {
                         }));
 
         assertThat(operationsA.size(), is(operationsB.size()));
-
-        System.out.printf("%s %s\n", operationsA.size(), operationsB.size());
-        System.out.printf("%s\n%s\n", operationsA.toString(), operationsB.toString());
 
         Iterator<Class> operationsAIt = operationsA.iterator();
         Iterator<Class> operationsBIt = operationsB.iterator();

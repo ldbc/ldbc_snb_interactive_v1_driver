@@ -1,0 +1,103 @@
+DEFINITIONS:
+
+ - Driver: one workload generating process
+
+ - Simulation Time: notion of time created by data generator
+
+ - Real Time: wall clock time
+
+ - Real Time Ratio: function that maps Simulation Time to Real Time, e.g., an offset in combination with a compression ratio.
+ 		Real Time Ratio is a static value, set in the Driver configuration.
+ 		Real Time Ratio will also be reported along with result, so others can recreate the same benchmark.
+
+ - Event: read and/or write 
+ 	- Read Event: performs only a read, no data is modified
+ 	- Write Event: both reads and writes
+
+ - Due Time: point in Simulation Time at which an Event should be generated
+
+ - Event Stream (per driver) - sequence of Events ordered by Due Time.
+
+ - Initiated Events: events that have started executing but not yet finished
+
+ - Completed Events: events that have finished executing
+
+ - Completion Time (per driver): point in Simulation Time behind which there are no pending events.
+ 		There exist no uncompleted events with Due Time less than Completion Time.
+ 		Completion Time = min( min(due time of all Intiated Events), max(due time of all Completed Events) )
+
+ - Initiated Time: maximum Simulation Time of actions that have been initiated
+ 		Initiated Time = max(due time of all Initiated Time)
+
+ - Global Completion Time: minimum Completion Time from among all Drivers
+ 		Global Completion Time = min(Completion Time of all Drivers)
+
+ - Global Initiated Time: maximum Initiated Time from among all Drivers
+ 		Global Initiated Time = max(Initiated Time of all Drivers)
+
+ - Delta Time: duration in Simulation Time. events may be initiated when their Due Time is between Global Completion Time and Global Completion Time + Delta Time.
+		Data generator will ensure when two events have a necessary order in time (e.g., reply must follow post) there is at least a Delta Time interval between the two.
+		Value of Delta Time must be given to Drivers as a parameter in their configuration.
+
+ - Initiable Events: the subset of events in a Driver's Event Stream in which every event has Due Time between Global Completion Time and Global Completion Time + Delta Time.
+
+ALGORITHM/IMPLEMENTATION:
+
+ - When an event completes, Driver updates its Completion Time.
+
+ - Each Driver notifies every other Driver of its Completion Time periodically, e.g., at an that is 1/3 of Delta Time (converted to Real Time).
+
+ - Drivers schedule and execute their Initiable Events according to the Due Time (coverted to Real Time) of those events
+ 		When there are no Initiable Events the Driver will wait until Global Completion Time advances.
+
+ - If any Driver is unable to keep up with the configured workload (execute events within a tolerance of their Due Time) the system will act accordingly.
+ 		E.g., terminate or write to an error log.
+
+ - Communication between Drivers is one-way, push and does not involve reply messages.
+ 		E.g., Drivers send periodic heartbeats to each other: content is Global Completion Time and Global Initiated Time and the period is a function of Delta Time.
+
+QUERY MIX:
+
+ - Read Event frequency is pegged to Write Event frequency
+ 		E.g., for each post creation Write Event, Drivers will execute a preset number of each Read Event in the query mix.
+ 		When Read Events have users as parameters, users are picked from the users that are mentioned in the Write Event Stream.
+ 		This results in a biased distribution between user parameters, favoring users with many posts, which corresponds to reality.
+ 		Same user will not be used more than once per post as a parameter of the same query.
+ 			<TODO> what does this mean?
+ 		The query mix proportion will call for more query executions. The users for these will be selected at random. 
+ 			<TODO> what does this mean?
+
+ <TODO> find papers on query mix for social networks
+
+EVENT STREAM GENERATION:
+
+In the present scheme, as user actions and their dependent actions (e.g. reply) will be at least Delta Time apart, there is no necessary choice of partitioning key for the single source event stream. A convenient partition of this is provided by the user, thus one driver takes a certain range of user ids.   
+
+The data generator produces the updates at the same time it produces the dataset. 
+This has the form of a map-reduce pass that splits the output into bulk load output and interactive output, separated by a point in Simulation Time.
+The interactive portion is subsequently split into one stream per intended Driver and each stream is sorted on Simulation Time.
+It is not necessarily the case that the stream partitioning is performed by the data generator, it could also be performed at some later time.
+Delta Time is a parameter to the data generation. 
+Using a different Delta Time in the Driver, or omitting any stream partition, may result in dependent events preceding their precondition.
+
+DRIVER USAGE:
+
+ - Data scale will be chosen and generated.
+
+ - Data will be bulk loaded.
+
+ - Best practice in OLTP benchmarks is to peg th roughput to scale.
+
+DATA GENERATOR DEVELOPMENT ITEMS:
+
+ - Add partitioning by user and sorting on time as final MR passes to data generator.  
+
+ - Add the Delta Time as parameter to signify minimum time lapse between action and dependent action.
+
+DRIVER DEVELOPMENT ITEMS:
+
+ - Implement update scheduling 
+
+ - Implement roadcasting of the Global Completion Time
+
+ - Insert existing query driver in the mix for driving the queries, with part of the parameters provided by the updates. 

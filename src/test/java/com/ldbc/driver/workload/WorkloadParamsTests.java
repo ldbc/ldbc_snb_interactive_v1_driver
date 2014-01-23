@@ -1,5 +1,8 @@
-package com.ldbc.driver;
+package com.ldbc.driver.workload;
 
+import com.ldbc.driver.BenchmarkPhase;
+import com.ldbc.driver.ParamsException;
+import com.ldbc.driver.WorkloadParams;
 import com.ldbc.driver.util.TestUtils;
 import org.junit.Test;
 
