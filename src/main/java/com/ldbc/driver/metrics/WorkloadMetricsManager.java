@@ -27,7 +27,6 @@ public class WorkloadMetricsManager
 
     private static final Duration MINUTES_10 = Duration.fromSeconds( 60 * 10 );
     public static final Duration DEFAULT_HIGHEST_EXPECTED_DURATION = MINUTES_10;
-    public static final TimeUnit DEFAULT_DURATION_UNIT = TimeUnit.MICROSECONDS;
 
     private final Map<String, OperationMetrics> allOperationMetrics;
 
@@ -36,11 +35,6 @@ public class WorkloadMetricsManager
     private Time startTime;
     private Time timeOfLastMeaurement = Time.now();
     private int measurementCount = 0;
-
-    public WorkloadMetricsManager()
-    {
-        this( DEFAULT_DURATION_UNIT, DEFAULT_HIGHEST_EXPECTED_DURATION );
-    }
 
     public WorkloadMetricsManager( TimeUnit durationUnit )
     {
@@ -84,16 +78,6 @@ public class WorkloadMetricsManager
         }
         operationMetrics.measure( operationResult );
         allOperationMetrics.put( operationResult.operationType(), operationMetrics );
-    }
-
-    public Time getTimeOfFirstMeasurement()
-    {
-        return startTime;
-    }
-
-    public Time getTimeOfLastMeasurement()
-    {
-        return timeOfLastMeaurement;
     }
 
     public void export( OperationMetricsFormatter metricsFormatter, OutputStream outputStream )

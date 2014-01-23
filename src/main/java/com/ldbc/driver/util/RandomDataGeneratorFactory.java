@@ -17,15 +17,6 @@ public class RandomDataGeneratorFactory {
     }
 
     /**
-     * Will use provided RandomGenerator to generate seeds for all returned RandomDataGenerator instances
-     *
-     * @param random
-     */
-    public RandomDataGeneratorFactory(RandomGenerator random) {
-        this.random = random;
-    }
-
-    /**
      * Will use provided long seed to seeds all returned RandomDataGenerator instances
      *
      * @param seed

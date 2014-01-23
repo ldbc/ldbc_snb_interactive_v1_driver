@@ -51,6 +51,10 @@ public class WorkloadRunner
         while ( operationGenerator.hasNext() )
         {
             Operation<?> operation = operationGenerator.next();
+
+            // TODO remove
+            logger.info(operation.getClass().getName());
+
             try
             {
                 OperationHandler<?> operationHandler = db.getOperationHandler( operation );
