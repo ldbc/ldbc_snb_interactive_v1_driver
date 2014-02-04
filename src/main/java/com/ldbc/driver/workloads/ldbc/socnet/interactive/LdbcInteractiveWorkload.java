@@ -12,8 +12,8 @@ import com.ldbc.driver.generator.StartTimeAssigningOperationGenerator;
 import com.ldbc.driver.util.GeneratorUtils;
 import com.ldbc.driver.util.Tuple;
 import com.ldbc.driver.util.Tuple.Tuple2;
-import com.ldbc.driver.util.temporal.Duration;
-import com.ldbc.driver.util.temporal.Time;
+import com.ldbc.driver.temporal.Duration;
+import com.ldbc.driver.temporal.Time;
 
 import java.io.File;
 import java.util.*;
@@ -231,7 +231,8 @@ public class LdbcInteractiveWorkload extends Workload {
 
         @Override
         protected Operation<?> doNext() throws GeneratorException {
-            return new LdbcQuery3(personIds.next(), countryPairs.next()[0], countryPairs.next()[1], new Date(
+            String[] countryPair = countryPairs.next();
+            return new LdbcQuery3(personIds.next(), countryPair[0], countryPair[1], new Date(
                     startDates.next()), durationMillis);
         }
     }

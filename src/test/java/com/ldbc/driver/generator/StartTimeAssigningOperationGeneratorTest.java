@@ -3,21 +3,15 @@ package com.ldbc.driver.generator;
 import java.util.Iterator;
 
 import com.ldbc.driver.Operation;
-import com.ldbc.driver.generator.Generator;
-import com.ldbc.driver.generator.GeneratorFactory;
-import com.ldbc.driver.generator.GeneratorException;
-import com.ldbc.driver.generator.MappingGenerator;
-import com.ldbc.driver.generator.StartTimeAssigningOperationGenerator;
 import com.ldbc.driver.util.Function1;
 import com.ldbc.driver.util.RandomDataGeneratorFactory;
-import com.ldbc.driver.util.temporal.Duration;
-import com.ldbc.driver.util.temporal.Time;
+import com.ldbc.driver.temporal.Duration;
+import com.ldbc.driver.temporal.Time;
 
 import org.junit.Test;
 
 import static org.junit.Assert.*;
 import static org.hamcrest.CoreMatchers.*;
-import static org.junit.matchers.JUnitMatchers.*;
 
 public class StartTimeAssigningOperationGeneratorTest
 {

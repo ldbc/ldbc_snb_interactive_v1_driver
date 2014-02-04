@@ -12,8 +12,8 @@ import com.ldbc.driver.Operation;
 import com.ldbc.driver.generator.GeneratorFactory;
 import com.ldbc.driver.generator.MappingGenerator;
 import com.ldbc.driver.generator.OrderedMultiGenerator;
-import com.ldbc.driver.util.temporal.Duration;
-import com.ldbc.driver.util.temporal.Time;
+import com.ldbc.driver.temporal.Duration;
+import com.ldbc.driver.temporal.Time;
 
 public class GeneratorUtils
 {

@@ -6,7 +6,7 @@ import java.util.concurrent.TimeUnit;
 import org.codehaus.jackson.annotate.JsonProperty;
 
 import com.ldbc.driver.OperationResult;
-import com.ldbc.driver.util.temporal.Duration;
+import com.ldbc.driver.temporal.Duration;
 
 public class OperationMetrics
 {

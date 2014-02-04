@@ -1,6 +1,5 @@
 package com.ldbc.driver.runner;
 
-import java.text.DecimalFormat;
 import java.util.Iterator;
 
 import org.apache.log4j.Logger;
@@ -10,8 +9,8 @@ import com.ldbc.driver.Operation;
 import com.ldbc.driver.OperationHandler;
 import com.ldbc.driver.WorkloadException;
 import com.ldbc.driver.metrics.WorkloadMetricsManager;
-import com.ldbc.driver.util.temporal.Duration;
-import com.ldbc.driver.util.temporal.Time;
+import com.ldbc.driver.temporal.Duration;
+import com.ldbc.driver.temporal.Time;
 
 public class WorkloadRunner
 {

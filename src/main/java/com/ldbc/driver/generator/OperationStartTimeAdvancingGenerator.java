@@ -4,8 +4,8 @@ import java.util.Iterator;
 
 import com.ldbc.driver.Operation;
 import com.ldbc.driver.util.Function1;
-import com.ldbc.driver.util.temporal.Duration;
-import com.ldbc.driver.util.temporal.Time;
+import com.ldbc.driver.temporal.Duration;
+import com.ldbc.driver.temporal.Time;
 
 /*
  * Advances the scheduled start time of an Operation by a given Duration 

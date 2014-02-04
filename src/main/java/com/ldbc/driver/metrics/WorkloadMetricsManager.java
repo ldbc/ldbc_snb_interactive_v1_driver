@@ -16,8 +16,8 @@ import com.ldbc.driver.OperationResult;
 import com.ldbc.driver.WorkloadException;
 import com.ldbc.driver.metrics.OperationMetrics.OperationMetricsNameComparator;
 import com.ldbc.driver.metrics.formatters.OperationMetricsFormatter;
-import com.ldbc.driver.util.temporal.Duration;
-import com.ldbc.driver.util.temporal.Time;
+import com.ldbc.driver.temporal.Duration;
+import com.ldbc.driver.temporal.Time;
 
 public class WorkloadMetricsManager
 {

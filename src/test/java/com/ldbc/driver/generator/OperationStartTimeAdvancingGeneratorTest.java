@@ -5,18 +5,11 @@ import java.util.Iterator;
 import org.junit.Test;
 
 import com.ldbc.driver.Operation;
-import com.ldbc.driver.generator.Generator;
-import com.ldbc.driver.generator.GeneratorException;
-import com.ldbc.driver.generator.IdentityGenerator;
-import com.ldbc.driver.generator.MappingGenerator;
-import com.ldbc.driver.generator.OperationStartTimeAdvancingGenerator;
-import com.ldbc.driver.generator.StartTimeAssigningOperationGenerator;
 import com.ldbc.driver.util.Function1;
-import com.ldbc.driver.util.temporal.Time;
+import com.ldbc.driver.temporal.Time;
 
 import static org.junit.Assert.*;
 import static org.hamcrest.CoreMatchers.*;
-import static org.junit.matchers.JUnitMatchers.*;
 
 public class OperationStartTimeAdvancingGeneratorTest
 {

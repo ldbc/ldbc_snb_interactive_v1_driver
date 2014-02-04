@@ -1,6 +1,6 @@
 package com.ldbc.driver.util;
 
-import com.ldbc.driver.util.temporal.Time;
+import com.ldbc.driver.temporal.Time;
 import org.apache.commons.math3.random.RandomDataGenerator;
 import org.apache.commons.math3.random.RandomGenerator;
 import org.apache.commons.math3.random.Well19937c;

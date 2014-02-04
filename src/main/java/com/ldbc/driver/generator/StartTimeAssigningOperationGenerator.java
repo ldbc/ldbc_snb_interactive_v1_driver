@@ -3,7 +3,7 @@ package com.ldbc.driver.generator;
 import java.util.Iterator;
 
 import com.ldbc.driver.Operation;
-import com.ldbc.driver.util.temporal.Time;
+import com.ldbc.driver.temporal.Time;
 
 public class StartTimeAssigningOperationGenerator extends Generator<Operation<?>>
 {

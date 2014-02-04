@@ -1,4 +1,4 @@
-package com.ldbc.driver.util.temporal;
+package com.ldbc.driver.temporal;
 
 public class TemporalException extends RuntimeException
 {

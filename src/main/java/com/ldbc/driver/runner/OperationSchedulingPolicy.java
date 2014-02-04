@@ -2,7 +2,7 @@ package com.ldbc.driver.runner;
 
 import com.ldbc.driver.Operation;
 import com.ldbc.driver.OperationException;
-import com.ldbc.driver.util.temporal.Duration;
+import com.ldbc.driver.temporal.Duration;
 
 public interface OperationSchedulingPolicy
 {

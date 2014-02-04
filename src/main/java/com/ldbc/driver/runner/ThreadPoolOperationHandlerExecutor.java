@@ -2,7 +2,7 @@ package com.ldbc.driver.runner;
 
 import com.ldbc.driver.OperationHandler;
 import com.ldbc.driver.OperationResult;
-import com.ldbc.driver.util.temporal.Duration;
+import com.ldbc.driver.temporal.Duration;
 
 import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicBoolean;

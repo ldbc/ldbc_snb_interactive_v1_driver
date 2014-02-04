@@ -4,7 +4,7 @@ import org.apache.log4j.Logger;
 
 import com.ldbc.driver.Operation;
 import com.ldbc.driver.OperationException;
-import com.ldbc.driver.util.temporal.Duration;
+import com.ldbc.driver.temporal.Duration;
 
 public class CompulsoryStartTimeOperationSchedulingPolicy implements OperationSchedulingPolicy
 {

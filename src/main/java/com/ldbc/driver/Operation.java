@@ -1,6 +1,6 @@
 package com.ldbc.driver;
 
-import com.ldbc.driver.util.temporal.Time;
+import com.ldbc.driver.temporal.Time;
 
 public abstract class Operation<R>
 {

@@ -7,7 +7,7 @@ import com.ldbc.driver.metrics.formatters.SimpleOperationMetricsFormatter;
 import com.ldbc.driver.runner.WorkloadRunner;
 import com.ldbc.driver.util.ClassLoaderHelper;
 import com.ldbc.driver.util.RandomDataGeneratorFactory;
-import com.ldbc.driver.util.temporal.Time;
+import com.ldbc.driver.temporal.Time;
 import org.apache.log4j.Logger;
 
 import java.io.File;

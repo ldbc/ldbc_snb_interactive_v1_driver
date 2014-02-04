@@ -1,10 +1,10 @@
-package com.ldbc.driver.util;
+package com.ldbc.driver.temporal;
 
 import org.junit.Test;
 
-import com.ldbc.driver.util.temporal.Duration;
-import com.ldbc.driver.util.temporal.TemporalException;
-import com.ldbc.driver.util.temporal.Time;
+import com.ldbc.driver.temporal.Duration;
+import com.ldbc.driver.temporal.TemporalException;
+import com.ldbc.driver.temporal.Time;
 
 import static org.junit.Assert.*;
 import static org.hamcrest.CoreMatchers.*;

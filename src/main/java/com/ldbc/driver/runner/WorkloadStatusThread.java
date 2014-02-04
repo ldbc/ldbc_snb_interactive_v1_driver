@@ -3,7 +3,7 @@ package com.ldbc.driver.runner;
 import org.apache.log4j.Logger;
 
 import com.ldbc.driver.metrics.WorkloadMetricsManager;
-import com.ldbc.driver.util.temporal.Duration;
+import com.ldbc.driver.temporal.Duration;
 
 class WorkloadStatusThread extends Thread
 {
