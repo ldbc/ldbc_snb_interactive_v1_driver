@@ -8,20 +8,4 @@ public class OperationHandlerExecutorException extends Exception
     {
         super( message, cause );
     }
-
-    public OperationHandlerExecutorException( String message )
-    {
-        super( message );
-    }
-
-    public OperationHandlerExecutorException( Throwable cause )
-    {
-        super( cause );
-    }
-
-    public OperationHandlerExecutorException()
-    {
-        super();
-    }
-
 }

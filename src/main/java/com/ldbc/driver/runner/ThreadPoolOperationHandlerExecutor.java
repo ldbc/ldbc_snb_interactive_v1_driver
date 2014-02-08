@@ -8,6 +8,10 @@ import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicLong;
 
+/**
+ *
+ */
+
 public class ThreadPoolOperationHandlerExecutor implements OperationHandlerExecutor {
     private final Duration POLL_TIMEOUT = Duration.fromMilli(100);
 
@@ -20,12 +24,9 @@ public class ThreadPoolOperationHandlerExecutor implements OperationHandlerExecu
     private AtomicBoolean shutdown = new AtomicBoolean(false);
 
     public ThreadPoolOperationHandlerExecutor(int threadCount) {
-        this.threadPool = createThreadPool(threadCount);
+        ThreadFactory threadFactory = Executors.defaultThreadFactory();
+        this.threadPool = Executors.newFixedThreadPool(threadCount, threadFactory);
         this.operationHandlerCompletionPool = new ExecutorCompletionService<OperationResult>(threadPool);
-    }
-
-    private ExecutorService createThreadPool(int threadCount) {
-        return Executors.newFixedThreadPool(threadCount);
     }
 
     @Override
@@ -45,7 +46,8 @@ public class ThreadPoolOperationHandlerExecutor implements OperationHandlerExecu
             retrievedResults.incrementAndGet();
             return operationResult;
         } catch (Exception e) {
-            throw new OperationHandlerExecutorException(e.getCause());
+            throw new OperationHandlerExecutorException("Error encountered while trying to do non-blocking retrieval of next completed operation handler",
+                    e.getCause());
         }
     }
 
@@ -58,14 +60,19 @@ public class ThreadPoolOperationHandlerExecutor implements OperationHandlerExecu
             retrievedResults.incrementAndGet();
             return operationResult;
         } catch (Exception e) {
-            throw new OperationHandlerExecutorException(e.getCause());
+            throw new OperationHandlerExecutorException("Error encountered while trying to do blocking retrieval of next completed operation handler",
+                    e.getCause());
         }
     }
 
     @Override
-    public final void shutdown() {
+    public final void shutdown() throws OperationHandlerExecutorException {
         if (true == shutdown.get()) return;
-        threadPool.shutdown();
-        shutdown.set(true);
+        try {
+            threadPool.shutdown();
+            shutdown.set(true);
+        } catch (SecurityException e) {
+            throw new OperationHandlerExecutorException("Error encountered while trying to shutdown", e.getCause());
+        }
     }
 }

@@ -81,8 +81,7 @@ public class Client {
             logger.error(errMsg, e);
             throw new ClientException(errMsg, e.getCause());
         }
-
-        logger.info(String.format("Starting Benchmark (%s operations)", params.operationCount()));
+        logger.info(String.format("Instantiated WorkloadRunner - Starting Benchmark (%s operations)", params.operationCount()));
 
         Time startTime = Time.now();
         try {
