@@ -1,49 +1,52 @@
 package com.ldbc.driver;
 
-import java.util.concurrent.Callable;
-
+import com.ldbc.driver.runner.Spinner;
 import com.ldbc.driver.util.temporal.DurationMeasurement;
 
-public abstract class OperationHandler<A extends Operation<?>> implements Callable<OperationResult>
-{
+import java.util.concurrent.Callable;
+
+public abstract class OperationHandler<A extends Operation<?>> implements Callable<OperationResult> {
     private A operation;
     private DbConnectionState dbConnectionState;
+    private Spinner spinner;
 
-    public final void setOperation( Operation<?> operation )
-    {
+    public final void init(Spinner spinner, Operation<?> operation) {
+        this.spinner = spinner;
         this.operation = (A) operation;
     }
 
-    public final void setDbConnectionState( DbConnectionState dbConnectionState )
-    {
+    public final A getOperation() {
+        return operation;
+    }
+
+    public final void setDbConnectionState(DbConnectionState dbConnectionState) {
         this.dbConnectionState = dbConnectionState;
     }
 
-    public final DbConnectionState dbConnectionState()
-    {
+    public final DbConnectionState dbConnectionState() {
         return dbConnectionState;
     }
 
     @Override
-    public OperationResult call() throws Exception
-    {
+    public OperationResult call() throws Exception {
+        spinner.waitForScheduledStartTime(operation);
+
         DurationMeasurement durationMeasurement = DurationMeasurement.startMeasurementNow();
 
-        OperationResult operationResult = executeOperation( operation );
+        OperationResult operationResult = executeOperation(operation);
 
-        operationResult.setRunDuration( durationMeasurement.durationUntilNow() );
-        operationResult.setActualStartTime( durationMeasurement.startTime() );
-        operationResult.setOperationType( operation.type() );
-        operationResult.setScheduledStartTime( operation.scheduledStartTime() );
+        operationResult.setRunDuration(durationMeasurement.durationUntilNow());
+        operationResult.setActualStartTime(durationMeasurement.startTime());
+        operationResult.setOperationType(operation.type());
+        operationResult.setScheduledStartTime(operation.scheduledStartTime());
 
         return operationResult;
     }
 
-    protected abstract OperationResult executeOperation( A operation ) throws DbException;
+    protected abstract OperationResult executeOperation(A operation) throws DbException;
 
     @Override
-    public String toString()
-    {
-        return String.format( "OperationHandler [type=%s, operation=%s]", getClass().getName(), operation );
+    public String toString() {
+        return String.format("OperationHandler [type=%s, operation=%s]", getClass().getName(), operation);
     }
 }
