@@ -25,8 +25,7 @@ public class ContinuousMetric
         this.unit = unit;
     }
 
-    public void addMeasurement( long value )
-    {
+    public void addMeasurement( long value ) throws MetricException {
         try
         {
             histogram.recordValue( value );

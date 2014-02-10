@@ -14,7 +14,6 @@ import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
 
 public class ThreadPoolOperationHandlerExecutorTests {
-
     @Test
     public void shouldRunOperationHandlerAndReturnExpectedResultWithoutError() throws InterruptedException, ExecutionException {
         OperationHandler<Operation<Integer>> operationHandler = new OperationHandler<Operation<Integer>>() {
@@ -26,7 +25,7 @@ public class ThreadPoolOperationHandlerExecutorTests {
 
         Operation<?> operation = new Operation<Integer>() {
         };
-        Spinner spinner = new Spinner(new BasicOperationSchedulingPolicy(Duration.fromSeconds(1), true));
+        Spinner spinner = new Spinner(new ErrorLoggingOperationSchedulingPolicy(Duration.fromSeconds(1), true));
         operationHandler.init(spinner, operation);
 
         int threadCount = 1;
@@ -54,7 +53,7 @@ public class ThreadPoolOperationHandlerExecutorTests {
 
         Operation<?> operation = new Operation<Integer>() {
         };
-        Spinner spinner = new Spinner(new BasicOperationSchedulingPolicy(Duration.fromSeconds(1), true));
+        Spinner spinner = new Spinner(new ErrorLoggingOperationSchedulingPolicy(Duration.fromSeconds(1), true));
         operationHandler.init(spinner, operation);
 
         int threadCount = 1;
@@ -99,7 +98,7 @@ public class ThreadPoolOperationHandlerExecutorTests {
 
         Operation<?> operation = new Operation<Integer>() {
         };
-        Spinner spinner = new Spinner(new BasicOperationSchedulingPolicy(Duration.fromSeconds(1), true));
+        Spinner spinner = new Spinner(new ErrorLoggingOperationSchedulingPolicy(Duration.fromSeconds(1), true));
         operationHandler.init(spinner, operation);
 
         int threadCount = 1;

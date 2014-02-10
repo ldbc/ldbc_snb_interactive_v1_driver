@@ -1,9 +1,9 @@
 package com.ldbc.driver.runner;
 
 import com.ldbc.driver.Operation;
-import com.ldbc.driver.OperationException;
 import com.ldbc.driver.temporal.Time;
 
+// TODO support offset
 public class Spinner {
     private final OperationSchedulingPolicy operationSchedulingPolicy;
 
@@ -11,7 +11,7 @@ public class Spinner {
         this.operationSchedulingPolicy = lateOperationPolicy;
     }
 
-    public void waitForScheduledStartTime(Operation<?> operation) throws OperationException {
+    public void waitForScheduledStartTime(Operation<?> operation) {
         if (operationSchedulingPolicy.ignoreScheduledStartTime()) {
             return;
         }

@@ -1,71 +1,59 @@
 package com.ldbc.driver.runner;
 
-import java.util.concurrent.atomic.AtomicBoolean;
-
-import org.apache.log4j.Logger;
-
 import com.ldbc.driver.OperationResult;
 import com.ldbc.driver.metrics.MetricException;
 import com.ldbc.driver.metrics.WorkloadMetricsManager;
 
-class MetricsLoggingThread extends Thread
-{
-    private static Logger logger = Logger.getLogger( MetricsLoggingThread.class );
+import java.util.concurrent.atomic.AtomicBoolean;
 
+class MetricsLoggingThread extends Thread {
     private final WorkloadMetricsManager metricsManager;
 
     private final OperationHandlerExecutor operationHandlerExecutor;
-    private AtomicBoolean isMoreResultsComing = new AtomicBoolean( true );
+    private AtomicBoolean isMoreResultsComing = new AtomicBoolean(true);
+    private final ConcurrentErrorReporter concurrentErrorReporter;
 
-    MetricsLoggingThread( OperationHandlerExecutor operationHandlerExecutor, WorkloadMetricsManager metricsManager )
-    {
+    MetricsLoggingThread(OperationHandlerExecutor operationHandlerExecutor, WorkloadMetricsManager metricsManager, ConcurrentErrorReporter concurrentErrorReporter) {
         this.operationHandlerExecutor = operationHandlerExecutor;
         this.metricsManager = metricsManager;
+        this.concurrentErrorReporter = concurrentErrorReporter;
     }
 
-    final void finishLoggingRemainingResults()
-    {
-        isMoreResultsComing.set( false );
+    final void finishLoggingRemainingResults() {
+        isMoreResultsComing.set(false);
     }
 
     @Override
-    public void run()
-    {
-        try
-        {
+    public void run() {
+        try {
             // Log results
-            while ( isMoreResultsComing.get() )
-            {
+            while (isMoreResultsComing.get()) {
                 OperationResult operationResult = operationHandlerExecutor.nextOperationResultNonBlocking();
-                if ( null == operationResult ) continue;
-                log( operationResult );
+                if (null == operationResult) continue;
+                log(operationResult);
             }
             // Log remaining results
-            while ( true )
-            {
+            while (true) {
                 OperationResult operationResult = operationHandlerExecutor.nextOperationResultBlocking();
-                if ( null == operationResult ) break;
-                log( operationResult );
+                if (null == operationResult) break;
+                log(operationResult);
             }
-        }
-        catch ( Exception e )
-        {
-            String errMsg = "Error encountered while logging results";
-            logger.error( errMsg, e );
-            throw new RuntimeException( errMsg, e.getCause() );
+        } catch (MetricException e) {
+            String errMsg = "Error encountered while logging metrics - logging thread exiting";
+            concurrentErrorReporter.reportError(this, errMsg);
+        } catch (OperationHandlerExecutorException e) {
+            String errMsg = String.format("Error encountered while retrieving completed operation handler from executor - logging thread exiting\n%s",
+                    ConcurrentErrorReporter.stackTraceToString(e));
+            concurrentErrorReporter.reportError(this, errMsg);
         }
     }
 
-    private void log( OperationResult operationResult )
-    {
-        try
-        {
-            metricsManager.measure( operationResult );
-        }
-        catch ( MetricException e )
-        {
-            String errMsg = String.format( "Error encountered while logging result - %s", operationResult );
-            throw new MetricException( errMsg, e.getCause() );
+    private void log(OperationResult operationResult) throws MetricException {
+        try {
+            metricsManager.measure(operationResult);
+        } catch (Exception e) {
+            String errMsg = String.format("Error encountered while logging result:\n\t%s", operationResult);
+            throw new MetricException(errMsg, e.getCause());
         }
     }
 }

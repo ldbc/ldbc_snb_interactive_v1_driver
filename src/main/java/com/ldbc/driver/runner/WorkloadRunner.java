@@ -1,6 +1,7 @@
 package com.ldbc.driver.runner;
 
 import com.google.common.base.Function;
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Iterators;
 import com.ldbc.driver.*;
 import com.ldbc.driver.metrics.WorkloadMetricsManager;
@@ -22,21 +23,22 @@ public class WorkloadRunner {
     private final OperationHandlerExecutor operationHandlerExecutor;
     private final MetricsLoggingThread metricsLoggingThread;
     private final WorkloadStatusThread workloadStatusThread;
-    private final Iterator<OperationHandler<?>> operationHandlers;
+    private final Iterable<OperationHandler<?>> operationHandlers;
     private final WorkloadMetricsManager metricsManager;
     private final boolean showStatus;
+    private final ConcurrentErrorReporter concurrentErrorReporter = new ConcurrentErrorReporter();
 
     public WorkloadRunner(Db db, Iterator<Operation<?>> operations, boolean showStatus, int threadCount,
                           WorkloadMetricsManager metricsManager) throws WorkloadException {
         this.db = db;
         // TODO make Spinner & OperationSchedulingPolicy configurable
-        this.spinner = new Spinner(new BasicOperationSchedulingPolicy(
+        this.spinner = new Spinner(new ErrorLoggingOperationSchedulingPolicy(
                 DEFAULT_TOLERATED_OPERATION_START_TIME_DELAY, IGNORE_SCHEDULED_START_TIME));
-        this.operationHandlerExecutor = new ThreadPoolOperationHandlerExecutor(threadCount);
-        this.metricsLoggingThread = new MetricsLoggingThread(operationHandlerExecutor, metricsManager);
+        this.operationHandlerExecutor = new ThreadPoolOperationHandlerExecutor(threadCount, concurrentErrorReporter);
+        this.metricsLoggingThread = new MetricsLoggingThread(operationHandlerExecutor, metricsManager, concurrentErrorReporter);
         Duration statusInterval = DEFAULT_STATUS_UPDATE_INTERVAL;
         this.workloadStatusThread = new WorkloadStatusThread(statusInterval, metricsManager);
-        this.operationHandlers = operationsToOperationHandlers(operations, spinner);
+        this.operationHandlers = ImmutableList.copyOf(operationsToOperationHandlers(operations, spinner));
         this.metricsManager = metricsManager;
         this.showStatus = showStatus;
     }
@@ -45,17 +47,16 @@ public class WorkloadRunner {
         metricsManager.setStartTime(Time.now());
         metricsLoggingThread.start();
         if (showStatus) workloadStatusThread.start();
-        while (operationHandlers.hasNext()) {
-            OperationHandler<?> operationHandler = operationHandlers.next();
-            try {
-                // This occurs in OperationHandler too
-                // TODO do this here, but schedule earlier by some amount to account for context switch latency
-                spinner.waitForScheduledStartTime(operationHandler.getOperation());
-                operationHandlerExecutor.execute(operationHandler);
-            } catch (Exception e) {
-                throw new WorkloadException(String.format(
-                        "Error encountered trying to schedule operation [%s] to execute after %s operations",
-                        operationHandler, metricsManager.getMeasurementCount()), e.getCause());
+        for (OperationHandler<?> operationHandler : operationHandlers) {
+            // This occurs in OperationHandler too
+            // TODO do this here, but schedule earlier by some amount to account for context switch latency
+            spinner.waitForScheduledStartTime(operationHandler.getOperation());
+            operationHandlerExecutor.execute(operationHandler);
+            if (concurrentErrorReporter.errorEncountered()) {
+                String errMsg = String.format("Benchmark terminating due to fatal error!\n" +
+                        "Number of operations completed before termination: %s\n%s",
+                        metricsManager.getMeasurementCount(), concurrentErrorReporter.toString());
+                throw new WorkloadException(errMsg);
             }
         }
 

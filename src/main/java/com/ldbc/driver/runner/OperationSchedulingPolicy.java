@@ -20,7 +20,7 @@ public interface OperationSchedulingPolicy
     /**
      * Only called if ignoreScheduledStartTime is false.
      */
-    public void handleUnassignedScheduledStartTime() throws OperationException;
+    public void handleUnassignedScheduledStartTime();
 
     /**
      * Amount of time after its scheduled start time than an operation may be
@@ -33,6 +33,6 @@ public interface OperationSchedulingPolicy
      * Only called if ignoreScheduledStartTime is false and toleratedDelay is
      * exceeded.
      */
-    public void handleExcessiveDelay( Operation<?> operation ) throws OperationException;
+    public void handleExcessiveDelay( Operation<?> operation );
 
 }
