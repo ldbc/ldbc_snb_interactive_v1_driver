@@ -23,6 +23,7 @@ It is still at an early stage of development, but the LDBC Driver is being devel
 	   -l,--load                        run the loading phase of the workload
 	   -oc,--operationcount <count>     number of operations to execute (default: 0)
 	   -P <file1:file2>                 load properties from file(s) - files will be loaded in the order provided
+	                                    first files are highest priority; later values will not override earlier values
 	   -p <key=value>                   properties to be passed to DB and Workload - these will override
 	                                    properties loaded from files
 	   -rc,--recordcount <count>        number of records to create during load phase (default: 0)

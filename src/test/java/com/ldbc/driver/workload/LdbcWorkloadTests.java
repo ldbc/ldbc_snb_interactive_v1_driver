@@ -8,12 +8,10 @@ import com.ldbc.driver.generator.GeneratorFactory;
 import com.ldbc.driver.util.RandomDataGeneratorFactory;
 import com.ldbc.driver.util.TestUtils;
 import com.ldbc.driver.workloads.ldbc.socnet.interactive.LdbcInteractiveWorkload;
-import com.ldbc.driver.workloads.simple.SimpleWorkload;
 import org.junit.Test;
 
 import java.util.Iterator;
 import java.util.List;
-import java.util.concurrent.TimeUnit;
 
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.is;
@@ -39,13 +37,13 @@ public class LdbcWorkloadTests {
 
         List<Class> operationsA = ImmutableList.copyOf(
                 Iterators.transform(
-                        workload.getTransactionalOperations(new GeneratorFactory(new RandomDataGeneratorFactory(42L))),
+                        workload.getOperations(new GeneratorFactory(new RandomDataGeneratorFactory(42L))),
                         classFun
                 ));
 
         List<Class> operationsB = ImmutableList.copyOf(
                 Iterators.transform(
-                        workload.getTransactionalOperations(new GeneratorFactory(new RandomDataGeneratorFactory(42L))),
+                        workload.getOperations(new GeneratorFactory(new RandomDataGeneratorFactory(42L))),
                         classFun
                 ));
 
@@ -75,7 +73,7 @@ public class LdbcWorkloadTests {
 
         List<Class> operationsA = ImmutableList.copyOf(
                 Iterators.transform(
-                        workloadA.getTransactionalOperations(new GeneratorFactory(new RandomDataGeneratorFactory(42L))),
+                        workloadA.getOperations(new GeneratorFactory(new RandomDataGeneratorFactory(42L))),
                         new Function<Operation<?>, Class>() {
                             @Override
                             public Class apply(Operation<?> operation) {
@@ -85,7 +83,7 @@ public class LdbcWorkloadTests {
 
         List<Class> operationsB = ImmutableList.copyOf(
                 Iterators.transform(
-                        workloadB.getTransactionalOperations(new GeneratorFactory(new RandomDataGeneratorFactory(42L))),
+                        workloadB.getOperations(new GeneratorFactory(new RandomDataGeneratorFactory(42L))),
                         new Function<Operation<?>, Class>() {
                             @Override
                             public Class apply(Operation<?> operation) {

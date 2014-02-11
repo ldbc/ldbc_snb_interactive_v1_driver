@@ -1,6 +1,5 @@
 package com.ldbc.driver.workload;
 
-import com.ldbc.driver.BenchmarkPhase;
 import com.ldbc.driver.ParamsException;
 import com.ldbc.driver.WorkloadParams;
 import com.ldbc.driver.util.TestUtils;
@@ -21,22 +20,18 @@ public class WorkloadParamsTests {
         String dbClassName = "dbClassName";
         String workloadClassName = "workloadClassName";
         long operationCount = 1;
-        long recordCount = 2;
-        BenchmarkPhase benchmarkPhase = BenchmarkPhase.LOAD_PHASE;
         int threadCount = 3;
         boolean showStatus = true;
         TimeUnit timeUnit = TimeUnit.SECONDS;
         String resultFilePath = null;
 
         WorkloadParams params = new WorkloadParams(paramsMap, dbClassName, workloadClassName, operationCount,
-                recordCount, benchmarkPhase, threadCount, showStatus, timeUnit, resultFilePath);
+                threadCount, showStatus, timeUnit, resultFilePath);
 
         assertThat(params.asMap(), is(paramsMap));
         assertThat(params.dbClassName(), is(dbClassName));
         assertThat(params.workloadClassName(), is(workloadClassName));
         assertThat(params.operationCount(), is(operationCount));
-        assertThat(params.recordCount(), is(recordCount));
-        assertThat(params.benchmarkPhase(), is(benchmarkPhase));
         assertThat(params.threadCount(), is(threadCount));
         assertThat(params.isShowStatus(), is(showStatus));
         assertThat(params.timeUnit(), is(timeUnit));
@@ -64,8 +59,6 @@ public class WorkloadParamsTests {
         String dbClassName = "dbClassName";
         String workloadClassName = "workloadClassName";
         long operationCount = 1;
-        long recordCount = 2;
-        BenchmarkPhase benchmarkPhase = BenchmarkPhase.LOAD_PHASE;
         int threadCount = 3;
         boolean showStatus = true;
         String userKey = "userKey";
@@ -73,18 +66,15 @@ public class WorkloadParamsTests {
         TimeUnit timeUnit = TimeUnit.MINUTES;
         String resultFilePath = "somePath";
 
-        String[] args = {"-db", dbClassName, "-w", workloadClassName, "-oc", Long.toString(operationCount), "-rc",
-                Long.toString(recordCount), (benchmarkPhase.equals(BenchmarkPhase.LOAD_PHASE)) ? "-l" : "-t",
-                "-tc", Integer.toString(threadCount), "-rf", resultFilePath, (showStatus) ? "-s" : "", "-p", userKey, userVal, "-tu",
-                timeUnit.toString()};
+        String[] args = {"-db", dbClassName, "-w", workloadClassName, "-oc", Long.toString(operationCount),
+                "-tc", Integer.toString(threadCount), "-rf", resultFilePath,
+                (showStatus) ? "-s" : "", "-p", userKey, userVal, "-tu", timeUnit.toString()};
 
         WorkloadParams params = WorkloadParams.fromArgs(args);
 
         assertThat(params.dbClassName(), is(dbClassName));
         assertThat(params.workloadClassName(), is(workloadClassName));
         assertThat(params.operationCount(), is(operationCount));
-        assertThat(params.recordCount(), is(recordCount));
-        assertThat(params.benchmarkPhase(), is(benchmarkPhase));
         assertThat(params.threadCount(), is(threadCount));
         assertThat(params.isShowStatus(), is(showStatus));
         assertThat(params.timeUnit(), is(timeUnit));
@@ -100,8 +90,6 @@ public class WorkloadParamsTests {
         assertThat(params.dbClassName(), is("com.ldbc.socialnet.workload.neo4j.Neo4jDb"));
         assertThat(params.workloadClassName(), is("com.ldbc.driver.workloads.ldbc.socnet.interactive.LdbcInteractiveWorkload"));
         assertThat(params.operationCount(), is(10L));
-        assertThat(params.recordCount(), is(-1L));
-        assertThat(params.benchmarkPhase(), is(BenchmarkPhase.TRANSACTION_PHASE));
         assertThat(params.threadCount(), is(1));
         assertThat(params.isShowStatus(), is(true));
         assertThat(params.timeUnit(), is(TimeUnit.MILLISECONDS));

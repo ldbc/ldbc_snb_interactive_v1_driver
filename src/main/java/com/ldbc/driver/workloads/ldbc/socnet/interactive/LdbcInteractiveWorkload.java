@@ -9,11 +9,11 @@ import com.ldbc.driver.generator.Generator;
 import com.ldbc.driver.generator.GeneratorException;
 import com.ldbc.driver.generator.GeneratorFactory;
 import com.ldbc.driver.generator.StartTimeAssigningOperationGenerator;
+import com.ldbc.driver.temporal.Duration;
+import com.ldbc.driver.temporal.Time;
 import com.ldbc.driver.util.GeneratorUtils;
 import com.ldbc.driver.util.Tuple;
 import com.ldbc.driver.util.Tuple.Tuple2;
-import com.ldbc.driver.temporal.Duration;
-import com.ldbc.driver.temporal.Time;
 
 import java.io.File;
 import java.util.*;
@@ -46,12 +46,7 @@ public class LdbcInteractiveWorkload extends Workload {
     }
 
     @Override
-    protected Iterator<Operation<?>> createLoadOperations(GeneratorFactory generatorBuilder) throws WorkloadException {
-        throw new UnsupportedOperationException("Load phase not implemented for LDBC workload");
-    }
-
-    @Override
-    protected Iterator<Operation<?>> createTransactionalOperations(GeneratorFactory generators)
+    protected Iterator<Operation<?>> createOperations(GeneratorFactory generators)
             throws WorkloadException {
 
         /*
@@ -178,7 +173,7 @@ public class LdbcInteractiveWorkload extends Workload {
         // TODO configurable from parameters
         // TODO test if interleave actually works correctly
         Iterator<Time> startTimeGenerator = GeneratorUtils.constantIncrementStartTimeGenerator(generators, Time.now(),
-                Duration.fromMilli(10000));
+                Duration.fromMilli(100));
 
         return new StartTimeAssigningOperationGenerator(startTimeGenerator, filteredGenerator);
     }

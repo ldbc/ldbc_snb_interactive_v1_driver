@@ -10,18 +10,16 @@ public abstract class Workload {
     private boolean isCleanedUp = false;
 
     private long operationCount;
-    private long recordCount;
 
     /**
      * Called once to initialize state for workload
      */
     public final void init(WorkloadParams params) throws WorkloadException {
-        if (true == isInitialized) {
+        if (isInitialized) {
             throw new WorkloadException("Workload may be initialized only once");
         }
         isInitialized = true;
         this.operationCount = params.operationCount();
-        this.recordCount = params.recordCount();
         onInit(params.asMap());
     }
 
@@ -29,14 +27,10 @@ public abstract class Workload {
         return operationCount;
     }
 
-    protected long getRecordCount() {
-        return recordCount;
-    }
-
     public abstract void onInit(Map<String, String> properties) throws WorkloadException;
 
     public final void cleanup() throws WorkloadException {
-        if (true == isCleanedUp) {
+        if (isCleanedUp) {
             throw new WorkloadException("Workload may be cleaned up only once");
         }
         isCleanedUp = true;
@@ -45,30 +39,17 @@ public abstract class Workload {
 
     protected abstract void onCleanup() throws WorkloadException;
 
-    public final Iterator<Operation<?>> getLoadOperations(GeneratorFactory generators) throws WorkloadException {
-        if (WorkloadParams.UNBOUNDED_OPERATION_COUNT == getOperationCount()) {
-            // Generate all workload operations before beginning
-            return createLoadOperations(generators);
-        } else {
-            // Generate all workload operations before beginning
-            return generators.limit(createLoadOperations(generators), getOperationCount());
-        }
-    }
-
-    protected abstract Iterator<Operation<?>> createLoadOperations(GeneratorFactory generators)
-            throws WorkloadException;
-
-    public final Iterator<Operation<?>> getTransactionalOperations(GeneratorFactory generators)
+    public final Iterator<Operation<?>> getOperations(GeneratorFactory generators)
             throws WorkloadException {
         if (WorkloadParams.UNBOUNDED_OPERATION_COUNT == getOperationCount()) {
             // Generate all workload operations before beginning
-            return createTransactionalOperations(generators);
+            return createOperations(generators);
         } else {
             // Generate all workload operations before beginning
-            return generators.limit(createTransactionalOperations(generators), getOperationCount());
+            return generators.limit(createOperations(generators), getOperationCount());
         }
     }
 
-    protected abstract Iterator<Operation<?>> createTransactionalOperations(GeneratorFactory generators)
+    protected abstract Iterator<Operation<?>> createOperations(GeneratorFactory generators)
             throws WorkloadException;
 }

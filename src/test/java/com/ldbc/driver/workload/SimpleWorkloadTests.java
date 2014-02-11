@@ -22,7 +22,7 @@ public class SimpleWorkloadTests {
     @Test
     public void shouldBeRepeatableWhenSameWorkloadIsUsedTwiceWithIdenticalGeneratorFactories() throws ClientException, ParamsException, WorkloadException {
         WorkloadParams params =
-                new WorkloadParams(null, "dbClassName", "workloadClassName", 100L, -1, BenchmarkPhase.TRANSACTION_PHASE, 1, false, TimeUnit.MILLISECONDS, "resultFilePath");
+                new WorkloadParams(null, "dbClassName", "workloadClassName", 100L, 1, false, TimeUnit.MILLISECONDS, "resultFilePath");
 
         Workload workload = new SimpleWorkload();
         workload.init(params);
@@ -36,13 +36,13 @@ public class SimpleWorkloadTests {
 
         List<Class> operationsA = ImmutableList.copyOf(
                 Iterators.transform(
-                        workload.getTransactionalOperations(new GeneratorFactory(new RandomDataGeneratorFactory(42L))),
+                        workload.getOperations(new GeneratorFactory(new RandomDataGeneratorFactory(42L))),
                         classFun
                 ));
 
         List<Class> operationsB = ImmutableList.copyOf(
                 Iterators.transform(
-                        workload.getTransactionalOperations(new GeneratorFactory(new RandomDataGeneratorFactory(42L))),
+                        workload.getOperations(new GeneratorFactory(new RandomDataGeneratorFactory(42L))),
                         classFun
                 ));
 
@@ -61,7 +61,7 @@ public class SimpleWorkloadTests {
     @Test
     public void shouldBeRepeatableWhenTwoIdenticalWorkloadsAreUsedWithIdenticalGeneratorFactories() throws ClientException, ParamsException, WorkloadException {
         WorkloadParams params =
-                new WorkloadParams(null, "dbClassName", "workloadClassName", 100L, -1, BenchmarkPhase.TRANSACTION_PHASE, 1, false, TimeUnit.MILLISECONDS, "resultFilePath");
+                new WorkloadParams(null, "dbClassName", "workloadClassName", 100L, 1, false, TimeUnit.MILLISECONDS, "resultFilePath");
 
         Workload workloadA = new SimpleWorkload();
         workloadA.init(params);
@@ -71,7 +71,7 @@ public class SimpleWorkloadTests {
 
         List<Class> operationsA = ImmutableList.copyOf(
                 Iterators.transform(
-                        workloadA.getTransactionalOperations(new GeneratorFactory(new RandomDataGeneratorFactory(42L))),
+                        workloadA.getOperations(new GeneratorFactory(new RandomDataGeneratorFactory(42L))),
                         new Function<Operation<?>, Class>() {
                             @Override
                             public Class apply(Operation<?> operation) {
@@ -81,7 +81,7 @@ public class SimpleWorkloadTests {
 
         List<Class> operationsB = ImmutableList.copyOf(
                 Iterators.transform(
-                        workloadB.getTransactionalOperations(new GeneratorFactory(new RandomDataGeneratorFactory(42L))),
+                        workloadB.getOperations(new GeneratorFactory(new RandomDataGeneratorFactory(42L))),
                         new Function<Operation<?>, Class>() {
                             @Override
                             public Class apply(Operation<?> operation) {

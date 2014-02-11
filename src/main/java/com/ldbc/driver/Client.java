@@ -5,9 +5,9 @@ import com.ldbc.driver.metrics.WorkloadMetricsManager;
 import com.ldbc.driver.metrics.formatters.JsonOperationMetricsFormatter;
 import com.ldbc.driver.metrics.formatters.SimpleOperationMetricsFormatter;
 import com.ldbc.driver.runner.WorkloadRunner;
+import com.ldbc.driver.temporal.Time;
 import com.ldbc.driver.util.ClassLoaderHelper;
 import com.ldbc.driver.util.RandomDataGeneratorFactory;
-import com.ldbc.driver.temporal.Time;
 import org.apache.log4j.Logger;
 
 import java.io.File;
@@ -70,10 +70,9 @@ public class Client {
         logger.info("LDBC Workload Driver");
         logger.info(params.toString());
 
-        WorkloadRunner workloadRunner = null;
+        WorkloadRunner workloadRunner;
         try {
-            Iterator<Operation<?>> operationGenerator = getOperationGenerator(workload, params.benchmarkPhase(),
-                    generators);
+            Iterator<Operation<?>> operationGenerator = workload.getOperations(generators);
             workloadRunner = new WorkloadRunner(db, operationGenerator, params.isShowStatus(),
                     params.threadCount(), metricsManager);
         } catch (WorkloadException e) {
@@ -124,20 +123,9 @@ public class Client {
             logger.error(errMsg, e);
             throw new ClientException(errMsg, e.getCause());
         } catch (FileNotFoundException e) {
-            String errMsg = String.format("Error encountered while trying to write result file: ", params.resultFilePath());
+            String errMsg = String.format("Error encountered while trying to write result file: %s", params.resultFilePath());
             logger.error(errMsg, e);
             throw new ClientException(errMsg, e.getCause());
         }
-    }
-
-    private Iterator<Operation<?>> getOperationGenerator(Workload workload, BenchmarkPhase benchmarkPhase,
-                                                         GeneratorFactory generators) throws WorkloadException {
-        switch (benchmarkPhase) {
-            case LOAD_PHASE:
-                return workload.getLoadOperations(generators);
-            case TRANSACTION_PHASE:
-                return workload.getTransactionalOperations(generators);
-        }
-        throw new WorkloadException("Error encountered trying to get operation generator");
     }
 }

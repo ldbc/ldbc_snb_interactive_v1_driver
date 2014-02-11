@@ -1,16 +1,17 @@
 package com.ldbc.driver.workloads.simple;
 
+import com.google.common.collect.Iterators;
 import com.ldbc.driver.Operation;
 import com.ldbc.driver.Workload;
 import com.ldbc.driver.WorkloadException;
 import com.ldbc.driver.data.ByteIterator;
 import com.ldbc.driver.generator.*;
+import com.ldbc.driver.temporal.Duration;
+import com.ldbc.driver.temporal.Time;
 import com.ldbc.driver.util.GeneratorUtils;
 import com.ldbc.driver.util.Tuple;
 import com.ldbc.driver.util.Tuple.Tuple2;
 import com.ldbc.driver.util.Tuple.Tuple3;
-import com.ldbc.driver.temporal.Duration;
-import com.ldbc.driver.temporal.Time;
 
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -18,6 +19,7 @@ import java.util.List;
 import java.util.Map;
 
 public class SimpleWorkload extends Workload {
+    // NOTE, in a real Workload these would ideally come from configuration and get set in onInit()
     final String TABLE = "usertable";
     final String KEY_NAME_PREFIX = "user";
     final String FIELD_NAME_PREFIX = "field";
@@ -33,21 +35,23 @@ public class SimpleWorkload extends Workload {
     final double SCAN_RATIO = 0.20;
     final double READ_MODIFY_WRITE_RATIO = 0.20;
 
+    final long INITIAL_INSERT_COUNT = 10;
+
     @Override
     public void onInit(Map<String, String> properties) {
     }
 
     @Override
-    public Iterator<Operation<?>> createLoadOperations(GeneratorFactory generators) throws WorkloadException {
+    public Iterator<Operation<?>> createOperations(GeneratorFactory generators) throws WorkloadException {
         /**
          * **************************
          *
-         * Insert Operation Generator
+         * Initial Insert Operation Generator
          *
          * **************************
          */
         // Load Insert Keys
-        Iterator<Long> loadInsertKeyGenerator = generators.incrementing(0l, 1l);
+        MinMaxGenerator<Long> insertKeyGenerator = generators.minMaxGenerator(generators.incrementing(0l, 1l), 0l, 0l);
 
         // Insert Fields: Names & Values
         Iterator<Integer> fieldValuelengthGenerator = generators.uniform(1, 100);
@@ -59,17 +63,10 @@ public class SimpleWorkload extends Workload {
         Iterator<Map<String, ByteIterator>> insertValuedFieldGenerator = generators.weightedDiscreteMap(valuedFields,
                 NUMBER_OF_FIELDS_IN_RECORD);
 
-        Iterator<Operation<?>> insertOperationGenerator = new InsertOperationGenerator(TABLE, new PrefixGenerator(
-                loadInsertKeyGenerator, KEY_NAME_PREFIX), insertValuedFieldGenerator);
+        Iterator<Operation<?>> initialInsertOperationGenerator = generators.limit(
+                new InsertOperationGenerator(TABLE, generators.prefix(insertKeyGenerator, KEY_NAME_PREFIX), insertValuedFieldGenerator),
+                INITIAL_INSERT_COUNT);
 
-        Iterator<Time> startTimeGenerator = GeneratorUtils.randomIncrementStartTimeGenerator(generators, Time.now(),
-                Duration.fromMilli(100), Duration.fromMilli(1000));
-
-        return new StartTimeAssigningOperationGenerator(startTimeGenerator, insertOperationGenerator);
-    }
-
-    @Override
-    public Iterator<Operation<?>> createTransactionalOperations(GeneratorFactory generators) throws WorkloadException {
         /**
          * **************************
          *
@@ -78,21 +75,8 @@ public class SimpleWorkload extends Workload {
          * **************************
          */
         // Transaction Insert Keys
-        MinMaxGenerator<Long> transactionInsertKeyGenerator = generators.minMaxGenerator(
-                generators.incrementing(getRecordCount(), 1l), getRecordCount(), getRecordCount());
-
-        // Insert Fields: Names & Values
-        Iterator<Integer> fieldValuelengthGenerator = generators.uniform(1, 100);
-        Iterator<ByteIterator> randomFieldValueGenerator = generators.randomByteIterator(fieldValuelengthGenerator);
-        List<Tuple3<Double, String, Iterator<ByteIterator>>> valuedFields = new ArrayList<Tuple3<Double, String, Iterator<ByteIterator>>>();
-        for (int i = 0; i < NUMBER_OF_FIELDS_IN_RECORD; i++) {
-            valuedFields.add(Tuple.tuple3(1d, FIELD_NAME_PREFIX + i, randomFieldValueGenerator));
-        }
-        Iterator<Map<String, ByteIterator>> insertValuedFieldGenerator = generators.weightedDiscreteMap(valuedFields,
-                NUMBER_OF_FIELDS_IN_RECORD);
-
-        InsertOperationGenerator insertOperationGenerator = new InsertOperationGenerator(TABLE, new PrefixGenerator(
-                transactionInsertKeyGenerator, KEY_NAME_PREFIX), insertValuedFieldGenerator);
+        InsertOperationGenerator transactionalInsertOperationGenerator =
+                new InsertOperationGenerator(TABLE, generators.prefix(insertKeyGenerator, KEY_NAME_PREFIX), insertValuedFieldGenerator);
 
         /**
          * **************************
@@ -102,8 +86,7 @@ public class SimpleWorkload extends Workload {
          * **************************
          */
         // Read/Update Keys
-        Iterator<String> requestKeyGenerator = generators.prefix(
-                generators.dynamicRangeUniform(transactionInsertKeyGenerator), KEY_NAME_PREFIX);
+        Iterator<String> requestKeyGenerator = generators.prefix(generators.dynamicRangeUniform(insertKeyGenerator), KEY_NAME_PREFIX);
 
         // Read Fields: Names
         List<Tuple2<Double, String>> fields = new ArrayList<Tuple2<Double, String>>();
@@ -167,17 +150,20 @@ public class SimpleWorkload extends Workload {
         List<Tuple2<Double, Iterator<Operation<?>>>> operations = new ArrayList<Tuple2<Double, Iterator<Operation<?>>>>();
         operations.add(Tuple.tuple2(READ_RATIO, (Iterator<Operation<?>>) readOperationGenerator));
         operations.add(Tuple.tuple2(UPDATE_RATIO, (Iterator<Operation<?>>) updateOperationGenerator));
-        operations.add(Tuple.tuple2(INSERT_RATIO, (Iterator<Operation<?>>) insertOperationGenerator));
+        operations.add(Tuple.tuple2(INSERT_RATIO, (Iterator<Operation<?>>) transactionalInsertOperationGenerator));
         operations.add(Tuple.tuple2(SCAN_RATIO, (Iterator<Operation<?>>) scanOperationGenerator));
         operations.add(Tuple.tuple2(READ_MODIFY_WRITE_RATIO,
                 (Iterator<Operation<?>>) readModifyWriteOperationGenerator));
 
         Iterator<Operation<?>> transactionalOperationGenerator = generators.weightedDiscreteDereferencing(operations);
 
+        // iterates initialInsertOperationGenerator before starting with transactionalInsertOperationGenerator
+        Iterator<Operation<?>> workloadOperations = Iterators.concat(initialInsertOperationGenerator, transactionalOperationGenerator);
+
         Iterator<Time> startTimeGenerator = GeneratorUtils.constantIncrementStartTimeGenerator(generators, Time.now(),
                 Duration.fromMilli(100));
 
-        return new StartTimeAssigningOperationGenerator(startTimeGenerator, transactionalOperationGenerator);
+        return new StartTimeAssigningOperationGenerator(startTimeGenerator, workloadOperations);
     }
 
     @Override
