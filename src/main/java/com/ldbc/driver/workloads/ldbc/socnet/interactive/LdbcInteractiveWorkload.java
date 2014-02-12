@@ -21,9 +21,6 @@ import com.ldbc.driver.util.Tuple.Tuple2;
 import java.io.File;
 import java.util.*;
 
-/*
-MAVEN_OPTS="-server -XX:+UseConcMarkSweepGC -Xmx512m" mvn exec:java -Dexec.mainClass=com.ldbc.driver.Client -Dexec.arguments="-db,com.ldbc.socialnet.workload.neo4j.Neo4jDb,-w,com.ldbc.socialnet.workload.LdbcInteractiveWorkload,-oc,10,-rc,-1,-tc,1,-s,-tu,MILLISECONDS,-p,neo4j.path=db/,-p,neo4j.dbtype=embedded-api-steps,-p,parameters=parameters.json"
- */
 public class LdbcInteractiveWorkload extends Workload {
     public final static String PARAMETERS_FILENAME_KEY = "parameters";
     public final static String INTERLEAVE_DURATION_KEY = "interleave_duration";

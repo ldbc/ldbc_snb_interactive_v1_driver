@@ -1,6 +1,5 @@
 package com.ldbc.driver.generator;
 
-import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Iterators;
 import com.ldbc.driver.util.Histogram;
 import com.ldbc.driver.util.NumberHelper;
@@ -12,8 +11,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
-import static org.hamcrest.CoreMatchers.equalTo;
-import static org.junit.Assert.assertEquals;
+import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
 
 public abstract class GeneratorTest<GENERATE_TYPE, COUNT extends Number> {
@@ -45,10 +43,10 @@ public abstract class GeneratorTest<GENERATE_TYPE, COUNT extends Number> {
         GeneratorFactory generatorFactoryA = new GeneratorFactory(new RandomDataGeneratorFactory(RANDOM_SEED));
         GeneratorFactory generatorFactoryB = new GeneratorFactory(new RandomDataGeneratorFactory(RANDOM_SEED));
 
-        List<GENERATE_TYPE> listA = ImmutableList.copyOf(Iterators.limit(getGeneratorImpl(generatorFactoryA), getSampleSize()));
-        List<GENERATE_TYPE> listB = ImmutableList.copyOf(Iterators.limit(getGeneratorImpl(generatorFactoryB), getSampleSize()));
+        Iterator<GENERATE_TYPE> sequenceA = Iterators.limit(getGeneratorImpl(generatorFactoryA), getSampleSize());
+        Iterator<GENERATE_TYPE> sequenceB = Iterators.limit(getGeneratorImpl(generatorFactoryB), getSampleSize());
 
-        assertThat(listA, equalTo(listB));
+        assertThat(Iterators.elementsEqual(sequenceA, sequenceB), is(true));
     }
 
     @Test
@@ -73,8 +71,11 @@ public abstract class GeneratorTest<GENERATE_TYPE, COUNT extends Number> {
 
         String errMsg = String.format("Distributions should be within tolerance[%s]\nExpected[%s]\nGenerated[%s]",
                 getDistributionTolerance(), expectedDistributionAsPercentage, generatedDistributionAsPercentage);
-        assertEquals(errMsg, true, generatedDistributionAsPercentage.equalsWithinTolerance(
-                expectedDistributionAsPercentage, getDistributionTolerance()));
+
+        assertThat(
+                errMsg,
+                Histogram.equalsWithinTolerance(generatedDistributionAsPercentage, expectedDistributionAsPercentage, getDistributionTolerance()),
+                is(true));
     }
 
     public final List<GENERATE_TYPE> generateSequence(Iterator<GENERATE_TYPE> generator, Integer size) {

@@ -5,12 +5,13 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Iterators;
 import com.ldbc.driver.*;
 import com.ldbc.driver.generator.GeneratorFactory;
+import com.ldbc.driver.util.Bucket;
+import com.ldbc.driver.util.Histogram;
 import com.ldbc.driver.util.RandomDataGeneratorFactory;
 import com.ldbc.driver.util.TestUtils;
-import com.ldbc.driver.workloads.ldbc.socnet.interactive.LdbcInteractiveWorkload;
+import com.ldbc.driver.workloads.ldbc.socnet.interactive.*;
 import org.junit.Test;
 
-import java.io.File;
 import java.util.Iterator;
 import java.util.List;
 
@@ -118,5 +119,73 @@ public class LdbcWorkloadTests {
             Class b = operationsBIt.next();
             assertThat(a, equalTo(b));
         }
+    }
+
+    @Test
+    public void shouldGenerateConfiguredQueryMix() throws ClientException, ParamsException, WorkloadException {
+        // Given
+        String ldbcSocNetInteractivePropertiesPath = TestUtils.getResource("/ldbc_socnet_interactive_test.properties").getAbsolutePath();
+        String ldbcDriverPropertiesPath = TestUtils.getResource("/ldbc_driver_default_test.properties").getAbsolutePath();
+
+        WorkloadParams params = WorkloadParams.fromArgs(new String[]{
+                "-P", ldbcSocNetInteractivePropertiesPath,
+                "-P", ldbcDriverPropertiesPath,
+                // database class is loaded by Client class, which is bypassed in this test
+                "-db", "this will never be used",
+                "-oc", "10000",
+                "-p", LdbcQuery1.class.getName(), "1",
+                "-p", LdbcQuery2.class.getName(), "2",
+                "-p", LdbcQuery3.class.getName(), "3",
+                "-p", LdbcQuery4.class.getName(), "4",
+                "-p", LdbcQuery5.class.getName(), "5",
+                "-p", LdbcQuery6.class.getName(), "6",
+                "-p", LdbcQuery7.class.getName(), "7"
+        });
+
+        Workload workload = new LdbcInteractiveWorkload();
+        workload.init(params);
+
+        // When
+
+        List<Class> operationTypes = ImmutableList.copyOf(
+                Iterators.transform(
+                        workload.getOperations(new GeneratorFactory(new RandomDataGeneratorFactory(42L))),
+                        new Function<Operation<?>, Class>() {
+                            @Override
+                            public Class apply(Operation<?> operation) {
+                                return operation.getClass();
+                            }
+                        }));
+
+        // Then
+
+        Histogram<Class, Long> expectedQueryMixHistogram = new Histogram<Class, Long>(0l);
+        expectedQueryMixHistogram.addBucket(Bucket.DiscreteBucket.create((Class) LdbcQuery1.class), 1l);
+        expectedQueryMixHistogram.addBucket(Bucket.DiscreteBucket.create((Class) LdbcQuery2.class), 2l);
+        expectedQueryMixHistogram.addBucket(Bucket.DiscreteBucket.create((Class) LdbcQuery3.class), 3l);
+        expectedQueryMixHistogram.addBucket(Bucket.DiscreteBucket.create((Class) LdbcQuery4.class), 4l);
+        expectedQueryMixHistogram.addBucket(Bucket.DiscreteBucket.create((Class) LdbcQuery5.class), 5l);
+        expectedQueryMixHistogram.addBucket(Bucket.DiscreteBucket.create((Class) LdbcQuery6.class), 6l);
+        expectedQueryMixHistogram.addBucket(Bucket.DiscreteBucket.create((Class) LdbcQuery7.class), 7l);
+
+        Histogram<Class, Long> actualQueryMixHistogram = new Histogram<Class, Long>(0l);
+        actualQueryMixHistogram.addBucket(Bucket.DiscreteBucket.create((Class) LdbcQuery1.class), 0l);
+        actualQueryMixHistogram.addBucket(Bucket.DiscreteBucket.create((Class) LdbcQuery2.class), 0l);
+        actualQueryMixHistogram.addBucket(Bucket.DiscreteBucket.create((Class) LdbcQuery3.class), 0l);
+        actualQueryMixHistogram.addBucket(Bucket.DiscreteBucket.create((Class) LdbcQuery4.class), 0l);
+        actualQueryMixHistogram.addBucket(Bucket.DiscreteBucket.create((Class) LdbcQuery5.class), 0l);
+        actualQueryMixHistogram.addBucket(Bucket.DiscreteBucket.create((Class) LdbcQuery6.class), 0l);
+        actualQueryMixHistogram.addBucket(Bucket.DiscreteBucket.create((Class) LdbcQuery7.class), 0l);
+        actualQueryMixHistogram.importValueSequence(operationTypes);
+
+        double tolerance = 0.01d;
+
+        assertThat(
+                String.format("Distributions should be within tolerance: %s", tolerance),
+                Histogram.equalsWithinTolerance(
+                        actualQueryMixHistogram.toPercentageValues(),
+                        expectedQueryMixHistogram.toPercentageValues(),
+                        tolerance),
+                is(true));
     }
 }
