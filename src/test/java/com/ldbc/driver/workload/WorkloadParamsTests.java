@@ -84,8 +84,14 @@ public class WorkloadParamsTests {
 
     @Test
     public void shouldReturnSameAsPropertiesFile() throws ParamsException {
-        String[] args = {"-P", TestUtils.getResource("/test_workload_params.properties").getAbsolutePath()};
-        WorkloadParams params = WorkloadParams.fromArgs(args);
+        String ldbcSocNetInteractivePropertiesPath = TestUtils.getResource("/ldbc_socnet_interactive_test.properties").getAbsolutePath();
+        String ldbcDriverPropertiesPath = TestUtils.getResource("/ldbc_driver_default_test.properties").getAbsolutePath();
+
+        WorkloadParams params = WorkloadParams.fromArgs(new String[]{
+                "-P", ldbcSocNetInteractivePropertiesPath,
+                "-P", ldbcDriverPropertiesPath,
+                "-db", "com.ldbc.socialnet.workload.neo4j.Neo4jDb"
+        });
 
         assertThat(params.dbClassName(), is("com.ldbc.socialnet.workload.neo4j.Neo4jDb"));
         assertThat(params.workloadClassName(), is("com.ldbc.driver.workloads.ldbc.socnet.interactive.LdbcInteractiveWorkload"));
@@ -93,7 +99,7 @@ public class WorkloadParamsTests {
         assertThat(params.threadCount(), is(1));
         assertThat(params.isShowStatus(), is(true));
         assertThat(params.timeUnit(), is(TimeUnit.MILLISECONDS));
-        assertThat(params.resultFilePath(), is("test_results.json"));
+        assertThat(params.resultFilePath(), is("test_ldbc_socnet_interactive_results.json"));
         assertThat(params.asMap().get("parameters"), is("ldbc_driver/workloads/ldbc/socnet/interactive/parameters.json"));
     }
 }

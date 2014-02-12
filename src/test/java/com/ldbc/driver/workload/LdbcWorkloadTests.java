@@ -10,6 +10,7 @@ import com.ldbc.driver.util.TestUtils;
 import com.ldbc.driver.workloads.ldbc.socnet.interactive.LdbcInteractiveWorkload;
 import org.junit.Test;
 
+import java.io.File;
 import java.util.Iterator;
 import java.util.List;
 
@@ -21,9 +22,17 @@ public class LdbcWorkloadTests {
 
     @Test
     public void shouldBeRepeatableWhenSameWorkloadIsUsedTwiceWithIdenticalGeneratorFactories() throws ClientException, ParamsException, WorkloadException {
+        String ldbcSocNetInteractivePropertiesPath = TestUtils.getResource("/ldbc_socnet_interactive_test.properties").getAbsolutePath();
+        String ldbcDriverPropertiesPath = TestUtils.getResource("/ldbc_driver_default_test.properties").getAbsolutePath();
+
         WorkloadParams params = WorkloadParams.fromArgs(new String[]{
-                "-P", TestUtils.getResource("/test_workload_params.properties").getAbsolutePath(),
-                "-oc", "100", "-p", "neo4j.dbtype", "embedded-cypher", "-rf", "report/result-embedded-cypher.json", "-tu", "MILLISECONDS"});
+                "-P", ldbcSocNetInteractivePropertiesPath,
+                "-P", ldbcDriverPropertiesPath,
+                // database class is loaded by Client class, which is bypassed in this test
+                "-db", "this will never be used",
+                "-oc", "100",
+                "-p", "neo4j.dbtype", "embedded-cypher",
+                "-rf", "report/result-embedded-cypher.json"});
 
         Workload workload = new LdbcInteractiveWorkload();
         workload.init(params);
@@ -61,9 +70,17 @@ public class LdbcWorkloadTests {
 
     @Test
     public void shouldBeRepeatableWhenTwoIdenticalWorkloadsAreUsedWithIdenticalGeneratorFactories() throws ClientException, ParamsException, WorkloadException {
+        String ldbcSocNetInteractivePropertiesPath = TestUtils.getResource("/ldbc_socnet_interactive_test.properties").getAbsolutePath();
+        String ldbcDriverPropertiesPath = TestUtils.getResource("/ldbc_driver_default_test.properties").getAbsolutePath();
+
         WorkloadParams params = WorkloadParams.fromArgs(new String[]{
-                "-P", TestUtils.getResource("/test_workload_params.properties").getAbsolutePath(),
-                "-oc", "100", "-p", "neo4j.dbtype", "embedded-api-steps", "-rf", "report/result-embedded-cypher.json", "-tu", "MILLISECONDS"});
+                "-P", ldbcSocNetInteractivePropertiesPath,
+                "-P", ldbcDriverPropertiesPath,
+                // database class is loaded by Client class, which is bypassed in this test
+                "-db", "this will never be used",
+                "-oc", "100",
+                "-p", "neo4j.dbtype", "embedded-api-steps",
+                "-rf", "report/result-embedded-steps.json"});
 
         Workload workloadA = new LdbcInteractiveWorkload();
         workloadA.init(params);

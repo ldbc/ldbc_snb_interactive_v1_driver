@@ -79,9 +79,7 @@ public class ClassLoaderHelper {
     /**
      * Helper Methods
      */
-    public static <C> Class<? extends C> loadClass(String className, Class<C> baseClass) throws ClassLoadingException
-
-    {
+    public static <C> Class<? extends C> loadClass(String className, Class<C> baseClass) throws ClassLoadingException {
         try {
             ClassLoader classLoader = ClassLoaderHelper.class.getClassLoader();
             logger.debug(String.format("Loading class [%s], descendant of [%s]", className, baseClass.getName()));
@@ -89,6 +87,18 @@ public class ClassLoaderHelper {
             // Class<?> loadedClass = Class.forName(className,false,classLoader)
             logger.debug(String.format("Loaded class [%s]", loadedClass.getName()));
             return (Class<? extends C>) loadedClass;
+        } catch (ClassNotFoundException e) {
+            throw new ClassLoadingException(String.format("Error loading class [%s]", className), e.getCause());
+        }
+    }
+
+    public static Class<?> loadClass(String className) throws ClassLoadingException {
+        try {
+            ClassLoader classLoader = ClassLoaderHelper.class.getClassLoader();
+            logger.debug(String.format("Loading class [%s]", className));
+            Class<?> loadedClass = classLoader.loadClass(className);
+            logger.debug(String.format("Loaded class [%s]", loadedClass.getName()));
+            return loadedClass;
         } catch (ClassNotFoundException e) {
             throw new ClassLoadingException(String.format("Error loading class [%s]", className), e.getCause());
         }
