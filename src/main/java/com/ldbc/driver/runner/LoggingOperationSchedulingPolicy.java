@@ -4,13 +4,13 @@ import com.ldbc.driver.Operation;
 import com.ldbc.driver.temporal.Duration;
 import org.apache.log4j.Logger;
 
-public class ErrorLoggingOperationSchedulingPolicy implements OperationSchedulingPolicy {
-    private static Logger logger = Logger.getLogger(ErrorLoggingOperationSchedulingPolicy.class);
+public class LoggingOperationSchedulingPolicy implements OperationSchedulingPolicy {
+    private static Logger logger = Logger.getLogger(LoggingOperationSchedulingPolicy.class);
 
     private final Duration toleratedDelay;
     private final boolean ignoreScheduledStartTime;
 
-    public ErrorLoggingOperationSchedulingPolicy(Duration toleratedDelay, boolean ignoreScheduleStartTime) {
+    public LoggingOperationSchedulingPolicy(Duration toleratedDelay, boolean ignoreScheduleStartTime) {
         this.toleratedDelay = toleratedDelay;
         this.ignoreScheduledStartTime = ignoreScheduleStartTime;
     }

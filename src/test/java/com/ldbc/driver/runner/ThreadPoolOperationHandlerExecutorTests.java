@@ -25,7 +25,7 @@ public class ThreadPoolOperationHandlerExecutorTests {
 
         Operation<?> operation = new Operation<Integer>() {
         };
-        Spinner spinner = new Spinner(new ErrorLoggingOperationSchedulingPolicy(Duration.fromSeconds(1), true));
+        Spinner spinner = new Spinner(new LoggingOperationSchedulingPolicy(Duration.fromSeconds(1), true));
         operationHandler.init(spinner, operation);
 
         int threadCount = 1;
@@ -53,7 +53,7 @@ public class ThreadPoolOperationHandlerExecutorTests {
 
         Operation<?> operation = new Operation<Integer>() {
         };
-        Spinner spinner = new Spinner(new ErrorLoggingOperationSchedulingPolicy(Duration.fromSeconds(1), true));
+        Spinner spinner = new Spinner(new LoggingOperationSchedulingPolicy(Duration.fromSeconds(1), true));
         operationHandler.init(spinner, operation);
 
         int threadCount = 1;
@@ -98,7 +98,7 @@ public class ThreadPoolOperationHandlerExecutorTests {
 
         Operation<?> operation = new Operation<Integer>() {
         };
-        Spinner spinner = new Spinner(new ErrorLoggingOperationSchedulingPolicy(Duration.fromSeconds(1), true));
+        Spinner spinner = new Spinner(new LoggingOperationSchedulingPolicy(Duration.fromSeconds(1), true));
         operationHandler.init(spinner, operation);
 
         int threadCount = 1;

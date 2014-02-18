@@ -6,21 +6,37 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-class LocalCompletionTime implements CompletionTime {
+/**
+ * Completion time is the point in time behind which there are no uncompleted events
+ * <p/>
+ * Completion Time = min( min(Initiated Events), max(Completed Events) )
+ */
+public class LocalCompletionTime {
     private List<Time> initiatedTimes = new ArrayList<Time>();
     private Time maxEventCompletedTime = null;
     private Time completionTime = null;
 
     private boolean notModifiedSinceLastGet = false;
 
-    @Override
+    /**
+     * Logs the new initiated time and updates completion time according to:
+     * Completion Time = min(min(Initiated Events), max(Completed Events) )
+     *
+     * @param eventInitiatedTime
+     */
     public void applyInitiatedTime(Time eventInitiatedTime) {
         notModifiedSinceLastGet = false;
 
         initiatedTimes.add(eventInitiatedTime);
     }
 
-    @Override
+    /**
+     * Logs the new completed time and updates completion time according to:
+     * Completion Time = min(min(Initiated Events), max(Completed Events) )
+     *
+     * @param initiatedTimeOfCompletedEvent
+     * @throws com.ldbc.driver.coordination.CompletionTimeException
+     */
     public void applyCompletedTime(Time initiatedTimeOfCompletedEvent) throws CompletionTimeException {
         notModifiedSinceLastGet = false;
 
@@ -33,8 +49,10 @@ class LocalCompletionTime implements CompletionTime {
             maxEventCompletedTime = initiatedTimeOfCompletedEvent;
     }
 
-    @Override
-    public Time get() {
+    /**
+     * @return min(min(Initiated Events), max(Completed Events) )
+     */
+    public Time completionTime() {
         if (notModifiedSinceLastGet)
             return completionTime;
 
@@ -51,5 +69,4 @@ class LocalCompletionTime implements CompletionTime {
             return completionTime;
         }
     }
-
 }

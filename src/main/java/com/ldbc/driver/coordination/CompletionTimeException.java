@@ -9,18 +9,8 @@ public class CompletionTimeException extends Exception
         super( message );
     }
 
-    public CompletionTimeException()
-    {
-        super();
-    }
-
     public CompletionTimeException(String message, Throwable cause)
     {
         super( message, cause );
-    }
-
-    public CompletionTimeException(Throwable cause)
-    {
-        super( cause );
     }
 }

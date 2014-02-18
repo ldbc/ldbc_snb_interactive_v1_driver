@@ -3,9 +3,10 @@ package com.ldbc.driver.runner;
 import com.google.common.base.Function;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Iterables;
-import com.ldbc.driver.util.Tuple;
+import com.google.common.collect.Lists;
 import org.junit.Test;
 
+import java.util.Iterator;
 import java.util.List;
 import java.util.concurrent.*;
 
@@ -25,9 +26,10 @@ public class ConcurrentErrorReporterTests {
 
         // Then
 //        System.out.println(concurrentErrorReporter.toString());
-        assertThat(concurrentErrorReporter.errorMessages().poll()._2(), is("Error 1"));
-        assertThat(concurrentErrorReporter.errorMessages().poll()._2(), is("Error 2"));
-        assertThat(concurrentErrorReporter.errorMessages().poll()._2(), is("Error 3"));
+        Iterator<ConcurrentErrorReporter.ErrorReport> errorMessages = concurrentErrorReporter.errorMessages().iterator();
+        assertThat(errorMessages.next().error(), is("Error 1"));
+        assertThat(errorMessages.next().error(), is("Error 2"));
+        assertThat(errorMessages.next().error(), is("Error 3"));
         assertThat(concurrentErrorReporter.errorEncountered(), is(true));
     }
 
@@ -50,15 +52,14 @@ public class ConcurrentErrorReporterTests {
         threadPoolExecutorService.awaitTermination(10, TimeUnit.SECONDS);
 
         // Then
-//        System.out.println(concurrentErrorReporter.toString());
-        assertThat(concurrentErrorReporter.errorMessages().size(), is(taskCount));
+        assertThat(Lists.newArrayList(concurrentErrorReporter.errorMessages()).size(), is(taskCount));
         assertThat(concurrentErrorReporter.errorEncountered(), is(true));
         List<String> errorMessages =
                 ImmutableList.copyOf(
-                        Iterables.transform(concurrentErrorReporter.errorMessages(), new Function<Tuple.Tuple2<String, String>, String>() {
+                        Iterables.transform(concurrentErrorReporter.errorMessages(), new Function<ConcurrentErrorReporter.ErrorReport, String>() {
                             @Override
-                            public String apply(Tuple.Tuple2<String, String> input) {
-                                return input._2();
+                            public String apply(ConcurrentErrorReporter.ErrorReport input) {
+                                return input.error();
                             }
                         }));
         for (int i = 0; i < taskCount; i++) {

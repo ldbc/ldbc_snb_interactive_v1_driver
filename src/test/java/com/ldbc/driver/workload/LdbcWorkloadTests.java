@@ -124,6 +124,7 @@ public class LdbcWorkloadTests {
     @Test
     public void shouldGenerateConfiguredQueryMix() throws ClientException, ParamsException, WorkloadException {
         // Given
+
         String ldbcSocNetInteractivePropertiesPath = TestUtils.getResource("/ldbc_socnet_interactive_test.properties").getAbsolutePath();
         String ldbcDriverPropertiesPath = TestUtils.getResource("/ldbc_driver_default_test.properties").getAbsolutePath();
 
@@ -147,15 +148,14 @@ public class LdbcWorkloadTests {
 
         // When
 
-        List<Class> operationTypes = ImmutableList.copyOf(
-                Iterators.transform(
-                        workload.getOperations(new GeneratorFactory(new RandomDataGeneratorFactory(42L))),
-                        new Function<Operation<?>, Class>() {
-                            @Override
-                            public Class apply(Operation<?> operation) {
-                                return operation.getClass();
-                            }
-                        }));
+        Iterator<Class> operationTypes = Iterators.transform(
+                workload.getOperations(new GeneratorFactory(new RandomDataGeneratorFactory(42L))),
+                new Function<Operation<?>, Class>() {
+                    @Override
+                    public Class apply(Operation<?> operation) {
+                        return operation.getClass();
+                    }
+                });
 
         // Then
 

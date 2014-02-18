@@ -2,34 +2,41 @@ package com.ldbc.driver.coordination;
 
 import com.ldbc.driver.temporal.Time;
 
-public class GlobalCompletionTime implements CompletionTime {
-    private CompletionTime localCompletionTime = new LocalCompletionTime();
-    private Time externalCompletionTime = null;
+public class GlobalCompletionTime {
+    private final LocalCompletionTime localCompletionTime;
+    private final ExternalCompletionTime externalCompletionTime;
 
-    public void applyExternalCompletionTime(Time latestExternalCompletionTime) {
-        externalCompletionTime = latestExternalCompletionTime;
+    public GlobalCompletionTime(LocalCompletionTime localCompletionTime, ExternalCompletionTime externalCompletionTime) {
+        this.localCompletionTime = localCompletionTime;
+        this.externalCompletionTime = externalCompletionTime;
     }
 
-    @Override
-    public void applyInitiatedTime(Time eventInitiatedTime) {
-        localCompletionTime.applyInitiatedTime(eventInitiatedTime);
+    public LocalCompletionTime localCompletionTime() {
+        return localCompletionTime;
     }
 
-    @Override
-    public void applyCompletedTime(Time initiatedTimeOfCompletedEvent) throws CompletionTimeException {
-        localCompletionTime.applyCompletedTime(initiatedTimeOfCompletedEvent);
+    public ExternalCompletionTime externalCompletionTime() {
+        return externalCompletionTime;
     }
 
-    @Override
-    public Time get() {
-        if (null == externalCompletionTime)
-            return null;
-
-        Time localCompletionTimeValue = localCompletionTime.get();
-
+    public Time completionTime() {
+        Time localCompletionTimeValue = localCompletionTime.completionTime();
         if (null == localCompletionTimeValue)
+            // Until we know what our local completion time is there is no way of knowing what GCT is
             return null;
 
-        return (localCompletionTimeValue.lessThan(externalCompletionTime)) ? localCompletionTimeValue : externalCompletionTime;
+        Time externalCompletionTimeValue = this.externalCompletionTime.completionTime();
+        if (null == externalCompletionTimeValue)
+            if (externalCompletionTime.peersIds().isEmpty())
+                // There are no peers to hear from -> single instance mode
+                return localCompletionTimeValue;
+            else
+                // One or more of our peers have no replied yet -> no way of knowing what GCT is
+                return null;
+
+        // Return min(localCompletionTime,externalCompletionTime)
+        return (localCompletionTimeValue.lessThan(externalCompletionTimeValue))
+                ? localCompletionTimeValue
+                : externalCompletionTimeValue;
     }
 }
