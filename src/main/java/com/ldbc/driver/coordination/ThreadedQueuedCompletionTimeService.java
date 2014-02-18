@@ -23,7 +23,7 @@ public class ThreadedQueuedCompletionTimeService implements CompletionTimeServic
     // TODO add support for setting initial GCT value
     public ThreadedQueuedCompletionTimeService(List<String> peerIds, ConcurrentErrorReporter errorReporter)
             throws CompletionTimeException {
-        this.completionTimeEventQueue = new QueueWrapper<CompletionTimeEvent>(new ConcurrentLinkedQueue<CompletionTimeEvent>());
+        this.completionTimeEventQueue = new ConcurrentLinkedQueue<CompletionTimeEvent>();
         this.gct = new AtomicReference<Time>(null);
         this.initiatedEvents = new AtomicLong(0);
         LocalCompletionTime localCompletionTime = new LocalCompletionTime();
