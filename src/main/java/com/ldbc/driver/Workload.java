@@ -11,6 +11,14 @@ public abstract class Workload {
 
     private long operationCount;
 
+    protected Map<Class<?>, OperationClassification> operationClassificationMapping;
+
+    protected abstract void createOperationClassificationMapping();
+
+    public Map<Class<?>, OperationClassification> getOperationClassificationMapping() {
+        return this.operationClassificationMapping;
+    }
+
     /**
      * Called once to initialize state for workload
      */
@@ -20,6 +28,7 @@ public abstract class Workload {
         }
         isInitialized = true;
         this.operationCount = params.operationCount();
+        createOperationClassificationMapping();
         onInit(params.asMap());
     }
 

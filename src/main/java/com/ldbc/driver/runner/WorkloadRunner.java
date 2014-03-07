@@ -10,11 +10,10 @@ import com.ldbc.driver.coordination.ThreadedQueuedCompletionTimeService;
 import com.ldbc.driver.metrics.WorkloadMetricsManager;
 import com.ldbc.driver.temporal.Duration;
 import com.ldbc.driver.temporal.Time;
+import com.ldbc.driver.util.OperationIteratorConverter;
 import org.apache.log4j.Logger;
 
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
+import java.util.*;
 
 public class WorkloadRunner {
     private static Logger logger = Logger.getLogger(WorkloadRunner.class);
@@ -39,8 +38,29 @@ public class WorkloadRunner {
     private final Iterable<OperationHandler<?>> operationHandlers;
     private final ConcurrentErrorReporter errorReporter = new ConcurrentErrorReporter();
 
-    public WorkloadRunner(Db db, Iterator<Operation<?>> operations, boolean showStatus, int threadCount,
+    public WorkloadRunner(Db db, Iterator<Operation<?>> operations, Map<Class<?>, OperationClassification> mapping,
+                          boolean showStatus, int threadCount,
                           WorkloadMetricsManager metricsManager) throws WorkloadException {
+
+        // How to use OperationIteratorConverter:
+        // OperationIteratorConverter converter = new OperationIteratorConverter(operations, mapping);
+        // converter.start();
+        // try {
+        //     Thread.sleep(1000);
+        //     // iterator.next() is non-blocking, therefore wait a while before iterating over the produced streams
+        // } catch (InterruptedException e) {
+        //     Thread.currentThread().interrupt();
+        // }
+        // Operation<?> op1 = converter.getIterator(OperationClassification.WindowFalse_GCTRead).next();
+        // System.out.println("op1: " + op1);
+        // try {
+        //    converter.join();
+        // } catch (InterruptedException e) {
+        //     String errMsg = "Error encountered while waiting for stream converter thread to finish";
+        //     logger.error(errMsg, e);
+        //     throw new WorkloadException(errMsg, e.getCause());
+        // }
+
         this.db = db;
         this.metricsManager = metricsManager;
         this.showStatus = showStatus;

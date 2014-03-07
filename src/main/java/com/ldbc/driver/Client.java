@@ -14,6 +14,7 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.util.Iterator;
+import java.util.Map;
 
 public class Client {
     private static Logger logger = Logger.getLogger(Client.class);
@@ -73,7 +74,8 @@ public class Client {
         WorkloadRunner workloadRunner;
         try {
             Iterator<Operation<?>> operationGenerator = workload.getOperations(generators);
-            workloadRunner = new WorkloadRunner(db, operationGenerator, params.isShowStatus(),
+            Map<Class<?>, OperationClassification> operationClassificationMapping = workload.getOperationClassificationMapping();
+            workloadRunner = new WorkloadRunner(db, operationGenerator, operationClassificationMapping, params.isShowStatus(),
                     params.threadCount(), metricsManager);
         } catch (WorkloadException e) {
             String errMsg = "Error instantiating WorkloadRunner";
