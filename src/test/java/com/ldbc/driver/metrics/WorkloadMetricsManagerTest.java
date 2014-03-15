@@ -3,6 +3,8 @@ package com.ldbc.driver.metrics;
 import com.google.common.collect.Iterables;
 import com.ldbc.driver.OperationResult;
 import com.ldbc.driver.WorkloadException;
+import com.ldbc.driver.runtime.metrics_NEW.MetricsCollectionException;
+import com.ldbc.driver.runtime.metrics_NEW.WorkloadMetricsManager;
 import com.ldbc.driver.temporal.Duration;
 import com.ldbc.driver.temporal.Time;
 import org.junit.Test;
@@ -15,7 +17,7 @@ import static org.junit.Assert.assertThat;
 public class WorkloadMetricsManagerTest {
 
     @Test
-    public void shouldReturnCorrectMeasurements() throws WorkloadException, MetricException {
+    public void shouldReturnCorrectMeasurements() throws WorkloadException, MetricsCollectionException {
         WorkloadMetricsManager workloadMeasurements = new WorkloadMetricsManager(TimeUnit.NANOSECONDS);
 
         OperationResult operationResult1 = new OperationResult(1, "result one");

@@ -1,21 +1,24 @@
 package com.ldbc.driver;
 
-import com.ldbc.driver.runner.Spinner;
+import com.ldbc.driver.runtime.coordination.ConcurrentCompletionTimeService;
+import com.ldbc.driver.runtime.executor.Spinner;
 import com.ldbc.driver.temporal.DurationMeasurement;
 
 import java.util.concurrent.Callable;
 
 public abstract class OperationHandler<A extends Operation<?>> implements Callable<OperationResult> {
+    private Spinner spinner;
     private A operation;
     private DbConnectionState dbConnectionState;
-    private Spinner spinner;
+    private ConcurrentCompletionTimeService concurrentCompletionTimeService;
 
-    public final void init(Spinner spinner, Operation<?> operation) {
+    public final void init(Spinner spinner, Operation<?> operation, ConcurrentCompletionTimeService concurrentCompletionTimeService) {
         this.spinner = spinner;
         this.operation = (A) operation;
+        this.concurrentCompletionTimeService = concurrentCompletionTimeService;
     }
 
-    public final A getOperation() {
+    public final A operation() {
         return operation;
     }
 
@@ -39,6 +42,8 @@ public abstract class OperationHandler<A extends Operation<?>> implements Callab
         operationResult.setActualStartTime(durationMeasurement.startTime());
         operationResult.setOperationType(operation.type());
         operationResult.setScheduledStartTime(operation.scheduledStartTime());
+
+        concurrentCompletionTimeService.submitCompletedTime(operation.scheduledStartTime());
 
         return operationResult;
     }

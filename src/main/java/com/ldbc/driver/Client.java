@@ -1,10 +1,13 @@
 package com.ldbc.driver;
 
 import com.ldbc.driver.generator.GeneratorFactory;
-import com.ldbc.driver.metrics.WorkloadMetricsManager;
-import com.ldbc.driver.metrics.formatters.JsonOperationMetricsFormatter;
-import com.ldbc.driver.metrics.formatters.SimpleOperationMetricsFormatter;
-import com.ldbc.driver.runner.WorkloadRunner;
+import com.ldbc.driver.runtime.WorkloadRunner;
+import com.ldbc.driver.runtime.error.ConcurrentErrorReporter;
+import com.ldbc.driver.runtime.metrics_NEW.ConcurrentMetricsService;
+import com.ldbc.driver.runtime.metrics_NEW.MetricsCollectionException;
+import com.ldbc.driver.runtime.metrics_NEW.ThreadedQueuedConcurrentMetricsService;
+import com.ldbc.driver.runtime.metrics_NEW.formatters.JsonOperationMetricsFormatter;
+import com.ldbc.driver.runtime.metrics_NEW.formatters.SimpleOperationMetricsFormatter;
 import com.ldbc.driver.temporal.Time;
 import com.ldbc.driver.util.ClassLoaderHelper;
 import com.ldbc.driver.util.RandomDataGeneratorFactory;
@@ -36,7 +39,8 @@ public class Client {
     private final WorkloadParams params;
     private final Workload workload;
     private final Db db;
-    private final WorkloadMetricsManager metricsManager;
+    private final ConcurrentErrorReporter errorReporter;
+    private final ConcurrentMetricsService metricsService;
     private final GeneratorFactory generators;
 
     public Client(WorkloadParams params) throws ClientException {
@@ -61,8 +65,8 @@ public class Client {
         }
         logger.info(String.format("Loaded DB: %s", db.getClass().getName()));
 
-        metricsManager = new WorkloadMetricsManager(params.timeUnit());
-
+        errorReporter = new ConcurrentErrorReporter();
+        metricsService = new ThreadedQueuedConcurrentMetricsService(errorReporter, params.timeUnit());
         generators = new GeneratorFactory(new RandomDataGeneratorFactory(RANDOM_SEED));
     }
 
@@ -73,8 +77,12 @@ public class Client {
         WorkloadRunner workloadRunner;
         try {
             Iterator<Operation<?>> operationGenerator = workload.getOperations(generators);
-            workloadRunner = new WorkloadRunner(db, operationGenerator, params.isShowStatus(),
-                    params.threadCount(), metricsManager);
+            workloadRunner = new WorkloadRunner(
+                    db,
+                    operationGenerator,
+                    params.isShowStatus(),
+                    params.threadCount(),
+                    metricsService);
         } catch (WorkloadException e) {
             String errMsg = "Error instantiating WorkloadRunner";
             logger.error(errMsg, e);
@@ -113,12 +121,12 @@ public class Client {
         logger.info(String.format("Runtime: %s (s)", endTime.greaterBy(startTime).asSeconds()));
         logger.info("Exporting Measurements...");
         try {
-            metricsManager.export(new SimpleOperationMetricsFormatter(), System.out);
+            metricsService.export(new SimpleOperationMetricsFormatter(), System.out);
             if (null != params.resultFilePath()) {
                 File resultFile = new File(params.resultFilePath());
-                metricsManager.export(new JsonOperationMetricsFormatter(), new FileOutputStream(resultFile));
+                metricsService.export(new JsonOperationMetricsFormatter(), new FileOutputStream(resultFile));
             }
-        } catch (WorkloadException e) {
+        } catch (MetricsCollectionException e) {
             String errMsg = "Could not export Measurements";
             logger.error(errMsg, e);
             throw new ClientException(errMsg, e.getCause());

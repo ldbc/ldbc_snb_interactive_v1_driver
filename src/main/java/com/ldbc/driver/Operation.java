@@ -3,9 +3,7 @@ package com.ldbc.driver;
 import com.ldbc.driver.temporal.Time;
 
 public abstract class Operation<R> {
-    public final static Time UNASSIGNED_SCHEDULED_START_TIME = null;
-
-    private Time scheduledStartTime = UNASSIGNED_SCHEDULED_START_TIME;
+    private Time scheduledStartTime = null;
 
     public final void setScheduledStartTime(Time scheduledStartTime) {
         this.scheduledStartTime = scheduledStartTime;

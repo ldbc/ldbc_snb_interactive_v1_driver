@@ -58,15 +58,25 @@ public class Temporal implements MultipleTimeUnitProvider<Temporal>
     }
 
     @Override
-    public boolean greatThan( Temporal other )
+    public boolean gt(Temporal other)
     {
         return this.asNano() > other.asNano();
     }
 
     @Override
-    public boolean lessThan( Temporal other )
+    public boolean lt(Temporal other)
     {
         return this.asNano() < other.asNano();
+    }
+
+    @Override
+    public boolean gte(Temporal other) {
+        return this.asNano() >= other.asNano();
+    }
+
+    @Override
+    public boolean lte(Temporal other) {
+        return this.asNano() <= other.asNano();
     }
 
     @Override

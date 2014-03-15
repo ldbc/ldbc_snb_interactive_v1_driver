@@ -137,12 +137,12 @@ public class TimeTest {
         assertThat(time1000LessThanTime2000By, is(Duration.fromMilli(1000)));
         assertThat(time2000LessThanTime1000By, is(Duration.fromMilli(-1000)));
 
-        assertThat(time2000GreaterThanTime1000By.greatThan(duration999), is(true));
-        assertThat(time2000GreaterThanTime1000By.greatThan(duration1000), is(false));
-        assertThat(time2000GreaterThanTime1000By.greatThan(duration1001), is(false));
+        assertThat(time2000GreaterThanTime1000By.gt(duration999), is(true));
+        assertThat(time2000GreaterThanTime1000By.gt(duration1000), is(false));
+        assertThat(time2000GreaterThanTime1000By.gt(duration1001), is(false));
 
-        assertThat(time1000LessThanTime2000By.greatThan(duration999), is(true));
-        assertThat(time1000LessThanTime2000By.greatThan(duration1000), is(false));
-        assertThat(time1000LessThanTime2000By.greatThan(duration1001), is(false));
+        assertThat(time1000LessThanTime2000By.gt(duration999), is(true));
+        assertThat(time1000LessThanTime2000By.gt(duration1000), is(false));
+        assertThat(time1000LessThanTime2000By.gt(duration1001), is(false));
     }
 }

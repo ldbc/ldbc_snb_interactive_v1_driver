@@ -152,16 +152,14 @@ public class SimpleWorkload extends Workload {
         operations.add(Tuple.tuple2(UPDATE_RATIO, (Iterator<Operation<?>>) updateOperationGenerator));
         operations.add(Tuple.tuple2(INSERT_RATIO, (Iterator<Operation<?>>) transactionalInsertOperationGenerator));
         operations.add(Tuple.tuple2(SCAN_RATIO, (Iterator<Operation<?>>) scanOperationGenerator));
-        operations.add(Tuple.tuple2(READ_MODIFY_WRITE_RATIO,
-                (Iterator<Operation<?>>) readModifyWriteOperationGenerator));
+        operations.add(Tuple.tuple2(READ_MODIFY_WRITE_RATIO, (Iterator<Operation<?>>) readModifyWriteOperationGenerator));
 
         Iterator<Operation<?>> transactionalOperationGenerator = generators.weightedDiscreteDereferencing(operations);
 
         // iterates initialInsertOperationGenerator before starting with transactionalInsertOperationGenerator
         Iterator<Operation<?>> workloadOperations = Iterators.concat(initialInsertOperationGenerator, transactionalOperationGenerator);
 
-        Iterator<Time> startTimeGenerator = GeneratorUtils.constantIncrementStartTimeGenerator(generators, Time.now(),
-                Duration.fromMilli(100));
+        Iterator<Time> startTimeGenerator = GeneratorUtils.constantIncrementStartTimeGenerator(generators, Time.now(), Duration.fromMilli(100));
 
         return new StartTimeAssigningOperationGenerator(startTimeGenerator, workloadOperations);
     }

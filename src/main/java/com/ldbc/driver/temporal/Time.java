@@ -1,7 +1,6 @@
 package com.ldbc.driver.temporal;
 
 import java.text.SimpleDateFormat;
-import java.util.Comparator;
 import java.util.Date;
 import java.util.concurrent.TimeUnit;
 
@@ -102,13 +101,23 @@ public class Time implements Comparable<Time>, MultipleTimeUnitProvider<Time> {
     }
 
     @Override
-    public boolean greatThan(Time other) {
-        return time.greatThan(other.time);
+    public boolean gt(Time other) {
+        return time.gt(other.time);
     }
 
     @Override
-    public boolean lessThan(Time other) {
-        return time.lessThan(other.time);
+    public boolean lt(Time other) {
+        return time.lt(other.time);
+    }
+
+    @Override
+    public boolean gte(Time other) {
+        return time.gte(other.time);
+    }
+
+    @Override
+    public boolean lte(Time other) {
+        return time.lte(other.time);
     }
 
     @Override

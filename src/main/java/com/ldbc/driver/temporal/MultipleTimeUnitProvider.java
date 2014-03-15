@@ -14,9 +14,13 @@ public interface MultipleTimeUnitProvider<T>
 
     public Long as( TimeUnit timeUnit );
 
-    public boolean greatThan( T other );
+    public boolean gt(T other);
 
-    public boolean lessThan( T other );
+    public boolean lt(T other);
+
+    public boolean gte(T other);
+
+    public boolean lte(T other);
 
     public Duration greaterBy( T other );
 
