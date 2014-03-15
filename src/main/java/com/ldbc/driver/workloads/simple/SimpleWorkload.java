@@ -2,6 +2,7 @@ package com.ldbc.driver.workloads.simple;
 
 import com.google.common.collect.Iterators;
 import com.ldbc.driver.Operation;
+import com.ldbc.driver.OperationClassification;
 import com.ldbc.driver.Workload;
 import com.ldbc.driver.WorkloadException;
 import com.ldbc.driver.data.ByteIterator;
@@ -17,6 +18,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.HashMap;
 
 public class SimpleWorkload extends Workload {
     // NOTE, in a real Workload these would ideally come from configuration and get set in onInit()
@@ -36,6 +38,16 @@ public class SimpleWorkload extends Workload {
     final double READ_MODIFY_WRITE_RATIO = 0.20;
 
     final long INITIAL_INSERT_COUNT = 10;
+
+    protected void createOperationClassificationMapping() {
+        this.operationClassificationMapping = new HashMap<Class<?>, OperationClassification>();
+        // TODO use correct operation classifications
+        this.operationClassificationMapping.put(InsertOperation.class, OperationClassification.WindowFalse_GCTRead);
+        this.operationClassificationMapping.put(ReadModifyWriteOperation.class, OperationClassification.WindowFalse_GCTReadWrite);
+        this.operationClassificationMapping.put(ReadOperation.class, OperationClassification.WindowTrue_GCTRead);
+        this.operationClassificationMapping.put(ScanOperation.class, OperationClassification.WindowTrue_GCTReadWrite);
+        this.operationClassificationMapping.put(UpdateOperation.class, OperationClassification.WindowFalse_GCTReadWrite);
+    }
 
     @Override
     public void onInit(Map<String, String> properties) {
