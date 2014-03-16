@@ -2,11 +2,11 @@ package com.ldbc.driver.workloads.simple;
 
 import com.google.common.collect.Iterators;
 import com.ldbc.driver.Operation;
-import com.ldbc.driver.OperationClassification;
 import com.ldbc.driver.Workload;
 import com.ldbc.driver.WorkloadException;
 import com.ldbc.driver.data.ByteIterator;
 import com.ldbc.driver.generator.*;
+import com.ldbc.driver.runtime.executor_NEW.OperationClassification;
 import com.ldbc.driver.temporal.Duration;
 import com.ldbc.driver.temporal.Time;
 import com.ldbc.driver.util.GeneratorUtils;
@@ -14,11 +14,7 @@ import com.ldbc.driver.util.Tuple;
 import com.ldbc.driver.util.Tuple.Tuple2;
 import com.ldbc.driver.util.Tuple.Tuple3;
 
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.HashMap;
+import java.util.*;
 
 public class SimpleWorkload extends Workload {
     // NOTE, in a real Workload these would ideally come from configuration and get set in onInit()
@@ -39,14 +35,17 @@ public class SimpleWorkload extends Workload {
 
     final long INITIAL_INSERT_COUNT = 10;
 
-    protected void createOperationClassificationMapping() {
-        this.operationClassificationMapping = new HashMap<Class<?>, OperationClassification>();
+    @Override
+    protected Map<Class<?>, OperationClassification> operationClassificationMapping() {
+        Map<Class<?>, OperationClassification> operationClassificationMapping = new HashMap<Class<?>, OperationClassification>();
         // TODO use correct operation classifications
-        this.operationClassificationMapping.put(InsertOperation.class, OperationClassification.WindowFalse_GCTRead);
-        this.operationClassificationMapping.put(ReadModifyWriteOperation.class, OperationClassification.WindowFalse_GCTReadWrite);
-        this.operationClassificationMapping.put(ReadOperation.class, OperationClassification.WindowTrue_GCTRead);
-        this.operationClassificationMapping.put(ScanOperation.class, OperationClassification.WindowTrue_GCTReadWrite);
-        this.operationClassificationMapping.put(UpdateOperation.class, OperationClassification.WindowFalse_GCTReadWrite);
+        // TODO need to add new classification to support: no window, no gct, identity scheduling - i.e., only policy driver used to support
+        operationClassificationMapping.put(InsertOperation.class, OperationClassification.WindowFalse_GCTRead);
+        operationClassificationMapping.put(ReadModifyWriteOperation.class, OperationClassification.WindowFalse_GCTReadWrite);
+        operationClassificationMapping.put(ReadOperation.class, OperationClassification.WindowTrue_GCTRead);
+        operationClassificationMapping.put(ScanOperation.class, OperationClassification.WindowTrue_GCTReadWrite);
+        operationClassificationMapping.put(UpdateOperation.class, OperationClassification.WindowFalse_GCTReadWrite);
+        return operationClassificationMapping;
     }
 
     @Override

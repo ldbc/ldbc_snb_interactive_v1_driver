@@ -16,8 +16,6 @@ import org.apache.log4j.Logger;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
-import java.util.Iterator;
-import java.util.Map;
 
 public class Client {
     private static Logger logger = Logger.getLogger(Client.class);
@@ -77,15 +75,14 @@ public class Client {
 
         WorkloadRunner workloadRunner;
         try {
-            Iterator<Operation<?>> operationGenerator = workload.getOperations(generators);
-            Map<Class<?>, OperationClassification> operationClassificationMapping = workload.getOperationClassificationMapping();
             workloadRunner = new WorkloadRunner(
                     db,
-                    operationGenerator,
-                    operationClassificationMapping,
+                    workload.operations(generators),
+                    workload.operationClassificationMapping(),
                     params.isShowStatus(),
                     params.threadCount(),
-                    metricsService);
+                    metricsService,
+                    errorReporter);
         } catch (WorkloadException e) {
             String errMsg = "Error instantiating WorkloadRunner";
             logger.error(errMsg, e);

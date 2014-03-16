@@ -1,13 +1,16 @@
-package com.ldbc.driver.util;
+package com.ldbc.driver.runtime.executor_NEW;
 
 import com.ldbc.driver.Operation;
-import com.ldbc.driver.OperationClassification;
-import com.ldbc.driver.WorkloadException;
 
-import java.util.*;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingDeque;
 
+// TODO test
+// TODO is this the way we want to do this? it will create yet another thread, leaving less for workload generation
+// TODO excluding worker threads we already have threads for AT LEAST: main, status, metrics, gct, coordination (external gct, commands, etc)
 public class OperationIteratorConverter extends Thread {
     private Map<OperationClassification, BlockingQueue<Operation<?>>> streams;
 

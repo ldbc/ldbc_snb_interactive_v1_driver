@@ -196,7 +196,7 @@ public class ConcurrentCompletionTimeServiceTest {
         Workload workload = new SimpleWorkload();
         workload.init(params);
         GeneratorFactory generators = new GeneratorFactory(new RandomDataGeneratorFactory(42L));
-        Iterator<Operation<?>> operations = workload.getOperations(generators);
+        Iterator<Operation<?>> operations = workload.operations(generators);
 
         // run
         DurationMeasurement duration = DurationMeasurement.startMeasurementNow();

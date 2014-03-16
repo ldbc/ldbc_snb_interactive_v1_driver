@@ -15,6 +15,7 @@ import com.ldbc.driver.runtime.executor.OperationHandlerExecutor;
 import com.ldbc.driver.runtime.executor.OperationHandlerExecutorException;
 import com.ldbc.driver.runtime.executor.Spinner;
 import com.ldbc.driver.runtime.executor.ThreadPoolOperationHandlerExecutor;
+import com.ldbc.driver.runtime.executor_NEW.OperationClassification;
 import com.ldbc.driver.runtime.executor_NEW.UniformWindowedOperationStreamExecutorService;
 import com.ldbc.driver.runtime.metrics_NEW.ConcurrentMetricsService;
 import com.ldbc.driver.runtime.scheduler.Scheduler;
@@ -26,6 +27,7 @@ import org.apache.log4j.Logger;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
 public class WorkloadRunner {
     private static Logger logger = Logger.getLogger(WorkloadRunner.class);
@@ -115,13 +117,15 @@ public class WorkloadRunner {
     private final boolean showStatus;
     private final ConcurrentCompletionTimeService concurrentCompletionTimeService;
     private final Iterable<OperationHandler<?>> operationHandlers;
-    private final ConcurrentErrorReporter errorReporter = new ConcurrentErrorReporter();
+    private final ConcurrentErrorReporter errorReporter;
 
     public WorkloadRunner(Db db,
                           Iterator<Operation<?>> operations,
+                          Map<Class<?>, OperationClassification> operationClassificationMapping,
                           boolean showStatus,
                           int threadCount,
-                          ConcurrentMetricsService metricsService) throws WorkloadException {
+                          ConcurrentMetricsService metricsService,
+                          ConcurrentErrorReporter errorReporter) throws WorkloadException {
         // TODO ===== EXPERIMENTAL - WINDOW STREAM EXECUTOR ======
         Iterator<OperationHandler<?>> handlers = null;
         Time startTime = Time.now();
@@ -143,6 +147,7 @@ public class WorkloadRunner {
 
         this.metricsService = metricsService;
         this.showStatus = showStatus;
+        this.errorReporter = errorReporter;
 
         // TODO make ExecutionDelayPolicy configurable
         // TODO make allowable delay configurable

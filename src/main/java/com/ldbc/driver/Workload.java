@@ -1,6 +1,7 @@
 package com.ldbc.driver;
 
 import com.ldbc.driver.generator.GeneratorFactory;
+import com.ldbc.driver.runtime.executor_NEW.OperationClassification;
 
 import java.util.Iterator;
 import java.util.Map;
@@ -11,13 +12,7 @@ public abstract class Workload {
 
     private long operationCount;
 
-    protected Map<Class<?>, OperationClassification> operationClassificationMapping;
-
-    protected abstract void createOperationClassificationMapping();
-
-    public Map<Class<?>, OperationClassification> getOperationClassificationMapping() {
-        return this.operationClassificationMapping;
-    }
+    protected abstract Map<Class<?>, OperationClassification> operationClassificationMapping();
 
     /**
      * Called once to initialize state for workload
@@ -28,7 +23,6 @@ public abstract class Workload {
         }
         isInitialized = true;
         this.operationCount = params.operationCount();
-        createOperationClassificationMapping();
         onInit(params.asMap());
     }
 
@@ -48,7 +42,7 @@ public abstract class Workload {
 
     protected abstract void onCleanup() throws WorkloadException;
 
-    public final Iterator<Operation<?>> getOperations(GeneratorFactory generators)
+    public final Iterator<Operation<?>> operations(GeneratorFactory generators)
             throws WorkloadException {
         if (WorkloadParams.UNBOUNDED_OPERATION_COUNT == getOperationCount()) {
             // Generate all workload operations before beginning
