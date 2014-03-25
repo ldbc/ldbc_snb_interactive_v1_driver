@@ -1,4 +1,4 @@
-package com.ldbc.driver.runtime.metrics_NEW;
+package com.ldbc.driver.runtime.metrics;
 
 import org.HdrHistogram.Histogram;
 import org.apache.log4j.Logger;

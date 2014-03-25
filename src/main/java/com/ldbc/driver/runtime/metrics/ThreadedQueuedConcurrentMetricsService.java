@@ -1,8 +1,8 @@
-package com.ldbc.driver.runtime.metrics_NEW;
+package com.ldbc.driver.runtime.metrics;
 
 import com.ldbc.driver.OperationResult;
 import com.ldbc.driver.runtime.error.ConcurrentErrorReporter;
-import com.ldbc.driver.runtime.metrics_NEW.formatters.OperationMetricsFormatter;
+import com.ldbc.driver.runtime.metrics.formatters.OperationMetricsFormatter;
 import com.ldbc.driver.temporal.Duration;
 import com.ldbc.driver.temporal.Time;
 
@@ -25,14 +25,14 @@ public class ThreadedQueuedConcurrentMetricsService implements ConcurrentMetrics
 
     private final Queue<MetricsCollectionEvent> metricsEventsQueue;
     private final AtomicLong initiatedEvents;
-    private final MetricsMaintenanceThread metricsMaintenanceThread;
+    private final ThreadedQueuedMetricsMaintenanceThread threadedQueuedMetricsMaintenanceThread;
     private boolean shuttingDown = false;
 
     public ThreadedQueuedConcurrentMetricsService(ConcurrentErrorReporter errorReporter, TimeUnit unit) {
         this.metricsEventsQueue = new ConcurrentLinkedQueue<MetricsCollectionEvent>();
         this.initiatedEvents = new AtomicLong(0);
-        metricsMaintenanceThread = new MetricsMaintenanceThread(errorReporter, metricsEventsQueue, new WorkloadMetricsManager(unit));
-        metricsMaintenanceThread.start();
+        threadedQueuedMetricsMaintenanceThread = new ThreadedQueuedMetricsMaintenanceThread(errorReporter, metricsEventsQueue, new WorkloadMetricsManager(unit));
+        threadedQueuedMetricsMaintenanceThread.start();
     }
 
     // TODO function to set start time? perhaps a "start measuring" function with Time as input?
@@ -80,10 +80,10 @@ public class ThreadedQueuedConcurrentMetricsService implements ConcurrentMetrics
         shuttingDown = true;
         metricsEventsQueue.add(MetricsCollectionEvent.terminate(initiatedEvents.get()));
         try {
-            metricsMaintenanceThread.join(SHUTDOWN_WAIT_TIMEOUT.asMilli());
+            threadedQueuedMetricsMaintenanceThread.join(SHUTDOWN_WAIT_TIMEOUT.asMilli());
         } catch (InterruptedException e) {
             String errMsg = String.format("Thread was interrupted while waiting for %s to complete",
-                    metricsMaintenanceThread.getClass().getSimpleName());
+                    threadedQueuedMetricsMaintenanceThread.getClass().getSimpleName());
             throw new MetricsCollectionException(errMsg, e.getCause());
         }
     }

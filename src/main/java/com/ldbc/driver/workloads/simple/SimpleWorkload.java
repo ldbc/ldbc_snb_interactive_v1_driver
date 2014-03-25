@@ -6,7 +6,7 @@ import com.ldbc.driver.Workload;
 import com.ldbc.driver.WorkloadException;
 import com.ldbc.driver.data.ByteIterator;
 import com.ldbc.driver.generator.*;
-import com.ldbc.driver.runtime.executor_NEW.OperationClassification;
+import com.ldbc.driver.runtime.executor.OperationClassification;
 import com.ldbc.driver.temporal.Duration;
 import com.ldbc.driver.temporal.Time;
 import com.ldbc.driver.util.GeneratorUtils;

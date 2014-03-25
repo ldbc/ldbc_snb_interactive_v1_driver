@@ -1,4 +1,4 @@
-package com.ldbc.driver.runtime.metrics_NEW;
+package com.ldbc.driver.runtime.metrics;
 
 import com.ldbc.driver.OperationResult;
 import com.ldbc.driver.runtime.error.ConcurrentErrorReporter;
@@ -6,16 +6,16 @@ import com.ldbc.driver.runtime.error.ConcurrentErrorReporter;
 import java.util.Queue;
 
 // TODO test
-public class MetricsMaintenanceThread extends Thread {
+public class ThreadedQueuedMetricsMaintenanceThread extends Thread {
     private final WorkloadMetricsManager metricsManager;
     private final ConcurrentErrorReporter errorReporter;
     private final Queue<MetricsCollectionEvent> metricsEventsQueue;
     private Long processedEventCount = 0l;
     private Long expectedEventCount = null;
 
-    public MetricsMaintenanceThread(ConcurrentErrorReporter errorReporter,
-                                    Queue<MetricsCollectionEvent> metricsEventsQueue,
-                                    WorkloadMetricsManager metricsManager) {
+    public ThreadedQueuedMetricsMaintenanceThread(ConcurrentErrorReporter errorReporter,
+                                                  Queue<MetricsCollectionEvent> metricsEventsQueue,
+                                                  WorkloadMetricsManager metricsManager) {
         this.errorReporter = errorReporter;
         this.metricsEventsQueue = metricsEventsQueue;
         this.metricsManager = metricsManager;

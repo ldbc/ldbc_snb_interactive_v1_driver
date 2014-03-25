@@ -4,18 +4,16 @@ import com.ldbc.driver.Operation;
 import com.ldbc.driver.temporal.Duration;
 import org.apache.log4j.Logger;
 
-public class FeedbackExecutionDelayPolicy implements ExecutionDelayPolicy {
-    private static Logger logger = Logger.getLogger(FeedbackExecutionDelayPolicy.class);
+public class ErrorReportingExecutionDelayPolicy implements ExecutionDelayPolicy {
+    private static Logger logger = Logger.getLogger(ErrorReportingExecutionDelayPolicy.class);
 
     private final Duration toleratedDelay;
-    private final boolean ignoreScheduledStartTime;
     private final ConcurrentErrorReporter concurrentErrorReporter;
 
     // TODO test
-    public FeedbackExecutionDelayPolicy(Duration toleratedDelay, boolean ignoreScheduleStartTime,
-                                        ConcurrentErrorReporter concurrentErrorReporter) {
+    public ErrorReportingExecutionDelayPolicy(Duration toleratedDelay,
+                                              ConcurrentErrorReporter concurrentErrorReporter) {
         this.toleratedDelay = toleratedDelay;
-        this.ignoreScheduledStartTime = ignoreScheduleStartTime;
         this.concurrentErrorReporter = concurrentErrorReporter;
     }
 

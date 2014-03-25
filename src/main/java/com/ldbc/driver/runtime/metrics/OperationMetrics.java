@@ -1,4 +1,4 @@
-package com.ldbc.driver.runtime.metrics_NEW;
+package com.ldbc.driver.runtime.metrics;
 
 import com.ldbc.driver.OperationResult;
 import com.ldbc.driver.temporal.Duration;

@@ -17,7 +17,7 @@ public class ThreadedQueuedConcurrentCompletionTimeService implements Concurrent
     private final Queue<CompletionTimeEvent> completionTimeEventQueue;
     private final AtomicReference<Time> gct;
     private final AtomicLong initiatedEvents;
-    private final CompletionTimeMaintenanceThread completionTimeMaintenanceThread;
+    private final ThreadedQueuedCompletionTimeMaintenanceThread threadedQueuedCompletionTimeMaintenanceThread;
     private boolean shuttingDown = false;
 
     public ThreadedQueuedConcurrentCompletionTimeService(List<String> peerIds, ConcurrentErrorReporter errorReporter)
@@ -27,24 +27,24 @@ public class ThreadedQueuedConcurrentCompletionTimeService implements Concurrent
         this.initiatedEvents = new AtomicLong(0);
         LocalCompletionTime localCompletionTime = new LocalCompletionTime();
         ExternalCompletionTime externalCompletionTime = new ExternalCompletionTime(peerIds);
-        completionTimeMaintenanceThread = new CompletionTimeMaintenanceThread(
+        threadedQueuedCompletionTimeMaintenanceThread = new ThreadedQueuedCompletionTimeMaintenanceThread(
                 completionTimeEventQueue,
                 errorReporter,
                 localCompletionTime,
                 externalCompletionTime,
                 gct);
-        completionTimeMaintenanceThread.start();
+        threadedQueuedCompletionTimeMaintenanceThread.start();
         try {
             if (null != globalCompletionTimeFuture().get())
                 throw new CompletionTimeException(
-                        String.format("Unexpected GCT while %s initialized", completionTimeMaintenanceThread.getClass().getSimpleName()));
+                        String.format("Unexpected GCT while %s initialized", threadedQueuedCompletionTimeMaintenanceThread.getClass().getSimpleName()));
         } catch (InterruptedException e) {
             throw new CompletionTimeException(
-                    String.format("Thread interrupted while waiting for %s to initialize", completionTimeMaintenanceThread.getClass().getSimpleName()),
+                    String.format("Thread interrupted while waiting for %s to initialize", threadedQueuedCompletionTimeMaintenanceThread.getClass().getSimpleName()),
                     e.getCause());
         } catch (ExecutionException e) {
             throw new CompletionTimeException(
-                    String.format("Error while waiting for %s to initialize", completionTimeMaintenanceThread.getClass().getSimpleName()),
+                    String.format("Error while waiting for %s to initialize", threadedQueuedCompletionTimeMaintenanceThread.getClass().getSimpleName()),
                     e.getCause());
         }
     }
@@ -107,10 +107,10 @@ public class ThreadedQueuedConcurrentCompletionTimeService implements Concurrent
         shuttingDown = true;
         completionTimeEventQueue.add(CompletionTimeEvent.terminate(initiatedEvents.get()));
         try {
-            completionTimeMaintenanceThread.join(SHUTDOWN_WAIT_TIMEOUT.asMilli());
+            threadedQueuedCompletionTimeMaintenanceThread.join(SHUTDOWN_WAIT_TIMEOUT.asMilli());
         } catch (InterruptedException e) {
             String errMsg = String.format("Thread was interrupted while waiting for %s to complete",
-                    completionTimeMaintenanceThread.getClass().getSimpleName());
+                    threadedQueuedCompletionTimeMaintenanceThread.getClass().getSimpleName());
             throw new CompletionTimeException(errMsg, e.getCause());
         }
     }

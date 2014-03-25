@@ -1,7 +1,7 @@
 package com.ldbc.driver;
 
 import com.ldbc.driver.generator.GeneratorFactory;
-import com.ldbc.driver.runtime.executor_NEW.OperationClassification;
+import com.ldbc.driver.runtime.executor.OperationClassification;
 
 import java.util.Iterator;
 import java.util.Map;

@@ -41,7 +41,7 @@ public class LocalCompletionTime {
         notModifiedSinceLastGet = false;
 
         if (false == initiatedTimes.remove(initiatedTimeOfCompletedEvent))
-            throw new CompletionTimeException("initiatedTimeOfCompletedEvent does not map to any uncompleted operation");
+            throw new CompletionTimeException("Initiated time of completed event does not map to any uncompleted operation");
 
         if (null == maxEventCompletedTime)
             maxEventCompletedTime = initiatedTimeOfCompletedEvent;
@@ -71,7 +71,7 @@ public class LocalCompletionTime {
     }
 
     private Time minimumInitiatedTime() {
-        // Assumes initiated start times are added in ascending order - FAILS if this is not enforced
+        //TODO Assumes initiated start times are added in ascending order - FAILS if this is not enforced - is there any case where this would not be enforced?
         return initiatedTimes.get(0);
         // return Collections.min(initiatedTimes);
     }

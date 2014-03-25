@@ -10,7 +10,7 @@ import com.ldbc.driver.generator.Generator;
 import com.ldbc.driver.generator.GeneratorException;
 import com.ldbc.driver.generator.GeneratorFactory;
 import com.ldbc.driver.generator.StartTimeAssigningOperationGenerator;
-import com.ldbc.driver.runtime.executor_NEW.OperationClassification;
+import com.ldbc.driver.runtime.executor.OperationClassification;
 import com.ldbc.driver.temporal.Duration;
 import com.ldbc.driver.temporal.Time;
 import com.ldbc.driver.util.ClassLoaderHelper;
@@ -68,18 +68,26 @@ public class LdbcInteractiveWorkload extends Workload {
         List<String> missingProperteryParameters = missingPropertiesParameters(properties, compulsoryKeys);
         if (false == missingProperteryParameters.isEmpty())
             throw new WorkloadException(
-                    String.format("Workload could not initialize due to missing parameters: %s", missingProperteryParameters.toString()));
+                    String.format(
+                            "Workload could not initialize due to missing parameters: %s",
+                            missingProperteryParameters.toString()));
 
         String parametersFilename = properties.get(PARAMETERS_FILENAME_KEY);
         if (false == new File(parametersFilename).exists()) {
-            throw new WorkloadException(String.format("Substitution parameters file does not exist: %s", parametersFilename));
+            throw new WorkloadException(
+                    String.format(
+                            "Substitution parameters file does not exist: %s",
+                            parametersFilename));
         }
         File parametersFile = new File(parametersFilename);
         try {
             substitutionParameters = SubstitutionParameters.fromJson(parametersFile);
         } catch (Exception e) {
             throw new WorkloadException(
-                    String.format("Unable to load substitution parameters from: %s", parametersFile.getAbsolutePath()), e.getCause());
+                    String.format(
+                            "Unable to load substitution parameters from: %s",
+                            parametersFile.getAbsolutePath()),
+                    e.getCause());
         }
 
         try {
@@ -87,7 +95,10 @@ public class LdbcInteractiveWorkload extends Workload {
             interleaveDuration = Duration.fromMilli(interleaveDurationMs);
         } catch (NumberFormatException e) {
             throw new WorkloadException(
-                    String.format("Unable to parse interleave duration: %s", properties.get(INTERLEAVE_DURATION_KEY)), e.getCause());
+                    String.format(
+                            "Unable to parse interleave duration: %s",
+                            properties.get(INTERLEAVE_DURATION_KEY)),
+                    e.getCause());
         }
 
         queryMix = new HashMap<Class, Double>();

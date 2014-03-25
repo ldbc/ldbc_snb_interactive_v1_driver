@@ -3,11 +3,12 @@ package com.ldbc.driver;
 import com.ldbc.driver.generator.GeneratorFactory;
 import com.ldbc.driver.runtime.WorkloadRunner;
 import com.ldbc.driver.runtime.error.ConcurrentErrorReporter;
-import com.ldbc.driver.runtime.metrics_NEW.ConcurrentMetricsService;
-import com.ldbc.driver.runtime.metrics_NEW.MetricsCollectionException;
-import com.ldbc.driver.runtime.metrics_NEW.ThreadedQueuedConcurrentMetricsService;
-import com.ldbc.driver.runtime.metrics_NEW.formatters.JsonOperationMetricsFormatter;
-import com.ldbc.driver.runtime.metrics_NEW.formatters.SimpleOperationMetricsFormatter;
+import com.ldbc.driver.runtime.metrics.ConcurrentMetricsService;
+import com.ldbc.driver.runtime.metrics.MetricsCollectionException;
+import com.ldbc.driver.runtime.metrics.ThreadedQueuedConcurrentMetricsService;
+import com.ldbc.driver.runtime.metrics.formatters.JsonOperationMetricsFormatter;
+import com.ldbc.driver.runtime.metrics.formatters.SimpleOperationMetricsFormatter;
+import com.ldbc.driver.temporal.Duration;
 import com.ldbc.driver.temporal.Time;
 import com.ldbc.driver.util.ClassLoaderHelper;
 import com.ldbc.driver.util.RandomDataGeneratorFactory;
@@ -73,6 +74,9 @@ public class Client {
         logger.info("LDBC Workload Driver");
         logger.info(params.toString());
 
+        // TODO get GCT DeltaT from configuration parameters
+        Duration gctDeltaTime = Duration.fromMilli(0);
+
         WorkloadRunner workloadRunner;
         try {
             workloadRunner = new WorkloadRunner(
@@ -82,7 +86,8 @@ public class Client {
                     params.isShowStatus(),
                     params.threadCount(),
                     metricsService,
-                    errorReporter);
+                    errorReporter,
+                    gctDeltaTime);
         } catch (WorkloadException e) {
             String errMsg = "Error instantiating WorkloadRunner";
             logger.error(errMsg, e);
@@ -92,7 +97,7 @@ public class Client {
 
         Time startTime = Time.now();
         try {
-            workloadRunner.run();
+            workloadRunner.executeWorkload();
         } catch (WorkloadException e) {
             String errMsg = "Error running Workload";
             logger.error(errMsg, e);

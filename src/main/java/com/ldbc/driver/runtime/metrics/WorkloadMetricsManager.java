@@ -1,9 +1,9 @@
-package com.ldbc.driver.runtime.metrics_NEW;
+package com.ldbc.driver.runtime.metrics;
 
 import com.google.common.collect.Lists;
 import com.ldbc.driver.OperationResult;
-import com.ldbc.driver.runtime.metrics_NEW.OperationMetrics.OperationMetricsNameComparator;
-import com.ldbc.driver.runtime.metrics_NEW.formatters.OperationMetricsFormatter;
+import com.ldbc.driver.runtime.metrics.OperationMetrics.OperationMetricsNameComparator;
+import com.ldbc.driver.runtime.metrics.formatters.OperationMetricsFormatter;
 import com.ldbc.driver.temporal.Duration;
 import com.ldbc.driver.temporal.Time;
 import org.apache.log4j.Logger;

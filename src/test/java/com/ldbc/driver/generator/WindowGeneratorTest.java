@@ -6,6 +6,11 @@ import com.ldbc.driver.DbException;
 import com.ldbc.driver.Operation;
 import com.ldbc.driver.OperationHandler;
 import com.ldbc.driver.OperationResult;
+import com.ldbc.driver.runtime.coordination.ConcurrentCompletionTimeService;
+import com.ldbc.driver.runtime.error.ConcurrentErrorReporter;
+import com.ldbc.driver.runtime.executor.AlwaysValidCompletionTimeValidator;
+import com.ldbc.driver.runtime.executor.CompletionTimeValidator;
+import com.ldbc.driver.runtime.metrics.ConcurrentMetricsService;
 import com.ldbc.driver.temporal.Duration;
 import com.ldbc.driver.temporal.Time;
 import org.junit.Test;
@@ -65,7 +70,12 @@ public class WindowGeneratorTest {
             TestOperation operation = new TestOperation();
             operation.setScheduledStartTime(times[i]);
             TestOperationHandler handler = new TestOperationHandler();
-            handler.init(null, operation, null);
+            AlwaysValidCompletionTimeValidator.Spinner spinner = null;
+            ConcurrentCompletionTimeService completionTimeService = null;
+            ConcurrentErrorReporter errorReporter = null;
+            ConcurrentMetricsService metricsService = null;
+            CompletionTimeValidator completionTimeValidator = null;
+            handler.init(spinner, operation, completionTimeService, errorReporter, metricsService, completionTimeValidator);
             handlers[i] = handler;
         }
 

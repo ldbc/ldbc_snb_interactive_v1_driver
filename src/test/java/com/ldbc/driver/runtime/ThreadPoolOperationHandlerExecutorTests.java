@@ -6,12 +6,18 @@ import com.ldbc.driver.OperationHandler;
 import com.ldbc.driver.OperationResult;
 import com.ldbc.driver.runtime.coordination.CompletionTimeException;
 import com.ldbc.driver.runtime.coordination.ConcurrentCompletionTimeService;
+import com.ldbc.driver.runtime.error.ConcurrentErrorReporter;
 import com.ldbc.driver.runtime.error.LoggingExecutionDelayPolicy;
-import com.ldbc.driver.runtime.executor.Spinner;
+import com.ldbc.driver.runtime.executor.AlwaysValidCompletionTimeValidator;
+import com.ldbc.driver.runtime.executor.CompletionTimeValidator;
+import com.ldbc.driver.runtime.metrics.ConcurrentMetricsService;
+import com.ldbc.driver.runtime.metrics.MetricsCollectionException;
+import com.ldbc.driver.runtime.metrics.formatters.OperationMetricsFormatter;
 import com.ldbc.driver.temporal.Duration;
 import com.ldbc.driver.temporal.Time;
 import org.junit.Test;
 
+import java.io.OutputStream;
 import java.util.concurrent.*;
 
 import static org.hamcrest.CoreMatchers.instanceOf;
@@ -22,6 +28,9 @@ public class ThreadPoolOperationHandlerExecutorTests {
     @Test
     public void shouldRunOperationHandlerAndReturnExpectedResultWithoutError() throws InterruptedException, ExecutionException, CompletionTimeException {
         ConcurrentCompletionTimeService concurrentCompletionTimeService = new DummyConcurrentCompletionTimeService();
+        ConcurrentMetricsService metricsService = new DummyConcurrentMetricsService();
+        ConcurrentErrorReporter errorReporter = new ConcurrentErrorReporter();
+        CompletionTimeValidator completionTimeValidator = new AlwaysValidCompletionTimeValidator();
         OperationHandler<Operation<Integer>> operationHandler = new OperationHandler<Operation<Integer>>() {
             @Override
             protected OperationResult executeOperation(Operation<Integer> operation) throws DbException {
@@ -32,8 +41,8 @@ public class ThreadPoolOperationHandlerExecutorTests {
         Operation<?> operation = new Operation<Integer>() {
         };
         operation.setScheduledStartTime(Time.now().plus(Duration.fromSeconds(1)));
-        Spinner spinner = new Spinner(new LoggingExecutionDelayPolicy(Duration.fromSeconds(1)));
-        operationHandler.init(spinner, operation, concurrentCompletionTimeService);
+        AlwaysValidCompletionTimeValidator.Spinner spinner = new AlwaysValidCompletionTimeValidator.Spinner(new LoggingExecutionDelayPolicy(Duration.fromSeconds(1)));
+        operationHandler.init(spinner, operation, concurrentCompletionTimeService, errorReporter, metricsService, completionTimeValidator);
 
         int threadCount = 1;
         ThreadFactory threadFactory = Executors.defaultThreadFactory();
@@ -52,6 +61,9 @@ public class ThreadPoolOperationHandlerExecutorTests {
     @Test
     public void shouldRunOperationHandlerAndThrowExpectedException() throws InterruptedException, ExecutionException, CompletionTimeException {
         ConcurrentCompletionTimeService concurrentCompletionTimeService = new DummyConcurrentCompletionTimeService();
+        ConcurrentMetricsService metricsService = new DummyConcurrentMetricsService();
+        ConcurrentErrorReporter errorReporter = new ConcurrentErrorReporter();
+        CompletionTimeValidator completionTimeValidator = new AlwaysValidCompletionTimeValidator();
         OperationHandler<Operation<Integer>> operationHandler = new OperationHandler<Operation<Integer>>() {
             @Override
             protected OperationResult executeOperation(Operation<Integer> operation) throws DbException {
@@ -62,8 +74,8 @@ public class ThreadPoolOperationHandlerExecutorTests {
         Operation<?> operation = new Operation<Integer>() {
         };
         operation.setScheduledStartTime(Time.now().plus(Duration.fromSeconds(1)));
-        Spinner spinner = new Spinner(new LoggingExecutionDelayPolicy(Duration.fromSeconds(1)));
-        operationHandler.init(spinner, operation, concurrentCompletionTimeService);
+        AlwaysValidCompletionTimeValidator.Spinner spinner = new AlwaysValidCompletionTimeValidator.Spinner(new LoggingExecutionDelayPolicy(Duration.fromSeconds(1)));
+        operationHandler.init(spinner, operation, concurrentCompletionTimeService, errorReporter, metricsService, completionTimeValidator);
 
         int threadCount = 1;
         ThreadFactory threadFactory = Executors.defaultThreadFactory();
@@ -74,26 +86,16 @@ public class ThreadPoolOperationHandlerExecutorTests {
 
         Future<OperationResult> operationHandlerFuture = operationHandlerCompletionPool.take();
 
-        boolean threwExpectedException = false;
-        try {
-            operationHandlerFuture.get();
-        } catch (ExecutionException e) {
-            threwExpectedException = true;
-            assertThat(e.getCause(), instanceOf(DbException.class));
-        } catch (InterruptedException e) {
-            threwExpectedException = false;
-        } catch (CancellationException e) {
-            threwExpectedException = false;
-        } catch (Exception e) {
-            threwExpectedException = false;
-        }
-
-        assertThat(threwExpectedException, is(true));
+        operationHandlerFuture.get();
+        assertThat(errorReporter.errorEncountered(), is(true));
     }
 
     @Test
     public void shouldRunOperationHandlerAndThrowInterruptedExceptionWhenExecutorServiceShutdownAbruptly() throws InterruptedException, ExecutionException, CompletionTimeException {
         ConcurrentCompletionTimeService concurrentCompletionTimeService = new DummyConcurrentCompletionTimeService();
+        ConcurrentMetricsService metricsService = new DummyConcurrentMetricsService();
+        ConcurrentErrorReporter errorReporter = new ConcurrentErrorReporter();
+        CompletionTimeValidator completionTimeValidator = new AlwaysValidCompletionTimeValidator();
         OperationHandler<Operation<Integer>> operationHandler = new OperationHandler<Operation<Integer>>() {
             @Override
             protected OperationResult executeOperation(Operation<Integer> operation) throws DbException {
@@ -109,8 +111,8 @@ public class ThreadPoolOperationHandlerExecutorTests {
         Operation<?> operation = new Operation<Integer>() {
         };
         operation.setScheduledStartTime(Time.now().plus(Duration.fromSeconds(1)));
-        Spinner spinner = new Spinner(new LoggingExecutionDelayPolicy(Duration.fromSeconds(1)));
-        operationHandler.init(spinner, operation, concurrentCompletionTimeService);
+        AlwaysValidCompletionTimeValidator.Spinner spinner = new AlwaysValidCompletionTimeValidator.Spinner(new LoggingExecutionDelayPolicy(Duration.fromSeconds(1)));
+        operationHandler.init(spinner, operation, concurrentCompletionTimeService, errorReporter, metricsService, completionTimeValidator);
 
         int threadCount = 1;
         ThreadFactory threadFactory = Executors.defaultThreadFactory();
@@ -123,22 +125,8 @@ public class ThreadPoolOperationHandlerExecutorTests {
 
         Future<OperationResult> operationHandlerFuture = operationHandlerCompletionPool.take();
 
-        boolean threwExpectedException = false;
-        try {
-            operationHandlerFuture.get();
-        } catch (ExecutionException e) {
-            threwExpectedException = true;
-            assertThat(e.getCause(), instanceOf(DbException.class));
-            assertThat(e.getCause().getMessage(), is("OperationHandler was interrupted unexpectedly"));
-        } catch (InterruptedException e) {
-            threwExpectedException = false;
-        } catch (CancellationException e) {
-            threwExpectedException = false;
-        } catch (Exception e) {
-            threwExpectedException = false;
-        }
-
-        assertThat(threwExpectedException, is(true));
+        operationHandlerFuture.get();
+        assertThat(errorReporter.errorEncountered(), is(true));
     }
 
     @Test
@@ -270,6 +258,29 @@ public class ThreadPoolOperationHandlerExecutorTests {
 
         @Override
         public void shutdown() throws CompletionTimeException {
+
+        }
+    }
+
+    class DummyConcurrentMetricsService implements ConcurrentMetricsService {
+
+        @Override
+        public void submitOperationResult(OperationResult operationResult) throws MetricsCollectionException {
+
+        }
+
+        @Override
+        public void export(OperationMetricsFormatter metricsFormatter, OutputStream outputStream) throws MetricsCollectionException {
+
+        }
+
+        @Override
+        public String status() throws MetricsCollectionException {
+            return null;
+        }
+
+        @Override
+        public void shutdown() throws MetricsCollectionException {
 
         }
     }

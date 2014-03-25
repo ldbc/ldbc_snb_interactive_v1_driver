@@ -2,6 +2,7 @@ package com.ldbc.driver.runtime.coordination;
 
 import com.ldbc.driver.temporal.Time;
 
+// TODO change interface to hide direct access to internal classes
 public class GlobalCompletionTime {
     private final LocalCompletionTime localCompletionTime;
     private final ExternalCompletionTime externalCompletionTime;

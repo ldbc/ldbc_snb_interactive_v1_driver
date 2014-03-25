@@ -6,7 +6,7 @@ import com.ldbc.driver.temporal.Time;
 import java.util.Queue;
 import java.util.concurrent.atomic.AtomicReference;
 
-public class CompletionTimeMaintenanceThread extends Thread {
+public class ThreadedQueuedCompletionTimeMaintenanceThread extends Thread {
 
     // TODO add to confluence
     /**
@@ -27,11 +27,11 @@ public class CompletionTimeMaintenanceThread extends Thread {
     private Long processedEventCount = 0l;
     private Long expectedEventCount = null;
 
-    public CompletionTimeMaintenanceThread(Queue<CompletionTimeEvent> completionTimeQueue,
-                                           ConcurrentErrorReporter errorReporter,
-                                           LocalCompletionTime localCompletionTime,
-                                           ExternalCompletionTime externalCompletionTime,
-                                           AtomicReference<Time> sharedGctReference) {
+    public ThreadedQueuedCompletionTimeMaintenanceThread(Queue<CompletionTimeEvent> completionTimeQueue,
+                                                         ConcurrentErrorReporter errorReporter,
+                                                         LocalCompletionTime localCompletionTime,
+                                                         ExternalCompletionTime externalCompletionTime,
+                                                         AtomicReference<Time> sharedGctReference) {
         this.completionTimeQueue = completionTimeQueue;
         this.errorReporter = errorReporter;
         this.globalCompletionTime = new GlobalCompletionTime(localCompletionTime, externalCompletionTime);
