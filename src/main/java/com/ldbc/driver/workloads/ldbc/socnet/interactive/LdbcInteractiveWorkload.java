@@ -10,7 +10,7 @@ import com.ldbc.driver.generator.Generator;
 import com.ldbc.driver.generator.GeneratorException;
 import com.ldbc.driver.generator.GeneratorFactory;
 import com.ldbc.driver.generator.StartTimeAssigningOperationGenerator;
-import com.ldbc.driver.runtime.executor.OperationClassification;
+import com.ldbc.driver.runtime.streams.OperationClassification;
 import com.ldbc.driver.temporal.Duration;
 import com.ldbc.driver.temporal.Time;
 import com.ldbc.driver.util.ClassLoaderHelper;

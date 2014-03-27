@@ -1,9 +1,9 @@
 package com.ldbc.driver;
 
+import com.ldbc.driver.runtime.Spinner;
 import com.ldbc.driver.runtime.coordination.CompletionTimeException;
 import com.ldbc.driver.runtime.coordination.ConcurrentCompletionTimeService;
 import com.ldbc.driver.runtime.error.ConcurrentErrorReporter;
-import com.ldbc.driver.runtime.executor.AlwaysValidCompletionTimeValidator;
 import com.ldbc.driver.runtime.executor.CompletionTimeValidator;
 import com.ldbc.driver.runtime.metrics.ConcurrentMetricsService;
 import com.ldbc.driver.runtime.metrics.MetricsCollectionException;
@@ -12,7 +12,7 @@ import com.ldbc.driver.temporal.DurationMeasurement;
 import java.util.concurrent.Callable;
 
 public abstract class OperationHandler<OPERATION_TYPE extends Operation<?>> implements Callable<OperationResult> {
-    private AlwaysValidCompletionTimeValidator.Spinner spinner;
+    private Spinner spinner;
     private OPERATION_TYPE operation;
     private DbConnectionState dbConnectionState;
     private ConcurrentCompletionTimeService completionTimeService;
@@ -21,7 +21,7 @@ public abstract class OperationHandler<OPERATION_TYPE extends Operation<?>> impl
     private CompletionTimeValidator completionTimeValidator;
     private boolean initialized = false;
 
-    public final void init(AlwaysValidCompletionTimeValidator.Spinner spinner,
+    public final void init(Spinner spinner,
                            Operation<?> operation,
                            ConcurrentCompletionTimeService completionTimeService,
                            ConcurrentErrorReporter errorReporter,

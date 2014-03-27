@@ -1,4 +1,4 @@
-package com.ldbc.driver.runtime.executor;
+package com.ldbc.driver.runtime.streams;
 
 // TODO add more to support current schedule technique
 public enum OperationClassification {

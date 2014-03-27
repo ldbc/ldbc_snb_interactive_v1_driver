@@ -1,9 +1,9 @@
 package com.ldbc.driver.runtime.executor;
 
 import com.ldbc.driver.OperationHandler;
+import com.ldbc.driver.runtime.Spinner;
 import com.ldbc.driver.runtime.coordination.ConcurrentCompletionTimeService;
 import com.ldbc.driver.runtime.error.ConcurrentErrorReporter;
-import com.ldbc.driver.runtime.error.ExecutionDelayPolicy;
 import com.ldbc.driver.temporal.Duration;
 import com.ldbc.driver.temporal.Time;
 
@@ -26,9 +26,8 @@ public class UniformWindowedOperationStreamExecutorService {
                                                          ConcurrentErrorReporter concurrentErrorReporter,
                                                          ConcurrentCompletionTimeService concurrentCompletionTimeService,
                                                          Iterator<OperationHandler<?>> handlers,
-                                                         ExecutionDelayPolicy delayPolicy,
                                                          OperationHandlerExecutor operationHandlerExecutor,
-                                                         AlwaysValidCompletionTimeValidator.Spinner slightlyEarlySpinner) {
+                                                         Spinner slightlyEarlySpinner) {
         this.concurrentErrorReporter = concurrentErrorReporter;
         CompletionTimeValidator deltaCompletionTimeValidator = new DeltaTimeCompletionTimeValidator(gctDeltaTime);
         this.uniformWindowedOperationStreamExecutorThread = new UniformWindowedOperationStreamExecutorThread(

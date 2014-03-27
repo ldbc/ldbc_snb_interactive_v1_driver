@@ -11,6 +11,7 @@ import com.ldbc.driver.runtime.error.ErrorReportingExecutionDelayPolicy;
 import com.ldbc.driver.runtime.error.ExecutionDelayPolicy;
 import com.ldbc.driver.runtime.executor.*;
 import com.ldbc.driver.runtime.metrics.ConcurrentMetricsService;
+import com.ldbc.driver.runtime.streams.OperationClassification;
 import com.ldbc.driver.temporal.Duration;
 import com.ldbc.driver.temporal.Time;
 import org.apache.log4j.Logger;
@@ -100,8 +101,8 @@ public class WorkloadRunner {
      * ------ "starts too late": window.startTime > operation.actualStartTime || operation.actualStartTime >= window.startTime + window.size
      * ------ "finishes too late" operation.actualStartTime + operation.runTime >= window.startTime + window.size
      */
-    private final AlwaysValidCompletionTimeValidator.Spinner exactSpinner;
-    private final AlwaysValidCompletionTimeValidator.Spinner slightlyEarlySpinner;
+    private final Spinner exactSpinner;
+    private final Spinner slightlyEarlySpinner;
     // TODO make WorkloadStatusService where Threading is not visible
     private final WorkloadStatusThread workloadStatusThread;
     private final boolean showStatus;
@@ -128,8 +129,8 @@ public class WorkloadRunner {
         // TODO have different ExecutionDelayPolicies for different components?
         ExecutionDelayPolicy executionDelayPolicy = new ErrorReportingExecutionDelayPolicy(DEFAULT_TOLERATED_OPERATION_START_TIME_DELAY, errorReporter);
 
-        this.exactSpinner = new AlwaysValidCompletionTimeValidator.Spinner(executionDelayPolicy);
-        this.slightlyEarlySpinner = new AlwaysValidCompletionTimeValidator.Spinner(executionDelayPolicy, SPINNER_OFFSET_DURATION);
+        this.exactSpinner = new Spinner(executionDelayPolicy);
+        this.slightlyEarlySpinner = new Spinner(executionDelayPolicy, SPINNER_OFFSET_DURATION);
         this.workloadStatusThread = new WorkloadStatusThread(DEFAULT_STATUS_UPDATE_INTERVAL, metricsService, errorReporter);
 
         // Create GCT maintenance thread
@@ -178,6 +179,10 @@ public class WorkloadRunner {
                     e.getCause());
         }
 
+        // TODO integrate Windowed Executor Service
+
+        // TODO implement Sync Executor Service
+
         // TODO provide different OperationHandlerExecutor instances to different ExecutorServices to have more control over how many resources each ExecutorService can consume?
         OperationHandlerExecutor operationHandlerExecutor_NEW = new com.ldbc.driver.runtime.executor.ThreadPoolOperationHandlerExecutor(threadCount);
         this.asyncOperationStreamExecutorService = new AsyncOperationStreamExecutorService(errorReporter, completionTimeService, handlers.iterator(), slightlyEarlySpinner, operationHandlerExecutor_NEW);
@@ -200,6 +205,8 @@ public class WorkloadRunner {
         }
         asyncOperationStreamExecutorService.shutdown();
 
+        // TODO if OperationHandlerExecutor instances are given to Executor Services then they must be shutdown here too
+
         // TODO only shutdown when terminate events comes in, because don't know when other clients will finish
         // TODO send event to coordinator information that this client has finished
 
@@ -212,7 +219,7 @@ public class WorkloadRunner {
     // TODO ReadOnlyCompletionTimeService would be given to the operation handlers that shouldn't modify GCT
     private Iterator<OperationHandler<?>> operationsToOperationHandlers(Iterator<Operation<?>> operations,
                                                                         final Db db,
-                                                                        final AlwaysValidCompletionTimeValidator.Spinner spinner,
+                                                                        final Spinner spinner,
                                                                         final ConcurrentCompletionTimeService completionTimeService,
                                                                         final ConcurrentErrorReporter errorReporter,
                                                                         final ConcurrentMetricsService metricsService,

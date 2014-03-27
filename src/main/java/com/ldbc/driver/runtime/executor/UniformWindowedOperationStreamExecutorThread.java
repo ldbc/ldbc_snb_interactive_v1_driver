@@ -6,6 +6,7 @@ import com.ldbc.driver.generator.Generator;
 import com.ldbc.driver.generator.GeneratorException;
 import com.ldbc.driver.generator.Window;
 import com.ldbc.driver.generator.WindowGenerator;
+import com.ldbc.driver.runtime.Spinner;
 import com.ldbc.driver.runtime.coordination.CompletionTimeException;
 import com.ldbc.driver.runtime.coordination.ConcurrentCompletionTimeService;
 import com.ldbc.driver.runtime.error.ConcurrentErrorReporter;
@@ -24,7 +25,7 @@ class UniformWindowedOperationStreamExecutorThread extends Thread {
     private final CompletionTimeValidator completionTimeValidator;
     private final OperationHandlerExecutor operationHandlerExecutor;
     private final Scheduler<List<OperationHandler<?>>, Window.OperationHandlerTimeRangeWindow> scheduler;
-    private final AlwaysValidCompletionTimeValidator.Spinner slightlyEarlySpinner;
+    private final Spinner slightlyEarlySpinner;
     private final ConcurrentErrorReporter errorReporter;
     private final ConcurrentCompletionTimeService completionTimeService;
     private final AtomicBoolean hasFinished;
@@ -39,7 +40,7 @@ class UniformWindowedOperationStreamExecutorThread extends Thread {
                                                         ConcurrentCompletionTimeService completionTimeService,
                                                         Iterator<OperationHandler<?>> handlers,
                                                         AtomicBoolean hasFinished,
-                                                        AlwaysValidCompletionTimeValidator.Spinner slightlyEarlySpinner) {
+                                                        Spinner slightlyEarlySpinner) {
         this.completionTimeValidator = completionTimeValidator;
         this.operationHandlerExecutor = operationHandlerExecutor;
         this.scheduler = new UniformWindowedScheduler();

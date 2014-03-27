@@ -1,6 +1,7 @@
 package com.ldbc.driver.runtime.executor;
 
 import com.ldbc.driver.OperationHandler;
+import com.ldbc.driver.runtime.Spinner;
 import com.ldbc.driver.runtime.coordination.ConcurrentCompletionTimeService;
 import com.ldbc.driver.runtime.error.ConcurrentErrorReporter;
 import com.ldbc.driver.temporal.Duration;
@@ -21,7 +22,7 @@ public class AsyncOperationStreamExecutorService {
     public AsyncOperationStreamExecutorService(ConcurrentErrorReporter errorReporter,
                                                ConcurrentCompletionTimeService completionTimeService,
                                                Iterator<OperationHandler<?>> handlers,
-                                               AlwaysValidCompletionTimeValidator.Spinner slightlyEarlySpinner,
+                                               Spinner slightlyEarlySpinner,
                                                OperationHandlerExecutor operationHandlerExecutor) {
         this.errorReporter = errorReporter;
         this.asyncOperationStreamExecutorThread = new AsyncOperationStreamExecutorThread(
