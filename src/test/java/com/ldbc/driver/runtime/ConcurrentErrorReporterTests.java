@@ -4,7 +4,6 @@ import com.google.common.base.Function;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
-import com.ldbc.driver.runtime.error.ConcurrentErrorReporter;
 import org.junit.Test;
 
 import java.util.Iterator;

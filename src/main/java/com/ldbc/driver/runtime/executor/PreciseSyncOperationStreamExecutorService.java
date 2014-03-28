@@ -1,31 +1,30 @@
 package com.ldbc.driver.runtime.executor;
 
 import com.ldbc.driver.OperationHandler;
-import com.ldbc.driver.runtime.Spinner;
+import com.ldbc.driver.runtime.scheduling.Spinner;
 import com.ldbc.driver.runtime.coordination.ConcurrentCompletionTimeService;
-import com.ldbc.driver.runtime.error.ConcurrentErrorReporter;
+import com.ldbc.driver.runtime.ConcurrentErrorReporter;
 import com.ldbc.driver.temporal.Duration;
 
 import java.util.Iterator;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 // TODO test
-public class AsyncOperationStreamExecutorService {
+public class PreciseSyncOperationStreamExecutorService {
     private static final Duration SHUTDOWN_WAIT_TIMEOUT = Duration.fromSeconds(5);
-
-    private final AsyncOperationStreamExecutorThread asyncOperationStreamExecutorThread;
+    private final PreciseSyncOperationStreamExecutorThread preciseSyncOperationStreamExecutorThread;
     private final AtomicBoolean hasFinished = new AtomicBoolean(false);
     private final ConcurrentErrorReporter errorReporter;
     private boolean executing = false;
     private boolean shuttingDown = false;
 
-    public AsyncOperationStreamExecutorService(ConcurrentErrorReporter errorReporter,
-                                               ConcurrentCompletionTimeService completionTimeService,
-                                               Iterator<OperationHandler<?>> handlers,
-                                               Spinner slightlyEarlySpinner,
-                                               OperationHandlerExecutor operationHandlerExecutor) {
+    public PreciseSyncOperationStreamExecutorService(ConcurrentErrorReporter errorReporter,
+                                                     ConcurrentCompletionTimeService completionTimeService,
+                                                     Iterator<OperationHandler<?>> handlers,
+                                                     Spinner slightlyEarlySpinner,
+                                                     OperationHandlerExecutor operationHandlerExecutor) {
         this.errorReporter = errorReporter;
-        this.asyncOperationStreamExecutorThread = new AsyncOperationStreamExecutorThread(
+        this.preciseSyncOperationStreamExecutorThread = new PreciseSyncOperationStreamExecutorThread(
                 operationHandlerExecutor,
                 errorReporter,
                 completionTimeService,
@@ -38,7 +37,7 @@ public class AsyncOperationStreamExecutorService {
         if (executing)
             return hasFinished;
         executing = true;
-        asyncOperationStreamExecutorThread.start();
+        preciseSyncOperationStreamExecutorThread.start();
         return hasFinished;
     }
 
@@ -47,8 +46,8 @@ public class AsyncOperationStreamExecutorService {
             return;
         shuttingDown = true;
         try {
-            asyncOperationStreamExecutorThread.interrupt();
-            asyncOperationStreamExecutorThread.join(SHUTDOWN_WAIT_TIMEOUT.asMilli());
+            preciseSyncOperationStreamExecutorThread.interrupt();
+            preciseSyncOperationStreamExecutorThread.join(SHUTDOWN_WAIT_TIMEOUT.asMilli());
         } catch (Exception e) {
             String errMsg = String.format("Unexpected error encountered while shutting down thread\n%s",
                     ConcurrentErrorReporter.stackTraceToString(e.getCause()));

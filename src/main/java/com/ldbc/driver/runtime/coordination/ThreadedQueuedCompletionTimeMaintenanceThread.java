@@ -1,6 +1,6 @@
 package com.ldbc.driver.runtime.coordination;
 
-import com.ldbc.driver.runtime.error.ConcurrentErrorReporter;
+import com.ldbc.driver.runtime.ConcurrentErrorReporter;
 import com.ldbc.driver.temporal.Time;
 
 import java.util.Queue;

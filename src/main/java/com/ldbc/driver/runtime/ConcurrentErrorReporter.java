@@ -1,4 +1,4 @@
-package com.ldbc.driver.runtime.error;
+package com.ldbc.driver.runtime;
 
 import com.google.common.collect.Iterables;
 
@@ -15,6 +15,7 @@ public class ConcurrentErrorReporter {
         return sw.toString();
     }
 
+    // TODO include machine/process name
     public static String whoAmI(Object caller) {
         Thread myThread = Thread.currentThread();
         return String.format("%s (Thread: ID=%s, Name=%s, Priority=%s)",

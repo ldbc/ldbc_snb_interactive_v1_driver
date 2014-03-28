@@ -36,8 +36,8 @@ public class SimpleWorkload extends Workload {
     final long INITIAL_INSERT_COUNT = 10;
 
     @Override
-    protected Map<Class<?>, OperationClassification> operationClassificationMapping() {
-        Map<Class<?>, OperationClassification> operationClassificationMapping = new HashMap<Class<?>, OperationClassification>();
+    protected Map<Class<? extends Operation<?>>, OperationClassification> operationClassificationMapping() {
+        Map<Class<? extends Operation<?>>, OperationClassification> operationClassificationMapping = new HashMap<Class<? extends Operation<?>>, OperationClassification>();
         // TODO use correct operation classifications
         // TODO need to add new classification to support: no window, no gct, identity scheduling - i.e., only policy driver used to support
         operationClassificationMapping.put(InsertOperation.class, OperationClassification.WindowFalse_GCTRead);

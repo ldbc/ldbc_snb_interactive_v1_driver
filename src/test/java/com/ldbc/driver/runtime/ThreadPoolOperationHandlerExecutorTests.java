@@ -5,10 +5,10 @@ import com.ldbc.driver.Operation;
 import com.ldbc.driver.OperationHandler;
 import com.ldbc.driver.OperationResult;
 import com.ldbc.driver.runtime.coordination.ConcurrentCompletionTimeService;
-import com.ldbc.driver.runtime.error.ConcurrentErrorReporter;
-import com.ldbc.driver.runtime.error.ErrorReportingExecutionDelayPolicy;
-import com.ldbc.driver.runtime.error.ExecutionDelayPolicy;
-import com.ldbc.driver.runtime.executor.*;
+import com.ldbc.driver.runtime.scheduling.*;
+import com.ldbc.driver.runtime.executor.OperationHandlerExecutor;
+import com.ldbc.driver.runtime.executor.OperationHandlerExecutorException;
+import com.ldbc.driver.runtime.executor.ThreadPoolOperationHandlerExecutor;
 import com.ldbc.driver.runtime.metrics.ConcurrentMetricsService;
 import com.ldbc.driver.temporal.Duration;
 import com.ldbc.driver.temporal.Time;
@@ -72,9 +72,12 @@ public class ThreadPoolOperationHandlerExecutorTests {
         int threadCount = 1;
         OperationHandlerExecutor executor = new ThreadPoolOperationHandlerExecutor(threadCount);
 
-        Operation<?> operation = new Operation<Integer>() {
+        Operation<?> operation1 = new Operation<Integer>() {
         };
-        operation.setScheduledStartTime(Time.now().plus(Duration.fromMilli(200)));
+        operation1.setScheduledStartTime(Time.now().plus(Duration.fromMilli(100)));
+        Operation<?> operation2 = new Operation<Integer>() {
+        };
+        operation2.setScheduledStartTime(operation1.scheduledStartTime().plus(Duration.fromMilli(100)));
         OperationHandler<?> handler1 = new OperationHandler<Operation<Integer>>() {
             @Override
             protected OperationResult executeOperation(Operation operation) throws DbException {
@@ -89,8 +92,8 @@ public class ThreadPoolOperationHandlerExecutorTests {
         };
 
         // When
-        handler1.init(spinner, operation, completionTimeService, errorReporter, metricsService, completionTimeValidator);
-        handler2.init(spinner, operation, completionTimeService, errorReporter, metricsService, completionTimeValidator);
+        handler1.init(spinner, operation1, completionTimeService, errorReporter, metricsService, completionTimeValidator);
+        handler2.init(spinner, operation2, completionTimeService, errorReporter, metricsService, completionTimeValidator);
 
         // Then
         Future<OperationResult> handlerFuture1 = executor.execute(handler1);

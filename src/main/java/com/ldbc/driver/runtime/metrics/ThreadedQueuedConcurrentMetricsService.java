@@ -1,7 +1,7 @@
 package com.ldbc.driver.runtime.metrics;
 
 import com.ldbc.driver.OperationResult;
-import com.ldbc.driver.runtime.error.ConcurrentErrorReporter;
+import com.ldbc.driver.runtime.ConcurrentErrorReporter;
 import com.ldbc.driver.runtime.metrics.formatters.OperationMetricsFormatter;
 import com.ldbc.driver.temporal.Duration;
 import com.ldbc.driver.temporal.Time;

@@ -1,11 +1,11 @@
-package com.ldbc.driver.runtime;
+package com.ldbc.driver.runtime.scheduling;
 
 import com.ldbc.driver.Operation;
-import com.ldbc.driver.runtime.error.ExecutionDelayPolicy;
 import com.ldbc.driver.temporal.Duration;
 import com.ldbc.driver.temporal.Time;
 
 public class Spinner {
+    private static final SpinnerCheck TRUE_CHECK = new TrueCheck();
     // Duration that operation will be executed before scheduled start time
     // if offset==0 operation will be scheduled at exactly operation.scheduledStartTime()
     private final Duration offset;
@@ -21,23 +21,41 @@ public class Spinner {
     }
 
     public void waitForScheduledStartTime(Operation<?> operation) {
+        waitForScheduledStartTime(operation, TRUE_CHECK);
+    }
+
+    public void waitForScheduledStartTime(Operation<?> operation, SpinnerCheck check) {
         if (null == operation.scheduledStartTime()) {
             executionDelayPolicy.handleUnassignedScheduledStartTime(operation);
             return;
         }
 
-        long timeNowMilli = Time.nowAsMilli();
         long scheduledStartTimeWithOffsetMs = operation.scheduledStartTime().minus(offset).asMilli();
-        long toleratedDelayMilli = executionDelayPolicy.toleratedDelay().asMilli();
-        // changed to the below to avoid unnecessary Time & Duration object instantiations
-        // if (Time.now().greaterBy(operation.scheduledStartTime()).greatThan(executionDelayPolicy.toleratedDelay())) {
-        if (timeNowMilli - scheduledStartTimeWithOffsetMs > toleratedDelayMilli) {
+        long toleratedDelayMs = executionDelayPolicy.toleratedDelay().asMilli();
+        if (Time.nowAsMilli() - scheduledStartTimeWithOffsetMs > toleratedDelayMs) {
             executionDelayPolicy.handleExcessiveDelay(operation);
         }
 
-        // Time.nowAsMilli() to avoid object creation where possible
+        boolean checkHasNotPassed = true;
         while (Time.nowAsMilli() < scheduledStartTimeWithOffsetMs) {
             // loop/wait until operation scheduled start time
+            if (checkHasNotPassed && check.doCheck())
+                checkHasNotPassed = false;
+        }
+
+        if (checkHasNotPassed) {
+            check.handleFailedCheck(operation);
+        }
+    }
+
+    private static class TrueCheck implements SpinnerCheck {
+        @Override
+        public Boolean doCheck() {
+            return true;
+        }
+
+        @Override
+        public void handleFailedCheck(Operation<?> operation) {
         }
     }
 }

@@ -6,7 +6,7 @@ import com.ldbc.driver.Workload;
 import com.ldbc.driver.WorkloadException;
 import com.ldbc.driver.WorkloadParams;
 import com.ldbc.driver.generator.GeneratorFactory;
-import com.ldbc.driver.runtime.error.ConcurrentErrorReporter;
+import com.ldbc.driver.runtime.ConcurrentErrorReporter;
 import com.ldbc.driver.temporal.Duration;
 import com.ldbc.driver.temporal.DurationMeasurement;
 import com.ldbc.driver.temporal.Time;

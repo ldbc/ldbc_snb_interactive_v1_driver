@@ -12,7 +12,7 @@ public abstract class Workload {
 
     private long operationCount;
 
-    protected abstract Map<Class<?>, OperationClassification> operationClassificationMapping();
+    protected abstract Map<Class<? extends Operation<?>>, OperationClassification> operationClassificationMapping();
 
     /**
      * Called once to initialize state for workload

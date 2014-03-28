@@ -1,4 +1,4 @@
-package com.ldbc.driver.runtime.error;
+package com.ldbc.driver.runtime.scheduling;
 
 import com.ldbc.driver.Operation;
 import com.ldbc.driver.temporal.Duration;

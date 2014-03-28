@@ -1,10 +1,11 @@
 package com.ldbc.driver;
 
-import com.ldbc.driver.runtime.Spinner;
+import com.ldbc.driver.runtime.scheduling.CompletionTimeValidator;
+import com.ldbc.driver.runtime.scheduling.Spinner;
+import com.ldbc.driver.runtime.scheduling.SpinnerCheck;
 import com.ldbc.driver.runtime.coordination.CompletionTimeException;
 import com.ldbc.driver.runtime.coordination.ConcurrentCompletionTimeService;
-import com.ldbc.driver.runtime.error.ConcurrentErrorReporter;
-import com.ldbc.driver.runtime.executor.CompletionTimeValidator;
+import com.ldbc.driver.runtime.ConcurrentErrorReporter;
 import com.ldbc.driver.runtime.metrics.ConcurrentMetricsService;
 import com.ldbc.driver.runtime.metrics.MetricsCollectionException;
 import com.ldbc.driver.temporal.DurationMeasurement;
@@ -18,8 +19,8 @@ public abstract class OperationHandler<OPERATION_TYPE extends Operation<?>> impl
     private ConcurrentCompletionTimeService completionTimeService;
     private ConcurrentErrorReporter errorReporter;
     private ConcurrentMetricsService metricsService;
-    private CompletionTimeValidator completionTimeValidator;
     private boolean initialized = false;
+    private SpinnerCheck gctCheck;
 
     public final void init(Spinner spinner,
                            Operation<?> operation,
@@ -32,8 +33,8 @@ public abstract class OperationHandler<OPERATION_TYPE extends Operation<?>> impl
         this.completionTimeService = completionTimeService;
         this.errorReporter = errorReporter;
         this.metricsService = metricsService;
-        this.completionTimeValidator = completionTimeValidator;
         this.initialized = true;
+        this.gctCheck = new GctCheck(completionTimeValidator);
     }
 
     public final OPERATION_TYPE operation() {
@@ -64,13 +65,7 @@ public abstract class OperationHandler<OPERATION_TYPE extends Operation<?>> impl
             return null;
         }
         try {
-            spinner.waitForScheduledStartTime(operation);
-            if (false == completionTimeValidator.isValid(completionTimeService, operation.scheduledStartTime())) {
-                errorReporter.reportError(
-                        this,
-                        String.format("GCT has not advanced sufficiently to execute operation: %s", operation.toString()));
-                return null;
-            }
+            spinner.waitForScheduledStartTime(operation, gctCheck);
             DurationMeasurement durationMeasurement = DurationMeasurement.startMeasurementNow();
             OperationResult operationResult = executeOperation(operation);
             operationResult.setRunDuration(durationMeasurement.durationUntilNow());
@@ -94,7 +89,7 @@ public abstract class OperationHandler<OPERATION_TYPE extends Operation<?>> impl
             errorReporter.reportError(this, errMsg);
         } catch (CompletionTimeException e) {
             String errMsg = String.format(
-                    "Error encountered while reading/writing GCT for query %s\n%s",
+                    "Error encountered while submitting completed time for query %s\n%s",
                     operation.getClass().getSimpleName(),
                     ConcurrentErrorReporter.stackTraceToString(e));
             errorReporter.reportError(this, errMsg);
@@ -108,5 +103,43 @@ public abstract class OperationHandler<OPERATION_TYPE extends Operation<?>> impl
     @Override
     public String toString() {
         return String.format("OperationHandler [type=%s, operation=%s]", getClass().getName(), operation);
+    }
+
+    private class GctCheck implements SpinnerCheck {
+        private final CompletionTimeValidator completionTimeValidator;
+
+        private GctCheck(CompletionTimeValidator completionTimeValidator) {
+            this.completionTimeValidator = completionTimeValidator;
+        }
+
+        @Override
+        public Boolean doCheck() {
+            try {
+                return completionTimeValidator.gctIsReadyFor(operation.scheduledStartTime());
+            } catch (CompletionTimeException e) {
+                errorReporter.reportError(this,
+                        String.format(
+                                "Error encountered while reading/writing GCT for query %s\n%s",
+                                operation.getClass().getSimpleName(),
+                                ConcurrentErrorReporter.stackTraceToString(e)));
+                return false;
+            }
+        }
+
+        @Override
+        public void handleFailedCheck(Operation<?> operation) {
+            try {
+                errorReporter.reportError(this,
+                        String.format("GCT(%) has not advanced sufficiently to execute operation(%s)",
+                                completionTimeService.globalCompletionTime().toString(),
+                                operation.toString()));
+            } catch (CompletionTimeException e) {
+                errorReporter.reportError(this,
+                        String.format(
+                                "Error encountered in handleFailedCheck while reading GCT for query %s\n%s",
+                                operation.getClass().getSimpleName(),
+                                ConcurrentErrorReporter.stackTraceToString(e)));
+            }
+        }
     }
 }

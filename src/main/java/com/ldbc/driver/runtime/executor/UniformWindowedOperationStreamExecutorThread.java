@@ -6,12 +6,13 @@ import com.ldbc.driver.generator.Generator;
 import com.ldbc.driver.generator.GeneratorException;
 import com.ldbc.driver.generator.Window;
 import com.ldbc.driver.generator.WindowGenerator;
-import com.ldbc.driver.runtime.Spinner;
+import com.ldbc.driver.runtime.scheduling.CompletionTimeValidator;
+import com.ldbc.driver.runtime.scheduling.Scheduler;
+import com.ldbc.driver.runtime.scheduling.Spinner;
 import com.ldbc.driver.runtime.coordination.CompletionTimeException;
 import com.ldbc.driver.runtime.coordination.ConcurrentCompletionTimeService;
-import com.ldbc.driver.runtime.error.ConcurrentErrorReporter;
-import com.ldbc.driver.runtime.scheduler.Scheduler;
-import com.ldbc.driver.runtime.scheduler.UniformWindowedScheduler;
+import com.ldbc.driver.runtime.ConcurrentErrorReporter;
+import com.ldbc.driver.runtime.scheduling.UniformWindowedScheduler;
 import com.ldbc.driver.temporal.Duration;
 import com.ldbc.driver.temporal.Time;
 
@@ -68,75 +69,75 @@ class UniformWindowedOperationStreamExecutorThread extends Thread {
 
     @Override
     public void run() {
-        // retrieve and execute windows of handlers, one window at a time
         List<Future<OperationResult>> currentlyExecutingHandlers = new ArrayList<Future<OperationResult>>();
-        Time endTimeOfLastWindow = Time.now().minus(Duration.fromMilli(1));
         while (handlerWindows.hasNext()) {
             Window.OperationHandlerTimeRangeWindow window = handlerWindows.next();
             List<OperationHandler<?>> scheduledHandlers = scheduler.schedule(window);
 
-            // wait for end of previous time window
+            // wait for window start time
             // TODO use something like Spinner here? OperationSpinner uses TimeSpinner?
-            while (Time.nowAsMilli() < endTimeOfLastWindow.asMilli()) {
+            while (Time.nowAsMilli() < window.windowStartTimeInclusive().asMilli()) {
                 // loop/wait until window time complete
             }
 
-            // Ensure all previous window operations have completed
-            if (false == allHandlersHaveCompleted(currentlyExecutingHandlers)) {
-                errorReporter.reportError(this, "One or more local operations in window did not complete in time");
-            }
+            // TODO between now and the time assertions (below) complete, first window operation may be late, test this
+
+            // Ensure all operations from previous window have completed executing
+            assertPreviousWindowCompletedExecuting(currentlyExecutingHandlers);
 
             // Ensure GCT has proceeded enough to execute next window
-            try {
-                if (false == completionTimeValidator.isValid(completionTimeService, window.windowStartTimeInclusive())) {
-                    errorReporter.reportError(
-                            this,
-                            String.format("GCT advanced too slowly\nCurrent window [%s,%s) < GCT(%s) + DeltaT",
-                                    completionTimeService.globalCompletionTime().toString(),
-                                    window.windowStartTimeInclusive().toString(),
-                                    window.windowEndTimeExclusive().toString()));
-                }
-            } catch (CompletionTimeException e) {
-                errorReporter.reportError(
-                        this,
-                        String.format("Error encountered while reading GCT\n%s",
-                                ConcurrentErrorReporter.stackTraceToString(e.getCause())));
-            }
+            assertGctIsReady(window.windowStartTimeInclusive());
 
             // execute operation handlers for current window
             currentlyExecutingHandlers = new ArrayList<Future<OperationResult>>();
             for (OperationHandler<?> operationHandler : scheduledHandlers) {
-                // Schedule slightly early to account for context switch latency
-                // Internally, OperationHandler will schedule at exact scheduled start time
+                // Schedule slightly early to account for context switch - internally, handler will schedule at exact start time
                 slightlyEarlySpinner.waitForScheduledStartTime(operationHandler.operation());
                 try {
                     completionTimeService.submitInitiatedTime(operationHandler.operation().scheduledStartTime());
                 } catch (CompletionTimeException e) {
-                    String errMsg = String.format("Error encountered while submitted Initiated Time for:\n\t%s\n%s",
-                            operationHandler.operation().toString(),
-                            ConcurrentErrorReporter.stackTraceToString(e.getCause()));
-                    errorReporter.reportError(this, errMsg);
+                    errorReporter.reportError(this,
+                            String.format("Error encountered while submitted Initiated Time for:\n\t%s\n%s",
+                                    operationHandler.operation().toString(),
+                                    ConcurrentErrorReporter.stackTraceToString(e.getCause())));
                 }
                 try {
                     currentlyExecutingHandlers.add(operationHandlerExecutor.execute(operationHandler));
                 } catch (OperationHandlerExecutorException e) {
-                    String errMsg = String.format("Error encountered while submitting operation for execution\n\t%s\n\t%s",
-                            operationHandler.operation().toString(),
-                            ConcurrentErrorReporter.stackTraceToString(e.getCause()));
-                    errorReporter.reportError(this, errMsg);
+                    errorReporter.reportError(this,
+                            String.format("Error encountered while submitting operation for execution\n\t%s\n\t%s",
+                                    operationHandler.operation().toString(),
+                                    ConcurrentErrorReporter.stackTraceToString(e.getCause())));
                 }
             }
-            endTimeOfLastWindow = window.windowEndTimeExclusive();
+
         }
         this.hasFinished.set(true);
     }
 
-    private boolean allHandlersHaveCompleted(List<Future<OperationResult>> executingHandlers) {
-        for (Future<OperationResult> resultFuture : executingHandlers) {
-            if (false == resultFuture.isDone()) {
-                return false;
+    private void assertGctIsReady(Time windowStartTime) {
+        try {
+            if (false == completionTimeValidator.gctIsReadyFor(windowStartTime)) {
+                errorReporter.reportError(this,
+                        String.format("GCT advanced too slowly\nWindow Start Time(%s) < GCT(%s) + DeltaT",
+                                completionTimeService.globalCompletionTime().toString(),
+                                windowStartTime.toString()));
             }
+        } catch (CompletionTimeException e) {
+            errorReporter.reportError(this,
+                    String.format("Error encountered while reading GCT\n%s", ConcurrentErrorReporter.stackTraceToString(e.getCause())));
         }
-        return true;
+    }
+
+    private void assertPreviousWindowCompletedExecuting(List<Future<OperationResult>> executingHandlers) {
+        if (false == previousWindowStillExecuting(executingHandlers)) {
+            errorReporter.reportError(this, "One or more local operations in window did not complete in time");
+        }
+    }
+
+    private boolean previousWindowStillExecuting(List<Future<OperationResult>> executingHandlers) {
+        for (Future<OperationResult> resultFuture : executingHandlers)
+            if (false == resultFuture.isDone()) return true;
+        return false;
     }
 }

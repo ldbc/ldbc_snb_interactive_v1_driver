@@ -1,9 +1,11 @@
 package com.ldbc.driver.runtime.executor;
 
 import com.ldbc.driver.OperationHandler;
-import com.ldbc.driver.runtime.Spinner;
+import com.ldbc.driver.runtime.scheduling.CompletionTimeValidator;
+import com.ldbc.driver.runtime.scheduling.DeltaTimeCompletionTimeValidator;
+import com.ldbc.driver.runtime.scheduling.Spinner;
 import com.ldbc.driver.runtime.coordination.ConcurrentCompletionTimeService;
-import com.ldbc.driver.runtime.error.ConcurrentErrorReporter;
+import com.ldbc.driver.runtime.ConcurrentErrorReporter;
 import com.ldbc.driver.temporal.Duration;
 import com.ldbc.driver.temporal.Time;
 
@@ -24,19 +26,20 @@ public class UniformWindowedOperationStreamExecutorService {
                                                          Duration windowSize,
                                                          Duration gctDeltaTime,
                                                          ConcurrentErrorReporter concurrentErrorReporter,
-                                                         ConcurrentCompletionTimeService concurrentCompletionTimeService,
+                                                         ConcurrentCompletionTimeService completionTimeService,
                                                          Iterator<OperationHandler<?>> handlers,
                                                          OperationHandlerExecutor operationHandlerExecutor,
                                                          Spinner slightlyEarlySpinner) {
         this.concurrentErrorReporter = concurrentErrorReporter;
-        CompletionTimeValidator deltaCompletionTimeValidator = new DeltaTimeCompletionTimeValidator(gctDeltaTime);
+        // TODO if CompletionTimeValidator is passed inside of Spinner, remove this line
+        CompletionTimeValidator deltaCompletionTimeValidator = new DeltaTimeCompletionTimeValidator(completionTimeService, gctDeltaTime);
         this.uniformWindowedOperationStreamExecutorThread = new UniformWindowedOperationStreamExecutorThread(
                 firstWindowStartTime,
                 windowSize,
                 deltaCompletionTimeValidator,
                 operationHandlerExecutor,
                 concurrentErrorReporter,
-                concurrentCompletionTimeService,
+                completionTimeService,
                 handlers,
                 hasFinished,
                 slightlyEarlySpinner);

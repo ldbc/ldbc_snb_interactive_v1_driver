@@ -1,4 +1,4 @@
-package com.ldbc.driver.runtime.scheduler;
+package com.ldbc.driver.runtime.scheduling;
 
 import com.ldbc.driver.generator.Window;
 

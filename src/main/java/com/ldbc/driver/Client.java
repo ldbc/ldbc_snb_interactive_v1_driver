@@ -2,7 +2,7 @@ package com.ldbc.driver;
 
 import com.ldbc.driver.generator.GeneratorFactory;
 import com.ldbc.driver.runtime.WorkloadRunner;
-import com.ldbc.driver.runtime.error.ConcurrentErrorReporter;
+import com.ldbc.driver.runtime.ConcurrentErrorReporter;
 import com.ldbc.driver.runtime.metrics.ConcurrentMetricsService;
 import com.ldbc.driver.runtime.metrics.MetricsCollectionException;
 import com.ldbc.driver.runtime.metrics.ThreadedQueuedConcurrentMetricsService;

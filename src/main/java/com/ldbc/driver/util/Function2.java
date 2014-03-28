@@ -1,6 +1,5 @@
 package com.ldbc.driver.util;
 
-public interface Function2<FROM1, FROM2, TO>
-{
-    TO apply( FROM1 from1, FROM2 from2 );
+public interface Function2<INPUT1, INPUT2, RETURN> {
+    RETURN apply(INPUT1 input1, INPUT2 input2);
 }

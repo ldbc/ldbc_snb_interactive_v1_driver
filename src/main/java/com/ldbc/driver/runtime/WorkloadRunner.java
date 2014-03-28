@@ -6,10 +6,9 @@ import com.google.common.collect.Iterators;
 import com.ldbc.driver.*;
 import com.ldbc.driver.runtime.coordination.ConcurrentCompletionTimeService;
 import com.ldbc.driver.runtime.coordination.ThreadedQueuedConcurrentCompletionTimeService;
-import com.ldbc.driver.runtime.error.ConcurrentErrorReporter;
-import com.ldbc.driver.runtime.error.ErrorReportingExecutionDelayPolicy;
-import com.ldbc.driver.runtime.error.ExecutionDelayPolicy;
-import com.ldbc.driver.runtime.executor.*;
+import com.ldbc.driver.runtime.scheduling.*;
+import com.ldbc.driver.runtime.executor.PreciseAsyncOperationStreamExecutorService;
+import com.ldbc.driver.runtime.executor.OperationHandlerExecutor;
 import com.ldbc.driver.runtime.metrics.ConcurrentMetricsService;
 import com.ldbc.driver.runtime.streams.OperationClassification;
 import com.ldbc.driver.temporal.Duration;
@@ -25,14 +24,15 @@ import java.util.concurrent.atomic.AtomicBoolean;
 public class WorkloadRunner {
     private static Logger logger = Logger.getLogger(WorkloadRunner.class);
 
+    // TODO add this to config?
     public static final Duration DEFAULT_TOLERATED_OPERATION_START_TIME_DELAY = Duration.fromSeconds(1);
+    // TODO add this to config
     private final Duration DEFAULT_STATUS_UPDATE_INTERVAL = Duration.fromSeconds(2);
-    // TODO this needs to be tuned perhaps a method that during initialization runs an ExecutionService and measures delay
+    // TODO tune. perhaps a method that during initialization runs an ExecutionService and measures delay
     private final Duration SPINNER_OFFSET_DURATION = Duration.fromMilli(100);
 
     /**
      * TODO update confluence with this information
-     * TODO implement the necessary classes for the below
      * Spinner & Executor combinations should have the following functionality:
      * <p/>
      * ~~~~~ Definitions ~~~~~
@@ -43,20 +43,18 @@ public class WorkloadRunner {
      * <p/>
      * - TimeMapper TODO impl, test
      * --- "maps times from workload definition into real time, i.e., by applying offsets and compression/expansion"
-     * - OperationWindowTaker TODO test
+     * - OperationWindowTaker
      * --- "from the stream, retrieves a group of OperationHandlers that are ready to be scheduled for execution"
-     * - Scheduler TODO test
+     * - Scheduler
      * --- "reassigns scheduled start times to a group of OperationHandlers using configurable policy, e.g., uniform within window"
      * --- takes group of operations (Iterator of OperationHandlers), those in current window, as input
      * --- optionally modifies operation.scheduledStartTime for those operations
      * --- returns group of operations (Iterator of OperationHandlers) SORTED ASCENDING by scheduledStartTime
-     * - OperationHandlerExecutor TODO impl, test
+     * - OperationHandlerExecutor
      * --- "executes OperationHandlers according to their scheduledStartTime"
-     * - Spinner TODO impl, test
+     * - Spinner TODO test
      * --- "used by OperationHandlerExecutor to know when an OperationHandler's scheduledStartTime has arrived"
-     * - FailurePolicy TODO
-     * --- TODO remove ability to ignore scheduledStartTime,
-     * --- TODO to compensate, possibly support automatically setting it to Time.now() if it's not set
+     * - FailurePolicy
      * <p/>
      * ~~~~~ Strategies ~~~~~
      * <p/>
@@ -64,15 +62,17 @@ public class WorkloadRunner {
      * --- operation sent to scheduler:
      * ------ never, scheduledStartTime is not modified in this execution strategy
      * --- operation sent to executor:
-     * ------ scheduledTime
+     * ------ time == operation.scheduledTime
      * --- number of executing operations:
      * ------ unbounded
      * --- max operation runtime:
      * ------ unbounded
      * --- failure:
      * ------ operation starts executing later than scheduledTime + toleratedDelay
+     * -- GCT checked:
+     * ------ never(?)
      * <p/>
-     * - Synchronous:
+     * - PreciseSynchronous: TODO
      * --- operation sent to scheduler:
      * ------ never, scheduledStartTime is not modified in this execution strategy
      * --- operation sent to executor:
@@ -86,6 +86,8 @@ public class WorkloadRunner {
      * ------ operation starts executing later than scheduledTime + toleratedDelay
      * ------ TODO careful with this implementation, if currentOperation never terminates the driver may never detect failure
      * ------ TODO use future with timeout to solve that issue?
+     * -- GCT checked:
+     * ------ time == operation.scheduledTime
      * <p/>
      * - WindowedAsynchronous:
      * --- operation sent to scheduler:
@@ -100,21 +102,22 @@ public class WorkloadRunner {
      * --- failure:
      * ------ "starts too late": window.startTime > operation.actualStartTime || operation.actualStartTime >= window.startTime + window.size
      * ------ "finishes too late" operation.actualStartTime + operation.runTime >= window.startTime + window.size
+     * -- GCT checked:
+     * ------ time == window.startTime
      */
     private final Spinner exactSpinner;
     private final Spinner slightlyEarlySpinner;
-    // TODO make WorkloadStatusService where Threading is not visible
     private final WorkloadStatusThread workloadStatusThread;
     private final boolean showStatus;
     private final ConcurrentCompletionTimeService completionTimeService;
     private final Iterable<OperationHandler<?>> handlers;
     private final ConcurrentErrorReporter errorReporter;
     private final Duration gctDeltaTime;
-    private final AsyncOperationStreamExecutorService asyncOperationStreamExecutorService;
+    private final PreciseAsyncOperationStreamExecutorService preciseAsyncOperationStreamExecutorService;
 
     public WorkloadRunner(Db db,
                           Iterator<Operation<?>> operations,
-                          Map<Class<?>, OperationClassification> operationClassificationMapping,
+                          Map<Class<? extends Operation<?>>, OperationClassification> operationClassificationMapping,
                           boolean showStatus,
                           int threadCount,
                           ConcurrentMetricsService metricsService,
@@ -125,8 +128,8 @@ public class WorkloadRunner {
         this.gctDeltaTime = gctDeltaTime;
 
         // TODO make ExecutionDelayPolicy configurable
-        // TODO make allowable delay configurable
         // TODO have different ExecutionDelayPolicies for different components?
+        // TODO have different error reporters for different components?
         ExecutionDelayPolicy executionDelayPolicy = new ErrorReportingExecutionDelayPolicy(DEFAULT_TOLERATED_OPERATION_START_TIME_DELAY, errorReporter);
 
         this.exactSpinner = new Spinner(executionDelayPolicy);
@@ -137,7 +140,7 @@ public class WorkloadRunner {
         // TODO get peerIds from somewhere
         List<String> peerIds = new ArrayList<String>();
         try {
-            // TODO make ConcurrentCompletionTimeService implementation (NaiveSynchronized vs ThreadedQueued) configurable?
+            // TODO make ConcurrentCompletionTimeService implementation configurable? perhaps method compares performance on target machine
             completionTimeService = new ThreadedQueuedConcurrentCompletionTimeService(peerIds, errorReporter);
         } catch (Exception e) {
             throw new WorkloadException(
@@ -146,9 +149,11 @@ public class WorkloadRunner {
                     e.getCause());
         }
 
+        // TODO split stream and assign to ExecutorServices, CompletionTimeValidators, CompletionTimeServices, ErrorReporters as appropriate
+
         // Map operation stream to operation handler stream and materialize to list, to avoid doing so at runtime
-        // TODO provide appropriate CompletionTimeValidator for each stream type
         CompletionTimeValidator completionTimeValidator = new AlwaysValidCompletionTimeValidator();
+        // TODO ideally the stream would only be materialized once, and this will have to be during splitting anyway
         this.handlers = ImmutableList.copyOf(operationsToOperationHandlers(
                 operations,
                 db,
@@ -179,13 +184,11 @@ public class WorkloadRunner {
                     e.getCause());
         }
 
-        // TODO integrate Windowed Executor Service
-
         // TODO implement Sync Executor Service
 
         // TODO provide different OperationHandlerExecutor instances to different ExecutorServices to have more control over how many resources each ExecutorService can consume?
         OperationHandlerExecutor operationHandlerExecutor_NEW = new com.ldbc.driver.runtime.executor.ThreadPoolOperationHandlerExecutor(threadCount);
-        this.asyncOperationStreamExecutorService = new AsyncOperationStreamExecutorService(errorReporter, completionTimeService, handlers.iterator(), slightlyEarlySpinner, operationHandlerExecutor_NEW);
+        this.preciseAsyncOperationStreamExecutorService = new PreciseAsyncOperationStreamExecutorService(errorReporter, completionTimeService, handlers.iterator(), slightlyEarlySpinner, operationHandlerExecutor_NEW);
     }
 
     public void executeWorkload() throws WorkloadException {
@@ -193,7 +196,7 @@ public class WorkloadRunner {
         //  metricsService.setStartTime(Time.now());
 
         if (showStatus) workloadStatusThread.start();
-        AtomicBoolean finished = asyncOperationStreamExecutorService.execute();
+        AtomicBoolean finished = preciseAsyncOperationStreamExecutorService.execute();
         while (false == finished.get()) {
             if (errorReporter.errorEncountered())
                 break;
@@ -203,7 +206,7 @@ public class WorkloadRunner {
             String errMsg = String.format("Encountered error while running workload. Driver terminating.\n%s", errorReporter.toString());
             throw new WorkloadException(errMsg);
         }
-        asyncOperationStreamExecutorService.shutdown();
+        preciseAsyncOperationStreamExecutorService.shutdown();
 
         // TODO if OperationHandlerExecutor instances are given to Executor Services then they must be shutdown here too
 

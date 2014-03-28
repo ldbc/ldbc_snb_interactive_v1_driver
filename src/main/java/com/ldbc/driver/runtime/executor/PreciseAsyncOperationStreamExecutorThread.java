@@ -1,15 +1,15 @@
 package com.ldbc.driver.runtime.executor;
 
 import com.ldbc.driver.OperationHandler;
-import com.ldbc.driver.runtime.Spinner;
+import com.ldbc.driver.runtime.scheduling.Spinner;
 import com.ldbc.driver.runtime.coordination.CompletionTimeException;
 import com.ldbc.driver.runtime.coordination.ConcurrentCompletionTimeService;
-import com.ldbc.driver.runtime.error.ConcurrentErrorReporter;
+import com.ldbc.driver.runtime.ConcurrentErrorReporter;
 
 import java.util.Iterator;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-class AsyncOperationStreamExecutorThread extends Thread {
+class PreciseAsyncOperationStreamExecutorThread extends Thread {
     private final OperationHandlerExecutor operationHandlerExecutor;
     private final Spinner slightlyEarlySpinner;
     private final ConcurrentErrorReporter errorReporter;
@@ -17,12 +17,12 @@ class AsyncOperationStreamExecutorThread extends Thread {
     private final Iterator<OperationHandler<?>> handlers;
     private final AtomicBoolean hasFinished;
 
-    public AsyncOperationStreamExecutorThread(OperationHandlerExecutor operationHandlerExecutor,
-                                              ConcurrentErrorReporter errorReporter,
-                                              ConcurrentCompletionTimeService completionTimeService,
-                                              Iterator<OperationHandler<?>> handlers,
-                                              AtomicBoolean hasFinished,
-                                              Spinner slightlyEarlySpinner) {
+    public PreciseAsyncOperationStreamExecutorThread(OperationHandlerExecutor operationHandlerExecutor,
+                                                     ConcurrentErrorReporter errorReporter,
+                                                     ConcurrentCompletionTimeService completionTimeService,
+                                                     Iterator<OperationHandler<?>> handlers,
+                                                     AtomicBoolean hasFinished,
+                                                     Spinner slightlyEarlySpinner) {
         this.operationHandlerExecutor = operationHandlerExecutor;
         this.slightlyEarlySpinner = slightlyEarlySpinner;
         this.errorReporter = errorReporter;
@@ -33,11 +33,9 @@ class AsyncOperationStreamExecutorThread extends Thread {
 
     @Override
     public void run() {
-        // retrieve and execute windows of handlers, one window at a time
         while (handlers.hasNext()) {
             OperationHandler<?> handler = handlers.next();
-            // Schedule slightly early to account for context switch latency
-            // Internally, OperationHandler will schedule at exact scheduled start time
+            // Schedule slightly early to account for context switch - internally, handler will schedule at exact start time
             slightlyEarlySpinner.waitForScheduledStartTime(handler.operation());
             try {
                 completionTimeService.submitInitiatedTime(handler.operation().scheduledStartTime());

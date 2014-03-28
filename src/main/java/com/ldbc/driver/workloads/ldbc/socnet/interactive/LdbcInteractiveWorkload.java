@@ -46,8 +46,8 @@ public class LdbcInteractiveWorkload extends Workload {
     private Map<Class, Double> queryMix = null;
 
     @Override
-    protected Map<Class<?>, OperationClassification> operationClassificationMapping() {
-        Map<Class<?>, OperationClassification> operationClassificationMapping = new HashMap<Class<?>, OperationClassification>();
+    protected Map<Class<? extends Operation<?>>, OperationClassification> operationClassificationMapping() {
+        Map<Class<? extends Operation<?>>, OperationClassification> operationClassificationMapping = new HashMap<Class<? extends Operation<?>>, OperationClassification>();
         // TODO use correct operation classifications
         // TODO need to add new classification to support: no window, no gct, identity scheduling - i.e., only policy driver used to support
         operationClassificationMapping.put(LdbcQuery1.class, OperationClassification.WindowFalse_GCTRead);
