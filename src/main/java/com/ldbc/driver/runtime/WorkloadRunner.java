@@ -1,18 +1,22 @@
 package com.ldbc.driver.runtime;
 
 import com.google.common.base.Function;
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.Iterators;
+import com.google.common.collect.Iterables;
+import com.google.common.collect.Lists;
 import com.ldbc.driver.*;
+import com.ldbc.driver.runtime.coordination.CompletionTimeValidator;
 import com.ldbc.driver.runtime.coordination.ConcurrentCompletionTimeService;
 import com.ldbc.driver.runtime.coordination.ThreadedQueuedConcurrentCompletionTimeService;
-import com.ldbc.driver.runtime.executor.OperationHandlerExecutor;
-import com.ldbc.driver.runtime.executor.PreciseIndividualAsyncOperationStreamExecutorService;
+import com.ldbc.driver.runtime.executor.*;
 import com.ldbc.driver.runtime.metrics.ConcurrentMetricsService;
 import com.ldbc.driver.runtime.scheduling.ErrorReportingExecutionDelayPolicy;
 import com.ldbc.driver.runtime.scheduling.ExecutionDelayPolicy;
+import com.ldbc.driver.runtime.scheduling.GctCheck;
 import com.ldbc.driver.runtime.scheduling.Spinner;
-import com.ldbc.driver.runtime.scheduling.SpinnerCheck;
+import com.ldbc.driver.runtime.streams.IteratorSplitter;
+import com.ldbc.driver.runtime.streams.IteratorSplittingException;
+import com.ldbc.driver.runtime.streams.SplitDefinition;
+import com.ldbc.driver.runtime.streams.SplitResult;
 import com.ldbc.driver.temporal.Duration;
 import com.ldbc.driver.temporal.Time;
 import org.apache.log4j.Logger;
@@ -108,26 +112,29 @@ public class WorkloadRunner {
      * ------ time == window.startTime
      */
     private final Spinner exactSpinner;
-    private final Spinner slightlyEarlySpinner;
+    private final Spinner earlySpinner;
     private final WorkloadStatusThread workloadStatusThread;
     private final boolean showStatus;
     private final ConcurrentCompletionTimeService completionTimeService;
-    private final Iterable<OperationHandler<?>> handlers;
     private final ConcurrentErrorReporter errorReporter;
-    private final Duration gctDeltaTime;
+
+    private final OperationHandlerExecutor operationHandlerExecutor;
+
     private final PreciseIndividualAsyncOperationStreamExecutorService preciseIndividualAsyncOperationStreamExecutorService;
+    private final PreciseIndividualBlockingOperationStreamExecutorService preciseIndividualBlockingOperationStreamExecutorService;
+    private final UniformWindowedOperationStreamExecutorService uniformWindowedOperationStreamExecutorService;
 
     public WorkloadRunner(Db db,
                           Iterator<Operation<?>> operations,
-                          Map<Class<? extends Operation<?>>, OperationClassification> operationClassificationMapping,
+                          Map<Class<? extends Operation<?>>, OperationClassification> operationClassifications,
                           boolean showStatus,
                           int threadCount,
                           ConcurrentMetricsService metricsService,
                           ConcurrentErrorReporter errorReporter,
-                          Duration gctDeltaTime) throws WorkloadException {
+                          Duration gctDelta,
+                          Time initialGct) throws WorkloadException {
         this.showStatus = showStatus;
         this.errorReporter = errorReporter;
-        this.gctDeltaTime = gctDeltaTime;
 
         // TODO make ExecutionDelayPolicy configurable
         // TODO have different ExecutionDelayPolicies for different components?
@@ -135,7 +142,7 @@ public class WorkloadRunner {
         ExecutionDelayPolicy executionDelayPolicy = new ErrorReportingExecutionDelayPolicy(DEFAULT_TOLERATED_OPERATION_START_TIME_DELAY, errorReporter);
 
         this.exactSpinner = new Spinner(executionDelayPolicy);
-        this.slightlyEarlySpinner = new Spinner(executionDelayPolicy, SPINNER_OFFSET_DURATION);
+        this.earlySpinner = new Spinner(executionDelayPolicy, SPINNER_OFFSET_DURATION);
         this.workloadStatusThread = new WorkloadStatusThread(DEFAULT_STATUS_UPDATE_INTERVAL, metricsService, errorReporter);
 
         // Create GCT maintenance thread
@@ -151,22 +158,9 @@ public class WorkloadRunner {
                     e.getCause());
         }
 
-        // TODO split stream and assign to ExecutorServices, CompletionTimeValidators, CompletionTimeServices, ErrorReporters as appropriate
-
-        // Map operation stream to operation handler stream and materialize to list, to avoid doing so at runtime
-        // TODO ideally the stream would only be materialized once, and this will have to be during splitting anyway
-        this.handlers = ImmutableList.copyOf(operationsToOperationHandlers(
-                operations,
-                db,
-                exactSpinner,
-                completionTimeService,
-                errorReporter,
-                metricsService));
-
         // Set GCT to just before scheduled start time of earliest operation in process's stream
         try {
             // TODO find better way to define initialGct, this method will not work with multiple processes
-            Time initialGct = handlers.iterator().next().operation().scheduledStartTime().minus(Duration.fromMilli(1));
             completionTimeService.submitInitiatedTime(initialGct);
             completionTimeService.submitCompletedTime(initialGct);
             for (String peerId : peerIds) {
@@ -184,11 +178,44 @@ public class WorkloadRunner {
                     e.getCause());
         }
 
-        // TODO implement Sync Executor Service
+        Iterable<Operation<?>> windowedOperations = null;
+        Iterable<Operation<?>> blockingOperations = null;
+        Iterable<Operation<?>> asynchronousOperations = null;
+        try {
+            IteratorSplitter<Operation<?>> splitter = new IteratorSplitter<Operation<?>>(IteratorSplitter.UnmappedItemPolicy.ABORT);
+            SplitDefinition<Operation<?>> windowed = new SplitDefinition<Operation<?>>(operationsBySchedulingMode(operationClassifications, OperationClassification.SchedulingMode.WINDOWED));
+            SplitDefinition<Operation<?>> blocking = new SplitDefinition<Operation<?>>(operationsBySchedulingMode(operationClassifications, OperationClassification.SchedulingMode.INDIVIDUAL_BLOCKING));
+            SplitDefinition<Operation<?>> asynchronous = new SplitDefinition<Operation<?>>(operationsBySchedulingMode(operationClassifications, OperationClassification.SchedulingMode.INDIVIDUAL_ASYNC));
+            SplitResult splits = splitter.split(operations, windowed, blocking, asynchronous);
+            windowedOperations = splits.getSplitFor(windowed);
+            blockingOperations = splits.getSplitFor(blocking);
+            asynchronousOperations = splits.getSplitFor(asynchronous);
+        } catch (IteratorSplittingException e) {
+            throw new WorkloadException(
+                    String.format("Error while splitting operation stream by scheduling mode\n%s", ConcurrentErrorReporter.stackTraceToString(e)),
+                    e.getCause());
+        }
+
+        CompletionTimeValidator completionTimeValidator = new CompletionTimeValidator(completionTimeService, gctDelta);
+        Iterable<OperationHandler<?>> windowedHandlers =
+                operationsToHandlers(windowedOperations, db, exactSpinner, completionTimeService, errorReporter, metricsService, completionTimeValidator, gctDelta);
+        Iterable<OperationHandler<?>> blockingHandlers =
+                operationsToHandlers(blockingOperations, db, exactSpinner, completionTimeService, errorReporter, metricsService, completionTimeValidator, gctDelta);
+        Iterable<OperationHandler<?>> asynchronousHandlers =
+                operationsToHandlers(asynchronousOperations, db, exactSpinner, completionTimeService, errorReporter, metricsService, null, null);
 
         // TODO provide different OperationHandlerExecutor instances to different ExecutorServices to have more control over how many resources each ExecutorService can consume?
-        OperationHandlerExecutor operationHandlerExecutor_NEW = new com.ldbc.driver.runtime.executor.ThreadPoolOperationHandlerExecutor(threadCount);
-        this.preciseIndividualAsyncOperationStreamExecutorService = new PreciseIndividualAsyncOperationStreamExecutorService(errorReporter, completionTimeService, handlers.iterator(), slightlyEarlySpinner, operationHandlerExecutor_NEW);
+        this.operationHandlerExecutor = new ThreadPoolOperationHandlerExecutor(threadCount);
+        this.preciseIndividualAsyncOperationStreamExecutorService =
+                new PreciseIndividualAsyncOperationStreamExecutorService(errorReporter, completionTimeService, asynchronousHandlers.iterator(), earlySpinner, operationHandlerExecutor);
+        this.preciseIndividualBlockingOperationStreamExecutorService =
+                new PreciseIndividualBlockingOperationStreamExecutorService(errorReporter, completionTimeService, blockingHandlers.iterator(), earlySpinner, operationHandlerExecutor);
+        // TODO where should this get set from?
+        Time firstWindowStartTime = null;
+        // TODO where should this get set from?
+        Duration windowSize = null;
+        this.uniformWindowedOperationStreamExecutorService =
+                new UniformWindowedOperationStreamExecutorService(errorReporter, completionTimeService, windowedHandlers.iterator(), operationHandlerExecutor, earlySpinner, firstWindowStartTime, windowSize, gctDelta);
     }
 
     public void executeWorkload() throws WorkloadException {
@@ -196,19 +223,40 @@ public class WorkloadRunner {
         //  metricsService.setStartTime(Time.now());
 
         if (showStatus) workloadStatusThread.start();
-        AtomicBoolean finished = preciseIndividualAsyncOperationStreamExecutorService.execute();
-        while (false == finished.get()) {
+        AtomicBoolean asyncHandlersFinished = preciseIndividualAsyncOperationStreamExecutorService.execute();
+        AtomicBoolean blockingHandlersFinished = preciseIndividualBlockingOperationStreamExecutorService.execute();
+        // TODO uncomment after creation of this executor is figured out - see constructor above
+//        AtomicBoolean windowedHandlersFinished = uniformWindowedOperationStreamExecutorService.execute();
+
+        // TODO add windowed executor to list too, when it's working
+        List<AtomicBoolean> executorFinishedFlags = Lists.newArrayList(asyncHandlersFinished, blockingHandlersFinished);
+        while (false == executorFinishedFlags.isEmpty()) {
+            for (AtomicBoolean executorFinishedFlag : executorFinishedFlags)
+                if (executorFinishedFlag.get()) executorFinishedFlags.remove(executorFinishedFlag);
             if (errorReporter.errorEncountered())
                 break;
         }
+
+//        while (false == asyncHandlersFinished.get()) {
+//            if (errorReporter.errorEncountered())
+//                break;
+//        }
         // TODO cleanup everything properly first?
         if (errorReporter.errorEncountered()) {
-            String errMsg = String.format("Encountered error while running workload. Driver terminating.\n%s", errorReporter.toString());
-            throw new WorkloadException(errMsg);
+            throw new WorkloadException(String.format("Encountered error while running workload. Driver terminating.\n%s", errorReporter.toString()));
         }
-        preciseIndividualAsyncOperationStreamExecutorService.shutdown();
 
-        // TODO if OperationHandlerExecutor instances are given to Executor Services then they must be shutdown here too
+        preciseIndividualAsyncOperationStreamExecutorService.shutdown();
+        preciseIndividualBlockingOperationStreamExecutorService.shutdown();
+        // TODO uncomment when this executor is working
+//        uniformWindowedOperationStreamExecutorService.shutdown();
+
+        // TODO if multiple executors are used (different executors for different executor services) shut them all down here
+        try {
+            this.operationHandlerExecutor.shutdown(Duration.fromSeconds(1));
+        } catch (OperationHandlerExecutorException e) {
+            throw new WorkloadException("Encountered error while shutting down operation handler executor", e.getCause());
+        }
 
         // TODO only shutdown when terminate events comes in, because don't know when other clients will finish
         // TODO send event to coordinator information that this client has finished
@@ -222,31 +270,24 @@ public class WorkloadRunner {
     // TODO ReadOnlyCompletionTimeService would be given to the operation handlers that shouldn't modify GCT
     //
     // TODO add appropriate checks
-    private Iterator<OperationHandler<?>> operationsToOperationHandlers(Iterator<Operation<?>> operations,
-                                                                        final Db db,
-                                                                        final Spinner spinner,
-                                                                        final ConcurrentCompletionTimeService completionTimeService,
-                                                                        final ConcurrentErrorReporter errorReporter,
-                                                                        final ConcurrentMetricsService metricsService,
-                                                                        final SpinnerCheck... checks)
-            throws WorkloadException {
+    private Iterable<OperationHandler<?>> operationsToHandlers(Iterable<Operation<?>> operations,
+                                                               final Db db,
+                                                               final Spinner spinner,
+                                                               final ConcurrentCompletionTimeService completionTimeService,
+                                                               final ConcurrentErrorReporter errorReporter,
+                                                               final ConcurrentMetricsService metricsService,
+                                                               final CompletionTimeValidator completionTimeValidator,
+                                                               final Duration gctDeltaDuration) throws WorkloadException {
         try {
-            return Iterators.transform(operations, new Function<Operation<?>, OperationHandler<?>>() {
+            return Iterables.transform(operations, new Function<Operation<?>, OperationHandler<?>>() {
                 @Override
                 public OperationHandler<?> apply(Operation<?> operation) {
                     try {
                         OperationHandler<?> operationHandler = db.getOperationHandler(operation);
-                        operationHandler.init(
-                                spinner,
-                                operation,
-                                completionTimeService,
-                                errorReporter,
-                                metricsService);
-                        // TODO only do below for streams that need to read GCT
-//                        Duration gctDeltaDuration = null;
-//                        operationHandler.addCheck(new GctCheck(completionTimeService, gctDeltaDuration, operation, errorReporter));
-                        for (SpinnerCheck check : checks)
-                            operationHandler.addCheck(check);
+                        operationHandler.init(spinner, operation, completionTimeService, errorReporter, metricsService);
+                        if (null != completionTimeValidator) {
+                            operationHandler.addCheck(new GctCheck(completionTimeService, gctDeltaDuration, operation, errorReporter));
+                        }
                         return operationHandler;
                     } catch (Exception e) {
                         throw new RuntimeException(e.getCause());
@@ -259,4 +300,13 @@ public class WorkloadRunner {
         }
     }
 
+    private Class<Operation<?>>[] operationsBySchedulingMode(Map<Class<? extends Operation<?>>, OperationClassification> operationClassificationMapping,
+                                                             OperationClassification.SchedulingMode schedulingMode) {
+        List<Class<? extends Operation<?>>> operationsBySchedulingMode = new ArrayList<Class<? extends Operation<?>>>();
+        for (Map.Entry<Class<? extends Operation<?>>, OperationClassification> operationAndClassification : operationClassificationMapping.entrySet()) {
+            if (operationAndClassification.getValue().schedulingMode().equals(schedulingMode))
+                operationsBySchedulingMode.add(operationAndClassification.getKey());
+        }
+        return operationsBySchedulingMode.toArray(new Class[operationsBySchedulingMode.size()]);
+    }
 }

@@ -17,26 +17,26 @@ public class UniformWindowedOperationStreamExecutorService {
 
     private final UniformWindowedOperationStreamExecutorThread uniformWindowedOperationStreamExecutorThread;
     private final AtomicBoolean hasFinished = new AtomicBoolean(false);
-    private final ConcurrentErrorReporter concurrentErrorReporter;
+    private final ConcurrentErrorReporter errorReporter;
     private boolean executing = false;
     private boolean shuttingDown = false;
 
-    public UniformWindowedOperationStreamExecutorService(Time firstWindowStartTime,
-                                                         Duration windowSize,
-                                                         Duration gctDeltaTime,
-                                                         ConcurrentErrorReporter concurrentErrorReporter,
+    public UniformWindowedOperationStreamExecutorService(ConcurrentErrorReporter errorReporter,
                                                          ConcurrentCompletionTimeService completionTimeService,
                                                          Iterator<OperationHandler<?>> handlers,
                                                          OperationHandlerExecutor operationHandlerExecutor,
-                                                         Spinner slightlyEarlySpinner) {
-        this.concurrentErrorReporter = concurrentErrorReporter;
+                                                         Spinner slightlyEarlySpinner,
+                                                         Time firstWindowStartTime,
+                                                         Duration windowSize,
+                                                         Duration gctDeltaDuration) {
+        this.errorReporter = errorReporter;
         // TODO if CompletionTimeValidator is passed inside of Spinner, remove this line
         this.uniformWindowedOperationStreamExecutorThread = new UniformWindowedOperationStreamExecutorThread(
                 firstWindowStartTime,
                 windowSize,
-                new CompletionTimeValidator(completionTimeService, gctDeltaTime),
+                new CompletionTimeValidator(completionTimeService, gctDeltaDuration),
                 operationHandlerExecutor,
-                concurrentErrorReporter,
+                errorReporter,
                 completionTimeService,
                 handlers,
                 hasFinished,
@@ -61,7 +61,7 @@ public class UniformWindowedOperationStreamExecutorService {
         } catch (Exception e) {
             String errMsg = String.format("Unexpected error encountered while shutting down thread\n%s",
                     ConcurrentErrorReporter.stackTraceToString(e.getCause()));
-            concurrentErrorReporter.reportError(this, errMsg);
+            errorReporter.reportError(this, errMsg);
         }
     }
 }

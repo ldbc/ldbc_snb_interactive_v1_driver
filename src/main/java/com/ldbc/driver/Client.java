@@ -1,8 +1,8 @@
 package com.ldbc.driver;
 
 import com.ldbc.driver.generator.GeneratorFactory;
-import com.ldbc.driver.runtime.WorkloadRunner;
 import com.ldbc.driver.runtime.ConcurrentErrorReporter;
+import com.ldbc.driver.runtime.WorkloadRunner;
 import com.ldbc.driver.runtime.metrics.ConcurrentMetricsService;
 import com.ldbc.driver.runtime.metrics.MetricsCollectionException;
 import com.ldbc.driver.runtime.metrics.ThreadedQueuedConcurrentMetricsService;
@@ -74,6 +74,8 @@ public class Client {
         logger.info("LDBC Workload Driver");
         logger.info(params.toString());
 
+        // TODO find better way to define initialGct, this method will not work with multiple processes
+        Time initialGct = Time.now();
         // TODO get GCT DeltaT from configuration parameters
         Duration gctDeltaTime = Duration.fromMilli(0);
 
@@ -87,7 +89,8 @@ public class Client {
                     params.threadCount(),
                     metricsService,
                     errorReporter,
-                    gctDeltaTime);
+                    gctDeltaTime,
+                    initialGct);
         } catch (WorkloadException e) {
             String errMsg = "Error instantiating WorkloadRunner";
             logger.error(errMsg, e);

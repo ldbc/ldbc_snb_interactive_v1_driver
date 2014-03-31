@@ -6,6 +6,7 @@ import com.ldbc.driver.runtime.coordination.CompletionTimeException;
 import com.ldbc.driver.runtime.coordination.ConcurrentCompletionTimeService;
 import com.ldbc.driver.temporal.Duration;
 
+// TODO Test
 public class GctCheck implements SpinnerCheck {
     private final ConcurrentCompletionTimeService completionTimeService;
     private final Duration gctDeltaTime;

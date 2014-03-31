@@ -13,7 +13,7 @@ import java.util.Iterator;
 import java.util.concurrent.Future;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-class PreciseIndividualSyncOperationStreamExecutorThread extends Thread {
+class PreciseIndividualBlockingOperationStreamExecutorThread extends Thread {
     private final OperationHandlerExecutor operationHandlerExecutor;
     private final Spinner slightlyEarlySpinner;
     private final ConcurrentErrorReporter errorReporter;
@@ -21,12 +21,12 @@ class PreciseIndividualSyncOperationStreamExecutorThread extends Thread {
     private final Iterator<OperationHandler<?>> handlers;
     private final AtomicBoolean hasFinished;
 
-    public PreciseIndividualSyncOperationStreamExecutorThread(OperationHandlerExecutor operationHandlerExecutor,
-                                                              ConcurrentErrorReporter errorReporter,
-                                                              ConcurrentCompletionTimeService completionTimeService,
-                                                              Iterator<OperationHandler<?>> handlers,
-                                                              AtomicBoolean hasFinished,
-                                                              Spinner slightlyEarlySpinner) {
+    public PreciseIndividualBlockingOperationStreamExecutorThread(OperationHandlerExecutor operationHandlerExecutor,
+                                                                  ConcurrentErrorReporter errorReporter,
+                                                                  ConcurrentCompletionTimeService completionTimeService,
+                                                                  Iterator<OperationHandler<?>> handlers,
+                                                                  AtomicBoolean hasFinished,
+                                                                  Spinner slightlyEarlySpinner) {
         this.operationHandlerExecutor = operationHandlerExecutor;
         this.slightlyEarlySpinner = slightlyEarlySpinner;
         this.errorReporter = errorReporter;

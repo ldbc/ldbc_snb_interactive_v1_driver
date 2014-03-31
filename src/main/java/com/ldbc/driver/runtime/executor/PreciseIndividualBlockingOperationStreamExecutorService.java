@@ -10,21 +10,21 @@ import java.util.Iterator;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 // TODO test
-public class PreciseIndividualSyncOperationStreamExecutorService {
+public class PreciseIndividualBlockingOperationStreamExecutorService {
     private static final Duration SHUTDOWN_WAIT_TIMEOUT = Duration.fromSeconds(5);
-    private final PreciseIndividualSyncOperationStreamExecutorThread preciseIndividualSyncOperationStreamExecutorThread;
+    private final PreciseIndividualBlockingOperationStreamExecutorThread preciseIndividualBlockingOperationStreamExecutorThread;
     private final AtomicBoolean hasFinished = new AtomicBoolean(false);
     private final ConcurrentErrorReporter errorReporter;
     private boolean executing = false;
     private boolean shuttingDown = false;
 
-    public PreciseIndividualSyncOperationStreamExecutorService(ConcurrentErrorReporter errorReporter,
-                                                               ConcurrentCompletionTimeService completionTimeService,
-                                                               Iterator<OperationHandler<?>> handlers,
-                                                               Spinner slightlyEarlySpinner,
-                                                               OperationHandlerExecutor operationHandlerExecutor) {
+    public PreciseIndividualBlockingOperationStreamExecutorService(ConcurrentErrorReporter errorReporter,
+                                                                   ConcurrentCompletionTimeService completionTimeService,
+                                                                   Iterator<OperationHandler<?>> handlers,
+                                                                   Spinner slightlyEarlySpinner,
+                                                                   OperationHandlerExecutor operationHandlerExecutor) {
         this.errorReporter = errorReporter;
-        this.preciseIndividualSyncOperationStreamExecutorThread = new PreciseIndividualSyncOperationStreamExecutorThread(
+        this.preciseIndividualBlockingOperationStreamExecutorThread = new PreciseIndividualBlockingOperationStreamExecutorThread(
                 operationHandlerExecutor,
                 errorReporter,
                 completionTimeService,
@@ -37,7 +37,7 @@ public class PreciseIndividualSyncOperationStreamExecutorService {
         if (executing)
             return hasFinished;
         executing = true;
-        preciseIndividualSyncOperationStreamExecutorThread.start();
+        preciseIndividualBlockingOperationStreamExecutorThread.start();
         return hasFinished;
     }
 
@@ -46,8 +46,8 @@ public class PreciseIndividualSyncOperationStreamExecutorService {
             return;
         shuttingDown = true;
         try {
-            preciseIndividualSyncOperationStreamExecutorThread.interrupt();
-            preciseIndividualSyncOperationStreamExecutorThread.join(SHUTDOWN_WAIT_TIMEOUT.asMilli());
+            preciseIndividualBlockingOperationStreamExecutorThread.interrupt();
+            preciseIndividualBlockingOperationStreamExecutorThread.join(SHUTDOWN_WAIT_TIMEOUT.asMilli());
         } catch (Exception e) {
             String errMsg = String.format("Unexpected error encountered while shutting down thread\n%s",
                     ConcurrentErrorReporter.stackTraceToString(e.getCause()));

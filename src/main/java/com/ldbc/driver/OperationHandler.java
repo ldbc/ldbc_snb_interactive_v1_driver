@@ -21,8 +21,7 @@ public abstract class OperationHandler<OPERATION_TYPE extends Operation<?>> impl
     private ConcurrentErrorReporter errorReporter;
     private ConcurrentMetricsService metricsService;
     private boolean initialized = false;
-    private List<SpinnerCheck> checksList = new ArrayList<SpinnerCheck>();
-    private SpinnerCheck checks = new MultiCheck();
+    private MultiCheck checks = new MultiCheck();
 
     public final void init(Spinner spinner,
                            Operation<?> operation,
@@ -54,7 +53,7 @@ public abstract class OperationHandler<OPERATION_TYPE extends Operation<?>> impl
     }
 
     public final void addCheck(SpinnerCheck check) {
-        checksList.add(check);
+        checks.addCheck(check);
     }
 
     /**
@@ -114,17 +113,23 @@ public abstract class OperationHandler<OPERATION_TYPE extends Operation<?>> impl
     }
 
     private class MultiCheck implements SpinnerCheck {
+        private final List<SpinnerCheck> checks = new ArrayList<SpinnerCheck>();
+
+        private void addCheck(SpinnerCheck check) {
+            checks.add(check);
+        }
+
         @Override
         public Boolean doCheck() {
-            if (checksList.isEmpty()) return true;
-            for (SpinnerCheck check : checksList)
-                if (check.doCheck()) checksList.remove(check);
-            return checksList.isEmpty();
+            if (checks.isEmpty()) return true;
+            for (SpinnerCheck check : checks)
+                if (check.doCheck()) checks.remove(check);
+            return checks.isEmpty();
         }
 
         @Override
         public void handleFailedCheck(Operation<?> operation) {
-            for (SpinnerCheck check : checksList)
+            for (SpinnerCheck check : checks)
                 check.handleFailedCheck(operation);
         }
     }
