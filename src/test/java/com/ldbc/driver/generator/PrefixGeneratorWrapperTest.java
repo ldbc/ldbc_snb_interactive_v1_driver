@@ -1,55 +1,36 @@
 package com.ldbc.driver.generator;
 
+import com.ldbc.driver.util.RandomDataGeneratorFactory;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 
-import com.ldbc.driver.generator.Generator;
-import com.ldbc.driver.util.RandomDataGeneratorFactory;
+import java.util.Iterator;
 
-import static org.junit.Assert.assertEquals;
+import static org.hamcrest.CoreMatchers.instanceOf;
+import static org.hamcrest.CoreMatchers.is;
+import static org.junit.Assert.assertThat;
 
-@Ignore
-public class PrefixGeneratorWrapperTest
-{
+public class PrefixGeneratorWrapperTest {
     private final long RANDOM_SEED = 42;
     private GeneratorFactory generatorFactory = null;
 
     @Before
-    public final void initGeneratorFactory()
-    {
-        generatorFactory = new GeneratorFactory( new RandomDataGeneratorFactory( RANDOM_SEED ) );
+    public final void initGeneratorFactory() {
+        generatorFactory = new GeneratorFactory(new RandomDataGeneratorFactory(RANDOM_SEED));
     }
 
     @Test
-    public void createMinMaxWrapperTest()
-    {
-        // TODO from MinMaxGeneratorWrapperTest
-        assertEquals( true, false );
-        // Generator<Integer> generator = generatorBuilder.constantGenerator( 5
-        // ).build();
-        // Generator<Integer> minMaxGenerator = new
-        // MinMaxGeneratorWrapper<Integer>( generator, 1, 10 );
-        // assertEquals( false, generator instanceof MinMaxGeneratorWrapper );
-        // assertEquals( true, minMaxGenerator instanceof MinMaxGeneratorWrapper
-        // );
-        // assertEquals( 5, (int) minMaxGenerator.next() );
-    }
-
-    @Test
-    public void minMaxTest()
-    {
-        // TODO from MinMaxGeneratorWrapperTest
-        assertEquals( true, false );
-        // Generator<Integer> generator = generatorBuilder.counterGenerator( 5,
-        // 1 ).build();
-        // MinMaxGeneratorWrapper<Integer> minMaxGenerator = new
-        // MinMaxGeneratorWrapper<Integer>( generator, 10, 5 );
-        // assertEquals( 10, (int) minMaxGenerator.getMin() );
-        // assertEquals( 5, (int) minMaxGenerator.getMax() );
-        // assertEquals( 5, (int) minMaxGenerator.next() );
-        // assertEquals( 6, (int) minMaxGenerator.next() );
-        // assertEquals( 5, (int) minMaxGenerator.getMin() );
-        // assertEquals( 6, (int) minMaxGenerator.getMax() );
+    public void shouldPrefixEveryElementInIteratorAndNothingMore() {
+        Iterator<Integer> incrementing = generatorFactory.boundedIncrementing(0, 2, 10);
+        Iterator<String> prefixing = generatorFactory.prefix(incrementing, "pre");
+        assertThat(prefixing, instanceOf(PrefixGenerator.class));
+        assertThat(prefixing.next(), is("pre0"));
+        assertThat(prefixing.next(), is("pre2"));
+        assertThat(prefixing.next(), is("pre4"));
+        assertThat(prefixing.next(), is("pre6"));
+        assertThat(prefixing.next(), is("pre8"));
+        assertThat(prefixing.next(), is("pre10"));
+        assertThat(prefixing.hasNext(), is(false));
+        assertThat(incrementing.hasNext(), is(false));
     }
 }

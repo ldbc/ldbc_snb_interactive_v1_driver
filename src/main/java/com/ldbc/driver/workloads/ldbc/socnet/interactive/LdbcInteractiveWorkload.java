@@ -4,13 +4,13 @@ import com.google.common.base.Predicate;
 import com.google.common.collect.Iterators;
 import com.google.common.collect.Lists;
 import com.ldbc.driver.Operation;
+import com.ldbc.driver.OperationClassification;
 import com.ldbc.driver.Workload;
 import com.ldbc.driver.WorkloadException;
 import com.ldbc.driver.generator.Generator;
 import com.ldbc.driver.generator.GeneratorException;
 import com.ldbc.driver.generator.GeneratorFactory;
 import com.ldbc.driver.generator.StartTimeAssigningOperationGenerator;
-import com.ldbc.driver.runtime.streams.OperationClassification;
 import com.ldbc.driver.temporal.Duration;
 import com.ldbc.driver.temporal.Time;
 import com.ldbc.driver.util.ClassLoaderHelper;
@@ -49,14 +49,13 @@ public class LdbcInteractiveWorkload extends Workload {
     protected Map<Class<? extends Operation<?>>, OperationClassification> operationClassificationMapping() {
         Map<Class<? extends Operation<?>>, OperationClassification> operationClassificationMapping = new HashMap<Class<? extends Operation<?>>, OperationClassification>();
         // TODO use correct operation classifications
-        // TODO need to add new classification to support: no window, no gct, identity scheduling - i.e., only policy driver used to support
-        operationClassificationMapping.put(LdbcQuery1.class, OperationClassification.WindowFalse_GCTRead);
-        operationClassificationMapping.put(LdbcQuery2.class, OperationClassification.WindowFalse_GCTReadWrite);
-        operationClassificationMapping.put(LdbcQuery3.class, OperationClassification.WindowTrue_GCTRead);
-        operationClassificationMapping.put(LdbcQuery4.class, OperationClassification.WindowTrue_GCTReadWrite);
-        operationClassificationMapping.put(LdbcQuery5.class, OperationClassification.WindowFalse_GCTRead);
-        operationClassificationMapping.put(LdbcQuery6.class, OperationClassification.WindowFalse_GCTReadWrite);
-        operationClassificationMapping.put(LdbcQuery7.class, OperationClassification.WindowTrue_GCTRead);
+        operationClassificationMapping.put(LdbcQuery1.class, new OperationClassification(OperationClassification.SchedulingMode.INDIVIDUAL_ASYNC, OperationClassification.GctMode.NONE));
+        operationClassificationMapping.put(LdbcQuery2.class, new OperationClassification(OperationClassification.SchedulingMode.INDIVIDUAL_ASYNC, OperationClassification.GctMode.NONE));
+        operationClassificationMapping.put(LdbcQuery3.class, new OperationClassification(OperationClassification.SchedulingMode.INDIVIDUAL_ASYNC, OperationClassification.GctMode.NONE));
+        operationClassificationMapping.put(LdbcQuery4.class, new OperationClassification(OperationClassification.SchedulingMode.INDIVIDUAL_ASYNC, OperationClassification.GctMode.NONE));
+        operationClassificationMapping.put(LdbcQuery5.class, new OperationClassification(OperationClassification.SchedulingMode.INDIVIDUAL_ASYNC, OperationClassification.GctMode.NONE));
+        operationClassificationMapping.put(LdbcQuery6.class, new OperationClassification(OperationClassification.SchedulingMode.INDIVIDUAL_ASYNC, OperationClassification.GctMode.NONE));
+        operationClassificationMapping.put(LdbcQuery7.class, new OperationClassification(OperationClassification.SchedulingMode.INDIVIDUAL_ASYNC, OperationClassification.GctMode.NONE));
         return operationClassificationMapping;
     }
 

@@ -3,15 +3,11 @@ package com.ldbc.driver.runtime.scheduling;
 import com.ldbc.driver.Operation;
 import com.ldbc.driver.runtime.ConcurrentErrorReporter;
 import com.ldbc.driver.temporal.Duration;
-import org.apache.log4j.Logger;
 
 public class ErrorReportingExecutionDelayPolicy implements ExecutionDelayPolicy {
-    private static Logger logger = Logger.getLogger(ErrorReportingExecutionDelayPolicy.class);
-
     private final Duration toleratedDelay;
     private final ConcurrentErrorReporter concurrentErrorReporter;
 
-    // TODO test
     public ErrorReportingExecutionDelayPolicy(Duration toleratedDelay,
                                               ConcurrentErrorReporter concurrentErrorReporter) {
         this.toleratedDelay = toleratedDelay;

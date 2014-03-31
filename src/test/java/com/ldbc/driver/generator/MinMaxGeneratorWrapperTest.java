@@ -1,45 +1,32 @@
 package com.ldbc.driver.generator;
 
-import java.util.Iterator;
-
+import com.ldbc.driver.util.RandomDataGeneratorFactory;
 import org.junit.Before;
 import org.junit.Test;
 
-import com.ldbc.driver.util.RandomDataGeneratorFactory;
+import java.util.Iterator;
 
-import static org.junit.Assert.assertEquals;
+import static org.hamcrest.CoreMatchers.is;
+import static org.junit.Assert.assertThat;
 
-public class MinMaxGeneratorWrapperTest
-{
+public class MinMaxGeneratorWrapperTest {
     private final long RANDOM_SEED = 42;
     private GeneratorFactory generatorFactory = null;
 
     @Before
-    public final void initGeneratorFactory()
-    {
-        generatorFactory = new GeneratorFactory( new RandomDataGeneratorFactory( RANDOM_SEED ) );
+    public final void initGeneratorFactory() {
+        generatorFactory = new GeneratorFactory(new RandomDataGeneratorFactory(RANDOM_SEED));
     }
 
     @Test
-    public void createMinMaxWrapperTest()
-    {
-        Iterator<Integer> generator = generatorFactory.constant( 5 );
-        Iterator<Integer> minMaxGenerator = new MinMaxGenerator<Integer>( generator, 1, 10 );
-        assertEquals( false, generator instanceof MinMaxGenerator );
-        assertEquals( true, minMaxGenerator instanceof MinMaxGenerator );
-        assertEquals( 5, (int) minMaxGenerator.next() );
-    }
-
-    @Test
-    public void minMaxTest()
-    {
-        Iterator<Integer> generator = generatorFactory.incrementing( 5, 1 );
-        MinMaxGenerator<Integer> minMaxGenerator = new MinMaxGenerator<Integer>( generator, 10, 5 );
-        assertEquals( 10, (int) minMaxGenerator.getMin() );
-        assertEquals( 5, (int) minMaxGenerator.getMax() );
-        assertEquals( 5, (int) minMaxGenerator.next() );
-        assertEquals( 6, (int) minMaxGenerator.next() );
-        assertEquals( 5, (int) minMaxGenerator.getMin() );
-        assertEquals( 6, (int) minMaxGenerator.getMax() );
+    public void minMaxTest() {
+        Iterator<Integer> generator = generatorFactory.incrementing(5, 1);
+        MinMaxGenerator<Integer> minMax = generatorFactory.minMaxGenerator(generator, 10, 5);
+        assertThat(minMax.getMin(), is(10));
+        assertThat(minMax.getMax(), is(5));
+        assertThat(minMax.next(), is(5));
+        assertThat(minMax.next(), is(6));
+        assertThat(minMax.getMin(), is(5));
+        assertThat(minMax.getMax(), is(6));
     }
 }

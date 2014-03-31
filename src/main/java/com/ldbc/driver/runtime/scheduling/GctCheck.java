@@ -1,0 +1,54 @@
+package com.ldbc.driver.runtime.scheduling;
+
+import com.ldbc.driver.Operation;
+import com.ldbc.driver.runtime.ConcurrentErrorReporter;
+import com.ldbc.driver.runtime.coordination.CompletionTimeException;
+import com.ldbc.driver.runtime.coordination.ConcurrentCompletionTimeService;
+import com.ldbc.driver.temporal.Duration;
+
+public class GctCheck implements SpinnerCheck {
+    private final ConcurrentCompletionTimeService completionTimeService;
+    private final Duration gctDeltaTime;
+    private final Operation<?> operation;
+    private final ConcurrentErrorReporter errorReporter;
+
+    public GctCheck(ConcurrentCompletionTimeService completionTimeService,
+                    Duration gctDeltaDuration,
+                    Operation<?> operation,
+                    ConcurrentErrorReporter errorReporter) {
+        this.completionTimeService = completionTimeService;
+        this.gctDeltaTime = gctDeltaDuration;
+        this.operation = operation;
+        this.errorReporter = errorReporter;
+    }
+
+    @Override
+    public Boolean doCheck() {
+        try {
+            return completionTimeService.globalCompletionTime().plus(gctDeltaTime).gt(operation.scheduledStartTime());
+        } catch (CompletionTimeException e) {
+            errorReporter.reportError(this,
+                    String.format(
+                            "Error encountered while reading/writing GCT for query %s\n%s",
+                            operation.getClass().getSimpleName(),
+                            ConcurrentErrorReporter.stackTraceToString(e)));
+            return false;
+        }
+    }
+
+    @Override
+    public void handleFailedCheck(Operation<?> operation) {
+        try {
+            errorReporter.reportError(this,
+                    String.format("GCT(%) has not advanced sufficiently to execute operation(%s)",
+                            completionTimeService.globalCompletionTime().toString(),
+                            operation.toString()));
+        } catch (CompletionTimeException e) {
+            errorReporter.reportError(this,
+                    String.format(
+                            "Error encountered in handleFailedCheck while reading GCT for query %s\n%s",
+                            operation.getClass().getSimpleName(),
+                            ConcurrentErrorReporter.stackTraceToString(e)));
+        }
+    }
+}

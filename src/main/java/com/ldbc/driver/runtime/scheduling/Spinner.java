@@ -4,6 +4,8 @@ import com.ldbc.driver.Operation;
 import com.ldbc.driver.temporal.Duration;
 import com.ldbc.driver.temporal.Time;
 
+import java.util.List;
+
 public class Spinner {
     private static final SpinnerCheck TRUE_CHECK = new TrueCheck();
     // Duration that operation will be executed before scheduled start time

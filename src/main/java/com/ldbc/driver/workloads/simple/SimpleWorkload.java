@@ -2,11 +2,11 @@ package com.ldbc.driver.workloads.simple;
 
 import com.google.common.collect.Iterators;
 import com.ldbc.driver.Operation;
+import com.ldbc.driver.OperationClassification;
 import com.ldbc.driver.Workload;
 import com.ldbc.driver.WorkloadException;
 import com.ldbc.driver.data.ByteIterator;
 import com.ldbc.driver.generator.*;
-import com.ldbc.driver.runtime.streams.OperationClassification;
 import com.ldbc.driver.temporal.Duration;
 import com.ldbc.driver.temporal.Time;
 import com.ldbc.driver.util.GeneratorUtils;
@@ -39,12 +39,11 @@ public class SimpleWorkload extends Workload {
     protected Map<Class<? extends Operation<?>>, OperationClassification> operationClassificationMapping() {
         Map<Class<? extends Operation<?>>, OperationClassification> operationClassificationMapping = new HashMap<Class<? extends Operation<?>>, OperationClassification>();
         // TODO use correct operation classifications
-        // TODO need to add new classification to support: no window, no gct, identity scheduling - i.e., only policy driver used to support
-        operationClassificationMapping.put(InsertOperation.class, OperationClassification.WindowFalse_GCTRead);
-        operationClassificationMapping.put(ReadModifyWriteOperation.class, OperationClassification.WindowFalse_GCTReadWrite);
-        operationClassificationMapping.put(ReadOperation.class, OperationClassification.WindowTrue_GCTRead);
-        operationClassificationMapping.put(ScanOperation.class, OperationClassification.WindowTrue_GCTReadWrite);
-        operationClassificationMapping.put(UpdateOperation.class, OperationClassification.WindowFalse_GCTReadWrite);
+        operationClassificationMapping.put(InsertOperation.class, new OperationClassification(OperationClassification.SchedulingMode.INDIVIDUAL_ASYNC, OperationClassification.GctMode.NONE));
+        operationClassificationMapping.put(ReadModifyWriteOperation.class, new OperationClassification(OperationClassification.SchedulingMode.INDIVIDUAL_ASYNC, OperationClassification.GctMode.NONE));
+        operationClassificationMapping.put(ReadOperation.class, new OperationClassification(OperationClassification.SchedulingMode.INDIVIDUAL_ASYNC, OperationClassification.GctMode.NONE));
+        operationClassificationMapping.put(ScanOperation.class, new OperationClassification(OperationClassification.SchedulingMode.INDIVIDUAL_ASYNC, OperationClassification.GctMode.NONE));
+        operationClassificationMapping.put(UpdateOperation.class, new OperationClassification(OperationClassification.SchedulingMode.INDIVIDUAL_ASYNC, OperationClassification.GctMode.NONE));
         return operationClassificationMapping;
     }
 

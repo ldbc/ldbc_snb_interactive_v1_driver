@@ -6,12 +6,12 @@ import com.ldbc.driver.generator.Generator;
 import com.ldbc.driver.generator.GeneratorException;
 import com.ldbc.driver.generator.Window;
 import com.ldbc.driver.generator.WindowGenerator;
-import com.ldbc.driver.runtime.scheduling.CompletionTimeValidator;
+import com.ldbc.driver.runtime.ConcurrentErrorReporter;
+import com.ldbc.driver.runtime.coordination.CompletionTimeException;
+import com.ldbc.driver.runtime.coordination.CompletionTimeValidator;
+import com.ldbc.driver.runtime.coordination.ConcurrentCompletionTimeService;
 import com.ldbc.driver.runtime.scheduling.Scheduler;
 import com.ldbc.driver.runtime.scheduling.Spinner;
-import com.ldbc.driver.runtime.coordination.CompletionTimeException;
-import com.ldbc.driver.runtime.coordination.ConcurrentCompletionTimeService;
-import com.ldbc.driver.runtime.ConcurrentErrorReporter;
 import com.ldbc.driver.runtime.scheduling.UniformWindowedScheduler;
 import com.ldbc.driver.temporal.Duration;
 import com.ldbc.driver.temporal.Time;
@@ -32,7 +32,6 @@ class UniformWindowedOperationStreamExecutorThread extends Thread {
     private final AtomicBoolean hasFinished;
     private final WindowGenerator<OperationHandler<?>, Window.OperationHandlerTimeRangeWindow> handlerWindows;
 
-    // TODO take Scheduler as input parameter rather than creating here, then same Thread class could be used by different Service classes
     public UniformWindowedOperationStreamExecutorThread(final Time firstWindowStartTime,
                                                         final Duration windowSize,
                                                         CompletionTimeValidator completionTimeValidator,
@@ -80,13 +79,17 @@ class UniformWindowedOperationStreamExecutorThread extends Thread {
                 // loop/wait until window time complete
             }
 
-            // TODO between now and the time assertions (below) complete, first window operation may be late, test this
+            // TODO between now (Point 1) and the time assertions (Point 2) complete, first window operation may be late, test this
+
+            // TODO Point 1
 
             // Ensure all operations from previous window have completed executing
             assertPreviousWindowCompletedExecuting(currentlyExecutingHandlers);
 
             // Ensure GCT has proceeded enough to execute next window
             assertGctIsReady(window.windowStartTimeInclusive());
+
+            // TODO Point 2
 
             // execute operation handlers for current window
             currentlyExecutingHandlers = new ArrayList<Future<OperationResult>>();

@@ -65,8 +65,6 @@ public class PeerCommunicatorThread extends Thread {
                 if (null != event)
                     completionTimeQueue.put(event);
             } catch (InterruptedException e) {
-                // TODO remove
-                e.printStackTrace();
                 errorReporter.reportError(
                         this,
                         String.format("Thread was interrupted"));

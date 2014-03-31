@@ -1,15 +1,14 @@
 package com.ldbc.driver.runtime;
 
-import com.ldbc.driver.DbException;
-import com.ldbc.driver.Operation;
-import com.ldbc.driver.OperationHandler;
-import com.ldbc.driver.OperationResult;
+import com.ldbc.driver.*;
 import com.ldbc.driver.runtime.coordination.ConcurrentCompletionTimeService;
-import com.ldbc.driver.runtime.scheduling.*;
 import com.ldbc.driver.runtime.executor.OperationHandlerExecutor;
 import com.ldbc.driver.runtime.executor.OperationHandlerExecutorException;
 import com.ldbc.driver.runtime.executor.ThreadPoolOperationHandlerExecutor;
 import com.ldbc.driver.runtime.metrics.ConcurrentMetricsService;
+import com.ldbc.driver.runtime.scheduling.ErrorReportingExecutionDelayPolicy;
+import com.ldbc.driver.runtime.scheduling.ExecutionDelayPolicy;
+import com.ldbc.driver.runtime.scheduling.Spinner;
 import com.ldbc.driver.temporal.Duration;
 import com.ldbc.driver.temporal.Time;
 import org.junit.Test;
@@ -23,7 +22,7 @@ import static org.junit.Assert.assertThat;
 public class ThreadPoolOperationHandlerExecutorTests {
 
     @Test
-    public void executorShouldReturnExpectedResult() throws OperationHandlerExecutorException, ExecutionException, InterruptedException {
+    public void executorShouldReturnExpectedResult() throws OperationHandlerExecutorException, ExecutionException, InterruptedException, OperationException {
         // Given
         Duration toleratedDelay = Duration.fromMilli(100);
         ConcurrentErrorReporter errorReporter = new ConcurrentErrorReporter();
@@ -31,7 +30,6 @@ public class ThreadPoolOperationHandlerExecutorTests {
         Spinner spinner = new Spinner(delayPolicy);
         ConcurrentCompletionTimeService completionTimeService = new DummyConcurrentCompletionTimeService();
         ConcurrentMetricsService metricsService = new DummyConcurrentMetricsService();
-        CompletionTimeValidator completionTimeValidator = new AlwaysValidCompletionTimeValidator();
 
         int threadCount = 1;
         OperationHandlerExecutor executor = new ThreadPoolOperationHandlerExecutor(threadCount);
@@ -47,7 +45,7 @@ public class ThreadPoolOperationHandlerExecutorTests {
         };
 
         // When
-        handler.init(spinner, operation, completionTimeService, errorReporter, metricsService, completionTimeValidator);
+        handler.init(spinner, operation, completionTimeService, errorReporter, metricsService);
 
         // Then
         Future<OperationResult> handlerFuture = executor.execute(handler);
@@ -59,7 +57,7 @@ public class ThreadPoolOperationHandlerExecutorTests {
 
 
     @Test
-    public void executorShouldReturnAllResults() throws OperationHandlerExecutorException, ExecutionException, InterruptedException {
+    public void executorShouldReturnAllResults() throws OperationHandlerExecutorException, ExecutionException, InterruptedException, OperationException {
         // Given
         Duration toleratedDelay = Duration.fromMilli(100);
         ConcurrentErrorReporter errorReporter = new ConcurrentErrorReporter();
@@ -67,7 +65,6 @@ public class ThreadPoolOperationHandlerExecutorTests {
         Spinner spinner = new Spinner(delayPolicy);
         ConcurrentCompletionTimeService completionTimeService = new DummyConcurrentCompletionTimeService();
         ConcurrentMetricsService metricsService = new DummyConcurrentMetricsService();
-        CompletionTimeValidator completionTimeValidator = new AlwaysValidCompletionTimeValidator();
 
         int threadCount = 1;
         OperationHandlerExecutor executor = new ThreadPoolOperationHandlerExecutor(threadCount);
@@ -92,8 +89,8 @@ public class ThreadPoolOperationHandlerExecutorTests {
         };
 
         // When
-        handler1.init(spinner, operation1, completionTimeService, errorReporter, metricsService, completionTimeValidator);
-        handler2.init(spinner, operation2, completionTimeService, errorReporter, metricsService, completionTimeValidator);
+        handler1.init(spinner, operation1, completionTimeService, errorReporter, metricsService);
+        handler2.init(spinner, operation2, completionTimeService, errorReporter, metricsService);
 
         // Then
         Future<OperationResult> handlerFuture1 = executor.execute(handler1);
@@ -109,7 +106,7 @@ public class ThreadPoolOperationHandlerExecutorTests {
     }
 
     @Test
-    public void executorShouldThrowExceptionIfShutdownMultipleTimes() throws OperationHandlerExecutorException, ExecutionException, InterruptedException {
+    public void executorShouldThrowExceptionIfShutdownMultipleTimes() throws OperationHandlerExecutorException, ExecutionException, InterruptedException, OperationException {
         // Given
         Duration toleratedDelay = Duration.fromMilli(100);
         ConcurrentErrorReporter errorReporter = new ConcurrentErrorReporter();
@@ -117,7 +114,6 @@ public class ThreadPoolOperationHandlerExecutorTests {
         Spinner spinner = new Spinner(delayPolicy);
         ConcurrentCompletionTimeService completionTimeService = new DummyConcurrentCompletionTimeService();
         ConcurrentMetricsService metricsService = new DummyConcurrentMetricsService();
-        CompletionTimeValidator completionTimeValidator = new AlwaysValidCompletionTimeValidator();
 
         int threadCount = 1;
         OperationHandlerExecutor executor = new ThreadPoolOperationHandlerExecutor(threadCount);
@@ -133,7 +129,7 @@ public class ThreadPoolOperationHandlerExecutorTests {
         };
 
         // When
-        handler.init(spinner, operation, completionTimeService, errorReporter, metricsService, completionTimeValidator);
+        handler.init(spinner, operation, completionTimeService, errorReporter, metricsService);
 
         // Then
         Future<OperationResult> handlerFuture = executor.execute(handler);

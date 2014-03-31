@@ -3,17 +3,17 @@ package com.ldbc.driver.runtime.executor;
 import com.ldbc.driver.Operation;
 import com.ldbc.driver.OperationHandler;
 import com.ldbc.driver.OperationResult;
-import com.ldbc.driver.runtime.scheduling.Spinner;
-import com.ldbc.driver.runtime.scheduling.SpinnerCheck;
+import com.ldbc.driver.runtime.ConcurrentErrorReporter;
 import com.ldbc.driver.runtime.coordination.CompletionTimeException;
 import com.ldbc.driver.runtime.coordination.ConcurrentCompletionTimeService;
-import com.ldbc.driver.runtime.ConcurrentErrorReporter;
+import com.ldbc.driver.runtime.scheduling.Spinner;
+import com.ldbc.driver.runtime.scheduling.SpinnerCheck;
 
 import java.util.Iterator;
 import java.util.concurrent.Future;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-class PreciseSyncOperationStreamExecutorThread extends Thread {
+class PreciseIndividualSyncOperationStreamExecutorThread extends Thread {
     private final OperationHandlerExecutor operationHandlerExecutor;
     private final Spinner slightlyEarlySpinner;
     private final ConcurrentErrorReporter errorReporter;
@@ -21,12 +21,12 @@ class PreciseSyncOperationStreamExecutorThread extends Thread {
     private final Iterator<OperationHandler<?>> handlers;
     private final AtomicBoolean hasFinished;
 
-    public PreciseSyncOperationStreamExecutorThread(OperationHandlerExecutor operationHandlerExecutor,
-                                                    ConcurrentErrorReporter errorReporter,
-                                                    ConcurrentCompletionTimeService completionTimeService,
-                                                    Iterator<OperationHandler<?>> handlers,
-                                                    AtomicBoolean hasFinished,
-                                                    Spinner slightlyEarlySpinner) {
+    public PreciseIndividualSyncOperationStreamExecutorThread(OperationHandlerExecutor operationHandlerExecutor,
+                                                              ConcurrentErrorReporter errorReporter,
+                                                              ConcurrentCompletionTimeService completionTimeService,
+                                                              Iterator<OperationHandler<?>> handlers,
+                                                              AtomicBoolean hasFinished,
+                                                              Spinner slightlyEarlySpinner) {
         this.operationHandlerExecutor = operationHandlerExecutor;
         this.slightlyEarlySpinner = slightlyEarlySpinner;
         this.errorReporter = errorReporter;
@@ -40,10 +40,11 @@ class PreciseSyncOperationStreamExecutorThread extends Thread {
         Future<OperationResult> executingHandler = null;
         while (handlers.hasNext()) {
             OperationHandler<?> handler = handlers.next();
+            handler.addCheck(new FutureCompletedCheck(executingHandler));
 
             // Schedule slightly early to account for context switch - internally, handler will schedule at exact start time
             // Ensure previously executed handler has completed
-            slightlyEarlySpinner.waitForScheduledStartTime(handler.operation(), new FutureCompletedCheck(executingHandler));
+            slightlyEarlySpinner.waitForScheduledStartTime(handler.operation());
 
             try {
                 completionTimeService.submitInitiatedTime(handler.operation().scheduledStartTime());

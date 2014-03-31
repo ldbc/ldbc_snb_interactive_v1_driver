@@ -1,15 +1,10 @@
 package com.ldbc.driver.runtime;
 
-import com.ldbc.driver.DbException;
-import com.ldbc.driver.Operation;
-import com.ldbc.driver.OperationHandler;
-import com.ldbc.driver.OperationResult;
+import com.ldbc.driver.*;
 import com.ldbc.driver.runtime.coordination.CompletionTimeException;
 import com.ldbc.driver.runtime.coordination.ConcurrentCompletionTimeService;
-import com.ldbc.driver.runtime.scheduling.AlwaysValidCompletionTimeValidator;
-import com.ldbc.driver.runtime.scheduling.CompletionTimeValidator;
-import com.ldbc.driver.runtime.scheduling.LoggingExecutionDelayPolicy;
 import com.ldbc.driver.runtime.metrics.ConcurrentMetricsService;
+import com.ldbc.driver.runtime.scheduling.LoggingExecutionDelayPolicy;
 import com.ldbc.driver.runtime.scheduling.Spinner;
 import com.ldbc.driver.temporal.Duration;
 import com.ldbc.driver.temporal.Time;
@@ -23,11 +18,10 @@ import static org.junit.Assert.assertThat;
 
 public class ExecutorTests {
     @Test
-    public void shouldRunOperationHandlerAndReturnExpectedResultWithoutError() throws InterruptedException, ExecutionException, CompletionTimeException {
+    public void shouldRunOperationHandlerAndReturnExpectedResultWithoutError() throws InterruptedException, ExecutionException, CompletionTimeException, OperationException {
         ConcurrentCompletionTimeService concurrentCompletionTimeService = new DummyConcurrentCompletionTimeService();
         ConcurrentMetricsService metricsService = new DummyConcurrentMetricsService();
         ConcurrentErrorReporter errorReporter = new ConcurrentErrorReporter();
-        CompletionTimeValidator completionTimeValidator = new AlwaysValidCompletionTimeValidator();
         OperationHandler<Operation<Integer>> operationHandler = new OperationHandler<Operation<Integer>>() {
             @Override
             protected OperationResult executeOperation(Operation<Integer> operation) throws DbException {
@@ -39,7 +33,7 @@ public class ExecutorTests {
         };
         operation.setScheduledStartTime(Time.now().plus(Duration.fromSeconds(1)));
         Spinner spinner = new Spinner(new LoggingExecutionDelayPolicy(Duration.fromSeconds(1)));
-        operationHandler.init(spinner, operation, concurrentCompletionTimeService, errorReporter, metricsService, completionTimeValidator);
+        operationHandler.init(spinner, operation, concurrentCompletionTimeService, errorReporter, metricsService);
 
         int threadCount = 1;
         ThreadFactory threadFactory = Executors.defaultThreadFactory();
@@ -57,11 +51,10 @@ public class ExecutorTests {
     }
 
     @Test
-    public void shouldRunOperationHandlerAndThrowExpectedException() throws InterruptedException, ExecutionException, CompletionTimeException {
+    public void shouldRunOperationHandlerAndThrowExpectedException() throws InterruptedException, ExecutionException, CompletionTimeException, OperationException {
         ConcurrentCompletionTimeService concurrentCompletionTimeService = new DummyConcurrentCompletionTimeService();
         ConcurrentMetricsService metricsService = new DummyConcurrentMetricsService();
         ConcurrentErrorReporter errorReporter = new ConcurrentErrorReporter();
-        CompletionTimeValidator completionTimeValidator = new AlwaysValidCompletionTimeValidator();
         OperationHandler<Operation<Integer>> operationHandler = new OperationHandler<Operation<Integer>>() {
             @Override
             protected OperationResult executeOperation(Operation<Integer> operation) throws DbException {
@@ -73,7 +66,7 @@ public class ExecutorTests {
         };
         operation.setScheduledStartTime(Time.now().plus(Duration.fromSeconds(1)));
         Spinner spinner = new Spinner(new LoggingExecutionDelayPolicy(Duration.fromSeconds(1)));
-        operationHandler.init(spinner, operation, concurrentCompletionTimeService, errorReporter, metricsService, completionTimeValidator);
+        operationHandler.init(spinner, operation, concurrentCompletionTimeService, errorReporter, metricsService);
 
         int threadCount = 1;
         ThreadFactory threadFactory = Executors.defaultThreadFactory();
@@ -89,11 +82,10 @@ public class ExecutorTests {
     }
 
     @Test
-    public void shouldRunOperationHandlerAndThrowInterruptedExceptionWhenExecutorServiceShutdownAbruptly() throws InterruptedException, ExecutionException, CompletionTimeException {
+    public void shouldRunOperationHandlerAndThrowInterruptedExceptionWhenExecutorServiceShutdownAbruptly() throws InterruptedException, ExecutionException, CompletionTimeException, OperationException {
         ConcurrentCompletionTimeService concurrentCompletionTimeService = new DummyConcurrentCompletionTimeService();
         ConcurrentMetricsService metricsService = new DummyConcurrentMetricsService();
         ConcurrentErrorReporter errorReporter = new ConcurrentErrorReporter();
-        CompletionTimeValidator completionTimeValidator = new AlwaysValidCompletionTimeValidator();
         OperationHandler<Operation<Integer>> operationHandler = new OperationHandler<Operation<Integer>>() {
             @Override
             protected OperationResult executeOperation(Operation<Integer> operation) throws DbException {
@@ -110,7 +102,7 @@ public class ExecutorTests {
         };
         operation.setScheduledStartTime(Time.now().plus(Duration.fromSeconds(1)));
         Spinner spinner = new Spinner(new LoggingExecutionDelayPolicy(Duration.fromSeconds(1)));
-        operationHandler.init(spinner, operation, concurrentCompletionTimeService, errorReporter, metricsService, completionTimeValidator);
+        operationHandler.init(spinner, operation, concurrentCompletionTimeService, errorReporter, metricsService);
 
         int threadCount = 1;
         ThreadFactory threadFactory = Executors.defaultThreadFactory();

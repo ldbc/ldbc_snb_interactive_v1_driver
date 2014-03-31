@@ -5,7 +5,6 @@ import com.ldbc.driver.runtime.ConcurrentErrorReporter;
 import com.ldbc.driver.temporal.Duration;
 import org.apache.log4j.Logger;
 
-// TODO test
 public class LoggingExecutionDelayPolicy implements ExecutionDelayPolicy {
     private static Logger logger = Logger.getLogger(LoggingExecutionDelayPolicy.class);
 

@@ -9,7 +9,7 @@ import com.ldbc.driver.runtime.ConcurrentErrorReporter;
 import java.util.Iterator;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-class PreciseAsyncOperationStreamExecutorThread extends Thread {
+class PreciseIndividualAsyncOperationStreamExecutorThread extends Thread {
     private final OperationHandlerExecutor operationHandlerExecutor;
     private final Spinner slightlyEarlySpinner;
     private final ConcurrentErrorReporter errorReporter;
@@ -17,12 +17,12 @@ class PreciseAsyncOperationStreamExecutorThread extends Thread {
     private final Iterator<OperationHandler<?>> handlers;
     private final AtomicBoolean hasFinished;
 
-    public PreciseAsyncOperationStreamExecutorThread(OperationHandlerExecutor operationHandlerExecutor,
-                                                     ConcurrentErrorReporter errorReporter,
-                                                     ConcurrentCompletionTimeService completionTimeService,
-                                                     Iterator<OperationHandler<?>> handlers,
-                                                     AtomicBoolean hasFinished,
-                                                     Spinner slightlyEarlySpinner) {
+    public PreciseIndividualAsyncOperationStreamExecutorThread(OperationHandlerExecutor operationHandlerExecutor,
+                                                               ConcurrentErrorReporter errorReporter,
+                                                               ConcurrentCompletionTimeService completionTimeService,
+                                                               Iterator<OperationHandler<?>> handlers,
+                                                               AtomicBoolean hasFinished,
+                                                               Spinner slightlyEarlySpinner) {
         this.operationHandlerExecutor = operationHandlerExecutor;
         this.slightlyEarlySpinner = slightlyEarlySpinner;
         this.errorReporter = errorReporter;

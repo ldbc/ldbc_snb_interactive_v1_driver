@@ -2,14 +2,10 @@ package com.ldbc.driver.generator;
 
 import com.google.common.base.Predicate;
 import com.google.common.collect.Lists;
-import com.ldbc.driver.DbException;
-import com.ldbc.driver.Operation;
-import com.ldbc.driver.OperationHandler;
-import com.ldbc.driver.OperationResult;
+import com.ldbc.driver.*;
 import com.ldbc.driver.runtime.scheduling.Spinner;
 import com.ldbc.driver.runtime.coordination.ConcurrentCompletionTimeService;
 import com.ldbc.driver.runtime.ConcurrentErrorReporter;
-import com.ldbc.driver.runtime.scheduling.CompletionTimeValidator;
 import com.ldbc.driver.runtime.metrics.ConcurrentMetricsService;
 import com.ldbc.driver.temporal.Duration;
 import com.ldbc.driver.temporal.Time;
@@ -56,7 +52,7 @@ public class WindowGeneratorTest {
     }
 
     @Test
-    public void shouldReturnAllHandlerWindows() {
+    public void shouldReturnAllHandlerWindows() throws OperationException {
         // Given
         Time[] times = new Time[]{
                 Time.fromSeconds(1), Time.fromSeconds(3),
@@ -74,8 +70,7 @@ public class WindowGeneratorTest {
             ConcurrentCompletionTimeService completionTimeService = null;
             ConcurrentErrorReporter errorReporter = null;
             ConcurrentMetricsService metricsService = null;
-            CompletionTimeValidator completionTimeValidator = null;
-            handler.init(spinner, operation, completionTimeService, errorReporter, metricsService, completionTimeValidator);
+            handler.init(spinner, operation, completionTimeService, errorReporter, metricsService);
             handlers[i] = handler;
         }
 
