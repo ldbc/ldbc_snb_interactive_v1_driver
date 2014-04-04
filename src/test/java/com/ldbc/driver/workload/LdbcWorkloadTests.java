@@ -140,7 +140,12 @@ public class LdbcWorkloadTests {
                 "-p", LdbcQuery4.class.getName(), "4",
                 "-p", LdbcQuery5.class.getName(), "5",
                 "-p", LdbcQuery6.class.getName(), "6",
-                "-p", LdbcQuery7.class.getName(), "7"
+                "-p", LdbcQuery7.class.getName(), "7",
+                "-p", LdbcQuery8.class.getName(), "6",
+                "-p", LdbcQuery9.class.getName(), "5",
+                "-p", LdbcQuery10.class.getName(), "4",
+                "-p", LdbcQuery11.class.getName(), "3",
+                "-p", LdbcQuery12.class.getName(), "2"
         });
 
         Workload workload = new LdbcInteractiveWorkload();
@@ -167,6 +172,11 @@ public class LdbcWorkloadTests {
         expectedQueryMixHistogram.addBucket(Bucket.DiscreteBucket.create((Class) LdbcQuery5.class), 5l);
         expectedQueryMixHistogram.addBucket(Bucket.DiscreteBucket.create((Class) LdbcQuery6.class), 6l);
         expectedQueryMixHistogram.addBucket(Bucket.DiscreteBucket.create((Class) LdbcQuery7.class), 7l);
+        expectedQueryMixHistogram.addBucket(Bucket.DiscreteBucket.create((Class) LdbcQuery8.class), 6l);
+        expectedQueryMixHistogram.addBucket(Bucket.DiscreteBucket.create((Class) LdbcQuery9.class), 5l);
+        expectedQueryMixHistogram.addBucket(Bucket.DiscreteBucket.create((Class) LdbcQuery10.class), 4l);
+        expectedQueryMixHistogram.addBucket(Bucket.DiscreteBucket.create((Class) LdbcQuery11.class), 3l);
+        expectedQueryMixHistogram.addBucket(Bucket.DiscreteBucket.create((Class) LdbcQuery12.class), 2l);
 
         Histogram<Class, Long> actualQueryMixHistogram = new Histogram<Class, Long>(0l);
         actualQueryMixHistogram.addBucket(Bucket.DiscreteBucket.create((Class) LdbcQuery1.class), 0l);
@@ -176,6 +186,11 @@ public class LdbcWorkloadTests {
         actualQueryMixHistogram.addBucket(Bucket.DiscreteBucket.create((Class) LdbcQuery5.class), 0l);
         actualQueryMixHistogram.addBucket(Bucket.DiscreteBucket.create((Class) LdbcQuery6.class), 0l);
         actualQueryMixHistogram.addBucket(Bucket.DiscreteBucket.create((Class) LdbcQuery7.class), 0l);
+        actualQueryMixHistogram.addBucket(Bucket.DiscreteBucket.create((Class) LdbcQuery8.class), 0l);
+        actualQueryMixHistogram.addBucket(Bucket.DiscreteBucket.create((Class) LdbcQuery9.class), 0l);
+        actualQueryMixHistogram.addBucket(Bucket.DiscreteBucket.create((Class) LdbcQuery10.class), 0l);
+        actualQueryMixHistogram.addBucket(Bucket.DiscreteBucket.create((Class) LdbcQuery11.class), 0l);
+        actualQueryMixHistogram.addBucket(Bucket.DiscreteBucket.create((Class) LdbcQuery12.class), 0l);
         actualQueryMixHistogram.importValueSequence(operationTypes);
 
         double tolerance = 0.01d;

@@ -2,7 +2,6 @@ package com.ldbc.driver.runtime.executor;
 
 import com.ldbc.driver.OperationHandler;
 import com.ldbc.driver.runtime.ConcurrentErrorReporter;
-import com.ldbc.driver.runtime.coordination.CompletionTimeValidator;
 import com.ldbc.driver.runtime.coordination.ConcurrentCompletionTimeService;
 import com.ldbc.driver.runtime.scheduling.Spinner;
 import com.ldbc.driver.temporal.Duration;
@@ -27,14 +26,11 @@ public class UniformWindowedOperationStreamExecutorService {
                                                          OperationHandlerExecutor operationHandlerExecutor,
                                                          Spinner slightlyEarlySpinner,
                                                          Time firstWindowStartTime,
-                                                         Duration windowSize,
-                                                         Duration gctDeltaDuration) {
+                                                         Duration windowSize) {
         this.errorReporter = errorReporter;
-        // TODO if CompletionTimeValidator is passed inside of Spinner, remove this line
         this.uniformWindowedOperationStreamExecutorThread = new UniformWindowedOperationStreamExecutorThread(
                 firstWindowStartTime,
                 windowSize,
-                new CompletionTimeValidator(completionTimeService, gctDeltaDuration),
                 operationHandlerExecutor,
                 errorReporter,
                 completionTimeService,

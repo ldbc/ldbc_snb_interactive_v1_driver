@@ -6,10 +6,9 @@ import com.ldbc.driver.runtime.coordination.CompletionTimeException;
 import com.ldbc.driver.runtime.coordination.ConcurrentCompletionTimeService;
 import com.ldbc.driver.temporal.Duration;
 
-// TODO Test
 public class GctCheck implements SpinnerCheck {
     private final ConcurrentCompletionTimeService completionTimeService;
-    private final Duration gctDeltaTime;
+    private final Duration gctDeltaDuration;
     private final Operation<?> operation;
     private final ConcurrentErrorReporter errorReporter;
 
@@ -18,7 +17,7 @@ public class GctCheck implements SpinnerCheck {
                     Operation<?> operation,
                     ConcurrentErrorReporter errorReporter) {
         this.completionTimeService = completionTimeService;
-        this.gctDeltaTime = gctDeltaDuration;
+        this.gctDeltaDuration = gctDeltaDuration;
         this.operation = operation;
         this.errorReporter = errorReporter;
     }
@@ -26,7 +25,7 @@ public class GctCheck implements SpinnerCheck {
     @Override
     public Boolean doCheck() {
         try {
-            return completionTimeService.globalCompletionTime().plus(gctDeltaTime).gt(operation.scheduledStartTime());
+            return completionTimeService.globalCompletionTime().plus(gctDeltaDuration).gt(operation.scheduledStartTime());
         } catch (CompletionTimeException e) {
             errorReporter.reportError(this,
                     String.format(

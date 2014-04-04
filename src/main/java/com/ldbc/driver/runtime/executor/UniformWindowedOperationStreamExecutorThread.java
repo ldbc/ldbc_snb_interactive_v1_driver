@@ -8,7 +8,6 @@ import com.ldbc.driver.generator.Window;
 import com.ldbc.driver.generator.WindowGenerator;
 import com.ldbc.driver.runtime.ConcurrentErrorReporter;
 import com.ldbc.driver.runtime.coordination.CompletionTimeException;
-import com.ldbc.driver.runtime.coordination.CompletionTimeValidator;
 import com.ldbc.driver.runtime.coordination.ConcurrentCompletionTimeService;
 import com.ldbc.driver.runtime.scheduling.Scheduler;
 import com.ldbc.driver.runtime.scheduling.Spinner;
@@ -23,7 +22,6 @@ import java.util.concurrent.Future;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 class UniformWindowedOperationStreamExecutorThread extends Thread {
-    private final CompletionTimeValidator completionTimeValidator;
     private final OperationHandlerExecutor operationHandlerExecutor;
     private final Scheduler<List<OperationHandler<?>>, Window.OperationHandlerTimeRangeWindow> scheduler;
     private final Spinner slightlyEarlySpinner;
@@ -34,14 +32,12 @@ class UniformWindowedOperationStreamExecutorThread extends Thread {
 
     public UniformWindowedOperationStreamExecutorThread(final Time firstWindowStartTime,
                                                         final Duration windowSize,
-                                                        CompletionTimeValidator completionTimeValidator,
                                                         OperationHandlerExecutor operationHandlerExecutor,
                                                         ConcurrentErrorReporter errorReporter,
                                                         ConcurrentCompletionTimeService completionTimeService,
                                                         Iterator<OperationHandler<?>> handlers,
                                                         AtomicBoolean hasFinished,
                                                         Spinner slightlyEarlySpinner) {
-        this.completionTimeValidator = completionTimeValidator;
         this.operationHandlerExecutor = operationHandlerExecutor;
         this.scheduler = new UniformWindowedScheduler();
         this.slightlyEarlySpinner = slightlyEarlySpinner;
@@ -60,36 +56,40 @@ class UniformWindowedOperationStreamExecutorThread extends Thread {
             }
         };
         // removes windows of handlers, where every handler in each window is within the same time range/window
-        this.handlerWindows = new WindowGenerator<OperationHandler<?>, Window.OperationHandlerTimeRangeWindow>(
-                handlers,
-                windows,
-                WindowGenerator.PartialWindowStrategy.RETURN);
+        this.handlerWindows =
+                new WindowGenerator<OperationHandler<?>, Window.OperationHandlerTimeRangeWindow>(handlers, windows, WindowGenerator.PartialWindowStrategy.RETURN);
     }
 
     @Override
     public void run() {
         List<Future<OperationResult>> currentlyExecutingHandlers = new ArrayList<Future<OperationResult>>();
+        Window.OperationHandlerTimeRangeWindow window = null;
         while (handlerWindows.hasNext()) {
-            Window.OperationHandlerTimeRangeWindow window = handlerWindows.next();
+            window = handlerWindows.next();
             List<OperationHandler<?>> scheduledHandlers = scheduler.schedule(window);
 
+            // perform check at least once, in case time is ready (and within acceptable delay) on first loop
+            boolean previousWindowStillExecuting = false == previousWindowCompletedExecuting(currentlyExecutingHandlers);
+
+            // TODO why is it necessary to perform these checks here?
+            // TODO - scheduler ensures operation start times can only be within window (though no runtime checks for that!!)
+            // TODO - using SpinnerCheck would make sure operations don't start before previous window finishes
+            // TODO - using SpinnerCheck would make sure previous operations finished in time
+            // TODO
+            // TODO however, waiting for start time of window is not a bad thing, as there is no way an operation should start before that
             // wait for window start time
-            // TODO use something like Spinner here? OperationSpinner uses TimeSpinner?
             while (Time.nowAsMilli() < window.windowStartTimeInclusive().asMilli()) {
-                // loop/wait until window time complete
+                // Ensure all operations from previous window have completed executing
+                if (previousWindowStillExecuting && previousWindowCompletedExecuting(currentlyExecutingHandlers))
+                    previousWindowStillExecuting = false;
             }
 
-            // TODO between now (Point 1) and the time assertions (Point 2) complete, first window operation may be late, test this
+            // TODO alternative approach would be to add spinner checks to handlers, which would check that previous window handlers had completed executing
+            // TODO seems cleaner and avoids need for waiting for start time of window
 
-            // TODO Point 1
-
-            // Ensure all operations from previous window have completed executing
-            assertPreviousWindowCompletedExecuting(currentlyExecutingHandlers);
-
-            // Ensure GCT has proceeded enough to execute next window
-            assertGctIsReady(window.windowStartTimeInclusive());
-
-            // TODO Point 2
+            if (previousWindowStillExecuting) {
+                errorReporter.reportError(this, "One or more local operations in window did not complete in time");
+            }
 
             // execute operation handlers for current window
             currentlyExecutingHandlers = new ArrayList<Future<OperationResult>>();
@@ -115,32 +115,16 @@ class UniformWindowedOperationStreamExecutorThread extends Thread {
             }
 
         }
+        // TODO use similar logic to make it possible to cap maximum query run time
+        while (null != window && Time.nowAsMilli() < window.windowEndTimeExclusive().asMilli()) {
+            // wait for last window to finish
+        }
         this.hasFinished.set(true);
     }
 
-    private void assertGctIsReady(Time windowStartTime) {
-        try {
-            if (false == completionTimeValidator.gctIsReadyFor(windowStartTime)) {
-                errorReporter.reportError(this,
-                        String.format("GCT advanced too slowly\nWindow Start Time(%s) < GCT(%s) + DeltaT",
-                                completionTimeService.globalCompletionTime().toString(),
-                                windowStartTime.toString()));
-            }
-        } catch (CompletionTimeException e) {
-            errorReporter.reportError(this,
-                    String.format("Error encountered while reading GCT\n%s", ConcurrentErrorReporter.stackTraceToString(e.getCause())));
-        }
-    }
-
-    private void assertPreviousWindowCompletedExecuting(List<Future<OperationResult>> executingHandlers) {
-        if (false == previousWindowStillExecuting(executingHandlers)) {
-            errorReporter.reportError(this, "One or more local operations in window did not complete in time");
-        }
-    }
-
-    private boolean previousWindowStillExecuting(List<Future<OperationResult>> executingHandlers) {
+    private boolean previousWindowCompletedExecuting(List<Future<OperationResult>> executingHandlers) {
         for (Future<OperationResult> resultFuture : executingHandlers)
-            if (false == resultFuture.isDone()) return true;
-        return false;
+            if (false == resultFuture.isDone()) return false;
+        return true;
     }
 }

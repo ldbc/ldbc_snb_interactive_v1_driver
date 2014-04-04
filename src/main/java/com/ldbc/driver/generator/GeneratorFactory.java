@@ -48,6 +48,8 @@ public class GeneratorFactory {
      * ----------------------------------------------------------------------------------------------------
      */
 
+    // TODO window generator
+
     /**
      * Prefix every generated item with prefix string
      *

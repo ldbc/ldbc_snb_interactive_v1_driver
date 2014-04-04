@@ -4,8 +4,6 @@ import com.ldbc.driver.Operation;
 import com.ldbc.driver.temporal.Duration;
 import com.ldbc.driver.temporal.Time;
 
-import java.util.List;
-
 public class Spinner {
     private static final SpinnerCheck TRUE_CHECK = new TrueCheck();
     // Duration that operation will be executed before scheduled start time
@@ -38,12 +36,15 @@ public class Spinner {
             executionDelayPolicy.handleExcessiveDelay(operation);
         }
 
-        boolean checkHasNotPassed = true;
+        // perform check at least once, in case time is ready (and within acceptable delay) on first loop
+        boolean checkHasNotPassed = false == check.doCheck();
         while (Time.nowAsMilli() < scheduledStartTimeWithOffsetMs) {
             // loop/wait until operation scheduled start time
             if (checkHasNotPassed && check.doCheck())
                 checkHasNotPassed = false;
         }
+
+        // TODO keep spinning for tolerated delay?
 
         if (checkHasNotPassed) {
             check.handleFailedCheck(operation);

@@ -1,10 +1,10 @@
 package com.ldbc.driver.runtime.executor;
 
 import com.ldbc.driver.OperationHandler;
-import com.ldbc.driver.runtime.scheduling.Spinner;
+import com.ldbc.driver.runtime.ConcurrentErrorReporter;
 import com.ldbc.driver.runtime.coordination.CompletionTimeException;
 import com.ldbc.driver.runtime.coordination.ConcurrentCompletionTimeService;
-import com.ldbc.driver.runtime.ConcurrentErrorReporter;
+import com.ldbc.driver.runtime.scheduling.Spinner;
 
 import java.util.Iterator;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -54,7 +54,8 @@ class PreciseIndividualAsyncOperationStreamExecutorThread extends Thread {
                 errorReporter.reportError(this, errMsg);
             }
         }
-
+        // TODO add code to wait for queries to finish before returning
+        // TODO possibly use similar logic to make it possible to cap maximum query run time
         this.hasFinished.set(true);
     }
 }

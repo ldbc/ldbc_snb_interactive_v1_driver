@@ -8,6 +8,7 @@ import com.ldbc.driver.temporal.Time;
 import java.util.List;
 
 // TODO test
+// TODO make sure test for ascending scheduled start times of scheduled operations
 public class UniformWindowedScheduler implements Scheduler<List<OperationHandler<?>>, Window.OperationHandlerTimeRangeWindow> {
     @Override
     public List<OperationHandler<?>> schedule(Window.OperationHandlerTimeRangeWindow handlersWindow) {

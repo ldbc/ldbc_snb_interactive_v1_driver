@@ -4,11 +4,11 @@ import com.ldbc.driver.Operation;
 
 import java.util.List;
 
-public class LdbcQuery7 extends Operation<List<LdbcQuery7Result>> {
+public class LdbcQuery8 extends Operation<List<LdbcQuery8Result>> {
     private final long personId;
     private final int limit;
 
-    public LdbcQuery7(long personId, int limit) {
+    public LdbcQuery8(long personId, int limit) {
         super();
         this.personId = personId;
         this.limit = limit;
@@ -27,7 +27,7 @@ public class LdbcQuery7 extends Operation<List<LdbcQuery7Result>> {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
 
-        LdbcQuery7 that = (LdbcQuery7) o;
+        LdbcQuery8 that = (LdbcQuery8) o;
 
         if (limit != that.limit) return false;
         if (personId != that.personId) return false;

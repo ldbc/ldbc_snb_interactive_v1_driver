@@ -4,18 +4,23 @@ import com.ldbc.driver.Operation;
 
 import java.util.List;
 
-public class LdbcQuery7 extends Operation<List<LdbcQuery7Result>> {
+public class LdbcQuery9 extends Operation<List<LdbcQuery9Result>> {
     private final long personId;
+    private final long date;
     private final int limit;
 
-    public LdbcQuery7(long personId, int limit) {
-        super();
+    public LdbcQuery9(long personId, long date, int limit) {
         this.personId = personId;
+        this.date = date;
         this.limit = limit;
     }
 
     public long personId() {
         return personId;
+    }
+
+    public long date() {
+        return date;
     }
 
     public int limit() {
@@ -27,8 +32,9 @@ public class LdbcQuery7 extends Operation<List<LdbcQuery7Result>> {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
 
-        LdbcQuery7 that = (LdbcQuery7) o;
+        LdbcQuery9 that = (LdbcQuery9) o;
 
+        if (date != that.date) return false;
         if (limit != that.limit) return false;
         if (personId != that.personId) return false;
 
@@ -38,14 +44,16 @@ public class LdbcQuery7 extends Operation<List<LdbcQuery7Result>> {
     @Override
     public int hashCode() {
         int result = (int) (personId ^ (personId >>> 32));
+        result = 31 * result + (int) (date ^ (date >>> 32));
         result = 31 * result + limit;
         return result;
     }
 
     @Override
     public String toString() {
-        return "LdbcQuery7{" +
+        return "LdbcQuery9{" +
                 "personId=" + personId +
+                ", date=" + date +
                 ", limit=" + limit +
                 '}';
     }

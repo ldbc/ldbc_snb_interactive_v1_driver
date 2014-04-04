@@ -33,31 +33,13 @@ public class SplitDefinitionTests {
     }
 
     @Test
-    public void shouldNotAllowCreationOfEmptyDefinition() throws IteratorSplittingException {
-        // Given
-        Class<? extends Number> numberClasses[] = new Class[]{};
-        boolean exceptionThrown = false;
-
-        // When
-        try {
-            new SplitDefinition<Number>(numberClasses);
-        } catch (IteratorSplittingException e) {
-            exceptionThrown = true;
-        }
-
-        // Then
-        assertThat(exceptionThrown, is(true));
-    }
-
-    @Test
     public void shouldNotAllowCreationOfNullParameterDefinition() throws IteratorSplittingException {
         // Given
-        Class<? extends Number> numberClasses[] = null;
         boolean exceptionThrown = false;
 
         // When
         try {
-            new SplitDefinition<Number>(numberClasses);
+            new SplitDefinition<Number>(null);
         } catch (IteratorSplittingException e) {
             exceptionThrown = true;
         }

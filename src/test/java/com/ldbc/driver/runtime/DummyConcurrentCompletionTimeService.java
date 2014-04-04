@@ -6,10 +6,16 @@ import com.ldbc.driver.temporal.Time;
 
 import java.util.concurrent.Future;
 
-class DummyConcurrentCompletionTimeService implements ConcurrentCompletionTimeService {
+public class DummyConcurrentCompletionTimeService implements ConcurrentCompletionTimeService {
+    Time globalCompletionTime = null;
+
+    public void setGlobalCompletionTime(Time globalCompletionTime) {
+        this.globalCompletionTime = globalCompletionTime;
+    }
+
     @Override
     public Time globalCompletionTime() throws CompletionTimeException {
-        return null;
+        return globalCompletionTime;
     }
 
     @Override

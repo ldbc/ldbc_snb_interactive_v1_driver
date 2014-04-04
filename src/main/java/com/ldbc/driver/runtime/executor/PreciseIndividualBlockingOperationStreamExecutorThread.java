@@ -40,10 +40,10 @@ class PreciseIndividualBlockingOperationStreamExecutorThread extends Thread {
         Future<OperationResult> executingHandler = null;
         while (handlers.hasNext()) {
             OperationHandler<?> handler = handlers.next();
+            // Ensures previously executed handler has completed before handler starts executing
             handler.addCheck(new FutureCompletedCheck(executingHandler));
 
             // Schedule slightly early to account for context switch - internally, handler will schedule at exact start time
-            // Ensure previously executed handler has completed
             slightlyEarlySpinner.waitForScheduledStartTime(handler.operation());
 
             try {
@@ -63,7 +63,10 @@ class PreciseIndividualBlockingOperationStreamExecutorThread extends Thread {
                                 ConcurrentErrorReporter.stackTraceToString(e.getCause())));
             }
         }
-
+        // TODO use similar logic to make it possible to cap maximum query run time
+        while (null != executingHandler && false == executingHandler.isDone()) {
+            // wait for last handler to finish
+        }
         this.hasFinished.set(true);
     }
 

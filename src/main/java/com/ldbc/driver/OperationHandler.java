@@ -5,6 +5,7 @@ import com.ldbc.driver.runtime.coordination.CompletionTimeException;
 import com.ldbc.driver.runtime.coordination.ConcurrentCompletionTimeService;
 import com.ldbc.driver.runtime.metrics.ConcurrentMetricsService;
 import com.ldbc.driver.runtime.metrics.MetricsCollectionException;
+import com.ldbc.driver.runtime.scheduling.MultiCheck;
 import com.ldbc.driver.runtime.scheduling.Spinner;
 import com.ldbc.driver.runtime.scheduling.SpinnerCheck;
 import com.ldbc.driver.temporal.DurationMeasurement;
@@ -20,8 +21,9 @@ public abstract class OperationHandler<OPERATION_TYPE extends Operation<?>> impl
     private ConcurrentCompletionTimeService completionTimeService;
     private ConcurrentErrorReporter errorReporter;
     private ConcurrentMetricsService metricsService;
+    private List<SpinnerCheck> checks = new ArrayList<SpinnerCheck>();
+
     private boolean initialized = false;
-    private MultiCheck checks = new MultiCheck();
 
     public final void init(Spinner spinner,
                            Operation<?> operation,
@@ -53,7 +55,7 @@ public abstract class OperationHandler<OPERATION_TYPE extends Operation<?>> impl
     }
 
     public final void addCheck(SpinnerCheck check) {
-        checks.addCheck(check);
+        checks.add(check);
     }
 
     /**
@@ -72,7 +74,7 @@ public abstract class OperationHandler<OPERATION_TYPE extends Operation<?>> impl
             return null;
         }
         try {
-            spinner.waitForScheduledStartTime(operation, checks);
+            spinner.waitForScheduledStartTime(operation, new MultiCheck(checks));
             DurationMeasurement durationMeasurement = DurationMeasurement.startMeasurementNow();
             OperationResult operationResult = executeOperation(operation);
             operationResult.setRunDuration(durationMeasurement.durationUntilNow());
@@ -111,27 +113,4 @@ public abstract class OperationHandler<OPERATION_TYPE extends Operation<?>> impl
     public String toString() {
         return String.format("OperationHandler [type=%s, operation=%s]", getClass().getName(), operation);
     }
-
-    private class MultiCheck implements SpinnerCheck {
-        private final List<SpinnerCheck> checks = new ArrayList<SpinnerCheck>();
-
-        private void addCheck(SpinnerCheck check) {
-            checks.add(check);
-        }
-
-        @Override
-        public Boolean doCheck() {
-            if (checks.isEmpty()) return true;
-            for (SpinnerCheck check : checks)
-                if (check.doCheck()) checks.remove(check);
-            return checks.isEmpty();
-        }
-
-        @Override
-        public void handleFailedCheck(Operation<?> operation) {
-            for (SpinnerCheck check : checks)
-                check.handleFailedCheck(operation);
-        }
-    }
-
 }

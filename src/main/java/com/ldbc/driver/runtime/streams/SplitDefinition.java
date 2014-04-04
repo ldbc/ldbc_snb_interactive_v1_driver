@@ -9,7 +9,7 @@ public class SplitDefinition<BASE_ITEM_TYPE> {
     private final Set<Class<? extends BASE_ITEM_TYPE>> itemTypes;
 
     public SplitDefinition(Class<? extends BASE_ITEM_TYPE>... itemTypes) throws IteratorSplittingException {
-        if (null == itemTypes || itemTypes.length == 0)
+        if (null == itemTypes)
             throw new IteratorSplittingException("Item types can not be null or empty");
         this.itemTypes = Sets.newHashSet(itemTypes);
     }

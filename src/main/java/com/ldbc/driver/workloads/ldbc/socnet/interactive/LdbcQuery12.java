@@ -4,18 +4,23 @@ import com.ldbc.driver.Operation;
 
 import java.util.List;
 
-public class LdbcQuery7 extends Operation<List<LdbcQuery7Result>> {
+public class LdbcQuery12 extends Operation<List<LdbcQuery12Result>> {
     private final long personId;
+    private final String tagClass;
     private final int limit;
 
-    public LdbcQuery7(long personId, int limit) {
-        super();
+    public LdbcQuery12(long personId, String tagClass, int limit) {
         this.personId = personId;
+        this.tagClass = tagClass;
         this.limit = limit;
     }
 
     public long personId() {
         return personId;
+    }
+
+    public String tagClass() {
+        return tagClass;
     }
 
     public int limit() {
@@ -27,10 +32,11 @@ public class LdbcQuery7 extends Operation<List<LdbcQuery7Result>> {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
 
-        LdbcQuery7 that = (LdbcQuery7) o;
+        LdbcQuery12 that = (LdbcQuery12) o;
 
         if (limit != that.limit) return false;
         if (personId != that.personId) return false;
+        if (tagClass != null ? !tagClass.equals(that.tagClass) : that.tagClass != null) return false;
 
         return true;
     }
@@ -38,14 +44,16 @@ public class LdbcQuery7 extends Operation<List<LdbcQuery7Result>> {
     @Override
     public int hashCode() {
         int result = (int) (personId ^ (personId >>> 32));
+        result = 31 * result + (tagClass != null ? tagClass.hashCode() : 0);
         result = 31 * result + limit;
         return result;
     }
 
     @Override
     public String toString() {
-        return "LdbcQuery7{" +
+        return "LdbcQuery12{" +
                 "personId=" + personId +
+                ", tagClass='" + tagClass + '\'' +
                 ", limit=" + limit +
                 '}';
     }

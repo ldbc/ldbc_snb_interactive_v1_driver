@@ -7,6 +7,10 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 
+// TODO return Iterator instead, writing thread only writes to queues when at least one of them is below some minimum size & runs until input exhausted
+// TODO ADVANTAGE: semi-lazy, depending on input stream and stream consumers
+// TODO DISADVANTAGE: requires an additional thread (more compute resources)
+
 /**
  * Splits an Iterator into multiple Iterables. This operation is NOT lazy, all items from the input Iterator are materialized in the output Iterables.
  */

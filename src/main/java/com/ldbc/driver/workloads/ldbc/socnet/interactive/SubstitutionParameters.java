@@ -1,85 +1,84 @@
 package com.ldbc.driver.workloads.ldbc.socnet.interactive;
 
+import org.codehaus.jackson.annotate.JsonProperty;
+import org.codehaus.jackson.map.ObjectMapper;
+
 import java.io.File;
 import java.io.IOException;
 import java.util.List;
-import java.util.Map;
 
-import org.codehaus.jackson.JsonParseException;
-import org.codehaus.jackson.annotate.JsonProperty;
-import org.codehaus.jackson.map.JsonMappingException;
-import org.codehaus.jackson.map.ObjectMapper;
+public class SubstitutionParameters {
 
-public class SubstitutionParameters
-{
-    /*
-    DETAILS
-     - http://www.ldbc.eu:8090/display/TUC/IW+Substitution+parameters+selection
-    
-    GENERATE
-     - personNames.txt
-     - personNumber.txt
-     - creationPostDate.txt 
-         0,33,66,100 percents of date range... or maybe all 0..100
-         duration of date range
-     - tagUris.txt
-     - countryUris.txt (orgLocations.txt)
-     - workFromDate.txt
-     - tagClassUris.txt
-      
-    PROVIDED 
-     - countryPairs.txt
-     */
+    // TODO questions
+    // TODO  - assumes no gaps in person id space, i.e., continuous sequence with no missing ids in the middle?
+    // TODO issues
 
-    private static final String COUNTRY_PAIRS = "country_pairs";
-    private static final String FIRST_NAMES = "first_names";
-    private static final String POST_CREATION_DATES = "post_creation_dates";
-    private static final String PERSON_IDS = "person_ids";
-    private static final String TAG_URIS = "tag_uris";
-    private static final String HOROSCOPE_SIGNS = "horoscope_signs";
-    private static final String COUNTRY_URIS = "country_uris";
-    private static final String WORK_FROM_DATES = "work_from_dates";
-    private static final String TAG_CLASS_URIS = "tag_class_uris";
-
-    @JsonProperty( value = COUNTRY_PAIRS )
-    public List<String[]> countryPairs = null;
-    @JsonProperty( value = FIRST_NAMES )
+    @JsonProperty(value = "minPersonId")
+    public Long minPersonId = null;
+    @JsonProperty(value = "maxPersonId")
+    public Long maxPersonId = null;
+    @JsonProperty(value = "minWorkFrom")
+    public Integer minWorkFrom = null;
+    @JsonProperty(value = "maxWorkFrom")
+    public Integer maxWorkFrom = null;
+    @JsonProperty(value = "minPostCreationDate")
+    public Integer minPostCreationDate = null;
+    @JsonProperty(value = "maxPostCreationDate")
+    public Integer maxPostCreationDate = null;
+    @JsonProperty(value = "firstNames")
     public List<String> firstNames = null;
-    @JsonProperty( value = POST_CREATION_DATES )
-    public Map<Integer, Long> postCreationDates = null;
-    @JsonProperty( value = PERSON_IDS )
-    public List<Long> personIds = null;
-    @JsonProperty( value = TAG_URIS )
-    public List<String> tagUris = null;
-    @JsonProperty( value = HOROSCOPE_SIGNS )
-    public List<Integer> horoscopeSigns = null;
-    @JsonProperty( value = COUNTRY_URIS )
-    public List<String> countryUris = null;
-    @JsonProperty( value = WORK_FROM_DATES )
-    public List<Integer> workFromDates = null;
-    @JsonProperty( value = TAG_CLASS_URIS )
-    public List<String> tagClassUris = null;
+    @JsonProperty(value = "tagNames")
+    public List<String> tagNames = null;
+    @JsonProperty(value = "countries")
+    public List<String> countries = null;
+    @JsonProperty(value = "tagClasses")
+    public List<String> tagClasses = null;
+    @JsonProperty(value = "flashmobTags")
+    public List<FlashmobTags> flashmobTags = null;
+    @JsonProperty(value = "countryPairs")
+    public List<String[]> countryPairs = null;
 
-    public SubstitutionParameters()
-    {
+    public SubstitutionParameters() {
     }
 
-    public static SubstitutionParameters fromJson( File jsonFile ) throws JsonParseException, JsonMappingException,
-            IOException
-    {
-        return new ObjectMapper().readValue( jsonFile, SubstitutionParameters.class );
+    public static SubstitutionParameters fromJson(File jsonFile) throws
+            IOException {
+        return new ObjectMapper().readValue(jsonFile, SubstitutionParameters.class);
+    }
+
+    public static SubstitutionParameters fromJson(String jsonString) throws IOException {
+        return new ObjectMapper().readValue(jsonString, SubstitutionParameters.class);
     }
 
     @Override
-    public String toString()
-    {
-        try
-        {
-            return new ObjectMapper().writeValueAsString( this );
+    public String toString() {
+        try {
+            return new ObjectMapper().writeValueAsString(this);
+        } catch (Exception e) {
+            throw new RuntimeException("Unable to generate parameter values string", e.getCause());
         }
-        catch ( Exception e )
-        {
-            throw new RuntimeException( "Unable to generate String", e.getCause() );
+    }
+
+    public static class FlashmobTags {
+        @JsonProperty(value = "level")
+        public Integer level = null;
+        @JsonProperty(value = "date")
+        public Long date = null;
+        @JsonProperty(value = "prob")
+        public Double prob = null;
+        @JsonProperty(value = "tag")
+        public Integer tag = null;
+
+        public FlashmobTags() {
+        }
+
+        @Override
+        public String toString() {
+            try {
+                return new ObjectMapper().writeValueAsString(this);
+            } catch (Exception e) {
+                throw new RuntimeException("Unable to generate Flashmob string", e.getCause());
+            }
         }
     }
 }

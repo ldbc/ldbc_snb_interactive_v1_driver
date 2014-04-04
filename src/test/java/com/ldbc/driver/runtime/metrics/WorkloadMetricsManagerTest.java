@@ -1,10 +1,8 @@
-package com.ldbc.driver.metrics;
+package com.ldbc.driver.runtime.metrics;
 
 import com.google.common.collect.Iterables;
 import com.ldbc.driver.OperationResult;
 import com.ldbc.driver.WorkloadException;
-import com.ldbc.driver.runtime.metrics.MetricsCollectionException;
-import com.ldbc.driver.runtime.metrics.WorkloadMetricsManager;
 import com.ldbc.driver.temporal.Duration;
 import com.ldbc.driver.temporal.Time;
 import org.junit.Test;
