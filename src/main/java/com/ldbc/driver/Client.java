@@ -17,6 +17,7 @@ import org.apache.log4j.Logger;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
+import java.util.Iterator;
 
 public class Client {
     private static Logger logger = Logger.getLogger(Client.class);
@@ -74,23 +75,26 @@ public class Client {
         logger.info("LDBC Workload Driver");
         logger.info(params.toString());
 
-        // TODO find better way to define initialGct, this method will not work with multiple processes
-        Time initialGct = Time.now();
+        // TODO find better way to define workloadStartTime, this method will not work with multiple processes
+        Time workloadStartTime = Time.now().plus(Duration.fromMilli(500));
+        Double timeCompressionRatio = null;
         // TODO get GCT DeltaT from configuration parameters
         Duration gctDeltaTime = Duration.fromMilli(0);
 
         WorkloadRunner workloadRunner;
         try {
+            Iterator<Operation<?>> operations = workload.operations(generators);
+            Iterator<Operation<?>> timeMappedOperations = generators.timeOffsetAndCompress(operations, workloadStartTime, timeCompressionRatio);
             workloadRunner = new WorkloadRunner(
                     db,
-                    workload.operations(generators),
+                    timeMappedOperations,
                     workload.operationClassificationMapping(),
                     params.isShowStatus(),
                     params.threadCount(),
                     metricsService,
                     errorReporter,
                     gctDeltaTime,
-                    initialGct);
+                    workloadStartTime);
         } catch (WorkloadException e) {
             String errMsg = "Error instantiating WorkloadRunner";
             logger.error(errMsg, e);

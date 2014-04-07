@@ -10,10 +10,17 @@ import com.ldbc.driver.util.Histogram;
 import com.ldbc.driver.util.RandomDataGeneratorFactory;
 import com.ldbc.driver.util.TestUtils;
 import com.ldbc.driver.workloads.ldbc.socnet.interactive.*;
+import com.ldbc.driver.workloads.ldbc.socnet.interactive.csv.CsvDb;
+import org.apache.commons.io.FileUtils;
 import org.junit.Test;
 
+import java.io.File;
+import java.io.IOException;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.is;
@@ -202,5 +209,57 @@ public class LdbcWorkloadTests {
                         expectedQueryMixHistogram.toPercentageValues(),
                         tolerance),
                 is(true));
+    }
+
+    @Test
+    public void shouldGenerateConfiguredQueryMixAndWriteToCsv() throws ClientException, ParamsException, WorkloadException, IOException {
+        // Given
+        Map<String, String> paramsMap = new HashMap<String, String>();
+        // LDBC Interactive Workload-specific parameters
+        paramsMap.put(LdbcInteractiveWorkload.QUERY_1_KEY, "1");
+        paramsMap.put(LdbcInteractiveWorkload.QUERY_2_KEY, "2");
+        paramsMap.put(LdbcInteractiveWorkload.QUERY_3_KEY, "3");
+        paramsMap.put(LdbcInteractiveWorkload.QUERY_4_KEY, "4");
+        paramsMap.put(LdbcInteractiveWorkload.QUERY_5_KEY, "5");
+        paramsMap.put(LdbcInteractiveWorkload.QUERY_6_KEY, "6");
+        paramsMap.put(LdbcInteractiveWorkload.QUERY_7_KEY, "7");
+        paramsMap.put(LdbcInteractiveWorkload.QUERY_8_KEY, "6");
+        paramsMap.put(LdbcInteractiveWorkload.QUERY_9_KEY, "5");
+        paramsMap.put(LdbcInteractiveWorkload.QUERY_10_KEY, "4");
+        paramsMap.put(LdbcInteractiveWorkload.QUERY_11_KEY, "3");
+        paramsMap.put(LdbcInteractiveWorkload.QUERY_12_KEY, "2");
+        paramsMap.put(LdbcInteractiveWorkload.PARAMETERS_FILENAME_KEY, "ldbc_driver/workloads/ldbc/socnet/interactive/parameters.json");
+        paramsMap.put(LdbcInteractiveWorkload.INTERLEAVE_DURATION_KEY, "1");
+        // CsvDb-specific parameters
+        String csvOutputFilePath = "temp_csv_output_file.csv";
+        FileUtils.deleteQuietly(new File(csvOutputFilePath));
+        paramsMap.put(CsvDb.CSV_PATH_KEY, csvOutputFilePath);
+        // Driver-specific parameters
+        String dbClassName = CsvDb.class.getName();
+        String workloadClassName = LdbcInteractiveWorkload.class.getName();
+        long operationCount = 1000;
+        int threadCount = 1;
+        boolean showStatus = true;
+        TimeUnit timeUnit = TimeUnit.MILLISECONDS;
+        String resultFilePath = "test_write_to_csv_results.json";
+        FileUtils.deleteQuietly(new File(resultFilePath));
+
+        assertThat(new File(csvOutputFilePath).exists(), is(false));
+        assertThat(new File(resultFilePath).exists(), is(false));
+
+        WorkloadParams params = new WorkloadParams(paramsMap, dbClassName, workloadClassName, operationCount,
+                threadCount, showStatus, timeUnit, resultFilePath);
+
+        // When
+        Client client = new Client(params);
+        client.start();
+
+        // Then
+        assertThat(new File(csvOutputFilePath).exists(), is(true));
+        assertThat(new File(resultFilePath).exists(), is(true));
+        FileUtils.deleteQuietly(new File(csvOutputFilePath));
+        FileUtils.deleteQuietly(new File(resultFilePath));
+        assertThat(new File(csvOutputFilePath).exists(), is(false));
+        assertThat(new File(resultFilePath).exists(), is(false));
     }
 }

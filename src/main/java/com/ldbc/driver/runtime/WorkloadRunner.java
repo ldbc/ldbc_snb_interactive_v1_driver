@@ -57,7 +57,7 @@ public class WorkloadRunner {
                           ConcurrentMetricsService metricsService,
                           ConcurrentErrorReporter errorReporter,
                           Duration gctDelta,
-                          Time initialGct) throws WorkloadException {
+                          Time workloadStartTime) throws WorkloadException {
         this.showStatus = showStatus;
         this.errorReporter = errorReporter;
 
@@ -85,14 +85,13 @@ public class WorkloadRunner {
 
         // Set GCT to just before scheduled start time of earliest operation in process's stream
         try {
-            // TODO find better way to define initialGct, this method will not work with multiple processes
-            completionTimeService.submitInitiatedTime(initialGct);
-            completionTimeService.submitCompletedTime(initialGct);
+            completionTimeService.submitInitiatedTime(workloadStartTime);
+            completionTimeService.submitCompletedTime(workloadStartTime);
             for (String peerId : peerIds) {
-                completionTimeService.submitExternalCompletionTime(peerId, initialGct);
+                completionTimeService.submitExternalCompletionTime(peerId, workloadStartTime);
             }
-            // Wait for initialGct to be applied
-            if (false == completionTimeService.globalCompletionTimeFuture().get().equals(initialGct)) {
+            // Wait for workloadStartTime to be applied
+            if (false == completionTimeService.globalCompletionTimeFuture().get().equals(workloadStartTime)) {
                 throw new WorkloadException("Completion Time future failed to return expected value");
             }
         } catch (Exception e) {

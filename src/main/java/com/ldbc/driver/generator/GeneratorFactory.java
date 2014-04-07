@@ -1,6 +1,8 @@
 package com.ldbc.driver.generator;
 
+import com.ldbc.driver.Operation;
 import com.ldbc.driver.data.ByteIterator;
+import com.ldbc.driver.temporal.Time;
 import com.ldbc.driver.util.Function1;
 import com.ldbc.driver.util.RandomDataGeneratorFactory;
 import com.ldbc.driver.util.Tuple;
@@ -47,6 +49,30 @@ public class GeneratorFactory {
      * ---------------------------------------- GENERATORS ------------------------------------------------
      * ----------------------------------------------------------------------------------------------------
      */
+
+    /**
+     * Offset start times of operations in stream such that first operation is now scheduled at new start time.
+     *
+     * @param generator
+     * @param newStartTime
+     * @return
+     */
+    public Iterator<Operation<?>> timeOffset(Iterator<Operation<?>> generator, Time newStartTime) {
+        return timeOffsetAndCompress(generator, newStartTime, null);
+    }
+
+    /**
+     * Offset start times of operations in stream such that first operation is now scheduled at new start time.
+     * Compress/expand duration between start times by a fixed ratio.
+     *
+     * @param generator
+     * @param newStartTime
+     * @param compressionRatio
+     * @return
+     */
+    public Iterator<Operation<?>> timeOffsetAndCompress(Iterator<Operation<?>> generator, Time newStartTime, Double compressionRatio) {
+        return new TimeMappingGenerator(generator, newStartTime, compressionRatio);
+    }
 
     // TODO window generator
 
