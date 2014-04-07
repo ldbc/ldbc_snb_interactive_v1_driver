@@ -67,6 +67,7 @@ public class Client {
         logger.info(String.format("Loaded DB: %s", db.getClass().getName()));
 
         errorReporter = new ConcurrentErrorReporter();
+        // TODO set metrics start time somehow. may need to do this in start(). metrics service will need support for this in its interface.
         metricsService = new ThreadedQueuedConcurrentMetricsService(errorReporter, params.timeUnit());
         generators = new GeneratorFactory(new RandomDataGeneratorFactory(RANDOM_SEED));
     }

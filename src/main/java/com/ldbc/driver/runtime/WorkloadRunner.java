@@ -27,14 +27,9 @@ import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 public class WorkloadRunner {
-    // TODO add this to config?
     public static final Duration DEFAULT_TOLERATED_OPERATION_START_TIME_DELAY = Duration.fromSeconds(1);
-    // TODO add this to config
     private final Duration DEFAULT_STATUS_UPDATE_INTERVAL = Duration.fromSeconds(2);
-    // TODO tune. perhaps a method that during initialization runs an ExecutionService and measures delay
     private final Duration SPINNER_OFFSET_DURATION = Duration.fromMilli(100);
-
-    // TODO TimeMapper "maps times from workload definition into real time, i.e., by applying offsets and compression/expansion"
 
     private final Spinner exactSpinner;
     private final Spinner earlySpinner;
@@ -61,9 +56,6 @@ public class WorkloadRunner {
         this.showStatus = showStatus;
         this.errorReporter = errorReporter;
 
-        // TODO make ExecutionDelayPolicy configurable
-        // TODO have different ExecutionDelayPolicies for different components?
-        // TODO have different error reporters for different components?
         ExecutionDelayPolicy executionDelayPolicy = new ErrorReportingExecutionDelayPolicy(DEFAULT_TOLERATED_OPERATION_START_TIME_DELAY, errorReporter);
 
         this.exactSpinner = new Spinner(executionDelayPolicy);
@@ -74,7 +66,6 @@ public class WorkloadRunner {
         // TODO get peerIds from somewhere
         List<String> peerIds = new ArrayList<String>();
         try {
-            // TODO make ConcurrentCompletionTimeService implementation configurable? perhaps method compares performance on target machine
             completionTimeService = new ThreadedQueuedConcurrentCompletionTimeService(peerIds, errorReporter);
         } catch (Exception e) {
             throw new WorkloadException(
@@ -127,32 +118,24 @@ public class WorkloadRunner {
         Iterable<OperationHandler<?>> asynchronousHandlers =
                 operationsToHandlers(asynchronousOperations, db, exactSpinner, completionTimeService, errorReporter, metricsService, gctDelta, operationClassifications);
 
-        // TODO provide different OperationHandlerExecutor instances to different ExecutorServices to have more control over how many resources each ExecutorService can consume?
         this.operationHandlerExecutor = new ThreadPoolOperationHandlerExecutor(threadCount);
         this.preciseIndividualAsyncOperationStreamExecutorService =
                 new PreciseIndividualAsyncOperationStreamExecutorService(errorReporter, completionTimeService, asynchronousHandlers.iterator(), earlySpinner, operationHandlerExecutor);
         this.preciseIndividualBlockingOperationStreamExecutorService =
                 new PreciseIndividualBlockingOperationStreamExecutorService(errorReporter, completionTimeService, blockingHandlers.iterator(), earlySpinner, operationHandlerExecutor);
-        // TODO where should this get set from?
-        Time firstWindowStartTime = null;
-        // TODO where should this get set from?
-        Duration windowSize = null;
+        // TODO better way of setting window size. it does not need to equal DeltaT, it can be smaller. where to set? how to set?
+        Duration windowSize = gctDelta;
         this.uniformWindowedOperationStreamExecutorService =
-                new UniformWindowedOperationStreamExecutorService(errorReporter, completionTimeService, windowedHandlers.iterator(), operationHandlerExecutor, earlySpinner, firstWindowStartTime, windowSize);
+                new UniformWindowedOperationStreamExecutorService(errorReporter, completionTimeService, windowedHandlers.iterator(), operationHandlerExecutor, earlySpinner, workloadStartTime, windowSize);
     }
 
     public void executeWorkload() throws WorkloadException {
-        // TODO need to add something like this to ConcurrentMetricsService
-        //  metricsService.setStartTime(Time.now());
-
         if (showStatus) workloadStatusThread.start();
         AtomicBoolean asyncHandlersFinished = preciseIndividualAsyncOperationStreamExecutorService.execute();
         AtomicBoolean blockingHandlersFinished = preciseIndividualBlockingOperationStreamExecutorService.execute();
-        // TODO uncomment after creation of this executor is figured out - see constructor above
-//        AtomicBoolean windowedHandlersFinished = uniformWindowedOperationStreamExecutorService.execute();
+        AtomicBoolean windowedHandlersFinished = uniformWindowedOperationStreamExecutorService.execute();
 
-        // TODO add windowed executor to list too, when it's working
-        List<AtomicBoolean> executorFinishedFlags = Lists.newArrayList(asyncHandlersFinished, blockingHandlersFinished);
+        List<AtomicBoolean> executorFinishedFlags = Lists.newArrayList(asyncHandlersFinished, blockingHandlersFinished, windowedHandlersFinished);
 
         while (false == executorFinishedFlags.isEmpty()) {
             List<AtomicBoolean> executorFlagsToRemove = new ArrayList<AtomicBoolean>();
@@ -164,7 +147,7 @@ public class WorkloadRunner {
                 break;
         }
 
-        // TODO cleanup everything properly first?
+        // TODO cleanup everything properly first? what needs to be cleaned up?
         if (errorReporter.errorEncountered()) {
             throw new WorkloadException(String.format("Encountered error while running workload. Driver terminating.\n%s", errorReporter.toString()));
         }
@@ -172,8 +155,7 @@ public class WorkloadRunner {
         // TODO should executors wait for all operations to terminate before returning?
         preciseIndividualAsyncOperationStreamExecutorService.shutdown();
         preciseIndividualBlockingOperationStreamExecutorService.shutdown();
-        // TODO uncomment when this executor is working
-//        uniformWindowedOperationStreamExecutorService.shutdown();
+        uniformWindowedOperationStreamExecutorService.shutdown();
 
         // TODO if multiple executors are used (different executors for different executor services) shut them all down here
         try {
@@ -184,6 +166,7 @@ public class WorkloadRunner {
         }
 
         // TODO only shutdown when terminate events comes in, because don't know when other clients will finish
+        // TODO this could come from a Coordinator/Control service type thing
         // TODO send event to coordinator information that this client has finished
 
         if (showStatus) workloadStatusThread.interrupt();
