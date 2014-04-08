@@ -1,6 +1,7 @@
 package com.ldbc.driver.runtime;
 
 import com.google.common.base.Function;
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import com.ldbc.driver.*;
@@ -200,32 +201,35 @@ public class WorkloadRunner {
                                                                final Duration gctDeltaDuration,
                                                                final Map<Class<? extends Operation<?>>, OperationClassification> operationClassifications) throws WorkloadException {
         try {
-            return Iterables.transform(operations, new Function<Operation<?>, OperationHandler<?>>() {
-                @Override
-                public OperationHandler<?> apply(Operation<?> operation) {
-                    try {
-                        OperationHandler<?> operationHandler = db.getOperationHandler(operation);
-                        switch (operationClassifications.get(operation.getClass()).gctMode()) {
-                            case READ_WRITE:
-                                operationHandler.init(spinner, operation, completionTimeService, errorReporter, metricsService);
-                                operationHandler.addCheck(new GctCheck(completionTimeService, gctDeltaDuration, operation, errorReporter));
-                                break;
-                            case READ:
-                                operationHandler.init(spinner, operation, new ReadOnlyConcurrentCompletionTimeService(completionTimeService), errorReporter, metricsService);
-                                operationHandler.addCheck(new GctCheck(completionTimeService, gctDeltaDuration, operation, errorReporter));
-                                break;
-                            case NONE:
-                                operationHandler.init(spinner, operation, new ReadOnlyConcurrentCompletionTimeService(completionTimeService), errorReporter, metricsService);
-                                break;
-                            default:
-                                throw new WorkloadException(String.format("Unrecognized GctMode: %s", operationClassifications.get(operation.getClass()).gctMode()));
+
+            Iterable<OperationHandler<?>> handlers =
+                    Iterables.transform(operations, new Function<Operation<?>, OperationHandler<?>>() {
+                        @Override
+                        public OperationHandler<?> apply(Operation<?> operation) {
+                            try {
+                                OperationHandler<?> operationHandler = db.getOperationHandler(operation);
+                                switch (operationClassifications.get(operation.getClass()).gctMode()) {
+                                    case READ_WRITE:
+                                        operationHandler.init(spinner, operation, completionTimeService, errorReporter, metricsService);
+                                        operationHandler.addCheck(new GctCheck(completionTimeService, gctDeltaDuration, operation, errorReporter));
+                                        break;
+                                    case READ:
+                                        operationHandler.init(spinner, operation, new ReadOnlyConcurrentCompletionTimeService(completionTimeService), errorReporter, metricsService);
+                                        operationHandler.addCheck(new GctCheck(completionTimeService, gctDeltaDuration, operation, errorReporter));
+                                        break;
+                                    case NONE:
+                                        operationHandler.init(spinner, operation, new ReadOnlyConcurrentCompletionTimeService(completionTimeService), errorReporter, metricsService);
+                                        break;
+                                    default:
+                                        throw new WorkloadException(String.format("Unrecognized GctMode: %s", operationClassifications.get(operation.getClass()).gctMode()));
+                                }
+                                return operationHandler;
+                            } catch (Exception e) {
+                                throw new RuntimeException("Unexpected error in operationsToHandlers()", e.getCause());
+                            }
                         }
-                        return operationHandler;
-                    } catch (Exception e) {
-                        throw new RuntimeException(e);
-                    }
-                }
-            });
+                    });
+            return ImmutableList.copyOf(handlers);
         } catch (Exception e) {
             throw new WorkloadException("Error encountered while transforming Operation stream to OperationHandler stream", e.getCause());
         }

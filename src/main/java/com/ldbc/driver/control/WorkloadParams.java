@@ -18,31 +18,31 @@ import java.util.concurrent.TimeUnit;
 public class WorkloadParams implements DriverConfiguration {
 
     // --- REQUIRED ---
-    private static final String OPERATION_COUNT_ARG = "oc";
+    public static final String OPERATION_COUNT_ARG = "oc";
     private static final String OPERATION_COUNT_ARG_LONG = "operationcount";
     private static final String OPERATION_COUNT_DEFAULT = Integer.toString(0);
     private static final String OPERATION_COUNT_DESCRIPTION = String.format(
             "number of operations to execute (default: %s)", OPERATION_COUNT_DEFAULT);
     public static final long UNBOUNDED_OPERATION_COUNT = -1;
 
-    private static final String WORKLOAD_ARG = "w";
+    public static final String WORKLOAD_ARG = "w";
     private static final String WORKLOAD_ARG_LONG = "workload";
     private static final String WORKLOAD_EXAMPLE = com.ldbc.driver.workloads.simple.SimpleWorkload.class.getName();
     private static final String WORKLOAD_DESCRIPTION = String.format("classname of the Workload to use (e.g. %s)",
             WORKLOAD_EXAMPLE);
 
-    private static final String DB_ARG = "db";
+    public static final String DB_ARG = "db";
     private static final String DB_ARG_LONG = "database";
     private static final String DB_EXAMPLE = com.ldbc.driver.workloads.simple.db.BasicDb.class.getName();
     private static final String DB_DESCRIPTION = String.format("classname of the DB to use (e.g. %s)", DB_EXAMPLE);
 
     // --- OPTIONAL ---
-    private static final String RESULT_FILE_PATH_ARG = "rf";
+    public static final String RESULT_FILE_PATH_ARG = "rf";
     private static final String RESULT_FILE_PATH_ARG_LONG = "resultfile";
     private static final String RESULT_FILE_PATH_DESCRIPTION =
             "where benchmark results JSON file will be written (null = file will not be created)";
 
-    private static final String THREADS_ARG = "tc";
+    public static final String THREADS_ARG = "tc";
     private static final String THREADS_ARG_LONG = "threadcount";
     private static final String THREADS_DEFAULT = Integer.toString(calculateDefaultThreadPoolSize());
     private static final String THREADS_DESCRIPTION = String.format(
@@ -57,19 +57,19 @@ public class WorkloadParams implements DriverConfiguration {
     }
 
     //TODO Duration.fromSeconds(2), make status an integer argument and 0==no status
-    private static final String SHOW_STATUS_ARG = "s";
+    public static final String SHOW_STATUS_ARG = "s";
     private static final String SHOW_STATUS_ARG_LONG = "status";
     private static final String SHOW_STATUS_DEFAULT = Boolean.toString(false);
     private static final String SHOW_STATUS_DESCRIPTION = "show status during run";
 
-    private static final String PROPERTY_FILE_ARG = "P";
+    public static final String PROPERTY_FILE_ARG = "P";
     private static final String PROPERTY_FILE_DESCRIPTION = "load properties from file(s) - files will be loaded in the order provided\n" +
             "first files are highest priority; later values will not override earlier values";
 
-    private static final String PROPERTY_ARG = "p";
+    public static final String PROPERTY_ARG = "p";
     private static final String PROPERTY_DESCRIPTION = "properties to be passed to DB and Workload - these will override properties loaded from files";
 
-    private static final String TIME_UNIT_ARG = "tu";
+    public static final String TIME_UNIT_ARG = "tu";
     private static final String TIME_UNIT_ARG_LONG = "timeunit";
     private static final String TIME_UNIT_DEFAULT = TimeUnit.MILLISECONDS.toString();
     private static final TimeUnit[] VALID_TIME_UNITS = new TimeUnit[]{TimeUnit.NANOSECONDS, TimeUnit.MICROSECONDS,
@@ -78,22 +78,22 @@ public class WorkloadParams implements DriverConfiguration {
             "time unit to use when gathering metrics. default:%s, valid:%s", TIME_UNIT_DEFAULT,
             Arrays.toString(VALID_TIME_UNITS));
 
-    private static final String TIME_COMPRESSION_RATIO_ARG = "tcr";
+    public static final String TIME_COMPRESSION_RATIO_ARG = "tcr";
     private static final String TIME_COMPRESSION_RATIO_ARG_LONG = "timecompressionratio";
     private static final String TIME_COMPRESSION_RATIO_DEFAULT = "1"; // 1 == do not compress
     private static final String TIME_COMPRESSION_RATIO_DESCRIPTION = "change duration between operations of workload";
 
-    private static final String GCT_DELTA_DURATION_ARG = "gctd";
+    public static final String GCT_DELTA_DURATION_ARG = "gctd";
     private static final String GCT_DELTA_DURATION_ARG_LONG = "gctdeltaduration";
     private static final String GCT_DELTA_DURATION_DEFAULT = Duration.fromSeconds(3600).asMilli().toString();
     private static final String GCT_DELTA_DURATION_DESCRIPTION = "safe duration (ms) between dependent operations";
 
-    private static final String PEER_IDS_ARG = "pids";
+    public static final String PEER_IDS_ARG = "pids";
     private static final String PEER_IDS_ARG_LONG = "peeridentifiers";
     private static final String PEER_IDS_DEFAULT = "[]";
     private static final String PEER_IDS_DESCRIPTION = "identifiers/addresses of other driver workers (for distributed mode)";
 
-    private static final String TOLERATED_EXECUTION_DELAY_ARG = "del";
+    public static final String TOLERATED_EXECUTION_DELAY_ARG = "del";
     private static final String TOLERATED_EXECUTION_DELAY_ARG_LONG = "toleratedexecutiondelay";
     private static final String TOLERATED_EXECUTION_DELAY_DEFAULT = Duration.fromSeconds(1).asMilli().toString();
     private static final String TOLERATED_EXECUTION_DELAY_DESCRIPTION = "duration (ms) an operation handler may miss its scheduled start time by";

@@ -272,4 +272,46 @@ public class LdbcWorkloadTests {
         assertThat(new File(csvOutputFilePath).exists(), is(false));
         assertThat(new File(resultFilePath).exists(), is(false));
     }
+
+    @Test
+    public void shouldLoadFromConfigFile() throws ParamsException, ClientException {
+        String ldbcSocnetInteractiveTestPropertiesPath =
+                new File("ldbc_driver/workloads/ldbc/socnet/interactive/ldbc_socnet_interactive.properties").getAbsolutePath();
+        String ldbcDriverTestPropertiesPath =
+                new File("ldbc_driver/src/main/resources/ldbc_driver_default.properties").getAbsolutePath();
+
+        String csvOutputFilePath = "temp_csv_output_file.csv";
+        FileUtils.deleteQuietly(new File(csvOutputFilePath));
+        String resultFilePath = "test_write_to_csv_results.json";
+
+        assertThat(new File(csvOutputFilePath).exists(), is(false));
+        assertThat(new File(resultFilePath).exists(), is(false));
+
+        assertThat(new File(ldbcSocnetInteractiveTestPropertiesPath).exists(), is(true));
+        assertThat(new File(ldbcDriverTestPropertiesPath).exists(), is(true));
+
+        WorkloadParams params = WorkloadParams.fromArgs(new String[]{
+                "-" + WorkloadParams.RESULT_FILE_PATH_ARG, resultFilePath,
+                "-" + WorkloadParams.DB_ARG, CsvDb.class.getName(),
+                "-p", CsvDb.CSV_PATH_KEY, csvOutputFilePath,
+                "-P", ldbcSocnetInteractiveTestPropertiesPath,
+                "-P", ldbcDriverTestPropertiesPath});
+
+
+        assertThat(new File(csvOutputFilePath).exists(), is(false));
+        assertThat(new File(resultFilePath).exists(), is(false));
+
+
+        // When
+        Client client = new Client(new LocalControlService(Time.now().plus(Duration.fromMilli(500)), params));
+        client.start();
+
+        // Then
+        assertThat(new File(csvOutputFilePath).exists(), is(true));
+        assertThat(new File(resultFilePath).exists(), is(true));
+        FileUtils.deleteQuietly(new File(csvOutputFilePath));
+        FileUtils.deleteQuietly(new File(resultFilePath));
+        assertThat(new File(csvOutputFilePath).exists(), is(false));
+        assertThat(new File(resultFilePath).exists(), is(false));
+    }
 }
