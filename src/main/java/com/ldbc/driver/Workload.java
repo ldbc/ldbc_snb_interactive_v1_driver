@@ -1,5 +1,7 @@
 package com.ldbc.driver;
 
+import com.ldbc.driver.control.DriverConfiguration;
+import com.ldbc.driver.control.WorkloadParams;
 import com.ldbc.driver.generator.GeneratorFactory;
 
 import java.util.Iterator;
@@ -16,7 +18,7 @@ public abstract class Workload {
     /**
      * Called once to initialize state for workload
      */
-    public final void init(WorkloadParams params) throws WorkloadException {
+    public final void init(DriverConfiguration params) throws WorkloadException {
         if (isInitialized) {
             throw new WorkloadException("Workload may be initialized only once");
         }

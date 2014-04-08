@@ -1,7 +1,11 @@
-package com.ldbc.driver;
+package com.ldbc.driver.control;
 
+import com.ldbc.driver.Client;
+import com.ldbc.driver.temporal.Duration;
 import com.ldbc.driver.util.MapUtils;
 import org.apache.commons.cli.*;
+import org.codehaus.jackson.JsonNode;
+import org.codehaus.jackson.map.ObjectMapper;
 
 import java.io.ByteArrayOutputStream;
 import java.io.FileInputStream;
@@ -11,7 +15,9 @@ import java.util.*;
 import java.util.Map.Entry;
 import java.util.concurrent.TimeUnit;
 
-public class WorkloadParams {
+public class WorkloadParams implements DriverConfiguration {
+
+    // --- REQUIRED ---
     private static final String OPERATION_COUNT_ARG = "oc";
     private static final String OPERATION_COUNT_ARG_LONG = "operationcount";
     private static final String OPERATION_COUNT_DEFAULT = Integer.toString(0);
@@ -19,7 +25,6 @@ public class WorkloadParams {
             "number of operations to execute (default: %s)", OPERATION_COUNT_DEFAULT);
     public static final long UNBOUNDED_OPERATION_COUNT = -1;
 
-    // --- REQUIRED ---
     private static final String WORKLOAD_ARG = "w";
     private static final String WORKLOAD_ARG_LONG = "workload";
     private static final String WORKLOAD_EXAMPLE = com.ldbc.driver.workloads.simple.SimpleWorkload.class.getName();
@@ -51,6 +56,7 @@ public class WorkloadParams {
         return Math.max(1, availableProcessors);
     }
 
+    //TODO Duration.fromSeconds(2), make status an integer argument and 0==no status
     private static final String SHOW_STATUS_ARG = "s";
     private static final String SHOW_STATUS_ARG_LONG = "status";
     private static final String SHOW_STATUS_DEFAULT = Boolean.toString(false);
@@ -71,6 +77,26 @@ public class WorkloadParams {
     private static final String TIME_UNIT_DESCRIPTION = String.format(
             "time unit to use when gathering metrics. default:%s, valid:%s", TIME_UNIT_DEFAULT,
             Arrays.toString(VALID_TIME_UNITS));
+
+    private static final String TIME_COMPRESSION_RATIO_ARG = "tcr";
+    private static final String TIME_COMPRESSION_RATIO_ARG_LONG = "timecompressionratio";
+    private static final String TIME_COMPRESSION_RATIO_DEFAULT = "1"; // 1 == do not compress
+    private static final String TIME_COMPRESSION_RATIO_DESCRIPTION = "change duration between operations of workload";
+
+    private static final String GCT_DELTA_DURATION_ARG = "gctd";
+    private static final String GCT_DELTA_DURATION_ARG_LONG = "gctdeltaduration";
+    private static final String GCT_DELTA_DURATION_DEFAULT = Duration.fromSeconds(3600).asMilli().toString();
+    private static final String GCT_DELTA_DURATION_DESCRIPTION = "safe duration (ms) between dependent operations";
+
+    private static final String PEER_IDS_ARG = "pids";
+    private static final String PEER_IDS_ARG_LONG = "peeridentifiers";
+    private static final String PEER_IDS_DEFAULT = "[]";
+    private static final String PEER_IDS_DESCRIPTION = "identifiers/addresses of other driver workers (for distributed mode)";
+
+    private static final String TOLERATED_EXECUTION_DELAY_ARG = "del";
+    private static final String TOLERATED_EXECUTION_DELAY_ARG_LONG = "toleratedexecutiondelay";
+    private static final String TOLERATED_EXECUTION_DELAY_DEFAULT = Duration.fromSeconds(1).asMilli().toString();
+    private static final String TOLERATED_EXECUTION_DELAY_DESCRIPTION = "duration (ms) an operation handler may miss its scheduled start time by";
 
     private static final Options OPTIONS = buildOptions();
 
@@ -94,8 +120,12 @@ public class WorkloadParams {
         boolean showStatus = Boolean.parseBoolean(paramsMap.get(SHOW_STATUS_ARG));
         TimeUnit timeUnit = TimeUnit.valueOf(paramsMap.get(TIME_UNIT_ARG));
         String resultFilePath = paramsMap.get(RESULT_FILE_PATH_ARG);
+        Double timeCompressionRatio = Double.parseDouble(paramsMap.get(TIME_COMPRESSION_RATIO_ARG));
+        Duration gctDeltaDuration = Duration.fromMilli(Long.parseLong(paramsMap.get(GCT_DELTA_DURATION_ARG)));
+        List<String> peerIds = parsePeerIds(paramsMap.get(PEER_IDS_ARG));
+        Duration toleratedExecutionDelay = Duration.fromMilli(Long.parseLong(paramsMap.get(TOLERATED_EXECUTION_DELAY_ARG)));
         return new WorkloadParams(paramsMap, dbClassName, workloadClassName, operationCount,
-                threadCount, showStatus, timeUnit, resultFilePath);
+                threadCount, showStatus, timeUnit, resultFilePath, timeCompressionRatio, gctDeltaDuration, peerIds, toleratedExecutionDelay);
     }
 
     private static void assertRequiredArgsProvided(Map<String, String> paramsMap) throws ParamsException {
@@ -125,10 +155,14 @@ public class WorkloadParams {
         defaultParamValues.put(THREADS_ARG, THREADS_DEFAULT);
         defaultParamValues.put(SHOW_STATUS_ARG, SHOW_STATUS_DEFAULT);
         defaultParamValues.put(TIME_UNIT_ARG, TIME_UNIT_DEFAULT);
+        defaultParamValues.put(TIME_COMPRESSION_RATIO_ARG, TIME_COMPRESSION_RATIO_DEFAULT);
+        defaultParamValues.put(GCT_DELTA_DURATION_ARG, GCT_DELTA_DURATION_DEFAULT);
+        defaultParamValues.put(PEER_IDS_ARG, PEER_IDS_DEFAULT);
+        defaultParamValues.put(TOLERATED_EXECUTION_DELAY_ARG, TOLERATED_EXECUTION_DELAY_DEFAULT);
         return defaultParamValues;
     }
 
-    private static Map<String, String> parseArgs(String[] args, Options options) throws ParseException {
+    private static Map<String, String> parseArgs(String[] args, Options options) throws ParseException, ParamsException {
         Map<String, String> cmdParams = new HashMap<String, String>();
         Map<String, String> fileParams = new HashMap<String, String>();
 
@@ -163,6 +197,23 @@ public class WorkloadParams {
         if (cmd.hasOption(TIME_UNIT_ARG))
             cmdParams.put(TIME_UNIT_ARG, cmd.getOptionValue(TIME_UNIT_ARG));
 
+        if (cmd.hasOption(TIME_COMPRESSION_RATIO_ARG))
+            cmdParams.put(TIME_COMPRESSION_RATIO_ARG, cmd.getOptionValue(TIME_COMPRESSION_RATIO_ARG));
+
+        if (cmd.hasOption(GCT_DELTA_DURATION_ARG))
+            cmdParams.put(GCT_DELTA_DURATION_ARG, cmd.getOptionValue(GCT_DELTA_DURATION_ARG));
+
+        if (cmd.hasOption(TOLERATED_EXECUTION_DELAY_ARG))
+            cmdParams.put(TOLERATED_EXECUTION_DELAY_ARG, cmd.getOptionValue(TOLERATED_EXECUTION_DELAY_ARG));
+
+        if (cmd.hasOption(PEER_IDS_ARG)) {
+            List<String> peerIds = new ArrayList<String>();
+            for (String peerId : cmd.getOptionValues(PEER_IDS_ARG)) {
+                peerIds.add(peerId);
+            }
+            cmdParams.put(PEER_IDS_ARG, serializePeerIds(peerIds));
+        }
+
         if (cmd.hasOption(PROPERTY_FILE_ARG)) {
             for (String propertyFilePath : cmd.getOptionValues(PROPERTY_FILE_ARG)) {
                 // code assumes ordering -> first files more important than last, first values get priority
@@ -173,8 +224,7 @@ public class WorkloadParams {
                     boolean overwrite = true;
                     fileParams = MapUtils.mergeMaps(convertLongKeysToShortKeys(tempFileParams), fileParams, overwrite);
                 } catch (IOException e) {
-                    throw new ParseException(String.format("Error loading properties file %s\n%s", propertyFilePath,
-                            e.getMessage()));
+                    throw new ParseException(String.format("Error loading properties file %s\n%s", propertyFilePath, e.getMessage()));
                 }
             }
         }
@@ -185,7 +235,8 @@ public class WorkloadParams {
             }
         }
 
-        return MapUtils.mergeMaps(convertLongKeysToShortKeys(fileParams), convertLongKeysToShortKeys(cmdParams), true);
+        boolean overwrite = true;
+        return MapUtils.mergeMaps(convertLongKeysToShortKeys(fileParams), convertLongKeysToShortKeys(cmdParams), overwrite);
     }
 
     private static Map<String, String> convertLongKeysToShortKeys(Map<String, String> paramsMap) {
@@ -196,10 +247,14 @@ public class WorkloadParams {
         paramsMap = replaceKey(paramsMap, SHOW_STATUS_ARG_LONG, SHOW_STATUS_ARG);
         paramsMap = replaceKey(paramsMap, TIME_UNIT_ARG_LONG, TIME_UNIT_ARG);
         paramsMap = replaceKey(paramsMap, RESULT_FILE_PATH_ARG_LONG, RESULT_FILE_PATH_ARG);
+        paramsMap = replaceKey(paramsMap, TIME_COMPRESSION_RATIO_ARG, TIME_COMPRESSION_RATIO_ARG_LONG);
+        paramsMap = replaceKey(paramsMap, GCT_DELTA_DURATION_ARG, GCT_DELTA_DURATION_ARG_LONG);
+        paramsMap = replaceKey(paramsMap, PEER_IDS_ARG, PEER_IDS_ARG_LONG);
+        paramsMap = replaceKey(paramsMap, TOLERATED_EXECUTION_DELAY_ARG, TOLERATED_EXECUTION_DELAY_ARG_LONG);
         return paramsMap;
     }
 
-    // NOTE: not safe in general case, no check for duplicate keys
+    // NOTE: not safe in general case, no check for duplicate keys, i.e., if newKey already exists its value will be overwritten
     private static Map<String, String> replaceKey(Map<String, String> paramsMap, String oldKey, String newKey) {
         if (false == paramsMap.containsKey(oldKey)) return paramsMap;
         String value = paramsMap.get(oldKey);
@@ -245,6 +300,22 @@ public class WorkloadParams {
                 TIME_UNIT_ARG_LONG).create(TIME_UNIT_ARG);
         options.addOption(timeUnitOption);
 
+        Option timeCompressionRatioOption = OptionBuilder.hasArgs(1).withArgName("ratio").withDescription(TIME_COMPRESSION_RATIO_DESCRIPTION).withLongOpt(
+                TIME_COMPRESSION_RATIO_ARG_LONG).create(TIME_COMPRESSION_RATIO_ARG);
+        options.addOption(timeCompressionRatioOption);
+
+        Option gctDeltaDurationOption = OptionBuilder.hasArgs(1).withArgName("duration").withDescription(GCT_DELTA_DURATION_DESCRIPTION).withLongOpt(
+                GCT_DELTA_DURATION_ARG_LONG).create(GCT_DELTA_DURATION_ARG);
+        options.addOption(gctDeltaDurationOption);
+
+        Option peerIdsOption = OptionBuilder.hasArgs().withValueSeparator(':').withArgName("peerId1:peerId2").withDescription(
+                PEER_IDS_DESCRIPTION).withLongOpt(PEER_IDS_ARG_LONG).create(PEER_IDS_ARG);
+        options.addOption(peerIdsOption);
+
+        Option toleratedExecutionDelayOption = OptionBuilder.hasArgs(1).withArgName("duration").withDescription(TOLERATED_EXECUTION_DELAY_DESCRIPTION).withLongOpt(
+                TOLERATED_EXECUTION_DELAY_ARG_LONG).create(TOLERATED_EXECUTION_DELAY_ARG);
+        options.addOption(toleratedExecutionDelayOption);
+
         Option propertyFileOption = OptionBuilder.hasArgs().withValueSeparator(':').withArgName("file1:file2").withDescription(
                 PROPERTY_FILE_DESCRIPTION).create(PROPERTY_FILE_ARG);
         options.addOption(propertyFileOption);
@@ -254,6 +325,32 @@ public class WorkloadParams {
         options.addOption(propertyOption);
 
         return options;
+    }
+
+    static List<String> parsePeerIds(String peerIdsString) throws ParamsException {
+        JsonNode jsonArrayNode;
+        try {
+            jsonArrayNode = new ObjectMapper().readTree(peerIdsString);
+        } catch (IOException e) {
+            throw new ParamsException(String.format("Peer IDs have been serialized in an invalid format: %s", peerIdsString), e.getCause());
+        }
+        if (jsonArrayNode.isArray()) {
+            List<String> peerIds = new ArrayList<String>();
+            for (JsonNode elementNode : jsonArrayNode) {
+                peerIds.add(elementNode.asText());
+            }
+            return peerIds;
+        } else {
+            throw new ParamsException(String.format("Peer IDs are not a string array, they have been serialized in an invalid format: %s", peerIdsString));
+        }
+    }
+
+    static String serializePeerIds(List<String> peerIds) throws ParamsException {
+        try {
+            return new ObjectMapper().writeValueAsString(peerIds);
+        } catch (IOException e) {
+            throw new ParamsException(String.format("Unable to serialize peer IDs: %s", peerIds.toString()), e.getCause());
+        }
     }
 
     public static String helpString() {
@@ -283,10 +380,23 @@ public class WorkloadParams {
     private final boolean showStatus;
     private final TimeUnit timeUnit;
     private final String resultFilePath;
+    private final Double timeCompressionRatio;
+    private final Duration gctDeltaDuration;
+    private final List<String> peerIds;
+    private final Duration toleratedExecutionDelay;
 
-    public WorkloadParams(Map<String, String> paramsMap, String dbClassName, String workloadClassName,
-                          long operationCount, int threadCount, boolean showStatus,
-                          TimeUnit timeUnit, String resultFilePath) {
+    public WorkloadParams(Map<String, String> paramsMap,
+                          String dbClassName,
+                          String workloadClassName,
+                          long operationCount,
+                          int threadCount,
+                          boolean showStatus,
+                          TimeUnit timeUnit,
+                          String resultFilePath,
+                          Double timeCompressionRatio,
+                          Duration gctDeltaDuration,
+                          List<String> peerIds,
+                          Duration toleratedExecutionDelay) {
         this.paramsMap = paramsMap;
         this.dbClassName = dbClassName;
         this.workloadClassName = workloadClassName;
@@ -295,36 +405,68 @@ public class WorkloadParams {
         this.showStatus = showStatus;
         this.timeUnit = timeUnit;
         this.resultFilePath = resultFilePath;
+        this.timeCompressionRatio = timeCompressionRatio;
+        this.gctDeltaDuration = gctDeltaDuration;
+        this.peerIds = peerIds;
+        this.toleratedExecutionDelay = toleratedExecutionDelay;
     }
 
+    @Override
     public String dbClassName() {
         return dbClassName;
     }
 
+    @Override
     public String workloadClassName() {
         return workloadClassName;
     }
 
+    @Override
     public long operationCount() {
         return operationCount;
     }
 
+    @Override
     public int threadCount() {
         return threadCount;
     }
 
+    @Override
     public boolean isShowStatus() {
         return showStatus;
     }
 
+    @Override
     public TimeUnit timeUnit() {
         return timeUnit;
     }
 
+    @Override
     public String resultFilePath() {
         return resultFilePath;
     }
 
+    @Override
+    public Double timeCompressionRatio() {
+        return timeCompressionRatio;
+    }
+
+    @Override
+    public Duration gctDeltaDuration() {
+        return gctDeltaDuration;
+    }
+
+    @Override
+    public List<String> peerIds() {
+        return peerIds;
+    }
+
+    @Override
+    public Duration toleratedExecutionDelay() {
+        return toleratedExecutionDelay;
+    }
+
+    @Override
     public Map<String, String> asMap() {
         return paramsMap;
     }
@@ -340,6 +482,10 @@ public class WorkloadParams {
         sb.append("\t").append("Show Status:\t\t").append(showStatus).append("\n");
         sb.append("\t").append("Time Unit:\t\t").append(timeUnit).append("\n");
         sb.append("\t").append("Result File:\t\t").append(resultFilePath).append("\n");
+        sb.append("\t").append("Time Compression Ratio:\t").append(timeCompressionRatio).append("\n");
+        sb.append("\t").append("GCT Delta (ms):\t\t").append(gctDeltaDuration.asMilli()).append("\n");
+        sb.append("\t").append("Peer IDs:\t\t").append(peerIds.toString()).append("\n");
+        sb.append("\t").append("Tolerated Execution Delay (ms):\t").append(toleratedExecutionDelay.asMilli()).append("\n");
 
         Set<String> excludedKeys = new HashSet<String>();
         excludedKeys.addAll(Arrays.asList(DB_ARG, WORKLOAD_ARG, OPERATION_COUNT_ARG,

@@ -17,6 +17,7 @@ import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
 
 public class ExecutorTests {
+
     @Test
     public void shouldRunOperationHandlerAndReturnExpectedResultWithoutError() throws InterruptedException, ExecutionException, CompletionTimeException, OperationException {
         ConcurrentCompletionTimeService concurrentCompletionTimeService = new DummyConcurrentCompletionTimeService();

@@ -4,7 +4,7 @@ import com.google.common.collect.Lists;
 import com.ldbc.driver.Operation;
 import com.ldbc.driver.Workload;
 import com.ldbc.driver.WorkloadException;
-import com.ldbc.driver.WorkloadParams;
+import com.ldbc.driver.control.WorkloadParams;
 import com.ldbc.driver.generator.GeneratorFactory;
 import com.ldbc.driver.runtime.ConcurrentErrorReporter;
 import com.ldbc.driver.temporal.Duration;
@@ -191,8 +191,9 @@ public class ConcurrentCompletionTimeServiceTest {
         int operationCountCheckPoint1 = 100;
         int operationCountCheckPoint2 = 900;
         assertThat(operationCount > operationCountCheckPoint1 + operationCountCheckPoint2, is(true));
+
         WorkloadParams params =
-                new WorkloadParams(null, null, null, operationCount, threadCount, false, null, null);
+                new WorkloadParams(null, null, null, operationCount, threadCount, false, null, null, null, null, null, null);
         Workload workload = new SimpleWorkload();
         workload.init(params);
         GeneratorFactory generators = new GeneratorFactory(new RandomDataGeneratorFactory(42L));

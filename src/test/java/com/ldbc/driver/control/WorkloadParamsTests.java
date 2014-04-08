@@ -1,14 +1,16 @@
-package com.ldbc.driver.workload;
+package com.ldbc.driver.control;
 
-import com.ldbc.driver.ParamsException;
-import com.ldbc.driver.WorkloadParams;
+import com.google.common.collect.Lists;
+import com.ldbc.driver.temporal.Duration;
 import com.ldbc.driver.util.TestUtils;
 import org.junit.Test;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
+import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
 
@@ -24,18 +26,37 @@ public class WorkloadParamsTests {
         boolean showStatus = true;
         TimeUnit timeUnit = TimeUnit.SECONDS;
         String resultFilePath = null;
+        Double timeCompressionRatio = 1.0;
+        Duration gctDeltaDuration = Duration.fromMilli(1);
+        List<String> peerIds = Lists.newArrayList("1");
+        Duration toleratedExecutionDelay = Duration.fromMilli(2);
 
-        WorkloadParams params = new WorkloadParams(paramsMap, dbClassName, workloadClassName, operationCount,
-                threadCount, showStatus, timeUnit, resultFilePath);
+        WorkloadParams params = new WorkloadParams(
+                paramsMap,
+                dbClassName,
+                workloadClassName,
+                operationCount,
+                threadCount,
+                showStatus,
+                timeUnit,
+                resultFilePath,
+                timeCompressionRatio,
+                gctDeltaDuration,
+                peerIds,
+                toleratedExecutionDelay);
 
-        assertThat(params.asMap(), is(paramsMap));
-        assertThat(params.dbClassName(), is(dbClassName));
-        assertThat(params.workloadClassName(), is(workloadClassName));
-        assertThat(params.operationCount(), is(operationCount));
-        assertThat(params.threadCount(), is(threadCount));
-        assertThat(params.isShowStatus(), is(showStatus));
-        assertThat(params.timeUnit(), is(timeUnit));
-        assertThat(params.resultFilePath(), is(resultFilePath));
+        assertThat(params.asMap(), equalTo(paramsMap));
+        assertThat(params.dbClassName(), equalTo(dbClassName));
+        assertThat(params.workloadClassName(), equalTo(workloadClassName));
+        assertThat(params.operationCount(), equalTo(operationCount));
+        assertThat(params.threadCount(), equalTo(threadCount));
+        assertThat(params.isShowStatus(), equalTo(showStatus));
+        assertThat(params.timeUnit(), equalTo(timeUnit));
+        assertThat(params.resultFilePath(), equalTo(resultFilePath));
+        assertThat(params.timeCompressionRatio(), equalTo(timeCompressionRatio));
+        assertThat(params.gctDeltaDuration(), equalTo(gctDeltaDuration));
+        assertThat(params.peerIds(), equalTo(peerIds));
+        assertThat(params.toleratedExecutionDelay(), equalTo(toleratedExecutionDelay));
     }
 
     @Test
@@ -101,5 +122,23 @@ public class WorkloadParamsTests {
         assertThat(params.timeUnit(), is(TimeUnit.MILLISECONDS));
         assertThat(params.resultFilePath(), is("test_ldbc_socnet_interactive_results.json"));
         assertThat(params.asMap().get("parameters"), is("ldbc_driver/workloads/ldbc/socnet/interactive/parameters.json"));
+    }
+
+    @Test
+    public void shouldSerializeAndParsePeerIds() throws ParamsException {
+        // Given
+        List<String> peerIds0 = Lists.newArrayList();
+        List<String> peerIds1 = Lists.newArrayList("1", "2");
+        List<String> peerIds2 = Lists.newArrayList("1", "2", "cows");
+
+        // When
+        String peerIdsString0 = WorkloadParams.serializePeerIds(peerIds0);
+        String peerIdsString1 = WorkloadParams.serializePeerIds(peerIds1);
+        String peerIdsString2 = WorkloadParams.serializePeerIds(peerIds2);
+
+        // Then
+        assertThat(WorkloadParams.parsePeerIds(peerIdsString0), equalTo(peerIds0));
+        assertThat(WorkloadParams.parsePeerIds(peerIdsString1), equalTo(peerIds1));
+        assertThat(WorkloadParams.parsePeerIds(peerIdsString2), equalTo(peerIds2));
     }
 }

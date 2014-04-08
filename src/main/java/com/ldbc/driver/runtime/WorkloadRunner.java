@@ -4,6 +4,7 @@ import com.google.common.base.Function;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import com.ldbc.driver.*;
+import com.ldbc.driver.control.ConcurrentControlService;
 import com.ldbc.driver.runtime.coordination.ConcurrentCompletionTimeService;
 import com.ldbc.driver.runtime.coordination.ReadOnlyConcurrentCompletionTimeService;
 import com.ldbc.driver.runtime.coordination.ThreadedQueuedConcurrentCompletionTimeService;
@@ -18,7 +19,6 @@ import com.ldbc.driver.runtime.streams.IteratorSplittingException;
 import com.ldbc.driver.runtime.streams.SplitDefinition;
 import com.ldbc.driver.runtime.streams.SplitResult;
 import com.ldbc.driver.temporal.Duration;
-import com.ldbc.driver.temporal.Time;
 
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -27,14 +27,16 @@ import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 public class WorkloadRunner {
-    public static final Duration DEFAULT_TOLERATED_OPERATION_START_TIME_DELAY = Duration.fromSeconds(1);
     private final Duration DEFAULT_STATUS_UPDATE_INTERVAL = Duration.fromSeconds(2);
     private final Duration SPINNER_OFFSET_DURATION = Duration.fromMilli(100);
 
     private final Spinner exactSpinner;
     private final Spinner earlySpinner;
+
+    // TODO make service and inject into workload runner
     private final WorkloadStatusThread workloadStatusThread;
-    private final boolean showStatus;
+
+    private final ConcurrentControlService controlService;
     private final ConcurrentCompletionTimeService completionTimeService;
     private final ConcurrentErrorReporter errorReporter;
 
@@ -44,58 +46,49 @@ public class WorkloadRunner {
     private final PreciseIndividualBlockingOperationStreamExecutorService preciseIndividualBlockingOperationStreamExecutorService;
     private final UniformWindowedOperationStreamExecutorService uniformWindowedOperationStreamExecutorService;
 
-    public WorkloadRunner(Db db,
+    public WorkloadRunner(ConcurrentControlService controlService,
+                          Db db,
                           Iterator<Operation<?>> operations,
                           Map<Class<? extends Operation<?>>, OperationClassification> operationClassifications,
-                          boolean showStatus,
-                          int threadCount,
                           ConcurrentMetricsService metricsService,
-                          ConcurrentErrorReporter errorReporter,
-                          Duration gctDelta,
-                          Time workloadStartTime) throws WorkloadException {
-        this.showStatus = showStatus;
+                          ConcurrentErrorReporter errorReporter) throws WorkloadException {
+        this.controlService = controlService;
         this.errorReporter = errorReporter;
 
-        ExecutionDelayPolicy executionDelayPolicy = new ErrorReportingExecutionDelayPolicy(DEFAULT_TOLERATED_OPERATION_START_TIME_DELAY, errorReporter);
+        ExecutionDelayPolicy executionDelayPolicy = new ErrorReportingExecutionDelayPolicy(controlService.configuration().toleratedExecutionDelay(), errorReporter);
 
         this.exactSpinner = new Spinner(executionDelayPolicy);
         this.earlySpinner = new Spinner(executionDelayPolicy, SPINNER_OFFSET_DURATION);
         this.workloadStatusThread = new WorkloadStatusThread(DEFAULT_STATUS_UPDATE_INTERVAL, metricsService, errorReporter);
 
         // Create GCT maintenance thread
-        // TODO get peerIds from somewhere
-        List<String> peerIds = new ArrayList<String>();
         try {
-            completionTimeService = new ThreadedQueuedConcurrentCompletionTimeService(peerIds, errorReporter);
+            completionTimeService = new ThreadedQueuedConcurrentCompletionTimeService(controlService.configuration().peerIds(), errorReporter);
         } catch (Exception e) {
             throw new WorkloadException(
                     String.format("Error while instantiating Completion Time Service with peer IDs %s",
-                            peerIds.toString()),
+                            controlService.configuration().peerIds().toString()),
                     e.getCause());
         }
 
         // Set GCT to just before scheduled start time of earliest operation in process's stream
         try {
-            completionTimeService.submitInitiatedTime(workloadStartTime);
-            completionTimeService.submitCompletedTime(workloadStartTime);
-            for (String peerId : peerIds) {
-                completionTimeService.submitExternalCompletionTime(peerId, workloadStartTime);
+            completionTimeService.submitInitiatedTime(controlService.workloadStartTime());
+            completionTimeService.submitCompletedTime(controlService.workloadStartTime());
+            for (String peerId : controlService.configuration().peerIds()) {
+                completionTimeService.submitExternalCompletionTime(peerId, controlService.workloadStartTime());
             }
             // Wait for workloadStartTime to be applied
-            if (false == completionTimeService.globalCompletionTimeFuture().get().equals(workloadStartTime)) {
+            if (false == completionTimeService.globalCompletionTimeFuture().get().equals(controlService.workloadStartTime())) {
                 throw new WorkloadException("Completion Time future failed to return expected value");
             }
         } catch (Exception e) {
-            throw new WorkloadException(
-                    String.format(
-                            "Error while instantiating Completion Time Service with peer IDs %s",
-                            peerIds.toString()),
-                    e.getCause());
+            throw new WorkloadException("Error while read/writing Completion Time Service", e.getCause());
         }
 
-        Iterable<Operation<?>> windowedOperations = null;
-        Iterable<Operation<?>> blockingOperations = null;
-        Iterable<Operation<?>> asynchronousOperations = null;
+        Iterable<Operation<?>> windowedOperations;
+        Iterable<Operation<?>> blockingOperations;
+        Iterable<Operation<?>> asynchronousOperations;
         try {
             IteratorSplitter<Operation<?>> splitter = new IteratorSplitter<Operation<?>>(IteratorSplitter.UnmappedItemPolicy.ABORT);
             SplitDefinition<Operation<?>> windowed = new SplitDefinition<Operation<?>>(operationTypesBySchedulingMode(operationClassifications, OperationClassification.SchedulingMode.WINDOWED));
@@ -112,25 +105,52 @@ public class WorkloadRunner {
         }
 
         Iterable<OperationHandler<?>> windowedHandlers =
-                operationsToHandlers(windowedOperations, db, exactSpinner, completionTimeService, errorReporter, metricsService, gctDelta, operationClassifications);
+                operationsToHandlers(
+                        windowedOperations,
+                        db,
+                        exactSpinner,
+                        completionTimeService,
+                        errorReporter,
+                        metricsService,
+                        controlService.configuration().gctDeltaDuration(),
+                        operationClassifications);
         Iterable<OperationHandler<?>> blockingHandlers =
-                operationsToHandlers(blockingOperations, db, exactSpinner, completionTimeService, errorReporter, metricsService, gctDelta, operationClassifications);
+                operationsToHandlers(
+                        blockingOperations,
+                        db,
+                        exactSpinner,
+                        completionTimeService,
+                        errorReporter,
+                        metricsService,
+                        controlService.configuration().gctDeltaDuration(),
+                        operationClassifications);
         Iterable<OperationHandler<?>> asynchronousHandlers =
-                operationsToHandlers(asynchronousOperations, db, exactSpinner, completionTimeService, errorReporter, metricsService, gctDelta, operationClassifications);
+                operationsToHandlers(
+                        asynchronousOperations,
+                        db,
+                        exactSpinner,
+                        completionTimeService,
+                        errorReporter,
+                        metricsService,
+                        controlService.configuration().gctDeltaDuration(),
+                        operationClassifications);
 
-        this.operationHandlerExecutor = new ThreadPoolOperationHandlerExecutor(threadCount);
-        this.preciseIndividualAsyncOperationStreamExecutorService =
-                new PreciseIndividualAsyncOperationStreamExecutorService(errorReporter, completionTimeService, asynchronousHandlers.iterator(), earlySpinner, operationHandlerExecutor);
-        this.preciseIndividualBlockingOperationStreamExecutorService =
-                new PreciseIndividualBlockingOperationStreamExecutorService(errorReporter, completionTimeService, blockingHandlers.iterator(), earlySpinner, operationHandlerExecutor);
+        this.operationHandlerExecutor = new ThreadPoolOperationHandlerExecutor(controlService.configuration().threadCount());
+        this.preciseIndividualAsyncOperationStreamExecutorService = new PreciseIndividualAsyncOperationStreamExecutorService(
+                errorReporter, completionTimeService, asynchronousHandlers.iterator(), earlySpinner, operationHandlerExecutor);
+        this.preciseIndividualBlockingOperationStreamExecutorService = new PreciseIndividualBlockingOperationStreamExecutorService(
+                errorReporter, completionTimeService, blockingHandlers.iterator(), earlySpinner, operationHandlerExecutor);
         // TODO better way of setting window size. it does not need to equal DeltaT, it can be smaller. where to set? how to set?
-        Duration windowSize = gctDelta;
-        this.uniformWindowedOperationStreamExecutorService =
-                new UniformWindowedOperationStreamExecutorService(errorReporter, completionTimeService, windowedHandlers.iterator(), operationHandlerExecutor, earlySpinner, workloadStartTime, windowSize);
+        Duration windowSize = controlService.configuration().gctDeltaDuration();
+        this.uniformWindowedOperationStreamExecutorService = new UniformWindowedOperationStreamExecutorService(
+                errorReporter, completionTimeService, windowedHandlers.iterator(), operationHandlerExecutor, earlySpinner, controlService.workloadStartTime(), windowSize);
     }
 
     public void executeWorkload() throws WorkloadException {
-        if (showStatus) workloadStatusThread.start();
+        // TODO revise if this necessary here, and if not where??
+        controlService.waitForCommandToExecuteWorkload();
+
+        if (controlService.configuration().isShowStatus()) workloadStatusThread.start();
         AtomicBoolean asyncHandlersFinished = preciseIndividualAsyncOperationStreamExecutorService.execute();
         AtomicBoolean blockingHandlersFinished = preciseIndividualBlockingOperationStreamExecutorService.execute();
         AtomicBoolean windowedHandlersFinished = uniformWindowedOperationStreamExecutorService.execute();
@@ -165,11 +185,10 @@ public class WorkloadRunner {
             throw new WorkloadException("Encountered error while shutting down operation handler executor", e);
         }
 
-        // TODO only shutdown when terminate events comes in, because don't know when other clients will finish
-        // TODO this could come from a Coordinator/Control service type thing
-        // TODO send event to coordinator information that this client has finished
+        // TODO make status reporting service. this could report to coordinator. it could also report to a local console printer.
+        if (controlService.configuration().isShowStatus()) workloadStatusThread.interrupt();
 
-        if (showStatus) workloadStatusThread.interrupt();
+        controlService.waitForAllToCompleteExecutingWorkload();
     }
 
     private Iterable<OperationHandler<?>> operationsToHandlers(Iterable<Operation<?>> operations,

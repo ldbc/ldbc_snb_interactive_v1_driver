@@ -1,4 +1,4 @@
-package com.ldbc.driver;
+package com.ldbc.driver.control;
 
 public class ParamsException extends Exception
 {

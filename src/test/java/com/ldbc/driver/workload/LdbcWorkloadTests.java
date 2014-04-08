@@ -3,8 +3,14 @@ package com.ldbc.driver.workload;
 import com.google.common.base.Function;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Iterators;
+import com.google.common.collect.Lists;
 import com.ldbc.driver.*;
+import com.ldbc.driver.control.LocalControlService;
+import com.ldbc.driver.control.ParamsException;
+import com.ldbc.driver.control.WorkloadParams;
 import com.ldbc.driver.generator.GeneratorFactory;
+import com.ldbc.driver.temporal.Duration;
+import com.ldbc.driver.temporal.Time;
 import com.ldbc.driver.util.Bucket;
 import com.ldbc.driver.util.Histogram;
 import com.ldbc.driver.util.RandomDataGeneratorFactory;
@@ -243,15 +249,19 @@ public class LdbcWorkloadTests {
         TimeUnit timeUnit = TimeUnit.MILLISECONDS;
         String resultFilePath = "test_write_to_csv_results.json";
         FileUtils.deleteQuietly(new File(resultFilePath));
+        Double timeCompressionRatio = null;
+        Duration gctDeltaDuration = Duration.fromSeconds(10);
+        List<String> peerIds = Lists.newArrayList();
+        Duration toleratedExecutionDelay = Duration.fromSeconds(1);
 
         assertThat(new File(csvOutputFilePath).exists(), is(false));
         assertThat(new File(resultFilePath).exists(), is(false));
 
         WorkloadParams params = new WorkloadParams(paramsMap, dbClassName, workloadClassName, operationCount,
-                threadCount, showStatus, timeUnit, resultFilePath);
+                threadCount, showStatus, timeUnit, resultFilePath, timeCompressionRatio, gctDeltaDuration, peerIds, toleratedExecutionDelay);
 
         // When
-        Client client = new Client(params);
+        Client client = new Client(new LocalControlService(Time.now().plus(Duration.fromMilli(500)), params));
         client.start();
 
         // Then
