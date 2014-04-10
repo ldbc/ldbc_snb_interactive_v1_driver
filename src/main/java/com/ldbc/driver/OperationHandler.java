@@ -77,6 +77,8 @@ public abstract class OperationHandler<OPERATION_TYPE extends Operation<?>> impl
             spinner.waitForScheduledStartTime(operation, new MultiCheck(checks));
             DurationMeasurement durationMeasurement = DurationMeasurement.startMeasurementNow();
             OperationResult operationResult = executeOperation(operation);
+            if (null == operationResult)
+                throw new DbException(String.format("Handler returned null result:\n %s", toString()));
             operationResult.setRunDuration(durationMeasurement.durationUntilNow());
             operationResult.setActualStartTime(durationMeasurement.startTime());
             operationResult.setOperationType(operation.type());
@@ -87,19 +89,25 @@ public abstract class OperationHandler<OPERATION_TYPE extends Operation<?>> impl
         } catch (DbException e) {
             String errMsg = String.format(
                     "Error encountered while executing query %s\n%s",
-                    operation.getClass().getSimpleName(),
+                    operation.toString(),
                     ConcurrentErrorReporter.stackTraceToString(e));
             errorReporter.reportError(this, errMsg);
         } catch (MetricsCollectionException e) {
             String errMsg = String.format(
                     "Error encountered while collecting metrics for query %s\n%s",
-                    operation.getClass().getSimpleName(),
+                    operation.toString(),
                     ConcurrentErrorReporter.stackTraceToString(e));
             errorReporter.reportError(this, errMsg);
         } catch (CompletionTimeException e) {
             String errMsg = String.format(
                     "Error encountered while submitting completed time for query %s\n%s",
-                    operation.getClass().getSimpleName(),
+                    operation.toString(),
+                    ConcurrentErrorReporter.stackTraceToString(e));
+            errorReporter.reportError(this, errMsg);
+        } catch (Throwable e) {
+            String errMsg = String.format(
+                    "Unexpected error while executing query %s\n%s",
+                    operation.toString(),
                     ConcurrentErrorReporter.stackTraceToString(e));
             errorReporter.reportError(this, errMsg);
         }

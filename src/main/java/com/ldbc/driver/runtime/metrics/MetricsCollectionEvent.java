@@ -5,26 +5,27 @@ import com.ldbc.driver.OperationResult;
 abstract class MetricsCollectionEvent {
 
     public enum MetricsEventType {
-        // Collects metrics for an operation result
-        RESULT,
-        // Export collected metrics
-        EXPORT,
+        // Submit operation result for its metrics to be collected
+        SUBMIT_RESULT,
+        // TODO make this a class that is returned, rather than a string
         // Request metrics summary
-        STATUS,
+        WORKLOAD_STATUS,
+        // Request complete workload results
+        WORKLOAD_RESULT,
         // Terminate when all results metrics have been collected
         TERMINATE
     }
 
-    public static ResultEvent result(OperationResult result) {
-        return new ResultEvent(result);
-    }
-
-    public static ExportEvent export(ThreadedQueuedConcurrentMetricsService.MetricsExportFuture future) {
-        return new ExportEvent(future);
+    public static SubmitResultEvent submitResult(OperationResult result) {
+        return new SubmitResultEvent(result);
     }
 
     public static StatusEvent status(ThreadedQueuedConcurrentMetricsService.MetricsStatusFuture future) {
         return new StatusEvent(future);
+    }
+
+    public static WorkloadResultEvent workloadResult(ThreadedQueuedConcurrentMetricsService.MetricsWorkloadResultFuture future) {
+        return new WorkloadResultEvent(future);
     }
 
     public static TerminationEvent terminate(long expectedEventCount) {
@@ -33,37 +34,20 @@ abstract class MetricsCollectionEvent {
 
     abstract MetricsEventType type();
 
-    static class ResultEvent extends MetricsCollectionEvent {
+    static class SubmitResultEvent extends MetricsCollectionEvent {
         private final OperationResult result;
 
-        private ResultEvent(OperationResult result) {
+        private SubmitResultEvent(OperationResult result) {
             this.result = result;
         }
 
         @Override
         MetricsEventType type() {
-            return MetricsEventType.RESULT;
+            return MetricsEventType.SUBMIT_RESULT;
         }
 
         OperationResult result() {
             return result;
-        }
-    }
-
-    static class ExportEvent extends MetricsCollectionEvent {
-        private final ThreadedQueuedConcurrentMetricsService.MetricsExportFuture future;
-
-        private ExportEvent(ThreadedQueuedConcurrentMetricsService.MetricsExportFuture future) {
-            this.future = future;
-        }
-
-        @Override
-        MetricsEventType type() {
-            return MetricsEventType.EXPORT;
-        }
-
-        ThreadedQueuedConcurrentMetricsService.MetricsExportFuture future() {
-            return future;
         }
     }
 
@@ -76,10 +60,27 @@ abstract class MetricsCollectionEvent {
 
         @Override
         MetricsEventType type() {
-            return MetricsEventType.STATUS;
+            return MetricsEventType.WORKLOAD_STATUS;
         }
 
         ThreadedQueuedConcurrentMetricsService.MetricsStatusFuture future() {
+            return future;
+        }
+    }
+
+    static class WorkloadResultEvent extends MetricsCollectionEvent {
+        private final ThreadedQueuedConcurrentMetricsService.MetricsWorkloadResultFuture future;
+
+        private WorkloadResultEvent(ThreadedQueuedConcurrentMetricsService.MetricsWorkloadResultFuture future) {
+            this.future = future;
+        }
+
+        @Override
+        MetricsEventType type() {
+            return MetricsEventType.WORKLOAD_RESULT;
+        }
+
+        ThreadedQueuedConcurrentMetricsService.MetricsWorkloadResultFuture future() {
             return future;
         }
     }

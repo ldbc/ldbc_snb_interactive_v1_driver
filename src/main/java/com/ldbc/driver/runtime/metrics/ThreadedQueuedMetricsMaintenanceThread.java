@@ -5,9 +5,8 @@ import com.ldbc.driver.runtime.ConcurrentErrorReporter;
 
 import java.util.Queue;
 
-// TODO test
 public class ThreadedQueuedMetricsMaintenanceThread extends Thread {
-    private final WorkloadMetricsManager metricsManager;
+    private final MetricsManager metricsManager;
     private final ConcurrentErrorReporter errorReporter;
     private final Queue<MetricsCollectionEvent> metricsEventsQueue;
     private Long processedEventCount = 0l;
@@ -15,7 +14,7 @@ public class ThreadedQueuedMetricsMaintenanceThread extends Thread {
 
     public ThreadedQueuedMetricsMaintenanceThread(ConcurrentErrorReporter errorReporter,
                                                   Queue<MetricsCollectionEvent> metricsEventsQueue,
-                                                  WorkloadMetricsManager metricsManager) {
+                                                  MetricsManager metricsManager) {
         this.errorReporter = errorReporter;
         this.metricsEventsQueue = metricsEventsQueue;
         this.metricsManager = metricsManager;
@@ -30,8 +29,8 @@ public class ThreadedQueuedMetricsMaintenanceThread extends Thread {
                     event = metricsEventsQueue.poll();
                 }
                 switch (event.type()) {
-                    case RESULT:
-                        OperationResult result = ((MetricsCollectionEvent.ResultEvent) event).result();
+                    case SUBMIT_RESULT:
+                        OperationResult result = ((MetricsCollectionEvent.SubmitResultEvent) event).result();
                         try {
                             collectResultMetrics(result);
                         } catch (MetricsCollectionException e) {
@@ -43,13 +42,13 @@ public class ThreadedQueuedMetricsMaintenanceThread extends Thread {
                         }
                         processedEventCount++;
                         break;
-                    case EXPORT:
-                        ThreadedQueuedConcurrentMetricsService.MetricsExportFuture exportFuture = ((MetricsCollectionEvent.ExportEvent) event).future();
-                        exportFuture.export(metricsManager);
-                        break;
-                    case STATUS:
+                    case WORKLOAD_STATUS:
                         ThreadedQueuedConcurrentMetricsService.MetricsStatusFuture statusFuture = ((MetricsCollectionEvent.StatusEvent) event).future();
-                        statusFuture.set(metricsManager.getStatusString());
+                        statusFuture.set(metricsManager.status());
+                        break;
+                    case WORKLOAD_RESULT:
+                        ThreadedQueuedConcurrentMetricsService.MetricsWorkloadResultFuture workloadResultFuture = ((MetricsCollectionEvent.WorkloadResultEvent) event).future();
+                        workloadResultFuture.set(metricsManager);
                         break;
                     case TERMINATE:
                         if (expectedEventCount == null) {
@@ -82,7 +81,7 @@ public class ThreadedQueuedMetricsMaintenanceThread extends Thread {
             metricsManager.measure(operationResult);
         } catch (Exception e) {
             String errMsg = String.format("Error encountered while logging result:\n\t%s", operationResult);
-            throw new MetricsCollectionException(errMsg, e.getCause());
+            throw new MetricsCollectionException(errMsg, e);
         }
     }
 }

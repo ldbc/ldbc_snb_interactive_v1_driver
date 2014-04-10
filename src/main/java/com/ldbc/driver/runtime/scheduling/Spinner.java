@@ -10,6 +10,8 @@ public class Spinner {
     // if offset==0 operation will be scheduled at exactly operation.scheduledStartTime()
     private final Duration offset;
     private final ExecutionDelayPolicy executionDelayPolicy;
+    private final long toleratedDelayAccountingForOffsetAsMilli;
+
 
     public Spinner(ExecutionDelayPolicy lateOperationPolicy) {
         this(lateOperationPolicy, Duration.fromMilli(0));
@@ -18,6 +20,9 @@ public class Spinner {
     public Spinner(ExecutionDelayPolicy lateOperationPolicy, Duration offset) {
         this.executionDelayPolicy = lateOperationPolicy;
         this.offset = offset;
+        // tolerated delay only applies to actual scheduled start time.
+        // offset will move the scheduled start time earlier, but execution "deadline" will still be: (original, before offset applied) scheduled start time + tolerated delay
+        this.toleratedDelayAccountingForOffsetAsMilli = executionDelayPolicy.toleratedDelay().plus(offset).asMilli();
     }
 
     public void waitForScheduledStartTime(Operation<?> operation) {
@@ -31,8 +36,7 @@ public class Spinner {
         }
 
         long scheduledStartTimeWithOffsetMs = operation.scheduledStartTime().minus(offset).asMilli();
-        long toleratedDelayMs = executionDelayPolicy.toleratedDelay().asMilli();
-        if (Time.nowAsMilli() - scheduledStartTimeWithOffsetMs > toleratedDelayMs) {
+        if (Time.nowAsMilli() - scheduledStartTimeWithOffsetMs > toleratedDelayAccountingForOffsetAsMilli) {
             executionDelayPolicy.handleExcessiveDelay(operation);
         }
 
@@ -44,9 +48,8 @@ public class Spinner {
                 checkHasNotPassed = false;
         }
 
-        // TODO keep spinning for tolerated delay?
-
         if (checkHasNotPassed) {
+            // TODO keep spinning for tolerated delay before reporting error?
             check.handleFailedCheck(operation);
         }
     }

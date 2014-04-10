@@ -1,4 +1,4 @@
-package com.ldbc.driver.workloads.ldbc.socnet.interactive.csv;
+package com.ldbc.driver.workloads.ldbc.socnet.interactive.db;
 
 import com.ldbc.driver.*;
 import com.ldbc.driver.workloads.ldbc.socnet.interactive.*;
@@ -7,6 +7,8 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 public class CsvDb extends Db {
@@ -73,7 +75,7 @@ public class CsvDb extends Db {
             bufferedWriter = new BufferedWriter(new FileWriter(file));
         }
 
-        public void writeLine(String... columns) throws IOException {
+        synchronized public void writeLine(String... columns) throws IOException {
             for (int i = 0; i < columns.length - 1; i++) {
                 bufferedWriter.write(columns[i]);
                 bufferedWriter.write(COLUMN_SEPARATOR);
@@ -89,13 +91,15 @@ public class CsvDb extends Db {
     }
 
     public static class LdbcQuery1ToCsv extends OperationHandler<LdbcQuery1> {
+        static final List<LdbcQuery1Result> RESULT = new ArrayList<LdbcQuery1Result>();
+
         @Override
         protected OperationResult executeOperation(LdbcQuery1 operation) throws DbException {
             try {
                 ((CsvDbConnectionState) dbConnectionState()).csvFileWriter().writeLine(
                         operation.type(),
                         operation.firstName());
-                return null;
+                return operation.buildResult(0, RESULT);
             } catch (IOException e) {
                 throw new DbException(String.format("Error encountered while writing to CSV file: %s", operation.toString()), e.getCause());
             }
@@ -103,6 +107,8 @@ public class CsvDb extends Db {
     }
 
     public static class LdbcQuery2ToCsv extends OperationHandler<LdbcQuery2> {
+        static final List<LdbcQuery2Result> RESULT = new ArrayList<LdbcQuery2Result>();
+
         @Override
         protected OperationResult executeOperation(LdbcQuery2 operation) throws DbException {
             try {
@@ -110,7 +116,7 @@ public class CsvDb extends Db {
                         operation.type(),
                         Long.toString(operation.personId()),
                         operation.maxDate().toString());
-                return null;
+                return operation.buildResult(0, RESULT);
             } catch (IOException e) {
                 throw new DbException(String.format("Error encountered while writing to CSV file: %s", operation.toString()), e.getCause());
             }
@@ -118,6 +124,8 @@ public class CsvDb extends Db {
     }
 
     public static class LdbcQuery3ToCsv extends OperationHandler<LdbcQuery3> {
+        static final List<LdbcQuery3Result> RESULT = new ArrayList<LdbcQuery3Result>();
+
         @Override
         protected OperationResult executeOperation(LdbcQuery3 operation) throws DbException {
             try {
@@ -128,7 +136,7 @@ public class CsvDb extends Db {
                         operation.countryY(),
                         operation.endDate().toString(),
                         Long.toString(operation.durationMillis()));
-                return null;
+                return operation.buildResult(0, RESULT);
             } catch (IOException e) {
                 throw new DbException(String.format("Error encountered while writing to CSV file: %s", operation.toString()), e.getCause());
             }
@@ -137,6 +145,8 @@ public class CsvDb extends Db {
 
 
     public static class LdbcQuery4ToCsv extends OperationHandler<LdbcQuery4> {
+        static final List<LdbcQuery4Result> RESULT = new ArrayList<LdbcQuery4Result>();
+
         @Override
         protected OperationResult executeOperation(LdbcQuery4 operation) throws DbException {
             try {
@@ -146,7 +156,7 @@ public class CsvDb extends Db {
                         Long.toString(operation.minDateAsMilli()),
                         Long.toString(operation.maxDateAsMilli()),
                         Long.toString(operation.durationMillis()));
-                return null;
+                return operation.buildResult(0, RESULT);
             } catch (IOException e) {
                 throw new DbException(String.format("Error encountered while writing to CSV file: %s", operation.toString()), e.getCause());
             }
@@ -154,6 +164,8 @@ public class CsvDb extends Db {
     }
 
     public static class LdbcQuery5ToCsv extends OperationHandler<LdbcQuery5> {
+        static final List<LdbcQuery5Result> RESULT = new ArrayList<LdbcQuery5Result>();
+
         @Override
         protected OperationResult executeOperation(LdbcQuery5 operation) throws DbException {
             try {
@@ -162,7 +174,7 @@ public class CsvDb extends Db {
                         Long.toString(operation.personId()),
                         operation.joinDate().toString()
                 );
-                return null;
+                return operation.buildResult(0, RESULT);
             } catch (IOException e) {
                 throw new DbException(String.format("Error encountered while writing to CSV file: %s", operation.toString()), e.getCause());
             }
@@ -170,6 +182,8 @@ public class CsvDb extends Db {
     }
 
     public static class LdbcQuery6ToCsv extends OperationHandler<LdbcQuery6> {
+        static final List<LdbcQuery6Result> RESULT = new ArrayList<LdbcQuery6Result>();
+
         @Override
         protected OperationResult executeOperation(LdbcQuery6 operation) throws DbException {
             try {
@@ -178,7 +192,7 @@ public class CsvDb extends Db {
                         Long.toString(operation.personId()),
                         operation.tagName()
                 );
-                return null;
+                return operation.buildResult(0, RESULT);
             } catch (IOException e) {
                 throw new DbException(String.format("Error encountered while writing to CSV file: %s", operation.toString()), e.getCause());
             }
@@ -186,6 +200,8 @@ public class CsvDb extends Db {
     }
 
     public static class LdbcQuery7ToCsv extends OperationHandler<LdbcQuery7> {
+        static final List<LdbcQuery7Result> RESULT = new ArrayList<LdbcQuery7Result>();
+
         @Override
         protected OperationResult executeOperation(LdbcQuery7 operation) throws DbException {
             try {
@@ -193,7 +209,7 @@ public class CsvDb extends Db {
                         operation.type(),
                         Long.toString(operation.personId())
                 );
-                return null;
+                return operation.buildResult(0, RESULT);
             } catch (IOException e) {
                 throw new DbException(String.format("Error encountered while writing to CSV file: %s", operation.toString()), e.getCause());
             }
@@ -201,6 +217,8 @@ public class CsvDb extends Db {
     }
 
     public static class LdbcQuery8ToCsv extends OperationHandler<LdbcQuery8> {
+        static final List<LdbcQuery8Result> RESULT = new ArrayList<LdbcQuery8Result>();
+
         @Override
         protected OperationResult executeOperation(LdbcQuery8 operation) throws DbException {
             try {
@@ -208,7 +226,7 @@ public class CsvDb extends Db {
                         operation.type(),
                         Long.toString(operation.personId())
                 );
-                return null;
+                return operation.buildResult(0, RESULT);
             } catch (IOException e) {
                 throw new DbException(String.format("Error encountered while writing to CSV file: %s", operation.toString()), e.getCause());
             }
@@ -216,6 +234,8 @@ public class CsvDb extends Db {
     }
 
     public static class LdbcQuery9ToCsv extends OperationHandler<LdbcQuery9> {
+        static final List<LdbcQuery9Result> RESULT = new ArrayList<LdbcQuery9Result>();
+
         @Override
         protected OperationResult executeOperation(LdbcQuery9 operation) throws DbException {
             try {
@@ -224,7 +244,7 @@ public class CsvDb extends Db {
                         Long.toString(operation.personId()),
                         Long.toString(operation.date())
                 );
-                return null;
+                return operation.buildResult(0, RESULT);
             } catch (IOException e) {
                 throw new DbException(String.format("Error encountered while writing to CSV file: %s", operation.toString()), e.getCause());
             }
@@ -232,6 +252,8 @@ public class CsvDb extends Db {
     }
 
     public static class LdbcQuery10ToCsv extends OperationHandler<LdbcQuery10> {
+        static final List<LdbcQuery10Result> RESULT = new ArrayList<LdbcQuery10Result>();
+
         @Override
         protected OperationResult executeOperation(LdbcQuery10 operation) throws DbException {
             try {
@@ -241,7 +263,7 @@ public class CsvDb extends Db {
                         Integer.toString(operation.horoscopeSign1()),
                         Integer.toString(operation.horoscopeSign2())
                 );
-                return null;
+                return operation.buildResult(0, RESULT);
             } catch (IOException e) {
                 throw new DbException(String.format("Error encountered while writing to CSV file: %s", operation.toString()), e.getCause());
             }
@@ -249,6 +271,8 @@ public class CsvDb extends Db {
     }
 
     public static class LdbcQuery11ToCsv extends OperationHandler<LdbcQuery11> {
+        static final List<LdbcQuery11Result> RESULT = new ArrayList<LdbcQuery11Result>();
+
         @Override
         protected OperationResult executeOperation(LdbcQuery11 operation) throws DbException {
             try {
@@ -258,7 +282,7 @@ public class CsvDb extends Db {
                         operation.country(),
                         Long.toString(operation.workFromDate())
                 );
-                return null;
+                return operation.buildResult(0, RESULT);
             } catch (IOException e) {
                 throw new DbException(String.format("Error encountered while writing to CSV file: %s", operation.toString()), e.getCause());
             }
@@ -266,6 +290,8 @@ public class CsvDb extends Db {
     }
 
     public static class LdbcQuery12ToCsv extends OperationHandler<LdbcQuery12> {
+        static final List<LdbcQuery12Result> RESULT = new ArrayList<LdbcQuery12Result>();
+
         @Override
         protected OperationResult executeOperation(LdbcQuery12 operation) throws DbException {
             try {
@@ -274,7 +300,7 @@ public class CsvDb extends Db {
                         Long.toString(operation.personId()),
                         operation.tagClass()
                 );
-                return null;
+                return operation.buildResult(0, RESULT);
             } catch (IOException e) {
                 throw new DbException(String.format("Error encountered while writing to CSV file: %s", operation.toString()), e.getCause());
             }

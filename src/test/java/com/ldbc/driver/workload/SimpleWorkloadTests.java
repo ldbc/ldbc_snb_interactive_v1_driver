@@ -7,8 +7,8 @@ import com.ldbc.driver.ClientException;
 import com.ldbc.driver.Operation;
 import com.ldbc.driver.Workload;
 import com.ldbc.driver.WorkloadException;
-import com.ldbc.driver.control.ParamsException;
-import com.ldbc.driver.control.WorkloadParams;
+import com.ldbc.driver.control.ConsoleAndFileDriverConfiguration;
+import com.ldbc.driver.control.DriverConfigurationException;
 import com.ldbc.driver.generator.GeneratorFactory;
 import com.ldbc.driver.temporal.Duration;
 import com.ldbc.driver.util.RandomDataGeneratorFactory;
@@ -27,9 +27,9 @@ import static org.junit.Assert.assertThat;
 public class SimpleWorkloadTests {
 
     @Test
-    public void shouldBeRepeatableWhenSameWorkloadIsUsedTwiceWithIdenticalGeneratorFactories() throws ClientException, ParamsException, WorkloadException {
-        WorkloadParams params =
-                new WorkloadParams(null, "dbClassName", "workloadClassName", 100L, 1, false, TimeUnit.MILLISECONDS, "resultFilePath", 1.0, Duration.fromSeconds(10), new ArrayList<String>(), Duration.fromSeconds(1));
+    public void shouldBeRepeatableWhenSameWorkloadIsUsedTwiceWithIdenticalGeneratorFactories() throws ClientException, DriverConfigurationException, WorkloadException {
+        ConsoleAndFileDriverConfiguration params =
+                new ConsoleAndFileDriverConfiguration(null, "dbClassName", "workloadClassName", 100L, 1, false, TimeUnit.MILLISECONDS, "resultFilePath", 1.0, Duration.fromSeconds(10), new ArrayList<String>(), Duration.fromSeconds(1));
 
         Workload workload = new SimpleWorkload();
         workload.init(params);
@@ -66,9 +66,9 @@ public class SimpleWorkloadTests {
     }
 
     @Test
-    public void shouldBeRepeatableWhenTwoIdenticalWorkloadsAreUsedWithIdenticalGeneratorFactories() throws ClientException, ParamsException, WorkloadException {
-        WorkloadParams params =
-                new WorkloadParams(null, "dbClassName", "workloadClassName", 100L, 1, false, TimeUnit.MILLISECONDS, "resultFilePath", 1.0, Duration.fromSeconds(10), new ArrayList<String>(), Duration.fromSeconds(1));
+    public void shouldBeRepeatableWhenTwoIdenticalWorkloadsAreUsedWithIdenticalGeneratorFactories() throws ClientException, DriverConfigurationException, WorkloadException {
+        ConsoleAndFileDriverConfiguration params =
+                new ConsoleAndFileDriverConfiguration(null, "dbClassName", "workloadClassName", 100L, 1, false, TimeUnit.MILLISECONDS, "resultFilePath", 1.0, Duration.fromSeconds(10), new ArrayList<String>(), Duration.fromSeconds(1));
 
         Workload workloadA = new SimpleWorkload();
         workloadA.init(params);

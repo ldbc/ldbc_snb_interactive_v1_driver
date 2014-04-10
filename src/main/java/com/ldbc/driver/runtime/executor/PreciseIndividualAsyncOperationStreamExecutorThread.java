@@ -35,6 +35,7 @@ class PreciseIndividualAsyncOperationStreamExecutorThread extends Thread {
     public void run() {
         while (handlers.hasNext()) {
             OperationHandler<?> handler = handlers.next();
+
             // Schedule slightly early to account for context switch - internally, handler will schedule at exact start time
             slightlyEarlySpinner.waitForScheduledStartTime(handler.operation());
             try {

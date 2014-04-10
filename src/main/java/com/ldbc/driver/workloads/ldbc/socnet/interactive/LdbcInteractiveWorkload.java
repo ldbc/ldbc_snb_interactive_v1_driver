@@ -56,7 +56,7 @@ public class LdbcInteractiveWorkload extends Workload {
     private Map<Class, Double> queryMix = null;
 
     @Override
-    protected Map<Class<? extends Operation<?>>, OperationClassification> operationClassificationMapping() {
+    public Map<Class<? extends Operation<?>>, OperationClassification> operationClassifications() {
         Map<Class<? extends Operation<?>>, OperationClassification> operationClassificationMapping = new HashMap<Class<? extends Operation<?>>, OperationClassification>();
         // TODO use correct operation classifications
         operationClassificationMapping.put(LdbcQuery1.class, new OperationClassification(OperationClassification.SchedulingMode.INDIVIDUAL_ASYNC, OperationClassification.GctMode.NONE));

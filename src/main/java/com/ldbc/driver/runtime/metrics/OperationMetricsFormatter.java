@@ -1,4 +1,4 @@
-package com.ldbc.driver.runtime.metrics.formatters;
+package com.ldbc.driver.runtime.metrics;
 
 import com.ldbc.driver.runtime.metrics.OperationMetrics;
 

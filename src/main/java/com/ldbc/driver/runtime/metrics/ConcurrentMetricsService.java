@@ -1,16 +1,13 @@
 package com.ldbc.driver.runtime.metrics;
 
 import com.ldbc.driver.OperationResult;
-import com.ldbc.driver.runtime.metrics.formatters.OperationMetricsFormatter;
-
-import java.io.OutputStream;
 
 public interface ConcurrentMetricsService {
     void submitOperationResult(OperationResult operationResult) throws MetricsCollectionException;
 
-    void export(OperationMetricsFormatter metricsFormatter, OutputStream outputStream) throws MetricsCollectionException;
+    WorkloadStatus status() throws MetricsCollectionException;
 
-    String status() throws MetricsCollectionException;
+    WorkloadResults results() throws MetricsCollectionException;
 
     void shutdown() throws MetricsCollectionException;
 }

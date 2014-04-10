@@ -15,7 +15,7 @@ import java.util.*;
 import java.util.Map.Entry;
 import java.util.concurrent.TimeUnit;
 
-public class WorkloadParams implements DriverConfiguration {
+public class ConsoleAndFileDriverConfiguration implements DriverConfiguration {
 
     // --- REQUIRED ---
     public static final String OPERATION_COUNT_ARG = "oc";
@@ -95,12 +95,12 @@ public class WorkloadParams implements DriverConfiguration {
 
     public static final String TOLERATED_EXECUTION_DELAY_ARG = "del";
     private static final String TOLERATED_EXECUTION_DELAY_ARG_LONG = "toleratedexecutiondelay";
-    private static final String TOLERATED_EXECUTION_DELAY_DEFAULT = Duration.fromSeconds(1).asMilli().toString();
+    private static final String TOLERATED_EXECUTION_DELAY_DEFAULT = Duration.fromMilli(100).asMilli().toString();
     private static final String TOLERATED_EXECUTION_DELAY_DESCRIPTION = "duration (ms) an operation handler may miss its scheduled start time by";
 
     private static final Options OPTIONS = buildOptions();
 
-    public static WorkloadParams fromArgs(String[] args) throws ParamsException {
+    public static ConsoleAndFileDriverConfiguration fromArgs(String[] args) throws DriverConfigurationException {
         Map<String, String> paramsMap;
         try {
             paramsMap = parseArgs(args, OPTIONS);
@@ -108,9 +108,9 @@ public class WorkloadParams implements DriverConfiguration {
             assertValidTimeUnit(paramsMap.get(TIME_UNIT_ARG));
             paramsMap = MapUtils.mergeMaps(paramsMap, defaultParamValues(), false);
         } catch (ParseException e) {
-            throw new ParamsException(e.getMessage());
-        } catch (ParamsException e) {
-            throw new ParamsException(String.format("%s\n%s", e.getMessage(), helpString()));
+            throw new DriverConfigurationException(e.getMessage());
+        } catch (DriverConfigurationException e) {
+            throw new DriverConfigurationException(String.format("%s\n%s", e.getMessage(), helpString()));
         }
 
         String dbClassName = paramsMap.get(DB_ARG);
@@ -124,20 +124,20 @@ public class WorkloadParams implements DriverConfiguration {
         Duration gctDeltaDuration = Duration.fromMilli(Long.parseLong(paramsMap.get(GCT_DELTA_DURATION_ARG)));
         List<String> peerIds = parsePeerIds(paramsMap.get(PEER_IDS_ARG));
         Duration toleratedExecutionDelay = Duration.fromMilli(Long.parseLong(paramsMap.get(TOLERATED_EXECUTION_DELAY_ARG)));
-        return new WorkloadParams(paramsMap, dbClassName, workloadClassName, operationCount,
+        return new ConsoleAndFileDriverConfiguration(paramsMap, dbClassName, workloadClassName, operationCount,
                 threadCount, showStatus, timeUnit, resultFilePath, timeCompressionRatio, gctDeltaDuration, peerIds, toleratedExecutionDelay);
     }
 
-    private static void assertRequiredArgsProvided(Map<String, String> paramsMap) throws ParamsException {
+    private static void assertRequiredArgsProvided(Map<String, String> paramsMap) throws DriverConfigurationException {
         List<String> missingOptions = new ArrayList<String>();
         if (null == paramsMap.get(DB_ARG)) missingOptions.add(DB_ARG);
         if (null == paramsMap.get(WORKLOAD_ARG)) missingOptions.add(WORKLOAD_ARG);
         if (null == paramsMap.get(OPERATION_COUNT_ARG)) missingOptions.add(OPERATION_COUNT_ARG);
         if (false == missingOptions.isEmpty())
-            throw new ParamsException(String.format("Missing required option: %s", missingOptions.toString()));
+            throw new DriverConfigurationException(String.format("Missing required option: %s", missingOptions.toString()));
     }
 
-    private static void assertValidTimeUnit(String timeUnitString) throws ParamsException {
+    private static void assertValidTimeUnit(String timeUnitString) throws DriverConfigurationException {
         try {
             TimeUnit timeUnit = TimeUnit.valueOf(timeUnitString);
             Set<TimeUnit> validTimeUnits = new HashSet<TimeUnit>();
@@ -146,7 +146,7 @@ public class WorkloadParams implements DriverConfiguration {
                 throw new IllegalArgumentException();
             }
         } catch (IllegalArgumentException e) {
-            throw new ParamsException(String.format("Unsupported TimeUnit value: %s", timeUnitString));
+            throw new DriverConfigurationException(String.format("Unsupported TimeUnit value: %s", timeUnitString));
         }
     }
 
@@ -162,7 +162,7 @@ public class WorkloadParams implements DriverConfiguration {
         return defaultParamValues;
     }
 
-    private static Map<String, String> parseArgs(String[] args, Options options) throws ParseException, ParamsException {
+    private static Map<String, String> parseArgs(String[] args, Options options) throws ParseException, DriverConfigurationException {
         Map<String, String> cmdParams = new HashMap<String, String>();
         Map<String, String> fileParams = new HashMap<String, String>();
 
@@ -247,10 +247,10 @@ public class WorkloadParams implements DriverConfiguration {
         paramsMap = replaceKey(paramsMap, SHOW_STATUS_ARG_LONG, SHOW_STATUS_ARG);
         paramsMap = replaceKey(paramsMap, TIME_UNIT_ARG_LONG, TIME_UNIT_ARG);
         paramsMap = replaceKey(paramsMap, RESULT_FILE_PATH_ARG_LONG, RESULT_FILE_PATH_ARG);
-        paramsMap = replaceKey(paramsMap, TIME_COMPRESSION_RATIO_ARG, TIME_COMPRESSION_RATIO_ARG_LONG);
-        paramsMap = replaceKey(paramsMap, GCT_DELTA_DURATION_ARG, GCT_DELTA_DURATION_ARG_LONG);
-        paramsMap = replaceKey(paramsMap, PEER_IDS_ARG, PEER_IDS_ARG_LONG);
-        paramsMap = replaceKey(paramsMap, TOLERATED_EXECUTION_DELAY_ARG, TOLERATED_EXECUTION_DELAY_ARG_LONG);
+        paramsMap = replaceKey(paramsMap, TIME_COMPRESSION_RATIO_ARG_LONG, TIME_COMPRESSION_RATIO_ARG);
+        paramsMap = replaceKey(paramsMap, GCT_DELTA_DURATION_ARG_LONG, GCT_DELTA_DURATION_ARG);
+        paramsMap = replaceKey(paramsMap, PEER_IDS_ARG_LONG, PEER_IDS_ARG);
+        paramsMap = replaceKey(paramsMap, TOLERATED_EXECUTION_DELAY_ARG_LONG, TOLERATED_EXECUTION_DELAY_ARG);
         return paramsMap;
     }
 
@@ -327,12 +327,12 @@ public class WorkloadParams implements DriverConfiguration {
         return options;
     }
 
-    static List<String> parsePeerIds(String peerIdsString) throws ParamsException {
+    static List<String> parsePeerIds(String peerIdsString) throws DriverConfigurationException {
         JsonNode jsonArrayNode;
         try {
             jsonArrayNode = new ObjectMapper().readTree(peerIdsString);
         } catch (IOException e) {
-            throw new ParamsException(String.format("Peer IDs have been serialized in an invalid format: %s", peerIdsString), e.getCause());
+            throw new DriverConfigurationException(String.format("Peer IDs have been serialized in an invalid format: %s", peerIdsString), e.getCause());
         }
         if (jsonArrayNode.isArray()) {
             List<String> peerIds = new ArrayList<String>();
@@ -341,15 +341,15 @@ public class WorkloadParams implements DriverConfiguration {
             }
             return peerIds;
         } else {
-            throw new ParamsException(String.format("Peer IDs are not a string array, they have been serialized in an invalid format: %s", peerIdsString));
+            throw new DriverConfigurationException(String.format("Peer IDs are not a string array, they have been serialized in an invalid format: %s", peerIdsString));
         }
     }
 
-    static String serializePeerIds(List<String> peerIds) throws ParamsException {
+    static String serializePeerIds(List<String> peerIds) throws DriverConfigurationException {
         try {
             return new ObjectMapper().writeValueAsString(peerIds);
         } catch (IOException e) {
-            throw new ParamsException(String.format("Unable to serialize peer IDs: %s", peerIds.toString()), e.getCause());
+            throw new DriverConfigurationException(String.format("Unable to serialize peer IDs: %s", peerIds.toString()), e.getCause());
         }
     }
 
@@ -385,18 +385,18 @@ public class WorkloadParams implements DriverConfiguration {
     private final List<String> peerIds;
     private final Duration toleratedExecutionDelay;
 
-    public WorkloadParams(Map<String, String> paramsMap,
-                          String dbClassName,
-                          String workloadClassName,
-                          long operationCount,
-                          int threadCount,
-                          boolean showStatus,
-                          TimeUnit timeUnit,
-                          String resultFilePath,
-                          Double timeCompressionRatio,
-                          Duration gctDeltaDuration,
-                          List<String> peerIds,
-                          Duration toleratedExecutionDelay) {
+    public ConsoleAndFileDriverConfiguration(Map<String, String> paramsMap,
+                                             String dbClassName,
+                                             String workloadClassName,
+                                             long operationCount,
+                                             int threadCount,
+                                             boolean showStatus,
+                                             TimeUnit timeUnit,
+                                             String resultFilePath,
+                                             Double timeCompressionRatio,
+                                             Duration gctDeltaDuration,
+                                             List<String> peerIds,
+                                             Duration toleratedExecutionDelay) {
         this.paramsMap = paramsMap;
         this.dbClassName = dbClassName;
         this.workloadClassName = workloadClassName;
@@ -432,7 +432,7 @@ public class WorkloadParams implements DriverConfiguration {
     }
 
     @Override
-    public boolean isShowStatus() {
+    public boolean showStatus() {
         return showStatus;
     }
 

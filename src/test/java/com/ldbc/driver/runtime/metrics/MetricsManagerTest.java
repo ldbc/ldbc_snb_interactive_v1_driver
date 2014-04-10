@@ -1,6 +1,5 @@
 package com.ldbc.driver.runtime.metrics;
 
-import com.google.common.collect.Iterables;
 import com.ldbc.driver.OperationResult;
 import com.ldbc.driver.WorkloadException;
 import com.ldbc.driver.temporal.Duration;
@@ -9,14 +8,14 @@ import org.junit.Test;
 
 import java.util.concurrent.TimeUnit;
 
-import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.CoreMatchers.equalTo;
 import static org.junit.Assert.assertThat;
 
-public class WorkloadMetricsManagerTest {
+public class MetricsManagerTest {
 
     @Test
     public void shouldReturnCorrectMeasurements() throws WorkloadException, MetricsCollectionException {
-        WorkloadMetricsManager workloadMeasurements = new WorkloadMetricsManager(TimeUnit.NANOSECONDS);
+        MetricsManager metricsManager = new MetricsManager(TimeUnit.NANOSECONDS);
 
         OperationResult operationResult1 = new OperationResult(1, "result one");
         operationResult1.setOperationType("type one");
@@ -36,10 +35,11 @@ public class WorkloadMetricsManagerTest {
         operationResult3.setActualStartTime(Time.fromNano(11));
         operationResult3.setRunDuration(Duration.fromNano(5));
 
-        workloadMeasurements.measure(operationResult1);
-        workloadMeasurements.measure(operationResult2);
-        workloadMeasurements.measure(operationResult3);
+        metricsManager.measure(operationResult1);
+        metricsManager.measure(operationResult2);
+        metricsManager.measure(operationResult3);
 
-        assertThat(Iterables.size(workloadMeasurements.allOperationMetrics()), is(2));
+        assertThat(metricsManager.startTime(), equalTo(Time.fromNano(2)));
+        assertThat(metricsManager.finishTime(), equalTo(Time.fromNano(16)));
     }
 }

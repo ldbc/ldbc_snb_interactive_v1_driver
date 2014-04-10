@@ -90,7 +90,7 @@ public class ThreadedQueuedCompletionTimeMaintenanceThread extends Thread {
                         this,
                         String.format("Encountered completion time related error\n%s", ConcurrentErrorReporter.stackTraceToString(e)));
                 return;
-            } catch (Exception e) {
+            } catch (Throwable e) {
                 errorReporter.reportError(
                         this,
                         String.format("Encountered unexpected exception\n%s", ConcurrentErrorReporter.stackTraceToString(e)));

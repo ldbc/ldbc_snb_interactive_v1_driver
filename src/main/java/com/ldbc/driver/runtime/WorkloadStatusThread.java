@@ -22,7 +22,7 @@ class WorkloadStatusThread extends Thread {
         while (true) {
             try {
                 Thread.sleep(statusUpdateInterval.asMilli());
-                String statusString = metricsService.status();
+                String statusString = metricsService.status().toString();
                 logger.info(statusString);
             } catch (InterruptedException e) {
                 errorReporter.reportError(this, "Status reporting thread was interrupted - exiting");

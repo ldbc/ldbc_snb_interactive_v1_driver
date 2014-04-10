@@ -1,4 +1,4 @@
-package com.ldbc.driver.runtime.metrics.formatters;
+package com.ldbc.driver.runtime.metrics;
 
 import java.util.Collections;
 import java.util.List;
@@ -6,7 +6,6 @@ import java.util.List;
 import org.codehaus.jackson.map.ObjectMapper;
 
 import com.google.common.collect.Lists;
-import com.ldbc.driver.runtime.metrics.OperationMetrics;
 import com.ldbc.driver.runtime.metrics.OperationMetrics.OperationMetricsNameComparator;
 
 public class JsonOperationMetricsFormatter implements OperationMetricsFormatter

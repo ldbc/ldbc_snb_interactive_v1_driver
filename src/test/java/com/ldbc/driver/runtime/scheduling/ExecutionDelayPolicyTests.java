@@ -3,6 +3,7 @@ package com.ldbc.driver.runtime.scheduling;
 import com.ldbc.driver.Operation;
 import com.ldbc.driver.runtime.ConcurrentErrorReporter;
 import com.ldbc.driver.temporal.Duration;
+import com.ldbc.driver.temporal.Time;
 import org.junit.Test;
 
 import static org.hamcrest.CoreMatchers.is;
@@ -18,6 +19,7 @@ public class ExecutionDelayPolicyTests {
         ExecutionDelayPolicy delayPolicy = new ErrorReportingExecutionDelayPolicy(toleratedDelay, errorReporter);
         Operation<?> operation = new Operation<Object>() {
         };
+        operation.setScheduledStartTime(Time.now().minus(Duration.fromMilli(2000)));
 
         assertThat(errorReporter.errorEncountered(), is(false));
 

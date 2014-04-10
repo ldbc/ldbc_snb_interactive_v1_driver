@@ -8,7 +8,7 @@ public class Time implements Comparable<Time>, MultipleTimeUnitProvider<Time> {
     private static SimpleDateFormat timeFormat = new SimpleDateFormat("HH:mm:ss.SSS");
 
     public static Time now() {
-        return Time.fromNano(Temporal.convert(System.currentTimeMillis(), TimeUnit.MILLISECONDS, TimeUnit.NANOSECONDS));
+        return Time.fromNano(Temporal.convert(nowAsMilli(), TimeUnit.MILLISECONDS, TimeUnit.NANOSECONDS));
     }
 
     // Avoid object creation where possible

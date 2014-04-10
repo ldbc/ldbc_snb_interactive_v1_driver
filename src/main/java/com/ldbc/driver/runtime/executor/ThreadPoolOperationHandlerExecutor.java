@@ -9,7 +9,6 @@ import java.util.concurrent.atomic.AtomicLong;
 
 public class ThreadPoolOperationHandlerExecutor implements OperationHandlerExecutor {
     private final ExecutorService threadPool;
-    private final CompletionService<OperationResult> completionService;
 
     private final AtomicLong submittedHandlers = new AtomicLong(0);
     private boolean shutdown = false;
@@ -17,12 +16,11 @@ public class ThreadPoolOperationHandlerExecutor implements OperationHandlerExecu
     public ThreadPoolOperationHandlerExecutor(int threadCount) {
         ThreadFactory threadFactory = Executors.defaultThreadFactory();
         this.threadPool = Executors.newFixedThreadPool(threadCount, threadFactory);
-        this.completionService = new ExecutorCompletionService<OperationResult>(threadPool);
     }
 
     @Override
     synchronized public final Future<OperationResult> execute(OperationHandler<?> operationHandler) {
-        Future<OperationResult> future = completionService.submit(operationHandler);
+        Future<OperationResult> future = threadPool.submit(operationHandler);
         submittedHandlers.incrementAndGet();
         return future;
     }

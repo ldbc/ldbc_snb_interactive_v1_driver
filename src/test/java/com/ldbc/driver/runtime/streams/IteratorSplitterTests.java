@@ -1,6 +1,7 @@
 package com.ldbc.driver.runtime.streams;
 
 import com.google.common.collect.Lists;
+import com.ldbc.driver.runtime.ConcurrentErrorReporter;
 import org.junit.Test;
 
 import java.util.List;
@@ -105,13 +106,15 @@ public class IteratorSplitterTests {
 
         // When
         boolean exceptionThrown = false;
+        String errMsg = null;
         try {
             iteratorSplitter.split(numbers.iterator(), byteAndIntegerDefinition, longDefinition);
         } catch (IteratorSplittingException e) {
+            errMsg = ConcurrentErrorReporter.stackTraceToString(e);
             exceptionThrown = true;
         }
 
         // Then
-        assertThat(exceptionThrown, is(true));
+        assertThat(errMsg, exceptionThrown, is(true));
     }
 }

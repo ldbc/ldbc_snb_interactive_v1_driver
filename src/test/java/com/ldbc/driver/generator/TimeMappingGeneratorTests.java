@@ -3,13 +3,26 @@ package com.ldbc.driver.generator;
 import com.google.common.base.Function;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Iterators;
+import com.google.common.collect.Lists;
 import com.ldbc.driver.Operation;
+import com.ldbc.driver.Workload;
+import com.ldbc.driver.WorkloadException;
+import com.ldbc.driver.control.ConsoleAndFileDriverConfiguration;
+import com.ldbc.driver.temporal.Duration;
 import com.ldbc.driver.temporal.Time;
 import com.ldbc.driver.util.RandomDataGeneratorFactory;
+import com.ldbc.driver.workloads.ldbc.socnet.interactive.LdbcInteractiveWorkload;
+import com.ldbc.driver.workloads.ldbc.socnet.interactive.db.CsvDb;
+import org.apache.commons.io.FileUtils;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.io.File;
+import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.is;
@@ -95,5 +108,66 @@ public class TimeMappingGeneratorTests {
         assertThat(offsetAndCompressedOperations.get(8).scheduledStartTime(), equalTo(Time.fromMilli(660)));
         assertThat(offsetAndCompressedOperations.get(9).scheduledStartTime(), equalTo(Time.fromMilli(680)));
         assertThat(offsetAndCompressedOperations.get(10).scheduledStartTime(), equalTo(Time.fromMilli(700)));
+    }
+
+    @Test
+    public void shouldNotBreakTheMonotonicallyIncreasingScheduledStartTimesOfOperationsFromLdbcWorkload() throws WorkloadException {
+        Map<String, String> paramsMap = new HashMap<String, String>();
+        // LDBC Interactive Workload-specific parameters
+        paramsMap.put(LdbcInteractiveWorkload.QUERY_1_KEY, "1");
+        paramsMap.put(LdbcInteractiveWorkload.QUERY_2_KEY, "2");
+        paramsMap.put(LdbcInteractiveWorkload.QUERY_3_KEY, "3");
+        paramsMap.put(LdbcInteractiveWorkload.QUERY_4_KEY, "4");
+        paramsMap.put(LdbcInteractiveWorkload.QUERY_5_KEY, "5");
+        paramsMap.put(LdbcInteractiveWorkload.QUERY_6_KEY, "6");
+        paramsMap.put(LdbcInteractiveWorkload.QUERY_7_KEY, "7");
+        paramsMap.put(LdbcInteractiveWorkload.QUERY_8_KEY, "6");
+        paramsMap.put(LdbcInteractiveWorkload.QUERY_9_KEY, "5");
+        paramsMap.put(LdbcInteractiveWorkload.QUERY_10_KEY, "4");
+        paramsMap.put(LdbcInteractiveWorkload.QUERY_11_KEY, "3");
+        paramsMap.put(LdbcInteractiveWorkload.QUERY_12_KEY, "2");
+        paramsMap.put(LdbcInteractiveWorkload.PARAMETERS_FILENAME_KEY, "ldbc_driver/workloads/ldbc/socnet/interactive/parameters.json");
+        paramsMap.put(LdbcInteractiveWorkload.INTERLEAVE_DURATION_KEY, "10");
+        // CsvDb-specific parameters
+        String csvOutputFilePath = "temp_csv_output_file.csv";
+        FileUtils.deleteQuietly(new File(csvOutputFilePath));
+        paramsMap.put(CsvDb.CSV_PATH_KEY, csvOutputFilePath);
+        // Driver-specific parameters
+        String dbClassName = CsvDb.class.getName();
+        String workloadClassName = LdbcInteractiveWorkload.class.getName();
+        long operationCount = 10000;
+        int threadCount = 1;
+        boolean showStatus = true;
+        TimeUnit timeUnit = TimeUnit.MILLISECONDS;
+        String resultFilePath = "test_write_to_csv_results.json";
+        FileUtils.deleteQuietly(new File(resultFilePath));
+        Double timeCompressionRatio = null;
+        Duration gctDeltaDuration = Duration.fromSeconds(10);
+        List<String> peerIds = Lists.newArrayList();
+        Duration toleratedExecutionDelay = Duration.fromSeconds(1);
+
+        assertThat(new File(csvOutputFilePath).exists(), is(false));
+        assertThat(new File(resultFilePath).exists(), is(false));
+
+        ConsoleAndFileDriverConfiguration configuration = new ConsoleAndFileDriverConfiguration(paramsMap, dbClassName, workloadClassName, operationCount,
+                threadCount, showStatus, timeUnit, resultFilePath, timeCompressionRatio, gctDeltaDuration, peerIds, toleratedExecutionDelay);
+
+        Workload workload = new LdbcInteractiveWorkload();
+        workload.init(configuration);
+        List<Operation<?>> operations = Lists.newArrayList(workload.operations(new GeneratorFactory(new RandomDataGeneratorFactory(42L))));
+
+        Time prevOperationScheduledStartTime = operations.get(0).scheduledStartTime().minus(Duration.fromMilli(1));
+        for (Operation<?> operation : operations) {
+            assertThat(operation.scheduledStartTime().gt(prevOperationScheduledStartTime), is(true));
+            prevOperationScheduledStartTime = operation.scheduledStartTime();
+        }
+
+        Iterator<Operation<?>> offsetAndCompressedOperations = generators.timeOffsetAndCompress(operations.iterator(), Time.now().plus(Duration.fromMilli(500)), 1.0);
+        Time prevOffsetOperationScheduledStartTime = operations.get(0).scheduledStartTime().minus(Duration.fromMilli(1));
+        while (offsetAndCompressedOperations.hasNext()) {
+            Operation<?> operation = offsetAndCompressedOperations.next();
+            assertThat(operation.scheduledStartTime().gt(prevOffsetOperationScheduledStartTime), is(true));
+            prevOffsetOperationScheduledStartTime = operation.scheduledStartTime();
+        }
     }
 }

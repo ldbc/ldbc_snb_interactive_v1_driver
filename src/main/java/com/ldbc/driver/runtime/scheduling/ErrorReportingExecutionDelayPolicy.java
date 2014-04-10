@@ -3,6 +3,7 @@ package com.ldbc.driver.runtime.scheduling;
 import com.ldbc.driver.Operation;
 import com.ldbc.driver.runtime.ConcurrentErrorReporter;
 import com.ldbc.driver.temporal.Duration;
+import com.ldbc.driver.temporal.Time;
 
 public class ErrorReportingExecutionDelayPolicy implements ExecutionDelayPolicy {
     private final Duration toleratedDelay;
@@ -28,8 +29,9 @@ public class ErrorReportingExecutionDelayPolicy implements ExecutionDelayPolicy 
 
     @Override
     public void handleExcessiveDelay(Operation<?> operation) {
-        String errMsg = String.format("Tolerated scheduled start time delay [%s] exceeded on operation:\n\t%s",
-                toleratedDelay, operation);
+        Time now = Time.now();
+        String errMsg = String.format("Tolerated start time delay [%s] exceeded by approximately [%s]\n\t%s",
+                toleratedDelay, now.greaterBy(operation.scheduledStartTime()), operation);
         concurrentErrorReporter.reportError(this, errMsg);
     }
 }

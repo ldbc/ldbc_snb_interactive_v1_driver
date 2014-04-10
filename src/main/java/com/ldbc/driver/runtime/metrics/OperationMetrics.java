@@ -20,7 +20,7 @@ public class OperationMetrics {
     private final String name;
     private final TimeUnit durationUnit;
 
-    public OperationMetrics(String name, TimeUnit durationUnit, Duration highestExpectedDuration) {
+    OperationMetrics(String name, TimeUnit durationUnit, Duration highestExpectedDuration) {
         this.name = name;
         this.durationUnit = durationUnit;
 
@@ -33,7 +33,7 @@ public class OperationMetrics {
         this.resultCodeMetric = new DiscreteMetric(METRIC_RESULT_CODE, "Result Code");
     }
 
-    public void measure(OperationResult operationResult) throws MetricsCollectionException {
+    void measure(OperationResult operationResult) throws MetricsCollectionException {
         //
         // Measure operation runtime
         //
@@ -82,6 +82,12 @@ public class OperationMetrics {
         return durationUnit;
     }
 
+    @JsonProperty("count")
+    public long count() {
+        // could read count from any of the metrics, all should be the same
+        return runTimeMetric.count();
+    }
+
     /*
      * Metrics
      */
@@ -101,7 +107,7 @@ public class OperationMetrics {
         return resultCodeMetric;
     }
 
-    public static class OperationMetricsNameComparator implements Comparator<OperationMetrics> {
+    static class OperationMetricsNameComparator implements Comparator<OperationMetrics> {
         private static final String EMPTY_STRING = "";
 
         @Override

@@ -2,14 +2,9 @@ package com.ldbc.driver.runtime.metrics;
 
 import com.ldbc.driver.OperationResult;
 import com.ldbc.driver.runtime.ConcurrentErrorReporter;
-import com.ldbc.driver.runtime.metrics.formatters.OperationMetricsFormatter;
 import com.ldbc.driver.temporal.Duration;
 import com.ldbc.driver.temporal.Time;
 
-import java.io.ByteArrayOutputStream;
-import java.io.OutputStream;
-import java.io.PrintStream;
-import java.nio.charset.Charset;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.Future;
@@ -31,12 +26,9 @@ public class ThreadedQueuedConcurrentMetricsService implements ConcurrentMetrics
     public ThreadedQueuedConcurrentMetricsService(ConcurrentErrorReporter errorReporter, TimeUnit unit) {
         this.metricsEventsQueue = new ConcurrentLinkedQueue<MetricsCollectionEvent>();
         this.initiatedEvents = new AtomicLong(0);
-        threadedQueuedMetricsMaintenanceThread = new ThreadedQueuedMetricsMaintenanceThread(errorReporter, metricsEventsQueue, new WorkloadMetricsManager(unit));
+        threadedQueuedMetricsMaintenanceThread = new ThreadedQueuedMetricsMaintenanceThread(errorReporter, metricsEventsQueue, new MetricsManager(unit));
         threadedQueuedMetricsMaintenanceThread.start();
     }
-
-    // TODO function to set start time? perhaps a "start measuring" function with Time as input?
-    // TODO should not allow any other operations until that has been done, maybe thread should take care of that though to make calls here return faster
 
     @Override
     synchronized public void submitOperationResult(OperationResult operationResult) throws MetricsCollectionException {
@@ -45,7 +37,7 @@ public class ThreadedQueuedConcurrentMetricsService implements ConcurrentMetrics
         }
         try {
             initiatedEvents.incrementAndGet();
-            metricsEventsQueue.add(MetricsCollectionEvent.result(operationResult));
+            metricsEventsQueue.add(MetricsCollectionEvent.submitResult(operationResult));
         } catch (Exception e) {
             String errMsg = String.format("Error submitting result [%s]", operationResult.toString());
             throw new MetricsCollectionException(errMsg, e.getCause());
@@ -53,24 +45,23 @@ public class ThreadedQueuedConcurrentMetricsService implements ConcurrentMetrics
     }
 
     @Override
-    public void export(OperationMetricsFormatter metricsFormatter, OutputStream outputStream) throws MetricsCollectionException {
-        MetricsExportFuture metricsExportFuture = new MetricsExportFuture(metricsFormatter);
-        metricsEventsQueue.add(MetricsCollectionEvent.export(metricsExportFuture));
-        String formattedMetrics = metricsExportFuture.get();
-        try {
-            // TODO specify charset... also this is a bit messy
-            outputStream.write(formattedMetrics.getBytes());
-        } catch (Exception e) {
-            String errMsg = "Error encountered writing metrics to output stream";
-            throw new MetricsCollectionException(errMsg, e.getCause());
+    public WorkloadStatus status() throws MetricsCollectionException {
+        if (shuttingDown) {
+            throw new MetricsCollectionException("Can not read metrics status after calling shutdown");
         }
+        MetricsStatusFuture statusFuture = new MetricsStatusFuture();
+        metricsEventsQueue.add(MetricsCollectionEvent.status(statusFuture));
+        return statusFuture.get();
     }
 
     @Override
-    public String status() throws MetricsCollectionException {
-        MetricsStatusFuture metricsStatusFuture = new MetricsStatusFuture();
-        metricsEventsQueue.add(MetricsCollectionEvent.status(metricsStatusFuture));
-        return metricsStatusFuture.get();
+    public WorkloadResults results() throws MetricsCollectionException {
+        if (shuttingDown) {
+            throw new MetricsCollectionException("Can not retrieve results after calling shutdown");
+        }
+        MetricsWorkloadResultFuture workloadResultFuture = new MetricsWorkloadResultFuture();
+        metricsEventsQueue.add(MetricsCollectionEvent.workloadResult(workloadResultFuture));
+        return workloadResultFuture.get();
     }
 
     @Override
@@ -88,28 +79,15 @@ public class ThreadedQueuedConcurrentMetricsService implements ConcurrentMetrics
         }
     }
 
-    public static class MetricsExportFuture implements Future<String> {
+    public static class MetricsWorkloadResultFuture implements Future<WorkloadResults> {
         private final AtomicBoolean done = new AtomicBoolean(false);
-        private final AtomicReference<String> formattedMetricsString = new AtomicReference<String>(null);
-        private final ByteArrayOutputStream outputStream;
-        private final PrintStream printStream;
-        private final OperationMetricsFormatter metricsFormatter;
+        private final AtomicReference<WorkloadResults> startTime = new AtomicReference<WorkloadResults>(null);
 
-        public MetricsExportFuture(OperationMetricsFormatter metricsFormatter) {
-            this.outputStream = new ByteArrayOutputStream();
-            this.printStream = new PrintStream(outputStream);
-            this.metricsFormatter = metricsFormatter;
-        }
 
-        synchronized void export(WorkloadMetricsManager metricsManager) throws MetricsCollectionException {
+        synchronized void set(WorkloadResults value) throws MetricsCollectionException {
             if (done.get())
                 throw new MetricsCollectionException("Value has already been set");
-            try {
-                metricsManager.export(metricsFormatter, printStream, Charset.forName("UTF-8"));
-            } catch (MetricsCollectionException e) {
-                throw new MetricsCollectionException("Encountered error while trying to export metrics", e.getCause());
-            }
-            formattedMetricsString.set(outputStream.toString());
+            startTime.set(value);
             done.set(true);
         }
 
@@ -129,15 +107,15 @@ public class ThreadedQueuedConcurrentMetricsService implements ConcurrentMetrics
         }
 
         @Override
-        public String get() {
+        public WorkloadResults get() {
             while (done.get() == false) {
                 // wait for value to be set
             }
-            return formattedMetricsString.get();
+            return startTime.get();
         }
 
         @Override
-        public String get(long timeout, TimeUnit unit) throws TimeoutException {
+        public WorkloadResults get(long timeout, TimeUnit unit) throws TimeoutException {
             // Note: the commented version is cleaner, but .durationUntilNow() produces many Duration instances
             // Duration waitDuration = Duration.from(unit, timeout);
             // DurationMeasurement durationWaited = DurationMeasurement.startMeasurementNow();
@@ -147,21 +125,21 @@ public class ThreadedQueuedConcurrentMetricsService implements ConcurrentMetrics
             while (Time.nowAsMilli() - startTimeMs < waitDurationMs) {
                 // wait for value to be set
                 if (done.get())
-                    return formattedMetricsString.get();
+                    return startTime.get();
             }
             throw new TimeoutException("Could not complete future in time");
         }
     }
 
-    public static class MetricsStatusFuture implements Future<String> {
+    public static class MetricsStatusFuture implements Future<WorkloadStatus> {
         private final AtomicBoolean done = new AtomicBoolean(false);
-        private final AtomicReference<String> statusString = new AtomicReference<String>(null);
+        private final AtomicReference<WorkloadStatus> status = new AtomicReference<WorkloadStatus>(null);
 
 
-        synchronized void set(String value) throws MetricsCollectionException {
+        synchronized void set(WorkloadStatus value) throws MetricsCollectionException {
             if (done.get())
                 throw new MetricsCollectionException("Value has already been set");
-            statusString.set(value);
+            status.set(value);
             done.set(true);
         }
 
@@ -181,15 +159,15 @@ public class ThreadedQueuedConcurrentMetricsService implements ConcurrentMetrics
         }
 
         @Override
-        public String get() {
+        public WorkloadStatus get() {
             while (done.get() == false) {
                 // wait for value to be set
             }
-            return statusString.get();
+            return status.get();
         }
 
         @Override
-        public String get(long timeout, TimeUnit unit) throws TimeoutException {
+        public WorkloadStatus get(long timeout, TimeUnit unit) throws TimeoutException {
             // Note: the commented version is cleaner, but .durationUntilNow() produces many Duration instances
             // Duration waitDuration = Duration.from(unit, timeout);
             // DurationMeasurement durationWaited = DurationMeasurement.startMeasurementNow();
@@ -199,7 +177,7 @@ public class ThreadedQueuedConcurrentMetricsService implements ConcurrentMetrics
             while (Time.nowAsMilli() - startTimeMs < waitDurationMs) {
                 // wait for value to be set
                 if (done.get())
-                    return statusString.get();
+                    return status.get();
             }
             throw new TimeoutException("Could not complete future in time");
         }

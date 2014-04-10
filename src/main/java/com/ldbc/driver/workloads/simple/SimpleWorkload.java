@@ -36,7 +36,7 @@ public class SimpleWorkload extends Workload {
     final long INITIAL_INSERT_COUNT = 10;
 
     @Override
-    protected Map<Class<? extends Operation<?>>, OperationClassification> operationClassificationMapping() {
+    public Map<Class<? extends Operation<?>>, OperationClassification> operationClassifications() {
         Map<Class<? extends Operation<?>>, OperationClassification> operationClassificationMapping = new HashMap<Class<? extends Operation<?>>, OperationClassification>();
         // TODO use correct operation classifications
         operationClassificationMapping.put(InsertOperation.class, new OperationClassification(OperationClassification.SchedulingMode.INDIVIDUAL_ASYNC, OperationClassification.GctMode.NONE));
