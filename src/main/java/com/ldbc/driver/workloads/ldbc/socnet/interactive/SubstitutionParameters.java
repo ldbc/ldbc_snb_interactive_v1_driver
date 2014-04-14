@@ -8,11 +8,6 @@ import java.io.IOException;
 import java.util.List;
 
 public class SubstitutionParameters {
-
-    // TODO questions
-    // TODO  - assumes no gaps in person id space, i.e., continuous sequence with no missing ids in the middle?
-    // TODO issues
-
     @JsonProperty(value = "minPersonId")
     public Long minPersonId = null;
     @JsonProperty(value = "maxPersonId")

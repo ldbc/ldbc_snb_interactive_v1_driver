@@ -7,7 +7,7 @@ public interface ConcurrentMetricsService {
 
     WorkloadStatus status() throws MetricsCollectionException;
 
-    WorkloadResults results() throws MetricsCollectionException;
+    WorkloadResultsSnapshot results() throws MetricsCollectionException;
 
     void shutdown() throws MetricsCollectionException;
 }

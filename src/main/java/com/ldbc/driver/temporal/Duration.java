@@ -34,22 +34,22 @@ public class Duration implements Comparable<Duration>, MultipleTimeUnitProvider<
     }
 
     @Override
-    public Long asSeconds() {
+    public long asSeconds() {
         return duration.asSeconds();
     }
 
     @Override
-    public Long asMilli() {
+    public long asMilli() {
         return duration.asMilli();
     }
 
     @Override
-    public Long asMicro() {
+    public long asMicro() {
         return duration.asMicro();
     }
 
     @Override
-    public Long asNano() {
+    public long asNano() {
         return duration.asNano();
     }
 
@@ -62,7 +62,7 @@ public class Duration implements Comparable<Duration>, MultipleTimeUnitProvider<
     }
 
     @Override
-    public Long as(TimeUnit timeUnit) {
+    public long as(TimeUnit timeUnit) {
         return duration.as(timeUnit);
     }
 

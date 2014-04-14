@@ -1,7 +1,5 @@
 package com.ldbc.driver.runtime;
 
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.Lists;
 import com.ldbc.driver.*;
 import com.ldbc.driver.control.ConcurrentControlService;
 import com.ldbc.driver.runtime.coordination.ConcurrentCompletionTimeService;
@@ -18,9 +16,7 @@ import com.ldbc.driver.runtime.streams.SplitResult;
 import com.ldbc.driver.temporal.Duration;
 import com.ldbc.driver.temporal.Time;
 
-import java.util.ArrayList;
 import java.util.Iterator;
-import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Future;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -55,6 +51,8 @@ public class WorkloadRunner {
         this.errorReporter = errorReporter;
 
         ExecutionDelayPolicy executionDelayPolicy = new ErrorReportingExecutionDelayPolicy(controlService.configuration().toleratedExecutionDelay(), errorReporter);
+
+        // TODO for the spinner sent to Window scheduler allow delay to reach to the end of window?
 
         this.exactSpinner = new Spinner(executionDelayPolicy);
         this.earlySpinner = new Spinner(executionDelayPolicy, SPINNER_OFFSET_DURATION);
@@ -118,25 +116,27 @@ public class WorkloadRunner {
                 metricsService,
                 controlService.configuration().gctDeltaDuration(),
                 operationClassifications);
-        List<OperationHandler<?>> windowedHandlers = ImmutableList.copyOf(operationsToHandlersTransformer.transform(windowedOperations));
-        List<OperationHandler<?>> blockingHandlers = ImmutableList.copyOf(operationsToHandlersTransformer.transform(blockingOperations));
-        List<OperationHandler<?>> asynchronousHandlers = ImmutableList.copyOf(operationsToHandlersTransformer.transform(asynchronousOperations));
+        Iterator<OperationHandler<?>> windowedHandlers = operationsToHandlersTransformer.transform(windowedOperations);
+        Iterator<OperationHandler<?>> blockingHandlers = operationsToHandlersTransformer.transform(blockingOperations);
+        Iterator<OperationHandler<?>> asynchronousHandlers = operationsToHandlersTransformer.transform(asynchronousOperations);
 
         // TODO these executor services should all be using different gct services and sharing gct via external ct [MUST]
         // This lesson needs to be written to Confluence too
 
         this.operationHandlerExecutor = new ThreadPoolOperationHandlerExecutor(controlService.configuration().threadCount());
         this.preciseIndividualAsyncOperationStreamExecutorService = new PreciseIndividualAsyncOperationStreamExecutorService(
-                errorReporter, completionTimeService, asynchronousHandlers.iterator(), earlySpinner, operationHandlerExecutor);
+                errorReporter, completionTimeService, asynchronousHandlers, earlySpinner, operationHandlerExecutor);
         this.preciseIndividualBlockingOperationStreamExecutorService = new PreciseIndividualBlockingOperationStreamExecutorService(
-                errorReporter, completionTimeService, blockingHandlers.iterator(), earlySpinner, operationHandlerExecutor);
+                errorReporter, completionTimeService, blockingHandlers, earlySpinner, operationHandlerExecutor);
         // TODO better way of setting window size. it does not need to equal DeltaT, it can be smaller. where to set? how to set?
         Duration windowSize = controlService.configuration().gctDeltaDuration();
         this.uniformWindowedOperationStreamExecutorService = new UniformWindowedOperationStreamExecutorService(
-                errorReporter, completionTimeService, windowedHandlers.iterator(), operationHandlerExecutor, earlySpinner, controlService.workloadStartTime(), windowSize);
+                errorReporter, completionTimeService, windowedHandlers, operationHandlerExecutor, earlySpinner, controlService.workloadStartTime(), windowSize);
     }
 
     public void executeWorkload() throws WorkloadException {
+        // TODO wait until control service start time, or just before, so status isn't being reported too early
+
         // TODO revise if this necessary here, and if not where??
         controlService.waitForCommandToExecuteWorkload();
 
@@ -145,15 +145,23 @@ public class WorkloadRunner {
         AtomicBoolean blockingHandlersFinished = preciseIndividualBlockingOperationStreamExecutorService.execute();
         AtomicBoolean windowedHandlersFinished = uniformWindowedOperationStreamExecutorService.execute();
 
-        List<AtomicBoolean> executorFinishedFlags = Lists.newArrayList(asyncHandlersFinished, blockingHandlersFinished, windowedHandlersFinished);
+        AtomicBoolean[] executorFinishedFlags = new AtomicBoolean[]{asyncHandlersFinished, blockingHandlersFinished, windowedHandlersFinished};
+        while (true) {
+            if (errorReporter.errorEncountered()) break;
+            for (int i = 0; i < executorFinishedFlags.length; i++) {
+                if (null != executorFinishedFlags[i] && executorFinishedFlags[i].get()) executorFinishedFlags[i] = null;
+            }
+            boolean terminate = true;
+            for (int i = 0; i < executorFinishedFlags.length; i++) {
+                if (null != executorFinishedFlags[i]) terminate = false;
+            }
+            if (terminate) break;
+        }
 
-        while (false == executorFinishedFlags.isEmpty()) {
-            List<AtomicBoolean> executorFlagsToRemove = new ArrayList<AtomicBoolean>();
-            for (AtomicBoolean executorFinishedFlag : executorFinishedFlags)
-                if (executorFinishedFlag.get()) executorFlagsToRemove.add(executorFinishedFlag);
-            for (AtomicBoolean executorFlagToRemove : executorFlagsToRemove)
-                executorFinishedFlags.remove(executorFlagToRemove);
+        while (true) {
             if (errorReporter.errorEncountered())
+                break;
+            if (asyncHandlersFinished.get() && blockingHandlersFinished.get() && windowedHandlersFinished.get())
                 break;
         }
 

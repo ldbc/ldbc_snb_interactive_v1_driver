@@ -48,7 +48,7 @@ public class ThreadedQueuedMetricsMaintenanceThread extends Thread {
                         break;
                     case WORKLOAD_RESULT:
                         ThreadedQueuedConcurrentMetricsService.MetricsWorkloadResultFuture workloadResultFuture = ((MetricsCollectionEvent.WorkloadResultEvent) event).future();
-                        workloadResultFuture.set(metricsManager);
+                        workloadResultFuture.set(metricsManager.snapshot());
                         break;
                     case TERMINATE:
                         if (expectedEventCount == null) {

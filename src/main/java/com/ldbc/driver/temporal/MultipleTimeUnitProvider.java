@@ -4,15 +4,15 @@ import java.util.concurrent.TimeUnit;
 
 public interface MultipleTimeUnitProvider<T>
 {
-    public Long asSeconds();
+    public long asSeconds();
 
-    public Long asMilli();
+    public long asMilli();
 
-    public Long asMicro();
+    public long asMicro();
 
-    public Long asNano();
+    public long asNano();
 
-    public Long as( TimeUnit timeUnit );
+    public long as( TimeUnit timeUnit );
 
     public boolean gt(T other);
 

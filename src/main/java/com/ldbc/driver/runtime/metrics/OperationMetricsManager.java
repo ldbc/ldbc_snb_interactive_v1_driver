@@ -2,35 +2,30 @@ package com.ldbc.driver.runtime.metrics;
 
 import com.ldbc.driver.OperationResult;
 import com.ldbc.driver.temporal.Duration;
-import org.codehaus.jackson.annotate.JsonProperty;
 
 import java.util.Comparator;
 import java.util.concurrent.TimeUnit;
 
-public class OperationMetrics {
+public class OperationMetricsManager {
     private static final String METRIC_RUNTIME = "Runtime";
     private static final String METRIC_START_TIME_DELAY = "Start Time Delay";
     private static final String METRIC_RESULT_CODE = "Result Code";
 
     private static final int NUMBER_OF_SIGNIFICANT_HDR_HISTOGRAM_DIGITS = 5;
 
-    private final ContinuousMetric runTimeMetric;
-    private final ContinuousMetric startTimeDelayMetric;
-    private final DiscreteMetric resultCodeMetric;
-    private final String name;
-    private final TimeUnit durationUnit;
+    private ContinuousMetricManager runTimeMetric;
+    private ContinuousMetricManager startTimeDelayMetric;
+    private DiscreteMetricManager resultCodeMetric;
+    private String name;
+    private TimeUnit durationUnit;
+    private long count = 0;
 
-    OperationMetrics(String name, TimeUnit durationUnit, Duration highestExpectedDuration) {
+    OperationMetricsManager(String name, TimeUnit durationUnit, Duration highestExpectedDuration) {
         this.name = name;
         this.durationUnit = durationUnit;
-
-        this.runTimeMetric = new ContinuousMetric(METRIC_RUNTIME, durationUnit.toString(),
-                highestExpectedDuration.as(durationUnit), NUMBER_OF_SIGNIFICANT_HDR_HISTOGRAM_DIGITS);
-
-        this.startTimeDelayMetric = new ContinuousMetric(METRIC_START_TIME_DELAY, durationUnit.toString(),
-                highestExpectedDuration.as(durationUnit), NUMBER_OF_SIGNIFICANT_HDR_HISTOGRAM_DIGITS);
-
-        this.resultCodeMetric = new DiscreteMetric(METRIC_RESULT_CODE, "Result Code");
+        this.runTimeMetric = new ContinuousMetricManager(METRIC_RUNTIME, durationUnit, highestExpectedDuration.as(durationUnit), NUMBER_OF_SIGNIFICANT_HDR_HISTOGRAM_DIGITS);
+        this.startTimeDelayMetric = new ContinuousMetricManager(METRIC_START_TIME_DELAY, durationUnit, highestExpectedDuration.as(durationUnit), NUMBER_OF_SIGNIFICANT_HDR_HISTOGRAM_DIGITS);
+        this.resultCodeMetric = new DiscreteMetricManager(METRIC_RESULT_CODE, "Result Code");
     }
 
     void measure(OperationResult operationResult) throws MetricsCollectionException {
@@ -70,48 +65,27 @@ public class OperationMetrics {
                     operationResultCode, name);
             throw new MetricsCollectionException(errMsg, e.getCause());
         }
+
+        count++;
     }
 
-    @JsonProperty("name")
+    public OperationMetricsSnapshot snapshot() {
+        return new OperationMetricsSnapshot(name, durationUnit, count(), runTimeMetric.snapshot(), startTimeDelayMetric.snapshot(), resultCodeMetric.snapshot());
+    }
+
     public String name() {
         return name;
     }
 
-    @JsonProperty("unit")
-    public TimeUnit durationUnit() {
-        return durationUnit;
-    }
-
-    @JsonProperty("count")
     public long count() {
-        // could read count from any of the metrics, all should be the same
-        return runTimeMetric.count();
+        return count;
     }
 
-    /*
-     * Metrics
-     */
-
-    @JsonProperty("run_time")
-    public ContinuousMetric runTimeMetric() {
-        return runTimeMetric;
-    }
-
-    @JsonProperty("start_time_delay")
-    public ContinuousMetric startTimeDelayMetric() {
-        return startTimeDelayMetric;
-    }
-
-    @JsonProperty("result_code")
-    public DiscreteMetric resultCodeMetric() {
-        return resultCodeMetric;
-    }
-
-    static class OperationMetricsNameComparator implements Comparator<OperationMetrics> {
+    static class OperationMetricsNameComparator implements Comparator<OperationMetricsSnapshot> {
         private static final String EMPTY_STRING = "";
 
         @Override
-        public int compare(OperationMetrics metrics1, OperationMetrics metrics2) {
+        public int compare(OperationMetricsSnapshot metrics1, OperationMetricsSnapshot metrics2) {
             String metrics1Name = (metrics1.name() == null) ? EMPTY_STRING : metrics1.name();
             String metrics2Name = (metrics2.name() == null) ? EMPTY_STRING : metrics2.name();
             return metrics1Name.compareTo(metrics2Name);

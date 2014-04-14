@@ -85,7 +85,7 @@ public class ConsoleAndFileDriverConfiguration implements DriverConfiguration {
 
     public static final String GCT_DELTA_DURATION_ARG = "gctd";
     private static final String GCT_DELTA_DURATION_ARG_LONG = "gctdeltaduration";
-    private static final String GCT_DELTA_DURATION_DEFAULT = Duration.fromSeconds(3600).asMilli().toString();
+    private static final String GCT_DELTA_DURATION_DEFAULT = Long.toString(Duration.fromMinutes(60).asMilli());
     private static final String GCT_DELTA_DURATION_DESCRIPTION = "safe duration (ms) between dependent operations";
 
     public static final String PEER_IDS_ARG = "pids";
@@ -95,7 +95,7 @@ public class ConsoleAndFileDriverConfiguration implements DriverConfiguration {
 
     public static final String TOLERATED_EXECUTION_DELAY_ARG = "del";
     private static final String TOLERATED_EXECUTION_DELAY_ARG_LONG = "toleratedexecutiondelay";
-    private static final String TOLERATED_EXECUTION_DELAY_DEFAULT = Duration.fromMilli(100).asMilli().toString();
+    private static final String TOLERATED_EXECUTION_DELAY_DEFAULT = Long.toString(Duration.fromMilli(100).asMilli());
     private static final String TOLERATED_EXECUTION_DELAY_DESCRIPTION = "duration (ms) an operation handler may miss its scheduled start time by";
 
     private static final Options OPTIONS = buildOptions();

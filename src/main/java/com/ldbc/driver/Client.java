@@ -120,7 +120,7 @@ public class Client {
         }
 
         logger.info("Shutting down metrics collection service...");
-        WorkloadResults workloadResults;
+        WorkloadResultsSnapshot workloadResults;
         try {
             workloadResults = metricsService.results();
             metricsService.shutdown();
@@ -128,7 +128,7 @@ public class Client {
             throw new ClientException("Error during shutdown of metrics collection service", e.getCause());
         }
 
-        logger.info(String.format("Runtime: %s (s)", workloadResults.finishTime().greaterBy(workloadResults.startTime()).asSeconds()));
+        logger.info(String.format("Runtime: %s (s)", workloadResults.totalRunDuration().asSeconds()));
 
         logger.info("Exporting workload metrics...");
         try {

@@ -14,7 +14,6 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.atomic.AtomicReference;
 
-// TODO test
 public class ThreadedQueuedConcurrentMetricsService implements ConcurrentMetricsService {
     private static final Duration SHUTDOWN_WAIT_TIMEOUT = Duration.fromSeconds(5);
 
@@ -55,7 +54,7 @@ public class ThreadedQueuedConcurrentMetricsService implements ConcurrentMetrics
     }
 
     @Override
-    public WorkloadResults results() throws MetricsCollectionException {
+    public WorkloadResultsSnapshot results() throws MetricsCollectionException {
         if (shuttingDown) {
             throw new MetricsCollectionException("Can not retrieve results after calling shutdown");
         }
@@ -79,12 +78,12 @@ public class ThreadedQueuedConcurrentMetricsService implements ConcurrentMetrics
         }
     }
 
-    public static class MetricsWorkloadResultFuture implements Future<WorkloadResults> {
+    public static class MetricsWorkloadResultFuture implements Future<WorkloadResultsSnapshot> {
         private final AtomicBoolean done = new AtomicBoolean(false);
-        private final AtomicReference<WorkloadResults> startTime = new AtomicReference<WorkloadResults>(null);
+        private final AtomicReference<WorkloadResultsSnapshot> startTime = new AtomicReference<WorkloadResultsSnapshot>(null);
 
 
-        synchronized void set(WorkloadResults value) throws MetricsCollectionException {
+        synchronized void set(WorkloadResultsSnapshot value) throws MetricsCollectionException {
             if (done.get())
                 throw new MetricsCollectionException("Value has already been set");
             startTime.set(value);
@@ -107,7 +106,7 @@ public class ThreadedQueuedConcurrentMetricsService implements ConcurrentMetrics
         }
 
         @Override
-        public WorkloadResults get() {
+        public WorkloadResultsSnapshot get() {
             while (done.get() == false) {
                 // wait for value to be set
             }
@@ -115,7 +114,7 @@ public class ThreadedQueuedConcurrentMetricsService implements ConcurrentMetrics
         }
 
         @Override
-        public WorkloadResults get(long timeout, TimeUnit unit) throws TimeoutException {
+        public WorkloadResultsSnapshot get(long timeout, TimeUnit unit) throws TimeoutException {
             // Note: the commented version is cleaner, but .durationUntilNow() produces many Duration instances
             // Duration waitDuration = Duration.from(unit, timeout);
             // DurationMeasurement durationWaited = DurationMeasurement.startMeasurementNow();

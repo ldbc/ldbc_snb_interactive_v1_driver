@@ -22,6 +22,9 @@ import com.ldbc.driver.util.Tuple.Tuple2;
 import java.io.File;
 import java.util.*;
 
+import static com.ldbc.driver.OperationClassification.GctMode;
+import static com.ldbc.driver.OperationClassification.SchedulingMode;
+
 public class LdbcInteractiveWorkload extends Workload {
     public final static String PARAMETERS_FILENAME_KEY = "parameters";
     public final static String INTERLEAVE_DURATION_KEY = "interleave_duration";
@@ -57,21 +60,21 @@ public class LdbcInteractiveWorkload extends Workload {
 
     @Override
     public Map<Class<? extends Operation<?>>, OperationClassification> operationClassifications() {
-        Map<Class<? extends Operation<?>>, OperationClassification> operationClassificationMapping = new HashMap<Class<? extends Operation<?>>, OperationClassification>();
+        Map<Class<? extends Operation<?>>, OperationClassification> operationClassifications = new HashMap<Class<? extends Operation<?>>, OperationClassification>();
         // TODO use correct operation classifications
-        operationClassificationMapping.put(LdbcQuery1.class, new OperationClassification(OperationClassification.SchedulingMode.INDIVIDUAL_ASYNC, OperationClassification.GctMode.NONE));
-        operationClassificationMapping.put(LdbcQuery2.class, new OperationClassification(OperationClassification.SchedulingMode.INDIVIDUAL_ASYNC, OperationClassification.GctMode.NONE));
-        operationClassificationMapping.put(LdbcQuery3.class, new OperationClassification(OperationClassification.SchedulingMode.INDIVIDUAL_ASYNC, OperationClassification.GctMode.NONE));
-        operationClassificationMapping.put(LdbcQuery4.class, new OperationClassification(OperationClassification.SchedulingMode.INDIVIDUAL_ASYNC, OperationClassification.GctMode.NONE));
-        operationClassificationMapping.put(LdbcQuery5.class, new OperationClassification(OperationClassification.SchedulingMode.INDIVIDUAL_ASYNC, OperationClassification.GctMode.NONE));
-        operationClassificationMapping.put(LdbcQuery6.class, new OperationClassification(OperationClassification.SchedulingMode.INDIVIDUAL_ASYNC, OperationClassification.GctMode.NONE));
-        operationClassificationMapping.put(LdbcQuery7.class, new OperationClassification(OperationClassification.SchedulingMode.INDIVIDUAL_ASYNC, OperationClassification.GctMode.NONE));
-        operationClassificationMapping.put(LdbcQuery8.class, new OperationClassification(OperationClassification.SchedulingMode.INDIVIDUAL_ASYNC, OperationClassification.GctMode.NONE));
-        operationClassificationMapping.put(LdbcQuery9.class, new OperationClassification(OperationClassification.SchedulingMode.INDIVIDUAL_ASYNC, OperationClassification.GctMode.NONE));
-        operationClassificationMapping.put(LdbcQuery10.class, new OperationClassification(OperationClassification.SchedulingMode.INDIVIDUAL_ASYNC, OperationClassification.GctMode.NONE));
-        operationClassificationMapping.put(LdbcQuery11.class, new OperationClassification(OperationClassification.SchedulingMode.INDIVIDUAL_ASYNC, OperationClassification.GctMode.NONE));
-        operationClassificationMapping.put(LdbcQuery12.class, new OperationClassification(OperationClassification.SchedulingMode.INDIVIDUAL_ASYNC, OperationClassification.GctMode.NONE));
-        return operationClassificationMapping;
+        operationClassifications.put(LdbcQuery1.class, new OperationClassification(SchedulingMode.INDIVIDUAL_ASYNC, GctMode.NONE));
+        operationClassifications.put(LdbcQuery2.class, new OperationClassification(SchedulingMode.INDIVIDUAL_ASYNC, GctMode.NONE));
+        operationClassifications.put(LdbcQuery3.class, new OperationClassification(SchedulingMode.INDIVIDUAL_ASYNC, GctMode.NONE));
+        operationClassifications.put(LdbcQuery4.class, new OperationClassification(SchedulingMode.INDIVIDUAL_ASYNC, GctMode.NONE));
+        operationClassifications.put(LdbcQuery5.class, new OperationClassification(SchedulingMode.INDIVIDUAL_ASYNC, GctMode.NONE));
+        operationClassifications.put(LdbcQuery6.class, new OperationClassification(SchedulingMode.INDIVIDUAL_ASYNC, GctMode.NONE));
+        operationClassifications.put(LdbcQuery7.class, new OperationClassification(SchedulingMode.INDIVIDUAL_ASYNC, GctMode.NONE));
+        operationClassifications.put(LdbcQuery8.class, new OperationClassification(SchedulingMode.INDIVIDUAL_ASYNC, GctMode.NONE));
+        operationClassifications.put(LdbcQuery9.class, new OperationClassification(SchedulingMode.INDIVIDUAL_ASYNC, GctMode.NONE));
+        operationClassifications.put(LdbcQuery10.class, new OperationClassification(SchedulingMode.INDIVIDUAL_ASYNC, GctMode.NONE));
+        operationClassifications.put(LdbcQuery11.class, new OperationClassification(SchedulingMode.INDIVIDUAL_ASYNC, GctMode.NONE));
+        operationClassifications.put(LdbcQuery12.class, new OperationClassification(SchedulingMode.INDIVIDUAL_ASYNC, GctMode.NONE));
+        return operationClassifications;
     }
 
     @Override

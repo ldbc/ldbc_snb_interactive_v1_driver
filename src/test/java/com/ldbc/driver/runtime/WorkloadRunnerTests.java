@@ -9,7 +9,7 @@ import com.ldbc.driver.generator.GeneratorFactory;
 import com.ldbc.driver.runtime.metrics.ConcurrentMetricsService;
 import com.ldbc.driver.runtime.metrics.MetricsCollectionException;
 import com.ldbc.driver.runtime.metrics.ThreadedQueuedConcurrentMetricsService;
-import com.ldbc.driver.runtime.metrics.WorkloadResults;
+import com.ldbc.driver.runtime.metrics.WorkloadResultsSnapshot;
 import com.ldbc.driver.temporal.Duration;
 import com.ldbc.driver.temporal.Time;
 import com.ldbc.driver.util.RandomDataGeneratorFactory;
@@ -20,19 +20,20 @@ import org.apache.commons.io.FileUtils;
 import org.junit.Test;
 
 import java.io.File;
-import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
+import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
 
 public class WorkloadRunnerTests {
     @Test
-    public void shouldRunLdbcWorkloadWithNothingDb() throws DbException, WorkloadException, MetricsCollectionException, FileNotFoundException {
+    public void shouldRunLdbcWorkloadWithNothingDb() throws DbException, WorkloadException, MetricsCollectionException, IOException {
         Map<String, String> paramsMap = new HashMap<String, String>();
         // LDBC Interactive Workload-specific parameters
         paramsMap.put(LdbcInteractiveWorkload.QUERY_1_KEY, "1");
@@ -86,15 +87,22 @@ public class WorkloadRunnerTests {
 
         db.cleanup();
         workload.cleanup();
+        WorkloadResultsSnapshot workloadResults = metricsService.results();
 
         assertThat(metricsService.results().startTime().gte(controlService.workloadStartTime()), is(true));
         assertThat(metricsService.results().startTime().lt(controlService.workloadStartTime().plus(configuration.toleratedExecutionDelay())), is(true));
         assertThat(metricsService.results().finishTime().gt(metricsService.results().startTime()), is(true));
+
+        metricsService.shutdown();
+
+        WorkloadResultsSnapshot workloadResultsFromJson = WorkloadResultsSnapshot.fromJson(workloadResults.toJson());
+
+        assertThat(workloadResults, equalTo(workloadResultsFromJson));
+        assertThat(workloadResults.toJson(), equalTo(workloadResultsFromJson.toJson()));
     }
 
-    // TODO complete
     @Test
-    public void shouldRunLdbcWorkloadWithCsvDbAndReturnExpectedMetrics() throws DbException, WorkloadException, MetricsCollectionException, FileNotFoundException {
+    public void shouldRunLdbcWorkloadWithCsvDbAndReturnExpectedMetrics() throws DbException, WorkloadException, MetricsCollectionException, IOException {
         Map<String, String> paramsMap = new HashMap<String, String>();
         // LDBC Interactive Workload-specific parameters
         paramsMap.put(LdbcInteractiveWorkload.QUERY_1_KEY, "1");
@@ -119,15 +127,15 @@ public class WorkloadRunnerTests {
         String dbClassName = CsvDb.class.getName();
         String workloadClassName = LdbcInteractiveWorkload.class.getName();
         long operationCount = 1000;
-        int threadCount = 1;
+        int threadCount = 4;
         boolean showStatus = true;
         TimeUnit timeUnit = TimeUnit.MILLISECONDS;
         String resultFilePath = "temp_results_file.json";
         FileUtils.deleteQuietly(new File(resultFilePath));
         Double timeCompressionRatio = null;
-        Duration gctDeltaDuration = Duration.fromSeconds(10);
+        Duration gctDeltaDuration = Duration.fromMinutes(1);
         List<String> peerIds = Lists.newArrayList();
-        Duration toleratedExecutionDelay = Duration.fromMilli(100);
+        Duration toleratedExecutionDelay = Duration.fromMilli(1000);
 
         assertThat(new File(csvOutputFilePath).exists(), is(false));
         assertThat(new File(resultFilePath).exists(), is(false));
@@ -153,7 +161,7 @@ public class WorkloadRunnerTests {
 
         db.cleanup();
         workload.cleanup();
-        WorkloadResults workloadResults = metricsService.results();
+        WorkloadResultsSnapshot workloadResults = metricsService.results();
         metricsService.shutdown();
 
         assertThat(workloadResults.startTime().gte(controlService.workloadStartTime()), is(true));
@@ -161,6 +169,9 @@ public class WorkloadRunnerTests {
         assertThat(workloadResults.finishTime().gt(workloadResults.startTime()), is(true));
         assertThat(workloadResults.totalOperationCount(), is(operationCount));
 
-        // TODO convert metrics to JSON then back again from JSON to object
+        WorkloadResultsSnapshot workloadResultsFromJson = WorkloadResultsSnapshot.fromJson(workloadResults.toJson());
+
+        assertThat(workloadResults, equalTo(workloadResultsFromJson));
+        assertThat(workloadResults.toJson(), equalTo(workloadResultsFromJson.toJson()));
     }
 }
