@@ -134,8 +134,7 @@ This driver is being developed as part of the Linked Data Benchmark Council EU-f
 
 To test driver try "simpleworkload", which has few configuration options and comprises of only basic key/value operations:
 
-    java -cp target/core-0.2-SNAPSHOT.jar com.ldbc.driver.Client -db com.ldbc.driver.workloads.simple.db.BasicDb -P workloads/simple/simpleworkload
-
+	java -cp target/core-0.2-SNAPSHOT.jar com.ldbc.driver.Client -db com.ldbc.driver.workloads.simple.db.BasicDb -P workloads/simple/simpleworkload.properties -P src/main/resources/ldbc_driver_default.properties
 ### Credit where it's due
 Though they share almost no lines of code, this project started as a fork of the YCSB framework:
 * http://wiki.github.com/brianfrankcooper/YCSB/
