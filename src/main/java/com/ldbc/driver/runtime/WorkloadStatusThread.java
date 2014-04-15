@@ -12,6 +12,7 @@ class WorkloadStatusThread extends Thread {
     private final ConcurrentErrorReporter errorReporter;
 
     WorkloadStatusThread(Duration statusUpdateInterval, ConcurrentMetricsService metricsService, ConcurrentErrorReporter errorReporter) {
+        super(WorkloadStatusThread.class.getSimpleName());
         this.statusUpdateInterval = statusUpdateInterval;
         this.metricsService = metricsService;
         this.errorReporter = errorReporter;

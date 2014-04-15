@@ -14,7 +14,14 @@ public class ThreadPoolOperationHandlerExecutor implements OperationHandlerExecu
     private boolean shutdown = false;
 
     public ThreadPoolOperationHandlerExecutor(int threadCount) {
-        ThreadFactory threadFactory = Executors.defaultThreadFactory();
+        ThreadFactory threadFactory = new ThreadFactory() {
+            int count = 0;
+
+            @Override
+            public Thread newThread(Runnable runnable) {
+                return new Thread(runnable, "ThreadPoolOperationHandlerExecutor.thread." + count);
+            }
+        };
         this.threadPool = Executors.newFixedThreadPool(threadCount, threadFactory);
     }
 

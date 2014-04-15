@@ -5,7 +5,6 @@ import com.ldbc.driver.OperationHandler;
 import com.ldbc.driver.OperationResult;
 import com.ldbc.driver.runtime.ConcurrentErrorReporter;
 import com.ldbc.driver.runtime.coordination.CompletionTimeException;
-import com.ldbc.driver.runtime.coordination.ConcurrentCompletionTimeService;
 import com.ldbc.driver.runtime.scheduling.Spinner;
 import com.ldbc.driver.runtime.scheduling.SpinnerCheck;
 import com.ldbc.driver.temporal.Duration;
@@ -22,20 +21,18 @@ class PreciseIndividualBlockingOperationStreamExecutorThread extends Thread {
     private final OperationHandlerExecutor operationHandlerExecutor;
     private final Spinner slightlyEarlySpinner;
     private final ConcurrentErrorReporter errorReporter;
-    private final ConcurrentCompletionTimeService completionTimeService;
     private final Iterator<OperationHandler<?>> handlers;
     private final AtomicBoolean hasFinished;
 
     public PreciseIndividualBlockingOperationStreamExecutorThread(OperationHandlerExecutor operationHandlerExecutor,
                                                                   ConcurrentErrorReporter errorReporter,
-                                                                  ConcurrentCompletionTimeService completionTimeService,
                                                                   Iterator<OperationHandler<?>> handlers,
                                                                   AtomicBoolean hasFinished,
                                                                   Spinner slightlyEarlySpinner) {
+        super(PreciseIndividualBlockingOperationStreamExecutorThread.class.getSimpleName());
         this.operationHandlerExecutor = operationHandlerExecutor;
         this.slightlyEarlySpinner = slightlyEarlySpinner;
         this.errorReporter = errorReporter;
-        this.completionTimeService = completionTimeService;
         this.handlers = handlers;
         this.hasFinished = hasFinished;
     }
@@ -52,7 +49,7 @@ class PreciseIndividualBlockingOperationStreamExecutorThread extends Thread {
             slightlyEarlySpinner.waitForScheduledStartTime(handler.operation());
 
             try {
-                completionTimeService.submitInitiatedTime(handler.operation().scheduledStartTime());
+                handler.completionTimeService().submitInitiatedTime(handler.operation().scheduledStartTime());
             } catch (CompletionTimeException e) {
                 errorReporter.reportError(this,
                         String.format("Error encountered while submitted Initiated Time for:\n\t%s\n%s",

@@ -106,7 +106,7 @@ public class IteratorSplitterTests {
 
         // When
         boolean exceptionThrown = false;
-        String errMsg = null;
+        String errMsg = "";
         try {
             iteratorSplitter.split(numbers.iterator(), byteAndIntegerDefinition, longDefinition);
         } catch (IteratorSplittingException e) {

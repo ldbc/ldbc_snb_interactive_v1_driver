@@ -6,6 +6,9 @@ import com.ldbc.driver.control.ConcurrentControlService;
 import com.ldbc.driver.control.ConsoleAndFileDriverConfiguration;
 import com.ldbc.driver.control.LocalControlService;
 import com.ldbc.driver.generator.GeneratorFactory;
+import com.ldbc.driver.runtime.coordination.CompletionTimeException;
+import com.ldbc.driver.runtime.coordination.ConcurrentCompletionTimeService;
+import com.ldbc.driver.runtime.coordination.ThreadedQueuedConcurrentCompletionTimeService;
 import com.ldbc.driver.runtime.metrics.ConcurrentMetricsService;
 import com.ldbc.driver.runtime.metrics.MetricsCollectionException;
 import com.ldbc.driver.runtime.metrics.ThreadedQueuedConcurrentMetricsService;
@@ -33,7 +36,7 @@ import static org.junit.Assert.assertThat;
 
 public class WorkloadRunnerTests {
     @Test
-    public void shouldRunLdbcWorkloadWithNothingDb() throws DbException, WorkloadException, MetricsCollectionException, IOException {
+    public void shouldRunLdbcWorkloadWithNothingDb() throws DbException, WorkloadException, MetricsCollectionException, IOException, CompletionTimeException {
         Map<String, String> paramsMap = new HashMap<String, String>();
         // LDBC Interactive Workload-specific parameters
         paramsMap.put(LdbcInteractiveWorkload.QUERY_1_KEY, "1");
@@ -80,8 +83,9 @@ public class WorkloadRunnerTests {
         Map<Class<? extends Operation<?>>, OperationClassification> operationClassifications = workload.operationClassifications();
         ConcurrentErrorReporter errorReporter = new ConcurrentErrorReporter();
         ConcurrentMetricsService metricsService = new ThreadedQueuedConcurrentMetricsService(errorReporter, configuration.timeUnit());
+        ConcurrentCompletionTimeService completionTimeService = new ThreadedQueuedConcurrentCompletionTimeService(controlService.configuration().peerIds(), errorReporter);
 
-        WorkloadRunner runner = new WorkloadRunner(controlService, db, timeMappedOperations, operationClassifications, metricsService, errorReporter);
+        WorkloadRunner runner = new WorkloadRunner(controlService, db, timeMappedOperations, operationClassifications, metricsService, errorReporter, completionTimeService);
 
         runner.executeWorkload();
 
@@ -102,7 +106,7 @@ public class WorkloadRunnerTests {
     }
 
     @Test
-    public void shouldRunLdbcWorkloadWithCsvDbAndReturnExpectedMetrics() throws DbException, WorkloadException, MetricsCollectionException, IOException {
+    public void shouldRunLdbcWorkloadWithCsvDbAndReturnExpectedMetrics() throws DbException, WorkloadException, MetricsCollectionException, IOException, CompletionTimeException {
         Map<String, String> paramsMap = new HashMap<String, String>();
         // LDBC Interactive Workload-specific parameters
         paramsMap.put(LdbcInteractiveWorkload.QUERY_1_KEY, "1");
@@ -154,8 +158,9 @@ public class WorkloadRunnerTests {
         Map<Class<? extends Operation<?>>, OperationClassification> operationClassifications = workload.operationClassifications();
         ConcurrentErrorReporter errorReporter = new ConcurrentErrorReporter();
         ConcurrentMetricsService metricsService = new ThreadedQueuedConcurrentMetricsService(errorReporter, configuration.timeUnit());
+        ConcurrentCompletionTimeService completionTimeService = new ThreadedQueuedConcurrentCompletionTimeService(controlService.configuration().peerIds(), errorReporter);
 
-        WorkloadRunner runner = new WorkloadRunner(controlService, db, timeMappedOperations, operationClassifications, metricsService, errorReporter);
+        WorkloadRunner runner = new WorkloadRunner(controlService, db, timeMappedOperations, operationClassifications, metricsService, errorReporter, completionTimeService);
 
         runner.executeWorkload();
 

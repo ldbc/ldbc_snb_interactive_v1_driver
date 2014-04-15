@@ -10,4 +10,6 @@ public interface ConcurrentControlService {
     void waitForCommandToExecuteWorkload();
 
     void waitForAllToCompleteExecutingWorkload();
+
+    void shutdown();
 }

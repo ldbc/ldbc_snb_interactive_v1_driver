@@ -46,6 +46,10 @@ public abstract class OperationHandler<OPERATION_TYPE extends Operation<?>> impl
         return operation;
     }
 
+    public final ConcurrentCompletionTimeService completionTimeService() {
+        return completionTimeService;
+    }
+
     public final void setDbConnectionState(DbConnectionState dbConnectionState) {
         this.dbConnectionState = dbConnectionState;
     }

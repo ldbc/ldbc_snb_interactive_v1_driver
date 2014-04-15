@@ -33,7 +33,6 @@ public class UniformWindowedOperationStreamExecutorService {
                 windowSize,
                 operationHandlerExecutor,
                 errorReporter,
-                completionTimeService,
                 handlers,
                 hasFinished,
                 slightlyEarlySpinner);

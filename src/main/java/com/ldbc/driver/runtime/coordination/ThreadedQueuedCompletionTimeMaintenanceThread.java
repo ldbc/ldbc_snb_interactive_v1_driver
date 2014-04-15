@@ -32,6 +32,7 @@ public class ThreadedQueuedCompletionTimeMaintenanceThread extends Thread {
                                                          LocalCompletionTime localCompletionTime,
                                                          ExternalCompletionTime externalCompletionTime,
                                                          AtomicReference<Time> sharedGctReference) {
+        super(ThreadedQueuedCompletionTimeMaintenanceThread.class.getSimpleName());
         this.completionTimeQueue = completionTimeQueue;
         this.errorReporter = errorReporter;
         this.globalCompletionTime = new GlobalCompletionTime(localCompletionTime, externalCompletionTime);

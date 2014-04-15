@@ -4,7 +4,6 @@ import com.ldbc.driver.OperationHandler;
 import com.ldbc.driver.OperationResult;
 import com.ldbc.driver.runtime.ConcurrentErrorReporter;
 import com.ldbc.driver.runtime.coordination.CompletionTimeException;
-import com.ldbc.driver.runtime.coordination.ConcurrentCompletionTimeService;
 import com.ldbc.driver.runtime.scheduling.Spinner;
 import com.ldbc.driver.temporal.Duration;
 import com.ldbc.driver.temporal.Time;
@@ -21,21 +20,19 @@ class PreciseIndividualAsyncOperationStreamExecutorThread extends Thread {
     private final OperationHandlerExecutor operationHandlerExecutor;
     private final Spinner slightlyEarlySpinner;
     private final ConcurrentErrorReporter errorReporter;
-    private final ConcurrentCompletionTimeService completionTimeService;
     private final Iterator<OperationHandler<?>> handlers;
     private final AtomicBoolean hasFinished;
     private final ArrayList<Future<OperationResult>> runningHandlers = new ArrayList<Future<OperationResult>>();
 
     public PreciseIndividualAsyncOperationStreamExecutorThread(OperationHandlerExecutor operationHandlerExecutor,
                                                                ConcurrentErrorReporter errorReporter,
-                                                               ConcurrentCompletionTimeService completionTimeService,
                                                                Iterator<OperationHandler<?>> handlers,
                                                                AtomicBoolean hasFinished,
                                                                Spinner slightlyEarlySpinner) {
+        super(PreciseIndividualAsyncOperationStreamExecutorThread.class.getSimpleName());
         this.operationHandlerExecutor = operationHandlerExecutor;
         this.slightlyEarlySpinner = slightlyEarlySpinner;
         this.errorReporter = errorReporter;
-        this.completionTimeService = completionTimeService;
         this.handlers = handlers;
         this.hasFinished = hasFinished;
     }
@@ -48,7 +45,7 @@ class PreciseIndividualAsyncOperationStreamExecutorThread extends Thread {
             // Schedule slightly early to account for context switch - internally, handler will schedule at exact start time
             slightlyEarlySpinner.waitForScheduledStartTime(handler.operation());
             try {
-                completionTimeService.submitInitiatedTime(handler.operation().scheduledStartTime());
+                handler.completionTimeService().submitInitiatedTime(handler.operation().scheduledStartTime());
             } catch (CompletionTimeException e) {
                 String errMsg = String.format("Error encountered while submitted Initiated Time for:\n\t%s\n%s",
                         handler.operation().toString(),

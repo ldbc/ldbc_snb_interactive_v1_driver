@@ -7,6 +7,9 @@ import com.ldbc.driver.control.LocalControlService;
 import com.ldbc.driver.generator.GeneratorFactory;
 import com.ldbc.driver.runtime.ConcurrentErrorReporter;
 import com.ldbc.driver.runtime.WorkloadRunner;
+import com.ldbc.driver.runtime.coordination.CompletionTimeException;
+import com.ldbc.driver.runtime.coordination.ConcurrentCompletionTimeService;
+import com.ldbc.driver.runtime.coordination.ThreadedQueuedConcurrentCompletionTimeService;
 import com.ldbc.driver.runtime.metrics.*;
 import com.ldbc.driver.temporal.Duration;
 import com.ldbc.driver.temporal.Time;
@@ -18,6 +21,7 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.util.Iterator;
+import java.util.concurrent.Future;
 
 public class Client {
     private static Logger logger = Logger.getLogger(Client.class);
@@ -44,6 +48,7 @@ public class Client {
     private final Db db;
     private final ConcurrentControlService controlService;
     private final ConcurrentMetricsService metricsService;
+    private final ConcurrentCompletionTimeService completionTimeService;
     private final WorkloadRunner workloadRunner;
 
     public Client(ConcurrentControlService controlService) throws ClientException {
@@ -71,6 +76,29 @@ public class Client {
         logger.info(String.format("Loaded DB: %s", db.getClass().getName()));
 
         ConcurrentErrorReporter errorReporter = new ConcurrentErrorReporter();
+
+        try {
+            completionTimeService = new ThreadedQueuedConcurrentCompletionTimeService(controlService.configuration().peerIds(), errorReporter);
+            completionTimeService.submitInitiatedTime(controlService.workloadStartTime());
+            completionTimeService.submitCompletedTime(controlService.workloadStartTime());
+            for (String peerId : controlService.configuration().peerIds()) {
+                completionTimeService.submitExternalCompletionTime(peerId, controlService.workloadStartTime());
+            }
+            // Wait for workloadStartTime to be applied
+            Future<Time> globalCompletionTimeFuture = completionTimeService.globalCompletionTimeFuture();
+            while (false == globalCompletionTimeFuture.isDone()) {
+                if (errorReporter.errorEncountered())
+                    throw new WorkloadException(String.format("Encountered error while waiting for GCT to initialize. Driver terminating.\n%s", errorReporter.toString()));
+            }
+            if (false == globalCompletionTimeFuture.get().equals(controlService.workloadStartTime())) {
+                throw new WorkloadException("Completion Time future failed to return expected value");
+            }
+        } catch (Exception e) {
+            throw new ClientException(
+                    String.format("Error while instantiating Completion Time Service with peer IDs %s", controlService.configuration().peerIds().toString()),
+                    e.getCause());
+        }
+
         metricsService = new ThreadedQueuedConcurrentMetricsService(errorReporter, controlService.configuration().timeUnit());
         GeneratorFactory generators = new GeneratorFactory(new RandomDataGeneratorFactory(RANDOM_SEED));
 
@@ -87,7 +115,8 @@ public class Client {
                     timeMappedOperations,
                     workload.operationClassifications(),
                     metricsService,
-                    errorReporter);
+                    errorReporter,
+                    completionTimeService);
         } catch (WorkloadException e) {
             throw new ClientException("Error instantiating WorkloadRunner", e.getCause());
         }
@@ -119,6 +148,13 @@ public class Client {
             throw new ClientException("Error during DB cleanup", e.getCause());
         }
 
+        logger.info("Shutting down completion time service...");
+        try {
+            completionTimeService.shutdown();
+        } catch (CompletionTimeException e) {
+            throw new ClientException("Error during shutdown of completion time service", e.getCause());
+        }
+
         logger.info("Shutting down metrics collection service...");
         WorkloadResultsSnapshot workloadResults;
         try {
@@ -137,6 +173,7 @@ public class Client {
                 File resultFile = new File(controlService.configuration().resultFilePath());
                 MetricsManager.export(workloadResults, new JsonOperationMetricsFormatter(), new FileOutputStream(resultFile), MetricsManager.DEFAULT_CHARSET);
             }
+            controlService.shutdown();
         } catch (MetricsCollectionException e) {
             throw new ClientException("Could not export workload metrics", e.getCause());
         } catch (FileNotFoundException e) {

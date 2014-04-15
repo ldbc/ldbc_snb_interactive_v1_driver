@@ -27,7 +27,6 @@ public class PreciseIndividualBlockingOperationStreamExecutorService {
         this.preciseIndividualBlockingOperationStreamExecutorThread = new PreciseIndividualBlockingOperationStreamExecutorThread(
                 operationHandlerExecutor,
                 errorReporter,
-                completionTimeService,
                 handlers,
                 hasFinished,
                 slightlyEarlySpinner);

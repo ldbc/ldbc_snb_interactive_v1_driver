@@ -3,7 +3,6 @@ package com.ldbc.driver.runtime;
 import com.ldbc.driver.*;
 import com.ldbc.driver.control.ConcurrentControlService;
 import com.ldbc.driver.runtime.coordination.ConcurrentCompletionTimeService;
-import com.ldbc.driver.runtime.coordination.ThreadedQueuedConcurrentCompletionTimeService;
 import com.ldbc.driver.runtime.executor.*;
 import com.ldbc.driver.runtime.metrics.ConcurrentMetricsService;
 import com.ldbc.driver.runtime.scheduling.ErrorReportingExecutionDelayPolicy;
@@ -14,11 +13,9 @@ import com.ldbc.driver.runtime.streams.IteratorSplittingException;
 import com.ldbc.driver.runtime.streams.SplitDefinition;
 import com.ldbc.driver.runtime.streams.SplitResult;
 import com.ldbc.driver.temporal.Duration;
-import com.ldbc.driver.temporal.Time;
 
 import java.util.Iterator;
 import java.util.Map;
-import java.util.concurrent.Future;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import static com.ldbc.driver.OperationClassification.SchedulingMode;
@@ -34,7 +31,6 @@ public class WorkloadRunner {
     private final WorkloadStatusThread workloadStatusThread;
 
     private final ConcurrentControlService controlService;
-    private final ConcurrentCompletionTimeService completionTimeService;
     private final ConcurrentErrorReporter errorReporter;
 
     private final OperationHandlerExecutor operationHandlerExecutor;
@@ -48,7 +44,8 @@ public class WorkloadRunner {
                           Iterator<Operation<?>> operations,
                           Map<Class<? extends Operation<?>>, OperationClassification> operationClassifications,
                           ConcurrentMetricsService metricsService,
-                          ConcurrentErrorReporter errorReporter) throws WorkloadException {
+                          ConcurrentErrorReporter errorReporter,
+                          ConcurrentCompletionTimeService completionTimeService) throws WorkloadException {
         this.controlService = controlService;
         this.errorReporter = errorReporter;
 
@@ -59,38 +56,6 @@ public class WorkloadRunner {
         this.exactSpinner = new Spinner(executionDelayPolicy);
         this.earlySpinner = new Spinner(executionDelayPolicy, SPINNER_OFFSET_DURATION);
         this.workloadStatusThread = new WorkloadStatusThread(DEFAULT_STATUS_UPDATE_INTERVAL, metricsService, errorReporter);
-
-        // Create GCT maintenance thread
-        try {
-            completionTimeService = new ThreadedQueuedConcurrentCompletionTimeService(controlService.configuration().peerIds(), errorReporter);
-        } catch (Exception e) {
-            throw new WorkloadException(
-                    String.format("Error while instantiating Completion Time Service with peer IDs %s",
-                            controlService.configuration().peerIds().toString()),
-                    e.getCause());
-        }
-
-        // Set GCT to just before scheduled start time of earliest operation in process's stream
-        try {
-            completionTimeService.submitInitiatedTime(controlService.workloadStartTime());
-            completionTimeService.submitCompletedTime(controlService.workloadStartTime());
-            for (String peerId : controlService.configuration().peerIds()) {
-                completionTimeService.submitExternalCompletionTime(peerId, controlService.workloadStartTime());
-            }
-            // Wait for workloadStartTime to be applied
-            Future<Time> globalCompletionTimeFuture = completionTimeService.globalCompletionTimeFuture();
-            while (false == globalCompletionTimeFuture.isDone()) {
-                if (errorReporter.errorEncountered())
-                    throw new WorkloadException(String.format("Encountered error while waiting for GCT to initialize. Driver terminating.\n%s", errorReporter.toString()));
-            }
-            if (false == globalCompletionTimeFuture.get().equals(controlService.workloadStartTime())) {
-                throw new WorkloadException("Completion Time future failed to return expected value");
-            }
-        } catch (WorkloadException e) {
-            throw e;
-        } catch (Exception e) {
-            throw new WorkloadException("Error while read/writing Completion Time Service", e.getCause());
-        }
 
         Iterator<Operation<?>> windowedOperations;
         Iterator<Operation<?>> blockingOperations;

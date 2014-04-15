@@ -8,7 +8,6 @@ import com.ldbc.driver.generator.Window;
 import com.ldbc.driver.generator.WindowGenerator;
 import com.ldbc.driver.runtime.ConcurrentErrorReporter;
 import com.ldbc.driver.runtime.coordination.CompletionTimeException;
-import com.ldbc.driver.runtime.coordination.ConcurrentCompletionTimeService;
 import com.ldbc.driver.runtime.scheduling.Scheduler;
 import com.ldbc.driver.runtime.scheduling.Spinner;
 import com.ldbc.driver.runtime.scheduling.UniformWindowedScheduler;
@@ -26,7 +25,6 @@ class UniformWindowedOperationStreamExecutorThread extends Thread {
     private final Scheduler<List<OperationHandler<?>>, Window.OperationHandlerTimeRangeWindow> scheduler;
     private final Spinner slightlyEarlySpinner;
     private final ConcurrentErrorReporter errorReporter;
-    private final ConcurrentCompletionTimeService completionTimeService;
     private final AtomicBoolean hasFinished;
     private final WindowGenerator<OperationHandler<?>, Window.OperationHandlerTimeRangeWindow> handlerWindows;
 
@@ -34,15 +32,14 @@ class UniformWindowedOperationStreamExecutorThread extends Thread {
                                                         final Duration windowSize,
                                                         OperationHandlerExecutor operationHandlerExecutor,
                                                         ConcurrentErrorReporter errorReporter,
-                                                        ConcurrentCompletionTimeService completionTimeService,
                                                         Iterator<OperationHandler<?>> handlers,
                                                         AtomicBoolean hasFinished,
                                                         Spinner slightlyEarlySpinner) {
+        super(UniformWindowedOperationStreamExecutorThread.class.getSimpleName());
         this.operationHandlerExecutor = operationHandlerExecutor;
         this.scheduler = new UniformWindowedScheduler();
         this.slightlyEarlySpinner = slightlyEarlySpinner;
         this.errorReporter = errorReporter;
-        this.completionTimeService = completionTimeService;
         this.hasFinished = hasFinished;
         // generates windows with appropriate start and end times
         Generator<Window.OperationHandlerTimeRangeWindow> windows = new Generator<Window.OperationHandlerTimeRangeWindow>() {
@@ -93,23 +90,23 @@ class UniformWindowedOperationStreamExecutorThread extends Thread {
 
             // execute operation handlers for current window
             currentlyExecutingHandlers = new ArrayList<Future<OperationResult>>();
-            for (OperationHandler<?> operationHandler : scheduledHandlers) {
+            for (OperationHandler<?> handler : scheduledHandlers) {
                 // Schedule slightly early to account for context switch - internally, handler will schedule at exact start time
-                slightlyEarlySpinner.waitForScheduledStartTime(operationHandler.operation());
+                slightlyEarlySpinner.waitForScheduledStartTime(handler.operation());
                 try {
-                    completionTimeService.submitInitiatedTime(operationHandler.operation().scheduledStartTime());
+                    handler.completionTimeService().submitInitiatedTime(handler.operation().scheduledStartTime());
                 } catch (CompletionTimeException e) {
                     errorReporter.reportError(this,
                             String.format("Error encountered while submitted Initiated Time for:\n\t%s\n%s",
-                                    operationHandler.operation().toString(),
+                                    handler.operation().toString(),
                                     ConcurrentErrorReporter.stackTraceToString(e.getCause())));
                 }
                 try {
-                    currentlyExecutingHandlers.add(operationHandlerExecutor.execute(operationHandler));
+                    currentlyExecutingHandlers.add(operationHandlerExecutor.execute(handler));
                 } catch (OperationHandlerExecutorException e) {
                     errorReporter.reportError(this,
                             String.format("Error encountered while submitting operation for execution\n\t%s\n\t%s",
-                                    operationHandler.operation().toString(),
+                                    handler.operation().toString(),
                                     ConcurrentErrorReporter.stackTraceToString(e.getCause())));
                 }
             }

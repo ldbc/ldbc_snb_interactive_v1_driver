@@ -7,10 +7,6 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 
-// TODO return Iterator instead, writing thread only writes to queues when at least one of them is below some minimum size & runs until input exhausted
-// TODO ADVANTAGE: semi-lazy, depending on input stream and stream consumers
-// TODO DISADVANTAGE: requires an additional thread (more compute resources)
-
 /**
  * Splits an Iterator into multiple Iterables. This operation is NOT lazy, all items from the input Iterator are materialized in the output Iterables.
  */
@@ -67,7 +63,7 @@ public class IteratorSplitter<ITEMS_TYPE> {
                 for (ItemIteratorToItemListThread splitListCreateThread : splitListCreateThreads) {
                     splitListCreateThread.interrupt();
                 }
-                throw new IteratorSplittingException(String.format("Splitting terminated\n", errorReporter.toString()));
+                throw new IteratorSplittingException(String.format("Splitting terminated\n%s", errorReporter.toString()));
             }
         }
         return splitResult;
@@ -181,7 +177,7 @@ public class IteratorSplitter<ITEMS_TYPE> {
                     } catch (Exception e) {
                         errorReporter.reportError(
                                 this,
-                                String.format("Unable to add item to output queue\n%s", ConcurrentErrorReporter.stackTraceToString(e.getCause()))
+                                String.format("Unable to add item to output queue\n%s", ConcurrentErrorReporter.stackTraceToString(e))
                         );
                     }
                 }

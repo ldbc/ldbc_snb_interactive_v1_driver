@@ -12,10 +12,6 @@ public class LocalControlService implements ConcurrentControlService {
         this.configuration = configuration;
     }
 
-    // -------------------------------
-    // Control
-    // -------------------------------
-
     @Override
     public DriverConfiguration configuration() {
         return configuration;
@@ -36,10 +32,10 @@ public class LocalControlService implements ConcurrentControlService {
 
     }
 
-    // -------------------------------
-    // Configuration
-    // -------------------------------
+    @Override
+    public void shutdown() {
 
+    }
 
     @Override
     public String toString() {

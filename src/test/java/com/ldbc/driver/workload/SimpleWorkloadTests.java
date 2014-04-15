@@ -3,18 +3,21 @@ package com.ldbc.driver.workload;
 import com.google.common.base.Function;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Iterators;
-import com.ldbc.driver.ClientException;
-import com.ldbc.driver.Operation;
-import com.ldbc.driver.Workload;
-import com.ldbc.driver.WorkloadException;
+import com.ldbc.driver.*;
 import com.ldbc.driver.control.ConsoleAndFileDriverConfiguration;
 import com.ldbc.driver.control.DriverConfigurationException;
+import com.ldbc.driver.control.LocalControlService;
 import com.ldbc.driver.generator.GeneratorFactory;
 import com.ldbc.driver.temporal.Duration;
+import com.ldbc.driver.temporal.Time;
 import com.ldbc.driver.util.RandomDataGeneratorFactory;
+import com.ldbc.driver.workloads.ldbc.socnet.interactive.db.CsvDb;
 import com.ldbc.driver.workloads.simple.SimpleWorkload;
+import com.ldbc.driver.workloads.simple.db.BasicDb;
+import org.apache.commons.io.FileUtils;
 import org.junit.Test;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -107,4 +110,38 @@ public class SimpleWorkloadTests {
             assertThat(a, equalTo(b));
         }
     }
-}
+
+    @Test
+    public void shouldLoadFromConfigFile() throws DriverConfigurationException, ClientException {
+        String simpleTestPropertiesPath =
+                new File("ldbc_driver/workloads/simple/simpleworkload.properties").getAbsolutePath();
+        String ldbcDriverTestPropertiesPath =
+                new File("ldbc_driver/src/main/resources/ldbc_driver_default.properties").getAbsolutePath();
+
+        String resultFilePath = "test_write_to_csv_results.json";
+        FileUtils.deleteQuietly(new File(resultFilePath));
+
+        assertThat(new File(resultFilePath).exists(), is(false));
+
+        assertThat(new File(simpleTestPropertiesPath).exists(), is(true));
+        assertThat(new File(ldbcDriverTestPropertiesPath).exists(), is(true));
+
+        ConsoleAndFileDriverConfiguration configuration = ConsoleAndFileDriverConfiguration.fromArgs(new String[]{
+                "-" + ConsoleAndFileDriverConfiguration.RESULT_FILE_PATH_ARG, resultFilePath,
+                "-" + ConsoleAndFileDriverConfiguration.DB_ARG, BasicDb.class.getName(),
+                "-P", simpleTestPropertiesPath,
+                "-P", ldbcDriverTestPropertiesPath});
+
+
+        assertThat(new File(resultFilePath).exists(), is(false));
+
+
+        // When
+        Client client = new Client(new LocalControlService(Time.now().plus(Duration.fromMilli(500)), configuration));
+        client.start();
+
+        // Then
+        assertThat(new File(resultFilePath).exists(), is(true));
+        FileUtils.deleteQuietly(new File(resultFilePath));
+        assertThat(new File(resultFilePath).exists(), is(false));
+    }}

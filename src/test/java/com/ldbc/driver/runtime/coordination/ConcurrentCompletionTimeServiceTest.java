@@ -16,6 +16,7 @@ import org.junit.Test;
 
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Queue;
 import java.util.concurrent.*;
 
@@ -175,7 +176,7 @@ public class ConcurrentCompletionTimeServiceTest {
         }
     }
 
-    public Duration coordinationCompletionTimeServiceTest(ConcurrentCompletionTimeService concurrentCompletionTimeService,
+    public Duration coordinationCompletionTimeServiceTest(ConcurrentCompletionTimeService completionTimeService,
                                                           String otherPeerId,
                                                           ConcurrentErrorReporter errorReporter,
                                                           int workerThreadCount)
@@ -184,28 +185,39 @@ public class ConcurrentCompletionTimeServiceTest {
         int threadCount = workerThreadCount;
         ThreadFactory threadFactory = Executors.defaultThreadFactory();
         ExecutorService executorService = Executors.newFixedThreadPool(threadCount, threadFactory);
-        CompletionService<Integer> executorCompletionService = new ExecutorCompletionService<Integer>(executorService);
+        CompletionService<Integer> executor = new ExecutorCompletionService<Integer>(executorService);
 
         // initialize workload
         long operationCount = 100000;
         int operationCountCheckPoint1 = 100;
         int operationCountCheckPoint2 = 900;
+        // to make sure it's a valid test
         assertThat(operationCount > operationCountCheckPoint1 + operationCountCheckPoint2, is(true));
 
+        Map<String, String> paramsMap = null;
+        String className = null;
+        String workloadName = null;
+        boolean showStatus = false;
+        TimeUnit timeUnit = null;
+        String resultFilePath = null;
+        Double timeCompressionRatio = null;
+        Duration gctDeltaDuration = null;
+        List<String> peerIds = null;
+        Duration toleratedDelay = null;
         ConsoleAndFileDriverConfiguration params =
-                new ConsoleAndFileDriverConfiguration(null, null, null, operationCount, threadCount, false, null, null, null, null, null, null);
+                new ConsoleAndFileDriverConfiguration(paramsMap, className, workloadName, operationCount, threadCount, showStatus, timeUnit, resultFilePath, timeCompressionRatio, gctDeltaDuration, peerIds, toleratedDelay);
         Workload workload = new SimpleWorkload();
         workload.init(params);
         GeneratorFactory generators = new GeneratorFactory(new RandomDataGeneratorFactory(42L));
         Iterator<Operation<?>> operations = workload.operations(generators);
 
-        // run
+        // measure duration of experiment
         DurationMeasurement duration = DurationMeasurement.startMeasurementNow();
 
         Operation<?> gctCheckpointOperation1 = operations.next();
-        concurrentCompletionTimeService.submitExternalCompletionTime(otherPeerId, gctCheckpointOperation1.scheduledStartTime());
-        concurrentCompletionTimeService.submitInitiatedTime(gctCheckpointOperation1.scheduledStartTime());
-        concurrentCompletionTimeService.submitCompletedTime(gctCheckpointOperation1.scheduledStartTime());
+        completionTimeService.submitExternalCompletionTime(otherPeerId, gctCheckpointOperation1.scheduledStartTime());
+        completionTimeService.submitInitiatedTime(gctCheckpointOperation1.scheduledStartTime());
+        completionTimeService.submitCompletedTime(gctCheckpointOperation1.scheduledStartTime());
 
         Time lastScheduledStartTime = gctCheckpointOperation1.scheduledStartTime();
 
@@ -217,40 +229,41 @@ public class ConcurrentCompletionTimeServiceTest {
             // IMPORTANT: queue initiated event BEFORE submitting task
             // This ensures that the event is initiated before later events initiate AND complete
             // Otherwise race conditions can cause GCT to proceed before an earlier initiated time is logged
-            concurrentCompletionTimeService.submitInitiatedTime(operation.scheduledStartTime());
-            executorCompletionService.submit(new GctAccessingCallable(operation, concurrentCompletionTimeService, errorReporter));
+            completionTimeService.submitInitiatedTime(operation.scheduledStartTime());
+            executor.submit(new GctAccessingCallable(operation, completionTimeService, errorReporter));
         }
 
         int completedTasks = 1;
         while (completedTasks < operationCountCheckPoint1) {
-            executorCompletionService.take();
+            executor.take();
             completedTasks++;
         }
 
-        Future<Time> gctFuture1 = concurrentCompletionTimeService.globalCompletionTimeFuture();
+        Future<Time> gctFuture1 = completionTimeService.globalCompletionTimeFuture();
         assertThat(gctFuture1.get(), equalTo(gctCheckpointOperation1.scheduledStartTime()));
 
         Operation<?> gctCheckpointOperation2 = operations.next();
-        concurrentCompletionTimeService.submitExternalCompletionTime(otherPeerId, gctCheckpointOperation2.scheduledStartTime());
-        concurrentCompletionTimeService.submitInitiatedTime(gctCheckpointOperation2.scheduledStartTime());
-        executorCompletionService.submit(new GctAccessingCallable(gctCheckpointOperation2, concurrentCompletionTimeService, errorReporter));
+        completionTimeService.submitExternalCompletionTime(otherPeerId, gctCheckpointOperation2.scheduledStartTime());
+        completionTimeService.submitInitiatedTime(gctCheckpointOperation2.scheduledStartTime());
+        executor.submit(new GctAccessingCallable(gctCheckpointOperation2, completionTimeService, errorReporter));
 
         for (int i = operationCountCheckPoint1 + 1; i < operationCountCheckPoint2; i++) {
             Operation<?> operation = operations.next();
             assertThat(operation.scheduledStartTime().asMilli() >= lastScheduledStartTime.asMilli(), is(true));
             lastScheduledStartTime = operation.scheduledStartTime();
-            concurrentCompletionTimeService.submitInitiatedTime(operation.scheduledStartTime());
-            executorCompletionService.submit(new GctAccessingCallable(operation, concurrentCompletionTimeService, errorReporter));
+            completionTimeService.submitInitiatedTime(operation.scheduledStartTime());
+            executor.submit(new GctAccessingCallable(operation, completionTimeService, errorReporter));
         }
 
         // Wait for tasks to finish submitting CompletedTimes
         completedTasks = 0;
         while (completedTasks < operationCountCheckPoint2 - operationCountCheckPoint1) {
-            executorCompletionService.take();
+            executor.take();
             completedTasks++;
         }
 
-        Future<Time> gctFuture2 = concurrentCompletionTimeService.globalCompletionTimeFuture();
+        Future<Time> gctFuture2 = completionTimeService.globalCompletionTimeFuture();
+        // TODO BUG IS HERE
         assertThat(gctFuture2.get(), equalTo(gctCheckpointOperation2.scheduledStartTime()));
 
         while (operations.hasNext()) {
@@ -262,20 +275,20 @@ public class ConcurrentCompletionTimeServiceTest {
             // IMPORTANT: queue initiated event BEFORE submitting task
             // This ensures that the event is initiated before later events initiate AND complete
             // Otherwise race conditions can cause GCT to proceed before an earlier initiated time is logged
-            concurrentCompletionTimeService.submitInitiatedTime(operation.scheduledStartTime());
-            executorCompletionService.submit(new GctAccessingCallable(operation, concurrentCompletionTimeService, errorReporter));
+            completionTimeService.submitInitiatedTime(operation.scheduledStartTime());
+            executor.submit(new GctAccessingCallable(operation, completionTimeService, errorReporter));
         }
 
         // Wait for tasks to finish submitting CompletedTimes
         completedTasks = 0;
         while (completedTasks < operationCount - operationCountCheckPoint2) {
-            executorCompletionService.take();
+            executor.take();
             completedTasks++;
         }
 
-        concurrentCompletionTimeService.submitExternalCompletionTime(otherPeerId, lastScheduledStartTime);
+        completionTimeService.submitExternalCompletionTime(otherPeerId, lastScheduledStartTime);
 
-        Future<Time> gctFuture3 = concurrentCompletionTimeService.globalCompletionTimeFuture();
+        Future<Time> gctFuture3 = completionTimeService.globalCompletionTimeFuture();
         assertThat(gctFuture3.get(), equalTo(lastScheduledStartTime));
 
         Duration testDuration = duration.durationUntilNow();
@@ -304,6 +317,7 @@ public class ConcurrentCompletionTimeServiceTest {
             try {
                 Time gctTime = concurrentCompletionTimeService.globalCompletionTime();
                 assertThat(gctTime, notNullValue());
+                // operation completes
                 // TODO in real application this should be done AFTER completion of operation
                 // TODO write lessons learnt into Confluence specification document
                 concurrentCompletionTimeService.submitCompletedTime(operation.scheduledStartTime());
