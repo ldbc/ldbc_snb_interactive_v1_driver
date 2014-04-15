@@ -108,7 +108,7 @@ public class ConsoleAndFileDriverConfiguration implements DriverConfiguration {
             assertValidTimeUnit(paramsMap.get(TIME_UNIT_ARG));
             paramsMap = MapUtils.mergeMaps(paramsMap, defaultParamValues(), false);
         } catch (ParseException e) {
-            throw new DriverConfigurationException(e.getMessage());
+            throw new DriverConfigurationException(String.format("%s\n%s", e.getMessage(), helpString()));
         } catch (DriverConfigurationException e) {
             throw new DriverConfigurationException(String.format("%s\n%s", e.getMessage(), helpString()));
         }

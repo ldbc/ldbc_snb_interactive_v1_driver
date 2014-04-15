@@ -8,12 +8,17 @@ import com.ldbc.driver.runtime.coordination.CompletionTimeException;
 import com.ldbc.driver.runtime.coordination.ConcurrentCompletionTimeService;
 import com.ldbc.driver.runtime.scheduling.Spinner;
 import com.ldbc.driver.runtime.scheduling.SpinnerCheck;
+import com.ldbc.driver.temporal.Duration;
+import com.ldbc.driver.temporal.Time;
 
 import java.util.Iterator;
 import java.util.concurrent.Future;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 class PreciseIndividualBlockingOperationStreamExecutorThread extends Thread {
+    // TODO this value should be configurable, or an entirely better policy should be used
+    private static final Duration DURATION_TO_WAIT_FOR_LAST_HANDLER_TO_FINISH = Duration.fromMinutes(5);
+
     private final OperationHandlerExecutor operationHandlerExecutor;
     private final Spinner slightlyEarlySpinner;
     private final ConcurrentErrorReporter errorReporter;
@@ -63,11 +68,19 @@ class PreciseIndividualBlockingOperationStreamExecutorThread extends Thread {
                                 ConcurrentErrorReporter.stackTraceToString(e.getCause())));
             }
         }
-        // TODO use similar logic to make it possible to cap maximum query run time
-        while (null != executingHandler && false == executingHandler.isDone()) {
-            // wait for last handler to finish
+        boolean executingHandlerFinishedInTime = awaitExecutingHandler(DURATION_TO_WAIT_FOR_LAST_HANDLER_TO_FINISH, executingHandler);
+        if (false == executingHandlerFinishedInTime) {
+            errorReporter.reportError(this, "Last handler did not complete in time");
         }
         this.hasFinished.set(true);
+    }
+
+    private boolean awaitExecutingHandler(Duration timeoutDuration, Future<OperationResult> executingHandler) {
+        long timeoutTimeMs = Time.now().plus(timeoutDuration).asMilli();
+        while (Time.nowAsMilli() < timeoutTimeMs) {
+            if (null == executingHandler || executingHandler.isDone()) return true;
+        }
+        return false;
     }
 
     private final class FutureCompletedCheck implements SpinnerCheck {

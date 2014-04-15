@@ -21,6 +21,8 @@ import java.util.Map;
 import java.util.concurrent.Future;
 import java.util.concurrent.atomic.AtomicBoolean;
 
+import static com.ldbc.driver.OperationClassification.SchedulingMode;
+
 public class WorkloadRunner {
     private final Duration DEFAULT_STATUS_UPDATE_INTERVAL = Duration.fromSeconds(2);
     private final Duration SPINNER_OFFSET_DURATION = Duration.fromMilli(100);
@@ -28,7 +30,7 @@ public class WorkloadRunner {
     private final Spinner exactSpinner;
     private final Spinner earlySpinner;
 
-    // TODO make service and inject into workload runner
+    // TODO make service and inject into workload runner. this could report to coordinator OR a local console printer, for example
     private final WorkloadStatusThread workloadStatusThread;
 
     private final ConcurrentControlService controlService;
@@ -95,9 +97,9 @@ public class WorkloadRunner {
         Iterator<Operation<?>> asynchronousOperations;
         try {
             IteratorSplitter<Operation<?>> splitter = new IteratorSplitter<Operation<?>>(IteratorSplitter.UnmappedItemPolicy.ABORT);
-            SplitDefinition<Operation<?>> windowed = new SplitDefinition<Operation<?>>(Workload.operationTypesBySchedulingMode(operationClassifications, OperationClassification.SchedulingMode.WINDOWED));
-            SplitDefinition<Operation<?>> blocking = new SplitDefinition<Operation<?>>(Workload.operationTypesBySchedulingMode(operationClassifications, OperationClassification.SchedulingMode.INDIVIDUAL_BLOCKING));
-            SplitDefinition<Operation<?>> asynchronous = new SplitDefinition<Operation<?>>(Workload.operationTypesBySchedulingMode(operationClassifications, OperationClassification.SchedulingMode.INDIVIDUAL_ASYNC));
+            SplitDefinition<Operation<?>> windowed = new SplitDefinition<Operation<?>>(Workload.operationTypesBySchedulingMode(operationClassifications, SchedulingMode.WINDOWED));
+            SplitDefinition<Operation<?>> blocking = new SplitDefinition<Operation<?>>(Workload.operationTypesBySchedulingMode(operationClassifications, SchedulingMode.INDIVIDUAL_BLOCKING));
+            SplitDefinition<Operation<?>> asynchronous = new SplitDefinition<Operation<?>>(Workload.operationTypesBySchedulingMode(operationClassifications, SchedulingMode.INDIVIDUAL_ASYNC));
             SplitResult splits = splitter.split(operations, windowed, blocking, asynchronous);
             windowedOperations = splits.getSplitFor(windowed).iterator();
             blockingOperations = splits.getSplitFor(blocking).iterator();
@@ -108,7 +110,7 @@ public class WorkloadRunner {
                     e.getCause());
         }
 
-        OperationsToHandlersTransformer operationsToHandlersTransformer = new OperationsToHandlersTransformer(
+        OperationsToHandlersTransformer operationsToHandlers = new OperationsToHandlersTransformer(
                 db,
                 exactSpinner,
                 completionTimeService,
@@ -116,12 +118,12 @@ public class WorkloadRunner {
                 metricsService,
                 controlService.configuration().gctDeltaDuration(),
                 operationClassifications);
-        Iterator<OperationHandler<?>> windowedHandlers = operationsToHandlersTransformer.transform(windowedOperations);
-        Iterator<OperationHandler<?>> blockingHandlers = operationsToHandlersTransformer.transform(blockingOperations);
-        Iterator<OperationHandler<?>> asynchronousHandlers = operationsToHandlersTransformer.transform(asynchronousOperations);
+        Iterator<OperationHandler<?>> windowedHandlers = operationsToHandlers.transform(windowedOperations);
+        Iterator<OperationHandler<?>> blockingHandlers = operationsToHandlers.transform(blockingOperations);
+        Iterator<OperationHandler<?>> asynchronousHandlers = operationsToHandlers.transform(asynchronousOperations);
 
         // TODO these executor services should all be using different gct services and sharing gct via external ct [MUST]
-        // This lesson needs to be written to Confluence too
+        // TODO This lesson needs to be written to Confluence too
 
         this.operationHandlerExecutor = new ThreadPoolOperationHandlerExecutor(controlService.configuration().threadCount());
         this.preciseIndividualAsyncOperationStreamExecutorService = new PreciseIndividualAsyncOperationStreamExecutorService(
@@ -135,8 +137,6 @@ public class WorkloadRunner {
     }
 
     public void executeWorkload() throws WorkloadException {
-        // TODO wait until control service start time, or just before, so status isn't being reported too early
-
         // TODO revise if this necessary here, and if not where??
         controlService.waitForCommandToExecuteWorkload();
 
@@ -165,25 +165,20 @@ public class WorkloadRunner {
                 break;
         }
 
-        // TODO cleanup everything properly first? what needs to be cleaned up?
-        if (errorReporter.errorEncountered()) {
-            throw new WorkloadException(String.format("Encountered error while running workload. Driver terminating.\n%s", errorReporter.toString()));
-        }
-
-        // TODO should executors wait for all operations to terminate before returning?
-        preciseIndividualAsyncOperationStreamExecutorService.shutdown();
-        preciseIndividualBlockingOperationStreamExecutorService.shutdown();
-        uniformWindowedOperationStreamExecutorService.shutdown();
-
-        // TODO if multiple executors are used (different executors for different executor services) shut them all down here
         try {
-            // TODO this is total bullshit, need a better way of doing this. should be handled by executor services already
-            this.operationHandlerExecutor.shutdown(Duration.fromSeconds(3600));
+            preciseIndividualAsyncOperationStreamExecutorService.shutdown();
+            preciseIndividualBlockingOperationStreamExecutorService.shutdown();
+            uniformWindowedOperationStreamExecutorService.shutdown();
+            // all executors have completed by this stage, there's no reason why
+            operationHandlerExecutor.shutdown(Duration.fromMilli(1));
         } catch (OperationHandlerExecutorException e) {
             throw new WorkloadException("Encountered error while shutting down operation handler executor", e);
         }
 
-        // TODO make status reporting service. this could report to coordinator. it could also report to a local console printer.
+        if (errorReporter.errorEncountered()) {
+            throw new WorkloadException(String.format("Encountered error while running workload. Driver terminating.\n%s", errorReporter.toString()));
+        }
+
         if (controlService.configuration().showStatus()) workloadStatusThread.interrupt();
 
         controlService.waitForAllToCompleteExecutingWorkload();
