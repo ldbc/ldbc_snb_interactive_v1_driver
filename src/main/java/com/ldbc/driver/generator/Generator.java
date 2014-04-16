@@ -2,46 +2,34 @@ package com.ldbc.driver.generator;
 
 import java.util.Iterator;
 import java.util.NoSuchElementException;
-import org.apache.log4j.Logger;
 
-public abstract class Generator<GENERATE_TYPE> implements Iterator<GENERATE_TYPE>
-{
+public abstract class Generator<GENERATE_TYPE> implements Iterator<GENERATE_TYPE> {
     private GENERATE_TYPE next = null;
-    private final Logger logger = Logger.getLogger( getClass() );
 
     // Return null if nothing more to generate
     protected abstract GENERATE_TYPE doNext() throws GeneratorException;
 
-    public final synchronized GENERATE_TYPE next()
-    {
-        next = ( next == null ) ? doNext() : next;
-        if ( null == next ) throw new NoSuchElementException( "Generator has nothing more to generate" );
+    public final synchronized GENERATE_TYPE next() {
+        next = (next == null) ? doNext() : next;
+        if (null == next) throw new NoSuchElementException("Generator has nothing more to generate");
         GENERATE_TYPE tempNext = next;
         next = null;
         return tempNext;
     }
 
     @Override
-    public final boolean hasNext()
-    {
-        next = ( next == null ) ? doNext() : next;
-        return ( next != null );
+    public final boolean hasNext() {
+        next = (next == null) ? doNext() : next;
+        return (next != null);
     }
 
     @Override
-    public final void remove()
-    {
-        throw new UnsupportedOperationException( "Iterator.remove() not supported by Generator" );
+    public final void remove() {
+        throw new UnsupportedOperationException("Iterator.remove() not supported by Generator");
     }
 
     @Override
-    public String toString()
-    {
+    public String toString() {
         return "Generator [next=" + next + "]";
-    }
-
-    protected final Logger getLogger()
-    {
-        return logger;
     }
 }

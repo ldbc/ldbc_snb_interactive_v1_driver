@@ -1,12 +1,13 @@
 package com.ldbc.driver.generator;
 
+import com.google.common.collect.Lists;
 import com.ldbc.driver.util.Tuple.Tuple2;
 import org.apache.commons.math3.random.RandomDataGenerator;
 
-import java.util.ArrayList;
+import java.util.List;
 
 public class DiscreteGenerator<GENERATE_TYPE> extends Generator<GENERATE_TYPE> {
-    private final ArrayList<Tuple2<Double, GENERATE_TYPE>> itemProbabilities;
+    private final Tuple2<Double, GENERATE_TYPE>[] itemProbabilities;
     private final double probabilitiesSum;
     private final RandomDataGenerator random;
 
@@ -16,11 +17,11 @@ public class DiscreteGenerator<GENERATE_TYPE> extends Generator<GENERATE_TYPE> {
         }
 
         this.random = random;
-        this.itemProbabilities = new ArrayList<Tuple2<Double, GENERATE_TYPE>>();
+        List<Tuple2<Double, GENERATE_TYPE>> itemProbabilitiesList = Lists.newArrayList(itemProbabilities);
+        this.itemProbabilities = itemProbabilitiesList.toArray(new Tuple2[itemProbabilitiesList.size()]);
         double sum = 0;
-        for (Tuple2<Double, GENERATE_TYPE> item : itemProbabilities) {
-            this.itemProbabilities.add(item);
-            sum += item._1();
+        for (int i = 0; i < this.itemProbabilities.length; i++) {
+            sum += this.itemProbabilities[i]._1();
         }
         probabilitiesSum = sum;
     }
@@ -29,7 +30,8 @@ public class DiscreteGenerator<GENERATE_TYPE> extends Generator<GENERATE_TYPE> {
     protected GENERATE_TYPE doNext() {
         double randomValue = random.nextUniform(0, 1);
 
-        for (Tuple2<Double, GENERATE_TYPE> item : itemProbabilities) {
+        for (int i = 0; i < itemProbabilities.length; i++) {
+            Tuple2<Double, GENERATE_TYPE> item = itemProbabilities[i];
             if (randomValue < (item._1() / probabilitiesSum)) {
                 return item._2();
             }

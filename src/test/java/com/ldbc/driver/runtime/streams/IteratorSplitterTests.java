@@ -1,19 +1,21 @@
 package com.ldbc.driver.runtime.streams;
 
 import com.google.common.collect.Lists;
+import com.ldbc.driver.generator.GeneratorFactory;
 import com.ldbc.driver.runtime.ConcurrentErrorReporter;
+import com.ldbc.driver.util.RandomDataGeneratorFactory;
 import org.junit.Test;
 
+import java.util.Iterator;
 import java.util.List;
 
-import static org.hamcrest.CoreMatchers.instanceOf;
-import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.CoreMatchers.*;
 import static org.junit.Assert.assertThat;
 
 public class IteratorSplitterTests {
 
     @Test
-    public void shouldSplitIteratorCorrectlyGivenSimpleCase() throws IteratorSplittingException {
+    public void shouldSplitIteratorCorrectlyGivenSimpleCaseAndSmallInput() throws IteratorSplittingException {
         // Given
         List<? extends Number> numbers = Lists.newArrayList(new Byte((byte) 0), new Integer(1), new Long(2), new Double(3), new Double(4));
 
@@ -48,6 +50,37 @@ public class IteratorSplitterTests {
         assertThat(doubleSplit.get(0).doubleValue(), is(3d));
         assertThat(doubleSplit.get(1), instanceOf(Double.class));
         assertThat(doubleSplit.get(1).doubleValue(), is(4d));
+    }
+
+    @Test
+    public void shouldSplitIteratorCorrectlyGivenSimpleCaseAndLargeInput() throws IteratorSplittingException {
+        // Given
+        GeneratorFactory generators = new GeneratorFactory(new RandomDataGeneratorFactory(42L));
+        Iterable<? extends Number> possibleNumbers = Lists.newArrayList(new Byte((byte) 0), new Integer(1), new Long(2), new Double(3), new Double(4));
+        Iterator<? extends Number> numbersGenerator = generators.discrete(possibleNumbers);
+        int numberCount = 10000000;
+        Iterator<? extends Number> numbers = generators.limit(numbersGenerator, numberCount);
+
+        IteratorSplitter<Number> iteratorSplitter = new IteratorSplitter<Number>(IteratorSplitter.UnmappedItemPolicy.DROP);
+
+        SplitDefinition<Number> byteAndIntegerDefinition = new SplitDefinition<Number>(Byte.class, Integer.class);
+        SplitDefinition<Number> longDefinition = new SplitDefinition<Number>(Long.class);
+        SplitDefinition<Number> doubleDefinition = new SplitDefinition<Number>(Double.class);
+
+        // When
+        SplitResult<Number> splitResult = iteratorSplitter.split(numbers, byteAndIntegerDefinition, longDefinition, doubleDefinition);
+
+        List<Number> integerSplit = Lists.newArrayList(splitResult.getSplitFor(byteAndIntegerDefinition));
+        List<Number> longSplit = Lists.newArrayList(splitResult.getSplitFor(longDefinition));
+        List<Number> doubleSplit = Lists.newArrayList(splitResult.getSplitFor(doubleDefinition));
+
+        // Then
+        assertThat(splitResult.count(), is(3));
+
+        assertThat(integerSplit.size() + longSplit.size() + doubleSplit.size(), is(numberCount));
+        assertThat(integerSplit.get(0), anyOf(instanceOf(Byte.class), instanceOf(Integer.class)));
+        assertThat(longSplit.get(0), instanceOf(Long.class));
+        assertThat(doubleSplit.get(0), instanceOf(Double.class));
     }
 
     @Test

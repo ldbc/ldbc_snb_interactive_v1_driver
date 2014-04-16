@@ -31,7 +31,7 @@ public class Client {
     public static void main(String[] args) throws ClientException {
         try {
             ConsoleAndFileDriverConfiguration configuration = ConsoleAndFileDriverConfiguration.fromArgs(args);
-            // TODO this method will not work with multiple processes - from controlService/config
+            // TODO this method will not work with multiple processes - should come from controlService
             Time workloadStartTime = Time.now().plus(Duration.fromMilli(1000));
             ConcurrentControlService controlService = new LocalControlService(workloadStartTime, configuration);
             Client client = new Client(controlService);

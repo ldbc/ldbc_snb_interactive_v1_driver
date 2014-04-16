@@ -263,7 +263,6 @@ public class ConcurrentCompletionTimeServiceTest {
         }
 
         Future<Time> gctFuture2 = completionTimeService.globalCompletionTimeFuture();
-        // TODO BUG IS HERE
         assertThat(gctFuture2.get(), equalTo(gctCheckpointOperation2.scheduledStartTime()));
 
         while (operations.hasNext()) {
