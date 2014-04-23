@@ -1,4 +1,4 @@
-package com.ldbc.driver.workload;
+package com.ldbc.driver.workloads;
 
 import com.google.common.base.Function;
 import com.google.common.collect.ImmutableList;

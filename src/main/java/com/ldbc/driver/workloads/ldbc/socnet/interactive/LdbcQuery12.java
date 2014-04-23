@@ -5,6 +5,8 @@ import com.ldbc.driver.Operation;
 import java.util.List;
 
 public class LdbcQuery12 extends Operation<List<LdbcQuery12Result>> {
+    public static final int DEFAULT_LIMIT = 20;
+
     private final long personId;
     private final String tagClass;
     private final int limit;

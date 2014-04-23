@@ -1,4 +1,4 @@
-package com.ldbc.driver.workload;
+package com.ldbc.driver.workloads;
 
 import com.ldbc.driver.workloads.ldbc.socnet.interactive.SubstitutionParameters;
 import org.junit.Test;

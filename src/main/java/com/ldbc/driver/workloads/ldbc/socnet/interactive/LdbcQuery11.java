@@ -5,6 +5,8 @@ import com.ldbc.driver.Operation;
 import java.util.List;
 
 public class LdbcQuery11 extends Operation<List<LdbcQuery11Result>> {
+    public static final int DEFAULT_LIMIT = 10;
+
     private final long personId;
     private final String country;
     private final long workFromDate;

@@ -5,6 +5,8 @@ import com.ldbc.driver.Operation;
 import java.util.List;
 
 public class LdbcQuery10 extends Operation<List<LdbcQuery10Result>> {
+    public static final int DEFAULT_LIMIT = 20;
+
     private final long personId;
     private final int horoscopeSign1;
     private final int horoscopeSign2;

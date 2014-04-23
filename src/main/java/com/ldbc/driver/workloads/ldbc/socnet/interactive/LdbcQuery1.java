@@ -6,6 +6,7 @@ import com.ldbc.driver.Operation;
 
 public class LdbcQuery1 extends Operation<List<LdbcQuery1Result>>
 {
+    public static final int DEFAULT_LIMIT = 10;
     private final String firstName;
     private final int limit;
 

@@ -7,6 +7,8 @@ import com.ldbc.driver.Operation;
 
 public class LdbcQuery2 extends Operation<List<LdbcQuery2Result>>
 {
+    public static final int DEFAULT_LIMIT = 20;
+
     private final long personId;
     private final Date maxDate;
     private final int limit;

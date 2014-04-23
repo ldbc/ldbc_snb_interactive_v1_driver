@@ -191,7 +191,7 @@ public class LdbcInteractiveWorkload extends Workload {
          * Query1
          *  - Select uniformly randomly from person first names
          */
-        int query1Limit = 10;
+        int query1Limit = LdbcQuery1.DEFAULT_LIMIT;
         operations.add(Tuple.tuple2(
                 queryMix.get(LdbcQuery1.class),
                 (Iterator<Operation<?>>) new Query1Generator(firstNameGenerator, query1Limit)));
@@ -201,7 +201,7 @@ public class LdbcInteractiveWorkload extends Workload {
          *  - Person ID - select uniformly randomly from person ids
          *  - Post Creation Date - select uniformly randomly a post creation date from between 33perc-66perc of entire date range
          */
-        int query2Limit = 20;
+        int query2Limit = LdbcQuery2.DEFAULT_LIMIT;
         operations.add(Tuple.tuple2(
                 queryMix.get(LdbcQuery2.class),
                 (Iterator<Operation<?>>) new Query2Generator(personIdGenerator, postCreationDateGenerator33_66, query2Limit)));
@@ -245,7 +245,7 @@ public class LdbcInteractiveWorkload extends Workload {
          * - Person - select uniformly randomly from person ids
          * - Tag - select uniformly randomly from tag uris
          */
-        int query6Limit = 10;
+        int query6Limit = LdbcQuery6.DEFAULT_LIMIT;
         operations.add(Tuple.tuple2(
                 queryMix.get(LdbcQuery6.class),
                 (Iterator<Operation<?>>) new Query6Generator(personIdGenerator, tagNameGenerator, query6Limit)));
@@ -254,7 +254,7 @@ public class LdbcInteractiveWorkload extends Workload {
          * Query 7
          * Person - select uniformly randomly from person ids
          */
-        int query7Limit = 20;
+        int query7Limit = LdbcQuery7.DEFAULT_LIMIT;
         operations.add(Tuple.tuple2(
                 queryMix.get(LdbcQuery7.class),
                 (Iterator<Operation<?>>) new Query7Generator(personIdGenerator, query7Limit)));
@@ -263,7 +263,7 @@ public class LdbcInteractiveWorkload extends Workload {
          * Query 8
          * Person - select uniformly randomly from person ids
          */
-        int query8Limit = 20;
+        int query8Limit = LdbcQuery8.DEFAULT_LIMIT;
         operations.add(Tuple.tuple2(
                 queryMix.get(LdbcQuery8.class),
                 (Iterator<Operation<?>>) new Query8Generator(personIdGenerator, query8Limit)));
@@ -273,7 +273,7 @@ public class LdbcInteractiveWorkload extends Workload {
          * Person - select uniformly randomly from person ids
          * Date - select uniformly randomly a post creation date from between 33perc-66perc of entire date range
          */
-        int query9Limit = 20;
+        int query9Limit = LdbcQuery9.DEFAULT_LIMIT;
         operations.add(Tuple.tuple2(
                 queryMix.get(LdbcQuery9.class),
                 (Iterator<Operation<?>>) new Query9Generator(personIdGenerator, postCreationDateGenerator33_66, query9Limit)));
@@ -284,7 +284,7 @@ public class LdbcInteractiveWorkload extends Workload {
          * HS0 - select uniformly randomly a horoscope sign (a random number between 1 and 12)
          * HS1 - HS0 + 1 (but 12 + 1 = 1)
          */
-        int query10Limit = 20;
+        int query10Limit = LdbcQuery10.DEFAULT_LIMIT;
         operations.add(Tuple.tuple2(
                 queryMix.get(LdbcQuery10.class),
                 (Iterator<Operation<?>>) new Query10Generator(personIdGenerator, horoscopeGenerator, query10Limit)));
@@ -296,7 +296,7 @@ public class LdbcInteractiveWorkload extends Workload {
          * Country - select uniformly randomly from country ids
          * Date - a random date from 0% to 100% of whole workFrom timeline
          */
-        int query11Limit = 10;
+        int query11Limit = LdbcQuery11.DEFAULT_LIMIT;
         operations.add(Tuple.tuple2(
                 queryMix.get(LdbcQuery11.class),
                 (Iterator<Operation<?>>) new Query11Generator(personIdGenerator, countriesGenerator, workFromDateGenerator00_100, query11Limit)));
@@ -306,7 +306,7 @@ public class LdbcInteractiveWorkload extends Workload {
          * Person - select uniformly randomly from person ids
          * TagType - select uniformly randomly tagTypeURI (used files: tagTypes.txt and tagTypes.sql)
          */
-        int query12Limit = 20;
+        int query12Limit = LdbcQuery12.DEFAULT_LIMIT;
         operations.add(Tuple.tuple2(
                 queryMix.get(LdbcQuery12.class),
                 (Iterator<Operation<?>>) new Query12Generator(personIdGenerator, tagClassesGenerator, query12Limit)));

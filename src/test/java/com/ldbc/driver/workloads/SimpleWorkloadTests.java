@@ -1,4 +1,4 @@
-package com.ldbc.driver.workload;
+package com.ldbc.driver.workloads;
 
 import com.google.common.base.Function;
 import com.google.common.collect.ImmutableList;
@@ -11,7 +11,6 @@ import com.ldbc.driver.generator.GeneratorFactory;
 import com.ldbc.driver.temporal.Duration;
 import com.ldbc.driver.temporal.Time;
 import com.ldbc.driver.util.RandomDataGeneratorFactory;
-import com.ldbc.driver.workloads.ldbc.socnet.interactive.db.CsvDb;
 import com.ldbc.driver.workloads.simple.SimpleWorkload;
 import com.ldbc.driver.workloads.simple.db.BasicDb;
 import org.apache.commons.io.FileUtils;
