@@ -6,11 +6,6 @@ import java.util.Arrays;
 import java.util.Date;
 
 public class LdbcUpdate7AddComment extends Operation<Object> {
-    public enum ReplyToEntityType {
-        COMMENT,
-        POST
-    }
-
     private final long commentId;
     private final Date creationDate;
     private final String locationIp;
@@ -19,8 +14,8 @@ public class LdbcUpdate7AddComment extends Operation<Object> {
     private final int length;
     private final long authorPersonId;
     private final long countryId;
-    private final ReplyToEntityType replyToEntityTypeType;
-    private final long replyToEntityId;
+    private final long replyToPostId;
+    private final long replyToCommentId;
     private final long[] tagIds;
 
     public LdbcUpdate7AddComment(long commentId,
@@ -31,8 +26,8 @@ public class LdbcUpdate7AddComment extends Operation<Object> {
                                  int length,
                                  long authorPersonId,
                                  long countryId,
-                                 ReplyToEntityType replyToEntityTypeType,
-                                 long replyToEntityId,
+                                 long replyToPostId,
+                                 long replyToCommentId,
                                  long[] tagIds) {
         this.commentId = commentId;
         this.creationDate = creationDate;
@@ -42,8 +37,8 @@ public class LdbcUpdate7AddComment extends Operation<Object> {
         this.length = length;
         this.authorPersonId = authorPersonId;
         this.countryId = countryId;
-        this.replyToEntityTypeType = replyToEntityTypeType;
-        this.replyToEntityId = replyToEntityId;
+        this.replyToPostId = replyToPostId;
+        this.replyToCommentId = replyToCommentId;
         this.tagIds = tagIds;
     }
 
@@ -79,12 +74,12 @@ public class LdbcUpdate7AddComment extends Operation<Object> {
         return countryId;
     }
 
-    public ReplyToEntityType replyToEntityType() {
-        return replyToEntityTypeType;
+    public long replyToPostId() {
+        return replyToPostId;
     }
 
-    public long replyToEntityId() {
-        return replyToEntityId;
+    public long replyToCommentId() {
+        return replyToCommentId;
     }
 
     public long[] tagIds() {
@@ -102,12 +97,12 @@ public class LdbcUpdate7AddComment extends Operation<Object> {
         if (commentId != that.commentId) return false;
         if (countryId != that.countryId) return false;
         if (length != that.length) return false;
-        if (replyToEntityId != that.replyToEntityId) return false;
+        if (replyToCommentId != that.replyToCommentId) return false;
+        if (replyToPostId != that.replyToPostId) return false;
         if (browserUsed != null ? !browserUsed.equals(that.browserUsed) : that.browserUsed != null) return false;
         if (content != null ? !content.equals(that.content) : that.content != null) return false;
         if (creationDate != null ? !creationDate.equals(that.creationDate) : that.creationDate != null) return false;
         if (locationIp != null ? !locationIp.equals(that.locationIp) : that.locationIp != null) return false;
-        if (replyToEntityTypeType != that.replyToEntityTypeType) return false;
         if (!Arrays.equals(tagIds, that.tagIds)) return false;
 
         return true;
@@ -123,8 +118,8 @@ public class LdbcUpdate7AddComment extends Operation<Object> {
         result = 31 * result + length;
         result = 31 * result + (int) (authorPersonId ^ (authorPersonId >>> 32));
         result = 31 * result + (int) (countryId ^ (countryId >>> 32));
-        result = 31 * result + (replyToEntityTypeType != null ? replyToEntityTypeType.hashCode() : 0);
-        result = 31 * result + (int) (replyToEntityId ^ (replyToEntityId >>> 32));
+        result = 31 * result + (int) (replyToPostId ^ (replyToPostId >>> 32));
+        result = 31 * result + (int) (replyToCommentId ^ (replyToCommentId >>> 32));
         result = 31 * result + (tagIds != null ? Arrays.hashCode(tagIds) : 0);
         return result;
     }
@@ -140,8 +135,8 @@ public class LdbcUpdate7AddComment extends Operation<Object> {
                 ", length=" + length +
                 ", authorPersonId=" + authorPersonId +
                 ", countryId=" + countryId +
-                ", replyToEntityTypeType=" + replyToEntityTypeType +
-                ", replyToEntityId=" + replyToEntityId +
+                ", replyToPostId=" + replyToPostId +
+                ", replyToCommentId=" + replyToCommentId +
                 ", tagIds=" + Arrays.toString(tagIds) +
                 '}';
     }

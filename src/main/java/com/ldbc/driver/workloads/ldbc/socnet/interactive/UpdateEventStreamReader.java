@@ -10,25 +10,22 @@ import com.ldbc.driver.temporal.Time;
 import org.codehaus.jackson.JsonNode;
 import org.codehaus.jackson.map.ObjectMapper;
 
-import java.io.IOException;
+import java.io.*;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.Iterator;
-import java.util.List;
+import java.util.*;
+import java.util.regex.Pattern;
 
 public class UpdateEventStreamReader implements Iterator<Operation<?>> {
     private final static String DATE_FORMAT_STRING = "yyyy-MM-dd";
     private final static SimpleDateFormat DATE_FORMAT = new SimpleDateFormat(DATE_FORMAT_STRING);
-
     private final static String DATE_TIME_FORMAT_STRING = "yyyy-MM-dd'T'HH:mm:ss'Z'";
     private final static SimpleDateFormat DATE_TIME_FORMAT = new SimpleDateFormat(DATE_TIME_FORMAT_STRING);
 
     private enum UpdateEventType {
         ADD_PERSON,
-        ADD_POST_LIKE,
-        ADD_COMMENT_LIKE,
+        ADD_LIKE_POST,
+        ADD_LIKE_COMMENT,
         ADD_FORUM,
         ADD_FORUM_MEMBERSHIP,
         ADD_POST,
@@ -39,8 +36,8 @@ public class UpdateEventStreamReader implements Iterator<Operation<?>> {
     private final ObjectMapper objectMapper = new ObjectMapper();
     private final Iterator<String[]> csvFileReader;
 
-    public UpdateEventStreamReader(Iterator<String[]> csvFileReader) {
-        this.csvFileReader = csvFileReader;
+    public UpdateEventStreamReader(File csvFile) throws FileNotFoundException {
+        this.csvFileReader = new CsvFileReader(csvFile, "\\|");
     }
 
     @Override
@@ -57,7 +54,7 @@ public class UpdateEventStreamReader implements Iterator<Operation<?>> {
         try {
             return buildOperation(eventType, eventDueTime, eventParamsAsJsonString);
         } catch (Throwable e) {
-            throw new GeneratorException(String.format("Unable to parse update operation\n%s", Arrays.toString(csvRow)));
+            throw new GeneratorException(String.format("Unable to parse update operation\n%s", Arrays.toString(csvRow)), e);
         }
     }
 
@@ -69,33 +66,39 @@ public class UpdateEventStreamReader implements Iterator<Operation<?>> {
     Operation<?> buildOperation(UpdateEventType eventType, Time eventDueTime, String eventParamsAsJsonString) throws IOException, ParseException {
         switch (eventType) {
             case ADD_PERSON:
-                LdbcUpdate1AddPerson operation = parseAddPerson(eventParamsAsJsonString);
-                operation.setScheduledStartTime(eventDueTime);
-                return operation;
-            case ADD_POST_LIKE:
-                // TODO
-                return null;
-            case ADD_COMMENT_LIKE:
-                // TODO
-                return null;
+                LdbcUpdate1AddPerson addPerson = parseAddPerson(eventParamsAsJsonString);
+                addPerson.setScheduledStartTime(eventDueTime);
+                return addPerson;
+            case ADD_LIKE_POST:
+                LdbcUpdate2AddPostLike addPostLike = parseAddPostLike(eventParamsAsJsonString);
+                addPostLike.setScheduledStartTime(eventDueTime);
+                return addPostLike;
+            case ADD_LIKE_COMMENT:
+                LdbcUpdate3AddCommentLike addCommentLike = parseAddCommentLike(eventParamsAsJsonString);
+                addCommentLike.setScheduledStartTime(eventDueTime);
+                return addCommentLike;
             case ADD_FORUM:
-                // TODO
-                return null;
+                LdbcUpdate4AddForum addForum = parseAddForum(eventParamsAsJsonString);
+                addForum.setScheduledStartTime(eventDueTime);
+                return addForum;
             case ADD_FORUM_MEMBERSHIP:
-                // TODO
-                return null;
+                LdbcUpdate5AddForumMembership addForumMembership = parseAddForumMembership(eventParamsAsJsonString);
+                addForumMembership.setScheduledStartTime(eventDueTime);
+                return addForumMembership;
             case ADD_POST:
-                // TODO
-                return null;
+                LdbcUpdate6AddPost addPost = parseAddPost(eventParamsAsJsonString);
+                addPost.setScheduledStartTime(eventDueTime);
+                return addPost;
             case ADD_COMMENT:
-                // TODO
-                return null;
+                LdbcUpdate7AddComment addComment = parseAddComment(eventParamsAsJsonString);
+                addComment.setScheduledStartTime(eventDueTime);
+                return addComment;
             case ADD_FRIENDSHIP:
-                // TODO
-                return null;
+                LdbcUpdate8AddFriendship addFriendship = parseAddFriendship(eventParamsAsJsonString);
+                addFriendship.setScheduledStartTime(eventDueTime);
+                return addFriendship;
             default:
-                // TODO
-                return null;
+                throw new RuntimeException(String.format("Unknown event type: %s", eventType.name()));
         }
     }
 
@@ -108,7 +111,7 @@ public class UpdateEventStreamReader implements Iterator<Operation<?>> {
         String birthdayString = params.get(4).asText();
         Date birthday = DATE_FORMAT.parse(birthdayString);
         String creationDateString = params.get(5).asText();
-        Date creationDate = DATE_FORMAT.parse(creationDateString);
+        Date creationDate = DATE_TIME_FORMAT.parse(creationDateString);
         String locationIp = params.get(6).asText();
         String browserUsed = params.get(7).asText();
         long cityId = params.get(8).asLong();
@@ -237,10 +240,117 @@ public class UpdateEventStreamReader implements Iterator<Operation<?>> {
                 longListToPrimitiveLongArray(tagIdsList));
     }
 
+    LdbcUpdate7AddComment parseAddComment(String eventParamsAsJsonString) throws IOException, ParseException {
+        JsonNode params = objectMapper.readTree(eventParamsAsJsonString);
+        long commentId = params.get(0).asLong();
+        String creationDateString = params.get(1).asText();
+        Date creationDate = DATE_TIME_FORMAT.parse(creationDateString);
+        String locationIp = params.get(2).asText();
+        String browserUsed = params.get(3).asText();
+        String content = params.get(4).asText();
+        int length = params.get(5).asInt();
+        long authorPersonId = params.get(6).asLong();
+        long countryId = params.get(7).asLong();
+        long replyOfPostId = params.get(8).asLong();
+        long replyOfCommentId = params.get(9).asLong();
+        List<Long> tagIdsList = Lists.newArrayList(Iterables.transform(params.get(10), new Function<JsonNode, Long>() {
+            @Override
+            public Long apply(JsonNode input) {
+                return input.asLong();
+            }
+        }));
+        return new LdbcUpdate7AddComment(
+                commentId,
+                creationDate,
+                locationIp,
+                browserUsed,
+                content,
+                length,
+                authorPersonId,
+                countryId,
+                replyOfPostId,
+                replyOfCommentId,
+                longListToPrimitiveLongArray(tagIdsList));
+    }
+
+    LdbcUpdate8AddFriendship parseAddFriendship(String eventParamsAsJsonString) throws IOException, ParseException {
+        JsonNode params = objectMapper.readTree(eventParamsAsJsonString);
+        long person1Id = params.get(0).asLong();
+        long person2Id = params.get(1).asLong();
+        String creationDateString = params.get(2).asText();
+        Date creationDate = DATE_TIME_FORMAT.parse(creationDateString);
+        return new LdbcUpdate8AddFriendship(person1Id, person2Id, creationDate);
+    }
+
     long[] longListToPrimitiveLongArray(List<Long> longList) {
         long[] longArray = new long[longList.size()];
         for (int i = 0; i < longList.size(); i++)
             longArray[i] = longList.get(i);
         return longArray;
+    }
+
+    public class CsvFileReader implements Iterator<String[]> {
+        private final Pattern columnSeparatorPattern;
+        private final BufferedReader csvReader;
+
+        private String[] next = null;
+        private boolean closed = false;
+
+        public CsvFileReader(File csvFile, String regexSeparator) throws FileNotFoundException {
+            this.csvReader = new BufferedReader(new FileReader(csvFile));
+            this.columnSeparatorPattern = Pattern.compile(regexSeparator);
+        }
+
+        @Override
+        public boolean hasNext() {
+            if (closed) return false;
+            next = (next == null) ? nextLine() : next;
+            if (null == next) closed = closeReader();
+            return (null != next);
+        }
+
+        @Override
+        public String[] next() {
+            next = (null == next) ? nextLine() : next;
+            if (null == next) throw new NoSuchElementException("No more lines to read");
+            String[] tempNext = next;
+            next = null;
+            return tempNext;
+        }
+
+        @Override
+        public void remove() {
+            throw new UnsupportedOperationException();
+        }
+
+        private String[] nextLine() {
+            String csvLine;
+            try {
+                csvLine = csvReader.readLine();
+                if (null == csvLine) return null;
+                return parseLine(csvLine);
+            } catch (IOException e) {
+                throw new RuntimeException(String.format("Error retrieving next csv entry from file [%s]", csvReader), e.getCause());
+            }
+        }
+
+        private String[] parseLine(String csvLine) {
+            return columnSeparatorPattern.split(csvLine, -1);
+        }
+
+        private boolean closeReader() {
+            if (closed) {
+                throw new RuntimeException("Can not close file multiple times");
+            }
+            if (null == csvReader) {
+                throw new RuntimeException("Can not close file - reader is null");
+            }
+            try {
+                csvReader.close();
+            } catch (IOException e) {
+                throw new RuntimeException(String.format("Error closing file [%s]", csvReader), e.getCause());
+            }
+            return true;
+        }
     }
 }
