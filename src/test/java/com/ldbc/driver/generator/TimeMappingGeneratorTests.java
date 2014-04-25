@@ -128,6 +128,9 @@ public class TimeMappingGeneratorTests {
         paramsMap.put(LdbcInteractiveWorkload.QUERY_12_KEY, "2");
         paramsMap.put(LdbcInteractiveWorkload.PARAMETERS_FILENAME_KEY, "ldbc_driver/workloads/ldbc/socnet/interactive/parameters.json");
         paramsMap.put(LdbcInteractiveWorkload.INTERLEAVE_DURATION_KEY, "10");
+        paramsMap.put(LdbcInteractiveWorkload.UPDATE_STREAM_FILENAME_KEY, "ldbc_driver/workloads/ldbc/socnet/interactive/updates.csv");
+        paramsMap.put(LdbcInteractiveWorkload.WRITE_RATIO_KEY, "0");
+        paramsMap.put(LdbcInteractiveWorkload.READ_RATIO_KEY, "1");
         // CsvDb-specific parameters
         String csvOutputFilePath = "temp_csv_output_file.csv";
         FileUtils.deleteQuietly(new File(csvOutputFilePath));

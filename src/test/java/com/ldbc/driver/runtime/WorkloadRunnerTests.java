@@ -16,6 +16,7 @@ import com.ldbc.driver.runtime.metrics.WorkloadResultsSnapshot;
 import com.ldbc.driver.temporal.Duration;
 import com.ldbc.driver.temporal.Time;
 import com.ldbc.driver.util.RandomDataGeneratorFactory;
+import com.ldbc.driver.util.TestUtils;
 import com.ldbc.driver.workloads.ldbc.socnet.interactive.LdbcInteractiveWorkload;
 import com.ldbc.driver.workloads.ldbc.socnet.interactive.db.CsvDb;
 import com.ldbc.driver.workloads.ldbc.socnet.interactive.db.NothingDb;
@@ -53,6 +54,9 @@ public class WorkloadRunnerTests {
         paramsMap.put(LdbcInteractiveWorkload.QUERY_12_KEY, "2");
         paramsMap.put(LdbcInteractiveWorkload.PARAMETERS_FILENAME_KEY, "ldbc_driver/workloads/ldbc/socnet/interactive/parameters.json");
         paramsMap.put(LdbcInteractiveWorkload.INTERLEAVE_DURATION_KEY, "5");
+        paramsMap.put(LdbcInteractiveWorkload.UPDATE_STREAM_FILENAME_KEY, "ldbc_driver/workloads/ldbc/socnet/interactive/updates.csv");
+        paramsMap.put(LdbcInteractiveWorkload.WRITE_RATIO_KEY, "0");
+        paramsMap.put(LdbcInteractiveWorkload.READ_RATIO_KEY, "1");
         // Driver-specific parameters
         String dbClassName = NothingDb.class.getName();
         String workloadClassName = LdbcInteractiveWorkload.class.getName();
@@ -123,6 +127,9 @@ public class WorkloadRunnerTests {
         paramsMap.put(LdbcInteractiveWorkload.QUERY_12_KEY, "2");
         paramsMap.put(LdbcInteractiveWorkload.PARAMETERS_FILENAME_KEY, "ldbc_driver/workloads/ldbc/socnet/interactive/parameters.json");
         paramsMap.put(LdbcInteractiveWorkload.INTERLEAVE_DURATION_KEY, "5");
+        paramsMap.put(LdbcInteractiveWorkload.UPDATE_STREAM_FILENAME_KEY, "ldbc_driver/workloads/ldbc/socnet/interactive/updates.csv");
+        paramsMap.put(LdbcInteractiveWorkload.WRITE_RATIO_KEY, "0");
+        paramsMap.put(LdbcInteractiveWorkload.READ_RATIO_KEY, "1");
         // CsvDb-specific parameters
         String csvOutputFilePath = "temp_csv_output_file.csv";
         FileUtils.deleteQuietly(new File(csvOutputFilePath));

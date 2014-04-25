@@ -3,6 +3,7 @@ package com.ldbc.driver.generator;
 import com.ldbc.driver.Operation;
 import com.ldbc.driver.data.ByteIterator;
 import com.ldbc.driver.temporal.Time;
+import com.ldbc.driver.util.Function0;
 import com.ldbc.driver.util.Function1;
 import com.ldbc.driver.util.RandomDataGeneratorFactory;
 import com.ldbc.driver.util.Tuple;
@@ -49,6 +50,40 @@ public class GeneratorFactory {
      * ---------------------------------------- GENERATORS ------------------------------------------------
      * ----------------------------------------------------------------------------------------------------
      */
+
+    /**
+     * Interleave every element from base generator with specific amount of elements from interleave with generator.
+     * Returned generator will run until either base generator or interleave generator are exhausted.
+     *
+     * @param baseGenerator
+     * @param interleaveWithGenerator
+     * @param amountToInterleave
+     * @param <T>
+     * @return
+     */
+    public <T> Iterator<T> interleave(Iterator<? extends T> baseGenerator, Iterator<? extends T> interleaveWithGenerator, final int amountToInterleave) {
+        Function0<Integer> amountToInterleaveFun = new Function0<Integer>() {
+            @Override
+            public Integer apply() {
+                return amountToInterleave;
+            }
+        };
+        return new InterleaveGenerator<>(baseGenerator, interleaveWithGenerator, amountToInterleaveFun);
+    }
+
+    /**
+     * Interleave every element from base generator with specific amount of elements from interleave with generator.
+     * Returned generator will run until either base generator or interleave generator are exhausted.
+     *
+     * @param base
+     * @param interleaveWith
+     * @param amountToInterleaveFun
+     * @param <T>
+     * @return
+     */
+    public <T> Iterator<T> interleave(Iterator<? extends T> base, Iterator<? extends T> interleaveWith, Function0<Integer> amountToInterleaveFun) {
+        return new InterleaveGenerator<>(base, interleaveWith, amountToInterleaveFun);
+    }
 
     /**
      * Offset start times of operations in stream such that first operation is now scheduled at new start time.

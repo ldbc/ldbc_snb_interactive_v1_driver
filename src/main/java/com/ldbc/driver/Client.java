@@ -59,9 +59,7 @@ public class Client {
             workload.init(controlService.configuration());
             // TODO add check that all ExecutionMode:GctMode combinations make sense (e.g., Partial+GctNone does not make sense unless window size can somehow be specified)
         } catch (Exception e) {
-            throw new ClientException(
-                    String.format("Error loading Workload class: %s", controlService.configuration().workloadClassName()),
-                    e.getCause());
+            throw new ClientException(String.format("Error loading Workload class: %s", controlService.configuration().workloadClassName()), e);
         }
         logger.info(String.format("Loaded Workload: %s", workload.getClass().getName()));
 

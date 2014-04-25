@@ -26,8 +26,11 @@ import static com.ldbc.driver.OperationClassification.GctMode;
 import static com.ldbc.driver.OperationClassification.SchedulingMode;
 
 public class LdbcInteractiveWorkload extends Workload {
+    public final static String UPDATE_STREAM_FILENAME_KEY = "updates";
     public final static String PARAMETERS_FILENAME_KEY = "parameters";
     public final static String INTERLEAVE_DURATION_KEY = "interleave_duration";
+    public final static String READ_RATIO_KEY = "read_ratio";
+    public final static String WRITE_RATIO_KEY = "write_ratio";
     public final static String QUERY_1_KEY = LdbcQuery1.class.getName();
     public final static String QUERY_2_KEY = LdbcQuery2.class.getName();
     public final static String QUERY_3_KEY = LdbcQuery3.class.getName();
@@ -54,9 +57,12 @@ public class LdbcInteractiveWorkload extends Workload {
             QUERY_11_KEY,
             QUERY_12_KEY);
 
-    private SubstitutionParameters substitutionParameters = null;
-    private Duration interleaveDuration = null;
-    private Map<Class, Double> queryMix = null;
+    private UpdateEventStreamReader updateOperations;
+    private SubstitutionParameters substitutionParameters;
+    private Duration interleaveDuration;
+    private double readRatio;
+    private double writeRatio;
+    private Map<Class, Double> queryMix;
 
     @Override
     public Map<Class<? extends Operation<?>>, OperationClassification> operationClassifications() {
@@ -79,46 +85,60 @@ public class LdbcInteractiveWorkload extends Workload {
 
     @Override
     public void onInit(Map<String, String> properties) throws WorkloadException {
-        List<String> compulsoryKeys = Lists.newArrayList(PARAMETERS_FILENAME_KEY, INTERLEAVE_DURATION_KEY);
+        List<String> compulsoryKeys = Lists.newArrayList(
+                UPDATE_STREAM_FILENAME_KEY,
+                PARAMETERS_FILENAME_KEY,
+                INTERLEAVE_DURATION_KEY,
+                READ_RATIO_KEY,
+                WRITE_RATIO_KEY);
         compulsoryKeys.addAll(QUERY_KEYS);
 
-        List<String> missingProperteryParameters = missingPropertiesParameters(properties, compulsoryKeys);
-        if (false == missingProperteryParameters.isEmpty())
-            throw new WorkloadException(
-                    String.format(
-                            "Workload could not initialize due to missing parameters: %s",
-                            missingProperteryParameters.toString()));
+        List<String> missingPropertyParameters = missingPropertiesParameters(properties, compulsoryKeys);
+        if (false == missingPropertyParameters.isEmpty())
+            throw new WorkloadException(String.format("Workload could not initialize due to missing parameters: %s", missingPropertyParameters.toString()));
+
+        String updatesFilename = properties.get(UPDATE_STREAM_FILENAME_KEY);
+        if (false == new File(updatesFilename).exists()) {
+            throw new WorkloadException(String.format("Update events file does not exist: %s", updatesFilename));
+        }
+        File updatesFile = new File(updatesFilename);
+        try {
+            updateOperations = new UpdateEventStreamReader(updatesFile);
+        } catch (Exception e) {
+            throw new WorkloadException(String.format("Unable to load update event stream from: %s", updatesFile.getAbsolutePath()), e);
+        }
 
         String parametersFilename = properties.get(PARAMETERS_FILENAME_KEY);
         if (false == new File(parametersFilename).exists()) {
-            throw new WorkloadException(
-                    String.format(
-                            "Substitution parameters file does not exist: %s",
-                            parametersFilename));
+            throw new WorkloadException(String.format("Substitution parameters file does not exist: %s", parametersFilename));
         }
         File parametersFile = new File(parametersFilename);
         try {
             substitutionParameters = SubstitutionParameters.fromJson(parametersFile);
         } catch (Exception e) {
-            throw new WorkloadException(
-                    String.format(
-                            "Unable to load substitution parameters from: %s",
-                            parametersFile.getAbsolutePath()),
-                    e.getCause());
+            throw new WorkloadException(String.format("Unable to load substitution parameters from: %s", parametersFile.getAbsolutePath()), e);
         }
 
         try {
             long interleaveDurationMs = Long.parseLong(properties.get(INTERLEAVE_DURATION_KEY));
             interleaveDuration = Duration.fromMilli(interleaveDurationMs);
         } catch (NumberFormatException e) {
-            throw new WorkloadException(
-                    String.format(
-                            "Unable to parse interleave duration: %s",
-                            properties.get(INTERLEAVE_DURATION_KEY)),
-                    e.getCause());
+            throw new WorkloadException(String.format("Unable to parse interleave duration: %s", properties.get(INTERLEAVE_DURATION_KEY)), e);
         }
 
-        queryMix = new HashMap<Class, Double>();
+        try {
+            readRatio = Double.parseDouble(properties.get(READ_RATIO_KEY));
+        } catch (NumberFormatException e) {
+            throw new WorkloadException(String.format("Unable to parse read ratio: %s", properties.get(READ_RATIO_KEY)), e);
+        }
+
+        try {
+            writeRatio = Double.parseDouble(properties.get(WRITE_RATIO_KEY));
+        } catch (NumberFormatException e) {
+            throw new WorkloadException(String.format("Unable to parse write ratio: %s", properties.get(WRITE_RATIO_KEY)), e);
+        }
+
+        queryMix = new HashMap<>();
         for (String queryKey : QUERY_KEYS) {
             String queryRatioString = properties.get(queryKey);
             Double queryRatio = Double.parseDouble(queryRatioString);
@@ -126,8 +146,7 @@ public class LdbcInteractiveWorkload extends Workload {
                 Class queryClass = ClassLoaderHelper.loadClass(queryKey);
                 queryMix.put(queryClass, queryRatio);
             } catch (ClassLoadingException e) {
-                throw new WorkloadException(
-                        String.format("Unable to load query class: %s", queryKey), e.getCause());
+                throw new WorkloadException(String.format("Unable to load query class: %s", queryKey), e.getCause());
             }
         }
     }
@@ -146,8 +165,7 @@ public class LdbcInteractiveWorkload extends Workload {
     }
 
     @Override
-    protected Iterator<Operation<?>> createOperations(GeneratorFactory generators)
-            throws WorkloadException {
+    protected Iterator<Operation<?>> createOperations(GeneratorFactory generators) throws WorkloadException {
 
         Iterator<String> firstNameGenerator = generators.discrete(substitutionParameters.firstNames);
         Iterator<Long> personIdGenerator = generators.uniform(substitutionParameters.minPersonId, substitutionParameters.maxPersonId);
@@ -185,14 +203,14 @@ public class LdbcInteractiveWorkload extends Workload {
         /*
          * Create Generators for desired Operations
          */
-        List<Tuple2<Double, Iterator<Operation<?>>>> operations = new ArrayList<Tuple2<Double, Iterator<Operation<?>>>>();
+        List<Tuple2<Double, Iterator<Operation<?>>>> operationsMix = new ArrayList<>();
 
         /*
          * Query1
          *  - Select uniformly randomly from person first names
          */
         int query1Limit = LdbcQuery1.DEFAULT_LIMIT;
-        operations.add(Tuple.tuple2(
+        operationsMix.add(Tuple.tuple2(
                 queryMix.get(LdbcQuery1.class),
                 (Iterator<Operation<?>>) new Query1Generator(firstNameGenerator, query1Limit)));
 
@@ -202,7 +220,7 @@ public class LdbcInteractiveWorkload extends Workload {
          *  - Post Creation Date - select uniformly randomly a post creation date from between 33perc-66perc of entire date range
          */
         int query2Limit = LdbcQuery2.DEFAULT_LIMIT;
-        operations.add(Tuple.tuple2(
+        operationsMix.add(Tuple.tuple2(
                 queryMix.get(LdbcQuery2.class),
                 (Iterator<Operation<?>>) new Query2Generator(personIdGenerator, postCreationDateGenerator33_66, query2Limit)));
 
@@ -214,7 +232,7 @@ public class LdbcInteractiveWorkload extends Workload {
          *  - Country1 - the first of country pair
          *  - Country2 - the second of country pair
          */
-        operations.add(Tuple.tuple2(
+        operationsMix.add(Tuple.tuple2(
                 queryMix.get(LdbcQuery3.class),
                 (Iterator<Operation<?>>) new Query3Generator(personIdGenerator, countryPairsGenerator, postCreationDateGenerator00_66, postCreationDateRangeAsMs033)));
 
@@ -224,7 +242,7 @@ public class LdbcInteractiveWorkload extends Workload {
          * - Post Creation Date - select uniformly randomly a post creation date from between 0perc-95perc of entire date range
          * - Duration - a uniformly randomly selected duration between 2% and 4% of the length of post creation date range        
          */
-        operations.add(Tuple.tuple2(
+        operationsMix.add(Tuple.tuple2(
                 queryMix.get(LdbcQuery4.class),
                 (Iterator<Operation<?>>) new Query4Generator(personIdGenerator, postCreationDateGenerator00_95, postCreationDateRangeDuration02_04)));
 
@@ -236,7 +254,7 @@ public class LdbcInteractiveWorkload extends Workload {
          * - Person - select uniformly randomly from person ids
          * - Join Date - select uniformly randomly a post creation date from between 0perc-95perc of entire date range
          */
-        operations.add(Tuple.tuple2(
+        operationsMix.add(Tuple.tuple2(
                 queryMix.get(LdbcQuery5.class),
                 (Iterator<Operation<?>>) new Query5Generator(personIdGenerator, postCreationDateGenerator00_95)));
 
@@ -246,7 +264,7 @@ public class LdbcInteractiveWorkload extends Workload {
          * - Tag - select uniformly randomly from tag uris
          */
         int query6Limit = LdbcQuery6.DEFAULT_LIMIT;
-        operations.add(Tuple.tuple2(
+        operationsMix.add(Tuple.tuple2(
                 queryMix.get(LdbcQuery6.class),
                 (Iterator<Operation<?>>) new Query6Generator(personIdGenerator, tagNameGenerator, query6Limit)));
 
@@ -255,7 +273,7 @@ public class LdbcInteractiveWorkload extends Workload {
          * Person - select uniformly randomly from person ids
          */
         int query7Limit = LdbcQuery7.DEFAULT_LIMIT;
-        operations.add(Tuple.tuple2(
+        operationsMix.add(Tuple.tuple2(
                 queryMix.get(LdbcQuery7.class),
                 (Iterator<Operation<?>>) new Query7Generator(personIdGenerator, query7Limit)));
 
@@ -264,7 +282,7 @@ public class LdbcInteractiveWorkload extends Workload {
          * Person - select uniformly randomly from person ids
          */
         int query8Limit = LdbcQuery8.DEFAULT_LIMIT;
-        operations.add(Tuple.tuple2(
+        operationsMix.add(Tuple.tuple2(
                 queryMix.get(LdbcQuery8.class),
                 (Iterator<Operation<?>>) new Query8Generator(personIdGenerator, query8Limit)));
 
@@ -274,7 +292,7 @@ public class LdbcInteractiveWorkload extends Workload {
          * Date - select uniformly randomly a post creation date from between 33perc-66perc of entire date range
          */
         int query9Limit = LdbcQuery9.DEFAULT_LIMIT;
-        operations.add(Tuple.tuple2(
+        operationsMix.add(Tuple.tuple2(
                 queryMix.get(LdbcQuery9.class),
                 (Iterator<Operation<?>>) new Query9Generator(personIdGenerator, postCreationDateGenerator33_66, query9Limit)));
 
@@ -285,7 +303,7 @@ public class LdbcInteractiveWorkload extends Workload {
          * HS1 - HS0 + 1 (but 12 + 1 = 1)
          */
         int query10Limit = LdbcQuery10.DEFAULT_LIMIT;
-        operations.add(Tuple.tuple2(
+        operationsMix.add(Tuple.tuple2(
                 queryMix.get(LdbcQuery10.class),
                 (Iterator<Operation<?>>) new Query10Generator(personIdGenerator, horoscopeGenerator, query10Limit)));
 
@@ -297,7 +315,7 @@ public class LdbcInteractiveWorkload extends Workload {
          * Date - a random date from 0% to 100% of whole workFrom timeline
          */
         int query11Limit = LdbcQuery11.DEFAULT_LIMIT;
-        operations.add(Tuple.tuple2(
+        operationsMix.add(Tuple.tuple2(
                 queryMix.get(LdbcQuery11.class),
                 (Iterator<Operation<?>>) new Query11Generator(personIdGenerator, countriesGenerator, workFromDateGenerator00_100, query11Limit)));
 
@@ -307,20 +325,18 @@ public class LdbcInteractiveWorkload extends Workload {
          * TagType - select uniformly randomly tagTypeURI (used files: tagTypes.txt and tagTypes.sql)
          */
         int query12Limit = LdbcQuery12.DEFAULT_LIMIT;
-        operations.add(Tuple.tuple2(
+        operationsMix.add(Tuple.tuple2(
                 queryMix.get(LdbcQuery12.class),
                 (Iterator<Operation<?>>) new Query12Generator(personIdGenerator, tagClassesGenerator, query12Limit)));
 
         /*
-         * Create Discrete Generator from 
+         * Create Discrete Generator from query mix
          */
-
-        Iterator<Operation<?>> operationGenerator = generators.weightedDiscreteDereferencing(operations);
+        Iterator<Operation<?>> operationGenerator = generators.weightedDiscreteDereferencing(operationsMix);
 
         /*
          * Filter Interesting Operations
          */
-
         final Set<Class> operationsToInclude = queryMix.keySet();
         Predicate<Operation<?>> allowedOperationsFilter = new Predicate<Operation<?>>() {
             @Override
@@ -329,12 +345,23 @@ public class LdbcInteractiveWorkload extends Workload {
             }
         };
 
-        Iterator<Operation<?>> filteredGenerator = Iterators.filter(operationGenerator, allowedOperationsFilter);
+        Iterator<Operation<?>> interactiveReadOperations = Iterators.filter(operationGenerator, allowedOperationsFilter);
 
         // TODO test if interleave actually works correctly
         Iterator<Time> startTimeGenerator = GeneratorUtils.constantIncrementStartTimeGenerator(generators, Time.now(), interleaveDuration);
 
-        return new StartTimeAssigningOperationGenerator(startTimeGenerator, filteredGenerator);
+        Iterator<Operation<?>> interactiveReadOperationsWithTime = new StartTimeAssigningOperationGenerator(startTimeGenerator, interactiveReadOperations);
+
+        // TODO use readRatio/writeRatio & uncomment
+        // Iterator<Operation<?>> interactiveAndUpdateQueries_INTERLEAVED = generators.interleave(interactiveReadOperations,updateOperations,10);
+
+        // TODO uncomment
+        // List<Tuple2<Double, Iterator<Operation<?>>>> readWriteOperationMix = new ArrayList<>();
+        // readWriteOperationMix.add(Tuple.tuple2(readRatio, interactiveReadOperationsWithTime));
+        // readWriteOperationMix.add(Tuple.tuple2(writeRatio, (Iterator<Operation<?>>) updateOperations));
+        // Iterator<Operation<?>> interactiveAndUpdateQueries_MIXED = generators.weightedDiscreteDereferencing(readWriteOperationMix);
+
+        return interactiveReadOperationsWithTime;
     }
 
     class Query1Generator extends Generator<Operation<?>> {

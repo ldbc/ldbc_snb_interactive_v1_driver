@@ -49,8 +49,17 @@ public class ConsoleAndFileDriverConfiguration implements DriverConfiguration {
             "number of worker threads to execute with (default: %s)", THREADS_DEFAULT);
 
     public static int calculateDefaultThreadPoolSize() {
-        // Client & OperationResultLoggingThread
-        int threadsUsedByDriver = 2;
+        /*
+        Threads used by driver:
+         - Client/main
+         - Metrics
+         - GCT
+         - Synchronous Executor
+         - Asynchronous Executor
+         - Window Executor
+         ? Status
+         */
+        int threadsUsedByDriver = 6;
         int totalProcessors = Runtime.getRuntime().availableProcessors();
         int availableProcessors = totalProcessors - threadsUsedByDriver;
         return Math.max(1, availableProcessors);
