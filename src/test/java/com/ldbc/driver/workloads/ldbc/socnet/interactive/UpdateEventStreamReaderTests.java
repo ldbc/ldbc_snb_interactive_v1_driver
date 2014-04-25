@@ -1,6 +1,11 @@
 package com.ldbc.driver.workloads.ldbc.socnet.interactive;
 
+import com.google.common.base.Function;
+import com.google.common.collect.Iterators;
 import com.ldbc.driver.Operation;
+import com.ldbc.driver.temporal.Duration;
+import com.ldbc.driver.temporal.Time;
+import com.ldbc.driver.util.Histogram;
 import org.apache.commons.io.FileUtils;
 import org.junit.After;
 import org.junit.Before;
@@ -13,7 +18,9 @@ import java.io.IOException;
 import java.text.ParseException;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.Iterator;
 
+import static com.ldbc.driver.util.Bucket.DiscreteBucket;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
@@ -268,18 +275,37 @@ public class UpdateEventStreamReaderTests {
         assertThat(addFriendship.creationDate(), equalTo(creationDate));
     }
 
-    // TODO
     @Ignore
     @Test
     public void shouldParseUpdateEventFile() throws FileNotFoundException {
         String csvFilePath = "/Users/alexaverbuch/IdeaProjects/ldbc_socialnet_bm/ldbc_socialnet_dbgen/outputDir/updateStream_0.csv";
         File csvFile = new File(csvFilePath);
         UpdateEventStreamReader updateEventStreamReader = new UpdateEventStreamReader(csvFile);
-        long count = 0;
-        while (updateEventStreamReader.hasNext()) {
-            Operation<?> operation = updateEventStreamReader.next();
-            count++;
-        }
-        System.out.println("Count = " + count);
+        Iterator<Class<?>> updateEventTypes = Iterators.transform(updateEventStreamReader, new Function<Operation<?>, Class<?>>() {
+            @Override
+            public Class<?> apply(Operation<?> input) {
+                return input.getClass();
+            }
+        });
+        Histogram<Class<?>, Long> histogram = new Histogram<>(0L);
+        histogram.addBucket(DiscreteBucket.<Class<?>>create(LdbcUpdate1AddPerson.class));
+        histogram.addBucket(DiscreteBucket.<Class<?>>create(LdbcUpdate2AddPostLike.class));
+        histogram.addBucket(DiscreteBucket.<Class<?>>create(LdbcUpdate3AddCommentLike.class));
+        histogram.addBucket(DiscreteBucket.<Class<?>>create(LdbcUpdate4AddForum.class));
+        histogram.addBucket(DiscreteBucket.<Class<?>>create(LdbcUpdate5AddForumMembership.class));
+        histogram.addBucket(DiscreteBucket.<Class<?>>create(LdbcUpdate6AddPost.class));
+        histogram.addBucket(DiscreteBucket.<Class<?>>create(LdbcUpdate7AddComment.class));
+        histogram.addBucket(DiscreteBucket.<Class<?>>create(LdbcUpdate8AddFriendship.class));
+
+        Time startTime = Time.now();
+
+        histogram.importValueSequence(updateEventTypes);
+
+        Duration runtime = Time.now().greaterBy(startTime);
+
+        System.out.println(String.format("Runtime:\t\t%s", runtime));
+        System.out.println(String.format("Operation count:\t%s", histogram.sumOfAllBucketValues()));
+        System.out.println(String.format("Throughput (op/ms):\t%s", histogram.sumOfAllBucketValues() / runtime.asMilli()));
+        System.out.println(histogram.toPercentageValues().toPrettyString());
     }
 }

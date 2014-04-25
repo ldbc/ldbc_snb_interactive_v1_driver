@@ -82,6 +82,7 @@ public class Histogram<THING_TYPE, COUNT extends Number> {
         importValueSequence(valueSequence.iterator());
     }
 
+    // TODO would be nice if there was a version of this method that added buckets when they don't yet exist
     public void importValueSequence(Iterator<THING_TYPE> valueSequence) {
         while (valueSequence.hasNext()) {
             THING_TYPE value = valueSequence.next();
