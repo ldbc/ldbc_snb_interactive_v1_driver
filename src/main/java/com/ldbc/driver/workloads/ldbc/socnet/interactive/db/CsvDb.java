@@ -292,7 +292,7 @@ public class CsvDb extends Db {
                         operation.type(),
                         Long.toString(operation.personId()),
                         operation.country(),
-                        Long.toString(operation.workFromDate())
+                        Integer.toString(operation.workFromYear())
                 );
                 return operation.buildResult(0, RESULT);
             } catch (IOException e) {

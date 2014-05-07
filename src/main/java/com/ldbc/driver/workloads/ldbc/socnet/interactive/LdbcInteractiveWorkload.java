@@ -191,13 +191,17 @@ public class LdbcInteractiveWorkload extends Workload {
         Iterator<String> tagNameGenerator = generators.discrete(substitutionParameters.tagNames);
         Iterator<Integer> horoscopeGenerator = generators.uniform(1, 12);
         Iterator<String> countriesGenerator = generators.discrete(substitutionParameters.countries);
-        c.clear();
-        c.set(Calendar.YEAR, substitutionParameters.minWorkFrom);
-        long workFromDateAsMs000 = c.getTimeInMillis();
-        c.clear();
-        c.set(Calendar.YEAR, substitutionParameters.maxWorkFrom);
-        long workFromDateAsMs100 = c.getTimeInMillis();
-        Iterator<Long> workFromDateGenerator00_100 = generators.uniform(workFromDateAsMs000, workFromDateAsMs100);
+
+        // TODO remove
+//        c.clear();
+//        c.set(Calendar.YEAR, substitutionParameters.minWorkFrom);
+//        long workFromDateAsMs000 = c.getTimeInMillis();
+//        c.clear();
+//        c.set(Calendar.YEAR, substitutionParameters.maxWorkFrom);
+//        long workFromDateAsMs100 = c.getTimeInMillis();
+//        Iterator<Long> workFromDateGenerator00_100 = generators.uniform(workFromDateAsMs000, workFromDateAsMs100);
+        Iterator<Integer> workFromYearGenerator00_100 = generators.uniform(substitutionParameters.minWorkFrom, substitutionParameters.maxWorkFrom);
+
         Iterator<String> tagClassesGenerator = generators.discrete(substitutionParameters.tagClasses);
 
         /*
@@ -314,10 +318,15 @@ public class LdbcInteractiveWorkload extends Workload {
          * Country - select uniformly randomly from country ids
          * Date - a random date from 0% to 100% of whole workFrom timeline
          */
+        // TODO remove
+//        int query11Limit = LdbcQuery11.DEFAULT_LIMIT;
+//        operationsMix.add(Tuple.tuple2(
+//                queryMix.get(LdbcQuery11.class),
+//                (Iterator<Operation<?>>) new Query11Generator(personIdGenerator, countriesGenerator, workFromDateGenerator00_100, query11Limit)));
         int query11Limit = LdbcQuery11.DEFAULT_LIMIT;
         operationsMix.add(Tuple.tuple2(
                 queryMix.get(LdbcQuery11.class),
-                (Iterator<Operation<?>>) new Query11Generator(personIdGenerator, countriesGenerator, workFromDateGenerator00_100, query11Limit)));
+                (Iterator<Operation<?>>) new Query11Generator(personIdGenerator, countriesGenerator, workFromYearGenerator00_100, query11Limit)));
 
         /*
          * Query 12
@@ -538,19 +547,19 @@ public class LdbcInteractiveWorkload extends Workload {
     class Query11Generator extends Generator<Operation<?>> {
         private final Iterator<Long> personIdGenerator;
         private final Iterator<String> countriesGenerator;
-        private final Iterator<Long> workFromDateGenerator;
+        private final Iterator<Integer> workFromYearGenerator;
         private final int limit;
 
-        protected Query11Generator(Iterator<Long> personIdGenerator, Iterator<String> countriesGenerator, Iterator<Long> workFromDateGenerator, int limit) {
+        protected Query11Generator(Iterator<Long> personIdGenerator, Iterator<String> countriesGenerator, Iterator<Integer> workFromYearGenerator, int limit) {
             this.personIdGenerator = personIdGenerator;
             this.countriesGenerator = countriesGenerator;
-            this.workFromDateGenerator = workFromDateGenerator;
+            this.workFromYearGenerator = workFromYearGenerator;
             this.limit = limit;
         }
 
         @Override
         protected Operation<?> doNext() throws GeneratorException {
-            return new LdbcQuery11(personIdGenerator.next(), countriesGenerator.next(), workFromDateGenerator.next(), limit);
+            return new LdbcQuery11(personIdGenerator.next(), countriesGenerator.next(), workFromYearGenerator.next(), limit);
         }
     }
 

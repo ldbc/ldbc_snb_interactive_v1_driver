@@ -5,14 +5,14 @@ public class LdbcQuery11Result {
     private final String personFirstName;
     private final String personLastName;
     private final String organizationName;
-    private final long organizationWorkFromDate;
+    private final long organizationWorkFromYear;
 
-    public LdbcQuery11Result(long personId, String personFirstName, String personLastName, String organizationName, long organizationWorkFromDate) {
+    public LdbcQuery11Result(long personId, String personFirstName, String personLastName, String organizationName, long organizationWorkFromYear) {
         this.personId = personId;
         this.personFirstName = personFirstName;
         this.personLastName = personLastName;
         this.organizationName = organizationName;
-        this.organizationWorkFromDate = organizationWorkFromDate;
+        this.organizationWorkFromYear = organizationWorkFromYear;
     }
 
     public long personId() {
@@ -31,8 +31,8 @@ public class LdbcQuery11Result {
         return organizationName;
     }
 
-    public long organizationWorkFromDate() {
-        return organizationWorkFromDate;
+    public long organizationWorkFromYear() {
+        return organizationWorkFromYear;
     }
 
     @Override
@@ -42,7 +42,7 @@ public class LdbcQuery11Result {
 
         LdbcQuery11Result that = (LdbcQuery11Result) o;
 
-        if (organizationWorkFromDate != that.organizationWorkFromDate) return false;
+        if (organizationWorkFromYear != that.organizationWorkFromYear) return false;
         if (personId != that.personId) return false;
         if (organizationName != null ? !organizationName.equals(that.organizationName) : that.organizationName != null)
             return false;
@@ -60,7 +60,7 @@ public class LdbcQuery11Result {
         result = 31 * result + (personFirstName != null ? personFirstName.hashCode() : 0);
         result = 31 * result + (personLastName != null ? personLastName.hashCode() : 0);
         result = 31 * result + (organizationName != null ? organizationName.hashCode() : 0);
-        result = 31 * result + (int) (organizationWorkFromDate ^ (organizationWorkFromDate >>> 32));
+        result = 31 * result + (int) (organizationWorkFromYear ^ (organizationWorkFromYear >>> 32));
         return result;
     }
 
@@ -71,7 +71,7 @@ public class LdbcQuery11Result {
                 ", personFirstName='" + personFirstName + '\'' +
                 ", personLastName='" + personLastName + '\'' +
                 ", organizationName='" + organizationName + '\'' +
-                ", organizationWorkFromDate=" + organizationWorkFromDate +
+                ", organizationWorkFromYear=" + organizationWorkFromYear +
                 '}';
     }
 }

@@ -9,13 +9,13 @@ public class LdbcQuery11 extends Operation<List<LdbcQuery11Result>> {
 
     private final long personId;
     private final String country;
-    private final long workFromDate;
+    private final int workFromYear;
     private final int limit;
 
-    public LdbcQuery11(long personId, String country, long workFromDate, int limit) {
+    public LdbcQuery11(long personId, String country, int workFromYear, int limit) {
         this.personId = personId;
         this.country = country;
-        this.workFromDate = workFromDate;
+        this.workFromYear = workFromYear;
         this.limit = limit;
     }
 
@@ -27,8 +27,8 @@ public class LdbcQuery11 extends Operation<List<LdbcQuery11Result>> {
         return country;
     }
 
-    public long workFromDate() {
-        return workFromDate;
+    public int workFromYear() {
+        return workFromYear;
     }
 
     public int limit() {
@@ -44,7 +44,7 @@ public class LdbcQuery11 extends Operation<List<LdbcQuery11Result>> {
 
         if (limit != that.limit) return false;
         if (personId != that.personId) return false;
-        if (workFromDate != that.workFromDate) return false;
+        if (workFromYear != that.workFromYear) return false;
         if (country != null ? !country.equals(that.country) : that.country != null) return false;
 
         return true;
@@ -54,7 +54,7 @@ public class LdbcQuery11 extends Operation<List<LdbcQuery11Result>> {
     public int hashCode() {
         int result = (int) (personId ^ (personId >>> 32));
         result = 31 * result + (country != null ? country.hashCode() : 0);
-        result = 31 * result + (int) (workFromDate ^ (workFromDate >>> 32));
+        result = 31 * result + workFromYear;
         result = 31 * result + limit;
         return result;
     }
@@ -64,7 +64,7 @@ public class LdbcQuery11 extends Operation<List<LdbcQuery11Result>> {
         return "LdbcQuery11{" +
                 "personId=" + personId +
                 ", country='" + country + '\'' +
-                ", workFromDate=" + workFromDate +
+                ", workFromYear=" + workFromYear +
                 ", limit=" + limit +
                 '}';
     }
