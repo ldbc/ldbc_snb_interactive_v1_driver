@@ -191,15 +191,6 @@ public class LdbcInteractiveWorkload extends Workload {
         Iterator<String> tagNameGenerator = generators.discrete(substitutionParameters.tagNames);
         Iterator<Integer> horoscopeGenerator = generators.uniform(1, 12);
         Iterator<String> countriesGenerator = generators.discrete(substitutionParameters.countries);
-
-        // TODO remove
-//        c.clear();
-//        c.set(Calendar.YEAR, substitutionParameters.minWorkFrom);
-//        long workFromDateAsMs000 = c.getTimeInMillis();
-//        c.clear();
-//        c.set(Calendar.YEAR, substitutionParameters.maxWorkFrom);
-//        long workFromDateAsMs100 = c.getTimeInMillis();
-//        Iterator<Long> workFromDateGenerator00_100 = generators.uniform(workFromDateAsMs000, workFromDateAsMs100);
         Iterator<Integer> workFromYearGenerator00_100 = generators.uniform(substitutionParameters.minWorkFrom, substitutionParameters.maxWorkFrom);
 
         Iterator<String> tagClassesGenerator = generators.discrete(substitutionParameters.tagClasses);
@@ -314,15 +305,10 @@ public class LdbcInteractiveWorkload extends Workload {
         /*
          * Query 11
          * Person - select uniformly randomly from person ids
-         * // TODO parameters dont have IDS only names
+         * // TODO parameter file does not have country dont have IDS only names
          * Country - select uniformly randomly from country ids
          * Date - a random date from 0% to 100% of whole workFrom timeline
          */
-        // TODO remove
-//        int query11Limit = LdbcQuery11.DEFAULT_LIMIT;
-//        operationsMix.add(Tuple.tuple2(
-//                queryMix.get(LdbcQuery11.class),
-//                (Iterator<Operation<?>>) new Query11Generator(personIdGenerator, countriesGenerator, workFromDateGenerator00_100, query11Limit)));
         int query11Limit = LdbcQuery11.DEFAULT_LIMIT;
         operationsMix.add(Tuple.tuple2(
                 queryMix.get(LdbcQuery11.class),

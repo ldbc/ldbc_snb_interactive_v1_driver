@@ -1,13 +1,14 @@
 package com.ldbc.driver.workloads.ldbc.socnet.interactive;
 
 public class LdbcQuery11Result {
+    public static final int DEFAULT_LIMIT = 10;
     private final long personId;
     private final String personFirstName;
     private final String personLastName;
     private final String organizationName;
-    private final long organizationWorkFromYear;
+    private final int organizationWorkFromYear;
 
-    public LdbcQuery11Result(long personId, String personFirstName, String personLastName, String organizationName, long organizationWorkFromYear) {
+    public LdbcQuery11Result(long personId, String personFirstName, String personLastName, String organizationName, int organizationWorkFromYear) {
         this.personId = personId;
         this.personFirstName = personFirstName;
         this.personLastName = personLastName;
@@ -31,7 +32,7 @@ public class LdbcQuery11Result {
         return organizationName;
     }
 
-    public long organizationWorkFromYear() {
+    public int organizationWorkFromYear() {
         return organizationWorkFromYear;
     }
 
@@ -60,7 +61,7 @@ public class LdbcQuery11Result {
         result = 31 * result + (personFirstName != null ? personFirstName.hashCode() : 0);
         result = 31 * result + (personLastName != null ? personLastName.hashCode() : 0);
         result = 31 * result + (organizationName != null ? organizationName.hashCode() : 0);
-        result = 31 * result + (int) (organizationWorkFromYear ^ (organizationWorkFromYear >>> 32));
+        result = 31 * result + organizationWorkFromYear;
         return result;
     }
 
