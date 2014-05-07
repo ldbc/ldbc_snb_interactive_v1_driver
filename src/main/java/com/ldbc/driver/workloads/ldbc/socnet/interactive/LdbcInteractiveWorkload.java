@@ -212,7 +212,7 @@ public class LdbcInteractiveWorkload extends Workload {
         int query1Limit = LdbcQuery1.DEFAULT_LIMIT;
         operationsMix.add(Tuple.tuple2(
                 queryMix.get(LdbcQuery1.class),
-                (Iterator<Operation<?>>) new Query1Generator(firstNameGenerator, query1Limit)));
+                (Iterator<Operation<?>>) new Query1Generator(personIdGenerator, firstNameGenerator, query1Limit)));
 
         /*
          * Query2
@@ -365,17 +365,19 @@ public class LdbcInteractiveWorkload extends Workload {
     }
 
     class Query1Generator extends Generator<Operation<?>> {
+        private final Iterator<Long> personIds;
         private final Iterator<String> firstNames;
         private final int limit;
 
-        protected Query1Generator(Iterator<String> firstNames, int limit) {
+        protected Query1Generator(Iterator<Long> personIds, Iterator<String> firstNames, int limit) {
+            this.personIds = personIds;
             this.firstNames = firstNames;
             this.limit = limit;
         }
 
         @Override
         protected Operation<?> doNext() throws GeneratorException {
-            return new LdbcQuery1(firstNames.next(), limit);
+            return new LdbcQuery1(personIds.next(), firstNames.next(), limit);
         }
     }
 

@@ -8,14 +8,15 @@ public class LdbcQuery10 extends Operation<List<LdbcQuery10Result>> {
     public static final int DEFAULT_LIMIT = 20;
 
     private final long personId;
-    private final int horoscopeSign1;
-    private final int horoscopeSign2;
+    private final int horoscopeMonth1;
+    private final int horoscopeMonth2;
+
     private final int limit;
 
-    public LdbcQuery10(long personId, int horoscopeSign1, int horoscopeSign2, int limit) {
+    public LdbcQuery10(long personId, int horoscopeMonth1, int horoscopeMonth2, int limit) {
         this.personId = personId;
-        this.horoscopeSign1 = horoscopeSign1;
-        this.horoscopeSign2 = horoscopeSign2;
+        this.horoscopeMonth1 = horoscopeMonth1;
+        this.horoscopeMonth2 = horoscopeMonth2;
         this.limit = limit;
     }
 
@@ -23,12 +24,12 @@ public class LdbcQuery10 extends Operation<List<LdbcQuery10Result>> {
         return personId;
     }
 
-    public int horoscopeSign1() {
-        return horoscopeSign1;
+    public int horoscopeMonth1() {
+        return horoscopeMonth1;
     }
 
-    public int horoscopeSign2() {
-        return horoscopeSign2;
+    public int horoscopeMonth2() {
+        return horoscopeMonth2;
     }
 
     public int limit() {
@@ -42,8 +43,8 @@ public class LdbcQuery10 extends Operation<List<LdbcQuery10Result>> {
 
         LdbcQuery10 that = (LdbcQuery10) o;
 
-        if (horoscopeSign1 != that.horoscopeSign1) return false;
-        if (horoscopeSign2 != that.horoscopeSign2) return false;
+        if (horoscopeMonth1 != that.horoscopeMonth1) return false;
+        if (horoscopeMonth2 != that.horoscopeMonth2) return false;
         if (limit != that.limit) return false;
         if (personId != that.personId) return false;
 
@@ -53,8 +54,8 @@ public class LdbcQuery10 extends Operation<List<LdbcQuery10Result>> {
     @Override
     public int hashCode() {
         int result = (int) (personId ^ (personId >>> 32));
-        result = 31 * result + horoscopeSign1;
-        result = 31 * result + horoscopeSign2;
+        result = 31 * result + horoscopeMonth1;
+        result = 31 * result + horoscopeMonth2;
         result = 31 * result + limit;
         return result;
     }
@@ -63,8 +64,8 @@ public class LdbcQuery10 extends Operation<List<LdbcQuery10Result>> {
     public String toString() {
         return "LdbcQuery10{" +
                 "personId=" + personId +
-                ", horoscopeSign1=" + horoscopeSign1 +
-                ", horoscopeSign2=" + horoscopeSign2 +
+                ", horoscopeMonth1=" + horoscopeMonth1 +
+                ", horoscopeMonth2=" + horoscopeMonth2 +
                 ", limit=" + limit +
                 '}';
     }

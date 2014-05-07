@@ -1,182 +1,174 @@
 package com.ldbc.driver.workloads.ldbc.socnet.interactive;
 
-import java.util.Arrays;
 import java.util.Collection;
 
-public class LdbcQuery1Result
-{
-    private final String firstName;
-    private final String lastName;
-    private final long birthday;
-    private final long creationDate;
-    private final String gender;
-    private final String[] languages;
-    private final String browser;
-    private final String ip;
-    private final String[] emails;
-    private final String personCity;
-    private final Collection<String> unis;
-    private final Collection<String> companies;
+public class LdbcQuery1Result {
+    private final long friendId;
+    private final String friendLastName;
+    private final int distanceFromPerson;
+    private final long friendBirthday;
+    private final long friendCreationDate;
+    private final String friendGender;
+    private final String friendBrowserUsed;
+    private final String friendLocationIp;
+    private final Collection<String> friendEmails;
+    private final Collection<String> friendLanguages;
+    private final String friendCityName;
+    // (Person-studyAt->University.name,
+    // Person-studyAt->.classYear,
+    // Person-studyAt->University-isLocatedIn->City.name)
+    private final Collection<String> friendUniversities;
+    // (Person-workAt->Company.name,
+    // Person-workAt->.workFrom,
+    // Person-workAt->Company-isLocatedIn->City.name)
+    private final Collection<String> friendCompanies;
 
-    public LdbcQuery1Result( String firstName, String lastName, long birthday, long creationDate, String gender,
-            String[] languages, String browser, String ip, String[] emails, String personCity, Collection<String> unis,
-            Collection<String> companies )
-    {
-        super();
-        this.firstName = firstName;
-        this.lastName = lastName;
-        this.birthday = birthday;
-        this.creationDate = creationDate;
-        this.gender = gender;
-        this.languages = languages;
-        this.browser = browser;
-        this.ip = ip;
-        this.emails = emails;
-        this.personCity = personCity;
-        this.unis = unis;
-        this.companies = companies;
+    public LdbcQuery1Result(
+            long friendId,
+            String friendLastName,
+            int distanceFromPerson,
+            long friendBirthday,
+            long friendCreationDate,
+            String friendGender,
+            String friendBrowserUsed,
+            String friendLocationIp,
+            Collection<String> friendEmails,
+            Collection<String> friendLanguages,
+            String friendCityName,
+            Collection<String> friendUniversities,
+            Collection<String> friendCompanies) {
+        this.friendId = friendId;
+        this.friendLastName = friendLastName;
+        this.distanceFromPerson = distanceFromPerson;
+        this.friendBirthday = friendBirthday;
+        this.friendCreationDate = friendCreationDate;
+        this.friendGender = friendGender;
+        this.friendBrowserUsed = friendBrowserUsed;
+        this.friendLocationIp = friendLocationIp;
+        this.friendEmails = friendEmails;
+        this.friendLanguages = friendLanguages;
+        this.friendCityName = friendCityName;
+        this.friendUniversities = friendUniversities;
+        this.friendCompanies = friendCompanies;
     }
 
-    public String firstName()
-    {
-        return firstName;
+    public long friendId() {
+        return friendId;
     }
 
-    public String lastName()
-    {
-        return lastName;
+    public String friendLastName() {
+        return friendLastName;
     }
 
-    public long birthday()
-    {
-        return birthday;
+    public int distanceFromPerson() {
+        return distanceFromPerson;
     }
 
-    public long creationDate()
-    {
-        return creationDate;
+    public long friendBirthday() {
+        return friendBirthday;
     }
 
-    public String gender()
-    {
-        return gender;
+    public long friendCreationDate() {
+        return friendCreationDate;
     }
 
-    public String[] languages()
-    {
-        return languages;
+    public String friendGender() {
+        return friendGender;
     }
 
-    public String browser()
-    {
-        return browser;
+    public String friendBrowserUsed() {
+        return friendBrowserUsed;
     }
 
-    public String ip()
-    {
-        return ip;
+    public String friendLocationIp() {
+        return friendLocationIp;
     }
 
-    public String[] emails()
-    {
-        return emails;
+    public Collection<String> friendEmails() {
+        return friendEmails;
     }
 
-    public String personCity()
-    {
-        return personCity;
+    public Collection<String> friendLanguages() {
+        return friendLanguages;
     }
 
-    public Collection<String> unis()
-    {
-        return unis;
+    public String friendCityName() {
+        return friendCityName;
     }
 
-    public Collection<String> companies()
-    {
-        return companies;
+    public Collection<String> friendUniversities() {
+        return friendUniversities;
     }
 
-    @Override
-    public int hashCode()
-    {
-        final int prime = 31;
-        int result = 1;
-        result = prime * result + (int) ( birthday ^ ( birthday >>> 32 ) );
-        result = prime * result + ( ( browser == null ) ? 0 : browser.hashCode() );
-        result = prime * result + ( ( companies == null ) ? 0 : companies.hashCode() );
-        result = prime * result + (int) ( creationDate ^ ( creationDate >>> 32 ) );
-        result = prime * result + Arrays.hashCode( emails );
-        result = prime * result + ( ( firstName == null ) ? 0 : firstName.hashCode() );
-        result = prime * result + ( ( gender == null ) ? 0 : gender.hashCode() );
-        result = prime * result + ( ( ip == null ) ? 0 : ip.hashCode() );
-        result = prime * result + Arrays.hashCode( languages );
-        result = prime * result + ( ( lastName == null ) ? 0 : lastName.hashCode() );
-        result = prime * result + ( ( personCity == null ) ? 0 : personCity.hashCode() );
-        result = prime * result + ( ( unis == null ) ? 0 : unis.hashCode() );
-        return result;
+    public Collection<String> friendCompanies() {
+        return friendCompanies;
     }
 
     @Override
-    public boolean equals( Object obj )
-    {
-        if ( this == obj ) return true;
-        if ( obj == null ) return false;
-        if ( getClass() != obj.getClass() ) return false;
-        LdbcQuery1Result other = (LdbcQuery1Result) obj;
-        if ( birthday != other.birthday ) return false;
-        if ( browser == null )
-        {
-            if ( other.browser != null ) return false;
-        }
-        else if ( !browser.equals( other.browser ) ) return false;
-        if ( companies == null )
-        {
-            if ( other.companies != null ) return false;
-        }
-        else if ( !companies.equals( other.companies ) ) return false;
-        if ( creationDate != other.creationDate ) return false;
-        if ( !Arrays.equals( emails, other.emails ) ) return false;
-        if ( firstName == null )
-        {
-            if ( other.firstName != null ) return false;
-        }
-        else if ( !firstName.equals( other.firstName ) ) return false;
-        if ( gender == null )
-        {
-            if ( other.gender != null ) return false;
-        }
-        else if ( !gender.equals( other.gender ) ) return false;
-        if ( ip == null )
-        {
-            if ( other.ip != null ) return false;
-        }
-        else if ( !ip.equals( other.ip ) ) return false;
-        if ( !Arrays.equals( languages, other.languages ) ) return false;
-        if ( lastName == null )
-        {
-            if ( other.lastName != null ) return false;
-        }
-        else if ( !lastName.equals( other.lastName ) ) return false;
-        if ( personCity == null )
-        {
-            if ( other.personCity != null ) return false;
-        }
-        else if ( !personCity.equals( other.personCity ) ) return false;
-        if ( unis == null )
-        {
-            if ( other.unis != null ) return false;
-        }
-        else if ( !unis.equals( other.unis ) ) return false;
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        LdbcQuery1Result that = (LdbcQuery1Result) o;
+
+        if (distanceFromPerson != that.distanceFromPerson) return false;
+        if (friendBirthday != that.friendBirthday) return false;
+        if (friendCreationDate != that.friendCreationDate) return false;
+        if (friendId != that.friendId) return false;
+        if (friendBrowserUsed != null ? !friendBrowserUsed.equals(that.friendBrowserUsed) : that.friendBrowserUsed != null)
+            return false;
+        if (friendCityName != null ? !friendCityName.equals(that.friendCityName) : that.friendCityName != null)
+            return false;
+        if (friendCompanies != null ? !friendCompanies.equals(that.friendCompanies) : that.friendCompanies != null)
+            return false;
+        if (friendEmails != null ? !friendEmails.equals(that.friendEmails) : that.friendEmails != null) return false;
+        if (friendGender != null ? !friendGender.equals(that.friendGender) : that.friendGender != null) return false;
+        if (friendLanguages != null ? !friendLanguages.equals(that.friendLanguages) : that.friendLanguages != null)
+            return false;
+        if (friendLastName != null ? !friendLastName.equals(that.friendLastName) : that.friendLastName != null)
+            return false;
+        if (friendLocationIp != null ? !friendLocationIp.equals(that.friendLocationIp) : that.friendLocationIp != null)
+            return false;
+        if (friendUniversities != null ? !friendUniversities.equals(that.friendUniversities) : that.friendUniversities != null)
+            return false;
+
         return true;
     }
 
     @Override
-    public String toString()
-    {
-        return "LdbcQuery1Result [firstName=" + firstName + ", lastName=" + lastName + ", birthday=" + birthday
-               + ", creationDate=" + creationDate + ", gender=" + gender + ", languages=" + Arrays.toString( languages )
-               + ", browser=" + browser + ", ip=" + ip + ", emails=" + Arrays.toString( emails ) + ", personCity="
-               + personCity + ", unis=" + unis + ", companies=" + companies + "]";
+    public int hashCode() {
+        int result = (int) (friendId ^ (friendId >>> 32));
+        result = 31 * result + (friendLastName != null ? friendLastName.hashCode() : 0);
+        result = 31 * result + distanceFromPerson;
+        result = 31 * result + (int) (friendBirthday ^ (friendBirthday >>> 32));
+        result = 31 * result + (int) (friendCreationDate ^ (friendCreationDate >>> 32));
+        result = 31 * result + (friendGender != null ? friendGender.hashCode() : 0);
+        result = 31 * result + (friendBrowserUsed != null ? friendBrowserUsed.hashCode() : 0);
+        result = 31 * result + (friendLocationIp != null ? friendLocationIp.hashCode() : 0);
+        result = 31 * result + (friendEmails != null ? friendEmails.hashCode() : 0);
+        result = 31 * result + (friendLanguages != null ? friendLanguages.hashCode() : 0);
+        result = 31 * result + (friendCityName != null ? friendCityName.hashCode() : 0);
+        result = 31 * result + (friendUniversities != null ? friendUniversities.hashCode() : 0);
+        result = 31 * result + (friendCompanies != null ? friendCompanies.hashCode() : 0);
+        return result;
+    }
+
+    @Override
+    public String toString() {
+        return "LdbcQuery1Result{" +
+                "friendId=" + friendId +
+                ", friendLastName='" + friendLastName + '\'' +
+                ", distanceFromPerson=" + distanceFromPerson +
+                ", friendBirthday=" + friendBirthday +
+                ", friendCreationDate=" + friendCreationDate +
+                ", friendGender='" + friendGender + '\'' +
+                ", friendBrowserUsed='" + friendBrowserUsed + '\'' +
+                ", friendLocationIp='" + friendLocationIp + '\'' +
+                ", friendEmails=" + friendEmails +
+                ", friendLanguages=" + friendLanguages +
+                ", friendCityName='" + friendCityName + '\'' +
+                ", friendUniversities=" + friendUniversities +
+                ", friendCompanies=" + friendCompanies +
+                '}';
     }
 }

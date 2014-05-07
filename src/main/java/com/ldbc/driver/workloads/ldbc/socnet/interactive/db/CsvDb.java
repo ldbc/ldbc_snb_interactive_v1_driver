@@ -271,8 +271,8 @@ public class CsvDb extends Db {
                         Long.toString(Time.nowAsMilli() - operation.scheduledStartTime().asMilli()),
                         operation.type(),
                         Long.toString(operation.personId()),
-                        Integer.toString(operation.horoscopeSign1()),
-                        Integer.toString(operation.horoscopeSign2())
+                        Integer.toString(operation.horoscopeMonth1()),
+                        Integer.toString(operation.horoscopeMonth2())
                 );
                 return operation.buildResult(0, RESULT);
             } catch (IOException e) {

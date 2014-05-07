@@ -1,61 +1,61 @@
 package com.ldbc.driver.workloads.ldbc.socnet.interactive;
 
-import java.util.List;
-
 import com.ldbc.driver.Operation;
 
-public class LdbcQuery1 extends Operation<List<LdbcQuery1Result>>
-{
+import java.util.List;
+
+public class LdbcQuery1 extends Operation<List<LdbcQuery1Result>> {
     public static final int DEFAULT_LIMIT = 10;
+    private final long personId;
     private final String firstName;
     private final int limit;
 
-    public LdbcQuery1( String firstName, int limit )
-    {
-        super();
+    public LdbcQuery1(long personId, String firstName, int limit) {
+        this.personId = personId;
         this.firstName = firstName;
         this.limit = limit;
     }
 
-    public String firstName()
-    {
+    public long personId() {
+        return personId;
+    }
+
+    public String firstName() {
         return firstName;
     }
 
-    public int limit()
-    {
+    public int limit() {
         return limit;
     }
 
     @Override
-    public int hashCode()
-    {
-        final int prime = 31;
-        int result = 1;
-        result = prime * result + ( ( firstName == null ) ? 0 : firstName.hashCode() );
-        result = prime * result + limit;
-        return result;
-    }
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
 
-    @Override
-    public boolean equals( Object obj )
-    {
-        if ( this == obj ) return true;
-        if ( obj == null ) return false;
-        if ( getClass() != obj.getClass() ) return false;
-        LdbcQuery1 other = (LdbcQuery1) obj;
-        if ( firstName == null )
-        {
-            if ( other.firstName != null ) return false;
-        }
-        else if ( !firstName.equals( other.firstName ) ) return false;
-        if ( limit != other.limit ) return false;
+        LdbcQuery1 that = (LdbcQuery1) o;
+
+        if (limit != that.limit) return false;
+        if (personId != that.personId) return false;
+        if (firstName != null ? !firstName.equals(that.firstName) : that.firstName != null) return false;
+
         return true;
     }
 
     @Override
-    public String toString()
-    {
-        return "LdbcQuery1 [firstName=" + firstName + ", limit=" + limit + "]";
+    public int hashCode() {
+        int result = (int) (personId ^ (personId >>> 32));
+        result = 31 * result + (firstName != null ? firstName.hashCode() : 0);
+        result = 31 * result + limit;
+        return result;
+    }
+
+    @Override
+    public String toString() {
+        return "LdbcQuery1{" +
+                "personId=" + personId +
+                ", firstName='" + firstName + '\'' +
+                ", limit=" + limit +
+                '}';
     }
 }
