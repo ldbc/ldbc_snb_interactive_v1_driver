@@ -39,7 +39,7 @@ public class ThreadedQueuedConcurrentMetricsService implements ConcurrentMetrics
             metricsEventsQueue.add(MetricsCollectionEvent.submitResult(operationResult));
         } catch (Exception e) {
             String errMsg = String.format("Error submitting result [%s]", operationResult.toString());
-            throw new MetricsCollectionException(errMsg, e.getCause());
+            throw new MetricsCollectionException(errMsg, e);
         }
     }
 
@@ -74,7 +74,7 @@ public class ThreadedQueuedConcurrentMetricsService implements ConcurrentMetrics
         } catch (InterruptedException e) {
             String errMsg = String.format("Thread was interrupted while waiting for %s to complete",
                     threadedQueuedMetricsMaintenanceThread.getClass().getSimpleName());
-            throw new MetricsCollectionException(errMsg, e.getCause());
+            throw new MetricsCollectionException(errMsg, e);
         }
     }
 

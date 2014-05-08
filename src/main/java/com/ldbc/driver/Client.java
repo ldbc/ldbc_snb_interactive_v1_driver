@@ -68,8 +68,7 @@ public class Client {
             db.init(controlService.configuration().asMap());
         } catch (DbException e) {
             throw new ClientException(
-                    String.format("Error loading DB class: %s", controlService.configuration().dbClassName()),
-                    e.getCause());
+                    String.format("Error loading DB class: %s", controlService.configuration().dbClassName()), e);
         }
         logger.info(String.format("Loaded DB: %s", db.getClass().getName()));
 
@@ -93,8 +92,7 @@ public class Client {
             }
         } catch (Exception e) {
             throw new ClientException(
-                    String.format("Error while instantiating Completion Time Service with peer IDs %s", controlService.configuration().peerIds().toString()),
-                    e.getCause());
+                    String.format("Error while instantiating Completion Time Service with peer IDs %s", controlService.configuration().peerIds().toString()), e);
         }
 
         metricsService = new ThreadedQueuedConcurrentMetricsService(errorReporter, controlService.configuration().timeUnit());
@@ -116,7 +114,7 @@ public class Client {
                     errorReporter,
                     completionTimeService);
         } catch (WorkloadException e) {
-            throw new ClientException("Error instantiating WorkloadRunner", e.getCause());
+            throw new ClientException("Error instantiating WorkloadRunner", e);
         }
         logger.info(String.format("Instantiated WorkloadRunner - Starting Benchmark (%s operations)", controlService.configuration().operationCount()));
 
@@ -136,21 +134,21 @@ public class Client {
             workload.cleanup();
         } catch (WorkloadException e) {
             String errMsg = "Error during Workload cleanup";
-            throw new ClientException(errMsg, e.getCause());
+            throw new ClientException(errMsg, e);
         }
 
         logger.info("Cleaning up DB...");
         try {
             db.cleanup();
         } catch (DbException e) {
-            throw new ClientException("Error during DB cleanup", e.getCause());
+            throw new ClientException("Error during DB cleanup", e);
         }
 
         logger.info("Shutting down completion time service...");
         try {
             completionTimeService.shutdown();
         } catch (CompletionTimeException e) {
-            throw new ClientException("Error during shutdown of completion time service", e.getCause());
+            throw new ClientException("Error during shutdown of completion time service", e);
         }
 
         logger.info("Shutting down metrics collection service...");
@@ -159,7 +157,7 @@ public class Client {
             workloadResults = metricsService.results();
             metricsService.shutdown();
         } catch (MetricsCollectionException e) {
-            throw new ClientException("Error during shutdown of metrics collection service", e.getCause());
+            throw new ClientException("Error during shutdown of metrics collection service", e);
         }
 
         logger.info(String.format("Runtime: %s (s)", workloadResults.totalRunDuration().asSeconds()));
@@ -173,11 +171,10 @@ public class Client {
             }
             controlService.shutdown();
         } catch (MetricsCollectionException e) {
-            throw new ClientException("Could not export workload metrics", e.getCause());
+            throw new ClientException("Could not export workload metrics", e);
         } catch (FileNotFoundException e) {
             throw new ClientException(
-                    String.format("Error encountered while trying to write result file: %s", controlService.configuration().resultFilePath()),
-                    e.getCause());
+                    String.format("Error encountered while trying to write result file: %s", controlService.configuration().resultFilePath()), e);
         }
     }
 }

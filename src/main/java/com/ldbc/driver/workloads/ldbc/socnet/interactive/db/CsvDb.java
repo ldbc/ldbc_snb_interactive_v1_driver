@@ -26,7 +26,7 @@ public class CsvDb extends Db {
             File csvFile = new File(csvPath);
             csvDbConnectionState = new CsvDbConnectionState(new CsvFileWriter(csvFile));
         } catch (IOException e) {
-            throw new DbException("Error encountered while trying to create CSV file writer", e.getCause());
+            throw new DbException("Error encountered while trying to create CSV file writer", e);
         }
         registerOperationHandler(LdbcQuery1.class, LdbcQuery1ToCsv.class);
         registerOperationHandler(LdbcQuery2.class, LdbcQuery2ToCsv.class);
@@ -47,7 +47,7 @@ public class CsvDb extends Db {
         try {
             csvDbConnectionState.csvFileWriter().close();
         } catch (IOException e) {
-            throw new DbException("Error encountered while trying to close CSV file writer", e.getCause());
+            throw new DbException("Error encountered while trying to close CSV file writer", e);
         }
     }
 
@@ -103,7 +103,7 @@ public class CsvDb extends Db {
                         operation.firstName());
                 return operation.buildResult(0, RESULT);
             } catch (IOException e) {
-                throw new DbException(String.format("Error encountered while writing to CSV file: %s", operation.toString()), e.getCause());
+                throw new DbException(String.format("Error encountered while writing to CSV file: %s", operation.toString()), e);
             }
         }
     }
@@ -121,7 +121,7 @@ public class CsvDb extends Db {
                         operation.maxDate().toString());
                 return operation.buildResult(0, RESULT);
             } catch (IOException e) {
-                throw new DbException(String.format("Error encountered while writing to CSV file: %s", operation.toString()), e.getCause());
+                throw new DbException(String.format("Error encountered while writing to CSV file: %s", operation.toString()), e);
             }
         }
     }
@@ -142,7 +142,7 @@ public class CsvDb extends Db {
                         Long.toString(operation.durationMillis()));
                 return operation.buildResult(0, RESULT);
             } catch (IOException e) {
-                throw new DbException(String.format("Error encountered while writing to CSV file: %s", operation.toString()), e.getCause());
+                throw new DbException(String.format("Error encountered while writing to CSV file: %s", operation.toString()), e);
             }
         }
     }
@@ -163,7 +163,7 @@ public class CsvDb extends Db {
                         Long.toString(operation.durationMillis()));
                 return operation.buildResult(0, RESULT);
             } catch (IOException e) {
-                throw new DbException(String.format("Error encountered while writing to CSV file: %s", operation.toString()), e.getCause());
+                throw new DbException(String.format("Error encountered while writing to CSV file: %s", operation.toString()), e);
             }
         }
     }
@@ -182,7 +182,7 @@ public class CsvDb extends Db {
                 );
                 return operation.buildResult(0, RESULT);
             } catch (IOException e) {
-                throw new DbException(String.format("Error encountered while writing to CSV file: %s", operation.toString()), e.getCause());
+                throw new DbException(String.format("Error encountered while writing to CSV file: %s", operation.toString()), e);
             }
         }
     }
@@ -201,7 +201,7 @@ public class CsvDb extends Db {
                 );
                 return operation.buildResult(0, RESULT);
             } catch (IOException e) {
-                throw new DbException(String.format("Error encountered while writing to CSV file: %s", operation.toString()), e.getCause());
+                throw new DbException(String.format("Error encountered while writing to CSV file: %s", operation.toString()), e);
             }
         }
     }
@@ -219,7 +219,7 @@ public class CsvDb extends Db {
                 );
                 return operation.buildResult(0, RESULT);
             } catch (IOException e) {
-                throw new DbException(String.format("Error encountered while writing to CSV file: %s", operation.toString()), e.getCause());
+                throw new DbException(String.format("Error encountered while writing to CSV file: %s", operation.toString()), e);
             }
         }
     }
@@ -237,7 +237,7 @@ public class CsvDb extends Db {
                 );
                 return operation.buildResult(0, RESULT);
             } catch (IOException e) {
-                throw new DbException(String.format("Error encountered while writing to CSV file: %s", operation.toString()), e.getCause());
+                throw new DbException(String.format("Error encountered while writing to CSV file: %s", operation.toString()), e);
             }
         }
     }
@@ -256,7 +256,7 @@ public class CsvDb extends Db {
                 );
                 return operation.buildResult(0, RESULT);
             } catch (IOException e) {
-                throw new DbException(String.format("Error encountered while writing to CSV file: %s", operation.toString()), e.getCause());
+                throw new DbException(String.format("Error encountered while writing to CSV file: %s", operation.toString()), e);
             }
         }
     }
@@ -276,7 +276,7 @@ public class CsvDb extends Db {
                 );
                 return operation.buildResult(0, RESULT);
             } catch (IOException e) {
-                throw new DbException(String.format("Error encountered while writing to CSV file: %s", operation.toString()), e.getCause());
+                throw new DbException(String.format("Error encountered while writing to CSV file: %s", operation.toString()), e);
             }
         }
     }
@@ -296,7 +296,7 @@ public class CsvDb extends Db {
                 );
                 return operation.buildResult(0, RESULT);
             } catch (IOException e) {
-                throw new DbException(String.format("Error encountered while writing to CSV file: %s", operation.toString()), e.getCause());
+                throw new DbException(String.format("Error encountered while writing to CSV file: %s", operation.toString()), e);
             }
         }
     }
@@ -315,7 +315,7 @@ public class CsvDb extends Db {
                 );
                 return operation.buildResult(0, RESULT);
             } catch (IOException e) {
-                throw new DbException(String.format("Error encountered while writing to CSV file: %s", operation.toString()), e.getCause());
+                throw new DbException(String.format("Error encountered while writing to CSV file: %s", operation.toString()), e);
             }
         }
     }

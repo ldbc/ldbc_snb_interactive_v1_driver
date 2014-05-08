@@ -453,7 +453,7 @@ public class LdbcWorkloadTests {
         } catch (IteratorSplittingException e) {
             throw new WorkloadException(
                     String.format("Error while splitting operation stream by scheduling mode\n%s", ConcurrentErrorReporter.stackTraceToString(e)),
-                    e.getCause());
+                    e);
         }
 
         Time prevWindowedOperationScheduledStartTime = firstOperationScheduledStartTime.minus(Duration.fromMilli(1));

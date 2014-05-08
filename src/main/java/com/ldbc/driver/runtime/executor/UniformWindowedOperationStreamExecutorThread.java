@@ -99,7 +99,7 @@ class UniformWindowedOperationStreamExecutorThread extends Thread {
                     errorReporter.reportError(this,
                             String.format("Error encountered while submitted Initiated Time for:\n\t%s\n%s",
                                     handler.operation().toString(),
-                                    ConcurrentErrorReporter.stackTraceToString(e.getCause())));
+                                    ConcurrentErrorReporter.stackTraceToString(e)));
                 }
                 try {
                     currentlyExecutingHandlers.add(operationHandlerExecutor.execute(handler));
@@ -107,7 +107,7 @@ class UniformWindowedOperationStreamExecutorThread extends Thread {
                     errorReporter.reportError(this,
                             String.format("Error encountered while submitting operation for execution\n\t%s\n\t%s",
                                     handler.operation().toString(),
-                                    ConcurrentErrorReporter.stackTraceToString(e.getCause())));
+                                    ConcurrentErrorReporter.stackTraceToString(e)));
                 }
             }
 

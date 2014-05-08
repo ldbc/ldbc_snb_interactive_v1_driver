@@ -5,7 +5,7 @@ import com.ldbc.driver.Operation;
 import java.util.List;
 
 public class LdbcQuery1 extends Operation<List<LdbcQuery1Result>> {
-    public static final int DEFAULT_LIMIT = 10;
+    public static final int DEFAULT_LIMIT = 20;
     private final long personId;
     private final String firstName;
     private final int limit;

@@ -11,7 +11,7 @@ public class ClassLoaderHelper {
         try {
             return loadDb(loadClass(dbClassName, Db.class));
         } catch (ClassLoadingException e) {
-            throw new DbException(String.format("Error creating DB [%s]", dbClassName), e.getCause());
+            throw new DbException(String.format("Error creating DB [%s]", dbClassName), e);
         }
     }
 
@@ -19,7 +19,7 @@ public class ClassLoaderHelper {
         try {
             return dbClass.getConstructor().newInstance();
         } catch (Exception e) {
-            throw new DbException(String.format("Error creating DB [%s]", dbClass.getName()), e.getCause());
+            throw new DbException(String.format("Error creating DB [%s]", dbClass.getName()), e);
         }
     }
 
@@ -30,7 +30,7 @@ public class ClassLoaderHelper {
         try {
             return loadWorkload(loadClass(workloadClassName, Workload.class));
         } catch (ClassLoadingException e) {
-            throw new WorkloadException(String.format("Error creating Workload [%s]", workloadClassName), e.getCause());
+            throw new WorkloadException(String.format("Error creating Workload [%s]", workloadClassName), e);
         }
     }
 
@@ -38,7 +38,7 @@ public class ClassLoaderHelper {
         try {
             return workloadClass.getConstructor().newInstance();
         } catch (Exception e) {
-            throw new WorkloadException(String.format("Error creating Workload [%s]", workloadClass.getName()), e.getCause());
+            throw new WorkloadException(String.format("Error creating Workload [%s]", workloadClass.getName()), e);
         }
     }
 
@@ -54,7 +54,7 @@ public class ClassLoaderHelper {
             e.printStackTrace();
             throw new OperationException(
                     String.format("Error creating OperationHandler [%s] with Operation [%s]", operationHandlerClass.getName(), operation.getClass().getName()),
-                    e.getCause());
+                    e);
         }
     }
 
@@ -68,7 +68,7 @@ public class ClassLoaderHelper {
             // Class<?> loadedClass = Class.forName(className,false,classLoader)
             return (Class<? extends C>) loadedClass;
         } catch (ClassNotFoundException e) {
-            throw new ClassLoadingException(String.format("Error loading class [%s]", className), e.getCause());
+            throw new ClassLoadingException(String.format("Error loading class [%s]", className), e);
         }
     }
 
@@ -78,7 +78,7 @@ public class ClassLoaderHelper {
             Class<?> loadedClass = classLoader.loadClass(className);
             return loadedClass;
         } catch (ClassNotFoundException e) {
-            throw new ClassLoadingException(String.format("Error loading class [%s]", className), e.getCause());
+            throw new ClassLoadingException(String.format("Error loading class [%s]", className), e);
         }
     }
 }

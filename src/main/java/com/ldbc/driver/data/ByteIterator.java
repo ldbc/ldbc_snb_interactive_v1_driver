@@ -79,7 +79,7 @@ public abstract class ByteIterator
         }
         catch ( Exception e )
         {
-            throw new GeneratorException( "Error encountered while copying remaining bytes to array", e.getCause() );
+            throw new GeneratorException( "Error encountered while copying remaining bytes to array", e );
         }
     }
 }

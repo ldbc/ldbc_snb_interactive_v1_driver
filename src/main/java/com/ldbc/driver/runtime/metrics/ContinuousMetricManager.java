@@ -20,7 +20,7 @@ public class ContinuousMetricManager {
         try {
             histogram.recordValue(value);
         } catch (ArrayIndexOutOfBoundsException e) {
-            throw new MetricsCollectionException(String.format("Error encountered adding measurement [%s]", value), e.getCause());
+            throw new MetricsCollectionException(String.format("Error encountered adding measurement [%s]", value), e);
         }
     }
 

@@ -55,7 +55,7 @@ public class UniformWindowedOperationStreamExecutorService {
             uniformWindowedOperationStreamExecutorThread.join(SHUTDOWN_WAIT_TIMEOUT.asMilli());
         } catch (Exception e) {
             String errMsg = String.format("Unexpected error encountered while shutting down thread\n%s",
-                    ConcurrentErrorReporter.stackTraceToString(e.getCause()));
+                    ConcurrentErrorReporter.stackTraceToString(e));
             errorReporter.reportError(this, errMsg);
         }
     }

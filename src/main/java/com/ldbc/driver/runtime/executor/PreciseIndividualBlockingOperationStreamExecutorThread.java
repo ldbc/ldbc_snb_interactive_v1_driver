@@ -54,7 +54,7 @@ class PreciseIndividualBlockingOperationStreamExecutorThread extends Thread {
                 errorReporter.reportError(this,
                         String.format("Error encountered while submitted Initiated Time for:\n\t%s\n%s",
                                 handler.operation().toString(),
-                                ConcurrentErrorReporter.stackTraceToString(e.getCause())));
+                                ConcurrentErrorReporter.stackTraceToString(e)));
             }
             try {
                 executingHandler = operationHandlerExecutor.execute(handler);
@@ -62,7 +62,7 @@ class PreciseIndividualBlockingOperationStreamExecutorThread extends Thread {
                 errorReporter.reportError(this,
                         String.format("Error encountered while submitting operation for execution\n\t%s\n\t%s",
                                 handler.operation().toString(),
-                                ConcurrentErrorReporter.stackTraceToString(e.getCause())));
+                                ConcurrentErrorReporter.stackTraceToString(e)));
             }
         }
         boolean executingHandlerFinishedInTime = awaitExecutingHandler(DURATION_TO_WAIT_FOR_LAST_HANDLER_TO_FINISH, executingHandler);

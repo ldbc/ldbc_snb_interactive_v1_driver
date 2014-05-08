@@ -29,7 +29,7 @@ public class MetricsManager {
             String formattedMetricsGroups = metricsFormatter.format(workloadResults);
             outputStream.write(formattedMetricsGroups.getBytes(charSet));
         } catch (Exception e) {
-            throw new MetricsCollectionException("Error encountered writing metrics to output stream", e.getCause());
+            throw new MetricsCollectionException("Error encountered writing metrics to output stream", e);
         }
     }
 

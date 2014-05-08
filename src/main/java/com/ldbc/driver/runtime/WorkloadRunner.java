@@ -72,7 +72,7 @@ public class WorkloadRunner {
         } catch (IteratorSplittingException e) {
             throw new WorkloadException(
                     String.format("Error while splitting operation stream by scheduling mode\n%s", ConcurrentErrorReporter.stackTraceToString(e)),
-                    e.getCause());
+                    e);
         }
 
         OperationsToHandlersTransformer operationsToHandlers = new OperationsToHandlersTransformer(

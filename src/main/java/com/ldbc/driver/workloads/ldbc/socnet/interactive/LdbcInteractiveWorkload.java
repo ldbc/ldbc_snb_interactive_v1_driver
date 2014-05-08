@@ -146,7 +146,7 @@ public class LdbcInteractiveWorkload extends Workload {
                 Class queryClass = ClassLoaderHelper.loadClass(queryKey);
                 queryMix.put(queryClass, queryRatio);
             } catch (ClassLoadingException e) {
-                throw new WorkloadException(String.format("Unable to load query class: %s", queryKey), e.getCause());
+                throw new WorkloadException(String.format("Unable to load query class: %s", queryKey), e);
             }
         }
     }

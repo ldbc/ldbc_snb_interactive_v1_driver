@@ -38,7 +38,7 @@ public class OperationMetricsManager {
         } catch (MetricsCollectionException e) {
             String errMsg = String.format("Error encountered adding runtime [%s %s] to [%s]",
                     runtimeInAppropriateUnit, durationUnit.toString(), name);
-            throw new MetricsCollectionException(errMsg, e.getCause());
+            throw new MetricsCollectionException(errMsg, e);
         }
 
         //
@@ -51,7 +51,7 @@ public class OperationMetricsManager {
         } catch (MetricsCollectionException e) {
             String errMsg = String.format("Error encountered adding start time delay measurement [%s %s] to [%s]",
                     startTimeDelayInAppropriateUnit, durationUnit.toString(), name);
-            throw new MetricsCollectionException(errMsg, e.getCause());
+            throw new MetricsCollectionException(errMsg, e);
         }
 
         //
@@ -63,7 +63,7 @@ public class OperationMetricsManager {
         } catch (Exception e) {
             String errMsg = String.format("Error encountered adding result code measurement [%s] to [%s]",
                     operationResultCode, name);
-            throw new MetricsCollectionException(errMsg, e.getCause());
+            throw new MetricsCollectionException(errMsg, e);
         }
 
         count++;

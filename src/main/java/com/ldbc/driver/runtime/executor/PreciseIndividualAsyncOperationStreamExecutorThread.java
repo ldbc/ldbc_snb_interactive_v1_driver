@@ -49,7 +49,7 @@ class PreciseIndividualAsyncOperationStreamExecutorThread extends Thread {
             } catch (CompletionTimeException e) {
                 String errMsg = String.format("Error encountered while submitted Initiated Time for:\n\t%s\n%s",
                         handler.operation().toString(),
-                        ConcurrentErrorReporter.stackTraceToString(e.getCause()));
+                        ConcurrentErrorReporter.stackTraceToString(e));
                 errorReporter.reportError(this, errMsg);
             }
             try {
@@ -58,7 +58,7 @@ class PreciseIndividualAsyncOperationStreamExecutorThread extends Thread {
             } catch (OperationHandlerExecutorException e) {
                 String errMsg = String.format("Error encountered while submitting operation for execution\n\t%s\n\t%s",
                         handler.operation().toString(),
-                        ConcurrentErrorReporter.stackTraceToString(e.getCause()));
+                        ConcurrentErrorReporter.stackTraceToString(e));
                 errorReporter.reportError(this, errMsg);
             }
         }

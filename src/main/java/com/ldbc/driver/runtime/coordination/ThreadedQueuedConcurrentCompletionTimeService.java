@@ -41,11 +41,11 @@ public class ThreadedQueuedConcurrentCompletionTimeService implements Concurrent
         } catch (InterruptedException e) {
             throw new CompletionTimeException(
                     String.format("Thread interrupted while waiting for %s to initialize", threadedQueuedCompletionTimeMaintenanceThread.getClass().getSimpleName()),
-                    e.getCause());
+                    e);
         } catch (ExecutionException e) {
             throw new CompletionTimeException(
                     String.format("Error while waiting for %s to initialize", threadedQueuedCompletionTimeMaintenanceThread.getClass().getSimpleName()),
-                    e.getCause());
+                    e);
         }
     }
 
@@ -62,7 +62,7 @@ public class ThreadedQueuedConcurrentCompletionTimeService implements Concurrent
             return gctFuture;
         } catch (Exception e) {
             String errMsg = String.format("Error requesting GCT future");
-            throw new CompletionTimeException(errMsg, e.getCause());
+            throw new CompletionTimeException(errMsg, e);
         }
     }
 
@@ -76,7 +76,7 @@ public class ThreadedQueuedConcurrentCompletionTimeService implements Concurrent
             completionTimeEventQueue.add(CompletionTimeEvent.initiated(time));
         } catch (Exception e) {
             String errMsg = String.format("Error submitting initiated time for Time[%s]", time.toString());
-            throw new CompletionTimeException(errMsg, e.getCause());
+            throw new CompletionTimeException(errMsg, e);
         }
     }
 
@@ -86,7 +86,7 @@ public class ThreadedQueuedConcurrentCompletionTimeService implements Concurrent
             completionTimeEventQueue.add(CompletionTimeEvent.completed(time));
         } catch (Exception e) {
             String errMsg = String.format("Error submitting completed time for Time[%s]", time.toString());
-            throw new CompletionTimeException(errMsg, e.getCause());
+            throw new CompletionTimeException(errMsg, e);
         }
     }
 
@@ -96,7 +96,7 @@ public class ThreadedQueuedConcurrentCompletionTimeService implements Concurrent
             completionTimeEventQueue.add(CompletionTimeEvent.external(peerId, time));
         } catch (Exception e) {
             String errMsg = String.format("Error submitting external completion time for PeerID[%s] Time[%s]", peerId, time.toString());
-            throw new CompletionTimeException(errMsg, e.getCause());
+            throw new CompletionTimeException(errMsg, e);
         }
     }
 
@@ -111,7 +111,7 @@ public class ThreadedQueuedConcurrentCompletionTimeService implements Concurrent
         } catch (InterruptedException e) {
             String errMsg = String.format("Thread was interrupted while waiting for %s to complete",
                     threadedQueuedCompletionTimeMaintenanceThread.getClass().getSimpleName());
-            throw new CompletionTimeException(errMsg, e.getCause());
+            throw new CompletionTimeException(errMsg, e);
         }
     }
 

@@ -50,7 +50,7 @@ public class SubstitutionParameters {
         try {
             return new ObjectMapper().writeValueAsString(this);
         } catch (Exception e) {
-            throw new RuntimeException("Unable to generate parameter values string", e.getCause());
+            throw new RuntimeException("Unable to generate parameter values string", e);
         }
     }
 
@@ -72,7 +72,7 @@ public class SubstitutionParameters {
             try {
                 return new ObjectMapper().writeValueAsString(this);
             } catch (Exception e) {
-                throw new RuntimeException("Unable to generate Flashmob string", e.getCause());
+                throw new RuntimeException("Unable to generate Flashmob string", e);
             }
         }
     }

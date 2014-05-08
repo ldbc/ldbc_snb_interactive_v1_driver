@@ -64,12 +64,12 @@ class OperationsToHandlersTransformer {
                         return operationHandler;
                     } catch (Exception e) {
                         // errorReporter.reportError(this, String.format("Unexpected error in operationsToHandlers()\n%s", ConcurrentErrorReporter.stackTraceToString(e)));
-                        throw new RuntimeException("Unexpected error in operationsToHandlers()", e.getCause());
+                        throw new RuntimeException("Unexpected error in operationsToHandlers()", e);
                     }
                 }
             });
         } catch (Exception e) {
-            throw new WorkloadException("Error encountered while transforming Operation stream to OperationHandler stream", e.getCause());
+            throw new WorkloadException("Error encountered while transforming Operation stream to OperationHandler stream", e);
         }
     }
 }

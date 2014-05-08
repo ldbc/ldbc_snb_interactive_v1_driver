@@ -87,7 +87,7 @@ public class WorkloadResultsSnapshot {
             return new ObjectMapper().writeValueAsString(this);
         } catch (Exception e) {
             System.out.println(ConcurrentErrorReporter.stackTraceToString(e));
-            throw new RuntimeException("Unable to generate parameter values string", e.getCause());
+            throw new RuntimeException("Unable to generate parameter values string", e);
         }
     }
 

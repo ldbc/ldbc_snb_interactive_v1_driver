@@ -341,7 +341,7 @@ public class ConsoleAndFileDriverConfiguration implements DriverConfiguration {
         try {
             jsonArrayNode = new ObjectMapper().readTree(peerIdsString);
         } catch (IOException e) {
-            throw new DriverConfigurationException(String.format("Peer IDs have been serialized in an invalid format: %s", peerIdsString), e.getCause());
+            throw new DriverConfigurationException(String.format("Peer IDs have been serialized in an invalid format: %s", peerIdsString), e);
         }
         if (jsonArrayNode.isArray()) {
             List<String> peerIds = new ArrayList<String>();
@@ -358,7 +358,7 @@ public class ConsoleAndFileDriverConfiguration implements DriverConfiguration {
         try {
             return new ObjectMapper().writeValueAsString(peerIds);
         } catch (IOException e) {
-            throw new DriverConfigurationException(String.format("Unable to serialize peer IDs: %s", peerIds.toString()), e.getCause());
+            throw new DriverConfigurationException(String.format("Unable to serialize peer IDs: %s", peerIds.toString()), e);
         }
     }
 

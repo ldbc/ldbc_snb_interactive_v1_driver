@@ -330,7 +330,7 @@ public class UpdateEventStreamReader implements Iterator<Operation<?>> {
                 if (null == csvLine) return null;
                 return parseLine(csvLine);
             } catch (IOException e) {
-                throw new RuntimeException(String.format("Error retrieving next csv entry from file [%s]", csvReader), e.getCause());
+                throw new RuntimeException(String.format("Error retrieving next csv entry from file [%s]", csvReader), e);
             }
         }
 
@@ -348,7 +348,7 @@ public class UpdateEventStreamReader implements Iterator<Operation<?>> {
             try {
                 csvReader.close();
             } catch (IOException e) {
-                throw new RuntimeException(String.format("Error closing file [%s]", csvReader), e.getCause());
+                throw new RuntimeException(String.format("Error closing file [%s]", csvReader), e);
             }
             return true;
         }

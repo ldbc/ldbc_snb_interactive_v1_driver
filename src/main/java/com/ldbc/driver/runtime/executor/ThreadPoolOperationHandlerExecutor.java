@@ -43,7 +43,7 @@ public class ThreadPoolOperationHandlerExecutor implements OperationHandlerExecu
                 throw new OperationHandlerExecutorException("Executor shutdown before all handlers could complete execution");
             }
         } catch (Exception e) {
-            throw new OperationHandlerExecutorException("Error encountered while trying to shutdown", e.getCause());
+            throw new OperationHandlerExecutorException("Error encountered while trying to shutdown", e);
         }
         shutdown = true;
     }
