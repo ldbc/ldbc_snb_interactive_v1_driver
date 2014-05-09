@@ -16,7 +16,7 @@ import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.regex.Pattern;
 
-public class UpdateEventStreamReader implements Iterator<Operation<?>> {
+public class WriteEventStreamReader implements Iterator<Operation<?>> {
     private final static String DATE_FORMAT_STRING = "yyyy-MM-dd";
     private final static SimpleDateFormat DATE_FORMAT = new SimpleDateFormat(DATE_FORMAT_STRING);
     private final static String DATE_TIME_FORMAT_STRING = "yyyy-MM-dd'T'HH:mm:ss'Z'";
@@ -36,7 +36,7 @@ public class UpdateEventStreamReader implements Iterator<Operation<?>> {
     private final ObjectMapper objectMapper = new ObjectMapper();
     private final Iterator<String[]> csvFileReader;
 
-    public UpdateEventStreamReader(File csvFile) throws FileNotFoundException {
+    public WriteEventStreamReader(File csvFile) throws FileNotFoundException {
         this.csvFileReader = new CsvFileReader(csvFile, "\\|");
     }
 
@@ -60,7 +60,7 @@ public class UpdateEventStreamReader implements Iterator<Operation<?>> {
 
     @Override
     public void remove() {
-        throw new UnsupportedOperationException(String.format("%s does not support remove()", UpdateEventStreamReader.class.getSimpleName()));
+        throw new UnsupportedOperationException(String.format("%s does not support remove()", WriteEventStreamReader.class.getSimpleName()));
     }
 
     Operation<?> buildOperation(UpdateEventType eventType, Time eventDueTime, String eventParamsAsJsonString) throws IOException, ParseException {

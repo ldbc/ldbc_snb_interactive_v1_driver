@@ -42,7 +42,7 @@ public class UpdateEventStreamReaderTests {
     @Test
     public void shouldParseUpdate1AddPerson() throws IOException, ParseException {
         // Given
-        UpdateEventStreamReader updateEventStreamReader = new UpdateEventStreamReader(csvFile);
+        WriteEventStreamReader writeEventStreamReader = new WriteEventStreamReader(csvFile);
         String jsonString = "[" +
                 "409," +
                 "\"Lei\"," +
@@ -61,7 +61,7 @@ public class UpdateEventStreamReaderTests {
                 "]";
 
         // When
-        LdbcUpdate1AddPerson addPerson = updateEventStreamReader.parseAddPerson(jsonString);
+        LdbcUpdate1AddPerson addPerson = writeEventStreamReader.parseAddPerson(jsonString);
 
         // Then
         Calendar c = Calendar.getInstance();
@@ -96,11 +96,11 @@ public class UpdateEventStreamReaderTests {
     @Test
     public void shouldParseUpdate2AddLikePost() throws IOException, ParseException {
         // Given
-        UpdateEventStreamReader updateEventStreamReader = new UpdateEventStreamReader(csvFile);
+        WriteEventStreamReader writeEventStreamReader = new WriteEventStreamReader(csvFile);
         String jsonString = "[1582,120207,\"2011-02-01T08:36:04Z\"]";
 
         // When
-        LdbcUpdate2AddPostLike addPostLike = updateEventStreamReader.parseAddPostLike(jsonString);
+        LdbcUpdate2AddPostLike addPostLike = writeEventStreamReader.parseAddPostLike(jsonString);
 
         // Then
         Calendar c = Calendar.getInstance();
@@ -116,11 +116,11 @@ public class UpdateEventStreamReaderTests {
     @Test
     public void shouldParseUpdate3AddLikeComment() throws IOException, ParseException {
         // Given
-        UpdateEventStreamReader updateEventStreamReader = new UpdateEventStreamReader(csvFile);
+        WriteEventStreamReader writeEventStreamReader = new WriteEventStreamReader(csvFile);
         String jsonString = "[1095,120426,\"2011-01-24T05:44:13Z\"]";
 
         // When
-        LdbcUpdate3AddCommentLike addCommentLike = updateEventStreamReader.parseAddCommentLike(jsonString);
+        LdbcUpdate3AddCommentLike addCommentLike = writeEventStreamReader.parseAddCommentLike(jsonString);
 
         // Then
         Calendar c = Calendar.getInstance();
@@ -136,11 +136,11 @@ public class UpdateEventStreamReaderTests {
     @Test
     public void shouldParseUpdate4AddForum() throws IOException, ParseException {
         // Given
-        UpdateEventStreamReader updateEventStreamReader = new UpdateEventStreamReader(csvFile);
+        WriteEventStreamReader writeEventStreamReader = new WriteEventStreamReader(csvFile);
         String jsonString = "[2118,\"Group for The_Beekeeper in Pakistan\",\"2011-01-03T06:04:47Z\",989,[10716]]";
 
         // When
-        LdbcUpdate4AddForum addForum = updateEventStreamReader.parseAddForum(jsonString);
+        LdbcUpdate4AddForum addForum = writeEventStreamReader.parseAddForum(jsonString);
 
         // Then
         Calendar c = Calendar.getInstance();
@@ -158,11 +158,11 @@ public class UpdateEventStreamReaderTests {
     @Test
     public void shouldParseUpdate5AddForumMembership() throws IOException, ParseException {
         // Given
-        UpdateEventStreamReader updateEventStreamReader = new UpdateEventStreamReader(csvFile);
+        WriteEventStreamReader writeEventStreamReader = new WriteEventStreamReader(csvFile);
         String jsonString = "[2153,372,\"2011-01-04T18:42:51Z\"]";
 
         // When
-        LdbcUpdate5AddForumMembership addForumMembership = updateEventStreamReader.parseAddForumMembership(jsonString);
+        LdbcUpdate5AddForumMembership addForumMembership = writeEventStreamReader.parseAddForumMembership(jsonString);
 
         // Then
         Calendar c = Calendar.getInstance();
@@ -178,7 +178,7 @@ public class UpdateEventStreamReaderTests {
     @Test
     public void shouldParseUpdate6AddPost() throws IOException, ParseException {
         // Given
-        UpdateEventStreamReader updateEventStreamReader = new UpdateEventStreamReader(csvFile);
+        WriteEventStreamReader writeEventStreamReader = new WriteEventStreamReader(csvFile);
         String jsonString = "[" +
                 "120343," +
                 "\"\"," +
@@ -194,7 +194,7 @@ public class UpdateEventStreamReaderTests {
                 "[1437]]";
 
         // When
-        LdbcUpdate6AddPost addPost = updateEventStreamReader.parseAddPost(jsonString);
+        LdbcUpdate6AddPost addPost = writeEventStreamReader.parseAddPost(jsonString);
 
         // Then
         Calendar c = Calendar.getInstance();
@@ -219,7 +219,7 @@ public class UpdateEventStreamReaderTests {
     @Test
     public void shouldParseUpdate7AddComment() throws IOException, ParseException {
         // Given
-        UpdateEventStreamReader updateEventStreamReader = new UpdateEventStreamReader(csvFile);
+        WriteEventStreamReader writeEventStreamReader = new WriteEventStreamReader(csvFile);
         String jsonString = "[" +
                 "4034293," +
                 "\"2013-01-31T23:58:49Z\"," +
@@ -234,7 +234,7 @@ public class UpdateEventStreamReaderTests {
                 "[1403,1990,2009,2081,2817,2855,2987,6316,7425,8224,8466]]";
 
         // When
-        LdbcUpdate7AddComment addComment = updateEventStreamReader.parseAddComment(jsonString);
+        LdbcUpdate7AddComment addComment = writeEventStreamReader.parseAddComment(jsonString);
 
         // Then
         Calendar c = Calendar.getInstance();
@@ -258,11 +258,11 @@ public class UpdateEventStreamReaderTests {
     @Test
     public void shouldParseUpdate8AddFriendship() throws IOException, ParseException {
         // Given
-        UpdateEventStreamReader updateEventStreamReader = new UpdateEventStreamReader(csvFile);
+        WriteEventStreamReader writeEventStreamReader = new WriteEventStreamReader(csvFile);
         String jsonString = "[1920,655,\"2011-01-10T15:58:45Z\"]";
 
         // When
-        LdbcUpdate8AddFriendship addFriendship = updateEventStreamReader.parseAddFriendship(jsonString);
+        LdbcUpdate8AddFriendship addFriendship = writeEventStreamReader.parseAddFriendship(jsonString);
 
         // Then
         Calendar c = Calendar.getInstance();
@@ -280,8 +280,8 @@ public class UpdateEventStreamReaderTests {
     public void shouldParseUpdateEventFile() throws FileNotFoundException {
         String csvFilePath = "/Users/alexaverbuch/IdeaProjects/ldbc_socialnet_bm/ldbc_socialnet_dbgen/outputDir/updateStream_0.csv";
         File csvFile = new File(csvFilePath);
-        UpdateEventStreamReader updateEventStreamReader = new UpdateEventStreamReader(csvFile);
-        Iterator<Class<?>> updateEventTypes = Iterators.transform(updateEventStreamReader, new Function<Operation<?>, Class<?>>() {
+        WriteEventStreamReader writeEventStreamReader = new WriteEventStreamReader(csvFile);
+        Iterator<Class<?>> updateEventTypes = Iterators.transform(writeEventStreamReader, new Function<Operation<?>, Class<?>>() {
             @Override
             public Class<?> apply(Operation<?> input) {
                 return input.getClass();

@@ -28,11 +28,11 @@ public class LdbcQuery4 extends Operation<List<LdbcQuery4Result>> {
         return personId;
     }
 
-    private Date minDate() {
+    public Date minDate() {
         return minDate;
     }
 
-    private Date maxDate() {
+    public Date maxDate() {
         return maxDate;
     }
 

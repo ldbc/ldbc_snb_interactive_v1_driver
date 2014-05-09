@@ -68,7 +68,7 @@ class OperationsToHandlersTransformer {
                     }
                 }
             });
-        } catch (Exception e) {
+        } catch (Throwable e) {
             throw new WorkloadException("Error encountered while transforming Operation stream to OperationHandler stream", e);
         }
     }

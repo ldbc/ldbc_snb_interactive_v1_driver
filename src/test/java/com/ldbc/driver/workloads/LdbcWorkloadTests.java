@@ -164,7 +164,9 @@ public class LdbcWorkloadTests {
                 "-p", LdbcQuery9.class.getName(), "5",
                 "-p", LdbcQuery10.class.getName(), "4",
                 "-p", LdbcQuery11.class.getName(), "3",
-                "-p", LdbcQuery12.class.getName(), "2"
+                "-p", LdbcQuery12.class.getName(), "2",
+                "-p", LdbcQuery13.class.getName(), "1",
+                "-p", LdbcQuery14.class.getName(), "1"
         });
 
         Workload workload = new LdbcInteractiveWorkload();
@@ -196,6 +198,8 @@ public class LdbcWorkloadTests {
         expectedQueryMixHistogram.addBucket(Bucket.DiscreteBucket.create((Class) LdbcQuery10.class), 4l);
         expectedQueryMixHistogram.addBucket(Bucket.DiscreteBucket.create((Class) LdbcQuery11.class), 3l);
         expectedQueryMixHistogram.addBucket(Bucket.DiscreteBucket.create((Class) LdbcQuery12.class), 2l);
+        expectedQueryMixHistogram.addBucket(Bucket.DiscreteBucket.create((Class) LdbcQuery13.class), 1l);
+        expectedQueryMixHistogram.addBucket(Bucket.DiscreteBucket.create((Class) LdbcQuery14.class), 1l);
 
         Histogram<Class, Long> actualQueryMixHistogram = new Histogram<Class, Long>(0l);
         actualQueryMixHistogram.addBucket(Bucket.DiscreteBucket.create((Class) LdbcQuery1.class), 0l);
@@ -210,6 +214,8 @@ public class LdbcWorkloadTests {
         actualQueryMixHistogram.addBucket(Bucket.DiscreteBucket.create((Class) LdbcQuery10.class), 0l);
         actualQueryMixHistogram.addBucket(Bucket.DiscreteBucket.create((Class) LdbcQuery11.class), 0l);
         actualQueryMixHistogram.addBucket(Bucket.DiscreteBucket.create((Class) LdbcQuery12.class), 0l);
+        actualQueryMixHistogram.addBucket(Bucket.DiscreteBucket.create((Class) LdbcQuery13.class), 0l);
+        actualQueryMixHistogram.addBucket(Bucket.DiscreteBucket.create((Class) LdbcQuery14.class), 0l);
         actualQueryMixHistogram.importValueSequence(operationTypes);
 
         double tolerance = 0.01d;
@@ -228,21 +234,31 @@ public class LdbcWorkloadTests {
         // Given
         Map<String, String> paramsMap = new HashMap<String, String>();
         // LDBC Interactive Workload-specific parameters
-        paramsMap.put(LdbcInteractiveWorkload.QUERY_1_KEY, "1");
-        paramsMap.put(LdbcInteractiveWorkload.QUERY_2_KEY, "2");
-        paramsMap.put(LdbcInteractiveWorkload.QUERY_3_KEY, "3");
-        paramsMap.put(LdbcInteractiveWorkload.QUERY_4_KEY, "4");
-        paramsMap.put(LdbcInteractiveWorkload.QUERY_5_KEY, "5");
-        paramsMap.put(LdbcInteractiveWorkload.QUERY_6_KEY, "6");
-        paramsMap.put(LdbcInteractiveWorkload.QUERY_7_KEY, "7");
-        paramsMap.put(LdbcInteractiveWorkload.QUERY_8_KEY, "6");
-        paramsMap.put(LdbcInteractiveWorkload.QUERY_9_KEY, "5");
-        paramsMap.put(LdbcInteractiveWorkload.QUERY_10_KEY, "4");
-        paramsMap.put(LdbcInteractiveWorkload.QUERY_11_KEY, "3");
-        paramsMap.put(LdbcInteractiveWorkload.QUERY_12_KEY, "2");
+        paramsMap.put(LdbcInteractiveWorkload.READ_OPERATION_1_KEY, "1");
+        paramsMap.put(LdbcInteractiveWorkload.READ_OPERATION_2_KEY, "2");
+        paramsMap.put(LdbcInteractiveWorkload.READ_OPERATION_3_KEY, "3");
+        paramsMap.put(LdbcInteractiveWorkload.READ_OPERATION_4_KEY, "4");
+        paramsMap.put(LdbcInteractiveWorkload.READ_OPERATION_5_KEY, "5");
+        paramsMap.put(LdbcInteractiveWorkload.READ_OPERATION_6_KEY, "6");
+        paramsMap.put(LdbcInteractiveWorkload.READ_OPERATION_7_KEY, "7");
+        paramsMap.put(LdbcInteractiveWorkload.READ_OPERATION_8_KEY, "6");
+        paramsMap.put(LdbcInteractiveWorkload.READ_OPERATION_9_KEY, "5");
+        paramsMap.put(LdbcInteractiveWorkload.READ_OPERATION_10_KEY, "4");
+        paramsMap.put(LdbcInteractiveWorkload.READ_OPERATION_11_KEY, "3");
+        paramsMap.put(LdbcInteractiveWorkload.READ_OPERATION_12_KEY, "2");
+        paramsMap.put(LdbcInteractiveWorkload.READ_OPERATION_13_KEY, "1");
+        paramsMap.put(LdbcInteractiveWorkload.READ_OPERATION_14_KEY, "1");
+        paramsMap.put(LdbcInteractiveWorkload.WRITE_OPERATION_1_KEY, "false");
+        paramsMap.put(LdbcInteractiveWorkload.WRITE_OPERATION_2_KEY, "false");
+        paramsMap.put(LdbcInteractiveWorkload.WRITE_OPERATION_3_KEY, "false");
+        paramsMap.put(LdbcInteractiveWorkload.WRITE_OPERATION_4_KEY, "false");
+        paramsMap.put(LdbcInteractiveWorkload.WRITE_OPERATION_5_KEY, "false");
+        paramsMap.put(LdbcInteractiveWorkload.WRITE_OPERATION_6_KEY, "false");
+        paramsMap.put(LdbcInteractiveWorkload.WRITE_OPERATION_7_KEY, "false");
+        paramsMap.put(LdbcInteractiveWorkload.WRITE_OPERATION_8_KEY, "false");
         paramsMap.put(LdbcInteractiveWorkload.PARAMETERS_FILENAME_KEY, "ldbc_driver/workloads/ldbc/socnet/interactive/parameters.json");
         paramsMap.put(LdbcInteractiveWorkload.INTERLEAVE_DURATION_KEY, "1");
-        paramsMap.put(LdbcInteractiveWorkload.UPDATE_STREAM_FILENAME_KEY, "ldbc_driver/workloads/ldbc/socnet/interactive/updates.csv");
+        paramsMap.put(LdbcInteractiveWorkload.WRITE_STREAM_FILENAME_KEY, "ldbc_driver/workloads/ldbc/socnet/interactive/updates.csv");
         paramsMap.put(LdbcInteractiveWorkload.WRITE_RATIO_KEY, "0");
         paramsMap.put(LdbcInteractiveWorkload.READ_RATIO_KEY, "1");
         // CsvDb-specific parameters
@@ -328,21 +344,31 @@ public class LdbcWorkloadTests {
     public void shouldAssignMonotonicallyIncreasingScheduledStartTimesToOperations() throws WorkloadException {
         Map<String, String> paramsMap = new HashMap<String, String>();
         // LDBC Interactive Workload-specific parameters
-        paramsMap.put(LdbcInteractiveWorkload.QUERY_1_KEY, "1");
-        paramsMap.put(LdbcInteractiveWorkload.QUERY_2_KEY, "2");
-        paramsMap.put(LdbcInteractiveWorkload.QUERY_3_KEY, "3");
-        paramsMap.put(LdbcInteractiveWorkload.QUERY_4_KEY, "4");
-        paramsMap.put(LdbcInteractiveWorkload.QUERY_5_KEY, "5");
-        paramsMap.put(LdbcInteractiveWorkload.QUERY_6_KEY, "6");
-        paramsMap.put(LdbcInteractiveWorkload.QUERY_7_KEY, "7");
-        paramsMap.put(LdbcInteractiveWorkload.QUERY_8_KEY, "6");
-        paramsMap.put(LdbcInteractiveWorkload.QUERY_9_KEY, "5");
-        paramsMap.put(LdbcInteractiveWorkload.QUERY_10_KEY, "4");
-        paramsMap.put(LdbcInteractiveWorkload.QUERY_11_KEY, "3");
-        paramsMap.put(LdbcInteractiveWorkload.QUERY_12_KEY, "2");
+        paramsMap.put(LdbcInteractiveWorkload.READ_OPERATION_1_KEY, "1");
+        paramsMap.put(LdbcInteractiveWorkload.READ_OPERATION_2_KEY, "2");
+        paramsMap.put(LdbcInteractiveWorkload.READ_OPERATION_3_KEY, "3");
+        paramsMap.put(LdbcInteractiveWorkload.READ_OPERATION_4_KEY, "4");
+        paramsMap.put(LdbcInteractiveWorkload.READ_OPERATION_5_KEY, "5");
+        paramsMap.put(LdbcInteractiveWorkload.READ_OPERATION_6_KEY, "6");
+        paramsMap.put(LdbcInteractiveWorkload.READ_OPERATION_7_KEY, "7");
+        paramsMap.put(LdbcInteractiveWorkload.READ_OPERATION_8_KEY, "6");
+        paramsMap.put(LdbcInteractiveWorkload.READ_OPERATION_9_KEY, "5");
+        paramsMap.put(LdbcInteractiveWorkload.READ_OPERATION_10_KEY, "4");
+        paramsMap.put(LdbcInteractiveWorkload.READ_OPERATION_11_KEY, "3");
+        paramsMap.put(LdbcInteractiveWorkload.READ_OPERATION_12_KEY, "2");
+        paramsMap.put(LdbcInteractiveWorkload.READ_OPERATION_13_KEY, "1");
+        paramsMap.put(LdbcInteractiveWorkload.READ_OPERATION_14_KEY, "1");
+        paramsMap.put(LdbcInteractiveWorkload.WRITE_OPERATION_1_KEY, "false");
+        paramsMap.put(LdbcInteractiveWorkload.WRITE_OPERATION_2_KEY, "false");
+        paramsMap.put(LdbcInteractiveWorkload.WRITE_OPERATION_3_KEY, "false");
+        paramsMap.put(LdbcInteractiveWorkload.WRITE_OPERATION_4_KEY, "false");
+        paramsMap.put(LdbcInteractiveWorkload.WRITE_OPERATION_5_KEY, "false");
+        paramsMap.put(LdbcInteractiveWorkload.WRITE_OPERATION_6_KEY, "false");
+        paramsMap.put(LdbcInteractiveWorkload.WRITE_OPERATION_7_KEY, "false");
+        paramsMap.put(LdbcInteractiveWorkload.WRITE_OPERATION_8_KEY, "false");
         paramsMap.put(LdbcInteractiveWorkload.PARAMETERS_FILENAME_KEY, "ldbc_driver/workloads/ldbc/socnet/interactive/parameters.json");
         paramsMap.put(LdbcInteractiveWorkload.INTERLEAVE_DURATION_KEY, "10");
-        paramsMap.put(LdbcInteractiveWorkload.UPDATE_STREAM_FILENAME_KEY, "ldbc_driver/workloads/ldbc/socnet/interactive/updates.csv");
+        paramsMap.put(LdbcInteractiveWorkload.WRITE_STREAM_FILENAME_KEY, "ldbc_driver/workloads/ldbc/socnet/interactive/updates.csv");
         paramsMap.put(LdbcInteractiveWorkload.WRITE_RATIO_KEY, "0");
         paramsMap.put(LdbcInteractiveWorkload.READ_RATIO_KEY, "1");
         // CsvDb-specific parameters
@@ -385,21 +411,31 @@ public class LdbcWorkloadTests {
     public void operationsShouldHaveMonotonicallyIncreasingScheduledStartTimesAfterSplitting() throws WorkloadException {
         Map<String, String> paramsMap = new HashMap<String, String>();
         // LDBC Interactive Workload-specific parameters
-        paramsMap.put(LdbcInteractiveWorkload.QUERY_1_KEY, "1");
-        paramsMap.put(LdbcInteractiveWorkload.QUERY_2_KEY, "2");
-        paramsMap.put(LdbcInteractiveWorkload.QUERY_3_KEY, "3");
-        paramsMap.put(LdbcInteractiveWorkload.QUERY_4_KEY, "4");
-        paramsMap.put(LdbcInteractiveWorkload.QUERY_5_KEY, "5");
-        paramsMap.put(LdbcInteractiveWorkload.QUERY_6_KEY, "6");
-        paramsMap.put(LdbcInteractiveWorkload.QUERY_7_KEY, "7");
-        paramsMap.put(LdbcInteractiveWorkload.QUERY_8_KEY, "6");
-        paramsMap.put(LdbcInteractiveWorkload.QUERY_9_KEY, "5");
-        paramsMap.put(LdbcInteractiveWorkload.QUERY_10_KEY, "4");
-        paramsMap.put(LdbcInteractiveWorkload.QUERY_11_KEY, "3");
-        paramsMap.put(LdbcInteractiveWorkload.QUERY_12_KEY, "2");
+        paramsMap.put(LdbcInteractiveWorkload.READ_OPERATION_1_KEY, "1");
+        paramsMap.put(LdbcInteractiveWorkload.READ_OPERATION_2_KEY, "2");
+        paramsMap.put(LdbcInteractiveWorkload.READ_OPERATION_3_KEY, "3");
+        paramsMap.put(LdbcInteractiveWorkload.READ_OPERATION_4_KEY, "4");
+        paramsMap.put(LdbcInteractiveWorkload.READ_OPERATION_5_KEY, "5");
+        paramsMap.put(LdbcInteractiveWorkload.READ_OPERATION_6_KEY, "6");
+        paramsMap.put(LdbcInteractiveWorkload.READ_OPERATION_7_KEY, "7");
+        paramsMap.put(LdbcInteractiveWorkload.READ_OPERATION_8_KEY, "6");
+        paramsMap.put(LdbcInteractiveWorkload.READ_OPERATION_9_KEY, "5");
+        paramsMap.put(LdbcInteractiveWorkload.READ_OPERATION_10_KEY, "4");
+        paramsMap.put(LdbcInteractiveWorkload.READ_OPERATION_11_KEY, "3");
+        paramsMap.put(LdbcInteractiveWorkload.READ_OPERATION_12_KEY, "2");
+        paramsMap.put(LdbcInteractiveWorkload.READ_OPERATION_13_KEY, "1");
+        paramsMap.put(LdbcInteractiveWorkload.READ_OPERATION_14_KEY, "1");
+        paramsMap.put(LdbcInteractiveWorkload.WRITE_OPERATION_1_KEY, "false");
+        paramsMap.put(LdbcInteractiveWorkload.WRITE_OPERATION_2_KEY, "false");
+        paramsMap.put(LdbcInteractiveWorkload.WRITE_OPERATION_3_KEY, "false");
+        paramsMap.put(LdbcInteractiveWorkload.WRITE_OPERATION_4_KEY, "false");
+        paramsMap.put(LdbcInteractiveWorkload.WRITE_OPERATION_5_KEY, "false");
+        paramsMap.put(LdbcInteractiveWorkload.WRITE_OPERATION_6_KEY, "false");
+        paramsMap.put(LdbcInteractiveWorkload.WRITE_OPERATION_7_KEY, "false");
+        paramsMap.put(LdbcInteractiveWorkload.WRITE_OPERATION_8_KEY, "false");
         paramsMap.put(LdbcInteractiveWorkload.PARAMETERS_FILENAME_KEY, "ldbc_driver/workloads/ldbc/socnet/interactive/parameters.json");
         paramsMap.put(LdbcInteractiveWorkload.INTERLEAVE_DURATION_KEY, "10");
-        paramsMap.put(LdbcInteractiveWorkload.UPDATE_STREAM_FILENAME_KEY, "ldbc_driver/workloads/ldbc/socnet/interactive/updates.csv");
+        paramsMap.put(LdbcInteractiveWorkload.WRITE_STREAM_FILENAME_KEY, "ldbc_driver/workloads/ldbc/socnet/interactive/updates.csv");
         paramsMap.put(LdbcInteractiveWorkload.WRITE_RATIO_KEY, "0");
         paramsMap.put(LdbcInteractiveWorkload.READ_RATIO_KEY, "1");
         // CsvDb-specific parameters

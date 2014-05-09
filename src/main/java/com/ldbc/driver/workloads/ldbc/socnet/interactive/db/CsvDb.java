@@ -40,6 +40,8 @@ public class CsvDb extends Db {
         registerOperationHandler(LdbcQuery10.class, LdbcQuery10ToCsv.class);
         registerOperationHandler(LdbcQuery11.class, LdbcQuery11ToCsv.class);
         registerOperationHandler(LdbcQuery12.class, LdbcQuery12ToCsv.class);
+        registerOperationHandler(LdbcQuery13.class, LdbcQuery13ToCsv.class);
+        registerOperationHandler(LdbcQuery14.class, LdbcQuery14ToCsv.class);
     }
 
     @Override
@@ -92,7 +94,7 @@ public class CsvDb extends Db {
     }
 
     public static class LdbcQuery1ToCsv extends OperationHandler<LdbcQuery1> {
-        static final List<LdbcQuery1Result> RESULT = new ArrayList<LdbcQuery1Result>();
+        static final List<LdbcQuery1Result> RESULT = new ArrayList<>();
 
         @Override
         protected OperationResult executeOperation(LdbcQuery1 operation) throws DbException {
@@ -109,7 +111,7 @@ public class CsvDb extends Db {
     }
 
     public static class LdbcQuery2ToCsv extends OperationHandler<LdbcQuery2> {
-        static final List<LdbcQuery2Result> RESULT = new ArrayList<LdbcQuery2Result>();
+        static final List<LdbcQuery2Result> RESULT = new ArrayList<>();
 
         @Override
         protected OperationResult executeOperation(LdbcQuery2 operation) throws DbException {
@@ -127,7 +129,7 @@ public class CsvDb extends Db {
     }
 
     public static class LdbcQuery3ToCsv extends OperationHandler<LdbcQuery3> {
-        static final List<LdbcQuery3Result> RESULT = new ArrayList<LdbcQuery3Result>();
+        static final List<LdbcQuery3Result> RESULT = new ArrayList<>();
 
         @Override
         protected OperationResult executeOperation(LdbcQuery3 operation) throws DbException {
@@ -149,7 +151,7 @@ public class CsvDb extends Db {
 
 
     public static class LdbcQuery4ToCsv extends OperationHandler<LdbcQuery4> {
-        static final List<LdbcQuery4Result> RESULT = new ArrayList<LdbcQuery4Result>();
+        static final List<LdbcQuery4Result> RESULT = new ArrayList<>();
 
         @Override
         protected OperationResult executeOperation(LdbcQuery4 operation) throws DbException {
@@ -169,7 +171,7 @@ public class CsvDb extends Db {
     }
 
     public static class LdbcQuery5ToCsv extends OperationHandler<LdbcQuery5> {
-        static final List<LdbcQuery5Result> RESULT = new ArrayList<LdbcQuery5Result>();
+        static final List<LdbcQuery5Result> RESULT = new ArrayList<>();
 
         @Override
         protected OperationResult executeOperation(LdbcQuery5 operation) throws DbException {
@@ -188,7 +190,7 @@ public class CsvDb extends Db {
     }
 
     public static class LdbcQuery6ToCsv extends OperationHandler<LdbcQuery6> {
-        static final List<LdbcQuery6Result> RESULT = new ArrayList<LdbcQuery6Result>();
+        static final List<LdbcQuery6Result> RESULT = new ArrayList<>();
 
         @Override
         protected OperationResult executeOperation(LdbcQuery6 operation) throws DbException {
@@ -207,7 +209,7 @@ public class CsvDb extends Db {
     }
 
     public static class LdbcQuery7ToCsv extends OperationHandler<LdbcQuery7> {
-        static final List<LdbcQuery7Result> RESULT = new ArrayList<LdbcQuery7Result>();
+        static final List<LdbcQuery7Result> RESULT = new ArrayList<>();
 
         @Override
         protected OperationResult executeOperation(LdbcQuery7 operation) throws DbException {
@@ -225,7 +227,7 @@ public class CsvDb extends Db {
     }
 
     public static class LdbcQuery8ToCsv extends OperationHandler<LdbcQuery8> {
-        static final List<LdbcQuery8Result> RESULT = new ArrayList<LdbcQuery8Result>();
+        static final List<LdbcQuery8Result> RESULT = new ArrayList<>();
 
         @Override
         protected OperationResult executeOperation(LdbcQuery8 operation) throws DbException {
@@ -243,7 +245,7 @@ public class CsvDb extends Db {
     }
 
     public static class LdbcQuery9ToCsv extends OperationHandler<LdbcQuery9> {
-        static final List<LdbcQuery9Result> RESULT = new ArrayList<LdbcQuery9Result>();
+        static final List<LdbcQuery9Result> RESULT = new ArrayList<>();
 
         @Override
         protected OperationResult executeOperation(LdbcQuery9 operation) throws DbException {
@@ -262,7 +264,7 @@ public class CsvDb extends Db {
     }
 
     public static class LdbcQuery10ToCsv extends OperationHandler<LdbcQuery10> {
-        static final List<LdbcQuery10Result> RESULT = new ArrayList<LdbcQuery10Result>();
+        static final List<LdbcQuery10Result> RESULT = new ArrayList<>();
 
         @Override
         protected OperationResult executeOperation(LdbcQuery10 operation) throws DbException {
@@ -282,7 +284,7 @@ public class CsvDb extends Db {
     }
 
     public static class LdbcQuery11ToCsv extends OperationHandler<LdbcQuery11> {
-        static final List<LdbcQuery11Result> RESULT = new ArrayList<LdbcQuery11Result>();
+        static final List<LdbcQuery11Result> RESULT = new ArrayList<>();
 
         @Override
         protected OperationResult executeOperation(LdbcQuery11 operation) throws DbException {
@@ -302,7 +304,7 @@ public class CsvDb extends Db {
     }
 
     public static class LdbcQuery12ToCsv extends OperationHandler<LdbcQuery12> {
-        static final List<LdbcQuery12Result> RESULT = new ArrayList<LdbcQuery12Result>();
+        static final List<LdbcQuery12Result> RESULT = new ArrayList<>();
 
         @Override
         protected OperationResult executeOperation(LdbcQuery12 operation) throws DbException {
@@ -312,6 +314,44 @@ public class CsvDb extends Db {
                         operation.type(),
                         Long.toString(operation.personId()),
                         operation.tagClass()
+                );
+                return operation.buildResult(0, RESULT);
+            } catch (IOException e) {
+                throw new DbException(String.format("Error encountered while writing to CSV file: %s", operation.toString()), e);
+            }
+        }
+    }
+
+    public static class LdbcQuery13ToCsv extends OperationHandler<LdbcQuery13> {
+        static final List<LdbcQuery13Result> RESULT = new ArrayList<>();
+
+        @Override
+        protected OperationResult executeOperation(LdbcQuery13 operation) throws DbException {
+            try {
+                ((CsvDbConnectionState) dbConnectionState()).csvFileWriter().writeLine(
+                        Long.toString(Time.nowAsMilli() - operation.scheduledStartTime().asMilli()),
+                        operation.type(),
+                        Long.toString(operation.personId1()),
+                        Long.toString(operation.personId2())
+                );
+                return operation.buildResult(0, RESULT);
+            } catch (IOException e) {
+                throw new DbException(String.format("Error encountered while writing to CSV file: %s", operation.toString()), e);
+            }
+        }
+    }
+
+    public static class LdbcQuery14ToCsv extends OperationHandler<LdbcQuery14> {
+        static final List<LdbcQuery14Result> RESULT = new ArrayList<>();
+
+        @Override
+        protected OperationResult executeOperation(LdbcQuery14 operation) throws DbException {
+            try {
+                ((CsvDbConnectionState) dbConnectionState()).csvFileWriter().writeLine(
+                        Long.toString(Time.nowAsMilli() - operation.scheduledStartTime().asMilli()),
+                        operation.type(),
+                        Long.toString(operation.personId1()),
+                        Long.toString(operation.personId2())
                 );
                 return operation.buildResult(0, RESULT);
             } catch (IOException e) {

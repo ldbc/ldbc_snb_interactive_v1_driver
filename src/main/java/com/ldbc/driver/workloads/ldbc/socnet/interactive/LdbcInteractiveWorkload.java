@@ -26,43 +26,68 @@ import static com.ldbc.driver.OperationClassification.GctMode;
 import static com.ldbc.driver.OperationClassification.SchedulingMode;
 
 public class LdbcInteractiveWorkload extends Workload {
-    public final static String UPDATE_STREAM_FILENAME_KEY = "updates";
+    public final static String WRITE_STREAM_FILENAME_KEY = "updates";
     public final static String PARAMETERS_FILENAME_KEY = "parameters";
     public final static String INTERLEAVE_DURATION_KEY = "interleave_duration";
     public final static String READ_RATIO_KEY = "read_ratio";
     public final static String WRITE_RATIO_KEY = "write_ratio";
-    public final static String QUERY_1_KEY = LdbcQuery1.class.getName();
-    public final static String QUERY_2_KEY = LdbcQuery2.class.getName();
-    public final static String QUERY_3_KEY = LdbcQuery3.class.getName();
-    public final static String QUERY_4_KEY = LdbcQuery4.class.getName();
-    public final static String QUERY_5_KEY = LdbcQuery5.class.getName();
-    public final static String QUERY_6_KEY = LdbcQuery6.class.getName();
-    public final static String QUERY_7_KEY = LdbcQuery7.class.getName();
-    public final static String QUERY_8_KEY = LdbcQuery8.class.getName();
-    public final static String QUERY_9_KEY = LdbcQuery9.class.getName();
-    public final static String QUERY_10_KEY = LdbcQuery10.class.getName();
-    public final static String QUERY_11_KEY = LdbcQuery11.class.getName();
-    public final static String QUERY_12_KEY = LdbcQuery12.class.getName();
-    public final static List<String> QUERY_KEYS = Lists.newArrayList(
-            QUERY_1_KEY,
-            QUERY_2_KEY,
-            QUERY_3_KEY,
-            QUERY_4_KEY,
-            QUERY_5_KEY,
-            QUERY_6_KEY,
-            QUERY_7_KEY,
-            QUERY_8_KEY,
-            QUERY_9_KEY,
-            QUERY_10_KEY,
-            QUERY_11_KEY,
-            QUERY_12_KEY);
 
-    private UpdateEventStreamReader updateOperations;
+    public final static String READ_OPERATION_1_KEY = LdbcQuery1.class.getName();
+    public final static String READ_OPERATION_2_KEY = LdbcQuery2.class.getName();
+    public final static String READ_OPERATION_3_KEY = LdbcQuery3.class.getName();
+    public final static String READ_OPERATION_4_KEY = LdbcQuery4.class.getName();
+    public final static String READ_OPERATION_5_KEY = LdbcQuery5.class.getName();
+    public final static String READ_OPERATION_6_KEY = LdbcQuery6.class.getName();
+    public final static String READ_OPERATION_7_KEY = LdbcQuery7.class.getName();
+    public final static String READ_OPERATION_8_KEY = LdbcQuery8.class.getName();
+    public final static String READ_OPERATION_9_KEY = LdbcQuery9.class.getName();
+    public final static String READ_OPERATION_10_KEY = LdbcQuery10.class.getName();
+    public final static String READ_OPERATION_11_KEY = LdbcQuery11.class.getName();
+    public final static String READ_OPERATION_12_KEY = LdbcQuery12.class.getName();
+    public final static String READ_OPERATION_13_KEY = LdbcQuery13.class.getName();
+    public final static String READ_OPERATION_14_KEY = LdbcQuery14.class.getName();
+    public final static List<String> READ_OPERATION_KEYS = Lists.newArrayList(
+            READ_OPERATION_1_KEY,
+            READ_OPERATION_2_KEY,
+            READ_OPERATION_3_KEY,
+            READ_OPERATION_4_KEY,
+            READ_OPERATION_5_KEY,
+            READ_OPERATION_6_KEY,
+            READ_OPERATION_7_KEY,
+            READ_OPERATION_8_KEY,
+            READ_OPERATION_9_KEY,
+            READ_OPERATION_10_KEY,
+            READ_OPERATION_11_KEY,
+            READ_OPERATION_12_KEY,
+            READ_OPERATION_13_KEY,
+            READ_OPERATION_14_KEY);
+
+    public final static String WRITE_OPERATION_1_KEY = LdbcUpdate1AddPerson.class.getName();
+    public final static String WRITE_OPERATION_2_KEY = LdbcUpdate2AddPostLike.class.getName();
+    public final static String WRITE_OPERATION_3_KEY = LdbcUpdate3AddCommentLike.class.getName();
+    public final static String WRITE_OPERATION_4_KEY = LdbcUpdate4AddForum.class.getName();
+    public final static String WRITE_OPERATION_5_KEY = LdbcUpdate5AddForumMembership.class.getName();
+    public final static String WRITE_OPERATION_6_KEY = LdbcUpdate6AddPost.class.getName();
+    public final static String WRITE_OPERATION_7_KEY = LdbcUpdate7AddComment.class.getName();
+    public final static String WRITE_OPERATION_8_KEY = LdbcUpdate8AddFriendship.class.getName();
+    public final static List<String> WRITE_OPERATION_KEYS = Lists.newArrayList(
+            WRITE_OPERATION_1_KEY,
+            WRITE_OPERATION_2_KEY,
+            WRITE_OPERATION_3_KEY,
+            WRITE_OPERATION_4_KEY,
+            WRITE_OPERATION_5_KEY,
+            WRITE_OPERATION_6_KEY,
+            WRITE_OPERATION_7_KEY,
+            WRITE_OPERATION_8_KEY
+    );
+
+    private WriteEventStreamReader writeOperations;
     private SubstitutionParameters substitutionParameters;
     private Duration interleaveDuration;
     private double readRatio;
     private double writeRatio;
-    private Map<Class, Double> queryMix;
+    private Map<Class, Double> readOperationRatios;
+    private Set<Class> writeOperationFilter;
 
     @Override
     public Map<Class<? extends Operation<?>>, OperationClassification> operationClassifications() {
@@ -80,32 +105,35 @@ public class LdbcInteractiveWorkload extends Workload {
         operationClassifications.put(LdbcQuery10.class, new OperationClassification(SchedulingMode.INDIVIDUAL_ASYNC, GctMode.NONE));
         operationClassifications.put(LdbcQuery11.class, new OperationClassification(SchedulingMode.INDIVIDUAL_ASYNC, GctMode.NONE));
         operationClassifications.put(LdbcQuery12.class, new OperationClassification(SchedulingMode.INDIVIDUAL_ASYNC, GctMode.NONE));
+        operationClassifications.put(LdbcQuery13.class, new OperationClassification(SchedulingMode.INDIVIDUAL_ASYNC, GctMode.NONE));
+        operationClassifications.put(LdbcQuery14.class, new OperationClassification(SchedulingMode.INDIVIDUAL_ASYNC, GctMode.NONE));
         return operationClassifications;
     }
 
     @Override
     public void onInit(Map<String, String> properties) throws WorkloadException {
         List<String> compulsoryKeys = Lists.newArrayList(
-                UPDATE_STREAM_FILENAME_KEY,
+                WRITE_STREAM_FILENAME_KEY,
                 PARAMETERS_FILENAME_KEY,
                 INTERLEAVE_DURATION_KEY,
                 READ_RATIO_KEY,
                 WRITE_RATIO_KEY);
-        compulsoryKeys.addAll(QUERY_KEYS);
+        compulsoryKeys.addAll(READ_OPERATION_KEYS);
+        compulsoryKeys.addAll(WRITE_OPERATION_KEYS);
 
         List<String> missingPropertyParameters = missingPropertiesParameters(properties, compulsoryKeys);
         if (false == missingPropertyParameters.isEmpty())
             throw new WorkloadException(String.format("Workload could not initialize due to missing parameters: %s", missingPropertyParameters.toString()));
 
-        String updatesFilename = properties.get(UPDATE_STREAM_FILENAME_KEY);
-        if (false == new File(updatesFilename).exists()) {
-            throw new WorkloadException(String.format("Update events file does not exist: %s", updatesFilename));
+        String writesFilename = properties.get(WRITE_STREAM_FILENAME_KEY);
+        if (false == new File(writesFilename).exists()) {
+            throw new WorkloadException(String.format("Write events file does not exist: %s", writesFilename));
         }
-        File updatesFile = new File(updatesFilename);
+        File writesFile = new File(writesFilename);
         try {
-            updateOperations = new UpdateEventStreamReader(updatesFile);
+            writeOperations = new WriteEventStreamReader(writesFile);
         } catch (Exception e) {
-            throw new WorkloadException(String.format("Unable to load update event stream from: %s", updatesFile.getAbsolutePath()), e);
+            throw new WorkloadException(String.format("Unable to load write event stream from: %s", writesFile.getAbsolutePath()), e);
         }
 
         String parametersFilename = properties.get(PARAMETERS_FILENAME_KEY);
@@ -138,15 +166,27 @@ public class LdbcInteractiveWorkload extends Workload {
             throw new WorkloadException(String.format("Unable to parse write ratio: %s", properties.get(WRITE_RATIO_KEY)), e);
         }
 
-        queryMix = new HashMap<>();
-        for (String queryKey : QUERY_KEYS) {
-            String queryRatioString = properties.get(queryKey);
-            Double queryRatio = Double.parseDouble(queryRatioString);
+        readOperationRatios = new HashMap<>();
+        for (String readOperationKey : READ_OPERATION_KEYS) {
+            String operationRatioString = properties.get(readOperationKey);
+            Double operationRatio = Double.parseDouble(operationRatioString);
             try {
-                Class queryClass = ClassLoaderHelper.loadClass(queryKey);
-                queryMix.put(queryClass, queryRatio);
+                Class operationClass = ClassLoaderHelper.loadClass(readOperationKey);
+                readOperationRatios.put(operationClass, operationRatio);
             } catch (ClassLoadingException e) {
-                throw new WorkloadException(String.format("Unable to load query class: %s", queryKey), e);
+                throw new WorkloadException(String.format("Unable to load operation class: %s", readOperationKey), e);
+            }
+        }
+
+        writeOperationFilter = new HashSet<>();
+        for (String writeOperationKey : WRITE_OPERATION_KEYS) {
+            String writeOperationEnabledString = properties.get(writeOperationKey);
+            Boolean writeOperationEnabled = Boolean.parseBoolean(writeOperationEnabledString);
+            try {
+                Class operationClass = ClassLoaderHelper.loadClass(writeOperationKey);
+                if (writeOperationEnabled) writeOperationFilter.add(operationClass);
+            } catch (ClassLoadingException e) {
+                throw new WorkloadException(String.format("Unable to load operation class: %s", writeOperationKey), e);
             }
         }
     }
@@ -166,7 +206,6 @@ public class LdbcInteractiveWorkload extends Workload {
 
     @Override
     protected Iterator<Operation<?>> createOperations(GeneratorFactory generators) throws WorkloadException {
-
         Iterator<String> firstNameGenerator = generators.discrete(substitutionParameters.firstNames);
         Iterator<Long> personIdGenerator = generators.uniform(substitutionParameters.minPersonId, substitutionParameters.maxPersonId);
         Calendar c = Calendar.getInstance();
@@ -198,165 +237,188 @@ public class LdbcInteractiveWorkload extends Workload {
         /*
          * Create Generators for desired Operations
          */
-        List<Tuple2<Double, Iterator<Operation<?>>>> operationsMix = new ArrayList<>();
+        List<Tuple2<Double, Iterator<Operation<?>>>> readOperationsMix = new ArrayList<>();
 
         /*
-         * Query1
+         * Operation 1
          *  - Select uniformly randomly from person first names
          */
-        int query1Limit = LdbcQuery1.DEFAULT_LIMIT;
-        operationsMix.add(Tuple.tuple2(
-                queryMix.get(LdbcQuery1.class),
-                (Iterator<Operation<?>>) new Query1Generator(personIdGenerator, firstNameGenerator, query1Limit)));
+        int operation1Limit = LdbcQuery1.DEFAULT_LIMIT;
+        readOperationsMix.add(Tuple.tuple2(
+                readOperationRatios.get(LdbcQuery1.class),
+                (Iterator<Operation<?>>) new Query1Generator(personIdGenerator, firstNameGenerator, operation1Limit)));
 
         /*
-         * Query2
+         * Operation 2
          *  - Person ID - select uniformly randomly from person ids
          *  - Post Creation Date - select uniformly randomly a post creation date from between 33perc-66perc of entire date range
          */
-        int query2Limit = LdbcQuery2.DEFAULT_LIMIT;
-        operationsMix.add(Tuple.tuple2(
-                queryMix.get(LdbcQuery2.class),
-                (Iterator<Operation<?>>) new Query2Generator(personIdGenerator, postCreationDateGenerator33_66, query2Limit)));
+        int operation2Limit = LdbcQuery2.DEFAULT_LIMIT;
+        readOperationsMix.add(Tuple.tuple2(
+                readOperationRatios.get(LdbcQuery2.class),
+                (Iterator<Operation<?>>) new Query2Generator(personIdGenerator, postCreationDateGenerator33_66, operation2Limit)));
 
         /*
-         * Query3
+         * Operation 3
          *  - Person ID - select uniformly randomly from person ids
          *  - Post Creation Date - select uniformly randomly a post creation date from between 0perc-66perc of entire date range
          *  - Duration - a number of days (33% of the length of post creation date range)
          *  - Country1 - the first of country pair
          *  - Country2 - the second of country pair
          */
-        operationsMix.add(Tuple.tuple2(
-                queryMix.get(LdbcQuery3.class),
+        readOperationsMix.add(Tuple.tuple2(
+                readOperationRatios.get(LdbcQuery3.class),
                 (Iterator<Operation<?>>) new Query3Generator(personIdGenerator, countryPairsGenerator, postCreationDateGenerator00_66, postCreationDateRangeAsMs033)));
 
         /*
-         * Query4
+         * Operation 4
          * - Person ID - select uniformly randomly from person ids
          * - Post Creation Date - select uniformly randomly a post creation date from between 0perc-95perc of entire date range
          * - Duration - a uniformly randomly selected duration between 2% and 4% of the length of post creation date range        
          */
-        operationsMix.add(Tuple.tuple2(
-                queryMix.get(LdbcQuery4.class),
+        readOperationsMix.add(Tuple.tuple2(
+                readOperationRatios.get(LdbcQuery4.class),
                 (Iterator<Operation<?>>) new Query4Generator(personIdGenerator, postCreationDateGenerator00_95, postCreationDateRangeDuration02_04)));
 
         // TODO http://www.ldbc.eu:8090/display/TUC/IW+Substitution+parameters+selection claims Q5 needs duration parameter
         // TODO http://www.ldbc.eu:8090/display/TUC/Interactive+Workload does not show that parameters
         // TODO add duration to operation if it found that it's necessary
         /*
-         * Query5
+         * Operation 5
          * - Person - select uniformly randomly from person ids
          * - Join Date - select uniformly randomly a post creation date from between 0perc-95perc of entire date range
          */
-        operationsMix.add(Tuple.tuple2(
-                queryMix.get(LdbcQuery5.class),
+        readOperationsMix.add(Tuple.tuple2(
+                readOperationRatios.get(LdbcQuery5.class),
                 (Iterator<Operation<?>>) new Query5Generator(personIdGenerator, postCreationDateGenerator00_95)));
 
         /*
-         * Query6
+         * Operation 6
          * - Person - select uniformly randomly from person ids
          * - Tag - select uniformly randomly from tag uris
          */
-        int query6Limit = LdbcQuery6.DEFAULT_LIMIT;
-        operationsMix.add(Tuple.tuple2(
-                queryMix.get(LdbcQuery6.class),
-                (Iterator<Operation<?>>) new Query6Generator(personIdGenerator, tagNameGenerator, query6Limit)));
+        int operation6Limit = LdbcQuery6.DEFAULT_LIMIT;
+        readOperationsMix.add(Tuple.tuple2(
+                readOperationRatios.get(LdbcQuery6.class),
+                (Iterator<Operation<?>>) new Query6Generator(personIdGenerator, tagNameGenerator, operation6Limit)));
 
         /*
-         * Query 7
+         * Operation 7
          * Person - select uniformly randomly from person ids
          */
-        int query7Limit = LdbcQuery7.DEFAULT_LIMIT;
-        operationsMix.add(Tuple.tuple2(
-                queryMix.get(LdbcQuery7.class),
-                (Iterator<Operation<?>>) new Query7Generator(personIdGenerator, query7Limit)));
+        int operation7Limit = LdbcQuery7.DEFAULT_LIMIT;
+        readOperationsMix.add(Tuple.tuple2(
+                readOperationRatios.get(LdbcQuery7.class),
+                (Iterator<Operation<?>>) new Query7Generator(personIdGenerator, operation7Limit)));
 
         /*
-         * Query 8
+         * Operation 8
          * Person - select uniformly randomly from person ids
          */
-        int query8Limit = LdbcQuery8.DEFAULT_LIMIT;
-        operationsMix.add(Tuple.tuple2(
-                queryMix.get(LdbcQuery8.class),
-                (Iterator<Operation<?>>) new Query8Generator(personIdGenerator, query8Limit)));
+        int operation8Limit = LdbcQuery8.DEFAULT_LIMIT;
+        readOperationsMix.add(Tuple.tuple2(
+                readOperationRatios.get(LdbcQuery8.class),
+                (Iterator<Operation<?>>) new Query8Generator(personIdGenerator, operation8Limit)));
 
         /*
-         * Query 9
+         * Operation 9
          * Person - select uniformly randomly from person ids
          * Date - select uniformly randomly a post creation date from between 33perc-66perc of entire date range
          */
-        int query9Limit = LdbcQuery9.DEFAULT_LIMIT;
-        operationsMix.add(Tuple.tuple2(
-                queryMix.get(LdbcQuery9.class),
-                (Iterator<Operation<?>>) new Query9Generator(personIdGenerator, postCreationDateGenerator33_66, query9Limit)));
+        int operation9Limit = LdbcQuery9.DEFAULT_LIMIT;
+        readOperationsMix.add(Tuple.tuple2(
+                readOperationRatios.get(LdbcQuery9.class),
+                (Iterator<Operation<?>>) new Query9Generator(personIdGenerator, postCreationDateGenerator33_66, operation9Limit)));
 
         /*
-         * Query 10
+         * Operation 10
          * Person - select uniformly randomly from person ids
          * HS0 - select uniformly randomly a horoscope sign (a random number between 1 and 12)
          * HS1 - HS0 + 1 (but 12 + 1 = 1)
          */
-        int query10Limit = LdbcQuery10.DEFAULT_LIMIT;
-        operationsMix.add(Tuple.tuple2(
-                queryMix.get(LdbcQuery10.class),
-                (Iterator<Operation<?>>) new Query10Generator(personIdGenerator, horoscopeGenerator, query10Limit)));
+        int operation10Limit = LdbcQuery10.DEFAULT_LIMIT;
+        readOperationsMix.add(Tuple.tuple2(
+                readOperationRatios.get(LdbcQuery10.class),
+                (Iterator<Operation<?>>) new Query10Generator(personIdGenerator, horoscopeGenerator, operation10Limit)));
 
         /*
-         * Query 11
+         * Operation 11
          * Person - select uniformly randomly from person ids
          * // TODO parameter file does not have country dont have IDS only names
          * Country - select uniformly randomly from country ids
          * Date - a random date from 0% to 100% of whole workFrom timeline
          */
-        int query11Limit = LdbcQuery11.DEFAULT_LIMIT;
-        operationsMix.add(Tuple.tuple2(
-                queryMix.get(LdbcQuery11.class),
-                (Iterator<Operation<?>>) new Query11Generator(personIdGenerator, countriesGenerator, workFromYearGenerator00_100, query11Limit)));
+        int operation11Limit = LdbcQuery11.DEFAULT_LIMIT;
+        readOperationsMix.add(Tuple.tuple2(
+                readOperationRatios.get(LdbcQuery11.class),
+                (Iterator<Operation<?>>) new Query11Generator(personIdGenerator, countriesGenerator, workFromYearGenerator00_100, operation11Limit)));
 
         /*
-         * Query 12
+         * Operation 12
          * Person - select uniformly randomly from person ids
          * TagType - select uniformly randomly tagTypeURI (used files: tagTypes.txt and tagTypes.sql)
          */
-        int query12Limit = LdbcQuery12.DEFAULT_LIMIT;
-        operationsMix.add(Tuple.tuple2(
-                queryMix.get(LdbcQuery12.class),
-                (Iterator<Operation<?>>) new Query12Generator(personIdGenerator, tagClassesGenerator, query12Limit)));
+        int operation12Limit = LdbcQuery12.DEFAULT_LIMIT;
+        readOperationsMix.add(Tuple.tuple2(
+                readOperationRatios.get(LdbcQuery12.class),
+                (Iterator<Operation<?>>) new Query12Generator(personIdGenerator, tagClassesGenerator, operation12Limit)));
 
         /*
-         * Create Discrete Generator from query mix
+         * Operation 13
+         * Person1 - start person
+         * Person1 - end person
          */
-        Iterator<Operation<?>> operationGenerator = generators.weightedDiscreteDereferencing(operationsMix);
+        readOperationsMix.add(Tuple.tuple2(
+                readOperationRatios.get(LdbcQuery13.class),
+                (Iterator<Operation<?>>) new Query13Generator(personIdGenerator)));
 
         /*
-         * Filter Interesting Operations
+         * Operation 14
+         * Person1 - start person
+         * Person1 - end person
          */
-        final Set<Class> operationsToInclude = queryMix.keySet();
-        Predicate<Operation<?>> allowedOperationsFilter = new Predicate<Operation<?>>() {
+        readOperationsMix.add(Tuple.tuple2(
+                readOperationRatios.get(LdbcQuery14.class),
+                (Iterator<Operation<?>>) new Query14Generator(personIdGenerator)));
+
+        /*
+         * Create Discrete Generator from read operation mix
+         */
+        Iterator<Operation<?>> readOperations = generators.weightedDiscreteDereferencing(readOperationsMix);
+
+        /*
+         * Add scheduled start time to read queries
+         */
+        Iterator<Time> startTimeGenerator = GeneratorUtils.constantIncrementStartTimeGenerator(generators, Time.now(), interleaveDuration);
+        Iterator<Operation<?>> readOperationsWithTime = new StartTimeAssigningOperationGenerator(startTimeGenerator, readOperations);
+
+        /*
+         * Filter Write Operations
+         */
+        Predicate<Operation<?>> allowedWriteOperationsFilter = new Predicate<Operation<?>>() {
             @Override
-            public boolean apply(Operation<?> query) {
-                return operationsToInclude.contains(query.getClass());
+            public boolean apply(Operation<?> operation) {
+                return writeOperationFilter.contains(operation.getClass());
             }
         };
+        Iterator<Operation<?>> filteredWriteOperations = Iterators.filter(writeOperations, allowedWriteOperationsFilter);
 
-        Iterator<Operation<?>> interactiveReadOperations = Iterators.filter(operationGenerator, allowedOperationsFilter);
+        /*
+         * Move scheduled start times of write operations to now
+         */
+        // TODO need separate parameter for: write operation time shift, write operation compression, read operation interleave/load
+        Iterator<Operation<?>> filteredWriteOperationsTimeShiftedToNow = generators.timeOffset(filteredWriteOperations, Time.now());
 
-        // TODO test if interleave actually works correctly
-        Iterator<Time> startTimeGenerator = GeneratorUtils.constantIncrementStartTimeGenerator(generators, Time.now(), interleaveDuration);
+        /*
+         * Mix read and write operations
+         */
+        List<Tuple2<Double, Iterator<Operation<?>>>> readWriteOperationMix = Lists.newArrayList(
+                Tuple.tuple2(readRatio, readOperationsWithTime),
+                Tuple.tuple2(writeRatio, filteredWriteOperationsTimeShiftedToNow)
+        );
+        Iterator<Operation<?>> readAndWriteOperations = generators.weightedDiscreteDereferencing(readWriteOperationMix);
 
-        Iterator<Operation<?>> interactiveReadOperationsWithTime = new StartTimeAssigningOperationGenerator(startTimeGenerator, interactiveReadOperations);
-
-        // TODO use readRatio/writeRatio & uncomment
-        // Iterator<Operation<?>> interactiveAndUpdateQueries_INTERLEAVED = generators.interleave(interactiveReadOperations,updateOperations,10);
-
-        // TODO uncomment
-        // List<Tuple2<Double, Iterator<Operation<?>>>> readWriteOperationMix = new ArrayList<>();
-        // readWriteOperationMix.add(Tuple.tuple2(readRatio, interactiveReadOperationsWithTime));
-        // readWriteOperationMix.add(Tuple.tuple2(writeRatio, (Iterator<Operation<?>>) updateOperations));
-        // Iterator<Operation<?>> interactiveAndUpdateQueries_MIXED = generators.weightedDiscreteDereferencing(readWriteOperationMix);
-
-        return interactiveReadOperationsWithTime;
+        return readAndWriteOperations;
     }
 
     class Query1Generator extends Generator<Operation<?>> {
@@ -433,136 +495,162 @@ public class LdbcInteractiveWorkload extends Workload {
     }
 
     class Query5Generator extends Generator<Operation<?>> {
-        private final Iterator<Long> personIdGenerator;
+        private final Iterator<Long> personIds;
         private final Iterator<Long> joinDates;
 
-        protected Query5Generator(Iterator<Long> personIdGenerator, Iterator<Long> joinDates) {
-            this.personIdGenerator = personIdGenerator;
+        protected Query5Generator(Iterator<Long> personIds, Iterator<Long> joinDates) {
+            this.personIds = personIds;
             this.joinDates = joinDates;
         }
 
         @Override
         protected Operation<?> doNext() throws GeneratorException {
-            return new LdbcQuery5(personIdGenerator.next(), new Date(joinDates.next()));
+            return new LdbcQuery5(personIds.next(), new Date(joinDates.next()));
         }
     }
 
     class Query6Generator extends Generator<Operation<?>> {
-        private final Iterator<Long> personIdGenerator;
-        private final Iterator<String> tagUriGenerator;
+        private final Iterator<Long> personIds;
+        private final Iterator<String> tagUris;
         private final int limit;
 
-        protected Query6Generator(Iterator<Long> personIdGenerator, Iterator<String> tagUriGenerator, int limit) {
-            this.personIdGenerator = personIdGenerator;
-            this.tagUriGenerator = tagUriGenerator;
+        protected Query6Generator(Iterator<Long> personIds, Iterator<String> tagUris, int limit) {
+            this.personIds = personIds;
+            this.tagUris = tagUris;
             this.limit = limit;
         }
 
         @Override
         protected Operation<?> doNext() throws GeneratorException {
-            return new LdbcQuery6(personIdGenerator.next(), tagUriGenerator.next(), limit);
+            return new LdbcQuery6(personIds.next(), tagUris.next(), limit);
         }
     }
 
     class Query7Generator extends Generator<Operation<?>> {
-        private final Iterator<Long> personIdGenerator;
+        private final Iterator<Long> personIds;
         private final int limit;
 
-        protected Query7Generator(Iterator<Long> personIdGenerator, int limit) {
-            this.personIdGenerator = personIdGenerator;
+        protected Query7Generator(Iterator<Long> personIds, int limit) {
+            this.personIds = personIds;
             this.limit = limit;
         }
 
         @Override
         protected Operation<?> doNext() throws GeneratorException {
-            return new LdbcQuery7(personIdGenerator.next(), limit);
+            return new LdbcQuery7(personIds.next(), limit);
         }
     }
 
     class Query8Generator extends Generator<Operation<?>> {
-        private final Iterator<Long> personIdGenerator;
+        private final Iterator<Long> personIds;
         private final int limit;
 
-        protected Query8Generator(Iterator<Long> personIdGenerator, int limit) {
-            this.personIdGenerator = personIdGenerator;
+        protected Query8Generator(Iterator<Long> personIds, int limit) {
+            this.personIds = personIds;
             this.limit = limit;
         }
 
         @Override
         protected Operation<?> doNext() throws GeneratorException {
-            return new LdbcQuery8(personIdGenerator.next(), limit);
+            return new LdbcQuery8(personIds.next(), limit);
         }
     }
 
     class Query9Generator extends Generator<Operation<?>> {
-        private final Iterator<Long> personIdGenerator;
-        private final Iterator<Long> dateGenerator;
+        private final Iterator<Long> personIds;
+        private final Iterator<Long> dates;
         private final int limit;
 
-        protected Query9Generator(Iterator<Long> personIdGenerator, Iterator<Long> dateGenerator, int limit) {
-            this.personIdGenerator = personIdGenerator;
-            this.dateGenerator = dateGenerator;
+        protected Query9Generator(Iterator<Long> personIds, Iterator<Long> dates, int limit) {
+            this.personIds = personIds;
+            this.dates = dates;
             this.limit = limit;
         }
 
         @Override
         protected Operation<?> doNext() throws GeneratorException {
-            return new LdbcQuery9(personIdGenerator.next(), dateGenerator.next(), limit);
+            return new LdbcQuery9(personIds.next(), dates.next(), limit);
         }
     }
 
     class Query10Generator extends Generator<Operation<?>> {
-        private final Iterator<Long> personIdGenerator;
-        private final Iterator<Integer> horoscopeGenerator;
+        private final Iterator<Long> personIds;
+        private final Iterator<Integer> horoscopes;
         private final int limit;
 
-        protected Query10Generator(Iterator<Long> personIdGenerator, Iterator<Integer> horoscopeGenerator, int limit) {
-            this.personIdGenerator = personIdGenerator;
-            this.horoscopeGenerator = horoscopeGenerator;
+        protected Query10Generator(Iterator<Long> personIds, Iterator<Integer> horoscopes, int limit) {
+            this.personIds = personIds;
+            this.horoscopes = horoscopes;
             this.limit = limit;
         }
 
         @Override
         protected Operation<?> doNext() throws GeneratorException {
-            int horoscopeSign1 = horoscopeGenerator.next();
+            int horoscopeSign1 = horoscopes.next();
             int horoscopeSign2 = (12 == horoscopeSign1) ? 1 : horoscopeSign1 + 1;
-            return new LdbcQuery10(personIdGenerator.next(), horoscopeSign1, horoscopeSign2, limit);
+            return new LdbcQuery10(personIds.next(), horoscopeSign1, horoscopeSign2, limit);
         }
     }
 
     class Query11Generator extends Generator<Operation<?>> {
-        private final Iterator<Long> personIdGenerator;
-        private final Iterator<String> countriesGenerator;
-        private final Iterator<Integer> workFromYearGenerator;
+        private final Iterator<Long> personIds;
+        private final Iterator<String> countries;
+        private final Iterator<Integer> workFromYears;
         private final int limit;
 
-        protected Query11Generator(Iterator<Long> personIdGenerator, Iterator<String> countriesGenerator, Iterator<Integer> workFromYearGenerator, int limit) {
-            this.personIdGenerator = personIdGenerator;
-            this.countriesGenerator = countriesGenerator;
-            this.workFromYearGenerator = workFromYearGenerator;
+        protected Query11Generator(Iterator<Long> personIds, Iterator<String> countries, Iterator<Integer> workFromYears, int limit) {
+            this.personIds = personIds;
+            this.countries = countries;
+            this.workFromYears = workFromYears;
             this.limit = limit;
         }
 
         @Override
         protected Operation<?> doNext() throws GeneratorException {
-            return new LdbcQuery11(personIdGenerator.next(), countriesGenerator.next(), workFromYearGenerator.next(), limit);
+            return new LdbcQuery11(personIds.next(), countries.next(), workFromYears.next(), limit);
         }
     }
 
     class Query12Generator extends Generator<Operation<?>> {
-        private final Iterator<Long> personIdGenerator;
-        private final Iterator<String> tagClassesGenerator;
+        private final Iterator<Long> personIds;
+        private final Iterator<String> tagClasses;
         private final int limit;
 
-        protected Query12Generator(Iterator<Long> personIdGenerator, Iterator<String> tagClassesGenerator, int limit) {
-            this.personIdGenerator = personIdGenerator;
-            this.tagClassesGenerator = tagClassesGenerator;
+        protected Query12Generator(Iterator<Long> personIds, Iterator<String> tagClasses, int limit) {
+            this.personIds = personIds;
+            this.tagClasses = tagClasses;
             this.limit = limit;
         }
 
         @Override
         protected Operation<?> doNext() throws GeneratorException {
-            return new LdbcQuery12(personIdGenerator.next(), tagClassesGenerator.next(), limit);
+            return new LdbcQuery12(personIds.next(), tagClasses.next(), limit);
+        }
+    }
+
+    class Query13Generator extends Generator<Operation<?>> {
+        private final Iterator<Long> personIds;
+
+        protected Query13Generator(Iterator<Long> personIds) {
+            this.personIds = personIds;
+        }
+
+        @Override
+        protected Operation<?> doNext() throws GeneratorException {
+            return new LdbcQuery13(personIds.next(), personIds.next());
+        }
+    }
+
+    class Query14Generator extends Generator<Operation<?>> {
+        private final Iterator<Long> personIds;
+
+        protected Query14Generator(Iterator<Long> personIds) {
+            this.personIds = personIds;
+        }
+
+        @Override
+        protected Operation<?> doNext() throws GeneratorException {
+            return new LdbcQuery14(personIds.next(), personIds.next());
         }
     }
 }
