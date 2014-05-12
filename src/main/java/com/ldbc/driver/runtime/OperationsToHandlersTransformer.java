@@ -63,7 +63,7 @@ class OperationsToHandlersTransformer {
                         }
                         return operationHandler;
                     } catch (Exception e) {
-                        // errorReporter.reportError(this, String.format("Unexpected error in operationsToHandlers()\n%s", ConcurrentErrorReporter.stackTraceToString(e)));
+                        errorReporter.reportError(this, String.format("Unexpected error in operationsToHandlers()\n%s", ConcurrentErrorReporter.stackTraceToString(e)));
                         throw new RuntimeException("Unexpected error in operationsToHandlers()", e);
                     }
                 }
