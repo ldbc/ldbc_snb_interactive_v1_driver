@@ -40,7 +40,7 @@ class PreciseIndividualAsyncOperationStreamExecutorThread extends Thread {
     @Override
     public void run() {
         while (handlers.hasNext()) {
-            OperationHandler<?> handler = null;
+            OperationHandler<?> handler;
             try {
                 handler = handlers.next();
             } catch (Exception e) {

@@ -9,6 +9,7 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
@@ -42,6 +43,14 @@ public class CsvDb extends Db {
         registerOperationHandler(LdbcQuery12.class, LdbcQuery12ToCsv.class);
         registerOperationHandler(LdbcQuery13.class, LdbcQuery13ToCsv.class);
         registerOperationHandler(LdbcQuery14.class, LdbcQuery14ToCsv.class);
+        registerOperationHandler(LdbcUpdate1AddPerson.class, LdbcUpdate1AddPersonToCsv.class);
+        registerOperationHandler(LdbcUpdate2AddPostLike.class, LdbcUpdate2AddPostLikeToCsv.class);
+        registerOperationHandler(LdbcUpdate3AddCommentLike.class, LdbcUpdate3AddCommentLikeToCsv.class);
+        registerOperationHandler(LdbcUpdate4AddForum.class, LdbcUpdate4AddForumToCsv.class);
+        registerOperationHandler(LdbcUpdate5AddForumMembership.class, LdbcUpdate5AddForumMembershipToCsv.class);
+        registerOperationHandler(LdbcUpdate6AddPost.class, LdbcUpdate6AddPostToCsv.class);
+        registerOperationHandler(LdbcUpdate7AddComment.class, LdbcUpdate7AddCommentToCsv.class);
+        registerOperationHandler(LdbcUpdate8AddFriendship.class, LdbcUpdate8AddFriendshipToCsv.class);
     }
 
     @Override
@@ -352,6 +361,196 @@ public class CsvDb extends Db {
                         operation.type(),
                         Long.toString(operation.personId1()),
                         Long.toString(operation.personId2())
+                );
+                return operation.buildResult(0, RESULT);
+            } catch (IOException e) {
+                throw new DbException(String.format("Error encountered while writing to CSV file: %s", operation.toString()), e);
+            }
+        }
+    }
+
+    public static class LdbcUpdate1AddPersonToCsv extends OperationHandler<LdbcUpdate1AddPerson> {
+        static final List<LdbcUpdate1AddPerson> RESULT = new ArrayList<>();
+
+        @Override
+        protected OperationResult executeOperation(LdbcUpdate1AddPerson operation) throws DbException {
+            try {
+                ((CsvDbConnectionState) dbConnectionState()).csvFileWriter().writeLine(
+                        Long.toString(Time.nowAsMilli() - operation.scheduledStartTime().asMilli()),
+                        operation.type(),
+                        Long.toString(operation.personId()),
+                        operation.personFirstName(),
+                        operation.personLastName(),
+                        operation.gender(),
+                        Long.toString(operation.birthday().getTime()),
+                        Long.toString(operation.creationDate().getTime()),
+                        operation.locationIp(),
+                        operation.browserUsed(),
+                        Long.toString(operation.cityId()),
+                        Arrays.toString(operation.languages()),
+                        Arrays.toString(operation.emails()),
+                        Arrays.toString(operation.tagIds()),
+                        operation.studyAt().toString(),
+                        operation.workAt().toString()
+                );
+                return operation.buildResult(0, RESULT);
+            } catch (IOException e) {
+                throw new DbException(String.format("Error encountered while writing to CSV file: %s", operation.toString()), e);
+            }
+        }
+    }
+
+    public static class LdbcUpdate2AddPostLikeToCsv extends OperationHandler<LdbcUpdate2AddPostLike> {
+        static final List<LdbcUpdate2AddPostLike> RESULT = new ArrayList<>();
+
+        @Override
+        protected OperationResult executeOperation(LdbcUpdate2AddPostLike operation) throws DbException {
+            try {
+                ((CsvDbConnectionState) dbConnectionState()).csvFileWriter().writeLine(
+                        Long.toString(Time.nowAsMilli() - operation.scheduledStartTime().asMilli()),
+                        operation.type(),
+                        Long.toString(operation.personId()),
+                        Long.toString(operation.postId()),
+                        Long.toString(operation.creationDate().getTime())
+                );
+                return operation.buildResult(0, RESULT);
+            } catch (IOException e) {
+                throw new DbException(String.format("Error encountered while writing to CSV file: %s", operation.toString()), e);
+            }
+        }
+    }
+
+    public static class LdbcUpdate3AddCommentLikeToCsv extends OperationHandler<LdbcUpdate3AddCommentLike> {
+        static final List<LdbcUpdate3AddCommentLike> RESULT = new ArrayList<>();
+
+        @Override
+        protected OperationResult executeOperation(LdbcUpdate3AddCommentLike operation) throws DbException {
+            try {
+                ((CsvDbConnectionState) dbConnectionState()).csvFileWriter().writeLine(
+                        Long.toString(Time.nowAsMilli() - operation.scheduledStartTime().asMilli()),
+                        operation.type(),
+                        Long.toString(operation.personId()),
+                        Long.toString(operation.commentId()),
+                        Long.toString(operation.creationDate().getTime())
+                );
+                return operation.buildResult(0, RESULT);
+            } catch (IOException e) {
+                throw new DbException(String.format("Error encountered while writing to CSV file: %s", operation.toString()), e);
+            }
+        }
+    }
+
+    public static class LdbcUpdate4AddForumToCsv extends OperationHandler<LdbcUpdate4AddForum> {
+        static final List<LdbcUpdate4AddForum> RESULT = new ArrayList<>();
+
+        @Override
+        protected OperationResult executeOperation(LdbcUpdate4AddForum operation) throws DbException {
+            try {
+                ((CsvDbConnectionState) dbConnectionState()).csvFileWriter().writeLine(
+                        Long.toString(Time.nowAsMilli() - operation.scheduledStartTime().asMilli()),
+                        operation.type(),
+                        Long.toString(operation.forumId()),
+                        operation.forumTitle(),
+                        Long.toString(operation.creationDate().getTime()),
+                        Long.toString(operation.moderatorPersonId()),
+                        Arrays.toString(operation.tagIds())
+                );
+                return operation.buildResult(0, RESULT);
+            } catch (IOException e) {
+                throw new DbException(String.format("Error encountered while writing to CSV file: %s", operation.toString()), e);
+            }
+        }
+    }
+
+    public static class LdbcUpdate5AddForumMembershipToCsv extends OperationHandler<LdbcUpdate5AddForumMembership> {
+        static final List<LdbcUpdate5AddForumMembership> RESULT = new ArrayList<>();
+
+        @Override
+        protected OperationResult executeOperation(LdbcUpdate5AddForumMembership operation) throws DbException {
+            try {
+                ((CsvDbConnectionState) dbConnectionState()).csvFileWriter().writeLine(
+                        Long.toString(Time.nowAsMilli() - operation.scheduledStartTime().asMilli()),
+                        operation.type(),
+                        Long.toString(operation.forumId()),
+                        Long.toString(operation.personId()),
+                        Long.toString(operation.creationDate().getTime())
+                );
+                return operation.buildResult(0, RESULT);
+            } catch (IOException e) {
+                throw new DbException(String.format("Error encountered while writing to CSV file: %s", operation.toString()), e);
+            }
+        }
+    }
+
+    public static class LdbcUpdate6AddPostToCsv extends OperationHandler<LdbcUpdate6AddPost> {
+        static final List<LdbcUpdate6AddPost> RESULT = new ArrayList<>();
+
+        @Override
+        protected OperationResult executeOperation(LdbcUpdate6AddPost operation) throws DbException {
+            try {
+                ((CsvDbConnectionState) dbConnectionState()).csvFileWriter().writeLine(
+                        Long.toString(Time.nowAsMilli() - operation.scheduledStartTime().asMilli()),
+                        operation.type(),
+                        Long.toString(operation.postId()),
+                        operation.imageFile(),
+                        Long.toString(operation.creationDate().getTime()),
+                        operation.locationIp(),
+                        operation.browserUsed(),
+                        operation.language(),
+                        operation.content(),
+                        Integer.toString(operation.length()),
+                        Long.toString(operation.authorPersonId()),
+                        Long.toString(operation.forumId()),
+                        Long.toString(operation.countryId()),
+                        Arrays.toString(operation.tagIds())
+                );
+                return operation.buildResult(0, RESULT);
+            } catch (IOException e) {
+                throw new DbException(String.format("Error encountered while writing to CSV file: %s", operation.toString()), e);
+            }
+        }
+    }
+
+    public static class LdbcUpdate7AddCommentToCsv extends OperationHandler<LdbcUpdate7AddComment> {
+        static final List<LdbcUpdate7AddComment> RESULT = new ArrayList<>();
+
+        @Override
+        protected OperationResult executeOperation(LdbcUpdate7AddComment operation) throws DbException {
+            try {
+                ((CsvDbConnectionState) dbConnectionState()).csvFileWriter().writeLine(
+                        Long.toString(Time.nowAsMilli() - operation.scheduledStartTime().asMilli()),
+                        operation.type(),
+                        Long.toString(operation.commentId()),
+                        Long.toString(operation.creationDate().getTime()),
+                        operation.locationIp(),
+                        operation.browserUsed(),
+                        operation.content(),
+                        Integer.toString(operation.length()),
+                        Long.toString(operation.authorPersonId()),
+                        Long.toString(operation.countryId()),
+                        Long.toString(operation.replyToPostId()),
+                        Long.toString(operation.replyToCommentId()),
+                        Arrays.toString(operation.tagIds())
+                );
+                return operation.buildResult(0, RESULT);
+            } catch (IOException e) {
+                throw new DbException(String.format("Error encountered while writing to CSV file: %s", operation.toString()), e);
+            }
+        }
+    }
+
+    public static class LdbcUpdate8AddFriendshipToCsv extends OperationHandler<LdbcUpdate8AddFriendship> {
+        static final List<LdbcUpdate8AddFriendship> RESULT = new ArrayList<>();
+
+        @Override
+        protected OperationResult executeOperation(LdbcUpdate8AddFriendship operation) throws DbException {
+            try {
+                ((CsvDbConnectionState) dbConnectionState()).csvFileWriter().writeLine(
+                        Long.toString(Time.nowAsMilli() - operation.scheduledStartTime().asMilli()),
+                        operation.type(),
+                        Long.toString(operation.person1Id()),
+                        Long.toString(operation.person2Id()),
+                        Long.toString(operation.creationDate().getTime())
                 );
                 return operation.buildResult(0, RESULT);
             } catch (IOException e) {

@@ -22,6 +22,14 @@ public class NothingDb extends Db {
         registerOperationHandler(LdbcQuery12.class, LdbcQuery12ToNothing.class);
         registerOperationHandler(LdbcQuery13.class, LdbcQuery13ToNothing.class);
         registerOperationHandler(LdbcQuery14.class, LdbcQuery14ToNothing.class);
+        registerOperationHandler(LdbcUpdate1AddPerson.class, LdbcUpdate1AddPersonToNothing.class);
+        registerOperationHandler(LdbcUpdate2AddPostLike.class, LdbcUpdate2AddPostLikeToNothing.class);
+        registerOperationHandler(LdbcUpdate3AddCommentLike.class, LdbcUpdate3AddCommentLikeToNothing.class);
+        registerOperationHandler(LdbcUpdate4AddForum.class, LdbcUpdate4AddForumToNothing.class);
+        registerOperationHandler(LdbcUpdate5AddForumMembership.class, LdbcUpdate5AddForumMembershipToNothing.class);
+        registerOperationHandler(LdbcUpdate6AddPost.class, LdbcUpdate6AddPostToNothing.class);
+        registerOperationHandler(LdbcUpdate7AddComment.class, LdbcUpdate7AddCommentToNothing.class);
+        registerOperationHandler(LdbcUpdate8AddFriendship.class, LdbcUpdate8AddFriendshipToNothing.class);
     }
 
     @Override
@@ -128,6 +136,62 @@ public class NothingDb extends Db {
     public static class LdbcQuery14ToNothing extends OperationHandler<LdbcQuery14> {
         @Override
         protected OperationResult executeOperation(LdbcQuery14 operation) throws DbException {
+            return operation.buildResult(0, null);
+        }
+    }
+
+    public static class LdbcUpdate1AddPersonToNothing extends OperationHandler<LdbcUpdate1AddPerson> {
+        @Override
+        protected OperationResult executeOperation(LdbcUpdate1AddPerson operation) throws DbException {
+            return operation.buildResult(0, null);
+        }
+    }
+
+    public static class LdbcUpdate2AddPostLikeToNothing extends OperationHandler<LdbcUpdate2AddPostLike> {
+        @Override
+        protected OperationResult executeOperation(LdbcUpdate2AddPostLike operation) throws DbException {
+            return operation.buildResult(0, null);
+        }
+    }
+
+    public static class LdbcUpdate3AddCommentLikeToNothing extends OperationHandler<LdbcUpdate3AddCommentLike> {
+        @Override
+        protected OperationResult executeOperation(LdbcUpdate3AddCommentLike operation) throws DbException {
+            return operation.buildResult(0, null);
+        }
+    }
+
+    public static class LdbcUpdate4AddForumToNothing extends OperationHandler<LdbcUpdate4AddForum> {
+        @Override
+        protected OperationResult executeOperation(LdbcUpdate4AddForum operation) throws DbException {
+            return operation.buildResult(0, null);
+        }
+    }
+
+    public static class LdbcUpdate5AddForumMembershipToNothing extends OperationHandler<LdbcUpdate5AddForumMembership> {
+        @Override
+        protected OperationResult executeOperation(LdbcUpdate5AddForumMembership operation) throws DbException {
+            return operation.buildResult(0, null);
+        }
+    }
+
+    public static class LdbcUpdate6AddPostToNothing extends OperationHandler<LdbcUpdate6AddPost> {
+        @Override
+        protected OperationResult executeOperation(LdbcUpdate6AddPost operation) throws DbException {
+            return operation.buildResult(0, null);
+        }
+    }
+
+    public static class LdbcUpdate7AddCommentToNothing extends OperationHandler<LdbcUpdate7AddComment> {
+        @Override
+        protected OperationResult executeOperation(LdbcUpdate7AddComment operation) throws DbException {
+            return operation.buildResult(0, null);
+        }
+    }
+
+    public static class LdbcUpdate8AddFriendshipToNothing extends OperationHandler<LdbcUpdate8AddFriendship> {
+        @Override
+        protected OperationResult executeOperation(LdbcUpdate8AddFriendship operation) throws DbException {
             return operation.buildResult(0, null);
         }
     }
