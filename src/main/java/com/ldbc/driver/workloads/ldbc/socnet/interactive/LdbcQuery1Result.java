@@ -1,6 +1,9 @@
 package com.ldbc.driver.workloads.ldbc.socnet.interactive;
 
+import com.google.common.collect.Sets;
+
 import java.util.Collection;
+import java.util.Set;
 
 public class LdbcQuery1Result {
     private final long friendId;
@@ -11,17 +14,17 @@ public class LdbcQuery1Result {
     private final String friendGender;
     private final String friendBrowserUsed;
     private final String friendLocationIp;
-    private final Collection<String> friendEmails;
-    private final Collection<String> friendLanguages;
+    private final Set<String> friendEmails;
+    private final Set<String> friendLanguages;
     private final String friendCityName;
     // (Person-studyAt->University.name,
     // Person-studyAt->.classYear,
     // Person-studyAt->University-isLocatedIn->City.name)
-    private final Collection<String> friendUniversities;
+    private final Set<String> friendUniversities;
     // (Person-workAt->Company.name,
     // Person-workAt->.workFrom,
     // Person-workAt->Company-isLocatedIn->City.name)
-    private final Collection<String> friendCompanies;
+    private final Set<String> friendCompanies;
 
     public LdbcQuery1Result(
             long friendId,
@@ -45,11 +48,11 @@ public class LdbcQuery1Result {
         this.friendGender = friendGender;
         this.friendBrowserUsed = friendBrowserUsed;
         this.friendLocationIp = friendLocationIp;
-        this.friendEmails = friendEmails;
-        this.friendLanguages = friendLanguages;
+        this.friendEmails = Sets.newHashSet(friendEmails);
+        this.friendLanguages = Sets.newHashSet(friendLanguages);
         this.friendCityName = friendCityName;
-        this.friendUniversities = friendUniversities;
-        this.friendCompanies = friendCompanies;
+        this.friendUniversities = Sets.newHashSet(friendUniversities);
+        this.friendCompanies = Sets.newHashSet(friendCompanies);
     }
 
     public long friendId() {
@@ -84,11 +87,11 @@ public class LdbcQuery1Result {
         return friendLocationIp;
     }
 
-    public Collection<String> friendEmails() {
+    public Set<String> friendEmails() {
         return friendEmails;
     }
 
-    public Collection<String> friendLanguages() {
+    public Set<String> friendLanguages() {
         return friendLanguages;
     }
 
@@ -96,11 +99,11 @@ public class LdbcQuery1Result {
         return friendCityName;
     }
 
-    public Collection<String> friendUniversities() {
+    public Set<String> friendUniversities() {
         return friendUniversities;
     }
 
-    public Collection<String> friendCompanies() {
+    public Set<String> friendCompanies() {
         return friendCompanies;
     }
 
