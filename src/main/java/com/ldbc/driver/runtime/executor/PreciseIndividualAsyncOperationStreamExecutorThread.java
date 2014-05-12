@@ -45,6 +45,7 @@ class PreciseIndividualAsyncOperationStreamExecutorThread extends Thread {
                 handler = handlers.next();
             } catch (Exception e) {
                 errorReporter.reportError(this, String.format("Error getting next handler\n%s", ConcurrentErrorReporter.stackTraceToString(e)));
+                break;
             }
 
             // Schedule slightly early to account for context switch - internally, handler will schedule at exact start time
