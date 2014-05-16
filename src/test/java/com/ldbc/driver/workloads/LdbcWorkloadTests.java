@@ -23,6 +23,7 @@ import com.ldbc.driver.util.RandomDataGeneratorFactory;
 import com.ldbc.driver.util.TestUtils;
 import com.ldbc.driver.workloads.ldbc.socnet.interactive.*;
 import com.ldbc.driver.workloads.ldbc.socnet.interactive.db.CsvDb;
+import com.ldbc.driver.workloads.ldbc.socnet.interactive.db.NothingDb;
 import org.apache.commons.io.FileUtils;
 import org.junit.Test;
 
@@ -509,5 +510,68 @@ public class LdbcWorkloadTests {
             assertThat(operation.scheduledStartTime().gt(prevBlockingOperationScheduledStartTime), is(true));
             prevBlockingOperationScheduledStartTime = operation.scheduledStartTime();
         }
+    }
+
+    @Test
+    public void shouldNotFailUnexpectedlyWhenQueriesAreLongRunning() throws ClientException, DriverConfigurationException, WorkloadException, IOException {
+        // Given
+        Map<String, String> paramsMap = new HashMap<String, String>();
+        // LDBC Interactive Workload-specific parameters
+        paramsMap.put(LdbcInteractiveWorkload.READ_OPERATION_1_KEY, "1");
+        paramsMap.put(LdbcInteractiveWorkload.READ_OPERATION_2_KEY, "2");
+        paramsMap.put(LdbcInteractiveWorkload.READ_OPERATION_3_KEY, "3");
+        paramsMap.put(LdbcInteractiveWorkload.READ_OPERATION_4_KEY, "4");
+        paramsMap.put(LdbcInteractiveWorkload.READ_OPERATION_5_KEY, "5");
+        paramsMap.put(LdbcInteractiveWorkload.READ_OPERATION_6_KEY, "6");
+        paramsMap.put(LdbcInteractiveWorkload.READ_OPERATION_7_KEY, "7");
+        paramsMap.put(LdbcInteractiveWorkload.READ_OPERATION_8_KEY, "6");
+        paramsMap.put(LdbcInteractiveWorkload.READ_OPERATION_9_KEY, "5");
+        paramsMap.put(LdbcInteractiveWorkload.READ_OPERATION_10_KEY, "4");
+        paramsMap.put(LdbcInteractiveWorkload.READ_OPERATION_11_KEY, "3");
+        paramsMap.put(LdbcInteractiveWorkload.READ_OPERATION_12_KEY, "2");
+        paramsMap.put(LdbcInteractiveWorkload.READ_OPERATION_13_KEY, "1");
+        paramsMap.put(LdbcInteractiveWorkload.READ_OPERATION_14_KEY, "1");
+        paramsMap.put(LdbcInteractiveWorkload.WRITE_OPERATION_1_KEY, "false");
+        paramsMap.put(LdbcInteractiveWorkload.WRITE_OPERATION_2_KEY, "false");
+        paramsMap.put(LdbcInteractiveWorkload.WRITE_OPERATION_3_KEY, "false");
+        paramsMap.put(LdbcInteractiveWorkload.WRITE_OPERATION_4_KEY, "false");
+        paramsMap.put(LdbcInteractiveWorkload.WRITE_OPERATION_5_KEY, "false");
+        paramsMap.put(LdbcInteractiveWorkload.WRITE_OPERATION_6_KEY, "false");
+        paramsMap.put(LdbcInteractiveWorkload.WRITE_OPERATION_7_KEY, "false");
+        paramsMap.put(LdbcInteractiveWorkload.WRITE_OPERATION_8_KEY, "false");
+        paramsMap.put(LdbcInteractiveWorkload.PARAMETERS_FILENAME_KEY, "ldbc_driver/workloads/ldbc/socnet/interactive/parameters.json");
+        paramsMap.put(LdbcInteractiveWorkload.INTERLEAVE_DURATION_KEY, "1");
+        paramsMap.put(LdbcInteractiveWorkload.WRITE_STREAM_FILENAME_KEY, "ldbc_driver/workloads/ldbc/socnet/interactive/updates.csv");
+        paramsMap.put(LdbcInteractiveWorkload.WRITE_RATIO_KEY, "0");
+        paramsMap.put(LdbcInteractiveWorkload.READ_RATIO_KEY, "1");
+        // NothingDb-specific parameters
+        paramsMap.put(NothingDb.SLEEP_DURATION_MILLI, Long.toString(Duration.fromSeconds(40).asMilli()));
+        // Driver-specific parameters
+        String dbClassName = NothingDb.class.getName();
+        String workloadClassName = LdbcInteractiveWorkload.class.getName();
+        long operationCount = 5;
+        int threadCount = 2;
+        boolean showStatus = true;
+        TimeUnit timeUnit = TimeUnit.MILLISECONDS;
+        String resultFilePath = "test_write_to_csv_results.json";
+        FileUtils.deleteQuietly(new File(resultFilePath));
+        Double timeCompressionRatio = null;
+        Duration gctDeltaDuration = Duration.fromSeconds(10);
+        List<String> peerIds = Lists.newArrayList();
+        Duration toleratedExecutionDelay = Duration.fromMinutes(5);
+
+        assertThat(new File(resultFilePath).exists(), is(false));
+
+        ConsoleAndFileDriverConfiguration params = new ConsoleAndFileDriverConfiguration(paramsMap, dbClassName, workloadClassName, operationCount,
+                threadCount, showStatus, timeUnit, resultFilePath, timeCompressionRatio, gctDeltaDuration, peerIds, toleratedExecutionDelay);
+
+        // When
+        Client client = new Client(new LocalControlService(Time.now().plus(Duration.fromMilli(500)), params));
+        client.start();
+
+        // Then
+        assertThat(new File(resultFilePath).exists(), is(true));
+        FileUtils.deleteQuietly(new File(resultFilePath));
+        assertThat(new File(resultFilePath).exists(), is(false));
     }
 }

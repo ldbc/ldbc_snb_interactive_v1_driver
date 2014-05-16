@@ -125,7 +125,7 @@ public class WorkloadRunner {
 
         while (true) {
             if (errorReporter.errorEncountered())
-                break;
+                throw new WorkloadException(String.format("Error encountered while running workload\n%s", errorReporter.toString()));
             if (asyncHandlersFinished.get() && blockingHandlersFinished.get() && windowedHandlersFinished.get())
                 break;
         }

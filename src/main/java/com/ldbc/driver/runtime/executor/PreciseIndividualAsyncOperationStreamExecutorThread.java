@@ -85,8 +85,9 @@ class PreciseIndividualAsyncOperationStreamExecutorThread extends Thread {
     }
 
     private boolean allHandlersCompleted() {
-        for (Future<OperationResult> runningHandler : runningHandlers)
+        for (Future<OperationResult> runningHandler : runningHandlers){
             if (false == runningHandler.isDone()) return false;
+        }
         return true;
     }
 }
