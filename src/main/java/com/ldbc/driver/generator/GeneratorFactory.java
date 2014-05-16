@@ -52,6 +52,28 @@ public class GeneratorFactory {
      */
 
     /**
+     * Returned generator will loop over input iterator indefinitely
+     *
+     * @param generator
+     * @param <T>
+     * @return
+     */
+    public <T> Iterator<T> repeating(Iterator<T> generator) {
+        return new RepeatingGenerator<>(generator);
+    }
+
+    /**
+     * Returned generator will iterate over all of the things, once
+     *
+     * @param things
+     * @param <T>
+     * @return
+     */
+    public <T> Iterator<T> identity(T... things) {
+        return new IdentityGenerator<>(things);
+    }
+
+    /**
      * Interleave every element from base generator with specific amount of elements from interleave with generator.
      * Returned generator will run until either base generator or interleave generator are exhausted.
      *
