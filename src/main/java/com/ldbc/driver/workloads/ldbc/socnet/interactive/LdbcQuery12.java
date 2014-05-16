@@ -8,12 +8,12 @@ public class LdbcQuery12 extends Operation<List<LdbcQuery12Result>> {
     public static final int DEFAULT_LIMIT = 20;
 
     private final long personId;
-    private final String tagClass;
+    private final long tagClassId;
     private final int limit;
 
-    public LdbcQuery12(long personId, String tagClass, int limit) {
+    public LdbcQuery12(long personId, long tagClassId, int limit) {
         this.personId = personId;
-        this.tagClass = tagClass;
+        this.tagClassId = tagClassId;
         this.limit = limit;
     }
 
@@ -21,8 +21,8 @@ public class LdbcQuery12 extends Operation<List<LdbcQuery12Result>> {
         return personId;
     }
 
-    public String tagClass() {
-        return tagClass;
+    public long tagClassId() {
+        return tagClassId;
     }
 
     public int limit() {
@@ -38,7 +38,7 @@ public class LdbcQuery12 extends Operation<List<LdbcQuery12Result>> {
 
         if (limit != that.limit) return false;
         if (personId != that.personId) return false;
-        if (tagClass != null ? !tagClass.equals(that.tagClass) : that.tagClass != null) return false;
+        if (tagClassId != that.tagClassId) return false;
 
         return true;
     }
@@ -46,7 +46,7 @@ public class LdbcQuery12 extends Operation<List<LdbcQuery12Result>> {
     @Override
     public int hashCode() {
         int result = (int) (personId ^ (personId >>> 32));
-        result = 31 * result + (tagClass != null ? tagClass.hashCode() : 0);
+        result = 31 * result + (int) (tagClassId ^ (tagClassId >>> 32));
         result = 31 * result + limit;
         return result;
     }
@@ -55,7 +55,7 @@ public class LdbcQuery12 extends Operation<List<LdbcQuery12Result>> {
     public String toString() {
         return "LdbcQuery12{" +
                 "personId=" + personId +
-                ", tagClass='" + tagClass + '\'' +
+                ", tagClassId=" + tagClassId +
                 ", limit=" + limit +
                 '}';
     }

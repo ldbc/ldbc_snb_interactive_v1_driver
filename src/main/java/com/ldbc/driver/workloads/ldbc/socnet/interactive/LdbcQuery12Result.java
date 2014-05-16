@@ -1,17 +1,19 @@
 package com.ldbc.driver.workloads.ldbc.socnet.interactive;
 
+import java.util.Collection;
+
 public class LdbcQuery12Result {
     private final long personId;
     private final String personFirstName;
     private final String personLastName;
-    private final String tagName;
-    private final int replyCount;
+    private final Collection<String> tagNames;
+    private final long replyCount;
 
-    public LdbcQuery12Result(long personId, String personFirstName, String personLastName, String tagName, int replyCount) {
+    public LdbcQuery12Result(long personId, String personFirstName, String personLastName, Collection<String> tagNames, long replyCount) {
         this.personId = personId;
         this.personFirstName = personFirstName;
         this.personLastName = personLastName;
-        this.tagName = tagName;
+        this.tagNames = tagNames;
         this.replyCount = replyCount;
     }
 
@@ -27,11 +29,11 @@ public class LdbcQuery12Result {
         return personLastName;
     }
 
-    public String tagName() {
-        return tagName;
+    public Collection<String> tagNames() {
+        return tagNames;
     }
 
-    public int replyCount() {
+    public long replyCount() {
         return replyCount;
     }
 
@@ -48,7 +50,7 @@ public class LdbcQuery12Result {
             return false;
         if (personLastName != null ? !personLastName.equals(that.personLastName) : that.personLastName != null)
             return false;
-        if (tagName != null ? !tagName.equals(that.tagName) : that.tagName != null) return false;
+        if (tagNames != null ? !tagNames.equals(that.tagNames) : that.tagNames != null) return false;
 
         return true;
     }
@@ -58,8 +60,8 @@ public class LdbcQuery12Result {
         int result = (int) (personId ^ (personId >>> 32));
         result = 31 * result + (personFirstName != null ? personFirstName.hashCode() : 0);
         result = 31 * result + (personLastName != null ? personLastName.hashCode() : 0);
-        result = 31 * result + (tagName != null ? tagName.hashCode() : 0);
-        result = 31 * result + replyCount;
+        result = 31 * result + (tagNames != null ? tagNames.hashCode() : 0);
+        result = 31 * result + (int) (replyCount ^ (replyCount >>> 32));
         return result;
     }
 
@@ -69,7 +71,7 @@ public class LdbcQuery12Result {
                 "personId=" + personId +
                 ", personFirstName='" + personFirstName + '\'' +
                 ", personLastName='" + personLastName + '\'' +
-                ", tagName='" + tagName + '\'' +
+                ", tagNames=" + tagNames +
                 ", replyCount=" + replyCount +
                 '}';
     }

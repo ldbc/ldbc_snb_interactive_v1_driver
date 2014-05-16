@@ -1,112 +1,102 @@
 package com.ldbc.driver.workloads.ldbc.socnet.interactive;
 
+import com.ldbc.driver.Operation;
+
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
-import com.ldbc.driver.Operation;
-
-public class LdbcQuery3 extends Operation<List<LdbcQuery3Result>>
-{
+public class LdbcQuery3 extends Operation<List<LdbcQuery3Result>> {
+    public static int DEFAULT_LIMIT = 20;
     private final long personId;
     private final String countryX;
     private final String countryY;
     private final Date endDate;
     private final long durationMillis;
+    private final int limit;
 
-    public LdbcQuery3( long personId, String countryX, String countryY, Date endDate, long durationMillis )
-    {
+    public LdbcQuery3(long personId, String countryX, String countryY, Date endDate, long durationMillis, int limit) {
         super();
         this.personId = personId;
         this.countryX = countryX;
         this.countryY = countryY;
         this.endDate = endDate;
         this.durationMillis = durationMillis;
+        this.limit = limit;
     }
 
-    public long personId()
-    {
+    public long personId() {
         return personId;
     }
 
-    public String countryX()
-    {
+    public String countryX() {
         return countryX;
     }
 
-    public String countryY()
-    {
+    public String countryY() {
         return countryY;
     }
 
-    public Date endDate()
-    {
+    public Date endDate() {
         return endDate;
     }
 
-    public long durationMillis()
-    {
+    public long durationMillis() {
         return durationMillis;
     }
 
-    public long startDateAsMilli()
-    {
+    public long startDateAsMilli() {
         Calendar c = Calendar.getInstance();
         c.clear();
-        c.setTime( endDate );
+        c.setTime(endDate);
         return c.getTimeInMillis() - durationMillis;
     }
 
-    public long endDateAsMilli()
-    {
+    public long endDateAsMilli() {
         return endDate.getTime();
     }
 
-    @Override
-    public int hashCode()
-    {
-        final int prime = 31;
-        int result = 1;
-        result = prime * result + ( ( countryX == null ) ? 0 : countryX.hashCode() );
-        result = prime * result + ( ( countryY == null ) ? 0 : countryY.hashCode() );
-        result = prime * result + (int) ( durationMillis ^ ( durationMillis >>> 32 ) );
-        result = prime * result + ( ( endDate == null ) ? 0 : endDate.hashCode() );
-        result = prime * result + (int) ( personId ^ ( personId >>> 32 ) );
-        return result;
+    public int limit() {
+        return limit;
     }
 
     @Override
-    public boolean equals( Object obj )
-    {
-        if ( this == obj ) return true;
-        if ( obj == null ) return false;
-        if ( getClass() != obj.getClass() ) return false;
-        LdbcQuery3 other = (LdbcQuery3) obj;
-        if ( countryX == null )
-        {
-            if ( other.countryX != null ) return false;
-        }
-        else if ( !countryX.equals( other.countryX ) ) return false;
-        if ( countryY == null )
-        {
-            if ( other.countryY != null ) return false;
-        }
-        else if ( !countryY.equals( other.countryY ) ) return false;
-        if ( durationMillis != other.durationMillis ) return false;
-        if ( endDate == null )
-        {
-            if ( other.endDate != null ) return false;
-        }
-        else if ( !endDate.equals( other.endDate ) ) return false;
-        if ( personId != other.personId ) return false;
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        LdbcQuery3 that = (LdbcQuery3) o;
+
+        if (durationMillis != that.durationMillis) return false;
+        if (limit != that.limit) return false;
+        if (personId != that.personId) return false;
+        if (countryX != null ? !countryX.equals(that.countryX) : that.countryX != null) return false;
+        if (countryY != null ? !countryY.equals(that.countryY) : that.countryY != null) return false;
+        if (endDate != null ? !endDate.equals(that.endDate) : that.endDate != null) return false;
+
         return true;
     }
 
     @Override
-    public String toString()
-    {
-        return "LdbcQuery3 [personId=" + personId + ", countryX=" + countryX + ", countryY=" + countryY + ", endDate="
-               + endDate + ", durationMillis=" + durationMillis + "' startDateAsMilli=" + startDateAsMilli()
-               + ", endDateAsMilli=" + endDateAsMilli() + "]";
+    public int hashCode() {
+        int result = (int) (personId ^ (personId >>> 32));
+        result = 31 * result + (countryX != null ? countryX.hashCode() : 0);
+        result = 31 * result + (countryY != null ? countryY.hashCode() : 0);
+        result = 31 * result + (endDate != null ? endDate.hashCode() : 0);
+        result = 31 * result + (int) (durationMillis ^ (durationMillis >>> 32));
+        result = 31 * result + limit;
+        return result;
+    }
+
+    @Override
+    public String toString() {
+        return "LdbcQuery3{" +
+                "personId=" + personId +
+                ", countryX='" + countryX + '\'' +
+                ", countryY='" + countryY + '\'' +
+                ", endDate=" + endDate +
+                ", durationMillis=" + durationMillis +
+                ", limit=" + limit +
+                '}';
     }
 }

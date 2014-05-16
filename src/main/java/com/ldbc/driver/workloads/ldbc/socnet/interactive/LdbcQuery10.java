@@ -10,7 +10,6 @@ public class LdbcQuery10 extends Operation<List<LdbcQuery10Result>> {
     private final long personId;
     private final int horoscopeMonth1;
     private final int horoscopeMonth2;
-
     private final int limit;
 
     public LdbcQuery10(long personId, int horoscopeMonth1, int horoscopeMonth2, int limit) {

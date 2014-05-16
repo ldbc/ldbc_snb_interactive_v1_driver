@@ -7,6 +7,10 @@ public class LdbcQuery13Result {
         this.shortestPathLength = shortestPathLength;
     }
 
+    public int shortestPathLength() {
+        return shortestPathLength;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;

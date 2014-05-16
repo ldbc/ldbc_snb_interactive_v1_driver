@@ -137,6 +137,7 @@ public class WorkloadRunner {
             // all executors have completed by this stage, there's no reason why
             operationHandlerExecutor.shutdown(Duration.fromMilli(1));
         } catch (OperationHandlerExecutorException e) {
+            System.out.println(ConcurrentErrorReporter.stackTraceToString(e));
             throw new WorkloadException("Encountered error while shutting down operation handler executor", e);
         }
 

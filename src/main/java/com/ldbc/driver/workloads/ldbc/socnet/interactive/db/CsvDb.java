@@ -322,7 +322,7 @@ public class CsvDb extends Db {
                         Long.toString(Time.nowAsMilli() - operation.scheduledStartTime().asMilli()),
                         operation.type(),
                         Long.toString(operation.personId()),
-                        operation.tagClass()
+                        Long.toString(operation.tagClassId())
                 );
                 return operation.buildResult(0, RESULT);
             } catch (IOException e) {
