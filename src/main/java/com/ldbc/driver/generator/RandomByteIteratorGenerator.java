@@ -13,7 +13,7 @@ public class RandomByteIteratorGenerator extends Generator<ByteIterator>
     private final Iterator<Integer> lengthGenerator;
     private final RandomDataGenerator random;
 
-    protected RandomByteIteratorGenerator( RandomDataGenerator random, Iterator<Integer> lengthGenerator )
+    RandomByteIteratorGenerator( RandomDataGenerator random, Iterator<Integer> lengthGenerator )
     {
         this.random = random;
         this.lengthGenerator = lengthGenerator;

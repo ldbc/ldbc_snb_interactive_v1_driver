@@ -40,7 +40,7 @@ public class Client {
             String errMsg = String.format("Error parsing parameters: %s", e.getMessage());
             logger.error(errMsg);
         } catch (Exception e) {
-            logger.error("Client terminated unexpectedly", e);
+            logger.error("Client terminated unexpectedly\n" + ConcurrentErrorReporter.stackTraceToString(e));
         }
     }
 
@@ -67,8 +67,7 @@ public class Client {
             db = ClassLoaderHelper.loadDb(controlService.configuration().dbClassName());
             db.init(controlService.configuration().asMap());
         } catch (DbException e) {
-            throw new ClientException(
-                    String.format("Error loading DB class: %s", controlService.configuration().dbClassName()), e);
+            throw new ClientException(String.format("Error loading DB class: %s", controlService.configuration().dbClassName()), e);
         }
         logger.info(String.format("Loaded DB: %s", db.getClass().getName()));
 

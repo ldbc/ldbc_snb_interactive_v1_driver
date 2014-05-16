@@ -14,7 +14,7 @@ public class OperationStartTimeAdvancingGenerator extends Generator<Operation<?>
     private final Iterator<Operation<?>> operationGenerator;
     private Operation<?> firstOperation;
 
-    public OperationStartTimeAdvancingGenerator(Iterator<Operation<?>> operationGenerator, Time startTime) {
+    OperationStartTimeAdvancingGenerator(Iterator<Operation<?>> operationGenerator, Time startTime) {
         firstOperation = operationGenerator.next();
         Duration offsetDuration = startTime.greaterBy(firstOperation.scheduledStartTime());
         Function1<Operation<?>, Operation<?>> timeShiftFun = new TimeShiftFunction(offsetDuration);

@@ -9,7 +9,7 @@ public class MinMaxGenerator<GENERATE_TYPE extends Number> extends Generator<GEN
     private GENERATE_TYPE max = null;
     private final Iterator<GENERATE_TYPE> generator;
 
-    public MinMaxGenerator( Iterator<GENERATE_TYPE> generator, GENERATE_TYPE initialMin, GENERATE_TYPE initialMax )
+    MinMaxGenerator( Iterator<GENERATE_TYPE> generator, GENERATE_TYPE initialMin, GENERATE_TYPE initialMax )
     {
         this.min = initialMin;
         this.max = initialMax;

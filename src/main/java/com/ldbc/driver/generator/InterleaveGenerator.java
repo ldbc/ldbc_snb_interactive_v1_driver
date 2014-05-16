@@ -11,7 +11,7 @@ public class InterleaveGenerator<GENERATE_TYPE> extends Generator<GENERATE_TYPE>
 
     private int remainingToInterleave;
 
-    public InterleaveGenerator(Iterator<? extends GENERATE_TYPE> baseGenerator,
+    InterleaveGenerator(Iterator<? extends GENERATE_TYPE> baseGenerator,
                                Iterator<? extends GENERATE_TYPE> interleaveFromGenerator,
                                Function0<Integer> amountToInterleaveFun) {
         this.baseGenerator = baseGenerator;

@@ -29,6 +29,7 @@ public class WindowGenerator<WINDOW_INPUT_TYPE, WINDOW_TYPE extends Window<WINDO
 
     private WINDOW_INPUT_TYPE nextThing = null;
 
+    // TODO make package private
     public WindowGenerator(Iterator<WINDOW_INPUT_TYPE> things,
                            Iterator<WINDOW_TYPE> windows,
                            PartialWindowStrategy partialWindowStrategy) {

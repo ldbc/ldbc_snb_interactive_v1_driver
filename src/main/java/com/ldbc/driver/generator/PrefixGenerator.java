@@ -8,7 +8,7 @@ public class PrefixGenerator extends Generator<String>
     private final Iterator<?> generator;
     private final String prefix;
 
-    public PrefixGenerator( Iterator<?> generator, String prefix )
+    PrefixGenerator( Iterator<?> generator, String prefix )
     {
         this.generator = generator;
         this.prefix = prefix;

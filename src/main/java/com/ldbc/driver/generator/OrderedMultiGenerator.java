@@ -6,69 +6,54 @@ import java.util.Iterator;
 import java.util.List;
 
 
-public class OrderedMultiGenerator<GENERATE_TYPE> extends Generator<GENERATE_TYPE>
-{
+public class OrderedMultiGenerator<GENERATE_TYPE> extends Generator<GENERATE_TYPE> {
     private static final int DEFAULT_LOOK_AHEAD_DISTANCE = 1;
     private final List<GeneratorHead<GENERATE_TYPE>> generatorHeads;
     private final Comparator<GENERATE_TYPE> comparator;
 
-    public OrderedMultiGenerator( Comparator<GENERATE_TYPE> comparator, Iterator<GENERATE_TYPE>... generators )
-    {
-        this( comparator, DEFAULT_LOOK_AHEAD_DISTANCE, generators );
+    OrderedMultiGenerator(Comparator<GENERATE_TYPE> comparator, Iterator<GENERATE_TYPE>... generators) {
+        this(comparator, DEFAULT_LOOK_AHEAD_DISTANCE, generators);
     }
 
-    public OrderedMultiGenerator( Comparator<GENERATE_TYPE> comparator, int lookaheadDistance,
-            Iterator<GENERATE_TYPE>... generators )
-    {
+    public OrderedMultiGenerator(Comparator<GENERATE_TYPE> comparator, int lookaheadDistance, Iterator<GENERATE_TYPE>... generators) {
         this.comparator = comparator;
-        if ( DEFAULT_LOOK_AHEAD_DISTANCE == lookaheadDistance )
-        {
-            this.generatorHeads = buildSimpleGeneratorHeads( generators );
-        }
-        else
-        {
-            this.generatorHeads = buildLookaheadGeneratorHeads( comparator, lookaheadDistance, generators );
+        if (DEFAULT_LOOK_AHEAD_DISTANCE == lookaheadDistance) {
+            this.generatorHeads = buildSimpleGeneratorHeads(generators);
+        } else {
+            this.generatorHeads = buildLookaheadGeneratorHeads(comparator, lookaheadDistance, generators);
         }
     }
 
-    private static <T1> List<GeneratorHead<T1>> buildSimpleGeneratorHeads( Iterator<T1>... generators )
-    {
+    private static <T1> List<GeneratorHead<T1>> buildSimpleGeneratorHeads(Iterator<T1>... generators) {
         List<GeneratorHead<T1>> heads = new ArrayList<GeneratorHead<T1>>();
-        for ( Iterator<T1> generator : generators )
-        {
-            heads.add( new SimpleGeneratorHead<T1>( generator ) );
+        for (Iterator<T1> generator : generators) {
+            heads.add(new SimpleGeneratorHead<T1>(generator));
         }
         return heads;
     }
 
-    private static <T1> List<GeneratorHead<T1>> buildLookaheadGeneratorHeads( Comparator<T1> c, int distance,
-            Iterator<T1>... generators )
-    {
+    private static <T1> List<GeneratorHead<T1>> buildLookaheadGeneratorHeads(Comparator<T1> c, int distance,
+                                                                             Iterator<T1>... generators) {
         List<GeneratorHead<T1>> heads = new ArrayList<GeneratorHead<T1>>();
-        for ( Iterator<T1> generator : generators )
-        {
-            heads.add( new LookaheadGeneratorHead<T1>( generator, c, distance ) );
+        for (Iterator<T1> generator : generators) {
+            heads.add(new LookaheadGeneratorHead<T1>(generator, c, distance));
         }
         return heads;
     }
 
     @Override
-    protected GENERATE_TYPE doNext() throws GeneratorException
-    {
+    protected GENERATE_TYPE doNext() throws GeneratorException {
         GeneratorHead<GENERATE_TYPE> minGeneratorHead = getMinGeneratorHead();
-        return ( null == minGeneratorHead ) ? null : minGeneratorHead.removeHead();
+        return (null == minGeneratorHead) ? null : minGeneratorHead.removeHead();
     }
 
-    private GeneratorHead<GENERATE_TYPE> getMinGeneratorHead()
-    {
+    private GeneratorHead<GENERATE_TYPE> getMinGeneratorHead() {
         GeneratorHead<GENERATE_TYPE> minGeneratorHead = null;
         Iterator<GeneratorHead<GENERATE_TYPE>> generatorHeadsIterator = generatorHeads.iterator();
 
-        while ( generatorHeadsIterator.hasNext() )
-        {
+        while (generatorHeadsIterator.hasNext()) {
             GeneratorHead<GENERATE_TYPE> generatorHead = generatorHeadsIterator.next();
-            if ( null == generatorHead.inspectHead() )
-            {
+            if (null == generatorHead.inspectHead()) {
                 generatorHeadsIterator.remove();
                 continue;
             }
@@ -76,66 +61,56 @@ public class OrderedMultiGenerator<GENERATE_TYPE> extends Generator<GENERATE_TYP
             break;
         }
 
-        while ( generatorHeadsIterator.hasNext() )
-        {
+        while (generatorHeadsIterator.hasNext()) {
             GeneratorHead<GENERATE_TYPE> generatorHead = generatorHeadsIterator.next();
-            if ( null == generatorHead.inspectHead() )
-            {
+            if (null == generatorHead.inspectHead()) {
                 generatorHeadsIterator.remove();
                 continue;
             }
-            if ( comparator.compare( generatorHead.inspectHead(), minGeneratorHead.inspectHead() ) < 0 )
-            {
+            if (comparator.compare(generatorHead.inspectHead(), minGeneratorHead.inspectHead()) < 0) {
                 minGeneratorHead = generatorHead;
             }
         }
         return minGeneratorHead;
     }
 
-    private static interface GeneratorHead<T1>
-    {
+    private static interface GeneratorHead<T1> {
         public T1 removeHead();
 
         public T1 inspectHead();
     }
 
-    private static class SimpleGeneratorHead<T1> implements GeneratorHead<T1>
-    {
+    private static class SimpleGeneratorHead<T1> implements GeneratorHead<T1> {
         private final Iterator<T1> generator;
         private T1 head;
 
-        public SimpleGeneratorHead( Iterator<T1> generator )
-        {
+        public SimpleGeneratorHead(Iterator<T1> generator) {
             this.generator = generator;
-            this.head = ( this.generator.hasNext() ) ? this.generator.next() : null;
+            this.head = (this.generator.hasNext()) ? this.generator.next() : null;
         }
 
         @Override
-        public T1 removeHead()
-        {
+        public T1 removeHead() {
             T1 oldHead = head;
-            head = ( generator.hasNext() ) ? generator.next() : null;
+            head = (generator.hasNext()) ? generator.next() : null;
             return oldHead;
 
         }
 
         @Override
-        public T1 inspectHead()
-        {
+        public T1 inspectHead() {
             return head;
         }
     }
 
-    private static class LookaheadGeneratorHead<T1> implements GeneratorHead<T1>
-    {
+    private static class LookaheadGeneratorHead<T1> implements GeneratorHead<T1> {
         private final Iterator<T1> generator;
         private final Comparator<T1> comparator;
         private final int lookaheadDistance;
         private List<T1> lookaheadBuffer;
         private T1 head;
 
-        public LookaheadGeneratorHead( Iterator<T1> generator, Comparator<T1> comparator, int lookaheadDistance )
-        {
+        public LookaheadGeneratorHead(Iterator<T1> generator, Comparator<T1> comparator, int lookaheadDistance) {
             this.generator = generator;
             this.comparator = comparator;
             this.lookaheadDistance = lookaheadDistance;
@@ -145,8 +120,7 @@ public class OrderedMultiGenerator<GENERATE_TYPE> extends Generator<GENERATE_TYP
         }
 
         @Override
-        public T1 removeHead()
-        {
+        public T1 removeHead() {
             T1 oldHead = head;
             fillLookaheadBuffer();
             head = getMinFromLookaheadBuffer();
@@ -155,41 +129,34 @@ public class OrderedMultiGenerator<GENERATE_TYPE> extends Generator<GENERATE_TYP
         }
 
         @Override
-        public T1 inspectHead()
-        {
+        public T1 inspectHead() {
             return head;
         }
 
-        private T1 getMinFromLookaheadBuffer()
-        {
+        private T1 getMinFromLookaheadBuffer() {
             Iterator<T1> lookaheadBufferIterator = lookaheadBuffer.iterator();
-            if ( false == lookaheadBufferIterator.hasNext() )
-            {
+            if (false == lookaheadBufferIterator.hasNext()) {
                 return null;
             }
             int index = 0;
             int minIndex = index;
             T1 min = lookaheadBufferIterator.next();
-            while ( lookaheadBufferIterator.hasNext() )
-            {
+            while (lookaheadBufferIterator.hasNext()) {
                 index++;
                 T1 next = lookaheadBufferIterator.next();
-                if ( comparator.compare( next, min ) < 0 )
-                {
+                if (comparator.compare(next, min) < 0) {
                     minIndex = index;
                     min = next;
                 }
             }
-            lookaheadBuffer.remove( minIndex );
+            lookaheadBuffer.remove(minIndex);
             return min;
         }
 
-        private void fillLookaheadBuffer()
-        {
-            while ( generator.hasNext() )
-            {
-                if ( lookaheadBuffer.size() >= lookaheadDistance ) break;
-                lookaheadBuffer.add( generator.next() );
+        private void fillLookaheadBuffer() {
+            while (generator.hasNext()) {
+                if (lookaheadBuffer.size() >= lookaheadDistance) break;
+                lookaheadBuffer.add(generator.next());
             }
         }
     }

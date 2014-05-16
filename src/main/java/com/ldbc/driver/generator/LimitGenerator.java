@@ -9,7 +9,7 @@ public class LimitGenerator<GENERATE_TYPE> extends Generator<GENERATE_TYPE>
     private final long limit;
     private long count = 0;
 
-    public LimitGenerator( Iterator<GENERATE_TYPE> generator, long limit )
+    LimitGenerator( Iterator<GENERATE_TYPE> generator, long limit )
     {
         this.generator = generator;
         this.limit = limit;
