@@ -5,6 +5,7 @@ import com.ldbc.driver.temporal.Duration;
 import com.ldbc.driver.util.TestUtils;
 import org.junit.Test;
 
+import java.io.File;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -87,9 +88,15 @@ public class ConsoleAndFileDriverConfigurationTests {
         TimeUnit timeUnit = TimeUnit.MINUTES;
         String resultFilePath = "somePath";
 
-        String[] args = {"-db", dbClassName, "-w", workloadClassName, "-oc", Long.toString(operationCount),
-                "-tc", Integer.toString(threadCount), "-rf", resultFilePath,
-                (showStatus) ? "-s" : "", "-p", userKey, userVal, "-tu", timeUnit.toString()};
+        String[] args = {
+                "-db", dbClassName,
+                "-w", workloadClassName,
+                "-oc", Long.toString(operationCount),
+                "-tc", Integer.toString(threadCount),
+                "-rf", resultFilePath,
+                (showStatus) ? "-s" : "",
+                "-p", userKey, userVal,
+                "-tu", timeUnit.toString()};
 
         ConsoleAndFileDriverConfiguration params = ConsoleAndFileDriverConfiguration.fromArgs(args);
 
@@ -99,7 +106,7 @@ public class ConsoleAndFileDriverConfigurationTests {
         assertThat(params.threadCount(), is(threadCount));
         assertThat(params.showStatus(), is(showStatus));
         assertThat(params.timeUnit(), is(timeUnit));
-        assertThat(params.resultFilePath(), is(resultFilePath));
+        assertThat(params.resultFilePath(), is(new File(resultFilePath).getAbsolutePath()));
         assertThat(params.asMap().get(userKey), is(userVal));
     }
 
@@ -120,7 +127,7 @@ public class ConsoleAndFileDriverConfigurationTests {
         assertThat(params.threadCount(), is(1));
         assertThat(params.showStatus(), is(true));
         assertThat(params.timeUnit(), is(TimeUnit.MILLISECONDS));
-        assertThat(params.resultFilePath(), is("test_ldbc_socnet_interactive_results.json"));
+        assertThat(params.resultFilePath(), is(new File("test_ldbc_socnet_interactive_results.json").getAbsolutePath()));
         assertThat(params.asMap().get("parameters"), is("ldbc_driver/workloads/ldbc/socnet/interactive/parameters.json"));
     }
 

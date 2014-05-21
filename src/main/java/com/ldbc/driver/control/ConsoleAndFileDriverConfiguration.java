@@ -7,10 +7,7 @@ import org.apache.commons.cli.*;
 import org.codehaus.jackson.JsonNode;
 import org.codehaus.jackson.map.ObjectMapper;
 
-import java.io.ByteArrayOutputStream;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.PrintWriter;
+import java.io.*;
 import java.util.*;
 import java.util.Map.Entry;
 import java.util.concurrent.TimeUnit;
@@ -117,9 +114,9 @@ public class ConsoleAndFileDriverConfiguration implements DriverConfiguration {
             assertValidTimeUnit(paramsMap.get(TIME_UNIT_ARG));
             paramsMap = MapUtils.mergeMaps(paramsMap, defaultParamValues(), false);
         } catch (ParseException e) {
-            throw new DriverConfigurationException(String.format("%s\n%s", e.getMessage(), helpString()));
+            throw new DriverConfigurationException(String.format("%s\n%s", e.getMessage(), helpString()), e);
         } catch (DriverConfigurationException e) {
-            throw new DriverConfigurationException(String.format("%s\n%s", e.getMessage(), helpString()));
+            throw new DriverConfigurationException(String.format("%s\n%s", e.getMessage(), helpString()), e);
         }
 
         String dbClassName = paramsMap.get(DB_ARG);
@@ -413,7 +410,7 @@ public class ConsoleAndFileDriverConfiguration implements DriverConfiguration {
         this.threadCount = threadCount;
         this.showStatus = showStatus;
         this.timeUnit = timeUnit;
-        this.resultFilePath = resultFilePath;
+        this.resultFilePath = (null == resultFilePath) ? null : new File(resultFilePath).getAbsolutePath();
         this.timeCompressionRatio = timeCompressionRatio;
         this.gctDeltaDuration = gctDeltaDuration;
         this.peerIds = peerIds;

@@ -7,14 +7,19 @@ import com.google.common.collect.Lists;
 import com.ldbc.driver.Operation;
 import com.ldbc.driver.generator.GeneratorException;
 import com.ldbc.driver.temporal.Time;
+import com.ldbc.driver.util.CsvFileReader;
 import org.codehaus.jackson.JsonNode;
 import org.codehaus.jackson.map.ObjectMapper;
 
-import java.io.*;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.*;
-import java.util.regex.Pattern;
+import java.util.Arrays;
+import java.util.Date;
+import java.util.Iterator;
+import java.util.List;
 
 public class WriteEventStreamReader implements Iterator<Operation<?>> {
     private final static String DATE_FORMAT_STRING = "yyyy-MM-dd";
@@ -287,70 +292,5 @@ public class WriteEventStreamReader implements Iterator<Operation<?>> {
         for (int i = 0; i < longList.size(); i++)
             longArray[i] = longList.get(i);
         return longArray;
-    }
-
-    public class CsvFileReader implements Iterator<String[]> {
-        private final Pattern columnSeparatorPattern;
-        private final BufferedReader csvReader;
-
-        private String[] next = null;
-        private boolean closed = false;
-
-        public CsvFileReader(File csvFile, String regexSeparator) throws FileNotFoundException {
-            this.csvReader = new BufferedReader(new FileReader(csvFile));
-            this.columnSeparatorPattern = Pattern.compile(regexSeparator);
-        }
-
-        @Override
-        public boolean hasNext() {
-            if (closed) return false;
-            next = (next == null) ? nextLine() : next;
-            if (null == next) closed = closeReader();
-            return (null != next);
-        }
-
-        @Override
-        public String[] next() {
-            next = (null == next) ? nextLine() : next;
-            if (null == next) throw new NoSuchElementException("No more lines to read");
-            String[] tempNext = next;
-            next = null;
-            return tempNext;
-        }
-
-        @Override
-        public void remove() {
-            throw new UnsupportedOperationException();
-        }
-
-        private String[] nextLine() {
-            String csvLine;
-            try {
-                csvLine = csvReader.readLine();
-                if (null == csvLine) return null;
-                return parseLine(csvLine);
-            } catch (IOException e) {
-                throw new RuntimeException(String.format("Error retrieving next csv entry from file [%s]", csvReader), e);
-            }
-        }
-
-        private String[] parseLine(String csvLine) {
-            return columnSeparatorPattern.split(csvLine, -1);
-        }
-
-        private boolean closeReader() {
-            if (closed) {
-                throw new RuntimeException("Can not close file multiple times");
-            }
-            if (null == csvReader) {
-                throw new RuntimeException("Can not close file - reader is null");
-            }
-            try {
-                csvReader.close();
-            } catch (IOException e) {
-                throw new RuntimeException(String.format("Error closing file [%s]", csvReader), e);
-            }
-            return true;
-        }
     }
 }

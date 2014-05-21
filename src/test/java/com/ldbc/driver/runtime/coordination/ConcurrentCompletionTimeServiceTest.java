@@ -199,7 +199,7 @@ public class ConcurrentCompletionTimeServiceTest {
         String workloadName = null;
         boolean showStatus = false;
         TimeUnit timeUnit = null;
-        String resultFilePath = null;
+        String resultFilePath = "nothingPath";
         Double timeCompressionRatio = null;
         Duration gctDeltaDuration = null;
         List<String> peerIds = null;
