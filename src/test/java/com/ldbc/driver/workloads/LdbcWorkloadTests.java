@@ -25,6 +25,7 @@ import com.ldbc.driver.workloads.ldbc.socnet.interactive.*;
 import com.ldbc.driver.workloads.ldbc.socnet.interactive.db.CsvDb;
 import com.ldbc.driver.workloads.ldbc.socnet.interactive.db.NothingDb;
 import org.apache.commons.io.FileUtils;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import java.io.File;
@@ -269,7 +270,7 @@ public class LdbcWorkloadTests {
         // Driver-specific parameters
         String dbClassName = CsvDb.class.getName();
         String workloadClassName = LdbcInteractiveWorkload.class.getName();
-        long operationCount = 10000;
+        long operationCount = 1000;
         int threadCount = 1;
         boolean showStatus = true;
         TimeUnit timeUnit = TimeUnit.MILLISECONDS;
@@ -512,6 +513,7 @@ public class LdbcWorkloadTests {
         }
     }
 
+    @Ignore
     @Test
     public void shouldNotFailUnexpectedlyWhenQueriesAreLongRunning() throws ClientException, DriverConfigurationException, WorkloadException, IOException {
         // Given
