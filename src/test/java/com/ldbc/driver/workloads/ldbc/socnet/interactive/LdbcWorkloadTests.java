@@ -1,4 +1,4 @@
-package com.ldbc.driver.workloads;
+package com.ldbc.driver.workloads.ldbc.socnet.interactive;
 
 import com.google.common.base.Function;
 import com.google.common.collect.ImmutableList;

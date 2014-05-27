@@ -7,10 +7,7 @@ import com.ldbc.driver.Operation;
 import com.ldbc.driver.OperationClassification;
 import com.ldbc.driver.Workload;
 import com.ldbc.driver.WorkloadException;
-import com.ldbc.driver.generator.Generator;
-import com.ldbc.driver.generator.GeneratorException;
-import com.ldbc.driver.generator.GeneratorFactory;
-import com.ldbc.driver.generator.StartTimeAssigningOperationGenerator;
+import com.ldbc.driver.generator.*;
 import com.ldbc.driver.temporal.Duration;
 import com.ldbc.driver.temporal.Time;
 import com.ldbc.driver.util.ClassLoaderHelper;
@@ -92,7 +89,19 @@ public class LdbcInteractiveWorkload extends Workload {
     @Override
     public Map<Class<? extends Operation<?>>, OperationClassification> operationClassifications() {
         Map<Class<? extends Operation<?>>, OperationClassification> operationClassifications = new HashMap<Class<? extends Operation<?>>, OperationClassification>();
-        // TODO use correct operation classifications
+        /*
+         * TODO assign correct Modes
+         * Modes (with examples from LDBC Interactive SNB Workload):
+         * - WINDOWED & NONE -------------------> n/a
+         * - WINDOWED & READ -------------------> Create Friendship
+         * - WINDOWED & READ WRITE -------------> Create User
+         * - INDIVIDUAL_BLOCKING & NONE --------> n/a
+         * - INDIVIDUAL_BLOCKING & READ --------> Create Post
+         * - INDIVIDUAL_BLOCKING & READ WRITE --> n/a
+         * - INDIVIDUAL_ASYNC & NONE -----------> Entire Read Workload
+         * - INDIVIDUAL_ASYNC & READ -----------> n/a
+         * - INDIVIDUAL_ASYNC & READ WRITE -----> n/a
+        */
         operationClassifications.put(LdbcQuery1.class, new OperationClassification(SchedulingMode.INDIVIDUAL_ASYNC, GctMode.NONE));
         operationClassifications.put(LdbcQuery2.class, new OperationClassification(SchedulingMode.INDIVIDUAL_ASYNC, GctMode.NONE));
         operationClassifications.put(LdbcQuery3.class, new OperationClassification(SchedulingMode.INDIVIDUAL_ASYNC, GctMode.NONE));

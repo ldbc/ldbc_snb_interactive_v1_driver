@@ -3,13 +3,13 @@ package com.ldbc.driver.workloads.ldbc.socnet.interactive;
 import com.google.common.base.Function;
 import com.google.common.collect.Iterators;
 import com.ldbc.driver.Operation;
+import com.ldbc.driver.generator.CsvEventStreamReader;
 import com.ldbc.driver.temporal.Duration;
 import com.ldbc.driver.temporal.Time;
 import com.ldbc.driver.util.Histogram;
 import org.apache.commons.io.FileUtils;
 import org.junit.After;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 
 import java.io.File;
@@ -61,7 +61,8 @@ public class UpdateEventStreamReaderTests {
                 "]";
 
         // When
-        LdbcUpdate1AddPerson addPerson = writeEventStreamReader.parseAddPerson(jsonString);
+        CsvEventStreamReader.EventDecoder<Operation<?>> decoder = WriteEventStreamReader.EVENT_DECODER_ADD_PERSON;
+        LdbcUpdate1AddPerson addPerson = (LdbcUpdate1AddPerson) decoder.decodeEvent(new String[]{"42", null, jsonString});
 
         // Then
         Calendar c = Calendar.getInstance();
@@ -72,6 +73,7 @@ public class UpdateEventStreamReaderTests {
         c.set(2011, Calendar.JANUARY, 18, 8, 36, 4);
         Date creationDate = c.getTime();
 
+        assertThat(addPerson.scheduledStartTime(), is(Time.fromMilli(42)));
         assertThat(addPerson.personId(), is(409L));
         assertThat(addPerson.personFirstName(), equalTo("Lei"));
         assertThat(addPerson.personLastName(), equalTo("Zhao"));
@@ -100,7 +102,8 @@ public class UpdateEventStreamReaderTests {
         String jsonString = "[1582,120207,\"2011-02-01T08:36:04Z\"]";
 
         // When
-        LdbcUpdate2AddPostLike addPostLike = writeEventStreamReader.parseAddPostLike(jsonString);
+        CsvEventStreamReader.EventDecoder<Operation<?>> decoder = WriteEventStreamReader.EVENT_DECODER_ADD_LIKE_POST;
+        LdbcUpdate2AddPostLike addPostLike = (LdbcUpdate2AddPostLike) decoder.decodeEvent(new String[]{"42", null, jsonString});
 
         // Then
         Calendar c = Calendar.getInstance();
@@ -108,6 +111,7 @@ public class UpdateEventStreamReaderTests {
         c.set(2011, Calendar.FEBRUARY, 01, 8, 36, 04);
         Date creationDate = c.getTime();
 
+        assertThat(addPostLike.scheduledStartTime(), is(Time.fromMilli(42)));
         assertThat(addPostLike.personId(), is(1582L));
         assertThat(addPostLike.postId(), is(120207L));
         assertThat(addPostLike.creationDate(), equalTo(creationDate));
@@ -120,7 +124,8 @@ public class UpdateEventStreamReaderTests {
         String jsonString = "[1095,120426,\"2011-01-24T05:44:13Z\"]";
 
         // When
-        LdbcUpdate3AddCommentLike addCommentLike = writeEventStreamReader.parseAddCommentLike(jsonString);
+        CsvEventStreamReader.EventDecoder<Operation<?>> decoder = WriteEventStreamReader.EVENT_DECODER_ADD_LIKE_COMMENT;
+        LdbcUpdate3AddCommentLike addCommentLike = (LdbcUpdate3AddCommentLike) decoder.decodeEvent(new String[]{"42", null, jsonString});
 
         // Then
         Calendar c = Calendar.getInstance();
@@ -128,6 +133,7 @@ public class UpdateEventStreamReaderTests {
         c.set(2011, Calendar.JANUARY, 24, 5, 44, 13);
         Date creationDate = c.getTime();
 
+        assertThat(addCommentLike.scheduledStartTime(), is(Time.fromMilli(42)));
         assertThat(addCommentLike.personId(), is(1095L));
         assertThat(addCommentLike.commentId(), is(120426L));
         assertThat(addCommentLike.creationDate(), equalTo(creationDate));
@@ -140,7 +146,8 @@ public class UpdateEventStreamReaderTests {
         String jsonString = "[2118,\"Group for The_Beekeeper in Pakistan\",\"2011-01-03T06:04:47Z\",989,[10716]]";
 
         // When
-        LdbcUpdate4AddForum addForum = writeEventStreamReader.parseAddForum(jsonString);
+        CsvEventStreamReader.EventDecoder<Operation<?>> decoder = WriteEventStreamReader.EVENT_DECODER_ADD_FORUM;
+        LdbcUpdate4AddForum addForum = (LdbcUpdate4AddForum) decoder.decodeEvent(new String[]{"42", null, jsonString});
 
         // Then
         Calendar c = Calendar.getInstance();
@@ -148,6 +155,7 @@ public class UpdateEventStreamReaderTests {
         c.set(2011, Calendar.JANUARY, 3, 6, 4, 47);
         Date creationDate = c.getTime();
 
+        assertThat(addForum.scheduledStartTime(), is(Time.fromMilli(42)));
         assertThat(addForum.forumId(), is(2118L));
         assertThat(addForum.forumTitle(), equalTo("Group for The_Beekeeper in Pakistan"));
         assertThat(addForum.creationDate(), equalTo(creationDate));
@@ -162,7 +170,8 @@ public class UpdateEventStreamReaderTests {
         String jsonString = "[2153,372,\"2011-01-04T18:42:51Z\"]";
 
         // When
-        LdbcUpdate5AddForumMembership addForumMembership = writeEventStreamReader.parseAddForumMembership(jsonString);
+        CsvEventStreamReader.EventDecoder<Operation<?>> decoder = WriteEventStreamReader.EVENT_DECODER_ADD_FORUM_MEMBERSHIP;
+        LdbcUpdate5AddForumMembership addForumMembership = (LdbcUpdate5AddForumMembership) decoder.decodeEvent(new String[]{"42", null, jsonString});
 
         // Then
         Calendar c = Calendar.getInstance();
@@ -170,6 +179,7 @@ public class UpdateEventStreamReaderTests {
         c.set(2011, Calendar.JANUARY, 4, 18, 42, 51);
         Date creationDate = c.getTime();
 
+        assertThat(addForumMembership.scheduledStartTime(), is(Time.fromMilli(42)));
         assertThat(addForumMembership.forumId(), is(2153L));
         assertThat(addForumMembership.personId(), is(372L));
         assertThat(addForumMembership.creationDate(), equalTo(creationDate));
@@ -194,7 +204,8 @@ public class UpdateEventStreamReaderTests {
                 "[1437]]";
 
         // When
-        LdbcUpdate6AddPost addPost = writeEventStreamReader.parseAddPost(jsonString);
+        CsvEventStreamReader.EventDecoder<Operation<?>> decoder = WriteEventStreamReader.EVENT_DECODER_ADD_POST;
+        LdbcUpdate6AddPost addPost = (LdbcUpdate6AddPost) decoder.decodeEvent(new String[]{"42", null, jsonString});
 
         // Then
         Calendar c = Calendar.getInstance();
@@ -202,6 +213,7 @@ public class UpdateEventStreamReaderTests {
         c.set(2011, Calendar.JANUARY, 30, 7, 59, 58);
         Date creationDate = c.getTime();
 
+        assertThat(addPost.scheduledStartTime(), is(Time.fromMilli(42)));
         assertThat(addPost.postId(), is(120343L));
         assertThat(addPost.imageFile(), equalTo(""));
         assertThat(addPost.creationDate(), equalTo(creationDate));
@@ -234,7 +246,8 @@ public class UpdateEventStreamReaderTests {
                 "[1403,1990,2009,2081,2817,2855,2987,6316,7425,8224,8466]]";
 
         // When
-        LdbcUpdate7AddComment addComment = writeEventStreamReader.parseAddComment(jsonString);
+        CsvEventStreamReader.EventDecoder<Operation<?>> decoder = WriteEventStreamReader.EVENT_DECODER_ADD_COMMENT;
+        LdbcUpdate7AddComment addComment = (LdbcUpdate7AddComment) decoder.decodeEvent(new String[]{"42", null, jsonString});
 
         // Then
         Calendar c = Calendar.getInstance();
@@ -242,6 +255,7 @@ public class UpdateEventStreamReaderTests {
         c.set(2013, Calendar.JANUARY, 31, 23, 58, 49);
         Date creationDate = c.getTime();
 
+        assertThat(addComment.scheduledStartTime(), is(Time.fromMilli(42)));
         assertThat(addComment.commentId(), is(4034293L));
         assertThat(addComment.creationDate(), equalTo(creationDate));
         assertThat(addComment.locationIp(), equalTo("200.11.32.131"));
@@ -262,7 +276,8 @@ public class UpdateEventStreamReaderTests {
         String jsonString = "[1920,655,\"2011-01-10T15:58:45Z\"]";
 
         // When
-        LdbcUpdate8AddFriendship addFriendship = writeEventStreamReader.parseAddFriendship(jsonString);
+        CsvEventStreamReader.EventDecoder<Operation<?>> decoder = WriteEventStreamReader.EVENT_DECODER_ADD_FRIENDSHIP;
+        LdbcUpdate8AddFriendship addFriendship = (LdbcUpdate8AddFriendship) decoder.decodeEvent(new String[]{"42", null, jsonString});
 
         // Then
         Calendar c = Calendar.getInstance();
@@ -270,17 +285,50 @@ public class UpdateEventStreamReaderTests {
         c.set(2011, Calendar.JANUARY, 10, 15, 58, 45);
         Date creationDate = c.getTime();
 
+        assertThat(addFriendship.scheduledStartTime(), is(Time.fromMilli(42)));
         assertThat(addFriendship.person1Id(), is(1920L));
         assertThat(addFriendship.person2Id(), is(655L));
         assertThat(addFriendship.creationDate(), equalTo(creationDate));
     }
 
-    @Ignore
     @Test
-    public void shouldParseUpdateEventFile() throws FileNotFoundException {
-        String csvFilePath = "/Users/alexaverbuch/IdeaProjects/ldbc_socialnet_bm/ldbc_socialnet_dbgen/outputDir/updateStream_0.csv";
+    public void shouldParseUpdateEventFileWithExactlyOneMatch() throws FileNotFoundException {
+        String csvFilePath = "ldbc_driver/workloads/ldbc/socnet/interactive/updates.csv";
         File csvFile = new File(csvFilePath);
-        WriteEventStreamReader writeEventStreamReader = new WriteEventStreamReader(csvFile);
+        WriteEventStreamReader writeEventStreamReader = new WriteEventStreamReader(csvFile, CsvEventStreamReader.EventReturnPolicy.EXACTLY_ONE_MATCH);
+        Iterator<Class<?>> updateEventTypes = Iterators.transform(writeEventStreamReader, new Function<Operation<?>, Class<?>>() {
+            @Override
+            public Class<?> apply(Operation<?> input) {
+                return input.getClass();
+            }
+        });
+        Histogram<Class<?>, Long> histogram = new Histogram<>(0L);
+        histogram.addBucket(DiscreteBucket.<Class<?>>create(LdbcUpdate1AddPerson.class));
+        histogram.addBucket(DiscreteBucket.<Class<?>>create(LdbcUpdate2AddPostLike.class));
+        histogram.addBucket(DiscreteBucket.<Class<?>>create(LdbcUpdate3AddCommentLike.class));
+        histogram.addBucket(DiscreteBucket.<Class<?>>create(LdbcUpdate4AddForum.class));
+        histogram.addBucket(DiscreteBucket.<Class<?>>create(LdbcUpdate5AddForumMembership.class));
+        histogram.addBucket(DiscreteBucket.<Class<?>>create(LdbcUpdate6AddPost.class));
+        histogram.addBucket(DiscreteBucket.<Class<?>>create(LdbcUpdate7AddComment.class));
+        histogram.addBucket(DiscreteBucket.<Class<?>>create(LdbcUpdate8AddFriendship.class));
+
+        Time startTime = Time.now();
+
+        histogram.importValueSequence(updateEventTypes);
+
+        Duration runtime = Time.now().greaterBy(startTime);
+
+        System.out.println(String.format("Runtime:\t\t%s", runtime));
+        System.out.println(String.format("Operation count:\t%s", histogram.sumOfAllBucketValues()));
+        System.out.println(String.format("Throughput (op/ms):\t%s", histogram.sumOfAllBucketValues() / runtime.asMilli()));
+        System.out.println(histogram.toPercentageValues().toPrettyString());
+    }
+
+    @Test
+    public void shouldParseUpdateEventFileWithAtLeastOneMatch() throws FileNotFoundException {
+        String csvFilePath = "ldbc_driver/workloads/ldbc/socnet/interactive/updates.csv";
+        File csvFile = new File(csvFilePath);
+        WriteEventStreamReader writeEventStreamReader = new WriteEventStreamReader(csvFile, CsvEventStreamReader.EventReturnPolicy.AT_LEAST_ONE_MATCH);
         Iterator<Class<?>> updateEventTypes = Iterators.transform(writeEventStreamReader, new Function<Operation<?>, Class<?>>() {
             @Override
             public Class<?> apply(Operation<?> input) {
