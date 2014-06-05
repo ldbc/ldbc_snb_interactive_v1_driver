@@ -111,6 +111,8 @@ public class CsvDb extends Db {
                 ((CsvDbConnectionState) dbConnectionState()).csvFileWriter().writeLine(
                         Long.toString(Time.nowAsMilli() - operation.scheduledStartTime().asMilli()),
                         operation.type(),
+                        Long.toString(operation.personId()),
+                        operation.personUri(),
                         operation.firstName());
                 return operation.buildResult(0, RESULT);
             } catch (IOException e) {
@@ -129,6 +131,7 @@ public class CsvDb extends Db {
                         Long.toString(Time.nowAsMilli() - operation.scheduledStartTime().asMilli()),
                         operation.type(),
                         Long.toString(operation.personId()),
+                        operation.personUri(),
                         operation.maxDate().toString());
                 return operation.buildResult(0, RESULT);
             } catch (IOException e) {
@@ -147,9 +150,10 @@ public class CsvDb extends Db {
                         Long.toString(Time.nowAsMilli() - operation.scheduledStartTime().asMilli()),
                         operation.type(),
                         Long.toString(operation.personId()),
+                        operation.personUri(),
                         operation.countryX(),
                         operation.countryY(),
-                        operation.endDate().toString(),
+                        operation.startDate().toString(),
                         Long.toString(operation.durationMillis()));
                 return operation.buildResult(0, RESULT);
             } catch (IOException e) {
@@ -169,8 +173,8 @@ public class CsvDb extends Db {
                         Long.toString(Time.nowAsMilli() - operation.scheduledStartTime().asMilli()),
                         operation.type(),
                         Long.toString(operation.personId()),
-                        Long.toString(operation.minDateAsMilli()),
-                        Long.toString(operation.maxDateAsMilli()),
+                        operation.personUri(),
+                        operation.minDate().toString(),
                         Long.toString(operation.durationMillis()));
                 return operation.buildResult(0, RESULT);
             } catch (IOException e) {
@@ -189,7 +193,8 @@ public class CsvDb extends Db {
                         Time.nowAsMilli() - operation.scheduledStartTime().asMilli()),
                         operation.type(),
                         Long.toString(operation.personId()),
-                        operation.joinDate().toString()
+                        operation.personUri(),
+                        operation.minDate().toString()
                 );
                 return operation.buildResult(0, RESULT);
             } catch (IOException e) {
@@ -208,6 +213,7 @@ public class CsvDb extends Db {
                         Long.toString(Time.nowAsMilli() - operation.scheduledStartTime().asMilli()),
                         operation.type(),
                         Long.toString(operation.personId()),
+                        operation.personUri(),
                         operation.tagName()
                 );
                 return operation.buildResult(0, RESULT);
@@ -226,7 +232,8 @@ public class CsvDb extends Db {
                 ((CsvDbConnectionState) dbConnectionState()).csvFileWriter().writeLine(
                         Long.toString(Time.nowAsMilli() - operation.scheduledStartTime().asMilli()),
                         operation.type(),
-                        Long.toString(operation.personId())
+                        Long.toString(operation.personId()),
+                        operation.personUri()
                 );
                 return operation.buildResult(0, RESULT);
             } catch (IOException e) {
@@ -244,7 +251,8 @@ public class CsvDb extends Db {
                 ((CsvDbConnectionState) dbConnectionState()).csvFileWriter().writeLine(
                         Long.toString(Time.nowAsMilli() - operation.scheduledStartTime().asMilli()),
                         operation.type(),
-                        Long.toString(operation.personId())
+                        Long.toString(operation.personId()),
+                        operation.personUri()
                 );
                 return operation.buildResult(0, RESULT);
             } catch (IOException e) {
@@ -263,7 +271,8 @@ public class CsvDb extends Db {
                         Long.toString(Time.nowAsMilli() - operation.scheduledStartTime().asMilli()),
                         operation.type(),
                         Long.toString(operation.personId()),
-                        Long.toString(operation.date())
+                        operation.personUri(),
+                        operation.maxDate().toString()
                 );
                 return operation.buildResult(0, RESULT);
             } catch (IOException e) {
@@ -282,8 +291,9 @@ public class CsvDb extends Db {
                         Long.toString(Time.nowAsMilli() - operation.scheduledStartTime().asMilli()),
                         operation.type(),
                         Long.toString(operation.personId()),
-                        Integer.toString(operation.horoscopeMonth1()),
-                        Integer.toString(operation.horoscopeMonth2())
+                        operation.personUri(),
+                        Integer.toString(operation.month1()),
+                        Integer.toString(operation.month2())
                 );
                 return operation.buildResult(0, RESULT);
             } catch (IOException e) {
@@ -302,7 +312,8 @@ public class CsvDb extends Db {
                         Long.toString(Time.nowAsMilli() - operation.scheduledStartTime().asMilli()),
                         operation.type(),
                         Long.toString(operation.personId()),
-                        operation.country(),
+                        operation.personUri(),
+                        operation.countryName(),
                         Integer.toString(operation.workFromYear())
                 );
                 return operation.buildResult(0, RESULT);
@@ -322,7 +333,8 @@ public class CsvDb extends Db {
                         Long.toString(Time.nowAsMilli() - operation.scheduledStartTime().asMilli()),
                         operation.type(),
                         Long.toString(operation.personId()),
-                        Long.toString(operation.tagClassId())
+                        operation.personUri(),
+                        operation.tagClassName()
                 );
                 return operation.buildResult(0, RESULT);
             } catch (IOException e) {
@@ -340,8 +352,10 @@ public class CsvDb extends Db {
                 ((CsvDbConnectionState) dbConnectionState()).csvFileWriter().writeLine(
                         Long.toString(Time.nowAsMilli() - operation.scheduledStartTime().asMilli()),
                         operation.type(),
-                        Long.toString(operation.personId1()),
-                        Long.toString(operation.personId2())
+                        Long.toString(operation.person1Id()),
+                        Long.toString(operation.person2Id()),
+                        operation.person1Uri(),
+                        operation.person2Uri()
                 );
                 return operation.buildResult(0, RESULT);
             } catch (IOException e) {
@@ -359,8 +373,10 @@ public class CsvDb extends Db {
                 ((CsvDbConnectionState) dbConnectionState()).csvFileWriter().writeLine(
                         Long.toString(Time.nowAsMilli() - operation.scheduledStartTime().asMilli()),
                         operation.type(),
-                        Long.toString(operation.personId1()),
-                        Long.toString(operation.personId2())
+                        Long.toString(operation.person1Id()),
+                        Long.toString(operation.person2Id()),
+                        operation.person1Uri(),
+                        operation.person2Uri()
                 );
                 return operation.buildResult(0, RESULT);
             } catch (IOException e) {

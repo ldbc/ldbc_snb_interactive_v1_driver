@@ -8,16 +8,22 @@ public class LdbcQuery7 extends Operation<List<LdbcQuery7Result>> {
     public static final int DEFAULT_LIMIT = 20;
 
     private final long personId;
+    private final String personUri;
     private final int limit;
 
-    public LdbcQuery7(long personId, int limit) {
+    public LdbcQuery7(long personId, String personUri, int limit) {
         super();
         this.personId = personId;
+        this.personUri = personUri;
         this.limit = limit;
     }
 
     public long personId() {
         return personId;
+    }
+
+    public String personUri() {
+        return personUri;
     }
 
     public int limit() {
@@ -33,6 +39,7 @@ public class LdbcQuery7 extends Operation<List<LdbcQuery7Result>> {
 
         if (limit != that.limit) return false;
         if (personId != that.personId) return false;
+        if (personUri != null ? !personUri.equals(that.personUri) : that.personUri != null) return false;
 
         return true;
     }
@@ -40,6 +47,7 @@ public class LdbcQuery7 extends Operation<List<LdbcQuery7Result>> {
     @Override
     public int hashCode() {
         int result = (int) (personId ^ (personId >>> 32));
+        result = 31 * result + (personUri != null ? personUri.hashCode() : 0);
         result = 31 * result + limit;
         return result;
     }
@@ -48,6 +56,7 @@ public class LdbcQuery7 extends Operation<List<LdbcQuery7Result>> {
     public String toString() {
         return "LdbcQuery7{" +
                 "personId=" + personId +
+                ", personUri='" + personUri + '\'' +
                 ", limit=" + limit +
                 '}';
     }

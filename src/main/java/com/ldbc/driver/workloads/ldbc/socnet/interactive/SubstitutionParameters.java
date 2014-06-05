@@ -1,5 +1,6 @@
 package com.ldbc.driver.workloads.ldbc.socnet.interactive;
 
+import org.codehaus.jackson.annotate.JsonIgnoreProperties;
 import org.codehaus.jackson.annotate.JsonProperty;
 import org.codehaus.jackson.map.ObjectMapper;
 
@@ -7,6 +8,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.List;
 
+@JsonIgnoreProperties({/*TODO REMOVE*/"eventParams", "countryIds", /*TODO IMPLEMENT*/ "deltaTime", "minUpdateStream", "maxUpdateStream"})
 public class SubstitutionParameters {
     @JsonProperty(value = "minPersonId")
     public Long minPersonId = null;

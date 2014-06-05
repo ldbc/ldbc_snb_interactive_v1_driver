@@ -7,24 +7,25 @@ import com.ldbc.driver.Operation;
 import com.ldbc.driver.OperationClassification;
 import com.ldbc.driver.Workload;
 import com.ldbc.driver.WorkloadException;
-import com.ldbc.driver.generator.*;
+import com.ldbc.driver.generator.GeneratorFactory;
+import com.ldbc.driver.generator.StartTimeAssigningOperationGenerator;
 import com.ldbc.driver.temporal.Duration;
 import com.ldbc.driver.temporal.Time;
 import com.ldbc.driver.util.ClassLoaderHelper;
-import com.ldbc.driver.util.ClassLoadingException;
-import com.ldbc.driver.util.GeneratorUtils;
-import com.ldbc.driver.util.Tuple;
+import com.ldbc.driver.util.*;
 import com.ldbc.driver.util.Tuple.Tuple2;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.util.*;
 
 import static com.ldbc.driver.OperationClassification.GctMode;
 import static com.ldbc.driver.OperationClassification.SchedulingMode;
+import static com.ldbc.driver.generator.CsvEventStreamReader.EventReturnPolicy;
 
 public class LdbcInteractiveWorkload extends Workload {
-    public final static String WRITE_STREAM_FILENAME_KEY = "updates";
-    public final static String PARAMETERS_FILENAME_KEY = "parameters";
+    public final static String DATA_DIRECTORY = "data_dir";
+    public final static String PARAMETERS_DIRECTORY = "parameters_dir";
     public final static String INTERLEAVE_DURATION_KEY = "interleave_duration";
     public final static String READ_RATIO_KEY = "read_ratio";
     public final static String WRITE_RATIO_KEY = "write_ratio";
@@ -78,8 +79,56 @@ public class LdbcInteractiveWorkload extends Workload {
             WRITE_OPERATION_8_KEY
     );
 
-    private WriteEventStreamReader writeOperations;
-    private SubstitutionParameters substitutionParameters;
+    public final static String READ_OPERATION_1_PARAMS_FILENAME = "query_1_param.txt";
+    public final static String READ_OPERATION_2_PARAMS_FILENAME = "query_2_param.txt";
+    public final static String READ_OPERATION_3_PARAMS_FILENAME = "query_3_param.txt";
+    public final static String READ_OPERATION_4_PARAMS_FILENAME = "query_4_param.txt";
+    public final static String READ_OPERATION_5_PARAMS_FILENAME = "query_5_param.txt";
+    public final static String READ_OPERATION_6_PARAMS_FILENAME = "query_6_param.txt";
+    public final static String READ_OPERATION_7_PARAMS_FILENAME = "query_7_param.txt";
+    public final static String READ_OPERATION_8_PARAMS_FILENAME = "query_8_param.txt";
+    public final static String READ_OPERATION_9_PARAMS_FILENAME = "query_9_param.txt";
+    public final static String READ_OPERATION_10_PARAMS_FILENAME = "query_10_param.txt";
+    public final static String READ_OPERATION_11_PARAMS_FILENAME = "query_11_param.txt";
+    public final static String READ_OPERATION_12_PARAMS_FILENAME = "query_12_param.txt";
+    public final static String READ_OPERATION_13_PARAMS_FILENAME = "query_13_param.txt";
+    public final static String READ_OPERATION_14_PARAMS_FILENAME = "query_14_param.txt";
+    public final static List<String> READ_OPERATION_PARAMS_FILENAMES = Lists.newArrayList(
+            READ_OPERATION_1_PARAMS_FILENAME,
+            READ_OPERATION_2_PARAMS_FILENAME,
+            READ_OPERATION_3_PARAMS_FILENAME,
+            READ_OPERATION_4_PARAMS_FILENAME,
+            READ_OPERATION_5_PARAMS_FILENAME,
+            READ_OPERATION_6_PARAMS_FILENAME,
+            READ_OPERATION_7_PARAMS_FILENAME,
+            READ_OPERATION_8_PARAMS_FILENAME,
+            READ_OPERATION_9_PARAMS_FILENAME,
+            READ_OPERATION_10_PARAMS_FILENAME,
+            READ_OPERATION_11_PARAMS_FILENAME,
+            READ_OPERATION_12_PARAMS_FILENAME,
+            READ_OPERATION_13_PARAMS_FILENAME,
+            READ_OPERATION_14_PARAMS_FILENAME
+    );
+
+    public final static String WRITE_EVENTS_FILENAME = "updateStream_0.csv";
+
+    private WriteEventStreamReader writeOperationsReader;
+
+    private final static String CSV_SEPARATOR = "\\|";
+    private CsvFileReader readOperation1FileReader;
+    private CsvFileReader readOperation2FileReader;
+    private CsvFileReader readOperation3FileReader;
+    private CsvFileReader readOperation4FileReader;
+    private CsvFileReader readOperation5FileReader;
+    private CsvFileReader readOperation6FileReader;
+    private CsvFileReader readOperation7FileReader;
+    private CsvFileReader readOperation8FileReader;
+    private CsvFileReader readOperation9FileReader;
+    private CsvFileReader readOperation10FileReader;
+    private CsvFileReader readOperation11FileReader;
+    private CsvFileReader readOperation12FileReader;
+    private CsvFileReader readOperation13FileReader;
+    private CsvFileReader readOperation14FileReader;
     private Duration interleaveDuration;
     private double readRatio;
     private double writeRatio;
@@ -130,8 +179,8 @@ public class LdbcInteractiveWorkload extends Workload {
     @Override
     public void onInit(Map<String, String> properties) throws WorkloadException {
         List<String> compulsoryKeys = Lists.newArrayList(
-                WRITE_STREAM_FILENAME_KEY,
-                PARAMETERS_FILENAME_KEY,
+                DATA_DIRECTORY,
+                PARAMETERS_DIRECTORY,
                 INTERLEAVE_DURATION_KEY,
                 READ_RATIO_KEY,
                 WRITE_RATIO_KEY);
@@ -142,26 +191,47 @@ public class LdbcInteractiveWorkload extends Workload {
         if (false == missingPropertyParameters.isEmpty())
             throw new WorkloadException(String.format("Workload could not initialize due to missing parameters: %s", missingPropertyParameters.toString()));
 
-        String writesFilename = properties.get(WRITE_STREAM_FILENAME_KEY);
-        if (false == new File(writesFilename).exists()) {
-            throw new WorkloadException(String.format("Write events file does not exist: %s", writesFilename));
+        File dataDir = new File(properties.get(DATA_DIRECTORY));
+        if (false == dataDir.exists()) {
+            throw new WorkloadException(String.format("Data directory does not exist: %s", dataDir.getAbsolutePath()));
         }
-        File writesFile = new File(writesFilename);
+        File writeEventsFile = new File(dataDir.getAbsolutePath() + "/" + WRITE_EVENTS_FILENAME);
+        if (false == writeEventsFile.exists()) {
+            throw new WorkloadException(String.format("Write events file does not exist: %s", writeEventsFile.getAbsolutePath()));
+        }
         try {
-            writeOperations = new WriteEventStreamReader(writesFile);
-        } catch (Exception e) {
-            throw new WorkloadException(String.format("Unable to load write event stream from: %s", writesFile.getAbsolutePath()), e);
+            writeOperationsReader = new WriteEventStreamReader(writeEventsFile);
+        } catch (FileNotFoundException e) {
+            throw new WorkloadException("Unable to load write operation parameters file", e);
         }
 
-        String parametersFilename = properties.get(PARAMETERS_FILENAME_KEY);
-        if (false == new File(parametersFilename).exists()) {
-            throw new WorkloadException(String.format("Substitution parameters file does not exist: %s", parametersFilename));
+        File parametersDir = new File(properties.get(PARAMETERS_DIRECTORY));
+        if (false == parametersDir.exists()) {
+            throw new WorkloadException(String.format("Parameters directory does not exist: %s", parametersDir.getAbsolutePath()));
         }
-        File parametersFile = new File(parametersFilename);
+        for (String readOperationParamsFilename : READ_OPERATION_PARAMS_FILENAMES) {
+            String readOperationParamsFullPath = parametersDir.getAbsolutePath() + "/" + readOperationParamsFilename;
+            if (false == new File(readOperationParamsFullPath).exists()) {
+                throw new WorkloadException(String.format("Read operation parameters file does not exist: %s", readOperationParamsFullPath));
+            }
+        }
         try {
-            substitutionParameters = SubstitutionParameters.fromJson(parametersFile);
-        } catch (Exception e) {
-            throw new WorkloadException(String.format("Unable to load substitution parameters from: %s", parametersFile.getAbsolutePath()), e);
+            readOperation1FileReader = new CsvFileReader(new File(parametersDir.getAbsolutePath() + "/" + READ_OPERATION_1_PARAMS_FILENAME), CSV_SEPARATOR);
+            readOperation2FileReader = new CsvFileReader(new File(parametersDir.getAbsolutePath() + "/" + READ_OPERATION_2_PARAMS_FILENAME), CSV_SEPARATOR);
+            readOperation3FileReader = new CsvFileReader(new File(parametersDir.getAbsolutePath() + "/" + READ_OPERATION_3_PARAMS_FILENAME), CSV_SEPARATOR);
+            readOperation4FileReader = new CsvFileReader(new File(parametersDir.getAbsolutePath() + "/" + READ_OPERATION_4_PARAMS_FILENAME), CSV_SEPARATOR);
+            readOperation5FileReader = new CsvFileReader(new File(parametersDir.getAbsolutePath() + "/" + READ_OPERATION_5_PARAMS_FILENAME), CSV_SEPARATOR);
+            readOperation6FileReader = new CsvFileReader(new File(parametersDir.getAbsolutePath() + "/" + READ_OPERATION_6_PARAMS_FILENAME), CSV_SEPARATOR);
+            readOperation7FileReader = new CsvFileReader(new File(parametersDir.getAbsolutePath() + "/" + READ_OPERATION_7_PARAMS_FILENAME), CSV_SEPARATOR);
+            readOperation8FileReader = new CsvFileReader(new File(parametersDir.getAbsolutePath() + "/" + READ_OPERATION_8_PARAMS_FILENAME), CSV_SEPARATOR);
+            readOperation9FileReader = new CsvFileReader(new File(parametersDir.getAbsolutePath() + "/" + READ_OPERATION_9_PARAMS_FILENAME), CSV_SEPARATOR);
+            readOperation10FileReader = new CsvFileReader(new File(parametersDir.getAbsolutePath() + "/" + READ_OPERATION_10_PARAMS_FILENAME), CSV_SEPARATOR);
+            readOperation11FileReader = new CsvFileReader(new File(parametersDir.getAbsolutePath() + "/" + READ_OPERATION_11_PARAMS_FILENAME), CSV_SEPARATOR);
+            readOperation12FileReader = new CsvFileReader(new File(parametersDir.getAbsolutePath() + "/" + READ_OPERATION_12_PARAMS_FILENAME), CSV_SEPARATOR);
+            readOperation13FileReader = new CsvFileReader(new File(parametersDir.getAbsolutePath() + "/" + READ_OPERATION_13_PARAMS_FILENAME), CSV_SEPARATOR);
+            readOperation14FileReader = new CsvFileReader(new File(parametersDir.getAbsolutePath() + "/" + READ_OPERATION_14_PARAMS_FILENAME), CSV_SEPARATOR);
+        } catch (FileNotFoundException e) {
+            throw new WorkloadException("Unable to load one of the read operation parameters files", e);
         }
 
         try {
@@ -210,7 +280,7 @@ public class LdbcInteractiveWorkload extends Workload {
 
     private List<String> missingPropertiesParameters
             (Map<String, String> properties, List<String> compulsoryPropertyKeys) {
-        List<String> missingPropertyKeys = new ArrayList<String>();
+        List<String> missingPropertyKeys = new ArrayList<>();
         for (String compulsoryKey : compulsoryPropertyKeys) {
             if (null == properties.get(compulsoryKey)) missingPropertyKeys.add(compulsoryKey);
         }
@@ -219,195 +289,77 @@ public class LdbcInteractiveWorkload extends Workload {
 
     @Override
     protected void onCleanup() throws WorkloadException {
+        readOperation1FileReader.closeReader();
+        readOperation2FileReader.closeReader();
+        readOperation3FileReader.closeReader();
+        readOperation4FileReader.closeReader();
+        readOperation5FileReader.closeReader();
+        readOperation6FileReader.closeReader();
+        readOperation7FileReader.closeReader();
+        readOperation8FileReader.closeReader();
+        readOperation9FileReader.closeReader();
+        readOperation10FileReader.closeReader();
+        readOperation11FileReader.closeReader();
+        readOperation12FileReader.closeReader();
+        readOperation13FileReader.closeReader();
+        readOperation14FileReader.closeReader();
     }
 
     @Override
     protected Iterator<Operation<?>> createOperations(GeneratorFactory generators) throws WorkloadException {
-        Iterator<String> firstNameGenerator = generators.discrete(substitutionParameters.firstNames);
-        Iterator<Long> personIdGenerator = generators.uniform(substitutionParameters.minPersonId, substitutionParameters.maxPersonId);
-        Calendar c = Calendar.getInstance();
-        c.clear();
-        c.set(Calendar.YEAR, substitutionParameters.minPostCreationDate);
-        long postCreationDateAsMs000 = c.getTimeInMillis();
-        c.clear();
-        c.set(Calendar.YEAR, substitutionParameters.maxPostCreationDate);
-        long postCreationDateAsMs100 = c.getTimeInMillis();
-        long postCreationDateRangeAsMs100 = postCreationDateAsMs100 - postCreationDateAsMs000;
-        long postCreationDateAsMs033 = postCreationDateAsMs000 + Math.round(postCreationDateRangeAsMs100 * 0.33);
-        long postCreationDateAsMs066 = postCreationDateAsMs000 + Math.round(postCreationDateRangeAsMs100 * 0.66);
-        long postCreationDateAsMs095 = postCreationDateAsMs000 + Math.round(postCreationDateRangeAsMs100 * 0.95);
-        long postCreationDateRangeAsMs002 = Math.round(postCreationDateRangeAsMs100 * 0.02);
-        long postCreationDateRangeAsMs004 = Math.round(postCreationDateRangeAsMs100 * 0.04);
-        long postCreationDateRangeAsMs033 = Math.round(postCreationDateRangeAsMs100 * 0.33);
-        Iterator<Long> postCreationDateGenerator00_66 = generators.uniform(postCreationDateAsMs000, postCreationDateAsMs066);
-        Iterator<Long> postCreationDateGenerator33_66 = generators.uniform(postCreationDateAsMs033, postCreationDateAsMs066);
-        Iterator<Long> postCreationDateGenerator00_95 = generators.uniform(postCreationDateAsMs000, postCreationDateAsMs095);
-        Iterator<String[]> countryPairsGenerator = generators.discrete(substitutionParameters.countryPairs);
-        Iterator<Long> postCreationDateRangeDuration02_04 = generators.uniform(postCreationDateRangeAsMs002, postCreationDateRangeAsMs004);
-        Iterator<String> tagNameGenerator = generators.discrete(substitutionParameters.tagNames);
-        Iterator<Integer> horoscopeGenerator = generators.uniform(1, 12);
-        Iterator<String> countriesGenerator = generators.discrete(substitutionParameters.countries);
-        Iterator<Integer> workFromYearGenerator00_100 = generators.uniform(substitutionParameters.minWorkFrom, substitutionParameters.maxWorkFrom);
-
-//        Iterator<String> tagClassesGenerator = generators.discrete(substitutionParameters.tagClasses);
-        // TODO this is just temporary because there are no tag class ids in the substitution parameter files
-        Iterator<Long> tagClassIdsGenerator = generators.uniform(1L, 10L);
-
         /*
-         * Create Generators for desired Operations
+         * Create mix of read operation generators
          */
         List<Tuple2<Double, Iterator<Operation<?>>>> readOperationsMix = new ArrayList<>();
-
-        /*
-         * Operation 1
-         *  - Select uniformly randomly from person first names
-         */
-        int operation1Limit = LdbcQuery1.DEFAULT_LIMIT;
-        readOperationsMix.add(Tuple.tuple2(
+        readOperationsMix.add(Tuple.<Double, Iterator<Operation<?>>>tuple2(
                 readOperationRatios.get(LdbcQuery1.class),
-                (Iterator<Operation<?>>) new Query1Generator(personIdGenerator, firstNameGenerator, operation1Limit)));
-
-        /*
-         * Operation 2
-         *  - Person ID - select uniformly randomly from person ids
-         *  - Post Creation Date - select uniformly randomly a post creation date from between 33perc-66perc of entire date range
-         */
-        int operation2Limit = LdbcQuery2.DEFAULT_LIMIT;
-        readOperationsMix.add(Tuple.tuple2(
+                new Query1EventStreamReader(generators.repeating(readOperation1FileReader), EventReturnPolicy.AT_LEAST_ONE_MATCH)));
+        readOperationsMix.add(Tuple.<Double, Iterator<Operation<?>>>tuple2(
                 readOperationRatios.get(LdbcQuery2.class),
-                (Iterator<Operation<?>>) new Query2Generator(personIdGenerator, postCreationDateGenerator33_66, operation2Limit)));
-
-        /*
-         * Operation 3
-         *  - Person ID - select uniformly randomly from person ids
-         *  - Post Creation Date - select uniformly randomly a post creation date from between 0perc-66perc of entire date range
-         *  - Duration - a number of days (33% of the length of post creation date range)
-         *  - Country1 - the first of country pair
-         *  - Country2 - the second of country pair
-         */
-        int operation3Limit = LdbcQuery3.DEFAULT_LIMIT;
-        readOperationsMix.add(Tuple.tuple2(
+                new Query2EventStreamReader(generators.repeating(readOperation2FileReader), EventReturnPolicy.AT_LEAST_ONE_MATCH)));
+        readOperationsMix.add(Tuple.<Double, Iterator<Operation<?>>>tuple2(
                 readOperationRatios.get(LdbcQuery3.class),
-                (Iterator<Operation<?>>) new Query3Generator(personIdGenerator, countryPairsGenerator, postCreationDateGenerator00_66, postCreationDateRangeAsMs033, operation3Limit)));
-
-        /*
-         * Operation 4
-         * - Person ID - select uniformly randomly from person ids
-         * - Post Creation Date - select uniformly randomly a post creation date from between 0perc-95perc of entire date range
-         * - Duration - a uniformly randomly selected duration between 2% and 4% of the length of post creation date range        
-         */
-        int operation4Limit = LdbcQuery4.DEFAULT_LIMIT;
-        readOperationsMix.add(Tuple.tuple2(
+                new Query3EventStreamReader(generators.repeating(readOperation3FileReader), EventReturnPolicy.AT_LEAST_ONE_MATCH)));
+        readOperationsMix.add(Tuple.<Double, Iterator<Operation<?>>>tuple2(
                 readOperationRatios.get(LdbcQuery4.class),
-                (Iterator<Operation<?>>) new Query4Generator(personIdGenerator, postCreationDateGenerator00_95, postCreationDateRangeDuration02_04, operation4Limit)));
-
-        // TODO http://www.ldbc.eu:8090/display/TUC/IW+Substitution+parameters+selection claims Q5 needs duration parameter
-        // TODO http://www.ldbc.eu:8090/display/TUC/Interactive+Workload does not show that parameters
-        // TODO add duration to operation if it found that it's necessary
-        /*
-         * Operation 5
-         * - Person - select uniformly randomly from person ids
-         * - Join Date - select uniformly randomly a post creation date from between 0perc-95perc of entire date range
-         */
-        readOperationsMix.add(Tuple.tuple2(
+                new Query4EventStreamReader(generators.repeating(readOperation4FileReader), EventReturnPolicy.AT_LEAST_ONE_MATCH)));
+        readOperationsMix.add(Tuple.<Double, Iterator<Operation<?>>>tuple2(
                 readOperationRatios.get(LdbcQuery5.class),
-                (Iterator<Operation<?>>) new Query5Generator(personIdGenerator, postCreationDateGenerator00_95)));
-
-        /*
-         * Operation 6
-         * - Person - select uniformly randomly from person ids
-         * - Tag - select uniformly randomly from tag uris
-         */
-        int operation6Limit = LdbcQuery6.DEFAULT_LIMIT;
-        readOperationsMix.add(Tuple.tuple2(
+                new Query5EventStreamReader(generators.repeating(readOperation5FileReader), EventReturnPolicy.AT_LEAST_ONE_MATCH)));
+        readOperationsMix.add(Tuple.<Double, Iterator<Operation<?>>>tuple2(
                 readOperationRatios.get(LdbcQuery6.class),
-                (Iterator<Operation<?>>) new Query6Generator(personIdGenerator, tagNameGenerator, operation6Limit)));
-
-        /*
-         * Operation 7
-         * Person - select uniformly randomly from person ids
-         */
-        int operation7Limit = LdbcQuery7.DEFAULT_LIMIT;
-        readOperationsMix.add(Tuple.tuple2(
+                new Query6EventStreamReader(generators.repeating(readOperation6FileReader), EventReturnPolicy.AT_LEAST_ONE_MATCH)));
+        readOperationsMix.add(Tuple.<Double, Iterator<Operation<?>>>tuple2(
                 readOperationRatios.get(LdbcQuery7.class),
-                (Iterator<Operation<?>>) new Query7Generator(personIdGenerator, operation7Limit)));
-
-        /*
-         * Operation 8
-         * Person - select uniformly randomly from person ids
-         */
-        int operation8Limit = LdbcQuery8.DEFAULT_LIMIT;
-        readOperationsMix.add(Tuple.tuple2(
+                new Query7EventStreamReader(generators.repeating(readOperation7FileReader), EventReturnPolicy.AT_LEAST_ONE_MATCH)));
+        readOperationsMix.add(Tuple.<Double, Iterator<Operation<?>>>tuple2(
                 readOperationRatios.get(LdbcQuery8.class),
-                (Iterator<Operation<?>>) new Query8Generator(personIdGenerator, operation8Limit)));
-
-        /*
-         * Operation 9
-         * Person - select uniformly randomly from person ids
-         * Date - select uniformly randomly a post creation date from between 33perc-66perc of entire date range
-         */
-        int operation9Limit = LdbcQuery9.DEFAULT_LIMIT;
-        readOperationsMix.add(Tuple.tuple2(
+                new Query8EventStreamReader(generators.repeating(readOperation8FileReader), EventReturnPolicy.AT_LEAST_ONE_MATCH)));
+        readOperationsMix.add(Tuple.<Double, Iterator<Operation<?>>>tuple2(
                 readOperationRatios.get(LdbcQuery9.class),
-                (Iterator<Operation<?>>) new Query9Generator(personIdGenerator, postCreationDateGenerator33_66, operation9Limit)));
-
-        /*
-         * Operation 10
-         * Person - select uniformly randomly from person ids
-         * HS0 - select uniformly randomly a horoscope sign (a random number between 1 and 12)
-         * HS1 - HS0 + 1 (but 12 + 1 = 1)
-         */
-        int operation10Limit = LdbcQuery10.DEFAULT_LIMIT;
-        readOperationsMix.add(Tuple.tuple2(
+                new Query9EventStreamReader(generators.repeating(readOperation9FileReader), EventReturnPolicy.AT_LEAST_ONE_MATCH)));
+        readOperationsMix.add(Tuple.<Double, Iterator<Operation<?>>>tuple2(
                 readOperationRatios.get(LdbcQuery10.class),
-                (Iterator<Operation<?>>) new Query10Generator(personIdGenerator, horoscopeGenerator, operation10Limit)));
-
-        /*
-         * Operation 11
-         * Person - select uniformly randomly from person ids
-         * // TODO parameter file does not have country dont have IDS only names
-         * Country - select uniformly randomly from country ids
-         * Date - a random date from 0% to 100% of whole workFrom timeline
-         */
-        int operation11Limit = LdbcQuery11.DEFAULT_LIMIT;
-        readOperationsMix.add(Tuple.tuple2(
+                new Query10EventStreamReader(generators.repeating(readOperation10FileReader), EventReturnPolicy.AT_LEAST_ONE_MATCH)));
+        readOperationsMix.add(Tuple.<Double, Iterator<Operation<?>>>tuple2(
                 readOperationRatios.get(LdbcQuery11.class),
-                (Iterator<Operation<?>>) new Query11Generator(personIdGenerator, countriesGenerator, workFromYearGenerator00_100, operation11Limit)));
-
-        /*
-         * Operation 12
-         * Person - select uniformly randomly from person ids
-         * TagType - select uniformly randomly tagTypeURI (used files: tagTypes.txt and tagTypes.sql)
-         */
-        int operation12Limit = LdbcQuery12.DEFAULT_LIMIT;
-        readOperationsMix.add(Tuple.tuple2(
+                new Query11EventStreamReader(generators.repeating(readOperation11FileReader), EventReturnPolicy.AT_LEAST_ONE_MATCH)));
+        readOperationsMix.add(Tuple.<Double, Iterator<Operation<?>>>tuple2(
                 readOperationRatios.get(LdbcQuery12.class),
-                (Iterator<Operation<?>>) new Query12Generator(personIdGenerator, tagClassIdsGenerator, operation12Limit)));
-
-        /*
-         * Operation 13
-         * Person1 - start person
-         * Person1 - end person
-         */
-        readOperationsMix.add(Tuple.tuple2(
+                new Query12EventStreamReader(generators.repeating(readOperation12FileReader), EventReturnPolicy.AT_LEAST_ONE_MATCH)));
+        readOperationsMix.add(Tuple.<Double, Iterator<Operation<?>>>tuple2(
                 readOperationRatios.get(LdbcQuery13.class),
-                (Iterator<Operation<?>>) new Query13Generator(personIdGenerator)));
-
-        /*
-         * Operation 14
-         * Person1 - start person
-         * Person1 - end person
-         */
-        int operation14Limit = LdbcQuery14.DEFAULT_LIMIT;
-        readOperationsMix.add(Tuple.tuple2(
+                new Query13EventStreamReader(generators.repeating(readOperation13FileReader), EventReturnPolicy.AT_LEAST_ONE_MATCH)));
+        readOperationsMix.add(Tuple.<Double, Iterator<Operation<?>>>tuple2(
                 readOperationRatios.get(LdbcQuery14.class),
-                (Iterator<Operation<?>>) new Query14Generator(personIdGenerator, operation14Limit)));
-
+                new Query14EventStreamReader(generators.repeating(readOperation14FileReader), EventReturnPolicy.AT_LEAST_ONE_MATCH)));
         /*
-         * Create Discrete Generator from read operation mix
+         * Create discrete generator to choose operations from read mix
          */
         Iterator<Operation<?>> readOperations = generators.weightedDiscreteDereferencing(readOperationsMix);
 
+        // TODO parameter for: first read operation start time, as duration from beginning of benchmark run
+        // TODO parameter for: interleave duration per read operation
         /*
          * Add scheduled start time to read queries
          */
@@ -423,264 +375,28 @@ public class LdbcInteractiveWorkload extends Workload {
                 return writeOperationFilter.contains(operation.getClass());
             }
         };
-        Iterator<Operation<?>> filteredWriteOperations = Iterators.filter(writeOperations, allowedWriteOperationsFilter);
+
+        Iterator<Operation<?>> filteredWriteOperations = Iterators.filter(writeOperationsReader, allowedWriteOperationsFilter);
 
         /*
          * Move scheduled start times of write operations to now
          */
-        // TODO need separate parameter for: write operation time shift, write operation compression, read operation interleave/load
+        // TODO parameter for: first write operation start time, as duration from beginning of benchmark run
+        // TODO parameter for: write operation compression/expansion, this then needs to be applied to DeltaTime too (at present this is not done)
         Iterator<Operation<?>> filteredWriteOperationsTimeShiftedToNow = generators.timeOffset(filteredWriteOperations, Time.now());
 
-        /*
-         * Mix read and write operations
-         */
-        List<Tuple2<Double, Iterator<Operation<?>>>> readWriteOperationMix = Lists.newArrayList(
-                Tuple.tuple2(readRatio, readOperationsWithTime),
-                Tuple.tuple2(writeRatio, filteredWriteOperationsTimeShiftedToNow)
-        );
-        Iterator<Operation<?>> readAndWriteOperations = generators.weightedDiscreteDereferencing(readWriteOperationMix);
+        // TODO this is not how operations will be mixed
+//        /*
+//         * Mix read and write operations
+//         */
+//        List<Tuple2<Double, Iterator<Operation<?>>>> readWriteOperationMix = Lists.newArrayList(
+//                Tuple.tuple2(readRatio, readOperationsWithTime),
+//                Tuple.tuple2(writeRatio, filteredWriteOperationsTimeShiftedToNow)
+//        );
+//        Iterator<Operation<?>> readAndWriteOperations = generators.weightedDiscreteDereferencing(readWriteOperationMix);
+        // TODO temporary solution. better solution will look similar, but will merge more streams - one per read operation stream (14) + one per write stream stream (0..n)
+        Iterator<Operation<?>> readAndWriteOperations = generators.mergeSortOperationsByScheduledStartTime(readOperationsWithTime, filteredWriteOperationsTimeShiftedToNow);
 
-//        return readAndWriteOperations;
-        // TODO remove, this is just to make sure start times are assigned to all operations
-        return new StartTimeAssigningOperationGenerator(startTimeGenerator, readAndWriteOperations);
-    }
-
-    class Query1Generator extends Generator<Operation<?>> {
-        private final Iterator<Long> personIds;
-        private final Iterator<String> firstNames;
-        private final int limit;
-
-        protected Query1Generator(Iterator<Long> personIds, Iterator<String> firstNames, int limit) {
-            this.personIds = personIds;
-            this.firstNames = firstNames;
-            this.limit = limit;
-        }
-
-        @Override
-        protected Operation<?> doNext() throws GeneratorException {
-            return new LdbcQuery1(personIds.next(), firstNames.next(), limit);
-        }
-    }
-
-    class Query2Generator extends Generator<Operation<?>> {
-        private final Iterator<Long> personIds;
-        private final Iterator<Long> postCreationDates;
-        private final int limit;
-
-        protected Query2Generator(Iterator<Long> personIds, Iterator<Long> postCreationDates, int limit) {
-            this.personIds = personIds;
-            this.postCreationDates = postCreationDates;
-            this.limit = limit;
-        }
-
-        @Override
-        protected Operation<?> doNext() throws GeneratorException {
-            return new LdbcQuery2(personIds.next(), new Date(postCreationDates.next()), limit);
-        }
-    }
-
-    class Query3Generator extends Generator<Operation<?>> {
-        private final Iterator<Long> personIds;
-        private final Iterator<String[]> countryPairs;
-        private final Iterator<Long> startDates;
-        private final long durationMillis;
-        private final int limit;
-
-        protected Query3Generator(Iterator<Long> personIds, Iterator<String[]> countryPairs,
-                                  Iterator<Long> startDates, long durationDays, int limit) {
-            this.personIds = personIds;
-            this.countryPairs = countryPairs;
-            this.startDates = startDates;
-            this.durationMillis = durationDays;
-            this.limit = limit;
-        }
-
-        @Override
-        protected Operation<?> doNext() throws GeneratorException {
-            String[] countryPair = countryPairs.next();
-            return new LdbcQuery3(personIds.next(), countryPair[0], countryPair[1], new Date(
-                    startDates.next()), durationMillis, limit);
-        }
-    }
-
-    class Query4Generator extends Generator<Operation<?>> {
-        private final Iterator<Long> personIds;
-        private final Iterator<Long> postCreationDates;
-        private final Iterator<Long> durationMillis;
-        private final int limit;
-
-        protected Query4Generator(Iterator<Long> personIds, Iterator<Long> postCreationDates, Iterator<Long> durationMillis, int limit) {
-            this.personIds = personIds;
-            this.postCreationDates = postCreationDates;
-            this.durationMillis = durationMillis;
-            this.limit = limit;
-        }
-
-        @Override
-        protected Operation<?> doNext() throws GeneratorException {
-            return new LdbcQuery4(personIds.next(), new Date(postCreationDates.next()), durationMillis.next(), limit);
-        }
-    }
-
-    class Query5Generator extends Generator<Operation<?>> {
-        private final Iterator<Long> personIds;
-        private final Iterator<Long> joinDates;
-
-        protected Query5Generator(Iterator<Long> personIds, Iterator<Long> joinDates) {
-            this.personIds = personIds;
-            this.joinDates = joinDates;
-        }
-
-        @Override
-        protected Operation<?> doNext() throws GeneratorException {
-            return new LdbcQuery5(personIds.next(), new Date(joinDates.next()));
-        }
-    }
-
-    class Query6Generator extends Generator<Operation<?>> {
-        private final Iterator<Long> personIds;
-        private final Iterator<String> tagUris;
-        private final int limit;
-
-        protected Query6Generator(Iterator<Long> personIds, Iterator<String> tagUris, int limit) {
-            this.personIds = personIds;
-            this.tagUris = tagUris;
-            this.limit = limit;
-        }
-
-        @Override
-        protected Operation<?> doNext() throws GeneratorException {
-            return new LdbcQuery6(personIds.next(), tagUris.next(), limit);
-        }
-    }
-
-    class Query7Generator extends Generator<Operation<?>> {
-        private final Iterator<Long> personIds;
-        private final int limit;
-
-        protected Query7Generator(Iterator<Long> personIds, int limit) {
-            this.personIds = personIds;
-            this.limit = limit;
-        }
-
-        @Override
-        protected Operation<?> doNext() throws GeneratorException {
-            return new LdbcQuery7(personIds.next(), limit);
-        }
-    }
-
-    class Query8Generator extends Generator<Operation<?>> {
-        private final Iterator<Long> personIds;
-        private final int limit;
-
-        protected Query8Generator(Iterator<Long> personIds, int limit) {
-            this.personIds = personIds;
-            this.limit = limit;
-        }
-
-        @Override
-        protected Operation<?> doNext() throws GeneratorException {
-            return new LdbcQuery8(personIds.next(), limit);
-        }
-    }
-
-    class Query9Generator extends Generator<Operation<?>> {
-        private final Iterator<Long> personIds;
-        private final Iterator<Long> dates;
-        private final int limit;
-
-        protected Query9Generator(Iterator<Long> personIds, Iterator<Long> dates, int limit) {
-            this.personIds = personIds;
-            this.dates = dates;
-            this.limit = limit;
-        }
-
-        @Override
-        protected Operation<?> doNext() throws GeneratorException {
-            return new LdbcQuery9(personIds.next(), dates.next(), limit);
-        }
-    }
-
-    class Query10Generator extends Generator<Operation<?>> {
-        private final Iterator<Long> personIds;
-        private final Iterator<Integer> horoscopes;
-        private final int limit;
-
-        protected Query10Generator(Iterator<Long> personIds, Iterator<Integer> horoscopes, int limit) {
-            this.personIds = personIds;
-            this.horoscopes = horoscopes;
-            this.limit = limit;
-        }
-
-        @Override
-        protected Operation<?> doNext() throws GeneratorException {
-            int horoscopeSign1 = horoscopes.next();
-            int horoscopeSign2 = (12 == horoscopeSign1) ? 1 : horoscopeSign1 + 1;
-            return new LdbcQuery10(personIds.next(), horoscopeSign1, horoscopeSign2, limit);
-        }
-    }
-
-    class Query11Generator extends Generator<Operation<?>> {
-        private final Iterator<Long> personIds;
-        private final Iterator<String> countries;
-        private final Iterator<Integer> workFromYears;
-        private final int limit;
-
-        protected Query11Generator(Iterator<Long> personIds, Iterator<String> countries, Iterator<Integer> workFromYears, int limit) {
-            this.personIds = personIds;
-            this.countries = countries;
-            this.workFromYears = workFromYears;
-            this.limit = limit;
-        }
-
-        @Override
-        protected Operation<?> doNext() throws GeneratorException {
-            return new LdbcQuery11(personIds.next(), countries.next(), workFromYears.next(), limit);
-        }
-    }
-
-    class Query12Generator extends Generator<Operation<?>> {
-        private final Iterator<Long> personIds;
-        private final Iterator<Long> tagClasses;
-        private final int limit;
-
-        protected Query12Generator(Iterator<Long> personIds, Iterator<Long> tagClasses, int limit) {
-            this.personIds = personIds;
-            this.tagClasses = tagClasses;
-            this.limit = limit;
-        }
-
-        @Override
-        protected Operation<?> doNext() throws GeneratorException {
-            return new LdbcQuery12(personIds.next(), tagClasses.next(), limit);
-        }
-    }
-
-    class Query13Generator extends Generator<Operation<?>> {
-        private final Iterator<Long> personIds;
-
-        protected Query13Generator(Iterator<Long> personIds) {
-            this.personIds = personIds;
-        }
-
-        @Override
-        protected Operation<?> doNext() throws GeneratorException {
-            return new LdbcQuery13(personIds.next(), personIds.next());
-        }
-    }
-
-    class Query14Generator extends Generator<Operation<?>> {
-        private final Iterator<Long> personIds;
-        private final int limit;
-
-        protected Query14Generator(Iterator<Long> personIds, int limit) {
-            this.personIds = personIds;
-            this.limit = limit;
-        }
-
-        @Override
-        protected Operation<?> doNext() throws GeneratorException {
-            return new LdbcQuery14(personIds.next(), personIds.next(), limit);
-        }
+        return readAndWriteOperations;
     }
 }

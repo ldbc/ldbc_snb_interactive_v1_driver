@@ -54,9 +54,9 @@ public class CsvFileReader implements Iterator<String[]> {
         return columnSeparatorPattern.split(csvLine, -1);
     }
 
-    private boolean closeReader() {
+    public boolean closeReader() {
         if (closed) {
-            throw new RuntimeException("Can not close file multiple times");
+            return true;
         }
         if (null == csvReader) {
             throw new RuntimeException("Can not close file - reader is null");

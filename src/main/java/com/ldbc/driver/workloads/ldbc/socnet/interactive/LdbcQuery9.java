@@ -2,18 +2,21 @@ package com.ldbc.driver.workloads.ldbc.socnet.interactive;
 
 import com.ldbc.driver.Operation;
 
+import java.util.Date;
 import java.util.List;
 
 public class LdbcQuery9 extends Operation<List<LdbcQuery9Result>> {
     public static final int DEFAULT_LIMIT = 20;
 
     private final long personId;
-    private final long date;
+    private final String personUri;
+    private final Date maxDate;
     private final int limit;
 
-    public LdbcQuery9(long personId, long date, int limit) {
+    public LdbcQuery9(long personId, String personUri, Date maxDate, int limit) {
         this.personId = personId;
-        this.date = date;
+        this.personUri = personUri;
+        this.maxDate = maxDate;
         this.limit = limit;
     }
 
@@ -21,8 +24,12 @@ public class LdbcQuery9 extends Operation<List<LdbcQuery9Result>> {
         return personId;
     }
 
-    public long date() {
-        return date;
+    public String personUri() {
+        return personUri;
+    }
+
+    public Date maxDate() {
+        return maxDate;
     }
 
     public int limit() {
@@ -36,9 +43,10 @@ public class LdbcQuery9 extends Operation<List<LdbcQuery9Result>> {
 
         LdbcQuery9 that = (LdbcQuery9) o;
 
-        if (date != that.date) return false;
         if (limit != that.limit) return false;
         if (personId != that.personId) return false;
+        if (maxDate != null ? !maxDate.equals(that.maxDate) : that.maxDate != null) return false;
+        if (personUri != null ? !personUri.equals(that.personUri) : that.personUri != null) return false;
 
         return true;
     }
@@ -46,7 +54,8 @@ public class LdbcQuery9 extends Operation<List<LdbcQuery9Result>> {
     @Override
     public int hashCode() {
         int result = (int) (personId ^ (personId >>> 32));
-        result = 31 * result + (int) (date ^ (date >>> 32));
+        result = 31 * result + (personUri != null ? personUri.hashCode() : 0);
+        result = 31 * result + (maxDate != null ? maxDate.hashCode() : 0);
         result = 31 * result + limit;
         return result;
     }
@@ -55,7 +64,8 @@ public class LdbcQuery9 extends Operation<List<LdbcQuery9Result>> {
     public String toString() {
         return "LdbcQuery9{" +
                 "personId=" + personId +
-                ", date=" + date +
+                ", personUri='" + personUri + '\'' +
+                ", maxDate=" + maxDate +
                 ", limit=" + limit +
                 '}';
     }

@@ -8,6 +8,7 @@ import com.ldbc.driver.Operation;
 import com.ldbc.driver.generator.CsvEventStreamReader;
 import com.ldbc.driver.generator.GeneratorException;
 import com.ldbc.driver.temporal.Time;
+import com.ldbc.driver.util.CsvFileReader;
 import org.codehaus.jackson.JsonNode;
 import org.codehaus.jackson.map.ObjectMapper;
 
@@ -166,7 +167,7 @@ public class WriteEventStreamReader implements Iterator<Operation<?>> {
             long personId = params.get(0).asLong();
             long commentId = params.get(1).asLong();
             String creationDateString = params.get(2).asText();
-            Date creationDate = null;
+            Date creationDate;
             try {
                 creationDate = DATE_TIME_FORMAT.parse(creationDateString);
             } catch (ParseException e) {
@@ -197,7 +198,7 @@ public class WriteEventStreamReader implements Iterator<Operation<?>> {
             long forumId = params.get(0).asLong();
             String forumTitle = params.get(1).asText();
             String creationDateString = params.get(2).asText();
-            Date creationDate = null;
+            Date creationDate;
             try {
                 creationDate = DATE_TIME_FORMAT.parse(creationDateString);
             } catch (ParseException e) {
@@ -266,7 +267,7 @@ public class WriteEventStreamReader implements Iterator<Operation<?>> {
             long postId = params.get(0).asLong();
             String imageFile = params.get(1).asText();
             String creationDateString = params.get(2).asText();
-            Date creationDate = null;
+            Date creationDate;
             try {
                 creationDate = DATE_TIME_FORMAT.parse(creationDateString);
             } catch (ParseException e) {
@@ -322,7 +323,7 @@ public class WriteEventStreamReader implements Iterator<Operation<?>> {
             }
             long commentId = params.get(0).asLong();
             String creationDateString = params.get(1).asText();
-            Date creationDate = null;
+            Date creationDate;
             try {
                 creationDate = DATE_TIME_FORMAT.parse(creationDateString);
             } catch (ParseException e) {
@@ -378,7 +379,7 @@ public class WriteEventStreamReader implements Iterator<Operation<?>> {
             long person1Id = params.get(0).asLong();
             long person2Id = params.get(1).asLong();
             String creationDateString = params.get(2).asText();
-            Date creationDate = null;
+            Date creationDate;
             try {
                 creationDate = DATE_TIME_FORMAT.parse(creationDateString);
             } catch (ParseException e) {
@@ -409,7 +410,7 @@ public class WriteEventStreamReader implements Iterator<Operation<?>> {
                 EVENT_DECODER_ADD_COMMENT,
                 EVENT_DECODER_ADD_FRIENDSHIP);
         CsvEventStreamReader.EventDescriptions<Operation<?>> eventDescriptions = new CsvEventStreamReader.EventDescriptions<>(decoders, eventReturnPolicy);
-        this.csvEventStreamReader = new CsvEventStreamReader<>(csvFile, separatorRegexString, eventDescriptions);
+        this.csvEventStreamReader = new CsvEventStreamReader<>(new CsvFileReader(csvFile, separatorRegexString), eventDescriptions);
     }
 
     @Override

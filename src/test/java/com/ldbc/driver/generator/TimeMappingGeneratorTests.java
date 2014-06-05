@@ -11,6 +11,7 @@ import com.ldbc.driver.control.ConsoleAndFileDriverConfiguration;
 import com.ldbc.driver.temporal.Duration;
 import com.ldbc.driver.temporal.Time;
 import com.ldbc.driver.util.RandomDataGeneratorFactory;
+import com.ldbc.driver.util.TestUtils;
 import com.ldbc.driver.workloads.ldbc.socnet.interactive.LdbcInteractiveWorkload;
 import com.ldbc.driver.workloads.ldbc.socnet.interactive.db.CsvDb;
 import org.apache.commons.io.FileUtils;
@@ -136,9 +137,9 @@ public class TimeMappingGeneratorTests {
         paramsMap.put(LdbcInteractiveWorkload.WRITE_OPERATION_6_KEY, "false");
         paramsMap.put(LdbcInteractiveWorkload.WRITE_OPERATION_7_KEY, "false");
         paramsMap.put(LdbcInteractiveWorkload.WRITE_OPERATION_8_KEY, "false");
-        paramsMap.put(LdbcInteractiveWorkload.PARAMETERS_FILENAME_KEY, "ldbc_driver/workloads/ldbc/socnet/interactive/parameters.json");
+        paramsMap.put(LdbcInteractiveWorkload.PARAMETERS_DIRECTORY, TestUtils.getResource("/").getAbsolutePath());
+        paramsMap.put(LdbcInteractiveWorkload.DATA_DIRECTORY, TestUtils.getResource("/").getAbsolutePath());
         paramsMap.put(LdbcInteractiveWorkload.INTERLEAVE_DURATION_KEY, "10");
-        paramsMap.put(LdbcInteractiveWorkload.WRITE_STREAM_FILENAME_KEY, "ldbc_driver/workloads/ldbc/socnet/interactive/updates.csv");
         paramsMap.put(LdbcInteractiveWorkload.WRITE_RATIO_KEY, "0");
         paramsMap.put(LdbcInteractiveWorkload.READ_RATIO_KEY, "1");
         // CsvDb-specific parameters

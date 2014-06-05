@@ -1,71 +1,72 @@
 package com.ldbc.driver.workloads.ldbc.socnet.interactive;
 
-import java.util.List;
-
 import com.ldbc.driver.Operation;
 
-public class LdbcQuery6 extends Operation<List<LdbcQuery6Result>>
-{
+import java.util.List;
+
+public class LdbcQuery6 extends Operation<List<LdbcQuery6Result>> {
     public static final int DEFAULT_LIMIT = 10;
 
     private final long personId;
+    private final String personUri;
     private final String tagName;
     private final int limit;
 
-    public LdbcQuery6( long personId, String tagName, int limit )
-    {
+    public LdbcQuery6(long personId, String personUri, String tagName, int limit) {
         super();
         this.personId = personId;
+        this.personUri = personUri;
         this.tagName = tagName;
         this.limit = limit;
     }
 
-    public long personId()
-    {
+    public long personId() {
         return personId;
     }
 
-    public String tagName()
-    {
+    public String personUri() {
+        return personUri;
+    }
+
+    public String tagName() {
         return tagName;
     }
 
-    public int limit()
-    {
+    public int limit() {
         return limit;
     }
 
     @Override
-    public int hashCode()
-    {
-        final int prime = 31;
-        int result = 1;
-        result = prime * result + limit;
-        result = prime * result + (int) ( personId ^ ( personId >>> 32 ) );
-        result = prime * result + ( ( tagName == null ) ? 0 : tagName.hashCode() );
-        return result;
-    }
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
 
-    @Override
-    public boolean equals( Object obj )
-    {
-        if ( this == obj ) return true;
-        if ( obj == null ) return false;
-        if ( getClass() != obj.getClass() ) return false;
-        LdbcQuery6 other = (LdbcQuery6) obj;
-        if ( limit != other.limit ) return false;
-        if ( personId != other.personId ) return false;
-        if ( tagName == null )
-        {
-            if ( other.tagName != null ) return false;
-        }
-        else if ( !tagName.equals( other.tagName ) ) return false;
+        LdbcQuery6 that = (LdbcQuery6) o;
+
+        if (limit != that.limit) return false;
+        if (personId != that.personId) return false;
+        if (personUri != null ? !personUri.equals(that.personUri) : that.personUri != null) return false;
+        if (tagName != null ? !tagName.equals(that.tagName) : that.tagName != null) return false;
+
         return true;
     }
 
     @Override
-    public String toString()
-    {
-        return "LdbcQuery6 [personId=" + personId + ", tagName=" + tagName + ", limit=" + limit + "]";
+    public int hashCode() {
+        int result = (int) (personId ^ (personId >>> 32));
+        result = 31 * result + (personUri != null ? personUri.hashCode() : 0);
+        result = 31 * result + (tagName != null ? tagName.hashCode() : 0);
+        result = 31 * result + limit;
+        return result;
+    }
+
+    @Override
+    public String toString() {
+        return "LdbcQuery6{" +
+                "personId=" + personId +
+                ", personUri='" + personUri + '\'' +
+                ", tagName='" + tagName + '\'' +
+                ", limit=" + limit +
+                '}';
     }
 }

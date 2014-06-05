@@ -5,7 +5,6 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Iterators;
 import com.google.common.collect.Lists;
 import com.ldbc.driver.*;
-import com.ldbc.driver.control.ConcurrentControlService;
 import com.ldbc.driver.control.ConsoleAndFileDriverConfiguration;
 import com.ldbc.driver.control.DriverConfigurationException;
 import com.ldbc.driver.control.LocalControlService;
@@ -21,7 +20,6 @@ import com.ldbc.driver.util.Bucket;
 import com.ldbc.driver.util.Histogram;
 import com.ldbc.driver.util.RandomDataGeneratorFactory;
 import com.ldbc.driver.util.TestUtils;
-import com.ldbc.driver.workloads.ldbc.socnet.interactive.*;
 import com.ldbc.driver.workloads.ldbc.socnet.interactive.db.CsvDb;
 import com.ldbc.driver.workloads.ldbc.socnet.interactive.db.NothingDb;
 import org.apache.commons.io.FileUtils;
@@ -43,67 +41,57 @@ import static org.junit.Assert.assertThat;
 public class LdbcWorkloadTests {
 
     @Test
-    public void shouldBeRepeatableWhenSameWorkloadIsUsedTwiceWithIdenticalGeneratorFactories() throws ClientException, DriverConfigurationException, WorkloadException {
-        String ldbcSocNetInteractivePropertiesPath = TestUtils.getResource("/ldbc_socnet_interactive_test.properties").getAbsolutePath();
-        String ldbcDriverPropertiesPath = TestUtils.getResource("/ldbc_driver_default_test.properties").getAbsolutePath();
-
-        ConsoleAndFileDriverConfiguration params = ConsoleAndFileDriverConfiguration.fromArgs(new String[]{
-                "-P", ldbcSocNetInteractivePropertiesPath,
-                "-P", ldbcDriverPropertiesPath,
-                // database class is loaded by Client class, which is bypassed in this test
-                "-db", "this will never be used",
-                "-oc", "100",
-                "-p", "neo4j.dbtype", "embedded-cypher",
-                "-rf", "report/result-embedded-cypher.json"});
-
-        Workload workload = new LdbcInteractiveWorkload();
-        workload.init(params);
-
-        Function<Operation<?>, Class> classFun = new Function<Operation<?>, Class>() {
-            @Override
-            public Class apply(Operation<?> operation) {
-                return operation.getClass();
-            }
-        };
-
-        List<Class> operationsA = ImmutableList.copyOf(
-                Iterators.transform(
-                        workload.operations(new GeneratorFactory(new RandomDataGeneratorFactory(42L))),
-                        classFun
-                ));
-
-        List<Class> operationsB = ImmutableList.copyOf(
-                Iterators.transform(
-                        workload.operations(new GeneratorFactory(new RandomDataGeneratorFactory(42L))),
-                        classFun
-                ));
-
-        assertThat(operationsA.size(), is(operationsB.size()));
-
-        Iterator<Class> operationsAIt = operationsA.iterator();
-        Iterator<Class> operationsBIt = operationsB.iterator();
-
-        while (operationsAIt.hasNext()) {
-            Class a = operationsAIt.next();
-            Class b = operationsBIt.next();
-            assertThat(a, equalTo(b));
-        }
-    }
-
-    @Test
     public void shouldBeRepeatableWhenTwoIdenticalWorkloadsAreUsedWithIdenticalGeneratorFactories() throws ClientException, DriverConfigurationException, WorkloadException {
-        String ldbcSocNetInteractivePropertiesPath = TestUtils.getResource("/ldbc_socnet_interactive_test.properties").getAbsolutePath();
-        String ldbcDriverPropertiesPath = TestUtils.getResource("/ldbc_driver_default_test.properties").getAbsolutePath();
+        // Given
+        Map<String, String> paramsMap = new HashMap<>();
+        // LDBC Interactive Workload-specific parameters
+        paramsMap.put(LdbcInteractiveWorkload.READ_OPERATION_1_KEY, "1");
+        paramsMap.put(LdbcInteractiveWorkload.READ_OPERATION_2_KEY, "1");
+        paramsMap.put(LdbcInteractiveWorkload.READ_OPERATION_3_KEY, "1");
+        paramsMap.put(LdbcInteractiveWorkload.READ_OPERATION_4_KEY, "1");
+        paramsMap.put(LdbcInteractiveWorkload.READ_OPERATION_5_KEY, "1");
+        paramsMap.put(LdbcInteractiveWorkload.READ_OPERATION_6_KEY, "1");
+        paramsMap.put(LdbcInteractiveWorkload.READ_OPERATION_7_KEY, "1");
+        paramsMap.put(LdbcInteractiveWorkload.READ_OPERATION_8_KEY, "1");
+        paramsMap.put(LdbcInteractiveWorkload.READ_OPERATION_9_KEY, "1");
+        paramsMap.put(LdbcInteractiveWorkload.READ_OPERATION_10_KEY, "1");
+        paramsMap.put(LdbcInteractiveWorkload.READ_OPERATION_11_KEY, "1");
+        paramsMap.put(LdbcInteractiveWorkload.READ_OPERATION_12_KEY, "1");
+        paramsMap.put(LdbcInteractiveWorkload.READ_OPERATION_13_KEY, "1");
+        paramsMap.put(LdbcInteractiveWorkload.READ_OPERATION_14_KEY, "1");
+        paramsMap.put(LdbcInteractiveWorkload.WRITE_OPERATION_1_KEY, "false");
+        paramsMap.put(LdbcInteractiveWorkload.WRITE_OPERATION_2_KEY, "false");
+        paramsMap.put(LdbcInteractiveWorkload.WRITE_OPERATION_3_KEY, "false");
+        paramsMap.put(LdbcInteractiveWorkload.WRITE_OPERATION_4_KEY, "false");
+        paramsMap.put(LdbcInteractiveWorkload.WRITE_OPERATION_5_KEY, "false");
+        paramsMap.put(LdbcInteractiveWorkload.WRITE_OPERATION_6_KEY, "false");
+        paramsMap.put(LdbcInteractiveWorkload.WRITE_OPERATION_7_KEY, "false");
+        paramsMap.put(LdbcInteractiveWorkload.WRITE_OPERATION_8_KEY, "false");
+        paramsMap.put(LdbcInteractiveWorkload.PARAMETERS_DIRECTORY, TestUtils.getResource("/").getAbsolutePath());
+        paramsMap.put(LdbcInteractiveWorkload.DATA_DIRECTORY, TestUtils.getResource("/").getAbsolutePath());
+        paramsMap.put(LdbcInteractiveWorkload.INTERLEAVE_DURATION_KEY, "100");
+        paramsMap.put(LdbcInteractiveWorkload.WRITE_RATIO_KEY, "0");
+        paramsMap.put(LdbcInteractiveWorkload.READ_RATIO_KEY, "1");
+        // NothingDb-specific parameters
+        paramsMap.put(NothingDb.SLEEP_DURATION_MILLI, Long.toString(Duration.fromMilli(100).asMilli()));
+        // Driver-specific parameters
+        String dbClassName = NothingDb.class.getName();
+        String workloadClassName = LdbcInteractiveWorkload.class.getName();
+        long operationCount = 100;
+        int threadCount = 1;
+        boolean showStatus = true;
+        TimeUnit timeUnit = TimeUnit.MILLISECONDS;
+        String resultFilePath = "test_ldbc_socnet_interactive_results.json";
+        FileUtils.deleteQuietly(new File(resultFilePath));
+        Double timeCompressionRatio = null;
+        Duration gctDeltaDuration = Duration.fromSeconds(10);
+        List<String> peerIds = Lists.newArrayList();
+        Duration toleratedExecutionDelay = Duration.fromMinutes(5);
 
-        ConsoleAndFileDriverConfiguration params = ConsoleAndFileDriverConfiguration.fromArgs(new String[]{
-                "-P", ldbcSocNetInteractivePropertiesPath,
-                "-P", ldbcDriverPropertiesPath,
-                // database class is loaded by Client class, which is bypassed in this test
-                "-db", "this will never be used",
-                "-oc", "100",
-                "-p", "neo4j.dbtype", "embedded-api-steps",
-                "-rf", "report/result-embedded-steps.json"});
+        assertThat(new File(resultFilePath).exists(), is(false));
 
+        ConsoleAndFileDriverConfiguration params = new ConsoleAndFileDriverConfiguration(paramsMap, dbClassName, workloadClassName, operationCount,
+                threadCount, showStatus, timeUnit, resultFilePath, timeCompressionRatio, gctDeltaDuration, peerIds, toleratedExecutionDelay);
         Workload workloadA = new LdbcInteractiveWorkload();
         workloadA.init(params);
 
@@ -140,12 +128,14 @@ public class LdbcWorkloadTests {
             Class b = operationsBIt.next();
             assertThat(a, equalTo(b));
         }
+
+        workloadA.cleanup();
+        workloadB.cleanup();
     }
 
     @Test
     public void shouldGenerateConfiguredQueryMix() throws ClientException, DriverConfigurationException, WorkloadException {
         // Given
-
         String ldbcSocNetInteractivePropertiesPath = TestUtils.getResource("/ldbc_socnet_interactive_test.properties").getAbsolutePath();
         String ldbcDriverPropertiesPath = TestUtils.getResource("/ldbc_driver_default_test.properties").getAbsolutePath();
 
@@ -229,12 +219,14 @@ public class LdbcWorkloadTests {
                         expectedQueryMixHistogram.toPercentageValues(),
                         tolerance),
                 is(true));
+
+        workload.cleanup();
     }
 
     @Test
     public void shouldGenerateConfiguredQueryMixAndWriteToCsv() throws ClientException, DriverConfigurationException, WorkloadException, IOException {
         // Given
-        Map<String, String> paramsMap = new HashMap<String, String>();
+        Map<String, String> paramsMap = new HashMap<>();
         // LDBC Interactive Workload-specific parameters
         paramsMap.put(LdbcInteractiveWorkload.READ_OPERATION_1_KEY, "1");
         paramsMap.put(LdbcInteractiveWorkload.READ_OPERATION_2_KEY, "2");
@@ -258,10 +250,10 @@ public class LdbcWorkloadTests {
         paramsMap.put(LdbcInteractiveWorkload.WRITE_OPERATION_6_KEY, "true");
         paramsMap.put(LdbcInteractiveWorkload.WRITE_OPERATION_7_KEY, "true");
         paramsMap.put(LdbcInteractiveWorkload.WRITE_OPERATION_8_KEY, "true");
-        paramsMap.put(LdbcInteractiveWorkload.PARAMETERS_FILENAME_KEY, "ldbc_driver/workloads/ldbc/socnet/interactive/parameters.json");
+        paramsMap.put(LdbcInteractiveWorkload.PARAMETERS_DIRECTORY, TestUtils.getResource("/").getAbsolutePath());
+        paramsMap.put(LdbcInteractiveWorkload.DATA_DIRECTORY, TestUtils.getResource("/").getAbsolutePath());
         paramsMap.put(LdbcInteractiveWorkload.INTERLEAVE_DURATION_KEY, "1");
-        paramsMap.put(LdbcInteractiveWorkload.WRITE_STREAM_FILENAME_KEY, "ldbc_driver/workloads/ldbc/socnet/interactive/updates.csv");
-        paramsMap.put(LdbcInteractiveWorkload.WRITE_RATIO_KEY, "1");
+        paramsMap.put(LdbcInteractiveWorkload.WRITE_RATIO_KEY, "0");
         paramsMap.put(LdbcInteractiveWorkload.READ_RATIO_KEY, "1");
         // CsvDb-specific parameters
         String csvOutputFilePath = "temp_csv_output_file.csv";
@@ -288,7 +280,7 @@ public class LdbcWorkloadTests {
                 threadCount, showStatus, timeUnit, resultFilePath, timeCompressionRatio, gctDeltaDuration, peerIds, toleratedExecutionDelay);
 
         // When
-        Client client = new Client(new LocalControlService(Time.now().plus(Duration.fromMilli(500)), params));
+        Client client = new Client(new LocalControlService(Time.now().plus(Duration.fromSeconds(3)), params));
         client.start();
 
         // Then
@@ -368,9 +360,9 @@ public class LdbcWorkloadTests {
         paramsMap.put(LdbcInteractiveWorkload.WRITE_OPERATION_6_KEY, "true");
         paramsMap.put(LdbcInteractiveWorkload.WRITE_OPERATION_7_KEY, "true");
         paramsMap.put(LdbcInteractiveWorkload.WRITE_OPERATION_8_KEY, "true");
-        paramsMap.put(LdbcInteractiveWorkload.PARAMETERS_FILENAME_KEY, "ldbc_driver/workloads/ldbc/socnet/interactive/parameters.json");
+        paramsMap.put(LdbcInteractiveWorkload.PARAMETERS_DIRECTORY, TestUtils.getResource("/").getAbsolutePath());
+        paramsMap.put(LdbcInteractiveWorkload.DATA_DIRECTORY, TestUtils.getResource("/").getAbsolutePath());
         paramsMap.put(LdbcInteractiveWorkload.INTERLEAVE_DURATION_KEY, "10");
-        paramsMap.put(LdbcInteractiveWorkload.WRITE_STREAM_FILENAME_KEY, "ldbc_driver/workloads/ldbc/socnet/interactive/updates.csv");
         paramsMap.put(LdbcInteractiveWorkload.WRITE_RATIO_KEY, "1");
         paramsMap.put(LdbcInteractiveWorkload.READ_RATIO_KEY, "1");
         // CsvDb-specific parameters
@@ -380,7 +372,7 @@ public class LdbcWorkloadTests {
         // Driver-specific parameters
         String dbClassName = CsvDb.class.getName();
         String workloadClassName = LdbcInteractiveWorkload.class.getName();
-        long operationCount = 10000;
+        long operationCount = 1000;
         int threadCount = 1;
         boolean showStatus = true;
         TimeUnit timeUnit = TimeUnit.MILLISECONDS;
@@ -397,21 +389,22 @@ public class LdbcWorkloadTests {
         ConsoleAndFileDriverConfiguration configuration = new ConsoleAndFileDriverConfiguration(paramsMap, dbClassName, workloadClassName, operationCount,
                 threadCount, showStatus, timeUnit, resultFilePath, timeCompressionRatio, gctDeltaDuration, peerIds, toleratedExecutionDelay);
 
-        ConcurrentControlService controlService = new LocalControlService(Time.now().plus(Duration.fromMilli(500)), configuration);
         Workload workload = new LdbcInteractiveWorkload();
         workload.init(configuration);
         List<Operation<?>> operations = Lists.newArrayList(workload.operations(new GeneratorFactory(new RandomDataGeneratorFactory(42L))));
 
         Time prevOperationScheduledStartTime = operations.get(0).scheduledStartTime().minus(Duration.fromMilli(1));
-        for (Operation<?> operation : Lists.newArrayList(operations)) {
-            assertThat(operation.scheduledStartTime().gt(prevOperationScheduledStartTime), is(true));
+        for (Operation<?> operation : operations) {
+            assertThat(operation.scheduledStartTime().gte(prevOperationScheduledStartTime), is(true));
             prevOperationScheduledStartTime = operation.scheduledStartTime();
         }
+
+        workload.cleanup();
     }
 
     @Test
     public void operationsShouldHaveMonotonicallyIncreasingScheduledStartTimesAfterSplitting() throws WorkloadException {
-        Map<String, String> paramsMap = new HashMap<String, String>();
+        Map<String, String> paramsMap = new HashMap<>();
         // LDBC Interactive Workload-specific parameters
         paramsMap.put(LdbcInteractiveWorkload.READ_OPERATION_1_KEY, "1");
         paramsMap.put(LdbcInteractiveWorkload.READ_OPERATION_2_KEY, "2");
@@ -435,10 +428,10 @@ public class LdbcWorkloadTests {
         paramsMap.put(LdbcInteractiveWorkload.WRITE_OPERATION_6_KEY, "true");
         paramsMap.put(LdbcInteractiveWorkload.WRITE_OPERATION_7_KEY, "true");
         paramsMap.put(LdbcInteractiveWorkload.WRITE_OPERATION_8_KEY, "true");
-        paramsMap.put(LdbcInteractiveWorkload.PARAMETERS_FILENAME_KEY, "ldbc_driver/workloads/ldbc/socnet/interactive/parameters.json");
+        paramsMap.put(LdbcInteractiveWorkload.PARAMETERS_DIRECTORY, TestUtils.getResource("/").getAbsolutePath());
+        paramsMap.put(LdbcInteractiveWorkload.DATA_DIRECTORY, TestUtils.getResource("/").getAbsolutePath());
         paramsMap.put(LdbcInteractiveWorkload.INTERLEAVE_DURATION_KEY, "10");
-        paramsMap.put(LdbcInteractiveWorkload.WRITE_STREAM_FILENAME_KEY, "ldbc_driver/workloads/ldbc/socnet/interactive/updates.csv");
-        paramsMap.put(LdbcInteractiveWorkload.WRITE_RATIO_KEY, "1");
+        paramsMap.put(LdbcInteractiveWorkload.WRITE_RATIO_KEY, "0");
         paramsMap.put(LdbcInteractiveWorkload.READ_RATIO_KEY, "1");
         // CsvDb-specific parameters
         String csvOutputFilePath = "temp_csv_output_file.csv";
@@ -511,13 +504,15 @@ public class LdbcWorkloadTests {
             assertThat(operation.scheduledStartTime().gt(prevBlockingOperationScheduledStartTime), is(true));
             prevBlockingOperationScheduledStartTime = operation.scheduledStartTime();
         }
+
+        workload.cleanup();
     }
 
     @Ignore
     @Test
     public void shouldNotFailUnexpectedlyWhenQueriesAreLongRunning() throws ClientException, DriverConfigurationException, WorkloadException, IOException {
         // Given
-        Map<String, String> paramsMap = new HashMap<String, String>();
+        Map<String, String> paramsMap = new HashMap<>();
         // LDBC Interactive Workload-specific parameters
         paramsMap.put(LdbcInteractiveWorkload.READ_OPERATION_1_KEY, "1");
         paramsMap.put(LdbcInteractiveWorkload.READ_OPERATION_2_KEY, "2");
@@ -541,9 +536,9 @@ public class LdbcWorkloadTests {
         paramsMap.put(LdbcInteractiveWorkload.WRITE_OPERATION_6_KEY, "false");
         paramsMap.put(LdbcInteractiveWorkload.WRITE_OPERATION_7_KEY, "false");
         paramsMap.put(LdbcInteractiveWorkload.WRITE_OPERATION_8_KEY, "false");
-        paramsMap.put(LdbcInteractiveWorkload.PARAMETERS_FILENAME_KEY, "ldbc_driver/workloads/ldbc/socnet/interactive/parameters.json");
+        paramsMap.put(LdbcInteractiveWorkload.PARAMETERS_DIRECTORY, TestUtils.getResource("/").getAbsolutePath());
+        paramsMap.put(LdbcInteractiveWorkload.DATA_DIRECTORY, TestUtils.getResource("/").getAbsolutePath());
         paramsMap.put(LdbcInteractiveWorkload.INTERLEAVE_DURATION_KEY, "1");
-        paramsMap.put(LdbcInteractiveWorkload.WRITE_STREAM_FILENAME_KEY, "ldbc_driver/workloads/ldbc/socnet/interactive/updates.csv");
         paramsMap.put(LdbcInteractiveWorkload.WRITE_RATIO_KEY, "0");
         paramsMap.put(LdbcInteractiveWorkload.READ_RATIO_KEY, "1");
         // NothingDb-specific parameters

@@ -52,6 +52,33 @@ public class GeneratorFactory {
      */
 
     /**
+     * Returned generator will merge all input generators into one, sorting on the scheduled start time of operations
+     *
+     * @param generators
+     * @return
+     */
+    public Iterator<Operation<?>> mergeSortOperationsByScheduledStartTime(Iterator<Operation<?>>... generators) {
+        return mergeSortOperationsByScheduledStartTime(1, generators);
+    }
+
+    /**
+     * Returned generator will merge all input generators into one, sorting on the scheduled start time of operations
+     *
+     * @param lookaheadDistance
+     * @param generators
+     * @return
+     */
+    public Iterator<Operation<?>> mergeSortOperationsByScheduledStartTime(int lookaheadDistance, Iterator<Operation<?>>... generators) {
+        return new OrderedMultiGenerator<>(new Comparator<Operation<?>>() {
+            @Override
+            public int compare(Operation<?> o1, Operation<?> o2) {
+                return o2.scheduledStartTime().compareTo(o1.scheduledStartTime());
+            }
+        }, lookaheadDistance, generators);
+    }
+
+
+    /**
      * Returned generator will loop over input iterator indefinitely
      *
      * @param generator

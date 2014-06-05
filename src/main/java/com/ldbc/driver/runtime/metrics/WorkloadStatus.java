@@ -21,9 +21,9 @@ public class WorkloadStatus {
     public String toString() {
         DecimalFormat throughputFormat = new DecimalFormat("#.00");
         return String.format("Runtime [%s], Operations [%s], Since Last Measurement [%s], Throughput (op/sec) [%s]",
-                runDuration,
+                (null == runDuration) ? "--" : runDuration,
                 operationCount,
-                durationSinceLastMeasurement,
+                (null == durationSinceLastMeasurement) ? "--" : durationSinceLastMeasurement,
                 throughputFormat.format(throughput));
     }
 }

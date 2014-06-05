@@ -94,7 +94,7 @@ public class MetricsManager {
 
     WorkloadStatus status() {
         // Could also check latest finish time
-        if (null == earliestStartTime) return new WorkloadStatus(Duration.fromMilli(0), 0, Duration.fromMilli(0), 0);
+        if (null == earliestStartTime) return new WorkloadStatus(null, 0, null, 0);
 
         Time now = Time.now();
         Duration runDuration = calculateElapsedTime(now);

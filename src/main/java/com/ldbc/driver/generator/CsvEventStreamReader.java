@@ -1,11 +1,8 @@
 package com.ldbc.driver.generator;
 
 
-import com.ldbc.driver.util.CsvFileReader;
 import com.ldbc.driver.util.Function1;
 
-import java.io.File;
-import java.io.FileNotFoundException;
 import java.util.Arrays;
 import java.util.Iterator;
 
@@ -14,12 +11,11 @@ public class CsvEventStreamReader<BASE_EVENT_TYPE> implements Iterator<BASE_EVEN
         AT_LEAST_ONE_MATCH,
         EXACTLY_ONE_MATCH
     }
+
     public static class EventDescriptions<BASE_EVENT_TYPE> {
-        private final Iterable<EventDecoder<BASE_EVENT_TYPE>> decoders;
         private final Function1<String[], BASE_EVENT_TYPE> decodeEventFun;
 
         public EventDescriptions(final Iterable<EventDecoder<BASE_EVENT_TYPE>> decoders, EventReturnPolicy eventReturnPolicy) {
-            this.decoders = decoders;
             switch (eventReturnPolicy) {
                 case AT_LEAST_ONE_MATCH:
                     decodeEventFun = new Function1<String[], BASE_EVENT_TYPE>() {
@@ -67,25 +63,21 @@ public class CsvEventStreamReader<BASE_EVENT_TYPE> implements Iterator<BASE_EVEN
     }
 
     private final EventDescriptions<BASE_EVENT_TYPE> eventDescriptions;
-    private final Iterator<String[]> csvFileReader;
+    private final Iterator<String[]> csvRowIterator;
 
-    public CsvEventStreamReader(File csvFile, EventDescriptions<BASE_EVENT_TYPE> eventDescriptions) throws FileNotFoundException {
-        this(csvFile, "\\|", eventDescriptions);
-    }
-
-    public CsvEventStreamReader(File csvFile, String separatorRegexString, EventDescriptions<BASE_EVENT_TYPE> eventDescriptions) throws FileNotFoundException {
-        this.csvFileReader = new CsvFileReader(csvFile, separatorRegexString);
+    public CsvEventStreamReader(Iterator<String[]> csvRowIterator, EventDescriptions<BASE_EVENT_TYPE> eventDescriptions) {
+        this.csvRowIterator = csvRowIterator;
         this.eventDescriptions = eventDescriptions;
     }
 
     @Override
     public boolean hasNext() {
-        return csvFileReader.hasNext();
+        return csvRowIterator.hasNext();
     }
 
     @Override
     public BASE_EVENT_TYPE next() {
-        String[] csvRow = csvFileReader.next();
+        String[] csvRow = csvRowIterator.next();
         return eventDescriptions.decodeEvent(csvRow);
     }
 
@@ -93,5 +85,4 @@ public class CsvEventStreamReader<BASE_EVENT_TYPE> implements Iterator<BASE_EVEN
     public void remove() {
         throw new UnsupportedOperationException(String.format("%s does not support remove()", getClass().getSimpleName()));
     }
-
 }
