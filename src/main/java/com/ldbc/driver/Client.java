@@ -97,6 +97,7 @@ public class Client {
         metricsService = new ThreadedQueuedConcurrentMetricsService(errorReporter, controlService.configuration().timeUnit());
         GeneratorFactory generators = new GeneratorFactory(new RandomDataGeneratorFactory(RANDOM_SEED));
 
+        logger.info(String.format("Instantiating %s", WorkloadRunner.class.getSimpleName()));
         try {
             Iterator<Operation<?>> operations = workload.operations(generators);
             Iterator<Operation<?>> timeMappedOperations = generators.timeOffsetAndCompress(
@@ -113,9 +114,9 @@ public class Client {
                     errorReporter,
                     completionTimeService);
         } catch (WorkloadException e) {
-            throw new ClientException("Error instantiating WorkloadRunner", e);
+            throw new ClientException(String.format("Error instantiating %s", WorkloadRunner.class.getSimpleName()), e);
         }
-        logger.info(String.format("Instantiated WorkloadRunner - Starting Benchmark (%s operations)", controlService.configuration().operationCount()));
+        logger.info(String.format("Instantiated %s - Starting Benchmark (%s operations)", WorkloadRunner.class.getSimpleName(), controlService.configuration().operationCount()));
 
         logger.info("LDBC Workload Driver");
         logger.info(controlService.toString());

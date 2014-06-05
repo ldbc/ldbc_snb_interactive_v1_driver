@@ -15,7 +15,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 class PreciseIndividualAsyncOperationStreamExecutorThread extends Thread {
     // TODO this value should be configurable, or an entirely better policy should be used
-    private static final Duration DURATION_TO_WAIT_FOR_ALL_HANDLERS_TO_FINISH = Duration.fromMinutes(5);
+    private static final Duration DURATION_TO_WAIT_FOR_ALL_HANDLERS_TO_FINISH = Duration.fromMinutes(30);
 
     private final OperationHandlerExecutor operationHandlerExecutor;
     private final Spinner slightlyEarlySpinner;

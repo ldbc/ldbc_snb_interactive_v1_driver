@@ -24,6 +24,10 @@ import static com.ldbc.driver.OperationClassification.SchedulingMode;
 import static com.ldbc.driver.generator.CsvEventStreamReader.EventReturnPolicy;
 
 public class LdbcInteractiveWorkload extends Workload {
+    // TODO
+    public final static String MIN_WRITE_EVENT_START_TIME = "min_write_event_start_time";
+    public final static String MAX_WRITE_EVENT_START_TIME = "max_write_event_start_time";
+
     public final static String DATA_DIRECTORY = "data_dir";
     public final static String PARAMETERS_DIRECTORY = "parameters_dir";
     public final static String INTERLEAVE_DURATION_KEY = "interleave_duration";
