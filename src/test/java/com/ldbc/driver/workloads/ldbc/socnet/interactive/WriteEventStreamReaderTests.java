@@ -4,9 +4,12 @@ import com.google.common.base.Function;
 import com.google.common.collect.Iterators;
 import com.ldbc.driver.Operation;
 import com.ldbc.driver.generator.CsvEventStreamReader;
+import com.ldbc.driver.generator.GeneratorFactory;
 import com.ldbc.driver.temporal.Duration;
 import com.ldbc.driver.temporal.Time;
+import com.ldbc.driver.util.CsvFileReader;
 import com.ldbc.driver.util.Histogram;
+import com.ldbc.driver.util.RandomDataGeneratorFactory;
 import com.ldbc.driver.util.TestUtils;
 import org.apache.commons.io.FileUtils;
 import org.junit.After;
@@ -288,7 +291,8 @@ public class WriteEventStreamReaderTests {
     public void shouldParseUpdateEventFileWithExactlyOneMatch() throws FileNotFoundException {
         String csvFilePath = TestUtils.getResource("/updateStream_0.csv").getAbsolutePath();
         File csvFile = new File(csvFilePath);
-        WriteEventStreamReader writeEventStreamReader = new WriteEventStreamReader(csvFile, CsvEventStreamReader.EventReturnPolicy.EXACTLY_ONE_MATCH);
+        CsvFileReader csvFileReader = new CsvFileReader(csvFile, "\\|");
+        WriteEventStreamReader writeEventStreamReader = new WriteEventStreamReader(csvFileReader, CsvEventStreamReader.EventReturnPolicy.EXACTLY_ONE_MATCH);
         Iterator<Class<?>> updateEventTypes = Iterators.transform(writeEventStreamReader, new Function<Operation<?>, Class<?>>() {
             @Override
             public Class<?> apply(Operation<?> input) {
@@ -321,7 +325,8 @@ public class WriteEventStreamReaderTests {
     public void shouldParseUpdateEventFileWithAtLeastOneMatch() throws FileNotFoundException {
         String csvFilePath = TestUtils.getResource("/updateStream_0.csv").getAbsolutePath();
         File csvFile = new File(csvFilePath);
-        WriteEventStreamReader writeEventStreamReader = new WriteEventStreamReader(csvFile, CsvEventStreamReader.EventReturnPolicy.AT_LEAST_ONE_MATCH);
+        CsvFileReader csvFileReader = new CsvFileReader(csvFile, "\\|");
+        WriteEventStreamReader writeEventStreamReader = new WriteEventStreamReader(csvFileReader, CsvEventStreamReader.EventReturnPolicy.AT_LEAST_ONE_MATCH);
         Iterator<Class<?>> updateEventTypes = Iterators.transform(writeEventStreamReader, new Function<Operation<?>, Class<?>>() {
             @Override
             public Class<?> apply(Operation<?> input) {
@@ -348,5 +353,36 @@ public class WriteEventStreamReaderTests {
         System.out.println(String.format("Operation count:\t%s", histogram.sumOfAllBucketValues()));
         System.out.println(String.format("Throughput (op/ms):\t%s", histogram.sumOfAllBucketValues() / runtime.asMilli()));
         System.out.println(histogram.toPercentageValues().toPrettyString());
+    }
+
+    @Test
+    public void timestampsInUpdateStreamShouldBeMonotonicallyIncreasing() throws FileNotFoundException {
+        String csvFilePath = TestUtils.getResource("/updateStream_0.csv").getAbsolutePath();
+        File csvFile = new File(csvFilePath);
+        CsvFileReader csvFileReader = new CsvFileReader(csvFile, "\\|");
+        WriteEventStreamReader writeEventStreamReader = new WriteEventStreamReader(csvFileReader, CsvEventStreamReader.EventReturnPolicy.AT_LEAST_ONE_MATCH);
+        Time previousOperationTime = Time.fromMilli(0);
+        while (writeEventStreamReader.hasNext()) {
+            Operation<?> writeOperation = writeEventStreamReader.next();
+            Time currentOperationTime = writeOperation.scheduledStartTime();
+            assertThat(currentOperationTime.gte(previousOperationTime), is(true));
+            previousOperationTime = currentOperationTime;
+        }
+    }
+
+    @Test
+    public void timestampsInUpdateStreamShouldBeMonotonicallyIncreasingAfterOffset() throws FileNotFoundException {
+        GeneratorFactory generators = new GeneratorFactory(new RandomDataGeneratorFactory(42L));
+        String csvFilePath = TestUtils.getResource("/updateStream_0.csv").getAbsolutePath();
+        File csvFile = new File(csvFilePath);
+        CsvFileReader csvFileReader = new CsvFileReader(csvFile, "\\|");
+        Iterator<Operation<?>> writeEventStreamReader = generators.timeOffset(new WriteEventStreamReader(csvFileReader, CsvEventStreamReader.EventReturnPolicy.AT_LEAST_ONE_MATCH), Time.now());
+        Time previousOperationTime = Time.fromMilli(0);
+        while (writeEventStreamReader.hasNext()) {
+            Operation<?> writeOperation = writeEventStreamReader.next();
+            Time currentOperationTime = writeOperation.scheduledStartTime();
+            assertThat(currentOperationTime.gte(previousOperationTime), is(true));
+            previousOperationTime = currentOperationTime;
+        }
     }
 }

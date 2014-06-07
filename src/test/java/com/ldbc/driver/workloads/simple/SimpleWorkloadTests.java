@@ -1,4 +1,4 @@
-package com.ldbc.driver.workloads;
+package com.ldbc.driver.workloads.simple;
 
 import com.google.common.base.Function;
 import com.google.common.collect.ImmutableList;
@@ -11,7 +11,6 @@ import com.ldbc.driver.generator.GeneratorFactory;
 import com.ldbc.driver.temporal.Duration;
 import com.ldbc.driver.temporal.Time;
 import com.ldbc.driver.util.RandomDataGeneratorFactory;
-import com.ldbc.driver.workloads.simple.SimpleWorkload;
 import com.ldbc.driver.workloads.simple.db.BasicDb;
 import org.apache.commons.io.FileUtils;
 import org.junit.Test;
@@ -65,6 +64,7 @@ public class SimpleWorkloadTests {
             Class b = operationsBIt.next();
             assertThat(a, equalTo(b));
         }
+        workload.cleanup();
     }
 
     @Test
@@ -143,4 +143,5 @@ public class SimpleWorkloadTests {
         assertThat(new File(resultFilePath).exists(), is(true));
         FileUtils.deleteQuietly(new File(resultFilePath));
         assertThat(new File(resultFilePath).exists(), is(false));
-    }}
+    }
+}

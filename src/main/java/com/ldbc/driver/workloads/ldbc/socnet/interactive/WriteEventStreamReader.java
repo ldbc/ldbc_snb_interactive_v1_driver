@@ -391,15 +391,11 @@ public class WriteEventStreamReader implements Iterator<Operation<?>> {
         }
     };
 
-    public WriteEventStreamReader(File csvFile) throws FileNotFoundException {
-        this(csvFile, CsvEventStreamReader.EventReturnPolicy.EXACTLY_ONE_MATCH);
+    public WriteEventStreamReader(Iterator<String[]> csvRowIterator) {
+        this(csvRowIterator, CsvEventStreamReader.EventReturnPolicy.AT_LEAST_ONE_MATCH);
     }
 
-    public WriteEventStreamReader(File csvFile, CsvEventStreamReader.EventReturnPolicy eventReturnPolicy) throws FileNotFoundException {
-        this(csvFile, "\\|", eventReturnPolicy);
-    }
-
-    public WriteEventStreamReader(File csvFile, String separatorRegexString, CsvEventStreamReader.EventReturnPolicy eventReturnPolicy) throws FileNotFoundException {
+    public WriteEventStreamReader(Iterator<String[]> csvRowIterator, CsvEventStreamReader.EventReturnPolicy eventReturnPolicy) {
         Iterable<CsvEventStreamReader.EventDecoder<Operation<?>>> decoders = Lists.newArrayList(
                 EVENT_DECODER_ADD_PERSON,
                 EVENT_DECODER_ADD_LIKE_POST,
@@ -410,7 +406,7 @@ public class WriteEventStreamReader implements Iterator<Operation<?>> {
                 EVENT_DECODER_ADD_COMMENT,
                 EVENT_DECODER_ADD_FRIENDSHIP);
         CsvEventStreamReader.EventDescriptions<Operation<?>> eventDescriptions = new CsvEventStreamReader.EventDescriptions<>(decoders, eventReturnPolicy);
-        this.csvEventStreamReader = new CsvEventStreamReader<>(new CsvFileReader(csvFile, separatorRegexString), eventDescriptions);
+        this.csvEventStreamReader = new CsvEventStreamReader<>(csvRowIterator, eventDescriptions);
     }
 
     @Override

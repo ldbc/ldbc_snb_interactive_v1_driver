@@ -20,7 +20,6 @@ import org.junit.Test;
 
 import java.io.File;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
@@ -54,9 +53,9 @@ public class TimeMappingGeneratorTests {
         assertThat(operations.size(), is(11));
         assertThat(operations.get(0).scheduledStartTime(), equalTo(Time.fromMilli(0)));
         assertThat(operations.get(10).scheduledStartTime(), equalTo(Time.fromMilli(1000)));
-        Time newStartTime = Time.fromMilli(500);
 
         // When
+        Time newStartTime = Time.fromMilli(500);
         List<Operation<?>> offsetOperations = ImmutableList.copyOf(generators.timeOffset(operations.iterator(), newStartTime));
 
         // Then
@@ -90,10 +89,10 @@ public class TimeMappingGeneratorTests {
         assertThat(operations.size(), is(11));
         assertThat(operations.get(0).scheduledStartTime(), equalTo(Time.fromMilli(0)));
         assertThat(operations.get(10).scheduledStartTime(), equalTo(Time.fromMilli(1000)));
-        Time newStartTime = Time.fromMilli(500);
-        Double compressionRatio = 0.2;
 
         // When
+        Time newStartTime = Time.fromMilli(500);
+        Double compressionRatio = 0.2;
         List<Operation<?>> offsetAndCompressedOperations = ImmutableList.copyOf(generators.timeOffsetAndCompress(operations.iterator(), newStartTime, compressionRatio));
 
         // Then
@@ -113,35 +112,46 @@ public class TimeMappingGeneratorTests {
 
     @Test
     public void shouldNotBreakTheMonotonicallyIncreasingScheduledStartTimesOfOperationsFromLdbcWorkload() throws WorkloadException {
-        Map<String, String> paramsMap = new HashMap<String, String>();
+        Map<String, String> paramsMap = new HashMap<>();
         // LDBC Interactive Workload-specific parameters
-        paramsMap.put(LdbcInteractiveWorkload.READ_OPERATION_1_KEY, "1");
-        paramsMap.put(LdbcInteractiveWorkload.READ_OPERATION_2_KEY, "2");
-        paramsMap.put(LdbcInteractiveWorkload.READ_OPERATION_3_KEY, "3");
-        paramsMap.put(LdbcInteractiveWorkload.READ_OPERATION_4_KEY, "4");
-        paramsMap.put(LdbcInteractiveWorkload.READ_OPERATION_5_KEY, "5");
-        paramsMap.put(LdbcInteractiveWorkload.READ_OPERATION_6_KEY, "6");
-        paramsMap.put(LdbcInteractiveWorkload.READ_OPERATION_7_KEY, "7");
-        paramsMap.put(LdbcInteractiveWorkload.READ_OPERATION_8_KEY, "6");
-        paramsMap.put(LdbcInteractiveWorkload.READ_OPERATION_9_KEY, "5");
-        paramsMap.put(LdbcInteractiveWorkload.READ_OPERATION_10_KEY, "4");
-        paramsMap.put(LdbcInteractiveWorkload.READ_OPERATION_11_KEY, "3");
-        paramsMap.put(LdbcInteractiveWorkload.READ_OPERATION_12_KEY, "2");
-        paramsMap.put(LdbcInteractiveWorkload.READ_OPERATION_13_KEY, "1");
-        paramsMap.put(LdbcInteractiveWorkload.READ_OPERATION_14_KEY, "1");
-        paramsMap.put(LdbcInteractiveWorkload.WRITE_OPERATION_1_KEY, "false");
-        paramsMap.put(LdbcInteractiveWorkload.WRITE_OPERATION_2_KEY, "false");
-        paramsMap.put(LdbcInteractiveWorkload.WRITE_OPERATION_3_KEY, "false");
-        paramsMap.put(LdbcInteractiveWorkload.WRITE_OPERATION_4_KEY, "false");
-        paramsMap.put(LdbcInteractiveWorkload.WRITE_OPERATION_5_KEY, "false");
-        paramsMap.put(LdbcInteractiveWorkload.WRITE_OPERATION_6_KEY, "false");
-        paramsMap.put(LdbcInteractiveWorkload.WRITE_OPERATION_7_KEY, "false");
-        paramsMap.put(LdbcInteractiveWorkload.WRITE_OPERATION_8_KEY, "false");
-        paramsMap.put(LdbcInteractiveWorkload.PARAMETERS_DIRECTORY, TestUtils.getResource("/").getAbsolutePath());
+        paramsMap.put(LdbcInteractiveWorkload.READ_OPERATION_1_INTERLEAVE_KEY, "100");
+        paramsMap.put(LdbcInteractiveWorkload.READ_OPERATION_2_INTERLEAVE_KEY, "100");
+        paramsMap.put(LdbcInteractiveWorkload.READ_OPERATION_3_INTERLEAVE_KEY, "100");
+        paramsMap.put(LdbcInteractiveWorkload.READ_OPERATION_4_INTERLEAVE_KEY, "100");
+        paramsMap.put(LdbcInteractiveWorkload.READ_OPERATION_5_INTERLEAVE_KEY, "100");
+        paramsMap.put(LdbcInteractiveWorkload.READ_OPERATION_6_INTERLEAVE_KEY, "100");
+        paramsMap.put(LdbcInteractiveWorkload.READ_OPERATION_7_INTERLEAVE_KEY, "100");
+        paramsMap.put(LdbcInteractiveWorkload.READ_OPERATION_8_INTERLEAVE_KEY, "100");
+        paramsMap.put(LdbcInteractiveWorkload.READ_OPERATION_9_INTERLEAVE_KEY, "100");
+        paramsMap.put(LdbcInteractiveWorkload.READ_OPERATION_10_INTERLEAVE_KEY, "100");
+        paramsMap.put(LdbcInteractiveWorkload.READ_OPERATION_11_INTERLEAVE_KEY, "100");
+        paramsMap.put(LdbcInteractiveWorkload.READ_OPERATION_12_INTERLEAVE_KEY, "100");
+        paramsMap.put(LdbcInteractiveWorkload.READ_OPERATION_13_INTERLEAVE_KEY, "100");
+        paramsMap.put(LdbcInteractiveWorkload.READ_OPERATION_14_INTERLEAVE_KEY, "100");
+        paramsMap.put(LdbcInteractiveWorkload.READ_OPERATION_1_ENABLE_KEY, "true");
+        paramsMap.put(LdbcInteractiveWorkload.READ_OPERATION_2_ENABLE_KEY, "true");
+        paramsMap.put(LdbcInteractiveWorkload.READ_OPERATION_3_ENABLE_KEY, "true");
+        paramsMap.put(LdbcInteractiveWorkload.READ_OPERATION_4_ENABLE_KEY, "true");
+        paramsMap.put(LdbcInteractiveWorkload.READ_OPERATION_5_ENABLE_KEY, "true");
+        paramsMap.put(LdbcInteractiveWorkload.READ_OPERATION_6_ENABLE_KEY, "true");
+        paramsMap.put(LdbcInteractiveWorkload.READ_OPERATION_7_ENABLE_KEY, "true");
+        paramsMap.put(LdbcInteractiveWorkload.READ_OPERATION_8_ENABLE_KEY, "true");
+        paramsMap.put(LdbcInteractiveWorkload.READ_OPERATION_9_ENABLE_KEY, "true");
+        paramsMap.put(LdbcInteractiveWorkload.READ_OPERATION_10_ENABLE_KEY, "true");
+        paramsMap.put(LdbcInteractiveWorkload.READ_OPERATION_11_ENABLE_KEY, "true");
+        paramsMap.put(LdbcInteractiveWorkload.READ_OPERATION_12_ENABLE_KEY, "true");
+        paramsMap.put(LdbcInteractiveWorkload.READ_OPERATION_13_ENABLE_KEY, "true");
+        paramsMap.put(LdbcInteractiveWorkload.READ_OPERATION_14_ENABLE_KEY, "true");
+        paramsMap.put(LdbcInteractiveWorkload.WRITE_OPERATION_1_ENABLE_KEY, "true");
+        paramsMap.put(LdbcInteractiveWorkload.WRITE_OPERATION_2_ENABLE_KEY, "true");
+        paramsMap.put(LdbcInteractiveWorkload.WRITE_OPERATION_3_ENABLE_KEY, "true");
+        paramsMap.put(LdbcInteractiveWorkload.WRITE_OPERATION_4_ENABLE_KEY, "true");
+        paramsMap.put(LdbcInteractiveWorkload.WRITE_OPERATION_5_ENABLE_KEY, "true");
+        paramsMap.put(LdbcInteractiveWorkload.WRITE_OPERATION_6_ENABLE_KEY, "true");
+        paramsMap.put(LdbcInteractiveWorkload.WRITE_OPERATION_7_ENABLE_KEY, "true");
+        paramsMap.put(LdbcInteractiveWorkload.WRITE_OPERATION_8_ENABLE_KEY, "true");
         paramsMap.put(LdbcInteractiveWorkload.DATA_DIRECTORY, TestUtils.getResource("/").getAbsolutePath());
-        paramsMap.put(LdbcInteractiveWorkload.INTERLEAVE_DURATION_KEY, "10");
-        paramsMap.put(LdbcInteractiveWorkload.WRITE_RATIO_KEY, "0");
-        paramsMap.put(LdbcInteractiveWorkload.READ_RATIO_KEY, "1");
+        paramsMap.put(LdbcInteractiveWorkload.PARAMETERS_DIRECTORY, TestUtils.getResource("/").getAbsolutePath());
         // CsvDb-specific parameters
         String csvOutputFilePath = "temp_csv_output_file.csv";
         FileUtils.deleteQuietly(new File(csvOutputFilePath));
@@ -149,7 +159,7 @@ public class TimeMappingGeneratorTests {
         // Driver-specific parameters
         String dbClassName = CsvDb.class.getName();
         String workloadClassName = LdbcInteractiveWorkload.class.getName();
-        long operationCount = 10000;
+        long operationCount = 100;
         int threadCount = 1;
         boolean showStatus = true;
         TimeUnit timeUnit = TimeUnit.MILLISECONDS;
@@ -168,20 +178,20 @@ public class TimeMappingGeneratorTests {
 
         Workload workload = new LdbcInteractiveWorkload();
         workload.init(configuration);
-        List<Operation<?>> operations = Lists.newArrayList(workload.operations(new GeneratorFactory(new RandomDataGeneratorFactory(42L))));
 
+        List<Operation<?>> operations = Lists.newArrayList(workload.operations(new GeneratorFactory(new RandomDataGeneratorFactory(42L))));
         Time prevOperationScheduledStartTime = operations.get(0).scheduledStartTime().minus(Duration.fromMilli(1));
         for (Operation<?> operation : operations) {
-            assertThat(operation.scheduledStartTime().gt(prevOperationScheduledStartTime), is(true));
+            assertThat(operation.scheduledStartTime().gte(prevOperationScheduledStartTime), is(true));
             prevOperationScheduledStartTime = operation.scheduledStartTime();
         }
 
-        Iterator<Operation<?>> offsetAndCompressedOperations = generators.timeOffsetAndCompress(operations.iterator(), Time.now().plus(Duration.fromMilli(500)), 1.0);
-        Time prevOffsetOperationScheduledStartTime = operations.get(0).scheduledStartTime().minus(Duration.fromMilli(1));
-        while (offsetAndCompressedOperations.hasNext()) {
-            Operation<?> operation = offsetAndCompressedOperations.next();
-            assertThat(operation.scheduledStartTime().gt(prevOffsetOperationScheduledStartTime), is(true));
+        List<Operation<?>> offsetOperations = Lists.newArrayList(generators.timeOffset(operations.iterator(), Time.now().plus(Duration.fromMilli(500))));
+        Time prevOffsetOperationScheduledStartTime = offsetOperations.get(0).scheduledStartTime().minus(Duration.fromMilli(1));
+        for (Operation<?> operation : offsetOperations) {
+            assertThat(operation.scheduledStartTime().gte(prevOffsetOperationScheduledStartTime), is(true));
             prevOffsetOperationScheduledStartTime = operation.scheduledStartTime();
         }
+        workload.cleanup();
     }
 }

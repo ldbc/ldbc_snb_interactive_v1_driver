@@ -296,6 +296,7 @@ public class ConcurrentCompletionTimeServiceTest {
         boolean allTasksCompletedInTime = executorService.awaitTermination(1, TimeUnit.SECONDS);
         assertThat(allTasksCompletedInTime, is(true));
         assertThat(errorReporter.errorEncountered(), is(false));
+        workload.cleanup();
         return testDuration;
     }
 

@@ -9,8 +9,7 @@ public class StartTimeAssigningOperationGenerator extends Generator<Operation<?>
     private final Iterator<Time> startTimeGenerator;
     private final Iterator<Operation<?>> operationGenerator;
 
-    public StartTimeAssigningOperationGenerator(Iterator<Time> startTimeGenerator,
-                                                Iterator<Operation<?>> operationGenerator) {
+    StartTimeAssigningOperationGenerator(Iterator<Time> startTimeGenerator, Iterator<Operation<?>> operationGenerator) {
         this.startTimeGenerator = startTimeGenerator;
         this.operationGenerator = operationGenerator;
     }

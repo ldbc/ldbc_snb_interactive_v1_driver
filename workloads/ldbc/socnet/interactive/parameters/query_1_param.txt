@@ -1,8 +1,0 @@
-{"PersonID": 10995117334833, "Name": "John", "PersonURI": "http://www.ldbc.eu/ldbc_socialnet/1.0/data/pers10995117334833"}
-{"PersonID": 14293651244033, "Name": "Yang", "PersonURI": "http://www.ldbc.eu/ldbc_socialnet/1.0/data/pers14293651244033"}
-{"PersonID": 6597070008725, "Name": "A.", "PersonURI": "http://www.ldbc.eu/ldbc_socialnet/1.0/data/pers6597070008725"}
-{"PersonID": 2199023331001, "Name": "Chen", "PersonURI": "http://www.ldbc.eu/ldbc_socialnet/1.0/data/pers2199023331001"}
-{"PersonID": 14293651197368, "Name": "Shweta", "PersonURI": "http://www.ldbc.eu/ldbc_socialnet/1.0/data/pers14293651197368"}
-{"PersonID": 15393162838684, "Name": "Lei", "PersonURI": "http://www.ldbc.eu/ldbc_socialnet/1.0/data/pers15393162838684"}
-{"PersonID": 12094628092905, "Name": "Wei", "PersonURI": "http://www.ldbc.eu/ldbc_socialnet/1.0/data/pers12094628092905"}
-{"PersonID": 1099513032620, "Name": "Rahul", "PersonURI": "http://www.ldbc.eu/ldbc_socialnet/1.0/data/pers1099513032620"}

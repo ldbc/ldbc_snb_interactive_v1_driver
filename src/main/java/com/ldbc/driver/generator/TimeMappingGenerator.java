@@ -15,10 +15,6 @@ public class TimeMappingGenerator extends Generator<Operation<?>> {
     private Function1<Time, Time> timeOffsetFun = null;
     private Function1<Time, Time> timeCompressionFun = null;
 
-    TimeMappingGenerator(Iterator<Operation<?>> original, Time newStartTime) {
-        this(original, newStartTime, null);
-    }
-
     TimeMappingGenerator(Iterator<Operation<?>> original, Time newStartTime, Double timeCompressionRatio) {
         this.original = original;
         this.newStartTime = newStartTime;
@@ -32,11 +28,12 @@ public class TimeMappingGenerator extends Generator<Operation<?>> {
         if (null == timeOffsetFun) {
             // Create timeOffsetFun
             Time firstStartTime = nextOperation.scheduledStartTime();
-            boolean offsetToFuture = (newStartTime.gt(firstStartTime)) ? true : false;
-            if (offsetToFuture) {
+            if (newStartTime.gt(firstStartTime)) {
+                // offset to future
                 Duration offset = newStartTime.greaterBy(firstStartTime);
                 timeOffsetFun = new TimeFutureOffsetFun(offset);
             } else {
+                // offset to past
                 Duration offset = newStartTime.lessBy(firstStartTime);
                 timeOffsetFun = new TimePastOffsetFun(offset);
             }

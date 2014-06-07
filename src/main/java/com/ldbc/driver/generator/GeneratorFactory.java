@@ -2,6 +2,7 @@ package com.ldbc.driver.generator;
 
 import com.ldbc.driver.Operation;
 import com.ldbc.driver.data.ByteIterator;
+import com.ldbc.driver.temporal.Duration;
 import com.ldbc.driver.temporal.Time;
 import com.ldbc.driver.util.Function0;
 import com.ldbc.driver.util.Function1;
@@ -52,34 +53,117 @@ public class GeneratorFactory {
      */
 
     /**
-     * Returned generator will merge all input generators into one, sorting on the scheduled start time of operations
+     * Returns the same operation generator, with start times assigned to each operation taken from the start time
+     * generator. Generator stops as soon as either of the generators, start times or operations, stops.
      *
-     * @param generators
+     * @param startTimes
+     * @param operations
      * @return
      */
-    public Iterator<Operation<?>> mergeSortOperationsByScheduledStartTime(Iterator<Operation<?>>... generators) {
-        return mergeSortOperationsByScheduledStartTime(1, generators);
+    public Iterator<Operation<?>> startTimeAssigning(Iterator<Time> startTimes, Iterator<Operation<?>> operations) {
+        return new StartTimeAssigningOperationGenerator(startTimes, operations);
     }
 
     /**
-     * Returned generator will merge all input generators into one, sorting on the scheduled start time of operations
+     * Returns times, starting at specified start time, and thereafter incrementing by a uniformly random duration
+     * between the minimum and maximum durations specified
      *
-     * @param lookaheadDistance
+     * @param startTime
+     * @param minIncrement
+     * @param maxIncrement
+     * @return
+     */
+    public Iterator<Time> randomIncrementTime(Time startTime, Duration minIncrement, Duration maxIncrement) {
+        Iterator<Long> incrementTimeByGenerator = uniform(minIncrement.asMilli(), maxIncrement.asMilli());
+        Iterator<Long> startTimeMilliSecondsGenerator = incrementing(startTime.asMilli(), incrementTimeByGenerator);
+        return timeFromMilliSeconds(startTimeMilliSecondsGenerator);
+    }
+
+    /**
+     * Returns times, starting at specified start time, and thereafter incrementing by exactly the specified duration increment
+     *
+     * @param startTime
+     * @param increment
+     * @return
+     */
+    public Iterator<Time> constantIncrementTime(Time startTime, Duration increment) {
+        Iterator<Long> startTimeMilliSecondsGenerator = incrementing(startTime.asMilli(), increment.asMilli());
+        return timeFromMilliSeconds(startTimeMilliSecondsGenerator);
+    }
+
+    private Iterator<Time> timeFromMilliSeconds(Iterator<Long> milliSecondsGenerator) {
+        Function1<Long, Time> timeFromNanoFun = new Function1<Long, Time>() {
+            @Override
+            public Time apply(Long fromMilli) {
+                return Time.fromMilli(fromMilli);
+            }
+        };
+        return new MappingGenerator<>(milliSecondsGenerator, timeFromNanoFun);
+    }
+
+    /**
+     * Returned generator will merge all input generators into one, sorting on the scheduled start time of operations, ascending
+     *
      * @param generators
      * @return
      */
-    public Iterator<Operation<?>> mergeSortOperationsByScheduledStartTime(int lookaheadDistance, Iterator<Operation<?>>... generators) {
-        return new OrderedMultiGenerator<>(new Comparator<Operation<?>>() {
+    public Iterator<Operation<?>> mergeSortOperationsByStartTime(Iterator<Operation<?>>... generators) {
+        return mergeSort(new Comparator<Operation<?>>() {
             @Override
             public int compare(Operation<?> o1, Operation<?> o2) {
-                return o2.scheduledStartTime().compareTo(o1.scheduledStartTime());
+                return o1.scheduledStartTime().compareTo(o2.scheduledStartTime());
             }
-        }, lookaheadDistance, generators);
+        }, 1, generators);
     }
 
+    /**
+     * Returned generator will merge all input generators into one, sorting by time, ascending
+     *
+     * @param generators
+     * @return
+     */
+    public Iterator<Time> mergeSortTimes(Iterator<Time>... generators) {
+        return mergeSort(new Comparator<Time>() {
+            @Override
+            public int compare(Time t1, Time t2) {
+                return t1.compareTo(t2);
+            }
+        }, 1, generators);
+    }
 
     /**
-     * Returned generator will loop over input iterator indefinitely
+     * Returned generator will merge all input generators into one, using provided comparator for sorting
+     *
+     * @param comparator
+     * @param generators
+     * @param <T>
+     * @return
+     */
+    public <T> Iterator<T> mergeSort(Comparator<T> comparator, Iterator<T>... generators) {
+        return mergeSort(comparator, 1, generators);
+    }
+
+    /**
+     * Returned generator will merge all input generators into one, using provided comparator for sorting,
+     * and looking ahead a bounded distance in case nearby elements of any one input generator are out of order
+     *
+     * @param comparator
+     * @param lookaheadDistance
+     * @param generators
+     * @param <T>
+     * @return
+     */
+    public <T> Iterator<T> mergeSort(Comparator<T> comparator, int lookaheadDistance, Iterator<T>... generators) {
+        return new OrderedMultiGenerator<>(comparator, lookaheadDistance, generators);
+    }
+
+    /**
+     * Returned generator will loop over input iterator indefinitely.
+     * <p/>
+     * CAUTION: the returned generator does NOT (can not) do a deep copy on the elements of the original generator.
+     * As such, if elements of the original generator are not primitives the repeating generator will simply return
+     * many pointers to the elements of the original generator, i.e., modifying any of them will modify the content
+     * of all returned elements that are pointed to by that element(/pointer).
      *
      * @param generator
      * @param <T>

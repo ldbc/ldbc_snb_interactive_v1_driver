@@ -6,10 +6,12 @@ import com.ldbc.driver.OperationClassification;
 import com.ldbc.driver.Workload;
 import com.ldbc.driver.WorkloadException;
 import com.ldbc.driver.data.ByteIterator;
-import com.ldbc.driver.generator.*;
+import com.ldbc.driver.generator.Generator;
+import com.ldbc.driver.generator.GeneratorException;
+import com.ldbc.driver.generator.GeneratorFactory;
+import com.ldbc.driver.generator.MinMaxGenerator;
 import com.ldbc.driver.temporal.Duration;
 import com.ldbc.driver.temporal.Time;
-import com.ldbc.driver.util.GeneratorUtils;
 import com.ldbc.driver.util.Tuple;
 import com.ldbc.driver.util.Tuple.Tuple2;
 import com.ldbc.driver.util.Tuple.Tuple3;
@@ -169,9 +171,9 @@ public class SimpleWorkload extends Workload {
         // iterates initialInsertOperationGenerator before starting with transactionalInsertOperationGenerator
         Iterator<Operation<?>> workloadOperations = Iterators.concat(initialInsertOperationGenerator, transactionalOperationGenerator);
 
-        Iterator<Time> startTimeGenerator = GeneratorUtils.constantIncrementStartTimeGenerator(generators, Time.now(), Duration.fromMilli(100));
+        Iterator<Time> startTimeGenerator = generators.constantIncrementTime(Time.now().plus(Duration.fromSeconds(1)), Duration.fromMilli(100));
 
-        return new StartTimeAssigningOperationGenerator(startTimeGenerator, workloadOperations);
+        return generators.startTimeAssigning(startTimeGenerator, workloadOperations);
     }
 
     @Override

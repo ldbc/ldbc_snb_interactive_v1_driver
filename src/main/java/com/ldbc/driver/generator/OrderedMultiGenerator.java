@@ -17,7 +17,7 @@ public class OrderedMultiGenerator<GENERATE_TYPE> extends Generator<GENERATE_TYP
 
     public OrderedMultiGenerator(Comparator<GENERATE_TYPE> comparator, int lookaheadDistance, Iterator<GENERATE_TYPE>... generators) {
         this.comparator = comparator;
-        if (DEFAULT_LOOK_AHEAD_DISTANCE == lookaheadDistance) {
+        if (1 == lookaheadDistance) {
             this.generatorHeads = buildSimpleGeneratorHeads(generators);
         } else {
             this.generatorHeads = buildLookaheadGeneratorHeads(comparator, lookaheadDistance, generators);
@@ -25,18 +25,17 @@ public class OrderedMultiGenerator<GENERATE_TYPE> extends Generator<GENERATE_TYP
     }
 
     private static <T1> List<GeneratorHead<T1>> buildSimpleGeneratorHeads(Iterator<T1>... generators) {
-        List<GeneratorHead<T1>> heads = new ArrayList<GeneratorHead<T1>>();
+        List<GeneratorHead<T1>> heads = new ArrayList<>();
         for (Iterator<T1> generator : generators) {
-            heads.add(new SimpleGeneratorHead<T1>(generator));
+            heads.add(new SimpleGeneratorHead<>(generator));
         }
         return heads;
     }
 
-    private static <T1> List<GeneratorHead<T1>> buildLookaheadGeneratorHeads(Comparator<T1> c, int distance,
-                                                                             Iterator<T1>... generators) {
-        List<GeneratorHead<T1>> heads = new ArrayList<GeneratorHead<T1>>();
+    private static <T1> List<GeneratorHead<T1>> buildLookaheadGeneratorHeads(Comparator<T1> comparator, int distance, Iterator<T1>... generators) {
+        List<GeneratorHead<T1>> heads = new ArrayList<>();
         for (Iterator<T1> generator : generators) {
-            heads.add(new LookaheadGeneratorHead<T1>(generator, c, distance));
+            heads.add(new LookaheadGeneratorHead<>(generator, comparator, distance));
         }
         return heads;
     }
@@ -51,26 +50,18 @@ public class OrderedMultiGenerator<GENERATE_TYPE> extends Generator<GENERATE_TYP
         GeneratorHead<GENERATE_TYPE> minGeneratorHead = null;
         Iterator<GeneratorHead<GENERATE_TYPE>> generatorHeadsIterator = generatorHeads.iterator();
 
+        // Get generator head with lowest head element (removing empty ones encountered first)
         while (generatorHeadsIterator.hasNext()) {
             GeneratorHead<GENERATE_TYPE> generatorHead = generatorHeadsIterator.next();
             if (null == generatorHead.inspectHead()) {
                 generatorHeadsIterator.remove();
                 continue;
             }
-            minGeneratorHead = generatorHead;
-            break;
-        }
-
-        while (generatorHeadsIterator.hasNext()) {
-            GeneratorHead<GENERATE_TYPE> generatorHead = generatorHeadsIterator.next();
-            if (null == generatorHead.inspectHead()) {
-                generatorHeadsIterator.remove();
-                continue;
-            }
-            if (comparator.compare(generatorHead.inspectHead(), minGeneratorHead.inspectHead()) < 0) {
+            if (null == minGeneratorHead || comparator.compare(generatorHead.inspectHead(), minGeneratorHead.inspectHead()) < 0) {
                 minGeneratorHead = generatorHead;
             }
         }
+
         return minGeneratorHead;
     }
 

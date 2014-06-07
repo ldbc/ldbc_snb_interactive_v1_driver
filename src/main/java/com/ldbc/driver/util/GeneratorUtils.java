@@ -13,30 +13,6 @@ import java.util.Iterator;
 import java.util.Set;
 
 public class GeneratorUtils {
-    public static Iterator<Time> randomIncrementStartTimeGenerator(GeneratorFactory generators, Time startTime,
-                                                                   Duration minIncrement, Duration maxIncrement) {
-        Iterator<Long> incrementTimeByGenerator = generators.uniform(minIncrement.asMilli(),
-                maxIncrement.asMilli());
-        Iterator<Long> startTimeMilliSecondsGenerator = generators.incrementing(startTime.asMilli(),
-                incrementTimeByGenerator);
-        return timeFromMilliSeconds(startTimeMilliSecondsGenerator);
-    }
-
-    public static Iterator<Time> constantIncrementStartTimeGenerator(GeneratorFactory generators, Time startTime, Duration increment) {
-        Iterator<Long> startTimeMilliSecondsGenerator = generators.incrementing(startTime.asMilli(), increment.asMilli());
-        return timeFromMilliSeconds(startTimeMilliSecondsGenerator);
-    }
-
-    public static Iterator<Time> timeFromMilliSeconds(Iterator<Long> milliSecondsGenerator) {
-        Function1<Long, Time> timeFromNanoFun = new Function1<Long, Time>() {
-            @Override
-            public Time apply(Long fromMilli) {
-                return Time.fromMilli(fromMilli);
-            }
-        };
-        return new MappingGenerator<Long, Time>(milliSecondsGenerator, timeFromNanoFun);
-    }
-
     public static <T1> Iterator<T1> includeOnly(Iterator<T1> generator, T1... includedItems) {
         return Iterators.filter(generator, new IncludeOnlyPredicate<T1>(includedItems));
     }
