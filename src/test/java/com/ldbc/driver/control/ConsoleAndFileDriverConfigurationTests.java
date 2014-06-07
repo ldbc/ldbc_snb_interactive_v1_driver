@@ -128,8 +128,6 @@ public class ConsoleAndFileDriverConfigurationTests {
         assertThat(params.showStatus(), is(true));
         assertThat(params.timeUnit(), is(TimeUnit.MILLISECONDS));
         assertThat(params.resultFilePath(), is(new File("test_ldbc_socnet_interactive_results.json").getAbsolutePath()));
-        assertThat(params.asMap().get("parameters_dir"), is("ldbc_driver/workloads/ldbc/socnet/interactive/parameters/"));
-        assertThat(params.asMap().get("data_dir"), is("ldbc_driver/workloads/ldbc/socnet/interactive/data/"));
     }
 
     @Test
