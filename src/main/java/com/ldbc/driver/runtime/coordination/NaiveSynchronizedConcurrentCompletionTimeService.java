@@ -60,13 +60,13 @@ public class NaiveSynchronizedConcurrentCompletionTimeService implements Concurr
                 case READ_FUTURE_GCT:
                     return new GlobalCompletionTimeFuture(gct.completionTime());
                 case WRITE_INITIATED:
-                    gct.localCompletionTime().applyInitiatedTime(time);
+                    gct.applyInitiatedTime(time);
                     return null;
                 case WRITE_COMPLETED:
-                    gct.localCompletionTime().applyCompletedTime(time);
+                    gct.applyCompletedTime(time);
                     return null;
                 case WRITE_EXTERNAL:
-                    gct.externalCompletionTime().applyPeerCompletionTime(peerId, time);
+                    gct.applyPeerCompletionTime(peerId, time);
                     return null;
                 default:
                     throw new CompletionTimeException("This should never happen");

@@ -109,6 +109,11 @@ public class WorkloadRunnerTests {
         ConcurrentErrorReporter errorReporter = new ConcurrentErrorReporter();
         ConcurrentMetricsService metricsService = new ThreadedQueuedConcurrentMetricsService(errorReporter, configuration.timeUnit());
         ConcurrentCompletionTimeService completionTimeService = new ThreadedQueuedConcurrentCompletionTimeService(controlService.configuration().peerIds(), errorReporter);
+        completionTimeService.submitInitiatedTime(controlService.workloadStartTime());
+        completionTimeService.submitCompletedTime(controlService.workloadStartTime());
+        for (String peerId : controlService.configuration().peerIds()) {
+            completionTimeService.submitExternalCompletionTime(peerId, controlService.workloadStartTime());
+        }
 
         WorkloadRunner runner = new WorkloadRunner(controlService, db, timeMappedOperations, operationClassifications, metricsService, errorReporter, completionTimeService);
 
@@ -209,6 +214,11 @@ public class WorkloadRunnerTests {
         ConcurrentErrorReporter errorReporter = new ConcurrentErrorReporter();
         ConcurrentMetricsService metricsService = new ThreadedQueuedConcurrentMetricsService(errorReporter, configuration.timeUnit());
         ConcurrentCompletionTimeService completionTimeService = new ThreadedQueuedConcurrentCompletionTimeService(controlService.configuration().peerIds(), errorReporter);
+        completionTimeService.submitInitiatedTime(controlService.workloadStartTime());
+        completionTimeService.submitCompletedTime(controlService.workloadStartTime());
+        for (String peerId : controlService.configuration().peerIds()) {
+            completionTimeService.submitExternalCompletionTime(peerId, controlService.workloadStartTime());
+        }
 
         WorkloadRunner runner = new WorkloadRunner(controlService, db, timeMappedOperations, operationClassifications, metricsService, errorReporter, completionTimeService);
 

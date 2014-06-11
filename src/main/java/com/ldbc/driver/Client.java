@@ -9,7 +9,7 @@ import com.ldbc.driver.runtime.ConcurrentErrorReporter;
 import com.ldbc.driver.runtime.WorkloadRunner;
 import com.ldbc.driver.runtime.coordination.CompletionTimeException;
 import com.ldbc.driver.runtime.coordination.ConcurrentCompletionTimeService;
-import com.ldbc.driver.runtime.coordination.ThreadedQueuedConcurrentCompletionTimeService;
+import com.ldbc.driver.runtime.coordination.NaiveSynchronizedConcurrentCompletionTimeService;
 import com.ldbc.driver.runtime.metrics.*;
 import com.ldbc.driver.temporal.Duration;
 import com.ldbc.driver.temporal.Time;
@@ -74,7 +74,8 @@ public class Client {
         ConcurrentErrorReporter errorReporter = new ConcurrentErrorReporter();
 
         try {
-            completionTimeService = new ThreadedQueuedConcurrentCompletionTimeService(controlService.configuration().peerIds(), errorReporter);
+//            completionTimeService = new ThreadedQueuedConcurrentCompletionTimeService(controlService.configuration().peerIds(), errorReporter);
+            completionTimeService = new NaiveSynchronizedConcurrentCompletionTimeService(controlService.configuration().peerIds());
             completionTimeService.submitInitiatedTime(controlService.workloadStartTime());
             completionTimeService.submitCompletedTime(controlService.workloadStartTime());
             for (String peerId : controlService.configuration().peerIds()) {

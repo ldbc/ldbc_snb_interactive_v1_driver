@@ -24,7 +24,7 @@ public class LocalCompletionTime {
      *
      * @param eventInitiatedTime
      */
-    public void applyInitiatedTime(Time eventInitiatedTime) {
+    void applyInitiatedTime(Time eventInitiatedTime) {
         notModifiedSinceLastGet = false;
 
         initiatedTimes.add(eventInitiatedTime);
@@ -37,7 +37,7 @@ public class LocalCompletionTime {
      * @param initiatedTimeOfCompletedEvent
      * @throws com.ldbc.driver.runtime.coordination.CompletionTimeException
      */
-    public void applyCompletedTime(Time initiatedTimeOfCompletedEvent) throws CompletionTimeException {
+    void applyCompletedTime(Time initiatedTimeOfCompletedEvent) throws CompletionTimeException {
         notModifiedSinceLastGet = false;
 
         if (false == initiatedTimes.remove(initiatedTimeOfCompletedEvent))
@@ -52,7 +52,7 @@ public class LocalCompletionTime {
     /**
      * @return min(min(Initiated Events), max(Completed Events) )
      */
-    public Time completionTime() {
+    Time completionTime() {
         if (notModifiedSinceLastGet)
             return completionTime;
 

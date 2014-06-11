@@ -1,0 +1,102 @@
+CO - Coordinated Omission
+SUT - System Under Test
+LT - Load Tester
+
+LDBC Interactive is designed to benchmark databases under interactive/online workloads, where latency under a known load is arguably more important than maximum throughput
+
+http://users.cms.caltech.edu/~adamw/papers/openvsclosed.pdf
+
+**************************************************
+*** Gil Tene, CTO & co-founder of Azul Systems ***
+**************************************************
+
+- Applies to test/measuring systems, rather than the system under test
+
+- Common measurement technique problem coined "Coordinated Omission", which can render percentile data useless
+
+- Difficult to identify the existence of Coordinated Omission (percentile-misreporting) purely from reported data
+
+- Coordinated omission occurs when an observed response time is longer than the interval that the testing thread is trying to maintain between requests; when a test thread waits for a response before issuing a new request ends up "missing" on sending the next request it would have normally sent, omission occurs.
+
+- Coordinated in the sense that when a long response time occurs it generally means the system under test is heavily loaded and will with high probability take long to respond to other requests that occur at around the same time. When the testing tool blocks, waiting for the system under test to respond, it is allowing the system under test to say "I'm heavily loaded right now, please let me catch up before sending more requests". In effect, the testing tool is omitting the "bad results" that would likely occur if it were to send the requests it intended too (and was prevented from sending due to the long response(s)). The outcome of this is that higher percentile latency measures are incorrect, because they do not include the "bad results" that were "omitted". 
+'It's as if someone just redacted or erased a whole bunch of bad results from the log file, leaving only the good results and "a few" bad results. Only the first bad result in each sequence of bad results usually survives the redaction. The result heavily skews all stats done on the recorded result set.'
+
+- "is it ok for me to test your latency right now? Because if it's not, I'm fine waiting and testing it only when you are ready..."
+
+- As reality does not omit bad results in this way, coordinated omission results in poor decision-making during capacity planning, setting service level expectations, software selection, etc.
+
+- Coordinated omission occurs when the testing system blocks, waiting for a response from the system under test. As such, higher thread count (assuming sufficient compute resources) generally relieves the problem as it results in less likelihood of one thread having to wait for another to complete, and coordinated omission will have less impact.
+
+- Coordinated omission occurs when trying to model an open (many clients) system with a closed (few clients) system; most testing tools are closed.
+E.g. if the real system is single client, no Coordinated omission occurs: a task is performed by the client, if system is slow and response duration is long no other client will issue another request during this time, thus no results are omitted.
+
+- Coordinated omissions causes incorrect measurements because the reported percentiles do not account for the omitted results. Estimating the omitted requests (based on response time, average latencies, etc.) and injecting them into the results somewhat corrects the reported measurements, however does not account for the effect those missing requests would have imposed on the system: queueing effects, cache pressures, potential buffer exhaustion, etc. Those requests would have placed additional load on system more, perhaps even causing it to fail.
+
+- the CO methodology problem amounts to dropping/ignoring bad (slow) measurements from the results data set before computing summary statistics on them, and reporting very wrong stats as a result. The stats can often be orders of magnitude off or, for example, 99.9%'ile reported as better than the real 99%'lie, etc. CO happens for all testers that avoid sending requests when any form of back-pressure occurs (usually in the form of some previous request not completing before a new one was supposed to be sent according to the testing model)
+
+- Correcting CO: 
+  -  Avoid: the best way to correct the problem is to avoid it from occurring (e.g. by designing an LT that sends requests at an explicitly defined interval, that never responds to any form of back pressure)
+  -  Correct: LT that have a known interval between requests are easiest to correct. When the expected test scenario is known it is possible to correct for it when the LT does not act as expected, e.g. use expected interval between requests to re-create the missing/omitted requests when omitted requests are detected. This simply generates "more correct" data (filling in the gaps), resulting in "more correct" percentile calculation results.
+    - Challenge: when correcting with injected/fake requests, it is difficult knowing what response time to report for those requests: mean/X-percentile until now, and should/shouldn't previous injected/fake requests used for this calculation
+  - Limitation: a problem with "Correct" approach is it approximates what SUT behavior would be like had the omitted requests actually occurred, but in actuality the system may have failed entirely due to the additional load.
+
+- A LT will be subject to the CO problem whether it sends requests at a specific interval or back-to-back as-fast-as-possible. However, an as-fast-as-possible LT is more likely to suffer from CO, as its "typical" interval is very short, therefore it will miss more sampling opportunities than a system with some amount of "think time".
+An as-fast-as-possible LT still has an expected interval between requests, to some extent. However, this interval will differ depending on the SUT, and it will need to be computed (e.g. a good estimate is the ongoing average response time, or preferably estimate the ongoing average with some type of outlier filtering)
+
+- As long as LT has not skipped/omitted requests from the expected workload the test data remains valid: an uncoordinated sample of the SUT response times, and it is just necessary to have enough data such that the reported results are statistically significant. 
+Further, random skips/omissions are fine, as long as they remain uncoordinated. Pauses in the LT that are not coordinated with the SUT do not result in anything being missed, from a statistical perspective. 
+It is only when the LT skips/omits requests as a result of long response times from the SUT that coordination is introduced into the test, which is when the results become skewed.
+
+- Coordinated vs Uncoordinated omissions
+  - Coordinated: as discussed above, i.e. CO
+  - Uncoordinated: still gets a random sample of the SUT performance, meaning CO issues are avoided, but the benchmark becomes non-deterministic (dependent on the hardware that LT runs on) and likely non-repeatable, making it difficult to compare multiple SUT using the same workload
+
+- Once an LT misses an opportunity to send a request on time there is no way of knowing what would have happened if it had. Though some correction techniques are better than others, they are all estimates from that point.
+
+- If during benchmark execution something (e.g. garbage collection) causes the SUT to momentarily pause, and the LT wait (block) for the SUT to resume before sending more requests (they are coordinated), only N requests would show the full pause time (e.g. 1 second), all other requests would show un-paused time (e.g. 1 ms). However in a real application it is unlikely that clients will recognize the SUT is under load and stop sending requests until it recovers. It is more likely they will continue sending requests during that time. In that case all clients will be affected that pause. The issue of CO is how many requests are truly impacted by the pause versus the N that appear in benchmark results (due to omitted results).
+
+* Possibly cite Twitter Iago tool as good
+
+* Possibly cite SPEC(?), TPC(?), LDBC(?), others(?), as bad
+
+* TCP back pressure - we avoid it by having handlers and including that cost in the measurement.... blah blah... or maybe don't even metion that
+
+*******************
+*** ldbc_driver ***
+*******************
+
+- goal is to be deterministic: if driver, even when not caused by system under test, can not keep up with configured workload it will fail
+- goal is to test the configured workload: if driver, possibly but not necessarily caused by the system under test, is prevented from generating events according to the configured workload it will fail
+
+*******************************
+*** ldbc_driver future work ***
+*******************************
+
+LT could correct for omitted results due to coordination with SUT, in order to avoid the effects of CO in the results. LT must know what it should have done, and use that knowledge to decide what results to record. This is possible when LT picks random or even varying interval scenarios, as the LT always knows what should have occurred according to the configured workload. The LT acts according to a configured workload, tracks where it is in the workload, and computes injected/fake results based on that plan. 
+
+Estimate Correction
+	When a delay to execute an operation on time occurs:
+	 - calculate how long it was delayed
+	 - calculate the operations that would have been executed in that time
+	 -- based on the workload mix
+	 -- based on interval between operations
+	 -- could do this by creating a (small) sample of the full workload during driver initialization, creating a looping iterator over that sample, then injecting/logging-to-metrics "fake" operations from this iterator, to account for the "omitted" operations
+	 --- may need multiple samples from different workload timeframes to account for workloads that change over time
+	 --- based on which operation failed, choose appropriate sample from appropriate timeframe
+	 --- need to estimate scheduledStartTime, actualStartTime (perhaps equal to scheduledStartTime or perhaps equal to mean from previous operations?), runDuration (taken from mean of previous operations, for example)
+	 --- would means from previous operations include the times from the injected/fake operations?
+
+	Could possibly do this from a Delay Policy implementation
+
+	If the metrics logging service has this looping iterator the "fake" operations would not need to all get sent over a queue to the logging thread. Instead, just 1 message, containing a parameter communicating "number of fake operations to create", would be sent to the logging thread and it would deal with the rest
+
+	Make configurable: 
+	 - terminate
+	 - correct from sample
+	 - something else?
+	 - ...
+
+
+Report execution duration based on when SCHEDULED to send and when actually received?
+Problems:
+	- SUT not understander same stress as it would have been had driver sent that request

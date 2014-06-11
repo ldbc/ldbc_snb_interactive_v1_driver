@@ -1,23 +1,44 @@
 package com.ldbc.driver.runtime.coordination;
 
 import com.ldbc.driver.temporal.Time;
+import com.ldbc.driver.util.Function0;
 
-// TODO change interface to hide direct access to internal classes
 public class GlobalCompletionTime {
     private final LocalCompletionTime localCompletionTime;
-    private final ExternalCompletionTime externalCompletionTime;
+        private final ExternalCompletionTime externalCompletionTime;
+    private final Function0<Time> externalCompletionTimeFun;
 
-    public GlobalCompletionTime(LocalCompletionTime localCompletionTime, ExternalCompletionTime externalCompletionTime) {
+    public GlobalCompletionTime(final LocalCompletionTime localCompletionTime, final ExternalCompletionTime externalCompletionTime) {
         this.localCompletionTime = localCompletionTime;
         this.externalCompletionTime = externalCompletionTime;
+
+        if (externalCompletionTime.peersIds().isEmpty())
+            // There are no peers to hear from -> single instance mode
+            this.externalCompletionTimeFun = new Function0<Time>() {
+                @Override
+                public Time apply() {
+                    return localCompletionTime.completionTime();
+                }
+            };
+        else
+            // One or more of our peers have no replied yet -> no way of knowing what GCT is
+            this.externalCompletionTimeFun = new Function0<Time>() {
+                @Override
+                public Time apply() {
+                    return externalCompletionTime.completionTime();
+                }
+            };
     }
 
-    public LocalCompletionTime localCompletionTime() {
-        return localCompletionTime;
+    public void applyInitiatedTime(Time eventInitiatedTime) {
+        localCompletionTime.applyInitiatedTime(eventInitiatedTime);
+    }
+    public void applyCompletedTime(Time initiatedTimeOfCompletedEvent) throws CompletionTimeException {
+        localCompletionTime.applyCompletedTime(initiatedTimeOfCompletedEvent);
     }
 
-    public ExternalCompletionTime externalCompletionTime() {
-        return externalCompletionTime;
+    public void applyPeerCompletionTime(String peerId, Time peerCompletionTime) throws CompletionTimeException {
+        externalCompletionTime.applyPeerCompletionTime(peerId,peerCompletionTime);
     }
 
     public Time completionTime() {
@@ -26,14 +47,10 @@ public class GlobalCompletionTime {
             // Until we know what our local completion time is there is no way of knowing what GCT is
             return null;
 
-        Time externalCompletionTimeValue = this.externalCompletionTime.completionTime();
+        Time externalCompletionTimeValue = externalCompletionTimeFun.apply();
         if (null == externalCompletionTimeValue)
-            if (externalCompletionTime.peersIds().isEmpty())
-                // There are no peers to hear from -> single instance mode
-                return localCompletionTimeValue;
-            else
-                // One or more of our peers have no replied yet -> no way of knowing what GCT is
-                return null;
+            // One or more of our peers have not replied yet -> no way of knowing what GCT is
+            return null;
 
         // Return min(localCompletionTime,externalCompletionTime)
         return (localCompletionTimeValue.lt(externalCompletionTimeValue))

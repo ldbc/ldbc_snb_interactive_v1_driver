@@ -198,15 +198,14 @@ public class LdbcInteractiveWorkload extends Workload {
     public Map<Class<? extends Operation<?>>, OperationClassification> operationClassifications() {
         Map<Class<? extends Operation<?>>, OperationClassification> operationClassifications = new HashMap<Class<? extends Operation<?>>, OperationClassification>();
         /*
-         * TODO assign correct Modes
          * Modes (with examples from LDBC Interactive SNB Workload):
          * - WINDOWED & NONE -------------------> n/a
-         * - WINDOWED & READ -------------------> Create Friendship
-         * - WINDOWED & READ WRITE -------------> Create User
+         * - WINDOWED & READ -------------------> Add Friendship
+         * - WINDOWED & READ WRITE -------------> Add Person
          * - INDIVIDUAL_BLOCKING & NONE --------> n/a
-         * - INDIVIDUAL_BLOCKING & READ --------> Create Post
+         * - INDIVIDUAL_BLOCKING & READ --------> Add Post, Add Comment, Add Post Like, Add Comment Like, Add Forum, Add Forum Membership
          * - INDIVIDUAL_BLOCKING & READ WRITE --> n/a
-         * - INDIVIDUAL_ASYNC & NONE -----------> Entire Read Workload
+         * - INDIVIDUAL_ASYNC & NONE -----------> All Reads
          * - INDIVIDUAL_ASYNC & READ -----------> n/a
          * - INDIVIDUAL_ASYNC & READ WRITE -----> n/a
         */
@@ -224,14 +223,14 @@ public class LdbcInteractiveWorkload extends Workload {
         operationClassifications.put(LdbcQuery12.class, new OperationClassification(SchedulingMode.INDIVIDUAL_ASYNC, GctMode.NONE));
         operationClassifications.put(LdbcQuery13.class, new OperationClassification(SchedulingMode.INDIVIDUAL_ASYNC, GctMode.NONE));
         operationClassifications.put(LdbcQuery14.class, new OperationClassification(SchedulingMode.INDIVIDUAL_ASYNC, GctMode.NONE));
-        operationClassifications.put(LdbcUpdate1AddPerson.class, new OperationClassification(SchedulingMode.INDIVIDUAL_ASYNC, GctMode.NONE));
-        operationClassifications.put(LdbcUpdate2AddPostLike.class, new OperationClassification(SchedulingMode.INDIVIDUAL_ASYNC, GctMode.NONE));
-        operationClassifications.put(LdbcUpdate3AddCommentLike.class, new OperationClassification(SchedulingMode.INDIVIDUAL_ASYNC, GctMode.NONE));
-        operationClassifications.put(LdbcUpdate4AddForum.class, new OperationClassification(SchedulingMode.INDIVIDUAL_ASYNC, GctMode.NONE));
-        operationClassifications.put(LdbcUpdate5AddForumMembership.class, new OperationClassification(SchedulingMode.INDIVIDUAL_ASYNC, GctMode.NONE));
-        operationClassifications.put(LdbcUpdate6AddPost.class, new OperationClassification(SchedulingMode.INDIVIDUAL_ASYNC, GctMode.NONE));
-        operationClassifications.put(LdbcUpdate7AddComment.class, new OperationClassification(SchedulingMode.INDIVIDUAL_ASYNC, GctMode.NONE));
-        operationClassifications.put(LdbcUpdate8AddFriendship.class, new OperationClassification(SchedulingMode.INDIVIDUAL_ASYNC, GctMode.NONE));
+        operationClassifications.put(LdbcUpdate1AddPerson.class, new OperationClassification(SchedulingMode.WINDOWED, GctMode.READ_WRITE));
+        operationClassifications.put(LdbcUpdate2AddPostLike.class, new OperationClassification(SchedulingMode.INDIVIDUAL_BLOCKING, GctMode.READ));
+        operationClassifications.put(LdbcUpdate3AddCommentLike.class, new OperationClassification(SchedulingMode.INDIVIDUAL_BLOCKING, GctMode.READ));
+        operationClassifications.put(LdbcUpdate4AddForum.class, new OperationClassification(SchedulingMode.INDIVIDUAL_BLOCKING, GctMode.READ));
+        operationClassifications.put(LdbcUpdate5AddForumMembership.class, new OperationClassification(SchedulingMode.INDIVIDUAL_BLOCKING, GctMode.READ));
+        operationClassifications.put(LdbcUpdate6AddPost.class, new OperationClassification(SchedulingMode.INDIVIDUAL_BLOCKING, GctMode.READ));
+        operationClassifications.put(LdbcUpdate7AddComment.class, new OperationClassification(SchedulingMode.INDIVIDUAL_BLOCKING, GctMode.READ));
+        operationClassifications.put(LdbcUpdate8AddFriendship.class, new OperationClassification(SchedulingMode.WINDOWED, GctMode.READ));
         return operationClassifications;
     }
 

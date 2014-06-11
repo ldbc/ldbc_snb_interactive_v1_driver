@@ -41,6 +41,7 @@ Summary:
 	Observe, these results are clearly invalid, but it is only because the omitted requests were due to pauses in the SUT that the cause of error is CO.
 	Had the LT omitted requests at random the results may have remained valid, they may still have been representative of the SUT's real world behavior: an uncoordinated sample of the SUT response times.
 
+
 	LT pause omissions
 
 	Further, random skips/omissions are fine, as long as they remain uncoordinated. Pauses in the LT that are not coordinated with the SUT do not result in anything being missed, from a statistical perspective. It is only when the LT skips/omits requests as a result of long response times from the SUT that coordination is introduced into the test, which is when the results become skewed.
@@ -56,13 +57,7 @@ Maybe Summary:
 
 	- If during benchmark execution something (e.g. garbage collection) causes the SUT to momentarily pause, and the LT wait (block) for the SUT to resume before sending more requests (they are coordinated), only N requests would show the full pause time (e.g. 1 second), all other requests would show un-paused time (e.g. 1 ms). However in a real application it is unlikely that clients will recognize the SUT is under load and stop sending requests until it recovers. It is more likely they will continue sending requests during that time. In that case all clients will be affected that pause. The issue of CO is how many requests are truly impacted by the pause versus the N that appear in benchmark results (due to omitted results).
 
-Wordy:
-	- "is it ok for me to test your latency right now? Because if it's not, I'm fine waiting and testing it only when you are ready..."
-
-Motivation/value:
-	- As reality does not omit bad results in this way, coordinated omission results in poor decision-making during capacity planning, setting service level expectations, software selection, etc.
-
-Correction:
+CO Correction:
 	- Correcting CO: 
 	  -  Avoid: 
 	  	- The best way to correct the problem is to avoid it from occurring (e.g. by designing an LT that sends requests at an explicitly defined interval, that never responds to any form of back pressure)

@@ -51,19 +51,19 @@ public class ThreadedQueuedCompletionTimeMaintenanceThread extends Thread {
                 switch (event.type()) {
                     case INITIATED:
                         Time initiatedTime = ((CompletionTimeEvent.InitiatedEvent) event).time();
-                        globalCompletionTime.localCompletionTime().applyInitiatedTime(initiatedTime);
+                        globalCompletionTime.applyInitiatedTime(initiatedTime);
                         updateGlobalCompletionTime();
                         break;
                     case COMPLETED:
                         Time completedTime = ((CompletionTimeEvent.CompletedEvent) event).time();
-                        globalCompletionTime.localCompletionTime().applyCompletedTime(completedTime);
+                        globalCompletionTime.applyCompletedTime(completedTime);
                         updateGlobalCompletionTime();
                         processedEventCount++;
                         break;
                     case EXTERNAL:
                         String peerId = ((CompletionTimeEvent.ExternalEvent) event).peerId();
                         Time peerCompletionTime = ((CompletionTimeEvent.ExternalEvent) event).time();
-                        globalCompletionTime.externalCompletionTime().applyPeerCompletionTime(peerId, peerCompletionTime);
+                        globalCompletionTime.applyPeerCompletionTime(peerId,peerCompletionTime);
                         updateGlobalCompletionTime();
                         break;
                     case FUTURE:

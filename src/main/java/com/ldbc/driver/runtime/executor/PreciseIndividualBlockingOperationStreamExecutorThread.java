@@ -16,7 +16,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 class PreciseIndividualBlockingOperationStreamExecutorThread extends Thread {
     // TODO this value should be configurable, or an entirely better policy should be used
-    private static final Duration DURATION_TO_WAIT_FOR_LAST_HANDLER_TO_FINISH = Duration.fromMinutes(5);
+    private static final Duration DURATION_TO_WAIT_FOR_LAST_HANDLER_TO_FINISH = Duration.fromMinutes(30);
 
     private final OperationHandlerExecutor operationHandlerExecutor;
     private final Spinner slightlyEarlySpinner;
@@ -42,8 +42,10 @@ class PreciseIndividualBlockingOperationStreamExecutorThread extends Thread {
         Future<OperationResult> executingHandler = null;
         while (handlers.hasNext()) {
             OperationHandler<?> handler = handlers.next();
+
             // Ensures previously executed handler has completed before handler starts executing
-            handler.addCheck(new FutureCompletedCheck(executingHandler));
+            if (null != executingHandler)
+                handler.addCheck(new FutureCompletedCheck(executingHandler));
 
             // Schedule slightly early to account for context switch - internally, handler will schedule at exact start time
             slightlyEarlySpinner.waitForScheduledStartTime(handler.operation());
@@ -65,6 +67,7 @@ class PreciseIndividualBlockingOperationStreamExecutorThread extends Thread {
                                 ConcurrentErrorReporter.stackTraceToString(e)));
             }
         }
+        // Wait for final operation handler
         boolean executingHandlerFinishedInTime = awaitExecutingHandler(DURATION_TO_WAIT_FOR_LAST_HANDLER_TO_FINISH, executingHandler);
         if (false == executingHandlerFinishedInTime) {
             errorReporter.reportError(this, "Last handler did not complete in time");

@@ -40,13 +40,7 @@ class PreciseIndividualAsyncOperationStreamExecutorThread extends Thread {
     @Override
     public void run() {
         while (handlers.hasNext()) {
-            OperationHandler<?> handler;
-            try {
-                handler = handlers.next();
-            } catch (Exception e) {
-                errorReporter.reportError(this, String.format("Error getting next handler\n%s", ConcurrentErrorReporter.stackTraceToString(e)));
-                break;
-            }
+            OperationHandler<?> handler = handlers.next();
 
             // Schedule slightly early to account for context switch - internally, handler will schedule at exact start time
             slightlyEarlySpinner.waitForScheduledStartTime(handler.operation());
@@ -85,7 +79,7 @@ class PreciseIndividualAsyncOperationStreamExecutorThread extends Thread {
     }
 
     private boolean allHandlersCompleted() {
-        for (Future<OperationResult> runningHandler : runningHandlers){
+        for (Future<OperationResult> runningHandler : runningHandlers) {
             if (false == runningHandler.isDone()) return false;
         }
         return true;

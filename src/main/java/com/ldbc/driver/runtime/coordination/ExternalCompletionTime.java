@@ -12,7 +12,7 @@ public class ExternalCompletionTime {
     private Time completionTime = null;
     private boolean notModifiedSinceLastGet = false;
 
-    public ExternalCompletionTime(List<String> peerIds) throws CompletionTimeException {
+    ExternalCompletionTime(List<String> peerIds) throws CompletionTimeException {
         for (String peerId : peerIds) {
             if (null == peerId)
                 throw new CompletionTimeException(String.format("Peer ID cannot be null\n%s", peerIds.toString()));
@@ -21,7 +21,7 @@ public class ExternalCompletionTime {
         this.peerIds = peerIds;
     }
 
-    public void applyPeerCompletionTime(String peerId, Time peerCompletionTime) throws CompletionTimeException {
+    void applyPeerCompletionTime(String peerId, Time peerCompletionTime) throws CompletionTimeException {
         if (null == peerId)
             throw new CompletionTimeException("Peer ID can not be null");
         if (null == peerCompletionTime)
@@ -32,7 +32,7 @@ public class ExternalCompletionTime {
         peerCompletionTimes.put(peerId, peerCompletionTime);
     }
 
-    public Time completionTime() {
+    Time completionTime() {
         if (notModifiedSinceLastGet)
             return completionTime;
 
@@ -42,7 +42,7 @@ public class ExternalCompletionTime {
         return completionTime;
     }
 
-    public List<String> peersIds() {
+    List<String> peersIds() {
         return peerIds;
     }
 

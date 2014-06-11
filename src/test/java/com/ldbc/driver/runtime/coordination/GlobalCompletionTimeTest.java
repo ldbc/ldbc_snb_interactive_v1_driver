@@ -2,7 +2,6 @@ package com.ldbc.driver.runtime.coordination;
 
 import com.google.common.collect.Lists;
 import com.ldbc.driver.temporal.Time;
-import org.junit.Before;
 import org.junit.Test;
 
 import java.util.List;
@@ -13,22 +12,17 @@ import static org.junit.Assert.assertThat;
 
 //Completion Time = min( min(Initiated Events), max(Completed Events) )
 public class GlobalCompletionTimeTest {
-    String otherPeerId = "otherPeer";
-    List<String> peerIds = Lists.newArrayList(otherPeerId);
-    GlobalCompletionTime gct = null;
-
-    @Before
-    public void createCompletionTime() throws CompletionTimeException {
-        LocalCompletionTime localCompletionTime = new LocalCompletionTime();
-        ExternalCompletionTime externalCompletionTime = new ExternalCompletionTime(peerIds);
-        gct = new GlobalCompletionTime(localCompletionTime, externalCompletionTime);
-    }
+    final String otherPeerId = "otherPeer";
+    final List<String> peerIds = Lists.newArrayList(otherPeerId);
 
     // LocalIT = none, LocalCT = none, ExternalCT = none --> null
     @Test
     public void shouldReturnNullWhenNoLocalITNoLocalCTNoExternalCT() throws CompletionTimeException {
         // Given
         // gct parameter
+        LocalCompletionTime localCompletionTime = new LocalCompletionTime();
+        ExternalCompletionTime externalCompletionTime = new ExternalCompletionTime(peerIds);
+        GlobalCompletionTime gct = new GlobalCompletionTime(localCompletionTime, externalCompletionTime);
 
         // When
         // no events have been initiated or completed
@@ -42,25 +36,36 @@ public class GlobalCompletionTimeTest {
     public void shouldReturnNullWhenSomeLocalITNoLocalCTNoExternalCT() throws CompletionTimeException {
         // Given
         // gct parameter
+        LocalCompletionTime localCompletionTime = new LocalCompletionTime();
+        ExternalCompletionTime externalCompletionTime = new ExternalCompletionTime(peerIds);
+        GlobalCompletionTime gct = new GlobalCompletionTime(localCompletionTime, externalCompletionTime);
 
         // When
-        gct.localCompletionTime().applyInitiatedTime(Time.fromSeconds(1));
+        gct.applyInitiatedTime(Time.fromSeconds(1));
 
         // Then
         assertThat(gct.completionTime(), is(nullValue()));
     }
 
     // LocalIT = none, LocalCT = some, ExternalCT = none --> Exception
-    @Test(expected = CompletionTimeException.class)
     public void shouldThrowExceptionWhenNoLocalITSomeLocalCTNoExternalCT() throws CompletionTimeException {
         // Given
         // gct parameter
+        LocalCompletionTime localCompletionTime = new LocalCompletionTime();
+        ExternalCompletionTime externalCompletionTime = new ExternalCompletionTime(peerIds);
+        GlobalCompletionTime gct = new GlobalCompletionTime(localCompletionTime, externalCompletionTime);
 
         // When
-        gct.localCompletionTime().applyCompletedTime(Time.fromSeconds(1));
+        boolean exceptionThrown = false;
+        try {
+            gct.applyCompletedTime(Time.fromSeconds(1));
+        } catch (CompletionTimeException e) {
+            exceptionThrown = true;
+        }
 
         // Then
         // exception should have already been thrown
+        assertThat(exceptionThrown, is(true));
     }
 
     //  LocalIT = none, LocalCT = none, ExternalCT = some --> null
@@ -68,9 +73,12 @@ public class GlobalCompletionTimeTest {
     public void shouldReturnNullWhenNoLocalITNoLocalCTSomeExternalCT() throws CompletionTimeException {
         // Given
         // gct parameter
+        LocalCompletionTime localCompletionTime = new LocalCompletionTime();
+        ExternalCompletionTime externalCompletionTime = new ExternalCompletionTime(peerIds);
+        GlobalCompletionTime gct = new GlobalCompletionTime(localCompletionTime, externalCompletionTime);
 
         // When
-        gct.externalCompletionTime().applyPeerCompletionTime(otherPeerId, Time.fromSeconds(1));
+        gct.applyPeerCompletionTime(otherPeerId, Time.fromSeconds(1));
 
         // Then
         assertThat(gct.completionTime(), is(nullValue()));
@@ -81,10 +89,13 @@ public class GlobalCompletionTimeTest {
     public void shouldReturnNullWhenSomeLocalITSomeLocalCTNoExternalCT() throws CompletionTimeException {
         // Given
         // gct parameter
+        LocalCompletionTime localCompletionTime = new LocalCompletionTime();
+        ExternalCompletionTime externalCompletionTime = new ExternalCompletionTime(peerIds);
+        GlobalCompletionTime gct = new GlobalCompletionTime(localCompletionTime, externalCompletionTime);
 
         // When
-        gct.localCompletionTime().applyInitiatedTime(Time.fromSeconds(1));
-        gct.localCompletionTime().applyCompletedTime(Time.fromSeconds(1));
+        gct.applyInitiatedTime(Time.fromSeconds(1));
+        gct.applyCompletedTime(Time.fromSeconds(1));
 
         // Then
         assertThat(gct.completionTime(), is(nullValue()));
@@ -95,10 +106,13 @@ public class GlobalCompletionTimeTest {
     public void shouldReturnLocalITWhenLowerLocalITNoLocalCTHigherExternalCT() throws CompletionTimeException {
         // Given
         // gct parameter
+        LocalCompletionTime localCompletionTime = new LocalCompletionTime();
+        ExternalCompletionTime externalCompletionTime = new ExternalCompletionTime(peerIds);
+        GlobalCompletionTime gct = new GlobalCompletionTime(localCompletionTime, externalCompletionTime);
 
         // When
-        gct.localCompletionTime().applyInitiatedTime(Time.fromSeconds(1));
-        gct.externalCompletionTime().applyPeerCompletionTime(otherPeerId, Time.fromSeconds(2));
+        gct.applyInitiatedTime(Time.fromSeconds(1));
+        gct.applyPeerCompletionTime(otherPeerId, Time.fromSeconds(2));
 
         // Then
         assertThat(gct.completionTime(), is(Time.fromSeconds(1)));
@@ -109,10 +123,13 @@ public class GlobalCompletionTimeTest {
     public void shouldReturnExternalCTWhenHigherLocalITNoLocalCTLowerExternalCT() throws CompletionTimeException {
         // Given
         // gct parameter
+        LocalCompletionTime localCompletionTime = new LocalCompletionTime();
+        ExternalCompletionTime externalCompletionTime = new ExternalCompletionTime(peerIds);
+        GlobalCompletionTime gct = new GlobalCompletionTime(localCompletionTime, externalCompletionTime);
 
         // When
-        gct.localCompletionTime().applyInitiatedTime(Time.fromSeconds(2));
-        gct.externalCompletionTime().applyPeerCompletionTime(otherPeerId, Time.fromSeconds(1));
+        gct.applyInitiatedTime(Time.fromSeconds(2));
+        gct.applyPeerCompletionTime(otherPeerId, Time.fromSeconds(1));
 
         // Then
         assertThat(gct.completionTime(), is(Time.fromSeconds(1)));
@@ -123,11 +140,14 @@ public class GlobalCompletionTimeTest {
     public void shouldReturnLocalMinWhenLowerLocalITLowerLocalCTHigherExternalCT() throws CompletionTimeException {
         // Given
         // gct parameter
+        LocalCompletionTime localCompletionTime = new LocalCompletionTime();
+        ExternalCompletionTime externalCompletionTime = new ExternalCompletionTime(peerIds);
+        GlobalCompletionTime gct = new GlobalCompletionTime(localCompletionTime, externalCompletionTime);
 
         // When
-        gct.localCompletionTime().applyInitiatedTime(Time.fromSeconds(1));
-        gct.localCompletionTime().applyCompletedTime(Time.fromSeconds(1));
-        gct.externalCompletionTime().applyPeerCompletionTime(otherPeerId, Time.fromSeconds(2));
+        gct.applyInitiatedTime(Time.fromSeconds(1));
+        gct.applyCompletedTime(Time.fromSeconds(1));
+        gct.applyPeerCompletionTime(otherPeerId, Time.fromSeconds(2));
 
         // Then
         assertThat(gct.completionTime(), is(Time.fromSeconds(1)));
@@ -138,11 +158,14 @@ public class GlobalCompletionTimeTest {
     public void shouldReturnExternalCTWhenHigherLocalITHigherLocalCTLowerExternalCT() throws CompletionTimeException {
         // Given
         // gct parameter
+        LocalCompletionTime localCompletionTime = new LocalCompletionTime();
+        ExternalCompletionTime externalCompletionTime = new ExternalCompletionTime(peerIds);
+        GlobalCompletionTime gct = new GlobalCompletionTime(localCompletionTime, externalCompletionTime);
 
         // When
-        gct.localCompletionTime().applyInitiatedTime(Time.fromSeconds(2));
-        gct.localCompletionTime().applyCompletedTime(Time.fromSeconds(2));
-        gct.externalCompletionTime().applyPeerCompletionTime(otherPeerId, Time.fromSeconds(1));
+        gct.applyInitiatedTime(Time.fromSeconds(2));
+        gct.applyCompletedTime(Time.fromSeconds(2));
+        gct.applyPeerCompletionTime(otherPeerId, Time.fromSeconds(1));
 
         // Then
         assertThat(gct.completionTime(), is(Time.fromSeconds(1)));
