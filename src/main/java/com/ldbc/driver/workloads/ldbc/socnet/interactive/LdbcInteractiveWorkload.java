@@ -199,15 +199,20 @@ public class LdbcInteractiveWorkload extends Workload {
         Map<Class<? extends Operation<?>>, OperationClassification> operationClassifications = new HashMap<Class<? extends Operation<?>>, OperationClassification>();
         /*
          * Modes (with examples from LDBC Interactive SNB Workload):
-         * - WINDOWED & NONE -------------------> n/a
-         * - WINDOWED & READ -------------------> Add Friendship
-         * - WINDOWED & READ WRITE -------------> Add Person
-         * - INDIVIDUAL_BLOCKING & NONE --------> n/a
-         * - INDIVIDUAL_BLOCKING & READ --------> Add Post, Add Comment, Add Post Like, Add Comment Like, Add Forum, Add Forum Membership
-         * - INDIVIDUAL_BLOCKING & READ WRITE --> n/a
-         * - INDIVIDUAL_ASYNC & NONE -----------> All Reads
-         * - INDIVIDUAL_ASYNC & READ -----------> n/a
-         * - INDIVIDUAL_ASYNC & READ WRITE -----> n/a
+         * - WINDOWED & NONE ------------------->   n/a
+         * - WINDOWED & READ ------------------->   Add Friendship
+         * - WINDOWED & READ WRITE ------------->   Add Person
+         * - INDIVIDUAL_BLOCKING & NONE -------->   n/a
+         * - INDIVIDUAL_BLOCKING & READ -------->   Add Post
+         *                                          Add Comment
+         *                                          Add Post Like
+         *                                          Add Comment Like
+         *                                          Add Forum
+         *                                          Add Forum Membership
+         * - INDIVIDUAL_BLOCKING & READ WRITE -->   n/a
+         * - INDIVIDUAL_ASYNC & NONE ----------->   Reads 1-14
+         * - INDIVIDUAL_ASYNC & READ ----------->   n/a
+         * - INDIVIDUAL_ASYNC & READ WRITE ----->   n/a
         */
         operationClassifications.put(LdbcQuery1.class, new OperationClassification(SchedulingMode.INDIVIDUAL_ASYNC, GctMode.NONE));
         operationClassifications.put(LdbcQuery2.class, new OperationClassification(SchedulingMode.INDIVIDUAL_ASYNC, GctMode.NONE));

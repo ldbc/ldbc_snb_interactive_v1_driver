@@ -58,10 +58,8 @@ public abstract class Workload {
     public final Iterator<Operation<?>> operations(GeneratorFactory generators)
             throws WorkloadException {
         if (ConsoleAndFileDriverConfiguration.UNBOUNDED_OPERATION_COUNT == getOperationCount()) {
-            // Generate all workload operations before beginning
             return createOperations(generators);
         } else {
-            // Generate all workload operations before beginning
             return generators.limit(createOperations(generators), getOperationCount());
         }
     }

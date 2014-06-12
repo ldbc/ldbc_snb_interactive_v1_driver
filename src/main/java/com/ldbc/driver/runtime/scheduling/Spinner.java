@@ -49,7 +49,7 @@ public class Spinner {
         }
 
         if (checkHasNotPassed) {
-            // TODO keep spinning for tolerated delay before reporting error?
+            // TODO keep spinning for tolerated delay before reporting error? (e.g. to wait for GCT)
             check.handleFailedCheck(operation);
         }
     }
