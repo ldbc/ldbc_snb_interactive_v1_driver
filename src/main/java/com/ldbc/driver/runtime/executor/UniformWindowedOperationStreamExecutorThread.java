@@ -13,6 +13,7 @@ import com.ldbc.driver.runtime.scheduling.Spinner;
 import com.ldbc.driver.runtime.scheduling.UniformWindowedScheduler;
 import com.ldbc.driver.temporal.Duration;
 import com.ldbc.driver.temporal.Time;
+import com.ldbc.driver.temporal.TimeSource;
 
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -21,6 +22,7 @@ import java.util.concurrent.Future;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 class UniformWindowedOperationStreamExecutorThread extends Thread {
+    private final TimeSource TIME_SOURCE;
     private final OperationHandlerExecutor operationHandlerExecutor;
     private final Scheduler<List<OperationHandler<?>>, Window.OperationHandlerTimeRangeWindow> scheduler;
     private final Spinner slightlyEarlySpinner;
@@ -28,7 +30,8 @@ class UniformWindowedOperationStreamExecutorThread extends Thread {
     private final AtomicBoolean hasFinished;
     private final WindowGenerator<OperationHandler<?>, Window.OperationHandlerTimeRangeWindow> handlerWindows;
 
-    public UniformWindowedOperationStreamExecutorThread(final Time firstWindowStartTime,
+    public UniformWindowedOperationStreamExecutorThread(TimeSource timeSource,
+                                                        final Time firstWindowStartTime,
                                                         final Duration windowSize,
                                                         OperationHandlerExecutor operationHandlerExecutor,
                                                         ConcurrentErrorReporter errorReporter,
@@ -36,6 +39,7 @@ class UniformWindowedOperationStreamExecutorThread extends Thread {
                                                         AtomicBoolean hasFinished,
                                                         Spinner slightlyEarlySpinner) {
         super(UniformWindowedOperationStreamExecutorThread.class.getSimpleName());
+        this.TIME_SOURCE = timeSource;
         this.operationHandlerExecutor = operationHandlerExecutor;
         this.scheduler = new UniformWindowedScheduler();
         this.slightlyEarlySpinner = slightlyEarlySpinner;
@@ -53,8 +57,7 @@ class UniformWindowedOperationStreamExecutorThread extends Thread {
             }
         };
         // removes windows of handlers, where every handler in each window is within the same time range/window
-        this.handlerWindows =
-                new WindowGenerator<OperationHandler<?>, Window.OperationHandlerTimeRangeWindow>(handlers, windows, WindowGenerator.PartialWindowStrategy.RETURN);
+        this.handlerWindows = new WindowGenerator<>(handlers, windows, WindowGenerator.PartialWindowStrategy.RETURN);
     }
 
     @Override
@@ -75,7 +78,7 @@ class UniformWindowedOperationStreamExecutorThread extends Thread {
             // TODO
             // TODO however, waiting for start time of window is not a bad thing, as there is no way an operation should start before that
             // wait for window start time
-            while (Time.nowAsMilli() < window.windowStartTimeInclusive().asMilli()) {
+            while (TIME_SOURCE.nowAsMilli() < window.windowStartTimeInclusive().asMilli()) {
                 // Ensure all operations from previous window have completed executing
                 if (previousWindowStillExecuting && previousWindowCompletedExecuting(currentlyExecutingHandlers))
                     previousWindowStillExecuting = false;
@@ -89,7 +92,7 @@ class UniformWindowedOperationStreamExecutorThread extends Thread {
             }
 
             // execute operation handlers for current window
-            currentlyExecutingHandlers = new ArrayList<Future<OperationResult>>();
+            currentlyExecutingHandlers = new ArrayList<>();
             for (OperationHandler<?> handler : scheduledHandlers) {
                 // Schedule slightly early to account for context switch - internally, handler will schedule at exact start time
                 slightlyEarlySpinner.waitForScheduledStartTime(handler.operation());
@@ -113,7 +116,7 @@ class UniformWindowedOperationStreamExecutorThread extends Thread {
 
         }
         // TODO use similar logic to make it possible to cap maximum query run time
-        while (null != window && Time.nowAsMilli() < window.windowEndTimeExclusive().asMilli()) {
+        while (null != window && TIME_SOURCE.nowAsMilli() < window.windowEndTimeExclusive().asMilli()) {
             // wait for last window to finish
         }
         this.hasFinished.set(true);

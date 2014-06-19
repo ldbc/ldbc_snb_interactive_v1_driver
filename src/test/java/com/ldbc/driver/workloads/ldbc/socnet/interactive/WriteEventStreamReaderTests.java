@@ -6,7 +6,9 @@ import com.ldbc.driver.Operation;
 import com.ldbc.driver.generator.CsvEventStreamReader;
 import com.ldbc.driver.generator.GeneratorFactory;
 import com.ldbc.driver.temporal.Duration;
+import com.ldbc.driver.temporal.SystemTimeSource;
 import com.ldbc.driver.temporal.Time;
+import com.ldbc.driver.temporal.TimeSource;
 import com.ldbc.driver.util.CsvFileReader;
 import com.ldbc.driver.util.Histogram;
 import com.ldbc.driver.util.RandomDataGeneratorFactory;
@@ -30,6 +32,7 @@ import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
 
 public class WriteEventStreamReaderTests {
+    TimeSource TIME_SOURCE = new SystemTimeSource();
     File csvFile = null;
 
     @Before
@@ -309,11 +312,11 @@ public class WriteEventStreamReaderTests {
         histogram.addBucket(DiscreteBucket.<Class<?>>create(LdbcUpdate7AddComment.class));
         histogram.addBucket(DiscreteBucket.<Class<?>>create(LdbcUpdate8AddFriendship.class));
 
-        Time startTime = Time.now();
+        Time startTime = TIME_SOURCE.now();
 
         histogram.importValueSequence(updateEventTypes);
 
-        Duration runtime = Time.now().greaterBy(startTime);
+        Duration runtime = TIME_SOURCE.now().greaterBy(startTime);
 
         System.out.println(String.format("Runtime:\t\t%s", runtime));
         System.out.println(String.format("Operation count:\t%s", histogram.sumOfAllBucketValues()));
@@ -343,11 +346,11 @@ public class WriteEventStreamReaderTests {
         histogram.addBucket(DiscreteBucket.<Class<?>>create(LdbcUpdate7AddComment.class));
         histogram.addBucket(DiscreteBucket.<Class<?>>create(LdbcUpdate8AddFriendship.class));
 
-        Time startTime = Time.now();
+        Time startTime = TIME_SOURCE.now();
 
         histogram.importValueSequence(updateEventTypes);
 
-        Duration runtime = Time.now().greaterBy(startTime);
+        Duration runtime = TIME_SOURCE.now().greaterBy(startTime);
 
         System.out.println(String.format("Runtime:\t\t%s", runtime));
         System.out.println(String.format("Operation count:\t%s", histogram.sumOfAllBucketValues()));
@@ -376,7 +379,8 @@ public class WriteEventStreamReaderTests {
         String csvFilePath = TestUtils.getResource("/updateStream_0.csv").getAbsolutePath();
         File csvFile = new File(csvFilePath);
         CsvFileReader csvFileReader = new CsvFileReader(csvFile, "\\|");
-        Iterator<Operation<?>> writeEventStreamReader = generators.timeOffset(new WriteEventStreamReader(csvFileReader, CsvEventStreamReader.EventReturnPolicy.AT_LEAST_ONE_MATCH), Time.now());
+        Iterator<Operation<?>> writeEventStreamReader =
+                generators.timeOffset(new WriteEventStreamReader(csvFileReader, CsvEventStreamReader.EventReturnPolicy.AT_LEAST_ONE_MATCH), TIME_SOURCE.now());
         Time previousOperationTime = Time.fromMilli(0);
         while (writeEventStreamReader.hasNext()) {
             Operation<?> writeOperation = writeEventStreamReader.next();

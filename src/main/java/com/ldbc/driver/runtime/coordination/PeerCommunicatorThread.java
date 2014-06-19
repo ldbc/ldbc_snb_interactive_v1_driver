@@ -3,6 +3,7 @@ package com.ldbc.driver.runtime.coordination;
 import com.ldbc.driver.runtime.ConcurrentErrorReporter;
 import com.ldbc.driver.temporal.Duration;
 import com.ldbc.driver.temporal.Time;
+import com.ldbc.driver.temporal.TimeSource;
 
 import java.util.List;
 import java.util.concurrent.BlockingQueue;
@@ -11,6 +12,8 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 
 public class PeerCommunicatorThread extends Thread {
+    private final TimeSource TIME_SOURCE;
+
     // TODO heartbeat failure detection
     // TODO need separate non-Thread class to do that
 
@@ -31,7 +34,8 @@ public class PeerCommunicatorThread extends Thread {
     private long lastHeartbeatAsMilli;
 
 
-    public PeerCommunicatorThread(String myId,
+    public PeerCommunicatorThread(TimeSource timeSource,
+                                  String myId,
                                   ConcurrentErrorReporter errorReporter,
                                   Duration heartbeatPeriod,
                                   AtomicBoolean terminate,
@@ -40,6 +44,7 @@ public class PeerCommunicatorThread extends Thread {
                                   // TODO temporary until Akka/network is integrated
                                   BlockingQueue<CompletionTimeEvent.ExternalEvent> peerReceiveQueue,
                                   List<BlockingQueue<CompletionTimeEvent.ExternalEvent>> peerSendQueues) {
+        this.TIME_SOURCE = timeSource;
         this.myId = myId;
         this.errorReporter = errorReporter;
         this.heartbeatPeriodAsMilli = heartbeatPeriod.asMilli();
@@ -50,16 +55,16 @@ public class PeerCommunicatorThread extends Thread {
         this.peerReceiveQueue = peerReceiveQueue;
         this.peerSendQueues = peerSendQueues;
         // to force immediate transfer of local completion time
-        lastHeartbeatAsMilli = Time.now().minus(heartbeatPeriod).asMilli();
+        lastHeartbeatAsMilli = TIME_SOURCE.now().minus(heartbeatPeriod).asMilli();
     }
 
     @Override
     public void run() {
         while (false == terminate.get()) {
             try {
-                if (Time.nowAsMilli() - lastHeartbeatAsMilli > heartbeatPeriodAsMilli) {
+                if (TIME_SOURCE.nowAsMilli() - lastHeartbeatAsMilli > heartbeatPeriodAsMilli) {
                     sendCompletionTimeToPeers();
-                    lastHeartbeatAsMilli = Time.nowAsMilli();
+                    lastHeartbeatAsMilli = TIME_SOURCE.nowAsMilli();
                 }
                 CompletionTimeEvent.ExternalEvent event = peerReceiveQueue.poll(PEER_RECEIVE_QUEUE_POLL_TIMEOUT.asMilli(), TimeUnit.MILLISECONDS);
                 if (null != event)

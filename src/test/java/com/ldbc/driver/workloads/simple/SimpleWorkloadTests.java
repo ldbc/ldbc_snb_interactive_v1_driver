@@ -3,22 +3,24 @@ package com.ldbc.driver.workloads.simple;
 import com.google.common.base.Function;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Iterators;
+import com.google.common.collect.Lists;
 import com.ldbc.driver.*;
 import com.ldbc.driver.control.ConsoleAndFileDriverConfiguration;
 import com.ldbc.driver.control.DriverConfigurationException;
 import com.ldbc.driver.control.LocalControlService;
 import com.ldbc.driver.generator.GeneratorFactory;
 import com.ldbc.driver.temporal.Duration;
-import com.ldbc.driver.temporal.Time;
+import com.ldbc.driver.temporal.SystemTimeSource;
+import com.ldbc.driver.temporal.TimeSource;
 import com.ldbc.driver.util.RandomDataGeneratorFactory;
 import com.ldbc.driver.workloads.simple.db.BasicDb;
 import org.apache.commons.io.FileUtils;
 import org.junit.Test;
 
 import java.io.File;
-import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 import static org.hamcrest.CoreMatchers.equalTo;
@@ -26,11 +28,42 @@ import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
 
 public class SimpleWorkloadTests {
+    TimeSource TIME_SOURCE = new SystemTimeSource();
 
     @Test
     public void shouldBeRepeatableWhenSameWorkloadIsUsedTwiceWithIdenticalGeneratorFactories() throws ClientException, DriverConfigurationException, WorkloadException {
+        Map<String, String> paramsMap = null;
+        String dbClassName = null;
+        String workloadClassName = null;
+        long operationCount = 100;
+        int threadCount = 1;
+        boolean showStatus = false;
+        TimeUnit timeUnit = TimeUnit.MILLISECONDS;
+        String resultFilePath = null;
+        Double timeCompressionRatio = 1.0;
+        Duration gctDeltaDuration = Duration.fromMinutes(10);
+        List<String> peerIds = Lists.newArrayList();
+        Duration toleratedExecutionDelay = Duration.fromSeconds(1);
+        boolean validateDatabase = false;
+        boolean validateWorkload = false;
+        boolean calculateWorkloadStatistics = false;
         ConsoleAndFileDriverConfiguration params =
-                new ConsoleAndFileDriverConfiguration(null, "dbClassName", "workloadClassName", 100L, 1, false, TimeUnit.MILLISECONDS, "resultFilePath", 1.0, Duration.fromSeconds(10), new ArrayList<String>(), Duration.fromSeconds(1));
+                new ConsoleAndFileDriverConfiguration(
+                        paramsMap,
+                        dbClassName,
+                        workloadClassName,
+                        operationCount,
+                        threadCount,
+                        showStatus,
+                        timeUnit,
+                        resultFilePath,
+                        timeCompressionRatio,
+                        gctDeltaDuration,
+                        peerIds,
+                        toleratedExecutionDelay,
+                        validateDatabase,
+                        validateWorkload,
+                        calculateWorkloadStatistics);
 
         Workload workload = new SimpleWorkload();
         workload.init(params);
@@ -69,8 +102,38 @@ public class SimpleWorkloadTests {
 
     @Test
     public void shouldBeRepeatableWhenTwoIdenticalWorkloadsAreUsedWithIdenticalGeneratorFactories() throws ClientException, DriverConfigurationException, WorkloadException {
+        Map<String, String> paramsMap = null;
+        String dbClassName = null;
+        String workloadClassName = null;
+        long operationCount = 100;
+        int threadCount = 1;
+        boolean showStatus = false;
+        TimeUnit timeUnit = TimeUnit.MILLISECONDS;
+        String resultFilePath = null;
+        Double timeCompressionRatio = 1.0;
+        Duration gctDeltaDuration = Duration.fromMinutes(10);
+        List<String> peerIds = Lists.newArrayList();
+        Duration toleratedExecutionDelay = Duration.fromSeconds(1);
+        boolean validateDatabase = false;
+        boolean validateWorkload = false;
+        boolean calculateWorkloadStatistics = false;
         ConsoleAndFileDriverConfiguration params =
-                new ConsoleAndFileDriverConfiguration(null, "dbClassName", "workloadClassName", 100L, 1, false, TimeUnit.MILLISECONDS, "resultFilePath", 1.0, Duration.fromSeconds(10), new ArrayList<String>(), Duration.fromSeconds(1));
+                new ConsoleAndFileDriverConfiguration(
+                        paramsMap,
+                        dbClassName,
+                        workloadClassName,
+                        operationCount,
+                        threadCount,
+                        showStatus,
+                        timeUnit,
+                        resultFilePath,
+                        timeCompressionRatio,
+                        gctDeltaDuration,
+                        peerIds,
+                        toleratedExecutionDelay,
+                        validateDatabase,
+                        validateWorkload,
+                        calculateWorkloadStatistics);
 
         Workload workloadA = new SimpleWorkload();
         workloadA.init(params);
@@ -136,7 +199,7 @@ public class SimpleWorkloadTests {
 
 
         // When
-        Client client = new Client(new LocalControlService(Time.now().plus(Duration.fromMilli(500)), configuration));
+        Client client = new Client(new LocalControlService(TIME_SOURCE.now().plus(Duration.fromMilli(500)), configuration), TIME_SOURCE);
         client.start();
 
         // Then

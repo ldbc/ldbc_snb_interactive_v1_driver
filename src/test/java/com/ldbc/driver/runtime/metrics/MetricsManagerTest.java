@@ -3,7 +3,9 @@ package com.ldbc.driver.runtime.metrics;
 import com.ldbc.driver.OperationResult;
 import com.ldbc.driver.WorkloadException;
 import com.ldbc.driver.temporal.Duration;
+import com.ldbc.driver.temporal.SystemTimeSource;
 import com.ldbc.driver.temporal.Time;
+import com.ldbc.driver.temporal.TimeSource;
 import org.junit.Test;
 
 import java.util.concurrent.TimeUnit;
@@ -12,10 +14,11 @@ import static org.hamcrest.CoreMatchers.equalTo;
 import static org.junit.Assert.assertThat;
 
 public class MetricsManagerTest {
+    private TimeSource TIME_SOURCE = new SystemTimeSource();
 
     @Test
     public void shouldReturnCorrectMeasurements() throws WorkloadException, MetricsCollectionException {
-        MetricsManager metricsManager = new MetricsManager(TimeUnit.NANOSECONDS);
+        MetricsManager metricsManager = new MetricsManager(TIME_SOURCE, TimeUnit.NANOSECONDS);
 
         OperationResult operationResult1 = new OperationResult(1, "result one");
         operationResult1.setOperationType("type one");

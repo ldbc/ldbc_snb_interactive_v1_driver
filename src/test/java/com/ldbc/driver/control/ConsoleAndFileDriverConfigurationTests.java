@@ -31,6 +31,9 @@ public class ConsoleAndFileDriverConfigurationTests {
         Duration gctDeltaDuration = Duration.fromMilli(1);
         List<String> peerIds = Lists.newArrayList("1");
         Duration toleratedExecutionDelay = Duration.fromMilli(2);
+        boolean validateDatabase = false;
+        boolean validateWorkload = false;
+        boolean calculateWorkloadStatistics = false;
 
         ConsoleAndFileDriverConfiguration params = new ConsoleAndFileDriverConfiguration(
                 paramsMap,
@@ -44,7 +47,10 @@ public class ConsoleAndFileDriverConfigurationTests {
                 timeCompressionRatio,
                 gctDeltaDuration,
                 peerIds,
-                toleratedExecutionDelay);
+                toleratedExecutionDelay,
+                validateDatabase,
+                validateWorkload,
+                calculateWorkloadStatistics);
 
         assertThat(params.asMap(), equalTo(paramsMap));
         assertThat(params.dbClassName(), equalTo(dbClassName));
@@ -58,6 +64,9 @@ public class ConsoleAndFileDriverConfigurationTests {
         assertThat(params.gctDeltaDuration(), equalTo(gctDeltaDuration));
         assertThat(params.peerIds(), equalTo(peerIds));
         assertThat(params.toleratedExecutionDelay(), equalTo(toleratedExecutionDelay));
+        assertThat(params.validateDatabase(), equalTo(validateDatabase));
+        assertThat(params.validateWorkload(), equalTo(validateWorkload));
+        assertThat(params.calculateWorkloadStatistics(), equalTo(calculateWorkloadStatistics));
     }
 
     @Test

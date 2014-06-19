@@ -29,6 +29,16 @@ public class GeneratorFactory {
 
     /*
      * ----------------------------------------------------------------------------------------------------
+     * ---------------------------------------- UTILS -----------------------------------------------------
+     * ----------------------------------------------------------------------------------------------------
+     */
+
+    public <T> void exhaust(Iterator<T> generator) {
+        while (generator.hasNext()) generator.next();
+    }
+
+    /*
+     * ----------------------------------------------------------------------------------------------------
      * ---------------------------------------- DECORATORS ------------------------------------------------
      * ----------------------------------------------------------------------------------------------------
      */
@@ -232,6 +242,7 @@ public class GeneratorFactory {
     /**
      * Offset start times of operations in stream such that first operation is now scheduled at new start time.
      * Compress/expand duration between start times by a fixed ratio.
+     * E.g. 2.0 = 2x slower, 0.5 = 2x faster
      *
      * @param generator
      * @param newStartTime

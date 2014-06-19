@@ -8,7 +8,7 @@ import com.ldbc.driver.runtime.coordination.CompletionTimeException;
 import com.ldbc.driver.runtime.scheduling.Spinner;
 import com.ldbc.driver.runtime.scheduling.SpinnerCheck;
 import com.ldbc.driver.temporal.Duration;
-import com.ldbc.driver.temporal.Time;
+import com.ldbc.driver.temporal.TimeSource;
 
 import java.util.Iterator;
 import java.util.concurrent.Future;
@@ -18,18 +18,21 @@ class PreciseIndividualBlockingOperationStreamExecutorThread extends Thread {
     // TODO this value should be configurable, or an entirely better policy should be used
     private static final Duration DURATION_TO_WAIT_FOR_LAST_HANDLER_TO_FINISH = Duration.fromMinutes(30);
 
+    private final TimeSource TIME_SOURCE;
     private final OperationHandlerExecutor operationHandlerExecutor;
     private final Spinner slightlyEarlySpinner;
     private final ConcurrentErrorReporter errorReporter;
     private final Iterator<OperationHandler<?>> handlers;
     private final AtomicBoolean hasFinished;
 
-    public PreciseIndividualBlockingOperationStreamExecutorThread(OperationHandlerExecutor operationHandlerExecutor,
+    public PreciseIndividualBlockingOperationStreamExecutorThread(TimeSource timeSource,
+                                                                  OperationHandlerExecutor operationHandlerExecutor,
                                                                   ConcurrentErrorReporter errorReporter,
                                                                   Iterator<OperationHandler<?>> handlers,
                                                                   AtomicBoolean hasFinished,
                                                                   Spinner slightlyEarlySpinner) {
         super(PreciseIndividualBlockingOperationStreamExecutorThread.class.getSimpleName());
+        this.TIME_SOURCE = timeSource;
         this.operationHandlerExecutor = operationHandlerExecutor;
         this.slightlyEarlySpinner = slightlyEarlySpinner;
         this.errorReporter = errorReporter;
@@ -76,8 +79,8 @@ class PreciseIndividualBlockingOperationStreamExecutorThread extends Thread {
     }
 
     private boolean awaitExecutingHandler(Duration timeoutDuration, Future<OperationResult> executingHandler) {
-        long timeoutTimeMs = Time.now().plus(timeoutDuration).asMilli();
-        while (Time.nowAsMilli() < timeoutTimeMs) {
+        long timeoutTimeMs = TIME_SOURCE.now().plus(timeoutDuration).asMilli();
+        while (TIME_SOURCE.nowAsMilli() < timeoutTimeMs) {
             if (null == executingHandler || executingHandler.isDone()) return true;
         }
         return false;
@@ -91,13 +94,14 @@ class PreciseIndividualBlockingOperationStreamExecutorThread extends Thread {
         }
 
         @Override
-        public Boolean doCheck() {
+        public boolean doCheck() {
             return future.isDone();
         }
 
         @Override
-        public void handleFailedCheck(Operation<?> operation) {
+        public boolean handleFailedCheck(Operation<?> operation) {
             errorReporter.reportError(this, "Previous operation did not complete in time for next, synchronous operation to start");
+            return false;
         }
     }
 }

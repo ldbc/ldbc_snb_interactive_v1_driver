@@ -23,7 +23,7 @@ public class GctCheck implements SpinnerCheck {
     }
 
     @Override
-    public Boolean doCheck() {
+    public boolean doCheck() {
         try {
             return completionTimeService.globalCompletionTime().plus(gctDeltaDuration).gt(operation.scheduledStartTime());
         } catch (CompletionTimeException e) {
@@ -37,18 +37,21 @@ public class GctCheck implements SpinnerCheck {
     }
 
     @Override
-    public void handleFailedCheck(Operation<?> operation) {
+    public boolean handleFailedCheck(Operation<?> operation) {
         try {
             errorReporter.reportError(this,
-                    String.format("GCT(%) has not advanced sufficiently to execute operation(%s)",
+                    String.format("GCT(%s) has not advanced sufficiently to execute operation(%s)\n%s",
                             completionTimeService.globalCompletionTime().toString(),
+                            operation.scheduledStartTime(),
                             operation.toString()));
+            return false;
         } catch (CompletionTimeException e) {
             errorReporter.reportError(this,
                     String.format(
                             "Error encountered in handleFailedCheck while reading GCT for query %s\n%s",
                             operation.getClass().getSimpleName(),
                             ConcurrentErrorReporter.stackTraceToString(e)));
+            return false;
         }
     }
 }

@@ -2,10 +2,10 @@ package com.ldbc.driver.runtime.executor;
 
 import com.ldbc.driver.OperationHandler;
 import com.ldbc.driver.runtime.ConcurrentErrorReporter;
-import com.ldbc.driver.runtime.coordination.ConcurrentCompletionTimeService;
 import com.ldbc.driver.runtime.scheduling.Spinner;
 import com.ldbc.driver.temporal.Duration;
 import com.ldbc.driver.temporal.Time;
+import com.ldbc.driver.temporal.TimeSource;
 
 import java.util.Iterator;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -20,8 +20,8 @@ public class UniformWindowedOperationStreamExecutorService {
     private boolean executing = false;
     private boolean shuttingDown = false;
 
-    public UniformWindowedOperationStreamExecutorService(ConcurrentErrorReporter errorReporter,
-                                                         ConcurrentCompletionTimeService completionTimeService,
+    public UniformWindowedOperationStreamExecutorService(TimeSource timeSource,
+                                                         ConcurrentErrorReporter errorReporter,
                                                          Iterator<OperationHandler<?>> handlers,
                                                          OperationHandlerExecutor operationHandlerExecutor,
                                                          Spinner slightlyEarlySpinner,
@@ -29,6 +29,7 @@ public class UniformWindowedOperationStreamExecutorService {
                                                          Duration windowSize) {
         this.errorReporter = errorReporter;
         this.uniformWindowedOperationStreamExecutorThread = new UniformWindowedOperationStreamExecutorThread(
+                timeSource,
                 firstWindowStartTime,
                 windowSize,
                 operationHandlerExecutor,

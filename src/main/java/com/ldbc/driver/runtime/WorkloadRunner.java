@@ -5,7 +5,7 @@ import com.ldbc.driver.control.ConcurrentControlService;
 import com.ldbc.driver.runtime.coordination.ConcurrentCompletionTimeService;
 import com.ldbc.driver.runtime.executor.*;
 import com.ldbc.driver.runtime.metrics.ConcurrentMetricsService;
-import com.ldbc.driver.runtime.scheduling.ErrorReportingExecutionDelayPolicy;
+import com.ldbc.driver.runtime.scheduling.ErrorReportingTerminatingExecutionDelayPolicy;
 import com.ldbc.driver.runtime.scheduling.ExecutionDelayPolicy;
 import com.ldbc.driver.runtime.scheduling.Spinner;
 import com.ldbc.driver.runtime.streams.IteratorSplitter;
@@ -13,6 +13,7 @@ import com.ldbc.driver.runtime.streams.IteratorSplittingException;
 import com.ldbc.driver.runtime.streams.SplitDefinition;
 import com.ldbc.driver.runtime.streams.SplitResult;
 import com.ldbc.driver.temporal.Duration;
+import com.ldbc.driver.temporal.TimeSource;
 
 import java.util.Iterator;
 import java.util.Map;
@@ -21,6 +22,8 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import static com.ldbc.driver.OperationClassification.SchedulingMode;
 
 public class WorkloadRunner {
+    private final TimeSource TIME_SOURCE;
+
     private final Duration DEFAULT_STATUS_UPDATE_INTERVAL = Duration.fromSeconds(2);
     private final Duration SPINNER_OFFSET_DURATION = Duration.fromMilli(100);
 
@@ -39,32 +42,36 @@ public class WorkloadRunner {
     private final PreciseIndividualBlockingOperationStreamExecutorService preciseIndividualBlockingOperationStreamExecutorService;
     private final UniformWindowedOperationStreamExecutorService uniformWindowedOperationStreamExecutorService;
 
-    public WorkloadRunner(ConcurrentControlService controlService,
+    public WorkloadRunner(TimeSource timeSource,
+                          ConcurrentControlService controlService,
                           Db db,
                           Iterator<Operation<?>> operations,
                           Map<Class<? extends Operation<?>>, OperationClassification> operationClassifications,
                           ConcurrentMetricsService metricsService,
                           ConcurrentErrorReporter errorReporter,
                           ConcurrentCompletionTimeService completionTimeService) throws WorkloadException {
+        this.TIME_SOURCE = timeSource;
         this.controlService = controlService;
         this.errorReporter = errorReporter;
 
-        ExecutionDelayPolicy executionDelayPolicy = new ErrorReportingExecutionDelayPolicy(controlService.configuration().toleratedExecutionDelay(), errorReporter);
+        ExecutionDelayPolicy executionDelayPolicy = new ErrorReportingTerminatingExecutionDelayPolicy(
+                TIME_SOURCE,
+                controlService.configuration().toleratedExecutionDelay(),
+                errorReporter);
 
         // TODO for the spinner sent to Window scheduler allow delay to reach to the end of window?
 
-        this.exactSpinner = new Spinner(executionDelayPolicy);
-        this.earlySpinner = new Spinner(executionDelayPolicy, SPINNER_OFFSET_DURATION);
+        this.exactSpinner = new Spinner(TIME_SOURCE, Spinner.DEFAULT_SLEEP_DURATION_10_MILLI, executionDelayPolicy);
+        this.earlySpinner = new Spinner(TIME_SOURCE, Spinner.DEFAULT_SLEEP_DURATION_10_MILLI, executionDelayPolicy, SPINNER_OFFSET_DURATION);
         this.workloadStatusThread = new WorkloadStatusThread(DEFAULT_STATUS_UPDATE_INTERVAL, metricsService, errorReporter);
-
         Iterator<Operation<?>> windowedOperations;
         Iterator<Operation<?>> blockingOperations;
         Iterator<Operation<?>> asynchronousOperations;
         try {
-            IteratorSplitter<Operation<?>> splitter = new IteratorSplitter<Operation<?>>(IteratorSplitter.UnmappedItemPolicy.ABORT);
-            SplitDefinition<Operation<?>> windowed = new SplitDefinition<Operation<?>>(Workload.operationTypesBySchedulingMode(operationClassifications, SchedulingMode.WINDOWED));
-            SplitDefinition<Operation<?>> blocking = new SplitDefinition<Operation<?>>(Workload.operationTypesBySchedulingMode(operationClassifications, SchedulingMode.INDIVIDUAL_BLOCKING));
-            SplitDefinition<Operation<?>> asynchronous = new SplitDefinition<Operation<?>>(Workload.operationTypesBySchedulingMode(operationClassifications, SchedulingMode.INDIVIDUAL_ASYNC));
+            IteratorSplitter<Operation<?>> splitter = new IteratorSplitter<>(IteratorSplitter.UnmappedItemPolicy.ABORT);
+            SplitDefinition<Operation<?>> windowed = new SplitDefinition<>(Workload.operationTypesBySchedulingMode(operationClassifications, SchedulingMode.WINDOWED));
+            SplitDefinition<Operation<?>> blocking = new SplitDefinition<>(Workload.operationTypesBySchedulingMode(operationClassifications, SchedulingMode.INDIVIDUAL_BLOCKING));
+            SplitDefinition<Operation<?>> asynchronous = new SplitDefinition<>(Workload.operationTypesBySchedulingMode(operationClassifications, SchedulingMode.INDIVIDUAL_ASYNC));
             SplitResult splits = splitter.split(operations, windowed, blocking, asynchronous);
             windowedOperations = splits.getSplitFor(windowed).iterator();
             blockingOperations = splits.getSplitFor(blocking).iterator();
@@ -76,12 +83,13 @@ public class WorkloadRunner {
         }
 
         OperationsToHandlersTransformer operationsToHandlers = new OperationsToHandlersTransformer(
+                TIME_SOURCE,
                 db,
                 exactSpinner,
                 completionTimeService,
                 errorReporter,
                 metricsService,
-                controlService.configuration().gctDeltaDuration(),
+                controlService.configuration().compressedGctDeltaDuration(),
                 operationClassifications);
         Iterator<OperationHandler<?>> windowedHandlers = operationsToHandlers.transform(windowedOperations);
         Iterator<OperationHandler<?>> blockingHandlers = operationsToHandlers.transform(blockingOperations);
@@ -92,13 +100,13 @@ public class WorkloadRunner {
 
         this.operationHandlerExecutor = new ThreadPoolOperationHandlerExecutor(controlService.configuration().threadCount());
         this.preciseIndividualAsyncOperationStreamExecutorService = new PreciseIndividualAsyncOperationStreamExecutorService(
-                errorReporter, completionTimeService, asynchronousHandlers, earlySpinner, operationHandlerExecutor);
+                TIME_SOURCE, errorReporter, asynchronousHandlers, earlySpinner, operationHandlerExecutor);
         this.preciseIndividualBlockingOperationStreamExecutorService = new PreciseIndividualBlockingOperationStreamExecutorService(
-                errorReporter, completionTimeService, blockingHandlers, earlySpinner, operationHandlerExecutor);
+                TIME_SOURCE, errorReporter, blockingHandlers, earlySpinner, operationHandlerExecutor);
         // TODO better way of setting window size. it does not need to equal DeltaT, it can be smaller. where to set? how to set?
-        Duration windowSize = controlService.configuration().gctDeltaDuration();
+        Duration windowSize = controlService.configuration().compressedGctDeltaDuration();
         this.uniformWindowedOperationStreamExecutorService = new UniformWindowedOperationStreamExecutorService(
-                errorReporter, completionTimeService, windowedHandlers, operationHandlerExecutor, earlySpinner, controlService.workloadStartTime(), windowSize);
+                TIME_SOURCE, errorReporter, windowedHandlers, operationHandlerExecutor, earlySpinner, controlService.workloadStartTime(), windowSize);
     }
 
     public void executeWorkload() throws WorkloadException {

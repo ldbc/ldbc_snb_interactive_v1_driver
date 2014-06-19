@@ -1,19 +1,23 @@
 package com.ldbc.driver.util;
 
+import com.ldbc.driver.temporal.ManualTimeSource;
+import com.ldbc.driver.temporal.SystemTimeSource;
 import com.ldbc.driver.temporal.Time;
+import com.ldbc.driver.temporal.TimeSource;
 import org.apache.commons.math3.random.RandomDataGenerator;
 import org.apache.commons.math3.random.RandomGenerator;
 import org.apache.commons.math3.random.Well19937c;
 
 public class RandomDataGeneratorFactory {
 
+    TimeSource TIME_SOURCE = new SystemTimeSource();
     private final RandomGenerator random;
 
     /**
      * Will use current time to seed a RandomGenerator, which will generate seeds for all returned RandomDataGenerator instances
      */
     public RandomDataGeneratorFactory() {
-        this.random = getRandomGenerator(Time.now().asNano());
+        this.random = getRandomGenerator(TIME_SOURCE.now().asNano());
     }
 
     /**

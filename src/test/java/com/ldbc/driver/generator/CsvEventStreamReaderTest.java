@@ -6,10 +6,7 @@ import com.ldbc.driver.Operation;
 import com.ldbc.driver.util.CsvFileReader;
 import com.ldbc.driver.util.RandomDataGeneratorFactory;
 import com.ldbc.driver.util.TestUtils;
-import com.ldbc.driver.workloads.ldbc.socnet.interactive.LdbcUpdate3AddCommentLike;
-import com.ldbc.driver.workloads.ldbc.socnet.interactive.LdbcUpdate5AddForumMembership;
-import com.ldbc.driver.workloads.ldbc.socnet.interactive.LdbcUpdate7AddComment;
-import com.ldbc.driver.workloads.ldbc.socnet.interactive.WriteEventStreamReader;
+import com.ldbc.driver.workloads.ldbc.socnet.interactive.*;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -37,18 +34,17 @@ public class CsvEventStreamReaderTest {
         // Given
         File file = TestUtils.getResource("/updateStream_0.csv");
         Iterable<EventDecoder<Operation<?>>> decoders = Lists.newArrayList(
-                WriteEventStreamReader.EVENT_DECODER_ADD_COMMENT,
-                WriteEventStreamReader.EVENT_DECODER_ADD_FORUM_MEMBERSHIP,
-                WriteEventStreamReader.EVENT_DECODER_ADD_LIKE_COMMENT);
+                WriteEventStreamReader.EVENT_DECODER_ADD_LIKE_POST,
+                WriteEventStreamReader.EVENT_DECODER_ADD_FORUM_MEMBERSHIP);
         EventDescriptions<Operation<?>> eventDescriptions = new EventDescriptions<>(decoders, EventReturnPolicy.AT_LEAST_ONE_MATCH);
 
         // When
         Iterator<Operation<?>> csvEventStreamReader = new CsvEventStreamReader<>(Iterators.limit(new CsvFileReader(file, "\\|"), 4), eventDescriptions);
 
         // Then
+        assertThat(csvEventStreamReader.next(), instanceOf(LdbcUpdate2AddPostLike.class));
         assertThat(csvEventStreamReader.next(), instanceOf(LdbcUpdate5AddForumMembership.class));
-        assertThat(csvEventStreamReader.next(), instanceOf(LdbcUpdate3AddCommentLike.class));
-        assertThat(csvEventStreamReader.next(), instanceOf(LdbcUpdate7AddComment.class));
+        assertThat(csvEventStreamReader.next(), instanceOf(LdbcUpdate5AddForumMembership.class));
         assertThat(csvEventStreamReader.next(), instanceOf(LdbcUpdate5AddForumMembership.class));
         assertThat(csvEventStreamReader.hasNext(), is(false));
     }
@@ -58,16 +54,14 @@ public class CsvEventStreamReaderTest {
         // Given
         File file = TestUtils.getResource("/updateStream_0.csv");
         Iterable<EventDecoder<Operation<?>>> decoders = Lists.newArrayList(
-                WriteEventStreamReader.EVENT_DECODER_ADD_LIKE_COMMENT,
-                WriteEventStreamReader.EVENT_DECODER_ADD_FORUM_MEMBERSHIP);
+                WriteEventStreamReader.EVENT_DECODER_ADD_LIKE_POST);
         EventDescriptions<Operation<?>> eventDescriptions = new EventDescriptions<>(decoders, EventReturnPolicy.AT_LEAST_ONE_MATCH);
 
         // When
         Iterator<Operation<?>> csvEventStreamReader = new CsvEventStreamReader<>(Iterators.limit(new CsvFileReader(file, "\\|"), 3), eventDescriptions);
 
         // Then
-        assertThat(csvEventStreamReader.next(), instanceOf(LdbcUpdate5AddForumMembership.class));
-        assertThat(csvEventStreamReader.next(), instanceOf(LdbcUpdate3AddCommentLike.class));
+        assertThat(csvEventStreamReader.next(), instanceOf(LdbcUpdate2AddPostLike.class));
         boolean exceptionThrown = false;
         try {
             csvEventStreamReader.next();
@@ -82,16 +76,14 @@ public class CsvEventStreamReaderTest {
         // Given
         File file = TestUtils.getResource("/updateStream_0.csv");
         Iterable<EventDecoder<Operation<?>>> decoders = Lists.newArrayList(
-                WriteEventStreamReader.EVENT_DECODER_ADD_LIKE_COMMENT,
-                WriteEventStreamReader.EVENT_DECODER_ADD_FORUM_MEMBERSHIP);
+                WriteEventStreamReader.EVENT_DECODER_ADD_LIKE_POST);
         EventDescriptions<Operation<?>> eventDescriptions = new EventDescriptions<>(decoders, EventReturnPolicy.EXACTLY_ONE_MATCH);
 
         // When
         Iterator<Operation<?>> csvEventStreamReader = new CsvEventStreamReader<>(Iterators.limit(new CsvFileReader(file, "\\|"), 3), eventDescriptions);
 
         // Then
-        assertThat(csvEventStreamReader.next(), instanceOf(LdbcUpdate5AddForumMembership.class));
-        assertThat(csvEventStreamReader.next(), instanceOf(LdbcUpdate3AddCommentLike.class));
+        assertThat(csvEventStreamReader.next(), instanceOf(LdbcUpdate2AddPostLike.class));
         boolean exceptionThrown = false;
         try {
             csvEventStreamReader.next();
@@ -106,19 +98,18 @@ public class CsvEventStreamReaderTest {
         // Given
         File file = TestUtils.getResource("/updateStream_0.csv");
         Iterable<EventDecoder<Operation<?>>> decoders = Lists.newArrayList(
-                WriteEventStreamReader.EVENT_DECODER_ADD_COMMENT,
-                WriteEventStreamReader.EVENT_DECODER_ADD_COMMENT,
-                WriteEventStreamReader.EVENT_DECODER_ADD_FORUM_MEMBERSHIP,
-                WriteEventStreamReader.EVENT_DECODER_ADD_LIKE_COMMENT);
+                WriteEventStreamReader.EVENT_DECODER_ADD_LIKE_POST,
+                WriteEventStreamReader.EVENT_DECODER_ADD_LIKE_POST,
+                WriteEventStreamReader.EVENT_DECODER_ADD_FORUM_MEMBERSHIP);
         EventDescriptions<Operation<?>> eventDescriptions = new EventDescriptions<>(decoders, EventReturnPolicy.AT_LEAST_ONE_MATCH);
 
         // When
         Iterator<Operation<?>> csvEventStreamReader = new CsvEventStreamReader<>(Iterators.limit(new CsvFileReader(file, "\\|"), 4), eventDescriptions);
 
         // Then
+        assertThat(csvEventStreamReader.next(), instanceOf(LdbcUpdate2AddPostLike.class));
         assertThat(csvEventStreamReader.next(), instanceOf(LdbcUpdate5AddForumMembership.class));
-        assertThat(csvEventStreamReader.next(), instanceOf(LdbcUpdate3AddCommentLike.class));
-        assertThat(csvEventStreamReader.next(), instanceOf(LdbcUpdate7AddComment.class));
+        assertThat(csvEventStreamReader.next(), instanceOf(LdbcUpdate5AddForumMembership.class));
         assertThat(csvEventStreamReader.next(), instanceOf(LdbcUpdate5AddForumMembership.class));
         assertThat(csvEventStreamReader.hasNext(), is(false));
     }
@@ -128,18 +119,16 @@ public class CsvEventStreamReaderTest {
         // Given
         File file = TestUtils.getResource("/updateStream_0.csv");
         Iterable<EventDecoder<Operation<?>>> decoders = Lists.newArrayList(
-                WriteEventStreamReader.EVENT_DECODER_ADD_COMMENT,
-                WriteEventStreamReader.EVENT_DECODER_ADD_COMMENT,
+                WriteEventStreamReader.EVENT_DECODER_ADD_LIKE_POST,
                 WriteEventStreamReader.EVENT_DECODER_ADD_FORUM_MEMBERSHIP,
-                WriteEventStreamReader.EVENT_DECODER_ADD_LIKE_COMMENT);
+                WriteEventStreamReader.EVENT_DECODER_ADD_FORUM_MEMBERSHIP);
         EventDescriptions<Operation<?>> eventDescriptions = new EventDescriptions<>(decoders, EventReturnPolicy.EXACTLY_ONE_MATCH);
 
         // When
         Iterator<Operation<?>> csvEventStreamReader = new CsvEventStreamReader<>(Iterators.limit(new CsvFileReader(file, "\\|"), 4), eventDescriptions);
 
         // Then
-        assertThat(csvEventStreamReader.next(), instanceOf(LdbcUpdate5AddForumMembership.class));
-        assertThat(csvEventStreamReader.next(), instanceOf(LdbcUpdate3AddCommentLike.class));
+        assertThat(csvEventStreamReader.next(), instanceOf(LdbcUpdate2AddPostLike.class));
         boolean exceptionThrown = false;
         try {
             csvEventStreamReader.next();

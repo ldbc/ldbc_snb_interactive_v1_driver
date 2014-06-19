@@ -19,7 +19,7 @@ public class MultiCheck implements SpinnerCheck {
     }
 
     @Override
-    public Boolean doCheck() {
+    public boolean doCheck() {
         if (checks.isEmpty()) return true;
         List<SpinnerCheck> checksToRemove = new ArrayList<>();
         for (int i = 0; i < checks.size(); i++) {
@@ -34,8 +34,10 @@ public class MultiCheck implements SpinnerCheck {
     }
 
     @Override
-    public void handleFailedCheck(Operation<?> operation) {
+    public boolean handleFailedCheck(Operation<?> operation) {
+        boolean result = true;
         for (SpinnerCheck check : checks)
-            check.handleFailedCheck(operation);
+            result = result && check.handleFailedCheck(operation);
+        return result;
     }
 }

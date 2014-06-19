@@ -13,6 +13,7 @@ import com.ldbc.driver.temporal.Time;
 import com.ldbc.driver.util.ClassLoaderHelper;
 import com.ldbc.driver.util.ClassLoadingException;
 import com.ldbc.driver.util.CsvFileReader;
+import com.ldbc.driver.util.Tuple;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -199,20 +200,20 @@ public class LdbcInteractiveWorkload extends Workload {
         Map<Class<? extends Operation<?>>, OperationClassification> operationClassifications = new HashMap<Class<? extends Operation<?>>, OperationClassification>();
         /*
          * Modes (with examples from LDBC Interactive SNB Workload):
-         * - WINDOWED & NONE ------------------->   n/a
-         * - WINDOWED & READ ------------------->   Add Friendship
-         * - WINDOWED & READ WRITE ------------->   Add Person
-         * - INDIVIDUAL_BLOCKING & NONE -------->   n/a
-         * - INDIVIDUAL_BLOCKING & READ -------->   Add Post
-         *                                          Add Comment
-         *                                          Add Post Like
-         *                                          Add Comment Like
-         *                                          Add Forum
-         *                                          Add Forum Membership
-         * - INDIVIDUAL_BLOCKING & READ WRITE -->   n/a
-         * - INDIVIDUAL_ASYNC & NONE ----------->   Reads 1-14
-         * - INDIVIDUAL_ASYNC & READ ----------->   n/a
-         * - INDIVIDUAL_ASYNC & READ WRITE ----->   n/a
+         * - WINDOWED               & NONE -------------------> n/a
+         * - WINDOWED               & READ -------------------> Add Friendship
+         * - WINDOWED               & READ WRITE -------------> Add Person
+         * - INDIVIDUAL_BLOCKING    & NONE -------------------> n/a
+         * - INDIVIDUAL_BLOCKING    & READ -------------------> Add Post
+         *                                                      Add Comment
+         *                                                      Add Post Like
+         *                                                      Add Comment Like
+         *                                                      Add Forum
+         *                                                      Add Forum Membership
+         * - INDIVIDUAL_BLOCKING    & READ WRITE -------------> n/a
+         * - INDIVIDUAL_ASYNC       & NONE -------------------> Reads 1-14
+         * - INDIVIDUAL_ASYNC       & READ -------------------> n/a
+         * - INDIVIDUAL_ASYNC       & READ WRITE -------------> n/a
         */
         operationClassifications.put(LdbcQuery1.class, new OperationClassification(SchedulingMode.INDIVIDUAL_ASYNC, GctMode.NONE));
         operationClassifications.put(LdbcQuery2.class, new OperationClassification(SchedulingMode.INDIVIDUAL_ASYNC, GctMode.NONE));
@@ -389,7 +390,7 @@ public class LdbcInteractiveWorkload extends Workload {
     @Override
     protected Iterator<Operation<?>> createOperations(GeneratorFactory generators) throws WorkloadException {
         // TODO assign this in a better way
-        Time workloadStartTime = Time.now();
+        Time workloadStartTime = Time.fromMilli(0);
 
         /*
          * Create read operation streams, with specified interleaves
@@ -483,7 +484,17 @@ public class LdbcInteractiveWorkload extends Workload {
          */
         Iterator<Operation<?>> writeOperationsStream = new WriteEventStreamReader(writeOperationsFileReader, EventReturnPolicy.AT_LEAST_ONE_MATCH);
 
-        // TODO parameter for: write operation compression/expansion, this then needs to be applied to DeltaTime too (at present this is not done)
+        /*
+         * Filter Write Operations
+         */
+        Predicate<Operation<?>> enabledWriteOperationsFilter = new Predicate<Operation<?>>() {
+            @Override
+            public boolean apply(Operation<?> operation) {
+                return writeOperationFilter.contains(operation.getClass());
+            }
+        };
+        Iterator<Operation<?>> filteredWriteOperationStream = Iterators.filter(writeOperationsStream, enabledWriteOperationsFilter);
+
 
         /*
          * Move scheduled start times of write operations to workload start time
@@ -492,37 +503,35 @@ public class LdbcInteractiveWorkload extends Workload {
         Duration firstWriteOperationFromWorkloadStart = Duration.fromSeconds(1);
         Iterator<Operation<?>> writeOperationStream = generators.timeOffset(writeOperationsStream, workloadStartTime.plus(firstWriteOperationFromWorkloadStart));
 
+        List<Iterator<Operation<?>>> enabledOperations = new ArrayList<>();
+        if (false == writeOperationFilter.isEmpty()) enabledOperations.add(filteredWriteOperationStream);
+        if (readOperationFilter.contains(LdbcQuery1.class)) enabledOperations.add(readOperation1Stream);
+        if (readOperationFilter.contains(LdbcQuery2.class)) enabledOperations.add(readOperation2Stream);
+        if (readOperationFilter.contains(LdbcQuery3.class)) enabledOperations.add(readOperation3Stream);
+        if (readOperationFilter.contains(LdbcQuery4.class)) enabledOperations.add(readOperation4Stream);
+        if (readOperationFilter.contains(LdbcQuery5.class)) enabledOperations.add(readOperation5Stream);
+        if (readOperationFilter.contains(LdbcQuery6.class)) enabledOperations.add(readOperation6Stream);
+        if (readOperationFilter.contains(LdbcQuery7.class)) enabledOperations.add(readOperation7Stream);
+        if (readOperationFilter.contains(LdbcQuery8.class)) enabledOperations.add(readOperation8Stream);
+        if (readOperationFilter.contains(LdbcQuery9.class)) enabledOperations.add(readOperation9Stream);
+        if (readOperationFilter.contains(LdbcQuery10.class)) enabledOperations.add(readOperation10Stream);
+        if (readOperationFilter.contains(LdbcQuery11.class)) enabledOperations.add(readOperation11Stream);
+        if (readOperationFilter.contains(LdbcQuery12.class)) enabledOperations.add(readOperation12Stream);
+        if (readOperationFilter.contains(LdbcQuery13.class)) enabledOperations.add(readOperation13Stream);
+        if (readOperationFilter.contains(LdbcQuery14.class)) enabledOperations.add(readOperation14Stream);
+
         /*
          * Merge all operation streams, ordered by operation start times
          */
-        Iterator<Operation<?>> readAndWriteOperations = generators.mergeSortOperationsByStartTime(
-                writeOperationStream,
-                readOperation1Stream,
-                readOperation2Stream,
-                readOperation3Stream,
-                readOperation4Stream,
-                readOperation5Stream,
-                readOperation6Stream,
-                readOperation7Stream,
-                readOperation8Stream,
-                readOperation9Stream,
-                readOperation10Stream,
-                readOperation11Stream,
-                readOperation12Stream,
-                readOperation13Stream,
-                readOperation14Stream);
+        Iterator<Operation<?>> readAndWriteOperations =
+                generators.mergeSortOperationsByStartTime(enabledOperations.toArray(new Iterator[enabledOperations.size()]));
 
-        /*
-         * Filter Operations
-         */
-        Predicate<Operation<?>> allowedOperationsFilter = new Predicate<Operation<?>>() {
-            @Override
-            public boolean apply(Operation<?> operation) {
-                return writeOperationFilter.contains(operation.getClass()) || readOperationFilter.contains(operation.getClass());
-            }
-        };
-        Iterator<Operation<?>> filteredOperations = Iterators.filter(readAndWriteOperations, allowedOperationsFilter);
+        return readAndWriteOperations;
+    }
 
-        return filteredOperations;
+    @Override
+    protected Iterator<Tuple.Tuple2<Operation<?>, Object>> validationOperations(GeneratorFactory generators) throws WorkloadException {
+        // TODO implement
+        return Lists.<Tuple.Tuple2<Operation<?>, Object>>newArrayList().iterator();
     }
 }

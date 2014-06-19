@@ -29,7 +29,7 @@ public class MapUtils {
      * @return
      */
     public static <K, V> Map<K, V> copyExcludingKeys(Map<K, V> map, Set<K> excludedKeys) {
-        Map<K, V> resultMap = new HashMap<K, V>();
+        Map<K, V> resultMap = new HashMap<>();
         for (Entry<K, V> entry : map.entrySet()) {
             if (false == excludedKeys.contains(entry.getKey())) resultMap.put(entry.getKey(), entry.getValue());
         }
@@ -41,7 +41,7 @@ public class MapUtils {
     }
 
     public static <K, V> Map<K, V> propertiesToMap(Properties properties) {
-        Map<K, V> resultMap = new HashMap<K, V>();
+        Map<K, V> resultMap = new HashMap<>();
         for (Object propertyKey : properties.keySet()) {
             resultMap.put((K) propertyKey, (V) properties.get((K) propertyKey));
         }
@@ -57,7 +57,7 @@ public class MapUtils {
      * @return
      */
     public static <K, V> Map<K, V> mergePropertiesToMap(Properties properties, Map<K, V> map, boolean overwrite) {
-        Map<K, V> resultMap = new HashMap<K, V>();
+        Map<K, V> resultMap = new HashMap<>();
         for (K mapKey : map.keySet()) {
             resultMap.put(mapKey, map.get(mapKey));
         }
@@ -119,7 +119,7 @@ public class MapUtils {
      * @return
      */
     public static <K, V> Map<K, V> mergeMaps(Map<K, V> originalMap, Map<K, V> newMap, Function2<V, V, V> mergeFun) {
-        Map<K, V> resultMap = new HashMap<K, V>();
+        Map<K, V> resultMap = new HashMap<>();
         for (K originalMapKey : originalMap.keySet()) {
             resultMap.put(originalMapKey, originalMap.get(originalMapKey));
         }

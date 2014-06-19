@@ -14,7 +14,8 @@ import com.ldbc.driver.runtime.metrics.MetricsCollectionException;
 import com.ldbc.driver.runtime.metrics.ThreadedQueuedConcurrentMetricsService;
 import com.ldbc.driver.runtime.metrics.WorkloadResultsSnapshot;
 import com.ldbc.driver.temporal.Duration;
-import com.ldbc.driver.temporal.Time;
+import com.ldbc.driver.temporal.SystemTimeSource;
+import com.ldbc.driver.temporal.TimeSource;
 import com.ldbc.driver.util.RandomDataGeneratorFactory;
 import com.ldbc.driver.util.TestUtils;
 import com.ldbc.driver.workloads.ldbc.socnet.interactive.LdbcInteractiveWorkload;
@@ -36,9 +37,11 @@ import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
 
 public class WorkloadRunnerTests {
+    TimeSource TIME_SOURCE = new SystemTimeSource();
+
     @Test
     public void shouldRunLdbcWorkloadWithNothingDb() throws DbException, WorkloadException, MetricsCollectionException, IOException, CompletionTimeException {
-        Map<String, String> paramsMap = new HashMap<String, String>();
+        Map<String, String> paramsMap = new HashMap<>();
         // LDBC Interactive Workload-specific parameters
         paramsMap.put(LdbcInteractiveWorkload.READ_OPERATION_1_INTERLEAVE_KEY, "100");
         paramsMap.put(LdbcInteractiveWorkload.READ_OPERATION_2_INTERLEAVE_KEY, "100");
@@ -87,17 +90,21 @@ public class WorkloadRunnerTests {
         TimeUnit timeUnit = TimeUnit.MILLISECONDS;
         String resultFilePath = "temp_results_file.json";
         FileUtils.deleteQuietly(new File(resultFilePath));
-        Double timeCompressionRatio = null;
+        double timeCompressionRatio = 1.0;
         Duration gctDeltaDuration = Duration.fromSeconds(10);
         List<String> peerIds = Lists.newArrayList();
         Duration toleratedExecutionDelay = Duration.fromMilli(100);
+        boolean validateDatabase = false;
+        boolean validateWorkload = false;
+        boolean calculateWorkloadStatistics = false;
 
         assertThat(new File(resultFilePath).exists(), is(false));
 
         ConsoleAndFileDriverConfiguration configuration = new ConsoleAndFileDriverConfiguration(paramsMap, dbClassName, workloadClassName, operationCount,
-                threadCount, showStatus, timeUnit, resultFilePath, timeCompressionRatio, gctDeltaDuration, peerIds, toleratedExecutionDelay);
+                threadCount, showStatus, timeUnit, resultFilePath, timeCompressionRatio, gctDeltaDuration, peerIds, toleratedExecutionDelay,
+                validateDatabase, validateWorkload, calculateWorkloadStatistics);
 
-        ConcurrentControlService controlService = new LocalControlService(Time.now().plus(Duration.fromMilli(1000)), configuration);
+        ConcurrentControlService controlService = new LocalControlService(TIME_SOURCE.now().plus(Duration.fromMilli(1000)), configuration);
         Db db = new NothingDb();
         db.init(configuration.asMap());
         Workload workload = new LdbcInteractiveWorkload();
@@ -107,15 +114,17 @@ public class WorkloadRunnerTests {
         Iterator<Operation<?>> timeMappedOperations = generators.timeOffsetAndCompress(operations, controlService.workloadStartTime(), 1.0);
         Map<Class<? extends Operation<?>>, OperationClassification> operationClassifications = workload.operationClassifications();
         ConcurrentErrorReporter errorReporter = new ConcurrentErrorReporter();
-        ConcurrentMetricsService metricsService = new ThreadedQueuedConcurrentMetricsService(errorReporter, configuration.timeUnit());
-        ConcurrentCompletionTimeService completionTimeService = new ThreadedQueuedConcurrentCompletionTimeService(controlService.configuration().peerIds(), errorReporter);
+        ConcurrentMetricsService metricsService = new ThreadedQueuedConcurrentMetricsService(TIME_SOURCE, errorReporter, configuration.timeUnit());
+        ConcurrentCompletionTimeService completionTimeService =
+                new ThreadedQueuedConcurrentCompletionTimeService(TIME_SOURCE, controlService.configuration().peerIds(), errorReporter);
         completionTimeService.submitInitiatedTime(controlService.workloadStartTime());
         completionTimeService.submitCompletedTime(controlService.workloadStartTime());
         for (String peerId : controlService.configuration().peerIds()) {
             completionTimeService.submitExternalCompletionTime(peerId, controlService.workloadStartTime());
         }
 
-        WorkloadRunner runner = new WorkloadRunner(controlService, db, timeMappedOperations, operationClassifications, metricsService, errorReporter, completionTimeService);
+        WorkloadRunner runner =
+                new WorkloadRunner(TIME_SOURCE, controlService, db, timeMappedOperations, operationClassifications, metricsService, errorReporter, completionTimeService);
 
         runner.executeWorkload();
 
@@ -191,18 +200,22 @@ public class WorkloadRunnerTests {
         TimeUnit timeUnit = TimeUnit.MILLISECONDS;
         String resultFilePath = "temp_results_file.json";
         FileUtils.deleteQuietly(new File(resultFilePath));
-        Double timeCompressionRatio = null;
+        double timeCompressionRatio = 1.0;
         Duration gctDeltaDuration = Duration.fromMinutes(1);
         List<String> peerIds = Lists.newArrayList();
         Duration toleratedExecutionDelay = Duration.fromMilli(1000);
+        boolean validateDatabase = false;
+        boolean validateWorkload = false;
+        boolean calculateWorkloadStatistics = false;
 
         assertThat(new File(csvOutputFilePath).exists(), is(false));
         assertThat(new File(resultFilePath).exists(), is(false));
 
         ConsoleAndFileDriverConfiguration configuration = new ConsoleAndFileDriverConfiguration(paramsMap, dbClassName, workloadClassName, operationCount,
-                threadCount, showStatus, timeUnit, resultFilePath, timeCompressionRatio, gctDeltaDuration, peerIds, toleratedExecutionDelay);
+                threadCount, showStatus, timeUnit, resultFilePath, timeCompressionRatio, gctDeltaDuration, peerIds, toleratedExecutionDelay,
+                validateDatabase, validateWorkload, calculateWorkloadStatistics);
 
-        ConcurrentControlService controlService = new LocalControlService(Time.now().plus(Duration.fromMilli(1000)), configuration);
+        ConcurrentControlService controlService = new LocalControlService(TIME_SOURCE.now().plus(Duration.fromMilli(1000)), configuration);
         Db db = new CsvDb();
         db.init(configuration.asMap());
         Workload workload = new LdbcInteractiveWorkload();
@@ -212,15 +225,17 @@ public class WorkloadRunnerTests {
         Iterator<Operation<?>> timeMappedOperations = generators.timeOffsetAndCompress(operations, controlService.workloadStartTime(), 1.0);
         Map<Class<? extends Operation<?>>, OperationClassification> operationClassifications = workload.operationClassifications();
         ConcurrentErrorReporter errorReporter = new ConcurrentErrorReporter();
-        ConcurrentMetricsService metricsService = new ThreadedQueuedConcurrentMetricsService(errorReporter, configuration.timeUnit());
-        ConcurrentCompletionTimeService completionTimeService = new ThreadedQueuedConcurrentCompletionTimeService(controlService.configuration().peerIds(), errorReporter);
+        ConcurrentMetricsService metricsService = new ThreadedQueuedConcurrentMetricsService(TIME_SOURCE, errorReporter, configuration.timeUnit());
+        ConcurrentCompletionTimeService completionTimeService =
+                new ThreadedQueuedConcurrentCompletionTimeService(TIME_SOURCE, controlService.configuration().peerIds(), errorReporter);
         completionTimeService.submitInitiatedTime(controlService.workloadStartTime());
         completionTimeService.submitCompletedTime(controlService.workloadStartTime());
         for (String peerId : controlService.configuration().peerIds()) {
             completionTimeService.submitExternalCompletionTime(peerId, controlService.workloadStartTime());
         }
 
-        WorkloadRunner runner = new WorkloadRunner(controlService, db, timeMappedOperations, operationClassifications, metricsService, errorReporter, completionTimeService);
+        WorkloadRunner runner =
+                new WorkloadRunner(TIME_SOURCE, controlService, db, timeMappedOperations, operationClassifications, metricsService, errorReporter, completionTimeService);
 
         runner.executeWorkload();
 

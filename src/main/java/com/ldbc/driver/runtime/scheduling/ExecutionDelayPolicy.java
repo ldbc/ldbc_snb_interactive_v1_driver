@@ -7,8 +7,12 @@ public interface ExecutionDelayPolicy {
 
     /**
      * Only called if scheduledStartTime is null.
+     * Return value dictates if operation may still be executed, or if execution should be aborted.
+     *
+     * @param operation
+     * @return operation may still be executed
      */
-    public void handleUnassignedScheduledStartTime(Operation<?> operation);
+    public boolean handleUnassignedScheduledStartTime(Operation<?> operation);
 
     /**
      * Amount of time after its scheduled start time than an operation may be
@@ -18,8 +22,12 @@ public interface ExecutionDelayPolicy {
     public Duration toleratedDelay();
 
     /**
-     * Only called if toleratedDelay is exceeded.
+     * Only called if tolerated delay is exceeded.
+     * Return value dictates if operation may still be executed, or if execution should be aborted.
+     *
+     * @param operation
+     * @return operation may still be executed
      */
-    public void handleExcessiveDelay(Operation<?> operation);
+    public boolean handleExcessiveDelay(Operation<?> operation);
 
 }

@@ -6,7 +6,7 @@ import com.ldbc.driver.runtime.ConcurrentErrorReporter;
 import com.ldbc.driver.runtime.coordination.CompletionTimeException;
 import com.ldbc.driver.runtime.scheduling.Spinner;
 import com.ldbc.driver.temporal.Duration;
-import com.ldbc.driver.temporal.Time;
+import com.ldbc.driver.temporal.TimeSource;
 
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -17,19 +17,22 @@ class PreciseIndividualAsyncOperationStreamExecutorThread extends Thread {
     // TODO this value should be configurable, or an entirely better policy should be used
     private static final Duration DURATION_TO_WAIT_FOR_ALL_HANDLERS_TO_FINISH = Duration.fromMinutes(30);
 
+    private final TimeSource TIME_SOURCE;
     private final OperationHandlerExecutor operationHandlerExecutor;
     private final Spinner slightlyEarlySpinner;
     private final ConcurrentErrorReporter errorReporter;
     private final Iterator<OperationHandler<?>> handlers;
     private final AtomicBoolean hasFinished;
-    private final ArrayList<Future<OperationResult>> runningHandlers = new ArrayList<Future<OperationResult>>();
+    private final ArrayList<Future<OperationResult>> runningHandlers = new ArrayList<>();
 
-    public PreciseIndividualAsyncOperationStreamExecutorThread(OperationHandlerExecutor operationHandlerExecutor,
+    public PreciseIndividualAsyncOperationStreamExecutorThread(TimeSource timeSource,
+                                                               OperationHandlerExecutor operationHandlerExecutor,
                                                                ConcurrentErrorReporter errorReporter,
                                                                Iterator<OperationHandler<?>> handlers,
                                                                AtomicBoolean hasFinished,
                                                                Spinner slightlyEarlySpinner) {
         super(PreciseIndividualAsyncOperationStreamExecutorThread.class.getSimpleName());
+        this.TIME_SOURCE = timeSource;
         this.operationHandlerExecutor = operationHandlerExecutor;
         this.slightlyEarlySpinner = slightlyEarlySpinner;
         this.errorReporter = errorReporter;
@@ -71,8 +74,8 @@ class PreciseIndividualAsyncOperationStreamExecutorThread extends Thread {
 
     // TODO possibly use similar logic to make it possible to cap maximum query run time
     private boolean awaitAllRunningHandlers(Duration timeoutDuration) {
-        long timeoutTimeMs = Time.now().plus(timeoutDuration).asMilli();
-        while (Time.nowAsMilli() < timeoutTimeMs) {
+        long timeoutTimeMs = TIME_SOURCE.now().plus(timeoutDuration).asMilli();
+        while (TIME_SOURCE.nowAsMilli() < timeoutTimeMs) {
             if (allHandlersCompleted()) return true;
         }
         return false;

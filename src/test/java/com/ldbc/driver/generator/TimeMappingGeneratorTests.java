@@ -9,7 +9,9 @@ import com.ldbc.driver.Workload;
 import com.ldbc.driver.WorkloadException;
 import com.ldbc.driver.control.ConsoleAndFileDriverConfiguration;
 import com.ldbc.driver.temporal.Duration;
+import com.ldbc.driver.temporal.SystemTimeSource;
 import com.ldbc.driver.temporal.Time;
+import com.ldbc.driver.temporal.TimeSource;
 import com.ldbc.driver.util.RandomDataGeneratorFactory;
 import com.ldbc.driver.util.TestUtils;
 import com.ldbc.driver.workloads.ldbc.socnet.interactive.LdbcInteractiveWorkload;
@@ -29,6 +31,7 @@ import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
 
 public class TimeMappingGeneratorTests {
+    private TimeSource TIME_SOURCE = new SystemTimeSource();
     private final long RANDOM_SEED = 42;
     private GeneratorFactory generators = null;
 
@@ -165,16 +168,20 @@ public class TimeMappingGeneratorTests {
         TimeUnit timeUnit = TimeUnit.MILLISECONDS;
         String resultFilePath = "test_write_to_csv_results.json";
         FileUtils.deleteQuietly(new File(resultFilePath));
-        Double timeCompressionRatio = null;
+        double timeCompressionRatio = 1.0;
         Duration gctDeltaDuration = Duration.fromSeconds(10);
         List<String> peerIds = Lists.newArrayList();
         Duration toleratedExecutionDelay = Duration.fromSeconds(1);
+        boolean validateDatabase = false;
+        boolean validateWorkload = false;
+        boolean calculateWorkloadStatistics = false;
 
         assertThat(new File(csvOutputFilePath).exists(), is(false));
         assertThat(new File(resultFilePath).exists(), is(false));
 
         ConsoleAndFileDriverConfiguration configuration = new ConsoleAndFileDriverConfiguration(paramsMap, dbClassName, workloadClassName, operationCount,
-                threadCount, showStatus, timeUnit, resultFilePath, timeCompressionRatio, gctDeltaDuration, peerIds, toleratedExecutionDelay);
+                threadCount, showStatus, timeUnit, resultFilePath, timeCompressionRatio, gctDeltaDuration, peerIds, toleratedExecutionDelay,
+                validateDatabase, validateWorkload, calculateWorkloadStatistics);
 
         Workload workload = new LdbcInteractiveWorkload();
         workload.init(configuration);
@@ -186,7 +193,7 @@ public class TimeMappingGeneratorTests {
             prevOperationScheduledStartTime = operation.scheduledStartTime();
         }
 
-        List<Operation<?>> offsetOperations = Lists.newArrayList(generators.timeOffset(operations.iterator(), Time.now().plus(Duration.fromMilli(500))));
+        List<Operation<?>> offsetOperations = Lists.newArrayList(generators.timeOffset(operations.iterator(), TIME_SOURCE.now().plus(Duration.fromMilli(500))));
         Time prevOffsetOperationScheduledStartTime = offsetOperations.get(0).scheduledStartTime().minus(Duration.fromMilli(1));
         for (Operation<?> operation : offsetOperations) {
             assertThat(operation.scheduledStartTime().gte(prevOffsetOperationScheduledStartTime), is(true));

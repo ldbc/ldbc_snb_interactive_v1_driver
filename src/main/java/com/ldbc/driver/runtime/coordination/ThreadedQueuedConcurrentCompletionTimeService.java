@@ -3,6 +3,7 @@ package com.ldbc.driver.runtime.coordination;
 import com.ldbc.driver.runtime.ConcurrentErrorReporter;
 import com.ldbc.driver.temporal.Duration;
 import com.ldbc.driver.temporal.Time;
+import com.ldbc.driver.temporal.TimeSource;
 
 import java.util.List;
 import java.util.Queue;
@@ -14,15 +15,18 @@ import java.util.concurrent.atomic.AtomicReference;
 public class ThreadedQueuedConcurrentCompletionTimeService implements ConcurrentCompletionTimeService {
     private static final Duration SHUTDOWN_WAIT_TIMEOUT = Duration.fromSeconds(5);
 
+    private final TimeSource TIME_SOURCE;
     private final Queue<CompletionTimeEvent> completionTimeEventQueue;
     private final AtomicReference<Time> gct;
     private final AtomicLong initiatedEvents;
     private final ThreadedQueuedCompletionTimeMaintenanceThread threadedQueuedCompletionTimeMaintenanceThread;
     private boolean shuttingDown = false;
 
-    public ThreadedQueuedConcurrentCompletionTimeService(List<String> peerIds, ConcurrentErrorReporter errorReporter)
-            throws CompletionTimeException {
-        this.completionTimeEventQueue = new ConcurrentLinkedQueue<CompletionTimeEvent>();
+    public ThreadedQueuedConcurrentCompletionTimeService(TimeSource timeSource,
+                                                         List<String> peerIds,
+                                                         ConcurrentErrorReporter errorReporter) throws CompletionTimeException {
+        this.TIME_SOURCE = timeSource;
+        this.completionTimeEventQueue = new ConcurrentLinkedQueue<>();
         this.gct = new AtomicReference<Time>(null);
         this.initiatedEvents = new AtomicLong(0);
         LocalCompletionTime localCompletionTime = new LocalCompletionTime();
@@ -57,7 +61,7 @@ public class ThreadedQueuedConcurrentCompletionTimeService implements Concurrent
     @Override
     synchronized public Future<Time> globalCompletionTimeFuture() throws CompletionTimeException {
         try {
-            GlobalCompletionTimeFuture gctFuture = new GlobalCompletionTimeFuture();
+            GlobalCompletionTimeFuture gctFuture = new GlobalCompletionTimeFuture(TIME_SOURCE);
             completionTimeEventQueue.add(CompletionTimeEvent.future(gctFuture));
             return gctFuture;
         } catch (Exception e) {
@@ -116,8 +120,13 @@ public class ThreadedQueuedConcurrentCompletionTimeService implements Concurrent
     }
 
     public static class GlobalCompletionTimeFuture implements Future<Time> {
+        private final TimeSource TIME_SOURCE;
         private final AtomicBoolean done = new AtomicBoolean(false);
         private final AtomicReference<Time> globalCompletionTimeValue = new AtomicReference<Time>(null);
+
+        private GlobalCompletionTimeFuture(TimeSource timeSource) {
+            this.TIME_SOURCE = timeSource;
+        }
 
         synchronized void set(Time value) throws CompletionTimeException {
             if (done.get())
@@ -156,8 +165,8 @@ public class ThreadedQueuedConcurrentCompletionTimeService implements Concurrent
             // DurationMeasurement durationWaited = DurationMeasurement.startMeasurementNow();
             // while (durationWaited.durationUntilNow().lessThan(waitDuration)) {}
             long waitDurationMs = Duration.from(unit, timeout).asMilli();
-            long startTimeMs = Time.nowAsMilli();
-            while (Time.nowAsMilli() - startTimeMs < waitDurationMs) {
+            long startTimeMs = TIME_SOURCE.nowAsMilli();
+            while (TIME_SOURCE.nowAsMilli() - startTimeMs < waitDurationMs) {
                 // wait for value to be set
                 if (done.get())
                     return globalCompletionTimeValue.get();

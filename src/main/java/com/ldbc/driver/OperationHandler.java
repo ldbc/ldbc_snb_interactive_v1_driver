@@ -8,13 +8,16 @@ import com.ldbc.driver.runtime.metrics.MetricsCollectionException;
 import com.ldbc.driver.runtime.scheduling.MultiCheck;
 import com.ldbc.driver.runtime.scheduling.Spinner;
 import com.ldbc.driver.runtime.scheduling.SpinnerCheck;
-import com.ldbc.driver.temporal.DurationMeasurement;
+import com.ldbc.driver.temporal.Duration;
+import com.ldbc.driver.temporal.Time;
+import com.ldbc.driver.temporal.TimeSource;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Callable;
 
 public abstract class OperationHandler<OPERATION_TYPE extends Operation<?>> implements Callable<OperationResult> {
+    private TimeSource TIME_SOURCE;
     private Spinner spinner;
     private OPERATION_TYPE operation;
     private DbConnectionState dbConnectionState;
@@ -25,7 +28,8 @@ public abstract class OperationHandler<OPERATION_TYPE extends Operation<?>> impl
 
     private boolean initialized = false;
 
-    public final void init(Spinner spinner,
+    public final void init(TimeSource timeSource,
+                           Spinner spinner,
                            Operation<?> operation,
                            ConcurrentCompletionTimeService completionTimeService,
                            ConcurrentErrorReporter errorReporter,
@@ -33,6 +37,7 @@ public abstract class OperationHandler<OPERATION_TYPE extends Operation<?>> impl
         if (initialized) {
             throw new OperationException(String.format("OperationHandler can not be initialized twice\n%s", toString()));
         }
+        this.TIME_SOURCE = timeSource;
         this.spinner = spinner;
         this.operation = (OPERATION_TYPE) operation;
         this.completionTimeService = completionTimeService;
@@ -79,12 +84,13 @@ public abstract class OperationHandler<OPERATION_TYPE extends Operation<?>> impl
         }
         try {
             spinner.waitForScheduledStartTime(operation, new MultiCheck(checks));
-            DurationMeasurement durationMeasurement = DurationMeasurement.startMeasurementNow();
+            long startTimeAsMilli = TIME_SOURCE.nowAsMilli();
             OperationResult operationResult = executeOperation(operation);
             if (null == operationResult)
                 throw new DbException(String.format("Handler returned null result:\n %s", toString()));
-            operationResult.setRunDuration(durationMeasurement.durationUntilNow());
-            operationResult.setActualStartTime(durationMeasurement.startTime());
+            long finishTimeAsMilli = TIME_SOURCE.nowAsMilli();
+            operationResult.setRunDuration(Duration.fromMilli(finishTimeAsMilli - startTimeAsMilli));
+            operationResult.setActualStartTime(Time.fromMilli(startTimeAsMilli));
             operationResult.setOperationType(operation.type());
             operationResult.setScheduledStartTime(operation.scheduledStartTime());
             completionTimeService.submitCompletedTime(operation.scheduledStartTime());
@@ -117,6 +123,17 @@ public abstract class OperationHandler<OPERATION_TYPE extends Operation<?>> impl
         }
 
         return null;
+    }
+
+    /**
+     * DO NOT call this method for regular workload execution. It is only intended for validation purposes.
+     *
+     * @param operation
+     * @return operation result
+     * @throws DbException
+     */
+    public final OperationResult executeUnsafe(OPERATION_TYPE operation) throws DbException {
+        return executeOperation(operation);
     }
 
     protected abstract OperationResult executeOperation(OPERATION_TYPE operation) throws DbException;

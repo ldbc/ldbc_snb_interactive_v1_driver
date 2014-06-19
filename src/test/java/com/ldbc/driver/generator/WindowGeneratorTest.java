@@ -3,12 +3,14 @@ package com.ldbc.driver.generator;
 import com.google.common.base.Predicate;
 import com.google.common.collect.Lists;
 import com.ldbc.driver.*;
-import com.ldbc.driver.runtime.scheduling.Spinner;
-import com.ldbc.driver.runtime.coordination.ConcurrentCompletionTimeService;
 import com.ldbc.driver.runtime.ConcurrentErrorReporter;
+import com.ldbc.driver.runtime.coordination.ConcurrentCompletionTimeService;
 import com.ldbc.driver.runtime.metrics.ConcurrentMetricsService;
+import com.ldbc.driver.runtime.scheduling.Spinner;
 import com.ldbc.driver.temporal.Duration;
+import com.ldbc.driver.temporal.SystemTimeSource;
 import com.ldbc.driver.temporal.Time;
+import com.ldbc.driver.temporal.TimeSource;
 import org.junit.Test;
 
 import java.util.Iterator;
@@ -19,6 +21,7 @@ import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
 
 public class WindowGeneratorTest {
+    private TimeSource TIME_SOURCE = new SystemTimeSource();
 
     /**
      * Test With Time Range Using OperationHandlerRangeWindows
@@ -70,7 +73,7 @@ public class WindowGeneratorTest {
             ConcurrentCompletionTimeService completionTimeService = null;
             ConcurrentErrorReporter errorReporter = null;
             ConcurrentMetricsService metricsService = null;
-            handler.init(spinner, operation, completionTimeService, errorReporter, metricsService);
+            handler.init(TIME_SOURCE, spinner, operation, completionTimeService, errorReporter, metricsService);
             handlers[i] = handler;
         }
 

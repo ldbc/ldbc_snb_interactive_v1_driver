@@ -1,5 +1,6 @@
 package com.ldbc.driver;
 
+import com.google.common.collect.Lists;
 import com.ldbc.driver.control.ConcurrentControlService;
 import com.ldbc.driver.control.ConsoleAndFileDriverConfiguration;
 import com.ldbc.driver.control.DriverConfigurationException;
@@ -12,16 +13,26 @@ import com.ldbc.driver.runtime.coordination.ConcurrentCompletionTimeService;
 import com.ldbc.driver.runtime.coordination.NaiveSynchronizedConcurrentCompletionTimeService;
 import com.ldbc.driver.runtime.metrics.*;
 import com.ldbc.driver.temporal.Duration;
+import com.ldbc.driver.temporal.SystemTimeSource;
 import com.ldbc.driver.temporal.Time;
+import com.ldbc.driver.temporal.TimeSource;
 import com.ldbc.driver.util.ClassLoaderHelper;
 import com.ldbc.driver.util.RandomDataGeneratorFactory;
+import com.ldbc.driver.util.Tuple;
+import com.ldbc.driver.validation.DbValidator;
+import com.ldbc.driver.validation.WorkloadStatistics;
+import com.ldbc.driver.validation.WorkloadStatisticsCalculator;
+import com.ldbc.driver.validation.WorkloadValidator;
 import org.apache.log4j.Logger;
 
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.util.Iterator;
+import java.util.List;
 import java.util.concurrent.Future;
+
+// TODO replace log4j with some interface like StatusReportingService
 
 public class Client {
     private static Logger logger = Logger.getLogger(Client.class);
@@ -30,11 +41,12 @@ public class Client {
 
     public static void main(String[] args) throws ClientException {
         try {
+            TimeSource systemTimeSource = new SystemTimeSource();
             ConsoleAndFileDriverConfiguration configuration = ConsoleAndFileDriverConfiguration.fromArgs(args);
             // TODO this method will not work with multiple processes - should come from controlService
-            Time workloadStartTime = Time.now().plus(Duration.fromMilli(1000));
+            Time workloadStartTime = systemTimeSource.now().plus(Duration.fromSeconds(10));
             ConcurrentControlService controlService = new LocalControlService(workloadStartTime, configuration);
-            Client client = new Client(controlService);
+            Client client = new Client(controlService, systemTimeSource);
             client.start();
         } catch (DriverConfigurationException e) {
             String errMsg = String.format("Error parsing parameters: %s", e.getMessage());
@@ -50,14 +62,16 @@ public class Client {
     private final ConcurrentMetricsService metricsService;
     private final ConcurrentCompletionTimeService completionTimeService;
     private final WorkloadRunner workloadRunner;
+    // This instance will be passed to ALL components and is the only way they measure time
+    private final TimeSource TIME_SOURCE;
 
-    public Client(ConcurrentControlService controlService) throws ClientException {
+    public Client(ConcurrentControlService controlService, TimeSource timeSource) throws ClientException {
+        TIME_SOURCE = timeSource;
         this.controlService = controlService;
 
         try {
             workload = ClassLoaderHelper.loadWorkload(controlService.configuration().workloadClassName());
             workload.init(controlService.configuration());
-            // TODO add check that all ExecutionMode:GctMode combinations make sense (e.g., Partial+GctNone does not make sense unless window size can somehow be specified)
         } catch (Exception e) {
             throw new ClientException(String.format("Error loading Workload class: %s", controlService.configuration().workloadClassName()), e);
         }
@@ -74,6 +88,7 @@ public class Client {
         ConcurrentErrorReporter errorReporter = new ConcurrentErrorReporter();
 
         try {
+            // TODO threaded may scale better with >8 cores, but consumes more resources & performs worse with <8 cores
 //            completionTimeService = new ThreadedQueuedConcurrentCompletionTimeService(controlService.configuration().peerIds(), errorReporter);
             completionTimeService = new NaiveSynchronizedConcurrentCompletionTimeService(controlService.configuration().peerIds());
             completionTimeService.submitInitiatedTime(controlService.workloadStartTime());
@@ -95,18 +110,73 @@ public class Client {
                     String.format("Error while instantiating Completion Time Service with peer IDs %s", controlService.configuration().peerIds().toString()), e);
         }
 
-        metricsService = new ThreadedQueuedConcurrentMetricsService(errorReporter, controlService.configuration().timeUnit());
+        metricsService = new ThreadedQueuedConcurrentMetricsService(TIME_SOURCE, errorReporter, controlService.configuration().timeUnit());
         GeneratorFactory generators = new GeneratorFactory(new RandomDataGeneratorFactory(RANDOM_SEED));
 
-        logger.info(String.format("Instantiating %s", WorkloadRunner.class.getSimpleName()));
+        logger.info(String.format("Retrieving operation stream for workload: %s", workload.getClass().getSimpleName()));
+        Iterator<Operation<?>> timeMappedOperations;
         try {
             Iterator<Operation<?>> operations = workload.operations(generators);
-            Iterator<Operation<?>> timeMappedOperations = generators.timeOffsetAndCompress(
+            timeMappedOperations = generators.timeOffsetAndCompress(
                     operations,
                     controlService.workloadStartTime(),
                     controlService.configuration().timeCompressionRatio());
+        } catch (WorkloadException e) {
+            throw new ClientException("Error while retrieving operation stream for workload", e);
+        }
 
+        if (controlService.configuration().validateDatabase()) {
+            logger.info(String.format("Validating database: %s", db.getClass().getSimpleName()));
+            try {
+                DbValidator dbValidator = new DbValidator();
+                Iterator<Tuple.Tuple2<Operation<?>, Object>> validationOperations = workload.validationOperations(generators);
+                DbValidator.DbValidationResult dbValidationResult = dbValidator.validate(validationOperations, db);
+
+                if (false == dbValidationResult.isSuccessful()) {
+                    throw new ClientException(String.format("Database validation failed\n%s", dbValidationResult.errorMessage()));
+                }
+            } catch (WorkloadException e) {
+                throw new ClientException(String.format("Encountered error while validating database implementation"), e);
+            }
+        }
+
+        if (controlService.configuration().validateWorkload() || controlService.configuration().calculateWorkloadStatistics()) {
+            List<Operation<?>> timeMappedOperationsList = Lists.newArrayList(timeMappedOperations);
+
+            if (controlService.configuration().validateWorkload()) {
+                logger.info(String.format("Validating workload: %s", workload.getClass().getSimpleName()));
+                WorkloadValidator workloadValidator = new WorkloadValidator();
+                WorkloadValidator.WorkloadValidationResult workloadValidationResult = workloadValidator.validate(
+                        timeMappedOperationsList.iterator(),
+                        workload.operationClassifications(),
+                        WorkloadValidator.DEFAULT_MAX_EXPECTED_INTERLEAVE);
+
+                if (false == workloadValidationResult.isSuccessful()) {
+                    throw new ClientException(String.format("Workload validation failed\n%s", workloadValidationResult.errorMessage()));
+                }
+            }
+
+            if (controlService.configuration().calculateWorkloadStatistics()) {
+                logger.info(String.format("Calculating workload statistics for: %s", workload.getClass().getSimpleName()));
+                try {
+                    WorkloadStatisticsCalculator workloadStatisticsCalculator = new WorkloadStatisticsCalculator();
+                    WorkloadStatistics workloadStatistics = workloadStatisticsCalculator.calculate(
+                            timeMappedOperationsList.iterator(),
+                            workload.operationClassifications(),
+                            WorkloadValidator.DEFAULT_MAX_EXPECTED_INTERLEAVE);
+                    logger.info("Calculation complete\n" + workloadStatistics);
+                } catch (MetricsCollectionException e) {
+                    throw new ClientException("Error while calculating workload statistics", e);
+                }
+            }
+
+            timeMappedOperations = timeMappedOperationsList.iterator();
+        }
+
+        logger.info(String.format("Instantiating %s", WorkloadRunner.class.getSimpleName()));
+        try {
             workloadRunner = new WorkloadRunner(
+                    TIME_SOURCE,
                     controlService,
                     db,
                     timeMappedOperations,
@@ -161,7 +231,7 @@ public class Client {
             throw new ClientException("Error during shutdown of metrics collection service", e);
         }
 
-        logger.info(String.format("Runtime: %s (s)", workloadResults.totalRunDuration().asSeconds()));
+        logger.info(String.format("Runtime: %s", workloadResults.totalRunDuration()));
 
         logger.info("Exporting workload metrics...");
         try {

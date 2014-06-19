@@ -16,7 +16,7 @@ public class DiscreteMetricManager {
     private long measurementMax = Long.MIN_VALUE;
 
     public DiscreteMetricManager(String name, String unit) {
-        this.measurements = new Histogram<Long, Integer>(0);
+        this.measurements = new Histogram<>(0);
         this.name = name;
         this.unit = unit;
     }

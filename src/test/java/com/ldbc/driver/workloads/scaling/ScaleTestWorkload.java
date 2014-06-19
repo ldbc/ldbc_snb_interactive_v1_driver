@@ -5,6 +5,7 @@ import com.ldbc.driver.OperationClassification;
 import com.ldbc.driver.Workload;
 import com.ldbc.driver.WorkloadException;
 import com.ldbc.driver.generator.GeneratorFactory;
+import com.ldbc.driver.util.Tuple;
 
 import java.util.HashMap;
 import java.util.Iterator;
@@ -54,6 +55,11 @@ public class ScaleTestWorkload extends Workload {
         Iterator<Operation<?>> windowedReadWriteOperations = new WindowedReadWriteOperationIterator();
         Iterator<Operation<?>> sequentialReadOperations = new SequentialReadOperationIterator();
          return null;
+    }
+
+    @Override
+    protected Iterator<Tuple.Tuple2<Operation<?>, Object>> validationOperations(GeneratorFactory generators) throws WorkloadException {
+        return null;
     }
 
     public static class WindowedReadOperationIterator implements Iterator<Operation<?>> {

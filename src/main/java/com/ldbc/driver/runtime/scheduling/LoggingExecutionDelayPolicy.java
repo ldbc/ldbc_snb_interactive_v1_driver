@@ -15,11 +15,12 @@ public class LoggingExecutionDelayPolicy implements ExecutionDelayPolicy {
     }
 
     @Override
-    public void handleUnassignedScheduledStartTime(Operation<?> operation) {
+    public boolean handleUnassignedScheduledStartTime(Operation<?> operation) {
         String errMsg = String.format("%s\nOperation has no Scheduled Start Time\n%s",
                 ConcurrentErrorReporter.whoAmI(this),
                 operation.toString());
         logger.error(errMsg);
+        return true;
     }
 
     @Override
@@ -28,9 +29,10 @@ public class LoggingExecutionDelayPolicy implements ExecutionDelayPolicy {
     }
 
     @Override
-    public void handleExcessiveDelay(Operation<?> operation) {
+    public boolean handleExcessiveDelay(Operation<?> operation) {
         String errMsg = String.format("%s\nTolerated scheduled start time delay [%s] exceeded on operation:\n\t%s",
                 ConcurrentErrorReporter.whoAmI(this), toleratedDelay, operation);
         logger.error(errMsg);
+        return true;
     }
 }

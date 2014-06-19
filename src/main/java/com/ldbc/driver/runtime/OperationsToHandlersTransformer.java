@@ -9,12 +9,14 @@ import com.ldbc.driver.runtime.metrics.ConcurrentMetricsService;
 import com.ldbc.driver.runtime.scheduling.GctCheck;
 import com.ldbc.driver.runtime.scheduling.Spinner;
 import com.ldbc.driver.temporal.Duration;
+import com.ldbc.driver.temporal.TimeSource;
 
 import java.util.Iterator;
 import java.util.Map;
 
 // TODO test
 class OperationsToHandlersTransformer {
+    private final TimeSource TIME_SOURCE;
     private final Db db;
     private final Spinner spinner;
     private final ConcurrentCompletionTimeService completionTimeService;
@@ -23,13 +25,15 @@ class OperationsToHandlersTransformer {
     private final Duration gctDeltaDuration;
     private final Map<Class<? extends Operation<?>>, OperationClassification> operationClassifications;
 
-    OperationsToHandlersTransformer(Db db,
+    OperationsToHandlersTransformer(TimeSource timeSource,
+                                    Db db,
                                     Spinner spinner,
                                     ConcurrentCompletionTimeService completionTimeService,
                                     ConcurrentErrorReporter errorReporter,
                                     ConcurrentMetricsService metricsService,
                                     Duration gctDeltaDuration,
                                     Map<Class<? extends Operation<?>>, OperationClassification> operationClassifications) {
+        this.TIME_SOURCE = timeSource;
         this.db = db;
         this.spinner = spinner;
         this.completionTimeService = completionTimeService;
@@ -48,15 +52,15 @@ class OperationsToHandlersTransformer {
                         OperationHandler<?> operationHandler = db.getOperationHandler(operation);
                         switch (operationClassifications.get(operation.getClass()).gctMode()) {
                             case READ_WRITE:
-                                operationHandler.init(spinner, operation, completionTimeService, errorReporter, metricsService);
+                                operationHandler.init(TIME_SOURCE, spinner, operation, completionTimeService, errorReporter, metricsService);
                                 operationHandler.addCheck(new GctCheck(completionTimeService, gctDeltaDuration, operation, errorReporter));
                                 break;
                             case READ:
-                                operationHandler.init(spinner, operation, new ReadOnlyConcurrentCompletionTimeService(completionTimeService), errorReporter, metricsService);
+                                operationHandler.init(TIME_SOURCE, spinner, operation, new ReadOnlyConcurrentCompletionTimeService(completionTimeService), errorReporter, metricsService);
                                 operationHandler.addCheck(new GctCheck(completionTimeService, gctDeltaDuration, operation, errorReporter));
                                 break;
                             case NONE:
-                                operationHandler.init(spinner, operation, new ReadOnlyConcurrentCompletionTimeService(completionTimeService), errorReporter, metricsService);
+                                operationHandler.init(TIME_SOURCE, spinner, operation, new ReadOnlyConcurrentCompletionTimeService(completionTimeService), errorReporter, metricsService);
                                 break;
                             default:
                                 throw new WorkloadException(String.format("Unrecognized GctMode: %s", operationClassifications.get(operation.getClass()).gctMode()));

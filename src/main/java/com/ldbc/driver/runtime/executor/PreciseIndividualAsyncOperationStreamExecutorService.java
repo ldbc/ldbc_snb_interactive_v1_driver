@@ -2,9 +2,9 @@ package com.ldbc.driver.runtime.executor;
 
 import com.ldbc.driver.OperationHandler;
 import com.ldbc.driver.runtime.ConcurrentErrorReporter;
-import com.ldbc.driver.runtime.coordination.ConcurrentCompletionTimeService;
 import com.ldbc.driver.runtime.scheduling.Spinner;
 import com.ldbc.driver.temporal.Duration;
+import com.ldbc.driver.temporal.TimeSource;
 
 import java.util.Iterator;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -13,19 +13,22 @@ import java.util.concurrent.atomic.AtomicBoolean;
 public class PreciseIndividualAsyncOperationStreamExecutorService {
     private static final Duration SHUTDOWN_WAIT_TIMEOUT = Duration.fromSeconds(5);
 
+    private final TimeSource TIME_SOURCE;
     private final PreciseIndividualAsyncOperationStreamExecutorThread preciseIndividualAsyncOperationStreamExecutorThread;
     private final AtomicBoolean hasFinished = new AtomicBoolean(false);
     private final ConcurrentErrorReporter errorReporter;
     private boolean executing = false;
     private boolean shuttingDown = false;
 
-    public PreciseIndividualAsyncOperationStreamExecutorService(ConcurrentErrorReporter errorReporter,
-                                                                ConcurrentCompletionTimeService completionTimeService,
+    public PreciseIndividualAsyncOperationStreamExecutorService(TimeSource timeSource,
+                                                                ConcurrentErrorReporter errorReporter,
                                                                 Iterator<OperationHandler<?>> handlers,
                                                                 Spinner slightlyEarlySpinner,
                                                                 OperationHandlerExecutor operationHandlerExecutor) {
+        this.TIME_SOURCE = timeSource;
         this.errorReporter = errorReporter;
         this.preciseIndividualAsyncOperationStreamExecutorThread = new PreciseIndividualAsyncOperationStreamExecutorThread(
+                TIME_SOURCE,
                 operationHandlerExecutor,
                 errorReporter,
                 handlers,

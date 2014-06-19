@@ -10,23 +10,25 @@ import static org.junit.Assert.assertThat;
 public class MultiCheckTest {
     static final SpinnerCheck TRUE_CHECK = new SpinnerCheck() {
         @Override
-        public Boolean doCheck() {
+        public boolean doCheck() {
             return true;
         }
 
         @Override
-        public void handleFailedCheck(Operation<?> operation) {
+        public boolean handleFailedCheck(Operation<?> operation) {
+            return true;
         }
     };
 
     static final SpinnerCheck FALSE_CHECK = new SpinnerCheck() {
         @Override
-        public Boolean doCheck() {
+        public boolean doCheck() {
             return false;
         }
 
         @Override
-        public void handleFailedCheck(Operation<?> operation) {
+        public boolean handleFailedCheck(Operation<?> operation) {
+            return false;
         }
     };
 

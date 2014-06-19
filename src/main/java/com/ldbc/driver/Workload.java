@@ -1,8 +1,8 @@
 package com.ldbc.driver;
 
-import com.ldbc.driver.control.ConsoleAndFileDriverConfiguration;
 import com.ldbc.driver.control.DriverConfiguration;
 import com.ldbc.driver.generator.GeneratorFactory;
+import com.ldbc.driver.util.Tuple;
 
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -57,13 +57,12 @@ public abstract class Workload {
 
     public final Iterator<Operation<?>> operations(GeneratorFactory generators)
             throws WorkloadException {
-        if (ConsoleAndFileDriverConfiguration.UNBOUNDED_OPERATION_COUNT == getOperationCount()) {
-            return createOperations(generators);
-        } else {
-            return generators.limit(createOperations(generators), getOperationCount());
-        }
+        return generators.limit(createOperations(generators), getOperationCount());
     }
 
     protected abstract Iterator<Operation<?>> createOperations(GeneratorFactory generators)
+            throws WorkloadException;
+
+    protected abstract Iterator<Tuple.Tuple2<Operation<?>, Object>> validationOperations(GeneratorFactory generators)
             throws WorkloadException;
 }

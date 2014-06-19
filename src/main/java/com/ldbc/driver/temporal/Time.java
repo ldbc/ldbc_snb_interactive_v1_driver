@@ -5,39 +5,31 @@ import java.util.Date;
 import java.util.concurrent.TimeUnit;
 
 public class Time implements Comparable<Time>, MultipleTimeUnitProvider<Time> {
-    private static SimpleDateFormat timeFormat = new SimpleDateFormat("HH:mm:ss.SSS");
-
-    public static Time now() {
-        return Time.fromNano(Temporal.convert(nowAsMilli(), TimeUnit.MILLISECONDS, TimeUnit.NANOSECONDS));
-    }
-
-    // Avoid object creation where possible
-    public static long nowAsMilli() {
-        return System.currentTimeMillis();
-    }
+    private static final SimpleDateFormat TIME_FORMAT = new SimpleDateFormat("HH:mm:ss.SSS");
+    private static final SimpleDateFormat DATE_TIME_FORMAT = new SimpleDateFormat("yyyy-MM-dd - HH:mm:ss:SSS");
 
     public static Time fromNano(long ns) {
         return new Time(ns);
     }
 
     public static Time fromMicro(long us) {
-        return Time.fromNano(Temporal.convert(us, TimeUnit.MICROSECONDS, TimeUnit.NANOSECONDS));
+        return fromNano(Temporal.convert(us, TimeUnit.MICROSECONDS, TimeUnit.NANOSECONDS));
     }
 
     public static Time fromMilli(long ms) {
-        return Time.fromNano(Temporal.convert(ms, TimeUnit.MILLISECONDS, TimeUnit.NANOSECONDS));
+        return fromNano(Temporal.convert(ms, TimeUnit.MILLISECONDS, TimeUnit.NANOSECONDS));
     }
 
     public static Time fromSeconds(long s) {
-        return Time.fromNano(Temporal.convert(s, TimeUnit.SECONDS, TimeUnit.NANOSECONDS));
+        return fromNano(Temporal.convert(s, TimeUnit.SECONDS, TimeUnit.NANOSECONDS));
     }
 
     public static Time fromMinutes(long m) {
-        return Time.fromNano(Temporal.convert(m, TimeUnit.MINUTES, TimeUnit.NANOSECONDS));
+        return fromNano(Temporal.convert(m, TimeUnit.MINUTES, TimeUnit.NANOSECONDS));
     }
 
     public static Time from(TimeUnit timeUnit, long unitOfTime) {
-        return Time.fromNano(Temporal.convert(unitOfTime, timeUnit, TimeUnit.NANOSECONDS));
+        return fromNano(Temporal.convert(unitOfTime, timeUnit, TimeUnit.NANOSECONDS));
     }
 
     private final Temporal time;
@@ -48,7 +40,15 @@ public class Time implements Comparable<Time>, MultipleTimeUnitProvider<Time> {
 
     @Override
     public String toString() {
-        return timeFormat.format(new Date(time.asMilli()));
+        return timeString();
+    }
+
+    public String timeString() {
+        return TIME_FORMAT.format(new Date(time.asMilli()));
+    }
+
+    public String dateTimeString() {
+        return DATE_TIME_FORMAT.format(new Date(time.asMilli()));
     }
 
     @Override
@@ -132,11 +132,11 @@ public class Time implements Comparable<Time>, MultipleTimeUnitProvider<Time> {
 
     @Override
     public Time plus(Duration duration) {
-        return Time.fromNano(time.plus(duration).asNano());
+        return new Time(time.plus(duration).asNano());
     }
 
     @Override
     public Time minus(Duration duration) {
-        return Time.fromNano(time.minus(duration).asNano());
+        return new Time(time.minus(duration).asNano());
     }
 }

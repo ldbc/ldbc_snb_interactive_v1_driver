@@ -105,7 +105,7 @@ public interface Window<INPUT_TYPE, RETURN_TYPE> {
         public OperationHandlerTimeRangeWindow(Time windowStartTimeInclusive, Duration windowDuration) {
             this.windowStartTimeInclusive = windowStartTimeInclusive;
             this.windowEndTimeExclusive = windowStartTimeInclusive.plus(windowDuration);
-            this.contents = new ArrayList<OperationHandler<?>>();
+            this.contents = new ArrayList<>();
             this.isComplete = false;
         }
 

@@ -55,10 +55,14 @@ public class Duration implements Comparable<Duration>, MultipleTimeUnitProvider<
 
     @Override
     public String toString() {
+//        long h = TimeUnit.MILLISECONDS.toHours(duration.asMilli());
         long m = TimeUnit.MILLISECONDS.toMinutes(duration.asMilli());
         long s = TimeUnit.MILLISECONDS.toSeconds(duration.asMilli()) - TimeUnit.MINUTES.toSeconds(m);
         long ms = duration.asMilli() - TimeUnit.MINUTES.toMillis(m) - TimeUnit.SECONDS.toMillis(s);
-        return String.format("%02d:%02d.%03d (m:s.ms)", m, s, ms);
+//        if (h < 1)
+            return String.format("%02d:%02d.%03d (m:s.ms)", m, s, ms);
+//        else
+//            return String.format("%02d:%02d:%02d.%03d (h:m:s.ms)", h, m, s, ms);
     }
 
     @Override

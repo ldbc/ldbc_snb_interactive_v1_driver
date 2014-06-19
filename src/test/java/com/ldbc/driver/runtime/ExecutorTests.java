@@ -7,7 +7,8 @@ import com.ldbc.driver.runtime.metrics.ConcurrentMetricsService;
 import com.ldbc.driver.runtime.scheduling.LoggingExecutionDelayPolicy;
 import com.ldbc.driver.runtime.scheduling.Spinner;
 import com.ldbc.driver.temporal.Duration;
-import com.ldbc.driver.temporal.Time;
+import com.ldbc.driver.temporal.SystemTimeSource;
+import com.ldbc.driver.temporal.TimeSource;
 import org.junit.Test;
 
 import java.util.concurrent.*;
@@ -17,6 +18,7 @@ import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
 
 public class ExecutorTests {
+    TimeSource TIME_SOURCE = new SystemTimeSource();
 
     @Test
     public void shouldRunOperationHandlerAndReturnExpectedResultWithoutError() throws InterruptedException, ExecutionException, CompletionTimeException, OperationException {
@@ -32,9 +34,9 @@ public class ExecutorTests {
 
         Operation<?> operation = new Operation<Integer>() {
         };
-        operation.setScheduledStartTime(Time.now().plus(Duration.fromSeconds(1)));
-        Spinner spinner = new Spinner(new LoggingExecutionDelayPolicy(Duration.fromSeconds(1)));
-        operationHandler.init(spinner, operation, concurrentCompletionTimeService, errorReporter, metricsService);
+        operation.setScheduledStartTime(TIME_SOURCE.now().plus(Duration.fromSeconds(1)));
+        Spinner spinner = new Spinner(TIME_SOURCE, Spinner.DEFAULT_SLEEP_DURATION_10_MILLI, new LoggingExecutionDelayPolicy(Duration.fromSeconds(1)));
+        operationHandler.init(TIME_SOURCE, spinner, operation, concurrentCompletionTimeService, errorReporter, metricsService);
 
         int threadCount = 1;
         ThreadFactory threadFactory = Executors.defaultThreadFactory();
@@ -65,9 +67,9 @@ public class ExecutorTests {
 
         Operation<?> operation = new Operation<Integer>() {
         };
-        operation.setScheduledStartTime(Time.now().plus(Duration.fromSeconds(1)));
-        Spinner spinner = new Spinner(new LoggingExecutionDelayPolicy(Duration.fromSeconds(1)));
-        operationHandler.init(spinner, operation, concurrentCompletionTimeService, errorReporter, metricsService);
+        operation.setScheduledStartTime(TIME_SOURCE.now().plus(Duration.fromSeconds(1)));
+        Spinner spinner = new Spinner(TIME_SOURCE, Spinner.DEFAULT_SLEEP_DURATION_10_MILLI, new LoggingExecutionDelayPolicy(Duration.fromSeconds(1)));
+        operationHandler.init(TIME_SOURCE, spinner, operation, concurrentCompletionTimeService, errorReporter, metricsService);
 
         int threadCount = 1;
         ThreadFactory threadFactory = Executors.defaultThreadFactory();
@@ -101,9 +103,9 @@ public class ExecutorTests {
 
         Operation<?> operation = new Operation<Integer>() {
         };
-        operation.setScheduledStartTime(Time.now().plus(Duration.fromSeconds(1)));
-        Spinner spinner = new Spinner(new LoggingExecutionDelayPolicy(Duration.fromSeconds(1)));
-        operationHandler.init(spinner, operation, concurrentCompletionTimeService, errorReporter, metricsService);
+        operation.setScheduledStartTime(TIME_SOURCE.now().plus(Duration.fromSeconds(1)));
+        Spinner spinner = new Spinner(TIME_SOURCE, Spinner.DEFAULT_SLEEP_DURATION_10_MILLI, new LoggingExecutionDelayPolicy(Duration.fromSeconds(1)));
+        operationHandler.init(TIME_SOURCE, spinner, operation, concurrentCompletionTimeService, errorReporter, metricsService);
 
         int threadCount = 1;
         ThreadFactory threadFactory = Executors.defaultThreadFactory();

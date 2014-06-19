@@ -8,8 +8,9 @@ import com.ldbc.driver.control.ConsoleAndFileDriverConfiguration;
 import com.ldbc.driver.generator.GeneratorFactory;
 import com.ldbc.driver.runtime.ConcurrentErrorReporter;
 import com.ldbc.driver.temporal.Duration;
-import com.ldbc.driver.temporal.DurationMeasurement;
+import com.ldbc.driver.temporal.SystemTimeSource;
 import com.ldbc.driver.temporal.Time;
+import com.ldbc.driver.temporal.TimeSource;
 import com.ldbc.driver.util.RandomDataGeneratorFactory;
 import com.ldbc.driver.workloads.simple.SimpleWorkload;
 import org.junit.Test;
@@ -24,6 +25,7 @@ import static org.hamcrest.CoreMatchers.*;
 import static org.junit.Assert.assertThat;
 
 public class ConcurrentCompletionTimeServiceTest {
+    final TimeSource TIME_SOURCE = new SystemTimeSource();
     final Integer TERMINATE = -1;
     final int QUEUE_ITEM_COUNT = 10000000;
 
@@ -38,7 +40,7 @@ public class ConcurrentCompletionTimeServiceTest {
     }
 
     public Duration threadedConcurrentLinkedQueueAddPollPerformanceTest() throws InterruptedException {
-        final Queue<Integer> queue = new ConcurrentLinkedQueue<Integer>();
+        final Queue<Integer> queue = new ConcurrentLinkedQueue<>();
 
         Thread writeThread = new Thread() {
             @Override
@@ -60,14 +62,14 @@ public class ConcurrentCompletionTimeServiceTest {
             }
         };
 
-        DurationMeasurement durationMeasurement = DurationMeasurement.startMeasurementNow();
+        long startTimeAsMilli = TIME_SOURCE.nowAsMilli();
         readThread.start();
         writeThread.start();
         readThread.join();
         writeThread.join();
         assertThat(queue.poll(), is(nullValue()));
         assertThat(queue.size(), is(0));
-        return durationMeasurement.durationUntilNow();
+        return Duration.fromMilli(TIME_SOURCE.nowAsMilli() - startTimeAsMilli);
     }
 
     public Duration threadedLinkedBlockingQueueAddPollPerformanceTest() throws InterruptedException {
@@ -93,14 +95,14 @@ public class ConcurrentCompletionTimeServiceTest {
             }
         };
 
-        DurationMeasurement durationMeasurement = DurationMeasurement.startMeasurementNow();
+        long startTimeAsMilli = TIME_SOURCE.nowAsMilli();
         readThread.start();
         writeThread.start();
         readThread.join();
         writeThread.join();
         assertThat(queue.poll(), is(nullValue()));
         assertThat(queue.size(), is(0));
-        return durationMeasurement.durationUntilNow();
+        return Duration.fromMilli(TIME_SOURCE.nowAsMilli() - startTimeAsMilli);
     }
 
     public Duration threadedLinkedBlockingQueuePutTakePerformanceTest() throws InterruptedException {
@@ -134,14 +136,14 @@ public class ConcurrentCompletionTimeServiceTest {
             }
         };
 
-        DurationMeasurement durationMeasurement = DurationMeasurement.startMeasurementNow();
+        long startTimeAsMilli = TIME_SOURCE.nowAsMilli();
         readThread.start();
         writeThread.start();
         readThread.join();
         writeThread.join();
         assertThat(queue.poll(), is(nullValue()));
         assertThat(queue.size(), is(0));
-        return durationMeasurement.durationUntilNow();
+        return Duration.fromMilli(TIME_SOURCE.nowAsMilli() - startTimeAsMilli);
     }
 
     @Test
@@ -166,7 +168,7 @@ public class ConcurrentCompletionTimeServiceTest {
                     Duration.fromMilli(syncDuration / testRepetitions).toString());
             threadedDuration = 0;
             for (int i = 0; i < testRepetitions; i++) {
-                ConcurrentCompletionTimeService concurrentCompletionTimeService = new ThreadedQueuedConcurrentCompletionTimeService(peerIds, errorReporter);
+                ConcurrentCompletionTimeService concurrentCompletionTimeService = new ThreadedQueuedConcurrentCompletionTimeService(TIME_SOURCE, peerIds, errorReporter);
                 threadedDuration += coordinationCompletionTimeServiceTest(concurrentCompletionTimeService, otherPeerId, errorReporter, workerThreads).asMilli();
                 concurrentCompletionTimeService.shutdown();
             }
@@ -200,19 +202,24 @@ public class ConcurrentCompletionTimeServiceTest {
         boolean showStatus = false;
         TimeUnit timeUnit = null;
         String resultFilePath = "nothingPath";
-        Double timeCompressionRatio = null;
+        double timeCompressionRatio = 1.0;
         Duration gctDeltaDuration = null;
         List<String> peerIds = null;
         Duration toleratedDelay = null;
+        boolean validateDatabase = false;
+        boolean validateWorkload = false;
+        boolean calculateWorkloadStatistics = false;
         ConsoleAndFileDriverConfiguration params =
-                new ConsoleAndFileDriverConfiguration(paramsMap, className, workloadName, operationCount, threadCount, showStatus, timeUnit, resultFilePath, timeCompressionRatio, gctDeltaDuration, peerIds, toleratedDelay);
+                new ConsoleAndFileDriverConfiguration(paramsMap, className, workloadName, operationCount, threadCount, showStatus, timeUnit,
+                        resultFilePath, timeCompressionRatio, gctDeltaDuration, peerIds, toleratedDelay,
+                        validateDatabase, validateWorkload, calculateWorkloadStatistics);
         Workload workload = new SimpleWorkload();
         workload.init(params);
         GeneratorFactory generators = new GeneratorFactory(new RandomDataGeneratorFactory(42L));
         Iterator<Operation<?>> operations = workload.operations(generators);
 
         // measure duration of experiment
-        DurationMeasurement duration = DurationMeasurement.startMeasurementNow();
+        long startTimeAsMilli = TIME_SOURCE.nowAsMilli();
 
         Operation<?> gctCheckpointOperation1 = operations.next();
         completionTimeService.submitExternalCompletionTime(otherPeerId, gctCheckpointOperation1.scheduledStartTime());
@@ -290,7 +297,7 @@ public class ConcurrentCompletionTimeServiceTest {
         Future<Time> gctFuture3 = completionTimeService.globalCompletionTimeFuture();
         assertThat(gctFuture3.get(), equalTo(lastScheduledStartTime));
 
-        Duration testDuration = duration.durationUntilNow();
+        Duration testDuration = Duration.fromMilli(TIME_SOURCE.nowAsMilli() - startTimeAsMilli);
 
         executorService.shutdown();
         boolean allTasksCompletedInTime = executorService.awaitTermination(1, TimeUnit.SECONDS);

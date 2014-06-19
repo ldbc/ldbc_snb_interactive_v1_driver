@@ -3,6 +3,7 @@ package com.ldbc.driver.runtime.metrics;
 import com.ldbc.driver.OperationResult;
 import com.ldbc.driver.temporal.Duration;
 import com.ldbc.driver.temporal.Time;
+import com.ldbc.driver.temporal.TimeSource;
 
 import java.io.OutputStream;
 import java.nio.charset.Charset;
@@ -16,7 +17,7 @@ public class MetricsManager {
     public static final Duration DEFAULT_HIGHEST_EXPECTED_DURATION = Duration.fromMinutes(10);
 
     private final Map<String, OperationMetricsManager> allOperationMetrics;
-
+    private final TimeSource TIME_SOURCE;
     private final TimeUnit unit;
     private final Duration highestExpectedDuration;
     private Time earliestStartTime;
@@ -34,13 +35,14 @@ public class MetricsManager {
     }
 
     // TODO take start time in constructor
-    MetricsManager(TimeUnit unit) {
-        this(unit, DEFAULT_HIGHEST_EXPECTED_DURATION);
+    MetricsManager(TimeSource timeSource, TimeUnit unit) {
+        this(timeSource, unit, DEFAULT_HIGHEST_EXPECTED_DURATION);
     }
 
-    MetricsManager(TimeUnit unit, Duration highestExpectedDuration) {
+    MetricsManager(TimeSource timeSource, TimeUnit unit, Duration highestExpectedDuration) {
+        this.TIME_SOURCE = timeSource;
         this.unit = unit;
-        this.allOperationMetrics = new HashMap<String, OperationMetricsManager>();
+        this.allOperationMetrics = new HashMap<>();
         this.highestExpectedDuration = highestExpectedDuration;
         earliestStartTime = null;
         latestFinishTime = null;
@@ -85,7 +87,7 @@ public class MetricsManager {
     }
 
     WorkloadResultsSnapshot snapshot() {
-        Map<String, OperationMetricsSnapshot> operationMetricsMap = new HashMap<String, OperationMetricsSnapshot>();
+        Map<String, OperationMetricsSnapshot> operationMetricsMap = new HashMap<>();
         for (Map.Entry<String, OperationMetricsManager> metricsManagerEntry : allOperationMetrics.entrySet()) {
             operationMetricsMap.put(metricsManagerEntry.getKey(), metricsManagerEntry.getValue().snapshot());
         }
@@ -96,7 +98,7 @@ public class MetricsManager {
         // Could also check latest finish time
         if (null == earliestStartTime) return new WorkloadStatus(null, 0, null, 0);
 
-        Time now = Time.now();
+        Time now = TIME_SOURCE.now();
         Duration runDuration = calculateElapsedTime(now);
         Duration durationSinceLastMeasurement = now.greaterBy(latestFinishTime);
         double operationsPerSecond = calculateThroughputAt(now);

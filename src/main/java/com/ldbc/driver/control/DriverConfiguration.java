@@ -21,13 +21,23 @@ public interface DriverConfiguration {
 
     String resultFilePath();
 
-    Double timeCompressionRatio();
+    double timeCompressionRatio();
 
     Duration gctDeltaDuration();
+
+    Duration compressedGctDeltaDuration();
 
     List<String> peerIds();
 
     Duration toleratedExecutionDelay();
 
-    public Map<String, String> asMap();
+    boolean validateDatabase();
+
+    boolean validateWorkload();
+
+    boolean calculateWorkloadStatistics();
+
+    Map<String, String> asMap();
+
+    DriverConfiguration applyMap(Map<String, String> newMap) throws DriverConfigurationException;
 }

@@ -35,11 +35,11 @@ public class IteratorSplitter<ITEMS_TYPE> {
     public SplitResult<ITEMS_TYPE> split(Iterator<? extends ITEMS_TYPE> inputIterator, SplitDefinition<ITEMS_TYPE>... definitions) throws IteratorSplittingException {
         AtomicBoolean inputStreamIsExhausted = new AtomicBoolean(false);
         AtomicInteger splitListCreateThreadCount = new AtomicInteger(0);
-        Map<Class<? extends ITEMS_TYPE>, Queue<ITEMS_TYPE>> outputQueueMapping = new HashMap<Class<? extends ITEMS_TYPE>, Queue<ITEMS_TYPE>>();
-        List<ItemIteratorToItemListThread> splitListCreateThreads = new ArrayList<ItemIteratorToItemListThread>();
-        SplitResult<ITEMS_TYPE> splitResult = new SplitResult<ITEMS_TYPE>();
+        Map<Class<? extends ITEMS_TYPE>, Queue<ITEMS_TYPE>> outputQueueMapping = new HashMap<>();
+        List<ItemIteratorToItemListThread> splitListCreateThreads = new ArrayList<>();
+        SplitResult<ITEMS_TYPE> splitResult = new SplitResult<>();
         for (SplitDefinition<ITEMS_TYPE> definition : definitions) {
-            Queue<ITEMS_TYPE> splitQueue = new ConcurrentLinkedQueue<ITEMS_TYPE>();
+            Queue<ITEMS_TYPE> splitQueue = new ConcurrentLinkedQueue<>();
             for (Class<? extends ITEMS_TYPE> itemType : definition.itemTypes()) {
                 outputQueueMapping.put(itemType, splitQueue);
             }

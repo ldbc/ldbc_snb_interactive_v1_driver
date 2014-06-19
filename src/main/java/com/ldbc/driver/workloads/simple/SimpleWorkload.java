@@ -1,6 +1,7 @@
 package com.ldbc.driver.workloads.simple;
 
 import com.google.common.collect.Iterators;
+import com.google.common.collect.Lists;
 import com.ldbc.driver.Operation;
 import com.ldbc.driver.OperationClassification;
 import com.ldbc.driver.Workload;
@@ -55,6 +56,8 @@ public class SimpleWorkload extends Workload {
 
     @Override
     public Iterator<Operation<?>> createOperations(GeneratorFactory generators) throws WorkloadException {
+        Time workloadStartTime = Time.fromMilli(0);
+
         /**
          * **************************
          *
@@ -171,9 +174,15 @@ public class SimpleWorkload extends Workload {
         // iterates initialInsertOperationGenerator before starting with transactionalInsertOperationGenerator
         Iterator<Operation<?>> workloadOperations = Iterators.concat(initialInsertOperationGenerator, transactionalOperationGenerator);
 
-        Iterator<Time> startTimeGenerator = generators.constantIncrementTime(Time.now().plus(Duration.fromSeconds(1)), Duration.fromMilli(100));
+        Iterator<Time> startTimeGenerator = generators.constantIncrementTime(workloadStartTime, Duration.fromMilli(100));
 
         return generators.startTimeAssigning(startTimeGenerator, workloadOperations);
+    }
+
+    @Override
+    protected Iterator<Tuple.Tuple2<Operation<?>, Object>> validationOperations(GeneratorFactory generators) throws WorkloadException {
+        // TODO implement
+        return Lists.<Tuple.Tuple2<Operation<?>, Object>>newArrayList().iterator();
     }
 
     @Override

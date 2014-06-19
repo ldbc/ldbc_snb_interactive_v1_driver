@@ -1,11 +1,30 @@
 package com.ldbc.driver.temporal;
 
+import org.junit.Ignore;
 import org.junit.Test;
 
 import static org.hamcrest.CoreMatchers.*;
 import static org.junit.Assert.assertThat;
 
 public class TimeTest {
+    @Ignore
+    @Test
+    public void considerAddingTemporalConverterClassToRemoveStaticFromNanoEtcMethods() {
+        assertThat(true, is(false));
+    }
+
+    @Ignore
+    @Test
+    public void createTestClassForTimeSourceToo() {
+        assertThat(true, is(false));
+    }
+
+    @Ignore
+    @Test
+    public void addTestToFindMaximumTimeThatTimeCanStoreRememberingThatEverythingIsStoredAsNanoSeconds() {
+        assertThat(true, is(false));
+    }
+
     @Test
     public void shouldThrowExceptionIfOverflowDuringUnitConversion() {
         // Given
@@ -101,19 +120,6 @@ public class TimeTest {
 
         // Then
         assertThat(time1.asNano(), equalTo(time2.asNano()));
-    }
-
-    @Test
-    public void shouldReturnNow() {
-        // Given
-        Time now = Time.now();
-        long nowMilli = System.currentTimeMillis();
-
-        // When
-        long difference = Math.abs(now.asMilli() - nowMilli);
-
-        // Then
-        assertThat(difference < 10, is(true));
     }
 
     @Test

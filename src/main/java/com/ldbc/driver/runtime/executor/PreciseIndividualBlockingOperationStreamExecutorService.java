@@ -1,10 +1,10 @@
 package com.ldbc.driver.runtime.executor;
 
 import com.ldbc.driver.OperationHandler;
-import com.ldbc.driver.runtime.scheduling.Spinner;
-import com.ldbc.driver.runtime.coordination.ConcurrentCompletionTimeService;
 import com.ldbc.driver.runtime.ConcurrentErrorReporter;
+import com.ldbc.driver.runtime.scheduling.Spinner;
 import com.ldbc.driver.temporal.Duration;
+import com.ldbc.driver.temporal.TimeSource;
 
 import java.util.Iterator;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -18,13 +18,14 @@ public class PreciseIndividualBlockingOperationStreamExecutorService {
     private boolean executing = false;
     private boolean shuttingDown = false;
 
-    public PreciseIndividualBlockingOperationStreamExecutorService(ConcurrentErrorReporter errorReporter,
-                                                                   ConcurrentCompletionTimeService completionTimeService,
+    public PreciseIndividualBlockingOperationStreamExecutorService(TimeSource timeSource,
+                                                                   ConcurrentErrorReporter errorReporter,
                                                                    Iterator<OperationHandler<?>> handlers,
                                                                    Spinner slightlyEarlySpinner,
                                                                    OperationHandlerExecutor operationHandlerExecutor) {
         this.errorReporter = errorReporter;
         this.preciseIndividualBlockingOperationStreamExecutorThread = new PreciseIndividualBlockingOperationStreamExecutorThread(
+                timeSource,
                 operationHandlerExecutor,
                 errorReporter,
                 handlers,

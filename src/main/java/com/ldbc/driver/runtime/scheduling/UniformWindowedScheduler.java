@@ -21,8 +21,12 @@ public class UniformWindowedScheduler implements Scheduler<List<OperationHandler
     private List<OperationHandler<?>> assignUniformlyDistributedStartTimes(List<OperationHandler<?>> operationHandlersInWindow,
                                                                            Time windowStartTime,
                                                                            Time windowEndTime) {
+        if (operationHandlersInWindow.isEmpty())
+            return operationHandlersInWindow;
+
         int handlerCount = operationHandlersInWindow.size();
         Duration windowSize = windowEndTime.greaterBy(windowStartTime);
+
         Duration handlerInterleave = Duration.fromMilli(windowSize.asMilli() / handlerCount);
         for (int i = 0; i < operationHandlersInWindow.size(); i++) {
             Duration durationFromWindowStartTime = Duration.fromMilli(handlerInterleave.asMilli() * i);

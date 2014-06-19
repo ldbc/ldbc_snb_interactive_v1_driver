@@ -62,4 +62,12 @@ public class OperationClassification {
         result = 31 * result + (gctMode != null ? gctMode.hashCode() : 0);
         return result;
     }
+
+    @Override
+    public String toString() {
+        return "OperationClassification{" +
+                "schedulingMode=" + schedulingMode +
+                ", gctMode=" + gctMode +
+                '}';
+    }
 }

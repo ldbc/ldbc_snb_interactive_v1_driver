@@ -1,7 +1,6 @@
 package com.ldbc.driver.workloads.ldbc.socnet.interactive.db;
 
 import com.ldbc.driver.*;
-import com.ldbc.driver.temporal.Time;
 import com.ldbc.driver.workloads.ldbc.socnet.interactive.*;
 
 import java.io.BufferedWriter;
@@ -109,7 +108,6 @@ public class CsvDb extends Db {
         protected OperationResult executeOperation(LdbcQuery1 operation) throws DbException {
             try {
                 ((CsvDbConnectionState) dbConnectionState()).csvFileWriter().writeLine(
-                        Long.toString(Time.nowAsMilli() - operation.scheduledStartTime().asMilli()),
                         operation.type(),
                         Long.toString(operation.personId()),
                         operation.personUri(),
@@ -128,7 +126,6 @@ public class CsvDb extends Db {
         protected OperationResult executeOperation(LdbcQuery2 operation) throws DbException {
             try {
                 ((CsvDbConnectionState) dbConnectionState()).csvFileWriter().writeLine(
-                        Long.toString(Time.nowAsMilli() - operation.scheduledStartTime().asMilli()),
                         operation.type(),
                         Long.toString(operation.personId()),
                         operation.personUri(),
@@ -147,7 +144,6 @@ public class CsvDb extends Db {
         protected OperationResult executeOperation(LdbcQuery3 operation) throws DbException {
             try {
                 ((CsvDbConnectionState) dbConnectionState()).csvFileWriter().writeLine(
-                        Long.toString(Time.nowAsMilli() - operation.scheduledStartTime().asMilli()),
                         operation.type(),
                         Long.toString(operation.personId()),
                         operation.personUri(),
@@ -170,7 +166,6 @@ public class CsvDb extends Db {
         protected OperationResult executeOperation(LdbcQuery4 operation) throws DbException {
             try {
                 ((CsvDbConnectionState) dbConnectionState()).csvFileWriter().writeLine(
-                        Long.toString(Time.nowAsMilli() - operation.scheduledStartTime().asMilli()),
                         operation.type(),
                         Long.toString(operation.personId()),
                         operation.personUri(),
@@ -189,8 +184,7 @@ public class CsvDb extends Db {
         @Override
         protected OperationResult executeOperation(LdbcQuery5 operation) throws DbException {
             try {
-                ((CsvDbConnectionState) dbConnectionState()).csvFileWriter().writeLine(Long.toString(
-                        Time.nowAsMilli() - operation.scheduledStartTime().asMilli()),
+                ((CsvDbConnectionState) dbConnectionState()).csvFileWriter().writeLine(
                         operation.type(),
                         Long.toString(operation.personId()),
                         operation.personUri(),
@@ -210,7 +204,6 @@ public class CsvDb extends Db {
         protected OperationResult executeOperation(LdbcQuery6 operation) throws DbException {
             try {
                 ((CsvDbConnectionState) dbConnectionState()).csvFileWriter().writeLine(
-                        Long.toString(Time.nowAsMilli() - operation.scheduledStartTime().asMilli()),
                         operation.type(),
                         Long.toString(operation.personId()),
                         operation.personUri(),
@@ -230,7 +223,6 @@ public class CsvDb extends Db {
         protected OperationResult executeOperation(LdbcQuery7 operation) throws DbException {
             try {
                 ((CsvDbConnectionState) dbConnectionState()).csvFileWriter().writeLine(
-                        Long.toString(Time.nowAsMilli() - operation.scheduledStartTime().asMilli()),
                         operation.type(),
                         Long.toString(operation.personId()),
                         operation.personUri()
@@ -249,7 +241,6 @@ public class CsvDb extends Db {
         protected OperationResult executeOperation(LdbcQuery8 operation) throws DbException {
             try {
                 ((CsvDbConnectionState) dbConnectionState()).csvFileWriter().writeLine(
-                        Long.toString(Time.nowAsMilli() - operation.scheduledStartTime().asMilli()),
                         operation.type(),
                         Long.toString(operation.personId()),
                         operation.personUri()
@@ -268,7 +259,6 @@ public class CsvDb extends Db {
         protected OperationResult executeOperation(LdbcQuery9 operation) throws DbException {
             try {
                 ((CsvDbConnectionState) dbConnectionState()).csvFileWriter().writeLine(
-                        Long.toString(Time.nowAsMilli() - operation.scheduledStartTime().asMilli()),
                         operation.type(),
                         Long.toString(operation.personId()),
                         operation.personUri(),
@@ -288,7 +278,6 @@ public class CsvDb extends Db {
         protected OperationResult executeOperation(LdbcQuery10 operation) throws DbException {
             try {
                 ((CsvDbConnectionState) dbConnectionState()).csvFileWriter().writeLine(
-                        Long.toString(Time.nowAsMilli() - operation.scheduledStartTime().asMilli()),
                         operation.type(),
                         Long.toString(operation.personId()),
                         operation.personUri(),
@@ -309,7 +298,6 @@ public class CsvDb extends Db {
         protected OperationResult executeOperation(LdbcQuery11 operation) throws DbException {
             try {
                 ((CsvDbConnectionState) dbConnectionState()).csvFileWriter().writeLine(
-                        Long.toString(Time.nowAsMilli() - operation.scheduledStartTime().asMilli()),
                         operation.type(),
                         Long.toString(operation.personId()),
                         operation.personUri(),
@@ -330,7 +318,6 @@ public class CsvDb extends Db {
         protected OperationResult executeOperation(LdbcQuery12 operation) throws DbException {
             try {
                 ((CsvDbConnectionState) dbConnectionState()).csvFileWriter().writeLine(
-                        Long.toString(Time.nowAsMilli() - operation.scheduledStartTime().asMilli()),
                         operation.type(),
                         Long.toString(operation.personId()),
                         operation.personUri(),
@@ -350,7 +337,6 @@ public class CsvDb extends Db {
         protected OperationResult executeOperation(LdbcQuery13 operation) throws DbException {
             try {
                 ((CsvDbConnectionState) dbConnectionState()).csvFileWriter().writeLine(
-                        Long.toString(Time.nowAsMilli() - operation.scheduledStartTime().asMilli()),
                         operation.type(),
                         Long.toString(operation.person1Id()),
                         Long.toString(operation.person2Id()),
@@ -371,7 +357,6 @@ public class CsvDb extends Db {
         protected OperationResult executeOperation(LdbcQuery14 operation) throws DbException {
             try {
                 ((CsvDbConnectionState) dbConnectionState()).csvFileWriter().writeLine(
-                        Long.toString(Time.nowAsMilli() - operation.scheduledStartTime().asMilli()),
                         operation.type(),
                         Long.toString(operation.person1Id()),
                         Long.toString(operation.person2Id()),
@@ -392,7 +377,6 @@ public class CsvDb extends Db {
         protected OperationResult executeOperation(LdbcUpdate1AddPerson operation) throws DbException {
             try {
                 ((CsvDbConnectionState) dbConnectionState()).csvFileWriter().writeLine(
-                        Long.toString(Time.nowAsMilli() - operation.scheduledStartTime().asMilli()),
                         operation.type(),
                         Long.toString(operation.personId()),
                         operation.personFirstName(),
@@ -423,7 +407,6 @@ public class CsvDb extends Db {
         protected OperationResult executeOperation(LdbcUpdate2AddPostLike operation) throws DbException {
             try {
                 ((CsvDbConnectionState) dbConnectionState()).csvFileWriter().writeLine(
-                        Long.toString(Time.nowAsMilli() - operation.scheduledStartTime().asMilli()),
                         operation.type(),
                         Long.toString(operation.personId()),
                         Long.toString(operation.postId()),
@@ -443,7 +426,6 @@ public class CsvDb extends Db {
         protected OperationResult executeOperation(LdbcUpdate3AddCommentLike operation) throws DbException {
             try {
                 ((CsvDbConnectionState) dbConnectionState()).csvFileWriter().writeLine(
-                        Long.toString(Time.nowAsMilli() - operation.scheduledStartTime().asMilli()),
                         operation.type(),
                         Long.toString(operation.personId()),
                         Long.toString(operation.commentId()),
@@ -463,7 +445,6 @@ public class CsvDb extends Db {
         protected OperationResult executeOperation(LdbcUpdate4AddForum operation) throws DbException {
             try {
                 ((CsvDbConnectionState) dbConnectionState()).csvFileWriter().writeLine(
-                        Long.toString(Time.nowAsMilli() - operation.scheduledStartTime().asMilli()),
                         operation.type(),
                         Long.toString(operation.forumId()),
                         operation.forumTitle(),
@@ -485,7 +466,6 @@ public class CsvDb extends Db {
         protected OperationResult executeOperation(LdbcUpdate5AddForumMembership operation) throws DbException {
             try {
                 ((CsvDbConnectionState) dbConnectionState()).csvFileWriter().writeLine(
-                        Long.toString(Time.nowAsMilli() - operation.scheduledStartTime().asMilli()),
                         operation.type(),
                         Long.toString(operation.forumId()),
                         Long.toString(operation.personId()),
@@ -505,7 +485,6 @@ public class CsvDb extends Db {
         protected OperationResult executeOperation(LdbcUpdate6AddPost operation) throws DbException {
             try {
                 ((CsvDbConnectionState) dbConnectionState()).csvFileWriter().writeLine(
-                        Long.toString(Time.nowAsMilli() - operation.scheduledStartTime().asMilli()),
                         operation.type(),
                         Long.toString(operation.postId()),
                         operation.imageFile(),
@@ -534,7 +513,6 @@ public class CsvDb extends Db {
         protected OperationResult executeOperation(LdbcUpdate7AddComment operation) throws DbException {
             try {
                 ((CsvDbConnectionState) dbConnectionState()).csvFileWriter().writeLine(
-                        Long.toString(Time.nowAsMilli() - operation.scheduledStartTime().asMilli()),
                         operation.type(),
                         Long.toString(operation.commentId()),
                         Long.toString(operation.creationDate().getTime()),
@@ -562,7 +540,6 @@ public class CsvDb extends Db {
         protected OperationResult executeOperation(LdbcUpdate8AddFriendship operation) throws DbException {
             try {
                 ((CsvDbConnectionState) dbConnectionState()).csvFileWriter().writeLine(
-                        Long.toString(Time.nowAsMilli() - operation.scheduledStartTime().asMilli()),
                         operation.type(),
                         Long.toString(operation.person1Id()),
                         Long.toString(operation.person2Id()),

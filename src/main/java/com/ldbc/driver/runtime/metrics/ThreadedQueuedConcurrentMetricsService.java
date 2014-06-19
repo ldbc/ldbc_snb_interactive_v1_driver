@@ -3,7 +3,7 @@ package com.ldbc.driver.runtime.metrics;
 import com.ldbc.driver.OperationResult;
 import com.ldbc.driver.runtime.ConcurrentErrorReporter;
 import com.ldbc.driver.temporal.Duration;
-import com.ldbc.driver.temporal.Time;
+import com.ldbc.driver.temporal.TimeSource;
 
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
@@ -17,15 +17,20 @@ import java.util.concurrent.atomic.AtomicReference;
 public class ThreadedQueuedConcurrentMetricsService implements ConcurrentMetricsService {
     private static final Duration SHUTDOWN_WAIT_TIMEOUT = Duration.fromSeconds(5);
 
+    private final TimeSource TIME_SOURCE;
     private final Queue<MetricsCollectionEvent> metricsEventsQueue;
     private final AtomicLong initiatedEvents;
     private final ThreadedQueuedMetricsMaintenanceThread threadedQueuedMetricsMaintenanceThread;
     private boolean shuttingDown = false;
 
-    public ThreadedQueuedConcurrentMetricsService(ConcurrentErrorReporter errorReporter, TimeUnit unit) {
-        this.metricsEventsQueue = new ConcurrentLinkedQueue<MetricsCollectionEvent>();
+    public ThreadedQueuedConcurrentMetricsService(TimeSource timeSource, ConcurrentErrorReporter errorReporter, TimeUnit unit) {
+        this.TIME_SOURCE = timeSource;
+        this.metricsEventsQueue = new ConcurrentLinkedQueue<>();
         this.initiatedEvents = new AtomicLong(0);
-        threadedQueuedMetricsMaintenanceThread = new ThreadedQueuedMetricsMaintenanceThread(errorReporter, metricsEventsQueue, new MetricsManager(unit));
+        threadedQueuedMetricsMaintenanceThread = new ThreadedQueuedMetricsMaintenanceThread(
+                errorReporter,
+                metricsEventsQueue,
+                new MetricsManager(TIME_SOURCE, unit));
         threadedQueuedMetricsMaintenanceThread.start();
     }
 
@@ -48,7 +53,7 @@ public class ThreadedQueuedConcurrentMetricsService implements ConcurrentMetrics
         if (shuttingDown) {
             throw new MetricsCollectionException("Can not read metrics status after calling shutdown");
         }
-        MetricsStatusFuture statusFuture = new MetricsStatusFuture();
+        MetricsStatusFuture statusFuture = new MetricsStatusFuture(TIME_SOURCE);
         metricsEventsQueue.add(MetricsCollectionEvent.status(statusFuture));
         return statusFuture.get();
     }
@@ -58,7 +63,7 @@ public class ThreadedQueuedConcurrentMetricsService implements ConcurrentMetrics
         if (shuttingDown) {
             throw new MetricsCollectionException("Can not retrieve results after calling shutdown");
         }
-        MetricsWorkloadResultFuture workloadResultFuture = new MetricsWorkloadResultFuture();
+        MetricsWorkloadResultFuture workloadResultFuture = new MetricsWorkloadResultFuture(TIME_SOURCE);
         metricsEventsQueue.add(MetricsCollectionEvent.workloadResult(workloadResultFuture));
         return workloadResultFuture.get();
     }
@@ -79,9 +84,13 @@ public class ThreadedQueuedConcurrentMetricsService implements ConcurrentMetrics
     }
 
     public static class MetricsWorkloadResultFuture implements Future<WorkloadResultsSnapshot> {
+        private final TimeSource TIME_SOURCE;
         private final AtomicBoolean done = new AtomicBoolean(false);
         private final AtomicReference<WorkloadResultsSnapshot> startTime = new AtomicReference<WorkloadResultsSnapshot>(null);
 
+        private MetricsWorkloadResultFuture(TimeSource timeSource) {
+            this.TIME_SOURCE = timeSource;
+        }
 
         synchronized void set(WorkloadResultsSnapshot value) throws MetricsCollectionException {
             if (done.get())
@@ -120,8 +129,8 @@ public class ThreadedQueuedConcurrentMetricsService implements ConcurrentMetrics
             // DurationMeasurement durationWaited = DurationMeasurement.startMeasurementNow();
             // while (durationWaited.durationUntilNow().lessThan(waitDuration)) {}
             long waitDurationMs = Duration.from(unit, timeout).asMilli();
-            long startTimeMs = Time.nowAsMilli();
-            while (Time.nowAsMilli() - startTimeMs < waitDurationMs) {
+            long startTimeMs = TIME_SOURCE.nowAsMilli();
+            while (TIME_SOURCE.nowAsMilli() - startTimeMs < waitDurationMs) {
                 // wait for value to be set
                 if (done.get())
                     return startTime.get();
@@ -131,9 +140,13 @@ public class ThreadedQueuedConcurrentMetricsService implements ConcurrentMetrics
     }
 
     public static class MetricsStatusFuture implements Future<WorkloadStatus> {
+        private final TimeSource TIME_SOURCE;
         private final AtomicBoolean done = new AtomicBoolean(false);
         private final AtomicReference<WorkloadStatus> status = new AtomicReference<WorkloadStatus>(null);
 
+        private MetricsStatusFuture(TimeSource timeSource) {
+            this.TIME_SOURCE = timeSource;
+        }
 
         synchronized void set(WorkloadStatus value) throws MetricsCollectionException {
             if (done.get())
@@ -172,8 +185,8 @@ public class ThreadedQueuedConcurrentMetricsService implements ConcurrentMetrics
             // DurationMeasurement durationWaited = DurationMeasurement.startMeasurementNow();
             // while (durationWaited.durationUntilNow().lessThan(waitDuration)) {}
             long waitDurationMs = Duration.from(unit, timeout).asMilli();
-            long startTimeMs = Time.nowAsMilli();
-            while (Time.nowAsMilli() - startTimeMs < waitDurationMs) {
+            long startTimeMs = TIME_SOURCE.nowAsMilli();
+            while (TIME_SOURCE.nowAsMilli() - startTimeMs < waitDurationMs) {
                 // wait for value to be set
                 if (done.get())
                     return status.get();
