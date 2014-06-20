@@ -37,6 +37,8 @@ public interface DriverConfiguration {
 
     boolean calculateWorkloadStatistics();
 
+    Duration spinnerSleepDuration();
+
     Map<String, String> asMap();
 
     DriverConfiguration applyMap(Map<String, String> newMap) throws DriverConfigurationException;

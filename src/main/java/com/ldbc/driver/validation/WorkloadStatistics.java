@@ -12,6 +12,7 @@ import com.ldbc.driver.temporal.Duration;
 import com.ldbc.driver.temporal.Time;
 import com.ldbc.driver.util.Bucket;
 import com.ldbc.driver.util.Histogram;
+import com.ldbc.driver.util.MapUtils;
 
 import java.util.Collections;
 import java.util.List;
@@ -136,14 +137,14 @@ public class WorkloadStatistics {
                 append("mean = ").append(Duration.fromMilli(Math.round(interleavesSnapshot.mean()))).append(" / ").
                 append("max = ").append(Duration.fromMilli(interleavesSnapshot.max())).append("\n");
         sb.append("     Operation Mix:\n");
-        for (Map.Entry<Bucket<Class>, Long> operationMixForOperationType : operationMix().getAllBuckets()) {
+        for (Map.Entry<Bucket<Class>, Long> operationMixForOperationType : MapUtils.sortedEntries(operationMix().getAllBuckets())) {
             Bucket.DiscreteBucket<Class> bucket = (Bucket.DiscreteBucket<Class>) operationMixForOperationType.getKey();
             Class<Operation<?>> operationType = bucket.getId();
             long operationCount = operationMixForOperationType.getValue();
             sb.append(String.format("%1$-" + padRightDistance + "s", "        " + operationType.getSimpleName() + ":")).append(operationCount).append("\n");
         }
         sb.append("     Operation GCT Modes:\n");
-        for (Map.Entry<GctMode, Set<Class>> operationsInGctMode : operationsByGctMode().entrySet()) {
+        for (Map.Entry<GctMode, Set<Class>> operationsInGctMode : MapUtils.sortedEntrySet(operationsByGctMode())) {
             GctMode gctMode = operationsInGctMode.getKey();
             List<String> operationNames = Lists.newArrayList(Iterables.transform(operationsInGctMode.getValue(), new Function<Class, String>() {
                 @Override
@@ -158,7 +159,7 @@ public class WorkloadStatistics {
         sb.append("  BY GCT MODE\n");
         sb.append("  ------------------------------------------------------\n");
         sb.append("     Interleaves:\n");
-        for (Map.Entry<GctMode, ContinuousMetricManager> interleavesForGctMode : operationInterleavesByGctMode().entrySet()) {
+        for (Map.Entry<GctMode, ContinuousMetricManager> interleavesForGctMode : MapUtils.sortedEntrySet(operationInterleavesByGctMode())) {
             GctMode gctMode = interleavesForGctMode.getKey();
             ContinuousMetricSnapshot interleavesForGctModeSnapshot = interleavesForGctMode.getValue().snapshot();
             sb.append(String.format("%1$-" + padRightDistance + "s", "        " + gctMode + ":")).
@@ -169,7 +170,7 @@ public class WorkloadStatistics {
         sb.append("  ------------------------------------------------------\n");
         sb.append("  BY OPERATION TYPE\n");
         sb.append("  ------------------------------------------------------\n");
-        for (Map.Entry<Class, ContinuousMetricManager> interleavesForOperationType : operationInterleavesByOperationType().entrySet()) {
+        for (Map.Entry<Class, ContinuousMetricManager> interleavesForOperationType : MapUtils.sortedEntrySet(operationInterleavesByOperationType())) {
             Class<Operation<?>> operationType = interleavesForOperationType.getKey();
             Time firstStartTypeForOperationType = firstStartTimesByOperationType().get(operationType);
             Time lastStartTypeForOperationType = lastStartTimesByOperationType().get(operationType);

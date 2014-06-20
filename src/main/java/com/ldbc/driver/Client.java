@@ -65,6 +65,13 @@ public class Client {
     // This instance will be passed to ALL components and is the only way they measure time
     private final TimeSource TIME_SOURCE;
 
+    // check results
+    private boolean databaseLoadedCorrectly = false;
+    private boolean workloadLoadedCorrectly = false;
+    private boolean databaseValidationSuccessful = false;
+    private WorkloadValidator.WorkloadValidationResult workloadValidationResult = null;
+    private WorkloadStatistics workloadStatistics = null;
+
     public Client(ConcurrentControlService controlService, TimeSource timeSource) throws ClientException {
         TIME_SOURCE = timeSource;
         this.controlService = controlService;
@@ -75,6 +82,7 @@ public class Client {
         } catch (Exception e) {
             throw new ClientException(String.format("Error loading Workload class: %s", controlService.configuration().workloadClassName()), e);
         }
+        workloadLoadedCorrectly = true;
         logger.info(String.format("Loaded Workload: %s", workload.getClass().getName()));
 
         try {
@@ -83,6 +91,7 @@ public class Client {
         } catch (DbException e) {
             throw new ClientException(String.format("Error loading DB class: %s", controlService.configuration().dbClassName()), e);
         }
+        databaseLoadedCorrectly = true;
         logger.info(String.format("Loaded DB: %s", db.getClass().getName()));
 
         ConcurrentErrorReporter errorReporter = new ConcurrentErrorReporter();
@@ -138,6 +147,7 @@ public class Client {
             } catch (WorkloadException e) {
                 throw new ClientException(String.format("Encountered error while validating database implementation"), e);
             }
+            databaseValidationSuccessful = true;
         }
 
         if (controlService.configuration().validateWorkload() || controlService.configuration().calculateWorkloadStatistics()) {
@@ -146,11 +156,10 @@ public class Client {
             if (controlService.configuration().validateWorkload()) {
                 logger.info(String.format("Validating workload: %s", workload.getClass().getSimpleName()));
                 WorkloadValidator workloadValidator = new WorkloadValidator();
-                WorkloadValidator.WorkloadValidationResult workloadValidationResult = workloadValidator.validate(
+                workloadValidationResult = workloadValidator.validate(
                         timeMappedOperationsList.iterator(),
                         workload.operationClassifications(),
                         WorkloadValidator.DEFAULT_MAX_EXPECTED_INTERLEAVE);
-
                 if (false == workloadValidationResult.isSuccessful()) {
                     throw new ClientException(String.format("Workload validation failed\n%s", workloadValidationResult.errorMessage()));
                 }
@@ -160,7 +169,7 @@ public class Client {
                 logger.info(String.format("Calculating workload statistics for: %s", workload.getClass().getSimpleName()));
                 try {
                     WorkloadStatisticsCalculator workloadStatisticsCalculator = new WorkloadStatisticsCalculator();
-                    WorkloadStatistics workloadStatistics = workloadStatisticsCalculator.calculate(
+                    workloadStatistics = workloadStatisticsCalculator.calculate(
                             timeMappedOperationsList.iterator(),
                             workload.operationClassifications(),
                             WorkloadValidator.DEFAULT_MAX_EXPECTED_INTERLEAVE);
@@ -247,5 +256,25 @@ public class Client {
             throw new ClientException(
                     String.format("Error encountered while trying to write result file: %s", controlService.configuration().resultFilePath()), e);
         }
+    }
+
+    public boolean databaseLoadedCorrectly() {
+        return databaseLoadedCorrectly;
+    }
+
+    public boolean workloadLoadedCorrectly() {
+        return workloadLoadedCorrectly;
+    }
+
+    public boolean databaseValidationResult() {
+        return databaseValidationSuccessful;
+    }
+
+    public WorkloadValidator.WorkloadValidationResult workloadValidationResult() {
+        return workloadValidationResult;
+    }
+
+    public WorkloadStatistics workloadStatistics() {
+        return workloadStatistics;
     }
 }

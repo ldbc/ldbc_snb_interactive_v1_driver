@@ -61,8 +61,8 @@ public class WorkloadRunner {
 
         // TODO for the spinner sent to Window scheduler allow delay to reach to the end of window?
 
-        this.exactSpinner = new Spinner(TIME_SOURCE, Spinner.DEFAULT_SLEEP_DURATION_10_MILLI, executionDelayPolicy);
-        this.earlySpinner = new Spinner(TIME_SOURCE, Spinner.DEFAULT_SLEEP_DURATION_10_MILLI, executionDelayPolicy, SPINNER_OFFSET_DURATION);
+        this.exactSpinner = new Spinner(TIME_SOURCE, controlService.configuration().spinnerSleepDuration(), executionDelayPolicy);
+        this.earlySpinner = new Spinner(TIME_SOURCE, controlService.configuration().spinnerSleepDuration(), executionDelayPolicy, SPINNER_OFFSET_DURATION);
         this.workloadStatusThread = new WorkloadStatusThread(DEFAULT_STATUS_UPDATE_INTERVAL, metricsService, errorReporter);
         Iterator<Operation<?>> windowedOperations;
         Iterator<Operation<?>> blockingOperations;

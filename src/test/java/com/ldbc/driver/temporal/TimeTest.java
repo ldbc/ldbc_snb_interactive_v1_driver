@@ -19,10 +19,52 @@ public class TimeTest {
         assertThat(true, is(false));
     }
 
-    @Ignore
     @Test
-    public void addTestToFindMaximumTimeThatTimeCanStoreRememberingThatEverythingIsStoredAsNanoSeconds() {
-        assertThat(true, is(false));
+    public void timeAndDurationShouldBeCapableOfStoringSufficientlyLargeValuesAtNanoSecondResolution() {
+        long secondAsMilli = 1000;
+        long minuteAsMilli = secondAsMilli * 60;
+        long hourAsMilli = minuteAsMilli * 60;
+        long dayAsMilli = hourAsMilli * 24;
+        long weekAsMilli = dayAsMilli * 7;
+        long yearAsMilli = dayAsMilli * 365;
+
+        Duration secondDuration = Duration.fromSeconds(1);
+        Duration minuteDuration = Duration.fromMinutes(1);
+        Duration hourDuration = Duration.fromMinutes(60);
+        Duration dayDuration = Duration.fromMinutes(60 * 24);
+        Duration weekDuration = Duration.fromMinutes(60 * 24 * 7);
+        Duration yearDuration = Duration.fromMinutes(60 * 24 * 365);
+
+        Time secondTime = Time.fromSeconds(1);
+        Time minuteTime = Time.fromMinutes(1);
+        Time hourTime = Time.fromMinutes(60);
+        Time dayTime = Time.fromMinutes(60 * 24);
+        Time weekTime = Time.fromMinutes(60 * 24 * 7);
+        Time yearTime = Time.fromMinutes(60 * 24 * 365);
+
+        assertThat(secondAsMilli, is(secondDuration.asMilli()));
+        assertThat(minuteAsMilli, is(minuteDuration.asMilli()));
+        assertThat(hourAsMilli, is(hourDuration.asMilli()));
+        assertThat(dayAsMilli, is(dayDuration.asMilli()));
+        assertThat(weekAsMilli, is(weekDuration.asMilli()));
+        assertThat(yearAsMilli, is(yearDuration.asMilli()));
+
+        assertThat(secondAsMilli, is(secondTime.asMilli()));
+        assertThat(minuteAsMilli, is(minuteTime.asMilli()));
+        assertThat(hourAsMilli, is(hourTime.asMilli()));
+        assertThat(dayAsMilli, is(dayTime.asMilli()));
+        assertThat(weekAsMilli, is(weekTime.asMilli()));
+        assertThat(yearAsMilli, is(yearTime.asMilli()));
+
+        System.out.println(String.format("Java long can hold %s DAYS with NANOSECOND resolution", Long.MAX_VALUE / dayDuration.asNano()));
+        System.out.println(String.format("Java long can hold %s DAYS with MICROSECOND resolution", Long.MAX_VALUE / dayDuration.asMicro()));
+        System.out.println(String.format("Java long can hold %s DAYS with MILLISECOND resolution", Long.MAX_VALUE / dayDuration.asMilli()));
+        System.out.println(String.format("Java long can hold %s DAYS with SECOND resolution", Long.MAX_VALUE / dayDuration.asSeconds()));
+
+        System.out.println(String.format("Java long can hold %s YEARS with NANOSECOND resolution", Long.MAX_VALUE / yearDuration.asNano()));
+        System.out.println(String.format("Java long can hold %s YEARS with MICROSECOND resolution", Long.MAX_VALUE / yearDuration.asMicro()));
+        System.out.println(String.format("Java long can hold %s YEARS with MILLISECOND resolution", Long.MAX_VALUE / yearDuration.asMilli()));
+        System.out.println(String.format("Java long can hold %s YEARS with SECOND resolution", Long.MAX_VALUE / yearDuration.asSeconds()));
     }
 
     @Test

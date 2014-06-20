@@ -29,34 +29,41 @@ public class ContinuousMetricManager {
     }
 
     private long count() {
-        return histogram.getHistogramData().getTotalCount();
+        return histogram.getTotalCount();
     }
 
     private double mean() {
-        return histogram.getHistogramData().getMean();
+        if (0 == count()) return -1;
+        return histogram.getMean();
     }
 
     private long min() {
-        return histogram.getHistogramData().getMinValue();
+        if (0 == count()) return -1;
+        return histogram.getMinValue();
     }
 
     private long max() {
-        return histogram.getHistogramData().getMaxValue();
+        if (0 == count()) return -1;
+        return histogram.getMaxValue();
     }
 
     private long percentile50() {
-        return histogram.getHistogramData().getValueAtPercentile(50);
+        if (0 == count()) return -1;
+        return histogram.getValueAtPercentile(50);
     }
 
     private long percentile90() {
-        return histogram.getHistogramData().getValueAtPercentile(90);
+        if (0 == count()) return -1;
+        return histogram.getValueAtPercentile(90);
     }
 
     private long percentile95() {
-        return histogram.getHistogramData().getValueAtPercentile(95);
+        if (0 == count()) return -1;
+        return histogram.getValueAtPercentile(95);
     }
 
     private long percentile99() {
-        return histogram.getHistogramData().getValueAtPercentile(99);
+        if (0 == count()) return -1;
+        return histogram.getValueAtPercentile(99);
     }
 }

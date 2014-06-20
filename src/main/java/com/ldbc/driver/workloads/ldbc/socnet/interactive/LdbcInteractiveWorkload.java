@@ -24,10 +24,6 @@ import static com.ldbc.driver.OperationClassification.SchedulingMode;
 import static com.ldbc.driver.generator.CsvEventStreamReader.EventReturnPolicy;
 
 public class LdbcInteractiveWorkload extends Workload {
-    // TODO add?
-//    public final static String MIN_WRITE_EVENT_START_TIME = "min_write_event_start_time";
-//    public final static String MAX_WRITE_EVENT_START_TIME = "max_write_event_start_time";
-
     public final static String DATA_DIRECTORY = "data_dir";
     public final static String PARAMETERS_DIRECTORY = "parameters_dir";
     private final static String LDBC_INTERACTIVE_PACKAGE_PREFIX = removeSuffix(LdbcQuery1.class.getName(), LdbcQuery1.class.getSimpleName());
@@ -159,7 +155,7 @@ public class LdbcInteractiveWorkload extends Workload {
 
     private final static String CSV_SEPARATOR = "\\|";
 
-    private CsvFileReader writeOperationsFileReader;
+    private CsvFileReader writeOperationsFileReader = null;
 
     private CsvFileReader readOperation1FileReader;
     private CsvFileReader readOperation2FileReader;
@@ -243,7 +239,6 @@ public class LdbcInteractiveWorkload extends Workload {
     @Override
     public void onInit(Map<String, String> params) throws WorkloadException {
         List<String> compulsoryKeys = Lists.newArrayList(
-                DATA_DIRECTORY,
                 PARAMETERS_DIRECTORY);
         compulsoryKeys.addAll(READ_OPERATION_INTERLEAVE_KEYS);
         compulsoryKeys.addAll(READ_OPERATION_ENABLE_KEYS);
@@ -253,18 +248,21 @@ public class LdbcInteractiveWorkload extends Workload {
         if (false == missingPropertyParameters.isEmpty())
             throw new WorkloadException(String.format("Workload could not initialize due to missing parameters: %s", missingPropertyParameters.toString()));
 
-        File dataDir = new File(params.get(DATA_DIRECTORY));
-        if (false == dataDir.exists()) {
-            throw new WorkloadException(String.format("Data directory does not exist: %s", dataDir.getAbsolutePath()));
-        }
-        File writeOperationsFile = new File(dataDir, WRITE_OPERATIONS_FILENAME);
-        if (false == writeOperationsFile.exists()) {
-            throw new WorkloadException(String.format("Write events file does not exist: %s", writeOperationsFile.getAbsolutePath()));
-        }
-        try {
-            writeOperationsFileReader = new CsvFileReader(writeOperationsFile, CSV_SEPARATOR);
-        } catch (FileNotFoundException e) {
-            throw new WorkloadException("Unable to load write operation parameters file", e);
+        String dataDirPath = params.get(DATA_DIRECTORY);
+        if (null != dataDirPath) {
+            File dataDir = new File(dataDirPath);
+            if (false == dataDir.exists()) {
+                throw new WorkloadException(String.format("Data directory does not exist: %s", dataDir.getAbsolutePath()));
+            }
+            File writeOperationsFile = new File(dataDir, WRITE_OPERATIONS_FILENAME);
+            if (false == writeOperationsFile.exists()) {
+                throw new WorkloadException(String.format("Write events file does not exist: %s", writeOperationsFile.getAbsolutePath()));
+            }
+            try {
+                writeOperationsFileReader = new CsvFileReader(writeOperationsFile, CSV_SEPARATOR);
+            } catch (FileNotFoundException e) {
+                throw new WorkloadException("Unable to load write operation parameters file", e);
+            }
         }
 
         File parametersDir = new File(params.get(PARAMETERS_DIRECTORY));
@@ -370,7 +368,7 @@ public class LdbcInteractiveWorkload extends Workload {
 
     @Override
     protected void onCleanup() throws WorkloadException {
-        writeOperationsFileReader.closeReader();
+        if (null != writeOperationsFileReader) writeOperationsFileReader.closeReader();
         readOperation1FileReader.closeReader();
         readOperation2FileReader.closeReader();
         readOperation3FileReader.closeReader();
@@ -482,7 +480,11 @@ public class LdbcInteractiveWorkload extends Workload {
         /*
          * Create write operations stream
          */
-        Iterator<Operation<?>> writeOperationsStream = new WriteEventStreamReader(writeOperationsFileReader, EventReturnPolicy.AT_LEAST_ONE_MATCH);
+        Iterator<Operation<?>> unfilteredWriteOperationStream;
+        if (null == writeOperationsFileReader)
+            unfilteredWriteOperationStream = Lists.<Operation<?>>newArrayList().iterator();
+        else
+            unfilteredWriteOperationStream = new WriteEventStreamReader(writeOperationsFileReader, EventReturnPolicy.AT_LEAST_ONE_MATCH);
 
         /*
          * Filter Write Operations
@@ -493,7 +495,7 @@ public class LdbcInteractiveWorkload extends Workload {
                 return writeOperationFilter.contains(operation.getClass());
             }
         };
-        Iterator<Operation<?>> filteredWriteOperationStream = Iterators.filter(writeOperationsStream, enabledWriteOperationsFilter);
+        Iterator<Operation<?>> filteredWriteOperationStream = Iterators.filter(unfilteredWriteOperationStream, enabledWriteOperationsFilter);
 
 
         /*
@@ -501,10 +503,10 @@ public class LdbcInteractiveWorkload extends Workload {
          */
         // TODO add parameter, or do in more intelligent way
         Duration firstWriteOperationFromWorkloadStart = Duration.fromSeconds(1);
-        Iterator<Operation<?>> writeOperationStream = generators.timeOffset(writeOperationsStream, workloadStartTime.plus(firstWriteOperationFromWorkloadStart));
+        Iterator<Operation<?>> writeOperationStream = generators.timeOffset(unfilteredWriteOperationStream, workloadStartTime.plus(firstWriteOperationFromWorkloadStart));
 
         List<Iterator<Operation<?>>> enabledOperations = new ArrayList<>();
-        if (false == writeOperationFilter.isEmpty()) enabledOperations.add(filteredWriteOperationStream);
+        if (false == writeOperationFilter.isEmpty()) enabledOperations.add(writeOperationStream);
         if (readOperationFilter.contains(LdbcQuery1.class)) enabledOperations.add(readOperation1Stream);
         if (readOperationFilter.contains(LdbcQuery2.class)) enabledOperations.add(readOperation2Stream);
         if (readOperationFilter.contains(LdbcQuery3.class)) enabledOperations.add(readOperation3Stream);

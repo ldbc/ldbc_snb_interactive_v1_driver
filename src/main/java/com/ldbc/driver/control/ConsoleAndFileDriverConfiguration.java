@@ -1,5 +1,6 @@
 package com.ldbc.driver.control;
 
+import com.google.common.collect.Lists;
 import com.ldbc.driver.Client;
 import com.ldbc.driver.temporal.Duration;
 import com.ldbc.driver.util.MapUtils;
@@ -17,8 +18,7 @@ public class ConsoleAndFileDriverConfiguration implements DriverConfiguration {
     // --- REQUIRED ---
     public static final String OPERATION_COUNT_ARG = "oc";
     private static final String OPERATION_COUNT_ARG_LONG = "operationcount";
-    private static final String OPERATION_COUNT_DEFAULT = Integer.toString(0);
-    private static final String OPERATION_COUNT_DESCRIPTION = String.format("number of operations to execute (default: %s)", OPERATION_COUNT_DEFAULT);
+    private static final String OPERATION_COUNT_DESCRIPTION = "number of operations to execute";
 
     public static final String WORKLOAD_ARG = "w";
     private static final String WORKLOAD_ARG_LONG = "workload";
@@ -33,12 +33,15 @@ public class ConsoleAndFileDriverConfiguration implements DriverConfiguration {
     // --- OPTIONAL ---
     public static final String RESULT_FILE_PATH_ARG = "rf";
     private static final String RESULT_FILE_PATH_ARG_LONG = "resultfile";
-    private static final String RESULT_FILE_PATH_DESCRIPTION = "where benchmark results JSON file will be written (null = file will not be created)";
+    public static final String RESULT_FILE_PATH_DEFAULT = null;
+    public static final String RESULT_FILE_PATH_DEFAULT_STRING = RESULT_FILE_PATH_DEFAULT;
+    private static final String RESULT_FILE_PATH_DESCRIPTION = String.format("where benchmark results JSON file will be written. default = %s (null = file will not be created)", RESULT_FILE_PATH_DEFAULT);
 
     public static final String THREADS_ARG = "tc";
     private static final String THREADS_ARG_LONG = "threadcount";
-    private static final String THREADS_DEFAULT = Integer.toString(calculateDefaultThreadPoolSize());
-    private static final String THREADS_DESCRIPTION = String.format("number of worker threads to execute with (default: %s)", THREADS_DEFAULT);
+    public static final int THREADS_DEFAULT = calculateDefaultThreadPoolSize();
+    public static final String THREADS_DEFAULT_STRING = Integer.toString(THREADS_DEFAULT);
+    private static final String THREADS_DESCRIPTION = String.format("number of worker threads to execute with (default: %s)", THREADS_DEFAULT_STRING);
 
     public static int calculateDefaultThreadPoolSize() {
         String[] threadConsumingDriverServices = {
@@ -58,71 +61,94 @@ public class ConsoleAndFileDriverConfiguration implements DriverConfiguration {
     //TODO Duration.fromSeconds(2), make status an integer argument and 0==no status
     public static final String SHOW_STATUS_ARG = "s";
     private static final String SHOW_STATUS_ARG_LONG = "status";
-    private static final String SHOW_STATUS_DEFAULT = Boolean.toString(false);
+    public static final boolean SHOW_STATUS_DEFAULT = false;
+    public static final String SHOW_STATUS_DEFAULT_STRING = Boolean.toString(SHOW_STATUS_DEFAULT);
     private static final String SHOW_STATUS_DESCRIPTION = "show status during run";
 
     public static final String VALIDATE_DB_ARG = "vdb";
     private static final String VALIDATE_DB_ARG_LONG = "validatedatabase";
-    private static final String VALIDATE_DB_DEFAULT = Boolean.toString(false);
+    public static final boolean VALIDATE_DB_DEFAULT = false;
+    public static final String VALIDATE_DB_DEFAULT_STRING = Boolean.toString(VALIDATE_DB_DEFAULT);
     private static final String VALIDATE_DB_DESCRIPTION = "validate that provided database implementation is correct";
 
     public static final String VALIDATE_WORKLOAD_ARG = "vw";
     private static final String VALIDATE_WORKLOAD_ARG_LONG = "validateworkload";
-    private static final String VALIDATE_WORKLOAD_DEFAULT = Boolean.toString(false);
+    public static final boolean VALIDATE_WORKLOAD_DEFAULT = false;
+    public static final String VALIDATE_WORKLOAD_DEFAULT_STRING = Boolean.toString(VALIDATE_WORKLOAD_DEFAULT);
     private static final String VALIDATE_WORKLOAD_DESCRIPTION = "validate that provided workload implementation is correct";
 
     public static final String CALCULATE_WORKLOAD_STATISTICS_ARG = "stats";
     private static final String CALCULATE_WORKLOAD_STATISTICS_ARG_LONG = "workloadstatistics";
-    private static final String CALCULATE_WORKLOAD_STATISTICS_DEFAULT = Boolean.toString(false);
+    public static final boolean CALCULATE_WORKLOAD_STATISTICS_DEFAULT = false;
+    public static final String CALCULATE_WORKLOAD_STATISTICS_DEFAULT_STRING = Boolean.toString(CALCULATE_WORKLOAD_STATISTICS_DEFAULT);
     private static final String CALCULATE_WORKLOAD_STATISTICS_DESCRIPTION = "calculate & display workload statistics (operation mix, etc.)";
 
     public static final String PROPERTY_FILE_ARG = "P";
     private static final String PROPERTY_FILE_DESCRIPTION = "load properties from file(s) - files will be loaded in the order provided\n" +
             "first files are highest priority; later values will not override earlier values";
 
-    public static final String PROPERTY_ARG = "p";
-    private static final String PROPERTY_DESCRIPTION = "properties to be passed to DB and Workload - these will override properties loaded from files";
-
     public static final String TIME_UNIT_ARG = "tu";
     private static final String TIME_UNIT_ARG_LONG = "timeunit";
-    private static final String TIME_UNIT_DEFAULT = TimeUnit.MILLISECONDS.toString();
+    public static final TimeUnit TIME_UNIT_DEFAULT = TimeUnit.MILLISECONDS;
+    public static final String TIME_UNIT_DEFAULT_STRING = TIME_UNIT_DEFAULT.toString();
     private static final TimeUnit[] VALID_TIME_UNITS = new TimeUnit[]{TimeUnit.NANOSECONDS, TimeUnit.MICROSECONDS,
             TimeUnit.MILLISECONDS, TimeUnit.SECONDS, TimeUnit.MINUTES};
     private static final String TIME_UNIT_DESCRIPTION = String.format(
-            "time unit to use when gathering metrics. default:%s, valid:%s", TIME_UNIT_DEFAULT,
+            "time unit to use when gathering metrics. default:%s, valid:%s", TIME_UNIT_DEFAULT_STRING,
             Arrays.toString(VALID_TIME_UNITS));
 
     public static final String TIME_COMPRESSION_RATIO_ARG = "tcr";
     private static final String TIME_COMPRESSION_RATIO_ARG_LONG = "timecompressionratio";
-    private static final String TIME_COMPRESSION_RATIO_DEFAULT = "1"; // 1 == do not compress
+    public static final double TIME_COMPRESSION_RATIO_DEFAULT = 1.0; // 1.0 == do not compress
+    public static final String TIME_COMPRESSION_RATIO_DEFAULT_STRING = Double.toString(TIME_COMPRESSION_RATIO_DEFAULT);
     private static final String TIME_COMPRESSION_RATIO_DESCRIPTION = "change duration between operations of workload";
 
     public static final String GCT_DELTA_DURATION_ARG = "gctd";
     private static final String GCT_DELTA_DURATION_ARG_LONG = "gctdeltaduration";
-    private static final String GCT_DELTA_DURATION_DEFAULT = Long.toString(Duration.fromMinutes(60).asMilli());
+    public static final Duration GCT_DELTA_DURATION_DEFAULT = Duration.fromMinutes(30);
+    public static final String GCT_DELTA_DURATION_DEFAULT_STRING = Long.toString(GCT_DELTA_DURATION_DEFAULT.asMilli());
     private static final String GCT_DELTA_DURATION_DESCRIPTION = "safe duration (ms) between dependent operations";
 
     public static final String PEER_IDS_ARG = "pids";
     private static final String PEER_IDS_ARG_LONG = "peeridentifiers";
-    private static final String PEER_IDS_DEFAULT = "[]";
+    public static final List<String> PEER_IDS_DEFAULT = Lists.newArrayList();
+    // Technically this should be JSON encoded, but by coincidence to string and JSON are equivalent for the empty list
+    private static final String PEER_IDS_DEFAULT_JSON_STRING = PEER_IDS_DEFAULT.toString();
     private static final String PEER_IDS_DESCRIPTION = "identifiers/addresses of other driver workers (for distributed mode)";
 
     public static final String TOLERATED_EXECUTION_DELAY_ARG = "del";
     private static final String TOLERATED_EXECUTION_DELAY_ARG_LONG = "toleratedexecutiondelay";
-    private static final String TOLERATED_EXECUTION_DELAY_DEFAULT = Long.toString(Duration.fromMilli(100).asMilli());
+    public static final Duration TOLERATED_EXECUTION_DELAY_DEFAULT = Duration.fromMinutes(30);
+    public static final String TOLERATED_EXECUTION_DELAY_DEFAULT_STRING = Long.toString(TOLERATED_EXECUTION_DELAY_DEFAULT.asMilli());
     private static final String TOLERATED_EXECUTION_DELAY_DESCRIPTION = "duration (ms) an operation handler may miss its scheduled start time by";
+
+    public static final String SPINNER_SLEEP_DURATION_ARG = "spinwait";
+    private static final String SPINNER_SLEEP_DURATION_ARG_LONG = "spinnerwaitduration";
+    public static final Duration SPINNER_SLEEP_DURATION_DEFAULT = Duration.fromMilli(10);
+    public static final String SPINNER_SLEEP_DURATION_DEFAULT_STRING = Long.toString(SPINNER_SLEEP_DURATION_DEFAULT.asMilli());
+    private static final String SPINNER_SLEEP_DURATION_DESCRIPTION = "sleep duration (ms) injected into busy wait loops (to reduce CPU consumption)";
+
+    public static final String PROPERTY_ARG = "p";
+    private static final String PROPERTY_DESCRIPTION = "properties to be passed to DB and Workload - these will override properties loaded from files";
 
     private static final Options OPTIONS = buildOptions();
 
     public static ConsoleAndFileDriverConfiguration fromArgs(String[] args) throws DriverConfigurationException {
-        Map<String, String> paramsMap;
         try {
-            paramsMap = parseArgs(args, OPTIONS);
-            assertRequiredArgsProvided(paramsMap);
-            assertValidTimeUnit(paramsMap.get(TIME_UNIT_ARG));
-            paramsMap = MapUtils.mergeMaps(paramsMap, defaultParamValues(), false);
+            return fromParamsMap(parseArgs(args, OPTIONS));
         } catch (ParseException e) {
             throw new DriverConfigurationException(String.format("%s\n%s", e.getMessage(), helpString()), e);
+        } catch (DriverConfigurationException e) {
+            throw new DriverConfigurationException(String.format("%s\n%s", e.getMessage(), helpString()), e);
+        }
+    }
+
+    public static ConsoleAndFileDriverConfiguration fromParamsMap(Map<String, String> paramsMap) throws DriverConfigurationException {
+        try {
+            assertRequiredArgsProvided(paramsMap);
+            if (paramsMap.containsKey(TIME_UNIT_ARG))
+                assertValidTimeUnit(paramsMap.get(TIME_UNIT_ARG));
+            paramsMap = MapUtils.mergeMaps(paramsMap, defaultParamValues(), false);
         } catch (DriverConfigurationException e) {
             throw new DriverConfigurationException(String.format("%s\n%s", e.getMessage(), helpString()), e);
         }
@@ -136,11 +162,12 @@ public class ConsoleAndFileDriverConfiguration implements DriverConfiguration {
         String resultFilePath = paramsMap.get(RESULT_FILE_PATH_ARG);
         double timeCompressionRatio = Double.parseDouble(paramsMap.get(TIME_COMPRESSION_RATIO_ARG));
         Duration gctDeltaDuration = Duration.fromMilli(Long.parseLong(paramsMap.get(GCT_DELTA_DURATION_ARG)));
-        List<String> peerIds = parsePeerIds(paramsMap.get(PEER_IDS_ARG));
+        List<String> peerIds = parsePeerIdsFromJson(paramsMap.get(PEER_IDS_ARG));
         Duration toleratedExecutionDelay = Duration.fromMilli(Long.parseLong(paramsMap.get(TOLERATED_EXECUTION_DELAY_ARG)));
         boolean validateDatabase = Boolean.parseBoolean(paramsMap.get(VALIDATE_DB_ARG));
         boolean validateWorkload = Boolean.parseBoolean(paramsMap.get(VALIDATE_WORKLOAD_ARG));
         boolean calculateWorkloadStatistics = Boolean.parseBoolean(paramsMap.get(CALCULATE_WORKLOAD_STATISTICS_ARG));
+        Duration spinnerSleepDuration = Duration.fromMilli(Long.parseLong(paramsMap.get(SPINNER_SLEEP_DURATION_ARG)));
         return new ConsoleAndFileDriverConfiguration(
                 paramsMap,
                 dbClassName,
@@ -156,7 +183,8 @@ public class ConsoleAndFileDriverConfiguration implements DriverConfiguration {
                 toleratedExecutionDelay,
                 validateDatabase,
                 validateWorkload,
-                calculateWorkloadStatistics);
+                calculateWorkloadStatistics,
+                spinnerSleepDuration);
     }
 
     private static void assertRequiredArgsProvided(Map<String, String> paramsMap) throws DriverConfigurationException {
@@ -183,16 +211,17 @@ public class ConsoleAndFileDriverConfiguration implements DriverConfiguration {
 
     private static Map<String, String> defaultParamValues() {
         Map<String, String> defaultParamValues = new HashMap<>();
-        defaultParamValues.put(THREADS_ARG, THREADS_DEFAULT);
-        defaultParamValues.put(SHOW_STATUS_ARG, SHOW_STATUS_DEFAULT);
-        defaultParamValues.put(TIME_UNIT_ARG, TIME_UNIT_DEFAULT);
-        defaultParamValues.put(TIME_COMPRESSION_RATIO_ARG, TIME_COMPRESSION_RATIO_DEFAULT);
-        defaultParamValues.put(GCT_DELTA_DURATION_ARG, GCT_DELTA_DURATION_DEFAULT);
-        defaultParamValues.put(PEER_IDS_ARG, PEER_IDS_DEFAULT);
-        defaultParamValues.put(TOLERATED_EXECUTION_DELAY_ARG, TOLERATED_EXECUTION_DELAY_DEFAULT);
-        defaultParamValues.put(VALIDATE_DB_ARG, VALIDATE_DB_DEFAULT);
-        defaultParamValues.put(VALIDATE_WORKLOAD_ARG, VALIDATE_WORKLOAD_DEFAULT);
-        defaultParamValues.put(CALCULATE_WORKLOAD_STATISTICS_ARG, CALCULATE_WORKLOAD_STATISTICS_DEFAULT);
+        defaultParamValues.put(THREADS_ARG, THREADS_DEFAULT_STRING);
+        defaultParamValues.put(SHOW_STATUS_ARG, SHOW_STATUS_DEFAULT_STRING);
+        defaultParamValues.put(TIME_UNIT_ARG, TIME_UNIT_DEFAULT_STRING);
+        defaultParamValues.put(TIME_COMPRESSION_RATIO_ARG, TIME_COMPRESSION_RATIO_DEFAULT_STRING);
+        defaultParamValues.put(GCT_DELTA_DURATION_ARG, GCT_DELTA_DURATION_DEFAULT_STRING);
+        defaultParamValues.put(PEER_IDS_ARG, PEER_IDS_DEFAULT_JSON_STRING);
+        defaultParamValues.put(TOLERATED_EXECUTION_DELAY_ARG, TOLERATED_EXECUTION_DELAY_DEFAULT_STRING);
+        defaultParamValues.put(VALIDATE_DB_ARG, VALIDATE_DB_DEFAULT_STRING);
+        defaultParamValues.put(VALIDATE_WORKLOAD_ARG, VALIDATE_WORKLOAD_DEFAULT_STRING);
+        defaultParamValues.put(CALCULATE_WORKLOAD_STATISTICS_ARG, CALCULATE_WORKLOAD_STATISTICS_DEFAULT_STRING);
+        defaultParamValues.put(SPINNER_SLEEP_DURATION_ARG, SPINNER_SLEEP_DURATION_DEFAULT_STRING);
         return defaultParamValues;
     }
 
@@ -249,12 +278,15 @@ public class ConsoleAndFileDriverConfiguration implements DriverConfiguration {
         if (cmd.hasOption(CALCULATE_WORKLOAD_STATISTICS_ARG))
             cmdParams.put(CALCULATE_WORKLOAD_STATISTICS_ARG, Boolean.toString(true));
 
+        if (cmd.hasOption(SPINNER_SLEEP_DURATION_ARG))
+            cmdParams.put(SPINNER_SLEEP_DURATION_ARG, cmd.getOptionValue(SPINNER_SLEEP_DURATION_ARG));
+
         if (cmd.hasOption(PEER_IDS_ARG)) {
             List<String> peerIds = new ArrayList<>();
             for (String peerId : cmd.getOptionValues(PEER_IDS_ARG)) {
                 peerIds.add(peerId);
             }
-            cmdParams.put(PEER_IDS_ARG, serializePeerIds(peerIds));
+            cmdParams.put(PEER_IDS_ARG, serializePeerIdsToJson(peerIds));
         }
 
         if (cmd.hasOption(PROPERTY_FILE_ARG)) {
@@ -282,7 +314,7 @@ public class ConsoleAndFileDriverConfiguration implements DriverConfiguration {
         return MapUtils.mergeMaps(convertLongKeysToShortKeys(fileParams), convertLongKeysToShortKeys(cmdParams), overwrite);
     }
 
-    private static Map<String, String> convertLongKeysToShortKeys(Map<String, String> paramsMap) {
+    public static Map<String, String> convertLongKeysToShortKeys(Map<String, String> paramsMap) {
         paramsMap = replaceKey(paramsMap, OPERATION_COUNT_ARG_LONG, OPERATION_COUNT_ARG);
         paramsMap = replaceKey(paramsMap, WORKLOAD_ARG_LONG, WORKLOAD_ARG);
         paramsMap = replaceKey(paramsMap, DB_ARG_LONG, DB_ARG);
@@ -297,6 +329,7 @@ public class ConsoleAndFileDriverConfiguration implements DriverConfiguration {
         paramsMap = replaceKey(paramsMap, VALIDATE_DB_ARG_LONG, VALIDATE_DB_ARG);
         paramsMap = replaceKey(paramsMap, VALIDATE_WORKLOAD_ARG_LONG, VALIDATE_WORKLOAD_ARG);
         paramsMap = replaceKey(paramsMap, CALCULATE_WORKLOAD_STATISTICS_ARG_LONG, CALCULATE_WORKLOAD_STATISTICS_ARG);
+        paramsMap = replaceKey(paramsMap, SPINNER_SLEEP_DURATION_ARG_LONG, SPINNER_SLEEP_DURATION_ARG);
         return paramsMap;
     }
 
@@ -374,6 +407,10 @@ public class ConsoleAndFileDriverConfiguration implements DriverConfiguration {
                 CALCULATE_WORKLOAD_STATISTICS_ARG_LONG).create(CALCULATE_WORKLOAD_STATISTICS_ARG);
         options.addOption(calculateWorkloadStatisticsOption);
 
+        Option spinnerSleepDurationOption = OptionBuilder.hasArgs(1).withArgName("duration").withDescription(SPINNER_SLEEP_DURATION_DESCRIPTION).withLongOpt(
+                SPINNER_SLEEP_DURATION_ARG_LONG).create(SPINNER_SLEEP_DURATION_ARG);
+        options.addOption(spinnerSleepDurationOption);
+
         Option propertyFileOption = OptionBuilder.hasArgs().withValueSeparator(':').withArgName("file1:file2").withDescription(
                 PROPERTY_FILE_DESCRIPTION).create(PROPERTY_FILE_ARG);
         options.addOption(propertyFileOption);
@@ -385,7 +422,7 @@ public class ConsoleAndFileDriverConfiguration implements DriverConfiguration {
         return options;
     }
 
-    static List<String> parsePeerIds(String peerIdsString) throws DriverConfigurationException {
+    static List<String> parsePeerIdsFromJson(String peerIdsString) throws DriverConfigurationException {
         JsonNode jsonArrayNode;
         try {
             jsonArrayNode = new ObjectMapper().readTree(peerIdsString);
@@ -403,12 +440,23 @@ public class ConsoleAndFileDriverConfiguration implements DriverConfiguration {
         }
     }
 
-    static String serializePeerIds(List<String> peerIds) throws DriverConfigurationException {
+    static String serializePeerIdsToJson(List<String> peerIds) throws DriverConfigurationException {
         try {
             return new ObjectMapper().writeValueAsString(peerIds);
         } catch (IOException e) {
             throw new DriverConfigurationException(String.format("Unable to serialize peer IDs: %s", peerIds.toString()), e);
         }
+    }
+
+    static String serializePeerIdsToCommandline(List<String> peerIds) throws DriverConfigurationException {
+        if (peerIds.isEmpty())
+            throw new DriverConfigurationException("Empty peer IDs list can not be serialized to a commandline format");
+        String commandLinePeerIdsString = "";
+        for (int i = 0; i < peerIds.size() - 1; i++) {
+            commandLinePeerIdsString += peerIds.get(i) + ":";
+        }
+        commandLinePeerIdsString += peerIds.get(peerIds.size() - 1);
+        return commandLinePeerIdsString;
     }
 
     public static String helpString() {
@@ -445,6 +493,7 @@ public class ConsoleAndFileDriverConfiguration implements DriverConfiguration {
     private final boolean validateDatabase;
     private final boolean validateWorkload;
     private final boolean calculateWorkloadStatistics;
+    private final Duration spinnerSleepDuration;
 
     public ConsoleAndFileDriverConfiguration(Map<String, String> paramsMap,
                                              String dbClassName,
@@ -460,7 +509,8 @@ public class ConsoleAndFileDriverConfiguration implements DriverConfiguration {
                                              Duration toleratedExecutionDelay,
                                              boolean validateDatabase,
                                              boolean validateWorkload,
-                                             boolean calculateWorkloadStatistics) {
+                                             boolean calculateWorkloadStatistics,
+                                             Duration spinnerSleepDuration) {
         this.paramsMap = paramsMap;
         this.dbClassName = dbClassName;
         this.workloadClassName = workloadClassName;
@@ -476,6 +526,7 @@ public class ConsoleAndFileDriverConfiguration implements DriverConfiguration {
         this.validateDatabase = validateDatabase;
         this.validateWorkload = validateWorkload;
         this.calculateWorkloadStatistics = calculateWorkloadStatistics;
+        this.spinnerSleepDuration = spinnerSleepDuration;
     }
 
     @Override
@@ -554,6 +605,11 @@ public class ConsoleAndFileDriverConfiguration implements DriverConfiguration {
     }
 
     @Override
+    public Duration spinnerSleepDuration() {
+        return spinnerSleepDuration;
+    }
+
+    @Override
     public Map<String, String> asMap() {
         return paramsMap;
     }
@@ -603,7 +659,7 @@ public class ConsoleAndFileDriverConfiguration implements DriverConfiguration {
                 Duration.fromMilli(Long.parseLong(newParamsMapWithShortKeys.get(GCT_DELTA_DURATION_ARG))) :
                 gctDeltaDuration;
         List<String> newPeerIds = (newParamsMapWithShortKeys.containsKey(PEER_IDS_ARG)) ?
-                parsePeerIds(newParamsMapWithShortKeys.get(PEER_IDS_ARG)) :
+                parsePeerIdsFromJson(newParamsMapWithShortKeys.get(PEER_IDS_ARG)) :
                 peerIds;
         Duration newToleratedExecutionDelay = (newParamsMapWithShortKeys.containsKey(TOLERATED_EXECUTION_DELAY_ARG)) ?
                 Duration.fromMilli(Long.parseLong(newParamsMapWithShortKeys.get(TOLERATED_EXECUTION_DELAY_ARG))) :
@@ -617,6 +673,9 @@ public class ConsoleAndFileDriverConfiguration implements DriverConfiguration {
         boolean newCalculateWorkloadStatistics = (newParamsMapWithShortKeys.containsKey(CALCULATE_WORKLOAD_STATISTICS_ARG)) ?
                 Boolean.parseBoolean(newParamsMapWithShortKeys.get(CALCULATE_WORKLOAD_STATISTICS_ARG)) :
                 calculateWorkloadStatistics;
+        Duration newSpinnerSleepDuration = (newParamsMapWithShortKeys.containsKey(SPINNER_SLEEP_DURATION_ARG)) ?
+                Duration.fromMilli(Long.parseLong((newParamsMapWithShortKeys.get(SPINNER_SLEEP_DURATION_ARG)))) :
+                spinnerSleepDuration;
 
         return new ConsoleAndFileDriverConfiguration(
                 newOtherParams,
@@ -633,7 +692,8 @@ public class ConsoleAndFileDriverConfiguration implements DriverConfiguration {
                 newToleratedExecutionDelay,
                 newValidateDatabase,
                 newValidateWorkload,
-                newCalculateWorkloadStatistics);
+                newCalculateWorkloadStatistics,
+                newSpinnerSleepDuration);
     }
 
     @Override
@@ -649,13 +709,14 @@ public class ConsoleAndFileDriverConfiguration implements DriverConfiguration {
         sb.append("\t").append(String.format("%1$-" + padRightDistance + "s", "Time Unit:")).append(timeUnit).append("\n");
         sb.append("\t").append(String.format("%1$-" + padRightDistance + "s", "Result File:")).append(resultFilePath).append("\n");
         sb.append("\t").append(String.format("%1$-" + padRightDistance + "s", "Time Compression Ratio:")).append(timeCompressionRatio).append("\n");
-        sb.append("\t").append(String.format("%1$-" + padRightDistance + "s", "GCT Delta:")).append(gctDeltaDuration.asMilli()).append(" (ms) / ").append(gctDeltaDuration.toString()).append("\n");
-        sb.append("\t").append(String.format("%1$-" + padRightDistance + "s", "Compressed GCT Delta:")).append(compressedGctDeltaDuration().asMilli()).append(" (ms) / ").append(compressedGctDeltaDuration().toString()).append("\n");
+        sb.append("\t").append(String.format("%1$-" + padRightDistance + "s", "GCT Delta:")).append(gctDeltaDuration.asMilli()).append(" (ms) / ").append(gctDeltaDuration).append("\n");
+        sb.append("\t").append(String.format("%1$-" + padRightDistance + "s", "Compressed GCT Delta:")).append(compressedGctDeltaDuration().asMilli()).append(" (ms) / ").append(compressedGctDeltaDuration()).append("\n");
         sb.append("\t").append(String.format("%1$-" + padRightDistance + "s", "Peer IDs:")).append(peerIds.toString()).append("\n");
-        sb.append("\t").append(String.format("%1$-" + padRightDistance + "s", "Tolerated Execution Delay:")).append(toleratedExecutionDelay.asMilli()).append(" (ms) / ").append(toleratedExecutionDelay.toString()).append("\n");
+        sb.append("\t").append(String.format("%1$-" + padRightDistance + "s", "Tolerated Execution Delay:")).append(toleratedExecutionDelay.asMilli()).append(" (ms) / ").append(toleratedExecutionDelay).append("\n");
         sb.append("\t").append(String.format("%1$-" + padRightDistance + "s", "Validate Database:")).append(validateDatabase).append("\n");
         sb.append("\t").append(String.format("%1$-" + padRightDistance + "s", "Validate Workload:")).append(validateWorkload).append("\n");
         sb.append("\t").append(String.format("%1$-" + padRightDistance + "s", "Calculate Workload Statistics:")).append(calculateWorkloadStatistics).append("\n");
+        sb.append("\t").append(String.format("%1$-" + padRightDistance + "s", "Spinner Sleep Duration:")).append(spinnerSleepDuration.asMilli()).append(" (ms) / ").append(spinnerSleepDuration).append("\n");
 
         Set<String> excludedKeys = new HashSet<>();
         excludedKeys.addAll(Arrays.asList(
@@ -672,7 +733,8 @@ public class ConsoleAndFileDriverConfiguration implements DriverConfiguration {
                 TOLERATED_EXECUTION_DELAY_ARG,
                 VALIDATE_DB_ARG,
                 VALIDATE_WORKLOAD_ARG,
-                CALCULATE_WORKLOAD_STATISTICS_ARG));
+                CALCULATE_WORKLOAD_STATISTICS_ARG,
+                SPINNER_SLEEP_DURATION_ARG));
         Map<String, String> filteredParamsMap = MapUtils.copyExcludingKeys(paramsMap, excludedKeys);
         if (false == filteredParamsMap.isEmpty()) {
             sb.append("\t").append("User-defined parameters:").append("\n");
@@ -680,5 +742,59 @@ public class ConsoleAndFileDriverConfiguration implements DriverConfiguration {
         }
 
         return sb.toString();
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        ConsoleAndFileDriverConfiguration that = (ConsoleAndFileDriverConfiguration) o;
+
+        if (calculateWorkloadStatistics != that.calculateWorkloadStatistics) return false;
+        if (operationCount != that.operationCount) return false;
+        if (showStatus != that.showStatus) return false;
+        if (threadCount != that.threadCount) return false;
+        if (Double.compare(that.timeCompressionRatio, timeCompressionRatio) != 0) return false;
+        if (validateDatabase != that.validateDatabase) return false;
+        if (validateWorkload != that.validateWorkload) return false;
+        if (dbClassName != null ? !dbClassName.equals(that.dbClassName) : that.dbClassName != null) return false;
+        if (gctDeltaDuration != null ? !gctDeltaDuration.equals(that.gctDeltaDuration) : that.gctDeltaDuration != null)
+            return false;
+        if (peerIds != null ? !peerIds.equals(that.peerIds) : that.peerIds != null) return false;
+        if (resultFilePath != null ? !resultFilePath.equals(that.resultFilePath) : that.resultFilePath != null)
+            return false;
+        if (spinnerSleepDuration != null ? !spinnerSleepDuration.equals(that.spinnerSleepDuration) : that.spinnerSleepDuration != null)
+            return false;
+        if (timeUnit != that.timeUnit) return false;
+        if (toleratedExecutionDelay != null ? !toleratedExecutionDelay.equals(that.toleratedExecutionDelay) : that.toleratedExecutionDelay != null)
+            return false;
+        if (workloadClassName != null ? !workloadClassName.equals(that.workloadClassName) : that.workloadClassName != null)
+            return false;
+
+        return true;
+    }
+
+    @Override
+    public int hashCode() {
+        int result;
+        long temp;
+        result = dbClassName != null ? dbClassName.hashCode() : 0;
+        result = 31 * result + (workloadClassName != null ? workloadClassName.hashCode() : 0);
+        result = 31 * result + (int) (operationCount ^ (operationCount >>> 32));
+        result = 31 * result + threadCount;
+        result = 31 * result + (showStatus ? 1 : 0);
+        result = 31 * result + (timeUnit != null ? timeUnit.hashCode() : 0);
+        result = 31 * result + (resultFilePath != null ? resultFilePath.hashCode() : 0);
+        temp = Double.doubleToLongBits(timeCompressionRatio);
+        result = 31 * result + (int) (temp ^ (temp >>> 32));
+        result = 31 * result + (gctDeltaDuration != null ? gctDeltaDuration.hashCode() : 0);
+        result = 31 * result + (peerIds != null ? peerIds.hashCode() : 0);
+        result = 31 * result + (toleratedExecutionDelay != null ? toleratedExecutionDelay.hashCode() : 0);
+        result = 31 * result + (validateDatabase ? 1 : 0);
+        result = 31 * result + (validateWorkload ? 1 : 0);
+        result = 31 * result + (calculateWorkloadStatistics ? 1 : 0);
+        result = 31 * result + (spinnerSleepDuration != null ? spinnerSleepDuration.hashCode() : 0);
+        return result;
     }
 }

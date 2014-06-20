@@ -1,10 +1,9 @@
 package com.ldbc.driver.util;
 
-import java.util.HashMap;
-import java.util.Map;
+import com.google.common.collect.Lists;
+
+import java.util.*;
 import java.util.Map.Entry;
-import java.util.Properties;
-import java.util.Set;
 
 public class MapUtils {
     public static <K, V> String prettyPrint(Map<K, V> map) {
@@ -12,13 +11,34 @@ public class MapUtils {
     }
 
     public static <K, V> String prettyPrint(Map<K, V> map, String prefix) {
+        List<Entry<K, V>> mapEntries = sortedEntrySet(map);
         StringBuilder sb = new StringBuilder();
-        for (Entry<K, V> entry : map.entrySet()) {
+        for (Entry<K, V> entry : mapEntries) {
             String keyString = (null == entry.getKey()) ? "null" : entry.getKey().toString();
             String valueString = (null == entry.getValue()) ? "null" : entry.getValue().toString();
             sb.append(prefix).append(keyString).append(" = ").append(valueString).append("\n");
         }
         return sb.toString();
+    }
+
+    public static <K, V> List<Entry<K, V>> sortedEntrySet(Map<K, V> map) {
+        return sortedEntries(map.entrySet());
+    }
+
+    public static <K, V> List<Entry<K, V>> sortedEntries(Iterable<Entry<K, V>> entries) {
+        List<Entry<K, V>> sortedEntries = Lists.newArrayList(entries);
+        Collections.sort(sortedEntries, new EntriesComparator<K>());
+        return sortedEntries;
+    }
+
+    private static class EntriesComparator<K> implements Comparator<Entry<K, ?>> {
+        @Override
+        public int compare(Entry<K, ?> o1, Entry<K, ?> o2) {
+            if (o1.getKey() instanceof Comparable)
+                return ((Comparable) o1.getKey()).compareTo(o2.getKey());
+            else
+                return 0;
+        }
     }
 
     /**

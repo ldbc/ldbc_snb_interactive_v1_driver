@@ -100,12 +100,13 @@ public class LdbcInteractiveWorkloadTests {
         boolean validateDatabase = false;
         boolean validateWorkload = false;
         boolean calculateWorkloadStatistics = true;
+        Duration spinnerSleepDuration = Duration.fromMilli(0);
 
         assertThat(new File(resultFilePath).exists(), is(false));
 
         DriverConfiguration params = new ConsoleAndFileDriverConfiguration(paramsMap, dbClassName, workloadClassName, operationCount,
                 threadCount, showStatus, timeUnit, resultFilePath, timeCompressionRatio, gctDeltaDuration, peerIds, toleratedExecutionDelay,
-                validateDatabase, validateWorkload, calculateWorkloadStatistics);
+                validateDatabase, validateWorkload, calculateWorkloadStatistics, spinnerSleepDuration);
 
         String ldbcSnbDatagenUpdateStreamPropertiesPath = TestUtils.getResource("/updateStream_0.properties").getAbsolutePath();
         Properties ldbcSnbDatagenUpdateStreamProperties = new Properties();
@@ -330,16 +331,17 @@ public class LdbcInteractiveWorkloadTests {
         Duration gctDeltaDuration = Duration.fromSeconds(10);
         List<String> peerIds = Lists.newArrayList();
         Duration toleratedExecutionDelay = Duration.fromSeconds(1);
-        boolean validateDatabase = false;
+        boolean validateDatabase = true;
         boolean validateWorkload = false;
         boolean calculateWorkloadStatistics = true;
+        Duration spinnerSleepDuration = Duration.fromMilli(0);
 
         assertThat(new File(csvOutputFilePath).exists(), is(false));
         assertThat(new File(resultFilePath).exists(), is(false));
 
         DriverConfiguration params = new ConsoleAndFileDriverConfiguration(paramsMap, dbClassName, workloadClassName, operationCount,
                 threadCount, showStatus, timeUnit, resultFilePath, timeCompressionRatio, gctDeltaDuration, peerIds, toleratedExecutionDelay,
-                validateDatabase, validateWorkload, calculateWorkloadStatistics);
+                validateDatabase, validateWorkload, calculateWorkloadStatistics, spinnerSleepDuration);
 
         String ldbcSnbDatagenUpdateStreamPropertiesPath = TestUtils.getResource("/updateStream_0.properties").getAbsolutePath();
         Properties ldbcSnbDatagenUpdateStreamProperties = new Properties();
@@ -378,7 +380,7 @@ public class LdbcInteractiveWorkloadTests {
         assertThat(new File(ldbcDriverTestPropertiesPath).exists(), is(true));
 
         ConsoleAndFileDriverConfiguration configuration = ConsoleAndFileDriverConfiguration.fromArgs(new String[]{
-//                "-" + ConsoleAndFileDriverConfiguration.CALCULATE_WORKLOAD_STATISTICS_ARG,
+                "-" + ConsoleAndFileDriverConfiguration.CALCULATE_WORKLOAD_STATISTICS_ARG,
                 "-" + ConsoleAndFileDriverConfiguration.RESULT_FILE_PATH_ARG, resultFilePath,
                 "-" + ConsoleAndFileDriverConfiguration.DB_ARG, CsvDb.class.getName(),
                 "-p", LdbcInteractiveWorkload.PARAMETERS_DIRECTORY, TestUtils.getResource("/").getAbsolutePath(),
@@ -465,16 +467,17 @@ public class LdbcInteractiveWorkloadTests {
         Duration gctDeltaDuration = Duration.fromSeconds(10);
         List<String> peerIds = Lists.newArrayList();
         Duration toleratedExecutionDelay = Duration.fromSeconds(1);
-        boolean validateDatabase = false;
+        boolean validateDatabase = true;
         boolean validateWorkload = false;
         boolean calculateWorkloadStatistics = true;
+        Duration spinnerSleepDuration = Duration.fromMilli(0);
 
         assertThat(new File(csvOutputFilePath).exists(), is(false));
         assertThat(new File(resultFilePath).exists(), is(false));
 
         DriverConfiguration configuration = new ConsoleAndFileDriverConfiguration(paramsMap, dbClassName, workloadClassName, operationCount,
                 threadCount, showStatus, timeUnit, resultFilePath, timeCompressionRatio, gctDeltaDuration, peerIds, toleratedExecutionDelay,
-                validateDatabase, validateWorkload, calculateWorkloadStatistics);
+                validateDatabase, validateWorkload, calculateWorkloadStatistics, spinnerSleepDuration);
 
         String ldbcSnbDatagenUpdateStreamPropertiesPath = TestUtils.getResource("/updateStream_0.properties").getAbsolutePath();
         Properties ldbcSnbDatagenUpdateStreamProperties = new Properties();
@@ -552,15 +555,16 @@ public class LdbcInteractiveWorkloadTests {
         Duration gctDeltaDuration = Duration.fromSeconds(100);
         List<String> peerIds = Lists.newArrayList();
         Duration toleratedExecutionDelay = Duration.fromSeconds(100);
-        boolean validateDatabase = false;
+        boolean validateDatabase = true;
         boolean validateWorkload = false;
         boolean calculateWorkloadStatistics = true;
+        Duration spinnerSleepDuration = Duration.fromMilli(0);
 
         assertThat(new File(resultFilePath).exists(), is(false));
 
         DriverConfiguration configuration = new ConsoleAndFileDriverConfiguration(params, dbClassName, workloadClassName, operationCount,
                 threadCount, showStatus, timeUnit, resultFilePath, timeCompressionRatio, gctDeltaDuration, peerIds, toleratedExecutionDelay,
-                validateDatabase, validateWorkload, calculateWorkloadStatistics);
+                validateDatabase, validateWorkload, calculateWorkloadStatistics, spinnerSleepDuration);
 
         String ldbcSnbDatagenUpdateStreamPropertiesPath = TestUtils.getResource("/updateStream_0.properties").getAbsolutePath();
         Properties ldbcSnbDatagenUpdateStreamProperties = new Properties();
@@ -633,16 +637,17 @@ public class LdbcInteractiveWorkloadTests {
         Duration gctDeltaDuration = Duration.fromSeconds(10);
         List<String> peerIds = Lists.newArrayList();
         Duration toleratedExecutionDelay = Duration.fromSeconds(1);
-        boolean validateDatabase = false;
+        boolean validateDatabase = true;
         boolean validateWorkload = false;
         boolean calculateWorkloadStatistics = true;
+        Duration spinnerSleepDuration = Duration.fromMilli(0);
 
         assertThat(new File(csvOutputFilePath).exists(), is(false));
         assertThat(new File(resultFilePath).exists(), is(false));
 
         DriverConfiguration configuration = new ConsoleAndFileDriverConfiguration(paramsMap, dbClassName, workloadClassName, operationCount,
                 threadCount, showStatus, timeUnit, resultFilePath, timeCompressionRatio, gctDeltaDuration, peerIds, toleratedExecutionDelay,
-                validateDatabase, validateWorkload, calculateWorkloadStatistics);
+                validateDatabase, validateWorkload, calculateWorkloadStatistics, spinnerSleepDuration);
 
         String ldbcSnbDatagenUpdateStreamPropertiesPath = TestUtils.getResource("/updateStream_0.properties").getAbsolutePath();
         Properties ldbcSnbDatagenUpdateStreamProperties = new Properties();
@@ -765,15 +770,16 @@ public class LdbcInteractiveWorkloadTests {
         Duration gctDeltaDuration = Duration.fromSeconds(10);
         List<String> peerIds = Lists.newArrayList();
         Duration toleratedExecutionDelay = Duration.fromMinutes(5);
-        boolean validateDatabase = false;
+        boolean validateDatabase = true;
         boolean validateWorkload = false;
         boolean calculateWorkloadStatistics = true;
+        Duration spinnerSleepDuration = Duration.fromMilli(0);
 
         assertThat(new File(resultFilePath).exists(), is(false));
 
         DriverConfiguration params = new ConsoleAndFileDriverConfiguration(paramsMap, dbClassName, workloadClassName, operationCount,
                 threadCount, showStatus, timeUnit, resultFilePath, timeCompressionRatio, gctDeltaDuration, peerIds, toleratedExecutionDelay,
-                validateDatabase, validateWorkload, calculateWorkloadStatistics);
+                validateDatabase, validateWorkload, calculateWorkloadStatistics, spinnerSleepDuration);
 
         String ldbcSnbDatagenUpdateStreamPropertiesPath = TestUtils.getResource("/updateStream_0.properties").getAbsolutePath();
         Properties ldbcSnbDatagenUpdateStreamProperties = new Properties();

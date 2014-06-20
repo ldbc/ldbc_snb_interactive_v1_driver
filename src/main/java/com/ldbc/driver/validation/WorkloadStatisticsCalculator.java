@@ -15,11 +15,8 @@ import java.util.*;
 public class WorkloadStatisticsCalculator {
     /**
      * TODO
-     * - driver parameter that allows workload summary to be checked and printed out, along with gct, and warning if GCT appears to be too short;
-     * - optionally add gct status to status printout
+     * - add gct status to status printout
      * TODO test HdrHistogram limits
-     * TODO possibly DbValidator class too:
-     * - is there a handler for every operation type
      * TODO generator that creates an operation stream based on total time, rather than count
      */
 
@@ -91,9 +88,9 @@ public class WorkloadStatisticsCalculator {
                 operationInterleaveForOperationType = new ContinuousMetricManager(null, null, maxExpectedInterleave.asMilli(), 5);
                 operationInterleavesByOperationType.put(operationType, operationInterleaveForOperationType);
             }
-            Time previousOperationStartTimeByOperationType = previousOperationStartTimesByOperationType.get(operationType);
-            if (null != previousOperationStartTimeByOperationType) {
-                Duration interleaveDuration = operationStartTime.greaterBy(previousOperationStartTimeByOperationType);
+            Time previousOperationStartTimeForOperationType = previousOperationStartTimesByOperationType.get(operationType);
+            if (null != previousOperationStartTimeForOperationType) {
+                Duration interleaveDuration = operationStartTime.greaterBy(previousOperationStartTimeForOperationType);
                 operationInterleaveForOperationType.addMeasurement(interleaveDuration.asMilli());
             }
             previousOperationStartTimesByOperationType.put(operationType, operationStartTime);

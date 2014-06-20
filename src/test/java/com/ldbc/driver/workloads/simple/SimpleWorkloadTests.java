@@ -47,6 +47,8 @@ public class SimpleWorkloadTests {
         boolean validateDatabase = false;
         boolean validateWorkload = false;
         boolean calculateWorkloadStatistics = false;
+        Duration spinnerSleepDuration = Duration.fromMilli(0);
+
         ConsoleAndFileDriverConfiguration params =
                 new ConsoleAndFileDriverConfiguration(
                         paramsMap,
@@ -63,7 +65,8 @@ public class SimpleWorkloadTests {
                         toleratedExecutionDelay,
                         validateDatabase,
                         validateWorkload,
-                        calculateWorkloadStatistics);
+                        calculateWorkloadStatistics,
+                        spinnerSleepDuration);
 
         Workload workload = new SimpleWorkload();
         workload.init(params);
@@ -117,6 +120,8 @@ public class SimpleWorkloadTests {
         boolean validateDatabase = false;
         boolean validateWorkload = false;
         boolean calculateWorkloadStatistics = false;
+        Duration spinnerSleepDuration = Duration.fromMilli(0);
+
         ConsoleAndFileDriverConfiguration params =
                 new ConsoleAndFileDriverConfiguration(
                         paramsMap,
@@ -133,7 +138,8 @@ public class SimpleWorkloadTests {
                         toleratedExecutionDelay,
                         validateDatabase,
                         validateWorkload,
-                        calculateWorkloadStatistics);
+                        calculateWorkloadStatistics,
+                        spinnerSleepDuration);
 
         Workload workloadA = new SimpleWorkload();
         workloadA.init(params);

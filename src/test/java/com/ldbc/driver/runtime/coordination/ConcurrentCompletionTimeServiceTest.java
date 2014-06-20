@@ -209,10 +209,12 @@ public class ConcurrentCompletionTimeServiceTest {
         boolean validateDatabase = false;
         boolean validateWorkload = false;
         boolean calculateWorkloadStatistics = false;
+        Duration spinnerSleepDuration = Duration.fromMilli(0);
+
         ConsoleAndFileDriverConfiguration params =
                 new ConsoleAndFileDriverConfiguration(paramsMap, className, workloadName, operationCount, threadCount, showStatus, timeUnit,
                         resultFilePath, timeCompressionRatio, gctDeltaDuration, peerIds, toleratedDelay,
-                        validateDatabase, validateWorkload, calculateWorkloadStatistics);
+                        validateDatabase, validateWorkload, calculateWorkloadStatistics, spinnerSleepDuration);
         Workload workload = new SimpleWorkload();
         workload.init(params);
         GeneratorFactory generators = new GeneratorFactory(new RandomDataGeneratorFactory(42L));

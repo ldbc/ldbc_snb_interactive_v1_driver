@@ -12,16 +12,6 @@ import static org.junit.Assert.assertThat;
 
 public class SpinnerTests {
     long ENOUGH_MILLISECONDS_FOR_SPINNER_THREAD_TO_DO_ITS_THING = 500;
-    /**
-     * TODO spec doc
-     * TODO - constraints on valid benchmark (deactivated)
-     * TODO - too many details about driver
-     * TODO - remove writes
-     * TODO wiki
-     * TODO - instructions on using driver
-     * TODO code
-     * TODO - warm-up
-     */
     ManualTimeSource TIME_SOURCE = new ManualTimeSource(0);
 
     @Test

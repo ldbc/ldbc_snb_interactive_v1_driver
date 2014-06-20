@@ -2,10 +2,12 @@ package com.ldbc.driver.control;
 
 import com.google.common.collect.Lists;
 import com.ldbc.driver.temporal.Duration;
+import com.ldbc.driver.util.MapUtils;
 import com.ldbc.driver.util.TestUtils;
 import org.junit.Test;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -18,8 +20,99 @@ import static org.junit.Assert.assertThat;
 public class ConsoleAndFileDriverConfigurationTests {
 
     @Test
+    public void shouldReturnSameConfigurationFromFromArgsAsFromFromParamsMap() throws DriverConfigurationException {
+        List<String> peerIds = Lists.newArrayList("peerId1", "peerId2");
+
+        Map<String, String> requiredParamsMap = new HashMap<>();
+        requiredParamsMap.put(ConsoleAndFileDriverConfiguration.OPERATION_COUNT_ARG, "1");
+        requiredParamsMap.put(ConsoleAndFileDriverConfiguration.WORKLOAD_ARG, "workload class name");
+        requiredParamsMap.put(ConsoleAndFileDriverConfiguration.DB_ARG, "db class name");
+
+        Map<String, String> optionalParamsMap = new HashMap<>();
+        optionalParamsMap.put(ConsoleAndFileDriverConfiguration.THREADS_ARG, ConsoleAndFileDriverConfiguration.THREADS_DEFAULT_STRING);
+        optionalParamsMap.put(ConsoleAndFileDriverConfiguration.SHOW_STATUS_ARG, ConsoleAndFileDriverConfiguration.SHOW_STATUS_DEFAULT_STRING);
+        optionalParamsMap.put(ConsoleAndFileDriverConfiguration.TIME_UNIT_ARG, ConsoleAndFileDriverConfiguration.TIME_UNIT_DEFAULT_STRING);
+        optionalParamsMap.put(ConsoleAndFileDriverConfiguration.RESULT_FILE_PATH_ARG, ConsoleAndFileDriverConfiguration.RESULT_FILE_PATH_DEFAULT_STRING);
+        optionalParamsMap.put(ConsoleAndFileDriverConfiguration.TIME_COMPRESSION_RATIO_ARG, ConsoleAndFileDriverConfiguration.TIME_COMPRESSION_RATIO_DEFAULT_STRING);
+        optionalParamsMap.put(ConsoleAndFileDriverConfiguration.GCT_DELTA_DURATION_ARG, ConsoleAndFileDriverConfiguration.GCT_DELTA_DURATION_DEFAULT_STRING);
+        optionalParamsMap.put(ConsoleAndFileDriverConfiguration.PEER_IDS_ARG, ConsoleAndFileDriverConfiguration.serializePeerIdsToJson(peerIds));
+        optionalParamsMap.put(ConsoleAndFileDriverConfiguration.TOLERATED_EXECUTION_DELAY_ARG, ConsoleAndFileDriverConfiguration.TOLERATED_EXECUTION_DELAY_DEFAULT_STRING);
+        optionalParamsMap.put(ConsoleAndFileDriverConfiguration.VALIDATE_DB_ARG, ConsoleAndFileDriverConfiguration.VALIDATE_DB_DEFAULT_STRING);
+        optionalParamsMap.put(ConsoleAndFileDriverConfiguration.VALIDATE_WORKLOAD_ARG, ConsoleAndFileDriverConfiguration.VALIDATE_WORKLOAD_DEFAULT_STRING);
+        optionalParamsMap.put(ConsoleAndFileDriverConfiguration.CALCULATE_WORKLOAD_STATISTICS_ARG, ConsoleAndFileDriverConfiguration.CALCULATE_WORKLOAD_STATISTICS_DEFAULT_STRING);
+        optionalParamsMap.put(ConsoleAndFileDriverConfiguration.SPINNER_SLEEP_DURATION_ARG, ConsoleAndFileDriverConfiguration.SPINNER_SLEEP_DURATION_DEFAULT_STRING);
+
+        List<String> requiredParamsArgsList = new ArrayList<>();
+        requiredParamsArgsList.addAll(Lists.newArrayList("-" + ConsoleAndFileDriverConfiguration.OPERATION_COUNT_ARG, "1"));
+        requiredParamsArgsList.addAll(Lists.newArrayList("-" + ConsoleAndFileDriverConfiguration.WORKLOAD_ARG, "workload class name"));
+        requiredParamsArgsList.addAll(Lists.newArrayList("-" + ConsoleAndFileDriverConfiguration.DB_ARG, "db class name"));
+
+        List<String> optionalParamsArgsList = new ArrayList<>();
+        optionalParamsArgsList.addAll(Lists.newArrayList("-" + ConsoleAndFileDriverConfiguration.THREADS_ARG, ConsoleAndFileDriverConfiguration.THREADS_DEFAULT_STRING));
+        if (ConsoleAndFileDriverConfiguration.SHOW_STATUS_DEFAULT)
+            optionalParamsArgsList.addAll(Lists.newArrayList("-" + ConsoleAndFileDriverConfiguration.SHOW_STATUS_ARG));
+        optionalParamsArgsList.addAll(Lists.newArrayList("-" + ConsoleAndFileDriverConfiguration.TIME_UNIT_ARG, ConsoleAndFileDriverConfiguration.TIME_UNIT_DEFAULT_STRING));
+        if (null != ConsoleAndFileDriverConfiguration.RESULT_FILE_PATH_DEFAULT)
+            optionalParamsArgsList.addAll(Lists.newArrayList("-" + ConsoleAndFileDriverConfiguration.RESULT_FILE_PATH_ARG, ConsoleAndFileDriverConfiguration.RESULT_FILE_PATH_DEFAULT_STRING));
+        optionalParamsArgsList.addAll(Lists.newArrayList("-" + ConsoleAndFileDriverConfiguration.TIME_COMPRESSION_RATIO_ARG, ConsoleAndFileDriverConfiguration.TIME_COMPRESSION_RATIO_DEFAULT_STRING));
+        optionalParamsArgsList.addAll(Lists.newArrayList("-" + ConsoleAndFileDriverConfiguration.GCT_DELTA_DURATION_ARG, ConsoleAndFileDriverConfiguration.GCT_DELTA_DURATION_DEFAULT_STRING));
+        optionalParamsArgsList.addAll(Lists.newArrayList("-" + ConsoleAndFileDriverConfiguration.PEER_IDS_ARG, ConsoleAndFileDriverConfiguration.serializePeerIdsToCommandline(peerIds)));
+        optionalParamsArgsList.addAll(Lists.newArrayList("-" + ConsoleAndFileDriverConfiguration.TOLERATED_EXECUTION_DELAY_ARG, ConsoleAndFileDriverConfiguration.TOLERATED_EXECUTION_DELAY_DEFAULT_STRING));
+        if (ConsoleAndFileDriverConfiguration.VALIDATE_DB_DEFAULT)
+            optionalParamsArgsList.addAll(Lists.newArrayList("-" + ConsoleAndFileDriverConfiguration.VALIDATE_DB_ARG));
+        if (ConsoleAndFileDriverConfiguration.VALIDATE_WORKLOAD_DEFAULT)
+            optionalParamsArgsList.addAll(Lists.newArrayList("-" + ConsoleAndFileDriverConfiguration.VALIDATE_WORKLOAD_ARG));
+        if (ConsoleAndFileDriverConfiguration.CALCULATE_WORKLOAD_STATISTICS_DEFAULT)
+            optionalParamsArgsList.addAll(Lists.newArrayList("-" + ConsoleAndFileDriverConfiguration.CALCULATE_WORKLOAD_STATISTICS_ARG));
+        optionalParamsArgsList.addAll(Lists.newArrayList("-" + ConsoleAndFileDriverConfiguration.SPINNER_SLEEP_DURATION_ARG, ConsoleAndFileDriverConfiguration.SPINNER_SLEEP_DURATION_DEFAULT_STRING));
+
+        // When
+        Map<String, String> paramsMap = MapUtils.mergeMaps(requiredParamsMap, optionalParamsMap, false);
+        DriverConfiguration configurationFromParamsMap = ConsoleAndFileDriverConfiguration.fromParamsMap(paramsMap);
+
+        String[] requiredParamsArgs = requiredParamsArgsList.toArray(new String[requiredParamsArgsList.size()]);
+        String[] optionalParamsArgs = optionalParamsArgsList.toArray(new String[optionalParamsArgsList.size()]);
+        System.arraycopy(requiredParamsArgs, 0, optionalParamsArgs, 0, requiredParamsArgs.length);
+        DriverConfiguration configurationFromParamsArgs = ConsoleAndFileDriverConfiguration.fromArgs(optionalParamsArgs);
+
+        // Then
+        assertThat(configurationFromParamsMap, equalTo(configurationFromParamsArgs));
+    }
+
+    @Test
+    public void shouldWorkWhenOnlyRequiredParametersAreGiven() throws DriverConfigurationException {
+        // Given
+        Map<String, String> requiredParams = new HashMap<>();
+        requiredParams.put(ConsoleAndFileDriverConfiguration.OPERATION_COUNT_ARG, "1");
+        requiredParams.put(ConsoleAndFileDriverConfiguration.WORKLOAD_ARG, "workload class name");
+        requiredParams.put(ConsoleAndFileDriverConfiguration.DB_ARG, "db class name");
+
+        // When
+        ConsoleAndFileDriverConfiguration configurationFromParams = ConsoleAndFileDriverConfiguration.fromParamsMap(requiredParams);
+
+        // Then
+        assertThat(configurationFromParams.dbClassName(), equalTo("db class name"));
+        assertThat(configurationFromParams.workloadClassName(), equalTo("workload class name"));
+        assertThat(configurationFromParams.operationCount(), is(1l));
+        assertThat(configurationFromParams.threadCount(), is(ConsoleAndFileDriverConfiguration.THREADS_DEFAULT));
+        assertThat(configurationFromParams.showStatus(), is(ConsoleAndFileDriverConfiguration.SHOW_STATUS_DEFAULT));
+        assertThat(configurationFromParams.timeUnit(), is(ConsoleAndFileDriverConfiguration.TIME_UNIT_DEFAULT));
+        assertThat(configurationFromParams.resultFilePath(), is(ConsoleAndFileDriverConfiguration.RESULT_FILE_PATH_DEFAULT));
+        assertThat(configurationFromParams.timeCompressionRatio(), is(ConsoleAndFileDriverConfiguration.TIME_COMPRESSION_RATIO_DEFAULT));
+        assertThat(configurationFromParams.gctDeltaDuration(), is(ConsoleAndFileDriverConfiguration.GCT_DELTA_DURATION_DEFAULT));
+        assertThat(configurationFromParams.peerIds(), is(ConsoleAndFileDriverConfiguration.PEER_IDS_DEFAULT));
+        assertThat(configurationFromParams.toleratedExecutionDelay(), is(ConsoleAndFileDriverConfiguration.TOLERATED_EXECUTION_DELAY_DEFAULT));
+        assertThat(configurationFromParams.validateDatabase(), is(ConsoleAndFileDriverConfiguration.VALIDATE_DB_DEFAULT));
+        assertThat(configurationFromParams.validateWorkload(), is(ConsoleAndFileDriverConfiguration.VALIDATE_WORKLOAD_DEFAULT));
+        assertThat(configurationFromParams.calculateWorkloadStatistics(), is(ConsoleAndFileDriverConfiguration.CALCULATE_WORKLOAD_STATISTICS_DEFAULT));
+        assertThat(configurationFromParams.compressedGctDeltaDuration(),
+                is(Duration.fromMilli(Math.round(ConsoleAndFileDriverConfiguration.TIME_COMPRESSION_RATIO_DEFAULT * ConsoleAndFileDriverConfiguration.GCT_DELTA_DURATION_DEFAULT.asMilli()))));
+        assertThat(configurationFromParams.spinnerSleepDuration(), is(ConsoleAndFileDriverConfiguration.SPINNER_SLEEP_DURATION_DEFAULT));
+    }
+
+    @Test
     public void shouldReturnSameAsConstructedWith() {
-        Map<String, String> paramsMap = new HashMap<String, String>();
+        Map<String, String> paramsMap = new HashMap<>();
         String dbClassName = "dbClassName";
         String workloadClassName = "workloadClassName";
         long operationCount = 1;
@@ -34,6 +127,7 @@ public class ConsoleAndFileDriverConfigurationTests {
         boolean validateDatabase = false;
         boolean validateWorkload = false;
         boolean calculateWorkloadStatistics = false;
+        Duration spinnerSleepDuration = Duration.fromMilli(0);
 
         ConsoleAndFileDriverConfiguration params = new ConsoleAndFileDriverConfiguration(
                 paramsMap,
@@ -50,7 +144,8 @@ public class ConsoleAndFileDriverConfigurationTests {
                 toleratedExecutionDelay,
                 validateDatabase,
                 validateWorkload,
-                calculateWorkloadStatistics);
+                calculateWorkloadStatistics,
+                spinnerSleepDuration);
 
         assertThat(params.asMap(), equalTo(paramsMap));
         assertThat(params.dbClassName(), equalTo(dbClassName));
@@ -67,6 +162,7 @@ public class ConsoleAndFileDriverConfigurationTests {
         assertThat(params.validateDatabase(), equalTo(validateDatabase));
         assertThat(params.validateWorkload(), equalTo(validateWorkload));
         assertThat(params.calculateWorkloadStatistics(), equalTo(calculateWorkloadStatistics));
+        assertThat(params.spinnerSleepDuration(), equalTo(spinnerSleepDuration));
     }
 
     @Test
@@ -147,13 +243,13 @@ public class ConsoleAndFileDriverConfigurationTests {
         List<String> peerIds2 = Lists.newArrayList("1", "2", "cows");
 
         // When
-        String peerIdsString0 = ConsoleAndFileDriverConfiguration.serializePeerIds(peerIds0);
-        String peerIdsString1 = ConsoleAndFileDriverConfiguration.serializePeerIds(peerIds1);
-        String peerIdsString2 = ConsoleAndFileDriverConfiguration.serializePeerIds(peerIds2);
+        String peerIdsString0 = ConsoleAndFileDriverConfiguration.serializePeerIdsToJson(peerIds0);
+        String peerIdsString1 = ConsoleAndFileDriverConfiguration.serializePeerIdsToJson(peerIds1);
+        String peerIdsString2 = ConsoleAndFileDriverConfiguration.serializePeerIdsToJson(peerIds2);
 
         // Then
-        assertThat(ConsoleAndFileDriverConfiguration.parsePeerIds(peerIdsString0), equalTo(peerIds0));
-        assertThat(ConsoleAndFileDriverConfiguration.parsePeerIds(peerIdsString1), equalTo(peerIds1));
-        assertThat(ConsoleAndFileDriverConfiguration.parsePeerIds(peerIdsString2), equalTo(peerIds2));
+        assertThat(ConsoleAndFileDriverConfiguration.parsePeerIdsFromJson(peerIdsString0), equalTo(peerIds0));
+        assertThat(ConsoleAndFileDriverConfiguration.parsePeerIdsFromJson(peerIdsString1), equalTo(peerIds1));
+        assertThat(ConsoleAndFileDriverConfiguration.parsePeerIdsFromJson(peerIdsString2), equalTo(peerIds2));
     }
 }
