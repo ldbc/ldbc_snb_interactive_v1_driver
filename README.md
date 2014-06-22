@@ -3,10 +3,11 @@
 # LDBC Driver
 
 This driver is being developed as part of the Linked Data Benchmark Council EU-funded research project and will be used to run the benchmark workloads developed and released by LDBC:
-* http://www.ldbc.eu
-* http://www.linkedin.com/groups/LDBC-4955240
-* https://twitter.com/LDBCproject
-* https://www.facebook.com/ldbcproject
+* [LDBC Project Website](http://www.ldbc.eu)
+* [LDBC Company Website](http://ldbcouncil.org)
+* [LDBC LinkedIn Group](http://www.linkedin.com/groups/LDBC-4955240)
+* [LDBC Twitter Account](https://twitter.com/LDBCproject)
+* [LDBC Facebook Page](https://www.facebook.com/ldbcproject)
 
 ### Try it
 
@@ -135,7 +136,3 @@ This driver is being developed as part of the Linked Data Benchmark Council EU-f
 To test driver try "simpleworkload", which has few configuration options and comprises of only basic key/value operations:
 
 	java -cp target/core-0.2-SNAPSHOT.jar com.ldbc.driver.Client -db com.ldbc.driver.workloads.simple.db.BasicDb -P workloads/simple/simpleworkload.properties -P src/main/resources/ldbc_driver_default.properties
-### Credit where it's due
-Though they share almost no lines of code, this project started as a fork of the YCSB framework:
-* http://wiki.github.com/brianfrankcooper/YCSB/
-* http://research.yahoo.com/Web_Information_Management/YCSB
