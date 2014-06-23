@@ -143,7 +143,7 @@ public class WorkloadRunner {
             preciseIndividualBlockingOperationStreamExecutorService.shutdown();
             uniformWindowedOperationStreamExecutorService.shutdown();
             // all executors have completed by this stage, there's no reason why this should not work
-            operationHandlerExecutor.shutdown(Duration.fromMilli(1));
+            operationHandlerExecutor.shutdown(Duration.fromSeconds(5));
         } catch (OperationHandlerExecutorException e) {
             throw new WorkloadException("Encountered error while shutting down operation handler executor", e);
         }

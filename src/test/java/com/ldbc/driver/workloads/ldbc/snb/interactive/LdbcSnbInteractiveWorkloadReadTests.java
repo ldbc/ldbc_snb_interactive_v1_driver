@@ -123,7 +123,7 @@ public class LdbcSnbInteractiveWorkloadReadTests {
         String dbClassName = NothingDb.class.getName();
         String workloadClassName = LdbcSnbInteractiveWorkload.class.getName();
         long operationCount = 10000;
-        int threadCount = 2;
+        int threadCount = 64;
         boolean showStatus = true;
         TimeUnit timeUnit = TimeUnit.MILLISECONDS;
         String resultFilePath = null;
