@@ -19,6 +19,4 @@ To quickly test the driver try the "simpleworkload" that is shipped with it by d
 
 	java -cp target/core-0.2-SNAPSHOT.jar com.ldbc.driver.Client -db com.ldbc.driver.workloads.simple.db.BasicDb -P workloads/simple/simpleworkload.properties -P workloads/ldbc_driver_default.properties
 
-### Wiki
-
 For more information, please refer to the [Documentation](https://github.com/ldbc/ldbc_driver/wiki)
