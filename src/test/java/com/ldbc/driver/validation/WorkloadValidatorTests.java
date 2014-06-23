@@ -21,7 +21,56 @@ public class WorkloadValidatorTests {
 
     @Ignore
     @Test
+    public void shouldTestThatAllOperationsHaveStartTimes() throws MetricsCollectionException {
+        assertThat(true, is(false));
+        assertThat(true, equalTo(false));
+    }
+
+    @Ignore
+    @Test
     public void shouldFailValidationWhenWorkloadDefinitionIsIncorrect() throws MetricsCollectionException {
+        assertThat(true, is(false));
+        assertThat(true, equalTo(false));
+    }
+
+    @Ignore
+    @Test
+    public void shouldTestThatInterleavesDoNotExceedMaximumDuration() throws MetricsCollectionException {
+        assertThat(true, is(false));
+        assertThat(true, equalTo(false));
+    }
+
+    @Ignore
+    @Test
+    public void shouldTestForMonotonicallyIncreasingTimes() throws MetricsCollectionException {
+        assertThat(true, is(false));
+        assertThat(true, equalTo(false));
+    }
+
+    @Ignore
+    @Test
+    public void shouldTestForDeterminism() throws MetricsCollectionException {
+        assertThat(true, is(false));
+        assertThat(true, equalTo(false));
+    }
+
+    @Ignore
+    @Test
+    public void shouldTestThatAllOperationClassificationsArePresent() throws MetricsCollectionException {
+        assertThat(true, is(false));
+        assertThat(true, equalTo(false));
+    }
+
+    @Ignore
+    @Test
+    public void shouldTestThatAllOperationClassificationsContainGctMode() throws MetricsCollectionException {
+        assertThat(true, is(false));
+        assertThat(true, equalTo(false));
+    }
+
+    @Ignore
+    @Test
+    public void shouldTestThatAllOperationClassificationsContainSchedulingMode() throws MetricsCollectionException {
         assertThat(true, is(false));
         assertThat(true, equalTo(false));
     }

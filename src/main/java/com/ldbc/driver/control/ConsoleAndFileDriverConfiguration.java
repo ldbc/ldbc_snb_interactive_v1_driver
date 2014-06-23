@@ -33,7 +33,7 @@ public class ConsoleAndFileDriverConfiguration implements DriverConfiguration {
     // --- OPTIONAL ---
     public static final String RESULT_FILE_PATH_ARG = "rf";
     private static final String RESULT_FILE_PATH_ARG_LONG = "resultfile";
-    public static final String RESULT_FILE_PATH_DEFAULT = null;
+    public static final String RESULT_FILE_PATH_DEFAULT = "results.json";
     public static final String RESULT_FILE_PATH_DEFAULT_STRING = RESULT_FILE_PATH_DEFAULT;
     private static final String RESULT_FILE_PATH_DESCRIPTION = String.format("where benchmark results JSON file will be written. default = %s (null = file will not be created)", RESULT_FILE_PATH_DEFAULT);
 
@@ -83,10 +83,6 @@ public class ConsoleAndFileDriverConfiguration implements DriverConfiguration {
     public static final String CALCULATE_WORKLOAD_STATISTICS_DEFAULT_STRING = Boolean.toString(CALCULATE_WORKLOAD_STATISTICS_DEFAULT);
     private static final String CALCULATE_WORKLOAD_STATISTICS_DESCRIPTION = "calculate & display workload statistics (operation mix, etc.)";
 
-    public static final String PROPERTY_FILE_ARG = "P";
-    private static final String PROPERTY_FILE_DESCRIPTION = "load properties from file(s) - files will be loaded in the order provided\n" +
-            "first files are highest priority; later values will not override earlier values";
-
     public static final String TIME_UNIT_ARG = "tu";
     private static final String TIME_UNIT_ARG_LONG = "timeunit";
     public static final TimeUnit TIME_UNIT_DEFAULT = TimeUnit.MILLISECONDS;
@@ -112,8 +108,6 @@ public class ConsoleAndFileDriverConfiguration implements DriverConfiguration {
     public static final String PEER_IDS_ARG = "pids";
     private static final String PEER_IDS_ARG_LONG = "peeridentifiers";
     public static final List<String> PEER_IDS_DEFAULT = Lists.newArrayList();
-    // Technically this should be JSON encoded, but by coincidence to string and JSON are equivalent for the empty list
-    private static final String PEER_IDS_DEFAULT_JSON_STRING = PEER_IDS_DEFAULT.toString();
     private static final String PEER_IDS_DESCRIPTION = "identifiers/addresses of other driver workers (for distributed mode)";
 
     public static final String TOLERATED_EXECUTION_DELAY_ARG = "del";
@@ -127,6 +121,10 @@ public class ConsoleAndFileDriverConfiguration implements DriverConfiguration {
     public static final Duration SPINNER_SLEEP_DURATION_DEFAULT = Duration.fromMilli(10);
     public static final String SPINNER_SLEEP_DURATION_DEFAULT_STRING = Long.toString(SPINNER_SLEEP_DURATION_DEFAULT.asMilli());
     private static final String SPINNER_SLEEP_DURATION_DESCRIPTION = "sleep duration (ms) injected into busy wait loops (to reduce CPU consumption)";
+
+    public static final String PROPERTY_FILE_ARG = "P";
+    private static final String PROPERTY_FILE_DESCRIPTION = "load properties from file(s) - files will be loaded in the order provided\n" +
+            "first files are highest priority; later values will not override earlier values";
 
     public static final String PROPERTY_ARG = "p";
     private static final String PROPERTY_DESCRIPTION = "properties to be passed to DB and Workload - these will override properties loaded from files";
@@ -209,19 +207,20 @@ public class ConsoleAndFileDriverConfiguration implements DriverConfiguration {
         }
     }
 
-    private static Map<String, String> defaultParamValues() {
+    private static Map<String, String> defaultParamValues() throws DriverConfigurationException {
         Map<String, String> defaultParamValues = new HashMap<>();
         defaultParamValues.put(THREADS_ARG, THREADS_DEFAULT_STRING);
         defaultParamValues.put(SHOW_STATUS_ARG, SHOW_STATUS_DEFAULT_STRING);
         defaultParamValues.put(TIME_UNIT_ARG, TIME_UNIT_DEFAULT_STRING);
         defaultParamValues.put(TIME_COMPRESSION_RATIO_ARG, TIME_COMPRESSION_RATIO_DEFAULT_STRING);
         defaultParamValues.put(GCT_DELTA_DURATION_ARG, GCT_DELTA_DURATION_DEFAULT_STRING);
-        defaultParamValues.put(PEER_IDS_ARG, PEER_IDS_DEFAULT_JSON_STRING);
+        defaultParamValues.put(PEER_IDS_ARG, serializePeerIdsToJson(PEER_IDS_DEFAULT));
         defaultParamValues.put(TOLERATED_EXECUTION_DELAY_ARG, TOLERATED_EXECUTION_DELAY_DEFAULT_STRING);
         defaultParamValues.put(VALIDATE_DB_ARG, VALIDATE_DB_DEFAULT_STRING);
         defaultParamValues.put(VALIDATE_WORKLOAD_ARG, VALIDATE_WORKLOAD_DEFAULT_STRING);
         defaultParamValues.put(CALCULATE_WORKLOAD_STATISTICS_ARG, CALCULATE_WORKLOAD_STATISTICS_DEFAULT_STRING);
         defaultParamValues.put(SPINNER_SLEEP_DURATION_ARG, SPINNER_SLEEP_DURATION_DEFAULT_STRING);
+        defaultParamValues.put(RESULT_FILE_PATH_ARG, RESULT_FILE_PATH_DEFAULT_STRING);
         return defaultParamValues;
     }
 
@@ -694,6 +693,85 @@ public class ConsoleAndFileDriverConfiguration implements DriverConfiguration {
                 newValidateWorkload,
                 newCalculateWorkloadStatistics,
                 newSpinnerSleepDuration);
+    }
+
+    public static String toConfigurationPropertiesString() throws DriverConfigurationException {
+        StringBuilder sb = new StringBuilder();
+        sb.append("# -------------------------------------\n");
+        sb.append("# -------------------------------------\n");
+        sb.append("# ----- LDBC Driver Configuration -----\n");
+        sb.append("# -------------------------------------\n");
+        sb.append("# -------------------------------------\n");
+        sb.append("\n");
+        sb.append("# ***********************\n");
+        sb.append("# *** driver defaults ***\n");
+        sb.append("# ***********************\n");
+        sb.append("\n");
+        sb.append("# show status during benchmark execution\n");
+        sb.append(SHOW_STATUS_ARG_LONG).append("=").append(SHOW_STATUS_DEFAULT_STRING).append("\n");
+        sb.append("\n");
+        sb.append("# thread pool size to use for executing operation handlers\n");
+        sb.append(THREADS_ARG_LONG).append("=").append(THREADS_DEFAULT_STRING).append("\n");
+        sb.append("\n");
+        sb.append("# path specifying where to write the benchmark results file\n");
+        sb.append(RESULT_FILE_PATH_ARG_LONG).append("=").append(RESULT_FILE_PATH_DEFAULT_STRING).append("\n");
+        sb.append("\n");
+        sb.append("# time unit to use for measuring performance metrics (e.g., query response time)\n");
+        sb.append("# Supported time units: NANOSECONDS, MICROSECONDS, MILLISECONDS, SECONDS, MINUTES\n");
+        sb.append(TIME_UNIT_ARG_LONG).append("=").append(TIME_UNIT_DEFAULT_STRING).append("\n");
+        sb.append("\n");
+        sb.append("# used to 'compress'/'stretch' durations between operation start times to increase/decrease benchmark load\n");
+        sb.append("# e.g. 2.0 = run benchmark 2x slower, 0.1 = run benchmark 10x faster\n");
+        sb.append("# IMPORTANT: also applied to gctdeltaduration, i.e., gctdeltaduration value will be compressed/stretched too\n");
+        sb.append(TIME_COMPRESSION_RATIO_ARG_LONG).append("=").append(TIME_COMPRESSION_RATIO_DEFAULT_STRING).append("\n");
+        sb.append("\n");
+        sb.append("# minimum duration (in milliseconds) that separates any two dependent operations in the workload\n");
+        sb.append("# e.g. if minimum duration between any pair of dependent operations is 100ms, gctdeltaduration can be at most 100\n");
+        sb.append("# IMPORTANT: the value set here assumes a timecompressionratio of '1.0'\n");
+        sb.append("#            timecompressionratio will be applied to this configured value\n");
+        sb.append("#            e.g. if config has gctdeltaduration=100 & timecompressionratio=2.0, driver will set gctdeltaduration to 200\n");
+        sb.append("#            if you change timecompressionratio change gctdeltaduration proportionately\n");
+        sb.append(GCT_DELTA_DURATION_ARG_LONG).append("=").append(GCT_DELTA_DURATION_DEFAULT_STRING).append("\n");
+        sb.append("\n");
+        sb.append("# NOT USED AT PRESENT - reserved for distributed driver mode\n");
+        sb.append("# specifies the addresses of other driver processes, so they can find each other\n");
+        sb.append(PEER_IDS_ARG_LONG).append("=").append(serializePeerIdsToJson(PEER_IDS_DEFAULT)).append("\n");
+        sb.append("\n");
+        sb.append("# tolerated duration (in milliseconds) that operation execution may be late by\n");
+        sb.append("# if driver can not execute an operation within toleratedexecutiondelay of its scheduled start time it will terminate\n");
+        sb.append(TOLERATED_EXECUTION_DELAY_ARG_LONG).append("=").append(TOLERATED_EXECUTION_DELAY_DEFAULT_STRING).append("\n");
+        sb.append("\n");
+        sb.append("# enable validation that will check if the provided database implementation is correct\n");
+        sb.append(VALIDATE_DB_ARG_LONG).append("=").append(VALIDATE_DB_DEFAULT_STRING).append("\n");
+        sb.append("\n");
+        sb.append("# enable validation that will check if the provided workload implementation is correct\n");
+        sb.append(VALIDATE_WORKLOAD_ARG_LONG).append("=").append(VALIDATE_WORKLOAD_DEFAULT_STRING).append("\n");
+        sb.append("\n");
+        sb.append("# calculate & display workload statistics (operation mix, etc.)\n");
+        sb.append(CALCULATE_WORKLOAD_STATISTICS_ARG_LONG).append("=").append(CALCULATE_WORKLOAD_STATISTICS_DEFAULT_STRING).append("\n");
+        sb.append("\n");
+        sb.append("# sleep duration (ms) injected into busy wait loops (to reduce CPU consumption)\n");
+        sb.append(SPINNER_SLEEP_DURATION_ARG_LONG).append("=").append(SPINNER_SLEEP_DURATION_DEFAULT_STRING).append("\n");
+        sb.append("\n");
+        sb.append("# ***************************************************************\n");
+        sb.append("# *** the following should be set by workload implementations ***\n");
+        sb.append("# ***************************************************************\n");
+        sb.append("\n");
+        sb.append("# fully qualified class name of the Workload (class) implementation to execute\n");
+        sb.append("# e.g. com.ldbc.driver.workloads.ldbc.snb.interactive.LdbcSnbInteractiveWorkload\n");
+        sb.append("# ").append(WORKLOAD_ARG_LONG).append("=").append("\n");
+        sb.append("\n");
+        sb.append("# number of operations to generate during benchmark execution\n");
+        sb.append("# ").append(OPERATION_COUNT_ARG_LONG).append("=").append("\n");
+        sb.append("\n");
+        sb.append("# ************************************************************************************\n");
+        sb.append("# *** the following should be set by vendor implementations for specific workloads ***\n");
+        sb.append("# ************************************************************************************\n");
+        sb.append("\n");
+        sb.append("# fully qualified class name of the Db (class) implementation to execute\n");
+        sb.append("# e.g. com.ldbc.driver.workloads.ldbc.snb.interactive.db.NothingDb\n");
+        sb.append("# ").append(DB_ARG_LONG).append("=").append("").append("\n");
+        return sb.toString();
     }
 
     @Override

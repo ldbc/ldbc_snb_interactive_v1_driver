@@ -12,7 +12,6 @@ public class ReadOperation extends Operation<Map<String, ByteIterator>> {
     private final List<String> fields;
 
     public ReadOperation(String table, String key, List<String> fields) {
-        super();
         this.table = table;
         this.key = key;
         this.fields = fields;

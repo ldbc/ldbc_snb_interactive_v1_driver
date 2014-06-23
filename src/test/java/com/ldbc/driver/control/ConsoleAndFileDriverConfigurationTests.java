@@ -4,9 +4,14 @@ import com.google.common.collect.Lists;
 import com.ldbc.driver.temporal.Duration;
 import com.ldbc.driver.util.MapUtils;
 import com.ldbc.driver.util.TestUtils;
+import com.ldbc.driver.workloads.ldbc.snb.interactive.LdbcSnbInteractiveWorkload;
+import com.ldbc.driver.workloads.ldbc.snb.interactive.db.NothingDb;
+import org.apache.commons.io.FileUtils;
 import org.junit.Test;
 
 import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -18,6 +23,14 @@ import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
 
 public class ConsoleAndFileDriverConfigurationTests {
+
+    @Test
+    public void writeSampleDriverConfigurationFile() throws DriverConfigurationException, IOException {
+        File ldbcDriverDefaultConfigurationFile = new File("ldbc_driver/workloads/ldbc_driver_default.properties");
+        FileUtils.deleteQuietly(ldbcDriverDefaultConfigurationFile);
+        ldbcDriverDefaultConfigurationFile.createNewFile();
+        new FileOutputStream(ldbcDriverDefaultConfigurationFile).write(ConsoleAndFileDriverConfiguration.toConfigurationPropertiesString().getBytes());
+    }
 
     @Test
     public void shouldReturnSameConfigurationFromFromArgsAsFromFromParamsMap() throws DriverConfigurationException {
@@ -97,7 +110,7 @@ public class ConsoleAndFileDriverConfigurationTests {
         assertThat(configurationFromParams.threadCount(), is(ConsoleAndFileDriverConfiguration.THREADS_DEFAULT));
         assertThat(configurationFromParams.showStatus(), is(ConsoleAndFileDriverConfiguration.SHOW_STATUS_DEFAULT));
         assertThat(configurationFromParams.timeUnit(), is(ConsoleAndFileDriverConfiguration.TIME_UNIT_DEFAULT));
-        assertThat(configurationFromParams.resultFilePath(), is(ConsoleAndFileDriverConfiguration.RESULT_FILE_PATH_DEFAULT));
+        assertThat(new File(configurationFromParams.resultFilePath()).getName(), is(ConsoleAndFileDriverConfiguration.RESULT_FILE_PATH_DEFAULT));
         assertThat(configurationFromParams.timeCompressionRatio(), is(ConsoleAndFileDriverConfiguration.TIME_COMPRESSION_RATIO_DEFAULT));
         assertThat(configurationFromParams.gctDeltaDuration(), is(ConsoleAndFileDriverConfiguration.GCT_DELTA_DURATION_DEFAULT));
         assertThat(configurationFromParams.peerIds(), is(ConsoleAndFileDriverConfiguration.PEER_IDS_DEFAULT));
@@ -223,11 +236,11 @@ public class ConsoleAndFileDriverConfigurationTests {
         ConsoleAndFileDriverConfiguration params = ConsoleAndFileDriverConfiguration.fromArgs(new String[]{
                 "-P", ldbcSocNetInteractivePropertiesPath,
                 "-P", ldbcDriverPropertiesPath,
-                "-db", "com.ldbc.socialnet.workload.neo4j.Neo4jDb"
+                "-db", NothingDb.class.getName()
         });
 
-        assertThat(params.dbClassName(), is("com.ldbc.socialnet.workload.neo4j.Neo4jDb"));
-        assertThat(params.workloadClassName(), is("com.ldbc.driver.workloads.ldbc.socnet.interactive.LdbcInteractiveWorkload"));
+        assertThat(params.dbClassName(), is(NothingDb.class.getName()));
+        assertThat(params.workloadClassName(), is(LdbcSnbInteractiveWorkload.class.getName()));
         assertThat(params.operationCount(), is(10L));
         assertThat(params.threadCount(), is(1));
         assertThat(params.showStatus(), is(true));
