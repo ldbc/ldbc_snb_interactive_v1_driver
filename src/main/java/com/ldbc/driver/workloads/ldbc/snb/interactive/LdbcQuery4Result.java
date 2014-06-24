@@ -19,6 +19,19 @@ public class LdbcQuery4Result {
     }
 
     @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        LdbcQuery4Result that = (LdbcQuery4Result) o;
+
+        if (tagCount != that.tagCount) return false;
+        if (tagName != null ? !tagName.equals(that.tagName) : that.tagName != null) return false;
+
+        return true;
+    }
+
+    @Override
     public String toString() {
         return "LdbcQuery4Result{" +
                 "tagName='" + tagName + '\'' +

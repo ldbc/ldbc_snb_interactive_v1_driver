@@ -1,9 +1,11 @@
 package com.ldbc.driver.workloads.ldbc.snb.interactive;
 
+import com.google.common.collect.Iterables;
+import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 
-import java.util.Collection;
-import java.util.Set;
+import java.util.Collections;
+import java.util.List;
 
 public class LdbcQuery1Result {
     private final long friendId;
@@ -14,17 +16,17 @@ public class LdbcQuery1Result {
     private final String friendGender;
     private final String friendBrowserUsed;
     private final String friendLocationIp;
-    private final Set<String> friendEmails;
-    private final Set<String> friendLanguages;
+    private final Iterable<String> friendEmails;
+    private final Iterable<String> friendLanguages;
     private final String friendCityName;
     // (Person-studyAt->University.name,
     // Person-studyAt->.classYear,
     // Person-studyAt->University-isLocatedIn->City.name)
-    private final Set<String> friendUniversities;
+    private final Iterable<String> friendUniversities;
     // (Person-workAt->Company.name,
     // Person-workAt->.workFrom,
     // Person-workAt->Company-isLocatedIn->City.name)
-    private final Set<String> friendCompanies;
+    private final Iterable<String> friendCompanies;
 
     public LdbcQuery1Result(
             long friendId,
@@ -35,11 +37,11 @@ public class LdbcQuery1Result {
             String friendGender,
             String friendBrowserUsed,
             String friendLocationIp,
-            Collection<String> friendEmails,
-            Collection<String> friendLanguages,
+            Iterable<String> friendEmails,
+            Iterable<String> friendLanguages,
             String friendCityName,
-            Collection<String> friendUniversities,
-            Collection<String> friendCompanies) {
+            Iterable<String> friendUniversities,
+            Iterable<String> friendCompanies) {
         this.friendId = friendId;
         this.friendLastName = friendLastName;
         this.distanceFromPerson = distanceFromPerson;
@@ -87,11 +89,11 @@ public class LdbcQuery1Result {
         return friendLocationIp;
     }
 
-    public Set<String> friendEmails() {
+    public Iterable<String> friendEmails() {
         return friendEmails;
     }
 
-    public Set<String> friendLanguages() {
+    public Iterable<String> friendLanguages() {
         return friendLanguages;
     }
 
@@ -99,12 +101,50 @@ public class LdbcQuery1Result {
         return friendCityName;
     }
 
-    public Set<String> friendUniversities() {
+    public Iterable<String> friendUniversities() {
         return friendUniversities;
     }
 
-    public Set<String> friendCompanies() {
+    public Iterable<String> friendCompanies() {
         return friendCompanies;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        LdbcQuery1Result result = (LdbcQuery1Result) o;
+
+        if (distanceFromPerson != result.distanceFromPerson) return false;
+        if (friendBirthday != result.friendBirthday) return false;
+        if (friendCreationDate != result.friendCreationDate) return false;
+        if (friendId != result.friendId) return false;
+        if (friendBrowserUsed != null ? !friendBrowserUsed.equals(result.friendBrowserUsed) : result.friendBrowserUsed != null)
+            return false;
+        if (friendCityName != null ? !friendCityName.equals(result.friendCityName) : result.friendCityName != null)
+            return false;
+        if (friendCompanies != null ? !Iterables.elementsEqual(sort(friendCompanies), sort(result.friendCompanies)) : result.friendCompanies != null)
+            return false;
+        if (friendEmails != null ? !Iterables.elementsEqual(sort(friendEmails), sort(result.friendEmails)) : result.friendEmails != null)
+            return false;
+        if (friendGender != null ? !friendGender.equals(result.friendGender) : result.friendGender != null)
+            return false;
+        if (friendLanguages != null ? !Iterables.elementsEqual(sort(friendLanguages), sort(result.friendLanguages)) : result.friendLanguages != null)
+            return false;
+        if (friendLastName != null ? !friendLastName.equals(result.friendLastName) : result.friendLastName != null)
+            return false;
+        if (friendLocationIp != null ? !friendLocationIp.equals(result.friendLocationIp) : result.friendLocationIp != null)
+            return false;
+        if (friendUniversities != null ? !Iterables.elementsEqual(sort(friendUniversities), sort(result.friendUniversities)) : result.friendUniversities != null)
+            return false;
+        return true;
+    }
+
+    private Iterable<String> sort(Iterable<String> iterable) {
+        List<String> list = Lists.newArrayList(iterable);
+        Collections.sort(list);
+        return list;
     }
 
     @Override

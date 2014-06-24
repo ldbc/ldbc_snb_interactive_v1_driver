@@ -42,6 +42,25 @@ public class LdbcQuery3Result {
     }
 
     @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        LdbcQuery3Result that = (LdbcQuery3Result) o;
+
+        if (count != that.count) return false;
+        if (personId != that.personId) return false;
+        if (xCount != that.xCount) return false;
+        if (yCount != that.yCount) return false;
+        if (personFirstName != null ? !personFirstName.equals(that.personFirstName) : that.personFirstName != null)
+            return false;
+        if (personLastName != null ? !personLastName.equals(that.personLastName) : that.personLastName != null)
+            return false;
+
+        return true;
+    }
+
+    @Override
     public String toString() {
         return "LdbcQuery3Result{" +
                 "personId=" + personId +

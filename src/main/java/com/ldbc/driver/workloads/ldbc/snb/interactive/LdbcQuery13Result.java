@@ -12,6 +12,18 @@ public class LdbcQuery13Result {
     }
 
     @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        LdbcQuery13Result that = (LdbcQuery13Result) o;
+
+        if (shortestPathLength != that.shortestPathLength) return false;
+
+        return true;
+    }
+
+    @Override
     public String toString() {
         return "LdbcQuery13Result{" +
                 "shortestPathLength=" + shortestPathLength +

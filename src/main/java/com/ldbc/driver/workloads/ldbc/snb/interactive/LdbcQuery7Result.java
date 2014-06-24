@@ -7,10 +7,10 @@ public class LdbcQuery7Result {
     private final long likeCreationDate;
     private final long commentOrPostId;
     private final String commentOrPostContent;
-    private final long minutesLatency;
+    private final int minutesLatency;
     private final boolean isNew;
 
-    public LdbcQuery7Result(long personId, String personFirstName, String personLastName, long likeCreationDate, long commentOrPostId, String commentOrPostContent, long minutesLatency, boolean isNew) {
+    public LdbcQuery7Result(long personId, String personFirstName, String personLastName, long likeCreationDate, long commentOrPostId, String commentOrPostContent, int minutesLatency, boolean isNew) {
         this.personId = personId;
         this.personFirstName = personFirstName;
         this.personLastName = personLastName;
@@ -45,12 +45,34 @@ public class LdbcQuery7Result {
         return commentOrPostContent;
     }
 
-    public long minutesLatency() {
+    public int minutesLatency() {
         return minutesLatency;
     }
 
     public boolean isNew() {
         return isNew;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        LdbcQuery7Result that = (LdbcQuery7Result) o;
+
+        if (commentOrPostId != that.commentOrPostId) return false;
+        if (isNew != that.isNew) return false;
+        if (likeCreationDate != that.likeCreationDate) return false;
+        if (minutesLatency != that.minutesLatency) return false;
+        if (personId != that.personId) return false;
+        if (commentOrPostContent != null ? !commentOrPostContent.equals(that.commentOrPostContent) : that.commentOrPostContent != null)
+            return false;
+        if (personFirstName != null ? !personFirstName.equals(that.personFirstName) : that.personFirstName != null)
+            return false;
+        if (personLastName != null ? !personLastName.equals(that.personLastName) : that.personLastName != null)
+            return false;
+
+        return true;
     }
 
     @Override

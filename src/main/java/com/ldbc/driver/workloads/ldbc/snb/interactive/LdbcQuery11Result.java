@@ -36,6 +36,25 @@ public class LdbcQuery11Result {
     }
 
     @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        LdbcQuery11Result that = (LdbcQuery11Result) o;
+
+        if (organizationWorkFromYear != that.organizationWorkFromYear) return false;
+        if (personId != that.personId) return false;
+        if (organizationName != null ? !organizationName.equals(that.organizationName) : that.organizationName != null)
+            return false;
+        if (personFirstName != null ? !personFirstName.equals(that.personFirstName) : that.personFirstName != null)
+            return false;
+        if (personLastName != null ? !personLastName.equals(that.personLastName) : that.personLastName != null)
+            return false;
+
+        return true;
+    }
+
+    @Override
     public String toString() {
         return "LdbcQuery11Result{" +
                 "personId=" + personId +

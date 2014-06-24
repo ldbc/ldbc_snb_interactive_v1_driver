@@ -42,6 +42,26 @@ public class LdbcQuery2Result {
     }
 
     @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        LdbcQuery2Result result = (LdbcQuery2Result) o;
+
+        if (personId != result.personId) return false;
+        if (postOrCommentCreationDate != result.postOrCommentCreationDate) return false;
+        if (postOrCommentId != result.postOrCommentId) return false;
+        if (personFirstName != null ? !personFirstName.equals(result.personFirstName) : result.personFirstName != null)
+            return false;
+        if (personLastName != null ? !personLastName.equals(result.personLastName) : result.personLastName != null)
+            return false;
+        if (postOrCommentContent != null ? !postOrCommentContent.equals(result.postOrCommentContent) : result.postOrCommentContent != null)
+            return false;
+
+        return true;
+    }
+
+    @Override
     public String toString() {
         return "LdbcQuery2Result{" +
                 "personId=" + personId +
