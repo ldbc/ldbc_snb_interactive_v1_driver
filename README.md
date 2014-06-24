@@ -1,4 +1,4 @@
-![LDBC Logo](ldbc_logo.png) 
+![LDBC Logo](ldbc-logo.png) 
 
 This driver is being developed as part of the Linked Data Benchmark Council EU-funded research project and will be used to run the benchmark workloads developed and released by LDBC:
 * [LDBC Project Website](http://www.ldbc.eu)
