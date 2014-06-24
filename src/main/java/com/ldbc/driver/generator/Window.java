@@ -111,9 +111,10 @@ public interface Window<INPUT_TYPE, RETURN_TYPE> {
 
         @Override
         public boolean add(OperationHandler<?> handler) {
-            if (handler.operation().scheduledStartTime().gte(windowStartTimeInclusive) &&
-                    handler.operation().scheduledStartTime().lt(windowEndTimeExclusive))
+            Time startTime = handler.operation().scheduledStartTime();
+            if (startTime.gte(windowStartTimeInclusive) && startTime.lt(windowEndTimeExclusive)) {
                 return contents.add(handler);
+            }
             isComplete = true;
             return false;
         }

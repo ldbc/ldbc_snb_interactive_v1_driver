@@ -124,8 +124,20 @@ public class WorkloadRunnerTests {
             completionTimeService.submitExternalCompletionTime(peerId, controlService.workloadStartTime());
         }
 
-        WorkloadRunner runner =
-                new WorkloadRunner(TIME_SOURCE, controlService, db, timeMappedOperations, operationClassifications, metricsService, errorReporter, completionTimeService);
+        WorkloadRunner runner = new WorkloadRunner(
+                TIME_SOURCE,
+                db,
+                timeMappedOperations,
+                operationClassifications,
+                metricsService,
+                errorReporter,
+                completionTimeService,
+                controlService.configuration().threadCount(),
+                controlService.configuration().showStatus(),
+                controlService.workloadStartTime(),
+                controlService.configuration().toleratedExecutionDelay(),
+                controlService.configuration().spinnerSleepDuration(),
+                controlService.configuration().compressedGctDeltaDuration());
 
         runner.executeWorkload();
 
@@ -236,8 +248,21 @@ public class WorkloadRunnerTests {
             completionTimeService.submitExternalCompletionTime(peerId, controlService.workloadStartTime());
         }
 
-        WorkloadRunner runner =
-                new WorkloadRunner(TIME_SOURCE, controlService, db, timeMappedOperations, operationClassifications, metricsService, errorReporter, completionTimeService);
+        WorkloadRunner runner = new WorkloadRunner(
+                TIME_SOURCE,
+                db,
+                timeMappedOperations,
+                operationClassifications,
+                metricsService,
+                errorReporter,
+                completionTimeService,
+                controlService.configuration().threadCount(),
+                controlService.configuration().showStatus(),
+                controlService.workloadStartTime(),
+                controlService.configuration().toleratedExecutionDelay(),
+                controlService.configuration().spinnerSleepDuration(),
+                controlService.configuration().compressedGctDeltaDuration());
+
 
         runner.executeWorkload();
 

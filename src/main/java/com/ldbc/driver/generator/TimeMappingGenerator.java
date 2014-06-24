@@ -90,24 +90,20 @@ public class TimeMappingGenerator extends Generator<Operation<?>> {
 
     private class TimeCompressionFun implements Function1<Time, Time> {
         private final Double timeCompressionRatio;
-        private Time lastSeenTime;
-        private Time lastReturnedTime;
+        private Time firstTime;
 
         private TimeCompressionFun(Double timeCompressionRatio, Time firstTime) {
             this.timeCompressionRatio = timeCompressionRatio;
-            this.lastSeenTime = firstTime;
-            this.lastReturnedTime = firstTime;
+            this.firstTime = firstTime;
         }
 
         @Override
         public Time apply(Time time) {
-            long durationFromLastSeenTimeMs = time.greaterBy(lastSeenTime).asMilli();
-            long compressedDurationMs = Math.round(durationFromLastSeenTimeMs * timeCompressionRatio);
-            Duration compressedDuration = Duration.fromMilli(compressedDurationMs);
-            Time compressedTime = lastReturnedTime.plus(compressedDuration);
-            lastSeenTime = time;
-            lastReturnedTime = compressedTime;
-            return lastReturnedTime;
+            long durationFromOriginalStartTimeAsNano = time.greaterBy(firstTime).asNano();
+            long compressedDurationFromOriginalStartTimeIsNano = Math.round(durationFromOriginalStartTimeAsNano * timeCompressionRatio);
+            Duration compressedDurationFromOriginalStartTime = Duration.fromNano(compressedDurationFromOriginalStartTimeIsNano);
+            return firstTime.plus(compressedDurationFromOriginalStartTime);
         }
     }
+
 }

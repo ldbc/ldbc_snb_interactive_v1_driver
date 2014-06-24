@@ -18,6 +18,7 @@ public class WorkloadStatisticsCalculator {
      * - add gct status to status printout
      * TODO test HdrHistogram limits
      * TODO generator that creates an operation stream based on total time, rather than count
+     * TODO Group By SchedulingMode (like is already done by GctMode)
      */
 
     public WorkloadStatistics calculate(Iterator<Operation<?>> operations,

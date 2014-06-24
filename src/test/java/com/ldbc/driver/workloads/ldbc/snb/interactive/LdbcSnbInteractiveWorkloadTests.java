@@ -463,7 +463,7 @@ public class LdbcSnbInteractiveWorkloadTests {
         TimeUnit timeUnit = TimeUnit.MILLISECONDS;
         String resultFilePath = "test_write_to_csv_results.json";
         FileUtils.deleteQuietly(new File(resultFilePath));
-        double timeCompressionRatio = 1.0;
+        double timeCompressionRatio = 0.01;
         Duration gctDeltaDuration = Duration.fromSeconds(10);
         List<String> peerIds = Lists.newArrayList();
         Duration toleratedExecutionDelay = Duration.fromSeconds(1);
@@ -545,14 +545,14 @@ public class LdbcSnbInteractiveWorkloadTests {
         // Driver-specific parameters
         String dbClassName = NothingDb.class.getName();
         String workloadClassName = LdbcSnbInteractiveWorkload.class.getName();
-        long operationCount = 100;
+        long operationCount = 500;
         int threadCount = 1;
         boolean showStatus = true;
         TimeUnit timeUnit = TimeUnit.MILLISECONDS;
         String resultFilePath = "test_write_to_csv_results.json";
         FileUtils.deleteQuietly(new File(resultFilePath));
         double timeCompressionRatio = 0.01;
-        Duration gctDeltaDuration = Duration.fromSeconds(100);
+        Duration gctDeltaDuration = Duration.fromSeconds(10);
         List<String> peerIds = Lists.newArrayList();
         Duration toleratedExecutionDelay = Duration.fromSeconds(100);
         boolean validateDatabase = true;
@@ -566,10 +566,10 @@ public class LdbcSnbInteractiveWorkloadTests {
                 threadCount, showStatus, timeUnit, resultFilePath, timeCompressionRatio, gctDeltaDuration, peerIds, toleratedExecutionDelay,
                 validateDatabase, validateWorkload, calculateWorkloadStatistics, spinnerSleepDuration);
 
-        String ldbcSnbDatagenUpdateStreamPropertiesPath = TestUtils.getResource("/updateStream_0.properties").getAbsolutePath();
-        Properties ldbcSnbDatagenUpdateStreamProperties = new Properties();
-        ldbcSnbDatagenUpdateStreamProperties.load(new FileInputStream(ldbcSnbDatagenUpdateStreamPropertiesPath));
-        configuration = configuration.applyMap(MapUtils.<String, String>propertiesToMap(ldbcSnbDatagenUpdateStreamProperties));
+//        String ldbcSnbDatagenUpdateStreamPropertiesPath = TestUtils.getResource("/updateStream_0.properties").getAbsolutePath();
+//        Properties ldbcSnbDatagenUpdateStreamProperties = new Properties();
+//        ldbcSnbDatagenUpdateStreamProperties.load(new FileInputStream(ldbcSnbDatagenUpdateStreamPropertiesPath));
+//        configuration = configuration.applyMap(MapUtils.<String, String>propertiesToMap(ldbcSnbDatagenUpdateStreamProperties));
 
         Client client = new Client(new LocalControlService(TIME_SOURCE.now().plus(Duration.fromSeconds(3)), configuration), TIME_SOURCE);
         client.start();

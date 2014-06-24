@@ -2,6 +2,7 @@ package com.ldbc.driver.runtime.executor;
 
 import com.ldbc.driver.OperationHandler;
 import com.ldbc.driver.OperationResult;
+import com.ldbc.driver.runtime.WorkloadRunner;
 import com.ldbc.driver.temporal.Duration;
 
 import java.util.concurrent.*;

@@ -1,7 +1,6 @@
 package com.ldbc.driver.runtime;
 
 import com.ldbc.driver.*;
-import com.ldbc.driver.control.ConcurrentControlService;
 import com.ldbc.driver.runtime.coordination.ConcurrentCompletionTimeService;
 import com.ldbc.driver.runtime.executor.*;
 import com.ldbc.driver.runtime.metrics.ConcurrentMetricsService;
@@ -13,6 +12,7 @@ import com.ldbc.driver.runtime.streams.IteratorSplittingException;
 import com.ldbc.driver.runtime.streams.SplitDefinition;
 import com.ldbc.driver.runtime.streams.SplitResult;
 import com.ldbc.driver.temporal.Duration;
+import com.ldbc.driver.temporal.Time;
 import com.ldbc.driver.temporal.TimeSource;
 
 import java.util.Iterator;
@@ -24,6 +24,7 @@ import static com.ldbc.driver.OperationClassification.SchedulingMode;
 public class WorkloadRunner {
     private final TimeSource TIME_SOURCE;
 
+    private final Duration WAIT_DURATION_FOR_OPERATION_HANDLER_EXECUTOR_TO_SHUTDOWN = Duration.fromSeconds(5);
     private final Duration DEFAULT_STATUS_UPDATE_INTERVAL = Duration.fromSeconds(2);
     private final Duration SPINNER_OFFSET_DURATION = Duration.fromMilli(100);
 
@@ -33,7 +34,6 @@ public class WorkloadRunner {
     // TODO make service and inject into workload runner. this could report to coordinator OR a local console printer, for example
     private final WorkloadStatusThread workloadStatusThread;
 
-    private final ConcurrentControlService controlService;
     private final ConcurrentErrorReporter errorReporter;
 
     private final OperationHandlerExecutor operationHandlerExecutor;
@@ -42,27 +42,34 @@ public class WorkloadRunner {
     private final PreciseIndividualBlockingOperationStreamExecutorService preciseIndividualBlockingOperationStreamExecutorService;
     private final UniformWindowedOperationStreamExecutorService uniformWindowedOperationStreamExecutorService;
 
+    private final boolean showStatus;
+
     public WorkloadRunner(TimeSource timeSource,
-                          ConcurrentControlService controlService,
                           Db db,
                           Iterator<Operation<?>> operations,
                           Map<Class<? extends Operation<?>>, OperationClassification> operationClassifications,
                           ConcurrentMetricsService metricsService,
                           ConcurrentErrorReporter errorReporter,
-                          ConcurrentCompletionTimeService completionTimeService) throws WorkloadException {
+                          ConcurrentCompletionTimeService completionTimeService,
+                          int threadCount,
+                          boolean showStatus,
+                          Time workloadStartTime,
+                          Duration toleratedExecutionDelayDuration,
+                          Duration spinnerSleepDuration,
+                          Duration gctDeltaDuration) throws WorkloadException {
         this.TIME_SOURCE = timeSource;
-        this.controlService = controlService;
         this.errorReporter = errorReporter;
+        this.showStatus = showStatus;
 
         ExecutionDelayPolicy executionDelayPolicy = new ErrorReportingTerminatingExecutionDelayPolicy(
                 TIME_SOURCE,
-                controlService.configuration().toleratedExecutionDelay(),
+                toleratedExecutionDelayDuration,
                 errorReporter);
 
         // TODO for the spinner sent to Window scheduler allow delay to reach to the end of window?
 
-        this.exactSpinner = new Spinner(TIME_SOURCE, controlService.configuration().spinnerSleepDuration(), executionDelayPolicy);
-        this.earlySpinner = new Spinner(TIME_SOURCE, controlService.configuration().spinnerSleepDuration(), executionDelayPolicy, SPINNER_OFFSET_DURATION);
+        this.exactSpinner = new Spinner(TIME_SOURCE, spinnerSleepDuration, executionDelayPolicy);
+        this.earlySpinner = new Spinner(TIME_SOURCE, spinnerSleepDuration, executionDelayPolicy, SPINNER_OFFSET_DURATION);
         this.workloadStatusThread = new WorkloadStatusThread(DEFAULT_STATUS_UPDATE_INTERVAL, metricsService, errorReporter);
         Iterator<Operation<?>> windowedOperations;
         Iterator<Operation<?>> blockingOperations;
@@ -89,7 +96,7 @@ public class WorkloadRunner {
                 completionTimeService,
                 errorReporter,
                 metricsService,
-                controlService.configuration().compressedGctDeltaDuration(),
+                gctDeltaDuration,
                 operationClassifications);
         Iterator<OperationHandler<?>> windowedHandlers = operationsToHandlers.transform(windowedOperations);
         Iterator<OperationHandler<?>> blockingHandlers = operationsToHandlers.transform(blockingOperations);
@@ -98,22 +105,19 @@ public class WorkloadRunner {
         // TODO these executor services should all be using different gct services and sharing gct via external ct [MUST]
         // TODO This lesson needs to be written to Confluence too
 
-        this.operationHandlerExecutor = new ThreadPoolOperationHandlerExecutor(controlService.configuration().threadCount());
+        this.operationHandlerExecutor = new ThreadPoolOperationHandlerExecutor(threadCount);
         this.preciseIndividualAsyncOperationStreamExecutorService = new PreciseIndividualAsyncOperationStreamExecutorService(
                 TIME_SOURCE, errorReporter, asynchronousHandlers, earlySpinner, operationHandlerExecutor);
         this.preciseIndividualBlockingOperationStreamExecutorService = new PreciseIndividualBlockingOperationStreamExecutorService(
                 TIME_SOURCE, errorReporter, blockingHandlers, earlySpinner, operationHandlerExecutor);
         // TODO better way of setting window size. it does not need to equal DeltaT, it can be smaller. where to set? how to set?
-        Duration windowSize = controlService.configuration().compressedGctDeltaDuration();
+        Duration windowSize = gctDeltaDuration;
         this.uniformWindowedOperationStreamExecutorService = new UniformWindowedOperationStreamExecutorService(
-                TIME_SOURCE, errorReporter, windowedHandlers, operationHandlerExecutor, earlySpinner, controlService.workloadStartTime(), windowSize);
+                TIME_SOURCE, errorReporter, windowedHandlers, operationHandlerExecutor, earlySpinner, workloadStartTime, windowSize);
     }
 
     public void executeWorkload() throws WorkloadException {
-        // TODO revise if this necessary here, and if not where??
-        controlService.waitForCommandToExecuteWorkload();
-
-        if (controlService.configuration().showStatus()) workloadStatusThread.start();
+        if (showStatus) workloadStatusThread.start();
         AtomicBoolean asyncHandlersFinished = preciseIndividualAsyncOperationStreamExecutorService.execute();
         AtomicBoolean blockingHandlersFinished = preciseIndividualBlockingOperationStreamExecutorService.execute();
         AtomicBoolean windowedHandlersFinished = uniformWindowedOperationStreamExecutorService.execute();
@@ -143,7 +147,7 @@ public class WorkloadRunner {
             preciseIndividualBlockingOperationStreamExecutorService.shutdown();
             uniformWindowedOperationStreamExecutorService.shutdown();
             // all executors have completed by this stage, there's no reason why this should not work
-            operationHandlerExecutor.shutdown(Duration.fromSeconds(5));
+            operationHandlerExecutor.shutdown(WAIT_DURATION_FOR_OPERATION_HANDLER_EXECUTOR_TO_SHUTDOWN);
         } catch (OperationHandlerExecutorException e) {
             throw new WorkloadException("Encountered error while shutting down operation handler executor", e);
         }
@@ -152,8 +156,6 @@ public class WorkloadRunner {
             throw new WorkloadException(String.format("Encountered error while running workload. Driver terminating.\n%s", errorReporter.toString()));
         }
 
-        if (controlService.configuration().showStatus()) workloadStatusThread.interrupt();
-
-        controlService.waitForAllToCompleteExecutingWorkload();
+        if (showStatus) workloadStatusThread.interrupt();
     }
 }

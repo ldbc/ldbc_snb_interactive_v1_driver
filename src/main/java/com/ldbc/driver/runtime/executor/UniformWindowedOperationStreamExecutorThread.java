@@ -1,5 +1,6 @@
 package com.ldbc.driver.runtime.executor;
 
+import com.ldbc.driver.Operation;
 import com.ldbc.driver.OperationHandler;
 import com.ldbc.driver.OperationResult;
 import com.ldbc.driver.generator.Generator;
@@ -10,6 +11,7 @@ import com.ldbc.driver.runtime.ConcurrentErrorReporter;
 import com.ldbc.driver.runtime.coordination.CompletionTimeException;
 import com.ldbc.driver.runtime.scheduling.Scheduler;
 import com.ldbc.driver.runtime.scheduling.Spinner;
+import com.ldbc.driver.runtime.scheduling.SpinnerCheck;
 import com.ldbc.driver.runtime.scheduling.UniformWindowedScheduler;
 import com.ldbc.driver.temporal.Duration;
 import com.ldbc.driver.temporal.Time;
@@ -22,6 +24,8 @@ import java.util.concurrent.Future;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 class UniformWindowedOperationStreamExecutorThread extends Thread {
+    private static final Duration DURATION_TO_WAIT_FOR_LAST_HANDLER_TO_FINISH = Duration.fromMinutes(30);
+
     private final TimeSource TIME_SOURCE;
     private final OperationHandlerExecutor operationHandlerExecutor;
     private final Scheduler<List<OperationHandler<?>>, Window.OperationHandlerTimeRangeWindow> scheduler;
@@ -62,40 +66,30 @@ class UniformWindowedOperationStreamExecutorThread extends Thread {
 
     @Override
     public void run() {
-        List<Future<OperationResult>> currentlyExecutingHandlers = new ArrayList<Future<OperationResult>>();
         Window.OperationHandlerTimeRangeWindow window = null;
+        List<Future<OperationResult>> executingHandlersFromCurrentWindow = new ArrayList<>();
+        List<Future<OperationResult>> executingHandlersFromPreviousWindow = executingHandlersFromCurrentWindow;
+        HandlersFromPreviousWindowHaveFinishedCheck handlersFromPreviousWindowHaveFinishedCheck =
+                new HandlersFromPreviousWindowHaveFinishedCheck(
+                        executingHandlersFromPreviousWindow,
+                        errorReporter,
+                        this);
         while (handlerWindows.hasNext()) {
+            executingHandlersFromPreviousWindow = executingHandlersFromCurrentWindow;
+            executingHandlersFromCurrentWindow = new ArrayList<>();
+            handlersFromPreviousWindowHaveFinishedCheck =
+                    new HandlersFromPreviousWindowHaveFinishedCheck(
+                            executingHandlersFromPreviousWindow,
+                            errorReporter,
+                            this);
             window = handlerWindows.next();
             List<OperationHandler<?>> scheduledHandlers = scheduler.schedule(window);
 
-            // perform check at least once, in case time is ready (and within acceptable delay) on first loop
-            boolean previousWindowStillExecuting = false == previousWindowCompletedExecuting(currentlyExecutingHandlers);
-
-            // TODO why is it necessary to perform these checks here?
-            // TODO - scheduler ensures operation start times can only be within window (though no runtime checks for that!!)
-            // TODO - using SpinnerCheck would make sure operations don't start before previous window finishes
-            // TODO - using SpinnerCheck would make sure previous operations finished in time
-            // TODO
-            // TODO however, waiting for start time of window is not a bad thing, as there is no way an operation should start before that
-            // wait for window start time
-            while (TIME_SOURCE.nowAsMilli() < window.windowStartTimeInclusive().asMilli()) {
-                // Ensure all operations from previous window have completed executing
-                if (previousWindowStillExecuting && previousWindowCompletedExecuting(currentlyExecutingHandlers))
-                    previousWindowStillExecuting = false;
-            }
-
-            // TODO alternative approach would be to add spinner checks to handlers, which would check that previous window handlers had completed executing
-            // TODO seems cleaner and avoids need for waiting for start time of window
-
-            if (previousWindowStillExecuting) {
-                errorReporter.reportError(this, "One or more local operations in window did not complete in time");
-            }
-
             // execute operation handlers for current window
-            currentlyExecutingHandlers = new ArrayList<>();
             for (OperationHandler<?> handler : scheduledHandlers) {
                 // Schedule slightly early to account for context switch - internally, handler will schedule at exact start time
                 slightlyEarlySpinner.waitForScheduledStartTime(handler.operation());
+
                 try {
                     handler.completionTimeService().submitInitiatedTime(handler.operation().scheduledStartTime());
                 } catch (CompletionTimeException e) {
@@ -105,7 +99,9 @@ class UniformWindowedOperationStreamExecutorThread extends Thread {
                                     ConcurrentErrorReporter.stackTraceToString(e)));
                 }
                 try {
-                    currentlyExecutingHandlers.add(operationHandlerExecutor.execute(handler));
+                    handler.addCheck(handlersFromPreviousWindowHaveFinishedCheck);
+                    Future<OperationResult> executingHandler = operationHandlerExecutor.execute(handler);
+                    executingHandlersFromCurrentWindow.add(executingHandler);
                 } catch (OperationHandlerExecutorException e) {
                     errorReporter.reportError(this,
                             String.format("Error encountered while submitting operation for execution\n\t%s\n\t%s",
@@ -115,16 +111,55 @@ class UniformWindowedOperationStreamExecutorThread extends Thread {
             }
 
         }
-        // TODO use similar logic to make it possible to cap maximum query run time
-        while (null != window && TIME_SOURCE.nowAsMilli() < window.windowEndTimeExclusive().asMilli()) {
-            // wait for last window to finish
+
+        if (null != window) {
+            // long waitUntilTimeAsMilli = TIME_SOURCE.now().plus(DURATION_TO_WAIT_FOR_LAST_HANDLER_TO_FINISH).asMilli();
+            long latestTimeToWaitAsMilli = window.windowEndTimeExclusive().asMilli();
+            // wait for operations from last window to finish executing
+            while (false == handlersFromPreviousWindowHaveFinishedCheck.doCheck()) {
+                if (TIME_SOURCE.nowAsMilli() > latestTimeToWaitAsMilli) {
+                    errorReporter.reportError(this, "One or more handlers from the last window took too long to complete");
+                    break;
+                }
+            }
         }
+
         this.hasFinished.set(true);
     }
 
-    private boolean previousWindowCompletedExecuting(List<Future<OperationResult>> executingHandlers) {
-        for (Future<OperationResult> resultFuture : executingHandlers)
-            if (false == resultFuture.isDone()) return false;
-        return true;
+    private class HandlersFromPreviousWindowHaveFinishedCheck implements SpinnerCheck {
+        private final List<Future<OperationResult>> futuresForHandlersFromPreviousWindow;
+        private final ConcurrentErrorReporter errorReporter;
+        private final UniformWindowedOperationStreamExecutorThread parent;
+        private boolean checkResult;
+
+        HandlersFromPreviousWindowHaveFinishedCheck(
+                List<Future<OperationResult>> futuresForHandlersFromPreviousWindow,
+                ConcurrentErrorReporter errorReporter,
+                UniformWindowedOperationStreamExecutorThread parent) {
+            this.futuresForHandlersFromPreviousWindow = futuresForHandlersFromPreviousWindow;
+            this.errorReporter = errorReporter;
+            this.parent = parent;
+            this.checkResult = false;
+        }
+
+        @Override
+        public boolean doCheck() {
+            if (checkResult) return true;
+            for (int i = 0; i < futuresForHandlersFromPreviousWindow.size(); i++) {
+                if (false == futuresForHandlersFromPreviousWindow.get(i).isDone())
+                    return false;
+            }
+            checkResult = true;
+            return true;
+        }
+
+        @Override
+        public boolean handleFailedCheck(Operation<?> operation) {
+            errorReporter.reportError(
+                    parent,
+                    String.format("One or more handlers from the previous window did not complete in time to process operation\n%s", operation));
+            return false;
+        }
     }
 }

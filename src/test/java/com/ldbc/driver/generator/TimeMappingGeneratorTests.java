@@ -114,6 +114,43 @@ public class TimeMappingGeneratorTests {
     }
 
     @Test
+    public void shouldOffsetAndCompressWhenTimesAreVeryCloseTogetherWithoutRoundingErrors() {
+        // Given
+        Function<Long, Operation<?>> nsToOperationFun = new Function<Long, Operation<?>>() {
+            @Override
+            public Operation<?> apply(Long ns) {
+                Operation<?> operation = new Operation<Object>() {
+                };
+                operation.setScheduledStartTime(Time.fromNano(ns));
+                return operation;
+            }
+        };
+        List<Operation<?>> operations = ImmutableList.copyOf(Iterators.transform(generators.boundedIncrementing(0l, 1l, 10l), nsToOperationFun));
+        assertThat(operations.size(), is(11));
+        assertThat(operations.get(0).scheduledStartTime(), equalTo(Time.fromNano(0)));
+        assertThat(operations.get(10).scheduledStartTime(), equalTo(Time.fromNano(10)));
+
+        // When
+        Time newStartTime = Time.fromNano(0);
+        Double compressionRatio = 0.5;
+        List<Operation<?>> offsetAndCompressedOperations = ImmutableList.copyOf(generators.timeOffsetAndCompress(operations.iterator(), newStartTime, compressionRatio));
+
+        // Then
+        assertThat(offsetAndCompressedOperations.size(), is(11));
+        assertThat(offsetAndCompressedOperations.get(0).scheduledStartTime(), equalTo(newStartTime));
+        assertThat(offsetAndCompressedOperations.get(1).scheduledStartTime(), equalTo(Time.fromNano(1)));
+        assertThat(offsetAndCompressedOperations.get(2).scheduledStartTime(), equalTo(Time.fromNano(1)));
+        assertThat(offsetAndCompressedOperations.get(3).scheduledStartTime(), equalTo(Time.fromNano(2)));
+        assertThat(offsetAndCompressedOperations.get(4).scheduledStartTime(), equalTo(Time.fromNano(2)));
+        assertThat(offsetAndCompressedOperations.get(5).scheduledStartTime(), equalTo(Time.fromNano(3)));
+        assertThat(offsetAndCompressedOperations.get(6).scheduledStartTime(), equalTo(Time.fromNano(3)));
+        assertThat(offsetAndCompressedOperations.get(7).scheduledStartTime(), equalTo(Time.fromNano(4)));
+        assertThat(offsetAndCompressedOperations.get(8).scheduledStartTime(), equalTo(Time.fromNano(4)));
+        assertThat(offsetAndCompressedOperations.get(9).scheduledStartTime(), equalTo(Time.fromNano(5)));
+        assertThat(offsetAndCompressedOperations.get(10).scheduledStartTime(), equalTo(Time.fromNano(5)));
+    }
+
+    @Test
     public void shouldNotBreakTheMonotonicallyIncreasingScheduledStartTimesOfOperationsFromLdbcWorkload() throws WorkloadException {
         Map<String, String> paramsMap = new HashMap<>();
         // LDBC Interactive Workload-specific parameters

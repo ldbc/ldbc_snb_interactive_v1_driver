@@ -7,8 +7,6 @@ import com.ldbc.driver.temporal.Time;
 
 import java.util.List;
 
-// TODO test
-// TODO make sure test for ascending scheduled start times of scheduled operations
 public class UniformWindowedScheduler implements Scheduler<List<OperationHandler<?>>, Window.OperationHandlerTimeRangeWindow> {
     @Override
     public List<OperationHandler<?>> schedule(Window.OperationHandlerTimeRangeWindow handlersWindow) {
@@ -24,12 +22,11 @@ public class UniformWindowedScheduler implements Scheduler<List<OperationHandler
         if (operationHandlersInWindow.isEmpty())
             return operationHandlersInWindow;
 
-        int handlerCount = operationHandlersInWindow.size();
+        double handlerCount = operationHandlersInWindow.size();
         Duration windowSize = windowEndTime.greaterBy(windowStartTime);
-
-        Duration handlerInterleave = Duration.fromMilli(windowSize.asMilli() / handlerCount);
+        double handlerInterleaveAsNano = windowSize.asNano() / handlerCount;
         for (int i = 0; i < operationHandlersInWindow.size(); i++) {
-            Duration durationFromWindowStartTime = Duration.fromMilli(handlerInterleave.asMilli() * i);
+            Duration durationFromWindowStartTime = Duration.fromNano(Math.round(Math.floor(handlerInterleaveAsNano * i)));
             Time uniformHandlerStartTime = windowStartTime.plus(durationFromWindowStartTime);
             operationHandlersInWindow.get(i).operation().setScheduledStartTime(uniformHandlerStartTime);
         }

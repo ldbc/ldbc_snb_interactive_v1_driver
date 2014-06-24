@@ -10,8 +10,11 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 
-// TODO test
 // TODO add check that all ExecutionMode:GctMode combinations make sense (e.g., Partial+GctNone does not make sense unless window size can somehow be specified)
+
+// TODO check that ToleratedExecutionDelay and GctMode combination makes sense.
+// TODO if ToleratedExecutionDelay is too long, it will break correctness ensured by GCT.
+// TODO include WindowSize in this check too.
 public class WorkloadValidator {
     public static final Duration DEFAULT_MAX_EXPECTED_INTERLEAVE = Duration.fromMinutes(30);
 

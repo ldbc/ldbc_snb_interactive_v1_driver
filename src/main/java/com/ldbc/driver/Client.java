@@ -186,13 +186,18 @@ public class Client {
         try {
             workloadRunner = new WorkloadRunner(
                     TIME_SOURCE,
-                    controlService,
                     db,
                     timeMappedOperations,
                     workload.operationClassifications(),
                     metricsService,
                     errorReporter,
-                    completionTimeService);
+                    completionTimeService,
+                    controlService.configuration().threadCount(),
+                    controlService.configuration().showStatus(),
+                    controlService.workloadStartTime(),
+                    controlService.configuration().toleratedExecutionDelay(),
+                    controlService.configuration().spinnerSleepDuration(),
+                    controlService.configuration().compressedGctDeltaDuration());
         } catch (WorkloadException e) {
             throw new ClientException(String.format("Error instantiating %s", WorkloadRunner.class.getSimpleName()), e);
         }
@@ -203,11 +208,17 @@ public class Client {
     }
 
     public void start() throws ClientException {
+        // TODO revise if this necessary here, and if not where??
+        controlService.waitForCommandToExecuteWorkload();
+
         try {
             workloadRunner.executeWorkload();
         } catch (WorkloadException e) {
             throw new ClientException("Error running Workload", e);
         }
+
+        // TODO revise if this necessary here, and if not where??
+        controlService.waitForAllToCompleteExecutingWorkload();
 
         logger.info("Cleaning up Workload...");
         try {
