@@ -36,4 +36,14 @@ public class ScanOperation extends Operation<Vector<Map<String, ByteIterator>>> 
     public List<String> getFields() {
         return fields;
     }
+
+    @Override
+    public Vector<Map<String, ByteIterator>> marshalResult(String serializedOperationResult) {
+        return null;
+    }
+
+    @Override
+    public String serializeResult(Object operationResultInstance) {
+        return null;
+    }
 }

@@ -5,6 +5,7 @@ import com.ldbc.driver.runtime.ConcurrentErrorReporter;
 import com.ldbc.driver.temporal.Duration;
 import com.ldbc.driver.temporal.SystemTimeSource;
 import com.ldbc.driver.temporal.TimeSource;
+import com.ldbc.driver.testutils.NothingOperation;
 import org.junit.Test;
 
 import static org.hamcrest.CoreMatchers.is;
@@ -19,8 +20,7 @@ public class ExecutionDelayPolicyTests {
         ConcurrentErrorReporter errorReporter = new ConcurrentErrorReporter();
         Duration toleratedDelay = Duration.fromMilli(10);
         ExecutionDelayPolicy delayPolicy = new ErrorReportingTerminatingExecutionDelayPolicy(TIME_SOURCE, toleratedDelay, errorReporter);
-        Operation<?> operation = new Operation<Object>() {
-        };
+        Operation<?> operation = new NothingOperation();
         operation.setScheduledStartTime(TIME_SOURCE.now().minus(Duration.fromMilli(2000)));
 
         assertThat(errorReporter.errorEncountered(), is(false));
@@ -38,8 +38,7 @@ public class ExecutionDelayPolicyTests {
         ConcurrentErrorReporter errorReporter = new ConcurrentErrorReporter();
         Duration toleratedDelay = Duration.fromMilli(10);
         ExecutionDelayPolicy delayPolicy = new ErrorReportingTerminatingExecutionDelayPolicy(TIME_SOURCE, toleratedDelay, errorReporter);
-        Operation<?> operation = new Operation<Object>() {
-        };
+        Operation<?> operation = new NothingOperation();
 
         assertThat(errorReporter.errorEncountered(), is(false));
 

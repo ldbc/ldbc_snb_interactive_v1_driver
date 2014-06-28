@@ -36,4 +36,14 @@ public class ReadModifyWriteOperation extends Operation<Object> {
     public Map<String, ByteIterator> getValues() {
         return writeValues;
     }
+
+    @Override
+    public Object marshalResult(String serializedOperationResult) {
+        return null;
+    }
+
+    @Override
+    public String serializeResult(Object operationResultInstance) {
+        return null;
+    }
 }

@@ -21,7 +21,8 @@ import com.ldbc.driver.temporal.Time;
 import com.ldbc.driver.temporal.TimeSource;
 import com.ldbc.driver.util.*;
 import com.ldbc.driver.workloads.ldbc.snb.interactive.db.CsvDb;
-import com.ldbc.driver.workloads.ldbc.snb.interactive.db.NothingDb;
+import com.ldbc.driver.workloads.ldbc.snb.interactive.db.DummyDb;
+import com.ldbc.driver.workloads.ldbc.snb.interactive.db.DummyLdbcSnbInteractiveOperationInstances;
 import org.apache.commons.io.FileUtils;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -38,6 +39,84 @@ import static org.junit.Assert.assertThat;
 
 public class LdbcSnbInteractiveWorkloadTests {
     TimeSource TIME_SOURCE = new SystemTimeSource();
+
+    @Test
+    public void shouldBeAbleToSerializeAndMarshalAllOperations() throws SerializingMarshallingException {
+        // Given
+        Workload workload = new LdbcSnbInteractiveWorkload();
+
+        LdbcQuery1 read1 = DummyLdbcSnbInteractiveOperationInstances.read1();
+        LdbcQuery2 read2 = DummyLdbcSnbInteractiveOperationInstances.read2();
+        LdbcQuery3 read3 = DummyLdbcSnbInteractiveOperationInstances.read3();
+        LdbcQuery4 read4 = DummyLdbcSnbInteractiveOperationInstances.read4();
+        LdbcQuery5 read5 = DummyLdbcSnbInteractiveOperationInstances.read5();
+        LdbcQuery6 read6 = DummyLdbcSnbInteractiveOperationInstances.read6();
+        LdbcQuery7 read7 = DummyLdbcSnbInteractiveOperationInstances.read7();
+        LdbcQuery8 read8 = DummyLdbcSnbInteractiveOperationInstances.read8();
+        LdbcQuery9 read9 = DummyLdbcSnbInteractiveOperationInstances.read9();
+        LdbcQuery10 read10 = DummyLdbcSnbInteractiveOperationInstances.read10();
+        LdbcQuery11 read11 = DummyLdbcSnbInteractiveOperationInstances.read11();
+        LdbcQuery12 read12 = DummyLdbcSnbInteractiveOperationInstances.read12();
+        LdbcQuery13 read13 = DummyLdbcSnbInteractiveOperationInstances.read13();
+        LdbcQuery14 read14 = DummyLdbcSnbInteractiveOperationInstances.read14();
+        LdbcUpdate1AddPerson write1 = DummyLdbcSnbInteractiveOperationInstances.write1();
+        LdbcUpdate2AddPostLike write2 = DummyLdbcSnbInteractiveOperationInstances.write2();
+        LdbcUpdate3AddCommentLike write3 = DummyLdbcSnbInteractiveOperationInstances.write3();
+        LdbcUpdate4AddForum write4 = DummyLdbcSnbInteractiveOperationInstances.write4();
+        LdbcUpdate5AddForumMembership write5 = DummyLdbcSnbInteractiveOperationInstances.write5();
+        LdbcUpdate6AddPost write6 = DummyLdbcSnbInteractiveOperationInstances.write6();
+        LdbcUpdate7AddComment write7 = DummyLdbcSnbInteractiveOperationInstances.write7();
+        LdbcUpdate8AddFriendship write8 = DummyLdbcSnbInteractiveOperationInstances.write8();
+
+
+        // When
+        String serializedRead1 = workload.serializeOperation(read1);
+        String serializedRead2 = workload.serializeOperation(read2);
+        String serializedRead3 = workload.serializeOperation(read3);
+        String serializedRead4 = workload.serializeOperation(read4);
+        String serializedRead5 = workload.serializeOperation(read5);
+        String serializedRead6 = workload.serializeOperation(read6);
+        String serializedRead7 = workload.serializeOperation(read7);
+        String serializedRead8 = workload.serializeOperation(read8);
+        String serializedRead9 = workload.serializeOperation(read9);
+        String serializedRead10 = workload.serializeOperation(read10);
+        String serializedRead11 = workload.serializeOperation(read11);
+        String serializedRead12 = workload.serializeOperation(read12);
+        String serializedRead13 = workload.serializeOperation(read13);
+        String serializedRead14 = workload.serializeOperation(read14);
+        String serializedWrite1 = workload.serializeOperation(write1);
+        String serializedWrite2 = workload.serializeOperation(write2);
+        String serializedWrite3 = workload.serializeOperation(write3);
+        String serializedWrite4 = workload.serializeOperation(write4);
+        String serializedWrite5 = workload.serializeOperation(write5);
+        String serializedWrite6 = workload.serializeOperation(write6);
+        String serializedWrite7 = workload.serializeOperation(write7);
+        String serializedWrite8 = workload.serializeOperation(write8);
+
+        // Then
+        assertThat((Operation) workload.marshalOperation(serializedRead1), equalTo((Operation) read1));
+        assertThat((Operation) workload.marshalOperation(serializedRead2), equalTo((Operation) read2));
+        assertThat((Operation) workload.marshalOperation(serializedRead3), equalTo((Operation) read3));
+        assertThat((Operation) workload.marshalOperation(serializedRead4), equalTo((Operation) read4));
+        assertThat((Operation) workload.marshalOperation(serializedRead5), equalTo((Operation) read5));
+        assertThat((Operation) workload.marshalOperation(serializedRead6), equalTo((Operation) read6));
+        assertThat((Operation) workload.marshalOperation(serializedRead7), equalTo((Operation) read7));
+        assertThat((Operation) workload.marshalOperation(serializedRead8), equalTo((Operation) read8));
+        assertThat((Operation) workload.marshalOperation(serializedRead9), equalTo((Operation) read9));
+        assertThat((Operation) workload.marshalOperation(serializedRead10), equalTo((Operation) read10));
+        assertThat((Operation) workload.marshalOperation(serializedRead11), equalTo((Operation) read11));
+        assertThat((Operation) workload.marshalOperation(serializedRead12), equalTo((Operation) read12));
+        assertThat((Operation) workload.marshalOperation(serializedRead13), equalTo((Operation) read13));
+        assertThat((Operation) workload.marshalOperation(serializedRead14), equalTo((Operation) read14));
+        assertThat((Operation) workload.marshalOperation(serializedWrite1), equalTo((Operation) write1));
+        assertThat((Operation) workload.marshalOperation(serializedWrite2), equalTo((Operation) write2));
+        assertThat((Operation) workload.marshalOperation(serializedWrite3), equalTo((Operation) write3));
+        assertThat((Operation) workload.marshalOperation(serializedWrite4), equalTo((Operation) write4));
+        assertThat((Operation) workload.marshalOperation(serializedWrite5), equalTo((Operation) write5));
+        assertThat((Operation) workload.marshalOperation(serializedWrite6), equalTo((Operation) write6));
+        assertThat((Operation) workload.marshalOperation(serializedWrite7), equalTo((Operation) write7));
+        assertThat((Operation) workload.marshalOperation(serializedWrite8), equalTo((Operation) write8));
+    }
 
     @Test
     public void shouldBeRepeatableWhenTwoIdenticalWorkloadsAreUsedWithIdenticalGeneratorFactories() throws ClientException, DriverConfigurationException, WorkloadException, IOException {
@@ -82,10 +161,10 @@ public class LdbcSnbInteractiveWorkloadTests {
         paramsMap.put(LdbcSnbInteractiveWorkload.WRITE_OPERATION_8_ENABLE_KEY, "true");
         paramsMap.put(LdbcSnbInteractiveWorkload.PARAMETERS_DIRECTORY, TestUtils.getResource("/").getAbsolutePath());
         paramsMap.put(LdbcSnbInteractiveWorkload.DATA_DIRECTORY, TestUtils.getResource("/").getAbsolutePath());
-        // NothingDb-specific parameters
-        paramsMap.put(NothingDb.SLEEP_DURATION_MILLI, Long.toString(Duration.fromMilli(100).asMilli()));
+        // DummyDb-specific parameters
+        paramsMap.put(DummyDb.SLEEP_DURATION_MILLI, Long.toString(Duration.fromMilli(100).asMilli()));
         // Driver-specific parameters
-        String dbClassName = NothingDb.class.getName();
+        String dbClassName = DummyDb.class.getName();
         String workloadClassName = LdbcSnbInteractiveWorkload.class.getName();
         long operationCount = 100;
         int threadCount = 1;
@@ -95,9 +174,10 @@ public class LdbcSnbInteractiveWorkloadTests {
         FileUtils.deleteQuietly(new File(resultFilePath));
         double timeCompressionRatio = 1.0;
         Duration gctDeltaDuration = Duration.fromSeconds(10);
-        List<String> peerIds = Lists.newArrayList();
+        Set<String> peerIds = new HashSet<>();
         Duration toleratedExecutionDelay = Duration.fromMinutes(5);
-        boolean validateDatabase = false;
+        ConsoleAndFileDriverConfiguration.ConsoleAndFileValidationParamOptions validationParams = null;
+        String dbValidationFilePath = null;
         boolean validateWorkload = false;
         boolean calculateWorkloadStatistics = true;
         Duration spinnerSleepDuration = Duration.fromMilli(0);
@@ -106,7 +186,7 @@ public class LdbcSnbInteractiveWorkloadTests {
 
         DriverConfiguration params = new ConsoleAndFileDriverConfiguration(paramsMap, dbClassName, workloadClassName, operationCount,
                 threadCount, showStatus, timeUnit, resultFilePath, timeCompressionRatio, gctDeltaDuration, peerIds, toleratedExecutionDelay,
-                validateDatabase, validateWorkload, calculateWorkloadStatistics, spinnerSleepDuration);
+                validationParams, dbValidationFilePath, validateWorkload, calculateWorkloadStatistics, spinnerSleepDuration);
 
         String ldbcSnbDatagenUpdateStreamPropertiesPath = TestUtils.getResource("/updateStream_0.properties").getAbsolutePath();
         Properties ldbcSnbDatagenUpdateStreamProperties = new Properties();
@@ -158,7 +238,7 @@ public class LdbcSnbInteractiveWorkloadTests {
     public void shouldGenerateConfiguredQueryMix() throws ClientException, DriverConfigurationException, WorkloadException {
         // Given
         String ldbcSnbDatagenUpdateStreamPropertiesPath = TestUtils.getResource("/updateStream_0.properties").getAbsolutePath();
-        String ldbcDriverPropertiesPath = TestUtils.getResource("/ldbc_driver_default_test.properties").getAbsolutePath();
+        String ldbcDriverPropertiesPath = TestUtils.getResource("/ldbc_driver_default.properties").getAbsolutePath();
 
         ConsoleAndFileDriverConfiguration params = ConsoleAndFileDriverConfiguration.fromArgs(new String[]{
                 "-w", LdbcSnbInteractiveWorkload.class.getName(),
@@ -329,9 +409,10 @@ public class LdbcSnbInteractiveWorkloadTests {
         FileUtils.deleteQuietly(new File(resultFilePath));
         double timeCompressionRatio = 0.01;
         Duration gctDeltaDuration = Duration.fromSeconds(10);
-        List<String> peerIds = Lists.newArrayList();
+        Set<String> peerIds = new HashSet<>();
         Duration toleratedExecutionDelay = Duration.fromSeconds(1);
-        boolean validateDatabase = true;
+        ConsoleAndFileDriverConfiguration.ConsoleAndFileValidationParamOptions validationParams = null;
+        String dbValidationFilePath = null;
         boolean validateWorkload = false;
         boolean calculateWorkloadStatistics = true;
         Duration spinnerSleepDuration = Duration.fromMilli(0);
@@ -341,7 +422,7 @@ public class LdbcSnbInteractiveWorkloadTests {
 
         DriverConfiguration params = new ConsoleAndFileDriverConfiguration(paramsMap, dbClassName, workloadClassName, operationCount,
                 threadCount, showStatus, timeUnit, resultFilePath, timeCompressionRatio, gctDeltaDuration, peerIds, toleratedExecutionDelay,
-                validateDatabase, validateWorkload, calculateWorkloadStatistics, spinnerSleepDuration);
+                validationParams, dbValidationFilePath, validateWorkload, calculateWorkloadStatistics, spinnerSleepDuration);
 
         String ldbcSnbDatagenUpdateStreamPropertiesPath = TestUtils.getResource("/updateStream_0.properties").getAbsolutePath();
         Properties ldbcSnbDatagenUpdateStreamProperties = new Properties();
@@ -367,7 +448,7 @@ public class LdbcSnbInteractiveWorkloadTests {
         String ldbcSocnetInteractiveTestPropertiesPath =
                 new File("ldbc_driver/workloads/ldbc/socnet/interactive/ldbc_socnet_interactive.properties").getAbsolutePath();
         String ldbcDriverTestPropertiesPath =
-                new File("ldbc_driver/src/main/resources/ldbc_driver_default.properties").getAbsolutePath();
+                TestUtils.getResource("/ldbc_driver_default.properties").getAbsolutePath();
 
         String csvOutputFilePath = "temp_csv_output_file.csv";
         FileUtils.deleteQuietly(new File(csvOutputFilePath));
@@ -465,9 +546,10 @@ public class LdbcSnbInteractiveWorkloadTests {
         FileUtils.deleteQuietly(new File(resultFilePath));
         double timeCompressionRatio = 0.01;
         Duration gctDeltaDuration = Duration.fromSeconds(10);
-        List<String> peerIds = Lists.newArrayList();
+        Set<String> peerIds = new HashSet<>();
         Duration toleratedExecutionDelay = Duration.fromSeconds(1);
-        boolean validateDatabase = true;
+        ConsoleAndFileDriverConfiguration.ConsoleAndFileValidationParamOptions validationParams = null;
+        String dbValidationFilePath = null;
         boolean validateWorkload = false;
         boolean calculateWorkloadStatistics = true;
         Duration spinnerSleepDuration = Duration.fromMilli(0);
@@ -477,7 +559,7 @@ public class LdbcSnbInteractiveWorkloadTests {
 
         DriverConfiguration configuration = new ConsoleAndFileDriverConfiguration(paramsMap, dbClassName, workloadClassName, operationCount,
                 threadCount, showStatus, timeUnit, resultFilePath, timeCompressionRatio, gctDeltaDuration, peerIds, toleratedExecutionDelay,
-                validateDatabase, validateWorkload, calculateWorkloadStatistics, spinnerSleepDuration);
+                validationParams, dbValidationFilePath, validateWorkload, calculateWorkloadStatistics, spinnerSleepDuration);
 
         String ldbcSnbDatagenUpdateStreamPropertiesPath = TestUtils.getResource("/updateStream_0.properties").getAbsolutePath();
         Properties ldbcSnbDatagenUpdateStreamProperties = new Properties();
@@ -541,9 +623,9 @@ public class LdbcSnbInteractiveWorkloadTests {
         params.put(LdbcSnbInteractiveWorkload.PARAMETERS_DIRECTORY, TestUtils.getResource("/").getAbsolutePath());
         params.put(LdbcSnbInteractiveWorkload.DATA_DIRECTORY, TestUtils.getResource("/").getAbsolutePath());
         // CsvDb-specific parameters
-        params.put(NothingDb.SLEEP_DURATION_MILLI, Long.toString(Duration.fromMilli(1).asMilli()));
+        params.put(DummyDb.SLEEP_DURATION_MILLI, Long.toString(Duration.fromMilli(1).asMilli()));
         // Driver-specific parameters
-        String dbClassName = NothingDb.class.getName();
+        String dbClassName = DummyDb.class.getName();
         String workloadClassName = LdbcSnbInteractiveWorkload.class.getName();
         long operationCount = 500;
         int threadCount = 1;
@@ -553,9 +635,10 @@ public class LdbcSnbInteractiveWorkloadTests {
         FileUtils.deleteQuietly(new File(resultFilePath));
         double timeCompressionRatio = 0.01;
         Duration gctDeltaDuration = Duration.fromSeconds(10);
-        List<String> peerIds = Lists.newArrayList();
+        Set<String> peerIds = new HashSet<>();
         Duration toleratedExecutionDelay = Duration.fromSeconds(100);
-        boolean validateDatabase = true;
+        ConsoleAndFileDriverConfiguration.ConsoleAndFileValidationParamOptions validationParams = null;
+        String dbValidationFilePath = null;
         boolean validateWorkload = false;
         boolean calculateWorkloadStatistics = true;
         Duration spinnerSleepDuration = Duration.fromMilli(0);
@@ -564,7 +647,7 @@ public class LdbcSnbInteractiveWorkloadTests {
 
         DriverConfiguration configuration = new ConsoleAndFileDriverConfiguration(params, dbClassName, workloadClassName, operationCount,
                 threadCount, showStatus, timeUnit, resultFilePath, timeCompressionRatio, gctDeltaDuration, peerIds, toleratedExecutionDelay,
-                validateDatabase, validateWorkload, calculateWorkloadStatistics, spinnerSleepDuration);
+                validationParams, dbValidationFilePath, validateWorkload, calculateWorkloadStatistics, spinnerSleepDuration);
 
 //        String ldbcSnbDatagenUpdateStreamPropertiesPath = TestUtils.getResource("/updateStream_0.properties").getAbsolutePath();
 //        Properties ldbcSnbDatagenUpdateStreamProperties = new Properties();
@@ -635,9 +718,10 @@ public class LdbcSnbInteractiveWorkloadTests {
         FileUtils.deleteQuietly(new File(resultFilePath));
         double timeCompressionRatio = 1.0;
         Duration gctDeltaDuration = Duration.fromSeconds(10);
-        List<String> peerIds = Lists.newArrayList();
+        Set<String> peerIds = new HashSet<>();
         Duration toleratedExecutionDelay = Duration.fromSeconds(1);
-        boolean validateDatabase = true;
+        ConsoleAndFileDriverConfiguration.ConsoleAndFileValidationParamOptions validationParams = null;
+        String dbValidationFilePath = null;
         boolean validateWorkload = false;
         boolean calculateWorkloadStatistics = true;
         Duration spinnerSleepDuration = Duration.fromMilli(0);
@@ -647,7 +731,7 @@ public class LdbcSnbInteractiveWorkloadTests {
 
         DriverConfiguration configuration = new ConsoleAndFileDriverConfiguration(paramsMap, dbClassName, workloadClassName, operationCount,
                 threadCount, showStatus, timeUnit, resultFilePath, timeCompressionRatio, gctDeltaDuration, peerIds, toleratedExecutionDelay,
-                validateDatabase, validateWorkload, calculateWorkloadStatistics, spinnerSleepDuration);
+                validationParams, dbValidationFilePath, validateWorkload, calculateWorkloadStatistics, spinnerSleepDuration);
 
         String ldbcSnbDatagenUpdateStreamPropertiesPath = TestUtils.getResource("/updateStream_0.properties").getAbsolutePath();
         Properties ldbcSnbDatagenUpdateStreamProperties = new Properties();
@@ -670,10 +754,10 @@ public class LdbcSnbInteractiveWorkloadTests {
         List<Operation<?>> blockingOperations;
         List<Operation<?>> asynchronousOperations;
         try {
-            IteratorSplitter<Operation<?>> splitter = new IteratorSplitter<Operation<?>>(IteratorSplitter.UnmappedItemPolicy.ABORT);
-            SplitDefinition<Operation<?>> windowed = new SplitDefinition<Operation<?>>(Workload.operationTypesBySchedulingMode(workload.operationClassifications(), OperationClassification.SchedulingMode.WINDOWED));
-            SplitDefinition<Operation<?>> blocking = new SplitDefinition<Operation<?>>(Workload.operationTypesBySchedulingMode(workload.operationClassifications(), OperationClassification.SchedulingMode.INDIVIDUAL_BLOCKING));
-            SplitDefinition<Operation<?>> asynchronous = new SplitDefinition<Operation<?>>(Workload.operationTypesBySchedulingMode(workload.operationClassifications(), OperationClassification.SchedulingMode.INDIVIDUAL_ASYNC));
+            IteratorSplitter<Operation<?>> splitter = new IteratorSplitter<>(IteratorSplitter.UnmappedItemPolicy.ABORT);
+            SplitDefinition<Operation<?>> windowed = new SplitDefinition<>(Workload.operationTypesBySchedulingMode(workload.operationClassifications(), OperationClassification.SchedulingMode.WINDOWED));
+            SplitDefinition<Operation<?>> blocking = new SplitDefinition<>(Workload.operationTypesBySchedulingMode(workload.operationClassifications(), OperationClassification.SchedulingMode.INDIVIDUAL_BLOCKING));
+            SplitDefinition<Operation<?>> asynchronous = new SplitDefinition<>(Workload.operationTypesBySchedulingMode(workload.operationClassifications(), OperationClassification.SchedulingMode.INDIVIDUAL_ASYNC));
             SplitResult splits = splitter.split(operations.iterator(), windowed, blocking, asynchronous);
             windowedOperations = Lists.newArrayList(splits.getSplitFor(windowed));
             blockingOperations = Lists.newArrayList(splits.getSplitFor(blocking));
@@ -755,10 +839,10 @@ public class LdbcSnbInteractiveWorkloadTests {
         paramsMap.put(LdbcSnbInteractiveWorkload.WRITE_OPERATION_8_ENABLE_KEY, "true");
         paramsMap.put(LdbcSnbInteractiveWorkload.PARAMETERS_DIRECTORY, TestUtils.getResource("/").getAbsolutePath());
         paramsMap.put(LdbcSnbInteractiveWorkload.DATA_DIRECTORY, TestUtils.getResource("/").getAbsolutePath());
-        // NothingDb-specific parameters
-        paramsMap.put(NothingDb.SLEEP_DURATION_MILLI, Long.toString(Duration.fromSeconds(40).asMilli()));
+        // DummyDb-specific parameters
+        paramsMap.put(DummyDb.SLEEP_DURATION_MILLI, Long.toString(Duration.fromSeconds(40).asMilli()));
         // Driver-specific parameters
-        String dbClassName = NothingDb.class.getName();
+        String dbClassName = DummyDb.class.getName();
         String workloadClassName = LdbcSnbInteractiveWorkload.class.getName();
         long operationCount = 5;
         int threadCount = 2;
@@ -768,9 +852,10 @@ public class LdbcSnbInteractiveWorkloadTests {
         FileUtils.deleteQuietly(new File(resultFilePath));
         double timeCompressionRatio = 1.0;
         Duration gctDeltaDuration = Duration.fromSeconds(10);
-        List<String> peerIds = Lists.newArrayList();
+        Set<String> peerIds = new HashSet<>();
         Duration toleratedExecutionDelay = Duration.fromMinutes(5);
-        boolean validateDatabase = true;
+        ConsoleAndFileDriverConfiguration.ConsoleAndFileValidationParamOptions validationParams = null;
+        String dbValidationFilePath = null;
         boolean validateWorkload = false;
         boolean calculateWorkloadStatistics = true;
         Duration spinnerSleepDuration = Duration.fromMilli(0);
@@ -779,7 +864,7 @@ public class LdbcSnbInteractiveWorkloadTests {
 
         DriverConfiguration params = new ConsoleAndFileDriverConfiguration(paramsMap, dbClassName, workloadClassName, operationCount,
                 threadCount, showStatus, timeUnit, resultFilePath, timeCompressionRatio, gctDeltaDuration, peerIds, toleratedExecutionDelay,
-                validateDatabase, validateWorkload, calculateWorkloadStatistics, spinnerSleepDuration);
+                validationParams, dbValidationFilePath, validateWorkload, calculateWorkloadStatistics, spinnerSleepDuration);
 
         String ldbcSnbDatagenUpdateStreamPropertiesPath = TestUtils.getResource("/updateStream_0.properties").getAbsolutePath();
         Properties ldbcSnbDatagenUpdateStreamProperties = new Properties();

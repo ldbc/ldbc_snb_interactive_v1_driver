@@ -1,11 +1,18 @@
 package com.ldbc.driver.workloads.ldbc.snb.interactive;
 
 import com.ldbc.driver.Operation;
+import com.ldbc.driver.SerializingMarshallingException;
+import org.codehaus.jackson.map.ObjectMapper;
+import org.codehaus.jackson.type.TypeReference;
 
+import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
 public class LdbcQuery5 extends Operation<List<LdbcQuery5Result>> {
+    private static final ObjectMapper objectMapper = new ObjectMapper();
+
     public static final int DEFAULT_LIMIT = 20;
     private final long personId;
     private final String personUri;
@@ -68,5 +75,49 @@ public class LdbcQuery5 extends Operation<List<LdbcQuery5Result>> {
                 ", minDate=" + minDate +
                 ", limit=" + limit +
                 '}';
+    }
+
+    @Override
+    public List<LdbcQuery5Result> marshalResult(String serializedResults) throws SerializingMarshallingException {
+        List<List<Object>> resultsAsList;
+        try {
+            resultsAsList = objectMapper.readValue(serializedResults, new TypeReference<List<List<Object>>>() {
+            });
+        } catch (IOException e) {
+            throw new SerializingMarshallingException(String.format("Error while parsing serialized results\n%s", serializedResults), e);
+        }
+
+        List<LdbcQuery5Result> results = new ArrayList<>();
+        for (int i = 0; i < resultsAsList.size(); i++) {
+            List<Object> resultAsList = resultsAsList.get(i);
+            String forumTitle = (String) resultAsList.get(0);
+            int postCount = ((Number) resultAsList.get(1)).intValue();
+
+            results.add(new LdbcQuery5Result(
+                    forumTitle,
+                    postCount
+            ));
+        }
+
+        return results;
+    }
+
+    @Override
+    public String serializeResult(Object resultsObject) throws SerializingMarshallingException {
+        List<LdbcQuery5Result> results = (List<LdbcQuery5Result>) resultsObject;
+        List<List<Object>> resultsFields = new ArrayList<>();
+        for (int i = 0; i < results.size(); i++) {
+            LdbcQuery5Result result = results.get(i);
+            List<Object> resultFields = new ArrayList<>();
+            resultFields.add(result.forumTitle());
+            resultFields.add(result.postCount());
+            resultsFields.add(resultFields);
+        }
+
+        try {
+            return objectMapper.writeValueAsString(resultsFields);
+        } catch (IOException e) {
+            throw new SerializingMarshallingException(String.format("Error while trying to serialize result\n%s", results.toString()), e);
+        }
     }
 }

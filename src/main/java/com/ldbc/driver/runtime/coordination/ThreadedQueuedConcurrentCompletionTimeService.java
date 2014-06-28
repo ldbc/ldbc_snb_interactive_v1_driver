@@ -5,8 +5,8 @@ import com.ldbc.driver.temporal.Duration;
 import com.ldbc.driver.temporal.Time;
 import com.ldbc.driver.temporal.TimeSource;
 
-import java.util.List;
 import java.util.Queue;
+import java.util.Set;
 import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicLong;
@@ -23,11 +23,11 @@ public class ThreadedQueuedConcurrentCompletionTimeService implements Concurrent
     private boolean shuttingDown = false;
 
     public ThreadedQueuedConcurrentCompletionTimeService(TimeSource timeSource,
-                                                         List<String> peerIds,
+                                                         Set<String> peerIds,
                                                          ConcurrentErrorReporter errorReporter) throws CompletionTimeException {
         this.TIME_SOURCE = timeSource;
         this.completionTimeEventQueue = new ConcurrentLinkedQueue<>();
-        this.gct = new AtomicReference<Time>(null);
+        this.gct = new AtomicReference<>(null);
         this.initiatedEvents = new AtomicLong(0);
         LocalCompletionTime localCompletionTime = new LocalCompletionTime();
         ExternalCompletionTime externalCompletionTime = new ExternalCompletionTime(peerIds);

@@ -1,6 +1,6 @@
 package com.ldbc.driver.runtime.metrics;
 
-import com.ldbc.driver.OperationResult;
+import com.ldbc.driver.OperationResultReport;
 import com.ldbc.driver.runtime.ConcurrentErrorReporter;
 import com.ldbc.driver.temporal.Duration;
 import com.ldbc.driver.temporal.TimeSource;
@@ -35,15 +35,15 @@ public class ThreadedQueuedConcurrentMetricsService implements ConcurrentMetrics
     }
 
     @Override
-    synchronized public void submitOperationResult(OperationResult operationResult) throws MetricsCollectionException {
+    synchronized public void submitOperationResult(OperationResultReport operationResultReport) throws MetricsCollectionException {
         if (shuttingDown) {
             throw new MetricsCollectionException("Can not submit a result after calling shutdown");
         }
         try {
             initiatedEvents.incrementAndGet();
-            metricsEventsQueue.add(MetricsCollectionEvent.submitResult(operationResult));
+            metricsEventsQueue.add(MetricsCollectionEvent.submitResult(operationResultReport));
         } catch (Exception e) {
-            String errMsg = String.format("Error submitting result [%s]", operationResult.toString());
+            String errMsg = String.format("Error submitting result [%s]", operationResultReport.toString());
             throw new MetricsCollectionException(errMsg, e);
         }
     }

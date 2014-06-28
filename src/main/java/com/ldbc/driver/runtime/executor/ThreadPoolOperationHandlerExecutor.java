@@ -1,8 +1,7 @@
 package com.ldbc.driver.runtime.executor;
 
 import com.ldbc.driver.OperationHandler;
-import com.ldbc.driver.OperationResult;
-import com.ldbc.driver.runtime.WorkloadRunner;
+import com.ldbc.driver.OperationResultReport;
 import com.ldbc.driver.temporal.Duration;
 
 import java.util.concurrent.*;
@@ -27,8 +26,8 @@ public class ThreadPoolOperationHandlerExecutor implements OperationHandlerExecu
     }
 
     @Override
-    synchronized public final Future<OperationResult> execute(OperationHandler<?> operationHandler) {
-        Future<OperationResult> future = threadPool.submit(operationHandler);
+    synchronized public final Future<OperationResultReport> execute(OperationHandler<?> operationHandler) {
+        Future<OperationResultReport> future = threadPool.submit(operationHandler);
         submittedHandlers.incrementAndGet();
         return future;
     }

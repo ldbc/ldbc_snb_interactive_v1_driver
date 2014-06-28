@@ -1,22 +1,24 @@
 package com.ldbc.driver.workloads.ldbc.snb.interactive;
 
+import com.google.common.base.Function;
 import com.google.common.base.Predicate;
+import com.google.common.collect.Iterables;
 import com.google.common.collect.Iterators;
 import com.google.common.collect.Lists;
-import com.ldbc.driver.Operation;
-import com.ldbc.driver.OperationClassification;
-import com.ldbc.driver.Workload;
-import com.ldbc.driver.WorkloadException;
+import com.ldbc.driver.*;
+import com.ldbc.driver.control.ConsoleAndFileDriverConfiguration;
 import com.ldbc.driver.generator.GeneratorFactory;
 import com.ldbc.driver.temporal.Duration;
 import com.ldbc.driver.temporal.Time;
 import com.ldbc.driver.util.ClassLoaderHelper;
 import com.ldbc.driver.util.ClassLoadingException;
 import com.ldbc.driver.util.CsvFileReader;
-import com.ldbc.driver.util.Tuple;
+import org.codehaus.jackson.map.ObjectMapper;
+import org.codehaus.jackson.type.TypeReference;
 
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.util.*;
 
 import static com.ldbc.driver.OperationClassification.GctMode;
@@ -24,6 +26,52 @@ import static com.ldbc.driver.OperationClassification.SchedulingMode;
 import static com.ldbc.driver.generator.CsvEventStreamReader.EventReturnPolicy;
 
 public class LdbcSnbInteractiveWorkload extends Workload {
+    public static Map<String, String> defaultReadOnlyConfig() {
+        Map<String, String> params = new HashMap<>();
+        // General Driver parameters
+        params.put(ConsoleAndFileDriverConfiguration.OPERATION_COUNT_ARG, "1000");
+        params.put(ConsoleAndFileDriverConfiguration.WORKLOAD_ARG, LdbcSnbInteractiveWorkload.class.getName());
+        params.put(ConsoleAndFileDriverConfiguration.RESULT_FILE_PATH_ARG, "ldbc_socnet_interactive_results.json");
+        // LDBC Interactive Workload-specific parameters
+        params.put(LdbcSnbInteractiveWorkload.READ_OPERATION_1_INTERLEAVE_KEY, "30");
+        params.put(LdbcSnbInteractiveWorkload.READ_OPERATION_2_INTERLEAVE_KEY, "12");
+        params.put(LdbcSnbInteractiveWorkload.READ_OPERATION_3_INTERLEAVE_KEY, "72");
+        params.put(LdbcSnbInteractiveWorkload.READ_OPERATION_4_INTERLEAVE_KEY, "27");
+        params.put(LdbcSnbInteractiveWorkload.READ_OPERATION_5_INTERLEAVE_KEY, "42");
+        params.put(LdbcSnbInteractiveWorkload.READ_OPERATION_6_INTERLEAVE_KEY, "18");
+        params.put(LdbcSnbInteractiveWorkload.READ_OPERATION_7_INTERLEAVE_KEY, "13");
+        params.put(LdbcSnbInteractiveWorkload.READ_OPERATION_8_INTERLEAVE_KEY, "1");
+        params.put(LdbcSnbInteractiveWorkload.READ_OPERATION_9_INTERLEAVE_KEY, "40");
+        params.put(LdbcSnbInteractiveWorkload.READ_OPERATION_10_INTERLEAVE_KEY, "27");
+        params.put(LdbcSnbInteractiveWorkload.READ_OPERATION_11_INTERLEAVE_KEY, "18");
+        params.put(LdbcSnbInteractiveWorkload.READ_OPERATION_12_INTERLEAVE_KEY, "34");
+        params.put(LdbcSnbInteractiveWorkload.READ_OPERATION_13_INTERLEAVE_KEY, "1");
+        params.put(LdbcSnbInteractiveWorkload.READ_OPERATION_14_INTERLEAVE_KEY, "66");
+        params.put(LdbcSnbInteractiveWorkload.READ_OPERATION_1_ENABLE_KEY, "true");
+        params.put(LdbcSnbInteractiveWorkload.READ_OPERATION_2_ENABLE_KEY, "true");
+        params.put(LdbcSnbInteractiveWorkload.READ_OPERATION_3_ENABLE_KEY, "true");
+        params.put(LdbcSnbInteractiveWorkload.READ_OPERATION_4_ENABLE_KEY, "true");
+        params.put(LdbcSnbInteractiveWorkload.READ_OPERATION_5_ENABLE_KEY, "true");
+        params.put(LdbcSnbInteractiveWorkload.READ_OPERATION_6_ENABLE_KEY, "true");
+        params.put(LdbcSnbInteractiveWorkload.READ_OPERATION_7_ENABLE_KEY, "true");
+        params.put(LdbcSnbInteractiveWorkload.READ_OPERATION_8_ENABLE_KEY, "true");
+        params.put(LdbcSnbInteractiveWorkload.READ_OPERATION_9_ENABLE_KEY, "true");
+        params.put(LdbcSnbInteractiveWorkload.READ_OPERATION_10_ENABLE_KEY, "true");
+        params.put(LdbcSnbInteractiveWorkload.READ_OPERATION_11_ENABLE_KEY, "true");
+        params.put(LdbcSnbInteractiveWorkload.READ_OPERATION_12_ENABLE_KEY, "true");
+        params.put(LdbcSnbInteractiveWorkload.READ_OPERATION_13_ENABLE_KEY, "true");
+        params.put(LdbcSnbInteractiveWorkload.READ_OPERATION_14_ENABLE_KEY, "true");
+        params.put(LdbcSnbInteractiveWorkload.WRITE_OPERATION_1_ENABLE_KEY, "false");
+        params.put(LdbcSnbInteractiveWorkload.WRITE_OPERATION_2_ENABLE_KEY, "false");
+        params.put(LdbcSnbInteractiveWorkload.WRITE_OPERATION_3_ENABLE_KEY, "false");
+        params.put(LdbcSnbInteractiveWorkload.WRITE_OPERATION_4_ENABLE_KEY, "false");
+        params.put(LdbcSnbInteractiveWorkload.WRITE_OPERATION_5_ENABLE_KEY, "false");
+        params.put(LdbcSnbInteractiveWorkload.WRITE_OPERATION_6_ENABLE_KEY, "false");
+        params.put(LdbcSnbInteractiveWorkload.WRITE_OPERATION_7_ENABLE_KEY, "false");
+        params.put(LdbcSnbInteractiveWorkload.WRITE_OPERATION_8_ENABLE_KEY, "false");
+        return ConsoleAndFileDriverConfiguration.convertLongKeysToShortKeys(params);
+    }
+
     public final static String DATA_DIRECTORY = "data_dir";
     public final static String PARAMETERS_DIRECTORY = "parameters_dir";
     private final static String LDBC_INTERACTIVE_PACKAGE_PREFIX = removeSuffix(LdbcQuery1.class.getName(), LdbcQuery1.class.getSimpleName());
@@ -532,8 +580,660 @@ public class LdbcSnbInteractiveWorkload extends Workload {
     }
 
     @Override
-    protected Iterator<Tuple.Tuple2<Operation<?>, Object>> validationOperations(GeneratorFactory generators) throws WorkloadException {
-        // TODO implement
-        return Lists.<Tuple.Tuple2<Operation<?>, Object>>newArrayList().iterator();
+    public boolean validationResultCheck(Operation<?> operation, Object operationResult) {
+        boolean isReadOperation = readOperationFilter.contains(operation.getClass());
+        boolean isNotEmptyResult = false == ((List) operationResult).isEmpty();
+        return isReadOperation && isNotEmptyResult;
+    }
+
+    private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
+    private static final TypeReference TYPE_REFERENCE = new TypeReference<List<Object>>() {
+    };
+
+    @Override
+    public String serializeOperation(Operation<?> operation) throws SerializingMarshallingException {
+        if (operation.getClass().equals(LdbcQuery1.class)) {
+            LdbcQuery1 ldbcQuery = (LdbcQuery1) operation;
+            List<Object> operationAsList = new ArrayList<>();
+            operationAsList.add(ldbcQuery.getClass().getName());
+            operationAsList.add(ldbcQuery.personId());
+            operationAsList.add(ldbcQuery.personUri());
+            operationAsList.add(ldbcQuery.firstName());
+            operationAsList.add(ldbcQuery.limit());
+            try {
+                return OBJECT_MAPPER.writeValueAsString(operationAsList);
+            } catch (IOException e) {
+                throw new SerializingMarshallingException(String.format("Error while trying to serialize result\n%s", operationAsList.toString()), e);
+            }
+        }
+
+        if (operation.getClass().equals(LdbcQuery2.class)) {
+            LdbcQuery2 ldbcQuery = (LdbcQuery2) operation;
+            List<Object> operationAsList = new ArrayList<>();
+            operationAsList.add(ldbcQuery.getClass().getName());
+            operationAsList.add(ldbcQuery.personId());
+            operationAsList.add(ldbcQuery.personUri());
+            operationAsList.add(ldbcQuery.maxDate().getTime());
+            operationAsList.add(ldbcQuery.limit());
+            try {
+                return OBJECT_MAPPER.writeValueAsString(operationAsList);
+            } catch (IOException e) {
+                throw new SerializingMarshallingException(String.format("Error while trying to serialize result\n%s", operationAsList.toString()), e);
+            }
+        }
+
+        if (operation.getClass().equals(LdbcQuery3.class)) {
+            LdbcQuery3 ldbcQuery = (LdbcQuery3) operation;
+            List<Object> operationAsList = new ArrayList<>();
+            operationAsList.add(ldbcQuery.getClass().getName());
+            operationAsList.add(ldbcQuery.personId());
+            operationAsList.add(ldbcQuery.personUri());
+            operationAsList.add(ldbcQuery.countryXName());
+            operationAsList.add(ldbcQuery.countryYName());
+            operationAsList.add(ldbcQuery.startDate().getTime());
+            operationAsList.add(ldbcQuery.durationDays());
+            operationAsList.add(ldbcQuery.limit());
+            try {
+                return OBJECT_MAPPER.writeValueAsString(operationAsList);
+            } catch (IOException e) {
+                throw new SerializingMarshallingException(String.format("Error while trying to serialize result\n%s", operationAsList.toString()), e);
+            }
+        }
+
+        if (operation.getClass().equals(LdbcQuery4.class)) {
+            LdbcQuery4 ldbcQuery = (LdbcQuery4) operation;
+            List<Object> operationAsList = new ArrayList<>();
+            operationAsList.add(ldbcQuery.getClass().getName());
+            operationAsList.add(ldbcQuery.personId());
+            operationAsList.add(ldbcQuery.personUri());
+            operationAsList.add(ldbcQuery.startDate().getTime());
+            operationAsList.add(ldbcQuery.durationDays());
+            operationAsList.add(ldbcQuery.limit());
+            try {
+                return OBJECT_MAPPER.writeValueAsString(operationAsList);
+            } catch (IOException e) {
+                throw new SerializingMarshallingException(String.format("Error while trying to serialize result\n%s", operationAsList.toString()), e);
+            }
+        }
+
+        if (operation.getClass().equals(LdbcQuery5.class)) {
+            LdbcQuery5 ldbcQuery = (LdbcQuery5) operation;
+            List<Object> operationAsList = new ArrayList<>();
+            operationAsList.add(ldbcQuery.getClass().getName());
+            operationAsList.add(ldbcQuery.personId());
+            operationAsList.add(ldbcQuery.personUri());
+            operationAsList.add(ldbcQuery.minDate().getTime());
+            operationAsList.add(ldbcQuery.limit());
+            try {
+                return OBJECT_MAPPER.writeValueAsString(operationAsList);
+            } catch (IOException e) {
+                throw new SerializingMarshallingException(String.format("Error while trying to serialize result\n%s", operationAsList.toString()), e);
+            }
+        }
+
+        if (operation.getClass().equals(LdbcQuery6.class)) {
+            LdbcQuery6 ldbcQuery = (LdbcQuery6) operation;
+            List<Object> operationAsList = new ArrayList<>();
+            operationAsList.add(ldbcQuery.getClass().getName());
+            operationAsList.add(ldbcQuery.personId());
+            operationAsList.add(ldbcQuery.personUri());
+            operationAsList.add(ldbcQuery.tagName());
+            operationAsList.add(ldbcQuery.limit());
+            try {
+                return OBJECT_MAPPER.writeValueAsString(operationAsList);
+            } catch (IOException e) {
+                throw new SerializingMarshallingException(String.format("Error while trying to serialize result\n%s", operationAsList.toString()), e);
+            }
+        }
+
+        if (operation.getClass().equals(LdbcQuery7.class)) {
+            LdbcQuery7 ldbcQuery = (LdbcQuery7) operation;
+            List<Object> operationAsList = new ArrayList<>();
+            operationAsList.add(ldbcQuery.getClass().getName());
+            operationAsList.add(ldbcQuery.personId());
+            operationAsList.add(ldbcQuery.personUri());
+            operationAsList.add(ldbcQuery.limit());
+            try {
+                return OBJECT_MAPPER.writeValueAsString(operationAsList);
+            } catch (IOException e) {
+                throw new SerializingMarshallingException(String.format("Error while trying to serialize result\n%s", operationAsList.toString()), e);
+            }
+        }
+
+        if (operation.getClass().equals(LdbcQuery8.class)) {
+            LdbcQuery8 ldbcQuery = (LdbcQuery8) operation;
+            List<Object> operationAsList = new ArrayList<>();
+            operationAsList.add(ldbcQuery.getClass().getName());
+            operationAsList.add(ldbcQuery.personId());
+            operationAsList.add(ldbcQuery.personUri());
+            operationAsList.add(ldbcQuery.limit());
+            try {
+                return OBJECT_MAPPER.writeValueAsString(operationAsList);
+            } catch (IOException e) {
+                throw new SerializingMarshallingException(String.format("Error while trying to serialize result\n%s", operationAsList.toString()), e);
+            }
+        }
+
+        if (operation.getClass().equals(LdbcQuery9.class)) {
+            LdbcQuery9 ldbcQuery = (LdbcQuery9) operation;
+            List<Object> operationAsList = new ArrayList<>();
+            operationAsList.add(ldbcQuery.getClass().getName());
+            operationAsList.add(ldbcQuery.personId());
+            operationAsList.add(ldbcQuery.personUri());
+            operationAsList.add(ldbcQuery.maxDate().getTime());
+            operationAsList.add(ldbcQuery.limit());
+            try {
+                return OBJECT_MAPPER.writeValueAsString(operationAsList);
+            } catch (IOException e) {
+                throw new SerializingMarshallingException(String.format("Error while trying to serialize result\n%s", operationAsList.toString()), e);
+            }
+        }
+
+        if (operation.getClass().equals(LdbcQuery10.class)) {
+            LdbcQuery10 ldbcQuery = (LdbcQuery10) operation;
+            List<Object> operationAsList = new ArrayList<>();
+            operationAsList.add(ldbcQuery.getClass().getName());
+            operationAsList.add(ldbcQuery.personId());
+            operationAsList.add(ldbcQuery.personUri());
+            operationAsList.add(ldbcQuery.month1());
+            operationAsList.add(ldbcQuery.month2());
+            operationAsList.add(ldbcQuery.limit());
+            try {
+                return OBJECT_MAPPER.writeValueAsString(operationAsList);
+            } catch (IOException e) {
+                throw new SerializingMarshallingException(String.format("Error while trying to serialize result\n%s", operationAsList.toString()), e);
+            }
+        }
+
+        if (operation.getClass().equals(LdbcQuery11.class)) {
+            LdbcQuery11 ldbcQuery = (LdbcQuery11) operation;
+            List<Object> operationAsList = new ArrayList<>();
+            operationAsList.add(ldbcQuery.getClass().getName());
+            operationAsList.add(ldbcQuery.personId());
+            operationAsList.add(ldbcQuery.personUri());
+            operationAsList.add(ldbcQuery.countryName());
+            operationAsList.add(ldbcQuery.workFromYear());
+            operationAsList.add(ldbcQuery.limit());
+            try {
+                return OBJECT_MAPPER.writeValueAsString(operationAsList);
+            } catch (IOException e) {
+                throw new SerializingMarshallingException(String.format("Error while trying to serialize result\n%s", operationAsList.toString()), e);
+            }
+        }
+
+        if (operation.getClass().equals(LdbcQuery12.class)) {
+            LdbcQuery12 ldbcQuery = (LdbcQuery12) operation;
+            List<Object> operationAsList = new ArrayList<>();
+            operationAsList.add(ldbcQuery.getClass().getName());
+            operationAsList.add(ldbcQuery.personId());
+            operationAsList.add(ldbcQuery.personUri());
+            operationAsList.add(ldbcQuery.tagClassName());
+            operationAsList.add(ldbcQuery.limit());
+            try {
+                return OBJECT_MAPPER.writeValueAsString(operationAsList);
+            } catch (IOException e) {
+                throw new SerializingMarshallingException(String.format("Error while trying to serialize result\n%s", operationAsList.toString()), e);
+            }
+        }
+
+        if (operation.getClass().equals(LdbcQuery13.class)) {
+            LdbcQuery13 ldbcQuery = (LdbcQuery13) operation;
+            List<Object> operationAsList = new ArrayList<>();
+            operationAsList.add(ldbcQuery.getClass().getName());
+            operationAsList.add(ldbcQuery.person1Id());
+            operationAsList.add(ldbcQuery.person1Uri());
+            operationAsList.add(ldbcQuery.person2Id());
+            operationAsList.add(ldbcQuery.person2Uri());
+            try {
+                return OBJECT_MAPPER.writeValueAsString(operationAsList);
+            } catch (IOException e) {
+                throw new SerializingMarshallingException(String.format("Error while trying to serialize result\n%s", operationAsList.toString()), e);
+            }
+        }
+
+        if (operation.getClass().equals(LdbcQuery14.class)) {
+            LdbcQuery14 ldbcQuery = (LdbcQuery14) operation;
+            List<Object> operationAsList = new ArrayList<>();
+            operationAsList.add(ldbcQuery.getClass().getName());
+            operationAsList.add(ldbcQuery.person1Id());
+            operationAsList.add(ldbcQuery.person1Uri());
+            operationAsList.add(ldbcQuery.person2Id());
+            operationAsList.add(ldbcQuery.person2Uri());
+            try {
+                return OBJECT_MAPPER.writeValueAsString(operationAsList);
+            } catch (IOException e) {
+                throw new SerializingMarshallingException(String.format("Error while trying to serialize result\n%s", operationAsList.toString()), e);
+            }
+        }
+
+        if (operation.getClass().equals(LdbcUpdate1AddPerson.class)) {
+            LdbcUpdate1AddPerson ldbcQuery = (LdbcUpdate1AddPerson) operation;
+            List<Object> operationAsList = new ArrayList<>();
+            operationAsList.add(ldbcQuery.getClass().getName());
+            operationAsList.add(ldbcQuery.personId());
+            operationAsList.add(ldbcQuery.personFirstName());
+            operationAsList.add(ldbcQuery.personLastName());
+            operationAsList.add(ldbcQuery.gender());
+            operationAsList.add(ldbcQuery.birthday().getTime());
+            operationAsList.add(ldbcQuery.creationDate().getTime());
+            operationAsList.add(ldbcQuery.locationIp());
+            operationAsList.add(ldbcQuery.browserUsed());
+            operationAsList.add(ldbcQuery.cityId());
+            operationAsList.add(ldbcQuery.languages());
+            operationAsList.add(ldbcQuery.emails());
+            operationAsList.add(ldbcQuery.tagIds());
+            Iterable<Map<String, Object>> studyAt = Lists.newArrayList(Iterables.transform(ldbcQuery.studyAt(), new Function<LdbcUpdate1AddPerson.Organization, Map<String, Object>>() {
+                @Override
+                public Map<String, Object> apply(LdbcUpdate1AddPerson.Organization organization) {
+                    Map<String, Object> organizationMap = new HashMap<>();
+                    organizationMap.put("id", organization.organizationId());
+                    organizationMap.put("year", organization.year());
+                    return organizationMap;
+                }
+            }));
+            operationAsList.add(studyAt);
+            Iterable<Map<String, Object>> workAt = Lists.newArrayList(Iterables.transform(ldbcQuery.workAt(), new Function<LdbcUpdate1AddPerson.Organization, Map<String, Object>>() {
+                @Override
+                public Map<String, Object> apply(LdbcUpdate1AddPerson.Organization organization) {
+                    Map<String, Object> organizationMap = new HashMap<>();
+                    organizationMap.put("id", organization.organizationId());
+                    organizationMap.put("year", organization.year());
+                    return organizationMap;
+                }
+            }));
+            operationAsList.add(workAt);
+            try {
+                return OBJECT_MAPPER.writeValueAsString(operationAsList);
+            } catch (IOException e) {
+                throw new SerializingMarshallingException(String.format("Error while trying to serialize result\n%s", operationAsList.toString()), e);
+            }
+        }
+
+        if (operation.getClass().equals(LdbcUpdate2AddPostLike.class)) {
+            LdbcUpdate2AddPostLike ldbcQuery = (LdbcUpdate2AddPostLike) operation;
+            List<Object> operationAsList = new ArrayList<>();
+            operationAsList.add(ldbcQuery.getClass().getName());
+            operationAsList.add(ldbcQuery.personId());
+            operationAsList.add(ldbcQuery.postId());
+            operationAsList.add(ldbcQuery.creationDate().getTime());
+            try {
+                return OBJECT_MAPPER.writeValueAsString(operationAsList);
+            } catch (IOException e) {
+                throw new SerializingMarshallingException(String.format("Error while trying to serialize result\n%s", operationAsList.toString()), e);
+            }
+        }
+
+        if (operation.getClass().equals(LdbcUpdate3AddCommentLike.class)) {
+            LdbcUpdate3AddCommentLike ldbcQuery = (LdbcUpdate3AddCommentLike) operation;
+            List<Object> operationAsList = new ArrayList<>();
+            operationAsList.add(ldbcQuery.getClass().getName());
+            operationAsList.add(ldbcQuery.personId());
+            operationAsList.add(ldbcQuery.commentId());
+            operationAsList.add(ldbcQuery.creationDate().getTime());
+            try {
+                return OBJECT_MAPPER.writeValueAsString(operationAsList);
+            } catch (IOException e) {
+                throw new SerializingMarshallingException(String.format("Error while trying to serialize result\n%s", operationAsList.toString()), e);
+            }
+        }
+
+        if (operation.getClass().equals(LdbcUpdate4AddForum.class)) {
+            LdbcUpdate4AddForum ldbcQuery = (LdbcUpdate4AddForum) operation;
+            List<Object> operationAsList = new ArrayList<>();
+            operationAsList.add(ldbcQuery.getClass().getName());
+            operationAsList.add(ldbcQuery.forumId());
+            operationAsList.add(ldbcQuery.forumTitle());
+            operationAsList.add(ldbcQuery.creationDate().getTime());
+            operationAsList.add(ldbcQuery.moderatorPersonId());
+            operationAsList.add(ldbcQuery.tagIds());
+            try {
+                return OBJECT_MAPPER.writeValueAsString(operationAsList);
+            } catch (IOException e) {
+                throw new SerializingMarshallingException(String.format("Error while trying to serialize result\n%s", operationAsList.toString()), e);
+            }
+        }
+
+        if (operation.getClass().equals(LdbcUpdate5AddForumMembership.class)) {
+            LdbcUpdate5AddForumMembership ldbcQuery = (LdbcUpdate5AddForumMembership) operation;
+            List<Object> operationAsList = new ArrayList<>();
+            operationAsList.add(ldbcQuery.getClass().getName());
+            operationAsList.add(ldbcQuery.forumId());
+            operationAsList.add(ldbcQuery.personId());
+            operationAsList.add(ldbcQuery.creationDate().getTime());
+            try {
+                return OBJECT_MAPPER.writeValueAsString(operationAsList);
+            } catch (IOException e) {
+                throw new SerializingMarshallingException(String.format("Error while trying to serialize result\n%s", operationAsList.toString()), e);
+            }
+        }
+
+        if (operation.getClass().equals(LdbcUpdate6AddPost.class)) {
+            LdbcUpdate6AddPost ldbcQuery = (LdbcUpdate6AddPost) operation;
+            List<Object> operationAsList = new ArrayList<>();
+            operationAsList.add(ldbcQuery.getClass().getName());
+            operationAsList.add(ldbcQuery.postId());
+            operationAsList.add(ldbcQuery.imageFile());
+            operationAsList.add(ldbcQuery.creationDate().getTime());
+            operationAsList.add(ldbcQuery.locationIp());
+            operationAsList.add(ldbcQuery.browserUsed());
+            operationAsList.add(ldbcQuery.language());
+            operationAsList.add(ldbcQuery.content());
+            operationAsList.add(ldbcQuery.length());
+            operationAsList.add(ldbcQuery.authorPersonId());
+            operationAsList.add(ldbcQuery.forumId());
+            operationAsList.add(ldbcQuery.countryId());
+            operationAsList.add(ldbcQuery.tagIds());
+            try {
+                return OBJECT_MAPPER.writeValueAsString(operationAsList);
+            } catch (IOException e) {
+                throw new SerializingMarshallingException(String.format("Error while trying to serialize result\n%s", operationAsList.toString()), e);
+            }
+        }
+
+        if (operation.getClass().equals(LdbcUpdate7AddComment.class)) {
+            LdbcUpdate7AddComment ldbcQuery = (LdbcUpdate7AddComment) operation;
+            List<Object> operationAsList = new ArrayList<>();
+            operationAsList.add(ldbcQuery.getClass().getName());
+            operationAsList.add(ldbcQuery.commentId());
+            operationAsList.add(ldbcQuery.creationDate());
+            operationAsList.add(ldbcQuery.locationIp());
+            operationAsList.add(ldbcQuery.browserUsed());
+            operationAsList.add(ldbcQuery.content());
+            operationAsList.add(ldbcQuery.length());
+            operationAsList.add(ldbcQuery.authorPersonId());
+            operationAsList.add(ldbcQuery.countryId());
+            operationAsList.add(ldbcQuery.replyToPostId());
+            operationAsList.add(ldbcQuery.replyToCommentId());
+            operationAsList.add(ldbcQuery.tagIds());
+            try {
+                return OBJECT_MAPPER.writeValueAsString(operationAsList);
+            } catch (IOException e) {
+                throw new SerializingMarshallingException(String.format("Error while trying to serialize result\n%s", operationAsList.toString()), e);
+            }
+        }
+
+        if (operation.getClass().equals(LdbcUpdate8AddFriendship.class)) {
+            LdbcUpdate8AddFriendship ldbcQuery = (LdbcUpdate8AddFriendship) operation;
+            List<Object> operationAsList = new ArrayList<>();
+            operationAsList.add(ldbcQuery.getClass().getName());
+            operationAsList.add(ldbcQuery.person1Id());
+            operationAsList.add(ldbcQuery.person2Id());
+            operationAsList.add(ldbcQuery.creationDate().getTime());
+            try {
+                return OBJECT_MAPPER.writeValueAsString(operationAsList);
+            } catch (IOException e) {
+                throw new SerializingMarshallingException(String.format("Error while trying to serialize result\n%s", operationAsList.toString()), e);
+            }
+        }
+
+        throw new SerializingMarshallingException(
+                String.format("Workload does not know how to serialize operation\nWorkload: %s\nOperation Type: %s\nOperation: %s",
+                        getClass().getName(),
+                        operation.getClass().getName(),
+                        operation));
+    }
+
+    @Override
+    public Operation<?> marshalOperation(String serializedOperation) throws SerializingMarshallingException {
+        List<Object> operationAsList;
+        try {
+            operationAsList = OBJECT_MAPPER.readValue(serializedOperation, TYPE_REFERENCE);
+        } catch (IOException e) {
+            throw new SerializingMarshallingException(String.format("Error while parsing serialized results\n%s", serializedOperation), e);
+        }
+
+        if (operationAsList.get(0).equals(LdbcQuery1.class.getName())) {
+            long personId = ((Number) operationAsList.get(1)).longValue();
+            String personUri = (String) operationAsList.get(2);
+            String firstName = (String) operationAsList.get(3);
+            int limit = ((Number) operationAsList.get(4)).intValue();
+            return new LdbcQuery1(personId, personUri, firstName, limit);
+        }
+
+        if (operationAsList.get(0).equals(LdbcQuery2.class.getName())) {
+            long personId = ((Number) operationAsList.get(1)).longValue();
+            String personUri = (String) operationAsList.get(2);
+            Date maxDate = new Date(((Number) operationAsList.get(3)).longValue());
+            int limit = ((Number) operationAsList.get(4)).intValue();
+            return new LdbcQuery2(personId, personUri, maxDate, limit);
+        }
+
+        if (operationAsList.get(0).equals(LdbcQuery3.class.getName())) {
+            long personId = ((Number) operationAsList.get(1)).longValue();
+            String personUri = (String) operationAsList.get(2);
+            String countryXName = (String) operationAsList.get(3);
+            String countryYName = (String) operationAsList.get(4);
+            Date startDate = new Date(((Number) operationAsList.get(5)).longValue());
+            int durationDays = ((Number) operationAsList.get(6)).intValue();
+            int limit = ((Number) operationAsList.get(7)).intValue();
+            return new LdbcQuery3(personId, personUri, countryXName, countryYName, startDate, durationDays, limit);
+        }
+
+        if (operationAsList.get(0).equals(LdbcQuery4.class.getName())) {
+            long personId = ((Number) operationAsList.get(1)).longValue();
+            String personUri = (String) operationAsList.get(2);
+            Date startDate = new Date(((Number) operationAsList.get(3)).longValue());
+            int durationDays = ((Number) operationAsList.get(4)).intValue();
+            int limit = ((Number) operationAsList.get(5)).intValue();
+            return new LdbcQuery4(personId, personUri, startDate, durationDays, limit);
+        }
+
+        if (operationAsList.get(0).equals(LdbcQuery5.class.getName())) {
+            long personId = ((Number) operationAsList.get(1)).longValue();
+            String personUri = (String) operationAsList.get(2);
+            Date minDate = new Date(((Number) operationAsList.get(3)).longValue());
+            int limit = ((Number) operationAsList.get(4)).intValue();
+            return new LdbcQuery5(personId, personUri, minDate, limit);
+        }
+
+        if (operationAsList.get(0).equals(LdbcQuery6.class.getName())) {
+            long personId = ((Number) operationAsList.get(1)).longValue();
+            String personUri = (String) operationAsList.get(2);
+            String tagName = (String) operationAsList.get(3);
+            int limit = ((Number) operationAsList.get(4)).intValue();
+            return new LdbcQuery6(personId, personUri, tagName, limit);
+        }
+
+        if (operationAsList.get(0).equals(LdbcQuery7.class.getName())) {
+            long personId = ((Number) operationAsList.get(1)).longValue();
+            String personUri = (String) operationAsList.get(2);
+            int limit = ((Number) operationAsList.get(3)).intValue();
+            return new LdbcQuery7(personId, personUri, limit);
+        }
+
+        if (operationAsList.get(0).equals(LdbcQuery8.class.getName())) {
+            long personId = ((Number) operationAsList.get(1)).longValue();
+            String personUri = (String) operationAsList.get(2);
+            int limit = ((Number) operationAsList.get(3)).intValue();
+            return new LdbcQuery8(personId, personUri, limit);
+        }
+
+        if (operationAsList.get(0).equals(LdbcQuery9.class.getName())) {
+            long personId = ((Number) operationAsList.get(1)).longValue();
+            String personUri = (String) operationAsList.get(2);
+            Date maxDate = new Date(((Number) operationAsList.get(3)).longValue());
+            int limit = ((Number) operationAsList.get(4)).intValue();
+            return new LdbcQuery9(personId, personUri, maxDate, limit);
+        }
+
+        if (operationAsList.get(0).equals(LdbcQuery10.class.getName())) {
+            long personId = ((Number) operationAsList.get(1)).longValue();
+            String personUri = (String) operationAsList.get(2);
+            int month1 = ((Number) operationAsList.get(3)).intValue();
+            int month2 = ((Number) operationAsList.get(4)).intValue();
+            int limit = ((Number) operationAsList.get(5)).intValue();
+            return new LdbcQuery10(personId, personUri, month1, month2, limit);
+        }
+
+        if (operationAsList.get(0).equals(LdbcQuery11.class.getName())) {
+            long personId = ((Number) operationAsList.get(1)).longValue();
+            String personUri = (String) operationAsList.get(2);
+            String countryName = (String) operationAsList.get(3);
+            int workFromYear = ((Number) operationAsList.get(4)).intValue();
+            int limit = ((Number) operationAsList.get(5)).intValue();
+            return new LdbcQuery11(personId, personUri, countryName, workFromYear, limit);
+        }
+
+        if (operationAsList.get(0).equals(LdbcQuery12.class.getName())) {
+            long personId = ((Number) operationAsList.get(1)).longValue();
+            String personUri = (String) operationAsList.get(2);
+            String tagClassName = (String) operationAsList.get(3);
+            int limit = ((Number) operationAsList.get(4)).intValue();
+            return new LdbcQuery12(personId, personUri, tagClassName, limit);
+        }
+
+        if (operationAsList.get(0).equals(LdbcQuery13.class.getName())) {
+            long person1Id = ((Number) operationAsList.get(1)).longValue();
+            String person1Uri = (String) operationAsList.get(2);
+            long person2Id = ((Number) operationAsList.get(3)).longValue();
+            String person2Uri = (String) operationAsList.get(4);
+            return new LdbcQuery13(person1Id, person1Uri, person2Id, person2Uri);
+        }
+
+        if (operationAsList.get(0).equals(LdbcQuery14.class.getName())) {
+            long person1Id = ((Number) operationAsList.get(1)).longValue();
+            String person1Uri = (String) operationAsList.get(2);
+            long person2Id = ((Number) operationAsList.get(3)).longValue();
+            String person2Uri = (String) operationAsList.get(4);
+            return new LdbcQuery14(person1Id, person1Uri, person2Id, person2Uri);
+        }
+
+        if (operationAsList.get(0).equals(LdbcUpdate1AddPerson.class.getName())) {
+            long personId = ((Number) operationAsList.get(1)).longValue();
+            String personFirstName = (String) operationAsList.get(2);
+            String personLastName = (String) operationAsList.get(3);
+            String gender = (String) operationAsList.get(4);
+            Date birthday = new Date(((Number) operationAsList.get(5)).longValue());
+            Date creationDate = new Date(((Number) operationAsList.get(6)).longValue());
+            String locationIp = (String) operationAsList.get(7);
+            String browserUsed = (String) operationAsList.get(8);
+            long cityId = ((Number) operationAsList.get(9)).longValue();
+            List<String> languages = (List<String>) operationAsList.get(10);
+            List<String> emails = (List<String>) operationAsList.get(11);
+            List<Long> tagIds = Lists.newArrayList(Iterables.transform((List<Number>) operationAsList.get(12), new Function<Number, Long>() {
+                @Override
+                public Long apply(Number number) {
+                    return number.longValue();
+                }
+            }));
+            List<Map<String, Object>> studyAtList = (List<Map<String, Object>>) operationAsList.get(13);
+            List<LdbcUpdate1AddPerson.Organization> studyAt = Lists.newArrayList(Iterables.transform(studyAtList, new Function<Map<String, Object>, LdbcUpdate1AddPerson.Organization>() {
+                @Override
+                public LdbcUpdate1AddPerson.Organization apply(Map<String, Object> input) {
+                    long organizationId = ((Number) input.get("id")).longValue();
+                    int year = ((Number) input.get("year")).intValue();
+                    return new LdbcUpdate1AddPerson.Organization(organizationId, year);
+                }
+            }));
+            List<Map<String, Object>> workAtList = (List<Map<String, Object>>) operationAsList.get(14);
+            List<LdbcUpdate1AddPerson.Organization> workAt = Lists.newArrayList(Iterables.transform(workAtList, new Function<Map<String, Object>, LdbcUpdate1AddPerson.Organization>() {
+                @Override
+                public LdbcUpdate1AddPerson.Organization apply(Map<String, Object> input) {
+                    long organizationId = ((Number) input.get("id")).longValue();
+                    int year = ((Number) input.get("year")).intValue();
+                    return new LdbcUpdate1AddPerson.Organization(organizationId, year);
+                }
+            }));
+
+            return new LdbcUpdate1AddPerson(personId, personFirstName, personLastName, gender, birthday, creationDate,
+                    locationIp, browserUsed, cityId, languages, emails, tagIds, studyAt, workAt);
+        }
+
+        if (operationAsList.get(0).equals(LdbcUpdate2AddPostLike.class.getName())) {
+            long personId = ((Number) operationAsList.get(1)).longValue();
+            long postId = ((Number) operationAsList.get(2)).longValue();
+            Date creationDate = new Date(((Number) operationAsList.get(3)).longValue());
+
+            return new LdbcUpdate2AddPostLike(personId, postId, creationDate);
+        }
+
+        if (operationAsList.get(0).equals(LdbcUpdate3AddCommentLike.class.getName())) {
+            long personId = ((Number) operationAsList.get(1)).longValue();
+            long commentId = ((Number) operationAsList.get(2)).longValue();
+            Date creationDate = new Date(((Number) operationAsList.get(3)).longValue());
+
+            return new LdbcUpdate3AddCommentLike(personId, commentId, creationDate);
+        }
+
+        if (operationAsList.get(0).equals(LdbcUpdate4AddForum.class.getName())) {
+            long forumId = ((Number) operationAsList.get(1)).longValue();
+            String forumTitle = (String) operationAsList.get(2);
+            Date creationDate = new Date(((Number) operationAsList.get(3)).longValue());
+            long moderatorPersonId = ((Number) operationAsList.get(4)).longValue();
+            List<Long> tagIds = Lists.newArrayList(Iterables.transform((List<Number>) operationAsList.get(5), new Function<Number, Long>() {
+                @Override
+                public Long apply(Number number) {
+                    return number.longValue();
+                }
+            }));
+
+            return new LdbcUpdate4AddForum(forumId, forumTitle, creationDate, moderatorPersonId, tagIds);
+        }
+
+
+        if (operationAsList.get(0).equals(LdbcUpdate5AddForumMembership.class.getName())) {
+            long forumId = ((Number) operationAsList.get(1)).longValue();
+            long personId = ((Number) operationAsList.get(2)).longValue();
+            Date creationDate = new Date(((Number) operationAsList.get(3)).longValue());
+
+            return new LdbcUpdate5AddForumMembership(forumId, personId, creationDate);
+        }
+
+        if (operationAsList.get(0).equals(LdbcUpdate6AddPost.class.getName())) {
+            long postId = ((Number) operationAsList.get(1)).longValue();
+            String imageFile = (String) operationAsList.get(2);
+            Date creationDate = new Date(((Number) operationAsList.get(3)).longValue());
+            String locationIp = (String) operationAsList.get(4);
+            String browserUsed = (String) operationAsList.get(5);
+            String language = (String) operationAsList.get(6);
+            String content = (String) operationAsList.get(7);
+            int length = ((Number) operationAsList.get(8)).intValue();
+            long authorPersonId = ((Number) operationAsList.get(9)).longValue();
+            long forumId = ((Number) operationAsList.get(10)).longValue();
+            long countryId = ((Number) operationAsList.get(11)).longValue();
+            List<Long> tagIds = Lists.newArrayList(Iterables.transform((List<Number>) operationAsList.get(12), new Function<Number, Long>() {
+                @Override
+                public Long apply(Number number) {
+                    return number.longValue();
+                }
+            }));
+
+            return new LdbcUpdate6AddPost(postId, imageFile, creationDate, locationIp, browserUsed, language, content, length, authorPersonId, forumId, countryId, tagIds);
+        }
+
+        if (operationAsList.get(0).equals(LdbcUpdate7AddComment.class.getName())) {
+            long commentId = ((Number) operationAsList.get(1)).longValue();
+            Date creationDate = new Date(((Number) operationAsList.get(2)).longValue());
+            String locationIp = (String) operationAsList.get(3);
+            String browserUsed = (String) operationAsList.get(4);
+            String content = (String) operationAsList.get(5);
+            int length = ((Number) operationAsList.get(6)).intValue();
+            long authorPersonId = ((Number) operationAsList.get(7)).longValue();
+            long countryId = ((Number) operationAsList.get(8)).longValue();
+            long replyToPostId = ((Number) operationAsList.get(9)).longValue();
+            long replyToCommentId = ((Number) operationAsList.get(10)).longValue();
+            List<Long> tagIds = Lists.newArrayList(Iterables.transform((List<Number>) operationAsList.get(11), new Function<Number, Long>() {
+                @Override
+                public Long apply(Number number) {
+                    return number.longValue();
+                }
+            }));
+
+            return new LdbcUpdate7AddComment(commentId, creationDate, locationIp, browserUsed, content, length, authorPersonId, countryId, replyToPostId, replyToCommentId, tagIds);
+        }
+
+        if (operationAsList.get(0).equals(LdbcUpdate8AddFriendship.class.getName())) {
+            long person1Id = ((Number) operationAsList.get(1)).longValue();
+            long person2Id = ((Number) operationAsList.get(2)).longValue();
+            Date creationDate = new Date(((Number) operationAsList.get(3)).longValue());
+
+            return new LdbcUpdate8AddFriendship(person1Id, person2Id, creationDate);
+        }
+
+        throw new SerializingMarshallingException(
+                String.format("Workload does not know how to marshal operation\nWorkload: %s\nAssumed Operation Type: %s\nSerialized Operation: %s",
+                        getClass().getName(),
+                        operationAsList.get(0),
+                        serializedOperation));
     }
 }

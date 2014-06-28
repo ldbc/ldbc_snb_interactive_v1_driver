@@ -1,9 +1,11 @@
 package com.ldbc.driver.workloads.ldbc.snb.interactive;
 
+import com.google.common.collect.Iterables;
 import com.ldbc.driver.Operation;
 
-import java.util.Arrays;
+import java.util.Collections;
 import java.util.Date;
+import java.util.List;
 
 public class LdbcUpdate6AddPost extends Operation<Object> {
     private final long postId;
@@ -17,7 +19,7 @@ public class LdbcUpdate6AddPost extends Operation<Object> {
     private final long authorPersonId;
     private final long forumId;
     private final long countryId; // <--- country ID?
-    private final long[] tagIds;
+    private final List<Long> tagIds;
 
     public LdbcUpdate6AddPost(long postId,
                               String imageFile,
@@ -30,7 +32,7 @@ public class LdbcUpdate6AddPost extends Operation<Object> {
                               long authorPersonId,
                               long forumId,
                               long countryId,
-                              long[] tagIds) {
+                              List<Long> tagIds) {
         this.postId = postId;
         this.imageFile = imageFile;
         this.creationDate = creationDate;
@@ -89,7 +91,7 @@ public class LdbcUpdate6AddPost extends Operation<Object> {
         return countryId;
     }
 
-    public long[] tagIds() {
+    public List<Long> tagIds() {
         return tagIds;
     }
 
@@ -111,9 +113,15 @@ public class LdbcUpdate6AddPost extends Operation<Object> {
         if (imageFile != null ? !imageFile.equals(that.imageFile) : that.imageFile != null) return false;
         if (language != null ? !language.equals(that.language) : that.language != null) return false;
         if (locationIp != null ? !locationIp.equals(that.locationIp) : that.locationIp != null) return false;
-        if (!Arrays.equals(tagIds, that.tagIds)) return false;
+        if (tagIds != null ? !Iterables.elementsEqual(sort(tagIds), sort(that.tagIds)) : that.tagIds != null)
+            return false;
 
         return true;
+    }
+
+    private <T extends Comparable> List<T> sort(List<T> list) {
+        Collections.sort(list);
+        return list;
     }
 
     @Override
@@ -129,7 +137,7 @@ public class LdbcUpdate6AddPost extends Operation<Object> {
         result = 31 * result + (int) (authorPersonId ^ (authorPersonId >>> 32));
         result = 31 * result + (int) (forumId ^ (forumId >>> 32));
         result = 31 * result + (int) (countryId ^ (countryId >>> 32));
-        result = 31 * result + (tagIds != null ? Arrays.hashCode(tagIds) : 0);
+        result = 31 * result + (tagIds != null ? tagIds.hashCode() : 0);
         return result;
     }
 
@@ -147,7 +155,17 @@ public class LdbcUpdate6AddPost extends Operation<Object> {
                 ", authorPersonId=" + authorPersonId +
                 ", forumId=" + forumId +
                 ", countryId=" + countryId +
-                ", tagIds=" + Arrays.toString(tagIds) +
+                ", tagIds=" + tagIds +
                 '}';
+    }
+
+    @Override
+    public Object marshalResult(String serializedOperationResult) {
+        return null;
+    }
+
+    @Override
+    public String serializeResult(Object operationResultInstance) {
+        return null;
     }
 }

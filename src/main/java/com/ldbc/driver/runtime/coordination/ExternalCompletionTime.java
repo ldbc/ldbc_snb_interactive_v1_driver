@@ -5,14 +5,15 @@ import com.ldbc.driver.temporal.Time;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 public class ExternalCompletionTime {
     private final Map<String, Time> peerCompletionTimes = new HashMap<String, Time>();
-    private final List<String> peerIds;
+    private final Set<String> peerIds;
     private Time completionTime = null;
     private boolean notModifiedSinceLastGet = false;
 
-    ExternalCompletionTime(List<String> peerIds) throws CompletionTimeException {
+    ExternalCompletionTime(Set<String> peerIds) throws CompletionTimeException {
         for (String peerId : peerIds) {
             if (null == peerId)
                 throw new CompletionTimeException(String.format("Peer ID cannot be null\n%s", peerIds.toString()));
@@ -42,7 +43,7 @@ public class ExternalCompletionTime {
         return completionTime;
     }
 
-    List<String> peersIds() {
+    Set<String> peersIds() {
         return peerIds;
     }
 

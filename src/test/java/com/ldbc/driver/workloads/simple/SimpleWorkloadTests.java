@@ -3,7 +3,6 @@ package com.ldbc.driver.workloads.simple;
 import com.google.common.base.Function;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Iterators;
-import com.google.common.collect.Lists;
 import com.ldbc.driver.*;
 import com.ldbc.driver.control.ConsoleAndFileDriverConfiguration;
 import com.ldbc.driver.control.DriverConfigurationException;
@@ -13,14 +12,13 @@ import com.ldbc.driver.temporal.Duration;
 import com.ldbc.driver.temporal.SystemTimeSource;
 import com.ldbc.driver.temporal.TimeSource;
 import com.ldbc.driver.util.RandomDataGeneratorFactory;
+import com.ldbc.driver.util.TestUtils;
 import com.ldbc.driver.workloads.simple.db.BasicDb;
 import org.apache.commons.io.FileUtils;
 import org.junit.Test;
 
 import java.io.File;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.TimeUnit;
 
 import static org.hamcrest.CoreMatchers.equalTo;
@@ -42,9 +40,10 @@ public class SimpleWorkloadTests {
         String resultFilePath = null;
         Double timeCompressionRatio = 1.0;
         Duration gctDeltaDuration = Duration.fromMinutes(10);
-        List<String> peerIds = Lists.newArrayList();
+        Set<String> peerIds = new HashSet<>();
         Duration toleratedExecutionDelay = Duration.fromSeconds(1);
-        boolean validateDatabase = false;
+        ConsoleAndFileDriverConfiguration.ConsoleAndFileValidationParamOptions validationParams = null;
+        String dbValidationFilePath = null;
         boolean validateWorkload = false;
         boolean calculateWorkloadStatistics = false;
         Duration spinnerSleepDuration = Duration.fromMilli(0);
@@ -63,7 +62,8 @@ public class SimpleWorkloadTests {
                         gctDeltaDuration,
                         peerIds,
                         toleratedExecutionDelay,
-                        validateDatabase,
+                        validationParams,
+                        dbValidationFilePath,
                         validateWorkload,
                         calculateWorkloadStatistics,
                         spinnerSleepDuration);
@@ -115,9 +115,10 @@ public class SimpleWorkloadTests {
         String resultFilePath = null;
         Double timeCompressionRatio = 1.0;
         Duration gctDeltaDuration = Duration.fromMinutes(10);
-        List<String> peerIds = Lists.newArrayList();
+        Set<String> peerIds = new HashSet<>();
         Duration toleratedExecutionDelay = Duration.fromSeconds(1);
-        boolean validateDatabase = false;
+        ConsoleAndFileDriverConfiguration.ConsoleAndFileValidationParamOptions validationParams = null;
+        String dbValidationFilePath = null;
         boolean validateWorkload = false;
         boolean calculateWorkloadStatistics = false;
         Duration spinnerSleepDuration = Duration.fromMilli(0);
@@ -136,7 +137,8 @@ public class SimpleWorkloadTests {
                         gctDeltaDuration,
                         peerIds,
                         toleratedExecutionDelay,
-                        validateDatabase,
+                        validationParams,
+                        dbValidationFilePath,
                         validateWorkload,
                         calculateWorkloadStatistics,
                         spinnerSleepDuration);
@@ -184,7 +186,7 @@ public class SimpleWorkloadTests {
         String simpleTestPropertiesPath =
                 new File("ldbc_driver/workloads/simple/simpleworkload.properties").getAbsolutePath();
         String ldbcDriverTestPropertiesPath =
-                new File("ldbc_driver/src/main/resources/ldbc_driver_default.properties").getAbsolutePath();
+                TestUtils.getResource("/ldbc_driver_default.properties").getAbsolutePath();
 
         String resultFilePath = "test_write_to_csv_results.json";
         FileUtils.deleteQuietly(new File(resultFilePath));

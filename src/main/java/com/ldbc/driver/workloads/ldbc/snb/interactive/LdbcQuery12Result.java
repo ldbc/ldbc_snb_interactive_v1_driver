@@ -7,14 +7,6 @@ import java.util.Collections;
 import java.util.List;
 
 public class LdbcQuery12Result {
-    /*
-    Person.id
-Person.firstName
-Person.lastName
-{Tag.name}
-count // number of reply Comments
-     */
-
     private final long personId;
     private final String personFirstName;
     private final String personLastName;

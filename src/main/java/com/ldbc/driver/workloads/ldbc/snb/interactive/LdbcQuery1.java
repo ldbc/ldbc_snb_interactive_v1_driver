@@ -1,10 +1,17 @@
 package com.ldbc.driver.workloads.ldbc.snb.interactive;
 
 import com.ldbc.driver.Operation;
+import com.ldbc.driver.SerializingMarshallingException;
+import org.codehaus.jackson.map.ObjectMapper;
+import org.codehaus.jackson.type.TypeReference;
 
+import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 
 public class LdbcQuery1 extends Operation<List<LdbcQuery1Result>> {
+    private static final ObjectMapper objectMapper = new ObjectMapper();
+
     public static final int DEFAULT_LIMIT = 20;
     private final long personId;
     private final String personUri;
@@ -66,5 +73,83 @@ public class LdbcQuery1 extends Operation<List<LdbcQuery1Result>> {
                 ", firstName='" + firstName + '\'' +
                 ", limit=" + limit +
                 '}';
+    }
+
+    @Override
+    public List<LdbcQuery1Result> marshalResult(String serializedResults) throws SerializingMarshallingException {
+        List<List<Object>> resultsAsList;
+        try {
+            resultsAsList = objectMapper.readValue(serializedResults, new TypeReference<List<List<Object>>>() {
+            });
+        } catch (IOException e) {
+            throw new SerializingMarshallingException(String.format("Error while parsing serialized results\n%s", serializedResults), e);
+        }
+
+        List<LdbcQuery1Result> results = new ArrayList<>();
+        for (int i = 0; i < resultsAsList.size(); i++) {
+            List<Object> resultAsList = resultsAsList.get(i);
+
+            long friendId = ((Number) resultAsList.get(0)).longValue();
+            String friendLastName = (String) resultAsList.get(1);
+            int distanceFromPerson = (Integer) resultAsList.get(2);
+            long friendBirthday = ((Number) resultAsList.get(3)).longValue();
+            long friendCreationDate = ((Number) resultAsList.get(4)).longValue();
+            String friendGender = (String) resultAsList.get(5);
+            String friendBrowserUsed = (String) resultAsList.get(6);
+            String friendLocationIp = (String) resultAsList.get(7);
+            Iterable<String> friendEmails = (List<String>) resultAsList.get(8);
+            Iterable<String> friendLanguages = (List<String>) resultAsList.get(9);
+            String friendCityName = (String) resultAsList.get(10);
+            Iterable<String> friendUniversities = (List<String>) resultAsList.get(11);
+            Iterable<String> friendCompanies = (List<String>) resultAsList.get(12);
+
+            results.add(new LdbcQuery1Result(
+                    friendId,
+                    friendLastName,
+                    distanceFromPerson,
+                    friendBirthday,
+                    friendCreationDate,
+                    friendGender,
+                    friendBrowserUsed,
+                    friendLocationIp,
+                    friendEmails,
+                    friendLanguages,
+                    friendCityName,
+                    friendUniversities,
+                    friendCompanies));
+        }
+
+        return results;
+    }
+
+    @Override
+    public String serializeResult(Object resultsObject) throws SerializingMarshallingException {
+        List<LdbcQuery1Result> results = (List<LdbcQuery1Result>) resultsObject;
+
+        List<List<Object>> resultsFields = new ArrayList<>();
+        for (int i = 0; i < results.size(); i++) {
+            LdbcQuery1Result result = results.get(i);
+            List<Object> resultFields = new ArrayList<>();
+            resultFields.add(result.friendId());
+            resultFields.add(result.friendLastName());
+            resultFields.add(result.distanceFromPerson());
+            resultFields.add(result.friendBirthday());
+            resultFields.add(result.friendCreationDate());
+            resultFields.add(result.friendGender());
+            resultFields.add(result.friendBrowserUsed());
+            resultFields.add(result.friendLocationIp());
+            resultFields.add(result.friendEmails());
+            resultFields.add(result.friendLanguages());
+            resultFields.add(result.friendCityName());
+            resultFields.add(result.friendUniversities());
+            resultFields.add(result.friendCompanies());
+            resultsFields.add(resultFields);
+        }
+
+        try {
+            return objectMapper.writeValueAsString(resultsFields);
+        } catch (IOException e) {
+            throw new SerializingMarshallingException(String.format("Error while trying to serialize result\n%s", results.toString()), e);
+        }
     }
 }

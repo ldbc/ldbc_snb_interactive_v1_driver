@@ -11,7 +11,6 @@ import com.ldbc.driver.control.DriverConfigurationException;
 import com.ldbc.driver.control.LocalControlService;
 import com.ldbc.driver.generator.GeneratorFactory;
 import com.ldbc.driver.runtime.ConcurrentErrorReporter;
-import com.ldbc.driver.runtime.scheduling.Spinner;
 import com.ldbc.driver.runtime.streams.IteratorSplitter;
 import com.ldbc.driver.runtime.streams.IteratorSplittingException;
 import com.ldbc.driver.runtime.streams.SplitDefinition;
@@ -22,7 +21,8 @@ import com.ldbc.driver.temporal.Time;
 import com.ldbc.driver.temporal.TimeSource;
 import com.ldbc.driver.util.*;
 import com.ldbc.driver.workloads.ldbc.snb.interactive.db.CsvDb;
-import com.ldbc.driver.workloads.ldbc.snb.interactive.db.NothingDb;
+import com.ldbc.driver.workloads.ldbc.snb.interactive.db.DummyDb;
+import com.ldbc.driver.workloads.ldbc.snb.interactive.db.DummyLdbcSnbInteractiveOperationInstances;
 import org.apache.commons.io.FileUtils;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -39,57 +39,68 @@ import static org.junit.Assert.assertThat;
 public class LdbcSnbInteractiveWorkloadReadTests {
     TimeSource TIME_SOURCE = new SystemTimeSource();
 
-    static Map<String, String> defaultSnbParamsMap() {
-        Map<String, String> params = new HashMap<>();
-        // General Driver parameters
-        params.put(ConsoleAndFileDriverConfiguration.OPERATION_COUNT_ARG, "100");
-        params.put(ConsoleAndFileDriverConfiguration.WORKLOAD_ARG, LdbcSnbInteractiveWorkload.class.getName());
-        params.put(ConsoleAndFileDriverConfiguration.RESULT_FILE_PATH_ARG, "test_ldbc_socnet_interactive_results.json");
-        // LDBC Interactive Workload-specific parameters
-        params.put(LdbcSnbInteractiveWorkload.READ_OPERATION_1_INTERLEAVE_KEY, "30");
-        params.put(LdbcSnbInteractiveWorkload.READ_OPERATION_2_INTERLEAVE_KEY, "12");
-        params.put(LdbcSnbInteractiveWorkload.READ_OPERATION_3_INTERLEAVE_KEY, "72");
-        params.put(LdbcSnbInteractiveWorkload.READ_OPERATION_4_INTERLEAVE_KEY, "27");
-        params.put(LdbcSnbInteractiveWorkload.READ_OPERATION_5_INTERLEAVE_KEY, "42");
-        params.put(LdbcSnbInteractiveWorkload.READ_OPERATION_6_INTERLEAVE_KEY, "18");
-        params.put(LdbcSnbInteractiveWorkload.READ_OPERATION_7_INTERLEAVE_KEY, "13");
-        params.put(LdbcSnbInteractiveWorkload.READ_OPERATION_8_INTERLEAVE_KEY, "1");
-        params.put(LdbcSnbInteractiveWorkload.READ_OPERATION_9_INTERLEAVE_KEY, "40");
-        params.put(LdbcSnbInteractiveWorkload.READ_OPERATION_10_INTERLEAVE_KEY, "27");
-        params.put(LdbcSnbInteractiveWorkload.READ_OPERATION_11_INTERLEAVE_KEY, "18");
-        params.put(LdbcSnbInteractiveWorkload.READ_OPERATION_12_INTERLEAVE_KEY, "34");
-        params.put(LdbcSnbInteractiveWorkload.READ_OPERATION_13_INTERLEAVE_KEY, "1");
-        params.put(LdbcSnbInteractiveWorkload.READ_OPERATION_14_INTERLEAVE_KEY, "66");
-        params.put(LdbcSnbInteractiveWorkload.READ_OPERATION_1_ENABLE_KEY, "true");
-        params.put(LdbcSnbInteractiveWorkload.READ_OPERATION_2_ENABLE_KEY, "true");
-        params.put(LdbcSnbInteractiveWorkload.READ_OPERATION_3_ENABLE_KEY, "true");
-        params.put(LdbcSnbInteractiveWorkload.READ_OPERATION_4_ENABLE_KEY, "true");
-        params.put(LdbcSnbInteractiveWorkload.READ_OPERATION_5_ENABLE_KEY, "true");
-        params.put(LdbcSnbInteractiveWorkload.READ_OPERATION_6_ENABLE_KEY, "true");
-        params.put(LdbcSnbInteractiveWorkload.READ_OPERATION_7_ENABLE_KEY, "true");
-        params.put(LdbcSnbInteractiveWorkload.READ_OPERATION_8_ENABLE_KEY, "true");
-        params.put(LdbcSnbInteractiveWorkload.READ_OPERATION_9_ENABLE_KEY, "true");
-        params.put(LdbcSnbInteractiveWorkload.READ_OPERATION_10_ENABLE_KEY, "true");
-        params.put(LdbcSnbInteractiveWorkload.READ_OPERATION_11_ENABLE_KEY, "true");
-        params.put(LdbcSnbInteractiveWorkload.READ_OPERATION_12_ENABLE_KEY, "true");
-        params.put(LdbcSnbInteractiveWorkload.READ_OPERATION_13_ENABLE_KEY, "true");
-        params.put(LdbcSnbInteractiveWorkload.READ_OPERATION_14_ENABLE_KEY, "true");
-        params.put(LdbcSnbInteractiveWorkload.WRITE_OPERATION_1_ENABLE_KEY, "false");
-        params.put(LdbcSnbInteractiveWorkload.WRITE_OPERATION_2_ENABLE_KEY, "false");
-        params.put(LdbcSnbInteractiveWorkload.WRITE_OPERATION_3_ENABLE_KEY, "false");
-        params.put(LdbcSnbInteractiveWorkload.WRITE_OPERATION_4_ENABLE_KEY, "false");
-        params.put(LdbcSnbInteractiveWorkload.WRITE_OPERATION_5_ENABLE_KEY, "false");
-        params.put(LdbcSnbInteractiveWorkload.WRITE_OPERATION_6_ENABLE_KEY, "false");
-        params.put(LdbcSnbInteractiveWorkload.WRITE_OPERATION_7_ENABLE_KEY, "false");
-        params.put(LdbcSnbInteractiveWorkload.WRITE_OPERATION_8_ENABLE_KEY, "false");
-        return ConsoleAndFileDriverConfiguration.convertLongKeysToShortKeys(params);
-    }
-
     static Map<String, String> defaultSnbParamsMapWithWorkloadAndParametersDir() {
         Map<String, String> additionalParams = new HashMap<>();
         additionalParams.put(LdbcSnbInteractiveWorkload.PARAMETERS_DIRECTORY, TestUtils.getResource("/").getAbsolutePath());
         additionalParams.put(ConsoleAndFileDriverConfiguration.CALCULATE_WORKLOAD_STATISTICS_ARG, "true");
-        return MapUtils.mergeMaps(defaultSnbParamsMap(), ConsoleAndFileDriverConfiguration.convertLongKeysToShortKeys(additionalParams), true);
+        return MapUtils.mergeMaps(
+                LdbcSnbInteractiveWorkload.defaultReadOnlyConfig(),
+                ConsoleAndFileDriverConfiguration.convertLongKeysToShortKeys(additionalParams),
+                true);
+    }
+
+    @Test
+    public void shouldBeAbleToSerializeAndMarshalAllOperations() throws SerializingMarshallingException {
+        // Given
+        Workload workload = new LdbcSnbInteractiveWorkload();
+
+        LdbcQuery1 read1 = DummyLdbcSnbInteractiveOperationInstances.read1();
+        LdbcQuery2 read2 = DummyLdbcSnbInteractiveOperationInstances.read2();
+        LdbcQuery3 read3 = DummyLdbcSnbInteractiveOperationInstances.read3();
+        LdbcQuery4 read4 = DummyLdbcSnbInteractiveOperationInstances.read4();
+        LdbcQuery5 read5 = DummyLdbcSnbInteractiveOperationInstances.read5();
+        LdbcQuery6 read6 = DummyLdbcSnbInteractiveOperationInstances.read6();
+        LdbcQuery7 read7 = DummyLdbcSnbInteractiveOperationInstances.read7();
+        LdbcQuery8 read8 = DummyLdbcSnbInteractiveOperationInstances.read8();
+        LdbcQuery9 read9 = DummyLdbcSnbInteractiveOperationInstances.read9();
+        LdbcQuery10 read10 = DummyLdbcSnbInteractiveOperationInstances.read10();
+        LdbcQuery11 read11 = DummyLdbcSnbInteractiveOperationInstances.read11();
+        LdbcQuery12 read12 = DummyLdbcSnbInteractiveOperationInstances.read12();
+        LdbcQuery13 read13 = DummyLdbcSnbInteractiveOperationInstances.read13();
+        LdbcQuery14 read14 = DummyLdbcSnbInteractiveOperationInstances.read14();
+
+
+        // When
+        String serializedRead1 = workload.serializeOperation(read1);
+        String serializedRead2 = workload.serializeOperation(read2);
+        String serializedRead3 = workload.serializeOperation(read3);
+        String serializedRead4 = workload.serializeOperation(read4);
+        String serializedRead5 = workload.serializeOperation(read5);
+        String serializedRead6 = workload.serializeOperation(read6);
+        String serializedRead7 = workload.serializeOperation(read7);
+        String serializedRead8 = workload.serializeOperation(read8);
+        String serializedRead9 = workload.serializeOperation(read9);
+        String serializedRead10 = workload.serializeOperation(read10);
+        String serializedRead11 = workload.serializeOperation(read11);
+        String serializedRead12 = workload.serializeOperation(read12);
+        String serializedRead13 = workload.serializeOperation(read13);
+        String serializedRead14 = workload.serializeOperation(read14);
+
+        // Then
+        assertThat((Operation) workload.marshalOperation(serializedRead1), equalTo((Operation) read1));
+        assertThat((Operation) workload.marshalOperation(serializedRead2), equalTo((Operation) read2));
+        assertThat((Operation) workload.marshalOperation(serializedRead3), equalTo((Operation) read3));
+        assertThat((Operation) workload.marshalOperation(serializedRead4), equalTo((Operation) read4));
+        assertThat((Operation) workload.marshalOperation(serializedRead5), equalTo((Operation) read5));
+        assertThat((Operation) workload.marshalOperation(serializedRead6), equalTo((Operation) read6));
+        assertThat((Operation) workload.marshalOperation(serializedRead7), equalTo((Operation) read7));
+        assertThat((Operation) workload.marshalOperation(serializedRead8), equalTo((Operation) read8));
+        assertThat((Operation) workload.marshalOperation(serializedRead9), equalTo((Operation) read9));
+        assertThat((Operation) workload.marshalOperation(serializedRead10), equalTo((Operation) read10));
+        assertThat((Operation) workload.marshalOperation(serializedRead11), equalTo((Operation) read11));
+        assertThat((Operation) workload.marshalOperation(serializedRead12), equalTo((Operation) read12));
+        assertThat((Operation) workload.marshalOperation(serializedRead13), equalTo((Operation) read13));
+        assertThat((Operation) workload.marshalOperation(serializedRead14), equalTo((Operation) read14));
     }
 
     @Test
@@ -101,7 +112,7 @@ public class LdbcSnbInteractiveWorkloadReadTests {
         Map<String, String> ldbcSnbInteractiveReadTestParamsFromFile =
                 ConsoleAndFileDriverConfiguration.convertLongKeysToShortKeys(MapUtils.<String, String>propertiesToMap(ldbcSnbInteractiveReadTestParamsFromFileProperties));
 
-        Map<String, String> ldbcSnbInteractiveReadTestParams = defaultSnbParamsMap();
+        Map<String, String> ldbcSnbInteractiveReadTestParams = LdbcSnbInteractiveWorkload.defaultReadOnlyConfig();
 
         // When
 
@@ -118,10 +129,10 @@ public class LdbcSnbInteractiveWorkloadReadTests {
     public void shouldPerformWorkloadValidationAndDatabaseValidation() throws ClientException {
         // Given
         Map<String, String> paramsMap = defaultSnbParamsMapWithWorkloadAndParametersDir();
-        // NothingDb-specific parameters
-        paramsMap.put(NothingDb.SLEEP_DURATION_MILLI, Long.toString(Duration.fromMilli(1).asMilli()));
+        // DummyDb-specific parameters
+        paramsMap.put(DummyDb.SLEEP_DURATION_MILLI, Long.toString(Duration.fromMilli(1).asMilli()));
         // Driver-specific parameters
-        String dbClassName = NothingDb.class.getName();
+        String dbClassName = DummyDb.class.getName();
         String workloadClassName = LdbcSnbInteractiveWorkload.class.getName();
         long operationCount = 10000;
         int threadCount = 64;
@@ -130,16 +141,17 @@ public class LdbcSnbInteractiveWorkloadReadTests {
         String resultFilePath = null;
         double timeCompressionRatio = 1.0;
         Duration gctDeltaDuration = Duration.fromMinutes(10);
-        List<String> peerIds = Lists.newArrayList();
+        Set<String> peerIds = new HashSet<>();
         Duration toleratedExecutionDelay = Duration.fromMinutes(10);
-        boolean validateDatabase = true;
+        ConsoleAndFileDriverConfiguration.ConsoleAndFileValidationParamOptions validationParams = null;
+        String dbValidationFilePath = null;
         boolean validateWorkload = true;
         boolean calculateWorkloadStatistics = true;
         Duration spinnerSleepDuration = Duration.fromMilli(0);
 
         DriverConfiguration params = new ConsoleAndFileDriverConfiguration(paramsMap, dbClassName, workloadClassName, operationCount,
                 threadCount, showStatus, timeUnit, resultFilePath, timeCompressionRatio, gctDeltaDuration, peerIds, toleratedExecutionDelay,
-                validateDatabase, validateWorkload, calculateWorkloadStatistics, spinnerSleepDuration);
+                validationParams, dbValidationFilePath, validateWorkload, calculateWorkloadStatistics, spinnerSleepDuration);
 
         // When
         Client client = new Client(new LocalControlService(TIME_SOURCE.now().plus(Duration.fromMilli(500)), params), TIME_SOURCE);
@@ -148,7 +160,7 @@ public class LdbcSnbInteractiveWorkloadReadTests {
         // Then
         assertThat(client.databaseLoadedCorrectly(), is(true));
         assertThat(client.workloadLoadedCorrectly(), is(true));
-        assertThat(client.databaseValidationResult(), is(true));
+        assertThat(client.databaseValidationResult(), is(nullValue()));
         assertThat(client.workloadValidationResult(), is(notNullValue()));
         assertThat(client.workloadValidationResult().isSuccessful(), is(true));
         assertThat(client.workloadStatistics(), is(notNullValue()));
@@ -160,10 +172,10 @@ public class LdbcSnbInteractiveWorkloadReadTests {
         Map<String, String> paramsMap = defaultSnbParamsMapWithWorkloadAndParametersDir();
         // LDBC Interactive Workload-specific parameters
         paramsMap.put(LdbcSnbInteractiveWorkload.DATA_DIRECTORY, TestUtils.getResource("/").getAbsolutePath());
-        // NothingDb-specific parameters
-        paramsMap.put(NothingDb.SLEEP_DURATION_MILLI, Long.toString(Duration.fromMilli(10).asMilli()));
+        // DummyDb-specific parameters
+        paramsMap.put(DummyDb.SLEEP_DURATION_MILLI, Long.toString(Duration.fromMilli(10).asMilli()));
         // Driver-specific parameters
-        String dbClassName = NothingDb.class.getName();
+        String dbClassName = DummyDb.class.getName();
         String workloadClassName = LdbcSnbInteractiveWorkload.class.getName();
         long operationCount = 10000;
         int threadCount = 1;
@@ -173,9 +185,10 @@ public class LdbcSnbInteractiveWorkloadReadTests {
         FileUtils.deleteQuietly(new File(resultFilePath));
         double timeCompressionRatio = 1.0;
         Duration gctDeltaDuration = Duration.fromMinutes(60);
-        List<String> peerIds = Lists.newArrayList();
+        Set<String> peerIds = new HashSet<>();
         Duration toleratedExecutionDelay = Duration.fromMinutes(60);
-        boolean validateDatabase = false;
+        ConsoleAndFileDriverConfiguration.ConsoleAndFileValidationParamOptions validationParams = null;
+        String dbValidationFilePath = null;
         boolean validateWorkload = false;
         boolean calculateWorkloadStatistics = true;
         Duration spinnerSleepDuration = Duration.fromMilli(10);
@@ -184,7 +197,7 @@ public class LdbcSnbInteractiveWorkloadReadTests {
 
         DriverConfiguration params = new ConsoleAndFileDriverConfiguration(paramsMap, dbClassName, workloadClassName, operationCount,
                 threadCount, showStatus, timeUnit, resultFilePath, timeCompressionRatio, gctDeltaDuration, peerIds, toleratedExecutionDelay,
-                validateDatabase, validateWorkload, calculateWorkloadStatistics, spinnerSleepDuration);
+                validationParams, dbValidationFilePath, validateWorkload, calculateWorkloadStatistics, spinnerSleepDuration);
 
         Workload workloadA = new LdbcSnbInteractiveWorkload();
         workloadA.init(params);
@@ -230,7 +243,7 @@ public class LdbcSnbInteractiveWorkloadReadTests {
     @Test
     public void shouldGenerateConfiguredQueryMix() throws ClientException, DriverConfigurationException, WorkloadException, IOException {
         // Given
-        String ldbcDriverPropertiesPath = TestUtils.getResource("/ldbc_driver_default_test.properties").getAbsolutePath();
+        String ldbcDriverPropertiesPath = TestUtils.getResource("/ldbc_driver_default.properties").getAbsolutePath();
         Properties ldbcDriverProperties = new Properties();
         ldbcDriverProperties.load(new FileInputStream(ldbcDriverPropertiesPath));
         Map<String, String> ldbcDriverParams = ConsoleAndFileDriverConfiguration.convertLongKeysToShortKeys(MapUtils.<String, String>propertiesToMap(ldbcDriverProperties));
@@ -341,9 +354,10 @@ public class LdbcSnbInteractiveWorkloadReadTests {
         FileUtils.deleteQuietly(new File(resultFilePath));
         double timeCompressionRatio = 0.01;
         Duration gctDeltaDuration = Duration.fromSeconds(10);
-        List<String> peerIds = Lists.newArrayList();
+        Set<String> peerIds = new HashSet<>();
         Duration toleratedExecutionDelay = Duration.fromSeconds(1);
-        boolean validateDatabase = false;
+        ConsoleAndFileDriverConfiguration.ConsoleAndFileValidationParamOptions validationParams = null;
+        String dbValidationFilePath = null;
         boolean validateWorkload = false;
         boolean calculateWorkloadStatistics = true;
         Duration spinnerSleepDuration = Duration.fromMilli(10);
@@ -353,7 +367,7 @@ public class LdbcSnbInteractiveWorkloadReadTests {
 
         DriverConfiguration params = new ConsoleAndFileDriverConfiguration(paramsMap, dbClassName, workloadClassName, operationCount,
                 threadCount, showStatus, timeUnit, resultFilePath, timeCompressionRatio, gctDeltaDuration, peerIds, toleratedExecutionDelay,
-                validateDatabase, validateWorkload, calculateWorkloadStatistics, spinnerSleepDuration);
+                validationParams, dbValidationFilePath, validateWorkload, calculateWorkloadStatistics, spinnerSleepDuration);
 
         // When
         Client client = new Client(new LocalControlService(TIME_SOURCE.now().plus(Duration.fromSeconds(3)), params), TIME_SOURCE);
@@ -373,7 +387,7 @@ public class LdbcSnbInteractiveWorkloadReadTests {
         String ldbcSocnetInteractiveTestPropertiesPath =
                 new File("ldbc_driver/workloads/ldbc/socnet/interactive/ldbc_socnet_interactive.properties").getAbsolutePath();
         String ldbcDriverTestPropertiesPath =
-                new File("ldbc_driver/src/main/resources/ldbc_driver_default.properties").getAbsolutePath();
+                TestUtils.getResource("/ldbc_driver_default.properties").getAbsolutePath();
 
         String csvOutputFilePath = "temp_csv_output_file.csv";
         FileUtils.deleteQuietly(new File(csvOutputFilePath));
@@ -428,9 +442,10 @@ public class LdbcSnbInteractiveWorkloadReadTests {
         FileUtils.deleteQuietly(new File(resultFilePath));
         double timeCompressionRatio = 1.0;
         Duration gctDeltaDuration = Duration.fromSeconds(10);
-        List<String> peerIds = Lists.newArrayList();
+        Set<String> peerIds = new HashSet<>();
         Duration toleratedExecutionDelay = Duration.fromSeconds(1);
-        boolean validateDatabase = false;
+        ConsoleAndFileDriverConfiguration.ConsoleAndFileValidationParamOptions validationParams = null;
+        String dbValidationFilePath = null;
         boolean validateWorkload = false;
         boolean calculateWorkloadStatistics = true;
         Duration spinnerSleepDuration = Duration.fromMilli(0);
@@ -440,7 +455,7 @@ public class LdbcSnbInteractiveWorkloadReadTests {
 
         DriverConfiguration configuration = new ConsoleAndFileDriverConfiguration(paramsMap, dbClassName, workloadClassName, operationCount,
                 threadCount, showStatus, timeUnit, resultFilePath, timeCompressionRatio, gctDeltaDuration, peerIds, toleratedExecutionDelay,
-                validateDatabase, validateWorkload, calculateWorkloadStatistics, spinnerSleepDuration);
+                validationParams, dbValidationFilePath, validateWorkload, calculateWorkloadStatistics, spinnerSleepDuration);
 
         Workload workload = new LdbcSnbInteractiveWorkload();
         workload.init(configuration);
@@ -473,9 +488,10 @@ public class LdbcSnbInteractiveWorkloadReadTests {
         FileUtils.deleteQuietly(new File(resultFilePath));
         double timeCompressionRatio = 1.0;
         Duration gctDeltaDuration = Duration.fromSeconds(10);
-        List<String> peerIds = Lists.newArrayList();
+        Set<String> peerIds = new HashSet<>();
         Duration toleratedExecutionDelay = Duration.fromSeconds(1);
-        boolean validateDatabase = false;
+        ConsoleAndFileDriverConfiguration.ConsoleAndFileValidationParamOptions validationParams = null;
+        String dbValidationFilePath = null;
         boolean validateWorkload = false;
         boolean calculateWorkloadStatistics = true;
         Duration spinnerSleepDuration = Duration.fromMilli(0);
@@ -485,7 +501,7 @@ public class LdbcSnbInteractiveWorkloadReadTests {
 
         DriverConfiguration configuration = new ConsoleAndFileDriverConfiguration(paramsMap, dbClassName, workloadClassName, operationCount,
                 threadCount, showStatus, timeUnit, resultFilePath, timeCompressionRatio, gctDeltaDuration, peerIds, toleratedExecutionDelay,
-                validateDatabase, validateWorkload, calculateWorkloadStatistics, spinnerSleepDuration);
+                validationParams, dbValidationFilePath, validateWorkload, calculateWorkloadStatistics, spinnerSleepDuration);
 
         Workload workload = new LdbcSnbInteractiveWorkload();
         workload.init(configuration);
@@ -503,10 +519,10 @@ public class LdbcSnbInteractiveWorkloadReadTests {
         List<Operation<?>> blockingOperations;
         List<Operation<?>> asynchronousOperations;
         try {
-            IteratorSplitter<Operation<?>> splitter = new IteratorSplitter<Operation<?>>(IteratorSplitter.UnmappedItemPolicy.ABORT);
-            SplitDefinition<Operation<?>> windowed = new SplitDefinition<Operation<?>>(Workload.operationTypesBySchedulingMode(workload.operationClassifications(), OperationClassification.SchedulingMode.WINDOWED));
-            SplitDefinition<Operation<?>> blocking = new SplitDefinition<Operation<?>>(Workload.operationTypesBySchedulingMode(workload.operationClassifications(), OperationClassification.SchedulingMode.INDIVIDUAL_BLOCKING));
-            SplitDefinition<Operation<?>> asynchronous = new SplitDefinition<Operation<?>>(Workload.operationTypesBySchedulingMode(workload.operationClassifications(), OperationClassification.SchedulingMode.INDIVIDUAL_ASYNC));
+            IteratorSplitter<Operation<?>> splitter = new IteratorSplitter<>(IteratorSplitter.UnmappedItemPolicy.ABORT);
+            SplitDefinition<Operation<?>> windowed = new SplitDefinition<>(Workload.operationTypesBySchedulingMode(workload.operationClassifications(), OperationClassification.SchedulingMode.WINDOWED));
+            SplitDefinition<Operation<?>> blocking = new SplitDefinition<>(Workload.operationTypesBySchedulingMode(workload.operationClassifications(), OperationClassification.SchedulingMode.INDIVIDUAL_BLOCKING));
+            SplitDefinition<Operation<?>> asynchronous = new SplitDefinition<>(Workload.operationTypesBySchedulingMode(workload.operationClassifications(), OperationClassification.SchedulingMode.INDIVIDUAL_ASYNC));
             SplitResult splits = splitter.split(operations.iterator(), windowed, blocking, asynchronous);
             windowedOperations = Lists.newArrayList(splits.getSplitFor(windowed));
             blockingOperations = Lists.newArrayList(splits.getSplitFor(blocking));
@@ -543,10 +559,10 @@ public class LdbcSnbInteractiveWorkloadReadTests {
     public void shouldNotFailUnexpectedlyWhenQueriesAreLongRunning() throws ClientException, DriverConfigurationException, WorkloadException, IOException {
         // Given
         Map<String, String> paramsMap = defaultSnbParamsMapWithWorkloadAndParametersDir();
-        // NothingDb-specific parameters
-        paramsMap.put(NothingDb.SLEEP_DURATION_MILLI, Long.toString(Duration.fromSeconds(40).asMilli()));
+        // DummyDb-specific parameters
+        paramsMap.put(DummyDb.SLEEP_DURATION_MILLI, Long.toString(Duration.fromSeconds(40).asMilli()));
         // Driver-specific parameters
-        String dbClassName = NothingDb.class.getName();
+        String dbClassName = DummyDb.class.getName();
         String workloadClassName = LdbcSnbInteractiveWorkload.class.getName();
         long operationCount = 5;
         int threadCount = 2;
@@ -556,9 +572,10 @@ public class LdbcSnbInteractiveWorkloadReadTests {
         FileUtils.deleteQuietly(new File(resultFilePath));
         double timeCompressionRatio = 1.0;
         Duration gctDeltaDuration = Duration.fromSeconds(10);
-        List<String> peerIds = Lists.newArrayList();
+        Set<String> peerIds = new HashSet<>();
         Duration toleratedExecutionDelay = Duration.fromMinutes(5);
-        boolean validateDatabase = false;
+        ConsoleAndFileDriverConfiguration.ConsoleAndFileValidationParamOptions validationParams = null;
+        String dbValidationFilePath = null;
         boolean validateWorkload = false;
         boolean calculateWorkloadStatistics = true;
         Duration spinnerSleepDuration = Duration.fromMilli(0);
@@ -567,7 +584,7 @@ public class LdbcSnbInteractiveWorkloadReadTests {
 
         DriverConfiguration params = new ConsoleAndFileDriverConfiguration(paramsMap, dbClassName, workloadClassName, operationCount,
                 threadCount, showStatus, timeUnit, resultFilePath, timeCompressionRatio, gctDeltaDuration, peerIds, toleratedExecutionDelay,
-                validateDatabase, validateWorkload, calculateWorkloadStatistics, spinnerSleepDuration);
+                validationParams, dbValidationFilePath, validateWorkload, calculateWorkloadStatistics, spinnerSleepDuration);
 
         // When
         Client client = new Client(new LocalControlService(TIME_SOURCE.now().plus(Duration.fromMilli(500)), params), TIME_SOURCE);

@@ -1,18 +1,20 @@
 package com.ldbc.driver.workloads.ldbc.snb.interactive;
 
+import com.google.common.collect.Iterables;
 import com.ldbc.driver.Operation;
 
-import java.util.Arrays;
+import java.util.Collections;
 import java.util.Date;
+import java.util.List;
 
 public class LdbcUpdate4AddForum extends Operation<Object> {
     private final long forumId;
     private final String forumTitle;
     private final Date creationDate;
     private final long moderatorPersonId;
-    private final long[] tagIds;
+    private final List<Long> tagIds;
 
-    public LdbcUpdate4AddForum(long forumId, String forumTitle, Date creationDate, long moderatorPersonId, long[] tagIds) {
+    public LdbcUpdate4AddForum(long forumId, String forumTitle, Date creationDate, long moderatorPersonId, List<Long> tagIds) {
         this.forumId = forumId;
         this.forumTitle = forumTitle;
         this.creationDate = creationDate;
@@ -36,7 +38,7 @@ public class LdbcUpdate4AddForum extends Operation<Object> {
         return moderatorPersonId;
     }
 
-    public long[] tagIds() {
+    public List<Long> tagIds() {
         return tagIds;
     }
 
@@ -51,9 +53,15 @@ public class LdbcUpdate4AddForum extends Operation<Object> {
         if (moderatorPersonId != that.moderatorPersonId) return false;
         if (creationDate != null ? !creationDate.equals(that.creationDate) : that.creationDate != null) return false;
         if (forumTitle != null ? !forumTitle.equals(that.forumTitle) : that.forumTitle != null) return false;
-        if (!Arrays.equals(tagIds, that.tagIds)) return false;
+        if (tagIds != null ? !Iterables.elementsEqual(sort(tagIds), sort(that.tagIds)) : that.tagIds != null)
+            return false;
 
         return true;
+    }
+
+    private <T extends Comparable> List<T> sort(List<T> list) {
+        Collections.sort(list);
+        return list;
     }
 
     @Override
@@ -62,7 +70,7 @@ public class LdbcUpdate4AddForum extends Operation<Object> {
         result = 31 * result + (forumTitle != null ? forumTitle.hashCode() : 0);
         result = 31 * result + (creationDate != null ? creationDate.hashCode() : 0);
         result = 31 * result + (int) (moderatorPersonId ^ (moderatorPersonId >>> 32));
-        result = 31 * result + (tagIds != null ? Arrays.hashCode(tagIds) : 0);
+        result = 31 * result + (tagIds != null ? tagIds.hashCode() : 0);
         return result;
     }
 
@@ -73,7 +81,17 @@ public class LdbcUpdate4AddForum extends Operation<Object> {
                 ", forumTitle='" + forumTitle + '\'' +
                 ", creationDate=" + creationDate +
                 ", moderatorPersonId=" + moderatorPersonId +
-                ", tagIds=" + Arrays.toString(tagIds) +
+                ", tagIds=" + tagIds +
                 '}';
+    }
+
+    @Override
+    public Object marshalResult(String serializedOperationResult) {
+        return null;
+    }
+
+    @Override
+    public String serializeResult(Object operationResultInstance) {
+        return null;
     }
 }

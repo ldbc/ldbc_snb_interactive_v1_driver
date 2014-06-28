@@ -2,7 +2,6 @@ package com.ldbc.driver;
 
 import com.ldbc.driver.control.DriverConfiguration;
 import com.ldbc.driver.generator.GeneratorFactory;
-import com.ldbc.driver.util.Tuple;
 
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -12,7 +11,7 @@ import java.util.Map;
 public abstract class Workload {
     public static Class<Operation<?>>[] operationTypesBySchedulingMode(Map<Class<? extends Operation<?>>, OperationClassification> operationClassificationMapping,
                                                                        OperationClassification.SchedulingMode schedulingMode) {
-        List<Class<? extends Operation<?>>> operationsBySchedulingMode = new ArrayList<Class<? extends Operation<?>>>();
+        List<Class<? extends Operation<?>>> operationsBySchedulingMode = new ArrayList<>();
         for (Map.Entry<Class<? extends Operation<?>>, OperationClassification> operationAndClassification : operationClassificationMapping.entrySet()) {
             if (operationAndClassification.getValue().schedulingMode().equals(schedulingMode))
                 operationsBySchedulingMode.add(operationAndClassification.getKey());
@@ -63,6 +62,11 @@ public abstract class Workload {
     protected abstract Iterator<Operation<?>> createOperations(GeneratorFactory generators)
             throws WorkloadException;
 
-    protected abstract Iterator<Tuple.Tuple2<Operation<?>, Object>> validationOperations(GeneratorFactory generators)
-            throws WorkloadException;
+    public boolean validationResultCheck(Operation<?> operation, Object operationResult) {
+        return true;
+    }
+
+    public abstract String serializeOperation(Operation<?> operation) throws SerializingMarshallingException;
+
+    public abstract Operation<?> marshalOperation(String serializedOperation) throws SerializingMarshallingException;
 }

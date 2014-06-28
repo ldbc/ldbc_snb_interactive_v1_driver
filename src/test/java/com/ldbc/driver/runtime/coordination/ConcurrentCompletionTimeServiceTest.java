@@ -1,6 +1,6 @@
 package com.ldbc.driver.runtime.coordination;
 
-import com.google.common.collect.Lists;
+import com.google.common.collect.Sets;
 import com.ldbc.driver.Operation;
 import com.ldbc.driver.Workload;
 import com.ldbc.driver.WorkloadException;
@@ -16,9 +16,9 @@ import com.ldbc.driver.workloads.simple.SimpleWorkload;
 import org.junit.Test;
 
 import java.util.Iterator;
-import java.util.List;
 import java.util.Map;
 import java.util.Queue;
+import java.util.Set;
 import java.util.concurrent.*;
 
 import static org.hamcrest.CoreMatchers.*;
@@ -150,12 +150,12 @@ public class ConcurrentCompletionTimeServiceTest {
     public void completionTimeServicesShouldBehaveDeterministically() throws InterruptedException, ExecutionException, WorkloadException, CompletionTimeException {
         ConcurrentErrorReporter errorReporter = new ConcurrentErrorReporter();
         String otherPeerId = "somePeer";
-        List<String> peerIds = Lists.newArrayList(otherPeerId);
-        int testRepetitions = 10;
+        Set<String> peerIds = Sets.newHashSet(otherPeerId);
+        int testRepetitions = 5;
         long syncDuration;
         long threadedDuration;
 
-        for (int workerThreads = 1; workerThreads < 65; workerThreads = workerThreads * 2) {
+        for (int workerThreads = 1; workerThreads < 33; workerThreads = workerThreads * 2) {
             syncDuration = 0;
             for (int i = 0; i < testRepetitions; i++) {
                 ConcurrentCompletionTimeService concurrentCompletionTimeService = new NaiveSynchronizedConcurrentCompletionTimeService(peerIds);
@@ -204,9 +204,10 @@ public class ConcurrentCompletionTimeServiceTest {
         String resultFilePath = "nothingPath";
         double timeCompressionRatio = 1.0;
         Duration gctDeltaDuration = null;
-        List<String> peerIds = null;
+        Set<String> peerIds = null;
         Duration toleratedDelay = null;
-        boolean validateDatabase = false;
+        ConsoleAndFileDriverConfiguration.ConsoleAndFileValidationParamOptions validationParams = null;
+        String dbValidationFilePath = null;
         boolean validateWorkload = false;
         boolean calculateWorkloadStatistics = false;
         Duration spinnerSleepDuration = Duration.fromMilli(0);
@@ -214,7 +215,7 @@ public class ConcurrentCompletionTimeServiceTest {
         ConsoleAndFileDriverConfiguration params =
                 new ConsoleAndFileDriverConfiguration(paramsMap, className, workloadName, operationCount, threadCount, showStatus, timeUnit,
                         resultFilePath, timeCompressionRatio, gctDeltaDuration, peerIds, toleratedDelay,
-                        validateDatabase, validateWorkload, calculateWorkloadStatistics, spinnerSleepDuration);
+                        validationParams, dbValidationFilePath, validateWorkload, calculateWorkloadStatistics, spinnerSleepDuration);
         Workload workload = new SimpleWorkload();
         workload.init(params);
         GeneratorFactory generators = new GeneratorFactory(new RandomDataGeneratorFactory(42L));

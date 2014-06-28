@@ -1,6 +1,6 @@
 package com.ldbc.driver.runtime.metrics;
 
-import com.ldbc.driver.OperationResult;
+import com.ldbc.driver.OperationResultReport;
 import com.ldbc.driver.temporal.Duration;
 
 import java.util.Comparator;
@@ -28,11 +28,11 @@ public class OperationMetricsManager {
         this.resultCodeMetric = new DiscreteMetricManager(METRIC_RESULT_CODE, "Result Code");
     }
 
-    void measure(OperationResult operationResult) throws MetricsCollectionException {
+    void measure(OperationResultReport operationResultReport) throws MetricsCollectionException {
         //
         // Measure operation runtime
         //
-        long runtimeInAppropriateUnit = operationResult.runDuration().as(durationUnit);
+        long runtimeInAppropriateUnit = operationResultReport.runDuration().as(durationUnit);
         try {
             runTimeMetric.addMeasurement(runtimeInAppropriateUnit);
         } catch (MetricsCollectionException e) {
@@ -44,7 +44,7 @@ public class OperationMetricsManager {
         //
         // Measure driver performance - how close is it to target throughput
         //
-        Duration startTimeDelay = operationResult.actualStartTime().greaterBy(operationResult.scheduledStartTime());
+        Duration startTimeDelay = operationResultReport.actualStartTime().greaterBy(operationResultReport.scheduledStartTime());
         long startTimeDelayInAppropriateUnit = startTimeDelay.as(durationUnit);
         try {
             startTimeDelayMetric.addMeasurement(startTimeDelayInAppropriateUnit);
@@ -57,7 +57,7 @@ public class OperationMetricsManager {
         //
         // Measure result code
         //
-        int operationResultCode = operationResult.resultCode();
+        int operationResultCode = operationResultReport.resultCode();
         try {
             resultCodeMetric.addMeasurement(operationResultCode);
         } catch (Exception e) {

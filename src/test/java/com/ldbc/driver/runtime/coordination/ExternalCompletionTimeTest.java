@@ -1,10 +1,10 @@
 package com.ldbc.driver.runtime.coordination;
 
-import com.google.common.collect.Lists;
+import com.google.common.collect.Sets;
 import com.ldbc.driver.temporal.Time;
 import org.junit.Test;
 
-import java.util.List;
+import java.util.Set;
 
 import static org.hamcrest.CoreMatchers.*;
 import static org.junit.Assert.assertThat;
@@ -12,12 +12,12 @@ import static org.junit.Assert.assertThat;
 public class ExternalCompletionTimeTest {
     String peerId1 = "peerId1";
     String peerId2 = "peerId2";
-    List<String> peerIds = Lists.newArrayList(peerId1, peerId2);
+    Set<String> peerIds = Sets.newHashSet(peerId1, peerId2);
 
     @Test(expected = CompletionTimeException.class)
     public void shouldThrowExceptionWhenPeerIdListContainsNullValue() throws CompletionTimeException {
         // Given
-        ExternalCompletionTime ect = new ExternalCompletionTime(Lists.<String>newArrayList(null));
+        ExternalCompletionTime ect = new ExternalCompletionTime(Sets.<String>newHashSet(null));
 
         // When
         // no events have been applied

@@ -50,7 +50,7 @@ public class BasicDb extends Db {
 
     public static class InsertOperationHandler extends OperationHandler<InsertOperation> {
         @Override
-        public OperationResult executeOperation(InsertOperation operation) {
+        public OperationResultReport executeOperation(InsertOperation operation) {
             Map<String, Object> queryParams = new HashMap<>();
             queryParams.put("table", operation.getTable());
             queryParams.put("key", operation.getKey());
@@ -69,7 +69,7 @@ public class BasicDb extends Db {
 
     public static class ReadOperationHandler extends OperationHandler<ReadOperation> {
         @Override
-        public OperationResult executeOperation(ReadOperation operation) {
+        public OperationResultReport executeOperation(ReadOperation operation) {
             Map<String, Object> queryParams = new HashMap<>();
             queryParams.put("table", operation.getTable());
             queryParams.put("key", operation.getKey());
@@ -88,7 +88,7 @@ public class BasicDb extends Db {
 
     public static class UpdateOperationHandler extends OperationHandler<UpdateOperation> {
         @Override
-        public OperationResult executeOperation(UpdateOperation operation) {
+        public OperationResultReport executeOperation(UpdateOperation operation) {
             Map<String, Object> queryParams = new HashMap<>();
             queryParams.put("table", operation.getTable());
             queryParams.put("key", operation.getKey());
@@ -107,7 +107,7 @@ public class BasicDb extends Db {
 
     public static class ScanOperationHandler extends OperationHandler<ScanOperation> {
         @Override
-        public OperationResult executeOperation(ScanOperation operation) {
+        public OperationResultReport executeOperation(ScanOperation operation) {
             Map<String, Object> queryParams = new HashMap<>();
             queryParams.put("table", operation.getTable());
             queryParams.put("key", operation.getStartkey());
@@ -127,7 +127,7 @@ public class BasicDb extends Db {
 
     public static class ReadModifyWriteOperationHandler extends OperationHandler<ReadModifyWriteOperation> {
         @Override
-        public OperationResult executeOperation(ReadModifyWriteOperation operation) {
+        public OperationResultReport executeOperation(ReadModifyWriteOperation operation) {
             Map<String, Object> queryParams = new HashMap<>();
             queryParams.put("table", operation.getTable());
             queryParams.put("key", operation.getKey());

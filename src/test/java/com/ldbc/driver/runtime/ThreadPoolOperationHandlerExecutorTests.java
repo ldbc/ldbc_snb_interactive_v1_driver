@@ -12,6 +12,7 @@ import com.ldbc.driver.runtime.scheduling.Spinner;
 import com.ldbc.driver.temporal.Duration;
 import com.ldbc.driver.temporal.SystemTimeSource;
 import com.ldbc.driver.temporal.TimeSource;
+import com.ldbc.driver.testutils.NothingOperation;
 import org.junit.Test;
 
 import java.util.concurrent.ExecutionException;
@@ -36,12 +37,11 @@ public class ThreadPoolOperationHandlerExecutorTests {
         int threadCount = 1;
         OperationHandlerExecutor executor = new ThreadPoolOperationHandlerExecutor(threadCount);
 
-        Operation<?> operation = new Operation<Integer>() {
-        };
+        Operation<?> operation = new NothingOperation();
         operation.setScheduledStartTime(TIME_SOURCE.now().plus(Duration.fromMilli(200)));
         OperationHandler<?> handler = new OperationHandler<Operation<Integer>>() {
             @Override
-            protected OperationResult executeOperation(Operation operation) throws DbException {
+            protected OperationResultReport executeOperation(Operation operation) throws DbException {
                 return operation.buildResult(1, 42);
             }
         };
@@ -50,8 +50,8 @@ public class ThreadPoolOperationHandlerExecutorTests {
         handler.init(TIME_SOURCE, spinner, operation, completionTimeService, errorReporter, metricsService);
 
         // Then
-        Future<OperationResult> handlerFuture = executor.execute(handler);
-        Integer handlerResult = (Integer) handlerFuture.get().result();
+        Future<OperationResultReport> handlerFuture = executor.execute(handler);
+        Integer handlerResult = (Integer) handlerFuture.get().operationResult();
         assertThat(handlerResult, is(42));
         executor.shutdown(Duration.fromSeconds(1));
         assertThat(errorReporter.toString(), errorReporter.errorEncountered(), is(false));
@@ -71,21 +71,19 @@ public class ThreadPoolOperationHandlerExecutorTests {
         int threadCount = 1;
         OperationHandlerExecutor executor = new ThreadPoolOperationHandlerExecutor(threadCount);
 
-        Operation<?> operation1 = new Operation<Integer>() {
-        };
+        Operation<?> operation1 = new NothingOperation();
         operation1.setScheduledStartTime(TIME_SOURCE.now().plus(Duration.fromMilli(100)));
-        Operation<?> operation2 = new Operation<Integer>() {
-        };
+        Operation<?> operation2 = new NothingOperation();
         operation2.setScheduledStartTime(operation1.scheduledStartTime().plus(Duration.fromMilli(100)));
         OperationHandler<?> handler1 = new OperationHandler<Operation<Integer>>() {
             @Override
-            protected OperationResult executeOperation(Operation operation) throws DbException {
+            protected OperationResultReport executeOperation(Operation operation) throws DbException {
                 return operation.buildResult(1, 1);
             }
         };
         OperationHandler<?> handler2 = new OperationHandler<Operation<Integer>>() {
             @Override
-            protected OperationResult executeOperation(Operation operation) throws DbException {
+            protected OperationResultReport executeOperation(Operation operation) throws DbException {
                 return operation.buildResult(1, 2);
             }
         };
@@ -95,12 +93,12 @@ public class ThreadPoolOperationHandlerExecutorTests {
         handler2.init(TIME_SOURCE, spinner, operation2, completionTimeService, errorReporter, metricsService);
 
         // Then
-        Future<OperationResult> handlerFuture1 = executor.execute(handler1);
-        Future<OperationResult> handlerFuture2 = executor.execute(handler2);
+        Future<OperationResultReport> handlerFuture1 = executor.execute(handler1);
+        Future<OperationResultReport> handlerFuture2 = executor.execute(handler2);
 
-        Integer handlerResult1 = (Integer) handlerFuture1.get().result();
+        Integer handlerResult1 = (Integer) handlerFuture1.get().operationResult();
         assertThat(handlerResult1, is(1));
-        Integer handlerResult2 = (Integer) handlerFuture2.get().result();
+        Integer handlerResult2 = (Integer) handlerFuture2.get().operationResult();
         assertThat(handlerResult2, is(2));
 
         executor.shutdown(Duration.fromSeconds(1));
@@ -120,12 +118,11 @@ public class ThreadPoolOperationHandlerExecutorTests {
         int threadCount = 1;
         OperationHandlerExecutor executor = new ThreadPoolOperationHandlerExecutor(threadCount);
 
-        Operation<?> operation = new Operation<Integer>() {
-        };
+        Operation<?> operation = new NothingOperation();
         operation.setScheduledStartTime(TIME_SOURCE.now().plus(Duration.fromMilli(200)));
         OperationHandler<?> handler = new OperationHandler<Operation<Integer>>() {
             @Override
-            protected OperationResult executeOperation(Operation operation) throws DbException {
+            protected OperationResultReport executeOperation(Operation operation) throws DbException {
                 return operation.buildResult(1, 42);
             }
         };
@@ -134,8 +131,8 @@ public class ThreadPoolOperationHandlerExecutorTests {
         handler.init(TIME_SOURCE, spinner, operation, completionTimeService, errorReporter, metricsService);
 
         // Then
-        Future<OperationResult> handlerFuture = executor.execute(handler);
-        Integer handlerResult = (Integer) handlerFuture.get().result();
+        Future<OperationResultReport> handlerFuture = executor.execute(handler);
+        Integer handlerResult = (Integer) handlerFuture.get().operationResult();
         assertThat(handlerResult, is(42));
         executor.shutdown(Duration.fromSeconds(1));
         assertThat(errorReporter.toString(), errorReporter.errorEncountered(), is(false));

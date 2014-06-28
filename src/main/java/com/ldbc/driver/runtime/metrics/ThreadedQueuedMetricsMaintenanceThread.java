@@ -1,6 +1,6 @@
 package com.ldbc.driver.runtime.metrics;
 
-import com.ldbc.driver.OperationResult;
+import com.ldbc.driver.OperationResultReport;
 import com.ldbc.driver.runtime.ConcurrentErrorReporter;
 
 import java.util.Queue;
@@ -31,7 +31,7 @@ public class ThreadedQueuedMetricsMaintenanceThread extends Thread {
                 }
                 switch (event.type()) {
                     case SUBMIT_RESULT:
-                        OperationResult result = ((MetricsCollectionEvent.SubmitResultEvent) event).result();
+                        OperationResultReport result = ((MetricsCollectionEvent.SubmitResultEvent) event).result();
                         try {
                             collectResultMetrics(result);
                         } catch (MetricsCollectionException e) {
@@ -77,11 +77,11 @@ public class ThreadedQueuedMetricsMaintenanceThread extends Thread {
         }
     }
 
-    private void collectResultMetrics(OperationResult operationResult) throws MetricsCollectionException {
+    private void collectResultMetrics(OperationResultReport operationResultReport) throws MetricsCollectionException {
         try {
-            metricsManager.measure(operationResult);
+            metricsManager.measure(operationResultReport);
         } catch (Exception e) {
-            String errMsg = String.format("Error encountered while logging result:\n\t%s", operationResult);
+            String errMsg = String.format("Error encountered while logging result:\n\t%s", operationResultReport);
             throw new MetricsCollectionException(errMsg, e);
         }
     }

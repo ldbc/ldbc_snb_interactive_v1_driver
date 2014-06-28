@@ -2,7 +2,7 @@ package com.ldbc.driver.runtime.executor;
 
 import com.ldbc.driver.Operation;
 import com.ldbc.driver.OperationHandler;
-import com.ldbc.driver.OperationResult;
+import com.ldbc.driver.OperationResultReport;
 import com.ldbc.driver.generator.Generator;
 import com.ldbc.driver.generator.GeneratorException;
 import com.ldbc.driver.generator.Window;
@@ -68,8 +68,8 @@ class UniformWindowedOperationStreamExecutorThread extends Thread {
     @Override
     public void run() {
         Window.OperationHandlerTimeRangeWindow window = null;
-        List<Future<OperationResult>> executingHandlersFromCurrentWindow = new ArrayList<>();
-        List<Future<OperationResult>> executingHandlersFromPreviousWindow = executingHandlersFromCurrentWindow;
+        List<Future<OperationResultReport>> executingHandlersFromCurrentWindow = new ArrayList<>();
+        List<Future<OperationResultReport>> executingHandlersFromPreviousWindow = executingHandlersFromCurrentWindow;
         HandlersFromPreviousWindowHaveFinishedCheck handlersFromPreviousWindowHaveFinishedCheck =
                 new HandlersFromPreviousWindowHaveFinishedCheck(
                         executingHandlersFromPreviousWindow,
@@ -101,7 +101,7 @@ class UniformWindowedOperationStreamExecutorThread extends Thread {
                 }
                 try {
                     handler.addCheck(handlersFromPreviousWindowHaveFinishedCheck);
-                    Future<OperationResult> executingHandler = operationHandlerExecutor.execute(handler);
+                    Future<OperationResultReport> executingHandler = operationHandlerExecutor.execute(handler);
                     executingHandlersFromCurrentWindow.add(executingHandler);
                 } catch (OperationHandlerExecutorException e) {
                     errorReporter.reportError(this,
@@ -129,13 +129,13 @@ class UniformWindowedOperationStreamExecutorThread extends Thread {
     }
 
     private class HandlersFromPreviousWindowHaveFinishedCheck implements SpinnerCheck {
-        private final List<Future<OperationResult>> futuresForHandlersFromPreviousWindow;
+        private final List<Future<OperationResultReport>> futuresForHandlersFromPreviousWindow;
         private final ConcurrentErrorReporter errorReporter;
         private final UniformWindowedOperationStreamExecutorThread parent;
         private boolean checkResult;
 
         HandlersFromPreviousWindowHaveFinishedCheck(
-                List<Future<OperationResult>> futuresForHandlersFromPreviousWindow,
+                List<Future<OperationResultReport>> futuresForHandlersFromPreviousWindow,
                 ConcurrentErrorReporter errorReporter,
                 UniformWindowedOperationStreamExecutorThread parent) {
             this.futuresForHandlersFromPreviousWindow = futuresForHandlersFromPreviousWindow;

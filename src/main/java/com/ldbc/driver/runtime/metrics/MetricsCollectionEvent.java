@@ -1,6 +1,6 @@
 package com.ldbc.driver.runtime.metrics;
 
-import com.ldbc.driver.OperationResult;
+import com.ldbc.driver.OperationResultReport;
 
 abstract class MetricsCollectionEvent {
 
@@ -16,7 +16,7 @@ abstract class MetricsCollectionEvent {
         TERMINATE
     }
 
-    public static SubmitResultEvent submitResult(OperationResult result) {
+    public static SubmitResultEvent submitResult(OperationResultReport result) {
         return new SubmitResultEvent(result);
     }
 
@@ -35,9 +35,9 @@ abstract class MetricsCollectionEvent {
     abstract MetricsEventType type();
 
     static class SubmitResultEvent extends MetricsCollectionEvent {
-        private final OperationResult result;
+        private final OperationResultReport result;
 
-        private SubmitResultEvent(OperationResult result) {
+        private SubmitResultEvent(OperationResultReport result) {
             this.result = result;
         }
 
@@ -46,7 +46,7 @@ abstract class MetricsCollectionEvent {
             return MetricsEventType.SUBMIT_RESULT;
         }
 
-        OperationResult result() {
+        OperationResultReport result() {
             return result;
         }
     }

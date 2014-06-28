@@ -28,4 +28,14 @@ public class InsertOperation extends Operation<Object> {
     public Map<String, ByteIterator> getValuedFields() {
         return valuedFields;
     }
+
+    @Override
+    public Object marshalResult(String serializedOperationResult) {
+        return null;
+    }
+
+    @Override
+    public String serializeResult(Object operationResultInstance) {
+        return null;
+    }
 }

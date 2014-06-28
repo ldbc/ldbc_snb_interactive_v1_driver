@@ -2,7 +2,7 @@ package com.ldbc.driver;
 
 import com.ldbc.driver.temporal.Time;
 
-public abstract class Operation<R> {
+public abstract class Operation<RESULT_TYPE> {
     private Time scheduledStartTime = null;
 
     public final void setScheduledStartTime(Time scheduledStartTime) {
@@ -13,8 +13,8 @@ public abstract class Operation<R> {
         return scheduledStartTime;
     }
 
-    public final OperationResult buildResult(int resultCode, R result) {
-        return new OperationResult(resultCode, result);
+    public final OperationResultReport buildResult(int resultCode, RESULT_TYPE result) {
+        return new OperationResultReport(resultCode, result);
     }
 
     public String type() {
@@ -25,4 +25,8 @@ public abstract class Operation<R> {
     public String toString() {
         return String.format("Operation [type=%s, scheduledStartTime=%s]", type(), scheduledStartTime);
     }
+
+    public abstract RESULT_TYPE marshalResult(String serializedOperationResult) throws SerializingMarshallingException;
+
+    public abstract String serializeResult(Object operationResultInstance) throws SerializingMarshallingException;
 }

@@ -63,6 +63,21 @@ public class GeneratorFactory {
      */
 
     /**
+     * Maps/transforms one iterator into another, using input function to perform the transformation on each individual element.
+     * Returned iterator will have the same length input iterator.
+     *
+     * @param original
+     * @param fun
+     * @param <IN>
+     * @param <OUT>
+     * @return
+     */
+    public <IN, OUT> Iterator<OUT> map(Iterator<IN> original, Function1<IN, OUT> fun) {
+        return new MappingGenerator<>(original, fun);
+    }
+
+
+    /**
      * Returns the same operation generator, with start times assigned to each operation taken from the start time
      * generator. Generator stops as soon as either of the generators, start times or operations, stops.
      *
@@ -401,14 +416,14 @@ public class GeneratorFactory {
         Function1<List<Tuple2<K, Iterator<V>>>, Map<K, V>> pairsToMap = new Function1<List<Tuple2<K, Iterator<V>>>, Map<K, V>>() {
             @Override
             public Map<K, V> apply(List<Tuple2<K, Iterator<V>>> pairs) {
-                Map<K, V> keyedValues = new HashMap<K, V>();
+                Map<K, V> keyedValues = new HashMap<>();
                 for (Tuple2<K, Iterator<V>> pair : pairs) {
                     keyedValues.put(pair._1(), pair._2().next());
                 }
                 return keyedValues;
             }
         };
-        return new MappingGenerator<List<Tuple2<K, Iterator<V>>>, Map<K, V>>(discreteListGenerator, pairsToMap);
+        return new MappingGenerator<>(discreteListGenerator, pairsToMap);
     }
 
     /**

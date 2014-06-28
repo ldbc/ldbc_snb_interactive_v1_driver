@@ -3,6 +3,7 @@ package com.ldbc.driver.runtime.coordination;
 import com.ldbc.driver.temporal.Time;
 
 import java.util.List;
+import java.util.Set;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 
@@ -17,7 +18,7 @@ public class NaiveSynchronizedConcurrentCompletionTimeService implements Concurr
         WRITE_EXTERNAL
     }
 
-    public NaiveSynchronizedConcurrentCompletionTimeService(List<String> peerIds) throws CompletionTimeException {
+    public NaiveSynchronizedConcurrentCompletionTimeService(Set<String> peerIds) throws CompletionTimeException {
         LocalCompletionTime localCompletionTime = new LocalCompletionTime();
         ExternalCompletionTime externalCompletionTime = new ExternalCompletionTime(peerIds);
         this.gct = new GlobalCompletionTime(localCompletionTime, externalCompletionTime);

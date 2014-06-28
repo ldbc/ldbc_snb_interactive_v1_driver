@@ -57,4 +57,14 @@ public class LdbcUpdate5AddForumMembership extends Operation<Object> {
                 ", creationDate=" + creationDate +
                 '}';
     }
+
+    @Override
+    public Object marshalResult(String serializedOperationResult) {
+        return null;
+    }
+
+    @Override
+    public String serializeResult(Object operationResultInstance) {
+        return null;
+    }
 }

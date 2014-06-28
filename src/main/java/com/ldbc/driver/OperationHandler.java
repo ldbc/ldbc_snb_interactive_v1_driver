@@ -16,7 +16,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Callable;
 
-public abstract class OperationHandler<OPERATION_TYPE extends Operation<?>> implements Callable<OperationResult> {
+public abstract class OperationHandler<OPERATION_TYPE extends Operation<?>> implements Callable<OperationResultReport> {
     private TimeSource TIME_SOURCE;
     private Spinner spinner;
     private OPERATION_TYPE operation;
@@ -69,15 +69,15 @@ public abstract class OperationHandler<OPERATION_TYPE extends Operation<?>> impl
 
     /**
      * Internally calls the protected method executeOperation(operation)
-     * and returns the associated OperationResult if execution was successful.
-     * If execution is successful OperationResult metrics are also written to ConcurrentMetricsService.
+     * and returns the associated OperationResultReport if execution was successful.
+     * If execution is successful OperationResultReport metrics are also written to ConcurrentMetricsService.
      * If execution is unsuccessful the result is null, an error is written to ConcurrentErrorReporter,
      * and no metrics are written.
      *
-     * @return an OperationResult if Operation execution was successful, otherwise null
+     * @return an OperationResultReport if Operation execution was successful, otherwise null
      */
     @Override
-    public OperationResult call() {
+    public OperationResultReport call() {
         if (false == initialized) {
             errorReporter.reportError(this, "Handler was executed before being initialized");
             return null;
@@ -85,17 +85,17 @@ public abstract class OperationHandler<OPERATION_TYPE extends Operation<?>> impl
         try {
             spinner.waitForScheduledStartTime(operation, new MultiCheck(checks));
             long startTimeAsMilli = TIME_SOURCE.nowAsMilli();
-            OperationResult operationResult = executeOperation(operation);
-            if (null == operationResult)
+            OperationResultReport operationResultReport = executeOperation(operation);
+            if (null == operationResultReport)
                 throw new DbException(String.format("Handler returned null result:\n %s", toString()));
             long finishTimeAsMilli = TIME_SOURCE.nowAsMilli();
-            operationResult.setRunDuration(Duration.fromMilli(finishTimeAsMilli - startTimeAsMilli));
-            operationResult.setActualStartTime(Time.fromMilli(startTimeAsMilli));
-            operationResult.setOperationType(operation.type());
-            operationResult.setScheduledStartTime(operation.scheduledStartTime());
+            operationResultReport.setRunDuration(Duration.fromMilli(finishTimeAsMilli - startTimeAsMilli));
+            operationResultReport.setActualStartTime(Time.fromMilli(startTimeAsMilli));
+            operationResultReport.setOperationType(operation.type());
+            operationResultReport.setScheduledStartTime(operation.scheduledStartTime());
             completionTimeService.submitCompletedTime(operation.scheduledStartTime());
-            metricsService.submitOperationResult(operationResult);
-            return operationResult;
+            metricsService.submitOperationResult(operationResultReport);
+            return operationResultReport;
         } catch (DbException e) {
             String errMsg = String.format(
                     "Error encountered while executing query %s\n%s",
@@ -132,11 +132,11 @@ public abstract class OperationHandler<OPERATION_TYPE extends Operation<?>> impl
      * @return operation result
      * @throws DbException
      */
-    public final OperationResult executeUnsafe(OPERATION_TYPE operation) throws DbException {
+    public final OperationResultReport executeUnsafe(OPERATION_TYPE operation) throws DbException {
         return executeOperation(operation);
     }
 
-    protected abstract OperationResult executeOperation(OPERATION_TYPE operation) throws DbException;
+    protected abstract OperationResultReport executeOperation(OPERATION_TYPE operation) throws DbException;
 
     @Override
     public String toString() {

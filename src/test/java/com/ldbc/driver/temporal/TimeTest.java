@@ -13,12 +13,6 @@ public class TimeTest {
         assertThat(true, is(false));
     }
 
-    @Ignore
-    @Test
-    public void createTestClassForTimeSourceToo() {
-        assertThat(true, is(false));
-    }
-
     @Test
     public void timeAndDurationShouldBeCapableOfStoringSufficientlyLargeValuesAtNanoSecondResolution() {
         long secondAsMilli = 1000;

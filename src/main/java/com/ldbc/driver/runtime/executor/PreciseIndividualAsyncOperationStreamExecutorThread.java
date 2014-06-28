@@ -1,7 +1,7 @@
 package com.ldbc.driver.runtime.executor;
 
 import com.ldbc.driver.OperationHandler;
-import com.ldbc.driver.OperationResult;
+import com.ldbc.driver.OperationResultReport;
 import com.ldbc.driver.runtime.ConcurrentErrorReporter;
 import com.ldbc.driver.runtime.coordination.CompletionTimeException;
 import com.ldbc.driver.runtime.scheduling.Spinner;
@@ -23,7 +23,7 @@ class PreciseIndividualAsyncOperationStreamExecutorThread extends Thread {
     private final ConcurrentErrorReporter errorReporter;
     private final Iterator<OperationHandler<?>> handlers;
     private final AtomicBoolean hasFinished;
-    private final ArrayList<Future<OperationResult>> runningHandlers = new ArrayList<>();
+    private final ArrayList<Future<OperationResultReport>> runningHandlers = new ArrayList<>();
 
     public PreciseIndividualAsyncOperationStreamExecutorThread(TimeSource timeSource,
                                                                OperationHandlerExecutor operationHandlerExecutor,
@@ -56,7 +56,7 @@ class PreciseIndividualAsyncOperationStreamExecutorThread extends Thread {
                 errorReporter.reportError(this, errMsg);
             }
             try {
-                Future<OperationResult> runningHandler = operationHandlerExecutor.execute(handler);
+                Future<OperationResultReport> runningHandler = operationHandlerExecutor.execute(handler);
                 runningHandlers.add(runningHandler);
             } catch (OperationHandlerExecutorException e) {
                 String errMsg = String.format("Error encountered while submitting operation for execution\n\t%s\n\t%s",
@@ -82,7 +82,7 @@ class PreciseIndividualAsyncOperationStreamExecutorThread extends Thread {
     }
 
     private boolean allHandlersCompleted() {
-        for (Future<OperationResult> runningHandler : runningHandlers) {
+        for (Future<OperationResultReport> runningHandler : runningHandlers) {
             if (false == runningHandler.isDone()) return false;
         }
         return true;

@@ -7,7 +7,7 @@ import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.not;
 import static org.junit.Assert.assertThat;
 
-public class LdbcSnbOperationResultTests {
+public class LdbcSnbOperationResultEqualityTests {
     @Test
     public void ldbcQuery1ResultShouldDoEqualsCorrectly() {
         long friendId1 = 1;
@@ -138,18 +138,18 @@ public class LdbcSnbOperationResultTests {
     @Test
     public void ldbcQuery3ResultShouldDoEqualsCorrectly() {
         long personId1 = 1;
-        String personFirstName1 = "1";
-        String personLastName1 = "1";
-        int xCount1 = 1;
-        int yCount1 = 2;
-        int count1 = 3;
+        String personFirstName1 = "2";
+        String personLastName1 = "3";
+        int xCount1 = 4;
+        int yCount1 = 5;
+        int count1 = 6;
 
-        long personId2 = 2;
-        String personFirstName2 = "2";
-        String personLastName2 = "2";
-        int xCount2 = 3;
-        int yCount2 = 4;
-        int count2 = 7;
+        long personId2 = 7;
+        String personFirstName2 = "8";
+        String personLastName2 = "9";
+        int xCount2 = 10;
+        int yCount2 = 11;
+        int count2 = 12;
 
         LdbcQuery3Result result1a = new LdbcQuery3Result(personId1, personFirstName1, personLastName1, xCount1, yCount1, count1);
         LdbcQuery3Result result1b = new LdbcQuery3Result(personId1, personFirstName1, personLastName1, xCount1, yCount1, count1);
@@ -165,10 +165,10 @@ public class LdbcSnbOperationResultTests {
     @Test
     public void ldbcQuery4ResultShouldDoEqualsCorrectly() {
         String tagName1 = "1";
-        int tagCount1 = 1;
+        int tagCount1 = 2;
 
-        String tagName2 = "2";
-        int tagCount2 = 2;
+        String tagName2 = "3";
+        int tagCount2 = 4;
 
         LdbcQuery4Result result1a = new LdbcQuery4Result(tagName1, tagCount1);
         LdbcQuery4Result result1b = new LdbcQuery4Result(tagName1, tagCount1);
@@ -184,10 +184,10 @@ public class LdbcSnbOperationResultTests {
     @Test
     public void ldbcQuery5ResultShouldDoEqualsCorrectly() {
         String forumTitle1 = "1";
-        int postCount1 = 1;
+        int postCount1 = 2;
 
-        String forumTitle2 = "2";
-        int postCount2 = 2;
+        String forumTitle2 = "3";
+        int postCount2 = 4;
 
         LdbcQuery5Result result1a = new LdbcQuery5Result(forumTitle1, postCount1);
         LdbcQuery5Result result1b = new LdbcQuery5Result(forumTitle1, postCount1);
@@ -203,10 +203,10 @@ public class LdbcSnbOperationResultTests {
     @Test
     public void ldbcQuery6ResultShouldDoEqualsCorrectly() {
         String tagName1 = "1";
-        int tagCount1 = 1;
+        int tagCount1 = 2;
 
-        String tagName2 = "2";
-        int tagCount2 = 2;
+        String tagName2 = "3";
+        int tagCount2 = 4;
 
         LdbcQuery6Result result1a = new LdbcQuery6Result(tagName1, tagCount1);
         LdbcQuery6Result result1b = new LdbcQuery6Result(tagName1, tagCount1);
@@ -222,21 +222,21 @@ public class LdbcSnbOperationResultTests {
     @Test
     public void ldbcQuery7ResultShouldDoEqualsCorrectly() {
         long personId1 = 1;
-        String personFirstName1 = "1";
-        String personLastName1 = "1";
-        long likeCreationDate1 = 1;
-        long commentOrPostId1 = 1;
-        String commentOrPostContent1 = "1";
-        int minutesLatency1 = 1;
+        String personFirstName1 = "2";
+        String personLastName1 = "3";
+        long likeCreationDate1 = 4;
+        long commentOrPostId1 = 5;
+        String commentOrPostContent1 = "6";
+        int minutesLatency1 = 7;
         boolean isNew1 = true;
 
-        long personId2 = 2;
-        String personFirstName2 = "2";
-        String personLastName2 = "2";
-        long likeCreationDate2 = 2;
-        long commentOrPostId2 = 2;
-        String commentOrPostContent2 = "2";
-        int minutesLatency2 = 2;
+        long personId2 = 8;
+        String personFirstName2 = "9";
+        String personLastName2 = "10";
+        long likeCreationDate2 = 11;
+        long commentOrPostId2 = 12;
+        String commentOrPostContent2 = "13";
+        int minutesLatency2 = 14;
         boolean isNew2 = false;
 
         LdbcQuery7Result result1a = new LdbcQuery7Result(personId1, personFirstName1, personLastName1, likeCreationDate1, commentOrPostId1, commentOrPostContent1, minutesLatency1, isNew1);
@@ -253,18 +253,18 @@ public class LdbcSnbOperationResultTests {
     @Test
     public void ldbcQuery8ResultShouldDoEqualsCorrectly() {
         long personId1 = 1;
-        String personFirstName1 = "1";
-        String personLastName1 = "1";
-        long commentCreationDate1 = 1;
-        long commentId1 = 1;
-        String commentContent1 = "1";
+        String personFirstName1 = "2";
+        String personLastName1 = "3";
+        long commentCreationDate1 = 4;
+        long commentId1 = 5;
+        String commentContent1 = "6";
 
-        long personId2 = 2;
-        String personFirstName2 = "2";
-        String personLastName2 = "2";
-        long commentCreationDate2 = 2;
-        long commentId2 = 2;
-        String commentContent2 = "2";
+        long personId2 = 7;
+        String personFirstName2 = "8";
+        String personLastName2 = "9";
+        long commentCreationDate2 = 10;
+        long commentId2 = 11;
+        String commentContent2 = "12";
 
         LdbcQuery8Result result1a = new LdbcQuery8Result(personId1, personFirstName1, personLastName1, commentCreationDate1, commentId1, commentContent1);
         LdbcQuery8Result result1b = new LdbcQuery8Result(personId1, personFirstName1, personLastName1, commentCreationDate1, commentId1, commentContent1);
@@ -280,18 +280,18 @@ public class LdbcSnbOperationResultTests {
     @Test
     public void ldbcQuery9ResultShouldDoEqualsCorrectly() {
         long personId1 = 1;
-        String personFirstName1 = "1";
-        String personLastName1 = "1";
-        long commentOrPostId1 = 1;
-        String commentOrPostContent1 = "1";
-        long commentOrPostCreationDate1 = 1;
+        String personFirstName1 = "2";
+        String personLastName1 = "3";
+        long commentOrPostId1 = 4;
+        String commentOrPostContent1 = "5";
+        long commentOrPostCreationDate1 = 6;
 
-        long personId2 = 2;
-        String personFirstName2 = "2";
-        String personLastName2 = "2";
-        long commentOrPostId2 = 2;
-        String commentOrPostContent2 = "2";
-        long commentOrPostCreationDate2 = 2;
+        long personId2 = 7;
+        String personFirstName2 = "8";
+        String personLastName2 = "9";
+        long commentOrPostId2 = 10;
+        String commentOrPostContent2 = "11";
+        long commentOrPostCreationDate2 = 12;
 
         LdbcQuery9Result result1a = new LdbcQuery9Result(personId1, personFirstName1, personLastName1, commentOrPostId1, commentOrPostContent1, commentOrPostCreationDate1);
         LdbcQuery9Result result1b = new LdbcQuery9Result(personId1, personFirstName1, personLastName1, commentOrPostId1, commentOrPostContent1, commentOrPostCreationDate1);
@@ -307,18 +307,18 @@ public class LdbcSnbOperationResultTests {
     @Test
     public void ldbcQuery10ResultShouldDoEqualsCorrectly() {
         long personId1 = 1;
-        String personFirstName1 = "1";
-        String personLastName1 = "1";
-        double commonInterestScore1 = 1d;
-        String personGender1 = "1";
-        String personCityName1 = "1";
+        String personFirstName1 = "2";
+        String personLastName1 = "3";
+        double commonInterestScore1 = 4d;
+        String personGender1 = "5";
+        String personCityName1 = "6";
 
-        long personId2 = 2;
-        String personFirstName2 = "2";
-        String personLastName2 = "2";
-        double commonInterestScore2 = 2d;
-        String personGender2 = "2";
-        String personCityName2 = "2";
+        long personId2 = 7;
+        String personFirstName2 = "8";
+        String personLastName2 = "9";
+        double commonInterestScore2 = 10d;
+        String personGender2 = "11";
+        String personCityName2 = "12";
 
         LdbcQuery10Result result1a = new LdbcQuery10Result(personId1, personFirstName1, personLastName1, commonInterestScore1, personGender1, personCityName1);
         LdbcQuery10Result result1b = new LdbcQuery10Result(personId1, personFirstName1, personLastName1, commonInterestScore1, personGender1, personCityName1);
@@ -334,16 +334,16 @@ public class LdbcSnbOperationResultTests {
     @Test
     public void ldbcQuery11ResultShouldDoEqualsCorrectly() {
         long personId1 = 1;
-        String personFirstName1 = "1";
-        String personLastName1 = "1";
-        String organizationName1 = "1";
-        int organizationWorkFromYear1 = 1;
+        String personFirstName1 = "2";
+        String personLastName1 = "3";
+        String organizationName1 = "4";
+        int organizationWorkFromYear1 = 5;
 
-        long personId2 = 2;
-        String personFirstName2 = "2";
-        String personLastName2 = "2";
-        String organizationName2 = "2";
-        int organizationWorkFromYear2 = 2;
+        long personId2 = 6;
+        String personFirstName2 = "7";
+        String personLastName2 = "8";
+        String organizationName2 = "9";
+        int organizationWorkFromYear2 = 10;
 
         LdbcQuery11Result result1a = new LdbcQuery11Result(personId1, personFirstName1, personLastName1, organizationName1, organizationWorkFromYear1);
         LdbcQuery11Result result1b = new LdbcQuery11Result(personId1, personFirstName1, personLastName1, organizationName1, organizationWorkFromYear1);
@@ -359,19 +359,19 @@ public class LdbcSnbOperationResultTests {
     @Test
     public void ldbcQuery12ResultShouldDoEqualsCorrectly() {
         long personId1 = 1;
-        String personFirstName1 = "1";
-        String personLastName1 = "1";
-        Iterable<String> tagNames1 = Lists.newArrayList("1", "2");
+        String personFirstName1 = "2";
+        String personLastName1 = "3";
+        Iterable<String> tagNames1 = Lists.newArrayList("4", "5");
         int replyCount1 = 1;
 
-        long personId2 = 2;
-        String personFirstName2 = "2";
-        String personLastName2 = "2";
-        Iterable<String> tagNames2 = Lists.newArrayList("3", "4");
-        int replyCount2 = 2;
+        long personId2 = 6;
+        String personFirstName2 = "7";
+        String personLastName2 = "9";
+        Iterable<String> tagNames2 = Lists.newArrayList("9", "10");
+        int replyCount2 = 11;
 
         LdbcQuery12Result result1a = new LdbcQuery12Result(personId1, personFirstName1, personLastName1, tagNames1, replyCount1);
-        LdbcQuery12Result result1b = new LdbcQuery12Result(personId1, personFirstName1, personLastName1, Lists.newArrayList("2", "1"), replyCount1);
+        LdbcQuery12Result result1b = new LdbcQuery12Result(personId1, personFirstName1, personLastName1, Lists.newArrayList("5", "4"), replyCount1);
         LdbcQuery12Result result2a = new LdbcQuery12Result(personId2, personFirstName2, personLastName2, tagNames2, replyCount2);
         LdbcQuery12Result result3a = new LdbcQuery12Result(personId1, personFirstName1, personLastName1, tagNames1, replyCount2);
 
@@ -412,5 +412,4 @@ public class LdbcSnbOperationResultTests {
         assertThat(result2a, not(equalTo(result4a)));
         assertThat(result3a, not(equalTo(result4a)));
     }
-
 }

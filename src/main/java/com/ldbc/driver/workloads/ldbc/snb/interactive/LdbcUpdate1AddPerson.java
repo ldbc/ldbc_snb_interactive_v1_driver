@@ -1,9 +1,11 @@
 package com.ldbc.driver.workloads.ldbc.snb.interactive;
 
+import com.google.common.collect.Iterables;
 import com.ldbc.driver.Operation;
 
-import java.util.Arrays;
+import java.util.Collections;
 import java.util.Date;
+import java.util.List;
 
 public class LdbcUpdate1AddPerson extends Operation<Object> {
     private final long personId;
@@ -15,11 +17,11 @@ public class LdbcUpdate1AddPerson extends Operation<Object> {
     private final String locationIp;
     private final String browserUsed;
     private final long cityId;
-    private final String[] languages;
-    private final String[] emails;
-    private final long[] tagIds;
-    private final Organization[] studyAt;
-    private final Organization[] workAt;
+    private final List<String> languages;
+    private final List<String> emails;
+    private final List<Long> tagIds;
+    private final List<Organization> studyAt;
+    private final List<Organization> workAt;
 
     public LdbcUpdate1AddPerson(long personId,
                                 String personFirstName,
@@ -30,11 +32,11 @@ public class LdbcUpdate1AddPerson extends Operation<Object> {
                                 String locationIp,
                                 String browserUsed,
                                 long cityId,
-                                String[] languages,
-                                String[] emails,
-                                long[] tagIds,
-                                Organization[] studyAt,
-                                Organization[] workAt) {
+                                List<String> languages,
+                                List<String> emails,
+                                List<Long> tagIds,
+                                List<Organization> studyAt,
+                                List<Organization> workAt) {
         this.personId = personId;
         this.personFirstName = personFirstName;
         this.personLastName = personLastName;
@@ -87,23 +89,23 @@ public class LdbcUpdate1AddPerson extends Operation<Object> {
         return cityId;
     }
 
-    public String[] languages() {
+    public List<String> languages() {
         return languages;
     }
 
-    public String[] emails() {
+    public List<String> emails() {
         return emails;
     }
 
-    public long[] tagIds() {
+    public List<Long> tagIds() {
         return tagIds;
     }
 
-    public Organization[] studyAt() {
+    public List<Organization> studyAt() {
         return studyAt;
     }
 
-    public Organization[] workAt() {
+    public List<Organization> workAt() {
         return workAt;
     }
 
@@ -113,25 +115,32 @@ public class LdbcUpdate1AddPerson extends Operation<Object> {
         if (o == null || getClass() != o.getClass()) return false;
 
         LdbcUpdate1AddPerson that = (LdbcUpdate1AddPerson) o;
-
         if (cityId != that.cityId) return false;
         if (personId != that.personId) return false;
         if (birthday != null ? !birthday.equals(that.birthday) : that.birthday != null) return false;
         if (browserUsed != null ? !browserUsed.equals(that.browserUsed) : that.browserUsed != null) return false;
         if (creationDate != null ? !creationDate.equals(that.creationDate) : that.creationDate != null) return false;
-        if (!Arrays.equals(emails, that.emails)) return false;
+        if (emails != null ? !Iterables.elementsEqual(sort(emails), sort(that.emails)) : that.emails != null)
+            return false;
         if (gender != null ? !gender.equals(that.gender) : that.gender != null) return false;
-        if (!Arrays.equals(languages, that.languages)) return false;
+        if (languages != null ? !Iterables.elementsEqual(sort(languages), sort(that.languages)) : that.languages != null)
+            return false;
         if (locationIp != null ? !locationIp.equals(that.locationIp) : that.locationIp != null) return false;
         if (personFirstName != null ? !personFirstName.equals(that.personFirstName) : that.personFirstName != null)
             return false;
         if (personLastName != null ? !personLastName.equals(that.personLastName) : that.personLastName != null)
             return false;
-        if (!Arrays.equals(studyAt, that.studyAt)) return false;
-        if (!Arrays.equals(tagIds, that.tagIds)) return false;
-        if (!Arrays.equals(workAt, that.workAt)) return false;
+        if (studyAt != null ? !studyAt.equals(that.studyAt) : that.studyAt != null) return false;
+        if (tagIds != null ? !Iterables.elementsEqual(sort(tagIds), sort(that.tagIds)) : that.tagIds != null)
+            return false;
+        if (workAt != null ? !workAt.equals(that.workAt) : that.workAt != null) return false;
 
         return true;
+    }
+
+    private <T extends Comparable> List<T> sort(List<T> list) {
+        Collections.sort(list);
+        return list;
     }
 
     @Override
@@ -145,11 +154,11 @@ public class LdbcUpdate1AddPerson extends Operation<Object> {
         result = 31 * result + (locationIp != null ? locationIp.hashCode() : 0);
         result = 31 * result + (browserUsed != null ? browserUsed.hashCode() : 0);
         result = 31 * result + (int) (cityId ^ (cityId >>> 32));
-        result = 31 * result + (languages != null ? Arrays.hashCode(languages) : 0);
-        result = 31 * result + (emails != null ? Arrays.hashCode(emails) : 0);
-        result = 31 * result + (tagIds != null ? Arrays.hashCode(tagIds) : 0);
-        result = 31 * result + (studyAt != null ? Arrays.hashCode(studyAt) : 0);
-        result = 31 * result + (workAt != null ? Arrays.hashCode(workAt) : 0);
+        result = 31 * result + (languages != null ? languages.hashCode() : 0);
+        result = 31 * result + (emails != null ? emails.hashCode() : 0);
+        result = 31 * result + (tagIds != null ? tagIds.hashCode() : 0);
+        result = 31 * result + (studyAt != null ? studyAt.hashCode() : 0);
+        result = 31 * result + (workAt != null ? workAt.hashCode() : 0);
         return result;
     }
 
@@ -165,12 +174,22 @@ public class LdbcUpdate1AddPerson extends Operation<Object> {
                 ", locationIp='" + locationIp + '\'' +
                 ", browserUsed='" + browserUsed + '\'' +
                 ", cityId=" + cityId +
-                ", languages=" + Arrays.toString(languages) +
-                ", emails=" + Arrays.toString(emails) +
-                ", tagIds=" + Arrays.toString(tagIds) +
-                ", studyAt=" + Arrays.toString(studyAt) +
-                ", workAt=" + Arrays.toString(workAt) +
+                ", languages=" + languages +
+                ", emails=" + emails +
+                ", tagIds=" + tagIds +
+                ", studyAt=" + studyAt +
+                ", workAt=" + workAt +
                 '}';
+    }
+
+    @Override
+    public Object marshalResult(String serializedOperationResult) {
+        return null;
+    }
+
+    @Override
+    public String serializeResult(Object operationResultInstance) {
+        return null;
     }
 
     public static class Organization {

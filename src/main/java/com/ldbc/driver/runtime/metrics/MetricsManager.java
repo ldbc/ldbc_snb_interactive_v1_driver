@@ -1,6 +1,6 @@
 package com.ldbc.driver.runtime.metrics;
 
-import com.ldbc.driver.OperationResult;
+import com.ldbc.driver.OperationResultReport;
 import com.ldbc.driver.temporal.Duration;
 import com.ldbc.driver.temporal.Time;
 import com.ldbc.driver.temporal.TimeSource;
@@ -48,7 +48,7 @@ public class MetricsManager {
         latestFinishTime = null;
     }
 
-    void measure(OperationResult result) throws MetricsCollectionException {
+    void measure(OperationResultReport result) throws MetricsCollectionException {
         Time operationFinishTime = result.actualStartTime().plus(result.runDuration());
 
         if (null == earliestStartTime)

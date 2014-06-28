@@ -1,6 +1,5 @@
 package com.ldbc.driver.runtime;
 
-import com.google.common.collect.Lists;
 import com.ldbc.driver.*;
 import com.ldbc.driver.control.ConcurrentControlService;
 import com.ldbc.driver.control.ConsoleAndFileDriverConfiguration;
@@ -20,16 +19,13 @@ import com.ldbc.driver.util.RandomDataGeneratorFactory;
 import com.ldbc.driver.util.TestUtils;
 import com.ldbc.driver.workloads.ldbc.snb.interactive.LdbcSnbInteractiveWorkload;
 import com.ldbc.driver.workloads.ldbc.snb.interactive.db.CsvDb;
-import com.ldbc.driver.workloads.ldbc.snb.interactive.db.NothingDb;
+import com.ldbc.driver.workloads.ldbc.snb.interactive.db.DummyDb;
 import org.apache.commons.io.FileUtils;
 import org.junit.Test;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.TimeUnit;
 
 import static org.hamcrest.CoreMatchers.equalTo;
@@ -82,7 +78,7 @@ public class WorkloadRunnerTests {
         paramsMap.put(LdbcSnbInteractiveWorkload.PARAMETERS_DIRECTORY, TestUtils.getResource("/").getAbsolutePath());
         paramsMap.put(LdbcSnbInteractiveWorkload.DATA_DIRECTORY, TestUtils.getResource("/").getAbsolutePath());
         // Driver-specific parameters
-        String dbClassName = NothingDb.class.getName();
+        String dbClassName = DummyDb.class.getName();
         String workloadClassName = LdbcSnbInteractiveWorkload.class.getName();
         long operationCount = 1000;
         int threadCount = 1;
@@ -92,9 +88,10 @@ public class WorkloadRunnerTests {
         FileUtils.deleteQuietly(new File(resultFilePath));
         double timeCompressionRatio = 1.0;
         Duration gctDeltaDuration = Duration.fromSeconds(10);
-        List<String> peerIds = Lists.newArrayList();
+        Set<String> peerIds = new HashSet<>();
         Duration toleratedExecutionDelay = Duration.fromMilli(100);
-        boolean validateDatabase = false;
+        ConsoleAndFileDriverConfiguration.ConsoleAndFileValidationParamOptions validationParams = null;
+        String dbValidationFilePath = null;
         boolean validateWorkload = false;
         boolean calculateWorkloadStatistics = false;
         Duration spinnerSleepDuration = Duration.fromMilli(0);
@@ -103,10 +100,10 @@ public class WorkloadRunnerTests {
 
         ConsoleAndFileDriverConfiguration configuration = new ConsoleAndFileDriverConfiguration(paramsMap, dbClassName, workloadClassName, operationCount,
                 threadCount, showStatus, timeUnit, resultFilePath, timeCompressionRatio, gctDeltaDuration, peerIds, toleratedExecutionDelay,
-                validateDatabase, validateWorkload, calculateWorkloadStatistics, spinnerSleepDuration);
+                validationParams, dbValidationFilePath, validateWorkload, calculateWorkloadStatistics, spinnerSleepDuration);
 
         ConcurrentControlService controlService = new LocalControlService(TIME_SOURCE.now().plus(Duration.fromMilli(1000)), configuration);
-        Db db = new NothingDb();
+        Db db = new DummyDb();
         db.init(configuration.asMap());
         Workload workload = new LdbcSnbInteractiveWorkload();
         workload.init(configuration);
@@ -215,9 +212,10 @@ public class WorkloadRunnerTests {
         FileUtils.deleteQuietly(new File(resultFilePath));
         double timeCompressionRatio = 1.0;
         Duration gctDeltaDuration = Duration.fromMinutes(1);
-        List<String> peerIds = Lists.newArrayList();
+        Set<String> peerIds = new HashSet<>();
         Duration toleratedExecutionDelay = Duration.fromMilli(1000);
-        boolean validateDatabase = false;
+        ConsoleAndFileDriverConfiguration.ConsoleAndFileValidationParamOptions validationParams = null;
+        String dbValidationFilePath = null;
         boolean validateWorkload = false;
         boolean calculateWorkloadStatistics = false;
         Duration spinnerSleepDuration = Duration.fromMilli(0);
@@ -227,7 +225,7 @@ public class WorkloadRunnerTests {
 
         ConsoleAndFileDriverConfiguration configuration = new ConsoleAndFileDriverConfiguration(paramsMap, dbClassName, workloadClassName, operationCount,
                 threadCount, showStatus, timeUnit, resultFilePath, timeCompressionRatio, gctDeltaDuration, peerIds, toleratedExecutionDelay,
-                validateDatabase, validateWorkload, calculateWorkloadStatistics, spinnerSleepDuration);
+                validationParams, dbValidationFilePath, validateWorkload, calculateWorkloadStatistics, spinnerSleepDuration);
 
         ConcurrentControlService controlService = new LocalControlService(TIME_SOURCE.now().plus(Duration.fromMilli(1000)), configuration);
         Db db = new CsvDb();

@@ -28,4 +28,14 @@ public class ReadOperation extends Operation<Map<String, ByteIterator>> {
     public List<String> getFields() {
         return fields;
     }
+
+    @Override
+    public Map<String, ByteIterator> marshalResult(String serializedOperationResult) {
+        return null;
+    }
+
+    @Override
+    public String serializeResult(Object operationResultInstance) {
+        return null;
+    }
 }

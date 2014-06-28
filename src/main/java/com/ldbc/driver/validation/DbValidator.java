@@ -2,11 +2,9 @@ package com.ldbc.driver.validation;
 
 import com.ldbc.driver.*;
 import com.ldbc.driver.runtime.ConcurrentErrorReporter;
-import com.ldbc.driver.util.Tuple;
 
 import java.util.Iterator;
 
-// TODO test
 public class DbValidator {
     public static class DbValidationResult {
         private final boolean successful;
@@ -26,12 +24,13 @@ public class DbValidator {
         }
     }
 
-    public DbValidationResult validate(Iterator<Tuple.Tuple2<Operation<?>, Object>> operationsAndExpectedResults,
-                                       Db db) {
-        while (operationsAndExpectedResults.hasNext()) {
-            Tuple.Tuple2<Operation<?>, Object> operationAndExpectedResult = operationsAndExpectedResults.next();
-            Operation<?> operation = operationAndExpectedResult._1();
-            Object expectedResult = operationAndExpectedResult._2();
+    public DbValidationResult validate(Iterator<ValidationParam> validationParameters,
+                                       Db db) throws WorkloadException {
+        while (validationParameters.hasNext()) {
+            ValidationParam validationParam = validationParameters.next();
+            Operation<?> operation = validationParam.operation();
+            Object expectedOperationResult = validationParam.operationResult();
+
             OperationHandler<Operation<?>> handler;
             try {
                 handler = (OperationHandler<Operation<?>>) db.getOperationHandler(operation);
@@ -39,27 +38,44 @@ public class DbValidator {
                 // TODO maybe store all errors and return a log at the end, rather than returning after first error
                 return new DbValidationResult(
                         false,
-                        String.format("No operation handler found for operation\n%s\n%s",
-                                operation, ConcurrentErrorReporter.stackTraceToString(e)));
+                        String.format(""
+                                + "No operation handler found for operation\n"
+                                + "Db: %s\n"
+                                + "Operation: %s\n"
+                                + "%s",
+                                db.getClass().getName(), operation, ConcurrentErrorReporter.stackTraceToString(e)));
             }
-            OperationResult operationResult;
+
+            OperationResultReport actualOperationResultReport;
             try {
-                operationResult = handler.executeUnsafe(operation);
+                actualOperationResultReport = handler.executeUnsafe(operation);
             } catch (DbException e) {
                 // TODO maybe store all errors and return a log at the end, rather than returning after first error
                 return new DbValidationResult(
                         false,
-                        String.format("Error encountered while trying to execute operation\n%s\n%s",
-                                operation, ConcurrentErrorReporter.stackTraceToString(e)));
+                        String.format(""
+                                + "Error encountered while trying to execute operation\n"
+                                + "Db: %s\n"
+                                + "Operation: %s\n"
+                                + "%s",
+                                db.getClass().getName(), operation, ConcurrentErrorReporter.stackTraceToString(e)));
             }
-            Object result = operationResult.result();
-            if (false == result.equals(expectedResult))
+
+            Object actualOperationResult = actualOperationResultReport.operationResult();
+
+            if (false == expectedOperationResult.equals(actualOperationResult)) {
                 // TODO maybe store all errors and return a log at the end, rather than returning after first error
-                return new DbValidationResult(
+                return new DbValidator.DbValidationResult(
                         false,
-                        String.format("Operation result not equal to expected result"));
+                        String.format(""
+                                + "Invalid operation result\n"
+                                + "Operation: %s\n"
+                                + "Expected Result: %s\n"
+                                + "Actual Result: %s",
+                                operation, expectedOperationResult, actualOperationResult));
+            }
         }
 
-        return new DbValidationResult(true, null);
+        return new DbValidator.DbValidationResult(true, null);
     }
 }

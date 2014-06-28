@@ -12,6 +12,7 @@ import com.ldbc.driver.temporal.Duration;
 import com.ldbc.driver.temporal.SystemTimeSource;
 import com.ldbc.driver.temporal.Time;
 import com.ldbc.driver.temporal.TimeSource;
+import com.ldbc.driver.testutils.NothingOperation;
 import com.ldbc.driver.util.RandomDataGeneratorFactory;
 import com.ldbc.driver.util.TestUtils;
 import com.ldbc.driver.workloads.ldbc.snb.interactive.LdbcSnbInteractiveWorkload;
@@ -21,9 +22,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 import java.io.File;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.TimeUnit;
 
 import static org.hamcrest.CoreMatchers.equalTo;
@@ -46,8 +45,7 @@ public class TimeMappingGeneratorTests {
         Function<Integer, Operation<?>> msToOperationFun = new Function<Integer, Operation<?>>() {
             @Override
             public Operation<?> apply(Integer timeMs) {
-                Operation<?> operation = new Operation<Object>() {
-                };
+                Operation<?> operation = new NothingOperation();
                 operation.setScheduledStartTime(Time.fromMilli(timeMs));
                 return operation;
             }
@@ -82,8 +80,7 @@ public class TimeMappingGeneratorTests {
         Function<Integer, Operation<?>> msToOperationFun = new Function<Integer, Operation<?>>() {
             @Override
             public Operation<?> apply(Integer timeMs) {
-                Operation<?> operation = new Operation<Object>() {
-                };
+                Operation<?> operation = new NothingOperation();
                 operation.setScheduledStartTime(Time.fromMilli(timeMs));
                 return operation;
             }
@@ -119,8 +116,7 @@ public class TimeMappingGeneratorTests {
         Function<Long, Operation<?>> nsToOperationFun = new Function<Long, Operation<?>>() {
             @Override
             public Operation<?> apply(Long ns) {
-                Operation<?> operation = new Operation<Object>() {
-                };
+                Operation<?> operation = new NothingOperation();
                 operation.setScheduledStartTime(Time.fromNano(ns));
                 return operation;
             }
@@ -207,9 +203,10 @@ public class TimeMappingGeneratorTests {
         FileUtils.deleteQuietly(new File(resultFilePath));
         double timeCompressionRatio = 1.0;
         Duration gctDeltaDuration = Duration.fromSeconds(10);
-        List<String> peerIds = Lists.newArrayList();
+        Set<String> peerIds = new HashSet<>();
         Duration toleratedExecutionDelay = Duration.fromSeconds(1);
-        boolean validateDatabase = false;
+        ConsoleAndFileDriverConfiguration.ConsoleAndFileValidationParamOptions validationParams = null;
+        String dbValidationFilePath = null;
         boolean validateWorkload = false;
         boolean calculateWorkloadStatistics = false;
         Duration spinnerSleepDuration = Duration.fromMilli(0);
@@ -219,7 +216,7 @@ public class TimeMappingGeneratorTests {
 
         ConsoleAndFileDriverConfiguration configuration = new ConsoleAndFileDriverConfiguration(paramsMap, dbClassName, workloadClassName, operationCount,
                 threadCount, showStatus, timeUnit, resultFilePath, timeCompressionRatio, gctDeltaDuration, peerIds, toleratedExecutionDelay,
-                validateDatabase, validateWorkload, calculateWorkloadStatistics, spinnerSleepDuration);
+                validationParams, dbValidationFilePath, validateWorkload, calculateWorkloadStatistics, spinnerSleepDuration);
 
         Workload workload = new LdbcSnbInteractiveWorkload();
         workload.init(configuration);

@@ -39,7 +39,7 @@ public class Query14EventStreamReader implements Iterator<Operation<?>> {
             long person2Id = params.get(PERSON_2_ID).asLong();
             String person1Uri = params.get(PERSON_1_URI).asText();
             String person2Uri = params.get(PERSON_2_URI).asText();
-            return new LdbcQuery14(person1Id, person1Uri, person2Id, person2Uri, LdbcQuery14.DEFAULT_LIMIT);
+            return new LdbcQuery14(person1Id, person1Uri, person2Id, person2Uri);
         }
     };
 

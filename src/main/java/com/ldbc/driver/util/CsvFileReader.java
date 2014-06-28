@@ -6,6 +6,8 @@ import java.util.NoSuchElementException;
 import java.util.regex.Pattern;
 
 public class CsvFileReader implements Iterator<String[]> {
+    public static final String CSV_SEPARATOR = "\\|";
+
     private final Pattern columnSeparatorPattern;
     private final BufferedReader csvReader;
 

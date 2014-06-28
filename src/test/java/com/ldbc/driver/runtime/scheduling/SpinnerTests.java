@@ -2,6 +2,7 @@ package com.ldbc.driver.runtime.scheduling;
 
 import com.ldbc.driver.Operation;
 import com.ldbc.driver.temporal.*;
+import com.ldbc.driver.testutils.NothingOperation;
 import org.junit.Test;
 
 import java.util.Iterator;
@@ -21,8 +22,7 @@ public class SpinnerTests {
         CheckableDelayPolicy delayPolicy = new CheckableDelayPolicy(toleratedDelay);
         Spinner spinner = new Spinner(TIME_SOURCE, Spinner.DEFAULT_SLEEP_DURATION_10_MILLI, delayPolicy);
 
-        Operation<?> operation = new Operation<Object>() {
-        };
+        Operation<?> operation = new NothingOperation();
 
         SpinningThread spinningThread = new SpinningThread(spinner, operation);
 
@@ -54,8 +54,7 @@ public class SpinnerTests {
         Spinner spinner = new Spinner(TIME_SOURCE, Spinner.DEFAULT_SLEEP_DURATION_10_MILLI, delayPolicy);
 
         Time scheduledStartTime = Time.fromMilli(10);
-        Operation<?> operation = new Operation<Object>() {
-        };
+        Operation<?> operation = new NothingOperation();
         operation.setScheduledStartTime(scheduledStartTime);
 
         SpinningThread spinningThread = new SpinningThread(spinner, operation);
@@ -94,8 +93,7 @@ public class SpinnerTests {
         Spinner spinner = new Spinner(TIME_SOURCE, Spinner.DEFAULT_SLEEP_DURATION_10_MILLI, delayPolicy);
 
         Time scheduledStartTime = Time.fromMilli(10);
-        Operation<?> operation = new Operation<Object>() {
-        };
+        Operation<?> operation = new NothingOperation();
         operation.setScheduledStartTime(scheduledStartTime);
 
         SpinningThread spinningThread = new SpinningThread(spinner, operation);
@@ -135,8 +133,7 @@ public class SpinnerTests {
         Spinner spinner = new Spinner(TIME_SOURCE, Spinner.DEFAULT_SLEEP_DURATION_10_MILLI, delayPolicy);
 
         Time scheduledStartTime = Time.fromMilli(10);
-        Operation<?> operation = new Operation<Object>() {
-        };
+        Operation<?> operation = new NothingOperation();
         operation.setScheduledStartTime(scheduledStartTime);
 
         SpinningThread spinningThread = new SpinningThread(spinner, operation, failCheck);
@@ -177,8 +174,7 @@ public class SpinnerTests {
         Spinner spinner = new Spinner(TIME_SOURCE, Spinner.DEFAULT_SLEEP_DURATION_10_MILLI, delayPolicy, offset);
 
         Time scheduledStartTime = Time.fromMilli(10);
-        Operation<?> operation = new Operation<Object>() {
-        };
+        Operation<?> operation = new NothingOperation();
         operation.setScheduledStartTime(scheduledStartTime);
 
         SpinningThread spinningThread = new SpinningThread(spinner, operation);
@@ -233,8 +229,7 @@ public class SpinnerTests {
         private final long operationCount;
 
         FastSameOperationIterator(Time scheduledStartTime, long operationCount) {
-            operation = new Operation<Object>() {
-            };
+            operation = new NothingOperation();
             operation.setScheduledStartTime(scheduledStartTime);
             this.operationCount = operationCount;
         }

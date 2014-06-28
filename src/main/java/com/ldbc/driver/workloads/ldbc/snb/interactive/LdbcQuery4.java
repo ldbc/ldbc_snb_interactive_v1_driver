@@ -1,11 +1,18 @@
 package com.ldbc.driver.workloads.ldbc.snb.interactive;
 
 import com.ldbc.driver.Operation;
+import com.ldbc.driver.SerializingMarshallingException;
+import org.codehaus.jackson.map.ObjectMapper;
+import org.codehaus.jackson.type.TypeReference;
 
+import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
 public class LdbcQuery4 extends Operation<List<LdbcQuery4Result>> {
+    private static final ObjectMapper objectMapper = new ObjectMapper();
+
     public static final int DEFAULT_LIMIT = 10;
     private final long personId;
     private final String personUri;
@@ -76,5 +83,49 @@ public class LdbcQuery4 extends Operation<List<LdbcQuery4Result>> {
                 ", durationDays=" + durationDays +
                 ", limit=" + limit +
                 '}';
+    }
+
+    @Override
+    public List<LdbcQuery4Result> marshalResult(String serializedResults) throws SerializingMarshallingException {
+        List<List<Object>> resultsAsList;
+        try {
+            resultsAsList = objectMapper.readValue(serializedResults, new TypeReference<List<List<Object>>>() {
+            });
+        } catch (IOException e) {
+            throw new SerializingMarshallingException(String.format("Error while parsing serialized results\n%s", serializedResults), e);
+        }
+
+        List<LdbcQuery4Result> results = new ArrayList<>();
+        for (int i = 0; i < resultsAsList.size(); i++) {
+            List<Object> resultAsList = resultsAsList.get(i);
+            String tagName = (String) resultAsList.get(0);
+            int tagCount = ((Number) resultAsList.get(1)).intValue();
+
+            results.add(new LdbcQuery4Result(
+                    tagName,
+                    tagCount
+            ));
+        }
+
+        return results;
+    }
+
+    @Override
+    public String serializeResult(Object resultsObject) throws SerializingMarshallingException {
+        List<LdbcQuery4Result> results = (List<LdbcQuery4Result>) resultsObject;
+        List<List<Object>> resultsFields = new ArrayList<>();
+        for (int i = 0; i < results.size(); i++) {
+            LdbcQuery4Result result = results.get(i);
+            List<Object> resultFields = new ArrayList<>();
+            resultFields.add(result.tagName());
+            resultFields.add(result.tagCount());
+            resultsFields.add(resultFields);
+        }
+
+        try {
+            return objectMapper.writeValueAsString(resultsFields);
+        } catch (IOException e) {
+            throw new SerializingMarshallingException(String.format("Error while trying to serialize result\n%s", results.toString()), e);
+        }
     }
 }

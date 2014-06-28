@@ -4,9 +4,9 @@ public class LdbcQuery10Result {
     private final long personId;
     private final String personFirstName;
     private final String personLastName;
+    private final double commonInterestScore;
     private final String personGender;
     private final String personCityName;
-    private final double commonInterestScore;
 
     public LdbcQuery10Result(long personId, String personFirstName, String personLastName, double commonInterestScore, String personGender, String personCityName) {
         this.personId = personId;

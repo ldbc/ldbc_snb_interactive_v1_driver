@@ -17,17 +17,16 @@ import com.ldbc.driver.temporal.SystemTimeSource;
 import com.ldbc.driver.temporal.Time;
 import com.ldbc.driver.temporal.TimeSource;
 import com.ldbc.driver.util.ClassLoaderHelper;
+import com.ldbc.driver.util.CsvFileReader;
+import com.ldbc.driver.util.CsvFileWriter;
 import com.ldbc.driver.util.RandomDataGeneratorFactory;
-import com.ldbc.driver.util.Tuple;
-import com.ldbc.driver.validation.DbValidator;
-import com.ldbc.driver.validation.WorkloadStatistics;
-import com.ldbc.driver.validation.WorkloadStatisticsCalculator;
-import com.ldbc.driver.validation.WorkloadValidator;
+import com.ldbc.driver.validation.*;
 import org.apache.log4j.Logger;
 
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
+import java.io.IOException;
 import java.util.Iterator;
 import java.util.List;
 import java.util.concurrent.Future;
@@ -68,7 +67,8 @@ public class Client {
     // check results
     private boolean databaseLoadedCorrectly = false;
     private boolean workloadLoadedCorrectly = false;
-    private boolean databaseValidationSuccessful = false;
+    private boolean databaseValidationFileCreationSuccessful = false;
+    private DbValidator.DbValidationResult databaseValidationResult = null;
     private WorkloadValidator.WorkloadValidationResult workloadValidationResult = null;
     private WorkloadStatistics workloadStatistics = null;
 
@@ -134,20 +134,75 @@ public class Client {
             throw new ClientException("Error while retrieving operation stream for workload", e);
         }
 
-        if (controlService.configuration().validateDatabase()) {
-            logger.info(String.format("Validating database: %s", db.getClass().getSimpleName()));
-            try {
-                DbValidator dbValidator = new DbValidator();
-                Iterator<Tuple.Tuple2<Operation<?>, Object>> validationOperations = workload.validationOperations(generators);
-                DbValidator.DbValidationResult dbValidationResult = dbValidator.validate(validationOperations, db);
+        if (null != controlService.configuration().validationCreationParams()) {
+            File validationFileToGenerate = new File(controlService.configuration().validationCreationParams().filePath());
+            int validationSetSize = controlService.configuration().validationCreationParams().validationSetSize();
+            // TODO get from config parameter
+            boolean performSerializationMarshallingChecks = true;
 
-                if (false == dbValidationResult.isSuccessful()) {
-                    throw new ClientException(String.format("Database validation failed\n%s", dbValidationResult.errorMessage()));
+            logger.info(String.format("Generating database validation file: %s", validationFileToGenerate.getAbsolutePath()));
+
+            List<Operation<?>> timeMappedOperationsList = Lists.newArrayList(timeMappedOperations);
+
+            Iterator<ValidationParam> validationParamsGenerator =
+                    new ValidationParamsGenerator(db, workload, timeMappedOperationsList.iterator(), validationSetSize);
+
+            Iterator<String[]> csvRows =
+                    new ValidationParamsToCsvRows(validationParamsGenerator, workload, performSerializationMarshallingChecks);
+
+            CsvFileWriter csvFileWriter;
+            try {
+                csvFileWriter = new CsvFileWriter(validationFileToGenerate, CsvFileWriter.DEFAULT_COLUMN_SEPARATOR_STRING);
+            } catch (IOException e) {
+                throw new ClientException("Error encountered trying to open CSV file writer", e);
+            }
+
+            try {
+                csvFileWriter.writeRows(csvRows);
+            } catch (IOException e) {
+                throw new ClientException("Error encountered trying to write validation parameters to CSV file writer", e);
+            }
+
+            try {
+                csvFileWriter.close();
+            } catch (IOException e) {
+                throw new ClientException("Error encountered trying to close CSV file writer", e);
+            }
+
+            int validationParametersGenerated = ((ValidationParamsGenerator) validationParamsGenerator).entriesWrittenSoFar();
+
+            timeMappedOperations = timeMappedOperationsList.iterator();
+            databaseValidationFileCreationSuccessful = true;
+            logger.info(String.format("Successfully generated %s database validation parameters", validationParametersGenerated));
+        }
+
+        if (null != controlService.configuration().databaseValidationFilePath()) {
+            File validationParamsFile = new File(controlService.configuration().databaseValidationFilePath());
+
+            logger.info(String.format("Validating database again expected results\nDb: %s\nValidation Params File: %s",
+                    db.getClass().getSimpleName(), validationParamsFile.getAbsolutePath()));
+
+            CsvFileReader csvFileReader;
+            try {
+                csvFileReader = new CsvFileReader(validationParamsFile, CsvFileWriter.DEFAULT_COLUMN_SEPARATOR_REGEX_STRING);
+            } catch (IOException e) {
+                throw new ClientException("Error encountered trying to create CSV file reader", e);
+            }
+
+            try {
+                Iterator<ValidationParam> validationParams = new ValidationParamsFromCsvRows(csvFileReader, workload);
+                DbValidator dbValidator = new DbValidator();
+                databaseValidationResult = dbValidator.validate(validationParams, db);
+                if (false == databaseValidationResult.isSuccessful()) {
+                    throw new ClientException(String.format("Database validation failed\n%s", databaseValidationResult.errorMessage()));
                 }
             } catch (WorkloadException e) {
-                throw new ClientException(String.format("Encountered error while validating database implementation"), e);
+                throw new ClientException(String.format("Error reading validation parameters file\nFile: %s", validationParamsFile.getAbsolutePath()), e);
             }
-            databaseValidationSuccessful = true;
+
+            csvFileReader.closeReader();
+
+            logger.info("Database Validation Successful");
         }
 
         if (controlService.configuration().validateWorkload() || controlService.configuration().calculateWorkloadStatistics()) {
@@ -163,6 +218,7 @@ public class Client {
                 if (false == workloadValidationResult.isSuccessful()) {
                     throw new ClientException(String.format("Workload validation failed\n%s", workloadValidationResult.errorMessage()));
                 }
+                logger.info("Workload Validation Successful");
             }
 
             if (controlService.configuration().calculateWorkloadStatistics()) {
@@ -181,6 +237,10 @@ public class Client {
 
             timeMappedOperations = timeMappedOperationsList.iterator();
         }
+
+        // TODO add method of selecting appropriate window size
+        // TODO if GCT Delta is very large it makes sense to have a smaller window
+        // TODO otherwise operations are spread very far apart
 
         logger.info(String.format("Instantiating %s", WorkloadRunner.class.getSimpleName()));
         try {
@@ -203,7 +263,7 @@ public class Client {
         }
         logger.info(String.format("Instantiated %s - Starting Benchmark (%s operations)", WorkloadRunner.class.getSimpleName(), controlService.configuration().operationCount()));
 
-        logger.info("LDBC Workload Driver");
+        logger.info("Driver Configuration");
         logger.info(controlService.toString());
     }
 
@@ -277,8 +337,12 @@ public class Client {
         return workloadLoadedCorrectly;
     }
 
-    public boolean databaseValidationResult() {
-        return databaseValidationSuccessful;
+    public boolean databaseValidationFileCreationSuccessful() {
+        return databaseValidationFileCreationSuccessful;
+    }
+
+    public DbValidator.DbValidationResult databaseValidationResult() {
+        return databaseValidationResult;
     }
 
     public WorkloadValidator.WorkloadValidationResult workloadValidationResult() {

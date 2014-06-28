@@ -104,11 +104,11 @@ public class WriteEventStreamReader implements Iterator<Operation<?>> {
                     locationIp,
                     browserUsed,
                     cityId,
-                    languages.toArray(new String[languages.size()]),
-                    emails.toArray(new String[emails.size()]),
-                    longListToPrimitiveLongArray(tagIds),
-                    studyAt.toArray(new LdbcUpdate1AddPerson.Organization[studyAt.size()]),
-                    workAt.toArray(new LdbcUpdate1AddPerson.Organization[workAt.size()]));
+                    languages,
+                    emails,
+                    tagIds,
+                    studyAt,
+                    workAt);
             operation.setScheduledStartTime(eventDueTime);
             return operation;
         }
@@ -208,7 +208,7 @@ public class WriteEventStreamReader implements Iterator<Operation<?>> {
                     return input.asLong();
                 }
             }));
-            Operation<?> operation = new LdbcUpdate4AddForum(forumId, forumTitle, creationDate, moderatorPersonId, longListToPrimitiveLongArray(tagIdsList));
+            Operation<?> operation = new LdbcUpdate4AddForum(forumId, forumTitle, creationDate, moderatorPersonId, tagIdsList);
             operation.setScheduledStartTime(eventDueTime);
             return operation;
         }
@@ -296,7 +296,7 @@ public class WriteEventStreamReader implements Iterator<Operation<?>> {
                     authorPersonId,
                     forumId,
                     countryId,
-                    longListToPrimitiveLongArray(tagIdsList));
+                    tagIdsList);
             operation.setScheduledStartTime(eventDueTime);
             return operation;
         }
@@ -351,7 +351,7 @@ public class WriteEventStreamReader implements Iterator<Operation<?>> {
                     countryId,
                     replyOfPostId,
                     replyOfCommentId,
-                    longListToPrimitiveLongArray(tagIdsList));
+                    tagIdsList);
             operation.setScheduledStartTime(eventDueTime);
             return operation;
         }
@@ -419,12 +419,5 @@ public class WriteEventStreamReader implements Iterator<Operation<?>> {
     @Override
     public void remove() {
         throw new UnsupportedOperationException(String.format("%s does not support remove()", getClass().getSimpleName()));
-    }
-
-    static long[] longListToPrimitiveLongArray(List<Long> longList) {
-        long[] longArray = new long[longList.size()];
-        for (int i = 0; i < longList.size(); i++)
-            longArray[i] = longList.get(i);
-        return longArray;
     }
 }

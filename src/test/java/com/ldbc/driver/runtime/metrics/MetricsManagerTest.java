@@ -1,6 +1,7 @@
 package com.ldbc.driver.runtime.metrics;
 
-import com.ldbc.driver.OperationResult;
+import com.ldbc.driver.OperationResultReport;
+import com.ldbc.driver.OperationResultReportTestHelper;
 import com.ldbc.driver.WorkloadException;
 import com.ldbc.driver.temporal.Duration;
 import com.ldbc.driver.temporal.SystemTimeSource;
@@ -20,27 +21,27 @@ public class MetricsManagerTest {
     public void shouldReturnCorrectMeasurements() throws WorkloadException, MetricsCollectionException {
         MetricsManager metricsManager = new MetricsManager(TIME_SOURCE, TimeUnit.NANOSECONDS);
 
-        OperationResult operationResult1 = new OperationResult(1, "result one");
-        operationResult1.setOperationType("type one");
-        operationResult1.setScheduledStartTime(Time.fromNano(1));
-        operationResult1.setActualStartTime(Time.fromNano(2));
-        operationResult1.setRunDuration(Duration.fromNano(1));
+        OperationResultReport operationResultReport1 = OperationResultReportTestHelper.create(1, "result one");
+        OperationResultReportTestHelper.setOperationType(operationResultReport1, "type one");
+        OperationResultReportTestHelper.setScheduledStartTime(operationResultReport1, Time.fromNano(1));
+        OperationResultReportTestHelper.setActualStartTime(operationResultReport1, Time.fromNano(2));
+        OperationResultReportTestHelper.setRunDuration(operationResultReport1, Duration.fromNano(1));
 
-        OperationResult operationResult2 = new OperationResult(2, "result two");
-        operationResult2.setOperationType("type one");
-        operationResult2.setScheduledStartTime(Time.fromNano(1));
-        operationResult2.setActualStartTime(Time.fromNano(8));
-        operationResult2.setRunDuration(Duration.fromNano(3));
+        OperationResultReport operationResultReport2 = OperationResultReportTestHelper.create(2, "result two");
+        OperationResultReportTestHelper.setOperationType(operationResultReport2, "type one");
+        OperationResultReportTestHelper.setScheduledStartTime(operationResultReport2, Time.fromNano(1));
+        OperationResultReportTestHelper.setActualStartTime(operationResultReport2, Time.fromNano(8));
+        OperationResultReportTestHelper.setRunDuration(operationResultReport2, Duration.fromNano(3));
 
-        OperationResult operationResult3 = new OperationResult(2, "result three");
-        operationResult3.setOperationType("type two");
-        operationResult3.setScheduledStartTime(Time.fromNano(1));
-        operationResult3.setActualStartTime(Time.fromNano(11));
-        operationResult3.setRunDuration(Duration.fromNano(5));
+        OperationResultReport operationResultReport3 = OperationResultReportTestHelper.create(2, "result three");
+        OperationResultReportTestHelper.setOperationType(operationResultReport3, "type two");
+        OperationResultReportTestHelper.setScheduledStartTime(operationResultReport3, Time.fromNano(1));
+        OperationResultReportTestHelper.setActualStartTime(operationResultReport3, Time.fromNano(11));
+        OperationResultReportTestHelper.setRunDuration(operationResultReport3, Duration.fromNano(5));
 
-        metricsManager.measure(operationResult1);
-        metricsManager.measure(operationResult2);
-        metricsManager.measure(operationResult3);
+        metricsManager.measure(operationResultReport1);
+        metricsManager.measure(operationResultReport2);
+        metricsManager.measure(operationResultReport3);
 
         assertThat(metricsManager.startTime(), equalTo(Time.fromNano(2)));
         assertThat(metricsManager.finishTime(), equalTo(Time.fromNano(16)));

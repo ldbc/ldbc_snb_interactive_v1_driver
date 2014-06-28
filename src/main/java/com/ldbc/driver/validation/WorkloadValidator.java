@@ -15,6 +15,16 @@ import java.util.Map;
 // TODO check that ToleratedExecutionDelay and GctMode combination makes sense.
 // TODO if ToleratedExecutionDelay is too long, it will break correctness ensured by GCT.
 // TODO include WindowSize in this check too.
+
+// TODO add check that all Operations in workload can serialize/deserialize themselves correctly
+// TODO check that all OperationResults in workload can serialize/deserialize themselves correctly
+
+// TODO Workload should only return classifications for operations that are returned
+// TODO Workload should return classifications for every operation that is returned
+
+// TODO Workload should be able to serialize/marshal every operation it can generate
+// TODO every generated operation should implement equals correctly
+// TODO e.g. assertThat(operation,equalTo(Workload.marshal(Workload.serialize(operation)))
 public class WorkloadValidator {
     public static final Duration DEFAULT_MAX_EXPECTED_INTERLEAVE = Duration.fromMinutes(30);
 

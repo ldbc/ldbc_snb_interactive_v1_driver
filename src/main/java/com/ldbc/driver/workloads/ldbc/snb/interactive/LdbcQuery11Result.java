@@ -4,8 +4,8 @@ public class LdbcQuery11Result {
     private final long personId;
     private final String personFirstName;
     private final String personLastName;
-    private final int organizationWorkFromYear;
     private final String organizationName;
+    private final int organizationWorkFromYear;
 
     public LdbcQuery11Result(long personId, String personFirstName, String personLastName, String organizationName, int organizationWorkFromYear) {
         this.personId = personId;

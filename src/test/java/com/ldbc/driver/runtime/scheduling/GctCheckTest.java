@@ -5,6 +5,7 @@ import com.ldbc.driver.runtime.ConcurrentErrorReporter;
 import com.ldbc.driver.runtime.DummyConcurrentCompletionTimeService;
 import com.ldbc.driver.temporal.Duration;
 import com.ldbc.driver.temporal.Time;
+import com.ldbc.driver.testutils.TimedNothingOperation;
 import org.junit.Test;
 
 import static org.hamcrest.CoreMatchers.is;
@@ -16,7 +17,7 @@ public class GctCheckTest {
         // Given
         DummyConcurrentCompletionTimeService completionTimeService = new DummyConcurrentCompletionTimeService();
         Duration delta = Duration.fromMilli(100);
-        Operation<?> operation = new DummyOperation(Time.fromMilli(200));
+        Operation<?> operation = new TimedNothingOperation(Time.fromMilli(200));
         ConcurrentErrorReporter errorReporter = new ConcurrentErrorReporter();
         GctCheck gctCheck = new GctCheck(completionTimeService, delta, operation, errorReporter);
 
@@ -29,11 +30,5 @@ public class GctCheckTest {
         assertThat(gctCheck.doCheck(), is(false));
         completionTimeService.setGlobalCompletionTime(Time.fromMilli(101));
         assertThat(gctCheck.doCheck(), is(true));
-    }
-
-    class DummyOperation extends Operation<Object> {
-        DummyOperation(Time scheduledStartTime) {
-            setScheduledStartTime(scheduledStartTime);
-        }
     }
 }

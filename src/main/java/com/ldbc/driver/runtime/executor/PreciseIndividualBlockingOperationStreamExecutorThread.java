@@ -2,7 +2,7 @@ package com.ldbc.driver.runtime.executor;
 
 import com.ldbc.driver.Operation;
 import com.ldbc.driver.OperationHandler;
-import com.ldbc.driver.OperationResult;
+import com.ldbc.driver.OperationResultReport;
 import com.ldbc.driver.runtime.ConcurrentErrorReporter;
 import com.ldbc.driver.runtime.coordination.CompletionTimeException;
 import com.ldbc.driver.runtime.scheduling.Spinner;
@@ -42,7 +42,7 @@ class PreciseIndividualBlockingOperationStreamExecutorThread extends Thread {
 
     @Override
     public void run() {
-        Future<OperationResult> executingHandler = null;
+        Future<OperationResultReport> executingHandler = null;
         while (handlers.hasNext()) {
             OperationHandler<?> handler = handlers.next();
 
@@ -78,7 +78,7 @@ class PreciseIndividualBlockingOperationStreamExecutorThread extends Thread {
         this.hasFinished.set(true);
     }
 
-    private boolean awaitExecutingHandler(Duration timeoutDuration, Future<OperationResult> executingHandler) {
+    private boolean awaitExecutingHandler(Duration timeoutDuration, Future<OperationResultReport> executingHandler) {
         long timeoutTimeMs = TIME_SOURCE.now().plus(timeoutDuration).asMilli();
         while (TIME_SOURCE.nowAsMilli() < timeoutTimeMs) {
             if (null == executingHandler || executingHandler.isDone()) return true;

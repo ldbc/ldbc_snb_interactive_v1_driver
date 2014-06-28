@@ -2,6 +2,7 @@ package com.ldbc.driver.workloads.ldbc.snb.interactive;
 
 import com.google.common.base.Function;
 import com.google.common.collect.Iterators;
+import com.google.common.collect.Lists;
 import com.ldbc.driver.Operation;
 import com.ldbc.driver.generator.CsvEventStreamReader;
 import com.ldbc.driver.generator.GeneratorFactory;
@@ -25,6 +26,7 @@ import java.text.ParseException;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.Iterator;
+import java.util.List;
 
 import static com.ldbc.driver.util.Bucket.DiscreteBucket;
 import static org.hamcrest.CoreMatchers.equalTo;
@@ -89,16 +91,15 @@ public class WriteEventStreamReaderTests {
         assertThat(addPerson.locationIp(), equalTo("14.131.98.220"));
         assertThat(addPerson.browserUsed(), equalTo("Chrome"));
         assertThat(addPerson.cityId(), is(392L));
-        assertThat(addPerson.languages(), equalTo(new String[]{"english", "swedish"}));
-        assertThat(addPerson.emails(), equalTo(new String[]{"user@email.com"}));
-        assertThat(addPerson.tagIds(), equalTo(new long[]{1612L}));
-        assertThat(addPerson.studyAt(), equalTo(new LdbcUpdate1AddPerson.Organization[]{
-                new LdbcUpdate1AddPerson.Organization(97L, 1)}));
-        assertThat(addPerson.workAt(), equalTo(new LdbcUpdate1AddPerson.Organization[]{
+        assertThat(addPerson.languages(), equalTo((List) Lists.newArrayList("english", "swedish")));
+        assertThat(addPerson.emails(), equalTo((List) Lists.newArrayList("user@email.com")));
+        assertThat(addPerson.tagIds(), equalTo((List) Lists.newArrayList(1612L)));
+        assertThat(addPerson.studyAt(), equalTo((List) Lists.newArrayList(new LdbcUpdate1AddPerson.Organization(97L, 1))));
+        assertThat(addPerson.workAt(), equalTo((List) Lists.newArrayList(
                 new LdbcUpdate1AddPerson.Organization(911L, 1970),
                 new LdbcUpdate1AddPerson.Organization(935L, 1970),
                 new LdbcUpdate1AddPerson.Organization(913L, 1971),
-                new LdbcUpdate1AddPerson.Organization(1539L, 1971)}));
+                new LdbcUpdate1AddPerson.Organization(1539L, 1971))));
     }
 
     @Test
@@ -163,7 +164,7 @@ public class WriteEventStreamReaderTests {
         assertThat(addForum.forumTitle(), equalTo("Group for The_Beekeeper in Pakistan"));
         assertThat(addForum.creationDate(), equalTo(creationDate));
         assertThat(addForum.moderatorPersonId(), is(989L));
-        assertThat(addForum.tagIds(), equalTo(new long[]{10716}));
+        assertThat(addForum.tagIds(), equalTo((List) Lists.newArrayList(10716l)));
     }
 
     @Test
@@ -226,7 +227,7 @@ public class WriteEventStreamReaderTests {
         assertThat(addPost.authorPersonId(), is(1673L));
         assertThat(addPost.forumId(), is(2152L));
         assertThat(addPost.countryId(), is(9L));
-        assertThat(addPost.tagIds(), equalTo(new long[]{1437}));
+        assertThat(addPost.tagIds(), equalTo((List) Lists.newArrayList(1437l)));
     }
 
     @Test
@@ -266,7 +267,7 @@ public class WriteEventStreamReaderTests {
         assertThat(addComment.countryId(), is(91L));
         assertThat(addComment.replyToPostId(), is(-1L));
         assertThat(addComment.replyToCommentId(), is(4034289L));
-        assertThat(addComment.tagIds(), equalTo(new long[]{1403, 1990, 2009, 2081, 2817, 2855, 2987, 6316, 7425, 8224, 8466}));
+        assertThat(addComment.tagIds(), equalTo((List) Lists.newArrayList(1403l, 1990l, 2009l, 2081l, 2817l, 2855l, 2987l, 6316l, 7425l, 8224l, 8466l)));
     }
 
     @Test

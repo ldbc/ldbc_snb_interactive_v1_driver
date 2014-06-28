@@ -2,7 +2,8 @@ package com.ldbc.driver.generator;
 
 import com.google.common.base.Predicate;
 import com.google.common.collect.Lists;
-import com.ldbc.driver.*;
+import com.ldbc.driver.OperationException;
+import com.ldbc.driver.OperationHandler;
 import com.ldbc.driver.runtime.ConcurrentErrorReporter;
 import com.ldbc.driver.runtime.coordination.ConcurrentCompletionTimeService;
 import com.ldbc.driver.runtime.metrics.ConcurrentMetricsService;
@@ -11,6 +12,8 @@ import com.ldbc.driver.temporal.Duration;
 import com.ldbc.driver.temporal.SystemTimeSource;
 import com.ldbc.driver.temporal.Time;
 import com.ldbc.driver.temporal.TimeSource;
+import com.ldbc.driver.testutils.NothingOperation;
+import com.ldbc.driver.testutils.NothingOperationHandler;
 import org.junit.Test;
 
 import java.util.Iterator;
@@ -64,11 +67,11 @@ public class WindowGeneratorTest {
                 // nothing in this window 15-19
                 Time.fromSeconds(20),
         };
-        TestOperationHandler[] handlers = new TestOperationHandler[times.length];
+        NothingOperationHandler[] handlers = new NothingOperationHandler[times.length];
         for (int i = 0; i < handlers.length; i++) {
-            TestOperation operation = new TestOperation();
+            NothingOperation operation = new NothingOperation();
             operation.setScheduledStartTime(times[i]);
-            TestOperationHandler handler = new TestOperationHandler();
+            NothingOperationHandler handler = new NothingOperationHandler();
             Spinner spinner = null;
             ConcurrentCompletionTimeService completionTimeService = null;
             ConcurrentErrorReporter errorReporter = null;
@@ -115,16 +118,6 @@ public class WindowGeneratorTest {
         assertThat(nextHandler.size(), is(1));
         assertThat(nextHandler.get(0).operation().scheduledStartTime(), equalTo(Time.fromSeconds(20)));
         assertThat(windowGenerator.hasNext(), is(false));
-    }
-
-    private static class TestOperationHandler extends OperationHandler<TestOperation> {
-        @Override
-        protected OperationResult executeOperation(TestOperation operation) throws DbException {
-            return null;
-        }
-    }
-
-    private static class TestOperation extends Operation<Object> {
     }
 
     /**

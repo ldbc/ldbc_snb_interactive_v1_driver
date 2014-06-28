@@ -1,14 +1,12 @@
 package com.ldbc.driver.workloads.ldbc.snb.interactive.db;
 
 import com.ldbc.driver.*;
+import com.ldbc.driver.util.CsvFileWriter;
 import com.ldbc.driver.workloads.ldbc.snb.interactive.*;
 
-import java.io.BufferedWriter;
 import java.io.File;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
@@ -24,7 +22,7 @@ public class CsvDb extends Db {
         }
         try {
             File csvFile = new File(csvPath);
-            csvDbConnectionState = new CsvDbConnectionState(new CsvFileWriter(csvFile));
+            csvDbConnectionState = new CsvDbConnectionState(new CsvFileWriter(csvFile, CsvFileWriter.DEFAULT_COLUMN_SEPARATOR_STRING));
         } catch (IOException e) {
             throw new DbException("Error encountered while trying to create CSV file writer", e);
         }
@@ -78,36 +76,13 @@ public class CsvDb extends Db {
         }
     }
 
-    public class CsvFileWriter {
-        private final String COLUMN_SEPARATOR = ",";
-        private BufferedWriter bufferedWriter = null;
-
-        public CsvFileWriter(File file) throws IOException {
-            bufferedWriter = new BufferedWriter(new FileWriter(file));
-        }
-
-        synchronized public void writeLine(String... columns) throws IOException {
-            for (int i = 0; i < columns.length - 1; i++) {
-                bufferedWriter.write(columns[i]);
-                bufferedWriter.write(COLUMN_SEPARATOR);
-            }
-            bufferedWriter.write(columns[columns.length - 1]);
-            bufferedWriter.newLine();
-        }
-
-        public void close() throws IOException {
-            bufferedWriter.flush();
-            bufferedWriter.close();
-        }
-    }
-
     public static class LdbcQuery1ToCsv extends OperationHandler<LdbcQuery1> {
         static final List<LdbcQuery1Result> RESULT = new ArrayList<>();
 
         @Override
-        protected OperationResult executeOperation(LdbcQuery1 operation) throws DbException {
+        protected OperationResultReport executeOperation(LdbcQuery1 operation) throws DbException {
             try {
-                ((CsvDbConnectionState) dbConnectionState()).csvFileWriter().writeLine(
+                ((CsvDbConnectionState) dbConnectionState()).csvFileWriter().writeRow(
                         operation.type(),
                         Long.toString(operation.personId()),
                         operation.personUri(),
@@ -123,9 +98,9 @@ public class CsvDb extends Db {
         static final List<LdbcQuery2Result> RESULT = new ArrayList<>();
 
         @Override
-        protected OperationResult executeOperation(LdbcQuery2 operation) throws DbException {
+        protected OperationResultReport executeOperation(LdbcQuery2 operation) throws DbException {
             try {
-                ((CsvDbConnectionState) dbConnectionState()).csvFileWriter().writeLine(
+                ((CsvDbConnectionState) dbConnectionState()).csvFileWriter().writeRow(
                         operation.type(),
                         Long.toString(operation.personId()),
                         operation.personUri(),
@@ -141,9 +116,9 @@ public class CsvDb extends Db {
         static final List<LdbcQuery3Result> RESULT = new ArrayList<>();
 
         @Override
-        protected OperationResult executeOperation(LdbcQuery3 operation) throws DbException {
+        protected OperationResultReport executeOperation(LdbcQuery3 operation) throws DbException {
             try {
-                ((CsvDbConnectionState) dbConnectionState()).csvFileWriter().writeLine(
+                ((CsvDbConnectionState) dbConnectionState()).csvFileWriter().writeRow(
                         operation.type(),
                         Long.toString(operation.personId()),
                         operation.personUri(),
@@ -163,9 +138,9 @@ public class CsvDb extends Db {
         static final List<LdbcQuery4Result> RESULT = new ArrayList<>();
 
         @Override
-        protected OperationResult executeOperation(LdbcQuery4 operation) throws DbException {
+        protected OperationResultReport executeOperation(LdbcQuery4 operation) throws DbException {
             try {
-                ((CsvDbConnectionState) dbConnectionState()).csvFileWriter().writeLine(
+                ((CsvDbConnectionState) dbConnectionState()).csvFileWriter().writeRow(
                         operation.type(),
                         Long.toString(operation.personId()),
                         operation.personUri(),
@@ -182,9 +157,9 @@ public class CsvDb extends Db {
         static final List<LdbcQuery5Result> RESULT = new ArrayList<>();
 
         @Override
-        protected OperationResult executeOperation(LdbcQuery5 operation) throws DbException {
+        protected OperationResultReport executeOperation(LdbcQuery5 operation) throws DbException {
             try {
-                ((CsvDbConnectionState) dbConnectionState()).csvFileWriter().writeLine(
+                ((CsvDbConnectionState) dbConnectionState()).csvFileWriter().writeRow(
                         operation.type(),
                         Long.toString(operation.personId()),
                         operation.personUri(),
@@ -201,9 +176,9 @@ public class CsvDb extends Db {
         static final List<LdbcQuery6Result> RESULT = new ArrayList<>();
 
         @Override
-        protected OperationResult executeOperation(LdbcQuery6 operation) throws DbException {
+        protected OperationResultReport executeOperation(LdbcQuery6 operation) throws DbException {
             try {
-                ((CsvDbConnectionState) dbConnectionState()).csvFileWriter().writeLine(
+                ((CsvDbConnectionState) dbConnectionState()).csvFileWriter().writeRow(
                         operation.type(),
                         Long.toString(operation.personId()),
                         operation.personUri(),
@@ -220,9 +195,9 @@ public class CsvDb extends Db {
         static final List<LdbcQuery7Result> RESULT = new ArrayList<>();
 
         @Override
-        protected OperationResult executeOperation(LdbcQuery7 operation) throws DbException {
+        protected OperationResultReport executeOperation(LdbcQuery7 operation) throws DbException {
             try {
-                ((CsvDbConnectionState) dbConnectionState()).csvFileWriter().writeLine(
+                ((CsvDbConnectionState) dbConnectionState()).csvFileWriter().writeRow(
                         operation.type(),
                         Long.toString(operation.personId()),
                         operation.personUri()
@@ -238,9 +213,9 @@ public class CsvDb extends Db {
         static final List<LdbcQuery8Result> RESULT = new ArrayList<>();
 
         @Override
-        protected OperationResult executeOperation(LdbcQuery8 operation) throws DbException {
+        protected OperationResultReport executeOperation(LdbcQuery8 operation) throws DbException {
             try {
-                ((CsvDbConnectionState) dbConnectionState()).csvFileWriter().writeLine(
+                ((CsvDbConnectionState) dbConnectionState()).csvFileWriter().writeRow(
                         operation.type(),
                         Long.toString(operation.personId()),
                         operation.personUri()
@@ -256,9 +231,9 @@ public class CsvDb extends Db {
         static final List<LdbcQuery9Result> RESULT = new ArrayList<>();
 
         @Override
-        protected OperationResult executeOperation(LdbcQuery9 operation) throws DbException {
+        protected OperationResultReport executeOperation(LdbcQuery9 operation) throws DbException {
             try {
-                ((CsvDbConnectionState) dbConnectionState()).csvFileWriter().writeLine(
+                ((CsvDbConnectionState) dbConnectionState()).csvFileWriter().writeRow(
                         operation.type(),
                         Long.toString(operation.personId()),
                         operation.personUri(),
@@ -275,9 +250,9 @@ public class CsvDb extends Db {
         static final List<LdbcQuery10Result> RESULT = new ArrayList<>();
 
         @Override
-        protected OperationResult executeOperation(LdbcQuery10 operation) throws DbException {
+        protected OperationResultReport executeOperation(LdbcQuery10 operation) throws DbException {
             try {
-                ((CsvDbConnectionState) dbConnectionState()).csvFileWriter().writeLine(
+                ((CsvDbConnectionState) dbConnectionState()).csvFileWriter().writeRow(
                         operation.type(),
                         Long.toString(operation.personId()),
                         operation.personUri(),
@@ -295,9 +270,9 @@ public class CsvDb extends Db {
         static final List<LdbcQuery11Result> RESULT = new ArrayList<>();
 
         @Override
-        protected OperationResult executeOperation(LdbcQuery11 operation) throws DbException {
+        protected OperationResultReport executeOperation(LdbcQuery11 operation) throws DbException {
             try {
-                ((CsvDbConnectionState) dbConnectionState()).csvFileWriter().writeLine(
+                ((CsvDbConnectionState) dbConnectionState()).csvFileWriter().writeRow(
                         operation.type(),
                         Long.toString(operation.personId()),
                         operation.personUri(),
@@ -315,9 +290,9 @@ public class CsvDb extends Db {
         static final List<LdbcQuery12Result> RESULT = new ArrayList<>();
 
         @Override
-        protected OperationResult executeOperation(LdbcQuery12 operation) throws DbException {
+        protected OperationResultReport executeOperation(LdbcQuery12 operation) throws DbException {
             try {
-                ((CsvDbConnectionState) dbConnectionState()).csvFileWriter().writeLine(
+                ((CsvDbConnectionState) dbConnectionState()).csvFileWriter().writeRow(
                         operation.type(),
                         Long.toString(operation.personId()),
                         operation.personUri(),
@@ -334,9 +309,9 @@ public class CsvDb extends Db {
         static final List<LdbcQuery13Result> RESULT = new ArrayList<>();
 
         @Override
-        protected OperationResult executeOperation(LdbcQuery13 operation) throws DbException {
+        protected OperationResultReport executeOperation(LdbcQuery13 operation) throws DbException {
             try {
-                ((CsvDbConnectionState) dbConnectionState()).csvFileWriter().writeLine(
+                ((CsvDbConnectionState) dbConnectionState()).csvFileWriter().writeRow(
                         operation.type(),
                         Long.toString(operation.person1Id()),
                         Long.toString(operation.person2Id()),
@@ -354,9 +329,9 @@ public class CsvDb extends Db {
         static final List<LdbcQuery14Result> RESULT = new ArrayList<>();
 
         @Override
-        protected OperationResult executeOperation(LdbcQuery14 operation) throws DbException {
+        protected OperationResultReport executeOperation(LdbcQuery14 operation) throws DbException {
             try {
-                ((CsvDbConnectionState) dbConnectionState()).csvFileWriter().writeLine(
+                ((CsvDbConnectionState) dbConnectionState()).csvFileWriter().writeRow(
                         operation.type(),
                         Long.toString(operation.person1Id()),
                         Long.toString(operation.person2Id()),
@@ -374,9 +349,9 @@ public class CsvDb extends Db {
         static final List<LdbcUpdate1AddPerson> RESULT = new ArrayList<>();
 
         @Override
-        protected OperationResult executeOperation(LdbcUpdate1AddPerson operation) throws DbException {
+        protected OperationResultReport executeOperation(LdbcUpdate1AddPerson operation) throws DbException {
             try {
-                ((CsvDbConnectionState) dbConnectionState()).csvFileWriter().writeLine(
+                ((CsvDbConnectionState) dbConnectionState()).csvFileWriter().writeRow(
                         operation.type(),
                         Long.toString(operation.personId()),
                         operation.personFirstName(),
@@ -387,9 +362,9 @@ public class CsvDb extends Db {
                         operation.locationIp(),
                         operation.browserUsed(),
                         Long.toString(operation.cityId()),
-                        Arrays.toString(operation.languages()),
-                        Arrays.toString(operation.emails()),
-                        Arrays.toString(operation.tagIds()),
+                        operation.languages().toString(),
+                        operation.emails().toString(),
+                        operation.tagIds().toString(),
                         operation.studyAt().toString(),
                         operation.workAt().toString()
                 );
@@ -404,9 +379,9 @@ public class CsvDb extends Db {
         static final List<LdbcUpdate2AddPostLike> RESULT = new ArrayList<>();
 
         @Override
-        protected OperationResult executeOperation(LdbcUpdate2AddPostLike operation) throws DbException {
+        protected OperationResultReport executeOperation(LdbcUpdate2AddPostLike operation) throws DbException {
             try {
-                ((CsvDbConnectionState) dbConnectionState()).csvFileWriter().writeLine(
+                ((CsvDbConnectionState) dbConnectionState()).csvFileWriter().writeRow(
                         operation.type(),
                         Long.toString(operation.personId()),
                         Long.toString(operation.postId()),
@@ -423,9 +398,9 @@ public class CsvDb extends Db {
         static final List<LdbcUpdate3AddCommentLike> RESULT = new ArrayList<>();
 
         @Override
-        protected OperationResult executeOperation(LdbcUpdate3AddCommentLike operation) throws DbException {
+        protected OperationResultReport executeOperation(LdbcUpdate3AddCommentLike operation) throws DbException {
             try {
-                ((CsvDbConnectionState) dbConnectionState()).csvFileWriter().writeLine(
+                ((CsvDbConnectionState) dbConnectionState()).csvFileWriter().writeRow(
                         operation.type(),
                         Long.toString(operation.personId()),
                         Long.toString(operation.commentId()),
@@ -442,15 +417,15 @@ public class CsvDb extends Db {
         static final List<LdbcUpdate4AddForum> RESULT = new ArrayList<>();
 
         @Override
-        protected OperationResult executeOperation(LdbcUpdate4AddForum operation) throws DbException {
+        protected OperationResultReport executeOperation(LdbcUpdate4AddForum operation) throws DbException {
             try {
-                ((CsvDbConnectionState) dbConnectionState()).csvFileWriter().writeLine(
+                ((CsvDbConnectionState) dbConnectionState()).csvFileWriter().writeRow(
                         operation.type(),
                         Long.toString(operation.forumId()),
                         operation.forumTitle(),
                         Long.toString(operation.creationDate().getTime()),
                         Long.toString(operation.moderatorPersonId()),
-                        Arrays.toString(operation.tagIds())
+                        operation.tagIds().toString()
                 );
                 return operation.buildResult(0, RESULT);
             } catch (IOException e) {
@@ -463,9 +438,9 @@ public class CsvDb extends Db {
         static final List<LdbcUpdate5AddForumMembership> RESULT = new ArrayList<>();
 
         @Override
-        protected OperationResult executeOperation(LdbcUpdate5AddForumMembership operation) throws DbException {
+        protected OperationResultReport executeOperation(LdbcUpdate5AddForumMembership operation) throws DbException {
             try {
-                ((CsvDbConnectionState) dbConnectionState()).csvFileWriter().writeLine(
+                ((CsvDbConnectionState) dbConnectionState()).csvFileWriter().writeRow(
                         operation.type(),
                         Long.toString(operation.forumId()),
                         Long.toString(operation.personId()),
@@ -482,9 +457,9 @@ public class CsvDb extends Db {
         static final List<LdbcUpdate6AddPost> RESULT = new ArrayList<>();
 
         @Override
-        protected OperationResult executeOperation(LdbcUpdate6AddPost operation) throws DbException {
+        protected OperationResultReport executeOperation(LdbcUpdate6AddPost operation) throws DbException {
             try {
-                ((CsvDbConnectionState) dbConnectionState()).csvFileWriter().writeLine(
+                ((CsvDbConnectionState) dbConnectionState()).csvFileWriter().writeRow(
                         operation.type(),
                         Long.toString(operation.postId()),
                         operation.imageFile(),
@@ -497,7 +472,7 @@ public class CsvDb extends Db {
                         Long.toString(operation.authorPersonId()),
                         Long.toString(operation.forumId()),
                         Long.toString(operation.countryId()),
-                        Arrays.toString(operation.tagIds())
+                        operation.tagIds().toString()
                 );
                 return operation.buildResult(0, RESULT);
             } catch (IOException e) {
@@ -510,9 +485,9 @@ public class CsvDb extends Db {
         static final List<LdbcUpdate7AddComment> RESULT = new ArrayList<>();
 
         @Override
-        protected OperationResult executeOperation(LdbcUpdate7AddComment operation) throws DbException {
+        protected OperationResultReport executeOperation(LdbcUpdate7AddComment operation) throws DbException {
             try {
-                ((CsvDbConnectionState) dbConnectionState()).csvFileWriter().writeLine(
+                ((CsvDbConnectionState) dbConnectionState()).csvFileWriter().writeRow(
                         operation.type(),
                         Long.toString(operation.commentId()),
                         Long.toString(operation.creationDate().getTime()),
@@ -524,7 +499,7 @@ public class CsvDb extends Db {
                         Long.toString(operation.countryId()),
                         Long.toString(operation.replyToPostId()),
                         Long.toString(operation.replyToCommentId()),
-                        Arrays.toString(operation.tagIds())
+                        operation.tagIds().toString()
                 );
                 return operation.buildResult(0, RESULT);
             } catch (IOException e) {
@@ -537,9 +512,9 @@ public class CsvDb extends Db {
         static final List<LdbcUpdate8AddFriendship> RESULT = new ArrayList<>();
 
         @Override
-        protected OperationResult executeOperation(LdbcUpdate8AddFriendship operation) throws DbException {
+        protected OperationResultReport executeOperation(LdbcUpdate8AddFriendship operation) throws DbException {
             try {
-                ((CsvDbConnectionState) dbConnectionState()).csvFileWriter().writeLine(
+                ((CsvDbConnectionState) dbConnectionState()).csvFileWriter().writeRow(
                         operation.type(),
                         Long.toString(operation.person1Id()),
                         Long.toString(operation.person2Id()),

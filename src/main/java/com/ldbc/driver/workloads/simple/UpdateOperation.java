@@ -27,4 +27,14 @@ public class UpdateOperation extends Operation<Object> {
     public Map<String, ByteIterator> getValues() {
         return values;
     }
+
+    @Override
+    public Object marshalResult(String serializedOperationResult) {
+        return null;
+    }
+
+    @Override
+    public String serializeResult(Object operationResultInstance) {
+        return null;
+    }
 }

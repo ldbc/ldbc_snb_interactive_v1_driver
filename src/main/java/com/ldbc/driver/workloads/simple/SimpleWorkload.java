@@ -1,7 +1,6 @@
 package com.ldbc.driver.workloads.simple;
 
 import com.google.common.collect.Iterators;
-import com.google.common.collect.Lists;
 import com.ldbc.driver.Operation;
 import com.ldbc.driver.OperationClassification;
 import com.ldbc.driver.Workload;
@@ -180,13 +179,22 @@ public class SimpleWorkload extends Workload {
     }
 
     @Override
-    protected Iterator<Tuple.Tuple2<Operation<?>, Object>> validationOperations(GeneratorFactory generators) throws WorkloadException {
-        // TODO implement
-        return Lists.<Tuple.Tuple2<Operation<?>, Object>>newArrayList().iterator();
+    public boolean validationResultCheck(Operation<?> operation, Object operationResult) {
+        return true;
     }
 
     @Override
     protected void onCleanup() throws WorkloadException {
+    }
+
+    @Override
+    public String serializeOperation(Operation<?> instance) {
+        return null;
+    }
+
+    @Override
+    public Operation<?> marshalOperation(String serializedInstance) {
+        return null;
     }
 }
 
