@@ -33,7 +33,7 @@ import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
 
-public class WriteEventStreamReaderTests {
+public class WriteEventStreamReaderTest {
     TimeSource TIME_SOURCE = new SystemTimeSource();
     File csvFile = null;
 

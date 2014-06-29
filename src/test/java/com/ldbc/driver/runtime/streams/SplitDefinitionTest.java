@@ -8,7 +8,7 @@ import java.util.List;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
 
-public class SplitDefinitionTests {
+public class SplitDefinitionTest {
 
     @Test
     public void shouldAllowCreationOfNonEmptyDefinition() throws IteratorSplittingException {

@@ -13,7 +13,7 @@ import java.util.concurrent.*;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
 
-public class ConcurrentErrorReporterTests {
+public class ConcurrentErrorReporterTest {
     @Test
     public void shouldMaintainOrderWhenErrorReportsAreSequential() throws InterruptedException, ExecutionException {
         // Given

@@ -2,7 +2,7 @@ package com.ldbc.driver.validation;
 
 import com.google.common.collect.Lists;
 import com.ldbc.driver.*;
-import com.ldbc.driver.control.ConfigurationFileCreatorReaderHelper;
+import com.ldbc.driver.control.ConfigurationFileTestHelper;
 import com.ldbc.driver.control.ConsoleAndFileDriverConfiguration;
 import com.ldbc.driver.control.DriverConfigurationException;
 import com.ldbc.driver.util.CsvFileReader;
@@ -25,7 +25,7 @@ import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
 
-public class ValidationParamsGeneratorTests {
+public class ValidationParamsGeneratorTest {
     @Test
     public void generatedValidationFileLengthShouldEqualMinimumOfValidationSetSizeParamAndOperationsStreamLengthWhenBothAreEqual() throws IOException, DriverConfigurationException, WorkloadException, DbException {
         // Given
@@ -33,8 +33,8 @@ public class ValidationParamsGeneratorTests {
         FileUtils.deleteQuietly(tempValidationFile);
         tempValidationFile.createNewFile();
 
-        ConsoleAndFileDriverConfiguration configuration = ConfigurationFileCreatorReaderHelper.readConfigurationFileAt(
-                ConfigurationFileCreatorReaderHelper.getBaseConfigurationFilePublicLocation());
+        ConsoleAndFileDriverConfiguration configuration = ConfigurationFileTestHelper.readConfigurationFileAt(
+                ConfigurationFileTestHelper.getBaseConfigurationFilePublicLocation());
         configuration = (ConsoleAndFileDriverConfiguration) configuration.applyMap(LdbcSnbInteractiveWorkload.defaultReadOnlyConfig());
         Map<String, String> additionalParamsMap = new HashMap<>();
         additionalParamsMap.put(LdbcSnbInteractiveWorkload.PARAMETERS_DIRECTORY, TestUtils.getResource("/").getAbsolutePath());

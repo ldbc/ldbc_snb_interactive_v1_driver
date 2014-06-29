@@ -8,7 +8,7 @@ import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
 
-public class SplitResultTests {
+public class SplitResultTest {
 
     @Test
     public void shouldReturnAllCreatedSplits() throws IteratorSplittingException {

@@ -21,7 +21,7 @@ import java.util.concurrent.Future;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
 
-public class ThreadPoolOperationHandlerExecutorTests {
+public class ThreadPoolOperationHandlerExecutorTest {
     TimeSource TIME_SOURCE = new SystemTimeSource();
 
     @Test

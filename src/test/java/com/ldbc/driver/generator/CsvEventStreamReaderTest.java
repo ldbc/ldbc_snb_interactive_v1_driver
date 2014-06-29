@@ -30,7 +30,7 @@ public class CsvEventStreamReaderTest {
     }
 
     @Test
-    public void shouldParseEntireFileWhenAllDecodersAreProvided() throws FileNotFoundException {
+    public void shouldParseEntireFileWhenAllDecodersAreProvidedTest() throws FileNotFoundException {
         // Given
         File file = TestUtils.getResource("/updateStream_0.csv");
         Iterable<EventDecoder<Operation<?>>> decoders = Lists.newArrayList(
@@ -50,7 +50,7 @@ public class CsvEventStreamReaderTest {
     }
 
     @Test
-    public void shouldFailToParseEntireFileWhenOneDecoderNotProvidedAndAtLeastOnePolicy() throws FileNotFoundException {
+    public void shouldFailToParseEntireFileWhenOneDecoderNotProvidedAndAtLeastOnePolicyTest() throws FileNotFoundException {
         // Given
         File file = TestUtils.getResource("/updateStream_0.csv");
         Iterable<EventDecoder<Operation<?>>> decoders = Lists.newArrayList(
@@ -72,7 +72,7 @@ public class CsvEventStreamReaderTest {
     }
 
     @Test
-    public void shouldFailToParseEntireFileWhenOneDecoderNotProvidedAndExactlyOnePolicy() throws FileNotFoundException {
+    public void shouldFailToParseEntireFileWhenOneDecoderNotProvidedAndExactlyOnePolicyTest() throws FileNotFoundException {
         // Given
         File file = TestUtils.getResource("/updateStream_0.csv");
         Iterable<EventDecoder<Operation<?>>> decoders = Lists.newArrayList(

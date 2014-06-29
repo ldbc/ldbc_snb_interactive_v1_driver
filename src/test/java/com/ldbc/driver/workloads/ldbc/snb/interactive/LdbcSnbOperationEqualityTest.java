@@ -10,7 +10,7 @@ import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.not;
 import static org.junit.Assert.assertThat;
 
-public class LdbcSnbOperationEqualityTests {
+public class LdbcSnbOperationEqualityTest {
     @Test
     public void ldbcQuery1ShouldDoEqualsCorrectly() {
         // Given

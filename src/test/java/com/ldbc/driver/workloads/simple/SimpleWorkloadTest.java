@@ -4,6 +4,7 @@ import com.google.common.base.Function;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Iterators;
 import com.ldbc.driver.*;
+import com.ldbc.driver.control.ConfigurationFileTestHelper;
 import com.ldbc.driver.control.ConsoleAndFileDriverConfiguration;
 import com.ldbc.driver.control.DriverConfigurationException;
 import com.ldbc.driver.control.LocalControlService;
@@ -25,7 +26,7 @@ import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
 
-public class SimpleWorkloadTests {
+public class SimpleWorkloadTest {
     TimeSource TIME_SOURCE = new SystemTimeSource();
 
     @Test
@@ -184,7 +185,7 @@ public class SimpleWorkloadTests {
     @Test
     public void shouldLoadFromConfigFile() throws DriverConfigurationException, ClientException {
         String simpleTestPropertiesPath =
-                new File("ldbc_driver/workloads/simple/simpleworkload.properties").getAbsolutePath();
+                new File(ConfigurationFileTestHelper.getWorkloadsDirectory(), "simple/simpleworkload.properties").getAbsolutePath();
         String ldbcDriverTestPropertiesPath =
                 TestUtils.getResource("/ldbc_driver_default.properties").getAbsolutePath();
 

@@ -15,7 +15,7 @@ import java.util.concurrent.TimeUnit;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.junit.Assert.assertThat;
 
-public class ThreadedQueuedConcurrentMetricsServiceTests {
+public class ThreadedQueuedConcurrentMetricsServiceTest {
     TimeSource TIME_SOURCE = new SystemTimeSource();
 
     @Test

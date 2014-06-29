@@ -18,7 +18,7 @@ import static org.hamcrest.CoreMatchers.instanceOf;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
 
-public class ExecutorTests {
+public class ExecutorTest {
     TimeSource TIME_SOURCE = new SystemTimeSource();
 
     @Test

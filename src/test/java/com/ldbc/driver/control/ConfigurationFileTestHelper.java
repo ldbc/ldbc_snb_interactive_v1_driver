@@ -15,7 +15,7 @@ import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
 
-public class ConfigurationFileCreatorReaderHelper {
+public class ConfigurationFileTestHelper {
     public static void main(String[] args) throws IOException, DriverConfigurationException {
         File driverRootDirectory = getDriverRootDirectory();
 
@@ -64,6 +64,13 @@ public class ConfigurationFileCreatorReaderHelper {
 
     public static File getBaseConfigurationFilePublicLocation() {
         return getBaseConfigurationFilePublicLocation(getDriverRootDirectory());
+    }
+
+    public static File getWorkloadsDirectory() {
+        File workloadsDirectory = new File(getDriverRootDirectory(), "workloads");
+        assertThat(workloadsDirectory.exists(), is(true));
+        assertThat(workloadsDirectory.isDirectory(), is(true));
+        return workloadsDirectory;
     }
 
     private static ConsoleAndFileDriverConfiguration baseConfiguration() throws DriverConfigurationException {

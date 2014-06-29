@@ -7,7 +7,7 @@ import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.not;
 import static org.junit.Assert.assertThat;
 
-public class LdbcSnbOperationResultEqualityTests {
+public class LdbcSnbOperationResultEqualityTest {
     @Test
     public void ldbcQuery1ResultShouldDoEqualsCorrectly() {
         long friendId1 = 1;

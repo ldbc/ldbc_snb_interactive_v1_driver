@@ -20,7 +20,7 @@ import java.util.concurrent.TimeUnit;
 import static org.hamcrest.CoreMatchers.*;
 import static org.junit.Assert.assertThat;
 
-public class ConsoleAndFileDriverConfigurationTests {
+public class ConsoleAndFileDriverConfigurationTest {
 
     @Test
     public void addTestForApplyMap() throws DriverConfigurationException {
@@ -425,7 +425,7 @@ public class ConsoleAndFileDriverConfigurationTests {
         assertThat(exceptionThrownCreatingConfigurationFromPropertiesInTestResources, is(true));
 
         File ldbcDriverConfigurationInWorkloadsDirectoryFile =
-                ConfigurationFileCreatorReaderHelper.getBaseConfigurationFilePublicLocation();
+                ConfigurationFileTestHelper.getBaseConfigurationFilePublicLocation();
         Properties ldbcDriverConfigurationInWorkloadsDirectoryProperties = new Properties();
         ldbcDriverConfigurationInWorkloadsDirectoryProperties.load(new FileInputStream(ldbcDriverConfigurationInWorkloadsDirectoryFile));
         Map<String, String> configurationInWorkloadsDirectoryAsMap =

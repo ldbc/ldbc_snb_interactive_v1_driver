@@ -12,7 +12,7 @@ import java.util.List;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
 
-public class UniformWindowSchedulerTests {
+public class UniformWindowSchedulerTest {
     @Test
     public void shouldNotCrashWithEmptyWindow() throws OperationException {
         Time windowStartTimeInclusive = Time.fromMilli(0);

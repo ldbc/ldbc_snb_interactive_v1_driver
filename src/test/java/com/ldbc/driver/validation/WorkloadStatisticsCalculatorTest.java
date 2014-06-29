@@ -26,7 +26,7 @@ import java.util.Set;
 import static org.hamcrest.CoreMatchers.*;
 import static org.junit.Assert.assertThat;
 
-public class WorkloadStatisticsCalculatorTests {
+public class WorkloadStatisticsCalculatorTest {
     private TimeSource TIME_SOURCE = new SystemTimeSource();
     private GeneratorFactory generators;
 

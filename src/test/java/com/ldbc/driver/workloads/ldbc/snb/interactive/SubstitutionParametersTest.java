@@ -7,7 +7,7 @@ import java.io.IOException;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
 
-public class SubstitutionParametersTests {
+public class SubstitutionParametersTest {
     static String SAMPLE_JSON = "{" +
             "\"minPersonId\":0," +
             "\"maxPersonId\":1999," +

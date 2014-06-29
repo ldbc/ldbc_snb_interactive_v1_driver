@@ -15,7 +15,7 @@ import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
 
-public class ReadQueryEventStreamReadersTests {
+public class ReadQueryEventStreamReadersTest {
     @Test
     public void shouldParseAllQuery1Events() throws IOException, ParseException {
         // Given

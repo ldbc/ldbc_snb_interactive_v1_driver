@@ -6,7 +6,7 @@ import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.not;
 import static org.junit.Assert.assertThat;
 
-public class OperationClassificationTests {
+public class OperationClassificationTest {
     @Test
     public void shouldPerformEqualityCorrectly() {
         // Given

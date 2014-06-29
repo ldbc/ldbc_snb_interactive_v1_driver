@@ -10,7 +10,7 @@ import java.util.List;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.junit.Assert.assertThat;
 
-public class LdbcOperationsSerializeMarshalOperationResultsTests {
+public class LdbcOperationsSerializeMarshalOperationResultsTest {
     @Test
     public void ldbcQuery1ShouldSerializeAndMarshalLdbcQuery1Result() throws SerializingMarshallingException {
         // Given

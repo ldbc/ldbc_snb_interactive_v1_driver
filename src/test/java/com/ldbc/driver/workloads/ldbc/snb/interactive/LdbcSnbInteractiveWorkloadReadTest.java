@@ -5,10 +5,7 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Iterators;
 import com.google.common.collect.Lists;
 import com.ldbc.driver.*;
-import com.ldbc.driver.control.ConsoleAndFileDriverConfiguration;
-import com.ldbc.driver.control.DriverConfiguration;
-import com.ldbc.driver.control.DriverConfigurationException;
-import com.ldbc.driver.control.LocalControlService;
+import com.ldbc.driver.control.*;
 import com.ldbc.driver.generator.GeneratorFactory;
 import com.ldbc.driver.runtime.ConcurrentErrorReporter;
 import com.ldbc.driver.runtime.streams.IteratorSplitter;
@@ -36,7 +33,7 @@ import java.util.concurrent.TimeUnit;
 import static org.hamcrest.CoreMatchers.*;
 import static org.junit.Assert.assertThat;
 
-public class LdbcSnbInteractiveWorkloadReadTests {
+public class LdbcSnbInteractiveWorkloadReadTest {
     TimeSource TIME_SOURCE = new SystemTimeSource();
 
     static Map<String, String> defaultSnbParamsMapWithWorkloadAndParametersDir() {
@@ -385,7 +382,7 @@ public class LdbcSnbInteractiveWorkloadReadTests {
     @Test
     public void shouldLoadFromConfigFile() throws DriverConfigurationException, ClientException {
         String ldbcSocnetInteractiveTestPropertiesPath =
-                new File("ldbc_driver/workloads/ldbc/socnet/interactive/ldbc_socnet_interactive.properties").getAbsolutePath();
+                new File(ConfigurationFileTestHelper.getWorkloadsDirectory(), "ldbc/socnet/interactive/ldbc_socnet_interactive.properties").getAbsolutePath();
         String ldbcDriverTestPropertiesPath =
                 TestUtils.getResource("/ldbc_driver_default.properties").getAbsolutePath();
 

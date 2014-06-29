@@ -29,7 +29,7 @@ import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
 
-public class TimeMappingGeneratorTests {
+public class TimeMappingGeneratorTest {
     private TimeSource TIME_SOURCE = new SystemTimeSource();
     private final long RANDOM_SEED = 42;
     private GeneratorFactory generators = null;

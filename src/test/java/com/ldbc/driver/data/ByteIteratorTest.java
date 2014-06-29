@@ -8,10 +8,10 @@ import com.ldbc.driver.data.RandomByteIterator;
 
 import static org.junit.Assert.assertEquals;
 
-public class TestByteIterator
+public class ByteIteratorTest
 {
     @Test
-    public void testRandomByteIterator()
+    public void testRandomByteIteratorTest()
     {
         RandomDataGenerator random = new RandomDataGenerator();
 
