@@ -15,7 +15,7 @@ import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
 
-public class ConfigurationFileTestHelper {
+public class DriverConfigurationFileTestHelper {
     public static void main(String[] args) throws IOException, DriverConfigurationException {
         File driverRootDirectory = getDriverRootDirectory();
 

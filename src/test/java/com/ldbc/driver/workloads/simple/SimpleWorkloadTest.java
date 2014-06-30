@@ -4,7 +4,7 @@ import com.google.common.base.Function;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Iterators;
 import com.ldbc.driver.*;
-import com.ldbc.driver.control.ConfigurationFileTestHelper;
+import com.ldbc.driver.control.DriverConfigurationFileTestHelper;
 import com.ldbc.driver.control.ConsoleAndFileDriverConfiguration;
 import com.ldbc.driver.control.DriverConfigurationException;
 import com.ldbc.driver.control.LocalControlService;
@@ -185,7 +185,7 @@ public class SimpleWorkloadTest {
     @Test
     public void shouldLoadFromConfigFile() throws DriverConfigurationException, ClientException {
         String simpleTestPropertiesPath =
-                new File(ConfigurationFileTestHelper.getWorkloadsDirectory(), "simple/simpleworkload.properties").getAbsolutePath();
+                new File(DriverConfigurationFileTestHelper.getWorkloadsDirectory(), "simple/simpleworkload.properties").getAbsolutePath();
         String ldbcDriverTestPropertiesPath =
                 TestUtils.getResource("/ldbc_driver_default.properties").getAbsolutePath();
 

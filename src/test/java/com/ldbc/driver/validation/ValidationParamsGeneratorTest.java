@@ -2,7 +2,7 @@ package com.ldbc.driver.validation;
 
 import com.google.common.collect.Lists;
 import com.ldbc.driver.*;
-import com.ldbc.driver.control.ConfigurationFileTestHelper;
+import com.ldbc.driver.control.DriverConfigurationFileTestHelper;
 import com.ldbc.driver.control.ConsoleAndFileDriverConfiguration;
 import com.ldbc.driver.control.DriverConfigurationException;
 import com.ldbc.driver.util.CsvFileReader;
@@ -33,8 +33,8 @@ public class ValidationParamsGeneratorTest {
         FileUtils.deleteQuietly(tempValidationFile);
         tempValidationFile.createNewFile();
 
-        ConsoleAndFileDriverConfiguration configuration = ConfigurationFileTestHelper.readConfigurationFileAt(
-                ConfigurationFileTestHelper.getBaseConfigurationFilePublicLocation());
+        ConsoleAndFileDriverConfiguration configuration = DriverConfigurationFileTestHelper.readConfigurationFileAt(
+                DriverConfigurationFileTestHelper.getBaseConfigurationFilePublicLocation());
         configuration = (ConsoleAndFileDriverConfiguration) configuration.applyMap(LdbcSnbInteractiveWorkload.defaultReadOnlyConfig());
         Map<String, String> additionalParamsMap = new HashMap<>();
         additionalParamsMap.put(LdbcSnbInteractiveWorkload.PARAMETERS_DIRECTORY, TestUtils.getResource("/").getAbsolutePath());

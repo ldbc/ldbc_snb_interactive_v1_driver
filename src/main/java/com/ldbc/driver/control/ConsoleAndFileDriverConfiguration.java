@@ -113,6 +113,7 @@ public class ConsoleAndFileDriverConfiguration implements DriverConfiguration {
     public static final String PEER_IDS_ARG = "pids";
     private static final String PEER_IDS_ARG_LONG = "peeridentifiers";
     public static final Set<String> PEER_IDS_DEFAULT = Sets.newHashSet();
+    public static final String PEER_IDS_DEFAULT_STRING = serializePeerIdsToCommandline(PEER_IDS_DEFAULT);
     private static final String PEER_IDS_DESCRIPTION = "identifiers/addresses of other driver workers (for distributed mode)";
 
     public static final String TOLERATED_EXECUTION_DELAY_ARG = "del";
@@ -153,8 +154,7 @@ public class ConsoleAndFileDriverConfiguration implements DriverConfiguration {
         defaultParamsMap.put(TIME_UNIT_ARG, TIME_UNIT_DEFAULT_STRING);
         defaultParamsMap.put(TIME_COMPRESSION_RATIO_ARG, TIME_COMPRESSION_RATIO_DEFAULT_STRING);
         defaultParamsMap.put(GCT_DELTA_DURATION_ARG, GCT_DELTA_DURATION_DEFAULT_STRING);
-        if (null != PEER_IDS_DEFAULT && false == PEER_IDS_DEFAULT.isEmpty())
-            defaultParamsMap.put(PEER_IDS_ARG, serializePeerIdsToCommandline(PEER_IDS_DEFAULT));
+        defaultParamsMap.put(PEER_IDS_ARG, PEER_IDS_DEFAULT_STRING);
         defaultParamsMap.put(TOLERATED_EXECUTION_DELAY_ARG, TOLERATED_EXECUTION_DELAY_DEFAULT_STRING);
         defaultParamsMap.put(SPINNER_SLEEP_DURATION_ARG, SPINNER_SLEEP_DURATION_DEFAULT_STRING);
         return defaultParamsMap;
@@ -222,9 +222,7 @@ public class ConsoleAndFileDriverConfiguration implements DriverConfiguration {
         String resultFilePath = paramsMap.get(RESULT_FILE_PATH_ARG);
         double timeCompressionRatio = Double.parseDouble(paramsMap.get(TIME_COMPRESSION_RATIO_ARG));
         Duration gctDeltaDuration = Duration.fromMilli(Long.parseLong(paramsMap.get(GCT_DELTA_DURATION_ARG)));
-        Set<String> peerIds = (null == paramsMap.get(PEER_IDS_ARG))
-                ? new HashSet<String>()
-                : parsePeerIdsFromCommandline(paramsMap.get(PEER_IDS_ARG));
+        Set<String> peerIds = parsePeerIdsFromCommandline(paramsMap.get(PEER_IDS_ARG));
         Duration toleratedExecutionDelay = Duration.fromMilli(Long.parseLong(paramsMap.get(TOLERATED_EXECUTION_DELAY_ARG)));
         ConsoleAndFileValidationParamOptions databaseConsoleAndFileValidationParams =
                 (null == paramsMap.get(CREATE_VALIDATION_PARAMS_ARG)) ?
@@ -492,19 +490,30 @@ public class ConsoleAndFileDriverConfiguration implements DriverConfiguration {
     }
 
     static Set<String> parsePeerIdsFromCommandline(String peerIdsString) {
+        Set<String> peerIds = new HashSet<>();
         String[] peerIdsArray = peerIdsString.split(COMMANDLINE_SEPARATOR_REGEX_STRING);
-        return Sets.newHashSet(peerIdsArray);
+        for (String peerId : peerIdsArray) {
+            if (peerId.isEmpty()) continue;
+            peerIds.add(peerId);
+        }
+        return peerIds;
     }
 
-    static String serializePeerIdsToCommandline(Set<String> peerIds) throws DriverConfigurationException {
-        if (peerIds.isEmpty())
-            throw new DriverConfigurationException("Empty peer IDs list can not be serialized to a commandline format");
-        String commandLinePeerIdsString = "";
+    static String serializePeerIdsToCommandline(Set<String> peerIds) {
         List<String> peerIdsList = Lists.newArrayList(peerIds);
+
+        if (0 == peerIdsList.size())
+            return "";
+
+        if (1 == peerIdsList.size())
+            return peerIdsList.get(0);
+
+        String commandLinePeerIdsString = "";
         for (int i = 0; i < peerIdsList.size() - 1; i++) {
             commandLinePeerIdsString += peerIdsList.get(i) + COMMANDLINE_SEPARATOR_CHAR;
         }
         commandLinePeerIdsString += peerIdsList.get(peerIds.size() - 1);
+
         return commandLinePeerIdsString;
     }
 
@@ -830,66 +839,75 @@ public class ConsoleAndFileDriverConfiguration implements DriverConfiguration {
         sb.append("# ***********************\n");
         sb.append("\n");
         sb.append("# show status during benchmark execution\n");
+        sb.append("# BOOLEAN\n");
         sb.append(SHOW_STATUS_ARG_LONG).append("=").append(showStatus).append("\n");
         sb.append("\n");
         sb.append("# thread pool size to use for executing operation handlers\n");
+        sb.append("# INTEGER\n");
         sb.append(THREADS_ARG_LONG).append("=").append(threadCount).append("\n");
         sb.append("\n");
         sb.append("# path specifying where to write the benchmark results file\n");
+        sb.append("# STRING\n");
         if (null == resultFilePath)
             sb.append("# ").append(RESULT_FILE_PATH_ARG_LONG).append("=").append("\n");
         else
             sb.append(RESULT_FILE_PATH_ARG_LONG).append("=").append(resultFilePath).append("\n");
         sb.append("\n");
         sb.append("# time unit to use for measuring performance metrics (e.g., query response time)\n");
-        sb.append("# Supported time units: ").append(Arrays.toString(VALID_TIME_UNITS)).append("\n");
+        sb.append("# ENUM (").append(Arrays.toString(VALID_TIME_UNITS)).append(")\n");
         sb.append(TIME_UNIT_ARG_LONG).append("=").append(timeUnit).append("\n");
         sb.append("\n");
         sb.append("# used to 'compress'/'stretch' durations between operation start times to increase/decrease benchmark load\n");
         sb.append("# e.g. 2.0 = run benchmark 2x slower, 0.1 = run benchmark 10x faster\n");
         sb.append("# IMPORTANT: also applied to " + GCT_DELTA_DURATION_ARG_LONG + ", i.e., " + GCT_DELTA_DURATION_ARG_LONG + " value will be compressed/stretched too\n");
+        sb.append("# DOUBLE\n");
         sb.append(TIME_COMPRESSION_RATIO_ARG_LONG).append("=").append(timeCompressionRatio).append("\n");
         sb.append("\n");
-        sb.append("# minimum duration (in milliseconds) that separates any two dependent operations in the workload\n");
+        sb.append("# minimum duration that separates any two dependent operations in the workload\n");
         sb.append("# e.g. if minimum duration between any pair of dependent operations is 100ms, " + GCT_DELTA_DURATION_ARG_LONG + " can be at most 100\n");
         sb.append("# IMPORTANT: the value set here assumes a " + TIME_COMPRESSION_RATIO_ARG_LONG + " of '1.0'\n");
         sb.append("#            " + TIME_COMPRESSION_RATIO_ARG_LONG + " will be applied to this configured value\n");
         sb.append("#            e.g. if config has " + GCT_DELTA_DURATION_ARG_LONG + "=100 & " + TIME_COMPRESSION_RATIO_ARG_LONG + "=2.0, driver will set " + GCT_DELTA_DURATION_ARG_LONG + " to 200\n");
         sb.append("#            if you change " + TIME_COMPRESSION_RATIO_ARG_LONG + " change " + GCT_DELTA_DURATION_ARG_LONG + " proportionately\n");
+        sb.append("# LONG (milliseconds)\n");
         sb.append(GCT_DELTA_DURATION_ARG_LONG).append("=").append(gctDeltaDuration.asMilli()).append("\n");
         sb.append("\n");
         sb.append("# NOT USED AT PRESENT - reserved for distributed driver mode\n");
         sb.append("# specifies the addresses of other driver processes, so they can find each other\n");
-        if (peerIds.isEmpty())
-            sb.append("# ").append(PEER_IDS_ARG_LONG).append("=").append("\n");
-        else
-            sb.append(PEER_IDS_ARG_LONG).append("=").append(serializePeerIdsToCommandline(peerIds)).append("\n");
+        sb.append("# LIST (e.g., peer1|peer2|peer3)\n");
+        sb.append(PEER_IDS_ARG_LONG).append("=").append(serializePeerIdsToCommandline(peerIds)).append("\n");
         sb.append("\n");
         sb.append("# tolerated duration (in milliseconds) that operation execution may be late by\n");
         sb.append("# if driver can not execute an operation within " + TOLERATED_EXECUTION_DELAY_ARG_LONG + " of its scheduled start time it will terminate\n");
+        sb.append("# LONG (milliseconds)\n");
         sb.append(TOLERATED_EXECUTION_DELAY_ARG_LONG).append("=").append(toleratedExecutionDelay.asMilli()).append("\n");
         sb.append("\n");
         sb.append("# enable validation that will check if the provided database implementation is correct\n");
         sb.append("# parameter value specifies where to find the validation parameters file\n");
+        sb.append("# STRING\n");
         if (null == databaseValidationFilePath)
             sb.append("# ").append(DB_VALIDATION_FILE_PATH_ARG_LONG).append("=").append("\n");
         else
             sb.append(DB_VALIDATION_FILE_PATH_ARG).append("=").append(databaseValidationFilePath).append("\n");
         sb.append("\n");
-        sb.append("# generate validation parameters file for validating correctness database implementations\n");
-        sb.append("# parameter value specifies where to create the validation parameters file, and how many validation parameters to generate\n");
+        sb.append("# generate validation parameters file for validating correctness of database implementations\n");
+        sb.append("# parameter values specify: (1) where to create the validation parameters file (2) how many validation parameters to generate\n");
+        sb.append("# STRING|INTEGER (e.g., ").append(new ConsoleAndFileValidationParamOptions("validation_parameters.csv",1000).toCommandlineString()).append(")\n");
         if (null == validationCreationParams)
             sb.append("# ").append(CREATE_VALIDATION_PARAMS_ARG_LONG).append("=").append("\n");
         else
             sb.append(CREATE_VALIDATION_PARAMS_ARG_LONG).append("=").append(validationCreationParams.toCommandlineString()).append("\n");
         sb.append("\n");
         sb.append("# enable validation that will check if the provided workload implementation is correct\n");
+        sb.append("# BOOLEAN\n");
         sb.append(VALIDATE_WORKLOAD_ARG_LONG).append("=").append(validateWorkload).append("\n");
         sb.append("\n");
         sb.append("# calculate & display workload statistics (operation mix, etc.)\n");
+        sb.append("# BOOLEAN\n");
         sb.append(CALCULATE_WORKLOAD_STATISTICS_ARG_LONG).append("=").append(calculateWorkloadStatistics).append("\n");
         sb.append("\n");
         sb.append("# sleep duration (ms) injected into busy wait loops (to reduce CPU consumption)\n");
+        sb.append("# LONG (milliseconds)\n");
         sb.append(SPINNER_SLEEP_DURATION_ARG_LONG).append("=").append(spinnerSleepDuration.asMilli()).append("\n");
         sb.append("\n");
         sb.append("# ***************************************************************\n");
@@ -897,13 +915,14 @@ public class ConsoleAndFileDriverConfiguration implements DriverConfiguration {
         sb.append("# ***************************************************************\n");
         sb.append("\n");
         sb.append("# fully qualified class name of the Workload (class) implementation to execute\n");
-        sb.append("# e.g. ").append(LdbcSnbInteractiveWorkload.class.getName()).append("\n");
+        sb.append("# STRING (e.g., ").append(LdbcSnbInteractiveWorkload.class.getName()).append(")\n");
         if (null == workloadClassName)
             sb.append("# ").append(WORKLOAD_ARG_LONG).append("=").append("\n");
         else
             sb.append(WORKLOAD_ARG_LONG).append("=").append(workloadClassName).append("\n");
         sb.append("\n");
         sb.append("# number of operations to generate during benchmark execution\n");
+        sb.append("# LONG\n");
         if (0 == operationCount)
             sb.append("# ").append(OPERATION_COUNT_ARG_LONG).append("=").append("\n");
         else
@@ -914,7 +933,7 @@ public class ConsoleAndFileDriverConfiguration implements DriverConfiguration {
         sb.append("# ************************************************************************************\n");
         sb.append("\n");
         sb.append("# fully qualified class name of the Db (class) implementation to execute\n");
-        sb.append("# e.g. ").append(DummyDb.class.getName()).append("\n");
+        sb.append("# STRING(e.g., ").append(DummyDb.class.getName()).append(")\n");
         if (null == dbClassName)
             sb.append("# ").append(DB_ARG_LONG).append("=").append("\n");
         else

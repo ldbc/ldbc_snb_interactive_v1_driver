@@ -7,6 +7,7 @@ import com.ldbc.driver.util.MapUtils;
 import com.ldbc.driver.util.TestUtils;
 import com.ldbc.driver.workloads.ldbc.snb.interactive.LdbcSnbInteractiveWorkload;
 import com.ldbc.driver.workloads.ldbc.snb.interactive.db.DummyDb;
+import com.ldbc.driver.workloads.simple.SimpleWorkload;
 import org.junit.Ignore;
 import org.junit.Test;
 
@@ -21,6 +22,18 @@ import static org.hamcrest.CoreMatchers.*;
 import static org.junit.Assert.assertThat;
 
 public class ConsoleAndFileDriverConfigurationTest {
+
+    @Ignore
+    @Test
+    public void print() throws DriverConfigurationException {
+        System.out.println(ConsoleAndFileDriverConfiguration.helpString());
+        System.out.println();
+        System.out.println();
+        System.out.println(ConsoleAndFileDriverConfiguration.fromDefaults(DummyDb.class.getName(), SimpleWorkload.class.getName(), 1000).toString());
+        System.out.println();
+        System.out.println();
+        System.out.println(ConsoleAndFileDriverConfiguration.fromDefaultsWithoutChecks(null, null, 0).toPropertiesString());
+    }
 
     @Test
     public void addTestForApplyMap() throws DriverConfigurationException {
@@ -203,9 +216,7 @@ public class ConsoleAndFileDriverConfigurationTest {
                 ConsoleAndFileDriverConfiguration.TIME_COMPRESSION_RATIO_ARG, ConsoleAndFileDriverConfiguration.TIME_COMPRESSION_RATIO_DEFAULT_STRING);
         paramsFromPublicStaticDefaultValuesAsMap.put(
                 ConsoleAndFileDriverConfiguration.GCT_DELTA_DURATION_ARG, ConsoleAndFileDriverConfiguration.GCT_DELTA_DURATION_DEFAULT_STRING);
-        if (null != ConsoleAndFileDriverConfiguration.PEER_IDS_DEFAULT && false == ConsoleAndFileDriverConfiguration.PEER_IDS_DEFAULT.isEmpty())
-            paramsFromPublicStaticDefaultValuesAsMap.put(
-                    ConsoleAndFileDriverConfiguration.PEER_IDS_ARG, ConsoleAndFileDriverConfiguration.serializePeerIdsToCommandline(ConsoleAndFileDriverConfiguration.PEER_IDS_DEFAULT));
+        paramsFromPublicStaticDefaultValuesAsMap.put(ConsoleAndFileDriverConfiguration.PEER_IDS_ARG, ConsoleAndFileDriverConfiguration.PEER_IDS_DEFAULT_STRING);
         paramsFromPublicStaticDefaultValuesAsMap.put(
                 ConsoleAndFileDriverConfiguration.TOLERATED_EXECUTION_DELAY_ARG, ConsoleAndFileDriverConfiguration.TOLERATED_EXECUTION_DELAY_DEFAULT_STRING);
         if (null != ConsoleAndFileDriverConfiguration.CREATE_VALIDATION_PARAMS_DEFAULT)
@@ -425,7 +436,7 @@ public class ConsoleAndFileDriverConfigurationTest {
         assertThat(exceptionThrownCreatingConfigurationFromPropertiesInTestResources, is(true));
 
         File ldbcDriverConfigurationInWorkloadsDirectoryFile =
-                ConfigurationFileTestHelper.getBaseConfigurationFilePublicLocation();
+                DriverConfigurationFileTestHelper.getBaseConfigurationFilePublicLocation();
         Properties ldbcDriverConfigurationInWorkloadsDirectoryProperties = new Properties();
         ldbcDriverConfigurationInWorkloadsDirectoryProperties.load(new FileInputStream(ldbcDriverConfigurationInWorkloadsDirectoryFile));
         Map<String, String> configurationInWorkloadsDirectoryAsMap =
@@ -456,33 +467,72 @@ public class ConsoleAndFileDriverConfigurationTest {
     }
 
     @Test
-    public void shouldSerializeAndParsePeerIds() throws DriverConfigurationException {
+    public void shouldSerializeAndParsePeerIds() {
         // Given
         Set<String> peerIds0 = Sets.newHashSet();
         Set<String> peerIds1 = Sets.newHashSet("1", "2");
-        Set<String> peerIds2 = Sets.newHashSet("1", "2", "cows");
+        Set<String> peerIds2 = Sets.newHashSet("1", "2", "3");
 
         // When
-        boolean exceptionThrownWithEmptyPeerIds = false;
-        try {
-            ConsoleAndFileDriverConfiguration.serializePeerIdsToCommandline(peerIds0);
-        } catch (DriverConfigurationException e) {
-            exceptionThrownWithEmptyPeerIds = true;
-        }
-        boolean exceptionThrownWithNonEmptyPeerIds = false;
-        String peerIdsString1 = null;
-        String peerIdsString2 = null;
-        try {
-            peerIdsString1 = ConsoleAndFileDriverConfiguration.serializePeerIdsToCommandline(peerIds1);
-            peerIdsString2 = ConsoleAndFileDriverConfiguration.serializePeerIdsToCommandline(peerIds2);
-        } catch (DriverConfigurationException e) {
-            exceptionThrownWithNonEmptyPeerIds = true;
-        }
+        String peerIdsString0 = ConsoleAndFileDriverConfiguration.serializePeerIdsToCommandline(peerIds0);
+        String peerIdsString1 = ConsoleAndFileDriverConfiguration.serializePeerIdsToCommandline(peerIds1);
+        String peerIdsString2 = ConsoleAndFileDriverConfiguration.serializePeerIdsToCommandline(peerIds2);
 
         // Then
-        assertThat(exceptionThrownWithEmptyPeerIds, is(true));
-        assertThat(exceptionThrownWithNonEmptyPeerIds, is(false));
+        assertThat(ConsoleAndFileDriverConfiguration.parsePeerIdsFromCommandline(peerIdsString0), equalTo(peerIds0));
         assertThat(ConsoleAndFileDriverConfiguration.parsePeerIdsFromCommandline(peerIdsString1), equalTo(peerIds1));
         assertThat(ConsoleAndFileDriverConfiguration.parsePeerIdsFromCommandline(peerIdsString2), equalTo(peerIds2));
+    }
+
+    @Test
+    public void shouldParsePeerIds() {
+        // Given
+        String peerIds1String = "";
+        String peerIds2String = "|";
+        String peerIds3String = "|1";
+        String peerIds4String = "|1";
+        String peerIds5String = "|1|";
+        String peerIds6String = "|1|2";
+        String peerIds7String = "1|2|";
+        String peerIds8String = "1";
+        String peerIds9String = "1|2";
+        String peerIds10String = "1|2|3";
+
+        Set<String> peerIds1Expected = Sets.newHashSet();
+        Set<String> peerIds2Expected = Sets.newHashSet();
+        Set<String> peerIds3Expected = Sets.newHashSet("1");
+        Set<String> peerIds4Expected = Sets.newHashSet("1");
+        Set<String> peerIds5Expected = Sets.newHashSet("1");
+        Set<String> peerIds6Expected = Sets.newHashSet("1", "2");
+        Set<String> peerIds7Expected = Sets.newHashSet("1", "2");
+        Set<String> peerIds8Expected = Sets.newHashSet("1");
+        Set<String> peerIds9Expected = Sets.newHashSet("1", "2");
+        Set<String> peerIds10Expected = Sets.newHashSet("1", "2", "3");
+
+        // When
+        Set<String> peerIds1 = ConsoleAndFileDriverConfiguration.parsePeerIdsFromCommandline(peerIds1String);
+        Set<String> peerIds2 = ConsoleAndFileDriverConfiguration.parsePeerIdsFromCommandline(peerIds2String);
+        Set<String> peerIds3 = ConsoleAndFileDriverConfiguration.parsePeerIdsFromCommandline(peerIds3String);
+        Set<String> peerIds4 = ConsoleAndFileDriverConfiguration.parsePeerIdsFromCommandline(peerIds4String);
+        Set<String> peerIds5 = ConsoleAndFileDriverConfiguration.parsePeerIdsFromCommandline(peerIds5String);
+        Set<String> peerIds6 = ConsoleAndFileDriverConfiguration.parsePeerIdsFromCommandline(peerIds6String);
+        Set<String> peerIds7 = ConsoleAndFileDriverConfiguration.parsePeerIdsFromCommandline(peerIds7String);
+        Set<String> peerIds8 = ConsoleAndFileDriverConfiguration.parsePeerIdsFromCommandline(peerIds8String);
+        Set<String> peerIds9 = ConsoleAndFileDriverConfiguration.parsePeerIdsFromCommandline(peerIds9String);
+        ;
+        Set<String> peerIds10 = ConsoleAndFileDriverConfiguration.parsePeerIdsFromCommandline(peerIds10String);
+        ;
+
+        // Then
+        assertThat(peerIds1, equalTo(peerIds1Expected));
+        assertThat(peerIds2, equalTo(peerIds2Expected));
+        assertThat(peerIds3, equalTo(peerIds3Expected));
+        assertThat(peerIds4, equalTo(peerIds4Expected));
+        assertThat(peerIds5, equalTo(peerIds5Expected));
+        assertThat(peerIds6, equalTo(peerIds6Expected));
+        assertThat(peerIds7, equalTo(peerIds7Expected));
+        assertThat(peerIds8, equalTo(peerIds8Expected));
+        assertThat(peerIds9, equalTo(peerIds9Expected));
+        assertThat(peerIds10, equalTo(peerIds10Expected));
     }
 }
