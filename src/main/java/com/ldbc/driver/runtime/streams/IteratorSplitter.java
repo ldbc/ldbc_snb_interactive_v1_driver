@@ -66,6 +66,9 @@ public class IteratorSplitter<ITEMS_TYPE> {
                 throw new IteratorSplittingException(String.format("Splitting terminated\n%s", errorReporter.toString()));
             }
         }
+        if (errorReporter.errorEncountered()) {
+            throw new IteratorSplittingException(String.format("Splitting terminated\n%s", errorReporter.toString()));
+        }
         return splitResult;
     }
 

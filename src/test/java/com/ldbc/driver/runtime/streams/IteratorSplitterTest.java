@@ -4,7 +4,6 @@ import com.google.common.collect.Lists;
 import com.ldbc.driver.generator.GeneratorFactory;
 import com.ldbc.driver.runtime.ConcurrentErrorReporter;
 import com.ldbc.driver.util.RandomDataGeneratorFactory;
-import org.junit.Ignore;
 import org.junit.Test;
 
 import java.util.Iterator;
@@ -17,10 +16,16 @@ public class IteratorSplitterTest {
 
     @Test
     public void shouldSplitIteratorCorrectlyGivenSimpleCaseAndSmallInput() throws IteratorSplittingException {
+        for (int i = 0; i < 100; i++) {
+            doShouldSplitIteratorCorrectlyGivenSimpleCaseAndSmallInput();
+        }
+    }
+
+    public void doShouldSplitIteratorCorrectlyGivenSimpleCaseAndSmallInput() throws IteratorSplittingException {
         // Given
         List<? extends Number> numbers = Lists.newArrayList(new Byte((byte) 0), new Integer(1), new Long(2), new Double(3), new Double(4));
 
-        IteratorSplitter<Number> iteratorSplitter = new IteratorSplitter<Number>(IteratorSplitter.UnmappedItemPolicy.DROP);
+        IteratorSplitter<Number> iteratorSplitter = new IteratorSplitter<>(IteratorSplitter.UnmappedItemPolicy.DROP);
 
         SplitDefinition<Number> byteAndIntegerDefinition = new SplitDefinition<Number>(Byte.class, Integer.class);
         SplitDefinition<Number> longDefinition = new SplitDefinition<Number>(Long.class);
@@ -55,14 +60,20 @@ public class IteratorSplitterTest {
 
     @Test
     public void shouldSplitIteratorCorrectlyGivenSimpleCaseAndLargeInput() throws IteratorSplittingException {
+        for (int i = 0; i < 5; i++) {
+            doShouldSplitIteratorCorrectlyGivenSimpleCaseAndLargeInput();
+        }
+    }
+
+    public void doShouldSplitIteratorCorrectlyGivenSimpleCaseAndLargeInput() throws IteratorSplittingException {
         // Given
         GeneratorFactory generators = new GeneratorFactory(new RandomDataGeneratorFactory(42L));
         Iterable<? extends Number> possibleNumbers = Lists.newArrayList(new Byte((byte) 0), new Integer(1), new Long(2), new Double(3), new Double(4));
         Iterator<? extends Number> numbersGenerator = generators.discrete(possibleNumbers);
-        int numberCount = 10000000;
+        int numberCount = 1000000;
         Iterator<? extends Number> numbers = generators.limit(numbersGenerator, numberCount);
 
-        IteratorSplitter<Number> iteratorSplitter = new IteratorSplitter<Number>(IteratorSplitter.UnmappedItemPolicy.DROP);
+        IteratorSplitter<Number> iteratorSplitter = new IteratorSplitter<>(IteratorSplitter.UnmappedItemPolicy.DROP);
 
         SplitDefinition<Number> byteAndIntegerDefinition = new SplitDefinition<Number>(Byte.class, Integer.class);
         SplitDefinition<Number> longDefinition = new SplitDefinition<Number>(Long.class);
@@ -86,6 +97,12 @@ public class IteratorSplitterTest {
 
     @Test
     public void shouldDropUndefinedClassesFromSplit() throws IteratorSplittingException {
+        for (int i = 0; i < 100; i++) {
+            doShouldDropUndefinedClassesFromSplit();
+        }
+    }
+
+    public void doShouldDropUndefinedClassesFromSplit() throws IteratorSplittingException {
         // Given
         List<? extends Number> numbers = Lists.newArrayList(new Byte((byte) 0), new Integer(1), new Long(2), new Double(3), new Double(4));
 
@@ -116,10 +133,16 @@ public class IteratorSplitterTest {
 
     @Test
     public void shouldDropAllWhenNoDefinitionsGiven() throws IteratorSplittingException {
+        for (int i = 0; i < 100; i++) {
+            doShouldDropAllWhenNoDefinitionsGiven();
+        }
+    }
+
+    public void doShouldDropAllWhenNoDefinitionsGiven() throws IteratorSplittingException {
         // Given
         List<? extends Number> numbers = Lists.newArrayList(new Byte((byte) 0), new Integer(1), new Long(2), new Double(3), new Double(4));
 
-        IteratorSplitter<Number> iteratorSplitter = new IteratorSplitter<Number>(IteratorSplitter.UnmappedItemPolicy.DROP);
+        IteratorSplitter<Number> iteratorSplitter = new IteratorSplitter<>(IteratorSplitter.UnmappedItemPolicy.DROP);
 
         // When
         SplitResult<Number> splitResult = iteratorSplitter.split(numbers.iterator());
@@ -128,11 +151,19 @@ public class IteratorSplitterTest {
         assertThat(splitResult.count(), is(0));
     }
 
-    @Ignore
     @Test
-    public void shouldThrowExceptionOnUndefinedClassesFromSplit() throws IteratorSplittingException {
+    public void shouldThrowExceptionOnUndefinedClassesFromSplitWithLongStream() throws IteratorSplittingException {
+        for (int i = 0; i < 100; i++) {
+            doShouldThrowExceptionOnUndefinedClassesFromSplitWithLongStream();
+        }
+    }
+
+    public void doShouldThrowExceptionOnUndefinedClassesFromSplitWithLongStream() throws IteratorSplittingException {
         // Given
-        List<? extends Number> numbers = Lists.newArrayList(new Byte((byte) 0), new Integer(1), new Long(2), new Double(3), new Double(4));
+        GeneratorFactory gf = new GeneratorFactory(new RandomDataGeneratorFactory(42l));
+
+        List<Number> numbers = Lists.newArrayList(gf.limit(gf.repeating(gf.<Number>identity((byte) 1, 2, 3l)), 10000));
+        numbers.add(4d);
 
         IteratorSplitter<Number> iteratorSplitter = new IteratorSplitter<>(IteratorSplitter.UnmappedItemPolicy.ABORT);
 
@@ -144,6 +175,35 @@ public class IteratorSplitterTest {
         String errMsg = "";
         try {
             iteratorSplitter.split(numbers.iterator(), byteAndIntegerDefinition, longDefinition);
+        } catch (IteratorSplittingException e) {
+            errMsg = ConcurrentErrorReporter.stackTraceToString(e);
+            exceptionThrown = true;
+        }
+
+        // Then
+        assertThat(errMsg, exceptionThrown, is(true));
+    }
+
+    @Test
+    public void shouldThrowExceptionOnUndefinedClassesFromSplitWithVeryShortStream() throws IteratorSplittingException {
+        for (int i = 0; i < 100; i++) {
+            doShouldThrowExceptionOnUndefinedClassesFromSplitWithVeryShortStream();
+        }
+    }
+
+    public void doShouldThrowExceptionOnUndefinedClassesFromSplitWithVeryShortStream() throws IteratorSplittingException {
+        // Given
+        List<Number> numbers = Lists.<Number>newArrayList(1d);
+
+        IteratorSplitter<Number> iteratorSplitter = new IteratorSplitter<>(IteratorSplitter.UnmappedItemPolicy.ABORT);
+
+        SplitDefinition<Number> longDefinition = new SplitDefinition<Number>(Long.class);
+
+        // When
+        boolean exceptionThrown = false;
+        String errMsg = "";
+        try {
+            iteratorSplitter.split(numbers.iterator(), longDefinition);
         } catch (IteratorSplittingException e) {
             errMsg = ConcurrentErrorReporter.stackTraceToString(e);
             exceptionThrown = true;
