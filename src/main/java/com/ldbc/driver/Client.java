@@ -1,10 +1,7 @@
 package com.ldbc.driver;
 
 import com.google.common.collect.Lists;
-import com.ldbc.driver.control.ConcurrentControlService;
-import com.ldbc.driver.control.ConsoleAndFileDriverConfiguration;
-import com.ldbc.driver.control.DriverConfigurationException;
-import com.ldbc.driver.control.LocalControlService;
+import com.ldbc.driver.control.*;
 import com.ldbc.driver.generator.GeneratorFactory;
 import com.ldbc.driver.runtime.ConcurrentErrorReporter;
 import com.ldbc.driver.runtime.WorkloadRunner;
@@ -27,6 +24,7 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.concurrent.Future;
@@ -62,25 +60,72 @@ public class Client {
 
     private final ClientMode clientMode;
 
+    // TODO should not be doing things like ConsoleAndFileDriverConfiguration.DB_ARG
+    // TODO ConsoleAndFileDriverConfiguration could maybe have a DriverParam(enum)-to-String(arg) method?
     public Client(ConcurrentControlService controlService, TimeSource timeSource) throws ClientException {
         if (controlService.configuration().shouldPrintHelpString())
             clientMode = new PrintHelpMode(controlService);
             // Print Help
-        else if (null != controlService.configuration().validationParamsCreationOptions())
+        else if (null != controlService.configuration().validationParamsCreationOptions()) {
             // Create Validation Parameters
+            DriverConfiguration configuration = controlService.configuration();
+            List<String> missingParams = new ArrayList<>();
+            if (null == configuration.dbClassName())
+                missingParams.add(ConsoleAndFileDriverConfiguration.DB_ARG);
+            if (null == configuration.workloadClassName())
+                missingParams.add(ConsoleAndFileDriverConfiguration.WORKLOAD_ARG);
+            if (0 == configuration.operationCount())
+                missingParams.add(ConsoleAndFileDriverConfiguration.OPERATION_COUNT_ARG);
+            if (false == missingParams.isEmpty())
+                throw new ClientException(String.format("Missing required parameters: %s", missingParams.toString()));
             clientMode = new CreateValidationParamsMode(controlService);
-        else if (null != controlService.configuration().databaseValidationFilePath())
+        } else if (null != controlService.configuration().databaseValidationFilePath()) {
             // Validate Database
+            DriverConfiguration configuration = controlService.configuration();
+            List<String> missingParams = new ArrayList<>();
+            if (null == configuration.dbClassName())
+                missingParams.add(ConsoleAndFileDriverConfiguration.DB_ARG);
+            if (null == configuration.workloadClassName())
+                missingParams.add(ConsoleAndFileDriverConfiguration.WORKLOAD_ARG);
+            if (false == missingParams.isEmpty())
+                throw new ClientException(String.format("Missing required parameters: %s", missingParams.toString()));
             clientMode = new ValidateDatabaseMode(controlService);
-        else if (controlService.configuration().validateWorkload())
+        } else if (controlService.configuration().validateWorkload()) {
             // Validate Workload
+            DriverConfiguration configuration = controlService.configuration();
+            List<String> missingParams = new ArrayList<>();
+            if (null == configuration.workloadClassName())
+                missingParams.add(ConsoleAndFileDriverConfiguration.WORKLOAD_ARG);
+            if (0 == configuration.operationCount())
+                missingParams.add(ConsoleAndFileDriverConfiguration.OPERATION_COUNT_ARG);
+            if (false == missingParams.isEmpty())
+                throw new ClientException(String.format("Missing required parameters: %s", missingParams.toString()));
             clientMode = new ValidateWorkloadMode(controlService);
-        else if (controlService.configuration().calculateWorkloadStatistics())
+        } else if (controlService.configuration().calculateWorkloadStatistics()) {
             // Calculate Statistics
+            DriverConfiguration configuration = controlService.configuration();
+            List<String> missingParams = new ArrayList<>();
+            if (null == configuration.workloadClassName())
+                missingParams.add(ConsoleAndFileDriverConfiguration.WORKLOAD_ARG);
+            if (0 == configuration.operationCount())
+                missingParams.add(ConsoleAndFileDriverConfiguration.OPERATION_COUNT_ARG);
+            if (false == missingParams.isEmpty())
+                throw new ClientException(String.format("Missing required parameters: %s", missingParams.toString()));
             clientMode = new CalculateWorkloadStatisticsMode(controlService);
-        else
+        } else {
             // Execute Workload
+            DriverConfiguration configuration = controlService.configuration();
+            List<String> missingParams = new ArrayList<>();
+            if (null == configuration.dbClassName())
+                missingParams.add(ConsoleAndFileDriverConfiguration.DB_ARG);
+            if (null == configuration.workloadClassName())
+                missingParams.add(ConsoleAndFileDriverConfiguration.WORKLOAD_ARG);
+            if (0 == configuration.operationCount())
+                missingParams.add(ConsoleAndFileDriverConfiguration.OPERATION_COUNT_ARG);
+            if (false == missingParams.isEmpty())
+                throw new ClientException(String.format("Missing required parameters: %s", missingParams.toString()));
             clientMode = new ExecuteWorkloadMode(controlService, timeSource);
+        }
 
         clientMode.init();
     }

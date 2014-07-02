@@ -59,7 +59,7 @@ public class DriverConfigurationFileTestHelper {
         if (false == ldbcDriverDefaultConfigurationAsParamsMap.containsKey(ConsoleAndFileDriverConfiguration.OPERATION_COUNT_ARG))
             ldbcDriverDefaultConfigurationAsParamsMap.put(ConsoleAndFileDriverConfiguration.OPERATION_COUNT_ARG, "0");
 
-        return ConsoleAndFileDriverConfiguration.fromParamsMapWithoutChecks(ldbcDriverDefaultConfigurationAsParamsMap);
+        return ConsoleAndFileDriverConfiguration.fromParamsMap(ldbcDriverDefaultConfigurationAsParamsMap);
     }
 
     public static File getBaseConfigurationFilePublicLocation() {
@@ -77,7 +77,7 @@ public class DriverConfigurationFileTestHelper {
         String databaseClassName = null;
         String workloadClassName = null;
         long operationCount = 0;
-        return ConsoleAndFileDriverConfiguration.fromDefaultsWithoutChecks(databaseClassName, workloadClassName, operationCount);
+        return ConsoleAndFileDriverConfiguration.fromDefaults(databaseClassName, workloadClassName, operationCount);
     }
 
     private static File getDriverRootDirectory() {

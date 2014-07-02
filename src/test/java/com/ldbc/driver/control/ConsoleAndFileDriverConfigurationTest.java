@@ -32,7 +32,7 @@ public class ConsoleAndFileDriverConfigurationTest {
         System.out.println(ConsoleAndFileDriverConfiguration.fromDefaults(DummyDb.class.getName(), SimpleWorkload.class.getName(), 1000).toString());
         System.out.println();
         System.out.println();
-        System.out.println(ConsoleAndFileDriverConfiguration.fromDefaultsWithoutChecks(null, null, 0).toPropertiesString());
+        System.out.println(ConsoleAndFileDriverConfiguration.fromDefaults(null, null, 0).toPropertiesString());
     }
 
     @Ignore
@@ -69,22 +69,17 @@ public class ConsoleAndFileDriverConfigurationTest {
     }
 
     @Test
-    public void toArgsThenFromArgsShouldFailWhenRequiredParametersAreNotSet() throws DriverConfigurationException {
+    public void toArgsThenFromArgsShouldEqualEvenWhenRequiredParamsAreNotSet() throws DriverConfigurationException {
         String databaseClassName = null;
         String workloadClassName = null;
         long operationCount = 2;
 
         ConsoleAndFileDriverConfiguration configurationBefore =
-                ConsoleAndFileDriverConfiguration.fromDefaultsWithoutChecks(databaseClassName, workloadClassName, operationCount);
+                ConsoleAndFileDriverConfiguration.fromDefaults(databaseClassName, workloadClassName, operationCount);
 
-        boolean exceptionThrown = false;
-        try {
-            ConsoleAndFileDriverConfiguration.fromArgs(configurationBefore.toArgs());
-        } catch (DriverConfigurationException e) {
-            exceptionThrown = true;
-        }
+        DriverConfiguration configurationAfter = ConsoleAndFileDriverConfiguration.fromArgs(configurationBefore.toArgs());
 
-        assertThat(exceptionThrown, equalTo(true));
+        assertThat(configurationBefore, equalTo(configurationAfter));
     }
 
     @Test
@@ -178,24 +173,29 @@ public class ConsoleAndFileDriverConfigurationTest {
         String workloadClassName = null;
         long operationCount = 0;
         DriverConfiguration configuration =
-                ConsoleAndFileDriverConfiguration.fromDefaultsWithoutChecks(databaseClassName, workloadClassName, operationCount);
+                ConsoleAndFileDriverConfiguration.fromDefaults(databaseClassName, workloadClassName, operationCount);
         assertThat(configuration.dbClassName(), is(nullValue()));
         assertThat(configuration.workloadClassName(), is(nullValue()));
         assertThat(configuration.operationCount(), is(0l));
     }
 
     @Test
-    public void fromDefaultsShouldFailIfRequiredAreNotProvided() {
+    public void fromDefaultsShouldNotFailWhenRequiredAreNotProvided() {
+        DriverConfiguration configuration = null;
         boolean exceptionThrown = false;
         try {
             String databaseClassName = null;
             String workloadClassName = null;
             long operationCount = 0;
-            ConsoleAndFileDriverConfiguration.fromDefaults(databaseClassName, workloadClassName, operationCount);
+            configuration = ConsoleAndFileDriverConfiguration.fromDefaults(databaseClassName, workloadClassName, operationCount);
         } catch (DriverConfigurationException e) {
             exceptionThrown = true;
         }
-        assertThat(exceptionThrown, is(true));
+        assertThat(exceptionThrown, is(false));
+        assertThat(configuration, is(notNullValue()));
+        assertThat(configuration.dbClassName(), is(nullValue()));
+        assertThat(configuration.workloadClassName(), is(nullValue()));
+        assertThat(configuration.operationCount(), is(0l));
     }
 
     @Test
@@ -243,7 +243,7 @@ public class ConsoleAndFileDriverConfigurationTest {
                 workloadClassName,
                 operationCount);
 
-        Map<String, String> defaultOptionalParamsMap = ConsoleAndFileDriverConfiguration.defaultsForOptionalParamsAsMap();
+        Map<String, String> defaultOptionalParamsMap = ConsoleAndFileDriverConfiguration.defaultsAsMap();
         defaultOptionalParamsMap.put(ConsoleAndFileDriverConfiguration.DB_ARG, databaseClassName);
         defaultOptionalParamsMap.put(ConsoleAndFileDriverConfiguration.WORKLOAD_ARG, workloadClassName);
         defaultOptionalParamsMap.put(ConsoleAndFileDriverConfiguration.OPERATION_COUNT_ARG, Long.toString(operationCount));
@@ -431,28 +431,12 @@ public class ConsoleAndFileDriverConfigurationTest {
         Map<String, String> configurationInTestResourcesAsMap =
                 MapUtils.propertiesToMap(ldbcDriverConfigurationInTestResourcesProperties);
 
-        boolean exceptionThrownCreatingConfigurationFromPropertiesInTestResources = false;
-        try {
-            ConsoleAndFileDriverConfiguration.fromParamsMap(configurationInTestResourcesAsMap);
-        } catch (DriverConfigurationException e) {
-            exceptionThrownCreatingConfigurationFromPropertiesInTestResources = true;
-        }
-        assertThat(exceptionThrownCreatingConfigurationFromPropertiesInTestResources, is(true));
-
         File ldbcDriverConfigurationInWorkloadsDirectoryFile =
                 DriverConfigurationFileTestHelper.getBaseConfigurationFilePublicLocation();
         Properties ldbcDriverConfigurationInWorkloadsDirectoryProperties = new Properties();
         ldbcDriverConfigurationInWorkloadsDirectoryProperties.load(new FileInputStream(ldbcDriverConfigurationInWorkloadsDirectoryFile));
         Map<String, String> configurationInWorkloadsDirectoryAsMap =
                 MapUtils.propertiesToMap(ldbcDriverConfigurationInWorkloadsDirectoryProperties);
-
-        boolean exceptionThrownCreatingConfigurationFromPropertiesInWorkloadsDirectory = false;
-        try {
-            ConsoleAndFileDriverConfiguration.fromParamsMap(configurationInWorkloadsDirectoryAsMap);
-        } catch (DriverConfigurationException e) {
-            exceptionThrownCreatingConfigurationFromPropertiesInWorkloadsDirectory = true;
-        }
-        assertThat(exceptionThrownCreatingConfigurationFromPropertiesInWorkloadsDirectory, is(true));
 
         assertThat(configurationInTestResourcesAsMap, equalTo(configurationInWorkloadsDirectoryAsMap));
 

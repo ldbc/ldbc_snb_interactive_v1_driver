@@ -14,21 +14,25 @@ import java.util.*;
 import java.util.Map.Entry;
 import java.util.concurrent.TimeUnit;
 
-// TODO add getHelpString() type function, this needs to be an instance method;
-
 public class ConsoleAndFileDriverConfiguration implements DriverConfiguration {
     // --- REQUIRED ---
     public static final String OPERATION_COUNT_ARG = "oc";
+    public static final long OPERATION_COUNT_DEFAULT = 0;
+    public static final String OPERATION_COUNT_DEFAULT_STRING = Long.toString(OPERATION_COUNT_DEFAULT);
     private static final String OPERATION_COUNT_ARG_LONG = "operationcount";
     private static final String OPERATION_COUNT_DESCRIPTION = "number of operations to execute";
 
     public static final String WORKLOAD_ARG = "w";
     private static final String WORKLOAD_ARG_LONG = "workload";
+    public static final String WORKLOAD_DEFAULT = null;
+    public static final String WORKLOAD_DEFAULT_STRING = WORKLOAD_DEFAULT;
     private static final String WORKLOAD_EXAMPLE = com.ldbc.driver.workloads.simple.SimpleWorkload.class.getName();
     private static final String WORKLOAD_DESCRIPTION = String.format("classname of the Workload to use (e.g. %s)", WORKLOAD_EXAMPLE);
 
     public static final String DB_ARG = "db";
     private static final String DB_ARG_LONG = "database";
+    public static final String DB_DEFAULT = null;
+    public static final String DB_DEFAULT_STRING = DB_DEFAULT;
     private static final String DB_EXAMPLE = com.ldbc.driver.workloads.simple.db.BasicDb.class.getName();
     private static final String DB_DESCRIPTION = String.format("classname of the DB to use (e.g. %s)", DB_EXAMPLE);
 
@@ -147,9 +151,12 @@ public class ConsoleAndFileDriverConfiguration implements DriverConfiguration {
     private static final char COMMANDLINE_SEPARATOR_CHAR = '|';
     private static final String COMMANDLINE_SEPARATOR_REGEX_STRING = "\\|";
 
-    public static Map<String, String> defaultsForOptionalParamsAsMap() throws DriverConfigurationException {
+    public static Map<String, String> defaultsAsMap() throws DriverConfigurationException {
         Map<String, String> defaultParamsMap = new HashMap<>();
         defaultParamsMap.put(HELP_ARG, HELP_DEFAULT_STRING);
+        defaultParamsMap.put(OPERATION_COUNT_ARG, OPERATION_COUNT_DEFAULT_STRING);
+        defaultParamsMap.put(WORKLOAD_ARG, WORKLOAD_DEFAULT_STRING);
+        defaultParamsMap.put(DB_ARG, DB_DEFAULT_STRING);
         defaultParamsMap.put(RESULT_FILE_PATH_ARG, RESULT_FILE_PATH_DEFAULT_STRING);
         defaultParamsMap.put(THREADS_ARG, THREADS_DEFAULT_STRING);
         defaultParamsMap.put(SHOW_STATUS_ARG, SHOW_STATUS_DEFAULT_STRING);
@@ -183,7 +190,7 @@ public class ConsoleAndFileDriverConfiguration implements DriverConfiguration {
                                                                  String workloadClassName,
                                                                  long operationCount) throws DriverConfigurationException {
         try {
-            Map<String, String> paramsMap = defaultsForOptionalParamsAsMap();
+            Map<String, String> paramsMap = defaultsAsMap();
             paramsMap.put(DB_ARG, databaseClassName);
             paramsMap.put(WORKLOAD_ARG, workloadClassName);
             paramsMap.put(OPERATION_COUNT_ARG, Long.toString(operationCount));
@@ -193,82 +200,57 @@ public class ConsoleAndFileDriverConfiguration implements DriverConfiguration {
         }
     }
 
-    static ConsoleAndFileDriverConfiguration fromDefaultsWithoutChecks(String databaseClassName,
-                                                                       String workloadClassName,
-                                                                       long operationCount) throws DriverConfigurationException {
-        try {
-            Map<String, String> paramsMap = defaultsForOptionalParamsAsMap();
-            paramsMap.put(DB_ARG, databaseClassName);
-            paramsMap.put(WORKLOAD_ARG, workloadClassName);
-            paramsMap.put(OPERATION_COUNT_ARG, Long.toString(operationCount));
-            return fromParamsMapWithoutChecks(paramsMap);
-        } catch (DriverConfigurationException e) {
-            throw new DriverConfigurationException(String.format("%s\n%s", e.getMessage(), commandlineHelpString()), e);
-        }
-    }
-
     public static ConsoleAndFileDriverConfiguration fromParamsMap(Map<String, String> paramsMap) throws DriverConfigurationException {
         try {
             paramsMap = convertLongKeysToShortKeys(paramsMap);
-            assertRequiredArgsProvided(paramsMap);
+
             if (paramsMap.containsKey(TIME_UNIT_ARG))
                 assertValidTimeUnit(paramsMap.get(TIME_UNIT_ARG));
-            paramsMap = MapUtils.mergeMaps(paramsMap, defaultsForOptionalParamsAsMap(), false);
-            return fromParamsMapWithoutChecks(paramsMap);
+
+            paramsMap = MapUtils.mergeMaps(paramsMap, defaultsAsMap(), false);
+
+            String dbClassName = paramsMap.get(DB_ARG);
+            String workloadClassName = paramsMap.get(WORKLOAD_ARG);
+            long operationCount = Long.parseLong(paramsMap.get(OPERATION_COUNT_ARG));
+            int threadCount = Integer.parseInt(paramsMap.get(THREADS_ARG));
+            boolean showStatus = Boolean.parseBoolean(paramsMap.get(SHOW_STATUS_ARG));
+            TimeUnit timeUnit = TimeUnit.valueOf(paramsMap.get(TIME_UNIT_ARG));
+            String resultFilePath = paramsMap.get(RESULT_FILE_PATH_ARG);
+            double timeCompressionRatio = Double.parseDouble(paramsMap.get(TIME_COMPRESSION_RATIO_ARG));
+            Duration gctDeltaDuration = Duration.fromMilli(Long.parseLong(paramsMap.get(GCT_DELTA_DURATION_ARG)));
+            Set<String> peerIds = parsePeerIdsFromCommandline(paramsMap.get(PEER_IDS_ARG));
+            Duration toleratedExecutionDelay = Duration.fromMilli(Long.parseLong(paramsMap.get(TOLERATED_EXECUTION_DELAY_ARG)));
+            ConsoleAndFileValidationParamOptions databaseConsoleAndFileValidationParams =
+                    (null == paramsMap.get(CREATE_VALIDATION_PARAMS_ARG)) ?
+                            null :
+                            ConsoleAndFileValidationParamOptions.fromCommandlineString(paramsMap.get(CREATE_VALIDATION_PARAMS_ARG));
+            String databaseValidationFilePath = paramsMap.get(DB_VALIDATION_FILE_PATH_ARG);
+            boolean validateWorkload = Boolean.parseBoolean(paramsMap.get(VALIDATE_WORKLOAD_ARG));
+            boolean calculateWorkloadStatistics = Boolean.parseBoolean(paramsMap.get(CALCULATE_WORKLOAD_STATISTICS_ARG));
+            Duration spinnerSleepDuration = Duration.fromMilli(Long.parseLong(paramsMap.get(SPINNER_SLEEP_DURATION_ARG)));
+            boolean printHelp = Boolean.parseBoolean(paramsMap.get(HELP_ARG));
+            return new ConsoleAndFileDriverConfiguration(
+                    paramsMap,
+                    dbClassName,
+                    workloadClassName,
+                    operationCount,
+                    threadCount,
+                    showStatus,
+                    timeUnit,
+                    resultFilePath,
+                    timeCompressionRatio,
+                    gctDeltaDuration,
+                    peerIds,
+                    toleratedExecutionDelay,
+                    databaseConsoleAndFileValidationParams,
+                    databaseValidationFilePath,
+                    validateWorkload,
+                    calculateWorkloadStatistics,
+                    spinnerSleepDuration,
+                    printHelp);
         } catch (DriverConfigurationException e) {
             throw new DriverConfigurationException(String.format("%s\n%s", e.getMessage(), commandlineHelpString()), e);
         }
-    }
-
-    public static ConsoleAndFileDriverConfiguration fromParamsMapWithoutChecks(Map<String, String> paramsMap) throws DriverConfigurationException {
-        String dbClassName = paramsMap.get(DB_ARG);
-        String workloadClassName = paramsMap.get(WORKLOAD_ARG);
-        long operationCount = Long.parseLong(paramsMap.get(OPERATION_COUNT_ARG));
-        int threadCount = Integer.parseInt(paramsMap.get(THREADS_ARG));
-        boolean showStatus = Boolean.parseBoolean(paramsMap.get(SHOW_STATUS_ARG));
-        TimeUnit timeUnit = TimeUnit.valueOf(paramsMap.get(TIME_UNIT_ARG));
-        String resultFilePath = paramsMap.get(RESULT_FILE_PATH_ARG);
-        double timeCompressionRatio = Double.parseDouble(paramsMap.get(TIME_COMPRESSION_RATIO_ARG));
-        Duration gctDeltaDuration = Duration.fromMilli(Long.parseLong(paramsMap.get(GCT_DELTA_DURATION_ARG)));
-        Set<String> peerIds = parsePeerIdsFromCommandline(paramsMap.get(PEER_IDS_ARG));
-        Duration toleratedExecutionDelay = Duration.fromMilli(Long.parseLong(paramsMap.get(TOLERATED_EXECUTION_DELAY_ARG)));
-        ConsoleAndFileValidationParamOptions databaseConsoleAndFileValidationParams =
-                (null == paramsMap.get(CREATE_VALIDATION_PARAMS_ARG)) ?
-                        null :
-                        ConsoleAndFileValidationParamOptions.fromCommandlineString(paramsMap.get(CREATE_VALIDATION_PARAMS_ARG));
-        String databaseValidationFilePath = paramsMap.get(DB_VALIDATION_FILE_PATH_ARG);
-        boolean validateWorkload = Boolean.parseBoolean(paramsMap.get(VALIDATE_WORKLOAD_ARG));
-        boolean calculateWorkloadStatistics = Boolean.parseBoolean(paramsMap.get(CALCULATE_WORKLOAD_STATISTICS_ARG));
-        Duration spinnerSleepDuration = Duration.fromMilli(Long.parseLong(paramsMap.get(SPINNER_SLEEP_DURATION_ARG)));
-        boolean printHelp = Boolean.parseBoolean(paramsMap.get(HELP_ARG));
-        return new ConsoleAndFileDriverConfiguration(
-                paramsMap,
-                dbClassName,
-                workloadClassName,
-                operationCount,
-                threadCount,
-                showStatus,
-                timeUnit,
-                resultFilePath,
-                timeCompressionRatio,
-                gctDeltaDuration,
-                peerIds,
-                toleratedExecutionDelay,
-                databaseConsoleAndFileValidationParams,
-                databaseValidationFilePath,
-                validateWorkload,
-                calculateWorkloadStatistics,
-                spinnerSleepDuration,
-                printHelp);
-    }
-
-    private static void assertRequiredArgsProvided(Map<String, String> paramsMap) throws DriverConfigurationException {
-        List<String> missingOptions = new ArrayList<>();
-        if (null == paramsMap.get(DB_ARG)) missingOptions.add(DB_ARG);
-        if (null == paramsMap.get(WORKLOAD_ARG)) missingOptions.add(WORKLOAD_ARG);
-        if (null == paramsMap.get(OPERATION_COUNT_ARG)) missingOptions.add(OPERATION_COUNT_ARG);
-        if (false == missingOptions.isEmpty())
-            throw new DriverConfigurationException(String.format("Missing required option: %s", missingOptions.toString()));
     }
 
     private static void assertValidTimeUnit(String timeUnitString) throws DriverConfigurationException {
@@ -533,9 +515,8 @@ public class ConsoleAndFileDriverConfiguration implements DriverConfiguration {
         return commandLinePeerIdsString;
     }
 
-    static Set<String> coreConfigurationParameterKeys() {
-        Set<String> coreConfigurationParameterKeys = new HashSet<>();
-        coreConfigurationParameterKeys.addAll(Arrays.asList(
+    private static Set<String> coreConfigurationParameterKeys() {
+        return Sets.newHashSet(
                 DB_ARG,
                 WORKLOAD_ARG,
                 OPERATION_COUNT_ARG,
@@ -552,8 +533,8 @@ public class ConsoleAndFileDriverConfiguration implements DriverConfiguration {
                 VALIDATE_WORKLOAD_ARG,
                 CALCULATE_WORKLOAD_STATISTICS_ARG,
                 SPINNER_SLEEP_DURATION_ARG,
-                HELP_ARG));
-        return coreConfigurationParameterKeys;
+                HELP_ARG
+        );
     }
 
     public static String commandlineHelpString() {
