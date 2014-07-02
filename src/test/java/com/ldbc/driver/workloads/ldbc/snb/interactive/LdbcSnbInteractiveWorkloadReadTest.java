@@ -39,7 +39,6 @@ public class LdbcSnbInteractiveWorkloadReadTest {
     static Map<String, String> defaultSnbParamsMapWithWorkloadAndParametersDir() {
         Map<String, String> additionalParams = new HashMap<>();
         additionalParams.put(LdbcSnbInteractiveWorkload.PARAMETERS_DIRECTORY, TestUtils.getResource("/").getAbsolutePath());
-        additionalParams.put(ConsoleAndFileDriverConfiguration.CALCULATE_WORKLOAD_STATISTICS_ARG, "true");
         return MapUtils.mergeMaps(
                 LdbcSnbInteractiveWorkload.defaultReadOnlyConfig(),
                 ConsoleAndFileDriverConfiguration.convertLongKeysToShortKeys(additionalParams),
@@ -123,7 +122,95 @@ public class LdbcSnbInteractiveWorkloadReadTest {
     }
 
     @Test
-    public void shouldPerformWorkloadValidationAndDatabaseValidation() throws ClientException {
+    public void shouldCreateValidationParametersThenUseThemToPerformDatabaseValidationThenPass() throws ClientException, IOException {
+        // **************************************************
+        // where validation parameters should be written (ensure file does not yet exist)
+        // **************************************************
+        String validationParamsFilePath = "test_validation_params_file.csv";
+        File validationParamsFile = new File(validationParamsFilePath);
+        FileUtils.deleteQuietly(validationParamsFile);
+        assertThat(validationParamsFile.exists(), is(false));
+
+        // **************************************************
+        // configuration for generating validation parameters
+        // **************************************************
+        Map<String, String> paramsMap = defaultSnbParamsMapWithWorkloadAndParametersDir();
+        // DummyDb-specific parameters
+        paramsMap.put(DummyDb.SLEEP_DURATION_MILLI, Long.toString(Duration.fromMilli(1).asMilli()));
+        // Driver-specific parameters
+        String dbClassName = DummyDb.class.getName();
+        String workloadClassName = LdbcSnbInteractiveWorkload.class.getName();
+        long operationCount = 10000;
+        int threadCount = 64;
+        boolean showStatus = false;
+        TimeUnit timeUnit = TimeUnit.MILLISECONDS;
+        String resultFilePath = null;
+        double timeCompressionRatio = 1.0;
+        Duration gctDeltaDuration = Duration.fromMinutes(10);
+        Set<String> peerIds = new HashSet<>();
+        Duration toleratedExecutionDelay = Duration.fromMinutes(10);
+        ConsoleAndFileDriverConfiguration.ConsoleAndFileValidationParamOptions validationParams =
+                new ConsoleAndFileDriverConfiguration.ConsoleAndFileValidationParamOptions(validationParamsFile.getAbsolutePath(), 1000);
+        String dbValidationFilePath = null;
+        boolean validateWorkload = false;
+        boolean calculateWorkloadStatistics = false;
+        Duration spinnerSleepDuration = Duration.fromMilli(0);
+        boolean printHelp = false;
+
+        DriverConfiguration params = new ConsoleAndFileDriverConfiguration(paramsMap, dbClassName, workloadClassName, operationCount,
+                threadCount, showStatus, timeUnit, resultFilePath, timeCompressionRatio, gctDeltaDuration, peerIds, toleratedExecutionDelay,
+                validationParams, dbValidationFilePath, validateWorkload, calculateWorkloadStatistics, spinnerSleepDuration, printHelp);
+
+        // **************************************************
+        // create validation parameters file
+        // **************************************************
+        Client clientForValidationFileCreation = new Client(new LocalControlService(TIME_SOURCE.now().plus(Duration.fromMilli(1000)), params), TIME_SOURCE);
+        clientForValidationFileCreation.start();
+
+        // **************************************************
+        // check that validation file creation worked
+        // **************************************************
+        assertThat(validationParamsFile.exists(), is(true));
+        assertThat(clientForValidationFileCreation.workloadValidationResult(), is(nullValue()));
+        assertThat(clientForValidationFileCreation.workloadStatistics(), is(nullValue()));
+        assertThat(clientForValidationFileCreation.databaseValidationResult(), is(nullValue()));
+
+        // **************************************************
+        // configuration for using validation parameters file to validate the database
+        // **************************************************
+        validationParams = null;
+        dbValidationFilePath = validationParamsFile.getAbsolutePath();
+
+        params = new ConsoleAndFileDriverConfiguration(paramsMap, dbClassName, workloadClassName, operationCount,
+                threadCount, showStatus, timeUnit, resultFilePath, timeCompressionRatio, gctDeltaDuration, peerIds, toleratedExecutionDelay,
+                validationParams, dbValidationFilePath, validateWorkload, calculateWorkloadStatistics, spinnerSleepDuration, printHelp);
+
+        // **************************************************
+        // validate the database
+        // **************************************************
+        Client clientForDatabaseValidation = new Client(new LocalControlService(TIME_SOURCE.now().plus(Duration.fromMilli(1000)), params), TIME_SOURCE);
+        clientForDatabaseValidation.start();
+
+        // **************************************************
+        // check that validation was successful
+        // **************************************************
+        assertThat(validationParamsFile.exists(), is(true));
+        assertThat(clientForDatabaseValidation.workloadValidationResult(), is(nullValue()));
+        assertThat(clientForDatabaseValidation.workloadStatistics(), is(nullValue()));
+        assertThat(clientForDatabaseValidation.databaseValidationResult(), is(notNullValue()));
+        assertThat(
+                String.format("Validation with following error\n%s", clientForDatabaseValidation.databaseValidationResult().errorMessage()),
+                clientForDatabaseValidation.databaseValidationResult().isSuccessful(),
+                is(true));
+
+        // **************************************************
+        // clean up
+        // **************************************************
+        FileUtils.deleteQuietly(validationParamsFile);
+    }
+
+    @Test
+    public void shouldPerformWorkloadValidation() throws ClientException {
         // Given
         Map<String, String> paramsMap = defaultSnbParamsMapWithWorkloadAndParametersDir();
         // DummyDb-specific parameters
@@ -143,24 +230,23 @@ public class LdbcSnbInteractiveWorkloadReadTest {
         ConsoleAndFileDriverConfiguration.ConsoleAndFileValidationParamOptions validationParams = null;
         String dbValidationFilePath = null;
         boolean validateWorkload = true;
-        boolean calculateWorkloadStatistics = true;
+        boolean calculateWorkloadStatistics = false;
         Duration spinnerSleepDuration = Duration.fromMilli(0);
+        boolean printHelp = false;
 
         DriverConfiguration params = new ConsoleAndFileDriverConfiguration(paramsMap, dbClassName, workloadClassName, operationCount,
                 threadCount, showStatus, timeUnit, resultFilePath, timeCompressionRatio, gctDeltaDuration, peerIds, toleratedExecutionDelay,
-                validationParams, dbValidationFilePath, validateWorkload, calculateWorkloadStatistics, spinnerSleepDuration);
+                validationParams, dbValidationFilePath, validateWorkload, calculateWorkloadStatistics, spinnerSleepDuration, printHelp);
 
         // When
         Client client = new Client(new LocalControlService(TIME_SOURCE.now().plus(Duration.fromMilli(500)), params), TIME_SOURCE);
         client.start();
 
         // Then
-        assertThat(client.databaseLoadedCorrectly(), is(true));
-        assertThat(client.workloadLoadedCorrectly(), is(true));
         assertThat(client.databaseValidationResult(), is(nullValue()));
         assertThat(client.workloadValidationResult(), is(notNullValue()));
         assertThat(client.workloadValidationResult().isSuccessful(), is(true));
-        assertThat(client.workloadStatistics(), is(notNullValue()));
+        assertThat(client.workloadStatistics(), is(nullValue()));
     }
 
     @Test
@@ -189,12 +275,14 @@ public class LdbcSnbInteractiveWorkloadReadTest {
         boolean validateWorkload = false;
         boolean calculateWorkloadStatistics = true;
         Duration spinnerSleepDuration = Duration.fromMilli(10);
+        boolean printHelp = false;
 
         assertThat(new File(resultFilePath).exists(), is(false));
 
         DriverConfiguration params = new ConsoleAndFileDriverConfiguration(paramsMap, dbClassName, workloadClassName, operationCount,
                 threadCount, showStatus, timeUnit, resultFilePath, timeCompressionRatio, gctDeltaDuration, peerIds, toleratedExecutionDelay,
-                validationParams, dbValidationFilePath, validateWorkload, calculateWorkloadStatistics, spinnerSleepDuration);
+                validationParams, dbValidationFilePath, validateWorkload, calculateWorkloadStatistics, spinnerSleepDuration,
+                printHelp);
 
         Workload workloadA = new LdbcSnbInteractiveWorkload();
         workloadA.init(params);
@@ -356,15 +444,17 @@ public class LdbcSnbInteractiveWorkloadReadTest {
         ConsoleAndFileDriverConfiguration.ConsoleAndFileValidationParamOptions validationParams = null;
         String dbValidationFilePath = null;
         boolean validateWorkload = false;
-        boolean calculateWorkloadStatistics = true;
+        boolean calculateWorkloadStatistics = false;
         Duration spinnerSleepDuration = Duration.fromMilli(10);
+        boolean printHelp = false;
 
         assertThat(new File(csvOutputFilePath).exists(), is(false));
         assertThat(new File(resultFilePath).exists(), is(false));
 
         DriverConfiguration params = new ConsoleAndFileDriverConfiguration(paramsMap, dbClassName, workloadClassName, operationCount,
                 threadCount, showStatus, timeUnit, resultFilePath, timeCompressionRatio, gctDeltaDuration, peerIds, toleratedExecutionDelay,
-                validationParams, dbValidationFilePath, validateWorkload, calculateWorkloadStatistics, spinnerSleepDuration);
+                validationParams, dbValidationFilePath, validateWorkload, calculateWorkloadStatistics, spinnerSleepDuration,
+                printHelp);
 
         // When
         Client client = new Client(new LocalControlService(TIME_SOURCE.now().plus(Duration.fromSeconds(3)), params), TIME_SOURCE);
@@ -397,7 +487,6 @@ public class LdbcSnbInteractiveWorkloadReadTest {
         assertThat(new File(ldbcDriverTestPropertiesPath).exists(), is(true));
 
         ConsoleAndFileDriverConfiguration configuration = ConsoleAndFileDriverConfiguration.fromArgs(new String[]{
-                "-" + ConsoleAndFileDriverConfiguration.CALCULATE_WORKLOAD_STATISTICS_ARG,
                 "-" + ConsoleAndFileDriverConfiguration.RESULT_FILE_PATH_ARG, resultFilePath,
                 "-" + ConsoleAndFileDriverConfiguration.DB_ARG, CsvDb.class.getName(),
                 "-p", LdbcSnbInteractiveWorkload.PARAMETERS_DIRECTORY, TestUtils.getResource("/").getAbsolutePath(),
@@ -446,13 +535,14 @@ public class LdbcSnbInteractiveWorkloadReadTest {
         boolean validateWorkload = false;
         boolean calculateWorkloadStatistics = true;
         Duration spinnerSleepDuration = Duration.fromMilli(0);
+        boolean printHelp = false;
 
         assertThat(new File(csvOutputFilePath).exists(), is(false));
         assertThat(new File(resultFilePath).exists(), is(false));
 
         DriverConfiguration configuration = new ConsoleAndFileDriverConfiguration(paramsMap, dbClassName, workloadClassName, operationCount,
                 threadCount, showStatus, timeUnit, resultFilePath, timeCompressionRatio, gctDeltaDuration, peerIds, toleratedExecutionDelay,
-                validationParams, dbValidationFilePath, validateWorkload, calculateWorkloadStatistics, spinnerSleepDuration);
+                validationParams, dbValidationFilePath, validateWorkload, calculateWorkloadStatistics, spinnerSleepDuration, printHelp);
 
         Workload workload = new LdbcSnbInteractiveWorkload();
         workload.init(configuration);
@@ -492,13 +582,15 @@ public class LdbcSnbInteractiveWorkloadReadTest {
         boolean validateWorkload = false;
         boolean calculateWorkloadStatistics = true;
         Duration spinnerSleepDuration = Duration.fromMilli(0);
+        boolean printHelp = false;
 
         assertThat(new File(csvOutputFilePath).exists(), is(false));
         assertThat(new File(resultFilePath).exists(), is(false));
 
         DriverConfiguration configuration = new ConsoleAndFileDriverConfiguration(paramsMap, dbClassName, workloadClassName, operationCount,
                 threadCount, showStatus, timeUnit, resultFilePath, timeCompressionRatio, gctDeltaDuration, peerIds, toleratedExecutionDelay,
-                validationParams, dbValidationFilePath, validateWorkload, calculateWorkloadStatistics, spinnerSleepDuration);
+                validationParams, dbValidationFilePath, validateWorkload, calculateWorkloadStatistics, spinnerSleepDuration,
+                printHelp);
 
         Workload workload = new LdbcSnbInteractiveWorkload();
         workload.init(configuration);
@@ -576,12 +668,13 @@ public class LdbcSnbInteractiveWorkloadReadTest {
         boolean validateWorkload = false;
         boolean calculateWorkloadStatistics = true;
         Duration spinnerSleepDuration = Duration.fromMilli(0);
+        boolean printHelp = false;
 
         assertThat(new File(resultFilePath).exists(), is(false));
 
         DriverConfiguration params = new ConsoleAndFileDriverConfiguration(paramsMap, dbClassName, workloadClassName, operationCount,
                 threadCount, showStatus, timeUnit, resultFilePath, timeCompressionRatio, gctDeltaDuration, peerIds, toleratedExecutionDelay,
-                validationParams, dbValidationFilePath, validateWorkload, calculateWorkloadStatistics, spinnerSleepDuration);
+                validationParams, dbValidationFilePath, validateWorkload, calculateWorkloadStatistics, spinnerSleepDuration, printHelp);
 
         // When
         Client client = new Client(new LocalControlService(TIME_SOURCE.now().plus(Duration.fromMilli(500)), params), TIME_SOURCE);

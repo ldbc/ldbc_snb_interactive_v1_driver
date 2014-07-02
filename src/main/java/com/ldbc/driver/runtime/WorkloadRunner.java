@@ -102,8 +102,12 @@ public class WorkloadRunner {
         Iterator<OperationHandler<?>> blockingHandlers = operationsToHandlers.transform(blockingOperations);
         Iterator<OperationHandler<?>> asynchronousHandlers = operationsToHandlers.transform(asynchronousOperations);
 
-        // TODO these executor services should all be using different gct services and sharing gct via external ct [MUST]
-        // TODO This lesson needs to be written to Confluence too
+        // TODO (past alex) these executor services should all be using different gct services and sharing gct via external ct [MUST]
+        // TODO (past alex) This lesson needs to be written to Confluence too
+        // TODO (present alex) why?
+        // TODO (present alex) is it because, if one scheduler is lagging, GCT may advance before a slower executor
+        // TODO (present alex) submits an initiated time for an operation who's scheduled start time is already behind GCT?
+        // TODO (present alex) if operations are close together (closer than tolerated delay) it seems like this is definitely possible
 
         this.operationHandlerExecutor = new ThreadPoolOperationHandlerExecutor(threadCount);
         this.preciseIndividualAsyncOperationStreamExecutorService = new PreciseIndividualAsyncOperationStreamExecutorService(

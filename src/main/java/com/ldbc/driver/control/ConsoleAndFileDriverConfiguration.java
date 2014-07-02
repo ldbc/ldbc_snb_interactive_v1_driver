@@ -14,6 +14,8 @@ import java.util.*;
 import java.util.Map.Entry;
 import java.util.concurrent.TimeUnit;
 
+// TODO add getHelpString() type function, this needs to be an instance method;
+
 public class ConsoleAndFileDriverConfiguration implements DriverConfiguration {
     // --- REQUIRED ---
     public static final String OPERATION_COUNT_ARG = "oc";
@@ -31,6 +33,11 @@ public class ConsoleAndFileDriverConfiguration implements DriverConfiguration {
     private static final String DB_DESCRIPTION = String.format("classname of the DB to use (e.g. %s)", DB_EXAMPLE);
 
     // --- OPTIONAL ---
+    public static final String HELP_ARG = "help";
+    public static final boolean HELP_DEFAULT = false;
+    public static final String HELP_DEFAULT_STRING = Boolean.toString(HELP_DEFAULT);
+    private static final String HELP_DESCRIPTION = "print usage instruction";
+
     public static final String RESULT_FILE_PATH_ARG = "rf";
     private static final String RESULT_FILE_PATH_ARG_LONG = "resultfile";
     public static final String RESULT_FILE_PATH_DEFAULT = "results.json";
@@ -142,6 +149,7 @@ public class ConsoleAndFileDriverConfiguration implements DriverConfiguration {
 
     public static Map<String, String> defaultsForOptionalParamsAsMap() throws DriverConfigurationException {
         Map<String, String> defaultParamsMap = new HashMap<>();
+        defaultParamsMap.put(HELP_ARG, HELP_DEFAULT_STRING);
         defaultParamsMap.put(RESULT_FILE_PATH_ARG, RESULT_FILE_PATH_DEFAULT_STRING);
         defaultParamsMap.put(THREADS_ARG, THREADS_DEFAULT_STRING);
         defaultParamsMap.put(SHOW_STATUS_ARG, SHOW_STATUS_DEFAULT_STRING);
@@ -165,9 +173,9 @@ public class ConsoleAndFileDriverConfiguration implements DriverConfiguration {
             Map<String, String> paramsMap = parseArgs(args, OPTIONS);
             return fromParamsMap(paramsMap);
         } catch (ParseException e) {
-            throw new DriverConfigurationException(String.format("%s\n%s", e.getMessage(), helpString()), e);
+            throw new DriverConfigurationException(String.format("%s\n%s", e.getMessage(), commandlineHelpString()), e);
         } catch (DriverConfigurationException e) {
-            throw new DriverConfigurationException(String.format("%s\n%s", e.getMessage(), helpString()), e);
+            throw new DriverConfigurationException(String.format("%s\n%s", e.getMessage(), commandlineHelpString()), e);
         }
     }
 
@@ -181,7 +189,7 @@ public class ConsoleAndFileDriverConfiguration implements DriverConfiguration {
             paramsMap.put(OPERATION_COUNT_ARG, Long.toString(operationCount));
             return fromParamsMap(paramsMap);
         } catch (DriverConfigurationException e) {
-            throw new DriverConfigurationException(String.format("%s\n%s", e.getMessage(), helpString()), e);
+            throw new DriverConfigurationException(String.format("%s\n%s", e.getMessage(), commandlineHelpString()), e);
         }
     }
 
@@ -195,7 +203,7 @@ public class ConsoleAndFileDriverConfiguration implements DriverConfiguration {
             paramsMap.put(OPERATION_COUNT_ARG, Long.toString(operationCount));
             return fromParamsMapWithoutChecks(paramsMap);
         } catch (DriverConfigurationException e) {
-            throw new DriverConfigurationException(String.format("%s\n%s", e.getMessage(), helpString()), e);
+            throw new DriverConfigurationException(String.format("%s\n%s", e.getMessage(), commandlineHelpString()), e);
         }
     }
 
@@ -208,7 +216,7 @@ public class ConsoleAndFileDriverConfiguration implements DriverConfiguration {
             paramsMap = MapUtils.mergeMaps(paramsMap, defaultsForOptionalParamsAsMap(), false);
             return fromParamsMapWithoutChecks(paramsMap);
         } catch (DriverConfigurationException e) {
-            throw new DriverConfigurationException(String.format("%s\n%s", e.getMessage(), helpString()), e);
+            throw new DriverConfigurationException(String.format("%s\n%s", e.getMessage(), commandlineHelpString()), e);
         }
     }
 
@@ -232,6 +240,7 @@ public class ConsoleAndFileDriverConfiguration implements DriverConfiguration {
         boolean validateWorkload = Boolean.parseBoolean(paramsMap.get(VALIDATE_WORKLOAD_ARG));
         boolean calculateWorkloadStatistics = Boolean.parseBoolean(paramsMap.get(CALCULATE_WORKLOAD_STATISTICS_ARG));
         Duration spinnerSleepDuration = Duration.fromMilli(Long.parseLong(paramsMap.get(SPINNER_SLEEP_DURATION_ARG)));
+        boolean printHelp = Boolean.parseBoolean(paramsMap.get(HELP_ARG));
         return new ConsoleAndFileDriverConfiguration(
                 paramsMap,
                 dbClassName,
@@ -249,7 +258,8 @@ public class ConsoleAndFileDriverConfiguration implements DriverConfiguration {
                 databaseValidationFilePath,
                 validateWorkload,
                 calculateWorkloadStatistics,
-                spinnerSleepDuration);
+                spinnerSleepDuration,
+                printHelp);
     }
 
     private static void assertRequiredArgsProvided(Map<String, String> paramsMap) throws DriverConfigurationException {
@@ -335,6 +345,9 @@ public class ConsoleAndFileDriverConfiguration implements DriverConfiguration {
 
         if (cmd.hasOption(CREATE_VALIDATION_PARAMS_ARG))
             cmdParams.put(CREATE_VALIDATION_PARAMS_ARG, cmd.getOptionValue(CREATE_VALIDATION_PARAMS_ARG));
+
+        if (cmd.hasOption(HELP_ARG))
+            cmdParams.put(HELP_ARG, Boolean.toString(true));
 
         if (cmd.hasOption(CREATE_VALIDATION_PARAMS_ARG)) {
             String[] validationParams = cmd.getOptionValues(CREATE_VALIDATION_PARAMS_ARG);
@@ -478,6 +491,9 @@ public class ConsoleAndFileDriverConfiguration implements DriverConfiguration {
                 SPINNER_SLEEP_DURATION_ARG_LONG).create(SPINNER_SLEEP_DURATION_ARG);
         options.addOption(spinnerSleepDurationOption);
 
+        Option printHelpOption = OptionBuilder.withDescription(HELP_DESCRIPTION).create(HELP_ARG);
+        options.addOption(printHelpOption);
+
         Option propertyFileOption = OptionBuilder.hasArgs().withValueSeparator(COMMANDLINE_SEPARATOR_CHAR).withArgName("file1" + COMMANDLINE_SEPARATOR_CHAR + "file2").withDescription(
                 PROPERTY_FILE_DESCRIPTION).create(PROPERTY_FILE_ARG);
         options.addOption(propertyFileOption);
@@ -535,11 +551,12 @@ public class ConsoleAndFileDriverConfiguration implements DriverConfiguration {
                 DB_VALIDATION_FILE_PATH_ARG,
                 VALIDATE_WORKLOAD_ARG,
                 CALCULATE_WORKLOAD_STATISTICS_ARG,
-                SPINNER_SLEEP_DURATION_ARG));
+                SPINNER_SLEEP_DURATION_ARG,
+                HELP_ARG));
         return coreConfigurationParameterKeys;
     }
 
-    public static String helpString() {
+    public static String commandlineHelpString() {
         Options options = OPTIONS;
         int printedRowWidth = 110;
         String header = "";
@@ -575,6 +592,7 @@ public class ConsoleAndFileDriverConfiguration implements DriverConfiguration {
     private final boolean validateWorkload;
     private final boolean calculateWorkloadStatistics;
     private final Duration spinnerSleepDuration;
+    private final boolean printHelp;
 
     public ConsoleAndFileDriverConfiguration(Map<String, String> paramsMap,
                                              String dbClassName,
@@ -592,7 +610,8 @@ public class ConsoleAndFileDriverConfiguration implements DriverConfiguration {
                                              String databaseValidationFilePath,
                                              boolean validateWorkload,
                                              boolean calculateWorkloadStatistics,
-                                             Duration spinnerSleepDuration) {
+                                             Duration spinnerSleepDuration,
+                                             boolean printHelp) {
         this.paramsMap = paramsMap;
         this.dbClassName = dbClassName;
         this.workloadClassName = workloadClassName;
@@ -610,6 +629,7 @@ public class ConsoleAndFileDriverConfiguration implements DriverConfiguration {
         this.validateWorkload = validateWorkload;
         this.calculateWorkloadStatistics = calculateWorkloadStatistics;
         this.spinnerSleepDuration = spinnerSleepDuration;
+        this.printHelp = printHelp;
     }
 
     @Override
@@ -676,7 +696,7 @@ public class ConsoleAndFileDriverConfiguration implements DriverConfiguration {
     }
 
     @Override
-    public ValidationParamOptions validationCreationParams() {
+    public ValidationParamOptions validationParamsCreationOptions() {
         return validationCreationParams;
     }
 
@@ -698,6 +718,16 @@ public class ConsoleAndFileDriverConfiguration implements DriverConfiguration {
     @Override
     public Duration spinnerSleepDuration() {
         return spinnerSleepDuration;
+    }
+
+    @Override
+    public boolean shouldPrintHelpString() {
+        return printHelp;
+    }
+
+    @Override
+    public String helpString() {
+        return ConsoleAndFileDriverConfiguration.commandlineHelpString();
     }
 
     @Override
@@ -768,6 +798,9 @@ public class ConsoleAndFileDriverConfiguration implements DriverConfiguration {
         Duration newSpinnerSleepDuration = (newParamsMapWithShortKeys.containsKey(SPINNER_SLEEP_DURATION_ARG)) ?
                 Duration.fromMilli(Long.parseLong((newParamsMapWithShortKeys.get(SPINNER_SLEEP_DURATION_ARG)))) :
                 spinnerSleepDuration;
+        boolean newPrintHelp = (newParamsMapWithShortKeys.containsKey(HELP_ARG)) ?
+                Boolean.parseBoolean(newParamsMapWithShortKeys.get(HELP_ARG)) :
+                printHelp;
 
         return new ConsoleAndFileDriverConfiguration(
                 newOtherParams,
@@ -786,7 +819,8 @@ public class ConsoleAndFileDriverConfiguration implements DriverConfiguration {
                 newDatabaseValidationFilePath,
                 newValidateWorkload,
                 newCalculateWorkloadStatistics,
-                newSpinnerSleepDuration);
+                newSpinnerSleepDuration,
+                newPrintHelp);
     }
 
     public String[] toArgs() throws DriverConfigurationException {
@@ -818,6 +852,8 @@ public class ConsoleAndFileDriverConfiguration implements DriverConfiguration {
         if (calculateWorkloadStatistics)
             argsList.add("-" + CALCULATE_WORKLOAD_STATISTICS_ARG);
         argsList.addAll(Lists.newArrayList("-" + SPINNER_SLEEP_DURATION_ARG, Long.toString(spinnerSleepDuration.asMilli())));
+        if (printHelp)
+            argsList.add("-" + HELP_ARG);
         // additional, workload/database-related params
         Map<String, String> additionalParameters = MapUtils.copyExcludingKeys(paramsMap, coreConfigurationParameterKeys());
         for (Entry<String, String> additionalParam : MapUtils.sortedEntrySet(additionalParameters)) {
@@ -892,7 +928,7 @@ public class ConsoleAndFileDriverConfiguration implements DriverConfiguration {
         sb.append("\n");
         sb.append("# generate validation parameters file for validating correctness of database implementations\n");
         sb.append("# parameter values specify: (1) where to create the validation parameters file (2) how many validation parameters to generate\n");
-        sb.append("# STRING|INTEGER (e.g., ").append(new ConsoleAndFileValidationParamOptions("validation_parameters.csv",1000).toCommandlineString()).append(")\n");
+        sb.append("# STRING|INTEGER (e.g., ").append(new ConsoleAndFileValidationParamOptions("validation_parameters.csv", 1000).toCommandlineString()).append(")\n");
         if (null == validationCreationParams)
             sb.append("# ").append(CREATE_VALIDATION_PARAMS_ARG_LONG).append("=").append("\n");
         else
@@ -909,6 +945,10 @@ public class ConsoleAndFileDriverConfiguration implements DriverConfiguration {
         sb.append("# sleep duration (ms) injected into busy wait loops (to reduce CPU consumption)\n");
         sb.append("# LONG (milliseconds)\n");
         sb.append(SPINNER_SLEEP_DURATION_ARG_LONG).append("=").append(spinnerSleepDuration.asMilli()).append("\n");
+        sb.append("\n");
+        sb.append("# print help string - usage instructions\n");
+        sb.append("# BOOLEAN\n");
+        sb.append(HELP_ARG).append("=").append(printHelp).append("\n");
         sb.append("\n");
         sb.append("# ***************************************************************\n");
         sb.append("# *** the following should be set by workload implementations ***\n");
@@ -933,7 +973,7 @@ public class ConsoleAndFileDriverConfiguration implements DriverConfiguration {
         sb.append("# ************************************************************************************\n");
         sb.append("\n");
         sb.append("# fully qualified class name of the Db (class) implementation to execute\n");
-        sb.append("# STRING(e.g., ").append(DummyDb.class.getName()).append(")\n");
+        sb.append("# STRING (e.g., ").append(DummyDb.class.getName()).append(")\n");
         if (null == dbClassName)
             sb.append("# ").append(DB_ARG_LONG).append("=").append("\n");
         else
@@ -978,6 +1018,7 @@ public class ConsoleAndFileDriverConfiguration implements DriverConfiguration {
         sb.append("\t").append(String.format("%1$-" + padRightDistance + "s", "Validate Workload:")).append(validateWorkload).append("\n");
         sb.append("\t").append(String.format("%1$-" + padRightDistance + "s", "Calculate Workload Statistics:")).append(calculateWorkloadStatistics).append("\n");
         sb.append("\t").append(String.format("%1$-" + padRightDistance + "s", "Spinner Sleep Duration:")).append(spinnerSleepDuration.asMilli()).append(" (ms) / ").append(spinnerSleepDuration).append("\n");
+        sb.append("\t").append(String.format("%1$-" + padRightDistance + "s", "Print Help:")).append(printHelp).append("\n");
 
         Set<String> excludedKeys = coreConfigurationParameterKeys();
         Map<String, String> filteredParamsMap = MapUtils.copyExcludingKeys(paramsMap, excludedKeys);
@@ -998,6 +1039,7 @@ public class ConsoleAndFileDriverConfiguration implements DriverConfiguration {
 
         if (calculateWorkloadStatistics != that.calculateWorkloadStatistics) return false;
         if (operationCount != that.operationCount) return false;
+        if (printHelp != that.printHelp) return false;
         if (showStatus != that.showStatus) return false;
         if (threadCount != that.threadCount) return false;
         if (Double.compare(that.timeCompressionRatio, timeCompressionRatio) != 0) return false;
@@ -1044,6 +1086,7 @@ public class ConsoleAndFileDriverConfiguration implements DriverConfiguration {
         result = 31 * result + (validateWorkload ? 1 : 0);
         result = 31 * result + (calculateWorkloadStatistics ? 1 : 0);
         result = 31 * result + (spinnerSleepDuration != null ? spinnerSleepDuration.hashCode() : 0);
+        result = 31 * result + (printHelp ? 1 : 0);
         return result;
     }
 

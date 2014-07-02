@@ -22,6 +22,14 @@ public class DbValidator {
         public String errorMessage() {
             return errorMessage;
         }
+
+        @Override
+        public String toString() {
+            return "DbValidationResult{" +
+                    "successful=" + successful +
+                    ", errorMessage='" + errorMessage + '\'' +
+                    '}';
+        }
     }
 
     public DbValidationResult validate(Iterator<ValidationParam> validationParameters,

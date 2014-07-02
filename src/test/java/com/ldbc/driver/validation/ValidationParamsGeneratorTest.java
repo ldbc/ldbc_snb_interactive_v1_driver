@@ -79,7 +79,8 @@ public class ValidationParamsGeneratorTest {
         }
 
         csvFileReader.closeReader();
-        FileUtils.deleteQuietly(tempValidationFile);
+        System.out.println(tempValidationFile.getAbsolutePath());
+//        FileUtils.deleteQuietly(tempValidationFile);
     }
 
     List<Operation<?>> buildOperations() {

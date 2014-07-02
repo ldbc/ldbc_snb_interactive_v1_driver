@@ -26,7 +26,7 @@ public class ConsoleAndFileDriverConfigurationTest {
     @Ignore
     @Test
     public void print() throws DriverConfigurationException {
-        System.out.println(ConsoleAndFileDriverConfiguration.helpString());
+        System.out.println(ConsoleAndFileDriverConfiguration.commandlineHelpString());
         System.out.println();
         System.out.println();
         System.out.println(ConsoleAndFileDriverConfiguration.fromDefaults(DummyDb.class.getName(), SimpleWorkload.class.getName(), 1000).toString());
@@ -35,8 +35,21 @@ public class ConsoleAndFileDriverConfigurationTest {
         System.out.println(ConsoleAndFileDriverConfiguration.fromDefaultsWithoutChecks(null, null, 0).toPropertiesString());
     }
 
+    @Ignore
     @Test
-    public void addTestForApplyMap() throws DriverConfigurationException {
+    public void addWindowSizeParameter() {
+        assertThat(true, is(false));
+    }
+
+    @Ignore
+    @Test
+    public void applyMapsShouldWork() {
+        assertThat(true, is(false));
+    }
+
+
+    @Test
+    public void applyMapShouldWork() throws DriverConfigurationException {
         ConsoleAndFileDriverConfiguration configuration1 = ConsoleAndFileDriverConfiguration.fromDefaults("db1", "workload1", 1);
 
         assertThat(configuration1.dbClassName(), equalTo("db1"));
@@ -53,18 +66,6 @@ public class ConsoleAndFileDriverConfigurationTest {
         assertThat(configuration2.dbClassName(), equalTo("db2"));
         assertThat(configuration2.workloadClassName(), equalTo("workload2"));
         assertThat(configuration2.operationCount(), equalTo(2l));
-    }
-
-    @Ignore
-    @Test
-    public void addWindowSizeParameter() {
-        assertThat(true, is(false));
-    }
-
-    @Ignore
-    @Test
-    public void considerAddingApplyMapsAsInPluralMapsForConvenience() {
-        assertThat(true, is(false));
     }
 
     @Test
@@ -350,7 +351,7 @@ public class ConsoleAndFileDriverConfigurationTest {
         assertThat(configurationFromParams.gctDeltaDuration(), is(ConsoleAndFileDriverConfiguration.GCT_DELTA_DURATION_DEFAULT));
         assertThat(configurationFromParams.peerIds(), is(ConsoleAndFileDriverConfiguration.PEER_IDS_DEFAULT));
         assertThat(configurationFromParams.toleratedExecutionDelay(), is(ConsoleAndFileDriverConfiguration.TOLERATED_EXECUTION_DELAY_DEFAULT));
-        assertThat(configurationFromParams.validationCreationParams(), is((DriverConfiguration.ValidationParamOptions) ConsoleAndFileDriverConfiguration.CREATE_VALIDATION_PARAMS_DEFAULT));
+        assertThat(configurationFromParams.validationParamsCreationOptions(), is((DriverConfiguration.ValidationParamOptions) ConsoleAndFileDriverConfiguration.CREATE_VALIDATION_PARAMS_DEFAULT));
         assertThat(configurationFromParams.databaseValidationFilePath(), is(ConsoleAndFileDriverConfiguration.DB_VALIDATION_FILE_PATH_DEFAULT));
         assertThat(configurationFromParams.validateWorkload(), is(ConsoleAndFileDriverConfiguration.VALIDATE_WORKLOAD_DEFAULT));
         assertThat(configurationFromParams.calculateWorkloadStatistics(), is(ConsoleAndFileDriverConfiguration.CALCULATE_WORKLOAD_STATISTICS_DEFAULT));
@@ -378,6 +379,7 @@ public class ConsoleAndFileDriverConfigurationTest {
         boolean validateWorkload = false;
         boolean calculateWorkloadStatistics = false;
         Duration spinnerSleepDuration = Duration.fromMilli(0);
+        boolean printHelp = false;
 
         ConsoleAndFileDriverConfiguration params = new ConsoleAndFileDriverConfiguration(
                 paramsMap,
@@ -396,7 +398,9 @@ public class ConsoleAndFileDriverConfigurationTest {
                 dbValidationFilePath,
                 validateWorkload,
                 calculateWorkloadStatistics,
-                spinnerSleepDuration);
+                spinnerSleepDuration,
+                printHelp
+        );
 
         assertThat(params.asMap(), equalTo(paramsMap));
         assertThat(params.dbClassName(), equalTo(dbClassName));
@@ -410,7 +414,7 @@ public class ConsoleAndFileDriverConfigurationTest {
         assertThat(params.gctDeltaDuration(), equalTo(gctDeltaDuration));
         assertThat(params.peerIds(), equalTo(peerIds));
         assertThat(params.toleratedExecutionDelay(), equalTo(toleratedExecutionDelay));
-        assertThat(params.validationCreationParams(), equalTo((DriverConfiguration.ValidationParamOptions) validationParams));
+        assertThat(params.validationParamsCreationOptions(), equalTo((DriverConfiguration.ValidationParamOptions) validationParams));
         assertThat(params.databaseValidationFilePath(), equalTo(dbValidationFilePath));
         assertThat(params.validateWorkload(), equalTo(validateWorkload));
         assertThat(params.calculateWorkloadStatistics(), equalTo(calculateWorkloadStatistics));

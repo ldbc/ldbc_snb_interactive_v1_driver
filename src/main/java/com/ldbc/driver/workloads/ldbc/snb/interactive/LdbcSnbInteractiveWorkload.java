@@ -241,7 +241,7 @@ public class LdbcSnbInteractiveWorkload extends Workload {
 
     @Override
     public Map<Class<? extends Operation<?>>, OperationClassification> operationClassifications() {
-        Map<Class<? extends Operation<?>>, OperationClassification> operationClassifications = new HashMap<Class<? extends Operation<?>>, OperationClassification>();
+        Map<Class<? extends Operation<?>>, OperationClassification> operationClassifications = new HashMap<>();
         /*
          * Modes (with examples from LDBC Interactive SNB Workload):
          * - WINDOWED               & NONE -------------------> n/a
@@ -434,96 +434,96 @@ public class LdbcSnbInteractiveWorkload extends Workload {
     }
 
     @Override
-    protected Iterator<Operation<?>> createOperations(GeneratorFactory generators) throws WorkloadException {
+    protected Iterator<Operation<?>> createOperations(GeneratorFactory gf) throws WorkloadException {
         // TODO assign this in a better way
         Time workloadStartTime = Time.fromMilli(0);
 
         /*
          * Create read operation streams, with specified interleaves
          */
-        Iterator<Operation<?>> operation1StreamWithoutTimes = new Query1EventStreamReader(generators.repeating(readOperation1FileReader), EventReturnPolicy.AT_LEAST_ONE_MATCH);
+        Iterator<Operation<?>> operation1StreamWithoutTimes = new Query1EventStreamReader(gf.repeating(readOperation1FileReader), EventReturnPolicy.AT_LEAST_ONE_MATCH);
         // TODO add parameter, or do in more intelligent way
-        Duration firstOperation1FromWorkloadStart = Duration.fromSeconds(1);
-        Iterator<Time> operation1StartTimes = generators.constantIncrementTime(workloadStartTime.plus(firstOperation1FromWorkloadStart), readOperation1Interleave);
-        Iterator<Operation<?>> readOperation1Stream = generators.startTimeAssigning(operation1StartTimes, operation1StreamWithoutTimes);
+        Duration firstOperation1FromWorkloadStart = readOperation1Interleave;
+        Iterator<Time> operation1StartTimes = gf.constantIncrementTime(workloadStartTime.plus(firstOperation1FromWorkloadStart), readOperation1Interleave);
+        Iterator<Operation<?>> readOperation1Stream = gf.startTimeAssigning(operation1StartTimes, operation1StreamWithoutTimes);
 
-        Iterator<Operation<?>> operation2StreamWithoutTimes = new Query2EventStreamReader(generators.repeating(readOperation2FileReader), EventReturnPolicy.AT_LEAST_ONE_MATCH);
+        Iterator<Operation<?>> operation2StreamWithoutTimes = new Query2EventStreamReader(gf.repeating(readOperation2FileReader), EventReturnPolicy.AT_LEAST_ONE_MATCH);
         // TODO add parameter, or do in more intelligent way
-        Duration firstOperation2FromWorkloadStart = Duration.fromSeconds(1);
-        Iterator<Time> operation2StartTimes = generators.constantIncrementTime(workloadStartTime.plus(firstOperation2FromWorkloadStart), readOperation2Interleave);
-        Iterator<Operation<?>> readOperation2Stream = generators.startTimeAssigning(operation2StartTimes, operation2StreamWithoutTimes);
+        Duration firstOperation2FromWorkloadStart = readOperation2Interleave;
+        Iterator<Time> operation2StartTimes = gf.constantIncrementTime(workloadStartTime.plus(firstOperation2FromWorkloadStart), readOperation2Interleave);
+        Iterator<Operation<?>> readOperation2Stream = gf.startTimeAssigning(operation2StartTimes, operation2StreamWithoutTimes);
 
-        Iterator<Operation<?>> operation3StreamWithoutTimes = new Query3EventStreamReader(generators.repeating(readOperation3FileReader), EventReturnPolicy.AT_LEAST_ONE_MATCH);
+        Iterator<Operation<?>> operation3StreamWithoutTimes = new Query3EventStreamReader(gf.repeating(readOperation3FileReader), EventReturnPolicy.AT_LEAST_ONE_MATCH);
         // TODO add parameter, or do in more intelligent way
-        Duration firstOperation3FromWorkloadStart = Duration.fromSeconds(1);
-        Iterator<Time> operation3StartTimes = generators.constantIncrementTime(workloadStartTime.plus(firstOperation3FromWorkloadStart), readOperation3Interleave);
-        Iterator<Operation<?>> readOperation3Stream = generators.startTimeAssigning(operation3StartTimes, operation3StreamWithoutTimes);
+        Duration firstOperation3FromWorkloadStart = readOperation3Interleave;
+        Iterator<Time> operation3StartTimes = gf.constantIncrementTime(workloadStartTime.plus(firstOperation3FromWorkloadStart), readOperation3Interleave);
+        Iterator<Operation<?>> readOperation3Stream = gf.startTimeAssigning(operation3StartTimes, operation3StreamWithoutTimes);
 
-        Iterator<Operation<?>> operation4StreamWithoutTimes = new Query4EventStreamReader(generators.repeating(readOperation4FileReader), EventReturnPolicy.AT_LEAST_ONE_MATCH);
+        Iterator<Operation<?>> operation4StreamWithoutTimes = new Query4EventStreamReader(gf.repeating(readOperation4FileReader), EventReturnPolicy.AT_LEAST_ONE_MATCH);
         // TODO add parameter, or do in more intelligent way
-        Duration firstOperation4FromWorkloadStart = Duration.fromSeconds(1);
-        Iterator<Time> operation4StartTimes = generators.constantIncrementTime(workloadStartTime.plus(firstOperation4FromWorkloadStart), readOperation4Interleave);
-        Iterator<Operation<?>> readOperation4Stream = generators.startTimeAssigning(operation4StartTimes, operation4StreamWithoutTimes);
+        Duration firstOperation4FromWorkloadStart = readOperation4Interleave;
+        Iterator<Time> operation4StartTimes = gf.constantIncrementTime(workloadStartTime.plus(firstOperation4FromWorkloadStart), readOperation4Interleave);
+        Iterator<Operation<?>> readOperation4Stream = gf.startTimeAssigning(operation4StartTimes, operation4StreamWithoutTimes);
 
-        Iterator<Operation<?>> operation5StreamWithoutTimes = new Query5EventStreamReader(generators.repeating(readOperation5FileReader), EventReturnPolicy.AT_LEAST_ONE_MATCH);
+        Iterator<Operation<?>> operation5StreamWithoutTimes = new Query5EventStreamReader(gf.repeating(readOperation5FileReader), EventReturnPolicy.AT_LEAST_ONE_MATCH);
         // TODO add parameter, or do in more intelligent way
-        Duration firstOperation5FromWorkloadStart = Duration.fromSeconds(1);
-        Iterator<Time> operation5StartTimes = generators.constantIncrementTime(workloadStartTime.plus(firstOperation5FromWorkloadStart), readOperation5Interleave);
-        Iterator<Operation<?>> readOperation5Stream = generators.startTimeAssigning(operation5StartTimes, operation5StreamWithoutTimes);
+        Duration firstOperation5FromWorkloadStart = readOperation5Interleave;
+        Iterator<Time> operation5StartTimes = gf.constantIncrementTime(workloadStartTime.plus(firstOperation5FromWorkloadStart), readOperation5Interleave);
+        Iterator<Operation<?>> readOperation5Stream = gf.startTimeAssigning(operation5StartTimes, operation5StreamWithoutTimes);
 
-        Iterator<Operation<?>> operation6StreamWithoutTimes = new Query6EventStreamReader(generators.repeating(readOperation6FileReader), EventReturnPolicy.AT_LEAST_ONE_MATCH);
+        Iterator<Operation<?>> operation6StreamWithoutTimes = new Query6EventStreamReader(gf.repeating(readOperation6FileReader), EventReturnPolicy.AT_LEAST_ONE_MATCH);
         // TODO add parameter, or do in more intelligent way
-        Duration firstOperation6FromWorkloadStart = Duration.fromSeconds(1);
-        Iterator<Time> operation6StartTimes = generators.constantIncrementTime(workloadStartTime.plus(firstOperation6FromWorkloadStart), readOperation6Interleave);
-        Iterator<Operation<?>> readOperation6Stream = generators.startTimeAssigning(operation6StartTimes, operation6StreamWithoutTimes);
+        Duration firstOperation6FromWorkloadStart = readOperation6Interleave;
+        Iterator<Time> operation6StartTimes = gf.constantIncrementTime(workloadStartTime.plus(firstOperation6FromWorkloadStart), readOperation6Interleave);
+        Iterator<Operation<?>> readOperation6Stream = gf.startTimeAssigning(operation6StartTimes, operation6StreamWithoutTimes);
 
-        Iterator<Operation<?>> operation7StreamWithoutTimes = new Query7EventStreamReader(generators.repeating(readOperation7FileReader), EventReturnPolicy.AT_LEAST_ONE_MATCH);
+        Iterator<Operation<?>> operation7StreamWithoutTimes = new Query7EventStreamReader(gf.repeating(readOperation7FileReader), EventReturnPolicy.AT_LEAST_ONE_MATCH);
         // TODO add parameter, or do in more intelligent way
-        Duration firstOperation7FromWorkloadStart = Duration.fromSeconds(1);
-        Iterator<Time> operation7StartTimes = generators.constantIncrementTime(workloadStartTime.plus(firstOperation7FromWorkloadStart), readOperation7Interleave);
-        Iterator<Operation<?>> readOperation7Stream = generators.startTimeAssigning(operation7StartTimes, operation7StreamWithoutTimes);
+        Duration firstOperation7FromWorkloadStart = readOperation7Interleave;
+        Iterator<Time> operation7StartTimes = gf.constantIncrementTime(workloadStartTime.plus(firstOperation7FromWorkloadStart), readOperation7Interleave);
+        Iterator<Operation<?>> readOperation7Stream = gf.startTimeAssigning(operation7StartTimes, operation7StreamWithoutTimes);
 
-        Iterator<Operation<?>> operation8StreamWithoutTimes = new Query8EventStreamReader(generators.repeating(readOperation8FileReader), EventReturnPolicy.AT_LEAST_ONE_MATCH);
+        Iterator<Operation<?>> operation8StreamWithoutTimes = new Query8EventStreamReader(gf.repeating(readOperation8FileReader), EventReturnPolicy.AT_LEAST_ONE_MATCH);
         // TODO add parameter, or do in more intelligent way
-        Duration firstOperation8FromWorkloadStart = Duration.fromSeconds(1);
-        Iterator<Time> operation8StartTimes = generators.constantIncrementTime(workloadStartTime.plus(firstOperation8FromWorkloadStart), readOperation8Interleave);
-        Iterator<Operation<?>> readOperation8Stream = generators.startTimeAssigning(operation8StartTimes, operation8StreamWithoutTimes);
+        Duration firstOperation8FromWorkloadStart = readOperation8Interleave;
+        Iterator<Time> operation8StartTimes = gf.constantIncrementTime(workloadStartTime.plus(firstOperation8FromWorkloadStart), readOperation8Interleave);
+        Iterator<Operation<?>> readOperation8Stream = gf.startTimeAssigning(operation8StartTimes, operation8StreamWithoutTimes);
 
-        Iterator<Operation<?>> operation9StreamWithoutTimes = new Query9EventStreamReader(generators.repeating(readOperation9FileReader), EventReturnPolicy.AT_LEAST_ONE_MATCH);
+        Iterator<Operation<?>> operation9StreamWithoutTimes = new Query9EventStreamReader(gf.repeating(readOperation9FileReader), EventReturnPolicy.AT_LEAST_ONE_MATCH);
         // TODO add parameter, or do in more intelligent way
-        Duration firstOperation9FromWorkloadStart = Duration.fromSeconds(1);
-        Iterator<Time> operation9StartTimes = generators.constantIncrementTime(workloadStartTime.plus(firstOperation9FromWorkloadStart), readOperation9Interleave);
-        Iterator<Operation<?>> readOperation9Stream = generators.startTimeAssigning(operation9StartTimes, operation9StreamWithoutTimes);
+        Duration firstOperation9FromWorkloadStart = readOperation9Interleave;
+        Iterator<Time> operation9StartTimes = gf.constantIncrementTime(workloadStartTime.plus(firstOperation9FromWorkloadStart), readOperation9Interleave);
+        Iterator<Operation<?>> readOperation9Stream = gf.startTimeAssigning(operation9StartTimes, operation9StreamWithoutTimes);
 
-        Iterator<Operation<?>> operation10StreamWithoutTimes = new Query10EventStreamReader(generators.repeating(readOperation10FileReader), EventReturnPolicy.AT_LEAST_ONE_MATCH);
+        Iterator<Operation<?>> operation10StreamWithoutTimes = new Query10EventStreamReader(gf.repeating(readOperation10FileReader), EventReturnPolicy.AT_LEAST_ONE_MATCH);
         // TODO add parameter, or do in more intelligent way
-        Duration firstOperation10FromWorkloadStart = Duration.fromSeconds(1);
-        Iterator<Time> operation10StartTimes = generators.constantIncrementTime(workloadStartTime.plus(firstOperation10FromWorkloadStart), readOperation10Interleave);
-        Iterator<Operation<?>> readOperation10Stream = generators.startTimeAssigning(operation10StartTimes, operation10StreamWithoutTimes);
+        Duration firstOperation10FromWorkloadStart = readOperation10Interleave;
+        Iterator<Time> operation10StartTimes = gf.constantIncrementTime(workloadStartTime.plus(firstOperation10FromWorkloadStart), readOperation10Interleave);
+        Iterator<Operation<?>> readOperation10Stream = gf.startTimeAssigning(operation10StartTimes, operation10StreamWithoutTimes);
 
-        Iterator<Operation<?>> operation11StreamWithoutTimes = new Query11EventStreamReader(generators.repeating(readOperation11FileReader), EventReturnPolicy.AT_LEAST_ONE_MATCH);
+        Iterator<Operation<?>> operation11StreamWithoutTimes = new Query11EventStreamReader(gf.repeating(readOperation11FileReader), EventReturnPolicy.AT_LEAST_ONE_MATCH);
         // TODO add parameter, or do in more intelligent way
-        Duration firstOperation11FromWorkloadStart = Duration.fromSeconds(1);
-        Iterator<Time> operation11StartTimes = generators.constantIncrementTime(workloadStartTime.plus(firstOperation11FromWorkloadStart), readOperation11Interleave);
-        Iterator<Operation<?>> readOperation11Stream = generators.startTimeAssigning(operation11StartTimes, operation11StreamWithoutTimes);
+        Duration firstOperation11FromWorkloadStart = readOperation11Interleave;
+        Iterator<Time> operation11StartTimes = gf.constantIncrementTime(workloadStartTime.plus(firstOperation11FromWorkloadStart), readOperation11Interleave);
+        Iterator<Operation<?>> readOperation11Stream = gf.startTimeAssigning(operation11StartTimes, operation11StreamWithoutTimes);
 
-        Iterator<Operation<?>> operation12StreamWithoutTimes = new Query12EventStreamReader(generators.repeating(readOperation12FileReader), EventReturnPolicy.AT_LEAST_ONE_MATCH);
+        Iterator<Operation<?>> operation12StreamWithoutTimes = new Query12EventStreamReader(gf.repeating(readOperation12FileReader), EventReturnPolicy.AT_LEAST_ONE_MATCH);
         // TODO add parameter, or do in more intelligent way
-        Duration firstOperation12FromWorkloadStart = Duration.fromSeconds(1);
-        Iterator<Time> operation12StartTimes = generators.constantIncrementTime(workloadStartTime.plus(firstOperation12FromWorkloadStart), readOperation12Interleave);
-        Iterator<Operation<?>> readOperation12Stream = generators.startTimeAssigning(operation12StartTimes, operation12StreamWithoutTimes);
+        Duration firstOperation12FromWorkloadStart = readOperation12Interleave;
+        Iterator<Time> operation12StartTimes = gf.constantIncrementTime(workloadStartTime.plus(firstOperation12FromWorkloadStart), readOperation12Interleave);
+        Iterator<Operation<?>> readOperation12Stream = gf.startTimeAssigning(operation12StartTimes, operation12StreamWithoutTimes);
 
-        Iterator<Operation<?>> operation13StreamWithoutTimes = new Query13EventStreamReader(generators.repeating(readOperation13FileReader), EventReturnPolicy.AT_LEAST_ONE_MATCH);
+        Iterator<Operation<?>> operation13StreamWithoutTimes = new Query13EventStreamReader(gf.repeating(readOperation13FileReader), EventReturnPolicy.AT_LEAST_ONE_MATCH);
         // TODO add parameter, or do in more intelligent way
-        Duration firstOperation13FromWorkloadStart = Duration.fromSeconds(1);
-        Iterator<Time> operation13StartTimes = generators.constantIncrementTime(workloadStartTime.plus(firstOperation13FromWorkloadStart), readOperation13Interleave);
-        Iterator<Operation<?>> readOperation13Stream = generators.startTimeAssigning(operation13StartTimes, operation13StreamWithoutTimes);
+        Duration firstOperation13FromWorkloadStart = readOperation13Interleave;
+        Iterator<Time> operation13StartTimes = gf.constantIncrementTime(workloadStartTime.plus(firstOperation13FromWorkloadStart), readOperation13Interleave);
+        Iterator<Operation<?>> readOperation13Stream = gf.startTimeAssigning(operation13StartTimes, operation13StreamWithoutTimes);
 
-        Iterator<Operation<?>> operation14StreamWithoutTimes = new Query14EventStreamReader(generators.repeating(readOperation14FileReader), EventReturnPolicy.AT_LEAST_ONE_MATCH);
+        Iterator<Operation<?>> operation14StreamWithoutTimes = new Query14EventStreamReader(gf.repeating(readOperation14FileReader), EventReturnPolicy.AT_LEAST_ONE_MATCH);
         // TODO add parameter, or do in more intelligent way
-        Duration firstOperation14FromWorkloadStart = Duration.fromSeconds(1);
-        Iterator<Time> operation14StartTimes = generators.constantIncrementTime(workloadStartTime.plus(firstOperation14FromWorkloadStart), readOperation14Interleave);
-        Iterator<Operation<?>> readOperation14Stream = generators.startTimeAssigning(operation14StartTimes, operation14StreamWithoutTimes);
+        Duration firstOperation14FromWorkloadStart = readOperation14Interleave;
+        Iterator<Time> operation14StartTimes = gf.constantIncrementTime(workloadStartTime.plus(firstOperation14FromWorkloadStart), readOperation14Interleave);
+        Iterator<Operation<?>> readOperation14Stream = gf.startTimeAssigning(operation14StartTimes, operation14StreamWithoutTimes);
 
         /*
          * Create write operations stream
@@ -551,7 +551,7 @@ public class LdbcSnbInteractiveWorkload extends Workload {
          */
         // TODO add parameter, or do in more intelligent way
         Duration firstWriteOperationFromWorkloadStart = Duration.fromSeconds(1);
-        Iterator<Operation<?>> writeOperationStream = generators.timeOffset(unfilteredWriteOperationStream, workloadStartTime.plus(firstWriteOperationFromWorkloadStart));
+        Iterator<Operation<?>> writeOperationStream = gf.timeOffset(unfilteredWriteOperationStream, workloadStartTime.plus(firstWriteOperationFromWorkloadStart));
 
         List<Iterator<Operation<?>>> enabledOperations = new ArrayList<>();
         if (false == writeOperationFilter.isEmpty()) enabledOperations.add(writeOperationStream);
@@ -574,7 +574,7 @@ public class LdbcSnbInteractiveWorkload extends Workload {
          * Merge all operation streams, ordered by operation start times
          */
         Iterator<Operation<?>> readAndWriteOperations =
-                generators.mergeSortOperationsByStartTime(enabledOperations.toArray(new Iterator[enabledOperations.size()]));
+                gf.mergeSortOperationsByStartTime(enabledOperations.toArray(new Iterator[enabledOperations.size()]));
 
         return readAndWriteOperations;
     }

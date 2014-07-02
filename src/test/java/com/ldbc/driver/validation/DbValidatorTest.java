@@ -4,6 +4,8 @@ import com.google.common.collect.Lists;
 import com.ldbc.driver.Db;
 import com.ldbc.driver.DbException;
 import com.ldbc.driver.WorkloadException;
+import com.ldbc.driver.generator.GeneratorFactory;
+import com.ldbc.driver.util.RandomDataGeneratorFactory;
 import com.ldbc.driver.workloads.ldbc.snb.interactive.*;
 import com.ldbc.driver.workloads.ldbc.snb.interactive.db.DummyDb;
 import com.ldbc.driver.workloads.ldbc.snb.interactive.db.DummyLdbcSnbInteractiveOperationInstances;
@@ -21,17 +23,19 @@ public class DbValidatorTest {
     @Test
     public void shouldFailValidationWhenDbImplementationIsIncorrect() throws DbException, WorkloadException {
         // Given
-        List<ValidationParam> validationParamsList = buildParams();
+        GeneratorFactory gf = new GeneratorFactory(new RandomDataGeneratorFactory(42l));
+        List<ValidationParam> correctValidationParamsList = Lists.newArrayList(gf.limit(gf.repeating(buildParams().iterator()), 10000));
 
         LdbcQuery14 operation14 = DummyLdbcSnbInteractiveOperationInstances.read14();
         List<LdbcQuery14Result> unexpectedResult4 = Lists.newArrayList(
                 DummyLdbcSnbInteractiveOperationResultInstances.read14Result(),
                 DummyLdbcSnbInteractiveOperationResultInstances.read14Result()
         );
-        ValidationParam unexpectedValidationParam14 = new ValidationParam(operation14, unexpectedResult4);
-        validationParamsList.add(unexpectedValidationParam14);
 
-        Iterator<ValidationParam> validationParams = validationParamsList.iterator();
+        ValidationParam unexpectedValidationParam14 = new ValidationParam(operation14, unexpectedResult4);
+        correctValidationParamsList.add(unexpectedValidationParam14);
+
+        Iterator<ValidationParam> validationParams = correctValidationParamsList.iterator();
         Db db = new DummyDb();
         db.init(new HashMap<String, String>());
         DbValidator dbValidator = new DbValidator();
@@ -40,14 +44,14 @@ public class DbValidatorTest {
         DbValidator.DbValidationResult validationResult = dbValidator.validate(validationParams, db);
 
         // Then
-        assertThat(String.format("Validation Result\n%s", validationResult.errorMessage()),
-                validationResult.isSuccessful(), is(false));
+        assertThat(validationResult.isSuccessful(), is(false));
     }
 
     @Test
     public void shouldPassValidationWhenDbImplementationIsCorrect() throws WorkloadException, DbException {
         // Given
-        Iterator<ValidationParam> validationParams = buildParams().iterator();
+        GeneratorFactory gf = new GeneratorFactory(new RandomDataGeneratorFactory(42l));
+        Iterator<ValidationParam> validationParams = gf.limit(gf.repeating(buildParams().iterator()), 10000);
         Db db = new DummyDb();
         db.init(new HashMap<String, String>());
         DbValidator dbValidator = new DbValidator();

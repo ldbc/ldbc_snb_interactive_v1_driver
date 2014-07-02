@@ -4,9 +4,9 @@ import com.google.common.base.Function;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Iterators;
 import com.ldbc.driver.*;
-import com.ldbc.driver.control.DriverConfigurationFileTestHelper;
 import com.ldbc.driver.control.ConsoleAndFileDriverConfiguration;
 import com.ldbc.driver.control.DriverConfigurationException;
+import com.ldbc.driver.control.DriverConfigurationFileTestHelper;
 import com.ldbc.driver.control.LocalControlService;
 import com.ldbc.driver.generator.GeneratorFactory;
 import com.ldbc.driver.temporal.Duration;
@@ -48,6 +48,7 @@ public class SimpleWorkloadTest {
         boolean validateWorkload = false;
         boolean calculateWorkloadStatistics = false;
         Duration spinnerSleepDuration = Duration.fromMilli(0);
+        boolean printHelp = false;
 
         ConsoleAndFileDriverConfiguration params =
                 new ConsoleAndFileDriverConfiguration(
@@ -67,7 +68,8 @@ public class SimpleWorkloadTest {
                         dbValidationFilePath,
                         validateWorkload,
                         calculateWorkloadStatistics,
-                        spinnerSleepDuration);
+                        spinnerSleepDuration,
+                        printHelp);
 
         Workload workload = new SimpleWorkload();
         workload.init(params);
@@ -123,6 +125,7 @@ public class SimpleWorkloadTest {
         boolean validateWorkload = false;
         boolean calculateWorkloadStatistics = false;
         Duration spinnerSleepDuration = Duration.fromMilli(0);
+        boolean printHelp = false;
 
         ConsoleAndFileDriverConfiguration params =
                 new ConsoleAndFileDriverConfiguration(
@@ -142,7 +145,8 @@ public class SimpleWorkloadTest {
                         dbValidationFilePath,
                         validateWorkload,
                         calculateWorkloadStatistics,
-                        spinnerSleepDuration);
+                        spinnerSleepDuration,
+                        printHelp);
 
         Workload workloadA = new SimpleWorkload();
         workloadA.init(params);

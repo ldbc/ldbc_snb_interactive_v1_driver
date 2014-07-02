@@ -31,7 +31,7 @@ public interface DriverConfiguration {
 
     Duration toleratedExecutionDelay();
 
-    ValidationParamOptions validationCreationParams();
+    ValidationParamOptions validationParamsCreationOptions();
 
     String databaseValidationFilePath();
 
@@ -40,6 +40,10 @@ public interface DriverConfiguration {
     boolean calculateWorkloadStatistics();
 
     Duration spinnerSleepDuration();
+
+    boolean shouldPrintHelpString();
+
+    String helpString();
 
     Map<String, String> asMap();
 
