@@ -3,6 +3,7 @@ package com.ldbc.driver.control;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import com.ldbc.driver.Client;
+import com.ldbc.driver.OperationClassification;
 import com.ldbc.driver.temporal.Duration;
 import com.ldbc.driver.util.MapUtils;
 import com.ldbc.driver.workloads.ldbc.snb.interactive.LdbcSnbInteractiveWorkload;
@@ -121,6 +122,13 @@ public class ConsoleAndFileDriverConfiguration implements DriverConfiguration {
     public static final String GCT_DELTA_DURATION_DEFAULT_STRING = Long.toString(GCT_DELTA_DURATION_DEFAULT.asMilli());
     private static final String GCT_DELTA_DURATION_DESCRIPTION = "safe duration (ms) between dependent operations";
 
+    public static final String WINDOWED_EXECUTION_WINDOW_DURATION_ARG = "wd";
+    private static final String WINDOWED_EXECUTION_WINDOW_DURATION_ARG_LONG = "windowduraiton";
+    public static final Duration WINDOWED_EXECUTION_WINDOW_DURATION_DEFAULT = Duration.fromSeconds(1);
+    public static final String WINDOWED_EXECUTION_WINDOW_DURATION_DEFAULT_STRING = Long.toString(WINDOWED_EXECUTION_WINDOW_DURATION_DEFAULT.asMilli());
+    private static final String WINDOWED_EXECUTION_WINDOW_DURATION_DESCRIPTION = "duration (ms) an operation handler may miss its scheduled start time by";
+
+
     public static final String PEER_IDS_ARG = "pids";
     private static final String PEER_IDS_ARG_LONG = "peeridentifiers";
     public static final Set<String> PEER_IDS_DEFAULT = Sets.newHashSet();
@@ -169,6 +177,7 @@ public class ConsoleAndFileDriverConfiguration implements DriverConfiguration {
         defaultParamsMap.put(TIME_UNIT_ARG, TIME_UNIT_DEFAULT_STRING);
         defaultParamsMap.put(TIME_COMPRESSION_RATIO_ARG, TIME_COMPRESSION_RATIO_DEFAULT_STRING);
         defaultParamsMap.put(GCT_DELTA_DURATION_ARG, GCT_DELTA_DURATION_DEFAULT_STRING);
+        defaultParamsMap.put(WINDOWED_EXECUTION_WINDOW_DURATION_ARG, WINDOWED_EXECUTION_WINDOW_DURATION_DEFAULT_STRING);
         defaultParamsMap.put(PEER_IDS_ARG, PEER_IDS_DEFAULT_STRING);
         defaultParamsMap.put(TOLERATED_EXECUTION_DELAY_ARG, TOLERATED_EXECUTION_DELAY_DEFAULT_STRING);
         defaultParamsMap.put(SPINNER_SLEEP_DURATION_ARG, SPINNER_SLEEP_DURATION_DEFAULT_STRING);
@@ -218,6 +227,7 @@ public class ConsoleAndFileDriverConfiguration implements DriverConfiguration {
             String resultFilePath = paramsMap.get(RESULT_FILE_PATH_ARG);
             double timeCompressionRatio = Double.parseDouble(paramsMap.get(TIME_COMPRESSION_RATIO_ARG));
             Duration gctDeltaDuration = Duration.fromMilli(Long.parseLong(paramsMap.get(GCT_DELTA_DURATION_ARG)));
+            Duration windowedExecutionWindowDuration = Duration.fromMilli(Long.parseLong(paramsMap.get(WINDOWED_EXECUTION_WINDOW_DURATION_ARG)));
             Set<String> peerIds = parsePeerIdsFromCommandline(paramsMap.get(PEER_IDS_ARG));
             Duration toleratedExecutionDelay = Duration.fromMilli(Long.parseLong(paramsMap.get(TOLERATED_EXECUTION_DELAY_ARG)));
             ConsoleAndFileValidationParamOptions databaseConsoleAndFileValidationParams =
@@ -240,6 +250,7 @@ public class ConsoleAndFileDriverConfiguration implements DriverConfiguration {
                     resultFilePath,
                     timeCompressionRatio,
                     gctDeltaDuration,
+                    windowedExecutionWindowDuration,
                     peerIds,
                     toleratedExecutionDelay,
                     databaseConsoleAndFileValidationParams,
@@ -306,6 +317,9 @@ public class ConsoleAndFileDriverConfiguration implements DriverConfiguration {
 
         if (cmd.hasOption(GCT_DELTA_DURATION_ARG))
             cmdParams.put(GCT_DELTA_DURATION_ARG, cmd.getOptionValue(GCT_DELTA_DURATION_ARG));
+
+        if (cmd.hasOption(WINDOWED_EXECUTION_WINDOW_DURATION_ARG))
+            cmdParams.put(WINDOWED_EXECUTION_WINDOW_DURATION_ARG, cmd.getOptionValue(WINDOWED_EXECUTION_WINDOW_DURATION_ARG));
 
         if (cmd.hasOption(TOLERATED_EXECUTION_DELAY_ARG))
             cmdParams.put(TOLERATED_EXECUTION_DELAY_ARG, cmd.getOptionValue(TOLERATED_EXECUTION_DELAY_ARG));
@@ -381,6 +395,7 @@ public class ConsoleAndFileDriverConfiguration implements DriverConfiguration {
         paramsMap = replaceKey(paramsMap, RESULT_FILE_PATH_ARG_LONG, RESULT_FILE_PATH_ARG);
         paramsMap = replaceKey(paramsMap, TIME_COMPRESSION_RATIO_ARG_LONG, TIME_COMPRESSION_RATIO_ARG);
         paramsMap = replaceKey(paramsMap, GCT_DELTA_DURATION_ARG_LONG, GCT_DELTA_DURATION_ARG);
+        paramsMap = replaceKey(paramsMap, WINDOWED_EXECUTION_WINDOW_DURATION_ARG_LONG, WINDOWED_EXECUTION_WINDOW_DURATION_ARG);
         paramsMap = replaceKey(paramsMap, PEER_IDS_ARG_LONG, PEER_IDS_ARG);
         paramsMap = replaceKey(paramsMap, TOLERATED_EXECUTION_DELAY_ARG_LONG, TOLERATED_EXECUTION_DELAY_ARG);
         paramsMap = replaceKey(paramsMap, CREATE_VALIDATION_PARAMS_ARG_LONG, CREATE_VALIDATION_PARAMS_ARG);
@@ -444,6 +459,10 @@ public class ConsoleAndFileDriverConfiguration implements DriverConfiguration {
         Option gctDeltaDurationOption = OptionBuilder.hasArgs(1).withArgName("duration").withDescription(GCT_DELTA_DURATION_DESCRIPTION).withLongOpt(
                 GCT_DELTA_DURATION_ARG_LONG).create(GCT_DELTA_DURATION_ARG);
         options.addOption(gctDeltaDurationOption);
+
+        Option windowedExecutionWindowDurationOption = OptionBuilder.hasArgs(1).withArgName("duration").withDescription(WINDOWED_EXECUTION_WINDOW_DURATION_DESCRIPTION).withLongOpt(
+                WINDOWED_EXECUTION_WINDOW_DURATION_ARG_LONG).create(WINDOWED_EXECUTION_WINDOW_DURATION_ARG);
+        options.addOption(windowedExecutionWindowDurationOption);
 
         Option peerIdsOption = OptionBuilder.hasArgs().withValueSeparator(COMMANDLINE_SEPARATOR_CHAR).withArgName("peerId1" + COMMANDLINE_SEPARATOR_CHAR + "peerId2").withDescription(
                 PEER_IDS_DESCRIPTION).withLongOpt(PEER_IDS_ARG_LONG).create(PEER_IDS_ARG);
@@ -526,6 +545,7 @@ public class ConsoleAndFileDriverConfiguration implements DriverConfiguration {
                 RESULT_FILE_PATH_ARG,
                 TIME_COMPRESSION_RATIO_ARG,
                 GCT_DELTA_DURATION_ARG,
+                WINDOWED_EXECUTION_WINDOW_DURATION_ARG,
                 PEER_IDS_ARG,
                 TOLERATED_EXECUTION_DELAY_ARG,
                 CREATE_VALIDATION_PARAMS_ARG,
@@ -566,6 +586,7 @@ public class ConsoleAndFileDriverConfiguration implements DriverConfiguration {
     private final String resultFilePath;
     private final double timeCompressionRatio;
     private final Duration gctDeltaDuration;
+    private final Duration windowedExecutionWindowDuration;
     private final Set<String> peerIds;
     private final Duration toleratedExecutionDelay;
     private final ConsoleAndFileValidationParamOptions validationCreationParams;
@@ -585,6 +606,7 @@ public class ConsoleAndFileDriverConfiguration implements DriverConfiguration {
                                              String resultFilePath,
                                              double timeCompressionRatio,
                                              Duration gctDeltaDuration,
+                                             Duration windowedExecutionWindowDuration,
                                              Set<String> peerIds,
                                              Duration toleratedExecutionDelay,
                                              ConsoleAndFileValidationParamOptions validationCreationParams,
@@ -611,6 +633,7 @@ public class ConsoleAndFileDriverConfiguration implements DriverConfiguration {
         this.calculateWorkloadStatistics = calculateWorkloadStatistics;
         this.spinnerSleepDuration = spinnerSleepDuration;
         this.printHelp = printHelp;
+        this.windowedExecutionWindowDuration = windowedExecutionWindowDuration;
     }
 
     @Override
@@ -659,6 +682,11 @@ public class ConsoleAndFileDriverConfiguration implements DriverConfiguration {
     @Override
     public Duration gctDeltaDuration() {
         return gctDeltaDuration;
+    }
+
+    @Override
+    public Duration windowedExecutionWindowDuration() {
+        return windowedExecutionWindowDuration;
     }
 
     @Override
@@ -758,6 +786,9 @@ public class ConsoleAndFileDriverConfiguration implements DriverConfiguration {
         Duration newGctDeltaDuration = (newParamsMapWithShortKeys.containsKey(GCT_DELTA_DURATION_ARG)) ?
                 Duration.fromMilli(Long.parseLong(newParamsMapWithShortKeys.get(GCT_DELTA_DURATION_ARG))) :
                 gctDeltaDuration;
+        Duration newWindowedExecutionWindowDuration = (newParamsMapWithShortKeys.containsKey(WINDOWED_EXECUTION_WINDOW_DURATION_ARG)) ?
+                Duration.fromMilli(Long.parseLong(newParamsMapWithShortKeys.get(WINDOWED_EXECUTION_WINDOW_DURATION_ARG))) :
+                windowedExecutionWindowDuration;
         Set<String> newPeerIds = (newParamsMapWithShortKeys.containsKey(PEER_IDS_ARG)) ?
                 parsePeerIdsFromCommandline(newParamsMapWithShortKeys.get(PEER_IDS_ARG)) :
                 peerIds;
@@ -794,6 +825,7 @@ public class ConsoleAndFileDriverConfiguration implements DriverConfiguration {
                 newResultFilePath,
                 newTimeCompressionRatio,
                 newGctDeltaDuration,
+                newWindowedExecutionWindowDuration,
                 newPeerIds,
                 newToleratedExecutionDelay,
                 newValidationParams,
@@ -821,6 +853,7 @@ public class ConsoleAndFileDriverConfiguration implements DriverConfiguration {
         argsList.addAll(Lists.newArrayList("-" + TIME_UNIT_ARG, timeUnit.name()));
         argsList.addAll(Lists.newArrayList("-" + TIME_COMPRESSION_RATIO_ARG, Double.toString(timeCompressionRatio)));
         argsList.addAll(Lists.newArrayList("-" + GCT_DELTA_DURATION_ARG, Long.toString(gctDeltaDuration.asMilli())));
+        argsList.addAll(Lists.newArrayList("-" + WINDOWED_EXECUTION_WINDOW_DURATION_ARG, Long.toString(windowedExecutionWindowDuration.asMilli())));
         if (false == peerIds.isEmpty())
             argsList.addAll(Lists.newArrayList("-" + PEER_IDS_ARG, serializePeerIdsToCommandline(peerIds)));
         argsList.addAll(Lists.newArrayList("-" + TOLERATED_EXECUTION_DELAY_ARG, Long.toString(toleratedExecutionDelay.asMilli())));
@@ -888,6 +921,10 @@ public class ConsoleAndFileDriverConfiguration implements DriverConfiguration {
         sb.append("#            if you change " + TIME_COMPRESSION_RATIO_ARG_LONG + " change " + GCT_DELTA_DURATION_ARG_LONG + " proportionately\n");
         sb.append("# LONG (milliseconds)\n");
         sb.append(GCT_DELTA_DURATION_ARG_LONG).append("=").append(gctDeltaDuration.asMilli()).append("\n");
+        sb.append("\n");
+        sb.append("# size (i.e., duration) of execution window used by the ").append(OperationClassification.SchedulingMode.WINDOWED.name()).append(" scheduling mode\n");
+        sb.append("# LONG (milliseconds)\n");
+        sb.append(WINDOWED_EXECUTION_WINDOW_DURATION_ARG_LONG).append("=").append(windowedExecutionWindowDuration.asMilli()).append("\n");
         sb.append("\n");
         sb.append("# NOT USED AT PRESENT - reserved for distributed driver mode\n");
         sb.append("# specifies the addresses of other driver processes, so they can find each other\n");
@@ -988,6 +1025,7 @@ public class ConsoleAndFileDriverConfiguration implements DriverConfiguration {
         sb.append("\t").append(String.format("%1$-" + padRightDistance + "s", "Result File:")).append(resultFilePath()).append("\n");
         sb.append("\t").append(String.format("%1$-" + padRightDistance + "s", "Time Compression Ratio:")).append(timeCompressionRatio).append("\n");
         sb.append("\t").append(String.format("%1$-" + padRightDistance + "s", "GCT Delta:")).append(gctDeltaDuration.asMilli()).append(" (ms) / ").append(gctDeltaDuration).append("\n");
+        sb.append("\t").append(String.format("%1$-" + padRightDistance + "s", "Execution Window Size:")).append(gctDeltaDuration.asMilli()).append(" (ms) / ").append(gctDeltaDuration).append("\n");
         sb.append("\t").append(String.format("%1$-" + padRightDistance + "s", "Compressed GCT Delta:")).append(compressedGctDeltaDuration().asMilli()).append(" (ms) / ").append(compressedGctDeltaDuration()).append("\n");
         sb.append("\t").append(String.format("%1$-" + padRightDistance + "s", "Peer IDs:")).append(peerIds.toString()).append("\n");
         sb.append("\t").append(String.format("%1$-" + padRightDistance + "s", "Tolerated Execution Delay:")).append(toleratedExecutionDelay.asMilli()).append(" (ms) / ").append(toleratedExecutionDelay).append("\n");
@@ -1040,6 +1078,8 @@ public class ConsoleAndFileDriverConfiguration implements DriverConfiguration {
             return false;
         if (validationCreationParams != null ? !validationCreationParams.equals(that.validationCreationParams) : that.validationCreationParams != null)
             return false;
+        if (windowedExecutionWindowDuration != null ? !windowedExecutionWindowDuration.equals(that.windowedExecutionWindowDuration) : that.windowedExecutionWindowDuration != null)
+            return false;
         if (workloadClassName != null ? !workloadClassName.equals(that.workloadClassName) : that.workloadClassName != null)
             return false;
 
@@ -1068,6 +1108,7 @@ public class ConsoleAndFileDriverConfiguration implements DriverConfiguration {
         result = 31 * result + (calculateWorkloadStatistics ? 1 : 0);
         result = 31 * result + (spinnerSleepDuration != null ? spinnerSleepDuration.hashCode() : 0);
         result = 31 * result + (printHelp ? 1 : 0);
+        result = 31 * result + (windowedExecutionWindowDuration != null ? windowedExecutionWindowDuration.hashCode() : 0);
         return result;
     }
 

@@ -56,7 +56,8 @@ public class WorkloadRunner {
                           Time workloadStartTime,
                           Duration toleratedExecutionDelayDuration,
                           Duration spinnerSleepDuration,
-                          Duration gctDeltaDuration) throws WorkloadException {
+                          Duration gctDeltaDuration,
+                          Duration executionWindowDuration) throws WorkloadException {
         this.TIME_SOURCE = timeSource;
         this.errorReporter = errorReporter;
         this.showStatus = showStatus;
@@ -115,9 +116,8 @@ public class WorkloadRunner {
         this.preciseIndividualBlockingOperationStreamExecutorService = new PreciseIndividualBlockingOperationStreamExecutorService(
                 TIME_SOURCE, errorReporter, blockingHandlers, earlySpinner, operationHandlerExecutor);
         // TODO better way of setting window size. it does not need to equal DeltaT, it can be smaller. where to set? how to set?
-        Duration windowSize = gctDeltaDuration;
         this.uniformWindowedOperationStreamExecutorService = new UniformWindowedOperationStreamExecutorService(
-                TIME_SOURCE, errorReporter, windowedHandlers, operationHandlerExecutor, earlySpinner, workloadStartTime, windowSize);
+                TIME_SOURCE, errorReporter, windowedHandlers, operationHandlerExecutor, earlySpinner, workloadStartTime, executionWindowDuration);
     }
 
     public void executeWorkload() throws WorkloadException {

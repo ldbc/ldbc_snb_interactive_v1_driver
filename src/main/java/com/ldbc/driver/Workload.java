@@ -2,6 +2,7 @@ package com.ldbc.driver;
 
 import com.ldbc.driver.control.DriverConfiguration;
 import com.ldbc.driver.generator.GeneratorFactory;
+import com.ldbc.driver.temporal.Duration;
 
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -9,10 +10,12 @@ import java.util.List;
 import java.util.Map;
 
 public abstract class Workload {
-    public static Class<Operation<?>>[] operationTypesBySchedulingMode(Map<Class<? extends Operation<?>>, OperationClassification> operationClassificationMapping,
-                                                                       OperationClassification.SchedulingMode schedulingMode) {
+    public static final Duration DEFAULT_MAXIMUM_EXPECTED_INTERLEAVE = Duration.fromMinutes(30);
+
+    public static final Class<Operation<?>>[] operationTypesBySchedulingMode(Map<Class<? extends Operation<?>>, OperationClassification> operationClassifications,
+                                                                             OperationClassification.SchedulingMode schedulingMode) {
         List<Class<? extends Operation<?>>> operationsBySchedulingMode = new ArrayList<>();
-        for (Map.Entry<Class<? extends Operation<?>>, OperationClassification> operationAndClassification : operationClassificationMapping.entrySet()) {
+        for (Map.Entry<Class<? extends Operation<?>>, OperationClassification> operationAndClassification : operationClassifications.entrySet()) {
             if (operationAndClassification.getValue().schedulingMode().equals(schedulingMode))
                 operationsBySchedulingMode.add(operationAndClassification.getKey());
         }
@@ -21,8 +24,6 @@ public abstract class Workload {
 
     private boolean isInitialized = false;
     private boolean isCleanedUp = false;
-
-    private long operationCount;
 
     public abstract Map<Class<? extends Operation<?>>, OperationClassification> operationClassifications();
 
@@ -34,15 +35,10 @@ public abstract class Workload {
             throw new WorkloadException("Workload may be initialized only once");
         }
         isInitialized = true;
-        this.operationCount = params.operationCount();
         onInit(params.asMap());
     }
 
-    protected long getOperationCount() {
-        return operationCount;
-    }
-
-    public abstract void onInit(Map<String, String> properties) throws WorkloadException;
+    public abstract void onInit(Map<String, String> params) throws WorkloadException;
 
     public final void cleanup() throws WorkloadException {
         if (isCleanedUp) {
@@ -54,9 +50,13 @@ public abstract class Workload {
 
     protected abstract void onCleanup() throws WorkloadException;
 
-    public final Iterator<Operation<?>> operations(GeneratorFactory generators)
+    // TODO should this method take start time and compression ratio as input and do compression + offset?
+    public final Iterator<Operation<?>> operations(GeneratorFactory generators, long operationCount)
             throws WorkloadException {
-        return generators.limit(createOperations(generators), getOperationCount());
+        if (false == isInitialized) {
+            throw new WorkloadException("Workload has not been initialized");
+        }
+        return generators.limit(createOperations(generators), operationCount);
     }
 
     protected abstract Iterator<Operation<?>> createOperations(GeneratorFactory generators)
@@ -64,6 +64,10 @@ public abstract class Workload {
 
     public boolean validationResultCheck(Operation<?> operation, Object operationResult) {
         return true;
+    }
+
+    public Duration maxExpectedInterleave() {
+        return DEFAULT_MAXIMUM_EXPECTED_INTERLEAVE;
     }
 
     public abstract String serializeOperation(Operation<?> operation) throws SerializingMarshallingException;

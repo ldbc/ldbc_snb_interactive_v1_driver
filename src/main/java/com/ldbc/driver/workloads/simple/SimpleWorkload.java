@@ -50,7 +50,7 @@ public class SimpleWorkload extends Workload {
     }
 
     @Override
-    public void onInit(Map<String, String> properties) {
+    public void onInit(Map<String, String> params) {
     }
 
     @Override

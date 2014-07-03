@@ -37,13 +37,13 @@ public class ConsoleAndFileDriverConfigurationTest {
 
     @Ignore
     @Test
-    public void addWindowSizeParameter() {
+    public void applyMapsShouldWork() {
         assertThat(true, is(false));
     }
 
     @Ignore
     @Test
-    public void applyMapsShouldWork() {
+    public void removeCompressedGctDeltaDurationFromConfigurationAndDoThisManually() {
         assertThat(true, is(false));
     }
 
@@ -372,6 +372,7 @@ public class ConsoleAndFileDriverConfigurationTest {
         String resultFilePath = null;
         Double timeCompressionRatio = 1.0;
         Duration gctDeltaDuration = Duration.fromMilli(1);
+        Duration windowedExecutionWindowDuration = Duration.fromMilli(1);
         Set<String> peerIds = Sets.newHashSet("1");
         Duration toleratedExecutionDelay = Duration.fromMilli(2);
         ConsoleAndFileDriverConfiguration.ConsoleAndFileValidationParamOptions validationParams = new ConsoleAndFileDriverConfiguration.ConsoleAndFileValidationParamOptions("file", 1);
@@ -392,6 +393,7 @@ public class ConsoleAndFileDriverConfigurationTest {
                 resultFilePath,
                 timeCompressionRatio,
                 gctDeltaDuration,
+                windowedExecutionWindowDuration,
                 peerIds,
                 toleratedExecutionDelay,
                 validationParams,

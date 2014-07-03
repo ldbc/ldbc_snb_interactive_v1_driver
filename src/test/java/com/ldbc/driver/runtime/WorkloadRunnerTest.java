@@ -88,6 +88,7 @@ public class WorkloadRunnerTest {
         FileUtils.deleteQuietly(new File(resultFilePath));
         double timeCompressionRatio = 1.0;
         Duration gctDeltaDuration = Duration.fromSeconds(10);
+        Duration windowedExecutionWindowDuration = Duration.fromSeconds(1);
         Set<String> peerIds = new HashSet<>();
         Duration toleratedExecutionDelay = Duration.fromMilli(100);
         ConsoleAndFileDriverConfiguration.ConsoleAndFileValidationParamOptions validationParams = null;
@@ -100,7 +101,7 @@ public class WorkloadRunnerTest {
         assertThat(new File(resultFilePath).exists(), is(false));
 
         ConsoleAndFileDriverConfiguration configuration = new ConsoleAndFileDriverConfiguration(paramsMap, dbClassName, workloadClassName, operationCount,
-                threadCount, showStatus, timeUnit, resultFilePath, timeCompressionRatio, gctDeltaDuration, peerIds, toleratedExecutionDelay,
+                threadCount, showStatus, timeUnit, resultFilePath, timeCompressionRatio, gctDeltaDuration, windowedExecutionWindowDuration, peerIds, toleratedExecutionDelay,
                 validationParams, dbValidationFilePath, validateWorkload, calculateWorkloadStatistics, spinnerSleepDuration, printHelp);
 
         ConcurrentControlService controlService = new LocalControlService(TIME_SOURCE.now().plus(Duration.fromMilli(1000)), configuration);
@@ -109,7 +110,7 @@ public class WorkloadRunnerTest {
         Workload workload = new LdbcSnbInteractiveWorkload();
         workload.init(configuration);
         GeneratorFactory generators = new GeneratorFactory(new RandomDataGeneratorFactory(42L));
-        Iterator<Operation<?>> operations = workload.operations(generators);
+        Iterator<Operation<?>> operations = workload.operations(generators, configuration.operationCount());
         Iterator<Operation<?>> timeMappedOperations = generators.timeOffsetAndCompress(operations, controlService.workloadStartTime(), 1.0);
         Map<Class<? extends Operation<?>>, OperationClassification> operationClassifications = workload.operationClassifications();
         ConcurrentErrorReporter errorReporter = new ConcurrentErrorReporter();
@@ -135,7 +136,8 @@ public class WorkloadRunnerTest {
                 controlService.workloadStartTime(),
                 controlService.configuration().toleratedExecutionDelay(),
                 controlService.configuration().spinnerSleepDuration(),
-                controlService.configuration().compressedGctDeltaDuration());
+                controlService.configuration().compressedGctDeltaDuration(),
+                controlService.configuration().windowedExecutionWindowDuration());
 
         runner.executeWorkload();
 
@@ -213,6 +215,7 @@ public class WorkloadRunnerTest {
         FileUtils.deleteQuietly(new File(resultFilePath));
         double timeCompressionRatio = 1.0;
         Duration gctDeltaDuration = Duration.fromMinutes(1);
+        Duration windowedExecutionWindowDuration = Duration.fromSeconds(1);
         Set<String> peerIds = new HashSet<>();
         Duration toleratedExecutionDelay = Duration.fromMilli(1000);
         ConsoleAndFileDriverConfiguration.ConsoleAndFileValidationParamOptions validationParams = null;
@@ -226,7 +229,7 @@ public class WorkloadRunnerTest {
         assertThat(new File(resultFilePath).exists(), is(false));
 
         ConsoleAndFileDriverConfiguration configuration = new ConsoleAndFileDriverConfiguration(paramsMap, dbClassName, workloadClassName, operationCount,
-                threadCount, showStatus, timeUnit, resultFilePath, timeCompressionRatio, gctDeltaDuration, peerIds, toleratedExecutionDelay,
+                threadCount, showStatus, timeUnit, resultFilePath, timeCompressionRatio, gctDeltaDuration, windowedExecutionWindowDuration, peerIds, toleratedExecutionDelay,
                 validationParams, dbValidationFilePath, validateWorkload, calculateWorkloadStatistics, spinnerSleepDuration, printHelp);
 
         ConcurrentControlService controlService = new LocalControlService(TIME_SOURCE.now().plus(Duration.fromMilli(1000)), configuration);
@@ -235,7 +238,7 @@ public class WorkloadRunnerTest {
         Workload workload = new LdbcSnbInteractiveWorkload();
         workload.init(configuration);
         GeneratorFactory generators = new GeneratorFactory(new RandomDataGeneratorFactory(42L));
-        Iterator<Operation<?>> operations = workload.operations(generators);
+        Iterator<Operation<?>> operations = workload.operations(generators, configuration.operationCount());
         Iterator<Operation<?>> timeMappedOperations = generators.timeOffsetAndCompress(operations, controlService.workloadStartTime(), 1.0);
         Map<Class<? extends Operation<?>>, OperationClassification> operationClassifications = workload.operationClassifications();
         ConcurrentErrorReporter errorReporter = new ConcurrentErrorReporter();
@@ -261,7 +264,8 @@ public class WorkloadRunnerTest {
                 controlService.workloadStartTime(),
                 controlService.configuration().toleratedExecutionDelay(),
                 controlService.configuration().spinnerSleepDuration(),
-                controlService.configuration().compressedGctDeltaDuration());
+                controlService.configuration().compressedGctDeltaDuration(),
+                controlService.configuration().windowedExecutionWindowDuration());
 
 
         runner.executeWorkload();

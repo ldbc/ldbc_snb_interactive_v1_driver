@@ -216,7 +216,7 @@ public class Client {
             logger.info(String.format("Retrieving operation stream for workload: %s", workload.getClass().getSimpleName()));
             Iterator<Operation<?>> timeMappedOperations;
             try {
-                Iterator<Operation<?>> operations = workload.operations(generators);
+                Iterator<Operation<?>> operations = workload.operations(generators, controlService.configuration().operationCount());
                 timeMappedOperations = generators.timeOffsetAndCompress(
                         operations,
                         controlService.workloadStartTime(),
@@ -225,9 +225,16 @@ public class Client {
                 throw new ClientException("Error while retrieving operation stream for workload", e);
             }
 
-            // TODO add method of selecting appropriate window size
-            // TODO if GCT Delta is very large it makes sense to have a smaller window
-            // TODO otherwise operations are spread very far apart
+            if (controlService.configuration().windowedExecutionWindowDuration().gt(controlService.configuration().compressedGctDeltaDuration()))
+                throw new ClientException(
+                        String.format(""
+                                + "Windowed-execution window duration may not exceed GCT delta duration\n"
+                                + "  GCT Delta: %s\n"
+                                + "  Compressed GCT Delta: %s\n"
+                                + "  Window Duration: %s",
+                                controlService.configuration().gctDeltaDuration(),
+                                controlService.configuration().compressedGctDeltaDuration(),
+                                controlService.configuration().windowedExecutionWindowDuration()));
 
             logger.info(String.format("Instantiating %s", WorkloadRunner.class.getSimpleName()));
             try {
@@ -244,7 +251,8 @@ public class Client {
                         controlService.workloadStartTime(),
                         controlService.configuration().toleratedExecutionDelay(),
                         controlService.configuration().spinnerSleepDuration(),
-                        controlService.configuration().compressedGctDeltaDuration());
+                        controlService.configuration().compressedGctDeltaDuration(),
+                        controlService.configuration().windowedExecutionWindowDuration());
             } catch (WorkloadException e) {
                 throw new ClientException(String.format("Error instantiating %s", WorkloadRunner.class.getSimpleName()), e);
             }
@@ -342,7 +350,7 @@ public class Client {
 
             logger.info(String.format("Retrieving operation stream for workload: %s", workload.getClass().getSimpleName()));
             try {
-                Iterator<Operation<?>> operations = workload.operations(generators);
+                Iterator<Operation<?>> operations = workload.operations(generators, controlService.configuration().operationCount());
                 timeMappedOperations = generators.timeOffsetAndCompress(
                         operations,
                         controlService.workloadStartTime(),
@@ -412,7 +420,7 @@ public class Client {
 
             logger.info(String.format("Retrieving operation stream for workload: %s", workload.getClass().getSimpleName()));
             try {
-                Iterator<Operation<?>> operations = workload.operations(generators);
+                Iterator<Operation<?>> operations = workload.operations(generators, controlService.configuration().operationCount());
                 timeMappedOperations = generators.timeOffsetAndCompress(
                         operations,
                         controlService.workloadStartTime(),
@@ -564,7 +572,6 @@ public class Client {
     private class ValidateWorkloadMode implements ClientMode {
         private final ConcurrentControlService controlService;
 
-        private Iterator<Operation<?>> timeMappedOperations = null;
         private Workload workload = null;
 
         ValidateWorkloadMode(ConcurrentControlService controlService) throws ClientException {
@@ -581,31 +588,17 @@ public class Client {
             }
             logger.info(String.format("Loaded Workload: %s", workload.getClass().getName()));
 
-            GeneratorFactory generators = new GeneratorFactory(new RandomDataGeneratorFactory(RANDOM_SEED));
-
-            logger.info(String.format("Retrieving operation stream for workload: %s", workload.getClass().getSimpleName()));
-            try {
-                Iterator<Operation<?>> operations = workload.operations(generators);
-                timeMappedOperations = generators.timeOffsetAndCompress(
-                        operations,
-                        controlService.workloadStartTime(),
-                        controlService.configuration().timeCompressionRatio());
-            } catch (WorkloadException e) {
-                throw new ClientException("Error while retrieving operation stream for workload", e);
-            }
-
             logger.info("Driver Configuration");
             logger.info(controlService.toString());
         }
 
         @Override
         public void execute() throws ClientException {
+            logger.info(String.format("Retrieving operation stream for workload: %s", workload.getClass().getSimpleName()));
+
             logger.info(String.format("Validating workload: %s", workload.getClass().getSimpleName()));
             WorkloadValidator workloadValidator = new WorkloadValidator();
-            workloadValidationResult = workloadValidator.validate(
-                    timeMappedOperations,
-                    workload.operationClassifications(),
-                    WorkloadValidator.DEFAULT_MAX_EXPECTED_INTERLEAVE);
+            workloadValidationResult = workloadValidator.validate(workload, controlService.configuration());
             if (false == workloadValidationResult.isSuccessful()) {
                 throw new ClientException(String.format("Workload validation failed\n%s", workloadValidationResult.errorMessage()));
             }

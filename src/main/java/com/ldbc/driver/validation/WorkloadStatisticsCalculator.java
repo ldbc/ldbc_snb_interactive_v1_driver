@@ -19,6 +19,13 @@ public class WorkloadStatisticsCalculator {
      * TODO test HdrHistogram limits
      * TODO generator that creates an operation stream based on total time, rather than count
      * TODO Group By SchedulingMode (like is already done by GctMode)
+     * <p/>
+     * TODO report how frequently GCT is updated
+     * <p/>
+     * TODO report how frequently GCT is read
+     * <p/>
+     * TODO report how many operations are in each window (min, max, mean, percentiles)
+     * TODO -- to support this a DriverConfiguration needs to be passed in, and WindowSize needs to be added to DriverConfiguration
      */
 
     public WorkloadStatistics calculate(Iterator<Operation<?>> operations,

@@ -204,6 +204,7 @@ public class ConcurrentCompletionTimeServiceTest {
         String resultFilePath = "nothingPath";
         double timeCompressionRatio = 1.0;
         Duration gctDeltaDuration = null;
+        Duration windowedExecutionWindowDuration = null;
         Set<String> peerIds = null;
         Duration toleratedDelay = null;
         ConsoleAndFileDriverConfiguration.ConsoleAndFileValidationParamOptions validationParams = null;
@@ -215,12 +216,12 @@ public class ConcurrentCompletionTimeServiceTest {
 
         ConsoleAndFileDriverConfiguration params =
                 new ConsoleAndFileDriverConfiguration(paramsMap, className, workloadName, operationCount, threadCount, showStatus, timeUnit,
-                        resultFilePath, timeCompressionRatio, gctDeltaDuration, peerIds, toleratedDelay,
+                        resultFilePath, timeCompressionRatio, gctDeltaDuration, windowedExecutionWindowDuration, peerIds, toleratedDelay,
                         validationParams, dbValidationFilePath, validateWorkload, calculateWorkloadStatistics, spinnerSleepDuration, printHelp);
         Workload workload = new SimpleWorkload();
         workload.init(params);
         GeneratorFactory generators = new GeneratorFactory(new RandomDataGeneratorFactory(42L));
-        Iterator<Operation<?>> operations = workload.operations(generators);
+        Iterator<Operation<?>> operations = workload.operations(generators, params.operationCount());
 
         // measure duration of experiment
         long startTimeAsMilli = TIME_SOURCE.nowAsMilli();

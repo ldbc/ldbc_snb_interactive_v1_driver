@@ -25,6 +25,8 @@ public interface DriverConfiguration {
 
     Duration gctDeltaDuration();
 
+    Duration windowedExecutionWindowDuration();
+
     Duration compressedGctDeltaDuration();
 
     Set<String> peerIds();

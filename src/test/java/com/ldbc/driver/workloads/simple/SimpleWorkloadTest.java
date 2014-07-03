@@ -41,6 +41,7 @@ public class SimpleWorkloadTest {
         String resultFilePath = null;
         Double timeCompressionRatio = 1.0;
         Duration gctDeltaDuration = Duration.fromMinutes(10);
+        Duration windowedExecutionWindowDuration = Duration.fromSeconds(1);
         Set<String> peerIds = new HashSet<>();
         Duration toleratedExecutionDelay = Duration.fromSeconds(1);
         ConsoleAndFileDriverConfiguration.ConsoleAndFileValidationParamOptions validationParams = null;
@@ -62,6 +63,7 @@ public class SimpleWorkloadTest {
                         resultFilePath,
                         timeCompressionRatio,
                         gctDeltaDuration,
+                        windowedExecutionWindowDuration,
                         peerIds,
                         toleratedExecutionDelay,
                         validationParams,
@@ -83,13 +85,13 @@ public class SimpleWorkloadTest {
 
         List<Class> operationsA = ImmutableList.copyOf(
                 Iterators.transform(
-                        workload.operations(new GeneratorFactory(new RandomDataGeneratorFactory(42L))),
+                        workload.operations(new GeneratorFactory(new RandomDataGeneratorFactory(42L)), params.operationCount()),
                         classFun
                 ));
 
         List<Class> operationsB = ImmutableList.copyOf(
                 Iterators.transform(
-                        workload.operations(new GeneratorFactory(new RandomDataGeneratorFactory(42L))),
+                        workload.operations(new GeneratorFactory(new RandomDataGeneratorFactory(42L)), params.operationCount()),
                         classFun
                 ));
 
@@ -118,6 +120,7 @@ public class SimpleWorkloadTest {
         String resultFilePath = null;
         Double timeCompressionRatio = 1.0;
         Duration gctDeltaDuration = Duration.fromMinutes(10);
+        Duration windowedExecutionWindowDuration = Duration.fromSeconds(1);
         Set<String> peerIds = new HashSet<>();
         Duration toleratedExecutionDelay = Duration.fromSeconds(1);
         ConsoleAndFileDriverConfiguration.ConsoleAndFileValidationParamOptions validationParams = null;
@@ -139,6 +142,7 @@ public class SimpleWorkloadTest {
                         resultFilePath,
                         timeCompressionRatio,
                         gctDeltaDuration,
+                        windowedExecutionWindowDuration,
                         peerIds,
                         toleratedExecutionDelay,
                         validationParams,
@@ -156,7 +160,7 @@ public class SimpleWorkloadTest {
 
         List<Class> operationsA = ImmutableList.copyOf(
                 Iterators.transform(
-                        workloadA.operations(new GeneratorFactory(new RandomDataGeneratorFactory(42L))),
+                        workloadA.operations(new GeneratorFactory(new RandomDataGeneratorFactory(42L)), params.operationCount()),
                         new Function<Operation<?>, Class>() {
                             @Override
                             public Class apply(Operation<?> operation) {
@@ -166,7 +170,7 @@ public class SimpleWorkloadTest {
 
         List<Class> operationsB = ImmutableList.copyOf(
                 Iterators.transform(
-                        workloadB.operations(new GeneratorFactory(new RandomDataGeneratorFactory(42L))),
+                        workloadB.operations(new GeneratorFactory(new RandomDataGeneratorFactory(42L)), params.operationCount()),
                         new Function<Operation<?>, Class>() {
                             @Override
                             public Class apply(Operation<?> operation) {
