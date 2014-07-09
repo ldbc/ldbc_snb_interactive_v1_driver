@@ -29,7 +29,7 @@ public class GctCheck implements SpinnerCheck {
         } catch (CompletionTimeException e) {
             errorReporter.reportError(this,
                     String.format(
-                            "Error encountered while reading/writing GCT for query %s\n%s",
+                            "Error encountered while reading GCT for query %s\n%s",
                             operation.getClass().getSimpleName(),
                             ConcurrentErrorReporter.stackTraceToString(e)));
             return false;

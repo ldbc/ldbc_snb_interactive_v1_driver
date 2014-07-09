@@ -47,6 +47,11 @@ public class ConsoleAndFileDriverConfigurationTest {
         assertThat(true, is(false));
     }
 
+    @Ignore
+    @Test
+    public void makeStatusParameterTakeOneArgumentThatSpecifiesNumberOfSeconds() {
+        assertThat(true, is(false));
+    }
 
     @Test
     public void applyMapShouldWork() throws DriverConfigurationException {
