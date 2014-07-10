@@ -179,11 +179,6 @@ public class SimpleWorkload extends Workload {
     }
 
     @Override
-    public boolean validationResultCheck(Operation<?> operation, Object operationResult) {
-        return true;
-    }
-
-    @Override
     protected void onCleanup() throws WorkloadException {
     }
 

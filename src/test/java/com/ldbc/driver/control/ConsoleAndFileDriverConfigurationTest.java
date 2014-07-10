@@ -41,6 +41,7 @@ public class ConsoleAndFileDriverConfigurationTest {
         assertThat(true, is(false));
     }
 
+
     @Ignore
     @Test
     public void removeCompressedGctDeltaDurationFromConfigurationAndDoThisManually() {
@@ -298,8 +299,7 @@ public class ConsoleAndFileDriverConfigurationTest {
         // Optional
         List<String> optionalParamsArgsList = new ArrayList<>();
         optionalParamsArgsList.addAll(Lists.newArrayList("-" + ConsoleAndFileDriverConfiguration.THREADS_ARG, ConsoleAndFileDriverConfiguration.THREADS_DEFAULT_STRING));
-        if (ConsoleAndFileDriverConfiguration.SHOW_STATUS_DEFAULT)
-            optionalParamsArgsList.addAll(Lists.newArrayList("-" + ConsoleAndFileDriverConfiguration.SHOW_STATUS_ARG));
+        optionalParamsArgsList.addAll(Lists.newArrayList("-" + ConsoleAndFileDriverConfiguration.SHOW_STATUS_ARG, ConsoleAndFileDriverConfiguration.SHOW_STATUS_DEFAULT_STRING));
         optionalParamsArgsList.addAll(Lists.newArrayList("-" + ConsoleAndFileDriverConfiguration.TIME_UNIT_ARG, ConsoleAndFileDriverConfiguration.TIME_UNIT_DEFAULT_STRING));
         if (null != ConsoleAndFileDriverConfiguration.RESULT_FILE_PATH_DEFAULT)
             optionalParamsArgsList.addAll(Lists.newArrayList("-" + ConsoleAndFileDriverConfiguration.RESULT_FILE_PATH_ARG, ConsoleAndFileDriverConfiguration.RESULT_FILE_PATH_DEFAULT_STRING));
@@ -349,7 +349,7 @@ public class ConsoleAndFileDriverConfigurationTest {
         assertThat(configurationFromParams.workloadClassName(), equalTo("workload class name"));
         assertThat(configurationFromParams.operationCount(), is(1l));
         assertThat(configurationFromParams.threadCount(), is(ConsoleAndFileDriverConfiguration.THREADS_DEFAULT));
-        assertThat(configurationFromParams.showStatus(), is(ConsoleAndFileDriverConfiguration.SHOW_STATUS_DEFAULT));
+        assertThat(configurationFromParams.statusDisplayInterval(), is(ConsoleAndFileDriverConfiguration.SHOW_STATUS_DEFAULT));
         assertThat(configurationFromParams.timeUnit(), is(ConsoleAndFileDriverConfiguration.TIME_UNIT_DEFAULT));
         assertThat(new File(configurationFromParams.resultFilePath()).getName(), is(ConsoleAndFileDriverConfiguration.RESULT_FILE_PATH_DEFAULT));
         assertThat(configurationFromParams.timeCompressionRatio(), is(ConsoleAndFileDriverConfiguration.TIME_COMPRESSION_RATIO_DEFAULT));
@@ -372,7 +372,7 @@ public class ConsoleAndFileDriverConfigurationTest {
         String workloadClassName = "workloadClassName";
         long operationCount = 1;
         int threadCount = 3;
-        boolean showStatus = true;
+        Duration statusDisplayInterval = Duration.fromSeconds(1);
         TimeUnit timeUnit = TimeUnit.SECONDS;
         String resultFilePath = null;
         Double timeCompressionRatio = 1.0;
@@ -393,7 +393,7 @@ public class ConsoleAndFileDriverConfigurationTest {
                 workloadClassName,
                 operationCount,
                 threadCount,
-                showStatus,
+                statusDisplayInterval,
                 timeUnit,
                 resultFilePath,
                 timeCompressionRatio,
@@ -414,7 +414,7 @@ public class ConsoleAndFileDriverConfigurationTest {
         assertThat(params.workloadClassName(), equalTo(workloadClassName));
         assertThat(params.operationCount(), equalTo(operationCount));
         assertThat(params.threadCount(), equalTo(threadCount));
-        assertThat(params.showStatus(), equalTo(showStatus));
+        assertThat(params.statusDisplayInterval(), equalTo(statusDisplayInterval));
         assertThat(params.timeUnit(), equalTo(timeUnit));
         assertThat(params.resultFilePath(), equalTo(resultFilePath));
         assertThat(params.timeCompressionRatio(), equalTo(timeCompressionRatio));

@@ -31,24 +31,6 @@ import java.util.Map;
 public class WorkloadValidator {
     public static final Duration DEFAULT_MAX_EXPECTED_INTERLEAVE = Duration.fromMinutes(30);
 
-    public static class WorkloadValidationResult {
-        private final boolean successful;
-        private final String errorMessage;
-
-        public WorkloadValidationResult(boolean successful, String errorMessage) {
-            this.successful = successful;
-            this.errorMessage = errorMessage;
-        }
-
-        public boolean isSuccessful() {
-            return successful;
-        }
-
-        public String errorMessage() {
-            return errorMessage;
-        }
-    }
-
     public WorkloadValidationResult validate(Workload workload, DriverConfiguration configuration) {
         GeneratorFactory generatorFactory = new GeneratorFactory(new RandomDataGeneratorFactory(42l));
 

@@ -2,9 +2,9 @@ package com.ldbc.driver.validation;
 
 import com.google.common.collect.Lists;
 import com.ldbc.driver.*;
-import com.ldbc.driver.control.DriverConfigurationFileTestHelper;
 import com.ldbc.driver.control.ConsoleAndFileDriverConfiguration;
 import com.ldbc.driver.control.DriverConfigurationException;
+import com.ldbc.driver.control.DriverConfigurationFileTestHelper;
 import com.ldbc.driver.util.CsvFileReader;
 import com.ldbc.driver.util.CsvFileWriter;
 import com.ldbc.driver.util.TestUtils;
@@ -26,6 +26,7 @@ import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
 
 public class ValidationParamsGeneratorTest {
+
     @Test
     public void generatedValidationFileLengthShouldEqualMinimumOfValidationSetSizeParamAndOperationsStreamLengthWhenBothAreEqual() throws IOException, DriverConfigurationException, WorkloadException, DbException {
         // Given
@@ -52,7 +53,7 @@ public class ValidationParamsGeneratorTest {
 
         int validationSetSize = 25;
 
-        ValidationParamsGenerator validationParamsBefore = new ValidationParamsGenerator(db, workload, operations, validationSetSize);
+        ValidationParamsGenerator validationParamsBefore = new ValidationParamsGenerator(db, workload.dbValidationParametersFilter(validationSetSize), operations);
         List<ValidationParam> validationParamsBeforeList = Lists.newArrayList(validationParamsBefore);
 
         Iterator<String[]> validationParamsAsCsvRows = new ValidationParamsToCsvRows(validationParamsBeforeList.iterator(), workload, true);
@@ -80,7 +81,7 @@ public class ValidationParamsGeneratorTest {
 
         csvFileReader.closeReader();
         System.out.println(tempValidationFile.getAbsolutePath());
-//        FileUtils.deleteQuietly(tempValidationFile);
+        FileUtils.deleteQuietly(tempValidationFile);
     }
 
     List<Operation<?>> buildOperations() {

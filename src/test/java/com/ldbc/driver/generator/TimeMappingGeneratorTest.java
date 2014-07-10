@@ -197,7 +197,7 @@ public class TimeMappingGeneratorTest {
         String workloadClassName = LdbcSnbInteractiveWorkload.class.getName();
         long operationCount = 100;
         int threadCount = 1;
-        boolean showStatus = true;
+        Duration statusDisplayInterval = Duration.fromSeconds(1);
         TimeUnit timeUnit = TimeUnit.MILLISECONDS;
         String resultFilePath = "test_write_to_csv_results.json";
         FileUtils.deleteQuietly(new File(resultFilePath));
@@ -217,7 +217,7 @@ public class TimeMappingGeneratorTest {
         assertThat(new File(resultFilePath).exists(), is(false));
 
         ConsoleAndFileDriverConfiguration configuration = new ConsoleAndFileDriverConfiguration(paramsMap, dbClassName, workloadClassName, operationCount,
-                threadCount, showStatus, timeUnit, resultFilePath, timeCompressionRatio, gctDeltaDuration, windowedExecutionWindowDuration, peerIds, toleratedExecutionDelay,
+                threadCount, statusDisplayInterval, timeUnit, resultFilePath, timeCompressionRatio, gctDeltaDuration, windowedExecutionWindowDuration, peerIds, toleratedExecutionDelay,
                 validationParams, dbValidationFilePath, validateWorkload, calculateWorkloadStatistics, spinnerSleepDuration, printHelp);
 
         Workload workload = new LdbcSnbInteractiveWorkload();

@@ -3,6 +3,7 @@ package com.ldbc.driver;
 import com.ldbc.driver.control.DriverConfiguration;
 import com.ldbc.driver.generator.GeneratorFactory;
 import com.ldbc.driver.temporal.Duration;
+import com.ldbc.driver.util.Function2;
 
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -59,11 +60,21 @@ public abstract class Workload {
         return generators.limit(createOperations(generators), operationCount);
     }
 
-    protected abstract Iterator<Operation<?>> createOperations(GeneratorFactory generators)
-            throws WorkloadException;
+    protected abstract Iterator<Operation<?>> createOperations(GeneratorFactory generators) throws WorkloadException;
 
-    public boolean validationResultCheck(Operation<?> operation, Object operationResult) {
-        return true;
+    public DbValidationParametersFilter dbValidationParametersFilter(final Integer requiredValidationParameterCount) {
+        return new DbValidationParametersFilter() {
+            int validationParameterCount = 0;
+
+            @Override
+            public DbValidationParametersFilterResult apply(Operation<?> operation, Object operationResult) {
+                if (validationParameterCount < requiredValidationParameterCount) {
+                    validationParameterCount++;
+                    return DbValidationParametersFilterResult.ACCEPT_AND_CONTINUE;
+                }
+                return DbValidationParametersFilterResult.REJECT_AND_FINISH;
+            }
+        };
     }
 
     public Duration maxExpectedInterleave() {
@@ -73,4 +84,15 @@ public abstract class Workload {
     public abstract String serializeOperation(Operation<?> operation) throws SerializingMarshallingException;
 
     public abstract Operation<?> marshalOperation(String serializedOperation) throws SerializingMarshallingException;
+
+    public static interface DbValidationParametersFilter extends Function2<Operation<?>, Object, DbValidationParametersFilterResult> {
+    }
+
+    public enum DbValidationParametersFilterResult {
+        ACCEPT_AND_CONTINUE,
+        ACCEPT_AND_FINISH,
+        REJECT_AND_CONTINUE,
+        REJECT_AND_FINISH
+    }
+
 }

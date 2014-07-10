@@ -199,7 +199,7 @@ public class ConcurrentCompletionTimeServiceTest {
         Map<String, String> paramsMap = null;
         String className = null;
         String workloadName = null;
-        boolean showStatus = false;
+        Duration statusDisplayInterval = Duration.fromSeconds(1);
         TimeUnit timeUnit = null;
         String resultFilePath = "nothingPath";
         double timeCompressionRatio = 1.0;
@@ -215,7 +215,7 @@ public class ConcurrentCompletionTimeServiceTest {
         boolean printHelp = false;
 
         ConsoleAndFileDriverConfiguration params =
-                new ConsoleAndFileDriverConfiguration(paramsMap, className, workloadName, operationCount, threadCount, showStatus, timeUnit,
+                new ConsoleAndFileDriverConfiguration(paramsMap, className, workloadName, operationCount, threadCount, statusDisplayInterval, timeUnit,
                         resultFilePath, timeCompressionRatio, gctDeltaDuration, windowedExecutionWindowDuration, peerIds, toleratedDelay,
                         validationParams, dbValidationFilePath, validateWorkload, calculateWorkloadStatistics, spinnerSleepDuration, printHelp);
         Workload workload = new SimpleWorkload();

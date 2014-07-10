@@ -52,7 +52,7 @@ public class WorkloadValidatorTest {
         Workload workload = new DummyWorkload(operations, operationClassifications, maxExpectedInterleave);
         workload.init(configuration);
         WorkloadValidator workloadValidator = new WorkloadValidator();
-        WorkloadValidator.WorkloadValidationResult result = workloadValidator.validate(workload, configuration);
+        WorkloadValidationResult result = workloadValidator.validate(workload, configuration);
 
         assertThat(result.isSuccessful(), is(true));
     }
@@ -81,7 +81,7 @@ public class WorkloadValidatorTest {
         Workload workload = new DummyWorkload(operations.iterator(), operationClassifications, maxExpectedInterleave);
         workload.init(configuration);
         WorkloadValidator workloadValidator = new WorkloadValidator();
-        WorkloadValidator.WorkloadValidationResult result = workloadValidator.validate(workload, configuration);
+        WorkloadValidationResult result = workloadValidator.validate(workload, configuration);
 
         assertThat(result.isSuccessful(), is(false));
     }
@@ -103,7 +103,7 @@ public class WorkloadValidatorTest {
         Workload workload = new DummyWorkload(operations.iterator(), operationClassifications, maxExpectedInterleave);
         workload.init(configuration);
         WorkloadValidator workloadValidator = new WorkloadValidator();
-        WorkloadValidator.WorkloadValidationResult result = workloadValidator.validate(workload, configuration);
+        WorkloadValidationResult result = workloadValidator.validate(workload, configuration);
 
         assertThat(result.isSuccessful(), is(false));
     }
@@ -132,7 +132,7 @@ public class WorkloadValidatorTest {
         Workload workload = new DummyWorkload(operations.iterator(), operationClassifications, maxExpectedInterleave);
         workload.init(configuration);
         WorkloadValidator workloadValidator = new WorkloadValidator();
-        WorkloadValidator.WorkloadValidationResult result = workloadValidator.validate(workload, configuration);
+        WorkloadValidationResult result = workloadValidator.validate(workload, configuration);
 
         assertThat(result.isSuccessful(), is(false));
     }
@@ -156,7 +156,7 @@ public class WorkloadValidatorTest {
         Workload workload = new DummyWorkload(operations.iterator(), operationClassifications, Workload.DEFAULT_MAXIMUM_EXPECTED_INTERLEAVE);
         workload.init(configuration);
         WorkloadValidator workloadValidator = new WorkloadValidator();
-        WorkloadValidator.WorkloadValidationResult result = workloadValidator.validate(workload, configuration);
+        WorkloadValidationResult result = workloadValidator.validate(workload, configuration);
 
         assertThat(result.isSuccessful(), is(false));
     }
@@ -181,7 +181,7 @@ public class WorkloadValidatorTest {
         Workload workload = new DummyWorkload(operations.iterator(), operationClassifications, Workload.DEFAULT_MAXIMUM_EXPECTED_INTERLEAVE);
         workload.init(configuration);
         WorkloadValidator workloadValidator = new WorkloadValidator();
-        WorkloadValidator.WorkloadValidationResult result = workloadValidator.validate(workload, configuration);
+        WorkloadValidationResult result = workloadValidator.validate(workload, configuration);
 
         assertThat(result.isSuccessful(), is(false));
     }
@@ -193,11 +193,52 @@ public class WorkloadValidatorTest {
         assertThat(true, equalTo(false));
     }
 
-    @Ignore
     @Test
-    public void shouldTestThatAllOperationClassificationsContainGctMode() throws MetricsCollectionException {
-        assertThat(true, is(false));
-        assertThat(true, equalTo(false));
+    public void shouldFailWhenSomeOperationClassificationsDoNotContainGctMode() throws MetricsCollectionException, DriverConfigurationException, WorkloadException {
+        Duration maxExpectedInterleave = Duration.fromMilli(1000);
+        Time startTime = TIME_SOURCE.now();
+        long operationCount = 1000;
+        Iterator<Time> startTimes = gf.constantIncrementTime(startTime, Duration.fromMilli(10));
+        Iterator<Operation<?>> timedNothingOperations = (Iterator) new TimedNothingOperationFactory(startTimes);
+
+        Iterator<Operation<?>> operations = gf.limit(timedNothingOperations, operationCount);
+
+        Map<Class<? extends Operation<?>>, OperationClassification> operationClassifications = new HashMap<>();
+        operationClassifications.put(
+                TimedNothingOperation.class,
+                new OperationClassification(OperationClassification.SchedulingMode.INDIVIDUAL_ASYNC, null));
+
+        DriverConfiguration configuration = ConsoleAndFileDriverConfiguration.fromDefaults(null, null, operationCount);
+        Workload workload = new DummyWorkload(operations, operationClassifications, maxExpectedInterleave);
+        workload.init(configuration);
+        WorkloadValidator workloadValidator = new WorkloadValidator();
+        WorkloadValidationResult result = workloadValidator.validate(workload, configuration);
+
+        assertThat(result.isSuccessful(), is(false));
+    }
+
+    @Test
+    public void shouldFailWhenSomeOperationClassificationsDoNotContainSchedulingMode() throws MetricsCollectionException, DriverConfigurationException, WorkloadException {
+        Duration maxExpectedInterleave = Duration.fromMilli(1000);
+        Time startTime = TIME_SOURCE.now();
+        long operationCount = 1000;
+        Iterator<Time> startTimes = gf.constantIncrementTime(startTime, Duration.fromMilli(10));
+        Iterator<Operation<?>> timedNothingOperations = (Iterator) new TimedNothingOperationFactory(startTimes);
+
+        Iterator<Operation<?>> operations = gf.limit(timedNothingOperations, operationCount);
+
+        Map<Class<? extends Operation<?>>, OperationClassification> operationClassifications = new HashMap<>();
+        operationClassifications.put(
+                TimedNothingOperation.class,
+                new OperationClassification(null, OperationClassification.GctMode.NONE));
+
+        DriverConfiguration configuration = ConsoleAndFileDriverConfiguration.fromDefaults(null, null, operationCount);
+        Workload workload = new DummyWorkload(operations, operationClassifications, maxExpectedInterleave);
+        workload.init(configuration);
+        WorkloadValidator workloadValidator = new WorkloadValidator();
+        WorkloadValidationResult result = workloadValidator.validate(workload, configuration);
+
+        assertThat(result.isSuccessful(), is(false));
     }
 
     @Ignore

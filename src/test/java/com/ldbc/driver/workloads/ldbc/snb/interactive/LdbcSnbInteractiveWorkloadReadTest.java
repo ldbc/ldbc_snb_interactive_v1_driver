@@ -142,7 +142,7 @@ public class LdbcSnbInteractiveWorkloadReadTest {
         String workloadClassName = LdbcSnbInteractiveWorkload.class.getName();
         long operationCount = 10000;
         int threadCount = 64;
-        boolean showStatus = false;
+        Duration statusDisplayInterval = Duration.fromSeconds(0);
         TimeUnit timeUnit = TimeUnit.MILLISECONDS;
         String resultFilePath = null;
         double timeCompressionRatio = 1.0;
@@ -159,7 +159,7 @@ public class LdbcSnbInteractiveWorkloadReadTest {
         boolean printHelp = false;
 
         DriverConfiguration params = new ConsoleAndFileDriverConfiguration(paramsMap, dbClassName, workloadClassName, operationCount,
-                threadCount, showStatus, timeUnit, resultFilePath, timeCompressionRatio, gctDeltaDuration, windowedExecutionWindowDuration, peerIds,
+                threadCount, statusDisplayInterval, timeUnit, resultFilePath, timeCompressionRatio, gctDeltaDuration, windowedExecutionWindowDuration, peerIds,
                 toleratedExecutionDelay, validationParams, dbValidationFilePath, validateWorkload, calculateWorkloadStatistics, spinnerSleepDuration, printHelp);
 
         // **************************************************
@@ -183,7 +183,7 @@ public class LdbcSnbInteractiveWorkloadReadTest {
         dbValidationFilePath = validationParamsFile.getAbsolutePath();
 
         params = new ConsoleAndFileDriverConfiguration(paramsMap, dbClassName, workloadClassName, operationCount,
-                threadCount, showStatus, timeUnit, resultFilePath, timeCompressionRatio, gctDeltaDuration, windowedExecutionWindowDuration, peerIds, toleratedExecutionDelay,
+                threadCount, statusDisplayInterval, timeUnit, resultFilePath, timeCompressionRatio, gctDeltaDuration, windowedExecutionWindowDuration, peerIds, toleratedExecutionDelay,
                 validationParams, dbValidationFilePath, validateWorkload, calculateWorkloadStatistics, spinnerSleepDuration, printHelp);
 
         // **************************************************
@@ -200,7 +200,7 @@ public class LdbcSnbInteractiveWorkloadReadTest {
         assertThat(clientForDatabaseValidation.workloadStatistics(), is(nullValue()));
         assertThat(clientForDatabaseValidation.databaseValidationResult(), is(notNullValue()));
         assertThat(
-                String.format("Validation with following error\n%s", clientForDatabaseValidation.databaseValidationResult().errorMessage()),
+                String.format("Validation with following error\n%s", clientForDatabaseValidation.databaseValidationResult().resultMessage()),
                 clientForDatabaseValidation.databaseValidationResult().isSuccessful(),
                 is(true));
 
@@ -221,7 +221,7 @@ public class LdbcSnbInteractiveWorkloadReadTest {
         String workloadClassName = LdbcSnbInteractiveWorkload.class.getName();
         long operationCount = 10000;
         int threadCount = 64;
-        boolean showStatus = true;
+        Duration statusDisplayInterval = Duration.fromSeconds(1);
         TimeUnit timeUnit = TimeUnit.MILLISECONDS;
         String resultFilePath = null;
         double timeCompressionRatio = 1.0;
@@ -237,7 +237,7 @@ public class LdbcSnbInteractiveWorkloadReadTest {
         boolean printHelp = false;
 
         DriverConfiguration params = new ConsoleAndFileDriverConfiguration(paramsMap, dbClassName, workloadClassName, operationCount,
-                threadCount, showStatus, timeUnit, resultFilePath, timeCompressionRatio, gctDeltaDuration, windowedExecutionWindowDuration, peerIds, toleratedExecutionDelay,
+                threadCount, statusDisplayInterval, timeUnit, resultFilePath, timeCompressionRatio, gctDeltaDuration, windowedExecutionWindowDuration, peerIds, toleratedExecutionDelay,
                 validationParams, dbValidationFilePath, validateWorkload, calculateWorkloadStatistics, spinnerSleepDuration, printHelp);
 
         // When
@@ -264,7 +264,7 @@ public class LdbcSnbInteractiveWorkloadReadTest {
         String workloadClassName = LdbcSnbInteractiveWorkload.class.getName();
         long operationCount = 10000;
         int threadCount = 1;
-        boolean showStatus = true;
+        Duration statusDisplayInterval = Duration.fromSeconds(1);
         TimeUnit timeUnit = TimeUnit.MILLISECONDS;
         String resultFilePath = "test_ldbc_socnet_interactive_results.json";
         FileUtils.deleteQuietly(new File(resultFilePath));
@@ -283,7 +283,7 @@ public class LdbcSnbInteractiveWorkloadReadTest {
         assertThat(new File(resultFilePath).exists(), is(false));
 
         DriverConfiguration params = new ConsoleAndFileDriverConfiguration(paramsMap, dbClassName, workloadClassName, operationCount,
-                threadCount, showStatus, timeUnit, resultFilePath, timeCompressionRatio, gctDeltaDuration, windowedExecutionWindowDuration, peerIds, toleratedExecutionDelay,
+                threadCount, statusDisplayInterval, timeUnit, resultFilePath, timeCompressionRatio, gctDeltaDuration, windowedExecutionWindowDuration, peerIds, toleratedExecutionDelay,
                 validationParams, dbValidationFilePath, validateWorkload, calculateWorkloadStatistics, spinnerSleepDuration,
                 printHelp);
 
@@ -436,7 +436,7 @@ public class LdbcSnbInteractiveWorkloadReadTest {
         String workloadClassName = LdbcSnbInteractiveWorkload.class.getName();
         long operationCount = 1000;
         int threadCount = 1;
-        boolean showStatus = true;
+        Duration statusDisplayInterval = Duration.fromSeconds(1);
         TimeUnit timeUnit = TimeUnit.MILLISECONDS;
         String resultFilePath = "test_write_to_csv_results.json";
         FileUtils.deleteQuietly(new File(resultFilePath));
@@ -456,7 +456,7 @@ public class LdbcSnbInteractiveWorkloadReadTest {
         assertThat(new File(resultFilePath).exists(), is(false));
 
         DriverConfiguration params = new ConsoleAndFileDriverConfiguration(paramsMap, dbClassName, workloadClassName, operationCount,
-                threadCount, showStatus, timeUnit, resultFilePath, timeCompressionRatio, gctDeltaDuration, windowedExecutionWindowDuration, peerIds, toleratedExecutionDelay,
+                threadCount, statusDisplayInterval, timeUnit, resultFilePath, timeCompressionRatio, gctDeltaDuration, windowedExecutionWindowDuration, peerIds, toleratedExecutionDelay,
                 validationParams, dbValidationFilePath, validateWorkload, calculateWorkloadStatistics, spinnerSleepDuration,
                 printHelp);
 
@@ -526,7 +526,7 @@ public class LdbcSnbInteractiveWorkloadReadTest {
         String workloadClassName = LdbcSnbInteractiveWorkload.class.getName();
         long operationCount = 1000000;
         int threadCount = 1;
-        boolean showStatus = true;
+        Duration statusDisplayInterval = Duration.fromSeconds(1);
         TimeUnit timeUnit = TimeUnit.MILLISECONDS;
         String resultFilePath = "test_write_to_csv_results.json";
         FileUtils.deleteQuietly(new File(resultFilePath));
@@ -546,7 +546,7 @@ public class LdbcSnbInteractiveWorkloadReadTest {
         assertThat(new File(resultFilePath).exists(), is(false));
 
         DriverConfiguration configuration = new ConsoleAndFileDriverConfiguration(paramsMap, dbClassName, workloadClassName, operationCount,
-                threadCount, showStatus, timeUnit, resultFilePath, timeCompressionRatio, gctDeltaDuration, windowedExecutionWindowDuration, peerIds, toleratedExecutionDelay,
+                threadCount, statusDisplayInterval, timeUnit, resultFilePath, timeCompressionRatio, gctDeltaDuration, windowedExecutionWindowDuration, peerIds, toleratedExecutionDelay,
                 validationParams, dbValidationFilePath, validateWorkload, calculateWorkloadStatistics, spinnerSleepDuration, printHelp);
 
         Workload workload = new LdbcSnbInteractiveWorkload();
@@ -574,7 +574,7 @@ public class LdbcSnbInteractiveWorkloadReadTest {
         String workloadClassName = LdbcSnbInteractiveWorkload.class.getName();
         long operationCount = 1000000;
         int threadCount = 1;
-        boolean showStatus = true;
+        Duration statusDisplayInterval = Duration.fromSeconds(1);
         TimeUnit timeUnit = TimeUnit.MILLISECONDS;
         String resultFilePath = "test_write_to_csv_results.json";
         FileUtils.deleteQuietly(new File(resultFilePath));
@@ -594,7 +594,7 @@ public class LdbcSnbInteractiveWorkloadReadTest {
         assertThat(new File(resultFilePath).exists(), is(false));
 
         DriverConfiguration configuration = new ConsoleAndFileDriverConfiguration(paramsMap, dbClassName, workloadClassName, operationCount,
-                threadCount, showStatus, timeUnit, resultFilePath, timeCompressionRatio, gctDeltaDuration, windowedExecutionWindowDuration, peerIds, toleratedExecutionDelay,
+                threadCount, statusDisplayInterval, timeUnit, resultFilePath, timeCompressionRatio, gctDeltaDuration, windowedExecutionWindowDuration, peerIds, toleratedExecutionDelay,
                 validationParams, dbValidationFilePath, validateWorkload, calculateWorkloadStatistics, spinnerSleepDuration,
                 printHelp);
 
@@ -661,7 +661,7 @@ public class LdbcSnbInteractiveWorkloadReadTest {
         String workloadClassName = LdbcSnbInteractiveWorkload.class.getName();
         long operationCount = 5;
         int threadCount = 2;
-        boolean showStatus = true;
+        Duration statusDisplayInterval = Duration.fromSeconds(1);
         TimeUnit timeUnit = TimeUnit.MILLISECONDS;
         String resultFilePath = "test_write_to_csv_results.json";
         FileUtils.deleteQuietly(new File(resultFilePath));
@@ -680,7 +680,7 @@ public class LdbcSnbInteractiveWorkloadReadTest {
         assertThat(new File(resultFilePath).exists(), is(false));
 
         DriverConfiguration params = new ConsoleAndFileDriverConfiguration(paramsMap, dbClassName, workloadClassName, operationCount,
-                threadCount, showStatus, timeUnit, resultFilePath, timeCompressionRatio, gctDeltaDuration, windowedExecutionWindowDuration, peerIds, toleratedExecutionDelay,
+                threadCount, statusDisplayInterval, timeUnit, resultFilePath, timeCompressionRatio, gctDeltaDuration, windowedExecutionWindowDuration, peerIds, toleratedExecutionDelay,
                 validationParams, dbValidationFilePath, validateWorkload, calculateWorkloadStatistics, spinnerSleepDuration, printHelp);
 
         // When

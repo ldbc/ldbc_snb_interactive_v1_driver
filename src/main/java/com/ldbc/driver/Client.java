@@ -54,8 +54,8 @@ public class Client {
     }
 
     // check results
-    private DbValidator.DbValidationResult databaseValidationResult = null;
-    private WorkloadValidator.WorkloadValidationResult workloadValidationResult = null;
+    private DbValidationResult databaseValidationResult = null;
+    private WorkloadValidationResult workloadValidationResult = null;
     private WorkloadStatistics workloadStatistics = null;
 
     private final ClientMode clientMode;
@@ -134,11 +134,11 @@ public class Client {
         clientMode.execute();
     }
 
-    public DbValidator.DbValidationResult databaseValidationResult() {
+    public DbValidationResult databaseValidationResult() {
         return databaseValidationResult;
     }
 
-    public WorkloadValidator.WorkloadValidationResult workloadValidationResult() {
+    public WorkloadValidationResult workloadValidationResult() {
         return workloadValidationResult;
     }
 
@@ -247,7 +247,7 @@ public class Client {
                         errorReporter,
                         completionTimeService,
                         controlService.configuration().threadCount(),
-                        controlService.configuration().showStatus(),
+                        controlService.configuration().statusDisplayInterval(),
                         controlService.workloadStartTime(),
                         controlService.configuration().toleratedExecutionDelay(),
                         controlService.configuration().spinnerSleepDuration(),
@@ -445,7 +445,7 @@ public class Client {
             List<Operation<?>> timeMappedOperationsList = Lists.newArrayList(timeMappedOperations);
 
             Iterator<ValidationParam> validationParamsGenerator =
-                    new ValidationParamsGenerator(db, workload, timeMappedOperationsList.iterator(), validationSetSize);
+                    new ValidationParamsGenerator(db, workload.dbValidationParametersFilter(validationSetSize), timeMappedOperationsList.iterator());
 
             Iterator<String[]> csvRows =
                     new ValidationParamsToCsvRows(validationParamsGenerator, workload, performSerializationMarshallingChecks);
@@ -541,9 +541,7 @@ public class Client {
                 Iterator<ValidationParam> validationParams = new ValidationParamsFromCsvRows(csvFileReader, workload);
                 DbValidator dbValidator = new DbValidator();
                 databaseValidationResult = dbValidator.validate(validationParams, db);
-                if (false == databaseValidationResult.isSuccessful()) {
-                    throw new ClientException(String.format("Database validation failed\n%s", databaseValidationResult.errorMessage()));
-                }
+                logger.info(databaseValidationResult.resultMessage());
             } catch (WorkloadException e) {
                 throw new ClientException(String.format("Error reading validation parameters file\nFile: %s", validationParamsFile.getAbsolutePath()), e);
             }
@@ -599,10 +597,10 @@ public class Client {
             logger.info(String.format("Validating workload: %s", workload.getClass().getSimpleName()));
             WorkloadValidator workloadValidator = new WorkloadValidator();
             workloadValidationResult = workloadValidator.validate(workload, controlService.configuration());
-            if (false == workloadValidationResult.isSuccessful()) {
-                throw new ClientException(String.format("Workload validation failed\n%s", workloadValidationResult.errorMessage()));
-            }
-            logger.info("Workload Validation Successful");
+            if (workloadValidationResult.isSuccessful())
+                logger.info("Workload Validation Result: PASS");
+            else
+                logger.info(String.format("Workload Validation Result: FAIL\n%s", workloadValidationResult.errorMessage()));
 
             logger.info("Cleaning up Workload...");
             try {

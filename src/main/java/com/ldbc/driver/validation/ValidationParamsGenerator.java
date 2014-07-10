@@ -6,23 +6,21 @@ import com.ldbc.driver.generator.GeneratorException;
 
 import java.util.Iterator;
 
-// TODO test
 public class ValidationParamsGenerator extends Generator<ValidationParam> {
     private final Db db;
-    private final Workload workload;
+    private final Workload.DbValidationParametersFilter dbValidationParametersFilter;
     private final Iterator<Operation<?>> operations;
-    private final int validationSetSize;
     private int entriesWrittenSoFar;
+    private boolean needMoreValidationParameters;
 
     public ValidationParamsGenerator(Db db,
-                                     Workload workload,
-                                     Iterator<Operation<?>> operations,
-                                     int validationSetSize) {
+                                     Workload.DbValidationParametersFilter dbValidationParametersFilter,
+                                     Iterator<Operation<?>> operations) {
         this.db = db;
-        this.workload = workload;
+        this.dbValidationParametersFilter = dbValidationParametersFilter;
         this.operations = operations;
-        this.validationSetSize = validationSetSize;
         this.entriesWrittenSoFar = 0;
+        this.needMoreValidationParameters = true;
     }
 
     public int entriesWrittenSoFar() {
@@ -31,7 +29,7 @@ public class ValidationParamsGenerator extends Generator<ValidationParam> {
 
     @Override
     protected ValidationParam doNext() throws GeneratorException {
-        while (operations.hasNext() && entriesWrittenSoFar < validationSetSize) {
+        while (operations.hasNext() && needMoreValidationParameters) {
             Operation<?> operation = operations.next();
 
             OperationHandler<Operation<?>> handler;
@@ -60,12 +58,20 @@ public class ValidationParamsGenerator extends Generator<ValidationParam> {
             }
             Object operationResult = operationResultReport.operationResult();
 
-            if (false == workload.validationResultCheck(operation, operationResult))
-                // operation/result not suitable for use in validation set
-                continue;
-
-            entriesWrittenSoFar++;
-            return new ValidationParam(operation, operationResult);
+            switch (dbValidationParametersFilter.apply(operation, operationResult)) {
+                case REJECT_AND_CONTINUE:
+                    continue;
+                case REJECT_AND_FINISH:
+                    needMoreValidationParameters = false;
+                    continue;
+                case ACCEPT_AND_CONTINUE:
+                    entriesWrittenSoFar++;
+                    return new ValidationParam(operation, operationResult);
+                case ACCEPT_AND_FINISH:
+                    entriesWrittenSoFar++;
+                    needMoreValidationParameters = false;
+                    return new ValidationParam(operation, operationResult);
+            }
         }
         // ran out of operations OR validation set size has been reached
         return null;

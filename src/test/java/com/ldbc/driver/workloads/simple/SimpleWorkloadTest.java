@@ -36,7 +36,7 @@ public class SimpleWorkloadTest {
         String workloadClassName = null;
         long operationCount = 100;
         int threadCount = 1;
-        boolean showStatus = false;
+        Duration statusDisplayInterval = Duration.fromSeconds(0);
         TimeUnit timeUnit = TimeUnit.MILLISECONDS;
         String resultFilePath = null;
         Double timeCompressionRatio = 1.0;
@@ -58,7 +58,7 @@ public class SimpleWorkloadTest {
                         workloadClassName,
                         operationCount,
                         threadCount,
-                        showStatus,
+                        statusDisplayInterval,
                         timeUnit,
                         resultFilePath,
                         timeCompressionRatio,
@@ -115,7 +115,7 @@ public class SimpleWorkloadTest {
         String workloadClassName = null;
         long operationCount = 100;
         int threadCount = 1;
-        boolean showStatus = false;
+        Duration statusDisplayInterval = Duration.fromSeconds(0);
         TimeUnit timeUnit = TimeUnit.MILLISECONDS;
         String resultFilePath = null;
         Double timeCompressionRatio = 1.0;
@@ -137,7 +137,7 @@ public class SimpleWorkloadTest {
                         workloadClassName,
                         operationCount,
                         threadCount,
-                        showStatus,
+                        statusDisplayInterval,
                         timeUnit,
                         resultFilePath,
                         timeCompressionRatio,

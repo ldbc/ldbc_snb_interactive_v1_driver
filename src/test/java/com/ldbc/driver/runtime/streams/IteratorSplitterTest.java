@@ -16,7 +16,7 @@ public class IteratorSplitterTest {
 
     @Test
     public void shouldSplitIteratorCorrectlyGivenSimpleCaseAndSmallInput() throws IteratorSplittingException {
-        for (int i = 0; i < 100; i++) {
+        for (int i = 0; i < 20; i++) {
             doShouldSplitIteratorCorrectlyGivenSimpleCaseAndSmallInput();
         }
     }
@@ -60,7 +60,7 @@ public class IteratorSplitterTest {
 
     @Test
     public void shouldSplitIteratorCorrectlyGivenSimpleCaseAndLargeInput() throws IteratorSplittingException {
-        for (int i = 0; i < 5; i++) {
+        for (int i = 0; i < 20; i++) {
             doShouldSplitIteratorCorrectlyGivenSimpleCaseAndLargeInput();
         }
     }
@@ -97,7 +97,7 @@ public class IteratorSplitterTest {
 
     @Test
     public void shouldDropUndefinedClassesFromSplit() throws IteratorSplittingException {
-        for (int i = 0; i < 100; i++) {
+        for (int i = 0; i < 20; i++) {
             doShouldDropUndefinedClassesFromSplit();
         }
     }
@@ -133,7 +133,7 @@ public class IteratorSplitterTest {
 
     @Test
     public void shouldDropAllWhenNoDefinitionsGiven() throws IteratorSplittingException {
-        for (int i = 0; i < 100; i++) {
+        for (int i = 0; i < 20; i++) {
             doShouldDropAllWhenNoDefinitionsGiven();
         }
     }
@@ -153,7 +153,7 @@ public class IteratorSplitterTest {
 
     @Test
     public void shouldThrowExceptionOnUndefinedClassesFromSplitWithLongStream() throws IteratorSplittingException {
-        for (int i = 0; i < 100; i++) {
+        for (int i = 0; i < 20; i++) {
             doShouldThrowExceptionOnUndefinedClassesFromSplitWithLongStream();
         }
     }
@@ -186,7 +186,7 @@ public class IteratorSplitterTest {
 
     @Test
     public void shouldThrowExceptionOnUndefinedClassesFromSplitWithVeryShortStream() throws IteratorSplittingException {
-        for (int i = 0; i < 100; i++) {
+        for (int i = 0; i < 20; i++) {
             doShouldThrowExceptionOnUndefinedClassesFromSplitWithVeryShortStream();
         }
     }

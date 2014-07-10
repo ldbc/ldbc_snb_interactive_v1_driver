@@ -25,7 +25,6 @@ public class WorkloadRunner {
     private final TimeSource TIME_SOURCE;
 
     private final Duration WAIT_DURATION_FOR_OPERATION_HANDLER_EXECUTOR_TO_SHUTDOWN = Duration.fromSeconds(5);
-    private final Duration DEFAULT_STATUS_UPDATE_INTERVAL = Duration.fromSeconds(2);
     private final Duration SPINNER_OFFSET_DURATION = Duration.fromMilli(100);
 
     private final Spinner exactSpinner;
@@ -42,7 +41,7 @@ public class WorkloadRunner {
     private final PreciseIndividualBlockingOperationStreamExecutorService preciseIndividualBlockingOperationStreamExecutorService;
     private final UniformWindowedOperationStreamExecutorService uniformWindowedOperationStreamExecutorService;
 
-    private final boolean showStatus;
+    private final Duration statusDisplayInterval;
 
     public WorkloadRunner(TimeSource timeSource,
                           Db db,
@@ -52,7 +51,7 @@ public class WorkloadRunner {
                           ConcurrentErrorReporter errorReporter,
                           ConcurrentCompletionTimeService completionTimeService,
                           int threadCount,
-                          boolean showStatus,
+                          Duration statusDisplayInterval,
                           Time workloadStartTime,
                           Duration toleratedExecutionDelayDuration,
                           Duration spinnerSleepDuration,
@@ -60,7 +59,7 @@ public class WorkloadRunner {
                           Duration executionWindowDuration) throws WorkloadException {
         this.TIME_SOURCE = timeSource;
         this.errorReporter = errorReporter;
-        this.showStatus = showStatus;
+        this.statusDisplayInterval = statusDisplayInterval;
 
         ExecutionDelayPolicy executionDelayPolicy = new ErrorReportingTerminatingExecutionDelayPolicy(
                 TIME_SOURCE,
@@ -71,7 +70,7 @@ public class WorkloadRunner {
 
         this.exactSpinner = new Spinner(TIME_SOURCE, spinnerSleepDuration, executionDelayPolicy);
         this.earlySpinner = new Spinner(TIME_SOURCE, spinnerSleepDuration, executionDelayPolicy, SPINNER_OFFSET_DURATION);
-        this.workloadStatusThread = new WorkloadStatusThread(DEFAULT_STATUS_UPDATE_INTERVAL, metricsService, errorReporter);
+        this.workloadStatusThread = new WorkloadStatusThread(statusDisplayInterval, metricsService, errorReporter);
         Iterator<Operation<?>> windowedOperations;
         Iterator<Operation<?>> blockingOperations;
         Iterator<Operation<?>> asynchronousOperations;
@@ -121,7 +120,7 @@ public class WorkloadRunner {
     }
 
     public void executeWorkload() throws WorkloadException {
-        if (showStatus) workloadStatusThread.start();
+        if (statusDisplayInterval.asSeconds() > 0) workloadStatusThread.start();
         AtomicBoolean asyncHandlersFinished = preciseIndividualAsyncOperationStreamExecutorService.execute();
         AtomicBoolean blockingHandlersFinished = preciseIndividualBlockingOperationStreamExecutorService.execute();
         AtomicBoolean windowedHandlersFinished = uniformWindowedOperationStreamExecutorService.execute();
@@ -160,6 +159,6 @@ public class WorkloadRunner {
             throw new WorkloadException(String.format("Encountered error while running workload. Driver terminating.\n%s", errorReporter.toString()));
         }
 
-        if (showStatus) workloadStatusThread.interrupt();
+        if (statusDisplayInterval.asSeconds() > 0) workloadStatusThread.interrupt();
     }
 }

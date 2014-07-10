@@ -70,12 +70,11 @@ public class ConsoleAndFileDriverConfiguration implements DriverConfiguration {
         return Math.max(1, availableProcessors);
     }
 
-    //TODO Duration.fromSeconds(2), make status an integer argument and 0==no status
     public static final String SHOW_STATUS_ARG = "s";
     private static final String SHOW_STATUS_ARG_LONG = "status";
-    public static final boolean SHOW_STATUS_DEFAULT = false;
-    public static final String SHOW_STATUS_DEFAULT_STRING = Boolean.toString(SHOW_STATUS_DEFAULT);
-    private static final String SHOW_STATUS_DESCRIPTION = "show status during run";
+    public static final Duration SHOW_STATUS_DEFAULT = Duration.fromSeconds(2);
+    public static final String SHOW_STATUS_DEFAULT_STRING = Long.toString(SHOW_STATUS_DEFAULT.asSeconds());
+    private static final String SHOW_STATUS_DESCRIPTION = "interval between status printouts during benchmark execution (0 = disable)";
 
     public static final String DB_VALIDATION_FILE_PATH_ARG = "vdb";
     private static final String DB_VALIDATION_FILE_PATH_ARG_LONG = "validatedatabase";
@@ -222,7 +221,7 @@ public class ConsoleAndFileDriverConfiguration implements DriverConfiguration {
             String workloadClassName = paramsMap.get(WORKLOAD_ARG);
             long operationCount = Long.parseLong(paramsMap.get(OPERATION_COUNT_ARG));
             int threadCount = Integer.parseInt(paramsMap.get(THREADS_ARG));
-            boolean showStatus = Boolean.parseBoolean(paramsMap.get(SHOW_STATUS_ARG));
+            Duration statusDisplayInterval = Duration.fromSeconds(Integer.parseInt(paramsMap.get(SHOW_STATUS_ARG)));
             TimeUnit timeUnit = TimeUnit.valueOf(paramsMap.get(TIME_UNIT_ARG));
             String resultFilePath = paramsMap.get(RESULT_FILE_PATH_ARG);
             double timeCompressionRatio = Double.parseDouble(paramsMap.get(TIME_COMPRESSION_RATIO_ARG));
@@ -245,7 +244,7 @@ public class ConsoleAndFileDriverConfiguration implements DriverConfiguration {
                     workloadClassName,
                     operationCount,
                     threadCount,
-                    showStatus,
+                    statusDisplayInterval,
                     timeUnit,
                     resultFilePath,
                     timeCompressionRatio,
@@ -307,7 +306,7 @@ public class ConsoleAndFileDriverConfiguration implements DriverConfiguration {
             cmdParams.put(THREADS_ARG, cmd.getOptionValue(THREADS_ARG));
 
         if (cmd.hasOption(SHOW_STATUS_ARG))
-            cmdParams.put(SHOW_STATUS_ARG, Boolean.toString(true));
+            cmdParams.put(SHOW_STATUS_ARG, cmd.getOptionValue(SHOW_STATUS_ARG));
 
         if (cmd.hasOption(TIME_UNIT_ARG))
             cmdParams.put(TIME_UNIT_ARG, cmd.getOptionValue(TIME_UNIT_ARG));
@@ -444,7 +443,7 @@ public class ConsoleAndFileDriverConfiguration implements DriverConfiguration {
                 THREADS_ARG_LONG).create(THREADS_ARG);
         options.addOption(threadsOption);
 
-        Option statusOption = OptionBuilder.withDescription(SHOW_STATUS_DESCRIPTION).withLongOpt(
+        Option statusOption = OptionBuilder.hasArgs(1).withArgName("seconds").withDescription(SHOW_STATUS_DESCRIPTION).withLongOpt(
                 SHOW_STATUS_ARG_LONG).create(SHOW_STATUS_ARG);
         options.addOption(statusOption);
 
@@ -581,7 +580,7 @@ public class ConsoleAndFileDriverConfiguration implements DriverConfiguration {
     private final String workloadClassName;
     private final long operationCount;
     private final int threadCount;
-    private final boolean showStatus;
+    private final Duration statusDisplayInterval;
     private final TimeUnit timeUnit;
     private final String resultFilePath;
     private final double timeCompressionRatio;
@@ -601,7 +600,7 @@ public class ConsoleAndFileDriverConfiguration implements DriverConfiguration {
                                              String workloadClassName,
                                              long operationCount,
                                              int threadCount,
-                                             boolean showStatus,
+                                             Duration statusDisplayInterval,
                                              TimeUnit timeUnit,
                                              String resultFilePath,
                                              double timeCompressionRatio,
@@ -620,7 +619,7 @@ public class ConsoleAndFileDriverConfiguration implements DriverConfiguration {
         this.workloadClassName = workloadClassName;
         this.operationCount = operationCount;
         this.threadCount = threadCount;
-        this.showStatus = showStatus;
+        this.statusDisplayInterval = statusDisplayInterval;
         this.timeUnit = timeUnit;
         this.resultFilePath = resultFilePath;
         this.timeCompressionRatio = timeCompressionRatio;
@@ -657,8 +656,8 @@ public class ConsoleAndFileDriverConfiguration implements DriverConfiguration {
     }
 
     @Override
-    public boolean showStatus() {
-        return showStatus;
+    public Duration statusDisplayInterval() {
+        return statusDisplayInterval;
     }
 
     @Override
@@ -771,9 +770,9 @@ public class ConsoleAndFileDriverConfiguration implements DriverConfiguration {
         int newThreadCount = (newParamsMapWithShortKeys.containsKey(THREADS_ARG)) ?
                 Integer.parseInt(newParamsMapWithShortKeys.get(THREADS_ARG)) :
                 threadCount;
-        boolean newShowStatus = (newParamsMapWithShortKeys.containsKey(SHOW_STATUS_ARG)) ?
-                Boolean.parseBoolean(newParamsMapWithShortKeys.get(SHOW_STATUS_ARG)) :
-                showStatus;
+        Duration newStatusDisplayInterval = (newParamsMapWithShortKeys.containsKey(SHOW_STATUS_ARG)) ?
+                Duration.fromSeconds(Integer.parseInt(newParamsMapWithShortKeys.get(SHOW_STATUS_ARG))) :
+                statusDisplayInterval;
         TimeUnit newTimeUnit = (newParamsMapWithShortKeys.containsKey(TIME_UNIT_ARG)) ?
                 TimeUnit.valueOf(newParamsMapWithShortKeys.get(TIME_UNIT_ARG)) :
                 timeUnit;
@@ -820,7 +819,7 @@ public class ConsoleAndFileDriverConfiguration implements DriverConfiguration {
                 newWorkloadClassName,
                 newOperationCount,
                 newThreadCount,
-                newShowStatus,
+                newStatusDisplayInterval,
                 newTimeUnit,
                 newResultFilePath,
                 newTimeCompressionRatio,
@@ -845,8 +844,7 @@ public class ConsoleAndFileDriverConfiguration implements DriverConfiguration {
             argsList.addAll(Lists.newArrayList("-" + WORKLOAD_ARG, workloadClassName));
         argsList.addAll(Lists.newArrayList("-" + OPERATION_COUNT_ARG, Long.toString(operationCount)));
         // optional core parameters
-        if (showStatus)
-            argsList.add("-" + SHOW_STATUS_ARG);
+        argsList.addAll(Lists.newArrayList("-" + SHOW_STATUS_ARG, Long.toString(statusDisplayInterval.asSeconds())));
         argsList.addAll(Lists.newArrayList("-" + THREADS_ARG, Integer.toString(threadCount)));
         if (null != resultFilePath)
             argsList.addAll(Lists.newArrayList("-" + RESULT_FILE_PATH_ARG, resultFilePath));
@@ -888,9 +886,9 @@ public class ConsoleAndFileDriverConfiguration implements DriverConfiguration {
         sb.append("# *** driver defaults ***\n");
         sb.append("# ***********************\n");
         sb.append("\n");
-        sb.append("# show status during benchmark execution\n");
-        sb.append("# BOOLEAN\n");
-        sb.append(SHOW_STATUS_ARG_LONG).append("=").append(showStatus).append("\n");
+        sb.append("# status display interval (intermittently show status during benchmark execution)\n");
+        sb.append("# INTEGER (seconds)\n");
+        sb.append(SHOW_STATUS_ARG_LONG).append("=").append(statusDisplayInterval.asSeconds()).append("\n");
         sb.append("\n");
         sb.append("# thread pool size to use for executing operation handlers\n");
         sb.append("# INTEGER\n");
@@ -1020,7 +1018,7 @@ public class ConsoleAndFileDriverConfiguration implements DriverConfiguration {
         sb.append("\t").append(String.format("%1$-" + padRightDistance + "s", "Workload:")).append(workloadClassName).append("\n");
         sb.append("\t").append(String.format("%1$-" + padRightDistance + "s", "Operation Count:")).append(operationCount).append("\n");
         sb.append("\t").append(String.format("%1$-" + padRightDistance + "s", "Worker Threads:")).append(threadCount).append("\n");
-        sb.append("\t").append(String.format("%1$-" + padRightDistance + "s", "Show Status:")).append(showStatus).append("\n");
+        sb.append("\t").append(String.format("%1$-" + padRightDistance + "s", "Status Display Interval:")).append(statusDisplayInterval).append("\n");
         sb.append("\t").append(String.format("%1$-" + padRightDistance + "s", "Time Unit:")).append(timeUnit).append("\n");
         sb.append("\t").append(String.format("%1$-" + padRightDistance + "s", "Result File:")).append(resultFilePath()).append("\n");
         sb.append("\t").append(String.format("%1$-" + padRightDistance + "s", "Time Compression Ratio:")).append(timeCompressionRatio).append("\n");
@@ -1059,7 +1057,6 @@ public class ConsoleAndFileDriverConfiguration implements DriverConfiguration {
         if (calculateWorkloadStatistics != that.calculateWorkloadStatistics) return false;
         if (operationCount != that.operationCount) return false;
         if (printHelp != that.printHelp) return false;
-        if (showStatus != that.showStatus) return false;
         if (threadCount != that.threadCount) return false;
         if (Double.compare(that.timeCompressionRatio, timeCompressionRatio) != 0) return false;
         if (validateWorkload != that.validateWorkload) return false;
@@ -1072,6 +1069,8 @@ public class ConsoleAndFileDriverConfiguration implements DriverConfiguration {
         if (resultFilePath != null ? !resultFilePath.equals(that.resultFilePath) : that.resultFilePath != null)
             return false;
         if (spinnerSleepDuration != null ? !spinnerSleepDuration.equals(that.spinnerSleepDuration) : that.spinnerSleepDuration != null)
+            return false;
+        if (statusDisplayInterval != null ? !statusDisplayInterval.equals(that.statusDisplayInterval) : that.statusDisplayInterval != null)
             return false;
         if (timeUnit != that.timeUnit) return false;
         if (toleratedExecutionDelay != null ? !toleratedExecutionDelay.equals(that.toleratedExecutionDelay) : that.toleratedExecutionDelay != null)
@@ -1094,12 +1093,13 @@ public class ConsoleAndFileDriverConfiguration implements DriverConfiguration {
         result = 31 * result + (workloadClassName != null ? workloadClassName.hashCode() : 0);
         result = 31 * result + (int) (operationCount ^ (operationCount >>> 32));
         result = 31 * result + threadCount;
-        result = 31 * result + (showStatus ? 1 : 0);
+        result = 31 * result + (statusDisplayInterval != null ? statusDisplayInterval.hashCode() : 0);
         result = 31 * result + (timeUnit != null ? timeUnit.hashCode() : 0);
         result = 31 * result + (resultFilePath != null ? resultFilePath.hashCode() : 0);
         temp = Double.doubleToLongBits(timeCompressionRatio);
         result = 31 * result + (int) (temp ^ (temp >>> 32));
         result = 31 * result + (gctDeltaDuration != null ? gctDeltaDuration.hashCode() : 0);
+        result = 31 * result + (windowedExecutionWindowDuration != null ? windowedExecutionWindowDuration.hashCode() : 0);
         result = 31 * result + (peerIds != null ? peerIds.hashCode() : 0);
         result = 31 * result + (toleratedExecutionDelay != null ? toleratedExecutionDelay.hashCode() : 0);
         result = 31 * result + (validationCreationParams != null ? validationCreationParams.hashCode() : 0);
@@ -1108,7 +1108,6 @@ public class ConsoleAndFileDriverConfiguration implements DriverConfiguration {
         result = 31 * result + (calculateWorkloadStatistics ? 1 : 0);
         result = 31 * result + (spinnerSleepDuration != null ? spinnerSleepDuration.hashCode() : 0);
         result = 31 * result + (printHelp ? 1 : 0);
-        result = 31 * result + (windowedExecutionWindowDuration != null ? windowedExecutionWindowDuration.hashCode() : 0);
         return result;
     }
 

@@ -41,9 +41,10 @@ public class DbValidatorTest {
         DbValidator dbValidator = new DbValidator();
 
         // When
-        DbValidator.DbValidationResult validationResult = dbValidator.validate(validationParams, db);
+        DbValidationResult validationResult = dbValidator.validate(validationParams, db);
 
         // Then
+        System.out.println(validationResult.resultMessage());
         assertThat(validationResult.isSuccessful(), is(false));
     }
 
@@ -57,10 +58,11 @@ public class DbValidatorTest {
         DbValidator dbValidator = new DbValidator();
 
         // When
-        DbValidator.DbValidationResult validationResult = dbValidator.validate(validationParams, db);
+        DbValidationResult validationResult = dbValidator.validate(validationParams, db);
 
         // Then
-        assertThat(String.format("Validation Result\n%s", validationResult.errorMessage()),
+        System.out.println(validationResult.resultMessage());
+        assertThat(String.format("Validation Result\n%s", validationResult.resultMessage()),
                 validationResult.isSuccessful(), is(true));
     }
 

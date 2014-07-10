@@ -1,6 +1,7 @@
 package com.ldbc.driver.runtime.streams;
 
 import com.ldbc.driver.runtime.ConcurrentErrorReporter;
+import com.ldbc.driver.temporal.Duration;
 
 import java.util.*;
 import java.util.concurrent.ConcurrentLinkedQueue;
@@ -11,6 +12,8 @@ import java.util.concurrent.atomic.AtomicInteger;
  * Splits an Iterator into multiple Iterables. This operation is NOT lazy, all items from the input Iterator are materialized in the output Iterables.
  */
 public class IteratorSplitter<ITEMS_TYPE> {
+    private static final Duration SPIN_SLEEP_DURATION = Duration.fromMilli(100);
+
     public enum UnmappedItemPolicy {
         // If an item is found that does not have an associated split it is ignored and the next is retrieved
         DROP,
@@ -65,11 +68,19 @@ public class IteratorSplitter<ITEMS_TYPE> {
                 }
                 throw new IteratorSplittingException(String.format("Splitting terminated\n%s", errorReporter.toString()));
             }
+            sleep(SPIN_SLEEP_DURATION);
         }
         if (errorReporter.errorEncountered()) {
             throw new IteratorSplittingException(String.format("Splitting terminated\n%s", errorReporter.toString()));
         }
         return splitResult;
+    }
+
+    private void sleep(Duration sleepDuration) {
+        try {
+            Thread.sleep(sleepDuration.asMilli());
+        } catch (InterruptedException e) {
+        }
     }
 
     private class ItemQueueReadingIterator implements Iterator<ITEMS_TYPE> {

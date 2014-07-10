@@ -580,10 +580,49 @@ public class LdbcSnbInteractiveWorkload extends Workload {
     }
 
     @Override
-    public boolean validationResultCheck(Operation<?> operation, Object operationResult) {
-        boolean isReadOperation = readOperationFilter.contains(operation.getClass());
-        boolean isNotEmptyResult = false == ((List) operationResult).isEmpty();
-        return isReadOperation && isNotEmptyResult;
+    public DbValidationParametersFilter dbValidationParametersFilter(Integer requiredValidationParameterCount) {
+        Integer operationTypeCount = readOperationFilter.size();
+        long minimumResultCountPerOperationType = Math.max(1, Math.round(Math.floor(requiredValidationParameterCount.doubleValue() / operationTypeCount.doubleValue())));
+        final Map<Class, Long> remainingRequiredResultsPerOperationType = new HashMap<>();
+        long resultCountsAssignedSoFar = 0;
+        for (Class operationType : readOperationFilter) {
+            remainingRequiredResultsPerOperationType.put(operationType, minimumResultCountPerOperationType);
+            resultCountsAssignedSoFar = resultCountsAssignedSoFar + minimumResultCountPerOperationType;
+        }
+        for (Class operationType : remainingRequiredResultsPerOperationType.keySet()) {
+            if (resultCountsAssignedSoFar >= requiredValidationParameterCount)
+                break;
+            remainingRequiredResultsPerOperationType.put(operationType, remainingRequiredResultsPerOperationType.get(operationType) + 1);
+            resultCountsAssignedSoFar++;
+        }
+
+        return new DbValidationParametersFilter() {
+            @Override
+            public DbValidationParametersFilterResult apply(Operation<?> operation, Object operationResult) {
+                Class operationType = operation.getClass();
+
+                boolean isNotReadOperation = false == readOperationFilter.contains(operationType);
+                if (isNotReadOperation) return DbValidationParametersFilterResult.REJECT_AND_CONTINUE;
+
+                boolean isEmptyResult = ((List) operationResult).isEmpty();
+                if (isEmptyResult) return DbValidationParametersFilterResult.REJECT_AND_CONTINUE;
+
+                boolean haveAllResultsForOperationType = false == remainingRequiredResultsPerOperationType.containsKey(operationType);
+                if (haveAllResultsForOperationType) return DbValidationParametersFilterResult.REJECT_AND_CONTINUE;
+
+                long remainingRequiredResultsForOperationType = remainingRequiredResultsPerOperationType.get(operationType) - 1;
+
+                if (0 == remainingRequiredResultsForOperationType)
+                    remainingRequiredResultsPerOperationType.remove(operationType);
+                else
+                    remainingRequiredResultsPerOperationType.put(operationType, remainingRequiredResultsForOperationType);
+
+                if (remainingRequiredResultsPerOperationType.size() > 0)
+                    return DbValidationParametersFilterResult.ACCEPT_AND_CONTINUE;
+                else
+                    return DbValidationParametersFilterResult.ACCEPT_AND_FINISH;
+            }
+        };
     }
 
     private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();

@@ -165,7 +165,7 @@ public class LdbcSnbInteractiveWorkloadTest {
         String workloadClassName = LdbcSnbInteractiveWorkload.class.getName();
         long operationCount = 100;
         int threadCount = 1;
-        boolean showStatus = true;
+        Duration statusDisplayInterval = Duration.fromSeconds(1);
         TimeUnit timeUnit = TimeUnit.MILLISECONDS;
         String resultFilePath = "test_ldbc_socnet_interactive_results.json";
         FileUtils.deleteQuietly(new File(resultFilePath));
@@ -184,7 +184,7 @@ public class LdbcSnbInteractiveWorkloadTest {
         assertThat(new File(resultFilePath).exists(), is(false));
 
         DriverConfiguration params = new ConsoleAndFileDriverConfiguration(paramsMap, dbClassName, workloadClassName, operationCount,
-                threadCount, showStatus, timeUnit, resultFilePath, timeCompressionRatio, gctDeltaDuration, windowedExecutionWindowDuration, peerIds, toleratedExecutionDelay,
+                threadCount, statusDisplayInterval, timeUnit, resultFilePath, timeCompressionRatio, gctDeltaDuration, windowedExecutionWindowDuration, peerIds, toleratedExecutionDelay,
                 validationParams, dbValidationFilePath, validateWorkload, calculateWorkloadStatistics, spinnerSleepDuration, printHelp);
 
         String ldbcSnbDatagenUpdateStreamPropertiesPath = TestUtils.getResource("/updateStream_0.properties").getAbsolutePath();
@@ -402,7 +402,7 @@ public class LdbcSnbInteractiveWorkloadTest {
         String workloadClassName = LdbcSnbInteractiveWorkload.class.getName();
         long operationCount = 1000;
         int threadCount = 1;
-        boolean showStatus = true;
+        Duration statusDisplayInterval = Duration.fromSeconds(1);
         TimeUnit timeUnit = TimeUnit.MILLISECONDS;
         String resultFilePath = "test_write_to_csv_results.json";
         FileUtils.deleteQuietly(new File(resultFilePath));
@@ -422,7 +422,7 @@ public class LdbcSnbInteractiveWorkloadTest {
         assertThat(new File(resultFilePath).exists(), is(false));
 
         DriverConfiguration params = new ConsoleAndFileDriverConfiguration(paramsMap, dbClassName, workloadClassName, operationCount,
-                threadCount, showStatus, timeUnit, resultFilePath, timeCompressionRatio, gctDeltaDuration, windowedExecutionWindowDuration, peerIds, toleratedExecutionDelay,
+                threadCount, statusDisplayInterval, timeUnit, resultFilePath, timeCompressionRatio, gctDeltaDuration, windowedExecutionWindowDuration, peerIds, toleratedExecutionDelay,
                 validationParams, dbValidationFilePath, validateWorkload, calculateWorkloadStatistics, spinnerSleepDuration, printHelp);
 
         String ldbcSnbDatagenUpdateStreamPropertiesPath = TestUtils.getResource("/updateStream_0.properties").getAbsolutePath();
@@ -540,7 +540,7 @@ public class LdbcSnbInteractiveWorkloadTest {
         String workloadClassName = LdbcSnbInteractiveWorkload.class.getName();
         long operationCount = 1000000;
         int threadCount = 1;
-        boolean showStatus = true;
+        Duration statusDisplayInterval = Duration.fromSeconds(1);
         TimeUnit timeUnit = TimeUnit.MILLISECONDS;
         String resultFilePath = "test_write_to_csv_results.json";
         FileUtils.deleteQuietly(new File(resultFilePath));
@@ -560,7 +560,7 @@ public class LdbcSnbInteractiveWorkloadTest {
         assertThat(new File(resultFilePath).exists(), is(false));
 
         DriverConfiguration configuration = new ConsoleAndFileDriverConfiguration(paramsMap, dbClassName, workloadClassName, operationCount,
-                threadCount, showStatus, timeUnit, resultFilePath, timeCompressionRatio, gctDeltaDuration, windowedExecutionWindowDuration, peerIds, toleratedExecutionDelay,
+                threadCount, statusDisplayInterval, timeUnit, resultFilePath, timeCompressionRatio, gctDeltaDuration, windowedExecutionWindowDuration, peerIds, toleratedExecutionDelay,
                 validationParams, dbValidationFilePath, validateWorkload, calculateWorkloadStatistics, spinnerSleepDuration, printHelp);
 
         String ldbcSnbDatagenUpdateStreamPropertiesPath = TestUtils.getResource("/updateStream_0.properties").getAbsolutePath();
@@ -631,7 +631,7 @@ public class LdbcSnbInteractiveWorkloadTest {
         String workloadClassName = LdbcSnbInteractiveWorkload.class.getName();
         long operationCount = 500;
         int threadCount = 1;
-        boolean showStatus = true;
+        Duration statusDisplayInterval = Duration.fromSeconds(1);
         TimeUnit timeUnit = TimeUnit.MILLISECONDS;
         String resultFilePath = "test_write_to_csv_results.json";
         FileUtils.deleteQuietly(new File(resultFilePath));
@@ -650,7 +650,7 @@ public class LdbcSnbInteractiveWorkloadTest {
         assertThat(new File(resultFilePath).exists(), is(false));
 
         DriverConfiguration configuration = new ConsoleAndFileDriverConfiguration(params, dbClassName, workloadClassName, operationCount,
-                threadCount, showStatus, timeUnit, resultFilePath, timeCompressionRatio, gctDeltaDuration, windowedExecutionWindowDuration, peerIds, toleratedExecutionDelay,
+                threadCount, statusDisplayInterval, timeUnit, resultFilePath, timeCompressionRatio, gctDeltaDuration, windowedExecutionWindowDuration, peerIds, toleratedExecutionDelay,
                 validationParams, dbValidationFilePath, validateWorkload, calculateWorkloadStatistics, spinnerSleepDuration, printHelp);
 
 //        String ldbcSnbDatagenUpdateStreamPropertiesPath = TestUtils.getResource("/updateStream_0.properties").getAbsolutePath();
@@ -716,7 +716,7 @@ public class LdbcSnbInteractiveWorkloadTest {
         String workloadClassName = LdbcSnbInteractiveWorkload.class.getName();
         long operationCount = 1000000;
         int threadCount = 1;
-        boolean showStatus = true;
+        Duration statusDisplayInterval = Duration.fromSeconds(1);
         TimeUnit timeUnit = TimeUnit.MILLISECONDS;
         String resultFilePath = "test_write_to_csv_results.json";
         FileUtils.deleteQuietly(new File(resultFilePath));
@@ -736,7 +736,7 @@ public class LdbcSnbInteractiveWorkloadTest {
         assertThat(new File(resultFilePath).exists(), is(false));
 
         DriverConfiguration configuration = new ConsoleAndFileDriverConfiguration(paramsMap, dbClassName, workloadClassName, operationCount,
-                threadCount, showStatus, timeUnit, resultFilePath, timeCompressionRatio, gctDeltaDuration, windowedExecutionWindowDuration, peerIds, toleratedExecutionDelay,
+                threadCount, statusDisplayInterval, timeUnit, resultFilePath, timeCompressionRatio, gctDeltaDuration, windowedExecutionWindowDuration, peerIds, toleratedExecutionDelay,
                 validationParams, dbValidationFilePath, validateWorkload, calculateWorkloadStatistics, spinnerSleepDuration, printHelp);
 
         String ldbcSnbDatagenUpdateStreamPropertiesPath = TestUtils.getResource("/updateStream_0.properties").getAbsolutePath();
@@ -852,7 +852,7 @@ public class LdbcSnbInteractiveWorkloadTest {
         String workloadClassName = LdbcSnbInteractiveWorkload.class.getName();
         long operationCount = 5;
         int threadCount = 2;
-        boolean showStatus = true;
+        Duration statusDisplayInterval = Duration.fromSeconds(1);
         TimeUnit timeUnit = TimeUnit.MILLISECONDS;
         String resultFilePath = "test_write_to_csv_results.json";
         FileUtils.deleteQuietly(new File(resultFilePath));
@@ -871,7 +871,7 @@ public class LdbcSnbInteractiveWorkloadTest {
         assertThat(new File(resultFilePath).exists(), is(false));
 
         DriverConfiguration params = new ConsoleAndFileDriverConfiguration(paramsMap, dbClassName, workloadClassName, operationCount,
-                threadCount, showStatus, timeUnit, resultFilePath, timeCompressionRatio, gctDeltaDuration, windowedExecutionWindowDuration, peerIds, toleratedExecutionDelay,
+                threadCount, statusDisplayInterval, timeUnit, resultFilePath, timeCompressionRatio, gctDeltaDuration, windowedExecutionWindowDuration, peerIds, toleratedExecutionDelay,
                 validationParams, dbValidationFilePath, validateWorkload, calculateWorkloadStatistics, spinnerSleepDuration, printHelp);
 
         String ldbcSnbDatagenUpdateStreamPropertiesPath = TestUtils.getResource("/updateStream_0.properties").getAbsolutePath();

@@ -82,7 +82,7 @@ public class WorkloadRunnerTest {
         String workloadClassName = LdbcSnbInteractiveWorkload.class.getName();
         long operationCount = 1000;
         int threadCount = 1;
-        boolean showStatus = true;
+        Duration statusDisplayInterval = Duration.fromSeconds(1);
         TimeUnit timeUnit = TimeUnit.MILLISECONDS;
         String resultFilePath = "temp_results_file.json";
         FileUtils.deleteQuietly(new File(resultFilePath));
@@ -101,7 +101,7 @@ public class WorkloadRunnerTest {
         assertThat(new File(resultFilePath).exists(), is(false));
 
         ConsoleAndFileDriverConfiguration configuration = new ConsoleAndFileDriverConfiguration(paramsMap, dbClassName, workloadClassName, operationCount,
-                threadCount, showStatus, timeUnit, resultFilePath, timeCompressionRatio, gctDeltaDuration, windowedExecutionWindowDuration, peerIds, toleratedExecutionDelay,
+                threadCount, statusDisplayInterval, timeUnit, resultFilePath, timeCompressionRatio, gctDeltaDuration, windowedExecutionWindowDuration, peerIds, toleratedExecutionDelay,
                 validationParams, dbValidationFilePath, validateWorkload, calculateWorkloadStatistics, spinnerSleepDuration, printHelp);
 
         ConcurrentControlService controlService = new LocalControlService(TIME_SOURCE.now().plus(Duration.fromMilli(1000)), configuration);
@@ -132,7 +132,7 @@ public class WorkloadRunnerTest {
                 errorReporter,
                 completionTimeService,
                 controlService.configuration().threadCount(),
-                controlService.configuration().showStatus(),
+                controlService.configuration().statusDisplayInterval(),
                 controlService.workloadStartTime(),
                 controlService.configuration().toleratedExecutionDelay(),
                 controlService.configuration().spinnerSleepDuration(),
@@ -209,7 +209,7 @@ public class WorkloadRunnerTest {
         String workloadClassName = LdbcSnbInteractiveWorkload.class.getName();
         long operationCount = 1000;
         int threadCount = 4;
-        boolean showStatus = true;
+        Duration statusDisplayInterval = Duration.fromSeconds(1);
         TimeUnit timeUnit = TimeUnit.MILLISECONDS;
         String resultFilePath = "temp_results_file.json";
         FileUtils.deleteQuietly(new File(resultFilePath));
@@ -229,7 +229,7 @@ public class WorkloadRunnerTest {
         assertThat(new File(resultFilePath).exists(), is(false));
 
         ConsoleAndFileDriverConfiguration configuration = new ConsoleAndFileDriverConfiguration(paramsMap, dbClassName, workloadClassName, operationCount,
-                threadCount, showStatus, timeUnit, resultFilePath, timeCompressionRatio, gctDeltaDuration, windowedExecutionWindowDuration, peerIds, toleratedExecutionDelay,
+                threadCount, statusDisplayInterval, timeUnit, resultFilePath, timeCompressionRatio, gctDeltaDuration, windowedExecutionWindowDuration, peerIds, toleratedExecutionDelay,
                 validationParams, dbValidationFilePath, validateWorkload, calculateWorkloadStatistics, spinnerSleepDuration, printHelp);
 
         ConcurrentControlService controlService = new LocalControlService(TIME_SOURCE.now().plus(Duration.fromMilli(1000)), configuration);
@@ -260,7 +260,7 @@ public class WorkloadRunnerTest {
                 errorReporter,
                 completionTimeService,
                 controlService.configuration().threadCount(),
-                controlService.configuration().showStatus(),
+                controlService.configuration().statusDisplayInterval(),
                 controlService.workloadStartTime(),
                 controlService.configuration().toleratedExecutionDelay(),
                 controlService.configuration().spinnerSleepDuration(),
