@@ -125,7 +125,7 @@ public class ConsoleAndFileDriverConfiguration implements DriverConfiguration {
     private static final String WINDOWED_EXECUTION_WINDOW_DURATION_ARG_LONG = "windowduraiton";
     public static final Duration WINDOWED_EXECUTION_WINDOW_DURATION_DEFAULT = Duration.fromSeconds(1);
     public static final String WINDOWED_EXECUTION_WINDOW_DURATION_DEFAULT_STRING = Long.toString(WINDOWED_EXECUTION_WINDOW_DURATION_DEFAULT.asMilli());
-    private static final String WINDOWED_EXECUTION_WINDOW_DURATION_DESCRIPTION = "duration (ms) an operation handler may miss its scheduled start time by";
+    private static final String WINDOWED_EXECUTION_WINDOW_DURATION_DESCRIPTION = "duration (ms) of execution window used in 'Windowed Execution' mode";
 
 
     public static final String PEER_IDS_ARG = "pids";
