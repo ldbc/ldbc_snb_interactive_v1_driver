@@ -4,7 +4,7 @@ import com.ldbc.driver.OperationResultReport;
 import com.ldbc.driver.runtime.metrics.ConcurrentMetricsService;
 import com.ldbc.driver.runtime.metrics.MetricsCollectionException;
 import com.ldbc.driver.runtime.metrics.WorkloadResultsSnapshot;
-import com.ldbc.driver.runtime.metrics.WorkloadStatus;
+import com.ldbc.driver.runtime.metrics.WorkloadStatusSnapshot;
 
 public class DummyConcurrentMetricsService implements ConcurrentMetricsService {
 
@@ -14,7 +14,7 @@ public class DummyConcurrentMetricsService implements ConcurrentMetricsService {
     }
 
     @Override
-    public WorkloadStatus status() throws MetricsCollectionException {
+    public WorkloadStatusSnapshot status() throws MetricsCollectionException {
         return null;
     }
 

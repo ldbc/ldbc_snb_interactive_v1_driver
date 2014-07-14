@@ -13,7 +13,6 @@ import com.ldbc.driver.temporal.Duration;
 import com.ldbc.driver.temporal.SystemTimeSource;
 import com.ldbc.driver.temporal.TimeSource;
 import com.ldbc.driver.util.RandomDataGeneratorFactory;
-import com.ldbc.driver.util.TestUtils;
 import com.ldbc.driver.workloads.simple.db.BasicDb;
 import org.apache.commons.io.FileUtils;
 import org.junit.Test;
@@ -40,7 +39,6 @@ public class SimpleWorkloadTest {
         TimeUnit timeUnit = TimeUnit.MILLISECONDS;
         String resultFilePath = null;
         Double timeCompressionRatio = 1.0;
-        Duration gctDeltaDuration = Duration.fromMinutes(10);
         Duration windowedExecutionWindowDuration = Duration.fromSeconds(1);
         Set<String> peerIds = new HashSet<>();
         Duration toleratedExecutionDelay = Duration.fromSeconds(1);
@@ -62,7 +60,6 @@ public class SimpleWorkloadTest {
                         timeUnit,
                         resultFilePath,
                         timeCompressionRatio,
-                        gctDeltaDuration,
                         windowedExecutionWindowDuration,
                         peerIds,
                         toleratedExecutionDelay,
@@ -119,7 +116,6 @@ public class SimpleWorkloadTest {
         TimeUnit timeUnit = TimeUnit.MILLISECONDS;
         String resultFilePath = null;
         Double timeCompressionRatio = 1.0;
-        Duration gctDeltaDuration = Duration.fromMinutes(10);
         Duration windowedExecutionWindowDuration = Duration.fromSeconds(1);
         Set<String> peerIds = new HashSet<>();
         Duration toleratedExecutionDelay = Duration.fromSeconds(1);
@@ -141,7 +137,6 @@ public class SimpleWorkloadTest {
                         timeUnit,
                         resultFilePath,
                         timeCompressionRatio,
-                        gctDeltaDuration,
                         windowedExecutionWindowDuration,
                         peerIds,
                         toleratedExecutionDelay,

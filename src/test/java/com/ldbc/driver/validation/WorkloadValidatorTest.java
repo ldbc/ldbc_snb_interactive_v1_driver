@@ -18,10 +18,7 @@ import com.ldbc.driver.util.RandomDataGeneratorFactory;
 import org.junit.Ignore;
 import org.junit.Test;
 
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.is;
@@ -38,7 +35,9 @@ public class WorkloadValidatorTest {
         Time startTime = TIME_SOURCE.now();
         long operationCount = 1000;
         Iterator<Time> startTimes = gf.constantIncrementTime(startTime, Duration.fromMilli(10));
-        Iterator<Operation<?>> timedNothingOperations = (Iterator) new TimedNothingOperationFactory(startTimes);
+        // TODO note, as they are here dependency times are ALWAYS before GCT
+        Iterator<Time> dependencyTimes = gf.constantIncrementTime(startTime.minus(Duration.fromMilli(1)), Duration.fromMilli(0));
+        Iterator<Operation<?>> timedNothingOperations = (Iterator) new TimedNothingOperationFactory(startTimes, dependencyTimes);
 
         Iterator<Operation<?>> operations = gf.limit(timedNothingOperations, operationCount);
 
@@ -58,19 +57,22 @@ public class WorkloadValidatorTest {
     }
 
     @Test
-    public void shouldFailWhenAllOperationsHaveStartTimesAllOperationsHaveClassificationsButMaxInterleaveIsExceeded()
+    public void shouldFailWhenAllOperationsHaveStartTimesAndAllOperationsHaveClassificationsButMaxInterleaveIsExceeded()
             throws MetricsCollectionException, DriverConfigurationException, WorkloadException {
+        Time dependencyTime = Time.fromMilli(0);
         Duration maxExpectedInterleave = Duration.fromMilli(1000);
         Time startTime = TIME_SOURCE.now();
         long operationCount = 1000;
         Iterator<Time> startTimes = gf.constantIncrementTime(startTime, Duration.fromMilli(10));
-        Iterator<Operation<?>> timedNothingOperations = (Iterator) new TimedNothingOperationFactory(startTimes);
+        // TODO note, as they are here dependency times are ALWAYS before GCT
+        Iterator<Time> dependencyTimes = gf.constantIncrementTime(startTime.minus(Duration.fromMilli(1)), Duration.fromMilli(0));
+        Iterator<Operation<?>> timedNothingOperations = (Iterator) new TimedNothingOperationFactory(startTimes, dependencyTimes);
 
         List<Operation<?>> operations = Lists.newArrayList(gf.limit(timedNothingOperations, operationCount - 1));
 
         Time lastOperationStartTime = operations.get(operations.size() - 1).scheduledStartTime();
         Duration excessiveDurationBetweenOperations = maxExpectedInterleave.plus(Duration.fromMilli(1));
-        operations.add(new TimedNothingOperation(lastOperationStartTime.plus(excessiveDurationBetweenOperations)));
+        operations.add(new TimedNothingOperation(lastOperationStartTime.plus(excessiveDurationBetweenOperations), dependencyTime));
 
         Map<Class<? extends Operation<?>>, OperationClassification> operationClassifications = new HashMap<>();
         operationClassifications.put(
@@ -93,7 +95,9 @@ public class WorkloadValidatorTest {
         Time startTime = TIME_SOURCE.now();
         long operationCount = 1000;
         Iterator<Time> startTimes = gf.constantIncrementTime(startTime, Duration.fromMilli(10));
-        Iterator<Operation<?>> timedNothingOperations = (Iterator) new TimedNothingOperationFactory(startTimes);
+        // TODO note, as they are here dependency times are ALWAYS before GCT
+        Iterator<Time> dependencyTimes = gf.constantIncrementTime(startTime.minus(Duration.fromMilli(1)), Duration.fromMilli(0));
+        Iterator<Operation<?>> timedNothingOperations = (Iterator) new TimedNothingOperationFactory(startTimes, dependencyTimes);
 
         List<Operation<?>> operations = Lists.newArrayList(gf.limit(timedNothingOperations, operationCount));
 
@@ -115,7 +119,9 @@ public class WorkloadValidatorTest {
         Time startTime = TIME_SOURCE.now();
         long operationCount = 1000;
         Iterator<Time> startTimes = gf.constantIncrementTime(startTime, Duration.fromMilli(10));
-        Iterator<Operation<?>> timedNothingOperations = (Iterator) new TimedNothingOperationFactory(startTimes);
+        // TODO note, as they are here dependency times are ALWAYS before GCT
+        Iterator<Time> dependencyTimes = gf.constantIncrementTime(startTime.minus(Duration.fromMilli(1)), Duration.fromMilli(0));
+        Iterator<Operation<?>> timedNothingOperations = (Iterator) new TimedNothingOperationFactory(startTimes, dependencyTimes);
 
         List<Operation<?>> operations = Lists.newArrayList(gf.limit(timedNothingOperations, operationCount - 1));
         operations.add(new NothingOperation());
@@ -142,7 +148,9 @@ public class WorkloadValidatorTest {
         Time startTime = TIME_SOURCE.now();
         long operationCount = 1000;
         Iterator<Time> startTimes = gf.constantIncrementTime(startTime, Duration.fromMilli(10));
-        Iterator<Operation<?>> timedNothingOperations = (Iterator) new TimedNothingOperationFactory(startTimes);
+        // TODO note, as they are here dependency times are ALWAYS before GCT
+        Iterator<Time> dependencyTimes = gf.constantIncrementTime(startTime.minus(Duration.fromMilli(1)), Duration.fromMilli(0));
+        Iterator<Operation<?>> timedNothingOperations = (Iterator) new TimedNothingOperationFactory(startTimes, dependencyTimes);
 
         List<Operation<?>> operations = Lists.newArrayList(gf.limit(timedNothingOperations, operationCount - 1));
         operations.add(new NothingOperation());
@@ -163,14 +171,17 @@ public class WorkloadValidatorTest {
 
     @Test
     public void shouldFailWhenOperationStartTimesAreNotMonotonicallyIncreasing() throws MetricsCollectionException, DriverConfigurationException, WorkloadException {
+        Time dependencyTime = Time.fromMilli(0);
         Time startTime = TIME_SOURCE.now();
         long operationCount = 1000;
         Iterator<Time> startTimes = gf.constantIncrementTime(startTime, Duration.fromMilli(10));
-        Iterator<Operation<?>> timedNothingOperations = (Iterator) new TimedNothingOperationFactory(startTimes);
+        // TODO note, as they are here dependency times are ALWAYS before GCT
+        Iterator<Time> dependencyTimes = gf.constantIncrementTime(startTime.minus(Duration.fromMilli(1)), Duration.fromMilli(0));
+        Iterator<Operation<?>> timedNothingOperations = (Iterator) new TimedNothingOperationFactory(startTimes, dependencyTimes);
 
         List<Operation<?>> operations = Lists.newArrayList(gf.limit(timedNothingOperations, operationCount - 1));
         Time slightlyBeforeLastOperationStartTime = operations.get(operations.size() - 1).scheduledStartTime().minus(Duration.fromMilli(1));
-        operations.add(new TimedNothingOperation(slightlyBeforeLastOperationStartTime));
+        operations.add(new TimedNothingOperation(slightlyBeforeLastOperationStartTime, dependencyTime));
 
         Map<Class<? extends Operation<?>>, OperationClassification> operationClassifications = new HashMap<>();
         operationClassifications.put(
@@ -199,7 +210,9 @@ public class WorkloadValidatorTest {
         Time startTime = TIME_SOURCE.now();
         long operationCount = 1000;
         Iterator<Time> startTimes = gf.constantIncrementTime(startTime, Duration.fromMilli(10));
-        Iterator<Operation<?>> timedNothingOperations = (Iterator) new TimedNothingOperationFactory(startTimes);
+        // TODO note, as they are here dependency times are ALWAYS before GCT
+        Iterator<Time> dependencyTimes = gf.constantIncrementTime(startTime.minus(Duration.fromMilli(1)), Duration.fromMilli(0));
+        Iterator<Operation<?>> timedNothingOperations = (Iterator) new TimedNothingOperationFactory(startTimes, dependencyTimes);
 
         Iterator<Operation<?>> operations = gf.limit(timedNothingOperations, operationCount);
 
@@ -223,7 +236,9 @@ public class WorkloadValidatorTest {
         Time startTime = TIME_SOURCE.now();
         long operationCount = 1000;
         Iterator<Time> startTimes = gf.constantIncrementTime(startTime, Duration.fromMilli(10));
-        Iterator<Operation<?>> timedNothingOperations = (Iterator) new TimedNothingOperationFactory(startTimes);
+        // TODO note, as they are here dependency times are ALWAYS before GCT
+        Iterator<Time> dependencyTimes = gf.constantIncrementTime(startTime.minus(Duration.fromMilli(1)), Duration.fromMilli(0));
+        Iterator<Operation<?>> timedNothingOperations = (Iterator) new TimedNothingOperationFactory(startTimes, dependencyTimes);
 
         Iterator<Operation<?>> operations = gf.limit(timedNothingOperations, operationCount);
 
@@ -283,7 +298,11 @@ public class WorkloadValidatorTest {
         public String serializeOperation(Operation<?> operation) throws SerializingMarshallingException {
             if (operation.getClass().equals(NothingOperation.class)) return NothingOperation.class.getName();
             if (operation.getClass().equals(TimedNothingOperation.class))
-                return TimedNothingOperation.class.getName() + Long.toString(operation.scheduledStartTime().asMilli());
+                return TimedNothingOperation.class.getName()
+                        + "|"
+                        + Long.toString(operation.scheduledStartTime().asMilli())
+                        + "|"
+                        + Long.toString(operation.dependencyTime().asMilli());
             throw new SerializingMarshallingException("Unsupported Operation: " + operation.getClass().getName());
         }
 
@@ -291,8 +310,16 @@ public class WorkloadValidatorTest {
         public Operation<?> marshalOperation(String serializedOperation) throws SerializingMarshallingException {
             if (serializedOperation.startsWith(NothingOperation.class.getName())) return new NothingOperation();
             if (serializedOperation.startsWith(TimedNothingOperation.class.getName())) {
-                String timeAsMillString = serializedOperation.substring(TimedNothingOperation.class.getName().length(), serializedOperation.length());
-                return new TimedNothingOperation(Time.fromMilli(Long.parseLong(timeAsMillString)));
+                String[] serializedOperationTokens = serializedOperation.split("\\|");
+                // TODO remove
+                System.out.println(Arrays.toString(serializedOperationTokens));
+                // TODO remove
+//                String scheduledStartTimeAsMillString = serializedOperation.substring(TimedNothingOperation.class.getName().length(), serializedOperation.length());
+                String scheduledStartTimeAsMillString = serializedOperationTokens[1];
+                String dependencyTimeAsMillString = serializedOperationTokens[2];
+                return new TimedNothingOperation(
+                        Time.fromMilli(Long.parseLong(scheduledStartTimeAsMillString)),
+                        Time.fromMilli(Long.parseLong(dependencyTimeAsMillString)));
             }
             throw new SerializingMarshallingException("Unsupported Operation: " + serializedOperation);
         }

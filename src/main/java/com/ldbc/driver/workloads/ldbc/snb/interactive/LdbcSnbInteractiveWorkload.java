@@ -435,7 +435,7 @@ public class LdbcSnbInteractiveWorkload extends Workload {
 
     @Override
     protected Iterator<Operation<?>> createOperations(GeneratorFactory gf) throws WorkloadException {
-        // TODO assign this in a better way
+        // this is an arbitrary point in time that is simply used as reference point, Client will move times to the present anyway
         Time workloadStartTime = Time.fromMilli(0);
 
         /*
@@ -573,10 +573,14 @@ public class LdbcSnbInteractiveWorkload extends Workload {
         /*
          * Merge all operation streams, ordered by operation start times
          */
-        Iterator<Operation<?>> readAndWriteOperations =
-                gf.mergeSortOperationsByStartTime(enabledOperations.toArray(new Iterator[enabledOperations.size()]));
+        Iterator<Operation<?>> readAndWriteOperations = gf.mergeSortOperationsByStartTime(enabledOperations.toArray(new Iterator[enabledOperations.size()]));
+        // TODO uncomment later when Dependency Times are done properly
+//        return readAndWriteOperations;
 
-        return readAndWriteOperations;
+        // TODO update later, just here because all times need a Dependency Time and until Writes are enabled Dependency Time is not really used
+        Iterator<Time> dependencyTimes = gf.constantIncrementTime(workloadStartTime, Duration.fromMilli(0));
+        Iterator<Operation<?>> readAndWriteOperationsWithDependencyTimes = gf.dependencyTimeAssigning(dependencyTimes, readAndWriteOperations);
+        return readAndWriteOperationsWithDependencyTimes;
     }
 
     @Override

@@ -13,7 +13,7 @@ import com.ldbc.driver.temporal.TimeSource;
 import com.ldbc.driver.util.CsvFileReader;
 import com.ldbc.driver.util.Histogram;
 import com.ldbc.driver.util.RandomDataGeneratorFactory;
-import com.ldbc.driver.util.TestUtils;
+import com.ldbc.driver.TestUtils;
 import org.apache.commons.io.FileUtils;
 import org.junit.After;
 import org.junit.Before;

@@ -23,11 +23,7 @@ public interface DriverConfiguration {
 
     double timeCompressionRatio();
 
-    Duration gctDeltaDuration();
-
     Duration windowedExecutionWindowDuration();
-
-    Duration compressedGctDeltaDuration();
 
     Set<String> peerIds();
 

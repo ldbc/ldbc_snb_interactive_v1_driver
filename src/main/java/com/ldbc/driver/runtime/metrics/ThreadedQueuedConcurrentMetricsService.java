@@ -49,7 +49,7 @@ public class ThreadedQueuedConcurrentMetricsService implements ConcurrentMetrics
     }
 
     @Override
-    public WorkloadStatus status() throws MetricsCollectionException {
+    public WorkloadStatusSnapshot status() throws MetricsCollectionException {
         if (shuttingDown) {
             throw new MetricsCollectionException("Can not read metrics status after calling shutdown");
         }
@@ -139,16 +139,16 @@ public class ThreadedQueuedConcurrentMetricsService implements ConcurrentMetrics
         }
     }
 
-    public static class MetricsStatusFuture implements Future<WorkloadStatus> {
+    public static class MetricsStatusFuture implements Future<WorkloadStatusSnapshot> {
         private final TimeSource TIME_SOURCE;
         private final AtomicBoolean done = new AtomicBoolean(false);
-        private final AtomicReference<WorkloadStatus> status = new AtomicReference<WorkloadStatus>(null);
+        private final AtomicReference<WorkloadStatusSnapshot> status = new AtomicReference<WorkloadStatusSnapshot>(null);
 
         private MetricsStatusFuture(TimeSource timeSource) {
             this.TIME_SOURCE = timeSource;
         }
 
-        synchronized void set(WorkloadStatus value) throws MetricsCollectionException {
+        synchronized void set(WorkloadStatusSnapshot value) throws MetricsCollectionException {
             if (done.get())
                 throw new MetricsCollectionException("Value has already been set");
             status.set(value);
@@ -171,7 +171,7 @@ public class ThreadedQueuedConcurrentMetricsService implements ConcurrentMetrics
         }
 
         @Override
-        public WorkloadStatus get() {
+        public WorkloadStatusSnapshot get() {
             while (done.get() == false) {
                 // wait for value to be set
             }
@@ -179,7 +179,7 @@ public class ThreadedQueuedConcurrentMetricsService implements ConcurrentMetrics
         }
 
         @Override
-        public WorkloadStatus get(long timeout, TimeUnit unit) throws TimeoutException {
+        public WorkloadStatusSnapshot get(long timeout, TimeUnit unit) throws TimeoutException {
             // Note: the commented version is cleaner, but .durationUntilNow() produces many Duration instances
             // Duration waitDuration = Duration.from(unit, timeout);
             // DurationMeasurement durationWaited = DurationMeasurement.startMeasurementNow();

@@ -1,7 +1,9 @@
 package com.ldbc.driver.control;
 
 import com.ldbc.driver.util.MapUtils;
-import com.ldbc.driver.util.TestUtils;
+import com.ldbc.driver.TestUtils;
+import com.ldbc.driver.workloads.ldbc.snb.interactive.db.DummyDb;
+import com.ldbc.driver.workloads.simple.SimpleWorkload;
 import org.apache.commons.io.FileUtils;
 
 import java.io.File;
@@ -17,6 +19,11 @@ import static org.junit.Assert.assertThat;
 
 public class DriverConfigurationFileTestHelper {
     public static void main(String[] args) throws IOException, DriverConfigurationException {
+        updateDefaultConfigurationFiles();
+        print();
+    }
+
+    public static void updateDefaultConfigurationFiles() throws DriverConfigurationException, IOException {
         File driverRootDirectory = getDriverRootDirectory();
 
         File baseConfigurationFilePublicLocation = getBaseConfigurationFilePublicLocation(driverRootDirectory);
@@ -31,6 +38,17 @@ public class DriverConfigurationFileTestHelper {
                 readConfigurationFileAt(baseConfigurationFilePublicLocation),
                 equalTo(readConfigurationFileAt(baseConfigurationFilePublicTestResourcesLocation)));
     }
+
+    public static void print() throws DriverConfigurationException {
+        System.out.println(ConsoleAndFileDriverConfiguration.commandlineHelpString());
+        System.out.println();
+        System.out.println();
+        System.out.println(ConsoleAndFileDriverConfiguration.fromDefaults(DummyDb.class.getName(), SimpleWorkload.class.getName(), 1000).toString());
+        System.out.println();
+        System.out.println();
+        System.out.println(ConsoleAndFileDriverConfiguration.fromDefaults(null, null, 0).toPropertiesString());
+    }
+
 
     public static void createBaseConfigurationAt(File baseConfigurationFile) throws IOException, DriverConfigurationException {
         // Delete old configuration file and create new one, in appropriate directory

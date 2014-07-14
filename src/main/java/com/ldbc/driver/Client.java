@@ -225,16 +225,20 @@ public class Client {
                 throw new ClientException("Error while retrieving operation stream for workload", e);
             }
 
-            if (controlService.configuration().windowedExecutionWindowDuration().gt(controlService.configuration().compressedGctDeltaDuration()))
-                throw new ClientException(
-                        String.format(""
-                                + "Windowed-execution window duration may not exceed GCT delta duration\n"
-                                + "  GCT Delta: %s\n"
-                                + "  Compressed GCT Delta: %s\n"
-                                + "  Window Duration: %s",
-                                controlService.configuration().gctDeltaDuration(),
-                                controlService.configuration().compressedGctDeltaDuration(),
-                                controlService.configuration().windowedExecutionWindowDuration()));
+            // TODO replace
+            // TODO controlService.configuration().windowedExecutionWindowDuration().gt(controlService.configuration().compressedGctDeltaDuration())
+            // TODO with
+            // TODO controlService.configuration().windowedExecutionWindowDuration().gt(MIN_GAP_BETWEEN_DEPENDENT_OPERATIONS)
+//            if (controlService.configuration().windowedExecutionWindowDuration().gt(controlService.configuration().compressedGctDeltaDuration()))
+//                throw new ClientException(
+//                        String.format(""
+//                                + "Windowed-execution window duration may not exceed GCT delta duration\n"
+//                                + "  GCT Delta: %s\n"
+//                                + "  Compressed GCT Delta: %s\n"
+//                                + "  Window Duration: %s",
+//                                controlService.configuration().gctDeltaDuration(),
+//                                controlService.configuration().compressedGctDeltaDuration(),
+//                                controlService.configuration().windowedExecutionWindowDuration()));
 
             logger.info(String.format("Instantiating %s", WorkloadRunner.class.getSimpleName()));
             try {
@@ -251,7 +255,6 @@ public class Client {
                         controlService.workloadStartTime(),
                         controlService.configuration().toleratedExecutionDelay(),
                         controlService.configuration().spinnerSleepDuration(),
-                        controlService.configuration().compressedGctDeltaDuration(),
                         controlService.configuration().windowedExecutionWindowDuration());
             } catch (WorkloadException e) {
                 throw new ClientException(String.format("Error instantiating %s", WorkloadRunner.class.getSimpleName()), e);

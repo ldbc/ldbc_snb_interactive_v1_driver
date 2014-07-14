@@ -4,13 +4,13 @@ import com.ldbc.driver.temporal.Duration;
 
 import java.text.DecimalFormat;
 
-public class WorkloadStatus {
+public class WorkloadStatusSnapshot {
     private final Duration runDuration;
     private final long operationCount;
     private final Duration durationSinceLastMeasurement;
     private final double throughput;
 
-    public WorkloadStatus(Duration runDuration, long operationCount, Duration durationSinceLastMeasurement, double throughput) {
+    public WorkloadStatusSnapshot(Duration runDuration, long operationCount, Duration durationSinceLastMeasurement, double throughput) {
         this.runDuration = runDuration;
         this.operationCount = operationCount;
         this.durationSinceLastMeasurement = durationSinceLastMeasurement;

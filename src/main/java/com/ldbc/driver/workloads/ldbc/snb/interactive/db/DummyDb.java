@@ -9,19 +9,19 @@ import com.ldbc.driver.workloads.ldbc.snb.interactive.*;
 import java.util.Map;
 
 public class DummyDb extends Db {
-    public static final String SLEEP_DURATION_MILLI = "sleep_duration_milli";
+    public static final String SLEEP_DURATION_MILLI_ARG = "sleep_duration_milli";
     private static Duration sleepDuration;
 
     @Override
     protected void onInit(Map<String, String> properties) throws DbException {
-        String sleepDurationMilliAsString = properties.get(SLEEP_DURATION_MILLI);
+        String sleepDurationMilliAsString = properties.get(SLEEP_DURATION_MILLI_ARG);
         if (null == sleepDurationMilliAsString) {
             sleepDuration = Duration.fromMilli(0);
         } else {
             try {
                 sleepDuration = Duration.fromMilli(Long.parseLong(sleepDurationMilliAsString));
             } catch (NumberFormatException e) {
-                throw new DbException(String.format("Error encountered while trying to parse value [%s] for %s", sleepDurationMilliAsString, SLEEP_DURATION_MILLI), e);
+                throw new DbException(String.format("Error encountered while trying to parse value [%s] for %s", sleepDurationMilliAsString, SLEEP_DURATION_MILLI_ARG), e);
             }
         }
         registerOperationHandler(LdbcQuery1.class, LdbcQuery1ToNothing.class);

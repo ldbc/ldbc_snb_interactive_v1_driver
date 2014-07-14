@@ -94,15 +94,15 @@ public class MetricsManager {
         return new WorkloadResultsSnapshot(operationMetricsMap, earliestStartTime, latestFinishTime, totalOperationCount(), unit);
     }
 
-    WorkloadStatus status() {
+    WorkloadStatusSnapshot status() {
         // Could also check latest finish time
-        if (null == earliestStartTime) return new WorkloadStatus(null, 0, null, 0);
+        if (null == earliestStartTime) return new WorkloadStatusSnapshot(null, 0, null, 0);
 
         Time now = TIME_SOURCE.now();
         Duration runDuration = calculateElapsedTime(now);
         Duration durationSinceLastMeasurement = now.greaterBy(latestFinishTime);
         double operationsPerSecond = calculateThroughputAt(now);
-        return new WorkloadStatus(runDuration, measurementCount.get(), durationSinceLastMeasurement, operationsPerSecond);
+        return new WorkloadStatusSnapshot(runDuration, measurementCount.get(), durationSinceLastMeasurement, operationsPerSecond);
     }
 
     private double calculateThroughputAt(Time atTime) {

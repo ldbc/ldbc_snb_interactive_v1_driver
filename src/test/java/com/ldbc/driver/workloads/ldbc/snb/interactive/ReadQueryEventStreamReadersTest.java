@@ -3,7 +3,7 @@ package com.ldbc.driver.workloads.ldbc.snb.interactive;
 import com.google.common.collect.ImmutableList;
 import com.ldbc.driver.Operation;
 import com.ldbc.driver.util.CsvFileReader;
-import com.ldbc.driver.util.TestUtils;
+import com.ldbc.driver.TestUtils;
 import org.junit.Test;
 
 import java.io.IOException;

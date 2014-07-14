@@ -5,9 +5,9 @@ import com.ldbc.driver.temporal.Duration;
 import com.ldbc.driver.temporal.TimeSource;
 
 // TODO if an error policy DOES NOT terminate the benchmark and DOES NOT allow the operation to complete
-// TODO something needs to be done about GCT, because the initiated time for the operation has already been reported
+// TODO something needs to be done about DEPENDENT/GCT, because the initiated time for the operation has already been reported
 // TODO perhaps the completed time for that operation needs to be reported too,
-// TODO to make sure GCT does not freeze at the start time of that "Failed" operation
+// TODO to make sure DEPENDENT/GCT does not freeze at the start time of that "Failed" operation
 
 // TODO take boolean result from spinner into consideration, i.e., DO NOT execute handler for "Failed" operations
 
@@ -80,12 +80,12 @@ public class Spinner {
                 operationMayBeExecuted = operationMayBeExecuted && failedCheckResult && executionDelayResult;
                 break;
             }
-            sleep();
+            powerNap();
         }
 
         // wait for scheduled operation start time
         while (TIME_SOURCE.nowAsMilli() < scheduledStartTimeWithOffsetAsMilli) {
-            sleep();
+            powerNap();
         }
 
         // check that excessive delay has not already occurred
@@ -99,7 +99,7 @@ public class Spinner {
 
     // sleep to reduce CPU load while spinning
     // NOTE: longer sleep == lower scheduling accuracy
-    private void sleep() {
+    private void powerNap() {
         if (0 == sleepDurationAsMilli) return;
         try {
             Thread.sleep(sleepDurationAsMilli);

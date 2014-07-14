@@ -28,6 +28,10 @@ import java.util.Map;
 // TODO e.g. assertThat(operation,equalTo(Workload.marshal(Workload.serialize(operation)))
 
 // TODO when collecting all errors perhaps store error types too (e.g., with an ENUM) so they can be checked programmatically
+
+// TODO check that DependentTime is set on all operations (at least on all that *should* have it set)
+// TODO check that DependentTime is before ScheduledStartTime
+// TODO check that difference between DependentTime and ScheduledStartTime is at least WindowSize (does this make sense)
 public class WorkloadValidator {
     public static final Duration DEFAULT_MAX_EXPECTED_INTERLEAVE = Duration.fromMinutes(30);
 
@@ -72,9 +76,9 @@ public class WorkloadValidator {
                     return new WorkloadValidationResult(
                             false,
                             String.format(""
-                                    + "Operation start times do not increase monotonically\n"
-                                    + "  Previous: %s\n"
-                                    + "  Current: %s",
+                                            + "Operation start times do not increase monotonically\n"
+                                            + "  Previous: %s\n"
+                                            + "  Current: %s",
                                     previousOperation,
                                     operation));
             }
@@ -86,9 +90,9 @@ public class WorkloadValidator {
                     return new WorkloadValidationResult(
                             false,
                             String.format(""
-                                    + "Encountered interleave duration (%s) exceeds maximum expected interleave (%s)\n"
-                                    + "  Previous: %s\n"
-                                    + "  Current: %s",
+                                            + "Encountered interleave duration (%s) exceeds maximum expected interleave (%s)\n"
+                                            + "  Previous: %s\n"
+                                            + "  Current: %s",
                                     interleaveDuration,
                                     workload.maxExpectedInterleave(),
                                     previousOperation,
@@ -146,9 +150,9 @@ public class WorkloadValidator {
                     return new WorkloadValidationResult(
                             false,
                             String.format(""
-                                    + "Encountered interleave (for %s type) duration (%s) that exceeds maximum expected value (%s)\n"
-                                    + "  Previous: %s\n"
-                                    + "  Current: %s",
+                                            + "Encountered interleave (for %s type) duration (%s) that exceeds maximum expected value (%s)\n"
+                                            + "  Previous: %s\n"
+                                            + "  Current: %s",
                                     operationType.getSimpleName(),
                                     interleaveDuration,
                                     workload.maxExpectedInterleave(),
@@ -174,10 +178,10 @@ public class WorkloadValidator {
             if (false == operation.equals(marshaledOperation)) {
                 return new WorkloadValidationResult(false,
                         String.format(""
-                                + "Operations do not equal after serializing and marshalling\n"
-                                + "  Original Operation: %s\n"
-                                + "  Serialized Operation: %s\n"
-                                + "  Marshaled Operation: %s",
+                                        + "Operations do not equal after serializing and marshalling\n"
+                                        + "  Original Operation: %s\n"
+                                        + "  Serialized Operation: %s\n"
+                                        + "  Marshaled Operation: %s",
                                 operation,
                                 serializedOperation,
                                 marshaledOperation));

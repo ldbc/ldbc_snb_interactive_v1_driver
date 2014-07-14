@@ -3,8 +3,9 @@ package com.ldbc.driver.testutils;
 import com.ldbc.driver.temporal.Time;
 
 public class TimedNothingOperation extends NothingOperation {
-    public TimedNothingOperation(Time startTime) {
+    public TimedNothingOperation(Time startTime, Time dependencyTime) {
         setScheduledStartTime(startTime);
+        setDependencyTime(dependencyTime);
     }
 
     @Override
@@ -13,9 +14,13 @@ public class TimedNothingOperation extends NothingOperation {
         if (o == null || getClass() != o.getClass()) return false;
         if (!super.equals(o)) return false;
 
-        TimedNothingOperation that = (TimedNothingOperation) o;
-        if (null == that.scheduledStartTime()) return false;
-        if (this.scheduledStartTime() == null) return null == that.scheduledStartTime();
-        return (this.scheduledStartTime().equals(that.scheduledStartTime()));
+        TimedNothingOperation operation = (TimedNothingOperation) o;
+
+        if (dependencyTime() != null ? !dependencyTime().equals(operation.dependencyTime()) : operation.dependencyTime() != null)
+            return false;
+        if (scheduledStartTime() != null ? !scheduledStartTime().equals(operation.scheduledStartTime()) : operation.scheduledStartTime() != null)
+            return false;
+
+        return true;
     }
 }

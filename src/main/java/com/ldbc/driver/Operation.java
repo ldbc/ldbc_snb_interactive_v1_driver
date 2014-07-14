@@ -4,13 +4,22 @@ import com.ldbc.driver.temporal.Time;
 
 public abstract class Operation<RESULT_TYPE> {
     private Time scheduledStartTime = null;
+    private Time dependencyTime = null;
 
     public final void setScheduledStartTime(Time scheduledStartTime) {
         this.scheduledStartTime = scheduledStartTime;
     }
 
+    public void setDependencyTime(Time dependencyTime) {
+        this.dependencyTime = dependencyTime;
+    }
+
     public final Time scheduledStartTime() {
         return scheduledStartTime;
+    }
+
+    public Time dependencyTime() {
+        return dependencyTime;
     }
 
     public final OperationResultReport buildResult(int resultCode, RESULT_TYPE result) {

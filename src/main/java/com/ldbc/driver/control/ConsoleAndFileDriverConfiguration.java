@@ -115,12 +115,6 @@ public class ConsoleAndFileDriverConfiguration implements DriverConfiguration {
     public static final String TIME_COMPRESSION_RATIO_DEFAULT_STRING = Double.toString(TIME_COMPRESSION_RATIO_DEFAULT);
     private static final String TIME_COMPRESSION_RATIO_DESCRIPTION = "change duration between operations of workload";
 
-    public static final String GCT_DELTA_DURATION_ARG = "gctd";
-    private static final String GCT_DELTA_DURATION_ARG_LONG = "gctdeltaduration";
-    public static final Duration GCT_DELTA_DURATION_DEFAULT = Duration.fromMinutes(30);
-    public static final String GCT_DELTA_DURATION_DEFAULT_STRING = Long.toString(GCT_DELTA_DURATION_DEFAULT.asMilli());
-    private static final String GCT_DELTA_DURATION_DESCRIPTION = "safe duration (ms) between dependent operations";
-
     public static final String WINDOWED_EXECUTION_WINDOW_DURATION_ARG = "wd";
     private static final String WINDOWED_EXECUTION_WINDOW_DURATION_ARG_LONG = "windowduraiton";
     public static final Duration WINDOWED_EXECUTION_WINDOW_DURATION_DEFAULT = Duration.fromSeconds(1);
@@ -175,7 +169,6 @@ public class ConsoleAndFileDriverConfiguration implements DriverConfiguration {
         defaultParamsMap.put(CALCULATE_WORKLOAD_STATISTICS_ARG, CALCULATE_WORKLOAD_STATISTICS_DEFAULT_STRING);
         defaultParamsMap.put(TIME_UNIT_ARG, TIME_UNIT_DEFAULT_STRING);
         defaultParamsMap.put(TIME_COMPRESSION_RATIO_ARG, TIME_COMPRESSION_RATIO_DEFAULT_STRING);
-        defaultParamsMap.put(GCT_DELTA_DURATION_ARG, GCT_DELTA_DURATION_DEFAULT_STRING);
         defaultParamsMap.put(WINDOWED_EXECUTION_WINDOW_DURATION_ARG, WINDOWED_EXECUTION_WINDOW_DURATION_DEFAULT_STRING);
         defaultParamsMap.put(PEER_IDS_ARG, PEER_IDS_DEFAULT_STRING);
         defaultParamsMap.put(TOLERATED_EXECUTION_DELAY_ARG, TOLERATED_EXECUTION_DELAY_DEFAULT_STRING);
@@ -225,7 +218,6 @@ public class ConsoleAndFileDriverConfiguration implements DriverConfiguration {
             TimeUnit timeUnit = TimeUnit.valueOf(paramsMap.get(TIME_UNIT_ARG));
             String resultFilePath = paramsMap.get(RESULT_FILE_PATH_ARG);
             double timeCompressionRatio = Double.parseDouble(paramsMap.get(TIME_COMPRESSION_RATIO_ARG));
-            Duration gctDeltaDuration = Duration.fromMilli(Long.parseLong(paramsMap.get(GCT_DELTA_DURATION_ARG)));
             Duration windowedExecutionWindowDuration = Duration.fromMilli(Long.parseLong(paramsMap.get(WINDOWED_EXECUTION_WINDOW_DURATION_ARG)));
             Set<String> peerIds = parsePeerIdsFromCommandline(paramsMap.get(PEER_IDS_ARG));
             Duration toleratedExecutionDelay = Duration.fromMilli(Long.parseLong(paramsMap.get(TOLERATED_EXECUTION_DELAY_ARG)));
@@ -248,7 +240,6 @@ public class ConsoleAndFileDriverConfiguration implements DriverConfiguration {
                     timeUnit,
                     resultFilePath,
                     timeCompressionRatio,
-                    gctDeltaDuration,
                     windowedExecutionWindowDuration,
                     peerIds,
                     toleratedExecutionDelay,
@@ -313,9 +304,6 @@ public class ConsoleAndFileDriverConfiguration implements DriverConfiguration {
 
         if (cmd.hasOption(TIME_COMPRESSION_RATIO_ARG))
             cmdParams.put(TIME_COMPRESSION_RATIO_ARG, cmd.getOptionValue(TIME_COMPRESSION_RATIO_ARG));
-
-        if (cmd.hasOption(GCT_DELTA_DURATION_ARG))
-            cmdParams.put(GCT_DELTA_DURATION_ARG, cmd.getOptionValue(GCT_DELTA_DURATION_ARG));
 
         if (cmd.hasOption(WINDOWED_EXECUTION_WINDOW_DURATION_ARG))
             cmdParams.put(WINDOWED_EXECUTION_WINDOW_DURATION_ARG, cmd.getOptionValue(WINDOWED_EXECUTION_WINDOW_DURATION_ARG));
@@ -393,7 +381,6 @@ public class ConsoleAndFileDriverConfiguration implements DriverConfiguration {
         paramsMap = replaceKey(paramsMap, TIME_UNIT_ARG_LONG, TIME_UNIT_ARG);
         paramsMap = replaceKey(paramsMap, RESULT_FILE_PATH_ARG_LONG, RESULT_FILE_PATH_ARG);
         paramsMap = replaceKey(paramsMap, TIME_COMPRESSION_RATIO_ARG_LONG, TIME_COMPRESSION_RATIO_ARG);
-        paramsMap = replaceKey(paramsMap, GCT_DELTA_DURATION_ARG_LONG, GCT_DELTA_DURATION_ARG);
         paramsMap = replaceKey(paramsMap, WINDOWED_EXECUTION_WINDOW_DURATION_ARG_LONG, WINDOWED_EXECUTION_WINDOW_DURATION_ARG);
         paramsMap = replaceKey(paramsMap, PEER_IDS_ARG_LONG, PEER_IDS_ARG);
         paramsMap = replaceKey(paramsMap, TOLERATED_EXECUTION_DELAY_ARG_LONG, TOLERATED_EXECUTION_DELAY_ARG);
@@ -454,10 +441,6 @@ public class ConsoleAndFileDriverConfiguration implements DriverConfiguration {
         Option timeCompressionRatioOption = OptionBuilder.hasArgs(1).withArgName("ratio").withDescription(TIME_COMPRESSION_RATIO_DESCRIPTION).withLongOpt(
                 TIME_COMPRESSION_RATIO_ARG_LONG).create(TIME_COMPRESSION_RATIO_ARG);
         options.addOption(timeCompressionRatioOption);
-
-        Option gctDeltaDurationOption = OptionBuilder.hasArgs(1).withArgName("duration").withDescription(GCT_DELTA_DURATION_DESCRIPTION).withLongOpt(
-                GCT_DELTA_DURATION_ARG_LONG).create(GCT_DELTA_DURATION_ARG);
-        options.addOption(gctDeltaDurationOption);
 
         Option windowedExecutionWindowDurationOption = OptionBuilder.hasArgs(1).withArgName("duration").withDescription(WINDOWED_EXECUTION_WINDOW_DURATION_DESCRIPTION).withLongOpt(
                 WINDOWED_EXECUTION_WINDOW_DURATION_ARG_LONG).create(WINDOWED_EXECUTION_WINDOW_DURATION_ARG);
@@ -543,7 +526,6 @@ public class ConsoleAndFileDriverConfiguration implements DriverConfiguration {
                 TIME_UNIT_ARG,
                 RESULT_FILE_PATH_ARG,
                 TIME_COMPRESSION_RATIO_ARG,
-                GCT_DELTA_DURATION_ARG,
                 WINDOWED_EXECUTION_WINDOW_DURATION_ARG,
                 PEER_IDS_ARG,
                 TOLERATED_EXECUTION_DELAY_ARG,
@@ -584,7 +566,6 @@ public class ConsoleAndFileDriverConfiguration implements DriverConfiguration {
     private final TimeUnit timeUnit;
     private final String resultFilePath;
     private final double timeCompressionRatio;
-    private final Duration gctDeltaDuration;
     private final Duration windowedExecutionWindowDuration;
     private final Set<String> peerIds;
     private final Duration toleratedExecutionDelay;
@@ -604,7 +585,6 @@ public class ConsoleAndFileDriverConfiguration implements DriverConfiguration {
                                              TimeUnit timeUnit,
                                              String resultFilePath,
                                              double timeCompressionRatio,
-                                             Duration gctDeltaDuration,
                                              Duration windowedExecutionWindowDuration,
                                              Set<String> peerIds,
                                              Duration toleratedExecutionDelay,
@@ -623,7 +603,6 @@ public class ConsoleAndFileDriverConfiguration implements DriverConfiguration {
         this.timeUnit = timeUnit;
         this.resultFilePath = resultFilePath;
         this.timeCompressionRatio = timeCompressionRatio;
-        this.gctDeltaDuration = gctDeltaDuration;
         this.peerIds = peerIds;
         this.toleratedExecutionDelay = toleratedExecutionDelay;
         this.validationCreationParams = validationCreationParams;
@@ -679,18 +658,8 @@ public class ConsoleAndFileDriverConfiguration implements DriverConfiguration {
     }
 
     @Override
-    public Duration gctDeltaDuration() {
-        return gctDeltaDuration;
-    }
-
-    @Override
     public Duration windowedExecutionWindowDuration() {
         return windowedExecutionWindowDuration;
-    }
-
-    @Override
-    public Duration compressedGctDeltaDuration() {
-        return Duration.fromNano(Math.round(gctDeltaDuration.asNano() * timeCompressionRatio));
     }
 
     @Override
@@ -782,9 +751,6 @@ public class ConsoleAndFileDriverConfiguration implements DriverConfiguration {
         double newTimeCompressionRatio = (newParamsMapWithShortKeys.containsKey(TIME_COMPRESSION_RATIO_ARG)) ?
                 Double.parseDouble(newParamsMapWithShortKeys.get(TIME_COMPRESSION_RATIO_ARG)) :
                 timeCompressionRatio;
-        Duration newGctDeltaDuration = (newParamsMapWithShortKeys.containsKey(GCT_DELTA_DURATION_ARG)) ?
-                Duration.fromMilli(Long.parseLong(newParamsMapWithShortKeys.get(GCT_DELTA_DURATION_ARG))) :
-                gctDeltaDuration;
         Duration newWindowedExecutionWindowDuration = (newParamsMapWithShortKeys.containsKey(WINDOWED_EXECUTION_WINDOW_DURATION_ARG)) ?
                 Duration.fromMilli(Long.parseLong(newParamsMapWithShortKeys.get(WINDOWED_EXECUTION_WINDOW_DURATION_ARG))) :
                 windowedExecutionWindowDuration;
@@ -823,7 +789,6 @@ public class ConsoleAndFileDriverConfiguration implements DriverConfiguration {
                 newTimeUnit,
                 newResultFilePath,
                 newTimeCompressionRatio,
-                newGctDeltaDuration,
                 newWindowedExecutionWindowDuration,
                 newPeerIds,
                 newToleratedExecutionDelay,
@@ -850,7 +815,6 @@ public class ConsoleAndFileDriverConfiguration implements DriverConfiguration {
             argsList.addAll(Lists.newArrayList("-" + RESULT_FILE_PATH_ARG, resultFilePath));
         argsList.addAll(Lists.newArrayList("-" + TIME_UNIT_ARG, timeUnit.name()));
         argsList.addAll(Lists.newArrayList("-" + TIME_COMPRESSION_RATIO_ARG, Double.toString(timeCompressionRatio)));
-        argsList.addAll(Lists.newArrayList("-" + GCT_DELTA_DURATION_ARG, Long.toString(gctDeltaDuration.asMilli())));
         argsList.addAll(Lists.newArrayList("-" + WINDOWED_EXECUTION_WINDOW_DURATION_ARG, Long.toString(windowedExecutionWindowDuration.asMilli())));
         if (false == peerIds.isEmpty())
             argsList.addAll(Lists.newArrayList("-" + PEER_IDS_ARG, serializePeerIdsToCommandline(peerIds)));
@@ -907,18 +871,8 @@ public class ConsoleAndFileDriverConfiguration implements DriverConfiguration {
         sb.append("\n");
         sb.append("# used to 'compress'/'stretch' durations between operation start times to increase/decrease benchmark load\n");
         sb.append("# e.g. 2.0 = run benchmark 2x slower, 0.1 = run benchmark 10x faster\n");
-        sb.append("# IMPORTANT: also applied to " + GCT_DELTA_DURATION_ARG_LONG + ", i.e., " + GCT_DELTA_DURATION_ARG_LONG + " value will be compressed/stretched too\n");
         sb.append("# DOUBLE\n");
         sb.append(TIME_COMPRESSION_RATIO_ARG_LONG).append("=").append(timeCompressionRatio).append("\n");
-        sb.append("\n");
-        sb.append("# minimum duration that separates any two dependent operations in the workload\n");
-        sb.append("# e.g. if minimum duration between any pair of dependent operations is 100ms, " + GCT_DELTA_DURATION_ARG_LONG + " can be at most 100\n");
-        sb.append("# IMPORTANT: the value set here assumes a " + TIME_COMPRESSION_RATIO_ARG_LONG + " of '1.0'\n");
-        sb.append("#            " + TIME_COMPRESSION_RATIO_ARG_LONG + " will be applied to this configured value\n");
-        sb.append("#            e.g. if config has " + GCT_DELTA_DURATION_ARG_LONG + "=100 & " + TIME_COMPRESSION_RATIO_ARG_LONG + "=2.0, driver will set " + GCT_DELTA_DURATION_ARG_LONG + " to 200\n");
-        sb.append("#            if you change " + TIME_COMPRESSION_RATIO_ARG_LONG + " change " + GCT_DELTA_DURATION_ARG_LONG + " proportionately\n");
-        sb.append("# LONG (milliseconds)\n");
-        sb.append(GCT_DELTA_DURATION_ARG_LONG).append("=").append(gctDeltaDuration.asMilli()).append("\n");
         sb.append("\n");
         sb.append("# size (i.e., duration) of execution window used by the ").append(OperationClassification.SchedulingMode.WINDOWED.name()).append(" scheduling mode\n");
         sb.append("# LONG (milliseconds)\n");
@@ -1022,16 +976,14 @@ public class ConsoleAndFileDriverConfiguration implements DriverConfiguration {
         sb.append("\t").append(String.format("%1$-" + padRightDistance + "s", "Time Unit:")).append(timeUnit).append("\n");
         sb.append("\t").append(String.format("%1$-" + padRightDistance + "s", "Result File:")).append(resultFilePath()).append("\n");
         sb.append("\t").append(String.format("%1$-" + padRightDistance + "s", "Time Compression Ratio:")).append(timeCompressionRatio).append("\n");
-        sb.append("\t").append(String.format("%1$-" + padRightDistance + "s", "GCT Delta:")).append(gctDeltaDuration.asMilli()).append(" (ms) / ").append(gctDeltaDuration).append("\n");
-        sb.append("\t").append(String.format("%1$-" + padRightDistance + "s", "Execution Window Size:")).append(gctDeltaDuration.asMilli()).append(" (ms) / ").append(gctDeltaDuration).append("\n");
-        sb.append("\t").append(String.format("%1$-" + padRightDistance + "s", "Compressed GCT Delta:")).append(compressedGctDeltaDuration().asMilli()).append(" (ms) / ").append(compressedGctDeltaDuration()).append("\n");
+        sb.append("\t").append(String.format("%1$-" + padRightDistance + "s", "Execution Window Size:")).append(windowedExecutionWindowDuration.asMilli()).append(" (ms) / ").append(windowedExecutionWindowDuration).append("\n");
         sb.append("\t").append(String.format("%1$-" + padRightDistance + "s", "Peer IDs:")).append(peerIds.toString()).append("\n");
         sb.append("\t").append(String.format("%1$-" + padRightDistance + "s", "Tolerated Execution Delay:")).append(toleratedExecutionDelay.asMilli()).append(" (ms) / ").append(toleratedExecutionDelay).append("\n");
         String validationCreationParamsString = (null == validationCreationParams) ?
                 null :
                 String.format("File (%s) Validation Set Size (%s)", validationCreationParams.filePath(), validationCreationParams.validationSetSize);
         sb.append("\t").append(String.format("%1$-" + padRightDistance + "s", "Validation Creation Params:")).append(validationCreationParamsString).append("\n");
-        sb.append("\t").append(String.format("%1$-" + padRightDistance + "s", "Database Validation:")).append("File (").append(databaseValidationFilePath).append(")\n");
+        sb.append("\t").append(String.format("%1$-" + padRightDistance + "s", "Database Validation File:")).append(databaseValidationFilePath).append("\n");
         sb.append("\t").append(String.format("%1$-" + padRightDistance + "s", "Validate Workload:")).append(validateWorkload).append("\n");
         sb.append("\t").append(String.format("%1$-" + padRightDistance + "s", "Calculate Workload Statistics:")).append(calculateWorkloadStatistics).append("\n");
         sb.append("\t").append(String.format("%1$-" + padRightDistance + "s", "Spinner Sleep Duration:")).append(spinnerSleepDuration.asMilli()).append(" (ms) / ").append(spinnerSleepDuration).append("\n");
@@ -1063,8 +1015,6 @@ public class ConsoleAndFileDriverConfiguration implements DriverConfiguration {
         if (databaseValidationFilePath != null ? !databaseValidationFilePath.equals(that.databaseValidationFilePath) : that.databaseValidationFilePath != null)
             return false;
         if (dbClassName != null ? !dbClassName.equals(that.dbClassName) : that.dbClassName != null) return false;
-        if (gctDeltaDuration != null ? !gctDeltaDuration.equals(that.gctDeltaDuration) : that.gctDeltaDuration != null)
-            return false;
         if (peerIds != null ? !peerIds.equals(that.peerIds) : that.peerIds != null) return false;
         if (resultFilePath != null ? !resultFilePath.equals(that.resultFilePath) : that.resultFilePath != null)
             return false;
@@ -1098,7 +1048,6 @@ public class ConsoleAndFileDriverConfiguration implements DriverConfiguration {
         result = 31 * result + (resultFilePath != null ? resultFilePath.hashCode() : 0);
         temp = Double.doubleToLongBits(timeCompressionRatio);
         result = 31 * result + (int) (temp ^ (temp >>> 32));
-        result = 31 * result + (gctDeltaDuration != null ? gctDeltaDuration.hashCode() : 0);
         result = 31 * result + (windowedExecutionWindowDuration != null ? windowedExecutionWindowDuration.hashCode() : 0);
         result = 31 * result + (peerIds != null ? peerIds.hashCode() : 0);
         result = 31 * result + (toleratedExecutionDelay != null ? toleratedExecutionDelay.hashCode() : 0);

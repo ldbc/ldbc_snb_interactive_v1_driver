@@ -16,7 +16,6 @@ import com.ldbc.driver.temporal.Duration;
 import com.ldbc.driver.temporal.SystemTimeSource;
 import com.ldbc.driver.temporal.TimeSource;
 import com.ldbc.driver.util.RandomDataGeneratorFactory;
-import com.ldbc.driver.util.TestUtils;
 import com.ldbc.driver.workloads.ldbc.snb.interactive.LdbcSnbInteractiveWorkload;
 import com.ldbc.driver.workloads.ldbc.snb.interactive.db.CsvDb;
 import com.ldbc.driver.workloads.ldbc.snb.interactive.db.DummyDb;
@@ -87,7 +86,6 @@ public class WorkloadRunnerTest {
         String resultFilePath = "temp_results_file.json";
         FileUtils.deleteQuietly(new File(resultFilePath));
         double timeCompressionRatio = 1.0;
-        Duration gctDeltaDuration = Duration.fromSeconds(10);
         Duration windowedExecutionWindowDuration = Duration.fromSeconds(1);
         Set<String> peerIds = new HashSet<>();
         Duration toleratedExecutionDelay = Duration.fromMilli(100);
@@ -101,7 +99,7 @@ public class WorkloadRunnerTest {
         assertThat(new File(resultFilePath).exists(), is(false));
 
         ConsoleAndFileDriverConfiguration configuration = new ConsoleAndFileDriverConfiguration(paramsMap, dbClassName, workloadClassName, operationCount,
-                threadCount, statusDisplayInterval, timeUnit, resultFilePath, timeCompressionRatio, gctDeltaDuration, windowedExecutionWindowDuration, peerIds, toleratedExecutionDelay,
+                threadCount, statusDisplayInterval, timeUnit, resultFilePath, timeCompressionRatio, windowedExecutionWindowDuration, peerIds, toleratedExecutionDelay,
                 validationParams, dbValidationFilePath, validateWorkload, calculateWorkloadStatistics, spinnerSleepDuration, printHelp);
 
         ConcurrentControlService controlService = new LocalControlService(TIME_SOURCE.now().plus(Duration.fromMilli(1000)), configuration);
@@ -136,7 +134,6 @@ public class WorkloadRunnerTest {
                 controlService.workloadStartTime(),
                 controlService.configuration().toleratedExecutionDelay(),
                 controlService.configuration().spinnerSleepDuration(),
-                controlService.configuration().compressedGctDeltaDuration(),
                 controlService.configuration().windowedExecutionWindowDuration());
 
         runner.executeWorkload();
@@ -214,7 +211,6 @@ public class WorkloadRunnerTest {
         String resultFilePath = "temp_results_file.json";
         FileUtils.deleteQuietly(new File(resultFilePath));
         double timeCompressionRatio = 1.0;
-        Duration gctDeltaDuration = Duration.fromMinutes(1);
         Duration windowedExecutionWindowDuration = Duration.fromSeconds(1);
         Set<String> peerIds = new HashSet<>();
         Duration toleratedExecutionDelay = Duration.fromMilli(1000);
@@ -229,7 +225,7 @@ public class WorkloadRunnerTest {
         assertThat(new File(resultFilePath).exists(), is(false));
 
         ConsoleAndFileDriverConfiguration configuration = new ConsoleAndFileDriverConfiguration(paramsMap, dbClassName, workloadClassName, operationCount,
-                threadCount, statusDisplayInterval, timeUnit, resultFilePath, timeCompressionRatio, gctDeltaDuration, windowedExecutionWindowDuration, peerIds, toleratedExecutionDelay,
+                threadCount, statusDisplayInterval, timeUnit, resultFilePath, timeCompressionRatio, windowedExecutionWindowDuration, peerIds, toleratedExecutionDelay,
                 validationParams, dbValidationFilePath, validateWorkload, calculateWorkloadStatistics, spinnerSleepDuration, printHelp);
 
         ConcurrentControlService controlService = new LocalControlService(TIME_SOURCE.now().plus(Duration.fromMilli(1000)), configuration);
@@ -264,7 +260,6 @@ public class WorkloadRunnerTest {
                 controlService.workloadStartTime(),
                 controlService.configuration().toleratedExecutionDelay(),
                 controlService.configuration().spinnerSleepDuration(),
-                controlService.configuration().compressedGctDeltaDuration(),
                 controlService.configuration().windowedExecutionWindowDuration());
 
 

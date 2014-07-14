@@ -55,7 +55,6 @@ public class WorkloadRunner {
                           Time workloadStartTime,
                           Duration toleratedExecutionDelayDuration,
                           Duration spinnerSleepDuration,
-                          Duration gctDeltaDuration,
                           Duration executionWindowDuration) throws WorkloadException {
         this.TIME_SOURCE = timeSource;
         this.errorReporter = errorReporter;
@@ -70,7 +69,9 @@ public class WorkloadRunner {
 
         this.exactSpinner = new Spinner(TIME_SOURCE, spinnerSleepDuration, executionDelayPolicy);
         this.earlySpinner = new Spinner(TIME_SOURCE, spinnerSleepDuration, executionDelayPolicy, SPINNER_OFFSET_DURATION);
-        this.workloadStatusThread = new WorkloadStatusThread(statusDisplayInterval, metricsService, errorReporter);
+        // TODO make this a configuration parameter?
+        boolean detailedStatus = true;
+        this.workloadStatusThread = new WorkloadStatusThread(statusDisplayInterval, metricsService, errorReporter, completionTimeService, detailedStatus);
         Iterator<Operation<?>> windowedOperations;
         Iterator<Operation<?>> blockingOperations;
         Iterator<Operation<?>> asynchronousOperations;
@@ -96,7 +97,6 @@ public class WorkloadRunner {
                 completionTimeService,
                 errorReporter,
                 metricsService,
-                gctDeltaDuration,
                 operationClassifications);
         Iterator<OperationHandler<?>> windowedHandlers = operationsToHandlers.transform(windowedOperations);
         Iterator<OperationHandler<?>> blockingHandlers = operationsToHandlers.transform(blockingOperations);
@@ -114,7 +114,6 @@ public class WorkloadRunner {
                 TIME_SOURCE, errorReporter, asynchronousHandlers, earlySpinner, operationHandlerExecutor);
         this.preciseIndividualBlockingOperationStreamExecutorService = new PreciseIndividualBlockingOperationStreamExecutorService(
                 TIME_SOURCE, errorReporter, blockingHandlers, earlySpinner, operationHandlerExecutor);
-        // TODO better way of setting window size. it does not need to equal DeltaT, it can be smaller. where to set? how to set?
         this.uniformWindowedOperationStreamExecutorService = new UniformWindowedOperationStreamExecutorService(
                 TIME_SOURCE, errorReporter, windowedHandlers, operationHandlerExecutor, earlySpinner, workloadStartTime, executionWindowDuration);
     }

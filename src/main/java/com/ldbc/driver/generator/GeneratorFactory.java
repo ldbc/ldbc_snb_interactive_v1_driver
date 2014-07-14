@@ -4,10 +4,7 @@ import com.ldbc.driver.Operation;
 import com.ldbc.driver.data.ByteIterator;
 import com.ldbc.driver.temporal.Duration;
 import com.ldbc.driver.temporal.Time;
-import com.ldbc.driver.util.Function0;
-import com.ldbc.driver.util.Function1;
-import com.ldbc.driver.util.RandomDataGeneratorFactory;
-import com.ldbc.driver.util.Tuple;
+import com.ldbc.driver.util.*;
 import com.ldbc.driver.util.Tuple.Tuple2;
 import com.ldbc.driver.util.Tuple.Tuple3;
 import org.apache.commons.math3.random.RandomDataGenerator;
@@ -76,6 +73,22 @@ public class GeneratorFactory {
         return new MappingGenerator<>(original, fun);
     }
 
+    /**
+     * Takes two iterators as input and outputs one, using the merge function to 'merge' the head elements of each
+     * input iterator into one element in the output iterator.
+     * Returned iterator will have the same length as the shortest of the two input iterators
+     *
+     * @param in1
+     * @param in2
+     * @param mergeFun
+     * @param <IN_1>
+     * @param <IN_2>
+     * @param <OUT>
+     * @return
+     */
+    public <IN_1, IN_2, OUT> Iterator<OUT> merge(Iterator<IN_1> in1, Iterator<IN_2> in2, Function2<IN_1, IN_2, OUT> mergeFun) {
+        return new MergingGenerator<>(in1, in2, mergeFun);
+    }
 
     /**
      * Returns the same operation generator, with start times assigned to each operation taken from the start time
@@ -86,7 +99,33 @@ public class GeneratorFactory {
      * @return
      */
     public Iterator<Operation<?>> startTimeAssigning(Iterator<Time> startTimes, Iterator<Operation<?>> operations) {
-        return new StartTimeAssigningOperationGenerator(startTimes, operations);
+        Function2<Time, Operation<?>, Operation<?>> startTimeAssigningFun = new Function2<Time, Operation<?>, Operation<?>>() {
+            @Override
+            public Operation<?> apply(Time time, Operation<?> operation) {
+                operation.setScheduledStartTime(time);
+                return operation;
+            }
+        };
+        return new MergingGenerator<>(startTimes, operations, startTimeAssigningFun);
+    }
+
+    /**
+     * Returns the same operation generator, with dependency times assigned to each operation taken from the dependency time
+     * generator. Generator stops as soon as either of the generators, dependency times or operations, stops.
+     *
+     * @param dependencyTimes
+     * @param operations
+     * @return
+     */
+    public Iterator<Operation<?>> dependencyTimeAssigning(Iterator<Time> dependencyTimes, Iterator<Operation<?>> operations) {
+        Function2<Time, Operation<?>, Operation<?>> dependencyTimeAssigningFun = new Function2<Time, Operation<?>, Operation<?>>() {
+            @Override
+            public Operation<?> apply(Time time, Operation<?> operation) {
+                operation.setDependencyTime(time);
+                return operation;
+            }
+        };
+        return new MergingGenerator<>(dependencyTimes, operations, dependencyTimeAssigningFun);
     }
 
     /**
@@ -117,13 +156,13 @@ public class GeneratorFactory {
     }
 
     private Iterator<Time> timeFromMilliSeconds(Iterator<Long> milliSecondsGenerator) {
-        Function1<Long, Time> timeFromNanoFun = new Function1<Long, Time>() {
+        Function1<Long, Time> timeFromMilliFun = new Function1<Long, Time>() {
             @Override
             public Time apply(Long fromMilli) {
                 return Time.fromMilli(fromMilli);
             }
         };
-        return new MappingGenerator<>(milliSecondsGenerator, timeFromNanoFun);
+        return new MappingGenerator<>(milliSecondsGenerator, timeFromMilliFun);
     }
 
     /**

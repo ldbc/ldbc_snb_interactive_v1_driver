@@ -16,6 +16,9 @@ public class MappingGenerator<FROM_GENERATE_TYPE, TO_GENERATE_TYPE> extends Gene
 
     @Override
     protected TO_GENERATE_TYPE doNext() throws GeneratorException {
-        return (fromGenerator.hasNext()) ? mapFunction.apply(fromGenerator.next()) : null;
+        if (fromGenerator.hasNext())
+            return mapFunction.apply(fromGenerator.next());
+        else
+            return null;
     }
 }

@@ -6,9 +6,8 @@ import com.ldbc.driver.*;
 import com.ldbc.driver.runtime.coordination.ConcurrentCompletionTimeService;
 import com.ldbc.driver.runtime.coordination.ReadOnlyConcurrentCompletionTimeService;
 import com.ldbc.driver.runtime.metrics.ConcurrentMetricsService;
-import com.ldbc.driver.runtime.scheduling.GctCheck;
+import com.ldbc.driver.runtime.scheduling.GctDependencyCheck;
 import com.ldbc.driver.runtime.scheduling.Spinner;
-import com.ldbc.driver.temporal.Duration;
 import com.ldbc.driver.temporal.TimeSource;
 
 import java.util.Iterator;
@@ -22,7 +21,6 @@ class OperationsToHandlersTransformer {
     private final ConcurrentCompletionTimeService completionTimeService;
     private final ConcurrentErrorReporter errorReporter;
     private final ConcurrentMetricsService metricsService;
-    private final Duration gctDeltaDuration;
     private final Map<Class<? extends Operation<?>>, OperationClassification> operationClassifications;
 
     OperationsToHandlersTransformer(TimeSource timeSource,
@@ -31,7 +29,6 @@ class OperationsToHandlersTransformer {
                                     ConcurrentCompletionTimeService completionTimeService,
                                     ConcurrentErrorReporter errorReporter,
                                     ConcurrentMetricsService metricsService,
-                                    Duration gctDeltaDuration,
                                     Map<Class<? extends Operation<?>>, OperationClassification> operationClassifications) {
         this.TIME_SOURCE = timeSource;
         this.db = db;
@@ -39,7 +36,6 @@ class OperationsToHandlersTransformer {
         this.completionTimeService = completionTimeService;
         this.errorReporter = errorReporter;
         this.metricsService = metricsService;
-        this.gctDeltaDuration = gctDeltaDuration;
         this.operationClassifications = operationClassifications;
     }
 
@@ -53,11 +49,11 @@ class OperationsToHandlersTransformer {
                         switch (operationClassifications.get(operation.getClass()).gctMode()) {
                             case READ_WRITE:
                                 operationHandler.init(TIME_SOURCE, spinner, operation, completionTimeService, errorReporter, metricsService);
-                                operationHandler.addCheck(new GctCheck(completionTimeService, gctDeltaDuration, operation, errorReporter));
+                                operationHandler.addCheck(new GctDependencyCheck(completionTimeService, operation, errorReporter));
                                 break;
                             case READ:
                                 operationHandler.init(TIME_SOURCE, spinner, operation, new ReadOnlyConcurrentCompletionTimeService(completionTimeService), errorReporter, metricsService);
-                                operationHandler.addCheck(new GctCheck(completionTimeService, gctDeltaDuration, operation, errorReporter));
+                                operationHandler.addCheck(new GctDependencyCheck(completionTimeService, operation, errorReporter));
                                 break;
                             case NONE:
                                 operationHandler.init(TIME_SOURCE, spinner, operation, new ReadOnlyConcurrentCompletionTimeService(completionTimeService), errorReporter, metricsService);
