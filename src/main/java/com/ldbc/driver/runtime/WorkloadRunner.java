@@ -46,7 +46,7 @@ public class WorkloadRunner {
     public WorkloadRunner(TimeSource timeSource,
                           Db db,
                           Iterator<Operation<?>> operations,
-                          Map<Class<? extends Operation<?>>, OperationClassification> operationClassifications,
+                          Map<Class<? extends Operation>, OperationClassification> operationClassifications,
                           ConcurrentMetricsService metricsService,
                           ConcurrentErrorReporter errorReporter,
                           ConcurrentCompletionTimeService completionTimeService,

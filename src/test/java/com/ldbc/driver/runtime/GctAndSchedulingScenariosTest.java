@@ -34,7 +34,7 @@ public class GctAndSchedulingScenariosTest {
         params.put(DummyDb.SLEEP_DURATION_MILLI_ARG, "0");
         db.init(params);
         Iterator<Operation<?>> operations = null;//TODO
-        Map<Class<? extends Operation<?>>, OperationClassification> operationClassifications = null; // TODO
+        Map<Class<? extends Operation>, OperationClassification> operationClassifications = null; // TODO
         ConcurrentErrorReporter errorReporter = new ConcurrentErrorReporter();
         ConcurrentMetricsService metricsService = new ThreadedQueuedConcurrentMetricsService(timeSource, errorReporter, TimeUnit.MILLISECONDS);
         ConcurrentCompletionTimeService completionTimeService = new NaiveSynchronizedConcurrentCompletionTimeService(new HashSet<String>());

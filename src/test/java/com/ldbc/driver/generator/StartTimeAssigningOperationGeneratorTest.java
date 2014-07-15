@@ -3,7 +3,7 @@ package com.ldbc.driver.generator;
 import com.ldbc.driver.Operation;
 import com.ldbc.driver.temporal.Duration;
 import com.ldbc.driver.temporal.Time;
-import com.ldbc.driver.testutils.NothingOperation;
+import com.ldbc.driver.testutils.NothingOperationFactory;
 import com.ldbc.driver.util.Function1;
 import com.ldbc.driver.util.RandomDataGeneratorFactory;
 import org.junit.Test;
@@ -20,10 +20,10 @@ public class StartTimeAssigningOperationGeneratorTest {
         long firstNanoTime = 1000;
         long incrementNanoTimeBy = 100;
         int testIterations = 10;
-        GeneratorFactory generators = new GeneratorFactory(new RandomDataGeneratorFactory(42l));
+        GeneratorFactory gf = new GeneratorFactory(new RandomDataGeneratorFactory(42l));
 
         // When
-        Iterator<Operation<?>> operationGenerator = generators.limit(new OperationGenerator(), testIterations);
+        Iterator<Operation<?>> operations = gf.limit(new NothingOperationFactory(), testIterations);
         Function1<Long, Time> timeFromLongFun = new Function1<Long, Time>() {
             @Override
             public Time apply(Long from) {
@@ -31,9 +31,9 @@ public class StartTimeAssigningOperationGeneratorTest {
             }
         };
 
-        Iterator<Long> countGenerator = generators.incrementing(firstNanoTime, incrementNanoTimeBy);
-        Iterator<Time> counterStartTimeGenerator = generators.map(countGenerator, timeFromLongFun);
-        Iterator<Operation<?>> startTimeOperationGenerator = generators.startTimeAssigning(counterStartTimeGenerator, operationGenerator);
+        Iterator<Long> countGenerator = gf.incrementing(firstNanoTime, incrementNanoTimeBy);
+        Iterator<Time> counterStartTimeGenerator = gf.map(countGenerator, timeFromLongFun);
+        Iterator<Operation<?>> startTimeOperationGenerator = gf.assignStartTimes(counterStartTimeGenerator, operations);
 
         // Then
         int count = 0;
@@ -45,12 +45,5 @@ public class StartTimeAssigningOperationGeneratorTest {
             count++;
         }
         assertThat(count, is(testIterations));
-    }
-
-    static class OperationGenerator extends Generator<Operation<?>> {
-        @Override
-        protected Operation<?> doNext() throws GeneratorException {
-            return new NothingOperation();
-        }
     }
 }

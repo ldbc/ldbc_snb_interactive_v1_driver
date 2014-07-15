@@ -23,7 +23,6 @@ public class PrefixGeneratorWrapperTest {
     public void shouldPrefixEveryElementInIteratorAndNothingMore() {
         Iterator<Integer> incrementing = generatorFactory.boundedIncrementing(0, 2, 10);
         Iterator<String> prefixing = generatorFactory.prefix(incrementing, "pre");
-        assertThat(prefixing, instanceOf(PrefixGenerator.class));
         assertThat(prefixing.next(), is("pre0"));
         assertThat(prefixing.next(), is("pre2"));
         assertThat(prefixing.next(), is("pre4"));

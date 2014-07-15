@@ -246,7 +246,7 @@ public class Client {
                         timeSource,
                         db,
                         timeMappedOperations,
-                        workload.operationClassifications(),
+                        workload.getOperationClassifications(),
                         metricsService,
                         errorReporter,
                         completionTimeService,
@@ -373,7 +373,7 @@ public class Client {
                 WorkloadStatisticsCalculator workloadStatisticsCalculator = new WorkloadStatisticsCalculator();
                 workloadStatistics = workloadStatisticsCalculator.calculate(
                         timeMappedOperations,
-                        workload.operationClassifications(),
+                        workload.getOperationClassifications(),
                         WorkloadValidator.DEFAULT_MAX_EXPECTED_INTERLEAVE);
                 logger.info("Calculation complete\n" + workloadStatistics);
             } catch (MetricsCollectionException e) {

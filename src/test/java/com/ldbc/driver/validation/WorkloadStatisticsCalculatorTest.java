@@ -44,10 +44,10 @@ public class WorkloadStatisticsCalculatorTest {
 
         Iterator<Operation<?>> operationStreamWithoutTime = generators.limit(new Operation1Iterator(), operationCount);
         Iterator<Time> operationStartTimes = generators.constantIncrementTime(workloadStartTime, operationInterleave);
-        Iterator<Operation<?>> operationStream = generators.startTimeAssigning(operationStartTimes, operationStreamWithoutTime);
+        Iterator<Operation<?>> operationStream = generators.assignStartTimes(operationStartTimes, operationStreamWithoutTime);
 
 
-        Map<Class<? extends Operation<?>>, OperationClassification> operationClassifications = new HashMap<>();
+        Map<Class<? extends Operation>, OperationClassification> operationClassifications = new HashMap<>();
         operationClassifications.put(Operation1.class, new OperationClassification(null, GctMode.NONE));
 
         // When
@@ -128,17 +128,17 @@ public class WorkloadStatisticsCalculatorTest {
 
         Iterator<Operation<?>> operation1StreamWithoutTime = generators.limit(new Operation1Iterator(), operation1Count);
         Iterator<Time> operation1StartTimes = generators.constantIncrementTime(workloadStartTime, operation1Interleave);
-        Iterator<Operation<?>> operation1Stream = generators.startTimeAssigning(operation1StartTimes, operation1StreamWithoutTime);
+        Iterator<Operation<?>> operation1Stream = generators.assignStartTimes(operation1StartTimes, operation1StreamWithoutTime);
         Iterator<Operation<?>> operation2StreamWithoutTime = generators.limit(new Operation2Iterator(), operation2Count);
         Iterator<Time> operation2StartTimes = generators.constantIncrementTime(workloadStartTime, operation2Interleave);
-        Iterator<Operation<?>> operation2Stream = generators.startTimeAssigning(operation2StartTimes, operation2StreamWithoutTime);
+        Iterator<Operation<?>> operation2Stream = generators.assignStartTimes(operation2StartTimes, operation2StreamWithoutTime);
         Iterator<Operation<?>> operation3StreamWithoutTime = generators.limit(new Operation3Iterator(), operation3Count);
         Iterator<Time> operation3StartTimes = generators.constantIncrementTime(workloadStartTime, operation3Interleave);
-        Iterator<Operation<?>> operation3Stream = generators.startTimeAssigning(operation3StartTimes, operation3StreamWithoutTime);
+        Iterator<Operation<?>> operation3Stream = generators.assignStartTimes(operation3StartTimes, operation3StreamWithoutTime);
 
         Iterator<Operation<?>> operationStream = generators.mergeSortOperationsByStartTime(operation1Stream, operation2Stream, operation3Stream);
 
-        Map<Class<? extends Operation<?>>, OperationClassification> operationClassifications = new HashMap<>();
+        Map<Class<? extends Operation>, OperationClassification> operationClassifications = new HashMap<>();
         operationClassifications.put(Operation1.class, new OperationClassification(null, GctMode.NONE));
         operationClassifications.put(Operation2.class, new OperationClassification(null, GctMode.READ));
         operationClassifications.put(Operation3.class, new OperationClassification(null, GctMode.READ_WRITE));

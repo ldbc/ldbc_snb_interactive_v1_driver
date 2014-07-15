@@ -30,6 +30,48 @@ public class GeneratorFactory {
      * ----------------------------------------------------------------------------------------------------
      */
 
+    /**
+     * Compare operation streams by stream lengths and equality of the operations they contain
+     *
+     * @param operationStream1
+     * @param operationStream2
+     * @param compareTimes
+     * @return
+     */
+    // TODO move into a separate class, test that class separately, use that class here
+    public boolean compareOperationStreams(Iterator<Operation<?>> operationStream1,
+                                           Iterator<Operation<?>> operationStream2,
+                                           boolean compareTimes) {
+        if (operationStream1.hasNext() != operationStream2.hasNext()) return false;
+
+        while (operationStream1.hasNext()) {
+            if (false == operationStream2.hasNext()) return false;
+            Operation<?> next1 = operationStream1.next();
+            Operation<?> next2 = operationStream2.next();
+            if (null == next1 && null == next2) continue;
+            if (null == next1 && null != next2) return false;
+            if (null == next2 && null != next2) return false;
+
+            if (false == next1.equals(next2)) return false;
+            if (compareTimes) {
+                Time scheduledStartTime1 = next1.scheduledStartTime();
+                Time scheduledStartTime2 = next2.scheduledStartTime();
+                if (null == scheduledStartTime1 && null != scheduledStartTime2) return false;
+                if (null != scheduledStartTime1 && null == scheduledStartTime2) return false;
+                if (null != scheduledStartTime1 && null != scheduledStartTime2)
+                    if (false == scheduledStartTime1.equals(scheduledStartTime2)) return false;
+                Time dependencyTime1 = next1.dependencyTime();
+                Time dependencyTime2 = next2.dependencyTime();
+                if (null == dependencyTime1 && null != dependencyTime2) return false;
+                if (null != dependencyTime1 && null == dependencyTime2) return false;
+                if (null != dependencyTime1 && null != dependencyTime2)
+                    if (false == dependencyTime1.equals(dependencyTime2)) return false;
+            }
+        }
+        if (operationStream2.hasNext()) return false;
+        return true;
+    }
+
     public <T> void exhaust(Iterator<T> generator) {
         while (generator.hasNext()) generator.next();
     }
@@ -91,6 +133,38 @@ public class GeneratorFactory {
     }
 
     /**
+     * Assigns dependency times to all operations that do not yet have one assigned,
+     * or to all if canOverwriteDependencyTime is true.
+     * The dependency time assigned is equal to the scheduled start time of the last operation for which the
+     * isDependency predicate returned true, starting with initialDependencyTime.
+     * All operations in the returned iterator will have dependency times assigned to them.
+     *
+     * @param operations
+     * @param isDependency
+     * @param initialDependencyTime
+     * @param canOverwriteDependencyTime
+     * @return
+     */
+    public Iterator<Operation<?>> assignConservativeDependencyTimes(Iterator<Operation<?>> operations,
+                                                                    final Function1<Operation<?>, Boolean> isDependency,
+                                                                    final Time initialDependencyTime,
+                                                                    final boolean canOverwriteDependencyTime) {
+        Function1<Operation<?>, Operation<?>> dependencyTimeAssigningFun = new Function1<Operation<?>, Operation<?>>() {
+            private Time mostRecentDependency = initialDependencyTime;
+
+            @Override
+            public Operation<?> apply(Operation<?> operation) {
+                if (null == operation.dependencyTime() || canOverwriteDependencyTime)
+                    operation.setDependencyTime(mostRecentDependency);
+                if (isDependency.apply(operation))
+                    mostRecentDependency = operation.scheduledStartTime();
+                return operation;
+            }
+        };
+        return new MappingGenerator<>(operations, dependencyTimeAssigningFun);
+    }
+
+    /**
      * Returns the same operation generator, with start times assigned to each operation taken from the start time
      * generator. Generator stops as soon as either of the generators, start times or operations, stops.
      *
@@ -98,7 +172,7 @@ public class GeneratorFactory {
      * @param operations
      * @return
      */
-    public Iterator<Operation<?>> startTimeAssigning(Iterator<Time> startTimes, Iterator<Operation<?>> operations) {
+    public Iterator<Operation<?>> assignStartTimes(Iterator<Time> startTimes, Iterator<Operation<?>> operations) {
         Function2<Time, Operation<?>, Operation<?>> startTimeAssigningFun = new Function2<Time, Operation<?>, Operation<?>>() {
             @Override
             public Operation<?> apply(Time time, Operation<?> operation) {
@@ -117,7 +191,7 @@ public class GeneratorFactory {
      * @param operations
      * @return
      */
-    public Iterator<Operation<?>> dependencyTimeAssigning(Iterator<Time> dependencyTimes, Iterator<Operation<?>> operations) {
+    public Iterator<Operation<?>> assignDependencyTimes(Iterator<Time> dependencyTimes, Iterator<Operation<?>> operations) {
         Function2<Time, Operation<?>, Operation<?>> dependencyTimeAssigningFun = new Function2<Time, Operation<?>, Operation<?>>() {
             @Override
             public Operation<?> apply(Time time, Operation<?> operation) {
@@ -317,8 +391,14 @@ public class GeneratorFactory {
      * @param <T>
      * @return
      */
-    public <T extends Number> Iterator<String> prefix(Iterator<T> generator, String prefix) {
-        return new PrefixGenerator(generator, prefix);
+    public <T> Iterator<String> prefix(Iterator<T> generator, final String prefix) {
+        Function1<T, String> prefixingFun = new Function1<T, String>() {
+            @Override
+            public String apply(T item) {
+                return prefix + item.toString();
+            }
+        };
+        return new MappingGenerator<>(generator, prefixingFun);
     }
 
     /**

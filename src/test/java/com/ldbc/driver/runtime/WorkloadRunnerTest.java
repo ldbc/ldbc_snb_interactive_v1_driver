@@ -110,7 +110,7 @@ public class WorkloadRunnerTest {
         GeneratorFactory generators = new GeneratorFactory(new RandomDataGeneratorFactory(42L));
         Iterator<Operation<?>> operations = workload.operations(generators, configuration.operationCount());
         Iterator<Operation<?>> timeMappedOperations = generators.timeOffsetAndCompress(operations, controlService.workloadStartTime(), 1.0);
-        Map<Class<? extends Operation<?>>, OperationClassification> operationClassifications = workload.operationClassifications();
+        Map<Class<? extends Operation>, OperationClassification> operationClassifications = workload.operationClassifications();
         ConcurrentErrorReporter errorReporter = new ConcurrentErrorReporter();
         ConcurrentMetricsService metricsService = new ThreadedQueuedConcurrentMetricsService(TIME_SOURCE, errorReporter, configuration.timeUnit());
         ConcurrentCompletionTimeService completionTimeService =
@@ -236,7 +236,7 @@ public class WorkloadRunnerTest {
         GeneratorFactory generators = new GeneratorFactory(new RandomDataGeneratorFactory(42L));
         Iterator<Operation<?>> operations = workload.operations(generators, configuration.operationCount());
         Iterator<Operation<?>> timeMappedOperations = generators.timeOffsetAndCompress(operations, controlService.workloadStartTime(), 1.0);
-        Map<Class<? extends Operation<?>>, OperationClassification> operationClassifications = workload.operationClassifications();
+        Map<Class<? extends Operation>, OperationClassification> operationClassifications = workload.operationClassifications();
         ConcurrentErrorReporter errorReporter = new ConcurrentErrorReporter();
         ConcurrentMetricsService metricsService = new ThreadedQueuedConcurrentMetricsService(TIME_SOURCE, errorReporter, configuration.timeUnit());
         ConcurrentCompletionTimeService completionTimeService =

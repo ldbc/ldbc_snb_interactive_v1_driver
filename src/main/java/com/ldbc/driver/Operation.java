@@ -10,7 +10,7 @@ public abstract class Operation<RESULT_TYPE> {
         this.scheduledStartTime = scheduledStartTime;
     }
 
-    public void setDependencyTime(Time dependencyTime) {
+    public final void setDependencyTime(Time dependencyTime) {
         this.dependencyTime = dependencyTime;
     }
 
@@ -18,7 +18,7 @@ public abstract class Operation<RESULT_TYPE> {
         return scheduledStartTime;
     }
 
-    public Time dependencyTime() {
+    public final Time dependencyTime() {
         return dependencyTime;
     }
 
@@ -32,7 +32,11 @@ public abstract class Operation<RESULT_TYPE> {
 
     @Override
     public String toString() {
-        return String.format("Operation [type=%s, scheduledStartTime=%s]", type(), scheduledStartTime);
+        return "Operation{" +
+                "scheduledStartTime=" + scheduledStartTime +
+                ", dependencyTime=" + dependencyTime +
+                ", type=" + type() +
+                '}';
     }
 
     public abstract RESULT_TYPE marshalResult(String serializedOperationResult) throws SerializingMarshallingException;

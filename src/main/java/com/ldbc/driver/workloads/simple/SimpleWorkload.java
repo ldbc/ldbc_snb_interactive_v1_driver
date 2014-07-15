@@ -36,8 +36,8 @@ public class SimpleWorkload extends Workload {
     final long INITIAL_INSERT_COUNT = 10;
 
     @Override
-    public Map<Class<? extends Operation<?>>, OperationClassification> operationClassifications() {
-        Map<Class<? extends Operation<?>>, OperationClassification> operationClassificationMapping = new HashMap<Class<? extends Operation<?>>, OperationClassification>();
+    public Map<Class<? extends Operation>, OperationClassification> getOperationClassifications() {
+        Map<Class<? extends Operation>, OperationClassification> operationClassificationMapping = new HashMap<>();
         // TODO use correct operation classifications
         operationClassificationMapping.put(InsertOperation.class, new OperationClassification(OperationClassification.SchedulingMode.INDIVIDUAL_ASYNC, OperationClassification.GctMode.NONE));
         operationClassificationMapping.put(ReadModifyWriteOperation.class, new OperationClassification(OperationClassification.SchedulingMode.INDIVIDUAL_ASYNC, OperationClassification.GctMode.NONE));
@@ -52,7 +52,7 @@ public class SimpleWorkload extends Workload {
     }
 
     @Override
-    public Iterator<Operation<?>> createOperations(GeneratorFactory gf) throws WorkloadException {
+    public Iterator<Operation<?>> getOperations(GeneratorFactory gf) throws WorkloadException {
         Time workloadStartTime = Time.fromMilli(0);
 
         /**
@@ -184,7 +184,7 @@ public class SimpleWorkload extends Workload {
         Iterator<Time> startTimes = gf.constantIncrementTime(workloadStartTime, Duration.fromMilli(100));
         Iterator<Time> dependencyTimes = gf.constantIncrementTime(workloadStartTime, Duration.fromMilli(0));
 
-        return gf.dependencyTimeAssigning(dependencyTimes, gf.startTimeAssigning(startTimes, workloadOperations));
+        return gf.assignDependencyTimes(dependencyTimes, gf.assignStartTimes(startTimes, workloadOperations));
     }
 
     @Override

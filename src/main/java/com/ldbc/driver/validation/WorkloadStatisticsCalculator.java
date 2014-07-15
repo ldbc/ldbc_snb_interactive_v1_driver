@@ -29,7 +29,7 @@ public class WorkloadStatisticsCalculator {
      */
 
     public WorkloadStatistics calculate(Iterator<Operation<?>> operations,
-                                        Map<Class<? extends Operation<?>>, OperationClassification> operationClassifications,
+                                        Map<Class<? extends Operation>, OperationClassification> operationClassifications,
                                         Duration maxExpectedInterleave) throws MetricsCollectionException {
         Histogram<Class, Long> operationMixHistogram = new Histogram<>(0l);
 
@@ -47,7 +47,7 @@ public class WorkloadStatisticsCalculator {
         Map<Class, Time> lastStartTimesByOperationType = new HashMap<>();
 
         Map<GctMode, Set<Class>> operationsByGctMode = new HashMap<>();
-        for (Map.Entry<Class<? extends Operation<?>>, OperationClassification> operationClassificationEntry : operationClassifications.entrySet()) {
+        for (Map.Entry<Class<? extends Operation>, OperationClassification> operationClassificationEntry : operationClassifications.entrySet()) {
             Class operationType = operationClassificationEntry.getKey();
             GctMode operationGctMode = operationClassificationEntry.getValue().gctMode();
             Set<Class> operationsForGctMode;

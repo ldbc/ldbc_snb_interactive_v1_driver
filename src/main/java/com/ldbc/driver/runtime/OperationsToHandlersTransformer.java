@@ -21,7 +21,7 @@ class OperationsToHandlersTransformer {
     private final ConcurrentCompletionTimeService completionTimeService;
     private final ConcurrentErrorReporter errorReporter;
     private final ConcurrentMetricsService metricsService;
-    private final Map<Class<? extends Operation<?>>, OperationClassification> operationClassifications;
+    private final Map<Class<? extends Operation>, OperationClassification> operationClassifications;
 
     OperationsToHandlersTransformer(TimeSource timeSource,
                                     Db db,
@@ -29,7 +29,7 @@ class OperationsToHandlersTransformer {
                                     ConcurrentCompletionTimeService completionTimeService,
                                     ConcurrentErrorReporter errorReporter,
                                     ConcurrentMetricsService metricsService,
-                                    Map<Class<? extends Operation<?>>, OperationClassification> operationClassifications) {
+                                    Map<Class<? extends Operation>, OperationClassification> operationClassifications) {
         this.TIME_SOURCE = timeSource;
         this.db = db;
         this.spinner = spinner;

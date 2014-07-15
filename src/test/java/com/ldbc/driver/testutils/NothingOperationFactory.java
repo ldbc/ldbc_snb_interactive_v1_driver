@@ -1,8 +1,10 @@
 package com.ldbc.driver.testutils;
 
+import com.ldbc.driver.Operation;
+
 import java.util.Iterator;
 
-public class NothingOperationFactory implements Iterator<NothingOperation> {
+public class NothingOperationFactory implements Iterator<Operation<?>> {
     @Override
     public boolean hasNext() {
         return true;

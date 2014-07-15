@@ -15,6 +15,7 @@ import com.ldbc.driver.temporal.TimeSource;
 import com.ldbc.driver.util.RandomDataGeneratorFactory;
 import com.ldbc.driver.workloads.simple.db.BasicDb;
 import org.apache.commons.io.FileUtils;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import java.io.File;
@@ -103,6 +104,12 @@ public class SimpleWorkloadTest {
             assertThat(a, equalTo(b));
         }
         workload.cleanup();
+    }
+
+    @Ignore
+    @Test
+    public void shouldPassWorkloadValidation() {
+        assertThat(true, is(false));
     }
 
     @Test

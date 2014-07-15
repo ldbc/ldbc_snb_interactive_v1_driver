@@ -3,7 +3,6 @@ package com.ldbc.driver.testutils;
 import com.ldbc.driver.Operation;
 
 public class NothingOperation extends Operation<DummyResult> {
-
     @Override
     public boolean equals(Object that) {
         return true;

@@ -13,10 +13,10 @@ import java.util.Map;
 public abstract class Workload {
     public static final Duration DEFAULT_MAXIMUM_EXPECTED_INTERLEAVE = Duration.fromMinutes(30);
 
-    public static final Class<Operation<?>>[] operationTypesBySchedulingMode(Map<Class<? extends Operation<?>>, OperationClassification> operationClassifications,
+    public static final Class<Operation<?>>[] operationTypesBySchedulingMode(Map<Class<? extends Operation>, OperationClassification> operationClassifications,
                                                                              OperationClassification.SchedulingMode schedulingMode) {
-        List<Class<? extends Operation<?>>> operationsBySchedulingMode = new ArrayList<>();
-        for (Map.Entry<Class<? extends Operation<?>>, OperationClassification> operationAndClassification : operationClassifications.entrySet()) {
+        List<Class<? extends Operation>> operationsBySchedulingMode = new ArrayList<>();
+        for (Map.Entry<Class<? extends Operation>, OperationClassification> operationAndClassification : operationClassifications.entrySet()) {
             if (operationAndClassification.getValue().schedulingMode().equals(schedulingMode))
                 operationsBySchedulingMode.add(operationAndClassification.getKey());
         }
@@ -26,15 +26,20 @@ public abstract class Workload {
     private boolean isInitialized = false;
     private boolean isCleanedUp = false;
 
-    public abstract Map<Class<? extends Operation<?>>, OperationClassification> operationClassifications();
+    public final Map<Class<? extends Operation>, OperationClassification> operationClassifications() throws WorkloadException {
+        if (false == isInitialized)
+            throw new WorkloadException("Workload has not been initialized");
+        return getOperationClassifications();
+    }
+
+    protected abstract Map<Class<? extends Operation>, OperationClassification> getOperationClassifications();
 
     /**
      * Called once to initialize state for workload
      */
     public final void init(DriverConfiguration params) throws WorkloadException {
-        if (isInitialized) {
+        if (isInitialized)
             throw new WorkloadException("Workload may be initialized only once");
-        }
         isInitialized = true;
         onInit(params.asMap());
     }
@@ -52,15 +57,13 @@ public abstract class Workload {
     protected abstract void onCleanup() throws WorkloadException;
 
     // TODO should this method take start time and compression ratio as input and do compression + offset?
-    public final Iterator<Operation<?>> operations(GeneratorFactory generators, long operationCount)
-            throws WorkloadException {
-        if (false == isInitialized) {
+    public final Iterator<Operation<?>> operations(GeneratorFactory gf, long operationCount) throws WorkloadException {
+        if (false == isInitialized)
             throw new WorkloadException("Workload has not been initialized");
-        }
-        return generators.limit(createOperations(generators), operationCount);
+        return gf.limit(getOperations(gf), operationCount);
     }
 
-    protected abstract Iterator<Operation<?>> createOperations(GeneratorFactory generators) throws WorkloadException;
+    protected abstract Iterator<Operation<?>> getOperations(GeneratorFactory generators) throws WorkloadException;
 
     public DbValidationParametersFilter dbValidationParametersFilter(final Integer requiredValidationParameterCount) {
         return new DbValidationParametersFilter() {

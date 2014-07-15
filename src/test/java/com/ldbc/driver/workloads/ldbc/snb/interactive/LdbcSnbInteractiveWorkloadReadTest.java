@@ -7,7 +7,6 @@ import com.google.common.collect.Lists;
 import com.ldbc.driver.*;
 import com.ldbc.driver.control.*;
 import com.ldbc.driver.generator.GeneratorFactory;
-import com.ldbc.driver.runtime.ConcurrentErrorReporter;
 import com.ldbc.driver.runtime.streams.IteratorSplitter;
 import com.ldbc.driver.runtime.streams.IteratorSplittingException;
 import com.ldbc.driver.runtime.streams.SplitDefinition;
@@ -213,7 +212,7 @@ public class LdbcSnbInteractiveWorkloadReadTest {
     }
 
     @Test
-    public void shouldPerformWorkloadValidation() throws ClientException {
+    public void shouldPassWorkloadValidation() throws ClientException {
         // Given
         Map<String, String> paramsMap = defaultSnbParamsMapWithWorkloadAndParametersDir();
         // DummyDb-specific parameters
@@ -561,7 +560,8 @@ public class LdbcSnbInteractiveWorkloadReadTest {
     }
 
     @Test
-    public void operationsShouldHaveMonotonicallyIncreasingScheduledStartTimesAfterSplitting() throws WorkloadException, IOException, DriverConfigurationException {
+    public void operationsShouldHaveMonotonicallyIncreasingScheduledStartTimesAfterSplitting()
+            throws WorkloadException, IOException, DriverConfigurationException, IteratorSplittingException {
         Map<String, String> paramsMap = defaultSnbParamsMapWithWorkloadAndParametersDir();
         // CsvDb-specific parameters
         String csvOutputFilePath = "temp_csv_output_file.csv";
@@ -607,23 +607,14 @@ public class LdbcSnbInteractiveWorkloadReadTest {
             prevOperationScheduledStartTime = operation.scheduledStartTime();
         }
 
-        List<Operation<?>> windowedOperations;
-        List<Operation<?>> blockingOperations;
-        List<Operation<?>> asynchronousOperations;
-        try {
-            IteratorSplitter<Operation<?>> splitter = new IteratorSplitter<>(IteratorSplitter.UnmappedItemPolicy.ABORT);
-            SplitDefinition<Operation<?>> windowed = new SplitDefinition<>(Workload.operationTypesBySchedulingMode(workload.operationClassifications(), OperationClassification.SchedulingMode.WINDOWED));
-            SplitDefinition<Operation<?>> blocking = new SplitDefinition<>(Workload.operationTypesBySchedulingMode(workload.operationClassifications(), OperationClassification.SchedulingMode.INDIVIDUAL_BLOCKING));
-            SplitDefinition<Operation<?>> asynchronous = new SplitDefinition<>(Workload.operationTypesBySchedulingMode(workload.operationClassifications(), OperationClassification.SchedulingMode.INDIVIDUAL_ASYNC));
-            SplitResult splits = splitter.split(operations.iterator(), windowed, blocking, asynchronous);
-            windowedOperations = Lists.newArrayList(splits.getSplitFor(windowed));
-            blockingOperations = Lists.newArrayList(splits.getSplitFor(blocking));
-            asynchronousOperations = Lists.newArrayList(splits.getSplitFor(asynchronous));
-        } catch (IteratorSplittingException e) {
-            throw new WorkloadException(
-                    String.format("Error while splitting operation stream by scheduling mode\n%s", ConcurrentErrorReporter.stackTraceToString(e)),
-                    e);
-        }
+        IteratorSplitter<Operation<?>> splitter = new IteratorSplitter<>(IteratorSplitter.UnmappedItemPolicy.ABORT);
+        SplitDefinition<Operation<?>> windowed = new SplitDefinition<>(Workload.operationTypesBySchedulingMode(workload.operationClassifications(), OperationClassification.SchedulingMode.WINDOWED));
+        SplitDefinition<Operation<?>> blocking = new SplitDefinition<>(Workload.operationTypesBySchedulingMode(workload.operationClassifications(), OperationClassification.SchedulingMode.INDIVIDUAL_BLOCKING));
+        SplitDefinition<Operation<?>> asynchronous = new SplitDefinition<>(Workload.operationTypesBySchedulingMode(workload.operationClassifications(), OperationClassification.SchedulingMode.INDIVIDUAL_ASYNC));
+        SplitResult splits = splitter.split(operations.iterator(), windowed, blocking, asynchronous);
+        List<Operation<?>> windowedOperations = Lists.newArrayList(splits.getSplitFor(windowed));
+        List<Operation<?>> blockingOperations = Lists.newArrayList(splits.getSplitFor(blocking));
+        List<Operation<?>> asynchronousOperations = Lists.newArrayList(splits.getSplitFor(asynchronous));
 
         Time prevWindowedOperationScheduledStartTime = firstOperationScheduledStartTime.minus(Duration.fromMilli(1));
         for (Operation<?> operation : windowedOperations) {
