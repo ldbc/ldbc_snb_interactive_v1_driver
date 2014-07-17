@@ -4,6 +4,7 @@ import com.google.common.collect.Lists;
 import com.ldbc.driver.generator.GeneratorFactory;
 import com.ldbc.driver.runtime.ConcurrentErrorReporter;
 import com.ldbc.driver.util.RandomDataGeneratorFactory;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import java.util.Iterator;
@@ -58,6 +59,7 @@ public class IteratorSplitterTest {
         assertThat(doubleSplit.get(1).doubleValue(), is(4d));
     }
 
+    @Ignore
     @Test
     public void shouldSplitIteratorCorrectlyGivenSimpleCaseAndLargeInput() throws IteratorSplittingException {
         for (int i = 0; i < 20; i++) {
