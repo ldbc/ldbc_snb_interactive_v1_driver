@@ -609,8 +609,22 @@ public class LdbcSnbInteractiveWorkload extends Workload {
 
     @Override
     public DbValidationParametersFilter dbValidationParametersFilter(Integer requiredValidationParameterCount) {
+        /**
+         * TODO
+         * operationTypeCount = 14
+         * requiredValidationParameterCount = 100
+         * 100/14 == 7.14
+         * --> minimumResultCountPerOperationType = 7
+         * 100%14 == 2 > 0
+         * --> minimumResultCountPerOperationType = 8
+         *
+         */
         Integer operationTypeCount = readOperationFilter.size();
         long minimumResultCountPerOperationType = Math.max(1, Math.round(Math.floor(requiredValidationParameterCount.doubleValue() / operationTypeCount.doubleValue())));
+
+//        if (requiredValidationParameterCount % operationTypeCount > 0)
+//            minimumResultCountPerOperationType++;
+
         final Map<Class, Long> remainingRequiredResultsPerOperationType = new HashMap<>();
         long resultCountsAssignedSoFar = 0;
         for (Class operationType : readOperationFilter) {
@@ -626,14 +640,21 @@ public class LdbcSnbInteractiveWorkload extends Workload {
 
         return new DbValidationParametersFilter() {
             @Override
-            public DbValidationParametersFilterResult apply(Operation<?> operation, Object operationResult) {
+            public boolean useOperation(Operation<?> operation) {
                 Class operationType = operation.getClass();
 
                 boolean isNotReadOperation = false == readOperationFilter.contains(operationType);
-                if (isNotReadOperation) return DbValidationParametersFilterResult.REJECT_AND_CONTINUE;
+                if (isNotReadOperation) return false;
 
                 boolean haveAllResultsForOperationType = false == remainingRequiredResultsPerOperationType.containsKey(operationType);
-                if (haveAllResultsForOperationType) return DbValidationParametersFilterResult.REJECT_AND_CONTINUE;
+                if (haveAllResultsForOperationType) return false;
+
+                return true;
+            }
+
+            @Override
+            public DbValidationParametersFilterResult useOperationAndResultForValidation(Operation<?> operation, Object operationResult) {
+                Class operationType = operation.getClass();
 
                 boolean isEmptyResult = ((List) operationResult).isEmpty();
                 if (isEmptyResult) return DbValidationParametersFilterResult.REJECT_AND_CONTINUE;

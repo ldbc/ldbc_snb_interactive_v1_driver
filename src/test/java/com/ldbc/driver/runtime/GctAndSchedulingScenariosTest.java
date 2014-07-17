@@ -56,8 +56,215 @@ public class GctAndSchedulingScenariosTest {
     }
 
     // TODO do a similar test with async async, where middle READ_WRITE is blocked, and check the GCT does not progress
+//    @Test
+//    public void shouldFailWhenPreviousOperationInBlockingModePreventsNextOperationFromExecutingBeforeToleratedDelay()
+//            throws InterruptedException, MetricsCollectionException, DbException, CompletionTimeException, WorkloadException {
+//        /*
+//            Tolerated Delay == 4
+//            ASYNC                   BLOCKING
+//            READ                    READ_WRITE              GCT
+//            TimedNamedOperation1    TimedNamedOperation2
+//        0                                                   0
+//        1                                                   0
+//        2   S(2)D(0)                                        0
+//        3                           S(3)D(0)                3
+//        4   S(4)D(3)                                        3
+//        5                                                   3
+//        6                           S(6)D(0) !!BLOCKS!!     3
+//        7   S(7)D(3)                                        3
+//        8                                                   3
+//        9                           S(9)D(0) !!WAITS!!      3
+//        10                                                  3
+//        11  S(11)D(9) !!WAITS!!                             3
+//        12                                                  3
+//        13  S(13)D(3)                                       3
+//        14                          !!"S(9)D(0)" DELAY!!    3
+//        15                                                  3
+//         */
+//        List<Operation<?>> readOperations = Lists.<Operation<?>>newArrayList(
+//                new TimedNamedOperation1(Time.fromMilli(2), Time.fromMilli(0), "read1"),
+//                new TimedNamedOperation1(Time.fromMilli(4), Time.fromMilli(3), "read2"),
+//                new TimedNamedOperation1(Time.fromMilli(7), Time.fromMilli(3), "read3"),
+//                new TimedNamedOperation1(Time.fromMilli(11), Time.fromMilli(9), "read4"),
+//                new TimedNamedOperation1(Time.fromMilli(13), Time.fromMilli(3), "read5")
+//        );
+//
+//        List<Operation<?>> readWriteOperations = Lists.<Operation<?>>newArrayList(
+//                new TimedNamedOperation2(Time.fromMilli(3), Time.fromMilli(0), "readwrite1"),
+//                new TimedNamedOperation2(Time.fromMilli(6), Time.fromMilli(0), "readwrite2"),
+//                new TimedNamedOperation2(Time.fromMilli(9), Time.fromMilli(0), "readwrite3")
+//        );
+//
+//        Iterator<Operation<?>> operations = gf.mergeSortOperationsByStartTime(readOperations.iterator(), readWriteOperations.iterator());
+//
+//        Map<Class<? extends Operation>, OperationClassification> classifications = scenario1ClassificationAsync1Blocking2();
+//
+//        Time workloadStartTime = Time.fromMilli(0);
+//        ManualTimeSource TIME_SOURCE = new ManualTimeSource(0);
+//        int threadCount = 16;
+//        // Not used when Windowed Scheduling Mode is not used
+//        Duration executionWindowDuration = null;
+//        Duration toleratedExecutionDelayDuration = Duration.fromMilli(4);
+//
+//        ConcurrentErrorReporter errorReporter = new ConcurrentErrorReporter();
+//        ConcurrentMetricsService metricsService = new ThreadedQueuedConcurrentMetricsService(
+//                TIME_SOURCE,
+//                errorReporter,
+//                TimeUnit.MILLISECONDS,
+//                workloadStartTime);
+//        ConcurrentCompletionTimeService completionTimeService = completionTimeService(errorReporter, workloadStartTime);
+//
+//        DummyDb db = new DummyDb();
+//        Map<String, String> params = new HashMap<>();
+//        params.put(DummyDb.ALLOWED_ARG, "false");
+//        db.init(params);
+//
+//        WorkloadRunnerThread runnerThread = workloadRunnerThread(
+//                TIME_SOURCE,
+//                workloadStartTime,
+//                operations,
+//                classifications,
+//                threadCount,
+//                executionWindowDuration,
+//                toleratedExecutionDelayDuration,
+//                errorReporter,
+//                metricsService,
+//                completionTimeService,
+//                db
+//        );
+//
+//        runnerThread.start();
+//
+//        Thread.sleep(ENOUGH_MILLISECONDS_FOR_RUNNER_THREAD_TO_DO_ITS_THING);
+//        assertThat(metricsService.results().totalOperationCount(), is(0l));
+//        assertThat(completionTimeService.globalCompletionTime(), equalTo(Time.fromMilli(0)));
+//        assertThat(errorReporter.errorEncountered(), is(false));
+//
+//        TIME_SOURCE.setNowFromMilli(1);
+//        Thread.sleep(ENOUGH_MILLISECONDS_FOR_RUNNER_THREAD_TO_DO_ITS_THING);
+//        assertThat(metricsService.results().totalOperationCount(), is(0l));
+//        assertThat(completionTimeService.globalCompletionTime(), equalTo(Time.fromMilli(0)));
+//        assertThat(errorReporter.errorEncountered(), is(false));
+//
+//        TIME_SOURCE.setNowFromMilli(2);
+//        Thread.sleep(ENOUGH_MILLISECONDS_FOR_RUNNER_THREAD_TO_DO_ITS_THING);
+//        assertThat(metricsService.results().totalOperationCount(), is(0l));
+//        assertThat(completionTimeService.globalCompletionTime(), equalTo(Time.fromMilli(0)));
+//        db.setNameAllowedValue("read1", true);
+//        Thread.sleep(ENOUGH_MILLISECONDS_FOR_RUNNER_THREAD_TO_DO_ITS_THING);
+//        assertThat(metricsService.results().totalOperationCount(), is(1l));
+//        assertThat(completionTimeService.globalCompletionTime(), equalTo(Time.fromMilli(0)));
+//        assertThat(errorReporter.errorEncountered(), is(false));
+//
+//        TIME_SOURCE.setNowFromMilli(3);
+//        Thread.sleep(ENOUGH_MILLISECONDS_FOR_RUNNER_THREAD_TO_DO_ITS_THING);
+//        assertThat(metricsService.results().totalOperationCount(), is(1l));
+//        assertThat(completionTimeService.globalCompletionTime(), equalTo(Time.fromMilli(0)));
+//        db.setNameAllowedValue("readwrite1", true);
+//        Thread.sleep(ENOUGH_MILLISECONDS_FOR_RUNNER_THREAD_TO_DO_ITS_THING);
+//        assertThat(metricsService.results().totalOperationCount(), is(2l));
+//        assertThat(completionTimeService.globalCompletionTime(), equalTo(Time.fromMilli(3)));
+//        assertThat(errorReporter.errorEncountered(), is(false));
+//
+//        TIME_SOURCE.setNowFromMilli(4);
+//        Thread.sleep(ENOUGH_MILLISECONDS_FOR_RUNNER_THREAD_TO_DO_ITS_THING);
+//        assertThat(metricsService.results().totalOperationCount(), is(2l));
+//        assertThat(completionTimeService.globalCompletionTime(), equalTo(Time.fromMilli(3)));
+//        db.setNameAllowedValue("read2", true);
+//        Thread.sleep(ENOUGH_MILLISECONDS_FOR_RUNNER_THREAD_TO_DO_ITS_THING);
+//        assertThat(metricsService.results().totalOperationCount(), is(3l));
+//        assertThat(completionTimeService.globalCompletionTime(), equalTo(Time.fromMilli(3)));
+//        assertThat(errorReporter.errorEncountered(), is(false));
+//
+//        TIME_SOURCE.setNowFromMilli(5);
+//        Thread.sleep(ENOUGH_MILLISECONDS_FOR_RUNNER_THREAD_TO_DO_ITS_THING);
+//        assertThat(metricsService.results().totalOperationCount(), is(3l));
+//        assertThat(completionTimeService.globalCompletionTime(), equalTo(Time.fromMilli(3)));
+//        assertThat(errorReporter.errorEncountered(), is(false));
+//
+//        TIME_SOURCE.setNowFromMilli(6);
+//        Thread.sleep(ENOUGH_MILLISECONDS_FOR_RUNNER_THREAD_TO_DO_ITS_THING);
+//        assertThat(metricsService.results().totalOperationCount(), is(3l));
+//        assertThat(completionTimeService.globalCompletionTime(), equalTo(Time.fromMilli(3)));
+//        // DO NOT ALLOW "readwrite2" to execute
+//        db.setNameAllowedValue("readwrite2", false);
+//        Thread.sleep(ENOUGH_MILLISECONDS_FOR_RUNNER_THREAD_TO_DO_ITS_THING);
+//        assertThat(metricsService.results().totalOperationCount(), is(3l));
+//        assertThat(completionTimeService.globalCompletionTime(), equalTo(Time.fromMilli(3)));
+//        assertThat(errorReporter.errorEncountered(), is(false));
+//
+//        TIME_SOURCE.setNowFromMilli(7);
+//        Thread.sleep(ENOUGH_MILLISECONDS_FOR_RUNNER_THREAD_TO_DO_ITS_THING);
+//        assertThat(metricsService.results().totalOperationCount(), is(3l));
+//        assertThat(completionTimeService.globalCompletionTime(), equalTo(Time.fromMilli(3)));
+//        db.setNameAllowedValue("read3", true);
+//        Thread.sleep(ENOUGH_MILLISECONDS_FOR_RUNNER_THREAD_TO_DO_ITS_THING);
+//        assertThat(metricsService.results().totalOperationCount(), is(4l));
+//        assertThat(completionTimeService.globalCompletionTime(), equalTo(Time.fromMilli(3)));
+//        assertThat(errorReporter.errorEncountered(), is(false));
+//
+//        TIME_SOURCE.setNowFromMilli(8);
+//        Thread.sleep(ENOUGH_MILLISECONDS_FOR_RUNNER_THREAD_TO_DO_ITS_THING);
+//        assertThat(metricsService.results().totalOperationCount(), is(4l));
+//        assertThat(completionTimeService.globalCompletionTime(), equalTo(Time.fromMilli(3)));
+//        assertThat(errorReporter.errorEncountered(), is(false));
+//
+//        TIME_SOURCE.setNowFromMilli(9);
+//        Thread.sleep(ENOUGH_MILLISECONDS_FOR_RUNNER_THREAD_TO_DO_ITS_THING);
+//        assertThat(metricsService.results().totalOperationCount(), is(4l));
+//        assertThat(completionTimeService.globalCompletionTime(), equalTo(Time.fromMilli(3)));
+//        db.setNameAllowedValue("readwrite3", true);
+//        Thread.sleep(ENOUGH_MILLISECONDS_FOR_RUNNER_THREAD_TO_DO_ITS_THING);
+//        assertThat(metricsService.results().totalOperationCount(), is(4l));
+//        assertThat(completionTimeService.globalCompletionTime(), equalTo(Time.fromMilli(3)));
+//        assertThat(errorReporter.errorEncountered(), is(false));
+//
+//        TIME_SOURCE.setNowFromMilli(10);
+//        Thread.sleep(ENOUGH_MILLISECONDS_FOR_RUNNER_THREAD_TO_DO_ITS_THING);
+//        assertThat(metricsService.results().totalOperationCount(), is(4l));
+//        assertThat(completionTimeService.globalCompletionTime(), equalTo(Time.fromMilli(3)));
+//        assertThat(errorReporter.errorEncountered(), is(false));
+//
+//        TIME_SOURCE.setNowFromMilli(11);
+//        Thread.sleep(ENOUGH_MILLISECONDS_FOR_RUNNER_THREAD_TO_DO_ITS_THING);
+//        assertThat(metricsService.results().totalOperationCount(), is(4l));
+//        assertThat(completionTimeService.globalCompletionTime(), equalTo(Time.fromMilli(3)));
+//        db.setNameAllowedValue("read4", true);
+//        Thread.sleep(ENOUGH_MILLISECONDS_FOR_RUNNER_THREAD_TO_DO_ITS_THING);
+//        assertThat(metricsService.results().totalOperationCount(), is(4l));
+//        assertThat(completionTimeService.globalCompletionTime(), equalTo(Time.fromMilli(3)));
+//        assertThat(errorReporter.errorEncountered(), is(false));
+//
+//        TIME_SOURCE.setNowFromMilli(12);
+//        Thread.sleep(ENOUGH_MILLISECONDS_FOR_RUNNER_THREAD_TO_DO_ITS_THING);
+//        assertThat(metricsService.results().totalOperationCount(), is(4l));
+//        assertThat(completionTimeService.globalCompletionTime(), equalTo(Time.fromMilli(3)));
+//        assertThat(errorReporter.errorEncountered(), is(false));
+//
+//        TIME_SOURCE.setNowFromMilli(13);
+//        Thread.sleep(ENOUGH_MILLISECONDS_FOR_RUNNER_THREAD_TO_DO_ITS_THING);
+//        assertThat(metricsService.results().totalOperationCount(), is(4l));
+//        assertThat(completionTimeService.globalCompletionTime(), equalTo(Time.fromMilli(3)));
+//        db.setNameAllowedValue("read5", true);
+//        Thread.sleep(ENOUGH_MILLISECONDS_FOR_RUNNER_THREAD_TO_DO_ITS_THING);
+//        assertThat(metricsService.results().totalOperationCount(), is(5l));
+//        assertThat(completionTimeService.globalCompletionTime(), equalTo(Time.fromMilli(3)));
+//        assertThat(errorReporter.errorEncountered(), is(false));
+//
+//        // At this point maximum tolerated delay for "readwrite2" should be triggered
+//        TIME_SOURCE.setNowFromMilli(14);
+//        Thread.sleep(ENOUGH_MILLISECONDS_FOR_RUNNER_THREAD_TO_DO_ITS_THING);
+//        assertThat(metricsService.results().totalOperationCount(), is(5l));
+//        assertThat(completionTimeService.globalCompletionTime(), equalTo(Time.fromMilli(3)));
+//        assertThat(errorReporter.errorEncountered(), is(true));
+//
+//        Thread.sleep(WorkloadRunner.COMPLETION_POLLING_INTERVAL_AS_MILLI * 2);
+//        assertThat(runnerThread.runnerHasCompleted(), is(true));
+//    }
+
     @Test
-    public void shouldFailWhenSomeDependenciesPreventOperationsFromExecutingOnTime() throws InterruptedException, MetricsCollectionException, DbException, CompletionTimeException, WorkloadException {
+    public void shouldFailWhenPreviousOperationInBlockingModePreventsNextOperationFromExecutingBeforeToleratedDelay()
+            throws InterruptedException, MetricsCollectionException, DbException, CompletionTimeException, WorkloadException {
         /*
             Tolerated Delay == 4
             ASYNC                   BLOCKING

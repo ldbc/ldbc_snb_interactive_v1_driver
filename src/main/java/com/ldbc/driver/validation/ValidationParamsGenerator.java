@@ -32,15 +32,18 @@ public class ValidationParamsGenerator extends Generator<ValidationParam> {
         while (operations.hasNext() && needMoreValidationParameters) {
             Operation<?> operation = operations.next();
 
+            if (false == dbValidationParametersFilter.useOperation(operation))
+                continue;
+
             OperationHandler<Operation<?>> handler;
             try {
                 handler = (OperationHandler<Operation<?>>) db.getOperationHandler(operation);
             } catch (DbException e) {
                 throw new GeneratorException(
                         String.format(""
-                                + "Error retrieving operation handler for operation\n"
-                                + "Db: %s\n"
-                                + "Operation: %s",
+                                        + "Error retrieving operation handler for operation\n"
+                                        + "Db: %s\n"
+                                        + "Operation: %s",
                                 db.getClass().getName(), operation),
                         e);
             }
@@ -50,15 +53,15 @@ public class ValidationParamsGenerator extends Generator<ValidationParam> {
             } catch (DbException e) {
                 throw new GeneratorException(
                         String.format(""
-                                + "Error executing operation to retrieve validation result\n"
-                                + "Db: %s\n"
-                                + "Operation: %s",
+                                        + "Error executing operation to retrieve validation result\n"
+                                        + "Db: %s\n"
+                                        + "Operation: %s",
                                 db.getClass().getName(), operation),
                         e);
             }
             Object operationResult = operationResultReport.operationResult();
 
-            switch (dbValidationParametersFilter.apply(operation, operationResult)) {
+            switch (dbValidationParametersFilter.useOperationAndResultForValidation(operation, operationResult)) {
                 case REJECT_AND_CONTINUE:
                     continue;
                 case REJECT_AND_FINISH:

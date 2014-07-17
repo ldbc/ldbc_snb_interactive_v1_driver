@@ -3,7 +3,6 @@ package com.ldbc.driver;
 import com.ldbc.driver.control.DriverConfiguration;
 import com.ldbc.driver.generator.GeneratorFactory;
 import com.ldbc.driver.temporal.Duration;
-import com.ldbc.driver.util.Function2;
 
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -70,7 +69,12 @@ public abstract class Workload {
             int validationParameterCount = 0;
 
             @Override
-            public DbValidationParametersFilterResult apply(Operation<?> operation, Object operationResult) {
+            public boolean useOperation(Operation<?> operation) {
+                return true;
+            }
+
+            @Override
+            public DbValidationParametersFilterResult useOperationAndResultForValidation(Operation<?> operation, Object operationResult) {
                 if (validationParameterCount < requiredValidationParameterCount) {
                     validationParameterCount++;
                     return DbValidationParametersFilterResult.ACCEPT_AND_CONTINUE;
@@ -88,7 +92,10 @@ public abstract class Workload {
 
     public abstract Operation<?> marshalOperation(String serializedOperation) throws SerializingMarshallingException;
 
-    public static interface DbValidationParametersFilter extends Function2<Operation<?>, Object, DbValidationParametersFilterResult> {
+    public static interface DbValidationParametersFilter {
+        boolean useOperation(Operation<?> operation);
+
+        DbValidationParametersFilterResult useOperationAndResultForValidation(Operation<?> operation, Object operationResult);
     }
 
     public enum DbValidationParametersFilterResult {

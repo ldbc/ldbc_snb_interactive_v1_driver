@@ -51,7 +51,7 @@ public class ValidationParamsGeneratorTest {
         List<Operation<?>> operationsList = buildOperations();
         Iterator<Operation<?>> operations = operationsList.iterator();
 
-        int validationSetSize = 25;
+        int validationSetSize = 28;
 
         ValidationParamsGenerator validationParamsBefore = new ValidationParamsGenerator(db, workload.dbValidationParametersFilter(validationSetSize), operations);
         List<ValidationParam> validationParamsBeforeList = Lists.newArrayList(validationParamsBefore);
