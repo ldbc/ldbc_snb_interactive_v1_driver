@@ -3,6 +3,7 @@ package com.ldbc.driver.runtime.metrics;
 import com.ldbc.driver.OperationResultReport;
 import com.ldbc.driver.runtime.ConcurrentErrorReporter;
 import com.ldbc.driver.temporal.Duration;
+import com.ldbc.driver.temporal.Time;
 import com.ldbc.driver.temporal.TimeSource;
 
 import java.util.Queue;
@@ -23,14 +24,18 @@ public class ThreadedQueuedConcurrentMetricsService implements ConcurrentMetrics
     private final ThreadedQueuedMetricsMaintenanceThread threadedQueuedMetricsMaintenanceThread;
     private boolean shuttingDown = false;
 
-    public ThreadedQueuedConcurrentMetricsService(TimeSource timeSource, ConcurrentErrorReporter errorReporter, TimeUnit unit) {
+    public ThreadedQueuedConcurrentMetricsService(TimeSource timeSource,
+                                                  ConcurrentErrorReporter errorReporter,
+                                                  TimeUnit unit,
+                                                  Time initialTime) {
         this.TIME_SOURCE = timeSource;
         this.metricsEventsQueue = new ConcurrentLinkedQueue<>();
         this.initiatedEvents = new AtomicLong(0);
         threadedQueuedMetricsMaintenanceThread = new ThreadedQueuedMetricsMaintenanceThread(
                 errorReporter,
                 metricsEventsQueue,
-                new MetricsManager(TIME_SOURCE, unit));
+                new MetricsManager(TIME_SOURCE, unit, initialTime));
+        threadedQueuedMetricsMaintenanceThread.setDaemon(true);
         threadedQueuedMetricsMaintenanceThread.start();
     }
 

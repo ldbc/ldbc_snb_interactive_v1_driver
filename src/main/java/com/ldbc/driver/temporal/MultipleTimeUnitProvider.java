@@ -22,9 +22,9 @@ public interface MultipleTimeUnitProvider<T>
 
     public boolean lte(T other);
 
-    public Duration greaterBy( T other );
+    public Duration durationGreaterThan(T other);
 
-    public Duration lessBy( T other );
+    public Duration durationLessThan(T other);
 
     public T plus( Duration duration );
 

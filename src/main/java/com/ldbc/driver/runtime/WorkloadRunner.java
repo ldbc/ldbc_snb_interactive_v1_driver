@@ -16,16 +16,18 @@ import com.ldbc.driver.temporal.Time;
 import com.ldbc.driver.temporal.TimeSource;
 
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import static com.ldbc.driver.OperationClassification.SchedulingMode;
 
 public class WorkloadRunner {
-    private final TimeSource TIME_SOURCE;
+    public static final Duration EARLY_SPINNER_OFFSET_DURATION = Duration.fromMilli(100);
+    private static final Duration WAIT_DURATION_FOR_OPERATION_HANDLER_EXECUTOR_TO_SHUTDOWN = Duration.fromSeconds(5);
+    public static final long COMPLETION_POLLING_INTERVAL_AS_MILLI = Duration.fromMilli(500).asMilli();
 
-    private final Duration WAIT_DURATION_FOR_OPERATION_HANDLER_EXECUTOR_TO_SHUTDOWN = Duration.fromSeconds(5);
-    private final Duration SPINNER_OFFSET_DURATION = Duration.fromMilli(100);
+    private final TimeSource TIME_SOURCE;
 
     private final Spinner exactSpinner;
     private final Spinner earlySpinner;
@@ -55,7 +57,8 @@ public class WorkloadRunner {
                           Time workloadStartTime,
                           Duration toleratedExecutionDelayDuration,
                           Duration spinnerSleepDuration,
-                          Duration executionWindowDuration) throws WorkloadException {
+                          Duration executionWindowDuration,
+                          Duration earlySpinnerOffsetDuration) throws WorkloadException {
         this.TIME_SOURCE = timeSource;
         this.errorReporter = errorReporter;
         this.statusDisplayInterval = statusDisplayInterval;
@@ -68,22 +71,23 @@ public class WorkloadRunner {
         // TODO for the spinner sent to Window scheduler allow delay to reach to the end of window?
 
         this.exactSpinner = new Spinner(TIME_SOURCE, spinnerSleepDuration, executionDelayPolicy);
-        this.earlySpinner = new Spinner(TIME_SOURCE, spinnerSleepDuration, executionDelayPolicy, SPINNER_OFFSET_DURATION);
+        this.earlySpinner = new Spinner(TIME_SOURCE, spinnerSleepDuration, executionDelayPolicy, earlySpinnerOffsetDuration);
         // TODO make this a configuration parameter?
         boolean detailedStatus = true;
         this.workloadStatusThread = new WorkloadStatusThread(statusDisplayInterval, metricsService, errorReporter, completionTimeService, detailedStatus);
-        Iterator<Operation<?>> windowedOperations;
-        Iterator<Operation<?>> blockingOperations;
-        Iterator<Operation<?>> asynchronousOperations;
+        this.workloadStatusThread.setDaemon(true);
+        List<Operation<?>> windowedOperations;
+        List<Operation<?>> blockingOperations;
+        List<Operation<?>> asynchronousOperations;
         try {
             IteratorSplitter<Operation<?>> splitter = new IteratorSplitter<>(IteratorSplitter.UnmappedItemPolicy.ABORT);
             SplitDefinition<Operation<?>> windowed = new SplitDefinition<>(Workload.operationTypesBySchedulingMode(operationClassifications, SchedulingMode.WINDOWED));
             SplitDefinition<Operation<?>> blocking = new SplitDefinition<>(Workload.operationTypesBySchedulingMode(operationClassifications, SchedulingMode.INDIVIDUAL_BLOCKING));
             SplitDefinition<Operation<?>> asynchronous = new SplitDefinition<>(Workload.operationTypesBySchedulingMode(operationClassifications, SchedulingMode.INDIVIDUAL_ASYNC));
             SplitResult splits = splitter.split(operations, windowed, blocking, asynchronous);
-            windowedOperations = splits.getSplitFor(windowed).iterator();
-            blockingOperations = splits.getSplitFor(blocking).iterator();
-            asynchronousOperations = splits.getSplitFor(asynchronous).iterator();
+            windowedOperations = splits.getSplitFor(windowed);
+            blockingOperations = splits.getSplitFor(blocking);
+            asynchronousOperations = splits.getSplitFor(asynchronous);
         } catch (IteratorSplittingException e) {
             throw new WorkloadException(
                     String.format("Error while splitting operation stream by scheduling mode\n%s", ConcurrentErrorReporter.stackTraceToString(e)),
@@ -98,9 +102,10 @@ public class WorkloadRunner {
                 errorReporter,
                 metricsService,
                 operationClassifications);
-        Iterator<OperationHandler<?>> windowedHandlers = operationsToHandlers.transform(windowedOperations);
-        Iterator<OperationHandler<?>> blockingHandlers = operationsToHandlers.transform(blockingOperations);
-        Iterator<OperationHandler<?>> asynchronousHandlers = operationsToHandlers.transform(asynchronousOperations);
+
+        Iterator<OperationHandler<?>> windowedHandlers = operationsToHandlers.transform(windowedOperations.iterator());
+        Iterator<OperationHandler<?>> blockingHandlers = operationsToHandlers.transform(blockingOperations.iterator());
+        Iterator<OperationHandler<?>> asynchronousHandlers = operationsToHandlers.transform(asynchronousOperations.iterator());
 
         // TODO (past alex) these executor services should all be using different gct services and sharing gct via external ct [MUST]
         // TODO (past alex) This lesson needs to be written to Confluence too
@@ -135,6 +140,7 @@ public class WorkloadRunner {
                 if (null != executorFinishedFlags[i]) terminate = false;
             }
             if (terminate) break;
+            powerNap();
         }
 
         while (true) {
@@ -142,6 +148,7 @@ public class WorkloadRunner {
                 throw new WorkloadException(String.format("Error encountered while running workload\n%s", errorReporter.toString()));
             if (asyncHandlersFinished.get() && blockingHandlersFinished.get() && windowedHandlersFinished.get())
                 break;
+            powerNap();
         }
 
         try {
@@ -159,5 +166,14 @@ public class WorkloadRunner {
         }
 
         if (statusDisplayInterval.asSeconds() > 0) workloadStatusThread.interrupt();
+    }
+
+    // sleep to reduce CPU load while waiting for executors to complete
+    private void powerNap() {
+        if (0 == COMPLETION_POLLING_INTERVAL_AS_MILLI) return;
+        try {
+            Thread.sleep(COMPLETION_POLLING_INTERVAL_AS_MILLI);
+        } catch (InterruptedException e) {
+        }
     }
 }

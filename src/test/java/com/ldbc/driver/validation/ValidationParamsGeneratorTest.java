@@ -9,7 +9,7 @@ import com.ldbc.driver.util.CsvFileReader;
 import com.ldbc.driver.util.CsvFileWriter;
 import com.ldbc.driver.TestUtils;
 import com.ldbc.driver.workloads.ldbc.snb.interactive.LdbcSnbInteractiveWorkload;
-import com.ldbc.driver.workloads.ldbc.snb.interactive.db.DummyDb;
+import com.ldbc.driver.workloads.ldbc.snb.interactive.db.DummyLdbcSnbInteractiveDb;
 import com.ldbc.driver.workloads.ldbc.snb.interactive.db.DummyLdbcSnbInteractiveOperationInstances;
 import org.apache.commons.io.FileUtils;
 import org.junit.Test;
@@ -45,7 +45,7 @@ public class ValidationParamsGeneratorTest {
         Workload workload = new LdbcSnbInteractiveWorkload();
         workload.init(configuration);
 
-        Db db = new DummyDb();
+        Db db = new DummyLdbcSnbInteractiveDb();
         db.init(new HashMap<String, String>());
 
         List<Operation<?>> operationsList = buildOperations();

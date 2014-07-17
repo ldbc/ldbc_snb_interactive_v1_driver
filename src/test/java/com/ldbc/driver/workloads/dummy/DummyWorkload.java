@@ -1,4 +1,4 @@
-package com.ldbc.driver.testutils;
+package com.ldbc.driver.workloads.dummy;
 
 import com.google.common.collect.Lists;
 import com.ldbc.driver.*;
@@ -61,21 +61,45 @@ public class DummyWorkload extends Workload {
     @Override
     public String serializeOperation(Operation<?> operation) throws SerializingMarshallingException {
         if (operation.getClass().equals(NothingOperation.class)) return NothingOperation.class.getName();
-        if (operation.getClass().equals(TimedOperation.class))
-            return TimedOperation.class.getName()
-                    + "|"
-                    + serializeTime(operation.scheduledStartTime())
-                    + "|"
-                    + serializeTime(operation.dependencyTime());
-        if (operation.getClass().equals(TimedNamedOperation.class))
-            return TimedNamedOperation.class.getName()
+        if (operation.getClass().equals(TimedNamedOperation1.class))
+            return TimedNamedOperation1.class.getName()
                     + "|"
                     + serializeTime(operation.scheduledStartTime())
                     + "|"
                     + serializeTime(operation.dependencyTime())
                     + "|"
-                    + ((TimedNamedOperation) operation).name();
+                    + serializeName(((TimedNamedOperation1) operation).name());
+        if (operation.getClass().equals(TimedNamedOperation2.class))
+            return TimedNamedOperation2.class.getName()
+                    + "|"
+                    + serializeTime(operation.scheduledStartTime())
+                    + "|"
+                    + serializeTime(operation.dependencyTime())
+                    + "|"
+                    + serializeName(((TimedNamedOperation2) operation).name());
         throw new SerializingMarshallingException("Unsupported Operation: " + operation.getClass().getName());
+    }
+
+    @Override
+    public Operation<?> marshalOperation(String serializedOperation) throws SerializingMarshallingException {
+        if (serializedOperation.startsWith(NothingOperation.class.getName())) return new NothingOperation();
+        if (serializedOperation.startsWith(TimedNamedOperation1.class.getName())) {
+            String[] serializedOperationTokens = serializedOperation.split("\\|");
+            return new TimedNamedOperation1(
+                    marshalTime(serializedOperationTokens[1]),
+                    marshalTime(serializedOperationTokens[2]),
+                    marshalName(serializedOperationTokens[3])
+            );
+        }
+        if (serializedOperation.startsWith(TimedNamedOperation2.class.getName())) {
+            String[] serializedOperationTokens = serializedOperation.split("\\|");
+            return new TimedNamedOperation2(
+                    marshalTime(serializedOperationTokens[1]),
+                    marshalTime(serializedOperationTokens[2]),
+                    marshalName(serializedOperationTokens[3])
+            );
+        }
+        throw new SerializingMarshallingException("Unsupported Operation: " + serializedOperation);
     }
 
     private String serializeTime(Time time) {
@@ -86,25 +110,12 @@ public class DummyWorkload extends Workload {
         return ("null".equals(timeString)) ? null : Time.fromMilli(Long.parseLong(timeString));
     }
 
-    @Override
-    public Operation<?> marshalOperation(String serializedOperation) throws SerializingMarshallingException {
-        if (serializedOperation.startsWith(NothingOperation.class.getName())) return new NothingOperation();
-        if (serializedOperation.startsWith(TimedOperation.class.getName())) {
-            String[] serializedOperationTokens = serializedOperation.split("\\|");
-            return new TimedOperation(
-                    marshalTime(serializedOperationTokens[1]),
-                    marshalTime(serializedOperationTokens[2])
-            );
-        }
-        if (serializedOperation.startsWith(TimedNamedOperation.class.getName())) {
-            String[] serializedOperationTokens = serializedOperation.split("\\|");
-            return new TimedNamedOperation(
-                    marshalTime(serializedOperationTokens[1]),
-                    marshalTime(serializedOperationTokens[2]),
-                    serializedOperationTokens[3]
-            );
-        }
-        throw new SerializingMarshallingException("Unsupported Operation: " + serializedOperation);
+    private String serializeName(String name) {
+        return (null == name) ? "null" : name;
+    }
+
+    private String marshalName(String nameString) {
+        return ("null".equals(nameString)) ? null : nameString;
     }
 
     @Override

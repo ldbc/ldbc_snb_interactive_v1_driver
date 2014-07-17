@@ -58,6 +58,7 @@ public class Spinner {
      */
     public boolean waitForScheduledStartTime(Operation<?> operation, SpinnerCheck check) {
         boolean operationMayBeExecuted = true;
+
         // check that a scheduled start time has been assigned to the operation
         if (null == operation.scheduledStartTime()) {
             return executionDelayPolicy.handleUnassignedScheduledStartTime(operation);
@@ -75,9 +76,17 @@ public class Spinner {
         while (operationMayBeExecuted && false == check.doCheck()) {
             // give up if checks did not pass before latest tolerated operation start time was exceeded
             if (TIME_SOURCE.nowAsMilli() > latestAllowableStartTimeAsMilli) {
+                // TODO remove
+                System.out.println("BOOOOOOOOOOOOOM");
                 boolean failedCheckResult = check.handleFailedCheck(operation);
+                // TODO remove
+                System.out.println("BOOOOOOOOOOOOOM  1");
                 boolean executionDelayResult = executionDelayPolicy.handleExcessiveDelay(operation);
+                // TODO remove
+                System.out.println("BOOOOOOOOOOOOOM  2");
                 operationMayBeExecuted = operationMayBeExecuted && failedCheckResult && executionDelayResult;
+                // TODO remove
+                System.out.println("BOOOOOOOOOOOOOM  3");
                 break;
             }
             powerNap();
@@ -89,7 +98,8 @@ public class Spinner {
         }
 
         // check that excessive delay has not already occurred
-        if (TIME_SOURCE.nowAsMilli() > latestAllowableStartTimeAsMilli) {
+        // TODO may need to remove "operationMayBeExecuted &&" if Spinner tests fail as a result, but at present an error can get reported twice for excessive delay
+        if (operationMayBeExecuted && TIME_SOURCE.nowAsMilli() > latestAllowableStartTimeAsMilli) {
             boolean executionDelayResult = executionDelayPolicy.handleExcessiveDelay(operation);
             operationMayBeExecuted = operationMayBeExecuted && executionDelayResult;
         }

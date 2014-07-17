@@ -30,11 +30,11 @@ public class TimeMappingGenerator extends Generator<Operation<?>> {
             Time firstStartTime = nextOperation.scheduledStartTime();
             if (newStartTime.gt(firstStartTime)) {
                 // offset to future
-                Duration offset = newStartTime.greaterBy(firstStartTime);
+                Duration offset = newStartTime.durationGreaterThan(firstStartTime);
                 timeOffsetFun = new TimeFutureOffsetFun(offset);
             } else {
                 // offset to past
-                Duration offset = newStartTime.lessBy(firstStartTime);
+                Duration offset = newStartTime.durationLessThan(firstStartTime);
                 timeOffsetFun = new TimePastOffsetFun(offset);
             }
 
@@ -99,7 +99,7 @@ public class TimeMappingGenerator extends Generator<Operation<?>> {
 
         @Override
         public Time apply(Time time) {
-            long durationFromOriginalStartTimeAsNano = time.greaterBy(firstTime).asNano();
+            long durationFromOriginalStartTimeAsNano = time.durationGreaterThan(firstTime).asNano();
             long compressedDurationFromOriginalStartTimeIsNano = Math.round(durationFromOriginalStartTimeAsNano * timeCompressionRatio);
             Duration compressedDurationFromOriginalStartTime = Duration.fromNano(compressedDurationFromOriginalStartTimeIsNano);
             return firstTime.plus(compressedDurationFromOriginalStartTime);

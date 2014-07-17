@@ -13,10 +13,10 @@ import com.ldbc.driver.temporal.Duration;
 import com.ldbc.driver.temporal.SystemTimeSource;
 import com.ldbc.driver.temporal.Time;
 import com.ldbc.driver.temporal.TimeSource;
-import com.ldbc.driver.testutils.NothingOperation;
+import com.ldbc.driver.workloads.dummy.NothingOperation;
 import com.ldbc.driver.util.RandomDataGeneratorFactory;
 import com.ldbc.driver.workloads.ldbc.snb.interactive.LdbcSnbInteractiveWorkload;
-import com.ldbc.driver.workloads.ldbc.snb.interactive.db.CsvDb;
+import com.ldbc.driver.workloads.ldbc.snb.interactive.db.CsvWritingLdbcSnbInteractiveDb;
 import org.apache.commons.io.FileUtils;
 import org.junit.Before;
 import org.junit.Test;
@@ -191,9 +191,9 @@ public class TimeMappingGeneratorTest {
         // CsvDb-specific parameters
         String csvOutputFilePath = "temp_csv_output_file.csv";
         FileUtils.deleteQuietly(new File(csvOutputFilePath));
-        paramsMap.put(CsvDb.CSV_PATH_KEY, csvOutputFilePath);
+        paramsMap.put(CsvWritingLdbcSnbInteractiveDb.CSV_PATH_KEY, csvOutputFilePath);
         // Driver-specific parameters
-        String dbClassName = CsvDb.class.getName();
+        String dbClassName = CsvWritingLdbcSnbInteractiveDb.class.getName();
         String workloadClassName = LdbcSnbInteractiveWorkload.class.getName();
         long operationCount = 100;
         int threadCount = 1;

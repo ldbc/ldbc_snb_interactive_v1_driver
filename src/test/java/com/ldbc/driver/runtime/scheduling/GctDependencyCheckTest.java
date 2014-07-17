@@ -4,7 +4,7 @@ import com.ldbc.driver.Operation;
 import com.ldbc.driver.runtime.ConcurrentErrorReporter;
 import com.ldbc.driver.runtime.DummyConcurrentCompletionTimeService;
 import com.ldbc.driver.temporal.Time;
-import com.ldbc.driver.testutils.TimedOperation;
+import com.ldbc.driver.workloads.dummy.TimedNamedOperation1;
 import org.junit.Test;
 
 import static org.hamcrest.CoreMatchers.is;
@@ -16,7 +16,7 @@ public class GctDependencyCheckTest {
         // Given
         Time dependencyTime = Time.fromMilli(5);
         Time scheduledStartTime = null;
-        Operation<?> operation = new TimedOperation(scheduledStartTime, dependencyTime);
+        Operation<?> operation = new TimedNamedOperation1(scheduledStartTime, dependencyTime, null);
         DummyConcurrentCompletionTimeService completionTimeService = new DummyConcurrentCompletionTimeService();
         ConcurrentErrorReporter errorReporter = new ConcurrentErrorReporter();
 

@@ -9,7 +9,8 @@ import com.ldbc.driver.runtime.scheduling.Spinner;
 import com.ldbc.driver.temporal.Duration;
 import com.ldbc.driver.temporal.SystemTimeSource;
 import com.ldbc.driver.temporal.TimeSource;
-import com.ldbc.driver.testutils.NothingOperation;
+import com.ldbc.driver.workloads.dummy.NothingOperation;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import java.util.concurrent.*;
@@ -20,6 +21,49 @@ import static org.junit.Assert.assertThat;
 
 public class ExecutorTest {
     TimeSource TIME_SOURCE = new SystemTimeSource();
+
+    @Ignore
+    @Test
+    public void addGctWriteOnlyMode() {
+        // TODO NONE, READ, WRITE (add this), READ_WRITE
+        assertThat(true, is(false));
+    }
+
+    @Ignore
+    @Test
+    public void eachExecutorShouldHaveDifferentThreadPool() {
+        // TODO Operations that write to GCT can not be blocked by operations that read GCT, or no progress will happen
+        assertThat(true, is(false));
+    }
+
+    @Ignore
+    @Test
+    public void writeTestToBetterUnderstandWhatHappensWhenThereAreMoreActiveThreadsThanCPUs() {
+        // TODO does the JVM give them all some computation time?
+        // TODO or will the active ones hold the CPUs until they complete, starving the others of the chance to run?
+        assertThat(true, is(false));
+    }
+
+    @Ignore
+    @Test
+    public void eachExecutorShouldHaveDifferentCompletionTimeService() {
+        // TODO necessary because executors run concurrently to one another
+        // TODO meaning initiated times are not guaranteed to be submitted in GLOBALLY monotonically increasing order
+        // TODO e.g.,
+        // TODO --> executor1.submit(1) GCT=0
+        // TODO --> executor1.submit(2) GCT=0
+        // TODO --> [1 completes] GCT=1
+        // TODO --> [2 completes] GCT =2
+        // TODO --> executor2.submit(1) <<ERROR>> submitted initiated time is earlier than current GCT
+        assertThat(true, is(false));
+    }
+
+    @Ignore
+    @Test
+    public void inWindowedModeOperationsShouldNotPerformGctCheckThemselvesInsteadTheExecutorShouldDoSoBeforeWindowExecution() {
+        // TODO synchronize code and documentation on the way we do such things
+        assertThat(true, is(false));
+    }
 
     @Test
     public void shouldRunOperationHandlerAndReturnExpectedResultWithoutError() throws InterruptedException, ExecutionException, CompletionTimeException, OperationException {
@@ -108,7 +152,7 @@ public class ExecutorTest {
         int threadCount = 1;
         ThreadFactory threadFactory = Executors.defaultThreadFactory();
         ExecutorService threadPoolExecutorService = Executors.newFixedThreadPool(threadCount, threadFactory);
-        CompletionService<OperationResultReport> operationHandlerCompletionPool = new ExecutorCompletionService<OperationResultReport>(threadPoolExecutorService);
+        CompletionService<OperationResultReport> operationHandlerCompletionPool = new ExecutorCompletionService<>(threadPoolExecutorService);
 
         operationHandlerCompletionPool.submit(operationHandler);
 

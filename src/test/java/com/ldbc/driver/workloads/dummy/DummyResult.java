@@ -1,4 +1,4 @@
-package com.ldbc.driver.testutils;
+package com.ldbc.driver.workloads.dummy;
 
 public class DummyResult {
     @Override

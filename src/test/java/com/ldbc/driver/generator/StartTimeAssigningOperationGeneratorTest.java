@@ -3,7 +3,7 @@ package com.ldbc.driver.generator;
 import com.ldbc.driver.Operation;
 import com.ldbc.driver.temporal.Duration;
 import com.ldbc.driver.temporal.Time;
-import com.ldbc.driver.testutils.NothingOperationFactory;
+import com.ldbc.driver.workloads.dummy.NothingOperationFactory;
 import com.ldbc.driver.util.Function1;
 import com.ldbc.driver.util.RandomDataGeneratorFactory;
 import org.junit.Test;

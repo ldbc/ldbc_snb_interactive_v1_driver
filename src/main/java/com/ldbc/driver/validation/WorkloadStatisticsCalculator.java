@@ -72,7 +72,7 @@ public class WorkloadStatisticsCalculator {
 
             // Interleaves
             if (null != previousOperationStartTime) {
-                Duration interleaveDuration = operationStartTime.greaterBy(previousOperationStartTime);
+                Duration interleaveDuration = operationStartTime.durationGreaterThan(previousOperationStartTime);
                 operationInterleaves.addMeasurement(interleaveDuration.asMilli());
             }
             previousOperationStartTime = operationStartTime;
@@ -85,7 +85,7 @@ public class WorkloadStatisticsCalculator {
             }
             Time previousOperationStartTimeByGctMode = previousOperationStartTimesByGctMode.get(operationGctMode);
             if (null != previousOperationStartTimeByGctMode) {
-                Duration interleaveDuration = operationStartTime.greaterBy(previousOperationStartTimeByGctMode);
+                Duration interleaveDuration = operationStartTime.durationGreaterThan(previousOperationStartTimeByGctMode);
                 operationInterleaveForGctMode.addMeasurement(interleaveDuration.asMilli());
             }
             previousOperationStartTimesByGctMode.put(operationGctMode, operationStartTime);
@@ -98,7 +98,7 @@ public class WorkloadStatisticsCalculator {
             }
             Time previousOperationStartTimeForOperationType = previousOperationStartTimesByOperationType.get(operationType);
             if (null != previousOperationStartTimeForOperationType) {
-                Duration interleaveDuration = operationStartTime.greaterBy(previousOperationStartTimeForOperationType);
+                Duration interleaveDuration = operationStartTime.durationGreaterThan(previousOperationStartTimeForOperationType);
                 operationInterleaveForOperationType.addMeasurement(interleaveDuration.asMilli());
             }
             previousOperationStartTimesByOperationType.put(operationType, operationStartTime);

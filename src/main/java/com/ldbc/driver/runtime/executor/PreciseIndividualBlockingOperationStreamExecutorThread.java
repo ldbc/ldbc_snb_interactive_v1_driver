@@ -43,12 +43,14 @@ class PreciseIndividualBlockingOperationStreamExecutorThread extends Thread {
     @Override
     public void run() {
         Future<OperationResultReport> executingHandler = null;
+        Operation<?> previousOperation = null;
         while (handlers.hasNext()) {
             OperationHandler<?> handler = handlers.next();
 
             // Ensures previously executed handler has completed before handler starts executing
-            if (null != executingHandler)
-                handler.addCheck(new FutureCompletedCheck(executingHandler));
+            if (null != executingHandler) {
+                handler.addCheck(new FutureCompletedCheck(executingHandler, previousOperation));
+            }
 
             // Schedule slightly early to account for context switch - internally, handler will schedule at exact start time
             slightlyEarlySpinner.waitForScheduledStartTime(handler.operation());
@@ -69,6 +71,7 @@ class PreciseIndividualBlockingOperationStreamExecutorThread extends Thread {
                                 handler.operation().toString(),
                                 ConcurrentErrorReporter.stackTraceToString(e)));
             }
+            previousOperation = handler.operation();
         }
         // Wait for final operation handler
         boolean executingHandlerFinishedInTime = awaitExecutingHandler(DURATION_TO_WAIT_FOR_LAST_HANDLER_TO_FINISH, executingHandler);
@@ -88,9 +91,11 @@ class PreciseIndividualBlockingOperationStreamExecutorThread extends Thread {
 
     private final class FutureCompletedCheck implements SpinnerCheck {
         private final Future<?> future;
+        private final Operation<?> previousOperation;
 
-        private FutureCompletedCheck(Future<?> future) {
+        private FutureCompletedCheck(Future<?> future, Operation<?> previousOperation) {
             this.future = future;
+            this.previousOperation = previousOperation;
         }
 
         @Override
@@ -100,7 +105,17 @@ class PreciseIndividualBlockingOperationStreamExecutorThread extends Thread {
 
         @Override
         public boolean handleFailedCheck(Operation<?> operation) {
-            errorReporter.reportError(this, "Previous operation did not complete in time for next, synchronous operation to start");
+            System.out.println(previousOperation);
+            String errMsg = String.format(
+                    "Previous operation did not complete in time for next synchronous operation to start\n"
+                            + " Previous Operation (%s): %s\n"
+                            + " Next Operation (%s): %s",
+                    previousOperation.scheduledStartTime(),
+                    previousOperation,
+                    operation.scheduledStartTime(),
+                    operation
+            );
+            errorReporter.reportError(this, errMsg);
             return false;
         }
     }

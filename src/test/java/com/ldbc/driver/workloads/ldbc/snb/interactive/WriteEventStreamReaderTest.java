@@ -317,7 +317,7 @@ public class WriteEventStreamReaderTest {
 
         histogram.importValueSequence(updateEventTypes);
 
-        Duration runtime = TIME_SOURCE.now().greaterBy(startTime);
+        Duration runtime = TIME_SOURCE.now().durationGreaterThan(startTime);
 
         System.out.println(String.format("Runtime:\t\t%s", runtime));
         System.out.println(String.format("Operation count:\t%s", histogram.sumOfAllBucketValues()));
@@ -351,7 +351,7 @@ public class WriteEventStreamReaderTest {
 
         histogram.importValueSequence(updateEventTypes);
 
-        Duration runtime = TIME_SOURCE.now().greaterBy(startTime);
+        Duration runtime = TIME_SOURCE.now().durationGreaterThan(startTime);
 
         System.out.println(String.format("Runtime:\t\t%s", runtime));
         System.out.println(String.format("Operation count:\t%s", histogram.sumOfAllBucketValues()));

@@ -19,8 +19,8 @@ import com.ldbc.driver.util.Bucket;
 import com.ldbc.driver.util.Histogram;
 import com.ldbc.driver.util.MapUtils;
 import com.ldbc.driver.util.RandomDataGeneratorFactory;
-import com.ldbc.driver.workloads.ldbc.snb.interactive.db.CsvDb;
-import com.ldbc.driver.workloads.ldbc.snb.interactive.db.DummyDb;
+import com.ldbc.driver.workloads.ldbc.snb.interactive.db.CsvWritingLdbcSnbInteractiveDb;
+import com.ldbc.driver.workloads.ldbc.snb.interactive.db.DummyLdbcSnbInteractiveDb;
 import com.ldbc.driver.workloads.ldbc.snb.interactive.db.DummyLdbcSnbInteractiveOperationInstances;
 import org.apache.commons.io.FileUtils;
 import org.junit.Ignore;
@@ -161,9 +161,9 @@ public class LdbcSnbInteractiveWorkloadTest {
         paramsMap.put(LdbcSnbInteractiveWorkload.PARAMETERS_DIRECTORY, TestUtils.getResource("/").getAbsolutePath());
         paramsMap.put(LdbcSnbInteractiveWorkload.DATA_DIRECTORY, TestUtils.getResource("/").getAbsolutePath());
         // DummyDb-specific parameters
-        paramsMap.put(DummyDb.SLEEP_DURATION_MILLI_ARG, Long.toString(Duration.fromMilli(100).asMilli()));
+        paramsMap.put(DummyLdbcSnbInteractiveDb.SLEEP_DURATION_MILLI_ARG, Long.toString(Duration.fromMilli(100).asMilli()));
         // Driver-specific parameters
-        String dbClassName = DummyDb.class.getName();
+        String dbClassName = DummyLdbcSnbInteractiveDb.class.getName();
         String workloadClassName = LdbcSnbInteractiveWorkload.class.getName();
         long operationCount = 100;
         int threadCount = 1;
@@ -397,9 +397,9 @@ public class LdbcSnbInteractiveWorkloadTest {
         // CsvDb-specific parameters
         String csvOutputFilePath = "temp_csv_output_file.csv";
         FileUtils.deleteQuietly(new File(csvOutputFilePath));
-        paramsMap.put(CsvDb.CSV_PATH_KEY, csvOutputFilePath);
+        paramsMap.put(CsvWritingLdbcSnbInteractiveDb.CSV_PATH_KEY, csvOutputFilePath);
         // Driver-specific parameters
-        String dbClassName = CsvDb.class.getName();
+        String dbClassName = CsvWritingLdbcSnbInteractiveDb.class.getName();
         String workloadClassName = LdbcSnbInteractiveWorkload.class.getName();
         long operationCount = 1000;
         int threadCount = 1;
@@ -463,10 +463,10 @@ public class LdbcSnbInteractiveWorkloadTest {
 
         ConsoleAndFileDriverConfiguration configuration = ConsoleAndFileDriverConfiguration.fromArgs(new String[]{
                 "-" + ConsoleAndFileDriverConfiguration.RESULT_FILE_PATH_ARG, resultFilePath,
-                "-" + ConsoleAndFileDriverConfiguration.DB_ARG, CsvDb.class.getName(),
+                "-" + ConsoleAndFileDriverConfiguration.DB_ARG, CsvWritingLdbcSnbInteractiveDb.class.getName(),
                 "-p", LdbcSnbInteractiveWorkload.PARAMETERS_DIRECTORY, TestUtils.getResource("/").getAbsolutePath(),
                 "-p", LdbcSnbInteractiveWorkload.DATA_DIRECTORY, TestUtils.getResource("/").getAbsolutePath(),
-                "-p", CsvDb.CSV_PATH_KEY, csvOutputFilePath,
+                "-p", CsvWritingLdbcSnbInteractiveDb.CSV_PATH_KEY, csvOutputFilePath,
                 "-P", ldbcSnbDatagenUpdateStreamPropertiesPath,
                 "-P", ldbcSocnetInteractiveTestPropertiesPath,
                 "-P", ldbcDriverTestPropertiesPath});
@@ -534,9 +534,9 @@ public class LdbcSnbInteractiveWorkloadTest {
         // CsvDb-specific parameters
         String csvOutputFilePath = "temp_csv_output_file.csv";
         FileUtils.deleteQuietly(new File(csvOutputFilePath));
-        paramsMap.put(CsvDb.CSV_PATH_KEY, csvOutputFilePath);
+        paramsMap.put(CsvWritingLdbcSnbInteractiveDb.CSV_PATH_KEY, csvOutputFilePath);
         // Driver-specific parameters
-        String dbClassName = CsvDb.class.getName();
+        String dbClassName = CsvWritingLdbcSnbInteractiveDb.class.getName();
         String workloadClassName = LdbcSnbInteractiveWorkload.class.getName();
         long operationCount = 1000000;
         int threadCount = 1;
@@ -624,9 +624,9 @@ public class LdbcSnbInteractiveWorkloadTest {
         params.put(LdbcSnbInteractiveWorkload.PARAMETERS_DIRECTORY, TestUtils.getResource("/").getAbsolutePath());
         params.put(LdbcSnbInteractiveWorkload.DATA_DIRECTORY, TestUtils.getResource("/").getAbsolutePath());
         // CsvDb-specific parameters
-        params.put(DummyDb.SLEEP_DURATION_MILLI_ARG, Long.toString(Duration.fromMilli(1).asMilli()));
+        params.put(DummyLdbcSnbInteractiveDb.SLEEP_DURATION_MILLI_ARG, Long.toString(Duration.fromMilli(1).asMilli()));
         // Driver-specific parameters
-        String dbClassName = DummyDb.class.getName();
+        String dbClassName = DummyLdbcSnbInteractiveDb.class.getName();
         String workloadClassName = LdbcSnbInteractiveWorkload.class.getName();
         long operationCount = 500;
         int threadCount = 1;
@@ -708,9 +708,9 @@ public class LdbcSnbInteractiveWorkloadTest {
         // CsvDb-specific parameters
         String csvOutputFilePath = "temp_csv_output_file.csv";
         FileUtils.deleteQuietly(new File(csvOutputFilePath));
-        paramsMap.put(CsvDb.CSV_PATH_KEY, csvOutputFilePath);
+        paramsMap.put(CsvWritingLdbcSnbInteractiveDb.CSV_PATH_KEY, csvOutputFilePath);
         // Driver-specific parameters
-        String dbClassName = CsvDb.class.getName();
+        String dbClassName = CsvWritingLdbcSnbInteractiveDb.class.getName();
         String workloadClassName = LdbcSnbInteractiveWorkload.class.getName();
         long operationCount = 1000000;
         int threadCount = 1;
@@ -834,9 +834,9 @@ public class LdbcSnbInteractiveWorkloadTest {
         paramsMap.put(LdbcSnbInteractiveWorkload.PARAMETERS_DIRECTORY, TestUtils.getResource("/").getAbsolutePath());
         paramsMap.put(LdbcSnbInteractiveWorkload.DATA_DIRECTORY, TestUtils.getResource("/").getAbsolutePath());
         // DummyDb-specific parameters
-        paramsMap.put(DummyDb.SLEEP_DURATION_MILLI_ARG, Long.toString(Duration.fromSeconds(40).asMilli()));
+        paramsMap.put(DummyLdbcSnbInteractiveDb.SLEEP_DURATION_MILLI_ARG, Long.toString(Duration.fromSeconds(40).asMilli()));
         // Driver-specific parameters
-        String dbClassName = DummyDb.class.getName();
+        String dbClassName = DummyLdbcSnbInteractiveDb.class.getName();
         String workloadClassName = LdbcSnbInteractiveWorkload.class.getName();
         long operationCount = 5;
         int threadCount = 2;

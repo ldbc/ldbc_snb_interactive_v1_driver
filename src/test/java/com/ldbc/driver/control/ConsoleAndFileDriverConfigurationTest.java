@@ -6,7 +6,7 @@ import com.ldbc.driver.TestUtils;
 import com.ldbc.driver.temporal.Duration;
 import com.ldbc.driver.util.MapUtils;
 import com.ldbc.driver.workloads.ldbc.snb.interactive.LdbcSnbInteractiveWorkload;
-import com.ldbc.driver.workloads.ldbc.snb.interactive.db.DummyDb;
+import com.ldbc.driver.workloads.ldbc.snb.interactive.db.DummyLdbcSnbInteractiveDb;
 import com.ldbc.driver.workloads.simple.SimpleWorkload;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -29,7 +29,7 @@ public class ConsoleAndFileDriverConfigurationTest {
         System.out.println(ConsoleAndFileDriverConfiguration.commandlineHelpString());
         System.out.println();
         System.out.println();
-        System.out.println(ConsoleAndFileDriverConfiguration.fromDefaults(DummyDb.class.getName(), SimpleWorkload.class.getName(), 1000).toString());
+        System.out.println(ConsoleAndFileDriverConfiguration.fromDefaults(DummyLdbcSnbInteractiveDb.class.getName(), SimpleWorkload.class.getName(), 1000).toString());
         System.out.println();
         System.out.println();
         System.out.println(ConsoleAndFileDriverConfiguration.fromDefaults(null, null, 0).toPropertiesString());
@@ -423,7 +423,7 @@ public class ConsoleAndFileDriverConfigurationTest {
         assertThat(configurationInTestResourcesAsMap, equalTo(configurationInWorkloadsDirectoryAsMap));
 
         Map<String, String> requiredParamsAsMap = new HashMap<>();
-        requiredParamsAsMap.put(ConsoleAndFileDriverConfiguration.DB_ARG, DummyDb.class.getName());
+        requiredParamsAsMap.put(ConsoleAndFileDriverConfiguration.DB_ARG, DummyLdbcSnbInteractiveDb.class.getName());
         requiredParamsAsMap.put(ConsoleAndFileDriverConfiguration.WORKLOAD_ARG, LdbcSnbInteractiveWorkload.class.getName());
         requiredParamsAsMap.put(ConsoleAndFileDriverConfiguration.OPERATION_COUNT_ARG, Long.toString(1000));
 

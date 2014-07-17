@@ -63,7 +63,7 @@ public class WorkloadStatistics {
         if (null == firstStartTime) return null;
         Time lastStartTime = lastStartTime();
         if (null == lastStartTime) return null;
-        return lastStartTime.greaterBy(firstStartTime);
+        return lastStartTime.durationGreaterThan(firstStartTime);
     }
 
     public int operationTypeCount() {

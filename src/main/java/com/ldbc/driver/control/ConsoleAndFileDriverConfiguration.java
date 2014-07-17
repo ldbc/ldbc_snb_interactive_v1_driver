@@ -7,7 +7,7 @@ import com.ldbc.driver.OperationClassification;
 import com.ldbc.driver.temporal.Duration;
 import com.ldbc.driver.util.MapUtils;
 import com.ldbc.driver.workloads.ldbc.snb.interactive.LdbcSnbInteractiveWorkload;
-import com.ldbc.driver.workloads.ldbc.snb.interactive.db.DummyDb;
+import com.ldbc.driver.workloads.ldbc.snb.interactive.db.DummyLdbcSnbInteractiveDb;
 import org.apache.commons.cli.*;
 
 import java.io.*;
@@ -943,7 +943,7 @@ public class ConsoleAndFileDriverConfiguration implements DriverConfiguration {
         sb.append("# ************************************************************************************\n");
         sb.append("\n");
         sb.append("# fully qualified class name of the Db (class) implementation to execute\n");
-        sb.append("# STRING (e.g., ").append(DummyDb.class.getName()).append(")\n");
+        sb.append("# STRING (e.g., ").append(DummyLdbcSnbInteractiveDb.class.getName()).append(")\n");
         if (null == dbClassName)
             sb.append("# ").append(DB_ARG_LONG).append("=").append("\n");
         else

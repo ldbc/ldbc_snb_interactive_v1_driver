@@ -28,15 +28,23 @@ public class UniformWindowedOperationStreamExecutorService {
                                                          Time firstWindowStartTime,
                                                          Duration windowSize) {
         this.errorReporter = errorReporter;
-        this.uniformWindowedOperationStreamExecutorThread = new UniformWindowedOperationStreamExecutorThread(
-                timeSource,
-                firstWindowStartTime,
-                windowSize,
-                operationHandlerExecutor,
-                errorReporter,
-                handlers,
-                hasFinished,
-                slightlyEarlySpinner);
+        if (handlers.hasNext()) {
+            this.uniformWindowedOperationStreamExecutorThread = new UniformWindowedOperationStreamExecutorThread(
+                    timeSource,
+                    firstWindowStartTime,
+                    windowSize,
+                    operationHandlerExecutor,
+                    errorReporter,
+                    handlers,
+                    hasFinished,
+                    slightlyEarlySpinner);
+            this.uniformWindowedOperationStreamExecutorThread.setDaemon(true);
+        } else {
+            this.uniformWindowedOperationStreamExecutorThread = null;
+            executing = true;
+            shuttingDown = true;
+            hasFinished.set(true);
+        }
     }
 
     synchronized public AtomicBoolean execute() {

@@ -121,13 +121,13 @@ public class Time implements Comparable<Time>, MultipleTimeUnitProvider<Time> {
     }
 
     @Override
-    public Duration greaterBy(Time other) {
-        return time.greaterBy(other.time);
+    public Duration durationGreaterThan(Time other) {
+        return time.durationGreaterThan(other.time);
     }
 
     @Override
-    public Duration lessBy(Time other) {
-        return time.lessBy(other.time);
+    public Duration durationLessThan(Time other) {
+        return time.durationLessThan(other.time);
     }
 
     @Override

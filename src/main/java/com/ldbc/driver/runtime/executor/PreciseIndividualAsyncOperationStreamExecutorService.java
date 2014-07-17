@@ -27,13 +27,21 @@ public class PreciseIndividualAsyncOperationStreamExecutorService {
                                                                 OperationHandlerExecutor operationHandlerExecutor) {
         this.TIME_SOURCE = timeSource;
         this.errorReporter = errorReporter;
-        this.preciseIndividualAsyncOperationStreamExecutorThread = new PreciseIndividualAsyncOperationStreamExecutorThread(
-                TIME_SOURCE,
-                operationHandlerExecutor,
-                errorReporter,
-                handlers,
-                hasFinished,
-                slightlyEarlySpinner);
+        if (handlers.hasNext()) {
+            this.preciseIndividualAsyncOperationStreamExecutorThread = new PreciseIndividualAsyncOperationStreamExecutorThread(
+                    TIME_SOURCE,
+                    operationHandlerExecutor,
+                    errorReporter,
+                    handlers,
+                    hasFinished,
+                    slightlyEarlySpinner);
+            this.preciseIndividualAsyncOperationStreamExecutorThread.setDaemon(true);
+        } else {
+            this.preciseIndividualAsyncOperationStreamExecutorThread = null;
+            hasFinished.set(true);
+            executing = true;
+            shuttingDown = true;
+        }
     }
 
     synchronized public AtomicBoolean execute() {

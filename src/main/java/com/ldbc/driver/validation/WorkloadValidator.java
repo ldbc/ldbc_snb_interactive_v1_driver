@@ -103,7 +103,7 @@ public class WorkloadValidator {
 
             // Interleaves do not exceed maximum
             if (null != previousOperationStartTime) {
-                Duration interleaveDuration = operationStartTime.greaterBy(previousOperationStartTime);
+                Duration interleaveDuration = operationStartTime.durationGreaterThan(previousOperationStartTime);
                 if (interleaveDuration.gt(workload.maxExpectedInterleave()))
                     return new WorkloadValidationResult(
                             ResultType.SCHEDULED_START_TIME_INTERVAL_EXCEEDS_MAXIMUM,
@@ -156,12 +156,12 @@ public class WorkloadValidator {
                                     operation));
                 }
 
-                // Operation dependency time is less than or equal to operation start time
-                if (operationDependencyTime.gt(operationStartTime)) {
+                // Ensure operation dependency time is less than operation start time
+                if (false == operationDependencyTime.lt(operationStartTime)) {
                     return new WorkloadValidationResult(
-                            ResultType.DEPENDENCY_TIME_IS_LATER_THAN_SCHEDULED_START_TIME,
+                            ResultType.DEPENDENCY_TIME_IS_NOT_BEFORE_SCHEDULED_START_TIME,
                             String.format(""
-                                            + "Operation dependency time is later than operation start time\n"
+                                            + "Operation dependency time is not less than operation start time\n"
                                             + "  Operation: %s\n"
                                             + "  Start Time: %s\n"
                                             + "  Dependency Time: %s",
@@ -172,14 +172,14 @@ public class WorkloadValidator {
 
                 // Duration between start time and dependency time should be at least Window Duration for operations with Windowed scheduling mode
                 if (operationSchedulingMode.equals(OperationClassification.SchedulingMode.WINDOWED) &&
-                        operationStartTime.greaterBy(operationDependencyTime).lt(configuration.windowedExecutionWindowDuration())) {
+                        operationStartTime.durationGreaterThan(operationDependencyTime).lt(configuration.windowedExecutionWindowDuration())) {
                     StringBuilder sb = new StringBuilder();
                     sb.append("Duration between scheduled start time & dependency time is insufficient for an operation with ").append(OperationClassification.SchedulingMode.WINDOWED.name()).append(" scheduling mode\n");
                     sb.append("-> should be greater or equal to 'window duration'\n");
                     sb.append("Operation: ").append(operation.toString()).append("\n");
                     sb.append("Start Time: ").append(operationStartTime).append("\n");
                     sb.append("Dependency Time: ").append(operationDependencyTime).append("\n");
-                    sb.append("Actual Duration: ").append(operationStartTime.greaterBy(operationDependencyTime)).append("\n");
+                    sb.append("Actual Duration: ").append(operationStartTime.durationGreaterThan(operationDependencyTime)).append("\n");
                     sb.append("Window Duration: ").append(configuration.windowedExecutionWindowDuration()).append("\n");
                     return new WorkloadValidationResult(
                             ResultType.INSUFFICIENT_INTERVAL_BETWEEN_DEPENDENCY_TIME_AND_SCHEDULED_START_TIME,
@@ -195,7 +195,7 @@ public class WorkloadValidator {
             }
             Time previousOperationStartTimeByGctMode = previousOperationStartTimesByGctMode.get(operationGctMode);
             if (null != previousOperationStartTimeByGctMode) {
-                Duration interleaveDuration = operationStartTime.greaterBy(previousOperationStartTimeByGctMode);
+                Duration interleaveDuration = operationStartTime.durationGreaterThan(previousOperationStartTimeByGctMode);
                 if (interleaveDuration.gt(workload.maxExpectedInterleave()))
                     return new WorkloadValidationResult(
                             ResultType.SCHEDULED_START_TIME_INTERVAL_EXCEEDS_MAXIMUM_FOR_GCT_MODE,
@@ -213,7 +213,7 @@ public class WorkloadValidator {
             }
             Time previousOperationStartTimeByOperationType = previousOperationStartTimesByOperationType.get(operationType);
             if (null != previousOperationStartTimeByOperationType) {
-                Duration interleaveDuration = operationStartTime.greaterBy(previousOperationStartTimeByOperationType);
+                Duration interleaveDuration = operationStartTime.durationGreaterThan(previousOperationStartTimeByOperationType);
                 if (interleaveDuration.gt(workload.maxExpectedInterleave()))
                     return new WorkloadValidationResult(
                             ResultType.SCHEDULED_START_TIME_INTERVAL_EXCEEDS_MAXIMUM_FOR_OPERATION_TYPE,

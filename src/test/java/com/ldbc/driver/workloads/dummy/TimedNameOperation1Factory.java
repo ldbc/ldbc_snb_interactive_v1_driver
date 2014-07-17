@@ -1,17 +1,21 @@
-package com.ldbc.driver.testutils;
+package com.ldbc.driver.workloads.dummy;
 
 import com.ldbc.driver.Operation;
 import com.ldbc.driver.temporal.Time;
 
 import java.util.Iterator;
 
-public class TimedNothingOperationFactory implements Iterator<Operation<?>> {
+public class TimedNameOperation1Factory implements Iterator<Operation<?>> {
     private final Iterator<Time> startTimes;
     private final Iterator<Time> dependencyTimes;
+    private final Iterator<String> names;
 
-    public TimedNothingOperationFactory(Iterator<Time> startTimes, Iterator<Time> dependencyTimes) {
+    public TimedNameOperation1Factory(Iterator<Time> startTimes,
+                                      Iterator<Time> dependencyTimes,
+                                      Iterator<String> names) {
         this.startTimes = startTimes;
         this.dependencyTimes = dependencyTimes;
+        this.names = names;
     }
 
     @Override
@@ -20,8 +24,8 @@ public class TimedNothingOperationFactory implements Iterator<Operation<?>> {
     }
 
     @Override
-    public TimedOperation next() {
-        return new TimedOperation(startTimes.next(), dependencyTimes.next());
+    public TimedNamedOperation1 next() {
+        return new TimedNamedOperation1(startTimes.next(), dependencyTimes.next(), names.next());
     }
 
     @Override

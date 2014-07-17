@@ -8,7 +8,7 @@ import com.ldbc.driver.workloads.ldbc.snb.interactive.*;
 
 import java.util.Map;
 
-public class DummyDb extends Db {
+public class DummyLdbcSnbInteractiveDb extends Db {
     public static final String SLEEP_DURATION_MILLI_ARG = "sleep_duration_milli";
     private static Duration sleepDuration;
 

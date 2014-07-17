@@ -6,7 +6,7 @@ import java.util.List;
 import java.util.Map;
 
 public class SplitResult<ITEM_TYPE> {
-    private final Map<SplitDefinition<ITEM_TYPE>, Iterable<ITEM_TYPE>> splits = new HashMap<SplitDefinition<ITEM_TYPE>, Iterable<ITEM_TYPE>>();
+    private final Map<SplitDefinition<ITEM_TYPE>, List<ITEM_TYPE>> splits = new HashMap<>();
 
     List<ITEM_TYPE> addSplit(SplitDefinition<ITEM_TYPE> definition) throws IteratorSplittingException {
         for (SplitDefinition<ITEM_TYPE> existingDefinition : splits.keySet()) {
@@ -16,7 +16,7 @@ public class SplitResult<ITEM_TYPE> {
                         definition.toString(),
                         existingDefinition.toString()));
         }
-        List<ITEM_TYPE> splitContainer = new ArrayList<ITEM_TYPE>();
+        List<ITEM_TYPE> splitContainer = new ArrayList<>();
         splits.put(definition, splitContainer);
         return splitContainer;
     }
@@ -25,7 +25,7 @@ public class SplitResult<ITEM_TYPE> {
         return splits.size();
     }
 
-    public Iterable<ITEM_TYPE> getSplitFor(SplitDefinition definition) throws IteratorSplittingException {
+    public List<ITEM_TYPE> getSplitFor(SplitDefinition definition) throws IteratorSplittingException {
         if (false == splits.containsKey(definition))
             throw new IteratorSplittingException(String.format("No split definition exists for: %s", definition));
         return splits.get(definition);

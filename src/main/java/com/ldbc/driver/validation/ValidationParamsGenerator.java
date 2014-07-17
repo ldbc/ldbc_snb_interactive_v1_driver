@@ -46,7 +46,7 @@ public class ValidationParamsGenerator extends Generator<ValidationParam> {
             }
             OperationResultReport operationResultReport;
             try {
-                operationResultReport = handler.executeUnsafe(operation);
+                operationResultReport = handler.executeOperationUnsafe(operation);
             } catch (DbException e) {
                 throw new GeneratorException(
                         String.format(""

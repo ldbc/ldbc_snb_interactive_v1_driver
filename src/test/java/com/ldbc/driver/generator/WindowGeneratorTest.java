@@ -12,8 +12,8 @@ import com.ldbc.driver.temporal.Duration;
 import com.ldbc.driver.temporal.SystemTimeSource;
 import com.ldbc.driver.temporal.Time;
 import com.ldbc.driver.temporal.TimeSource;
-import com.ldbc.driver.testutils.NothingOperation;
-import com.ldbc.driver.testutils.NothingOperationHandler;
+import com.ldbc.driver.workloads.dummy.NothingOperation;
+import com.ldbc.driver.workloads.dummy.NothingOperationHandler;
 import org.junit.Test;
 
 import java.util.Iterator;

@@ -1,11 +1,11 @@
-package com.ldbc.driver.testutils;
+package com.ldbc.driver.workloads.dummy;
 
 import com.ldbc.driver.temporal.Time;
 
-public class TimedNamedOperation extends NothingOperation {
+public class TimedNamedOperation1 extends NothingOperation {
     private final String name;
 
-    public TimedNamedOperation(Time startTime, Time dependencyTime, String name) {
+    public TimedNamedOperation1(Time startTime, Time dependencyTime, String name) {
         setScheduledStartTime(startTime);
         setDependencyTime(dependencyTime);
         this.name = name;
@@ -17,11 +17,11 @@ public class TimedNamedOperation extends NothingOperation {
 
     @Override
     public String toString() {
-        return "TimedNamedOperation{" +
+        return "TimedNamedOperation1{" +
                 "scheduledStartTime=" + scheduledStartTime() +
                 ", dependencyTime=" + dependencyTime() +
                 ", name='" + name +
-                '}';
+                "'}";
     }
 
     @Override
@@ -30,7 +30,7 @@ public class TimedNamedOperation extends NothingOperation {
         if (o == null || getClass() != o.getClass()) return false;
         if (!super.equals(o)) return false;
 
-        TimedNamedOperation operation = (TimedNamedOperation) o;
+        TimedNamedOperation1 operation = (TimedNamedOperation1) o;
 
         if (dependencyTime() != null ? !dependencyTime().equals(operation.dependencyTime()) : operation.dependencyTime() != null)
             return false;

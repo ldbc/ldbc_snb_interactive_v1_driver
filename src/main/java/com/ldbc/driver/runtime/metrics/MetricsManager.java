@@ -16,15 +16,18 @@ public class MetricsManager {
     public static final Charset DEFAULT_CHARSET = Charset.forName("UTF-8");
     public static final Duration DEFAULT_HIGHEST_EXPECTED_DURATION = Duration.fromMinutes(10);
 
+    private final Time startTime;
     private final Map<String, OperationMetricsManager> allOperationMetrics;
     private final TimeSource TIME_SOURCE;
     private final TimeUnit unit;
     private final Duration highestExpectedDuration;
-    private Time earliestStartTime;
     private Time latestFinishTime;
     private AtomicLong measurementCount = new AtomicLong(0);
 
-    public static void export(WorkloadResultsSnapshot workloadResults, OperationMetricsFormatter metricsFormatter, OutputStream outputStream, Charset charSet)
+    public static void export(WorkloadResultsSnapshot workloadResults,
+                              OperationMetricsFormatter metricsFormatter,
+                              OutputStream outputStream,
+                              Charset charSet)
             throws MetricsCollectionException {
         try {
             String formattedMetricsGroups = metricsFormatter.format(workloadResults);
@@ -34,27 +37,26 @@ public class MetricsManager {
         }
     }
 
-    // TODO take start time in constructor
-    MetricsManager(TimeSource timeSource, TimeUnit unit) {
-        this(timeSource, unit, DEFAULT_HIGHEST_EXPECTED_DURATION);
+    MetricsManager(TimeSource timeSource,
+                   TimeUnit unit,
+                   Time startTime) {
+        this(timeSource, unit, startTime, DEFAULT_HIGHEST_EXPECTED_DURATION);
     }
 
-    MetricsManager(TimeSource timeSource, TimeUnit unit, Duration highestExpectedDuration) {
+    MetricsManager(TimeSource timeSource,
+                   TimeUnit unit,
+                   Time startTime,
+                   Duration highestExpectedDuration) {
+        this.startTime = startTime;
         this.TIME_SOURCE = timeSource;
         this.unit = unit;
         this.allOperationMetrics = new HashMap<>();
         this.highestExpectedDuration = highestExpectedDuration;
-        earliestStartTime = null;
-        latestFinishTime = null;
+        this.latestFinishTime = startTime;
     }
 
     void measure(OperationResultReport result) throws MetricsCollectionException {
         Time operationFinishTime = result.actualStartTime().plus(result.runDuration());
-
-        if (null == earliestStartTime)
-            earliestStartTime = result.actualStartTime();
-        else
-            earliestStartTime = (result.actualStartTime().lt(earliestStartTime)) ? result.actualStartTime() : earliestStartTime;
 
         if (null == latestFinishTime)
             latestFinishTime = operationFinishTime;
@@ -71,10 +73,10 @@ public class MetricsManager {
     }
 
     Time startTime() {
-        return earliestStartTime;
+        return startTime;
     }
 
-    Time finishTime() {
+    Time latestFinishTime() {
         return latestFinishTime;
     }
 
@@ -91,25 +93,28 @@ public class MetricsManager {
         for (Map.Entry<String, OperationMetricsManager> metricsManagerEntry : allOperationMetrics.entrySet()) {
             operationMetricsMap.put(metricsManagerEntry.getKey(), metricsManagerEntry.getValue().snapshot());
         }
-        return new WorkloadResultsSnapshot(operationMetricsMap, earliestStartTime, latestFinishTime, totalOperationCount(), unit);
+        return new WorkloadResultsSnapshot(
+                operationMetricsMap,
+                startTime,
+                latestFinishTime,
+                totalOperationCount(),
+                unit);
     }
 
     WorkloadStatusSnapshot status() {
-        // Could also check latest finish time
-        if (null == earliestStartTime) return new WorkloadStatusSnapshot(null, 0, null, 0);
-
         Time now = TIME_SOURCE.now();
-        Duration runDuration = calculateElapsedTime(now);
-        Duration durationSinceLastMeasurement = now.greaterBy(latestFinishTime);
-        double operationsPerSecond = calculateThroughputAt(now);
-        return new WorkloadStatusSnapshot(runDuration, measurementCount.get(), durationSinceLastMeasurement, operationsPerSecond);
+        Duration runDuration = now.durationGreaterThan(startTime);
+        long operationCount = measurementCount.get();
+        Duration durationSinceLastMeasurement = (null == latestFinishTime) ? null : now.durationGreaterThan(latestFinishTime);
+        double operationsPerSecond = operationsPerSecondAtTime(now);
+        return new WorkloadStatusSnapshot(
+                runDuration,
+                operationCount,
+                durationSinceLastMeasurement,
+                operationsPerSecond);
     }
 
-    private double calculateThroughputAt(Time atTime) {
-        return (double) measurementCount.get() / calculateElapsedTime(atTime).asSeconds();
-    }
-
-    private Duration calculateElapsedTime(Time atTime) {
-        return atTime.greaterBy(earliestStartTime);
+    private double operationsPerSecondAtTime(Time atTime) {
+        return (double) measurementCount.get() / atTime.durationGreaterThan(startTime).asSeconds();
     }
 }

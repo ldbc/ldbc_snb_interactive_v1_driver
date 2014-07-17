@@ -12,7 +12,7 @@ import com.ldbc.driver.runtime.scheduling.Spinner;
 import com.ldbc.driver.temporal.Duration;
 import com.ldbc.driver.temporal.SystemTimeSource;
 import com.ldbc.driver.temporal.TimeSource;
-import com.ldbc.driver.testutils.NothingOperation;
+import com.ldbc.driver.workloads.dummy.NothingOperation;
 import org.junit.Test;
 
 import java.util.concurrent.ExecutionException;

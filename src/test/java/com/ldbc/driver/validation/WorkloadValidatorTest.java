@@ -12,8 +12,8 @@ import com.ldbc.driver.generator.GeneratorFactory;
 import com.ldbc.driver.runtime.metrics.MetricsCollectionException;
 import com.ldbc.driver.temporal.Duration;
 import com.ldbc.driver.temporal.Time;
-import com.ldbc.driver.testutils.*;
 import com.ldbc.driver.util.RandomDataGeneratorFactory;
+import com.ldbc.driver.workloads.dummy.*;
 import org.junit.Test;
 
 import java.util.HashMap;
@@ -37,15 +37,15 @@ public class WorkloadValidatorTest {
         Duration windowDuration = Duration.fromMilli(10);
 
         List<Operation<?>> validOperations = Lists.<Operation<?>>newArrayList(
-                new TimedOperation(Time.fromMilli(10), Time.fromMilli(0)),
-                new TimedOperation(Time.fromMilli(11), Time.fromMilli(1)),
-                new TimedNamedOperation(Time.fromMilli(12), Time.fromMilli(3), "name")
+                new TimedNamedOperation2(Time.fromMilli(10), Time.fromMilli(0), "name2"),
+                new TimedNamedOperation2(Time.fromMilli(11), Time.fromMilli(1), "name2"),
+                new TimedNamedOperation1(Time.fromMilli(12), Time.fromMilli(3), "name1")
         );
 
         List<Operation<?>> invalidOperations = Lists.<Operation<?>>newArrayList(
-                new TimedOperation(Time.fromMilli(10), Time.fromMilli(0)),
-                new TimedOperation(Time.fromMilli(11), Time.fromMilli(1)),
-                new TimedOperation(Time.fromMilli(12), Time.fromMilli(3))
+                new TimedNamedOperation2(Time.fromMilli(10), Time.fromMilli(0), "name2"),
+                new TimedNamedOperation2(Time.fromMilli(11), Time.fromMilli(1), "name2"),
+                new TimedNamedOperation2(Time.fromMilli(12), Time.fromMilli(3), "name2")
         );
 
         assertThat(validOperations.size(), is(invalidOperations.size()));
@@ -54,10 +54,10 @@ public class WorkloadValidatorTest {
 
         Map<Class<? extends Operation>, OperationClassification> operationClassifications = new HashMap<>();
         operationClassifications.put(
-                TimedOperation.class,
+                TimedNamedOperation2.class,
                 new OperationClassification(OperationClassification.SchedulingMode.WINDOWED, OperationClassification.GctMode.READ));
         operationClassifications.put(
-                TimedNamedOperation.class,
+                TimedNamedOperation1.class,
                 new OperationClassification(OperationClassification.SchedulingMode.INDIVIDUAL_ASYNC, OperationClassification.GctMode.NONE));
 
         Map<String, String> nonDefaultParams = new HashMap<>();
@@ -94,15 +94,15 @@ public class WorkloadValidatorTest {
         Duration windowDuration = Duration.fromMilli(10);
 
         List<Operation<?>> validOperations = Lists.<Operation<?>>newArrayList(
-                new TimedOperation(Time.fromMilli(10), Time.fromMilli(0)),
-                new TimedOperation(Time.fromMilli(11), Time.fromMilli(1)),
-                new TimedNamedOperation(Time.fromMilli(12), null, "name")
+                new TimedNamedOperation2(Time.fromMilli(10), Time.fromMilli(0), "name2"),
+                new TimedNamedOperation2(Time.fromMilli(11), Time.fromMilli(1), "name2"),
+                new TimedNamedOperation1(Time.fromMilli(12), null, "name1")
         );
 
         List<Operation<?>> invalidOperations = Lists.<Operation<?>>newArrayList(
-                new TimedOperation(Time.fromMilli(10), Time.fromMilli(0)),
-                new TimedOperation(Time.fromMilli(11), Time.fromMilli(1)),
-                new TimedOperation(Time.fromMilli(12), null)
+                new TimedNamedOperation2(Time.fromMilli(10), Time.fromMilli(0), "name2"),
+                new TimedNamedOperation2(Time.fromMilli(11), Time.fromMilli(1), "name2"),
+                new TimedNamedOperation2(Time.fromMilli(12), null, "name2")
         );
 
         assertThat(validOperations.size(), is(invalidOperations.size()));
@@ -111,10 +111,10 @@ public class WorkloadValidatorTest {
 
         Map<Class<? extends Operation>, OperationClassification> operationClassifications = new HashMap<>();
         operationClassifications.put(
-                TimedOperation.class,
+                TimedNamedOperation2.class,
                 new OperationClassification(OperationClassification.SchedulingMode.WINDOWED, OperationClassification.GctMode.READ));
         operationClassifications.put(
-                TimedNamedOperation.class,
+                TimedNamedOperation1.class,
                 new OperationClassification(OperationClassification.SchedulingMode.INDIVIDUAL_ASYNC, OperationClassification.GctMode.NONE));
 
         Map<String, String> nonDefaultParams = new HashMap<>();
@@ -151,15 +151,15 @@ public class WorkloadValidatorTest {
         Duration windowDuration = Duration.fromMilli(10);
 
         List<Operation<?>> validOperations = Lists.<Operation<?>>newArrayList(
-                new TimedOperation(Time.fromMilli(10), Time.fromMilli(0)),
-                new TimedOperation(Time.fromMilli(11), Time.fromMilli(1)),
-                new TimedNamedOperation(Time.fromMilli(12), Time.fromMilli(13), "name")
+                new TimedNamedOperation2(Time.fromMilli(10), Time.fromMilli(0), "name2"),
+                new TimedNamedOperation2(Time.fromMilli(11), Time.fromMilli(1), "name2"),
+                new TimedNamedOperation1(Time.fromMilli(12), Time.fromMilli(13), "name1")
         );
 
         List<Operation<?>> invalidOperations = Lists.<Operation<?>>newArrayList(
-                new TimedOperation(Time.fromMilli(10), Time.fromMilli(0)),
-                new TimedOperation(Time.fromMilli(11), Time.fromMilli(1)),
-                new TimedOperation(Time.fromMilli(12), Time.fromMilli(13))
+                new TimedNamedOperation2(Time.fromMilli(10), Time.fromMilli(0), "name2"),
+                new TimedNamedOperation2(Time.fromMilli(11), Time.fromMilli(1), "name2"),
+                new TimedNamedOperation2(Time.fromMilli(12), Time.fromMilli(13), "name2")
         );
 
         assertThat(validOperations.size(), is(invalidOperations.size()));
@@ -168,10 +168,10 @@ public class WorkloadValidatorTest {
 
         Map<Class<? extends Operation>, OperationClassification> operationClassifications = new HashMap<>();
         operationClassifications.put(
-                TimedOperation.class,
+                TimedNamedOperation2.class,
                 new OperationClassification(OperationClassification.SchedulingMode.INDIVIDUAL_ASYNC, OperationClassification.GctMode.READ));
         operationClassifications.put(
-                TimedNamedOperation.class,
+                TimedNamedOperation1.class,
                 new OperationClassification(OperationClassification.SchedulingMode.INDIVIDUAL_ASYNC, OperationClassification.GctMode.NONE));
 
         Map<String, String> nonDefaultParams = new HashMap<>();
@@ -197,7 +197,7 @@ public class WorkloadValidatorTest {
         assertThat(validResult.errorMessage(), validResult.isSuccessful(), is(true));
 
         System.out.println(invalidResult.errorMessage());
-        assertThat(invalidResult.resultType(), is(ResultType.DEPENDENCY_TIME_IS_LATER_THAN_SCHEDULED_START_TIME));
+        assertThat(invalidResult.resultType(), is(ResultType.DEPENDENCY_TIME_IS_NOT_BEFORE_SCHEDULED_START_TIME));
         assertThat(invalidResult.isSuccessful(), is(false));
     }
 
@@ -208,15 +208,15 @@ public class WorkloadValidatorTest {
         Duration windowDuration = Duration.fromMilli(10);
 
         List<Operation<?>> validOperations = Lists.<Operation<?>>newArrayList(
-                new TimedOperation(Time.fromMilli(10), Time.fromMilli(0)),
-                new TimedOperation(Time.fromMilli(11), Time.fromMilli(1)),
-                new TimedNamedOperation(Time.fromMilli(12), Time.fromMilli(2), "name")
+                new TimedNamedOperation2(Time.fromMilli(10), Time.fromMilli(0), "name2"),
+                new TimedNamedOperation2(Time.fromMilli(11), Time.fromMilli(1), "name2"),
+                new TimedNamedOperation1(Time.fromMilli(12), Time.fromMilli(2), "name1")
         );
 
         List<Operation<?>> invalidOperations = Lists.<Operation<?>>newArrayList(
-                new TimedOperation(Time.fromMilli(10), Time.fromMilli(0)),
-                new TimedOperation(Time.fromMilli(11), Time.fromMilli(1)),
-                new TimedOperation(Time.fromMilli(12), Time.fromMilli(2))
+                new TimedNamedOperation2(Time.fromMilli(10), Time.fromMilli(0), "name2"),
+                new TimedNamedOperation2(Time.fromMilli(11), Time.fromMilli(1), "name2"),
+                new TimedNamedOperation2(Time.fromMilli(12), Time.fromMilli(2), "name2")
         );
 
         assertThat(validOperations.size(), is(invalidOperations.size()));
@@ -225,10 +225,10 @@ public class WorkloadValidatorTest {
 
         Map<Class<? extends Operation>, OperationClassification> operationClassifications = new HashMap<>();
         operationClassifications.put(
-                TimedOperation.class,
+                TimedNamedOperation2.class,
                 new OperationClassification(OperationClassification.SchedulingMode.INDIVIDUAL_ASYNC, OperationClassification.GctMode.READ));
         operationClassifications.put(
-                TimedNamedOperation.class,
+                TimedNamedOperation1.class,
                 new OperationClassification(OperationClassification.SchedulingMode.INDIVIDUAL_ASYNC, OperationClassification.GctMode.NONE));
 
         Map<String, String> nonDefaultParams = new HashMap<>();
@@ -265,31 +265,31 @@ public class WorkloadValidatorTest {
         Duration windowDuration = Duration.fromMilli(10);
 
         List<Operation<?>> operations = Lists.<Operation<?>>newArrayList(
-                new TimedOperation(Time.fromMilli(10), Time.fromMilli(0)),
-                new TimedOperation(Time.fromMilli(11), Time.fromMilli(1)),
-                new TimedNamedOperation(Time.fromMilli(12), Time.fromMilli(2), "name")
+                new TimedNamedOperation2(Time.fromMilli(10), Time.fromMilli(0), "name2"),
+                new TimedNamedOperation2(Time.fromMilli(11), Time.fromMilli(1), "name2"),
+                new TimedNamedOperation1(Time.fromMilli(12), Time.fromMilli(2), "name1")
         );
 
         List<Operation<?>> validAlternativeOperations = Lists.<Operation<?>>newArrayList(
-                new TimedNamedOperation(Time.fromMilli(12), Time.fromMilli(2), "name"),
-                new TimedNamedOperation(Time.fromMilli(12), Time.fromMilli(2), "name"),
-                new TimedNamedOperation(Time.fromMilli(12), Time.fromMilli(2), "name")
+                new TimedNamedOperation1(Time.fromMilli(12), Time.fromMilli(2), "name1"),
+                new TimedNamedOperation1(Time.fromMilli(12), Time.fromMilli(2), "name1"),
+                new TimedNamedOperation1(Time.fromMilli(12), Time.fromMilli(2), "name1")
         );
 
         List<Operation<?>> invalidAlternativeOperations = Lists.<Operation<?>>newArrayList(
-                new TimedNamedOperation(Time.fromMilli(12), Time.fromMilli(2), "name1"),
-                new TimedNamedOperation(Time.fromMilli(12), Time.fromMilli(2), "name2"),
-                new TimedNamedOperation(Time.fromMilli(12), Time.fromMilli(2), "name3")
+                new TimedNamedOperation1(Time.fromMilli(12), Time.fromMilli(2), "name3"),
+                new TimedNamedOperation1(Time.fromMilli(12), Time.fromMilli(2), "name4"),
+                new TimedNamedOperation1(Time.fromMilli(12), Time.fromMilli(2), "name5")
         );
 
         long operationCount = operations.size();
 
         Map<Class<? extends Operation>, OperationClassification> operationClassifications = new HashMap<>();
         operationClassifications.put(
-                TimedOperation.class,
+                TimedNamedOperation2.class,
                 new OperationClassification(OperationClassification.SchedulingMode.INDIVIDUAL_ASYNC, OperationClassification.GctMode.READ));
         operationClassifications.put(
-                TimedNamedOperation.class,
+                TimedNamedOperation1.class,
                 new OperationClassification(OperationClassification.SchedulingMode.INDIVIDUAL_ASYNC, OperationClassification.GctMode.NONE));
 
         Map<String, String> nonDefaultParams = new HashMap<>();
@@ -326,27 +326,27 @@ public class WorkloadValidatorTest {
         Duration windowDuration = Duration.fromMilli(10);
 
         List<Operation<?>> operations = Lists.<Operation<?>>newArrayList(
-                new TimedOperation(Time.fromMilli(10), Time.fromMilli(0)),
-                new TimedOperation(Time.fromMilli(11), Time.fromMilli(1)),
-                new TimedNamedOperation(Time.fromMilli(12), Time.fromMilli(2), "name")
+                new TimedNamedOperation2(Time.fromMilli(10), Time.fromMilli(0), "name2"),
+                new TimedNamedOperation2(Time.fromMilli(11), Time.fromMilli(1), "name2"),
+                new TimedNamedOperation1(Time.fromMilli(12), Time.fromMilli(2), "name1")
         );
 
         long operationCount = operations.size();
 
         Map<Class<? extends Operation>, OperationClassification> validOperationClassifications = new HashMap<>();
         validOperationClassifications.put(
-                TimedOperation.class,
+                TimedNamedOperation2.class,
                 new OperationClassification(OperationClassification.SchedulingMode.INDIVIDUAL_ASYNC, OperationClassification.GctMode.READ));
         validOperationClassifications.put(
-                TimedNamedOperation.class,
+                TimedNamedOperation1.class,
                 new OperationClassification(OperationClassification.SchedulingMode.INDIVIDUAL_ASYNC, OperationClassification.GctMode.NONE));
 
         Map<Class<? extends Operation>, OperationClassification> invalidOperationClassifications = new HashMap<>();
         invalidOperationClassifications.put(
-                TimedOperation.class,
+                TimedNamedOperation2.class,
                 new OperationClassification(OperationClassification.SchedulingMode.INDIVIDUAL_ASYNC, OperationClassification.GctMode.READ));
         invalidOperationClassifications.put(
-                TimedNamedOperation.class,
+                TimedNamedOperation1.class,
                 new OperationClassification(null, OperationClassification.GctMode.NONE));
 
         Map<String, String> nonDefaultParams = new HashMap<>();
@@ -384,13 +384,14 @@ public class WorkloadValidatorTest {
         long operationCount = 1000;
         Iterator<Time> startTimes = gf.constantIncrementTime(startTime, Duration.fromMilli(10));
         Iterator<Time> dependencyTimes = gf.constantIncrementTime(startTime.minus(Duration.fromMilli(1)), Duration.fromMilli(0));
-        Iterator<Operation<?>> timedNothingOperations = new TimedNothingOperationFactory(startTimes, dependencyTimes);
+        Iterator<String> names = gf.constant("name");
+        Iterator<Operation<?>> timedNothingOperations = new TimedNameOperation1Factory(startTimes, dependencyTimes, names);
 
         Iterator<Operation<?>> operations = gf.limit(timedNothingOperations, operationCount);
 
         Map<Class<? extends Operation>, OperationClassification> operationClassifications = new HashMap<>();
         operationClassifications.put(
-                TimedOperation.class,
+                TimedNamedOperation1.class,
                 new OperationClassification(OperationClassification.SchedulingMode.INDIVIDUAL_ASYNC, null));
 
         DriverConfiguration configuration = ConsoleAndFileDriverConfiguration.fromDefaults(null, null, operationCount);
@@ -412,13 +413,14 @@ public class WorkloadValidatorTest {
         long operationCount = 1000;
         Iterator<Time> startTimes = gf.constantIncrementTime(startTime, Duration.fromMilli(10));
         Iterator<Time> dependencyTimes = gf.constantIncrementTime(startTime.minus(Duration.fromMilli(1)), Duration.fromMilli(0));
-        Iterator<Operation<?>> timedNothingOperations = new TimedNothingOperationFactory(startTimes, dependencyTimes);
+        Iterator<String> names = gf.constant("name");
+        Iterator<Operation<?>> timedNothingOperations = new TimedNameOperation1Factory(startTimes, dependencyTimes, names);
 
         Iterator<Operation<?>> operations = gf.limit(timedNothingOperations, operationCount);
 
         Map<Class<? extends Operation>, OperationClassification> operationClassifications = new HashMap<>();
         operationClassifications.put(
-                TimedOperation.class,
+                TimedNamedOperation1.class,
                 new OperationClassification(OperationClassification.SchedulingMode.INDIVIDUAL_ASYNC, OperationClassification.GctMode.NONE));
 
 
@@ -442,17 +444,18 @@ public class WorkloadValidatorTest {
         long operationCount = 1000;
         Iterator<Time> startTimes = gf.constantIncrementTime(startTime, Duration.fromMilli(10));
         Iterator<Time> dependencyTimes = gf.constantIncrementTime(startTime.minus(Duration.fromMilli(1)), Duration.fromMilli(0));
-        Iterator<Operation<?>> timedNothingOperations = new TimedNothingOperationFactory(startTimes, dependencyTimes);
+        Iterator<String> names = gf.constant("name");
+        Iterator<Operation<?>> timedNothingOperations = new TimedNameOperation1Factory(startTimes, dependencyTimes, names);
 
         List<Operation<?>> operations = Lists.newArrayList(gf.limit(timedNothingOperations, operationCount - 1));
 
         Time lastOperationStartTime = operations.get(operations.size() - 1).scheduledStartTime();
         Duration excessiveDurationBetweenOperations = maxExpectedInterleave.plus(Duration.fromMilli(1));
-        operations.add(new TimedOperation(lastOperationStartTime.plus(excessiveDurationBetweenOperations), dependencyTime));
+        operations.add(new TimedNamedOperation1(lastOperationStartTime.plus(excessiveDurationBetweenOperations), dependencyTime, "name"));
 
         Map<Class<? extends Operation>, OperationClassification> operationClassifications = new HashMap<>();
         operationClassifications.put(
-                TimedOperation.class,
+                TimedNamedOperation1.class,
                 new OperationClassification(OperationClassification.SchedulingMode.INDIVIDUAL_ASYNC, OperationClassification.GctMode.NONE));
 
         DriverConfiguration configuration = ConsoleAndFileDriverConfiguration.fromDefaults(null, null, operationCount);
@@ -474,7 +477,8 @@ public class WorkloadValidatorTest {
         long operationCount = 1000;
         Iterator<Time> startTimes = gf.constantIncrementTime(startTime, Duration.fromMilli(10));
         Iterator<Time> dependencyTimes = gf.constantIncrementTime(startTime.minus(Duration.fromMilli(1)), Duration.fromMilli(0));
-        Iterator<Operation<?>> timedNothingOperations = new TimedNothingOperationFactory(startTimes, dependencyTimes);
+        Iterator<String> names = gf.constant("name");
+        Iterator<Operation<?>> timedNothingOperations = new TimedNameOperation1Factory(startTimes, dependencyTimes, names);
 
         List<Operation<?>> operations = Lists.newArrayList(gf.limit(timedNothingOperations, operationCount));
 
@@ -499,14 +503,15 @@ public class WorkloadValidatorTest {
         long operationCount = 1000;
         Iterator<Time> startTimes = gf.constantIncrementTime(startTime, Duration.fromMilli(10));
         Iterator<Time> dependencyTimes = gf.constantIncrementTime(startTime.minus(Duration.fromMilli(1)), Duration.fromMilli(0));
-        Iterator<Operation<?>> timedNothingOperations = new TimedNothingOperationFactory(startTimes, dependencyTimes);
+        Iterator<String> names = gf.constant("name");
+        Iterator<Operation<?>> timedNothingOperations = new TimedNameOperation1Factory(startTimes, dependencyTimes, names);
 
         List<Operation<?>> operations = Lists.newArrayList(gf.limit(timedNothingOperations, operationCount - 1));
         operations.add(new NothingOperation());
 
         Map<Class<? extends Operation>, OperationClassification> operationClassifications = new HashMap<>();
         operationClassifications.put(
-                TimedOperation.class,
+                TimedNamedOperation1.class,
                 new OperationClassification(OperationClassification.SchedulingMode.INDIVIDUAL_ASYNC, OperationClassification.GctMode.NONE));
         operationClassifications.put(
                 NothingOperation.class,
@@ -530,14 +535,15 @@ public class WorkloadValidatorTest {
         long operationCount = 1000;
         Iterator<Time> startTimes = gf.constantIncrementTime(startTime, Duration.fromMilli(10));
         Iterator<Time> dependencyTimes = gf.constantIncrementTime(startTime.minus(Duration.fromMilli(1)), Duration.fromMilli(0));
-        Iterator<Operation<?>> timedNothingOperations = new TimedNothingOperationFactory(startTimes, dependencyTimes);
+        Iterator<String> names = gf.constant("name");
+        Iterator<Operation<?>> timedNothingOperations = new TimedNameOperation1Factory(startTimes, dependencyTimes, names);
 
         List<Operation<?>> operations = Lists.newArrayList(gf.limit(timedNothingOperations, operationCount - 1));
         operations.add(new NothingOperation());
 
         Map<Class<? extends Operation>, OperationClassification> operationClassifications = new HashMap<>();
         operationClassifications.put(
-                TimedOperation.class,
+                TimedNamedOperation1.class,
                 new OperationClassification(OperationClassification.SchedulingMode.INDIVIDUAL_ASYNC, OperationClassification.GctMode.NONE));
 
         DriverConfiguration configuration = ConsoleAndFileDriverConfiguration.fromDefaults(null, null, operationCount);
@@ -559,15 +565,16 @@ public class WorkloadValidatorTest {
         long operationCount = 1000;
         Iterator<Time> startTimes = gf.constantIncrementTime(startTime, Duration.fromMilli(10));
         Iterator<Time> dependencyTimes = gf.constantIncrementTime(startTime.minus(Duration.fromMilli(1)), Duration.fromMilli(0));
-        Iterator<Operation<?>> timedNothingOperations = new TimedNothingOperationFactory(startTimes, dependencyTimes);
+        Iterator<String> names = gf.constant("name");
+        Iterator<Operation<?>> timedNothingOperations = new TimedNameOperation1Factory(startTimes, dependencyTimes, names);
 
         List<Operation<?>> operations = Lists.newArrayList(gf.limit(timedNothingOperations, operationCount - 1));
         Time slightlyBeforeLastOperationStartTime = operations.get(operations.size() - 1).scheduledStartTime().minus(Duration.fromMilli(1));
-        operations.add(new TimedOperation(slightlyBeforeLastOperationStartTime, dependencyTime));
+        operations.add(new TimedNamedOperation1(slightlyBeforeLastOperationStartTime, dependencyTime, "name"));
 
         Map<Class<? extends Operation>, OperationClassification> operationClassifications = new HashMap<>();
         operationClassifications.put(
-                TimedOperation.class,
+                TimedNamedOperation1.class,
                 new OperationClassification(OperationClassification.SchedulingMode.INDIVIDUAL_ASYNC, OperationClassification.GctMode.NONE));
 
         DriverConfiguration configuration = ConsoleAndFileDriverConfiguration.fromDefaults(null, null, operationCount);
@@ -589,13 +596,14 @@ public class WorkloadValidatorTest {
         long operationCount = 1000;
         Iterator<Time> startTimes = gf.constantIncrementTime(startTime, Duration.fromMilli(10));
         Iterator<Time> dependencyTimes = gf.constantIncrementTime(startTime.minus(Duration.fromMilli(1)), Duration.fromMilli(0));
-        Iterator<Operation<?>> timedNothingOperations = new TimedNothingOperationFactory(startTimes, dependencyTimes);
+        Iterator<String> names = gf.constant("name");
+        Iterator<Operation<?>> timedNothingOperations = new TimedNameOperation1Factory(startTimes, dependencyTimes, names);
 
         Iterator<Operation<?>> operations = gf.limit(timedNothingOperations, operationCount);
 
         Map<Class<? extends Operation>, OperationClassification> operationClassifications = new HashMap<>();
         operationClassifications.put(
-                TimedOperation.class,
+                TimedNamedOperation1.class,
                 new OperationClassification(null, OperationClassification.GctMode.NONE));
 
         DriverConfiguration configuration = ConsoleAndFileDriverConfiguration.fromDefaults(null, null, operationCount);

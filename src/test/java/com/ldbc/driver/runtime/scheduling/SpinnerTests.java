@@ -2,7 +2,8 @@ package com.ldbc.driver.runtime.scheduling;
 
 import com.ldbc.driver.Operation;
 import com.ldbc.driver.temporal.*;
-import com.ldbc.driver.testutils.NothingOperation;
+import com.ldbc.driver.workloads.dummy.NothingOperation;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import java.util.Iterator;
@@ -14,6 +15,12 @@ import static org.junit.Assert.assertThat;
 public class SpinnerTests {
     long ENOUGH_MILLISECONDS_FOR_SPINNER_THREAD_TO_DO_ITS_THING = 500;
     ManualTimeSource TIME_SOURCE = new ManualTimeSource(0);
+
+    @Ignore
+    @Test
+    public void addDependencyTimeNullCheckToSpinner() {
+        assertThat(true, is(false));
+    }
 
     @Test
     public void shouldFailWhenNoStartTimeGiven() throws InterruptedException {
@@ -218,7 +225,7 @@ public class SpinnerTests {
         Time testStartTime = performanceMeasuringTimeSource.now();
         while (operations.hasNext())
             spinner.waitForScheduledStartTime(operations.next());
-        Duration testDuration = performanceMeasuringTimeSource.now().greaterBy(testStartTime);
+        Duration testDuration = performanceMeasuringTimeSource.now().durationGreaterThan(testStartTime);
         System.out.println(String.format("Spinner processed %s operations in %s time: %s ops/ms, %s ns/op",
                 operationCount, testDuration, operationCount / testDuration.asMilli(), testDuration.asNano() / operationCount));
     }

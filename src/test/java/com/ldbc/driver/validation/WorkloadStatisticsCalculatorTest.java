@@ -11,11 +11,12 @@ import com.ldbc.driver.temporal.Duration;
 import com.ldbc.driver.temporal.SystemTimeSource;
 import com.ldbc.driver.temporal.Time;
 import com.ldbc.driver.temporal.TimeSource;
-import com.ldbc.driver.testutils.NothingOperation;
+import com.ldbc.driver.workloads.dummy.NothingOperation;
 import com.ldbc.driver.util.Bucket;
 import com.ldbc.driver.util.Histogram;
 import com.ldbc.driver.util.RandomDataGeneratorFactory;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import java.util.HashMap;
@@ -28,11 +29,23 @@ import static org.junit.Assert.assertThat;
 
 public class WorkloadStatisticsCalculatorTest {
     private TimeSource TIME_SOURCE = new SystemTimeSource();
-    private GeneratorFactory generators;
+    private GeneratorFactory gf;
 
     @Before
     public void init() {
-        generators = new GeneratorFactory(new RandomDataGeneratorFactory(42L));
+        gf = new GeneratorFactory(new RandomDataGeneratorFactory(42L));
+    }
+
+    @Ignore
+    @Test
+    public void addMethodForCalculatingMaximumAllowableWindowSize() {
+        // TODO only consider SchedulingMode.WINDOW & GctMode.READ/GctMode.READ_WRITE operations as those that are executed in windows
+        // TODO all operations in a window must have their dependencies fulfilled before starting
+        // TODO GCT only checked at start of window, if at all?
+        //
+        // TODO... perhaps as part of this exercise the Windowing Algorithm needs to be formally written somewhere,
+        // TODO to understand how it now works with the new dependency time concept
+        assertThat(true, is(false));
     }
 
     @Test
@@ -42,9 +55,9 @@ public class WorkloadStatisticsCalculatorTest {
         long operationCount = 1000;
         Duration operationInterleave = Duration.fromMilli(100);
 
-        Iterator<Operation<?>> operationStreamWithoutTime = generators.limit(new Operation1Iterator(), operationCount);
-        Iterator<Time> operationStartTimes = generators.constantIncrementTime(workloadStartTime, operationInterleave);
-        Iterator<Operation<?>> operationStream = generators.assignStartTimes(operationStartTimes, operationStreamWithoutTime);
+        Iterator<Operation<?>> operationStreamWithoutTime = gf.limit(new Operation1Iterator(), operationCount);
+        Iterator<Time> operationStartTimes = gf.constantIncrementTime(workloadStartTime, operationInterleave);
+        Iterator<Operation<?>> operationStream = gf.assignStartTimes(operationStartTimes, operationStreamWithoutTime);
 
 
         Map<Class<? extends Operation>, OperationClassification> operationClassifications = new HashMap<>();
@@ -126,17 +139,17 @@ public class WorkloadStatisticsCalculatorTest {
         long operation3Count = 10;
         Duration operation3Interleave = Duration.fromMilli(10000);
 
-        Iterator<Operation<?>> operation1StreamWithoutTime = generators.limit(new Operation1Iterator(), operation1Count);
-        Iterator<Time> operation1StartTimes = generators.constantIncrementTime(workloadStartTime, operation1Interleave);
-        Iterator<Operation<?>> operation1Stream = generators.assignStartTimes(operation1StartTimes, operation1StreamWithoutTime);
-        Iterator<Operation<?>> operation2StreamWithoutTime = generators.limit(new Operation2Iterator(), operation2Count);
-        Iterator<Time> operation2StartTimes = generators.constantIncrementTime(workloadStartTime, operation2Interleave);
-        Iterator<Operation<?>> operation2Stream = generators.assignStartTimes(operation2StartTimes, operation2StreamWithoutTime);
-        Iterator<Operation<?>> operation3StreamWithoutTime = generators.limit(new Operation3Iterator(), operation3Count);
-        Iterator<Time> operation3StartTimes = generators.constantIncrementTime(workloadStartTime, operation3Interleave);
-        Iterator<Operation<?>> operation3Stream = generators.assignStartTimes(operation3StartTimes, operation3StreamWithoutTime);
+        Iterator<Operation<?>> operation1StreamWithoutTime = gf.limit(new Operation1Iterator(), operation1Count);
+        Iterator<Time> operation1StartTimes = gf.constantIncrementTime(workloadStartTime, operation1Interleave);
+        Iterator<Operation<?>> operation1Stream = gf.assignStartTimes(operation1StartTimes, operation1StreamWithoutTime);
+        Iterator<Operation<?>> operation2StreamWithoutTime = gf.limit(new Operation2Iterator(), operation2Count);
+        Iterator<Time> operation2StartTimes = gf.constantIncrementTime(workloadStartTime, operation2Interleave);
+        Iterator<Operation<?>> operation2Stream = gf.assignStartTimes(operation2StartTimes, operation2StreamWithoutTime);
+        Iterator<Operation<?>> operation3StreamWithoutTime = gf.limit(new Operation3Iterator(), operation3Count);
+        Iterator<Time> operation3StartTimes = gf.constantIncrementTime(workloadStartTime, operation3Interleave);
+        Iterator<Operation<?>> operation3Stream = gf.assignStartTimes(operation3StartTimes, operation3StreamWithoutTime);
 
-        Iterator<Operation<?>> operationStream = generators.mergeSortOperationsByStartTime(operation1Stream, operation2Stream, operation3Stream);
+        Iterator<Operation<?>> operationStream = gf.mergeSortOperationsByStartTime(operation1Stream, operation2Stream, operation3Stream);
 
         Map<Class<? extends Operation>, OperationClassification> operationClassifications = new HashMap<>();
         operationClassifications.put(Operation1.class, new OperationClassification(null, GctMode.NONE));

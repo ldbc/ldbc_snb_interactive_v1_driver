@@ -632,11 +632,11 @@ public class LdbcSnbInteractiveWorkload extends Workload {
                 boolean isNotReadOperation = false == readOperationFilter.contains(operationType);
                 if (isNotReadOperation) return DbValidationParametersFilterResult.REJECT_AND_CONTINUE;
 
-                boolean isEmptyResult = ((List) operationResult).isEmpty();
-                if (isEmptyResult) return DbValidationParametersFilterResult.REJECT_AND_CONTINUE;
-
                 boolean haveAllResultsForOperationType = false == remainingRequiredResultsPerOperationType.containsKey(operationType);
                 if (haveAllResultsForOperationType) return DbValidationParametersFilterResult.REJECT_AND_CONTINUE;
+
+                boolean isEmptyResult = ((List) operationResult).isEmpty();
+                if (isEmptyResult) return DbValidationParametersFilterResult.REJECT_AND_CONTINUE;
 
                 long remainingRequiredResultsForOperationType = remainingRequiredResultsPerOperationType.get(operationType) - 1;
 

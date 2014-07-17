@@ -3,9 +3,9 @@ package com.ldbc.driver.generator;
 import com.google.common.collect.Lists;
 import com.ldbc.driver.Operation;
 import com.ldbc.driver.temporal.Time;
-import com.ldbc.driver.testutils.TimedOperation;
 import com.ldbc.driver.util.Function1;
 import com.ldbc.driver.util.RandomDataGeneratorFactory;
+import com.ldbc.driver.workloads.dummy.TimedNamedOperation1;
 import org.junit.Test;
 
 import java.util.Iterator;
@@ -20,12 +20,12 @@ public class ConservativeDependencyTimeAssigningOperationGeneratorTest {
         // Given
         GeneratorFactory gf = new GeneratorFactory(new RandomDataGeneratorFactory(42l));
         Time startTime = Time.fromMilli(0);
-        Operation<?> operation1Dependent = new TimedOperation(Time.fromMilli(1), null);
-        final Operation<?> operation2Dependency = new TimedOperation(Time.fromMilli(2), null);
-        Operation<?> operation3Dependent = new TimedOperation(Time.fromMilli(2), null);
-        final Operation<?> operation4Dependency = new TimedOperation(Time.fromMilli(3), null);
-        Operation<?> operation5Dependent = new TimedOperation(Time.fromMilli(4), null);
-        Operation<?> operation6Dependent = new TimedOperation(Time.fromMilli(5), null);
+        Operation<?> operation1Dependent = new TimedNamedOperation1(Time.fromMilli(1), null, null);
+        final Operation<?> operation2Dependency = new TimedNamedOperation1(Time.fromMilli(2), null, null);
+        Operation<?> operation3Dependent = new TimedNamedOperation1(Time.fromMilli(2), null, null);
+        final Operation<?> operation4Dependency = new TimedNamedOperation1(Time.fromMilli(3), null, null);
+        Operation<?> operation5Dependent = new TimedNamedOperation1(Time.fromMilli(4), null, null);
+        Operation<?> operation6Dependent = new TimedNamedOperation1(Time.fromMilli(5), null, null);
         Iterator<Operation<?>> operations = Lists.newArrayList(
                 operation1Dependent,
                 operation2Dependency,

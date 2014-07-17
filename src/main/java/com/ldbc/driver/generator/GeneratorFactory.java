@@ -19,7 +19,7 @@ public class GeneratorFactory {
         this.randomDataGeneratorFactory = randomDataGeneratorFactory;
     }
 
-    // Every returned Generator will use a different RandomDataGenerator
+    // Every returned generator (that takes a RandomDataGenerator as input) will use a different RandomDataGenerator
     RandomDataGenerator getRandom() {
         return randomDataGeneratorFactory.newRandom();
     }
@@ -39,6 +39,7 @@ public class GeneratorFactory {
      * @return
      */
     // TODO move into a separate class, test that class separately, use that class here
+    // TODO and return an ENUM instead of a boolean, to provide information about what went wrong in case of failure
     public boolean compareOperationStreams(Iterator<Operation<?>> operationStream1,
                                            Iterator<Operation<?>> operationStream2,
                                            boolean compareTimes) {
@@ -251,7 +252,7 @@ public class GeneratorFactory {
             public int compare(Operation<?> o1, Operation<?> o2) {
                 return o1.scheduledStartTime().compareTo(o2.scheduledStartTime());
             }
-        }, 1, generators);
+        }, generators);
     }
 
     /**
@@ -266,7 +267,7 @@ public class GeneratorFactory {
             public int compare(Time t1, Time t2) {
                 return t1.compareTo(t2);
             }
-        }, 1, generators);
+        }, generators);
     }
 
     /**
@@ -300,8 +301,8 @@ public class GeneratorFactory {
      * <p/>
      * CAUTION: the returned generator does NOT (can not) do a deep copy on the elements of the original generator.
      * As such, if elements of the original generator are not primitives the repeating generator will simply return
-     * many pointers to the elements of the original generator, i.e., modifying any of them will modify the content
-     * of all returned elements that are pointed to by that element(/pointer).
+     * many references to the elements of the original generator, i.e., modifying any of them will modify the content
+     * of all returned elements that are referenced by that element(/reference).
      *
      * @param generator
      * @param <T>
@@ -366,6 +367,8 @@ public class GeneratorFactory {
     public Iterator<Operation<?>> timeOffset(Iterator<Operation<?>> generator, Time newStartTime) {
         return timeOffsetAndCompress(generator, newStartTime, null);
     }
+
+    // TODO timeCompress (without offset)
 
     /**
      * Offset start times of operations in stream such that first operation is now scheduled at new start time.
@@ -617,6 +620,10 @@ public class GeneratorFactory {
 
     /**
      * next() always returns the same value, constant
+     * <p/>
+     * CAUTION: the returned generator does NOT (can not) do a deep copy on the constant parameter.
+     * As such, if constant is not a primitives the generator will simply return many references to that same constant,
+     * i.e., modifying any of them will modify all returned elements that are referenced by that element(/reference).
      *
      * @param constant
      * @param <T>

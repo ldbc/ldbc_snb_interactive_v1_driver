@@ -24,13 +24,21 @@ public class PreciseIndividualBlockingOperationStreamExecutorService {
                                                                    Spinner slightlyEarlySpinner,
                                                                    OperationHandlerExecutor operationHandlerExecutor) {
         this.errorReporter = errorReporter;
-        this.preciseIndividualBlockingOperationStreamExecutorThread = new PreciseIndividualBlockingOperationStreamExecutorThread(
-                timeSource,
-                operationHandlerExecutor,
-                errorReporter,
-                handlers,
-                hasFinished,
-                slightlyEarlySpinner);
+        if (handlers.hasNext()) {
+            this.preciseIndividualBlockingOperationStreamExecutorThread = new PreciseIndividualBlockingOperationStreamExecutorThread(
+                    timeSource,
+                    operationHandlerExecutor,
+                    errorReporter,
+                    handlers,
+                    hasFinished,
+                    slightlyEarlySpinner);
+            this.preciseIndividualBlockingOperationStreamExecutorThread.setDaemon(true);
+        } else {
+            this.preciseIndividualBlockingOperationStreamExecutorThread = null;
+            hasFinished.set(true);
+            executing = true;
+            shuttingDown = true;
+        }
     }
 
     synchronized public AtomicBoolean execute() {

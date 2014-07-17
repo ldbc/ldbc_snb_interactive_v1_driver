@@ -25,7 +25,7 @@ public class DbValidator {
 
             OperationResultReport actualOperationResultReport;
             try {
-                actualOperationResultReport = handler.executeUnsafe(operation);
+                actualOperationResultReport = handler.executeOperationUnsafe(operation);
             } catch (DbException e) {
                 dbValidationResult.reportUnableToExecuteOperation(operation, ConcurrentErrorReporter.stackTraceToString(e));
                 continue;

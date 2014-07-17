@@ -1,7 +1,5 @@
 package com.ldbc.driver.runtime;
 
-import com.google.common.collect.Iterables;
-
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.util.concurrent.ConcurrentLinkedQueue;
@@ -38,7 +36,7 @@ public class ConcurrentErrorReporter {
     private final AtomicBoolean errorEncountered = new AtomicBoolean(false);
     private final ConcurrentLinkedQueue<ErrorReport> errorMessages = new ConcurrentLinkedQueue<ErrorReport>();
 
-    public void reportError(Object caller, String errMsg) {
+    synchronized public void reportError(Object caller, String errMsg) {
         errorMessages.add(new ErrorReport(whoAmI(caller), errMsg));
         errorEncountered.set(true);
     }
@@ -49,10 +47,6 @@ public class ConcurrentErrorReporter {
 
     public Iterable<ErrorReport> errorMessages() {
         return errorMessages;
-    }
-
-    public Iterable<ErrorReport> errorMessages(Class fromClass) {
-        return Iterables.filter(errorMessages, fromClass);
     }
 
     @Override

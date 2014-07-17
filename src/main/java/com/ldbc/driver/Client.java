@@ -6,6 +6,7 @@ import com.ldbc.driver.generator.GeneratorFactory;
 import com.ldbc.driver.runtime.ConcurrentErrorReporter;
 import com.ldbc.driver.runtime.WorkloadRunner;
 import com.ldbc.driver.runtime.coordination.CompletionTimeException;
+import com.ldbc.driver.runtime.coordination.CompletionTimeServiceHelper;
 import com.ldbc.driver.runtime.coordination.ConcurrentCompletionTimeService;
 import com.ldbc.driver.runtime.coordination.NaiveSynchronizedConcurrentCompletionTimeService;
 import com.ldbc.driver.runtime.metrics.*;
@@ -27,7 +28,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
-import java.util.concurrent.Future;
 
 // TODO replace log4j with some interface like StatusReportingService
 
@@ -63,10 +63,10 @@ public class Client {
     // TODO should not be doing things like ConsoleAndFileDriverConfiguration.DB_ARG
     // TODO ConsoleAndFileDriverConfiguration could maybe have a DriverParam(enum)-to-String(arg) method?
     public Client(ConcurrentControlService controlService, TimeSource timeSource) throws ClientException {
-        if (controlService.configuration().shouldPrintHelpString())
-            clientMode = new PrintHelpMode(controlService);
+        if (controlService.configuration().shouldPrintHelpString()) {
             // Print Help
-        else if (null != controlService.configuration().validationParamsCreationOptions()) {
+            clientMode = new PrintHelpMode(controlService);
+        } else if (null != controlService.configuration().validationParamsCreationOptions()) {
             // Create Validation Parameters
             DriverConfiguration configuration = controlService.configuration();
             List<String> missingParams = new ArrayList<>();
@@ -188,29 +188,24 @@ public class Client {
             ConcurrentErrorReporter errorReporter = new ConcurrentErrorReporter();
 
             try {
-                // TODO threaded may scale better with >8 cores, but consumes more resources & performs worse with <8 cores
-                // completionTimeService = new ThreadedQueuedConcurrentCompletionTimeService(controlService.configuration().peerIds(), errorReporter);
-                completionTimeService = new NaiveSynchronizedConcurrentCompletionTimeService(controlService.configuration().peerIds());
-                completionTimeService.submitInitiatedTime(controlService.workloadStartTime());
-                completionTimeService.submitCompletedTime(controlService.workloadStartTime());
-                for (String peerId : controlService.configuration().peerIds()) {
-                    completionTimeService.submitExternalCompletionTime(peerId, controlService.workloadStartTime());
-                }
-                // Wait for workloadStartTime to be applied
-                Future<Time> globalCompletionTimeFuture = completionTimeService.globalCompletionTimeFuture();
-                while (false == globalCompletionTimeFuture.isDone()) {
-                    if (errorReporter.errorEncountered())
-                        throw new WorkloadException(String.format("Encountered error while waiting for GCT to initialize. Driver terminating.\n%s", errorReporter.toString()));
-                }
-                if (false == globalCompletionTimeFuture.get().equals(controlService.workloadStartTime())) {
-                    throw new WorkloadException("Completion Time future failed to return expected value");
-                }
+                completionTimeService = CompletionTimeServiceHelper.initializeCompletionTimeService(
+                        // TODO threaded may scale better with >8 cores, but consumes more resources & performs worse with <8 cores
+                        // new ThreadedQueuedConcurrentCompletionTimeService(controlService.configuration().peerIds(), errorReporter),
+                        new NaiveSynchronizedConcurrentCompletionTimeService(controlService.configuration().peerIds()),
+                        controlService.configuration().peerIds(),
+                        errorReporter,
+                        controlService.workloadStartTime()
+                );
             } catch (Exception e) {
                 throw new ClientException(
                         String.format("Error while instantiating Completion Time Service with peer IDs %s", controlService.configuration().peerIds().toString()), e);
             }
 
-            metricsService = new ThreadedQueuedConcurrentMetricsService(timeSource, errorReporter, controlService.configuration().timeUnit());
+            metricsService = new ThreadedQueuedConcurrentMetricsService(
+                    timeSource,
+                    errorReporter,
+                    controlService.configuration().timeUnit(),
+                    controlService.workloadStartTime());
             GeneratorFactory generators = new GeneratorFactory(new RandomDataGeneratorFactory(RANDOM_SEED));
 
             logger.info(String.format("Retrieving operation stream for workload: %s", workload.getClass().getSimpleName()));
@@ -242,6 +237,8 @@ public class Client {
 
             logger.info(String.format("Instantiating %s", WorkloadRunner.class.getSimpleName()));
             try {
+                // TODO consider making config parameter
+                Duration earlySpinnerOffsetDuration = WorkloadRunner.EARLY_SPINNER_OFFSET_DURATION;
                 workloadRunner = new WorkloadRunner(
                         timeSource,
                         db,
@@ -255,7 +252,9 @@ public class Client {
                         controlService.workloadStartTime(),
                         controlService.configuration().toleratedExecutionDelay(),
                         controlService.configuration().spinnerSleepDuration(),
-                        controlService.configuration().windowedExecutionWindowDuration());
+                        controlService.configuration().windowedExecutionWindowDuration(),
+                        earlySpinnerOffsetDuration
+                );
             } catch (WorkloadException e) {
                 throw new ClientException(String.format("Error instantiating %s", WorkloadRunner.class.getSimpleName()), e);
             }

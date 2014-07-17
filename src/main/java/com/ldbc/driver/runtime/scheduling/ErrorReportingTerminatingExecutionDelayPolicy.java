@@ -9,21 +9,21 @@ import com.ldbc.driver.temporal.TimeSource;
 public class ErrorReportingTerminatingExecutionDelayPolicy implements ExecutionDelayPolicy {
     private final TimeSource TIME_SOURCE;
     private final Duration toleratedDelay;
-    private final ConcurrentErrorReporter concurrentErrorReporter;
+    private final ConcurrentErrorReporter errorReporter;
 
     public ErrorReportingTerminatingExecutionDelayPolicy(TimeSource timeSource,
                                                          Duration toleratedDelay,
-                                                         ConcurrentErrorReporter concurrentErrorReporter) {
+                                                         ConcurrentErrorReporter errorReporter) {
         this.TIME_SOURCE = timeSource;
         this.toleratedDelay = toleratedDelay;
-        this.concurrentErrorReporter = concurrentErrorReporter;
+        this.errorReporter = errorReporter;
     }
 
     @Override
     public boolean handleUnassignedScheduledStartTime(Operation<?> operation) {
         String errMsg = String.format("Operation has no Scheduled Start Time\n%s",
                 operation.toString());
-        concurrentErrorReporter.reportError(this, errMsg);
+        errorReporter.reportError(this, errMsg);
         return false;
     }
 
@@ -34,10 +34,22 @@ public class ErrorReportingTerminatingExecutionDelayPolicy implements ExecutionD
 
     @Override
     public boolean handleExcessiveDelay(Operation<?> operation) {
+        // Note, that this time is ever so slightly later than when the error actually occurred
         Time now = TIME_SOURCE.now();
-        String errMsg = String.format("Tolerated start time delay [%s] exceeded by approximately [%s]\n\t%s",
-                toleratedDelay, now.greaterBy(operation.scheduledStartTime()), operation);
-        concurrentErrorReporter.reportError(this, errMsg);
+        String errMsg = String.format("Operation start time delayed excessively\n"
+                        + "  Tolerated Delay: %s\n"
+                        + "  Actual Delay (at least): %s\n"
+                        + "  Operation: %s\n"
+                        + "  Scheduled Start Time: %s\n"
+                        + "  Now Time: %s\n"
+                ,
+                toleratedDelay,
+                now.durationGreaterThan(operation.scheduledStartTime()),
+                operation,
+                operation.scheduledStartTime(),
+                now
+        );
+        errorReporter.reportError(this, errMsg);
         return false;
     }
 }

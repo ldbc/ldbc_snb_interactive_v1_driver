@@ -24,7 +24,7 @@ public abstract class OperationHandler<OPERATION_TYPE extends Operation<?>> impl
     private ConcurrentCompletionTimeService completionTimeService;
     private ConcurrentErrorReporter errorReporter;
     private ConcurrentMetricsService metricsService;
-    private List<SpinnerCheck> checks = new ArrayList<SpinnerCheck>();
+    private List<SpinnerCheck> checks = new ArrayList<>();
 
     private boolean initialized = false;
 
@@ -83,12 +83,16 @@ public abstract class OperationHandler<OPERATION_TYPE extends Operation<?>> impl
             return null;
         }
         try {
-            spinner.waitForScheduledStartTime(operation, new MultiCheck(checks));
+            if (false == spinner.waitForScheduledStartTime(operation, new MultiCheck(checks))) {
+                // TODO something more elaborate here? see comments in Spinner
+                // Spinner result indicates operation should not be processed
+                return null;
+            }
             long startTimeAsMilli = TIME_SOURCE.nowAsMilli();
             OperationResultReport operationResultReport = executeOperation(operation);
+            long finishTimeAsMilli = TIME_SOURCE.nowAsMilli();
             if (null == operationResultReport)
                 throw new DbException(String.format("Handler returned null result:\n %s", toString()));
-            long finishTimeAsMilli = TIME_SOURCE.nowAsMilli();
             operationResultReport.setRunDuration(Duration.fromMilli(finishTimeAsMilli - startTimeAsMilli));
             operationResultReport.setActualStartTime(Time.fromMilli(startTimeAsMilli));
             operationResultReport.setOperationType(operation.type());
@@ -132,7 +136,7 @@ public abstract class OperationHandler<OPERATION_TYPE extends Operation<?>> impl
      * @return operation result
      * @throws DbException
      */
-    public final OperationResultReport executeUnsafe(OPERATION_TYPE operation) throws DbException {
+    public final OperationResultReport executeOperationUnsafe(OPERATION_TYPE operation) throws DbException {
         return executeOperation(operation);
     }
 

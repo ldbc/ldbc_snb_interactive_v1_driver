@@ -68,12 +68,12 @@ public class Temporal implements MultipleTimeUnitProvider<Temporal> {
     }
 
     @Override
-    public Duration greaterBy(Temporal other) {
+    public Duration durationGreaterThan(Temporal other) {
         return Duration.fromNano(this.asNano() - other.asNano());
     }
 
     @Override
-    public Duration lessBy(Temporal other) {
+    public Duration durationLessThan(Temporal other) {
         return Duration.fromNano(other.asNano() - this.asNano());
     }
 

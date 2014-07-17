@@ -4,7 +4,7 @@ import com.ldbc.driver.*;
 import com.ldbc.driver.generator.Window;
 import com.ldbc.driver.temporal.Duration;
 import com.ldbc.driver.temporal.Time;
-import com.ldbc.driver.testutils.NothingOperation;
+import com.ldbc.driver.workloads.dummy.NothingOperation;
 import org.junit.Test;
 
 import java.util.List;

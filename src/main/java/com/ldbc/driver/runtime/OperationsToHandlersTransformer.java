@@ -41,6 +41,7 @@ class OperationsToHandlersTransformer {
 
     Iterator<OperationHandler<?>> transform(Iterator<Operation<?>> operations) throws WorkloadException {
         try {
+            final ReadOnlyConcurrentCompletionTimeService readOnlyConcurrentCompletionTimeService = new ReadOnlyConcurrentCompletionTimeService(completionTimeService);
             return Iterators.transform(operations, new Function<Operation<?>, OperationHandler<?>>() {
                 @Override
                 public OperationHandler<?> apply(Operation<?> operation) {
@@ -52,11 +53,11 @@ class OperationsToHandlersTransformer {
                                 operationHandler.addCheck(new GctDependencyCheck(completionTimeService, operation, errorReporter));
                                 break;
                             case READ:
-                                operationHandler.init(TIME_SOURCE, spinner, operation, new ReadOnlyConcurrentCompletionTimeService(completionTimeService), errorReporter, metricsService);
+                                operationHandler.init(TIME_SOURCE, spinner, operation, readOnlyConcurrentCompletionTimeService, errorReporter, metricsService);
                                 operationHandler.addCheck(new GctDependencyCheck(completionTimeService, operation, errorReporter));
                                 break;
                             case NONE:
-                                operationHandler.init(TIME_SOURCE, spinner, operation, new ReadOnlyConcurrentCompletionTimeService(completionTimeService), errorReporter, metricsService);
+                                operationHandler.init(TIME_SOURCE, spinner, operation, readOnlyConcurrentCompletionTimeService, errorReporter, metricsService);
                                 break;
                             default:
                                 throw new WorkloadException(String.format("Unrecognized GctMode: %s", operationClassifications.get(operation.getClass()).gctMode()));

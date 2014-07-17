@@ -23,7 +23,7 @@ public class UniformWindowedScheduler implements Scheduler<List<OperationHandler
             return operationHandlersInWindow;
 
         double handlerCount = operationHandlersInWindow.size();
-        Duration windowSize = windowEndTime.greaterBy(windowStartTime);
+        Duration windowSize = windowEndTime.durationGreaterThan(windowStartTime);
         double handlerInterleaveAsNano = windowSize.asNano() / handlerCount;
         for (int i = 0; i < operationHandlersInWindow.size(); i++) {
             Duration durationFromWindowStartTime = Duration.fromNano(Math.round(Math.floor(handlerInterleaveAsNano * i)));

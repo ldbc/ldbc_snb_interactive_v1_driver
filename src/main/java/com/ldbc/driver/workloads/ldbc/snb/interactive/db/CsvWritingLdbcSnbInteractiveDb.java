@@ -10,7 +10,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-public class CsvDb extends Db {
+public class CsvWritingLdbcSnbInteractiveDb extends Db {
     public static final String CSV_PATH_KEY = "csv_path_key";
     private CsvDbConnectionState csvDbConnectionState;
 

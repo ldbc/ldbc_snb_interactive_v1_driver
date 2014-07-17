@@ -2,6 +2,7 @@ package com.ldbc.driver.runtime.coordination;
 
 import com.google.common.collect.Sets;
 import com.ldbc.driver.temporal.Time;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import java.util.Set;
@@ -14,6 +15,13 @@ import static org.junit.Assert.assertThat;
 public class GlobalCompletionTimeTest {
     final String otherPeerId = "otherPeer";
     final Set<String> peerIds = Sets.newHashSet(otherPeerId);
+
+    @Ignore
+    @Test
+    public void lookIntoMakingLocalCompletionTimeClassThatPerformsGlobalCompletionTimeFunctionalityOnSingleMachineBetweenDifferentThreadPools() {
+        // TODO this is essential for correctness
+        assertThat(true, is(false));
+    }
 
     // LocalIT = none, LocalCT = none, ExternalCT = none --> null
     @Test

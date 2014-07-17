@@ -6,6 +6,7 @@ import com.ldbc.driver.control.ConsoleAndFileDriverConfiguration;
 import com.ldbc.driver.control.LocalControlService;
 import com.ldbc.driver.generator.GeneratorFactory;
 import com.ldbc.driver.runtime.coordination.CompletionTimeException;
+import com.ldbc.driver.runtime.coordination.CompletionTimeServiceHelper;
 import com.ldbc.driver.runtime.coordination.ConcurrentCompletionTimeService;
 import com.ldbc.driver.runtime.coordination.ThreadedQueuedConcurrentCompletionTimeService;
 import com.ldbc.driver.runtime.metrics.ConcurrentMetricsService;
@@ -17,8 +18,8 @@ import com.ldbc.driver.temporal.SystemTimeSource;
 import com.ldbc.driver.temporal.TimeSource;
 import com.ldbc.driver.util.RandomDataGeneratorFactory;
 import com.ldbc.driver.workloads.ldbc.snb.interactive.LdbcSnbInteractiveWorkload;
-import com.ldbc.driver.workloads.ldbc.snb.interactive.db.CsvDb;
-import com.ldbc.driver.workloads.ldbc.snb.interactive.db.DummyDb;
+import com.ldbc.driver.workloads.ldbc.snb.interactive.db.CsvWritingLdbcSnbInteractiveDb;
+import com.ldbc.driver.workloads.ldbc.snb.interactive.db.DummyLdbcSnbInteractiveDb;
 import org.apache.commons.io.FileUtils;
 import org.junit.Test;
 
@@ -77,7 +78,7 @@ public class WorkloadRunnerTest {
         paramsMap.put(LdbcSnbInteractiveWorkload.PARAMETERS_DIRECTORY, TestUtils.getResource("/").getAbsolutePath());
         paramsMap.put(LdbcSnbInteractiveWorkload.DATA_DIRECTORY, TestUtils.getResource("/").getAbsolutePath());
         // Driver-specific parameters
-        String dbClassName = DummyDb.class.getName();
+        String dbClassName = DummyLdbcSnbInteractiveDb.class.getName();
         String workloadClassName = LdbcSnbInteractiveWorkload.class.getName();
         long operationCount = 1000;
         int threadCount = 1;
@@ -88,7 +89,7 @@ public class WorkloadRunnerTest {
         double timeCompressionRatio = 1.0;
         Duration windowedExecutionWindowDuration = Duration.fromSeconds(1);
         Set<String> peerIds = new HashSet<>();
-        Duration toleratedExecutionDelay = Duration.fromMilli(100);
+        Duration toleratedExecutionDelay = Duration.fromMilli(1000);
         ConsoleAndFileDriverConfiguration.ConsoleAndFileValidationParamOptions validationParams = null;
         String dbValidationFilePath = null;
         boolean validateWorkload = false;
@@ -103,7 +104,7 @@ public class WorkloadRunnerTest {
                 validationParams, dbValidationFilePath, validateWorkload, calculateWorkloadStatistics, spinnerSleepDuration, printHelp);
 
         ConcurrentControlService controlService = new LocalControlService(TIME_SOURCE.now().plus(Duration.fromMilli(1000)), configuration);
-        Db db = new DummyDb();
+        Db db = new DummyLdbcSnbInteractiveDb();
         db.init(configuration.asMap());
         Workload workload = new LdbcSnbInteractiveWorkload();
         workload.init(configuration);
@@ -112,14 +113,17 @@ public class WorkloadRunnerTest {
         Iterator<Operation<?>> timeMappedOperations = generators.timeOffsetAndCompress(operations, controlService.workloadStartTime(), 1.0);
         Map<Class<? extends Operation>, OperationClassification> operationClassifications = workload.operationClassifications();
         ConcurrentErrorReporter errorReporter = new ConcurrentErrorReporter();
-        ConcurrentMetricsService metricsService = new ThreadedQueuedConcurrentMetricsService(TIME_SOURCE, errorReporter, configuration.timeUnit());
-        ConcurrentCompletionTimeService completionTimeService =
-                new ThreadedQueuedConcurrentCompletionTimeService(TIME_SOURCE, controlService.configuration().peerIds(), errorReporter);
-        completionTimeService.submitInitiatedTime(controlService.workloadStartTime());
-        completionTimeService.submitCompletedTime(controlService.workloadStartTime());
-        for (String peerId : controlService.configuration().peerIds()) {
-            completionTimeService.submitExternalCompletionTime(peerId, controlService.workloadStartTime());
-        }
+        ConcurrentMetricsService metricsService = new ThreadedQueuedConcurrentMetricsService(
+                TIME_SOURCE,
+                errorReporter,
+                configuration.timeUnit(),
+                controlService.workloadStartTime());
+        ConcurrentCompletionTimeService completionTimeService = CompletionTimeServiceHelper.initializeCompletionTimeService(
+                new ThreadedQueuedConcurrentCompletionTimeService(TIME_SOURCE, controlService.configuration().peerIds(), errorReporter),
+                controlService.configuration().peerIds(),
+                errorReporter,
+                controlService.workloadStartTime()
+        );
 
         WorkloadRunner runner = new WorkloadRunner(
                 TIME_SOURCE,
@@ -134,7 +138,8 @@ public class WorkloadRunnerTest {
                 controlService.workloadStartTime(),
                 controlService.configuration().toleratedExecutionDelay(),
                 controlService.configuration().spinnerSleepDuration(),
-                controlService.configuration().windowedExecutionWindowDuration());
+                controlService.configuration().windowedExecutionWindowDuration(),
+                WorkloadRunner.EARLY_SPINNER_OFFSET_DURATION);
 
         runner.executeWorkload();
 
@@ -144,7 +149,7 @@ public class WorkloadRunnerTest {
 
         assertThat(metricsService.results().startTime().gte(controlService.workloadStartTime()), is(true));
         assertThat(metricsService.results().startTime().lt(controlService.workloadStartTime().plus(configuration.toleratedExecutionDelay())), is(true));
-        assertThat(metricsService.results().finishTime().gt(metricsService.results().startTime()), is(true));
+        assertThat(metricsService.results().latestFinishTime().gt(metricsService.results().startTime()), is(true));
 
         metricsService.shutdown();
 
@@ -200,9 +205,9 @@ public class WorkloadRunnerTest {
         // CsvDb-specific parameters
         String csvOutputFilePath = "temp_csv_output_file.csv";
         FileUtils.deleteQuietly(new File(csvOutputFilePath));
-        paramsMap.put(CsvDb.CSV_PATH_KEY, csvOutputFilePath);
+        paramsMap.put(CsvWritingLdbcSnbInteractiveDb.CSV_PATH_KEY, csvOutputFilePath);
         // Driver-specific parameters
-        String dbClassName = CsvDb.class.getName();
+        String dbClassName = CsvWritingLdbcSnbInteractiveDb.class.getName();
         String workloadClassName = LdbcSnbInteractiveWorkload.class.getName();
         long operationCount = 1000;
         int threadCount = 4;
@@ -229,7 +234,7 @@ public class WorkloadRunnerTest {
                 validationParams, dbValidationFilePath, validateWorkload, calculateWorkloadStatistics, spinnerSleepDuration, printHelp);
 
         ConcurrentControlService controlService = new LocalControlService(TIME_SOURCE.now().plus(Duration.fromMilli(1000)), configuration);
-        Db db = new CsvDb();
+        Db db = new CsvWritingLdbcSnbInteractiveDb();
         db.init(configuration.asMap());
         Workload workload = new LdbcSnbInteractiveWorkload();
         workload.init(configuration);
@@ -238,7 +243,11 @@ public class WorkloadRunnerTest {
         Iterator<Operation<?>> timeMappedOperations = generators.timeOffsetAndCompress(operations, controlService.workloadStartTime(), 1.0);
         Map<Class<? extends Operation>, OperationClassification> operationClassifications = workload.operationClassifications();
         ConcurrentErrorReporter errorReporter = new ConcurrentErrorReporter();
-        ConcurrentMetricsService metricsService = new ThreadedQueuedConcurrentMetricsService(TIME_SOURCE, errorReporter, configuration.timeUnit());
+        ConcurrentMetricsService metricsService = new ThreadedQueuedConcurrentMetricsService(
+                TIME_SOURCE,
+                errorReporter,
+                configuration.timeUnit(),
+                controlService.workloadStartTime());
         ConcurrentCompletionTimeService completionTimeService =
                 new ThreadedQueuedConcurrentCompletionTimeService(TIME_SOURCE, controlService.configuration().peerIds(), errorReporter);
         completionTimeService.submitInitiatedTime(controlService.workloadStartTime());
@@ -260,7 +269,8 @@ public class WorkloadRunnerTest {
                 controlService.workloadStartTime(),
                 controlService.configuration().toleratedExecutionDelay(),
                 controlService.configuration().spinnerSleepDuration(),
-                controlService.configuration().windowedExecutionWindowDuration());
+                controlService.configuration().windowedExecutionWindowDuration(),
+                WorkloadRunner.EARLY_SPINNER_OFFSET_DURATION);
 
 
         runner.executeWorkload();
@@ -272,7 +282,7 @@ public class WorkloadRunnerTest {
 
         assertThat(workloadResults.startTime().gte(controlService.workloadStartTime()), is(true));
         assertThat(workloadResults.startTime().lt(controlService.workloadStartTime().plus(configuration.toleratedExecutionDelay())), is(true));
-        assertThat(workloadResults.finishTime().gt(workloadResults.startTime()), is(true));
+        assertThat(workloadResults.latestFinishTime().gt(workloadResults.startTime()), is(true));
         assertThat(workloadResults.totalOperationCount(), is(operationCount));
 
         WorkloadResultsSnapshot workloadResultsFromJson = WorkloadResultsSnapshot.fromJson(workloadResults.toJson());

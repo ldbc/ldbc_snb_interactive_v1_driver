@@ -24,8 +24,8 @@ public class WorkloadResultsSnapshot {
     @JsonProperty(value = "start_time")
     private long startTimeAsUnit;
 
-    @JsonProperty(value = "finish_time")
-    private long finishTimeAsUnit;
+    @JsonProperty(value = "latest_finish_time")
+    private long latestFinishTimeAsUnit;
 
     @JsonProperty(value = "total_duration")
     private long totalRunDurationAsUnit;
@@ -33,6 +33,7 @@ public class WorkloadResultsSnapshot {
     @JsonProperty(value = "total_count")
     private long operationCount;
 
+    // TODO test
     public static WorkloadResultsSnapshot fromJson(File jsonFile) throws
             IOException {
         return new ObjectMapper().readValue(jsonFile, WorkloadResultsSnapshot.class);
@@ -45,12 +46,12 @@ public class WorkloadResultsSnapshot {
     private WorkloadResultsSnapshot() {
     }
 
-    public WorkloadResultsSnapshot(Map<String, OperationMetricsSnapshot> metrics, Time startTime, Time finishTime, long operationCount, TimeUnit unit) {
+    public WorkloadResultsSnapshot(Map<String, OperationMetricsSnapshot> metrics, Time startTime, Time latestFinishTime, long operationCount, TimeUnit unit) {
         this.metrics = Lists.newArrayList(metrics.values());
         Collections.sort(this.metrics, new OperationMetricsManager.OperationMetricsNameComparator());
         this.startTimeAsUnit = startTime.as(unit);
-        this.finishTimeAsUnit = finishTime.as(unit);
-        this.totalRunDurationAsUnit = finishTime.greaterBy(startTime).as(unit);
+        this.latestFinishTimeAsUnit = latestFinishTime.as(unit);
+        this.totalRunDurationAsUnit = latestFinishTime.durationGreaterThan(startTime).as(unit);
         this.operationCount = operationCount;
         this.unit = unit;
     }
@@ -70,8 +71,8 @@ public class WorkloadResultsSnapshot {
         return Time.from(unit, startTimeAsUnit);
     }
 
-    public Time finishTime() {
-        return Time.from(unit, finishTimeAsUnit);
+    public Time latestFinishTime() {
+        return Time.from(unit, latestFinishTimeAsUnit);
     }
 
     public Duration totalRunDuration() {
@@ -92,13 +93,25 @@ public class WorkloadResultsSnapshot {
     }
 
     @Override
+    public String toString() {
+        return "WorkloadResultsSnapshot{" +
+                "metrics=" + metrics +
+                ", unit=" + unit +
+                ", startTimeAsUnit=" + startTimeAsUnit +
+                ", latestFinishTimeAsUnit=" + latestFinishTimeAsUnit +
+                ", totalRunDurationAsUnit=" + totalRunDurationAsUnit +
+                ", operationCount=" + operationCount +
+                '}';
+    }
+
+    @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
 
         WorkloadResultsSnapshot that = (WorkloadResultsSnapshot) o;
 
-        if (finishTimeAsUnit != that.finishTimeAsUnit) return false;
+        if (latestFinishTimeAsUnit != that.latestFinishTimeAsUnit) return false;
         if (operationCount != that.operationCount) return false;
         if (startTimeAsUnit != that.startTimeAsUnit) return false;
         if (totalRunDurationAsUnit != that.totalRunDurationAsUnit) return false;
@@ -113,7 +126,7 @@ public class WorkloadResultsSnapshot {
         int result = metrics != null ? metrics.hashCode() : 0;
         result = 31 * result + (unit != null ? unit.hashCode() : 0);
         result = 31 * result + (int) (startTimeAsUnit ^ (startTimeAsUnit >>> 32));
-        result = 31 * result + (int) (finishTimeAsUnit ^ (finishTimeAsUnit >>> 32));
+        result = 31 * result + (int) (latestFinishTimeAsUnit ^ (latestFinishTimeAsUnit >>> 32));
         result = 31 * result + (int) (totalRunDurationAsUnit ^ (totalRunDurationAsUnit >>> 32));
         result = 31 * result + (int) (operationCount ^ (operationCount >>> 32));
         return result;

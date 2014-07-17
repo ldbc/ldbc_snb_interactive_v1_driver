@@ -2,7 +2,7 @@ package com.ldbc.driver.control;
 
 import com.ldbc.driver.TestUtils;
 import com.ldbc.driver.util.MapUtils;
-import com.ldbc.driver.workloads.ldbc.snb.interactive.db.DummyDb;
+import com.ldbc.driver.workloads.ldbc.snb.interactive.db.DummyLdbcSnbInteractiveDb;
 import com.ldbc.driver.workloads.simple.SimpleWorkload;
 import org.apache.commons.io.FileUtils;
 
@@ -43,7 +43,7 @@ public class DriverConfigurationFileTestHelper {
         System.out.println(ConsoleAndFileDriverConfiguration.commandlineHelpString());
         System.out.println();
         System.out.println();
-        System.out.println(ConsoleAndFileDriverConfiguration.fromDefaults(DummyDb.class.getName(), SimpleWorkload.class.getName(), 1000).toString());
+        System.out.println(ConsoleAndFileDriverConfiguration.fromDefaults(DummyLdbcSnbInteractiveDb.class.getName(), SimpleWorkload.class.getName(), 1000).toString());
         System.out.println();
         System.out.println();
         System.out.println(ConsoleAndFileDriverConfiguration.fromDefaults(null, null, 0).toPropertiesString());

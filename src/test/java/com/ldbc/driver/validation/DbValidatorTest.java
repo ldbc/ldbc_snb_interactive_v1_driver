@@ -7,7 +7,7 @@ import com.ldbc.driver.WorkloadException;
 import com.ldbc.driver.generator.GeneratorFactory;
 import com.ldbc.driver.util.RandomDataGeneratorFactory;
 import com.ldbc.driver.workloads.ldbc.snb.interactive.*;
-import com.ldbc.driver.workloads.ldbc.snb.interactive.db.DummyDb;
+import com.ldbc.driver.workloads.ldbc.snb.interactive.db.DummyLdbcSnbInteractiveDb;
 import com.ldbc.driver.workloads.ldbc.snb.interactive.db.DummyLdbcSnbInteractiveOperationInstances;
 import com.ldbc.driver.workloads.ldbc.snb.interactive.db.DummyLdbcSnbInteractiveOperationResultInstances;
 import org.junit.Test;
@@ -36,7 +36,7 @@ public class DbValidatorTest {
         correctValidationParamsList.add(unexpectedValidationParam14);
 
         Iterator<ValidationParam> validationParams = correctValidationParamsList.iterator();
-        Db db = new DummyDb();
+        Db db = new DummyLdbcSnbInteractiveDb();
         db.init(new HashMap<String, String>());
         DbValidator dbValidator = new DbValidator();
 
@@ -53,7 +53,7 @@ public class DbValidatorTest {
         // Given
         GeneratorFactory gf = new GeneratorFactory(new RandomDataGeneratorFactory(42l));
         Iterator<ValidationParam> validationParams = gf.limit(gf.repeating(buildParams().iterator()), 10000);
-        Db db = new DummyDb();
+        Db db = new DummyLdbcSnbInteractiveDb();
         db.init(new HashMap<String, String>());
         DbValidator dbValidator = new DbValidator();
 
