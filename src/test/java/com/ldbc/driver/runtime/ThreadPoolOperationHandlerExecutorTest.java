@@ -1,6 +1,7 @@
 package com.ldbc.driver.runtime;
 
 import com.ldbc.driver.*;
+import com.ldbc.driver.runtime.coordination.CompletionTimeException;
 import com.ldbc.driver.runtime.coordination.ConcurrentCompletionTimeService;
 import com.ldbc.driver.runtime.executor.OperationHandlerExecutor;
 import com.ldbc.driver.runtime.executor.OperationHandlerExecutorException;
@@ -25,7 +26,7 @@ public class ThreadPoolOperationHandlerExecutorTest {
     TimeSource TIME_SOURCE = new SystemTimeSource();
 
     @Test
-    public void executorShouldReturnExpectedResult() throws OperationHandlerExecutorException, ExecutionException, InterruptedException, OperationException {
+    public void executorShouldReturnExpectedResult() throws OperationHandlerExecutorException, ExecutionException, InterruptedException, OperationException, CompletionTimeException {
         // Given
         Duration toleratedDelay = Duration.fromMilli(100);
         ConcurrentErrorReporter errorReporter = new ConcurrentErrorReporter();
@@ -55,11 +56,12 @@ public class ThreadPoolOperationHandlerExecutorTest {
         assertThat(handlerResult, is(42));
         executor.shutdown(Duration.fromSeconds(1));
         assertThat(errorReporter.toString(), errorReporter.errorEncountered(), is(false));
+        completionTimeService.shutdown();
     }
 
 
     @Test
-    public void executorShouldReturnAllResults() throws OperationHandlerExecutorException, ExecutionException, InterruptedException, OperationException {
+    public void executorShouldReturnAllResults() throws OperationHandlerExecutorException, ExecutionException, InterruptedException, OperationException, CompletionTimeException {
         // Given
         Duration toleratedDelay = Duration.fromMilli(100);
         ConcurrentErrorReporter errorReporter = new ConcurrentErrorReporter();
@@ -103,10 +105,11 @@ public class ThreadPoolOperationHandlerExecutorTest {
 
         executor.shutdown(Duration.fromSeconds(1));
         assertThat(errorReporter.toString(), errorReporter.errorEncountered(), is(false));
+        completionTimeService.shutdown();
     }
 
     @Test
-    public void executorShouldThrowExceptionIfShutdownMultipleTimes() throws OperationHandlerExecutorException, ExecutionException, InterruptedException, OperationException {
+    public void executorShouldThrowExceptionIfShutdownMultipleTimes() throws OperationHandlerExecutorException, ExecutionException, InterruptedException, OperationException, CompletionTimeException {
         // Given
         Duration toleratedDelay = Duration.fromMilli(100);
         ConcurrentErrorReporter errorReporter = new ConcurrentErrorReporter();
@@ -146,5 +149,6 @@ public class ThreadPoolOperationHandlerExecutorTest {
 
         assertThat(exceptionThrown, is(true));
         assertThat(errorReporter.toString(), errorReporter.errorEncountered(), is(false));
+        completionTimeService.shutdown();
     }
 }

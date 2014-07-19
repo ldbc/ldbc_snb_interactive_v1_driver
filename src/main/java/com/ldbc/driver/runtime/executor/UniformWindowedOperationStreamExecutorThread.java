@@ -26,6 +26,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 class UniformWindowedOperationStreamExecutorThread extends Thread {
     // TODO this value should be configurable, or an entirely better policy should be used
     private static final Duration DURATION_TO_WAIT_FOR_LAST_HANDLER_TO_FINISH = Duration.fromMinutes(30);
+    private static final Duration POLL_INTERVAL_WHILE_WAITING_FOR_LAST_HANDLER_TO_FINISH = Duration.fromMilli(100);
 
     private final TimeSource TIME_SOURCE;
     private final OperationHandlerExecutor operationHandlerExecutor;
@@ -34,6 +35,7 @@ class UniformWindowedOperationStreamExecutorThread extends Thread {
     private final ConcurrentErrorReporter errorReporter;
     private final AtomicBoolean hasFinished;
     private final WindowGenerator<OperationHandler<?>, Window.OperationHandlerTimeRangeWindow> handlerWindows;
+    private final AtomicBoolean forcedTerminate;
 
     public UniformWindowedOperationStreamExecutorThread(TimeSource timeSource,
                                                         final Time firstWindowStartTime,
@@ -42,14 +44,16 @@ class UniformWindowedOperationStreamExecutorThread extends Thread {
                                                         ConcurrentErrorReporter errorReporter,
                                                         Iterator<OperationHandler<?>> handlers,
                                                         AtomicBoolean hasFinished,
-                                                        Spinner slightlyEarlySpinner) {
-        super(UniformWindowedOperationStreamExecutorThread.class.getSimpleName());
+                                                        Spinner slightlyEarlySpinner,
+                                                        AtomicBoolean forcedTerminate) {
+        super(UniformWindowedOperationStreamExecutorThread.class.getSimpleName() + System.currentTimeMillis());
         this.TIME_SOURCE = timeSource;
         this.operationHandlerExecutor = operationHandlerExecutor;
         this.scheduler = new UniformWindowedScheduler();
         this.slightlyEarlySpinner = slightlyEarlySpinner;
         this.errorReporter = errorReporter;
         this.hasFinished = hasFinished;
+        this.forcedTerminate = forcedTerminate;
         // generates windows with appropriate start and end times
         Generator<Window.OperationHandlerTimeRangeWindow> windows = new Generator<Window.OperationHandlerTimeRangeWindow>() {
             private Time windowStartTime = firstWindowStartTime;
@@ -69,13 +73,13 @@ class UniformWindowedOperationStreamExecutorThread extends Thread {
     public void run() {
         Window.OperationHandlerTimeRangeWindow window = null;
         List<Future<OperationResultReport>> executingHandlersFromCurrentWindow = new ArrayList<>();
-        List<Future<OperationResultReport>> executingHandlersFromPreviousWindow = executingHandlersFromCurrentWindow;
+        List<Future<OperationResultReport>> executingHandlersFromPreviousWindow = new ArrayList<>();
         HandlersFromPreviousWindowHaveFinishedCheck handlersFromPreviousWindowHaveFinishedCheck =
                 new HandlersFromPreviousWindowHaveFinishedCheck(
                         executingHandlersFromPreviousWindow,
                         errorReporter,
                         this);
-        while (handlerWindows.hasNext()) {
+        while (handlerWindows.hasNext() && false == forcedTerminate.get()) {
             executingHandlersFromPreviousWindow = executingHandlersFromCurrentWindow;
             executingHandlersFromCurrentWindow = new ArrayList<>();
             handlersFromPreviousWindowHaveFinishedCheck =
@@ -87,41 +91,46 @@ class UniformWindowedOperationStreamExecutorThread extends Thread {
             List<OperationHandler<?>> scheduledHandlers = scheduler.schedule(window);
 
             // execute operation handlers for current window
-            for (OperationHandler<?> handler : scheduledHandlers) {
+            for (OperationHandler<?> operationHandler : scheduledHandlers) {
                 // Schedule slightly early to account for context switch - internally, handler will schedule at exact start time
-                slightlyEarlySpinner.waitForScheduledStartTime(handler.operation());
+                // TODO forcedTerminate does not cover all cases at present this spin loop is still blocking -> inject a check that throws exception?
+                // TODO or SpinnerChecks have three possible results? (TRUE, NOT_TRUE_YET, FALSE)
+                // TODO and/or Spinner has an emergency terminate button?
+                slightlyEarlySpinner.waitForScheduledStartTime(operationHandler.operation());
 
                 try {
-                    handler.completionTimeService().submitInitiatedTime(handler.operation().scheduledStartTime());
+                    operationHandler.completionTimeService().submitInitiatedTime(operationHandler.operation().scheduledStartTime());
                 } catch (CompletionTimeException e) {
                     errorReporter.reportError(this,
                             String.format("Error encountered while submitted Initiated Time for:\n\t%s\n%s",
-                                    handler.operation().toString(),
+                                    operationHandler.operation().toString(),
                                     ConcurrentErrorReporter.stackTraceToString(e)));
                 }
                 try {
-                    handler.addCheck(handlersFromPreviousWindowHaveFinishedCheck);
-                    Future<OperationResultReport> executingHandler = operationHandlerExecutor.execute(handler);
+                    operationHandler.addCheck(handlersFromPreviousWindowHaveFinishedCheck);
+                    Future<OperationResultReport> executingHandler = operationHandlerExecutor.execute(operationHandler);
                     executingHandlersFromCurrentWindow.add(executingHandler);
                 } catch (OperationHandlerExecutorException e) {
                     errorReporter.reportError(this,
                             String.format("Error encountered while submitting operation for execution\n\t%s\n\t%s",
-                                    handler.operation().toString(),
+                                    operationHandler.operation().toString(),
                                     ConcurrentErrorReporter.stackTraceToString(e)));
                 }
             }
-
         }
 
         if (null != window) {
+            long pollInterval = POLL_INTERVAL_WHILE_WAITING_FOR_LAST_HANDLER_TO_FINISH.asMilli();
             // long waitUntilTimeAsMilli = TIME_SOURCE.now().plus(DURATION_TO_WAIT_FOR_LAST_HANDLER_TO_FINISH).asMilli();
             long latestTimeToWaitAsMilli = window.windowEndTimeExclusive().asMilli();
             // wait for operations from last window to finish executing
             while (false == handlersFromPreviousWindowHaveFinishedCheck.doCheck()) {
+                if (forcedTerminate.get()) break;
                 if (TIME_SOURCE.nowAsMilli() > latestTimeToWaitAsMilli) {
                     errorReporter.reportError(this, "One or more handlers from the last window took too long to complete");
                     break;
                 }
+                Spinner.powerNap(pollInterval);
             }
         }
 

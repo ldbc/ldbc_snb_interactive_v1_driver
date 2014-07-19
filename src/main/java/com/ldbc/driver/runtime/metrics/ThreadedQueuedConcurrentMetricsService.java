@@ -22,7 +22,7 @@ public class ThreadedQueuedConcurrentMetricsService implements ConcurrentMetrics
     private final Queue<MetricsCollectionEvent> metricsEventsQueue;
     private final AtomicLong initiatedEvents;
     private final ThreadedQueuedMetricsMaintenanceThread threadedQueuedMetricsMaintenanceThread;
-    private boolean shuttingDown = false;
+    private AtomicBoolean shutdown = new AtomicBoolean(false);
 
     public ThreadedQueuedConcurrentMetricsService(TimeSource timeSource,
                                                   ConcurrentErrorReporter errorReporter,
@@ -35,13 +35,12 @@ public class ThreadedQueuedConcurrentMetricsService implements ConcurrentMetrics
                 errorReporter,
                 metricsEventsQueue,
                 new MetricsManager(TIME_SOURCE, unit, initialTime));
-        threadedQueuedMetricsMaintenanceThread.setDaemon(true);
         threadedQueuedMetricsMaintenanceThread.start();
     }
 
     @Override
     synchronized public void submitOperationResult(OperationResultReport operationResultReport) throws MetricsCollectionException {
-        if (shuttingDown) {
+        if (shutdown.get()) {
             throw new MetricsCollectionException("Can not submit a result after calling shutdown");
         }
         try {
@@ -55,7 +54,7 @@ public class ThreadedQueuedConcurrentMetricsService implements ConcurrentMetrics
 
     @Override
     public WorkloadStatusSnapshot status() throws MetricsCollectionException {
-        if (shuttingDown) {
+        if (shutdown.get()) {
             throw new MetricsCollectionException("Can not read metrics status after calling shutdown");
         }
         MetricsStatusFuture statusFuture = new MetricsStatusFuture(TIME_SOURCE);
@@ -65,7 +64,7 @@ public class ThreadedQueuedConcurrentMetricsService implements ConcurrentMetrics
 
     @Override
     public WorkloadResultsSnapshot results() throws MetricsCollectionException {
-        if (shuttingDown) {
+        if (shutdown.get()) {
             throw new MetricsCollectionException("Can not retrieve results after calling shutdown");
         }
         MetricsWorkloadResultFuture workloadResultFuture = new MetricsWorkloadResultFuture(TIME_SOURCE);
@@ -75,9 +74,8 @@ public class ThreadedQueuedConcurrentMetricsService implements ConcurrentMetrics
 
     @Override
     synchronized public void shutdown() throws MetricsCollectionException {
-        if (shuttingDown)
-            return;
-        shuttingDown = true;
+        if (shutdown.get())
+            throw new MetricsCollectionException("Metrics service has already been shutdown");
         metricsEventsQueue.add(MetricsCollectionEvent.terminate(initiatedEvents.get()));
         try {
             threadedQueuedMetricsMaintenanceThread.join(SHUTDOWN_WAIT_TIMEOUT.asMilli());
@@ -86,6 +84,7 @@ public class ThreadedQueuedConcurrentMetricsService implements ConcurrentMetrics
                     threadedQueuedMetricsMaintenanceThread.getClass().getSimpleName());
             throw new MetricsCollectionException(errMsg, e);
         }
+        shutdown.set(true);
     }
 
     public static class MetricsWorkloadResultFuture implements Future<WorkloadResultsSnapshot> {
@@ -147,7 +146,7 @@ public class ThreadedQueuedConcurrentMetricsService implements ConcurrentMetrics
     public static class MetricsStatusFuture implements Future<WorkloadStatusSnapshot> {
         private final TimeSource TIME_SOURCE;
         private final AtomicBoolean done = new AtomicBoolean(false);
-        private final AtomicReference<WorkloadStatusSnapshot> status = new AtomicReference<WorkloadStatusSnapshot>(null);
+        private final AtomicReference<WorkloadStatusSnapshot> status = new AtomicReference<>(null);
 
         private MetricsStatusFuture(TimeSource timeSource) {
             this.TIME_SOURCE = timeSource;

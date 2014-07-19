@@ -25,7 +25,7 @@ import static com.ldbc.driver.OperationClassification.SchedulingMode;
 public class WorkloadRunner {
     public static final Duration EARLY_SPINNER_OFFSET_DURATION = Duration.fromMilli(100);
     private static final Duration WAIT_DURATION_FOR_OPERATION_HANDLER_EXECUTOR_TO_SHUTDOWN = Duration.fromSeconds(5);
-    public static final long COMPLETION_POLLING_INTERVAL_AS_MILLI = Duration.fromMilli(500).asMilli();
+    public static final long RUNNER_POLLING_INTERVAL_AS_MILLI = Duration.fromMilli(500).asMilli();
 
     private final TimeSource TIME_SOURCE;
 
@@ -33,7 +33,7 @@ public class WorkloadRunner {
     private final Spinner earlySpinner;
 
     // TODO make service and inject into workload runner. this could report to coordinator OR a local console printer, for example
-    private final WorkloadStatusThread workloadStatusThread;
+    private WorkloadStatusThread workloadStatusThread;
 
     private final ConcurrentErrorReporter errorReporter;
 
@@ -74,8 +74,13 @@ public class WorkloadRunner {
         this.earlySpinner = new Spinner(TIME_SOURCE, spinnerSleepDuration, executionDelayPolicy, earlySpinnerOffsetDuration);
         // TODO make this a configuration parameter?
         boolean detailedStatus = true;
-        this.workloadStatusThread = new WorkloadStatusThread(statusDisplayInterval, metricsService, errorReporter, completionTimeService, detailedStatus);
-        this.workloadStatusThread.setDaemon(true);
+        if (statusDisplayInterval.asSeconds() > 0)
+            this.workloadStatusThread = new WorkloadStatusThread(
+                    statusDisplayInterval,
+                    metricsService,
+                    errorReporter,
+                    completionTimeService,
+                    detailedStatus);
         List<Operation<?>> windowedOperations;
         List<Operation<?>> blockingOperations;
         List<Operation<?>> asynchronousOperations;
@@ -114,6 +119,7 @@ public class WorkloadRunner {
         // TODO (present alex) submits an initiated time for an operation who's scheduled start time is already behind GCT?
         // TODO (present alex) if operations are close together (closer than tolerated delay) it seems like this is definitely possible
 
+        // TODO really need to give executors more control over thread pools, or ideally their own thread pools
         this.operationHandlerExecutor = new ThreadPoolOperationHandlerExecutor(threadCount);
         this.preciseIndividualAsyncOperationStreamExecutorService = new PreciseIndividualAsyncOperationStreamExecutorService(
                 TIME_SOURCE, errorReporter, asynchronousHandlers, earlySpinner, operationHandlerExecutor);
@@ -124,56 +130,93 @@ public class WorkloadRunner {
     }
 
     public void executeWorkload() throws WorkloadException {
-        if (statusDisplayInterval.asSeconds() > 0) workloadStatusThread.start();
+        if (statusDisplayInterval.asSeconds() > 0)
+            workloadStatusThread.start();
+
         AtomicBoolean asyncHandlersFinished = preciseIndividualAsyncOperationStreamExecutorService.execute();
         AtomicBoolean blockingHandlersFinished = preciseIndividualBlockingOperationStreamExecutorService.execute();
         AtomicBoolean windowedHandlersFinished = uniformWindowedOperationStreamExecutorService.execute();
 
-        AtomicBoolean[] executorFinishedFlags = new AtomicBoolean[]{asyncHandlersFinished, blockingHandlersFinished, windowedHandlersFinished};
         while (true) {
-            if (errorReporter.errorEncountered()) break;
-            for (int i = 0; i < executorFinishedFlags.length; i++) {
-                if (null != executorFinishedFlags[i] && executorFinishedFlags[i].get()) executorFinishedFlags[i] = null;
+            // Error encountered in one or more of the worker threads --> terminate run
+            if (errorReporter.errorEncountered()) {
+                boolean forced = true;
+                String shutdownErrMsg = shutdownEverything(forced);
+                throw new WorkloadException(String.format("%s\nError encountered while running workload\n%s",
+                        shutdownErrMsg,
+                        errorReporter.toString()));
             }
-            boolean terminate = true;
-            for (int i = 0; i < executorFinishedFlags.length; i++) {
-                if (null != executorFinishedFlags[i]) terminate = false;
-            }
-            if (terminate) break;
-            powerNap();
-        }
 
-        while (true) {
-            if (errorReporter.errorEncountered())
-                throw new WorkloadException(String.format("Error encountered while running workload\n%s", errorReporter.toString()));
+            // All executors have completed --> return
             if (asyncHandlersFinished.get() && blockingHandlersFinished.get() && windowedHandlersFinished.get())
                 break;
-            powerNap();
+
+            // Take short break between error & completion checks to reduce CPU utilization
+            Spinner.powerNap(RUNNER_POLLING_INTERVAL_AS_MILLI);
         }
+
+        // One last check for errors encountered in any of the worker threads --> terminate run
+        if (errorReporter.errorEncountered()) {
+            boolean forced = true;
+            String showdownErrMsg = shutdownEverything(forced);
+            throw new WorkloadException(String.format("%sEncountered error while running workload. Driver terminating.\n%s",
+                    showdownErrMsg,
+                    errorReporter.toString()));
+        }
+
+        boolean forced = false;
+        String shutdownErrMsg = shutdownEverything(forced);
+
+        if (false == "".equals(shutdownErrMsg)) {
+            throw new WorkloadException(shutdownErrMsg);
+        }
+    }
+
+    private String shutdownEverything(boolean forced) {
+        String errMsg = "";
 
         try {
             preciseIndividualAsyncOperationStreamExecutorService.shutdown();
-            preciseIndividualBlockingOperationStreamExecutorService.shutdown();
-            uniformWindowedOperationStreamExecutorService.shutdown();
-            // all executors have completed by this stage, there's no reason why this should not work
-            operationHandlerExecutor.shutdown(WAIT_DURATION_FOR_OPERATION_HANDLER_EXECUTOR_TO_SHUTDOWN);
         } catch (OperationHandlerExecutorException e) {
-            throw new WorkloadException("Encountered error while shutting down operation handler executor", e);
+            errMsg += String.format("Encountered error while shutting down %s\n%s\n",
+                    preciseIndividualAsyncOperationStreamExecutorService.getClass().getSimpleName(),
+                    ConcurrentErrorReporter.stackTraceToString(e));
         }
 
-        if (errorReporter.errorEncountered()) {
-            throw new WorkloadException(String.format("Encountered error while running workload. Driver terminating.\n%s", errorReporter.toString()));
-        }
-
-        if (statusDisplayInterval.asSeconds() > 0) workloadStatusThread.interrupt();
-    }
-
-    // sleep to reduce CPU load while waiting for executors to complete
-    private void powerNap() {
-        if (0 == COMPLETION_POLLING_INTERVAL_AS_MILLI) return;
         try {
-            Thread.sleep(COMPLETION_POLLING_INTERVAL_AS_MILLI);
-        } catch (InterruptedException e) {
+            preciseIndividualBlockingOperationStreamExecutorService.shutdown();
+        } catch (OperationHandlerExecutorException e) {
+            errMsg += String.format("Encountered error while shutting down %s\n%s\n",
+                    preciseIndividualBlockingOperationStreamExecutorService.getClass().getSimpleName(),
+                    ConcurrentErrorReporter.stackTraceToString(e));
         }
+
+        try {
+            uniformWindowedOperationStreamExecutorService.shutdown();
+        } catch (OperationHandlerExecutorException e) {
+            errMsg += String.format("Encountered error while shutting down %s\n%s\n",
+                    uniformWindowedOperationStreamExecutorService.getClass().getSimpleName(),
+                    ConcurrentErrorReporter.stackTraceToString(e));
+        }
+
+        try {
+            if (forced)
+                // if forced shutdown (error) some handlers likely still running, but it does not matter
+                operationHandlerExecutor.shutdown(Duration.fromMilli(0));
+            else
+                // if normal shutdown all executors have completed by this stage
+                operationHandlerExecutor.shutdown(WAIT_DURATION_FOR_OPERATION_HANDLER_EXECUTOR_TO_SHUTDOWN);
+        } catch (OperationHandlerExecutorException e) {
+            errMsg += String.format("Encountered error while shutting down %s\n%s\n",
+                    operationHandlerExecutor.getClass().getSimpleName(),
+                    ConcurrentErrorReporter.stackTraceToString(e));
+        }
+
+        if (statusDisplayInterval.asSeconds() > 0) {
+            workloadStatusThread.shutdown();
+            workloadStatusThread.interrupt();
+        }
+
+        return errMsg;
     }
 }

@@ -32,7 +32,7 @@ public class ThreadedQueuedCompletionTimeMaintenanceThread extends Thread {
                                                          LocalCompletionTime localCompletionTime,
                                                          ExternalCompletionTime externalCompletionTime,
                                                          AtomicReference<Time> sharedGctReference) {
-        super(ThreadedQueuedCompletionTimeMaintenanceThread.class.getSimpleName());
+        super(ThreadedQueuedCompletionTimeMaintenanceThread.class.getSimpleName() + "-" + System.currentTimeMillis());
         this.completionTimeQueue = completionTimeQueue;
         this.errorReporter = errorReporter;
         this.globalCompletionTime = new GlobalCompletionTime(localCompletionTime, externalCompletionTime);
@@ -63,7 +63,7 @@ public class ThreadedQueuedCompletionTimeMaintenanceThread extends Thread {
                     case EXTERNAL:
                         String peerId = ((CompletionTimeEvent.ExternalEvent) event).peerId();
                         Time peerCompletionTime = ((CompletionTimeEvent.ExternalEvent) event).time();
-                        globalCompletionTime.applyPeerCompletionTime(peerId,peerCompletionTime);
+                        globalCompletionTime.applyPeerCompletionTime(peerId, peerCompletionTime);
                         updateGlobalCompletionTime();
                         break;
                     case FUTURE:
@@ -104,7 +104,6 @@ public class ThreadedQueuedCompletionTimeMaintenanceThread extends Thread {
         Time newGlobalCompletionTime = globalCompletionTime.completionTime();
         Time prevGlobalCompletionTime = sharedGctReference.get();
         if (null == newGlobalCompletionTime) {
-            // TODO add this lesson into specification document on Confluence
             // Either Completion Time has not been received from one or more peers, or no local Completion Time has been receive
             // Until both of the above have occurred there is no way of knowing what the lowest global time is
             return;

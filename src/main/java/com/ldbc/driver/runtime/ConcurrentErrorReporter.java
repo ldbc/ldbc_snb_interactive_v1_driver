@@ -34,7 +34,7 @@ public class ConcurrentErrorReporter {
     }
 
     private final AtomicBoolean errorEncountered = new AtomicBoolean(false);
-    private final ConcurrentLinkedQueue<ErrorReport> errorMessages = new ConcurrentLinkedQueue<ErrorReport>();
+    private final ConcurrentLinkedQueue<ErrorReport> errorMessages = new ConcurrentLinkedQueue<>();
 
     synchronized public void reportError(Object caller, String errMsg) {
         errorMessages.add(new ErrorReport(whoAmI(caller), errMsg));

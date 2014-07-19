@@ -4,20 +4,48 @@ import com.google.common.collect.Sets;
 import com.ldbc.driver.temporal.Time;
 import org.junit.Test;
 
+import java.util.HashSet;
 import java.util.Set;
 
 import static org.hamcrest.CoreMatchers.*;
 import static org.junit.Assert.assertThat;
 
 public class ExternalCompletionTimeTest {
-    String peerId1 = "peerId1";
-    String peerId2 = "peerId2";
-    Set<String> peerIds = Sets.newHashSet(peerId1, peerId2);
+    @Test
+    public void checkForNonMonotonicallyIncreasingExternalCompletionTimes() throws CompletionTimeException {
+        // Given
+        String peerId1 = "peerId1";
+        String peerId2 = "peerId2";
+        Set<String> peerIds = Sets.newHashSet(peerId1, peerId2);
+        ExternalCompletionTime ect = new ExternalCompletionTime(peerIds);
+
+        // When/Then
+        assertThat(ect.completionTime(), is(nullValue()));
+        ect.applyPeerCompletionTime(peerId1, Time.fromMilli(1));
+        assertThat(ect.completionTime(), is(nullValue()));
+        ect.applyPeerCompletionTime(peerId2, Time.fromMilli(1));
+        assertThat(ect.completionTime(), is(Time.fromMilli(1)));
+
+        ect.applyPeerCompletionTime(peerId1, Time.fromMilli(2));
+        assertThat(ect.completionTime(), is(Time.fromMilli(1)));
+        ect.applyPeerCompletionTime(peerId2, Time.fromMilli(2));
+        assertThat(ect.completionTime(), is(Time.fromMilli(2)));
+
+        boolean exceptionThrown = false;
+        try {
+            ect.applyPeerCompletionTime(peerId2, Time.fromMilli(1));
+        } catch (CompletionTimeException e) {
+            exceptionThrown = true;
+        }
+        assertThat(ect.completionTime(), is(Time.fromMilli(2)));
+    }
 
     @Test(expected = CompletionTimeException.class)
     public void shouldThrowExceptionWhenPeerIdListContainsNullValue() throws CompletionTimeException {
         // Given
-        ExternalCompletionTime ect = new ExternalCompletionTime(Sets.<String>newHashSet(null));
+        Set<String> peerIds = new HashSet<>();
+        peerIds.add(null);
+        ExternalCompletionTime ect = new ExternalCompletionTime(peerIds);
 
         // When
         // no events have been applied
@@ -30,6 +58,9 @@ public class ExternalCompletionTimeTest {
     @Test
     public void shouldReturnNullWhenNoCompletionTimesHaveBeenApplied() throws CompletionTimeException {
         // Given
+        String peerId1 = "peerId1";
+        String peerId2 = "peerId2";
+        Set<String> peerIds = Sets.newHashSet(peerId1, peerId2);
         ExternalCompletionTime ect = new ExternalCompletionTime(peerIds);
 
         // When
@@ -42,6 +73,9 @@ public class ExternalCompletionTimeTest {
     @Test
     public void shouldReturnNullWhenCompletionTimeHasNotBeenAppliedForOneOrMorePeers() throws CompletionTimeException {
         // Given
+        String peerId1 = "peerId1";
+        String peerId2 = "peerId2";
+        Set<String> peerIds = Sets.newHashSet(peerId1, peerId2);
         ExternalCompletionTime ect = new ExternalCompletionTime(peerIds);
 
         // When
@@ -54,6 +88,9 @@ public class ExternalCompletionTimeTest {
     @Test
     public void shouldReturnMinimumOfAllPeersCompletionTime() throws CompletionTimeException {
         // Given
+        String peerId1 = "peerId1";
+        String peerId2 = "peerId2";
+        Set<String> peerIds = Sets.newHashSet(peerId1, peerId2);
         ExternalCompletionTime ect = new ExternalCompletionTime(peerIds);
 
         // When
@@ -67,6 +104,9 @@ public class ExternalCompletionTimeTest {
     @Test(expected = CompletionTimeException.class)
     public void shouldThrowExceptionWhenNullPeerIdApplied() throws CompletionTimeException {
         // Given
+        String peerId1 = "peerId1";
+        String peerId2 = "peerId2";
+        Set<String> peerIds = Sets.newHashSet(peerId1, peerId2);
         ExternalCompletionTime ect = new ExternalCompletionTime(peerIds);
 
         // When
@@ -79,6 +119,9 @@ public class ExternalCompletionTimeTest {
     @Test(expected = CompletionTimeException.class)
     public void shouldThrowExceptionWhenNullCompletionTimeIsApplied() throws CompletionTimeException {
         // Given
+        String peerId1 = "peerId1";
+        String peerId2 = "peerId2";
+        Set<String> peerIds = Sets.newHashSet(peerId1, peerId2);
         ExternalCompletionTime ect = new ExternalCompletionTime(peerIds);
 
         // When

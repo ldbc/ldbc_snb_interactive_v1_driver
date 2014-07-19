@@ -7,7 +7,6 @@ abstract class MetricsCollectionEvent {
     public enum MetricsEventType {
         // Submit operation result for its metrics to be collected
         SUBMIT_RESULT,
-        // TODO make this a class that is returned, rather than a string
         // Request metrics summary
         WORKLOAD_STATUS,
         // Request complete workload results
@@ -49,6 +48,13 @@ abstract class MetricsCollectionEvent {
         OperationResultReport result() {
             return result;
         }
+
+        @Override
+        public String toString() {
+            return "SubmitResultEvent{" +
+                    "result=" + result +
+                    '}';
+        }
     }
 
     static class StatusEvent extends MetricsCollectionEvent {
@@ -65,6 +71,13 @@ abstract class MetricsCollectionEvent {
 
         ThreadedQueuedConcurrentMetricsService.MetricsStatusFuture future() {
             return future;
+        }
+
+        @Override
+        public String toString() {
+            return "StatusEvent{" +
+                    "future=" + future +
+                    '}';
         }
     }
 
@@ -83,6 +96,13 @@ abstract class MetricsCollectionEvent {
         ThreadedQueuedConcurrentMetricsService.MetricsWorkloadResultFuture future() {
             return future;
         }
+
+        @Override
+        public String toString() {
+            return "WorkloadResultEvent{" +
+                    "future=" + future +
+                    '}';
+        }
     }
 
     static class TerminationEvent extends MetricsCollectionEvent {
@@ -99,6 +119,13 @@ abstract class MetricsCollectionEvent {
 
         long expectedEventCount() {
             return expectedEventCount;
+        }
+
+        @Override
+        public String toString() {
+            return "TerminationEvent{" +
+                    "expectedEventCount=" + expectedEventCount +
+                    '}';
         }
     }
 }

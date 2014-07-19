@@ -20,7 +20,7 @@ public class GeneratorUtilsTest {
         Iterator<Integer> counterGenerator = generators.incrementing(1, 1);
         Iterator<Integer> cappedCounterGenerator = generators.limit(counterGenerator, 10);
         Integer[] includeNumbers = new Integer[]{1, 2, 3};
-        Iterator<Integer> filteredCappedCounterGenerator = GeneratorUtils.includeOnly(cappedCounterGenerator,
+        Iterator<Integer> filteredCappedCounterGenerator = GeneratorFactory.includeOnly(cappedCounterGenerator,
                 includeNumbers);
 
         // When
@@ -40,7 +40,7 @@ public class GeneratorUtilsTest {
         Iterator<Integer> counterGenerator = generators.incrementing(1, 1);
         Iterator<Integer> cappedCounterGenerator = generators.limit(counterGenerator, 10);
         Integer[] excludeNumbers = new Integer[]{1, 2, 3};
-        Iterator<Integer> filteredCappedCounterGenerator = GeneratorUtils.excludeAll(cappedCounterGenerator,
+        Iterator<Integer> filteredCappedCounterGenerator = GeneratorFactory.excludeAll(cappedCounterGenerator,
                 excludeNumbers);
 
         // When

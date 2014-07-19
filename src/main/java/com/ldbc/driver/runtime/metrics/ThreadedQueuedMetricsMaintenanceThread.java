@@ -15,7 +15,7 @@ public class ThreadedQueuedMetricsMaintenanceThread extends Thread {
     public ThreadedQueuedMetricsMaintenanceThread(ConcurrentErrorReporter errorReporter,
                                                   Queue<MetricsCollectionEvent> metricsEventsQueue,
                                                   MetricsManager metricsManager) {
-        super(ThreadedQueuedMetricsMaintenanceThread.class.getSimpleName());
+        super(ThreadedQueuedMetricsMaintenanceThread.class.getSimpleName() + "-" + System.currentTimeMillis());
         this.errorReporter = errorReporter;
         this.metricsEventsQueue = metricsEventsQueue;
         this.metricsManager = metricsManager;

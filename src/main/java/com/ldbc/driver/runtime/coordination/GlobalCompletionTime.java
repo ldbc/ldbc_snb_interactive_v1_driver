@@ -5,7 +5,7 @@ import com.ldbc.driver.util.Function0;
 
 public class GlobalCompletionTime {
     private final LocalCompletionTime localCompletionTime;
-        private final ExternalCompletionTime externalCompletionTime;
+    private final ExternalCompletionTime externalCompletionTime;
     private final Function0<Time> externalCompletionTimeFun;
 
     public GlobalCompletionTime(final LocalCompletionTime localCompletionTime, final ExternalCompletionTime externalCompletionTime) {
@@ -21,7 +21,7 @@ public class GlobalCompletionTime {
                 }
             };
         else
-            // One or more of our peers have no replied yet -> no way of knowing what GCT is
+            // One or more of our peers have not replied yet -> no way of knowing what GCT is
             this.externalCompletionTimeFun = new Function0<Time>() {
                 @Override
                 public Time apply() {
@@ -33,12 +33,13 @@ public class GlobalCompletionTime {
     public void applyInitiatedTime(Time eventInitiatedTime) {
         localCompletionTime.applyInitiatedTime(eventInitiatedTime);
     }
+
     public void applyCompletedTime(Time initiatedTimeOfCompletedEvent) throws CompletionTimeException {
         localCompletionTime.applyCompletedTime(initiatedTimeOfCompletedEvent);
     }
 
     public void applyPeerCompletionTime(String peerId, Time peerCompletionTime) throws CompletionTimeException {
-        externalCompletionTime.applyPeerCompletionTime(peerId,peerCompletionTime);
+        externalCompletionTime.applyPeerCompletionTime(peerId, peerCompletionTime);
     }
 
     public Time completionTime() {

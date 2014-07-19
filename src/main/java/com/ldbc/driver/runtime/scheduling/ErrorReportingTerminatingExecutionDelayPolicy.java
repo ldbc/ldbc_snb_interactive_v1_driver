@@ -37,11 +37,11 @@ public class ErrorReportingTerminatingExecutionDelayPolicy implements ExecutionD
         // Note, that this time is ever so slightly later than when the error actually occurred
         Time now = TIME_SOURCE.now();
         String errMsg = String.format("Operation start time delayed excessively\n"
-                        + "  Tolerated Delay: %s\n"
-                        + "  Actual Delay (at least): %s\n"
                         + "  Operation: %s\n"
+                        + "  Tolerated Delay: %s\n"
+                        + "  Delay Now: %s\n"
                         + "  Scheduled Start Time: %s\n"
-                        + "  Now Time: %s\n"
+                        + "  Time Now: %s\n"
                 ,
                 toleratedDelay,
                 now.durationGreaterThan(operation.scheduledStartTime()),

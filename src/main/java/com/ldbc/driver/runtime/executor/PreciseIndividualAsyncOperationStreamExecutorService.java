@@ -11,14 +11,15 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 // TODO test
 public class PreciseIndividualAsyncOperationStreamExecutorService {
-    private static final Duration SHUTDOWN_WAIT_TIMEOUT = Duration.fromSeconds(5);
+    private static final Duration SHUTDOWN_WAIT_TIMEOUT = Duration.fromSeconds(10);
 
     private final TimeSource TIME_SOURCE;
     private final PreciseIndividualAsyncOperationStreamExecutorThread preciseIndividualAsyncOperationStreamExecutorThread;
     private final AtomicBoolean hasFinished = new AtomicBoolean(false);
     private final ConcurrentErrorReporter errorReporter;
-    private boolean executing = false;
-    private boolean shuttingDown = false;
+    private final AtomicBoolean executing = new AtomicBoolean(false);
+    private final AtomicBoolean shutdown = new AtomicBoolean(false);
+    private final AtomicBoolean forceThreadToTerminate = new AtomicBoolean(false);
 
     public PreciseIndividualAsyncOperationStreamExecutorService(TimeSource timeSource,
                                                                 ConcurrentErrorReporter errorReporter,
@@ -34,30 +35,36 @@ public class PreciseIndividualAsyncOperationStreamExecutorService {
                     errorReporter,
                     handlers,
                     hasFinished,
-                    slightlyEarlySpinner);
-            this.preciseIndividualAsyncOperationStreamExecutorThread.setDaemon(true);
+                    slightlyEarlySpinner,
+                    forceThreadToTerminate);
         } else {
             this.preciseIndividualAsyncOperationStreamExecutorThread = null;
+            executing.set(true);
             hasFinished.set(true);
-            executing = true;
-            shuttingDown = true;
+            shutdown.set(false);
         }
     }
 
     synchronized public AtomicBoolean execute() {
-        if (executing)
+        if (executing.get())
             return hasFinished;
-        executing = true;
+        executing.set(true);
         preciseIndividualAsyncOperationStreamExecutorThread.start();
         return hasFinished;
     }
 
-    synchronized public void shutdown() {
-        if (shuttingDown)
-            return;
-        shuttingDown = true;
+    synchronized public void shutdown() throws OperationHandlerExecutorException {
+        if (shutdown.get()) {
+            throw new OperationHandlerExecutorException("Executor has already been shutdown");
+        }
+        if (null != preciseIndividualAsyncOperationStreamExecutorThread)
+            doShutdown();
+        shutdown.set(true);
+    }
+
+    private void doShutdown() {
         try {
-            preciseIndividualAsyncOperationStreamExecutorThread.interrupt();
+            forceThreadToTerminate.set(true);
             preciseIndividualAsyncOperationStreamExecutorThread.join(SHUTDOWN_WAIT_TIMEOUT.asMilli());
         } catch (Exception e) {
             String errMsg = String.format("Unexpected error encountered while shutting down thread\n%s",

@@ -646,8 +646,8 @@ public class LdbcSnbInteractiveWorkload extends Workload {
                 boolean isNotReadOperation = false == readOperationFilter.contains(operationType);
                 if (isNotReadOperation) return false;
 
-                boolean haveAllResultsForOperationType = false == remainingRequiredResultsPerOperationType.containsKey(operationType);
-                if (haveAllResultsForOperationType) return false;
+                boolean alreadyHaveAllRequiredResultsForOperationType = false == remainingRequiredResultsPerOperationType.containsKey(operationType);
+                if (alreadyHaveAllRequiredResultsForOperationType) return false;
 
                 return true;
             }

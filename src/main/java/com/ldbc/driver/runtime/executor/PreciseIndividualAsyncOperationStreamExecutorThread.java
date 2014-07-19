@@ -16,6 +16,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 class PreciseIndividualAsyncOperationStreamExecutorThread extends Thread {
     // TODO this value should be configurable, or an entirely better policy should be used
     private static final Duration DURATION_TO_WAIT_FOR_ALL_HANDLERS_TO_FINISH = Duration.fromMinutes(30);
+    private static final Duration POLL_INTERVAL_WHILE_WAITING_FOR_LAST_HANDLER_TO_FINISH = Duration.fromMilli(100);
 
     private final TimeSource TIME_SOURCE;
     private final OperationHandlerExecutor operationHandlerExecutor;
@@ -23,6 +24,7 @@ class PreciseIndividualAsyncOperationStreamExecutorThread extends Thread {
     private final ConcurrentErrorReporter errorReporter;
     private final Iterator<OperationHandler<?>> handlers;
     private final AtomicBoolean hasFinished;
+    private final AtomicBoolean forcedTerminate;
     private final ArrayList<Future<OperationResultReport>> runningHandlers = new ArrayList<>();
 
     public PreciseIndividualAsyncOperationStreamExecutorThread(TimeSource timeSource,
@@ -30,22 +32,27 @@ class PreciseIndividualAsyncOperationStreamExecutorThread extends Thread {
                                                                ConcurrentErrorReporter errorReporter,
                                                                Iterator<OperationHandler<?>> handlers,
                                                                AtomicBoolean hasFinished,
-                                                               Spinner slightlyEarlySpinner) {
-        super(PreciseIndividualAsyncOperationStreamExecutorThread.class.getSimpleName());
+                                                               Spinner slightlyEarlySpinner,
+                                                               AtomicBoolean forcedTerminate) {
+        super(PreciseIndividualAsyncOperationStreamExecutorThread.class.getSimpleName() + "-" + System.currentTimeMillis());
         this.TIME_SOURCE = timeSource;
         this.operationHandlerExecutor = operationHandlerExecutor;
         this.slightlyEarlySpinner = slightlyEarlySpinner;
         this.errorReporter = errorReporter;
         this.handlers = handlers;
         this.hasFinished = hasFinished;
+        this.forcedTerminate = forcedTerminate;
     }
 
     @Override
     public void run() {
-        while (handlers.hasNext()) {
+        while (handlers.hasNext() && false == forcedTerminate.get()) {
             OperationHandler<?> handler = handlers.next();
 
             // Schedule slightly early to account for context switch - internally, handler will schedule at exact start time
+            // TODO forcedTerminate does not cover all cases at present this spin loop is still blocking -> inject a check that throws exception?
+            // TODO or SpinnerChecks have three possible results? (TRUE, NOT_TRUE_YET, FALSE)
+            // TODO and/or Spinner has an emergency terminate button?
             slightlyEarlySpinner.waitForScheduledStartTime(handler.operation());
             try {
                 handler.completionTimeService().submitInitiatedTime(handler.operation().scheduledStartTime());
@@ -72,11 +79,13 @@ class PreciseIndividualAsyncOperationStreamExecutorThread extends Thread {
         this.hasFinished.set(true);
     }
 
-    // TODO possibly use similar logic to make it possible to cap maximum query run time
     private boolean awaitAllRunningHandlers(Duration timeoutDuration) {
+        long pollInterval = POLL_INTERVAL_WHILE_WAITING_FOR_LAST_HANDLER_TO_FINISH.asMilli();
         long timeoutTimeMs = TIME_SOURCE.now().plus(timeoutDuration).asMilli();
         while (TIME_SOURCE.nowAsMilli() < timeoutTimeMs) {
             if (allHandlersCompleted()) return true;
+            if (forcedTerminate.get()) return true;
+            Spinner.powerNap(pollInterval);
         }
         return false;
     }

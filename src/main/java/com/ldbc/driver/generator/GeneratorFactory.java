@@ -1,5 +1,7 @@
 package com.ldbc.driver.generator;
 
+import com.google.common.base.Predicate;
+import com.google.common.collect.Iterators;
 import com.ldbc.driver.Operation;
 import com.ldbc.driver.data.ByteIterator;
 import com.ldbc.driver.temporal.Duration;
@@ -82,6 +84,40 @@ public class GeneratorFactory {
      * ---------------------------------------- DECORATORS ------------------------------------------------
      * ----------------------------------------------------------------------------------------------------
      */
+
+    public static <T1> Iterator<T1> includeOnly(Iterator<T1> generator, T1... includedItems) {
+        return Iterators.filter(generator, new IncludeOnlyPredicate<>(includedItems));
+    }
+
+    private static class IncludeOnlyPredicate<T1> implements Predicate<T1> {
+        private final Set<T1> includedItems;
+
+        private IncludeOnlyPredicate(T1... includedItems) {
+            this.includedItems = new HashSet<>(Arrays.asList(includedItems));
+        }
+
+        @Override
+        public boolean apply(T1 input) {
+            return true == includedItems.contains(input);
+        }
+    }
+
+    public static <T1> Iterator<T1> excludeAll(Iterator<T1> generator, T1... excludedItems) {
+        return Iterators.filter(generator, new ExcludeAllPredicate<>(excludedItems));
+    }
+
+    private static class ExcludeAllPredicate<T1> implements Predicate<T1> {
+        private final Set<T1> excludedItems;
+
+        private ExcludeAllPredicate(T1... excludedItems) {
+            this.excludedItems = new HashSet<>(Arrays.asList(excludedItems));
+        }
+
+        @Override
+        public boolean apply(T1 input) {
+            return false == excludedItems.contains(input);
+        }
+    }
 
     /**
      * Wraps any number generator and keeps track of the minimum and maximum numbers returned by that generator.

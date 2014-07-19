@@ -44,6 +44,7 @@ public class PeerCommunicatorThread extends Thread {
                                   // TODO temporary until Akka/network is integrated
                                   BlockingQueue<CompletionTimeEvent.ExternalEvent> peerReceiveQueue,
                                   List<BlockingQueue<CompletionTimeEvent.ExternalEvent>> peerSendQueues) {
+        super(PeerCommunicatorThread.class.getSimpleName() + "-" + System.currentTimeMillis());
         this.TIME_SOURCE = timeSource;
         this.myId = myId;
         this.errorReporter = errorReporter;

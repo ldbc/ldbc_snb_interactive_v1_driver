@@ -17,8 +17,9 @@ public class UniformWindowedOperationStreamExecutorService {
     private final UniformWindowedOperationStreamExecutorThread uniformWindowedOperationStreamExecutorThread;
     private final AtomicBoolean hasFinished = new AtomicBoolean(false);
     private final ConcurrentErrorReporter errorReporter;
-    private boolean executing = false;
-    private boolean shuttingDown = false;
+    private final AtomicBoolean executing = new AtomicBoolean(false);
+    private final AtomicBoolean shutdown = new AtomicBoolean(false);
+    private final AtomicBoolean forceThreadToTerminate = new AtomicBoolean(false);
 
     public UniformWindowedOperationStreamExecutorService(TimeSource timeSource,
                                                          ConcurrentErrorReporter errorReporter,
@@ -37,30 +38,35 @@ public class UniformWindowedOperationStreamExecutorService {
                     errorReporter,
                     handlers,
                     hasFinished,
-                    slightlyEarlySpinner);
-            this.uniformWindowedOperationStreamExecutorThread.setDaemon(true);
+                    slightlyEarlySpinner,
+                    forceThreadToTerminate);
         } else {
             this.uniformWindowedOperationStreamExecutorThread = null;
-            executing = true;
-            shuttingDown = true;
+            executing.set(true);
             hasFinished.set(true);
+            shutdown.set(false);
         }
     }
 
     synchronized public AtomicBoolean execute() {
-        if (executing)
+        if (executing.get())
             return hasFinished;
-        executing = true;
+        executing.set(true);
         uniformWindowedOperationStreamExecutorThread.start();
         return hasFinished;
     }
 
-    synchronized public void shutdown() {
-        if (shuttingDown)
-            return;
-        shuttingDown = true;
+    synchronized public void shutdown() throws OperationHandlerExecutorException {
+        if (shutdown.get())
+            throw new OperationHandlerExecutorException("Executor has already been shutdown");
+        if (null != uniformWindowedOperationStreamExecutorThread)
+            doShutdown();
+        shutdown.set(true);
+    }
+
+    private void doShutdown() {
         try {
-            uniformWindowedOperationStreamExecutorThread.interrupt();
+            forceThreadToTerminate.set(true);
             uniformWindowedOperationStreamExecutorThread.join(SHUTDOWN_WAIT_TIMEOUT.asMilli());
         } catch (Exception e) {
             String errMsg = String.format("Unexpected error encountered while shutting down thread\n%s",

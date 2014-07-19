@@ -3,12 +3,11 @@ package com.ldbc.driver.runtime.coordination;
 import com.ldbc.driver.temporal.Time;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
 public class ExternalCompletionTime {
-    private final Map<String, Time> peerCompletionTimes = new HashMap<String, Time>();
+    private final Map<String, Time> peerCompletionTimes = new HashMap<>();
     private final Set<String> peerIds;
     private Time completionTime = null;
     private boolean notModifiedSinceLastGet = false;
@@ -29,6 +28,16 @@ public class ExternalCompletionTime {
             throw new CompletionTimeException("Completion time can not be null");
         if (false == peerCompletionTimes.containsKey(peerId))
             throw new CompletionTimeException(String.format("Unrecognized peer ID: %s", peerId));
+        Time previousPeerCompletionTime = peerCompletionTimes.get(peerId);
+        if (null != previousPeerCompletionTime && peerCompletionTime.lt(previousPeerCompletionTime))
+            throw new CompletionTimeException(
+                    String.format(
+                            "Completion Time received from Peer(%s) is not monotonically increasing\n"
+                                    + "  Previous Completion Time: %s\n"
+                                    + "  Current Completion Time: %s",
+                            peerId,
+                            peerCompletionTime,
+                            previousPeerCompletionTime));
         notModifiedSinceLastGet = false;
         peerCompletionTimes.put(peerId, peerCompletionTime);
     }

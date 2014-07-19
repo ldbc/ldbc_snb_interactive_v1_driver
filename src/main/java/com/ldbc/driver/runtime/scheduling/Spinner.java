@@ -76,29 +76,20 @@ public class Spinner {
         while (operationMayBeExecuted && false == check.doCheck()) {
             // give up if checks did not pass before latest tolerated operation start time was exceeded
             if (TIME_SOURCE.nowAsMilli() > latestAllowableStartTimeAsMilli) {
-                // TODO remove
-                System.out.println("BOOOOOOOOOOOOOM");
                 boolean failedCheckResult = check.handleFailedCheck(operation);
-                // TODO remove
-                System.out.println("BOOOOOOOOOOOOOM  1");
                 boolean executionDelayResult = executionDelayPolicy.handleExcessiveDelay(operation);
-                // TODO remove
-                System.out.println("BOOOOOOOOOOOOOM  2");
                 operationMayBeExecuted = operationMayBeExecuted && failedCheckResult && executionDelayResult;
-                // TODO remove
-                System.out.println("BOOOOOOOOOOOOOM  3");
                 break;
             }
-            powerNap();
+            powerNap(sleepDurationAsMilli);
         }
 
         // wait for scheduled operation start time
         while (TIME_SOURCE.nowAsMilli() < scheduledStartTimeWithOffsetAsMilli) {
-            powerNap();
+            powerNap(sleepDurationAsMilli);
         }
 
         // check that excessive delay has not already occurred
-        // TODO may need to remove "operationMayBeExecuted &&" if Spinner tests fail as a result, but at present an error can get reported twice for excessive delay
         if (operationMayBeExecuted && TIME_SOURCE.nowAsMilli() > latestAllowableStartTimeAsMilli) {
             boolean executionDelayResult = executionDelayPolicy.handleExcessiveDelay(operation);
             operationMayBeExecuted = operationMayBeExecuted && executionDelayResult;
@@ -109,10 +100,10 @@ public class Spinner {
 
     // sleep to reduce CPU load while spinning
     // NOTE: longer sleep == lower scheduling accuracy
-    private void powerNap() {
-        if (0 == sleepDurationAsMilli) return;
+    public static void powerNap(long sleepMs) {
+        if (0 == sleepMs) return;
         try {
-            Thread.sleep(sleepDurationAsMilli);
+            Thread.sleep(sleepMs);
         } catch (InterruptedException e) {
         }
     }

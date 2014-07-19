@@ -48,7 +48,8 @@ public class IteratorSplitter<ITEMS_TYPE> {
             }
             List<ITEMS_TYPE> splitList = splitResult.addSplit(definition);
             Iterator<ITEMS_TYPE> splitIterator = new ItemQueueReadingIterator(splitQueue, inputStreamIsExhausted);
-            splitListCreateThreads.add(new ItemIteratorToItemListThread(splitIterator, splitList, splitListCreateThreadCount));
+            ItemIteratorToItemListThread itemIteratorToItemListThread = new ItemIteratorToItemListThread(splitIterator, splitList, splitListCreateThreadCount);
+            splitListCreateThreads.add(itemIteratorToItemListThread);
         }
 
         ConcurrentErrorReporter errorReporter = new ConcurrentErrorReporter();
@@ -131,6 +132,7 @@ public class IteratorSplitter<ITEMS_TYPE> {
         private ItemIteratorToItemListThread(Iterator<ITEMS_TYPE> inputItemIterator,
                                              List<ITEMS_TYPE> outputItemList,
                                              AtomicInteger splitListCreateThreadCount) {
+            super(ItemIteratorToItemListThread.class.getSimpleName() + "-" + System.currentTimeMillis());
             this.inputItemIterator = inputItemIterator;
             this.outputItemList = outputItemList;
             this.splitListCreateThreadCount = splitListCreateThreadCount;
@@ -157,6 +159,7 @@ public class IteratorSplitter<ITEMS_TYPE> {
                                          Map<Class<? extends ITEMS_TYPE>, Queue<ITEMS_TYPE>> outputQueueMapping,
                                          UnmappedItemPolicy unmappedItemPolicy,
                                          ConcurrentErrorReporter errorReporter) {
+            super(ItemQueueSplittingThread.class.getSimpleName() + "-" + System.currentTimeMillis());
             this.inputItemIterator = inputItemIterator;
             this.inputStreamIsExhausted = inputStreamIsExhausted;
             this.outputQueueMapping = outputQueueMapping;

@@ -152,6 +152,7 @@ public class WorkloadRunnerTest {
         assertThat(metricsService.results().latestFinishTime().gt(metricsService.results().startTime()), is(true));
 
         metricsService.shutdown();
+        completionTimeService.shutdown();
 
         WorkloadResultsSnapshot workloadResultsFromJson = WorkloadResultsSnapshot.fromJson(workloadResults.toJson());
 
@@ -161,7 +162,7 @@ public class WorkloadRunnerTest {
 
     @Test
     public void shouldRunLdbcWorkloadWithCsvDbAndReturnExpectedMetrics() throws DbException, WorkloadException, MetricsCollectionException, IOException, CompletionTimeException {
-        Map<String, String> paramsMap = new HashMap<String, String>();
+        Map<String, String> paramsMap = new HashMap<>();
         // LDBC Interactive Workload-specific parameters
         paramsMap.put(LdbcSnbInteractiveWorkload.READ_OPERATION_1_INTERLEAVE_KEY, "100");
         paramsMap.put(LdbcSnbInteractiveWorkload.READ_OPERATION_2_INTERLEAVE_KEY, "100");
@@ -279,6 +280,7 @@ public class WorkloadRunnerTest {
         workload.cleanup();
         WorkloadResultsSnapshot workloadResults = metricsService.results();
         metricsService.shutdown();
+        completionTimeService.shutdown();
 
         assertThat(workloadResults.startTime().gte(controlService.workloadStartTime()), is(true));
         assertThat(workloadResults.startTime().lt(controlService.workloadStartTime().plus(configuration.toleratedExecutionDelay())), is(true));

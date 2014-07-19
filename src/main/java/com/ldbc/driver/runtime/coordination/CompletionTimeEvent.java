@@ -54,6 +54,13 @@ abstract class CompletionTimeEvent {
         Time time() {
             return time;
         }
+
+        @Override
+        public String toString() {
+            return "InitiatedEvent{" +
+                    "time=" + time +
+                    '}';
+        }
     }
 
     static class CompletedEvent extends CompletionTimeEvent {
@@ -70,6 +77,13 @@ abstract class CompletionTimeEvent {
 
         Time time() {
             return time;
+        }
+
+        @Override
+        public String toString() {
+            return "CompletedEvent{" +
+                    "time=" + time +
+                    '}';
         }
     }
 
@@ -94,6 +108,14 @@ abstract class CompletionTimeEvent {
         String peerId() {
             return peerId;
         }
+
+        @Override
+        public String toString() {
+            return "ExternalEvent{" +
+                    "time=" + time +
+                    ", peerId='" + peerId + '\'' +
+                    '}';
+        }
     }
 
     static class TerminationEvent extends CompletionTimeEvent {
@@ -111,6 +133,13 @@ abstract class CompletionTimeEvent {
         long expectedEventCount() {
             return expectedEventCount;
         }
+
+        @Override
+        public String toString() {
+            return "TerminationEvent{" +
+                    "expectedEventCount=" + expectedEventCount +
+                    '}';
+        }
     }
 
     static class FutureEvent extends CompletionTimeEvent {
@@ -127,6 +156,13 @@ abstract class CompletionTimeEvent {
 
         ThreadedQueuedConcurrentCompletionTimeService.GlobalCompletionTimeFuture future() {
             return future;
+        }
+
+        @Override
+        public String toString() {
+            return "FutureEvent{" +
+                    "future=" + future +
+                    '}';
         }
     }
 }

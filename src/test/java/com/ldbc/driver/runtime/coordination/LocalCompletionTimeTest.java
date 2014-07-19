@@ -30,7 +30,7 @@ public class LocalCompletionTimeTest {
     }
 
     @Test
-    public void shouldReturnMinimumInitiatedTimeWhenNoOperationsHaveCompleted() throws CompletionTimeException {
+    public void shouldReturnNullWhenNoOperationsHaveCompleted() throws CompletionTimeException {
         /*
             event1 DueTime = 1  initiated
             event2 DueTime = 2  initiated
@@ -47,11 +47,11 @@ public class LocalCompletionTimeTest {
         lct.applyInitiatedTime(Time.fromSeconds(3));
 
         // Then
-        assertThat(lct.completionTime(), is(Time.fromSeconds(1)));
+        assertThat(lct.completionTime(), is(nullValue()));
     }
 
     @Test
-    public void shouldReturnMinimumInitiatedTimeWhenEarliestInitiatedOperationHasNotCompleted() throws CompletionTimeException {
+    public void shouldReturnNullWhenEarliestInitiatedOperationHasNotCompleted() throws CompletionTimeException {
         /*
             event1 DueTime = 1  initiated
             event2 DueTime = 2  initiated
@@ -67,11 +67,12 @@ public class LocalCompletionTimeTest {
         lct.applyInitiatedTime(Time.fromSeconds(1));
         lct.applyInitiatedTime(Time.fromSeconds(2));
         lct.applyInitiatedTime(Time.fromSeconds(3));
+
         lct.applyCompletedTime(Time.fromSeconds(2));
         lct.applyCompletedTime(Time.fromSeconds(3));
 
         // Then
-        assertThat(lct.completionTime(), is(Time.fromSeconds(1)));
+        assertThat(lct.completionTime(), is(nullValue()));
     }
 
     @Test
@@ -87,15 +88,44 @@ public class LocalCompletionTimeTest {
         // lct parameter
 
         // When
-
         lct.applyInitiatedTime(Time.fromSeconds(1));
         lct.applyInitiatedTime(Time.fromSeconds(2));
         lct.applyInitiatedTime(Time.fromSeconds(3));
+
         lct.applyCompletedTime(Time.fromSeconds(3));
         lct.applyCompletedTime(Time.fromSeconds(1));
 
         // Then
-        assertThat(lct.completionTime(), is(Time.fromSeconds(2)));
+        assertThat(lct.completionTime(), is(Time.fromSeconds(1)));
+    }
+
+    @Test
+    public void shouldAdvanceToNextUncompletedEventUntilAllInitiatedEventsAreCompleted() throws CompletionTimeException {
+        /*
+            event1 DueTime = 1  initiated
+            event2 DueTime = 2  initiated
+            event3 DueTime = 3  initiated
+            event3              completed
+            event1              completed
+        */
+        // Given
+        // lct parameter
+
+        // When/Then
+        lct.applyInitiatedTime(Time.fromSeconds(1));
+        lct.applyInitiatedTime(Time.fromSeconds(2));
+        lct.applyInitiatedTime(Time.fromSeconds(3));
+        lct.applyInitiatedTime(Time.fromSeconds(4));
+
+        lct.applyCompletedTime(Time.fromSeconds(4));
+        lct.applyCompletedTime(Time.fromSeconds(3));
+        assertThat(lct.completionTime(), is(nullValue()));
+
+        lct.applyCompletedTime(Time.fromSeconds(1));
+        assertThat(lct.completionTime(), is(Time.fromSeconds(1)));
+
+        lct.applyCompletedTime(Time.fromSeconds(2));
+        assertThat(lct.completionTime(), is(Time.fromSeconds(4)));
     }
 
     @Test
@@ -116,6 +146,7 @@ public class LocalCompletionTimeTest {
         lct.applyInitiatedTime(Time.fromSeconds(1));
         lct.applyInitiatedTime(Time.fromSeconds(2));
         lct.applyInitiatedTime(Time.fromSeconds(3));
+
         lct.applyCompletedTime(Time.fromSeconds(1));
         lct.applyCompletedTime(Time.fromSeconds(2));
         lct.applyCompletedTime(Time.fromSeconds(3));
@@ -141,11 +172,75 @@ public class LocalCompletionTimeTest {
         lct.applyInitiatedTime(Time.fromSeconds(1));
         lct.applyInitiatedTime(Time.fromSeconds(2));
         lct.applyInitiatedTime(Time.fromSeconds(3));
+
         lct.applyCompletedTime(Time.fromSeconds(1));
         // only one entry with DueTime=1 exists, this should throw exception
         lct.applyCompletedTime(Time.fromSeconds(1));
 
         // Then
         // exception should have been thrown by this stage
+    }
+
+    @Test
+    public void shouldReturnLatestTimeBehindWhichThereAreNoUncompletedITEvents() throws CompletionTimeException {
+        // Given
+        LocalCompletionTime lct = new LocalCompletionTime();
+
+        // When/Then
+        lct.applyInitiatedTime(Time.fromSeconds(1));
+        assertThat(lct.completionTime(), is(nullValue()));
+        lct.applyCompletedTime(Time.fromSeconds(1));
+        assertThat(lct.completionTime(), is(Time.fromSeconds(1)));
+
+        lct.applyInitiatedTime(Time.fromSeconds(2));
+        assertThat(lct.completionTime(), is(Time.fromSeconds(1)));
+        lct.applyCompletedTime(Time.fromSeconds(2));
+        assertThat(lct.completionTime(), is(Time.fromSeconds(2)));
+
+        lct.applyInitiatedTime(Time.fromSeconds(3));
+        assertThat(lct.completionTime(), is(Time.fromSeconds(2)));
+
+        lct.applyInitiatedTime(Time.fromSeconds(4));
+        assertThat(lct.completionTime(), is(Time.fromSeconds(2)));
+
+        lct.applyInitiatedTime(Time.fromSeconds(5));
+        assertThat(lct.completionTime(), is(Time.fromSeconds(2)));
+        lct.applyCompletedTime(Time.fromSeconds(5));
+        assertThat(lct.completionTime(), is(Time.fromSeconds(2)));
+    }
+
+    @Test
+    public void shouldReturnTimeOfEarliestITThatHasHadNotMatchingCTEvenWhenMultipleEventsHaveSameInitiatedTime() throws CompletionTimeException {
+        // Given
+        LocalCompletionTime lct = new LocalCompletionTime();
+
+        // When/Then
+        lct.applyInitiatedTime(Time.fromSeconds(1));
+        assertThat(lct.completionTime(), is(nullValue()));
+        lct.applyCompletedTime(Time.fromSeconds(1));
+        assertThat(lct.completionTime(), is(Time.fromSeconds(1)));
+
+        lct.applyInitiatedTime(Time.fromSeconds(2));
+        assertThat(lct.completionTime(), is(Time.fromSeconds(1)));
+        lct.applyCompletedTime(Time.fromSeconds(2));
+        assertThat(lct.completionTime(), is(Time.fromSeconds(2)));
+
+        lct.applyInitiatedTime(Time.fromSeconds(3));
+        assertThat(lct.completionTime(), is(Time.fromSeconds(2)));
+
+        lct.applyInitiatedTime(Time.fromSeconds(3));
+        assertThat(lct.completionTime(), is(Time.fromSeconds(2)));
+
+        lct.applyInitiatedTime(Time.fromSeconds(4));
+        assertThat(lct.completionTime(), is(Time.fromSeconds(2)));
+
+        lct.applyCompletedTime(Time.fromSeconds(3));
+        assertThat(lct.completionTime(), is(Time.fromSeconds(2)));
+
+        lct.applyCompletedTime(Time.fromSeconds(4));
+        assertThat(lct.completionTime(), is(Time.fromSeconds(2)));
+
+        lct.applyCompletedTime(Time.fromSeconds(3));
+        assertThat(lct.completionTime(), is(Time.fromSeconds(4)));
     }
 }
