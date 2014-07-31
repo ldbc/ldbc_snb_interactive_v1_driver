@@ -16,13 +16,14 @@ public class ThreadPoolOperationHandlerExecutor implements OperationHandlerExecu
 
     public ThreadPoolOperationHandlerExecutor(int threadCount) {
         ThreadFactory threadFactory = new ThreadFactory() {
+            private final long factoryTimeStampId = System.currentTimeMillis();
             int count = 0;
 
             @Override
             public Thread newThread(Runnable runnable) {
                 Thread newThread = new Thread(
                         runnable,
-                        ThreadPoolOperationHandlerExecutor.class.getSimpleName() + "-thread(" + count + ")-" + System.currentTimeMillis());
+                        ThreadPoolOperationHandlerExecutor.class.getSimpleName() + "-id(" + factoryTimeStampId + ")" + "-thread(" + count++ + ")");
                 return newThread;
             }
         };

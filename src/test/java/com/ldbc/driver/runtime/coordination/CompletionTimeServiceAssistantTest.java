@@ -55,8 +55,7 @@ public class CompletionTimeServiceAssistantTest {
         // IT[ , ] CT[0,1] --> GCT = 0
         gctAdvancedSuccessfully =
                 assistant.waitForGlobalCompletionTime(timeSource, Time.fromMilli(0), Duration.fromSeconds(1), completionTimeService, errorReporter);
-        // TODO remove
-        System.out.println(completionTimeService.globalCompletionTime());
+
         assertThat(gctAdvancedSuccessfully, is(true));
         assertThat(completionTimeService.globalCompletionTime(), is(Time.fromMilli(0)));
     }

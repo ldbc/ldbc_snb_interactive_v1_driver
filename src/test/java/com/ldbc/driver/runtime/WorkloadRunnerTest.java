@@ -12,9 +12,12 @@ import com.ldbc.driver.runtime.metrics.ConcurrentMetricsService;
 import com.ldbc.driver.runtime.metrics.MetricsCollectionException;
 import com.ldbc.driver.runtime.metrics.ThreadedQueuedConcurrentMetricsService;
 import com.ldbc.driver.runtime.metrics.WorkloadResultsSnapshot;
+import com.ldbc.driver.runtime.scheduling.Spinner;
 import com.ldbc.driver.temporal.Duration;
 import com.ldbc.driver.temporal.SystemTimeSource;
 import com.ldbc.driver.temporal.TimeSource;
+import com.ldbc.driver.testutils.TestUtils;
+import com.ldbc.driver.testutils.ThreadPoolLoadGenerator;
 import com.ldbc.driver.util.RandomDataGeneratorFactory;
 import com.ldbc.driver.workloads.ldbc.snb.interactive.LdbcSnbInteractiveWorkload;
 import com.ldbc.driver.workloads.ldbc.snb.interactive.db.CsvWritingLdbcSnbInteractiveDb;
@@ -40,7 +43,7 @@ public class WorkloadRunnerTest {
 
     @Test
     public void shouldRunReadOnlyLdbcWorkloadWithNothingDb()
-            throws DbException, WorkloadException, MetricsCollectionException, IOException, CompletionTimeException {
+            throws DbException, WorkloadException, MetricsCollectionException, IOException, CompletionTimeException, InterruptedException {
         Map<String, String> paramsMap = LdbcSnbInteractiveWorkload.defaultReadOnlyConfig();
         paramsMap.put(LdbcSnbInteractiveWorkload.PARAMETERS_DIRECTORY, TestUtils.getResource("/").getAbsolutePath());
         paramsMap.put(LdbcSnbInteractiveWorkload.DATA_DIRECTORY, TestUtils.getResource("/").getAbsolutePath());
@@ -56,7 +59,7 @@ public class WorkloadRunnerTest {
         double timeCompressionRatio = 1.0;
         Duration windowedExecutionWindowDuration = Duration.fromSeconds(1);
         Set<String> peerIds = new HashSet<>();
-        Duration toleratedExecutionDelay = Duration.fromSeconds(5);
+        Duration toleratedExecutionDelay = Duration.fromSeconds(30);
         ConsoleAndFileDriverConfiguration.ConsoleAndFileValidationParamOptions validationParams = null;
         String dbValidationFilePath = null;
         boolean validateWorkload = false;
@@ -70,7 +73,7 @@ public class WorkloadRunnerTest {
                 threadCount, statusDisplayInterval, timeUnit, resultFilePath, timeCompressionRatio, windowedExecutionWindowDuration, peerIds, toleratedExecutionDelay,
                 validationParams, dbValidationFilePath, validateWorkload, calculateWorkloadStatistics, spinnerSleepDuration, printHelp);
 
-        ConcurrentControlService controlService = new LocalControlService(TIME_SOURCE.now().plus(Duration.fromMilli(1000)), configuration);
+        ConcurrentControlService controlService = new LocalControlService(TIME_SOURCE.now().plus(Duration.fromSeconds(5)), configuration);
         Db db = new DummyLdbcSnbInteractiveDb();
         db.init(configuration.asMap());
         Workload workload = new LdbcSnbInteractiveWorkload();
@@ -129,7 +132,7 @@ public class WorkloadRunnerTest {
 
     @Test
     public void shouldRunReadOnlyLdbcWorkloadWithCsvDbAndReturnExpectedMetrics()
-            throws DbException, WorkloadException, MetricsCollectionException, IOException, CompletionTimeException {
+            throws DbException, WorkloadException, MetricsCollectionException, IOException, CompletionTimeException, InterruptedException {
         Map<String, String> paramsMap = LdbcSnbInteractiveWorkload.defaultReadOnlyConfig();
         paramsMap.put(LdbcSnbInteractiveWorkload.PARAMETERS_DIRECTORY, TestUtils.getResource("/").getAbsolutePath());
         paramsMap.put(LdbcSnbInteractiveWorkload.DATA_DIRECTORY, TestUtils.getResource("/").getAbsolutePath());
@@ -141,7 +144,7 @@ public class WorkloadRunnerTest {
         String dbClassName = CsvWritingLdbcSnbInteractiveDb.class.getName();
         String workloadClassName = LdbcSnbInteractiveWorkload.class.getName();
         long operationCount = 1000;
-        int threadCount = 4;
+        int threadCount = 1;
         Duration statusDisplayInterval = Duration.fromSeconds(1);
         TimeUnit timeUnit = TimeUnit.MILLISECONDS;
         String resultFilePath = "temp_results_file.json";
@@ -149,7 +152,7 @@ public class WorkloadRunnerTest {
         double timeCompressionRatio = 1.0;
         Duration windowedExecutionWindowDuration = Duration.fromSeconds(1);
         Set<String> peerIds = new HashSet<>();
-        Duration toleratedExecutionDelay = Duration.fromMilli(1000);
+        Duration toleratedExecutionDelay = Duration.fromSeconds(30);
         ConsoleAndFileDriverConfiguration.ConsoleAndFileValidationParamOptions validationParams = null;
         String dbValidationFilePath = null;
         boolean validateWorkload = false;

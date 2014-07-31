@@ -5,7 +5,7 @@ import com.google.common.collect.Lists;
 import com.ldbc.driver.Operation;
 import com.ldbc.driver.util.CsvFileReader;
 import com.ldbc.driver.util.RandomDataGeneratorFactory;
-import com.ldbc.driver.TestUtils;
+import com.ldbc.driver.testutils.TestUtils;
 import com.ldbc.driver.workloads.ldbc.snb.interactive.*;
 import org.junit.Before;
 import org.junit.Test;

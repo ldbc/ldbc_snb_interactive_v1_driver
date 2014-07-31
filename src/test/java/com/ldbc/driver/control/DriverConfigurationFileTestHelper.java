@@ -1,6 +1,6 @@
 package com.ldbc.driver.control;
 
-import com.ldbc.driver.TestUtils;
+import com.ldbc.driver.testutils.TestUtils;
 import com.ldbc.driver.util.MapUtils;
 import com.ldbc.driver.workloads.ldbc.snb.interactive.db.DummyLdbcSnbInteractiveDb;
 import com.ldbc.driver.workloads.simple.SimpleWorkload;

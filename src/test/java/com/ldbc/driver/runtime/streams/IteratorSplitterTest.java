@@ -17,13 +17,19 @@ import static org.junit.Assert.assertThat;
 public class IteratorSplitterTest {
 
     @Test
-    public void shouldSplitIteratorCorrectlyGivenSimpleCaseAndSmallInput() throws IteratorSplittingException {
+    public void shouldSplitIteratorCorrectlyGivenSimpleCaseAndSmallInput() throws IteratorSplittingException, InterruptedException {
         for (int i = 0; i < 20; i++) {
             doShouldSplitIteratorCorrectlyGivenSimpleCaseAndSmallInput();
         }
     }
 
-    public void doShouldSplitIteratorCorrectlyGivenSimpleCaseAndSmallInput() throws IteratorSplittingException {
+    public void doShouldSplitIteratorCorrectlyGivenSimpleCaseAndSmallInput() throws IteratorSplittingException, InterruptedException {
+        // TODO test if this exposes bugs
+//        ThreadPoolLoadGenerator testLoadGenerator = TestUtils.newThreadPoolLoadGenerator(16, Duration.fromMilli(0));
+//        testLoadGenerator.start();
+//        // wait a little while to give load generating threads a chance to start
+//        Spinner.powerNap(Duration.fromSeconds(2).asMilli());
+
         // Given
         List<? extends Number> numbers = Lists.newArrayList(new Byte((byte) 0), new Integer(1), new Long(2), new Double(3), new Double(4));
 
@@ -58,6 +64,10 @@ public class IteratorSplitterTest {
         assertThat(doubleSplit.get(0).doubleValue(), is(3d));
         assertThat(doubleSplit.get(1), instanceOf(Double.class));
         assertThat(doubleSplit.get(1).doubleValue(), is(4d));
+
+        // TODO test if this exposes bugs
+//        boolean loadGeneratorShutdownSuccessfully = testLoadGenerator.shutdown(Duration.fromSeconds(5));
+//        assertThat(loadGeneratorShutdownSuccessfully, is(true));
     }
 
     @Ignore

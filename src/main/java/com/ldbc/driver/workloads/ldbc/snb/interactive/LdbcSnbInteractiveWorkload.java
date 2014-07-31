@@ -405,6 +405,7 @@ public class LdbcSnbInteractiveWorkload extends Workload {
         operationClassifications.put(LdbcUpdate6AddPost.class, new OperationClassification(SchedulingMode.INDIVIDUAL_BLOCKING, GctMode.READ));
         operationClassifications.put(LdbcUpdate7AddComment.class, new OperationClassification(SchedulingMode.INDIVIDUAL_BLOCKING, GctMode.READ));
         // TODO the planned scheduling mode for this is WINDOWED but ASYNC is simpler at this stage, and still correct - WINDOWED is an performance optimization only
+//        operationClassifications.put(LdbcUpdate8AddFriendship.class, new OperationClassification(SchedulingMode.WINDOWED, GctMode.READ));
         operationClassifications.put(LdbcUpdate8AddFriendship.class, new OperationClassification(SchedulingMode.INDIVIDUAL_ASYNC, GctMode.READ));
 
         // Filter out classifications for operations that are not enabled
