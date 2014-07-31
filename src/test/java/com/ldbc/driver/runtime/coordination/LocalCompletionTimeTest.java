@@ -1,246 +1,518 @@
 package com.ldbc.driver.runtime.coordination;
 
 import com.ldbc.driver.temporal.Time;
-import org.junit.Before;
 import org.junit.Test;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.nullValue;
 import static org.junit.Assert.assertThat;
 
-//Completion Time = min( min(Initiated Events), max(Completed Events) )
 public class LocalCompletionTimeTest {
-    LocalCompletionTime lct = null;
-
-    @Before
-    public void createCompletionTime() {
-        lct = new LocalCompletionTime();
-    }
-
     @Test
     public void shouldReturnNullWhenNoEventsHaveBeenInitiatedOrCompleted() throws CompletionTimeException {
         // Given
-        // lct parameter
+        LocalCompletionTimeStateManager lct = new LocalCompletionTimeStateManager();
 
-        // When
+        // When / Then
         // no events have been initiated or completed
 
-        // Then
-        assertThat(lct.completionTime(), is(nullValue()));
+        // IT []
+        // CT []
+        assertThat(lct.lastKnownLowestInitiatedTime(), is(nullValue()));
+        assertThat(lct.localCompletionTime(), is(nullValue()));
     }
 
     @Test
     public void shouldReturnNullWhenNoOperationsHaveCompleted() throws CompletionTimeException {
-        /*
-            event1 DueTime = 1  initiated
-            event2 DueTime = 2  initiated
-            event3 DueTime = 3  initiated
-        */
-
         // Given
-        // lct parameter
+        LocalCompletionTimeStateManager lct = new LocalCompletionTimeStateManager();
 
-        // When
+        // When / Then
 
-        lct.applyInitiatedTime(Time.fromSeconds(1));
-        lct.applyInitiatedTime(Time.fromSeconds(2));
-        lct.applyInitiatedTime(Time.fromSeconds(3));
+        // IT [1,2,3]
+        // CT [ , , ]
+        lct.submitLocalInitiatedTime(Time.fromSeconds(1));
+        lct.submitLocalInitiatedTime(Time.fromSeconds(2));
+        lct.submitLocalInitiatedTime(Time.fromSeconds(3));
 
-        // Then
-        assertThat(lct.completionTime(), is(nullValue()));
+        assertThat(lct.lastKnownLowestInitiatedTime(), is(Time.fromSeconds(1)));
+        assertThat(lct.localCompletionTime(), is(nullValue()));
     }
 
     @Test
     public void shouldReturnNullWhenEarliestInitiatedOperationHasNotCompleted() throws CompletionTimeException {
-        /*
-            event1 DueTime = 1  initiated
-            event2 DueTime = 2  initiated
-            event3 DueTime = 3  initiated
-            event2              completed
-            event3              completed
-        */
         // Given
-        // lct parameter
+        LocalCompletionTimeStateManager lct = new LocalCompletionTimeStateManager();
 
-        // When
+        // When / Then
 
-        lct.applyInitiatedTime(Time.fromSeconds(1));
-        lct.applyInitiatedTime(Time.fromSeconds(2));
-        lct.applyInitiatedTime(Time.fromSeconds(3));
+        // IT [1,2,3]
+        // CT [ , , ]
+        lct.submitLocalInitiatedTime(Time.fromSeconds(1));
+        lct.submitLocalInitiatedTime(Time.fromSeconds(2));
+        lct.submitLocalInitiatedTime(Time.fromSeconds(3));
+        assertThat(lct.lastKnownLowestInitiatedTime(), is(Time.fromSeconds(1)));
+        assertThat(lct.localCompletionTime(), is(nullValue()));
 
-        lct.applyCompletedTime(Time.fromSeconds(2));
-        lct.applyCompletedTime(Time.fromSeconds(3));
-
-        // Then
-        assertThat(lct.completionTime(), is(nullValue()));
+        // IT [1, , ]
+        // CT [ ,2,3]
+        lct.submitLocalCompletedTime(Time.fromSeconds(2));
+        lct.submitLocalCompletedTime(Time.fromSeconds(3));
+        assertThat(lct.lastKnownLowestInitiatedTime(), is(Time.fromSeconds(1)));
+        assertThat(lct.localCompletionTime(), is(nullValue()));
     }
 
     @Test
     public void shouldAdvanceToNextUncompletedEventAsInitiatedEventsAreCompleted() throws CompletionTimeException {
-        /*
-            event1 DueTime = 1  initiated
-            event2 DueTime = 2  initiated
-            event3 DueTime = 3  initiated
-            event3              completed
-            event1              completed
-        */
         // Given
-        // lct parameter
+        LocalCompletionTimeStateManager lct = new LocalCompletionTimeStateManager();
 
-        // When
-        lct.applyInitiatedTime(Time.fromSeconds(1));
-        lct.applyInitiatedTime(Time.fromSeconds(2));
-        lct.applyInitiatedTime(Time.fromSeconds(3));
+        // When / Then
+        // IT [1,2,3]
+        // CT [ , , ]
+        lct.submitLocalInitiatedTime(Time.fromSeconds(1));
+        lct.submitLocalInitiatedTime(Time.fromSeconds(2));
+        lct.submitLocalInitiatedTime(Time.fromSeconds(3));
+        assertThat(lct.lastKnownLowestInitiatedTime(), is(Time.fromSeconds(1)));
+        assertThat(lct.localCompletionTime(), is(nullValue()));
 
-        lct.applyCompletedTime(Time.fromSeconds(3));
-        lct.applyCompletedTime(Time.fromSeconds(1));
-
-        // Then
-        assertThat(lct.completionTime(), is(Time.fromSeconds(1)));
+        // IT [ ,2, ]
+        // CT [1, ,3]
+        lct.submitLocalCompletedTime(Time.fromSeconds(3));
+        lct.submitLocalCompletedTime(Time.fromSeconds(1));
+        assertThat(lct.lastKnownLowestInitiatedTime(), is(Time.fromSeconds(2)));
+        assertThat(lct.localCompletionTime(), is(Time.fromSeconds(1)));
     }
 
     @Test
-    public void shouldAdvanceToNextUncompletedEventUntilAllInitiatedEventsAreCompleted() throws CompletionTimeException {
-        /*
-            event1 DueTime = 1  initiated
-            event2 DueTime = 2  initiated
-            event3 DueTime = 3  initiated
-            event3              completed
-            event1              completed
-        */
+    public void shouldAdvanceToNextUncompletedEventAsInitiatedEventsAreCompletedButOnlyIfNoUncompletedTimesExistAtSameTime() throws CompletionTimeException {
         // Given
-        // lct parameter
+        LocalCompletionTimeStateManager lct = new LocalCompletionTimeStateManager();
 
         // When/Then
-        lct.applyInitiatedTime(Time.fromSeconds(1));
-        lct.applyInitiatedTime(Time.fromSeconds(2));
-        lct.applyInitiatedTime(Time.fromSeconds(3));
-        lct.applyInitiatedTime(Time.fromSeconds(4));
 
-        lct.applyCompletedTime(Time.fromSeconds(4));
-        lct.applyCompletedTime(Time.fromSeconds(3));
-        assertThat(lct.completionTime(), is(nullValue()));
+        // IT [1,1,2,3]
+        // CT [ , , , ]
+        lct.submitLocalInitiatedTime(Time.fromSeconds(1));
+        lct.submitLocalInitiatedTime(Time.fromSeconds(1));
+        lct.submitLocalInitiatedTime(Time.fromSeconds(2));
+        lct.submitLocalInitiatedTime(Time.fromSeconds(3));
+        assertThat(lct.lastKnownLowestInitiatedTime(), is(Time.fromSeconds(1)));
+        assertThat(lct.localCompletionTime(), is(nullValue()));
 
-        lct.applyCompletedTime(Time.fromSeconds(1));
-        assertThat(lct.completionTime(), is(Time.fromSeconds(1)));
+        // IT [ ,1,2, ]
+        // CT [1, , ,3]
+        lct.submitLocalCompletedTime(Time.fromSeconds(3));
+        lct.submitLocalCompletedTime(Time.fromSeconds(1));
+        assertThat(lct.lastKnownLowestInitiatedTime(), is(Time.fromSeconds(1)));
+        assertThat(lct.localCompletionTime(), is(nullValue()));
 
-        lct.applyCompletedTime(Time.fromSeconds(2));
-        assertThat(lct.completionTime(), is(Time.fromSeconds(4)));
+        // IT [ , ,2, ]
+        // CT [1,1, ,3]
+        lct.submitLocalCompletedTime(Time.fromSeconds(1));
+        assertThat(lct.lastKnownLowestInitiatedTime(), is(Time.fromSeconds(2)));
+        assertThat(lct.localCompletionTime(), is(Time.fromSeconds(1)));
+
+        // IT [ , , , ]
+        // CT [1,1,2,3]
+        lct.submitLocalCompletedTime(Time.fromSeconds(2));
+        // because we do not know if more Initiated Time == 3 will arrive
+        assertThat(lct.lastKnownLowestInitiatedTime(), is(Time.fromSeconds(3)));
+        assertThat(lct.localCompletionTime(), is(Time.fromSeconds(2)));
+
+        // IT [ , , , ,3]
+        // CT [1,1,2,3, ]
+        lct.submitLocalInitiatedTime(Time.fromSeconds(3));
+        // another Initiated Time == 3 arrived
+        assertThat(lct.lastKnownLowestInitiatedTime(), is(Time.fromSeconds(3)));
+        assertThat(lct.localCompletionTime(), is(Time.fromSeconds(2)));
+
+        // IT [ , , , , ]
+        // CT [1,1,2,3,3]
+        lct.submitLocalCompletedTime(Time.fromSeconds(3));
+        // because we do not know if more Initiated Time == 3 will arrive
+        assertThat(lct.lastKnownLowestInitiatedTime(), is(Time.fromSeconds(3)));
+        assertThat(lct.localCompletionTime(), is(Time.fromSeconds(2)));
+
+        // IT [ , , , , ,4]
+        // CT [1,1,2,3,3, ]
+        lct.submitLocalInitiatedTime(Time.fromSeconds(4));
+        assertThat(lct.lastKnownLowestInitiatedTime(), is(Time.fromSeconds(4)));
+        assertThat(lct.localCompletionTime(), is(Time.fromSeconds(3)));
+    }
+
+    @Test
+    public void shouldAllowForSubmittedInitiatedTimeToEqualCurrentCompletionTimeButNotBeLower() throws CompletionTimeException {
+        // Given
+        LocalCompletionTimeStateManager lct = new LocalCompletionTimeStateManager();
+
+        // When/Then
+        // IT [1,2,3]
+        // CT [ , , ]
+        lct.submitLocalInitiatedTime(Time.fromSeconds(1));
+        lct.submitLocalInitiatedTime(Time.fromSeconds(2));
+        lct.submitLocalInitiatedTime(Time.fromSeconds(3));
+        assertThat(lct.lastKnownLowestInitiatedTime(), is(Time.fromSeconds(1)));
+        assertThat(lct.localCompletionTime(), is(nullValue()));
+
+        // IT [ ,2,3]
+        // CT [1, , ]
+        lct.submitLocalCompletedTime(Time.fromSeconds(1));
+        assertThat(lct.lastKnownLowestInitiatedTime(), is(Time.fromSeconds(2)));
+        assertThat(lct.localCompletionTime(), is(Time.fromSeconds(1)));
+
+        //apply initiated time equal to highest submitted initiated time AND equal to GCT <- should be ok
+        // IT [ ,2,3,3]
+        // CT [1, , , ]
+        lct.submitLocalInitiatedTime(Time.fromSeconds(3));
+        assertThat(lct.lastKnownLowestInitiatedTime(), is(Time.fromSeconds(2)));
+        assertThat(lct.localCompletionTime(), is(Time.fromSeconds(1)));
+
+        // IT [ ,2, ,3]
+        // CT [1, ,3, ]
+        lct.submitLocalCompletedTime(Time.fromSeconds(3));
+        assertThat(lct.lastKnownLowestInitiatedTime(), is(Time.fromSeconds(2)));
+        assertThat(lct.localCompletionTime(), is(Time.fromSeconds(1)));
+
+        // IT [ ,2, ,3]
+        // CT [1, ,3, ]
+        boolean exceptionThrown = false;
+        try {
+            lct.submitLocalInitiatedTime(Time.fromSeconds(1));
+        } catch (CompletionTimeException e) {
+            exceptionThrown = true;
+        }
+        assertThat(lct.lastKnownLowestInitiatedTime(), is(Time.fromSeconds(2)));
+        assertThat(lct.localCompletionTime(), is(Time.fromSeconds(1)));
+        assertThat(exceptionThrown, is(true));
+    }
+
+    @Test
+    public void shouldAdvanceToNextUncompletedEventUntilAllInitiatedEventsAreCompletedWhenCompletedTimesComeInOutOfOrder1() throws CompletionTimeException {
+        // Given
+        LocalCompletionTimeStateManager lct = new LocalCompletionTimeStateManager();
+
+        // When/Then
+        // IT [1,2,3,4]
+        // CT [ , , , ]
+        lct.submitLocalInitiatedTime(Time.fromSeconds(1));
+        lct.submitLocalInitiatedTime(Time.fromSeconds(2));
+        lct.submitLocalInitiatedTime(Time.fromSeconds(3));
+        lct.submitLocalInitiatedTime(Time.fromSeconds(4));
+        assertThat(lct.lastKnownLowestInitiatedTime(), is(Time.fromSeconds(1)));
+        assertThat(lct.localCompletionTime(), is(nullValue()));
+
+        // IT [1,2, , ]
+        // CT [ , ,3,4]
+        lct.submitLocalCompletedTime(Time.fromSeconds(4));
+        lct.submitLocalCompletedTime(Time.fromSeconds(3));
+        assertThat(lct.lastKnownLowestInitiatedTime(), is(Time.fromSeconds(1)));
+        assertThat(lct.localCompletionTime(), is(nullValue()));
+
+        // IT [ ,2, , ]
+        // CT [1, ,3,4]
+        lct.submitLocalCompletedTime(Time.fromSeconds(1));
+        assertThat(lct.lastKnownLowestInitiatedTime(), is(Time.fromSeconds(2)));
+        assertThat(lct.localCompletionTime(), is(Time.fromSeconds(1)));
+
+        // IT [ , , , ]
+        // CT [1,2,3,4]
+        lct.submitLocalCompletedTime(Time.fromSeconds(2));
+        assertThat(lct.lastKnownLowestInitiatedTime(), is(Time.fromSeconds(4)));
+        assertThat(lct.localCompletionTime(), is(Time.fromSeconds(3)));
+    }
+
+    @Test
+    public void shouldAdvanceToNextUncompletedEventUntilAllInitiatedEventsAreCompletedWhenCompletedTimesComeInOutOfOrder2() throws CompletionTimeException {
+        // Given
+        LocalCompletionTimeStateManager lct = new LocalCompletionTimeStateManager();
+
+        // When/Then
+        // IT [1,2,3,4]
+        // CT [ , , , ]
+        lct.submitLocalInitiatedTime(Time.fromSeconds(1));
+        lct.submitLocalInitiatedTime(Time.fromSeconds(2));
+        lct.submitLocalInitiatedTime(Time.fromSeconds(3));
+        lct.submitLocalInitiatedTime(Time.fromSeconds(4));
+        assertThat(lct.lastKnownLowestInitiatedTime(), is(Time.fromSeconds(1)));
+        assertThat(lct.localCompletionTime(), is(nullValue()));
+
+        // IT [1,2, , ]
+        // CT [ , ,3,4]
+        lct.submitLocalCompletedTime(Time.fromSeconds(3));
+        lct.submitLocalCompletedTime(Time.fromSeconds(4));
+        assertThat(lct.lastKnownLowestInitiatedTime(), is(Time.fromSeconds(1)));
+        assertThat(lct.localCompletionTime(), is(nullValue()));
+
+        // IT [ ,2, , ]
+        // CT [1, ,3,4]
+        lct.submitLocalCompletedTime(Time.fromSeconds(1));
+        assertThat(lct.lastKnownLowestInitiatedTime(), is(Time.fromSeconds(2)));
+        assertThat(lct.localCompletionTime(), is(Time.fromSeconds(1)));
+
+        // IT [ , , , ]
+        // CT [1,2,3,4]
+        lct.submitLocalCompletedTime(Time.fromSeconds(2));
+        assertThat(lct.lastKnownLowestInitiatedTime(), is(Time.fromSeconds(4)));
+        assertThat(lct.localCompletionTime(), is(Time.fromSeconds(3)));
+    }
+
+    @Test
+    public void shouldAdvanceToNextUncompletedEventUntilAllInitiatedEventsAreCompletedWhenCompletedTimesComeInOutOfOrder3() throws CompletionTimeException {
+        // Given
+        LocalCompletionTimeStateManager lct = new LocalCompletionTimeStateManager();
+
+        // When/Then
+        // IT [1,2,3,4]
+        // CT [ , , , ]
+        lct.submitLocalInitiatedTime(Time.fromSeconds(1));
+        lct.submitLocalInitiatedTime(Time.fromSeconds(2));
+        lct.submitLocalInitiatedTime(Time.fromSeconds(3));
+        lct.submitLocalInitiatedTime(Time.fromSeconds(4));
+        assertThat(lct.lastKnownLowestInitiatedTime(), is(Time.fromSeconds(1)));
+        assertThat(lct.localCompletionTime(), is(nullValue()));
+
+        // IT [1,2, , ]
+        // CT [ , ,3,4]
+        lct.submitLocalCompletedTime(Time.fromSeconds(4));
+        lct.submitLocalCompletedTime(Time.fromSeconds(3));
+        assertThat(lct.lastKnownLowestInitiatedTime(), is(Time.fromSeconds(1)));
+        assertThat(lct.localCompletionTime(), is(nullValue()));
+
+        // IT [1, , , ]
+        // CT [ ,2,3,4]
+        lct.submitLocalCompletedTime(Time.fromSeconds(2));
+        assertThat(lct.lastKnownLowestInitiatedTime(), is(Time.fromSeconds(1)));
+        assertThat(lct.localCompletionTime(), is(nullValue()));
+
+        // IT [ , , , ]
+        // CT [1,2,3,4]
+        lct.submitLocalCompletedTime(Time.fromSeconds(1));
+        assertThat(lct.lastKnownLowestInitiatedTime(), is(Time.fromSeconds(4)));
+        assertThat(lct.localCompletionTime(), is(Time.fromSeconds(3)));
     }
 
     @Test
     public void shouldReturnLatestInitiatedEventTimeWhenAllEventsHaveCompleted() throws CompletionTimeException {
-        /*
-            event1 DueTime = 1  initiated
-            event2 DueTime = 2  initiated
-            event3 DueTime = 3  initiated
-            event1              completed
-            event2              completed
-            event3              completed
-        */
         // Given
-        // lct parameter
+        LocalCompletionTimeStateManager lct = new LocalCompletionTimeStateManager();
 
-        // When
+        // When/Then
 
-        lct.applyInitiatedTime(Time.fromSeconds(1));
-        lct.applyInitiatedTime(Time.fromSeconds(2));
-        lct.applyInitiatedTime(Time.fromSeconds(3));
+        // IT [1,2,3]
+        // CT [ , , ]
+        lct.submitLocalInitiatedTime(Time.fromSeconds(1));
+        lct.submitLocalInitiatedTime(Time.fromSeconds(2));
+        lct.submitLocalInitiatedTime(Time.fromSeconds(3));
+        assertThat(lct.lastKnownLowestInitiatedTime(), is(Time.fromSeconds(1)));
+        assertThat(lct.localCompletionTime(), is(nullValue()));
 
-        lct.applyCompletedTime(Time.fromSeconds(1));
-        lct.applyCompletedTime(Time.fromSeconds(2));
-        lct.applyCompletedTime(Time.fromSeconds(3));
-
-        // Then
-        assertThat(lct.completionTime(), is(Time.fromSeconds(3)));
+        // IT [ , , ]
+        // CT [1,2,3]
+        lct.submitLocalCompletedTime(Time.fromSeconds(1));
+        lct.submitLocalCompletedTime(Time.fromSeconds(2));
+        lct.submitLocalCompletedTime(Time.fromSeconds(3));
+        assertThat(lct.lastKnownLowestInitiatedTime(), is(Time.fromSeconds(3)));
+        assertThat(lct.localCompletionTime(), is(Time.fromSeconds(2)));
     }
 
-    @Test(expected = CompletionTimeException.class)
     public void shouldThrowExceptionWhenEventCompletesThatHasNoMatchingInitiatedEntry() throws CompletionTimeException {
-        /*
-            event1 DueTime = 1  initiated
-            event2 DueTime = 2  initiated
-            event3 DueTime = 3  initiated
-            event1              completed
-            event1              completed
-        */
         // Given
-        // lct parameter
+        LocalCompletionTimeStateManager lct = new LocalCompletionTimeStateManager();
 
-        // When
+        // When/Then
 
-        lct.applyInitiatedTime(Time.fromSeconds(1));
-        lct.applyInitiatedTime(Time.fromSeconds(2));
-        lct.applyInitiatedTime(Time.fromSeconds(3));
+        // IT [1,2,3]
+        // CT [ , , ]
+        lct.submitLocalInitiatedTime(Time.fromSeconds(1));
+        lct.submitLocalInitiatedTime(Time.fromSeconds(2));
+        lct.submitLocalInitiatedTime(Time.fromSeconds(3));
+        assertThat(lct.lastKnownLowestInitiatedTime(), is(Time.fromSeconds(1)));
+        assertThat(lct.localCompletionTime(), is(nullValue()));
 
-        lct.applyCompletedTime(Time.fromSeconds(1));
-        // only one entry with DueTime=1 exists, this should throw exception
-        lct.applyCompletedTime(Time.fromSeconds(1));
+        // IT [ ,2,3]
+        // CT [1, , ]
+        lct.submitLocalCompletedTime(Time.fromSeconds(1));
+        assertThat(lct.lastKnownLowestInitiatedTime(), is(Time.fromSeconds(2)));
+        assertThat(lct.localCompletionTime(), is(Time.fromMilli(1)));
 
-        // Then
-        // exception should have been thrown by this stage
+        boolean exceptionThrown = false;
+        try {
+            // only one entry with DueTime=1 exists, this should throw exception
+            lct.submitLocalCompletedTime(Time.fromSeconds(1));
+        } catch (CompletionTimeException e) {
+            exceptionThrown = true;
+        }
+        assertThat(exceptionThrown, is(true));
+        assertThat(lct.lastKnownLowestInitiatedTime(), is(Time.fromSeconds(2)));
+        assertThat(lct.localCompletionTime(), is(Time.fromMilli(1)));
     }
 
     @Test
     public void shouldReturnLatestTimeBehindWhichThereAreNoUncompletedITEvents() throws CompletionTimeException {
         // Given
-        LocalCompletionTime lct = new LocalCompletionTime();
+        LocalCompletionTimeStateManager lct = new LocalCompletionTimeStateManager();
 
         // When/Then
-        lct.applyInitiatedTime(Time.fromSeconds(1));
-        assertThat(lct.completionTime(), is(nullValue()));
-        lct.applyCompletedTime(Time.fromSeconds(1));
-        assertThat(lct.completionTime(), is(Time.fromSeconds(1)));
+        // IT [1]
+        // CT []
+        lct.submitLocalInitiatedTime(Time.fromSeconds(1));
+        assertThat(lct.lastKnownLowestInitiatedTime(), is(Time.fromSeconds(1)));
+        assertThat(lct.localCompletionTime(), is(nullValue()));
+        // IT [ ]
+        // CT [1]
+        lct.submitLocalCompletedTime(Time.fromSeconds(1));
+        assertThat(lct.lastKnownLowestInitiatedTime(), is(Time.fromSeconds(1)));
+        assertThat(lct.localCompletionTime(), is(nullValue()));
 
-        lct.applyInitiatedTime(Time.fromSeconds(2));
-        assertThat(lct.completionTime(), is(Time.fromSeconds(1)));
-        lct.applyCompletedTime(Time.fromSeconds(2));
-        assertThat(lct.completionTime(), is(Time.fromSeconds(2)));
+        // IT [ ,2]
+        // CT [1, ]
+        lct.submitLocalInitiatedTime(Time.fromSeconds(2));
+        assertThat(lct.lastKnownLowestInitiatedTime(), is(Time.fromSeconds(2)));
+        assertThat(lct.localCompletionTime(), is(Time.fromSeconds(1)));
+        // IT [ , ]
+        // CT [1,2]
+        lct.submitLocalCompletedTime(Time.fromSeconds(2));
+        assertThat(lct.lastKnownLowestInitiatedTime(), is(Time.fromSeconds(2)));
+        assertThat(lct.localCompletionTime(), is(Time.fromSeconds(1)));
 
-        lct.applyInitiatedTime(Time.fromSeconds(3));
-        assertThat(lct.completionTime(), is(Time.fromSeconds(2)));
+        // IT [ , ,3]
+        // CT [1,2, ]
+        lct.submitLocalInitiatedTime(Time.fromSeconds(3));
+        assertThat(lct.lastKnownLowestInitiatedTime(), is(Time.fromSeconds(3)));
+        assertThat(lct.localCompletionTime(), is(Time.fromSeconds(2)));
 
-        lct.applyInitiatedTime(Time.fromSeconds(4));
-        assertThat(lct.completionTime(), is(Time.fromSeconds(2)));
+        // IT [ , ,3,4]
+        // CT [1,2, , ]
+        lct.submitLocalInitiatedTime(Time.fromSeconds(4));
+        assertThat(lct.lastKnownLowestInitiatedTime(), is(Time.fromSeconds(3)));
+        assertThat(lct.localCompletionTime(), is(Time.fromSeconds(2)));
 
-        lct.applyInitiatedTime(Time.fromSeconds(5));
-        assertThat(lct.completionTime(), is(Time.fromSeconds(2)));
-        lct.applyCompletedTime(Time.fromSeconds(5));
-        assertThat(lct.completionTime(), is(Time.fromSeconds(2)));
+        // IT [ , ,3,4,5]
+        // CT [1,2, , , ]
+        lct.submitLocalInitiatedTime(Time.fromSeconds(5));
+        assertThat(lct.lastKnownLowestInitiatedTime(), is(Time.fromSeconds(3)));
+        assertThat(lct.localCompletionTime(), is(Time.fromSeconds(2)));
+
+        // IT [ , ,3,4, ]
+        // CT [1,2, , ,5]
+        lct.submitLocalCompletedTime(Time.fromSeconds(5));
+        assertThat(lct.lastKnownLowestInitiatedTime(), is(Time.fromSeconds(3)));
+        assertThat(lct.localCompletionTime(), is(Time.fromSeconds(2)));
+
+        // IT [ , ,3,4, ,5]
+        // CT [1,2, , ,5, ]
+        lct.submitLocalInitiatedTime(Time.fromSeconds(5));
+        assertThat(lct.lastKnownLowestInitiatedTime(), is(Time.fromSeconds(3)));
+        assertThat(lct.localCompletionTime(), is(Time.fromSeconds(2)));
+
+        // IT [ , ,3,4, , ]
+        // CT [1,2, , ,5,5]
+        lct.submitLocalCompletedTime(Time.fromSeconds(5));
+        assertThat(lct.lastKnownLowestInitiatedTime(), is(Time.fromSeconds(3)));
+        assertThat(lct.localCompletionTime(), is(Time.fromSeconds(2)));
+
+        // IT [ , ,3,4, , ,5]
+        // CT [1,2, , ,5,5, ]
+        lct.submitLocalInitiatedTime(Time.fromSeconds(5));
+        assertThat(lct.lastKnownLowestInitiatedTime(), is(Time.fromSeconds(3)));
+        assertThat(lct.localCompletionTime(), is(Time.fromSeconds(2)));
+
+        // IT [ , ,3,4, , , ]
+        // CT [1,2, , ,5,5,5]
+        lct.submitLocalCompletedTime(Time.fromSeconds(5));
+        assertThat(lct.lastKnownLowestInitiatedTime(), is(Time.fromSeconds(3)));
+        assertThat(lct.localCompletionTime(), is(Time.fromSeconds(2)));
+
+        // IT [ , , ,4, , , ]
+        // CT [1,2,3, ,5,5,5]
+        lct.submitLocalCompletedTime(Time.fromSeconds(3));
+        assertThat(lct.lastKnownLowestInitiatedTime(), is(Time.fromSeconds(4)));
+        assertThat(lct.localCompletionTime(), is(Time.fromSeconds(3)));
+
+        // IT [ , , , , , , ]
+        // CT [1,2,3,4,5,5,5]
+        lct.submitLocalCompletedTime(Time.fromSeconds(4));
+        assertThat(lct.lastKnownLowestInitiatedTime(), is(Time.fromSeconds(5)));
+        assertThat(lct.localCompletionTime(), is(Time.fromSeconds(4)));
+
+        // IT [ , , , , , , ,6]
+        // CT [1,2,3,4,5,5,5, ]
+        lct.submitLocalInitiatedTime(Time.fromSeconds(6));
+        assertThat(lct.lastKnownLowestInitiatedTime(), is(Time.fromSeconds(6)));
+        assertThat(lct.localCompletionTime(), is(Time.fromSeconds(5)));
     }
 
     @Test
     public void shouldReturnTimeOfEarliestITThatHasHadNotMatchingCTEvenWhenMultipleEventsHaveSameInitiatedTime() throws CompletionTimeException {
         // Given
-        LocalCompletionTime lct = new LocalCompletionTime();
+        LocalCompletionTimeStateManager lct = new LocalCompletionTimeStateManager();
 
         // When/Then
-        lct.applyInitiatedTime(Time.fromSeconds(1));
-        assertThat(lct.completionTime(), is(nullValue()));
-        lct.applyCompletedTime(Time.fromSeconds(1));
-        assertThat(lct.completionTime(), is(Time.fromSeconds(1)));
+        // IT [1]
+        // CT [ ]
+        lct.submitLocalInitiatedTime(Time.fromSeconds(1));
+        assertThat(lct.lastKnownLowestInitiatedTime(), is(Time.fromSeconds(1)));
+        assertThat(lct.localCompletionTime(), is(nullValue()));
 
-        lct.applyInitiatedTime(Time.fromSeconds(2));
-        assertThat(lct.completionTime(), is(Time.fromSeconds(1)));
-        lct.applyCompletedTime(Time.fromSeconds(2));
-        assertThat(lct.completionTime(), is(Time.fromSeconds(2)));
+        // IT [ ]
+        // CT [1]
+        lct.submitLocalCompletedTime(Time.fromSeconds(1));
+        assertThat(lct.lastKnownLowestInitiatedTime(), is(Time.fromSeconds(1)));
+        assertThat(lct.localCompletionTime(), is(nullValue()));
 
-        lct.applyInitiatedTime(Time.fromSeconds(3));
-        assertThat(lct.completionTime(), is(Time.fromSeconds(2)));
+        // IT [ ,2]
+        // CT [1, ]
+        lct.submitLocalInitiatedTime(Time.fromSeconds(2));
+        assertThat(lct.lastKnownLowestInitiatedTime(), is(Time.fromSeconds(2)));
+        assertThat(lct.localCompletionTime(), is(Time.fromSeconds(1)));
 
-        lct.applyInitiatedTime(Time.fromSeconds(3));
-        assertThat(lct.completionTime(), is(Time.fromSeconds(2)));
+        // IT [ , ]
+        // CT [1,2]
+        lct.submitLocalCompletedTime(Time.fromSeconds(2));
+        assertThat(lct.lastKnownLowestInitiatedTime(), is(Time.fromSeconds(2)));
+        assertThat(lct.localCompletionTime(), is(Time.fromSeconds(1)));
 
-        lct.applyInitiatedTime(Time.fromSeconds(4));
-        assertThat(lct.completionTime(), is(Time.fromSeconds(2)));
+        // IT [ , ,3]
+        // CT [1,2, ]
+        lct.submitLocalInitiatedTime(Time.fromSeconds(3));
+        assertThat(lct.lastKnownLowestInitiatedTime(), is(Time.fromSeconds(3)));
+        assertThat(lct.localCompletionTime(), is(Time.fromSeconds(2)));
 
-        lct.applyCompletedTime(Time.fromSeconds(3));
-        assertThat(lct.completionTime(), is(Time.fromSeconds(2)));
+        // IT [ , ,3,3]
+        // CT [1,2, , ]
+        lct.submitLocalInitiatedTime(Time.fromSeconds(3));
+        assertThat(lct.lastKnownLowestInitiatedTime(), is(Time.fromSeconds(3)));
+        assertThat(lct.localCompletionTime(), is(Time.fromSeconds(2)));
 
-        lct.applyCompletedTime(Time.fromSeconds(4));
-        assertThat(lct.completionTime(), is(Time.fromSeconds(2)));
+        // IT [ , ,3,3,4]
+        // CT [1,2, , , ]
+        lct.submitLocalInitiatedTime(Time.fromSeconds(4));
+        assertThat(lct.lastKnownLowestInitiatedTime(), is(Time.fromSeconds(3)));
+        assertThat(lct.localCompletionTime(), is(Time.fromSeconds(2)));
 
-        lct.applyCompletedTime(Time.fromSeconds(3));
-        assertThat(lct.completionTime(), is(Time.fromSeconds(4)));
+        // IT [ , , ,3,4]
+        // CT [1,2,3, , ]
+        lct.submitLocalCompletedTime(Time.fromSeconds(3));
+        assertThat(lct.lastKnownLowestInitiatedTime(), is(Time.fromSeconds(3)));
+        assertThat(lct.localCompletionTime(), is(Time.fromSeconds(2)));
+
+        // IT [ , , ,3, ]
+        // CT [1,2,3, ,4]
+        lct.submitLocalCompletedTime(Time.fromSeconds(4));
+        assertThat(lct.lastKnownLowestInitiatedTime(), is(Time.fromSeconds(3)));
+        assertThat(lct.localCompletionTime(), is(Time.fromSeconds(2)));
+
+        // IT [ , , , , ]
+        // CT [1,2,3,3,4]
+        lct.submitLocalCompletedTime(Time.fromSeconds(3));
+        assertThat(lct.lastKnownLowestInitiatedTime(), is(Time.fromSeconds(4)));
+        assertThat(lct.localCompletionTime(), is(Time.fromSeconds(3)));
+
+        // IT [ , , , , ,5]
+        // CT [1,2,3,3,4, ]
+        lct.submitLocalInitiatedTime(Time.fromSeconds(5));
+        assertThat(lct.lastKnownLowestInitiatedTime(), is(Time.fromSeconds(5)));
+        assertThat(lct.localCompletionTime(), is(Time.fromSeconds(4)));
     }
 }

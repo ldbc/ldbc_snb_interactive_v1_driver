@@ -49,34 +49,45 @@ class PreciseIndividualAsyncOperationStreamExecutorThread extends Thread {
         while (handlers.hasNext() && false == forcedTerminate.get()) {
             OperationHandler<?> handler = handlers.next();
 
+            // submit initiated time as soon as possible so GCT/dependencies can advance as soon as possible
+            submitInitiatedTime(handler);
+
             // Schedule slightly early to account for context switch - internally, handler will schedule at exact start time
             // TODO forcedTerminate does not cover all cases at present this spin loop is still blocking -> inject a check that throws exception?
             // TODO or SpinnerChecks have three possible results? (TRUE, NOT_TRUE_YET, FALSE)
             // TODO and/or Spinner has an emergency terminate button?
             slightlyEarlySpinner.waitForScheduledStartTime(handler.operation());
-            try {
-                handler.completionTimeService().submitInitiatedTime(handler.operation().scheduledStartTime());
-            } catch (CompletionTimeException e) {
-                String errMsg = String.format("Error encountered while submitted Initiated Time for:\n\t%s\n%s",
-                        handler.operation().toString(),
-                        ConcurrentErrorReporter.stackTraceToString(e));
-                errorReporter.reportError(this, errMsg);
-            }
-            try {
-                Future<OperationResultReport> runningHandler = operationHandlerExecutor.execute(handler);
-                runningHandlers.add(runningHandler);
-            } catch (OperationHandlerExecutorException e) {
-                String errMsg = String.format("Error encountered while submitting operation for execution\n\t%s\n\t%s",
-                        handler.operation().toString(),
-                        ConcurrentErrorReporter.stackTraceToString(e));
-                errorReporter.reportError(this, errMsg);
-            }
+
+            executeHandler(handler);
         }
         boolean handlersFinishedInTime = awaitAllRunningHandlers(DURATION_TO_WAIT_FOR_ALL_HANDLERS_TO_FINISH);
         if (false == handlersFinishedInTime) {
             errorReporter.reportError(this, String.format("At least one operation handler did not complete in time"));
         }
         this.hasFinished.set(true);
+    }
+
+    private void submitInitiatedTime(OperationHandler<?> handler) {
+        try {
+            handler.localCompletionTimeWriter().submitLocalInitiatedTime(handler.operation().scheduledStartTime());
+        } catch (CompletionTimeException e) {
+            String errMsg = String.format("Error encountered while submitted Initiated Time for:\n\t%s\n%s",
+                    handler.operation().toString(),
+                    ConcurrentErrorReporter.stackTraceToString(e));
+            errorReporter.reportError(this, errMsg);
+        }
+    }
+
+    private void executeHandler(OperationHandler<?> handler) {
+        try {
+            Future<OperationResultReport> runningHandler = operationHandlerExecutor.execute(handler);
+            runningHandlers.add(runningHandler);
+        } catch (OperationHandlerExecutorException e) {
+            String errMsg = String.format("Error encountered while submitting operation for execution\n\t%s\n\t%s",
+                    handler.operation().toString(),
+                    ConcurrentErrorReporter.stackTraceToString(e));
+            errorReporter.reportError(this, errMsg);
+        }
     }
 
     private boolean awaitAllRunningHandlers(Duration timeoutDuration) {

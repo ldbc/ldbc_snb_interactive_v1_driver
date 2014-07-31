@@ -15,12 +15,12 @@ public class OrderedMultiGenerator<GENERATE_TYPE> extends Generator<GENERATE_TYP
         this(comparator, DEFAULT_LOOK_AHEAD_DISTANCE, generators);
     }
 
-    public OrderedMultiGenerator(Comparator<GENERATE_TYPE> comparator, int lookaheadDistance, Iterator<GENERATE_TYPE>... generators) {
+    public OrderedMultiGenerator(Comparator<GENERATE_TYPE> comparator, int lookAheadDistance, Iterator<GENERATE_TYPE>... generators) {
         this.comparator = comparator;
-        if (1 == lookaheadDistance) {
+        if (1 == lookAheadDistance) {
             this.generatorHeads = buildSimpleGeneratorHeads(generators);
         } else {
-            this.generatorHeads = buildLookaheadGeneratorHeads(comparator, lookaheadDistance, generators);
+            this.generatorHeads = buildLookAheadGeneratorHeads(comparator, lookAheadDistance, generators);
         }
     }
 
@@ -32,7 +32,7 @@ public class OrderedMultiGenerator<GENERATE_TYPE> extends Generator<GENERATE_TYP
         return heads;
     }
 
-    private static <T1> List<GeneratorHead<T1>> buildLookaheadGeneratorHeads(Comparator<T1> comparator, int distance, Iterator<T1>... generators) {
+    private static <T1> List<GeneratorHead<T1>> buildLookAheadGeneratorHeads(Comparator<T1> comparator, int distance, Iterator<T1>... generators) {
         List<GeneratorHead<T1>> heads = new ArrayList<>();
         for (Iterator<T1> generator : generators) {
             heads.add(new LookaheadGeneratorHead<>(generator, comparator, distance));
@@ -48,13 +48,13 @@ public class OrderedMultiGenerator<GENERATE_TYPE> extends Generator<GENERATE_TYP
 
     private GeneratorHead<GENERATE_TYPE> getMinGeneratorHead() {
         GeneratorHead<GENERATE_TYPE> minGeneratorHead = null;
-        Iterator<GeneratorHead<GENERATE_TYPE>> generatorHeadsIterator = generatorHeads.iterator();
 
         // Get generator head with lowest head element (removing empty ones encountered first)
-        while (generatorHeadsIterator.hasNext()) {
-            GeneratorHead<GENERATE_TYPE> generatorHead = generatorHeadsIterator.next();
+        for (int i = 0; i < generatorHeads.size(); i++) {
+            GeneratorHead<GENERATE_TYPE> generatorHead = generatorHeads.get(i);
+            if (null == generatorHead) continue;
             if (null == generatorHead.inspectHead()) {
-                generatorHeadsIterator.remove();
+                generatorHeads.set(i, null);
                 continue;
             }
             if (null == minGeneratorHead || comparator.compare(generatorHead.inspectHead(), minGeneratorHead.inspectHead()) < 0) {
@@ -105,7 +105,7 @@ public class OrderedMultiGenerator<GENERATE_TYPE> extends Generator<GENERATE_TYP
             this.generator = generator;
             this.comparator = comparator;
             this.lookaheadDistance = lookaheadDistance;
-            this.lookaheadBuffer = new ArrayList<T1>();
+            this.lookaheadBuffer = new ArrayList<>();
             fillLookaheadBuffer();
             this.head = getMinFromLookaheadBuffer();
         }

@@ -2,6 +2,7 @@ package com.ldbc.driver.runtime;
 
 import com.ldbc.driver.runtime.coordination.ConcurrentCompletionTimeService;
 import com.ldbc.driver.runtime.metrics.ConcurrentMetricsService;
+import com.ldbc.driver.runtime.scheduling.Spinner;
 import com.ldbc.driver.temporal.Duration;
 import org.apache.log4j.Logger;
 
@@ -13,20 +14,20 @@ class WorkloadStatusThread extends Thread {
     private final Duration statusUpdateInterval;
     private final ConcurrentMetricsService metricsService;
     private final ConcurrentErrorReporter errorReporter;
-    private final ConcurrentCompletionTimeService completionTimeService;
+    private final ConcurrentCompletionTimeService concurrentCompletionTimeService;
     private final boolean detailedStatus;
     private AtomicBoolean continueRunning = new AtomicBoolean(true);
 
     WorkloadStatusThread(Duration statusUpdateInterval,
                          ConcurrentMetricsService metricsService,
                          ConcurrentErrorReporter errorReporter,
-                         ConcurrentCompletionTimeService completionTimeService,
+                         ConcurrentCompletionTimeService concurrentCompletionTimeService,
                          boolean detailedStatus) {
         super(WorkloadStatusThread.class.getSimpleName() + "-" + System.currentTimeMillis());
         this.statusUpdateInterval = statusUpdateInterval;
         this.metricsService = metricsService;
         this.errorReporter = errorReporter;
-        this.completionTimeService = completionTimeService;
+        this.concurrentCompletionTimeService = concurrentCompletionTimeService;
         this.detailedStatus = detailedStatus;
     }
 
@@ -35,9 +36,9 @@ class WorkloadStatusThread extends Thread {
         long statusUpdateIntervalAsMilli = statusUpdateInterval.asMilli();
         while (continueRunning.get()) {
             try {
-                powerNap(statusUpdateIntervalAsMilli);
+                Spinner.powerNap(statusUpdateIntervalAsMilli);
                 String statusString = metricsService.status().toString();
-                if (detailedStatus) statusString += ", GCT: " + completionTimeService.globalCompletionTime();
+                if (detailedStatus) statusString += ", GCT: " + concurrentCompletionTimeService.globalCompletionTime();
                 logger.info(statusString);
             } catch (Throwable e) {
                 errorReporter.reportError(
@@ -46,19 +47,6 @@ class WorkloadStatusThread extends Thread {
                                 ConcurrentErrorReporter.stackTraceToString(e)));
                 break;
             }
-        }
-    }
-
-    // sleep to reduce CPU load while waiting for executors to complete
-    private void powerNap(long statusUpdateIntervalAsMilli) {
-        if (0 == statusUpdateIntervalAsMilli) return;
-        try {
-            Thread.sleep(statusUpdateIntervalAsMilli);
-        } catch (InterruptedException e) {
-            errorReporter.reportError(
-                    this,
-                    String.format("Status reporting thread was interrupted - exiting\n%s",
-                            ConcurrentErrorReporter.stackTraceToString(e)));
         }
     }
 

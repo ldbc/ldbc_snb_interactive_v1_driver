@@ -2,7 +2,7 @@ package com.ldbc.driver.runtime;
 
 import com.ldbc.driver.*;
 import com.ldbc.driver.runtime.coordination.CompletionTimeException;
-import com.ldbc.driver.runtime.coordination.ConcurrentCompletionTimeService;
+import com.ldbc.driver.runtime.coordination.LocalCompletionTimeWriter;
 import com.ldbc.driver.runtime.executor.OperationHandlerExecutor;
 import com.ldbc.driver.runtime.executor.OperationHandlerExecutorException;
 import com.ldbc.driver.runtime.executor.ThreadPoolOperationHandlerExecutor;
@@ -32,7 +32,7 @@ public class ThreadPoolOperationHandlerExecutorTest {
         ConcurrentErrorReporter errorReporter = new ConcurrentErrorReporter();
         ExecutionDelayPolicy delayPolicy = new ErrorReportingTerminatingExecutionDelayPolicy(TIME_SOURCE, toleratedDelay, errorReporter);
         Spinner spinner = new Spinner(TIME_SOURCE, Spinner.DEFAULT_SLEEP_DURATION_10_MILLI, delayPolicy);
-        ConcurrentCompletionTimeService completionTimeService = new DummyConcurrentCompletionTimeService();
+        LocalCompletionTimeWriter dummyLocalCompletionTimeWriter = new DummyLocalCompletionTimeWriter();
         ConcurrentMetricsService metricsService = new DummyConcurrentMetricsService();
 
         int threadCount = 1;
@@ -48,7 +48,7 @@ public class ThreadPoolOperationHandlerExecutorTest {
         };
 
         // When
-        handler.init(TIME_SOURCE, spinner, operation, completionTimeService, errorReporter, metricsService);
+        handler.init(TIME_SOURCE, spinner, operation, dummyLocalCompletionTimeWriter, errorReporter, metricsService);
 
         // Then
         Future<OperationResultReport> handlerFuture = executor.execute(handler);
@@ -56,7 +56,6 @@ public class ThreadPoolOperationHandlerExecutorTest {
         assertThat(handlerResult, is(42));
         executor.shutdown(Duration.fromSeconds(1));
         assertThat(errorReporter.toString(), errorReporter.errorEncountered(), is(false));
-        completionTimeService.shutdown();
     }
 
 
@@ -67,7 +66,7 @@ public class ThreadPoolOperationHandlerExecutorTest {
         ConcurrentErrorReporter errorReporter = new ConcurrentErrorReporter();
         ExecutionDelayPolicy delayPolicy = new ErrorReportingTerminatingExecutionDelayPolicy(TIME_SOURCE, toleratedDelay, errorReporter);
         Spinner spinner = new Spinner(TIME_SOURCE, Spinner.DEFAULT_SLEEP_DURATION_10_MILLI, delayPolicy);
-        ConcurrentCompletionTimeService completionTimeService = new DummyConcurrentCompletionTimeService();
+        LocalCompletionTimeWriter dummyLocalCompletionTimeWriter = new DummyLocalCompletionTimeWriter();
         ConcurrentMetricsService metricsService = new DummyConcurrentMetricsService();
 
         int threadCount = 1;
@@ -91,8 +90,8 @@ public class ThreadPoolOperationHandlerExecutorTest {
         };
 
         // When
-        handler1.init(TIME_SOURCE, spinner, operation1, completionTimeService, errorReporter, metricsService);
-        handler2.init(TIME_SOURCE, spinner, operation2, completionTimeService, errorReporter, metricsService);
+        handler1.init(TIME_SOURCE, spinner, operation1, dummyLocalCompletionTimeWriter, errorReporter, metricsService);
+        handler2.init(TIME_SOURCE, spinner, operation2, dummyLocalCompletionTimeWriter, errorReporter, metricsService);
 
         // Then
         Future<OperationResultReport> handlerFuture1 = executor.execute(handler1);
@@ -105,7 +104,6 @@ public class ThreadPoolOperationHandlerExecutorTest {
 
         executor.shutdown(Duration.fromSeconds(1));
         assertThat(errorReporter.toString(), errorReporter.errorEncountered(), is(false));
-        completionTimeService.shutdown();
     }
 
     @Test
@@ -115,7 +113,7 @@ public class ThreadPoolOperationHandlerExecutorTest {
         ConcurrentErrorReporter errorReporter = new ConcurrentErrorReporter();
         ExecutionDelayPolicy delayPolicy = new ErrorReportingTerminatingExecutionDelayPolicy(TIME_SOURCE, toleratedDelay, errorReporter);
         Spinner spinner = new Spinner(TIME_SOURCE, Spinner.DEFAULT_SLEEP_DURATION_10_MILLI, delayPolicy);
-        ConcurrentCompletionTimeService completionTimeService = new DummyConcurrentCompletionTimeService();
+        LocalCompletionTimeWriter dummyLocalCompletionTimeWriter = new DummyLocalCompletionTimeWriter();
         ConcurrentMetricsService metricsService = new DummyConcurrentMetricsService();
 
         int threadCount = 1;
@@ -131,7 +129,7 @@ public class ThreadPoolOperationHandlerExecutorTest {
         };
 
         // When
-        handler.init(TIME_SOURCE, spinner, operation, completionTimeService, errorReporter, metricsService);
+        handler.init(TIME_SOURCE, spinner, operation, dummyLocalCompletionTimeWriter, errorReporter, metricsService);
 
         // Then
         Future<OperationResultReport> handlerFuture = executor.execute(handler);
@@ -149,6 +147,5 @@ public class ThreadPoolOperationHandlerExecutorTest {
 
         assertThat(exceptionThrown, is(true));
         assertThat(errorReporter.toString(), errorReporter.errorEncountered(), is(false));
-        completionTimeService.shutdown();
     }
 }

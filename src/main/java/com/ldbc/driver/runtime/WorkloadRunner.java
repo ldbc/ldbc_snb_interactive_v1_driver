@@ -25,7 +25,7 @@ import static com.ldbc.driver.OperationClassification.SchedulingMode;
 public class WorkloadRunner {
     public static final Duration EARLY_SPINNER_OFFSET_DURATION = Duration.fromMilli(100);
     private static final Duration WAIT_DURATION_FOR_OPERATION_HANDLER_EXECUTOR_TO_SHUTDOWN = Duration.fromSeconds(5);
-    public static final long RUNNER_POLLING_INTERVAL_AS_MILLI = Duration.fromMilli(500).asMilli();
+    public static final long RUNNER_POLLING_INTERVAL_AS_MILLI = Duration.fromMilli(100).asMilli();
 
     private final TimeSource TIME_SOURCE;
 
@@ -51,7 +51,7 @@ public class WorkloadRunner {
                           Map<Class<? extends Operation>, OperationClassification> operationClassifications,
                           ConcurrentMetricsService metricsService,
                           ConcurrentErrorReporter errorReporter,
-                          ConcurrentCompletionTimeService completionTimeService,
+                          ConcurrentCompletionTimeService concurrentCompletionTimeService,
                           int threadCount,
                           Duration statusDisplayInterval,
                           Time workloadStartTime,
@@ -79,7 +79,7 @@ public class WorkloadRunner {
                     statusDisplayInterval,
                     metricsService,
                     errorReporter,
-                    completionTimeService,
+                    concurrentCompletionTimeService,
                     detailedStatus);
         List<Operation<?>> windowedOperations;
         List<Operation<?>> blockingOperations;
@@ -99,36 +99,30 @@ public class WorkloadRunner {
                     e);
         }
 
-        OperationsToHandlersTransformer operationsToHandlers = new OperationsToHandlersTransformer(
+        OperationsToOperationHandlersTransformer operationsToOperationHandlersTransformer = new OperationsToOperationHandlersTransformer(
                 TIME_SOURCE,
                 db,
                 exactSpinner,
-                completionTimeService,
+                concurrentCompletionTimeService,
                 errorReporter,
                 metricsService,
                 operationClassifications);
 
-        Iterator<OperationHandler<?>> windowedHandlers = operationsToHandlers.transform(windowedOperations.iterator());
-        Iterator<OperationHandler<?>> blockingHandlers = operationsToHandlers.transform(blockingOperations.iterator());
-        Iterator<OperationHandler<?>> asynchronousHandlers = operationsToHandlers.transform(asynchronousOperations.iterator());
-
-        // TODO (past alex) these executor services should all be using different gct services and sharing gct via external ct [MUST]
-        // TODO (past alex) This lesson needs to be written to Confluence too
-        // TODO (present alex) why?
-        // TODO (present alex) is it because, if one scheduler is lagging, GCT may advance before a slower executor
-        // TODO (present alex) submits an initiated time for an operation who's scheduled start time is already behind GCT?
-        // TODO (present alex) if operations are close together (closer than tolerated delay) it seems like this is definitely possible
+        List<OperationHandler<?>> windowedHandlers = operationsToOperationHandlersTransformer.transform(windowedOperations);
+        List<OperationHandler<?>> blockingHandlers = operationsToOperationHandlersTransformer.transform(blockingOperations);
+        List<OperationHandler<?>> asynchronousHandlers = operationsToOperationHandlersTransformer.transform(asynchronousOperations);
 
         // TODO really need to give executors more control over thread pools, or ideally their own thread pools
         this.operationHandlerExecutor = new ThreadPoolOperationHandlerExecutor(threadCount);
         this.preciseIndividualAsyncOperationStreamExecutorService = new PreciseIndividualAsyncOperationStreamExecutorService(
-                TIME_SOURCE, errorReporter, asynchronousHandlers, earlySpinner, operationHandlerExecutor);
+                TIME_SOURCE, errorReporter, asynchronousHandlers.iterator(), earlySpinner, operationHandlerExecutor);
         this.preciseIndividualBlockingOperationStreamExecutorService = new PreciseIndividualBlockingOperationStreamExecutorService(
-                TIME_SOURCE, errorReporter, blockingHandlers, earlySpinner, operationHandlerExecutor);
+                TIME_SOURCE, errorReporter, blockingHandlers.iterator(), earlySpinner, operationHandlerExecutor);
         this.uniformWindowedOperationStreamExecutorService = new UniformWindowedOperationStreamExecutorService(
-                TIME_SOURCE, errorReporter, windowedHandlers, operationHandlerExecutor, earlySpinner, workloadStartTime, executionWindowDuration);
+                TIME_SOURCE, errorReporter, windowedHandlers.iterator(), operationHandlerExecutor, earlySpinner, workloadStartTime, executionWindowDuration);
     }
 
+    // TODO executeWorkload should return a result (e.g., Success/Fail, and ErrorType if Fail) along with resources that need
     public void executeWorkload() throws WorkloadException {
         if (statusDisplayInterval.asSeconds() > 0)
             workloadStatusThread.start();
@@ -201,7 +195,9 @@ public class WorkloadRunner {
 
         try {
             if (forced)
-                // if forced shutdown (error) some handlers likely still running, but it does not matter
+                // if forced shutdown (error) some handlers likely still running,
+                // but for now it does not matter as the process will terminate anyway
+                // (though when running test suite it can result in many running threads, making the tests much slower)
                 operationHandlerExecutor.shutdown(Duration.fromMilli(0));
             else
                 // if normal shutdown all executors have completed by this stage

@@ -5,7 +5,7 @@ import com.google.common.collect.Lists;
 import com.ldbc.driver.OperationException;
 import com.ldbc.driver.OperationHandler;
 import com.ldbc.driver.runtime.ConcurrentErrorReporter;
-import com.ldbc.driver.runtime.coordination.ConcurrentCompletionTimeService;
+import com.ldbc.driver.runtime.coordination.LocalCompletionTimeWriter;
 import com.ldbc.driver.runtime.metrics.ConcurrentMetricsService;
 import com.ldbc.driver.runtime.scheduling.Spinner;
 import com.ldbc.driver.temporal.Duration;
@@ -73,10 +73,10 @@ public class WindowGeneratorTest {
             operation.setScheduledStartTime(times[i]);
             NothingOperationHandler handler = new NothingOperationHandler();
             Spinner spinner = null;
-            ConcurrentCompletionTimeService completionTimeService = null;
+            LocalCompletionTimeWriter localCompletionTimeWriter = null;
             ConcurrentErrorReporter errorReporter = null;
             ConcurrentMetricsService metricsService = null;
-            handler.init(TIME_SOURCE, spinner, operation, completionTimeService, errorReporter, metricsService);
+            handler.init(TIME_SOURCE, spinner, operation, localCompletionTimeWriter, errorReporter, metricsService);
             handlers[i] = handler;
         }
 

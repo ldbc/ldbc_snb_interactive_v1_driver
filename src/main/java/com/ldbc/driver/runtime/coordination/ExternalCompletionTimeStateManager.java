@@ -1,27 +1,29 @@
 package com.ldbc.driver.runtime.coordination;
 
+import com.ldbc.driver.runtime.coordination.CompletionTimeException;
+import com.ldbc.driver.runtime.coordination.ExternalCompletionTimeReader;
+import com.ldbc.driver.runtime.coordination.ExternalCompletionTimeWriter;
 import com.ldbc.driver.temporal.Time;
 
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
-public class ExternalCompletionTime {
+public class ExternalCompletionTimeStateManager implements ExternalCompletionTimeReader, ExternalCompletionTimeWriter {
     private final Map<String, Time> peerCompletionTimes = new HashMap<>();
-    private final Set<String> peerIds;
     private Time completionTime = null;
     private boolean notModifiedSinceLastGet = false;
 
-    ExternalCompletionTime(Set<String> peerIds) throws CompletionTimeException {
+    ExternalCompletionTimeStateManager(Set<String> peerIds) throws CompletionTimeException {
         for (String peerId : peerIds) {
             if (null == peerId)
                 throw new CompletionTimeException(String.format("Peer ID cannot be null\n%s", peerIds.toString()));
             peerCompletionTimes.put(peerId, null);
         }
-        this.peerIds = peerIds;
     }
 
-    void applyPeerCompletionTime(String peerId, Time peerCompletionTime) throws CompletionTimeException {
+    @Override
+    public void submitPeerCompletionTime(String peerId, Time peerCompletionTime) throws CompletionTimeException {
         if (null == peerId)
             throw new CompletionTimeException("Peer ID can not be null");
         if (null == peerCompletionTime)
@@ -42,7 +44,8 @@ public class ExternalCompletionTime {
         peerCompletionTimes.put(peerId, peerCompletionTime);
     }
 
-    Time completionTime() {
+    @Override
+    public Time externalCompletionTime() {
         if (notModifiedSinceLastGet)
             return completionTime;
 
@@ -50,10 +53,6 @@ public class ExternalCompletionTime {
 
         completionTime = minPeerCompletionTimeOrNull();
         return completionTime;
-    }
-
-    Set<String> peersIds() {
-        return peerIds;
     }
 
     private Time minPeerCompletionTimeOrNull() {

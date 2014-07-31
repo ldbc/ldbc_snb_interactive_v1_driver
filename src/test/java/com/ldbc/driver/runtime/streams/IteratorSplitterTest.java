@@ -13,6 +13,7 @@ import java.util.List;
 import static org.hamcrest.CoreMatchers.*;
 import static org.junit.Assert.assertThat;
 
+@Ignore
 public class IteratorSplitterTest {
 
     @Test

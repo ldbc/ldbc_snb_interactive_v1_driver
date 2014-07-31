@@ -2,7 +2,7 @@ package com.ldbc.driver;
 
 import com.ldbc.driver.runtime.ConcurrentErrorReporter;
 import com.ldbc.driver.runtime.coordination.CompletionTimeException;
-import com.ldbc.driver.runtime.coordination.ConcurrentCompletionTimeService;
+import com.ldbc.driver.runtime.coordination.LocalCompletionTimeWriter;
 import com.ldbc.driver.runtime.metrics.ConcurrentMetricsService;
 import com.ldbc.driver.runtime.metrics.MetricsCollectionException;
 import com.ldbc.driver.runtime.scheduling.MultiCheck;
@@ -21,7 +21,7 @@ public abstract class OperationHandler<OPERATION_TYPE extends Operation<?>> impl
     private Spinner spinner;
     private OPERATION_TYPE operation;
     private DbConnectionState dbConnectionState;
-    private ConcurrentCompletionTimeService completionTimeService;
+    private LocalCompletionTimeWriter localCompletionTimeWriter;
     private ConcurrentErrorReporter errorReporter;
     private ConcurrentMetricsService metricsService;
     private List<SpinnerCheck> checks = new ArrayList<>();
@@ -31,7 +31,7 @@ public abstract class OperationHandler<OPERATION_TYPE extends Operation<?>> impl
     public final void init(TimeSource timeSource,
                            Spinner spinner,
                            Operation<?> operation,
-                           ConcurrentCompletionTimeService completionTimeService,
+                           LocalCompletionTimeWriter localCompletionTimeWriter,
                            ConcurrentErrorReporter errorReporter,
                            ConcurrentMetricsService metricsService) throws OperationException {
         if (initialized) {
@@ -40,7 +40,7 @@ public abstract class OperationHandler<OPERATION_TYPE extends Operation<?>> impl
         this.TIME_SOURCE = timeSource;
         this.spinner = spinner;
         this.operation = (OPERATION_TYPE) operation;
-        this.completionTimeService = completionTimeService;
+        this.localCompletionTimeWriter = localCompletionTimeWriter;
         this.errorReporter = errorReporter;
         this.metricsService = metricsService;
 
@@ -51,8 +51,8 @@ public abstract class OperationHandler<OPERATION_TYPE extends Operation<?>> impl
         return operation;
     }
 
-    public final ConcurrentCompletionTimeService completionTimeService() {
-        return completionTimeService;
+    public final LocalCompletionTimeWriter localCompletionTimeWriter() {
+        return localCompletionTimeWriter;
     }
 
     public final void setDbConnectionState(DbConnectionState dbConnectionState) {
@@ -97,7 +97,7 @@ public abstract class OperationHandler<OPERATION_TYPE extends Operation<?>> impl
             operationResultReport.setActualStartTime(Time.fromMilli(startTimeAsMilli));
             operationResultReport.setOperationType(operation.type());
             operationResultReport.setScheduledStartTime(operation.scheduledStartTime());
-            completionTimeService.submitCompletedTime(operation.scheduledStartTime());
+            localCompletionTimeWriter.submitLocalCompletedTime(operation.scheduledStartTime());
             metricsService.submitOperationResult(operationResultReport);
             return operationResultReport;
         } catch (DbException e) {

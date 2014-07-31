@@ -12,7 +12,7 @@ abstract class MetricsCollectionEvent {
         // Request complete workload results
         WORKLOAD_RESULT,
         // Terminate when all results metrics have been collected
-        TERMINATE
+        TERMINATE_SERVICE
     }
 
     public static SubmitResultEvent submitResult(OperationResultReport result) {
@@ -114,7 +114,7 @@ abstract class MetricsCollectionEvent {
 
         @Override
         MetricsEventType type() {
-            return MetricsEventType.TERMINATE;
+            return MetricsEventType.TERMINATE_SERVICE;
         }
 
         long expectedEventCount() {

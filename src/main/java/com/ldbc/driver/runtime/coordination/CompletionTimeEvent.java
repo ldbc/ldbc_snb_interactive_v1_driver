@@ -4,51 +4,63 @@ import com.ldbc.driver.temporal.Time;
 
 abstract class CompletionTimeEvent {
 
-    public enum CoordinationEventType {
+    public enum CompletionTimeEventType {
         // Operation started executing
-        INITIATED,
+        WRITE_LOCAL_INITIATED_TIME,
         // Operation completed scheduling
-        COMPLETED,
+        WRITE_LOCAL_COMPLETED_TIME,
         // GCT came in from other process
-        EXTERNAL,
+        WRITE_EXTERNAL_COMPLETION_TIME,
         // Instruction to terminate when all results have arrived
-        TERMINATE,
+        TERMINATE_SERVICE,
         // Request for future to GCT value (value will only be available once event is processed)
-        FUTURE
+        READ_GCT_FUTURE,
+        // Request a new local completion time writer
+        NEW_LOCAL_COMPLETION_TIME_WRITER
     }
 
-    public static InitiatedEvent initiated(Time time) {
-        return new InitiatedEvent(time);
+    public static LocalInitiatedTimeEvent writeLocalInitiatedTime(int localCompletionTimeWriterId, Time time) {
+        return new LocalInitiatedTimeEvent(localCompletionTimeWriterId, time);
     }
 
-    public static CompletedEvent completed(Time time) {
-        return new CompletedEvent(time);
+    public static LocalCompletedTimeEvent writeLocalCompletedTime(int localCompletionTimeWriterId, Time time) {
+        return new LocalCompletedTimeEvent(localCompletionTimeWriterId, time);
     }
 
-    public static ExternalEvent external(String peerId, Time time) {
-        return new ExternalEvent(peerId, time);
+    public static ExternalCompletionTimeEvent writeExternalCompletionTime(String peerId, Time time) {
+        return new ExternalCompletionTimeEvent(peerId, time);
     }
 
-    public static TerminationEvent terminate(long expectedEventCount) {
-        return new TerminationEvent(expectedEventCount);
+    public static TerminationServiceEvent terminateService(long expectedEventCount) {
+        return new TerminationServiceEvent(expectedEventCount);
     }
 
-    public static FutureEvent future(ThreadedQueuedConcurrentCompletionTimeService.GlobalCompletionTimeFuture future) {
-        return new FutureEvent(future);
+    public static GlobalCompletionTimeFutureEvent globalCompletionTimeFuture(ThreadedQueuedConcurrentCompletionTimeService.GlobalCompletionTimeFuture future) {
+        return new GlobalCompletionTimeFutureEvent(future);
     }
 
-    abstract CoordinationEventType type();
+    public static NewLocalCompletionTimeWriterEvent newLocalCompletionTimeWriter(ThreadedQueuedConcurrentCompletionTimeService.LocalCompletionTimeWriterFuture future) {
+        return new NewLocalCompletionTimeWriterEvent(future);
+    }
 
-    static class InitiatedEvent extends CompletionTimeEvent {
+    abstract CompletionTimeEventType type();
+
+    static class LocalInitiatedTimeEvent extends CompletionTimeEvent {
+        private final int localCompletionTimeWriterId;
         private final Time time;
 
-        private InitiatedEvent(Time time) {
+        private LocalInitiatedTimeEvent(int localCompletionTimeWriterId, Time time) {
+            this.localCompletionTimeWriterId = localCompletionTimeWriterId;
             this.time = time;
         }
 
         @Override
-        CoordinationEventType type() {
-            return CoordinationEventType.INITIATED;
+        CompletionTimeEventType type() {
+            return CompletionTimeEventType.WRITE_LOCAL_INITIATED_TIME;
+        }
+
+        int localCompletionTimeWriterId() {
+            return localCompletionTimeWriterId;
         }
 
         Time time() {
@@ -58,21 +70,28 @@ abstract class CompletionTimeEvent {
         @Override
         public String toString() {
             return "InitiatedEvent{" +
-                    "time=" + time +
+                    "localCompletionTimeWriterId=" + localCompletionTimeWriterId +
+                    ", time=" + time +
                     '}';
         }
     }
 
-    static class CompletedEvent extends CompletionTimeEvent {
+    static class LocalCompletedTimeEvent extends CompletionTimeEvent {
+        private final int localCompletionTimeWriterId;
         private final Time time;
 
-        private CompletedEvent(Time time) {
+        private LocalCompletedTimeEvent(int localCompletionTimeWriterId, Time time) {
+            this.localCompletionTimeWriterId = localCompletionTimeWriterId;
             this.time = time;
         }
 
         @Override
-        CoordinationEventType type() {
-            return CoordinationEventType.COMPLETED;
+        CompletionTimeEventType type() {
+            return CompletionTimeEventType.WRITE_LOCAL_COMPLETED_TIME;
+        }
+
+        int localCompletionTimeWriterId() {
+            return localCompletionTimeWriterId;
         }
 
         Time time() {
@@ -82,23 +101,24 @@ abstract class CompletionTimeEvent {
         @Override
         public String toString() {
             return "CompletedEvent{" +
-                    "time=" + time +
+                    "localCompletionTimeWriterId=" + localCompletionTimeWriterId +
+                    ", time=" + time +
                     '}';
         }
     }
 
-    static class ExternalEvent extends CompletionTimeEvent {
+    static class ExternalCompletionTimeEvent extends CompletionTimeEvent {
         private final Time time;
         private final String peerId;
 
-        private ExternalEvent(String peerId, Time time) {
+        private ExternalCompletionTimeEvent(String peerId, Time time) {
             this.time = time;
             this.peerId = peerId;
         }
 
         @Override
-        CoordinationEventType type() {
-            return CoordinationEventType.EXTERNAL;
+        CompletionTimeEventType type() {
+            return CompletionTimeEventType.WRITE_EXTERNAL_COMPLETION_TIME;
         }
 
         Time time() {
@@ -118,16 +138,16 @@ abstract class CompletionTimeEvent {
         }
     }
 
-    static class TerminationEvent extends CompletionTimeEvent {
+    static class TerminationServiceEvent extends CompletionTimeEvent {
         private final long expectedEventCount;
 
-        private TerminationEvent(long expectedEventCount) {
+        private TerminationServiceEvent(long expectedEventCount) {
             this.expectedEventCount = expectedEventCount;
         }
 
         @Override
-        CoordinationEventType type() {
-            return CoordinationEventType.TERMINATE;
+        CompletionTimeEventType type() {
+            return CompletionTimeEventType.TERMINATE_SERVICE;
         }
 
         long expectedEventCount() {
@@ -142,16 +162,16 @@ abstract class CompletionTimeEvent {
         }
     }
 
-    static class FutureEvent extends CompletionTimeEvent {
+    static class GlobalCompletionTimeFutureEvent extends CompletionTimeEvent {
         private final ThreadedQueuedConcurrentCompletionTimeService.GlobalCompletionTimeFuture future;
 
-        private FutureEvent(ThreadedQueuedConcurrentCompletionTimeService.GlobalCompletionTimeFuture future) {
+        private GlobalCompletionTimeFutureEvent(ThreadedQueuedConcurrentCompletionTimeService.GlobalCompletionTimeFuture future) {
             this.future = future;
         }
 
         @Override
-        CoordinationEventType type() {
-            return CoordinationEventType.FUTURE;
+        CompletionTimeEventType type() {
+            return CompletionTimeEventType.READ_GCT_FUTURE;
         }
 
         ThreadedQueuedConcurrentCompletionTimeService.GlobalCompletionTimeFuture future() {
@@ -161,6 +181,30 @@ abstract class CompletionTimeEvent {
         @Override
         public String toString() {
             return "FutureEvent{" +
+                    "future=" + future +
+                    '}';
+        }
+    }
+
+    static class NewLocalCompletionTimeWriterEvent extends CompletionTimeEvent {
+        private final ThreadedQueuedConcurrentCompletionTimeService.LocalCompletionTimeWriterFuture future;
+
+        private NewLocalCompletionTimeWriterEvent(ThreadedQueuedConcurrentCompletionTimeService.LocalCompletionTimeWriterFuture future) {
+            this.future = future;
+        }
+
+        @Override
+        CompletionTimeEventType type() {
+            return CompletionTimeEventType.NEW_LOCAL_COMPLETION_TIME_WRITER;
+        }
+
+        ThreadedQueuedConcurrentCompletionTimeService.LocalCompletionTimeWriterFuture future() {
+            return future;
+        }
+
+        @Override
+        public String toString() {
+            return "NewLocalCompletionTimeWriterEvent{" +
                     "future=" + future +
                     '}';
         }

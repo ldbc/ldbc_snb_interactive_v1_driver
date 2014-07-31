@@ -51,15 +51,17 @@ public class ThreadedQueuedMetricsMaintenanceThread extends Thread {
                         ThreadedQueuedConcurrentMetricsService.MetricsWorkloadResultFuture workloadResultFuture = ((MetricsCollectionEvent.WorkloadResultEvent) event).future();
                         workloadResultFuture.set(metricsManager.snapshot());
                         break;
-                    case TERMINATE:
+                    case TERMINATE_SERVICE:
                         if (expectedEventCount == null) {
                             expectedEventCount = ((MetricsCollectionEvent.TerminationEvent) event).expectedEventCount();
                         } else {
-                            // this is not the first TERMINATE event thread has received
+                            // this is not the first termination event that the thread has received
                             errorReporter.reportError(
                                     this,
-                                    String.format("Encountered multiple TERMINATE events. First expectedEventCount[%s]. Second expectedEventCount[%s]",
-                                            expectedEventCount, ((MetricsCollectionEvent.TerminationEvent) event).expectedEventCount()));
+                                    String.format("Encountered multiple %s events. First expectedEventCount[%s]. Second expectedEventCount[%s]",
+                                            MetricsCollectionEvent.MetricsEventType.TERMINATE_SERVICE.name(),
+                                            expectedEventCount,
+                                            ((MetricsCollectionEvent.TerminationEvent) event).expectedEventCount()));
                         }
                         break;
                     default:

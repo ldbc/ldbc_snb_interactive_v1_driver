@@ -46,15 +46,18 @@ class PreciseIndividualBlockingOperationStreamExecutorThread extends Thread {
 
     @Override
     public void run() {
-        Future<OperationResultReport> executingHandler = null;
+        Future<OperationResultReport> executingHandlerFuture = null;
         Operation<?> previousOperation = null;
         while (handlers.hasNext() && false == forcedTerminate.get()) {
             OperationHandler<?> handler = handlers.next();
 
             // Ensures previously executed handler has completed before handler starts executing
-            if (null != executingHandler) {
-                handler.addCheck(new FutureCompletedCheck(executingHandler, previousOperation));
+            if (null != executingHandlerFuture) {
+                handler.addCheck(new FutureCompletedCheck(executingHandlerFuture, previousOperation));
             }
+
+            // submit initiated time as soon as possible so GCT/dependencies can advance as soon as possible
+            submitInitiatedTime(handler);
 
             // Schedule slightly early to account for context switch - internally, handler will schedule at exact start time
             // TODO forcedTerminate does not cover all cases at present this spin loop is still blocking -> inject a check that throws exception?
@@ -62,30 +65,39 @@ class PreciseIndividualBlockingOperationStreamExecutorThread extends Thread {
             // TODO and/or Spinner has an emergency terminate button?
             slightlyEarlySpinner.waitForScheduledStartTime(handler.operation());
 
-            try {
-                handler.completionTimeService().submitInitiatedTime(handler.operation().scheduledStartTime());
-            } catch (CompletionTimeException e) {
-                errorReporter.reportError(this,
-                        String.format("Error encountered while submitted Initiated Time for:\n\t%s\n%s",
-                                handler.operation().toString(),
-                                ConcurrentErrorReporter.stackTraceToString(e)));
-            }
-            try {
-                executingHandler = operationHandlerExecutor.execute(handler);
-            } catch (OperationHandlerExecutorException e) {
-                errorReporter.reportError(this,
-                        String.format("Error encountered while submitting operation for execution\n\t%s\n\t%s",
-                                handler.operation().toString(),
-                                ConcurrentErrorReporter.stackTraceToString(e)));
-            }
+            executingHandlerFuture = executeHandler(handler);
+
             previousOperation = handler.operation();
         }
         // Wait for final operation handler
-        boolean executingHandlerFinishedInTime = awaitExecutingHandler(DURATION_TO_WAIT_FOR_LAST_HANDLER_TO_FINISH, executingHandler);
+        boolean executingHandlerFinishedInTime = awaitExecutingHandler(DURATION_TO_WAIT_FOR_LAST_HANDLER_TO_FINISH, executingHandlerFuture);
         if (false == executingHandlerFinishedInTime) {
             errorReporter.reportError(this, "Last handler did not complete in time");
         }
         this.hasFinished.set(true);
+    }
+
+    private void submitInitiatedTime(OperationHandler<?> handler) {
+        try {
+            handler.localCompletionTimeWriter().submitLocalInitiatedTime(handler.operation().scheduledStartTime());
+        } catch (CompletionTimeException e) {
+            errorReporter.reportError(this,
+                    String.format("Error encountered while submitted Initiated Time for:\n\t%s\n%s",
+                            handler.operation().toString(),
+                            ConcurrentErrorReporter.stackTraceToString(e)));
+        }
+    }
+
+    private Future<OperationResultReport> executeHandler(OperationHandler<?> handler) {
+        try {
+            return operationHandlerExecutor.execute(handler);
+        } catch (OperationHandlerExecutorException e) {
+            errorReporter.reportError(this,
+                    String.format("Error encountered while submitting operation for execution\n\t%s\n\t%s",
+                            handler.operation().toString(),
+                            ConcurrentErrorReporter.stackTraceToString(e)));
+        }
+        return null;
     }
 
     private boolean awaitExecutingHandler(Duration timeoutDuration, Future<OperationResultReport> executingHandler) {

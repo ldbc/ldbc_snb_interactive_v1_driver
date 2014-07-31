@@ -39,13 +39,13 @@ public class ErrorReportingTerminatingExecutionDelayPolicy implements ExecutionD
         String errMsg = String.format("Operation start time delayed excessively\n"
                         + "  Operation: %s\n"
                         + "  Tolerated Delay: %s\n"
-                        + "  Delay Now: %s\n"
+                        + "  Delayed So Far: %s\n"
                         + "  Scheduled Start Time: %s\n"
                         + "  Time Now: %s\n"
                 ,
+                operation,
                 toleratedDelay,
                 now.durationGreaterThan(operation.scheduledStartTime()),
-                operation,
                 operation.scheduledStartTime(),
                 now
         );

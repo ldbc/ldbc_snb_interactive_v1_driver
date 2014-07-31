@@ -2,7 +2,8 @@ package com.ldbc.driver.runtime;
 
 import java.io.PrintWriter;
 import java.io.StringWriter;
-import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 public class ConcurrentErrorReporter {
@@ -23,7 +24,7 @@ public class ConcurrentErrorReporter {
                 myThread.getPriority());
     }
 
-    public static String formatErrors(Iterable<ErrorReport> errors) {
+    public static String formatErrors(List<ErrorReport> errors) {
         StringBuilder sb = new StringBuilder();
         sb.append("- Error Log -");
         for (ErrorReport error : errors) {
@@ -34,7 +35,7 @@ public class ConcurrentErrorReporter {
     }
 
     private final AtomicBoolean errorEncountered = new AtomicBoolean(false);
-    private final ConcurrentLinkedQueue<ErrorReport> errorMessages = new ConcurrentLinkedQueue<>();
+    private final List<ErrorReport> errorMessages = new ArrayList<>();
 
     synchronized public void reportError(Object caller, String errMsg) {
         errorMessages.add(new ErrorReport(whoAmI(caller), errMsg));
@@ -45,13 +46,14 @@ public class ConcurrentErrorReporter {
         return errorEncountered.get();
     }
 
-    public Iterable<ErrorReport> errorMessages() {
+    public List<ErrorReport> errorMessages() {
         return errorMessages;
     }
 
     @Override
     public String toString() {
-        return formatErrors(errorMessages());
+        if (errorMessages.isEmpty()) return "No Reported Errors";
+        else return formatErrors(errorMessages());
     }
 
     public static class ErrorReport {

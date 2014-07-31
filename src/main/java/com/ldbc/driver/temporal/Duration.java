@@ -27,6 +27,10 @@ public class Duration implements Comparable<Duration>, MultipleTimeUnitProvider<
         return Duration.fromNano(Temporal.convert(unitOfTime, timeUnit, TimeUnit.NANOSECONDS));
     }
 
+    public static Duration max(Duration duration1, Duration duration2) {
+        return (duration1.gt(duration2)) ? duration1 : duration2;
+    }
+
     private final Temporal duration;
 
     private Duration(long ns) {
@@ -60,7 +64,7 @@ public class Duration implements Comparable<Duration>, MultipleTimeUnitProvider<
         long s = TimeUnit.MILLISECONDS.toSeconds(duration.asMilli()) - TimeUnit.MINUTES.toSeconds(m);
         long ms = duration.asMilli() - TimeUnit.MINUTES.toMillis(m) - TimeUnit.SECONDS.toMillis(s);
 //        if (h < 1)
-            return String.format("%02d:%02d.%03d (m:s.ms)", m, s, ms);
+        return String.format("%02d:%02d.%03d (m:s.ms)", m, s, ms);
 //        else
 //            return String.format("%02d:%02d:%02d.%03d (h:m:s.ms)", h, m, s, ms);
     }

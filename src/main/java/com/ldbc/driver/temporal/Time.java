@@ -32,6 +32,10 @@ public class Time implements Comparable<Time>, MultipleTimeUnitProvider<Time> {
         return fromNano(Temporal.convert(unitOfTime, timeUnit, TimeUnit.NANOSECONDS));
     }
 
+    public static Time max(Time time1, Time time2) {
+        return (time1.gt(time2)) ? time1 : time2;
+    }
+
     private final Temporal time;
 
     private Time(long timeNano) {

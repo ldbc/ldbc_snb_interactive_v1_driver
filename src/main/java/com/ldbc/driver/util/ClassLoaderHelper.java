@@ -2,6 +2,8 @@ package com.ldbc.driver.util;
 
 import com.ldbc.driver.*;
 
+import java.lang.reflect.Constructor;
+
 // TODO test
 public class ClassLoaderHelper {
     /**
@@ -45,15 +47,24 @@ public class ClassLoaderHelper {
     /**
      * OperationHandler
      */
-    public static OperationHandler<?> loadOperationHandler(Class<? extends OperationHandler> operationHandlerClass,
-                                                           Operation<?> operation) throws OperationException {
+    public static Constructor<? extends OperationHandler> loadOperationHandlerConstructor(Class<? extends OperationHandler> operationHandlerClass) throws OperationException {
+        try {
+            Constructor<? extends OperationHandler> operationHandlerConstructor = operationHandlerClass.getConstructor();
+            return operationHandlerConstructor;
+        } catch (Exception e) {
+            throw new OperationException(
+                    String.format("Error creating OperationHandler [%s] with Operation [%s]", operationHandlerClass.getName()),
+                    e);
+        }
+    }
+
+    public static OperationHandler<?> loadOperationHandler(Class<? extends OperationHandler> operationHandlerClass) throws OperationException {
         try {
             OperationHandler<?> operationHandler = operationHandlerClass.getConstructor().newInstance();
             return operationHandler;
         } catch (Exception e) {
-            e.printStackTrace();
             throw new OperationException(
-                    String.format("Error creating OperationHandler [%s] with Operation [%s]", operationHandlerClass.getName(), operation.getClass().getName()),
+                    String.format("Error creating OperationHandler [%s] with Operation [%s]", operationHandlerClass.getName()),
                     e);
         }
     }

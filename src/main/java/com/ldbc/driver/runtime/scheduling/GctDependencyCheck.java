@@ -3,17 +3,17 @@ package com.ldbc.driver.runtime.scheduling;
 import com.ldbc.driver.Operation;
 import com.ldbc.driver.runtime.ConcurrentErrorReporter;
 import com.ldbc.driver.runtime.coordination.CompletionTimeException;
-import com.ldbc.driver.runtime.coordination.ConcurrentCompletionTimeService;
+import com.ldbc.driver.runtime.coordination.GlobalCompletionTimeReader;
 
 public class GctDependencyCheck implements SpinnerCheck {
-    private final ConcurrentCompletionTimeService completionTimeService;
+    private final GlobalCompletionTimeReader globalCompletionTimeReader;
     private final Operation<?> operation;
     private final ConcurrentErrorReporter errorReporter;
 
-    public GctDependencyCheck(ConcurrentCompletionTimeService completionTimeService,
+    public GctDependencyCheck(GlobalCompletionTimeReader globalCompletionTimeReader,
                               Operation<?> operation,
                               ConcurrentErrorReporter errorReporter) {
-        this.completionTimeService = completionTimeService;
+        this.globalCompletionTimeReader = globalCompletionTimeReader;
         this.operation = operation;
         this.errorReporter = errorReporter;
     }
@@ -21,7 +21,7 @@ public class GctDependencyCheck implements SpinnerCheck {
     @Override
     public boolean doCheck() {
         try {
-            return completionTimeService.globalCompletionTime().gte(operation.dependencyTime());
+            return globalCompletionTimeReader.globalCompletionTime().gte(operation.dependencyTime());
         } catch (CompletionTimeException e) {
             errorReporter.reportError(this,
                     String.format(
@@ -35,13 +35,13 @@ public class GctDependencyCheck implements SpinnerCheck {
     @Override
     public boolean handleFailedCheck(Operation<?> operation) {
         try {
-            // TODO, not GCT printed here may be a little later than GCT that was measured during check
+            // Note, GCT printed here may be a little later than GCT that was measured during check
             errorReporter.reportError(this,
                     String.format("GCT(%s) has not advanced sufficiently to execute operation\n"
                                     + "Operation: %s\n"
                                     + "Scheduled Start Time: %s\n"
                                     + "Dependency Time: %s",
-                            completionTimeService.globalCompletionTime().toString(),
+                            globalCompletionTimeReader.globalCompletionTime().toString(),
                             operation.toString(),
                             operation.scheduledStartTime(),
                             operation.dependencyTime()));

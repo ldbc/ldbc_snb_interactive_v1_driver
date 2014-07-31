@@ -25,7 +25,7 @@ public class DummyDb extends Db {
         }
     }
 
-    public static final String ALLOWED_ARG = "allowed";
+    public static final String ALLOWED_DEFAULT_ARG = "allowed";
     private static final boolean ALLOWED_DEFAULT = true;
 
     private AllowedConnectionState allowedConnectionState = null;
@@ -39,8 +39,8 @@ public class DummyDb extends Db {
         registerOperationHandler(NothingOperation.class, NothingOperationHandler.class);
         registerOperationHandler(TimedNamedOperation1.class, TimedNamedOperation1Handler.class);
         registerOperationHandler(TimedNamedOperation2.class, TimedNamedOperation2Handler.class);
-        boolean allowedDefault = (params.containsKey(ALLOWED_ARG))
-                ? Boolean.parseBoolean(params.get(ALLOWED_ARG))
+        boolean allowedDefault = (params.containsKey(ALLOWED_DEFAULT_ARG))
+                ? Boolean.parseBoolean(params.get(ALLOWED_DEFAULT_ARG))
                 : ALLOWED_DEFAULT;
         allowedConnectionState = new AllowedConnectionState(allowedDefault);
     }

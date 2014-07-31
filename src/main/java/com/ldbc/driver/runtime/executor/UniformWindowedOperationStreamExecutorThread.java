@@ -90,32 +90,25 @@ class UniformWindowedOperationStreamExecutorThread extends Thread {
             window = handlerWindows.next();
             List<OperationHandler<?>> scheduledHandlers = scheduler.schedule(window);
 
+            // submit initiated time as soon as possible so GCT/dependencies can advance as soon as possible
+            for (int i = 0; i < scheduledHandlers.size(); i++) {
+                OperationHandler<?> handler = scheduledHandlers.get(i);
+                submitInitiatedTime(handler);
+            }
+
             // execute operation handlers for current window
-            for (OperationHandler<?> operationHandler : scheduledHandlers) {
+            for (int i = 0; i < scheduledHandlers.size(); i++) {
+                OperationHandler<?> handler = scheduledHandlers.get(i);
                 // Schedule slightly early to account for context switch - internally, handler will schedule at exact start time
                 // TODO forcedTerminate does not cover all cases at present this spin loop is still blocking -> inject a check that throws exception?
                 // TODO or SpinnerChecks have three possible results? (TRUE, NOT_TRUE_YET, FALSE)
                 // TODO and/or Spinner has an emergency terminate button?
-                slightlyEarlySpinner.waitForScheduledStartTime(operationHandler.operation());
+                slightlyEarlySpinner.waitForScheduledStartTime(handler.operation());
 
-                try {
-                    operationHandler.completionTimeService().submitInitiatedTime(operationHandler.operation().scheduledStartTime());
-                } catch (CompletionTimeException e) {
-                    errorReporter.reportError(this,
-                            String.format("Error encountered while submitted Initiated Time for:\n\t%s\n%s",
-                                    operationHandler.operation().toString(),
-                                    ConcurrentErrorReporter.stackTraceToString(e)));
-                }
-                try {
-                    operationHandler.addCheck(handlersFromPreviousWindowHaveFinishedCheck);
-                    Future<OperationResultReport> executingHandler = operationHandlerExecutor.execute(operationHandler);
-                    executingHandlersFromCurrentWindow.add(executingHandler);
-                } catch (OperationHandlerExecutorException e) {
-                    errorReporter.reportError(this,
-                            String.format("Error encountered while submitting operation for execution\n\t%s\n\t%s",
-                                    operationHandler.operation().toString(),
-                                    ConcurrentErrorReporter.stackTraceToString(e)));
-                }
+                executeHandler(
+                        handler,
+                        handlersFromPreviousWindowHaveFinishedCheck,
+                        executingHandlersFromCurrentWindow);
             }
         }
 
@@ -135,6 +128,32 @@ class UniformWindowedOperationStreamExecutorThread extends Thread {
         }
 
         this.hasFinished.set(true);
+    }
+
+    private void submitInitiatedTime(OperationHandler<?> handler) {
+        try {
+            handler.localCompletionTimeWriter().submitLocalInitiatedTime(handler.operation().scheduledStartTime());
+        } catch (CompletionTimeException e) {
+            errorReporter.reportError(this,
+                    String.format("Error encountered while submitted Initiated Time for:\n\t%s\n%s",
+                            handler.operation().toString(),
+                            ConcurrentErrorReporter.stackTraceToString(e)));
+        }
+    }
+
+    private void executeHandler(OperationHandler<?> handler,
+                                HandlersFromPreviousWindowHaveFinishedCheck handlersFromPreviousWindowHaveFinishedCheck,
+                                List<Future<OperationResultReport>> executingHandlersFromCurrentWindow) {
+        try {
+            handler.addCheck(handlersFromPreviousWindowHaveFinishedCheck);
+            Future<OperationResultReport> executingHandler = operationHandlerExecutor.execute(handler);
+            executingHandlersFromCurrentWindow.add(executingHandler);
+        } catch (OperationHandlerExecutorException e) {
+            errorReporter.reportError(this,
+                    String.format("Error encountered while submitting operation for execution\n\t%s\n\t%s",
+                            handler.operation().toString(),
+                            ConcurrentErrorReporter.stackTraceToString(e)));
+        }
     }
 
     private class HandlersFromPreviousWindowHaveFinishedCheck implements SpinnerCheck {

@@ -19,8 +19,8 @@ public class PeerCommunicatorThread extends Thread {
 
     // TODO temporary until Akka/network is integrated
     // TODO need dummy PeerThread that just sends back the Completion Time it received
-    private final BlockingQueue<CompletionTimeEvent.ExternalEvent> peerReceiveQueue;
-    private final List<BlockingQueue<CompletionTimeEvent.ExternalEvent>> peerSendQueues;
+    private final BlockingQueue<CompletionTimeEvent.ExternalCompletionTimeEvent> peerReceiveQueue;
+    private final List<BlockingQueue<CompletionTimeEvent.ExternalCompletionTimeEvent>> peerSendQueues;
 
     private final static Time PEER_RECEIVE_QUEUE_POLL_TIMEOUT = Time.fromMilli(100);
 
@@ -42,8 +42,8 @@ public class PeerCommunicatorThread extends Thread {
                                   AtomicReference<Time> sharedLctReference,
                                   BlockingQueue<CompletionTimeEvent> completionTimeQueue,
                                   // TODO temporary until Akka/network is integrated
-                                  BlockingQueue<CompletionTimeEvent.ExternalEvent> peerReceiveQueue,
-                                  List<BlockingQueue<CompletionTimeEvent.ExternalEvent>> peerSendQueues) {
+                                  BlockingQueue<CompletionTimeEvent.ExternalCompletionTimeEvent> peerReceiveQueue,
+                                  List<BlockingQueue<CompletionTimeEvent.ExternalCompletionTimeEvent>> peerSendQueues) {
         super(PeerCommunicatorThread.class.getSimpleName() + "-" + System.currentTimeMillis());
         this.TIME_SOURCE = timeSource;
         this.myId = myId;
@@ -67,7 +67,7 @@ public class PeerCommunicatorThread extends Thread {
                     sendCompletionTimeToPeers();
                     lastHeartbeatAsMilli = TIME_SOURCE.nowAsMilli();
                 }
-                CompletionTimeEvent.ExternalEvent event = peerReceiveQueue.poll(PEER_RECEIVE_QUEUE_POLL_TIMEOUT.asMilli(), TimeUnit.MILLISECONDS);
+                CompletionTimeEvent.ExternalCompletionTimeEvent event = peerReceiveQueue.poll(PEER_RECEIVE_QUEUE_POLL_TIMEOUT.asMilli(), TimeUnit.MILLISECONDS);
                 if (null != event)
                     completionTimeQueue.put(event);
             } catch (InterruptedException e) {
@@ -81,7 +81,7 @@ public class PeerCommunicatorThread extends Thread {
 
     private void sendCompletionTimeToPeers() throws InterruptedException {
         Time ct = sharedLctReference.get();
-        for (BlockingQueue<CompletionTimeEvent.ExternalEvent> peerSendChannel : peerSendQueues)
-            CompletionTimeEvent.external(myId, ct);
+        for (BlockingQueue<CompletionTimeEvent.ExternalCompletionTimeEvent> peerSendChannel : peerSendQueues)
+            CompletionTimeEvent.writeExternalCompletionTime(myId, ct);
     }
 }

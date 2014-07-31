@@ -6,9 +6,9 @@ import com.ldbc.driver.generator.GeneratorFactory;
 import com.ldbc.driver.runtime.ConcurrentErrorReporter;
 import com.ldbc.driver.runtime.WorkloadRunner;
 import com.ldbc.driver.runtime.coordination.CompletionTimeException;
-import com.ldbc.driver.runtime.coordination.CompletionTimeServiceHelper;
+import com.ldbc.driver.runtime.coordination.CompletionTimeServiceAssistant;
 import com.ldbc.driver.runtime.coordination.ConcurrentCompletionTimeService;
-import com.ldbc.driver.runtime.coordination.NaiveSynchronizedConcurrentCompletionTimeService;
+import com.ldbc.driver.runtime.coordination.LocalCompletionTimeWriter;
 import com.ldbc.driver.runtime.metrics.*;
 import com.ldbc.driver.temporal.Duration;
 import com.ldbc.driver.temporal.SystemTimeSource;
@@ -169,6 +169,7 @@ public class Client {
 
         @Override
         public void init() throws ClientException {
+            CompletionTimeServiceAssistant completionTimeServiceAssistant = new CompletionTimeServiceAssistant();
             try {
                 workload = ClassLoaderHelper.loadWorkload(controlService.configuration().workloadClassName());
                 workload.init(controlService.configuration());
@@ -188,15 +189,10 @@ public class Client {
             ConcurrentErrorReporter errorReporter = new ConcurrentErrorReporter();
 
             try {
-                completionTimeService = CompletionTimeServiceHelper.initializeCompletionTimeService(
-                        // TODO threaded may scale better with >8 cores, but consumes more resources & performs worse with <8 cores
-                        // new ThreadedQueuedConcurrentCompletionTimeService(controlService.configuration().peerIds(), errorReporter),
-                        new NaiveSynchronizedConcurrentCompletionTimeService(controlService.configuration().peerIds()),
-                        controlService.configuration().peerIds(),
-                        errorReporter,
-                        controlService.workloadStartTime()
-                );
-            } catch (Exception e) {
+                completionTimeService =
+                        completionTimeServiceAssistant.newSynchronizedConcurrentCompletionTimeServiceFromPeerIds(
+                                controlService.configuration().peerIds());
+            } catch (CompletionTimeException e) {
                 throw new ClientException(
                         String.format("Error while instantiating Completion Time Service with peer IDs %s", controlService.configuration().peerIds().toString()), e);
             }
@@ -258,7 +254,52 @@ public class Client {
             } catch (WorkloadException e) {
                 throw new ClientException(String.format("Error instantiating %s", WorkloadRunner.class.getSimpleName()), e);
             }
-            logger.info(String.format("Instantiated %s - Starting Benchmark (%s operations)", WorkloadRunner.class.getSimpleName(), controlService.configuration().operationCount()));
+            logger.info(String.format("Instantiated %s - Operation Count = %s", WorkloadRunner.class.getSimpleName(), controlService.configuration().operationCount()));
+
+            logger.info("Initializing driver");
+            try {
+                if (completionTimeService.getAllWriters().isEmpty()) {
+                    // There are no local completion time writers, GCT would never advance or be non-null, set to max so nothing ever waits on it
+                    Time nearlyMaxPossibleTime = Time.fromNano(Long.MAX_VALUE - 1);
+                    Time maxPossibleTime = Time.fromNano(Long.MAX_VALUE);
+                    // Create a writer to use for advancing GCT
+                    LocalCompletionTimeWriter localCompletionTimeWriter = completionTimeService.newLocalCompletionTimeWriter();
+                    localCompletionTimeWriter.submitLocalInitiatedTime(nearlyMaxPossibleTime);
+                    localCompletionTimeWriter.submitLocalCompletedTime(nearlyMaxPossibleTime);
+                    localCompletionTimeWriter.submitLocalInitiatedTime(maxPossibleTime);
+                    localCompletionTimeWriter.submitLocalCompletedTime(maxPossibleTime);
+                } else {
+                    // There are some local completion time writers, initialize them to workload start time
+                    completionTimeServiceAssistant.writeInitiatedAndCompletedTimesToAllWriters(completionTimeService, controlService.workloadStartTime());
+                    completionTimeServiceAssistant.writeInitiatedAndCompletedTimesToAllWriters(completionTimeService, controlService.workloadStartTime().plus(Duration.fromNano(1)));
+                }
+            } catch (CompletionTimeException e) {
+                throw new ClientException("Error while writing initial initiated and completed times to Completion Time Service", e);
+            }
+
+            logger.info("Waiting for all driver processes to complete initialization");
+            try {
+                Duration globalCompletionTimeWaitTimeoutDuration = Duration.fromSeconds(5);
+                boolean globalCompletionTimeAdvancedToDesiredTime = completionTimeServiceAssistant.waitForGlobalCompletionTime(
+                        timeSource,
+                        controlService.workloadStartTime(),
+                        globalCompletionTimeWaitTimeoutDuration,
+                        completionTimeService,
+                        errorReporter);
+                if (false == globalCompletionTimeAdvancedToDesiredTime) {
+                    throw new ClientException(
+                            String.format("Timed out [%s] while waiting for global completion time to advance to workload start time\nCurrent GCT: %s\nWaiting For GCT: %s",
+                                    globalCompletionTimeWaitTimeoutDuration,
+                                    completionTimeService.globalCompletionTime(),
+                                    controlService.workloadStartTime())
+                    );
+                }
+            } catch (CompletionTimeException e) {
+                throw new ClientException(
+                        String.format("Error encountered while waiting for global completion time to advance to workload start time: %s", controlService.workloadStartTime())
+                );
+            }
+            logger.info("Initialization complete");
 
             logger.info("Driver Configuration");
             logger.info(controlService.toString());
