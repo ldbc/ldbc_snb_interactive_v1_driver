@@ -7,10 +7,7 @@ import com.ldbc.driver.temporal.Time;
 import com.ldbc.driver.temporal.TimeSource;
 
 import java.util.Queue;
-import java.util.concurrent.ConcurrentLinkedQueue;
-import java.util.concurrent.Future;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
+import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.atomic.AtomicReference;
@@ -19,21 +16,42 @@ public class ThreadedQueuedConcurrentMetricsService implements ConcurrentMetrics
     private static final Duration SHUTDOWN_WAIT_TIMEOUT = Duration.fromSeconds(5);
 
     private final TimeSource TIME_SOURCE;
-    private final Queue<MetricsCollectionEvent> metricsEventsQueue;
+    private final QueueEventSubmitter queueEventSubmitter;
     private final AtomicLong initiatedEvents;
     private final ThreadedQueuedMetricsMaintenanceThread threadedQueuedMetricsMaintenanceThread;
     private AtomicBoolean shutdown = new AtomicBoolean(false);
 
-    public ThreadedQueuedConcurrentMetricsService(TimeSource timeSource,
-                                                  ConcurrentErrorReporter errorReporter,
-                                                  TimeUnit unit,
-                                                  Time initialTime) {
+    public static ThreadedQueuedConcurrentMetricsService newInstanceUsingNonBlockingQueue(TimeSource timeSource,
+                                                                                          ConcurrentErrorReporter errorReporter,
+                                                                                          TimeUnit unit,
+                                                                                          Time initialTime) {
+        Queue<MetricsCollectionEvent> queue = new ConcurrentLinkedQueue<>();
+        return new ThreadedQueuedConcurrentMetricsService(timeSource, errorReporter, unit, initialTime, queue);
+    }
+
+    public static ThreadedQueuedConcurrentMetricsService newInstanceUsingBlockingQueue(TimeSource timeSource,
+                                                                                       ConcurrentErrorReporter errorReporter,
+                                                                                       TimeUnit unit,
+                                                                                       Time initialTime) {
+        Queue<MetricsCollectionEvent> queue = new LinkedBlockingQueue<>();
+        return new ThreadedQueuedConcurrentMetricsService(timeSource, errorReporter, unit, initialTime, queue);
+    }
+
+    private ThreadedQueuedConcurrentMetricsService(TimeSource timeSource,
+                                                   ConcurrentErrorReporter errorReporter,
+                                                   TimeUnit unit,
+                                                   Time initialTime,
+                                                   Queue<MetricsCollectionEvent> queue) {
         this.TIME_SOURCE = timeSource;
-        this.metricsEventsQueue = new ConcurrentLinkedQueue<>();
+
+        this.queueEventSubmitter = (BlockingQueue.class.isAssignableFrom(queue.getClass()))
+                ? new BlockingQueueEventSubmitter((BlockingQueue) queue)
+                : new NonBlockingQueueEventSubmitter(queue);
+
         this.initiatedEvents = new AtomicLong(0);
         threadedQueuedMetricsMaintenanceThread = new ThreadedQueuedMetricsMaintenanceThread(
                 errorReporter,
-                metricsEventsQueue,
+                queue,
                 new MetricsManager(TIME_SOURCE, unit, initialTime));
         threadedQueuedMetricsMaintenanceThread.start();
     }
@@ -45,8 +63,8 @@ public class ThreadedQueuedConcurrentMetricsService implements ConcurrentMetrics
         }
         try {
             initiatedEvents.incrementAndGet();
-            metricsEventsQueue.add(MetricsCollectionEvent.submitResult(operationResultReport));
-        } catch (Exception e) {
+            queueEventSubmitter.submitEventToQueue(MetricsCollectionEvent.submitResult(operationResultReport));
+        } catch (InterruptedException e) {
             String errMsg = String.format("Error submitting result [%s]", operationResultReport.toString());
             throw new MetricsCollectionException(errMsg, e);
         }
@@ -57,9 +75,13 @@ public class ThreadedQueuedConcurrentMetricsService implements ConcurrentMetrics
         if (shutdown.get()) {
             throw new MetricsCollectionException("Can not read metrics status after calling shutdown");
         }
-        MetricsStatusFuture statusFuture = new MetricsStatusFuture(TIME_SOURCE);
-        metricsEventsQueue.add(MetricsCollectionEvent.status(statusFuture));
-        return statusFuture.get();
+        try {
+            MetricsStatusFuture statusFuture = new MetricsStatusFuture(TIME_SOURCE);
+            queueEventSubmitter.submitEventToQueue(MetricsCollectionEvent.status(statusFuture));
+            return statusFuture.get();
+        } catch (InterruptedException e) {
+            throw new MetricsCollectionException("Error while submitting request for workload status", e);
+        }
     }
 
     @Override
@@ -67,17 +89,21 @@ public class ThreadedQueuedConcurrentMetricsService implements ConcurrentMetrics
         if (shutdown.get()) {
             throw new MetricsCollectionException("Can not retrieve results after calling shutdown");
         }
-        MetricsWorkloadResultFuture workloadResultFuture = new MetricsWorkloadResultFuture(TIME_SOURCE);
-        metricsEventsQueue.add(MetricsCollectionEvent.workloadResult(workloadResultFuture));
-        return workloadResultFuture.get();
+        try {
+            MetricsWorkloadResultFuture workloadResultFuture = new MetricsWorkloadResultFuture(TIME_SOURCE);
+            queueEventSubmitter.submitEventToQueue(MetricsCollectionEvent.workloadResult(workloadResultFuture));
+            return workloadResultFuture.get();
+        } catch (InterruptedException e) {
+            throw new MetricsCollectionException("Error while submitting request for workload results", e);
+        }
     }
 
     @Override
     synchronized public void shutdown() throws MetricsCollectionException {
         if (shutdown.get())
             throw new MetricsCollectionException("Metrics service has already been shutdown");
-        metricsEventsQueue.add(MetricsCollectionEvent.terminate(initiatedEvents.get()));
         try {
+            queueEventSubmitter.submitEventToQueue(MetricsCollectionEvent.terminate(initiatedEvents.get()));
             threadedQueuedMetricsMaintenanceThread.join(SHUTDOWN_WAIT_TIMEOUT.asMilli());
         } catch (InterruptedException e) {
             String errMsg = String.format("Thread was interrupted while waiting for %s to complete",
@@ -197,5 +223,35 @@ public class ThreadedQueuedConcurrentMetricsService implements ConcurrentMetrics
             }
             throw new TimeoutException("Could not complete future in time");
         }
+    }
+
+    private static class NonBlockingQueueEventSubmitter implements QueueEventSubmitter {
+        private final Queue<MetricsCollectionEvent> queue;
+
+        private NonBlockingQueueEventSubmitter(Queue<MetricsCollectionEvent> queue) {
+            this.queue = queue;
+        }
+
+        @Override
+        public void submitEventToQueue(MetricsCollectionEvent event) throws InterruptedException {
+            queue.add(event);
+        }
+    }
+
+    private static class BlockingQueueEventSubmitter implements QueueEventSubmitter {
+        private final BlockingQueue<MetricsCollectionEvent> queue;
+
+        private BlockingQueueEventSubmitter(BlockingQueue<MetricsCollectionEvent> queue) {
+            this.queue = queue;
+        }
+
+        @Override
+        public void submitEventToQueue(MetricsCollectionEvent event) throws InterruptedException {
+            queue.put(event);
+        }
+    }
+
+    private static interface QueueEventSubmitter {
+        void submitEventToQueue(MetricsCollectionEvent event) throws InterruptedException;
     }
 }

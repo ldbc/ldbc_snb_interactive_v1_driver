@@ -1,10 +1,16 @@
 package com.ldbc.driver.runtime.coordination;
 
 import com.google.common.collect.Lists;
+import com.google.common.collect.MinMaxPriorityQueue;
 import com.google.common.collect.TreeMultiset;
 import com.ldbc.driver.temporal.Time;
+import com.ldbc.driver.util.Function1;
+import com.ldbc.driver.util.Function2;
 
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Iterator;
+import java.util.List;
 
 /**
  * Completion time is the point in time AT which there are no uncompleted events.
@@ -18,8 +24,8 @@ import java.util.Collection;
  */
 public class LocalCompletionTimeStateManager implements LocalCompletionTimeReaderWriter {
     private Time localCompletionTime = null;
-    private final LocalInitiatedTimeTracker localInitiatedTimeTracker = new TreeMultisetLocalInitiatedTimeTracker();
-    private final LocalCompletedTimeTracker localCompletedTimeTracker = CollectionLocalCompletedTimeTracker.createUsingTreeMultiSet();
+    private final LocalInitiatedTimeTracker localInitiatedTimeTracker = LocalInitiatedTimeTrackerImpl.createUsingTreeMultiSet();
+    private final LocalCompletedTimeTracker localCompletedTimeTracker = LocalCompletedTimeTrackerImpl.createUsingTreeMultiSet();
     private Time lastKnownLowestInitiatedTime = null;
 
     LocalCompletionTimeStateManager() {
@@ -84,19 +90,53 @@ public class LocalCompletionTimeStateManager implements LocalCompletionTimeReade
         int uncompletedInitiatedTimes();
     }
 
-    static class CollectionLocalCompletedTimeTracker implements LocalCompletedTimeTracker {
-        private final Collection<Time> completedTimes;
+    static class LocalCompletedTimeTrackerImpl<INITIATED_TIMES_CONTAINER_TYPE extends Collection<Time>> implements LocalCompletedTimeTracker {
+        private final INITIATED_TIMES_CONTAINER_TYPE completedTimes;
+        private final Function2<INITIATED_TIMES_CONTAINER_TYPE, Time, Time> removeTimesLowerThanAndReturnHighestRemovedFun;
 
-        static CollectionLocalCompletedTimeTracker createUsingTreeMultiSet() {
-            return new CollectionLocalCompletedTimeTracker(TreeMultiset.<Time>create());
+        static LocalCompletedTimeTrackerImpl createUsingTreeMultiSet() {
+            Function2<TreeMultiset<Time>, Time, Time> removeTimesLowerThanAndReturnHighestRemovedFun = new Function2<TreeMultiset<Time>, Time, Time>() {
+                @Override
+                public Time apply(TreeMultiset<Time> completedTimes, Time time) {
+                    Time highestRemoved = null;
+                    for (Time completedTime : completedTimes) {
+                        if (completedTime.lt(time)) {
+                            completedTimes.remove(completedTime);
+                            highestRemoved = completedTime;
+                        } else {
+                            break;
+                        }
+                    }
+                    return highestRemoved;
+                }
+            };
+            return new LocalCompletedTimeTrackerImpl(TreeMultiset.<Time>create(), removeTimesLowerThanAndReturnHighestRemovedFun);
         }
 
-        static CollectionLocalCompletedTimeTracker createUsingArrayList() {
-            return new CollectionLocalCompletedTimeTracker(Lists.<Time>newArrayList());
+        static LocalCompletedTimeTrackerImpl createUsingArrayList() {
+            Function2<ArrayList<Time>, Time, Time> removeTimesLowerThanAndReturnHighestRemovedFun = new Function2<ArrayList<Time>, Time, Time>() {
+                @Override
+                public Time apply(ArrayList<Time> completedTimes, Time time) {
+                    Time highestRemoved = null;
+                    Iterator<Time> completedTimesIterator = completedTimes.iterator();
+                    while (completedTimesIterator.hasNext()) {
+                        Time completedTime = completedTimesIterator.next();
+                        if (completedTime.lt(time)) {
+                            completedTimesIterator.remove();
+                            if (null == highestRemoved || completedTime.gt(highestRemoved)) {
+                                highestRemoved = completedTime;
+                            }
+                        }
+                    }
+                    return highestRemoved;
+                }
+            };
+            return new LocalCompletedTimeTrackerImpl(Lists.<Time>newArrayList(), removeTimesLowerThanAndReturnHighestRemovedFun);
         }
 
-        private CollectionLocalCompletedTimeTracker(Collection<Time> completedTimes) {
+        private LocalCompletedTimeTrackerImpl(INITIATED_TIMES_CONTAINER_TYPE completedTimes, Function2<INITIATED_TIMES_CONTAINER_TYPE, Time, Time> removeTimesLowerThanAndReturnHighestRemovedFun) {
             this.completedTimes = completedTimes;
+            this.removeTimesLowerThanAndReturnHighestRemovedFun = removeTimesLowerThanAndReturnHighestRemovedFun;
         }
 
         @Override
@@ -106,16 +146,7 @@ public class LocalCompletionTimeStateManager implements LocalCompletionTimeReade
 
         @Override
         public Time removeTimesLowerThanAndReturnHighestRemoved(Time time) {
-            Time highestRemoved = null;
-            for (Time completedTime : completedTimes) {
-                if (completedTime.lt(time)) {
-                    completedTimes.remove(completedTime);
-                    highestRemoved = completedTime;
-                } else {
-                    break;
-                }
-            }
-            return highestRemoved;
+            return removeTimesLowerThanAndReturnHighestRemovedFun.apply(completedTimes, time);
         }
 
         @Override
@@ -126,12 +157,51 @@ public class LocalCompletionTimeStateManager implements LocalCompletionTimeReade
         }
     }
 
-    static class TreeMultisetLocalInitiatedTimeTracker implements LocalInitiatedTimeTracker {
-        // TODO use List
-        private final TreeMultiset<Time> initiatedTimes = TreeMultiset.create();
+    static class LocalInitiatedTimeTrackerImpl<INITIATED_TIMES_CONTAINER_TYPE extends Collection<Time>> implements LocalInitiatedTimeTracker {
+        private final INITIATED_TIMES_CONTAINER_TYPE initiatedTimes;
+        private final Function1<INITIATED_TIMES_CONTAINER_TYPE, Time> getLastKnownLowestInitiatedTimeFun;
         private Time lastKnownLowestInitiatedTime = null;
         private Time highestInitiatedTime = null;
         private int uncompletedInitiatedTimes = 0;
+
+        static LocalInitiatedTimeTrackerImpl createUsingTreeMultiSet() {
+            Function1<TreeMultiset<Time>, Time> getLastKnownLowestInitiatedTimeFun = new Function1<TreeMultiset<Time>, Time>() {
+                @Override
+                public Time apply(TreeMultiset<Time> initiatedTimes) {
+                    return initiatedTimes.firstEntry().getElement();
+                }
+            };
+            return new LocalInitiatedTimeTrackerImpl(TreeMultiset.<Time>create(), getLastKnownLowestInitiatedTimeFun);
+        }
+
+        static LocalInitiatedTimeTrackerImpl createUsingArrayList() {
+            Function1<List<Time>, Time> getLastKnownLowestInitiatedTimeFun = new Function1<List<Time>, Time>() {
+                @Override
+                public Time apply(List<Time> initiatedTimes) {
+                    return initiatedTimes.get(0);
+                }
+            };
+            return new LocalInitiatedTimeTrackerImpl(Lists.<Time>newArrayList(), getLastKnownLowestInitiatedTimeFun);
+        }
+
+        static LocalInitiatedTimeTrackerImpl createUsingMinMaxPriorityQueue() {
+            // TODO this seems to have a bug for larger values, don't use it
+            System.err.println(String.format("LocalInitiatedTimeTrackerImpl.createUsingMinMaxPriorityQueue() is buggy. When collection size is very large values seem to get dropped. DO NOT USE!"));
+            MinMaxPriorityQueue.<Time>create();
+            Function1<MinMaxPriorityQueue<Time>, Time> getLastKnownLowestInitiatedTimeFun = new Function1<MinMaxPriorityQueue<Time>, Time>() {
+                @Override
+                public Time apply(MinMaxPriorityQueue<Time> initiatedTimes) {
+                    return initiatedTimes.peekFirst();
+                }
+            };
+            return new LocalInitiatedTimeTrackerImpl(MinMaxPriorityQueue.<Time>create(), getLastKnownLowestInitiatedTimeFun);
+        }
+
+        private LocalInitiatedTimeTrackerImpl(INITIATED_TIMES_CONTAINER_TYPE initiatedTimes,
+                                              Function1<INITIATED_TIMES_CONTAINER_TYPE, Time> getLastKnownLowestInitiatedTimeFun) {
+            this.initiatedTimes = initiatedTimes;
+            this.getLastKnownLowestInitiatedTimeFun = getLastKnownLowestInitiatedTimeFun;
+        }
 
         @Override
         public Time addInitiatedTimeAndReturnLastKnownLowestTime(Time time) throws CompletionTimeException {
@@ -160,10 +230,10 @@ public class LocalCompletionTimeStateManager implements LocalCompletionTimeReade
                 if (0 == uncompletedInitiatedTimes)
                     lastKnownLowestInitiatedTime = highestInitiatedTime;
                 else
-                    lastKnownLowestInitiatedTime = initiatedTimes.firstEntry().getElement();
+                    lastKnownLowestInitiatedTime = getLastKnownLowestInitiatedTimeFun.apply(initiatedTimes);
                 return lastKnownLowestInitiatedTime;
             } else {
-                throw new CompletionTimeException("Initiated time of completed event does not map to any uncompleted operation");
+                throw new CompletionTimeException(String.format("Initiated time [%s] of completed event does not map to any uncompleted operation", time));
             }
         }
 

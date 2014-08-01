@@ -21,42 +21,45 @@ public class CompletionTimeServiceAssistantTest {
         CompletionTimeServiceAssistant assistant = new CompletionTimeServiceAssistant();
         ConcurrentCompletionTimeService completionTimeService =
                 assistant.newSynchronizedConcurrentCompletionTimeServiceFromPeerIds(new HashSet<String>());
+        try {
+            // initial gct should be null
+            assertThat(completionTimeService.globalCompletionTime(), is(nullValue()));
 
-        // initial gct should be null
-        assertThat(completionTimeService.globalCompletionTime(), is(nullValue()));
+            // there are no writers, gct will never advance
+            boolean gctAdvancedSuccessfully =
+                    assistant.waitForGlobalCompletionTime(timeSource, Time.fromMilli(0), Duration.fromSeconds(1), completionTimeService, errorReporter);
+            assertThat(gctAdvancedSuccessfully, is(false));
+            assertThat(completionTimeService.globalCompletionTime(), is(nullValue()));
 
-        // there are no writers, gct will never advance
-        boolean gctAdvancedSuccessfully =
-                assistant.waitForGlobalCompletionTime(timeSource, Time.fromMilli(0), Duration.fromSeconds(1), completionTimeService, errorReporter);
-        assertThat(gctAdvancedSuccessfully, is(false));
-        assertThat(completionTimeService.globalCompletionTime(), is(nullValue()));
+            LocalCompletionTimeWriter writer1 = completionTimeService.newLocalCompletionTimeWriter();
+            LocalCompletionTimeWriter writer2 = completionTimeService.newLocalCompletionTimeWriter();
 
-        LocalCompletionTimeWriter writer1 = completionTimeService.newLocalCompletionTimeWriter();
-        LocalCompletionTimeWriter writer2 = completionTimeService.newLocalCompletionTimeWriter();
+            // no initiated/completed times have been submitted, gct will never advance
+            gctAdvancedSuccessfully =
+                    assistant.waitForGlobalCompletionTime(timeSource, Time.fromMilli(0), Duration.fromSeconds(1), completionTimeService, errorReporter);
+            assertThat(gctAdvancedSuccessfully, is(false));
+            assertThat(completionTimeService.globalCompletionTime(), is(nullValue()));
 
-        // no initiated/completed times have been submitted, gct will never advance
-        gctAdvancedSuccessfully =
-                assistant.waitForGlobalCompletionTime(timeSource, Time.fromMilli(0), Duration.fromSeconds(1), completionTimeService, errorReporter);
-        assertThat(gctAdvancedSuccessfully, is(false));
-        assertThat(completionTimeService.globalCompletionTime(), is(nullValue()));
+            assistant.writeInitiatedAndCompletedTimesToAllWriters(completionTimeService, Time.fromMilli(0));
 
-        assistant.writeInitiatedAndCompletedTimesToAllWriters(completionTimeService, Time.fromMilli(0));
+            // gct can not be known at this stage, because more 0 times/values may arrive later
+            // IT[ ] CT[0] --> GCT = ?
+            gctAdvancedSuccessfully =
+                    assistant.waitForGlobalCompletionTime(timeSource, Time.fromMilli(0), Duration.fromSeconds(1), completionTimeService, errorReporter);
+            assertThat(gctAdvancedSuccessfully, is(false));
+            assertThat(completionTimeService.globalCompletionTime(), is(nullValue()));
 
-        // gct can not be known at this stage, because more 0 times/values may arrive later
-        // IT[ ] CT[0] --> GCT = ?
-        gctAdvancedSuccessfully =
-                assistant.waitForGlobalCompletionTime(timeSource, Time.fromMilli(0), Duration.fromSeconds(1), completionTimeService, errorReporter);
-        assertThat(gctAdvancedSuccessfully, is(false));
-        assertThat(completionTimeService.globalCompletionTime(), is(nullValue()));
+            assistant.writeInitiatedAndCompletedTimesToAllWriters(completionTimeService, Time.fromMilli(1));
 
-        assistant.writeInitiatedAndCompletedTimesToAllWriters(completionTimeService, Time.fromMilli(1));
+            // gct should now be 0, because no more 0 values/times can come after 1 values/times have been written to all writers
+            // IT[ , ] CT[0,1] --> GCT = 0
+            gctAdvancedSuccessfully =
+                    assistant.waitForGlobalCompletionTime(timeSource, Time.fromMilli(0), Duration.fromSeconds(1), completionTimeService, errorReporter);
 
-        // gct should now be 0, because no more 0 values/times can come after 1 values/times have been written to all writers
-        // IT[ , ] CT[0,1] --> GCT = 0
-        gctAdvancedSuccessfully =
-                assistant.waitForGlobalCompletionTime(timeSource, Time.fromMilli(0), Duration.fromSeconds(1), completionTimeService, errorReporter);
-
-        assertThat(gctAdvancedSuccessfully, is(true));
-        assertThat(completionTimeService.globalCompletionTime(), is(Time.fromMilli(0)));
+            assertThat(gctAdvancedSuccessfully, is(true));
+            assertThat(completionTimeService.globalCompletionTime(), is(Time.fromMilli(0)));
+        } finally {
+            completionTimeService.shutdown();
+        }
     }
 }

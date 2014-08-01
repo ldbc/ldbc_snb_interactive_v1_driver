@@ -24,6 +24,7 @@ public class IteratorSplitterTest {
     }
 
     public void doShouldSplitIteratorCorrectlyGivenSimpleCaseAndSmallInput() throws IteratorSplittingException, InterruptedException {
+        // TODO do this as @Before @After thing
         // TODO test if this exposes bugs
 //        ThreadPoolLoadGenerator testLoadGenerator = TestUtils.newThreadPoolLoadGenerator(16, Duration.fromMilli(0));
 //        testLoadGenerator.start();

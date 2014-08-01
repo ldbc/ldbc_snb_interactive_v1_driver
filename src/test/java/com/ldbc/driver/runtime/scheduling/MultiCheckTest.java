@@ -2,6 +2,7 @@ package com.ldbc.driver.runtime.scheduling;
 
 import com.google.common.collect.Lists;
 import com.ldbc.driver.Operation;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import static org.hamcrest.CoreMatchers.is;
@@ -31,6 +32,18 @@ public class MultiCheckTest {
             return false;
         }
     };
+
+    @Ignore
+    @Test
+    public void writeTestsThatFailAtFirstAndThenPassLaterToTestStateMaintenanceInMultiCheck() {
+        assertThat(true, is(false));
+    }
+
+    @Ignore
+    @Test
+    public void comparePerformanceOfTwoMultiCheckImplementations_BothInSameClassRightNowButOneIsCommentedOut() {
+        assertThat(true, is(false));
+    }
 
     @Test
     public void shouldPassWhenThereAreNoChecksToPerform() {

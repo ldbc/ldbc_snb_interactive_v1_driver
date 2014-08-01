@@ -197,7 +197,7 @@ public class Client {
                         String.format("Error while instantiating Completion Time Service with peer IDs %s", controlService.configuration().peerIds().toString()), e);
             }
 
-            metricsService = new ThreadedQueuedConcurrentMetricsService(
+            metricsService = ThreadedQueuedConcurrentMetricsService.newInstanceUsingBlockingQueue(
                     timeSource,
                     errorReporter,
                     controlService.configuration().timeUnit(),

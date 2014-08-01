@@ -23,7 +23,7 @@
         <common.math.version>3.2</common.math.version>
         <log4j.version>1.2.17</log4j.version>
         <hdrhistogram.version>1.2.1</hdrhistogram.version>
-        <guava.version>15.0</guava.version>
+        <guava.version>17.0</guava.version>
         <commmons.cli.version>1.2</commmons.cli.version>
     </properties>
 

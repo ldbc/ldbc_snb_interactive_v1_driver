@@ -4,21 +4,33 @@ import com.ldbc.driver.OperationResultReport;
 import com.ldbc.driver.runtime.ConcurrentErrorReporter;
 
 import java.util.Queue;
+import java.util.concurrent.BlockingQueue;
 
 public class ThreadedQueuedMetricsMaintenanceThread extends Thread {
     private final MetricsManager metricsManager;
     private final ConcurrentErrorReporter errorReporter;
-    private final Queue<MetricsCollectionEvent> metricsEventsQueue;
+    private final QueueEventFetcher queueEventFetcher;
     private Long processedEventCount = 0l;
     private Long expectedEventCount = null;
 
     public ThreadedQueuedMetricsMaintenanceThread(ConcurrentErrorReporter errorReporter,
                                                   Queue<MetricsCollectionEvent> metricsEventsQueue,
                                                   MetricsManager metricsManager) {
+        this(
+                errorReporter,
+                (BlockingQueue.class.isAssignableFrom(metricsEventsQueue.getClass()))
+                        ? new BlockingQueueEventFetcher((BlockingQueue) metricsEventsQueue)
+                        : new NonBlockingQueueEventFetcher(metricsEventsQueue),
+                metricsManager);
+    }
+
+    private ThreadedQueuedMetricsMaintenanceThread(ConcurrentErrorReporter errorReporter,
+                                                   QueueEventFetcher queueEventFetcher,
+                                                   MetricsManager metricsManager) {
         super(ThreadedQueuedMetricsMaintenanceThread.class.getSimpleName() + "-" + System.currentTimeMillis());
         this.errorReporter = errorReporter;
-        this.metricsEventsQueue = metricsEventsQueue;
         this.metricsManager = metricsManager;
+        this.queueEventFetcher = queueEventFetcher;
     }
 
     @Override
@@ -27,7 +39,7 @@ public class ThreadedQueuedMetricsMaintenanceThread extends Thread {
             try {
                 MetricsCollectionEvent event = null;
                 while (event == null) {
-                    event = metricsEventsQueue.poll();
+                    event = queueEventFetcher.fetchNextEvent();
                 }
                 switch (event.type()) {
                     case SUBMIT_RESULT:
@@ -86,5 +98,39 @@ public class ThreadedQueuedMetricsMaintenanceThread extends Thread {
             String errMsg = String.format("Error encountered while logging result:\n\t%s", operationResultReport);
             throw new MetricsCollectionException(errMsg, e);
         }
+    }
+
+    private static class NonBlockingQueueEventFetcher implements QueueEventFetcher {
+        private final Queue<MetricsCollectionEvent> queue;
+
+        private NonBlockingQueueEventFetcher(Queue<MetricsCollectionEvent> queue) {
+            this.queue = queue;
+        }
+
+        @Override
+        public MetricsCollectionEvent fetchNextEvent() throws InterruptedException {
+            MetricsCollectionEvent event = null;
+            while (event == null) {
+                event = queue.poll();
+            }
+            return event;
+        }
+    }
+
+    private static class BlockingQueueEventFetcher implements QueueEventFetcher {
+        private final BlockingQueue<MetricsCollectionEvent> queue;
+
+        private BlockingQueueEventFetcher(BlockingQueue<MetricsCollectionEvent> queue) {
+            this.queue = queue;
+        }
+
+        @Override
+        public MetricsCollectionEvent fetchNextEvent() throws InterruptedException {
+            return queue.take();
+        }
+    }
+
+    private static interface QueueEventFetcher {
+        MetricsCollectionEvent fetchNextEvent() throws InterruptedException;
     }
 }

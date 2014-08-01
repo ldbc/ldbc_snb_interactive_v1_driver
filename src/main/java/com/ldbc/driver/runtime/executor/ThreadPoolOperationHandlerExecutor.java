@@ -4,6 +4,7 @@ import com.ldbc.driver.OperationHandler;
 import com.ldbc.driver.OperationResultReport;
 import com.ldbc.driver.temporal.Duration;
 
+import java.util.List;
 import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicLong;
@@ -45,7 +46,10 @@ public class ThreadPoolOperationHandlerExecutor implements OperationHandlerExecu
             threadPoolExecutorService.shutdown();
             boolean allHandlersCompleted = threadPoolExecutorService.awaitTermination(wait.asMilli(), TimeUnit.MILLISECONDS);
             if (false == allHandlersCompleted) {
-                throw new OperationHandlerExecutorException("Executor shutdown before all handlers could complete execution");
+                List<Runnable> stillRunningThreads = threadPoolExecutorService.shutdownNow();
+                if (false == stillRunningThreads.isEmpty()) {
+                    throw new OperationHandlerExecutorException("Executor shutdown before all handlers could complete execution");
+                }
             }
         } catch (Exception e) {
             throw new OperationHandlerExecutorException("Error encountered while trying to shutdown", e);

@@ -91,8 +91,9 @@ public abstract class OperationHandler<OPERATION_TYPE extends Operation<?>> impl
             long startTimeAsMilli = TIME_SOURCE.nowAsMilli();
             OperationResultReport operationResultReport = executeOperation(operation);
             long finishTimeAsMilli = TIME_SOURCE.nowAsMilli();
-            if (null == operationResultReport)
+            if (null == operationResultReport) {
                 throw new DbException(String.format("Handler returned null result:\n %s", toString()));
+            }
             operationResultReport.setRunDuration(Duration.fromMilli(finishTimeAsMilli - startTimeAsMilli));
             operationResultReport.setActualStartTime(Time.fromMilli(startTimeAsMilli));
             operationResultReport.setOperationType(operation.type());

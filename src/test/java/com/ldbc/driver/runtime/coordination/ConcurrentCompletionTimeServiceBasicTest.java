@@ -26,7 +26,11 @@ public class ConcurrentCompletionTimeServiceBasicTest {
                 assistant.newSynchronizedConcurrentCompletionTimeServiceFromPeerIds(peerIds);
 
         // Then
-        shouldBehavePredictablyAfterInstantiation(completionTimeService);
+        try {
+            shouldBehavePredictablyAfterInstantiation(completionTimeService);
+        } finally {
+            completionTimeService.shutdown();
+        }
     }
 
     @Test
@@ -40,7 +44,11 @@ public class ConcurrentCompletionTimeServiceBasicTest {
                 assistant.newThreadedQueuedConcurrentCompletionTimeServiceFromPeerIds(timeSource, peerIds, errorReporter);
 
         // Then
-        shouldBehavePredictablyAfterInstantiation(completionTimeService);
+        try {
+            shouldBehavePredictablyAfterInstantiation(completionTimeService);
+        } finally {
+            completionTimeService.shutdown();
+        }
     }
 
     public void shouldBehavePredictablyAfterInstantiation(ConcurrentCompletionTimeService completionTimeService) throws CompletionTimeException, InterruptedException, ExecutionException, TimeoutException {
@@ -64,7 +72,11 @@ public class ConcurrentCompletionTimeServiceBasicTest {
                 assistant.newSynchronizedConcurrentCompletionTimeServiceFromPeerIds(peerIds);
 
         // Then
-        shouldAdvanceGctWhenWriterSubmitInitiatedAndCompletedTimes(completionTimeService);
+        try {
+            shouldAdvanceGctWhenWriterSubmitInitiatedAndCompletedTimes(completionTimeService);
+        } finally {
+            completionTimeService.shutdown();
+        }
     }
 
     @Test
@@ -78,7 +90,11 @@ public class ConcurrentCompletionTimeServiceBasicTest {
                 assistant.newThreadedQueuedConcurrentCompletionTimeServiceFromPeerIds(timeSource, peerIds, errorReporter);
 
         // Then
-        shouldAdvanceGctWhenWriterSubmitInitiatedAndCompletedTimes(completionTimeService);
+        try {
+            shouldAdvanceGctWhenWriterSubmitInitiatedAndCompletedTimes(completionTimeService);
+        } finally {
+            completionTimeService.shutdown();
+        }
     }
 
     public void shouldAdvanceGctWhenWriterSubmitInitiatedAndCompletedTimes(ConcurrentCompletionTimeService completionTimeService) throws CompletionTimeException, InterruptedException, ExecutionException, TimeoutException {
@@ -110,7 +126,11 @@ public class ConcurrentCompletionTimeServiceBasicTest {
 
 
         // Then
-        shouldReturnAllWriters(completionTimeService);
+        try {
+            shouldReturnAllWriters(completionTimeService);
+        } finally {
+            completionTimeService.shutdown();
+        }
     }
 
     @Test
@@ -125,7 +145,11 @@ public class ConcurrentCompletionTimeServiceBasicTest {
 
 
         // Then
-        shouldReturnAllWriters(completionTimeService);
+        try {
+            shouldReturnAllWriters(completionTimeService);
+        } finally {
+            completionTimeService.shutdown();
+        }
     }
 
     public void shouldReturnAllWriters(ConcurrentCompletionTimeService completionTimeService) throws CompletionTimeException {

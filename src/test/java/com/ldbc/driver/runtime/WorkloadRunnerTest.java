@@ -12,12 +12,10 @@ import com.ldbc.driver.runtime.metrics.ConcurrentMetricsService;
 import com.ldbc.driver.runtime.metrics.MetricsCollectionException;
 import com.ldbc.driver.runtime.metrics.ThreadedQueuedConcurrentMetricsService;
 import com.ldbc.driver.runtime.metrics.WorkloadResultsSnapshot;
-import com.ldbc.driver.runtime.scheduling.Spinner;
 import com.ldbc.driver.temporal.Duration;
 import com.ldbc.driver.temporal.SystemTimeSource;
 import com.ldbc.driver.temporal.TimeSource;
 import com.ldbc.driver.testutils.TestUtils;
-import com.ldbc.driver.testutils.ThreadPoolLoadGenerator;
 import com.ldbc.driver.util.RandomDataGeneratorFactory;
 import com.ldbc.driver.workloads.ldbc.snb.interactive.LdbcSnbInteractiveWorkload;
 import com.ldbc.driver.workloads.ldbc.snb.interactive.db.CsvWritingLdbcSnbInteractiveDb;
@@ -83,7 +81,7 @@ public class WorkloadRunnerTest {
         Iterator<Operation<?>> timeMappedOperations = generators.timeOffsetAndCompress(operations, controlService.workloadStartTime(), 1.0);
         Map<Class<? extends Operation>, OperationClassification> operationClassifications = workload.operationClassifications();
         ConcurrentErrorReporter errorReporter = new ConcurrentErrorReporter();
-        ConcurrentMetricsService metricsService = new ThreadedQueuedConcurrentMetricsService(
+        ConcurrentMetricsService metricsService = ThreadedQueuedConcurrentMetricsService.newInstanceUsingBlockingQueue(
                 TIME_SOURCE,
                 errorReporter,
                 configuration.timeUnit(),
@@ -177,7 +175,7 @@ public class WorkloadRunnerTest {
         Iterator<Operation<?>> timeMappedOperations = generators.timeOffsetAndCompress(operations, controlService.workloadStartTime(), 1.0);
         Map<Class<? extends Operation>, OperationClassification> operationClassifications = workload.operationClassifications();
         ConcurrentErrorReporter errorReporter = new ConcurrentErrorReporter();
-        ConcurrentMetricsService metricsService = new ThreadedQueuedConcurrentMetricsService(
+        ConcurrentMetricsService metricsService = ThreadedQueuedConcurrentMetricsService.newInstanceUsingBlockingQueue(
                 TIME_SOURCE,
                 errorReporter,
                 configuration.timeUnit(),

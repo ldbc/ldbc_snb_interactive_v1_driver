@@ -13,6 +13,16 @@ public class TimeTest {
         assertThat(true, is(false));
     }
 
+    @Ignore
+    @Test
+    public void introduceTimeStampType() {
+        // TODO TimeStamp = Time + unique long id
+        // TODO serves two purposes:
+        // TODO (1) gives operations unique ID
+        // TODO (2) makes GCT tracking easier because TimeStamps are all unique, allows for more efficient implementations
+        assertThat(true, is(false));
+    }
+
     @Test
     public void timeAndDurationShouldBeCapableOfStoringSufficientlyLargeValuesAtNanoSecondResolution() {
         long secondAsMilli = 1000;

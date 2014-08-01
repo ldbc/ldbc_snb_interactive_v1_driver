@@ -13,12 +13,13 @@ import java.util.List;
  */
 public class MultiCheck implements SpinnerCheck {
     private final List<SpinnerCheck> checks;
+    private boolean allChecksHavePassed = false;
 
     public MultiCheck(List<SpinnerCheck> checks) {
         this.checks = checks;
     }
 
-    @Override
+        @Override
     public boolean doCheck() {
         if (checks.isEmpty()) return true;
         List<SpinnerCheck> checksToRemove = new ArrayList<>();
@@ -32,6 +33,24 @@ public class MultiCheck implements SpinnerCheck {
         }
         return checks.isEmpty();
     }
+//    @Override
+//    public boolean doCheck() {
+//        if (allChecksHavePassed) return true;
+//        for (int i = 0; i < checks.size(); i++) {
+//            SpinnerCheck check = checks.get(i);
+//            if (null != check) {
+//                if (check.doCheck()) {
+//                    // check passed
+//                    checks.set(i, null);
+//                } else {
+//                    // check failed
+//                    return false;
+//                }
+//            }
+//        }
+//        allChecksHavePassed = true;
+//        return allChecksHavePassed;
+//    }
 
     @Override
     public boolean handleFailedCheck(Operation<?> operation) {

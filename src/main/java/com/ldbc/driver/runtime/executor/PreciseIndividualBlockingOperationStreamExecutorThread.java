@@ -127,7 +127,6 @@ class PreciseIndividualBlockingOperationStreamExecutorThread extends Thread {
 
         @Override
         public boolean handleFailedCheck(Operation<?> operation) {
-            System.out.println(previousOperation);
             String errMsg = String.format(
                     "Previous operation did not complete in time for next synchronous operation to start\n"
                             + " Previous Operation (%s): %s\n"

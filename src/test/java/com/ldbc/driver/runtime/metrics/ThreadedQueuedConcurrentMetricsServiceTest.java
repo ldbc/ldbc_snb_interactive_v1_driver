@@ -8,33 +8,49 @@ import com.ldbc.driver.temporal.Duration;
 import com.ldbc.driver.temporal.SystemTimeSource;
 import com.ldbc.driver.temporal.Time;
 import com.ldbc.driver.temporal.TimeSource;
-import org.junit.Ignore;
 import org.junit.Test;
 
 import java.util.concurrent.TimeUnit;
 
 import static org.hamcrest.CoreMatchers.equalTo;
-import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
 
 public class ThreadedQueuedConcurrentMetricsServiceTest {
     TimeSource TIME_SOURCE = new SystemTimeSource();
 
-    @Ignore
     @Test
-    public void makeWaitLoopBlockingRatherThanPollingToSaveOnCPU() {
-        assertThat(true, is(false));
-    }
-
-    @Test
-    public void shouldReturnCorrectMeasurements() throws WorkloadException, MetricsCollectionException {
+    public void shouldReturnCorrectMeasurementsWhenBlockingQueueIsUsed() throws WorkloadException, MetricsCollectionException {
         Time initialTime = Time.fromMilli(0);
-        ConcurrentMetricsService metricsService = new ThreadedQueuedConcurrentMetricsService(
+        ConcurrentMetricsService metricsService = ThreadedQueuedConcurrentMetricsService.newInstanceUsingBlockingQueue(
                 TIME_SOURCE,
                 new ConcurrentErrorReporter(),
                 TimeUnit.MILLISECONDS,
                 initialTime);
 
+        try {
+            shouldReturnCorrectMeasurements(metricsService);
+        } finally {
+            metricsService.shutdown();
+        }
+    }
+
+    @Test
+    public void shouldReturnCorrectMeasurementsWhenNonBlockingQueueIsUsed() throws WorkloadException, MetricsCollectionException {
+        Time initialTime = Time.fromMilli(0);
+        ConcurrentMetricsService metricsService = ThreadedQueuedConcurrentMetricsService.newInstanceUsingBlockingQueue(
+                TIME_SOURCE,
+                new ConcurrentErrorReporter(),
+                TimeUnit.MILLISECONDS,
+                initialTime);
+
+        try {
+            shouldReturnCorrectMeasurements(metricsService);
+        } finally {
+            metricsService.shutdown();
+        }
+    }
+
+    public void shouldReturnCorrectMeasurements(ConcurrentMetricsService metricsService) throws WorkloadException, MetricsCollectionException {
         OperationResultReport operationResultReport1 = OperationResultReportTestHelper.create(1, "result one");
         OperationResultReportTestHelper.setOperationType(operationResultReport1, "type one");
         OperationResultReportTestHelper.setScheduledStartTime(operationResultReport1, Time.fromMilli(1));
@@ -59,7 +75,5 @@ public class ThreadedQueuedConcurrentMetricsServiceTest {
 
         assertThat(metricsService.results().startTime(), equalTo(Time.fromMilli(0)));
         assertThat(metricsService.results().latestFinishTime(), equalTo(Time.fromMilli(16)));
-
-        metricsService.shutdown();
     }
 }
