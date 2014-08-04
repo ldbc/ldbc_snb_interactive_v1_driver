@@ -172,6 +172,30 @@ public class GeneratorFactory {
     /**
      * Assigns dependency times to all operations that do not yet have one assigned,
      * or to all if canOverwriteDependencyTime is true.
+     * The dependency time assigned is equal to the scheduled start time of the previous operation,
+     * starting with initialDependencyTime.
+     * All operations in the returned iterator will have dependency times assigned to them.
+     *
+     * @param operations
+     * @param initialDependencyTime
+     * @param canOverwriteDependencyTime
+     * @return
+     */
+    public Iterator<Operation<?>> assignConservativeDependencyTimes(Iterator<Operation<?>> operations,
+                                                                    final Time initialDependencyTime,
+                                                                    final boolean canOverwriteDependencyTime) {
+        Function1<Operation<?>, Boolean> isDependency = new Function1<Operation<?>, Boolean>() {
+            @Override
+            public Boolean apply(Operation<?> operation) {
+                return true;
+            }
+        };
+        return assignConservativeDependencyTimes(operations, isDependency, initialDependencyTime, canOverwriteDependencyTime);
+    }
+
+    /**
+     * Assigns dependency times to all operations that do not yet have one assigned,
+     * or to all if canOverwriteDependencyTime is true.
      * The dependency time assigned is equal to the scheduled start time of the last operation for which the
      * isDependency predicate returned true, starting with initialDependencyTime.
      * All operations in the returned iterator will have dependency times assigned to them.

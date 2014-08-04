@@ -182,7 +182,7 @@ public class WorkloadStatistics {
                     append("Min Dependency Duration(").append(lowestDependencyDurationForOperationType.getValue()).append(") ");
             if (operationInterleavesByOperationType().containsKey(operationType)) {
                 ContinuousMetricSnapshot interleavesForOperationTypeSnapshot = operationInterleavesByOperationType().get(operationType).snapshot();
-                sb.append(String.format("%1$-" + padRightDistance + "s", "     " + operationType.getSimpleName() + ":")).
+                sb.
                         append("Time Span(").
                         append(firstStartTypeForOperationType).append(", ").append(lastStartTypeForOperationType).append(") ").
                         append("Interleave(").
@@ -191,20 +191,6 @@ public class WorkloadStatistics {
                         append("max = ").append(Duration.fromMilli(interleavesForOperationTypeSnapshot.max())).append(")");
             }
             sb.append("\n");
-        }
-
-        for (Map.Entry<Class, ContinuousMetricManager> interleavesForOperationType : MapUtils.sortedEntrySet(operationInterleavesByOperationType())) {
-            Class<Operation<?>> operationType = interleavesForOperationType.getKey();
-            Time firstStartTypeForOperationType = firstStartTimesByOperationType().get(operationType);
-            Time lastStartTypeForOperationType = lastStartTimesByOperationType().get(operationType);
-            ContinuousMetricSnapshot interleavesForOperationTypeSnapshot = interleavesForOperationType.getValue().snapshot();
-            sb.append(String.format("%1$-" + padRightDistance + "s", "     " + operationType.getSimpleName() + ":")).
-                    append("Time Span(").
-                    append(firstStartTypeForOperationType).append(", ").append(lastStartTypeForOperationType).append(") ").
-                    append("Interleave(").
-                    append("min = ").append(Duration.fromMilli(interleavesForOperationTypeSnapshot.min())).append(" / ").
-                    append("mean = ").append(Duration.fromMilli(Math.round(interleavesForOperationTypeSnapshot.mean()))).append(" / ").
-                    append("max = ").append(Duration.fromMilli(interleavesForOperationTypeSnapshot.max())).append(")\n");
         }
         sb.append("********************************************************");
         return sb.toString();

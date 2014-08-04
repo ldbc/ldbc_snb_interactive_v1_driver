@@ -10,10 +10,10 @@ import com.ldbc.driver.temporal.Duration;
 import com.ldbc.driver.temporal.SystemTimeSource;
 import com.ldbc.driver.temporal.Time;
 import com.ldbc.driver.temporal.TimeSource;
+import com.ldbc.driver.testutils.TestUtils;
 import com.ldbc.driver.util.CsvFileReader;
 import com.ldbc.driver.util.Histogram;
 import com.ldbc.driver.util.RandomDataGeneratorFactory;
-import com.ldbc.driver.testutils.TestUtils;
 import org.apache.commons.io.FileUtils;
 import org.junit.After;
 import org.junit.Before;
@@ -376,12 +376,21 @@ public class WriteEventStreamReaderTest {
 
     @Test
     public void timestampsInUpdateStreamShouldBeMonotonicallyIncreasingAfterOffset() throws FileNotFoundException {
-        GeneratorFactory generators = new GeneratorFactory(new RandomDataGeneratorFactory(42L));
+        GeneratorFactory gf = new GeneratorFactory(new RandomDataGeneratorFactory(42L));
         String csvFilePath = TestUtils.getResource("/updateStream_0.csv").getAbsolutePath();
         File csvFile = new File(csvFilePath);
         CsvFileReader csvFileReader = new CsvFileReader(csvFile, "\\|");
+
         Iterator<Operation<?>> writeEventStreamReader =
-                generators.timeOffset(new WriteEventStreamReader(csvFileReader, CsvEventStreamReader.EventReturnPolicy.AT_LEAST_ONE_MATCH), TIME_SOURCE.now());
+                gf.timeOffset(
+                        gf.assignConservativeDependencyTimes(
+                                new WriteEventStreamReader(csvFileReader, CsvEventStreamReader.EventReturnPolicy.AT_LEAST_ONE_MATCH),
+                                Time.fromMilli(10),
+                                true
+                        ),
+                        Time.fromMilli(1000)
+                );
+
         Time previousOperationTime = Time.fromMilli(0);
         while (writeEventStreamReader.hasNext()) {
             Operation<?> writeOperation = writeEventStreamReader.next();

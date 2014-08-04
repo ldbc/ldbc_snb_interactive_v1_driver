@@ -12,6 +12,7 @@ import com.ldbc.driver.runtime.scheduling.ExecutionDelayPolicy;
 import com.ldbc.driver.runtime.scheduling.Spinner;
 import com.ldbc.driver.temporal.Duration;
 import com.ldbc.driver.temporal.SystemTimeSource;
+import com.ldbc.driver.temporal.Time;
 import com.ldbc.driver.temporal.TimeSource;
 import com.ldbc.driver.workloads.dummy.NothingOperation;
 import org.junit.Test;
@@ -40,6 +41,7 @@ public class ThreadPoolOperationHandlerExecutorTest {
 
         Operation<?> operation = new NothingOperation();
         operation.setScheduledStartTime(TIME_SOURCE.now().plus(Duration.fromMilli(200)));
+        operation.setDependencyTime(Time.fromMilli(0));
         OperationHandler<?> handler = new OperationHandler<Operation<Integer>>() {
             @Override
             protected OperationResultReport executeOperation(Operation operation) throws DbException {
@@ -74,8 +76,10 @@ public class ThreadPoolOperationHandlerExecutorTest {
 
         Operation<?> operation1 = new NothingOperation();
         operation1.setScheduledStartTime(TIME_SOURCE.now().plus(Duration.fromMilli(100)));
+        operation1.setDependencyTime(Time.fromMilli(0));
         Operation<?> operation2 = new NothingOperation();
         operation2.setScheduledStartTime(operation1.scheduledStartTime().plus(Duration.fromMilli(100)));
+        operation2.setDependencyTime(Time.fromMilli(0));
         OperationHandler<?> handler1 = new OperationHandler<Operation<Integer>>() {
             @Override
             protected OperationResultReport executeOperation(Operation operation) throws DbException {
@@ -121,6 +125,7 @@ public class ThreadPoolOperationHandlerExecutorTest {
 
         Operation<?> operation = new NothingOperation();
         operation.setScheduledStartTime(TIME_SOURCE.now().plus(Duration.fromMilli(200)));
+        operation.setDependencyTime(Time.fromMilli(0));
         OperationHandler<?> handler = new OperationHandler<Operation<Integer>>() {
             @Override
             protected OperationResultReport executeOperation(Operation operation) throws DbException {

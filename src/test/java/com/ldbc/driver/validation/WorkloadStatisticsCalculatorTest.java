@@ -47,13 +47,6 @@ public class WorkloadStatisticsCalculatorTest {
         assertThat(true, is(false));
     }
 
-    @Ignore
-    @Test
-    public void addMethodForCalculatingMinimumDurationBetweenStartTimeAndDependencyTime() {
-        // TODO by: operation type, scheduling mode, gct mode
-        assertThat(true, is(false));
-    }
-
     @Test
     public void shouldReturnCorrectWorkloadStatisticsForWorkloadsWithSingleOperationType() throws MetricsCollectionException {
         // Given

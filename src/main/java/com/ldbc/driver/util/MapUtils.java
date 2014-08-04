@@ -37,7 +37,7 @@ public class MapUtils {
             if (o1.getKey() instanceof Comparable)
                 return ((Comparable) o1.getKey()).compareTo(o2.getKey());
             else
-                return 0;
+                return o1.toString().compareTo(o2.toString());
         }
     }
 

@@ -4,6 +4,7 @@ import com.google.common.collect.Lists;
 import com.ldbc.driver.Operation;
 import com.ldbc.driver.temporal.*;
 import com.ldbc.driver.workloads.dummy.NothingOperation;
+import com.ldbc.driver.workloads.dummy.TimedNamedOperation1;
 import org.junit.Ignore;
 import org.junit.Test;
 
@@ -35,7 +36,7 @@ public class SpinnerTests {
         SpinningThread spinningThread = new SpinningThread(spinner, operation);
 
         assertThat(delayPolicy.excessiveDelay(), is(false));
-        assertThat(delayPolicy.unassignedScheduledStartTime(), is(false));
+        assertThat(delayPolicy.unassignedTime(), is(false));
         assertThat(delayPolicy.checkResult(), is(true));
 
         // When
@@ -45,7 +46,7 @@ public class SpinnerTests {
         // give spinning thread time to do its thing
         Thread.sleep(ENOUGH_MILLISECONDS_FOR_SPINNER_THREAD_TO_DO_ITS_THING);
         assertThat(delayPolicy.excessiveDelay(), is(false));
-        assertThat(delayPolicy.unassignedScheduledStartTime(), is(true));
+        assertThat(delayPolicy.unassignedTime(), is(true));
         assertThat(delayPolicy.checkResult(), is(true));
         assertThat(spinningThread.spinnerHasCompleted(), is(true));
         assertThat(spinningThread.shouldExecuteOperation(), is(false));
@@ -62,7 +63,7 @@ public class SpinnerTests {
         Spinner spinner = new Spinner(TIME_SOURCE, Spinner.DEFAULT_SLEEP_DURATION_10_MILLI, delayPolicy);
 
         Time scheduledStartTime = Time.fromMilli(10);
-        Operation<?> operation = new NothingOperation();
+        Operation<?> operation = new TimedNamedOperation1(Time.fromMilli(0), Time.fromMilli(0), "name");
         operation.setScheduledStartTime(scheduledStartTime);
 
         SpinningThread spinningThread = new SpinningThread(spinner, operation);
@@ -74,7 +75,7 @@ public class SpinnerTests {
         // should not return before start time
         Thread.sleep(ENOUGH_MILLISECONDS_FOR_SPINNER_THREAD_TO_DO_ITS_THING);
         assertThat(delayPolicy.excessiveDelay(), is(false));
-        assertThat(delayPolicy.unassignedScheduledStartTime(), is(false));
+        assertThat(delayPolicy.unassignedTime(), is(false));
         assertThat(delayPolicy.checkResult(), is(true));
         assertThat(spinningThread.spinnerHasCompleted(), is(false));
         assertThat(spinningThread.shouldExecuteOperation(), is(false));
@@ -84,7 +85,7 @@ public class SpinnerTests {
         // should return when start time reached
         Thread.sleep(ENOUGH_MILLISECONDS_FOR_SPINNER_THREAD_TO_DO_ITS_THING);
         assertThat(delayPolicy.excessiveDelay(), is(false));
-        assertThat(delayPolicy.unassignedScheduledStartTime(), is(false));
+        assertThat(delayPolicy.unassignedTime(), is(false));
         assertThat(delayPolicy.checkResult(), is(true));
         assertThat(spinningThread.spinnerHasCompleted(), is(true));
         assertThat(spinningThread.shouldExecuteOperation(), is(true));
@@ -101,7 +102,7 @@ public class SpinnerTests {
         Spinner spinner = new Spinner(TIME_SOURCE, Spinner.DEFAULT_SLEEP_DURATION_10_MILLI, delayPolicy);
 
         Time scheduledStartTime = Time.fromMilli(10);
-        Operation<?> operation = new NothingOperation();
+        Operation<?> operation = new TimedNamedOperation1(Time.fromMilli(0), Time.fromMilli(0), "name");
         operation.setScheduledStartTime(scheduledStartTime);
 
         SpinningThread spinningThread = new SpinningThread(spinner, operation);
@@ -113,7 +114,7 @@ public class SpinnerTests {
         // should not return before start time
         Thread.sleep(ENOUGH_MILLISECONDS_FOR_SPINNER_THREAD_TO_DO_ITS_THING);
         assertThat(delayPolicy.excessiveDelay(), is(false));
-        assertThat(delayPolicy.unassignedScheduledStartTime(), is(false));
+        assertThat(delayPolicy.unassignedTime(), is(false));
         assertThat(delayPolicy.checkResult(), is(true));
         assertThat(spinningThread.spinnerHasCompleted(), is(false));
         assertThat(spinningThread.shouldExecuteOperation(), is(false));
@@ -123,7 +124,7 @@ public class SpinnerTests {
         // should return when start time reached
         Thread.sleep(ENOUGH_MILLISECONDS_FOR_SPINNER_THREAD_TO_DO_ITS_THING);
         assertThat(delayPolicy.excessiveDelay(), is(true));
-        assertThat(delayPolicy.unassignedScheduledStartTime(), is(false));
+        assertThat(delayPolicy.unassignedTime(), is(false));
         assertThat(delayPolicy.checkResult(), is(true));
         assertThat(spinningThread.spinnerHasCompleted(), is(true));
         assertThat(spinningThread.shouldExecuteOperation(), is(false));
@@ -141,7 +142,7 @@ public class SpinnerTests {
         Spinner spinner = new Spinner(TIME_SOURCE, Spinner.DEFAULT_SLEEP_DURATION_10_MILLI, delayPolicy);
 
         Time scheduledStartTime = Time.fromMilli(10);
-        Operation<?> operation = new NothingOperation();
+        Operation<?> operation = new TimedNamedOperation1(Time.fromMilli(0), Time.fromMilli(0), "name");
         operation.setScheduledStartTime(scheduledStartTime);
 
         SpinningThread spinningThread = new SpinningThread(spinner, operation, failCheck);
@@ -153,7 +154,7 @@ public class SpinnerTests {
         // time has not advanced yet, spinner will still be waiting for check to pass
         Thread.sleep(ENOUGH_MILLISECONDS_FOR_SPINNER_THREAD_TO_DO_ITS_THING);
         assertThat(delayPolicy.excessiveDelay(), is(false));
-        assertThat(delayPolicy.unassignedScheduledStartTime(), is(false));
+        assertThat(delayPolicy.unassignedTime(), is(false));
         // this will only change to false when time has past maximum tolerated delay
         assertThat(delayPolicy.checkResult(), is(true));
         assertThat(spinningThread.spinnerHasCompleted(), is(false));
@@ -164,7 +165,7 @@ public class SpinnerTests {
         // tolerated delay has been exceeded and check has not yet passed, spinner should return
         Thread.sleep(ENOUGH_MILLISECONDS_FOR_SPINNER_THREAD_TO_DO_ITS_THING);
         assertThat(delayPolicy.excessiveDelay(), is(true));
-        assertThat(delayPolicy.unassignedScheduledStartTime(), is(false));
+        assertThat(delayPolicy.unassignedTime(), is(false));
         assertThat(delayPolicy.checkResult(), is(false));
         assertThat(spinningThread.spinnerHasCompleted(), is(true));
         assertThat(spinningThread.shouldExecuteOperation(), is(false));
@@ -184,6 +185,7 @@ public class SpinnerTests {
         Time scheduledStartTime = Time.fromMilli(10);
         Operation<?> operation = new NothingOperation();
         operation.setScheduledStartTime(scheduledStartTime);
+        operation.setDependencyTime(Time.fromMilli(0));
 
         SpinningThread spinningThread = new SpinningThread(spinner, operation);
 
@@ -195,7 +197,7 @@ public class SpinnerTests {
         TIME_SOURCE.setNowFromMilli(4);
         Thread.sleep(ENOUGH_MILLISECONDS_FOR_SPINNER_THREAD_TO_DO_ITS_THING);
         assertThat(delayPolicy.excessiveDelay(), is(false));
-        assertThat(delayPolicy.unassignedScheduledStartTime(), is(false));
+        assertThat(delayPolicy.unassignedTime(), is(false));
         assertThat(delayPolicy.checkResult(), is(true));
         assertThat(spinningThread.spinnerHasCompleted(), is(false));
         assertThat(spinningThread.shouldExecuteOperation(), is(false));
@@ -204,7 +206,7 @@ public class SpinnerTests {
         TIME_SOURCE.setNowFromMilli(5);
         Thread.sleep(ENOUGH_MILLISECONDS_FOR_SPINNER_THREAD_TO_DO_ITS_THING);
         assertThat(delayPolicy.excessiveDelay(), is(false));
-        assertThat(delayPolicy.unassignedScheduledStartTime(), is(false));
+        assertThat(delayPolicy.unassignedTime(), is(false));
         assertThat(delayPolicy.checkResult(), is(true));
         assertThat(spinningThread.spinnerHasCompleted(), is(true));
         assertThat(spinningThread.shouldExecuteOperation(), is(true));
@@ -242,12 +244,12 @@ public class SpinnerTests {
 
         Time singleCheckTestStartTime = timeSource.now();
         while (operationsSingleCheck.hasNext())
-            spinner.waitForScheduledStartTime(operationsSingleCheck.next(),singleTrueCheck);
+            spinner.waitForScheduledStartTime(operationsSingleCheck.next(), singleTrueCheck);
         Duration singleCheckTestDuration = timeSource.now().durationGreaterThan(singleCheckTestStartTime);
 
         Time manyChecksTestStartTime = timeSource.now();
         while (operationsManyChecks.hasNext())
-            spinner.waitForScheduledStartTime(operationsManyChecks.next(),manyTrueChecks);
+            spinner.waitForScheduledStartTime(operationsManyChecks.next(), manyTrueChecks);
         Duration manyChecksTestDuration = timeSource.now().durationGreaterThan(manyChecksTestStartTime);
 
         System.out.println(String.format("Spinner (1 true check) processed %s operations in %s time: %s ops/ms, %s ns/op",
@@ -352,7 +354,7 @@ public class SpinnerTests {
         private boolean checkResult = true;
         private final Duration toleratedDelay;
 
-        public boolean unassignedScheduledStartTime() {
+        public boolean unassignedTime() {
             return unassignedScheduledStartTime;
         }
 
