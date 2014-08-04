@@ -7,24 +7,25 @@ import com.ldbc.driver.util.Function1;
 
 import java.util.Iterator;
 
-public class TimeMappingGenerator extends Generator<Operation<?>> {
-    private final Iterator<Operation<?>> original;
+public class TimeMappingOperationGenerator extends Generator<Operation<?>> {
+    private final Iterator<Operation<?>> operations;
     private final Time newStartTime;
     private final Double timeCompressionRatio;
 
     private Function1<Time, Time> timeOffsetFun = null;
-    private Function1<Time, Time> timeCompressionFun = null;
+    private Function1<Time, Time> startTimeCompressionFun = null;
+    private Function1<Time, Time> dependencyTimeCompressionFun = null;
 
-    TimeMappingGenerator(Iterator<Operation<?>> original, Time newStartTime, Double timeCompressionRatio) {
-        this.original = original;
+    TimeMappingOperationGenerator(Iterator<Operation<?>> operations, Time newStartTime, Double timeCompressionRatio) {
+        this.operations = operations;
         this.newStartTime = newStartTime;
         this.timeCompressionRatio = timeCompressionRatio;
     }
 
     @Override
     protected Operation<?> doNext() throws GeneratorException {
-        if (false == original.hasNext()) return null;
-        Operation<?> nextOperation = original.next();
+        if (false == operations.hasNext()) return null;
+        Operation<?> nextOperation = operations.next();
         if (null == timeOffsetFun) {
             // Create timeOffsetFun
             Time firstStartTime = nextOperation.scheduledStartTime();
@@ -38,21 +39,22 @@ public class TimeMappingGenerator extends Generator<Operation<?>> {
                 timeOffsetFun = new TimePastOffsetFun(offset);
             }
 
-            // Create timeCompressionFun
+            // Create time compression function
             if (null == timeCompressionRatio) {
-                timeCompressionFun = new IdentityTimeFun();
+                startTimeCompressionFun = new IdentityTimeFun();
+                dependencyTimeCompressionFun = new IdentityTimeFun();
             } else {
-                timeCompressionFun = new TimeCompressionFun(timeCompressionRatio, newStartTime);
+                startTimeCompressionFun = new TimeCompressionFun(timeCompressionRatio, timeOffsetFun.apply(nextOperation.scheduledStartTime()));
+                dependencyTimeCompressionFun = new TimeCompressionFun(timeCompressionRatio, timeOffsetFun.apply(nextOperation.dependencyTime()));
             }
-
-            nextOperation.setScheduledStartTime(newStartTime);
-            return nextOperation;
-        } else {
-            Time offsetTime = timeOffsetFun.apply(nextOperation.scheduledStartTime());
-            Time compressedTime = timeCompressionFun.apply(offsetTime);
-            nextOperation.setScheduledStartTime(compressedTime);
-            return nextOperation;
         }
+        Time offsetStartTime = timeOffsetFun.apply(nextOperation.scheduledStartTime());
+        Time offsetDependencyTime = timeOffsetFun.apply(nextOperation.dependencyTime());
+        Time offsetAndCompressedStartTime = startTimeCompressionFun.apply(offsetStartTime);
+        Time offsetAndCompressedDependencyTime = dependencyTimeCompressionFun.apply(offsetDependencyTime);
+        nextOperation.setScheduledStartTime(offsetAndCompressedStartTime);
+        nextOperation.setDependencyTime(offsetAndCompressedDependencyTime);
+        return nextOperation;
     }
 
     private class IdentityTimeFun implements Function1<Time, Time> {

@@ -2,7 +2,6 @@ package com.ldbc.driver.runtime.scheduling;
 
 import com.ldbc.driver.Operation;
 
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -19,38 +18,24 @@ public class MultiCheck implements SpinnerCheck {
         this.checks = checks;
     }
 
-        @Override
+    @Override
     public boolean doCheck() {
-        if (checks.isEmpty()) return true;
-        List<SpinnerCheck> checksToRemove = new ArrayList<>();
+        if (allChecksHavePassed) return true;
+        boolean tempResult = true;
         for (int i = 0; i < checks.size(); i++) {
             SpinnerCheck check = checks.get(i);
-            if (check.doCheck()) checksToRemove.add(check);
+            if (null == check) continue;
+            if (check.doCheck()) {
+                // check passed
+                checks.set(i, null);
+            } else {
+                // check failed
+                tempResult = false;
+            }
         }
-        for (int i = 0; i < checksToRemove.size(); i++) {
-            SpinnerCheck checkToRemove = checksToRemove.get(i);
-            checks.remove(checkToRemove);
-        }
-        return checks.isEmpty();
+        allChecksHavePassed = tempResult;
+        return allChecksHavePassed;
     }
-//    @Override
-//    public boolean doCheck() {
-//        if (allChecksHavePassed) return true;
-//        for (int i = 0; i < checks.size(); i++) {
-//            SpinnerCheck check = checks.get(i);
-//            if (null != check) {
-//                if (check.doCheck()) {
-//                    // check passed
-//                    checks.set(i, null);
-//                } else {
-//                    // check failed
-//                    return false;
-//                }
-//            }
-//        }
-//        allChecksHavePassed = true;
-//        return allChecksHavePassed;
-//    }
 
     @Override
     public boolean handleFailedCheck(Operation<?> operation) {

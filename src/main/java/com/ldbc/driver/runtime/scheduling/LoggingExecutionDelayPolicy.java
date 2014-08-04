@@ -15,7 +15,7 @@ public class LoggingExecutionDelayPolicy implements ExecutionDelayPolicy {
     }
 
     @Override
-    public boolean handleUnassignedScheduledStartTime(Operation<?> operation) {
+    public boolean handleUnassignedTime(Operation<?> operation) {
         String errMsg = String.format("%s\nOperation has no Scheduled Start Time\n%s",
                 ConcurrentErrorReporter.whoAmI(this),
                 operation.toString());

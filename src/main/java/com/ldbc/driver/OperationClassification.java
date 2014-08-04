@@ -21,26 +21,26 @@ public class OperationClassification {
         INDIVIDUAL_ASYNC
     }
 
-    public enum GctMode {
+    public enum DependencyMode {
         NONE,
         READ,
         READ_WRITE
     }
 
     private final SchedulingMode schedulingMode;
-    private final GctMode gctMode;
+    private final DependencyMode dependencyMode;
 
-    public OperationClassification(SchedulingMode schedulingMode, GctMode gctMode) {
+    public OperationClassification(SchedulingMode schedulingMode, DependencyMode dependencyMode) {
         this.schedulingMode = schedulingMode;
-        this.gctMode = gctMode;
+        this.dependencyMode = dependencyMode;
     }
 
     public SchedulingMode schedulingMode() {
         return schedulingMode;
     }
 
-    public GctMode gctMode() {
-        return gctMode;
+    public DependencyMode dependencyMode() {
+        return dependencyMode;
     }
 
     @Override
@@ -50,7 +50,7 @@ public class OperationClassification {
 
         OperationClassification that = (OperationClassification) o;
 
-        if (gctMode != that.gctMode) return false;
+        if (dependencyMode != that.dependencyMode) return false;
         if (schedulingMode != that.schedulingMode) return false;
 
         return true;
@@ -59,7 +59,7 @@ public class OperationClassification {
     @Override
     public int hashCode() {
         int result = schedulingMode != null ? schedulingMode.hashCode() : 0;
-        result = 31 * result + (gctMode != null ? gctMode.hashCode() : 0);
+        result = 31 * result + (dependencyMode != null ? dependencyMode.hashCode() : 0);
         return result;
     }
 
@@ -67,7 +67,7 @@ public class OperationClassification {
     public String toString() {
         return "OperationClassification{" +
                 "schedulingMode=" + schedulingMode +
-                ", gctMode=" + gctMode +
+                ", gctMode=" + dependencyMode +
                 '}';
     }
 }

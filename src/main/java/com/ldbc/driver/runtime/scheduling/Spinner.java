@@ -6,7 +6,7 @@ import com.ldbc.driver.temporal.TimeSource;
 
 // TODO if an error policy DOES NOT terminate the benchmark and DOES NOT allow the operation to complete
 // TODO something needs to be done about DEPENDENT/GCT, because the initiated time for the operation has already been reported
-// TODO perhaps the completed time for that operation needs to be reported too,
+// TODO perhaps the completed time for that operation needs to be reported too (to GCT service, not to MetricsService, right?),
 // TODO to make sure DEPENDENT/GCT does not freeze at the start time of that "Failed" operation
 
 // TODO take boolean result from spinner into consideration, i.e., DO NOT execute handler for "Failed" operations
@@ -60,8 +60,8 @@ public class Spinner {
         boolean operationMayBeExecuted = true;
 
         // check that a scheduled start time has been assigned to the operation
-        if (null == operation.scheduledStartTime()) {
-            return executionDelayPolicy.handleUnassignedScheduledStartTime(operation);
+        if (null == operation.scheduledStartTime() || null == operation.dependencyTime()) {
+            return executionDelayPolicy.handleUnassignedTime(operation);
         }
 
         // earliest time at which operation may start

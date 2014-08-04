@@ -6,13 +6,13 @@ import com.ldbc.driver.temporal.Duration;
 public interface ExecutionDelayPolicy {
 
     /**
-     * Only called if scheduledStartTime is null.
+     * Only called if scheduledStartTime is null or dependencyTime is null.
      * Return value dictates if operation may still be executed, or if execution should be aborted.
      *
      * @param operation
      * @return operation may still be executed
      */
-    public boolean handleUnassignedScheduledStartTime(Operation<?> operation);
+    public boolean handleUnassignedTime(Operation<?> operation);
 
     /**
      * Amount of time after its scheduled start time than an operation may be

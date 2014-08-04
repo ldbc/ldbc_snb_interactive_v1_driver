@@ -76,11 +76,11 @@ class OperationsToOperationHandlersTransformer {
                 // all writers have been created
                 break;
             }
-            OperationClassification.GctMode operationGctMode = operationClassifications.get(operation.getClass()).gctMode();
+            OperationClassification.DependencyMode operationDependencyMode = operationClassifications.get(operation.getClass()).dependencyMode();
             OperationClassification.SchedulingMode operationSchedulingMode = operationClassifications.get(operation.getClass()).schedulingMode();
 
             try {
-                if (operationGctMode.equals(OperationClassification.GctMode.READ_WRITE)) {
+                if (operationDependencyMode.equals(OperationClassification.DependencyMode.READ_WRITE)) {
                     switch (operationSchedulingMode) {
                         case INDIVIDUAL_ASYNC:
                             getOrCreateAsynchronousLocalCompletionTimeWriter();
@@ -92,7 +92,7 @@ class OperationsToOperationHandlersTransformer {
                             getOrCreateWindowedLocalCompletionTimeWriter();
                             break;
                         default:
-                            throw new WorkloadException(String.format("Unrecognized Scheduling Mode: %s", operationClassifications.get(operation.getClass()).gctMode()));
+                            throw new WorkloadException(String.format("Unrecognized Scheduling Mode: %s", operationClassifications.get(operation.getClass()).dependencyMode()));
                     }
                 }
             } catch (CompletionTimeException e) {
@@ -112,13 +112,13 @@ class OperationsToOperationHandlersTransformer {
                         String.format("Error while trying to retrieve operation handler for operation\n%s", operation),
                         e);
             }
-            OperationClassification.GctMode operationGctMode = operationClassifications.get(operation.getClass()).gctMode();
+            OperationClassification.DependencyMode operationDependencyMode = operationClassifications.get(operation.getClass()).dependencyMode();
             OperationClassification.SchedulingMode operationSchedulingMode = operationClassifications.get(operation.getClass()).schedulingMode();
 
             LocalCompletionTimeWriter localCompletionTimeWriter;
 
             try {
-                if (operationGctMode.equals(OperationClassification.GctMode.READ_WRITE)) {
+                if (operationDependencyMode.equals(OperationClassification.DependencyMode.READ_WRITE)) {
                     switch (operationSchedulingMode) {
                         case INDIVIDUAL_ASYNC:
                             localCompletionTimeWriter = getOrCreateAsynchronousLocalCompletionTimeWriter();
@@ -130,7 +130,7 @@ class OperationsToOperationHandlersTransformer {
                             localCompletionTimeWriter = getOrCreateWindowedLocalCompletionTimeWriter();
                             break;
                         default:
-                            throw new WorkloadException(String.format("Unrecognized Scheduling Mode: %s", operationClassifications.get(operation.getClass()).gctMode()));
+                            throw new WorkloadException(String.format("Unrecognized Scheduling Mode: %s", operationClassifications.get(operation.getClass()).dependencyMode()));
                     }
                 } else {
                     localCompletionTimeWriter = dummyLocalCompletionTimeWriter;
@@ -140,7 +140,7 @@ class OperationsToOperationHandlersTransformer {
             }
 
             try {
-                switch (operationGctMode) {
+                switch (operationDependencyMode) {
                     case READ_WRITE:
                         operationHandler.init(TIME_SOURCE, spinner, operation, localCompletionTimeWriter, errorReporter, metricsService);
                         if (atLeastOneLocalCompletionWriterHasBeenCreated) {
@@ -158,7 +158,7 @@ class OperationsToOperationHandlersTransformer {
                         break;
                     default:
                         throw new WorkloadException(
-                                String.format("Unrecognized GctMode: %s", operationClassifications.get(operation.getClass()).gctMode()));
+                                String.format("Unrecognized GctMode: %s", operationClassifications.get(operation.getClass()).dependencyMode()));
                 }
             } catch (OperationException e) {
                 throw new WorkloadException(String.format("Error while trying to initialize operation handler\n%s", operationHandler), e);

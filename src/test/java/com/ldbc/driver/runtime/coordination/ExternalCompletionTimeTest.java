@@ -15,6 +15,7 @@ public class ExternalCompletionTimeTest {
     @Ignore
     @Test
     public void extendInterfaceToExposeMinimumInitiatedTimeAsWell() {
+        // TODO at present (i.e., single process mode) this is not needed, but as soon as there are multiple processes this will be necessary, or GCT tracking will have a bug
         // TODO restructure completion time class hierarchy ONCE AGAIN, but this time to be more composeable
         // TODO CT, MultiCT, ConcurrentMultiCT (no need for differentiation between LCT, ECT, GCT at class level)
         assertThat(true, is(false));

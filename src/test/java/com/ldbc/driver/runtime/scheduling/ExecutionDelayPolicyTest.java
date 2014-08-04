@@ -43,7 +43,7 @@ public class ExecutionDelayPolicyTest {
         assertThat(errorReporter.errorEncountered(), is(false));
 
         // When
-        delayPolicy.handleUnassignedScheduledStartTime(operation);
+        delayPolicy.handleUnassignedTime(operation);
 
         // Then
         assertThat(errorReporter.errorEncountered(), is(true));

@@ -9,7 +9,6 @@ import com.ldbc.driver.temporal.TimeSource;
 import java.util.Iterator;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-// TODO test
 public class PreciseIndividualBlockingOperationStreamExecutorService {
     private static final Duration SHUTDOWN_WAIT_TIMEOUT = Duration.fromSeconds(5);
     private final PreciseIndividualBlockingOperationStreamExecutorThread preciseIndividualBlockingOperationStreamExecutorThread;

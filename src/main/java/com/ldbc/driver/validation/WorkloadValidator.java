@@ -66,8 +66,8 @@ public class WorkloadValidator {
         Operation<?> previousOperation = null;
         Time previousOperationStartTime = null;
 
-        Map<OperationClassification.GctMode, Time> previousOperationStartTimesByGctMode = new HashMap<>();
-        Map<OperationClassification.GctMode, ContinuousMetricManager> operationInterleavesByGctMode = new HashMap<>();
+        Map<OperationClassification.DependencyMode, Time> previousOperationStartTimesByGctMode = new HashMap<>();
+        Map<OperationClassification.DependencyMode, ContinuousMetricManager> operationInterleavesByGctMode = new HashMap<>();
 
         Map<Class, Time> previousOperationStartTimesByOperationType = new HashMap<>();
         Map<Class, ContinuousMetricManager> operationInterleavesByOperationType = new HashMap<>();
@@ -126,8 +126,8 @@ public class WorkloadValidator {
             }
 
             // Classification has GCT mode
-            OperationClassification.GctMode operationGctMode = operationClassification.gctMode();
-            if (null == operationGctMode) {
+            OperationClassification.DependencyMode operationDependencyMode = operationClassification.dependencyMode();
+            if (null == operationDependencyMode) {
                 return new WorkloadValidationResult(
                         ResultType.OPERATION_CLASSIFICATION_HAS_NO_GCT_MODE,
                         String.format("Operation has no GCT mode\nOperation: %s\nClassification: %s",
@@ -147,7 +147,7 @@ public class WorkloadValidator {
 
             Time operationDependencyTime = operation.dependencyTime();
             // Operations with GCT mode NONE do not need a dependency time because they have no dependencies
-            if (false == operationGctMode.equals(OperationClassification.GctMode.NONE)) {
+            if (false == operationDependencyMode.equals(OperationClassification.DependencyMode.NONE)) {
                 // Operation has dependency time
                 if (null == operationDependencyTime) {
                     return new WorkloadValidationResult(
@@ -188,19 +188,19 @@ public class WorkloadValidator {
             }
 
             // Interleaves by GCT mode do not exceed maximum
-            ContinuousMetricManager operationInterleaveForGctMode = operationInterleavesByGctMode.get(operationGctMode);
+            ContinuousMetricManager operationInterleaveForGctMode = operationInterleavesByGctMode.get(operationDependencyMode);
             if (null == operationInterleaveForGctMode) {
                 operationInterleaveForGctMode = new ContinuousMetricManager(null, null, workload.maxExpectedInterleave().asMilli(), 5);
-                operationInterleavesByGctMode.put(operationGctMode, operationInterleaveForGctMode);
+                operationInterleavesByGctMode.put(operationDependencyMode, operationInterleaveForGctMode);
             }
-            Time previousOperationStartTimeByGctMode = previousOperationStartTimesByGctMode.get(operationGctMode);
+            Time previousOperationStartTimeByGctMode = previousOperationStartTimesByGctMode.get(operationDependencyMode);
             if (null != previousOperationStartTimeByGctMode) {
                 Duration interleaveDuration = operationStartTime.durationGreaterThan(previousOperationStartTimeByGctMode);
                 if (interleaveDuration.gt(workload.maxExpectedInterleave()))
                     return new WorkloadValidationResult(
                             ResultType.SCHEDULED_START_TIME_INTERVAL_EXCEEDS_MAXIMUM_FOR_GCT_MODE,
                             String.format("Encountered (for %s GCT mode) interleave duration (%s) that exceeds maximum expected value (%s)",
-                                    operationGctMode,
+                                    operationDependencyMode,
                                     interleaveDuration,
                                     workload.maxExpectedInterleave()));
             }
@@ -262,7 +262,7 @@ public class WorkloadValidator {
 
             previousOperation = operation;
             previousOperationStartTime = operationStartTime;
-            previousOperationStartTimesByGctMode.put(operationGctMode, operationStartTime);
+            previousOperationStartTimesByGctMode.put(operationDependencyMode, operationStartTime);
             previousOperationStartTimesByOperationType.put(operationType, operationStartTime);
         }
 

@@ -1,5 +1,6 @@
 package com.ldbc.driver.runtime.scheduling;
 
+import com.google.common.collect.Lists;
 import com.ldbc.driver.Operation;
 import com.ldbc.driver.temporal.*;
 import com.ldbc.driver.workloads.dummy.NothingOperation;
@@ -213,21 +214,47 @@ public class SpinnerTests {
 
     @Test
     public void measureCostOfSpinnerWithNoSleepAndPassingCheckAndAtScheduledStartTime() {
-        TimeSource performanceMeasuringTimeSource = new SystemTimeSource();
+        TimeSource timeSource = new SystemTimeSource();
         TIME_SOURCE.setNowFromMilli(0);
         Time scheduledStartTime = TIME_SOURCE.now();
-        long operationCount = 1000000;
+        long operationCount = 100000000;
         Duration toleratedDelay = Duration.fromMilli(10);
         CheckableDelayPolicy delayPolicy = new CheckableDelayPolicy(toleratedDelay);
-        FastSameOperationIterator operations = new FastSameOperationIterator(scheduledStartTime, operationCount);
+        FastSameOperationIterator operationsSingleCheck = new FastSameOperationIterator(scheduledStartTime, operationCount);
+        FastSameOperationIterator operationsManyChecks = new FastSameOperationIterator(scheduledStartTime, operationCount);
 
         Spinner spinner = new Spinner(TIME_SOURCE, Duration.fromMilli(0), delayPolicy);
-        Time testStartTime = performanceMeasuringTimeSource.now();
-        while (operations.hasNext())
-            spinner.waitForScheduledStartTime(operations.next());
-        Duration testDuration = performanceMeasuringTimeSource.now().durationGreaterThan(testStartTime);
-        System.out.println(String.format("Spinner processed %s operations in %s time: %s ops/ms, %s ns/op",
-                operationCount, testDuration, operationCount / testDuration.asMilli(), testDuration.asNano() / operationCount));
+        SpinnerCheck singleTrueCheck = new TrueFalseSpinnerCheck(delayPolicy, true);
+        SpinnerCheck manyTrueChecks = new MultiCheck(
+                Lists.<SpinnerCheck>newArrayList(
+                        new TrueFalseSpinnerCheck(delayPolicy, true),
+                        new TrueFalseSpinnerCheck(delayPolicy, true),
+                        new TrueFalseSpinnerCheck(delayPolicy, true),
+                        new TrueFalseSpinnerCheck(delayPolicy, true),
+                        new TrueFalseSpinnerCheck(delayPolicy, true),
+                        new TrueFalseSpinnerCheck(delayPolicy, true),
+                        new TrueFalseSpinnerCheck(delayPolicy, true),
+                        new TrueFalseSpinnerCheck(delayPolicy, true),
+                        new TrueFalseSpinnerCheck(delayPolicy, true),
+                        new TrueFalseSpinnerCheck(delayPolicy, true)
+                )
+        );
+
+        Time singleCheckTestStartTime = timeSource.now();
+        while (operationsSingleCheck.hasNext())
+            spinner.waitForScheduledStartTime(operationsSingleCheck.next(),singleTrueCheck);
+        Duration singleCheckTestDuration = timeSource.now().durationGreaterThan(singleCheckTestStartTime);
+
+        Time manyChecksTestStartTime = timeSource.now();
+        while (operationsManyChecks.hasNext())
+            spinner.waitForScheduledStartTime(operationsManyChecks.next(),manyTrueChecks);
+        Duration manyChecksTestDuration = timeSource.now().durationGreaterThan(manyChecksTestStartTime);
+
+        System.out.println(String.format("Spinner (1 true check) processed %s operations in %s time: %s ops/ms, %s ns/op",
+                operationCount, singleCheckTestDuration, operationCount / singleCheckTestDuration.asMilli(), singleCheckTestDuration.asNano() / operationCount));
+
+        System.out.println(String.format("Spinner (10 true checks) processed %s operations in %s time: %s ops/ms, %s ns/op",
+                operationCount, manyChecksTestDuration, operationCount / manyChecksTestDuration.asMilli(), manyChecksTestDuration.asNano() / operationCount));
     }
 
     private static class FastSameOperationIterator implements Iterator<Operation<?>> {
@@ -346,7 +373,7 @@ public class SpinnerTests {
         }
 
         @Override
-        public boolean handleUnassignedScheduledStartTime(Operation<?> operation) {
+        public boolean handleUnassignedTime(Operation<?> operation) {
             unassignedScheduledStartTime = true;
             return false;
         }

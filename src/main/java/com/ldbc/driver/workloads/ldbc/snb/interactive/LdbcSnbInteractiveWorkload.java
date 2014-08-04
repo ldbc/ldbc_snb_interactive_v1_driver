@@ -22,7 +22,6 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.*;
 
-import static com.ldbc.driver.OperationClassification.GctMode;
 import static com.ldbc.driver.OperationClassification.SchedulingMode;
 import static com.ldbc.driver.generator.CsvEventStreamReader.EventReturnPolicy;
 
@@ -382,31 +381,31 @@ public class LdbcSnbInteractiveWorkload extends Workload {
          * - INDIVIDUAL_ASYNC       & READ -------------------> n/a
          * - INDIVIDUAL_ASYNC       & READ WRITE -------------> n/a
         */
-        operationClassifications.put(LdbcQuery1.class, new OperationClassification(SchedulingMode.INDIVIDUAL_ASYNC, GctMode.NONE));
-        operationClassifications.put(LdbcQuery2.class, new OperationClassification(SchedulingMode.INDIVIDUAL_ASYNC, GctMode.NONE));
-        operationClassifications.put(LdbcQuery3.class, new OperationClassification(SchedulingMode.INDIVIDUAL_ASYNC, GctMode.NONE));
-        operationClassifications.put(LdbcQuery4.class, new OperationClassification(SchedulingMode.INDIVIDUAL_ASYNC, GctMode.NONE));
-        operationClassifications.put(LdbcQuery5.class, new OperationClassification(SchedulingMode.INDIVIDUAL_ASYNC, GctMode.NONE));
-        operationClassifications.put(LdbcQuery6.class, new OperationClassification(SchedulingMode.INDIVIDUAL_ASYNC, GctMode.NONE));
-        operationClassifications.put(LdbcQuery7.class, new OperationClassification(SchedulingMode.INDIVIDUAL_ASYNC, GctMode.NONE));
-        operationClassifications.put(LdbcQuery8.class, new OperationClassification(SchedulingMode.INDIVIDUAL_ASYNC, GctMode.NONE));
-        operationClassifications.put(LdbcQuery9.class, new OperationClassification(SchedulingMode.INDIVIDUAL_ASYNC, GctMode.NONE));
-        operationClassifications.put(LdbcQuery10.class, new OperationClassification(SchedulingMode.INDIVIDUAL_ASYNC, GctMode.NONE));
-        operationClassifications.put(LdbcQuery11.class, new OperationClassification(SchedulingMode.INDIVIDUAL_ASYNC, GctMode.NONE));
-        operationClassifications.put(LdbcQuery12.class, new OperationClassification(SchedulingMode.INDIVIDUAL_ASYNC, GctMode.NONE));
-        operationClassifications.put(LdbcQuery13.class, new OperationClassification(SchedulingMode.INDIVIDUAL_ASYNC, GctMode.NONE));
-        operationClassifications.put(LdbcQuery14.class, new OperationClassification(SchedulingMode.INDIVIDUAL_ASYNC, GctMode.NONE));
+        operationClassifications.put(LdbcQuery1.class, new OperationClassification(SchedulingMode.INDIVIDUAL_ASYNC, OperationClassification.DependencyMode.NONE));
+        operationClassifications.put(LdbcQuery2.class, new OperationClassification(SchedulingMode.INDIVIDUAL_ASYNC, OperationClassification.DependencyMode.NONE));
+        operationClassifications.put(LdbcQuery3.class, new OperationClassification(SchedulingMode.INDIVIDUAL_ASYNC, OperationClassification.DependencyMode.NONE));
+        operationClassifications.put(LdbcQuery4.class, new OperationClassification(SchedulingMode.INDIVIDUAL_ASYNC, OperationClassification.DependencyMode.NONE));
+        operationClassifications.put(LdbcQuery5.class, new OperationClassification(SchedulingMode.INDIVIDUAL_ASYNC, OperationClassification.DependencyMode.NONE));
+        operationClassifications.put(LdbcQuery6.class, new OperationClassification(SchedulingMode.INDIVIDUAL_ASYNC, OperationClassification.DependencyMode.NONE));
+        operationClassifications.put(LdbcQuery7.class, new OperationClassification(SchedulingMode.INDIVIDUAL_ASYNC, OperationClassification.DependencyMode.NONE));
+        operationClassifications.put(LdbcQuery8.class, new OperationClassification(SchedulingMode.INDIVIDUAL_ASYNC, OperationClassification.DependencyMode.NONE));
+        operationClassifications.put(LdbcQuery9.class, new OperationClassification(SchedulingMode.INDIVIDUAL_ASYNC, OperationClassification.DependencyMode.NONE));
+        operationClassifications.put(LdbcQuery10.class, new OperationClassification(SchedulingMode.INDIVIDUAL_ASYNC, OperationClassification.DependencyMode.NONE));
+        operationClassifications.put(LdbcQuery11.class, new OperationClassification(SchedulingMode.INDIVIDUAL_ASYNC, OperationClassification.DependencyMode.NONE));
+        operationClassifications.put(LdbcQuery12.class, new OperationClassification(SchedulingMode.INDIVIDUAL_ASYNC, OperationClassification.DependencyMode.NONE));
+        operationClassifications.put(LdbcQuery13.class, new OperationClassification(SchedulingMode.INDIVIDUAL_ASYNC, OperationClassification.DependencyMode.NONE));
+        operationClassifications.put(LdbcQuery14.class, new OperationClassification(SchedulingMode.INDIVIDUAL_ASYNC, OperationClassification.DependencyMode.NONE));
         // TODO should this be ASYNC or WINDOWED?
-        operationClassifications.put(LdbcUpdate1AddPerson.class, new OperationClassification(SchedulingMode.INDIVIDUAL_ASYNC, GctMode.READ_WRITE));
-        operationClassifications.put(LdbcUpdate2AddPostLike.class, new OperationClassification(SchedulingMode.INDIVIDUAL_BLOCKING, GctMode.READ));
-        operationClassifications.put(LdbcUpdate3AddCommentLike.class, new OperationClassification(SchedulingMode.INDIVIDUAL_BLOCKING, GctMode.READ));
-        operationClassifications.put(LdbcUpdate4AddForum.class, new OperationClassification(SchedulingMode.INDIVIDUAL_BLOCKING, GctMode.READ));
-        operationClassifications.put(LdbcUpdate5AddForumMembership.class, new OperationClassification(SchedulingMode.INDIVIDUAL_BLOCKING, GctMode.READ));
-        operationClassifications.put(LdbcUpdate6AddPost.class, new OperationClassification(SchedulingMode.INDIVIDUAL_BLOCKING, GctMode.READ));
-        operationClassifications.put(LdbcUpdate7AddComment.class, new OperationClassification(SchedulingMode.INDIVIDUAL_BLOCKING, GctMode.READ));
+        operationClassifications.put(LdbcUpdate1AddPerson.class, new OperationClassification(SchedulingMode.INDIVIDUAL_ASYNC, OperationClassification.DependencyMode.READ_WRITE));
+        operationClassifications.put(LdbcUpdate2AddPostLike.class, new OperationClassification(SchedulingMode.INDIVIDUAL_BLOCKING, OperationClassification.DependencyMode.READ));
+        operationClassifications.put(LdbcUpdate3AddCommentLike.class, new OperationClassification(SchedulingMode.INDIVIDUAL_BLOCKING, OperationClassification.DependencyMode.READ));
+        operationClassifications.put(LdbcUpdate4AddForum.class, new OperationClassification(SchedulingMode.INDIVIDUAL_BLOCKING, OperationClassification.DependencyMode.READ));
+        operationClassifications.put(LdbcUpdate5AddForumMembership.class, new OperationClassification(SchedulingMode.INDIVIDUAL_BLOCKING, OperationClassification.DependencyMode.READ));
+        operationClassifications.put(LdbcUpdate6AddPost.class, new OperationClassification(SchedulingMode.INDIVIDUAL_BLOCKING, OperationClassification.DependencyMode.READ));
+        operationClassifications.put(LdbcUpdate7AddComment.class, new OperationClassification(SchedulingMode.INDIVIDUAL_BLOCKING, OperationClassification.DependencyMode.READ));
         // TODO the planned scheduling mode for this is WINDOWED but ASYNC is simpler at this stage, and still correct - WINDOWED is an performance optimization only
 //        operationClassifications.put(LdbcUpdate8AddFriendship.class, new OperationClassification(SchedulingMode.WINDOWED, GctMode.READ));
-        operationClassifications.put(LdbcUpdate8AddFriendship.class, new OperationClassification(SchedulingMode.INDIVIDUAL_ASYNC, GctMode.READ));
+        operationClassifications.put(LdbcUpdate8AddFriendship.class, new OperationClassification(SchedulingMode.INDIVIDUAL_ASYNC, OperationClassification.DependencyMode.READ));
 
         // Filter out classifications for operations that are not enabled
         List<Class> operationTypes = Lists.<Class>newArrayList(operationClassifications.keySet());
@@ -460,85 +459,127 @@ public class LdbcSnbInteractiveWorkload extends Workload {
         // TODO add parameter, or do in more intelligent way
         Duration firstOperation1FromWorkloadStart = readOperation1Interleave;
         Iterator<Time> operation1StartTimes = gf.constantIncrementTime(workloadStartTime.plus(firstOperation1FromWorkloadStart), readOperation1Interleave);
-        Iterator<Operation<?>> readOperation1Stream = gf.assignStartTimes(operation1StartTimes, operation1StreamWithoutTimes);
+        Iterator<Operation<?>> readOperation1Stream = gf.assignDependencyTimes(
+                gf.constant(workloadStartTime),
+                gf.assignStartTimes(operation1StartTimes, operation1StreamWithoutTimes)
+        );
 
         Iterator<Operation<?>> operation2StreamWithoutTimes = new Query2EventStreamReader(gf.repeating(readOperation2FileReader), EventReturnPolicy.AT_LEAST_ONE_MATCH);
         // TODO add parameter, or do in more intelligent way
         Duration firstOperation2FromWorkloadStart = readOperation2Interleave;
         Iterator<Time> operation2StartTimes = gf.constantIncrementTime(workloadStartTime.plus(firstOperation2FromWorkloadStart), readOperation2Interleave);
-        Iterator<Operation<?>> readOperation2Stream = gf.assignStartTimes(operation2StartTimes, operation2StreamWithoutTimes);
+        Iterator<Operation<?>> readOperation2Stream = gf.assignDependencyTimes(
+                gf.constant(workloadStartTime),
+                gf.assignStartTimes(operation2StartTimes, operation2StreamWithoutTimes)
+        );
 
         Iterator<Operation<?>> operation3StreamWithoutTimes = new Query3EventStreamReader(gf.repeating(readOperation3FileReader), EventReturnPolicy.AT_LEAST_ONE_MATCH);
         // TODO add parameter, or do in more intelligent way
         Duration firstOperation3FromWorkloadStart = readOperation3Interleave;
         Iterator<Time> operation3StartTimes = gf.constantIncrementTime(workloadStartTime.plus(firstOperation3FromWorkloadStart), readOperation3Interleave);
-        Iterator<Operation<?>> readOperation3Stream = gf.assignStartTimes(operation3StartTimes, operation3StreamWithoutTimes);
+        Iterator<Operation<?>> readOperation3Stream = gf.assignDependencyTimes(
+                gf.constant(workloadStartTime),
+                gf.assignStartTimes(operation3StartTimes, operation3StreamWithoutTimes)
+        );
 
         Iterator<Operation<?>> operation4StreamWithoutTimes = new Query4EventStreamReader(gf.repeating(readOperation4FileReader), EventReturnPolicy.AT_LEAST_ONE_MATCH);
         // TODO add parameter, or do in more intelligent way
         Duration firstOperation4FromWorkloadStart = readOperation4Interleave;
         Iterator<Time> operation4StartTimes = gf.constantIncrementTime(workloadStartTime.plus(firstOperation4FromWorkloadStart), readOperation4Interleave);
-        Iterator<Operation<?>> readOperation4Stream = gf.assignStartTimes(operation4StartTimes, operation4StreamWithoutTimes);
+        Iterator<Operation<?>> readOperation4Stream = gf.assignDependencyTimes(
+                gf.constant(workloadStartTime),
+                gf.assignStartTimes(operation4StartTimes, operation4StreamWithoutTimes)
+        );
 
         Iterator<Operation<?>> operation5StreamWithoutTimes = new Query5EventStreamReader(gf.repeating(readOperation5FileReader), EventReturnPolicy.AT_LEAST_ONE_MATCH);
         // TODO add parameter, or do in more intelligent way
         Duration firstOperation5FromWorkloadStart = readOperation5Interleave;
         Iterator<Time> operation5StartTimes = gf.constantIncrementTime(workloadStartTime.plus(firstOperation5FromWorkloadStart), readOperation5Interleave);
-        Iterator<Operation<?>> readOperation5Stream = gf.assignStartTimes(operation5StartTimes, operation5StreamWithoutTimes);
+        Iterator<Operation<?>> readOperation5Stream = gf.assignDependencyTimes(
+                gf.constant(workloadStartTime),
+                gf.assignStartTimes(operation5StartTimes, operation5StreamWithoutTimes)
+        );
 
         Iterator<Operation<?>> operation6StreamWithoutTimes = new Query6EventStreamReader(gf.repeating(readOperation6FileReader), EventReturnPolicy.AT_LEAST_ONE_MATCH);
         // TODO add parameter, or do in more intelligent way
         Duration firstOperation6FromWorkloadStart = readOperation6Interleave;
         Iterator<Time> operation6StartTimes = gf.constantIncrementTime(workloadStartTime.plus(firstOperation6FromWorkloadStart), readOperation6Interleave);
-        Iterator<Operation<?>> readOperation6Stream = gf.assignStartTimes(operation6StartTimes, operation6StreamWithoutTimes);
+        Iterator<Operation<?>> readOperation6Stream = gf.assignDependencyTimes(
+                gf.constant(workloadStartTime),
+                gf.assignStartTimes(operation6StartTimes, operation6StreamWithoutTimes)
+        );
 
         Iterator<Operation<?>> operation7StreamWithoutTimes = new Query7EventStreamReader(gf.repeating(readOperation7FileReader), EventReturnPolicy.AT_LEAST_ONE_MATCH);
         // TODO add parameter, or do in more intelligent way
         Duration firstOperation7FromWorkloadStart = readOperation7Interleave;
         Iterator<Time> operation7StartTimes = gf.constantIncrementTime(workloadStartTime.plus(firstOperation7FromWorkloadStart), readOperation7Interleave);
-        Iterator<Operation<?>> readOperation7Stream = gf.assignStartTimes(operation7StartTimes, operation7StreamWithoutTimes);
+        Iterator<Operation<?>> readOperation7Stream = gf.assignDependencyTimes(
+                gf.constant(workloadStartTime),
+                gf.assignStartTimes(operation7StartTimes, operation7StreamWithoutTimes)
+        );
 
         Iterator<Operation<?>> operation8StreamWithoutTimes = new Query8EventStreamReader(gf.repeating(readOperation8FileReader), EventReturnPolicy.AT_LEAST_ONE_MATCH);
         // TODO add parameter, or do in more intelligent way
         Duration firstOperation8FromWorkloadStart = readOperation8Interleave;
         Iterator<Time> operation8StartTimes = gf.constantIncrementTime(workloadStartTime.plus(firstOperation8FromWorkloadStart), readOperation8Interleave);
-        Iterator<Operation<?>> readOperation8Stream = gf.assignStartTimes(operation8StartTimes, operation8StreamWithoutTimes);
+        Iterator<Operation<?>> readOperation8Stream = gf.assignDependencyTimes(
+                gf.constant(workloadStartTime),
+                gf.assignStartTimes(operation8StartTimes, operation8StreamWithoutTimes)
+        );
 
         Iterator<Operation<?>> operation9StreamWithoutTimes = new Query9EventStreamReader(gf.repeating(readOperation9FileReader), EventReturnPolicy.AT_LEAST_ONE_MATCH);
         // TODO add parameter, or do in more intelligent way
         Duration firstOperation9FromWorkloadStart = readOperation9Interleave;
         Iterator<Time> operation9StartTimes = gf.constantIncrementTime(workloadStartTime.plus(firstOperation9FromWorkloadStart), readOperation9Interleave);
-        Iterator<Operation<?>> readOperation9Stream = gf.assignStartTimes(operation9StartTimes, operation9StreamWithoutTimes);
+        Iterator<Operation<?>> readOperation9Stream = gf.assignDependencyTimes(
+                gf.constant(workloadStartTime),
+                gf.assignStartTimes(operation9StartTimes, operation9StreamWithoutTimes)
+        );
 
         Iterator<Operation<?>> operation10StreamWithoutTimes = new Query10EventStreamReader(gf.repeating(readOperation10FileReader), EventReturnPolicy.AT_LEAST_ONE_MATCH);
         // TODO add parameter, or do in more intelligent way
         Duration firstOperation10FromWorkloadStart = readOperation10Interleave;
         Iterator<Time> operation10StartTimes = gf.constantIncrementTime(workloadStartTime.plus(firstOperation10FromWorkloadStart), readOperation10Interleave);
-        Iterator<Operation<?>> readOperation10Stream = gf.assignStartTimes(operation10StartTimes, operation10StreamWithoutTimes);
+        Iterator<Operation<?>> readOperation10Stream = gf.assignDependencyTimes(
+                gf.constant(workloadStartTime),
+                gf.assignStartTimes(operation10StartTimes, operation10StreamWithoutTimes)
+        );
 
         Iterator<Operation<?>> operation11StreamWithoutTimes = new Query11EventStreamReader(gf.repeating(readOperation11FileReader), EventReturnPolicy.AT_LEAST_ONE_MATCH);
         // TODO add parameter, or do in more intelligent way
         Duration firstOperation11FromWorkloadStart = readOperation11Interleave;
         Iterator<Time> operation11StartTimes = gf.constantIncrementTime(workloadStartTime.plus(firstOperation11FromWorkloadStart), readOperation11Interleave);
-        Iterator<Operation<?>> readOperation11Stream = gf.assignStartTimes(operation11StartTimes, operation11StreamWithoutTimes);
+        Iterator<Operation<?>> readOperation11Stream = gf.assignDependencyTimes(
+                gf.constant(workloadStartTime),
+                gf.assignStartTimes(operation11StartTimes, operation11StreamWithoutTimes)
+        );
 
         Iterator<Operation<?>> operation12StreamWithoutTimes = new Query12EventStreamReader(gf.repeating(readOperation12FileReader), EventReturnPolicy.AT_LEAST_ONE_MATCH);
         // TODO add parameter, or do in more intelligent way
         Duration firstOperation12FromWorkloadStart = readOperation12Interleave;
         Iterator<Time> operation12StartTimes = gf.constantIncrementTime(workloadStartTime.plus(firstOperation12FromWorkloadStart), readOperation12Interleave);
-        Iterator<Operation<?>> readOperation12Stream = gf.assignStartTimes(operation12StartTimes, operation12StreamWithoutTimes);
+        Iterator<Operation<?>> readOperation12Stream = gf.assignDependencyTimes(
+                gf.constant(workloadStartTime),
+                gf.assignStartTimes(operation12StartTimes, operation12StreamWithoutTimes)
+        );
 
         Iterator<Operation<?>> operation13StreamWithoutTimes = new Query13EventStreamReader(gf.repeating(readOperation13FileReader), EventReturnPolicy.AT_LEAST_ONE_MATCH);
         // TODO add parameter, or do in more intelligent way
         Duration firstOperation13FromWorkloadStart = readOperation13Interleave;
         Iterator<Time> operation13StartTimes = gf.constantIncrementTime(workloadStartTime.plus(firstOperation13FromWorkloadStart), readOperation13Interleave);
-        Iterator<Operation<?>> readOperation13Stream = gf.assignStartTimes(operation13StartTimes, operation13StreamWithoutTimes);
+        Iterator<Operation<?>> readOperation13Stream = gf.assignDependencyTimes(
+                gf.constant(workloadStartTime),
+                gf.assignStartTimes(operation13StartTimes, operation13StreamWithoutTimes)
+        );
 
         Iterator<Operation<?>> operation14StreamWithoutTimes = new Query14EventStreamReader(gf.repeating(readOperation14FileReader), EventReturnPolicy.AT_LEAST_ONE_MATCH);
         // TODO add parameter, or do in more intelligent way
         Duration firstOperation14FromWorkloadStart = readOperation14Interleave;
         Iterator<Time> operation14StartTimes = gf.constantIncrementTime(workloadStartTime.plus(firstOperation14FromWorkloadStart), readOperation14Interleave);
-        Iterator<Operation<?>> readOperation14Stream = gf.assignStartTimes(operation14StartTimes, operation14StreamWithoutTimes);
+        Iterator<Operation<?>> readOperation14Stream = gf.assignDependencyTimes(
+                gf.constant(workloadStartTime),
+                gf.assignStartTimes(operation14StartTimes, operation14StreamWithoutTimes)
+        );
 
         /*
          * Create write operations stream
@@ -560,50 +601,75 @@ public class LdbcSnbInteractiveWorkload extends Workload {
         };
         Iterator<Operation<?>> filteredWriteOperationStream = Iterators.filter(unfilteredWriteOperationStream, enabledWriteOperationsFilter);
 
+        /*
+         * Add Dependency Times To Dependent Write Operations
+         */
+        Function1<Operation<?>, Boolean> isDependency = new Function1<Operation<?>, Boolean>() {
+            @Override
+            public Boolean apply(Operation<?> operation) {
+                OperationClassification.DependencyMode operationDependencyMode = operationClassifications.get(operation.getClass()).dependencyMode();
+                // TODO add GctMode.WRITE in future?
+                return operationDependencyMode.equals(OperationClassification.DependencyMode.READ_WRITE);
+            }
+        };
+        boolean canOverwriteDependencyTime = true;
+        Iterator<Operation<?>> filteredWriteOperationStreamWithDependencyTimes = gf.assignConservativeDependencyTimes(
+                filteredWriteOperationStream,
+                isDependency,
+                workloadStartTime,
+                canOverwriteDependencyTime);
+
 
         /*
          * Move scheduled start times of write operations to workload start time
          */
         // TODO add parameter, or do in more intelligent way
         Duration firstWriteOperationFromWorkloadStart = Duration.fromSeconds(1);
-        Iterator<Operation<?>> writeOperationStream = gf.timeOffset(unfilteredWriteOperationStream, workloadStartTime.plus(firstWriteOperationFromWorkloadStart));
+        Iterator<Operation<?>> writeOperationStream = gf.timeOffset(
+                filteredWriteOperationStreamWithDependencyTimes,
+                workloadStartTime.plus(firstWriteOperationFromWorkloadStart)
+        );
 
-        List<Iterator<Operation<?>>> enabledOperations = new ArrayList<>();
-        if (false == writeOperationFilter.isEmpty()) enabledOperations.add(writeOperationStream);
-        if (readOperationFilter.contains(LdbcQuery1.class)) enabledOperations.add(readOperation1Stream);
-        if (readOperationFilter.contains(LdbcQuery2.class)) enabledOperations.add(readOperation2Stream);
-        if (readOperationFilter.contains(LdbcQuery3.class)) enabledOperations.add(readOperation3Stream);
-        if (readOperationFilter.contains(LdbcQuery4.class)) enabledOperations.add(readOperation4Stream);
-        if (readOperationFilter.contains(LdbcQuery5.class)) enabledOperations.add(readOperation5Stream);
-        if (readOperationFilter.contains(LdbcQuery6.class)) enabledOperations.add(readOperation6Stream);
-        if (readOperationFilter.contains(LdbcQuery7.class)) enabledOperations.add(readOperation7Stream);
-        if (readOperationFilter.contains(LdbcQuery8.class)) enabledOperations.add(readOperation8Stream);
-        if (readOperationFilter.contains(LdbcQuery9.class)) enabledOperations.add(readOperation9Stream);
-        if (readOperationFilter.contains(LdbcQuery10.class)) enabledOperations.add(readOperation10Stream);
-        if (readOperationFilter.contains(LdbcQuery11.class)) enabledOperations.add(readOperation11Stream);
-        if (readOperationFilter.contains(LdbcQuery12.class)) enabledOperations.add(readOperation12Stream);
-        if (readOperationFilter.contains(LdbcQuery13.class)) enabledOperations.add(readOperation13Stream);
-        if (readOperationFilter.contains(LdbcQuery14.class)) enabledOperations.add(readOperation14Stream);
+        List<Iterator<Operation<?>>> streamsOfAllEnabledOperationTypes = new ArrayList<>();
+        if (false == writeOperationFilter.isEmpty())
+            streamsOfAllEnabledOperationTypes.add(writeOperationStream);
+        if (readOperationFilter.contains(LdbcQuery1.class))
+            streamsOfAllEnabledOperationTypes.add(readOperation1Stream);
+        if (readOperationFilter.contains(LdbcQuery2.class))
+            streamsOfAllEnabledOperationTypes.add(readOperation2Stream);
+        if (readOperationFilter.contains(LdbcQuery3.class))
+            streamsOfAllEnabledOperationTypes.add(readOperation3Stream);
+        if (readOperationFilter.contains(LdbcQuery4.class))
+            streamsOfAllEnabledOperationTypes.add(readOperation4Stream);
+        if (readOperationFilter.contains(LdbcQuery5.class))
+            streamsOfAllEnabledOperationTypes.add(readOperation5Stream);
+        if (readOperationFilter.contains(LdbcQuery6.class))
+            streamsOfAllEnabledOperationTypes.add(readOperation6Stream);
+        if (readOperationFilter.contains(LdbcQuery7.class))
+            streamsOfAllEnabledOperationTypes.add(readOperation7Stream);
+        if (readOperationFilter.contains(LdbcQuery8.class))
+            streamsOfAllEnabledOperationTypes.add(readOperation8Stream);
+        if (readOperationFilter.contains(LdbcQuery9.class))
+            streamsOfAllEnabledOperationTypes.add(readOperation9Stream);
+        if (readOperationFilter.contains(LdbcQuery10.class))
+            streamsOfAllEnabledOperationTypes.add(readOperation10Stream);
+        if (readOperationFilter.contains(LdbcQuery11.class))
+            streamsOfAllEnabledOperationTypes.add(readOperation11Stream);
+        if (readOperationFilter.contains(LdbcQuery12.class))
+            streamsOfAllEnabledOperationTypes.add(readOperation12Stream);
+        if (readOperationFilter.contains(LdbcQuery13.class))
+            streamsOfAllEnabledOperationTypes.add(readOperation13Stream);
+        if (readOperationFilter.contains(LdbcQuery14.class))
+            streamsOfAllEnabledOperationTypes.add(readOperation14Stream);
 
         /*
          * Merge all operation streams, ordered by operation start times
          */
-        Iterator<Operation<?>> readAndWriteOperations = gf.mergeSortOperationsByStartTime(enabledOperations.toArray(new Iterator[enabledOperations.size()]));
+        Iterator<Operation<?>> readAndWriteOperations = gf.mergeSortOperationsByStartTime(
+                streamsOfAllEnabledOperationTypes.toArray(new Iterator[streamsOfAllEnabledOperationTypes.size()])
+        );
 
-        Function1<Operation<?>, Boolean> isDependency = new Function1<Operation<?>, Boolean>() {
-            @Override
-            public Boolean apply(Operation<?> operation) {
-                GctMode operationGctMode = operationClassifications.get(operation.getClass()).gctMode();
-                // TODO add GctMode.WRITE in future?
-                return operationGctMode.equals(GctMode.READ_WRITE);
-            }
-        };
-        boolean canOverwriteDependencyTime = true;
-        return gf.assignConservativeDependencyTimes(
-                readAndWriteOperations,
-                isDependency,
-                workloadStartTime,
-                canOverwriteDependencyTime);
+        return readAndWriteOperations;
 
         // TODO alternatively, most aggressive, i.e., all operations have their dependencies met before starting
 //        Iterator<Time> dependencyTimes = gf.constantIncrementTime(workloadStartTime, Duration.fromMilli(0));

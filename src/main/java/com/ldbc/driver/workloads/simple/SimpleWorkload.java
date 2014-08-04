@@ -39,11 +39,11 @@ public class SimpleWorkload extends Workload {
     public Map<Class<? extends Operation>, OperationClassification> getOperationClassifications() {
         Map<Class<? extends Operation>, OperationClassification> operationClassificationMapping = new HashMap<>();
         // TODO use correct operation classifications
-        operationClassificationMapping.put(InsertOperation.class, new OperationClassification(OperationClassification.SchedulingMode.INDIVIDUAL_ASYNC, OperationClassification.GctMode.NONE));
-        operationClassificationMapping.put(ReadModifyWriteOperation.class, new OperationClassification(OperationClassification.SchedulingMode.INDIVIDUAL_ASYNC, OperationClassification.GctMode.NONE));
-        operationClassificationMapping.put(ReadOperation.class, new OperationClassification(OperationClassification.SchedulingMode.INDIVIDUAL_ASYNC, OperationClassification.GctMode.NONE));
-        operationClassificationMapping.put(ScanOperation.class, new OperationClassification(OperationClassification.SchedulingMode.INDIVIDUAL_ASYNC, OperationClassification.GctMode.NONE));
-        operationClassificationMapping.put(UpdateOperation.class, new OperationClassification(OperationClassification.SchedulingMode.INDIVIDUAL_ASYNC, OperationClassification.GctMode.NONE));
+        operationClassificationMapping.put(InsertOperation.class, new OperationClassification(OperationClassification.SchedulingMode.INDIVIDUAL_ASYNC, OperationClassification.DependencyMode.NONE));
+        operationClassificationMapping.put(ReadModifyWriteOperation.class, new OperationClassification(OperationClassification.SchedulingMode.INDIVIDUAL_ASYNC, OperationClassification.DependencyMode.NONE));
+        operationClassificationMapping.put(ReadOperation.class, new OperationClassification(OperationClassification.SchedulingMode.INDIVIDUAL_ASYNC, OperationClassification.DependencyMode.NONE));
+        operationClassificationMapping.put(ScanOperation.class, new OperationClassification(OperationClassification.SchedulingMode.INDIVIDUAL_ASYNC, OperationClassification.DependencyMode.NONE));
+        operationClassificationMapping.put(UpdateOperation.class, new OperationClassification(OperationClassification.SchedulingMode.INDIVIDUAL_ASYNC, OperationClassification.DependencyMode.NONE));
         return operationClassificationMapping;
     }
 

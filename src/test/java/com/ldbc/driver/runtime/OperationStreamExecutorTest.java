@@ -2,7 +2,6 @@ package com.ldbc.driver.runtime;
 
 import com.google.common.collect.Lists;
 import com.ldbc.driver.*;
-import com.ldbc.driver.OperationClassification.GctMode;
 import com.ldbc.driver.OperationClassification.SchedulingMode;
 import com.ldbc.driver.control.DriverConfigurationException;
 import com.ldbc.driver.generator.GeneratorFactory;
@@ -64,15 +63,6 @@ public class OperationStreamExecutorTest {
         completionTimeService.shutdown();
     }
 
-    // TODO use try catch finally instead of "initialise()" & "cleanup()"
-    // TODO that will also allow for having 2 versions of each tests, for different completion time service implementations
-
-    // TODO test where both executors have READ_WRITE operations
-
-    // TODO test where both executors have READ operations only
-
-    // TODO test with different thread counts
-
     // TODO eventually a check could be added for excessive execution time
     // TODO this would need to be placed in MetricsReporter/CompletionTimeService
     // TODO or something similar that checks for initiated but uncompleted operations
@@ -84,6 +74,34 @@ public class OperationStreamExecutorTest {
 
     @Ignore
     @Test
+    public void forEachTestHaveDifferentCombinationsInputsEtc() {
+        // TODO different thread counts
+        // TODO different completion time implementations
+        assertThat(true, is(false));
+    }
+
+    @Ignore
+    @Test
+    public void writeTestsWhereBothExecutorsHaveREADOperations() {
+        assertThat(true, is(false));
+    }
+
+    @Ignore
+    @Test
+    public void writeTestsWhereBothExecutorsHaveREAD_WRITEOperations() {
+        assertThat(true, is(false));
+    }
+
+    @Ignore
+    @Test
+    public void writeTestsWithTryFinallyInsteadOfBeforeAndAfterMethods() {
+        // TODO that will also allow for having 2 versions of each tests, for different completion time service implementations
+        // TODO it will also ensure services are always shutdown, regardless of success/failure
+        assertThat(true, is(false));
+    }
+
+    @Ignore
+    @Test
     public void makeTestsWithWindowedModeAfterHaveUnderstoodHowToTestItProperly() {
         assertThat(true, is(false));
     }
@@ -91,6 +109,13 @@ public class OperationStreamExecutorTest {
     @Ignore
     @Test
     public void forCleanShutdownExecutorsDefinitelyNeedToManageTheirOwnThreadPools() {
+        assertThat(true, is(false));
+    }
+
+    @Ignore
+    @Test
+    public void eachExecutorShouldHaveDifferentThreadPool() {
+        // TODO Operations that write to GCT can not be blocked by operations that read GCT, or no progress will happen
         assertThat(true, is(false));
     }
 
@@ -162,8 +187,8 @@ public class OperationStreamExecutorTest {
         Iterator<Operation<?>> operations = gf.mergeSortOperationsByStartTime(readOperations.iterator(), readWriteOperations.iterator());
 
         Map<Class<? extends Operation>, OperationClassification> classifications = new HashMap<>();
-        classifications.put(TimedNamedOperation1.class, new OperationClassification(SchedulingMode.INDIVIDUAL_ASYNC, GctMode.READ_WRITE));
-        classifications.put(TimedNamedOperation2.class, new OperationClassification(SchedulingMode.INDIVIDUAL_BLOCKING, GctMode.READ_WRITE));
+        classifications.put(TimedNamedOperation1.class, new OperationClassification(SchedulingMode.INDIVIDUAL_ASYNC, OperationClassification.DependencyMode.READ_WRITE));
+        classifications.put(TimedNamedOperation2.class, new OperationClassification(SchedulingMode.INDIVIDUAL_BLOCKING, OperationClassification.DependencyMode.READ_WRITE));
 
         int threadCount = 4;
         // Not used when Windowed Scheduling Mode is not used
@@ -293,8 +318,8 @@ public class OperationStreamExecutorTest {
         Iterator<Operation<?>> operations = gf.mergeSortOperationsByStartTime(readOperations.iterator(), readWriteOperations.iterator());
 
         Map<Class<? extends Operation>, OperationClassification> classifications = new HashMap<>();
-        classifications.put(TimedNamedOperation1.class, new OperationClassification(SchedulingMode.INDIVIDUAL_ASYNC, GctMode.READ));
-        classifications.put(TimedNamedOperation2.class, new OperationClassification(SchedulingMode.INDIVIDUAL_ASYNC, GctMode.READ_WRITE));
+        classifications.put(TimedNamedOperation1.class, new OperationClassification(SchedulingMode.INDIVIDUAL_ASYNC, OperationClassification.DependencyMode.READ));
+        classifications.put(TimedNamedOperation2.class, new OperationClassification(SchedulingMode.INDIVIDUAL_ASYNC, OperationClassification.DependencyMode.READ_WRITE));
 
         int threadCount = 16;
         // Not used when Windowed Scheduling Mode is not used
@@ -514,8 +539,8 @@ public class OperationStreamExecutorTest {
         Iterator<Operation<?>> operations = gf.mergeSortOperationsByStartTime(readOperations.iterator(), readWriteOperations.iterator());
 
         Map<Class<? extends Operation>, OperationClassification> classifications = new HashMap<>();
-        classifications.put(TimedNamedOperation1.class, new OperationClassification(SchedulingMode.INDIVIDUAL_ASYNC, GctMode.READ));
-        classifications.put(TimedNamedOperation2.class, new OperationClassification(SchedulingMode.INDIVIDUAL_BLOCKING, GctMode.READ_WRITE));
+        classifications.put(TimedNamedOperation1.class, new OperationClassification(SchedulingMode.INDIVIDUAL_ASYNC, OperationClassification.DependencyMode.READ));
+        classifications.put(TimedNamedOperation2.class, new OperationClassification(SchedulingMode.INDIVIDUAL_BLOCKING, OperationClassification.DependencyMode.READ_WRITE));
 
         int threadCount = 16;
         // Not used when Windowed Scheduling Mode is not used
@@ -710,8 +735,8 @@ public class OperationStreamExecutorTest {
         13  S(13)D(6)                                       6 <~~ S(13)D(6) initialized (READ ONLY)
          */
         Map<Class<? extends Operation>, OperationClassification> classifications = new HashMap<>();
-        classifications.put(TimedNamedOperation1.class, new OperationClassification(SchedulingMode.INDIVIDUAL_ASYNC, GctMode.READ));
-        classifications.put(TimedNamedOperation2.class, new OperationClassification(SchedulingMode.INDIVIDUAL_ASYNC, GctMode.READ_WRITE));
+        classifications.put(TimedNamedOperation1.class, new OperationClassification(SchedulingMode.INDIVIDUAL_ASYNC, OperationClassification.DependencyMode.READ));
+        classifications.put(TimedNamedOperation2.class, new OperationClassification(SchedulingMode.INDIVIDUAL_ASYNC, OperationClassification.DependencyMode.READ_WRITE));
 
         List<Operation<?>> readOperations = Lists.<Operation<?>>newArrayList(
                 new TimedNamedOperation1(Time.fromMilli(2), Time.fromMilli(0), "read1"),
@@ -913,8 +938,8 @@ public class OperationStreamExecutorTest {
         13  S(13)D(6)                                       6
          */
         Map<Class<? extends Operation>, OperationClassification> classifications = new HashMap<>();
-        classifications.put(TimedNamedOperation1.class, new OperationClassification(SchedulingMode.INDIVIDUAL_ASYNC, GctMode.READ));
-        classifications.put(TimedNamedOperation2.class, new OperationClassification(SchedulingMode.INDIVIDUAL_BLOCKING, GctMode.READ_WRITE));
+        classifications.put(TimedNamedOperation1.class, new OperationClassification(SchedulingMode.INDIVIDUAL_ASYNC, OperationClassification.DependencyMode.READ));
+        classifications.put(TimedNamedOperation2.class, new OperationClassification(SchedulingMode.INDIVIDUAL_BLOCKING, OperationClassification.DependencyMode.READ_WRITE));
 
         List<Operation<?>> readOperations = Lists.<Operation<?>>newArrayList(
                 new TimedNamedOperation1(Time.fromMilli(2), Time.fromMilli(0), "read1"),
@@ -1116,8 +1141,8 @@ public class OperationStreamExecutorTest {
         13  S(13)D(6)                                       6
          */
         Map<Class<? extends Operation>, OperationClassification> classifications = new HashMap<>();
-        classifications.put(TimedNamedOperation1.class, new OperationClassification(SchedulingMode.INDIVIDUAL_BLOCKING, GctMode.READ));
-        classifications.put(TimedNamedOperation2.class, new OperationClassification(SchedulingMode.INDIVIDUAL_ASYNC, GctMode.READ_WRITE));
+        classifications.put(TimedNamedOperation1.class, new OperationClassification(SchedulingMode.INDIVIDUAL_BLOCKING, OperationClassification.DependencyMode.READ));
+        classifications.put(TimedNamedOperation2.class, new OperationClassification(SchedulingMode.INDIVIDUAL_ASYNC, OperationClassification.DependencyMode.READ_WRITE));
 
         List<Operation<?>> readOperations = Lists.<Operation<?>>newArrayList(
                 new TimedNamedOperation1(Time.fromMilli(2), Time.fromMilli(0), "read1"),
@@ -1319,8 +1344,8 @@ public class OperationStreamExecutorTest {
         13  S(13)D(6)                                       6
          */
         Map<Class<? extends Operation>, OperationClassification> classifications = new HashMap<>();
-        classifications.put(TimedNamedOperation1.class, new OperationClassification(SchedulingMode.INDIVIDUAL_BLOCKING, GctMode.READ));
-        classifications.put(TimedNamedOperation2.class, new OperationClassification(SchedulingMode.INDIVIDUAL_BLOCKING, GctMode.READ_WRITE));
+        classifications.put(TimedNamedOperation1.class, new OperationClassification(SchedulingMode.INDIVIDUAL_BLOCKING, OperationClassification.DependencyMode.READ));
+        classifications.put(TimedNamedOperation2.class, new OperationClassification(SchedulingMode.INDIVIDUAL_BLOCKING, OperationClassification.DependencyMode.READ_WRITE));
 
         List<Operation<?>> readOperations = Lists.<Operation<?>>newArrayList(
                 new TimedNamedOperation1(Time.fromMilli(2), Time.fromMilli(0), "read1"),

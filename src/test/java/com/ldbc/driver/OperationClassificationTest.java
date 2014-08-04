@@ -10,10 +10,10 @@ public class OperationClassificationTest {
     @Test
     public void shouldPerformEqualityCorrectly() {
         // Given
-        OperationClassification classification1 = new OperationClassification(OperationClassification.SchedulingMode.INDIVIDUAL_ASYNC, OperationClassification.GctMode.NONE);
-        OperationClassification classification2 = new OperationClassification(OperationClassification.SchedulingMode.INDIVIDUAL_ASYNC, OperationClassification.GctMode.NONE);
-        OperationClassification classification3 = new OperationClassification(OperationClassification.SchedulingMode.INDIVIDUAL_ASYNC, OperationClassification.GctMode.READ);
-        OperationClassification classification4 = new OperationClassification(OperationClassification.SchedulingMode.WINDOWED, OperationClassification.GctMode.NONE);
+        OperationClassification classification1 = new OperationClassification(OperationClassification.SchedulingMode.INDIVIDUAL_ASYNC, OperationClassification.DependencyMode.NONE);
+        OperationClassification classification2 = new OperationClassification(OperationClassification.SchedulingMode.INDIVIDUAL_ASYNC, OperationClassification.DependencyMode.NONE);
+        OperationClassification classification3 = new OperationClassification(OperationClassification.SchedulingMode.INDIVIDUAL_ASYNC, OperationClassification.DependencyMode.READ);
+        OperationClassification classification4 = new OperationClassification(OperationClassification.SchedulingMode.WINDOWED, OperationClassification.DependencyMode.NONE);
 
         // When
 

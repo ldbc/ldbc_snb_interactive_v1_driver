@@ -20,7 +20,7 @@ public class ErrorReportingTerminatingExecutionDelayPolicy implements ExecutionD
     }
 
     @Override
-    public boolean handleUnassignedScheduledStartTime(Operation<?> operation) {
+    public boolean handleUnassignedTime(Operation<?> operation) {
         String errMsg = String.format("Operation has no Scheduled Start Time\n%s",
                 operation.toString());
         errorReporter.reportError(this, errMsg);

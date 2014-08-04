@@ -2,7 +2,6 @@ package com.ldbc.driver.validation;
 
 import com.ldbc.driver.Operation;
 import com.ldbc.driver.OperationClassification;
-import com.ldbc.driver.OperationClassification.GctMode;
 import com.ldbc.driver.runtime.metrics.ContinuousMetricManager;
 import com.ldbc.driver.runtime.metrics.MetricsCollectionException;
 import com.ldbc.driver.temporal.Duration;
@@ -37,8 +36,8 @@ public class WorkloadStatisticsCalculator {
 
         Time previousOperationStartTime = null;
 
-        Map<OperationClassification.GctMode, Time> previousOperationStartTimesByGctMode = new HashMap<>();
-        Map<OperationClassification.GctMode, ContinuousMetricManager> operationInterleavesByGctMode = new HashMap<>();
+        Map<OperationClassification.DependencyMode, Time> previousOperationStartTimesByDependencyMode = new HashMap<>();
+        Map<OperationClassification.DependencyMode, ContinuousMetricManager> operationInterleavesByDependencyMode = new HashMap<>();
 
         Map<Class, Time> previousOperationStartTimesByOperationType = new HashMap<>();
         Map<Class, ContinuousMetricManager> operationInterleavesByOperationType = new HashMap<>();
@@ -46,26 +45,30 @@ public class WorkloadStatisticsCalculator {
         Map<Class, Time> firstStartTimesByOperationType = new HashMap<>();
         Map<Class, Time> lastStartTimesByOperationType = new HashMap<>();
 
-        Map<GctMode, Set<Class>> operationsByGctMode = new HashMap<>();
+        Map<OperationClassification.DependencyMode, Set<Class>> operationsByDependencyMode = new HashMap<>();
         for (Map.Entry<Class<? extends Operation>, OperationClassification> operationClassificationEntry : operationClassifications.entrySet()) {
             Class operationType = operationClassificationEntry.getKey();
-            GctMode operationGctMode = operationClassificationEntry.getValue().gctMode();
-            Set<Class> operationsForGctMode;
-            if (operationsByGctMode.containsKey(operationGctMode))
-                operationsForGctMode = operationsByGctMode.get(operationGctMode);
+            OperationClassification.DependencyMode operationDependencyMode = operationClassificationEntry.getValue().dependencyMode();
+            Set<Class> operationsForDependencyMode;
+            if (operationsByDependencyMode.containsKey(operationDependencyMode))
+                operationsForDependencyMode = operationsByDependencyMode.get(operationDependencyMode);
             else {
-                operationsForGctMode = new HashSet<>();
-                operationsByGctMode.put(operationGctMode, operationsForGctMode);
+                operationsForDependencyMode = new HashSet<>();
+                operationsByDependencyMode.put(operationDependencyMode, operationsForDependencyMode);
             }
-            operationsForGctMode.add(operationType);
+            operationsForDependencyMode.add(operationType);
         }
+
+        Map<Class, Duration> lowestDependencyDurationByOperationType = new HashMap<>();
 
         while (operations.hasNext()) {
             Operation<?> operation = operations.next();
             Class operationType = operation.getClass();
             Time operationStartTime = operation.scheduledStartTime();
+            Time operationDependencyTime = operation.dependencyTime();
             OperationClassification operationClassification = operationClassifications.get(operationType);
-            OperationClassification.GctMode operationGctMode = operationClassification.gctMode();
+            OperationClassification.DependencyMode operationDependencyMode = operationClassification.dependencyMode();
+            OperationClassification.SchedulingMode operationSchedulingMode = operationClassification.schedulingMode();
 
             // Operation Mix
             operationMixHistogram.incOrCreateBucket(Bucket.DiscreteBucket.create(operationType), 1l);
@@ -77,18 +80,18 @@ public class WorkloadStatisticsCalculator {
             }
             previousOperationStartTime = operationStartTime;
 
-            // Interleaves by GCT mode
-            ContinuousMetricManager operationInterleaveForGctMode = operationInterleavesByGctMode.get(operationGctMode);
-            if (null == operationInterleaveForGctMode) {
-                operationInterleaveForGctMode = new ContinuousMetricManager(null, null, maxExpectedInterleave.asMilli(), 5);
-                operationInterleavesByGctMode.put(operationGctMode, operationInterleaveForGctMode);
+            // Interleaves by dependency mode
+            ContinuousMetricManager operationInterleaveForDependencyMode = operationInterleavesByDependencyMode.get(operationDependencyMode);
+            if (null == operationInterleaveForDependencyMode) {
+                operationInterleaveForDependencyMode = new ContinuousMetricManager(null, null, maxExpectedInterleave.asMilli(), 5);
+                operationInterleavesByDependencyMode.put(operationDependencyMode, operationInterleaveForDependencyMode);
             }
-            Time previousOperationStartTimeByGctMode = previousOperationStartTimesByGctMode.get(operationGctMode);
-            if (null != previousOperationStartTimeByGctMode) {
-                Duration interleaveDuration = operationStartTime.durationGreaterThan(previousOperationStartTimeByGctMode);
-                operationInterleaveForGctMode.addMeasurement(interleaveDuration.asMilli());
+            Time previousOperationStartTimeByDependencyMode = previousOperationStartTimesByDependencyMode.get(operationDependencyMode);
+            if (null != previousOperationStartTimeByDependencyMode) {
+                Duration interleaveDuration = operationStartTime.durationGreaterThan(previousOperationStartTimeByDependencyMode);
+                operationInterleaveForDependencyMode.addMeasurement(interleaveDuration.asMilli());
             }
-            previousOperationStartTimesByGctMode.put(operationGctMode, operationStartTime);
+            previousOperationStartTimesByDependencyMode.put(operationDependencyMode, operationStartTime);
 
             // Interleaves by operation type
             ContinuousMetricManager operationInterleaveForOperationType = operationInterleavesByOperationType.get(operationType);
@@ -103,6 +106,14 @@ public class WorkloadStatisticsCalculator {
             }
             previousOperationStartTimesByOperationType.put(operationType, operationStartTime);
 
+            Duration operationDependencyDuration = operationStartTime.durationGreaterThan(operationDependencyTime);
+            // Dependency duration by operation type
+            Duration lowestDependencyDurationForOperationType = (lowestDependencyDurationByOperationType.containsKey(operationType))
+                    ? lowestDependencyDurationByOperationType.get(operationType)
+                    : Duration.fromNano(Long.MAX_VALUE);
+            if (operationDependencyDuration.lt(lowestDependencyDurationForOperationType))
+                lowestDependencyDurationByOperationType.put(operationType, operationDependencyDuration);
+
             // First start times by operation type
             if (false == firstStartTimesByOperationType.containsKey(operationType))
                 firstStartTimesByOperationType.put(operationType, operationStartTime);
@@ -116,8 +127,9 @@ public class WorkloadStatisticsCalculator {
                 lastStartTimesByOperationType,
                 operationMixHistogram,
                 operationInterleaves,
-                operationInterleavesByGctMode,
+                operationInterleavesByDependencyMode,
                 operationInterleavesByOperationType,
-                operationsByGctMode);
+                operationsByDependencyMode,
+                lowestDependencyDurationByOperationType);
     }
 }

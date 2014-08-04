@@ -31,35 +31,6 @@ public class ExecutorTest {
 
     @Ignore
     @Test
-    public void eachExecutorShouldHaveDifferentThreadPool() {
-        // TODO Operations that write to GCT can not be blocked by operations that read GCT, or no progress will happen
-        assertThat(true, is(false));
-    }
-
-    @Ignore
-    @Test
-    public void writeTestToBetterUnderstandWhatHappensWhenThereAreMoreActiveThreadsThanCPUs() {
-        // TODO does the JVM give them all some computation time?
-        // TODO or will the active ones hold the CPUs until they complete, starving the others of the chance to run?
-        assertThat(true, is(false));
-    }
-
-    @Ignore
-    @Test
-    public void eachExecutorShouldHaveDifferentCompletionTimeService() {
-        // TODO necessary because executors run concurrently to one another
-        // TODO meaning initiated times are not guaranteed to be submitted in GLOBALLY monotonically increasing order
-        // TODO e.g.,
-        // TODO --> executor1.submit(1) GCT=0
-        // TODO --> executor1.submit(2) GCT=0
-        // TODO --> [1 completes] GCT=1
-        // TODO --> [2 completes] GCT =2
-        // TODO --> executor2.submit(1) <<ERROR>> submitted initiated time is earlier than current GCT
-        assertThat(true, is(false));
-    }
-
-    @Ignore
-    @Test
     public void inWindowedModeOperationsShouldNotPerformGctCheckThemselvesInsteadTheExecutorShouldDoSoBeforeWindowExecution() {
         // TODO synchronize code and documentation on the way we do such things
         assertThat(true, is(false));

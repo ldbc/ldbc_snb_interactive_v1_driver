@@ -55,10 +55,10 @@ public class WorkloadValidatorTest {
         Map<Class<? extends Operation>, OperationClassification> operationClassifications = new HashMap<>();
         operationClassifications.put(
                 TimedNamedOperation2.class,
-                new OperationClassification(OperationClassification.SchedulingMode.WINDOWED, OperationClassification.GctMode.READ));
+                new OperationClassification(OperationClassification.SchedulingMode.WINDOWED, OperationClassification.DependencyMode.READ));
         operationClassifications.put(
                 TimedNamedOperation1.class,
-                new OperationClassification(OperationClassification.SchedulingMode.INDIVIDUAL_ASYNC, OperationClassification.GctMode.NONE));
+                new OperationClassification(OperationClassification.SchedulingMode.INDIVIDUAL_ASYNC, OperationClassification.DependencyMode.NONE));
 
         Map<String, String> nonDefaultParams = new HashMap<>();
         nonDefaultParams.put(ConsoleAndFileDriverConfiguration.WINDOWED_EXECUTION_WINDOW_DURATION_ARG, Long.toString(windowDuration.asMilli()));
@@ -112,10 +112,10 @@ public class WorkloadValidatorTest {
         Map<Class<? extends Operation>, OperationClassification> operationClassifications = new HashMap<>();
         operationClassifications.put(
                 TimedNamedOperation2.class,
-                new OperationClassification(OperationClassification.SchedulingMode.WINDOWED, OperationClassification.GctMode.READ));
+                new OperationClassification(OperationClassification.SchedulingMode.WINDOWED, OperationClassification.DependencyMode.READ));
         operationClassifications.put(
                 TimedNamedOperation1.class,
-                new OperationClassification(OperationClassification.SchedulingMode.INDIVIDUAL_ASYNC, OperationClassification.GctMode.NONE));
+                new OperationClassification(OperationClassification.SchedulingMode.INDIVIDUAL_ASYNC, OperationClassification.DependencyMode.NONE));
 
         Map<String, String> nonDefaultParams = new HashMap<>();
         nonDefaultParams.put(ConsoleAndFileDriverConfiguration.WINDOWED_EXECUTION_WINDOW_DURATION_ARG, Long.toString(windowDuration.asMilli()));
@@ -169,10 +169,10 @@ public class WorkloadValidatorTest {
         Map<Class<? extends Operation>, OperationClassification> operationClassifications = new HashMap<>();
         operationClassifications.put(
                 TimedNamedOperation2.class,
-                new OperationClassification(OperationClassification.SchedulingMode.INDIVIDUAL_ASYNC, OperationClassification.GctMode.READ));
+                new OperationClassification(OperationClassification.SchedulingMode.INDIVIDUAL_ASYNC, OperationClassification.DependencyMode.READ));
         operationClassifications.put(
                 TimedNamedOperation1.class,
-                new OperationClassification(OperationClassification.SchedulingMode.INDIVIDUAL_ASYNC, OperationClassification.GctMode.NONE));
+                new OperationClassification(OperationClassification.SchedulingMode.INDIVIDUAL_ASYNC, OperationClassification.DependencyMode.NONE));
 
         Map<String, String> nonDefaultParams = new HashMap<>();
         nonDefaultParams.put(ConsoleAndFileDriverConfiguration.WINDOWED_EXECUTION_WINDOW_DURATION_ARG, Long.toString(windowDuration.asMilli()));
@@ -226,10 +226,10 @@ public class WorkloadValidatorTest {
         Map<Class<? extends Operation>, OperationClassification> operationClassifications = new HashMap<>();
         operationClassifications.put(
                 TimedNamedOperation2.class,
-                new OperationClassification(OperationClassification.SchedulingMode.INDIVIDUAL_ASYNC, OperationClassification.GctMode.READ));
+                new OperationClassification(OperationClassification.SchedulingMode.INDIVIDUAL_ASYNC, OperationClassification.DependencyMode.READ));
         operationClassifications.put(
                 TimedNamedOperation1.class,
-                new OperationClassification(OperationClassification.SchedulingMode.INDIVIDUAL_ASYNC, OperationClassification.GctMode.NONE));
+                new OperationClassification(OperationClassification.SchedulingMode.INDIVIDUAL_ASYNC, OperationClassification.DependencyMode.NONE));
 
         Map<String, String> nonDefaultParams = new HashMap<>();
         nonDefaultParams.put(ConsoleAndFileDriverConfiguration.WINDOWED_EXECUTION_WINDOW_DURATION_ARG, Long.toString(windowDuration.asMilli()));
@@ -287,10 +287,10 @@ public class WorkloadValidatorTest {
         Map<Class<? extends Operation>, OperationClassification> operationClassifications = new HashMap<>();
         operationClassifications.put(
                 TimedNamedOperation2.class,
-                new OperationClassification(OperationClassification.SchedulingMode.INDIVIDUAL_ASYNC, OperationClassification.GctMode.READ));
+                new OperationClassification(OperationClassification.SchedulingMode.INDIVIDUAL_ASYNC, OperationClassification.DependencyMode.READ));
         operationClassifications.put(
                 TimedNamedOperation1.class,
-                new OperationClassification(OperationClassification.SchedulingMode.INDIVIDUAL_ASYNC, OperationClassification.GctMode.NONE));
+                new OperationClassification(OperationClassification.SchedulingMode.INDIVIDUAL_ASYNC, OperationClassification.DependencyMode.NONE));
 
         Map<String, String> nonDefaultParams = new HashMap<>();
         nonDefaultParams.put(ConsoleAndFileDriverConfiguration.WINDOWED_EXECUTION_WINDOW_DURATION_ARG, Long.toString(windowDuration.asMilli()));
@@ -336,18 +336,18 @@ public class WorkloadValidatorTest {
         Map<Class<? extends Operation>, OperationClassification> validOperationClassifications = new HashMap<>();
         validOperationClassifications.put(
                 TimedNamedOperation2.class,
-                new OperationClassification(OperationClassification.SchedulingMode.INDIVIDUAL_ASYNC, OperationClassification.GctMode.READ));
+                new OperationClassification(OperationClassification.SchedulingMode.INDIVIDUAL_ASYNC, OperationClassification.DependencyMode.READ));
         validOperationClassifications.put(
                 TimedNamedOperation1.class,
-                new OperationClassification(OperationClassification.SchedulingMode.INDIVIDUAL_ASYNC, OperationClassification.GctMode.NONE));
+                new OperationClassification(OperationClassification.SchedulingMode.INDIVIDUAL_ASYNC, OperationClassification.DependencyMode.NONE));
 
         Map<Class<? extends Operation>, OperationClassification> invalidOperationClassifications = new HashMap<>();
         invalidOperationClassifications.put(
                 TimedNamedOperation2.class,
-                new OperationClassification(OperationClassification.SchedulingMode.INDIVIDUAL_ASYNC, OperationClassification.GctMode.READ));
+                new OperationClassification(OperationClassification.SchedulingMode.INDIVIDUAL_ASYNC, OperationClassification.DependencyMode.READ));
         invalidOperationClassifications.put(
                 TimedNamedOperation1.class,
-                new OperationClassification(null, OperationClassification.GctMode.NONE));
+                new OperationClassification(null, OperationClassification.DependencyMode.NONE));
 
         Map<String, String> nonDefaultParams = new HashMap<>();
         nonDefaultParams.put(ConsoleAndFileDriverConfiguration.WINDOWED_EXECUTION_WINDOW_DURATION_ARG, Long.toString(windowDuration.asMilli()));
@@ -421,7 +421,7 @@ public class WorkloadValidatorTest {
         Map<Class<? extends Operation>, OperationClassification> operationClassifications = new HashMap<>();
         operationClassifications.put(
                 TimedNamedOperation1.class,
-                new OperationClassification(OperationClassification.SchedulingMode.INDIVIDUAL_ASYNC, OperationClassification.GctMode.NONE));
+                new OperationClassification(OperationClassification.SchedulingMode.INDIVIDUAL_ASYNC, OperationClassification.DependencyMode.NONE));
 
 
         DriverConfiguration configuration = ConsoleAndFileDriverConfiguration.fromDefaults(null, null, operationCount);
@@ -456,7 +456,7 @@ public class WorkloadValidatorTest {
         Map<Class<? extends Operation>, OperationClassification> operationClassifications = new HashMap<>();
         operationClassifications.put(
                 TimedNamedOperation1.class,
-                new OperationClassification(OperationClassification.SchedulingMode.INDIVIDUAL_ASYNC, OperationClassification.GctMode.NONE));
+                new OperationClassification(OperationClassification.SchedulingMode.INDIVIDUAL_ASYNC, OperationClassification.DependencyMode.NONE));
 
         DriverConfiguration configuration = ConsoleAndFileDriverConfiguration.fromDefaults(null, null, operationCount);
         Workload workload = new DummyWorkload(operations.iterator(), operationClassifications, maxExpectedInterleave);
@@ -512,10 +512,10 @@ public class WorkloadValidatorTest {
         Map<Class<? extends Operation>, OperationClassification> operationClassifications = new HashMap<>();
         operationClassifications.put(
                 TimedNamedOperation1.class,
-                new OperationClassification(OperationClassification.SchedulingMode.INDIVIDUAL_ASYNC, OperationClassification.GctMode.NONE));
+                new OperationClassification(OperationClassification.SchedulingMode.INDIVIDUAL_ASYNC, OperationClassification.DependencyMode.NONE));
         operationClassifications.put(
                 NothingOperation.class,
-                new OperationClassification(OperationClassification.SchedulingMode.INDIVIDUAL_ASYNC, OperationClassification.GctMode.NONE));
+                new OperationClassification(OperationClassification.SchedulingMode.INDIVIDUAL_ASYNC, OperationClassification.DependencyMode.NONE));
 
         DriverConfiguration configuration = ConsoleAndFileDriverConfiguration.fromDefaults(null, null, operationCount);
         Workload workload = new DummyWorkload(operations.iterator(), operationClassifications, maxExpectedInterleave);
@@ -544,7 +544,7 @@ public class WorkloadValidatorTest {
         Map<Class<? extends Operation>, OperationClassification> operationClassifications = new HashMap<>();
         operationClassifications.put(
                 TimedNamedOperation1.class,
-                new OperationClassification(OperationClassification.SchedulingMode.INDIVIDUAL_ASYNC, OperationClassification.GctMode.NONE));
+                new OperationClassification(OperationClassification.SchedulingMode.INDIVIDUAL_ASYNC, OperationClassification.DependencyMode.NONE));
 
         DriverConfiguration configuration = ConsoleAndFileDriverConfiguration.fromDefaults(null, null, operationCount);
         Workload workload = new DummyWorkload(operations.iterator(), operationClassifications, Workload.DEFAULT_MAXIMUM_EXPECTED_INTERLEAVE);
@@ -575,7 +575,7 @@ public class WorkloadValidatorTest {
         Map<Class<? extends Operation>, OperationClassification> operationClassifications = new HashMap<>();
         operationClassifications.put(
                 TimedNamedOperation1.class,
-                new OperationClassification(OperationClassification.SchedulingMode.INDIVIDUAL_ASYNC, OperationClassification.GctMode.NONE));
+                new OperationClassification(OperationClassification.SchedulingMode.INDIVIDUAL_ASYNC, OperationClassification.DependencyMode.NONE));
 
         DriverConfiguration configuration = ConsoleAndFileDriverConfiguration.fromDefaults(null, null, operationCount);
         Workload workload = new DummyWorkload(operations.iterator(), operationClassifications, Workload.DEFAULT_MAXIMUM_EXPECTED_INTERLEAVE);
@@ -604,7 +604,7 @@ public class WorkloadValidatorTest {
         Map<Class<? extends Operation>, OperationClassification> operationClassifications = new HashMap<>();
         operationClassifications.put(
                 TimedNamedOperation1.class,
-                new OperationClassification(null, OperationClassification.GctMode.NONE));
+                new OperationClassification(null, OperationClassification.DependencyMode.NONE));
 
         DriverConfiguration configuration = ConsoleAndFileDriverConfiguration.fromDefaults(null, null, operationCount);
         Workload workload = new DummyWorkload(operations, operationClassifications, maxExpectedInterleave);

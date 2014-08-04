@@ -9,12 +9,6 @@ import static org.junit.Assert.assertThat;
 public class TimeTest {
     @Ignore
     @Test
-    public void considerAddingTemporalConverterClassToRemoveStaticFromNanoEtcMethods() {
-        assertThat(true, is(false));
-    }
-
-    @Ignore
-    @Test
     public void introduceTimeStampType() {
         // TODO TimeStamp = Time + unique long id
         // TODO serves two purposes:

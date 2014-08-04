@@ -249,9 +249,9 @@ public class GeneratorFactory {
      * @return
      */
     public Iterator<Time> randomIncrementTime(Time startTime, Duration minIncrement, Duration maxIncrement) {
-        Iterator<Long> incrementTimeByGenerator = uniform(minIncrement.asMilli(), maxIncrement.asMilli());
-        Iterator<Long> startTimeMilliSecondsGenerator = incrementing(startTime.asMilli(), incrementTimeByGenerator);
-        return timeFromMilliSeconds(startTimeMilliSecondsGenerator);
+        Iterator<Long> incrementTimeByNanoSecondsGenerator = uniform(minIncrement.asNano(), maxIncrement.asNano());
+        Iterator<Long> startTimeNanoSecondsGenerator = incrementing(startTime.asNano(), incrementTimeByNanoSecondsGenerator);
+        return timeFromNanoSeconds(startTimeNanoSecondsGenerator);
     }
 
     /**
@@ -262,18 +262,18 @@ public class GeneratorFactory {
      * @return
      */
     public Iterator<Time> constantIncrementTime(Time startTime, Duration increment) {
-        Iterator<Long> startTimeMilliSecondsGenerator = incrementing(startTime.asMilli(), increment.asMilli());
-        return timeFromMilliSeconds(startTimeMilliSecondsGenerator);
+        Iterator<Long> startTimeNanoSecondsGenerator = incrementing(startTime.asNano(), increment.asNano());
+        return timeFromNanoSeconds(startTimeNanoSecondsGenerator);
     }
 
-    private Iterator<Time> timeFromMilliSeconds(Iterator<Long> milliSecondsGenerator) {
-        Function1<Long, Time> timeFromMilliFun = new Function1<Long, Time>() {
+    private Iterator<Time> timeFromNanoSeconds(Iterator<Long> nanoSecondsGenerator) {
+        Function1<Long, Time> timeFromNanoFun = new Function1<Long, Time>() {
             @Override
-            public Time apply(Long fromMilli) {
-                return Time.fromMilli(fromMilli);
+            public Time apply(Long fromNano) {
+                return Time.fromNano(fromNano);
             }
         };
-        return new MappingGenerator<>(milliSecondsGenerator, timeFromMilliFun);
+        return new MappingGenerator<>(nanoSecondsGenerator, timeFromNanoFun);
     }
 
     /**
@@ -417,7 +417,7 @@ public class GeneratorFactory {
      * @return
      */
     public Iterator<Operation<?>> timeOffsetAndCompress(Iterator<Operation<?>> generator, Time newStartTime, Double compressionRatio) {
-        return new TimeMappingGenerator(generator, newStartTime, compressionRatio);
+        return new TimeMappingOperationGenerator(generator, newStartTime, compressionRatio);
     }
 
     // TODO window generator
