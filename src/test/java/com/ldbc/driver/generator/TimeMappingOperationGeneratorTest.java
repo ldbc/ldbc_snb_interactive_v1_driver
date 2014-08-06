@@ -13,6 +13,8 @@ import com.ldbc.driver.temporal.TimeSource;
 import com.ldbc.driver.testutils.TestUtils;
 import com.ldbc.driver.util.RandomDataGeneratorFactory;
 import com.ldbc.driver.workloads.dummy.TimedNameOperation1Factory;
+import com.ldbc.driver.workloads.dummy.TimedNamedOperation1;
+import com.ldbc.driver.workloads.dummy.TimedNamedOperation2;
 import com.ldbc.driver.workloads.ldbc.snb.interactive.LdbcSnbInteractiveWorkload;
 import com.ldbc.driver.workloads.ldbc.snb.interactive.db.CsvWritingLdbcSnbInteractiveDb;
 import org.apache.commons.io.FileUtils;
@@ -250,16 +252,8 @@ public class TimeMappingOperationGeneratorTest {
 
     @Test
     public void shouldNotBreakTheMonotonicallyIncreasingScheduledStartTimesOfOperationsFromLdbcWorkload() throws WorkloadException {
-        Map<String, String> paramsMap = LdbcSnbInteractiveWorkload.defaultReadOnlyConfig();
+        Map<String, String> paramsMap = LdbcSnbInteractiveWorkload.defaultConfig();
         // LDBC Interactive Workload-specific parameters
-        paramsMap.put(LdbcSnbInteractiveWorkload.WRITE_OPERATION_1_ENABLE_KEY, "true");
-        paramsMap.put(LdbcSnbInteractiveWorkload.WRITE_OPERATION_2_ENABLE_KEY, "true");
-        paramsMap.put(LdbcSnbInteractiveWorkload.WRITE_OPERATION_3_ENABLE_KEY, "true");
-        paramsMap.put(LdbcSnbInteractiveWorkload.WRITE_OPERATION_4_ENABLE_KEY, "true");
-        paramsMap.put(LdbcSnbInteractiveWorkload.WRITE_OPERATION_5_ENABLE_KEY, "true");
-        paramsMap.put(LdbcSnbInteractiveWorkload.WRITE_OPERATION_6_ENABLE_KEY, "true");
-        paramsMap.put(LdbcSnbInteractiveWorkload.WRITE_OPERATION_7_ENABLE_KEY, "true");
-        paramsMap.put(LdbcSnbInteractiveWorkload.WRITE_OPERATION_8_ENABLE_KEY, "true");
         paramsMap.put(LdbcSnbInteractiveWorkload.DATA_DIRECTORY, TestUtils.getResource("/").getAbsolutePath());
         paramsMap.put(LdbcSnbInteractiveWorkload.PARAMETERS_DIRECTORY, TestUtils.getResource("/").getAbsolutePath());
         // CsvDb-specific parameters
@@ -310,5 +304,51 @@ public class TimeMappingOperationGeneratorTest {
             prevOffsetOperationScheduledStartTime = operation.scheduledStartTime();
         }
         workload.cleanup();
+    }
+
+    @Test
+    public void shouldAlwaysProduceTheSameOutputWhenGivenTheSameInput() {
+        // Given
+        List<Operation<?>> operations = Lists.<Operation<?>>newArrayList(
+                new TimedNamedOperation2(Time.fromMilli(10), Time.fromMilli(0), "name2"),
+                new TimedNamedOperation2(Time.fromMilli(11), Time.fromMilli(1), "name2"),
+                new TimedNamedOperation1(Time.fromMilli(12), Time.fromMilli(2), "name1")
+        );
+
+        Time now = new SystemTimeSource().now();
+
+        List<Operation<?>> offsetOperations1 = Lists.newArrayList(gf.timeOffset(operations.iterator(), now));
+        List<Operation<?>> offsetOperations2 = Lists.newArrayList(gf.timeOffset(operations.iterator(), now));
+        List<Operation<?>> offsetOperations3 = Lists.newArrayList(gf.timeOffset(operations.iterator(), now));
+        List<Operation<?>> offsetOperations4 = Lists.newArrayList(gf.timeOffset(operations.iterator(), now));
+
+        // When
+        GeneratorFactory.OperationStreamComparisonResult stream1Stream2Comparison = gf.compareOperationStreams(offsetOperations1.iterator(), offsetOperations2.iterator(), true);
+        GeneratorFactory.OperationStreamComparisonResult stream1Stream3Comparison = gf.compareOperationStreams(offsetOperations1.iterator(), offsetOperations3.iterator(), true);
+        GeneratorFactory.OperationStreamComparisonResult stream1Stream4Comparison = gf.compareOperationStreams(offsetOperations1.iterator(), offsetOperations4.iterator(), true);
+        GeneratorFactory.OperationStreamComparisonResult stream2Stream1Comparison = gf.compareOperationStreams(offsetOperations2.iterator(), offsetOperations1.iterator(), true);
+        GeneratorFactory.OperationStreamComparisonResult stream2Stream3Comparison = gf.compareOperationStreams(offsetOperations2.iterator(), offsetOperations3.iterator(), true);
+        GeneratorFactory.OperationStreamComparisonResult stream2Stream4Comparison = gf.compareOperationStreams(offsetOperations2.iterator(), offsetOperations4.iterator(), true);
+        GeneratorFactory.OperationStreamComparisonResult stream3Stream1Comparison = gf.compareOperationStreams(offsetOperations3.iterator(), offsetOperations1.iterator(), true);
+        GeneratorFactory.OperationStreamComparisonResult stream3Stream2Comparison = gf.compareOperationStreams(offsetOperations3.iterator(), offsetOperations2.iterator(), true);
+        GeneratorFactory.OperationStreamComparisonResult stream3Stream4Comparison = gf.compareOperationStreams(offsetOperations3.iterator(), offsetOperations4.iterator(), true);
+        GeneratorFactory.OperationStreamComparisonResult stream4Stream1Comparison = gf.compareOperationStreams(offsetOperations4.iterator(), offsetOperations1.iterator(), true);
+        GeneratorFactory.OperationStreamComparisonResult stream4Stream2Comparison = gf.compareOperationStreams(offsetOperations4.iterator(), offsetOperations2.iterator(), true);
+        GeneratorFactory.OperationStreamComparisonResult stream4Stream3Comparison = gf.compareOperationStreams(offsetOperations4.iterator(), offsetOperations3.iterator(), true);
+
+
+        // Then
+        assertThat(stream1Stream2Comparison.errorMessage(), stream1Stream2Comparison.resultType(), is(GeneratorFactory.OperationStreamComparisonResultType.PASS));
+        assertThat(stream1Stream3Comparison.errorMessage(), stream1Stream3Comparison.resultType(), is(GeneratorFactory.OperationStreamComparisonResultType.PASS));
+        assertThat(stream1Stream4Comparison.errorMessage(), stream1Stream4Comparison.resultType(), is(GeneratorFactory.OperationStreamComparisonResultType.PASS));
+        assertThat(stream2Stream1Comparison.errorMessage(), stream2Stream1Comparison.resultType(), is(GeneratorFactory.OperationStreamComparisonResultType.PASS));
+        assertThat(stream2Stream3Comparison.errorMessage(), stream2Stream3Comparison.resultType(), is(GeneratorFactory.OperationStreamComparisonResultType.PASS));
+        assertThat(stream2Stream4Comparison.errorMessage(), stream2Stream4Comparison.resultType(), is(GeneratorFactory.OperationStreamComparisonResultType.PASS));
+        assertThat(stream3Stream1Comparison.errorMessage(), stream3Stream1Comparison.resultType(), is(GeneratorFactory.OperationStreamComparisonResultType.PASS));
+        assertThat(stream3Stream2Comparison.errorMessage(), stream3Stream2Comparison.resultType(), is(GeneratorFactory.OperationStreamComparisonResultType.PASS));
+        assertThat(stream3Stream4Comparison.errorMessage(), stream3Stream4Comparison.resultType(), is(GeneratorFactory.OperationStreamComparisonResultType.PASS));
+        assertThat(stream4Stream1Comparison.errorMessage(), stream4Stream1Comparison.resultType(), is(GeneratorFactory.OperationStreamComparisonResultType.PASS));
+        assertThat(stream4Stream2Comparison.errorMessage(), stream4Stream2Comparison.resultType(), is(GeneratorFactory.OperationStreamComparisonResultType.PASS));
+        assertThat(stream4Stream3Comparison.errorMessage(), stream4Stream3Comparison.resultType(), is(GeneratorFactory.OperationStreamComparisonResultType.PASS));
     }
 }

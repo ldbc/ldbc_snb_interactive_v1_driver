@@ -39,7 +39,7 @@ import static org.junit.Assert.assertThat;
 public class LdbcSnbInteractiveWorkloadReadTest {
     TimeSource TIME_SOURCE = new SystemTimeSource();
 
-    static Map<String, String> defaultSnbParamsMapWithWorkloadAndParametersDir() {
+    static Map<String, String> defaultSnbParamsMapWithParametersDir() {
         Map<String, String> additionalParams = new HashMap<>();
         additionalParams.put(LdbcSnbInteractiveWorkload.PARAMETERS_DIRECTORY, TestUtils.getResource("/").getAbsolutePath());
         return MapUtils.mergeMaps(
@@ -148,7 +148,7 @@ public class LdbcSnbInteractiveWorkloadReadTest {
         // **************************************************
         // configuration for generating validation parameters
         // **************************************************
-        Map<String, String> paramsMap = defaultSnbParamsMapWithWorkloadAndParametersDir();
+        Map<String, String> paramsMap = defaultSnbParamsMapWithParametersDir();
         // DummyDb-specific parameters
         paramsMap.put(DummyLdbcSnbInteractiveDb.SLEEP_DURATION_MILLI_ARG, Long.toString(Duration.fromMilli(1).asMilli()));
         // Driver-specific parameters
@@ -226,7 +226,7 @@ public class LdbcSnbInteractiveWorkloadReadTest {
     @Test
     public void shouldPassWorkloadValidation() throws ClientException {
         // Given
-        Map<String, String> paramsMap = defaultSnbParamsMapWithWorkloadAndParametersDir();
+        Map<String, String> paramsMap = defaultSnbParamsMapWithParametersDir();
         // DummyDb-specific parameters
         paramsMap.put(DummyLdbcSnbInteractiveDb.SLEEP_DURATION_MILLI_ARG, Long.toString(Duration.fromMilli(1).asMilli()));
         // Driver-specific parameters
@@ -266,7 +266,7 @@ public class LdbcSnbInteractiveWorkloadReadTest {
     @Test
     public void shouldBeRepeatableWhenTwoIdenticalWorkloadsAreUsedWithIdenticalGeneratorFactories() throws ClientException, DriverConfigurationException, WorkloadException, IOException {
         // Given
-        Map<String, String> paramsMap = defaultSnbParamsMapWithWorkloadAndParametersDir();
+        Map<String, String> paramsMap = defaultSnbParamsMapWithParametersDir();
         // LDBC Interactive Workload-specific parameters
         paramsMap.put(LdbcSnbInteractiveWorkload.DATA_DIRECTORY, TestUtils.getResource("/").getAbsolutePath());
         // DummyDb-specific parameters
@@ -347,7 +347,7 @@ public class LdbcSnbInteractiveWorkloadReadTest {
         ldbcDriverProperties.load(new FileInputStream(ldbcDriverPropertiesPath));
         Map<String, String> ldbcDriverParams = ConsoleAndFileDriverConfiguration.convertLongKeysToShortKeys(MapUtils.<String, String>propertiesToMap(ldbcDriverProperties));
 
-        Map<String, String> baseParams = MapUtils.mergeMaps(ldbcDriverParams, defaultSnbParamsMapWithWorkloadAndParametersDir(), true);
+        Map<String, String> baseParams = MapUtils.mergeMaps(ldbcDriverParams, defaultSnbParamsMapWithParametersDir(), true);
 
         Map<String, String> changedQueryMixParams = new HashMap<>();
         changedQueryMixParams.put(ConsoleAndFileDriverConfiguration.OPERATION_COUNT_ARG, "10000");
@@ -437,7 +437,7 @@ public class LdbcSnbInteractiveWorkloadReadTest {
     @Test
     public void shouldWriteToCsvWhileRunningWorkload() throws ClientException, DriverConfigurationException, WorkloadException, IOException {
         // Given
-        Map<String, String> paramsMap = defaultSnbParamsMapWithWorkloadAndParametersDir();
+        Map<String, String> paramsMap = defaultSnbParamsMapWithParametersDir();
         // CsvDb-specific parameters
         String csvOutputFilePath = "temp_csv_output_file.csv";
         FileUtils.deleteQuietly(new File(csvOutputFilePath));
@@ -526,7 +526,7 @@ public class LdbcSnbInteractiveWorkloadReadTest {
 
     @Test
     public void shouldAssignMonotonicallyIncreasingScheduledStartTimesToOperations() throws WorkloadException, IOException, DriverConfigurationException {
-        Map<String, String> paramsMap = defaultSnbParamsMapWithWorkloadAndParametersDir();
+        Map<String, String> paramsMap = defaultSnbParamsMapWithParametersDir();
         // CsvDb-specific parameters
         String csvOutputFilePath = "temp_csv_output_file.csv";
         FileUtils.deleteQuietly(new File(csvOutputFilePath));
@@ -574,7 +574,7 @@ public class LdbcSnbInteractiveWorkloadReadTest {
     @Test
     public void operationsShouldHaveMonotonicallyIncreasingScheduledStartTimesAfterSplitting()
             throws WorkloadException, IOException, DriverConfigurationException, IteratorSplittingException {
-        Map<String, String> paramsMap = defaultSnbParamsMapWithWorkloadAndParametersDir();
+        Map<String, String> paramsMap = defaultSnbParamsMapWithParametersDir();
         // CsvDb-specific parameters
         String csvOutputFilePath = "temp_csv_output_file.csv";
         FileUtils.deleteQuietly(new File(csvOutputFilePath));
@@ -653,7 +653,7 @@ public class LdbcSnbInteractiveWorkloadReadTest {
     @Test
     public void shouldNotFailUnexpectedlyWhenQueriesAreLongRunning() throws ClientException, DriverConfigurationException, WorkloadException, IOException {
         // Given
-        Map<String, String> paramsMap = defaultSnbParamsMapWithWorkloadAndParametersDir();
+        Map<String, String> paramsMap = defaultSnbParamsMapWithParametersDir();
         // DummyDb-specific parameters
         paramsMap.put(DummyLdbcSnbInteractiveDb.SLEEP_DURATION_MILLI_ARG, Long.toString(Duration.fromSeconds(40).asMilli()));
         // Driver-specific parameters

@@ -10,7 +10,7 @@ import java.util.Set;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 
-public class ThreadedQueuedCompletionTimeMaintenanceThread extends Thread {
+public class ThreadedQueuedConcurrentCompletionTimeServiceThread extends Thread {
 
     /**
      * LocalCompletionTime: Completion Time of local instance, ignoring times received from peers
@@ -33,11 +33,11 @@ public class ThreadedQueuedCompletionTimeMaintenanceThread extends Thread {
     private final Map<Integer, LocalCompletionTimeWriter> localCompletionTimeWriters = new HashMap<>();
     private final AtomicBoolean shutdownComplete = new AtomicBoolean(false);
 
-    ThreadedQueuedCompletionTimeMaintenanceThread(Queue<CompletionTimeEvent> completionTimeQueue,
-                                                  ConcurrentErrorReporter errorReporter,
-                                                  Set<String> peerIds,
-                                                  AtomicReference<Time> globalCompletionTimeSharedReference) throws CompletionTimeException {
-        super(ThreadedQueuedCompletionTimeMaintenanceThread.class.getSimpleName() + "-" + System.currentTimeMillis());
+    ThreadedQueuedConcurrentCompletionTimeServiceThread(Queue<CompletionTimeEvent> completionTimeQueue,
+                                                        ConcurrentErrorReporter errorReporter,
+                                                        Set<String> peerIds,
+                                                        AtomicReference<Time> globalCompletionTimeSharedReference) throws CompletionTimeException {
+        super(ThreadedQueuedConcurrentCompletionTimeServiceThread.class.getSimpleName() + "-" + System.currentTimeMillis());
         localCompletionTimeConcurrentStateManager = new MultiWriterLocalCompletionTimeConcurrentStateManager();
         ExternalCompletionTimeStateManager externalCompletionTimeStateManager = new ExternalCompletionTimeStateManager(peerIds);
         ExternalCompletionTimeReader externalCompletionTimeReader =

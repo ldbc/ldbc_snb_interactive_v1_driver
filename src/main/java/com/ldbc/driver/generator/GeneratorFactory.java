@@ -32,6 +32,36 @@ public class GeneratorFactory {
      * ----------------------------------------------------------------------------------------------------
      */
 
+    public enum OperationStreamComparisonResultType {
+        PASS,
+        FAIL_ONE_STREAM_IS_EMPTY,
+        FAIL_STREAMS_HAVE_DIFFERENT_LENGTH,
+        FAIL_ONE_OPERATION_IS_NULL,
+        FAIL_OPERATIONS_NOT_EQUAL,
+        FAIL_ONE_START_TIME_IS_NULL,
+        FAIL_ONE_DEPENDENCY_TIME_IS_NULL,
+        FAIL_START_TIMES_NOT_EQUAL,
+        FAIL_DEPENDENCY_TIMES_NOT_EQUAL
+    }
+
+    public class OperationStreamComparisonResult {
+        private final String errorMessage;
+        private final OperationStreamComparisonResultType result;
+
+        public OperationStreamComparisonResult(String errorMessage, OperationStreamComparisonResultType result) {
+            this.errorMessage = errorMessage;
+            this.result = result;
+        }
+
+        public String errorMessage() {
+            return errorMessage;
+        }
+
+        public OperationStreamComparisonResultType resultType() {
+            return result;
+        }
+    }
+
     /**
      * Compare operation streams by stream lengths and equality of the operations they contain
      *
@@ -41,38 +71,68 @@ public class GeneratorFactory {
      * @return
      */
     // TODO move into a separate class, test that class separately, use that class here
-    // TODO and return an ENUM instead of a boolean, to provide information about what went wrong in case of failure
-    public boolean compareOperationStreams(Iterator<Operation<?>> operationStream1,
-                                           Iterator<Operation<?>> operationStream2,
-                                           boolean compareTimes) {
-        if (operationStream1.hasNext() != operationStream2.hasNext()) return false;
+    public OperationStreamComparisonResult compareOperationStreams(Iterator<Operation<?>> operationStream1,
+                                                                   Iterator<Operation<?>> operationStream2,
+                                                                   boolean compareTimes) {
+        int operationNumber = 0;
+        if (operationStream1.hasNext() != operationStream2.hasNext())
+            return new OperationStreamComparisonResult("", OperationStreamComparisonResultType.FAIL_ONE_STREAM_IS_EMPTY);
 
         while (operationStream1.hasNext()) {
-            if (false == operationStream2.hasNext()) return false;
+            operationNumber++;
+            if (false == operationStream2.hasNext())
+                return new OperationStreamComparisonResult(
+                        String.format("operation %s\nstream 2 is shorter", operationNumber),
+                        OperationStreamComparisonResultType.FAIL_STREAMS_HAVE_DIFFERENT_LENGTH);
             Operation<?> next1 = operationStream1.next();
             Operation<?> next2 = operationStream2.next();
             if (null == next1 && null == next2) continue;
-            if (null == next1 && null != next2) return false;
-            if (null == next2 && null != next2) return false;
+            if (null == next1 || null == next2)
+                return new OperationStreamComparisonResult(
+                        String.format("operation %s\none operation is null\nstream 1: %s\nstream 2: %s",
+                                operationNumber, next1, next2),
+                        OperationStreamComparisonResultType.FAIL_ONE_OPERATION_IS_NULL);
 
-            if (false == next1.equals(next2)) return false;
+            else if (false == next1.equals(next2))
+                return new OperationStreamComparisonResult(
+                        String.format("operation %s\noperations not equal\nstream 1: %s\nstream 2: %s", operationNumber, next1, next2),
+                        OperationStreamComparisonResultType.FAIL_OPERATIONS_NOT_EQUAL);
             if (compareTimes) {
                 Time scheduledStartTime1 = next1.scheduledStartTime();
                 Time scheduledStartTime2 = next2.scheduledStartTime();
-                if (null == scheduledStartTime1 && null != scheduledStartTime2) return false;
-                if (null != scheduledStartTime1 && null == scheduledStartTime2) return false;
-                if (null != scheduledStartTime1 && null != scheduledStartTime2)
-                    if (false == scheduledStartTime1.equals(scheduledStartTime2)) return false;
+                if (null == scheduledStartTime1 && null == scheduledStartTime2) {
+                    // do nothing
+                } else if (null == scheduledStartTime1 || null == scheduledStartTime2)
+                    return new OperationStreamComparisonResult(
+                            String.format("operation %s\none start time is null\nstream 1: %s\nstream 2: %s",
+                                    scheduledStartTime1, scheduledStartTime2, operationNumber),
+                            OperationStreamComparisonResultType.FAIL_ONE_START_TIME_IS_NULL);
+                else if (false == scheduledStartTime1.equals(scheduledStartTime2))
+                    return new OperationStreamComparisonResult(
+                            String.format("operation %s\nstart times not equal\nstream 1: %s\nstream 2: %s",
+                                    operationNumber, scheduledStartTime1, scheduledStartTime2),
+                            OperationStreamComparisonResultType.FAIL_START_TIMES_NOT_EQUAL);
                 Time dependencyTime1 = next1.dependencyTime();
                 Time dependencyTime2 = next2.dependencyTime();
-                if (null == dependencyTime1 && null != dependencyTime2) return false;
-                if (null != dependencyTime1 && null == dependencyTime2) return false;
-                if (null != dependencyTime1 && null != dependencyTime2)
-                    if (false == dependencyTime1.equals(dependencyTime2)) return false;
+                if (null == dependencyTime1 && null == dependencyTime2) {
+                    // do nothing
+                } else if (null == dependencyTime1 || null == dependencyTime2)
+                    return new OperationStreamComparisonResult(
+                            String.format("operation %s\none dependency time is null\nstream1: %s\nstream2: %s",
+                                    dependencyTime1, dependencyTime2, operationNumber),
+                            OperationStreamComparisonResultType.FAIL_ONE_DEPENDENCY_TIME_IS_NULL);
+                else if (false == dependencyTime1.equals(dependencyTime2))
+                    return new OperationStreamComparisonResult(
+                            String.format("operation %s\ndependency times not equal\nstream 1: %s\nstream 2: %s",
+                                    operationNumber, dependencyTime1, dependencyTime2),
+                            OperationStreamComparisonResultType.FAIL_DEPENDENCY_TIMES_NOT_EQUAL);
             }
         }
-        if (operationStream2.hasNext()) return false;
-        return true;
+        if (operationStream2.hasNext())
+            return new OperationStreamComparisonResult(
+                    String.format("operation %s\nstream 1 is shorter", operationNumber),
+                    OperationStreamComparisonResultType.FAIL_STREAMS_HAVE_DIFFERENT_LENGTH);
+        return new OperationStreamComparisonResult("", OperationStreamComparisonResultType.PASS);
     }
 
     public <T> void exhaust(Iterator<T> generator) {
@@ -190,7 +250,49 @@ public class GeneratorFactory {
                 return true;
             }
         };
-        return assignConservativeDependencyTimes(operations, isDependency, initialDependencyTime, canOverwriteDependencyTime);
+        return assignDependencyTimesEqualToLastEncounteredDependencyStartTime(operations, isDependency, initialDependencyTime, canOverwriteDependencyTime);
+    }
+
+    /**
+     * Assigns dependency times to all operations that do not yet have one assigned,
+     * or to all if canOverwriteDependencyTime is true.
+     * The dependency time assigned is equal to the scheduled start time of the last operation for which the
+     * isDependency predicate returned true, starting with initialDependencyTime, as long as that time is lower than
+     * current operations start time.
+     * All operations in the returned iterator will have dependency times assigned to them.
+     *
+     * @param operations
+     * @param isDependency
+     * @param initialDependencyTime
+     * @param canOverwriteDependencyTime
+     * @return
+     */
+    public Iterator<Operation<?>> assignDependencyTimesEqualToLastEncounteredLowerDependencyStartTime(Iterator<Operation<?>> operations,
+                                                                                                      final Function1<Operation<?>, Boolean> isDependency,
+                                                                                                      final Time initialDependencyTime,
+                                                                                                      final boolean canOverwriteDependencyTime) {
+        Function1<Operation<?>, Operation<?>> dependencyTimeAssigningFun = new Function1<Operation<?>, Operation<?>>() {
+            private Time secondMostRecentDependency = initialDependencyTime;
+            private Time mostRecentDependency = initialDependencyTime;
+
+            @Override
+            public Operation<?> apply(Operation<?> operation) {
+                if (null == operation.dependencyTime() || canOverwriteDependencyTime) {
+                    if (operation.scheduledStartTime().gt(mostRecentDependency))
+                        operation.setDependencyTime(mostRecentDependency);
+                    else
+                        operation.setDependencyTime(secondMostRecentDependency);
+                }
+                if (isDependency.apply(operation)) {
+                    if (operation.scheduledStartTime().gt(mostRecentDependency)) {
+                        secondMostRecentDependency = mostRecentDependency;
+                        mostRecentDependency = operation.scheduledStartTime();
+                    }
+                }
+                return operation;
+            }
+        };
+        return new MappingGenerator<>(operations, dependencyTimeAssigningFun);
     }
 
     /**
@@ -206,10 +308,10 @@ public class GeneratorFactory {
      * @param canOverwriteDependencyTime
      * @return
      */
-    public Iterator<Operation<?>> assignConservativeDependencyTimes(Iterator<Operation<?>> operations,
-                                                                    final Function1<Operation<?>, Boolean> isDependency,
-                                                                    final Time initialDependencyTime,
-                                                                    final boolean canOverwriteDependencyTime) {
+    public Iterator<Operation<?>> assignDependencyTimesEqualToLastEncounteredDependencyStartTime(Iterator<Operation<?>> operations,
+                                                                                                 final Function1<Operation<?>, Boolean> isDependency,
+                                                                                                 final Time initialDependencyTime,
+                                                                                                 final boolean canOverwriteDependencyTime) {
         Function1<Operation<?>, Operation<?>> dependencyTimeAssigningFun = new Function1<Operation<?>, Operation<?>>() {
             private Time mostRecentDependency = initialDependencyTime;
 
@@ -217,8 +319,9 @@ public class GeneratorFactory {
             public Operation<?> apply(Operation<?> operation) {
                 if (null == operation.dependencyTime() || canOverwriteDependencyTime)
                     operation.setDependencyTime(mostRecentDependency);
-                if (isDependency.apply(operation))
+                if (isDependency.apply(operation)) {
                     mostRecentDependency = operation.scheduledStartTime();
+                }
                 return operation;
             }
         };

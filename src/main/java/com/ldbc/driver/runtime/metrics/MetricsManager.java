@@ -103,18 +103,26 @@ public class MetricsManager {
 
     WorkloadStatusSnapshot status() {
         Time now = TIME_SOURCE.now();
-        Duration runDuration = now.durationGreaterThan(startTime);
-        long operationCount = measurementCount.get();
-        Duration durationSinceLastMeasurement = (null == latestFinishTime) ? null : now.durationGreaterThan(latestFinishTime);
-        double operationsPerSecond = operationsPerSecondAtTime(now);
-        return new WorkloadStatusSnapshot(
-                runDuration,
-                operationCount,
-                durationSinceLastMeasurement,
-                operationsPerSecond);
-    }
-
-    private double operationsPerSecondAtTime(Time atTime) {
-        return (double) measurementCount.get() / atTime.durationGreaterThan(startTime).asSeconds();
+        if (now.lt(startTime)) {
+            Duration runDuration = Duration.fromMilli(0);
+            long operationCount = 0;
+            Duration durationSinceLastMeasurement = Duration.fromMilli(0);
+            double operationsPerSecond = 0;
+            return new WorkloadStatusSnapshot(
+                    runDuration,
+                    operationCount,
+                    durationSinceLastMeasurement,
+                    operationsPerSecond);
+        } else {
+            Duration runDuration = now.durationGreaterThan(startTime);
+            long operationCount = measurementCount.get();
+            Duration durationSinceLastMeasurement = (null == latestFinishTime) ? null : now.durationGreaterThan(latestFinishTime);
+            double operationsPerSecond = ((double) operationCount / runDuration.asNano()) * 1000000000;
+            return new WorkloadStatusSnapshot(
+                    runDuration,
+                    operationCount,
+                    durationSinceLastMeasurement,
+                    operationsPerSecond);
+        }
     }
 }

@@ -36,7 +36,7 @@ import static org.junit.Assert.assertThat;
 
 public class OperationStreamExecutorTest {
     private final Time WORKLOAD_START_TIME_0 = Time.fromMilli(0);
-    private final long ENOUGH_MILLISECONDS_FOR_RUNNER_THREAD_TO_DO_ITS_THING = 200;
+    private final long ENOUGH_MILLISECONDS_FOR_RUNNER_THREAD_TO_DO_ITS_THING = 300;
     private final Duration SPINNER_SLEEP_DURATION = Duration.fromMilli(0);
     private final GeneratorFactory gf = new GeneratorFactory(new RandomDataGeneratorFactory(42l));
     private final CompletionTimeServiceAssistant completionTimeServiceAssistant = new CompletionTimeServiceAssistant();
@@ -63,10 +63,6 @@ public class OperationStreamExecutorTest {
         completionTimeService.shutdown();
     }
 
-    // TODO eventually a check could be added for excessive execution time
-    // TODO this would need to be placed in MetricsReporter/CompletionTimeService
-    // TODO or something similar that checks for initiated but uncompleted operations
-
     // TODO consider putting all of the following into one, single background thread:
     // TODO  - completion time service (possibly not, for performance reasons)
     // TODO  - metrics collection service
@@ -74,9 +70,10 @@ public class OperationStreamExecutorTest {
 
     @Ignore
     @Test
-    public void forEachTestHaveDifferentCombinationsInputsEtc() {
-        // TODO different thread counts
-        // TODO different completion time implementations
+    public void writeTestsThatCheckForExcessiveExecutionTime() {
+        // TODO add a mechanism to terminate if any query exceeds maximum execution time
+        // TODO this would need to be placed in MetricsReporter/CompletionTimeService/Executors/?
+        // TODO or something similar that checks for initiated but uncompleted operations
         assertThat(true, is(false));
     }
 
@@ -88,15 +85,12 @@ public class OperationStreamExecutorTest {
 
     @Ignore
     @Test
-    public void writeTestsWhereBothExecutorsHaveREAD_WRITEOperations() {
-        assertThat(true, is(false));
-    }
-
-    @Ignore
-    @Test
     public void writeTestsWithTryFinallyInsteadOfBeforeAndAfterMethods() {
-        // TODO that will also allow for having 2 versions of each tests, for different completion time service implementations
-        // TODO it will also ensure services are always shutdown, regardless of success/failure
+        // TODO it will ensure services are always shutdown, regardless of success/failure
+        // TODO it will also allow for multiple versions of each test, with:
+        // TODO - different completion time service implementations
+        // TODO - different metrics service implementations
+        // TODO - different thread counts
         assertThat(true, is(false));
     }
 
@@ -112,36 +106,169 @@ public class OperationStreamExecutorTest {
         assertThat(true, is(false));
     }
 
-    @Ignore
     @Test
-    public void eachExecutorShouldHaveDifferentThreadPool() {
-        // TODO Operations that write to GCT can not be blocked by operations that read GCT, or no progress will happen
-        assertThat(true, is(false));
-    }
+    public void oneExecutorShouldNotBeAbleToStarveAnotherOfThreads() throws WorkloadException, CompletionTimeException, DbException, InterruptedException, MetricsCollectionException {
+        /*
+            Number of writers: 1 (blocking)
+            Number of executors: 2 (blocking & async)
+            Initialized to: IT[ , ] CT[0,1]
+            Thread Pool Size: 2
+            Tolerated Delay == 3
 
-    @Ignore
-    @Test
-    public void addTestToExposeTheNeedForRevisedThreadPoolManagement_ToFixStarvationProblem() {
-        // TODO have 2 executors, Async/Read & Blocking/ReadWrite
-        // TODO have high (sufficient) tolerated delay
-        // TODO set thread pool size to 2
-        // TODO in Async/Read start 2 operations, and block them
-        // TODO in Blocking start 1 operation (I assume it will block, waiting for a thread to be available)
-        // TODO assert that ReadWrite thread is blocked (GCT does not advance)
-        // TODO in Blocking start 1 more operation (it will block, waiting first for prev operation and then for a thread to be available) - block that thread manually
-        // TODO unblock one Async/Read operation and observe that the following changes: metrics.op_count, gct (because of Blocking/ReadWrite op)
-        // TODO if possible, check GCT.LCT.initiatedTime to assert that second Blocking/ReadWrite operation has started
-        // TODO in Async/Read try to start 1 more operation (I assume it will block, waiting for a thread to be available - 1 Async/Read & 1 Blocking/ReadWrite are already running)
-        // TODO assert that Async/Read thread is blocked (metrics.op_count) - waiting for thread to be available
-        // TODO wait until tolerated delay for this new Async/Read operation, then assert error is triggered
-        assertThat(true, is(false));
+            ASYNC                   THREADS         BLOCKING                THREADS
+            READ                                    READ_WRITE                          GCT (assumes initiated time submitted quickly)  ACTION                          COMPLETED
+            TimedNamedOperation1                    TimedNamedOperation2
+        0                           []                                      []          1 <-- S(4)D(0) initialized                                                      0
+        1                           []                                      []          1                                                                               0
+        2   S(2)D(0)                [S(2)]                                  []          1                                               BLOCK S(2)D(0)                  0
+        3   S(3)D(0)                [S(2),S(3)]                             []          1                                               BLOCK S(3)D(0)                  0
+        4                           [S(2),S(3)]              S(4)D(0)       S(4)<-[]    4 <-- S(5)D(0) initiated                                                        1
+        5                           [S(2),S(3)]              S(5)D(0)       [S(5)]      4                                               BLOCK S(5)D(0)                  1
+        6                           S(3)<-[S(2)]                            [S(5)]      4                                               UNBLOCK S(3)D(0)                2
+        7   S(7)D(0)                S(7)<-[S(2)]                            [S(5)]      4                                                                               3
+        8                           []                                      [S(5)]      4                                                                               3
+        9                           []                                      [S(5)]      4                                                                               3
+        10                          []                                      [S(5)]      4                                                                               3
+        11                          []                                      [S(5)]      4                                                                               3
+         */
+        List<Operation<?>> readOperations = Lists.<Operation<?>>newArrayList(
+                new TimedNamedOperation1(Time.fromMilli(2), Time.fromMilli(0), "S(2)D(0)"),
+                new TimedNamedOperation1(Time.fromMilli(3), Time.fromMilli(0), "S(3)D(0)"),
+                new TimedNamedOperation1(Time.fromMilli(7), Time.fromMilli(0), "S(7)D(0)")
+        );
+
+        List<Operation<?>> readWriteOperations = Lists.<Operation<?>>newArrayList(
+                new TimedNamedOperation2(Time.fromMilli(4), Time.fromMilli(0), "S(4)D(0)"),
+                new TimedNamedOperation2(Time.fromMilli(5), Time.fromMilli(0), "S(5)D(0)")
+        );
+
+        Iterator<Operation<?>> operations = gf.mergeSortOperationsByStartTime(readOperations.iterator(), readWriteOperations.iterator());
+
+        Map<Class<? extends Operation>, OperationClassification> classifications = new HashMap<>();
+        classifications.put(TimedNamedOperation1.class, new OperationClassification(SchedulingMode.INDIVIDUAL_ASYNC, OperationClassification.DependencyMode.READ));
+        classifications.put(TimedNamedOperation2.class, new OperationClassification(SchedulingMode.INDIVIDUAL_BLOCKING, OperationClassification.DependencyMode.READ_WRITE));
+
+        int threadCount = 2;
+        // Not used when Windowed Scheduling Mode is not used
+        Duration executionWindowDuration = null;
+        Duration toleratedExecutionDelayDuration = Duration.fromMilli(3);
+
+        DummyDb db = new DummyDb();
+        Map<String, String> params = new HashMap<>();
+        params.put(DummyDb.ALLOWED_DEFAULT_ARG, "true");
+        db.init(params);
+
+        db.setNameAllowedValue("S(2)D(0)", false);
+        db.setNameAllowedValue("S(3)D(0)", false);
+        db.setNameAllowedValue("S(4)D(0)", true);
+        db.setNameAllowedValue("S(5)D(0)", false);
+        db.setNameAllowedValue("S(7)D(0)", true);
+
+        WorkloadRunnerThread runnerThread = workloadRunnerThread(
+                TIME_SOURCE,
+                WORKLOAD_START_TIME_0,
+                operations,
+                classifications,
+                threadCount,
+                executionWindowDuration,
+                toleratedExecutionDelayDuration,
+                errorReporter,
+                metricsService,
+                completionTimeService,
+                db
+        );
+
+        // initialize GCT
+        completionTimeServiceAssistant.writeInitiatedAndCompletedTimesToAllWriters(completionTimeService, Time.fromMilli(0));
+        completionTimeServiceAssistant.writeInitiatedAndCompletedTimesToAllWriters(completionTimeService, Time.fromMilli(1));
+
+        TIME_SOURCE.setNowFromMilli(0);
+        assertThat(errorReporter.toString(), completionTimeService.globalCompletionTime(), is(Time.fromMilli(0)));
+        assertThat(errorReporter.toString(), metricsService.results().totalOperationCount(), is(0l));
+        assertThat(errorReporter.toString(), errorReporter.errorEncountered(), is(false));
+
+        runnerThread.start();
+
+        Thread.sleep(ENOUGH_MILLISECONDS_FOR_RUNNER_THREAD_TO_DO_ITS_THING);
+        assertThat(errorReporter.toString(), metricsService.results().totalOperationCount(), is(0l));
+        assertThat(errorReporter.toString(), completionTimeService.globalCompletionTime(), equalTo(Time.fromMilli(1)));
+        assertThat(errorReporter.toString(), errorReporter.errorEncountered(), is(false));
+
+        TIME_SOURCE.setNowFromMilli(1);
+        Thread.sleep(ENOUGH_MILLISECONDS_FOR_RUNNER_THREAD_TO_DO_ITS_THING);
+        assertThat(errorReporter.toString(), metricsService.results().totalOperationCount(), is(0l));
+        assertThat(errorReporter.toString(), completionTimeService.globalCompletionTime(), equalTo(Time.fromMilli(1)));
+        assertThat(errorReporter.toString(), errorReporter.errorEncountered(), is(false));
+
+        TIME_SOURCE.setNowFromMilli(2);
+        // S(2)D(0) is blocked, nothing will change
+        Thread.sleep(ENOUGH_MILLISECONDS_FOR_RUNNER_THREAD_TO_DO_ITS_THING);
+        assertThat(errorReporter.toString(), metricsService.results().totalOperationCount(), is(0l));
+        assertThat(errorReporter.toString(), completionTimeService.globalCompletionTime(), equalTo(Time.fromMilli(1)));
+        assertThat(errorReporter.toString(), errorReporter.errorEncountered(), is(false));
+
+        TIME_SOURCE.setNowFromMilli(3);
+        // S(3)D(0) is blocked, nothing will change
+        Thread.sleep(ENOUGH_MILLISECONDS_FOR_RUNNER_THREAD_TO_DO_ITS_THING);
+        assertThat(errorReporter.toString(), metricsService.results().totalOperationCount(), is(0l));
+        assertThat(errorReporter.toString(), completionTimeService.globalCompletionTime(), equalTo(Time.fromMilli(1)));
+        assertThat(errorReporter.toString(), errorReporter.errorEncountered(), is(false));
+
+        TIME_SOURCE.setNowFromMilli(4);
+        // check that S(4)D(0) is able to complete (is not starved of thread)
+        Thread.sleep(ENOUGH_MILLISECONDS_FOR_RUNNER_THREAD_TO_DO_ITS_THING);
+        assertThat(errorReporter.toString(), metricsService.results().totalOperationCount(), is(1l));
+        assertThat(errorReporter.toString(), completionTimeService.globalCompletionTime(), equalTo(Time.fromMilli(4)));
+        assertThat(errorReporter.toString(), errorReporter.errorEncountered(), is(false));
+
+        TIME_SOURCE.setNowFromMilli(5);
+        // S(5)D(0) is blocked, nothing will change
+        Thread.sleep(ENOUGH_MILLISECONDS_FOR_RUNNER_THREAD_TO_DO_ITS_THING);
+        assertThat(errorReporter.toString(), metricsService.results().totalOperationCount(), is(1l));
+        assertThat(errorReporter.toString(), completionTimeService.globalCompletionTime(), equalTo(Time.fromMilli(4)));
+        assertThat(errorReporter.toString(), errorReporter.errorEncountered(), is(false));
+
+        TIME_SOURCE.setNowFromMilli(6);
+        db.setNameAllowedValue("S(3)D(0)", true);
+        // S(3)D(0) is unblocked -> S(3)D(0) finishes
+        Thread.sleep(ENOUGH_MILLISECONDS_FOR_RUNNER_THREAD_TO_DO_ITS_THING);
+        assertThat(errorReporter.toString(), metricsService.results().totalOperationCount(), is(2l));
+        assertThat(errorReporter.toString(), completionTimeService.globalCompletionTime(), equalTo(Time.fromMilli(4)));
+        assertThat(errorReporter.toString(), errorReporter.errorEncountered(), is(false));
+
+        TIME_SOURCE.setNowFromMilli(7);
+        // check that S(7)D(0) is able to complete (is not starved of thread)
+        Thread.sleep(ENOUGH_MILLISECONDS_FOR_RUNNER_THREAD_TO_DO_ITS_THING);
+        assertThat(errorReporter.toString(), metricsService.results().totalOperationCount(), is(3l));
+        assertThat(errorReporter.toString(), completionTimeService.globalCompletionTime(), equalTo(Time.fromMilli(4)));
+        assertThat(errorReporter.toString(), errorReporter.errorEncountered(), is(false));
+
+        TIME_SOURCE.setNowFromMilli(8);
+        Thread.sleep(ENOUGH_MILLISECONDS_FOR_RUNNER_THREAD_TO_DO_ITS_THING);
+        assertThat(errorReporter.toString(), metricsService.results().totalOperationCount(), is(3l));
+        assertThat(errorReporter.toString(), completionTimeService.globalCompletionTime(), equalTo(Time.fromMilli(4)));
+        assertThat(errorReporter.toString(), errorReporter.errorEncountered(), is(false));
+
+        // allow S(2)D(0) & S(5)D(0) to complete, so workload runner can terminate
+        db.setNameAllowedValue("S(2)D(0)", true);
+        db.setNameAllowedValue("S(5)D(0)", true);
+
+        Duration durationToWaitForRunnerToComplete = Duration.fromMilli(WorkloadRunner.RUNNER_POLLING_INTERVAL_AS_MILLI * 4);
+        long timeoutTimeAsMilli = TIME_SOURCE.now().plus(durationToWaitForRunnerToComplete).asMilli();
+        while (TIME_SOURCE.nowAsMilli() < timeoutTimeAsMilli) {
+            if (runnerThread.runnerHasCompleted()) break;
+            Spinner.powerNap(100);
+        }
+
+        assertThat(errorReporter.toString(), runnerThread.runnerHasCompleted(), is(true));
+        assertThat(errorReporter.toString(), runnerThread.runnerCompletedSuccessfully(), is(true));
     }
 
     @Test
     public void oneExecutorShouldNotBeCapableOfAdvancingInitiatedTimeOfAnotherExecutor()
             throws CompletionTimeException, InterruptedException, MetricsCollectionException, DbException, WorkloadException {
         /*
-            Number of writers: 1 (blocking & async)
+            Number of writers: 2 (blocking & async)
             Number of executors: 2 (blocking & async)
             Initialized to: IT[ , ] CT[0,1]
 
@@ -1586,9 +1713,9 @@ public class OperationStreamExecutorTest {
                 runnerCompletedSuccessfully.set(true);
                 runnerHasCompleted.set(true);
             } catch (Throwable e) {
+                errorReporter.reportError(this, ConcurrentErrorReporter.stackTraceToString(e));
                 runnerCompletedSuccessfully.set(false);
                 runnerHasCompleted.set(true);
-                errorReporter.reportError(this, ConcurrentErrorReporter.stackTraceToString(e));
             }
         }
 

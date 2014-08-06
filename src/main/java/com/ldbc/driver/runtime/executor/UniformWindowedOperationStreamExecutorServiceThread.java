@@ -23,7 +23,7 @@ import java.util.List;
 import java.util.concurrent.Future;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-class UniformWindowedOperationStreamExecutorThread extends Thread {
+class UniformWindowedOperationStreamExecutorServiceThread extends Thread {
     // TODO this value should be configurable, or an entirely better policy should be used
     private static final Duration DURATION_TO_WAIT_FOR_LAST_HANDLER_TO_FINISH = Duration.fromMinutes(30);
     private static final Duration POLL_INTERVAL_WHILE_WAITING_FOR_LAST_HANDLER_TO_FINISH = Duration.fromMilli(100);
@@ -37,16 +37,16 @@ class UniformWindowedOperationStreamExecutorThread extends Thread {
     private final WindowGenerator<OperationHandler<?>, Window.OperationHandlerTimeRangeWindow> handlerWindows;
     private final AtomicBoolean forcedTerminate;
 
-    public UniformWindowedOperationStreamExecutorThread(TimeSource timeSource,
-                                                        final Time firstWindowStartTime,
-                                                        final Duration windowSize,
-                                                        OperationHandlerExecutor operationHandlerExecutor,
-                                                        ConcurrentErrorReporter errorReporter,
-                                                        Iterator<OperationHandler<?>> handlers,
-                                                        AtomicBoolean hasFinished,
-                                                        Spinner slightlyEarlySpinner,
-                                                        AtomicBoolean forcedTerminate) {
-        super(UniformWindowedOperationStreamExecutorThread.class.getSimpleName() + System.currentTimeMillis());
+    public UniformWindowedOperationStreamExecutorServiceThread(TimeSource timeSource,
+                                                               final Time firstWindowStartTime,
+                                                               final Duration windowSize,
+                                                               OperationHandlerExecutor operationHandlerExecutor,
+                                                               ConcurrentErrorReporter errorReporter,
+                                                               Iterator<OperationHandler<?>> handlers,
+                                                               AtomicBoolean hasFinished,
+                                                               Spinner slightlyEarlySpinner,
+                                                               AtomicBoolean forcedTerminate) {
+        super(UniformWindowedOperationStreamExecutorServiceThread.class.getSimpleName() + System.currentTimeMillis());
         this.TIME_SOURCE = timeSource;
         this.operationHandlerExecutor = operationHandlerExecutor;
         this.scheduler = new UniformWindowedScheduler();
@@ -159,13 +159,13 @@ class UniformWindowedOperationStreamExecutorThread extends Thread {
     private class HandlersFromPreviousWindowHaveFinishedCheck implements SpinnerCheck {
         private final List<Future<OperationResultReport>> futuresForHandlersFromPreviousWindow;
         private final ConcurrentErrorReporter errorReporter;
-        private final UniformWindowedOperationStreamExecutorThread parent;
+        private final UniformWindowedOperationStreamExecutorServiceThread parent;
         private boolean checkResult;
 
         HandlersFromPreviousWindowHaveFinishedCheck(
                 List<Future<OperationResultReport>> futuresForHandlersFromPreviousWindow,
                 ConcurrentErrorReporter errorReporter,
-                UniformWindowedOperationStreamExecutorThread parent) {
+                UniformWindowedOperationStreamExecutorServiceThread parent) {
             this.futuresForHandlersFromPreviousWindow = futuresForHandlersFromPreviousWindow;
             this.errorReporter = errorReporter;
             this.parent = parent;

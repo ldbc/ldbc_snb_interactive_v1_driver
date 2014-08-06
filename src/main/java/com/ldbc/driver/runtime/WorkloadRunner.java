@@ -37,7 +37,9 @@ public class WorkloadRunner {
 
     private final ConcurrentErrorReporter errorReporter;
 
-    private final OperationHandlerExecutor operationHandlerExecutor;
+    private final OperationHandlerExecutor windowedThreadPool;
+    private final OperationHandlerExecutor blockingThreadPool;
+    private final OperationHandlerExecutor asynchronousThreadPool;
 
     private final PreciseIndividualAsyncOperationStreamExecutorService preciseIndividualAsyncOperationStreamExecutorService;
     private final PreciseIndividualBlockingOperationStreamExecutorService preciseIndividualBlockingOperationStreamExecutorService;
@@ -112,17 +114,25 @@ public class WorkloadRunner {
         List<OperationHandler<?>> blockingHandlers = operationsToOperationHandlersTransformer.transform(blockingOperations);
         List<OperationHandler<?>> asynchronousHandlers = operationsToOperationHandlersTransformer.transform(asynchronousOperations);
 
-        // TODO really need to give executors more control over thread pools, or ideally their own thread pools
-        this.operationHandlerExecutor = new ThreadPoolOperationHandlerExecutor(threadCount);
+        // Thread pools
+        // TODO get thread counts from config, or in more intelligent manner
+        // TODO move thread pool creation into executor services so workload runner does not have to know about them
+        // TODO calculate thread pool sizes
+        this.windowedThreadPool = new ThreadPoolOperationHandlerExecutor(threadCount);
+        this.blockingThreadPool = new ThreadPoolOperationHandlerExecutor(2);
+        this.asynchronousThreadPool = new ThreadPoolOperationHandlerExecutor(threadCount);
+
+        // Executors
         this.preciseIndividualAsyncOperationStreamExecutorService = new PreciseIndividualAsyncOperationStreamExecutorService(
-                TIME_SOURCE, errorReporter, asynchronousHandlers.iterator(), earlySpinner, operationHandlerExecutor);
+                TIME_SOURCE, errorReporter, asynchronousHandlers.iterator(), earlySpinner, asynchronousThreadPool);
         this.preciseIndividualBlockingOperationStreamExecutorService = new PreciseIndividualBlockingOperationStreamExecutorService(
-                TIME_SOURCE, errorReporter, blockingHandlers.iterator(), earlySpinner, operationHandlerExecutor);
+                TIME_SOURCE, errorReporter, blockingHandlers.iterator(), earlySpinner, blockingThreadPool);
         this.uniformWindowedOperationStreamExecutorService = new UniformWindowedOperationStreamExecutorService(
-                TIME_SOURCE, errorReporter, windowedHandlers.iterator(), operationHandlerExecutor, earlySpinner, workloadStartTime, executionWindowDuration);
+                TIME_SOURCE, errorReporter, windowedHandlers.iterator(), windowedThreadPool, earlySpinner, workloadStartTime, executionWindowDuration);
     }
 
-    // TODO executeWorkload should return a result (e.g., Success/Fail, and ErrorType if Fail) along with resources that need
+    // TODO executeWorkload should return a result (e.g., Success/Fail, and ErrorType if Fail)
+    // TODO and then it does not need to throw an exception
     public void executeWorkload() throws WorkloadException {
         if (statusDisplayInterval.asSeconds() > 0)
             workloadStatusThread.start();
@@ -194,17 +204,21 @@ public class WorkloadRunner {
         }
 
         try {
-            if (forced)
+            if (forced) {
                 // if forced shutdown (error) some handlers likely still running,
                 // but for now it does not matter as the process will terminate anyway
                 // (though when running test suite it can result in many running threads, making the tests much slower)
-                operationHandlerExecutor.shutdown(Duration.fromMilli(0));
-            else
+                asynchronousThreadPool.shutdown(Duration.fromMilli(0));
+                blockingThreadPool.shutdown(Duration.fromMilli(0));
+                windowedThreadPool.shutdown(Duration.fromMilli(0));
+            } else {
                 // if normal shutdown all executors have completed by this stage
-                operationHandlerExecutor.shutdown(WAIT_DURATION_FOR_OPERATION_HANDLER_EXECUTOR_TO_SHUTDOWN);
+                asynchronousThreadPool.shutdown(WAIT_DURATION_FOR_OPERATION_HANDLER_EXECUTOR_TO_SHUTDOWN);
+                blockingThreadPool.shutdown(WAIT_DURATION_FOR_OPERATION_HANDLER_EXECUTOR_TO_SHUTDOWN);
+                windowedThreadPool.shutdown(WAIT_DURATION_FOR_OPERATION_HANDLER_EXECUTOR_TO_SHUTDOWN);
+            }
         } catch (OperationHandlerExecutorException e) {
-            errMsg += String.format("Encountered error while shutting down %s\n%s\n",
-                    operationHandlerExecutor.getClass().getSimpleName(),
+            errMsg += String.format("Encountered error while shutting down\n%s",
                     ConcurrentErrorReporter.stackTraceToString(e));
         }
 

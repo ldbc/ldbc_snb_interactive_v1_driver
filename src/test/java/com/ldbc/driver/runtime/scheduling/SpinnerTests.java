@@ -18,12 +18,6 @@ public class SpinnerTests {
     long ENOUGH_MILLISECONDS_FOR_SPINNER_THREAD_TO_DO_ITS_THING = 500;
     ManualTimeSource TIME_SOURCE = new ManualTimeSource(0);
 
-    @Ignore
-    @Test
-    public void addDependencyTimeNullCheckToSpinner() {
-        assertThat(true, is(false));
-    }
-
     @Test
     public void shouldFailWhenNoStartTimeGiven() throws InterruptedException {
         // Given

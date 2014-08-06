@@ -26,7 +26,7 @@ public class ThreadedQueuedConcurrentCompletionTimeService implements Concurrent
     private final Queue<CompletionTimeEvent> sharedCompletionTimeEventQueue;
     private final AtomicReference<Time> sharedGctReference;
     private final AtomicLong sharedWriteEventCountReference;
-    private final ThreadedQueuedCompletionTimeMaintenanceThread threadedQueuedCompletionTimeMaintenanceThread;
+    private final ThreadedQueuedConcurrentCompletionTimeServiceThread threadedQueuedConcurrentCompletionTimeServiceThread;
     private AtomicBoolean sharedIsShuttingDownReference = new AtomicBoolean(false);
     private final ConcurrentErrorReporter errorReporter;
     private final List<LocalCompletionTimeWriter> writers = new ArrayList<>();
@@ -39,12 +39,12 @@ public class ThreadedQueuedConcurrentCompletionTimeService implements Concurrent
         this.sharedCompletionTimeEventQueue = new ConcurrentLinkedQueue<>();
         this.sharedGctReference = new AtomicReference<>(null);
         this.sharedWriteEventCountReference = new AtomicLong(0);
-        threadedQueuedCompletionTimeMaintenanceThread = new ThreadedQueuedCompletionTimeMaintenanceThread(
+        threadedQueuedConcurrentCompletionTimeServiceThread = new ThreadedQueuedConcurrentCompletionTimeServiceThread(
                 sharedCompletionTimeEventQueue,
                 errorReporter,
                 peerIds,
                 sharedGctReference);
-        threadedQueuedCompletionTimeMaintenanceThread.start();
+        threadedQueuedConcurrentCompletionTimeServiceThread.start();
     }
 
     @Override
@@ -119,7 +119,7 @@ public class ThreadedQueuedConcurrentCompletionTimeService implements Concurrent
         sharedCompletionTimeEventQueue.add(CompletionTimeEvent.terminateService(sharedWriteEventCountReference.get()));
 
         while (TIME_SOURCE.nowAsMilli() < shutdownTimeoutTimeAsMilli) {
-            if (threadedQueuedCompletionTimeMaintenanceThread.shutdownComplete())
+            if (threadedQueuedConcurrentCompletionTimeServiceThread.shutdownComplete())
                 return;
             if (errorReporter.errorEncountered())
                 throw new CompletionTimeException(

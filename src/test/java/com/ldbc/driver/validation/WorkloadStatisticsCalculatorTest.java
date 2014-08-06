@@ -69,7 +69,7 @@ public class WorkloadStatisticsCalculatorTest {
 
         // When
         WorkloadStatisticsCalculator calculator = new WorkloadStatisticsCalculator();
-        WorkloadStatistics stats = calculator.calculate(operationStream, operationClassifications, WorkloadValidator.DEFAULT_MAX_EXPECTED_INTERLEAVE);
+        WorkloadStatistics stats = calculator.calculate(operationStream, operationClassifications, Duration.fromMinutes(60));
 
         // Then
 
@@ -175,7 +175,7 @@ public class WorkloadStatisticsCalculatorTest {
 
         // When
         WorkloadStatisticsCalculator calculator = new WorkloadStatisticsCalculator();
-        WorkloadStatistics stats = calculator.calculate(operationStream, operationClassifications, WorkloadValidator.DEFAULT_MAX_EXPECTED_INTERLEAVE);
+        WorkloadStatistics stats = calculator.calculate(operationStream, operationClassifications, Duration.fromMinutes(60));
 
         // Then
 

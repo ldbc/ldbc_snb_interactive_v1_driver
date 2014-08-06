@@ -14,7 +14,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 public class UniformWindowedOperationStreamExecutorService {
     private static final Duration SHUTDOWN_WAIT_TIMEOUT = Duration.fromSeconds(5);
 
-    private final UniformWindowedOperationStreamExecutorThread uniformWindowedOperationStreamExecutorThread;
+    private final UniformWindowedOperationStreamExecutorServiceThread uniformWindowedOperationStreamExecutorServiceThread;
     private final AtomicBoolean hasFinished = new AtomicBoolean(false);
     private final ConcurrentErrorReporter errorReporter;
     private final AtomicBoolean executing = new AtomicBoolean(false);
@@ -30,7 +30,7 @@ public class UniformWindowedOperationStreamExecutorService {
                                                          Duration windowSize) {
         this.errorReporter = errorReporter;
         if (handlers.hasNext()) {
-            this.uniformWindowedOperationStreamExecutorThread = new UniformWindowedOperationStreamExecutorThread(
+            this.uniformWindowedOperationStreamExecutorServiceThread = new UniformWindowedOperationStreamExecutorServiceThread(
                     timeSource,
                     firstWindowStartTime,
                     windowSize,
@@ -41,7 +41,7 @@ public class UniformWindowedOperationStreamExecutorService {
                     slightlyEarlySpinner,
                     forceThreadToTerminate);
         } else {
-            this.uniformWindowedOperationStreamExecutorThread = null;
+            this.uniformWindowedOperationStreamExecutorServiceThread = null;
             executing.set(true);
             hasFinished.set(true);
             shutdown.set(false);
@@ -52,14 +52,14 @@ public class UniformWindowedOperationStreamExecutorService {
         if (executing.get())
             return hasFinished;
         executing.set(true);
-        uniformWindowedOperationStreamExecutorThread.start();
+        uniformWindowedOperationStreamExecutorServiceThread.start();
         return hasFinished;
     }
 
     synchronized public void shutdown() throws OperationHandlerExecutorException {
         if (shutdown.get())
             throw new OperationHandlerExecutorException("Executor has already been shutdown");
-        if (null != uniformWindowedOperationStreamExecutorThread)
+        if (null != uniformWindowedOperationStreamExecutorServiceThread)
             doShutdown();
         shutdown.set(true);
     }
@@ -67,7 +67,7 @@ public class UniformWindowedOperationStreamExecutorService {
     private void doShutdown() {
         try {
             forceThreadToTerminate.set(true);
-            uniformWindowedOperationStreamExecutorThread.join(SHUTDOWN_WAIT_TIMEOUT.asMilli());
+            uniformWindowedOperationStreamExecutorServiceThread.join(SHUTDOWN_WAIT_TIMEOUT.asMilli());
         } catch (Exception e) {
             String errMsg = String.format("Unexpected error encountered while shutting down thread\n%s",
                     ConcurrentErrorReporter.stackTraceToString(e));

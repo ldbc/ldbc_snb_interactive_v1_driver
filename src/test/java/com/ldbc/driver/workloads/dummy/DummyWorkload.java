@@ -12,26 +12,16 @@ import java.util.Map;
 
 public class DummyWorkload extends Workload {
     private final List<Operation<?>> operations;
-    private final Iterator<Operation<?>> alternativeLastOperations;
     private final Map<Class<? extends Operation>, OperationClassification> operationClassifications;
     private final Duration maxExpectedInterleave;
 
     public DummyWorkload(Iterator<Operation<?>> operations,
                          Map<Class<? extends Operation>, OperationClassification> operationClassifications,
                          Duration maxExpectedInterleave) {
-        this(operations, null, operationClassifications, maxExpectedInterleave);
-    }
-
-    public DummyWorkload(Iterator<Operation<?>> operations,
-                         Iterator<Operation<?>> alternativeLastOperations,
-                         Map<Class<? extends Operation>, OperationClassification> operationClassifications,
-                         Duration maxExpectedInterleave) {
         this.operations = Lists.newArrayList(operations);
         this.operationClassifications = operationClassifications;
         this.maxExpectedInterleave = maxExpectedInterleave;
-        this.alternativeLastOperations = alternativeLastOperations;
     }
-
 
     @Override
     public Map<Class<? extends Operation>, OperationClassification> getOperationClassifications() {
@@ -48,14 +38,7 @@ public class DummyWorkload extends Workload {
 
     @Override
     protected Iterator<Operation<?>> getOperations(GeneratorFactory generators) throws WorkloadException {
-        if (null == alternativeLastOperations) {
-            return operations.iterator();
-        } else {
-            List<Operation<?>> operationsToReturn = Lists.newArrayList(operations.iterator());
-            operationsToReturn.remove(operationsToReturn.size() - 1);
-            operationsToReturn.add(alternativeLastOperations.next());
-            return operationsToReturn.iterator();
-        }
+        return operations.iterator();
     }
 
     @Override

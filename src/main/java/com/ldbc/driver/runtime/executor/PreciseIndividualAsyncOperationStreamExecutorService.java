@@ -14,7 +14,7 @@ public class PreciseIndividualAsyncOperationStreamExecutorService {
     private static final Duration SHUTDOWN_WAIT_TIMEOUT = Duration.fromSeconds(10);
 
     private final TimeSource TIME_SOURCE;
-    private final PreciseIndividualAsyncOperationStreamExecutorThread preciseIndividualAsyncOperationStreamExecutorThread;
+    private final PreciseIndividualAsyncOperationStreamExecutorServiceThread preciseIndividualAsyncOperationStreamExecutorServiceThread;
     private final AtomicBoolean hasFinished = new AtomicBoolean(false);
     private final ConcurrentErrorReporter errorReporter;
     private final AtomicBoolean executing = new AtomicBoolean(false);
@@ -29,7 +29,7 @@ public class PreciseIndividualAsyncOperationStreamExecutorService {
         this.TIME_SOURCE = timeSource;
         this.errorReporter = errorReporter;
         if (handlers.hasNext()) {
-            this.preciseIndividualAsyncOperationStreamExecutorThread = new PreciseIndividualAsyncOperationStreamExecutorThread(
+            this.preciseIndividualAsyncOperationStreamExecutorServiceThread = new PreciseIndividualAsyncOperationStreamExecutorServiceThread(
                     TIME_SOURCE,
                     operationHandlerExecutor,
                     errorReporter,
@@ -38,7 +38,7 @@ public class PreciseIndividualAsyncOperationStreamExecutorService {
                     slightlyEarlySpinner,
                     forceThreadToTerminate);
         } else {
-            this.preciseIndividualAsyncOperationStreamExecutorThread = null;
+            this.preciseIndividualAsyncOperationStreamExecutorServiceThread = null;
             executing.set(true);
             hasFinished.set(true);
             shutdown.set(false);
@@ -49,7 +49,7 @@ public class PreciseIndividualAsyncOperationStreamExecutorService {
         if (executing.get())
             return hasFinished;
         executing.set(true);
-        preciseIndividualAsyncOperationStreamExecutorThread.start();
+        preciseIndividualAsyncOperationStreamExecutorServiceThread.start();
         return hasFinished;
     }
 
@@ -57,7 +57,7 @@ public class PreciseIndividualAsyncOperationStreamExecutorService {
         if (shutdown.get()) {
             throw new OperationHandlerExecutorException("Executor has already been shutdown");
         }
-        if (null != preciseIndividualAsyncOperationStreamExecutorThread)
+        if (null != preciseIndividualAsyncOperationStreamExecutorServiceThread)
             doShutdown();
         shutdown.set(true);
     }
@@ -65,7 +65,7 @@ public class PreciseIndividualAsyncOperationStreamExecutorService {
     private void doShutdown() {
         try {
             forceThreadToTerminate.set(true);
-            preciseIndividualAsyncOperationStreamExecutorThread.join(SHUTDOWN_WAIT_TIMEOUT.asMilli());
+            preciseIndividualAsyncOperationStreamExecutorServiceThread.join(SHUTDOWN_WAIT_TIMEOUT.asMilli());
         } catch (Exception e) {
             String errMsg = String.format("Unexpected error encountered while shutting down thread\n%s",
                     ConcurrentErrorReporter.stackTraceToString(e));

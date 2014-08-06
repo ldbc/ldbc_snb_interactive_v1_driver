@@ -6,16 +6,16 @@ import com.ldbc.driver.runtime.ConcurrentErrorReporter;
 import java.util.Queue;
 import java.util.concurrent.BlockingQueue;
 
-public class ThreadedQueuedMetricsMaintenanceThread extends Thread {
+public class ThreadedQueuedConcurrentMetricsServiceThread extends Thread {
     private final MetricsManager metricsManager;
     private final ConcurrentErrorReporter errorReporter;
     private final QueueEventFetcher queueEventFetcher;
     private Long processedEventCount = 0l;
     private Long expectedEventCount = null;
 
-    public ThreadedQueuedMetricsMaintenanceThread(ConcurrentErrorReporter errorReporter,
-                                                  Queue<MetricsCollectionEvent> metricsEventsQueue,
-                                                  MetricsManager metricsManager) {
+    public ThreadedQueuedConcurrentMetricsServiceThread(ConcurrentErrorReporter errorReporter,
+                                                        Queue<MetricsCollectionEvent> metricsEventsQueue,
+                                                        MetricsManager metricsManager) {
         this(
                 errorReporter,
                 (BlockingQueue.class.isAssignableFrom(metricsEventsQueue.getClass()))
@@ -24,10 +24,10 @@ public class ThreadedQueuedMetricsMaintenanceThread extends Thread {
                 metricsManager);
     }
 
-    private ThreadedQueuedMetricsMaintenanceThread(ConcurrentErrorReporter errorReporter,
-                                                   QueueEventFetcher queueEventFetcher,
-                                                   MetricsManager metricsManager) {
-        super(ThreadedQueuedMetricsMaintenanceThread.class.getSimpleName() + "-" + System.currentTimeMillis());
+    private ThreadedQueuedConcurrentMetricsServiceThread(ConcurrentErrorReporter errorReporter,
+                                                         QueueEventFetcher queueEventFetcher,
+                                                         MetricsManager metricsManager) {
+        super(ThreadedQueuedConcurrentMetricsServiceThread.class.getSimpleName() + "-" + System.currentTimeMillis());
         this.errorReporter = errorReporter;
         this.metricsManager = metricsManager;
         this.queueEventFetcher = queueEventFetcher;

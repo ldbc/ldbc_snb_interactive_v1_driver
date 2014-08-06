@@ -10,7 +10,7 @@ import java.util.List;
 import java.util.Map;
 
 public abstract class Workload {
-    public static final Duration DEFAULT_MAXIMUM_EXPECTED_INTERLEAVE = Duration.fromMinutes(30);
+    public static final Duration DEFAULT_MAXIMUM_EXPECTED_INTERLEAVE = Duration.fromMinutes(60);
 
     public static final Class<Operation<?>>[] operationTypesBySchedulingMode(Map<Class<? extends Operation>, OperationClassification> operationClassifications,
                                                                              OperationClassification.SchedulingMode schedulingMode) {

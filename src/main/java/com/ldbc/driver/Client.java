@@ -414,7 +414,7 @@ public class Client {
                 workloadStatistics = workloadStatisticsCalculator.calculate(
                         timeMappedOperations,
                         workload.getOperationClassifications(),
-                        WorkloadValidator.DEFAULT_MAX_EXPECTED_INTERLEAVE);
+                        workload.maxExpectedInterleave());
                 logger.info("Calculation complete\n" + workloadStatistics);
             } catch (MetricsCollectionException e) {
                 throw new ClientException("Error while calculating workload statistics", e);
@@ -612,46 +612,28 @@ public class Client {
 
     private class ValidateWorkloadMode implements ClientMode {
         private final ConcurrentControlService controlService;
+        private final WorkloadFactory workloadFactory;
 
-        private Workload workload = null;
-
-        ValidateWorkloadMode(ConcurrentControlService controlService) throws ClientException {
+        ValidateWorkloadMode(final ConcurrentControlService controlService) throws ClientException {
             this.controlService = controlService;
+            this.workloadFactory = new ClassNameWorkloadFactory(controlService.configuration().workloadClassName());
         }
 
         @Override
         public void init() throws ClientException {
-            try {
-                workload = ClassLoaderHelper.loadWorkload(controlService.configuration().workloadClassName());
-                workload.init(controlService.configuration());
-            } catch (Exception e) {
-                throw new ClientException(String.format("Error loading Workload class: %s", controlService.configuration().workloadClassName()), e);
-            }
-            logger.info(String.format("Loaded Workload: %s", workload.getClass().getName()));
-
             logger.info("Driver Configuration");
             logger.info(controlService.toString());
         }
 
         @Override
         public void execute() throws ClientException {
-            logger.info(String.format("Retrieving operation stream for workload: %s", workload.getClass().getSimpleName()));
-
-            logger.info(String.format("Validating workload: %s", workload.getClass().getSimpleName()));
+            logger.info(String.format("Validating workload: %s", controlService.configuration().workloadClassName()));
             WorkloadValidator workloadValidator = new WorkloadValidator();
-            workloadValidationResult = workloadValidator.validate(workload, controlService.configuration());
+            workloadValidationResult = workloadValidator.validate(workloadFactory, controlService.configuration());
             if (workloadValidationResult.isSuccessful())
                 logger.info("Workload Validation Result: PASS");
             else
                 logger.info(String.format("Workload Validation Result: FAIL\n%s", workloadValidationResult.errorMessage()));
-
-            logger.info("Cleaning up Workload...");
-            try {
-                workload.cleanup();
-            } catch (WorkloadException e) {
-                String errMsg = "Error during Workload cleanup";
-                throw new ClientException(errMsg, e);
-            }
         }
     }
 

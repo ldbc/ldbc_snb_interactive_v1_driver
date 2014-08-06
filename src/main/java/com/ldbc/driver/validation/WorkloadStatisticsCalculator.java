@@ -13,10 +13,10 @@ import java.util.*;
 
 public class WorkloadStatisticsCalculator {
     /**
-     * TODO
-     * - add gct status to status printout
      * TODO test HdrHistogram limits
+     * <p/>
      * TODO generator that creates an operation stream based on total time, rather than count
+     * <p/>
      * TODO Group By SchedulingMode (like is already done by GctMode)
      * <p/>
      * TODO report how frequently GCT is updated
@@ -66,8 +66,10 @@ public class WorkloadStatisticsCalculator {
             Class operationType = operation.getClass();
             Time operationStartTime = operation.scheduledStartTime();
             Time operationDependencyTime = operation.dependencyTime();
+            Duration operationDependencyDuration = operationStartTime.durationGreaterThan(operationDependencyTime);
             OperationClassification operationClassification = operationClassifications.get(operationType);
             OperationClassification.DependencyMode operationDependencyMode = operationClassification.dependencyMode();
+            // TODO use
             OperationClassification.SchedulingMode operationSchedulingMode = operationClassification.schedulingMode();
 
             // Operation Mix
@@ -106,7 +108,6 @@ public class WorkloadStatisticsCalculator {
             }
             previousOperationStartTimesByOperationType.put(operationType, operationStartTime);
 
-            Duration operationDependencyDuration = operationStartTime.durationGreaterThan(operationDependencyTime);
             // Dependency duration by operation type
             Duration lowestDependencyDurationForOperationType = (lowestDependencyDurationByOperationType.containsKey(operationType))
                     ? lowestDependencyDurationByOperationType.get(operationType)

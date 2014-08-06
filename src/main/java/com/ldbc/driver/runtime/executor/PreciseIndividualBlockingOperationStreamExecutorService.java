@@ -11,7 +11,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 public class PreciseIndividualBlockingOperationStreamExecutorService {
     private static final Duration SHUTDOWN_WAIT_TIMEOUT = Duration.fromSeconds(5);
-    private final PreciseIndividualBlockingOperationStreamExecutorThread preciseIndividualBlockingOperationStreamExecutorThread;
+    private final PreciseIndividualBlockingOperationStreamExecutorServiceThread preciseIndividualBlockingOperationStreamExecutorServiceThread;
     private final AtomicBoolean hasFinished = new AtomicBoolean(false);
     private final ConcurrentErrorReporter errorReporter;
     private AtomicBoolean executing = new AtomicBoolean(false);
@@ -25,7 +25,7 @@ public class PreciseIndividualBlockingOperationStreamExecutorService {
                                                                    OperationHandlerExecutor operationHandlerExecutor) {
         this.errorReporter = errorReporter;
         if (handlers.hasNext()) {
-            this.preciseIndividualBlockingOperationStreamExecutorThread = new PreciseIndividualBlockingOperationStreamExecutorThread(
+            this.preciseIndividualBlockingOperationStreamExecutorServiceThread = new PreciseIndividualBlockingOperationStreamExecutorServiceThread(
                     timeSource,
                     operationHandlerExecutor,
                     errorReporter,
@@ -34,7 +34,7 @@ public class PreciseIndividualBlockingOperationStreamExecutorService {
                     slightlyEarlySpinner,
                     forceThreadToTerminate);
         } else {
-            this.preciseIndividualBlockingOperationStreamExecutorThread = null;
+            this.preciseIndividualBlockingOperationStreamExecutorServiceThread = null;
             executing.set(true);
             hasFinished.set(true);
             shutdown.set(false);
@@ -45,14 +45,14 @@ public class PreciseIndividualBlockingOperationStreamExecutorService {
         if (executing.get())
             return hasFinished;
         executing.set(true);
-        preciseIndividualBlockingOperationStreamExecutorThread.start();
+        preciseIndividualBlockingOperationStreamExecutorServiceThread.start();
         return hasFinished;
     }
 
     synchronized public void shutdown() throws OperationHandlerExecutorException {
         if (shutdown.get())
             throw new OperationHandlerExecutorException("Executor has already been shutdown");
-        if (null != preciseIndividualBlockingOperationStreamExecutorThread)
+        if (null != preciseIndividualBlockingOperationStreamExecutorServiceThread)
             doShutdown();
         shutdown.set(true);
     }
@@ -60,7 +60,7 @@ public class PreciseIndividualBlockingOperationStreamExecutorService {
     private void doShutdown() {
         try {
             forceThreadToTerminate.set(true);
-            preciseIndividualBlockingOperationStreamExecutorThread.join(SHUTDOWN_WAIT_TIMEOUT.asMilli());
+            preciseIndividualBlockingOperationStreamExecutorServiceThread.join(SHUTDOWN_WAIT_TIMEOUT.asMilli());
         } catch (Exception e) {
             String errMsg = String.format("Unexpected error encountered while shutting down thread\n%s",
                     ConcurrentErrorReporter.stackTraceToString(e));

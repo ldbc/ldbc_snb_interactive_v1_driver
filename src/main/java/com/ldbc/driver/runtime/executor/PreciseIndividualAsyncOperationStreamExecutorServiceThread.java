@@ -13,7 +13,7 @@ import java.util.Iterator;
 import java.util.concurrent.Future;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-class PreciseIndividualAsyncOperationStreamExecutorThread extends Thread {
+class PreciseIndividualAsyncOperationStreamExecutorServiceThread extends Thread {
     // TODO this value should be configurable, or an entirely better policy should be used
     private static final Duration DURATION_TO_WAIT_FOR_ALL_HANDLERS_TO_FINISH = Duration.fromMinutes(30);
     private static final Duration POLL_INTERVAL_WHILE_WAITING_FOR_LAST_HANDLER_TO_FINISH = Duration.fromMilli(100);
@@ -27,14 +27,14 @@ class PreciseIndividualAsyncOperationStreamExecutorThread extends Thread {
     private final AtomicBoolean forcedTerminate;
     private final ArrayList<Future<OperationResultReport>> runningHandlers = new ArrayList<>();
 
-    public PreciseIndividualAsyncOperationStreamExecutorThread(TimeSource timeSource,
-                                                               OperationHandlerExecutor operationHandlerExecutor,
-                                                               ConcurrentErrorReporter errorReporter,
-                                                               Iterator<OperationHandler<?>> handlers,
-                                                               AtomicBoolean hasFinished,
-                                                               Spinner slightlyEarlySpinner,
-                                                               AtomicBoolean forcedTerminate) {
-        super(PreciseIndividualAsyncOperationStreamExecutorThread.class.getSimpleName() + "-" + System.currentTimeMillis());
+    public PreciseIndividualAsyncOperationStreamExecutorServiceThread(TimeSource timeSource,
+                                                                      OperationHandlerExecutor operationHandlerExecutor,
+                                                                      ConcurrentErrorReporter errorReporter,
+                                                                      Iterator<OperationHandler<?>> handlers,
+                                                                      AtomicBoolean hasFinished,
+                                                                      Spinner slightlyEarlySpinner,
+                                                                      AtomicBoolean forcedTerminate) {
+        super(PreciseIndividualAsyncOperationStreamExecutorServiceThread.class.getSimpleName() + "-" + System.currentTimeMillis());
         this.TIME_SOURCE = timeSource;
         this.operationHandlerExecutor = operationHandlerExecutor;
         this.slightlyEarlySpinner = slightlyEarlySpinner;

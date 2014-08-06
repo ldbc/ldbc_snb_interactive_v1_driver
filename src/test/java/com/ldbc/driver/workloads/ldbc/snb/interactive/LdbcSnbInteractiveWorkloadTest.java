@@ -18,7 +18,6 @@ import com.ldbc.driver.temporal.TimeSource;
 import com.ldbc.driver.testutils.TestUtils;
 import com.ldbc.driver.util.Bucket;
 import com.ldbc.driver.util.Histogram;
-import com.ldbc.driver.util.MapUtils;
 import com.ldbc.driver.util.RandomDataGeneratorFactory;
 import com.ldbc.driver.workloads.ldbc.snb.interactive.db.CsvWritingLdbcSnbInteractiveDb;
 import com.ldbc.driver.workloads.ldbc.snb.interactive.db.DummyLdbcSnbInteractiveDb;
@@ -28,17 +27,26 @@ import org.junit.Ignore;
 import org.junit.Test;
 
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 
-import static org.hamcrest.CoreMatchers.equalTo;
-import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.CoreMatchers.*;
 import static org.junit.Assert.assertThat;
 
 public class LdbcSnbInteractiveWorkloadTest {
     TimeSource TIME_SOURCE = new SystemTimeSource();
+
+    @Ignore
+    @Test
+    public void addFunctionalityForSerializingWorkloadStreamWithoutDbImplementationSoItCanBeShared() {
+        // TODO functionality would:
+        // TODO (1) allow a stream to be written to file, e.g., instead of running
+        // TODO (2) allow a stream to be read from file, e.g., instead of generating
+        // TODO (3) persist configuration file at the same time, so others can use the same settings
+        // TODO (4) read from that configuration file later, so others can use the same settings
+        assertThat(true, is(false));
+    }
 
     @Test
     public void shouldBeAbleToSerializeAndMarshalAllOperations() throws SerializingMarshallingException {
@@ -121,44 +129,8 @@ public class LdbcSnbInteractiveWorkloadTest {
     @Test
     public void shouldBeRepeatableWhenTwoIdenticalWorkloadsAreUsedWithIdenticalGeneratorFactories() throws ClientException, DriverConfigurationException, WorkloadException, IOException {
         // Given
-        Map<String, String> paramsMap = new HashMap<>();
+        Map<String, String> paramsMap = LdbcSnbInteractiveWorkload.defaultConfig();
         // LDBC Interactive Workload-specific parameters
-        paramsMap.put(LdbcSnbInteractiveWorkload.READ_OPERATION_1_INTERLEAVE_KEY, "100");
-        paramsMap.put(LdbcSnbInteractiveWorkload.READ_OPERATION_2_INTERLEAVE_KEY, "100");
-        paramsMap.put(LdbcSnbInteractiveWorkload.READ_OPERATION_3_INTERLEAVE_KEY, "100");
-        paramsMap.put(LdbcSnbInteractiveWorkload.READ_OPERATION_4_INTERLEAVE_KEY, "100");
-        paramsMap.put(LdbcSnbInteractiveWorkload.READ_OPERATION_5_INTERLEAVE_KEY, "100");
-        paramsMap.put(LdbcSnbInteractiveWorkload.READ_OPERATION_6_INTERLEAVE_KEY, "100");
-        paramsMap.put(LdbcSnbInteractiveWorkload.READ_OPERATION_7_INTERLEAVE_KEY, "100");
-        paramsMap.put(LdbcSnbInteractiveWorkload.READ_OPERATION_8_INTERLEAVE_KEY, "100");
-        paramsMap.put(LdbcSnbInteractiveWorkload.READ_OPERATION_9_INTERLEAVE_KEY, "100");
-        paramsMap.put(LdbcSnbInteractiveWorkload.READ_OPERATION_10_INTERLEAVE_KEY, "100");
-        paramsMap.put(LdbcSnbInteractiveWorkload.READ_OPERATION_11_INTERLEAVE_KEY, "100");
-        paramsMap.put(LdbcSnbInteractiveWorkload.READ_OPERATION_12_INTERLEAVE_KEY, "100");
-        paramsMap.put(LdbcSnbInteractiveWorkload.READ_OPERATION_13_INTERLEAVE_KEY, "100");
-        paramsMap.put(LdbcSnbInteractiveWorkload.READ_OPERATION_14_INTERLEAVE_KEY, "100");
-        paramsMap.put(LdbcSnbInteractiveWorkload.READ_OPERATION_1_ENABLE_KEY, "true");
-        paramsMap.put(LdbcSnbInteractiveWorkload.READ_OPERATION_2_ENABLE_KEY, "true");
-        paramsMap.put(LdbcSnbInteractiveWorkload.READ_OPERATION_3_ENABLE_KEY, "true");
-        paramsMap.put(LdbcSnbInteractiveWorkload.READ_OPERATION_4_ENABLE_KEY, "true");
-        paramsMap.put(LdbcSnbInteractiveWorkload.READ_OPERATION_5_ENABLE_KEY, "true");
-        paramsMap.put(LdbcSnbInteractiveWorkload.READ_OPERATION_6_ENABLE_KEY, "true");
-        paramsMap.put(LdbcSnbInteractiveWorkload.READ_OPERATION_7_ENABLE_KEY, "true");
-        paramsMap.put(LdbcSnbInteractiveWorkload.READ_OPERATION_8_ENABLE_KEY, "true");
-        paramsMap.put(LdbcSnbInteractiveWorkload.READ_OPERATION_9_ENABLE_KEY, "true");
-        paramsMap.put(LdbcSnbInteractiveWorkload.READ_OPERATION_10_ENABLE_KEY, "true");
-        paramsMap.put(LdbcSnbInteractiveWorkload.READ_OPERATION_11_ENABLE_KEY, "true");
-        paramsMap.put(LdbcSnbInteractiveWorkload.READ_OPERATION_12_ENABLE_KEY, "true");
-        paramsMap.put(LdbcSnbInteractiveWorkload.READ_OPERATION_13_ENABLE_KEY, "true");
-        paramsMap.put(LdbcSnbInteractiveWorkload.READ_OPERATION_14_ENABLE_KEY, "true");
-        paramsMap.put(LdbcSnbInteractiveWorkload.WRITE_OPERATION_1_ENABLE_KEY, "true");
-        paramsMap.put(LdbcSnbInteractiveWorkload.WRITE_OPERATION_2_ENABLE_KEY, "true");
-        paramsMap.put(LdbcSnbInteractiveWorkload.WRITE_OPERATION_3_ENABLE_KEY, "true");
-        paramsMap.put(LdbcSnbInteractiveWorkload.WRITE_OPERATION_4_ENABLE_KEY, "true");
-        paramsMap.put(LdbcSnbInteractiveWorkload.WRITE_OPERATION_5_ENABLE_KEY, "true");
-        paramsMap.put(LdbcSnbInteractiveWorkload.WRITE_OPERATION_6_ENABLE_KEY, "true");
-        paramsMap.put(LdbcSnbInteractiveWorkload.WRITE_OPERATION_7_ENABLE_KEY, "true");
-        paramsMap.put(LdbcSnbInteractiveWorkload.WRITE_OPERATION_8_ENABLE_KEY, "true");
         paramsMap.put(LdbcSnbInteractiveWorkload.PARAMETERS_DIRECTORY, TestUtils.getResource("/").getAbsolutePath());
         paramsMap.put(LdbcSnbInteractiveWorkload.DATA_DIRECTORY, TestUtils.getResource("/").getAbsolutePath());
         // DummyDb-specific parameters
@@ -188,11 +160,6 @@ public class LdbcSnbInteractiveWorkloadTest {
         DriverConfiguration params = new ConsoleAndFileDriverConfiguration(paramsMap, dbClassName, workloadClassName, operationCount,
                 threadCount, statusDisplayInterval, timeUnit, resultFilePath, timeCompressionRatio, windowedExecutionWindowDuration, peerIds, toleratedExecutionDelay,
                 validationParams, dbValidationFilePath, validateWorkload, calculateWorkloadStatistics, spinnerSleepDuration, printHelp);
-
-        String ldbcSnbDatagenUpdateStreamPropertiesPath = TestUtils.getResource("/updateStream_0.properties").getAbsolutePath();
-        Properties ldbcSnbDatagenUpdateStreamProperties = new Properties();
-        ldbcSnbDatagenUpdateStreamProperties.load(new FileInputStream(ldbcSnbDatagenUpdateStreamPropertiesPath));
-        params = params.applyMap(MapUtils.<String, String>propertiesToMap(ldbcSnbDatagenUpdateStreamProperties));
 
         Workload workloadA = new LdbcSnbInteractiveWorkload();
         workloadA.init(params);
@@ -238,12 +205,10 @@ public class LdbcSnbInteractiveWorkloadTest {
     @Test
     public void shouldGenerateConfiguredQueryMix() throws ClientException, DriverConfigurationException, WorkloadException {
         // Given
-        String ldbcSnbDatagenUpdateStreamPropertiesPath = TestUtils.getResource("/updateStream_0.properties").getAbsolutePath();
         String ldbcDriverPropertiesPath = TestUtils.getResource("/ldbc_driver_default.properties").getAbsolutePath();
 
         ConsoleAndFileDriverConfiguration params = ConsoleAndFileDriverConfiguration.fromArgs(new String[]{
                 "-w", LdbcSnbInteractiveWorkload.class.getName(),
-                "-P", ldbcSnbDatagenUpdateStreamPropertiesPath,
                 "-P", ldbcDriverPropertiesPath,
                 // database class is loaded by Client class, which is bypassed in this test
                 "-db", "this will never be used",
@@ -355,44 +320,8 @@ public class LdbcSnbInteractiveWorkloadTest {
     @Test
     public void shouldWriteToCsvWhileRunningWorkload() throws ClientException, DriverConfigurationException, WorkloadException, IOException {
         // Given
-        Map<String, String> paramsMap = new HashMap<>();
+        Map<String, String> paramsMap = LdbcSnbInteractiveWorkload.defaultConfig();
         // LDBC Interactive Workload-specific parameters
-        paramsMap.put(LdbcSnbInteractiveWorkload.READ_OPERATION_1_INTERLEAVE_KEY, "100");
-        paramsMap.put(LdbcSnbInteractiveWorkload.READ_OPERATION_2_INTERLEAVE_KEY, "100");
-        paramsMap.put(LdbcSnbInteractiveWorkload.READ_OPERATION_3_INTERLEAVE_KEY, "100");
-        paramsMap.put(LdbcSnbInteractiveWorkload.READ_OPERATION_4_INTERLEAVE_KEY, "100");
-        paramsMap.put(LdbcSnbInteractiveWorkload.READ_OPERATION_5_INTERLEAVE_KEY, "100");
-        paramsMap.put(LdbcSnbInteractiveWorkload.READ_OPERATION_6_INTERLEAVE_KEY, "100");
-        paramsMap.put(LdbcSnbInteractiveWorkload.READ_OPERATION_7_INTERLEAVE_KEY, "100");
-        paramsMap.put(LdbcSnbInteractiveWorkload.READ_OPERATION_8_INTERLEAVE_KEY, "100");
-        paramsMap.put(LdbcSnbInteractiveWorkload.READ_OPERATION_9_INTERLEAVE_KEY, "100");
-        paramsMap.put(LdbcSnbInteractiveWorkload.READ_OPERATION_10_INTERLEAVE_KEY, "100");
-        paramsMap.put(LdbcSnbInteractiveWorkload.READ_OPERATION_11_INTERLEAVE_KEY, "100");
-        paramsMap.put(LdbcSnbInteractiveWorkload.READ_OPERATION_12_INTERLEAVE_KEY, "100");
-        paramsMap.put(LdbcSnbInteractiveWorkload.READ_OPERATION_13_INTERLEAVE_KEY, "100");
-        paramsMap.put(LdbcSnbInteractiveWorkload.READ_OPERATION_14_INTERLEAVE_KEY, "100");
-        paramsMap.put(LdbcSnbInteractiveWorkload.READ_OPERATION_1_ENABLE_KEY, "true");
-        paramsMap.put(LdbcSnbInteractiveWorkload.READ_OPERATION_2_ENABLE_KEY, "true");
-        paramsMap.put(LdbcSnbInteractiveWorkload.READ_OPERATION_3_ENABLE_KEY, "true");
-        paramsMap.put(LdbcSnbInteractiveWorkload.READ_OPERATION_4_ENABLE_KEY, "true");
-        paramsMap.put(LdbcSnbInteractiveWorkload.READ_OPERATION_5_ENABLE_KEY, "true");
-        paramsMap.put(LdbcSnbInteractiveWorkload.READ_OPERATION_6_ENABLE_KEY, "true");
-        paramsMap.put(LdbcSnbInteractiveWorkload.READ_OPERATION_7_ENABLE_KEY, "true");
-        paramsMap.put(LdbcSnbInteractiveWorkload.READ_OPERATION_8_ENABLE_KEY, "true");
-        paramsMap.put(LdbcSnbInteractiveWorkload.READ_OPERATION_9_ENABLE_KEY, "true");
-        paramsMap.put(LdbcSnbInteractiveWorkload.READ_OPERATION_10_ENABLE_KEY, "true");
-        paramsMap.put(LdbcSnbInteractiveWorkload.READ_OPERATION_11_ENABLE_KEY, "true");
-        paramsMap.put(LdbcSnbInteractiveWorkload.READ_OPERATION_12_ENABLE_KEY, "true");
-        paramsMap.put(LdbcSnbInteractiveWorkload.READ_OPERATION_13_ENABLE_KEY, "true");
-        paramsMap.put(LdbcSnbInteractiveWorkload.READ_OPERATION_14_ENABLE_KEY, "true");
-        paramsMap.put(LdbcSnbInteractiveWorkload.WRITE_OPERATION_1_ENABLE_KEY, "true");
-        paramsMap.put(LdbcSnbInteractiveWorkload.WRITE_OPERATION_2_ENABLE_KEY, "true");
-        paramsMap.put(LdbcSnbInteractiveWorkload.WRITE_OPERATION_3_ENABLE_KEY, "true");
-        paramsMap.put(LdbcSnbInteractiveWorkload.WRITE_OPERATION_4_ENABLE_KEY, "true");
-        paramsMap.put(LdbcSnbInteractiveWorkload.WRITE_OPERATION_5_ENABLE_KEY, "true");
-        paramsMap.put(LdbcSnbInteractiveWorkload.WRITE_OPERATION_6_ENABLE_KEY, "true");
-        paramsMap.put(LdbcSnbInteractiveWorkload.WRITE_OPERATION_7_ENABLE_KEY, "true");
-        paramsMap.put(LdbcSnbInteractiveWorkload.WRITE_OPERATION_8_ENABLE_KEY, "true");
         paramsMap.put(LdbcSnbInteractiveWorkload.PARAMETERS_DIRECTORY, TestUtils.getResource("/").getAbsolutePath());
         paramsMap.put(LdbcSnbInteractiveWorkload.DATA_DIRECTORY, TestUtils.getResource("/").getAbsolutePath());
         // CsvDb-specific parameters
@@ -426,11 +355,6 @@ public class LdbcSnbInteractiveWorkloadTest {
                 threadCount, statusDisplayInterval, timeUnit, resultFilePath, timeCompressionRatio, windowedExecutionWindowDuration, peerIds, toleratedExecutionDelay,
                 validationParams, dbValidationFilePath, validateWorkload, calculateWorkloadStatistics, spinnerSleepDuration, printHelp);
 
-        String ldbcSnbDatagenUpdateStreamPropertiesPath = TestUtils.getResource("/updateStream_0.properties").getAbsolutePath();
-        Properties ldbcSnbDatagenUpdateStreamProperties = new Properties();
-        ldbcSnbDatagenUpdateStreamProperties.load(new FileInputStream(ldbcSnbDatagenUpdateStreamPropertiesPath));
-        params = params.applyMap(MapUtils.<String, String>propertiesToMap(ldbcSnbDatagenUpdateStreamProperties));
-
         // When
         Client client = new Client(new LocalControlService(TIME_SOURCE.now().plus(Duration.fromSeconds(3)), params), TIME_SOURCE);
         client.start();
@@ -446,7 +370,6 @@ public class LdbcSnbInteractiveWorkloadTest {
 
     @Test
     public void shouldLoadFromConfigFile() throws DriverConfigurationException, ClientException {
-        String ldbcSnbDatagenUpdateStreamPropertiesPath = TestUtils.getResource("/updateStream_0.properties").getAbsolutePath();
         String ldbcSocnetInteractiveTestPropertiesPath =
                 new File(DriverConfigurationFileTestHelper.getWorkloadsDirectory(), "ldbc/socnet/interactive/ldbc_socnet_interactive.properties").getAbsolutePath();
         String ldbcDriverTestPropertiesPath =
@@ -468,7 +391,6 @@ public class LdbcSnbInteractiveWorkloadTest {
                 "-p", LdbcSnbInteractiveWorkload.PARAMETERS_DIRECTORY, TestUtils.getResource("/").getAbsolutePath(),
                 "-p", LdbcSnbInteractiveWorkload.DATA_DIRECTORY, TestUtils.getResource("/").getAbsolutePath(),
                 "-p", CsvWritingLdbcSnbInteractiveDb.CSV_PATH_KEY, csvOutputFilePath,
-                "-P", ldbcSnbDatagenUpdateStreamPropertiesPath,
                 "-P", ldbcSocnetInteractiveTestPropertiesPath,
                 "-P", ldbcDriverTestPropertiesPath});
 
@@ -492,44 +414,8 @@ public class LdbcSnbInteractiveWorkloadTest {
 
     @Test
     public void shouldAssignMonotonicallyIncreasingScheduledStartTimesToOperations() throws WorkloadException, IOException, DriverConfigurationException {
-        Map<String, String> paramsMap = new HashMap<>();
+        Map<String, String> paramsMap = LdbcSnbInteractiveWorkload.defaultConfig();
         // LDBC Interactive Workload-specific parameters
-        paramsMap.put(LdbcSnbInteractiveWorkload.READ_OPERATION_1_INTERLEAVE_KEY, "10");
-        paramsMap.put(LdbcSnbInteractiveWorkload.READ_OPERATION_2_INTERLEAVE_KEY, "10");
-        paramsMap.put(LdbcSnbInteractiveWorkload.READ_OPERATION_3_INTERLEAVE_KEY, "10");
-        paramsMap.put(LdbcSnbInteractiveWorkload.READ_OPERATION_4_INTERLEAVE_KEY, "10");
-        paramsMap.put(LdbcSnbInteractiveWorkload.READ_OPERATION_5_INTERLEAVE_KEY, "10");
-        paramsMap.put(LdbcSnbInteractiveWorkload.READ_OPERATION_6_INTERLEAVE_KEY, "10");
-        paramsMap.put(LdbcSnbInteractiveWorkload.READ_OPERATION_7_INTERLEAVE_KEY, "10");
-        paramsMap.put(LdbcSnbInteractiveWorkload.READ_OPERATION_8_INTERLEAVE_KEY, "10");
-        paramsMap.put(LdbcSnbInteractiveWorkload.READ_OPERATION_9_INTERLEAVE_KEY, "10");
-        paramsMap.put(LdbcSnbInteractiveWorkload.READ_OPERATION_10_INTERLEAVE_KEY, "10");
-        paramsMap.put(LdbcSnbInteractiveWorkload.READ_OPERATION_11_INTERLEAVE_KEY, "10");
-        paramsMap.put(LdbcSnbInteractiveWorkload.READ_OPERATION_12_INTERLEAVE_KEY, "10");
-        paramsMap.put(LdbcSnbInteractiveWorkload.READ_OPERATION_13_INTERLEAVE_KEY, "10");
-        paramsMap.put(LdbcSnbInteractiveWorkload.READ_OPERATION_14_INTERLEAVE_KEY, "10");
-        paramsMap.put(LdbcSnbInteractiveWorkload.READ_OPERATION_1_ENABLE_KEY, "true");
-        paramsMap.put(LdbcSnbInteractiveWorkload.READ_OPERATION_2_ENABLE_KEY, "true");
-        paramsMap.put(LdbcSnbInteractiveWorkload.READ_OPERATION_3_ENABLE_KEY, "true");
-        paramsMap.put(LdbcSnbInteractiveWorkload.READ_OPERATION_4_ENABLE_KEY, "true");
-        paramsMap.put(LdbcSnbInteractiveWorkload.READ_OPERATION_5_ENABLE_KEY, "true");
-        paramsMap.put(LdbcSnbInteractiveWorkload.READ_OPERATION_6_ENABLE_KEY, "true");
-        paramsMap.put(LdbcSnbInteractiveWorkload.READ_OPERATION_7_ENABLE_KEY, "true");
-        paramsMap.put(LdbcSnbInteractiveWorkload.READ_OPERATION_8_ENABLE_KEY, "true");
-        paramsMap.put(LdbcSnbInteractiveWorkload.READ_OPERATION_9_ENABLE_KEY, "true");
-        paramsMap.put(LdbcSnbInteractiveWorkload.READ_OPERATION_10_ENABLE_KEY, "true");
-        paramsMap.put(LdbcSnbInteractiveWorkload.READ_OPERATION_11_ENABLE_KEY, "true");
-        paramsMap.put(LdbcSnbInteractiveWorkload.READ_OPERATION_12_ENABLE_KEY, "true");
-        paramsMap.put(LdbcSnbInteractiveWorkload.READ_OPERATION_13_ENABLE_KEY, "true");
-        paramsMap.put(LdbcSnbInteractiveWorkload.READ_OPERATION_14_ENABLE_KEY, "true");
-        paramsMap.put(LdbcSnbInteractiveWorkload.WRITE_OPERATION_1_ENABLE_KEY, "true");
-        paramsMap.put(LdbcSnbInteractiveWorkload.WRITE_OPERATION_2_ENABLE_KEY, "true");
-        paramsMap.put(LdbcSnbInteractiveWorkload.WRITE_OPERATION_3_ENABLE_KEY, "true");
-        paramsMap.put(LdbcSnbInteractiveWorkload.WRITE_OPERATION_4_ENABLE_KEY, "true");
-        paramsMap.put(LdbcSnbInteractiveWorkload.WRITE_OPERATION_5_ENABLE_KEY, "true");
-        paramsMap.put(LdbcSnbInteractiveWorkload.WRITE_OPERATION_6_ENABLE_KEY, "true");
-        paramsMap.put(LdbcSnbInteractiveWorkload.WRITE_OPERATION_7_ENABLE_KEY, "true");
-        paramsMap.put(LdbcSnbInteractiveWorkload.WRITE_OPERATION_8_ENABLE_KEY, "true");
         paramsMap.put(LdbcSnbInteractiveWorkload.PARAMETERS_DIRECTORY, TestUtils.getResource("/").getAbsolutePath());
         paramsMap.put(LdbcSnbInteractiveWorkload.DATA_DIRECTORY, TestUtils.getResource("/").getAbsolutePath());
         // CsvDb-specific parameters
@@ -563,11 +449,6 @@ public class LdbcSnbInteractiveWorkloadTest {
                 threadCount, statusDisplayInterval, timeUnit, resultFilePath, timeCompressionRatio, windowedExecutionWindowDuration, peerIds, toleratedExecutionDelay,
                 validationParams, dbValidationFilePath, validateWorkload, calculateWorkloadStatistics, spinnerSleepDuration, printHelp);
 
-        String ldbcSnbDatagenUpdateStreamPropertiesPath = TestUtils.getResource("/updateStream_0.properties").getAbsolutePath();
-        Properties ldbcSnbDatagenUpdateStreamProperties = new Properties();
-        ldbcSnbDatagenUpdateStreamProperties.load(new FileInputStream(ldbcSnbDatagenUpdateStreamPropertiesPath));
-        configuration = configuration.applyMap(MapUtils.<String, String>propertiesToMap(ldbcSnbDatagenUpdateStreamProperties));
-
         Workload workload = new LdbcSnbInteractiveWorkload();
         workload.init(configuration);
         List<Operation<?>> operations = Lists.newArrayList(workload.operations(new GeneratorFactory(new RandomDataGeneratorFactory(42L)), configuration.operationCount()));
@@ -581,47 +462,10 @@ public class LdbcSnbInteractiveWorkloadTest {
         workload.cleanup();
     }
 
-    @Ignore
     @Test
     public void shouldWorkWhenOnlyWriteOperationsAreEnabled() throws WorkloadException, ClientException, IOException, DriverConfigurationException {
-        Map<String, String> params = new HashMap<>();
+        Map<String, String> params = LdbcSnbInteractiveWorkload.defaultWriteOnlyConfig();
         // LDBC Interactive Workload-specific parameters
-        params.put(LdbcSnbInteractiveWorkload.READ_OPERATION_1_INTERLEAVE_KEY, "10");
-        params.put(LdbcSnbInteractiveWorkload.READ_OPERATION_2_INTERLEAVE_KEY, "10");
-        params.put(LdbcSnbInteractiveWorkload.READ_OPERATION_3_INTERLEAVE_KEY, "10");
-        params.put(LdbcSnbInteractiveWorkload.READ_OPERATION_4_INTERLEAVE_KEY, "10");
-        params.put(LdbcSnbInteractiveWorkload.READ_OPERATION_5_INTERLEAVE_KEY, "10");
-        params.put(LdbcSnbInteractiveWorkload.READ_OPERATION_6_INTERLEAVE_KEY, "10");
-        params.put(LdbcSnbInteractiveWorkload.READ_OPERATION_7_INTERLEAVE_KEY, "10");
-        params.put(LdbcSnbInteractiveWorkload.READ_OPERATION_8_INTERLEAVE_KEY, "10");
-        params.put(LdbcSnbInteractiveWorkload.READ_OPERATION_9_INTERLEAVE_KEY, "10");
-        params.put(LdbcSnbInteractiveWorkload.READ_OPERATION_10_INTERLEAVE_KEY, "10");
-        params.put(LdbcSnbInteractiveWorkload.READ_OPERATION_11_INTERLEAVE_KEY, "10");
-        params.put(LdbcSnbInteractiveWorkload.READ_OPERATION_12_INTERLEAVE_KEY, "10");
-        params.put(LdbcSnbInteractiveWorkload.READ_OPERATION_13_INTERLEAVE_KEY, "10");
-        params.put(LdbcSnbInteractiveWorkload.READ_OPERATION_14_INTERLEAVE_KEY, "10");
-        params.put(LdbcSnbInteractiveWorkload.READ_OPERATION_1_ENABLE_KEY, "false");
-        params.put(LdbcSnbInteractiveWorkload.READ_OPERATION_2_ENABLE_KEY, "false");
-        params.put(LdbcSnbInteractiveWorkload.READ_OPERATION_3_ENABLE_KEY, "false");
-        params.put(LdbcSnbInteractiveWorkload.READ_OPERATION_4_ENABLE_KEY, "false");
-        params.put(LdbcSnbInteractiveWorkload.READ_OPERATION_5_ENABLE_KEY, "false");
-        params.put(LdbcSnbInteractiveWorkload.READ_OPERATION_6_ENABLE_KEY, "false");
-        params.put(LdbcSnbInteractiveWorkload.READ_OPERATION_7_ENABLE_KEY, "false");
-        params.put(LdbcSnbInteractiveWorkload.READ_OPERATION_8_ENABLE_KEY, "false");
-        params.put(LdbcSnbInteractiveWorkload.READ_OPERATION_9_ENABLE_KEY, "false");
-        params.put(LdbcSnbInteractiveWorkload.READ_OPERATION_10_ENABLE_KEY, "false");
-        params.put(LdbcSnbInteractiveWorkload.READ_OPERATION_11_ENABLE_KEY, "false");
-        params.put(LdbcSnbInteractiveWorkload.READ_OPERATION_12_ENABLE_KEY, "false");
-        params.put(LdbcSnbInteractiveWorkload.READ_OPERATION_13_ENABLE_KEY, "false");
-        params.put(LdbcSnbInteractiveWorkload.READ_OPERATION_14_ENABLE_KEY, "false");
-        params.put(LdbcSnbInteractiveWorkload.WRITE_OPERATION_1_ENABLE_KEY, "true");
-        params.put(LdbcSnbInteractiveWorkload.WRITE_OPERATION_2_ENABLE_KEY, "true");
-        params.put(LdbcSnbInteractiveWorkload.WRITE_OPERATION_3_ENABLE_KEY, "true");
-        params.put(LdbcSnbInteractiveWorkload.WRITE_OPERATION_4_ENABLE_KEY, "true");
-        params.put(LdbcSnbInteractiveWorkload.WRITE_OPERATION_5_ENABLE_KEY, "true");
-        params.put(LdbcSnbInteractiveWorkload.WRITE_OPERATION_6_ENABLE_KEY, "true");
-        params.put(LdbcSnbInteractiveWorkload.WRITE_OPERATION_7_ENABLE_KEY, "true");
-        params.put(LdbcSnbInteractiveWorkload.WRITE_OPERATION_8_ENABLE_KEY, "true");
         params.put(LdbcSnbInteractiveWorkload.PARAMETERS_DIRECTORY, TestUtils.getResource("/").getAbsolutePath());
         params.put(LdbcSnbInteractiveWorkload.DATA_DIRECTORY, TestUtils.getResource("/").getAbsolutePath());
         // CsvDb-specific parameters
@@ -635,14 +479,14 @@ public class LdbcSnbInteractiveWorkloadTest {
         TimeUnit timeUnit = TimeUnit.MILLISECONDS;
         String resultFilePath = "test_write_to_csv_results.json";
         FileUtils.deleteQuietly(new File(resultFilePath));
-        double timeCompressionRatio = 0.01;
+        double timeCompressionRatio = 0.0001;
         Duration windowedExecutionWindowDuration = Duration.fromSeconds(1);
         Set<String> peerIds = new HashSet<>();
         Duration toleratedExecutionDelay = Duration.fromSeconds(100);
         ConsoleAndFileDriverConfiguration.ConsoleAndFileValidationParamOptions validationParams = null;
         String dbValidationFilePath = null;
         boolean validateWorkload = false;
-        boolean calculateWorkloadStatistics = true;
+        boolean calculateWorkloadStatistics = false;
         Duration spinnerSleepDuration = Duration.fromMilli(0);
         boolean printHelp = false;
 
@@ -651,11 +495,6 @@ public class LdbcSnbInteractiveWorkloadTest {
         DriverConfiguration configuration = new ConsoleAndFileDriverConfiguration(params, dbClassName, workloadClassName, operationCount,
                 threadCount, statusDisplayInterval, timeUnit, resultFilePath, timeCompressionRatio, windowedExecutionWindowDuration, peerIds, toleratedExecutionDelay,
                 validationParams, dbValidationFilePath, validateWorkload, calculateWorkloadStatistics, spinnerSleepDuration, printHelp);
-
-//        String ldbcSnbDatagenUpdateStreamPropertiesPath = TestUtils.getResource("/updateStream_0.properties").getAbsolutePath();
-//        Properties ldbcSnbDatagenUpdateStreamProperties = new Properties();
-//        ldbcSnbDatagenUpdateStreamProperties.load(new FileInputStream(ldbcSnbDatagenUpdateStreamPropertiesPath));
-//        configuration = configuration.applyMap(MapUtils.<String, String>propertiesToMap(ldbcSnbDatagenUpdateStreamProperties));
 
         Client client = new Client(new LocalControlService(TIME_SOURCE.now().plus(Duration.fromSeconds(3)), configuration), TIME_SOURCE);
         client.start();
@@ -666,44 +505,8 @@ public class LdbcSnbInteractiveWorkloadTest {
 
     @Test
     public void operationsShouldHaveMonotonicallyIncreasingScheduledStartTimesAfterSplitting() throws WorkloadException, IOException, DriverConfigurationException, IteratorSplittingException {
-        Map<String, String> paramsMap = new HashMap<>();
+        Map<String, String> paramsMap = LdbcSnbInteractiveWorkload.defaultConfig();
         // LDBC Interactive Workload-specific parameters
-        paramsMap.put(LdbcSnbInteractiveWorkload.READ_OPERATION_1_INTERLEAVE_KEY, "10");
-        paramsMap.put(LdbcSnbInteractiveWorkload.READ_OPERATION_2_INTERLEAVE_KEY, "10");
-        paramsMap.put(LdbcSnbInteractiveWorkload.READ_OPERATION_3_INTERLEAVE_KEY, "10");
-        paramsMap.put(LdbcSnbInteractiveWorkload.READ_OPERATION_4_INTERLEAVE_KEY, "10");
-        paramsMap.put(LdbcSnbInteractiveWorkload.READ_OPERATION_5_INTERLEAVE_KEY, "10");
-        paramsMap.put(LdbcSnbInteractiveWorkload.READ_OPERATION_6_INTERLEAVE_KEY, "10");
-        paramsMap.put(LdbcSnbInteractiveWorkload.READ_OPERATION_7_INTERLEAVE_KEY, "10");
-        paramsMap.put(LdbcSnbInteractiveWorkload.READ_OPERATION_8_INTERLEAVE_KEY, "10");
-        paramsMap.put(LdbcSnbInteractiveWorkload.READ_OPERATION_9_INTERLEAVE_KEY, "10");
-        paramsMap.put(LdbcSnbInteractiveWorkload.READ_OPERATION_10_INTERLEAVE_KEY, "10");
-        paramsMap.put(LdbcSnbInteractiveWorkload.READ_OPERATION_11_INTERLEAVE_KEY, "10");
-        paramsMap.put(LdbcSnbInteractiveWorkload.READ_OPERATION_12_INTERLEAVE_KEY, "10");
-        paramsMap.put(LdbcSnbInteractiveWorkload.READ_OPERATION_13_INTERLEAVE_KEY, "10");
-        paramsMap.put(LdbcSnbInteractiveWorkload.READ_OPERATION_14_INTERLEAVE_KEY, "10");
-        paramsMap.put(LdbcSnbInteractiveWorkload.READ_OPERATION_1_ENABLE_KEY, "true");
-        paramsMap.put(LdbcSnbInteractiveWorkload.READ_OPERATION_2_ENABLE_KEY, "true");
-        paramsMap.put(LdbcSnbInteractiveWorkload.READ_OPERATION_3_ENABLE_KEY, "true");
-        paramsMap.put(LdbcSnbInteractiveWorkload.READ_OPERATION_4_ENABLE_KEY, "true");
-        paramsMap.put(LdbcSnbInteractiveWorkload.READ_OPERATION_5_ENABLE_KEY, "true");
-        paramsMap.put(LdbcSnbInteractiveWorkload.READ_OPERATION_6_ENABLE_KEY, "true");
-        paramsMap.put(LdbcSnbInteractiveWorkload.READ_OPERATION_7_ENABLE_KEY, "true");
-        paramsMap.put(LdbcSnbInteractiveWorkload.READ_OPERATION_8_ENABLE_KEY, "true");
-        paramsMap.put(LdbcSnbInteractiveWorkload.READ_OPERATION_9_ENABLE_KEY, "true");
-        paramsMap.put(LdbcSnbInteractiveWorkload.READ_OPERATION_10_ENABLE_KEY, "true");
-        paramsMap.put(LdbcSnbInteractiveWorkload.READ_OPERATION_11_ENABLE_KEY, "true");
-        paramsMap.put(LdbcSnbInteractiveWorkload.READ_OPERATION_12_ENABLE_KEY, "true");
-        paramsMap.put(LdbcSnbInteractiveWorkload.READ_OPERATION_13_ENABLE_KEY, "true");
-        paramsMap.put(LdbcSnbInteractiveWorkload.READ_OPERATION_14_ENABLE_KEY, "true");
-        paramsMap.put(LdbcSnbInteractiveWorkload.WRITE_OPERATION_1_ENABLE_KEY, "true");
-        paramsMap.put(LdbcSnbInteractiveWorkload.WRITE_OPERATION_2_ENABLE_KEY, "true");
-        paramsMap.put(LdbcSnbInteractiveWorkload.WRITE_OPERATION_3_ENABLE_KEY, "true");
-        paramsMap.put(LdbcSnbInteractiveWorkload.WRITE_OPERATION_4_ENABLE_KEY, "true");
-        paramsMap.put(LdbcSnbInteractiveWorkload.WRITE_OPERATION_5_ENABLE_KEY, "true");
-        paramsMap.put(LdbcSnbInteractiveWorkload.WRITE_OPERATION_6_ENABLE_KEY, "true");
-        paramsMap.put(LdbcSnbInteractiveWorkload.WRITE_OPERATION_7_ENABLE_KEY, "true");
-        paramsMap.put(LdbcSnbInteractiveWorkload.WRITE_OPERATION_8_ENABLE_KEY, "true");
         paramsMap.put(LdbcSnbInteractiveWorkload.PARAMETERS_DIRECTORY, TestUtils.getResource("/").getAbsolutePath());
         paramsMap.put(LdbcSnbInteractiveWorkload.DATA_DIRECTORY, TestUtils.getResource("/").getAbsolutePath());
         // CsvDb-specific parameters
@@ -736,11 +539,6 @@ public class LdbcSnbInteractiveWorkloadTest {
         DriverConfiguration configuration = new ConsoleAndFileDriverConfiguration(paramsMap, dbClassName, workloadClassName, operationCount,
                 threadCount, statusDisplayInterval, timeUnit, resultFilePath, timeCompressionRatio, windowedExecutionWindowDuration, peerIds, toleratedExecutionDelay,
                 validationParams, dbValidationFilePath, validateWorkload, calculateWorkloadStatistics, spinnerSleepDuration, printHelp);
-
-        String ldbcSnbDatagenUpdateStreamPropertiesPath = TestUtils.getResource("/updateStream_0.properties").getAbsolutePath();
-        Properties ldbcSnbDatagenUpdateStreamProperties = new Properties();
-        ldbcSnbDatagenUpdateStreamProperties.load(new FileInputStream(ldbcSnbDatagenUpdateStreamPropertiesPath));
-        configuration = configuration.applyMap(MapUtils.<String, String>propertiesToMap(ldbcSnbDatagenUpdateStreamProperties));
 
         Workload workload = new LdbcSnbInteractiveWorkload();
         workload.init(configuration);
@@ -784,54 +582,53 @@ public class LdbcSnbInteractiveWorkloadTest {
         workload.cleanup();
     }
 
-    @Ignore
     @Test
-    public void shouldPassWorkloadValidation() {
-        assertThat(true, is(false));
+    public void shouldPassWorkloadValidation() throws ClientException {
+        Map<String, String> params = LdbcSnbInteractiveWorkload.defaultWriteOnlyConfig();
+        // LDBC Interactive Workload-specific parameters
+        params.put(LdbcSnbInteractiveWorkload.PARAMETERS_DIRECTORY, TestUtils.getResource("/").getAbsolutePath());
+        params.put(LdbcSnbInteractiveWorkload.DATA_DIRECTORY, TestUtils.getResource("/").getAbsolutePath());
+        // CsvDb-specific parameters
+        params.put(DummyLdbcSnbInteractiveDb.SLEEP_DURATION_MILLI_ARG, Long.toString(Duration.fromMilli(1).asMilli()));
+        // Driver-specific parameters
+        String dbClassName = DummyLdbcSnbInteractiveDb.class.getName();
+        String workloadClassName = LdbcSnbInteractiveWorkload.class.getName();
+        long operationCount = 10000;
+        int threadCount = 1;
+        Duration statusDisplayInterval = Duration.fromSeconds(1);
+        TimeUnit timeUnit = TimeUnit.MILLISECONDS;
+        String resultFilePath = null;
+        double timeCompressionRatio = 0.001;
+        Duration windowedExecutionWindowDuration = Duration.fromSeconds(1);
+        Set<String> peerIds = new HashSet<>();
+        Duration toleratedExecutionDelay = Duration.fromSeconds(100);
+        ConsoleAndFileDriverConfiguration.ConsoleAndFileValidationParamOptions validationParams = null;
+        String dbValidationFilePath = null;
+        boolean validateWorkload = true;
+        boolean calculateWorkloadStatistics = false;
+        Duration spinnerSleepDuration = Duration.fromMilli(0);
+        boolean printHelp = false;
+
+        DriverConfiguration configuration = new ConsoleAndFileDriverConfiguration(params, dbClassName, workloadClassName, operationCount,
+                threadCount, statusDisplayInterval, timeUnit, resultFilePath, timeCompressionRatio, windowedExecutionWindowDuration, peerIds, toleratedExecutionDelay,
+                validationParams, dbValidationFilePath, validateWorkload, calculateWorkloadStatistics, spinnerSleepDuration, printHelp);
+
+        // When
+        Client client = new Client(new LocalControlService(TIME_SOURCE.now().plus(Duration.fromSeconds(3)), configuration), TIME_SOURCE);
+        client.start();
+
+        // Then
+        assertThat(client.databaseValidationResult(), is(nullValue()));
+        assertThat(client.workloadValidationResult(), is(notNullValue()));
+        assertThat(client.workloadValidationResult().errorMessage(), client.workloadValidationResult().isSuccessful(), is(true));
+        assertThat(client.workloadStatistics(), is(nullValue()));
     }
 
     @Ignore
     @Test
     public void shouldNotFailUnexpectedlyWhenQueriesAreLongRunning() throws ClientException, DriverConfigurationException, WorkloadException, IOException {
         // Given
-        Map<String, String> paramsMap = new HashMap<>();
-        // LDBC Interactive Workload-specific parameters
-        paramsMap.put(LdbcSnbInteractiveWorkload.READ_OPERATION_1_INTERLEAVE_KEY, "100");
-        paramsMap.put(LdbcSnbInteractiveWorkload.READ_OPERATION_2_INTERLEAVE_KEY, "100");
-        paramsMap.put(LdbcSnbInteractiveWorkload.READ_OPERATION_3_INTERLEAVE_KEY, "100");
-        paramsMap.put(LdbcSnbInteractiveWorkload.READ_OPERATION_4_INTERLEAVE_KEY, "100");
-        paramsMap.put(LdbcSnbInteractiveWorkload.READ_OPERATION_5_INTERLEAVE_KEY, "100");
-        paramsMap.put(LdbcSnbInteractiveWorkload.READ_OPERATION_6_INTERLEAVE_KEY, "100");
-        paramsMap.put(LdbcSnbInteractiveWorkload.READ_OPERATION_7_INTERLEAVE_KEY, "100");
-        paramsMap.put(LdbcSnbInteractiveWorkload.READ_OPERATION_8_INTERLEAVE_KEY, "100");
-        paramsMap.put(LdbcSnbInteractiveWorkload.READ_OPERATION_9_INTERLEAVE_KEY, "100");
-        paramsMap.put(LdbcSnbInteractiveWorkload.READ_OPERATION_10_INTERLEAVE_KEY, "100");
-        paramsMap.put(LdbcSnbInteractiveWorkload.READ_OPERATION_11_INTERLEAVE_KEY, "100");
-        paramsMap.put(LdbcSnbInteractiveWorkload.READ_OPERATION_12_INTERLEAVE_KEY, "100");
-        paramsMap.put(LdbcSnbInteractiveWorkload.READ_OPERATION_13_INTERLEAVE_KEY, "100");
-        paramsMap.put(LdbcSnbInteractiveWorkload.READ_OPERATION_14_INTERLEAVE_KEY, "100");
-        paramsMap.put(LdbcSnbInteractiveWorkload.READ_OPERATION_1_ENABLE_KEY, "true");
-        paramsMap.put(LdbcSnbInteractiveWorkload.READ_OPERATION_2_ENABLE_KEY, "true");
-        paramsMap.put(LdbcSnbInteractiveWorkload.READ_OPERATION_3_ENABLE_KEY, "true");
-        paramsMap.put(LdbcSnbInteractiveWorkload.READ_OPERATION_4_ENABLE_KEY, "true");
-        paramsMap.put(LdbcSnbInteractiveWorkload.READ_OPERATION_5_ENABLE_KEY, "true");
-        paramsMap.put(LdbcSnbInteractiveWorkload.READ_OPERATION_6_ENABLE_KEY, "true");
-        paramsMap.put(LdbcSnbInteractiveWorkload.READ_OPERATION_7_ENABLE_KEY, "true");
-        paramsMap.put(LdbcSnbInteractiveWorkload.READ_OPERATION_8_ENABLE_KEY, "true");
-        paramsMap.put(LdbcSnbInteractiveWorkload.READ_OPERATION_9_ENABLE_KEY, "true");
-        paramsMap.put(LdbcSnbInteractiveWorkload.READ_OPERATION_10_ENABLE_KEY, "true");
-        paramsMap.put(LdbcSnbInteractiveWorkload.READ_OPERATION_11_ENABLE_KEY, "true");
-        paramsMap.put(LdbcSnbInteractiveWorkload.READ_OPERATION_12_ENABLE_KEY, "true");
-        paramsMap.put(LdbcSnbInteractiveWorkload.READ_OPERATION_13_ENABLE_KEY, "true");
-        paramsMap.put(LdbcSnbInteractiveWorkload.READ_OPERATION_14_ENABLE_KEY, "true");
-        paramsMap.put(LdbcSnbInteractiveWorkload.WRITE_OPERATION_1_ENABLE_KEY, "true");
-        paramsMap.put(LdbcSnbInteractiveWorkload.WRITE_OPERATION_2_ENABLE_KEY, "true");
-        paramsMap.put(LdbcSnbInteractiveWorkload.WRITE_OPERATION_3_ENABLE_KEY, "true");
-        paramsMap.put(LdbcSnbInteractiveWorkload.WRITE_OPERATION_4_ENABLE_KEY, "true");
-        paramsMap.put(LdbcSnbInteractiveWorkload.WRITE_OPERATION_5_ENABLE_KEY, "true");
-        paramsMap.put(LdbcSnbInteractiveWorkload.WRITE_OPERATION_6_ENABLE_KEY, "true");
-        paramsMap.put(LdbcSnbInteractiveWorkload.WRITE_OPERATION_7_ENABLE_KEY, "true");
-        paramsMap.put(LdbcSnbInteractiveWorkload.WRITE_OPERATION_8_ENABLE_KEY, "true");
+        Map<String, String> paramsMap = LdbcSnbInteractiveWorkload.defaultConfig();
         paramsMap.put(LdbcSnbInteractiveWorkload.PARAMETERS_DIRECTORY, TestUtils.getResource("/").getAbsolutePath());
         paramsMap.put(LdbcSnbInteractiveWorkload.DATA_DIRECTORY, TestUtils.getResource("/").getAbsolutePath());
         // DummyDb-specific parameters
@@ -852,7 +649,7 @@ public class LdbcSnbInteractiveWorkloadTest {
         ConsoleAndFileDriverConfiguration.ConsoleAndFileValidationParamOptions validationParams = null;
         String dbValidationFilePath = null;
         boolean validateWorkload = false;
-        boolean calculateWorkloadStatistics = true;
+        boolean calculateWorkloadStatistics = false;
         Duration spinnerSleepDuration = Duration.fromMilli(0);
         boolean printHelp = false;
 
@@ -861,11 +658,6 @@ public class LdbcSnbInteractiveWorkloadTest {
         DriverConfiguration params = new ConsoleAndFileDriverConfiguration(paramsMap, dbClassName, workloadClassName, operationCount,
                 threadCount, statusDisplayInterval, timeUnit, resultFilePath, timeCompressionRatio, windowedExecutionWindowDuration, peerIds, toleratedExecutionDelay,
                 validationParams, dbValidationFilePath, validateWorkload, calculateWorkloadStatistics, spinnerSleepDuration, printHelp);
-
-        String ldbcSnbDatagenUpdateStreamPropertiesPath = TestUtils.getResource("/updateStream_0.properties").getAbsolutePath();
-        Properties ldbcSnbDatagenUpdateStreamProperties = new Properties();
-        ldbcSnbDatagenUpdateStreamProperties.load(new FileInputStream(ldbcSnbDatagenUpdateStreamPropertiesPath));
-        params = params.applyMap(MapUtils.<String, String>propertiesToMap(ldbcSnbDatagenUpdateStreamProperties));
 
         // When
         Client client = new Client(new LocalControlService(TIME_SOURCE.now().plus(Duration.fromMilli(500)), params), TIME_SOURCE);

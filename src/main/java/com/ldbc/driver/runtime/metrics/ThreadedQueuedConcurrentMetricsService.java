@@ -18,7 +18,7 @@ public class ThreadedQueuedConcurrentMetricsService implements ConcurrentMetrics
     private final TimeSource TIME_SOURCE;
     private final QueueEventSubmitter queueEventSubmitter;
     private final AtomicLong initiatedEvents;
-    private final ThreadedQueuedMetricsMaintenanceThread threadedQueuedMetricsMaintenanceThread;
+    private final ThreadedQueuedConcurrentMetricsServiceThread threadedQueuedConcurrentMetricsServiceThread;
     private AtomicBoolean shutdown = new AtomicBoolean(false);
 
     public static ThreadedQueuedConcurrentMetricsService newInstanceUsingNonBlockingQueue(TimeSource timeSource,
@@ -49,11 +49,11 @@ public class ThreadedQueuedConcurrentMetricsService implements ConcurrentMetrics
                 : new NonBlockingQueueEventSubmitter(queue);
 
         this.initiatedEvents = new AtomicLong(0);
-        threadedQueuedMetricsMaintenanceThread = new ThreadedQueuedMetricsMaintenanceThread(
+        threadedQueuedConcurrentMetricsServiceThread = new ThreadedQueuedConcurrentMetricsServiceThread(
                 errorReporter,
                 queue,
                 new MetricsManager(TIME_SOURCE, unit, initialTime));
-        threadedQueuedMetricsMaintenanceThread.start();
+        threadedQueuedConcurrentMetricsServiceThread.start();
     }
 
     @Override
@@ -104,10 +104,10 @@ public class ThreadedQueuedConcurrentMetricsService implements ConcurrentMetrics
             throw new MetricsCollectionException("Metrics service has already been shutdown");
         try {
             queueEventSubmitter.submitEventToQueue(MetricsCollectionEvent.terminate(initiatedEvents.get()));
-            threadedQueuedMetricsMaintenanceThread.join(SHUTDOWN_WAIT_TIMEOUT.asMilli());
+            threadedQueuedConcurrentMetricsServiceThread.join(SHUTDOWN_WAIT_TIMEOUT.asMilli());
         } catch (InterruptedException e) {
             String errMsg = String.format("Thread was interrupted while waiting for %s to complete",
-                    threadedQueuedMetricsMaintenanceThread.getClass().getSimpleName());
+                    threadedQueuedConcurrentMetricsServiceThread.getClass().getSimpleName());
             throw new MetricsCollectionException(errMsg, e);
         }
         shutdown.set(true);

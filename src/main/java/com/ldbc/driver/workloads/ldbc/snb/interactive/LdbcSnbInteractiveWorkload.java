@@ -26,13 +26,14 @@ import static com.ldbc.driver.OperationClassification.SchedulingMode;
 import static com.ldbc.driver.generator.CsvEventStreamReader.EventReturnPolicy;
 
 public class LdbcSnbInteractiveWorkload extends Workload {
-    public static Map<String, String> defaultReadOnlyConfig() {
+    public static Map<String, String> defaultConfig() {
         Map<String, String> params = new HashMap<>();
         // General Driver parameters
         params.put(ConsoleAndFileDriverConfiguration.OPERATION_COUNT_ARG, "1000");
         params.put(ConsoleAndFileDriverConfiguration.WORKLOAD_ARG, LdbcSnbInteractiveWorkload.class.getName());
         params.put(ConsoleAndFileDriverConfiguration.RESULT_FILE_PATH_ARG, "ldbc_socnet_interactive_results.json");
         // LDBC Interactive Workload-specific parameters
+        // reads
         params.put(LdbcSnbInteractiveWorkload.READ_OPERATION_1_INTERLEAVE_KEY, "30");
         params.put(LdbcSnbInteractiveWorkload.READ_OPERATION_2_INTERLEAVE_KEY, "12");
         params.put(LdbcSnbInteractiveWorkload.READ_OPERATION_3_INTERLEAVE_KEY, "72");
@@ -61,6 +62,20 @@ public class LdbcSnbInteractiveWorkload extends Workload {
         params.put(LdbcSnbInteractiveWorkload.READ_OPERATION_12_ENABLE_KEY, "true");
         params.put(LdbcSnbInteractiveWorkload.READ_OPERATION_13_ENABLE_KEY, "true");
         params.put(LdbcSnbInteractiveWorkload.READ_OPERATION_14_ENABLE_KEY, "true");
+        // writes
+        params.put(LdbcSnbInteractiveWorkload.WRITE_OPERATION_1_ENABLE_KEY, "true");
+        params.put(LdbcSnbInteractiveWorkload.WRITE_OPERATION_2_ENABLE_KEY, "true");
+        params.put(LdbcSnbInteractiveWorkload.WRITE_OPERATION_3_ENABLE_KEY, "true");
+        params.put(LdbcSnbInteractiveWorkload.WRITE_OPERATION_4_ENABLE_KEY, "true");
+        params.put(LdbcSnbInteractiveWorkload.WRITE_OPERATION_5_ENABLE_KEY, "true");
+        params.put(LdbcSnbInteractiveWorkload.WRITE_OPERATION_6_ENABLE_KEY, "true");
+        params.put(LdbcSnbInteractiveWorkload.WRITE_OPERATION_7_ENABLE_KEY, "true");
+        params.put(LdbcSnbInteractiveWorkload.WRITE_OPERATION_8_ENABLE_KEY, "true");
+        return ConsoleAndFileDriverConfiguration.convertLongKeysToShortKeys(params);
+    }
+
+    public static Map<String, String> defaultReadOnlyConfig() {
+        Map<String, String> params = defaultConfig();
         params.put(LdbcSnbInteractiveWorkload.WRITE_OPERATION_1_ENABLE_KEY, "false");
         params.put(LdbcSnbInteractiveWorkload.WRITE_OPERATION_2_ENABLE_KEY, "false");
         params.put(LdbcSnbInteractiveWorkload.WRITE_OPERATION_3_ENABLE_KEY, "false");
@@ -69,6 +84,25 @@ public class LdbcSnbInteractiveWorkload extends Workload {
         params.put(LdbcSnbInteractiveWorkload.WRITE_OPERATION_6_ENABLE_KEY, "false");
         params.put(LdbcSnbInteractiveWorkload.WRITE_OPERATION_7_ENABLE_KEY, "false");
         params.put(LdbcSnbInteractiveWorkload.WRITE_OPERATION_8_ENABLE_KEY, "false");
+        return ConsoleAndFileDriverConfiguration.convertLongKeysToShortKeys(params);
+    }
+
+    public static Map<String, String> defaultWriteOnlyConfig() {
+        Map<String, String> params = defaultConfig();
+        params.put(LdbcSnbInteractiveWorkload.READ_OPERATION_1_ENABLE_KEY, "false");
+        params.put(LdbcSnbInteractiveWorkload.READ_OPERATION_2_ENABLE_KEY, "false");
+        params.put(LdbcSnbInteractiveWorkload.READ_OPERATION_3_ENABLE_KEY, "false");
+        params.put(LdbcSnbInteractiveWorkload.READ_OPERATION_4_ENABLE_KEY, "false");
+        params.put(LdbcSnbInteractiveWorkload.READ_OPERATION_5_ENABLE_KEY, "false");
+        params.put(LdbcSnbInteractiveWorkload.READ_OPERATION_6_ENABLE_KEY, "false");
+        params.put(LdbcSnbInteractiveWorkload.READ_OPERATION_7_ENABLE_KEY, "false");
+        params.put(LdbcSnbInteractiveWorkload.READ_OPERATION_8_ENABLE_KEY, "false");
+        params.put(LdbcSnbInteractiveWorkload.READ_OPERATION_9_ENABLE_KEY, "false");
+        params.put(LdbcSnbInteractiveWorkload.READ_OPERATION_10_ENABLE_KEY, "false");
+        params.put(LdbcSnbInteractiveWorkload.READ_OPERATION_11_ENABLE_KEY, "false");
+        params.put(LdbcSnbInteractiveWorkload.READ_OPERATION_12_ENABLE_KEY, "false");
+        params.put(LdbcSnbInteractiveWorkload.READ_OPERATION_13_ENABLE_KEY, "false");
+        params.put(LdbcSnbInteractiveWorkload.READ_OPERATION_14_ENABLE_KEY, "false");
         return ConsoleAndFileDriverConfiguration.convertLongKeysToShortKeys(params);
     }
 
@@ -602,6 +636,20 @@ public class LdbcSnbInteractiveWorkload extends Workload {
         Iterator<Operation<?>> filteredWriteOperationStream = Iterators.filter(unfilteredWriteOperationStream, enabledWriteOperationsFilter);
 
         /*
+         * Move write operations to same start time as read operations
+         */
+        // TODO add parameter, or do in more intelligent way
+        Duration firstWriteOperationFromWorkloadStart = Duration.fromSeconds(1);
+        Iterator<Operation<?>> offsetFilteredWriteOperationStream = gf.timeOffset(
+                // assign place holder dependency times so time offset function does not complain about null values
+                gf.assignDependencyTimes(
+                        gf.constant(Time.fromMilli(0)),
+                        filteredWriteOperationStream
+                ),
+                workloadStartTime.plus(firstWriteOperationFromWorkloadStart)
+        );
+
+        /*
          * Add Dependency Times To Dependent Write Operations
          */
         Function1<Operation<?>, Boolean> isDependency = new Function1<Operation<?>, Boolean>() {
@@ -613,26 +661,16 @@ public class LdbcSnbInteractiveWorkload extends Workload {
             }
         };
         boolean canOverwriteDependencyTime = true;
-        Iterator<Operation<?>> filteredWriteOperationStreamWithDependencyTimes = gf.assignConservativeDependencyTimes(
-                filteredWriteOperationStream,
+        Iterator<Operation<?>> offsetFilteredWriteOperationStreamWithDependencyTimes = gf.assignDependencyTimesEqualToLastEncounteredLowerDependencyStartTime(
+                offsetFilteredWriteOperationStream,
                 isDependency,
                 workloadStartTime,
                 canOverwriteDependencyTime);
 
 
-        /*
-         * Move scheduled start times of write operations to workload start time
-         */
-        // TODO add parameter, or do in more intelligent way
-        Duration firstWriteOperationFromWorkloadStart = Duration.fromSeconds(1);
-        Iterator<Operation<?>> writeOperationStream = gf.timeOffset(
-                filteredWriteOperationStreamWithDependencyTimes,
-                workloadStartTime.plus(firstWriteOperationFromWorkloadStart)
-        );
-
         List<Iterator<Operation<?>>> streamsOfAllEnabledOperationTypes = new ArrayList<>();
         if (false == writeOperationFilter.isEmpty())
-            streamsOfAllEnabledOperationTypes.add(writeOperationStream);
+            streamsOfAllEnabledOperationTypes.add(offsetFilteredWriteOperationStreamWithDependencyTimes);
         if (readOperationFilter.contains(LdbcQuery1.class))
             streamsOfAllEnabledOperationTypes.add(readOperation1Stream);
         if (readOperationFilter.contains(LdbcQuery2.class))
@@ -741,6 +779,11 @@ public class LdbcSnbInteractiveWorkload extends Workload {
                     return DbValidationParametersFilterResult.ACCEPT_AND_FINISH;
             }
         };
+    }
+
+    @Override
+    public Duration maxExpectedInterleave() {
+        return Duration.fromMinutes(30);
     }
 
     private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();

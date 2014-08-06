@@ -2,6 +2,7 @@ package com.ldbc.driver.runtime;
 
 import com.ldbc.driver.runtime.coordination.ConcurrentCompletionTimeService;
 import com.ldbc.driver.runtime.metrics.ConcurrentMetricsService;
+import com.ldbc.driver.runtime.metrics.WorkloadResultsSnapshot;
 import com.ldbc.driver.runtime.scheduling.Spinner;
 import com.ldbc.driver.temporal.Duration;
 import org.apache.log4j.Logger;
@@ -36,10 +37,10 @@ class WorkloadStatusThread extends Thread {
         long statusUpdateIntervalAsMilli = statusUpdateInterval.asMilli();
         while (continueRunning.get()) {
             try {
-                Spinner.powerNap(statusUpdateIntervalAsMilli);
                 String statusString = metricsService.status().toString();
                 if (detailedStatus) statusString += ", GCT: " + concurrentCompletionTimeService.globalCompletionTime();
                 logger.info(statusString);
+                Spinner.powerNap(statusUpdateIntervalAsMilli);
             } catch (Throwable e) {
                 errorReporter.reportError(
                         this,

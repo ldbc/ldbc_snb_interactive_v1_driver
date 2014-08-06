@@ -23,6 +23,10 @@ public class Duration implements Comparable<Duration>, MultipleTimeUnitProvider<
         return Duration.fromNano(Temporal.convert(m, TimeUnit.MINUTES, TimeUnit.NANOSECONDS));
     }
 
+    public static Duration fromHours(long m) {
+        return Duration.fromNano(Temporal.convert(m, TimeUnit.HOURS, TimeUnit.NANOSECONDS));
+    }
+
     public static Duration from(TimeUnit timeUnit, long unitOfTime) {
         return Duration.fromNano(Temporal.convert(unitOfTime, timeUnit, TimeUnit.NANOSECONDS));
     }
@@ -59,14 +63,19 @@ public class Duration implements Comparable<Duration>, MultipleTimeUnitProvider<
 
     @Override
     public String toString() {
-//        long h = TimeUnit.MILLISECONDS.toHours(duration.asMilli());
-        long m = TimeUnit.MILLISECONDS.toMinutes(duration.asMilli());
-        long s = TimeUnit.MILLISECONDS.toSeconds(duration.asMilli()) - TimeUnit.MINUTES.toSeconds(m);
-        long ms = duration.asMilli() - TimeUnit.MINUTES.toMillis(m) - TimeUnit.SECONDS.toMillis(s);
-//        if (h < 1)
-        return String.format("%02d:%02d.%03d (m:s.ms)", m, s, ms);
-//        else
-//            return String.format("%02d:%02d:%02d.%03d (h:m:s.ms)", h, m, s, ms);
+        long durationMilli = duration.asMilli();
+        long h = TimeUnit.MILLISECONDS.toHours(duration.asMilli());
+        if (h > 0) {
+            long m = TimeUnit.MILLISECONDS.toMinutes(durationMilli) - TimeUnit.HOURS.toMinutes(h);
+            long s = TimeUnit.MILLISECONDS.toSeconds(durationMilli) - TimeUnit.HOURS.toSeconds(h) - TimeUnit.MINUTES.toSeconds(m);
+            long ms = durationMilli - TimeUnit.HOURS.toMillis(h) - TimeUnit.MINUTES.toMillis(m) - TimeUnit.SECONDS.toMillis(s);
+            return String.format("%02d:%02d:%02d.%03d (h:m:s.ms)", h, m, s, ms);
+        } else {
+            long m = TimeUnit.MILLISECONDS.toMinutes(duration.asMilli());
+            long s = TimeUnit.MILLISECONDS.toSeconds(duration.asMilli()) - TimeUnit.MINUTES.toSeconds(m);
+            long ms = duration.asMilli() - TimeUnit.MINUTES.toMillis(m) - TimeUnit.SECONDS.toMillis(s);
+            return String.format("%02d:%02d.%03d (m:s.ms)", m, s, ms);
+        }
     }
 
     @Override
