@@ -1,6 +1,7 @@
 package com.ldbc.driver.util;
 
 import com.ldbc.driver.*;
+import com.ldbc.driver.poolable_test.PoolableOperationHandlerManager;
 
 import java.lang.reflect.Constructor;
 
@@ -61,6 +62,18 @@ public class ClassLoaderHelper {
     public static OperationHandler<?> loadOperationHandler(Class<? extends OperationHandler> operationHandlerClass) throws OperationException {
         try {
             OperationHandler<?> operationHandler = operationHandlerClass.getConstructor().newInstance();
+            return operationHandler;
+        } catch (Exception e) {
+            throw new OperationException(
+                    String.format("Error creating OperationHandler [%s] with Operation [%s]", operationHandlerClass.getName()),
+                    e);
+        }
+    }
+
+    // TODO temporary
+    public static PoolableOperationHandlerManager.PoolableOperationHandler<?> loadPoolableOperationHandler(Class<? extends PoolableOperationHandlerManager.PoolableOperationHandler> operationHandlerClass) throws OperationException {
+        try {
+            PoolableOperationHandlerManager.PoolableOperationHandler<?> operationHandler = operationHandlerClass.getConstructor().newInstance();
             return operationHandler;
         } catch (Exception e) {
             throw new OperationException(

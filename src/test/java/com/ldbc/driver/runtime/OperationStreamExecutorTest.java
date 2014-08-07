@@ -18,7 +18,7 @@ import com.ldbc.driver.temporal.Time;
 import com.ldbc.driver.temporal.TimeSource;
 import com.ldbc.driver.util.RandomDataGeneratorFactory;
 import com.ldbc.driver.workloads.dummy.DummyDb;
-import com.ldbc.driver.workloads.dummy.TimedNameOperation2Factory;
+import com.ldbc.driver.workloads.dummy.TimedNamedOperation2Factory;
 import com.ldbc.driver.workloads.dummy.TimedNamedOperation1;
 import com.ldbc.driver.workloads.dummy.TimedNamedOperation2;
 import org.junit.After;
@@ -303,7 +303,7 @@ public class OperationStreamExecutorTest {
 
         int operationCountAtTime4 = 1000000;
         Iterator<Operation<?>> manyReadWriteOperationsAtTime4 = gf.limit(
-                new TimedNameOperation2Factory(
+                new TimedNamedOperation2Factory(
                         gf.constant(Time.fromMilli(4)),
                         gf.constant(Time.fromMilli(0)),
                         gf.constant("oneOfManyReadWrite2")),

@@ -505,14 +505,14 @@ public class WorkloadValidatorTest {
 
         List<Iterator<Operation<?>>> operations = Lists.<Iterator<Operation<?>>>newArrayList(
                 gf.limit(
-                        new TimedNameOperation1Factory(
+                        new TimedNamedOperation1Factory(
                                 gf.constantIncrementTime(startTime, Duration.fromMilli(10)),
                                 gf.constantIncrementTime(startTime.minus(Duration.fromMilli(1)), Duration.fromMilli(0)),
                                 gf.constant("name")),
                         operationCount
                 ),
                 gf.limit(
-                        new TimedNameOperation1Factory(
+                        new TimedNamedOperation1Factory(
                                 gf.constantIncrementTime(startTime, Duration.fromMilli(10)),
                                 gf.constantIncrementTime(startTime.minus(Duration.fromMilli(1)), Duration.fromMilli(0)),
                                 gf.constant("name")),
@@ -542,7 +542,7 @@ public class WorkloadValidatorTest {
         long operationCount = 1000;
         List<Iterator<Operation<?>>> operations = Lists.newArrayList(
                 gf.limit(
-                        new TimedNameOperation1Factory(
+                        new TimedNamedOperation1Factory(
                                 gf.constantIncrementTime(startTime, Duration.fromMilli(10)),
                                 gf.constantIncrementTime(startTime.minus(Duration.fromMilli(1)), Duration.fromMilli(0)),
                                 gf.constant("name")
@@ -550,7 +550,7 @@ public class WorkloadValidatorTest {
                         operationCount
                 ),
                 gf.limit(
-                        new TimedNameOperation1Factory(
+                        new TimedNamedOperation1Factory(
                                 gf.constantIncrementTime(startTime, Duration.fromMilli(10)),
                                 gf.constantIncrementTime(startTime.minus(Duration.fromMilli(1)), Duration.fromMilli(0)),
                                 gf.constant("name")
@@ -558,7 +558,7 @@ public class WorkloadValidatorTest {
                         operationCount
                 ),
                 gf.limit(
-                        new TimedNameOperation1Factory(
+                        new TimedNamedOperation1Factory(
                                 gf.constantIncrementTime(startTime, Duration.fromMilli(10)),
                                 gf.constantIncrementTime(startTime.minus(Duration.fromMilli(1)), Duration.fromMilli(0)),
                                 gf.constant("name")
@@ -566,7 +566,7 @@ public class WorkloadValidatorTest {
                         operationCount
                 ),
                 gf.limit(
-                        new TimedNameOperation1Factory(
+                        new TimedNamedOperation1Factory(
                                 gf.constantIncrementTime(startTime, Duration.fromMilli(10)),
                                 gf.constantIncrementTime(startTime.minus(Duration.fromMilli(1)), Duration.fromMilli(0)),
                                 gf.constant("name")
@@ -600,7 +600,7 @@ public class WorkloadValidatorTest {
 
         Time lastStartTime = Lists.newArrayList(
                 gf.limit(
-                        new TimedNameOperation1Factory(
+                        new TimedNamedOperation1Factory(
                                 gf.constantIncrementTime(startTime, Duration.fromMilli(10)),
                                 gf.constantIncrementTime(startTime.minus(Duration.fromMilli(1)), Duration.fromMilli(0)),
                                 gf.constant("name")
@@ -612,7 +612,7 @@ public class WorkloadValidatorTest {
         List<Iterator<Operation<?>>> operations = Lists.<Iterator<Operation<?>>>newArrayList(
                 Iterators.concat(
                         gf.limit(
-                                new TimedNameOperation1Factory(
+                                new TimedNamedOperation1Factory(
                                         gf.constantIncrementTime(startTime, Duration.fromMilli(10)),
                                         gf.constantIncrementTime(startTime.minus(Duration.fromMilli(1)), Duration.fromMilli(0)),
                                         gf.constant("name")
@@ -623,7 +623,7 @@ public class WorkloadValidatorTest {
                 ),
                 Iterators.concat(
                         gf.limit(
-                                new TimedNameOperation1Factory(
+                                new TimedNamedOperation1Factory(
                                         gf.constantIncrementTime(startTime, Duration.fromMilli(10)),
                                         gf.constantIncrementTime(startTime.minus(Duration.fromMilli(1)), Duration.fromMilli(0)),
                                         gf.constant("name")
@@ -657,14 +657,14 @@ public class WorkloadValidatorTest {
 
         List<Iterator<Operation<?>>> operations = Lists.<Iterator<Operation<?>>>newArrayList(
                 gf.limit(
-                        new TimedNameOperation1Factory(
+                        new TimedNamedOperation1Factory(
                                 gf.constantIncrementTime(startTime, Duration.fromMilli(10)),
                                 gf.constantIncrementTime(startTime.minus(Duration.fromMilli(1)), Duration.fromMilli(0)),
                                 gf.constant("name")),
                         operationCount
                 ),
                 gf.limit(
-                        new TimedNameOperation1Factory(
+                        new TimedNamedOperation1Factory(
                                 gf.constantIncrementTime(startTime, Duration.fromMilli(10)),
                                 gf.constantIncrementTime(startTime.minus(Duration.fromMilli(1)), Duration.fromMilli(0)),
                                 gf.constant("name")),
@@ -693,7 +693,7 @@ public class WorkloadValidatorTest {
         List<Iterator<Operation<?>>> operations = Lists.<Iterator<Operation<?>>>newArrayList(
                 Iterators.concat(
                         gf.limit(
-                                new TimedNameOperation1Factory(
+                                new TimedNamedOperation1Factory(
                                         gf.constantIncrementTime(startTime, Duration.fromMilli(10)),
                                         gf.constantIncrementTime(startTime.minus(Duration.fromMilli(1)), Duration.fromMilli(0)),
                                         gf.constant("name")),
@@ -729,7 +729,7 @@ public class WorkloadValidatorTest {
         List<Iterator<Operation<?>>> operations = Lists.<Iterator<Operation<?>>>newArrayList(
                 Iterators.concat(
                         gf.limit(
-                                new TimedNameOperation1Factory(
+                                new TimedNamedOperation1Factory(
                                         gf.constantIncrementTime(startTime, Duration.fromMilli(10)),
                                         gf.constantIncrementTime(startTime.minus(Duration.fromMilli(1)), Duration.fromMilli(0)),
                                         gf.constant("name")),
@@ -761,7 +761,7 @@ public class WorkloadValidatorTest {
 
         Time slightlyBeforeLastOperationStartTime = Lists.newArrayList(
                 gf.limit(
-                        new TimedNameOperation1Factory(
+                        new TimedNamedOperation1Factory(
                                 gf.constantIncrementTime(startTime, Duration.fromMilli(10)),
                                 gf.constantIncrementTime(startTime.minus(Duration.fromMilli(1)), Duration.fromMilli(0)),
                                 gf.constant("name")),
@@ -772,7 +772,7 @@ public class WorkloadValidatorTest {
         List<Iterator<Operation<?>>> operations = Lists.<Iterator<Operation<?>>>newArrayList(
                 Iterators.concat(
                         gf.limit(
-                                new TimedNameOperation1Factory(
+                                new TimedNamedOperation1Factory(
                                         gf.constantIncrementTime(startTime, Duration.fromMilli(10)),
                                         gf.constantIncrementTime(startTime.minus(Duration.fromMilli(1)), Duration.fromMilli(0)),
                                         gf.constant("name")),
@@ -782,7 +782,7 @@ public class WorkloadValidatorTest {
                 ),
                 Iterators.concat(
                         gf.limit(
-                                new TimedNameOperation1Factory(
+                                new TimedNamedOperation1Factory(
                                         gf.constantIncrementTime(startTime, Duration.fromMilli(10)),
                                         gf.constantIncrementTime(startTime.minus(Duration.fromMilli(1)), Duration.fromMilli(0)),
                                         gf.constant("name")),
@@ -815,14 +815,14 @@ public class WorkloadValidatorTest {
 
         List<Iterator<Operation<?>>> operations = Lists.<Iterator<Operation<?>>>newArrayList(
                 gf.limit(
-                        new TimedNameOperation1Factory(
+                        new TimedNamedOperation1Factory(
                                 gf.constantIncrementTime(startTime, Duration.fromMilli(10)),
                                 gf.constantIncrementTime(startTime.minus(Duration.fromMilli(1)), Duration.fromMilli(0)),
                                 gf.constant("name")),
                         operationCount
                 ),
                 gf.limit(
-                        new TimedNameOperation1Factory(
+                        new TimedNamedOperation1Factory(
                                 gf.constantIncrementTime(startTime, Duration.fromMilli(10)),
                                 gf.constantIncrementTime(startTime.minus(Duration.fromMilli(1)), Duration.fromMilli(0)),
                                 gf.constant("name")),

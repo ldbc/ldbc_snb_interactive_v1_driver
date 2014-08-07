@@ -11,7 +11,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-// TODO test
 class OperationsToOperationHandlersTransformer {
     private final TimeSource TIME_SOURCE;
     private final Db db;
@@ -46,21 +45,21 @@ class OperationsToOperationHandlersTransformer {
         this.globalCompletionTimeReader = completionTimeService;
     }
 
-    private LocalCompletionTimeWriter getOrCreateBlockingLocalCompletionTimeWriter() throws CompletionTimeException {
+    private LocalCompletionTimeWriter getOrCreateLocalCompletionTimeWriterForBlockingExecutor() throws CompletionTimeException {
         if (null == blockingLocalCompletionTimeWriter) {
             blockingLocalCompletionTimeWriter = completionTimeService.newLocalCompletionTimeWriter();
         }
         return blockingLocalCompletionTimeWriter;
     }
 
-    private LocalCompletionTimeWriter getOrCreateAsynchronousLocalCompletionTimeWriter() throws CompletionTimeException {
+    private LocalCompletionTimeWriter getOrCreateLocalCompletionTimeWriterForAsynchronousExecutor() throws CompletionTimeException {
         if (null == asynchronousLocalCompletionTimeWriter) {
             asynchronousLocalCompletionTimeWriter = completionTimeService.newLocalCompletionTimeWriter();
         }
         return asynchronousLocalCompletionTimeWriter;
     }
 
-    private LocalCompletionTimeWriter getOrCreateWindowedLocalCompletionTimeWriter() throws CompletionTimeException {
+    private LocalCompletionTimeWriter getOrCreateLocalCompletionTimeWriterForWindowedExecutor() throws CompletionTimeException {
         if (null == windowedLocalCompletionTimeWriter) {
             windowedLocalCompletionTimeWriter = completionTimeService.newLocalCompletionTimeWriter();
         }
@@ -83,13 +82,13 @@ class OperationsToOperationHandlersTransformer {
                 if (operationDependencyMode.equals(OperationClassification.DependencyMode.READ_WRITE)) {
                     switch (operationSchedulingMode) {
                         case INDIVIDUAL_ASYNC:
-                            getOrCreateAsynchronousLocalCompletionTimeWriter();
+                            getOrCreateLocalCompletionTimeWriterForAsynchronousExecutor();
                             break;
                         case INDIVIDUAL_BLOCKING:
-                            getOrCreateBlockingLocalCompletionTimeWriter();
+                            getOrCreateLocalCompletionTimeWriterForBlockingExecutor();
                             break;
                         case WINDOWED:
-                            getOrCreateWindowedLocalCompletionTimeWriter();
+                            getOrCreateLocalCompletionTimeWriterForWindowedExecutor();
                             break;
                         default:
                             throw new WorkloadException(String.format("Unrecognized Scheduling Mode: %s", operationClassifications.get(operation.getClass()).dependencyMode()));
@@ -100,7 +99,7 @@ class OperationsToOperationHandlersTransformer {
             }
         }
 
-        boolean atLeastOneLocalCompletionWriterHasBeenCreated =
+        boolean atLeastOneLocalCompletionTimeWriterHasBeenCreated =
                 asynchronousLocalCompletionTimeWriter != null || blockingLocalCompletionTimeWriter != null || windowedLocalCompletionTimeWriter != null;
 
         for (Operation<?> operation : operations) {
@@ -121,13 +120,13 @@ class OperationsToOperationHandlersTransformer {
                 if (operationDependencyMode.equals(OperationClassification.DependencyMode.READ_WRITE)) {
                     switch (operationSchedulingMode) {
                         case INDIVIDUAL_ASYNC:
-                            localCompletionTimeWriter = getOrCreateAsynchronousLocalCompletionTimeWriter();
+                            localCompletionTimeWriter = getOrCreateLocalCompletionTimeWriterForAsynchronousExecutor();
                             break;
                         case INDIVIDUAL_BLOCKING:
-                            localCompletionTimeWriter = getOrCreateBlockingLocalCompletionTimeWriter();
+                            localCompletionTimeWriter = getOrCreateLocalCompletionTimeWriterForBlockingExecutor();
                             break;
                         case WINDOWED:
-                            localCompletionTimeWriter = getOrCreateWindowedLocalCompletionTimeWriter();
+                            localCompletionTimeWriter = getOrCreateLocalCompletionTimeWriterForWindowedExecutor();
                             break;
                         default:
                             throw new WorkloadException(String.format("Unrecognized Scheduling Mode: %s", operationClassifications.get(operation.getClass()).dependencyMode()));
@@ -143,13 +142,13 @@ class OperationsToOperationHandlersTransformer {
                 switch (operationDependencyMode) {
                     case READ_WRITE:
                         operationHandler.init(TIME_SOURCE, spinner, operation, localCompletionTimeWriter, errorReporter, metricsService);
-                        if (atLeastOneLocalCompletionWriterHasBeenCreated) {
+                        if (atLeastOneLocalCompletionTimeWriterHasBeenCreated) {
                             operationHandler.addCheck(new GctDependencyCheck(globalCompletionTimeReader, operation, errorReporter));
                         }
                         break;
                     case READ:
                         operationHandler.init(TIME_SOURCE, spinner, operation, localCompletionTimeWriter, errorReporter, metricsService);
-                        if (atLeastOneLocalCompletionWriterHasBeenCreated) {
+                        if (atLeastOneLocalCompletionTimeWriterHasBeenCreated) {
                             operationHandler.addCheck(new GctDependencyCheck(globalCompletionTimeReader, operation, errorReporter));
                         }
                         break;

@@ -5,14 +5,14 @@ import com.ldbc.driver.temporal.Time;
 
 import java.util.Iterator;
 
-public class TimedNameOperation3Factory implements Iterator<Operation<?>> {
+public class TimedNamedOperation3Factory implements Iterator<Operation<?>> {
     private final Iterator<Time> startTimes;
     private final Iterator<Time> dependencyTimes;
     private final Iterator<String> names;
 
-    public TimedNameOperation3Factory(Iterator<Time> startTimes,
-                                      Iterator<Time> dependencyTimes,
-                                      Iterator<String> names) {
+    public TimedNamedOperation3Factory(Iterator<Time> startTimes,
+                                       Iterator<Time> dependencyTimes,
+                                       Iterator<String> names) {
         this.startTimes = startTimes;
         this.dependencyTimes = dependencyTimes;
         this.names = names;

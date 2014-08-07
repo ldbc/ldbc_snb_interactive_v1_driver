@@ -12,7 +12,7 @@ import com.ldbc.driver.temporal.Time;
 import com.ldbc.driver.temporal.TimeSource;
 import com.ldbc.driver.testutils.TestUtils;
 import com.ldbc.driver.util.RandomDataGeneratorFactory;
-import com.ldbc.driver.workloads.dummy.TimedNameOperation1Factory;
+import com.ldbc.driver.workloads.dummy.TimedNamedOperation1Factory;
 import com.ldbc.driver.workloads.dummy.TimedNamedOperation1;
 import com.ldbc.driver.workloads.dummy.TimedNamedOperation2;
 import com.ldbc.driver.workloads.ldbc.snb.interactive.LdbcSnbInteractiveWorkload;
@@ -43,7 +43,7 @@ public class TimeMappingOperationGeneratorTest {
     public void shouldOffset() {
         // Given
         Iterator<Operation<?>> operations = gf.limit(
-                new TimedNameOperation1Factory(
+                new TimedNamedOperation1Factory(
                         // start times
                         gf.constantIncrementTime(Time.fromMilli(0), Duration.fromMilli(100)),
                         // dependency times
@@ -112,7 +112,7 @@ public class TimeMappingOperationGeneratorTest {
     public void shouldOffsetAndCompress() {
         // Given
         Iterator<Operation<?>> operations = gf.limit(
-                new TimedNameOperation1Factory(
+                new TimedNamedOperation1Factory(
                         // start times
                         gf.constantIncrementTime(Time.fromMilli(1000), Duration.fromMilli(100)),
                         // dependency times
@@ -183,7 +183,7 @@ public class TimeMappingOperationGeneratorTest {
     public void shouldOffsetAndCompressWhenTimesAreVeryCloseTogetherWithoutRoundingErrors() {
         // Given
         Iterator<Operation<?>> operations = gf.limit(
-                new TimedNameOperation1Factory(
+                new TimedNamedOperation1Factory(
                         // start times
                         gf.constantIncrementTime(Time.fromNano(0), Duration.fromNano(1)),
                         // dependency times

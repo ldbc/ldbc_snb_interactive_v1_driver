@@ -39,6 +39,7 @@ public class DummyDb extends Db {
         registerOperationHandler(NothingOperation.class, NothingOperationHandler.class);
         registerOperationHandler(TimedNamedOperation1.class, TimedNamedOperation1Handler.class);
         registerOperationHandler(TimedNamedOperation2.class, TimedNamedOperation2Handler.class);
+        registerOperationHandler(TimedNamedOperation3.class, TimedNamedOperation3Handler.class);
         boolean allowedDefault = (params.containsKey(ALLOWED_DEFAULT_ARG))
                 ? Boolean.parseBoolean(params.get(ALLOWED_DEFAULT_ARG))
                 : ALLOWED_DEFAULT;
@@ -75,6 +76,17 @@ public class DummyDb extends Db {
     public static class TimedNamedOperation2Handler extends OperationHandler<TimedNamedOperation2> {
         @Override
         protected OperationResultReport executeOperation(TimedNamedOperation2 operation) throws DbException {
+            AllowedConnectionState connectionState = (AllowedConnectionState) dbConnectionState();
+            while (false == connectionState.isAllowed(operation.name())) {
+                // wait to be a allowed to execute
+            }
+            return operation.buildResult(0, new DummyResult());
+        }
+    }
+
+    public static class TimedNamedOperation3Handler extends OperationHandler<TimedNamedOperation3> {
+        @Override
+        protected OperationResultReport executeOperation(TimedNamedOperation3 operation) throws DbException {
             AllowedConnectionState connectionState = (AllowedConnectionState) dbConnectionState();
             while (false == connectionState.isAllowed(operation.name())) {
                 // wait to be a allowed to execute

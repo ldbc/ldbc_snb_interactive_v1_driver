@@ -6,6 +6,7 @@ import com.ldbc.driver.temporal.Duration;
 import com.ldbc.driver.temporal.Time;
 import com.ldbc.driver.temporal.TimeSource;
 
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -38,8 +39,17 @@ public class CompletionTimeServiceAssistant {
         return false;
     }
 
+    public SynchronizedConcurrentCompletionTimeService newSynchronizedConcurrentCompletionTimeServiceFromPeerIds() throws CompletionTimeException {
+        return new SynchronizedConcurrentCompletionTimeService(new HashSet<String>());
+    }
+
     public SynchronizedConcurrentCompletionTimeService newSynchronizedConcurrentCompletionTimeServiceFromPeerIds(Set<String> peerIds) throws CompletionTimeException {
         return new SynchronizedConcurrentCompletionTimeService(peerIds);
+    }
+
+    public ThreadedQueuedConcurrentCompletionTimeService newThreadedQueuedConcurrentCompletionTimeServiceFromPeerIds(TimeSource timeSource,
+                                                                                                                     ConcurrentErrorReporter errorReporter) throws CompletionTimeException {
+        return new ThreadedQueuedConcurrentCompletionTimeService(timeSource, new HashSet<String>(), errorReporter);
     }
 
     public ThreadedQueuedConcurrentCompletionTimeService newThreadedQueuedConcurrentCompletionTimeServiceFromPeerIds(TimeSource timeSource,

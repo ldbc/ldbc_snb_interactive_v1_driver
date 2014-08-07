@@ -54,7 +54,7 @@ public class WorkloadStatisticsCalculatorTest {
         long operationCount = 1000;
         Duration operationInterleave = Duration.fromMilli(100);
 
-        Iterator<Operation<?>> operationStreamWithoutTime = gf.limit(new TimedNameOperation1Factory(
+        Iterator<Operation<?>> operationStreamWithoutTime = gf.limit(new TimedNamedOperation1Factory(
                         gf.constantIncrementTime(Time.fromMilli(1), Duration.fromMilli(1)),
                         gf.constantIncrementTime(Time.fromMilli(0), Duration.fromMilli(1)),
                         gf.constant("name1")
@@ -147,19 +147,19 @@ public class WorkloadStatisticsCalculatorTest {
         Time operation3StartTime = Time.fromMilli(100);
         Duration operation3Interleave = Duration.fromMilli(10000);
 
-        Iterator<Operation<?>> operation1Stream = gf.limit(new TimedNameOperation1Factory(
+        Iterator<Operation<?>> operation1Stream = gf.limit(new TimedNamedOperation1Factory(
                         gf.constantIncrementTime(operation1StartTime, operation1Interleave),
                         gf.constantIncrementTime(Time.fromMilli(0), Duration.fromMilli(0)),
                         gf.constant("name1")
                 ),
                 operation1Count);
-        Iterator<Operation<?>> operation2Stream = gf.limit(new TimedNameOperation2Factory(
+        Iterator<Operation<?>> operation2Stream = gf.limit(new TimedNamedOperation2Factory(
                         gf.constantIncrementTime(operation2StartTime, operation2Interleave),
                         gf.constantIncrementTime(Time.fromMilli(0), operation2Interleave),
                         gf.constant("name2")
                 ),
                 operation2Count);
-        Iterator<Operation<?>> operation3Stream = gf.limit(new TimedNameOperation3Factory(
+        Iterator<Operation<?>> operation3Stream = gf.limit(new TimedNamedOperation3Factory(
                         gf.constantIncrementTime(operation3StartTime, operation3Interleave),
                         gf.constantIncrementTime(Time.fromMilli(90), operation3Interleave),
                         gf.constant("name3")
