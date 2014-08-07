@@ -1,4 +1,4 @@
-package com.ldbc.driver.poolable_test;
+package com.ldbc.driver.stormpot_test;
 
 import com.ldbc.driver.DbException;
 import com.ldbc.driver.Operation;

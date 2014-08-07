@@ -1,7 +1,7 @@
 package com.ldbc.driver.util;
 
 import com.ldbc.driver.*;
-import com.ldbc.driver.poolable_test.PoolableOperationHandlerManager;
+import com.ldbc.driver.stormpot_test.PoolableOperationHandlerManager;
 
 import java.lang.reflect.Constructor;
 

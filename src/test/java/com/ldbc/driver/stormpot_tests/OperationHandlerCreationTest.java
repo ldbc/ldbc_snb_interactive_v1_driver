@@ -1,10 +1,10 @@
-package com.ldbc.driver.runtime.stormpot_tests;
+package com.ldbc.driver.stormpot_tests;
 
 import com.ldbc.driver.DbException;
 import com.ldbc.driver.OperationException;
 import com.ldbc.driver.OperationHandler;
 import com.ldbc.driver.OperationResultReport;
-import com.ldbc.driver.poolable_test.PoolableOperationHandlerManager;
+import com.ldbc.driver.stormpot_test.PoolableOperationHandlerManager;
 import com.ldbc.driver.runtime.ConcurrentErrorReporter;
 import com.ldbc.driver.runtime.coordination.LocalCompletionTimeWriter;
 import com.ldbc.driver.runtime.metrics.ConcurrentMetricsService;
@@ -17,7 +17,6 @@ import com.ldbc.driver.temporal.SystemTimeSource;
 import com.ldbc.driver.temporal.Time;
 import com.ldbc.driver.temporal.TimeSource;
 import com.ldbc.driver.util.ClassLoaderHelper;
-import com.ldbc.driver.util.Function0;
 import com.ldbc.driver.workloads.dummy.TimedNamedOperation1;
 import org.junit.Ignore;
 import org.junit.Test;
