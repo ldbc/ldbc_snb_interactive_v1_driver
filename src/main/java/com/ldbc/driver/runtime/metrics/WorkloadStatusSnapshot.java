@@ -19,7 +19,7 @@ public class WorkloadStatusSnapshot {
 
     @Override
     public String toString() {
-        DecimalFormat throughputFormat = new DecimalFormat("#.00");
+        DecimalFormat throughputFormat = new DecimalFormat("0.00");
         return String.format("Runtime [%s], Operations [%s], Since Last Measurement [%s], Throughput (op/sec) [%s]",
                 (null == runDuration) ? "--" : runDuration,
                 operationCount,

@@ -1,7 +1,12 @@
 package com.ldbc.driver.runtime;
 
+import com.google.common.base.Predicate;
+import com.google.common.collect.Iterables;
 import com.ldbc.driver.*;
+import com.ldbc.driver.runtime.coordination.CompletionTimeException;
 import com.ldbc.driver.runtime.coordination.ConcurrentCompletionTimeService;
+import com.ldbc.driver.runtime.coordination.DummyLocalCompletionTimeWriter;
+import com.ldbc.driver.runtime.coordination.LocalCompletionTimeWriter;
 import com.ldbc.driver.runtime.executor.*;
 import com.ldbc.driver.runtime.metrics.ConcurrentMetricsService;
 import com.ldbc.driver.runtime.scheduling.ErrorReportingTerminatingExecutionDelayPolicy;
@@ -24,22 +29,23 @@ import static com.ldbc.driver.OperationClassification.SchedulingMode;
 
 public class WorkloadRunner {
     public static final Duration EARLY_SPINNER_OFFSET_DURATION = Duration.fromMilli(100);
-    private static final Duration WAIT_DURATION_FOR_OPERATION_HANDLER_EXECUTOR_TO_SHUTDOWN = Duration.fromSeconds(5);
     public static final long RUNNER_POLLING_INTERVAL_AS_MILLI = Duration.fromMilli(100).asMilli();
+    private static final Duration WAIT_DURATION_FOR_OPERATION_HANDLER_EXECUTOR_TO_SHUTDOWN = Duration.fromSeconds(5);
+    private static final LocalCompletionTimeWriter DUMMY_LOCAL_COMPLETION_TIME_WRITER = new DummyLocalCompletionTimeWriter();
 
     private final TimeSource TIME_SOURCE;
 
     private final Spinner exactSpinner;
-    private final Spinner earlySpinner;
+    private final Spinner slightlyEarlySpinner;
 
     // TODO make service and inject into workload runner. this could report to coordinator OR a local console printer, for example
     private WorkloadStatusThread workloadStatusThread;
 
     private final ConcurrentErrorReporter errorReporter;
 
-    private final OperationHandlerExecutor windowedThreadPool;
-    private final OperationHandlerExecutor blockingThreadPool;
-    private final OperationHandlerExecutor asynchronousThreadPool;
+    private final OperationHandlerExecutor threadPoolForWindowed;
+    private final OperationHandlerExecutor threadPoolForBlocking;
+    private final OperationHandlerExecutor threadPoolForAsynchronous;
 
     private final PreciseIndividualAsyncOperationStreamExecutorService preciseIndividualAsyncOperationStreamExecutorService;
     private final PreciseIndividualBlockingOperationStreamExecutorService preciseIndividualBlockingOperationStreamExecutorService;
@@ -50,10 +56,10 @@ public class WorkloadRunner {
     public WorkloadRunner(TimeSource timeSource,
                           Db db,
                           Iterator<Operation<?>> operations,
-                          Map<Class<? extends Operation>, OperationClassification> operationClassifications,
+                          final Map<Class<? extends Operation>, OperationClassification> operationClassifications,
                           ConcurrentMetricsService metricsService,
                           ConcurrentErrorReporter errorReporter,
-                          ConcurrentCompletionTimeService concurrentCompletionTimeService,
+                          ConcurrentCompletionTimeService completionTimeService,
                           int threadCount,
                           Duration statusDisplayInterval,
                           Time workloadStartTime,
@@ -73,7 +79,8 @@ public class WorkloadRunner {
         // TODO for the spinner sent to Window scheduler allow delay to reach to the end of window?
 
         this.exactSpinner = new Spinner(TIME_SOURCE, spinnerSleepDuration, executionDelayPolicy);
-        this.earlySpinner = new Spinner(TIME_SOURCE, spinnerSleepDuration, executionDelayPolicy, earlySpinnerOffsetDuration);
+        Duration earlySpinnerSleepDuration = Duration.fromMilli(earlySpinnerOffsetDuration.asMilli() / 2);
+        this.slightlyEarlySpinner = new Spinner(TIME_SOURCE, earlySpinnerSleepDuration, executionDelayPolicy, earlySpinnerOffsetDuration);
         // TODO make this a configuration parameter?
         boolean detailedStatus = true;
         if (statusDisplayInterval.asSeconds() > 0)
@@ -81,7 +88,7 @@ public class WorkloadRunner {
                     statusDisplayInterval,
                     metricsService,
                     errorReporter,
-                    concurrentCompletionTimeService,
+                    completionTimeService,
                     detailedStatus);
         List<Operation<?>> windowedOperations;
         List<Operation<?>> blockingOperations;
@@ -101,34 +108,82 @@ public class WorkloadRunner {
                     e);
         }
 
-        OperationsToOperationHandlersTransformer operationsToOperationHandlersTransformer = new OperationsToOperationHandlersTransformer(
-                TIME_SOURCE,
-                db,
-                exactSpinner,
-                concurrentCompletionTimeService,
-                errorReporter,
-                metricsService,
-                operationClassifications);
+        Predicate<Operation<?>> isReadWriteOperation = new Predicate<Operation<?>>() {
+            @Override
+            public boolean apply(Operation<?> operation) {
+                if (operationClassifications.containsKey(operation.getClass()))
+                    return operationClassifications.get(operation.getClass()).dependencyMode().equals(OperationClassification.DependencyMode.READ_WRITE);
+                else
+                    return false;
+            }
+        };
 
-        List<OperationHandler<?>> windowedHandlers = operationsToOperationHandlersTransformer.transform(windowedOperations);
-        List<OperationHandler<?>> blockingHandlers = operationsToOperationHandlersTransformer.transform(blockingOperations);
-        List<OperationHandler<?>> asynchronousHandlers = operationsToOperationHandlersTransformer.transform(asynchronousOperations);
+        // only create a local completion time writer for an executor if it contains at least one READ_WRITE operation
+        // otherwise it will cause completion time to stall
+        LocalCompletionTimeWriter localCompletionTimeWriterForAsynchronous;
+        LocalCompletionTimeWriter localCompletionTimeWriterForBlocking;
+        LocalCompletionTimeWriter localCompletionTimeWriterForWindowed;
+        try {
+            localCompletionTimeWriterForAsynchronous = (Iterables.any(asynchronousOperations, isReadWriteOperation))
+                    ? completionTimeService.newLocalCompletionTimeWriter()
+                    : DUMMY_LOCAL_COMPLETION_TIME_WRITER;
+            localCompletionTimeWriterForBlocking = (Iterables.any(blockingOperations, isReadWriteOperation))
+                    ? completionTimeService.newLocalCompletionTimeWriter()
+                    : DUMMY_LOCAL_COMPLETION_TIME_WRITER;
+            localCompletionTimeWriterForWindowed = (Iterables.any(windowedOperations, isReadWriteOperation))
+                    ? completionTimeService.newLocalCompletionTimeWriter()
+                    : DUMMY_LOCAL_COMPLETION_TIME_WRITER;
+        } catch (CompletionTimeException e) {
+            throw new WorkloadException("Error while attempting to create local completion time writer", e);
+        }
 
         // Thread pools
         // TODO get thread counts from config, or in more intelligent manner
         // TODO move thread pool creation into executor services so workload runner does not have to know about them
         // TODO calculate thread pool sizes
-        this.windowedThreadPool = new ThreadPoolOperationHandlerExecutor(threadCount);
-        this.blockingThreadPool = new ThreadPoolOperationHandlerExecutor(2);
-        this.asynchronousThreadPool = new ThreadPoolOperationHandlerExecutor(threadCount);
+        this.threadPoolForWindowed = new ThreadPoolOperationHandlerExecutor(threadCount);
+        this.threadPoolForBlocking = new ThreadPoolOperationHandlerExecutor(2);
+        this.threadPoolForAsynchronous = new ThreadPoolOperationHandlerExecutor(threadCount);
 
         // Executors
         this.preciseIndividualAsyncOperationStreamExecutorService = new PreciseIndividualAsyncOperationStreamExecutorService(
-                TIME_SOURCE, errorReporter, asynchronousHandlers.iterator(), earlySpinner, asynchronousThreadPool);
+                TIME_SOURCE,
+                errorReporter,
+                asynchronousOperations.iterator(),
+                exactSpinner,
+                slightlyEarlySpinner,
+                threadPoolForAsynchronous,
+                operationClassifications,
+                db,
+                localCompletionTimeWriterForAsynchronous,
+                completionTimeService,
+                metricsService);
         this.preciseIndividualBlockingOperationStreamExecutorService = new PreciseIndividualBlockingOperationStreamExecutorService(
-                TIME_SOURCE, errorReporter, blockingHandlers.iterator(), earlySpinner, blockingThreadPool);
+                TIME_SOURCE,
+                errorReporter,
+                blockingOperations.iterator(),
+                exactSpinner,
+                slightlyEarlySpinner,
+                threadPoolForBlocking,
+                operationClassifications,
+                db,
+                localCompletionTimeWriterForBlocking,
+                completionTimeService,
+                metricsService);
         this.uniformWindowedOperationStreamExecutorService = new UniformWindowedOperationStreamExecutorService(
-                TIME_SOURCE, errorReporter, windowedHandlers.iterator(), windowedThreadPool, earlySpinner, workloadStartTime, executionWindowDuration);
+                TIME_SOURCE,
+                errorReporter,
+                windowedOperations.iterator(),
+                threadPoolForWindowed,
+                exactSpinner,
+                slightlyEarlySpinner,
+                workloadStartTime,
+                executionWindowDuration,
+                db,
+                operationClassifications,
+                localCompletionTimeWriterForWindowed,
+                completionTimeService,
+                metricsService);
     }
 
     // TODO executeWorkload should return a result (e.g., Success/Fail, and ErrorType if Fail)
@@ -208,14 +263,14 @@ public class WorkloadRunner {
                 // if forced shutdown (error) some handlers likely still running,
                 // but for now it does not matter as the process will terminate anyway
                 // (though when running test suite it can result in many running threads, making the tests much slower)
-                asynchronousThreadPool.shutdown(Duration.fromMilli(0));
-                blockingThreadPool.shutdown(Duration.fromMilli(0));
-                windowedThreadPool.shutdown(Duration.fromMilli(0));
+                threadPoolForAsynchronous.shutdown(Duration.fromMilli(0));
+                threadPoolForBlocking.shutdown(Duration.fromMilli(0));
+                threadPoolForWindowed.shutdown(Duration.fromMilli(0));
             } else {
                 // if normal shutdown all executors have completed by this stage
-                asynchronousThreadPool.shutdown(WAIT_DURATION_FOR_OPERATION_HANDLER_EXECUTOR_TO_SHUTDOWN);
-                blockingThreadPool.shutdown(WAIT_DURATION_FOR_OPERATION_HANDLER_EXECUTOR_TO_SHUTDOWN);
-                windowedThreadPool.shutdown(WAIT_DURATION_FOR_OPERATION_HANDLER_EXECUTOR_TO_SHUTDOWN);
+                threadPoolForAsynchronous.shutdown(WAIT_DURATION_FOR_OPERATION_HANDLER_EXECUTOR_TO_SHUTDOWN);
+                threadPoolForBlocking.shutdown(WAIT_DURATION_FOR_OPERATION_HANDLER_EXECUTOR_TO_SHUTDOWN);
+                threadPoolForWindowed.shutdown(WAIT_DURATION_FOR_OPERATION_HANDLER_EXECUTOR_TO_SHUTDOWN);
             }
         } catch (OperationHandlerExecutorException e) {
             errMsg += String.format("Encountered error while shutting down\n%s",

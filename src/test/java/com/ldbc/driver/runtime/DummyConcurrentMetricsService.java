@@ -6,11 +6,19 @@ import com.ldbc.driver.runtime.metrics.MetricsCollectionException;
 import com.ldbc.driver.runtime.metrics.WorkloadResultsSnapshot;
 import com.ldbc.driver.runtime.metrics.WorkloadStatusSnapshot;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class DummyConcurrentMetricsService implements ConcurrentMetricsService {
+    private List<OperationResultReport> operationResultReports = new ArrayList<>();
 
     @Override
     public void submitOperationResult(OperationResultReport operationResultReport) throws MetricsCollectionException {
+        operationResultReports.add(operationResultReport);
+    }
 
+    public List<OperationResultReport> operationResultReports() {
+        return operationResultReports;
     }
 
     @Override

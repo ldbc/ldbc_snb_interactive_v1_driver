@@ -2,6 +2,7 @@ package com.ldbc.driver.generator;
 
 import com.google.common.base.Predicate;
 import com.google.common.collect.Lists;
+import com.ldbc.driver.Operation;
 import com.ldbc.driver.OperationException;
 import com.ldbc.driver.OperationHandler;
 import com.ldbc.driver.runtime.ConcurrentErrorReporter;
@@ -25,6 +26,94 @@ import static org.junit.Assert.assertThat;
 
 public class WindowGeneratorTest {
     private TimeSource TIME_SOURCE = new SystemTimeSource();
+
+    /**
+     * Test With Time Range Using OperationRangeWindows
+     */
+
+    @Test
+    public void shouldReturnNothingWhenOperationsIsEmptyAndReturnStrategy() {
+        // Given
+        Operation[] operations = new Operation[]{};
+        Iterator<Operation<?>> identityGenerator = new IdentityGenerator<Operation<?>>(operations);
+        final Duration windowDuration = Duration.fromSeconds(5);
+
+        // When
+        Iterator<Window<Operation<?>, ?>> windows = new Generator<Window<Operation<?>, ?>>() {
+            private Time windowStartTime = Time.fromSeconds(0);
+
+            @Override
+            protected Window<Operation<?>, ?> doNext() throws GeneratorException {
+                Window<Operation<?>, ?> window = new Window.OperationTimeRangeWindow(windowStartTime, windowDuration);
+                windowStartTime = windowStartTime.plus(windowDuration);
+                return window;
+            }
+        };
+        Iterator<Window<Operation<?>, ?>> windowGenerator = new WindowGenerator<>(
+                identityGenerator,
+                windows,
+                WindowGenerator.PartialWindowStrategy.RETURN);
+
+        // Then
+        assertThat(windowGenerator.hasNext(), is(false));
+    }
+
+    @Test
+    public void shouldReturnAllOperationWindows() throws OperationException {
+        // Given
+        Time[] times = new Time[]{
+                Time.fromSeconds(1), Time.fromSeconds(3),
+                Time.fromSeconds(5), Time.fromSeconds(6),
+                Time.fromSeconds(10),
+                // nothing in this window 15-19
+                Time.fromSeconds(20),
+        };
+        NothingOperation[] operations = new NothingOperation[times.length];
+        for (int i = 0; i < operations.length; i++) {
+            NothingOperation operation = new NothingOperation();
+            operation.setScheduledStartTime(times[i]);
+            operations[i] = operation;
+        }
+
+        Iterator<Operation<?>> identityGenerator = new IdentityGenerator<Operation<?>>(operations);
+        final Duration windowDuration = Duration.fromSeconds(5);
+
+        // When
+        Iterator<Window<Operation<?>, List<Operation<?>>>> windows = new Generator<Window<Operation<?>, List<Operation<?>>>>() {
+            private Time windowStartTime = Time.fromSeconds(0);
+
+            @Override
+            protected Window<Operation<?>, List<Operation<?>>> doNext() throws GeneratorException {
+                Window<Operation<?>, List<Operation<?>>> window = new Window.OperationTimeRangeWindow(windowStartTime, windowDuration);
+                windowStartTime = windowStartTime.plus(windowDuration);
+                return window;
+            }
+        };
+        Iterator<Window<Operation<?>, List<Operation<?>>>> windowGenerator = new WindowGenerator<>(
+                identityGenerator,
+                windows,
+                WindowGenerator.PartialWindowStrategy.RETURN);
+
+        // Then
+        List<Operation<?>> nextOperationWindow;
+        nextOperationWindow = windowGenerator.next().contents();
+        assertThat(nextOperationWindow.size(), is(2));
+        assertThat(nextOperationWindow.get(0).scheduledStartTime(), equalTo(Time.fromSeconds(1)));
+        assertThat(nextOperationWindow.get(1).scheduledStartTime(), equalTo(Time.fromSeconds(3)));
+        nextOperationWindow = windowGenerator.next().contents();
+        assertThat(nextOperationWindow.size(), is(2));
+        assertThat(nextOperationWindow.get(0).scheduledStartTime(), equalTo(Time.fromSeconds(5)));
+        assertThat(nextOperationWindow.get(1).scheduledStartTime(), equalTo(Time.fromSeconds(6)));
+        nextOperationWindow = windowGenerator.next().contents();
+        assertThat(nextOperationWindow.size(), is(1));
+        assertThat(nextOperationWindow.get(0).scheduledStartTime(), equalTo(Time.fromSeconds(10)));
+        nextOperationWindow = windowGenerator.next().contents();
+        assertThat(nextOperationWindow.size(), is(0));
+        nextOperationWindow = windowGenerator.next().contents();
+        assertThat(nextOperationWindow.size(), is(1));
+        assertThat(nextOperationWindow.get(0).scheduledStartTime(), equalTo(Time.fromSeconds(20)));
+        assertThat(windowGenerator.hasNext(), is(false));
+    }
 
     /**
      * Test With Time Range Using OperationHandlerRangeWindows
@@ -163,7 +252,7 @@ public class WindowGeneratorTest {
                 Time.fromSeconds(1), Time.fromSeconds(3),
                 Time.fromSeconds(5), Time.fromSeconds(6),
                 Time.fromSeconds(10)};
-        Iterator<Time> identityGenerator = new IdentityGenerator<Time>(times);
+        Iterator<Time> identityGenerator = new IdentityGenerator<>(times);
         final Duration windowDuration = Duration.fromSeconds(5);
 
         // When
@@ -184,7 +273,7 @@ public class WindowGeneratorTest {
                 return new Window.PredicateWindow<>(timeInRange);
             }
         };
-        Iterator<Window<Time, List<Time>>> windowGenerator = new WindowGenerator<Time, Window<Time, List<Time>>>(
+        Iterator<Window<Time, List<Time>>> windowGenerator = new WindowGenerator<>(
                 identityGenerator,
                 windows,
                 WindowGenerator.PartialWindowStrategy.RETURN);
@@ -205,7 +294,7 @@ public class WindowGeneratorTest {
     public void shouldReturnNothingWhenThingsIsEmptyAndReturnStrategy() {
         // Given
         Integer[] numbers = new Integer[]{};
-        Iterator<Integer> identityGenerator = new IdentityGenerator<Integer>(numbers);
+        Iterator<Integer> identityGenerator = new IdentityGenerator<>(numbers);
 
         // When
         Iterator<Window<Integer, ?>> windows = new Generator<Window<Integer, ?>>() {
@@ -227,7 +316,7 @@ public class WindowGeneratorTest {
     public void shouldReturnNothingWhenThingsIsEmptyAndDiscardStrategy() {
         // Given
         Integer[] numbers = new Integer[]{};
-        Iterator<Integer> identityGenerator = new IdentityGenerator<Integer>(numbers);
+        Iterator<Integer> identityGenerator = new IdentityGenerator<>(numbers);
 
         // When
         Iterator<Window<Integer, ?>> windows = new Generator<Window<Integer, ?>>() {
@@ -249,7 +338,7 @@ public class WindowGeneratorTest {
     public void shouldReturnNothingWhenThingsIsEmptyAndErrorStrategy() {
         // Given
         Integer[] numbers = new Integer[]{};
-        Iterator<Integer> identityGenerator = new IdentityGenerator<Integer>(numbers);
+        Iterator<Integer> identityGenerator = new IdentityGenerator<>(numbers);
 
         // When
         Iterator<Window<Integer, ?>> windows = new Generator<Window<Integer, ?>>() {
@@ -297,7 +386,7 @@ public class WindowGeneratorTest {
     public void shouldReturnAllWindowsIncludingPartialWhenNoPartialExists() {
         // Given
         Integer[] numbers = new Integer[]{1, 2, 3, 4, 5, 6};
-        Iterator<Integer> identityGenerator = new IdentityGenerator<Integer>(numbers);
+        Iterator<Integer> identityGenerator = new IdentityGenerator<>(numbers);
 
         // When
         Iterator<Window<Integer, List<Integer>>> windows = new Generator<Window<Integer, List<Integer>>>() {
@@ -347,16 +436,16 @@ public class WindowGeneratorTest {
     public void shouldReturnAllWindowsExcludingPartialWhenPartialExists() {
         // Given
         Integer[] numbers = new Integer[]{1, 2, 3, 4, 5, 6, 7};
-        Iterator<Integer> identityGenerator = new IdentityGenerator<Integer>(numbers);
+        Iterator<Integer> identityGenerator = new IdentityGenerator<>(numbers);
 
         // When
         Iterator<Window<Integer, List<Integer>>> windows = new Generator<Window<Integer, List<Integer>>>() {
             @Override
             protected Window<Integer, List<Integer>> doNext() throws GeneratorException {
-                return new Window.SizeWindow<Integer>(2);
+                return new Window.SizeWindow<>(2);
             }
         };
-        Iterator<Window<Integer, List<Integer>>> windowGenerator = new WindowGenerator<Integer, Window<Integer, List<Integer>>>(
+        Iterator<Window<Integer, List<Integer>>> windowGenerator = new WindowGenerator<>(
                 identityGenerator,
                 windows,
                 WindowGenerator.PartialWindowStrategy.DISCARD);
@@ -372,16 +461,16 @@ public class WindowGeneratorTest {
     public void shouldReturnAllWindowsThenThrowExceptionIfPartialExistsWhenNoPartialPresent() {
         // Given
         Integer[] numbers = new Integer[]{1, 2, 3, 4, 5, 6};
-        Iterator<Integer> identityGenerator = new IdentityGenerator<Integer>(numbers);
+        Iterator<Integer> identityGenerator = new IdentityGenerator<>(numbers);
 
         // When
         Iterator<Window<Integer, List<Integer>>> windows = new Generator<Window<Integer, List<Integer>>>() {
             @Override
             protected Window<Integer, List<Integer>> doNext() throws GeneratorException {
-                return new Window.SizeWindow<Integer>(2);
+                return new Window.SizeWindow<>(2);
             }
         };
-        Iterator<Window<Integer, List<Integer>>> windowGenerator = new WindowGenerator<Integer, Window<Integer, List<Integer>>>(
+        Iterator<Window<Integer, List<Integer>>> windowGenerator = new WindowGenerator<>(
                 identityGenerator,
                 windows,
                 WindowGenerator.PartialWindowStrategy.ERROR);
@@ -403,16 +492,16 @@ public class WindowGeneratorTest {
     public void shouldReturnAllWindowsThenThrowExceptionIfPartialExistsWhenPartialPresent() {
         // Given
         Integer[] numbers = new Integer[]{1, 2, 3, 4, 5, 6, 7};
-        Iterator<Integer> identityGenerator = new IdentityGenerator<Integer>(numbers);
+        Iterator<Integer> identityGenerator = new IdentityGenerator<>(numbers);
 
         // When
         Iterator<Window<Integer, List<Integer>>> windows = new Generator<Window<Integer, List<Integer>>>() {
             @Override
             protected Window<Integer, List<Integer>> doNext() throws GeneratorException {
-                return new Window.SizeWindow<Integer>(2);
+                return new Window.SizeWindow<>(2);
             }
         };
-        Iterator<Window<Integer, List<Integer>>> windowGenerator = new WindowGenerator<Integer, Window<Integer, List<Integer>>>(
+        Iterator<Window<Integer, List<Integer>>> windowGenerator = new WindowGenerator<>(
                 identityGenerator,
                 windows,
                 WindowGenerator.PartialWindowStrategy.ERROR);
@@ -438,16 +527,16 @@ public class WindowGeneratorTest {
     public void shouldReturnNothingWhenThingsIsEmptyAndReturnStrategyWithSingleItemWindow() {
         // Given
         Integer[] numbers = new Integer[]{};
-        Iterator<Integer> identityGenerator = new IdentityGenerator<Integer>(numbers);
+        Iterator<Integer> identityGenerator = new IdentityGenerator<>(numbers);
 
         // When
         Iterator<Window<Integer, Integer>> windows = new Generator<Window<Integer, Integer>>() {
             @Override
             protected Window<Integer, Integer> doNext() throws GeneratorException {
-                return new Window.SingleItemWindow<Integer>();
+                return new Window.SingleItemWindow<>();
             }
         };
-        Iterator<Window<Integer, Integer>> windowGenerator = new WindowGenerator<Integer, Window<Integer, Integer>>(
+        Iterator<Window<Integer, Integer>> windowGenerator = new WindowGenerator<>(
                 identityGenerator,
                 windows,
                 WindowGenerator.PartialWindowStrategy.RETURN);
@@ -460,16 +549,16 @@ public class WindowGeneratorTest {
     public void shouldReturnNothingWhenThingsIsEmptyAndDiscardStrategyWithSingleItemWindow() {
         // Given
         Integer[] numbers = new Integer[]{};
-        Iterator<Integer> identityGenerator = new IdentityGenerator<Integer>(numbers);
+        Iterator<Integer> identityGenerator = new IdentityGenerator<>(numbers);
 
         // When
         Iterator<Window<Integer, Integer>> windows = new Generator<Window<Integer, Integer>>() {
             @Override
             protected Window<Integer, Integer> doNext() throws GeneratorException {
-                return new Window.SingleItemWindow<Integer>();
+                return new Window.SingleItemWindow<>();
             }
         };
-        Iterator<Window<Integer, Integer>> windowGenerator = new WindowGenerator<Integer, Window<Integer, Integer>>(
+        Iterator<Window<Integer, Integer>> windowGenerator = new WindowGenerator<>(
                 identityGenerator,
                 windows,
                 WindowGenerator.PartialWindowStrategy.DISCARD);
@@ -482,16 +571,16 @@ public class WindowGeneratorTest {
     public void shouldReturnNothingWhenThingsIsEmptyAndErrorStrategyWithSingleItemWindow() {
         // Given
         Integer[] numbers = new Integer[]{};
-        Iterator<Integer> identityGenerator = new IdentityGenerator<Integer>(numbers);
+        Iterator<Integer> identityGenerator = new IdentityGenerator<>(numbers);
 
         // When
         Iterator<Window<Integer, Integer>> windows = new Generator<Window<Integer, Integer>>() {
             @Override
             protected Window<Integer, Integer> doNext() throws GeneratorException {
-                return new Window.SingleItemWindow<Integer>();
+                return new Window.SingleItemWindow<>();
             }
         };
-        Iterator<Window<Integer, Integer>> windowGenerator = new WindowGenerator<Integer, Window<Integer, Integer>>(
+        Iterator<Window<Integer, Integer>> windowGenerator = new WindowGenerator<>(
                 identityGenerator,
                 windows,
                 WindowGenerator.PartialWindowStrategy.ERROR);
@@ -504,16 +593,16 @@ public class WindowGeneratorTest {
     public void shouldReturnAllWindowsIncludingPartialWhenPartialExistsWithSingleItemWindow() {
         // Given
         Integer[] numbers = new Integer[]{1, 2, 3, 4, 5, 6, 7};
-        Iterator<Integer> identityGenerator = new IdentityGenerator<Integer>(numbers);
+        Iterator<Integer> identityGenerator = new IdentityGenerator<>(numbers);
 
         // When
         Iterator<Window<Integer, Integer>> windows = new Generator<Window<Integer, Integer>>() {
             @Override
             protected Window<Integer, Integer> doNext() throws GeneratorException {
-                return new Window.SingleItemWindow<Integer>();
+                return new Window.SingleItemWindow<>();
             }
         };
-        Iterator<Window<Integer, Integer>> windowGenerator = new WindowGenerator<Integer, Window<Integer, Integer>>(
+        Iterator<Window<Integer, Integer>> windowGenerator = new WindowGenerator<>(
                 identityGenerator,
                 windows,
                 WindowGenerator.PartialWindowStrategy.RETURN);
@@ -534,16 +623,16 @@ public class WindowGeneratorTest {
     public void shouldReturnAllWindowsIncludingPartialWhenNoPartialExistsWithSingleItemWindow() {
         // Given
         Integer[] numbers = new Integer[]{1, 2, 3, 4, 5, 6};
-        Iterator<Integer> identityGenerator = new IdentityGenerator<Integer>(numbers);
+        Iterator<Integer> identityGenerator = new IdentityGenerator<>(numbers);
 
         // When
         Iterator<Window<Integer, Integer>> windows = new Generator<Window<Integer, Integer>>() {
             @Override
             protected Window<Integer, Integer> doNext() throws GeneratorException {
-                return new Window.SingleItemWindow<Integer>();
+                return new Window.SingleItemWindow<>();
             }
         };
-        Iterator<Window<Integer, Integer>> windowGenerator = new WindowGenerator<Integer, Window<Integer, Integer>>(
+        Iterator<Window<Integer, Integer>> windowGenerator = new WindowGenerator<>(
                 identityGenerator,
                 windows,
                 WindowGenerator.PartialWindowStrategy.RETURN);
@@ -562,7 +651,7 @@ public class WindowGeneratorTest {
     public void shouldReturnAllWindowsExcludingPartialWhenNoPartialExistsWithSingleItemWindow() {
         // Given
         Integer[] numbers = new Integer[]{1, 2, 3, 4, 5, 6};
-        Iterator<Integer> identityGenerator = new IdentityGenerator<Integer>(numbers);
+        Iterator<Integer> identityGenerator = new IdentityGenerator<>(numbers);
 
         // When
         final Window.SingleItemWindow window = new Window.SingleItemWindow<Integer>();
@@ -573,7 +662,7 @@ public class WindowGeneratorTest {
                 return window;
             }
         };
-        Iterator<Window<Integer, Integer>> windowGenerator = new WindowGenerator<Integer, Window<Integer, Integer>>(
+        Iterator<Window<Integer, Integer>> windowGenerator = new WindowGenerator<>(
                 identityGenerator,
                 windows,
                 WindowGenerator.PartialWindowStrategy.DISCARD);
@@ -592,16 +681,16 @@ public class WindowGeneratorTest {
     public void shouldReturnAllWindowsExcludingPartialWhenPartialExistsWithSingleItemWindow() {
         // Given
         Integer[] numbers = new Integer[]{1, 2, 3, 4, 5, 6, 7};
-        Iterator<Integer> identityGenerator = new IdentityGenerator<Integer>(numbers);
+        Iterator<Integer> identityGenerator = new IdentityGenerator<>(numbers);
 
         // When
         Iterator<Window<Integer, Integer>> windows = new Generator<Window<Integer, Integer>>() {
             @Override
             protected Window<Integer, Integer> doNext() throws GeneratorException {
-                return new Window.SingleItemWindow<Integer>();
+                return new Window.SingleItemWindow<>();
             }
         };
-        Iterator<Window<Integer, Integer>> windowGenerator = new WindowGenerator<Integer, Window<Integer, Integer>>(
+        Iterator<Window<Integer, Integer>> windowGenerator = new WindowGenerator<>(
                 identityGenerator,
                 windows,
                 WindowGenerator.PartialWindowStrategy.DISCARD);
@@ -621,16 +710,16 @@ public class WindowGeneratorTest {
     public void shouldReturnAllWindowsThenThrowExceptionIfPartialExistsWhenNoPartialPresentWithSingleItemWindow() {
         // Given
         Integer[] numbers = new Integer[]{1, 2, 3, 4, 5, 6};
-        Iterator<Integer> identityGenerator = new IdentityGenerator<Integer>(numbers);
+        Iterator<Integer> identityGenerator = new IdentityGenerator<>(numbers);
 
         // When
         Iterator<Window<Integer, Integer>> windows = new Generator<Window<Integer, Integer>>() {
             @Override
             protected Window<Integer, Integer> doNext() throws GeneratorException {
-                return new Window.SingleItemWindow<Integer>();
+                return new Window.SingleItemWindow<>();
             }
         };
-        Iterator<Window<Integer, Integer>> windowGenerator = new WindowGenerator<Integer, Window<Integer, Integer>>(
+        Iterator<Window<Integer, Integer>> windowGenerator = new WindowGenerator<>(
                 identityGenerator,
                 windows,
                 WindowGenerator.PartialWindowStrategy.ERROR);

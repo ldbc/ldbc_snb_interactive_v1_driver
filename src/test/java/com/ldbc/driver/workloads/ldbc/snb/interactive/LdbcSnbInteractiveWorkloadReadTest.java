@@ -156,7 +156,7 @@ public class LdbcSnbInteractiveWorkloadReadTest {
         String workloadClassName = LdbcSnbInteractiveWorkload.class.getName();
         long operationCount = 10000;
         int threadCount = 64;
-        Duration statusDisplayInterval = Duration.fromSeconds(0);
+        Duration statusDisplayInterval = Duration.fromSeconds(1);
         TimeUnit timeUnit = TimeUnit.MILLISECONDS;
         String resultFilePath = null;
         double timeCompressionRatio = 1.0;
@@ -525,7 +525,7 @@ public class LdbcSnbInteractiveWorkloadReadTest {
     }
 
     @Test
-    public void shouldAssignMonotonicallyIncreasingScheduledStartTimesToOperations() throws WorkloadException, IOException, DriverConfigurationException {
+    public void shouldAssignMonotonicallyIncreasingScheduledStartTimesToOperations() throws WorkloadException, IOException, DriverConfigurationException, InterruptedException {
         Map<String, String> paramsMap = defaultSnbParamsMapWithParametersDir();
         // CsvDb-specific parameters
         String csvOutputFilePath = "temp_csv_output_file.csv";

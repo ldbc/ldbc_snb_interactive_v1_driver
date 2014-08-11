@@ -29,6 +29,8 @@ public class DbValidator {
             } catch (DbException e) {
                 dbValidationResult.reportUnableToExecuteOperation(operation, ConcurrentErrorReporter.stackTraceToString(e));
                 continue;
+            } finally {
+                handler.cleanup();
             }
 
             Object actualOperationResult = actualOperationResultReport.operationResult();

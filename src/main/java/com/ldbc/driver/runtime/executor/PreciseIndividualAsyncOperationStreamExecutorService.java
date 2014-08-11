@@ -1,15 +1,20 @@
 package com.ldbc.driver.runtime.executor;
 
-import com.ldbc.driver.OperationHandler;
+import com.ldbc.driver.Db;
+import com.ldbc.driver.Operation;
+import com.ldbc.driver.OperationClassification;
 import com.ldbc.driver.runtime.ConcurrentErrorReporter;
+import com.ldbc.driver.runtime.coordination.GlobalCompletionTimeReader;
+import com.ldbc.driver.runtime.coordination.LocalCompletionTimeWriter;
+import com.ldbc.driver.runtime.metrics.ConcurrentMetricsService;
 import com.ldbc.driver.runtime.scheduling.Spinner;
 import com.ldbc.driver.temporal.Duration;
 import com.ldbc.driver.temporal.TimeSource;
 
 import java.util.Iterator;
+import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-// TODO test
 public class PreciseIndividualAsyncOperationStreamExecutorService {
     private static final Duration SHUTDOWN_WAIT_TIMEOUT = Duration.fromSeconds(10);
 
@@ -23,20 +28,32 @@ public class PreciseIndividualAsyncOperationStreamExecutorService {
 
     public PreciseIndividualAsyncOperationStreamExecutorService(TimeSource timeSource,
                                                                 ConcurrentErrorReporter errorReporter,
-                                                                Iterator<OperationHandler<?>> handlers,
+                                                                Iterator<Operation<?>> operations,
+                                                                Spinner spinner,
                                                                 Spinner slightlyEarlySpinner,
-                                                                OperationHandlerExecutor operationHandlerExecutor) {
+                                                                OperationHandlerExecutor operationHandlerExecutor,
+                                                                Map<Class<? extends Operation>, OperationClassification> operationClassifications,
+                                                                Db db,
+                                                                LocalCompletionTimeWriter localCompletionTimeWriter,
+                                                                GlobalCompletionTimeReader globalCompletionTimeReader,
+                                                                ConcurrentMetricsService metricsService) {
         this.TIME_SOURCE = timeSource;
         this.errorReporter = errorReporter;
-        if (handlers.hasNext()) {
+        if (operations.hasNext()) {
             this.preciseIndividualAsyncOperationStreamExecutorServiceThread = new PreciseIndividualAsyncOperationStreamExecutorServiceThread(
                     TIME_SOURCE,
                     operationHandlerExecutor,
                     errorReporter,
-                    handlers,
+                    operations,
                     hasFinished,
+                    spinner,
                     slightlyEarlySpinner,
-                    forceThreadToTerminate);
+                    forceThreadToTerminate,
+                    operationClassifications,
+                    db,
+                    localCompletionTimeWriter,
+                    globalCompletionTimeReader,
+                    metricsService);
         } else {
             this.preciseIndividualAsyncOperationStreamExecutorServiceThread = null;
             executing.set(true);

@@ -6,7 +6,6 @@ import com.ldbc.driver.runtime.coordination.LocalCompletionTimeWriter;
 import com.ldbc.driver.runtime.executor.OperationHandlerExecutor;
 import com.ldbc.driver.runtime.executor.OperationHandlerExecutorException;
 import com.ldbc.driver.runtime.executor.ThreadPoolOperationHandlerExecutor;
-import com.ldbc.driver.runtime.metrics.ConcurrentMetricsService;
 import com.ldbc.driver.runtime.scheduling.ErrorReportingTerminatingExecutionDelayPolicy;
 import com.ldbc.driver.runtime.scheduling.ExecutionDelayPolicy;
 import com.ldbc.driver.runtime.scheduling.Spinner;
@@ -14,17 +13,59 @@ import com.ldbc.driver.temporal.Duration;
 import com.ldbc.driver.temporal.SystemTimeSource;
 import com.ldbc.driver.temporal.Time;
 import com.ldbc.driver.temporal.TimeSource;
+import com.ldbc.driver.util.Function0;
 import com.ldbc.driver.workloads.dummy.NothingOperation;
+import org.junit.Ignore;
 import org.junit.Test;
+import stormpot.Poolable;
+import stormpot.Slot;
 
 import java.util.concurrent.ExecutionException;
-import java.util.concurrent.Future;
+import java.util.concurrent.atomic.AtomicBoolean;
 
+import static org.hamcrest.CoreMatchers.anyOf;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
 
 public class ThreadPoolOperationHandlerExecutorTest {
     TimeSource TIME_SOURCE = new SystemTimeSource();
+
+    Slot DUMMY_SLOT = new Slot() {
+        @Override
+        public void release(Poolable obj) {
+            // do nothing
+        }
+    };
+
+    class SetFlagFun implements Function0 {
+        private final AtomicBoolean flag;
+
+        SetFlagFun(AtomicBoolean flag) {
+            this.flag = flag;
+        }
+
+        @Override
+        public Object apply() {
+            flag.set(true);
+            return null;
+        }
+    }
+
+    ;
+
+    @Ignore
+    @Test
+    public void addGctWriteOnlyMode() {
+        // TODO NONE, READ, WRITE (add this), READ_WRITE
+        assertThat(true, is(false));
+    }
+
+    @Ignore
+    @Test
+    public void inWindowedModeOperationsShouldNotPerformGctCheckThemselvesInsteadTheExecutorShouldDoSoBeforeWindowExecution() {
+        // TODO synchronize code and documentation on the way we do such things
+        assertThat(true, is(false));
+    }
 
     @Test
     public void executorShouldReturnExpectedResult() throws OperationHandlerExecutorException, ExecutionException, InterruptedException, OperationException, CompletionTimeException {
@@ -34,7 +75,7 @@ public class ThreadPoolOperationHandlerExecutorTest {
         ExecutionDelayPolicy delayPolicy = new ErrorReportingTerminatingExecutionDelayPolicy(TIME_SOURCE, toleratedDelay, errorReporter);
         Spinner spinner = new Spinner(TIME_SOURCE, Spinner.DEFAULT_SLEEP_DURATION_10_MILLI, delayPolicy);
         LocalCompletionTimeWriter dummyLocalCompletionTimeWriter = new DummyLocalCompletionTimeWriter();
-        ConcurrentMetricsService metricsService = new DummyConcurrentMetricsService();
+        DummyConcurrentMetricsService metricsService = new DummyConcurrentMetricsService();
 
         int threadCount = 1;
         OperationHandlerExecutor executor = new ThreadPoolOperationHandlerExecutor(threadCount);
@@ -48,14 +89,25 @@ public class ThreadPoolOperationHandlerExecutorTest {
                 return operation.buildResult(1, 42);
             }
         };
+        handler.setSlot(DUMMY_SLOT);
+        handler.init(TIME_SOURCE, spinner, operation, dummyLocalCompletionTimeWriter, errorReporter, metricsService);
+        final AtomicBoolean finished = new AtomicBoolean(false);
+        handler.addOnCompleteTask(new SetFlagFun(finished));
 
         // When
-        handler.init(TIME_SOURCE, spinner, operation, dummyLocalCompletionTimeWriter, errorReporter, metricsService);
+        executor.execute(handler);
+
+        Time timeout = TIME_SOURCE.now().plus(Duration.fromMilli(1000));
+        while (TIME_SOURCE.now().lt(timeout)) {
+            if (finished.get()) break;
+            // wait for handler to finish
+            Spinner.powerNap(100);
+        }
 
         // Then
-        Future<OperationResultReport> handlerFuture = executor.execute(handler);
-        Integer handlerResult = (Integer) handlerFuture.get().operationResult();
-        assertThat(handlerResult, is(42));
+        assertThat(metricsService.operationResultReports().size(), is(1));
+        assertThat((Integer) metricsService.operationResultReports().get(0).operationResult(), is(42));
+        assertThat(metricsService.operationResultReports().get(0).resultCode(), is(1));
         executor.shutdown(Duration.fromSeconds(1));
         assertThat(errorReporter.toString(), errorReporter.errorEncountered(), is(false));
     }
@@ -69,7 +121,7 @@ public class ThreadPoolOperationHandlerExecutorTest {
         ExecutionDelayPolicy delayPolicy = new ErrorReportingTerminatingExecutionDelayPolicy(TIME_SOURCE, toleratedDelay, errorReporter);
         Spinner spinner = new Spinner(TIME_SOURCE, Spinner.DEFAULT_SLEEP_DURATION_10_MILLI, delayPolicy);
         LocalCompletionTimeWriter dummyLocalCompletionTimeWriter = new DummyLocalCompletionTimeWriter();
-        ConcurrentMetricsService metricsService = new DummyConcurrentMetricsService();
+        DummyConcurrentMetricsService metricsService = new DummyConcurrentMetricsService();
 
         int threadCount = 1;
         OperationHandlerExecutor executor = new ThreadPoolOperationHandlerExecutor(threadCount);
@@ -94,18 +146,33 @@ public class ThreadPoolOperationHandlerExecutorTest {
         };
 
         // When
+
+        handler1.setSlot(DUMMY_SLOT);
         handler1.init(TIME_SOURCE, spinner, operation1, dummyLocalCompletionTimeWriter, errorReporter, metricsService);
+        final AtomicBoolean finished1 = new AtomicBoolean(false);
+        handler1.addOnCompleteTask(new SetFlagFun(finished1));
+
+        handler2.setSlot(DUMMY_SLOT);
         handler2.init(TIME_SOURCE, spinner, operation2, dummyLocalCompletionTimeWriter, errorReporter, metricsService);
+        final AtomicBoolean finished2 = new AtomicBoolean(false);
+        handler2.addOnCompleteTask(new SetFlagFun(finished2));
+
+        executor.execute(handler1);
+        executor.execute(handler2);
+
+        Time timeout = TIME_SOURCE.now().plus(Duration.fromMilli(1000));
+        while (TIME_SOURCE.now().lt(timeout)) {
+            if (finished1.get() && finished2.get()) break;
+            // wait for handler to finish
+            Spinner.powerNap(100);
+        }
 
         // Then
-        Future<OperationResultReport> handlerFuture1 = executor.execute(handler1);
-        Future<OperationResultReport> handlerFuture2 = executor.execute(handler2);
-
-        Integer handlerResult1 = (Integer) handlerFuture1.get().operationResult();
-        assertThat(handlerResult1, is(1));
-        Integer handlerResult2 = (Integer) handlerFuture2.get().operationResult();
-        assertThat(handlerResult2, is(2));
-
+        assertThat(metricsService.operationResultReports().size(), is(2));
+        assertThat((Integer) metricsService.operationResultReports().get(0).operationResult(), anyOf(is(1), is(2)));
+        assertThat(metricsService.operationResultReports().get(0).resultCode(), is(1));
+        assertThat((Integer) metricsService.operationResultReports().get(1).operationResult(), anyOf(is(1), is(2)));
+        assertThat(metricsService.operationResultReports().get(1).resultCode(), is(1));
         executor.shutdown(Duration.fromSeconds(1));
         assertThat(errorReporter.toString(), errorReporter.errorEncountered(), is(false));
     }
@@ -118,7 +185,7 @@ public class ThreadPoolOperationHandlerExecutorTest {
         ExecutionDelayPolicy delayPolicy = new ErrorReportingTerminatingExecutionDelayPolicy(TIME_SOURCE, toleratedDelay, errorReporter);
         Spinner spinner = new Spinner(TIME_SOURCE, Spinner.DEFAULT_SLEEP_DURATION_10_MILLI, delayPolicy);
         LocalCompletionTimeWriter dummyLocalCompletionTimeWriter = new DummyLocalCompletionTimeWriter();
-        ConcurrentMetricsService metricsService = new DummyConcurrentMetricsService();
+        DummyConcurrentMetricsService metricsService = new DummyConcurrentMetricsService();
 
         int threadCount = 1;
         OperationHandlerExecutor executor = new ThreadPoolOperationHandlerExecutor(threadCount);
@@ -134,12 +201,24 @@ public class ThreadPoolOperationHandlerExecutorTest {
         };
 
         // When
+        handler.setSlot(DUMMY_SLOT);
         handler.init(TIME_SOURCE, spinner, operation, dummyLocalCompletionTimeWriter, errorReporter, metricsService);
+        final AtomicBoolean finished = new AtomicBoolean(false);
+        handler.addOnCompleteTask(new SetFlagFun(finished));
+
+        executor.execute(handler);
+
+        Time timeout = TIME_SOURCE.now().plus(Duration.fromMilli(1000));
+        while (TIME_SOURCE.now().lt(timeout)) {
+            if (finished.get()) break;
+            // wait for handler to finish
+            Spinner.powerNap(100);
+        }
 
         // Then
-        Future<OperationResultReport> handlerFuture = executor.execute(handler);
-        Integer handlerResult = (Integer) handlerFuture.get().operationResult();
-        assertThat(handlerResult, is(42));
+        assertThat(metricsService.operationResultReports().size(), is(1));
+        assertThat((Integer) metricsService.operationResultReports().get(0).operationResult(), is(42));
+        assertThat(metricsService.operationResultReports().get(0).resultCode(), is(1));
         executor.shutdown(Duration.fromSeconds(1));
         assertThat(errorReporter.toString(), errorReporter.errorEncountered(), is(false));
 

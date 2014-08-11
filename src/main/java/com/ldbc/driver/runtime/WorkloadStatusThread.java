@@ -2,9 +2,9 @@ package com.ldbc.driver.runtime;
 
 import com.ldbc.driver.runtime.coordination.ConcurrentCompletionTimeService;
 import com.ldbc.driver.runtime.metrics.ConcurrentMetricsService;
-import com.ldbc.driver.runtime.metrics.WorkloadResultsSnapshot;
 import com.ldbc.driver.runtime.scheduling.Spinner;
 import com.ldbc.driver.temporal.Duration;
+import com.ldbc.driver.temporal.Time;
 import org.apache.log4j.Logger;
 
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -38,7 +38,10 @@ class WorkloadStatusThread extends Thread {
         while (continueRunning.get()) {
             try {
                 String statusString = metricsService.status().toString();
-                if (detailedStatus) statusString += ", GCT: " + concurrentCompletionTimeService.globalCompletionTime();
+                if (detailedStatus) {
+                    Time gct = concurrentCompletionTimeService.globalCompletionTime();
+                    statusString += ", GCT: " + ((null == gct) ? "--" : gct.toString());
+                }
                 logger.info(statusString);
                 Spinner.powerNap(statusUpdateIntervalAsMilli);
             } catch (Throwable e) {

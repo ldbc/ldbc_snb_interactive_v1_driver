@@ -1,16 +1,21 @@
 package com.ldbc.driver.runtime.executor;
 
-import com.ldbc.driver.OperationHandler;
+import com.ldbc.driver.Db;
+import com.ldbc.driver.Operation;
+import com.ldbc.driver.OperationClassification;
 import com.ldbc.driver.runtime.ConcurrentErrorReporter;
+import com.ldbc.driver.runtime.coordination.GlobalCompletionTimeReader;
+import com.ldbc.driver.runtime.coordination.LocalCompletionTimeWriter;
+import com.ldbc.driver.runtime.metrics.ConcurrentMetricsService;
 import com.ldbc.driver.runtime.scheduling.Spinner;
 import com.ldbc.driver.temporal.Duration;
 import com.ldbc.driver.temporal.Time;
 import com.ldbc.driver.temporal.TimeSource;
 
 import java.util.Iterator;
+import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-// TODO test
 public class UniformWindowedOperationStreamExecutorService {
     private static final Duration SHUTDOWN_WAIT_TIMEOUT = Duration.fromSeconds(5);
 
@@ -23,23 +28,35 @@ public class UniformWindowedOperationStreamExecutorService {
 
     public UniformWindowedOperationStreamExecutorService(TimeSource timeSource,
                                                          ConcurrentErrorReporter errorReporter,
-                                                         Iterator<OperationHandler<?>> handlers,
+                                                         Iterator<Operation<?>> operations,
                                                          OperationHandlerExecutor operationHandlerExecutor,
+                                                         Spinner spinner,
                                                          Spinner slightlyEarlySpinner,
                                                          Time firstWindowStartTime,
-                                                         Duration windowSize) {
+                                                         Duration windowSize,
+                                                         Db db,
+                                                         Map<Class<? extends Operation>, OperationClassification> operationClassifications,
+                                                         LocalCompletionTimeWriter localCompletionTimeWriter,
+                                                         GlobalCompletionTimeReader globalCompletionTimeReader,
+                                                         ConcurrentMetricsService metricsService) {
         this.errorReporter = errorReporter;
-        if (handlers.hasNext()) {
+        if (operations.hasNext()) {
             this.uniformWindowedOperationStreamExecutorServiceThread = new UniformWindowedOperationStreamExecutorServiceThread(
                     timeSource,
                     firstWindowStartTime,
                     windowSize,
                     operationHandlerExecutor,
                     errorReporter,
-                    handlers,
+                    operations,
                     hasFinished,
+                    spinner,
                     slightlyEarlySpinner,
-                    forceThreadToTerminate);
+                    forceThreadToTerminate,
+                    db,
+                    operationClassifications,
+                    localCompletionTimeWriter,
+                    globalCompletionTimeReader,
+                    metricsService);
         } else {
             this.uniformWindowedOperationStreamExecutorServiceThread = null;
             executing.set(true);

@@ -37,12 +37,13 @@ public class Client {
     private static final long RANDOM_SEED = 42;
 
     public static void main(String[] args) throws ClientException {
+        ConcurrentControlService controlService = null;
         try {
             TimeSource systemTimeSource = new SystemTimeSource();
             ConsoleAndFileDriverConfiguration configuration = ConsoleAndFileDriverConfiguration.fromArgs(args);
             // TODO this method will not work with multiple processes - should come from controlService
             Time workloadStartTime = systemTimeSource.now().plus(Duration.fromSeconds(10));
-            ConcurrentControlService controlService = new LocalControlService(workloadStartTime, configuration);
+            controlService = new LocalControlService(workloadStartTime, configuration);
             Client client = new Client(controlService, systemTimeSource);
             client.start();
         } catch (DriverConfigurationException e) {
@@ -50,6 +51,8 @@ public class Client {
             logger.error(errMsg);
         } catch (Exception e) {
             logger.error("Client terminated unexpectedly\n" + ConcurrentErrorReporter.stackTraceToString(e));
+        } finally {
+            if (null != controlService) controlService.shutdown();
         }
     }
 
@@ -319,20 +322,8 @@ public class Client {
             // TODO revise if this necessary here, and if not where??
             controlService.waitForAllToCompleteExecutingWorkload();
 
-            logger.info("Cleaning up Workload...");
-            try {
-                workload.cleanup();
-            } catch (WorkloadException e) {
-                String errMsg = "Error during Workload cleanup";
-                throw new ClientException(errMsg, e);
-            }
-
-            logger.info("Cleaning up DB...");
-            try {
-                db.cleanup();
-            } catch (DbException e) {
-                throw new ClientException("Error during DB cleanup", e);
-            }
+            cleanupWorkload(workload);
+            cleanupDb(db);
 
             logger.info("Shutting down completion time service...");
             try {
@@ -359,7 +350,6 @@ public class Client {
                     File resultFile = new File(controlService.configuration().resultFilePath());
                     MetricsManager.export(workloadResults, new JsonOperationMetricsFormatter(), new FileOutputStream(resultFile), MetricsManager.DEFAULT_CHARSET);
                 }
-                controlService.shutdown();
             } catch (MetricsCollectionException e) {
                 throw new ClientException("Could not export workload metrics", e);
             } catch (FileNotFoundException e) {
@@ -420,13 +410,7 @@ public class Client {
                 throw new ClientException("Error while calculating workload statistics", e);
             }
 
-            logger.info("Cleaning up Workload...");
-            try {
-                workload.cleanup();
-            } catch (WorkloadException e) {
-                String errMsg = "Error during Workload cleanup";
-                throw new ClientException(errMsg, e);
-            }
+            cleanupWorkload(workload);
         }
     }
 
@@ -517,20 +501,8 @@ public class Client {
             timeMappedOperations = timeMappedOperationsList.iterator();
             logger.info(String.format("Successfully generated %s database validation parameters", validationParametersGenerated));
 
-            logger.info("Cleaning up Workload...");
-            try {
-                workload.cleanup();
-            } catch (WorkloadException e) {
-                String errMsg = "Error during Workload cleanup";
-                throw new ClientException(errMsg, e);
-            }
-
-            logger.info("Cleaning up DB...");
-            try {
-                db.cleanup();
-            } catch (DbException e) {
-                throw new ClientException("Error during DB cleanup", e);
-            }
+            cleanupWorkload(workload);
+            cleanupDb(db);
         }
     }
 
@@ -593,20 +565,8 @@ public class Client {
 
             logger.info("Database Validation Successful");
 
-            logger.info("Cleaning up Workload...");
-            try {
-                workload.cleanup();
-            } catch (WorkloadException e) {
-                String errMsg = "Error during Workload cleanup";
-                throw new ClientException(errMsg, e);
-            }
-
-            logger.info("Cleaning up DB...");
-            try {
-                db.cleanup();
-            } catch (DbException e) {
-                throw new ClientException("Error during DB cleanup", e);
-            }
+            cleanupWorkload(workload);
+            cleanupDb(db);
         }
     }
 
@@ -652,5 +612,26 @@ public class Client {
         public void execute() throws ClientException {
             logger.info(controlService.configuration().helpString());
         }
+    }
+
+    private final void cleanupDb(Db db) throws ClientException {
+        logger.info("Cleaning up DB...");
+        try {
+            db.cleanup();
+        } catch (DbException e) {
+            throw new ClientException("Error during DB cleanup", e);
+        }
+        logger.info("Complete");
+    }
+
+    private final void cleanupWorkload(Workload workload) throws ClientException {
+        logger.info("Cleaning up Workload...");
+        try {
+            workload.cleanup();
+        } catch (WorkloadException e) {
+            String errMsg = "Error during Workload cleanup";
+            throw new ClientException(errMsg, e);
+        }
+        logger.info("Complete");
     }
 }

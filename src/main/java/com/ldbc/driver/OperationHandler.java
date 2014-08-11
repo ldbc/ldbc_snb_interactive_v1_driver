@@ -11,12 +11,15 @@ import com.ldbc.driver.runtime.scheduling.SpinnerCheck;
 import com.ldbc.driver.temporal.Duration;
 import com.ldbc.driver.temporal.Time;
 import com.ldbc.driver.temporal.TimeSource;
+import com.ldbc.driver.util.Function0;
+import stormpot.Poolable;
+import stormpot.Slot;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.Callable;
 
-public abstract class OperationHandler<OPERATION_TYPE extends Operation<?>> implements Callable<OperationResultReport> {
+public abstract class OperationHandler<OPERATION_TYPE extends Operation<?>> implements Runnable, Poolable {
+    private Slot slot;
     private TimeSource TIME_SOURCE;
     private Spinner spinner;
     private OPERATION_TYPE operation;
@@ -24,9 +27,14 @@ public abstract class OperationHandler<OPERATION_TYPE extends Operation<?>> impl
     private LocalCompletionTimeWriter localCompletionTimeWriter;
     private ConcurrentErrorReporter errorReporter;
     private ConcurrentMetricsService metricsService;
-    private List<SpinnerCheck> checks = new ArrayList<>();
+    private List<SpinnerCheck> beforeExecuteChecks;
+    private List<Function0> onCompleteTasks;
 
     private boolean initialized = false;
+
+    public final void setSlot(Slot slot) {
+        this.slot = slot;
+    }
 
     public final void init(TimeSource timeSource,
                            Spinner spinner,
@@ -43,6 +51,8 @@ public abstract class OperationHandler<OPERATION_TYPE extends Operation<?>> impl
         this.localCompletionTimeWriter = localCompletionTimeWriter;
         this.errorReporter = errorReporter;
         this.metricsService = metricsService;
+        this.beforeExecuteChecks = new ArrayList<>();
+        this.onCompleteTasks = new ArrayList<>();
 
         this.initialized = true;
     }
@@ -63,8 +73,12 @@ public abstract class OperationHandler<OPERATION_TYPE extends Operation<?>> impl
         return dbConnectionState;
     }
 
-    public final void addCheck(SpinnerCheck check) {
-        checks.add(check);
+    public final void addBeforeExecuteCheck(SpinnerCheck check) {
+        beforeExecuteChecks.add(check);
+    }
+
+    public final void addOnCompleteTask(Function0 task) {
+        onCompleteTasks.add(task);
     }
 
     /**
@@ -77,16 +91,16 @@ public abstract class OperationHandler<OPERATION_TYPE extends Operation<?>> impl
      * @return an OperationResultReport if Operation execution was successful, otherwise null
      */
     @Override
-    public OperationResultReport call() {
+    public void run() {
         if (false == initialized) {
             errorReporter.reportError(this, "Handler was executed before being initialized");
-            return null;
+            return;
         }
         try {
-            if (false == spinner.waitForScheduledStartTime(operation, new MultiCheck(checks))) {
+            if (false == spinner.waitForScheduledStartTime(operation, new MultiCheck(beforeExecuteChecks))) {
                 // TODO something more elaborate here? see comments in Spinner
                 // Spinner result indicates operation should not be processed
-                return null;
+                return;
             }
             long startTimeAsMilli = TIME_SOURCE.nowAsMilli();
             OperationResultReport operationResultReport = executeOperation(operation);
@@ -100,7 +114,6 @@ public abstract class OperationHandler<OPERATION_TYPE extends Operation<?>> impl
             operationResultReport.setScheduledStartTime(operation.scheduledStartTime());
             localCompletionTimeWriter.submitLocalCompletedTime(operation.scheduledStartTime());
             metricsService.submitOperationResult(operationResultReport);
-            return operationResultReport;
         } catch (DbException e) {
             String errMsg = String.format(
                     "Error encountered while executing query %s\n%s",
@@ -126,8 +139,6 @@ public abstract class OperationHandler<OPERATION_TYPE extends Operation<?>> impl
                     ConcurrentErrorReporter.stackTraceToString(e));
             errorReporter.reportError(this, errMsg);
         }
-
-        return null;
     }
 
     /**
@@ -146,5 +157,30 @@ public abstract class OperationHandler<OPERATION_TYPE extends Operation<?>> impl
     @Override
     public String toString() {
         return String.format("OperationHandler [type=%s, operation=%s]", getClass().getName(), operation);
+    }
+
+    public final void onComplete() {
+        for (int i = 0; i < onCompleteTasks.size(); i++) {
+            onCompleteTasks.get(i).apply();
+        }
+    }
+
+    public final void cleanup() {
+        release();
+    }
+
+    // Note, this should not really be public API, it is from the StormPot Poolable interface
+    @Override
+    public final void release() {
+        initialized = false;
+        TIME_SOURCE = null;
+        spinner = null;
+        operation = null;
+        dbConnectionState = null;
+        localCompletionTimeWriter = null;
+        errorReporter = null;
+        metricsService = null;
+        beforeExecuteChecks = null;
+        slot.release(this);
     }
 }

@@ -7,13 +7,13 @@ import com.ldbc.driver.temporal.Time;
 
 import java.util.List;
 
-public class UniformWindowedScheduler implements Scheduler<List<OperationHandler<?>>, Window.OperationHandlerTimeRangeWindow> {
+public class UniformWindowedOperationHandlerScheduler implements Scheduler<List<OperationHandler<?>>, Window.OperationHandlerTimeRangeWindow> {
     @Override
-    public List<OperationHandler<?>> schedule(Window.OperationHandlerTimeRangeWindow handlersWindow) {
+    public List<OperationHandler<?>> schedule(Window.OperationHandlerTimeRangeWindow window) {
         return assignUniformlyDistributedStartTimes(
-                handlersWindow.contents(),
-                handlersWindow.windowStartTimeInclusive(),
-                handlersWindow.windowEndTimeExclusive());
+                window.contents(),
+                window.windowStartTimeInclusive(),
+                window.windowEndTimeExclusive());
     }
 
     private List<OperationHandler<?>> assignUniformlyDistributedStartTimes(List<OperationHandler<?>> operationHandlersInWindow,

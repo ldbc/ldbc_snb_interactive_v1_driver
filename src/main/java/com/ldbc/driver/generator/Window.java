@@ -1,6 +1,7 @@
 package com.ldbc.driver.generator;
 
 import com.google.common.base.Predicate;
+import com.ldbc.driver.Operation;
 import com.ldbc.driver.OperationHandler;
 import com.ldbc.driver.temporal.Duration;
 import com.ldbc.driver.temporal.Time;
@@ -110,10 +111,10 @@ public interface Window<INPUT_TYPE, RETURN_TYPE> {
         }
 
         @Override
-        public boolean add(OperationHandler<?> handler) {
-            Time startTime = handler.operation().scheduledStartTime();
+        public boolean add(OperationHandler<?> operationHandler) {
+            Time startTime = operationHandler.operation().scheduledStartTime();
             if (startTime.gte(windowStartTimeInclusive) && startTime.lt(windowEndTimeExclusive)) {
-                return contents.add(handler);
+                return contents.add(operationHandler);
             }
             isComplete = true;
             return false;
@@ -121,6 +122,48 @@ public interface Window<INPUT_TYPE, RETURN_TYPE> {
 
         @Override
         public List<OperationHandler<?>> contents() {
+            return contents;
+        }
+
+        @Override
+        public boolean isComplete() {
+            return isComplete;
+        }
+
+        public Time windowStartTimeInclusive() {
+            return windowStartTimeInclusive;
+        }
+
+        public Time windowEndTimeExclusive() {
+            return windowEndTimeExclusive;
+        }
+    }
+
+    public static class OperationTimeRangeWindow implements Window<Operation<?>, List<Operation<?>>> {
+        private final Time windowStartTimeInclusive;
+        private final Time windowEndTimeExclusive;
+        private final List<Operation<?>> contents;
+        private boolean isComplete;
+
+        public OperationTimeRangeWindow(Time windowStartTimeInclusive, Duration windowDuration) {
+            this.windowStartTimeInclusive = windowStartTimeInclusive;
+            this.windowEndTimeExclusive = windowStartTimeInclusive.plus(windowDuration);
+            this.contents = new ArrayList<>();
+            this.isComplete = false;
+        }
+
+        @Override
+        public boolean add(Operation<?> operation) {
+            Time startTime = operation.scheduledStartTime();
+            if (startTime.gte(windowStartTimeInclusive) && startTime.lt(windowEndTimeExclusive)) {
+                return contents.add(operation);
+            }
+            isComplete = true;
+            return false;
+        }
+
+        @Override
+        public List<Operation<?>> contents() {
             return contents;
         }
 
