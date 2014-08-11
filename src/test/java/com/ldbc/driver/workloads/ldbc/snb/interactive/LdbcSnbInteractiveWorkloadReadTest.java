@@ -7,6 +7,7 @@ import com.google.common.collect.Lists;
 import com.ldbc.driver.*;
 import com.ldbc.driver.control.*;
 import com.ldbc.driver.generator.GeneratorFactory;
+import com.ldbc.driver.generator.RandomDataGeneratorFactory;
 import com.ldbc.driver.runtime.streams.IteratorSplitter;
 import com.ldbc.driver.runtime.streams.IteratorSplittingException;
 import com.ldbc.driver.runtime.streams.SplitDefinition;
@@ -19,7 +20,6 @@ import com.ldbc.driver.testutils.TestUtils;
 import com.ldbc.driver.util.Bucket;
 import com.ldbc.driver.util.Histogram;
 import com.ldbc.driver.util.MapUtils;
-import com.ldbc.driver.generator.RandomDataGeneratorFactory;
 import com.ldbc.driver.workloads.ldbc.snb.interactive.db.CsvWritingLdbcSnbInteractiveDb;
 import com.ldbc.driver.workloads.ldbc.snb.interactive.db.DummyLdbcSnbInteractiveDb;
 import com.ldbc.driver.workloads.ldbc.snb.interactive.db.DummyLdbcSnbInteractiveOperationInstances;
@@ -57,6 +57,49 @@ public class LdbcSnbInteractiveWorkloadReadTest {
         // TODO (3) persist configuration file at the same time, so others can use the same settings
         // TODO (4) read from that configuration file later, so others can use the same settings
         assertThat(true, is(false));
+    }
+
+    @Test
+    public void shouldGenerateManyElementsInReasonableTime() throws WorkloadException {
+        // Given
+        long MANY_ELEMENTS_COUNT = 1000000;
+
+        Map<String, String> paramsMap = defaultSnbParamsMapWithParametersDir();
+        // LDBC Interactive Workload-specific parameters
+        paramsMap.put(LdbcSnbInteractiveWorkload.DATA_DIRECTORY, TestUtils.getResource("/").getAbsolutePath());
+        // Driver-specific parameters
+        String dbClassName = DummyLdbcSnbInteractiveDb.class.getName();
+        String workloadClassName = LdbcSnbInteractiveWorkload.class.getName();
+        long operationCount = MANY_ELEMENTS_COUNT;
+        int threadCount = 1;
+        Duration statusDisplayInterval = Duration.fromSeconds(0);
+        TimeUnit timeUnit = TimeUnit.MILLISECONDS;
+        String resultFilePath = "test_ldbc_socnet_interactive_results.json";
+        FileUtils.deleteQuietly(new File(resultFilePath));
+        double timeCompressionRatio = 1.0;
+        Duration windowedExecutionWindowDuration = Duration.fromSeconds(1);
+        Set<String> peerIds = new HashSet<>();
+        Duration toleratedExecutionDelay = Duration.fromMinutes(60);
+        ConsoleAndFileDriverConfiguration.ConsoleAndFileValidationParamOptions validationParams = null;
+        String dbValidationFilePath = null;
+        boolean validateWorkload = false;
+        boolean calculateWorkloadStatistics = false;
+        Duration spinnerSleepDuration = Duration.fromMilli(0);
+        boolean printHelp = false;
+
+        DriverConfiguration config = new ConsoleAndFileDriverConfiguration(paramsMap, dbClassName, workloadClassName, operationCount,
+                threadCount, statusDisplayInterval, timeUnit, resultFilePath, timeCompressionRatio, windowedExecutionWindowDuration, peerIds, toleratedExecutionDelay,
+                validationParams, dbValidationFilePath, validateWorkload, calculateWorkloadStatistics, spinnerSleepDuration, printHelp);
+
+        Workload workload = new LdbcSnbInteractiveWorkload();
+        workload.init(config);
+
+        GeneratorFactory gf = new GeneratorFactory(new RandomDataGeneratorFactory(42L));
+        Iterator<Operation<?>> operations = workload.operations(gf, MANY_ELEMENTS_COUNT);
+        TimeSource timeSource = new SystemTimeSource();
+        Time timeout = timeSource.now().plus(Duration.fromSeconds(10));
+        boolean workloadGeneratedOperationsBeforeTimeout = TestUtils.generateBeforeTimeout(operations, timeout, timeSource, MANY_ELEMENTS_COUNT);
+        assertThat(workloadGeneratedOperationsBeforeTimeout, is(true));
     }
 
     @Test

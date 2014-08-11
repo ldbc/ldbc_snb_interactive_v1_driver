@@ -9,11 +9,12 @@ import com.ldbc.driver.control.DriverConfigurationException;
 import com.ldbc.driver.control.DriverConfigurationFileTestHelper;
 import com.ldbc.driver.control.LocalControlService;
 import com.ldbc.driver.generator.GeneratorFactory;
+import com.ldbc.driver.generator.RandomDataGeneratorFactory;
 import com.ldbc.driver.temporal.Duration;
 import com.ldbc.driver.temporal.SystemTimeSource;
+import com.ldbc.driver.temporal.Time;
 import com.ldbc.driver.temporal.TimeSource;
 import com.ldbc.driver.testutils.TestUtils;
-import com.ldbc.driver.generator.RandomDataGeneratorFactory;
 import com.ldbc.driver.workloads.simple.db.BasicDb;
 import org.apache.commons.io.FileUtils;
 import org.junit.Ignore;
@@ -29,6 +30,58 @@ import static org.junit.Assert.assertThat;
 
 public class SimpleWorkloadTest {
     TimeSource TIME_SOURCE = new SystemTimeSource();
+
+    @Test
+    public void shouldGenerateManyElementsInReasonableTime() throws WorkloadException {
+        Map<String, String> paramsMap = null;
+        String dbClassName = null;
+        String workloadClassName = null;
+        long operationCount = 100;
+        int threadCount = 1;
+        Duration statusDisplayInterval = Duration.fromSeconds(0);
+        TimeUnit timeUnit = TimeUnit.MILLISECONDS;
+        String resultFilePath = null;
+        Double timeCompressionRatio = 1.0;
+        Duration windowedExecutionWindowDuration = Duration.fromSeconds(1);
+        Set<String> peerIds = new HashSet<>();
+        Duration toleratedExecutionDelay = Duration.fromSeconds(1);
+        ConsoleAndFileDriverConfiguration.ConsoleAndFileValidationParamOptions validationParams = null;
+        String dbValidationFilePath = null;
+        boolean validateWorkload = false;
+        boolean calculateWorkloadStatistics = false;
+        Duration spinnerSleepDuration = Duration.fromMilli(0);
+        boolean printHelp = false;
+
+        ConsoleAndFileDriverConfiguration params =
+                new ConsoleAndFileDriverConfiguration(
+                        paramsMap,
+                        dbClassName,
+                        workloadClassName,
+                        operationCount,
+                        threadCount,
+                        statusDisplayInterval,
+                        timeUnit,
+                        resultFilePath,
+                        timeCompressionRatio,
+                        windowedExecutionWindowDuration,
+                        peerIds,
+                        toleratedExecutionDelay,
+                        validationParams,
+                        dbValidationFilePath,
+                        validateWorkload,
+                        calculateWorkloadStatistics,
+                        spinnerSleepDuration,
+                        printHelp);
+
+        Workload workload = new SimpleWorkload();
+        workload.init(params);
+        GeneratorFactory gf = new GeneratorFactory(new RandomDataGeneratorFactory(42L));
+        Iterator<Operation<?>> operations = workload.operations(gf, 1000000);
+        TimeSource timeSource = new SystemTimeSource();
+        Time timeout = timeSource.now().plus(Duration.fromSeconds(10));
+        boolean workloadGeneratedOperationsBeforeTimeout = TestUtils.generateBeforeTimeout(operations, timeout, timeSource, 1000000);
+        assertThat(workloadGeneratedOperationsBeforeTimeout, is(true));
+    }
 
     @Test
     public void shouldBeRepeatableWhenSameWorkloadIsUsedTwiceWithIdenticalGeneratorFactories() throws ClientException, DriverConfigurationException, WorkloadException {

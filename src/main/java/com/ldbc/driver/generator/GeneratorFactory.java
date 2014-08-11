@@ -23,9 +23,13 @@ public class GeneratorFactory {
         this.randomDataGeneratorFactory = randomDataGeneratorFactory;
     }
 
+    private RandomDataGenerator randomDataGenerator = null;
+
     // Every returned generator (that takes a RandomDataGenerator as input) will use a different RandomDataGenerator
+    // UPDATE (2014/08/11): for performance (random data generator instantiation seems to be expensive), one generator shared among all generators
     RandomDataGenerator getRandom() {
-        return randomDataGeneratorFactory.newRandom();
+        if (null == randomDataGenerator) randomDataGenerator = randomDataGeneratorFactory.newRandom();
+        return randomDataGenerator;
     }
 
     /*
