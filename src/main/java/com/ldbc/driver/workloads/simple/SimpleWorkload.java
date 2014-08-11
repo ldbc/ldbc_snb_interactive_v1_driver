@@ -181,8 +181,8 @@ public class SimpleWorkload extends Workload {
         // iterates initialInsertOperationGenerator before starting with transactionalInsertOperationGenerator
         Iterator<Operation<?>> workloadOperations = Iterators.concat(initialInsertOperationGenerator, transactionalOperationGenerator);
 
-        Iterator<Time> startTimes = gf.constantIncrementTime(workloadStartTime, Duration.fromMilli(100));
-        Iterator<Time> dependencyTimes = gf.constantIncrementTime(workloadStartTime, Duration.fromMilli(0));
+        Iterator<Time> startTimes = gf.constantIncrementTime(workloadStartTime.plus(Duration.fromMilli(1)), Duration.fromMilli(100));
+        Iterator<Time> dependencyTimes = gf.constant(workloadStartTime);
 
         return gf.assignDependencyTimes(dependencyTimes, gf.assignStartTimes(startTimes, workloadOperations));
     }

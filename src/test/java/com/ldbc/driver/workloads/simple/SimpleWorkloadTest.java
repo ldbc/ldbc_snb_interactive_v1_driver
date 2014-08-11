@@ -15,6 +15,7 @@ import com.ldbc.driver.temporal.SystemTimeSource;
 import com.ldbc.driver.temporal.Time;
 import com.ldbc.driver.temporal.TimeSource;
 import com.ldbc.driver.testutils.TestUtils;
+import com.ldbc.driver.validation.WorkloadValidationResult;
 import com.ldbc.driver.workloads.simple.db.BasicDb;
 import org.apache.commons.io.FileUtils;
 import org.junit.Ignore;
@@ -24,8 +25,7 @@ import java.io.File;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 
-import static org.hamcrest.CoreMatchers.equalTo;
-import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.CoreMatchers.*;
 import static org.junit.Assert.assertThat;
 
 public class SimpleWorkloadTest {
@@ -162,8 +162,60 @@ public class SimpleWorkloadTest {
 
     @Ignore
     @Test
-    public void shouldPassWorkloadValidation() {
-        assertThat(true, is(false));
+    public void shouldPassWorkloadValidation() throws WorkloadException, ClientException {
+        // Given
+        Map<String, String> paramsMap = new HashMap<>();
+        String dbClassName = BasicDb.class.getName();
+        String workloadClassName = SimpleWorkload.class.getName();
+        long operationCount = 1000;
+        int threadCount = 1;
+        Duration statusDisplayInterval = Duration.fromSeconds(1);
+        TimeUnit timeUnit = TimeUnit.MILLISECONDS;
+        String resultFilePath = null;
+        Double timeCompressionRatio = 1.0;
+        Duration windowedExecutionWindowDuration = Duration.fromSeconds(1);
+        Set<String> peerIds = new HashSet<>();
+        Duration toleratedExecutionDelay = Duration.fromMinutes(5);
+        ConsoleAndFileDriverConfiguration.ConsoleAndFileValidationParamOptions validationParams = null;
+        String dbValidationFilePath = null;
+        boolean validateWorkload = true;
+        boolean calculateWorkloadStatistics = false;
+        Duration spinnerSleepDuration = Duration.fromMilli(0);
+        boolean printHelp = false;
+
+        ConsoleAndFileDriverConfiguration params = new ConsoleAndFileDriverConfiguration(
+                paramsMap,
+                dbClassName,
+                workloadClassName,
+                operationCount,
+                threadCount,
+                statusDisplayInterval,
+                timeUnit,
+                resultFilePath,
+                timeCompressionRatio,
+                windowedExecutionWindowDuration,
+                peerIds,
+                toleratedExecutionDelay,
+                validationParams,
+                dbValidationFilePath,
+                validateWorkload,
+                calculateWorkloadStatistics,
+                spinnerSleepDuration,
+                printHelp);
+
+        Workload workload = new SimpleWorkload();
+        workload.init(params);
+
+        // When
+        Client client = new Client(new LocalControlService(TIME_SOURCE.now().plus(Duration.fromMilli(500)), params), TIME_SOURCE);
+        client.start();
+
+        // Then
+        assertThat(client.databaseValidationResult(), is(nullValue()));
+        assertThat(client.workloadStatistics(), is(nullValue()));
+        WorkloadValidationResult workloadValidationResult = client.workloadValidationResult();
+        assertThat(workloadValidationResult.errorMessage(), workloadValidationResult, is(notNullValue()));
+        assertThat(workloadValidationResult.errorMessage(), workloadValidationResult.isSuccessful(), is(true));
     }
 
     @Test
