@@ -13,7 +13,7 @@ import com.ldbc.driver.generator.GeneratorFactory;
 import com.ldbc.driver.runtime.metrics.MetricsCollectionException;
 import com.ldbc.driver.temporal.Duration;
 import com.ldbc.driver.temporal.Time;
-import com.ldbc.driver.util.RandomDataGeneratorFactory;
+import com.ldbc.driver.generator.RandomDataGeneratorFactory;
 import com.ldbc.driver.workloads.dummy.*;
 import org.junit.Test;
 

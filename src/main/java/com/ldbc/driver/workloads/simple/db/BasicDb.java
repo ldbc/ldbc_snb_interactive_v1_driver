@@ -1,10 +1,10 @@
 package com.ldbc.driver.workloads.simple.db;
 
 import com.ldbc.driver.*;
-import com.ldbc.driver.data.ByteIterator;
 import com.ldbc.driver.workloads.simple.*;
 
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
 import java.util.Vector;
 
@@ -79,7 +79,7 @@ public class BasicDb extends Db {
             String queryString = null;
 
             BasicClient client = ((BasicDbConnectionState) dbConnectionState()).client();
-            Map<String, ByteIterator> result = (Map<String, ByteIterator>) client.execute(queryString, queryParams);
+            Map<String, Iterator<Byte>> result = (Map<String, Iterator<Byte>>) client.execute(queryString, queryParams);
 
             // TODO replace with actual result code
             return operation.buildResult(0, result);
@@ -97,8 +97,8 @@ public class BasicDb extends Db {
             // TODO replace with actual query string
             String queryString = null;
 
-            Map<String, ByteIterator> result =
-                    (Map<String, ByteIterator>) ((BasicDbConnectionState) dbConnectionState()).client().execute(queryString, queryParams);
+            Map<String, Iterator<Byte>> result =
+                    (Map<String, Iterator<Byte>>) ((BasicDbConnectionState) dbConnectionState()).client().execute(queryString, queryParams);
 
             // TODO replace with actual result code
             return operation.buildResult(0, result);
@@ -117,8 +117,8 @@ public class BasicDb extends Db {
             // TODO replace with actual query string
             String queryString = null;
 
-            Vector<Map<String, ByteIterator>> result =
-                    (Vector<Map<String, ByteIterator>>) ((BasicDbConnectionState) dbConnectionState()).client().execute(queryString, queryParams);
+            Vector<Map<String, Iterator<Byte>>> result =
+                    (Vector<Map<String, Iterator<Byte>>>) ((BasicDbConnectionState) dbConnectionState()).client().execute(queryString, queryParams);
 
             // TODO replace with actual result code
             return operation.buildResult(0, result);

@@ -12,7 +12,7 @@ import com.ldbc.driver.temporal.Time;
 import com.ldbc.driver.temporal.TimeSource;
 import com.ldbc.driver.util.Bucket;
 import com.ldbc.driver.util.Histogram;
-import com.ldbc.driver.util.RandomDataGeneratorFactory;
+import com.ldbc.driver.generator.RandomDataGeneratorFactory;
 import com.ldbc.driver.workloads.dummy.*;
 import org.junit.Before;
 import org.junit.Ignore;

@@ -3,7 +3,6 @@ package com.ldbc.driver.generator;
 import com.google.common.collect.Iterators;
 import com.ldbc.driver.util.Histogram;
 import com.ldbc.driver.util.NumberHelper;
-import com.ldbc.driver.util.RandomDataGeneratorFactory;
 import org.junit.Before;
 import org.junit.Test;
 

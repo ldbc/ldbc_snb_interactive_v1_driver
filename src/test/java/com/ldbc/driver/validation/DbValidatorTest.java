@@ -5,7 +5,7 @@ import com.ldbc.driver.Db;
 import com.ldbc.driver.DbException;
 import com.ldbc.driver.WorkloadException;
 import com.ldbc.driver.generator.GeneratorFactory;
-import com.ldbc.driver.util.RandomDataGeneratorFactory;
+import com.ldbc.driver.generator.RandomDataGeneratorFactory;
 import com.ldbc.driver.workloads.ldbc.snb.interactive.*;
 import com.ldbc.driver.workloads.ldbc.snb.interactive.db.DummyLdbcSnbInteractiveDb;
 import com.ldbc.driver.workloads.ldbc.snb.interactive.db.DummyLdbcSnbInteractiveOperationInstances;

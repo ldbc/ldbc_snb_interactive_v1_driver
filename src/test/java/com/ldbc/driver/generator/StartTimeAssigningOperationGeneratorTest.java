@@ -5,7 +5,6 @@ import com.ldbc.driver.temporal.Duration;
 import com.ldbc.driver.temporal.Time;
 import com.ldbc.driver.workloads.dummy.NothingOperationFactory;
 import com.ldbc.driver.util.Function1;
-import com.ldbc.driver.util.RandomDataGeneratorFactory;
 import org.junit.Test;
 
 import java.util.Iterator;

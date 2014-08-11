@@ -1,7 +1,6 @@
 package com.ldbc.driver.generator;
 
 import com.ldbc.driver.temporal.Time;
-import com.ldbc.driver.util.RandomDataGeneratorFactory;
 import org.junit.Test;
 
 import java.util.Comparator;

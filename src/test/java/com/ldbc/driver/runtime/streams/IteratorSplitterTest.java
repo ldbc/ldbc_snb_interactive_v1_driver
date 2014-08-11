@@ -3,7 +3,7 @@ package com.ldbc.driver.runtime.streams;
 import com.google.common.collect.Lists;
 import com.ldbc.driver.generator.GeneratorFactory;
 import com.ldbc.driver.runtime.ConcurrentErrorReporter;
-import com.ldbc.driver.util.RandomDataGeneratorFactory;
+import com.ldbc.driver.generator.RandomDataGeneratorFactory;
 import org.junit.Ignore;
 import org.junit.Test;
 

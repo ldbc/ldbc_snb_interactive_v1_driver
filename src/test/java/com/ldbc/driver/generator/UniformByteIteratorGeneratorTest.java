@@ -9,7 +9,7 @@ import com.ldbc.driver.util.Bucket;
 import com.ldbc.driver.util.Histogram;
 
 @Ignore
-public class RandomByteIteratorGeneratorTest extends NumberGeneratorTest<Long, Long>
+public class UniformByteIteratorGeneratorTest extends NumberGeneratorTest<Long, Long>
 {
     private final long start = 0;
 

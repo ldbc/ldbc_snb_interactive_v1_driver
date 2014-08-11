@@ -3,10 +3,12 @@ package com.ldbc.driver.generator;
 import com.google.common.base.Predicate;
 import com.google.common.collect.Iterators;
 import com.ldbc.driver.Operation;
-import com.ldbc.driver.data.ByteIterator;
 import com.ldbc.driver.temporal.Duration;
 import com.ldbc.driver.temporal.Time;
-import com.ldbc.driver.util.*;
+import com.ldbc.driver.util.Function0;
+import com.ldbc.driver.util.Function1;
+import com.ldbc.driver.util.Function2;
+import com.ldbc.driver.util.Tuple;
 import com.ldbc.driver.util.Tuple.Tuple2;
 import com.ldbc.driver.util.Tuple.Tuple3;
 import org.apache.commons.math3.random.RandomDataGenerator;
@@ -145,40 +147,6 @@ public class GeneratorFactory {
      * ----------------------------------------------------------------------------------------------------
      */
 
-    public static <T1> Iterator<T1> includeOnly(Iterator<T1> generator, T1... includedItems) {
-        return Iterators.filter(generator, new IncludeOnlyPredicate<>(includedItems));
-    }
-
-    private static class IncludeOnlyPredicate<T1> implements Predicate<T1> {
-        private final Set<T1> includedItems;
-
-        private IncludeOnlyPredicate(T1... includedItems) {
-            this.includedItems = new HashSet<>(Arrays.asList(includedItems));
-        }
-
-        @Override
-        public boolean apply(T1 input) {
-            return true == includedItems.contains(input);
-        }
-    }
-
-    public static <T1> Iterator<T1> excludeAll(Iterator<T1> generator, T1... excludedItems) {
-        return Iterators.filter(generator, new ExcludeAllPredicate<>(excludedItems));
-    }
-
-    private static class ExcludeAllPredicate<T1> implements Predicate<T1> {
-        private final Set<T1> excludedItems;
-
-        private ExcludeAllPredicate(T1... excludedItems) {
-            this.excludedItems = new HashSet<>(Arrays.asList(excludedItems));
-        }
-
-        @Override
-        public boolean apply(T1 input) {
-            return false == excludedItems.contains(input);
-        }
-    }
-
     /**
      * Wraps any number generator and keeps track of the minimum and maximum numbers returned by that generator.
      *
@@ -197,6 +165,48 @@ public class GeneratorFactory {
      * ---------------------------------------- GENERATORS ------------------------------------------------
      * ----------------------------------------------------------------------------------------------------
      */
+
+    public <T1> Iterator<T1> includeOnly(Iterator<T1> generator, T1... includedItems) {
+        return includeOnly(generator, new IncludeOnlyPredicate<>(includedItems));
+    }
+
+    public <T1> Iterator<T1> includeOnly(Iterator<T1> generator, Predicate<T1> isIncludedPredicate) {
+        return Iterators.filter(generator, isIncludedPredicate);
+    }
+
+    private class IncludeOnlyPredicate<T1> implements Predicate<T1> {
+        private final Set<T1> includedItems;
+
+        private IncludeOnlyPredicate(T1... includedItems) {
+            this.includedItems = new HashSet<>(Arrays.asList(includedItems));
+        }
+
+        @Override
+        public boolean apply(T1 input) {
+            return true == includedItems.contains(input);
+        }
+    }
+
+    public <T1> Iterator<T1> excludeAll(Iterator<T1> generator, T1... excludedItems) {
+        return excludeAll(generator, new ExcludeAllPredicate<>(excludedItems));
+    }
+
+    public <T1> Iterator<T1> excludeAll(Iterator<T1> generator, Predicate<T1> isExcludedPredicate) {
+        return Iterators.filter(generator, isExcludedPredicate);
+    }
+
+    private class ExcludeAllPredicate<T1> implements Predicate<T1> {
+        private final Set<T1> excludedItems;
+
+        private ExcludeAllPredicate(T1... excludedItems) {
+            this.excludedItems = new HashSet<>(Arrays.asList(excludedItems));
+        }
+
+        @Override
+        public boolean apply(T1 input) {
+            return false == excludedItems.contains(input);
+        }
+    }
 
     /**
      * Maps/transforms one iterator into another, using input function to perform the transformation on each individual element.
@@ -712,18 +722,6 @@ public class GeneratorFactory {
     }
 
     /**
-     * RandomByteIteratorGenerator
-     */
-    public Iterator<ByteIterator> randomByteIterator(Integer length) {
-        Iterator<Integer> lengthGenerator = constant(length);
-        return randomByteIterator(lengthGenerator);
-    }
-
-    public Iterator<ByteIterator> randomByteIterator(Iterator<Integer> lengthGenerator) {
-        return new RandomByteIteratorGenerator(getRandom(), lengthGenerator);
-    }
-
-    /**
      * Wraps a number generator and ensures it only returns numbers within a min-max range.
      * Range is defined by lowerBoundGenerator and upperBoundGenerator.
      * Generator is naive because it simply calls next() on inner generator until a suitable (in range) number is returned.
@@ -753,6 +751,24 @@ public class GeneratorFactory {
         MinMaxGenerator<T> lowerBoundGenerator = minMaxGenerator(constant(lowerBound), lowerBound, lowerBound);
         MinMaxGenerator<T> upperBoundGenerator = minMaxGenerator(constant(upperBound), upperBound, upperBound);
         return dynamicRangeUniform(lowerBoundGenerator, upperBoundGenerator);
+    }
+
+    /**
+     * next() returns an iterator that in turn returns uniform random bytes
+     *
+     * @return
+     */
+    public Iterator<Iterator<Byte>> uniformBytesIterator(Iterator<Long> lengths) {
+        return new UniformByteIteratorGenerator(getRandom(), lengths, this);
+    }
+
+    /**
+     * next() returns a uniform random byte
+     *
+     * @return
+     */
+    public Iterator<Byte> uniformBytes() {
+        return new UniformByteGenerator(getRandom());
     }
 
     /**

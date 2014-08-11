@@ -27,7 +27,7 @@ public class UniformNumberGeneratorLongTest extends NumberGeneratorTest<Long, Lo
 
     @Override
     public Histogram<Long, Long> getExpectedDistribution() {
-        Histogram<Long, Long> expectedDistribution = new Histogram<Long, Long>(0l);
+        Histogram<Long, Long> expectedDistribution = new Histogram<>(0l);
         expectedDistribution.addBucket(new NumberRangeBucket<Long>(Range.closedOpen(-0.5d, 0.5d)), 1l);
         expectedDistribution.addBucket(new NumberRangeBucket<Long>(Range.closedOpen(0.5d, 1.5d)), 1l);
         expectedDistribution.addBucket(new NumberRangeBucket<Long>(Range.closedOpen(1.5d, 2.5d)), 1l);

@@ -5,7 +5,6 @@ import com.ldbc.driver.Operation;
 import com.ldbc.driver.OperationClassification;
 import com.ldbc.driver.Workload;
 import com.ldbc.driver.WorkloadException;
-import com.ldbc.driver.data.ByteIterator;
 import com.ldbc.driver.generator.GeneratorFactory;
 import com.ldbc.driver.generator.MinMaxGenerator;
 import com.ldbc.driver.temporal.Duration;
@@ -66,18 +65,18 @@ public class SimpleWorkload extends Workload {
         MinMaxGenerator<Long> insertKeyGenerator = gf.minMaxGenerator(gf.incrementing(0l, 1l), 0l, 0l);
 
         // Insert Fields: Names & Values
-        Iterator<Integer> fieldValuelengthGenerator = gf.uniform(1, 100);
-        Iterator<ByteIterator> randomFieldValueGenerator = gf.randomByteIterator(fieldValuelengthGenerator);
-        List<Tuple3<Double, String, Iterator<ByteIterator>>> valuedFields = new ArrayList<Tuple3<Double, String, Iterator<ByteIterator>>>();
+        Iterator<Long> fieldValueLengthGenerator = gf.uniform(1l, 100l);
+        Iterator<Iterator<Byte>> randomFieldValueGenerator = gf.uniformBytesIterator(fieldValueLengthGenerator);
+        List<Tuple3<Double, String, Iterator<Iterator<Byte>>>> valuedFields = new ArrayList<>();
         for (int i = 0; i < NUMBER_OF_FIELDS_IN_RECORD; i++) {
             valuedFields.add(Tuple.tuple3(1d, FIELD_NAME_PREFIX + i, randomFieldValueGenerator));
         }
-        Iterator<Map<String, ByteIterator>> insertValuedFieldGenerator = gf.weightedDiscreteMap(valuedFields,
-                NUMBER_OF_FIELDS_IN_RECORD);
+        Iterator<Map<String, Iterator<Byte>>> insertValuedFieldGenerator = gf.weightedDiscreteMap(valuedFields, NUMBER_OF_FIELDS_IN_RECORD);
 
         Iterator<Operation<?>> initialInsertOperationGenerator = gf.limit(
                 new InsertOperationGenerator(TABLE, gf.prefix(insertKeyGenerator, KEY_NAME_PREFIX), insertValuedFieldGenerator),
-                INITIAL_INSERT_COUNT);
+                INITIAL_INSERT_COUNT
+        );
 
         /**
          * **************************
@@ -90,7 +89,8 @@ public class SimpleWorkload extends Workload {
         InsertOperationGenerator transactionalInsertOperationGenerator = new InsertOperationGenerator(
                 TABLE,
                 gf.prefix(insertKeyGenerator, KEY_NAME_PREFIX),
-                insertValuedFieldGenerator);
+                insertValuedFieldGenerator
+        );
 
         /**
          * **************************
@@ -123,7 +123,7 @@ public class SimpleWorkload extends Workload {
          * **************************
          */
         // Update Fields: Names & Values
-        Iterator<Map<String, ByteIterator>> updateValuedFieldsGenerator = gf.weightedDiscreteMap(
+        Iterator<Map<String, Iterator<Byte>>> updateValuedFieldsGenerator = gf.weightedDiscreteMap(
                 valuedFields,
                 NUMBER_OF_FIELDS_TO_UPDATE);
 
@@ -169,7 +169,7 @@ public class SimpleWorkload extends Workload {
          * **************************
          */
         // proportion of transactions reads/update/insert/scan/read-modify-write
-        List<Tuple2<Double, Iterator<Operation<?>>>> operations = new ArrayList<Tuple2<Double, Iterator<Operation<?>>>>();
+        List<Tuple2<Double, Iterator<Operation<?>>>> operations = new ArrayList<>();
         operations.add(Tuple.tuple2(READ_RATIO, (Iterator<Operation<?>>) readOperationGenerator));
         operations.add(Tuple.tuple2(UPDATE_RATIO, (Iterator<Operation<?>>) updateOperationGenerator));
         operations.add(Tuple.tuple2(INSERT_RATIO, (Iterator<Operation<?>>) transactionalInsertOperationGenerator));

@@ -1,13 +1,13 @@
 package com.ldbc.driver.workloads.simple;
 
 import com.ldbc.driver.Operation;
-import com.ldbc.driver.data.ByteIterator;
 
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Vector;
 
-public class ScanOperation extends Operation<Vector<Map<String, ByteIterator>>> {
+public class ScanOperation extends Operation<Vector<Map<String, Iterator<Byte>>>> {
     private final String table;
     private final String startKey;
     private final int recordCount;
@@ -38,7 +38,7 @@ public class ScanOperation extends Operation<Vector<Map<String, ByteIterator>>> 
     }
 
     @Override
-    public Vector<Map<String, ByteIterator>> marshalResult(String serializedOperationResult) {
+    public Vector<Map<String, Iterator<Byte>>> marshalResult(String serializedOperationResult) {
         return null;
     }
 

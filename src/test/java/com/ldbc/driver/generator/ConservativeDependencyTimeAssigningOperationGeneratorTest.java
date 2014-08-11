@@ -4,7 +4,6 @@ import com.google.common.collect.Lists;
 import com.ldbc.driver.Operation;
 import com.ldbc.driver.temporal.Time;
 import com.ldbc.driver.util.Function1;
-import com.ldbc.driver.util.RandomDataGeneratorFactory;
 import com.ldbc.driver.workloads.dummy.TimedNamedOperation1;
 import com.ldbc.driver.workloads.dummy.TimedNamedOperation2;
 import org.junit.Test;

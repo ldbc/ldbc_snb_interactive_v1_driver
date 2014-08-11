@@ -16,12 +16,11 @@ import com.ldbc.driver.temporal.Duration;
 import com.ldbc.driver.temporal.ManualTimeSource;
 import com.ldbc.driver.temporal.Time;
 import com.ldbc.driver.temporal.TimeSource;
-import com.ldbc.driver.util.RandomDataGeneratorFactory;
+import com.ldbc.driver.generator.RandomDataGeneratorFactory;
 import com.ldbc.driver.workloads.dummy.DummyDb;
 import com.ldbc.driver.workloads.dummy.TimedNamedOperation1;
 import com.ldbc.driver.workloads.dummy.TimedNamedOperation2;
 import com.ldbc.driver.workloads.dummy.TimedNamedOperation2Factory;
-import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
 
@@ -63,12 +62,9 @@ public class OperationStreamExecutorTest {
 
     @Ignore
     @Test
-    public void writeTestsWithTryFinallyInsteadOfBeforeAndAfterMethods() {
-        // TODO it will ensure services are always shutdown, regardless of success/failure
-        // TODO it will also allow for multiple versions of each test, with:
+    public void haveMoreVariationsOfEachTest() {
         // TODO - different completion time service implementations
         // TODO - different metrics service implementations
-        // TODO - different thread counts
         assertThat(true, is(false));
     }
 
@@ -86,6 +82,13 @@ public class OperationStreamExecutorTest {
 
     @Test
     public void oneExecutorShouldNotBeAbleToStarveAnotherOfThreads() throws WorkloadException, CompletionTimeException, DbException, InterruptedException, MetricsCollectionException {
+        // fails with 1 thread, need to investigate further, probably because there is no available thread to execute an operation handler in time <-- not necessarily a bug
+        // oneExecutorShouldNotBeAbleToStarveAnotherOfThreads(1);
+        oneExecutorShouldNotBeAbleToStarveAnotherOfThreads(4);
+        oneExecutorShouldNotBeAbleToStarveAnotherOfThreads(16);
+    }
+
+    public void oneExecutorShouldNotBeAbleToStarveAnotherOfThreads(int threadCount) throws WorkloadException, CompletionTimeException, DbException, InterruptedException, MetricsCollectionException {
         ConcurrentErrorReporter errorReporter = new ConcurrentErrorReporter();
 
         ConcurrentMetricsService metricsService = ThreadedQueuedConcurrentMetricsService.newInstanceUsingBlockingQueue(
@@ -142,7 +145,6 @@ public class OperationStreamExecutorTest {
             classifications.put(TimedNamedOperation1.class, new OperationClassification(SchedulingMode.INDIVIDUAL_ASYNC, OperationClassification.DependencyMode.READ));
             classifications.put(TimedNamedOperation2.class, new OperationClassification(SchedulingMode.INDIVIDUAL_BLOCKING, OperationClassification.DependencyMode.READ_WRITE));
 
-            int threadCount = 2;
             // Not used when Windowed Scheduling Mode is not used
             Duration executionWindowDuration = null;
             Duration toleratedExecutionDelayDuration = Duration.fromMilli(3);
@@ -256,6 +258,7 @@ public class OperationStreamExecutorTest {
             assertThat(errorReporter.toString(), runnerThread.runnerHasCompleted(), is(true));
             assertThat(errorReporter.toString(), runnerThread.runnerCompletedSuccessfully(), is(true));
         } finally {
+            db.setAllowedValueForAll(true);
             metricsService.shutdown();
             completionTimeService.shutdown();
             db.cleanup();
@@ -264,6 +267,13 @@ public class OperationStreamExecutorTest {
 
     @Test
     public void oneExecutorShouldNotBeCapableOfAdvancingInitiatedTimeOfAnotherExecutor()
+            throws CompletionTimeException, InterruptedException, MetricsCollectionException, DbException, WorkloadException {
+        oneExecutorShouldNotBeCapableOfAdvancingInitiatedTimeOfAnotherExecutor(1);
+        oneExecutorShouldNotBeCapableOfAdvancingInitiatedTimeOfAnotherExecutor(4);
+        oneExecutorShouldNotBeCapableOfAdvancingInitiatedTimeOfAnotherExecutor(16);
+    }
+
+    public void oneExecutorShouldNotBeCapableOfAdvancingInitiatedTimeOfAnotherExecutor(int threadCount)
             throws CompletionTimeException, InterruptedException, MetricsCollectionException, DbException, WorkloadException {
         ConcurrentErrorReporter errorReporter = new ConcurrentErrorReporter();
 
@@ -331,7 +341,6 @@ public class OperationStreamExecutorTest {
             classifications.put(TimedNamedOperation1.class, new OperationClassification(SchedulingMode.INDIVIDUAL_ASYNC, OperationClassification.DependencyMode.READ_WRITE));
             classifications.put(TimedNamedOperation2.class, new OperationClassification(SchedulingMode.INDIVIDUAL_BLOCKING, OperationClassification.DependencyMode.READ_WRITE));
 
-            int threadCount = 4;
             // Not used when Windowed Scheduling Mode is not used
             Duration executionWindowDuration = null;
             Duration toleratedExecutionDelayDuration = Duration.fromMilli(10);
@@ -411,6 +420,7 @@ public class OperationStreamExecutorTest {
             assertThat(errorReporter.toString(), runnerThread.runnerHasCompleted(), is(true));
             assertThat(errorReporter.toString(), runnerThread.runnerCompletedSuccessfully(), is(true));
         } finally {
+            db.setAllowedValueForAll(true);
             metricsService.shutdown();
             completionTimeService.shutdown();
             db.cleanup();
@@ -419,6 +429,14 @@ public class OperationStreamExecutorTest {
 
     @Test
     public void shouldFailWhenGctWriteOperationInAsyncModePreventsGctFromAdvancingHenceBlockingAnOperationFromExecutingBeforeToleratedDelay()
+            throws InterruptedException, MetricsCollectionException, DbException, CompletionTimeException, WorkloadException {
+        // fails with 1 thread, need to investigate further, probably because there is no available thread to execute an operation handler in time <-- not necessarily a bug
+        // shouldFailWhenGctWriteOperationInAsyncModePreventsGctFromAdvancingHenceBlockingAnOperationFromExecutingBeforeToleratedDelay(1);
+        shouldFailWhenGctWriteOperationInAsyncModePreventsGctFromAdvancingHenceBlockingAnOperationFromExecutingBeforeToleratedDelay(4);
+        shouldFailWhenGctWriteOperationInAsyncModePreventsGctFromAdvancingHenceBlockingAnOperationFromExecutingBeforeToleratedDelay(16);
+    }
+
+    public void shouldFailWhenGctWriteOperationInAsyncModePreventsGctFromAdvancingHenceBlockingAnOperationFromExecutingBeforeToleratedDelay(int threadCount)
             throws InterruptedException, MetricsCollectionException, DbException, CompletionTimeException, WorkloadException {
         ConcurrentErrorReporter errorReporter = new ConcurrentErrorReporter();
 
@@ -482,7 +500,6 @@ public class OperationStreamExecutorTest {
             classifications.put(TimedNamedOperation1.class, new OperationClassification(SchedulingMode.INDIVIDUAL_ASYNC, OperationClassification.DependencyMode.READ));
             classifications.put(TimedNamedOperation2.class, new OperationClassification(SchedulingMode.INDIVIDUAL_ASYNC, OperationClassification.DependencyMode.READ_WRITE));
 
-            int threadCount = 16;
             // Not used when Windowed Scheduling Mode is not used
             Duration executionWindowDuration = null;
             Duration toleratedExecutionDelayDuration = Duration.fromMilli(3);
@@ -658,18 +675,23 @@ public class OperationStreamExecutorTest {
             assertThat(errorReporter.toString(), runnerThread.runnerHasCompleted(), is(true));
             assertThat(errorReporter.toString(), runnerThread.runnerCompletedSuccessfully(), is(false));
         } finally {
-            try{
-                metricsService.shutdown();
-                completionTimeService.shutdown();
-                db.cleanup();
-            }catch (Exception e){
-                e.printStackTrace();
-            }
+            db.setAllowedValueForAll(true);
+            metricsService.shutdown();
+            completionTimeService.shutdown();
+            db.cleanup();
         }
     }
 
     @Test
-    public void shouldFailWhenPreviousOperationInBlockingModePreventsNextOperationFromExecutingBeforeToleratedDelay()
+    public void shouldFailWhenPreviousOperationInBlockingModePreventsNextOperationFromExecutingBeforeToleratedDelay
+            ()
+            throws InterruptedException, MetricsCollectionException, DbException, CompletionTimeException, WorkloadException {
+        shouldFailWhenPreviousOperationInBlockingModePreventsNextOperationFromExecutingBeforeToleratedDelay(1);
+        shouldFailWhenPreviousOperationInBlockingModePreventsNextOperationFromExecutingBeforeToleratedDelay(4);
+        shouldFailWhenPreviousOperationInBlockingModePreventsNextOperationFromExecutingBeforeToleratedDelay(16);
+    }
+
+    public void shouldFailWhenPreviousOperationInBlockingModePreventsNextOperationFromExecutingBeforeToleratedDelay(int threadCount)
             throws InterruptedException, MetricsCollectionException, DbException, CompletionTimeException, WorkloadException {
         ConcurrentErrorReporter errorReporter = new ConcurrentErrorReporter();
 
@@ -733,7 +755,6 @@ public class OperationStreamExecutorTest {
             classifications.put(TimedNamedOperation1.class, new OperationClassification(SchedulingMode.INDIVIDUAL_ASYNC, OperationClassification.DependencyMode.READ));
             classifications.put(TimedNamedOperation2.class, new OperationClassification(SchedulingMode.INDIVIDUAL_BLOCKING, OperationClassification.DependencyMode.READ_WRITE));
 
-            int threadCount = 16;
             // Not used when Windowed Scheduling Mode is not used
             Duration executionWindowDuration = null;
             Duration toleratedExecutionDelayDuration = Duration.fromMilli(4);
@@ -903,6 +924,7 @@ public class OperationStreamExecutorTest {
             assertThat(errorReporter.toString(), runnerThread.runnerHasCompleted(), is(true));
             assertThat(errorReporter.toString(), runnerThread.runnerCompletedSuccessfully(), is(false));
         } finally {
+            db.setAllowedValueForAll(true);
             metricsService.shutdown();
             completionTimeService.shutdown();
             db.cleanup();
@@ -911,6 +933,13 @@ public class OperationStreamExecutorTest {
 
     @Test
     public void shouldSuccessfullyCompleteWhenAllOperationsFinishOnTimeWithReadAsyncReadWriteAsync()
+            throws DriverConfigurationException, DbException, CompletionTimeException, WorkloadException, InterruptedException, MetricsCollectionException {
+        shouldSuccessfullyCompleteWhenAllOperationsFinishOnTimeWithReadAsyncReadWriteAsync(1);
+        shouldSuccessfullyCompleteWhenAllOperationsFinishOnTimeWithReadAsyncReadWriteAsync(4);
+        shouldSuccessfullyCompleteWhenAllOperationsFinishOnTimeWithReadAsyncReadWriteAsync(16);
+    }
+
+    public void shouldSuccessfullyCompleteWhenAllOperationsFinishOnTimeWithReadAsyncReadWriteAsync(int threadCount)
             throws DriverConfigurationException, DbException, CompletionTimeException, WorkloadException, InterruptedException, MetricsCollectionException {
         ConcurrentErrorReporter errorReporter = new ConcurrentErrorReporter();
 
@@ -971,7 +1000,6 @@ public class OperationStreamExecutorTest {
 
             Iterator<Operation<?>> operations = gf.mergeSortOperationsByStartTime(readOperations.iterator(), readWriteOperations.iterator());
 
-            int threadCount = 16;
             // Not used when Windowed Scheduling Mode is not used
             Duration executionWindowDuration = null;
             // set very high so it never triggers a failure
@@ -1132,6 +1160,7 @@ public class OperationStreamExecutorTest {
             assertThat(errorReporter.toString(), runnerThread.runnerHasCompleted(), is(true));
             assertThat(errorReporter.toString(), runnerThread.runnerCompletedSuccessfully(), is(true));
         } finally {
+            db.setAllowedValueForAll(true);
             metricsService.shutdown();
             completionTimeService.shutdown();
             db.cleanup();
@@ -1140,6 +1169,13 @@ public class OperationStreamExecutorTest {
 
     @Test
     public void shouldSuccessfullyCompleteWhenAllOperationsFinishOnTimeWithReadAsyncReadWriteBlocking()
+            throws DriverConfigurationException, DbException, CompletionTimeException, WorkloadException, InterruptedException, MetricsCollectionException {
+        shouldSuccessfullyCompleteWhenAllOperationsFinishOnTimeWithReadAsyncReadWriteBlocking(1);
+        shouldSuccessfullyCompleteWhenAllOperationsFinishOnTimeWithReadAsyncReadWriteBlocking(4);
+        shouldSuccessfullyCompleteWhenAllOperationsFinishOnTimeWithReadAsyncReadWriteBlocking(16);
+    }
+
+    public void shouldSuccessfullyCompleteWhenAllOperationsFinishOnTimeWithReadAsyncReadWriteBlocking(int threadCount)
             throws DriverConfigurationException, DbException, CompletionTimeException, WorkloadException, InterruptedException, MetricsCollectionException {
         ConcurrentErrorReporter errorReporter = new ConcurrentErrorReporter();
 
@@ -1200,7 +1236,6 @@ public class OperationStreamExecutorTest {
 
             Iterator<Operation<?>> operations = gf.mergeSortOperationsByStartTime(readOperations.iterator(), readWriteOperations.iterator());
 
-            int threadCount = 16;
             // Not used when Windowed Scheduling Mode is not used
             Duration executionWindowDuration = null;
             // set very high so it never triggers a failure
@@ -1361,6 +1396,7 @@ public class OperationStreamExecutorTest {
             assertThat(errorReporter.toString(), runnerThread.runnerHasCompleted(), is(true));
             assertThat(errorReporter.toString(), runnerThread.runnerCompletedSuccessfully(), is(true));
         } finally {
+            db.setAllowedValueForAll(true);
             metricsService.shutdown();
             completionTimeService.shutdown();
             db.cleanup();
@@ -1369,6 +1405,13 @@ public class OperationStreamExecutorTest {
 
     @Test
     public void shouldSuccessfullyCompleteWhenAllOperationsFinishOnTimeWithReadBlockingReadWriteAsync()
+            throws DriverConfigurationException, DbException, CompletionTimeException, WorkloadException, InterruptedException, MetricsCollectionException {
+        shouldSuccessfullyCompleteWhenAllOperationsFinishOnTimeWithReadBlockingReadWriteAsync(1);
+        shouldSuccessfullyCompleteWhenAllOperationsFinishOnTimeWithReadBlockingReadWriteAsync(4);
+        shouldSuccessfullyCompleteWhenAllOperationsFinishOnTimeWithReadBlockingReadWriteAsync(16);
+    }
+
+    public void shouldSuccessfullyCompleteWhenAllOperationsFinishOnTimeWithReadBlockingReadWriteAsync(int threadCount)
             throws DriverConfigurationException, DbException, CompletionTimeException, WorkloadException, InterruptedException, MetricsCollectionException {
         ConcurrentErrorReporter errorReporter = new ConcurrentErrorReporter();
 
@@ -1429,7 +1472,6 @@ public class OperationStreamExecutorTest {
 
             Iterator<Operation<?>> operations = gf.mergeSortOperationsByStartTime(readOperations.iterator(), readWriteOperations.iterator());
 
-            int threadCount = 16;
             // Not used when Windowed Scheduling Mode is not used
             Duration executionWindowDuration = null;
             // set very high so it never triggers a failure
@@ -1590,6 +1632,7 @@ public class OperationStreamExecutorTest {
             assertThat(errorReporter.toString(), runnerThread.runnerHasCompleted(), is(true));
             assertThat(errorReporter.toString(), runnerThread.runnerCompletedSuccessfully(), is(true));
         } finally {
+            db.setAllowedValueForAll(true);
             metricsService.shutdown();
             completionTimeService.shutdown();
             db.cleanup();
@@ -1598,6 +1641,13 @@ public class OperationStreamExecutorTest {
 
     @Test
     public void shouldSuccessfullyCompleteWhenAllOperationsFinishOnTimeWithReadBlockingReadWriteBlocking()
+            throws DriverConfigurationException, DbException, CompletionTimeException, WorkloadException, InterruptedException, MetricsCollectionException {
+        shouldSuccessfullyCompleteWhenAllOperationsFinishOnTimeWithReadBlockingReadWriteBlocking(1);
+        shouldSuccessfullyCompleteWhenAllOperationsFinishOnTimeWithReadBlockingReadWriteBlocking(4);
+        shouldSuccessfullyCompleteWhenAllOperationsFinishOnTimeWithReadBlockingReadWriteBlocking(16);
+    }
+
+    public void shouldSuccessfullyCompleteWhenAllOperationsFinishOnTimeWithReadBlockingReadWriteBlocking(int threadCount)
             throws DriverConfigurationException, DbException, CompletionTimeException, WorkloadException, InterruptedException, MetricsCollectionException {
         ConcurrentErrorReporter errorReporter = new ConcurrentErrorReporter();
 
@@ -1657,8 +1707,6 @@ public class OperationStreamExecutorTest {
             );
 
             Iterator<Operation<?>> operations = gf.mergeSortOperationsByStartTime(readOperations.iterator(), readWriteOperations.iterator());
-
-            int threadCount = 16;
             // Not used when Windowed Scheduling Mode is not used
             Duration executionWindowDuration = null;
             // set very high so it never triggers a failure
@@ -1819,6 +1867,7 @@ public class OperationStreamExecutorTest {
             assertThat(errorReporter.toString(), runnerThread.runnerHasCompleted(), is(true));
             assertThat(errorReporter.toString(), runnerThread.runnerCompletedSuccessfully(), is(true));
         } finally {
+            db.setAllowedValueForAll(true);
             metricsService.shutdown();
             completionTimeService.shutdown();
             db.cleanup();

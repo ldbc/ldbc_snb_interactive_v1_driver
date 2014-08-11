@@ -2,7 +2,6 @@ package com.ldbc.driver.generator;
 
 import com.google.common.collect.Lists;
 import com.ldbc.driver.util.Function0;
-import com.ldbc.driver.util.RandomDataGeneratorFactory;
 import org.junit.Before;
 import org.junit.Test;
 

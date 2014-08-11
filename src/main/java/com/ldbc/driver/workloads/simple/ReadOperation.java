@@ -1,12 +1,12 @@
 package com.ldbc.driver.workloads.simple;
 
 import com.ldbc.driver.Operation;
-import com.ldbc.driver.data.ByteIterator;
 
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
-public class ReadOperation extends Operation<Map<String, ByteIterator>> {
+public class ReadOperation extends Operation<Map<String, Iterator<Byte>>> {
     private final String table;
     private final String key;
     private final List<String> fields;
@@ -30,7 +30,7 @@ public class ReadOperation extends Operation<Map<String, ByteIterator>> {
     }
 
     @Override
-    public Map<String, ByteIterator> marshalResult(String serializedOperationResult) {
+    public Map<String, Iterator<Byte>> marshalResult(String serializedOperationResult) {
         return null;
     }
 

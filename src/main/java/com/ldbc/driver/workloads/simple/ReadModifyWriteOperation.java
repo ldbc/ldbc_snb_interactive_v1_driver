@@ -1,8 +1,8 @@
 package com.ldbc.driver.workloads.simple;
 
 import com.ldbc.driver.Operation;
-import com.ldbc.driver.data.ByteIterator;
 
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -10,10 +10,10 @@ public class ReadModifyWriteOperation extends Operation<Object> {
     private final String table;
     private final String key;
     private final List<String> readFields;
-    private final Map<String, ByteIterator> writeValues;
+    private final Map<String, Iterator<Byte>> writeValues;
 
     public ReadModifyWriteOperation(String table, String key, List<String> readFields,
-                                    Map<String, ByteIterator> writeValues) {
+                                    Map<String, Iterator<Byte>> writeValues) {
         super();
         this.table = table;
         this.key = key;
@@ -33,7 +33,7 @@ public class ReadModifyWriteOperation extends Operation<Object> {
         return readFields;
     }
 
-    public Map<String, ByteIterator> getValues() {
+    public Map<String, Iterator<Byte>> getValues() {
         return writeValues;
     }
 

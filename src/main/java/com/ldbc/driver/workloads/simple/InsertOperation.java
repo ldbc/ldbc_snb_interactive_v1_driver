@@ -1,16 +1,16 @@
 package com.ldbc.driver.workloads.simple;
 
 import com.ldbc.driver.Operation;
-import com.ldbc.driver.data.ByteIterator;
 
+import java.util.Iterator;
 import java.util.Map;
 
 public class InsertOperation extends Operation<Object> {
     private final String table;
     private final String key;
-    private final Map<String, ByteIterator> valuedFields;
+    private final Map<String, Iterator<Byte>> valuedFields;
 
-    public InsertOperation(String table, String key, Map<String, ByteIterator> valuedFields) {
+    public InsertOperation(String table, String key, Map<String, Iterator<Byte>> valuedFields) {
         super();
         this.table = table;
         this.key = key;
@@ -25,7 +25,7 @@ public class InsertOperation extends Operation<Object> {
         return key;
     }
 
-    public Map<String, ByteIterator> getValuedFields() {
+    public Map<String, Iterator<Byte>> getValuedFields() {
         return valuedFields;
     }
 

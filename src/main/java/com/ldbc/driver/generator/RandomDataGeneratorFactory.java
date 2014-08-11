@@ -1,8 +1,6 @@
-package com.ldbc.driver.util;
+package com.ldbc.driver.generator;
 
-import com.ldbc.driver.temporal.ManualTimeSource;
 import com.ldbc.driver.temporal.SystemTimeSource;
-import com.ldbc.driver.temporal.Time;
 import com.ldbc.driver.temporal.TimeSource;
 import org.apache.commons.math3.random.RandomDataGenerator;
 import org.apache.commons.math3.random.RandomGenerator;
@@ -10,7 +8,7 @@ import org.apache.commons.math3.random.Well19937c;
 
 public class RandomDataGeneratorFactory {
 
-    TimeSource TIME_SOURCE = new SystemTimeSource();
+    private final TimeSource TIME_SOURCE = new SystemTimeSource();
     private final RandomGenerator random;
 
     /**

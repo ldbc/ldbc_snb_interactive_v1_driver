@@ -8,15 +8,20 @@ import java.util.Map;
 public class DummyDb extends Db {
     private class AllowedConnectionState extends DbConnectionState {
         private final Map<String, Boolean> nameAllowedMap;
-        private final boolean defaultAllowed;
+        private boolean defaultAllowed;
 
         private AllowedConnectionState(boolean defaultAllowed) {
             this.defaultAllowed = defaultAllowed;
-            nameAllowedMap = new HashMap<>();
+            this.nameAllowedMap = new HashMap<>();
         }
 
-        private void setNameAllowedValue(String name, Boolean allowed) {
+        private void setNameAllowedValue(String name, boolean allowed) {
             nameAllowedMap.put(name, allowed);
+        }
+
+        private void setAllowedValueForAll(boolean allowed) {
+            nameAllowedMap.clear();
+            defaultAllowed = allowed;
         }
 
         private boolean isAllowed(String name) {
@@ -30,8 +35,12 @@ public class DummyDb extends Db {
 
     private AllowedConnectionState allowedConnectionState = null;
 
-    public void setNameAllowedValue(String name, Boolean allowed) {
+    public void setNameAllowedValue(String name, boolean allowed) {
         allowedConnectionState.setNameAllowedValue(name, allowed);
+    }
+
+    public void setAllowedValueForAll(boolean allowed) {
+        allowedConnectionState.setAllowedValueForAll(allowed);
     }
 
     @Override

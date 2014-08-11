@@ -1,6 +1,5 @@
 package com.ldbc.driver.generator;
 
-import com.ldbc.driver.util.RandomDataGeneratorFactory;
 import org.apache.commons.math3.random.RandomDataGenerator;
 import org.junit.Test;
 
