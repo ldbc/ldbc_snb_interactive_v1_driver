@@ -66,7 +66,7 @@ public class SimpleWorkload extends Workload {
 
         // Insert Fields: Names & Values
         Iterator<Long> fieldValueLengthGenerator = gf.uniform(1l, 100l);
-        Iterator<Iterator<Byte>> randomFieldValueGenerator = gf.uniformBytesIterator(fieldValueLengthGenerator);
+        Iterator<Iterator<Byte>> randomFieldValueGenerator = gf.sizedUniformBytesGenerator(fieldValueLengthGenerator);
         List<Tuple3<Double, String, Iterator<Iterator<Byte>>>> valuedFields = new ArrayList<>();
         for (int i = 0; i < NUMBER_OF_FIELDS_IN_RECORD; i++) {
             valuedFields.add(Tuple.tuple3(1d, FIELD_NAME_PREFIX + i, randomFieldValueGenerator));

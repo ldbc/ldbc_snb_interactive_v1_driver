@@ -601,9 +601,25 @@ public class GeneratorFactory {
      * @return
      */
     public <T> Iterator<T> discrete(Iterable<T> items) {
-        List<Tuple2<Double, Iterator<T>>> weightedIteratorItems = new ArrayList<Tuple2<Double, Iterator<T>>>();
+        List<Tuple2<Double, Iterator<T>>> weightedIteratorItems = new ArrayList<>();
         for (T item : items) {
             weightedIteratorItems.add(Tuple.tuple2(1d, constant(item)));
+        }
+        return weightedDiscreteDereferencing(weightedIteratorItems);
+    }
+
+    /**
+     * next() retrieves single iterator from set of iterators, then returns the next() element from that iterator.
+     * All iterators are selected with equal probability
+     *
+     * @param itemIterators
+     * @param <T>
+     * @return
+     */
+    public <T> Iterator<T> discreteDereferencing(Iterable<Iterator<T>> itemIterators) {
+        List<Tuple2<Double, Iterator<T>>> weightedIteratorItems = new ArrayList<>();
+        for (Iterator<T> itemIterator : itemIterators) {
+            weightedIteratorItems.add(Tuple.tuple2(1d, itemIterator));
         }
         return weightedDiscreteDereferencing(weightedIteratorItems);
     }
@@ -616,7 +632,7 @@ public class GeneratorFactory {
      * @return
      */
     public <T> Iterator<T> weightedDiscrete(Iterable<Tuple2<Double, T>> weightedItems) {
-        List<Tuple2<Double, Iterator<T>>> weightedIteratorItems = new ArrayList<Tuple2<Double, Iterator<T>>>();
+        List<Tuple2<Double, Iterator<T>>> weightedIteratorItems = new ArrayList<>();
         for (Tuple2<Double, T> item : weightedItems) {
             weightedIteratorItems.add(Tuple.tuple2(item._1(), constant(item._2())));
         }
@@ -632,7 +648,7 @@ public class GeneratorFactory {
      * @return
      */
     public <T> Iterator<T> weightedDiscreteDereferencing(Iterable<Tuple2<Double, Iterator<T>>> weightedIteratorItems) {
-        Iterator<Iterator<T>> discreteIteratorGenerator = new DiscreteGenerator<Iterator<T>>(getRandom(), weightedIteratorItems);
+        Iterator<Iterator<T>> discreteIteratorGenerator = new DiscreteGenerator<>(getRandom(), weightedIteratorItems);
         return new IteratorDereferencingGenerator<T>(discreteIteratorGenerator);
     }
 
@@ -725,6 +741,12 @@ public class GeneratorFactory {
         return new MappingGenerator<>(discreteListGenerator, pairsToMap);
     }
 
+    public <T extends Number> Iterator<T> naiveBoundedNumberRange(T lowerBound, T upperBound, Iterator<T> unboundedGenerator) {
+        MinMaxGenerator<T> lowerBoundGenerator = minMaxGenerator(constant(lowerBound), lowerBound, lowerBound);
+        MinMaxGenerator<T> upperBoundGenerator = minMaxGenerator(constant(upperBound), upperBound, upperBound);
+        return new NaiveBoundedRangeNumberGenerator<T>(unboundedGenerator, lowerBoundGenerator, upperBoundGenerator);
+    }
+
     /**
      * Wraps a number generator and ensures it only returns numbers within a min-max range.
      * Range is defined by lowerBoundGenerator and upperBoundGenerator.
@@ -762,8 +784,8 @@ public class GeneratorFactory {
      *
      * @return
      */
-    public Iterator<Iterator<Byte>> uniformBytesIterator(Iterator<Long> lengths) {
-        return new UniformByteIteratorGenerator(getRandom(), lengths, this);
+    public Iterator<Iterator<Byte>> sizedUniformBytesGenerator(Iterator<Long> lengths) {
+        return new SizedUniformByteGeneratorGenerator(lengths, this);
     }
 
     /**

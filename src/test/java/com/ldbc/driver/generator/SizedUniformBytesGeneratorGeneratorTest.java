@@ -1,12 +1,13 @@
 package com.ldbc.driver.generator;
 
+import com.google.common.collect.Lists;
 import com.google.common.collect.Range;
 import com.ldbc.driver.util.Bucket.NumberRangeBucket;
 import com.ldbc.driver.util.Histogram;
 
 import java.util.Iterator;
 
-public class UniformNumberGeneratorByteTest extends NumberGeneratorTest<Byte, Long> {
+public class SizedUniformBytesGeneratorGeneratorTest extends NumberGeneratorTest<Byte, Long> {
     @Override
     public double getMeanTolerance() {
         return 1;
@@ -18,8 +19,18 @@ public class UniformNumberGeneratorByteTest extends NumberGeneratorTest<Byte, Lo
     }
 
     @Override
-    public Iterator<Byte> getGeneratorImpl(GeneratorFactory generatorFactory) {
-        return generatorFactory.uniformBytes();
+    public Iterator<Byte> getGeneratorImpl(GeneratorFactory gf) {
+        Iterator<Iterator<Byte>> uniformBytesGeneratorGenerator =
+                gf.limit(
+                        // generate uniform byte generators of maximum length
+                        gf.sizedUniformBytesGenerator(
+                                gf.constant(Long.MAX_VALUE)
+                        ),
+                        // generate 100 generators
+                        100
+                );
+        // create dereferencing generator that will pull the bytes from the 100 byte generators
+        return gf.discreteDereferencing(Lists.newArrayList(uniformBytesGeneratorGenerator));
     }
 
     @Override
