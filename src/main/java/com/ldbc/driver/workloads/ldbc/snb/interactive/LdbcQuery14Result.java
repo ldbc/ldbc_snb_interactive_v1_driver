@@ -3,16 +3,16 @@ package com.ldbc.driver.workloads.ldbc.snb.interactive;
 import com.google.common.collect.Iterables;
 
 public class LdbcQuery14Result {
-    private final Iterable<Long> personsIdsInPath;
+    private final Iterable<Long> personIdsInPath;
     private final double pathWeight;
 
-    public LdbcQuery14Result(Iterable<Long> personsIdsInPath, double pathWeight) {
-        this.personsIdsInPath = personsIdsInPath;
+    public LdbcQuery14Result(Iterable<Long> personIdsInPath, double pathWeight) {
+        this.personIdsInPath = personIdsInPath;
         this.pathWeight = pathWeight;
     }
 
     public Iterable<Long> personsIdsInPath() {
-        return personsIdsInPath;
+        return personIdsInPath;
     }
 
     public double pathWeight() {
@@ -27,7 +27,7 @@ public class LdbcQuery14Result {
         LdbcQuery14Result that = (LdbcQuery14Result) o;
 
         if (Double.compare(that.pathWeight, pathWeight) != 0) return false;
-        if (personsIdsInPath != null ? !Iterables.elementsEqual(personsIdsInPath, that.personsIdsInPath) : that.personsIdsInPath != null)
+        if (personIdsInPath != null ? !Iterables.elementsEqual(personIdsInPath, that.personIdsInPath) : that.personIdsInPath != null)
             return false;
 
         return true;
@@ -36,7 +36,7 @@ public class LdbcQuery14Result {
     @Override
     public String toString() {
         return "LdbcQuery14Result{" +
-                "personsIdsInPath=" + personsIdsInPath +
+                "personIdsInPath=" + personIdsInPath +
                 ", pathWeight=" + pathWeight +
                 '}';
     }
