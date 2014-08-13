@@ -3,6 +3,8 @@ package com.ldbc.driver.workloads.ldbc.snb.interactive;
 import com.google.common.collect.Lists;
 import org.junit.Test;
 
+import java.util.List;
+
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.not;
 import static org.junit.Assert.assertThat;
@@ -21,8 +23,8 @@ public class LdbcSnbOperationResultEqualityTest {
         Iterable<String> friendEmails1 = Lists.newArrayList("1a", "1b");
         Iterable<String> friendLanguages1 = Lists.newArrayList("1a", "1b");
         String friendCityName1 = "1";
-        Iterable<String> friendUniversities1 = Lists.newArrayList("1a", "1b");
-        Iterable<String> friendCompanies1 = Lists.newArrayList("1a", "1b");
+        Iterable<List<String>> friendUniversities1 = Lists.<List<String>>newArrayList(Lists.newArrayList("1a", "1b", "1c"), Lists.newArrayList("1d", "1e", "1f"));
+        Iterable<List<String>> friendCompanies1 = Lists.<List<String>>newArrayList(Lists.newArrayList("1a", "1b", "1c"), Lists.newArrayList("1d", "1e", "1f"));
 
         long friendId2 = 2;
         String friendLastName2 = "last2";
@@ -35,8 +37,8 @@ public class LdbcSnbOperationResultEqualityTest {
         Iterable<String> friendEmails2 = Lists.newArrayList("2a", "2b");
         Iterable<String> friendLanguages2 = Lists.newArrayList("2a", "2b");
         String friendCityName2 = "2";
-        Iterable<String> friendUniversities2 = Lists.newArrayList("2a", "2b");
-        Iterable<String> friendCompanies2 = Lists.newArrayList("2a", "2b");
+        Iterable<List<String>> friendUniversities2 = Lists.<List<String>>newArrayList(Lists.newArrayList("2a", "2b", "2c"), Lists.newArrayList("2d", "2e", "2f"));
+        Iterable<List<String>> friendCompanies2 = Lists.<List<String>>newArrayList(Lists.newArrayList("2a", "2b", "2c"), Lists.newArrayList("2d", "2e", "2f"));
 
         LdbcQuery1Result result1a = new LdbcQuery1Result(
                 friendId1,
@@ -66,7 +68,7 @@ public class LdbcSnbOperationResultEqualityTest {
                 friendEmails1,
                 friendLanguages1,
                 friendCityName1,
-                Lists.newArrayList("1b", "1a"),
+                Lists.<List<String>>newArrayList(Lists.newArrayList("1d", "1e", "1f"), Lists.newArrayList("1a", "1b", "1c")),
                 friendCompanies1
         );
 

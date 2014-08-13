@@ -3,9 +3,11 @@ package com.ldbc.driver.workloads.ldbc.snb.interactive.db;
 import com.google.common.collect.Lists;
 import com.ldbc.driver.workloads.ldbc.snb.interactive.*;
 
+import java.util.List;
+
 public class DummyLdbcSnbInteractiveOperationResultInstances {
     public static LdbcQuery1Result read1Result() {
-        return new LdbcQuery1Result(1, "2", 3, 4, 5, "6", "7", "8", Lists.newArrayList("9"), Lists.newArrayList("10"), "11", Lists.newArrayList("12"), Lists.newArrayList("13"));
+        return new LdbcQuery1Result(1, "2", 3, 4, 5, "6", "7", "8", Lists.newArrayList("9"), Lists.newArrayList("10"), "11", Lists.<List<String>>newArrayList(Lists.newArrayList("12", "13", "14")), Lists.<List<String>>newArrayList(Lists.newArrayList("15", "16", "17")));
     }
 
     public static LdbcQuery2Result read2Result() {

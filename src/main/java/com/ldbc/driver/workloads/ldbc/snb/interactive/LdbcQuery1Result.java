@@ -5,6 +5,7 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
 public class LdbcQuery1Result {
@@ -22,11 +23,11 @@ public class LdbcQuery1Result {
     // (Person-studyAt->University.name,
     // Person-studyAt->.classYear,
     // Person-studyAt->University-isLocatedIn->City.name)
-    private final Iterable<String> friendUniversities;
+    private final Iterable<List<String>> friendUniversities;
     // (Person-workAt->Company.name,
     // Person-workAt->.workFrom,
     // Person-workAt->Company-isLocatedIn->City.name)
-    private final Iterable<String> friendCompanies;
+    private final Iterable<List<String>> friendCompanies;
 
     public LdbcQuery1Result(
             long friendId,
@@ -40,8 +41,8 @@ public class LdbcQuery1Result {
             Iterable<String> friendEmails,
             Iterable<String> friendLanguages,
             String friendCityName,
-            Iterable<String> friendUniversities,
-            Iterable<String> friendCompanies) {
+            Iterable<List<String>> friendUniversities,
+            Iterable<List<String>> friendCompanies) {
         this.friendId = friendId;
         this.friendLastName = friendLastName;
         this.distanceFromPerson = distanceFromPerson;
@@ -101,11 +102,11 @@ public class LdbcQuery1Result {
         return friendCityName;
     }
 
-    public Iterable<String> friendUniversities() {
+    public Iterable<List<String>> friendUniversities() {
         return friendUniversities;
     }
 
-    public Iterable<String> friendCompanies() {
+    public Iterable<List<String>> friendCompanies() {
         return friendCompanies;
     }
 
@@ -124,26 +125,46 @@ public class LdbcQuery1Result {
             return false;
         if (friendCityName != null ? !friendCityName.equals(result.friendCityName) : result.friendCityName != null)
             return false;
-        if (friendCompanies != null ? !Iterables.elementsEqual(sort(friendCompanies), sort(result.friendCompanies)) : result.friendCompanies != null)
+        if (friendCompanies != null ? !Iterables.elementsEqual(sortListOfListsOfStrings(friendCompanies), sortListOfListsOfStrings(result.friendCompanies)) : result.friendCompanies != null)
             return false;
-        if (friendEmails != null ? !Iterables.elementsEqual(sort(friendEmails), sort(result.friendEmails)) : result.friendEmails != null)
+        if (friendEmails != null ? !Iterables.elementsEqual(sortStringList(friendEmails), sortStringList(result.friendEmails)) : result.friendEmails != null)
             return false;
         if (friendGender != null ? !friendGender.equals(result.friendGender) : result.friendGender != null)
             return false;
-        if (friendLanguages != null ? !Iterables.elementsEqual(sort(friendLanguages), sort(result.friendLanguages)) : result.friendLanguages != null)
+        if (friendLanguages != null ? !Iterables.elementsEqual(sortStringList(friendLanguages), sortStringList(result.friendLanguages)) : result.friendLanguages != null)
             return false;
         if (friendLastName != null ? !friendLastName.equals(result.friendLastName) : result.friendLastName != null)
             return false;
         if (friendLocationIp != null ? !friendLocationIp.equals(result.friendLocationIp) : result.friendLocationIp != null)
             return false;
-        if (friendUniversities != null ? !Iterables.elementsEqual(sort(friendUniversities), sort(result.friendUniversities)) : result.friendUniversities != null)
+        if (friendUniversities != null ? !Iterables.elementsEqual(sortListOfListsOfStrings(friendUniversities), sortListOfListsOfStrings(result.friendUniversities)) : result.friendUniversities != null)
             return false;
         return true;
     }
 
-    private Iterable<String> sort(Iterable<String> iterable) {
+    private Iterable<String> sortStringList(Iterable<String> iterable) {
         List<String> list = Lists.newArrayList(iterable);
         Collections.sort(list);
+        return list;
+    }
+
+    private List<List<String>> sortListOfListsOfStrings(Iterable<List<String>> iterable) {
+        List<List<String>> list = Lists.newArrayList(iterable);
+        Comparator<List<String>> threeElementStringListComparator = new Comparator<List<String>>() {
+            @Override
+            public int compare(List<String> o1, List<String> o2) {
+                if (o1.size() != 3)
+                    throw new RuntimeException("List must contain exactly three elements: " + o1);
+                if (o2.size() != 3)
+                    throw new RuntimeException("List must contain exactly three elements: " + o1);
+                int result = o1.get(0).compareTo(o2.get(0));
+                if (0 != result) return result;
+                result = o1.get(1).compareTo(o2.get(1));
+                if (0 != result) return result;
+                return o1.get(2).compareTo(o2.get(2));
+            }
+        };
+        Collections.sort(list, threeElementStringListComparator);
         return list;
     }
 

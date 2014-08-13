@@ -1,5 +1,6 @@
 package com.ldbc.driver.workloads.ldbc.snb.interactive;
 
+import com.google.common.collect.Lists;
 import com.ldbc.driver.Operation;
 import com.ldbc.driver.SerializingMarshallingException;
 import org.codehaus.jackson.map.ObjectMapper;
@@ -100,8 +101,8 @@ public class LdbcQuery1 extends Operation<List<LdbcQuery1Result>> {
             Iterable<String> friendEmails = (List<String>) resultAsList.get(8);
             Iterable<String> friendLanguages = (List<String>) resultAsList.get(9);
             String friendCityName = (String) resultAsList.get(10);
-            Iterable<String> friendUniversities = (List<String>) resultAsList.get(11);
-            Iterable<String> friendCompanies = (List<String>) resultAsList.get(12);
+            Iterable<List<String>> friendUniversities = Lists.newArrayList((List) resultAsList.get(11));
+            Iterable<List<String>> friendCompanies = Lists.newArrayList((List) resultAsList.get(12));
 
             results.add(new LdbcQuery1Result(
                     friendId,

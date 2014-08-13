@@ -27,8 +27,8 @@ public class LdbcOperationsSerializeMarshalOperationResultsTest {
         Iterable<String> friendEmails1 = Lists.newArrayList("1a", "1b");
         Iterable<String> friendLanguages1 = Lists.newArrayList("1c", "1d");
         String friendCityName1 = "1";
-        Iterable<String> friendUniversities1 = Lists.newArrayList("1e", "1f");
-        Iterable<String> friendCompanies1 = Lists.newArrayList("1g", "1h");
+        Iterable<List<String>> friendUniversities1 = Lists.<List<String>>newArrayList(Lists.newArrayList("1e", "1f", "1g"));
+        Iterable<List<String>> friendCompanies1 = Lists.<List<String>>newArrayList(Lists.newArrayList("1g", "1h", "1i"));
         List<LdbcQuery1Result> before = Lists.newArrayList(new LdbcQuery1Result(
                 friendId1,
                 friendLastName1,
