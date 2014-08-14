@@ -2,7 +2,6 @@ package com.ldbc.driver.workloads.ldbc.snb.interactive;
 
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
-import com.google.common.collect.Sets;
 
 import java.util.Collections;
 import java.util.Comparator;
@@ -51,11 +50,11 @@ public class LdbcQuery1Result {
         this.friendGender = friendGender;
         this.friendBrowserUsed = friendBrowserUsed;
         this.friendLocationIp = friendLocationIp;
-        this.friendEmails = Sets.newHashSet(friendEmails);
-        this.friendLanguages = Sets.newHashSet(friendLanguages);
+        this.friendEmails = friendEmails;
+        this.friendLanguages = friendLanguages;
         this.friendCityName = friendCityName;
-        this.friendUniversities = Sets.newHashSet(friendUniversities);
-        this.friendCompanies = Sets.newHashSet(friendCompanies);
+        this.friendUniversities = friendUniversities;
+        this.friendCompanies = friendCompanies;
     }
 
     public long friendId() {
