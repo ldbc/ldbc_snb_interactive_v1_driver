@@ -7,7 +7,7 @@ import java.util.List;
 
 public class DummyLdbcSnbInteractiveOperationResultInstances {
     public static LdbcQuery1Result read1Result() {
-        return new LdbcQuery1Result(1, "2", 3, 4, 5, "6", "7", "8", Lists.newArrayList("9"), Lists.newArrayList("10"), "11", Lists.<List<String>>newArrayList(Lists.newArrayList("12", "13", "14")), Lists.<List<String>>newArrayList(Lists.newArrayList("15", "16", "17")));
+        return new LdbcQuery1Result(1, "2", 3, 4, 5, "6", "7", "8", Lists.newArrayList("9"), Lists.newArrayList("10"), "11", Lists.<List<Object>>newArrayList(Lists.<Object>newArrayList("12", "13", "14")), Lists.<List<Object>>newArrayList(Lists.<Object>newArrayList("15", "16", "17")));
     }
 
     public static LdbcQuery2Result read2Result() {
