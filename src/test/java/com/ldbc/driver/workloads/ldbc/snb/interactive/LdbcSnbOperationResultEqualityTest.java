@@ -65,11 +65,11 @@ public class LdbcSnbOperationResultEqualityTest {
                 friendGender1,
                 friendBrowserUsed1,
                 friendLocationIp1,
-                friendEmails1,
-                friendLanguages1,
+                Lists.newArrayList("1b", "1a"),
+                Lists.newArrayList("1b", "1a"),
                 friendCityName1,
                 Lists.<List<String>>newArrayList(Lists.newArrayList("1d", "1e", "1f"), Lists.newArrayList("1a", "1b", "1c")),
-                friendCompanies1
+                Lists.<List<String>>newArrayList(Lists.newArrayList("1d", "1e", "1f"), Lists.newArrayList("1a", "1b", "1c"))
         );
 
         LdbcQuery1Result result2a = new LdbcQuery1Result(

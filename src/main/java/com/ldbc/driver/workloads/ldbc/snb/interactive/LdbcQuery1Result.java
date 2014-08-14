@@ -114,29 +114,29 @@ public class LdbcQuery1Result {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
 
-        LdbcQuery1Result result = (LdbcQuery1Result) o;
+        LdbcQuery1Result other = (LdbcQuery1Result) o;
 
-        if (distanceFromPerson != result.distanceFromPerson) return false;
-        if (friendBirthday != result.friendBirthday) return false;
-        if (friendCreationDate != result.friendCreationDate) return false;
-        if (friendId != result.friendId) return false;
-        if (friendBrowserUsed != null ? !friendBrowserUsed.equals(result.friendBrowserUsed) : result.friendBrowserUsed != null)
+        if (distanceFromPerson != other.distanceFromPerson) return false;
+        if (friendBirthday != other.friendBirthday) return false;
+        if (friendCreationDate != other.friendCreationDate) return false;
+        if (friendId != other.friendId) return false;
+        if (friendBrowserUsed != null ? !friendBrowserUsed.equals(other.friendBrowserUsed) : other.friendBrowserUsed != null)
             return false;
-        if (friendCityName != null ? !friendCityName.equals(result.friendCityName) : result.friendCityName != null)
+        if (friendCityName != null ? !friendCityName.equals(other.friendCityName) : other.friendCityName != null)
             return false;
-        if (friendCompanies != null ? !Iterables.elementsEqual(sortListOfListsOfStrings(friendCompanies), sortListOfListsOfStrings(result.friendCompanies)) : result.friendCompanies != null)
+        if (friendCompanies != null ? !listOfListsOfStringsElementsEqual(sortListOfListsOfStrings(friendCompanies), sortListOfListsOfStrings(other.friendCompanies)) : other.friendCompanies != null)
             return false;
-        if (friendEmails != null ? !Iterables.elementsEqual(sortStringList(friendEmails), sortStringList(result.friendEmails)) : result.friendEmails != null)
+        if (friendEmails != null ? !Iterables.elementsEqual(sortStringList(friendEmails), sortStringList(other.friendEmails)) : other.friendEmails != null)
             return false;
-        if (friendGender != null ? !friendGender.equals(result.friendGender) : result.friendGender != null)
+        if (friendGender != null ? !friendGender.equals(other.friendGender) : other.friendGender != null)
             return false;
-        if (friendLanguages != null ? !Iterables.elementsEqual(sortStringList(friendLanguages), sortStringList(result.friendLanguages)) : result.friendLanguages != null)
+        if (friendLanguages != null ? !Iterables.elementsEqual(sortStringList(friendLanguages), sortStringList(other.friendLanguages)) : other.friendLanguages != null)
             return false;
-        if (friendLastName != null ? !friendLastName.equals(result.friendLastName) : result.friendLastName != null)
+        if (friendLastName != null ? !friendLastName.equals(other.friendLastName) : other.friendLastName != null)
             return false;
-        if (friendLocationIp != null ? !friendLocationIp.equals(result.friendLocationIp) : result.friendLocationIp != null)
+        if (friendLocationIp != null ? !friendLocationIp.equals(other.friendLocationIp) : other.friendLocationIp != null)
             return false;
-        if (friendUniversities != null ? !Iterables.elementsEqual(sortListOfListsOfStrings(friendUniversities), sortListOfListsOfStrings(result.friendUniversities)) : result.friendUniversities != null)
+        if (friendUniversities != null ? !listOfListsOfStringsElementsEqual(sortListOfListsOfStrings(friendUniversities), sortListOfListsOfStrings(other.friendUniversities)) : other.friendUniversities != null)
             return false;
         return true;
     }
@@ -165,6 +165,14 @@ public class LdbcQuery1Result {
         };
         Collections.sort(list, threeElementStringListComparator);
         return list;
+    }
+
+    private boolean listOfListsOfStringsElementsEqual(List<List<String>> listOfLists1, List<List<String>> listOfLists2) {
+        if (listOfLists1.size() != listOfLists2.size()) return false;
+        for (int i = 0; i < listOfLists1.size(); i++) {
+            if (false == listOfLists1.get(i).equals(listOfLists2.get(i))) return false;
+        }
+        return true;
     }
 
     @Override
