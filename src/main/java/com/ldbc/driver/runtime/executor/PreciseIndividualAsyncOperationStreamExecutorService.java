@@ -28,7 +28,8 @@ public class PreciseIndividualAsyncOperationStreamExecutorService {
 
     public PreciseIndividualAsyncOperationStreamExecutorService(TimeSource timeSource,
                                                                 ConcurrentErrorReporter errorReporter,
-                                                                Iterator<Operation<?>> operations,
+                                                                Iterator<Operation<?>> gctReadOperations,
+                                                                Iterator<Operation<?>> gctWriteOperations,
                                                                 Spinner spinner,
                                                                 Spinner slightlyEarlySpinner,
                                                                 OperationHandlerExecutor operationHandlerExecutor,
@@ -39,12 +40,13 @@ public class PreciseIndividualAsyncOperationStreamExecutorService {
                                                                 ConcurrentMetricsService metricsService) {
         this.TIME_SOURCE = timeSource;
         this.errorReporter = errorReporter;
-        if (operations.hasNext()) {
+        if (gctReadOperations.hasNext() || gctWriteOperations.hasNext()) {
             this.preciseIndividualAsyncOperationStreamExecutorServiceThread = new PreciseIndividualAsyncOperationStreamExecutorServiceThread(
                     TIME_SOURCE,
                     operationHandlerExecutor,
                     errorReporter,
-                    operations,
+                    gctReadOperations,
+                    gctWriteOperations,
                     hasFinished,
                     spinner,
                     slightlyEarlySpinner,

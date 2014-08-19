@@ -15,7 +15,7 @@ public class SplitDefinition<BASE_ITEM_TYPE> {
     }
 
     boolean overlapsWith(SplitDefinition<BASE_ITEM_TYPE> otherDefinition) {
-        Set<Class<? extends BASE_ITEM_TYPE>> intersection = new HashSet<Class<? extends BASE_ITEM_TYPE>>();
+        Set<Class<? extends BASE_ITEM_TYPE>> intersection = new HashSet<>();
         intersection.addAll(itemTypes);
         intersection.retainAll(otherDefinition.itemTypes);
         return intersection.isEmpty() == false;

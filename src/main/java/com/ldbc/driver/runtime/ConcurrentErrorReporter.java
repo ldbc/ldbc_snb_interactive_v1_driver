@@ -3,6 +3,7 @@ package com.ldbc.driver.runtime;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 
@@ -27,7 +28,10 @@ public class ConcurrentErrorReporter {
     public static String formatErrors(List<ErrorReport> errors) {
         StringBuilder sb = new StringBuilder();
         sb.append("- Error Log -");
-        for (ErrorReport error : errors) {
+        // Do this to avoid ConcurrentModificationException in case error is reported while iterating through errors
+        Iterator<ErrorReport> errorsIterator = errors.iterator();
+        while (errorsIterator.hasNext()){
+            ErrorReport error = errorsIterator.next();
             sb.append("\n\tSOURCE:\t").append(error.source());
             sb.append("\n\tERROR:\t").append(error.error());
         }

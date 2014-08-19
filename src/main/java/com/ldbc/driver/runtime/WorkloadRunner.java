@@ -2,6 +2,7 @@ package com.ldbc.driver.runtime;
 
 import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
+import com.google.common.collect.Lists;
 import com.ldbc.driver.*;
 import com.ldbc.driver.runtime.coordination.CompletionTimeException;
 import com.ldbc.driver.runtime.coordination.ConcurrentCompletionTimeService;
@@ -90,18 +91,57 @@ public class WorkloadRunner {
                     errorReporter,
                     completionTimeService,
                     detailedStatus);
+
+        Predicate<Class<Operation<?>>> isWriteOperationType = new Predicate<Class<Operation<?>>>() {
+            @Override
+            public boolean apply(Class<Operation<?>> operationType) {
+                return true == operationClassifications.get(operationType).dependencyMode().equals(OperationClassification.DependencyMode.READ_WRITE);
+            }
+        };
+        Predicate<Class<Operation<?>>> isReadOperationType = new Predicate<Class<Operation<?>>>() {
+            @Override
+            public boolean apply(Class<Operation<?>> operationType) {
+                return false == operationClassifications.get(operationType).dependencyMode().equals(OperationClassification.DependencyMode.READ_WRITE);
+            }
+        };
+
+        // TODO separate into read and write later
+        List<Class<Operation<?>>> windowedOperationTypes =
+                Lists.newArrayList(Workload.operationTypesBySchedulingMode(operationClassifications, SchedulingMode.WINDOWED));
+        // TODO separate into read and write later
+        List<Class<Operation<?>>> blockingOperationTypes =
+                Lists.newArrayList(Workload.operationTypesBySchedulingMode(operationClassifications, SchedulingMode.INDIVIDUAL_BLOCKING));
+        List<Class<Operation<?>>> asyncWriteOperationTypes = Lists.newArrayList(Iterables.filter(
+                Lists.newArrayList(Workload.operationTypesBySchedulingMode(operationClassifications, SchedulingMode.INDIVIDUAL_ASYNC)),
+                isWriteOperationType
+        ));
+        List<Class<Operation<?>>> asyncReadOperationTypes = Lists.newArrayList(Iterables.filter(
+                Lists.newArrayList(Workload.operationTypesBySchedulingMode(operationClassifications, SchedulingMode.INDIVIDUAL_ASYNC)),
+                isReadOperationType
+        ));
+
+        Class<Operation<?>>[] windowedOperationTypesArray = windowedOperationTypes.toArray(new Class[windowedOperationTypes.size()]);
+        Class<Operation<?>>[] blockingOperationTypesArray = blockingOperationTypes.toArray(new Class[blockingOperationTypes.size()]);
+        Class<Operation<?>>[] asyncWriteOperationTypesArray = asyncWriteOperationTypes.toArray(new Class[asyncWriteOperationTypes.size()]);
+        Class<Operation<?>>[] asyncReadOperationTypesArray = asyncReadOperationTypes.toArray(new Class[asyncReadOperationTypes.size()]);
+
         List<Operation<?>> windowedOperations;
         List<Operation<?>> blockingOperations;
-        List<Operation<?>> asynchronousOperations;
+        List<Operation<?>> asynchronousWriteOperations;
+        List<Operation<?>> asynchronousReadOperations;
         try {
             IteratorSplitter<Operation<?>> splitter = new IteratorSplitter<>(IteratorSplitter.UnmappedItemPolicy.ABORT);
-            SplitDefinition<Operation<?>> windowed = new SplitDefinition<>(Workload.operationTypesBySchedulingMode(operationClassifications, SchedulingMode.WINDOWED));
-            SplitDefinition<Operation<?>> blocking = new SplitDefinition<>(Workload.operationTypesBySchedulingMode(operationClassifications, SchedulingMode.INDIVIDUAL_BLOCKING));
-            SplitDefinition<Operation<?>> asynchronous = new SplitDefinition<>(Workload.operationTypesBySchedulingMode(operationClassifications, SchedulingMode.INDIVIDUAL_ASYNC));
-            SplitResult splits = splitter.split(operations, windowed, blocking, asynchronous);
+
+            SplitDefinition<Operation<?>> windowed = new SplitDefinition<>(windowedOperationTypesArray);
+            SplitDefinition<Operation<?>> blocking = new SplitDefinition<>(blockingOperationTypesArray);
+            SplitDefinition<Operation<?>> asynchronousWrite = new SplitDefinition<>(asyncWriteOperationTypesArray);
+            SplitDefinition<Operation<?>> asynchronousRead = new SplitDefinition<>(asyncReadOperationTypesArray);
+
+            SplitResult splits = splitter.split(operations, windowed, blocking, asynchronousWrite, asynchronousRead);
             windowedOperations = splits.getSplitFor(windowed);
             blockingOperations = splits.getSplitFor(blocking);
-            asynchronousOperations = splits.getSplitFor(asynchronous);
+            asynchronousWriteOperations = splits.getSplitFor(asynchronousWrite);
+            asynchronousReadOperations = splits.getSplitFor(asynchronousRead);
         } catch (IteratorSplittingException e) {
             throw new WorkloadException(
                     String.format("Error while splitting operation stream by scheduling mode\n%s", ConcurrentErrorReporter.stackTraceToString(e)),
@@ -124,9 +164,9 @@ public class WorkloadRunner {
         LocalCompletionTimeWriter localCompletionTimeWriterForBlocking;
         LocalCompletionTimeWriter localCompletionTimeWriterForWindowed;
         try {
-            localCompletionTimeWriterForAsynchronous = (Iterables.any(asynchronousOperations, isReadWriteOperation))
-                    ? completionTimeService.newLocalCompletionTimeWriter()
-                    : DUMMY_LOCAL_COMPLETION_TIME_WRITER;
+            localCompletionTimeWriterForAsynchronous = (asynchronousWriteOperations.isEmpty())
+                    ? DUMMY_LOCAL_COMPLETION_TIME_WRITER
+                    : completionTimeService.newLocalCompletionTimeWriter();
             localCompletionTimeWriterForBlocking = (Iterables.any(blockingOperations, isReadWriteOperation))
                     ? completionTimeService.newLocalCompletionTimeWriter()
                     : DUMMY_LOCAL_COMPLETION_TIME_WRITER;
@@ -149,7 +189,8 @@ public class WorkloadRunner {
         this.preciseIndividualAsyncOperationStreamExecutorService = new PreciseIndividualAsyncOperationStreamExecutorService(
                 TIME_SOURCE,
                 errorReporter,
-                asynchronousOperations.iterator(),
+                asynchronousReadOperations.iterator(),
+                asynchronousWriteOperations.iterator(),
                 exactSpinner,
                 slightlyEarlySpinner,
                 threadPoolForAsynchronous,

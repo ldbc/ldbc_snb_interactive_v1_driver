@@ -6,3 +6,4 @@
 target/
 lib/
 *.iml
+src/test/resources/mirko_test/

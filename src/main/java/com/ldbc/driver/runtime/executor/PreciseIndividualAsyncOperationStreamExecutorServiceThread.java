@@ -10,6 +10,7 @@ import com.ldbc.driver.runtime.metrics.ConcurrentMetricsService;
 import com.ldbc.driver.runtime.scheduling.GctDependencyCheck;
 import com.ldbc.driver.runtime.scheduling.Spinner;
 import com.ldbc.driver.temporal.Duration;
+import com.ldbc.driver.temporal.Time;
 import com.ldbc.driver.temporal.TimeSource;
 import com.ldbc.driver.util.Function0;
 
@@ -26,23 +27,18 @@ class PreciseIndividualAsyncOperationStreamExecutorServiceThread extends Thread 
 
     private final TimeSource TIME_SOURCE;
     private final OperationHandlerExecutor operationHandlerExecutor;
-    private final Spinner spinner;
     private final Spinner slightlyEarlySpinner;
     private final ConcurrentErrorReporter errorReporter;
-    private final Iterator<Operation<?>> operations;
     private final AtomicBoolean hasFinished;
     private final AtomicBoolean forcedTerminate;
     private final AtomicInteger runningHandlerCount = new AtomicInteger(0);
-    private final Map<Class<? extends Operation>, OperationClassification> operationClassifications;
-    private final Db db;
-    private final LocalCompletionTimeWriter localCompletionTimeWriter;
-    private final GlobalCompletionTimeReader globalCompletionTimeReader;
-    private final ConcurrentMetricsService metricsService;
+    private final HandlerRetriever handlerRetriever;
 
     public PreciseIndividualAsyncOperationStreamExecutorServiceThread(TimeSource timeSource,
                                                                       OperationHandlerExecutor operationHandlerExecutor,
                                                                       ConcurrentErrorReporter errorReporter,
-                                                                      Iterator<Operation<?>> operations,
+                                                                      Iterator<Operation<?>> gctReadOperations,
+                                                                      Iterator<Operation<?>> gctWriteOperations,
                                                                       AtomicBoolean hasFinished,
                                                                       Spinner spinner,
                                                                       Spinner slightlyEarlySpinner,
@@ -55,44 +51,33 @@ class PreciseIndividualAsyncOperationStreamExecutorServiceThread extends Thread 
         super(PreciseIndividualAsyncOperationStreamExecutorServiceThread.class.getSimpleName() + "-" + System.currentTimeMillis());
         this.TIME_SOURCE = timeSource;
         this.operationHandlerExecutor = operationHandlerExecutor;
-        this.spinner = spinner;
         this.slightlyEarlySpinner = slightlyEarlySpinner;
         this.errorReporter = errorReporter;
-        this.operations = operations;
         this.hasFinished = hasFinished;
         this.forcedTerminate = forcedTerminate;
-        this.operationClassifications = operationClassifications;
-        this.db = db;
-        this.localCompletionTimeWriter = localCompletionTimeWriter;
-        this.globalCompletionTimeReader = globalCompletionTimeReader;
-        this.metricsService = metricsService;
+        this.handlerRetriever = new HandlerRetriever(
+                gctReadOperations,
+                gctWriteOperations,
+                db,
+                localCompletionTimeWriter,
+                globalCompletionTimeReader,
+                operationClassifications,
+                spinner,
+                timeSource,
+                errorReporter,
+                metricsService);
     }
 
     @Override
     public void run() {
-        while (operations.hasNext() && false == forcedTerminate.get()) {
-            Operation<?> operation = operations.next();
-
-            // get handler
+        while (handlerRetriever.hasNextHandler() && false == forcedTerminate.get()) {
             OperationHandler<?> handler;
             try {
-                handler = getAndInitializeHandler(operation);
-            } catch (OperationHandlerExecutorException e) {
+                handler = handlerRetriever.nextHandler();
+            } catch (Exception e) {
                 errorReporter.reportError(
                         this,
-                        String.format("Error while retrieving handler for operation\nOperation: %s\n%s",
-                                operation,
-                                ConcurrentErrorReporter.stackTraceToString(e)));
-                continue;
-            }
-
-            // submit initiated time as soon as possible so GCT/dependencies can advance as soon as possible
-            try {
-                handler.localCompletionTimeWriter().submitLocalInitiatedTime(handler.operation().scheduledStartTime());
-            } catch (CompletionTimeException e) {
-                errorReporter.reportError(this,
-                        String.format("Error encountered while submitted Initiated Time for:\n\t%s\n%s",
-                                handler.operation().toString(),
+                        String.format("Error while retrieving next handler\n%s",
                                 ConcurrentErrorReporter.stackTraceToString(e)));
                 continue;
             }
@@ -113,44 +98,12 @@ class PreciseIndividualAsyncOperationStreamExecutorServiceThread extends Thread 
                 continue;
             }
         }
+
         boolean handlersFinishedInTime = awaitAllRunningHandlers(DURATION_TO_WAIT_FOR_ALL_HANDLERS_TO_FINISH);
         if (false == handlersFinishedInTime) {
             errorReporter.reportError(this, String.format("At least one operation handler did not complete in time"));
         }
         this.hasFinished.set(true);
-    }
-
-    private OperationHandler<?> getAndInitializeHandler(Operation<?> operation) throws OperationHandlerExecutorException {
-        OperationHandler<?> operationHandler;
-        try {
-            operationHandler = db.getOperationHandler(operation);
-        } catch (DbException e) {
-            throw new OperationHandlerExecutorException(String.format("Error while retrieving handler for operation\nOperation: %s", operation));
-        }
-
-        OperationClassification.DependencyMode operationDependencyMode = operationClassifications.get(operation.getClass()).dependencyMode();
-        try {
-            LocalCompletionTimeWriter localCompletionTimeWriterForHandler = (isDependencyWritingOperation(operationDependencyMode))
-                    ? localCompletionTimeWriter
-                    : DUMMY_LOCAL_COMPLETION_TIME_WRITER;
-            operationHandler.init(TIME_SOURCE, spinner, operation, localCompletionTimeWriterForHandler, errorReporter, metricsService);
-        } catch (OperationException e) {
-            throw new OperationHandlerExecutorException(String.format("Error while initializing handler for operation\nOperation: %s", operation));
-        }
-
-        if (isDependencyReadingOperation(operationDependencyMode))
-            operationHandler.addBeforeExecuteCheck(new GctDependencyCheck(globalCompletionTimeReader, operation, errorReporter));
-
-        return operationHandler;
-    }
-
-    private boolean isDependencyWritingOperation(OperationClassification.DependencyMode operationDependencyMode) {
-        return operationDependencyMode.equals(OperationClassification.DependencyMode.READ_WRITE);
-    }
-
-    private boolean isDependencyReadingOperation(OperationClassification.DependencyMode operationDependencyMode) {
-        return operationDependencyMode.equals(OperationClassification.DependencyMode.READ_WRITE) ||
-                operationDependencyMode.equals(OperationClassification.DependencyMode.READ);
     }
 
     private void executeHandler(OperationHandler<?> handler) throws OperationHandlerExecutorException {
@@ -191,6 +144,116 @@ class PreciseIndividualAsyncOperationStreamExecutorServiceThread extends Thread 
         public Object apply() {
             runningHandlerCount.decrementAndGet();
             return null;
+        }
+    }
+
+    private static class HandlerRetriever {
+        private final Iterator<Operation<?>> gctReadOperations;
+        private final Iterator<Operation<?>> gctWriteOperations;
+        private final Db db;
+        private final LocalCompletionTimeWriter localCompletionTimeWriter;
+        private final GlobalCompletionTimeReader globalCompletionTimeReader;
+        private final Map<Class<? extends Operation>, OperationClassification> operationClassifications;
+        private final Spinner spinner;
+        private final TimeSource timeSource;
+        private final ConcurrentErrorReporter errorReporter;
+        private final ConcurrentMetricsService metricsService;
+        OperationHandler<?> nextGctReadHandler;
+        OperationHandler<?> nextGctWriteHandler;
+
+        private HandlerRetriever(Iterator<Operation<?>> gctReadOperations,
+                                 Iterator<Operation<?>> gctWriteOperations,
+                                 Db db,
+                                 LocalCompletionTimeWriter localCompletionTimeWriter,
+                                 GlobalCompletionTimeReader globalCompletionTimeReader,
+                                 Map<Class<? extends Operation>, OperationClassification> operationClassifications,
+                                 Spinner spinner,
+                                 TimeSource timeSource,
+                                 ConcurrentErrorReporter errorReporter,
+                                 ConcurrentMetricsService metricsService) {
+            this.gctReadOperations = gctReadOperations;
+            this.gctWriteOperations = gctWriteOperations;
+            this.db = db;
+            this.localCompletionTimeWriter = localCompletionTimeWriter;
+            this.globalCompletionTimeReader = globalCompletionTimeReader;
+            this.operationClassifications = operationClassifications;
+            this.spinner = spinner;
+            this.timeSource = timeSource;
+            this.errorReporter = errorReporter;
+            this.metricsService = metricsService;
+            this.nextGctReadHandler = null;
+            this.nextGctWriteHandler = null;
+        }
+
+        public boolean hasNextHandler() {
+            return gctReadOperations.hasNext() || gctWriteOperations.hasNext();
+        }
+
+        public OperationHandler<?> nextHandler() throws OperationHandlerExecutorException, CompletionTimeException {
+            if (gctWriteOperations.hasNext() && null == nextGctWriteHandler) {
+                Operation<?> nextGctWriteOperation = gctWriteOperations.next();
+                nextGctWriteHandler = getAndInitializeHandler(nextGctWriteOperation, localCompletionTimeWriter);
+                // submit initiated time as soon as possible so GCT/dependencies can advance as soon as possible
+                nextGctWriteHandler.localCompletionTimeWriter().submitLocalInitiatedTime(nextGctWriteHandler.operation().scheduledStartTime());
+                if (false == gctWriteOperations.hasNext()) {
+                    // after last write operation, submit highest possible initiated time to ensure that GCT progresses to time of highest LCT write
+                    nextGctWriteHandler.localCompletionTimeWriter().submitLocalInitiatedTime(Time.fromNano(Long.MAX_VALUE));
+                }
+            }
+            if (gctReadOperations.hasNext() && null == nextGctReadHandler) {
+                Operation<?> nextGctReadOperation = gctReadOperations.next();
+                nextGctReadHandler = getAndInitializeHandler(nextGctReadOperation, DUMMY_LOCAL_COMPLETION_TIME_WRITER);
+                // no need to submit initiated time for an operation that should not write to GCT
+            }
+            if (null != nextGctWriteHandler && null != nextGctReadHandler) {
+                long nextGctWriteHandlerStartTime = nextGctWriteHandler.operation().scheduledStartTime().asNano();
+                long nextGctReadHandlerStartTime = nextGctReadHandler.operation().scheduledStartTime().asNano();
+                OperationHandler<?> nextHandler;
+                if (nextGctReadHandlerStartTime < nextGctWriteHandlerStartTime) {
+                    nextHandler = nextGctReadHandler;
+                    nextGctReadHandler = null;
+                } else {
+                    nextHandler = nextGctWriteHandler;
+                    nextGctWriteHandler = null;
+                }
+                return nextHandler;
+            } else if (null == nextGctWriteHandler && null != nextGctReadHandler) {
+                OperationHandler<?> nextHandler = nextGctReadHandler;
+                nextGctReadHandler = null;
+                return nextHandler;
+            } else if (null != nextGctWriteHandler && null == nextGctReadHandler) {
+                OperationHandler<?> nextHandler = nextGctWriteHandler;
+                nextGctWriteHandler = null;
+                return nextHandler;
+            } else {
+                throw new OperationHandlerExecutorException("Unexpected error in " + getClass().getSimpleName());
+            }
+        }
+
+        private OperationHandler<?> getAndInitializeHandler(Operation<?> operation, LocalCompletionTimeWriter localCompletionTimeWriterForHandler) throws OperationHandlerExecutorException {
+            OperationHandler<?> operationHandler;
+            try {
+                operationHandler = db.getOperationHandler(operation);
+            } catch (DbException e) {
+                throw new OperationHandlerExecutorException(String.format("Error while retrieving handler for operation\nOperation: %s", operation));
+            }
+
+            OperationClassification.DependencyMode operationDependencyMode = operationClassifications.get(operation.getClass()).dependencyMode();
+            try {
+                operationHandler.init(timeSource, spinner, operation, localCompletionTimeWriterForHandler, errorReporter, metricsService);
+            } catch (OperationException e) {
+                throw new OperationHandlerExecutorException(String.format("Error while initializing handler for operation\nOperation: %s", operation));
+            }
+
+            if (isDependencyReadingOperation(operationDependencyMode))
+                operationHandler.addBeforeExecuteCheck(new GctDependencyCheck(globalCompletionTimeReader, operation, errorReporter));
+
+            return operationHandler;
+        }
+
+        private boolean isDependencyReadingOperation(OperationClassification.DependencyMode operationDependencyMode) {
+            return operationDependencyMode.equals(OperationClassification.DependencyMode.READ_WRITE) ||
+                    operationDependencyMode.equals(OperationClassification.DependencyMode.READ);
         }
     }
 }

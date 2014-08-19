@@ -712,4 +712,82 @@ public class LdbcSnbInteractiveWorkloadTest {
         FileUtils.deleteQuietly(new File(resultFilePath));
         assertThat(new File(resultFilePath).exists(), is(false));
     }
+
+    @Ignore
+    @Test
+    public void shouldReproduceMirkosError() throws DriverConfigurationException, ClientException {
+        String ldbcSocnetInteractivePropertiesPath = TestUtils.getResource("/mirko_test/ldbc_socnet_interactive.properties").getAbsolutePath();
+        String ldbcDriverPropertiesPath = TestUtils.getResource("/mirko_test/ldbc_driver_default.properties").getAbsolutePath();
+
+        File resultFile = new File(TestUtils.getResource("/mirko_test"), "mirko_test_result.json");
+        String resultFilePath = resultFile.getAbsolutePath();
+        FileUtils.deleteQuietly(resultFile);
+
+        assertThat(new File(resultFilePath).exists(), is(false));
+        assertThat(new File(ldbcSocnetInteractivePropertiesPath).exists(), is(true));
+        assertThat(new File(ldbcDriverPropertiesPath).exists(), is(true));
+
+        ConsoleAndFileDriverConfiguration configuration = ConsoleAndFileDriverConfiguration.fromArgs(new String[]{
+//                "-" + ConsoleAndFileDriverConfiguration.CALCULATE_WORKLOAD_STATISTICS_ARG,
+                "-" + ConsoleAndFileDriverConfiguration.TIME_COMPRESSION_RATIO_ARG, "0.01",
+                "-" + ConsoleAndFileDriverConfiguration.SPINNER_SLEEP_DURATION_ARG, "0",
+                "-" + ConsoleAndFileDriverConfiguration.TOLERATED_EXECUTION_DELAY_ARG, "10000",
+                "-" + ConsoleAndFileDriverConfiguration.THREADS_ARG, "64",
+
+                "-" + ConsoleAndFileDriverConfiguration.RESULT_FILE_PATH_ARG, resultFilePath,
+                "-" + ConsoleAndFileDriverConfiguration.DB_ARG, DummyLdbcSnbInteractiveDb.class.getName(),
+                "-p", DummyLdbcSnbInteractiveDb.SLEEP_DURATION_MILLI_ARG, "0",
+                "-p", LdbcSnbInteractiveWorkload.PARAMETERS_DIRECTORY, TestUtils.getResource("/mirko_test/substitution_parameters").getAbsolutePath(),
+                "-p", LdbcSnbInteractiveWorkload.DATA_DIRECTORY, TestUtils.getResource("/mirko_test").getAbsolutePath(),
+                "-P", ldbcSocnetInteractivePropertiesPath,
+                "-P", ldbcDriverPropertiesPath});
+
+
+        // When
+        Client client = new Client(new LocalControlService(TIME_SOURCE.now().plus(Duration.fromSeconds(2)), configuration), TIME_SOURCE);
+        client.start();
+
+        // Then
+        assertThat(new File(resultFilePath).exists(), is(true));
+    }
+
+    @Ignore
+    @Test
+    public void shouldReproduceMirkosError2() throws DriverConfigurationException, ClientException, WorkloadException {
+        String ldbcSocnetInteractivePropertiesPath = TestUtils.getResource("/mirko_test/ldbc_socnet_interactive.properties").getAbsolutePath();
+        String ldbcDriverPropertiesPath = TestUtils.getResource("/mirko_test/ldbc_driver_default.properties").getAbsolutePath();
+
+        File resultFile = new File(TestUtils.getResource("/mirko_test"), "mirko_test_result.json");
+        String resultFilePath = resultFile.getAbsolutePath();
+        FileUtils.deleteQuietly(resultFile);
+
+        assertThat(new File(resultFilePath).exists(), is(false));
+        assertThat(new File(ldbcSocnetInteractivePropertiesPath).exists(), is(true));
+        assertThat(new File(ldbcDriverPropertiesPath).exists(), is(true));
+
+        ConsoleAndFileDriverConfiguration configuration = ConsoleAndFileDriverConfiguration.fromArgs(new String[]{
+//                "-" + ConsoleAndFileDriverConfiguration.CALCULATE_WORKLOAD_STATISTICS_ARG,
+                "-" + ConsoleAndFileDriverConfiguration.TIME_COMPRESSION_RATIO_ARG, "0.01",
+                "-" + ConsoleAndFileDriverConfiguration.SPINNER_SLEEP_DURATION_ARG, "0",
+                "-" + ConsoleAndFileDriverConfiguration.TOLERATED_EXECUTION_DELAY_ARG, "10000",
+                "-" + ConsoleAndFileDriverConfiguration.THREADS_ARG, "64",
+
+                "-" + ConsoleAndFileDriverConfiguration.RESULT_FILE_PATH_ARG, resultFilePath,
+                "-" + ConsoleAndFileDriverConfiguration.DB_ARG, DummyLdbcSnbInteractiveDb.class.getName(),
+                "-p", DummyLdbcSnbInteractiveDb.SLEEP_DURATION_MILLI_ARG, "0",
+                "-p", LdbcSnbInteractiveWorkload.PARAMETERS_DIRECTORY, TestUtils.getResource("/mirko_test/substitution_parameters").getAbsolutePath(),
+                "-p", LdbcSnbInteractiveWorkload.DATA_DIRECTORY, TestUtils.getResource("/mirko_test").getAbsolutePath(),
+                "-P", ldbcSocnetInteractivePropertiesPath,
+                "-P", ldbcDriverPropertiesPath});
+
+        GeneratorFactory gf = new GeneratorFactory(new RandomDataGeneratorFactory(42L));
+        Workload workload = new LdbcSnbInteractiveWorkload();
+        workload.init(configuration);
+        Iterator<Operation<?>> operations = workload.operations(gf, configuration.operationCount());
+        while (operations.hasNext()) {
+            Operation<?> operation = operations.next();
+            if (operation.getClass().equals(LdbcUpdate1AddPerson.class))
+                System.out.println(String.format("%s %s", operation.getClass().getSimpleName(), operation.scheduledStartTime()));
+        }
+    }
 }
