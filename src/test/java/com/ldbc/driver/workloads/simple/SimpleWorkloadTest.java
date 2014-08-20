@@ -17,11 +17,13 @@ import com.ldbc.driver.temporal.TimeSource;
 import com.ldbc.driver.testutils.TestUtils;
 import com.ldbc.driver.validation.WorkloadValidationResult;
 import com.ldbc.driver.workloads.simple.db.BasicDb;
-import org.apache.commons.io.FileUtils;
 import org.junit.Ignore;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.TemporaryFolder;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 
@@ -29,6 +31,9 @@ import static org.hamcrest.CoreMatchers.*;
 import static org.junit.Assert.assertThat;
 
 public class SimpleWorkloadTest {
+    @Rule
+    public TemporaryFolder temporaryFolder = new TemporaryFolder();
+
     TimeSource TIME_SOURCE = new SystemTimeSource();
 
     @Test
@@ -299,16 +304,15 @@ public class SimpleWorkloadTest {
     }
 
     @Test
-    public void shouldLoadFromConfigFile() throws DriverConfigurationException, ClientException {
+    public void shouldLoadFromConfigFile() throws DriverConfigurationException, ClientException, IOException {
         String simpleTestPropertiesPath =
                 new File(DriverConfigurationFileTestHelper.getWorkloadsDirectory(), "simple/simpleworkload.properties").getAbsolutePath();
         String ldbcDriverTestPropertiesPath =
                 TestUtils.getResource("/ldbc_driver_default.properties").getAbsolutePath();
 
-        String resultFilePath = "test_write_to_csv_results.json";
-        FileUtils.deleteQuietly(new File(resultFilePath));
+        String resultFilePath = temporaryFolder.newFile().getAbsolutePath();
 
-        assertThat(new File(resultFilePath).exists(), is(false));
+        assertThat(new File(resultFilePath).length(), is(0l));
 
         assertThat(new File(simpleTestPropertiesPath).exists(), is(true));
         assertThat(new File(ldbcDriverTestPropertiesPath).exists(), is(true));
@@ -320,7 +324,7 @@ public class SimpleWorkloadTest {
                 "-P", ldbcDriverTestPropertiesPath});
 
 
-        assertThat(new File(resultFilePath).exists(), is(false));
+        assertThat(new File(resultFilePath).length(), is(0l));
 
 
         // When
@@ -328,8 +332,6 @@ public class SimpleWorkloadTest {
         client.start();
 
         // Then
-        assertThat(new File(resultFilePath).exists(), is(true));
-        FileUtils.deleteQuietly(new File(resultFilePath));
-        assertThat(new File(resultFilePath).exists(), is(false));
+        assertThat(new File(resultFilePath).length() > 0, is(true));
     }
 }

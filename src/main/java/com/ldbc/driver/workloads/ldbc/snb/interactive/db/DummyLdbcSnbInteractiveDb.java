@@ -172,8 +172,6 @@ public class DummyLdbcSnbInteractiveDb extends Db {
     public static class LdbcUpdate1AddPersonToNothing extends OperationHandler<LdbcUpdate1AddPerson> {
         @Override
         protected OperationResultReport executeOperation(LdbcUpdate1AddPerson operation) throws DbException {
-            // TODO remove
-            System.out.println(String.format("LdbcUpdate1AddPerson dependencyTime(%s) startTime(%s)", operation.dependencyTime(), operation.scheduledStartTime()));
             Spinner.powerNap(sleepDurationAsMilli);
             return operation.buildResult(0, null);
         }
