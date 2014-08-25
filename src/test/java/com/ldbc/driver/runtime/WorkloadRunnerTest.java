@@ -5,6 +5,7 @@ import com.ldbc.driver.control.ConcurrentControlService;
 import com.ldbc.driver.control.ConsoleAndFileDriverConfiguration;
 import com.ldbc.driver.control.LocalControlService;
 import com.ldbc.driver.generator.GeneratorFactory;
+import com.ldbc.driver.generator.RandomDataGeneratorFactory;
 import com.ldbc.driver.runtime.coordination.CompletionTimeException;
 import com.ldbc.driver.runtime.coordination.CompletionTimeServiceAssistant;
 import com.ldbc.driver.runtime.coordination.ConcurrentCompletionTimeService;
@@ -16,12 +17,12 @@ import com.ldbc.driver.temporal.Duration;
 import com.ldbc.driver.temporal.SystemTimeSource;
 import com.ldbc.driver.temporal.TimeSource;
 import com.ldbc.driver.testutils.TestUtils;
-import com.ldbc.driver.generator.RandomDataGeneratorFactory;
 import com.ldbc.driver.workloads.ldbc.snb.interactive.LdbcSnbInteractiveWorkload;
 import com.ldbc.driver.workloads.ldbc.snb.interactive.db.CsvWritingLdbcSnbInteractiveDb;
 import com.ldbc.driver.workloads.ldbc.snb.interactive.db.DummyLdbcSnbInteractiveDb;
-import org.apache.commons.io.FileUtils;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.TemporaryFolder;
 
 import java.io.File;
 import java.io.IOException;
@@ -36,6 +37,9 @@ import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
 
 public class WorkloadRunnerTest {
+    @Rule
+    public TemporaryFolder temporaryFolder = new TemporaryFolder();
+
     TimeSource TIME_SOURCE = new SystemTimeSource();
     CompletionTimeServiceAssistant completionTimeServiceAssistant = new CompletionTimeServiceAssistant();
 
@@ -58,8 +62,7 @@ public class WorkloadRunnerTest {
             int threadCount = 1;
             Duration statusDisplayInterval = Duration.fromSeconds(1);
             TimeUnit timeUnit = TimeUnit.MILLISECONDS;
-            String resultFilePath = "temp_results_file.json";
-            FileUtils.deleteQuietly(new File(resultFilePath));
+            String resultFilePath = temporaryFolder.newFile().getAbsolutePath();
             double timeCompressionRatio = 1.0;
             Duration windowedExecutionWindowDuration = Duration.fromSeconds(1);
             Set<String> peerIds = new HashSet<>();
@@ -70,8 +73,6 @@ public class WorkloadRunnerTest {
             boolean calculateWorkloadStatistics = false;
             Duration spinnerSleepDuration = Duration.fromMilli(0);
             boolean printHelp = false;
-
-            assertThat(new File(resultFilePath).exists(), is(false));
 
             ConsoleAndFileDriverConfiguration configuration = new ConsoleAndFileDriverConfiguration(paramsMap, dbClassName, workloadClassName, operationCount,
                     threadCount, statusDisplayInterval, timeUnit, resultFilePath, timeCompressionRatio, windowedExecutionWindowDuration, peerIds, toleratedExecutionDelay,
@@ -149,8 +150,7 @@ public class WorkloadRunnerTest {
             paramsMap.put(LdbcSnbInteractiveWorkload.PARAMETERS_DIRECTORY, TestUtils.getResource("/").getAbsolutePath());
             paramsMap.put(LdbcSnbInteractiveWorkload.DATA_DIRECTORY, TestUtils.getResource("/").getAbsolutePath());
             // CsvDb-specific parameters
-            String csvOutputFilePath = "temp_csv_output_file.csv";
-            FileUtils.deleteQuietly(new File(csvOutputFilePath));
+            String csvOutputFilePath = temporaryFolder.newFile().getAbsolutePath();
             paramsMap.put(CsvWritingLdbcSnbInteractiveDb.CSV_PATH_KEY, csvOutputFilePath);
             // Driver-specific parameters
             String dbClassName = CsvWritingLdbcSnbInteractiveDb.class.getName();
@@ -159,8 +159,7 @@ public class WorkloadRunnerTest {
             int threadCount = 1;
             Duration statusDisplayInterval = Duration.fromSeconds(1);
             TimeUnit timeUnit = TimeUnit.MILLISECONDS;
-            String resultFilePath = "temp_results_file.json";
-            FileUtils.deleteQuietly(new File(resultFilePath));
+            String resultFilePath = temporaryFolder.newFile().getAbsolutePath();
             double timeCompressionRatio = 1.0;
             Duration windowedExecutionWindowDuration = Duration.fromSeconds(1);
             Set<String> peerIds = new HashSet<>();
@@ -171,9 +170,6 @@ public class WorkloadRunnerTest {
             boolean calculateWorkloadStatistics = false;
             Duration spinnerSleepDuration = Duration.fromMilli(0);
             boolean printHelp = false;
-
-            assertThat(new File(csvOutputFilePath).exists(), is(false));
-            assertThat(new File(resultFilePath).exists(), is(false));
 
             ConsoleAndFileDriverConfiguration configuration = new ConsoleAndFileDriverConfiguration(paramsMap, dbClassName, workloadClassName, operationCount,
                     threadCount, statusDisplayInterval, timeUnit, resultFilePath, timeCompressionRatio, windowedExecutionWindowDuration, peerIds, toleratedExecutionDelay,

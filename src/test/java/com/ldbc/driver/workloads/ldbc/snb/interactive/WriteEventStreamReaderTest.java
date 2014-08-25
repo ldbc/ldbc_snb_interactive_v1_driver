@@ -17,7 +17,9 @@ import com.ldbc.driver.generator.RandomDataGeneratorFactory;
 import org.apache.commons.io.FileUtils;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.TemporaryFolder;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -34,19 +36,10 @@ import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
 
 public class WriteEventStreamReaderTest {
+    @Rule
+    public TemporaryFolder temporaryFolder = new TemporaryFolder();
+
     TimeSource TIME_SOURCE = new SystemTimeSource();
-    File csvFile = null;
-
-    @Before
-    public void createCsvFile() throws IOException {
-        csvFile = new File("temp.csv");
-        csvFile.createNewFile();
-    }
-
-    @After
-    public void deleteCsvFile() {
-        FileUtils.deleteQuietly(csvFile);
-    }
 
     @Test
     public void shouldParseUpdate1AddPerson() throws IOException, ParseException {

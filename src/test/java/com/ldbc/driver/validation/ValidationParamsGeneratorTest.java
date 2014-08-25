@@ -5,14 +5,15 @@ import com.ldbc.driver.*;
 import com.ldbc.driver.control.ConsoleAndFileDriverConfiguration;
 import com.ldbc.driver.control.DriverConfigurationException;
 import com.ldbc.driver.control.DriverConfigurationFileTestHelper;
+import com.ldbc.driver.testutils.TestUtils;
 import com.ldbc.driver.util.CsvFileReader;
 import com.ldbc.driver.util.CsvFileWriter;
-import com.ldbc.driver.testutils.TestUtils;
 import com.ldbc.driver.workloads.ldbc.snb.interactive.LdbcSnbInteractiveWorkload;
 import com.ldbc.driver.workloads.ldbc.snb.interactive.db.DummyLdbcSnbInteractiveDb;
 import com.ldbc.driver.workloads.ldbc.snb.interactive.db.DummyLdbcSnbInteractiveOperationInstances;
-import org.apache.commons.io.FileUtils;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.TemporaryFolder;
 
 import java.io.File;
 import java.io.IOException;
@@ -26,13 +27,13 @@ import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
 
 public class ValidationParamsGeneratorTest {
+    @Rule
+    public TemporaryFolder temporaryFolder = new TemporaryFolder();
 
     @Test
     public void generatedValidationFileLengthShouldEqualMinimumOfValidationSetSizeParamAndOperationsStreamLengthWhenBothAreEqual() throws IOException, DriverConfigurationException, WorkloadException, DbException {
         // Given
-        File tempValidationFile = new File(TestUtils.getResource("/") + "temp_validation_file.csv");
-        FileUtils.deleteQuietly(tempValidationFile);
-        tempValidationFile.createNewFile();
+        File tempValidationFile = temporaryFolder.newFile();
 
         ConsoleAndFileDriverConfiguration configuration = DriverConfigurationFileTestHelper.readConfigurationFileAt(
                 DriverConfigurationFileTestHelper.getBaseConfigurationFilePublicLocation());
@@ -81,7 +82,6 @@ public class ValidationParamsGeneratorTest {
 
         csvFileReader.closeReader();
         System.out.println(tempValidationFile.getAbsolutePath());
-        FileUtils.deleteQuietly(tempValidationFile);
     }
 
     List<Operation<?>> buildOperations() {

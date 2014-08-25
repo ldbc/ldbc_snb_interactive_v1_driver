@@ -18,9 +18,12 @@ import com.ldbc.driver.workloads.ldbc.snb.interactive.LdbcSnbInteractiveWorkload
 import com.ldbc.driver.workloads.ldbc.snb.interactive.db.CsvWritingLdbcSnbInteractiveDb;
 import org.apache.commons.io.FileUtils;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.TemporaryFolder;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 
@@ -29,6 +32,9 @@ import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
 
 public class TimeMappingOperationGeneratorTest {
+    @Rule
+    public TemporaryFolder temporaryFolder = new TemporaryFolder();
+
     private TimeSource TIME_SOURCE = new SystemTimeSource();
     private final long RANDOM_SEED = 42;
     private GeneratorFactory gf = null;
@@ -250,14 +256,13 @@ public class TimeMappingOperationGeneratorTest {
     }
 
     @Test
-    public void shouldNotBreakTheMonotonicallyIncreasingScheduledStartTimesOfOperationsFromLdbcWorkload() throws WorkloadException {
+    public void shouldNotBreakTheMonotonicallyIncreasingScheduledStartTimesOfOperationsFromLdbcWorkload() throws WorkloadException, IOException {
         Map<String, String> paramsMap = LdbcSnbInteractiveWorkload.defaultConfig();
         // LDBC Interactive Workload-specific parameters
         paramsMap.put(LdbcSnbInteractiveWorkload.DATA_DIRECTORY, TestUtils.getResource("/").getAbsolutePath());
         paramsMap.put(LdbcSnbInteractiveWorkload.PARAMETERS_DIRECTORY, TestUtils.getResource("/").getAbsolutePath());
         // CsvDb-specific parameters
-        String csvOutputFilePath = "temp_csv_output_file.csv";
-        FileUtils.deleteQuietly(new File(csvOutputFilePath));
+        String csvOutputFilePath = temporaryFolder.newFile().getAbsolutePath();
         paramsMap.put(CsvWritingLdbcSnbInteractiveDb.CSV_PATH_KEY, csvOutputFilePath);
         // Driver-specific parameters
         String dbClassName = CsvWritingLdbcSnbInteractiveDb.class.getName();
@@ -266,8 +271,7 @@ public class TimeMappingOperationGeneratorTest {
         int threadCount = 1;
         Duration statusDisplayInterval = Duration.fromSeconds(1);
         TimeUnit timeUnit = TimeUnit.MILLISECONDS;
-        String resultFilePath = "test_write_to_csv_results.json";
-        FileUtils.deleteQuietly(new File(resultFilePath));
+        String resultFilePath = temporaryFolder.newFile().getAbsolutePath();
         double timeCompressionRatio = 1.0;
         Duration windowedExecutionWindowDuration = Duration.fromSeconds(1);
         Set<String> peerIds = new HashSet<>();
@@ -278,9 +282,6 @@ public class TimeMappingOperationGeneratorTest {
         boolean calculateWorkloadStatistics = false;
         Duration spinnerSleepDuration = Duration.fromMilli(0);
         boolean printHelp = false;
-
-        assertThat(new File(csvOutputFilePath).exists(), is(false));
-        assertThat(new File(resultFilePath).exists(), is(false));
 
         ConsoleAndFileDriverConfiguration configuration = new ConsoleAndFileDriverConfiguration(paramsMap, dbClassName, workloadClassName, operationCount,
                 threadCount, statusDisplayInterval, timeUnit, resultFilePath, timeCompressionRatio, windowedExecutionWindowDuration, peerIds, toleratedExecutionDelay,
