@@ -118,7 +118,7 @@ public class LdbcQuery4 extends Operation<List<LdbcQuery4Result>> {
             LdbcQuery4Result result = results.get(i);
             List<Object> resultFields = new ArrayList<>();
             resultFields.add(result.tagName());
-            resultFields.add(result.tagCount());
+            resultFields.add(result.postCount());
             resultsFields.add(resultFields);
         }
 
