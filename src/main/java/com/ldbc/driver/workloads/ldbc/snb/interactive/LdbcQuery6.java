@@ -109,7 +109,7 @@ public class LdbcQuery6 extends Operation<List<LdbcQuery6Result>> {
             LdbcQuery6Result result = results.get(i);
             List<Object> resultFields = new ArrayList<>();
             resultFields.add(result.tagName());
-            resultFields.add(result.tagCount());
+            resultFields.add(result.postCount());
             resultsFields.add(resultFields);
         }
 

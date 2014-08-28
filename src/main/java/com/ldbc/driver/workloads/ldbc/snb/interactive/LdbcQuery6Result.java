@@ -2,19 +2,19 @@ package com.ldbc.driver.workloads.ldbc.snb.interactive;
 
 public class LdbcQuery6Result {
     private final String tagName;
-    private final int tagCount;
+    private final int postCount;
 
-    public LdbcQuery6Result(String tagName, int tagCount) {
+    public LdbcQuery6Result(String tagName, int postCount) {
         this.tagName = tagName;
-        this.tagCount = tagCount;
+        this.postCount = postCount;
     }
 
     public String tagName() {
         return tagName;
     }
 
-    public int tagCount() {
-        return tagCount;
+    public int postCount() {
+        return postCount;
     }
 
     @Override
@@ -24,7 +24,7 @@ public class LdbcQuery6Result {
 
         LdbcQuery6Result that = (LdbcQuery6Result) o;
 
-        if (tagCount != that.tagCount) return false;
+        if (postCount != that.postCount) return false;
         if (tagName != null ? !tagName.equals(that.tagName) : that.tagName != null) return false;
 
         return true;
@@ -34,7 +34,7 @@ public class LdbcQuery6Result {
     public String toString() {
         return "LdbcQuery6Result{" +
                 "tagName='" + tagName + '\'' +
-                ", tagCount=" + tagCount +
+                ", postCount=" + postCount +
                 '}';
     }
 }
