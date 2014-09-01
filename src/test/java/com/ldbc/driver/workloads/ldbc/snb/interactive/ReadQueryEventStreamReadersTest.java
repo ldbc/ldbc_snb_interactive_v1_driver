@@ -2,8 +2,8 @@ package com.ldbc.driver.workloads.ldbc.snb.interactive;
 
 import com.google.common.collect.ImmutableList;
 import com.ldbc.driver.Operation;
-import com.ldbc.driver.util.CsvFileReader;
 import com.ldbc.driver.testutils.TestUtils;
+import com.ldbc.driver.util.CsvFileReader;
 import org.junit.Test;
 
 import java.io.IOException;
@@ -380,26 +380,22 @@ public class ReadQueryEventStreamReadersTest {
         operation = (LdbcQuery10) reader.next();
         assertThat(operation.personId(), is(9895605643992L));
         assertThat(operation.personUri(), is("http://www.ldbc.eu/ldbc_socialnet/1.0/data/pers9895605643992"));
-        assertThat(operation.month1(), is(2));
-        assertThat(operation.month2(), is(3));
+        assertThat(operation.month(), is(2));
 
         operation = (LdbcQuery10) reader.next();
         assertThat(operation.personId(), is(979201L));
         assertThat(operation.personUri(), is("http://www.ldbc.eu/ldbc_socialnet/1.0/data/pers979201"));
-        assertThat(operation.month1(), is(4));
-        assertThat(operation.month2(), is(5));
+        assertThat(operation.month(), is(4));
 
         operation = (LdbcQuery10) reader.next();
         assertThat(operation.personId(), is(129891L));
         assertThat(operation.personUri(), is("http://www.ldbc.eu/ldbc_socialnet/1.0/data/pers129891"));
-        assertThat(operation.month1(), is(2));
-        assertThat(operation.month2(), is(3));
+        assertThat(operation.month(), is(2));
 
         operation = (LdbcQuery10) reader.next();
         assertThat(operation.personId(), is(13194140498760L));
         assertThat(operation.personUri(), is("http://www.ldbc.eu/ldbc_socialnet/1.0/data/pers13194140498760"));
-        assertThat(operation.month1(), is(3));
-        assertThat(operation.month2(), is(4));
+        assertThat(operation.month(), is(3));
 
 
         assertThat(reader.hasNext(), is(true));

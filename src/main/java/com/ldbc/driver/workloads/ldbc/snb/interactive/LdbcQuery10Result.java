@@ -4,11 +4,11 @@ public class LdbcQuery10Result {
     private final long personId;
     private final String personFirstName;
     private final String personLastName;
-    private final double commonInterestScore;
+    private final int commonInterestScore;
     private final String personGender;
     private final String personCityName;
 
-    public LdbcQuery10Result(long personId, String personFirstName, String personLastName, double commonInterestScore, String personGender, String personCityName) {
+    public LdbcQuery10Result(long personId, String personFirstName, String personLastName, int commonInterestScore, String personGender, String personCityName) {
         this.personId = personId;
         this.personFirstName = personFirstName;
         this.personLastName = personLastName;
@@ -37,7 +37,7 @@ public class LdbcQuery10Result {
         return personCityName;
     }
 
-    public double commonInterestScore() {
+    public int commonInterestScore() {
         return commonInterestScore;
     }
 
@@ -48,7 +48,7 @@ public class LdbcQuery10Result {
 
         LdbcQuery10Result that = (LdbcQuery10Result) o;
 
-        if (Double.compare(that.commonInterestScore, commonInterestScore) != 0) return false;
+        if (commonInterestScore != that.commonInterestScore) return false;
         if (personId != that.personId) return false;
         if (personCityName != null ? !personCityName.equals(that.personCityName) : that.personCityName != null)
             return false;
@@ -59,6 +59,17 @@ public class LdbcQuery10Result {
             return false;
 
         return true;
+    }
+
+    @Override
+    public int hashCode() {
+        int result = (int) (personId ^ (personId >>> 32));
+        result = 31 * result + (personFirstName != null ? personFirstName.hashCode() : 0);
+        result = 31 * result + (personLastName != null ? personLastName.hashCode() : 0);
+        result = 31 * result + commonInterestScore;
+        result = 31 * result + (personGender != null ? personGender.hashCode() : 0);
+        result = 31 * result + (personCityName != null ? personCityName.hashCode() : 0);
+        return result;
     }
 
     @Override

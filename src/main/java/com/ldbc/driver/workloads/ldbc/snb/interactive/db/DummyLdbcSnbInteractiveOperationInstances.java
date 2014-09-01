@@ -43,7 +43,7 @@ public class DummyLdbcSnbInteractiveOperationInstances {
     }
 
     public static LdbcQuery10 read10() {
-        return new LdbcQuery10(1, "2", 3, 4, 5);
+        return new LdbcQuery10(1, "2", 3, 4);
     }
 
     public static LdbcQuery11 read11() {

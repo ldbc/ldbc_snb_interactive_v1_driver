@@ -256,8 +256,7 @@ public class CsvWritingLdbcSnbInteractiveDb extends Db {
                         operation.type(),
                         Long.toString(operation.personId()),
                         operation.personUri(),
-                        Integer.toString(operation.month1()),
-                        Integer.toString(operation.month2())
+                        Integer.toString(operation.month())
                 );
                 return operation.buildResult(0, RESULT);
             } catch (IOException e) {

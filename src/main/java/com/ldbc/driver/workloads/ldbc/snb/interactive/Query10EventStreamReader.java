@@ -14,8 +14,7 @@ import java.util.Iterator;
 public class Query10EventStreamReader implements Iterator<Operation<?>> {
     public static final String PERSON_ID = "PersonID";
     public static final String PERSON_URI = "PersonURI";
-    public static final String MONTH_1 = "HS0";
-    public static final String MONTH_2 = "HS1";
+    public static final String MONTH = "HS0";
 
     private static final ObjectMapper objectMapper = new ObjectMapper();
     private final CsvEventStreamReader<Operation<?>> csvEventStreamReader;
@@ -37,9 +36,8 @@ public class Query10EventStreamReader implements Iterator<Operation<?>> {
             }
             long personId = params.get(PERSON_ID).asLong();
             String personUri = params.get(PERSON_URI).asText();
-            int month1 = params.get(MONTH_1).asInt();
-            int month2 = params.get(MONTH_2).asInt();
-            return new LdbcQuery10(personId, personUri, month1, month2, LdbcQuery10.DEFAULT_LIMIT);
+            int month1 = params.get(MONTH).asInt();
+            return new LdbcQuery10(personId, personUri, month1, LdbcQuery10.DEFAULT_LIMIT);
         }
     };
 

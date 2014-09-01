@@ -256,7 +256,7 @@ public class LdbcOperationsSerializeMarshalOperationResultsTest {
         long personId1 = 1;
         String personFirstName1 = "2";
         String personLastName1 = "3";
-        double commonInterestScore1 = Double.MAX_VALUE - 4d;
+        int commonInterestScore1 = 10;
         String personGender1 = "4";
         String personCityName1 = "5";
         List<LdbcQuery10Result> before = Lists.newArrayList(new LdbcQuery10Result(

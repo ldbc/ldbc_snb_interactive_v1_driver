@@ -254,21 +254,19 @@ public class LdbcSnbOperationEqualityTest {
         // Given
         long personId1 = 1;
         String personUri1 = "2";
-        int month11 = 3;
-        int month21 = 4;
+        int month1 = 3;
         int limit1 = 7;
 
         long personId2 = 8;
         String personUri2 = "9";
-        int month12 = 10;
-        int month22 = 11;
+        int month2 = 10;
         int limit2 = 12;
 
         // When
-        LdbcQuery10 ldbcQuery1a = new LdbcQuery10(personId1, personUri1, month11, month21, limit1);
-        LdbcQuery10 ldbcQuery1b = new LdbcQuery10(personId1, personUri1, month11, month21, limit1);
-        LdbcQuery10 ldbcQuery2a = new LdbcQuery10(personId2, personUri2, month12, month22, limit2);
-        LdbcQuery10 ldbcQuery3a = new LdbcQuery10(personId1, personUri1, month11, month21, limit2);
+        LdbcQuery10 ldbcQuery1a = new LdbcQuery10(personId1, personUri1, month1, limit1);
+        LdbcQuery10 ldbcQuery1b = new LdbcQuery10(personId1, personUri1, month1, limit1);
+        LdbcQuery10 ldbcQuery2a = new LdbcQuery10(personId2, personUri2, month2, limit2);
+        LdbcQuery10 ldbcQuery3a = new LdbcQuery10(personId1, personUri1, month1, limit2);
 
         // Then
         assertThat(ldbcQuery1a, equalTo(ldbcQuery1b));

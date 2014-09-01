@@ -935,8 +935,7 @@ public class LdbcSnbInteractiveWorkload extends Workload {
             operationAsList.add(ldbcQuery.getClass().getName());
             operationAsList.add(ldbcQuery.personId());
             operationAsList.add(ldbcQuery.personUri());
-            operationAsList.add(ldbcQuery.month1());
-            operationAsList.add(ldbcQuery.month2());
+            operationAsList.add(ldbcQuery.month());
             operationAsList.add(ldbcQuery.limit());
             try {
                 return OBJECT_MAPPER.writeValueAsString(operationAsList);
@@ -1259,10 +1258,9 @@ public class LdbcSnbInteractiveWorkload extends Workload {
         if (operationAsList.get(0).equals(LdbcQuery10.class.getName())) {
             long personId = ((Number) operationAsList.get(1)).longValue();
             String personUri = (String) operationAsList.get(2);
-            int month1 = ((Number) operationAsList.get(3)).intValue();
-            int month2 = ((Number) operationAsList.get(4)).intValue();
-            int limit = ((Number) operationAsList.get(5)).intValue();
-            return new LdbcQuery10(personId, personUri, month1, month2, limit);
+            int month = ((Number) operationAsList.get(3)).intValue();
+            int limit = ((Number) operationAsList.get(4)).intValue();
+            return new LdbcQuery10(personId, personUri, month, limit);
         }
 
         if (operationAsList.get(0).equals(LdbcQuery11.class.getName())) {

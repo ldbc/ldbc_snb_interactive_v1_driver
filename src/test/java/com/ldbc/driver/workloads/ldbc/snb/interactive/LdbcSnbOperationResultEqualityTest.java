@@ -312,14 +312,14 @@ public class LdbcSnbOperationResultEqualityTest {
         long personId1 = 1;
         String personFirstName1 = "2";
         String personLastName1 = "3";
-        double commonInterestScore1 = 4d;
+        int commonInterestScore1 = 4;
         String personGender1 = "5";
         String personCityName1 = "6";
 
         long personId2 = 7;
         String personFirstName2 = "8";
         String personLastName2 = "9";
-        double commonInterestScore2 = 10d;
+        int commonInterestScore2 = 10;
         String personGender2 = "11";
         String personCityName2 = "12";
 
