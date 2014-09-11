@@ -80,8 +80,11 @@ public class LdbcQuery14 extends Operation<List<LdbcQuery14Result>> {
     public List<LdbcQuery14Result> marshalResult(String serializedResults) throws SerializingMarshallingException {
         List<List<Object>> resultsAsList;
         try {
-            resultsAsList = objectMapper.readValue(serializedResults, new TypeReference<List<List<Object>>>() {
-            });
+            resultsAsList = objectMapper.readValue(
+                    serializedResults,
+                    new TypeReference<List<List<Object>>>() {
+                    }
+            );
         } catch (IOException e) {
             throw new SerializingMarshallingException(String.format("Error while parsing serialized results\n%s", serializedResults), e);
         }
@@ -97,10 +100,12 @@ public class LdbcQuery14 extends Operation<List<LdbcQuery14Result>> {
             });
             double pathWeight = ((Number) resultAsList.get(1)).doubleValue();
 
-            results.add(new LdbcQuery14Result(
-                    personsIdsInPath,
-                    pathWeight
-            ));
+            results.add(
+                    new LdbcQuery14Result(
+                            personsIdsInPath,
+                            pathWeight
+                    )
+            );
         }
 
         return results;

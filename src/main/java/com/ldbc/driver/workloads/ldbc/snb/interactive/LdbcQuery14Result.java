@@ -2,16 +2,18 @@ package com.ldbc.driver.workloads.ldbc.snb.interactive;
 
 import com.google.common.collect.Iterables;
 
+import java.util.Iterator;
+
 public class LdbcQuery14Result {
-    private final Iterable<Long> personIdsInPath;
+    private final Iterable<? extends Number> personIdsInPath;
     private final double pathWeight;
 
-    public LdbcQuery14Result(Iterable<Long> personIdsInPath, double pathWeight) {
+    public LdbcQuery14Result(Iterable<? extends Number> personIdsInPath, double pathWeight) {
         this.personIdsInPath = personIdsInPath;
         this.pathWeight = pathWeight;
     }
 
-    public Iterable<Long> personsIdsInPath() {
+    public Iterable<? extends Number> personsIdsInPath() {
         return personIdsInPath;
     }
 
@@ -23,14 +25,23 @@ public class LdbcQuery14Result {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-
         LdbcQuery14Result that = (LdbcQuery14Result) o;
-
         if (Double.compare(that.pathWeight, pathWeight) != 0) return false;
-        if (personIdsInPath != null ? !Iterables.elementsEqual(personIdsInPath, that.personIdsInPath) : that.personIdsInPath != null)
+        if (personIdsInPath != null ? !personIdPathsEqual(personIdsInPath, that.personIdsInPath) : that.personIdsInPath != null)
             return false;
-
         return true;
+    }
+
+    private boolean personIdPathsEqual(Iterable<? extends Number> path1, Iterable<? extends Number> path2) {
+        Iterator<? extends Number> path1Iterator = path1.iterator();
+        Iterator<? extends Number> path2Iterator = path2.iterator();
+        while (path1Iterator.hasNext()) {
+            if (false == path2Iterator.hasNext()) return false;
+            long path1Id = path1Iterator.next().longValue();
+            long path2Id = path2Iterator.next().longValue();
+            if (path1Id != path2Id) return false;
+        }
+        return false == path2Iterator.hasNext();
     }
 
     @Override
