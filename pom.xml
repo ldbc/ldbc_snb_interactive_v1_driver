@@ -22,7 +22,7 @@
         <common.math.version>3.2</common.math.version>
         <log4j.version>1.2.17</log4j.version>
         <hdrhistogram.version>1.2.1</hdrhistogram.version>
-        <guava.version>17.0</guava.version>
+        <guava.version>18.0</guava.version>
         <commmons.cli.version>1.2</commmons.cli.version>
     </properties>
 
@@ -97,14 +97,7 @@
                     <descriptorRefs>
                         <descriptorRef>jar-with-dependencies</descriptorRef>
                     </descriptorRefs>
-                    <!--TODO uncomment below and remove temp stuff after that-->
-                    <!--<appendAssemblyId>false</appendAssemblyId>-->
-                    <appendAssemblyId>true</appendAssemblyId>
-                    <archive>
-                        <manifest>
-                            <addClasspath>true</addClasspath>
-                        </manifest>
-                    </archive>
+                    <appendAssemblyId>false</appendAssemblyId>
                     <!--<source>${java.source.version}</source>-->
                     <!--<target>${java.target.version}</target>-->
                 </configuration>
