@@ -31,7 +31,6 @@ public class LdbcSnbInteractiveWorkload extends Workload {
         // General Driver parameters
         params.put(ConsoleAndFileDriverConfiguration.OPERATION_COUNT_ARG, "1000");
         params.put(ConsoleAndFileDriverConfiguration.WORKLOAD_ARG, LdbcSnbInteractiveWorkload.class.getName());
-        params.put(ConsoleAndFileDriverConfiguration.RESULT_FILE_PATH_ARG, "ldbc_socnet_interactive_results.json");
         // LDBC Interactive Workload-specific parameters
         // reads
         params.put(LdbcSnbInteractiveWorkload.READ_OPERATION_1_INTERLEAVE_KEY, "30");

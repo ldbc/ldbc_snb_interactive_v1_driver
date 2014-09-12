@@ -760,9 +760,9 @@ public class ConsoleAndFileDriverConfiguration implements DriverConfiguration {
         Duration newToleratedExecutionDelay = (newParamsMapWithShortKeys.containsKey(TOLERATED_EXECUTION_DELAY_ARG)) ?
                 Duration.fromMilli(Long.parseLong(newParamsMapWithShortKeys.get(TOLERATED_EXECUTION_DELAY_ARG))) :
                 toleratedExecutionDelay;
-        ConsoleAndFileValidationParamOptions newValidationParams = (newParamsMapWithShortKeys.containsKey(CREATE_VALIDATION_PARAMS_ARG)) ?
-                ConsoleAndFileValidationParamOptions.fromCommandlineString(newParamsMapWithShortKeys.get(CREATE_VALIDATION_PARAMS_ARG)) :
-                validationCreationParams;
+        ConsoleAndFileValidationParamOptions newValidationParams = (newParamsMapWithShortKeys.containsKey(CREATE_VALIDATION_PARAMS_ARG))
+                ? (null == newParamsMapWithShortKeys.get(CREATE_VALIDATION_PARAMS_ARG)) ? null : ConsoleAndFileValidationParamOptions.fromCommandlineString(newParamsMapWithShortKeys.get(CREATE_VALIDATION_PARAMS_ARG))
+                : validationCreationParams;
         String newDatabaseValidationFilePath = (newParamsMapWithShortKeys.containsKey(DB_VALIDATION_FILE_PATH_ARG)) ?
                 newParamsMapWithShortKeys.get(DB_VALIDATION_FILE_PATH_ARG) :
                 databaseValidationFilePath;
