@@ -1,6 +1,7 @@
 package com.ldbc.driver.runtime.coordination;
 
 import com.ldbc.driver.runtime.ConcurrentErrorReporter;
+import com.ldbc.driver.runtime.QueueEventSubmitter;
 import com.ldbc.driver.runtime.scheduling.Spinner;
 import com.ldbc.driver.temporal.Duration;
 import com.ldbc.driver.temporal.Time;
@@ -10,8 +11,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Queue;
 import java.util.Set;
-import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.Future;
+import java.util.concurrent.LinkedTransferQueue;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -23,7 +24,7 @@ public class ThreadedQueuedConcurrentCompletionTimeService implements Concurrent
     private static final Duration SHUTDOWN_WAIT_TIMEOUT = Duration.fromSeconds(5);
 
     private final TimeSource TIME_SOURCE;
-    private final Queue<CompletionTimeEvent> sharedCompletionTimeEventQueue;
+    private final QueueEventSubmitter<CompletionTimeEvent> queueEventSubmitter;
     private final AtomicReference<Time> sharedGctReference;
     private final AtomicLong sharedWriteEventCountReference;
     private final ThreadedQueuedConcurrentCompletionTimeServiceThread threadedQueuedConcurrentCompletionTimeServiceThread;
@@ -36,11 +37,13 @@ public class ThreadedQueuedConcurrentCompletionTimeService implements Concurrent
                                                   ConcurrentErrorReporter errorReporter) throws CompletionTimeException {
         this.TIME_SOURCE = timeSource;
         this.errorReporter = errorReporter;
-        this.sharedCompletionTimeEventQueue = new ConcurrentLinkedQueue<>();
+        Queue<CompletionTimeEvent> completionTimeEventQueue = new LinkedTransferQueue<>();
+        this.queueEventSubmitter = QueueEventSubmitter.queueEventSubmitterFor(completionTimeEventQueue);
+
         this.sharedGctReference = new AtomicReference<>(null);
         this.sharedWriteEventCountReference = new AtomicLong(0);
         threadedQueuedConcurrentCompletionTimeServiceThread = new ThreadedQueuedConcurrentCompletionTimeServiceThread(
-                sharedCompletionTimeEventQueue,
+                completionTimeEventQueue,
                 errorReporter,
                 peerIds,
                 sharedGctReference);
@@ -58,13 +61,13 @@ public class ThreadedQueuedConcurrentCompletionTimeService implements Concurrent
         long timeoutTimeAsMilli = TIME_SOURCE.now().plus(Duration.fromSeconds(2)).asMilli();
         try {
             LocalCompletionTimeWriterFuture future = new LocalCompletionTimeWriterFuture(TIME_SOURCE);
-            sharedCompletionTimeEventQueue.add(CompletionTimeEvent.newLocalCompletionTimeWriter(future));
+            queueEventSubmitter.submitEventToQueue(CompletionTimeEvent.newLocalCompletionTimeWriter(future));
             int writerId;
             while (TIME_SOURCE.nowAsMilli() < timeoutTimeAsMilli) {
                 try {
                     writerId = future.get(futureTimeoutDurationAsMilli, TimeUnit.MILLISECONDS);
                     LocalCompletionTimeWriter writer =
-                            new ThreadedQueuedLocalCompletionTimeWriter(writerId, sharedIsShuttingDownReference, sharedWriteEventCountReference, sharedCompletionTimeEventQueue);
+                            new ThreadedQueuedLocalCompletionTimeWriter(writerId, sharedIsShuttingDownReference, sharedWriteEventCountReference, queueEventSubmitter);
                     writers.add(writer);
                     return writer;
                 } catch (TimeoutException e) {
@@ -83,7 +86,7 @@ public class ThreadedQueuedConcurrentCompletionTimeService implements Concurrent
     synchronized public Future<Time> globalCompletionTimeFuture() throws CompletionTimeException {
         try {
             GlobalCompletionTimeFuture future = new GlobalCompletionTimeFuture(TIME_SOURCE);
-            sharedCompletionTimeEventQueue.add(CompletionTimeEvent.globalCompletionTimeFuture(future));
+            queueEventSubmitter.submitEventToQueue(CompletionTimeEvent.globalCompletionTimeFuture(future));
             return future;
         } catch (Exception e) {
             String errMsg = String.format("Error requesting GCT future");
@@ -100,7 +103,7 @@ public class ThreadedQueuedConcurrentCompletionTimeService implements Concurrent
     synchronized public void submitPeerCompletionTime(String peerId, Time time) throws CompletionTimeException {
         try {
             sharedWriteEventCountReference.incrementAndGet();
-            sharedCompletionTimeEventQueue.add(CompletionTimeEvent.writeExternalCompletionTime(peerId, time));
+            queueEventSubmitter.submitEventToQueue(CompletionTimeEvent.writeExternalCompletionTime(peerId, time));
         } catch (Exception e) {
             String errMsg = String.format("Error submitting external completion time for PeerID[%s] Time[%s]", peerId, time.toString());
             throw new CompletionTimeException(errMsg, e);
@@ -115,9 +118,11 @@ public class ThreadedQueuedConcurrentCompletionTimeService implements Concurrent
 
         long pollingIntervalAsMilli = Duration.fromMilli(100).asMilli();
         long shutdownTimeoutTimeAsMilli = TIME_SOURCE.now().plus(SHUTDOWN_WAIT_TIMEOUT).asMilli();
-
-        sharedCompletionTimeEventQueue.add(CompletionTimeEvent.terminateService(sharedWriteEventCountReference.get()));
-
+        try {
+            queueEventSubmitter.submitEventToQueue(CompletionTimeEvent.terminateService(sharedWriteEventCountReference.get()));
+        } catch (InterruptedException e) {
+            throw new CompletionTimeException("Encountered error while writing TERMINATE event to queue");
+        }
         while (TIME_SOURCE.nowAsMilli() < shutdownTimeoutTimeAsMilli) {
             if (threadedQueuedConcurrentCompletionTimeServiceThread.shutdownComplete())
                 return;
@@ -133,16 +138,16 @@ public class ThreadedQueuedConcurrentCompletionTimeService implements Concurrent
         private final int writerId;
         private final AtomicBoolean sharedIsShuttingDownReference;
         private final AtomicLong sharedWriteEventCountReference;
-        private final Queue<CompletionTimeEvent> sharedCompletionTimeEventQueue;
+        private final QueueEventSubmitter<CompletionTimeEvent> queueEventSubmitter;
 
         ThreadedQueuedLocalCompletionTimeWriter(int writerId,
                                                 AtomicBoolean sharedIsShuttingDownReference,
                                                 AtomicLong sharedWriteEventCountReference,
-                                                Queue<CompletionTimeEvent> sharedCompletionTimeEventQueue) {
+                                                QueueEventSubmitter<CompletionTimeEvent> queueEventSubmitter) {
             this.writerId = writerId;
             this.sharedIsShuttingDownReference = sharedIsShuttingDownReference;
             this.sharedWriteEventCountReference = sharedWriteEventCountReference;
-            this.sharedCompletionTimeEventQueue = sharedCompletionTimeEventQueue;
+            this.queueEventSubmitter = queueEventSubmitter;
         }
 
         @Override
@@ -152,7 +157,7 @@ public class ThreadedQueuedConcurrentCompletionTimeService implements Concurrent
             }
             try {
                 sharedWriteEventCountReference.incrementAndGet();
-                sharedCompletionTimeEventQueue.add(CompletionTimeEvent.writeLocalInitiatedTime(writerId, time));
+                queueEventSubmitter.submitEventToQueue(CompletionTimeEvent.writeLocalInitiatedTime(writerId, time));
             } catch (Exception e) {
                 String errMsg = String.format("Error submitting initiated time for Time[%s]", time.toString());
                 throw new CompletionTimeException(errMsg, e);
@@ -163,7 +168,7 @@ public class ThreadedQueuedConcurrentCompletionTimeService implements Concurrent
         public void submitLocalCompletedTime(Time time) throws CompletionTimeException {
             try {
                 sharedWriteEventCountReference.incrementAndGet();
-                sharedCompletionTimeEventQueue.add(CompletionTimeEvent.writeLocalCompletedTime(writerId, time));
+                queueEventSubmitter.submitEventToQueue(CompletionTimeEvent.writeLocalCompletedTime(writerId, time));
             } catch (Exception e) {
                 String errMsg = String.format("Error submitting completed time for Time[%s]", time.toString());
                 throw new CompletionTimeException(errMsg, e);

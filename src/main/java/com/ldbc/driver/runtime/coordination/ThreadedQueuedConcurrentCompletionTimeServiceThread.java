@@ -1,6 +1,7 @@
 package com.ldbc.driver.runtime.coordination;
 
 import com.ldbc.driver.runtime.ConcurrentErrorReporter;
+import com.ldbc.driver.runtime.QueueEventFetcher;
 import com.ldbc.driver.temporal.Time;
 
 import java.util.HashMap;
@@ -26,7 +27,7 @@ public class ThreadedQueuedConcurrentCompletionTimeServiceThread extends Thread 
     private final GlobalCompletionTimeStateManager globalCompletionTimeStateManager;
     private final MultiWriterLocalCompletionTimeConcurrentStateManager localCompletionTimeConcurrentStateManager;
     private final AtomicReference<Time> globalCompletionTimeSharedReference;
-    private final Queue<CompletionTimeEvent> completionTimeQueue;
+    private final QueueEventFetcher<CompletionTimeEvent> completionTimeEventQueueEventFetcher;
     private final ConcurrentErrorReporter errorReporter;
     private Long processedWriteEventCount = 0l;
     private Long expectedEventCount = null;
@@ -67,8 +68,7 @@ public class ThreadedQueuedConcurrentCompletionTimeServiceThread extends Thread 
                 externalCompletionTimeStateManager
         );
 
-
-        this.completionTimeQueue = completionTimeQueue;
+        this.completionTimeEventQueueEventFetcher = QueueEventFetcher.queueEventFetcherFor(completionTimeQueue);
         this.errorReporter = errorReporter;
         this.globalCompletionTimeSharedReference = globalCompletionTimeSharedReference;
         this.globalCompletionTimeSharedReference.set(globalCompletionTimeStateManager.globalCompletionTime());
@@ -78,10 +78,7 @@ public class ThreadedQueuedConcurrentCompletionTimeServiceThread extends Thread 
     public void run() {
         while (null == expectedEventCount || processedWriteEventCount < expectedEventCount) {
             try {
-                CompletionTimeEvent event = null;
-                while (event == null) {
-                    event = completionTimeQueue.poll();
-                }
+                CompletionTimeEvent event = completionTimeEventQueueEventFetcher.fetchNextEvent();
                 switch (event.type()) {
                     case WRITE_LOCAL_INITIATED_TIME: {
                         CompletionTimeEvent.LocalInitiatedTimeEvent localInitiatedTimeEvent = (CompletionTimeEvent.LocalInitiatedTimeEvent) event;
