@@ -78,109 +78,23 @@ Spinner [Sleep = 10 ms] (NEW thread NEW executor) 1000 ops in 00:00.000 (m:s.ms)
         synchronousExecutorPerformanceTestWithSpinnerDuration(spinnerSleepDuration, experimentRepetitions, operationCount);
 
         experimentRepetitions = 100;
-        operationCount = 10000;
+        operationCount = 100000;
         spinnerSleepDuration = Duration.fromMilli(1);
         synchronousExecutorPerformanceTestWithSpinnerDuration(spinnerSleepDuration, experimentRepetitions, operationCount);
 
         experimentRepetitions = 100;
-        operationCount = 1000;
+        operationCount = 100000;
         spinnerSleepDuration = Duration.fromMilli(10);
         synchronousExecutorPerformanceTestWithSpinnerDuration(spinnerSleepDuration, experimentRepetitions, operationCount);
     }
 
     public void synchronousExecutorPerformanceTestWithSpinnerDuration(Duration spinnerSleepDuration, int experimentRepetitions, long operationCount) throws CompletionTimeException, MetricsCollectionException, DbException, OperationHandlerExecutorException {
-        List<Duration> oldThreadOldExecutorTimes = new ArrayList<>();
-        List<Duration> oldThreadNewExecutorTimes = new ArrayList<>();
         List<Duration> newThreadOldExecutorTimes = new ArrayList<>();
         List<Duration> newThreadNewExecutorTimes = new ArrayList<>();
 
         List<Operation<?>> operations = Lists.newArrayList(getOperations(operationCount));
 
         while (experimentRepetitions-- > 0) {
-            // Old Thread Old Executor
-            {
-                ConcurrentErrorReporter errorReporter = new ConcurrentErrorReporter();
-                ExecutionDelayPolicy executionDelayPolicy = new ErrorReportingTerminatingExecutionDelayPolicy(
-                        TIME_SOURCE,
-                        Duration.fromMilli(10),
-                        errorReporter);
-                Spinner spinner = new Spinner(TIME_SOURCE, spinnerSleepDuration, executionDelayPolicy);
-                Map<Class<? extends Operation>, OperationClassification> operationClassifications = new HashMap<>();
-                operationClassifications.put(TimedNamedOperation1.class, new OperationClassification(SchedulingMode.INDIVIDUAL_BLOCKING, OperationClassification.DependencyMode.NONE));
-                DummyDb db = new DummyDb();
-                Map<String, String> dummyDbParameters = new HashMap<>();
-                dummyDbParameters.put(DummyDb.ALLOWED_DEFAULT_ARG, Boolean.toString(true));
-                db.init(dummyDbParameters);
-                LocalCompletionTimeWriter localCompletionTimeWriter = new DummyLocalCompletionTimeWriter();
-                ConcurrentMetricsService metricsService = new DummyCountingConcurrentMetricsService();
-                DummyGlobalCompletionTimeReader globalCompletionTimeReader = new DummyGlobalCompletionTimeReader();
-                globalCompletionTimeReader.setGlobalCompletionTime(Time.fromNano(0));
-                AtomicBoolean executorHasFinished = new AtomicBoolean(false);
-                AtomicBoolean forceThreadToTerminate = new AtomicBoolean(false);
-                TIME_SOURCE.setNowFromMilli(0);
-
-                OperationHandlerExecutor executor = new ThreadPoolOperationHandlerExecutor(2);
-                PreciseIndividualBlockingOperationStreamExecutorServiceThread_OLD thread = getOldThread(
-                        errorReporter,
-                        operations.iterator(),
-                        spinner,
-                        executor,
-                        operationClassifications,
-                        db,
-                        localCompletionTimeWriter,
-                        metricsService,
-                        globalCompletionTimeReader,
-                        executorHasFinished,
-                        forceThreadToTerminate
-                );
-
-                oldThreadOldExecutorTimes.add(doTest(thread, errorReporter, metricsService, operationCount));
-                executor.shutdown(Duration.fromSeconds(1));
-                db.shutdown();
-                metricsService.shutdown();
-            }
-            // Old Thread New Executor
-            {
-                ConcurrentErrorReporter errorReporter = new ConcurrentErrorReporter();
-                ExecutionDelayPolicy executionDelayPolicy = new ErrorReportingTerminatingExecutionDelayPolicy(
-                        TIME_SOURCE,
-                        Duration.fromMilli(10),
-                        errorReporter);
-                Spinner spinner = new Spinner(TIME_SOURCE, spinnerSleepDuration, executionDelayPolicy);
-                Map<Class<? extends Operation>, OperationClassification> operationClassifications = new HashMap<>();
-                operationClassifications.put(TimedNamedOperation1.class, new OperationClassification(SchedulingMode.INDIVIDUAL_BLOCKING, OperationClassification.DependencyMode.NONE));
-                DummyDb db = new DummyDb();
-                Map<String, String> dummyDbParameters = new HashMap<>();
-                dummyDbParameters.put(DummyDb.ALLOWED_DEFAULT_ARG, Boolean.toString(true));
-                db.init(dummyDbParameters);
-                LocalCompletionTimeWriter localCompletionTimeWriter = new DummyLocalCompletionTimeWriter();
-                ConcurrentMetricsService metricsService = new DummyCountingConcurrentMetricsService();
-                DummyGlobalCompletionTimeReader globalCompletionTimeReader = new DummyGlobalCompletionTimeReader();
-                globalCompletionTimeReader.setGlobalCompletionTime(Time.fromNano(0));
-                AtomicBoolean executorHasFinished = new AtomicBoolean(false);
-                AtomicBoolean forceThreadToTerminate = new AtomicBoolean(false);
-                TIME_SOURCE.setNowFromMilli(0);
-
-                OperationHandlerExecutor executor = new SingleThreadOperationHandlerExecutor(errorReporter);
-                PreciseIndividualBlockingOperationStreamExecutorServiceThread_OLD thread = getOldThread(
-                        errorReporter,
-                        operations.iterator(),
-                        spinner,
-                        executor,
-                        operationClassifications,
-                        db,
-                        localCompletionTimeWriter,
-                        metricsService,
-                        globalCompletionTimeReader,
-                        executorHasFinished,
-                        forceThreadToTerminate
-                );
-
-                oldThreadNewExecutorTimes.add(doTest(thread, errorReporter, metricsService, operationCount));
-                executor.shutdown(Duration.fromSeconds(1));
-                db.shutdown();
-                metricsService.shutdown();
-            }
             // New Thread Old Executor
             {
                 ConcurrentErrorReporter errorReporter = new ConcurrentErrorReporter();
@@ -267,10 +181,6 @@ Spinner [Sleep = 10 ms] (NEW thread NEW executor) 1000 ops in 00:00.000 (m:s.ms)
             }
         }
 
-        Duration meanOldOld = meanDuration(oldThreadOldExecutorTimes);
-        System.out.println(String.format("Spinner [Sleep = %s ms] (OLD thread OLD executor) %s ops in %s: %s ops/ms", spinnerSleepDuration.asMilli(), operationCount, meanOldOld, (operationCount / (double) meanOldOld.asNano()) * 1000000));
-        Duration meanOldNew = meanDuration(oldThreadNewExecutorTimes);
-        System.out.println(String.format("Spinner [Sleep = %s ms] (OLD thread NEW executor) %s ops in %s: %s ops/ms", spinnerSleepDuration.asMilli(), operationCount, meanOldNew, (operationCount / (double) meanOldNew.asNano()) * 1000000));
         Duration meanNewOld = meanDuration(newThreadOldExecutorTimes);
         System.out.println(String.format("Spinner [Sleep = %s ms] (NEW thread OLD executor) %s ops in %s: %s ops/ms", spinnerSleepDuration.asMilli(), operationCount, meanNewOld, (operationCount / (double) meanNewOld.asNano()) * 1000000));
         Duration meanNewNew = meanDuration(newThreadNewExecutorTimes);
@@ -317,38 +227,6 @@ Spinner [Sleep = 10 ms] (NEW thread NEW executor) 1000 ops in 00:00.000 (m:s.ms)
         Iterator<String> names = gf.constant("name");
         Iterator<Operation<?>> operations = gf.limit(new TimedNamedOperation1Factory(scheduledStartTimes, dependencyTimes, names), count);
         return operations;
-    }
-
-    private PreciseIndividualBlockingOperationStreamExecutorServiceThread_OLD getOldThread(
-            ConcurrentErrorReporter errorReporter,
-            Iterator<Operation<?>> operations,
-            Spinner spinner,
-            OperationHandlerExecutor operationHandlerExecutor,
-            Map<Class<? extends Operation>, OperationClassification> operationClassifications,
-            Db db,
-            LocalCompletionTimeWriter localCompletionTimeWriter,
-            ConcurrentMetricsService metricsService,
-            DummyGlobalCompletionTimeReader globalCompletionTimeReader,
-            AtomicBoolean executorHasFinished,
-            AtomicBoolean forceThreadToTerminate
-    ) throws CompletionTimeException, MetricsCollectionException, DbException {
-        PreciseIndividualBlockingOperationStreamExecutorServiceThread_OLD operationStreamExecutorThread = new PreciseIndividualBlockingOperationStreamExecutorServiceThread_OLD(
-                TIME_SOURCE,
-                operationHandlerExecutor,
-                errorReporter,
-                operations,
-                executorHasFinished,
-                spinner,
-                spinner,
-                forceThreadToTerminate,
-                operationClassifications,
-                db,
-                localCompletionTimeWriter,
-                globalCompletionTimeReader,
-                metricsService
-        );
-
-        return operationStreamExecutorThread;
     }
 
     private PreciseIndividualBlockingOperationStreamExecutorServiceThread getNewThread(
