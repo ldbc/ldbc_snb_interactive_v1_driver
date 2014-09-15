@@ -24,19 +24,19 @@ public class Spinner {
     private final long toleratedDelayAccountingForOffsetAsMilli;
     private final long sleepDurationAsMilli;
 
-    public Spinner(TimeSource timeSource, Duration sleepDuration, ExecutionDelayPolicy lateOperationPolicy) {
-        this(timeSource, sleepDuration, lateOperationPolicy, DEFAULT_OFFSET_DURATION_0_MILLI);
+    public Spinner(TimeSource timeSource, Duration sleepDuration, ExecutionDelayPolicy executionDelayPolicy) {
+        this(timeSource, sleepDuration, executionDelayPolicy, DEFAULT_OFFSET_DURATION_0_MILLI);
     }
 
-    public Spinner(TimeSource timeSource, Duration sleepDuration, ExecutionDelayPolicy lateOperationPolicy, Duration offset) {
+    public Spinner(TimeSource timeSource, Duration sleepDuration, ExecutionDelayPolicy executionDelayPolicy, Duration offset) {
         this.TIME_SOURCE = timeSource;
         this.sleepDurationAsMilli = sleepDuration.asMilli();
-        this.executionDelayPolicy = lateOperationPolicy;
+        this.executionDelayPolicy = executionDelayPolicy;
         this.offset = offset;
         // tolerated delay only applies to actual scheduled start time
         // offset will move the scheduled start time earlier, but execution "deadline" will still be:
         //      "deadline" (i.e., latest allowed start time) = (original, i.e.,å before offset applied) scheduled start time + tolerated delay
-        this.toleratedDelayAccountingForOffsetAsMilli = executionDelayPolicy.toleratedDelay().plus(offset).asMilli();
+        this.toleratedDelayAccountingForOffsetAsMilli = this.executionDelayPolicy.toleratedDelay().plus(offset).asMilli();
     }
 
     public boolean waitForScheduledStartTime(Operation<?> operation) {

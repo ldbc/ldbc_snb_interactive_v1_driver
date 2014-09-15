@@ -7,10 +7,11 @@ import java.util.List;
 import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicLong;
 
 public class ThreadPoolOperationHandlerExecutor implements OperationHandlerExecutor {
     private final ExecutorService threadPoolExecutorService;
-    private final AtomicInteger uncompletedHandlers = new AtomicInteger(0);
+    private final AtomicLong uncompletedHandlers = new AtomicLong(0);
     private final AtomicBoolean shutdown = new AtomicBoolean(false);
 
     public ThreadPoolOperationHandlerExecutor(int threadCount) {
@@ -54,19 +55,24 @@ public class ThreadPoolOperationHandlerExecutor implements OperationHandlerExecu
         shutdown.set(true);
     }
 
+    @Override
+    public long uncompletedOperationHandlerCount() throws OperationHandlerExecutorException {
+        return uncompletedHandlers.get();
+    }
+
     private static class ThreadPoolExecutorWithAfterExecute extends ThreadPoolExecutor {
-        public static ThreadPoolExecutorWithAfterExecute newFixedThreadPool(int threadCount, ThreadFactory threadFactory, AtomicInteger uncompletedHandlers) {
+        public static ThreadPoolExecutorWithAfterExecute newFixedThreadPool(int threadCount, ThreadFactory threadFactory, AtomicLong uncompletedHandlers) {
             int corePoolSize = threadCount;
             int maximumPoolSize = threadCount;
             long keepAliveTime = 0;
             TimeUnit unit = TimeUnit.MILLISECONDS;
-            BlockingQueue<Runnable> workQueue = new LinkedBlockingQueue<>();
+            BlockingQueue<Runnable> workQueue = new LinkedTransferQueue<>();
             return new ThreadPoolExecutorWithAfterExecute(corePoolSize, maximumPoolSize, keepAliveTime, unit, workQueue, threadFactory, uncompletedHandlers);
         }
 
-        private final AtomicInteger uncompletedHandlers;
+        private final AtomicLong uncompletedHandlers;
 
-        private ThreadPoolExecutorWithAfterExecute(int corePoolSize, int maximumPoolSize, long keepAliveTime, TimeUnit unit, BlockingQueue<Runnable> workQueue, ThreadFactory threadFactory, AtomicInteger uncompletedHandlers) {
+        private ThreadPoolExecutorWithAfterExecute(int corePoolSize, int maximumPoolSize, long keepAliveTime, TimeUnit unit, BlockingQueue<Runnable> workQueue, ThreadFactory threadFactory, AtomicLong uncompletedHandlers) {
             super(corePoolSize, maximumPoolSize, keepAliveTime, unit, workQueue, threadFactory);
             this.uncompletedHandlers = uncompletedHandlers;
         }

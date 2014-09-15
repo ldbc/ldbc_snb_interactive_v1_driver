@@ -22,7 +22,7 @@ public abstract class Db {
      */
     protected abstract void onInit(Map<String, String> properties) throws DbException;
 
-    synchronized public final void cleanup() throws DbException {
+    synchronized public final void shutdown() throws DbException {
         if (isCleanedUp.get()) {
             throw new DbException("DB may be cleaned up only once");
         }

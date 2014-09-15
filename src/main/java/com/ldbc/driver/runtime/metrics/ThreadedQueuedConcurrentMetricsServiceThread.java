@@ -2,30 +2,25 @@ package com.ldbc.driver.runtime.metrics;
 
 import com.ldbc.driver.OperationResultReport;
 import com.ldbc.driver.runtime.ConcurrentErrorReporter;
+import com.ldbc.driver.runtime.QueueEventFetcher;
 
 import java.util.Queue;
-import java.util.concurrent.BlockingQueue;
 
 public class ThreadedQueuedConcurrentMetricsServiceThread extends Thread {
     private final MetricsManager metricsManager;
     private final ConcurrentErrorReporter errorReporter;
-    private final QueueEventFetcher queueEventFetcher;
+    private final QueueEventFetcher<MetricsCollectionEvent> queueEventFetcher;
     private Long processedEventCount = 0l;
     private Long expectedEventCount = null;
 
     public ThreadedQueuedConcurrentMetricsServiceThread(ConcurrentErrorReporter errorReporter,
                                                         Queue<MetricsCollectionEvent> metricsEventsQueue,
                                                         MetricsManager metricsManager) {
-        this(
-                errorReporter,
-                (BlockingQueue.class.isAssignableFrom(metricsEventsQueue.getClass()))
-                        ? new BlockingQueueEventFetcher((BlockingQueue) metricsEventsQueue)
-                        : new NonBlockingQueueEventFetcher(metricsEventsQueue),
-                metricsManager);
+        this(errorReporter, QueueEventFetcher.queueEventFetcherFor(metricsEventsQueue), metricsManager);
     }
 
     private ThreadedQueuedConcurrentMetricsServiceThread(ConcurrentErrorReporter errorReporter,
-                                                         QueueEventFetcher queueEventFetcher,
+                                                         QueueEventFetcher<MetricsCollectionEvent> queueEventFetcher,
                                                          MetricsManager metricsManager) {
         super(ThreadedQueuedConcurrentMetricsServiceThread.class.getSimpleName() + "-" + System.currentTimeMillis());
         this.errorReporter = errorReporter;
@@ -37,10 +32,7 @@ public class ThreadedQueuedConcurrentMetricsServiceThread extends Thread {
     public void run() {
         while (null == expectedEventCount || processedEventCount < expectedEventCount) {
             try {
-                MetricsCollectionEvent event = null;
-                while (event == null) {
-                    event = queueEventFetcher.fetchNextEvent();
-                }
+                MetricsCollectionEvent event = queueEventFetcher.fetchNextEvent();
                 switch (event.type()) {
                     case SUBMIT_RESULT:
                         OperationResultReport result = ((MetricsCollectionEvent.SubmitResultEvent) event).result();
@@ -98,39 +90,5 @@ public class ThreadedQueuedConcurrentMetricsServiceThread extends Thread {
             String errMsg = String.format("Error encountered while logging result:\n\t%s", operationResultReport);
             throw new MetricsCollectionException(errMsg, e);
         }
-    }
-
-    private static class NonBlockingQueueEventFetcher implements QueueEventFetcher {
-        private final Queue<MetricsCollectionEvent> queue;
-
-        private NonBlockingQueueEventFetcher(Queue<MetricsCollectionEvent> queue) {
-            this.queue = queue;
-        }
-
-        @Override
-        public MetricsCollectionEvent fetchNextEvent() throws InterruptedException {
-            MetricsCollectionEvent event = null;
-            while (event == null) {
-                event = queue.poll();
-            }
-            return event;
-        }
-    }
-
-    private static class BlockingQueueEventFetcher implements QueueEventFetcher {
-        private final BlockingQueue<MetricsCollectionEvent> queue;
-
-        private BlockingQueueEventFetcher(BlockingQueue<MetricsCollectionEvent> queue) {
-            this.queue = queue;
-        }
-
-        @Override
-        public MetricsCollectionEvent fetchNextEvent() throws InterruptedException {
-            return queue.take();
-        }
-    }
-
-    private static interface QueueEventFetcher {
-        MetricsCollectionEvent fetchNextEvent() throws InterruptedException;
     }
 }

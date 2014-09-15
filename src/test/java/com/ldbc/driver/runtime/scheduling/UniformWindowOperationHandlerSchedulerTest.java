@@ -75,7 +75,7 @@ public class UniformWindowOperationHandlerSchedulerTest {
             if (null != operationHandler2) operationHandler2.cleanup();
             if (null != operationHandler3) operationHandler3.cleanup();
             if (null != operationHandler4) operationHandler4.cleanup();
-            if (null != db) db.cleanup();
+            if (null != db) db.shutdown();
         }
     }
 
@@ -126,7 +126,7 @@ public class UniformWindowOperationHandlerSchedulerTest {
             if (null != operationHandler2) operationHandler2.cleanup();
             if (null != operationHandler3) operationHandler3.cleanup();
             if (null != operationHandler4) operationHandler4.cleanup();
-            if (null != db) db.cleanup();
+            if (null != db) db.shutdown();
         }
     }
 
@@ -191,7 +191,7 @@ public class UniformWindowOperationHandlerSchedulerTest {
             if (null != operationHandler4) operationHandler4.cleanup();
             if (null != operationHandler5) operationHandler5.cleanup();
             if (null != operationHandler6) operationHandler6.cleanup();
-            if (null != db) db.cleanup();
+            if (null != db) db.shutdown();
         }
     }
 

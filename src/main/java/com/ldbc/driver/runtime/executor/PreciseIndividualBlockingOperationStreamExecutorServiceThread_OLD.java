@@ -9,14 +9,16 @@ import com.ldbc.driver.runtime.coordination.LocalCompletionTimeWriter;
 import com.ldbc.driver.runtime.metrics.ConcurrentMetricsService;
 import com.ldbc.driver.runtime.scheduling.GctDependencyCheck;
 import com.ldbc.driver.runtime.scheduling.Spinner;
+import com.ldbc.driver.runtime.scheduling.SpinnerCheck;
 import com.ldbc.driver.temporal.Duration;
 import com.ldbc.driver.temporal.TimeSource;
+import com.ldbc.driver.util.Function0;
 
 import java.util.Iterator;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-class PreciseIndividualBlockingOperationStreamExecutorServiceThread extends Thread {
+class PreciseIndividualBlockingOperationStreamExecutorServiceThread_OLD extends Thread {
     // TODO this value should be configurable, or an entirely better policy should be used
     private static final Duration DURATION_TO_WAIT_FOR_LAST_HANDLER_TO_FINISH = Duration.fromMinutes(30);
     private static final Duration POLL_INTERVAL_WHILE_WAITING_FOR_LAST_HANDLER_TO_FINISH = Duration.fromMilli(100);
@@ -36,20 +38,20 @@ class PreciseIndividualBlockingOperationStreamExecutorServiceThread extends Thre
     private final GlobalCompletionTimeReader globalCompletionTimeReader;
     private final ConcurrentMetricsService metricsService;
 
-    public PreciseIndividualBlockingOperationStreamExecutorServiceThread(TimeSource timeSource,
-                                                                         OperationHandlerExecutor operationHandlerExecutor,
-                                                                         ConcurrentErrorReporter errorReporter,
-                                                                         Iterator<Operation<?>> operations,
-                                                                         AtomicBoolean hasFinished,
-                                                                         Spinner spinner,
-                                                                         Spinner slightlyEarlySpinner,
-                                                                         AtomicBoolean forcedTerminate,
-                                                                         Map<Class<? extends Operation>, OperationClassification> operationClassifications,
-                                                                         Db db,
-                                                                         LocalCompletionTimeWriter localCompletionTimeWriter,
-                                                                         GlobalCompletionTimeReader globalCompletionTimeReader,
-                                                                         ConcurrentMetricsService metricsService) {
-        super(PreciseIndividualBlockingOperationStreamExecutorServiceThread.class.getSimpleName() + "-" + System.currentTimeMillis());
+    public PreciseIndividualBlockingOperationStreamExecutorServiceThread_OLD(TimeSource timeSource,
+                                                                             OperationHandlerExecutor operationHandlerExecutor,
+                                                                             ConcurrentErrorReporter errorReporter,
+                                                                             Iterator<Operation<?>> operations,
+                                                                             AtomicBoolean hasFinished,
+                                                                             Spinner spinner,
+                                                                             Spinner slightlyEarlySpinner,
+                                                                             AtomicBoolean forcedTerminate,
+                                                                             Map<Class<? extends Operation>, OperationClassification> operationClassifications,
+                                                                             Db db,
+                                                                             LocalCompletionTimeWriter localCompletionTimeWriter,
+                                                                             GlobalCompletionTimeReader globalCompletionTimeReader,
+                                                                             ConcurrentMetricsService metricsService) {
+        super(PreciseIndividualBlockingOperationStreamExecutorServiceThread_OLD.class.getSimpleName() + "-" + System.currentTimeMillis());
         this.TIME_SOURCE = timeSource;
         this.operationHandlerExecutor = operationHandlerExecutor;
         this.spinner = spinner;
@@ -67,6 +69,7 @@ class PreciseIndividualBlockingOperationStreamExecutorServiceThread extends Thre
 
     @Override
     public void run() {
+        PreviousHandlerCompletedCheck previousHandlerCompletedCheck = new PreviousHandlerCompletedCheck(new AtomicBoolean(true), null);
         while (operations.hasNext() && false == forcedTerminate.get()) {
             Operation<?> operation = operations.next();
 
@@ -80,6 +83,9 @@ class PreciseIndividualBlockingOperationStreamExecutorServiceThread extends Thre
                         String.format("Error while retrieving handler for operation\n%s", ConcurrentErrorReporter.stackTraceToString(e)));
                 continue;
             }
+
+            // Ensures previously executed handler has completed before handler starts executing
+            handler.addBeforeExecuteCheck(previousHandlerCompletedCheck);
 
             // submit initiated time as soon as possible so GCT/dependencies can advance as soon as possible
             try {
@@ -99,17 +105,16 @@ class PreciseIndividualBlockingOperationStreamExecutorServiceThread extends Thre
 
             // execute handler
             try {
-                operationHandlerExecutor.execute(handler);
+                previousHandlerCompletedCheck = executeHandler(handler);
             } catch (OperationHandlerExecutorException e) {
                 errorReporter.reportError(
                         this,
-                        String.format("Error encountered while submitting operation for execution\nOperation: %s\n%s", handler.operation(), ConcurrentErrorReporter.stackTraceToString(e))
-                );
+                        String.format("Error encountered while submitting operation for execution\n%s", ConcurrentErrorReporter.stackTraceToString(e)));
                 continue;
             }
         }
         // Wait for final operation handler
-        boolean executingHandlerFinishedInTime = awaitExecutingHandler(DURATION_TO_WAIT_FOR_LAST_HANDLER_TO_FINISH);
+        boolean executingHandlerFinishedInTime = awaitExecutingHandler(DURATION_TO_WAIT_FOR_LAST_HANDLER_TO_FINISH, previousHandlerCompletedCheck);
         if (false == executingHandlerFinishedInTime) {
             errorReporter.reportError(this, "Last handler did not complete in time");
         }
@@ -156,19 +161,70 @@ class PreciseIndividualBlockingOperationStreamExecutorServiceThread extends Thre
         }
     }
 
-    private boolean awaitExecutingHandler(Duration timeoutDuration) {
+    private PreviousHandlerCompletedCheck executeHandler(OperationHandler<?> handler) throws OperationHandlerExecutorException {
+        try {
+            final AtomicBoolean handlerHasCompleted = new AtomicBoolean(false);
+            handler.addOnCompleteTask(new SetHandlerHasCompletedFlagFun(handlerHasCompleted));
+            operationHandlerExecutor.execute(handler);
+            return new PreviousHandlerCompletedCheck(handlerHasCompleted, handler.operation());
+        } catch (OperationHandlerExecutorException e) {
+            throw new OperationHandlerExecutorException(
+                    String.format("Error encountered while submitting operation for execution\nOperation: %s", handler.operation()), e);
+        }
+    }
+
+    private boolean awaitExecutingHandler(Duration timeoutDuration, PreviousHandlerCompletedCheck previousHandlerCompletedCheck) {
         long pollInterval = POLL_INTERVAL_WHILE_WAITING_FOR_LAST_HANDLER_TO_FINISH.asMilli();
         long timeoutTimeMs = TIME_SOURCE.now().plus(timeoutDuration).asMilli();
         while (TIME_SOURCE.nowAsMilli() < timeoutTimeMs) {
-            try {
-                if (operationHandlerExecutor.uncompletedOperationHandlerCount() == 0) return true;
-            } catch (OperationHandlerExecutorException e) {
-                errorReporter.reportError(this, "Error reading Uncompleted Operation Handler Count from executor");
-                return false;
-            }
+            if (previousHandlerCompletedCheck.doCheck()) return true;
             if (forcedTerminate.get()) return true;
             Spinner.powerNap(pollInterval);
         }
         return false;
+    }
+
+    private final class PreviousHandlerCompletedCheck implements SpinnerCheck {
+        private final AtomicBoolean handlerHasCompleted;
+        private final Operation<?> previousOperation;
+
+        private PreviousHandlerCompletedCheck(AtomicBoolean previousHandlerHasCompleted, Operation<?> previousOperation) {
+            this.handlerHasCompleted = previousHandlerHasCompleted;
+            this.previousOperation = previousOperation;
+        }
+
+        @Override
+        public boolean doCheck() {
+            return handlerHasCompleted.get();
+        }
+
+        @Override
+        public boolean handleFailedCheck(Operation<?> operation) {
+            String errMsg = String.format(
+                    "Previous operation did not complete in time for next synchronous operation to start\n"
+                            + " Previous Operation (%s): %s\n"
+                            + " Next Operation (%s): %s",
+                    previousOperation.scheduledStartTime(),
+                    previousOperation,
+                    operation.scheduledStartTime(),
+                    operation
+            );
+            errorReporter.reportError(this, errMsg);
+            return false;
+        }
+    }
+
+    private final class SetHandlerHasCompletedFlagFun implements Function0 {
+        private final AtomicBoolean handlerHasCompleted;
+
+        private SetHandlerHasCompletedFlagFun(AtomicBoolean handlerHasCompleted) {
+            this.handlerHasCompleted = handlerHasCompleted;
+        }
+
+        @Override
+        public Object apply() {
+            handlerHasCompleted.set(true);
+            return null;
+        }
     }
 }

@@ -75,7 +75,7 @@ public class ThreadPoolOperationHandlerExecutorTest {
         ExecutionDelayPolicy delayPolicy = new ErrorReportingTerminatingExecutionDelayPolicy(TIME_SOURCE, toleratedDelay, errorReporter);
         Spinner spinner = new Spinner(TIME_SOURCE, Spinner.DEFAULT_SLEEP_DURATION_10_MILLI, delayPolicy);
         LocalCompletionTimeWriter dummyLocalCompletionTimeWriter = new DummyLocalCompletionTimeWriter();
-        DummyConcurrentMetricsService metricsService = new DummyConcurrentMetricsService();
+        DummyCollectingConcurrentMetricsService metricsService = new DummyCollectingConcurrentMetricsService();
 
         int threadCount = 1;
         OperationHandlerExecutor executor = new ThreadPoolOperationHandlerExecutor(threadCount);
@@ -121,7 +121,7 @@ public class ThreadPoolOperationHandlerExecutorTest {
         ExecutionDelayPolicy delayPolicy = new ErrorReportingTerminatingExecutionDelayPolicy(TIME_SOURCE, toleratedDelay, errorReporter);
         Spinner spinner = new Spinner(TIME_SOURCE, Spinner.DEFAULT_SLEEP_DURATION_10_MILLI, delayPolicy);
         LocalCompletionTimeWriter dummyLocalCompletionTimeWriter = new DummyLocalCompletionTimeWriter();
-        DummyConcurrentMetricsService metricsService = new DummyConcurrentMetricsService();
+        DummyCollectingConcurrentMetricsService metricsService = new DummyCollectingConcurrentMetricsService();
 
         int threadCount = 1;
         OperationHandlerExecutor executor = new ThreadPoolOperationHandlerExecutor(threadCount);
@@ -185,7 +185,7 @@ public class ThreadPoolOperationHandlerExecutorTest {
         ExecutionDelayPolicy delayPolicy = new ErrorReportingTerminatingExecutionDelayPolicy(TIME_SOURCE, toleratedDelay, errorReporter);
         Spinner spinner = new Spinner(TIME_SOURCE, Spinner.DEFAULT_SLEEP_DURATION_10_MILLI, delayPolicy);
         LocalCompletionTimeWriter dummyLocalCompletionTimeWriter = new DummyLocalCompletionTimeWriter();
-        DummyConcurrentMetricsService metricsService = new DummyConcurrentMetricsService();
+        DummyCollectingConcurrentMetricsService metricsService = new DummyCollectingConcurrentMetricsService();
 
         int threadCount = 1;
         OperationHandlerExecutor executor = new ThreadPoolOperationHandlerExecutor(threadCount);

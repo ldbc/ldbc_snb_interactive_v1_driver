@@ -9,7 +9,7 @@ import com.ldbc.driver.runtime.metrics.WorkloadStatusSnapshot;
 import java.util.ArrayList;
 import java.util.List;
 
-public class DummyConcurrentMetricsService implements ConcurrentMetricsService {
+public class DummyCollectingConcurrentMetricsService implements ConcurrentMetricsService {
     private List<OperationResultReport> operationResultReports = new ArrayList<>();
 
     @Override

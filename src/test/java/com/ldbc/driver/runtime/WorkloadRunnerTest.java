@@ -24,7 +24,6 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 
-import java.io.File;
 import java.io.IOException;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -130,7 +129,7 @@ public class WorkloadRunnerTest {
             assertThat(workloadResults.toJson(), equalTo(workloadResultsFromJson.toJson()));
         } finally {
             if (null != controlService) controlService.shutdown();
-            if (null != db) db.cleanup();
+            if (null != db) db.shutdown();
             if (null != workload) workload.cleanup();
             if (null != metricsService) metricsService.shutdown();
             if (null != completionTimeService) completionTimeService.shutdown();
@@ -227,7 +226,7 @@ public class WorkloadRunnerTest {
             assertThat(workloadResults.toJson(), equalTo(workloadResultsFromJson.toJson()));
         } finally {
             if (null != controlService) controlService.shutdown();
-            if (null != db) db.cleanup();
+            if (null != db) db.shutdown();
             if (null != workload) workload.cleanup();
             if (null != metricsService) metricsService.shutdown();
             if (null != completionTimeService) completionTimeService.shutdown();

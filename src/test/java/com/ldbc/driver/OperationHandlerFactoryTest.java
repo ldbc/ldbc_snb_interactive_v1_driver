@@ -1,7 +1,7 @@
 package com.ldbc.driver;
 
 import com.ldbc.driver.runtime.ConcurrentErrorReporter;
-import com.ldbc.driver.runtime.DummyConcurrentMetricsService;
+import com.ldbc.driver.runtime.DummyCollectingConcurrentMetricsService;
 import com.ldbc.driver.runtime.DummyLocalCompletionTimeWriter;
 import com.ldbc.driver.runtime.coordination.LocalCompletionTimeWriter;
 import com.ldbc.driver.runtime.metrics.ConcurrentMetricsService;
@@ -42,7 +42,7 @@ public class OperationHandlerFactoryTest {
         Duration spinnerSleepDuration = Duration.fromMilli(0);
         Spinner spinner = new Spinner(timeSource, spinnerSleepDuration, executionDelayPolicy);
         LocalCompletionTimeWriter localCompletionTimeWriter = new DummyLocalCompletionTimeWriter();
-        ConcurrentMetricsService metricsService = new DummyConcurrentMetricsService();
+        ConcurrentMetricsService metricsService = new DummyCollectingConcurrentMetricsService();
         Time startTime = timeSource.now();
         for (int i = 0; i < count; i++) {
             OperationHandler<?> operationHandler = operationHandlerFactory.newOperationHandler();

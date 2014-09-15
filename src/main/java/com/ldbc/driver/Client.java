@@ -617,7 +617,7 @@ public class Client {
     private final void cleanupDb(Db db) throws ClientException {
         logger.info("Cleaning up DB...");
         try {
-            db.cleanup();
+            db.shutdown();
         } catch (DbException e) {
             throw new ClientException("Error during DB cleanup", e);
         }

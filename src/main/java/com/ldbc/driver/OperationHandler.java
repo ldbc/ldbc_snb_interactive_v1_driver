@@ -181,6 +181,7 @@ public abstract class OperationHandler<OPERATION_TYPE extends Operation<?>> impl
         errorReporter = null;
         metricsService = null;
         beforeExecuteChecks = null;
-        slot.release(this);
+        if (null != slot)
+            slot.release(this);
     }
 }

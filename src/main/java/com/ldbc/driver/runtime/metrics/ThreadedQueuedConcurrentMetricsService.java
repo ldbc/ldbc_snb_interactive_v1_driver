@@ -2,6 +2,7 @@ package com.ldbc.driver.runtime.metrics;
 
 import com.ldbc.driver.OperationResultReport;
 import com.ldbc.driver.runtime.ConcurrentErrorReporter;
+import com.ldbc.driver.runtime.QueueEventSubmitter;
 import com.ldbc.driver.temporal.Duration;
 import com.ldbc.driver.temporal.Time;
 import com.ldbc.driver.temporal.TimeSource;
@@ -16,7 +17,7 @@ public class ThreadedQueuedConcurrentMetricsService implements ConcurrentMetrics
     private static final Duration SHUTDOWN_WAIT_TIMEOUT = Duration.fromSeconds(5);
 
     private final TimeSource TIME_SOURCE;
-    private final QueueEventSubmitter queueEventSubmitter;
+    private final QueueEventSubmitter<MetricsCollectionEvent> queueEventSubmitter;
     private final AtomicLong initiatedEvents;
     private final ThreadedQueuedConcurrentMetricsServiceThread threadedQueuedConcurrentMetricsServiceThread;
     private AtomicBoolean shutdown = new AtomicBoolean(false);
@@ -33,7 +34,7 @@ public class ThreadedQueuedConcurrentMetricsService implements ConcurrentMetrics
                                                                                        ConcurrentErrorReporter errorReporter,
                                                                                        TimeUnit unit,
                                                                                        Time initialTime) {
-        Queue<MetricsCollectionEvent> queue = new LinkedBlockingQueue<>();
+        Queue<MetricsCollectionEvent> queue = new LinkedTransferQueue<>();
         return new ThreadedQueuedConcurrentMetricsService(timeSource, errorReporter, unit, initialTime, queue);
     }
 
@@ -44,9 +45,7 @@ public class ThreadedQueuedConcurrentMetricsService implements ConcurrentMetrics
                                                    Queue<MetricsCollectionEvent> queue) {
         this.TIME_SOURCE = timeSource;
 
-        this.queueEventSubmitter = (BlockingQueue.class.isAssignableFrom(queue.getClass()))
-                ? new BlockingQueueEventSubmitter((BlockingQueue) queue)
-                : new NonBlockingQueueEventSubmitter(queue);
+        this.queueEventSubmitter = QueueEventSubmitter.queueEventSubmitterFor(queue);
 
         this.initiatedEvents = new AtomicLong(0);
         threadedQueuedConcurrentMetricsServiceThread = new ThreadedQueuedConcurrentMetricsServiceThread(
@@ -223,35 +222,5 @@ public class ThreadedQueuedConcurrentMetricsService implements ConcurrentMetrics
             }
             throw new TimeoutException("Could not complete future in time");
         }
-    }
-
-    private static class NonBlockingQueueEventSubmitter implements QueueEventSubmitter {
-        private final Queue<MetricsCollectionEvent> queue;
-
-        private NonBlockingQueueEventSubmitter(Queue<MetricsCollectionEvent> queue) {
-            this.queue = queue;
-        }
-
-        @Override
-        public void submitEventToQueue(MetricsCollectionEvent event) throws InterruptedException {
-            queue.add(event);
-        }
-    }
-
-    private static class BlockingQueueEventSubmitter implements QueueEventSubmitter {
-        private final BlockingQueue<MetricsCollectionEvent> queue;
-
-        private BlockingQueueEventSubmitter(BlockingQueue<MetricsCollectionEvent> queue) {
-            this.queue = queue;
-        }
-
-        @Override
-        public void submitEventToQueue(MetricsCollectionEvent event) throws InterruptedException {
-            queue.put(event);
-        }
-    }
-
-    private static interface QueueEventSubmitter {
-        void submitEventToQueue(MetricsCollectionEvent event) throws InterruptedException;
     }
 }

@@ -17,4 +17,6 @@ public interface OperationHandlerExecutor {
      * @throws OperationHandlerExecutorException
      */
     public void shutdown(Duration wait) throws OperationHandlerExecutorException;
+
+    public long uncompletedOperationHandlerCount() throws OperationHandlerExecutorException;
 }

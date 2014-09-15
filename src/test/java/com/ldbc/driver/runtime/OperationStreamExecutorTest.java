@@ -264,7 +264,7 @@ public class OperationStreamExecutorTest {
             db.setAllowedValueForAll(true);
             metricsService.shutdown();
             completionTimeService.shutdown();
-            db.cleanup();
+            db.shutdown();
         }
     }
 
@@ -429,7 +429,7 @@ public class OperationStreamExecutorTest {
             db.setAllowedValueForAll(true);
             metricsService.shutdown();
             completionTimeService.shutdown();
-            db.cleanup();
+            db.shutdown();
         }
     }
 
@@ -687,7 +687,7 @@ public class OperationStreamExecutorTest {
             db.setAllowedValueForAll(true);
             metricsService.shutdown();
             completionTimeService.shutdown();
-            db.cleanup();
+            db.shutdown();
         }
     }
 
@@ -741,7 +741,7 @@ public class OperationStreamExecutorTest {
             11  S(11)D(3)                                       3 <~~ S(13)D(3) initialized
             12                                                  3
             13  S(13)D(3)                                       3
-            14                          !!"S(9)D(0)" !!DELAY!!  3
+            14                          !!"S(9)D(0)" !!DELAY!!  3 [UNBLOCK S(6)D(0)]
             15
              */
             List<Operation<?>> readOperations = Lists.<Operation<?>>newArrayList(
@@ -913,15 +913,16 @@ public class OperationStreamExecutorTest {
             assertThat(errorReporter.toString(), completionTimeService.globalCompletionTime(), equalTo(Time.fromMilli(3)));
             assertThat(errorReporter.toString(), errorReporter.errorEncountered(), is(false));
 
-            // At this point maximum tolerated delay for "readwrite2" should be triggered
+            // At this point maximum tolerated delay for "readwrite3" should be triggered
             TIME_SOURCE.setNowFromMilli(14);
             Thread.sleep(ENOUGH_MILLISECONDS_FOR_RUNNER_THREAD_TO_DO_ITS_THING);
             assertThat(errorReporter.toString(), metricsService.results().totalOperationCount(), is(6l));
             assertThat(errorReporter.toString(), completionTimeService.globalCompletionTime(), equalTo(Time.fromMilli(3)));
-            assertThat(errorReporter.toString(), errorReporter.errorEncountered(), is(true));
 
-            // let readwrite2 complete, so threads can be cleaned up
+            // let readwrite2 complete, so readwrite3 can start. readwrite3 then starts to execute and fails due to excessive delay
             db.setNameAllowedValue("readwrite2", true);
+            Thread.sleep(ENOUGH_MILLISECONDS_FOR_RUNNER_THREAD_TO_DO_ITS_THING);
+            assertThat(errorReporter.toString(), errorReporter.errorEncountered(), is(true));
 
             Duration durationToWaitForRunnerToComplete = Duration.fromMilli(WorkloadRunner.RUNNER_POLLING_INTERVAL_AS_MILLI * 4);
             long timeoutTimeAsMilli = TIME_SOURCE.now().plus(durationToWaitForRunnerToComplete).asMilli();
@@ -939,7 +940,7 @@ public class OperationStreamExecutorTest {
             db.setAllowedValueForAll(true);
             metricsService.shutdown();
             completionTimeService.shutdown();
-            db.cleanup();
+            db.shutdown();
         }
     }
 
@@ -1178,7 +1179,7 @@ public class OperationStreamExecutorTest {
             db.setAllowedValueForAll(true);
             metricsService.shutdown();
             completionTimeService.shutdown();
-            db.cleanup();
+            db.shutdown();
         }
     }
 
@@ -1417,7 +1418,7 @@ public class OperationStreamExecutorTest {
             db.setAllowedValueForAll(true);
             metricsService.shutdown();
             completionTimeService.shutdown();
-            db.cleanup();
+            db.shutdown();
         }
     }
 
@@ -1656,7 +1657,7 @@ public class OperationStreamExecutorTest {
             db.setAllowedValueForAll(true);
             metricsService.shutdown();
             completionTimeService.shutdown();
-            db.cleanup();
+            db.shutdown();
         }
     }
 
@@ -1894,7 +1895,7 @@ public class OperationStreamExecutorTest {
             db.setAllowedValueForAll(true);
             metricsService.shutdown();
             completionTimeService.shutdown();
-            db.cleanup();
+            db.shutdown();
         }
     }
 

@@ -7,12 +7,14 @@ import com.ldbc.driver.WorkloadException;
 import com.ldbc.driver.control.ConsoleAndFileDriverConfiguration;
 import com.ldbc.driver.control.DriverConfigurationException;
 import com.ldbc.driver.generator.GeneratorFactory;
+import com.ldbc.driver.generator.RandomDataGeneratorFactory;
 import com.ldbc.driver.runtime.ConcurrentErrorReporter;
+import com.ldbc.driver.runtime.QueueEventFetcher;
+import com.ldbc.driver.runtime.QueueEventSubmitter;
 import com.ldbc.driver.temporal.Duration;
 import com.ldbc.driver.temporal.SystemTimeSource;
 import com.ldbc.driver.temporal.Time;
 import com.ldbc.driver.temporal.TimeSource;
-import com.ldbc.driver.generator.RandomDataGeneratorFactory;
 import com.ldbc.driver.workloads.simple.SimpleWorkload;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -80,6 +82,9 @@ public class ConcurrentCompletionTimeServiceAdvancedTest {
         long arrayBlockingQueueNonBlockingItemsPerMs = (queueItemCount * experimentCount) / totalDurationArrayBlockingQueueNonBlocking.asMilli();
         long arrayBlockingQueueBlockingItemsPerMs = (queueItemCount * experimentCount) / totalDurationArrayBlockingQueueBlocking.asMilli();
 
+        long linkedTransferQueueNonBlockingItemsPerMs = (queueItemCount * experimentCount) / totalDurationLinkedTransferQueueAddPollNonBlocking.asMilli();
+        long linkedTransferQueueBlockingItemsPerMs = (queueItemCount * experimentCount) / totalDurationLinkedTransferQueuePutTakeBlocking.asMilli();
+
         long synchronousQueueBlockingItemsPerMs = (queueItemCount * experimentCount) / totalDurationSynchronousQueueBlocking.asMilli();
 
 
@@ -90,6 +95,9 @@ public class ConcurrentCompletionTimeServiceAdvancedTest {
 
         System.out.println("ArrayBlockingQueue(non-blocking) = \t\t" + arrayBlockingQueueNonBlockingItemsPerMs + " item/ms");
         System.out.println("ArrayBlockingQueue(blocking) = \t\t\t" + arrayBlockingQueueBlockingItemsPerMs + " item/ms");
+
+        System.out.println("LinkedTransferQueue(non-blocking) = \t" + linkedTransferQueueNonBlockingItemsPerMs + " item/ms");
+        System.out.println("LinkedTransferQueue(blocking) = \t\t" + linkedTransferQueueBlockingItemsPerMs + " item/ms");
 
         System.out.println("SynchronousQueue(blocking) = \t\t\t" + synchronousQueueBlockingItemsPerMs + " item/ms");
     }
