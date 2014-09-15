@@ -182,8 +182,6 @@ public class WorkloadRunner {
         // TODO move thread pool creation into executor services so workload runner does not have to know about them
         // TODO calculate thread pool sizes
         this.threadPoolForWindowed = new ThreadPoolOperationHandlerExecutor(threadCount);
-        // TODO change permanently?
-//        this.threadPoolForBlocking = new ThreadPoolOperationHandlerExecutor(2);
         this.threadPoolForBlocking = new SingleThreadOperationHandlerExecutor(errorReporter);
         this.threadPoolForAsynchronous = new ThreadPoolOperationHandlerExecutor(threadCount);
 
@@ -201,8 +199,6 @@ public class WorkloadRunner {
                 localCompletionTimeWriterForAsynchronous,
                 completionTimeService,
                 metricsService);
-        // TODO change permanently?
-//        this.preciseIndividualBlockingOperationStreamExecutorService = new PreciseIndividualBlockingOperationStreamExecutorService(
         this.preciseIndividualBlockingOperationStreamExecutorService = new PreciseIndividualBlockingOperationStreamExecutorService(
                 TIME_SOURCE,
                 errorReporter,

@@ -38,27 +38,6 @@ public class OperationStreamExecutorPerformanceTest {
     private final GeneratorFactory gf = new GeneratorFactory(new RandomDataGeneratorFactory(42l));
 
     /*
-Mirko,
-I just pushed a change to the driver should improve performance of update query execution.
-here are results from some micro benchmarks I performed on the change:
-
-[Sleep = 0 ms] OLD: 1575.299306868305 ops/ms
-[Sleep = 0 ms] NEW: 2012.477359629704 ops/ms
-
-[Sleep = 1 ms] OLD: 2.218859417505026 ops/ms
-[Sleep = 1 ms] NEW: 2032.5203252032522 ops/ms
-
-[Sleep = 10 ms] OLD: 0.2262034020991676 ops/ms
-[Sleep = 10 ms] NEW: 2127.6595744680853 ops/ms
-
-CONFIGURATION/ASSUMPTIONS OF TEST:
- - query dependencies are always fulfilled (queries never need to wait on their dependencies)
- - queries are always
-
-Given the assumption above, the new implementation performs at the same speed regardless of
-     */
-
-    /*
 Spinner [Sleep = 0 ms] (OLD thread OLD executor) 100000 ops in 00:00.063 (m:s.ms): 1575.299306868305 ops/ms
 Spinner [Sleep = 0 ms] (OLD thread NEW executor) 100000 ops in 00:00.058 (m:s.ms): 1696.06512890095 ops/ms
 Spinner [Sleep = 0 ms] (NEW thread OLD executor) 100000 ops in 00:00.055 (m:s.ms): 1800.1800180018001 ops/ms
