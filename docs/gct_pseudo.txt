@@ -1,20 +1,24 @@
+Completion time is the point in time behind which (and including) there are no uncompleted events.
+It is not possible that there are uncompleted events at that time.
+Approximately --> Completion Time = min( min(Initiated Events), max(Completed Events) )
+But not exactly, as Completion Time is ALWAYS lower than min(Initiated Events).
+
+TODO
 Definitions:
 	- lastKnownLowestIT: ...
 	- etc.
+TODO
 Rules:
 	- GCT.lastKnownLowestIT = LCT.lastKn...
 	- update as soon as possible (i.e., rationale for lastLowestIT) because...
 	- why LCT/GCT need to be updated both when LiT and LcT are submitted
+TODO
 Assumptions:
 	- monotonic increasing, etc. --> NOTE, initiated times MUST be applied in ascending order!
 
 *****************************************************************************
 ************************************ LCT ************************************
 *****************************************************************************
-Completion time is the point in time behind which (and including) there are no uncompleted events.
-It is not possible that there are uncompleted events at that time.
-Approximately --> Completion Time = min( min(Initiated Events), max(Completed Events) )
-But not exactly, as Completion Time is ALWAYS lower than min(Initiated Events).
 
 class LCTProvider {
 	Time LCT = ???
@@ -45,12 +49,6 @@ class LCTProvider {
 *****************************************************************************
 ************************************ GCT ************************************
 *****************************************************************************
-Completion time is the point in time AT which there are no uncompleted events.
-It is not possible that there are uncompleted events AT that time.
-Approximately --> Completion Time = min( min(Initiated Events), max(Completed Events) )
-But not exactly, as Completion Time is ALWAYS lower than min(Initiated Events).
-This class performs the logic of tracking local completion time.
-It can be written to by multiple threads in a thread-safe manner.
 
 class GCTProvider {
 	LCTProvider[] lctProviders = // initialized on startup
