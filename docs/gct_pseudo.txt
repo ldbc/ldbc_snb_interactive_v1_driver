@@ -73,7 +73,7 @@ class GCTProvider {
 		lastLowestIT = minLastLowestIT
 		LCTProvider[] filteredLctProviders = withLctBelow(lctProviders, lastLowestIT)
 		Time maxLCT = maxLCT(filteredLctProviders)
-		if (??? == minLCT) return
+		if (??? == maxLCT) return
 		GCT = maxLCT
 	}
 }
