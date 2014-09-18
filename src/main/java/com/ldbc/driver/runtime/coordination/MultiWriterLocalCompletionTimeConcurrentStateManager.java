@@ -13,7 +13,6 @@ import java.util.List;
  * <p/>
  * But not exactly, as Completion Time is ALWAYS lower than min(Initiated Events).
  * <p/>
- * This class performs the logic of tracking completion time. It is NOT thread-safe.
  * This class performs the logic of tracking local completion time.
  * It can be written to by multiple threads in a thread-safe manner.
  */
