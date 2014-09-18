@@ -57,13 +57,13 @@ class GCTProvider {
 
 	void submitLiT(int lctProviderId, Time dueTime) {
 		LCTProvider lctProvider = lctProviders[lctProviderId]
-		lctProvider.submitLcT(dueTime)
+		lctProvider.submitLiT(dueTime)
 		updateGCT()
 	}
 
 	void submitLcT(int lctProviderId, Time dueTime) {
 		LCTProvider lctProvider = lctProviders[lctProviderId]
-		lctProvider.submitLiT(dueTime)
+		lctProvider.submitLcT(dueTime)
 		updateGCT()
 	}
 
