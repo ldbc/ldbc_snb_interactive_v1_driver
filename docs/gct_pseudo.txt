@@ -10,7 +10,7 @@ Definitions:
 TODO
 Rules:
 	- GCT.lastKnownLowestIT = LCT.lastKn...
-	- update as soon as possible (i.e., rationale for lastLowestIT) because...
+	- update as soon as possible (i.e., rationale for lastLowestIT) because... <-- explain why min(LCT) would be correct, but overly conservate. explain lastLowest.. as an optimization/addition
 	- why LCT/GCT need to be updated both when LiT and LcT are submitted
 TODO
 Assumptions:
