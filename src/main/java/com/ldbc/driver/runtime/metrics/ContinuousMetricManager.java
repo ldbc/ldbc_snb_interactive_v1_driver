@@ -11,7 +11,7 @@ public class ContinuousMetricManager {
     private final TimeUnit unit;
 
     public ContinuousMetricManager(String name, TimeUnit unit, long highestExpectedValue, int numberOfSignificantDigits) {
-        histogram = new Histogram(highestExpectedValue, numberOfSignificantDigits);
+        histogram = new Histogram(1, highestExpectedValue, numberOfSignificantDigits);
         this.name = name;
         this.unit = unit;
     }
@@ -20,7 +20,11 @@ public class ContinuousMetricManager {
         try {
             histogram.recordValue(value);
         } catch (ArrayIndexOutOfBoundsException e) {
-            throw new MetricsCollectionException(String.format("Error encountered adding measurement [%s]", value), e);
+            throw new MetricsCollectionException(
+                    String.format(
+                            "Error encountered adding measurement [%s] - probably due to reporting of excessively high value",
+                            value),
+                    e);
         }
     }
 

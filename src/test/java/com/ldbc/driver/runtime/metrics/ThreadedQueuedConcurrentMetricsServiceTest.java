@@ -14,7 +14,6 @@ import java.util.concurrent.TimeUnit;
 
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.CoreMatchers.nullValue;
 import static org.junit.Assert.assertThat;
 
 public class ThreadedQueuedConcurrentMetricsServiceTest {
@@ -27,7 +26,9 @@ public class ThreadedQueuedConcurrentMetricsServiceTest {
                 TIME_SOURCE,
                 new ConcurrentErrorReporter(),
                 TimeUnit.MILLISECONDS,
-                INITIAL_START_TIME);
+                INITIAL_START_TIME,
+                ThreadedQueuedConcurrentMetricsService.DEFAULT_HIGHEST_EXPECTED_RUNTIME_DURATION,
+                ThreadedQueuedConcurrentMetricsService.DEFAULT_HIGHEST_EXPECTED_DELAY_DURATION);
 
         metricsService.shutdown();
         boolean exceptionThrown = false;
@@ -45,7 +46,9 @@ public class ThreadedQueuedConcurrentMetricsServiceTest {
                 TIME_SOURCE,
                 new ConcurrentErrorReporter(),
                 TimeUnit.MILLISECONDS,
-                INITIAL_START_TIME);
+                INITIAL_START_TIME,
+                ThreadedQueuedConcurrentMetricsService.DEFAULT_HIGHEST_EXPECTED_RUNTIME_DURATION,
+                ThreadedQueuedConcurrentMetricsService.DEFAULT_HIGHEST_EXPECTED_DELAY_DURATION);
 
         metricsService.shutdown();
         boolean exceptionThrown = false;
@@ -63,7 +66,9 @@ public class ThreadedQueuedConcurrentMetricsServiceTest {
                 TIME_SOURCE,
                 new ConcurrentErrorReporter(),
                 TimeUnit.MILLISECONDS,
-                INITIAL_START_TIME);
+                INITIAL_START_TIME,
+                ThreadedQueuedConcurrentMetricsService.DEFAULT_HIGHEST_EXPECTED_RUNTIME_DURATION,
+                ThreadedQueuedConcurrentMetricsService.DEFAULT_HIGHEST_EXPECTED_DELAY_DURATION);
 
         try {
             shouldReturnCorrectMeasurements(metricsService);
@@ -78,7 +83,9 @@ public class ThreadedQueuedConcurrentMetricsServiceTest {
                 TIME_SOURCE,
                 new ConcurrentErrorReporter(),
                 TimeUnit.MILLISECONDS,
-                INITIAL_START_TIME);
+                INITIAL_START_TIME,
+                ThreadedQueuedConcurrentMetricsService.DEFAULT_HIGHEST_EXPECTED_RUNTIME_DURATION,
+                ThreadedQueuedConcurrentMetricsService.DEFAULT_HIGHEST_EXPECTED_DELAY_DURATION);
 
         try {
             shouldReturnCorrectMeasurements(metricsService);

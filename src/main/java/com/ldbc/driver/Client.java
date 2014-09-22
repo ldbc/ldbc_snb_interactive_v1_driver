@@ -3,6 +3,7 @@ package com.ldbc.driver;
 import com.google.common.collect.Lists;
 import com.ldbc.driver.control.*;
 import com.ldbc.driver.generator.GeneratorFactory;
+import com.ldbc.driver.generator.RandomDataGeneratorFactory;
 import com.ldbc.driver.runtime.ConcurrentErrorReporter;
 import com.ldbc.driver.runtime.WorkloadRunner;
 import com.ldbc.driver.runtime.coordination.CompletionTimeException;
@@ -17,7 +18,6 @@ import com.ldbc.driver.temporal.TimeSource;
 import com.ldbc.driver.util.ClassLoaderHelper;
 import com.ldbc.driver.util.CsvFileReader;
 import com.ldbc.driver.util.CsvFileWriter;
-import com.ldbc.driver.generator.RandomDataGeneratorFactory;
 import com.ldbc.driver.validation.*;
 import org.apache.log4j.Logger;
 
@@ -204,7 +204,9 @@ public class Client {
                     timeSource,
                     errorReporter,
                     controlService.configuration().timeUnit(),
-                    controlService.workloadStartTime());
+                    controlService.workloadStartTime(),
+                    ThreadedQueuedConcurrentMetricsService.DEFAULT_HIGHEST_EXPECTED_RUNTIME_DURATION,
+                    ThreadedQueuedConcurrentMetricsService.DEFAULT_HIGHEST_EXPECTED_DELAY_DURATION);
             GeneratorFactory generators = new GeneratorFactory(new RandomDataGeneratorFactory(RANDOM_SEED));
 
             logger.info(String.format("Retrieving operation stream for workload: %s", workload.getClass().getSimpleName()));

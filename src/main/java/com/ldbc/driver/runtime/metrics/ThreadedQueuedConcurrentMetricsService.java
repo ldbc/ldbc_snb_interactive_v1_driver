@@ -16,6 +16,12 @@ import java.util.concurrent.atomic.AtomicReference;
 public class ThreadedQueuedConcurrentMetricsService implements ConcurrentMetricsService {
     private static final Duration SHUTDOWN_WAIT_TIMEOUT = Duration.fromSeconds(5);
 
+    // TODO add tests for HdrHistogram, or at least for ContinuousMetricsManager, to test how range actually works, and how accuracy actually works
+    // TODO this could come from config, if we had a max_runtime parameter. for now, it can default to something
+    public static final Duration DEFAULT_HIGHEST_EXPECTED_RUNTIME_DURATION = Duration.fromMinutes(30);
+    // TODO this should come from configuration, from max_tolerated_delay, or whatever it's called
+    public static final Duration DEFAULT_HIGHEST_EXPECTED_DELAY_DURATION = Duration.fromMinutes(60);
+
     private final TimeSource TIME_SOURCE;
     private final QueueEventSubmitter<MetricsCollectionEvent> queueEventSubmitter;
     private final AtomicLong initiatedEvents;
@@ -25,23 +31,43 @@ public class ThreadedQueuedConcurrentMetricsService implements ConcurrentMetrics
     public static ThreadedQueuedConcurrentMetricsService newInstanceUsingNonBlockingQueue(TimeSource timeSource,
                                                                                           ConcurrentErrorReporter errorReporter,
                                                                                           TimeUnit unit,
-                                                                                          Time initialTime) {
+                                                                                          Time initialTime,
+                                                                                          Duration maxRuntimeDuration,
+                                                                                          Duration maxToleratedDelayDuration) {
         Queue<MetricsCollectionEvent> queue = new ConcurrentLinkedQueue<>();
-        return new ThreadedQueuedConcurrentMetricsService(timeSource, errorReporter, unit, initialTime, queue);
+        return new ThreadedQueuedConcurrentMetricsService(
+                timeSource,
+                errorReporter,
+                unit,
+                initialTime,
+                maxRuntimeDuration,
+                maxToleratedDelayDuration,
+                queue);
     }
 
     public static ThreadedQueuedConcurrentMetricsService newInstanceUsingBlockingQueue(TimeSource timeSource,
                                                                                        ConcurrentErrorReporter errorReporter,
                                                                                        TimeUnit unit,
-                                                                                       Time initialTime) {
+                                                                                       Time initialTime,
+                                                                                       Duration maxRuntimeDuration,
+                                                                                       Duration maxToleratedDelayDuration) {
         Queue<MetricsCollectionEvent> queue = new LinkedTransferQueue<>();
-        return new ThreadedQueuedConcurrentMetricsService(timeSource, errorReporter, unit, initialTime, queue);
+        return new ThreadedQueuedConcurrentMetricsService(
+                timeSource,
+                errorReporter,
+                unit,
+                initialTime,
+                maxRuntimeDuration,
+                maxToleratedDelayDuration,
+                queue);
     }
 
     private ThreadedQueuedConcurrentMetricsService(TimeSource timeSource,
                                                    ConcurrentErrorReporter errorReporter,
                                                    TimeUnit unit,
                                                    Time initialTime,
+                                                   Duration maxRuntimeDuration,
+                                                   Duration maxToleratedDelayDuration,
                                                    Queue<MetricsCollectionEvent> queue) {
         this.TIME_SOURCE = timeSource;
 
@@ -51,7 +77,7 @@ public class ThreadedQueuedConcurrentMetricsService implements ConcurrentMetrics
         threadedQueuedConcurrentMetricsServiceThread = new ThreadedQueuedConcurrentMetricsServiceThread(
                 errorReporter,
                 queue,
-                new MetricsManager(TIME_SOURCE, unit, initialTime));
+                new MetricsManager(TIME_SOURCE, unit, initialTime, maxRuntimeDuration, maxToleratedDelayDuration));
         threadedQueuedConcurrentMetricsServiceThread.start();
     }
 

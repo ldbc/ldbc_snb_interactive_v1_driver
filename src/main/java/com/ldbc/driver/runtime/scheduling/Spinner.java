@@ -35,7 +35,7 @@ public class Spinner {
         this.offset = offset;
         // tolerated delay only applies to actual scheduled start time
         // offset will move the scheduled start time earlier, but execution "deadline" will still be:
-        //      "deadline" (i.e., latest allowed start time) = (original, i.e.,å before offset applied) scheduled start time + tolerated delay
+        //      "deadline" (i.e., latest allowed start time) = (original, i.e.,before offset applied) scheduled start time + tolerated delay
         this.toleratedDelayAccountingForOffsetAsMilli = this.executionDelayPolicy.toleratedDelay().plus(offset).asMilli();
     }
 

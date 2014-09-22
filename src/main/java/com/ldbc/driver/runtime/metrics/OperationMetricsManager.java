@@ -20,11 +20,11 @@ public class OperationMetricsManager {
     private TimeUnit durationUnit;
     private long count = 0;
 
-    OperationMetricsManager(String name, TimeUnit durationUnit, Duration highestExpectedDuration) {
+    OperationMetricsManager(String name, TimeUnit durationUnit, Duration highestExpectedRuntimeDuration, Duration highestExpectedDelayDuration) {
         this.name = name;
         this.durationUnit = durationUnit;
-        this.runTimeMetric = new ContinuousMetricManager(METRIC_RUNTIME, durationUnit, highestExpectedDuration.as(durationUnit), NUMBER_OF_SIGNIFICANT_HDR_HISTOGRAM_DIGITS);
-        this.startTimeDelayMetric = new ContinuousMetricManager(METRIC_START_TIME_DELAY, durationUnit, highestExpectedDuration.as(durationUnit), NUMBER_OF_SIGNIFICANT_HDR_HISTOGRAM_DIGITS);
+        this.runTimeMetric = new ContinuousMetricManager(METRIC_RUNTIME, durationUnit, highestExpectedRuntimeDuration.as(durationUnit), NUMBER_OF_SIGNIFICANT_HDR_HISTOGRAM_DIGITS);
+        this.startTimeDelayMetric = new ContinuousMetricManager(METRIC_START_TIME_DELAY, durationUnit, highestExpectedDelayDuration.as(durationUnit), NUMBER_OF_SIGNIFICANT_HDR_HISTOGRAM_DIGITS);
         this.resultCodeMetric = new DiscreteMetricManager(METRIC_RESULT_CODE, "Result Code");
     }
 

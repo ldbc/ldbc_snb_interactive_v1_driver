@@ -91,7 +91,9 @@ public class WorkloadRunnerTest {
                     TIME_SOURCE,
                     errorReporter,
                     configuration.timeUnit(),
-                    controlService.workloadStartTime());
+                    controlService.workloadStartTime(),
+                    ThreadedQueuedConcurrentMetricsService.DEFAULT_HIGHEST_EXPECTED_RUNTIME_DURATION,
+                    ThreadedQueuedConcurrentMetricsService.DEFAULT_HIGHEST_EXPECTED_DELAY_DURATION);
 
             completionTimeService =
                     completionTimeServiceAssistant.newThreadedQueuedConcurrentCompletionTimeServiceFromPeerIds(
@@ -188,7 +190,9 @@ public class WorkloadRunnerTest {
                     TIME_SOURCE,
                     errorReporter,
                     configuration.timeUnit(),
-                    controlService.workloadStartTime());
+                    controlService.workloadStartTime(),
+                    ThreadedQueuedConcurrentMetricsService.DEFAULT_HIGHEST_EXPECTED_RUNTIME_DURATION,
+                    ThreadedQueuedConcurrentMetricsService.DEFAULT_HIGHEST_EXPECTED_DELAY_DURATION);
 
             ConcurrentCompletionTimeService concurrentCompletionTimeService =
                     completionTimeServiceAssistant.newSynchronizedConcurrentCompletionTimeServiceFromPeerIds(

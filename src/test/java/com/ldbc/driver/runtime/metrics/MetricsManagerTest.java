@@ -20,7 +20,13 @@ public class MetricsManagerTest {
     @Test
     public void shouldReturnCorrectMeasurements() throws WorkloadException, MetricsCollectionException {
         Time initialTime = Time.fromMilli(0);
-        MetricsManager metricsManager = new MetricsManager(TIME_SOURCE, TimeUnit.MILLISECONDS, initialTime);
+        MetricsManager metricsManager = new MetricsManager(
+                TIME_SOURCE,
+                TimeUnit.MILLISECONDS,
+                initialTime,
+                ThreadedQueuedConcurrentMetricsService.DEFAULT_HIGHEST_EXPECTED_RUNTIME_DURATION,
+                ThreadedQueuedConcurrentMetricsService.DEFAULT_HIGHEST_EXPECTED_DELAY_DURATION
+        );
 
         OperationResultReport operationResultReport1 = OperationResultReportTestHelper.create(1, "result one");
         OperationResultReportTestHelper.setOperationType(operationResultReport1, "type one");

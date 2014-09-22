@@ -95,7 +95,9 @@ public class OperationStreamExecutorTest {
                 TIME_SOURCE,
                 errorReporter,
                 TimeUnit.MILLISECONDS,
-                WORKLOAD_START_TIME_0);
+                WORKLOAD_START_TIME_0,
+                ThreadedQueuedConcurrentMetricsService.DEFAULT_HIGHEST_EXPECTED_RUNTIME_DURATION,
+                ThreadedQueuedConcurrentMetricsService.DEFAULT_HIGHEST_EXPECTED_DELAY_DURATION);
 
         Set<String> peerIds = new HashSet<>();
         // TODO test also with threaded completion time service implementation
@@ -284,7 +286,9 @@ public class OperationStreamExecutorTest {
                 TIME_SOURCE,
                 errorReporter,
                 TimeUnit.MILLISECONDS,
-                WORKLOAD_START_TIME_0);
+                WORKLOAD_START_TIME_0,
+                ThreadedQueuedConcurrentMetricsService.DEFAULT_HIGHEST_EXPECTED_RUNTIME_DURATION,
+                ThreadedQueuedConcurrentMetricsService.DEFAULT_HIGHEST_EXPECTED_DELAY_DURATION);
 
         Set<String> peerIds = new HashSet<>();
         // TODO test also with threaded completion time service implementation
@@ -450,7 +454,9 @@ public class OperationStreamExecutorTest {
                 TIME_SOURCE,
                 errorReporter,
                 TimeUnit.MILLISECONDS,
-                WORKLOAD_START_TIME_0);
+                WORKLOAD_START_TIME_0,
+                ThreadedQueuedConcurrentMetricsService.DEFAULT_HIGHEST_EXPECTED_RUNTIME_DURATION,
+                ThreadedQueuedConcurrentMetricsService.DEFAULT_HIGHEST_EXPECTED_DELAY_DURATION);
 
         Set<String> peerIds = new HashSet<>();
         // TODO test also with threaded completion time service implementation
@@ -708,7 +714,9 @@ public class OperationStreamExecutorTest {
                 TIME_SOURCE,
                 errorReporter,
                 TimeUnit.MILLISECONDS,
-                WORKLOAD_START_TIME_0);
+                WORKLOAD_START_TIME_0,
+                ThreadedQueuedConcurrentMetricsService.DEFAULT_HIGHEST_EXPECTED_RUNTIME_DURATION,
+                ThreadedQueuedConcurrentMetricsService.DEFAULT_HIGHEST_EXPECTED_DELAY_DURATION);
 
         Set<String> peerIds = new HashSet<>();
         // TODO test also with threaded completion time service implementation
@@ -960,7 +968,9 @@ public class OperationStreamExecutorTest {
                 TIME_SOURCE,
                 errorReporter,
                 TimeUnit.MILLISECONDS,
-                WORKLOAD_START_TIME_0);
+                WORKLOAD_START_TIME_0,
+                ThreadedQueuedConcurrentMetricsService.DEFAULT_HIGHEST_EXPECTED_RUNTIME_DURATION,
+                ThreadedQueuedConcurrentMetricsService.DEFAULT_HIGHEST_EXPECTED_DELAY_DURATION);
 
         Set<String> peerIds = new HashSet<>();
         // TODO test also with threaded completion time service implementation
@@ -1199,7 +1209,9 @@ public class OperationStreamExecutorTest {
                 TIME_SOURCE,
                 errorReporter,
                 TimeUnit.MILLISECONDS,
-                WORKLOAD_START_TIME_0);
+                WORKLOAD_START_TIME_0,
+                ThreadedQueuedConcurrentMetricsService.DEFAULT_HIGHEST_EXPECTED_RUNTIME_DURATION,
+                ThreadedQueuedConcurrentMetricsService.DEFAULT_HIGHEST_EXPECTED_DELAY_DURATION);
 
         Set<String> peerIds = new HashSet<>();
         // TODO test also with threaded completion time service implementation
@@ -1438,7 +1450,9 @@ public class OperationStreamExecutorTest {
                 TIME_SOURCE,
                 errorReporter,
                 TimeUnit.MILLISECONDS,
-                WORKLOAD_START_TIME_0);
+                WORKLOAD_START_TIME_0,
+                ThreadedQueuedConcurrentMetricsService.DEFAULT_HIGHEST_EXPECTED_RUNTIME_DURATION,
+                ThreadedQueuedConcurrentMetricsService.DEFAULT_HIGHEST_EXPECTED_DELAY_DURATION);
 
         Set<String> peerIds = new HashSet<>();
         // TODO test also with threaded completion time service implementation
@@ -1677,7 +1691,9 @@ public class OperationStreamExecutorTest {
                 TIME_SOURCE,
                 errorReporter,
                 TimeUnit.MILLISECONDS,
-                WORKLOAD_START_TIME_0);
+                WORKLOAD_START_TIME_0,
+                ThreadedQueuedConcurrentMetricsService.DEFAULT_HIGHEST_EXPECTED_RUNTIME_DURATION,
+                ThreadedQueuedConcurrentMetricsService.DEFAULT_HIGHEST_EXPECTED_DELAY_DURATION);
 
         Set<String> peerIds = new HashSet<>();
         // TODO test also with threaded completion time service implementation

@@ -15,6 +15,6 @@ This driver is being developed as part of the Linked Data Benchmark Council EU-f
 
 To quickly test the driver try the "simpleworkload" that is shipped with it by doing the following:
 
-	java -cp target/core-0.2-SNAPSHOT.jar com.ldbc.driver.Client -db com.ldbc.driver.workloads.simple.db.BasicDb -P workloads/simple/simpleworkload.properties -P workloads/ldbc_driver_default.properties
+	java -cp target/jeeves-0.2-SNAPSHOT.jar com.ldbc.driver.Client -db com.ldbc.driver.workloads.simple.db.BasicDb -P workloads/simple/simpleworkload.properties -P workloads/ldbc_driver_default.properties
 
 For more information, please refer to the [Documentation](https://github.com/ldbc/ldbc_driver/wiki)
