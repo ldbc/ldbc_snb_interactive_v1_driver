@@ -4,7 +4,15 @@ import org.HdrHistogram.Histogram;
 
 import java.util.concurrent.TimeUnit;
 
-
+/*
+http://giltene.github.io/HdrHistogram/JavaDoc/
+Specifying 3 decimal points of precision in this example guarantees that value quantization within the value range will
+be no larger than 1/1,000th (or 0.1%) of any recorded value. This example Histogram can be therefor used to track,
+analyze and report the counts of observed latencies ranging between 1 microsecond and 1 hour in magnitude, while
+maintaining a value resolution 1 microsecond (or better) up to 1 millisecond, a resolution of 1 millisecond (or better)
+up to one second, and a resolution of 1 second (or better) up to 1,000 seconds. At it's maximum tracked value (1 hour),
+it would still maintain a resolution of 3.6 seconds (or better).
+ */
 public class ContinuousMetricManager {
     private final Histogram histogram;
     private final String name;

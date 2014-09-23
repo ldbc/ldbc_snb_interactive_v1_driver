@@ -16,10 +16,8 @@ import java.util.concurrent.atomic.AtomicReference;
 public class ThreadedQueuedConcurrentMetricsService implements ConcurrentMetricsService {
     private static final Duration SHUTDOWN_WAIT_TIMEOUT = Duration.fromSeconds(5);
 
-    // TODO add tests for HdrHistogram, or at least for ContinuousMetricsManager, to test how range actually works, and how accuracy actually works
     // TODO this could come from config, if we had a max_runtime parameter. for now, it can default to something
     public static final Duration DEFAULT_HIGHEST_EXPECTED_RUNTIME_DURATION = Duration.fromMinutes(30);
-    // TODO this should come from configuration, from max_tolerated_delay, or whatever it's called
     public static final Duration DEFAULT_HIGHEST_EXPECTED_DELAY_DURATION = Duration.fromMinutes(60);
 
     private final TimeSource TIME_SOURCE;
