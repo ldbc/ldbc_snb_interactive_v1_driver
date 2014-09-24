@@ -2,7 +2,7 @@ package com.ldbc.driver.runtime.scheduling;
 
 import com.ldbc.driver.Operation;
 import com.ldbc.driver.runtime.ConcurrentErrorReporter;
-import com.ldbc.driver.runtime.DummyGlobalCompletionTimeReader;
+import com.ldbc.driver.runtime.coordination.DummyGlobalCompletionTimeReader;
 import com.ldbc.driver.temporal.Time;
 import com.ldbc.driver.workloads.dummy.TimedNamedOperation1;
 import org.junit.Test;

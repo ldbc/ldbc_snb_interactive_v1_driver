@@ -38,7 +38,8 @@ public class UniformWindowedOperationStreamExecutorService {
                                                          Map<Class<? extends Operation>, OperationClassification> operationClassifications,
                                                          LocalCompletionTimeWriter localCompletionTimeWriter,
                                                          GlobalCompletionTimeReader globalCompletionTimeReader,
-                                                         ConcurrentMetricsService metricsService) {
+                                                         ConcurrentMetricsService metricsService,
+                                                         Duration durationToWaitForAllHandlersToFinishBeforeShutdown) {
         this.errorReporter = errorReporter;
         if (operations.hasNext()) {
             this.uniformWindowedOperationStreamExecutorServiceThread = new UniformWindowedOperationStreamExecutorServiceThread(
@@ -56,7 +57,8 @@ public class UniformWindowedOperationStreamExecutorService {
                     operationClassifications,
                     localCompletionTimeWriter,
                     globalCompletionTimeReader,
-                    metricsService);
+                    metricsService,
+                    durationToWaitForAllHandlersToFinishBeforeShutdown);
         } else {
             this.uniformWindowedOperationStreamExecutorServiceThread = null;
             executing.set(true);

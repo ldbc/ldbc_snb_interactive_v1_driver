@@ -9,6 +9,7 @@ import com.ldbc.driver.generator.RandomDataGeneratorFactory;
 import com.ldbc.driver.runtime.coordination.CompletionTimeException;
 import com.ldbc.driver.runtime.coordination.CompletionTimeServiceAssistant;
 import com.ldbc.driver.runtime.coordination.ConcurrentCompletionTimeService;
+import com.ldbc.driver.runtime.executor.PreciseIndividualAsyncOperationStreamExecutorService;
 import com.ldbc.driver.runtime.metrics.ConcurrentMetricsService;
 import com.ldbc.driver.runtime.metrics.MetricsCollectionException;
 import com.ldbc.driver.runtime.metrics.ThreadedQueuedConcurrentMetricsService;
@@ -115,7 +116,8 @@ public class WorkloadRunnerTest {
                     controlService.configuration().toleratedExecutionDelay(),
                     controlService.configuration().spinnerSleepDuration(),
                     controlService.configuration().windowedExecutionWindowDuration(),
-                    WorkloadRunner.EARLY_SPINNER_OFFSET_DURATION);
+                    WorkloadRunner.DEFAULT_EARLY_SPINNER_OFFSET_DURATION,
+                    WorkloadRunner.DEFAULT_DURATION_TO_WAIT_FOR_ALL_HANDLERS_TO_FINISH);
 
             runner.executeWorkload();
 
@@ -212,7 +214,8 @@ public class WorkloadRunnerTest {
                     controlService.configuration().toleratedExecutionDelay(),
                     controlService.configuration().spinnerSleepDuration(),
                     controlService.configuration().windowedExecutionWindowDuration(),
-                    WorkloadRunner.EARLY_SPINNER_OFFSET_DURATION);
+                    WorkloadRunner.DEFAULT_EARLY_SPINNER_OFFSET_DURATION,
+                    WorkloadRunner.DEFAULT_DURATION_TO_WAIT_FOR_ALL_HANDLERS_TO_FINISH);
 
 
             runner.executeWorkload();

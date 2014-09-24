@@ -9,12 +9,13 @@ import com.ldbc.driver.OperationClassification.SchedulingMode;
 import com.ldbc.driver.generator.GeneratorFactory;
 import com.ldbc.driver.generator.RandomDataGeneratorFactory;
 import com.ldbc.driver.runtime.ConcurrentErrorReporter;
-import com.ldbc.driver.runtime.DummyCountingConcurrentMetricsService;
-import com.ldbc.driver.runtime.DummyGlobalCompletionTimeReader;
-import com.ldbc.driver.runtime.DummyLocalCompletionTimeWriter;
+import com.ldbc.driver.runtime.WorkloadRunner;
 import com.ldbc.driver.runtime.coordination.CompletionTimeException;
+import com.ldbc.driver.runtime.coordination.DummyGlobalCompletionTimeReader;
+import com.ldbc.driver.runtime.coordination.DummyLocalCompletionTimeWriter;
 import com.ldbc.driver.runtime.coordination.LocalCompletionTimeWriter;
 import com.ldbc.driver.runtime.metrics.ConcurrentMetricsService;
+import com.ldbc.driver.runtime.metrics.DummyCountingConcurrentMetricsService;
 import com.ldbc.driver.runtime.metrics.MetricsCollectionException;
 import com.ldbc.driver.runtime.scheduling.ErrorReportingTerminatingExecutionDelayPolicy;
 import com.ldbc.driver.runtime.scheduling.ExecutionDelayPolicy;
@@ -243,7 +244,8 @@ Spinner [Sleep = 10 ms] (NEW thread NEW executor) 1000 ops in 00:00.000 (m:s.ms)
                 db,
                 localCompletionTimeWriter,
                 globalCompletionTimeReader,
-                metricsService
+                metricsService,
+                WorkloadRunner.DEFAULT_DURATION_TO_WAIT_FOR_ALL_HANDLERS_TO_FINISH
         );
 
         return operationStreamExecutorThread;

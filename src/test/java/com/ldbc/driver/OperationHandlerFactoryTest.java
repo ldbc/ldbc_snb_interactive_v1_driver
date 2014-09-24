@@ -1,8 +1,8 @@
 package com.ldbc.driver;
 
 import com.ldbc.driver.runtime.ConcurrentErrorReporter;
-import com.ldbc.driver.runtime.DummyCollectingConcurrentMetricsService;
-import com.ldbc.driver.runtime.DummyLocalCompletionTimeWriter;
+import com.ldbc.driver.runtime.metrics.DummyCollectingConcurrentMetricsService;
+import com.ldbc.driver.runtime.coordination.DummyLocalCompletionTimeWriter;
 import com.ldbc.driver.runtime.coordination.LocalCompletionTimeWriter;
 import com.ldbc.driver.runtime.metrics.ConcurrentMetricsService;
 import com.ldbc.driver.runtime.scheduling.ErrorReportingTerminatingExecutionDelayPolicy;

@@ -34,7 +34,8 @@ public class PreciseIndividualBlockingOperationStreamExecutorService {
                                                                    Db db,
                                                                    LocalCompletionTimeWriter localCompletionTimeWriter,
                                                                    GlobalCompletionTimeReader globalCompletionTimeReader,
-                                                                   ConcurrentMetricsService metricsService) {
+                                                                   ConcurrentMetricsService metricsService,
+                                                                   Duration durationToWaitForAllHandlersToFinishBeforeShutdown) {
         this.errorReporter = errorReporter;
         if (operations.hasNext()) {
             this.preciseIndividualBlockingOperationStreamExecutorServiceThread = new PreciseIndividualBlockingOperationStreamExecutorServiceThread(
@@ -50,7 +51,8 @@ public class PreciseIndividualBlockingOperationStreamExecutorService {
                     db,
                     localCompletionTimeWriter,
                     globalCompletionTimeReader,
-                    metricsService);
+                    metricsService,
+                    durationToWaitForAllHandlersToFinishBeforeShutdown);
         } else {
             this.preciseIndividualBlockingOperationStreamExecutorServiceThread = null;
             executing.set(true);

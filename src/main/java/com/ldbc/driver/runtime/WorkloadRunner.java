@@ -29,7 +29,8 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import static com.ldbc.driver.OperationClassification.SchedulingMode;
 
 public class WorkloadRunner {
-    public static final Duration EARLY_SPINNER_OFFSET_DURATION = Duration.fromMilli(100);
+    public static final Duration DEFAULT_DURATION_TO_WAIT_FOR_ALL_HANDLERS_TO_FINISH = Duration.fromMinutes(60);
+    public static final Duration DEFAULT_EARLY_SPINNER_OFFSET_DURATION = Duration.fromMilli(100);
     public static final long RUNNER_POLLING_INTERVAL_AS_MILLI = Duration.fromMilli(100).asMilli();
     private static final Duration WAIT_DURATION_FOR_OPERATION_HANDLER_EXECUTOR_TO_SHUTDOWN = Duration.fromSeconds(5);
     private static final LocalCompletionTimeWriter DUMMY_LOCAL_COMPLETION_TIME_WRITER = new DummyLocalCompletionTimeWriter();
@@ -67,7 +68,8 @@ public class WorkloadRunner {
                           Duration toleratedExecutionDelayDuration,
                           Duration spinnerSleepDuration,
                           Duration executionWindowDuration,
-                          Duration earlySpinnerOffsetDuration) throws WorkloadException {
+                          Duration earlySpinnerOffsetDuration,
+                          Duration durationToWaitForAllHandlersToFinishBeforeShutdown) throws WorkloadException {
         this.TIME_SOURCE = timeSource;
         this.errorReporter = errorReporter;
         this.statusDisplayInterval = statusDisplayInterval;
@@ -198,7 +200,8 @@ public class WorkloadRunner {
                 db,
                 localCompletionTimeWriterForAsynchronous,
                 completionTimeService,
-                metricsService);
+                metricsService,
+                durationToWaitForAllHandlersToFinishBeforeShutdown);
         this.preciseIndividualBlockingOperationStreamExecutorService = new PreciseIndividualBlockingOperationStreamExecutorService(
                 TIME_SOURCE,
                 errorReporter,
@@ -210,7 +213,8 @@ public class WorkloadRunner {
                 db,
                 localCompletionTimeWriterForBlocking,
                 completionTimeService,
-                metricsService);
+                metricsService,
+                durationToWaitForAllHandlersToFinishBeforeShutdown);
         this.uniformWindowedOperationStreamExecutorService = new UniformWindowedOperationStreamExecutorService(
                 TIME_SOURCE,
                 errorReporter,
@@ -224,7 +228,8 @@ public class WorkloadRunner {
                 operationClassifications,
                 localCompletionTimeWriterForWindowed,
                 completionTimeService,
-                metricsService);
+                metricsService,
+                durationToWaitForAllHandlersToFinishBeforeShutdown);
     }
 
     // TODO executeWorkload should return a result (e.g., Success/Fail, and ErrorType if Fail)

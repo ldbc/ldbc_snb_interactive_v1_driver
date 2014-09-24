@@ -1,4 +1,4 @@
-package com.ldbc.driver.runtime;
+package com.ldbc.driver.runtime.metrics;
 
 import com.google.common.collect.Lists;
 import com.ldbc.driver.OperationResultReport;

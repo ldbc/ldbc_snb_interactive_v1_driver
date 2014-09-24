@@ -37,7 +37,8 @@ public class PreciseIndividualAsyncOperationStreamExecutorService {
                                                                 Db db,
                                                                 LocalCompletionTimeWriter localCompletionTimeWriter,
                                                                 GlobalCompletionTimeReader globalCompletionTimeReader,
-                                                                ConcurrentMetricsService metricsService) {
+                                                                ConcurrentMetricsService metricsService,
+                                                                Duration durationToWaitForAllHandlersToFinishBeforeShutdown) {
         this.TIME_SOURCE = timeSource;
         this.errorReporter = errorReporter;
         if (gctReadOperations.hasNext() || gctWriteOperations.hasNext()) {
@@ -55,7 +56,8 @@ public class PreciseIndividualAsyncOperationStreamExecutorService {
                     db,
                     localCompletionTimeWriter,
                     globalCompletionTimeReader,
-                    metricsService);
+                    metricsService,
+                    durationToWaitForAllHandlersToFinishBeforeShutdown);
         } else {
             this.preciseIndividualAsyncOperationStreamExecutorServiceThread = null;
             executing.set(true);

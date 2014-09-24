@@ -1,4 +1,4 @@
-package com.ldbc.driver.runtime;
+package com.ldbc.driver.runtime.metrics;
 
 import com.ldbc.driver.OperationResultReport;
 import com.ldbc.driver.runtime.metrics.ConcurrentMetricsService;

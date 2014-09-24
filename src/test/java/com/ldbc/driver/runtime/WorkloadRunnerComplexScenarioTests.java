@@ -10,6 +10,7 @@ import com.ldbc.driver.runtime.coordination.CompletionTimeException;
 import com.ldbc.driver.runtime.coordination.CompletionTimeServiceAssistant;
 import com.ldbc.driver.runtime.coordination.ConcurrentCompletionTimeService;
 import com.ldbc.driver.runtime.metrics.ConcurrentMetricsService;
+import com.ldbc.driver.runtime.metrics.DummyCountingConcurrentMetricsService;
 import com.ldbc.driver.runtime.metrics.MetricsCollectionException;
 import com.ldbc.driver.runtime.metrics.ThreadedQueuedConcurrentMetricsService;
 import com.ldbc.driver.runtime.scheduling.Spinner;
@@ -32,7 +33,7 @@ import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
 
-public class OperationStreamExecutorTest {
+public class WorkloadRunnerComplexScenarioTests {
     private final Time WORKLOAD_START_TIME_0 = Time.fromMilli(0);
     private final long ENOUGH_MILLISECONDS_FOR_RUNNER_THREAD_TO_DO_ITS_THING = 300;
     private final Duration SPINNER_SLEEP_DURATION = Duration.fromMilli(0);
@@ -78,6 +79,321 @@ public class OperationStreamExecutorTest {
     @Test
     public void forCleanShutdownExecutorsDefinitelyNeedToManageTheirOwnThreadPools() {
         assertThat(true, is(false));
+    }
+
+    @Test
+    public void shouldCauseErrorIfLastSynchronousOperationHandlerTakesTooLongToComplete() throws CompletionTimeException, InterruptedException, MetricsCollectionException, WorkloadException, DbException {
+        shouldCauseErrorIfLastSynchronousOperationHandlerTakesTooLongToComplete(4);
+        shouldCauseErrorIfLastSynchronousOperationHandlerTakesTooLongToComplete(16);
+    }
+
+    public void shouldCauseErrorIfLastSynchronousOperationHandlerTakesTooLongToComplete(int threadCount) throws CompletionTimeException, InterruptedException, MetricsCollectionException, WorkloadException, DbException {
+        ConcurrentErrorReporter errorReporter = new ConcurrentErrorReporter();
+        Duration toleratedExecutionDelayDuration = Duration.fromMilli(0);
+        // Not used when Windowed Scheduling Mode is not used
+        Duration executionWindowDuration = null;
+        ConcurrentMetricsService metricsService = new DummyCountingConcurrentMetricsService();
+        Set<String> peerIds = new HashSet<>();
+        ConcurrentCompletionTimeService completionTimeService =
+                completionTimeServiceAssistant.newSynchronizedConcurrentCompletionTimeServiceFromPeerIds(peerIds);
+        DummyDb db = new DummyDb();
+        Duration durationToWaitForAllHandlersToFinishBeforeShutdown = Duration.fromMilli(10);
+
+        try {
+            /*
+                Number of writers: 0 ()
+                Number of executors: 2 (blocking & async)
+                Initialized to: IT[ , ] CT[0,1]
+                Thread Pool Size: ---
+                Tolerated Delay == 1
+                Shutdown Timeout = 10
+
+                ASYNC                   PROCESSING      BLOCKING                PROCESSING      ACTION           COMPLETED
+                READ                                    READ_WRITE
+                TimedNamedOperation1                    TimedNamedOperation2
+            0                           []                                      []                               0
+            1                           []                                      []                               0
+            2                           []              S(2)D(0)                []              BLOCK S(2)D(0)   0
+            3   S(3)D(0)                S(3)<-[]                                []                               1
+            4   S(4)D(0)                S(4)<-[]                                []                               2
+            5   S(5)D(0)                S(5)<-[]                                []                               3
+            ...
+            11                          []                                      []                               3
+            12                          []                                      []                               3
+            13                          []                                      []                               3      BOOM S(2) took too long
+             */
+            List<Operation<?>> readOperations = Lists.<Operation<?>>newArrayList(
+                    new TimedNamedOperation2(Time.fromMilli(2), Time.fromMilli(0), "S(2)D(0)"),
+                    new TimedNamedOperation1(Time.fromMilli(3), Time.fromMilli(0), "S(3)D(0)"),
+                    new TimedNamedOperation1(Time.fromMilli(4), Time.fromMilli(0), "S(4)D(0)"),
+                    new TimedNamedOperation1(Time.fromMilli(5), Time.fromMilli(0), "S(5)D(0)")
+            );
+
+            Map<Class<? extends Operation>, OperationClassification> classifications = new HashMap<>();
+            classifications.put(TimedNamedOperation1.class, new OperationClassification(OperationClassification.SchedulingMode.INDIVIDUAL_ASYNC, OperationClassification.DependencyMode.NONE));
+            classifications.put(TimedNamedOperation2.class, new OperationClassification(OperationClassification.SchedulingMode.INDIVIDUAL_BLOCKING, OperationClassification.DependencyMode.NONE));
+
+            Map<String, String> params = new HashMap<>();
+            params.put(DummyDb.ALLOWED_DEFAULT_ARG, Boolean.toString(false));
+            db.init(params);
+
+            WorkloadRunnerThread runnerThread = workloadRunnerThread(
+                    TIME_SOURCE,
+                    WORKLOAD_START_TIME_0,
+                    readOperations.iterator(),
+                    classifications,
+                    threadCount,
+                    executionWindowDuration,
+                    toleratedExecutionDelayDuration,
+                    errorReporter,
+                    metricsService,
+                    completionTimeService,
+                    db,
+                    durationToWaitForAllHandlersToFinishBeforeShutdown
+            );
+
+            TIME_SOURCE.setNowFromMilli(0);
+            assertThat(errorReporter.toString(), metricsService.results().totalOperationCount(), is(0l));
+            assertThat(errorReporter.toString(), errorReporter.errorEncountered(), is(false));
+
+            runnerThread.start();
+
+            Thread.sleep(ENOUGH_MILLISECONDS_FOR_RUNNER_THREAD_TO_DO_ITS_THING);
+            assertThat(errorReporter.toString(), metricsService.results().totalOperationCount(), is(0l));
+            assertThat(errorReporter.toString(), errorReporter.errorEncountered(), is(false));
+
+            TIME_SOURCE.setNowFromMilli(1);
+            Thread.sleep(ENOUGH_MILLISECONDS_FOR_RUNNER_THREAD_TO_DO_ITS_THING);
+            assertThat(errorReporter.toString(), metricsService.results().totalOperationCount(), is(0l));
+            assertThat(errorReporter.toString(), errorReporter.errorEncountered(), is(false));
+
+            // S(2)D(0) is blocked
+            TIME_SOURCE.setNowFromMilli(2);
+            Thread.sleep(ENOUGH_MILLISECONDS_FOR_RUNNER_THREAD_TO_DO_ITS_THING);
+            assertThat(errorReporter.toString(), metricsService.results().totalOperationCount(), is(0l));
+            assertThat(errorReporter.toString(), errorReporter.errorEncountered(), is(false));
+
+            TIME_SOURCE.setNowFromMilli(3);
+            db.setNameAllowedValue("S(3)D(0)", true);
+            Thread.sleep(ENOUGH_MILLISECONDS_FOR_RUNNER_THREAD_TO_DO_ITS_THING);
+            assertThat(errorReporter.toString(), metricsService.results().totalOperationCount(), is(1l));
+            assertThat(errorReporter.toString(), errorReporter.errorEncountered(), is(false));
+
+            TIME_SOURCE.setNowFromMilli(4);
+            db.setNameAllowedValue("S(4)D(0)", true);
+            Thread.sleep(ENOUGH_MILLISECONDS_FOR_RUNNER_THREAD_TO_DO_ITS_THING);
+            assertThat(errorReporter.toString(), metricsService.results().totalOperationCount(), is(2l));
+            assertThat(errorReporter.toString(), errorReporter.errorEncountered(), is(false));
+
+            TIME_SOURCE.setNowFromMilli(5);
+            db.setNameAllowedValue("S(5)D(0)", true);
+            Thread.sleep(ENOUGH_MILLISECONDS_FOR_RUNNER_THREAD_TO_DO_ITS_THING);
+            assertThat(errorReporter.toString(), metricsService.results().totalOperationCount(), is(3l));
+            assertThat(errorReporter.toString(), errorReporter.errorEncountered(), is(false));
+
+            TIME_SOURCE.setNowFromMilli(11);
+            Thread.sleep(ENOUGH_MILLISECONDS_FOR_RUNNER_THREAD_TO_DO_ITS_THING);
+            assertThat(errorReporter.toString(), metricsService.results().totalOperationCount(), is(3l));
+            assertThat(errorReporter.toString(), errorReporter.errorEncountered(), is(false));
+
+            // 10 ms after last synchronous operation
+            TIME_SOURCE.setNowFromMilli(12);
+            Thread.sleep(ENOUGH_MILLISECONDS_FOR_RUNNER_THREAD_TO_DO_ITS_THING);
+            assertThat(errorReporter.toString(), metricsService.results().totalOperationCount(), is(3l));
+            assertThat(errorReporter.toString(), errorReporter.errorEncountered(), is(true));
+
+            // free S(2)D(0) so everything shuts down cleanly
+            db.setNameAllowedValue("S(2)D(0)", true);
+
+            Duration durationToWaitForRunnerToComplete = Duration.fromMilli(WorkloadRunner.RUNNER_POLLING_INTERVAL_AS_MILLI * 4);
+            long timeoutTimeAsMilli = TIME_SOURCE.now().plus(durationToWaitForRunnerToComplete).asMilli();
+            while (TIME_SOURCE.nowAsMilli() < timeoutTimeAsMilli) {
+                if (runnerThread.runnerHasCompleted()) break;
+                Spinner.powerNap(100);
+            }
+
+            assertThat(errorReporter.toString(), runnerThread.runnerHasCompleted(), is(true));
+            assertThat(errorReporter.toString(), runnerThread.runnerCompletedSuccessfully(), is(false));
+        } catch (Throwable e) {
+            e.printStackTrace();
+            throw e;
+        } finally {
+            db.setAllowedValueForAll(true);
+            metricsService.shutdown();
+            completionTimeService.shutdown();
+            db.shutdown();
+        }
+    }
+
+    @Test
+    public void shouldCauseErrorIfAnyAsynchronousOperationHandlerTakesTooLongToComplete() throws CompletionTimeException, InterruptedException, MetricsCollectionException, WorkloadException, DbException {
+        shouldCauseErrorIfAnyAsynchronousOperationHandlerTakesTooLongToComplete(4);
+        shouldCauseErrorIfAnyAsynchronousOperationHandlerTakesTooLongToComplete(16);
+    }
+
+    public void shouldCauseErrorIfAnyAsynchronousOperationHandlerTakesTooLongToComplete(int threadCount) throws CompletionTimeException, InterruptedException, MetricsCollectionException, WorkloadException, DbException {
+        ConcurrentErrorReporter errorReporter = new ConcurrentErrorReporter();
+        Duration toleratedExecutionDelayDuration = Duration.fromMilli(100);
+        // Not used when Windowed Scheduling Mode is not used
+        Duration executionWindowDuration = null;
+        ConcurrentMetricsService metricsService = new DummyCountingConcurrentMetricsService();
+        Set<String> peerIds = new HashSet<>();
+        ConcurrentCompletionTimeService completionTimeService =
+                completionTimeServiceAssistant.newSynchronizedConcurrentCompletionTimeServiceFromPeerIds(peerIds);
+        DummyDb db = new DummyDb();
+        Duration durationToWaitForAllHandlersToFinishBeforeShutdown = Duration.fromMilli(10);
+
+        try {
+            /*
+                Number of writers: 0 ()
+                Number of executors: 2 (blocking & async)
+                Initialized to: IT[ , ] CT[0,1]
+                Thread Pool Size: ---
+                Tolerated Delay == 1
+                Shutdown Timeout = 10
+
+                ASYNC                   PROCESSING      BLOCKING                PROCESSING      ACTION           COMPLETED
+                READ                                    READ_WRITE
+                TimedNamedOperation1                    TimedNamedOperation2
+            0                           []                                      []                               0
+            1                           []                                      []                               0
+            2                           []              S(2)D(0)                [S(2)]          BLOCK S(2)D(0)   0
+            3   S(3)D(0)                S(3)<-[]                                [S(2)]                               1
+            4   S(4)D(0)                [S(4)]                                  [S(2)]          BLOCK S(4)D(0)   1
+            5   S(5)D(0)                [S(4),S(5)]                             [S(2)]          BLOCK S(5)D(0)   1
+            ...
+            11                          [S(4),S(5)]                             S(2)<-[]        FREE S(2)D(0)    2
+            12                          [S(4),S(5)]                             []                               2
+            13                          S(5)<-[S(4)]                            []              FREE S(5)D(0)    3
+            14                          [S(4)]                                  []                               3
+            15                          [S(4)]                                  []                               3        BOOM S(4) took too long
+             */
+            List<Operation<?>> readOperations = Lists.<Operation<?>>newArrayList(
+                    new TimedNamedOperation2(Time.fromMilli(2), Time.fromMilli(0), "S(2)D(0)"),
+                    new TimedNamedOperation1(Time.fromMilli(3), Time.fromMilli(0), "S(3)D(0)"),
+                    new TimedNamedOperation1(Time.fromMilli(4), Time.fromMilli(0), "S(4)D(0)"),
+                    new TimedNamedOperation1(Time.fromMilli(5), Time.fromMilli(0), "S(5)D(0)")
+            );
+
+            Map<Class<? extends Operation>, OperationClassification> classifications = new HashMap<>();
+            classifications.put(TimedNamedOperation1.class, new OperationClassification(OperationClassification.SchedulingMode.INDIVIDUAL_ASYNC, OperationClassification.DependencyMode.NONE));
+            classifications.put(TimedNamedOperation2.class, new OperationClassification(OperationClassification.SchedulingMode.INDIVIDUAL_BLOCKING, OperationClassification.DependencyMode.NONE));
+
+            Map<String, String> params = new HashMap<>();
+            params.put(DummyDb.ALLOWED_DEFAULT_ARG, Boolean.toString(false));
+            db.init(params);
+
+            WorkloadRunnerThread runnerThread = workloadRunnerThread(
+                    TIME_SOURCE,
+                    WORKLOAD_START_TIME_0,
+                    readOperations.iterator(),
+                    classifications,
+                    threadCount,
+                    executionWindowDuration,
+                    toleratedExecutionDelayDuration,
+                    errorReporter,
+                    metricsService,
+                    completionTimeService,
+                    db,
+                    durationToWaitForAllHandlersToFinishBeforeShutdown
+            );
+
+            TIME_SOURCE.setNowFromMilli(0);
+            assertThat(errorReporter.toString(), metricsService.results().totalOperationCount(), is(0l));
+            assertThat(errorReporter.toString(), errorReporter.errorEncountered(), is(false));
+
+            runnerThread.start();
+
+            Thread.sleep(ENOUGH_MILLISECONDS_FOR_RUNNER_THREAD_TO_DO_ITS_THING);
+            assertThat(errorReporter.toString(), metricsService.results().totalOperationCount(), is(0l));
+            assertThat(errorReporter.toString(), errorReporter.errorEncountered(), is(false));
+
+            TIME_SOURCE.setNowFromMilli(1);
+            Thread.sleep(ENOUGH_MILLISECONDS_FOR_RUNNER_THREAD_TO_DO_ITS_THING);
+            assertThat(errorReporter.toString(), metricsService.results().totalOperationCount(), is(0l));
+            assertThat(errorReporter.toString(), errorReporter.errorEncountered(), is(false));
+
+            // S(2)D(0) is blocked
+            TIME_SOURCE.setNowFromMilli(2);
+            Thread.sleep(ENOUGH_MILLISECONDS_FOR_RUNNER_THREAD_TO_DO_ITS_THING);
+            assertThat(errorReporter.toString(), metricsService.results().totalOperationCount(), is(0l));
+            assertThat(errorReporter.toString(), errorReporter.errorEncountered(), is(false));
+
+            TIME_SOURCE.setNowFromMilli(3);
+            Thread.sleep(ENOUGH_MILLISECONDS_FOR_RUNNER_THREAD_TO_DO_ITS_THING);
+            assertThat(errorReporter.toString(), metricsService.results().totalOperationCount(), is(0l));
+            assertThat(errorReporter.toString(), errorReporter.errorEncountered(), is(false));
+            db.setNameAllowedValue("S(3)D(0)", true);
+            Thread.sleep(ENOUGH_MILLISECONDS_FOR_RUNNER_THREAD_TO_DO_ITS_THING);
+            assertThat(errorReporter.toString(), metricsService.results().totalOperationCount(), is(1l));
+            assertThat(errorReporter.toString(), errorReporter.errorEncountered(), is(false));
+
+            // S(4)D(0) is blocked
+            TIME_SOURCE.setNowFromMilli(4);
+            Thread.sleep(ENOUGH_MILLISECONDS_FOR_RUNNER_THREAD_TO_DO_ITS_THING);
+            assertThat(errorReporter.toString(), metricsService.results().totalOperationCount(), is(1l));
+            assertThat(errorReporter.toString(), errorReporter.errorEncountered(), is(false));
+
+            TIME_SOURCE.setNowFromMilli(5);
+            Thread.sleep(ENOUGH_MILLISECONDS_FOR_RUNNER_THREAD_TO_DO_ITS_THING);
+            assertThat(errorReporter.toString(), metricsService.results().totalOperationCount(), is(1l));
+            assertThat(errorReporter.toString(), errorReporter.errorEncountered(), is(false));
+
+            TIME_SOURCE.setNowFromMilli(11);
+            Thread.sleep(ENOUGH_MILLISECONDS_FOR_RUNNER_THREAD_TO_DO_ITS_THING);
+            assertThat(errorReporter.toString(), metricsService.results().totalOperationCount(), is(1l));
+            assertThat(errorReporter.toString(), errorReporter.errorEncountered(), is(false));
+            db.setNameAllowedValue("S(2)D(0)", true);
+            Thread.sleep(ENOUGH_MILLISECONDS_FOR_RUNNER_THREAD_TO_DO_ITS_THING);
+            assertThat(errorReporter.toString(), metricsService.results().totalOperationCount(), is(2l));
+            assertThat(errorReporter.toString(), errorReporter.errorEncountered(), is(false));
+
+            TIME_SOURCE.setNowFromMilli(12);
+            Thread.sleep(ENOUGH_MILLISECONDS_FOR_RUNNER_THREAD_TO_DO_ITS_THING);
+            assertThat(errorReporter.toString(), metricsService.results().totalOperationCount(), is(2l));
+            assertThat(errorReporter.toString(), errorReporter.errorEncountered(), is(false));
+
+            TIME_SOURCE.setNowFromMilli(13);
+            Thread.sleep(ENOUGH_MILLISECONDS_FOR_RUNNER_THREAD_TO_DO_ITS_THING);
+            assertThat(errorReporter.toString(), metricsService.results().totalOperationCount(), is(2l));
+            assertThat(errorReporter.toString(), errorReporter.errorEncountered(), is(false));
+            db.setNameAllowedValue("S(5)D(0)", true);
+            Thread.sleep(ENOUGH_MILLISECONDS_FOR_RUNNER_THREAD_TO_DO_ITS_THING);
+            assertThat(errorReporter.toString(), metricsService.results().totalOperationCount(), is(3l));
+            assertThat(errorReporter.toString(), errorReporter.errorEncountered(), is(false));
+
+            TIME_SOURCE.setNowFromMilli(14);
+            Thread.sleep(ENOUGH_MILLISECONDS_FOR_RUNNER_THREAD_TO_DO_ITS_THING);
+            assertThat(errorReporter.toString(), metricsService.results().totalOperationCount(), is(3l));
+            assertThat(errorReporter.toString(), errorReporter.errorEncountered(), is(false));
+
+            // 10 ms after last asynchronous operation
+            TIME_SOURCE.setNowFromMilli(15);
+            Thread.sleep(ENOUGH_MILLISECONDS_FOR_RUNNER_THREAD_TO_DO_ITS_THING);
+            assertThat(errorReporter.toString(), metricsService.results().totalOperationCount(), is(3l));
+            assertThat(errorReporter.toString(), errorReporter.errorEncountered(), is(true));
+
+            // free S(4)D(0) so everything shuts down cleanly
+            db.setNameAllowedValue("S(4)D(0)", true);
+
+            Duration durationToWaitForRunnerToComplete = Duration.fromMilli(WorkloadRunner.RUNNER_POLLING_INTERVAL_AS_MILLI * 4);
+            long timeoutTimeAsMilli = TIME_SOURCE.now().plus(durationToWaitForRunnerToComplete).asMilli();
+            while (TIME_SOURCE.nowAsMilli() < timeoutTimeAsMilli) {
+                if (runnerThread.runnerHasCompleted()) break;
+                Spinner.powerNap(100);
+            }
+
+            assertThat(errorReporter.toString(), runnerThread.runnerHasCompleted(), is(true));
+            assertThat(errorReporter.toString(), runnerThread.runnerCompletedSuccessfully(), is(false));
+        } catch (Throwable e) {
+            e.printStackTrace();
+            throw e;
+        } finally {
+            db.setAllowedValueForAll(true);
+            metricsService.shutdown();
+            completionTimeService.shutdown();
+            db.shutdown();
+        }
     }
 
     @Test
@@ -172,7 +488,8 @@ public class OperationStreamExecutorTest {
                     errorReporter,
                     metricsService,
                     completionTimeService,
-                    db
+                    db,
+                    WorkloadRunner.DEFAULT_DURATION_TO_WAIT_FOR_ALL_HANDLERS_TO_FINISH
             );
 
             // initialize GCT
@@ -367,7 +684,8 @@ public class OperationStreamExecutorTest {
                     errorReporter,
                     metricsService,
                     completionTimeService,
-                    db
+                    db,
+                    WorkloadRunner.DEFAULT_DURATION_TO_WAIT_FOR_ALL_HANDLERS_TO_FINISH
             );
 
             // initialize GCT
@@ -531,7 +849,8 @@ public class OperationStreamExecutorTest {
                     errorReporter,
                     metricsService,
                     completionTimeService,
-                    db
+                    db,
+                    WorkloadRunner.DEFAULT_DURATION_TO_WAIT_FOR_ALL_HANDLERS_TO_FINISH
             );
 
             // initialize GCT
@@ -791,7 +1110,8 @@ public class OperationStreamExecutorTest {
                     errorReporter,
                     metricsService,
                     completionTimeService,
-                    db
+                    db,
+                    WorkloadRunner.DEFAULT_DURATION_TO_WAIT_FOR_ALL_HANDLERS_TO_FINISH
             );
 
             // initialize GCT
@@ -1044,7 +1364,8 @@ public class OperationStreamExecutorTest {
                     errorReporter,
                     metricsService,
                     completionTimeService,
-                    db
+                    db,
+                    WorkloadRunner.DEFAULT_DURATION_TO_WAIT_FOR_ALL_HANDLERS_TO_FINISH
             );
 
             // initialize GCT
@@ -1285,7 +1606,8 @@ public class OperationStreamExecutorTest {
                     errorReporter,
                     metricsService,
                     completionTimeService,
-                    db
+                    db,
+                    WorkloadRunner.DEFAULT_DURATION_TO_WAIT_FOR_ALL_HANDLERS_TO_FINISH
             );
 
             // initialize GCT
@@ -1526,7 +1848,8 @@ public class OperationStreamExecutorTest {
                     errorReporter,
                     metricsService,
                     completionTimeService,
-                    db
+                    db,
+                    WorkloadRunner.DEFAULT_DURATION_TO_WAIT_FOR_ALL_HANDLERS_TO_FINISH
             );
 
             // initialize GCT
@@ -1766,7 +2089,8 @@ public class OperationStreamExecutorTest {
                     errorReporter,
                     metricsService,
                     completionTimeService,
-                    db
+                    db,
+                    WorkloadRunner.DEFAULT_DURATION_TO_WAIT_FOR_ALL_HANDLERS_TO_FINISH
             );
 
             // initialize GCT
@@ -1925,7 +2249,8 @@ public class OperationStreamExecutorTest {
                                                       ConcurrentErrorReporter errorReporter,
                                                       ConcurrentMetricsService metricsService,
                                                       ConcurrentCompletionTimeService concurrentCompletionTimeService,
-                                                      Db db)
+                                                      Db db,
+                                                      Duration durationToWaitForAllHandlersToFinishBeforeShutdown)
             throws WorkloadException, CompletionTimeException, DbException {
         Duration statusDisplayInterval = Duration.fromMilli(0);
         Duration spinnerSleepDuration = SPINNER_SLEEP_DURATION;
@@ -1944,7 +2269,8 @@ public class OperationStreamExecutorTest {
                 toleratedExecutionDelayDuration,
                 spinnerSleepDuration,
                 executionWindowDuration,
-                earlySpinnerOffsetDuration
+                earlySpinnerOffsetDuration,
+                durationToWaitForAllHandlersToFinishBeforeShutdown
         );
         return new WorkloadRunnerThread(runner, errorReporter);
     }

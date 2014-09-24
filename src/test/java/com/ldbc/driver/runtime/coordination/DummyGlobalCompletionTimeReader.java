@@ -1,4 +1,4 @@
-package com.ldbc.driver.runtime;
+package com.ldbc.driver.runtime.coordination;
 
 import com.ldbc.driver.runtime.coordination.CompletionTimeException;
 import com.ldbc.driver.runtime.coordination.GlobalCompletionTimeReader;

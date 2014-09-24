@@ -17,8 +17,6 @@ import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 class PreciseIndividualBlockingOperationStreamExecutorServiceThread extends Thread {
-    // TODO this value should be configurable, or an entirely better policy should be used
-    private static final Duration DURATION_TO_WAIT_FOR_LAST_HANDLER_TO_FINISH = Duration.fromMinutes(30);
     private static final Duration POLL_INTERVAL_WHILE_WAITING_FOR_LAST_HANDLER_TO_FINISH = Duration.fromMilli(100);
     private static final LocalCompletionTimeWriter DUMMY_LOCAL_COMPLETION_TIME_WRITER = new DummyLocalCompletionTimeWriter();
 
@@ -35,6 +33,7 @@ class PreciseIndividualBlockingOperationStreamExecutorServiceThread extends Thre
     private final LocalCompletionTimeWriter localCompletionTimeWriter;
     private final GlobalCompletionTimeReader globalCompletionTimeReader;
     private final ConcurrentMetricsService metricsService;
+    private final Duration durationToWaitForAllHandlersToFinishBeforeShutdown;
 
     public PreciseIndividualBlockingOperationStreamExecutorServiceThread(TimeSource timeSource,
                                                                          OperationHandlerExecutor operationHandlerExecutor,
@@ -48,7 +47,8 @@ class PreciseIndividualBlockingOperationStreamExecutorServiceThread extends Thre
                                                                          Db db,
                                                                          LocalCompletionTimeWriter localCompletionTimeWriter,
                                                                          GlobalCompletionTimeReader globalCompletionTimeReader,
-                                                                         ConcurrentMetricsService metricsService) {
+                                                                         ConcurrentMetricsService metricsService,
+                                                                         Duration durationToWaitForAllHandlersToFinishBeforeShutdown) {
         super(PreciseIndividualBlockingOperationStreamExecutorServiceThread.class.getSimpleName() + "-" + System.currentTimeMillis());
         this.TIME_SOURCE = timeSource;
         this.operationHandlerExecutor = operationHandlerExecutor;
@@ -63,6 +63,7 @@ class PreciseIndividualBlockingOperationStreamExecutorServiceThread extends Thre
         this.localCompletionTimeWriter = localCompletionTimeWriter;
         this.globalCompletionTimeReader = globalCompletionTimeReader;
         this.metricsService = metricsService;
+        this.durationToWaitForAllHandlersToFinishBeforeShutdown = durationToWaitForAllHandlersToFinishBeforeShutdown;
     }
 
     @Override
@@ -109,7 +110,7 @@ class PreciseIndividualBlockingOperationStreamExecutorServiceThread extends Thre
             }
         }
         // Wait for final operation handler
-        boolean executingHandlerFinishedInTime = awaitExecutingHandler(DURATION_TO_WAIT_FOR_LAST_HANDLER_TO_FINISH);
+        boolean executingHandlerFinishedInTime = awaitExecutingHandler(durationToWaitForAllHandlersToFinishBeforeShutdown);
         if (false == executingHandlerFinishedInTime) {
             errorReporter.reportError(this, "Last handler did not complete in time");
         }

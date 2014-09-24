@@ -20,8 +20,6 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 
 class PreciseIndividualAsyncOperationStreamExecutorServiceThread extends Thread {
-    // TODO this value should be configurable, or an entirely better policy should be used
-    private static final Duration DURATION_TO_WAIT_FOR_ALL_HANDLERS_TO_FINISH = Duration.fromMinutes(30);
     private static final Duration POLL_INTERVAL_WHILE_WAITING_FOR_LAST_HANDLER_TO_FINISH = Duration.fromMilli(100);
     private static final LocalCompletionTimeWriter DUMMY_LOCAL_COMPLETION_TIME_WRITER = new DummyLocalCompletionTimeWriter();
 
@@ -33,6 +31,7 @@ class PreciseIndividualAsyncOperationStreamExecutorServiceThread extends Thread 
     private final AtomicBoolean forcedTerminate;
     private final AtomicInteger runningHandlerCount = new AtomicInteger(0);
     private final HandlerRetriever handlerRetriever;
+    private final Duration durationToWaitForAllHandlersToFinishBeforeShutdown;
 
     public PreciseIndividualAsyncOperationStreamExecutorServiceThread(TimeSource timeSource,
                                                                       OperationHandlerExecutor operationHandlerExecutor,
@@ -47,7 +46,8 @@ class PreciseIndividualAsyncOperationStreamExecutorServiceThread extends Thread 
                                                                       Db db,
                                                                       LocalCompletionTimeWriter localCompletionTimeWriter,
                                                                       GlobalCompletionTimeReader globalCompletionTimeReader,
-                                                                      ConcurrentMetricsService metricsService) {
+                                                                      ConcurrentMetricsService metricsService,
+                                                                      Duration durationToWaitForAllHandlersToFinishBeforeShutdown) {
         super(PreciseIndividualAsyncOperationStreamExecutorServiceThread.class.getSimpleName() + "-" + System.currentTimeMillis());
         this.TIME_SOURCE = timeSource;
         this.operationHandlerExecutor = operationHandlerExecutor;
@@ -55,6 +55,7 @@ class PreciseIndividualAsyncOperationStreamExecutorServiceThread extends Thread 
         this.errorReporter = errorReporter;
         this.hasFinished = hasFinished;
         this.forcedTerminate = forcedTerminate;
+        this.durationToWaitForAllHandlersToFinishBeforeShutdown = durationToWaitForAllHandlersToFinishBeforeShutdown;
         this.handlerRetriever = new HandlerRetriever(
                 gctReadOperations,
                 gctWriteOperations,
@@ -99,9 +100,16 @@ class PreciseIndividualAsyncOperationStreamExecutorServiceThread extends Thread 
             }
         }
 
-        boolean handlersFinishedInTime = awaitAllRunningHandlers(DURATION_TO_WAIT_FOR_ALL_HANDLERS_TO_FINISH);
+        boolean handlersFinishedInTime = awaitAllRunningHandlers(durationToWaitForAllHandlersToFinishBeforeShutdown);
         if (false == handlersFinishedInTime) {
-            errorReporter.reportError(this, String.format("At least one operation handler did not complete in time"));
+            errorReporter.reportError(
+                    this,
+                    String.format(
+                            "%s operation handlers did not complete in time (within %s of the time the last operation was submitted for execution)",
+                            runningHandlerCount.get(),
+                            durationToWaitForAllHandlersToFinishBeforeShutdown
+                    )
+            );
         }
         this.hasFinished.set(true);
     }
@@ -122,15 +130,11 @@ class PreciseIndividualAsyncOperationStreamExecutorServiceThread extends Thread 
         long pollInterval = POLL_INTERVAL_WHILE_WAITING_FOR_LAST_HANDLER_TO_FINISH.asMilli();
         long timeoutTimeMs = TIME_SOURCE.now().plus(timeoutDuration).asMilli();
         while (TIME_SOURCE.nowAsMilli() < timeoutTimeMs) {
-            if (allHandlersCompleted()) return true;
+            if (0 == runningHandlerCount.get()) return true;
             if (forcedTerminate.get()) return true;
             Spinner.powerNap(pollInterval);
         }
         return false;
-    }
-
-    private boolean allHandlersCompleted() {
-        return 0 == runningHandlerCount.get();
     }
 
     private final class DecrementRunningHandlerCountFun implements Function0 {

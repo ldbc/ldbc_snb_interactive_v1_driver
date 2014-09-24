@@ -59,7 +59,8 @@ class UniformWindowedOperationStreamExecutorServiceThread extends Thread {
                                                                Map<Class<? extends Operation>, OperationClassification> operationClassifications,
                                                                LocalCompletionTimeWriter localCompletionTimeWriter,
                                                                GlobalCompletionTimeReader globalCompletionTimeReader,
-                                                               ConcurrentMetricsService metricsService) {
+                                                               ConcurrentMetricsService metricsService,
+                                                               Duration durationToWaitForAllHandlersToFinishBeforeShutdown) {
         super(UniformWindowedOperationStreamExecutorServiceThread.class.getSimpleName() + System.currentTimeMillis());
         this.TIME_SOURCE = timeSource;
         this.operationHandlerExecutor = operationHandlerExecutor;
