@@ -7,6 +7,8 @@ import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
 public interface DriverConfiguration {
+    String name();
+
     String dbClassName();
 
     String workloadClassName();
@@ -19,7 +21,7 @@ public interface DriverConfiguration {
 
     TimeUnit timeUnit();
 
-    String resultFilePath();
+    String resultDirPath();
 
     double timeCompressionRatio();
 
@@ -42,6 +44,8 @@ public interface DriverConfiguration {
     boolean shouldPrintHelpString();
 
     String helpString();
+
+    String toPropertiesString() throws DriverConfigurationException;
 
     Map<String, String> asMap();
 

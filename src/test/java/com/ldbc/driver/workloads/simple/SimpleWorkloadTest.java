@@ -39,13 +39,14 @@ public class SimpleWorkloadTest {
     @Test
     public void shouldGenerateManyElementsInReasonableTime() throws WorkloadException {
         Map<String, String> paramsMap = null;
+        String name = null;
         String dbClassName = null;
         String workloadClassName = null;
         long operationCount = 100;
         int threadCount = 1;
         Duration statusDisplayInterval = Duration.fromSeconds(0);
         TimeUnit timeUnit = TimeUnit.MILLISECONDS;
-        String resultFilePath = null;
+        String resultDirPath = null;
         Double timeCompressionRatio = 1.0;
         Duration windowedExecutionWindowDuration = Duration.fromSeconds(1);
         Set<String> peerIds = new HashSet<>();
@@ -60,13 +61,14 @@ public class SimpleWorkloadTest {
         ConsoleAndFileDriverConfiguration params =
                 new ConsoleAndFileDriverConfiguration(
                         paramsMap,
+                        name,
                         dbClassName,
                         workloadClassName,
                         operationCount,
                         threadCount,
                         statusDisplayInterval,
                         timeUnit,
-                        resultFilePath,
+                        resultDirPath,
                         timeCompressionRatio,
                         windowedExecutionWindowDuration,
                         peerIds,
@@ -91,13 +93,14 @@ public class SimpleWorkloadTest {
     @Test
     public void shouldBeRepeatableWhenSameWorkloadIsUsedTwiceWithIdenticalGeneratorFactories() throws ClientException, DriverConfigurationException, WorkloadException {
         Map<String, String> paramsMap = null;
+        String name = "name";
         String dbClassName = null;
         String workloadClassName = null;
         long operationCount = 100;
         int threadCount = 1;
         Duration statusDisplayInterval = Duration.fromSeconds(0);
         TimeUnit timeUnit = TimeUnit.MILLISECONDS;
-        String resultFilePath = null;
+        String resultDirPath = null;
         Double timeCompressionRatio = 1.0;
         Duration windowedExecutionWindowDuration = Duration.fromSeconds(1);
         Set<String> peerIds = new HashSet<>();
@@ -112,13 +115,14 @@ public class SimpleWorkloadTest {
         ConsoleAndFileDriverConfiguration params =
                 new ConsoleAndFileDriverConfiguration(
                         paramsMap,
+                        name,
                         dbClassName,
                         workloadClassName,
                         operationCount,
                         threadCount,
                         statusDisplayInterval,
                         timeUnit,
-                        resultFilePath,
+                        resultDirPath,
                         timeCompressionRatio,
                         windowedExecutionWindowDuration,
                         peerIds,
@@ -170,13 +174,14 @@ public class SimpleWorkloadTest {
     public void shouldPassWorkloadValidation() throws WorkloadException, ClientException {
         // Given
         Map<String, String> paramsMap = new HashMap<>();
+        String name = null;
         String dbClassName = BasicDb.class.getName();
         String workloadClassName = SimpleWorkload.class.getName();
         long operationCount = 1000;
         int threadCount = 1;
         Duration statusDisplayInterval = Duration.fromSeconds(1);
         TimeUnit timeUnit = TimeUnit.MILLISECONDS;
-        String resultFilePath = null;
+        String resultDirPath = null;
         Double timeCompressionRatio = 1.0;
         Duration windowedExecutionWindowDuration = Duration.fromSeconds(1);
         Set<String> peerIds = new HashSet<>();
@@ -190,13 +195,14 @@ public class SimpleWorkloadTest {
 
         ConsoleAndFileDriverConfiguration params = new ConsoleAndFileDriverConfiguration(
                 paramsMap,
+                name,
                 dbClassName,
                 workloadClassName,
                 operationCount,
                 threadCount,
                 statusDisplayInterval,
                 timeUnit,
-                resultFilePath,
+                resultDirPath,
                 timeCompressionRatio,
                 windowedExecutionWindowDuration,
                 peerIds,
@@ -226,13 +232,14 @@ public class SimpleWorkloadTest {
     @Test
     public void shouldBeRepeatableWhenTwoIdenticalWorkloadsAreUsedWithIdenticalGeneratorFactories() throws ClientException, DriverConfigurationException, WorkloadException {
         Map<String, String> paramsMap = null;
+        String name = "name";
         String dbClassName = null;
         String workloadClassName = null;
         long operationCount = 100;
         int threadCount = 1;
         Duration statusDisplayInterval = Duration.fromSeconds(0);
         TimeUnit timeUnit = TimeUnit.MILLISECONDS;
-        String resultFilePath = null;
+        String resultDirPath = null;
         Double timeCompressionRatio = 1.0;
         Duration windowedExecutionWindowDuration = Duration.fromSeconds(1);
         Set<String> peerIds = new HashSet<>();
@@ -247,13 +254,14 @@ public class SimpleWorkloadTest {
         ConsoleAndFileDriverConfiguration params =
                 new ConsoleAndFileDriverConfiguration(
                         paramsMap,
+                        name,
                         dbClassName,
                         workloadClassName,
                         operationCount,
                         threadCount,
                         statusDisplayInterval,
                         timeUnit,
-                        resultFilePath,
+                        resultDirPath,
                         timeCompressionRatio,
                         windowedExecutionWindowDuration,
                         peerIds,
@@ -310,21 +318,21 @@ public class SimpleWorkloadTest {
         String ldbcDriverTestPropertiesPath =
                 TestUtils.getResource("/ldbc_driver_default.properties").getAbsolutePath();
 
-        String resultFilePath = temporaryFolder.newFile().getAbsolutePath();
+        String resultDirPath = temporaryFolder.newFolder().getAbsolutePath();
 
-        assertThat(new File(resultFilePath).length(), is(0l));
+        assertThat(new File(resultDirPath).listFiles().length > 0, is(false));
 
         assertThat(new File(simpleTestPropertiesPath).exists(), is(true));
         assertThat(new File(ldbcDriverTestPropertiesPath).exists(), is(true));
 
         ConsoleAndFileDriverConfiguration configuration = ConsoleAndFileDriverConfiguration.fromArgs(new String[]{
-                "-" + ConsoleAndFileDriverConfiguration.RESULT_FILE_PATH_ARG, resultFilePath,
+                "-" + ConsoleAndFileDriverConfiguration.RESULT_DIR_PATH_ARG, resultDirPath,
                 "-" + ConsoleAndFileDriverConfiguration.DB_ARG, BasicDb.class.getName(),
                 "-P", simpleTestPropertiesPath,
                 "-P", ldbcDriverTestPropertiesPath});
 
 
-        assertThat(new File(resultFilePath).length(), is(0l));
+        assertThat(new File(resultDirPath).listFiles().length > 0, is(false));
 
 
         // When
@@ -332,6 +340,6 @@ public class SimpleWorkloadTest {
         client.start();
 
         // Then
-        assertThat(new File(resultFilePath).length() > 0, is(true));
+        assertThat(new File(resultDirPath).listFiles().length > 0, is(true));
     }
 }

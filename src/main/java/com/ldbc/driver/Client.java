@@ -21,10 +21,7 @@ import com.ldbc.driver.util.CsvFileWriter;
 import com.ldbc.driver.validation.*;
 import org.apache.log4j.Logger;
 
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
+import java.io.*;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -172,6 +169,14 @@ public class Client {
 
         @Override
         public void init() throws ClientException {
+            if (null != controlService.configuration().resultDirPath()) {
+                File resultDir = new File(controlService.configuration().resultDirPath());
+                if (resultDir.exists() && false == resultDir.isDirectory())
+                    throw new ClientException("Results directory is not directory: " + resultDir.getAbsolutePath());
+                else if (false == resultDir.exists())
+                    resultDir.mkdir();
+            }
+
             CompletionTimeServiceAssistant completionTimeServiceAssistant = new CompletionTimeServiceAssistant();
             try {
                 workload = ClassLoaderHelper.loadWorkload(controlService.configuration().workloadClassName());
@@ -350,15 +355,27 @@ public class Client {
             logger.info("Exporting workload metrics...");
             try {
                 MetricsManager.export(workloadResults, new SimpleOperationMetricsFormatter(), System.out, MetricsManager.DEFAULT_CHARSET);
-                if (null != controlService.configuration().resultFilePath()) {
-                    File resultFile = new File(controlService.configuration().resultFilePath());
+                if (null != controlService.configuration().resultDirPath()) {
+                    File resultDir = new File(controlService.configuration().resultDirPath());
+                    File resultFile = new File(resultDir, controlService.configuration().name() + "-results.json");
                     MetricsManager.export(workloadResults, new JsonOperationMetricsFormatter(), new FileOutputStream(resultFile), MetricsManager.DEFAULT_CHARSET);
+
+                    File configurationFile = new File(resultDir, controlService.configuration().name() + "-configuration.properties");
+                    try (PrintStream out = new PrintStream(new FileOutputStream(configurationFile))) {
+                        out.print(controlService.configuration().toPropertiesString());
+                    } catch (DriverConfigurationException e) {
+                        throw new ClientException(
+                                String.format("Encountered error while writing configuration to file.\nResult Dir: %s\nConfig File: %s",
+                                        resultDir.getAbsolutePath(),
+                                        configurationFile.getAbsolutePath()),
+                                e
+                        );
+                    }
                 }
             } catch (MetricsCollectionException e) {
                 throw new ClientException("Could not export workload metrics", e);
             } catch (FileNotFoundException e) {
-                throw new ClientException(
-                        String.format("Error encountered while trying to write result file: %s", controlService.configuration().resultFilePath()), e);
+                throw new ClientException("Error encountered while trying to write results", e);
             }
         }
     }

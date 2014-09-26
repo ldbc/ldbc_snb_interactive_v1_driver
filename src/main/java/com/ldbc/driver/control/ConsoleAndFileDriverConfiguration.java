@@ -16,6 +16,11 @@ import java.util.Map.Entry;
 import java.util.concurrent.TimeUnit;
 
 public class ConsoleAndFileDriverConfiguration implements DriverConfiguration {
+    // TODO add BENCHMARK_NAME
+    // TODO write results to RESULTS_DIR/BENCHMARK_NAME-results.json
+    // TODO write configuration to RESULTS_DIR/BENCHMARK_NAME-configuration.properties
+    // TODO add VERSION to results
+
     // --- REQUIRED ---
     public static final String OPERATION_COUNT_ARG = "oc";
     public static final long OPERATION_COUNT_DEFAULT = 0;
@@ -43,11 +48,17 @@ public class ConsoleAndFileDriverConfiguration implements DriverConfiguration {
     public static final String HELP_DEFAULT_STRING = Boolean.toString(HELP_DEFAULT);
     private static final String HELP_DESCRIPTION = "print usage instruction";
 
-    public static final String RESULT_FILE_PATH_ARG = "rf";
-    private static final String RESULT_FILE_PATH_ARG_LONG = "resultfile";
-    public static final String RESULT_FILE_PATH_DEFAULT = "results.json";
-    public static final String RESULT_FILE_PATH_DEFAULT_STRING = RESULT_FILE_PATH_DEFAULT;
-    private static final String RESULT_FILE_PATH_DESCRIPTION = String.format("where benchmark results JSON file will be written. default = %s (null = file will not be created)", RESULT_FILE_PATH_DEFAULT);
+    public static final String NAME_ARG = "nm";
+    private static final String NAME_ARG_LONG = "name";
+    public static final String NAME_DEFAULT = "LDBC";
+    public static final String NAME_DEFAULT_STRING = NAME_DEFAULT;
+    private static final String NAME_DESCRIPTION = String.format("name of the benchmark run. default = %s", NAME_DEFAULT);
+
+    public static final String RESULT_DIR_PATH_ARG = "rd";
+    private static final String RESULT_DIR_PATH_ARG_LONG = "resultsdir";
+    public static final String RESULT_DIR_PATH_DEFAULT = "results";
+    public static final String RESULT_DIR_PATH_DEFAULT_STRING = RESULT_DIR_PATH_DEFAULT;
+    private static final String RESULT_DIR_PATH_DESCRIPTION = String.format("directory where benchmark results will be written. default = %s", RESULT_DIR_PATH_DEFAULT);
 
     public static final String THREADS_ARG = "tc";
     private static final String THREADS_ARG_LONG = "threadcount";
@@ -157,8 +168,9 @@ public class ConsoleAndFileDriverConfiguration implements DriverConfiguration {
         defaultParamsMap.put(HELP_ARG, HELP_DEFAULT_STRING);
         defaultParamsMap.put(OPERATION_COUNT_ARG, OPERATION_COUNT_DEFAULT_STRING);
         defaultParamsMap.put(WORKLOAD_ARG, WORKLOAD_DEFAULT_STRING);
+        defaultParamsMap.put(NAME_ARG, NAME_DEFAULT_STRING);
         defaultParamsMap.put(DB_ARG, DB_DEFAULT_STRING);
-        defaultParamsMap.put(RESULT_FILE_PATH_ARG, RESULT_FILE_PATH_DEFAULT_STRING);
+        defaultParamsMap.put(RESULT_DIR_PATH_ARG, RESULT_DIR_PATH_DEFAULT_STRING);
         defaultParamsMap.put(THREADS_ARG, THREADS_DEFAULT_STRING);
         defaultParamsMap.put(SHOW_STATUS_ARG, SHOW_STATUS_DEFAULT_STRING);
         if (null != DB_VALIDATION_FILE_PATH_DEFAULT_STRING)
@@ -210,13 +222,14 @@ public class ConsoleAndFileDriverConfiguration implements DriverConfiguration {
 
             paramsMap = MapUtils.mergeMaps(paramsMap, defaultsAsMap(), false);
 
+            String name = paramsMap.get(NAME_ARG);
             String dbClassName = paramsMap.get(DB_ARG);
             String workloadClassName = paramsMap.get(WORKLOAD_ARG);
             long operationCount = Long.parseLong(paramsMap.get(OPERATION_COUNT_ARG));
             int threadCount = Integer.parseInt(paramsMap.get(THREADS_ARG));
             Duration statusDisplayInterval = Duration.fromSeconds(Integer.parseInt(paramsMap.get(SHOW_STATUS_ARG)));
             TimeUnit timeUnit = TimeUnit.valueOf(paramsMap.get(TIME_UNIT_ARG));
-            String resultFilePath = paramsMap.get(RESULT_FILE_PATH_ARG);
+            String resultDirPath = paramsMap.get(RESULT_DIR_PATH_ARG);
             double timeCompressionRatio = Double.parseDouble(paramsMap.get(TIME_COMPRESSION_RATIO_ARG));
             Duration windowedExecutionWindowDuration = Duration.fromMilli(Long.parseLong(paramsMap.get(WINDOWED_EXECUTION_WINDOW_DURATION_ARG)));
             Set<String> peerIds = parsePeerIdsFromCommandline(paramsMap.get(PEER_IDS_ARG));
@@ -232,13 +245,14 @@ public class ConsoleAndFileDriverConfiguration implements DriverConfiguration {
             boolean printHelp = Boolean.parseBoolean(paramsMap.get(HELP_ARG));
             return new ConsoleAndFileDriverConfiguration(
                     paramsMap,
+                    name,
                     dbClassName,
                     workloadClassName,
                     operationCount,
                     threadCount,
                     statusDisplayInterval,
                     timeUnit,
-                    resultFilePath,
+                    resultDirPath,
                     timeCompressionRatio,
                     windowedExecutionWindowDuration,
                     peerIds,
@@ -290,8 +304,11 @@ public class ConsoleAndFileDriverConfiguration implements DriverConfiguration {
         /*
          * Optional
          */
-        if (cmd.hasOption(RESULT_FILE_PATH_ARG))
-            cmdParams.put(RESULT_FILE_PATH_ARG, cmd.getOptionValue(RESULT_FILE_PATH_ARG));
+        if (cmd.hasOption(NAME_ARG))
+            cmdParams.put(NAME_ARG, cmd.getOptionValue(NAME_ARG));
+
+        if (cmd.hasOption(RESULT_DIR_PATH_ARG))
+            cmdParams.put(RESULT_DIR_PATH_ARG, cmd.getOptionValue(RESULT_DIR_PATH_ARG));
 
         if (cmd.hasOption(THREADS_ARG))
             cmdParams.put(THREADS_ARG, cmd.getOptionValue(THREADS_ARG));
@@ -374,12 +391,13 @@ public class ConsoleAndFileDriverConfiguration implements DriverConfiguration {
 
     public static Map<String, String> convertLongKeysToShortKeys(Map<String, String> paramsMap) {
         paramsMap = replaceKey(paramsMap, OPERATION_COUNT_ARG_LONG, OPERATION_COUNT_ARG);
+        paramsMap = replaceKey(paramsMap, NAME_ARG_LONG, NAME_ARG);
         paramsMap = replaceKey(paramsMap, WORKLOAD_ARG_LONG, WORKLOAD_ARG);
         paramsMap = replaceKey(paramsMap, DB_ARG_LONG, DB_ARG);
         paramsMap = replaceKey(paramsMap, THREADS_ARG_LONG, THREADS_ARG);
         paramsMap = replaceKey(paramsMap, SHOW_STATUS_ARG_LONG, SHOW_STATUS_ARG);
         paramsMap = replaceKey(paramsMap, TIME_UNIT_ARG_LONG, TIME_UNIT_ARG);
-        paramsMap = replaceKey(paramsMap, RESULT_FILE_PATH_ARG_LONG, RESULT_FILE_PATH_ARG);
+        paramsMap = replaceKey(paramsMap, RESULT_DIR_PATH_ARG_LONG, RESULT_DIR_PATH_ARG);
         paramsMap = replaceKey(paramsMap, TIME_COMPRESSION_RATIO_ARG_LONG, TIME_COMPRESSION_RATIO_ARG);
         paramsMap = replaceKey(paramsMap, WINDOWED_EXECUTION_WINDOW_DURATION_ARG_LONG, WINDOWED_EXECUTION_WINDOW_DURATION_ARG);
         paramsMap = replaceKey(paramsMap, PEER_IDS_ARG_LONG, PEER_IDS_ARG);
@@ -422,8 +440,12 @@ public class ConsoleAndFileDriverConfiguration implements DriverConfiguration {
         /*
          * Optional
          */
-        Option resultFileOption = OptionBuilder.hasArgs(1).withArgName("path").withDescription(RESULT_FILE_PATH_DESCRIPTION).withLongOpt(
-                RESULT_FILE_PATH_ARG_LONG).create(RESULT_FILE_PATH_ARG);
+        Option nameOption = OptionBuilder.hasArgs(1).withArgName("name").withDescription(NAME_DESCRIPTION).withLongOpt(
+                NAME_ARG_LONG).create(NAME_ARG);
+        options.addOption(nameOption);
+
+        Option resultFileOption = OptionBuilder.hasArgs(1).withArgName("path").withDescription(RESULT_DIR_PATH_DESCRIPTION).withLongOpt(
+                RESULT_DIR_PATH_ARG_LONG).create(RESULT_DIR_PATH_ARG);
         options.addOption(resultFileOption);
 
         Option threadsOption = OptionBuilder.hasArgs(1).withArgName("count").withDescription(THREADS_DESCRIPTION).withLongOpt(
@@ -518,13 +540,14 @@ public class ConsoleAndFileDriverConfiguration implements DriverConfiguration {
 
     private static Set<String> coreConfigurationParameterKeys() {
         return Sets.newHashSet(
+                NAME_ARG,
                 DB_ARG,
                 WORKLOAD_ARG,
                 OPERATION_COUNT_ARG,
                 THREADS_ARG,
                 SHOW_STATUS_ARG,
                 TIME_UNIT_ARG,
-                RESULT_FILE_PATH_ARG,
+                RESULT_DIR_PATH_ARG,
                 TIME_COMPRESSION_RATIO_ARG,
                 WINDOWED_EXECUTION_WINDOW_DURATION_ARG,
                 PEER_IDS_ARG,
@@ -546,7 +569,7 @@ public class ConsoleAndFileDriverConfiguration implements DriverConfiguration {
         int spacesBeforeOption = 3;
         int spacesBeforeOptionDescription = 5;
         boolean displayUsage = true;
-        String commandLineSyntax = "java -cp core-VERSION.jar " + Client.class.getName();
+        String commandLineSyntax = "java -cp jeeves-VERSION.jar " + Client.class.getName();
         ByteArrayOutputStream os = new ByteArrayOutputStream();
         PrintWriter writer = new PrintWriter(os);
         HelpFormatter helpFormatter = new HelpFormatter();
@@ -558,13 +581,14 @@ public class ConsoleAndFileDriverConfiguration implements DriverConfiguration {
     }
 
     private final Map<String, String> paramsMap;
+    private final String name;
     private final String dbClassName;
     private final String workloadClassName;
     private final long operationCount;
     private final int threadCount;
     private final Duration statusDisplayInterval;
     private final TimeUnit timeUnit;
-    private final String resultFilePath;
+    private final String resultDirPath;
     private final double timeCompressionRatio;
     private final Duration windowedExecutionWindowDuration;
     private final Set<String> peerIds;
@@ -577,13 +601,14 @@ public class ConsoleAndFileDriverConfiguration implements DriverConfiguration {
     private final boolean printHelp;
 
     public ConsoleAndFileDriverConfiguration(Map<String, String> paramsMap,
+                                             String name,
                                              String dbClassName,
                                              String workloadClassName,
                                              long operationCount,
                                              int threadCount,
                                              Duration statusDisplayInterval,
                                              TimeUnit timeUnit,
-                                             String resultFilePath,
+                                             String resultDirPath,
                                              double timeCompressionRatio,
                                              Duration windowedExecutionWindowDuration,
                                              Set<String> peerIds,
@@ -595,13 +620,14 @@ public class ConsoleAndFileDriverConfiguration implements DriverConfiguration {
                                              Duration spinnerSleepDuration,
                                              boolean printHelp) {
         this.paramsMap = paramsMap;
+        this.name = name;
         this.dbClassName = dbClassName;
         this.workloadClassName = workloadClassName;
         this.operationCount = operationCount;
         this.threadCount = threadCount;
         this.statusDisplayInterval = statusDisplayInterval;
         this.timeUnit = timeUnit;
-        this.resultFilePath = resultFilePath;
+        this.resultDirPath = resultDirPath;
         this.timeCompressionRatio = timeCompressionRatio;
         this.peerIds = peerIds;
         this.toleratedExecutionDelay = toleratedExecutionDelay;
@@ -612,6 +638,11 @@ public class ConsoleAndFileDriverConfiguration implements DriverConfiguration {
         this.spinnerSleepDuration = spinnerSleepDuration;
         this.printHelp = printHelp;
         this.windowedExecutionWindowDuration = windowedExecutionWindowDuration;
+    }
+
+    @Override
+    public String name() {
+        return name;
     }
 
     @Override
@@ -645,11 +676,11 @@ public class ConsoleAndFileDriverConfiguration implements DriverConfiguration {
     }
 
     @Override
-    public String resultFilePath() {
-        if (null == resultFilePath)
+    public String resultDirPath() {
+        if (null == resultDirPath)
             return null;
         else
-            return new File(resultFilePath).getAbsolutePath();
+            return new File(resultDirPath).getAbsolutePath();
     }
 
     @Override
@@ -727,6 +758,9 @@ public class ConsoleAndFileDriverConfiguration implements DriverConfiguration {
         Map<String, String> newParamsMapWithShortKeys = convertLongKeysToShortKeys(newParamsMap);
         Map<String, String> newOtherParams = MapUtils.mergeMaps(this.paramsMap, newParamsMapWithShortKeys, true);
 
+        String newName = (newParamsMapWithShortKeys.containsKey(NAME_ARG)) ?
+                newParamsMapWithShortKeys.get(NAME_ARG) :
+                name;
         String newDbClassName = (newParamsMapWithShortKeys.containsKey(DB_ARG)) ?
                 newParamsMapWithShortKeys.get(DB_ARG) :
                 dbClassName;
@@ -745,9 +779,9 @@ public class ConsoleAndFileDriverConfiguration implements DriverConfiguration {
         TimeUnit newTimeUnit = (newParamsMapWithShortKeys.containsKey(TIME_UNIT_ARG)) ?
                 TimeUnit.valueOf(newParamsMapWithShortKeys.get(TIME_UNIT_ARG)) :
                 timeUnit;
-        String newResultFilePath = (newParamsMapWithShortKeys.containsKey(RESULT_FILE_PATH_ARG)) ?
-                newParamsMapWithShortKeys.get(RESULT_FILE_PATH_ARG) :
-                resultFilePath;
+        String newResultDirPath = (newParamsMapWithShortKeys.containsKey(RESULT_DIR_PATH_ARG)) ?
+                newParamsMapWithShortKeys.get(RESULT_DIR_PATH_ARG) :
+                resultDirPath;
         double newTimeCompressionRatio = (newParamsMapWithShortKeys.containsKey(TIME_COMPRESSION_RATIO_ARG)) ?
                 Double.parseDouble(newParamsMapWithShortKeys.get(TIME_COMPRESSION_RATIO_ARG)) :
                 timeCompressionRatio;
@@ -781,13 +815,14 @@ public class ConsoleAndFileDriverConfiguration implements DriverConfiguration {
 
         return new ConsoleAndFileDriverConfiguration(
                 newOtherParams,
+                newName,
                 newDbClassName,
                 newWorkloadClassName,
                 newOperationCount,
                 newThreadCount,
                 newStatusDisplayInterval,
                 newTimeUnit,
-                newResultFilePath,
+                newResultDirPath,
                 newTimeCompressionRatio,
                 newWindowedExecutionWindowDuration,
                 newPeerIds,
@@ -811,8 +846,10 @@ public class ConsoleAndFileDriverConfiguration implements DriverConfiguration {
         // optional core parameters
         argsList.addAll(Lists.newArrayList("-" + SHOW_STATUS_ARG, Long.toString(statusDisplayInterval.asSeconds())));
         argsList.addAll(Lists.newArrayList("-" + THREADS_ARG, Integer.toString(threadCount)));
-        if (null != resultFilePath)
-            argsList.addAll(Lists.newArrayList("-" + RESULT_FILE_PATH_ARG, resultFilePath));
+        if (null != name)
+            argsList.addAll(Lists.newArrayList("-" + NAME_ARG, name));
+        if (null != resultDirPath)
+            argsList.addAll(Lists.newArrayList("-" + RESULT_DIR_PATH_ARG, resultDirPath));
         argsList.addAll(Lists.newArrayList("-" + TIME_UNIT_ARG, timeUnit.name()));
         argsList.addAll(Lists.newArrayList("-" + TIME_COMPRESSION_RATIO_ARG, Double.toString(timeCompressionRatio)));
         argsList.addAll(Lists.newArrayList("-" + WINDOWED_EXECUTION_WINDOW_DURATION_ARG, Long.toString(windowedExecutionWindowDuration.asMilli())));
@@ -838,6 +875,7 @@ public class ConsoleAndFileDriverConfiguration implements DriverConfiguration {
         return argsList.toArray(new String[argsList.size()]);
     }
 
+    @Override
     public String toPropertiesString() throws DriverConfigurationException {
         StringBuilder sb = new StringBuilder();
         sb.append("# -------------------------------------\n");
@@ -858,12 +896,19 @@ public class ConsoleAndFileDriverConfiguration implements DriverConfiguration {
         sb.append("# INTEGER\n");
         sb.append(THREADS_ARG_LONG).append("=").append(threadCount).append("\n");
         sb.append("\n");
+        sb.append("# name of the benchmark run\n");
+        sb.append("# STRING\n");
+        if (null == name)
+            sb.append("# ").append(NAME_ARG_LONG).append("=").append("\n");
+        else
+            sb.append(NAME_ARG_LONG).append("=").append(name).append("\n");
+        sb.append("\n");
         sb.append("# path specifying where to write the benchmark results file\n");
         sb.append("# STRING\n");
-        if (null == resultFilePath)
-            sb.append("# ").append(RESULT_FILE_PATH_ARG_LONG).append("=").append("\n");
+        if (null == resultDirPath)
+            sb.append("# ").append(RESULT_DIR_PATH_ARG_LONG).append("=").append("\n");
         else
-            sb.append(RESULT_FILE_PATH_ARG_LONG).append("=").append(resultFilePath).append("\n");
+            sb.append(RESULT_DIR_PATH_ARG_LONG).append("=").append(resultDirPath).append("\n");
         sb.append("\n");
         sb.append("# time unit to use for measuring performance metrics (e.g., query response time)\n");
         sb.append("# ENUM (").append(Arrays.toString(VALID_TIME_UNITS)).append(")\n");
@@ -968,13 +1013,14 @@ public class ConsoleAndFileDriverConfiguration implements DriverConfiguration {
         int padRightDistance = 32;
         StringBuilder sb = new StringBuilder();
         sb.append("Parameters:").append("\n");
+        sb.append("\t").append(String.format("%1$-" + padRightDistance + "s", "Name:")).append(name).append("\n");
         sb.append("\t").append(String.format("%1$-" + padRightDistance + "s", "DB:")).append(dbClassName).append("\n");
         sb.append("\t").append(String.format("%1$-" + padRightDistance + "s", "Workload:")).append(workloadClassName).append("\n");
         sb.append("\t").append(String.format("%1$-" + padRightDistance + "s", "Operation Count:")).append(operationCount).append("\n");
         sb.append("\t").append(String.format("%1$-" + padRightDistance + "s", "Worker Threads:")).append(threadCount).append("\n");
         sb.append("\t").append(String.format("%1$-" + padRightDistance + "s", "Status Display Interval:")).append(statusDisplayInterval).append("\n");
         sb.append("\t").append(String.format("%1$-" + padRightDistance + "s", "Time Unit:")).append(timeUnit).append("\n");
-        sb.append("\t").append(String.format("%1$-" + padRightDistance + "s", "Result File:")).append(resultFilePath()).append("\n");
+        sb.append("\t").append(String.format("%1$-" + padRightDistance + "s", "Results Directory:")).append(resultDirPath()).append("\n");
         sb.append("\t").append(String.format("%1$-" + padRightDistance + "s", "Time Compression Ratio:")).append(timeCompressionRatio).append("\n");
         sb.append("\t").append(String.format("%1$-" + padRightDistance + "s", "Execution Window Size:")).append(windowedExecutionWindowDuration.asMilli()).append(" (ms) / ").append(windowedExecutionWindowDuration).append("\n");
         sb.append("\t").append(String.format("%1$-" + padRightDistance + "s", "Peer IDs:")).append(peerIds.toString()).append("\n");
@@ -1016,7 +1062,9 @@ public class ConsoleAndFileDriverConfiguration implements DriverConfiguration {
             return false;
         if (dbClassName != null ? !dbClassName.equals(that.dbClassName) : that.dbClassName != null) return false;
         if (peerIds != null ? !peerIds.equals(that.peerIds) : that.peerIds != null) return false;
-        if (resultFilePath != null ? !resultFilePath.equals(that.resultFilePath) : that.resultFilePath != null)
+        if (name != null ? !name.equals(that.name) : that.name != null)
+            return false;
+        if (resultDirPath != null ? !resultDirPath.equals(that.resultDirPath) : that.resultDirPath != null)
             return false;
         if (spinnerSleepDuration != null ? !spinnerSleepDuration.equals(that.spinnerSleepDuration) : that.spinnerSleepDuration != null)
             return false;
@@ -1040,12 +1088,13 @@ public class ConsoleAndFileDriverConfiguration implements DriverConfiguration {
         int result;
         long temp;
         result = dbClassName != null ? dbClassName.hashCode() : 0;
+        result = 31 * result + (name != null ? name.hashCode() : 0);
         result = 31 * result + (workloadClassName != null ? workloadClassName.hashCode() : 0);
         result = 31 * result + (int) (operationCount ^ (operationCount >>> 32));
         result = 31 * result + threadCount;
         result = 31 * result + (statusDisplayInterval != null ? statusDisplayInterval.hashCode() : 0);
         result = 31 * result + (timeUnit != null ? timeUnit.hashCode() : 0);
-        result = 31 * result + (resultFilePath != null ? resultFilePath.hashCode() : 0);
+        result = 31 * result + (resultDirPath != null ? resultDirPath.hashCode() : 0);
         temp = Double.doubleToLongBits(timeCompressionRatio);
         result = 31 * result + (int) (temp ^ (temp >>> 32));
         result = 31 * result + (windowedExecutionWindowDuration != null ? windowedExecutionWindowDuration.hashCode() : 0);

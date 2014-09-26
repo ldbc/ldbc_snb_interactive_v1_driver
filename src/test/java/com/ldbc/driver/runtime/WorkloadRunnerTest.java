@@ -9,7 +9,6 @@ import com.ldbc.driver.generator.RandomDataGeneratorFactory;
 import com.ldbc.driver.runtime.coordination.CompletionTimeException;
 import com.ldbc.driver.runtime.coordination.CompletionTimeServiceAssistant;
 import com.ldbc.driver.runtime.coordination.ConcurrentCompletionTimeService;
-import com.ldbc.driver.runtime.executor.PreciseIndividualAsyncOperationStreamExecutorService;
 import com.ldbc.driver.runtime.metrics.ConcurrentMetricsService;
 import com.ldbc.driver.runtime.metrics.MetricsCollectionException;
 import com.ldbc.driver.runtime.metrics.ThreadedQueuedConcurrentMetricsService;
@@ -56,13 +55,14 @@ public class WorkloadRunnerTest {
             paramsMap.put(LdbcSnbInteractiveWorkload.PARAMETERS_DIRECTORY, TestUtils.getResource("/").getAbsolutePath());
             paramsMap.put(LdbcSnbInteractiveWorkload.DATA_DIRECTORY, TestUtils.getResource("/").getAbsolutePath());
             // Driver-specific parameters
+            String name = "name";
             String dbClassName = DummyLdbcSnbInteractiveDb.class.getName();
             String workloadClassName = LdbcSnbInteractiveWorkload.class.getName();
             long operationCount = 1000;
             int threadCount = 1;
             Duration statusDisplayInterval = Duration.fromSeconds(1);
             TimeUnit timeUnit = TimeUnit.MILLISECONDS;
-            String resultFilePath = temporaryFolder.newFile().getAbsolutePath();
+            String resultDirPath = temporaryFolder.newFolder().getAbsolutePath();
             double timeCompressionRatio = 1.0;
             Duration windowedExecutionWindowDuration = Duration.fromSeconds(1);
             Set<String> peerIds = new HashSet<>();
@@ -74,8 +74,8 @@ public class WorkloadRunnerTest {
             Duration spinnerSleepDuration = Duration.fromMilli(0);
             boolean printHelp = false;
 
-            ConsoleAndFileDriverConfiguration configuration = new ConsoleAndFileDriverConfiguration(paramsMap, dbClassName, workloadClassName, operationCount,
-                    threadCount, statusDisplayInterval, timeUnit, resultFilePath, timeCompressionRatio, windowedExecutionWindowDuration, peerIds, toleratedExecutionDelay,
+            ConsoleAndFileDriverConfiguration configuration = new ConsoleAndFileDriverConfiguration(paramsMap, name, dbClassName, workloadClassName, operationCount,
+                    threadCount, statusDisplayInterval, timeUnit, resultDirPath, timeCompressionRatio, windowedExecutionWindowDuration, peerIds, toleratedExecutionDelay,
                     validationParams, dbValidationFilePath, validateWorkload, calculateWorkloadStatistics, spinnerSleepDuration, printHelp);
 
             controlService = new LocalControlService(TIME_SOURCE.now().plus(Duration.fromSeconds(5)), configuration);
@@ -156,13 +156,14 @@ public class WorkloadRunnerTest {
             String csvOutputFilePath = temporaryFolder.newFile().getAbsolutePath();
             paramsMap.put(CsvWritingLdbcSnbInteractiveDb.CSV_PATH_KEY, csvOutputFilePath);
             // Driver-specific parameters
+            String name = null;
             String dbClassName = CsvWritingLdbcSnbInteractiveDb.class.getName();
             String workloadClassName = LdbcSnbInteractiveWorkload.class.getName();
             long operationCount = 1000;
             int threadCount = 1;
             Duration statusDisplayInterval = Duration.fromSeconds(1);
             TimeUnit timeUnit = TimeUnit.MILLISECONDS;
-            String resultFilePath = temporaryFolder.newFile().getAbsolutePath();
+            String resultDirPath = temporaryFolder.newFolder().getAbsolutePath();
             double timeCompressionRatio = 1.0;
             Duration windowedExecutionWindowDuration = Duration.fromSeconds(1);
             Set<String> peerIds = new HashSet<>();
@@ -174,8 +175,8 @@ public class WorkloadRunnerTest {
             Duration spinnerSleepDuration = Duration.fromMilli(0);
             boolean printHelp = false;
 
-            ConsoleAndFileDriverConfiguration configuration = new ConsoleAndFileDriverConfiguration(paramsMap, dbClassName, workloadClassName, operationCount,
-                    threadCount, statusDisplayInterval, timeUnit, resultFilePath, timeCompressionRatio, windowedExecutionWindowDuration, peerIds, toleratedExecutionDelay,
+            ConsoleAndFileDriverConfiguration configuration = new ConsoleAndFileDriverConfiguration(paramsMap, name, dbClassName, workloadClassName, operationCount,
+                    threadCount, statusDisplayInterval, timeUnit, resultDirPath, timeCompressionRatio, windowedExecutionWindowDuration, peerIds, toleratedExecutionDelay,
                     validationParams, dbValidationFilePath, validateWorkload, calculateWorkloadStatistics, spinnerSleepDuration, printHelp);
 
             controlService = new LocalControlService(TIME_SOURCE.now().plus(Duration.fromMilli(1000)), configuration);

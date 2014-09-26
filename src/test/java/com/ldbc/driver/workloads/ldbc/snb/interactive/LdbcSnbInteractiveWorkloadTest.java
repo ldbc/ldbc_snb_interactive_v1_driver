@@ -140,13 +140,14 @@ public class LdbcSnbInteractiveWorkloadTest {
         paramsMap.put(LdbcSnbInteractiveWorkload.PARAMETERS_DIRECTORY, TestUtils.getResource("/").getAbsolutePath());
         paramsMap.put(LdbcSnbInteractiveWorkload.DATA_DIRECTORY, TestUtils.getResource("/").getAbsolutePath());
         // Driver-specific parameters
+        String name = null;
         String dbClassName = DummyLdbcSnbInteractiveDb.class.getName();
         String workloadClassName = LdbcSnbInteractiveWorkload.class.getName();
         long operationCount = MANY_ELEMENTS_COUNT;
         int threadCount = 1;
         Duration statusDisplayInterval = Duration.fromSeconds(0);
         TimeUnit timeUnit = TimeUnit.MILLISECONDS;
-        String resultFilePath = temporaryFolder.newFile().getAbsolutePath();
+        String resultDirPath = temporaryFolder.newFolder().getAbsolutePath();
         double timeCompressionRatio = 1.0;
         Duration windowedExecutionWindowDuration = Duration.fromSeconds(1);
         Set<String> peerIds = new HashSet<>();
@@ -158,8 +159,8 @@ public class LdbcSnbInteractiveWorkloadTest {
         Duration spinnerSleepDuration = Duration.fromMilli(0);
         boolean printHelp = false;
 
-        DriverConfiguration config = new ConsoleAndFileDriverConfiguration(paramsMap, dbClassName, workloadClassName, operationCount,
-                threadCount, statusDisplayInterval, timeUnit, resultFilePath, timeCompressionRatio, windowedExecutionWindowDuration, peerIds, toleratedExecutionDelay,
+        DriverConfiguration config = new ConsoleAndFileDriverConfiguration(paramsMap, name, dbClassName, workloadClassName, operationCount,
+                threadCount, statusDisplayInterval, timeUnit, resultDirPath, timeCompressionRatio, windowedExecutionWindowDuration, peerIds, toleratedExecutionDelay,
                 validationParams, dbValidationFilePath, validateWorkload, calculateWorkloadStatistics, spinnerSleepDuration, printHelp);
 
         Workload workload = new LdbcSnbInteractiveWorkload();
@@ -183,13 +184,14 @@ public class LdbcSnbInteractiveWorkloadTest {
         // DummyDb-specific parameters
         paramsMap.put(DummyLdbcSnbInteractiveDb.SLEEP_DURATION_MILLI_ARG, Long.toString(Duration.fromMilli(100).asMilli()));
         // Driver-specific parameters
+        String name = "name";
         String dbClassName = DummyLdbcSnbInteractiveDb.class.getName();
         String workloadClassName = LdbcSnbInteractiveWorkload.class.getName();
         long operationCount = 100;
         int threadCount = 1;
         Duration statusDisplayInterval = Duration.fromSeconds(1);
         TimeUnit timeUnit = TimeUnit.MILLISECONDS;
-        String resultFilePath = temporaryFolder.newFile().getAbsolutePath();
+        String resultDirPath = temporaryFolder.newFolder().getAbsolutePath();
         double timeCompressionRatio = 1.0;
         Duration windowedExecutionWindowDuration = Duration.fromSeconds(1);
         Set<String> peerIds = new HashSet<>();
@@ -201,10 +203,11 @@ public class LdbcSnbInteractiveWorkloadTest {
         Duration spinnerSleepDuration = Duration.fromMilli(0);
         boolean printHelp = false;
 
-        assertThat(new File(resultFilePath).length(), is(0l));
 
-        DriverConfiguration params = new ConsoleAndFileDriverConfiguration(paramsMap, dbClassName, workloadClassName, operationCount,
-                threadCount, statusDisplayInterval, timeUnit, resultFilePath, timeCompressionRatio, windowedExecutionWindowDuration, peerIds, toleratedExecutionDelay,
+        assertThat(new File(resultDirPath).listFiles().length > 0, is(false));
+
+        DriverConfiguration params = new ConsoleAndFileDriverConfiguration(paramsMap, name, dbClassName, workloadClassName, operationCount,
+                threadCount, statusDisplayInterval, timeUnit, resultDirPath, timeCompressionRatio, windowedExecutionWindowDuration, peerIds, toleratedExecutionDelay,
                 validationParams, dbValidationFilePath, validateWorkload, calculateWorkloadStatistics, spinnerSleepDuration, printHelp);
 
         Workload workloadA = new LdbcSnbInteractiveWorkload();
@@ -374,13 +377,14 @@ public class LdbcSnbInteractiveWorkloadTest {
         String csvOutputFilePath = temporaryFolder.newFile().getAbsolutePath();
         paramsMap.put(CsvWritingLdbcSnbInteractiveDb.CSV_PATH_KEY, csvOutputFilePath);
         // Driver-specific parameters
+        String name = null;
         String dbClassName = CsvWritingLdbcSnbInteractiveDb.class.getName();
         String workloadClassName = LdbcSnbInteractiveWorkload.class.getName();
         long operationCount = 1000;
         int threadCount = 1;
         Duration statusDisplayInterval = Duration.fromSeconds(1);
         TimeUnit timeUnit = TimeUnit.MILLISECONDS;
-        String resultFilePath = temporaryFolder.newFile().getAbsolutePath();
+        String resultDirPath = temporaryFolder.newFolder().getAbsolutePath();
         double timeCompressionRatio = 0.01;
         Duration windowedExecutionWindowDuration = Duration.fromMilli(50);
         Set<String> peerIds = new HashSet<>();
@@ -393,10 +397,10 @@ public class LdbcSnbInteractiveWorkloadTest {
         boolean printHelp = false;
 
         assertThat(new File(csvOutputFilePath).length(), is(0l));
-        assertThat(new File(resultFilePath).length(), is(0l));
+        assertThat(new File(resultDirPath).listFiles().length > 0, is(false));
 
-        DriverConfiguration params = new ConsoleAndFileDriverConfiguration(paramsMap, dbClassName, workloadClassName, operationCount,
-                threadCount, statusDisplayInterval, timeUnit, resultFilePath, timeCompressionRatio, windowedExecutionWindowDuration, peerIds, toleratedExecutionDelay,
+        DriverConfiguration params = new ConsoleAndFileDriverConfiguration(paramsMap, name, dbClassName, workloadClassName, operationCount,
+                threadCount, statusDisplayInterval, timeUnit, resultDirPath, timeCompressionRatio, windowedExecutionWindowDuration, peerIds, toleratedExecutionDelay,
                 validationParams, dbValidationFilePath, validateWorkload, calculateWorkloadStatistics, spinnerSleepDuration, printHelp);
 
         // When
@@ -405,32 +409,32 @@ public class LdbcSnbInteractiveWorkloadTest {
 
         // Then
         assertThat(new File(csvOutputFilePath).length() > 0, is(true));
-        assertThat(new File(resultFilePath).length() > 0, is(true));
+        assertThat(new File(resultDirPath).listFiles().length > 0, is(true));
     }
 
     @Test
     public void shouldLoadFromConfigFile() throws DriverConfigurationException, ClientException, IOException {
-        String ldbcSocnetInteractiveTestPropertiesPath =
+        String ldbcSnbInteractiveTestPropertiesPath =
                 new File(DriverConfigurationFileTestHelper.getWorkloadsDirectory(), "ldbc/socnet/interactive/ldbc_socnet_interactive.properties").getAbsolutePath();
         String ldbcDriverTestPropertiesPath =
                 TestUtils.getResource("/ldbc_driver_default.properties").getAbsolutePath();
 
         String csvOutputFilePath = temporaryFolder.newFile().getAbsolutePath();
-        String resultFilePath = temporaryFolder.newFile().getAbsolutePath();
+        String resultDirPath = temporaryFolder.newFolder().getAbsolutePath();
 
         assertThat(new File(csvOutputFilePath).length(), is(0l));
-        assertThat(new File(resultFilePath).length(), is(0l));
+        assertThat(new File(resultDirPath).listFiles().length > 0, is(false));
 
-        assertThat(new File(ldbcSocnetInteractiveTestPropertiesPath).exists(), is(true));
+        assertThat(new File(ldbcSnbInteractiveTestPropertiesPath).exists(), is(true));
         assertThat(new File(ldbcDriverTestPropertiesPath).exists(), is(true));
 
         ConsoleAndFileDriverConfiguration configuration = ConsoleAndFileDriverConfiguration.fromArgs(new String[]{
-                "-" + ConsoleAndFileDriverConfiguration.RESULT_FILE_PATH_ARG, resultFilePath,
+                "-" + ConsoleAndFileDriverConfiguration.RESULT_DIR_PATH_ARG, resultDirPath,
                 "-" + ConsoleAndFileDriverConfiguration.DB_ARG, CsvWritingLdbcSnbInteractiveDb.class.getName(),
                 "-p", LdbcSnbInteractiveWorkload.PARAMETERS_DIRECTORY, TestUtils.getResource("/").getAbsolutePath(),
                 "-p", LdbcSnbInteractiveWorkload.DATA_DIRECTORY, TestUtils.getResource("/").getAbsolutePath(),
                 "-p", CsvWritingLdbcSnbInteractiveDb.CSV_PATH_KEY, csvOutputFilePath,
-                "-P", ldbcSocnetInteractiveTestPropertiesPath,
+                "-P", ldbcSnbInteractiveTestPropertiesPath,
                 "-P", ldbcDriverTestPropertiesPath});
 
 
@@ -440,7 +444,7 @@ public class LdbcSnbInteractiveWorkloadTest {
 
         // Then
         assertThat(new File(csvOutputFilePath).length() > 0, is(true));
-        assertThat(new File(resultFilePath).length() > 0, is(true));
+        assertThat(new File(resultDirPath).listFiles().length > 0, is(true));
     }
 
     @Test
@@ -453,13 +457,14 @@ public class LdbcSnbInteractiveWorkloadTest {
         String csvOutputFilePath = temporaryFolder.newFile().getAbsolutePath();
         paramsMap.put(CsvWritingLdbcSnbInteractiveDb.CSV_PATH_KEY, csvOutputFilePath);
         // Driver-specific parameters
+        String name = "name";
         String dbClassName = CsvWritingLdbcSnbInteractiveDb.class.getName();
         String workloadClassName = LdbcSnbInteractiveWorkload.class.getName();
         long operationCount = 1000000;
         int threadCount = 1;
         Duration statusDisplayInterval = Duration.fromSeconds(1);
         TimeUnit timeUnit = TimeUnit.MILLISECONDS;
-        String resultFilePath = temporaryFolder.newFile().getAbsolutePath();
+        String resultDirPath = temporaryFolder.newFolder().getAbsolutePath();
         double timeCompressionRatio = 0.01;
         Duration windowedExecutionWindowDuration = Duration.fromSeconds(1);
         Set<String> peerIds = new HashSet<>();
@@ -472,10 +477,10 @@ public class LdbcSnbInteractiveWorkloadTest {
         boolean printHelp = false;
 
         assertThat(new File(csvOutputFilePath).length(), is(0l));
-        assertThat(new File(resultFilePath).length(), is(0l));
+        assertThat(new File(resultDirPath).listFiles().length > 0, is(false));
 
-        DriverConfiguration configuration = new ConsoleAndFileDriverConfiguration(paramsMap, dbClassName, workloadClassName, operationCount,
-                threadCount, statusDisplayInterval, timeUnit, resultFilePath, timeCompressionRatio, windowedExecutionWindowDuration, peerIds, toleratedExecutionDelay,
+        DriverConfiguration configuration = new ConsoleAndFileDriverConfiguration(paramsMap, name, dbClassName, workloadClassName, operationCount,
+                threadCount, statusDisplayInterval, timeUnit, resultDirPath, timeCompressionRatio, windowedExecutionWindowDuration, peerIds, toleratedExecutionDelay,
                 validationParams, dbValidationFilePath, validateWorkload, calculateWorkloadStatistics, spinnerSleepDuration, printHelp);
 
         Workload workload = new LdbcSnbInteractiveWorkload();
@@ -500,13 +505,14 @@ public class LdbcSnbInteractiveWorkloadTest {
         // CsvDb-specific parameters
         params.put(DummyLdbcSnbInteractiveDb.SLEEP_DURATION_MILLI_ARG, Long.toString(Duration.fromMilli(1).asMilli()));
         // Driver-specific parameters
+        String name = null;
         String dbClassName = DummyLdbcSnbInteractiveDb.class.getName();
         String workloadClassName = LdbcSnbInteractiveWorkload.class.getName();
         long operationCount = 500;
         int threadCount = 1;
         Duration statusDisplayInterval = Duration.fromSeconds(1);
         TimeUnit timeUnit = TimeUnit.MILLISECONDS;
-        String resultFilePath = temporaryFolder.newFile().getAbsolutePath();
+        String resultDirPath = temporaryFolder.newFolder().getAbsolutePath();
         double timeCompressionRatio = 0.0001;
         Duration windowedExecutionWindowDuration = Duration.fromSeconds(1);
         Set<String> peerIds = new HashSet<>();
@@ -518,16 +524,16 @@ public class LdbcSnbInteractiveWorkloadTest {
         Duration spinnerSleepDuration = Duration.fromMilli(0);
         boolean printHelp = false;
 
-        assertThat(new File(resultFilePath).length(), is(0l));
+        assertThat(new File(resultDirPath).listFiles().length > 0, is(false));
 
-        DriverConfiguration configuration = new ConsoleAndFileDriverConfiguration(params, dbClassName, workloadClassName, operationCount,
-                threadCount, statusDisplayInterval, timeUnit, resultFilePath, timeCompressionRatio, windowedExecutionWindowDuration, peerIds, toleratedExecutionDelay,
+        DriverConfiguration configuration = new ConsoleAndFileDriverConfiguration(params, name, dbClassName, workloadClassName, operationCount,
+                threadCount, statusDisplayInterval, timeUnit, resultDirPath, timeCompressionRatio, windowedExecutionWindowDuration, peerIds, toleratedExecutionDelay,
                 validationParams, dbValidationFilePath, validateWorkload, calculateWorkloadStatistics, spinnerSleepDuration, printHelp);
 
         Client client = new Client(new LocalControlService(TIME_SOURCE.now().plus(Duration.fromSeconds(3)), configuration), TIME_SOURCE);
         client.start();
 
-        assertThat(new File(resultFilePath).length() > 0, is(true));
+        assertThat(new File(resultDirPath).listFiles().length > 0, is(true));
     }
 
     @Test
@@ -540,13 +546,14 @@ public class LdbcSnbInteractiveWorkloadTest {
         String csvOutputFilePath = temporaryFolder.newFile().getAbsolutePath();
         paramsMap.put(CsvWritingLdbcSnbInteractiveDb.CSV_PATH_KEY, csvOutputFilePath);
         // Driver-specific parameters
+        String name = "name";
         String dbClassName = CsvWritingLdbcSnbInteractiveDb.class.getName();
         String workloadClassName = LdbcSnbInteractiveWorkload.class.getName();
         long operationCount = 1000000;
         int threadCount = 1;
         Duration statusDisplayInterval = Duration.fromSeconds(1);
         TimeUnit timeUnit = TimeUnit.MILLISECONDS;
-        String resultFilePath = temporaryFolder.newFile().getAbsolutePath();
+        String resultDirPath = temporaryFolder.newFolder().getAbsolutePath();
         double timeCompressionRatio = 1.0;
         Duration windowedExecutionWindowDuration = Duration.fromSeconds(1);
         Set<String> peerIds = new HashSet<>();
@@ -559,10 +566,10 @@ public class LdbcSnbInteractiveWorkloadTest {
         boolean printHelp = false;
 
         assertThat(new File(csvOutputFilePath).length(), is(0l));
-        assertThat(new File(resultFilePath).length(), is(0l));
+        assertThat(new File(resultDirPath).listFiles().length > 0, is(false));
 
-        DriverConfiguration configuration = new ConsoleAndFileDriverConfiguration(paramsMap, dbClassName, workloadClassName, operationCount,
-                threadCount, statusDisplayInterval, timeUnit, resultFilePath, timeCompressionRatio, windowedExecutionWindowDuration, peerIds, toleratedExecutionDelay,
+        DriverConfiguration configuration = new ConsoleAndFileDriverConfiguration(paramsMap, name, dbClassName, workloadClassName, operationCount,
+                threadCount, statusDisplayInterval, timeUnit, resultDirPath, timeCompressionRatio, windowedExecutionWindowDuration, peerIds, toleratedExecutionDelay,
                 validationParams, dbValidationFilePath, validateWorkload, calculateWorkloadStatistics, spinnerSleepDuration, printHelp);
 
         Workload workload = new LdbcSnbInteractiveWorkload();
@@ -616,13 +623,14 @@ public class LdbcSnbInteractiveWorkloadTest {
         // CsvDb-specific parameters
         params.put(DummyLdbcSnbInteractiveDb.SLEEP_DURATION_MILLI_ARG, Long.toString(Duration.fromMilli(1).asMilli()));
         // Driver-specific parameters
+        String name = null;
         String dbClassName = DummyLdbcSnbInteractiveDb.class.getName();
         String workloadClassName = LdbcSnbInteractiveWorkload.class.getName();
         long operationCount = 10000;
         int threadCount = 1;
         Duration statusDisplayInterval = Duration.fromSeconds(1);
         TimeUnit timeUnit = TimeUnit.MILLISECONDS;
-        String resultFilePath = null;
+        String resultFolderPath = null;
         double timeCompressionRatio = 0.001;
         Duration windowedExecutionWindowDuration = Duration.fromSeconds(1);
         Set<String> peerIds = new HashSet<>();
@@ -634,8 +642,8 @@ public class LdbcSnbInteractiveWorkloadTest {
         Duration spinnerSleepDuration = Duration.fromMilli(0);
         boolean printHelp = false;
 
-        DriverConfiguration configuration = new ConsoleAndFileDriverConfiguration(params, dbClassName, workloadClassName, operationCount,
-                threadCount, statusDisplayInterval, timeUnit, resultFilePath, timeCompressionRatio, windowedExecutionWindowDuration, peerIds, toleratedExecutionDelay,
+        DriverConfiguration configuration = new ConsoleAndFileDriverConfiguration(params, name, dbClassName, workloadClassName, operationCount,
+                threadCount, statusDisplayInterval, timeUnit, resultFolderPath, timeCompressionRatio, windowedExecutionWindowDuration, peerIds, toleratedExecutionDelay,
                 validationParams, dbValidationFilePath, validateWorkload, calculateWorkloadStatistics, spinnerSleepDuration, printHelp);
 
         // When
@@ -659,13 +667,14 @@ public class LdbcSnbInteractiveWorkloadTest {
         // DummyDb-specific parameters
         paramsMap.put(DummyLdbcSnbInteractiveDb.SLEEP_DURATION_MILLI_ARG, Long.toString(Duration.fromSeconds(40).asMilli()));
         // Driver-specific parameters
+        String name = null;
         String dbClassName = DummyLdbcSnbInteractiveDb.class.getName();
         String workloadClassName = LdbcSnbInteractiveWorkload.class.getName();
         long operationCount = 5;
         int threadCount = 2;
         Duration statusDisplayInterval = Duration.fromSeconds(1);
         TimeUnit timeUnit = TimeUnit.MILLISECONDS;
-        String resultFilePath = temporaryFolder.newFile().getAbsolutePath();
+        String resultDirPath = temporaryFolder.newFolder().getAbsolutePath();
         double timeCompressionRatio = 1.0;
         Duration windowedExecutionWindowDuration = Duration.fromSeconds(1);
         Set<String> peerIds = new HashSet<>();
@@ -677,10 +686,10 @@ public class LdbcSnbInteractiveWorkloadTest {
         Duration spinnerSleepDuration = Duration.fromMilli(0);
         boolean printHelp = false;
 
-        assertThat(new File(resultFilePath).length(), is(0l));
+        assertThat(new File(resultDirPath).listFiles().length > 0, is(false));
 
-        DriverConfiguration params = new ConsoleAndFileDriverConfiguration(paramsMap, dbClassName, workloadClassName, operationCount,
-                threadCount, statusDisplayInterval, timeUnit, resultFilePath, timeCompressionRatio, windowedExecutionWindowDuration, peerIds, toleratedExecutionDelay,
+        DriverConfiguration params = new ConsoleAndFileDriverConfiguration(paramsMap, name, dbClassName, workloadClassName, operationCount,
+                threadCount, statusDisplayInterval, timeUnit, resultDirPath, timeCompressionRatio, windowedExecutionWindowDuration, peerIds, toleratedExecutionDelay,
                 validationParams, dbValidationFilePath, validateWorkload, calculateWorkloadStatistics, spinnerSleepDuration, printHelp);
 
         // When
@@ -688,80 +697,6 @@ public class LdbcSnbInteractiveWorkloadTest {
         client.start();
 
         // Then
-        assertThat(new File(resultFilePath).length() > 0, is(true));
-    }
-
-    @Ignore
-    @Test
-    public void shouldReproduceMirkosError() throws DriverConfigurationException, ClientException, IOException {
-        String ldbcSocnetInteractivePropertiesPath = TestUtils.getResource("/mirko_test/ldbc_socnet_interactive.properties").getAbsolutePath();
-        String ldbcDriverPropertiesPath = TestUtils.getResource("/mirko_test/ldbc_driver_default.properties").getAbsolutePath();
-
-        File resultFile = temporaryFolder.newFile();
-
-        assertThat(resultFile.length(), is(0l));
-        assertThat(new File(ldbcSocnetInteractivePropertiesPath).exists(), is(true));
-        assertThat(new File(ldbcDriverPropertiesPath).exists(), is(true));
-
-        ConsoleAndFileDriverConfiguration configuration = ConsoleAndFileDriverConfiguration.fromArgs(new String[]{
-//                "-" + ConsoleAndFileDriverConfiguration.CALCULATE_WORKLOAD_STATISTICS_ARG,
-                "-" + ConsoleAndFileDriverConfiguration.TIME_COMPRESSION_RATIO_ARG, "0.01",
-                "-" + ConsoleAndFileDriverConfiguration.SPINNER_SLEEP_DURATION_ARG, "0",
-                "-" + ConsoleAndFileDriverConfiguration.TOLERATED_EXECUTION_DELAY_ARG, "10000",
-                "-" + ConsoleAndFileDriverConfiguration.THREADS_ARG, "64",
-
-                "-" + ConsoleAndFileDriverConfiguration.RESULT_FILE_PATH_ARG, resultFile.getAbsolutePath(),
-                "-" + ConsoleAndFileDriverConfiguration.DB_ARG, DummyLdbcSnbInteractiveDb.class.getName(),
-                "-p", DummyLdbcSnbInteractiveDb.SLEEP_DURATION_MILLI_ARG, "0",
-                "-p", LdbcSnbInteractiveWorkload.PARAMETERS_DIRECTORY, TestUtils.getResource("/mirko_test/substitution_parameters").getAbsolutePath(),
-                "-p", LdbcSnbInteractiveWorkload.DATA_DIRECTORY, TestUtils.getResource("/mirko_test").getAbsolutePath(),
-                "-P", ldbcSocnetInteractivePropertiesPath,
-                "-P", ldbcDriverPropertiesPath});
-
-
-        // When
-        Client client = new Client(new LocalControlService(TIME_SOURCE.now().plus(Duration.fromSeconds(2)), configuration), TIME_SOURCE);
-        client.start();
-
-        // Then
-        assertThat(resultFile.length() > 0, is(true));
-    }
-
-    @Ignore
-    @Test
-    public void shouldReproduceMirkosError2() throws DriverConfigurationException, ClientException, WorkloadException, IOException {
-        String ldbcSocnetInteractivePropertiesPath = TestUtils.getResource("/mirko_test/ldbc_socnet_interactive.properties").getAbsolutePath();
-        String ldbcDriverPropertiesPath = TestUtils.getResource("/mirko_test/ldbc_driver_default.properties").getAbsolutePath();
-
-        File resultFile = temporaryFolder.newFile();
-
-        assertThat(resultFile.length(), is(0l));
-        assertThat(new File(ldbcSocnetInteractivePropertiesPath).exists(), is(true));
-        assertThat(new File(ldbcDriverPropertiesPath).exists(), is(true));
-
-        ConsoleAndFileDriverConfiguration configuration = ConsoleAndFileDriverConfiguration.fromArgs(new String[]{
-//                "-" + ConsoleAndFileDriverConfiguration.CALCULATE_WORKLOAD_STATISTICS_ARG,
-                "-" + ConsoleAndFileDriverConfiguration.TIME_COMPRESSION_RATIO_ARG, "0.01",
-                "-" + ConsoleAndFileDriverConfiguration.SPINNER_SLEEP_DURATION_ARG, "0",
-                "-" + ConsoleAndFileDriverConfiguration.TOLERATED_EXECUTION_DELAY_ARG, "10000",
-                "-" + ConsoleAndFileDriverConfiguration.THREADS_ARG, "64",
-
-                "-" + ConsoleAndFileDriverConfiguration.RESULT_FILE_PATH_ARG, resultFile.getAbsolutePath(),
-                "-" + ConsoleAndFileDriverConfiguration.DB_ARG, DummyLdbcSnbInteractiveDb.class.getName(),
-                "-p", DummyLdbcSnbInteractiveDb.SLEEP_DURATION_MILLI_ARG, "0",
-                "-p", LdbcSnbInteractiveWorkload.PARAMETERS_DIRECTORY, TestUtils.getResource("/mirko_test/substitution_parameters").getAbsolutePath(),
-                "-p", LdbcSnbInteractiveWorkload.DATA_DIRECTORY, TestUtils.getResource("/mirko_test").getAbsolutePath(),
-                "-P", ldbcSocnetInteractivePropertiesPath,
-                "-P", ldbcDriverPropertiesPath});
-
-        GeneratorFactory gf = new GeneratorFactory(new RandomDataGeneratorFactory(42L));
-        Workload workload = new LdbcSnbInteractiveWorkload();
-        workload.init(configuration);
-        Iterator<Operation<?>> operations = workload.operations(gf, configuration.operationCount());
-        while (operations.hasNext()) {
-            Operation<?> operation = operations.next();
-            if (operation.getClass().equals(LdbcUpdate1AddPerson.class))
-                System.out.println(String.format("%s %s", operation.getClass().getSimpleName(), operation.scheduledStartTime()));
-        }
+        assertThat(new File(resultDirPath).listFiles().length > 0, is(true));
     }
 }
