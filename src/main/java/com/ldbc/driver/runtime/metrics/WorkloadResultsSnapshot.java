@@ -18,6 +18,9 @@ public class WorkloadResultsSnapshot {
     @JsonProperty(value = "all_metrics")
     private List<OperationMetricsSnapshot> metrics;
 
+    @JsonProperty(value = "format_version")
+    private int formatVersion = 1;
+
     @JsonProperty(value = "unit")
     private TimeUnit unit;
 
