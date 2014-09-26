@@ -82,8 +82,7 @@ public class WorkloadRunner {
         // TODO for the spinner sent to Window scheduler allow delay to reach to the end of window?
 
         this.exactSpinner = new Spinner(TIME_SOURCE, spinnerSleepDuration, executionDelayPolicy);
-        Duration earlySpinnerSleepDuration = Duration.fromMilli(Math.max(earlySpinnerOffsetDuration.asMilli() / 2, spinnerSleepDuration.asMilli()));
-        this.slightlyEarlySpinner = new Spinner(TIME_SOURCE, earlySpinnerSleepDuration, executionDelayPolicy, earlySpinnerOffsetDuration);
+        this.slightlyEarlySpinner = new Spinner(TIME_SOURCE, spinnerSleepDuration, executionDelayPolicy, earlySpinnerOffsetDuration);
         // TODO make this a configuration parameter?
         boolean detailedStatus = true;
         if (statusDisplayInterval.asSeconds() > 0)
@@ -184,7 +183,7 @@ public class WorkloadRunner {
         // TODO move thread pool creation into executor services so workload runner does not have to know about them
         // TODO calculate thread pool sizes
         this.threadPoolForWindowed = new ThreadPoolOperationHandlerExecutor(threadCount);
-        this.threadPoolForBlocking = new SingleThreadOperationHandlerExecutor(errorReporter);
+        this.threadPoolForBlocking = new SameThreadOperationHandlerExecutor();
         this.threadPoolForAsynchronous = new ThreadPoolOperationHandlerExecutor(threadCount);
 
         // Executors

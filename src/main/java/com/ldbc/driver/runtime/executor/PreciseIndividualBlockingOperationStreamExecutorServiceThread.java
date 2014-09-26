@@ -106,7 +106,6 @@ class PreciseIndividualBlockingOperationStreamExecutorServiceThread extends Thre
                         this,
                         String.format("Error encountered while submitting operation for execution\nOperation: %s\n%s", handler.operation(), ConcurrentErrorReporter.stackTraceToString(e))
                 );
-                continue;
             }
         }
         // Wait for final operation handler

@@ -35,7 +35,7 @@ public class SingleThreadOperationHandlerExecutor implements OperationHandlerExe
     }
 
     @Override
-    synchronized public final void execute(OperationHandler<?> operationHandler) throws OperationHandlerExecutorException {
+    public final void execute(OperationHandler<?> operationHandler) throws OperationHandlerExecutorException {
         uncompletedHandlers.incrementAndGet();
         try {
             operationHandlerQueueEventSubmitter.submitEventToQueue(operationHandler);

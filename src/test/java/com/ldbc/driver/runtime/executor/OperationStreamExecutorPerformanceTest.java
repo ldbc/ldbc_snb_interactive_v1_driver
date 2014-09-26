@@ -39,20 +39,36 @@ public class OperationStreamExecutorPerformanceTest {
     private final GeneratorFactory gf = new GeneratorFactory(new RandomDataGeneratorFactory(42l));
 
     /*
-Spinner [Sleep = 0 ms] (OLD thread OLD executor) 100000 ops in 00:00.063 (m:s.ms): 1575.299306868305 ops/ms
-Spinner [Sleep = 0 ms] (OLD thread NEW executor) 100000 ops in 00:00.058 (m:s.ms): 1696.06512890095 ops/ms
-Spinner [Sleep = 0 ms] (NEW thread OLD executor) 100000 ops in 00:00.055 (m:s.ms): 1800.1800180018001 ops/ms
-Spinner [Sleep = 0 ms] (NEW thread NEW executor) 100000 ops in 00:00.049 (m:s.ms): 2012.477359629704 ops/ms
+2014/09/??
 
-Spinner [Sleep = 1 ms] (OLD thread OLD executor) 10000 ops in 00:04.506 (m:s.ms): 2.218859417505026 ops/ms
-Spinner [Sleep = 1 ms] (OLD thread NEW executor) 10000 ops in 00:00.005 (m:s.ms): 1769.9115044247787 ops/ms
-Spinner [Sleep = 1 ms] (NEW thread OLD executor) 10000 ops in 00:00.005 (m:s.ms): 1824.817518248175 ops/ms
-Spinner [Sleep = 1 ms] (NEW thread NEW executor) 10000 ops in 00:00.004 (m:s.ms): 2032.5203252032522 ops/ms
+    Spinner [Sleep = 0 ms] (OLD thread OLD executor) 100000 ops in 00:00.063 (m:s.ms): 1575.299306868305 ops/ms
+    Spinner [Sleep = 0 ms] (OLD thread NEW executor) 100000 ops in 00:00.058 (m:s.ms): 1696.06512890095 ops/ms
+    Spinner [Sleep = 0 ms] (NEW thread OLD executor) 100000 ops in 00:00.055 (m:s.ms): 1800.1800180018001 ops/ms
+    Spinner [Sleep = 0 ms] (NEW thread NEW executor) 100000 ops in 00:00.049 (m:s.ms): 2012.477359629704 ops/ms
 
-Spinner [Sleep = 10 ms] (OLD thread OLD executor) 1000 ops in 00:04.420 (m:s.ms): 0.2262034020991676 ops/ms
-Spinner [Sleep = 10 ms] (OLD thread NEW executor) 1000 ops in 00:00.000 (m:s.ms): 1923.076923076923 ops/ms
-Spinner [Sleep = 10 ms] (NEW thread OLD executor) 1000 ops in 00:00.000 (m:s.ms): 1369.86301369863 ops/ms
-Spinner [Sleep = 10 ms] (NEW thread NEW executor) 1000 ops in 00:00.000 (m:s.ms): 2127.6595744680853 ops/ms
+    Spinner [Sleep = 1 ms] (OLD thread OLD executor) 10000 ops in 00:04.506 (m:s.ms): 2.218859417505026 ops/ms
+    Spinner [Sleep = 1 ms] (OLD thread NEW executor) 10000 ops in 00:00.005 (m:s.ms): 1769.9115044247787 ops/ms
+    Spinner [Sleep = 1 ms] (NEW thread OLD executor) 10000 ops in 00:00.005 (m:s.ms): 1824.817518248175 ops/ms
+    Spinner [Sleep = 1 ms] (NEW thread NEW executor) 10000 ops in 00:00.004 (m:s.ms): 2032.5203252032522 ops/ms
+
+    Spinner [Sleep = 10 ms] (OLD thread OLD executor) 1000 ops in 00:04.420 (m:s.ms): 0.2262034020991676 ops/ms
+    Spinner [Sleep = 10 ms] (OLD thread NEW executor) 1000 ops in 00:00.000 (m:s.ms): 1923.076923076923 ops/ms
+    Spinner [Sleep = 10 ms] (NEW thread OLD executor) 1000 ops in 00:00.000 (m:s.ms): 1369.86301369863 ops/ms
+    Spinner [Sleep = 10 ms] (NEW thread NEW executor) 1000 ops in 00:00.000 (m:s.ms): 2127.6595744680853 ops/ms
+
+2014/09/26
+
+    Spinner [Sleep = 0 ms] (thread pool executor) 100000 ops in 00:00.057 (m:s.ms): 1731.6017316017317 ops/ms
+    Spinner [Sleep = 0 ms] (single thread executor) 100000 ops in 00:00.050 (m:s.ms): 1980.1980198019803 ops/ms
+    Spinner [Sleep = 0 ms] (same thread executor) 100000 ops in 00:00.016 (m:s.ms): 6191.9504643962855 ops/ms
+
+    Spinner [Sleep = 1 ms] (thread pool executor) 100000 ops in 00:00.051 (m:s.ms): 1942.8793471925392 ops/ms
+    Spinner [Sleep = 1 ms] (single thread executor) 100000 ops in 00:00.054 (m:s.ms): 1843.9977872026552 ops/ms
+    Spinner [Sleep = 1 ms] (same thread executor) 100000 ops in 00:00.015 (m:s.ms): 6317.119393556539 ops/ms
+
+    Spinner [Sleep = 10 ms] (thread pool executor) 100000 ops in 00:00.053 (m:s.ms): 1876.172607879925 ops/ms
+    Spinner [Sleep = 10 ms] (single thread executor) 100000 ops in 00:00.047 (m:s.ms): 2100.8403361344535 ops/ms
+    Spinner [Sleep = 10 ms] (same thread executor) 100000 ops in 00:00.015 (m:s.ms): 6377.551020408164 ops/ms
      */
 
     @Test
@@ -78,13 +94,14 @@ Spinner [Sleep = 10 ms] (NEW thread NEW executor) 1000 ops in 00:00.000 (m:s.ms)
     }
 
     public void synchronousExecutorPerformanceTestWithSpinnerDuration(Duration spinnerSleepDuration, int experimentRepetitions, long operationCount) throws CompletionTimeException, MetricsCollectionException, DbException, OperationHandlerExecutorException {
-        List<Duration> newThreadOldExecutorTimes = new ArrayList<>();
-        List<Duration> newThreadNewExecutorTimes = new ArrayList<>();
+        List<Duration> threadPoolExecutorTimes = new ArrayList<>();
+        List<Duration> singleThreadExecutorTimes = new ArrayList<>();
+        List<Duration> sameThreadExecutorTimes = new ArrayList<>();
 
         List<Operation<?>> operations = Lists.newArrayList(getOperations(operationCount));
 
         while (experimentRepetitions-- > 0) {
-            // New Thread Old Executor
+            // Thread Pool Executor
             {
                 ConcurrentErrorReporter errorReporter = new ConcurrentErrorReporter();
                 ExecutionDelayPolicy executionDelayPolicy = new ErrorReportingTerminatingExecutionDelayPolicy(
@@ -106,7 +123,7 @@ Spinner [Sleep = 10 ms] (NEW thread NEW executor) 1000 ops in 00:00.000 (m:s.ms)
                 AtomicBoolean forceThreadToTerminate = new AtomicBoolean(false);
                 TIME_SOURCE.setNowFromMilli(0);
 
-                OperationHandlerExecutor executor = new ThreadPoolOperationHandlerExecutor(2);
+                OperationHandlerExecutor executor = new ThreadPoolOperationHandlerExecutor(1);
                 PreciseIndividualBlockingOperationStreamExecutorServiceThread thread = getNewThread(
                         errorReporter,
                         operations.iterator(),
@@ -121,12 +138,12 @@ Spinner [Sleep = 10 ms] (NEW thread NEW executor) 1000 ops in 00:00.000 (m:s.ms)
                         forceThreadToTerminate
                 );
 
-                newThreadOldExecutorTimes.add(doTest(thread, errorReporter, metricsService, operationCount));
+                threadPoolExecutorTimes.add(doTest(thread, errorReporter, metricsService, operationCount));
                 executor.shutdown(Duration.fromSeconds(1));
                 db.shutdown();
                 metricsService.shutdown();
             }
-            // New Thread New Executor
+            // Single Thread Executor
             {
                 ConcurrentErrorReporter errorReporter = new ConcurrentErrorReporter();
                 ExecutionDelayPolicy executionDelayPolicy = new ErrorReportingTerminatingExecutionDelayPolicy(
@@ -163,17 +180,61 @@ Spinner [Sleep = 10 ms] (NEW thread NEW executor) 1000 ops in 00:00.000 (m:s.ms)
                         forceThreadToTerminate
                 );
 
-                newThreadNewExecutorTimes.add(doTest(thread, errorReporter, metricsService, operationCount));
+                singleThreadExecutorTimes.add(doTest(thread, errorReporter, metricsService, operationCount));
+                executor.shutdown(Duration.fromSeconds(1));
+                db.shutdown();
+                metricsService.shutdown();
+            }
+            // Same Thread Executor
+            {
+                ConcurrentErrorReporter errorReporter = new ConcurrentErrorReporter();
+                ExecutionDelayPolicy executionDelayPolicy = new ErrorReportingTerminatingExecutionDelayPolicy(
+                        TIME_SOURCE,
+                        Duration.fromMilli(10),
+                        errorReporter);
+                Spinner spinner = new Spinner(TIME_SOURCE, spinnerSleepDuration, executionDelayPolicy);
+                Map<Class<? extends Operation>, OperationClassification> operationClassifications = new HashMap<>();
+                operationClassifications.put(TimedNamedOperation1.class, new OperationClassification(SchedulingMode.INDIVIDUAL_BLOCKING, OperationClassification.DependencyMode.NONE));
+                DummyDb db = new DummyDb();
+                Map<String, String> dummyDbParameters = new HashMap<>();
+                dummyDbParameters.put(DummyDb.ALLOWED_DEFAULT_ARG, Boolean.toString(true));
+                db.init(dummyDbParameters);
+                LocalCompletionTimeWriter localCompletionTimeWriter = new DummyLocalCompletionTimeWriter();
+                ConcurrentMetricsService metricsService = new DummyCountingConcurrentMetricsService();
+                DummyGlobalCompletionTimeReader globalCompletionTimeReader = new DummyGlobalCompletionTimeReader();
+                globalCompletionTimeReader.setGlobalCompletionTime(Time.fromNano(0));
+                AtomicBoolean executorHasFinished = new AtomicBoolean(false);
+                AtomicBoolean forceThreadToTerminate = new AtomicBoolean(false);
+                TIME_SOURCE.setNowFromMilli(0);
+
+                OperationHandlerExecutor executor = new SameThreadOperationHandlerExecutor();
+                PreciseIndividualBlockingOperationStreamExecutorServiceThread thread = getNewThread(
+                        errorReporter,
+                        operations.iterator(),
+                        spinner,
+                        executor,
+                        operationClassifications,
+                        db,
+                        localCompletionTimeWriter,
+                        metricsService,
+                        globalCompletionTimeReader,
+                        executorHasFinished,
+                        forceThreadToTerminate
+                );
+
+                sameThreadExecutorTimes.add(doTest(thread, errorReporter, metricsService, operationCount));
                 executor.shutdown(Duration.fromSeconds(1));
                 db.shutdown();
                 metricsService.shutdown();
             }
         }
 
-        Duration meanNewOld = meanDuration(newThreadOldExecutorTimes);
-        System.out.println(String.format("Spinner [Sleep = %s ms] (NEW thread OLD executor) %s ops in %s: %s ops/ms", spinnerSleepDuration.asMilli(), operationCount, meanNewOld, (operationCount / (double) meanNewOld.asNano()) * 1000000));
-        Duration meanNewNew = meanDuration(newThreadNewExecutorTimes);
-        System.out.println(String.format("Spinner [Sleep = %s ms] (NEW thread NEW executor) %s ops in %s: %s ops/ms", spinnerSleepDuration.asMilli(), operationCount, meanNewNew, (operationCount / (double) meanNewNew.asNano()) * 1000000));
+        Duration meanThreadPool = meanDuration(threadPoolExecutorTimes);
+        System.out.println(String.format("Spinner [Sleep = %s ms] (thread pool executor) %s ops in %s: %s ops/ms", spinnerSleepDuration.asMilli(), operationCount, meanThreadPool, (operationCount / (double) meanThreadPool.asNano()) * 1000000));
+        Duration meanSingleThread = meanDuration(singleThreadExecutorTimes);
+        System.out.println(String.format("Spinner [Sleep = %s ms] (single thread executor) %s ops in %s: %s ops/ms", spinnerSleepDuration.asMilli(), operationCount, meanSingleThread, (operationCount / (double) meanSingleThread.asNano()) * 1000000));
+        Duration meanSameThread = meanDuration(sameThreadExecutorTimes);
+        System.out.println(String.format("Spinner [Sleep = %s ms] (same thread executor) %s ops in %s: %s ops/ms", spinnerSleepDuration.asMilli(), operationCount, meanSameThread, (operationCount / (double) meanSameThread.asNano()) * 1000000));
         System.out.println();
     }
 
