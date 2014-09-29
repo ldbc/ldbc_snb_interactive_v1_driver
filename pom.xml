@@ -24,6 +24,8 @@
         <hdrhistogram.version>1.2.1</hdrhistogram.version>
         <guava.version>18.0</guava.version>
         <commmons.cli.version>1.2</commmons.cli.version>
+        <maven.compiler.source>1.7</maven.compiler.source>
+        <maven.compiler.target>1.7</maven.compiler.target>
     </properties>
 
     <dependencies>
