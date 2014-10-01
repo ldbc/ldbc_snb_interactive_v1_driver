@@ -20,7 +20,6 @@ import com.ldbc.driver.testutils.TestUtils;
 import com.ldbc.driver.util.Bucket;
 import com.ldbc.driver.util.Histogram;
 import com.ldbc.driver.util.MapUtils;
-import com.ldbc.driver.workloads.dummy.DummyDb;
 import com.ldbc.driver.workloads.ldbc.snb.interactive.db.DummyLdbcSnbInteractiveDb;
 import com.ldbc.driver.workloads.ldbc.snb.interactive.db.DummyLdbcSnbInteractiveOperationInstances;
 import org.junit.Ignore;
@@ -481,7 +480,7 @@ public class LdbcSnbInteractiveWorkloadReadTest {
 
         ConsoleAndFileDriverConfiguration configuration = ConsoleAndFileDriverConfiguration.fromArgs(new String[]{
                 "-" + ConsoleAndFileDriverConfiguration.RESULT_DIR_PATH_ARG, resultDirPath,
-                "-" + ConsoleAndFileDriverConfiguration.DB_ARG, DummyDb.class.getName(),
+                "-" + ConsoleAndFileDriverConfiguration.DB_ARG, DummyLdbcSnbInteractiveDb.class.getName(),
                 "-p", LdbcSnbInteractiveWorkload.PARAMETERS_DIRECTORY, TestUtils.getResource("/").getAbsolutePath(),
                 "-P", ldbcSnbInteractiveTestPropertiesPath,
                 "-P", ldbcDriverTestPropertiesPath});
@@ -501,7 +500,7 @@ public class LdbcSnbInteractiveWorkloadReadTest {
         Map<String, String> paramsMap = defaultSnbParamsMapWithParametersDir();
         // Driver-specific parameters
         String name = null;
-        String dbClassName = DummyDb.class.getName();
+        String dbClassName = DummyLdbcSnbInteractiveDb.class.getName();
         String workloadClassName = LdbcSnbInteractiveWorkload.class.getName();
         long operationCount = 1000000;
         int threadCount = 1;
@@ -544,7 +543,7 @@ public class LdbcSnbInteractiveWorkloadReadTest {
         Map<String, String> paramsMap = defaultSnbParamsMapWithParametersDir();
         // Driver-specific parameters
         String name = "name";
-        String dbClassName = DummyDb.class.getName();
+        String dbClassName = DummyLdbcSnbInteractiveDb.class.getName();
         String workloadClassName = LdbcSnbInteractiveWorkload.class.getName();
         long operationCount = 1000000;
         int threadCount = 1;

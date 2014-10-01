@@ -14,8 +14,8 @@
     </description>
 
     <properties>
-        <maven.assembly.version>2.4</maven.assembly.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <maven.assembly.version>2.4</maven.assembly.version>
         <jackson.api.version>1.9.4</jackson.api.version>
         <junit.version>4.11</junit.version>
         <commons.io.version>2.4</commons.io.version>

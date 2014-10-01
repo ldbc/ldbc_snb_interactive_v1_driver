@@ -17,7 +17,6 @@ import com.ldbc.driver.temporal.Duration;
 import com.ldbc.driver.temporal.SystemTimeSource;
 import com.ldbc.driver.temporal.TimeSource;
 import com.ldbc.driver.testutils.TestUtils;
-import com.ldbc.driver.workloads.dummy.DummyDb;
 import com.ldbc.driver.workloads.ldbc.snb.interactive.LdbcSnbInteractiveWorkload;
 import com.ldbc.driver.workloads.ldbc.snb.interactive.db.DummyLdbcSnbInteractiveDb;
 import org.junit.Rule;
@@ -157,7 +156,7 @@ public class WorkloadRunnerTest {
             paramsMap.put(LdbcSnbInteractiveWorkload.DATA_DIRECTORY, TestUtils.getResource("/").getAbsolutePath());
             // Driver-specific parameters
             String name = null;
-            String dbClassName = DummyDb.class.getName();
+            String dbClassName = DummyLdbcSnbInteractiveDb.class.getName();
             String workloadClassName = LdbcSnbInteractiveWorkload.class.getName();
             long operationCount = 1000;
             int threadCount = 1;
@@ -180,7 +179,7 @@ public class WorkloadRunnerTest {
                     validationParams, dbValidationFilePath, validateWorkload, calculateWorkloadStatistics, spinnerSleepDuration, printHelp);
 
             controlService = new LocalControlService(TIME_SOURCE.now().plus(Duration.fromMilli(1000)), configuration);
-            db = new DummyDb();
+            db = new DummyLdbcSnbInteractiveDb();
             db.init(configuration.asMap());
             workload = new LdbcSnbInteractiveWorkload();
             workload.init(configuration);
