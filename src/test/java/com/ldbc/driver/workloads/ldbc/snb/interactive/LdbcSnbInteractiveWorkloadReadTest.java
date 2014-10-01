@@ -90,7 +90,7 @@ public class LdbcSnbInteractiveWorkloadReadTest {
         GeneratorFactory gf = new GeneratorFactory(new RandomDataGeneratorFactory(42L));
         Iterator<Operation<?>> operations = workload.operations(gf, MANY_ELEMENTS_COUNT);
         TimeSource timeSource = new SystemTimeSource();
-        Time timeout = timeSource.now().plus(Duration.fromSeconds(10));
+        Time timeout = timeSource.now().plus(Duration.fromSeconds(30));
         boolean workloadGeneratedOperationsBeforeTimeout = TestUtils.generateBeforeTimeout(operations, timeout, timeSource, MANY_ELEMENTS_COUNT);
         assertThat(workloadGeneratedOperationsBeforeTimeout, is(true));
     }
@@ -197,7 +197,7 @@ public class LdbcSnbInteractiveWorkloadReadTest {
         double timeCompressionRatio = 1.0;
         Duration windowedExecutionWindowDuration = Duration.fromSeconds(1);
         Set<String> peerIds = new HashSet<>();
-        Duration toleratedExecutionDelay = Duration.fromMinutes(10);
+        Duration toleratedExecutionDelay = Duration.fromMinutes(60);
         ConsoleAndFileDriverConfiguration.ConsoleAndFileValidationParamOptions validationParams =
                 new ConsoleAndFileDriverConfiguration.ConsoleAndFileValidationParamOptions(validationParamsFile.getAbsolutePath(), 1000);
         String dbValidationFilePath = null;
@@ -271,7 +271,7 @@ public class LdbcSnbInteractiveWorkloadReadTest {
         double timeCompressionRatio = 1.0;
         Duration windowedExecutionWindowDuration = Duration.fromSeconds(1);
         Set<String> peerIds = new HashSet<>();
-        Duration toleratedExecutionDelay = Duration.fromMinutes(10);
+        Duration toleratedExecutionDelay = Duration.fromMinutes(60);
         ConsoleAndFileDriverConfiguration.ConsoleAndFileValidationParamOptions validationParams = null;
         String dbValidationFilePath = null;
         boolean validateWorkload = true;
@@ -484,7 +484,7 @@ public class LdbcSnbInteractiveWorkloadReadTest {
         double timeCompressionRatio = 0.01;
         Duration windowedExecutionWindowDuration = Duration.fromMilli(50);
         Set<String> peerIds = new HashSet<>();
-        Duration toleratedExecutionDelay = Duration.fromSeconds(1);
+        Duration toleratedExecutionDelay = Duration.fromMinutes(60);
         ConsoleAndFileDriverConfiguration.ConsoleAndFileValidationParamOptions validationParams = null;
         String dbValidationFilePath = null;
         boolean validateWorkload = false;
@@ -687,7 +687,7 @@ public class LdbcSnbInteractiveWorkloadReadTest {
         double timeCompressionRatio = 1.0;
         Duration windowedExecutionWindowDuration = Duration.fromSeconds(1);
         Set<String> peerIds = new HashSet<>();
-        Duration toleratedExecutionDelay = Duration.fromMinutes(5);
+        Duration toleratedExecutionDelay = Duration.fromMinutes(60);
         ConsoleAndFileDriverConfiguration.ConsoleAndFileValidationParamOptions validationParams = null;
         String dbValidationFilePath = null;
         boolean validateWorkload = false;

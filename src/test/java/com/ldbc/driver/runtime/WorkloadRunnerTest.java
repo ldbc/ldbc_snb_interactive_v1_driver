@@ -66,7 +66,7 @@ public class WorkloadRunnerTest {
             double timeCompressionRatio = 1.0;
             Duration windowedExecutionWindowDuration = Duration.fromSeconds(1);
             Set<String> peerIds = new HashSet<>();
-            Duration toleratedExecutionDelay = Duration.fromSeconds(30);
+            Duration toleratedExecutionDelay = Duration.fromMinutes(60);
             ConsoleAndFileDriverConfiguration.ConsoleAndFileValidationParamOptions validationParams = null;
             String dbValidationFilePath = null;
             boolean validateWorkload = false;
@@ -167,7 +167,7 @@ public class WorkloadRunnerTest {
             double timeCompressionRatio = 1.0;
             Duration windowedExecutionWindowDuration = Duration.fromSeconds(1);
             Set<String> peerIds = new HashSet<>();
-            Duration toleratedExecutionDelay = Duration.fromSeconds(30);
+            Duration toleratedExecutionDelay = Duration.fromMinutes(60);
             ConsoleAndFileDriverConfiguration.ConsoleAndFileValidationParamOptions validationParams = null;
             String dbValidationFilePath = null;
             boolean validateWorkload = false;
