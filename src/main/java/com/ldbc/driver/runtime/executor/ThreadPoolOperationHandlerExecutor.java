@@ -80,9 +80,9 @@ public class ThreadPoolOperationHandlerExecutor implements OperationHandlerExecu
         @Override
         protected void afterExecute(Runnable operationHandler, Throwable throwable) {
             super.afterExecute(operationHandler, throwable);
-            uncompletedHandlers.decrementAndGet();
             ((OperationHandler) operationHandler).onComplete();
             ((OperationHandler) operationHandler).cleanup();
+            uncompletedHandlers.decrementAndGet();
         }
     }
 }

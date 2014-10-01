@@ -19,7 +19,7 @@ import com.ldbc.driver.temporal.TimeSource;
 import com.ldbc.driver.testutils.TestUtils;
 import com.ldbc.driver.util.Bucket;
 import com.ldbc.driver.util.Histogram;
-import com.ldbc.driver.workloads.ldbc.snb.interactive.db.CsvWritingLdbcSnbInteractiveDb;
+import com.ldbc.driver.workloads.dummy.DummyDb;
 import com.ldbc.driver.workloads.ldbc.snb.interactive.db.DummyLdbcSnbInteractiveDb;
 import com.ldbc.driver.workloads.ldbc.snb.interactive.db.DummyLdbcSnbInteractiveOperationInstances;
 import org.junit.Ignore;
@@ -367,62 +367,14 @@ public class LdbcSnbInteractiveWorkloadTest {
     }
 
     @Test
-    public void shouldWriteToCsvWhileRunningWorkload() throws ClientException, DriverConfigurationException, WorkloadException, IOException {
-        // Given
-        Map<String, String> paramsMap = LdbcSnbInteractiveWorkload.defaultConfig();
-        // LDBC Interactive Workload-specific parameters
-        paramsMap.put(LdbcSnbInteractiveWorkload.PARAMETERS_DIRECTORY, TestUtils.getResource("/").getAbsolutePath());
-        paramsMap.put(LdbcSnbInteractiveWorkload.DATA_DIRECTORY, TestUtils.getResource("/").getAbsolutePath());
-        // CsvDb-specific parameters
-        String csvOutputFilePath = temporaryFolder.newFile().getAbsolutePath();
-        paramsMap.put(CsvWritingLdbcSnbInteractiveDb.CSV_PATH_KEY, csvOutputFilePath);
-        // Driver-specific parameters
-        String name = null;
-        String dbClassName = CsvWritingLdbcSnbInteractiveDb.class.getName();
-        String workloadClassName = LdbcSnbInteractiveWorkload.class.getName();
-        long operationCount = 1000;
-        int threadCount = 1;
-        Duration statusDisplayInterval = Duration.fromSeconds(1);
-        TimeUnit timeUnit = TimeUnit.MILLISECONDS;
-        String resultDirPath = temporaryFolder.newFolder().getAbsolutePath();
-        double timeCompressionRatio = 0.01;
-        Duration windowedExecutionWindowDuration = Duration.fromMilli(50);
-        Set<String> peerIds = new HashSet<>();
-        Duration toleratedExecutionDelay = Duration.fromMinutes(60);
-        ConsoleAndFileDriverConfiguration.ConsoleAndFileValidationParamOptions validationParams = null;
-        String dbValidationFilePath = null;
-        boolean validateWorkload = false;
-        boolean calculateWorkloadStatistics = false;
-        Duration spinnerSleepDuration = Duration.fromMilli(0);
-        boolean printHelp = false;
-
-        assertThat(new File(csvOutputFilePath).length(), is(0l));
-        assertThat(new File(resultDirPath).listFiles().length > 0, is(false));
-
-        DriverConfiguration params = new ConsoleAndFileDriverConfiguration(paramsMap, name, dbClassName, workloadClassName, operationCount,
-                threadCount, statusDisplayInterval, timeUnit, resultDirPath, timeCompressionRatio, windowedExecutionWindowDuration, peerIds, toleratedExecutionDelay,
-                validationParams, dbValidationFilePath, validateWorkload, calculateWorkloadStatistics, spinnerSleepDuration, printHelp);
-
-        // When
-        Client client = new Client(new LocalControlService(TIME_SOURCE.now().plus(Duration.fromSeconds(3)), params), TIME_SOURCE);
-        client.start();
-
-        // Then
-        assertThat(new File(csvOutputFilePath).length() > 0, is(true));
-        assertThat(new File(resultDirPath).listFiles().length > 0, is(true));
-    }
-
-    @Test
     public void shouldLoadFromConfigFile() throws DriverConfigurationException, ClientException, IOException {
         String ldbcSnbInteractiveTestPropertiesPath =
                 new File(DriverConfigurationFileTestHelper.getWorkloadsDirectory(), "ldbc/socnet/interactive/ldbc_socnet_interactive.properties").getAbsolutePath();
         String ldbcDriverTestPropertiesPath =
                 TestUtils.getResource("/ldbc_driver_default.properties").getAbsolutePath();
 
-        String csvOutputFilePath = temporaryFolder.newFile().getAbsolutePath();
         String resultDirPath = temporaryFolder.newFolder().getAbsolutePath();
 
-        assertThat(new File(csvOutputFilePath).length(), is(0l));
         assertThat(new File(resultDirPath).listFiles().length > 0, is(false));
 
         assertThat(new File(ldbcSnbInteractiveTestPropertiesPath).exists(), is(true));
@@ -430,10 +382,9 @@ public class LdbcSnbInteractiveWorkloadTest {
 
         ConsoleAndFileDriverConfiguration configuration = ConsoleAndFileDriverConfiguration.fromArgs(new String[]{
                 "-" + ConsoleAndFileDriverConfiguration.RESULT_DIR_PATH_ARG, resultDirPath,
-                "-" + ConsoleAndFileDriverConfiguration.DB_ARG, CsvWritingLdbcSnbInteractiveDb.class.getName(),
+                "-" + ConsoleAndFileDriverConfiguration.DB_ARG, DummyDb.class.getName(),
                 "-p", LdbcSnbInteractiveWorkload.PARAMETERS_DIRECTORY, TestUtils.getResource("/").getAbsolutePath(),
                 "-p", LdbcSnbInteractiveWorkload.DATA_DIRECTORY, TestUtils.getResource("/").getAbsolutePath(),
-                "-p", CsvWritingLdbcSnbInteractiveDb.CSV_PATH_KEY, csvOutputFilePath,
                 "-P", ldbcSnbInteractiveTestPropertiesPath,
                 "-P", ldbcDriverTestPropertiesPath});
 
@@ -443,7 +394,6 @@ public class LdbcSnbInteractiveWorkloadTest {
         client.start();
 
         // Then
-        assertThat(new File(csvOutputFilePath).length() > 0, is(true));
         assertThat(new File(resultDirPath).listFiles().length > 0, is(true));
     }
 
@@ -453,12 +403,9 @@ public class LdbcSnbInteractiveWorkloadTest {
         // LDBC Interactive Workload-specific parameters
         paramsMap.put(LdbcSnbInteractiveWorkload.PARAMETERS_DIRECTORY, TestUtils.getResource("/").getAbsolutePath());
         paramsMap.put(LdbcSnbInteractiveWorkload.DATA_DIRECTORY, TestUtils.getResource("/").getAbsolutePath());
-        // CsvDb-specific parameters
-        String csvOutputFilePath = temporaryFolder.newFile().getAbsolutePath();
-        paramsMap.put(CsvWritingLdbcSnbInteractiveDb.CSV_PATH_KEY, csvOutputFilePath);
         // Driver-specific parameters
         String name = "name";
-        String dbClassName = CsvWritingLdbcSnbInteractiveDb.class.getName();
+        String dbClassName = DummyDb.class.getName();
         String workloadClassName = LdbcSnbInteractiveWorkload.class.getName();
         long operationCount = 1000000;
         int threadCount = 1;
@@ -476,7 +423,6 @@ public class LdbcSnbInteractiveWorkloadTest {
         Duration spinnerSleepDuration = Duration.fromMilli(0);
         boolean printHelp = false;
 
-        assertThat(new File(csvOutputFilePath).length(), is(0l));
         assertThat(new File(resultDirPath).listFiles().length > 0, is(false));
 
         DriverConfiguration configuration = new ConsoleAndFileDriverConfiguration(paramsMap, name, dbClassName, workloadClassName, operationCount,
@@ -502,7 +448,7 @@ public class LdbcSnbInteractiveWorkloadTest {
         // LDBC Interactive Workload-specific parameters
         params.put(LdbcSnbInteractiveWorkload.PARAMETERS_DIRECTORY, TestUtils.getResource("/").getAbsolutePath());
         params.put(LdbcSnbInteractiveWorkload.DATA_DIRECTORY, TestUtils.getResource("/").getAbsolutePath());
-        // CsvDb-specific parameters
+        // DummyDb-specific parameters
         params.put(DummyLdbcSnbInteractiveDb.SLEEP_DURATION_MILLI_ARG, Long.toString(Duration.fromMilli(1).asMilli()));
         // Driver-specific parameters
         String name = null;
@@ -542,12 +488,9 @@ public class LdbcSnbInteractiveWorkloadTest {
         // LDBC Interactive Workload-specific parameters
         paramsMap.put(LdbcSnbInteractiveWorkload.PARAMETERS_DIRECTORY, TestUtils.getResource("/").getAbsolutePath());
         paramsMap.put(LdbcSnbInteractiveWorkload.DATA_DIRECTORY, TestUtils.getResource("/").getAbsolutePath());
-        // CsvDb-specific parameters
-        String csvOutputFilePath = temporaryFolder.newFile().getAbsolutePath();
-        paramsMap.put(CsvWritingLdbcSnbInteractiveDb.CSV_PATH_KEY, csvOutputFilePath);
         // Driver-specific parameters
         String name = "name";
-        String dbClassName = CsvWritingLdbcSnbInteractiveDb.class.getName();
+        String dbClassName = DummyDb.class.getName();
         String workloadClassName = LdbcSnbInteractiveWorkload.class.getName();
         long operationCount = 1000000;
         int threadCount = 1;
@@ -565,7 +508,6 @@ public class LdbcSnbInteractiveWorkloadTest {
         Duration spinnerSleepDuration = Duration.fromMilli(0);
         boolean printHelp = false;
 
-        assertThat(new File(csvOutputFilePath).length(), is(0l));
         assertThat(new File(resultDirPath).listFiles().length > 0, is(false));
 
         DriverConfiguration configuration = new ConsoleAndFileDriverConfiguration(paramsMap, name, dbClassName, workloadClassName, operationCount,
@@ -620,7 +562,7 @@ public class LdbcSnbInteractiveWorkloadTest {
         // LDBC Interactive Workload-specific parameters
         params.put(LdbcSnbInteractiveWorkload.PARAMETERS_DIRECTORY, TestUtils.getResource("/").getAbsolutePath());
         params.put(LdbcSnbInteractiveWorkload.DATA_DIRECTORY, TestUtils.getResource("/").getAbsolutePath());
-        // CsvDb-specific parameters
+        // DummyDb-specific parameters
         params.put(DummyLdbcSnbInteractiveDb.SLEEP_DURATION_MILLI_ARG, Long.toString(Duration.fromMilli(1).asMilli()));
         // Driver-specific parameters
         String name = null;

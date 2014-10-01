@@ -17,8 +17,8 @@ import com.ldbc.driver.temporal.Duration;
 import com.ldbc.driver.temporal.SystemTimeSource;
 import com.ldbc.driver.temporal.TimeSource;
 import com.ldbc.driver.testutils.TestUtils;
+import com.ldbc.driver.workloads.dummy.DummyDb;
 import com.ldbc.driver.workloads.ldbc.snb.interactive.LdbcSnbInteractiveWorkload;
-import com.ldbc.driver.workloads.ldbc.snb.interactive.db.CsvWritingLdbcSnbInteractiveDb;
 import com.ldbc.driver.workloads.ldbc.snb.interactive.db.DummyLdbcSnbInteractiveDb;
 import org.junit.Rule;
 import org.junit.Test;
@@ -141,8 +141,11 @@ public class WorkloadRunnerTest {
     }
 
     @Test
-    public void shouldRunReadOnlyLdbcWorkloadWithCsvDbAndReturnExpectedMetrics()
+    public void shouldRunReadOnlyLdbcWorkloadAndReturnExpectedMetrics()
             throws DbException, WorkloadException, MetricsCollectionException, IOException, CompletionTimeException, InterruptedException {
+        // TODO expose test to a lot of load to try to create race condition
+        // TODO some handlers have no completed yet, sometimes results is not 100, check where race condition is
+
         ConcurrentControlService controlService = null;
         Db db = null;
         Workload workload = null;
@@ -152,12 +155,9 @@ public class WorkloadRunnerTest {
             Map<String, String> paramsMap = LdbcSnbInteractiveWorkload.defaultReadOnlyConfig();
             paramsMap.put(LdbcSnbInteractiveWorkload.PARAMETERS_DIRECTORY, TestUtils.getResource("/").getAbsolutePath());
             paramsMap.put(LdbcSnbInteractiveWorkload.DATA_DIRECTORY, TestUtils.getResource("/").getAbsolutePath());
-            // CsvDb-specific parameters
-            String csvOutputFilePath = temporaryFolder.newFile().getAbsolutePath();
-            paramsMap.put(CsvWritingLdbcSnbInteractiveDb.CSV_PATH_KEY, csvOutputFilePath);
             // Driver-specific parameters
             String name = null;
-            String dbClassName = CsvWritingLdbcSnbInteractiveDb.class.getName();
+            String dbClassName = DummyDb.class.getName();
             String workloadClassName = LdbcSnbInteractiveWorkload.class.getName();
             long operationCount = 1000;
             int threadCount = 1;
@@ -180,7 +180,7 @@ public class WorkloadRunnerTest {
                     validationParams, dbValidationFilePath, validateWorkload, calculateWorkloadStatistics, spinnerSleepDuration, printHelp);
 
             controlService = new LocalControlService(TIME_SOURCE.now().plus(Duration.fromMilli(1000)), configuration);
-            db = new CsvWritingLdbcSnbInteractiveDb();
+            db = new DummyDb();
             db.init(configuration.asMap());
             workload = new LdbcSnbInteractiveWorkload();
             workload.init(configuration);
