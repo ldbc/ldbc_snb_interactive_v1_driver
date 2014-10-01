@@ -172,6 +172,7 @@ public class ConcurrentCompletionTimeServiceAdvancedTest {
         return Duration.fromMilli(TIME_SOURCE.nowAsMilli() - startTimeAsMilli);
     }
 
+    @Ignore
     @Test
     public void completionTimeServicesShouldBehaveDeterministically() throws InterruptedException, ExecutionException, WorkloadException, CompletionTimeException, DriverConfigurationException {
         ConcurrentErrorReporter errorReporter = new ConcurrentErrorReporter();
