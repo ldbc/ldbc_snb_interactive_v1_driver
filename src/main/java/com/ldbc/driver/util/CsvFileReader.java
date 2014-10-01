@@ -1,13 +1,13 @@
 package com.ldbc.driver.util;
 
+import com.google.common.base.Charsets;
+
 import java.io.*;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
 import java.util.regex.Pattern;
 
 public class CsvFileReader implements Iterator<String[]> {
-    public static final String CSV_SEPARATOR = "\\|";
-
     private final Pattern columnSeparatorPattern;
     private final BufferedReader csvReader;
 
@@ -15,7 +15,7 @@ public class CsvFileReader implements Iterator<String[]> {
     private boolean closed = false;
 
     public CsvFileReader(File csvFile, String regexSeparator) throws FileNotFoundException {
-        this.csvReader = new BufferedReader(new FileReader(csvFile));
+        this.csvReader = new BufferedReader(new InputStreamReader(new FileInputStream(csvFile), Charsets.UTF_8));
         this.columnSeparatorPattern = Pattern.compile(regexSeparator);
     }
 
