@@ -1,9 +1,8 @@
 package com.ldbc.driver.util;
 
-import java.io.BufferedWriter;
-import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
+import com.google.common.base.Charsets;
+
+import java.io.*;
 import java.util.Iterator;
 
 public class CsvFileWriter {
@@ -14,7 +13,8 @@ public class CsvFileWriter {
     private final String columnSeparator;
 
     public CsvFileWriter(File file, String columnSeparator) throws IOException {
-        this.bufferedWriter = new BufferedWriter(new FileWriter(file));
+        this.bufferedWriter = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(file), Charsets.UTF_8));
+
         this.columnSeparator = columnSeparator;
     }
 
