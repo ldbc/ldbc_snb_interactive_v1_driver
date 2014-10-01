@@ -1,6 +1,6 @@
 package com.ldbc.driver.workloads.ldbc.snb.interactive;
 
-import com.google.common.collect.Iterables;
+import com.google.common.collect.Lists;
 
 import java.util.Iterator;
 
@@ -14,7 +14,9 @@ public class LdbcQuery14Result {
     }
 
     public Iterable<? extends Number> personsIdsInPath() {
-        return personIdsInPath;
+        // force to List, as Guava/Jackson magic changes it to a strange collection that breaks equality somewhere
+        // not performance sensitive code path, only used for validation & serialization - not during runs
+        return Lists.newArrayList(personIdsInPath);
     }
 
     public double pathWeight() {

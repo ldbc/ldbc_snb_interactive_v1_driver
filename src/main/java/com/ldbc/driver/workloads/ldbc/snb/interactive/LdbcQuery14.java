@@ -107,7 +107,6 @@ public class LdbcQuery14 extends Operation<List<LdbcQuery14Result>> {
                     )
             );
         }
-
         return results;
     }
 

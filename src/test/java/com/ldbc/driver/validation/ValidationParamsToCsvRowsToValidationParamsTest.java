@@ -17,16 +17,26 @@ public class ValidationParamsToCsvRowsToValidationParamsTest {
     public void validationParametersShouldBeUnchangedAfterSerializingAndMarshalling() {
         // Given
         Workload workload = new LdbcSnbInteractiveWorkload();
-        List<ValidationParam> validationParamsBeforeBeforeSerializing = buildParams();
+        List<ValidationParam> validationParamsBeforeSerializing = buildParams();
 
         // When
-        List<String[]> serializedValidationParamsAsCsvRows =
-                Lists.newArrayList(new ValidationParamsToCsvRows(validationParamsBeforeBeforeSerializing.iterator(), workload, true));
-        List<ValidationParam> validationParamsAfterSerializingAndMarshalling =
-                Lists.newArrayList(new ValidationParamsFromCsvRows(serializedValidationParamsAsCsvRows.iterator(), workload));
+        List<String[]> serializedValidationParamsAsCsvRows = Lists.newArrayList(
+                new ValidationParamsToCsvRows(validationParamsBeforeSerializing.iterator(), workload, true)
+        );
+        List<ValidationParam> validationParamsAfterSerializingAndMarshalling = Lists.newArrayList(
+                new ValidationParamsFromCsvRows(serializedValidationParamsAsCsvRows.iterator(), workload)
+        );
+        List<String[]> serializedValidationParamsAsCsvRowsAfterSerializingAndMarshalling = Lists.newArrayList(
+                new ValidationParamsToCsvRows(validationParamsAfterSerializingAndMarshalling.iterator(), workload, true)
+        );
+        List<ValidationParam> validationParamsAfterSerializingAndMarshallingAndSerializingAndMarshalling = Lists.newArrayList(
+                new ValidationParamsFromCsvRows(serializedValidationParamsAsCsvRowsAfterSerializingAndMarshalling.iterator(), workload)
+        );
 
         // Then
-        assertThat(validationParamsBeforeBeforeSerializing, equalTo(validationParamsAfterSerializingAndMarshalling));
+        assertThat(validationParamsBeforeSerializing, equalTo(validationParamsAfterSerializingAndMarshalling));
+        assertThat(validationParamsBeforeSerializing, equalTo(validationParamsAfterSerializingAndMarshallingAndSerializingAndMarshalling));
+        assertThat(validationParamsAfterSerializingAndMarshalling, equalTo(validationParamsAfterSerializingAndMarshallingAndSerializingAndMarshalling));
     }
 
     List<ValidationParam> buildParams() {

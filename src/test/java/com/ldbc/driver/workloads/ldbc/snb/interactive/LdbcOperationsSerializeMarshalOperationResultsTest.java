@@ -21,12 +21,12 @@ public class LdbcOperationsSerializeMarshalOperationResultsTest {
         int friendDistance1 = 2;
         long friendBirthday1 = 3;
         long friendCreationDate1 = 4;
-        String friendGender1 = "5";
+        String friendGender1 = "ش";
         String friendBrowserUsed1 = "6";
         String friendLocationIp1 = "7";
         Iterable<String> friendEmails1 = Lists.newArrayList("1a", "1b");
         Iterable<String> friendLanguages1 = Lists.newArrayList("1c", "1d");
-        String friendCityName1 = "1";
+        String friendCityName1 = "ᚠ";
         Iterable<List<Object>> friendUniversities1 = Lists.<List<Object>>newArrayList(Lists.<Object>newArrayList("1e", "1f", "1g"));
         Iterable<List<Object>> friendCompanies1 = Lists.<List<Object>>newArrayList(Lists.<Object>newArrayList("1g", "1h", "1i"));
         List<LdbcQuery1Result> before = Lists.newArrayList(new LdbcQuery1Result(
@@ -46,8 +46,13 @@ public class LdbcOperationsSerializeMarshalOperationResultsTest {
         ));
 
         // When
-        String serialized = operation.serializeResult(before);
-        List<LdbcQuery1Result> after = operation.marshalResult(serialized);
+        List<LdbcQuery1Result> after = operation.marshalResult(
+                operation.serializeResult(
+                        operation.marshalResult(
+                                operation.serializeResult(before)
+                        )
+                )
+        );
 
         // Then
         assertThat(before, equalTo(after));
@@ -59,10 +64,10 @@ public class LdbcOperationsSerializeMarshalOperationResultsTest {
         LdbcQuery2 operation = DummyLdbcSnbInteractiveOperationInstances.read2();
 
         long personId1 = 1;
-        String personFirstName1 = "2";
-        String personLastName1 = "3";
+        String personFirstName1 = "さ";
+        String personLastName1 = "丵";
         long postOrCommentId1 = 4;
-        String postOrCommentContent1 = "5";
+        String postOrCommentContent1 = "ش";
         long postOrCommentCreationDate1 = 6;
         List<LdbcQuery2Result> before = Lists.newArrayList(new LdbcQuery2Result(
                 personId1,
@@ -73,8 +78,13 @@ public class LdbcOperationsSerializeMarshalOperationResultsTest {
                 postOrCommentCreationDate1));
 
         // When
-        String serialized = operation.serializeResult(before);
-        List<LdbcQuery2Result> after = operation.marshalResult(serialized);
+        List<LdbcQuery2Result> after = operation.marshalResult(
+                operation.serializeResult(
+                        operation.marshalResult(
+                                operation.serializeResult(before)
+                        )
+                )
+        );
 
         // Then
         assertThat(before, equalTo(after));
@@ -86,8 +96,8 @@ public class LdbcOperationsSerializeMarshalOperationResultsTest {
         LdbcQuery3 operation = DummyLdbcSnbInteractiveOperationInstances.read3();
 
         long personId1 = 1;
-        String personFirstName1 = "2";
-        String personLastName1 = "3";
+        String personFirstName1 = "さ";
+        String personLastName1 = "丵";
         int xCount1 = 4;
         int yCount1 = 5;
         int count1 = 6;
@@ -99,8 +109,13 @@ public class LdbcOperationsSerializeMarshalOperationResultsTest {
                 yCount1,
                 count1));
         // When
-        String serialized = operation.serializeResult(before);
-        List<LdbcQuery3Result> after = operation.marshalResult(serialized);
+        List<LdbcQuery3Result> after = operation.marshalResult(
+                operation.serializeResult(
+                        operation.marshalResult(
+                                operation.serializeResult(before)
+                        )
+                )
+        );
 
         // Then
         assertThat(before, equalTo(after));
@@ -111,15 +126,20 @@ public class LdbcOperationsSerializeMarshalOperationResultsTest {
         // Given
         LdbcQuery4 operation = DummyLdbcSnbInteractiveOperationInstances.read4();
 
-        String tagName1 = "1";
+        String tagName1 = "ᚠ";
         int tagCount1 = 2;
         List<LdbcQuery4Result> before = Lists.newArrayList(new LdbcQuery4Result(
                 tagName1,
                 tagCount1));
 
         // When
-        String serialized = operation.serializeResult(before);
-        List<LdbcQuery4Result> after = operation.marshalResult(serialized);
+        List<LdbcQuery4Result> after = operation.marshalResult(
+                operation.serializeResult(
+                        operation.marshalResult(
+                                operation.serializeResult(before)
+                        )
+                )
+        );
 
         // Then
         assertThat(before, equalTo(after));
@@ -130,15 +150,20 @@ public class LdbcOperationsSerializeMarshalOperationResultsTest {
         // Given
         LdbcQuery5 operation = DummyLdbcSnbInteractiveOperationInstances.read5();
 
-        String forumTitle1 = "1";
+        String forumTitle1 = "ᚠ";
         int postCount1 = 2;
         List<LdbcQuery5Result> before = Lists.newArrayList(new LdbcQuery5Result(
                 forumTitle1,
                 postCount1));
 
         // When
-        String serialized = operation.serializeResult(before);
-        List<LdbcQuery5Result> after = operation.marshalResult(serialized);
+        List<LdbcQuery5Result> after = operation.marshalResult(
+                operation.serializeResult(
+                        operation.marshalResult(
+                                operation.serializeResult(before)
+                        )
+                )
+        );
 
         // Then
         assertThat(before, equalTo(after));
@@ -149,15 +174,20 @@ public class LdbcOperationsSerializeMarshalOperationResultsTest {
         // Given
         LdbcQuery6 operation = DummyLdbcSnbInteractiveOperationInstances.read6();
 
-        String tagName1 = "1";
+        String tagName1 = "ᚠ";
         int tagCount1 = 2;
         List<LdbcQuery6Result> before = Lists.newArrayList(new LdbcQuery6Result(
                 tagName1,
                 tagCount1));
 
         // When
-        String serialized = operation.serializeResult(before);
-        List<LdbcQuery6Result> after = operation.marshalResult(serialized);
+        List<LdbcQuery6Result> after = operation.marshalResult(
+                operation.serializeResult(
+                        operation.marshalResult(
+                                operation.serializeResult(before)
+                        )
+                )
+        );
 
         // Then
         assertThat(before, equalTo(after));
@@ -169,8 +199,8 @@ public class LdbcOperationsSerializeMarshalOperationResultsTest {
         LdbcQuery7 operation = DummyLdbcSnbInteractiveOperationInstances.read7();
 
         long personId1 = 1;
-        String personFirstName1 = "2";
-        String personLastName1 = "3";
+        String personFirstName1 = "さ";
+        String personLastName1 = "丵";
         long likeCreationDate1 = 4;
         long commentOrPostId1 = 5;
         String commentOrPostContent1 = "6";
@@ -187,8 +217,13 @@ public class LdbcOperationsSerializeMarshalOperationResultsTest {
                 isNew1));
 
         // When
-        String serialized = operation.serializeResult(before);
-        List<LdbcQuery7Result> after = operation.marshalResult(serialized);
+        List<LdbcQuery7Result> after = operation.marshalResult(
+                operation.serializeResult(
+                        operation.marshalResult(
+                                operation.serializeResult(before)
+                        )
+                )
+        );
 
         // Then
         assertThat(before, equalTo(after));
@@ -200,8 +235,8 @@ public class LdbcOperationsSerializeMarshalOperationResultsTest {
         LdbcQuery8 operation = DummyLdbcSnbInteractiveOperationInstances.read8();
 
         long personId1 = 1;
-        String personFirstName1 = "2";
-        String personLastName1 = "3";
+        String personFirstName1 = "さ";
+        String personLastName1 = "丵";
         long commentCreationDate1 = 4;
         long commentId1 = 5;
         String commentContent1 = "6";
@@ -214,8 +249,13 @@ public class LdbcOperationsSerializeMarshalOperationResultsTest {
                 commentContent1));
 
         // When
-        String serialized = operation.serializeResult(before);
-        List<LdbcQuery8Result> after = operation.marshalResult(serialized);
+        List<LdbcQuery8Result> after = operation.marshalResult(
+                operation.serializeResult(
+                        operation.marshalResult(
+                                operation.serializeResult(before)
+                        )
+                )
+        );
 
         // Then
         assertThat(before, equalTo(after));
@@ -227,10 +267,10 @@ public class LdbcOperationsSerializeMarshalOperationResultsTest {
         LdbcQuery9 operation = DummyLdbcSnbInteractiveOperationInstances.read9();
 
         long personId1 = 1;
-        String personFirstName1 = "2";
-        String personLastName1 = "3";
+        String personFirstName1 = "さ";
+        String personLastName1 = "丵";
         long commentOrPostId1 = 4;
-        String commentOrPostContent1 = "5";
+        String commentOrPostContent1 = "ش";
         long commentOrPostCreationDate1 = 6;
         List<LdbcQuery9Result> before = Lists.newArrayList(new LdbcQuery9Result(
                 personId1,
@@ -241,8 +281,13 @@ public class LdbcOperationsSerializeMarshalOperationResultsTest {
                 commentOrPostCreationDate1));
 
         // When
-        String serialized = operation.serializeResult(before);
-        List<LdbcQuery9Result> after = operation.marshalResult(serialized);
+        List<LdbcQuery9Result> after = operation.marshalResult(
+                operation.serializeResult(
+                        operation.marshalResult(
+                                operation.serializeResult(before)
+                        )
+                )
+        );
 
         // Then
         assertThat(before, equalTo(after));
@@ -254,11 +299,11 @@ public class LdbcOperationsSerializeMarshalOperationResultsTest {
         LdbcQuery10 operation = DummyLdbcSnbInteractiveOperationInstances.read10();
 
         long personId1 = 1;
-        String personFirstName1 = "2";
-        String personLastName1 = "3";
+        String personFirstName1 = "さ";
+        String personLastName1 = "丵";
         int commonInterestScore1 = 10;
-        String personGender1 = "4";
-        String personCityName1 = "5";
+        String personGender1 = "פ";
+        String personCityName1 = "ش";
         List<LdbcQuery10Result> before = Lists.newArrayList(new LdbcQuery10Result(
                 personId1,
                 personFirstName1,
@@ -268,8 +313,13 @@ public class LdbcOperationsSerializeMarshalOperationResultsTest {
                 personCityName1));
 
         // When
-        String serialized = operation.serializeResult(before);
-        List<LdbcQuery10Result> after = operation.marshalResult(serialized);
+        List<LdbcQuery10Result> after = operation.marshalResult(
+                operation.serializeResult(
+                        operation.marshalResult(
+                                operation.serializeResult(before)
+                        )
+                )
+        );
 
         // Then
         assertThat(before, equalTo(after));
@@ -281,9 +331,9 @@ public class LdbcOperationsSerializeMarshalOperationResultsTest {
         LdbcQuery11 operation = DummyLdbcSnbInteractiveOperationInstances.read11();
 
         long personId1 = 1;
-        String personFirstName1 = "2";
-        String personLastName1 = "3";
-        String organizationName1 = "4";
+        String personFirstName1 = "さ";
+        String personLastName1 = "丵";
+        String organizationName1 = "פ";
         int organizationWorkFromYear1 = 5;
         List<LdbcQuery11Result> before = Lists.newArrayList(new LdbcQuery11Result(
                 personId1,
@@ -293,8 +343,13 @@ public class LdbcOperationsSerializeMarshalOperationResultsTest {
                 organizationWorkFromYear1));
 
         // When
-        String serialized = operation.serializeResult(before);
-        List<LdbcQuery11Result> after = operation.marshalResult(serialized);
+        List<LdbcQuery11Result> after = operation.marshalResult(
+                operation.serializeResult(
+                        operation.marshalResult(
+                                operation.serializeResult(before)
+                        )
+                )
+        );
 
         // Then
         assertThat(before, equalTo(after));
@@ -306,9 +361,9 @@ public class LdbcOperationsSerializeMarshalOperationResultsTest {
         LdbcQuery12 operation = DummyLdbcSnbInteractiveOperationInstances.read12();
 
         long personId1 = 1;
-        String personFirstName1 = "2";
-        String personLastName1 = "3";
-        Iterable<String> tagNames1 = Lists.newArrayList("5", "6");
+        String personFirstName1 = "さ";
+        String personLastName1 = "丵";
+        Iterable<String> tagNames1 = Lists.newArrayList("ش", "6");
         int replyCount1 = 7;
         List<LdbcQuery12Result> before = Lists.newArrayList(new LdbcQuery12Result(
                 personId1,
@@ -318,8 +373,13 @@ public class LdbcOperationsSerializeMarshalOperationResultsTest {
                 replyCount1));
 
         // When
-        String serialized = operation.serializeResult(before);
-        List<LdbcQuery12Result> after = operation.marshalResult(serialized);
+        List<LdbcQuery12Result> after = operation.marshalResult(
+                operation.serializeResult(
+                        operation.marshalResult(
+                                operation.serializeResult(before)
+                        )
+                )
+        );
 
         // Then
         assertThat(before, equalTo(after));
@@ -334,8 +394,13 @@ public class LdbcOperationsSerializeMarshalOperationResultsTest {
         List<LdbcQuery13Result> before = Lists.newArrayList(new LdbcQuery13Result(shortestPathLength1));
 
         // When
-        String serialized = operation.serializeResult(before);
-        List<LdbcQuery13Result> after = operation.marshalResult(serialized);
+        List<LdbcQuery13Result> after = operation.marshalResult(
+                operation.serializeResult(
+                        operation.marshalResult(
+                                operation.serializeResult(before)
+                        )
+                )
+        );
 
         // Then
         assertThat(before, equalTo(after));
@@ -349,8 +414,13 @@ public class LdbcOperationsSerializeMarshalOperationResultsTest {
         List<LdbcQuery14Result> before = Lists.newArrayList(new LdbcQuery14Result(Lists.newArrayList(1l, 2l), 3d));
 
         // When
-        String serialized = operation.serializeResult(before);
-        List<LdbcQuery14Result> after = operation.marshalResult(serialized);
+        List<LdbcQuery14Result> after = operation.marshalResult(
+                operation.serializeResult(
+                        operation.marshalResult(
+                                operation.serializeResult(before)
+                        )
+                )
+        );
 
         // Then
         assertThat(before, equalTo(after));

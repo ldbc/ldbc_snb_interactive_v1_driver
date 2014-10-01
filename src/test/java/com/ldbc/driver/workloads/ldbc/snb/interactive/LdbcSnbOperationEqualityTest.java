@@ -15,13 +15,13 @@ public class LdbcSnbOperationEqualityTest {
     public void ldbcQuery1ShouldDoEqualsCorrectly() {
         // Given
         long personId1 = 1;
-        String personUri1 = "2";
-        String firstName1 = "3";
+        String personUri1 = "ᚠ";
+        String firstName1 = "さ";
         int limit1 = 4;
 
         long personId2 = 5;
-        String personUri2 = "6";
-        String firstName2 = "7";
+        String personUri2 = "丵";
+        String firstName2 = "פ";
         int limit2 = 8;
 
         // When
@@ -41,12 +41,12 @@ public class LdbcSnbOperationEqualityTest {
     public void ldbcQuery2ShouldDoEqualsCorrectly() {
         // Given
         long personId1 = 1;
-        String personUri1 = "2";
+        String personUri1 = "ᚠ";
         Date maxDate1 = new Date(3);
         int limit1 = 4;
 
         long personId2 = 5;
-        String personUri2 = "6";
+        String personUri2 = "丵";
         Date maxDate2 = new Date(7);
         int limit2 = 8;
 
@@ -67,16 +67,16 @@ public class LdbcSnbOperationEqualityTest {
     public void ldbcQuery3ShouldDoEqualsCorrectly() {
         // Given
         long personId1 = 1;
-        String personUri1 = "2";
-        String countryXName1 = "3";
-        String countryYName1 = "4";
+        String personUri1 = "ᚠ";
+        String countryXName1 = "さ";
+        String countryYName1 = "丵";
         Date startDate1 = new Date(5);
         int durationDays1 = 6;
         int limit1 = 7;
 
         long personId2 = 8;
-        String personUri2 = "9";
-        String countryXName2 = "10";
+        String personUri2 = "פ";
+        String countryXName2 = "ش";
         String countryYName2 = "11";
         Date startDate2 = new Date(12);
         int durationDays2 = 13;
@@ -99,13 +99,13 @@ public class LdbcSnbOperationEqualityTest {
     public void ldbcQuery4ShouldDoEqualsCorrectly() {
         // Given
         long personId1 = 1;
-        String personUri1 = "2";
+        String personUri1 = "ᚠ";
         Date startDate1 = new Date(5);
         int durationDays1 = 6;
         int limit1 = 7;
 
         long personId2 = 8;
-        String personUri2 = "9";
+        String personUri2 = "丵";
         Date startDate2 = new Date(12);
         int durationDays2 = 13;
         int limit2 = 14;
@@ -127,12 +127,12 @@ public class LdbcSnbOperationEqualityTest {
     public void ldbcQuery5ShouldDoEqualsCorrectly() {
         // Given
         long personId1 = 1;
-        String personUri1 = "2";
+        String personUri1 = "ᚠ";
         Date minDate1 = new Date(5);
         int limit1 = 7;
 
         long personId2 = 8;
-        String personUri2 = "9";
+        String personUri2 = "丵";
         Date minDate2 = new Date(12);
         int limit2 = 14;
 
@@ -153,13 +153,13 @@ public class LdbcSnbOperationEqualityTest {
     public void ldbcQuery6ShouldDoEqualsCorrectly() {
         // Given
         long personId1 = 1;
-        String personUri1 = "2";
-        String tagName1 = "3";
+        String personUri1 = "ᚠ";
+        String tagName1 = "さ";
         int limit1 = 7;
 
         long personId2 = 8;
-        String personUri2 = "9";
-        String tagName2 = "10";
+        String personUri2 = "丵";
+        String tagName2 = "פ";
         int limit2 = 14;
 
         // When
@@ -179,11 +179,11 @@ public class LdbcSnbOperationEqualityTest {
     public void ldbcQuery7ShouldDoEqualsCorrectly() {
         // Given
         long personId1 = 1;
-        String personUri1 = "2";
+        String personUri1 = "ᚠ";
         int limit1 = 7;
 
         long personId2 = 8;
-        String personUri2 = "9";
+        String personUri2 = "丵";
         int limit2 = 14;
 
         // When
@@ -203,11 +203,11 @@ public class LdbcSnbOperationEqualityTest {
     public void ldbcQuery8ShouldDoEqualsCorrectly() {
         // Given
         long personId1 = 1;
-        String personUri1 = "2";
+        String personUri1 = "ᚠ";
         int limit1 = 7;
 
         long personId2 = 8;
-        String personUri2 = "9";
+        String personUri2 = "丵";
         int limit2 = 14;
 
         // When
@@ -227,12 +227,12 @@ public class LdbcSnbOperationEqualityTest {
     public void ldbcQuery9ShouldDoEqualsCorrectly() {
         // Given
         long personId1 = 1;
-        String personUri1 = "2";
+        String personUri1 = "ᚠ";
         Date maxDate1 = new Date(3);
         int limit1 = 7;
 
         long personId2 = 8;
-        String personUri2 = "9";
+        String personUri2 = "丵";
         Date maxDate2 = new Date(10);
         int limit2 = 14;
 
@@ -253,12 +253,12 @@ public class LdbcSnbOperationEqualityTest {
     public void ldbcQuery10ShouldDoEqualsCorrectly() {
         // Given
         long personId1 = 1;
-        String personUri1 = "2";
+        String personUri1 = "ᚠ";
         int month1 = 3;
         int limit1 = 7;
 
         long personId2 = 8;
-        String personUri2 = "9";
+        String personUri2 = "丵";
         int month2 = 10;
         int limit2 = 12;
 
@@ -279,14 +279,14 @@ public class LdbcSnbOperationEqualityTest {
     public void ldbcQuery11ShouldDoEqualsCorrectly() {
         // Given
         long personId1 = 1;
-        String personUri1 = "2";
-        String countryName1 = "3";
+        String personUri1 = "ᚠ";
+        String countryName1 = "さ";
         int workFromYear1 = 4;
         int limit1 = 7;
 
         long personId2 = 8;
-        String personUri2 = "9";
-        String countryName2 = "10";
+        String personUri2 = "丵";
+        String countryName2 = "פ";
         int workFromYear2 = 11;
         int limit2 = 12;
 
@@ -307,13 +307,13 @@ public class LdbcSnbOperationEqualityTest {
     public void ldbcQuery12ShouldDoEqualsCorrectly() {
         // Given
         long personId1 = 1;
-        String personUri1 = "2";
-        String tagClassName1 = "3";
+        String personUri1 = "ᚠ";
+        String tagClassName1 = "さ";
         int limit1 = 7;
 
         long personId2 = 8;
-        String personUri2 = "9";
-        String tagClassName2 = "10";
+        String personUri2 = "丵";
+        String tagClassName2 = "פ";
         int limit2 = 12;
 
         // When
@@ -333,14 +333,14 @@ public class LdbcSnbOperationEqualityTest {
     public void ldbcQuery13ShouldDoEqualsCorrectly() {
         // Given
         long person1Id1 = 1;
-        String person1Uri1 = "2";
+        String person1Uri1 = "ᚠ";
         long person2Id1 = 3;
-        String person2Uri1 = "4";
+        String person2Uri1 = "丵";
 
         long person1Id2 = 5;
-        String person1Uri2 = "6";
+        String person1Uri2 = "פ";
         long person2Id2 = 7;
-        String person2Uri2 = "8";
+        String person2Uri2 = "ش";
 
         // When
         LdbcQuery13 ldbcQuery1a = new LdbcQuery13(person1Id1, person1Uri1, person2Id1, person2Uri1);
@@ -359,14 +359,14 @@ public class LdbcSnbOperationEqualityTest {
     public void ldbcQuery14ShouldDoEqualsCorrectly() {
         // Given
         long person1Id1 = 1;
-        String person1Uri1 = "2";
+        String person1Uri1 = "ᚠ";
         long person2Id1 = 3;
-        String person2Uri1 = "4";
+        String person2Uri1 = "丵";
 
         long person1Id2 = 5;
-        String person1Uri2 = "6";
+        String person1Uri2 = "פ";
         long person2Id2 = 7;
-        String person2Uri2 = "8";
+        String person2Uri2 = "ش";
 
         // When
         LdbcQuery13 ldbcQuery1a = new LdbcQuery13(person1Id1, person1Uri1, person2Id1, person2Uri1);
@@ -385,13 +385,13 @@ public class LdbcSnbOperationEqualityTest {
     public void ldbcUpdate1ShouldDoEqualsCorrectly() {
         // Given
         long personId1 = 1;
-        String personFirstName1 = "2";
-        String personLastName1 = "3";
-        String gender1 = "4";
+        String personFirstName1 = "ᚠ";
+        String personLastName1 = "さ";
+        String gender1 = "丵";
         Date birthday1 = new Date(5);
         Date creationDate1 = new Date(6);
-        String locationIp1 = "7";
-        String browserUsed1 = "8";
+        String locationIp1 = "פ";
+        String browserUsed1 = "ش";
         long cityId1 = 9;
         List<String> languages1 = Lists.newArrayList("10");
         List<String> emails1 = Lists.newArrayList("11", "12");
@@ -528,13 +528,13 @@ public class LdbcSnbOperationEqualityTest {
     public void ldbcUpdate4ShouldDoEqualsCorrectly() {
         // Given
         long forumId1 = 1;
-        String forumTitle1 = "2";
+        String forumTitle1 = "ᚠ";
         Date creationDate1 = new Date(3);
         long moderatorPersonId1 = 4;
         List<Long> tagIds1 = Lists.newArrayList(5l, 6l);
 
         long forumId2 = 7;
-        String forumTitle2 = "8";
+        String forumTitle2 = "丵";
         Date creationDate2 = new Date(9);
         long moderatorPersonId2 = 10;
         List<Long> tagIds2 = Lists.newArrayList();
@@ -580,11 +580,11 @@ public class LdbcSnbOperationEqualityTest {
     public void ldbcUpdate6ShouldDoEqualsCorrectly() {
         // Given
         long postId1 = 1;
-        String imageFile1 = "2";
+        String imageFile1 = "ᚠ";
         Date creationDate1 = new Date(3);
-        String locationIp1 = "4";
-        String browserUsed1 = "5";
-        String language1 = "6";
+        String locationIp1 = "丵";
+        String browserUsed1 = "פ";
+        String language1 = "ش";
         String content1 = "7";
         int length1 = 8;
         long authorPersonId1 = 9;
@@ -675,9 +675,9 @@ public class LdbcSnbOperationEqualityTest {
         // Given
         long commentId1 = 1;
         Date creationDate1 = new Date(2);
-        String locationIp1 = "3";
-        String browserUsed1 = "4";
-        String content1 = "5";
+        String locationIp1 = "さ";
+        String browserUsed1 = "丵";
+        String content1 = "פ";
         int length1 = 6;
         long authorPersonId1 = 7;
         long countryId1 = 8;
@@ -687,7 +687,7 @@ public class LdbcSnbOperationEqualityTest {
 
         long commentId2 = 11;
         Date creationDate2 = new Date(12);
-        String locationIp2 = "13";
+        String locationIp2 = "ش";
         String browserUsed2 = "14";
         String content2 = "15";
         int length2 = 16;
