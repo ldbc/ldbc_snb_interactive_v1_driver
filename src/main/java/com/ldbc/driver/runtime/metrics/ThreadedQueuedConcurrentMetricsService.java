@@ -80,7 +80,7 @@ public class ThreadedQueuedConcurrentMetricsService implements ConcurrentMetrics
     }
 
     @Override
-    synchronized public void submitOperationResult(OperationResultReport operationResultReport) throws MetricsCollectionException {
+    public void submitOperationResult(OperationResultReport operationResultReport) throws MetricsCollectionException {
         if (shutdown.get()) {
             throw new MetricsCollectionException("Can not submit a result after calling shutdown");
         }

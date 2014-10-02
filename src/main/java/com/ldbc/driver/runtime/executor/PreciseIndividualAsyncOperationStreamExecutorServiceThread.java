@@ -12,12 +12,10 @@ import com.ldbc.driver.runtime.scheduling.Spinner;
 import com.ldbc.driver.temporal.Duration;
 import com.ldbc.driver.temporal.Time;
 import com.ldbc.driver.temporal.TimeSource;
-import com.ldbc.driver.util.Function0;
 
 import java.util.Iterator;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.concurrent.atomic.AtomicInteger;
 
 class PreciseIndividualAsyncOperationStreamExecutorServiceThread extends Thread {
     private static final Duration POLL_INTERVAL_WHILE_WAITING_FOR_LAST_HANDLER_TO_FINISH = Duration.fromMilli(100);
@@ -29,7 +27,6 @@ class PreciseIndividualAsyncOperationStreamExecutorServiceThread extends Thread 
     private final ConcurrentErrorReporter errorReporter;
     private final AtomicBoolean hasFinished;
     private final AtomicBoolean forcedTerminate;
-    private final AtomicInteger runningHandlerCount = new AtomicInteger(0);
     private final HandlerRetriever handlerRetriever;
     private final Duration durationToWaitForAllHandlersToFinishBeforeShutdown;
 
@@ -106,7 +103,7 @@ class PreciseIndividualAsyncOperationStreamExecutorServiceThread extends Thread 
                     this,
                     String.format(
                             "%s operation handlers did not complete in time (within %s of the time the last operation was submitted for execution)",
-                            runningHandlerCount.get(),
+                            operationHandlerExecutor.uncompletedOperationHandlerCount(),
                             durationToWaitForAllHandlersToFinishBeforeShutdown
                     )
             );
@@ -116,9 +113,6 @@ class PreciseIndividualAsyncOperationStreamExecutorServiceThread extends Thread 
 
     private void executeHandler(OperationHandler<?> handler) throws OperationHandlerExecutorException {
         try {
-            runningHandlerCount.incrementAndGet();
-            DecrementRunningHandlerCountFun decrementRunningHandlerCountFun = new DecrementRunningHandlerCountFun(runningHandlerCount);
-            handler.addOnCompleteTask(decrementRunningHandlerCountFun);
             operationHandlerExecutor.execute(handler);
         } catch (OperationHandlerExecutorException e) {
             throw new OperationHandlerExecutorException(
@@ -130,25 +124,11 @@ class PreciseIndividualAsyncOperationStreamExecutorServiceThread extends Thread 
         long pollInterval = POLL_INTERVAL_WHILE_WAITING_FOR_LAST_HANDLER_TO_FINISH.asMilli();
         long timeoutTimeMs = TIME_SOURCE.now().plus(timeoutDuration).asMilli();
         while (TIME_SOURCE.nowAsMilli() < timeoutTimeMs) {
-            if (0 == runningHandlerCount.get()) return true;
+            if (0 == operationHandlerExecutor.uncompletedOperationHandlerCount()) return true;
             if (forcedTerminate.get()) return true;
             Spinner.powerNap(pollInterval);
         }
         return false;
-    }
-
-    private final class DecrementRunningHandlerCountFun implements Function0 {
-        private final AtomicInteger runningHandlerCount;
-
-        private DecrementRunningHandlerCountFun(AtomicInteger runningHandlerCount) {
-            this.runningHandlerCount = runningHandlerCount;
-        }
-
-        @Override
-        public Object apply() {
-            runningHandlerCount.decrementAndGet();
-            return null;
-        }
     }
 
     private static class HandlerRetriever {

@@ -6,7 +6,6 @@ import com.ldbc.driver.OperationHandler;
 import com.ldbc.driver.OperationResultReport;
 import com.ldbc.driver.runtime.ConcurrentErrorReporter;
 import com.ldbc.driver.runtime.QueueEventSubmitter;
-import com.ldbc.driver.runtime.WorkloadRunner;
 import com.ldbc.driver.temporal.Duration;
 
 import java.util.Queue;
@@ -63,7 +62,7 @@ public class SingleThreadOperationHandlerExecutor implements OperationHandlerExe
     }
 
     @Override
-    public long uncompletedOperationHandlerCount() throws OperationHandlerExecutorException {
+    public long uncompletedOperationHandlerCount() {
         return uncompletedHandlers.get();
     }
 }

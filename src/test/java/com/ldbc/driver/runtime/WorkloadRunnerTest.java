@@ -122,14 +122,15 @@ public class WorkloadRunnerTest {
 
             WorkloadResultsSnapshot workloadResults = metricsService.results();
 
-            assertThat(metricsService.results().startTime().gte(controlService.workloadStartTime()), is(true));
-            assertThat(metricsService.results().startTime().lt(controlService.workloadStartTime().plus(configuration.toleratedExecutionDelay())), is(true));
-            assertThat(metricsService.results().latestFinishTime().gt(metricsService.results().startTime()), is(true));
+            assertThat(errorReporter.toString(), errorReporter.errorEncountered(), is(false));
+            assertThat(errorReporter.toString(), metricsService.results().startTime().gte(controlService.workloadStartTime()), is(true));
+            assertThat(errorReporter.toString(), metricsService.results().startTime().lt(controlService.workloadStartTime().plus(configuration.toleratedExecutionDelay())), is(true));
+            assertThat(errorReporter.toString(), metricsService.results().latestFinishTime().gt(metricsService.results().startTime()), is(true));
 
             WorkloadResultsSnapshot workloadResultsFromJson = WorkloadResultsSnapshot.fromJson(workloadResults.toJson());
 
-            assertThat(workloadResults, equalTo(workloadResultsFromJson));
-            assertThat(workloadResults.toJson(), equalTo(workloadResultsFromJson.toJson()));
+            assertThat(errorReporter.toString(), workloadResults, equalTo(workloadResultsFromJson));
+            assertThat(errorReporter.toString(), workloadResults.toJson(), equalTo(workloadResultsFromJson.toJson()));
         } finally {
             if (null != controlService) controlService.shutdown();
             if (null != db) db.shutdown();
@@ -142,9 +143,6 @@ public class WorkloadRunnerTest {
     @Test
     public void shouldRunReadOnlyLdbcWorkloadAndReturnExpectedMetrics()
             throws DbException, WorkloadException, MetricsCollectionException, IOException, CompletionTimeException, InterruptedException {
-        // TODO expose test to a lot of load to try to create race condition
-        // TODO some handlers have no completed yet, sometimes results is not 100, check where race condition is
-
         ConcurrentControlService controlService = null;
         Db db = null;
         Workload workload = null;
@@ -222,15 +220,16 @@ public class WorkloadRunnerTest {
 
             WorkloadResultsSnapshot workloadResults = metricsService.results();
 
-            assertThat(workloadResults.startTime().gte(controlService.workloadStartTime()), is(true));
-            assertThat(workloadResults.startTime().lt(controlService.workloadStartTime().plus(configuration.toleratedExecutionDelay())), is(true));
-            assertThat(workloadResults.latestFinishTime().gt(workloadResults.startTime()), is(true));
-            assertThat(workloadResults.totalOperationCount(), is(operationCount));
+            assertThat(errorReporter.toString(), errorReporter.errorEncountered(), is(false));
+            assertThat(errorReporter.toString(), workloadResults.startTime().gte(controlService.workloadStartTime()), is(true));
+            assertThat(errorReporter.toString(), workloadResults.startTime().lt(controlService.workloadStartTime().plus(configuration.toleratedExecutionDelay())), is(true));
+            assertThat(errorReporter.toString(), workloadResults.latestFinishTime().gt(workloadResults.startTime()), is(true));
+            assertThat(errorReporter.toString(), workloadResults.totalOperationCount(), is(operationCount));
 
             WorkloadResultsSnapshot workloadResultsFromJson = WorkloadResultsSnapshot.fromJson(workloadResults.toJson());
 
-            assertThat(workloadResults, equalTo(workloadResultsFromJson));
-            assertThat(workloadResults.toJson(), equalTo(workloadResultsFromJson.toJson()));
+            assertThat(errorReporter.toString(), workloadResults, equalTo(workloadResultsFromJson));
+            assertThat(errorReporter.toString(), workloadResults.toJson(), equalTo(workloadResultsFromJson.toJson()));
         } finally {
             if (null != controlService) controlService.shutdown();
             if (null != db) db.shutdown();

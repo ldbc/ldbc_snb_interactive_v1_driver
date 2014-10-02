@@ -22,7 +22,7 @@ public class SameThreadOperationHandlerExecutor implements OperationHandlerExecu
     }
 
     @Override
-    public long uncompletedOperationHandlerCount() throws OperationHandlerExecutorException {
+    public long uncompletedOperationHandlerCount() {
         return uncompletedHandlers.get();
     }
 }

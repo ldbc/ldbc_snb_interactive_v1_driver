@@ -6,7 +6,6 @@ import com.ldbc.driver.temporal.Duration;
 import java.util.List;
 import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 
 public class ThreadPoolOperationHandlerExecutor implements OperationHandlerExecutor {
@@ -31,7 +30,7 @@ public class ThreadPoolOperationHandlerExecutor implements OperationHandlerExecu
     }
 
     @Override
-    synchronized public final void execute(OperationHandler<?> operationHandler) {
+    public final void execute(OperationHandler<?> operationHandler) {
         uncompletedHandlers.incrementAndGet();
         threadPoolExecutorService.execute(operationHandler);
     }
@@ -46,7 +45,12 @@ public class ThreadPoolOperationHandlerExecutor implements OperationHandlerExecu
             if (false == allHandlersCompleted) {
                 List<Runnable> stillRunningThreads = threadPoolExecutorService.shutdownNow();
                 if (false == stillRunningThreads.isEmpty()) {
-                    throw new OperationHandlerExecutorException(String.format("Executor shutdown before all handlers could complete - %s are still running", uncompletedHandlers));
+                    String errMsg = String.format(
+                            "%s shutdown before all handlers could complete\n%s handlers mid-execution\n%s handlers uncompleted (includes mid-execution)",
+                            getClass().getSimpleName(),
+                            stillRunningThreads.size(),
+                            uncompletedHandlers);
+                    throw new OperationHandlerExecutorException(errMsg);
                 }
             }
         } catch (Exception e) {
@@ -56,7 +60,7 @@ public class ThreadPoolOperationHandlerExecutor implements OperationHandlerExecu
     }
 
     @Override
-    public long uncompletedOperationHandlerCount() throws OperationHandlerExecutorException {
+    public long uncompletedOperationHandlerCount() {
         return uncompletedHandlers.get();
     }
 

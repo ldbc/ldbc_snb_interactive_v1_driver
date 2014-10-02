@@ -160,12 +160,7 @@ class PreciseIndividualBlockingOperationStreamExecutorServiceThread extends Thre
         long pollInterval = POLL_INTERVAL_WHILE_WAITING_FOR_LAST_HANDLER_TO_FINISH.asMilli();
         long timeoutTimeMs = TIME_SOURCE.now().plus(timeoutDuration).asMilli();
         while (TIME_SOURCE.nowAsMilli() < timeoutTimeMs) {
-            try {
-                if (operationHandlerExecutor.uncompletedOperationHandlerCount() == 0) return true;
-            } catch (OperationHandlerExecutorException e) {
-                errorReporter.reportError(this, "Error reading Uncompleted Operation Handler Count from executor");
-                return false;
-            }
+            if (operationHandlerExecutor.uncompletedOperationHandlerCount() == 0) return true;
             if (forcedTerminate.get()) return true;
             Spinner.powerNap(pollInterval);
         }

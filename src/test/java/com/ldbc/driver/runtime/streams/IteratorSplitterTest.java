@@ -2,9 +2,8 @@ package com.ldbc.driver.runtime.streams;
 
 import com.google.common.collect.Lists;
 import com.ldbc.driver.generator.GeneratorFactory;
-import com.ldbc.driver.runtime.ConcurrentErrorReporter;
 import com.ldbc.driver.generator.RandomDataGeneratorFactory;
-import org.junit.Ignore;
+import com.ldbc.driver.runtime.ConcurrentErrorReporter;
 import org.junit.Test;
 
 import java.util.Iterator;
@@ -13,24 +12,9 @@ import java.util.List;
 import static org.hamcrest.CoreMatchers.*;
 import static org.junit.Assert.assertThat;
 
-@Ignore
 public class IteratorSplitterTest {
-
     @Test
     public void shouldSplitIteratorCorrectlyGivenSimpleCaseAndSmallInput() throws IteratorSplittingException, InterruptedException {
-        for (int i = 0; i < 20; i++) {
-            doShouldSplitIteratorCorrectlyGivenSimpleCaseAndSmallInput();
-        }
-    }
-
-    public void doShouldSplitIteratorCorrectlyGivenSimpleCaseAndSmallInput() throws IteratorSplittingException, InterruptedException {
-        // TODO do this as @Before @After thing
-        // TODO test if this exposes bugs
-//        ThreadPoolLoadGenerator testLoadGenerator = TestUtils.newThreadPoolLoadGenerator(16, Duration.fromMilli(0));
-//        testLoadGenerator.start();
-//        // wait a little while to give load generating threads a chance to start
-//        Spinner.powerNap(Duration.fromSeconds(2).asMilli());
-
         // Given
         List<? extends Number> numbers = Lists.newArrayList(new Byte((byte) 0), new Integer(1), new Long(2), new Double(3), new Double(4));
 
@@ -65,21 +49,10 @@ public class IteratorSplitterTest {
         assertThat(doubleSplit.get(0).doubleValue(), is(3d));
         assertThat(doubleSplit.get(1), instanceOf(Double.class));
         assertThat(doubleSplit.get(1).doubleValue(), is(4d));
-
-        // TODO test if this exposes bugs
-//        boolean loadGeneratorShutdownSuccessfully = testLoadGenerator.shutdown(Duration.fromSeconds(5));
-//        assertThat(loadGeneratorShutdownSuccessfully, is(true));
     }
 
-    @Ignore
     @Test
     public void shouldSplitIteratorCorrectlyGivenSimpleCaseAndLargeInput() throws IteratorSplittingException {
-        for (int i = 0; i < 20; i++) {
-            doShouldSplitIteratorCorrectlyGivenSimpleCaseAndLargeInput();
-        }
-    }
-
-    public void doShouldSplitIteratorCorrectlyGivenSimpleCaseAndLargeInput() throws IteratorSplittingException {
         // Given
         GeneratorFactory generators = new GeneratorFactory(new RandomDataGeneratorFactory(42L));
         Iterable<? extends Number> possibleNumbers = Lists.newArrayList(new Byte((byte) 0), new Integer(1), new Long(2), new Double(3), new Double(4));
@@ -111,12 +84,6 @@ public class IteratorSplitterTest {
 
     @Test
     public void shouldDropUndefinedClassesFromSplit() throws IteratorSplittingException {
-        for (int i = 0; i < 20; i++) {
-            doShouldDropUndefinedClassesFromSplit();
-        }
-    }
-
-    public void doShouldDropUndefinedClassesFromSplit() throws IteratorSplittingException {
         // Given
         List<? extends Number> numbers = Lists.newArrayList(new Byte((byte) 0), new Integer(1), new Long(2), new Double(3), new Double(4));
 
@@ -147,12 +114,6 @@ public class IteratorSplitterTest {
 
     @Test
     public void shouldDropAllWhenNoDefinitionsGiven() throws IteratorSplittingException {
-        for (int i = 0; i < 20; i++) {
-            doShouldDropAllWhenNoDefinitionsGiven();
-        }
-    }
-
-    public void doShouldDropAllWhenNoDefinitionsGiven() throws IteratorSplittingException {
         // Given
         List<? extends Number> numbers = Lists.newArrayList(new Byte((byte) 0), new Integer(1), new Long(2), new Double(3), new Double(4));
 
@@ -167,12 +128,6 @@ public class IteratorSplitterTest {
 
     @Test
     public void shouldThrowExceptionOnUndefinedClassesFromSplitWithLongStream() throws IteratorSplittingException {
-        for (int i = 0; i < 20; i++) {
-            doShouldThrowExceptionOnUndefinedClassesFromSplitWithLongStream();
-        }
-    }
-
-    public void doShouldThrowExceptionOnUndefinedClassesFromSplitWithLongStream() throws IteratorSplittingException {
         // Given
         GeneratorFactory gf = new GeneratorFactory(new RandomDataGeneratorFactory(42l));
 
@@ -200,12 +155,6 @@ public class IteratorSplitterTest {
 
     @Test
     public void shouldThrowExceptionOnUndefinedClassesFromSplitWithVeryShortStream() throws IteratorSplittingException {
-        for (int i = 0; i < 20; i++) {
-            doShouldThrowExceptionOnUndefinedClassesFromSplitWithVeryShortStream();
-        }
-    }
-
-    public void doShouldThrowExceptionOnUndefinedClassesFromSplitWithVeryShortStream() throws IteratorSplittingException {
         // Given
         List<Number> numbers = Lists.<Number>newArrayList(1d);
 
