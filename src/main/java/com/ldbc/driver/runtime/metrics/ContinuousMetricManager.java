@@ -19,7 +19,8 @@ public class ContinuousMetricManager {
     private final TimeUnit unit;
 
     public ContinuousMetricManager(String name, TimeUnit unit, long highestExpectedValue, int numberOfSignificantDigits) {
-        histogram = new Histogram(1, highestExpectedValue, numberOfSignificantDigits);
+        long lowestExpectedValue = 1;
+        histogram = new Histogram(lowestExpectedValue, highestExpectedValue, numberOfSignificantDigits);
         this.name = name;
         this.unit = unit;
     }
