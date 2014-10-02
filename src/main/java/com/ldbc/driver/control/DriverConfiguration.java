@@ -45,6 +45,8 @@ public interface DriverConfiguration {
 
     String helpString();
 
+    boolean ignoreScheduledStartTimes();
+
     String toPropertiesString() throws DriverConfigurationException;
 
     Map<String, String> asMap();

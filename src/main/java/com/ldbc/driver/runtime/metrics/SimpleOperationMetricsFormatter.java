@@ -13,7 +13,7 @@ public class SimpleOperationMetricsFormatter implements OperationMetricsFormatte
 
     public String format(WorkloadResultsSnapshot workloadResultsSnapshot) {
         List<OperationMetricsSnapshot> sortedMetrics = Lists.newArrayList(workloadResultsSnapshot.allMetrics());
-        Collections.sort(sortedMetrics, new OperationMetricsManager.OperationMetricsNameComparator());
+        Collections.sort(sortedMetrics, new OperationTypeMetricsManager.OperationMetricsNameComparator());
 
         StringBuilder sb = new StringBuilder();
         sb.append("Runtime\n");

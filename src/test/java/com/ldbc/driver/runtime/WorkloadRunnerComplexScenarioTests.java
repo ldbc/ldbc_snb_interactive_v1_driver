@@ -39,6 +39,7 @@ public class WorkloadRunnerComplexScenarioTests {
     private final ManualTimeSource TIME_SOURCE = new ManualTimeSource(0);
     private final CompletionTimeServiceAssistant completionTimeServiceAssistant = new CompletionTimeServiceAssistant();
     private final GeneratorFactory gf = new GeneratorFactory(new RandomDataGeneratorFactory(42l));
+    private final boolean recordStartTimeDelayLatency = true;
 
     // TODO consider putting all of the following into one, single background thread:
     // TODO  - completion time service (possibly not, for performance reasons)
@@ -420,7 +421,8 @@ public class WorkloadRunnerComplexScenarioTests {
                 TimeUnit.MILLISECONDS,
                 WORKLOAD_START_TIME_0,
                 ThreadedQueuedConcurrentMetricsService.DEFAULT_HIGHEST_EXPECTED_RUNTIME_DURATION,
-                ThreadedQueuedConcurrentMetricsService.DEFAULT_HIGHEST_EXPECTED_DELAY_DURATION);
+                ThreadedQueuedConcurrentMetricsService.DEFAULT_HIGHEST_EXPECTED_DELAY_DURATION,
+                recordStartTimeDelayLatency);
 
         Set<String> peerIds = new HashSet<>();
         // TODO test also with threaded completion time service implementation
@@ -612,7 +614,8 @@ public class WorkloadRunnerComplexScenarioTests {
                 TimeUnit.MILLISECONDS,
                 WORKLOAD_START_TIME_0,
                 ThreadedQueuedConcurrentMetricsService.DEFAULT_HIGHEST_EXPECTED_RUNTIME_DURATION,
-                ThreadedQueuedConcurrentMetricsService.DEFAULT_HIGHEST_EXPECTED_DELAY_DURATION);
+                ThreadedQueuedConcurrentMetricsService.DEFAULT_HIGHEST_EXPECTED_DELAY_DURATION,
+                recordStartTimeDelayLatency);
 
         Set<String> peerIds = new HashSet<>();
         // TODO test also with threaded completion time service implementation
@@ -781,7 +784,8 @@ public class WorkloadRunnerComplexScenarioTests {
                 TimeUnit.MILLISECONDS,
                 WORKLOAD_START_TIME_0,
                 ThreadedQueuedConcurrentMetricsService.DEFAULT_HIGHEST_EXPECTED_RUNTIME_DURATION,
-                ThreadedQueuedConcurrentMetricsService.DEFAULT_HIGHEST_EXPECTED_DELAY_DURATION);
+                ThreadedQueuedConcurrentMetricsService.DEFAULT_HIGHEST_EXPECTED_DELAY_DURATION,
+                recordStartTimeDelayLatency);
 
         Set<String> peerIds = new HashSet<>();
         // TODO test also with threaded completion time service implementation
@@ -1042,7 +1046,8 @@ public class WorkloadRunnerComplexScenarioTests {
                 TimeUnit.MILLISECONDS,
                 WORKLOAD_START_TIME_0,
                 ThreadedQueuedConcurrentMetricsService.DEFAULT_HIGHEST_EXPECTED_RUNTIME_DURATION,
-                ThreadedQueuedConcurrentMetricsService.DEFAULT_HIGHEST_EXPECTED_DELAY_DURATION);
+                ThreadedQueuedConcurrentMetricsService.DEFAULT_HIGHEST_EXPECTED_DELAY_DURATION,
+                recordStartTimeDelayLatency);
 
         Set<String> peerIds = new HashSet<>();
         // TODO test also with threaded completion time service implementation
@@ -1297,7 +1302,8 @@ public class WorkloadRunnerComplexScenarioTests {
                 TimeUnit.MILLISECONDS,
                 WORKLOAD_START_TIME_0,
                 ThreadedQueuedConcurrentMetricsService.DEFAULT_HIGHEST_EXPECTED_RUNTIME_DURATION,
-                ThreadedQueuedConcurrentMetricsService.DEFAULT_HIGHEST_EXPECTED_DELAY_DURATION);
+                ThreadedQueuedConcurrentMetricsService.DEFAULT_HIGHEST_EXPECTED_DELAY_DURATION,
+                recordStartTimeDelayLatency);
 
         Set<String> peerIds = new HashSet<>();
         // TODO test also with threaded completion time service implementation
@@ -1539,7 +1545,8 @@ public class WorkloadRunnerComplexScenarioTests {
                 TimeUnit.MILLISECONDS,
                 WORKLOAD_START_TIME_0,
                 ThreadedQueuedConcurrentMetricsService.DEFAULT_HIGHEST_EXPECTED_RUNTIME_DURATION,
-                ThreadedQueuedConcurrentMetricsService.DEFAULT_HIGHEST_EXPECTED_DELAY_DURATION);
+                ThreadedQueuedConcurrentMetricsService.DEFAULT_HIGHEST_EXPECTED_DELAY_DURATION,
+                recordStartTimeDelayLatency);
 
         Set<String> peerIds = new HashSet<>();
         // TODO test also with threaded completion time service implementation
@@ -1781,7 +1788,8 @@ public class WorkloadRunnerComplexScenarioTests {
                 TimeUnit.MILLISECONDS,
                 WORKLOAD_START_TIME_0,
                 ThreadedQueuedConcurrentMetricsService.DEFAULT_HIGHEST_EXPECTED_RUNTIME_DURATION,
-                ThreadedQueuedConcurrentMetricsService.DEFAULT_HIGHEST_EXPECTED_DELAY_DURATION);
+                ThreadedQueuedConcurrentMetricsService.DEFAULT_HIGHEST_EXPECTED_DELAY_DURATION,
+                recordStartTimeDelayLatency);
 
         Set<String> peerIds = new HashSet<>();
         // TODO test also with threaded completion time service implementation
@@ -2023,7 +2031,8 @@ public class WorkloadRunnerComplexScenarioTests {
                 TimeUnit.MILLISECONDS,
                 WORKLOAD_START_TIME_0,
                 ThreadedQueuedConcurrentMetricsService.DEFAULT_HIGHEST_EXPECTED_RUNTIME_DURATION,
-                ThreadedQueuedConcurrentMetricsService.DEFAULT_HIGHEST_EXPECTED_DELAY_DURATION);
+                ThreadedQueuedConcurrentMetricsService.DEFAULT_HIGHEST_EXPECTED_DELAY_DURATION,
+                recordStartTimeDelayLatency);
 
         Set<String> peerIds = new HashSet<>();
         // TODO test also with threaded completion time service implementation

@@ -6,26 +6,28 @@ import com.ldbc.driver.temporal.Duration;
 import java.util.Comparator;
 import java.util.concurrent.TimeUnit;
 
-public class OperationMetricsManager {
+public class OperationTypeMetricsManager {
     private static final String METRIC_RUNTIME = "Runtime";
     private static final String METRIC_START_TIME_DELAY = "Start Time Delay";
     private static final String METRIC_RESULT_CODE = "Result Code";
 
     private static final int NUMBER_OF_SIGNIFICANT_HDR_HISTOGRAM_DIGITS = 5;
 
-    private ContinuousMetricManager runTimeMetric;
-    private ContinuousMetricManager startTimeDelayMetric;
-    private DiscreteMetricManager resultCodeMetric;
-    private String name;
-    private TimeUnit durationUnit;
+    private final ContinuousMetricManager runTimeMetric;
+    private final ContinuousMetricManager startTimeDelayMetric;
+    private final DiscreteMetricManager resultCodeMetric;
+    private final String name;
+    private final TimeUnit durationUnit;
+    private final boolean recordStartTimeDelayLatency;
     private long count = 0;
 
-    OperationMetricsManager(String name, TimeUnit durationUnit, Duration highestExpectedRuntimeDuration, Duration highestExpectedDelayDuration) {
+    OperationTypeMetricsManager(String name, TimeUnit durationUnit, Duration highestExpectedRuntimeDuration, Duration highestExpectedDelayDuration, boolean recordStartTimeDelayLatency) {
         this.name = name;
         this.durationUnit = durationUnit;
         this.runTimeMetric = new ContinuousMetricManager(METRIC_RUNTIME, durationUnit, highestExpectedRuntimeDuration.as(durationUnit), NUMBER_OF_SIGNIFICANT_HDR_HISTOGRAM_DIGITS);
         this.startTimeDelayMetric = new ContinuousMetricManager(METRIC_START_TIME_DELAY, durationUnit, highestExpectedDelayDuration.as(durationUnit), NUMBER_OF_SIGNIFICANT_HDR_HISTOGRAM_DIGITS);
         this.resultCodeMetric = new DiscreteMetricManager(METRIC_RESULT_CODE, "Result Code");
+        this.recordStartTimeDelayLatency = recordStartTimeDelayLatency;
     }
 
     void measure(OperationResultReport operationResultReport) throws MetricsCollectionException {
@@ -44,14 +46,16 @@ public class OperationMetricsManager {
         //
         // Measure driver performance - how close is it to target throughput
         //
-        Duration startTimeDelay = operationResultReport.actualStartTime().durationGreaterThan(operationResultReport.scheduledStartTime());
-        long startTimeDelayInAppropriateUnit = startTimeDelay.as(durationUnit);
-        try {
-            startTimeDelayMetric.addMeasurement(startTimeDelayInAppropriateUnit);
-        } catch (MetricsCollectionException e) {
-            String errMsg = String.format("Error encountered adding start time delay measurement [%s %s] to [%s]",
-                    startTimeDelayInAppropriateUnit, durationUnit.toString(), name);
-            throw new MetricsCollectionException(errMsg, e);
+        if (recordStartTimeDelayLatency) {
+            Duration startTimeDelay = operationResultReport.actualStartTime().durationGreaterThan(operationResultReport.scheduledStartTime());
+            long startTimeDelayInAppropriateUnit = startTimeDelay.as(durationUnit);
+            try {
+                startTimeDelayMetric.addMeasurement(startTimeDelayInAppropriateUnit);
+            } catch (MetricsCollectionException e) {
+                String errMsg = String.format("Error encountered adding start time delay measurement [%s %s] to [%s]",
+                        startTimeDelayInAppropriateUnit, durationUnit.toString(), name);
+                throw new MetricsCollectionException(errMsg, e);
+            }
         }
 
         //

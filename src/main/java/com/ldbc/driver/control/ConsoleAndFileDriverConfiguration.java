@@ -16,16 +16,11 @@ import java.util.Map.Entry;
 import java.util.concurrent.TimeUnit;
 
 public class ConsoleAndFileDriverConfiguration implements DriverConfiguration {
-    // TODO add BENCHMARK_NAME
-    // TODO write results to RESULTS_DIR/BENCHMARK_NAME-results.json
-    // TODO write configuration to RESULTS_DIR/BENCHMARK_NAME-configuration.properties
-    // TODO add VERSION to results
-
     // --- REQUIRED ---
     public static final String OPERATION_COUNT_ARG = "oc";
     public static final long OPERATION_COUNT_DEFAULT = 0;
     public static final String OPERATION_COUNT_DEFAULT_STRING = Long.toString(OPERATION_COUNT_DEFAULT);
-    private static final String OPERATION_COUNT_ARG_LONG = "operationcount";
+    private static final String OPERATION_COUNT_ARG_LONG = "operation_count";
     private static final String OPERATION_COUNT_DESCRIPTION = "number of operations to execute";
 
     public static final String WORKLOAD_ARG = "w";
@@ -33,16 +28,21 @@ public class ConsoleAndFileDriverConfiguration implements DriverConfiguration {
     public static final String WORKLOAD_DEFAULT = null;
     public static final String WORKLOAD_DEFAULT_STRING = WORKLOAD_DEFAULT;
     private static final String WORKLOAD_EXAMPLE = com.ldbc.driver.workloads.simple.SimpleWorkload.class.getName();
-    private static final String WORKLOAD_DESCRIPTION = String.format("classname of the Workload to use (e.g. %s)", WORKLOAD_EXAMPLE);
+    private static final String WORKLOAD_DESCRIPTION = String.format("class name of the Workload to use (e.g. %s)", WORKLOAD_EXAMPLE);
 
     public static final String DB_ARG = "db";
     private static final String DB_ARG_LONG = "database";
     public static final String DB_DEFAULT = null;
     public static final String DB_DEFAULT_STRING = DB_DEFAULT;
     private static final String DB_EXAMPLE = com.ldbc.driver.workloads.simple.db.BasicDb.class.getName();
-    private static final String DB_DESCRIPTION = String.format("classname of the DB to use (e.g. %s)", DB_EXAMPLE);
+    private static final String DB_DESCRIPTION = String.format("class name of the DB to use (e.g. %s)", DB_EXAMPLE);
 
     // --- OPTIONAL ---
+    public static final String IGNORE_SCHEDULED_START_TIMES_ARG = "ignore_scheduled_start_times";
+    public static final boolean IGNORE_SCHEDULED_START_TIMES_DEFAULT = false;
+    public static final String IGNORE_SCHEDULED_START_TIMES_DEFAULT_STRING = Boolean.toString(IGNORE_SCHEDULED_START_TIMES_DEFAULT);
+    private static final String IGNORE_SCHEDULED_START_TIMES_DESCRIPTION = "executes operations as fast as possible, ignoring their scheduled start times";
+
     public static final String HELP_ARG = "help";
     public static final boolean HELP_DEFAULT = false;
     public static final String HELP_DEFAULT_STRING = Boolean.toString(HELP_DEFAULT);
@@ -55,31 +55,16 @@ public class ConsoleAndFileDriverConfiguration implements DriverConfiguration {
     private static final String NAME_DESCRIPTION = String.format("name of the benchmark run. default = %s", NAME_DEFAULT);
 
     public static final String RESULT_DIR_PATH_ARG = "rd";
-    private static final String RESULT_DIR_PATH_ARG_LONG = "resultsdir";
+    private static final String RESULT_DIR_PATH_ARG_LONG = "results_dir";
     public static final String RESULT_DIR_PATH_DEFAULT = "results";
     public static final String RESULT_DIR_PATH_DEFAULT_STRING = RESULT_DIR_PATH_DEFAULT;
     private static final String RESULT_DIR_PATH_DESCRIPTION = String.format("directory where benchmark results will be written. default = %s", RESULT_DIR_PATH_DEFAULT);
 
     public static final String THREADS_ARG = "tc";
-    private static final String THREADS_ARG_LONG = "threadcount";
-    public static final int THREADS_DEFAULT = calculateDefaultThreadPoolSize();
+    private static final String THREADS_ARG_LONG = "thread_count";
+    public static final int THREADS_DEFAULT = 1;
     public static final String THREADS_DEFAULT_STRING = Integer.toString(THREADS_DEFAULT);
     private static final String THREADS_DESCRIPTION = String.format("number of worker threads to execute with (default: %s)", THREADS_DEFAULT_STRING);
-
-    public static int calculateDefaultThreadPoolSize() {
-        String[] threadConsumingDriverServices = {
-                "Client/main",
-                "Metrics",
-                "Synchronous Executor",
-                "Asynchronous Executor",
-                "Window Executor",
-                "Status",
-        };
-        int threadsUsedByDriver = threadConsumingDriverServices.length;
-        int totalProcessors = Runtime.getRuntime().availableProcessors();
-        int availableProcessors = totalProcessors - threadsUsedByDriver;
-        return Math.max(1, availableProcessors);
-    }
 
     public static final String SHOW_STATUS_ARG = "s";
     private static final String SHOW_STATUS_ARG_LONG = "status";
@@ -88,30 +73,30 @@ public class ConsoleAndFileDriverConfiguration implements DriverConfiguration {
     private static final String SHOW_STATUS_DESCRIPTION = "interval between status printouts during benchmark execution (0 = disable)";
 
     public static final String DB_VALIDATION_FILE_PATH_ARG = "vdb";
-    private static final String DB_VALIDATION_FILE_PATH_ARG_LONG = "validatedatabase";
+    private static final String DB_VALIDATION_FILE_PATH_ARG_LONG = "validate_database";
     public static final String DB_VALIDATION_FILE_PATH_DEFAULT = null;
     public static final String DB_VALIDATION_FILE_PATH_DEFAULT_STRING = DB_VALIDATION_FILE_PATH_DEFAULT;
     private static final String DB_VALIDATION_FILE_PATH_DESCRIPTION = "path to validation parameters file, if provided database connector will be validated";
 
     public static final String CREATE_VALIDATION_PARAMS_ARG = "cvp";
-    private static final String CREATE_VALIDATION_PARAMS_ARG_LONG = "createvalidationparameters";
+    private static final String CREATE_VALIDATION_PARAMS_ARG_LONG = "create_validation_parameters";
     public static final ConsoleAndFileValidationParamOptions CREATE_VALIDATION_PARAMS_DEFAULT = null;
     private static final String CREATE_VALIDATION_PARAMS_DESCRIPTION = "path to where validation parameters file should be created, and size of validation set to create";
 
     public static final String VALIDATE_WORKLOAD_ARG = "vw";
-    private static final String VALIDATE_WORKLOAD_ARG_LONG = "validateworkload";
+    private static final String VALIDATE_WORKLOAD_ARG_LONG = "validate_workload";
     public static final boolean VALIDATE_WORKLOAD_DEFAULT = false;
     public static final String VALIDATE_WORKLOAD_DEFAULT_STRING = Boolean.toString(VALIDATE_WORKLOAD_DEFAULT);
     private static final String VALIDATE_WORKLOAD_DESCRIPTION = "validate that provided workload implementation is correct";
 
     public static final String CALCULATE_WORKLOAD_STATISTICS_ARG = "stats";
-    private static final String CALCULATE_WORKLOAD_STATISTICS_ARG_LONG = "workloadstatistics";
+    private static final String CALCULATE_WORKLOAD_STATISTICS_ARG_LONG = "workload_statistics";
     public static final boolean CALCULATE_WORKLOAD_STATISTICS_DEFAULT = false;
     public static final String CALCULATE_WORKLOAD_STATISTICS_DEFAULT_STRING = Boolean.toString(CALCULATE_WORKLOAD_STATISTICS_DEFAULT);
     private static final String CALCULATE_WORKLOAD_STATISTICS_DESCRIPTION = "calculate & display workload statistics (operation mix, etc.)";
 
     public static final String TIME_UNIT_ARG = "tu";
-    private static final String TIME_UNIT_ARG_LONG = "timeunit";
+    private static final String TIME_UNIT_ARG_LONG = "time_unit";
     public static final TimeUnit TIME_UNIT_DEFAULT = TimeUnit.MILLISECONDS;
     public static final String TIME_UNIT_DEFAULT_STRING = TIME_UNIT_DEFAULT.toString();
     private static final TimeUnit[] VALID_TIME_UNITS = new TimeUnit[]{TimeUnit.NANOSECONDS, TimeUnit.MICROSECONDS,
@@ -121,32 +106,32 @@ public class ConsoleAndFileDriverConfiguration implements DriverConfiguration {
             Arrays.toString(VALID_TIME_UNITS));
 
     public static final String TIME_COMPRESSION_RATIO_ARG = "tcr";
-    private static final String TIME_COMPRESSION_RATIO_ARG_LONG = "timecompressionratio";
+    private static final String TIME_COMPRESSION_RATIO_ARG_LONG = "time_compression_ratio";
     public static final double TIME_COMPRESSION_RATIO_DEFAULT = 1.0; // 1.0 == do not compress
     public static final String TIME_COMPRESSION_RATIO_DEFAULT_STRING = Double.toString(TIME_COMPRESSION_RATIO_DEFAULT);
     private static final String TIME_COMPRESSION_RATIO_DESCRIPTION = "change duration between operations of workload";
 
     public static final String WINDOWED_EXECUTION_WINDOW_DURATION_ARG = "wd";
-    private static final String WINDOWED_EXECUTION_WINDOW_DURATION_ARG_LONG = "windowduraiton";
+    private static final String WINDOWED_EXECUTION_WINDOW_DURATION_ARG_LONG = "window_duration";
     public static final Duration WINDOWED_EXECUTION_WINDOW_DURATION_DEFAULT = Duration.fromSeconds(1);
     public static final String WINDOWED_EXECUTION_WINDOW_DURATION_DEFAULT_STRING = Long.toString(WINDOWED_EXECUTION_WINDOW_DURATION_DEFAULT.asMilli());
     private static final String WINDOWED_EXECUTION_WINDOW_DURATION_DESCRIPTION = "duration (ms) of execution window used in 'Windowed Execution' mode";
 
 
     public static final String PEER_IDS_ARG = "pids";
-    private static final String PEER_IDS_ARG_LONG = "peeridentifiers";
+    private static final String PEER_IDS_ARG_LONG = "peer_identifiers";
     public static final Set<String> PEER_IDS_DEFAULT = Sets.newHashSet();
     public static final String PEER_IDS_DEFAULT_STRING = serializePeerIdsToCommandline(PEER_IDS_DEFAULT);
     private static final String PEER_IDS_DESCRIPTION = "identifiers/addresses of other driver workers (for distributed mode)";
 
     public static final String TOLERATED_EXECUTION_DELAY_ARG = "del";
-    private static final String TOLERATED_EXECUTION_DELAY_ARG_LONG = "toleratedexecutiondelay";
+    private static final String TOLERATED_EXECUTION_DELAY_ARG_LONG = "tolerated_execution_delay";
     public static final Duration TOLERATED_EXECUTION_DELAY_DEFAULT = Duration.fromMinutes(30);
     public static final String TOLERATED_EXECUTION_DELAY_DEFAULT_STRING = Long.toString(TOLERATED_EXECUTION_DELAY_DEFAULT.asMilli());
     private static final String TOLERATED_EXECUTION_DELAY_DESCRIPTION = "duration (ms) an operation handler may miss its scheduled start time by";
 
-    public static final String SPINNER_SLEEP_DURATION_ARG = "spinwait";
-    private static final String SPINNER_SLEEP_DURATION_ARG_LONG = "spinnerwaitduration";
+    public static final String SPINNER_SLEEP_DURATION_ARG = "spin_wait";
+    private static final String SPINNER_SLEEP_DURATION_ARG_LONG = "spinner_wait_duration";
     public static final Duration SPINNER_SLEEP_DURATION_DEFAULT = Duration.fromMilli(0);
     public static final String SPINNER_SLEEP_DURATION_DEFAULT_STRING = Long.toString(SPINNER_SLEEP_DURATION_DEFAULT.asMilli());
     private static final String SPINNER_SLEEP_DURATION_DESCRIPTION = "sleep duration (ms) injected into busy wait loops (to reduce CPU consumption)";
@@ -165,6 +150,7 @@ public class ConsoleAndFileDriverConfiguration implements DriverConfiguration {
 
     public static Map<String, String> defaultsAsMap() throws DriverConfigurationException {
         Map<String, String> defaultParamsMap = new HashMap<>();
+        defaultParamsMap.put(IGNORE_SCHEDULED_START_TIMES_ARG, IGNORE_SCHEDULED_START_TIMES_DEFAULT_STRING);
         defaultParamsMap.put(HELP_ARG, HELP_DEFAULT_STRING);
         defaultParamsMap.put(OPERATION_COUNT_ARG, OPERATION_COUNT_DEFAULT_STRING);
         defaultParamsMap.put(WORKLOAD_ARG, WORKLOAD_DEFAULT_STRING);
@@ -243,6 +229,7 @@ public class ConsoleAndFileDriverConfiguration implements DriverConfiguration {
             boolean calculateWorkloadStatistics = Boolean.parseBoolean(paramsMap.get(CALCULATE_WORKLOAD_STATISTICS_ARG));
             Duration spinnerSleepDuration = Duration.fromMilli(Long.parseLong(paramsMap.get(SPINNER_SLEEP_DURATION_ARG)));
             boolean printHelp = Boolean.parseBoolean(paramsMap.get(HELP_ARG));
+            boolean ignoreScheduledStartTimes = Boolean.parseBoolean(paramsMap.get(IGNORE_SCHEDULED_START_TIMES_ARG));
             return new ConsoleAndFileDriverConfiguration(
                     paramsMap,
                     name,
@@ -262,7 +249,8 @@ public class ConsoleAndFileDriverConfiguration implements DriverConfiguration {
                     validateWorkload,
                     calculateWorkloadStatistics,
                     spinnerSleepDuration,
-                    printHelp);
+                    printHelp,
+                    ignoreScheduledStartTimes);
         } catch (DriverConfigurationException e) {
             throw new DriverConfigurationException(String.format("%s\n%s", e.getMessage(), commandlineHelpString()), e);
         }
@@ -348,6 +336,9 @@ public class ConsoleAndFileDriverConfiguration implements DriverConfiguration {
 
         if (cmd.hasOption(HELP_ARG))
             cmdParams.put(HELP_ARG, Boolean.toString(true));
+
+        if (cmd.hasOption(IGNORE_SCHEDULED_START_TIMES_ARG))
+            cmdParams.put(IGNORE_SCHEDULED_START_TIMES_ARG, Boolean.toString(true));
 
         if (cmd.hasOption(CREATE_VALIDATION_PARAMS_ARG)) {
             String[] validationParams = cmd.getOptionValues(CREATE_VALIDATION_PARAMS_ARG);
@@ -499,6 +490,9 @@ public class ConsoleAndFileDriverConfiguration implements DriverConfiguration {
         Option printHelpOption = OptionBuilder.withDescription(HELP_DESCRIPTION).create(HELP_ARG);
         options.addOption(printHelpOption);
 
+        Option ignoreScheduledStartTimesOption = OptionBuilder.withDescription(IGNORE_SCHEDULED_START_TIMES_DESCRIPTION).create(IGNORE_SCHEDULED_START_TIMES_ARG);
+        options.addOption(ignoreScheduledStartTimesOption);
+
         Option propertyFileOption = OptionBuilder.hasArgs().withValueSeparator(COMMANDLINE_SEPARATOR_CHAR).withArgName("file1" + COMMANDLINE_SEPARATOR_CHAR + "file2").withDescription(
                 PROPERTY_FILE_DESCRIPTION).create(PROPERTY_FILE_ARG);
         options.addOption(propertyFileOption);
@@ -557,7 +551,8 @@ public class ConsoleAndFileDriverConfiguration implements DriverConfiguration {
                 VALIDATE_WORKLOAD_ARG,
                 CALCULATE_WORKLOAD_STATISTICS_ARG,
                 SPINNER_SLEEP_DURATION_ARG,
-                HELP_ARG
+                HELP_ARG,
+                IGNORE_SCHEDULED_START_TIMES_ARG
         );
     }
 
@@ -599,6 +594,7 @@ public class ConsoleAndFileDriverConfiguration implements DriverConfiguration {
     private final boolean calculateWorkloadStatistics;
     private final Duration spinnerSleepDuration;
     private final boolean printHelp;
+    private final boolean ignoreScheduledStartTimes;
 
     public ConsoleAndFileDriverConfiguration(Map<String, String> paramsMap,
                                              String name,
@@ -618,7 +614,8 @@ public class ConsoleAndFileDriverConfiguration implements DriverConfiguration {
                                              boolean validateWorkload,
                                              boolean calculateWorkloadStatistics,
                                              Duration spinnerSleepDuration,
-                                             boolean printHelp) {
+                                             boolean printHelp,
+                                             boolean ignoreScheduledStartTimes) {
         this.paramsMap = paramsMap;
         this.name = name;
         this.dbClassName = dbClassName;
@@ -638,6 +635,7 @@ public class ConsoleAndFileDriverConfiguration implements DriverConfiguration {
         this.spinnerSleepDuration = spinnerSleepDuration;
         this.printHelp = printHelp;
         this.windowedExecutionWindowDuration = windowedExecutionWindowDuration;
+        this.ignoreScheduledStartTimes = ignoreScheduledStartTimes;
     }
 
     @Override
@@ -739,6 +737,11 @@ public class ConsoleAndFileDriverConfiguration implements DriverConfiguration {
     }
 
     @Override
+    public boolean ignoreScheduledStartTimes() {
+        return ignoreScheduledStartTimes;
+    }
+
+    @Override
     public Map<String, String> asMap() {
         return paramsMap;
     }
@@ -812,6 +815,9 @@ public class ConsoleAndFileDriverConfiguration implements DriverConfiguration {
         boolean newPrintHelp = (newParamsMapWithShortKeys.containsKey(HELP_ARG)) ?
                 Boolean.parseBoolean(newParamsMapWithShortKeys.get(HELP_ARG)) :
                 printHelp;
+        boolean newIgnoreScheduledStartTimes = (newParamsMapWithShortKeys.containsKey(IGNORE_SCHEDULED_START_TIMES_ARG)) ?
+                Boolean.parseBoolean(newParamsMapWithShortKeys.get(IGNORE_SCHEDULED_START_TIMES_ARG)) :
+                ignoreScheduledStartTimes;
 
         return new ConsoleAndFileDriverConfiguration(
                 newOtherParams,
@@ -832,7 +838,8 @@ public class ConsoleAndFileDriverConfiguration implements DriverConfiguration {
                 newValidateWorkload,
                 newCalculateWorkloadStatistics,
                 newSpinnerSleepDuration,
-                newPrintHelp);
+                newPrintHelp,
+                newIgnoreScheduledStartTimes);
     }
 
     public String[] toArgs() throws DriverConfigurationException {
@@ -867,6 +874,8 @@ public class ConsoleAndFileDriverConfiguration implements DriverConfiguration {
         argsList.addAll(Lists.newArrayList("-" + SPINNER_SLEEP_DURATION_ARG, Long.toString(spinnerSleepDuration.asMilli())));
         if (printHelp)
             argsList.add("-" + HELP_ARG);
+        if (ignoreScheduledStartTimes)
+            argsList.add("-" + IGNORE_SCHEDULED_START_TIMES_ARG);
         // additional, workload/database-related params
         Map<String, String> additionalParameters = MapUtils.copyExcludingKeys(paramsMap, coreConfigurationParameterKeys());
         for (Entry<String, String> additionalParam : MapUtils.sortedEntrySet(additionalParameters)) {
@@ -965,6 +974,10 @@ public class ConsoleAndFileDriverConfiguration implements DriverConfiguration {
         sb.append("# BOOLEAN\n");
         sb.append(HELP_ARG).append("=").append(printHelp).append("\n");
         sb.append("\n");
+        sb.append("# executes operations as fast as possible, ignoring their scheduled start times\n");
+        sb.append("# BOOLEAN\n");
+        sb.append(IGNORE_SCHEDULED_START_TIMES_ARG).append("=").append(ignoreScheduledStartTimes).append("\n");
+        sb.append("\n");
         sb.append("# ***************************************************************\n");
         sb.append("# *** the following should be set by workload implementations ***\n");
         sb.append("# ***************************************************************\n");
@@ -1034,6 +1047,7 @@ public class ConsoleAndFileDriverConfiguration implements DriverConfiguration {
         sb.append("\t").append(String.format("%1$-" + padRightDistance + "s", "Calculate Workload Statistics:")).append(calculateWorkloadStatistics).append("\n");
         sb.append("\t").append(String.format("%1$-" + padRightDistance + "s", "Spinner Sleep Duration:")).append(spinnerSleepDuration.asMilli()).append(" (ms) / ").append(spinnerSleepDuration).append("\n");
         sb.append("\t").append(String.format("%1$-" + padRightDistance + "s", "Print Help:")).append(printHelp).append("\n");
+        sb.append("\t").append(String.format("%1$-" + padRightDistance + "s", "Ignore Scheduled Start Times:")).append(ignoreScheduledStartTimes).append("\n");
 
         Set<String> excludedKeys = coreConfigurationParameterKeys();
         Map<String, String> filteredParamsMap = MapUtils.copyExcludingKeys(paramsMap, excludedKeys);
@@ -1055,6 +1069,7 @@ public class ConsoleAndFileDriverConfiguration implements DriverConfiguration {
         if (calculateWorkloadStatistics != that.calculateWorkloadStatistics) return false;
         if (operationCount != that.operationCount) return false;
         if (printHelp != that.printHelp) return false;
+        if (ignoreScheduledStartTimes != that.ignoreScheduledStartTimes) return false;
         if (threadCount != that.threadCount) return false;
         if (Double.compare(that.timeCompressionRatio, timeCompressionRatio) != 0) return false;
         if (validateWorkload != that.validateWorkload) return false;
@@ -1106,6 +1121,7 @@ public class ConsoleAndFileDriverConfiguration implements DriverConfiguration {
         result = 31 * result + (calculateWorkloadStatistics ? 1 : 0);
         result = 31 * result + (spinnerSleepDuration != null ? spinnerSleepDuration.hashCode() : 0);
         result = 31 * result + (printHelp ? 1 : 0);
+        result = 31 * result + (ignoreScheduledStartTimes ? 1 : 0);
         return result;
     }
 

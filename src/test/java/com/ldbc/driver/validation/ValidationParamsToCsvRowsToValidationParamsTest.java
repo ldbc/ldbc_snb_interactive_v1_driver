@@ -2,35 +2,73 @@ package com.ldbc.driver.validation;
 
 import com.google.common.collect.Lists;
 import com.ldbc.driver.Workload;
+import com.ldbc.driver.util.CsvFileReader;
+import com.ldbc.driver.util.CsvFileWriter;
 import com.ldbc.driver.workloads.ldbc.snb.interactive.*;
 import com.ldbc.driver.workloads.ldbc.snb.interactive.db.DummyLdbcSnbInteractiveOperationInstances;
 import com.ldbc.driver.workloads.ldbc.snb.interactive.db.DummyLdbcSnbInteractiveOperationResultInstances;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.TemporaryFolder;
 
+import java.io.File;
+import java.io.IOException;
 import java.util.List;
 
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.junit.Assert.assertThat;
 
 public class ValidationParamsToCsvRowsToValidationParamsTest {
+    @Rule
+    public TemporaryFolder temporaryFolder = new TemporaryFolder();
+
     @Test
-    public void validationParametersShouldBeUnchangedAfterSerializingAndMarshalling() {
-        // Given
+    public void validationParametersShouldBeUnchangedAfterSerializingAndMarshalling() throws IOException {
         Workload workload = new LdbcSnbInteractiveWorkload();
+
+        // (1) params
         List<ValidationParam> validationParamsBeforeSerializing = buildParams();
 
-        // When
+        // (2) original->csv_rows
         List<String[]> serializedValidationParamsAsCsvRows = Lists.newArrayList(
                 new ValidationParamsToCsvRows(validationParamsBeforeSerializing.iterator(), workload, true)
         );
-        List<ValidationParam> validationParamsAfterSerializingAndMarshalling = Lists.newArrayList(
-                new ValidationParamsFromCsvRows(serializedValidationParamsAsCsvRows.iterator(), workload)
+
+        // (3) csv_rows->csv_file
+        File csvFile1 = temporaryFolder.newFile();
+        CsvFileWriter csvFileWriter1 = new CsvFileWriter(csvFile1, CsvFileWriter.DEFAULT_COLUMN_SEPARATOR);
+        csvFileWriter1.writeRows(serializedValidationParamsAsCsvRows.iterator());
+        csvFileWriter1.close();
+
+        // (4) csv_file->csv_rows
+        List<String[]> csvFile1Rows = Lists.newArrayList(
+                new CsvFileReader(csvFile1, CsvFileReader.DEFAULT_COLUMN_SEPARATOR_PATTERN)
         );
+
+        // (5) csv_rows->params
+        List<ValidationParam> validationParamsAfterSerializingAndMarshalling = Lists.newArrayList(
+                new ValidationParamsFromCsvRows(csvFile1Rows.iterator(), workload)
+        );
+
+        // (6) params->csv_rows
         List<String[]> serializedValidationParamsAsCsvRowsAfterSerializingAndMarshalling = Lists.newArrayList(
                 new ValidationParamsToCsvRows(validationParamsAfterSerializingAndMarshalling.iterator(), workload, true)
         );
+
+        // (7) csv_rows->csv_file
+        File csvFile2 = temporaryFolder.newFile();
+        CsvFileWriter csvFileWriter2 = new CsvFileWriter(csvFile2, CsvFileWriter.DEFAULT_COLUMN_SEPARATOR);
+        csvFileWriter2.writeRows(serializedValidationParamsAsCsvRowsAfterSerializingAndMarshalling.iterator());
+        csvFileWriter2.close();
+
+        // (8) csv_file->csv_rows
+        List<String[]> csvFile2Rows = Lists.newArrayList(
+                new CsvFileReader(csvFile2, CsvFileReader.DEFAULT_COLUMN_SEPARATOR_PATTERN)
+        );
+
+        // (8) csv_rows->params
         List<ValidationParam> validationParamsAfterSerializingAndMarshallingAndSerializingAndMarshalling = Lists.newArrayList(
-                new ValidationParamsFromCsvRows(serializedValidationParamsAsCsvRowsAfterSerializingAndMarshalling.iterator(), workload)
+                new ValidationParamsFromCsvRows(csvFile2Rows.iterator(), workload)
         );
 
         // Then

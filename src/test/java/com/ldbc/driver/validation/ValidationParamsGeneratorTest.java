@@ -59,11 +59,11 @@ public class ValidationParamsGeneratorTest {
 
         Iterator<String[]> validationParamsAsCsvRows = new ValidationParamsToCsvRows(validationParamsBeforeList.iterator(), workload, true);
 
-        CsvFileWriter csvFileWriter = new CsvFileWriter(tempValidationFile, CsvFileWriter.DEFAULT_COLUMN_SEPARATOR_STRING);
+        CsvFileWriter csvFileWriter = new CsvFileWriter(tempValidationFile, CsvFileWriter.DEFAULT_COLUMN_SEPARATOR);
         csvFileWriter.writeRows(validationParamsAsCsvRows);
         csvFileWriter.close();
 
-        CsvFileReader csvFileReader = new CsvFileReader(tempValidationFile, CsvFileWriter.DEFAULT_COLUMN_SEPARATOR_REGEX_STRING);
+        CsvFileReader csvFileReader = new CsvFileReader(tempValidationFile, CsvFileReader.DEFAULT_COLUMN_SEPARATOR_PATTERN);
         ValidationParamsFromCsvRows validationParamsAfter = new ValidationParamsFromCsvRows(csvFileReader, workload);
         List<ValidationParam> validationParamsAfterList = Lists.newArrayList(validationParamsAfter);
 

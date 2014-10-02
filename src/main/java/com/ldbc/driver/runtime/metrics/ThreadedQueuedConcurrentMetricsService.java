@@ -31,7 +31,8 @@ public class ThreadedQueuedConcurrentMetricsService implements ConcurrentMetrics
                                                                                           TimeUnit unit,
                                                                                           Time initialTime,
                                                                                           Duration maxRuntimeDuration,
-                                                                                          Duration maxToleratedDelayDuration) {
+                                                                                          Duration maxToleratedDelayDuration,
+                                                                                          boolean recordStartTimeDelayLatency) {
         Queue<MetricsCollectionEvent> queue = new ConcurrentLinkedQueue<>();
         return new ThreadedQueuedConcurrentMetricsService(
                 timeSource,
@@ -40,7 +41,8 @@ public class ThreadedQueuedConcurrentMetricsService implements ConcurrentMetrics
                 initialTime,
                 maxRuntimeDuration,
                 maxToleratedDelayDuration,
-                queue);
+                queue,
+                recordStartTimeDelayLatency);
     }
 
     public static ThreadedQueuedConcurrentMetricsService newInstanceUsingBlockingQueue(TimeSource timeSource,
@@ -48,7 +50,8 @@ public class ThreadedQueuedConcurrentMetricsService implements ConcurrentMetrics
                                                                                        TimeUnit unit,
                                                                                        Time initialTime,
                                                                                        Duration maxRuntimeDuration,
-                                                                                       Duration maxToleratedDelayDuration) {
+                                                                                       Duration maxToleratedDelayDuration,
+                                                                                       boolean recordStartTimeDelayLatency) {
         Queue<MetricsCollectionEvent> queue = new LinkedTransferQueue<>();
         return new ThreadedQueuedConcurrentMetricsService(
                 timeSource,
@@ -57,7 +60,8 @@ public class ThreadedQueuedConcurrentMetricsService implements ConcurrentMetrics
                 initialTime,
                 maxRuntimeDuration,
                 maxToleratedDelayDuration,
-                queue);
+                queue,
+                recordStartTimeDelayLatency);
     }
 
     private ThreadedQueuedConcurrentMetricsService(TimeSource timeSource,
@@ -66,7 +70,8 @@ public class ThreadedQueuedConcurrentMetricsService implements ConcurrentMetrics
                                                    Time initialTime,
                                                    Duration maxRuntimeDuration,
                                                    Duration maxToleratedDelayDuration,
-                                                   Queue<MetricsCollectionEvent> queue) {
+                                                   Queue<MetricsCollectionEvent> queue,
+                                                   boolean recordStartTimeDelayLatency) {
         this.TIME_SOURCE = timeSource;
 
         this.queueEventSubmitter = QueueEventSubmitter.queueEventSubmitterFor(queue);
@@ -75,7 +80,7 @@ public class ThreadedQueuedConcurrentMetricsService implements ConcurrentMetrics
         threadedQueuedConcurrentMetricsServiceThread = new ThreadedQueuedConcurrentMetricsServiceThread(
                 errorReporter,
                 queue,
-                new MetricsManager(TIME_SOURCE, unit, initialTime, maxRuntimeDuration, maxToleratedDelayDuration));
+                new MetricsManager(TIME_SOURCE, unit, initialTime, maxRuntimeDuration, maxToleratedDelayDuration, recordStartTimeDelayLatency));
         threadedQueuedConcurrentMetricsServiceThread.start();
     }
 

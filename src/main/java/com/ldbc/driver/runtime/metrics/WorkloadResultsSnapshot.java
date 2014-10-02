@@ -51,7 +51,7 @@ public class WorkloadResultsSnapshot {
 
     public WorkloadResultsSnapshot(Map<String, OperationMetricsSnapshot> metrics, Time startTime, Time latestFinishTime, long operationCount, TimeUnit unit) {
         this.metrics = Lists.newArrayList(metrics.values());
-        Collections.sort(this.metrics, new OperationMetricsManager.OperationMetricsNameComparator());
+        Collections.sort(this.metrics, new OperationTypeMetricsManager.OperationMetricsNameComparator());
         this.startTimeAsUnit = startTime.as(unit);
         this.latestFinishTimeAsUnit = latestFinishTime.as(unit);
         this.totalRunDurationAsUnit = latestFinishTime.durationGreaterThan(startTime).as(unit);
@@ -67,7 +67,7 @@ public class WorkloadResultsSnapshot {
     @JsonProperty(value = "all_metrics")
     private void setAllMetrics(List<OperationMetricsSnapshot> metrics) {
         this.metrics = metrics;
-        Collections.sort(metrics, new OperationMetricsManager.OperationMetricsNameComparator());
+        Collections.sort(metrics, new OperationTypeMetricsManager.OperationMetricsNameComparator());
     }
 
     public Time startTime() {

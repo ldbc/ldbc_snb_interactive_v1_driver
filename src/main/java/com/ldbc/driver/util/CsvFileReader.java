@@ -8,7 +8,7 @@ import java.util.NoSuchElementException;
 import java.util.regex.Pattern;
 
 public class CsvFileReader implements Iterator<String[]> {
-    public static final Pattern COLUMN_SEPARATOR_PATTERN = Pattern.compile("\\|");
+    public static final Pattern DEFAULT_COLUMN_SEPARATOR_PATTERN = Pattern.compile("\\|");
     private final Pattern columnSeparatorPattern;
     private final BufferedReader csvReader;
 
@@ -16,7 +16,7 @@ public class CsvFileReader implements Iterator<String[]> {
     private boolean closed = false;
 
     public CsvFileReader(File csvFile) throws FileNotFoundException {
-        this(csvFile, COLUMN_SEPARATOR_PATTERN);
+        this(csvFile, DEFAULT_COLUMN_SEPARATOR_PATTERN);
     }
 
     public CsvFileReader(File csvFile, String regexSeparator) throws FileNotFoundException {

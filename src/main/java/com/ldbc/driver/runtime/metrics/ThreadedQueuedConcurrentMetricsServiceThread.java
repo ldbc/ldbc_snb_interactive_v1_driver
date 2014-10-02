@@ -37,7 +37,7 @@ public class ThreadedQueuedConcurrentMetricsServiceThread extends Thread {
                     case SUBMIT_RESULT:
                         OperationResultReport result = ((MetricsCollectionEvent.SubmitResultEvent) event).result();
                         try {
-                            collectResultMetrics(result);
+                            metricsManager.measure(result);
                         } catch (MetricsCollectionException e) {
                             errorReporter.reportError(
                                     this,
@@ -80,15 +80,6 @@ public class ThreadedQueuedConcurrentMetricsServiceThread extends Thread {
                         String.format("Encountered unexpected exception\n%s", ConcurrentErrorReporter.stackTraceToString(e)));
                 return;
             }
-        }
-    }
-
-    private void collectResultMetrics(OperationResultReport operationResultReport) throws MetricsCollectionException {
-        try {
-            metricsManager.measure(operationResultReport);
-        } catch (Exception e) {
-            String errMsg = String.format("Error encountered while logging result:\n\t%s", operationResultReport);
-            throw new MetricsCollectionException(errMsg, e);
         }
     }
 }

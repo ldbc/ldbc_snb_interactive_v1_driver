@@ -17,18 +17,24 @@ import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
 
 public class ThreadedQueuedConcurrentMetricsServiceTest {
-    TimeSource TIME_SOURCE = new SystemTimeSource();
-    Time INITIAL_START_TIME = Time.fromMilli(0);
+    private TimeSource timeSource = new SystemTimeSource();
+    private Time INITIAL_START_TIME = Time.fromMilli(0);
 
     @Test
     public void shouldNotAcceptOperationResultsAfterShutdownWhenBlockingQueueIsUsed() throws WorkloadException, MetricsCollectionException {
+        doShouldNotAcceptOperationResultsAfterShutdownWhenBlockingQueueIsUsed(true);
+        doShouldNotAcceptOperationResultsAfterShutdownWhenBlockingQueueIsUsed(false);
+    }
+
+    public void doShouldNotAcceptOperationResultsAfterShutdownWhenBlockingQueueIsUsed(boolean recordStartTimeDelayLatency) throws WorkloadException, MetricsCollectionException {
         ConcurrentMetricsService metricsService = ThreadedQueuedConcurrentMetricsService.newInstanceUsingBlockingQueue(
-                TIME_SOURCE,
+                timeSource,
                 new ConcurrentErrorReporter(),
                 TimeUnit.MILLISECONDS,
                 INITIAL_START_TIME,
                 ThreadedQueuedConcurrentMetricsService.DEFAULT_HIGHEST_EXPECTED_RUNTIME_DURATION,
-                ThreadedQueuedConcurrentMetricsService.DEFAULT_HIGHEST_EXPECTED_DELAY_DURATION);
+                ThreadedQueuedConcurrentMetricsService.DEFAULT_HIGHEST_EXPECTED_DELAY_DURATION,
+                recordStartTimeDelayLatency);
 
         metricsService.shutdown();
         boolean exceptionThrown = false;
@@ -42,13 +48,19 @@ public class ThreadedQueuedConcurrentMetricsServiceTest {
 
     @Test
     public void shouldNotAcceptOperationResultsAfterShutdownWhenNonBlockingQueueIsUsed() throws WorkloadException, MetricsCollectionException {
+        doShouldNotAcceptOperationResultsAfterShutdownWhenNonBlockingQueueIsUsed(true);
+        doShouldNotAcceptOperationResultsAfterShutdownWhenNonBlockingQueueIsUsed(false);
+    }
+
+    public void doShouldNotAcceptOperationResultsAfterShutdownWhenNonBlockingQueueIsUsed(boolean recordStartTimeDelayLatency) throws WorkloadException, MetricsCollectionException {
         ConcurrentMetricsService metricsService = ThreadedQueuedConcurrentMetricsService.newInstanceUsingNonBlockingQueue(
-                TIME_SOURCE,
+                timeSource,
                 new ConcurrentErrorReporter(),
                 TimeUnit.MILLISECONDS,
                 INITIAL_START_TIME,
                 ThreadedQueuedConcurrentMetricsService.DEFAULT_HIGHEST_EXPECTED_RUNTIME_DURATION,
-                ThreadedQueuedConcurrentMetricsService.DEFAULT_HIGHEST_EXPECTED_DELAY_DURATION);
+                ThreadedQueuedConcurrentMetricsService.DEFAULT_HIGHEST_EXPECTED_DELAY_DURATION,
+                recordStartTimeDelayLatency);
 
         metricsService.shutdown();
         boolean exceptionThrown = false;
@@ -62,13 +74,19 @@ public class ThreadedQueuedConcurrentMetricsServiceTest {
 
     @Test
     public void shouldReturnCorrectMeasurementsWhenBlockingQueueIsUsed() throws WorkloadException, MetricsCollectionException {
+        doShouldReturnCorrectMeasurementsWhenBlockingQueueIsUsed(true);
+        doShouldReturnCorrectMeasurementsWhenBlockingQueueIsUsed(false);
+    }
+
+    public void doShouldReturnCorrectMeasurementsWhenBlockingQueueIsUsed(boolean recordStartTimeDelayLatency) throws WorkloadException, MetricsCollectionException {
         ConcurrentMetricsService metricsService = ThreadedQueuedConcurrentMetricsService.newInstanceUsingBlockingQueue(
-                TIME_SOURCE,
+                timeSource,
                 new ConcurrentErrorReporter(),
                 TimeUnit.MILLISECONDS,
                 INITIAL_START_TIME,
                 ThreadedQueuedConcurrentMetricsService.DEFAULT_HIGHEST_EXPECTED_RUNTIME_DURATION,
-                ThreadedQueuedConcurrentMetricsService.DEFAULT_HIGHEST_EXPECTED_DELAY_DURATION);
+                ThreadedQueuedConcurrentMetricsService.DEFAULT_HIGHEST_EXPECTED_DELAY_DURATION,
+                recordStartTimeDelayLatency);
 
         try {
             shouldReturnCorrectMeasurements(metricsService);
@@ -79,13 +97,19 @@ public class ThreadedQueuedConcurrentMetricsServiceTest {
 
     @Test
     public void shouldReturnCorrectMeasurementsWhenNonBlockingQueueIsUsed() throws WorkloadException, MetricsCollectionException {
+        doShouldReturnCorrectMeasurementsWhenNonBlockingQueueIsUsed(true);
+        doShouldReturnCorrectMeasurementsWhenNonBlockingQueueIsUsed(false);
+    }
+
+    public void doShouldReturnCorrectMeasurementsWhenNonBlockingQueueIsUsed(boolean recordStartTimeDelayLatency) throws WorkloadException, MetricsCollectionException {
         ConcurrentMetricsService metricsService = ThreadedQueuedConcurrentMetricsService.newInstanceUsingBlockingQueue(
-                TIME_SOURCE,
+                timeSource,
                 new ConcurrentErrorReporter(),
                 TimeUnit.MILLISECONDS,
                 INITIAL_START_TIME,
                 ThreadedQueuedConcurrentMetricsService.DEFAULT_HIGHEST_EXPECTED_RUNTIME_DURATION,
-                ThreadedQueuedConcurrentMetricsService.DEFAULT_HIGHEST_EXPECTED_DELAY_DURATION);
+                ThreadedQueuedConcurrentMetricsService.DEFAULT_HIGHEST_EXPECTED_DELAY_DURATION,
+                recordStartTimeDelayLatency);
 
         try {
             shouldReturnCorrectMeasurements(metricsService);

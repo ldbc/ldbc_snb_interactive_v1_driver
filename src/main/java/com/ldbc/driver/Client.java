@@ -1,5 +1,6 @@
 package com.ldbc.driver;
 
+import com.google.common.base.Charsets;
 import com.google.common.collect.Lists;
 import com.ldbc.driver.control.*;
 import com.ldbc.driver.generator.GeneratorFactory;
@@ -207,13 +208,15 @@ public class Client {
                         String.format("Error while instantiating Completion Time Service with peer IDs %s", controlService.configuration().peerIds().toString()), e);
             }
 
+            boolean recordStartTimeDelayLatency = false == controlService.configuration().ignoreScheduledStartTimes();
             metricsService = ThreadedQueuedConcurrentMetricsService.newInstanceUsingBlockingQueue(
                     timeSource,
                     errorReporter,
                     controlService.configuration().timeUnit(),
                     controlService.workloadStartTime(),
                     ThreadedQueuedConcurrentMetricsService.DEFAULT_HIGHEST_EXPECTED_RUNTIME_DURATION,
-                    controlService.configuration().toleratedExecutionDelay());
+                    controlService.configuration().toleratedExecutionDelay(),
+                    recordStartTimeDelayLatency);
             GeneratorFactory generators = new GeneratorFactory(new RandomDataGeneratorFactory(RANDOM_SEED));
 
             logger.info(String.format("Retrieving operation stream for workload: %s", workload.getClass().getSimpleName()));
@@ -249,8 +252,6 @@ public class Client {
                 Duration durationToWaitForAllHandlersToFinishBeforeShutdown = WorkloadRunner.DEFAULT_DURATION_TO_WAIT_FOR_ALL_HANDLERS_TO_FINISH;
                 // TODO consider making config parameter
                 Duration earlySpinnerOffsetDuration = WorkloadRunner.DEFAULT_EARLY_SPINNER_OFFSET_DURATION;
-                // TODO consider making config parameter
-                boolean ignoreScheduleStartTimes = false;
                 workloadRunner = new WorkloadRunner(
                         timeSource,
                         db,
@@ -267,7 +268,7 @@ public class Client {
                         controlService.configuration().windowedExecutionWindowDuration(),
                         earlySpinnerOffsetDuration,
                         durationToWaitForAllHandlersToFinishBeforeShutdown,
-                        ignoreScheduleStartTimes);
+                        controlService.configuration().ignoreScheduledStartTimes());
             } catch (WorkloadException e) {
                 throw new ClientException(String.format("Error instantiating %s", WorkloadRunner.class.getSimpleName()), e);
             }
@@ -359,11 +360,11 @@ public class Client {
 
             logger.info("Exporting workload metrics...");
             try {
-                MetricsManager.export(workloadResults, new SimpleOperationMetricsFormatter(), System.out, MetricsManager.DEFAULT_CHARSET);
+                MetricsManager.export(workloadResults, new SimpleOperationMetricsFormatter(), System.out, Charsets.UTF_8);
                 if (null != controlService.configuration().resultDirPath()) {
                     File resultDir = new File(controlService.configuration().resultDirPath());
                     File resultFile = new File(resultDir, controlService.configuration().name() + "-results.json");
-                    MetricsManager.export(workloadResults, new JsonOperationMetricsFormatter(), new FileOutputStream(resultFile), MetricsManager.DEFAULT_CHARSET);
+                    MetricsManager.export(workloadResults, new JsonOperationMetricsFormatter(), new FileOutputStream(resultFile), Charsets.UTF_8);
 
                     File configurationFile = new File(resultDir, controlService.configuration().name() + "-configuration.properties");
                     try (PrintStream out = new PrintStream(new FileOutputStream(configurationFile))) {
@@ -505,7 +506,7 @@ public class Client {
 
             CsvFileWriter csvFileWriter;
             try {
-                csvFileWriter = new CsvFileWriter(validationFileToGenerate, CsvFileWriter.DEFAULT_COLUMN_SEPARATOR_STRING);
+                csvFileWriter = new CsvFileWriter(validationFileToGenerate, CsvFileWriter.DEFAULT_COLUMN_SEPARATOR);
             } catch (IOException e) {
                 throw new ClientException("Error encountered trying to open CSV file writer", e);
             }
@@ -573,7 +574,7 @@ public class Client {
 
             CsvFileReader csvFileReader;
             try {
-                csvFileReader = new CsvFileReader(validationParamsFile, CsvFileWriter.DEFAULT_COLUMN_SEPARATOR_REGEX_STRING);
+                csvFileReader = new CsvFileReader(validationParamsFile, CsvFileReader.DEFAULT_COLUMN_SEPARATOR_PATTERN);
             } catch (IOException e) {
                 throw new ClientException("Error encountered trying to create CSV file reader", e);
             }

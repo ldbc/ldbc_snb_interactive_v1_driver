@@ -1,7 +1,6 @@
 package com.ldbc.driver.runtime.metrics;
 
 import com.ldbc.driver.OperationResultReport;
-import com.ldbc.driver.runtime.scheduling.Spinner;
 import com.ldbc.driver.temporal.Duration;
 import com.ldbc.driver.temporal.Time;
 import com.ldbc.driver.temporal.TimeSource;
@@ -14,14 +13,15 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLong;
 
 public class MetricsManager {
-    public static final Charset DEFAULT_CHARSET = Charset.forName("UTF-8");
+    private static final long ONE_SECOND_AS_NANO = 1000000000;
 
     private final Time startTime;
-    private final Map<String, OperationMetricsManager> allOperationMetrics;
+    private final Map<String, OperationTypeMetricsManager> allOperationMetrics;
     private final TimeSource TIME_SOURCE;
     private final TimeUnit unit;
     private final Duration highestExpectedRuntimeDuration;
     private final Duration highestExpectedDelayDuration;
+    private final boolean recordStartTimeDelayLatency;
     private Time latestFinishTime;
     private AtomicLong measurementCount = new AtomicLong(0);
 
@@ -42,7 +42,8 @@ public class MetricsManager {
                    TimeUnit unit,
                    Time startTime,
                    Duration highestExpectedRuntimeDuration,
-                   Duration highestExpectedDelayDuration) {
+                   Duration highestExpectedDelayDuration,
+                   boolean recordStartTimeDelayLatency) {
         this.startTime = startTime;
         this.TIME_SOURCE = timeSource;
         this.unit = unit;
@@ -50,6 +51,7 @@ public class MetricsManager {
         this.highestExpectedRuntimeDuration = highestExpectedRuntimeDuration;
         this.highestExpectedDelayDuration = highestExpectedDelayDuration;
         this.latestFinishTime = startTime;
+        this.recordStartTimeDelayLatency = recordStartTimeDelayLatency;
     }
 
     void measure(OperationResultReport result) throws MetricsCollectionException {
@@ -62,11 +64,16 @@ public class MetricsManager {
 
         measurementCount.incrementAndGet();
 
-        OperationMetricsManager operationMetricsManager = allOperationMetrics.get(result.operationType());
-        if (null == operationMetricsManager)
-            operationMetricsManager = new OperationMetricsManager(result.operationType(), unit, highestExpectedRuntimeDuration, highestExpectedDelayDuration);
-        operationMetricsManager.measure(result);
-        allOperationMetrics.put(result.operationType(), operationMetricsManager);
+        OperationTypeMetricsManager operationTypeMetricsManager = allOperationMetrics.get(result.operationType());
+        if (null == operationTypeMetricsManager)
+            operationTypeMetricsManager = new OperationTypeMetricsManager(
+                    result.operationType(),
+                    unit,
+                    highestExpectedRuntimeDuration,
+                    highestExpectedDelayDuration,
+                    recordStartTimeDelayLatency);
+        operationTypeMetricsManager.measure(result);
+        allOperationMetrics.put(result.operationType(), operationTypeMetricsManager);
     }
 
     Time startTime() {
@@ -79,15 +86,15 @@ public class MetricsManager {
 
     private long totalOperationCount() {
         long count = 0;
-        for (OperationMetricsManager operationMetricsManager : allOperationMetrics.values()) {
-            count += operationMetricsManager.count();
+        for (OperationTypeMetricsManager operationTypeMetricsManager : allOperationMetrics.values()) {
+            count += operationTypeMetricsManager.count();
         }
         return count;
     }
 
     WorkloadResultsSnapshot snapshot() {
         Map<String, OperationMetricsSnapshot> operationMetricsMap = new HashMap<>();
-        for (Map.Entry<String, OperationMetricsManager> metricsManagerEntry : allOperationMetrics.entrySet()) {
+        for (Map.Entry<String, OperationTypeMetricsManager> metricsManagerEntry : allOperationMetrics.entrySet()) {
             operationMetricsMap.put(metricsManagerEntry.getKey(), metricsManagerEntry.getValue().snapshot());
         }
         return new WorkloadResultsSnapshot(
@@ -114,7 +121,7 @@ public class MetricsManager {
             Duration runDuration = now.durationGreaterThan(startTime);
             long operationCount = measurementCount.get();
             Duration durationSinceLastMeasurement = (null == latestFinishTime) ? null : now.durationGreaterThan(latestFinishTime);
-            double operationsPerSecond = ((double) operationCount / runDuration.asNano()) * 1000000000;
+            double operationsPerSecond = ((double) operationCount / runDuration.asNano()) * ONE_SECOND_AS_NANO;
             return new WorkloadStatusSnapshot(
                     runDuration,
                     operationCount,

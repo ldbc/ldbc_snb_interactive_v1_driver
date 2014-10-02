@@ -57,6 +57,7 @@ public class SimpleWorkloadTest {
         boolean calculateWorkloadStatistics = false;
         Duration spinnerSleepDuration = Duration.fromMilli(0);
         boolean printHelp = false;
+        boolean ignoreScheduledStartTimes = false;
 
         ConsoleAndFileDriverConfiguration params =
                 new ConsoleAndFileDriverConfiguration(
@@ -78,7 +79,8 @@ public class SimpleWorkloadTest {
                         validateWorkload,
                         calculateWorkloadStatistics,
                         spinnerSleepDuration,
-                        printHelp);
+                        printHelp,
+                        ignoreScheduledStartTimes);
 
         Workload workload = new SimpleWorkload();
         workload.init(params);
@@ -111,6 +113,7 @@ public class SimpleWorkloadTest {
         boolean calculateWorkloadStatistics = false;
         Duration spinnerSleepDuration = Duration.fromMilli(0);
         boolean printHelp = false;
+        boolean ignoreScheduledStartTimes = false;
 
         ConsoleAndFileDriverConfiguration params =
                 new ConsoleAndFileDriverConfiguration(
@@ -132,7 +135,8 @@ public class SimpleWorkloadTest {
                         validateWorkload,
                         calculateWorkloadStatistics,
                         spinnerSleepDuration,
-                        printHelp);
+                        printHelp,
+                        ignoreScheduledStartTimes);
 
         Workload workload = new SimpleWorkload();
         workload.init(params);
@@ -192,6 +196,7 @@ public class SimpleWorkloadTest {
         boolean calculateWorkloadStatistics = false;
         Duration spinnerSleepDuration = Duration.fromMilli(0);
         boolean printHelp = false;
+        boolean ignoreScheduledStartTimes = false;
 
         ConsoleAndFileDriverConfiguration params = new ConsoleAndFileDriverConfiguration(
                 paramsMap,
@@ -212,7 +217,8 @@ public class SimpleWorkloadTest {
                 validateWorkload,
                 calculateWorkloadStatistics,
                 spinnerSleepDuration,
-                printHelp);
+                printHelp,
+                ignoreScheduledStartTimes);
 
         Workload workload = new SimpleWorkload();
         workload.init(params);
@@ -250,6 +256,7 @@ public class SimpleWorkloadTest {
         boolean calculateWorkloadStatistics = false;
         Duration spinnerSleepDuration = Duration.fromMilli(0);
         boolean printHelp = false;
+        boolean ignoreScheduledStartTimes = false;
 
         ConsoleAndFileDriverConfiguration params =
                 new ConsoleAndFileDriverConfiguration(
@@ -271,7 +278,8 @@ public class SimpleWorkloadTest {
                         validateWorkload,
                         calculateWorkloadStatistics,
                         spinnerSleepDuration,
-                        printHelp);
+                        printHelp,
+                        ignoreScheduledStartTimes);
 
         Workload workloadA = new SimpleWorkload();
         workloadA.init(params);

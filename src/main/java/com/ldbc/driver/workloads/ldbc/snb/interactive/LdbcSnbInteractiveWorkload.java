@@ -105,28 +105,29 @@ public class LdbcSnbInteractiveWorkload extends Workload {
         return ConsoleAndFileDriverConfiguration.convertLongKeysToShortKeys(params);
     }
 
-    public final static String DATA_DIRECTORY = "data_dir";
-    public final static String PARAMETERS_DIRECTORY = "parameters_dir";
+    private final static String LDBC_SNB_INTERACTIVE_PARAM_NAME_PREFIX = "ldbc.snb.interactive.";
+    public final static String DATA_DIRECTORY = LDBC_SNB_INTERACTIVE_PARAM_NAME_PREFIX + "data_dir";
+    public final static String PARAMETERS_DIRECTORY = LDBC_SNB_INTERACTIVE_PARAM_NAME_PREFIX + "parameters_dir";
     private final static String LDBC_INTERACTIVE_PACKAGE_PREFIX = removeSuffix(LdbcQuery1.class.getName(), LdbcQuery1.class.getSimpleName());
 
     /*
      * Operation Interleave
      */
     private final static String INTERLEAVE_SUFFIX = "_interleave";
-    public final static String READ_OPERATION_1_INTERLEAVE_KEY = LdbcQuery1.class.getSimpleName() + INTERLEAVE_SUFFIX;
-    public final static String READ_OPERATION_2_INTERLEAVE_KEY = LdbcQuery2.class.getSimpleName() + INTERLEAVE_SUFFIX;
-    public final static String READ_OPERATION_3_INTERLEAVE_KEY = LdbcQuery3.class.getSimpleName() + INTERLEAVE_SUFFIX;
-    public final static String READ_OPERATION_4_INTERLEAVE_KEY = LdbcQuery4.class.getSimpleName() + INTERLEAVE_SUFFIX;
-    public final static String READ_OPERATION_5_INTERLEAVE_KEY = LdbcQuery5.class.getSimpleName() + INTERLEAVE_SUFFIX;
-    public final static String READ_OPERATION_6_INTERLEAVE_KEY = LdbcQuery6.class.getSimpleName() + INTERLEAVE_SUFFIX;
-    public final static String READ_OPERATION_7_INTERLEAVE_KEY = LdbcQuery7.class.getSimpleName() + INTERLEAVE_SUFFIX;
-    public final static String READ_OPERATION_8_INTERLEAVE_KEY = LdbcQuery8.class.getSimpleName() + INTERLEAVE_SUFFIX;
-    public final static String READ_OPERATION_9_INTERLEAVE_KEY = LdbcQuery9.class.getSimpleName() + INTERLEAVE_SUFFIX;
-    public final static String READ_OPERATION_10_INTERLEAVE_KEY = LdbcQuery10.class.getSimpleName() + INTERLEAVE_SUFFIX;
-    public final static String READ_OPERATION_11_INTERLEAVE_KEY = LdbcQuery11.class.getSimpleName() + INTERLEAVE_SUFFIX;
-    public final static String READ_OPERATION_12_INTERLEAVE_KEY = LdbcQuery12.class.getSimpleName() + INTERLEAVE_SUFFIX;
-    public final static String READ_OPERATION_13_INTERLEAVE_KEY = LdbcQuery13.class.getSimpleName() + INTERLEAVE_SUFFIX;
-    public final static String READ_OPERATION_14_INTERLEAVE_KEY = LdbcQuery14.class.getSimpleName() + INTERLEAVE_SUFFIX;
+    public final static String READ_OPERATION_1_INTERLEAVE_KEY = LDBC_SNB_INTERACTIVE_PARAM_NAME_PREFIX + LdbcQuery1.class.getSimpleName() + INTERLEAVE_SUFFIX;
+    public final static String READ_OPERATION_2_INTERLEAVE_KEY = LDBC_SNB_INTERACTIVE_PARAM_NAME_PREFIX + LdbcQuery2.class.getSimpleName() + INTERLEAVE_SUFFIX;
+    public final static String READ_OPERATION_3_INTERLEAVE_KEY = LDBC_SNB_INTERACTIVE_PARAM_NAME_PREFIX + LdbcQuery3.class.getSimpleName() + INTERLEAVE_SUFFIX;
+    public final static String READ_OPERATION_4_INTERLEAVE_KEY = LDBC_SNB_INTERACTIVE_PARAM_NAME_PREFIX + LdbcQuery4.class.getSimpleName() + INTERLEAVE_SUFFIX;
+    public final static String READ_OPERATION_5_INTERLEAVE_KEY = LDBC_SNB_INTERACTIVE_PARAM_NAME_PREFIX + LdbcQuery5.class.getSimpleName() + INTERLEAVE_SUFFIX;
+    public final static String READ_OPERATION_6_INTERLEAVE_KEY = LDBC_SNB_INTERACTIVE_PARAM_NAME_PREFIX + LdbcQuery6.class.getSimpleName() + INTERLEAVE_SUFFIX;
+    public final static String READ_OPERATION_7_INTERLEAVE_KEY = LDBC_SNB_INTERACTIVE_PARAM_NAME_PREFIX + LdbcQuery7.class.getSimpleName() + INTERLEAVE_SUFFIX;
+    public final static String READ_OPERATION_8_INTERLEAVE_KEY = LDBC_SNB_INTERACTIVE_PARAM_NAME_PREFIX + LdbcQuery8.class.getSimpleName() + INTERLEAVE_SUFFIX;
+    public final static String READ_OPERATION_9_INTERLEAVE_KEY = LDBC_SNB_INTERACTIVE_PARAM_NAME_PREFIX + LdbcQuery9.class.getSimpleName() + INTERLEAVE_SUFFIX;
+    public final static String READ_OPERATION_10_INTERLEAVE_KEY = LDBC_SNB_INTERACTIVE_PARAM_NAME_PREFIX + LdbcQuery10.class.getSimpleName() + INTERLEAVE_SUFFIX;
+    public final static String READ_OPERATION_11_INTERLEAVE_KEY = LDBC_SNB_INTERACTIVE_PARAM_NAME_PREFIX + LdbcQuery11.class.getSimpleName() + INTERLEAVE_SUFFIX;
+    public final static String READ_OPERATION_12_INTERLEAVE_KEY = LDBC_SNB_INTERACTIVE_PARAM_NAME_PREFIX + LdbcQuery12.class.getSimpleName() + INTERLEAVE_SUFFIX;
+    public final static String READ_OPERATION_13_INTERLEAVE_KEY = LDBC_SNB_INTERACTIVE_PARAM_NAME_PREFIX + LdbcQuery13.class.getSimpleName() + INTERLEAVE_SUFFIX;
+    public final static String READ_OPERATION_14_INTERLEAVE_KEY = LDBC_SNB_INTERACTIVE_PARAM_NAME_PREFIX + LdbcQuery14.class.getSimpleName() + INTERLEAVE_SUFFIX;
     public final static List<String> READ_OPERATION_INTERLEAVE_KEYS = Lists.newArrayList(
             READ_OPERATION_1_INTERLEAVE_KEY,
             READ_OPERATION_2_INTERLEAVE_KEY,
@@ -147,20 +148,20 @@ public class LdbcSnbInteractiveWorkload extends Workload {
      * Operation Enable
      */
     private final static String ENABLE_SUFFIX = "_enable";
-    public final static String READ_OPERATION_1_ENABLE_KEY = LdbcQuery1.class.getSimpleName() + ENABLE_SUFFIX;
-    public final static String READ_OPERATION_2_ENABLE_KEY = LdbcQuery2.class.getSimpleName() + ENABLE_SUFFIX;
-    public final static String READ_OPERATION_3_ENABLE_KEY = LdbcQuery3.class.getSimpleName() + ENABLE_SUFFIX;
-    public final static String READ_OPERATION_4_ENABLE_KEY = LdbcQuery4.class.getSimpleName() + ENABLE_SUFFIX;
-    public final static String READ_OPERATION_5_ENABLE_KEY = LdbcQuery5.class.getSimpleName() + ENABLE_SUFFIX;
-    public final static String READ_OPERATION_6_ENABLE_KEY = LdbcQuery6.class.getSimpleName() + ENABLE_SUFFIX;
-    public final static String READ_OPERATION_7_ENABLE_KEY = LdbcQuery7.class.getSimpleName() + ENABLE_SUFFIX;
-    public final static String READ_OPERATION_8_ENABLE_KEY = LdbcQuery8.class.getSimpleName() + ENABLE_SUFFIX;
-    public final static String READ_OPERATION_9_ENABLE_KEY = LdbcQuery9.class.getSimpleName() + ENABLE_SUFFIX;
-    public final static String READ_OPERATION_10_ENABLE_KEY = LdbcQuery10.class.getSimpleName() + ENABLE_SUFFIX;
-    public final static String READ_OPERATION_11_ENABLE_KEY = LdbcQuery11.class.getSimpleName() + ENABLE_SUFFIX;
-    public final static String READ_OPERATION_12_ENABLE_KEY = LdbcQuery12.class.getSimpleName() + ENABLE_SUFFIX;
-    public final static String READ_OPERATION_13_ENABLE_KEY = LdbcQuery13.class.getSimpleName() + ENABLE_SUFFIX;
-    public final static String READ_OPERATION_14_ENABLE_KEY = LdbcQuery14.class.getSimpleName() + ENABLE_SUFFIX;
+    public final static String READ_OPERATION_1_ENABLE_KEY = LDBC_SNB_INTERACTIVE_PARAM_NAME_PREFIX + LdbcQuery1.class.getSimpleName() + ENABLE_SUFFIX;
+    public final static String READ_OPERATION_2_ENABLE_KEY = LDBC_SNB_INTERACTIVE_PARAM_NAME_PREFIX + LdbcQuery2.class.getSimpleName() + ENABLE_SUFFIX;
+    public final static String READ_OPERATION_3_ENABLE_KEY = LDBC_SNB_INTERACTIVE_PARAM_NAME_PREFIX + LdbcQuery3.class.getSimpleName() + ENABLE_SUFFIX;
+    public final static String READ_OPERATION_4_ENABLE_KEY = LDBC_SNB_INTERACTIVE_PARAM_NAME_PREFIX + LdbcQuery4.class.getSimpleName() + ENABLE_SUFFIX;
+    public final static String READ_OPERATION_5_ENABLE_KEY = LDBC_SNB_INTERACTIVE_PARAM_NAME_PREFIX + LdbcQuery5.class.getSimpleName() + ENABLE_SUFFIX;
+    public final static String READ_OPERATION_6_ENABLE_KEY = LDBC_SNB_INTERACTIVE_PARAM_NAME_PREFIX + LdbcQuery6.class.getSimpleName() + ENABLE_SUFFIX;
+    public final static String READ_OPERATION_7_ENABLE_KEY = LDBC_SNB_INTERACTIVE_PARAM_NAME_PREFIX + LdbcQuery7.class.getSimpleName() + ENABLE_SUFFIX;
+    public final static String READ_OPERATION_8_ENABLE_KEY = LDBC_SNB_INTERACTIVE_PARAM_NAME_PREFIX + LdbcQuery8.class.getSimpleName() + ENABLE_SUFFIX;
+    public final static String READ_OPERATION_9_ENABLE_KEY = LDBC_SNB_INTERACTIVE_PARAM_NAME_PREFIX + LdbcQuery9.class.getSimpleName() + ENABLE_SUFFIX;
+    public final static String READ_OPERATION_10_ENABLE_KEY = LDBC_SNB_INTERACTIVE_PARAM_NAME_PREFIX + LdbcQuery10.class.getSimpleName() + ENABLE_SUFFIX;
+    public final static String READ_OPERATION_11_ENABLE_KEY = LDBC_SNB_INTERACTIVE_PARAM_NAME_PREFIX + LdbcQuery11.class.getSimpleName() + ENABLE_SUFFIX;
+    public final static String READ_OPERATION_12_ENABLE_KEY = LDBC_SNB_INTERACTIVE_PARAM_NAME_PREFIX + LdbcQuery12.class.getSimpleName() + ENABLE_SUFFIX;
+    public final static String READ_OPERATION_13_ENABLE_KEY = LDBC_SNB_INTERACTIVE_PARAM_NAME_PREFIX + LdbcQuery13.class.getSimpleName() + ENABLE_SUFFIX;
+    public final static String READ_OPERATION_14_ENABLE_KEY = LDBC_SNB_INTERACTIVE_PARAM_NAME_PREFIX + LdbcQuery14.class.getSimpleName() + ENABLE_SUFFIX;
     public final static List<String> READ_OPERATION_ENABLE_KEYS = Lists.newArrayList(
             READ_OPERATION_1_ENABLE_KEY,
             READ_OPERATION_2_ENABLE_KEY,
@@ -176,14 +177,14 @@ public class LdbcSnbInteractiveWorkload extends Workload {
             READ_OPERATION_12_ENABLE_KEY,
             READ_OPERATION_13_ENABLE_KEY,
             READ_OPERATION_14_ENABLE_KEY);
-    public final static String WRITE_OPERATION_1_ENABLE_KEY = LdbcUpdate1AddPerson.class.getSimpleName() + ENABLE_SUFFIX;
-    public final static String WRITE_OPERATION_2_ENABLE_KEY = LdbcUpdate2AddPostLike.class.getSimpleName() + ENABLE_SUFFIX;
-    public final static String WRITE_OPERATION_3_ENABLE_KEY = LdbcUpdate3AddCommentLike.class.getSimpleName() + ENABLE_SUFFIX;
-    public final static String WRITE_OPERATION_4_ENABLE_KEY = LdbcUpdate4AddForum.class.getSimpleName() + ENABLE_SUFFIX;
-    public final static String WRITE_OPERATION_5_ENABLE_KEY = LdbcUpdate5AddForumMembership.class.getSimpleName() + ENABLE_SUFFIX;
-    public final static String WRITE_OPERATION_6_ENABLE_KEY = LdbcUpdate6AddPost.class.getSimpleName() + ENABLE_SUFFIX;
-    public final static String WRITE_OPERATION_7_ENABLE_KEY = LdbcUpdate7AddComment.class.getSimpleName() + ENABLE_SUFFIX;
-    public final static String WRITE_OPERATION_8_ENABLE_KEY = LdbcUpdate8AddFriendship.class.getSimpleName() + ENABLE_SUFFIX;
+    public final static String WRITE_OPERATION_1_ENABLE_KEY = LDBC_SNB_INTERACTIVE_PARAM_NAME_PREFIX + LdbcUpdate1AddPerson.class.getSimpleName() + ENABLE_SUFFIX;
+    public final static String WRITE_OPERATION_2_ENABLE_KEY = LDBC_SNB_INTERACTIVE_PARAM_NAME_PREFIX + LdbcUpdate2AddPostLike.class.getSimpleName() + ENABLE_SUFFIX;
+    public final static String WRITE_OPERATION_3_ENABLE_KEY = LDBC_SNB_INTERACTIVE_PARAM_NAME_PREFIX + LdbcUpdate3AddCommentLike.class.getSimpleName() + ENABLE_SUFFIX;
+    public final static String WRITE_OPERATION_4_ENABLE_KEY = LDBC_SNB_INTERACTIVE_PARAM_NAME_PREFIX + LdbcUpdate4AddForum.class.getSimpleName() + ENABLE_SUFFIX;
+    public final static String WRITE_OPERATION_5_ENABLE_KEY = LDBC_SNB_INTERACTIVE_PARAM_NAME_PREFIX + LdbcUpdate5AddForumMembership.class.getSimpleName() + ENABLE_SUFFIX;
+    public final static String WRITE_OPERATION_6_ENABLE_KEY = LDBC_SNB_INTERACTIVE_PARAM_NAME_PREFIX + LdbcUpdate6AddPost.class.getSimpleName() + ENABLE_SUFFIX;
+    public final static String WRITE_OPERATION_7_ENABLE_KEY = LDBC_SNB_INTERACTIVE_PARAM_NAME_PREFIX + LdbcUpdate7AddComment.class.getSimpleName() + ENABLE_SUFFIX;
+    public final static String WRITE_OPERATION_8_ENABLE_KEY = LDBC_SNB_INTERACTIVE_PARAM_NAME_PREFIX + LdbcUpdate8AddFriendship.class.getSimpleName() + ENABLE_SUFFIX;
     public final static List<String> WRITE_OPERATION_ENABLE_KEYS = Lists.newArrayList(
             WRITE_OPERATION_1_ENABLE_KEY,
             WRITE_OPERATION_2_ENABLE_KEY,
@@ -360,12 +361,16 @@ public class LdbcSnbInteractiveWorkload extends Workload {
         for (String readOperationInterleaveKey : READ_OPERATION_INTERLEAVE_KEYS) {
             String readOperationInterleaveString = params.get(readOperationInterleaveKey);
             Duration readOperationInterleaveDuration = Duration.fromMilli(Long.parseLong(readOperationInterleaveString));
+            String readOperationClassName = LDBC_INTERACTIVE_PACKAGE_PREFIX + removePrefix(removeSuffix(readOperationInterleaveKey, INTERLEAVE_SUFFIX), LDBC_SNB_INTERACTIVE_PARAM_NAME_PREFIX);
             try {
-                String readOperationClassName = LDBC_INTERACTIVE_PACKAGE_PREFIX + removeSuffix(readOperationInterleaveKey, INTERLEAVE_SUFFIX);
                 Class readOperationClass = ClassLoaderHelper.loadClass(readOperationClassName);
                 readOperationInterleaves.put(readOperationClass, readOperationInterleaveDuration);
             } catch (ClassLoadingException e) {
-                throw new WorkloadException(String.format("Unable to load operation class: %s", readOperationInterleaveKey), e);
+                throw new WorkloadException(
+                        String.format("Unable to load operation class for parameter: %s\nGuessed incorrect class name: %s",
+                                readOperationInterleaveKey, readOperationClassName),
+                        e
+                );
             }
         }
 
@@ -373,12 +378,16 @@ public class LdbcSnbInteractiveWorkload extends Workload {
         for (String readOperationEnableKey : READ_OPERATION_ENABLE_KEYS) {
             String readOperationEnabledString = params.get(readOperationEnableKey);
             Boolean readOperationEnabled = Boolean.parseBoolean(readOperationEnabledString);
+            String readOperationClassName = LDBC_INTERACTIVE_PACKAGE_PREFIX + removePrefix(removeSuffix(readOperationEnableKey, ENABLE_SUFFIX), LDBC_SNB_INTERACTIVE_PARAM_NAME_PREFIX);
             try {
-                String readOperationClassName = LDBC_INTERACTIVE_PACKAGE_PREFIX + removeSuffix(readOperationEnableKey, ENABLE_SUFFIX);
                 Class readOperationClass = ClassLoaderHelper.loadClass(readOperationClassName);
                 if (readOperationEnabled) readOperationFilter.add(readOperationClass);
             } catch (ClassLoadingException e) {
-                throw new WorkloadException(String.format("Unable to load operation class: %s", readOperationEnableKey), e);
+                throw new WorkloadException(
+                        String.format("Unable to load operation class for parameter: %s\nGuessed incorrect class name: %s",
+                                readOperationEnableKey, readOperationClassName),
+                        e
+                );
             }
         }
 
@@ -386,12 +395,16 @@ public class LdbcSnbInteractiveWorkload extends Workload {
         for (String writeOperationEnableKey : WRITE_OPERATION_ENABLE_KEYS) {
             String writeOperationEnabledString = params.get(writeOperationEnableKey);
             Boolean writeOperationEnabled = Boolean.parseBoolean(writeOperationEnabledString);
+            String writeOperationClassName = LDBC_INTERACTIVE_PACKAGE_PREFIX + removePrefix(removeSuffix(writeOperationEnableKey, ENABLE_SUFFIX), LDBC_SNB_INTERACTIVE_PARAM_NAME_PREFIX);
             try {
-                String writeOperationClassName = LDBC_INTERACTIVE_PACKAGE_PREFIX + removeSuffix(writeOperationEnableKey, ENABLE_SUFFIX);
                 Class writeOperationClass = ClassLoaderHelper.loadClass(writeOperationClassName);
                 if (writeOperationEnabled) writeOperationFilter.add(writeOperationClass);
             } catch (ClassLoadingException e) {
-                throw new WorkloadException(String.format("Unable to load operation class: %s", writeOperationEnableKey), e);
+                throw new WorkloadException(
+                        String.format("Unable to load operation class for parameter: %s\nGuessed incorrect class name: %s",
+                                writeOperationEnableKey, writeOperationClassName),
+                        e
+                );
             }
         }
 
@@ -450,6 +463,10 @@ public class LdbcSnbInteractiveWorkload extends Workload {
 
     private static String removeSuffix(String original, String suffix) {
         return (original.indexOf(suffix) == -1) ? original : original.substring(0, original.lastIndexOf(suffix));
+    }
+
+    private static String removePrefix(String original, String prefix) {
+        return (original.indexOf(prefix) == -1) ? original : original.substring(original.lastIndexOf(prefix) + prefix.length(), original.length());
     }
 
     private static List<String> missingPropertiesParameters

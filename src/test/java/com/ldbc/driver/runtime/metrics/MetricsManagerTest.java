@@ -9,15 +9,14 @@ import com.ldbc.driver.temporal.Time;
 import com.ldbc.driver.temporal.TimeSource;
 import org.junit.Test;
 
-import java.util.HashMap;
-import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.junit.Assert.assertThat;
 
 public class MetricsManagerTest {
-    private TimeSource TIME_SOURCE = new SystemTimeSource();
+    private final TimeSource TIME_SOURCE = new SystemTimeSource();
+    private final boolean recordStartTimeDelayLatency = true;
 
     @Test
     public void shouldReturnCorrectMeasurements() throws WorkloadException, MetricsCollectionException {
@@ -27,7 +26,8 @@ public class MetricsManagerTest {
                 TimeUnit.MILLISECONDS,
                 initialTime,
                 ThreadedQueuedConcurrentMetricsService.DEFAULT_HIGHEST_EXPECTED_RUNTIME_DURATION,
-                ThreadedQueuedConcurrentMetricsService.DEFAULT_HIGHEST_EXPECTED_DELAY_DURATION
+                ThreadedQueuedConcurrentMetricsService.DEFAULT_HIGHEST_EXPECTED_DELAY_DURATION,
+                recordStartTimeDelayLatency
         );
 
         OperationResultReport operationResultReport1 = OperationResultReportTestHelper.create(1, "result one");

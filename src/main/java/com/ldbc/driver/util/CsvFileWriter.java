@@ -6,8 +6,7 @@ import java.io.*;
 import java.util.Iterator;
 
 public class CsvFileWriter {
-    public static final String DEFAULT_COLUMN_SEPARATOR_STRING = "|";
-    public static final String DEFAULT_COLUMN_SEPARATOR_REGEX_STRING = "\\|";
+    public static final String DEFAULT_COLUMN_SEPARATOR = "|";
 
     private final BufferedWriter bufferedWriter;
     private final String columnSeparator;
