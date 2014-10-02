@@ -2267,6 +2267,7 @@ public class WorkloadRunnerComplexScenarioTests {
                                                       Db db,
                                                       Duration durationToWaitForAllHandlersToFinishBeforeShutdown)
             throws WorkloadException, CompletionTimeException, DbException {
+        boolean ignoreScheduledStartTime = false;
         Duration statusDisplayInterval = Duration.fromMilli(0);
         Duration spinnerSleepDuration = SPINNER_SLEEP_DURATION;
         Duration earlySpinnerOffsetDuration = Duration.fromMilli(0);
@@ -2285,7 +2286,8 @@ public class WorkloadRunnerComplexScenarioTests {
                 spinnerSleepDuration,
                 executionWindowDuration,
                 earlySpinnerOffsetDuration,
-                durationToWaitForAllHandlersToFinishBeforeShutdown
+                durationToWaitForAllHandlersToFinishBeforeShutdown,
+                ignoreScheduledStartTime
         );
         return new WorkloadRunnerThread(runner, errorReporter);
     }

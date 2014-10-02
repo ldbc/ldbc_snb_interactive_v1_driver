@@ -5,7 +5,6 @@ import com.ldbc.driver.Operation;
 import com.ldbc.driver.temporal.*;
 import com.ldbc.driver.workloads.dummy.NothingOperation;
 import com.ldbc.driver.workloads.dummy.TimedNamedOperation1;
-import org.junit.Ignore;
 import org.junit.Test;
 
 import java.util.Iterator;
@@ -22,8 +21,9 @@ public class SpinnerTests {
     public void shouldFailWhenNoStartTimeGiven() throws InterruptedException {
         // Given
         Duration toleratedDelay = Duration.fromMilli(10);
+        boolean ignoreScheduledStartTime = false;
         CheckableDelayPolicy delayPolicy = new CheckableDelayPolicy(toleratedDelay);
-        Spinner spinner = new Spinner(TIME_SOURCE, Spinner.DEFAULT_SLEEP_DURATION_10_MILLI, delayPolicy);
+        Spinner spinner = new Spinner(TIME_SOURCE, Spinner.DEFAULT_SLEEP_DURATION_10_MILLI, delayPolicy, Duration.fromMilli(0), ignoreScheduledStartTime);
 
         Operation<?> operation = new NothingOperation();
 
@@ -53,8 +53,9 @@ public class SpinnerTests {
         // Given
         TIME_SOURCE.setNowFromMilli(0);
         Duration toleratedDelay = Duration.fromMilli(10);
+        boolean ignoreScheduledStartTime = false;
         CheckableDelayPolicy delayPolicy = new CheckableDelayPolicy(toleratedDelay);
-        Spinner spinner = new Spinner(TIME_SOURCE, Spinner.DEFAULT_SLEEP_DURATION_10_MILLI, delayPolicy);
+        Spinner spinner = new Spinner(TIME_SOURCE, Spinner.DEFAULT_SLEEP_DURATION_10_MILLI, delayPolicy, Duration.fromMilli(0), ignoreScheduledStartTime);
 
         Time scheduledStartTime = Time.fromMilli(10);
         Operation<?> operation = new TimedNamedOperation1(Time.fromMilli(0), Time.fromMilli(0), "name");
@@ -92,8 +93,9 @@ public class SpinnerTests {
         // Given
         TIME_SOURCE.setNowFromMilli(0);
         Duration toleratedDelay = Duration.fromMilli(10);
+        boolean ignoreScheduledStartTime = false;
         CheckableDelayPolicy delayPolicy = new CheckableDelayPolicy(toleratedDelay);
-        Spinner spinner = new Spinner(TIME_SOURCE, Spinner.DEFAULT_SLEEP_DURATION_10_MILLI, delayPolicy);
+        Spinner spinner = new Spinner(TIME_SOURCE, Spinner.DEFAULT_SLEEP_DURATION_10_MILLI, delayPolicy, Duration.fromMilli(0), ignoreScheduledStartTime);
 
         Time scheduledStartTime = Time.fromMilli(10);
         Operation<?> operation = new TimedNamedOperation1(Time.fromMilli(0), Time.fromMilli(0), "name");
@@ -131,9 +133,10 @@ public class SpinnerTests {
         // Given
         TIME_SOURCE.setNowFromMilli(0);
         Duration toleratedDelay = Duration.fromMilli(0);
+        boolean ignoreScheduledStartTime = false;
         CheckableDelayPolicy delayPolicy = new CheckableDelayPolicy(toleratedDelay);
         SpinnerCheck failCheck = new TrueFalseSpinnerCheck(delayPolicy, false);
-        Spinner spinner = new Spinner(TIME_SOURCE, Spinner.DEFAULT_SLEEP_DURATION_10_MILLI, delayPolicy);
+        Spinner spinner = new Spinner(TIME_SOURCE, Spinner.DEFAULT_SLEEP_DURATION_10_MILLI, delayPolicy, Duration.fromMilli(0), ignoreScheduledStartTime);
 
         Time scheduledStartTime = Time.fromMilli(10);
         Operation<?> operation = new TimedNamedOperation1(Time.fromMilli(0), Time.fromMilli(0), "name");
@@ -173,8 +176,9 @@ public class SpinnerTests {
         TIME_SOURCE.setNowFromMilli(0);
         Duration offset = Duration.fromMilli(5);
         Duration toleratedDelay = Duration.fromMilli(10);
+        boolean ignoreScheduledStartTime = false;
         CheckableDelayPolicy delayPolicy = new CheckableDelayPolicy(toleratedDelay);
-        Spinner spinner = new Spinner(TIME_SOURCE, Spinner.DEFAULT_SLEEP_DURATION_10_MILLI, delayPolicy, offset);
+        Spinner spinner = new Spinner(TIME_SOURCE, Spinner.DEFAULT_SLEEP_DURATION_10_MILLI, delayPolicy, offset, ignoreScheduledStartTime);
 
         Time scheduledStartTime = Time.fromMilli(10);
         Operation<?> operation = new NothingOperation();
@@ -215,11 +219,12 @@ public class SpinnerTests {
         Time scheduledStartTime = TIME_SOURCE.now();
         long operationCount = 100000000;
         Duration toleratedDelay = Duration.fromMilli(10);
+        boolean ignoreScheduledStartTime = false;
         CheckableDelayPolicy delayPolicy = new CheckableDelayPolicy(toleratedDelay);
         FastSameOperationIterator operationsSingleCheck = new FastSameOperationIterator(scheduledStartTime, operationCount);
         FastSameOperationIterator operationsManyChecks = new FastSameOperationIterator(scheduledStartTime, operationCount);
 
-        Spinner spinner = new Spinner(TIME_SOURCE, Duration.fromMilli(0), delayPolicy);
+        Spinner spinner = new Spinner(TIME_SOURCE, Duration.fromMilli(0), delayPolicy, Duration.fromMilli(0), ignoreScheduledStartTime);
         SpinnerCheck singleTrueCheck = new TrueFalseSpinnerCheck(delayPolicy, true);
         SpinnerCheck manyTrueChecks = new MultiCheck(
                 Lists.<SpinnerCheck>newArrayList(

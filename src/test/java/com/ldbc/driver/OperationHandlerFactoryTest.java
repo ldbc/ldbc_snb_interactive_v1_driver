@@ -1,10 +1,10 @@
 package com.ldbc.driver;
 
 import com.ldbc.driver.runtime.ConcurrentErrorReporter;
-import com.ldbc.driver.runtime.metrics.DummyCollectingConcurrentMetricsService;
 import com.ldbc.driver.runtime.coordination.DummyLocalCompletionTimeWriter;
 import com.ldbc.driver.runtime.coordination.LocalCompletionTimeWriter;
 import com.ldbc.driver.runtime.metrics.ConcurrentMetricsService;
+import com.ldbc.driver.runtime.metrics.DummyCollectingConcurrentMetricsService;
 import com.ldbc.driver.runtime.scheduling.ErrorReportingTerminatingExecutionDelayPolicy;
 import com.ldbc.driver.runtime.scheduling.ExecutionDelayPolicy;
 import com.ldbc.driver.runtime.scheduling.Spinner;
@@ -35,12 +35,13 @@ public class OperationHandlerFactoryTest {
     }
 
     public Duration doOperationHandlerTest(int count, OperationHandlerFactory operationHandlerFactory, Operation<?> operation) throws OperationException {
+        boolean ignoreScheduledStartTime = false;
         TimeSource timeSource = new SystemTimeSource();
         ConcurrentErrorReporter errorReporter = new ConcurrentErrorReporter();
         Duration toleratedDelay = Duration.fromMilli(0);
         ExecutionDelayPolicy executionDelayPolicy = new ErrorReportingTerminatingExecutionDelayPolicy(timeSource, toleratedDelay, errorReporter);
         Duration spinnerSleepDuration = Duration.fromMilli(0);
-        Spinner spinner = new Spinner(timeSource, spinnerSleepDuration, executionDelayPolicy);
+        Spinner spinner = new Spinner(timeSource, spinnerSleepDuration, executionDelayPolicy, Duration.fromMilli(0), ignoreScheduledStartTime);
         LocalCompletionTimeWriter localCompletionTimeWriter = new DummyLocalCompletionTimeWriter();
         ConcurrentMetricsService metricsService = new DummyCollectingConcurrentMetricsService();
         Time startTime = timeSource.now();

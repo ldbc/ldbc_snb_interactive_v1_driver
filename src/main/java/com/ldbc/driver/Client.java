@@ -46,10 +46,10 @@ public class Client {
         } catch (DriverConfigurationException e) {
             String errMsg = String.format("Error parsing parameters: %s", e.getMessage());
             logger.error(errMsg);
-            System.exit( 1 );
+            System.exit(1);
         } catch (Exception e) {
             logger.error("Client terminated unexpectedly\n" + ConcurrentErrorReporter.stackTraceToString(e));
-            System.exit( 1 );
+            System.exit(1);
         } finally {
             if (null != controlService) controlService.shutdown();
         }
@@ -249,6 +249,8 @@ public class Client {
                 Duration durationToWaitForAllHandlersToFinishBeforeShutdown = WorkloadRunner.DEFAULT_DURATION_TO_WAIT_FOR_ALL_HANDLERS_TO_FINISH;
                 // TODO consider making config parameter
                 Duration earlySpinnerOffsetDuration = WorkloadRunner.DEFAULT_EARLY_SPINNER_OFFSET_DURATION;
+                // TODO consider making config parameter
+                boolean ignoreScheduleStartTimes = false;
                 workloadRunner = new WorkloadRunner(
                         timeSource,
                         db,
@@ -264,7 +266,8 @@ public class Client {
                         controlService.configuration().spinnerSleepDuration(),
                         controlService.configuration().windowedExecutionWindowDuration(),
                         earlySpinnerOffsetDuration,
-                        durationToWaitForAllHandlersToFinishBeforeShutdown);
+                        durationToWaitForAllHandlersToFinishBeforeShutdown,
+                        ignoreScheduleStartTimes);
             } catch (WorkloadException e) {
                 throw new ClientException(String.format("Error instantiating %s", WorkloadRunner.class.getSimpleName()), e);
             }

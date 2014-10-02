@@ -5,9 +5,6 @@ import com.ldbc.driver.runtime.ConcurrentErrorReporter;
 import com.ldbc.driver.runtime.coordination.CompletionTimeException;
 import com.ldbc.driver.runtime.coordination.DummyLocalCompletionTimeWriter;
 import com.ldbc.driver.runtime.coordination.LocalCompletionTimeWriter;
-import com.ldbc.driver.runtime.executor.OperationHandlerExecutor;
-import com.ldbc.driver.runtime.executor.OperationHandlerExecutorException;
-import com.ldbc.driver.runtime.executor.ThreadPoolOperationHandlerExecutor;
 import com.ldbc.driver.runtime.metrics.DummyCollectingConcurrentMetricsService;
 import com.ldbc.driver.runtime.scheduling.ErrorReportingTerminatingExecutionDelayPolicy;
 import com.ldbc.driver.runtime.scheduling.ExecutionDelayPolicy;
@@ -73,10 +70,11 @@ public class ThreadPoolOperationHandlerExecutorTest {
     @Test
     public void executorShouldReturnExpectedResult() throws OperationHandlerExecutorException, ExecutionException, InterruptedException, OperationException, CompletionTimeException {
         // Given
+        boolean ignoreScheduledStartTime = false;
         Duration toleratedDelay = Duration.fromMilli(100);
         ConcurrentErrorReporter errorReporter = new ConcurrentErrorReporter();
         ExecutionDelayPolicy delayPolicy = new ErrorReportingTerminatingExecutionDelayPolicy(TIME_SOURCE, toleratedDelay, errorReporter);
-        Spinner spinner = new Spinner(TIME_SOURCE, Spinner.DEFAULT_SLEEP_DURATION_10_MILLI, delayPolicy);
+        Spinner spinner = new Spinner(TIME_SOURCE, Spinner.DEFAULT_SLEEP_DURATION_10_MILLI, delayPolicy, Duration.fromMilli(0), ignoreScheduledStartTime);
         LocalCompletionTimeWriter dummyLocalCompletionTimeWriter = new DummyLocalCompletionTimeWriter();
         DummyCollectingConcurrentMetricsService metricsService = new DummyCollectingConcurrentMetricsService();
 
@@ -119,10 +117,11 @@ public class ThreadPoolOperationHandlerExecutorTest {
     @Test
     public void executorShouldReturnAllResults() throws OperationHandlerExecutorException, ExecutionException, InterruptedException, OperationException, CompletionTimeException {
         // Given
+        boolean ignoreScheduledStartTime = false;
         Duration toleratedDelay = Duration.fromMilli(100);
         ConcurrentErrorReporter errorReporter = new ConcurrentErrorReporter();
         ExecutionDelayPolicy delayPolicy = new ErrorReportingTerminatingExecutionDelayPolicy(TIME_SOURCE, toleratedDelay, errorReporter);
-        Spinner spinner = new Spinner(TIME_SOURCE, Spinner.DEFAULT_SLEEP_DURATION_10_MILLI, delayPolicy);
+        Spinner spinner = new Spinner(TIME_SOURCE, Spinner.DEFAULT_SLEEP_DURATION_10_MILLI, delayPolicy, Duration.fromMilli(0), ignoreScheduledStartTime);
         LocalCompletionTimeWriter dummyLocalCompletionTimeWriter = new DummyLocalCompletionTimeWriter();
         DummyCollectingConcurrentMetricsService metricsService = new DummyCollectingConcurrentMetricsService();
 
@@ -183,10 +182,11 @@ public class ThreadPoolOperationHandlerExecutorTest {
     @Test
     public void executorShouldThrowExceptionIfShutdownMultipleTimes() throws OperationHandlerExecutorException, ExecutionException, InterruptedException, OperationException, CompletionTimeException {
         // Given
+        boolean ignoreScheduledStartTime = false;
         Duration toleratedDelay = Duration.fromMilli(100);
         ConcurrentErrorReporter errorReporter = new ConcurrentErrorReporter();
         ExecutionDelayPolicy delayPolicy = new ErrorReportingTerminatingExecutionDelayPolicy(TIME_SOURCE, toleratedDelay, errorReporter);
-        Spinner spinner = new Spinner(TIME_SOURCE, Spinner.DEFAULT_SLEEP_DURATION_10_MILLI, delayPolicy);
+        Spinner spinner = new Spinner(TIME_SOURCE, Spinner.DEFAULT_SLEEP_DURATION_10_MILLI, delayPolicy, Duration.fromMilli(0), ignoreScheduledStartTime);
         LocalCompletionTimeWriter dummyLocalCompletionTimeWriter = new DummyLocalCompletionTimeWriter();
         DummyCollectingConcurrentMetricsService metricsService = new DummyCollectingConcurrentMetricsService();
 

@@ -19,6 +19,7 @@ import com.ldbc.driver.temporal.TimeSource;
 import com.ldbc.driver.testutils.TestUtils;
 import com.ldbc.driver.workloads.ldbc.snb.interactive.LdbcSnbInteractiveWorkload;
 import com.ldbc.driver.workloads.ldbc.snb.interactive.db.DummyLdbcSnbInteractiveDb;
+import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
@@ -38,110 +39,27 @@ public class WorkloadRunnerTest {
     @Rule
     public TemporaryFolder temporaryFolder = new TemporaryFolder();
 
-    TimeSource TIME_SOURCE = new SystemTimeSource();
+    TimeSource timeSource = new SystemTimeSource();
     CompletionTimeServiceAssistant completionTimeServiceAssistant = new CompletionTimeServiceAssistant();
 
     @Test
-    public void shouldRunReadOnlyLdbcWorkloadWithNothingDb()
-            throws DbException, WorkloadException, MetricsCollectionException, IOException, CompletionTimeException, InterruptedException {
-        ConcurrentControlService controlService = null;
-        Db db = null;
-        Workload workload = null;
-        ConcurrentMetricsService metricsService = null;
-        ConcurrentCompletionTimeService completionTimeService = null;
-        try {
-            Map<String, String> paramsMap = LdbcSnbInteractiveWorkload.defaultReadOnlyConfig();
-            paramsMap.put(LdbcSnbInteractiveWorkload.PARAMETERS_DIRECTORY, TestUtils.getResource("/").getAbsolutePath());
-            paramsMap.put(LdbcSnbInteractiveWorkload.DATA_DIRECTORY, TestUtils.getResource("/").getAbsolutePath());
-            // Driver-specific parameters
-            String name = "name";
-            String dbClassName = DummyLdbcSnbInteractiveDb.class.getName();
-            String workloadClassName = LdbcSnbInteractiveWorkload.class.getName();
-            long operationCount = 1000;
-            int threadCount = 1;
-            Duration statusDisplayInterval = Duration.fromSeconds(1);
-            TimeUnit timeUnit = TimeUnit.MILLISECONDS;
-            String resultDirPath = temporaryFolder.newFolder().getAbsolutePath();
-            double timeCompressionRatio = 1.0;
-            Duration windowedExecutionWindowDuration = Duration.fromSeconds(1);
-            Set<String> peerIds = new HashSet<>();
-            Duration toleratedExecutionDelay = Duration.fromMinutes(60);
-            ConsoleAndFileDriverConfiguration.ConsoleAndFileValidationParamOptions validationParams = null;
-            String dbValidationFilePath = null;
-            boolean validateWorkload = false;
-            boolean calculateWorkloadStatistics = false;
-            Duration spinnerSleepDuration = Duration.fromMilli(0);
-            boolean printHelp = false;
-
-            ConsoleAndFileDriverConfiguration configuration = new ConsoleAndFileDriverConfiguration(paramsMap, name, dbClassName, workloadClassName, operationCount,
-                    threadCount, statusDisplayInterval, timeUnit, resultDirPath, timeCompressionRatio, windowedExecutionWindowDuration, peerIds, toleratedExecutionDelay,
-                    validationParams, dbValidationFilePath, validateWorkload, calculateWorkloadStatistics, spinnerSleepDuration, printHelp);
-
-            controlService = new LocalControlService(TIME_SOURCE.now().plus(Duration.fromSeconds(5)), configuration);
-            db = new DummyLdbcSnbInteractiveDb();
-            db.init(configuration.asMap());
-            workload = new LdbcSnbInteractiveWorkload();
-            workload.init(configuration);
-            GeneratorFactory generators = new GeneratorFactory(new RandomDataGeneratorFactory(42L));
-            Iterator<Operation<?>> operations = workload.operations(generators, configuration.operationCount());
-            Iterator<Operation<?>> timeMappedOperations = generators.timeOffsetAndCompress(operations, controlService.workloadStartTime(), 1.0);
-            Map<Class<? extends Operation>, OperationClassification> operationClassifications = workload.operationClassifications();
-            ConcurrentErrorReporter errorReporter = new ConcurrentErrorReporter();
-            metricsService = ThreadedQueuedConcurrentMetricsService.newInstanceUsingBlockingQueue(
-                    TIME_SOURCE,
-                    errorReporter,
-                    configuration.timeUnit(),
-                    controlService.workloadStartTime(),
-                    ThreadedQueuedConcurrentMetricsService.DEFAULT_HIGHEST_EXPECTED_RUNTIME_DURATION,
-                    ThreadedQueuedConcurrentMetricsService.DEFAULT_HIGHEST_EXPECTED_DELAY_DURATION);
-
-            completionTimeService =
-                    completionTimeServiceAssistant.newThreadedQueuedConcurrentCompletionTimeServiceFromPeerIds(
-                            TIME_SOURCE,
-                            controlService.configuration().peerIds(),
-                            errorReporter);
-
-            WorkloadRunner runner = new WorkloadRunner(
-                    TIME_SOURCE,
-                    db,
-                    timeMappedOperations,
-                    operationClassifications,
-                    metricsService,
-                    errorReporter,
-                    completionTimeService,
-                    controlService.configuration().threadCount(),
-                    controlService.configuration().statusDisplayInterval(),
-                    controlService.workloadStartTime(),
-                    controlService.configuration().toleratedExecutionDelay(),
-                    controlService.configuration().spinnerSleepDuration(),
-                    controlService.configuration().windowedExecutionWindowDuration(),
-                    WorkloadRunner.DEFAULT_EARLY_SPINNER_OFFSET_DURATION,
-                    WorkloadRunner.DEFAULT_DURATION_TO_WAIT_FOR_ALL_HANDLERS_TO_FINISH);
-
-            runner.executeWorkload();
-
-            WorkloadResultsSnapshot workloadResults = metricsService.results();
-
-            assertThat(errorReporter.toString(), errorReporter.errorEncountered(), is(false));
-            assertThat(errorReporter.toString(), metricsService.results().startTime().gte(controlService.workloadStartTime()), is(true));
-            assertThat(errorReporter.toString(), metricsService.results().startTime().lt(controlService.workloadStartTime().plus(configuration.toleratedExecutionDelay())), is(true));
-            assertThat(errorReporter.toString(), metricsService.results().latestFinishTime().gt(metricsService.results().startTime()), is(true));
-
-            WorkloadResultsSnapshot workloadResultsFromJson = WorkloadResultsSnapshot.fromJson(workloadResults.toJson());
-
-            assertThat(errorReporter.toString(), workloadResults, equalTo(workloadResultsFromJson));
-            assertThat(errorReporter.toString(), workloadResults.toJson(), equalTo(workloadResultsFromJson.toJson()));
-        } finally {
-            if (null != controlService) controlService.shutdown();
-            if (null != db) db.shutdown();
-            if (null != workload) workload.cleanup();
-            if (null != metricsService) metricsService.shutdown();
-            if (null != completionTimeService) completionTimeService.shutdown();
-        }
+    public void shouldRunReadOnlyLdbcWorkloadWithNothingDbAndReturnExpectedMetrics()
+            throws InterruptedException, DbException, WorkloadException, IOException, MetricsCollectionException, CompletionTimeException {
+        boolean ignoreScheduledStartTime = false;
+        long operationCount = 1000;
+        doShouldRunReadOnlyLdbcWorkloadWithNothingDbAndReturnExpectedMetrics(ignoreScheduledStartTime, operationCount);
     }
 
+    @Ignore
     @Test
-    public void shouldRunReadOnlyLdbcWorkloadAndReturnExpectedMetrics()
+    public void shouldRunReadOnlyLdbcWorkloadWithNothingDbWhileIgnoringScheduledStartTimesAndReturnExpectedMetrics()
+            throws InterruptedException, DbException, WorkloadException, IOException, MetricsCollectionException, CompletionTimeException {
+        boolean ignoreScheduledStartTime = true;
+        long operationCount = 1000;
+        doShouldRunReadOnlyLdbcWorkloadWithNothingDbAndReturnExpectedMetrics(ignoreScheduledStartTime, operationCount);
+    }
+
+    public void doShouldRunReadOnlyLdbcWorkloadWithNothingDbAndReturnExpectedMetrics(boolean ignoreScheduledStartTime, long operationCount)
             throws DbException, WorkloadException, MetricsCollectionException, IOException, CompletionTimeException, InterruptedException {
         ConcurrentControlService controlService = null;
         Db db = null;
@@ -156,7 +74,6 @@ public class WorkloadRunnerTest {
             String name = null;
             String dbClassName = DummyLdbcSnbInteractiveDb.class.getName();
             String workloadClassName = LdbcSnbInteractiveWorkload.class.getName();
-            long operationCount = 1000;
             int threadCount = 1;
             Duration statusDisplayInterval = Duration.fromSeconds(1);
             TimeUnit timeUnit = TimeUnit.MILLISECONDS;
@@ -176,7 +93,7 @@ public class WorkloadRunnerTest {
                     threadCount, statusDisplayInterval, timeUnit, resultDirPath, timeCompressionRatio, windowedExecutionWindowDuration, peerIds, toleratedExecutionDelay,
                     validationParams, dbValidationFilePath, validateWorkload, calculateWorkloadStatistics, spinnerSleepDuration, printHelp);
 
-            controlService = new LocalControlService(TIME_SOURCE.now().plus(Duration.fromMilli(1000)), configuration);
+            controlService = new LocalControlService(timeSource.now().plus(Duration.fromMilli(1000)), configuration);
             db = new DummyLdbcSnbInteractiveDb();
             db.init(configuration.asMap());
             workload = new LdbcSnbInteractiveWorkload();
@@ -187,7 +104,7 @@ public class WorkloadRunnerTest {
             Map<Class<? extends Operation>, OperationClassification> operationClassifications = workload.operationClassifications();
             ConcurrentErrorReporter errorReporter = new ConcurrentErrorReporter();
             metricsService = ThreadedQueuedConcurrentMetricsService.newInstanceUsingBlockingQueue(
-                    TIME_SOURCE,
+                    timeSource,
                     errorReporter,
                     configuration.timeUnit(),
                     controlService.workloadStartTime(),
@@ -199,7 +116,7 @@ public class WorkloadRunnerTest {
                             controlService.configuration().peerIds());
 
             WorkloadRunner runner = new WorkloadRunner(
-                    TIME_SOURCE,
+                    timeSource,
                     db,
                     timeMappedOperations,
                     operationClassifications,
@@ -213,7 +130,8 @@ public class WorkloadRunnerTest {
                     controlService.configuration().spinnerSleepDuration(),
                     controlService.configuration().windowedExecutionWindowDuration(),
                     WorkloadRunner.DEFAULT_EARLY_SPINNER_OFFSET_DURATION,
-                    WorkloadRunner.DEFAULT_DURATION_TO_WAIT_FOR_ALL_HANDLERS_TO_FINISH);
+                    WorkloadRunner.DEFAULT_DURATION_TO_WAIT_FOR_ALL_HANDLERS_TO_FINISH,
+                    ignoreScheduledStartTime);
 
 
             runner.executeWorkload();

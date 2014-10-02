@@ -69,7 +69,8 @@ public class WorkloadRunner {
                           Duration spinnerSleepDuration,
                           Duration executionWindowDuration,
                           Duration earlySpinnerOffsetDuration,
-                          Duration durationToWaitForAllHandlersToFinishBeforeShutdown) throws WorkloadException {
+                          Duration durationToWaitForAllHandlersToFinishBeforeShutdown,
+                          boolean ignoreScheduleStartTimes) throws WorkloadException {
         this.TIME_SOURCE = timeSource;
         this.errorReporter = errorReporter;
         this.statusDisplayInterval = statusDisplayInterval;
@@ -81,8 +82,8 @@ public class WorkloadRunner {
 
         // TODO for the spinner sent to Window scheduler allow delay to reach to the end of window?
 
-        this.exactSpinner = new Spinner(TIME_SOURCE, spinnerSleepDuration, executionDelayPolicy);
-        this.slightlyEarlySpinner = new Spinner(TIME_SOURCE, spinnerSleepDuration, executionDelayPolicy, earlySpinnerOffsetDuration);
+        this.exactSpinner = new Spinner(TIME_SOURCE, spinnerSleepDuration, executionDelayPolicy, Duration.fromMilli(0), ignoreScheduleStartTimes);
+        this.slightlyEarlySpinner = new Spinner(TIME_SOURCE, spinnerSleepDuration, executionDelayPolicy, earlySpinnerOffsetDuration, ignoreScheduleStartTimes);
         // TODO make this a configuration parameter?
         boolean detailedStatus = true;
         if (statusDisplayInterval.asSeconds() > 0)
