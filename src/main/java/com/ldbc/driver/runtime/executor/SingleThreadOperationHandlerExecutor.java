@@ -5,11 +5,11 @@ import com.ldbc.driver.Operation;
 import com.ldbc.driver.OperationHandler;
 import com.ldbc.driver.OperationResultReport;
 import com.ldbc.driver.runtime.ConcurrentErrorReporter;
+import com.ldbc.driver.runtime.DefaultQueues;
 import com.ldbc.driver.runtime.QueueEventSubmitter;
 import com.ldbc.driver.temporal.Duration;
 
 import java.util.Queue;
-import java.util.concurrent.LinkedTransferQueue;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicLong;
 
@@ -27,7 +27,7 @@ public class SingleThreadOperationHandlerExecutor implements OperationHandlerExe
     private final AtomicBoolean shutdown = new AtomicBoolean(false);
 
     public SingleThreadOperationHandlerExecutor(ConcurrentErrorReporter errorReporter) {
-        Queue<OperationHandler<?>> operationHandlerQueue = new LinkedTransferQueue<>();
+        Queue<OperationHandler<?>> operationHandlerQueue = DefaultQueues.newBlockingBounded(DefaultQueues.DEFAULT_BOUND);
         this.operationHandlerQueueEventSubmitter = QueueEventSubmitter.queueEventSubmitterFor(operationHandlerQueue);
         this.executorThread = new SingleThreadOperationHandlerExecutorThread(operationHandlerQueue, errorReporter, uncompletedHandlers);
         this.executorThread.start();

@@ -1,6 +1,7 @@
 package com.ldbc.driver.runtime.coordination;
 
 import com.ldbc.driver.runtime.ConcurrentErrorReporter;
+import com.ldbc.driver.runtime.DefaultQueues;
 import com.ldbc.driver.runtime.QueueEventSubmitter;
 import com.ldbc.driver.runtime.scheduling.Spinner;
 import com.ldbc.driver.temporal.Duration;
@@ -12,7 +13,6 @@ import java.util.List;
 import java.util.Queue;
 import java.util.Set;
 import java.util.concurrent.Future;
-import java.util.concurrent.LinkedTransferQueue;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -38,7 +38,7 @@ public class ThreadedQueuedConcurrentCompletionTimeService implements Concurrent
                                                   ConcurrentErrorReporter errorReporter) throws CompletionTimeException {
         this.TIME_SOURCE = timeSource;
         this.errorReporter = errorReporter;
-        Queue<CompletionTimeEvent> completionTimeEventQueue = new LinkedTransferQueue<>();
+        Queue<CompletionTimeEvent> completionTimeEventQueue = DefaultQueues.newBlockingUnbounded();
         this.queueEventSubmitter = QueueEventSubmitter.queueEventSubmitterFor(completionTimeEventQueue);
 
         this.sharedGctReference = new AtomicReference<>(null);

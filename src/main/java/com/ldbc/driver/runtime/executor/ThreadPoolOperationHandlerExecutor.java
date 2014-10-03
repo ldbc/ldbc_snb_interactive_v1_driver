@@ -1,6 +1,7 @@
 package com.ldbc.driver.runtime.executor;
 
 import com.ldbc.driver.OperationHandler;
+import com.ldbc.driver.runtime.DefaultQueues;
 import com.ldbc.driver.temporal.Duration;
 
 import java.util.List;
@@ -70,7 +71,7 @@ public class ThreadPoolOperationHandlerExecutor implements OperationHandlerExecu
             int maximumPoolSize = threadCount;
             long keepAliveTime = 0;
             TimeUnit unit = TimeUnit.MILLISECONDS;
-            BlockingQueue<Runnable> workQueue = new LinkedTransferQueue<>();
+            BlockingQueue<Runnable> workQueue = DefaultQueues.newBlockingBounded(DefaultQueues.DEFAULT_BOUND);
             return new ThreadPoolExecutorWithAfterExecute(corePoolSize, maximumPoolSize, keepAliveTime, unit, workQueue, threadFactory, uncompletedHandlers);
         }
 

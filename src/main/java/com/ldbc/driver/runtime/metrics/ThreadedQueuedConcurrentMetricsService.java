@@ -2,13 +2,16 @@ package com.ldbc.driver.runtime.metrics;
 
 import com.ldbc.driver.OperationResultReport;
 import com.ldbc.driver.runtime.ConcurrentErrorReporter;
+import com.ldbc.driver.runtime.DefaultQueues;
 import com.ldbc.driver.runtime.QueueEventSubmitter;
 import com.ldbc.driver.temporal.Duration;
 import com.ldbc.driver.temporal.Time;
 import com.ldbc.driver.temporal.TimeSource;
 
 import java.util.Queue;
-import java.util.concurrent.*;
+import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.atomic.AtomicReference;
@@ -33,7 +36,7 @@ public class ThreadedQueuedConcurrentMetricsService implements ConcurrentMetrics
                                                                                           Duration maxRuntimeDuration,
                                                                                           Duration maxToleratedDelayDuration,
                                                                                           boolean recordStartTimeDelayLatency) {
-        Queue<MetricsCollectionEvent> queue = new ConcurrentLinkedQueue<>();
+        Queue<MetricsCollectionEvent> queue = DefaultQueues.newNonBlocking();
         return new ThreadedQueuedConcurrentMetricsService(
                 timeSource,
                 errorReporter,
@@ -52,7 +55,7 @@ public class ThreadedQueuedConcurrentMetricsService implements ConcurrentMetrics
                                                                                        Duration maxRuntimeDuration,
                                                                                        Duration maxToleratedDelayDuration,
                                                                                        boolean recordStartTimeDelayLatency) {
-        Queue<MetricsCollectionEvent> queue = new LinkedTransferQueue<>();
+        Queue<MetricsCollectionEvent> queue = DefaultQueues.newBlockingUnbounded();
         return new ThreadedQueuedConcurrentMetricsService(
                 timeSource,
                 errorReporter,
