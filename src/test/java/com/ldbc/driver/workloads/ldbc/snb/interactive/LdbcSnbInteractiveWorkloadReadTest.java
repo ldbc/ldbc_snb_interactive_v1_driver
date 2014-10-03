@@ -40,7 +40,7 @@ public class LdbcSnbInteractiveWorkloadReadTest {
     @Rule
     public TemporaryFolder temporaryFolder = new TemporaryFolder();
 
-    TimeSource TIME_SOURCE = new SystemTimeSource();
+    TimeSource timeSource = new SystemTimeSource();
 
     static Map<String, String> defaultSnbParamsMapWithParametersDir() {
         Map<String, String> additionalParams = new HashMap<>();
@@ -214,7 +214,7 @@ public class LdbcSnbInteractiveWorkloadReadTest {
         // **************************************************
         // create validation parameters file
         // **************************************************
-        Client clientForValidationFileCreation = new Client(new LocalControlService(TIME_SOURCE.now().plus(Duration.fromMilli(1000)), params), TIME_SOURCE);
+        Client clientForValidationFileCreation = new Client(new LocalControlService(timeSource.now().plus(Duration.fromMilli(1000)), params), timeSource);
         clientForValidationFileCreation.start();
 
         // **************************************************
@@ -238,7 +238,7 @@ public class LdbcSnbInteractiveWorkloadReadTest {
         // **************************************************
         // validate the database
         // **************************************************
-        Client clientForDatabaseValidation = new Client(new LocalControlService(TIME_SOURCE.now().plus(Duration.fromMilli(1000)), params), TIME_SOURCE);
+        Client clientForDatabaseValidation = new Client(new LocalControlService(timeSource.now().plus(Duration.fromMilli(1000)), params), timeSource);
         clientForDatabaseValidation.start();
 
         // **************************************************
@@ -286,7 +286,7 @@ public class LdbcSnbInteractiveWorkloadReadTest {
                 validationParams, dbValidationFilePath, validateWorkload, calculateWorkloadStatistics, spinnerSleepDuration, printHelp, ignoreScheduledStartTimes);
 
         // When
-        Client client = new Client(new LocalControlService(TIME_SOURCE.now().plus(Duration.fromMilli(500)), params), TIME_SOURCE);
+        Client client = new Client(new LocalControlService(timeSource.now().plus(Duration.fromMilli(500)), params), timeSource);
         client.start();
 
         // Then
@@ -492,7 +492,7 @@ public class LdbcSnbInteractiveWorkloadReadTest {
         assertThat(new File(resultDirPath).listFiles().length > 0, is(false));
 
         // When
-        Client client = new Client(new LocalControlService(TIME_SOURCE.now().plus(Duration.fromMilli(500)), configuration), TIME_SOURCE);
+        Client client = new Client(new LocalControlService(timeSource.now().plus(Duration.fromMilli(500)), configuration), timeSource);
         client.start();
 
         // Then
@@ -651,7 +651,7 @@ public class LdbcSnbInteractiveWorkloadReadTest {
                 validationParams, dbValidationFilePath, validateWorkload, calculateWorkloadStatistics, spinnerSleepDuration, printHelp, ignoreScheduledStartTimes);
 
         // When
-        Client client = new Client(new LocalControlService(TIME_SOURCE.now().plus(Duration.fromMilli(500)), params), TIME_SOURCE);
+        Client client = new Client(new LocalControlService(timeSource.now().plus(Duration.fromMilli(500)), params), timeSource);
         client.start();
 
         // Then

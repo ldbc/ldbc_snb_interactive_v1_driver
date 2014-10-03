@@ -26,7 +26,7 @@ import static org.hamcrest.CoreMatchers.*;
 import static org.junit.Assert.assertThat;
 
 public class ConcurrentCompletionTimeServiceAdvancedTest {
-    final TimeSource TIME_SOURCE = new SystemTimeSource();
+    final TimeSource timeSource = new SystemTimeSource();
     final CompletionTimeServiceAssistant completionTimeServiceAssistant = new CompletionTimeServiceAssistant();
     final Integer TERMINATE = -1;
 
@@ -121,14 +121,14 @@ public class ConcurrentCompletionTimeServiceAdvancedTest {
             }
         };
 
-        long startTimeAsMilli = TIME_SOURCE.nowAsMilli();
+        long startTimeAsMilli = timeSource.nowAsMilli();
         readThread.start();
         writeThread.start();
         writeThread.join();
         readThread.join();
         assertThat(queue.poll(), is(nullValue()));
         assertThat(queue.size(), is(0));
-        return Duration.fromMilli(TIME_SOURCE.nowAsMilli() - startTimeAsMilli);
+        return Duration.fromMilli(timeSource.nowAsMilli() - startTimeAsMilli);
     }
 
     public Duration blockingQueuePerformanceTest(final int queueItemCount, final BlockingQueue<Integer> queue) throws InterruptedException {
@@ -160,14 +160,14 @@ public class ConcurrentCompletionTimeServiceAdvancedTest {
             }
         };
 
-        long startTimeAsMilli = TIME_SOURCE.nowAsMilli();
+        long startTimeAsMilli = timeSource.nowAsMilli();
         readThread.start();
         writeThread.start();
         writeThread.join();
         readThread.join();
         assertThat(queue.poll(), is(nullValue()));
         assertThat(queue.size(), is(0));
-        return Duration.fromMilli(TIME_SOURCE.nowAsMilli() - startTimeAsMilli);
+        return Duration.fromMilli(timeSource.nowAsMilli() - startTimeAsMilli);
     }
 
     @Ignore
@@ -197,7 +197,7 @@ public class ConcurrentCompletionTimeServiceAdvancedTest {
             totalTestDurationForThreadedCompletionTimeService = 0;
             for (int i = 0; i < testRepetitions; i++) {
                 ConcurrentCompletionTimeService concurrentCompletionTimeService =
-                        completionTimeServiceAssistant.newThreadedQueuedConcurrentCompletionTimeServiceFromPeerIds(TIME_SOURCE, peerIds, errorReporter);
+                        completionTimeServiceAssistant.newThreadedQueuedConcurrentCompletionTimeServiceFromPeerIds(timeSource, peerIds, errorReporter);
                 totalTestDurationForThreadedCompletionTimeService += parallelCompletionTimeServiceTest(concurrentCompletionTimeService, otherPeerId, errorReporter, workerThreads).asMilli();
                 concurrentCompletionTimeService.shutdown();
             }
@@ -240,7 +240,7 @@ public class ConcurrentCompletionTimeServiceAdvancedTest {
         Iterator<Operation<?>> operations = workload.operations(generators, configuration.operationCount());
 
         // measure duration of experiment
-        Time startTime = TIME_SOURCE.now();
+        Time startTime = timeSource.now();
 
         // track number of operations that have completed, i.e., that have their Completed Time submitted
         int completedOperations = 0;
@@ -334,7 +334,7 @@ public class ConcurrentCompletionTimeServiceAdvancedTest {
         Future<Time> future3WaitingForLastOperation = concurrentCompletionTimeService.globalCompletionTimeFuture();
         assertThat(future3WaitingForLastOperation.get(), equalTo(lastScheduledStartTime));
 
-        Duration testDuration = TIME_SOURCE.now().durationGreaterThan(startTime);
+        Duration testDuration = timeSource.now().durationGreaterThan(startTime);
 
         executorService.shutdown();
         boolean allTasksCompletedInTime = executorService.awaitTermination(1, TimeUnit.SECONDS);

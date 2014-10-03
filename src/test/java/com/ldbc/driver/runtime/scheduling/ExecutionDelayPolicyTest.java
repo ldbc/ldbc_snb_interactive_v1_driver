@@ -12,38 +12,21 @@ import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
 
 public class ExecutionDelayPolicyTest {
-    private TimeSource TIME_SOURCE = new SystemTimeSource();
+    private TimeSource timeSource = new SystemTimeSource();
 
     @Test
     public void errorReportingPolicyShouldReportErrorWhenHandleExcessiveDelayIsCalled() {
         // Given
         ConcurrentErrorReporter errorReporter = new ConcurrentErrorReporter();
         Duration toleratedDelay = Duration.fromMilli(10);
-        ExecutionDelayPolicy delayPolicy = new ErrorReportingTerminatingExecutionDelayPolicy(TIME_SOURCE, toleratedDelay, errorReporter);
+        ExecutionDelayPolicy delayPolicy = new ErrorReportingTerminatingExecutionDelayPolicy(timeSource, toleratedDelay, errorReporter);
         Operation<?> operation = new NothingOperation();
-        operation.setScheduledStartTime(TIME_SOURCE.now().minus(Duration.fromMilli(2000)));
+        operation.setScheduledStartTime(timeSource.now().minus(Duration.fromMilli(2000)));
 
         assertThat(errorReporter.errorEncountered(), is(false));
 
         // When
         delayPolicy.handleExcessiveDelay(operation);
-
-        // Then
-        assertThat(errorReporter.errorEncountered(), is(true));
-    }
-
-    @Test
-    public void errorReportingPolicyShouldReportErrorWhenHandleUnassignedStartTimeIsCalled() {
-        // Given
-        ConcurrentErrorReporter errorReporter = new ConcurrentErrorReporter();
-        Duration toleratedDelay = Duration.fromMilli(10);
-        ExecutionDelayPolicy delayPolicy = new ErrorReportingTerminatingExecutionDelayPolicy(TIME_SOURCE, toleratedDelay, errorReporter);
-        Operation<?> operation = new NothingOperation();
-
-        assertThat(errorReporter.errorEncountered(), is(false));
-
-        // When
-        delayPolicy.handleUnassignedTime(operation);
 
         // Then
         assertThat(errorReporter.errorEncountered(), is(true));
@@ -56,7 +39,7 @@ public class ExecutionDelayPolicyTest {
         Duration toleratedDelay = Duration.fromMilli(10);
 
         // When
-        ExecutionDelayPolicy delayPolicy = new ErrorReportingTerminatingExecutionDelayPolicy(TIME_SOURCE, toleratedDelay, errorReporter);
+        ExecutionDelayPolicy delayPolicy = new ErrorReportingTerminatingExecutionDelayPolicy(timeSource, toleratedDelay, errorReporter);
 
         // Then
         assertThat(delayPolicy.toleratedDelay(), is(Duration.fromMilli(10)));

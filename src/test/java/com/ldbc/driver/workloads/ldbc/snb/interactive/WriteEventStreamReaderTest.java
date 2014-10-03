@@ -14,9 +14,6 @@ import com.ldbc.driver.testutils.TestUtils;
 import com.ldbc.driver.util.CsvFileReader;
 import com.ldbc.driver.util.Histogram;
 import com.ldbc.driver.generator.RandomDataGeneratorFactory;
-import org.apache.commons.io.FileUtils;
-import org.junit.After;
-import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
@@ -39,7 +36,7 @@ public class WriteEventStreamReaderTest {
     @Rule
     public TemporaryFolder temporaryFolder = new TemporaryFolder();
 
-    TimeSource TIME_SOURCE = new SystemTimeSource();
+    TimeSource timeSource = new SystemTimeSource();
 
     @Test
     public void shouldParseUpdate1AddPerson() throws IOException, ParseException {
@@ -306,11 +303,11 @@ public class WriteEventStreamReaderTest {
         histogram.addBucket(DiscreteBucket.<Class<?>>create(LdbcUpdate7AddComment.class));
         histogram.addBucket(DiscreteBucket.<Class<?>>create(LdbcUpdate8AddFriendship.class));
 
-        Time startTime = TIME_SOURCE.now();
+        Time startTime = timeSource.now();
 
         histogram.importValueSequence(updateEventTypes);
 
-        Duration runtime = TIME_SOURCE.now().durationGreaterThan(startTime);
+        Duration runtime = timeSource.now().durationGreaterThan(startTime);
 
         System.out.println(String.format("Runtime:\t\t%s", runtime));
         System.out.println(String.format("Operation count:\t%s", histogram.sumOfAllBucketValues()));
@@ -340,11 +337,11 @@ public class WriteEventStreamReaderTest {
         histogram.addBucket(DiscreteBucket.<Class<?>>create(LdbcUpdate7AddComment.class));
         histogram.addBucket(DiscreteBucket.<Class<?>>create(LdbcUpdate8AddFriendship.class));
 
-        Time startTime = TIME_SOURCE.now();
+        Time startTime = timeSource.now();
 
         histogram.importValueSequence(updateEventTypes);
 
-        Duration runtime = TIME_SOURCE.now().durationGreaterThan(startTime);
+        Duration runtime = timeSource.now().durationGreaterThan(startTime);
 
         System.out.println(String.format("Runtime:\t\t%s", runtime));
         System.out.println(String.format("Operation count:\t%s", histogram.sumOfAllBucketValues()));

@@ -27,7 +27,7 @@ import static org.hamcrest.CoreMatchers.*;
 import static org.junit.Assert.assertThat;
 
 public class WorkloadStatisticsCalculatorTest {
-    private TimeSource TIME_SOURCE = new SystemTimeSource();
+    private TimeSource timeSource = new SystemTimeSource();
     private GeneratorFactory gf;
 
     @Before
@@ -50,7 +50,7 @@ public class WorkloadStatisticsCalculatorTest {
     @Test
     public void shouldReturnCorrectWorkloadStatisticsForWorkloadsWithSingleOperationType() throws MetricsCollectionException {
         // Given
-        Time workloadStartTime = TIME_SOURCE.now();
+        Time workloadStartTime = timeSource.now();
         long operationCount = 1000;
         Duration operationInterleave = Duration.fromMilli(100);
 

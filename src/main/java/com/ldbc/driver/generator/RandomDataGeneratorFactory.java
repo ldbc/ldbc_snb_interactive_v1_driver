@@ -8,14 +8,14 @@ import org.apache.commons.math3.random.Well19937c;
 
 public class RandomDataGeneratorFactory {
 
-    private final TimeSource TIME_SOURCE = new SystemTimeSource();
+    private final TimeSource timeSource = new SystemTimeSource();
     private final RandomGenerator random;
 
     /**
      * Will use current time to seed a RandomGenerator, which will generate seeds for all returned RandomDataGenerator instances
      */
     public RandomDataGeneratorFactory() {
-        this.random = getRandomGenerator(TIME_SOURCE.now().asNano());
+        this.random = getRandomGenerator(timeSource.now().asNano());
     }
 
     /**

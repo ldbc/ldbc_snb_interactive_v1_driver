@@ -24,7 +24,7 @@ import java.util.concurrent.atomic.AtomicReference;
 public class ThreadedQueuedConcurrentCompletionTimeService implements ConcurrentCompletionTimeService {
     private static final Duration SHUTDOWN_WAIT_TIMEOUT = Duration.fromSeconds(5);
 
-    private final TimeSource TIME_SOURCE;
+    private final TimeSource timeSource;
     private final QueueEventSubmitter<CompletionTimeEvent> queueEventSubmitter;
     private final AtomicReference<Time> sharedGctReference;
     private final AtomicLong sharedWriteEventCountReference;
@@ -36,7 +36,7 @@ public class ThreadedQueuedConcurrentCompletionTimeService implements Concurrent
     ThreadedQueuedConcurrentCompletionTimeService(TimeSource timeSource,
                                                   Set<String> peerIds,
                                                   ConcurrentErrorReporter errorReporter) throws CompletionTimeException {
-        this.TIME_SOURCE = timeSource;
+        this.timeSource = timeSource;
         this.errorReporter = errorReporter;
         Queue<CompletionTimeEvent> completionTimeEventQueue = DefaultQueues.newBlockingUnbounded();
         this.queueEventSubmitter = QueueEventSubmitter.queueEventSubmitterFor(completionTimeEventQueue);
@@ -59,12 +59,12 @@ public class ThreadedQueuedConcurrentCompletionTimeService implements Concurrent
     @Override
     public LocalCompletionTimeWriter newLocalCompletionTimeWriter() throws CompletionTimeException {
         long futureTimeoutDurationAsMilli = Duration.fromMilli(100).asMilli();
-        long timeoutTimeAsMilli = TIME_SOURCE.now().plus(Duration.fromSeconds(2)).asMilli();
+        long timeoutTimeAsMilli = timeSource.now().plus(Duration.fromSeconds(2)).asMilli();
         try {
-            LocalCompletionTimeWriterFuture future = new LocalCompletionTimeWriterFuture(TIME_SOURCE);
+            LocalCompletionTimeWriterFuture future = new LocalCompletionTimeWriterFuture(timeSource);
             queueEventSubmitter.submitEventToQueue(CompletionTimeEvent.newLocalCompletionTimeWriter(future));
             int writerId;
-            while (TIME_SOURCE.nowAsMilli() < timeoutTimeAsMilli) {
+            while (timeSource.nowAsMilli() < timeoutTimeAsMilli) {
                 try {
                     writerId = future.get(futureTimeoutDurationAsMilli, TimeUnit.MILLISECONDS);
                     LocalCompletionTimeWriter writer =
@@ -86,7 +86,7 @@ public class ThreadedQueuedConcurrentCompletionTimeService implements Concurrent
     @Override
     synchronized public Future<Time> globalCompletionTimeFuture() throws CompletionTimeException {
         try {
-            GlobalCompletionTimeFuture future = new GlobalCompletionTimeFuture(TIME_SOURCE);
+            GlobalCompletionTimeFuture future = new GlobalCompletionTimeFuture(timeSource);
             queueEventSubmitter.submitEventToQueue(CompletionTimeEvent.globalCompletionTimeFuture(future));
             return future;
         } catch (Exception e) {
@@ -118,13 +118,13 @@ public class ThreadedQueuedConcurrentCompletionTimeService implements Concurrent
         sharedIsShuttingDownReference.set(true);
 
         long pollingIntervalAsMilli = Duration.fromMilli(100).asMilli();
-        long shutdownTimeoutTimeAsMilli = TIME_SOURCE.now().plus(SHUTDOWN_WAIT_TIMEOUT).asMilli();
+        long shutdownTimeoutTimeAsMilli = timeSource.now().plus(SHUTDOWN_WAIT_TIMEOUT).asMilli();
         try {
             queueEventSubmitter.submitEventToQueue(CompletionTimeEvent.terminateService(sharedWriteEventCountReference.get()));
         } catch (InterruptedException e) {
             throw new CompletionTimeException("Encountered error while writing TERMINATE event to queue");
         }
-        while (TIME_SOURCE.nowAsMilli() < shutdownTimeoutTimeAsMilli) {
+        while (timeSource.nowAsMilli() < shutdownTimeoutTimeAsMilli) {
             if (threadedQueuedConcurrentCompletionTimeServiceThread.shutdownComplete())
                 return;
             if (errorReporter.errorEncountered())
@@ -178,12 +178,12 @@ public class ThreadedQueuedConcurrentCompletionTimeService implements Concurrent
     }
 
     public static class GlobalCompletionTimeFuture implements Future<Time> {
-        private final TimeSource TIME_SOURCE;
+        private final TimeSource timeSource;
         private final AtomicBoolean done = new AtomicBoolean(false);
         private final AtomicReference<Time> globalCompletionTimeReference = new AtomicReference<>(null);
 
         private GlobalCompletionTimeFuture(TimeSource timeSource) {
-            this.TIME_SOURCE = timeSource;
+            this.timeSource = timeSource;
         }
 
         synchronized void set(Time value) throws CompletionTimeException {
@@ -219,8 +219,8 @@ public class ThreadedQueuedConcurrentCompletionTimeService implements Concurrent
         @Override
         public Time get(long timeout, TimeUnit unit) throws TimeoutException {
             Duration timeoutDuration = Duration.from(unit, timeout);
-            long timeoutTimeAsMilli = TIME_SOURCE.now().plus(timeoutDuration).asMilli();
-            while (TIME_SOURCE.nowAsMilli() < timeoutTimeAsMilli) {
+            long timeoutTimeAsMilli = timeSource.now().plus(timeoutDuration).asMilli();
+            while (timeSource.nowAsMilli() < timeoutTimeAsMilli) {
                 // wait for value to be set
                 if (done.get())
                     return globalCompletionTimeReference.get();
@@ -230,12 +230,12 @@ public class ThreadedQueuedConcurrentCompletionTimeService implements Concurrent
     }
 
     public static class LocalCompletionTimeWriterFuture implements Future<Integer> {
-        private final TimeSource TIME_SOURCE;
+        private final TimeSource timeSource;
         private final AtomicBoolean done = new AtomicBoolean(false);
         private final AtomicInteger writerId = new AtomicInteger();
 
         private LocalCompletionTimeWriterFuture(TimeSource timeSource) {
-            this.TIME_SOURCE = timeSource;
+            this.timeSource = timeSource;
         }
 
         synchronized void set(int value) throws CompletionTimeException {
@@ -271,8 +271,8 @@ public class ThreadedQueuedConcurrentCompletionTimeService implements Concurrent
         @Override
         public Integer get(long timeout, TimeUnit unit) throws TimeoutException {
             Duration timeoutDuration = Duration.from(unit, timeout);
-            long timeoutTimeAsMilli = TIME_SOURCE.now().plus(timeoutDuration).asMilli();
-            while (TIME_SOURCE.nowAsMilli() < timeoutTimeAsMilli) {
+            long timeoutTimeAsMilli = timeSource.now().plus(timeoutDuration).asMilli();
+            while (timeSource.nowAsMilli() < timeoutTimeAsMilli) {
                 // wait for value to be set
                 if (done.get())
                     return writerId.get();

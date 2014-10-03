@@ -38,7 +38,7 @@ public class LdbcSnbInteractiveWorkloadTest {
     @Rule
     public TemporaryFolder temporaryFolder = new TemporaryFolder();
 
-    TimeSource TIME_SOURCE = new SystemTimeSource();
+    TimeSource timeSource = new SystemTimeSource();
 
     @Ignore
     @Test
@@ -390,7 +390,7 @@ public class LdbcSnbInteractiveWorkloadTest {
 
 
         // When
-        Client client = new Client(new LocalControlService(TIME_SOURCE.now().plus(Duration.fromMilli(500)), configuration), TIME_SOURCE);
+        Client client = new Client(new LocalControlService(timeSource.now().plus(Duration.fromMilli(500)), configuration), timeSource);
         client.start();
 
         // Then
@@ -478,7 +478,7 @@ public class LdbcSnbInteractiveWorkloadTest {
                 threadCount, statusDisplayInterval, timeUnit, resultDirPath, timeCompressionRatio, windowedExecutionWindowDuration, peerIds, toleratedExecutionDelay,
                 validationParams, dbValidationFilePath, validateWorkload, calculateWorkloadStatistics, spinnerSleepDuration, printHelp, ignoreScheduledStartTimes);
 
-        Client client = new Client(new LocalControlService(TIME_SOURCE.now().plus(Duration.fromSeconds(3)), configuration), TIME_SOURCE);
+        Client client = new Client(new LocalControlService(timeSource.now().plus(Duration.fromSeconds(3)), configuration), timeSource);
         client.start();
 
         assertThat(new File(resultDirPath).listFiles().length > 0, is(true));
@@ -593,7 +593,7 @@ public class LdbcSnbInteractiveWorkloadTest {
                 validationParams, dbValidationFilePath, validateWorkload, calculateWorkloadStatistics, spinnerSleepDuration, printHelp, ignoreScheduledStartTimes);
 
         // When
-        Client client = new Client(new LocalControlService(TIME_SOURCE.now().plus(Duration.fromSeconds(3)), configuration), TIME_SOURCE);
+        Client client = new Client(new LocalControlService(timeSource.now().plus(Duration.fromSeconds(3)), configuration), timeSource);
         client.start();
 
         // Then
@@ -640,7 +640,7 @@ public class LdbcSnbInteractiveWorkloadTest {
                 validationParams, dbValidationFilePath, validateWorkload, calculateWorkloadStatistics, spinnerSleepDuration, printHelp, ignoreScheduledStartTimes);
 
         // When
-        Client client = new Client(new LocalControlService(TIME_SOURCE.now().plus(Duration.fromMilli(500)), params), TIME_SOURCE);
+        Client client = new Client(new LocalControlService(timeSource.now().plus(Duration.fromMilli(500)), params), timeSource);
         client.start();
 
         // Then

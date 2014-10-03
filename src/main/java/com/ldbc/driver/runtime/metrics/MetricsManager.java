@@ -17,7 +17,7 @@ public class MetricsManager {
 
     private final Time startTime;
     private final Map<String, OperationTypeMetricsManager> allOperationMetrics;
-    private final TimeSource TIME_SOURCE;
+    private final TimeSource timeSource;
     private final TimeUnit unit;
     private final Duration highestExpectedRuntimeDuration;
     private final Duration highestExpectedDelayDuration;
@@ -45,7 +45,7 @@ public class MetricsManager {
                    Duration highestExpectedDelayDuration,
                    boolean recordStartTimeDelayLatency) {
         this.startTime = startTime;
-        this.TIME_SOURCE = timeSource;
+        this.timeSource = timeSource;
         this.unit = unit;
         this.allOperationMetrics = new HashMap<>();
         this.highestExpectedRuntimeDuration = highestExpectedRuntimeDuration;
@@ -106,7 +106,7 @@ public class MetricsManager {
     }
 
     WorkloadStatusSnapshot status() {
-        Time now = TIME_SOURCE.now();
+        Time now = timeSource.now();
         if (now.lt(startTime)) {
             Duration runDuration = Duration.fromMilli(0);
             long operationCount = 0;

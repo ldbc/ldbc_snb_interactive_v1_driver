@@ -35,7 +35,7 @@ import static org.junit.Assert.assertThat;
 
 @Ignore
 public class OperationStreamExecutorPerformanceTest {
-    private final ManualTimeSource TIME_SOURCE = new ManualTimeSource(0);
+    private final ManualTimeSource timeSource = new ManualTimeSource(0);
     private final GeneratorFactory gf = new GeneratorFactory(new RandomDataGeneratorFactory(42l));
 
     /*
@@ -106,10 +106,10 @@ public class OperationStreamExecutorPerformanceTest {
                 boolean ignoreScheduledStartTime = false;
                 ConcurrentErrorReporter errorReporter = new ConcurrentErrorReporter();
                 ExecutionDelayPolicy executionDelayPolicy = new ErrorReportingTerminatingExecutionDelayPolicy(
-                        TIME_SOURCE,
+                        timeSource,
                         Duration.fromMilli(10),
                         errorReporter);
-                Spinner spinner = new Spinner(TIME_SOURCE, spinnerSleepDuration, executionDelayPolicy, Duration.fromMilli(0), ignoreScheduledStartTime);
+                Spinner spinner = new Spinner(timeSource, spinnerSleepDuration, executionDelayPolicy, Duration.fromMilli(0), ignoreScheduledStartTime);
                 Map<Class<? extends Operation>, OperationClassification> operationClassifications = new HashMap<>();
                 operationClassifications.put(TimedNamedOperation1.class, new OperationClassification(SchedulingMode.INDIVIDUAL_BLOCKING, OperationClassification.DependencyMode.NONE));
                 DummyDb db = new DummyDb();
@@ -122,7 +122,7 @@ public class OperationStreamExecutorPerformanceTest {
                 globalCompletionTimeReader.setGlobalCompletionTime(Time.fromNano(0));
                 AtomicBoolean executorHasFinished = new AtomicBoolean(false);
                 AtomicBoolean forceThreadToTerminate = new AtomicBoolean(false);
-                TIME_SOURCE.setNowFromMilli(0);
+                timeSource.setNowFromMilli(0);
 
                 OperationHandlerExecutor executor = new ThreadPoolOperationHandlerExecutor(1);
                 PreciseIndividualBlockingOperationStreamExecutorServiceThread thread = getNewThread(
@@ -149,10 +149,10 @@ public class OperationStreamExecutorPerformanceTest {
                 boolean ignoreScheduledStartTime = false;
                 ConcurrentErrorReporter errorReporter = new ConcurrentErrorReporter();
                 ExecutionDelayPolicy executionDelayPolicy = new ErrorReportingTerminatingExecutionDelayPolicy(
-                        TIME_SOURCE,
+                        timeSource,
                         Duration.fromMilli(10),
                         errorReporter);
-                Spinner spinner = new Spinner(TIME_SOURCE, spinnerSleepDuration, executionDelayPolicy, Duration.fromMilli(0), ignoreScheduledStartTime);
+                Spinner spinner = new Spinner(timeSource, spinnerSleepDuration, executionDelayPolicy, Duration.fromMilli(0), ignoreScheduledStartTime);
                 Map<Class<? extends Operation>, OperationClassification> operationClassifications = new HashMap<>();
                 operationClassifications.put(TimedNamedOperation1.class, new OperationClassification(SchedulingMode.INDIVIDUAL_BLOCKING, OperationClassification.DependencyMode.NONE));
                 DummyDb db = new DummyDb();
@@ -165,7 +165,7 @@ public class OperationStreamExecutorPerformanceTest {
                 globalCompletionTimeReader.setGlobalCompletionTime(Time.fromNano(0));
                 AtomicBoolean executorHasFinished = new AtomicBoolean(false);
                 AtomicBoolean forceThreadToTerminate = new AtomicBoolean(false);
-                TIME_SOURCE.setNowFromMilli(0);
+                timeSource.setNowFromMilli(0);
 
                 OperationHandlerExecutor executor = new SingleThreadOperationHandlerExecutor(errorReporter);
                 PreciseIndividualBlockingOperationStreamExecutorServiceThread thread = getNewThread(
@@ -192,10 +192,10 @@ public class OperationStreamExecutorPerformanceTest {
                 boolean ignoreScheduledStartTime = false;
                 ConcurrentErrorReporter errorReporter = new ConcurrentErrorReporter();
                 ExecutionDelayPolicy executionDelayPolicy = new ErrorReportingTerminatingExecutionDelayPolicy(
-                        TIME_SOURCE,
+                        timeSource,
                         Duration.fromMilli(10),
                         errorReporter);
-                Spinner spinner = new Spinner(TIME_SOURCE, spinnerSleepDuration, executionDelayPolicy, Duration.fromMilli(0), ignoreScheduledStartTime);
+                Spinner spinner = new Spinner(timeSource, spinnerSleepDuration, executionDelayPolicy, Duration.fromMilli(0), ignoreScheduledStartTime);
                 Map<Class<? extends Operation>, OperationClassification> operationClassifications = new HashMap<>();
                 operationClassifications.put(TimedNamedOperation1.class, new OperationClassification(SchedulingMode.INDIVIDUAL_BLOCKING, OperationClassification.DependencyMode.NONE));
                 DummyDb db = new DummyDb();
@@ -208,7 +208,7 @@ public class OperationStreamExecutorPerformanceTest {
                 globalCompletionTimeReader.setGlobalCompletionTime(Time.fromNano(0));
                 AtomicBoolean executorHasFinished = new AtomicBoolean(false);
                 AtomicBoolean forceThreadToTerminate = new AtomicBoolean(false);
-                TIME_SOURCE.setNowFromMilli(0);
+                timeSource.setNowFromMilli(0);
 
                 OperationHandlerExecutor executor = new SameThreadOperationHandlerExecutor();
                 PreciseIndividualBlockingOperationStreamExecutorServiceThread thread = getNewThread(
@@ -253,7 +253,7 @@ public class OperationStreamExecutorPerformanceTest {
         TimeSource systemTimeSource = new SystemTimeSource();
         Time benchmarkStartTime = systemTimeSource.now();
 
-        TIME_SOURCE.setNowFromMilli(1);
+        timeSource.setNowFromMilli(1);
 
         // Note, run() instead of start() to get more precise benchmark numbers
         thread.run();
@@ -296,7 +296,7 @@ public class OperationStreamExecutorPerformanceTest {
             AtomicBoolean forceThreadToTerminate
     ) throws CompletionTimeException, MetricsCollectionException, DbException {
         PreciseIndividualBlockingOperationStreamExecutorServiceThread operationStreamExecutorThread = new PreciseIndividualBlockingOperationStreamExecutorServiceThread(
-                TIME_SOURCE,
+                timeSource,
                 operationHandlerExecutor,
                 errorReporter,
                 operations,

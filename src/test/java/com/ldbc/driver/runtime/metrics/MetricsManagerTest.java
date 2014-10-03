@@ -15,14 +15,14 @@ import static org.hamcrest.CoreMatchers.equalTo;
 import static org.junit.Assert.assertThat;
 
 public class MetricsManagerTest {
-    private final TimeSource TIME_SOURCE = new SystemTimeSource();
+    private final TimeSource timeSource = new SystemTimeSource();
     private final boolean recordStartTimeDelayLatency = true;
 
     @Test
     public void shouldReturnCorrectMeasurements() throws WorkloadException, MetricsCollectionException {
         Time initialTime = Time.fromMilli(0);
         MetricsManager metricsManager = new MetricsManager(
-                TIME_SOURCE,
+                timeSource,
                 TimeUnit.MILLISECONDS,
                 initialTime,
                 ThreadedQueuedConcurrentMetricsService.DEFAULT_HIGHEST_EXPECTED_RUNTIME_DURATION,

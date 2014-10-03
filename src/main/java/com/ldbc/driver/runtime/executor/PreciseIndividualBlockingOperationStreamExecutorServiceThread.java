@@ -20,7 +20,7 @@ class PreciseIndividualBlockingOperationStreamExecutorServiceThread extends Thre
     private static final Duration POLL_INTERVAL_WHILE_WAITING_FOR_LAST_HANDLER_TO_FINISH = Duration.fromMilli(100);
     private static final LocalCompletionTimeWriter DUMMY_LOCAL_COMPLETION_TIME_WRITER = new DummyLocalCompletionTimeWriter();
 
-    private final TimeSource TIME_SOURCE;
+    private final TimeSource timeSource;
     private final OperationHandlerExecutor operationHandlerExecutor;
     private final Spinner spinner;
     private final Spinner slightlyEarlySpinner;
@@ -50,7 +50,7 @@ class PreciseIndividualBlockingOperationStreamExecutorServiceThread extends Thre
                                                                          ConcurrentMetricsService metricsService,
                                                                          Duration durationToWaitForAllHandlersToFinishBeforeShutdown) {
         super(PreciseIndividualBlockingOperationStreamExecutorServiceThread.class.getSimpleName() + "-" + System.currentTimeMillis());
-        this.TIME_SOURCE = timeSource;
+        this.timeSource = timeSource;
         this.operationHandlerExecutor = operationHandlerExecutor;
         this.spinner = spinner;
         this.slightlyEarlySpinner = slightlyEarlySpinner;
@@ -128,7 +128,7 @@ class PreciseIndividualBlockingOperationStreamExecutorServiceThread extends Thre
             LocalCompletionTimeWriter localCompletionTimeWriterForHandler = (isDependencyWritingOperation(operation))
                     ? localCompletionTimeWriter
                     : DUMMY_LOCAL_COMPLETION_TIME_WRITER;
-            operationHandler.init(TIME_SOURCE, spinner, operation, localCompletionTimeWriterForHandler, errorReporter, metricsService);
+            operationHandler.init(timeSource, spinner, operation, localCompletionTimeWriterForHandler, errorReporter, metricsService);
         } catch (OperationException e) {
             throw new OperationHandlerExecutorException(String.format("Error while initializing handler for operation\nOperation: %s", operation));
         }
@@ -158,8 +158,8 @@ class PreciseIndividualBlockingOperationStreamExecutorServiceThread extends Thre
 
     private boolean awaitExecutingHandler(Duration timeoutDuration) {
         long pollInterval = POLL_INTERVAL_WHILE_WAITING_FOR_LAST_HANDLER_TO_FINISH.asMilli();
-        long timeoutTimeMs = TIME_SOURCE.now().plus(timeoutDuration).asMilli();
-        while (TIME_SOURCE.nowAsMilli() < timeoutTimeMs) {
+        long timeoutTimeMs = timeSource.now().plus(timeoutDuration).asMilli();
+        while (timeSource.nowAsMilli() < timeoutTimeMs) {
             if (operationHandlerExecutor.uncompletedOperationHandlerCount() == 0) return true;
             if (forcedTerminate.get()) return true;
             Spinner.powerNap(pollInterval);

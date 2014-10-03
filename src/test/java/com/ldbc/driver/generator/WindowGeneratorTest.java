@@ -25,7 +25,7 @@ import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
 
 public class WindowGeneratorTest {
-    private TimeSource TIME_SOURCE = new SystemTimeSource();
+    private TimeSource timeSource = new SystemTimeSource();
 
     /**
      * Test With Time Range Using OperationRangeWindows
@@ -165,7 +165,7 @@ public class WindowGeneratorTest {
             LocalCompletionTimeWriter localCompletionTimeWriter = null;
             ConcurrentErrorReporter errorReporter = null;
             ConcurrentMetricsService metricsService = null;
-            handler.init(TIME_SOURCE, spinner, operation, localCompletionTimeWriter, errorReporter, metricsService);
+            handler.init(timeSource, spinner, operation, localCompletionTimeWriter, errorReporter, metricsService);
             handlers[i] = handler;
         }
 

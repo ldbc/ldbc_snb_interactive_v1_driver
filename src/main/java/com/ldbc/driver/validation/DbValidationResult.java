@@ -13,6 +13,7 @@ public class DbValidationResult {
     private final List<Tuple.Tuple2<Operation<?>, String>> unableToExecuteOperations;
     private final List<Tuple.Tuple3<Operation<?>, Object, Object>> incorrectResultsForOperations;
     private final Map<Class, Integer> successfullyExecutedOperationsPerOperationType;
+    private final Map<Class, Integer> totalOperationsPerOperationType;
 
     DbValidationResult(Db db) {
         this.db = db;
@@ -20,18 +21,22 @@ public class DbValidationResult {
         this.unableToExecuteOperations = new ArrayList<>();
         this.incorrectResultsForOperations = new ArrayList<>();
         this.successfullyExecutedOperationsPerOperationType = new HashMap<>();
+        this.totalOperationsPerOperationType = new HashMap<>();
     }
 
     void reportMissingHandlerForOperation(Operation<?> operation) {
         missingHandlersForOperationTypes.add(operation.getClass());
+        incrementOperationCountPerOperationType(operation.getClass());
     }
 
     void reportUnableToExecuteOperation(Operation<?> operation, String errorMessage) {
         unableToExecuteOperations.add(Tuple.<Operation<?>, String>tuple2(operation, errorMessage));
+        incrementOperationCountPerOperationType(operation.getClass());
     }
 
     void reportIncorrectResultForOperation(Operation<?> operation, Object expectedResult, Object actualResult) {
         incorrectResultsForOperations.add(Tuple.<Operation<?>, Object, Object>tuple3(operation, expectedResult, actualResult));
+        incrementOperationCountPerOperationType(operation.getClass());
     }
 
     void reportSuccessfulExecution(Operation<?> operation) {
@@ -40,6 +45,16 @@ public class DbValidationResult {
         int successfullyExecutedOperationsForOperationType = successfullyExecutedOperationsPerOperationType.get(operation.getClass());
         successfullyExecutedOperationsForOperationType++;
         successfullyExecutedOperationsPerOperationType.put(operation.getClass(), successfullyExecutedOperationsForOperationType);
+        incrementOperationCountPerOperationType(operation.getClass());
+    }
+
+    private void incrementOperationCountPerOperationType(Class operationType) {
+        Integer count = totalOperationsPerOperationType.get(operationType);
+        if (null == count) {
+            totalOperationsPerOperationType.put(operationType, 1);
+        } else {
+            totalOperationsPerOperationType.put(operationType, count + 1);
+        }
     }
 
     public boolean isSuccessful() {
@@ -53,10 +68,11 @@ public class DbValidationResult {
         sb.append("Database: ").append(db.getClass().getName()).append("\n");
         sb.append("  ***\n");
         sb.append("  Successfully executed ").append(successfullyExecutedOperationsPerOperationType.size()).append(" operation types:\n");
-        for (Class successfullyExecutedOperationsForType : sort(successfullyExecutedOperationsPerOperationType.keySet()))
+        for (Class operationType : sort(successfullyExecutedOperationsPerOperationType.keySet()))
             sb.append("    ").
-                    append(String.format("%1$-" + padRightDistance + "s", successfullyExecutedOperationsPerOperationType.get(successfullyExecutedOperationsForType) + " of")).
-                    append(successfullyExecutedOperationsForType.getSimpleName()).
+                    append(successfullyExecutedOperationsPerOperationType.get(operationType)).append(" / ").
+                    append(String.format("%1$-" + padRightDistance + "s", totalOperationsPerOperationType.get(operationType))).
+                    append(operationType.getSimpleName()).
                     append("\n");
         sb.append("  ***\n");
         sb.append("  Missing handler implementations for ").append(missingHandlersForOperationTypes.size()).append(" operation types:\n");
@@ -94,5 +110,4 @@ public class DbValidationResult {
                 return o1.toString().compareTo(o2.toString());
         }
     }
-
 }

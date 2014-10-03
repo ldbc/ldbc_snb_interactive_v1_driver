@@ -34,7 +34,7 @@ public class SimpleWorkloadTest {
     @Rule
     public TemporaryFolder temporaryFolder = new TemporaryFolder();
 
-    TimeSource TIME_SOURCE = new SystemTimeSource();
+    TimeSource timeSource = new SystemTimeSource();
 
     @Test
     public void shouldGenerateManyElementsInReasonableTime() throws WorkloadException {
@@ -224,7 +224,7 @@ public class SimpleWorkloadTest {
         workload.init(params);
 
         // When
-        Client client = new Client(new LocalControlService(TIME_SOURCE.now().plus(Duration.fromMilli(500)), params), TIME_SOURCE);
+        Client client = new Client(new LocalControlService(timeSource.now().plus(Duration.fromMilli(500)), params), timeSource);
         client.start();
 
         // Then
@@ -344,7 +344,7 @@ public class SimpleWorkloadTest {
 
 
         // When
-        Client client = new Client(new LocalControlService(TIME_SOURCE.now().plus(Duration.fromMilli(500)), configuration), TIME_SOURCE);
+        Client client = new Client(new LocalControlService(timeSource.now().plus(Duration.fromMilli(500)), configuration), timeSource);
         client.start();
 
         // Then

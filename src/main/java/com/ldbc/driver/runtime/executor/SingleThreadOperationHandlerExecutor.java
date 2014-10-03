@@ -41,7 +41,6 @@ public class SingleThreadOperationHandlerExecutor implements OperationHandlerExe
         } catch (InterruptedException e) {
             throw new OperationHandlerExecutorException("Error encountered while submitting handler to queue", e);
         }
-
     }
 
     @Override

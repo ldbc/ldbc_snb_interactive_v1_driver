@@ -2,6 +2,7 @@ package com.ldbc.driver.validation;
 
 import com.ldbc.driver.*;
 import com.ldbc.driver.runtime.ConcurrentErrorReporter;
+import com.ldbc.driver.workloads.ldbc.snb.interactive.LdbcQuery14;
 
 import java.util.Iterator;
 
@@ -42,7 +43,6 @@ public class DbValidator {
 
             dbValidationResult.reportSuccessfulExecution(operation);
         }
-
         return dbValidationResult;
     }
 }

@@ -36,7 +36,7 @@ public class WorkloadRunnerComplexScenarioTests {
     private final Time WORKLOAD_START_TIME_0 = Time.fromMilli(0);
     private final long ENOUGH_MILLISECONDS_FOR_RUNNER_THREAD_TO_DO_ITS_THING = 300;
     private final Duration SPINNER_SLEEP_DURATION = Duration.fromMilli(0);
-    private final ManualTimeSource TIME_SOURCE = new ManualTimeSource(0);
+    private final ManualTimeSource timeSource = new ManualTimeSource(0);
     private final CompletionTimeServiceAssistant completionTimeServiceAssistant = new CompletionTimeServiceAssistant();
     private final GeneratorFactory gf = new GeneratorFactory(new RandomDataGeneratorFactory(42l));
     private final boolean recordStartTimeDelayLatency = true;
@@ -145,7 +145,7 @@ public class WorkloadRunnerComplexScenarioTests {
             db.init(params);
 
             WorkloadRunnerThread runnerThread = workloadRunnerThread(
-                    TIME_SOURCE,
+                    timeSource,
                     WORKLOAD_START_TIME_0,
                     readOperations.iterator(),
                     classifications,
@@ -159,7 +159,7 @@ public class WorkloadRunnerComplexScenarioTests {
                     durationToWaitForAllHandlersToFinishBeforeShutdown
             );
 
-            TIME_SOURCE.setNowFromMilli(0);
+            timeSource.setNowFromMilli(0);
             assertThat(errorReporter.toString(), metricsService.results().totalOperationCount(), is(0l));
             assertThat(errorReporter.toString(), errorReporter.errorEncountered(), is(false));
 
@@ -169,42 +169,42 @@ public class WorkloadRunnerComplexScenarioTests {
             assertThat(errorReporter.toString(), metricsService.results().totalOperationCount(), is(0l));
             assertThat(errorReporter.toString(), errorReporter.errorEncountered(), is(false));
 
-            TIME_SOURCE.setNowFromMilli(1);
+            timeSource.setNowFromMilli(1);
             Thread.sleep(ENOUGH_MILLISECONDS_FOR_RUNNER_THREAD_TO_DO_ITS_THING);
             assertThat(errorReporter.toString(), metricsService.results().totalOperationCount(), is(0l));
             assertThat(errorReporter.toString(), errorReporter.errorEncountered(), is(false));
 
             // S(2)D(0) is blocked
-            TIME_SOURCE.setNowFromMilli(2);
+            timeSource.setNowFromMilli(2);
             Thread.sleep(ENOUGH_MILLISECONDS_FOR_RUNNER_THREAD_TO_DO_ITS_THING);
             assertThat(errorReporter.toString(), metricsService.results().totalOperationCount(), is(0l));
             assertThat(errorReporter.toString(), errorReporter.errorEncountered(), is(false));
 
-            TIME_SOURCE.setNowFromMilli(3);
+            timeSource.setNowFromMilli(3);
             db.setNameAllowedValue("S(3)D(0)", true);
             Thread.sleep(ENOUGH_MILLISECONDS_FOR_RUNNER_THREAD_TO_DO_ITS_THING);
             assertThat(errorReporter.toString(), metricsService.results().totalOperationCount(), is(1l));
             assertThat(errorReporter.toString(), errorReporter.errorEncountered(), is(false));
 
-            TIME_SOURCE.setNowFromMilli(4);
+            timeSource.setNowFromMilli(4);
             db.setNameAllowedValue("S(4)D(0)", true);
             Thread.sleep(ENOUGH_MILLISECONDS_FOR_RUNNER_THREAD_TO_DO_ITS_THING);
             assertThat(errorReporter.toString(), metricsService.results().totalOperationCount(), is(2l));
             assertThat(errorReporter.toString(), errorReporter.errorEncountered(), is(false));
 
-            TIME_SOURCE.setNowFromMilli(5);
+            timeSource.setNowFromMilli(5);
             db.setNameAllowedValue("S(5)D(0)", true);
             Thread.sleep(ENOUGH_MILLISECONDS_FOR_RUNNER_THREAD_TO_DO_ITS_THING);
             assertThat(errorReporter.toString(), metricsService.results().totalOperationCount(), is(3l));
             assertThat(errorReporter.toString(), errorReporter.errorEncountered(), is(false));
 
-            TIME_SOURCE.setNowFromMilli(11);
+            timeSource.setNowFromMilli(11);
             Thread.sleep(ENOUGH_MILLISECONDS_FOR_RUNNER_THREAD_TO_DO_ITS_THING);
             assertThat(errorReporter.toString(), metricsService.results().totalOperationCount(), is(3l));
             assertThat(errorReporter.toString(), errorReporter.errorEncountered(), is(false));
 
             // 10 ms after last synchronous operation
-            TIME_SOURCE.setNowFromMilli(12);
+            timeSource.setNowFromMilli(12);
             Thread.sleep(ENOUGH_MILLISECONDS_FOR_RUNNER_THREAD_TO_DO_ITS_THING);
             assertThat(errorReporter.toString(), metricsService.results().totalOperationCount(), is(3l));
             // TODO expect true get false
@@ -214,8 +214,8 @@ public class WorkloadRunnerComplexScenarioTests {
             db.setNameAllowedValue("S(2)D(0)", true);
 
             Duration durationToWaitForRunnerToComplete = Duration.fromMilli(WorkloadRunner.RUNNER_POLLING_INTERVAL_AS_MILLI * 4);
-            long timeoutTimeAsMilli = TIME_SOURCE.now().plus(durationToWaitForRunnerToComplete).asMilli();
-            while (TIME_SOURCE.nowAsMilli() < timeoutTimeAsMilli) {
+            long timeoutTimeAsMilli = timeSource.now().plus(durationToWaitForRunnerToComplete).asMilli();
+            while (timeSource.nowAsMilli() < timeoutTimeAsMilli) {
                 if (runnerThread.runnerHasCompleted()) break;
                 Spinner.powerNap(100);
             }
@@ -292,7 +292,7 @@ public class WorkloadRunnerComplexScenarioTests {
             db.init(params);
 
             WorkloadRunnerThread runnerThread = workloadRunnerThread(
-                    TIME_SOURCE,
+                    timeSource,
                     WORKLOAD_START_TIME_0,
                     readOperations.iterator(),
                     classifications,
@@ -306,7 +306,7 @@ public class WorkloadRunnerComplexScenarioTests {
                     durationToWaitForAllHandlersToFinishBeforeShutdown
             );
 
-            TIME_SOURCE.setNowFromMilli(0);
+            timeSource.setNowFromMilli(0);
             assertThat(errorReporter.toString(), metricsService.results().totalOperationCount(), is(0l));
             assertThat(errorReporter.toString(), errorReporter.errorEncountered(), is(false));
 
@@ -316,18 +316,18 @@ public class WorkloadRunnerComplexScenarioTests {
             assertThat(errorReporter.toString(), metricsService.results().totalOperationCount(), is(0l));
             assertThat(errorReporter.toString(), errorReporter.errorEncountered(), is(false));
 
-            TIME_SOURCE.setNowFromMilli(1);
+            timeSource.setNowFromMilli(1);
             Thread.sleep(ENOUGH_MILLISECONDS_FOR_RUNNER_THREAD_TO_DO_ITS_THING);
             assertThat(errorReporter.toString(), metricsService.results().totalOperationCount(), is(0l));
             assertThat(errorReporter.toString(), errorReporter.errorEncountered(), is(false));
 
             // S(2)D(0) is blocked
-            TIME_SOURCE.setNowFromMilli(2);
+            timeSource.setNowFromMilli(2);
             Thread.sleep(ENOUGH_MILLISECONDS_FOR_RUNNER_THREAD_TO_DO_ITS_THING);
             assertThat(errorReporter.toString(), metricsService.results().totalOperationCount(), is(0l));
             assertThat(errorReporter.toString(), errorReporter.errorEncountered(), is(false));
 
-            TIME_SOURCE.setNowFromMilli(3);
+            timeSource.setNowFromMilli(3);
             Thread.sleep(ENOUGH_MILLISECONDS_FOR_RUNNER_THREAD_TO_DO_ITS_THING);
             assertThat(errorReporter.toString(), metricsService.results().totalOperationCount(), is(0l));
             assertThat(errorReporter.toString(), errorReporter.errorEncountered(), is(false));
@@ -337,17 +337,17 @@ public class WorkloadRunnerComplexScenarioTests {
             assertThat(errorReporter.toString(), errorReporter.errorEncountered(), is(false));
 
             // S(4)D(0) is blocked
-            TIME_SOURCE.setNowFromMilli(4);
+            timeSource.setNowFromMilli(4);
             Thread.sleep(ENOUGH_MILLISECONDS_FOR_RUNNER_THREAD_TO_DO_ITS_THING);
             assertThat(errorReporter.toString(), metricsService.results().totalOperationCount(), is(1l));
             assertThat(errorReporter.toString(), errorReporter.errorEncountered(), is(false));
 
-            TIME_SOURCE.setNowFromMilli(5);
+            timeSource.setNowFromMilli(5);
             Thread.sleep(ENOUGH_MILLISECONDS_FOR_RUNNER_THREAD_TO_DO_ITS_THING);
             assertThat(errorReporter.toString(), metricsService.results().totalOperationCount(), is(1l));
             assertThat(errorReporter.toString(), errorReporter.errorEncountered(), is(false));
 
-            TIME_SOURCE.setNowFromMilli(11);
+            timeSource.setNowFromMilli(11);
             Thread.sleep(ENOUGH_MILLISECONDS_FOR_RUNNER_THREAD_TO_DO_ITS_THING);
             assertThat(errorReporter.toString(), metricsService.results().totalOperationCount(), is(1l));
             assertThat(errorReporter.toString(), errorReporter.errorEncountered(), is(false));
@@ -356,12 +356,12 @@ public class WorkloadRunnerComplexScenarioTests {
             assertThat(errorReporter.toString(), metricsService.results().totalOperationCount(), is(2l));
             assertThat(errorReporter.toString(), errorReporter.errorEncountered(), is(false));
 
-            TIME_SOURCE.setNowFromMilli(12);
+            timeSource.setNowFromMilli(12);
             Thread.sleep(ENOUGH_MILLISECONDS_FOR_RUNNER_THREAD_TO_DO_ITS_THING);
             assertThat(errorReporter.toString(), metricsService.results().totalOperationCount(), is(2l));
             assertThat(errorReporter.toString(), errorReporter.errorEncountered(), is(false));
 
-            TIME_SOURCE.setNowFromMilli(13);
+            timeSource.setNowFromMilli(13);
             Thread.sleep(ENOUGH_MILLISECONDS_FOR_RUNNER_THREAD_TO_DO_ITS_THING);
             assertThat(errorReporter.toString(), metricsService.results().totalOperationCount(), is(2l));
             assertThat(errorReporter.toString(), errorReporter.errorEncountered(), is(false));
@@ -370,13 +370,13 @@ public class WorkloadRunnerComplexScenarioTests {
             assertThat(errorReporter.toString(), metricsService.results().totalOperationCount(), is(3l));
             assertThat(errorReporter.toString(), errorReporter.errorEncountered(), is(false));
 
-            TIME_SOURCE.setNowFromMilli(14);
+            timeSource.setNowFromMilli(14);
             Thread.sleep(ENOUGH_MILLISECONDS_FOR_RUNNER_THREAD_TO_DO_ITS_THING);
             assertThat(errorReporter.toString(), metricsService.results().totalOperationCount(), is(3l));
             assertThat(errorReporter.toString(), errorReporter.errorEncountered(), is(false));
 
             // 10 ms after last asynchronous operation
-            TIME_SOURCE.setNowFromMilli(15);
+            timeSource.setNowFromMilli(15);
             Thread.sleep(ENOUGH_MILLISECONDS_FOR_RUNNER_THREAD_TO_DO_ITS_THING);
             assertThat(errorReporter.toString(), metricsService.results().totalOperationCount(), is(3l));
             assertThat(errorReporter.toString(), errorReporter.errorEncountered(), is(true));
@@ -385,8 +385,8 @@ public class WorkloadRunnerComplexScenarioTests {
             db.setNameAllowedValue("S(4)D(0)", true);
 
             Duration durationToWaitForRunnerToComplete = Duration.fromMilli(WorkloadRunner.RUNNER_POLLING_INTERVAL_AS_MILLI * 4);
-            long timeoutTimeAsMilli = TIME_SOURCE.now().plus(durationToWaitForRunnerToComplete).asMilli();
-            while (TIME_SOURCE.nowAsMilli() < timeoutTimeAsMilli) {
+            long timeoutTimeAsMilli = timeSource.now().plus(durationToWaitForRunnerToComplete).asMilli();
+            while (timeSource.nowAsMilli() < timeoutTimeAsMilli) {
                 if (runnerThread.runnerHasCompleted()) break;
                 Spinner.powerNap(100);
             }
@@ -416,7 +416,7 @@ public class WorkloadRunnerComplexScenarioTests {
         ConcurrentErrorReporter errorReporter = new ConcurrentErrorReporter();
 
         ConcurrentMetricsService metricsService = ThreadedQueuedConcurrentMetricsService.newInstanceUsingBlockingQueue(
-                TIME_SOURCE,
+                timeSource,
                 errorReporter,
                 TimeUnit.MILLISECONDS,
                 WORKLOAD_START_TIME_0,
@@ -487,7 +487,7 @@ public class WorkloadRunnerComplexScenarioTests {
             db.setNameAllowedValue("S(7)D(0)", true);
 
             WorkloadRunnerThread runnerThread = workloadRunnerThread(
-                    TIME_SOURCE,
+                    timeSource,
                     WORKLOAD_START_TIME_0,
                     operations,
                     classifications,
@@ -505,7 +505,7 @@ public class WorkloadRunnerComplexScenarioTests {
             completionTimeServiceAssistant.writeInitiatedAndCompletedTimesToAllWriters(completionTimeService, Time.fromMilli(0));
             completionTimeServiceAssistant.writeInitiatedAndCompletedTimesToAllWriters(completionTimeService, Time.fromMilli(1));
 
-            TIME_SOURCE.setNowFromMilli(0);
+            timeSource.setNowFromMilli(0);
             assertThat(errorReporter.toString(), completionTimeService.globalCompletionTime(), is(Time.fromMilli(0)));
             assertThat(errorReporter.toString(), metricsService.results().totalOperationCount(), is(0l));
             assertThat(errorReporter.toString(), errorReporter.errorEncountered(), is(false));
@@ -517,41 +517,41 @@ public class WorkloadRunnerComplexScenarioTests {
             assertThat(errorReporter.toString(), completionTimeService.globalCompletionTime(), equalTo(Time.fromMilli(1)));
             assertThat(errorReporter.toString(), errorReporter.errorEncountered(), is(false));
 
-            TIME_SOURCE.setNowFromMilli(1);
+            timeSource.setNowFromMilli(1);
             Thread.sleep(ENOUGH_MILLISECONDS_FOR_RUNNER_THREAD_TO_DO_ITS_THING);
             assertThat(errorReporter.toString(), metricsService.results().totalOperationCount(), is(0l));
             assertThat(errorReporter.toString(), completionTimeService.globalCompletionTime(), equalTo(Time.fromMilli(1)));
             assertThat(errorReporter.toString(), errorReporter.errorEncountered(), is(false));
 
-            TIME_SOURCE.setNowFromMilli(2);
+            timeSource.setNowFromMilli(2);
             // S(2)D(0) is blocked, nothing will change
             Thread.sleep(ENOUGH_MILLISECONDS_FOR_RUNNER_THREAD_TO_DO_ITS_THING);
             assertThat(errorReporter.toString(), metricsService.results().totalOperationCount(), is(0l));
             assertThat(errorReporter.toString(), completionTimeService.globalCompletionTime(), equalTo(Time.fromMilli(1)));
             assertThat(errorReporter.toString(), errorReporter.errorEncountered(), is(false));
 
-            TIME_SOURCE.setNowFromMilli(3);
+            timeSource.setNowFromMilli(3);
             // S(3)D(0) is blocked, nothing will change
             Thread.sleep(ENOUGH_MILLISECONDS_FOR_RUNNER_THREAD_TO_DO_ITS_THING);
             assertThat(errorReporter.toString(), metricsService.results().totalOperationCount(), is(0l));
             assertThat(errorReporter.toString(), completionTimeService.globalCompletionTime(), equalTo(Time.fromMilli(1)));
             assertThat(errorReporter.toString(), errorReporter.errorEncountered(), is(false));
 
-            TIME_SOURCE.setNowFromMilli(4);
+            timeSource.setNowFromMilli(4);
             // check that S(4)D(0) is able to complete (is not starved of thread)
             Thread.sleep(ENOUGH_MILLISECONDS_FOR_RUNNER_THREAD_TO_DO_ITS_THING);
             assertThat(errorReporter.toString(), metricsService.results().totalOperationCount(), is(1l));
             assertThat(errorReporter.toString(), completionTimeService.globalCompletionTime(), equalTo(Time.fromMilli(4)));
             assertThat(errorReporter.toString(), errorReporter.errorEncountered(), is(false));
 
-            TIME_SOURCE.setNowFromMilli(5);
+            timeSource.setNowFromMilli(5);
             // S(5)D(0) is blocked, nothing will change
             Thread.sleep(ENOUGH_MILLISECONDS_FOR_RUNNER_THREAD_TO_DO_ITS_THING);
             assertThat(errorReporter.toString(), metricsService.results().totalOperationCount(), is(1l));
             assertThat(errorReporter.toString(), completionTimeService.globalCompletionTime(), equalTo(Time.fromMilli(4)));
             assertThat(errorReporter.toString(), errorReporter.errorEncountered(), is(false));
 
-            TIME_SOURCE.setNowFromMilli(6);
+            timeSource.setNowFromMilli(6);
             db.setNameAllowedValue("S(3)D(0)", true);
             // S(3)D(0) is unblocked -> S(3)D(0) finishes
             Thread.sleep(ENOUGH_MILLISECONDS_FOR_RUNNER_THREAD_TO_DO_ITS_THING);
@@ -559,14 +559,14 @@ public class WorkloadRunnerComplexScenarioTests {
             assertThat(errorReporter.toString(), completionTimeService.globalCompletionTime(), equalTo(Time.fromMilli(4)));
             assertThat(errorReporter.toString(), errorReporter.errorEncountered(), is(false));
 
-            TIME_SOURCE.setNowFromMilli(7);
+            timeSource.setNowFromMilli(7);
             // check that S(7)D(0) is able to complete (is not starved of thread)
             Thread.sleep(ENOUGH_MILLISECONDS_FOR_RUNNER_THREAD_TO_DO_ITS_THING);
             assertThat(errorReporter.toString(), metricsService.results().totalOperationCount(), is(3l));
             assertThat(errorReporter.toString(), completionTimeService.globalCompletionTime(), equalTo(Time.fromMilli(4)));
             assertThat(errorReporter.toString(), errorReporter.errorEncountered(), is(false));
 
-            TIME_SOURCE.setNowFromMilli(8);
+            timeSource.setNowFromMilli(8);
             Thread.sleep(ENOUGH_MILLISECONDS_FOR_RUNNER_THREAD_TO_DO_ITS_THING);
             assertThat(errorReporter.toString(), metricsService.results().totalOperationCount(), is(3l));
             assertThat(errorReporter.toString(), completionTimeService.globalCompletionTime(), equalTo(Time.fromMilli(4)));
@@ -577,8 +577,8 @@ public class WorkloadRunnerComplexScenarioTests {
             db.setNameAllowedValue("S(5)D(0)", true);
 
             Duration durationToWaitForRunnerToComplete = Duration.fromMilli(WorkloadRunner.RUNNER_POLLING_INTERVAL_AS_MILLI * 4);
-            long timeoutTimeAsMilli = TIME_SOURCE.now().plus(durationToWaitForRunnerToComplete).asMilli();
-            while (TIME_SOURCE.nowAsMilli() < timeoutTimeAsMilli) {
+            long timeoutTimeAsMilli = timeSource.now().plus(durationToWaitForRunnerToComplete).asMilli();
+            while (timeSource.nowAsMilli() < timeoutTimeAsMilli) {
                 if (runnerThread.runnerHasCompleted()) break;
                 Spinner.powerNap(100);
             }
@@ -609,7 +609,7 @@ public class WorkloadRunnerComplexScenarioTests {
         ConcurrentErrorReporter errorReporter = new ConcurrentErrorReporter();
 
         ConcurrentMetricsService metricsService = ThreadedQueuedConcurrentMetricsService.newInstanceUsingBlockingQueue(
-                TIME_SOURCE,
+                timeSource,
                 errorReporter,
                 TimeUnit.MILLISECONDS,
                 WORKLOAD_START_TIME_0,
@@ -684,7 +684,7 @@ public class WorkloadRunnerComplexScenarioTests {
             db.init(params);
 
             WorkloadRunnerThread runnerThread = workloadRunnerThread(
-                    TIME_SOURCE,
+                    timeSource,
                     WORKLOAD_START_TIME_0,
                     operations,
                     classifications,
@@ -702,7 +702,7 @@ public class WorkloadRunnerComplexScenarioTests {
             completionTimeServiceAssistant.writeInitiatedAndCompletedTimesToAllWriters(completionTimeService, Time.fromMilli(0));
             completionTimeServiceAssistant.writeInitiatedAndCompletedTimesToAllWriters(completionTimeService, Time.fromMilli(1));
 
-            TIME_SOURCE.setNowFromMilli(0);
+            timeSource.setNowFromMilli(0);
             assertThat(errorReporter.toString(), completionTimeService.globalCompletionTime(), is(Time.fromMilli(0)));
             assertThat(errorReporter.toString(), metricsService.results().totalOperationCount(), is(0l));
             assertThat(errorReporter.toString(), errorReporter.errorEncountered(), is(false));
@@ -714,21 +714,21 @@ public class WorkloadRunnerComplexScenarioTests {
             assertThat(errorReporter.toString(), completionTimeService.globalCompletionTime(), equalTo(Time.fromMilli(1)));
             assertThat(errorReporter.toString(), errorReporter.errorEncountered(), is(false));
 
-            TIME_SOURCE.setNowFromMilli(1);
+            timeSource.setNowFromMilli(1);
             Thread.sleep(ENOUGH_MILLISECONDS_FOR_RUNNER_THREAD_TO_DO_ITS_THING);
             assertThat(errorReporter.toString(), metricsService.results().totalOperationCount(), is(0l));
             assertThat(errorReporter.toString(), completionTimeService.globalCompletionTime(), equalTo(Time.fromMilli(1)));
             assertThat(errorReporter.toString(), errorReporter.errorEncountered(), is(false));
 
             // read1 can execute
-            TIME_SOURCE.setNowFromMilli(2);
+            timeSource.setNowFromMilli(2);
             Thread.sleep(ENOUGH_MILLISECONDS_FOR_RUNNER_THREAD_TO_DO_ITS_THING);
             assertThat(errorReporter.toString(), metricsService.results().totalOperationCount(), is(1l));
             assertThat(errorReporter.toString(), completionTimeService.globalCompletionTime(), equalTo(Time.fromMilli(2)));
             assertThat(errorReporter.toString(), errorReporter.errorEncountered(), is(false));
 
             // readwrite1 can execute
-            TIME_SOURCE.setNowFromMilli(3);
+            timeSource.setNowFromMilli(3);
             Thread.sleep(ENOUGH_MILLISECONDS_FOR_RUNNER_THREAD_TO_DO_ITS_THING);
             assertThat(errorReporter.toString(), metricsService.results().totalOperationCount(), is(2l));
             assertThat(errorReporter.toString(), completionTimeService.globalCompletionTime(), equalTo(Time.fromMilli(3)));
@@ -736,7 +736,7 @@ public class WorkloadRunnerComplexScenarioTests {
 
             // at this point read2 and all readWrite2 can execute <-- read2 must be blocked for test to do what is intended
             db.setNameAllowedValue("read2", false);
-            TIME_SOURCE.setNowFromMilli(5);
+            timeSource.setNowFromMilli(5);
             Thread.sleep(ENOUGH_MILLISECONDS_FOR_RUNNER_THREAD_TO_DO_ITS_THING);
             assertThat(errorReporter.toString(), completionTimeService.globalCompletionTime(), is(Time.fromMilli(3)));
             // if initiated time 4 was submitted after initiated time 5 an error should have been reported (hopefully it was not)
@@ -746,8 +746,8 @@ public class WorkloadRunnerComplexScenarioTests {
             db.setNameAllowedValue("read2", true);
 
             Duration durationToWaitForRunnerToComplete = Duration.fromMilli(WorkloadRunner.RUNNER_POLLING_INTERVAL_AS_MILLI * 4);
-            long timeoutTimeAsMilli = TIME_SOURCE.now().plus(durationToWaitForRunnerToComplete).asMilli();
-            while (TIME_SOURCE.nowAsMilli() < timeoutTimeAsMilli) {
+            long timeoutTimeAsMilli = timeSource.now().plus(durationToWaitForRunnerToComplete).asMilli();
+            while (timeSource.nowAsMilli() < timeoutTimeAsMilli) {
                 if (runnerThread.runnerHasCompleted()) break;
                 Spinner.powerNap(100);
             }
@@ -779,7 +779,7 @@ public class WorkloadRunnerComplexScenarioTests {
         ConcurrentErrorReporter errorReporter = new ConcurrentErrorReporter();
 
         ConcurrentMetricsService metricsService = ThreadedQueuedConcurrentMetricsService.newInstanceUsingBlockingQueue(
-                TIME_SOURCE,
+                timeSource,
                 errorReporter,
                 TimeUnit.MILLISECONDS,
                 WORKLOAD_START_TIME_0,
@@ -850,7 +850,7 @@ public class WorkloadRunnerComplexScenarioTests {
             db.init(params);
 
             WorkloadRunnerThread runnerThread = workloadRunnerThread(
-                    TIME_SOURCE,
+                    timeSource,
                     WORKLOAD_START_TIME_0,
                     operations,
                     classifications,
@@ -868,7 +868,7 @@ public class WorkloadRunnerComplexScenarioTests {
             completionTimeServiceAssistant.writeInitiatedAndCompletedTimesToAllWriters(completionTimeService, Time.fromMilli(0));
             completionTimeServiceAssistant.writeInitiatedAndCompletedTimesToAllWriters(completionTimeService, Time.fromMilli(1));
 
-            TIME_SOURCE.setNowFromMilli(0);
+            timeSource.setNowFromMilli(0);
             assertThat(errorReporter.toString(), completionTimeService.globalCompletionTime(), is(Time.fromMilli(0)));
             assertThat(errorReporter.toString(), metricsService.results().totalOperationCount(), is(0l));
             assertThat(errorReporter.toString(), errorReporter.errorEncountered(), is(false));
@@ -880,13 +880,13 @@ public class WorkloadRunnerComplexScenarioTests {
             assertThat(errorReporter.toString(), completionTimeService.globalCompletionTime(), equalTo(Time.fromMilli(1)));
             assertThat(errorReporter.toString(), errorReporter.errorEncountered(), is(false));
 
-            TIME_SOURCE.setNowFromMilli(1);
+            timeSource.setNowFromMilli(1);
             Thread.sleep(ENOUGH_MILLISECONDS_FOR_RUNNER_THREAD_TO_DO_ITS_THING);
             assertThat(errorReporter.toString(), metricsService.results().totalOperationCount(), is(0l));
             assertThat(errorReporter.toString(), completionTimeService.globalCompletionTime(), equalTo(Time.fromMilli(1)));
             assertThat(errorReporter.toString(), errorReporter.errorEncountered(), is(false));
 
-            TIME_SOURCE.setNowFromMilli(2);
+            timeSource.setNowFromMilli(2);
             Thread.sleep(ENOUGH_MILLISECONDS_FOR_RUNNER_THREAD_TO_DO_ITS_THING);
             assertThat(errorReporter.toString(), metricsService.results().totalOperationCount(), is(0l));
             assertThat(errorReporter.toString(), completionTimeService.globalCompletionTime(), equalTo(Time.fromMilli(1)));
@@ -896,7 +896,7 @@ public class WorkloadRunnerComplexScenarioTests {
             assertThat(errorReporter.toString(), completionTimeService.globalCompletionTime(), equalTo(Time.fromMilli(1)));
             assertThat(errorReporter.toString(), errorReporter.errorEncountered(), is(false));
 
-            TIME_SOURCE.setNowFromMilli(3);
+            timeSource.setNowFromMilli(3);
             Thread.sleep(ENOUGH_MILLISECONDS_FOR_RUNNER_THREAD_TO_DO_ITS_THING);
             assertThat(errorReporter.toString(), metricsService.results().totalOperationCount(), is(1l));
             assertThat(errorReporter.toString(), completionTimeService.globalCompletionTime(), equalTo(Time.fromMilli(1)));
@@ -906,7 +906,7 @@ public class WorkloadRunnerComplexScenarioTests {
             assertThat(errorReporter.toString(), completionTimeService.globalCompletionTime(), equalTo(Time.fromMilli(3)));
             assertThat(errorReporter.toString(), errorReporter.errorEncountered(), is(false));
 
-            TIME_SOURCE.setNowFromMilli(4);
+            timeSource.setNowFromMilli(4);
             Thread.sleep(ENOUGH_MILLISECONDS_FOR_RUNNER_THREAD_TO_DO_ITS_THING);
             assertThat(errorReporter.toString(), metricsService.results().totalOperationCount(), is(2l));
             assertThat(errorReporter.toString(), completionTimeService.globalCompletionTime(), equalTo(Time.fromMilli(3)));
@@ -916,13 +916,13 @@ public class WorkloadRunnerComplexScenarioTests {
             assertThat(errorReporter.toString(), completionTimeService.globalCompletionTime(), equalTo(Time.fromMilli(3)));
             assertThat(errorReporter.toString(), errorReporter.errorEncountered(), is(false));
 
-            TIME_SOURCE.setNowFromMilli(5);
+            timeSource.setNowFromMilli(5);
             Thread.sleep(ENOUGH_MILLISECONDS_FOR_RUNNER_THREAD_TO_DO_ITS_THING);
             assertThat(errorReporter.toString(), metricsService.results().totalOperationCount(), is(3l));
             assertThat(errorReporter.toString(), completionTimeService.globalCompletionTime(), equalTo(Time.fromMilli(3)));
             assertThat(errorReporter.toString(), errorReporter.errorEncountered(), is(false));
 
-            TIME_SOURCE.setNowFromMilli(6);
+            timeSource.setNowFromMilli(6);
             Thread.sleep(ENOUGH_MILLISECONDS_FOR_RUNNER_THREAD_TO_DO_ITS_THING);
             assertThat(errorReporter.toString(), metricsService.results().totalOperationCount(), is(3l));
             assertThat(errorReporter.toString(), completionTimeService.globalCompletionTime(), equalTo(Time.fromMilli(3)));
@@ -933,7 +933,7 @@ public class WorkloadRunnerComplexScenarioTests {
             assertThat(errorReporter.toString(), completionTimeService.globalCompletionTime(), equalTo(Time.fromMilli(3)));
             assertThat(errorReporter.toString(), errorReporter.errorEncountered(), is(false));
 
-            TIME_SOURCE.setNowFromMilli(7);
+            timeSource.setNowFromMilli(7);
             Thread.sleep(ENOUGH_MILLISECONDS_FOR_RUNNER_THREAD_TO_DO_ITS_THING);
             assertThat(errorReporter.toString(), metricsService.results().totalOperationCount(), is(3l));
             assertThat(errorReporter.toString(), completionTimeService.globalCompletionTime(), equalTo(Time.fromMilli(3)));
@@ -943,13 +943,13 @@ public class WorkloadRunnerComplexScenarioTests {
             assertThat(errorReporter.toString(), completionTimeService.globalCompletionTime(), equalTo(Time.fromMilli(3)));
             assertThat(errorReporter.toString(), errorReporter.errorEncountered(), is(false));
 
-            TIME_SOURCE.setNowFromMilli(8);
+            timeSource.setNowFromMilli(8);
             Thread.sleep(ENOUGH_MILLISECONDS_FOR_RUNNER_THREAD_TO_DO_ITS_THING);
             assertThat(errorReporter.toString(), metricsService.results().totalOperationCount(), is(4l));
             assertThat(errorReporter.toString(), completionTimeService.globalCompletionTime(), equalTo(Time.fromMilli(3)));
             assertThat(errorReporter.toString(), errorReporter.errorEncountered(), is(false));
 
-            TIME_SOURCE.setNowFromMilli(9);
+            timeSource.setNowFromMilli(9);
             Thread.sleep(ENOUGH_MILLISECONDS_FOR_RUNNER_THREAD_TO_DO_ITS_THING);
             assertThat(errorReporter.toString(), metricsService.results().totalOperationCount(), is(4l));
             assertThat(errorReporter.toString(), completionTimeService.globalCompletionTime(), equalTo(Time.fromMilli(3)));
@@ -959,13 +959,13 @@ public class WorkloadRunnerComplexScenarioTests {
             assertThat(errorReporter.toString(), completionTimeService.globalCompletionTime(), equalTo(Time.fromMilli(3)));
             assertThat(errorReporter.toString(), errorReporter.errorEncountered(), is(false));
 
-            TIME_SOURCE.setNowFromMilli(10);
+            timeSource.setNowFromMilli(10);
             Thread.sleep(ENOUGH_MILLISECONDS_FOR_RUNNER_THREAD_TO_DO_ITS_THING);
             assertThat(errorReporter.toString(), metricsService.results().totalOperationCount(), is(5l));
             assertThat(errorReporter.toString(), completionTimeService.globalCompletionTime(), equalTo(Time.fromMilli(3)));
             assertThat(errorReporter.toString(), errorReporter.errorEncountered(), is(false));
 
-            TIME_SOURCE.setNowFromMilli(11);
+            timeSource.setNowFromMilli(11);
             Thread.sleep(ENOUGH_MILLISECONDS_FOR_RUNNER_THREAD_TO_DO_ITS_THING);
             assertThat(errorReporter.toString(), metricsService.results().totalOperationCount(), is(5l));
             assertThat(errorReporter.toString(), completionTimeService.globalCompletionTime(), equalTo(Time.fromMilli(3)));
@@ -975,13 +975,13 @@ public class WorkloadRunnerComplexScenarioTests {
             assertThat(errorReporter.toString(), completionTimeService.globalCompletionTime(), equalTo(Time.fromMilli(3)));
             assertThat(errorReporter.toString(), errorReporter.errorEncountered(), is(false));
 
-            TIME_SOURCE.setNowFromMilli(12);
+            timeSource.setNowFromMilli(12);
             Thread.sleep(ENOUGH_MILLISECONDS_FOR_RUNNER_THREAD_TO_DO_ITS_THING);
             assertThat(errorReporter.toString(), metricsService.results().totalOperationCount(), is(5l));
             assertThat(errorReporter.toString(), completionTimeService.globalCompletionTime(), equalTo(Time.fromMilli(3)));
             assertThat(errorReporter.toString(), errorReporter.errorEncountered(), is(false));
 
-            TIME_SOURCE.setNowFromMilli(13);
+            timeSource.setNowFromMilli(13);
             Thread.sleep(ENOUGH_MILLISECONDS_FOR_RUNNER_THREAD_TO_DO_ITS_THING);
             assertThat(errorReporter.toString(), metricsService.results().totalOperationCount(), is(5l));
             assertThat(errorReporter.toString(), completionTimeService.globalCompletionTime(), equalTo(Time.fromMilli(3)));
@@ -991,14 +991,14 @@ public class WorkloadRunnerComplexScenarioTests {
             assertThat(errorReporter.toString(), completionTimeService.globalCompletionTime(), equalTo(Time.fromMilli(3)));
             assertThat(errorReporter.toString(), errorReporter.errorEncountered(), is(false));
 
-            TIME_SOURCE.setNowFromMilli(14);
+            timeSource.setNowFromMilli(14);
             Thread.sleep(ENOUGH_MILLISECONDS_FOR_RUNNER_THREAD_TO_DO_ITS_THING);
             assertThat(errorReporter.toString(), metricsService.results().totalOperationCount(), is(6l));
             assertThat(errorReporter.toString(), completionTimeService.globalCompletionTime(), equalTo(Time.fromMilli(3)));
             assertThat(errorReporter.toString(), errorReporter.errorEncountered(), is(false));
 
             // At this point maximum tolerated delay for "read4" should be triggered
-            TIME_SOURCE.setNowFromMilli(15);
+            timeSource.setNowFromMilli(15);
             Thread.sleep(ENOUGH_MILLISECONDS_FOR_RUNNER_THREAD_TO_DO_ITS_THING);
             assertThat(errorReporter.toString(), metricsService.results().totalOperationCount(), is(6l));
             assertThat(errorReporter.toString(), completionTimeService.globalCompletionTime(), equalTo(Time.fromMilli(3)));
@@ -1008,8 +1008,8 @@ public class WorkloadRunnerComplexScenarioTests {
             db.setNameAllowedValue("readwrite2", true);
 
             Duration durationToWaitForRunnerToComplete = Duration.fromMilli(WorkloadRunner.RUNNER_POLLING_INTERVAL_AS_MILLI * 4);
-            long timeoutTimeAsMilli = TIME_SOURCE.now().plus(durationToWaitForRunnerToComplete).asMilli();
-            while (TIME_SOURCE.nowAsMilli() < timeoutTimeAsMilli) {
+            long timeoutTimeAsMilli = timeSource.now().plus(durationToWaitForRunnerToComplete).asMilli();
+            while (timeSource.nowAsMilli() < timeoutTimeAsMilli) {
                 if (runnerThread.runnerHasCompleted()) break;
                 Spinner.powerNap(100);
             }
@@ -1041,7 +1041,7 @@ public class WorkloadRunnerComplexScenarioTests {
         ConcurrentErrorReporter errorReporter = new ConcurrentErrorReporter();
 
         ConcurrentMetricsService metricsService = ThreadedQueuedConcurrentMetricsService.newInstanceUsingBlockingQueue(
-                TIME_SOURCE,
+                timeSource,
                 errorReporter,
                 TimeUnit.MILLISECONDS,
                 WORKLOAD_START_TIME_0,
@@ -1112,7 +1112,7 @@ public class WorkloadRunnerComplexScenarioTests {
             db.init(params);
 
             WorkloadRunnerThread runnerThread = workloadRunnerThread(
-                    TIME_SOURCE,
+                    timeSource,
                     WORKLOAD_START_TIME_0,
                     operations,
                     classifications,
@@ -1130,7 +1130,7 @@ public class WorkloadRunnerComplexScenarioTests {
             completionTimeServiceAssistant.writeInitiatedAndCompletedTimesToAllWriters(completionTimeService, Time.fromMilli(0));
             completionTimeServiceAssistant.writeInitiatedAndCompletedTimesToAllWriters(completionTimeService, Time.fromMilli(1));
 
-            TIME_SOURCE.setNowFromMilli(0);
+            timeSource.setNowFromMilli(0);
             assertThat(errorReporter.toString(), completionTimeService.globalCompletionTime(), is(Time.fromMilli(0)));
             assertThat(errorReporter.toString(), metricsService.results().totalOperationCount(), is(0l));
             assertThat(errorReporter.toString(), errorReporter.errorEncountered(), is(false));
@@ -1142,13 +1142,13 @@ public class WorkloadRunnerComplexScenarioTests {
             assertThat(errorReporter.toString(), completionTimeService.globalCompletionTime(), equalTo(Time.fromMilli(1)));
             assertThat(errorReporter.toString(), errorReporter.errorEncountered(), is(false));
 
-            TIME_SOURCE.setNowFromMilli(1);
+            timeSource.setNowFromMilli(1);
             Thread.sleep(ENOUGH_MILLISECONDS_FOR_RUNNER_THREAD_TO_DO_ITS_THING);
             assertThat(errorReporter.toString(), metricsService.results().totalOperationCount(), is(0l));
             assertThat(errorReporter.toString(), completionTimeService.globalCompletionTime(), equalTo(Time.fromMilli(1)));
             assertThat(errorReporter.toString(), errorReporter.errorEncountered(), is(false));
 
-            TIME_SOURCE.setNowFromMilli(2);
+            timeSource.setNowFromMilli(2);
             Thread.sleep(ENOUGH_MILLISECONDS_FOR_RUNNER_THREAD_TO_DO_ITS_THING);
             assertThat(errorReporter.toString(), metricsService.results().totalOperationCount(), is(0l));
             assertThat(errorReporter.toString(), completionTimeService.globalCompletionTime(), equalTo(Time.fromMilli(1)));
@@ -1158,7 +1158,7 @@ public class WorkloadRunnerComplexScenarioTests {
             assertThat(errorReporter.toString(), completionTimeService.globalCompletionTime(), equalTo(Time.fromMilli(1)));
             assertThat(errorReporter.toString(), errorReporter.errorEncountered(), is(false));
 
-            TIME_SOURCE.setNowFromMilli(3);
+            timeSource.setNowFromMilli(3);
             Thread.sleep(ENOUGH_MILLISECONDS_FOR_RUNNER_THREAD_TO_DO_ITS_THING);
             assertThat(errorReporter.toString(), metricsService.results().totalOperationCount(), is(1l));
             assertThat(errorReporter.toString(), completionTimeService.globalCompletionTime(), equalTo(Time.fromMilli(1)));
@@ -1168,7 +1168,7 @@ public class WorkloadRunnerComplexScenarioTests {
             assertThat(errorReporter.toString(), completionTimeService.globalCompletionTime(), equalTo(Time.fromMilli(3)));
             assertThat(errorReporter.toString(), errorReporter.errorEncountered(), is(false));
 
-            TIME_SOURCE.setNowFromMilli(4);
+            timeSource.setNowFromMilli(4);
             Thread.sleep(ENOUGH_MILLISECONDS_FOR_RUNNER_THREAD_TO_DO_ITS_THING);
             assertThat(errorReporter.toString(), metricsService.results().totalOperationCount(), is(2l));
             assertThat(errorReporter.toString(), completionTimeService.globalCompletionTime(), equalTo(Time.fromMilli(3)));
@@ -1178,13 +1178,13 @@ public class WorkloadRunnerComplexScenarioTests {
             assertThat(errorReporter.toString(), completionTimeService.globalCompletionTime(), equalTo(Time.fromMilli(3)));
             assertThat(errorReporter.toString(), errorReporter.errorEncountered(), is(false));
 
-            TIME_SOURCE.setNowFromMilli(5);
+            timeSource.setNowFromMilli(5);
             Thread.sleep(ENOUGH_MILLISECONDS_FOR_RUNNER_THREAD_TO_DO_ITS_THING);
             assertThat(errorReporter.toString(), metricsService.results().totalOperationCount(), is(3l));
             assertThat(errorReporter.toString(), completionTimeService.globalCompletionTime(), equalTo(Time.fromMilli(3)));
             assertThat(errorReporter.toString(), errorReporter.errorEncountered(), is(false));
 
-            TIME_SOURCE.setNowFromMilli(6);
+            timeSource.setNowFromMilli(6);
             Thread.sleep(ENOUGH_MILLISECONDS_FOR_RUNNER_THREAD_TO_DO_ITS_THING);
             assertThat(errorReporter.toString(), metricsService.results().totalOperationCount(), is(3l));
             assertThat(errorReporter.toString(), completionTimeService.globalCompletionTime(), equalTo(Time.fromMilli(3)));
@@ -1195,7 +1195,7 @@ public class WorkloadRunnerComplexScenarioTests {
             assertThat(errorReporter.toString(), completionTimeService.globalCompletionTime(), equalTo(Time.fromMilli(3)));
             assertThat(errorReporter.toString(), errorReporter.errorEncountered(), is(false));
 
-            TIME_SOURCE.setNowFromMilli(7);
+            timeSource.setNowFromMilli(7);
             Thread.sleep(ENOUGH_MILLISECONDS_FOR_RUNNER_THREAD_TO_DO_ITS_THING);
             assertThat(errorReporter.toString(), metricsService.results().totalOperationCount(), is(3l));
             assertThat(errorReporter.toString(), completionTimeService.globalCompletionTime(), equalTo(Time.fromMilli(3)));
@@ -1205,13 +1205,13 @@ public class WorkloadRunnerComplexScenarioTests {
             assertThat(errorReporter.toString(), completionTimeService.globalCompletionTime(), equalTo(Time.fromMilli(3)));
             assertThat(errorReporter.toString(), errorReporter.errorEncountered(), is(false));
 
-            TIME_SOURCE.setNowFromMilli(8);
+            timeSource.setNowFromMilli(8);
             Thread.sleep(ENOUGH_MILLISECONDS_FOR_RUNNER_THREAD_TO_DO_ITS_THING);
             assertThat(errorReporter.toString(), metricsService.results().totalOperationCount(), is(4l));
             assertThat(errorReporter.toString(), completionTimeService.globalCompletionTime(), equalTo(Time.fromMilli(3)));
             assertThat(errorReporter.toString(), errorReporter.errorEncountered(), is(false));
 
-            TIME_SOURCE.setNowFromMilli(9);
+            timeSource.setNowFromMilli(9);
             Thread.sleep(ENOUGH_MILLISECONDS_FOR_RUNNER_THREAD_TO_DO_ITS_THING);
             assertThat(errorReporter.toString(), metricsService.results().totalOperationCount(), is(4l));
             assertThat(errorReporter.toString(), completionTimeService.globalCompletionTime(), equalTo(Time.fromMilli(3)));
@@ -1221,13 +1221,13 @@ public class WorkloadRunnerComplexScenarioTests {
             assertThat(errorReporter.toString(), completionTimeService.globalCompletionTime(), equalTo(Time.fromMilli(3)));
             assertThat(errorReporter.toString(), errorReporter.errorEncountered(), is(false));
 
-            TIME_SOURCE.setNowFromMilli(10);
+            timeSource.setNowFromMilli(10);
             Thread.sleep(ENOUGH_MILLISECONDS_FOR_RUNNER_THREAD_TO_DO_ITS_THING);
             assertThat(errorReporter.toString(), metricsService.results().totalOperationCount(), is(4l));
             assertThat(errorReporter.toString(), completionTimeService.globalCompletionTime(), equalTo(Time.fromMilli(3)));
             assertThat(errorReporter.toString(), errorReporter.errorEncountered(), is(false));
 
-            TIME_SOURCE.setNowFromMilli(11);
+            timeSource.setNowFromMilli(11);
             Thread.sleep(ENOUGH_MILLISECONDS_FOR_RUNNER_THREAD_TO_DO_ITS_THING);
             assertThat(errorReporter.toString(), metricsService.results().totalOperationCount(), is(4l));
             assertThat(errorReporter.toString(), completionTimeService.globalCompletionTime(), equalTo(Time.fromMilli(3)));
@@ -1237,13 +1237,13 @@ public class WorkloadRunnerComplexScenarioTests {
             assertThat(errorReporter.toString(), completionTimeService.globalCompletionTime(), equalTo(Time.fromMilli(3)));
             assertThat(errorReporter.toString(), errorReporter.errorEncountered(), is(false));
 
-            TIME_SOURCE.setNowFromMilli(12);
+            timeSource.setNowFromMilli(12);
             Thread.sleep(ENOUGH_MILLISECONDS_FOR_RUNNER_THREAD_TO_DO_ITS_THING);
             assertThat(errorReporter.toString(), metricsService.results().totalOperationCount(), is(5l));
             assertThat(errorReporter.toString(), completionTimeService.globalCompletionTime(), equalTo(Time.fromMilli(3)));
             assertThat(errorReporter.toString(), errorReporter.errorEncountered(), is(false));
 
-            TIME_SOURCE.setNowFromMilli(13);
+            timeSource.setNowFromMilli(13);
             Thread.sleep(ENOUGH_MILLISECONDS_FOR_RUNNER_THREAD_TO_DO_ITS_THING);
             assertThat(errorReporter.toString(), metricsService.results().totalOperationCount(), is(5l));
             assertThat(errorReporter.toString(), completionTimeService.globalCompletionTime(), equalTo(Time.fromMilli(3)));
@@ -1254,7 +1254,7 @@ public class WorkloadRunnerComplexScenarioTests {
             assertThat(errorReporter.toString(), errorReporter.errorEncountered(), is(false));
 
             // At this point maximum tolerated delay for "readwrite3" should be triggered
-            TIME_SOURCE.setNowFromMilli(14);
+            timeSource.setNowFromMilli(14);
             Thread.sleep(ENOUGH_MILLISECONDS_FOR_RUNNER_THREAD_TO_DO_ITS_THING);
             assertThat(errorReporter.toString(), metricsService.results().totalOperationCount(), is(6l));
             assertThat(errorReporter.toString(), completionTimeService.globalCompletionTime(), equalTo(Time.fromMilli(3)));
@@ -1265,8 +1265,8 @@ public class WorkloadRunnerComplexScenarioTests {
             assertThat(errorReporter.toString(), errorReporter.errorEncountered(), is(true));
 
             Duration durationToWaitForRunnerToComplete = Duration.fromMilli(WorkloadRunner.RUNNER_POLLING_INTERVAL_AS_MILLI * 4);
-            long timeoutTimeAsMilli = TIME_SOURCE.now().plus(durationToWaitForRunnerToComplete).asMilli();
-            while (TIME_SOURCE.nowAsMilli() < timeoutTimeAsMilli) {
+            long timeoutTimeAsMilli = timeSource.now().plus(durationToWaitForRunnerToComplete).asMilli();
+            while (timeSource.nowAsMilli() < timeoutTimeAsMilli) {
                 if (runnerThread.runnerHasCompleted()) break;
                 Spinner.powerNap(100);
             }
@@ -1297,7 +1297,7 @@ public class WorkloadRunnerComplexScenarioTests {
         ConcurrentErrorReporter errorReporter = new ConcurrentErrorReporter();
 
         ConcurrentMetricsService metricsService = ThreadedQueuedConcurrentMetricsService.newInstanceUsingBlockingQueue(
-                TIME_SOURCE,
+                timeSource,
                 errorReporter,
                 TimeUnit.MILLISECONDS,
                 WORKLOAD_START_TIME_0,
@@ -1367,7 +1367,7 @@ public class WorkloadRunnerComplexScenarioTests {
 
             // TODO remove workload start time as public variable for this test class and always assume 0
             WorkloadRunnerThread runnerThread = workloadRunnerThread(
-                    TIME_SOURCE,
+                    timeSource,
                     WORKLOAD_START_TIME_0,
                     operations,
                     classifications,
@@ -1385,7 +1385,7 @@ public class WorkloadRunnerComplexScenarioTests {
             completionTimeServiceAssistant.writeInitiatedAndCompletedTimesToAllWriters(completionTimeService, Time.fromMilli(0));
             completionTimeServiceAssistant.writeInitiatedAndCompletedTimesToAllWriters(completionTimeService, Time.fromMilli(1));
 
-            TIME_SOURCE.setNowFromMilli(0);
+            timeSource.setNowFromMilli(0);
             assertThat(errorReporter.toString(), completionTimeService.globalCompletionTime(), is(Time.fromMilli(0)));
             assertThat(errorReporter.toString(), metricsService.results().totalOperationCount(), is(0l));
             assertThat(errorReporter.toString(), errorReporter.errorEncountered(), is(false));
@@ -1397,13 +1397,13 @@ public class WorkloadRunnerComplexScenarioTests {
             assertThat(errorReporter.toString(), completionTimeService.globalCompletionTime(), is(Time.fromMilli(1)));
             assertThat(errorReporter.toString(), errorReporter.errorEncountered(), is(false));
 
-            TIME_SOURCE.setNowFromMilli(1);
+            timeSource.setNowFromMilli(1);
             Thread.sleep(ENOUGH_MILLISECONDS_FOR_RUNNER_THREAD_TO_DO_ITS_THING);
             assertThat(errorReporter.toString(), metricsService.results().totalOperationCount(), is(0l));
             assertThat(errorReporter.toString(), completionTimeService.globalCompletionTime(), is(Time.fromMilli(1)));
             assertThat(errorReporter.toString(), errorReporter.errorEncountered(), is(false));
 
-            TIME_SOURCE.setNowFromMilli(2);
+            timeSource.setNowFromMilli(2);
             Thread.sleep(ENOUGH_MILLISECONDS_FOR_RUNNER_THREAD_TO_DO_ITS_THING);
             assertThat(errorReporter.toString(), metricsService.results().totalOperationCount(), is(0l));
             assertThat(errorReporter.toString(), completionTimeService.globalCompletionTime(), is(Time.fromMilli(1)));
@@ -1413,7 +1413,7 @@ public class WorkloadRunnerComplexScenarioTests {
             assertThat(errorReporter.toString(), completionTimeService.globalCompletionTime(), is(Time.fromMilli(1)));
             assertThat(errorReporter.toString(), errorReporter.errorEncountered(), is(false));
 
-            TIME_SOURCE.setNowFromMilli(3);
+            timeSource.setNowFromMilli(3);
             Thread.sleep(ENOUGH_MILLISECONDS_FOR_RUNNER_THREAD_TO_DO_ITS_THING);
             assertThat(errorReporter.toString(), metricsService.results().totalOperationCount(), is(1l));
             assertThat(errorReporter.toString(), completionTimeService.globalCompletionTime(), is(Time.fromMilli(1)));
@@ -1423,7 +1423,7 @@ public class WorkloadRunnerComplexScenarioTests {
             assertThat(errorReporter.toString(), completionTimeService.globalCompletionTime(), equalTo(Time.fromMilli(3)));
             assertThat(errorReporter.toString(), errorReporter.errorEncountered(), is(false));
 
-            TIME_SOURCE.setNowFromMilli(4);
+            timeSource.setNowFromMilli(4);
             Thread.sleep(ENOUGH_MILLISECONDS_FOR_RUNNER_THREAD_TO_DO_ITS_THING);
             assertThat(errorReporter.toString(), metricsService.results().totalOperationCount(), is(2l));
             assertThat(errorReporter.toString(), completionTimeService.globalCompletionTime(), equalTo(Time.fromMilli(3)));
@@ -1433,13 +1433,13 @@ public class WorkloadRunnerComplexScenarioTests {
             assertThat(errorReporter.toString(), completionTimeService.globalCompletionTime(), equalTo(Time.fromMilli(3)));
             assertThat(errorReporter.toString(), errorReporter.errorEncountered(), is(false));
 
-            TIME_SOURCE.setNowFromMilli(5);
+            timeSource.setNowFromMilli(5);
             Thread.sleep(ENOUGH_MILLISECONDS_FOR_RUNNER_THREAD_TO_DO_ITS_THING);
             assertThat(errorReporter.toString(), metricsService.results().totalOperationCount(), is(3l));
             assertThat(errorReporter.toString(), errorReporter.errorEncountered(), is(false));
             assertThat(errorReporter.toString(), completionTimeService.globalCompletionTime(), equalTo(Time.fromMilli(3)));
 
-            TIME_SOURCE.setNowFromMilli(6);
+            timeSource.setNowFromMilli(6);
             Thread.sleep(ENOUGH_MILLISECONDS_FOR_RUNNER_THREAD_TO_DO_ITS_THING);
             assertThat(errorReporter.toString(), metricsService.results().totalOperationCount(), is(3l));
             assertThat(errorReporter.toString(), completionTimeService.globalCompletionTime(), equalTo(Time.fromMilli(3)));
@@ -1449,7 +1449,7 @@ public class WorkloadRunnerComplexScenarioTests {
             assertThat(errorReporter.toString(), completionTimeService.globalCompletionTime(), equalTo(Time.fromMilli(6)));
             assertThat(errorReporter.toString(), errorReporter.errorEncountered(), is(false));
 
-            TIME_SOURCE.setNowFromMilli(7);
+            timeSource.setNowFromMilli(7);
             Thread.sleep(ENOUGH_MILLISECONDS_FOR_RUNNER_THREAD_TO_DO_ITS_THING);
             assertThat(errorReporter.toString(), metricsService.results().totalOperationCount(), is(4l));
             assertThat(errorReporter.toString(), completionTimeService.globalCompletionTime(), equalTo(Time.fromMilli(6)));
@@ -1459,13 +1459,13 @@ public class WorkloadRunnerComplexScenarioTests {
             assertThat(errorReporter.toString(), completionTimeService.globalCompletionTime(), equalTo(Time.fromMilli(6)));
             assertThat(errorReporter.toString(), errorReporter.errorEncountered(), is(false));
 
-            TIME_SOURCE.setNowFromMilli(8);
+            timeSource.setNowFromMilli(8);
             Thread.sleep(ENOUGH_MILLISECONDS_FOR_RUNNER_THREAD_TO_DO_ITS_THING);
             assertThat(errorReporter.toString(), metricsService.results().totalOperationCount(), is(5l));
             assertThat(errorReporter.toString(), completionTimeService.globalCompletionTime(), equalTo(Time.fromMilli(6)));
             assertThat(errorReporter.toString(), errorReporter.errorEncountered(), is(false));
 
-            TIME_SOURCE.setNowFromMilli(9);
+            timeSource.setNowFromMilli(9);
             Thread.sleep(ENOUGH_MILLISECONDS_FOR_RUNNER_THREAD_TO_DO_ITS_THING);
             assertThat(errorReporter.toString(), metricsService.results().totalOperationCount(), is(5l));
             assertThat(errorReporter.toString(), completionTimeService.globalCompletionTime(), equalTo(Time.fromMilli(6)));
@@ -1475,13 +1475,13 @@ public class WorkloadRunnerComplexScenarioTests {
             assertThat(errorReporter.toString(), completionTimeService.globalCompletionTime(), equalTo(Time.fromMilli(9)));
             assertThat(errorReporter.toString(), errorReporter.errorEncountered(), is(false));
 
-            TIME_SOURCE.setNowFromMilli(10);
+            timeSource.setNowFromMilli(10);
             Thread.sleep(ENOUGH_MILLISECONDS_FOR_RUNNER_THREAD_TO_DO_ITS_THING);
             assertThat(errorReporter.toString(), metricsService.results().totalOperationCount(), is(6l));
             assertThat(errorReporter.toString(), completionTimeService.globalCompletionTime(), equalTo(Time.fromMilli(9)));
             assertThat(errorReporter.toString(), errorReporter.errorEncountered(), is(false));
 
-            TIME_SOURCE.setNowFromMilli(11);
+            timeSource.setNowFromMilli(11);
             Thread.sleep(ENOUGH_MILLISECONDS_FOR_RUNNER_THREAD_TO_DO_ITS_THING);
             assertThat(errorReporter.toString(), metricsService.results().totalOperationCount(), is(6l));
             assertThat(errorReporter.toString(), completionTimeService.globalCompletionTime(), equalTo(Time.fromMilli(9)));
@@ -1491,13 +1491,13 @@ public class WorkloadRunnerComplexScenarioTests {
             assertThat(errorReporter.toString(), completionTimeService.globalCompletionTime(), equalTo(Time.fromMilli(9)));
             assertThat(errorReporter.toString(), errorReporter.errorEncountered(), is(false));
 
-            TIME_SOURCE.setNowFromMilli(12);
+            timeSource.setNowFromMilli(12);
             Thread.sleep(ENOUGH_MILLISECONDS_FOR_RUNNER_THREAD_TO_DO_ITS_THING);
             assertThat(errorReporter.toString(), metricsService.results().totalOperationCount(), is(7l));
             assertThat(errorReporter.toString(), completionTimeService.globalCompletionTime(), equalTo(Time.fromMilli(9)));
             assertThat(errorReporter.toString(), errorReporter.errorEncountered(), is(false));
 
-            TIME_SOURCE.setNowFromMilli(13);
+            timeSource.setNowFromMilli(13);
             Thread.sleep(ENOUGH_MILLISECONDS_FOR_RUNNER_THREAD_TO_DO_ITS_THING);
             assertThat(errorReporter.toString(), metricsService.results().totalOperationCount(), is(7l));
             assertThat(errorReporter.toString(), completionTimeService.globalCompletionTime(), equalTo(Time.fromMilli(9)));
@@ -1508,8 +1508,8 @@ public class WorkloadRunnerComplexScenarioTests {
             assertThat(errorReporter.toString(), errorReporter.errorEncountered(), is(false));
 
             Duration durationToWaitForRunnerToComplete = Duration.fromMilli(WorkloadRunner.RUNNER_POLLING_INTERVAL_AS_MILLI * 4);
-            long timeoutTimeAsMilli = TIME_SOURCE.now().plus(durationToWaitForRunnerToComplete).asMilli();
-            while (TIME_SOURCE.nowAsMilli() < timeoutTimeAsMilli) {
+            long timeoutTimeAsMilli = timeSource.now().plus(durationToWaitForRunnerToComplete).asMilli();
+            while (timeSource.nowAsMilli() < timeoutTimeAsMilli) {
                 if (runnerThread.runnerHasCompleted()) break;
                 Spinner.powerNap(100);
             }
@@ -1540,7 +1540,7 @@ public class WorkloadRunnerComplexScenarioTests {
         ConcurrentErrorReporter errorReporter = new ConcurrentErrorReporter();
 
         ConcurrentMetricsService metricsService = ThreadedQueuedConcurrentMetricsService.newInstanceUsingBlockingQueue(
-                TIME_SOURCE,
+                timeSource,
                 errorReporter,
                 TimeUnit.MILLISECONDS,
                 WORKLOAD_START_TIME_0,
@@ -1610,7 +1610,7 @@ public class WorkloadRunnerComplexScenarioTests {
 
             // TODO remove workload start time as public variable for this test class and always assume 0
             WorkloadRunnerThread runnerThread = workloadRunnerThread(
-                    TIME_SOURCE,
+                    timeSource,
                     WORKLOAD_START_TIME_0,
                     operations,
                     classifications,
@@ -1628,7 +1628,7 @@ public class WorkloadRunnerComplexScenarioTests {
             completionTimeServiceAssistant.writeInitiatedAndCompletedTimesToAllWriters(completionTimeService, Time.fromMilli(0));
             completionTimeServiceAssistant.writeInitiatedAndCompletedTimesToAllWriters(completionTimeService, Time.fromMilli(1));
 
-            TIME_SOURCE.setNowFromMilli(0);
+            timeSource.setNowFromMilli(0);
             assertThat(errorReporter.toString(), completionTimeService.globalCompletionTime(), is(Time.fromMilli(0)));
             assertThat(errorReporter.toString(), metricsService.results().totalOperationCount(), is(0l));
             assertThat(errorReporter.toString(), errorReporter.errorEncountered(), is(false));
@@ -1640,13 +1640,13 @@ public class WorkloadRunnerComplexScenarioTests {
             assertThat(errorReporter.toString(), completionTimeService.globalCompletionTime(), is(Time.fromMilli(1)));
             assertThat(errorReporter.toString(), errorReporter.errorEncountered(), is(false));
 
-            TIME_SOURCE.setNowFromMilli(1);
+            timeSource.setNowFromMilli(1);
             Thread.sleep(ENOUGH_MILLISECONDS_FOR_RUNNER_THREAD_TO_DO_ITS_THING);
             assertThat(errorReporter.toString(), metricsService.results().totalOperationCount(), is(0l));
             assertThat(errorReporter.toString(), completionTimeService.globalCompletionTime(), is(Time.fromMilli(1)));
             assertThat(errorReporter.toString(), errorReporter.errorEncountered(), is(false));
 
-            TIME_SOURCE.setNowFromMilli(2);
+            timeSource.setNowFromMilli(2);
             Thread.sleep(ENOUGH_MILLISECONDS_FOR_RUNNER_THREAD_TO_DO_ITS_THING);
             assertThat(errorReporter.toString(), metricsService.results().totalOperationCount(), is(0l));
             assertThat(errorReporter.toString(), completionTimeService.globalCompletionTime(), is(Time.fromMilli(1)));
@@ -1656,7 +1656,7 @@ public class WorkloadRunnerComplexScenarioTests {
             assertThat(errorReporter.toString(), completionTimeService.globalCompletionTime(), is(Time.fromMilli(1)));
             assertThat(errorReporter.toString(), errorReporter.errorEncountered(), is(false));
 
-            TIME_SOURCE.setNowFromMilli(3);
+            timeSource.setNowFromMilli(3);
             Thread.sleep(ENOUGH_MILLISECONDS_FOR_RUNNER_THREAD_TO_DO_ITS_THING);
             assertThat(errorReporter.toString(), metricsService.results().totalOperationCount(), is(1l));
             assertThat(errorReporter.toString(), completionTimeService.globalCompletionTime(), is(Time.fromMilli(1)));
@@ -1666,7 +1666,7 @@ public class WorkloadRunnerComplexScenarioTests {
             assertThat(errorReporter.toString(), completionTimeService.globalCompletionTime(), equalTo(Time.fromMilli(3)));
             assertThat(errorReporter.toString(), errorReporter.errorEncountered(), is(false));
 
-            TIME_SOURCE.setNowFromMilli(4);
+            timeSource.setNowFromMilli(4);
             Thread.sleep(ENOUGH_MILLISECONDS_FOR_RUNNER_THREAD_TO_DO_ITS_THING);
             assertThat(errorReporter.toString(), metricsService.results().totalOperationCount(), is(2l));
             assertThat(errorReporter.toString(), completionTimeService.globalCompletionTime(), equalTo(Time.fromMilli(3)));
@@ -1676,13 +1676,13 @@ public class WorkloadRunnerComplexScenarioTests {
             assertThat(errorReporter.toString(), completionTimeService.globalCompletionTime(), equalTo(Time.fromMilli(3)));
             assertThat(errorReporter.toString(), errorReporter.errorEncountered(), is(false));
 
-            TIME_SOURCE.setNowFromMilli(5);
+            timeSource.setNowFromMilli(5);
             Thread.sleep(ENOUGH_MILLISECONDS_FOR_RUNNER_THREAD_TO_DO_ITS_THING);
             assertThat(errorReporter.toString(), metricsService.results().totalOperationCount(), is(3l));
             assertThat(errorReporter.toString(), errorReporter.errorEncountered(), is(false));
             assertThat(errorReporter.toString(), completionTimeService.globalCompletionTime(), equalTo(Time.fromMilli(3)));
 
-            TIME_SOURCE.setNowFromMilli(6);
+            timeSource.setNowFromMilli(6);
             Thread.sleep(ENOUGH_MILLISECONDS_FOR_RUNNER_THREAD_TO_DO_ITS_THING);
             assertThat(errorReporter.toString(), metricsService.results().totalOperationCount(), is(3l));
             assertThat(errorReporter.toString(), completionTimeService.globalCompletionTime(), equalTo(Time.fromMilli(3)));
@@ -1692,7 +1692,7 @@ public class WorkloadRunnerComplexScenarioTests {
             assertThat(errorReporter.toString(), completionTimeService.globalCompletionTime(), equalTo(Time.fromMilli(6)));
             assertThat(errorReporter.toString(), errorReporter.errorEncountered(), is(false));
 
-            TIME_SOURCE.setNowFromMilli(7);
+            timeSource.setNowFromMilli(7);
             Thread.sleep(ENOUGH_MILLISECONDS_FOR_RUNNER_THREAD_TO_DO_ITS_THING);
             assertThat(errorReporter.toString(), metricsService.results().totalOperationCount(), is(4l));
             assertThat(errorReporter.toString(), completionTimeService.globalCompletionTime(), equalTo(Time.fromMilli(6)));
@@ -1702,13 +1702,13 @@ public class WorkloadRunnerComplexScenarioTests {
             assertThat(errorReporter.toString(), completionTimeService.globalCompletionTime(), equalTo(Time.fromMilli(6)));
             assertThat(errorReporter.toString(), errorReporter.errorEncountered(), is(false));
 
-            TIME_SOURCE.setNowFromMilli(8);
+            timeSource.setNowFromMilli(8);
             Thread.sleep(ENOUGH_MILLISECONDS_FOR_RUNNER_THREAD_TO_DO_ITS_THING);
             assertThat(errorReporter.toString(), metricsService.results().totalOperationCount(), is(5l));
             assertThat(errorReporter.toString(), completionTimeService.globalCompletionTime(), equalTo(Time.fromMilli(6)));
             assertThat(errorReporter.toString(), errorReporter.errorEncountered(), is(false));
 
-            TIME_SOURCE.setNowFromMilli(9);
+            timeSource.setNowFromMilli(9);
             Thread.sleep(ENOUGH_MILLISECONDS_FOR_RUNNER_THREAD_TO_DO_ITS_THING);
             assertThat(errorReporter.toString(), metricsService.results().totalOperationCount(), is(5l));
             assertThat(errorReporter.toString(), completionTimeService.globalCompletionTime(), equalTo(Time.fromMilli(6)));
@@ -1718,13 +1718,13 @@ public class WorkloadRunnerComplexScenarioTests {
             assertThat(errorReporter.toString(), completionTimeService.globalCompletionTime(), equalTo(Time.fromMilli(6)));
             assertThat(errorReporter.toString(), errorReporter.errorEncountered(), is(false));
 
-            TIME_SOURCE.setNowFromMilli(10);
+            timeSource.setNowFromMilli(10);
             Thread.sleep(ENOUGH_MILLISECONDS_FOR_RUNNER_THREAD_TO_DO_ITS_THING);
             assertThat(errorReporter.toString(), metricsService.results().totalOperationCount(), is(6l));
             assertThat(errorReporter.toString(), completionTimeService.globalCompletionTime(), equalTo(Time.fromMilli(6)));
             assertThat(errorReporter.toString(), errorReporter.errorEncountered(), is(false));
 
-            TIME_SOURCE.setNowFromMilli(11);
+            timeSource.setNowFromMilli(11);
             Thread.sleep(ENOUGH_MILLISECONDS_FOR_RUNNER_THREAD_TO_DO_ITS_THING);
             assertThat(errorReporter.toString(), metricsService.results().totalOperationCount(), is(6l));
             assertThat(errorReporter.toString(), completionTimeService.globalCompletionTime(), equalTo(Time.fromMilli(6)));
@@ -1734,13 +1734,13 @@ public class WorkloadRunnerComplexScenarioTests {
             assertThat(errorReporter.toString(), completionTimeService.globalCompletionTime(), equalTo(Time.fromMilli(6)));
             assertThat(errorReporter.toString(), errorReporter.errorEncountered(), is(false));
 
-            TIME_SOURCE.setNowFromMilli(12);
+            timeSource.setNowFromMilli(12);
             Thread.sleep(ENOUGH_MILLISECONDS_FOR_RUNNER_THREAD_TO_DO_ITS_THING);
             assertThat(errorReporter.toString(), metricsService.results().totalOperationCount(), is(7l));
             assertThat(errorReporter.toString(), completionTimeService.globalCompletionTime(), equalTo(Time.fromMilli(6)));
             assertThat(errorReporter.toString(), errorReporter.errorEncountered(), is(false));
 
-            TIME_SOURCE.setNowFromMilli(13);
+            timeSource.setNowFromMilli(13);
             Thread.sleep(ENOUGH_MILLISECONDS_FOR_RUNNER_THREAD_TO_DO_ITS_THING);
             assertThat(errorReporter.toString(), metricsService.results().totalOperationCount(), is(7l));
             assertThat(errorReporter.toString(), completionTimeService.globalCompletionTime(), equalTo(Time.fromMilli(6)));
@@ -1751,8 +1751,8 @@ public class WorkloadRunnerComplexScenarioTests {
             assertThat(errorReporter.toString(), errorReporter.errorEncountered(), is(false));
 
             Duration durationToWaitForRunnerToComplete = Duration.fromMilli(WorkloadRunner.RUNNER_POLLING_INTERVAL_AS_MILLI * 4);
-            long timeoutTimeAsMilli = TIME_SOURCE.now().plus(durationToWaitForRunnerToComplete).asMilli();
-            while (TIME_SOURCE.nowAsMilli() < timeoutTimeAsMilli) {
+            long timeoutTimeAsMilli = timeSource.now().plus(durationToWaitForRunnerToComplete).asMilli();
+            while (timeSource.nowAsMilli() < timeoutTimeAsMilli) {
                 if (runnerThread.runnerHasCompleted()) break;
                 Spinner.powerNap(100);
             }
@@ -1783,7 +1783,7 @@ public class WorkloadRunnerComplexScenarioTests {
         ConcurrentErrorReporter errorReporter = new ConcurrentErrorReporter();
 
         ConcurrentMetricsService metricsService = ThreadedQueuedConcurrentMetricsService.newInstanceUsingBlockingQueue(
-                TIME_SOURCE,
+                timeSource,
                 errorReporter,
                 TimeUnit.MILLISECONDS,
                 WORKLOAD_START_TIME_0,
@@ -1853,7 +1853,7 @@ public class WorkloadRunnerComplexScenarioTests {
 
             // TODO remove workload start time as public variable for this test class and always assume 0
             WorkloadRunnerThread runnerThread = workloadRunnerThread(
-                    TIME_SOURCE,
+                    timeSource,
                     WORKLOAD_START_TIME_0,
                     operations,
                     classifications,
@@ -1871,7 +1871,7 @@ public class WorkloadRunnerComplexScenarioTests {
             completionTimeServiceAssistant.writeInitiatedAndCompletedTimesToAllWriters(completionTimeService, Time.fromMilli(0));
             completionTimeServiceAssistant.writeInitiatedAndCompletedTimesToAllWriters(completionTimeService, Time.fromMilli(1));
 
-            TIME_SOURCE.setNowFromMilli(0);
+            timeSource.setNowFromMilli(0);
             assertThat(errorReporter.toString(), completionTimeService.globalCompletionTime(), is(Time.fromMilli(0)));
             assertThat(errorReporter.toString(), metricsService.results().totalOperationCount(), is(0l));
             assertThat(errorReporter.toString(), errorReporter.errorEncountered(), is(false));
@@ -1883,13 +1883,13 @@ public class WorkloadRunnerComplexScenarioTests {
             assertThat(errorReporter.toString(), completionTimeService.globalCompletionTime(), is(Time.fromMilli(1)));
             assertThat(errorReporter.toString(), errorReporter.errorEncountered(), is(false));
 
-            TIME_SOURCE.setNowFromMilli(1);
+            timeSource.setNowFromMilli(1);
             Thread.sleep(ENOUGH_MILLISECONDS_FOR_RUNNER_THREAD_TO_DO_ITS_THING);
             assertThat(errorReporter.toString(), metricsService.results().totalOperationCount(), is(0l));
             assertThat(errorReporter.toString(), completionTimeService.globalCompletionTime(), is(Time.fromMilli(1)));
             assertThat(errorReporter.toString(), errorReporter.errorEncountered(), is(false));
 
-            TIME_SOURCE.setNowFromMilli(2);
+            timeSource.setNowFromMilli(2);
             Thread.sleep(ENOUGH_MILLISECONDS_FOR_RUNNER_THREAD_TO_DO_ITS_THING);
             assertThat(errorReporter.toString(), metricsService.results().totalOperationCount(), is(0l));
             assertThat(errorReporter.toString(), completionTimeService.globalCompletionTime(), is(Time.fromMilli(1)));
@@ -1899,7 +1899,7 @@ public class WorkloadRunnerComplexScenarioTests {
             assertThat(errorReporter.toString(), completionTimeService.globalCompletionTime(), is(Time.fromMilli(1)));
             assertThat(errorReporter.toString(), errorReporter.errorEncountered(), is(false));
 
-            TIME_SOURCE.setNowFromMilli(3);
+            timeSource.setNowFromMilli(3);
             Thread.sleep(ENOUGH_MILLISECONDS_FOR_RUNNER_THREAD_TO_DO_ITS_THING);
             assertThat(errorReporter.toString(), metricsService.results().totalOperationCount(), is(1l));
             assertThat(errorReporter.toString(), completionTimeService.globalCompletionTime(), is(Time.fromMilli(1)));
@@ -1909,7 +1909,7 @@ public class WorkloadRunnerComplexScenarioTests {
             assertThat(errorReporter.toString(), completionTimeService.globalCompletionTime(), equalTo(Time.fromMilli(3)));
             assertThat(errorReporter.toString(), errorReporter.errorEncountered(), is(false));
 
-            TIME_SOURCE.setNowFromMilli(4);
+            timeSource.setNowFromMilli(4);
             Thread.sleep(ENOUGH_MILLISECONDS_FOR_RUNNER_THREAD_TO_DO_ITS_THING);
             assertThat(errorReporter.toString(), metricsService.results().totalOperationCount(), is(2l));
             assertThat(errorReporter.toString(), completionTimeService.globalCompletionTime(), equalTo(Time.fromMilli(3)));
@@ -1919,13 +1919,13 @@ public class WorkloadRunnerComplexScenarioTests {
             assertThat(errorReporter.toString(), completionTimeService.globalCompletionTime(), equalTo(Time.fromMilli(3)));
             assertThat(errorReporter.toString(), errorReporter.errorEncountered(), is(false));
 
-            TIME_SOURCE.setNowFromMilli(5);
+            timeSource.setNowFromMilli(5);
             Thread.sleep(ENOUGH_MILLISECONDS_FOR_RUNNER_THREAD_TO_DO_ITS_THING);
             assertThat(errorReporter.toString(), metricsService.results().totalOperationCount(), is(3l));
             assertThat(errorReporter.toString(), errorReporter.errorEncountered(), is(false));
             assertThat(errorReporter.toString(), completionTimeService.globalCompletionTime(), equalTo(Time.fromMilli(3)));
 
-            TIME_SOURCE.setNowFromMilli(6);
+            timeSource.setNowFromMilli(6);
             Thread.sleep(ENOUGH_MILLISECONDS_FOR_RUNNER_THREAD_TO_DO_ITS_THING);
             assertThat(errorReporter.toString(), metricsService.results().totalOperationCount(), is(3l));
             assertThat(errorReporter.toString(), completionTimeService.globalCompletionTime(), equalTo(Time.fromMilli(3)));
@@ -1935,7 +1935,7 @@ public class WorkloadRunnerComplexScenarioTests {
             assertThat(errorReporter.toString(), completionTimeService.globalCompletionTime(), equalTo(Time.fromMilli(6)));
             assertThat(errorReporter.toString(), errorReporter.errorEncountered(), is(false));
 
-            TIME_SOURCE.setNowFromMilli(7);
+            timeSource.setNowFromMilli(7);
             Thread.sleep(ENOUGH_MILLISECONDS_FOR_RUNNER_THREAD_TO_DO_ITS_THING);
             assertThat(errorReporter.toString(), metricsService.results().totalOperationCount(), is(4l));
             assertThat(errorReporter.toString(), completionTimeService.globalCompletionTime(), equalTo(Time.fromMilli(6)));
@@ -1945,13 +1945,13 @@ public class WorkloadRunnerComplexScenarioTests {
             assertThat(errorReporter.toString(), completionTimeService.globalCompletionTime(), equalTo(Time.fromMilli(6)));
             assertThat(errorReporter.toString(), errorReporter.errorEncountered(), is(false));
 
-            TIME_SOURCE.setNowFromMilli(8);
+            timeSource.setNowFromMilli(8);
             Thread.sleep(ENOUGH_MILLISECONDS_FOR_RUNNER_THREAD_TO_DO_ITS_THING);
             assertThat(errorReporter.toString(), metricsService.results().totalOperationCount(), is(5l));
             assertThat(errorReporter.toString(), completionTimeService.globalCompletionTime(), equalTo(Time.fromMilli(6)));
             assertThat(errorReporter.toString(), errorReporter.errorEncountered(), is(false));
 
-            TIME_SOURCE.setNowFromMilli(9);
+            timeSource.setNowFromMilli(9);
             Thread.sleep(ENOUGH_MILLISECONDS_FOR_RUNNER_THREAD_TO_DO_ITS_THING);
             assertThat(errorReporter.toString(), metricsService.results().totalOperationCount(), is(5l));
             assertThat(errorReporter.toString(), completionTimeService.globalCompletionTime(), equalTo(Time.fromMilli(6)));
@@ -1961,13 +1961,13 @@ public class WorkloadRunnerComplexScenarioTests {
             assertThat(errorReporter.toString(), completionTimeService.globalCompletionTime(), equalTo(Time.fromMilli(9)));
             assertThat(errorReporter.toString(), errorReporter.errorEncountered(), is(false));
 
-            TIME_SOURCE.setNowFromMilli(10);
+            timeSource.setNowFromMilli(10);
             Thread.sleep(ENOUGH_MILLISECONDS_FOR_RUNNER_THREAD_TO_DO_ITS_THING);
             assertThat(errorReporter.toString(), metricsService.results().totalOperationCount(), is(6l));
             assertThat(errorReporter.toString(), completionTimeService.globalCompletionTime(), equalTo(Time.fromMilli(9)));
             assertThat(errorReporter.toString(), errorReporter.errorEncountered(), is(false));
 
-            TIME_SOURCE.setNowFromMilli(11);
+            timeSource.setNowFromMilli(11);
             Thread.sleep(ENOUGH_MILLISECONDS_FOR_RUNNER_THREAD_TO_DO_ITS_THING);
             assertThat(errorReporter.toString(), metricsService.results().totalOperationCount(), is(6l));
             assertThat(errorReporter.toString(), completionTimeService.globalCompletionTime(), equalTo(Time.fromMilli(9)));
@@ -1977,13 +1977,13 @@ public class WorkloadRunnerComplexScenarioTests {
             assertThat(errorReporter.toString(), completionTimeService.globalCompletionTime(), equalTo(Time.fromMilli(9)));
             assertThat(errorReporter.toString(), errorReporter.errorEncountered(), is(false));
 
-            TIME_SOURCE.setNowFromMilli(12);
+            timeSource.setNowFromMilli(12);
             Thread.sleep(ENOUGH_MILLISECONDS_FOR_RUNNER_THREAD_TO_DO_ITS_THING);
             assertThat(errorReporter.toString(), metricsService.results().totalOperationCount(), is(7l));
             assertThat(errorReporter.toString(), completionTimeService.globalCompletionTime(), equalTo(Time.fromMilli(9)));
             assertThat(errorReporter.toString(), errorReporter.errorEncountered(), is(false));
 
-            TIME_SOURCE.setNowFromMilli(13);
+            timeSource.setNowFromMilli(13);
             Thread.sleep(ENOUGH_MILLISECONDS_FOR_RUNNER_THREAD_TO_DO_ITS_THING);
             assertThat(errorReporter.toString(), metricsService.results().totalOperationCount(), is(7l));
             assertThat(errorReporter.toString(), completionTimeService.globalCompletionTime(), equalTo(Time.fromMilli(9)));
@@ -1994,8 +1994,8 @@ public class WorkloadRunnerComplexScenarioTests {
             assertThat(errorReporter.toString(), errorReporter.errorEncountered(), is(false));
 
             Duration durationToWaitForRunnerToComplete = Duration.fromMilli(WorkloadRunner.RUNNER_POLLING_INTERVAL_AS_MILLI * 4);
-            long timeoutTimeAsMilli = TIME_SOURCE.now().plus(durationToWaitForRunnerToComplete).asMilli();
-            while (TIME_SOURCE.nowAsMilli() < timeoutTimeAsMilli) {
+            long timeoutTimeAsMilli = timeSource.now().plus(durationToWaitForRunnerToComplete).asMilli();
+            while (timeSource.nowAsMilli() < timeoutTimeAsMilli) {
                 if (runnerThread.runnerHasCompleted()) break;
                 Spinner.powerNap(100);
             }
@@ -2026,7 +2026,7 @@ public class WorkloadRunnerComplexScenarioTests {
         ConcurrentErrorReporter errorReporter = new ConcurrentErrorReporter();
 
         ConcurrentMetricsService metricsService = ThreadedQueuedConcurrentMetricsService.newInstanceUsingBlockingQueue(
-                TIME_SOURCE,
+                timeSource,
                 errorReporter,
                 TimeUnit.MILLISECONDS,
                 WORKLOAD_START_TIME_0,
@@ -2094,7 +2094,7 @@ public class WorkloadRunnerComplexScenarioTests {
             db.init(params);
 
             WorkloadRunnerThread runnerThread = workloadRunnerThread(
-                    TIME_SOURCE,
+                    timeSource,
                     WORKLOAD_START_TIME_0,
                     operations,
                     classifications,
@@ -2112,7 +2112,7 @@ public class WorkloadRunnerComplexScenarioTests {
             completionTimeServiceAssistant.writeInitiatedAndCompletedTimesToAllWriters(completionTimeService, Time.fromMilli(0));
             completionTimeServiceAssistant.writeInitiatedAndCompletedTimesToAllWriters(completionTimeService, Time.fromMilli(1));
 
-            TIME_SOURCE.setNowFromMilli(0);
+            timeSource.setNowFromMilli(0);
             assertThat(errorReporter.toString(), completionTimeService.globalCompletionTime(), is(Time.fromMilli(0)));
             assertThat(errorReporter.toString(), metricsService.results().totalOperationCount(), is(0l));
             assertThat(errorReporter.toString(), errorReporter.errorEncountered(), is(false));
@@ -2124,13 +2124,13 @@ public class WorkloadRunnerComplexScenarioTests {
             assertThat(errorReporter.toString(), completionTimeService.globalCompletionTime(), is(Time.fromMilli(0)));
             assertThat(errorReporter.toString(), errorReporter.errorEncountered(), is(false));
 
-            TIME_SOURCE.setNowFromMilli(1);
+            timeSource.setNowFromMilli(1);
             Thread.sleep(ENOUGH_MILLISECONDS_FOR_RUNNER_THREAD_TO_DO_ITS_THING);
             assertThat(errorReporter.toString(), metricsService.results().totalOperationCount(), is(0l));
             assertThat(errorReporter.toString(), completionTimeService.globalCompletionTime(), is(Time.fromMilli(0)));
             assertThat(errorReporter.toString(), errorReporter.errorEncountered(), is(false));
 
-            TIME_SOURCE.setNowFromMilli(2);
+            timeSource.setNowFromMilli(2);
             Thread.sleep(ENOUGH_MILLISECONDS_FOR_RUNNER_THREAD_TO_DO_ITS_THING);
             assertThat(errorReporter.toString(), metricsService.results().totalOperationCount(), is(0l));
             // GCT may be 0 or 1 at this stage, depending on the OperationHandlerExecutor used.
@@ -2143,7 +2143,7 @@ public class WorkloadRunnerComplexScenarioTests {
             assertThat(errorReporter.toString(), completionTimeService.globalCompletionTime(), is(Time.fromMilli(1)));
             assertThat(errorReporter.toString(), errorReporter.errorEncountered(), is(false));
 
-            TIME_SOURCE.setNowFromMilli(3);
+            timeSource.setNowFromMilli(3);
             Thread.sleep(ENOUGH_MILLISECONDS_FOR_RUNNER_THREAD_TO_DO_ITS_THING);
             assertThat(errorReporter.toString(), metricsService.results().totalOperationCount(), is(1l));
             assertThat(errorReporter.toString(), completionTimeService.globalCompletionTime(), is(Time.fromMilli(1)));
@@ -2153,7 +2153,7 @@ public class WorkloadRunnerComplexScenarioTests {
             assertThat(errorReporter.toString(), completionTimeService.globalCompletionTime(), equalTo(Time.fromMilli(1)));
             assertThat(errorReporter.toString(), errorReporter.errorEncountered(), is(false));
 
-            TIME_SOURCE.setNowFromMilli(4);
+            timeSource.setNowFromMilli(4);
             Thread.sleep(ENOUGH_MILLISECONDS_FOR_RUNNER_THREAD_TO_DO_ITS_THING);
             assertThat(errorReporter.toString(), metricsService.results().totalOperationCount(), is(2l));
             // GCT may be 1 or 3 at this stage, depending on the OperationHandlerExecutor used.
@@ -2166,13 +2166,13 @@ public class WorkloadRunnerComplexScenarioTests {
             assertThat(errorReporter.toString(), completionTimeService.globalCompletionTime(), equalTo(Time.fromMilli(3)));
             assertThat(errorReporter.toString(), errorReporter.errorEncountered(), is(false));
 
-            TIME_SOURCE.setNowFromMilli(5);
+            timeSource.setNowFromMilli(5);
             Thread.sleep(ENOUGH_MILLISECONDS_FOR_RUNNER_THREAD_TO_DO_ITS_THING);
             assertThat(errorReporter.toString(), metricsService.results().totalOperationCount(), is(3l));
             assertThat(errorReporter.toString(), errorReporter.errorEncountered(), is(false));
             assertThat(errorReporter.toString(), completionTimeService.globalCompletionTime(), equalTo(Time.fromMilli(3)));
 
-            TIME_SOURCE.setNowFromMilli(6);
+            timeSource.setNowFromMilli(6);
             Thread.sleep(ENOUGH_MILLISECONDS_FOR_RUNNER_THREAD_TO_DO_ITS_THING);
             assertThat(errorReporter.toString(), metricsService.results().totalOperationCount(), is(3l));
             assertThat(errorReporter.toString(), completionTimeService.globalCompletionTime(), equalTo(Time.fromMilli(3)));
@@ -2182,7 +2182,7 @@ public class WorkloadRunnerComplexScenarioTests {
             assertThat(errorReporter.toString(), completionTimeService.globalCompletionTime(), equalTo(Time.fromMilli(3)));
             assertThat(errorReporter.toString(), errorReporter.errorEncountered(), is(false));
 
-            TIME_SOURCE.setNowFromMilli(7);
+            timeSource.setNowFromMilli(7);
             Thread.sleep(ENOUGH_MILLISECONDS_FOR_RUNNER_THREAD_TO_DO_ITS_THING);
             assertThat(errorReporter.toString(), metricsService.results().totalOperationCount(), is(4l));
             // GCT may be 3 or 6 at this stage, depending on the OperationHandlerExecutor used.
@@ -2195,13 +2195,13 @@ public class WorkloadRunnerComplexScenarioTests {
             assertThat(errorReporter.toString(), completionTimeService.globalCompletionTime(), equalTo(Time.fromMilli(6)));
             assertThat(errorReporter.toString(), errorReporter.errorEncountered(), is(false));
 
-            TIME_SOURCE.setNowFromMilli(8);
+            timeSource.setNowFromMilli(8);
             Thread.sleep(ENOUGH_MILLISECONDS_FOR_RUNNER_THREAD_TO_DO_ITS_THING);
             assertThat(errorReporter.toString(), metricsService.results().totalOperationCount(), is(5l));
             assertThat(errorReporter.toString(), completionTimeService.globalCompletionTime(), equalTo(Time.fromMilli(6)));
             assertThat(errorReporter.toString(), errorReporter.errorEncountered(), is(false));
 
-            TIME_SOURCE.setNowFromMilli(9);
+            timeSource.setNowFromMilli(9);
             Thread.sleep(ENOUGH_MILLISECONDS_FOR_RUNNER_THREAD_TO_DO_ITS_THING);
             assertThat(errorReporter.toString(), metricsService.results().totalOperationCount(), is(5l));
             assertThat(errorReporter.toString(), completionTimeService.globalCompletionTime(), equalTo(Time.fromMilli(6)));
@@ -2211,13 +2211,13 @@ public class WorkloadRunnerComplexScenarioTests {
             assertThat(errorReporter.toString(), completionTimeService.globalCompletionTime(), equalTo(Time.fromMilli(6)));
             assertThat(errorReporter.toString(), errorReporter.errorEncountered(), is(false));
 
-            TIME_SOURCE.setNowFromMilli(10);
+            timeSource.setNowFromMilli(10);
             Thread.sleep(ENOUGH_MILLISECONDS_FOR_RUNNER_THREAD_TO_DO_ITS_THING);
             assertThat(errorReporter.toString(), metricsService.results().totalOperationCount(), is(6l));
             assertThat(errorReporter.toString(), completionTimeService.globalCompletionTime(), equalTo(Time.fromMilli(6)));
             assertThat(errorReporter.toString(), errorReporter.errorEncountered(), is(false));
 
-            TIME_SOURCE.setNowFromMilli(11);
+            timeSource.setNowFromMilli(11);
             Thread.sleep(ENOUGH_MILLISECONDS_FOR_RUNNER_THREAD_TO_DO_ITS_THING);
             assertThat(errorReporter.toString(), metricsService.results().totalOperationCount(), is(6l));
             assertThat(errorReporter.toString(), completionTimeService.globalCompletionTime(), equalTo(Time.fromMilli(6)));
@@ -2227,13 +2227,13 @@ public class WorkloadRunnerComplexScenarioTests {
             assertThat(errorReporter.toString(), completionTimeService.globalCompletionTime(), equalTo(Time.fromMilli(6)));
             assertThat(errorReporter.toString(), errorReporter.errorEncountered(), is(false));
 
-            TIME_SOURCE.setNowFromMilli(12);
+            timeSource.setNowFromMilli(12);
             Thread.sleep(ENOUGH_MILLISECONDS_FOR_RUNNER_THREAD_TO_DO_ITS_THING);
             assertThat(errorReporter.toString(), metricsService.results().totalOperationCount(), is(7l));
             assertThat(errorReporter.toString(), completionTimeService.globalCompletionTime(), equalTo(Time.fromMilli(6)));
             assertThat(errorReporter.toString(), errorReporter.errorEncountered(), is(false));
 
-            TIME_SOURCE.setNowFromMilli(13);
+            timeSource.setNowFromMilli(13);
             Thread.sleep(ENOUGH_MILLISECONDS_FOR_RUNNER_THREAD_TO_DO_ITS_THING);
             assertThat(errorReporter.toString(), metricsService.results().totalOperationCount(), is(7l));
             assertThat(errorReporter.toString(), completionTimeService.globalCompletionTime(), equalTo(Time.fromMilli(6)));
@@ -2244,8 +2244,8 @@ public class WorkloadRunnerComplexScenarioTests {
             assertThat(errorReporter.toString(), errorReporter.errorEncountered(), is(false));
 
             Duration durationToWaitForRunnerToComplete = Duration.fromMilli(WorkloadRunner.RUNNER_POLLING_INTERVAL_AS_MILLI * 4);
-            long timeoutTimeAsMilli = TIME_SOURCE.now().plus(durationToWaitForRunnerToComplete).asMilli();
-            while (TIME_SOURCE.nowAsMilli() < timeoutTimeAsMilli) {
+            long timeoutTimeAsMilli = timeSource.now().plus(durationToWaitForRunnerToComplete).asMilli();
+            while (timeSource.nowAsMilli() < timeoutTimeAsMilli) {
                 if (runnerThread.runnerHasCompleted()) break;
                 Spinner.powerNap(100);
             }

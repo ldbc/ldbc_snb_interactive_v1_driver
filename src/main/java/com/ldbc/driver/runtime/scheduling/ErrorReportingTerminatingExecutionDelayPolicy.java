@@ -7,24 +7,16 @@ import com.ldbc.driver.temporal.Time;
 import com.ldbc.driver.temporal.TimeSource;
 
 public class ErrorReportingTerminatingExecutionDelayPolicy implements ExecutionDelayPolicy {
-    private final TimeSource TIME_SOURCE;
+    private final TimeSource timeSource;
     private final Duration toleratedDelay;
     private final ConcurrentErrorReporter errorReporter;
 
     public ErrorReportingTerminatingExecutionDelayPolicy(TimeSource timeSource,
                                                          Duration toleratedDelay,
                                                          ConcurrentErrorReporter errorReporter) {
-        this.TIME_SOURCE = timeSource;
+        this.timeSource = timeSource;
         this.toleratedDelay = toleratedDelay;
         this.errorReporter = errorReporter;
-    }
-
-    @Override
-    public boolean handleUnassignedTime(Operation<?> operation) {
-        String errMsg = String.format("Operation has no Scheduled Start Time\n%s",
-                operation.toString());
-        errorReporter.reportError(this, errMsg);
-        return false;
     }
 
     @Override
@@ -35,7 +27,7 @@ public class ErrorReportingTerminatingExecutionDelayPolicy implements ExecutionD
     @Override
     public boolean handleExcessiveDelay(Operation<?> operation) {
         // Note, that this time is ever so slightly later than when the error actually occurred
-        Time now = TIME_SOURCE.now();
+        Time now = timeSource.now();
         String errMsg = String.format("Operation start time delayed excessively\n"
                         + "  Operation: %s\n"
                         + "  Tolerated Delay: %s\n"

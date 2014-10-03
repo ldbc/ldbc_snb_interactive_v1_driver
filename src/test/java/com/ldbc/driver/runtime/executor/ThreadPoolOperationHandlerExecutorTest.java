@@ -28,7 +28,7 @@ import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
 
 public class ThreadPoolOperationHandlerExecutorTest {
-    TimeSource TIME_SOURCE = new SystemTimeSource();
+    TimeSource timeSource = new SystemTimeSource();
 
     Slot DUMMY_SLOT = new Slot() {
         @Override
@@ -73,8 +73,8 @@ public class ThreadPoolOperationHandlerExecutorTest {
         boolean ignoreScheduledStartTime = false;
         Duration toleratedDelay = Duration.fromMilli(100);
         ConcurrentErrorReporter errorReporter = new ConcurrentErrorReporter();
-        ExecutionDelayPolicy delayPolicy = new ErrorReportingTerminatingExecutionDelayPolicy(TIME_SOURCE, toleratedDelay, errorReporter);
-        Spinner spinner = new Spinner(TIME_SOURCE, Spinner.DEFAULT_SLEEP_DURATION_10_MILLI, delayPolicy, Duration.fromMilli(0), ignoreScheduledStartTime);
+        ExecutionDelayPolicy delayPolicy = new ErrorReportingTerminatingExecutionDelayPolicy(timeSource, toleratedDelay, errorReporter);
+        Spinner spinner = new Spinner(timeSource, Spinner.DEFAULT_SLEEP_DURATION_10_MILLI, delayPolicy, Duration.fromMilli(0), ignoreScheduledStartTime);
         LocalCompletionTimeWriter dummyLocalCompletionTimeWriter = new DummyLocalCompletionTimeWriter();
         DummyCollectingConcurrentMetricsService metricsService = new DummyCollectingConcurrentMetricsService();
 
@@ -82,7 +82,7 @@ public class ThreadPoolOperationHandlerExecutorTest {
         OperationHandlerExecutor executor = new ThreadPoolOperationHandlerExecutor(threadCount);
 
         Operation<?> operation = new NothingOperation();
-        operation.setScheduledStartTime(TIME_SOURCE.now().plus(Duration.fromMilli(200)));
+        operation.setScheduledStartTime(timeSource.now().plus(Duration.fromMilli(200)));
         operation.setDependencyTime(Time.fromMilli(0));
         OperationHandler<?> handler = new OperationHandler<Operation<Integer>>() {
             @Override
@@ -91,15 +91,15 @@ public class ThreadPoolOperationHandlerExecutorTest {
             }
         };
         handler.setSlot(DUMMY_SLOT);
-        handler.init(TIME_SOURCE, spinner, operation, dummyLocalCompletionTimeWriter, errorReporter, metricsService);
+        handler.init(timeSource, spinner, operation, dummyLocalCompletionTimeWriter, errorReporter, metricsService);
         final AtomicBoolean finished = new AtomicBoolean(false);
         handler.addOnCompleteTask(new SetFlagFun(finished));
 
         // When
         executor.execute(handler);
 
-        Time timeout = TIME_SOURCE.now().plus(Duration.fromMilli(1000));
-        while (TIME_SOURCE.now().lt(timeout)) {
+        Time timeout = timeSource.now().plus(Duration.fromMilli(1000));
+        while (timeSource.now().lt(timeout)) {
             if (finished.get()) break;
             // wait for handler to finish
             Spinner.powerNap(100);
@@ -120,8 +120,8 @@ public class ThreadPoolOperationHandlerExecutorTest {
         boolean ignoreScheduledStartTime = false;
         Duration toleratedDelay = Duration.fromMilli(100);
         ConcurrentErrorReporter errorReporter = new ConcurrentErrorReporter();
-        ExecutionDelayPolicy delayPolicy = new ErrorReportingTerminatingExecutionDelayPolicy(TIME_SOURCE, toleratedDelay, errorReporter);
-        Spinner spinner = new Spinner(TIME_SOURCE, Spinner.DEFAULT_SLEEP_DURATION_10_MILLI, delayPolicy, Duration.fromMilli(0), ignoreScheduledStartTime);
+        ExecutionDelayPolicy delayPolicy = new ErrorReportingTerminatingExecutionDelayPolicy(timeSource, toleratedDelay, errorReporter);
+        Spinner spinner = new Spinner(timeSource, Spinner.DEFAULT_SLEEP_DURATION_10_MILLI, delayPolicy, Duration.fromMilli(0), ignoreScheduledStartTime);
         LocalCompletionTimeWriter dummyLocalCompletionTimeWriter = new DummyLocalCompletionTimeWriter();
         DummyCollectingConcurrentMetricsService metricsService = new DummyCollectingConcurrentMetricsService();
 
@@ -129,7 +129,7 @@ public class ThreadPoolOperationHandlerExecutorTest {
         OperationHandlerExecutor executor = new ThreadPoolOperationHandlerExecutor(threadCount);
 
         Operation<?> operation1 = new NothingOperation();
-        operation1.setScheduledStartTime(TIME_SOURCE.now().plus(Duration.fromMilli(100)));
+        operation1.setScheduledStartTime(timeSource.now().plus(Duration.fromMilli(100)));
         operation1.setDependencyTime(Time.fromMilli(0));
         Operation<?> operation2 = new NothingOperation();
         operation2.setScheduledStartTime(operation1.scheduledStartTime().plus(Duration.fromMilli(100)));
@@ -150,20 +150,20 @@ public class ThreadPoolOperationHandlerExecutorTest {
         // When
 
         handler1.setSlot(DUMMY_SLOT);
-        handler1.init(TIME_SOURCE, spinner, operation1, dummyLocalCompletionTimeWriter, errorReporter, metricsService);
+        handler1.init(timeSource, spinner, operation1, dummyLocalCompletionTimeWriter, errorReporter, metricsService);
         final AtomicBoolean finished1 = new AtomicBoolean(false);
         handler1.addOnCompleteTask(new SetFlagFun(finished1));
 
         handler2.setSlot(DUMMY_SLOT);
-        handler2.init(TIME_SOURCE, spinner, operation2, dummyLocalCompletionTimeWriter, errorReporter, metricsService);
+        handler2.init(timeSource, spinner, operation2, dummyLocalCompletionTimeWriter, errorReporter, metricsService);
         final AtomicBoolean finished2 = new AtomicBoolean(false);
         handler2.addOnCompleteTask(new SetFlagFun(finished2));
 
         executor.execute(handler1);
         executor.execute(handler2);
 
-        Time timeout = TIME_SOURCE.now().plus(Duration.fromMilli(1000));
-        while (TIME_SOURCE.now().lt(timeout)) {
+        Time timeout = timeSource.now().plus(Duration.fromMilli(1000));
+        while (timeSource.now().lt(timeout)) {
             if (finished1.get() && finished2.get()) break;
             // wait for handler to finish
             Spinner.powerNap(100);
@@ -185,8 +185,8 @@ public class ThreadPoolOperationHandlerExecutorTest {
         boolean ignoreScheduledStartTime = false;
         Duration toleratedDelay = Duration.fromMilli(100);
         ConcurrentErrorReporter errorReporter = new ConcurrentErrorReporter();
-        ExecutionDelayPolicy delayPolicy = new ErrorReportingTerminatingExecutionDelayPolicy(TIME_SOURCE, toleratedDelay, errorReporter);
-        Spinner spinner = new Spinner(TIME_SOURCE, Spinner.DEFAULT_SLEEP_DURATION_10_MILLI, delayPolicy, Duration.fromMilli(0), ignoreScheduledStartTime);
+        ExecutionDelayPolicy delayPolicy = new ErrorReportingTerminatingExecutionDelayPolicy(timeSource, toleratedDelay, errorReporter);
+        Spinner spinner = new Spinner(timeSource, Spinner.DEFAULT_SLEEP_DURATION_10_MILLI, delayPolicy, Duration.fromMilli(0), ignoreScheduledStartTime);
         LocalCompletionTimeWriter dummyLocalCompletionTimeWriter = new DummyLocalCompletionTimeWriter();
         DummyCollectingConcurrentMetricsService metricsService = new DummyCollectingConcurrentMetricsService();
 
@@ -194,7 +194,7 @@ public class ThreadPoolOperationHandlerExecutorTest {
         OperationHandlerExecutor executor = new ThreadPoolOperationHandlerExecutor(threadCount);
 
         Operation<?> operation = new NothingOperation();
-        operation.setScheduledStartTime(TIME_SOURCE.now().plus(Duration.fromMilli(200)));
+        operation.setScheduledStartTime(timeSource.now().plus(Duration.fromMilli(200)));
         operation.setDependencyTime(Time.fromMilli(0));
         OperationHandler<?> handler = new OperationHandler<Operation<Integer>>() {
             @Override
@@ -205,14 +205,14 @@ public class ThreadPoolOperationHandlerExecutorTest {
 
         // When
         handler.setSlot(DUMMY_SLOT);
-        handler.init(TIME_SOURCE, spinner, operation, dummyLocalCompletionTimeWriter, errorReporter, metricsService);
+        handler.init(timeSource, spinner, operation, dummyLocalCompletionTimeWriter, errorReporter, metricsService);
         final AtomicBoolean finished = new AtomicBoolean(false);
         handler.addOnCompleteTask(new SetFlagFun(finished));
 
         executor.execute(handler);
 
-        Time timeout = TIME_SOURCE.now().plus(Duration.fromMilli(1000));
-        while (TIME_SOURCE.now().lt(timeout)) {
+        Time timeout = timeSource.now().plus(Duration.fromMilli(1000));
+        while (timeSource.now().lt(timeout)) {
             if (finished.get()) break;
             // wait for handler to finish
             Spinner.powerNap(100);

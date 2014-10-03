@@ -33,7 +33,7 @@ public class TimeMappingOperationGeneratorTest {
     @Rule
     public TemporaryFolder temporaryFolder = new TemporaryFolder();
 
-    private TimeSource TIME_SOURCE = new SystemTimeSource();
+    private TimeSource timeSource = new SystemTimeSource();
     private final long RANDOM_SEED = 42;
     private GeneratorFactory gf = null;
 
@@ -294,7 +294,7 @@ public class TimeMappingOperationGeneratorTest {
             prevOperationScheduledStartTime = operation.scheduledStartTime();
         }
 
-        List<Operation<?>> offsetOperations = Lists.newArrayList(gf.timeOffset(operations.iterator(), TIME_SOURCE.now().plus(Duration.fromMilli(500))));
+        List<Operation<?>> offsetOperations = Lists.newArrayList(gf.timeOffset(operations.iterator(), timeSource.now().plus(Duration.fromMilli(500))));
         Time prevOffsetOperationScheduledStartTime = offsetOperations.get(0).scheduledStartTime().minus(Duration.fromMilli(1));
         for (Operation<?> operation : offsetOperations) {
             assertThat(operation.scheduledStartTime().gte(prevOffsetOperationScheduledStartTime), is(true));

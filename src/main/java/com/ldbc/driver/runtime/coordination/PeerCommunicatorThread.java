@@ -12,7 +12,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 
 public class PeerCommunicatorThread extends Thread {
-    private final TimeSource TIME_SOURCE;
+    private final TimeSource timeSource;
 
     // TODO heartbeat failure detection
     // TODO need separate non-Thread class to do that
@@ -45,7 +45,7 @@ public class PeerCommunicatorThread extends Thread {
                                   BlockingQueue<CompletionTimeEvent.ExternalCompletionTimeEvent> peerReceiveQueue,
                                   List<BlockingQueue<CompletionTimeEvent.ExternalCompletionTimeEvent>> peerSendQueues) {
         super(PeerCommunicatorThread.class.getSimpleName() + "-" + System.currentTimeMillis());
-        this.TIME_SOURCE = timeSource;
+        this.timeSource = timeSource;
         this.myId = myId;
         this.errorReporter = errorReporter;
         this.heartbeatPeriodAsMilli = heartbeatPeriod.asMilli();
@@ -56,16 +56,16 @@ public class PeerCommunicatorThread extends Thread {
         this.peerReceiveQueue = peerReceiveQueue;
         this.peerSendQueues = peerSendQueues;
         // to force immediate transfer of local completion time
-        lastHeartbeatAsMilli = TIME_SOURCE.now().minus(heartbeatPeriod).asMilli();
+        lastHeartbeatAsMilli = this.timeSource.now().minus(heartbeatPeriod).asMilli();
     }
 
     @Override
     public void run() {
         while (false == terminate.get()) {
             try {
-                if (TIME_SOURCE.nowAsMilli() - lastHeartbeatAsMilli > heartbeatPeriodAsMilli) {
+                if (timeSource.nowAsMilli() - lastHeartbeatAsMilli > heartbeatPeriodAsMilli) {
                     sendCompletionTimeToPeers();
-                    lastHeartbeatAsMilli = TIME_SOURCE.nowAsMilli();
+                    lastHeartbeatAsMilli = timeSource.nowAsMilli();
                 }
                 CompletionTimeEvent.ExternalCompletionTimeEvent event = peerReceiveQueue.poll(PEER_RECEIVE_QUEUE_POLL_TIMEOUT.asMilli(), TimeUnit.MILLISECONDS);
                 if (null != event)

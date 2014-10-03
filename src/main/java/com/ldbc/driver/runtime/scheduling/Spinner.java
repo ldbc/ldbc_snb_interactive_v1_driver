@@ -97,11 +97,6 @@ public class Spinner {
         public Boolean apply(Operation<?> operation, SpinnerCheck check) {
             boolean operationMayBeExecuted = true;
 
-            // check that a scheduled start time has been assigned to the operation
-            if (null == operation.scheduledStartTime() || null == operation.dependencyTime()) {
-                return executionDelayPolicy.handleUnassignedTime(operation);
-            }
-
             // earliest time at which operation may start
             long scheduledStartTimeWithOffsetAsMilli = operation.scheduledStartTime().minus(offset).asMilli();
             // latest tolerated time at which operation may start, after this time operation is considered late
@@ -152,11 +147,6 @@ public class Spinner {
         @Override
         public Boolean apply(Operation<?> operation, SpinnerCheck check) {
             boolean operationMayBeExecuted = true;
-
-            // check that a scheduled start time has been assigned to the operation
-            if (null == operation.scheduledStartTime() || null == operation.dependencyTime()) {
-                return executionDelayPolicy.handleUnassignedTime(operation);
-            }
 
             // wait for checks to have all passed before allowing operation to start
             while (operationMayBeExecuted && false == check.doCheck()) {

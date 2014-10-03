@@ -30,7 +30,7 @@ class UniformWindowedOperationStreamExecutorServiceThread extends Thread {
     private static final Duration POLL_INTERVAL_WHILE_WAITING_FOR_LAST_HANDLER_TO_FINISH = Duration.fromMilli(100);
     private static final LocalCompletionTimeWriter DUMMY_LOCAL_COMPLETION_TIME_WRITER = new DummyLocalCompletionTimeWriter();
 
-    private final TimeSource TIME_SOURCE;
+    private final TimeSource timeSource;
     private final OperationHandlerExecutor operationHandlerExecutor;
     private final Scheduler<List<Operation<?>>, Window.OperationTimeRangeWindow> scheduler;
     private final Spinner spinner;
@@ -62,7 +62,7 @@ class UniformWindowedOperationStreamExecutorServiceThread extends Thread {
                                                                ConcurrentMetricsService metricsService,
                                                                Duration durationToWaitForAllHandlersToFinishBeforeShutdown) {
         super(UniformWindowedOperationStreamExecutorServiceThread.class.getSimpleName() + System.currentTimeMillis());
-        this.TIME_SOURCE = timeSource;
+        this.timeSource = timeSource;
         this.operationHandlerExecutor = operationHandlerExecutor;
         this.scheduler = new UniformWindowedOperationScheduler();
         this.spinner = spinner;
@@ -164,12 +164,11 @@ class UniformWindowedOperationStreamExecutorServiceThread extends Thread {
 
         if (null != window) {
             long pollInterval = POLL_INTERVAL_WHILE_WAITING_FOR_LAST_HANDLER_TO_FINISH.asMilli();
-            // long waitUntilTimeAsMilli = TIME_SOURCE.now().plus(DURATION_TO_WAIT_FOR_LAST_HANDLER_TO_FINISH).asMilli();
             long latestTimeToWaitAsMilli = window.windowEndTimeExclusive().asMilli();
             // wait for operations from last window to finish executing
             while (0 == numberOfExecutingHandlersFromPreviousWindow.get() && 0 == numberOfExecutingHandlersFromCurrentWindow.get()) {
                 if (forcedTerminate.get()) break;
-                if (TIME_SOURCE.nowAsMilli() > latestTimeToWaitAsMilli) {
+                if (timeSource.nowAsMilli() > latestTimeToWaitAsMilli) {
                     errorReporter.reportError(this, "One or more handlers from the last window took too long to complete");
                     break;
                 }
@@ -192,7 +191,7 @@ class UniformWindowedOperationStreamExecutorServiceThread extends Thread {
             LocalCompletionTimeWriter localCompletionTimeWriterForHandler = (isDependencyWritingOperation(operation))
                     ? localCompletionTimeWriter
                     : DUMMY_LOCAL_COMPLETION_TIME_WRITER;
-            operationHandler.init(TIME_SOURCE, spinner, operation, localCompletionTimeWriterForHandler, errorReporter, metricsService);
+            operationHandler.init(timeSource, spinner, operation, localCompletionTimeWriterForHandler, errorReporter, metricsService);
         } catch (OperationException e) {
             throw new OperationHandlerExecutorException(String.format("Error while initializing handler for operation\nOperation: %s", operation));
         }

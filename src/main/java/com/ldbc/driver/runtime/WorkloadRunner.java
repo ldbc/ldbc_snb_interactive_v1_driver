@@ -35,8 +35,7 @@ public class WorkloadRunner {
     private static final Duration WAIT_DURATION_FOR_OPERATION_HANDLER_EXECUTOR_TO_SHUTDOWN = Duration.fromSeconds(5);
     private static final LocalCompletionTimeWriter DUMMY_LOCAL_COMPLETION_TIME_WRITER = new DummyLocalCompletionTimeWriter();
 
-    private final TimeSource TIME_SOURCE;
-
+    private final TimeSource timeSource;
     private final Spinner exactSpinner;
     private final Spinner slightlyEarlySpinner;
 
@@ -71,19 +70,19 @@ public class WorkloadRunner {
                           Duration earlySpinnerOffsetDuration,
                           Duration durationToWaitForAllHandlersToFinishBeforeShutdown,
                           boolean ignoreScheduleStartTimes) throws WorkloadException {
-        this.TIME_SOURCE = timeSource;
+        this.timeSource = timeSource;
         this.errorReporter = errorReporter;
         this.statusDisplayInterval = statusDisplayInterval;
 
         ExecutionDelayPolicy executionDelayPolicy = new ErrorReportingTerminatingExecutionDelayPolicy(
-                TIME_SOURCE,
+                this.timeSource,
                 toleratedExecutionDelayDuration,
                 errorReporter);
 
         // TODO for the spinner sent to Window scheduler allow delay to reach to the end of window?
 
-        this.exactSpinner = new Spinner(TIME_SOURCE, spinnerSleepDuration, executionDelayPolicy, Duration.fromMilli(0), ignoreScheduleStartTimes);
-        this.slightlyEarlySpinner = new Spinner(TIME_SOURCE, spinnerSleepDuration, executionDelayPolicy, earlySpinnerOffsetDuration, ignoreScheduleStartTimes);
+        this.exactSpinner = new Spinner(this.timeSource, spinnerSleepDuration, executionDelayPolicy, Duration.fromMilli(0), ignoreScheduleStartTimes);
+        this.slightlyEarlySpinner = new Spinner(this.timeSource, spinnerSleepDuration, executionDelayPolicy, earlySpinnerOffsetDuration, ignoreScheduleStartTimes);
         // TODO make this a configuration parameter?
         boolean detailedStatus = true;
         if (statusDisplayInterval.asSeconds() > 0)
@@ -189,7 +188,7 @@ public class WorkloadRunner {
 
         // Executors
         this.preciseIndividualAsyncOperationStreamExecutorService = new PreciseIndividualAsyncOperationStreamExecutorService(
-                TIME_SOURCE,
+                this.timeSource,
                 errorReporter,
                 asynchronousReadOperations.iterator(),
                 asynchronousWriteOperations.iterator(),
@@ -203,7 +202,7 @@ public class WorkloadRunner {
                 metricsService,
                 durationToWaitForAllHandlersToFinishBeforeShutdown);
         this.preciseIndividualBlockingOperationStreamExecutorService = new PreciseIndividualBlockingOperationStreamExecutorService(
-                TIME_SOURCE,
+                this.timeSource,
                 errorReporter,
                 blockingOperations.iterator(),
                 exactSpinner,
@@ -216,7 +215,7 @@ public class WorkloadRunner {
                 metricsService,
                 durationToWaitForAllHandlersToFinishBeforeShutdown);
         this.uniformWindowedOperationStreamExecutorService = new UniformWindowedOperationStreamExecutorService(
-                TIME_SOURCE,
+                this.timeSource,
                 errorReporter,
                 windowedOperations.iterator(),
                 threadPoolForWindowed,

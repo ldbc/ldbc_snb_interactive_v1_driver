@@ -21,7 +21,7 @@ class PreciseIndividualAsyncOperationStreamExecutorServiceThread extends Thread 
     private static final Duration POLL_INTERVAL_WHILE_WAITING_FOR_LAST_HANDLER_TO_FINISH = Duration.fromMilli(100);
     private static final LocalCompletionTimeWriter DUMMY_LOCAL_COMPLETION_TIME_WRITER = new DummyLocalCompletionTimeWriter();
 
-    private final TimeSource TIME_SOURCE;
+    private final TimeSource timeSource;
     private final OperationHandlerExecutor operationHandlerExecutor;
     private final Spinner slightlyEarlySpinner;
     private final ConcurrentErrorReporter errorReporter;
@@ -46,7 +46,7 @@ class PreciseIndividualAsyncOperationStreamExecutorServiceThread extends Thread 
                                                                       ConcurrentMetricsService metricsService,
                                                                       Duration durationToWaitForAllHandlersToFinishBeforeShutdown) {
         super(PreciseIndividualAsyncOperationStreamExecutorServiceThread.class.getSimpleName() + "-" + System.currentTimeMillis());
-        this.TIME_SOURCE = timeSource;
+        this.timeSource = timeSource;
         this.operationHandlerExecutor = operationHandlerExecutor;
         this.slightlyEarlySpinner = slightlyEarlySpinner;
         this.errorReporter = errorReporter;
@@ -122,8 +122,8 @@ class PreciseIndividualAsyncOperationStreamExecutorServiceThread extends Thread 
 
     private boolean awaitAllRunningHandlers(Duration timeoutDuration) {
         long pollInterval = POLL_INTERVAL_WHILE_WAITING_FOR_LAST_HANDLER_TO_FINISH.asMilli();
-        long timeoutTimeMs = TIME_SOURCE.now().plus(timeoutDuration).asMilli();
-        while (TIME_SOURCE.nowAsMilli() < timeoutTimeMs) {
+        long timeoutTimeMs = timeSource.now().plus(timeoutDuration).asMilli();
+        while (timeSource.nowAsMilli() < timeoutTimeMs) {
             if (0 == operationHandlerExecutor.uncompletedOperationHandlerCount()) return true;
             if (forcedTerminate.get()) return true;
             Spinner.powerNap(pollInterval);

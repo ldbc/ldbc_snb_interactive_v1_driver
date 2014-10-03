@@ -20,7 +20,7 @@ import java.util.List;
 
 public abstract class OperationHandler<OPERATION_TYPE extends Operation<?>> implements Runnable, Poolable {
     private Slot slot;
-    private TimeSource TIME_SOURCE;
+    private TimeSource timeSource;
     private Spinner spinner;
     private OPERATION_TYPE operation;
     private DbConnectionState dbConnectionState;
@@ -45,7 +45,7 @@ public abstract class OperationHandler<OPERATION_TYPE extends Operation<?>> impl
         if (initialized) {
             throw new OperationException(String.format("OperationHandler can not be initialized twice\n%s", toString()));
         }
-        this.TIME_SOURCE = timeSource;
+        this.timeSource = timeSource;
         this.spinner = spinner;
         this.operation = (OPERATION_TYPE) operation;
         this.localCompletionTimeWriter = localCompletionTimeWriter;
@@ -102,9 +102,9 @@ public abstract class OperationHandler<OPERATION_TYPE extends Operation<?>> impl
                 // Spinner result indicates operation should not be processed
                 return;
             }
-            long startTimeAsMilli = TIME_SOURCE.nowAsMilli();
+            long startTimeAsMilli = timeSource.nowAsMilli();
             OperationResultReport operationResultReport = executeOperation(operation);
-            long finishTimeAsMilli = TIME_SOURCE.nowAsMilli();
+            long finishTimeAsMilli = timeSource.nowAsMilli();
             if (null == operationResultReport) {
                 throw new DbException(String.format("Handler returned null result:\n %s", toString()));
             }
@@ -173,7 +173,7 @@ public abstract class OperationHandler<OPERATION_TYPE extends Operation<?>> impl
     @Override
     public final void release() {
         initialized = false;
-        TIME_SOURCE = null;
+        timeSource = null;
         spinner = null;
         operation = null;
         dbConnectionState = null;

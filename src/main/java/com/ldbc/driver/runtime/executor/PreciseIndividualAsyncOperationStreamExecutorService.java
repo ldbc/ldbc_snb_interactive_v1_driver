@@ -18,7 +18,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 public class PreciseIndividualAsyncOperationStreamExecutorService {
     private static final Duration SHUTDOWN_WAIT_TIMEOUT = Duration.fromSeconds(10);
 
-    private final TimeSource TIME_SOURCE;
+    private final TimeSource timeSource;
     private final PreciseIndividualAsyncOperationStreamExecutorServiceThread preciseIndividualAsyncOperationStreamExecutorServiceThread;
     private final AtomicBoolean hasFinished = new AtomicBoolean(false);
     private final ConcurrentErrorReporter errorReporter;
@@ -39,11 +39,11 @@ public class PreciseIndividualAsyncOperationStreamExecutorService {
                                                                 GlobalCompletionTimeReader globalCompletionTimeReader,
                                                                 ConcurrentMetricsService metricsService,
                                                                 Duration durationToWaitForAllHandlersToFinishBeforeShutdown) {
-        this.TIME_SOURCE = timeSource;
+        this.timeSource = timeSource;
         this.errorReporter = errorReporter;
         if (gctReadOperations.hasNext() || gctWriteOperations.hasNext()) {
             this.preciseIndividualAsyncOperationStreamExecutorServiceThread = new PreciseIndividualAsyncOperationStreamExecutorServiceThread(
-                    TIME_SOURCE,
+                    this.timeSource,
                     operationHandlerExecutor,
                     errorReporter,
                     gctReadOperations,
