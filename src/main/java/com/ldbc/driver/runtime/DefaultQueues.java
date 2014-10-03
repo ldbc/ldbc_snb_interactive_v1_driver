@@ -20,4 +20,39 @@ public class DefaultQueues {
     public static <T> BlockingQueue<T> newBlockingBounded(int capacity) {
         return new LinkedBlockingQueue<>(capacity);
     }
+
+    public static <T> BlockingQueue<T> newAlwaysBlockingBounded(int capacity) {
+        return new AlwaysBlockingLinkedBlockingQueue<>(capacity);
+    }
+
+    /*
+    turn offer() & add() into blocking calls (unless interrupted)
+    */
+    private static class AlwaysBlockingLinkedBlockingQueue<E> extends LinkedBlockingQueue<E> {
+        public AlwaysBlockingLinkedBlockingQueue(int maxSize) {
+            super(maxSize);
+        }
+
+        @Override
+        public boolean offer(E e) {
+            try {
+                put(e);
+                return true;
+            } catch (InterruptedException ie) {
+                Thread.currentThread().interrupt();
+            }
+            return false;
+        }
+
+        @Override
+        public boolean add(E e) {
+            try {
+                put(e);
+                return true;
+            } catch (InterruptedException ie) {
+                Thread.currentThread().interrupt();
+            }
+            return false;
+        }
+    }
 }

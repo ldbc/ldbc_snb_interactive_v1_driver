@@ -71,7 +71,7 @@ public class ThreadPoolOperationHandlerExecutor implements OperationHandlerExecu
             int maximumPoolSize = threadCount;
             long keepAliveTime = 0;
             TimeUnit unit = TimeUnit.MILLISECONDS;
-            BlockingQueue<Runnable> workQueue = DefaultQueues.newBlockingBounded(DefaultQueues.DEFAULT_BOUND);
+            BlockingQueue<Runnable> workQueue = DefaultQueues.newAlwaysBlockingBounded(DefaultQueues.DEFAULT_BOUND);
             return new ThreadPoolExecutorWithAfterExecute(corePoolSize, maximumPoolSize, keepAliveTime, unit, workQueue, threadFactory, uncompletedHandlers);
         }
 
