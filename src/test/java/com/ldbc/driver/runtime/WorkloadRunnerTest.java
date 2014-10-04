@@ -43,7 +43,15 @@ public class WorkloadRunnerTest {
     @Test
     public void shouldRunReadOnlyLdbcWorkloadWithNothingDbAndReturnExpectedMetrics()
             throws InterruptedException, DbException, WorkloadException, IOException, MetricsCollectionException, CompletionTimeException {
+        List<Integer> threadCounts = Lists.newArrayList(1, 2, 4);
         long operationCount = 1000;
+        for (int threadCount : threadCounts) {
+            doShouldRunReadOnlyLdbcWorkloadWithNothingDbAndReturnExpectedMetrics(threadCount, operationCount);
+        }
+    }
+
+    public void doShouldRunReadOnlyLdbcWorkloadWithNothingDbAndReturnExpectedMetrics(int threadCount, long operationCount)
+            throws InterruptedException, DbException, WorkloadException, IOException, MetricsCollectionException, CompletionTimeException {
         ConcurrentControlService controlService = null;
         Db db = null;
         Workload workload = null;
@@ -57,8 +65,7 @@ public class WorkloadRunnerTest {
             String name = null;
             String dbClassName = DummyLdbcSnbInteractiveDb.class.getName();
             String workloadClassName = LdbcSnbInteractiveWorkload.class.getName();
-            int threadCount = 1;
-            Duration statusDisplayInterval = Duration.fromSeconds(1);
+            Duration statusDisplayInterval = Duration.fromSeconds(0);
             TimeUnit timeUnit = TimeUnit.MILLISECONDS;
             String resultDirPath = temporaryFolder.newFolder().getAbsolutePath();
             double timeCompressionRatio = 1.0;
@@ -115,7 +122,6 @@ public class WorkloadRunnerTest {
                     controlService.configuration().toleratedExecutionDelay(),
                     controlService.configuration().spinnerSleepDuration(),
                     controlService.configuration().windowedExecutionWindowDuration(),
-                    WorkloadRunner.DEFAULT_EARLY_SPINNER_OFFSET_DURATION,
                     WorkloadRunner.DEFAULT_DURATION_TO_WAIT_FOR_ALL_HANDLERS_TO_FINISH,
                     controlService.configuration().ignoreScheduledStartTimes());
 
@@ -134,6 +140,9 @@ public class WorkloadRunnerTest {
 
             assertThat(errorReporter.toString(), workloadResults, equalTo(workloadResultsFromJson));
             assertThat(errorReporter.toString(), workloadResults.toJson(), equalTo(workloadResultsFromJson.toJson()));
+
+            double operationsPerSecond = Math.round(((double) operationCount / workloadResults.totalRunDuration().asNano()) * ONE_SECOND_AS_NANO);
+            System.out.println(String.format("[%s threads] Completed %s operations in %s = %s op/sec", threadCount, operationCount, workloadResults.totalRunDuration(), operationsPerSecond));
         } finally {
             if (null != controlService) controlService.shutdown();
             if (null != db) db.shutdown();
@@ -144,7 +153,8 @@ public class WorkloadRunnerTest {
     }
 
     @Test
-    public void shouldRunReadOnlyLdbcWorkloadWithNothingDbWhileIgnoringScheduledStartTimesAndReturnExpectedMetrics() throws InterruptedException, DbException, WorkloadException, IOException, MetricsCollectionException, CompletionTimeException {
+    public void shouldRunReadOnlyLdbcWorkloadWithNothingDbWhileIgnoringScheduledStartTimesAndReturnExpectedMetrics()
+            throws InterruptedException, DbException, WorkloadException, IOException, MetricsCollectionException, CompletionTimeException {
         List<Integer> threadCounts = Lists.newArrayList(1, 2, 4);
         long operationCount = 1000000;
         for (int threadCount : threadCounts) {
@@ -224,7 +234,6 @@ public class WorkloadRunnerTest {
                     controlService.configuration().toleratedExecutionDelay(),
                     controlService.configuration().spinnerSleepDuration(),
                     controlService.configuration().windowedExecutionWindowDuration(),
-                    WorkloadRunner.DEFAULT_EARLY_SPINNER_OFFSET_DURATION,
                     WorkloadRunner.DEFAULT_DURATION_TO_WAIT_FOR_ALL_HANDLERS_TO_FINISH,
                     controlService.configuration().ignoreScheduledStartTimes());
 

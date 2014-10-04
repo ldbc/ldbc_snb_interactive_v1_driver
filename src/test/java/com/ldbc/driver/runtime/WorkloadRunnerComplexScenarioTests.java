@@ -2279,7 +2279,6 @@ public class WorkloadRunnerComplexScenarioTests {
         boolean ignoreScheduledStartTime = false;
         Duration statusDisplayInterval = Duration.fromMilli(0);
         Duration spinnerSleepDuration = SPINNER_SLEEP_DURATION;
-        Duration earlySpinnerOffsetDuration = Duration.fromMilli(0);
         WorkloadRunner runner = new WorkloadRunner(
                 timeSource,
                 db,
@@ -2294,7 +2293,6 @@ public class WorkloadRunnerComplexScenarioTests {
                 toleratedExecutionDelayDuration,
                 spinnerSleepDuration,
                 executionWindowDuration,
-                earlySpinnerOffsetDuration,
                 durationToWaitForAllHandlersToFinishBeforeShutdown,
                 ignoreScheduledStartTime
         );

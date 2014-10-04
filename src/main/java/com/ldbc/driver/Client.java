@@ -250,8 +250,6 @@ public class Client {
             try {
                 // TODO will not be necessary once operations have maximum execution time
                 Duration durationToWaitForAllHandlersToFinishBeforeShutdown = WorkloadRunner.DEFAULT_DURATION_TO_WAIT_FOR_ALL_HANDLERS_TO_FINISH;
-                // TODO consider making config parameter
-                Duration earlySpinnerOffsetDuration = WorkloadRunner.DEFAULT_EARLY_SPINNER_OFFSET_DURATION;
                 workloadRunner = new WorkloadRunner(
                         timeSource,
                         db,
@@ -266,7 +264,6 @@ public class Client {
                         controlService.configuration().toleratedExecutionDelay(),
                         controlService.configuration().spinnerSleepDuration(),
                         controlService.configuration().windowedExecutionWindowDuration(),
-                        earlySpinnerOffsetDuration,
                         durationToWaitForAllHandlersToFinishBeforeShutdown,
                         controlService.configuration().ignoreScheduledStartTimes());
             } catch (WorkloadException e) {

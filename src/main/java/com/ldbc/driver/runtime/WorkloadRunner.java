@@ -30,14 +30,12 @@ import static com.ldbc.driver.OperationClassification.SchedulingMode;
 
 public class WorkloadRunner {
     public static final Duration DEFAULT_DURATION_TO_WAIT_FOR_ALL_HANDLERS_TO_FINISH = Duration.fromMinutes(60);
-    public static final Duration DEFAULT_EARLY_SPINNER_OFFSET_DURATION = Duration.fromMilli(100);
     public static final long RUNNER_POLLING_INTERVAL_AS_MILLI = Duration.fromMilli(100).asMilli();
     private static final Duration WAIT_DURATION_FOR_OPERATION_HANDLER_EXECUTOR_TO_SHUTDOWN = Duration.fromSeconds(5);
     private static final LocalCompletionTimeWriter DUMMY_LOCAL_COMPLETION_TIME_WRITER = new DummyLocalCompletionTimeWriter();
 
     private final TimeSource timeSource;
     private final Spinner exactSpinner;
-    private final Spinner slightlyEarlySpinner;
 
     // TODO make service and inject into workload runner. this could report to coordinator OR a local console printer, for example
     private WorkloadStatusThread workloadStatusThread;
@@ -67,7 +65,6 @@ public class WorkloadRunner {
                           Duration toleratedExecutionDelayDuration,
                           Duration spinnerSleepDuration,
                           Duration executionWindowDuration,
-                          Duration earlySpinnerOffsetDuration,
                           Duration durationToWaitForAllHandlersToFinishBeforeShutdown,
                           boolean ignoreScheduleStartTimes) throws WorkloadException {
         this.timeSource = timeSource;
@@ -82,7 +79,6 @@ public class WorkloadRunner {
         // TODO for the spinner sent to Window scheduler allow delay to reach to the end of window?
 
         this.exactSpinner = new Spinner(this.timeSource, spinnerSleepDuration, executionDelayPolicy, Duration.fromMilli(0), ignoreScheduleStartTimes);
-        this.slightlyEarlySpinner = new Spinner(this.timeSource, spinnerSleepDuration, executionDelayPolicy, earlySpinnerOffsetDuration, ignoreScheduleStartTimes);
         // TODO make this a configuration parameter?
         boolean detailedStatus = true;
         if (statusDisplayInterval.asSeconds() > 0)
@@ -193,7 +189,6 @@ public class WorkloadRunner {
                 asynchronousReadOperations.iterator(),
                 asynchronousWriteOperations.iterator(),
                 exactSpinner,
-                slightlyEarlySpinner,
                 threadPoolForAsynchronous,
                 operationClassifications,
                 db,
@@ -206,7 +201,6 @@ public class WorkloadRunner {
                 errorReporter,
                 blockingOperations.iterator(),
                 exactSpinner,
-                slightlyEarlySpinner,
                 threadPoolForBlocking,
                 operationClassifications,
                 db,
@@ -220,7 +214,6 @@ public class WorkloadRunner {
                 windowedOperations.iterator(),
                 threadPoolForWindowed,
                 exactSpinner,
-                slightlyEarlySpinner,
                 workloadStartTime,
                 executionWindowDuration,
                 db,

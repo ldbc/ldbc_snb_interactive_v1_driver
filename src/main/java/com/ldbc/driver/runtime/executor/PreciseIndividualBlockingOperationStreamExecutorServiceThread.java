@@ -10,6 +10,7 @@ import com.ldbc.driver.runtime.metrics.ConcurrentMetricsService;
 import com.ldbc.driver.runtime.scheduling.GctDependencyCheck;
 import com.ldbc.driver.runtime.scheduling.Spinner;
 import com.ldbc.driver.temporal.Duration;
+import com.ldbc.driver.temporal.Time;
 import com.ldbc.driver.temporal.TimeSource;
 
 import java.util.Iterator;
@@ -23,7 +24,6 @@ class PreciseIndividualBlockingOperationStreamExecutorServiceThread extends Thre
     private final TimeSource timeSource;
     private final OperationHandlerExecutor operationHandlerExecutor;
     private final Spinner spinner;
-    private final Spinner slightlyEarlySpinner;
     private final ConcurrentErrorReporter errorReporter;
     private final Iterator<Operation<?>> operations;
     private final AtomicBoolean hasFinished;
@@ -41,7 +41,6 @@ class PreciseIndividualBlockingOperationStreamExecutorServiceThread extends Thre
                                                                          Iterator<Operation<?>> operations,
                                                                          AtomicBoolean hasFinished,
                                                                          Spinner spinner,
-                                                                         Spinner slightlyEarlySpinner,
                                                                          AtomicBoolean forcedTerminate,
                                                                          Map<Class<? extends Operation>, OperationClassification> operationClassifications,
                                                                          Db db,
@@ -53,7 +52,6 @@ class PreciseIndividualBlockingOperationStreamExecutorServiceThread extends Thre
         this.timeSource = timeSource;
         this.operationHandlerExecutor = operationHandlerExecutor;
         this.spinner = spinner;
-        this.slightlyEarlySpinner = slightlyEarlySpinner;
         this.errorReporter = errorReporter;
         this.operations = operations;
         this.hasFinished = hasFinished;
@@ -68,8 +66,11 @@ class PreciseIndividualBlockingOperationStreamExecutorServiceThread extends Thre
 
     @Override
     public void run() {
+        long startTimeOfLastOperationAsNano = 0;
         while (operations.hasNext() && false == forcedTerminate.get()) {
             Operation<?> operation = operations.next();
+
+            startTimeOfLastOperationAsNano = operation.scheduledStartTime().asNano();
 
             // get handler
             OperationHandler<?> handler;
@@ -92,14 +93,8 @@ class PreciseIndividualBlockingOperationStreamExecutorServiceThread extends Thre
                 continue;
             }
 
-            // Schedule slightly early to account for context switch - internally, handler will schedule at exact start time
-            // TODO forcedTerminate does not cover all cases at present this spin loop is still blocking -> inject a check that throws exception?
-            // TODO or SpinnerChecks have three possible results? (TRUE, NOT_TRUE_YET, FALSE)
-            // TODO and/or Spinner has an emergency terminate button?
-            slightlyEarlySpinner.waitForScheduledStartTime(handler.operation());
-
-            // execute handler
             try {
+                // --- BLOCKING CALL (when bounded queue is full) ---
                 operationHandlerExecutor.execute(handler);
             } catch (OperationHandlerExecutorException e) {
                 errorReporter.reportError(
@@ -109,7 +104,7 @@ class PreciseIndividualBlockingOperationStreamExecutorServiceThread extends Thre
             }
         }
         // Wait for final operation handler
-        boolean executingHandlerFinishedInTime = awaitExecutingHandler(durationToWaitForAllHandlersToFinishBeforeShutdown);
+        boolean executingHandlerFinishedInTime = awaitExecutingHandler(Time.fromNano(startTimeOfLastOperationAsNano), durationToWaitForAllHandlersToFinishBeforeShutdown);
         if (false == executingHandlerFinishedInTime) {
             errorReporter.reportError(this, "Last handler did not complete in time");
         }
@@ -156,9 +151,9 @@ class PreciseIndividualBlockingOperationStreamExecutorServiceThread extends Thre
         }
     }
 
-    private boolean awaitExecutingHandler(Duration timeoutDuration) {
+    private boolean awaitExecutingHandler(Time startTimeOfLastOperation, Duration timeoutDuration) {
         long pollInterval = POLL_INTERVAL_WHILE_WAITING_FOR_LAST_HANDLER_TO_FINISH.asMilli();
-        long timeoutTimeMs = timeSource.now().plus(timeoutDuration).asMilli();
+        long timeoutTimeMs = startTimeOfLastOperation.plus(timeoutDuration).asMilli();
         while (timeSource.nowAsMilli() < timeoutTimeMs) {
             if (operationHandlerExecutor.uncompletedOperationHandlerCount() == 0) return true;
             if (forcedTerminate.get()) return true;

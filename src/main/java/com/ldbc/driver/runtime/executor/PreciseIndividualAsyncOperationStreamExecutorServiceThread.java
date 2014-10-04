@@ -23,7 +23,6 @@ class PreciseIndividualAsyncOperationStreamExecutorServiceThread extends Thread 
 
     private final TimeSource timeSource;
     private final OperationHandlerExecutor operationHandlerExecutor;
-    private final Spinner slightlyEarlySpinner;
     private final ConcurrentErrorReporter errorReporter;
     private final AtomicBoolean hasFinished;
     private final AtomicBoolean forcedTerminate;
@@ -37,7 +36,6 @@ class PreciseIndividualAsyncOperationStreamExecutorServiceThread extends Thread 
                                                                       Iterator<Operation<?>> gctWriteOperations,
                                                                       AtomicBoolean hasFinished,
                                                                       Spinner spinner,
-                                                                      Spinner slightlyEarlySpinner,
                                                                       AtomicBoolean forcedTerminate,
                                                                       Map<Class<? extends Operation>, OperationClassification> operationClassifications,
                                                                       Db db,
@@ -48,7 +46,6 @@ class PreciseIndividualAsyncOperationStreamExecutorServiceThread extends Thread 
         super(PreciseIndividualAsyncOperationStreamExecutorServiceThread.class.getSimpleName() + "-" + System.currentTimeMillis());
         this.timeSource = timeSource;
         this.operationHandlerExecutor = operationHandlerExecutor;
-        this.slightlyEarlySpinner = slightlyEarlySpinner;
         this.errorReporter = errorReporter;
         this.hasFinished = hasFinished;
         this.forcedTerminate = forcedTerminate;
@@ -68,36 +65,32 @@ class PreciseIndividualAsyncOperationStreamExecutorServiceThread extends Thread 
 
     @Override
     public void run() {
+        long startTimeOfLastOperationAsNano = 0;
         while (handlerRetriever.hasNextHandler() && false == forcedTerminate.get()) {
             OperationHandler<?> handler;
             try {
                 handler = handlerRetriever.nextHandler();
             } catch (Exception e) {
-                errorReporter.reportError(
-                        this,
-                        String.format("Error while retrieving next handler\n%s",
-                                ConcurrentErrorReporter.stackTraceToString(e)));
+                String errMsg = String.format("Error while retrieving next handler\n%s",
+                        ConcurrentErrorReporter.stackTraceToString(e));
+                errorReporter.reportError(this, errMsg);
                 continue;
             }
+            startTimeOfLastOperationAsNano = handler.operation().scheduledStartTime().asNano();
 
-            // Schedule slightly early to account for context switch - internally, handler will schedule at exact start time
-            // TODO forcedTerminate does not cover all cases at present this spin loop is still blocking -> inject a check that throws exception?
-            // TODO or SpinnerChecks have three possible results? (TRUE, NOT_TRUE_YET, FALSE)
-            // TODO and/or Spinner has an emergency terminate button?
-            slightlyEarlySpinner.waitForScheduledStartTime(handler.operation());
-
-            // execute handler
             try {
-                executeHandler(handler);
+                // --- BLOCKING CALL (when bounded queue is full) ---
+                operationHandlerExecutor.execute(handler);
             } catch (OperationHandlerExecutorException e) {
-                String errMsg = String.format("Error encountered while submitting operation for execution\n%s",
+                String errMsg = String.format("Error encountered while submitting operation for execution\n%s\n%s",
+                        handler.operation(),
                         ConcurrentErrorReporter.stackTraceToString(e));
                 errorReporter.reportError(this, errMsg);
                 continue;
             }
         }
 
-        boolean handlersFinishedInTime = awaitAllRunningHandlers(durationToWaitForAllHandlersToFinishBeforeShutdown);
+        boolean handlersFinishedInTime = awaitAllRunningHandlers(Time.fromNano(startTimeOfLastOperationAsNano), durationToWaitForAllHandlersToFinishBeforeShutdown);
         if (false == handlersFinishedInTime) {
             errorReporter.reportError(
                     this,
@@ -111,18 +104,9 @@ class PreciseIndividualAsyncOperationStreamExecutorServiceThread extends Thread 
         this.hasFinished.set(true);
     }
 
-    private void executeHandler(OperationHandler<?> handler) throws OperationHandlerExecutorException {
-        try {
-            operationHandlerExecutor.execute(handler);
-        } catch (OperationHandlerExecutorException e) {
-            throw new OperationHandlerExecutorException(
-                    String.format("Error encountered while submitting operation for execution\nOperation: %s", handler.operation()));
-        }
-    }
-
-    private boolean awaitAllRunningHandlers(Duration timeoutDuration) {
+    private boolean awaitAllRunningHandlers(Time startTimeOfLastOperation, Duration timeoutDuration) {
         long pollInterval = POLL_INTERVAL_WHILE_WAITING_FOR_LAST_HANDLER_TO_FINISH.asMilli();
-        long timeoutTimeMs = timeSource.now().plus(timeoutDuration).asMilli();
+        long timeoutTimeMs = startTimeOfLastOperation.plus(timeoutDuration).asMilli();
         while (timeSource.nowAsMilli() < timeoutTimeMs) {
             if (0 == operationHandlerExecutor.uncompletedOperationHandlerCount()) return true;
             if (forcedTerminate.get()) return true;

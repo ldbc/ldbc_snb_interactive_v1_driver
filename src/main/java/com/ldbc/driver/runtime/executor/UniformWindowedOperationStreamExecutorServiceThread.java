@@ -25,8 +25,6 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 
 class UniformWindowedOperationStreamExecutorServiceThread extends Thread {
-    // TODO this value should be configurable, or an entirely better policy should be used
-    private static final Duration DURATION_TO_WAIT_FOR_LAST_HANDLER_TO_FINISH = Duration.fromMinutes(30);
     private static final Duration POLL_INTERVAL_WHILE_WAITING_FOR_LAST_HANDLER_TO_FINISH = Duration.fromMilli(100);
     private static final LocalCompletionTimeWriter DUMMY_LOCAL_COMPLETION_TIME_WRITER = new DummyLocalCompletionTimeWriter();
 
@@ -34,7 +32,6 @@ class UniformWindowedOperationStreamExecutorServiceThread extends Thread {
     private final OperationHandlerExecutor operationHandlerExecutor;
     private final Scheduler<List<Operation<?>>, Window.OperationTimeRangeWindow> scheduler;
     private final Spinner spinner;
-    private final Spinner slightlyEarlySpinner;
     private final ConcurrentErrorReporter errorReporter;
     private final AtomicBoolean hasFinished;
     private final WindowGenerator<Operation<?>, Window.OperationTimeRangeWindow> operationWindows;
@@ -53,7 +50,6 @@ class UniformWindowedOperationStreamExecutorServiceThread extends Thread {
                                                                Iterator<Operation<?>> operations,
                                                                AtomicBoolean hasFinished,
                                                                Spinner spinner,
-                                                               Spinner slightlyEarlySpinner,
                                                                AtomicBoolean forcedTerminate,
                                                                Db db,
                                                                Map<Class<? extends Operation>, OperationClassification> operationClassifications,
@@ -66,7 +62,6 @@ class UniformWindowedOperationStreamExecutorServiceThread extends Thread {
         this.operationHandlerExecutor = operationHandlerExecutor;
         this.scheduler = new UniformWindowedOperationScheduler();
         this.spinner = spinner;
-        this.slightlyEarlySpinner = slightlyEarlySpinner;
         this.errorReporter = errorReporter;
         this.hasFinished = hasFinished;
         this.forcedTerminate = forcedTerminate;
@@ -141,11 +136,6 @@ class UniformWindowedOperationStreamExecutorServiceThread extends Thread {
             // execute operation handlers for current window
             for (int i = 0; i < operationHandlers.size(); i++) {
                 OperationHandler<?> operationHandler = operationHandlers.get(i);
-                // Schedule slightly early to account for context switch - internally, handler will schedule at exact start time
-                // TODO forcedTerminate does not cover all cases at present this spin loop is still blocking -> inject a check that throws exception?
-                // TODO or SpinnerChecks have three possible results? (TRUE, NOT_TRUE_YET, FALSE)
-                // TODO and/or Spinner has an emergency terminate button?
-                slightlyEarlySpinner.waitForScheduledStartTime(operationHandler.operation());
 
                 // execute handler
                 try {

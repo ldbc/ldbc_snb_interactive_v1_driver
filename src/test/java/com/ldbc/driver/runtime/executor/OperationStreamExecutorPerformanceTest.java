@@ -295,22 +295,22 @@ public class OperationStreamExecutorPerformanceTest {
             AtomicBoolean executorHasFinished,
             AtomicBoolean forceThreadToTerminate
     ) throws CompletionTimeException, MetricsCollectionException, DbException {
-        PreciseIndividualBlockingOperationStreamExecutorServiceThread operationStreamExecutorThread = new PreciseIndividualBlockingOperationStreamExecutorServiceThread(
-                timeSource,
-                operationHandlerExecutor,
-                errorReporter,
-                operations,
-                executorHasFinished,
-                spinner,
-                spinner,
-                forceThreadToTerminate,
-                operationClassifications,
-                db,
-                localCompletionTimeWriter,
-                globalCompletionTimeReader,
-                metricsService,
-                WorkloadRunner.DEFAULT_DURATION_TO_WAIT_FOR_ALL_HANDLERS_TO_FINISH
-        );
+        PreciseIndividualBlockingOperationStreamExecutorServiceThread operationStreamExecutorThread =
+                new PreciseIndividualBlockingOperationStreamExecutorServiceThread(
+                        timeSource,
+                        operationHandlerExecutor,
+                        errorReporter,
+                        operations,
+                        executorHasFinished,
+                        spinner,
+                        forceThreadToTerminate,
+                        operationClassifications,
+                        db,
+                        localCompletionTimeWriter,
+                        globalCompletionTimeReader,
+                        metricsService,
+                        WorkloadRunner.DEFAULT_DURATION_TO_WAIT_FOR_ALL_HANDLERS_TO_FINISH
+                );
 
         return operationStreamExecutorThread;
     }
