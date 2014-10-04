@@ -41,7 +41,7 @@ public class OperationHandlerFactoryTest {
         Duration toleratedDelay = Duration.fromMilli(0);
         ExecutionDelayPolicy executionDelayPolicy = new ErrorReportingTerminatingExecutionDelayPolicy(timeSource, toleratedDelay, errorReporter);
         Duration spinnerSleepDuration = Duration.fromMilli(0);
-        Spinner spinner = new Spinner(timeSource, spinnerSleepDuration, executionDelayPolicy, Duration.fromMilli(0), ignoreScheduledStartTime);
+        Spinner spinner = new Spinner(timeSource, spinnerSleepDuration, executionDelayPolicy, ignoreScheduledStartTime);
         LocalCompletionTimeWriter localCompletionTimeWriter = new DummyLocalCompletionTimeWriter();
         ConcurrentMetricsService metricsService = new DummyCollectingConcurrentMetricsService();
         Time startTime = timeSource.now();

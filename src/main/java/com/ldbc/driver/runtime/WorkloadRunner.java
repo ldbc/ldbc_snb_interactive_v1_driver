@@ -78,7 +78,7 @@ public class WorkloadRunner {
 
         // TODO for the spinner sent to Window scheduler allow delay to reach to the end of window?
 
-        this.exactSpinner = new Spinner(this.timeSource, spinnerSleepDuration, executionDelayPolicy, Duration.fromMilli(0), ignoreScheduleStartTimes);
+        this.exactSpinner = new Spinner(this.timeSource, spinnerSleepDuration, executionDelayPolicy, ignoreScheduleStartTimes);
         // TODO make this a configuration parameter?
         boolean detailedStatus = true;
         if (statusDisplayInterval.asSeconds() > 0)

@@ -109,7 +109,7 @@ public class OperationStreamExecutorPerformanceTest {
                         timeSource,
                         Duration.fromMilli(10),
                         errorReporter);
-                Spinner spinner = new Spinner(timeSource, spinnerSleepDuration, executionDelayPolicy, Duration.fromMilli(0), ignoreScheduledStartTime);
+                Spinner spinner = new Spinner(timeSource, spinnerSleepDuration, executionDelayPolicy, ignoreScheduledStartTime);
                 Map<Class<? extends Operation>, OperationClassification> operationClassifications = new HashMap<>();
                 operationClassifications.put(TimedNamedOperation1.class, new OperationClassification(SchedulingMode.INDIVIDUAL_BLOCKING, OperationClassification.DependencyMode.NONE));
                 DummyDb db = new DummyDb();
@@ -152,7 +152,7 @@ public class OperationStreamExecutorPerformanceTest {
                         timeSource,
                         Duration.fromMilli(10),
                         errorReporter);
-                Spinner spinner = new Spinner(timeSource, spinnerSleepDuration, executionDelayPolicy, Duration.fromMilli(0), ignoreScheduledStartTime);
+                Spinner spinner = new Spinner(timeSource, spinnerSleepDuration, executionDelayPolicy, ignoreScheduledStartTime);
                 Map<Class<? extends Operation>, OperationClassification> operationClassifications = new HashMap<>();
                 operationClassifications.put(TimedNamedOperation1.class, new OperationClassification(SchedulingMode.INDIVIDUAL_BLOCKING, OperationClassification.DependencyMode.NONE));
                 DummyDb db = new DummyDb();
@@ -195,7 +195,7 @@ public class OperationStreamExecutorPerformanceTest {
                         timeSource,
                         Duration.fromMilli(10),
                         errorReporter);
-                Spinner spinner = new Spinner(timeSource, spinnerSleepDuration, executionDelayPolicy, Duration.fromMilli(0), ignoreScheduledStartTime);
+                Spinner spinner = new Spinner(timeSource, spinnerSleepDuration, executionDelayPolicy, ignoreScheduledStartTime);
                 Map<Class<? extends Operation>, OperationClassification> operationClassifications = new HashMap<>();
                 operationClassifications.put(TimedNamedOperation1.class, new OperationClassification(SchedulingMode.INDIVIDUAL_BLOCKING, OperationClassification.DependencyMode.NONE));
                 DummyDb db = new DummyDb();

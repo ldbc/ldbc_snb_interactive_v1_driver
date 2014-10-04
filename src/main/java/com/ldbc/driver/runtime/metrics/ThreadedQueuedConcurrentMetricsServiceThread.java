@@ -36,6 +36,7 @@ public class ThreadedQueuedConcurrentMetricsServiceThread extends Thread {
                 switch (event.type()) {
                     case SUBMIT_RESULT:
                         OperationResultReport result = ((MetricsCollectionEvent.SubmitResultEvent) event).result();
+
                         try {
                             metricsManager.measure(result);
                         } catch (MetricsCollectionException e) {

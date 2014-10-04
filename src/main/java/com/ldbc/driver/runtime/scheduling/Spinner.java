@@ -21,23 +21,21 @@ public class Spinner {
     public Spinner(TimeSource timeSource,
                    Duration sleepDuration,
                    ExecutionDelayPolicy executionDelayPolicy,
-                   Duration offset,
                    boolean ignoreScheduleStartTimes) {
         // tolerated delay only applies to actual scheduled start time
         // offset will move the scheduled start time earlier, but execution "deadline" will still be:
         //      "deadline" (i.e., latest allowed start time) = (original, i.e.,before offset applied) scheduled start time + tolerated delay
-        long toleratedDelayAccountingForOffsetAsMilli = executionDelayPolicy.toleratedDelay().plus(offset).asMilli();
+        long toleratedDelayAsMilli = executionDelayPolicy.toleratedDelay().asMilli();
         this.spinFun = (ignoreScheduleStartTimes)
                 ?
-                new SpinFunWithoutWaitForScheduledStartTime(
+                new WaitForChecksFun(
                         executionDelayPolicy,
                         sleepDuration.asMilli())
                 :
-                new SpinFunWithWaitForScheduledStartTime(
+                new WaitForChecksAndScheduledStartTimeFun(
                         timeSource,
-                        offset,
                         executionDelayPolicy,
-                        toleratedDelayAccountingForOffsetAsMilli,
+                        toleratedDelayAsMilli,
                         sleepDuration.asMilli());
     }
 
@@ -72,22 +70,17 @@ public class Spinner {
         }
     }
 
-    private static class SpinFunWithWaitForScheduledStartTime implements Function2<Operation<?>, SpinnerCheck, Boolean> {
+    private static class WaitForChecksAndScheduledStartTimeFun implements Function2<Operation<?>, SpinnerCheck, Boolean> {
         private final TimeSource timeSource;
-        // Duration that operation will be executed before scheduled start time
-        // if offset==0 operation will be scheduled at exactly operation.scheduledStartTime()
-        private final Duration offset;
         private final ExecutionDelayPolicy executionDelayPolicy;
         private final long toleratedDelayAccountingForOffsetAsMilli;
         private final long sleepDurationAsMilli;
 
-        private SpinFunWithWaitForScheduledStartTime(TimeSource timeSource,
-                                                     Duration offset,
-                                                     ExecutionDelayPolicy executionDelayPolicy,
-                                                     long toleratedDelayAccountingForOffsetAsMilli,
-                                                     long sleepDurationAsMilli) {
+        private WaitForChecksAndScheduledStartTimeFun(TimeSource timeSource,
+                                                      ExecutionDelayPolicy executionDelayPolicy,
+                                                      long toleratedDelayAccountingForOffsetAsMilli,
+                                                      long sleepDurationAsMilli) {
             this.timeSource = timeSource;
-            this.offset = offset;
             this.executionDelayPolicy = executionDelayPolicy;
             this.toleratedDelayAccountingForOffsetAsMilli = toleratedDelayAccountingForOffsetAsMilli;
             this.sleepDurationAsMilli = sleepDurationAsMilli;
@@ -98,9 +91,9 @@ public class Spinner {
             boolean operationMayBeExecuted = true;
 
             // earliest time at which operation may start
-            long scheduledStartTimeWithOffsetAsMilli = operation.scheduledStartTime().minus(offset).asMilli();
+            long scheduledStartTimeAsMilli = operation.scheduledStartTime().asMilli();
             // latest tolerated time at which operation may start, after this time operation is considered late
-            long latestAllowableStartTimeAsMilli = scheduledStartTimeWithOffsetAsMilli + toleratedDelayAccountingForOffsetAsMilli;
+            long latestAllowableStartTimeAsMilli = scheduledStartTimeAsMilli + toleratedDelayAccountingForOffsetAsMilli;
             // TOO EARLY = <---(now)--(scheduled)[<---delay--->]------> <=(Time Line)
             // GOOD      = <-----(scheduled)[<-(now)--delay--->]------> <=(Time Line)
             // TOO LATE  = <-----(scheduled)[<---delay--->]--(now)----> <=(Time Line)
@@ -118,7 +111,7 @@ public class Spinner {
             }
 
             // wait for scheduled operation start time
-            while (timeSource.nowAsMilli() < scheduledStartTimeWithOffsetAsMilli) {
+            while (timeSource.nowAsMilli() < scheduledStartTimeAsMilli) {
                 powerNap(sleepDurationAsMilli);
             }
 
@@ -132,14 +125,14 @@ public class Spinner {
         }
     }
 
-    private static class SpinFunWithoutWaitForScheduledStartTime implements Function2<Operation<?>, SpinnerCheck, Boolean> {
+    private static class WaitForChecksFun implements Function2<Operation<?>, SpinnerCheck, Boolean> {
         // Duration that operation will be executed before scheduled start time
         // if offset==0 operation will be scheduled at exactly operation.scheduledStartTime()
         private final ExecutionDelayPolicy executionDelayPolicy;
         private final long sleepDurationAsMilli;
 
-        private SpinFunWithoutWaitForScheduledStartTime(ExecutionDelayPolicy executionDelayPolicy,
-                                                        long sleepDurationAsMilli) {
+        private WaitForChecksFun(ExecutionDelayPolicy executionDelayPolicy,
+                                 long sleepDurationAsMilli) {
             this.executionDelayPolicy = executionDelayPolicy;
             this.sleepDurationAsMilli = sleepDurationAsMilli;
         }

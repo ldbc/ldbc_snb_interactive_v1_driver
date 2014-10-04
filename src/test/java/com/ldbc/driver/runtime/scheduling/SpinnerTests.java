@@ -24,7 +24,7 @@ public class SpinnerTests {
         Duration toleratedDelay = Duration.fromMilli(10);
         boolean ignoreScheduledStartTime = false;
         CheckableDelayPolicy delayPolicy = new CheckableDelayPolicy(toleratedDelay);
-        Spinner spinner = new Spinner(timeSource, Spinner.DEFAULT_SLEEP_DURATION_10_MILLI, delayPolicy, Duration.fromMilli(0), ignoreScheduledStartTime);
+        Spinner spinner = new Spinner(timeSource, Spinner.DEFAULT_SLEEP_DURATION_10_MILLI, delayPolicy, ignoreScheduledStartTime);
 
         Time scheduledStartTime = Time.fromMilli(10);
         Operation<?> operation = new TimedNamedOperation1(Time.fromMilli(0), Time.fromMilli(0), "name");
@@ -62,7 +62,7 @@ public class SpinnerTests {
         Duration toleratedDelay = Duration.fromMilli(10);
         boolean ignoreScheduledStartTime = false;
         CheckableDelayPolicy delayPolicy = new CheckableDelayPolicy(toleratedDelay);
-        Spinner spinner = new Spinner(timeSource, Spinner.DEFAULT_SLEEP_DURATION_10_MILLI, delayPolicy, Duration.fromMilli(0), ignoreScheduledStartTime);
+        Spinner spinner = new Spinner(timeSource, Spinner.DEFAULT_SLEEP_DURATION_10_MILLI, delayPolicy, ignoreScheduledStartTime);
 
         Time scheduledStartTime = Time.fromMilli(10);
         Operation<?> operation = new TimedNamedOperation1(Time.fromMilli(0), Time.fromMilli(0), "name");
@@ -101,7 +101,7 @@ public class SpinnerTests {
         boolean ignoreScheduledStartTime = false;
         CheckableDelayPolicy delayPolicy = new CheckableDelayPolicy(toleratedDelay);
         SpinnerCheck failCheck = new TrueFalseSpinnerCheck(delayPolicy, false);
-        Spinner spinner = new Spinner(timeSource, Spinner.DEFAULT_SLEEP_DURATION_10_MILLI, delayPolicy, Duration.fromMilli(0), ignoreScheduledStartTime);
+        Spinner spinner = new Spinner(timeSource, Spinner.DEFAULT_SLEEP_DURATION_10_MILLI, delayPolicy, ignoreScheduledStartTime);
 
         Time scheduledStartTime = Time.fromMilli(10);
         Operation<?> operation = new TimedNamedOperation1(Time.fromMilli(0), Time.fromMilli(0), "name");
@@ -134,46 +134,6 @@ public class SpinnerTests {
     }
 
     @Test
-    public void shouldReturnAndPassAtCorrectOffsetWhenCheckPasses() throws InterruptedException {
-        // Given
-        timeSource.setNowFromMilli(0);
-        Duration offset = Duration.fromMilli(5);
-        Duration toleratedDelay = Duration.fromMilli(10);
-        boolean ignoreScheduledStartTime = false;
-        CheckableDelayPolicy delayPolicy = new CheckableDelayPolicy(toleratedDelay);
-        Spinner spinner = new Spinner(timeSource, Spinner.DEFAULT_SLEEP_DURATION_10_MILLI, delayPolicy, offset, ignoreScheduledStartTime);
-
-        Time scheduledStartTime = Time.fromMilli(10);
-        Operation<?> operation = new NothingOperation();
-        operation.setScheduledStartTime(scheduledStartTime);
-        operation.setDependencyTime(Time.fromMilli(0));
-
-        SpinningThread spinningThread = new SpinningThread(spinner, operation);
-
-        // When
-        spinningThread.start();
-
-        // Then
-        // before scheduled start time minus offset
-        timeSource.setNowFromMilli(4);
-        Thread.sleep(ENOUGH_MILLISECONDS_FOR_SPINNER_THREAD_TO_DO_ITS_THING);
-        assertThat(delayPolicy.excessiveDelay(), is(false));
-        assertThat(delayPolicy.checkResult(), is(true));
-        assertThat(spinningThread.spinnerHasCompleted(), is(false));
-        assertThat(spinningThread.shouldExecuteOperation(), is(false));
-
-        // at scheduled start time minus offset, but still before start time
-        timeSource.setNowFromMilli(5);
-        Thread.sleep(ENOUGH_MILLISECONDS_FOR_SPINNER_THREAD_TO_DO_ITS_THING);
-        assertThat(delayPolicy.excessiveDelay(), is(false));
-        assertThat(delayPolicy.checkResult(), is(true));
-        assertThat(spinningThread.spinnerHasCompleted(), is(true));
-        assertThat(spinningThread.shouldExecuteOperation(), is(true));
-
-        spinningThread.join(ENOUGH_MILLISECONDS_FOR_SPINNER_THREAD_TO_DO_ITS_THING);
-    }
-
-    @Test
     public void measureCostOfSpinnerWithNoSleepAndPassingCheckAndAtScheduledStartTime() {
         TimeSource timeSource = new SystemTimeSource();
         this.timeSource.setNowFromMilli(0);
@@ -185,7 +145,7 @@ public class SpinnerTests {
         FastSameOperationIterator operationsSingleCheck = new FastSameOperationIterator(scheduledStartTime, operationCount);
         FastSameOperationIterator operationsManyChecks = new FastSameOperationIterator(scheduledStartTime, operationCount);
 
-        Spinner spinner = new Spinner(this.timeSource, Duration.fromMilli(0), delayPolicy, Duration.fromMilli(0), ignoreScheduledStartTime);
+        Spinner spinner = new Spinner(this.timeSource, Duration.fromMilli(0), delayPolicy, ignoreScheduledStartTime);
         SpinnerCheck singleTrueCheck = new TrueFalseSpinnerCheck(delayPolicy, true);
         SpinnerCheck manyTrueChecks = new MultiCheck(
                 Lists.<SpinnerCheck>newArrayList(

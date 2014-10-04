@@ -74,7 +74,7 @@ public class ThreadPoolOperationHandlerExecutorTest {
         Duration toleratedDelay = Duration.fromMilli(100);
         ConcurrentErrorReporter errorReporter = new ConcurrentErrorReporter();
         ExecutionDelayPolicy delayPolicy = new ErrorReportingTerminatingExecutionDelayPolicy(timeSource, toleratedDelay, errorReporter);
-        Spinner spinner = new Spinner(timeSource, Spinner.DEFAULT_SLEEP_DURATION_10_MILLI, delayPolicy, Duration.fromMilli(0), ignoreScheduledStartTime);
+        Spinner spinner = new Spinner(timeSource, Spinner.DEFAULT_SLEEP_DURATION_10_MILLI, delayPolicy, ignoreScheduledStartTime);
         LocalCompletionTimeWriter dummyLocalCompletionTimeWriter = new DummyLocalCompletionTimeWriter();
         DummyCollectingConcurrentMetricsService metricsService = new DummyCollectingConcurrentMetricsService();
 
@@ -121,7 +121,7 @@ public class ThreadPoolOperationHandlerExecutorTest {
         Duration toleratedDelay = Duration.fromMilli(100);
         ConcurrentErrorReporter errorReporter = new ConcurrentErrorReporter();
         ExecutionDelayPolicy delayPolicy = new ErrorReportingTerminatingExecutionDelayPolicy(timeSource, toleratedDelay, errorReporter);
-        Spinner spinner = new Spinner(timeSource, Spinner.DEFAULT_SLEEP_DURATION_10_MILLI, delayPolicy, Duration.fromMilli(0), ignoreScheduledStartTime);
+        Spinner spinner = new Spinner(timeSource, Spinner.DEFAULT_SLEEP_DURATION_10_MILLI, delayPolicy, ignoreScheduledStartTime);
         LocalCompletionTimeWriter dummyLocalCompletionTimeWriter = new DummyLocalCompletionTimeWriter();
         DummyCollectingConcurrentMetricsService metricsService = new DummyCollectingConcurrentMetricsService();
 
@@ -186,7 +186,7 @@ public class ThreadPoolOperationHandlerExecutorTest {
         Duration toleratedDelay = Duration.fromMilli(100);
         ConcurrentErrorReporter errorReporter = new ConcurrentErrorReporter();
         ExecutionDelayPolicy delayPolicy = new ErrorReportingTerminatingExecutionDelayPolicy(timeSource, toleratedDelay, errorReporter);
-        Spinner spinner = new Spinner(timeSource, Spinner.DEFAULT_SLEEP_DURATION_10_MILLI, delayPolicy, Duration.fromMilli(0), ignoreScheduledStartTime);
+        Spinner spinner = new Spinner(timeSource, Spinner.DEFAULT_SLEEP_DURATION_10_MILLI, delayPolicy, ignoreScheduledStartTime);
         LocalCompletionTimeWriter dummyLocalCompletionTimeWriter = new DummyLocalCompletionTimeWriter();
         DummyCollectingConcurrentMetricsService metricsService = new DummyCollectingConcurrentMetricsService();
 
