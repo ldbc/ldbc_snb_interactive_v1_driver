@@ -130,7 +130,7 @@ public class ConsoleAndFileDriverConfiguration implements DriverConfiguration {
     public static final String TOLERATED_EXECUTION_DELAY_DEFAULT_STRING = Long.toString(TOLERATED_EXECUTION_DELAY_DEFAULT.asMilli());
     private static final String TOLERATED_EXECUTION_DELAY_DESCRIPTION = "duration (ms) an operation handler may miss its scheduled start time by";
 
-    public static final String SPINNER_SLEEP_DURATION_ARG = "spin_wait";
+    public static final String SPINNER_SLEEP_DURATION_ARG = "sw";
     private static final String SPINNER_SLEEP_DURATION_ARG_LONG = "spinner_wait_duration";
     public static final Duration SPINNER_SLEEP_DURATION_DEFAULT = Duration.fromMilli(0);
     public static final String SPINNER_SLEEP_DURATION_DEFAULT_STRING = Long.toString(SPINNER_SLEEP_DURATION_DEFAULT.asMilli());
@@ -899,14 +899,17 @@ public class ConsoleAndFileDriverConfiguration implements DriverConfiguration {
         sb.append("\n");
         sb.append("# status display interval (intermittently show status during benchmark execution)\n");
         sb.append("# INTEGER (seconds)\n");
+        sb.append("# COMMAND: ").append("-").append(SHOW_STATUS_ARG).append("/--").append(SHOW_STATUS_ARG_LONG).append("\n");
         sb.append(SHOW_STATUS_ARG_LONG).append("=").append(statusDisplayInterval.asSeconds()).append("\n");
         sb.append("\n");
         sb.append("# thread pool size to use for executing operation handlers\n");
         sb.append("# INTEGER\n");
+        sb.append("# COMMAND: ").append("-").append(THREADS_ARG).append("/--").append(THREADS_ARG_LONG).append("\n");
         sb.append(THREADS_ARG_LONG).append("=").append(threadCount).append("\n");
         sb.append("\n");
         sb.append("# name of the benchmark run\n");
         sb.append("# STRING\n");
+        sb.append("# COMMAND: ").append("-").append(NAME_ARG).append("/--").append(NAME_ARG_LONG).append("\n");
         if (null == name)
             sb.append("# ").append(NAME_ARG_LONG).append("=").append("\n");
         else
@@ -914,6 +917,7 @@ public class ConsoleAndFileDriverConfiguration implements DriverConfiguration {
         sb.append("\n");
         sb.append("# path specifying where to write the benchmark results file\n");
         sb.append("# STRING\n");
+        sb.append("# COMMAND: ").append("-").append(RESULT_DIR_PATH_ARG).append("/--").append(RESULT_DIR_PATH_ARG_LONG).append("\n");
         if (null == resultDirPath)
             sb.append("# ").append(RESULT_DIR_PATH_ARG_LONG).append("=").append("\n");
         else
@@ -921,30 +925,36 @@ public class ConsoleAndFileDriverConfiguration implements DriverConfiguration {
         sb.append("\n");
         sb.append("# time unit to use for measuring performance metrics (e.g., query response time)\n");
         sb.append("# ENUM (").append(Arrays.toString(VALID_TIME_UNITS)).append(")\n");
+        sb.append("# COMMAND: ").append("-").append(TIME_UNIT_ARG).append("/--").append(TIME_UNIT_ARG_LONG).append("\n");
         sb.append(TIME_UNIT_ARG_LONG).append("=").append(timeUnit).append("\n");
         sb.append("\n");
         sb.append("# used to 'compress'/'stretch' durations between operation start times to increase/decrease benchmark load\n");
         sb.append("# e.g. 2.0 = run benchmark 2x slower, 0.1 = run benchmark 10x faster\n");
         sb.append("# DOUBLE\n");
+        sb.append("# COMMAND: ").append("-").append(TIME_COMPRESSION_RATIO_ARG).append("/--").append(TIME_COMPRESSION_RATIO_ARG_LONG).append("\n");
         sb.append(TIME_COMPRESSION_RATIO_ARG_LONG).append("=").append(timeCompressionRatio).append("\n");
         sb.append("\n");
         sb.append("# size (i.e., duration) of execution window used by the ").append(OperationClassification.SchedulingMode.WINDOWED.name()).append(" scheduling mode\n");
         sb.append("# LONG (milliseconds)\n");
+        sb.append("# COMMAND: ").append("-").append(WINDOWED_EXECUTION_WINDOW_DURATION_ARG).append("/--").append(WINDOWED_EXECUTION_WINDOW_DURATION_ARG_LONG).append("\n");
         sb.append(WINDOWED_EXECUTION_WINDOW_DURATION_ARG_LONG).append("=").append(windowedExecutionWindowDuration.asMilli()).append("\n");
         sb.append("\n");
         sb.append("# NOT USED AT PRESENT - reserved for distributed driver mode\n");
         sb.append("# specifies the addresses of other driver processes, so they can find each other\n");
         sb.append("# LIST (e.g., peer1|peer2|peer3)\n");
+        sb.append("# COMMAND: ").append("-").append(PEER_IDS_ARG).append("/--").append(PEER_IDS_ARG_LONG).append("\n");
         sb.append(PEER_IDS_ARG_LONG).append("=").append(serializePeerIdsToCommandline(peerIds)).append("\n");
         sb.append("\n");
         sb.append("# tolerated duration (in milliseconds) that operation execution may be late by\n");
         sb.append("# if driver can not execute an operation within " + TOLERATED_EXECUTION_DELAY_ARG_LONG + " of its scheduled start time it will terminate\n");
         sb.append("# LONG (milliseconds)\n");
+        sb.append("# COMMAND: ").append("-").append(TOLERATED_EXECUTION_DELAY_ARG).append("/--").append(TOLERATED_EXECUTION_DELAY_ARG_LONG).append("\n");
         sb.append(TOLERATED_EXECUTION_DELAY_ARG_LONG).append("=").append(toleratedExecutionDelay.asMilli()).append("\n");
         sb.append("\n");
         sb.append("# enable validation that will check if the provided database implementation is correct\n");
         sb.append("# parameter value specifies where to find the validation parameters file\n");
         sb.append("# STRING\n");
+        sb.append("# COMMAND: ").append("-").append(DB_VALIDATION_FILE_PATH_ARG).append("/--").append(DB_VALIDATION_FILE_PATH_ARG_LONG).append("\n");
         if (null == databaseValidationFilePath)
             sb.append("# ").append(DB_VALIDATION_FILE_PATH_ARG_LONG).append("=").append("\n");
         else
@@ -953,6 +963,7 @@ public class ConsoleAndFileDriverConfiguration implements DriverConfiguration {
         sb.append("# generate validation parameters file for validating correctness of database implementations\n");
         sb.append("# parameter values specify: (1) where to create the validation parameters file (2) how many validation parameters to generate\n");
         sb.append("# STRING|INTEGER (e.g., ").append(new ConsoleAndFileValidationParamOptions("validation_parameters.csv", 1000).toCommandlineString()).append(")\n");
+        sb.append("# COMMAND: ").append("-").append(CREATE_VALIDATION_PARAMS_ARG).append("/--").append(CREATE_VALIDATION_PARAMS_ARG_LONG).append("\n");
         if (null == validationCreationParams)
             sb.append("# ").append(CREATE_VALIDATION_PARAMS_ARG_LONG).append("=").append("\n");
         else
@@ -960,22 +971,27 @@ public class ConsoleAndFileDriverConfiguration implements DriverConfiguration {
         sb.append("\n");
         sb.append("# enable validation that will check if the provided workload implementation is correct\n");
         sb.append("# BOOLEAN\n");
+        sb.append("# COMMAND: ").append("-").append(VALIDATE_WORKLOAD_ARG).append("/--").append(VALIDATE_WORKLOAD_ARG_LONG).append("\n");
         sb.append(VALIDATE_WORKLOAD_ARG_LONG).append("=").append(validateWorkload).append("\n");
         sb.append("\n");
         sb.append("# calculate & display workload statistics (operation mix, etc.)\n");
         sb.append("# BOOLEAN\n");
+        sb.append("# COMMAND: ").append("-").append(CALCULATE_WORKLOAD_STATISTICS_ARG).append("/--").append(CALCULATE_WORKLOAD_STATISTICS_ARG_LONG).append("\n");
         sb.append(CALCULATE_WORKLOAD_STATISTICS_ARG_LONG).append("=").append(calculateWorkloadStatistics).append("\n");
         sb.append("\n");
         sb.append("# sleep duration (ms) injected into busy wait loops (to reduce CPU consumption)\n");
         sb.append("# LONG (milliseconds)\n");
+        sb.append("# COMMAND: ").append("-").append(SPINNER_SLEEP_DURATION_ARG).append("/--").append(SPINNER_SLEEP_DURATION_ARG_LONG).append("\n");
         sb.append(SPINNER_SLEEP_DURATION_ARG_LONG).append("=").append(spinnerSleepDuration.asMilli()).append("\n");
         sb.append("\n");
         sb.append("# print help string - usage instructions\n");
         sb.append("# BOOLEAN\n");
+        sb.append("# COMMAND: ").append("-").append(HELP_ARG).append("\n");
         sb.append(HELP_ARG).append("=").append(printHelp).append("\n");
         sb.append("\n");
         sb.append("# executes operations as fast as possible, ignoring their scheduled start times\n");
         sb.append("# BOOLEAN\n");
+        sb.append("# COMMAND: ").append("-").append(IGNORE_SCHEDULED_START_TIMES_ARG).append("\n");
         sb.append(IGNORE_SCHEDULED_START_TIMES_ARG).append("=").append(ignoreScheduledStartTimes).append("\n");
         sb.append("\n");
         sb.append("# ***************************************************************\n");
@@ -984,6 +1000,7 @@ public class ConsoleAndFileDriverConfiguration implements DriverConfiguration {
         sb.append("\n");
         sb.append("# fully qualified class name of the Workload (class) implementation to execute\n");
         sb.append("# STRING (e.g., ").append(LdbcSnbInteractiveWorkload.class.getName()).append(")\n");
+        sb.append("# COMMAND: ").append("-").append(WORKLOAD_ARG).append("/--").append(WORKLOAD_ARG_LONG).append("\n");
         if (null == workloadClassName)
             sb.append("# ").append(WORKLOAD_ARG_LONG).append("=").append("\n");
         else
@@ -991,6 +1008,7 @@ public class ConsoleAndFileDriverConfiguration implements DriverConfiguration {
         sb.append("\n");
         sb.append("# number of operations to generate during benchmark execution\n");
         sb.append("# LONG\n");
+        sb.append("# COMMAND: ").append("-").append(OPERATION_COUNT_ARG).append("/--").append(OPERATION_COUNT_ARG_LONG).append("\n");
         if (0 == operationCount)
             sb.append("# ").append(OPERATION_COUNT_ARG_LONG).append("=").append("\n");
         else
@@ -1002,6 +1020,7 @@ public class ConsoleAndFileDriverConfiguration implements DriverConfiguration {
         sb.append("\n");
         sb.append("# fully qualified class name of the Db (class) implementation to execute\n");
         sb.append("# STRING (e.g., ").append(DummyLdbcSnbInteractiveDb.class.getName()).append(")\n");
+        sb.append("# COMMAND: ").append("-").append(DB_ARG).append("/--").append(DB_ARG_LONG).append("\n");
         if (null == dbClassName)
             sb.append("# ").append(DB_ARG_LONG).append("=").append("\n");
         else
