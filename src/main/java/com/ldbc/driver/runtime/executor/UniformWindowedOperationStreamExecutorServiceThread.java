@@ -24,6 +24,7 @@ import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 
+@Deprecated
 class UniformWindowedOperationStreamExecutorServiceThread extends Thread {
     private static final Duration POLL_INTERVAL_WHILE_WAITING_FOR_LAST_HANDLER_TO_FINISH = Duration.fromMilli(100);
     private static final LocalCompletionTimeWriter DUMMY_LOCAL_COMPLETION_TIME_WRITER = new DummyLocalCompletionTimeWriter();
@@ -236,8 +237,8 @@ class UniformWindowedOperationStreamExecutorServiceThread extends Thread {
         }
 
         @Override
-        public boolean doCheck() {
-            return 0 == numberOfHandlersFromPreviousWindowThatAreStillRunning.get();
+        public SpinnerCheckResult doCheck() {
+            return (0 == numberOfHandlersFromPreviousWindowThatAreStillRunning.get()) ? SpinnerCheckResult.PASSED : SpinnerCheckResult.STILL_CHECKING;
         }
 
         @Override

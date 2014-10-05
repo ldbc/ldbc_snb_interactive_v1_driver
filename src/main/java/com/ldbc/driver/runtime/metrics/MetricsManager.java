@@ -64,16 +64,16 @@ public class MetricsManager {
 
         measurementCount.incrementAndGet();
 
-        OperationTypeMetricsManager operationTypeMetricsManager = allOperationMetrics.get(result.operationType());
+        OperationTypeMetricsManager operationTypeMetricsManager = allOperationMetrics.get(result.operation().type());
         if (null == operationTypeMetricsManager)
             operationTypeMetricsManager = new OperationTypeMetricsManager(
-                    result.operationType(),
+                    result.operation().type(),
                     unit,
                     highestExpectedRuntimeDuration,
                     highestExpectedDelayDuration,
                     recordStartTimeDelayLatency);
         operationTypeMetricsManager.measure(result);
-        allOperationMetrics.put(result.operationType(), operationTypeMetricsManager);
+        allOperationMetrics.put(result.operation().type(), operationTypeMetricsManager);
     }
 
     Time startTime() {

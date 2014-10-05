@@ -5,6 +5,7 @@ import com.ldbc.driver.Operation;
 import com.ldbc.driver.temporal.*;
 import com.ldbc.driver.workloads.dummy.NothingOperation;
 import com.ldbc.driver.workloads.dummy.TimedNamedOperation1;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import java.util.Iterator;
@@ -18,17 +19,15 @@ public class SpinnerTests {
     ManualTimeSource timeSource = new ManualTimeSource(0);
 
     @Test
-    public void shouldPassWhenCheckPassesAndStartTimeArrivesAndToleratedDelayIsNotExceeded() throws InterruptedException {
+    public void shouldPassWhenNoCheckAndStartTimeArrives() throws InterruptedException {
         // Given
         timeSource.setNowFromMilli(0);
-        Duration toleratedDelay = Duration.fromMilli(10);
         boolean ignoreScheduledStartTime = false;
-        CheckableDelayPolicy delayPolicy = new CheckableDelayPolicy(toleratedDelay);
-        Spinner spinner = new Spinner(timeSource, Spinner.DEFAULT_SLEEP_DURATION_10_MILLI, delayPolicy, ignoreScheduledStartTime);
+        Duration spinnerSleepDuration = Duration.fromMilli(0);
+        Spinner spinner = new Spinner(timeSource, spinnerSleepDuration, ignoreScheduledStartTime);
 
         Time scheduledStartTime = Time.fromMilli(10);
-        Operation<?> operation = new TimedNamedOperation1(Time.fromMilli(0), Time.fromMilli(0), "name");
-        operation.setScheduledStartTime(scheduledStartTime);
+        Operation<?> operation = new TimedNamedOperation1(scheduledStartTime, Time.fromMilli(0), "name");
 
         SpinningThread spinningThread = new SpinningThread(spinner, operation);
 
@@ -38,145 +37,236 @@ public class SpinnerTests {
         // Then
         // should not return before start time
         Thread.sleep(ENOUGH_MILLISECONDS_FOR_SPINNER_THREAD_TO_DO_ITS_THING);
-        assertThat(delayPolicy.excessiveDelay(), is(false));
-        assertThat(delayPolicy.checkResult(), is(true));
         assertThat(spinningThread.spinnerHasCompleted(), is(false));
-        assertThat(spinningThread.shouldExecuteOperation(), is(false));
+        assertThat(spinningThread.isFineToExecuteOperation(), is(false));
 
-        timeSource.setNowFromMilli(20);
+        timeSource.setNowFromMilli(scheduledStartTime.asMilli());
 
         // should return when start time reached
         Thread.sleep(ENOUGH_MILLISECONDS_FOR_SPINNER_THREAD_TO_DO_ITS_THING);
-        assertThat(delayPolicy.excessiveDelay(), is(false));
-        assertThat(delayPolicy.checkResult(), is(true));
         assertThat(spinningThread.spinnerHasCompleted(), is(true));
-        assertThat(spinningThread.shouldExecuteOperation(), is(true));
+        assertThat(spinningThread.isFineToExecuteOperation(), is(true));
 
         spinningThread.join(ENOUGH_MILLISECONDS_FOR_SPINNER_THREAD_TO_DO_ITS_THING);
     }
 
     @Test
-    public void shouldFailWhenCheckPassesAndToleratedDelayIsExceeded() throws InterruptedException {
+    public void shouldPassOnlyWhenCheckPassesAndStartTimeArrives() throws InterruptedException {
         // Given
         timeSource.setNowFromMilli(0);
-        Duration toleratedDelay = Duration.fromMilli(10);
         boolean ignoreScheduledStartTime = false;
-        CheckableDelayPolicy delayPolicy = new CheckableDelayPolicy(toleratedDelay);
-        Spinner spinner = new Spinner(timeSource, Spinner.DEFAULT_SLEEP_DURATION_10_MILLI, delayPolicy, ignoreScheduledStartTime);
+        Duration spinnerSleepDuration = Duration.fromMilli(0);
+        SettableSpinnerCheck check = new SettableSpinnerCheck(SpinnerCheck.SpinnerCheckResult.STILL_CHECKING);
+        Spinner spinner = new Spinner(timeSource, spinnerSleepDuration, ignoreScheduledStartTime);
 
         Time scheduledStartTime = Time.fromMilli(10);
-        Operation<?> operation = new TimedNamedOperation1(Time.fromMilli(0), Time.fromMilli(0), "name");
-        operation.setScheduledStartTime(scheduledStartTime);
+        Operation<?> operation = new TimedNamedOperation1(scheduledStartTime, Time.fromMilli(0), "name");
 
-        SpinningThread spinningThread = new SpinningThread(spinner, operation);
+        SpinningThread spinningThread = new SpinningThread(spinner, operation, check);
 
         // When
         spinningThread.start();
 
         // Then
-        // should not return before start time
+        // time = no, check = not yet
         Thread.sleep(ENOUGH_MILLISECONDS_FOR_SPINNER_THREAD_TO_DO_ITS_THING);
-        assertThat(delayPolicy.excessiveDelay(), is(false));
-        assertThat(delayPolicy.checkResult(), is(true));
         assertThat(spinningThread.spinnerHasCompleted(), is(false));
-        assertThat(spinningThread.shouldExecuteOperation(), is(false));
+        assertThat(spinningThread.isFineToExecuteOperation(), is(false));
 
-        timeSource.setNowFromMilli(21);
+        timeSource.setNowFromMilli(scheduledStartTime.asMilli() - 1);
 
-        // should return when start time reached
+        // time = no, check = not yet
         Thread.sleep(ENOUGH_MILLISECONDS_FOR_SPINNER_THREAD_TO_DO_ITS_THING);
-        assertThat(delayPolicy.excessiveDelay(), is(true));
-        assertThat(delayPolicy.checkResult(), is(true));
+        assertThat(spinningThread.spinnerHasCompleted(), is(false));
+        assertThat(spinningThread.isFineToExecuteOperation(), is(false));
+
+        timeSource.setNowFromMilli(scheduledStartTime.asMilli());
+
+        // time = yes, check = not yet
+        Thread.sleep(ENOUGH_MILLISECONDS_FOR_SPINNER_THREAD_TO_DO_ITS_THING);
+        assertThat(spinningThread.spinnerHasCompleted(), is(false));
+        assertThat(spinningThread.isFineToExecuteOperation(), is(false));
+
+        check.setResult(SpinnerCheck.SpinnerCheckResult.PASSED);
+
+        // time = yes, check = yes
+        Thread.sleep(ENOUGH_MILLISECONDS_FOR_SPINNER_THREAD_TO_DO_ITS_THING);
         assertThat(spinningThread.spinnerHasCompleted(), is(true));
-        assertThat(spinningThread.shouldExecuteOperation(), is(false));
+        assertThat(spinningThread.isFineToExecuteOperation(), is(true));
 
         spinningThread.join(ENOUGH_MILLISECONDS_FOR_SPINNER_THREAD_TO_DO_ITS_THING);
     }
 
     @Test
-    public void shouldFailWhenCheckFailsButNotUntilToleratedDelayIsExceeded() throws InterruptedException {
+    public void shouldFailWhenCheckFails() throws InterruptedException {
         // Given
         timeSource.setNowFromMilli(0);
-        Duration toleratedDelay = Duration.fromMilli(0);
         boolean ignoreScheduledStartTime = false;
-        CheckableDelayPolicy delayPolicy = new CheckableDelayPolicy(toleratedDelay);
-        SpinnerCheck failCheck = new TrueFalseSpinnerCheck(delayPolicy, false);
-        Spinner spinner = new Spinner(timeSource, Spinner.DEFAULT_SLEEP_DURATION_10_MILLI, delayPolicy, ignoreScheduledStartTime);
+        Duration spinnerSleepDuration = Duration.fromMilli(0);
+        SettableSpinnerCheck check = new SettableSpinnerCheck(SpinnerCheck.SpinnerCheckResult.STILL_CHECKING);
+        Spinner spinner = new Spinner(timeSource, spinnerSleepDuration, ignoreScheduledStartTime);
 
         Time scheduledStartTime = Time.fromMilli(10);
-        Operation<?> operation = new TimedNamedOperation1(Time.fromMilli(0), Time.fromMilli(0), "name");
-        operation.setScheduledStartTime(scheduledStartTime);
+        Operation<?> operation = new TimedNamedOperation1(scheduledStartTime, Time.fromMilli(0), "name");
 
-        SpinningThread spinningThread = new SpinningThread(spinner, operation, failCheck);
+        SpinningThread spinningThread = new SpinningThread(spinner, operation, check);
 
         // When
         spinningThread.start();
 
         // Then
-        // time has not advanced yet, spinner will still be waiting for check to pass
+        // time = no, check = not yet
         Thread.sleep(ENOUGH_MILLISECONDS_FOR_SPINNER_THREAD_TO_DO_ITS_THING);
-        assertThat(delayPolicy.excessiveDelay(), is(false));
-        // this will only change to false when time has past maximum tolerated delay
-        assertThat(delayPolicy.checkResult(), is(true));
         assertThat(spinningThread.spinnerHasCompleted(), is(false));
+        assertThat(spinningThread.isFineToExecuteOperation(), is(false));
 
-        // spinner has had enough time to perform the check, advance time past tolerated delay threshold
-        timeSource.setNowFromMilli(scheduledStartTime.plus(toleratedDelay).asMilli() + 1);
+        timeSource.setNowFromMilli(scheduledStartTime.asMilli() - 1);
 
-        // tolerated delay has been exceeded and check has not yet passed, spinner should return
+        // time = no, check = not yet
         Thread.sleep(ENOUGH_MILLISECONDS_FOR_SPINNER_THREAD_TO_DO_ITS_THING);
-        assertThat(delayPolicy.excessiveDelay(), is(true));
-        assertThat(delayPolicy.checkResult(), is(false));
+        assertThat(spinningThread.spinnerHasCompleted(), is(false));
+        assertThat(spinningThread.isFineToExecuteOperation(), is(false));
+
+        timeSource.setNowFromMilli(scheduledStartTime.asMilli());
+
+        // time = yes, check = not yet
+        Thread.sleep(ENOUGH_MILLISECONDS_FOR_SPINNER_THREAD_TO_DO_ITS_THING);
+        assertThat(spinningThread.spinnerHasCompleted(), is(false));
+        assertThat(spinningThread.isFineToExecuteOperation(), is(false));
+
+        check.setResult(SpinnerCheck.SpinnerCheckResult.FAILED);
+
+        // time = yes, check = no
+        Thread.sleep(ENOUGH_MILLISECONDS_FOR_SPINNER_THREAD_TO_DO_ITS_THING);
         assertThat(spinningThread.spinnerHasCompleted(), is(true));
-        assertThat(spinningThread.shouldExecuteOperation(), is(false));
+        assertThat(spinningThread.isFineToExecuteOperation(), is(false));
 
         spinningThread.join(ENOUGH_MILLISECONDS_FOR_SPINNER_THREAD_TO_DO_ITS_THING);
     }
 
+    private static class SpinningThread extends Thread {
+        private final Spinner spinner;
+        private final Operation<?> operation;
+        private final AtomicBoolean isFineToExecuteOperation;
+        private final AtomicBoolean spinnerHasCompleted;
+        private final SpinnerCheck check;
+
+        SpinningThread(Spinner spinner, Operation<?> operation) {
+            this(spinner, operation, null);
+        }
+
+        SpinningThread(Spinner spinner, Operation<?> operation, SpinnerCheck check) {
+            this.spinner = spinner;
+            this.operation = operation;
+            this.check = check;
+            this.spinnerHasCompleted = new AtomicBoolean(false);
+            this.isFineToExecuteOperation = new AtomicBoolean(false);
+        }
+
+        @Override
+        public void run() {
+            try {
+                if (null == check)
+                    isFineToExecuteOperation.set(spinner.waitForScheduledStartTime(operation));
+                else
+                    isFineToExecuteOperation.set(spinner.waitForScheduledStartTime(operation, check));
+                spinnerHasCompleted.set(true);
+            } catch (Throwable e) {
+                e.printStackTrace();
+            }
+        }
+
+        boolean spinnerHasCompleted() {
+            return spinnerHasCompleted.get();
+        }
+
+        boolean isFineToExecuteOperation() {
+            return isFineToExecuteOperation.get();
+        }
+    }
+
+    // This testing methodology seems bad, not enough iterations or something, the numbers are dependent on order things are done
+    @Ignore
     @Test
     public void measureCostOfSpinnerWithNoSleepAndPassingCheckAndAtScheduledStartTime() {
-        TimeSource timeSource = new SystemTimeSource();
-        this.timeSource.setNowFromMilli(0);
+        TimeSource systemTimeSource = new SystemTimeSource();
+        timeSource.setNowFromMilli(0);
         Time scheduledStartTime = this.timeSource.now();
         long operationCount = 100000000;
-        Duration toleratedDelay = Duration.fromMilli(10);
-        boolean ignoreScheduledStartTime = false;
-        CheckableDelayPolicy delayPolicy = new CheckableDelayPolicy(toleratedDelay);
-        FastSameOperationIterator operationsSingleCheck = new FastSameOperationIterator(scheduledStartTime, operationCount);
-        FastSameOperationIterator operationsManyChecks = new FastSameOperationIterator(scheduledStartTime, operationCount);
+        int experimentCount = 10;
+        boolean ignoreScheduledStartTime;
 
-        Spinner spinner = new Spinner(this.timeSource, Duration.fromMilli(0), delayPolicy, ignoreScheduledStartTime);
-        SpinnerCheck singleTrueCheck = new TrueFalseSpinnerCheck(delayPolicy, true);
+        ignoreScheduledStartTime = false;
+        Spinner spinnerWithStartTimeCheck = new Spinner(timeSource, Duration.fromMilli(0), ignoreScheduledStartTime);
+        ignoreScheduledStartTime = true;
+        Spinner spinnerWithoutStartTimeCheck = new Spinner(timeSource, Duration.fromMilli(0), ignoreScheduledStartTime);
+        SpinnerCheck singleTrueCheck = new SettableSpinnerCheck(SpinnerCheck.SpinnerCheckResult.PASSED);
         SpinnerCheck manyTrueChecks = new MultiCheck(
                 Lists.<SpinnerCheck>newArrayList(
-                        new TrueFalseSpinnerCheck(delayPolicy, true),
-                        new TrueFalseSpinnerCheck(delayPolicy, true),
-                        new TrueFalseSpinnerCheck(delayPolicy, true),
-                        new TrueFalseSpinnerCheck(delayPolicy, true),
-                        new TrueFalseSpinnerCheck(delayPolicy, true),
-                        new TrueFalseSpinnerCheck(delayPolicy, true),
-                        new TrueFalseSpinnerCheck(delayPolicy, true),
-                        new TrueFalseSpinnerCheck(delayPolicy, true),
-                        new TrueFalseSpinnerCheck(delayPolicy, true),
-                        new TrueFalseSpinnerCheck(delayPolicy, true)
+                        new SettableSpinnerCheck(SpinnerCheck.SpinnerCheckResult.PASSED),
+                        new SettableSpinnerCheck(SpinnerCheck.SpinnerCheckResult.PASSED),
+                        new SettableSpinnerCheck(SpinnerCheck.SpinnerCheckResult.PASSED),
+                        new SettableSpinnerCheck(SpinnerCheck.SpinnerCheckResult.PASSED),
+                        new SettableSpinnerCheck(SpinnerCheck.SpinnerCheckResult.PASSED),
+                        new SettableSpinnerCheck(SpinnerCheck.SpinnerCheckResult.PASSED),
+                        new SettableSpinnerCheck(SpinnerCheck.SpinnerCheckResult.PASSED),
+                        new SettableSpinnerCheck(SpinnerCheck.SpinnerCheckResult.PASSED),
+                        new SettableSpinnerCheck(SpinnerCheck.SpinnerCheckResult.PASSED),
+                        new SettableSpinnerCheck(SpinnerCheck.SpinnerCheckResult.PASSED)
                 )
         );
 
-        Time singleCheckTestStartTime = timeSource.now();
-        while (operationsSingleCheck.hasNext())
-            spinner.waitForScheduledStartTime(operationsSingleCheck.next(), singleTrueCheck);
-        Duration singleCheckTestDuration = timeSource.now().durationGreaterThan(singleCheckTestStartTime);
+        Duration singleCheckWithStartTimeCheckTestDuration = Duration.fromNano(0);
+        Duration manyChecksWithStartTimeCheckTestDuration = Duration.fromNano(0);
+        Duration singleCheckWithoutStartTimeCheckTestDuration = Duration.fromNano(0);
+        Duration manyChecksWithoutStartTimeCheckTestDuration = Duration.fromNano(0);
 
-        Time manyChecksTestStartTime = timeSource.now();
-        while (operationsManyChecks.hasNext())
-            spinner.waitForScheduledStartTime(operationsManyChecks.next(), manyTrueChecks);
-        Duration manyChecksTestDuration = timeSource.now().durationGreaterThan(manyChecksTestStartTime);
+        for (int i = 0; i < experimentCount; i++) {
+            FastSameOperationIterator operationsSingleCheckWithStartTimeCheck = new FastSameOperationIterator(scheduledStartTime, operationCount);
+            Time singleCheckWithStartTimeCheckTestStartTime = systemTimeSource.now();
+            while (operationsSingleCheckWithStartTimeCheck.hasNext())
+                spinnerWithStartTimeCheck.waitForScheduledStartTime(operationsSingleCheckWithStartTimeCheck.next(), singleTrueCheck);
+            singleCheckWithStartTimeCheckTestDuration =
+                    singleCheckWithStartTimeCheckTestDuration.plus(systemTimeSource.now().durationGreaterThan(singleCheckWithStartTimeCheckTestStartTime));
 
-        System.out.println(String.format("Spinner (1 true check) processed %s operations in %s time: %s ops/ms, %s ns/op",
-                operationCount, singleCheckTestDuration, operationCount / singleCheckTestDuration.asMilli(), singleCheckTestDuration.asNano() / operationCount));
+            FastSameOperationIterator operationsManyChecksWithStartTimeCheck = new FastSameOperationIterator(scheduledStartTime, operationCount);
+            Time manyChecksWithStartTimeCheckTestStartTime = systemTimeSource.now();
+            while (operationsManyChecksWithStartTimeCheck.hasNext())
+                spinnerWithStartTimeCheck.waitForScheduledStartTime(operationsManyChecksWithStartTimeCheck.next(), manyTrueChecks);
+            manyChecksWithStartTimeCheckTestDuration =
+                    manyChecksWithStartTimeCheckTestDuration.plus(systemTimeSource.now().durationGreaterThan(manyChecksWithStartTimeCheckTestStartTime));
 
-        System.out.println(String.format("Spinner (10 true checks) processed %s operations in %s time: %s ops/ms, %s ns/op",
-                operationCount, manyChecksTestDuration, operationCount / manyChecksTestDuration.asMilli(), manyChecksTestDuration.asNano() / operationCount));
+            FastSameOperationIterator operationsSingleCheckWithoutStartTimeCheck = new FastSameOperationIterator(scheduledStartTime, operationCount);
+            Time singleCheckWithoutStartTimeCheckTestStartTime = systemTimeSource.now();
+            while (operationsSingleCheckWithoutStartTimeCheck.hasNext())
+                spinnerWithStartTimeCheck.waitForScheduledStartTime(operationsSingleCheckWithoutStartTimeCheck.next(), singleTrueCheck);
+            singleCheckWithoutStartTimeCheckTestDuration =
+                    singleCheckWithoutStartTimeCheckTestDuration.plus(systemTimeSource.now().durationGreaterThan(singleCheckWithoutStartTimeCheckTestStartTime));
+
+            FastSameOperationIterator operationsManyChecksWithoutStartTimeCheck = new FastSameOperationIterator(scheduledStartTime, operationCount);
+            Time manyChecksWithoutStartTimeCheckTestStartTime = systemTimeSource.now();
+            while (operationsManyChecksWithoutStartTimeCheck.hasNext())
+                spinnerWithoutStartTimeCheck.waitForScheduledStartTime(operationsManyChecksWithoutStartTimeCheck.next(), manyTrueChecks);
+            manyChecksWithoutStartTimeCheckTestDuration =
+                    manyChecksWithoutStartTimeCheckTestDuration.plus(systemTimeSource.now().durationGreaterThan(manyChecksWithoutStartTimeCheckTestStartTime));
+        }
+
+        singleCheckWithStartTimeCheckTestDuration = Duration.fromNano(singleCheckWithStartTimeCheckTestDuration.asNano() / experimentCount);
+        manyChecksWithStartTimeCheckTestDuration = Duration.fromNano(manyChecksWithStartTimeCheckTestDuration.asNano() / experimentCount);
+        singleCheckWithoutStartTimeCheckTestDuration = Duration.fromNano(singleCheckWithoutStartTimeCheckTestDuration.asNano() / experimentCount);
+        manyChecksWithoutStartTimeCheckTestDuration = Duration.fromNano(manyChecksWithoutStartTimeCheckTestDuration.asNano() / experimentCount);
+
+        System.out.println(String.format("Spinner(start time check = true) (1 true check) processed %s operations in %s time: %s ops/ms, %s ns/op",
+                operationCount, singleCheckWithStartTimeCheckTestDuration, operationCount / singleCheckWithStartTimeCheckTestDuration.asMilli(), singleCheckWithStartTimeCheckTestDuration.asNano() / operationCount));
+
+        System.out.println(String.format("Spinner(start time check = true) (10 true checks) processed %s operations in %s time: %s ops/ms, %s ns/op",
+                operationCount, manyChecksWithStartTimeCheckTestDuration, operationCount / manyChecksWithStartTimeCheckTestDuration.asMilli(), manyChecksWithStartTimeCheckTestDuration.asNano() / operationCount));
+
+        System.out.println(String.format("Spinner(start time check = false) (1 true check) processed %s operations in %s time: %s ops/ms, %s ns/op",
+                operationCount, singleCheckWithoutStartTimeCheckTestDuration, operationCount / singleCheckWithoutStartTimeCheckTestDuration.asMilli(), singleCheckWithoutStartTimeCheckTestDuration.asNano() / operationCount));
+
+        System.out.println(String.format("Spinner(start time check = false) (10 true checks) processed %s operations in %s time: %s ops/ms, %s ns/op",
+                operationCount, manyChecksWithoutStartTimeCheckTestDuration, operationCount / manyChecksWithoutStartTimeCheckTestDuration.asMilli(), manyChecksWithoutStartTimeCheckTestDuration.asNano() / operationCount));
     }
 
     private static class FastSameOperationIterator implements Iterator<Operation<?>> {
@@ -203,101 +293,6 @@ public class SpinnerTests {
 
         @Override
         public void remove() {
-        }
-    }
-
-    private static class SpinningThread extends Thread {
-        private final Spinner spinner;
-        private final Operation<?> operation;
-        private final AtomicBoolean shouldExecuteOperation;
-        private final AtomicBoolean spinnerHasCompleted;
-        private final SpinnerCheck check;
-
-        SpinningThread(Spinner spinner, Operation<?> operation) {
-            this(spinner, operation, null);
-        }
-
-        SpinningThread(Spinner spinner, Operation<?> operation, SpinnerCheck check) {
-            this.spinner = spinner;
-            this.operation = operation;
-            this.check = check;
-            this.spinnerHasCompleted = new AtomicBoolean(false);
-            this.shouldExecuteOperation = new AtomicBoolean(false);
-        }
-
-        @Override
-        public void run() {
-            try {
-                if (null == check)
-                    shouldExecuteOperation.set(spinner.waitForScheduledStartTime(operation));
-                else
-                    shouldExecuteOperation.set(spinner.waitForScheduledStartTime(operation, check));
-                spinnerHasCompleted.set(true);
-            } catch (Throwable e) {
-                e.printStackTrace();
-            }
-        }
-
-        boolean spinnerHasCompleted() {
-            return spinnerHasCompleted.get();
-        }
-
-        boolean shouldExecuteOperation() {
-            return shouldExecuteOperation.get();
-        }
-    }
-
-    private class TrueFalseSpinnerCheck implements SpinnerCheck {
-        private final CheckableDelayPolicy delayPolicy;
-        private final boolean result;
-
-        private TrueFalseSpinnerCheck(CheckableDelayPolicy delayPolicy, boolean result) {
-            this.delayPolicy = delayPolicy;
-            this.result = result;
-        }
-
-        @Override
-        public boolean doCheck() {
-            return result;
-        }
-
-        @Override
-        public boolean handleFailedCheck(Operation<?> operation) {
-            delayPolicy.setCheckResultToFalse();
-            return false;
-        }
-    }
-
-    private class CheckableDelayPolicy implements ExecutionDelayPolicy {
-        private boolean excessiveDelay = false;
-        private boolean checkResult = true;
-        private final Duration toleratedDelay;
-
-        public boolean excessiveDelay() {
-            return excessiveDelay;
-        }
-
-        public void setCheckResultToFalse() {
-            this.checkResult = false;
-        }
-
-        public boolean checkResult() {
-            return checkResult;
-        }
-
-        private CheckableDelayPolicy(Duration toleratedDelay) {
-            this.toleratedDelay = toleratedDelay;
-        }
-
-        @Override
-        public Duration toleratedDelay() {
-            return toleratedDelay;
-        }
-
-        @Override
-        public boolean handleExcessiveDelay(Operation<?> operation) {
-            excessiveDelay = true;
-            return false;
         }
     }
 }

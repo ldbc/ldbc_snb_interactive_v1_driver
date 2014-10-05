@@ -2,12 +2,11 @@ package com.ldbc.driver.runtime.executor;
 
 import com.ldbc.driver.*;
 import com.ldbc.driver.runtime.ConcurrentErrorReporter;
+import com.ldbc.driver.runtime.DefaultQueues;
 import com.ldbc.driver.runtime.coordination.CompletionTimeException;
 import com.ldbc.driver.runtime.coordination.DummyLocalCompletionTimeWriter;
 import com.ldbc.driver.runtime.coordination.LocalCompletionTimeWriter;
 import com.ldbc.driver.runtime.metrics.DummyCollectingConcurrentMetricsService;
-import com.ldbc.driver.runtime.scheduling.ErrorReportingTerminatingExecutionDelayPolicy;
-import com.ldbc.driver.runtime.scheduling.ExecutionDelayPolicy;
 import com.ldbc.driver.runtime.scheduling.Spinner;
 import com.ldbc.driver.temporal.Duration;
 import com.ldbc.driver.temporal.SystemTimeSource;
@@ -73,13 +72,13 @@ public class ThreadPoolOperationHandlerExecutorTest {
         boolean ignoreScheduledStartTime = false;
         Duration toleratedDelay = Duration.fromMilli(100);
         ConcurrentErrorReporter errorReporter = new ConcurrentErrorReporter();
-        ExecutionDelayPolicy delayPolicy = new ErrorReportingTerminatingExecutionDelayPolicy(timeSource, toleratedDelay, errorReporter);
-        Spinner spinner = new Spinner(timeSource, Spinner.DEFAULT_SLEEP_DURATION_10_MILLI, delayPolicy, ignoreScheduledStartTime);
+        Spinner spinner = new Spinner(timeSource, Spinner.DEFAULT_SLEEP_DURATION_10_MILLI, ignoreScheduledStartTime);
         LocalCompletionTimeWriter dummyLocalCompletionTimeWriter = new DummyLocalCompletionTimeWriter();
         DummyCollectingConcurrentMetricsService metricsService = new DummyCollectingConcurrentMetricsService();
 
         int threadCount = 1;
-        OperationHandlerExecutor executor = new ThreadPoolOperationHandlerExecutor(threadCount);
+        int boundedQueueSize = DefaultQueues.DEFAULT_BOUND_100;
+        OperationHandlerExecutor executor = new ThreadPoolOperationHandlerExecutor(threadCount, boundedQueueSize);
 
         Operation<?> operation = new NothingOperation();
         operation.setScheduledStartTime(timeSource.now().plus(Duration.fromMilli(200)));
@@ -120,13 +119,13 @@ public class ThreadPoolOperationHandlerExecutorTest {
         boolean ignoreScheduledStartTime = false;
         Duration toleratedDelay = Duration.fromMilli(100);
         ConcurrentErrorReporter errorReporter = new ConcurrentErrorReporter();
-        ExecutionDelayPolicy delayPolicy = new ErrorReportingTerminatingExecutionDelayPolicy(timeSource, toleratedDelay, errorReporter);
-        Spinner spinner = new Spinner(timeSource, Spinner.DEFAULT_SLEEP_DURATION_10_MILLI, delayPolicy, ignoreScheduledStartTime);
+        Spinner spinner = new Spinner(timeSource, Spinner.DEFAULT_SLEEP_DURATION_10_MILLI, ignoreScheduledStartTime);
         LocalCompletionTimeWriter dummyLocalCompletionTimeWriter = new DummyLocalCompletionTimeWriter();
         DummyCollectingConcurrentMetricsService metricsService = new DummyCollectingConcurrentMetricsService();
 
         int threadCount = 1;
-        OperationHandlerExecutor executor = new ThreadPoolOperationHandlerExecutor(threadCount);
+        int boundedQueueSize = DefaultQueues.DEFAULT_BOUND_100;
+        OperationHandlerExecutor executor = new ThreadPoolOperationHandlerExecutor(threadCount, boundedQueueSize);
 
         Operation<?> operation1 = new NothingOperation();
         operation1.setScheduledStartTime(timeSource.now().plus(Duration.fromMilli(100)));
@@ -185,13 +184,13 @@ public class ThreadPoolOperationHandlerExecutorTest {
         boolean ignoreScheduledStartTime = false;
         Duration toleratedDelay = Duration.fromMilli(100);
         ConcurrentErrorReporter errorReporter = new ConcurrentErrorReporter();
-        ExecutionDelayPolicy delayPolicy = new ErrorReportingTerminatingExecutionDelayPolicy(timeSource, toleratedDelay, errorReporter);
-        Spinner spinner = new Spinner(timeSource, Spinner.DEFAULT_SLEEP_DURATION_10_MILLI, delayPolicy, ignoreScheduledStartTime);
+        Spinner spinner = new Spinner(timeSource, Spinner.DEFAULT_SLEEP_DURATION_10_MILLI, ignoreScheduledStartTime);
         LocalCompletionTimeWriter dummyLocalCompletionTimeWriter = new DummyLocalCompletionTimeWriter();
         DummyCollectingConcurrentMetricsService metricsService = new DummyCollectingConcurrentMetricsService();
 
         int threadCount = 1;
-        OperationHandlerExecutor executor = new ThreadPoolOperationHandlerExecutor(threadCount);
+        int boundedQueueSize = DefaultQueues.DEFAULT_BOUND_100;
+        OperationHandlerExecutor executor = new ThreadPoolOperationHandlerExecutor(threadCount, boundedQueueSize);
 
         Operation<?> operation = new NothingOperation();
         operation.setScheduledStartTime(timeSource.now().plus(Duration.fromMilli(200)));

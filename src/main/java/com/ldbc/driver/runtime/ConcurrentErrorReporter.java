@@ -1,5 +1,7 @@
 package com.ldbc.driver.runtime;
 
+import com.google.common.collect.ImmutableList;
+
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.util.ArrayList;
@@ -7,6 +9,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 
+// TODO rewrite like sync GCT tracker class, to be more threadsafe
 public class ConcurrentErrorReporter {
     public static String stackTraceToString(Throwable e) {
         StringWriter sw = new StringWriter();
@@ -29,8 +32,8 @@ public class ConcurrentErrorReporter {
         StringBuilder sb = new StringBuilder();
         sb.append("- Error Log -");
         // Do this to avoid ConcurrentModificationException in case error is reported while iterating through errors
-        Iterator<ErrorReport> errorsIterator = errors.iterator();
-        while (errorsIterator.hasNext()){
+        Iterator<ErrorReport> errorsIterator = ImmutableList.copyOf(errors).iterator();
+        while (errorsIterator.hasNext()) {
             ErrorReport error = errorsIterator.next();
             sb.append("\n\tSOURCE:\t").append(error.source());
             sb.append("\n\tERROR:\t").append(error.error());

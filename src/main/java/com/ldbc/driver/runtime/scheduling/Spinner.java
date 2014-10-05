@@ -20,22 +20,14 @@ public class Spinner {
 
     public Spinner(TimeSource timeSource,
                    Duration sleepDuration,
-                   ExecutionDelayPolicy executionDelayPolicy,
                    boolean ignoreScheduleStartTimes) {
-        // tolerated delay only applies to actual scheduled start time
-        // offset will move the scheduled start time earlier, but execution "deadline" will still be:
-        //      "deadline" (i.e., latest allowed start time) = (original, i.e.,before offset applied) scheduled start time + tolerated delay
-        long toleratedDelayAsMilli = executionDelayPolicy.toleratedDelay().asMilli();
         this.spinFun = (ignoreScheduleStartTimes)
                 ?
                 new WaitForChecksFun(
-                        executionDelayPolicy,
                         sleepDuration.asMilli())
                 :
                 new WaitForChecksAndScheduledStartTimeFun(
                         timeSource,
-                        executionDelayPolicy,
-                        toleratedDelayAsMilli,
                         sleepDuration.asMilli());
     }
 
@@ -49,11 +41,11 @@ public class Spinner {
      * true  = operation may still be executed
      * false = operation should not be scheduled
      * return value calculated as follows:
-     * true && handleUnassignedScheduledStartTime && handleExcessiveDelay && handleFailedCheck
+     * true && handleFailedCheck
      * i.e., if error occurs it (1) has ability to cancel operation execution (2) can do anything else in its handler
      *
-     * @param operation
-     * @param check
+     * @param operation operation to wait for
+     * @param check     checks that must all pass before spinner returns
      * @return operation may be executed
      */
     public boolean waitForScheduledStartTime(Operation<?> operation, SpinnerCheck check) {
@@ -67,46 +59,27 @@ public class Spinner {
         try {
             Thread.sleep(sleepMs);
         } catch (InterruptedException e) {
+            // do nothing
         }
     }
 
     private static class WaitForChecksAndScheduledStartTimeFun implements Function2<Operation<?>, SpinnerCheck, Boolean> {
         private final TimeSource timeSource;
-        private final ExecutionDelayPolicy executionDelayPolicy;
-        private final long toleratedDelayAccountingForOffsetAsMilli;
         private final long sleepDurationAsMilli;
 
         private WaitForChecksAndScheduledStartTimeFun(TimeSource timeSource,
-                                                      ExecutionDelayPolicy executionDelayPolicy,
-                                                      long toleratedDelayAccountingForOffsetAsMilli,
                                                       long sleepDurationAsMilli) {
             this.timeSource = timeSource;
-            this.executionDelayPolicy = executionDelayPolicy;
-            this.toleratedDelayAccountingForOffsetAsMilli = toleratedDelayAccountingForOffsetAsMilli;
             this.sleepDurationAsMilli = sleepDurationAsMilli;
         }
 
         @Override
         public Boolean apply(Operation<?> operation, SpinnerCheck check) {
-            boolean operationMayBeExecuted = true;
-
             // earliest time at which operation may start
             long scheduledStartTimeAsMilli = operation.scheduledStartTime().asMilli();
-            // latest tolerated time at which operation may start, after this time operation is considered late
-            long latestAllowableStartTimeAsMilli = scheduledStartTimeAsMilli + toleratedDelayAccountingForOffsetAsMilli;
-            // TOO EARLY = <---(now)--(scheduled)[<---delay--->]------> <=(Time Line)
-            // GOOD      = <-----(scheduled)[<-(now)--delay--->]------> <=(Time Line)
-            // TOO LATE  = <-----(scheduled)[<---delay--->]--(now)----> <=(Time Line)
 
             // wait for checks to have all passed before allowing operation to start
-            while (operationMayBeExecuted && false == check.doCheck()) {
-                // give up if checks did not pass before latest tolerated operation start time was exceeded
-                if (timeSource.nowAsMilli() > latestAllowableStartTimeAsMilli) {
-                    boolean failedCheckResult = check.handleFailedCheck(operation);
-                    boolean executionDelayResult = executionDelayPolicy.handleExcessiveDelay(operation);
-                    operationMayBeExecuted = operationMayBeExecuted && failedCheckResult && executionDelayResult;
-                    break;
-                }
+            while (SpinnerCheck.SpinnerCheckResult.STILL_CHECKING == check.doCheck()) {
                 powerNap(sleepDurationAsMilli);
             }
 
@@ -115,45 +88,32 @@ public class Spinner {
                 powerNap(sleepDurationAsMilli);
             }
 
-            // check that excessive delay has not already occurred
-            if (operationMayBeExecuted && timeSource.nowAsMilli() > latestAllowableStartTimeAsMilli) {
-                boolean executionDelayResult = executionDelayPolicy.handleExcessiveDelay(operation);
-                operationMayBeExecuted = operationMayBeExecuted && executionDelayResult;
-            }
-
-            return operationMayBeExecuted;
+            return SpinnerCheck.SpinnerCheckResult.PASSED == check.doCheck();
         }
     }
 
     private static class WaitForChecksFun implements Function2<Operation<?>, SpinnerCheck, Boolean> {
-        // Duration that operation will be executed before scheduled start time
-        // if offset==0 operation will be scheduled at exactly operation.scheduledStartTime()
-        private final ExecutionDelayPolicy executionDelayPolicy;
         private final long sleepDurationAsMilli;
 
-        private WaitForChecksFun(ExecutionDelayPolicy executionDelayPolicy,
-                                 long sleepDurationAsMilli) {
-            this.executionDelayPolicy = executionDelayPolicy;
+        private WaitForChecksFun(long sleepDurationAsMilli) {
             this.sleepDurationAsMilli = sleepDurationAsMilli;
         }
 
         @Override
         public Boolean apply(Operation<?> operation, SpinnerCheck check) {
-            boolean operationMayBeExecuted = true;
-
             // wait for checks to have all passed before allowing operation to start
-            while (operationMayBeExecuted && false == check.doCheck()) {
+            while (SpinnerCheck.SpinnerCheckResult.STILL_CHECKING == check.doCheck()) {
                 powerNap(sleepDurationAsMilli);
             }
 
-            return operationMayBeExecuted;
+            return SpinnerCheck.SpinnerCheckResult.PASSED == check.doCheck();
         }
     }
 
     private static class TrueCheck implements SpinnerCheck {
         @Override
-        public boolean doCheck() {
-            return true;
+        public SpinnerCheckResult doCheck() {
+            return SpinnerCheckResult.PASSED;
         }
 
         @Override

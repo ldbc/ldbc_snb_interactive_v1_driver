@@ -1,16 +1,17 @@
 package com.ldbc.driver.temporal;
 
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicLong;
 
 public class ManualTimeSource implements TimeSource {
-    private long nowAsMilli = 0;
+    private AtomicLong nowAsMilli = new AtomicLong(0);
 
     public ManualTimeSource(long nowAsMilli) {
-        this.nowAsMilli = nowAsMilli;
+        this.nowAsMilli = new AtomicLong(nowAsMilli);
     }
 
     public void setNowFromMilli(long ms) {
-        nowAsMilli = ms;
+        nowAsMilli.set(ms);
     }
 
     @Override
@@ -20,6 +21,6 @@ public class ManualTimeSource implements TimeSource {
 
     @Override
     public long nowAsMilli() {
-        return nowAsMilli;
+        return nowAsMilli.get();
     }
 }

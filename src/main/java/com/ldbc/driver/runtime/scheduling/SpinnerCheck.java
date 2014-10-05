@@ -3,12 +3,18 @@ package com.ldbc.driver.runtime.scheduling;
 import com.ldbc.driver.Operation;
 
 public interface SpinnerCheck {
+    public static enum SpinnerCheckResult{
+        PASSED,
+        STILL_CHECKING,
+        FAILED
+    }
+
     /**
      * Once a check has returned true it may never again return false
      *
      * @return
      */
-    boolean doCheck();
+    SpinnerCheckResult doCheck();
 
 
     /**

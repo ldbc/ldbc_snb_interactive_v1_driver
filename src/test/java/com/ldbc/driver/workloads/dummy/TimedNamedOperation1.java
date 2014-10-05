@@ -5,8 +5,8 @@ import com.ldbc.driver.temporal.Time;
 public class TimedNamedOperation1 extends NothingOperation {
     private final String name;
 
-    public TimedNamedOperation1(Time startTime, Time dependencyTime, String name) {
-        setScheduledStartTime(startTime);
+    public TimedNamedOperation1(Time scheduledStartTime, Time dependencyTime, String name) {
+        setScheduledStartTime(scheduledStartTime);
         setDependencyTime(dependencyTime);
         this.name = name;
     }

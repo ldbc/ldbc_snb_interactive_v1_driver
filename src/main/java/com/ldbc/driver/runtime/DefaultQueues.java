@@ -15,7 +15,7 @@ public class DefaultQueues {
         return new LinkedTransferQueue<>();
     }
 
-    public static final int DEFAULT_BOUND = 100;
+    public static final int DEFAULT_BOUND_100 = 100;
 
     public static <T> BlockingQueue<T> newBlockingBounded(int capacity) {
         return new LinkedBlockingQueue<>(capacity);

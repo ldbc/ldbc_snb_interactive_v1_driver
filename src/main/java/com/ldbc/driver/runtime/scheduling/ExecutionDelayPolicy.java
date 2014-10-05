@@ -14,6 +14,7 @@ public interface ExecutionDelayPolicy {
 
     /**
      * Only called if tolerated delay is exceeded.
+     * TODO consider removing/changing return value, and figure out what it should actually communicate
      * Return value dictates if operation may still be executed, or if execution should be aborted.
      *
      * @param operation

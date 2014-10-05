@@ -10,8 +10,6 @@ import com.ldbc.driver.runtime.coordination.DummyLocalCompletionTimeWriter;
 import com.ldbc.driver.runtime.coordination.LocalCompletionTimeWriter;
 import com.ldbc.driver.runtime.executor.*;
 import com.ldbc.driver.runtime.metrics.ConcurrentMetricsService;
-import com.ldbc.driver.runtime.scheduling.ErrorReportingTerminatingExecutionDelayPolicy;
-import com.ldbc.driver.runtime.scheduling.ExecutionDelayPolicy;
 import com.ldbc.driver.runtime.scheduling.Spinner;
 import com.ldbc.driver.runtime.streams.IteratorSplitter;
 import com.ldbc.driver.runtime.streams.IteratorSplittingException;
@@ -62,23 +60,18 @@ public class WorkloadRunner {
                           int threadCount,
                           Duration statusDisplayInterval,
                           Time workloadStartTime,
-                          Duration toleratedExecutionDelayDuration,
                           Duration spinnerSleepDuration,
                           Duration executionWindowDuration,
                           Duration durationToWaitForAllHandlersToFinishBeforeShutdown,
-                          boolean ignoreScheduleStartTimes) throws WorkloadException {
+                          boolean ignoreScheduleStartTimes,
+                          int operationHandlerExecutorsBoundedQueueSize) throws WorkloadException {
         this.timeSource = timeSource;
         this.errorReporter = errorReporter;
         this.statusDisplayInterval = statusDisplayInterval;
 
-        ExecutionDelayPolicy executionDelayPolicy = new ErrorReportingTerminatingExecutionDelayPolicy(
-                this.timeSource,
-                toleratedExecutionDelayDuration,
-                errorReporter);
-
         // TODO for the spinner sent to Window scheduler allow delay to reach to the end of window?
 
-        this.exactSpinner = new Spinner(this.timeSource, spinnerSleepDuration, executionDelayPolicy, ignoreScheduleStartTimes);
+        this.exactSpinner = new Spinner(this.timeSource, spinnerSleepDuration, ignoreScheduleStartTimes);
         // TODO make this a configuration parameter?
         boolean detailedStatus = true;
         if (statusDisplayInterval.asSeconds() > 0)
@@ -178,9 +171,9 @@ public class WorkloadRunner {
         // TODO get thread counts from config, or in more intelligent manner
         // TODO move thread pool creation into executor services so workload runner does not have to know about them
         // TODO calculate thread pool sizes
-        this.threadPoolForWindowed = new ThreadPoolOperationHandlerExecutor(threadCount);
+        this.threadPoolForWindowed = new ThreadPoolOperationHandlerExecutor(threadCount, operationHandlerExecutorsBoundedQueueSize);
         this.threadPoolForBlocking = new SameThreadOperationHandlerExecutor();
-        this.threadPoolForAsynchronous = new ThreadPoolOperationHandlerExecutor(threadCount);
+        this.threadPoolForAsynchronous = new ThreadPoolOperationHandlerExecutor(threadCount, operationHandlerExecutorsBoundedQueueSize);
 
         // Executors
         this.preciseIndividualAsyncOperationStreamExecutorService = new PreciseIndividualAsyncOperationStreamExecutorService(

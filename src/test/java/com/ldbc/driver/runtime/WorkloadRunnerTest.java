@@ -14,8 +14,11 @@ import com.ldbc.driver.runtime.metrics.ConcurrentMetricsService;
 import com.ldbc.driver.runtime.metrics.MetricsCollectionException;
 import com.ldbc.driver.runtime.metrics.ThreadedQueuedConcurrentMetricsService;
 import com.ldbc.driver.runtime.metrics.WorkloadResultsSnapshot;
+import com.ldbc.driver.runtime.scheduling.ErrorReportingTerminatingExecutionDelayPolicy;
+import com.ldbc.driver.runtime.scheduling.ExecutionDelayPolicy;
 import com.ldbc.driver.temporal.Duration;
 import com.ldbc.driver.temporal.SystemTimeSource;
+import com.ldbc.driver.temporal.Time;
 import com.ldbc.driver.temporal.TimeSource;
 import com.ldbc.driver.testutils.TestUtils;
 import com.ldbc.driver.workloads.ldbc.snb.interactive.LdbcSnbInteractiveWorkload;
@@ -35,7 +38,7 @@ import static org.junit.Assert.assertThat;
 public class WorkloadRunnerTest {
     @Rule
     public TemporaryFolder temporaryFolder = new TemporaryFolder();
-    private static final long ONE_SECOND_AS_NANO = 1000000000;
+    private static final long ONE_SECOND_AS_NANO = Time.fromSeconds(1).asNano();
 
     TimeSource timeSource = new SystemTimeSource();
     CompletionTimeServiceAssistant completionTimeServiceAssistant = new CompletionTimeServiceAssistant();
@@ -57,6 +60,7 @@ public class WorkloadRunnerTest {
         Workload workload = null;
         ConcurrentMetricsService metricsService = null;
         ConcurrentCompletionTimeService completionTimeService = null;
+        ConcurrentErrorReporter errorReporter = new ConcurrentErrorReporter();
         try {
             Map<String, String> paramsMap = LdbcSnbInteractiveWorkload.defaultReadOnlyConfig();
             paramsMap.put(LdbcSnbInteractiveWorkload.PARAMETERS_DIRECTORY, TestUtils.getResource("/").getAbsolutePath());
@@ -93,21 +97,25 @@ public class WorkloadRunnerTest {
             Iterator<Operation<?>> operations = workload.operations(generators, configuration.operationCount());
             Iterator<Operation<?>> timeMappedOperations = generators.timeOffsetAndCompress(operations, controlService.workloadStartTime(), 1.0);
             Map<Class<? extends Operation>, OperationClassification> operationClassifications = workload.operationClassifications();
-            ConcurrentErrorReporter errorReporter = new ConcurrentErrorReporter();
             boolean recordStartTimeDelayLatency = false == configuration.ignoreScheduledStartTimes();
+            ExecutionDelayPolicy executionDelayPolicy = new ErrorReportingTerminatingExecutionDelayPolicy(
+                    timeSource,
+                    toleratedExecutionDelay,
+                    errorReporter);
             metricsService = ThreadedQueuedConcurrentMetricsService.newInstanceUsingBlockingQueue(
                     timeSource,
                     errorReporter,
                     configuration.timeUnit(),
                     controlService.workloadStartTime(),
                     ThreadedQueuedConcurrentMetricsService.DEFAULT_HIGHEST_EXPECTED_RUNTIME_DURATION,
-                    ThreadedQueuedConcurrentMetricsService.DEFAULT_HIGHEST_EXPECTED_DELAY_DURATION,
-                    recordStartTimeDelayLatency);
+                    recordStartTimeDelayLatency,
+                    executionDelayPolicy);
 
             ConcurrentCompletionTimeService concurrentCompletionTimeService =
                     completionTimeServiceAssistant.newSynchronizedConcurrentCompletionTimeServiceFromPeerIds(
                             controlService.configuration().peerIds());
 
+            int boundedQueueSize = DefaultQueues.DEFAULT_BOUND_100;
             WorkloadRunner runner = new WorkloadRunner(
                     timeSource,
                     db,
@@ -119,11 +127,11 @@ public class WorkloadRunnerTest {
                     controlService.configuration().threadCount(),
                     controlService.configuration().statusDisplayInterval(),
                     controlService.workloadStartTime(),
-                    controlService.configuration().toleratedExecutionDelay(),
                     controlService.configuration().spinnerSleepDuration(),
                     controlService.configuration().windowedExecutionWindowDuration(),
                     WorkloadRunner.DEFAULT_DURATION_TO_WAIT_FOR_ALL_HANDLERS_TO_FINISH,
-                    controlService.configuration().ignoreScheduledStartTimes());
+                    controlService.configuration().ignoreScheduledStartTimes(),
+                    boundedQueueSize);
 
 
             runner.executeWorkload();
@@ -143,6 +151,8 @@ public class WorkloadRunnerTest {
 
             double operationsPerSecond = Math.round(((double) operationCount / workloadResults.totalRunDuration().asNano()) * ONE_SECOND_AS_NANO);
             System.out.println(String.format("[%s threads] Completed %s operations in %s = %s op/sec", threadCount, operationCount, workloadResults.totalRunDuration(), operationsPerSecond));
+        } catch (Throwable e) {
+            System.out.println(errorReporter.toString() + "\n" + ConcurrentErrorReporter.stackTraceToString(e));
         } finally {
             if (null != controlService) controlService.shutdown();
             if (null != db) db.shutdown();
@@ -169,6 +179,7 @@ public class WorkloadRunnerTest {
         Workload workload = null;
         ConcurrentMetricsService metricsService = null;
         ConcurrentCompletionTimeService completionTimeService = null;
+        ConcurrentErrorReporter errorReporter = new ConcurrentErrorReporter();
         try {
             Map<String, String> paramsMap = LdbcSnbInteractiveWorkload.defaultReadOnlyConfig();
             paramsMap.put(LdbcSnbInteractiveWorkload.PARAMETERS_DIRECTORY, TestUtils.getResource("/").getAbsolutePath());
@@ -205,21 +216,25 @@ public class WorkloadRunnerTest {
             Iterator<Operation<?>> operations = workload.operations(generators, configuration.operationCount());
             Iterator<Operation<?>> timeMappedOperations = generators.timeOffsetAndCompress(operations, controlService.workloadStartTime(), 1.0);
             Map<Class<? extends Operation>, OperationClassification> operationClassifications = workload.operationClassifications();
-            ConcurrentErrorReporter errorReporter = new ConcurrentErrorReporter();
             boolean recordStartTimeDelayLatency = false == configuration.ignoreScheduledStartTimes();
+            ExecutionDelayPolicy executionDelayPolicy = new ErrorReportingTerminatingExecutionDelayPolicy(
+                    timeSource,
+                    toleratedExecutionDelay,
+                    errorReporter);
             metricsService = ThreadedQueuedConcurrentMetricsService.newInstanceUsingBlockingQueue(
                     timeSource,
                     errorReporter,
                     configuration.timeUnit(),
                     controlService.workloadStartTime(),
                     ThreadedQueuedConcurrentMetricsService.DEFAULT_HIGHEST_EXPECTED_RUNTIME_DURATION,
-                    ThreadedQueuedConcurrentMetricsService.DEFAULT_HIGHEST_EXPECTED_DELAY_DURATION,
-                    recordStartTimeDelayLatency);
+                    recordStartTimeDelayLatency,
+                    executionDelayPolicy);
 
             ConcurrentCompletionTimeService concurrentCompletionTimeService =
                     completionTimeServiceAssistant.newSynchronizedConcurrentCompletionTimeServiceFromPeerIds(
                             controlService.configuration().peerIds());
 
+            int boundedQueueSize = DefaultQueues.DEFAULT_BOUND_100;
             WorkloadRunner runner = new WorkloadRunner(
                     timeSource,
                     db,
@@ -231,11 +246,11 @@ public class WorkloadRunnerTest {
                     controlService.configuration().threadCount(),
                     controlService.configuration().statusDisplayInterval(),
                     controlService.workloadStartTime(),
-                    controlService.configuration().toleratedExecutionDelay(),
                     controlService.configuration().spinnerSleepDuration(),
                     controlService.configuration().windowedExecutionWindowDuration(),
                     WorkloadRunner.DEFAULT_DURATION_TO_WAIT_FOR_ALL_HANDLERS_TO_FINISH,
-                    controlService.configuration().ignoreScheduledStartTimes());
+                    controlService.configuration().ignoreScheduledStartTimes(),
+                    boundedQueueSize);
 
 
             runner.executeWorkload();
@@ -255,6 +270,8 @@ public class WorkloadRunnerTest {
 
             double operationsPerSecond = Math.round(((double) operationCount / workloadResults.totalRunDuration().asNano()) * ONE_SECOND_AS_NANO);
             System.out.println(String.format("[%s threads] Completed %s operations in %s = %s op/sec", threadCount, operationCount, workloadResults.totalRunDuration(), operationsPerSecond));
+        } catch (Throwable e) {
+            System.out.println(errorReporter.toString() + "\n" + ConcurrentErrorReporter.stackTraceToString(e));
         } finally {
             if (null != controlService) controlService.shutdown();
             if (null != db) db.shutdown();

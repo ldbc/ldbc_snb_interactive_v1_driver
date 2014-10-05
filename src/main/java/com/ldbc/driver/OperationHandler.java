@@ -110,8 +110,6 @@ public abstract class OperationHandler<OPERATION_TYPE extends Operation<?>> impl
             }
             operationResultReport.setRunDuration(Duration.fromMilli(finishTimeAsMilli - startTimeAsMilli));
             operationResultReport.setActualStartTime(Time.fromMilli(startTimeAsMilli));
-            operationResultReport.setOperationType(operation.type());
-            operationResultReport.setScheduledStartTime(operation.scheduledStartTime());
             localCompletionTimeWriter.submitLocalCompletedTime(operation.scheduledStartTime());
             metricsService.submitOperationResult(operationResultReport);
         } catch (DbException e) {

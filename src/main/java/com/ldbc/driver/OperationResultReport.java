@@ -6,15 +6,15 @@ import com.ldbc.driver.temporal.Time;
 public class OperationResultReport {
     private final int resultCode;
     private final Object operationResult;
+    private final Operation<?> operation;
 
-    private Time scheduledStartTime = null;
     private Time actualStartTime = null;
     private Duration runDuration = null;
-    private String operationType = null;
 
-    OperationResultReport(int resultCode, Object operationResult) {
+    OperationResultReport(int resultCode, Object operationResult, Operation<?> operation) {
         this.resultCode = resultCode;
         this.operationResult = operationResult;
+        this.operation = operation;
     }
 
     public int resultCode() {
@@ -23,14 +23,6 @@ public class OperationResultReport {
 
     public Object operationResult() {
         return operationResult;
-    }
-
-    public Time scheduledStartTime() {
-        return scheduledStartTime;
-    }
-
-    void setScheduledStartTime(Time scheduledStartTime) {
-        this.scheduledStartTime = scheduledStartTime;
     }
 
     public Time actualStartTime() {
@@ -49,18 +41,14 @@ public class OperationResultReport {
         this.runDuration = runDuration;
     }
 
-    public String operationType() {
-        return operationType;
-    }
-
-    void setOperationType(String operationType) {
-        this.operationType = operationType;
+    public Operation<?> operation() {
+        return operation;
     }
 
     @Override
     public String toString() {
         return "OperationResultReport [resultCode=" + resultCode + ", operationResult=" + operationResult + ", scheduledStartTime="
-                + scheduledStartTime + ", actualStartTime=" + actualStartTime + ", runDuration=" + runDuration
-                + ", operationType=" + operationType + "]";
+                + operation.scheduledStartTime() + ", actualStartTime=" + actualStartTime + ", runDuration=" + runDuration
+                + ", operationType=" + operation.type() + "]";
     }
 }

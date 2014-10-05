@@ -26,8 +26,8 @@ public class SingleThreadOperationHandlerExecutor implements OperationHandlerExe
     private final AtomicLong uncompletedHandlers = new AtomicLong(0);
     private final AtomicBoolean shutdown = new AtomicBoolean(false);
 
-    public SingleThreadOperationHandlerExecutor(ConcurrentErrorReporter errorReporter) {
-        Queue<OperationHandler<?>> operationHandlerQueue = DefaultQueues.newAlwaysBlockingBounded(DefaultQueues.DEFAULT_BOUND);
+    public SingleThreadOperationHandlerExecutor(ConcurrentErrorReporter errorReporter, int boundedQueueSize) {
+        Queue<OperationHandler<?>> operationHandlerQueue = DefaultQueues.newAlwaysBlockingBounded(boundedQueueSize);
         this.operationHandlerQueueEventSubmitter = QueueEventSubmitter.queueEventSubmitterFor(operationHandlerQueue);
         this.executorThread = new SingleThreadOperationHandlerExecutorThread(operationHandlerQueue, errorReporter, uncompletedHandlers);
         this.executorThread.start();

@@ -19,16 +19,16 @@ public class GctDependencyCheck implements SpinnerCheck {
     }
 
     @Override
-    public boolean doCheck() {
+    public SpinnerCheckResult doCheck() {
         try {
-            return globalCompletionTimeReader.globalCompletionTime().gte(operation.dependencyTime());
+            return (globalCompletionTimeReader.globalCompletionTime().gte(operation.dependencyTime())) ? SpinnerCheckResult.PASSED : SpinnerCheckResult.STILL_CHECKING;
         } catch (CompletionTimeException e) {
             errorReporter.reportError(this,
                     String.format(
                             "Error encountered while reading GCT for query %s\n%s",
                             operation.getClass().getSimpleName(),
                             ConcurrentErrorReporter.stackTraceToString(e)));
-            return false;
+            return SpinnerCheckResult.FAILED;
         }
     }
 

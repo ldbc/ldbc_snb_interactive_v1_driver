@@ -6,12 +6,15 @@ import com.ldbc.driver.control.*;
 import com.ldbc.driver.generator.GeneratorFactory;
 import com.ldbc.driver.generator.RandomDataGeneratorFactory;
 import com.ldbc.driver.runtime.ConcurrentErrorReporter;
+import com.ldbc.driver.runtime.DefaultQueues;
 import com.ldbc.driver.runtime.WorkloadRunner;
 import com.ldbc.driver.runtime.coordination.CompletionTimeException;
 import com.ldbc.driver.runtime.coordination.CompletionTimeServiceAssistant;
 import com.ldbc.driver.runtime.coordination.ConcurrentCompletionTimeService;
 import com.ldbc.driver.runtime.coordination.LocalCompletionTimeWriter;
 import com.ldbc.driver.runtime.metrics.*;
+import com.ldbc.driver.runtime.scheduling.ErrorReportingTerminatingExecutionDelayPolicy;
+import com.ldbc.driver.runtime.scheduling.ExecutionDelayPolicy;
 import com.ldbc.driver.temporal.Duration;
 import com.ldbc.driver.temporal.SystemTimeSource;
 import com.ldbc.driver.temporal.Time;
@@ -209,14 +212,18 @@ public class Client {
             }
 
             boolean recordStartTimeDelayLatency = false == controlService.configuration().ignoreScheduledStartTimes();
+            ExecutionDelayPolicy executionDelayPolicy = new ErrorReportingTerminatingExecutionDelayPolicy(
+                    timeSource,
+                    controlService.configuration().toleratedExecutionDelay(),
+                    errorReporter);
             metricsService = ThreadedQueuedConcurrentMetricsService.newInstanceUsingBlockingQueue(
                     timeSource,
                     errorReporter,
                     controlService.configuration().timeUnit(),
                     controlService.workloadStartTime(),
                     ThreadedQueuedConcurrentMetricsService.DEFAULT_HIGHEST_EXPECTED_RUNTIME_DURATION,
-                    controlService.configuration().toleratedExecutionDelay(),
-                    recordStartTimeDelayLatency);
+                    recordStartTimeDelayLatency,
+                    executionDelayPolicy);
             GeneratorFactory generators = new GeneratorFactory(new RandomDataGeneratorFactory(RANDOM_SEED));
 
             logger.info(String.format("Retrieving operation stream for workload: %s", workload.getClass().getSimpleName()));
@@ -250,6 +257,7 @@ public class Client {
             try {
                 // TODO will not be necessary once operations have maximum execution time
                 Duration durationToWaitForAllHandlersToFinishBeforeShutdown = WorkloadRunner.DEFAULT_DURATION_TO_WAIT_FOR_ALL_HANDLERS_TO_FINISH;
+                int operationHandlerExecutorsBoundedQueueSize = DefaultQueues.DEFAULT_BOUND_100;
                 workloadRunner = new WorkloadRunner(
                         timeSource,
                         db,
@@ -261,11 +269,11 @@ public class Client {
                         controlService.configuration().threadCount(),
                         controlService.configuration().statusDisplayInterval(),
                         controlService.workloadStartTime(),
-                        controlService.configuration().toleratedExecutionDelay(),
                         controlService.configuration().spinnerSleepDuration(),
                         controlService.configuration().windowedExecutionWindowDuration(),
                         durationToWaitForAllHandlersToFinishBeforeShutdown,
-                        controlService.configuration().ignoreScheduledStartTimes());
+                        controlService.configuration().ignoreScheduledStartTimes(),
+                        operationHandlerExecutorsBoundedQueueSize);
             } catch (WorkloadException e) {
                 throw new ClientException(String.format("Error instantiating %s", WorkloadRunner.class.getSimpleName()), e);
             }

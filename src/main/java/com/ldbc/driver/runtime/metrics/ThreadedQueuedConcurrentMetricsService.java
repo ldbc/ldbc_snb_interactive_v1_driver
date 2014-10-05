@@ -4,6 +4,7 @@ import com.ldbc.driver.OperationResultReport;
 import com.ldbc.driver.runtime.ConcurrentErrorReporter;
 import com.ldbc.driver.runtime.DefaultQueues;
 import com.ldbc.driver.runtime.QueueEventSubmitter;
+import com.ldbc.driver.runtime.scheduling.ExecutionDelayPolicy;
 import com.ldbc.driver.temporal.Duration;
 import com.ldbc.driver.temporal.Time;
 import com.ldbc.driver.temporal.TimeSource;
@@ -18,6 +19,7 @@ import java.util.concurrent.atomic.AtomicReference;
 
 public class ThreadedQueuedConcurrentMetricsService implements ConcurrentMetricsService {
     private static final Duration SHUTDOWN_WAIT_TIMEOUT = Duration.fromSeconds(5);
+    private static final Duration FUTURE_GET_TIMEOUT = Duration.fromSeconds(5);
 
     // TODO this could come from config, if we had a max_runtime parameter. for now, it can default to something
     public static final Duration DEFAULT_HIGHEST_EXPECTED_RUNTIME_DURATION = Duration.fromMinutes(30);
@@ -34,8 +36,8 @@ public class ThreadedQueuedConcurrentMetricsService implements ConcurrentMetrics
                                                                                           TimeUnit unit,
                                                                                           Time initialTime,
                                                                                           Duration maxRuntimeDuration,
-                                                                                          Duration maxToleratedDelayDuration,
-                                                                                          boolean recordStartTimeDelayLatency) {
+                                                                                          boolean recordStartTimeDelayLatency,
+                                                                                          ExecutionDelayPolicy executionDelayPolicy) {
         Queue<MetricsCollectionEvent> queue = DefaultQueues.newNonBlocking();
         return new ThreadedQueuedConcurrentMetricsService(
                 timeSource,
@@ -43,9 +45,9 @@ public class ThreadedQueuedConcurrentMetricsService implements ConcurrentMetrics
                 unit,
                 initialTime,
                 maxRuntimeDuration,
-                maxToleratedDelayDuration,
                 queue,
-                recordStartTimeDelayLatency);
+                recordStartTimeDelayLatency,
+                executionDelayPolicy);
     }
 
     public static ThreadedQueuedConcurrentMetricsService newInstanceUsingBlockingQueue(TimeSource timeSource,
@@ -53,8 +55,8 @@ public class ThreadedQueuedConcurrentMetricsService implements ConcurrentMetrics
                                                                                        TimeUnit unit,
                                                                                        Time initialTime,
                                                                                        Duration maxRuntimeDuration,
-                                                                                       Duration maxToleratedDelayDuration,
-                                                                                       boolean recordStartTimeDelayLatency) {
+                                                                                       boolean recordStartTimeDelayLatency,
+                                                                                       ExecutionDelayPolicy executionDelayPolicy) {
         Queue<MetricsCollectionEvent> queue = DefaultQueues.newBlockingUnbounded();
         return new ThreadedQueuedConcurrentMetricsService(
                 timeSource,
@@ -62,9 +64,9 @@ public class ThreadedQueuedConcurrentMetricsService implements ConcurrentMetrics
                 unit,
                 initialTime,
                 maxRuntimeDuration,
-                maxToleratedDelayDuration,
                 queue,
-                recordStartTimeDelayLatency);
+                recordStartTimeDelayLatency,
+                executionDelayPolicy);
     }
 
     private ThreadedQueuedConcurrentMetricsService(TimeSource timeSource,
@@ -72,18 +74,18 @@ public class ThreadedQueuedConcurrentMetricsService implements ConcurrentMetrics
                                                    TimeUnit unit,
                                                    Time initialTime,
                                                    Duration maxRuntimeDuration,
-                                                   Duration maxToleratedDelayDuration,
                                                    Queue<MetricsCollectionEvent> queue,
-                                                   boolean recordStartTimeDelayLatency) {
+                                                   boolean recordStartTimeDelayLatency,
+                                                   ExecutionDelayPolicy executionDelayPolicy) {
         this.timeSource = timeSource;
-
         this.queueEventSubmitter = QueueEventSubmitter.queueEventSubmitterFor(queue);
-
         this.initiatedEvents = new AtomicLong(0);
         threadedQueuedConcurrentMetricsServiceThread = new ThreadedQueuedConcurrentMetricsServiceThread(
                 errorReporter,
                 queue,
-                new MetricsManager(timeSource, unit, initialTime, maxRuntimeDuration, maxToleratedDelayDuration, recordStartTimeDelayLatency));
+                new MetricsManager(timeSource, unit, initialTime, maxRuntimeDuration, executionDelayPolicy.toleratedDelay(), recordStartTimeDelayLatency),
+                recordStartTimeDelayLatency,
+                executionDelayPolicy);
         threadedQueuedConcurrentMetricsServiceThread.start();
     }
 
@@ -109,8 +111,10 @@ public class ThreadedQueuedConcurrentMetricsService implements ConcurrentMetrics
         try {
             MetricsStatusFuture statusFuture = new MetricsStatusFuture(timeSource);
             queueEventSubmitter.submitEventToQueue(MetricsCollectionEvent.status(statusFuture));
-            return statusFuture.get();
+            return statusFuture.get(FUTURE_GET_TIMEOUT.asMilli(),TimeUnit.MILLISECONDS);
         } catch (InterruptedException e) {
+            throw new MetricsCollectionException("Error while submitting request for workload status", e);
+        } catch (TimeoutException e) {
             throw new MetricsCollectionException("Error while submitting request for workload status", e);
         }
     }
@@ -123,8 +127,10 @@ public class ThreadedQueuedConcurrentMetricsService implements ConcurrentMetrics
         try {
             MetricsWorkloadResultFuture workloadResultFuture = new MetricsWorkloadResultFuture(timeSource);
             queueEventSubmitter.submitEventToQueue(MetricsCollectionEvent.workloadResult(workloadResultFuture));
-            return workloadResultFuture.get();
+            return workloadResultFuture.get(FUTURE_GET_TIMEOUT.asMilli(),TimeUnit.MILLISECONDS);
         } catch (InterruptedException e) {
+            throw new MetricsCollectionException("Error while submitting request for workload results", e);
+        } catch (TimeoutException e) {
             throw new MetricsCollectionException("Error while submitting request for workload results", e);
         }
     }

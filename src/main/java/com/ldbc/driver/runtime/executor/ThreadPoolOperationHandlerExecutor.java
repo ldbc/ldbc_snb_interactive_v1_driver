@@ -14,7 +14,7 @@ public class ThreadPoolOperationHandlerExecutor implements OperationHandlerExecu
     private final AtomicLong uncompletedHandlers = new AtomicLong(0);
     private final AtomicBoolean shutdown = new AtomicBoolean(false);
 
-    public ThreadPoolOperationHandlerExecutor(int threadCount) {
+    public ThreadPoolOperationHandlerExecutor(int threadCount, int boundedQueueSize) {
         ThreadFactory threadFactory = new ThreadFactory() {
             private final long factoryTimeStampId = System.currentTimeMillis();
             int count = 0;
@@ -27,7 +27,7 @@ public class ThreadPoolOperationHandlerExecutor implements OperationHandlerExecu
                 return newThread;
             }
         };
-        this.threadPoolExecutorService = ThreadPoolExecutorWithAfterExecute.newFixedThreadPool(threadCount, threadFactory, uncompletedHandlers);
+        this.threadPoolExecutorService = ThreadPoolExecutorWithAfterExecute.newFixedThreadPool(threadCount, threadFactory, uncompletedHandlers, boundedQueueSize);
     }
 
     @Override
@@ -66,12 +66,12 @@ public class ThreadPoolOperationHandlerExecutor implements OperationHandlerExecu
     }
 
     private static class ThreadPoolExecutorWithAfterExecute extends ThreadPoolExecutor {
-        public static ThreadPoolExecutorWithAfterExecute newFixedThreadPool(int threadCount, ThreadFactory threadFactory, AtomicLong uncompletedHandlers) {
+        public static ThreadPoolExecutorWithAfterExecute newFixedThreadPool(int threadCount, ThreadFactory threadFactory, AtomicLong uncompletedHandlers, int boundedQueueSize) {
             int corePoolSize = threadCount;
             int maximumPoolSize = threadCount;
             long keepAliveTime = 0;
             TimeUnit unit = TimeUnit.MILLISECONDS;
-            BlockingQueue<Runnable> workQueue = DefaultQueues.newAlwaysBlockingBounded(DefaultQueues.DEFAULT_BOUND);
+            BlockingQueue<Runnable> workQueue = DefaultQueues.newAlwaysBlockingBounded(boundedQueueSize);
             return new ThreadPoolExecutorWithAfterExecute(corePoolSize, maximumPoolSize, keepAliveTime, unit, workQueue, threadFactory, uncompletedHandlers);
         }
 

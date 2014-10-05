@@ -47,7 +47,7 @@ public class OperationTypeMetricsManager {
         // Measure driver performance - how close is it to target throughput
         //
         if (recordStartTimeDelayLatency) {
-            Duration startTimeDelay = operationResultReport.actualStartTime().durationGreaterThan(operationResultReport.scheduledStartTime());
+            Duration startTimeDelay = operationResultReport.actualStartTime().durationGreaterThan(operationResultReport.operation().scheduledStartTime());
             long startTimeDelayInAppropriateUnit = startTimeDelay.as(durationUnit);
             try {
                 startTimeDelayMetric.addMeasurement(startTimeDelayInAppropriateUnit);

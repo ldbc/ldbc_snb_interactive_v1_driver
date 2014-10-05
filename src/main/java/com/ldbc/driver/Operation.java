@@ -23,7 +23,7 @@ public abstract class Operation<RESULT_TYPE> {
     }
 
     public final OperationResultReport buildResult(int resultCode, RESULT_TYPE result) {
-        return new OperationResultReport(resultCode, result);
+        return new OperationResultReport(resultCode, result, this);
     }
 
     public String type() {
