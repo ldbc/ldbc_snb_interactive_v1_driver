@@ -168,6 +168,8 @@ public class Client {
         private ConcurrentCompletionTimeService completionTimeService = null;
         private WorkloadRunner workloadRunner = null;
 
+        CsvFileWriter csvResultsLogFileWriter = null;
+
         ExecuteWorkloadMode(ConcurrentControlService controlService, TimeSource timeSource) throws ClientException {
             this.controlService = controlService;
             this.timeSource = timeSource;
@@ -216,6 +218,23 @@ public class Client {
                     timeSource,
                     controlService.configuration().toleratedExecutionDelay(),
                     errorReporter);
+
+            if (null != controlService.configuration().resultDirPath() && controlService.configuration().shouldCreateResultsLog()) {
+                File resultDir = new File(controlService.configuration().resultDirPath());
+                File resultsLog = new File(resultDir, controlService.configuration().name() + ThreadedQueuedConcurrentMetricsService.RESULTS_LOG_FILENAME_SUFFIX);
+                try {
+                    csvResultsLogFileWriter = new CsvFileWriter(resultsLog, CsvFileWriter.DEFAULT_COLUMN_SEPARATOR);
+                    csvResultsLogFileWriter.writeRow(
+                            "operation_type",
+                            "scheduled_start_time",
+                            "actual_start_time",
+                            "execution_duration");
+                } catch (IOException e) {
+                    throw new ClientException(
+                            String.format("Error while creating results log file: ", resultsLog.getAbsolutePath()), e);
+                }
+            }
+
             metricsService = ThreadedQueuedConcurrentMetricsService.newInstanceUsingBlockingQueue(
                     timeSource,
                     errorReporter,
@@ -223,7 +242,8 @@ public class Client {
                     controlService.workloadStartTime(),
                     ThreadedQueuedConcurrentMetricsService.DEFAULT_HIGHEST_EXPECTED_RUNTIME_DURATION,
                     recordStartTimeDelayLatency,
-                    executionDelayPolicy);
+                    executionDelayPolicy,
+                    csvResultsLogFileWriter);
             GeneratorFactory generators = new GeneratorFactory(new RandomDataGeneratorFactory(RANDOM_SEED));
 
             logger.info(String.format("Retrieving operation stream for workload: %s", workload.getClass().getSimpleName()));
@@ -277,7 +297,6 @@ public class Client {
             } catch (WorkloadException e) {
                 throw new ClientException(String.format("Error instantiating %s", WorkloadRunner.class.getSimpleName()), e);
             }
-            logger.info(String.format("Instantiated %s - Operation Count = %s", WorkloadRunner.class.getSimpleName(), controlService.configuration().operationCount()));
 
             logger.info("Initializing driver");
             try {
@@ -368,10 +387,10 @@ public class Client {
                 MetricsManager.export(workloadResults, new SimpleOperationMetricsFormatter(), System.out, Charsets.UTF_8);
                 if (null != controlService.configuration().resultDirPath()) {
                     File resultDir = new File(controlService.configuration().resultDirPath());
-                    File resultFile = new File(resultDir, controlService.configuration().name() + "-results.json");
+                    File resultFile = new File(resultDir, controlService.configuration().name() + ThreadedQueuedConcurrentMetricsService.RESULTS_METRICS_FILENAME_SUFFIX);
                     MetricsManager.export(workloadResults, new JsonOperationMetricsFormatter(), new FileOutputStream(resultFile), Charsets.UTF_8);
 
-                    File configurationFile = new File(resultDir, controlService.configuration().name() + "-configuration.properties");
+                    File configurationFile = new File(resultDir, controlService.configuration().name() + ThreadedQueuedConcurrentMetricsService.RESULTS_CONFIGURATION_FILENAME_SUFFIX);
                     try (PrintStream out = new PrintStream(new FileOutputStream(configurationFile))) {
                         out.print(controlService.configuration().toPropertiesString());
                     } catch (DriverConfigurationException e) {
@@ -382,10 +401,15 @@ public class Client {
                                 e
                         );
                     }
+                    if (null != csvResultsLogFileWriter) {
+                        csvResultsLogFileWriter.close();
+                    }
                 }
             } catch (MetricsCollectionException e) {
                 throw new ClientException("Could not export workload metrics", e);
             } catch (FileNotFoundException e) {
+                throw new ClientException("Error encountered while trying to write results", e);
+            } catch (IOException e) {
                 throw new ClientException("Error encountered while trying to write results", e);
             }
         }

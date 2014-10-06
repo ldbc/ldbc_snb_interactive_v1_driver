@@ -10,11 +10,13 @@ import com.ldbc.driver.control.DriverConfigurationFileTestHelper;
 import com.ldbc.driver.control.LocalControlService;
 import com.ldbc.driver.generator.GeneratorFactory;
 import com.ldbc.driver.generator.RandomDataGeneratorFactory;
+import com.ldbc.driver.runtime.metrics.ThreadedQueuedConcurrentMetricsService;
 import com.ldbc.driver.temporal.Duration;
 import com.ldbc.driver.temporal.SystemTimeSource;
 import com.ldbc.driver.temporal.Time;
 import com.ldbc.driver.temporal.TimeSource;
 import com.ldbc.driver.testutils.TestUtils;
+import com.ldbc.driver.util.CsvFileReader;
 import com.ldbc.driver.validation.WorkloadValidationResult;
 import com.ldbc.driver.workloads.simple.db.BasicDb;
 import org.junit.Ignore;
@@ -58,6 +60,7 @@ public class SimpleWorkloadTest {
         Duration spinnerSleepDuration = Duration.fromMilli(0);
         boolean printHelp = false;
         boolean ignoreScheduledStartTimes = false;
+        boolean shouldCreateResultsLog = false;
 
         ConsoleAndFileDriverConfiguration params =
                 new ConsoleAndFileDriverConfiguration(
@@ -80,7 +83,9 @@ public class SimpleWorkloadTest {
                         calculateWorkloadStatistics,
                         spinnerSleepDuration,
                         printHelp,
-                        ignoreScheduledStartTimes);
+                        ignoreScheduledStartTimes,
+                        shouldCreateResultsLog
+                );
 
         Workload workload = new SimpleWorkload();
         workload.init(params);
@@ -114,6 +119,7 @@ public class SimpleWorkloadTest {
         Duration spinnerSleepDuration = Duration.fromMilli(0);
         boolean printHelp = false;
         boolean ignoreScheduledStartTimes = false;
+        boolean shouldCreateResultsLog = false;
 
         ConsoleAndFileDriverConfiguration params =
                 new ConsoleAndFileDriverConfiguration(
@@ -136,7 +142,9 @@ public class SimpleWorkloadTest {
                         calculateWorkloadStatistics,
                         spinnerSleepDuration,
                         printHelp,
-                        ignoreScheduledStartTimes);
+                        ignoreScheduledStartTimes,
+                        shouldCreateResultsLog
+                );
 
         Workload workload = new SimpleWorkload();
         workload.init(params);
@@ -197,6 +205,7 @@ public class SimpleWorkloadTest {
         Duration spinnerSleepDuration = Duration.fromMilli(0);
         boolean printHelp = false;
         boolean ignoreScheduledStartTimes = false;
+        boolean shouldCreateResultsLog = true;
 
         ConsoleAndFileDriverConfiguration params = new ConsoleAndFileDriverConfiguration(
                 paramsMap,
@@ -218,7 +227,9 @@ public class SimpleWorkloadTest {
                 calculateWorkloadStatistics,
                 spinnerSleepDuration,
                 printHelp,
-                ignoreScheduledStartTimes);
+                ignoreScheduledStartTimes,
+                shouldCreateResultsLog
+        );
 
         Workload workload = new SimpleWorkload();
         workload.init(params);
@@ -257,6 +268,7 @@ public class SimpleWorkloadTest {
         Duration spinnerSleepDuration = Duration.fromMilli(0);
         boolean printHelp = false;
         boolean ignoreScheduledStartTimes = false;
+        boolean shouldCreateResultsLog = false;
 
         ConsoleAndFileDriverConfiguration params =
                 new ConsoleAndFileDriverConfiguration(
@@ -279,7 +291,9 @@ public class SimpleWorkloadTest {
                         calculateWorkloadStatistics,
                         spinnerSleepDuration,
                         printHelp,
-                        ignoreScheduledStartTimes);
+                        ignoreScheduledStartTimes,
+                        shouldCreateResultsLog
+                );
 
         Workload workloadA = new SimpleWorkload();
         workloadA.init(params);
@@ -336,12 +350,12 @@ public class SimpleWorkloadTest {
         ConsoleAndFileDriverConfiguration configuration = ConsoleAndFileDriverConfiguration.fromArgs(new String[]{
                 "-" + ConsoleAndFileDriverConfiguration.RESULT_DIR_PATH_ARG, resultDirPath,
                 "-" + ConsoleAndFileDriverConfiguration.DB_ARG, BasicDb.class.getName(),
+                "-" + ConsoleAndFileDriverConfiguration.RESULTS_LOG_ARG,
                 "-P", simpleTestPropertiesPath,
                 "-P", ldbcDriverTestPropertiesPath});
 
 
         assertThat(new File(resultDirPath).listFiles().length > 0, is(false));
-
 
         // When
         Client client = new Client(new LocalControlService(timeSource.now().plus(Duration.fromMilli(500)), configuration), timeSource);
@@ -349,5 +363,10 @@ public class SimpleWorkloadTest {
 
         // Then
         assertThat(new File(resultDirPath).listFiles().length > 0, is(true));
+
+        File resultsLog = new File(new File(resultDirPath), configuration.name() + ThreadedQueuedConcurrentMetricsService.RESULTS_LOG_FILENAME_SUFFIX);
+        CsvFileReader csvResultsLogReader = new CsvFileReader(resultsLog, CsvFileReader.DEFAULT_COLUMN_SEPARATOR_PATTERN);
+        assertThat((long) Iterators.size(csvResultsLogReader), is(configuration.operationCount() + 1)); // + 1 to account for csv headers
+        csvResultsLogReader.closeReader();
     }
 }

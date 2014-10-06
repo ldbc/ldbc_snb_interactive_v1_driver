@@ -1,5 +1,6 @@
 package com.ldbc.driver.runtime;
 
+import com.google.common.collect.Iterators;
 import com.google.common.collect.Lists;
 import com.ldbc.driver.*;
 import com.ldbc.driver.control.ConcurrentControlService;
@@ -21,12 +22,15 @@ import com.ldbc.driver.temporal.SystemTimeSource;
 import com.ldbc.driver.temporal.Time;
 import com.ldbc.driver.temporal.TimeSource;
 import com.ldbc.driver.testutils.TestUtils;
+import com.ldbc.driver.util.CsvFileReader;
+import com.ldbc.driver.util.CsvFileWriter;
 import com.ldbc.driver.workloads.ldbc.snb.interactive.LdbcSnbInteractiveWorkload;
 import com.ldbc.driver.workloads.ldbc.snb.interactive.db.DummyLdbcSnbInteractiveDb;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
@@ -49,11 +53,11 @@ public class WorkloadRunnerTest {
         List<Integer> threadCounts = Lists.newArrayList(1, 2, 4);
         long operationCount = 1000;
         for (int threadCount : threadCounts) {
-            doShouldRunReadOnlyLdbcWorkloadWithNothingDbAndReturnExpectedMetrics(threadCount, operationCount);
+            doShouldRunReadOnlyLdbcWorkloadWithNothingDbAndReturnExpectedMetricsIncludingResultsLog(threadCount, operationCount);
         }
     }
 
-    public void doShouldRunReadOnlyLdbcWorkloadWithNothingDbAndReturnExpectedMetrics(int threadCount, long operationCount)
+    public void doShouldRunReadOnlyLdbcWorkloadWithNothingDbAndReturnExpectedMetricsIncludingResultsLog(int threadCount, long operationCount)
             throws InterruptedException, DbException, WorkloadException, IOException, MetricsCollectionException, CompletionTimeException {
         ConcurrentControlService controlService = null;
         Db db = null;
@@ -83,10 +87,31 @@ public class WorkloadRunnerTest {
             Duration spinnerSleepDuration = Duration.fromMilli(0);
             boolean printHelp = false;
             boolean ignoreScheduledStartTimes = false;
+            boolean shouldCreateResultsLog = true;
 
-            ConsoleAndFileDriverConfiguration configuration = new ConsoleAndFileDriverConfiguration(paramsMap, name, dbClassName, workloadClassName, operationCount,
-                    threadCount, statusDisplayInterval, timeUnit, resultDirPath, timeCompressionRatio, windowedExecutionWindowDuration, peerIds, toleratedExecutionDelay,
-                    validationParams, dbValidationFilePath, validateWorkload, calculateWorkloadStatistics, spinnerSleepDuration, printHelp, ignoreScheduledStartTimes);
+            ConsoleAndFileDriverConfiguration configuration = new ConsoleAndFileDriverConfiguration(
+                    paramsMap,
+                    name,
+                    dbClassName,
+                    workloadClassName,
+                    operationCount,
+                    threadCount,
+                    statusDisplayInterval,
+                    timeUnit,
+                    resultDirPath,
+                    timeCompressionRatio,
+                    windowedExecutionWindowDuration,
+                    peerIds,
+                    toleratedExecutionDelay,
+                    validationParams,
+                    dbValidationFilePath,
+                    validateWorkload,
+                    calculateWorkloadStatistics,
+                    spinnerSleepDuration,
+                    printHelp,
+                    ignoreScheduledStartTimes,
+                    shouldCreateResultsLog
+            );
 
             controlService = new LocalControlService(timeSource.now().plus(Duration.fromMilli(1000)), configuration);
             db = new DummyLdbcSnbInteractiveDb();
@@ -102,6 +127,8 @@ public class WorkloadRunnerTest {
                     timeSource,
                     toleratedExecutionDelay,
                     errorReporter);
+            File resultsLog = temporaryFolder.newFile();
+            CsvFileWriter csvResultsLogWriter = new CsvFileWriter(resultsLog, CsvFileWriter.DEFAULT_COLUMN_SEPARATOR);
             metricsService = ThreadedQueuedConcurrentMetricsService.newInstanceUsingBlockingQueue(
                     timeSource,
                     errorReporter,
@@ -109,7 +136,8 @@ public class WorkloadRunnerTest {
                     controlService.workloadStartTime(),
                     ThreadedQueuedConcurrentMetricsService.DEFAULT_HIGHEST_EXPECTED_RUNTIME_DURATION,
                     recordStartTimeDelayLatency,
-                    executionDelayPolicy);
+                    executionDelayPolicy,
+                    csvResultsLogWriter);
 
             ConcurrentCompletionTimeService concurrentCompletionTimeService =
                     completionTimeServiceAssistant.newSynchronizedConcurrentCompletionTimeServiceFromPeerIds(
@@ -148,6 +176,11 @@ public class WorkloadRunnerTest {
 
             assertThat(errorReporter.toString(), workloadResults, equalTo(workloadResultsFromJson));
             assertThat(errorReporter.toString(), workloadResults.toJson(), equalTo(workloadResultsFromJson.toJson()));
+
+            csvResultsLogWriter.close();
+            CsvFileReader csvResultsLogReader = new CsvFileReader(resultsLog, CsvFileReader.DEFAULT_COLUMN_SEPARATOR_PATTERN);
+            assertThat((long) Iterators.size(csvResultsLogReader), is(configuration.operationCount() + 1)); // + 1 to account for csv headers
+            csvResultsLogReader.closeReader();
 
             double operationsPerSecond = Math.round(((double) operationCount / workloadResults.totalRunDuration().asNano()) * ONE_SECOND_AS_NANO);
             System.out.println(String.format("[%s threads] Completed %s operations in %s = %s op/sec", threadCount, operationCount, workloadResults.totalRunDuration(), operationsPerSecond));
@@ -202,10 +235,31 @@ public class WorkloadRunnerTest {
             Duration spinnerSleepDuration = Duration.fromMilli(0);
             boolean printHelp = false;
             boolean ignoreScheduledStartTimes = true;
+            boolean shouldCreateResultsLog = true;
 
-            ConsoleAndFileDriverConfiguration configuration = new ConsoleAndFileDriverConfiguration(paramsMap, name, dbClassName, workloadClassName, operationCount,
-                    threadCount, statusDisplayInterval, timeUnit, resultDirPath, timeCompressionRatio, windowedExecutionWindowDuration, peerIds, toleratedExecutionDelay,
-                    validationParams, dbValidationFilePath, validateWorkload, calculateWorkloadStatistics, spinnerSleepDuration, printHelp, ignoreScheduledStartTimes);
+            ConsoleAndFileDriverConfiguration configuration = new ConsoleAndFileDriverConfiguration(
+                    paramsMap,
+                    name,
+                    dbClassName,
+                    workloadClassName,
+                    operationCount,
+                    threadCount,
+                    statusDisplayInterval,
+                    timeUnit,
+                    resultDirPath,
+                    timeCompressionRatio,
+                    windowedExecutionWindowDuration,
+                    peerIds,
+                    toleratedExecutionDelay,
+                    validationParams,
+                    dbValidationFilePath,
+                    validateWorkload,
+                    calculateWorkloadStatistics,
+                    spinnerSleepDuration,
+                    printHelp,
+                    ignoreScheduledStartTimes,
+                    shouldCreateResultsLog
+            );
 
             controlService = new LocalControlService(timeSource.now().plus(Duration.fromMilli(1000)), configuration);
             db = new DummyLdbcSnbInteractiveDb();
@@ -221,6 +275,8 @@ public class WorkloadRunnerTest {
                     timeSource,
                     toleratedExecutionDelay,
                     errorReporter);
+            File resultsLog = temporaryFolder.newFile();
+            CsvFileWriter csvResultsLogWriter = new CsvFileWriter(resultsLog, CsvFileWriter.DEFAULT_COLUMN_SEPARATOR);
             metricsService = ThreadedQueuedConcurrentMetricsService.newInstanceUsingBlockingQueue(
                     timeSource,
                     errorReporter,
@@ -228,7 +284,8 @@ public class WorkloadRunnerTest {
                     controlService.workloadStartTime(),
                     ThreadedQueuedConcurrentMetricsService.DEFAULT_HIGHEST_EXPECTED_RUNTIME_DURATION,
                     recordStartTimeDelayLatency,
-                    executionDelayPolicy);
+                    executionDelayPolicy,
+                    csvResultsLogWriter);
 
             ConcurrentCompletionTimeService concurrentCompletionTimeService =
                     completionTimeServiceAssistant.newSynchronizedConcurrentCompletionTimeServiceFromPeerIds(
@@ -267,6 +324,11 @@ public class WorkloadRunnerTest {
 
             assertThat(errorReporter.toString(), workloadResults, equalTo(workloadResultsFromJson));
             assertThat(errorReporter.toString(), workloadResults.toJson(), equalTo(workloadResultsFromJson.toJson()));
+
+            csvResultsLogWriter.close();
+            CsvFileReader csvResultsLogReader = new CsvFileReader(resultsLog, CsvFileReader.DEFAULT_COLUMN_SEPARATOR_PATTERN);
+            assertThat((long) Iterators.size(csvResultsLogReader), is(configuration.operationCount())); // NOT + 1 because I didn't add csv headers
+            csvResultsLogReader.closeReader();
 
             double operationsPerSecond = Math.round(((double) operationCount / workloadResults.totalRunDuration().asNano()) * ONE_SECOND_AS_NANO);
             System.out.println(String.format("[%s threads] Completed %s operations in %s = %s op/sec", threadCount, operationCount, workloadResults.totalRunDuration(), operationsPerSecond));

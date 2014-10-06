@@ -113,6 +113,8 @@ public class ConsoleAndFileDriverConfigurationTest {
         paramsFromPublicStaticDefaultValuesAsMap.put(
                 ConsoleAndFileDriverConfiguration.IGNORE_SCHEDULED_START_TIMES_ARG, ConsoleAndFileDriverConfiguration.IGNORE_SCHEDULED_START_TIMES_DEFAULT_STRING);
         paramsFromPublicStaticDefaultValuesAsMap.put(
+                ConsoleAndFileDriverConfiguration.RESULTS_LOG_ARG, ConsoleAndFileDriverConfiguration.RESULTS_LOG_DEFAULT_STRING);
+        paramsFromPublicStaticDefaultValuesAsMap.put(
                 ConsoleAndFileDriverConfiguration.SPINNER_SLEEP_DURATION_ARG, ConsoleAndFileDriverConfiguration.SPINNER_SLEEP_DURATION_DEFAULT_STRING);
         // required params
         paramsFromPublicStaticDefaultValuesAsMap.put(ConsoleAndFileDriverConfiguration.DB_ARG, databaseClassName);
@@ -210,6 +212,8 @@ public class ConsoleAndFileDriverConfigurationTest {
         paramsFromPublicStaticDefaultValuesAsMap.put(
                 ConsoleAndFileDriverConfiguration.IGNORE_SCHEDULED_START_TIMES_ARG, ConsoleAndFileDriverConfiguration.IGNORE_SCHEDULED_START_TIMES_DEFAULT_STRING);
         paramsFromPublicStaticDefaultValuesAsMap.put(
+                ConsoleAndFileDriverConfiguration.RESULTS_LOG_ARG, ConsoleAndFileDriverConfiguration.RESULTS_LOG_DEFAULT_STRING);
+        paramsFromPublicStaticDefaultValuesAsMap.put(
                 ConsoleAndFileDriverConfiguration.SPINNER_SLEEP_DURATION_ARG, ConsoleAndFileDriverConfiguration.SPINNER_SLEEP_DURATION_DEFAULT_STRING);
         // add required params
         paramsFromPublicStaticDefaultValuesAsMap.put(ConsoleAndFileDriverConfiguration.DB_ARG, databaseClassName);
@@ -263,6 +267,7 @@ public class ConsoleAndFileDriverConfigurationTest {
         optionalParamsMap.put(ConsoleAndFileDriverConfiguration.CALCULATE_WORKLOAD_STATISTICS_ARG, ConsoleAndFileDriverConfiguration.CALCULATE_WORKLOAD_STATISTICS_DEFAULT_STRING);
         optionalParamsMap.put(ConsoleAndFileDriverConfiguration.HELP_ARG, ConsoleAndFileDriverConfiguration.HELP_DEFAULT_STRING);
         optionalParamsMap.put(ConsoleAndFileDriverConfiguration.IGNORE_SCHEDULED_START_TIMES_ARG, ConsoleAndFileDriverConfiguration.IGNORE_SCHEDULED_START_TIMES_DEFAULT_STRING);
+        optionalParamsMap.put(ConsoleAndFileDriverConfiguration.RESULTS_LOG_ARG, ConsoleAndFileDriverConfiguration.RESULTS_LOG_DEFAULT_STRING);
         optionalParamsMap.put(ConsoleAndFileDriverConfiguration.SPINNER_SLEEP_DURATION_ARG, ConsoleAndFileDriverConfiguration.SPINNER_SLEEP_DURATION_DEFAULT_STRING);
         // Extra
         optionalParamsMap.put("extra_key", "extra_value");
@@ -296,6 +301,8 @@ public class ConsoleAndFileDriverConfigurationTest {
             optionalParamsArgsList.addAll(Lists.newArrayList("-" + ConsoleAndFileDriverConfiguration.HELP_ARG));
         if (ConsoleAndFileDriverConfiguration.IGNORE_SCHEDULED_START_TIMES_DEFAULT)
             optionalParamsArgsList.addAll(Lists.newArrayList("-" + ConsoleAndFileDriverConfiguration.IGNORE_SCHEDULED_START_TIMES_ARG));
+        if (ConsoleAndFileDriverConfiguration.RESULTS_LOG_DEFAULT)
+            optionalParamsArgsList.addAll(Lists.newArrayList("-" + ConsoleAndFileDriverConfiguration.RESULTS_LOG_ARG));
         optionalParamsArgsList.addAll(Lists.newArrayList("-" + ConsoleAndFileDriverConfiguration.SPINNER_SLEEP_DURATION_ARG, ConsoleAndFileDriverConfiguration.SPINNER_SLEEP_DURATION_DEFAULT_STRING));
         // Extra
         optionalParamsArgsList.addAll(Lists.newArrayList("-p", "extra_key", "extra_value"));
@@ -343,6 +350,7 @@ public class ConsoleAndFileDriverConfigurationTest {
         assertThat(configurationFromParams.calculateWorkloadStatistics(), is(ConsoleAndFileDriverConfiguration.CALCULATE_WORKLOAD_STATISTICS_DEFAULT));
         assertThat(configurationFromParams.shouldPrintHelpString(), is(ConsoleAndFileDriverConfiguration.HELP_DEFAULT));
         assertThat(configurationFromParams.ignoreScheduledStartTimes(), is(ConsoleAndFileDriverConfiguration.IGNORE_SCHEDULED_START_TIMES_DEFAULT));
+        assertThat(configurationFromParams.shouldCreateResultsLog(), is(ConsoleAndFileDriverConfiguration.RESULTS_LOG_DEFAULT));
         assertThat(configurationFromParams.spinnerSleepDuration(), is(ConsoleAndFileDriverConfiguration.SPINNER_SLEEP_DURATION_DEFAULT));
     }
 
@@ -368,6 +376,7 @@ public class ConsoleAndFileDriverConfigurationTest {
         Duration spinnerSleepDuration = Duration.fromMilli(0);
         boolean printHelp = false;
         boolean ignoreScheduledStartTimes = false;
+        boolean shouldCreateResultsLog = true;
 
         ConsoleAndFileDriverConfiguration params = new ConsoleAndFileDriverConfiguration(
                 paramsMap,
@@ -389,7 +398,8 @@ public class ConsoleAndFileDriverConfigurationTest {
                 calculateWorkloadStatistics,
                 spinnerSleepDuration,
                 printHelp,
-                ignoreScheduledStartTimes
+                ignoreScheduledStartTimes,
+                shouldCreateResultsLog
         );
 
         assertThat(params.asMap(), equalTo(paramsMap));
@@ -410,6 +420,7 @@ public class ConsoleAndFileDriverConfigurationTest {
         assertThat(params.calculateWorkloadStatistics(), equalTo(calculateWorkloadStatistics));
         assertThat(params.shouldPrintHelpString(), equalTo(printHelp));
         assertThat(params.ignoreScheduledStartTimes(), equalTo(ignoreScheduledStartTimes));
+        assertThat(params.shouldCreateResultsLog(), equalTo(shouldCreateResultsLog));
         assertThat(params.spinnerSleepDuration(), equalTo(spinnerSleepDuration));
     }
 

@@ -4,6 +4,7 @@ import com.ldbc.driver.OperationResultReport;
 import com.ldbc.driver.runtime.ConcurrentErrorReporter;
 import com.ldbc.driver.runtime.QueueEventFetcher;
 import com.ldbc.driver.runtime.scheduling.ExecutionDelayPolicy;
+import com.ldbc.driver.util.CsvFileWriter;
 
 import java.util.Queue;
 
@@ -12,29 +13,38 @@ public class ThreadedQueuedConcurrentMetricsServiceThread extends Thread {
     private final ConcurrentErrorReporter errorReporter;
     private final QueueEventFetcher<MetricsCollectionEvent> queueEventFetcher;
     private final ExecutionDelayPolicy executionDelayPolicy;
-    private final boolean recordStartTimeDelayLatency;
+    private final boolean shouldRecordStartTimeDelayLatencies;
+    private final CsvFileWriter csvResultsLogWriter;
     private Long processedEventCount = 0l;
     private Long expectedEventCount = null;
 
     public ThreadedQueuedConcurrentMetricsServiceThread(ConcurrentErrorReporter errorReporter,
                                                         Queue<MetricsCollectionEvent> metricsEventsQueue,
                                                         MetricsManager metricsManager,
-                                                        boolean recordStartTimeDelayLatency,
-                                                        ExecutionDelayPolicy executionDelayPolicy) {
-        this(errorReporter, QueueEventFetcher.queueEventFetcherFor(metricsEventsQueue), metricsManager, recordStartTimeDelayLatency, executionDelayPolicy);
+                                                        boolean shouldRecordStartTimeDelayLatencies,
+                                                        ExecutionDelayPolicy executionDelayPolicy,
+                                                        CsvFileWriter csvResultsLogWriter) {
+        this(errorReporter,
+                QueueEventFetcher.queueEventFetcherFor(metricsEventsQueue),
+                metricsManager,
+                shouldRecordStartTimeDelayLatencies,
+                executionDelayPolicy,
+                csvResultsLogWriter);
     }
 
     private ThreadedQueuedConcurrentMetricsServiceThread(ConcurrentErrorReporter errorReporter,
                                                          QueueEventFetcher<MetricsCollectionEvent> queueEventFetcher,
                                                          MetricsManager metricsManager,
-                                                         boolean recordStartTimeDelayLatency,
-                                                         ExecutionDelayPolicy executionDelayPolicy) {
+                                                         boolean shouldRecordStartTimeDelayLatencies,
+                                                         ExecutionDelayPolicy executionDelayPolicy,
+                                                         CsvFileWriter csvResultsLogWriter) {
         super(ThreadedQueuedConcurrentMetricsServiceThread.class.getSimpleName() + "-" + System.currentTimeMillis());
         this.errorReporter = errorReporter;
         this.metricsManager = metricsManager;
         this.queueEventFetcher = queueEventFetcher;
-        this.recordStartTimeDelayLatency = recordStartTimeDelayLatency;
+        this.shouldRecordStartTimeDelayLatencies = shouldRecordStartTimeDelayLatencies;
         this.executionDelayPolicy = executionDelayPolicy;
+        this.csvResultsLogWriter = csvResultsLogWriter;
     }
 
     @Override
@@ -47,21 +57,28 @@ public class ThreadedQueuedConcurrentMetricsServiceThread extends Thread {
                     case SUBMIT_RESULT:
                         OperationResultReport result = ((MetricsCollectionEvent.SubmitResultEvent) event).result();
 
-                        boolean shouldRecordResultMetrics = true;
-                        if (recordStartTimeDelayLatency) {
+                        if (null != csvResultsLogWriter) {
+                            csvResultsLogWriter.writeRow(
+                                    result.operation().type(),
+                                    Long.toString(result.operation().scheduledStartTime().asMilli()),
+                                    Long.toString(result.actualStartTime().asMilli()),
+                                    Long.toString(result.runDuration().asMilli()));
+                        }
+
+                        boolean shouldRecordResultMetricsForThisOperation = true;
+                        if (shouldRecordStartTimeDelayLatencies) {
                             // TODO if operation is blocked in spinner because something like GCT_CHECK never returns there needs to be a way to detect and terminate
                             // TODO this may not be triggered by maximum runtime check, as execution does not begin until spinner returns
-                            // TODO maximum runtime check does not exist yet, also needs to be added
                             // TODO perhaps it can be done in the same/similar way though, by somehow getting metrics service to occasionally check for "progress"? look into further
                             // TOO EARLY = <---(now)--(scheduled)[<---delay--->]------> <=(Time Line)
                             // GOOD      = <-----(scheduled)[<-(now)--delay--->]------> <=(Time Line)
                             // TOO LATE  = <-----(scheduled)[<---delay--->]--(now)----> <=(Time Line)
                             if (result.operation().scheduledStartTime().asNano() + toleratedDelayAsNano < result.actualStartTime().asNano()) {
-                                shouldRecordResultMetrics = executionDelayPolicy.handleExcessiveDelay(result.operation());
+                                shouldRecordResultMetricsForThisOperation = executionDelayPolicy.handleExcessiveDelay(result.operation());
                             }
                         }
 
-                        if (shouldRecordResultMetrics) {
+                        if (shouldRecordResultMetricsForThisOperation) {
                             try {
                                 metricsManager.measure(result);
                             } catch (MetricsCollectionException e) {

@@ -279,10 +279,31 @@ public class TimeMappingOperationGeneratorTest {
         Duration spinnerSleepDuration = Duration.fromMilli(0);
         boolean printHelp = false;
         boolean ignoreScheduledStartTimes = false;
+        boolean shouldCreateResultsLog = false;
 
-        ConsoleAndFileDriverConfiguration configuration = new ConsoleAndFileDriverConfiguration(paramsMap, name, dbClassName, workloadClassName, operationCount,
-                threadCount, statusDisplayInterval, timeUnit, resultDirPath, timeCompressionRatio, windowedExecutionWindowDuration, peerIds, toleratedExecutionDelay,
-                validationParams, dbValidationFilePath, validateWorkload, calculateWorkloadStatistics, spinnerSleepDuration, printHelp, ignoreScheduledStartTimes);
+        ConsoleAndFileDriverConfiguration configuration = new ConsoleAndFileDriverConfiguration(
+                paramsMap,
+                name,
+                dbClassName,
+                workloadClassName,
+                operationCount,
+                threadCount,
+                statusDisplayInterval,
+                timeUnit,
+                resultDirPath,
+                timeCompressionRatio,
+                windowedExecutionWindowDuration,
+                peerIds,
+                toleratedExecutionDelay,
+                validationParams,
+                dbValidationFilePath,
+                validateWorkload,
+                calculateWorkloadStatistics,
+                spinnerSleepDuration,
+                printHelp,
+                ignoreScheduledStartTimes,
+                shouldCreateResultsLog
+        );
 
         Workload workload = new LdbcSnbInteractiveWorkload();
         workload.init(configuration);

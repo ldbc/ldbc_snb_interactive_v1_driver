@@ -11,6 +11,7 @@ import com.ldbc.driver.temporal.Duration;
 import com.ldbc.driver.temporal.SystemTimeSource;
 import com.ldbc.driver.temporal.Time;
 import com.ldbc.driver.temporal.TimeSource;
+import com.ldbc.driver.util.CsvFileWriter;
 import com.ldbc.driver.workloads.ldbc.snb.interactive.db.DummyLdbcSnbInteractiveOperationInstances;
 import org.junit.Test;
 
@@ -37,6 +38,7 @@ public class ThreadedQueuedConcurrentMetricsServiceTest {
                 timeSource,
                 toleratedExecutionDelayDuration,
                 errorReporter);
+        CsvFileWriter csvResultsLogWriter = null;
         ConcurrentMetricsService metricsService = ThreadedQueuedConcurrentMetricsService.newInstanceUsingBlockingQueue(
                 timeSource,
                 new ConcurrentErrorReporter(),
@@ -44,7 +46,8 @@ public class ThreadedQueuedConcurrentMetricsServiceTest {
                 INITIAL_START_TIME,
                 ThreadedQueuedConcurrentMetricsService.DEFAULT_HIGHEST_EXPECTED_RUNTIME_DURATION,
                 recordStartTimeDelayLatency,
-                executionDelayPolicy);
+                executionDelayPolicy,
+                csvResultsLogWriter);
 
         metricsService.shutdown();
         boolean exceptionThrown = false;
@@ -69,6 +72,7 @@ public class ThreadedQueuedConcurrentMetricsServiceTest {
                 timeSource,
                 toleratedExecutionDelayDuration,
                 errorReporter);
+        CsvFileWriter csvResultsLogWriter = null;
         ConcurrentMetricsService metricsService = ThreadedQueuedConcurrentMetricsService.newInstanceUsingNonBlockingQueue(
                 timeSource,
                 new ConcurrentErrorReporter(),
@@ -76,7 +80,8 @@ public class ThreadedQueuedConcurrentMetricsServiceTest {
                 INITIAL_START_TIME,
                 ThreadedQueuedConcurrentMetricsService.DEFAULT_HIGHEST_EXPECTED_RUNTIME_DURATION,
                 recordStartTimeDelayLatency,
-                executionDelayPolicy);
+                executionDelayPolicy,
+                csvResultsLogWriter);
 
         metricsService.shutdown();
         boolean exceptionThrown = false;
@@ -101,6 +106,7 @@ public class ThreadedQueuedConcurrentMetricsServiceTest {
                 timeSource,
                 toleratedExecutionDelayDuration,
                 errorReporter);
+        CsvFileWriter csvResultsLogWriter = null;
         ConcurrentMetricsService metricsService = ThreadedQueuedConcurrentMetricsService.newInstanceUsingBlockingQueue(
                 timeSource,
                 new ConcurrentErrorReporter(),
@@ -108,7 +114,8 @@ public class ThreadedQueuedConcurrentMetricsServiceTest {
                 INITIAL_START_TIME,
                 ThreadedQueuedConcurrentMetricsService.DEFAULT_HIGHEST_EXPECTED_RUNTIME_DURATION,
                 recordStartTimeDelayLatency,
-                executionDelayPolicy);
+                executionDelayPolicy,
+                csvResultsLogWriter);
         try {
             shouldReturnCorrectMeasurements(metricsService);
         } finally {
@@ -130,6 +137,7 @@ public class ThreadedQueuedConcurrentMetricsServiceTest {
                 timeSource,
                 toleratedExecutionDelayDuration,
                 errorReporter);
+        CsvFileWriter csvResultsLogWriter = null;
         ConcurrentMetricsService metricsService = ThreadedQueuedConcurrentMetricsService.newInstanceUsingBlockingQueue(
                 timeSource,
                 new ConcurrentErrorReporter(),
@@ -137,7 +145,8 @@ public class ThreadedQueuedConcurrentMetricsServiceTest {
                 INITIAL_START_TIME,
                 ThreadedQueuedConcurrentMetricsService.DEFAULT_HIGHEST_EXPECTED_RUNTIME_DURATION,
                 recordStartTimeDelayLatency,
-                executionDelayPolicy);
+                executionDelayPolicy,
+                csvResultsLogWriter);
         try {
             shouldReturnCorrectMeasurements(metricsService);
         } finally {

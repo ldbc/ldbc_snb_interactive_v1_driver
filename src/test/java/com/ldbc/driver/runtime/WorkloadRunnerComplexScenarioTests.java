@@ -20,6 +20,7 @@ import com.ldbc.driver.temporal.Duration;
 import com.ldbc.driver.temporal.ManualTimeSource;
 import com.ldbc.driver.temporal.Time;
 import com.ldbc.driver.temporal.TimeSource;
+import com.ldbc.driver.util.CsvFileWriter;
 import com.ldbc.driver.workloads.dummy.DummyDb;
 import com.ldbc.driver.workloads.dummy.TimedNamedOperation1;
 import com.ldbc.driver.workloads.dummy.TimedNamedOperation2;
@@ -449,6 +450,7 @@ public class WorkloadRunnerComplexScenarioTests {
                 timeSource,
                 toleratedExecutionDelayDuration,
                 errorReporter);
+        CsvFileWriter csvResultsLogWriter = null;
         ConcurrentMetricsService metricsService = ThreadedQueuedConcurrentMetricsService.newInstanceUsingBlockingQueue(
                 timeSource,
                 errorReporter,
@@ -456,7 +458,8 @@ public class WorkloadRunnerComplexScenarioTests {
                 WORKLOAD_START_TIME_0,
                 ThreadedQueuedConcurrentMetricsService.DEFAULT_HIGHEST_EXPECTED_RUNTIME_DURATION,
                 recordStartTimeDelayLatency,
-                executionDelayPolicy);
+                executionDelayPolicy,
+                csvResultsLogWriter);
 
         Set<String> peerIds = new HashSet<>();
         // TODO test also with threaded completion time service implementation
@@ -648,6 +651,7 @@ public class WorkloadRunnerComplexScenarioTests {
                 timeSource,
                 toleratedExecutionDelayDuration,
                 errorReporter);
+        CsvFileWriter csvResultsLogWriter = null;
         ConcurrentMetricsService metricsService = ThreadedQueuedConcurrentMetricsService.newInstanceUsingBlockingQueue(
                 timeSource,
                 errorReporter,
@@ -655,7 +659,8 @@ public class WorkloadRunnerComplexScenarioTests {
                 WORKLOAD_START_TIME_0,
                 ThreadedQueuedConcurrentMetricsService.DEFAULT_HIGHEST_EXPECTED_RUNTIME_DURATION,
                 recordStartTimeDelayLatency,
-                executionDelayPolicy);
+                executionDelayPolicy,
+                csvResultsLogWriter);
 
         Set<String> peerIds = new HashSet<>();
         // TODO test also with threaded completion time service implementation
@@ -825,6 +830,7 @@ public class WorkloadRunnerComplexScenarioTests {
                 timeSource,
                 toleratedExecutionDelayDuration,
                 errorReporter);
+        CsvFileWriter csvResultsLogWriter = null;
         ConcurrentMetricsService metricsService = ThreadedQueuedConcurrentMetricsService.newInstanceUsingBlockingQueue(
                 timeSource,
                 errorReporter,
@@ -832,7 +838,8 @@ public class WorkloadRunnerComplexScenarioTests {
                 WORKLOAD_START_TIME_0,
                 ThreadedQueuedConcurrentMetricsService.DEFAULT_HIGHEST_EXPECTED_RUNTIME_DURATION,
                 recordStartTimeDelayLatency,
-                executionDelayPolicy);
+                executionDelayPolicy,
+                csvResultsLogWriter);
 
         Set<String> peerIds = new HashSet<>();
         // TODO test also with threaded completion time service implementation
@@ -1038,7 +1045,7 @@ public class WorkloadRunnerComplexScenarioTests {
 
 //            System.out.println(errorReporter.toString());
         } catch (Throwable e) {
-            System.out.println("Unexpected Error:\n"+ ConcurrentErrorReporter.stackTraceToString(e));
+            System.out.println("Unexpected Error:\n" + ConcurrentErrorReporter.stackTraceToString(e));
             throw e;
         } finally {
             db.setAllowedValueForAll(true);
@@ -1094,6 +1101,7 @@ public class WorkloadRunnerComplexScenarioTests {
                 timeSource,
                 toleratedExecutionDelayDuration,
                 errorReporter);
+        CsvFileWriter csvResultsLogWriter = null;
         ConcurrentMetricsService metricsService = ThreadedQueuedConcurrentMetricsService.newInstanceUsingBlockingQueue(
                 timeSource,
                 errorReporter,
@@ -1101,7 +1109,8 @@ public class WorkloadRunnerComplexScenarioTests {
                 WORKLOAD_START_TIME_0,
                 ThreadedQueuedConcurrentMetricsService.DEFAULT_HIGHEST_EXPECTED_RUNTIME_DURATION,
                 recordStartTimeDelayLatency,
-                executionDelayPolicy);
+                executionDelayPolicy,
+                csvResultsLogWriter);
 
         Set<String> peerIds = new HashSet<>();
         // TODO test also with threaded completion time service implementation
@@ -1352,6 +1361,7 @@ public class WorkloadRunnerComplexScenarioTests {
                 timeSource,
                 toleratedExecutionDelayDuration,
                 errorReporter);
+        CsvFileWriter csvResultsLogWriter = null;
         ConcurrentMetricsService metricsService = ThreadedQueuedConcurrentMetricsService.newInstanceUsingBlockingQueue(
                 timeSource,
                 errorReporter,
@@ -1359,7 +1369,8 @@ public class WorkloadRunnerComplexScenarioTests {
                 WORKLOAD_START_TIME_0,
                 ThreadedQueuedConcurrentMetricsService.DEFAULT_HIGHEST_EXPECTED_RUNTIME_DURATION,
                 recordStartTimeDelayLatency,
-                executionDelayPolicy);
+                executionDelayPolicy,
+                csvResultsLogWriter);
 
         Set<String> peerIds = new HashSet<>();
         // TODO test also with threaded completion time service implementation
@@ -1599,6 +1610,7 @@ public class WorkloadRunnerComplexScenarioTests {
                 timeSource,
                 toleratedExecutionDelayDuration,
                 errorReporter);
+        CsvFileWriter csvResultsLogWriter = null;
         ConcurrentMetricsService metricsService = ThreadedQueuedConcurrentMetricsService.newInstanceUsingBlockingQueue(
                 timeSource,
                 errorReporter,
@@ -1606,7 +1618,8 @@ public class WorkloadRunnerComplexScenarioTests {
                 WORKLOAD_START_TIME_0,
                 ThreadedQueuedConcurrentMetricsService.DEFAULT_HIGHEST_EXPECTED_RUNTIME_DURATION,
                 recordStartTimeDelayLatency,
-                executionDelayPolicy);
+                executionDelayPolicy,
+                csvResultsLogWriter);
 
         Set<String> peerIds = new HashSet<>();
         // TODO test also with threaded completion time service implementation
@@ -1846,6 +1859,7 @@ public class WorkloadRunnerComplexScenarioTests {
                 timeSource,
                 toleratedExecutionDelayDuration,
                 errorReporter);
+        CsvFileWriter csvResultsLogWriter = null;
         ConcurrentMetricsService metricsService = ThreadedQueuedConcurrentMetricsService.newInstanceUsingBlockingQueue(
                 timeSource,
                 errorReporter,
@@ -1853,7 +1867,8 @@ public class WorkloadRunnerComplexScenarioTests {
                 WORKLOAD_START_TIME_0,
                 ThreadedQueuedConcurrentMetricsService.DEFAULT_HIGHEST_EXPECTED_RUNTIME_DURATION,
                 recordStartTimeDelayLatency,
-                executionDelayPolicy);
+                executionDelayPolicy,
+                csvResultsLogWriter);
 
         Set<String> peerIds = new HashSet<>();
         // TODO test also with threaded completion time service implementation
@@ -2093,6 +2108,7 @@ public class WorkloadRunnerComplexScenarioTests {
                 timeSource,
                 toleratedExecutionDelayDuration,
                 errorReporter);
+        CsvFileWriter csvResultsLogWriter = null;
         ConcurrentMetricsService metricsService = ThreadedQueuedConcurrentMetricsService.newInstanceUsingBlockingQueue(
                 timeSource,
                 errorReporter,
@@ -2100,7 +2116,8 @@ public class WorkloadRunnerComplexScenarioTests {
                 WORKLOAD_START_TIME_0,
                 ThreadedQueuedConcurrentMetricsService.DEFAULT_HIGHEST_EXPECTED_RUNTIME_DURATION,
                 recordStartTimeDelayLatency,
-                executionDelayPolicy);
+                executionDelayPolicy,
+                csvResultsLogWriter);
 
         Set<String> peerIds = new HashSet<>();
         // TODO test also with threaded completion time service implementation
