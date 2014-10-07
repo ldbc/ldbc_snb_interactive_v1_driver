@@ -1,6 +1,6 @@
 package com.ldbc.driver;
 
-public class OperationClassification {
+public class OperationClassification_OLD {
 
     /**
      * Modes (with examples from LDBC Interactive SNB Workload):
@@ -30,7 +30,7 @@ public class OperationClassification {
     private final SchedulingMode schedulingMode;
     private final DependencyMode dependencyMode;
 
-    public OperationClassification(SchedulingMode schedulingMode, DependencyMode dependencyMode) {
+    public OperationClassification_OLD(SchedulingMode schedulingMode, DependencyMode dependencyMode) {
         this.schedulingMode = schedulingMode;
         this.dependencyMode = dependencyMode;
     }
@@ -48,7 +48,7 @@ public class OperationClassification {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
 
-        OperationClassification that = (OperationClassification) o;
+        OperationClassification_OLD that = (OperationClassification_OLD) o;
 
         if (dependencyMode != that.dependencyMode) return false;
         if (schedulingMode != that.schedulingMode) return false;

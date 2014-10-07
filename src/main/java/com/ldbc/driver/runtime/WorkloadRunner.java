@@ -52,8 +52,7 @@ public class WorkloadRunner {
 
     public WorkloadRunner(TimeSource timeSource,
                           Db db,
-                          Iterator<Operation<?>> operations,
-                          final Map<Class<? extends Operation>, OperationClassification> operationClassifications,
+                          WorkloadStreams workloadStreams,
                           ConcurrentMetricsService metricsService,
                           ConcurrentErrorReporter errorReporter,
                           ConcurrentCompletionTimeService completionTimeService,
@@ -68,8 +67,6 @@ public class WorkloadRunner {
         this.timeSource = timeSource;
         this.errorReporter = errorReporter;
         this.statusDisplayInterval = statusDisplayInterval;
-
-        // TODO for the spinner sent to Window scheduler allow delay to reach to the end of window?
 
         this.exactSpinner = new Spinner(this.timeSource, spinnerSleepDuration, ignoreScheduleStartTimes);
         // TODO make this a configuration parameter?
