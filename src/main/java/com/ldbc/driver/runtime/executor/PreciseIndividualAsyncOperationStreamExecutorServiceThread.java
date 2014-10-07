@@ -1,6 +1,7 @@
 package com.ldbc.driver.runtime.executor;
 
-import com.ldbc.driver.*;
+import com.ldbc.driver.Db;
+import com.ldbc.driver.OperationHandler;
 import com.ldbc.driver.WorkloadStreams.WorkloadStreamDefinition;
 import com.ldbc.driver.runtime.ConcurrentErrorReporter;
 import com.ldbc.driver.runtime.coordination.GlobalCompletionTimeReader;
@@ -105,5 +106,4 @@ class PreciseIndividualAsyncOperationStreamExecutorServiceThread extends Thread 
         }
         return false;
     }
-
 }
