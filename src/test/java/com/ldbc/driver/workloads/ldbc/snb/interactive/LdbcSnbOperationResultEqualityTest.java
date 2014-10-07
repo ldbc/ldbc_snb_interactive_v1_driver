@@ -377,11 +377,13 @@ public class LdbcSnbOperationResultEqualityTest {
         LdbcQuery12Result result1b = new LdbcQuery12Result(personId1, personFirstName1, personLastName1, Lists.newArrayList("ش", "פ"), replyCount1);
         LdbcQuery12Result result2a = new LdbcQuery12Result(personId2, personFirstName2, personLastName2, tagNames2, replyCount2);
         LdbcQuery12Result result3a = new LdbcQuery12Result(personId1, personFirstName1, personLastName1, tagNames1, replyCount2);
+        LdbcQuery12Result result4a = new LdbcQuery12Result(personId1, personFirstName1, personLastName1, null, replyCount1);
 
         assertThat(result1a, equalTo(result1b));
         assertThat(result1a, not(equalTo(result2a)));
         assertThat(result1a, not(equalTo(result3a)));
         assertThat(result2a, not(equalTo(result3a)));
+        assertThat(result1a, not(equalTo(result4a)));
     }
 
     @Test

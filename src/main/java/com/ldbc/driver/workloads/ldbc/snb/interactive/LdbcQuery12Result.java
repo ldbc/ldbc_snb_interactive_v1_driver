@@ -54,10 +54,15 @@ public class LdbcQuery12Result {
             return false;
         if (personLastName != null ? !personLastName.equals(that.personLastName) : that.personLastName != null)
             return false;
-        if (tagNames != null ? !Iterables.elementsEqual(sort(tagNames), sort(that.tagNames)) : that.tagNames != null)
+        if (tagNames != null ? !tagNamesEqual(tagNames, that.tagNames) : that.tagNames != null)
             return false;
 
         return true;
+    }
+
+    private boolean tagNamesEqual(Iterable<String> tagNames1, Iterable<String> tagNames2) {
+        if (null == tagNames1 || null == tagNames2) return false;
+        return Iterables.elementsEqual(sort(tagNames1), sort(tagNames2));
     }
 
     private Iterable<String> sort(Iterable<String> iterable) {
