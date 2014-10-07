@@ -179,14 +179,13 @@ public class WorkloadRunnerTest {
 
             csvResultsLogWriter.close();
             CsvFileReader csvResultsLogReader = new CsvFileReader(resultsLog, CsvFileReader.DEFAULT_COLUMN_SEPARATOR_PATTERN);
-            assertThat((long) Iterators.size(csvResultsLogReader), is(configuration.operationCount() + 1)); // + 1 to account for csv headers
+            assertThat((long) Iterators.size(csvResultsLogReader), is(configuration.operationCount())); // NOT + 1 because I didn't add csv headers
             csvResultsLogReader.closeReader();
 
             double operationsPerSecond = Math.round(((double) operationCount / workloadResults.totalRunDuration().asNano()) * ONE_SECOND_AS_NANO);
             System.out.println(String.format("[%s threads] Completed %s operations in %s = %s op/sec", threadCount, operationCount, workloadResults.totalRunDuration(), operationsPerSecond));
-        } catch (Throwable e) {
-            System.out.println(errorReporter.toString() + "\n" + ConcurrentErrorReporter.stackTraceToString(e));
         } finally {
+            System.out.println(errorReporter.toString());
             if (null != controlService) controlService.shutdown();
             if (null != db) db.shutdown();
             if (null != workload) workload.cleanup();
@@ -332,9 +331,8 @@ public class WorkloadRunnerTest {
 
             double operationsPerSecond = Math.round(((double) operationCount / workloadResults.totalRunDuration().asNano()) * ONE_SECOND_AS_NANO);
             System.out.println(String.format("[%s threads] Completed %s operations in %s = %s op/sec", threadCount, operationCount, workloadResults.totalRunDuration(), operationsPerSecond));
-        } catch (Throwable e) {
-            System.out.println(errorReporter.toString() + "\n" + ConcurrentErrorReporter.stackTraceToString(e));
         } finally {
+            System.out.println(errorReporter.toString());
             if (null != controlService) controlService.shutdown();
             if (null != db) db.shutdown();
             if (null != workload) workload.cleanup();
