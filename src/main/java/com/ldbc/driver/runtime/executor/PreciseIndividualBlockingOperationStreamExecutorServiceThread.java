@@ -1,20 +1,18 @@
 package com.ldbc.driver.runtime.executor;
 
-import com.ldbc.driver.*;
+import com.ldbc.driver.Db;
+import com.ldbc.driver.OperationHandler;
+import com.ldbc.driver.WorkloadStreams;
 import com.ldbc.driver.runtime.ConcurrentErrorReporter;
-import com.ldbc.driver.runtime.coordination.CompletionTimeException;
 import com.ldbc.driver.runtime.coordination.DummyLocalCompletionTimeWriter;
 import com.ldbc.driver.runtime.coordination.GlobalCompletionTimeReader;
 import com.ldbc.driver.runtime.coordination.LocalCompletionTimeWriter;
 import com.ldbc.driver.runtime.metrics.ConcurrentMetricsService;
-import com.ldbc.driver.runtime.scheduling.GctDependencyCheck;
 import com.ldbc.driver.runtime.scheduling.Spinner;
 import com.ldbc.driver.temporal.Duration;
 import com.ldbc.driver.temporal.Time;
 import com.ldbc.driver.temporal.TimeSource;
 
-import java.util.Iterator;
-import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 class PreciseIndividualBlockingOperationStreamExecutorServiceThread extends Thread {
@@ -23,26 +21,19 @@ class PreciseIndividualBlockingOperationStreamExecutorServiceThread extends Thre
 
     private final TimeSource timeSource;
     private final OperationHandlerExecutor operationHandlerExecutor;
-    private final Spinner spinner;
     private final ConcurrentErrorReporter errorReporter;
-    private final Iterator<Operation<?>> operations;
     private final AtomicBoolean hasFinished;
     private final AtomicBoolean forcedTerminate;
-    private final Map<Class<? extends Operation>, OperationClassification> operationClassifications;
-    private final Db db;
-    private final LocalCompletionTimeWriter localCompletionTimeWriter;
-    private final GlobalCompletionTimeReader globalCompletionTimeReader;
-    private final ConcurrentMetricsService metricsService;
     private final Duration durationToWaitForAllHandlersToFinishBeforeShutdown;
+    private final DependencyAndNonDependencyHandlersRetriever dependencyAndNonDependencyHandlersRetriever;
 
     public PreciseIndividualBlockingOperationStreamExecutorServiceThread(TimeSource timeSource,
                                                                          OperationHandlerExecutor operationHandlerExecutor,
                                                                          ConcurrentErrorReporter errorReporter,
-                                                                         Iterator<Operation<?>> operations,
+                                                                         WorkloadStreams.WorkloadStreamDefinition streamDefinition,
                                                                          AtomicBoolean hasFinished,
                                                                          Spinner spinner,
                                                                          AtomicBoolean forcedTerminate,
-                                                                         Map<Class<? extends Operation>, OperationClassification> operationClassifications,
                                                                          Db db,
                                                                          LocalCompletionTimeWriter localCompletionTimeWriter,
                                                                          GlobalCompletionTimeReader globalCompletionTimeReader,
@@ -51,47 +42,36 @@ class PreciseIndividualBlockingOperationStreamExecutorServiceThread extends Thre
         super(PreciseIndividualBlockingOperationStreamExecutorServiceThread.class.getSimpleName() + "-" + System.currentTimeMillis());
         this.timeSource = timeSource;
         this.operationHandlerExecutor = operationHandlerExecutor;
-        this.spinner = spinner;
         this.errorReporter = errorReporter;
-        this.operations = operations;
         this.hasFinished = hasFinished;
         this.forcedTerminate = forcedTerminate;
-        this.operationClassifications = operationClassifications;
-        this.db = db;
-        this.localCompletionTimeWriter = localCompletionTimeWriter;
-        this.globalCompletionTimeReader = globalCompletionTimeReader;
-        this.metricsService = metricsService;
         this.durationToWaitForAllHandlersToFinishBeforeShutdown = durationToWaitForAllHandlersToFinishBeforeShutdown;
+        this.dependencyAndNonDependencyHandlersRetriever = new DependencyAndNonDependencyHandlersRetriever(
+                streamDefinition,
+                db,
+                localCompletionTimeWriter,
+                globalCompletionTimeReader,
+                spinner,
+                timeSource,
+                errorReporter,
+                metricsService);
     }
 
     @Override
     public void run() {
         long startTimeOfLastOperationAsNano = 0;
-        while (operations.hasNext() && false == forcedTerminate.get()) {
-            Operation<?> operation = operations.next();
-
-            startTimeOfLastOperationAsNano = operation.scheduledStartTime().asNano();
-
-            // get handler
+        while (dependencyAndNonDependencyHandlersRetriever.hasNextHandler() && false == forcedTerminate.get()) {
             OperationHandler<?> handler;
             try {
-                handler = getAndInitializeHandler(operation);
-            } catch (OperationHandlerExecutorException e) {
-                errorReporter.reportError(
-                        this,
-                        String.format("Error while retrieving handler for operation\n%s", ConcurrentErrorReporter.stackTraceToString(e)));
+                handler = dependencyAndNonDependencyHandlersRetriever.nextHandler();
+            } catch (Exception e) {
+                String errMsg = String.format("Error while retrieving next handler\n%s",
+                        ConcurrentErrorReporter.stackTraceToString(e));
+                errorReporter.reportError(this, errMsg);
                 continue;
             }
 
-            // submit initiated time as soon as possible so GCT/dependencies can advance as soon as possible
-            try {
-                submitInitiatedTime(handler);
-            } catch (OperationHandlerExecutorException e) {
-                errorReporter.reportError(
-                        this,
-                        String.format("Error encountered while submitted Initiated Time\n%s", ConcurrentErrorReporter.stackTraceToString(e)));
-                continue;
-            }
+            startTimeOfLastOperationAsNano = handler.operation().scheduledStartTime().asNano();
 
             try {
                 // --- BLOCKING CALL (when bounded queue is full) ---
@@ -109,46 +89,6 @@ class PreciseIndividualBlockingOperationStreamExecutorServiceThread extends Thre
             errorReporter.reportError(this, "Last handler did not complete in time");
         }
         this.hasFinished.set(true);
-    }
-
-    private OperationHandler<?> getAndInitializeHandler(Operation<?> operation) throws OperationHandlerExecutorException {
-        OperationHandler<?> operationHandler;
-        try {
-            operationHandler = db.getOperationHandler(operation);
-        } catch (DbException e) {
-            throw new OperationHandlerExecutorException(String.format("Error while retrieving handler for operation\nOperation: %s", operation));
-        }
-
-        try {
-            LocalCompletionTimeWriter localCompletionTimeWriterForHandler = (isDependencyWritingOperation(operation))
-                    ? localCompletionTimeWriter
-                    : DUMMY_LOCAL_COMPLETION_TIME_WRITER;
-            operationHandler.init(timeSource, spinner, operation, localCompletionTimeWriterForHandler, errorReporter, metricsService);
-        } catch (OperationException e) {
-            throw new OperationHandlerExecutorException(String.format("Error while initializing handler for operation\nOperation: %s", operation));
-        }
-
-        if (isDependencyReadingOperation(operation))
-            operationHandler.addBeforeExecuteCheck(new GctDependencyCheck(globalCompletionTimeReader, operation, errorReporter));
-
-        return operationHandler;
-    }
-
-    private boolean isDependencyWritingOperation(Operation<?> operation) {
-        return operationClassifications.get(operation.getClass()).dependencyMode().equals(OperationClassification.DependencyMode.READ_WRITE);
-    }
-
-    private boolean isDependencyReadingOperation(Operation<?> operation) {
-        return operationClassifications.get(operation.getClass()).dependencyMode().equals(OperationClassification.DependencyMode.READ_WRITE);
-    }
-
-    private void submitInitiatedTime(OperationHandler<?> handler) throws OperationHandlerExecutorException {
-        try {
-            handler.localCompletionTimeWriter().submitLocalInitiatedTime(handler.operation().scheduledStartTime());
-        } catch (CompletionTimeException e) {
-            throw new OperationHandlerExecutorException(
-                    String.format("Error encountered while submitted Initiated Time for:\nOperation: %s", handler.operation()), e);
-        }
     }
 
     private boolean awaitExecutingHandler(Time startTimeOfLastOperation, Duration timeoutDuration) {

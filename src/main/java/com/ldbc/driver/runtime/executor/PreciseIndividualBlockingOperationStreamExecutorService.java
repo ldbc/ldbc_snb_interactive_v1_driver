@@ -1,7 +1,7 @@
 package com.ldbc.driver.runtime.executor;
 
 import com.ldbc.driver.Db;
-import com.ldbc.driver.WorkloadStreams;
+import com.ldbc.driver.WorkloadStreams.WorkloadStreamDefinition;
 import com.ldbc.driver.runtime.ConcurrentErrorReporter;
 import com.ldbc.driver.runtime.coordination.GlobalCompletionTimeReader;
 import com.ldbc.driver.runtime.coordination.LocalCompletionTimeWriter;
@@ -23,7 +23,7 @@ public class PreciseIndividualBlockingOperationStreamExecutorService {
 
     public PreciseIndividualBlockingOperationStreamExecutorService(TimeSource timeSource,
                                                                    ConcurrentErrorReporter errorReporter,
-                                                                   WorkloadStreams.WorkloadStreamDefinition streamDefinition,
+                                                                   WorkloadStreamDefinition streamDefinition,
                                                                    Spinner spinner,
                                                                    OperationHandlerExecutor operationHandlerExecutor,
                                                                    Db db,
@@ -32,16 +32,15 @@ public class PreciseIndividualBlockingOperationStreamExecutorService {
                                                                    ConcurrentMetricsService metricsService,
                                                                    Duration durationToWaitForAllHandlersToFinishBeforeShutdown) {
         this.errorReporter = errorReporter;
-        if (operations.hasNext()) {
+        if (streamDefinition.dependencyOperations().hasNext() || streamDefinition.nonDependencyOperations().hasNext()) {
             this.preciseIndividualBlockingOperationStreamExecutorServiceThread = new PreciseIndividualBlockingOperationStreamExecutorServiceThread(
                     timeSource,
                     operationHandlerExecutor,
                     errorReporter,
-                    operations,
+                    streamDefinition,
                     hasFinished,
                     spinner,
                     forceThreadToTerminate,
-                    operationClassifications,
                     db,
                     localCompletionTimeWriter,
                     globalCompletionTimeReader,
