@@ -3,6 +3,7 @@ package com.ldbc.driver.runtime.executor;
 import com.ldbc.driver.Db;
 import com.ldbc.driver.Operation;
 import com.ldbc.driver.OperationClassification;
+import com.ldbc.driver.WorkloadStreams;
 import com.ldbc.driver.runtime.ConcurrentErrorReporter;
 import com.ldbc.driver.runtime.coordination.GlobalCompletionTimeReader;
 import com.ldbc.driver.runtime.coordination.LocalCompletionTimeWriter;
@@ -28,11 +29,9 @@ public class PreciseIndividualAsyncOperationStreamExecutorService {
 
     public PreciseIndividualAsyncOperationStreamExecutorService(TimeSource timeSource,
                                                                 ConcurrentErrorReporter errorReporter,
-                                                                Iterator<Operation<?>> gctReadOperations,
-                                                                Iterator<Operation<?>> gctWriteOperations,
+                                                                WorkloadStreams.WorkloadStreamDefinition workloadStreamDefinition,
                                                                 Spinner spinner,
                                                                 OperationHandlerExecutor operationHandlerExecutor,
-                                                                Map<Class<? extends Operation>, OperationClassification> operationClassifications,
                                                                 Db db,
                                                                 LocalCompletionTimeWriter localCompletionTimeWriter,
                                                                 GlobalCompletionTimeReader globalCompletionTimeReader,

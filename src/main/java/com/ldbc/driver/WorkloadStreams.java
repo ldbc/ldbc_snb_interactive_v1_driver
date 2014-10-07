@@ -1,122 +1,59 @@
 package com.ldbc.driver;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Set;
 
 public class WorkloadStreams {
-    /**
-     * Modes (with examples from LDBC Interactive SNB Workload):
-     * - WINDOWED & NONE -------------------> n/a
-     * - WINDOWED & READ -------------------> Create Friendship
-     * - WINDOWED & READ WRITE -------------> Create User
-     * - INDIVIDUAL_BLOCKING & NONE --------> n/a
-     * - INDIVIDUAL_BLOCKING & READ --------> Create Post
-     * - INDIVIDUAL_BLOCKING & READ WRITE --> n/a
-     * - INDIVIDUAL_ASYNC & NONE -----------> Entire Read Workload
-     * - INDIVIDUAL_ASYNC & READ -----------> n/a
-     * - INDIVIDUAL_ASYNC & READ WRITE -----> n/a
-     */
-    public enum DependencyMode {
-        NONE,
-        READ,
-        READ_WRITE
+    private WorkloadStreamDefinition asynchronousStream = null;
+    private List<WorkloadStreamDefinition> blockingStreams = new ArrayList<>();
+
+    public WorkloadStreamDefinition asynchronousStream() {
+        return asynchronousStream;
     }
 
-    private AsynchronousStreamDefinition windowedOperationStreamDefinition = null;
-    private AsynchronousStreamDefinition asynchronousOperationStreamDefinition = null;
-    private List<AsynchronousStreamDefinition> synchronousOperationStreamDefinitions = new ArrayList<>();
-
-    public AsynchronousStreamDefinition windowedOperationStreamDefinition() {
-        return windowedOperationStreamDefinition;
+    public void setAsynchronousStream(Set<Class<? extends Operation>> dependentOperationTypes,
+                                      Iterator<Operation<?>> dependencyOperations,
+                                      Iterator<Operation<?>> nonDependencyOperations) {
+        this.asynchronousStream = new WorkloadStreamDefinition(dependentOperationTypes, dependencyOperations, nonDependencyOperations);
     }
 
-    public void setWindowedOperationStreamDefinition(AsynchronousStreamDefinition windowedOperationStreamDefinition) {
-        this.windowedOperationStreamDefinition = windowedOperationStreamDefinition;
+    public List<WorkloadStreamDefinition> blockingStreamDefinitions() {
+        return blockingStreams;
     }
 
-    public AsynchronousStreamDefinition asynchronousOperationStreamDefinition() {
-        return asynchronousOperationStreamDefinition;
+    public void addBlockingStream(Set<Class<? extends Operation>> dependentOperationTypes,
+                                     Iterator<Operation<?>> dependencyOperations,
+                                     Iterator<Operation<?>> nonDependencyOperations) {
+        WorkloadStreamDefinition blockingStream = new WorkloadStreamDefinition(dependentOperationTypes, dependencyOperations, nonDependencyOperations);
+        this.blockingStreams.add(blockingStream);
     }
 
-    public void setAsynchronousOperationStreamDefinition(AsynchronousStreamDefinition asynchronousOperationStreamDefinition) {
-        this.asynchronousOperationStreamDefinition = asynchronousOperationStreamDefinition;
-    }
 
-    public List<AsynchronousStreamDefinition> synchronousOperationStreamDefinitions() {
-        return synchronousOperationStreamDefinitions;
-    }
+    public static class WorkloadStreamDefinition {
+        private final Set<Class<? extends Operation>> dependentOperationTypes;
+        private final Iterator<Operation<?>> dependencyOperations;
+        private final Iterator<Operation<?>> nonDependencyOperations;
 
-    public void addSynchronousOperationStream(AsynchronousStreamDefinition synchronousOperationStream) {
-        this.synchronousOperationStreamDefinitions.add(synchronousOperationStream);
-    }
-
-    public class AsynchronousStreamDefinition {
-        private final Map<Class<? extends Operation>, DependencyMode> operationClassifications;
-        private final Iterator<Operation<?>> operationStream;
-
-        public AsynchronousStreamDefinition(Map<Class<? extends Operation>, DependencyMode> operationClassifications, Iterator<Operation<?>> operationStream) {
-            this.operationClassifications = operationClassifications;
-            this.operationStream = operationStream;
+        public WorkloadStreamDefinition(Set<Class<? extends Operation>> dependentOperationTypes,
+                                        Iterator<Operation<?>> dependencyOperations,
+                                        Iterator<Operation<?>> nonDependencyOperations) {
+            this.dependentOperationTypes = dependentOperationTypes;
+            this.dependencyOperations = dependencyOperations;
+            this.nonDependencyOperations = nonDependencyOperations;
         }
 
-        public Map<Class<? extends Operation>, DependencyMode> operationClassifications() {
-            return operationClassifications;
+        public Iterator<Operation<?>> dependencyOperations() {
+            return dependencyOperations;
         }
 
-        public Iterator<Operation<?>> operations() {
-            return operationStream;
+        public Iterator<Operation<?>> nonDependencyOperations() {
+            return nonDependencyOperations;
         }
 
-        public Set<Class<? extends Operation>> operationTypes() {
-            return operationClassifications.keySet();
-        }
-
-        public boolean containsReadDependencies() {
-            for (DependencyMode dependencyMode : operationClassifications.values()) {
-                if (dependencyMode.equals(DependencyMode.READ)) return true;
-            }
-            return false;
-        }
-
-        public boolean containsWriteDependencies() {
-            for (DependencyMode dependencyMode : operationClassifications.values()) {
-                if (dependencyMode.equals(DependencyMode.READ_WRITE)) return true;
-            }
-            return false;
+        public boolean isDependentOperation(Operation<?> operation) {
+            return dependentOperationTypes.contains(operation.getClass());
         }
     }
-
-    public class SynchronousStreamDefinition {
-        private final Map<Class<? extends Operation>, DependencyMode> operationClassifications;
-        private final Iterator<Operation<?>> operationStream;
-
-        public SynchronousStreamDefinition(Map<Class<? extends Operation>, DependencyMode> operationClassifications, Iterator<Operation<?>> operationStream) {
-            this.operationClassifications = operationClassifications;
-            this.operationStream = operationStream;
-        }
-
-        public Map<Class<? extends Operation>, DependencyMode> operationClassifications() {
-            return operationClassifications;
-        }
-
-        public Iterator<Operation<?>> operations() {
-            return operationStream;
-        }
-
-        public Set<Class<? extends Operation>> operationTypes() {
-            return operationClassifications.keySet();
-        }
-
-        public boolean containsReadDependencies() {
-            for (DependencyMode dependencyMode : operationClassifications.values()) {
-                if (dependencyMode.equals(DependencyMode.READ)) return true;
-            }
-            return false;
-        }
-
-        public boolean containsWriteDependencies() {
-            for (DependencyMode dependencyMode : operationClassifications.values()) {
-                if (dependencyMode.equals(DependencyMode.READ_WRITE)) return true;
-            }
-            return false;
-        }
-    }}
+}

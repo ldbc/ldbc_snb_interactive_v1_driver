@@ -1,9 +1,8 @@
 package com.ldbc.driver.runtime;
 
-import com.google.common.base.Predicate;
-import com.google.common.collect.Iterables;
-import com.google.common.collect.Lists;
-import com.ldbc.driver.*;
+import com.ldbc.driver.Db;
+import com.ldbc.driver.WorkloadException;
+import com.ldbc.driver.WorkloadStreams;
 import com.ldbc.driver.runtime.coordination.CompletionTimeException;
 import com.ldbc.driver.runtime.coordination.ConcurrentCompletionTimeService;
 import com.ldbc.driver.runtime.coordination.DummyLocalCompletionTimeWriter;
@@ -11,20 +10,15 @@ import com.ldbc.driver.runtime.coordination.LocalCompletionTimeWriter;
 import com.ldbc.driver.runtime.executor.*;
 import com.ldbc.driver.runtime.metrics.ConcurrentMetricsService;
 import com.ldbc.driver.runtime.scheduling.Spinner;
-import com.ldbc.driver.runtime.streams.IteratorSplitter;
-import com.ldbc.driver.runtime.streams.IteratorSplittingException;
-import com.ldbc.driver.runtime.streams.SplitDefinition;
-import com.ldbc.driver.runtime.streams.SplitResult;
 import com.ldbc.driver.temporal.Duration;
 import com.ldbc.driver.temporal.Time;
 import com.ldbc.driver.temporal.TimeSource;
 
-import java.util.Iterator;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-import static com.ldbc.driver.OperationClassification.SchedulingMode;
+import static com.ldbc.driver.WorkloadStreams.WorkloadStreamDefinition;
 
 public class WorkloadRunner {
     public static final Duration DEFAULT_DURATION_TO_WAIT_FOR_ALL_HANDLERS_TO_FINISH = Duration.fromMinutes(60);
@@ -40,13 +34,11 @@ public class WorkloadRunner {
 
     private final ConcurrentErrorReporter errorReporter;
 
-    private final OperationHandlerExecutor threadPoolForWindowed;
-    private final OperationHandlerExecutor threadPoolForBlocking;
-    private final OperationHandlerExecutor threadPoolForAsynchronous;
+    private final OperationHandlerExecutor executorForAsynchronous;
+    private final List<OperationHandlerExecutor> executorsForBlocking = new ArrayList<>();
 
-    private final PreciseIndividualAsyncOperationStreamExecutorService preciseIndividualAsyncOperationStreamExecutorService;
-    private final PreciseIndividualBlockingOperationStreamExecutorService preciseIndividualBlockingOperationStreamExecutorService;
-    private final UniformWindowedOperationStreamExecutorService uniformWindowedOperationStreamExecutorService;
+    private final PreciseIndividualAsyncOperationStreamExecutorService asynchronousStreamExecutorService;
+    private final List<PreciseIndividualBlockingOperationStreamExecutorService> blockingStreamExecutorServices = new ArrayList<>();
 
     private final Duration statusDisplayInterval;
 
@@ -69,7 +61,7 @@ public class WorkloadRunner {
         this.statusDisplayInterval = statusDisplayInterval;
 
         this.exactSpinner = new Spinner(this.timeSource, spinnerSleepDuration, ignoreScheduleStartTimes);
-        // TODO make this a configuration parameter?
+
         boolean detailedStatus = true;
         if (statusDisplayInterval.asSeconds() > 0)
             this.workloadStatusThread = new WorkloadStatusThread(
@@ -79,139 +71,57 @@ public class WorkloadRunner {
                     completionTimeService,
                     detailedStatus);
 
-        Predicate<Class<Operation<?>>> isWriteOperationType = new Predicate<Class<Operation<?>>>() {
-            @Override
-            public boolean apply(Class<Operation<?>> operationType) {
-                return true == operationClassifications.get(operationType).dependencyMode().equals(OperationClassification.DependencyMode.READ_WRITE);
-            }
-        };
-        Predicate<Class<Operation<?>>> isReadOperationType = new Predicate<Class<Operation<?>>>() {
-            @Override
-            public boolean apply(Class<Operation<?>> operationType) {
-                return false == operationClassifications.get(operationType).dependencyMode().equals(OperationClassification.DependencyMode.READ_WRITE);
-            }
-        };
-
-        // TODO separate into read and write later
-        List<Class<Operation<?>>> windowedOperationTypes =
-                Lists.newArrayList(Workload.operationTypesBySchedulingMode(operationClassifications, SchedulingMode.WINDOWED));
-        // TODO separate into read and write later
-        List<Class<Operation<?>>> blockingOperationTypes =
-                Lists.newArrayList(Workload.operationTypesBySchedulingMode(operationClassifications, SchedulingMode.INDIVIDUAL_BLOCKING));
-        List<Class<Operation<?>>> asyncWriteOperationTypes = Lists.newArrayList(Iterables.filter(
-                Lists.newArrayList(Workload.operationTypesBySchedulingMode(operationClassifications, SchedulingMode.INDIVIDUAL_ASYNC)),
-                isWriteOperationType
-        ));
-        List<Class<Operation<?>>> asyncReadOperationTypes = Lists.newArrayList(Iterables.filter(
-                Lists.newArrayList(Workload.operationTypesBySchedulingMode(operationClassifications, SchedulingMode.INDIVIDUAL_ASYNC)),
-                isReadOperationType
-        ));
-
-        Class<Operation<?>>[] windowedOperationTypesArray = windowedOperationTypes.toArray(new Class[windowedOperationTypes.size()]);
-        Class<Operation<?>>[] blockingOperationTypesArray = blockingOperationTypes.toArray(new Class[blockingOperationTypes.size()]);
-        Class<Operation<?>>[] asyncWriteOperationTypesArray = asyncWriteOperationTypes.toArray(new Class[asyncWriteOperationTypes.size()]);
-        Class<Operation<?>>[] asyncReadOperationTypesArray = asyncReadOperationTypes.toArray(new Class[asyncReadOperationTypes.size()]);
-
-        List<Operation<?>> windowedOperations;
-        List<Operation<?>> blockingOperations;
-        List<Operation<?>> asynchronousWriteOperations;
-        List<Operation<?>> asynchronousReadOperations;
-        try {
-            IteratorSplitter<Operation<?>> splitter = new IteratorSplitter<>(IteratorSplitter.UnmappedItemPolicy.ABORT);
-
-            SplitDefinition<Operation<?>> windowed = new SplitDefinition<>(windowedOperationTypesArray);
-            SplitDefinition<Operation<?>> blocking = new SplitDefinition<>(blockingOperationTypesArray);
-            SplitDefinition<Operation<?>> asynchronousWrite = new SplitDefinition<>(asyncWriteOperationTypesArray);
-            SplitDefinition<Operation<?>> asynchronousRead = new SplitDefinition<>(asyncReadOperationTypesArray);
-
-            SplitResult splits = splitter.split(operations, windowed, blocking, asynchronousWrite, asynchronousRead);
-            windowedOperations = splits.getSplitFor(windowed);
-            blockingOperations = splits.getSplitFor(blocking);
-            asynchronousWriteOperations = splits.getSplitFor(asynchronousWrite);
-            asynchronousReadOperations = splits.getSplitFor(asynchronousRead);
-        } catch (IteratorSplittingException e) {
-            throw new WorkloadException(
-                    String.format("Error while splitting operation stream by scheduling mode\n%s", ConcurrentErrorReporter.stackTraceToString(e)),
-                    e);
-        }
-
-        Predicate<Operation<?>> isReadWriteOperation = new Predicate<Operation<?>>() {
-            @Override
-            public boolean apply(Operation<?> operation) {
-                if (operationClassifications.containsKey(operation.getClass()))
-                    return operationClassifications.get(operation.getClass()).dependencyMode().equals(OperationClassification.DependencyMode.READ_WRITE);
-                else
-                    return false;
-            }
-        };
-
         // only create a local completion time writer for an executor if it contains at least one READ_WRITE operation
         // otherwise it will cause completion time to stall
+        WorkloadStreamDefinition asynchronousStream = workloadStreams.asynchronousStream();
+        this.executorForAsynchronous = new ThreadPoolOperationHandlerExecutor(threadCount, operationHandlerExecutorsBoundedQueueSize);
         LocalCompletionTimeWriter localCompletionTimeWriterForAsynchronous;
-        LocalCompletionTimeWriter localCompletionTimeWriterForBlocking;
-        LocalCompletionTimeWriter localCompletionTimeWriterForWindowed;
         try {
-            localCompletionTimeWriterForAsynchronous = (asynchronousWriteOperations.isEmpty())
-                    ? DUMMY_LOCAL_COMPLETION_TIME_WRITER
-                    : completionTimeService.newLocalCompletionTimeWriter();
-            localCompletionTimeWriterForBlocking = (Iterables.any(blockingOperations, isReadWriteOperation))
-                    ? completionTimeService.newLocalCompletionTimeWriter()
-                    : DUMMY_LOCAL_COMPLETION_TIME_WRITER;
-            localCompletionTimeWriterForWindowed = (Iterables.any(windowedOperations, isReadWriteOperation))
+            localCompletionTimeWriterForAsynchronous = (asynchronousStream.dependencyOperations().hasNext())
                     ? completionTimeService.newLocalCompletionTimeWriter()
                     : DUMMY_LOCAL_COMPLETION_TIME_WRITER;
         } catch (CompletionTimeException e) {
             throw new WorkloadException("Error while attempting to create local completion time writer", e);
         }
-
-        // Thread pools
-        // TODO get thread counts from config, or in more intelligent manner
-        // TODO move thread pool creation into executor services so workload runner does not have to know about them
-        // TODO calculate thread pool sizes
-        this.threadPoolForWindowed = new ThreadPoolOperationHandlerExecutor(threadCount, operationHandlerExecutorsBoundedQueueSize);
-        this.threadPoolForBlocking = new SameThreadOperationHandlerExecutor();
-        this.threadPoolForAsynchronous = new ThreadPoolOperationHandlerExecutor(threadCount, operationHandlerExecutorsBoundedQueueSize);
-
-        // Executors
-        this.preciseIndividualAsyncOperationStreamExecutorService = new PreciseIndividualAsyncOperationStreamExecutorService(
+        this.asynchronousStreamExecutorService = new PreciseIndividualAsyncOperationStreamExecutorService(
                 this.timeSource,
                 errorReporter,
-                asynchronousReadOperations.iterator(),
-                asynchronousWriteOperations.iterator(),
+                asynchronousStream,
                 exactSpinner,
-                threadPoolForAsynchronous,
-                operationClassifications,
+                executorForAsynchronous,
                 db,
                 localCompletionTimeWriterForAsynchronous,
                 completionTimeService,
                 metricsService,
                 durationToWaitForAllHandlersToFinishBeforeShutdown);
-        this.preciseIndividualBlockingOperationStreamExecutorService = new PreciseIndividualBlockingOperationStreamExecutorService(
-                this.timeSource,
-                errorReporter,
-                blockingOperations.iterator(),
-                exactSpinner,
-                threadPoolForBlocking,
-                operationClassifications,
-                db,
-                localCompletionTimeWriterForBlocking,
-                completionTimeService,
-                metricsService,
-                durationToWaitForAllHandlersToFinishBeforeShutdown);
-        this.uniformWindowedOperationStreamExecutorService = new UniformWindowedOperationStreamExecutorService(
-                this.timeSource,
-                errorReporter,
-                windowedOperations.iterator(),
-                threadPoolForWindowed,
-                exactSpinner,
-                workloadStartTime,
-                executionWindowDuration,
-                db,
-                operationClassifications,
-                localCompletionTimeWriterForWindowed,
-                completionTimeService,
-                metricsService,
-                durationToWaitForAllHandlersToFinishBeforeShutdown);
+
+        for (WorkloadStreamDefinition blockingStream : workloadStreams.blockingStreamDefinitions()) {
+            OperationHandlerExecutor executorForBlocking = new SameThreadOperationHandlerExecutor();
+            this.executorsForBlocking.add(executorForBlocking);
+            // only create a local completion time writer for an executor if it contains at least one READ_WRITE operation
+            // otherwise it will cause completion time to stall
+            LocalCompletionTimeWriter localCompletionTimeWriterForBlocking;
+            try {
+                localCompletionTimeWriterForBlocking = (blockingStream.dependencyOperations().hasNext())
+                        ? completionTimeService.newLocalCompletionTimeWriter()
+                        : DUMMY_LOCAL_COMPLETION_TIME_WRITER;
+            } catch (CompletionTimeException e) {
+                throw new WorkloadException("Error while attempting to create local completion time writer", e);
+            }
+            this.blockingStreamExecutorServices.add(
+                    new PreciseIndividualBlockingOperationStreamExecutorService(
+                            this.timeSource,
+                            errorReporter,
+                            blockingStream,
+                            exactSpinner,
+                            executorForBlocking,
+                            db,
+                            localCompletionTimeWriterForBlocking,
+                            completionTimeService,
+                            metricsService,
+                            durationToWaitForAllHandlersToFinishBeforeShutdown)
+            );
+        }
     }
 
     // TODO executeWorkload should return a result (e.g., Success/Fail, and ErrorType if Fail)
@@ -220,9 +130,11 @@ public class WorkloadRunner {
         if (statusDisplayInterval.asSeconds() > 0)
             workloadStatusThread.start();
 
-        AtomicBoolean asyncHandlersFinished = preciseIndividualAsyncOperationStreamExecutorService.execute();
-        AtomicBoolean blockingHandlersFinished = preciseIndividualBlockingOperationStreamExecutorService.execute();
-        AtomicBoolean windowedHandlersFinished = uniformWindowedOperationStreamExecutorService.execute();
+        AtomicBoolean[] executorFinishedFlags = new AtomicBoolean[blockingStreamExecutorServices.size() + 1];
+        executorFinishedFlags[0] = asynchronousStreamExecutorService.execute();
+        for (int i = 0; i < blockingStreamExecutorServices.size(); i++) {
+            executorFinishedFlags[i + 1] = blockingStreamExecutorServices.get(i - 1).execute();
+        }
 
         while (true) {
             // Error encountered in one or more of the worker threads --> terminate run
@@ -235,8 +147,14 @@ public class WorkloadRunner {
             }
 
             // All executors have completed --> return
-            if (asyncHandlersFinished.get() && blockingHandlersFinished.get() && windowedHandlersFinished.get())
-                break;
+            boolean allExecutorsHaveCompleted = true;
+            for (int i = 0; i < executorFinishedFlags.length; i++) {
+                if (false == executorFinishedFlags[i].get()) {
+                    allExecutorsHaveCompleted = false;
+                    break;
+                }
+            }
+            if (allExecutorsHaveCompleted) break;
 
             // Take short break between error & completion checks to reduce CPU utilization
             Spinner.powerNap(RUNNER_POLLING_INTERVAL_AS_MILLI);
@@ -263,27 +181,21 @@ public class WorkloadRunner {
         String errMsg = "";
 
         try {
-            preciseIndividualAsyncOperationStreamExecutorService.shutdown();
+            asynchronousStreamExecutorService.shutdown();
         } catch (OperationHandlerExecutorException e) {
             errMsg += String.format("Encountered error while shutting down %s\n%s\n",
-                    preciseIndividualAsyncOperationStreamExecutorService.getClass().getSimpleName(),
+                    asynchronousStreamExecutorService.getClass().getSimpleName(),
                     ConcurrentErrorReporter.stackTraceToString(e));
         }
 
-        try {
-            preciseIndividualBlockingOperationStreamExecutorService.shutdown();
-        } catch (OperationHandlerExecutorException e) {
-            errMsg += String.format("Encountered error while shutting down %s\n%s\n",
-                    preciseIndividualBlockingOperationStreamExecutorService.getClass().getSimpleName(),
-                    ConcurrentErrorReporter.stackTraceToString(e));
-        }
-
-        try {
-            uniformWindowedOperationStreamExecutorService.shutdown();
-        } catch (OperationHandlerExecutorException e) {
-            errMsg += String.format("Encountered error while shutting down %s\n%s\n",
-                    uniformWindowedOperationStreamExecutorService.getClass().getSimpleName(),
-                    ConcurrentErrorReporter.stackTraceToString(e));
+        for (PreciseIndividualBlockingOperationStreamExecutorService blockingStreamExecutorService : blockingStreamExecutorServices) {
+            try {
+                blockingStreamExecutorService.shutdown();
+            } catch (OperationHandlerExecutorException e) {
+                errMsg += String.format("Encountered error while shutting down %s\n%s\n",
+                        blockingStreamExecutorService.getClass().getSimpleName(),
+                        ConcurrentErrorReporter.stackTraceToString(e));
+            }
         }
 
         try {
@@ -291,14 +203,16 @@ public class WorkloadRunner {
                 // if forced shutdown (error) some handlers likely still running,
                 // but for now it does not matter as the process will terminate anyway
                 // (though when running test suite it can result in many running threads, making the tests much slower)
-                threadPoolForAsynchronous.shutdown(Duration.fromMilli(0));
-                threadPoolForBlocking.shutdown(Duration.fromMilli(0));
-                threadPoolForWindowed.shutdown(Duration.fromMilli(0));
+                executorForAsynchronous.shutdown(Duration.fromMilli(0));
+                for (OperationHandlerExecutor executorForBlocking : executorsForBlocking) {
+                    executorForBlocking.shutdown(Duration.fromMilli(0));
+                }
             } else {
                 // if normal shutdown all executors have completed by this stage
-                threadPoolForAsynchronous.shutdown(WAIT_DURATION_FOR_OPERATION_HANDLER_EXECUTOR_TO_SHUTDOWN);
-                threadPoolForBlocking.shutdown(WAIT_DURATION_FOR_OPERATION_HANDLER_EXECUTOR_TO_SHUTDOWN);
-                threadPoolForWindowed.shutdown(WAIT_DURATION_FOR_OPERATION_HANDLER_EXECUTOR_TO_SHUTDOWN);
+                executorForAsynchronous.shutdown(WAIT_DURATION_FOR_OPERATION_HANDLER_EXECUTOR_TO_SHUTDOWN);
+                for (OperationHandlerExecutor executorForBlocking : executorsForBlocking) {
+                    executorForBlocking.shutdown(WAIT_DURATION_FOR_OPERATION_HANDLER_EXECUTOR_TO_SHUTDOWN);
+                }
             }
         } catch (OperationHandlerExecutorException e) {
             errMsg += String.format("Encountered error while shutting down\n%s",

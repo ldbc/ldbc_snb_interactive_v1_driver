@@ -1,8 +1,7 @@
 package com.ldbc.driver.runtime.executor;
 
 import com.ldbc.driver.Db;
-import com.ldbc.driver.Operation;
-import com.ldbc.driver.OperationClassification;
+import com.ldbc.driver.WorkloadStreams;
 import com.ldbc.driver.runtime.ConcurrentErrorReporter;
 import com.ldbc.driver.runtime.coordination.GlobalCompletionTimeReader;
 import com.ldbc.driver.runtime.coordination.LocalCompletionTimeWriter;
@@ -11,8 +10,6 @@ import com.ldbc.driver.runtime.scheduling.Spinner;
 import com.ldbc.driver.temporal.Duration;
 import com.ldbc.driver.temporal.TimeSource;
 
-import java.util.Iterator;
-import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 public class PreciseIndividualBlockingOperationStreamExecutorService {
@@ -26,10 +23,9 @@ public class PreciseIndividualBlockingOperationStreamExecutorService {
 
     public PreciseIndividualBlockingOperationStreamExecutorService(TimeSource timeSource,
                                                                    ConcurrentErrorReporter errorReporter,
-                                                                   Iterator<Operation<?>> operations,
+                                                                   WorkloadStreams.WorkloadStreamDefinition streamDefinition,
                                                                    Spinner spinner,
                                                                    OperationHandlerExecutor operationHandlerExecutor,
-                                                                   Map<Class<? extends Operation>, OperationClassification> operationClassifications,
                                                                    Db db,
                                                                    LocalCompletionTimeWriter localCompletionTimeWriter,
                                                                    GlobalCompletionTimeReader globalCompletionTimeReader,
