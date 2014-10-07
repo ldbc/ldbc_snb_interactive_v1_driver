@@ -1,6 +1,7 @@
 package com.ldbc.driver.runtime.executor;
 
 import com.ldbc.driver.*;
+import com.ldbc.driver.WorkloadStreams.WorkloadStreamDefinition;
 import com.ldbc.driver.runtime.ConcurrentErrorReporter;
 import com.ldbc.driver.runtime.coordination.CompletionTimeException;
 import com.ldbc.driver.runtime.coordination.DummyLocalCompletionTimeWriter;
@@ -14,7 +15,6 @@ import com.ldbc.driver.temporal.Time;
 import com.ldbc.driver.temporal.TimeSource;
 
 import java.util.Iterator;
-import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 class PreciseIndividualAsyncOperationStreamExecutorServiceThread extends Thread {
@@ -32,12 +32,10 @@ class PreciseIndividualAsyncOperationStreamExecutorServiceThread extends Thread 
     public PreciseIndividualAsyncOperationStreamExecutorServiceThread(TimeSource timeSource,
                                                                       OperationHandlerExecutor operationHandlerExecutor,
                                                                       ConcurrentErrorReporter errorReporter,
-                                                                      Iterator<Operation<?>> gctReadOperations,
-                                                                      Iterator<Operation<?>> gctWriteOperations,
+                                                                      WorkloadStreamDefinition streamDefinition,
                                                                       AtomicBoolean hasFinished,
                                                                       Spinner spinner,
                                                                       AtomicBoolean forcedTerminate,
-                                                                      Map<Class<? extends Operation>, OperationClassification> operationClassifications,
                                                                       Db db,
                                                                       LocalCompletionTimeWriter localCompletionTimeWriter,
                                                                       GlobalCompletionTimeReader globalCompletionTimeReader,
@@ -51,12 +49,10 @@ class PreciseIndividualAsyncOperationStreamExecutorServiceThread extends Thread 
         this.forcedTerminate = forcedTerminate;
         this.durationToWaitForAllHandlersToFinishBeforeShutdown = durationToWaitForAllHandlersToFinishBeforeShutdown;
         this.handlerRetriever = new HandlerRetriever(
-                gctReadOperations,
-                gctWriteOperations,
+                streamDefinition,
                 db,
                 localCompletionTimeWriter,
                 globalCompletionTimeReader,
-                operationClassifications,
                 spinner,
                 timeSource,
                 errorReporter,
@@ -116,12 +112,12 @@ class PreciseIndividualAsyncOperationStreamExecutorServiceThread extends Thread 
     }
 
     private static class HandlerRetriever {
-        private final Iterator<Operation<?>> gctReadOperations;
+        private final WorkloadStreamDefinition streamDefinition;
+        private final Iterator<Operation<?>> gctNonWriteOperations;
         private final Iterator<Operation<?>> gctWriteOperations;
         private final Db db;
         private final LocalCompletionTimeWriter localCompletionTimeWriter;
         private final GlobalCompletionTimeReader globalCompletionTimeReader;
-        private final Map<Class<? extends Operation>, OperationClassification> operationClassifications;
         private final Spinner spinner;
         private final TimeSource timeSource;
         private final ConcurrentErrorReporter errorReporter;
@@ -129,22 +125,20 @@ class PreciseIndividualAsyncOperationStreamExecutorServiceThread extends Thread 
         OperationHandler<?> nextGctReadHandler;
         OperationHandler<?> nextGctWriteHandler;
 
-        private HandlerRetriever(Iterator<Operation<?>> gctReadOperations,
-                                 Iterator<Operation<?>> gctWriteOperations,
+        private HandlerRetriever(WorkloadStreamDefinition streamDefinition,
                                  Db db,
                                  LocalCompletionTimeWriter localCompletionTimeWriter,
                                  GlobalCompletionTimeReader globalCompletionTimeReader,
-                                 Map<Class<? extends Operation>, OperationClassification> operationClassifications,
                                  Spinner spinner,
                                  TimeSource timeSource,
                                  ConcurrentErrorReporter errorReporter,
                                  ConcurrentMetricsService metricsService) {
-            this.gctReadOperations = gctReadOperations;
-            this.gctWriteOperations = gctWriteOperations;
+            this.streamDefinition = streamDefinition;
+            this.gctNonWriteOperations = streamDefinition.nonDependencyOperations();
+            this.gctWriteOperations = streamDefinition.dependencyOperations();
             this.db = db;
             this.localCompletionTimeWriter = localCompletionTimeWriter;
             this.globalCompletionTimeReader = globalCompletionTimeReader;
-            this.operationClassifications = operationClassifications;
             this.spinner = spinner;
             this.timeSource = timeSource;
             this.errorReporter = errorReporter;
@@ -154,7 +148,7 @@ class PreciseIndividualAsyncOperationStreamExecutorServiceThread extends Thread 
         }
 
         public boolean hasNextHandler() {
-            return gctReadOperations.hasNext() || gctWriteOperations.hasNext();
+            return gctNonWriteOperations.hasNext() || gctWriteOperations.hasNext();
         }
 
         public OperationHandler<?> nextHandler() throws OperationHandlerExecutorException, CompletionTimeException {
@@ -168,8 +162,8 @@ class PreciseIndividualAsyncOperationStreamExecutorServiceThread extends Thread 
                     nextGctWriteHandler.localCompletionTimeWriter().submitLocalInitiatedTime(Time.fromNano(Long.MAX_VALUE));
                 }
             }
-            if (gctReadOperations.hasNext() && null == nextGctReadHandler) {
-                Operation<?> nextGctReadOperation = gctReadOperations.next();
+            if (gctNonWriteOperations.hasNext() && null == nextGctReadHandler) {
+                Operation<?> nextGctReadOperation = gctNonWriteOperations.next();
                 nextGctReadHandler = getAndInitializeHandler(nextGctReadOperation, DUMMY_LOCAL_COMPLETION_TIME_WRITER);
                 // no need to submit initiated time for an operation that should not write to GCT
             }
@@ -206,22 +200,16 @@ class PreciseIndividualAsyncOperationStreamExecutorServiceThread extends Thread 
                 throw new OperationHandlerExecutorException(String.format("Error while retrieving handler for operation\nOperation: %s", operation));
             }
 
-            OperationClassification.DependencyMode operationDependencyMode = operationClassifications.get(operation.getClass()).dependencyMode();
             try {
                 operationHandler.init(timeSource, spinner, operation, localCompletionTimeWriterForHandler, errorReporter, metricsService);
             } catch (OperationException e) {
                 throw new OperationHandlerExecutorException(String.format("Error while initializing handler for operation\nOperation: %s", operation));
             }
 
-            if (isDependencyReadingOperation(operationDependencyMode))
+            if (streamDefinition.isDependentOperation(operation))
                 operationHandler.addBeforeExecuteCheck(new GctDependencyCheck(globalCompletionTimeReader, operation, errorReporter));
 
             return operationHandler;
-        }
-
-        private boolean isDependencyReadingOperation(OperationClassification.DependencyMode operationDependencyMode) {
-            return operationDependencyMode.equals(OperationClassification.DependencyMode.READ_WRITE) ||
-                    operationDependencyMode.equals(OperationClassification.DependencyMode.READ);
         }
     }
 }
