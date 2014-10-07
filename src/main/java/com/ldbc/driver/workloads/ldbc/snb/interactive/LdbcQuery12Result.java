@@ -1,7 +1,7 @@
 package com.ldbc.driver.workloads.ldbc.snb.interactive;
 
-import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
+import com.ldbc.driver.util.ListUtils;
 
 import java.util.Collections;
 import java.util.List;
@@ -62,10 +62,10 @@ public class LdbcQuery12Result {
 
     private boolean tagNamesEqual(Iterable<String> tagNames1, Iterable<String> tagNames2) {
         if (null == tagNames1 || null == tagNames2) return false;
-        return Iterables.elementsEqual(sort(tagNames1), sort(tagNames2));
+        return ListUtils.listsEqual(sort(tagNames1), sort(tagNames2));
     }
 
-    private Iterable<String> sort(Iterable<String> iterable) {
+    private List<String> sort(Iterable<String> iterable) {
         List<String> list = Lists.newArrayList(iterable);
         Collections.sort(list);
         return list;

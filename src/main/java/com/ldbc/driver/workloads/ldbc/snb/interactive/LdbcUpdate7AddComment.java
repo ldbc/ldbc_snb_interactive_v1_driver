@@ -1,7 +1,7 @@
 package com.ldbc.driver.workloads.ldbc.snb.interactive;
 
-import com.google.common.collect.Iterables;
 import com.ldbc.driver.Operation;
+import com.ldbc.driver.util.ListUtils;
 
 import java.util.Collections;
 import java.util.Date;
@@ -105,7 +105,7 @@ public class LdbcUpdate7AddComment extends Operation<Object> {
         if (content != null ? !content.equals(that.content) : that.content != null) return false;
         if (creationDate != null ? !creationDate.equals(that.creationDate) : that.creationDate != null) return false;
         if (locationIp != null ? !locationIp.equals(that.locationIp) : that.locationIp != null) return false;
-        if (tagIds != null ? !Iterables.elementsEqual(sort(tagIds), sort(that.tagIds)) : that.tagIds != null)
+        if (tagIds != null ? !ListUtils.listsEqual(sort(tagIds), sort(that.tagIds)) : that.tagIds != null)
             return false;
 
         return true;
