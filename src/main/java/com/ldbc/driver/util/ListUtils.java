@@ -6,12 +6,12 @@ public class ListUtils {
 
     public static <T extends Object> boolean listsOfListsEqual(List<List<T>> listOfLists1, List<List<T>> listOfLists2) {
         if (listOfLists1.size() != listOfLists2.size()) return false;
-        for (int i = 0;i<listOfLists1.size();i++){
+        for (int i = 0; i < listOfLists1.size(); i++) {
             List<T> list1 = listOfLists1.get(i);
             List<T> list2 = listOfLists2.get(i);
             if (list1.size() != list2.size()) return false;
-            for (int j=0;j<list1.size();j++){
-                if (false == list1.get(i).equals(list2.get(i))) return false;
+            for (int j = 0; j < list1.size(); j++) {
+                if (false == list1.get(j).equals(list2.get(j))) return false;
             }
         }
         return true;
