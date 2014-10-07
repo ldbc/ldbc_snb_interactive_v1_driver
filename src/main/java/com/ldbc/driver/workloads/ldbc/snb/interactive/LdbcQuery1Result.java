@@ -1,7 +1,7 @@
 package com.ldbc.driver.workloads.ldbc.snb.interactive;
 
-import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
+import com.ldbc.driver.util.ListUtils;
 
 import java.util.Collections;
 import java.util.Comparator;
@@ -124,24 +124,24 @@ public class LdbcQuery1Result {
             return false;
         if (friendCityName != null ? !friendCityName.equals(other.friendCityName) : other.friendCityName != null)
             return false;
-        if (friendCompanies != null ? !Iterables.elementsEqual(sortListOfObjectLists(friendCompanies), sortListOfObjectLists(other.friendCompanies)) : other.friendCompanies != null)
+        if (friendCompanies != null ? !ListUtils.listsOfListsEqual(sortListOfObjectLists(friendCompanies), sortListOfObjectLists(other.friendCompanies)) : other.friendCompanies != null)
             return false;
-        if (friendEmails != null ? !Iterables.elementsEqual(sortStringList(friendEmails), sortStringList(other.friendEmails)) : other.friendEmails != null)
+        if (friendEmails != null ? !ListUtils.listsEqual(sortStringList(friendEmails), sortStringList(other.friendEmails)) : other.friendEmails != null)
             return false;
         if (friendGender != null ? !friendGender.equals(other.friendGender) : other.friendGender != null)
             return false;
-        if (friendLanguages != null ? !Iterables.elementsEqual(sortStringList(friendLanguages), sortStringList(other.friendLanguages)) : other.friendLanguages != null)
+        if (friendLanguages != null ? !ListUtils.listsEqual(sortStringList(friendLanguages), sortStringList(other.friendLanguages)) : other.friendLanguages != null)
             return false;
         if (friendLastName != null ? !friendLastName.equals(other.friendLastName) : other.friendLastName != null)
             return false;
         if (friendLocationIp != null ? !friendLocationIp.equals(other.friendLocationIp) : other.friendLocationIp != null)
             return false;
-        if (friendUniversities != null ? !Iterables.elementsEqual(sortListOfObjectLists(friendUniversities), sortListOfObjectLists(other.friendUniversities)) : other.friendUniversities != null)
+        if (friendUniversities != null ? !ListUtils.listsOfListsEqual(sortListOfObjectLists(friendUniversities), sortListOfObjectLists(other.friendUniversities)) : other.friendUniversities != null)
             return false;
         return true;
     }
 
-    private Iterable<String> sortStringList(Iterable<String> iterable) {
+    private List<String> sortStringList(Iterable<String> iterable) {
         List<String> list = Lists.newArrayList(iterable);
         Collections.sort(list);
         return list;
