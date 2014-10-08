@@ -1,19 +1,96 @@
 package com.ldbc.driver;
 
+import com.ldbc.driver.control.DriverConfiguration;
 import com.ldbc.driver.generator.GeneratorFactory;
 import com.ldbc.driver.temporal.Time;
+import com.ldbc.driver.util.ClassLoaderHelper;
 
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 public class WorkloadStreams {
     private WorkloadStreamDefinition asynchronousStream = null;
     private List<WorkloadStreamDefinition> blockingStreams = new ArrayList<>();
 
+    // TODO test
+    public static WorkloadStreams createLimitedWorkloadStream(DriverConfiguration configuration, GeneratorFactory gf) throws WorkloadException {
+        WorkloadStreams workloadStreams = new WorkloadStreams();
+        // get workload
+        Workload workload = ClassLoaderHelper.loadWorkload(configuration.workloadClassName());
+        workload.init(configuration);
+        // retrieve unbounded streams
+        WorkloadStreams unlimitedWorkloadStreams = workload.streams(gf);
+        List<Iterator<Operation<?>>> streams = new ArrayList<>();
+        streams.add(unlimitedWorkloadStreams.asynchronousStream().dependencyOperations());
+        streams.add(unlimitedWorkloadStreams.asynchronousStream().nonDependencyOperations());
+        for (WorkloadStreamDefinition stream : unlimitedWorkloadStreams.blockingStreamDefinitions()) {
+            streams.add(stream.dependencyOperations());
+            streams.add(stream.nonDependencyOperations());
+        }
+        // stream through streams once, to calculate how many operations are needed from each, to get operation_count in total
+        long[] limitForStream = WorkloadStreams.fromAmongAllRetrieveTopK(streams, configuration.operationCount());
+        workload.cleanup();
+        // reinitialize workload, so it can be streamed through from the beginning
+        workload = ClassLoaderHelper.loadWorkload(configuration.workloadClassName());
+        workload.init(configuration);
+        // retrieve unbounded streams
+        unlimitedWorkloadStreams = workload.streams(gf);
+        // copy unbounded streams to new workload streams instance, applying limits we just computed
+        workloadStreams.setAsynchronousStream(
+                unlimitedWorkloadStreams.asynchronousStream().dependentOperationTypes(),
+                gf.limit(unlimitedWorkloadStreams.asynchronousStream().dependencyOperations(), limitForStream[0]),
+                gf.limit(unlimitedWorkloadStreams.asynchronousStream().nonDependencyOperations(), limitForStream[1])
+        );
+        List<WorkloadStreamDefinition> blockingStreams = unlimitedWorkloadStreams.blockingStreamDefinitions();
+        for (int i = 0; i < blockingStreams.size(); i++) {
+            workloadStreams.addBlockingStream(
+                    blockingStreams.get(i).dependentOperationTypes(),
+                    gf.limit(blockingStreams.get(i).dependencyOperations(), limitForStream[i * 2 + 2]),
+                    gf.limit(blockingStreams.get(i).nonDependencyOperations(), limitForStream[i * 2 + 3])
+            );
+        }
+        return workloadStreams;
+    }
+
+    public static long[] fromAmongAllRetrieveTopK(List<Iterator<Operation<?>>> streams, long k) {
+        long kSoFar = 0;
+        long[] kForStream = new long[streams.size()];
+        for (int i = 0; i < streams.size(); i++) {
+            kForStream[i] = 0;
+        }
+        Operation[] streamHeads = new Operation[streams.size()];
+        for (int i = 0; i < streams.size(); i++) {
+            streamHeads[i] = null;
+        }
+        while (kSoFar < k) {
+            long minNano = Long.MAX_VALUE;
+            int indexOfMin = -1;
+            for (int i = 0; i < streams.size(); i++) {
+                if (null == streamHeads[i] && streams.get(i).hasNext()) {
+                    streamHeads[i] = streams.get(i).next();
+                }
+                long streamHeadTimeAsNano = streamHeads[i].scheduledStartTime().asNano();
+                if (null != streamHeads[i] && streamHeadTimeAsNano < minNano) {
+                    minNano = streamHeadTimeAsNano;
+                    indexOfMin = i;
+                }
+            }
+            kForStream[indexOfMin] = kForStream[indexOfMin] + 1;
+            streamHeads[indexOfMin] = null;
+            kSoFar = kSoFar + 1;
+        }
+        return kForStream;
+    }
+
     public WorkloadStreamDefinition asynchronousStream() {
-        return asynchronousStream;
+        return (null != asynchronousStream)
+                ?
+                asynchronousStream
+                :
+                new WorkloadStreamDefinition(
+                        new HashSet<Class<? extends Operation<?>>>(),
+                        Collections.<Operation<?>>emptyIterator(),
+                        Collections.<Operation<?>>emptyIterator()
+                );
     }
 
     public void setAsynchronousStream(Set<Class<? extends Operation<?>>> dependentOperationTypes,
@@ -78,15 +155,15 @@ public class WorkloadStreams {
         }
 
         public Iterator<Operation<?>> dependencyOperations() {
-            return dependencyOperations;
+            return (null != dependencyOperations) ? dependencyOperations : Collections.<Operation<?>>emptyIterator();
         }
 
         public Iterator<Operation<?>> nonDependencyOperations() {
-            return nonDependencyOperations;
+            return (null != nonDependencyOperations) ? nonDependencyOperations : Collections.<Operation<?>>emptyIterator();
         }
 
         public Set<Class<? extends Operation<?>>> dependentOperationTypes() {
-            return dependentOperationTypes;
+            return (null != dependentOperationTypes) ? dependentOperationTypes : new HashSet<Class<? extends Operation<?>>>();
         }
     }
 }

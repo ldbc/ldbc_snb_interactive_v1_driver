@@ -186,13 +186,6 @@ public class Client {
             }
 
             CompletionTimeServiceAssistant completionTimeServiceAssistant = new CompletionTimeServiceAssistant();
-            try {
-                workload = ClassLoaderHelper.loadWorkload(controlService.configuration().workloadClassName());
-                workload.init(controlService.configuration());
-            } catch (Exception e) {
-                throw new ClientException(String.format("Error loading Workload class: %s", controlService.configuration().workloadClassName()), e);
-            }
-            logger.info(String.format("Loaded Workload: %s", workload.getClass().getName()));
 
             try {
                 db = ClassLoaderHelper.loadDb(controlService.configuration().dbClassName());
@@ -246,11 +239,28 @@ public class Client {
                     csvResultsLogFileWriter);
             GeneratorFactory gf = new GeneratorFactory(new RandomDataGeneratorFactory(RANDOM_SEED));
 
+            WorkloadStreams workloadStreams;
+            try {
+                workloadStreams = WorkloadStreams.createLimitedWorkloadStream(controlService.configuration(), gf);
+            } catch (Exception e) {
+                throw new ClientException(String.format("Error loading workload class: %s", controlService.configuration().workloadClassName()), e);
+            }
+            logger.info(String.format("Loaded workload: %s", workload.getClass().getName()));
+
             logger.info(String.format("Retrieving operation stream for workload: %s", workload.getClass().getSimpleName()));
+//            WorkloadStreams timeMappedWorkloadStreams;
+//            try {
+//                WorkloadStreams workloadStreams = workload.streams(gf, controlService.configuration().operationCount());
+//                Iterator<Operation<?>> operations = workload.streams(gf, controlService.configuration().operationCount());
+//                timeMappedOperations = gf.timeOffsetAndCompress(
+//                        operations,
+//                        controlService.workloadStartTime(),
+//                        controlService.configuration().timeCompressionRatio());
+//            } catch (WorkloadException e) {
+//                throw new ClientException("Error while retrieving operation stream for workload", e);
+//            }
             WorkloadStreams timeMappedWorkloadStreams;
             try {
-                WorkloadStreams workloadStreams = workload.streams(gf, controlService.configuration().operationCount());
-                Iterator<Operation<?>> operations = workload.streams(gf, controlService.configuration().operationCount());
                 timeMappedOperations = gf.timeOffsetAndCompress(
                         operations,
                         controlService.workloadStartTime(),
