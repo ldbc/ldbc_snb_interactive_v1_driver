@@ -37,7 +37,7 @@ public class DummyWorkload extends Workload {
     }
 
     @Override
-    protected Iterator<Operation<?>> getOperations(GeneratorFactory generators) throws WorkloadException {
+    protected Iterator<Operation<?>> getStreams(GeneratorFactory generators) throws WorkloadException {
         return operations.iterator();
     }
 

@@ -90,7 +90,7 @@ public class SimpleWorkloadTest {
         Workload workload = new SimpleWorkload();
         workload.init(params);
         GeneratorFactory gf = new GeneratorFactory(new RandomDataGeneratorFactory(42L));
-        Iterator<Operation<?>> operations = workload.operations(gf, 1000000);
+        Iterator<Operation<?>> operations = workload.streams(gf, 1000000);
         TimeSource timeSource = new SystemTimeSource();
         Time timeout = timeSource.now().plus(Duration.fromSeconds(30));
         boolean workloadGeneratedOperationsBeforeTimeout = TestUtils.generateBeforeTimeout(operations, timeout, timeSource, 1000000);
@@ -158,13 +158,13 @@ public class SimpleWorkloadTest {
 
         List<Class> operationsA = ImmutableList.copyOf(
                 Iterators.transform(
-                        workload.operations(new GeneratorFactory(new RandomDataGeneratorFactory(42L)), params.operationCount()),
+                        workload.streams(new GeneratorFactory(new RandomDataGeneratorFactory(42L)), params.operationCount()),
                         classFun
                 ));
 
         List<Class> operationsB = ImmutableList.copyOf(
                 Iterators.transform(
-                        workload.operations(new GeneratorFactory(new RandomDataGeneratorFactory(42L)), params.operationCount()),
+                        workload.streams(new GeneratorFactory(new RandomDataGeneratorFactory(42L)), params.operationCount()),
                         classFun
                 ));
 
@@ -303,7 +303,7 @@ public class SimpleWorkloadTest {
 
         List<Class> operationsA = ImmutableList.copyOf(
                 Iterators.transform(
-                        workloadA.operations(new GeneratorFactory(new RandomDataGeneratorFactory(42L)), params.operationCount()),
+                        workloadA.streams(new GeneratorFactory(new RandomDataGeneratorFactory(42L)), params.operationCount()),
                         new Function<Operation<?>, Class>() {
                             @Override
                             public Class apply(Operation<?> operation) {
@@ -313,7 +313,7 @@ public class SimpleWorkloadTest {
 
         List<Class> operationsB = ImmutableList.copyOf(
                 Iterators.transform(
-                        workloadB.operations(new GeneratorFactory(new RandomDataGeneratorFactory(42L)), params.operationCount()),
+                        workloadB.streams(new GeneratorFactory(new RandomDataGeneratorFactory(42L)), params.operationCount()),
                         new Function<Operation<?>, Class>() {
                             @Override
                             public Class apply(Operation<?> operation) {

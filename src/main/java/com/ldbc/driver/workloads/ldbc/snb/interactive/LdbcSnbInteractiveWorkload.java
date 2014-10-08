@@ -22,7 +22,6 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.*;
 
-import static com.ldbc.driver.OperationClassification.SchedulingMode;
 import static com.ldbc.driver.generator.CsvEventStreamReader.EventReturnPolicy;
 
 public class LdbcSnbInteractiveWorkload extends Workload {
@@ -498,7 +497,7 @@ public class LdbcSnbInteractiveWorkload extends Workload {
     }
 
     @Override
-    protected Iterator<Operation<?>> getOperations(GeneratorFactory gf) throws WorkloadException {
+    protected Iterator<Operation<?>> getStreams(GeneratorFactory gf) throws WorkloadException {
         // this is an arbitrary point in time that is simply used as reference point, Client will move times to the present anyway
         Time workloadStartTime = Time.fromMilli(0);
 

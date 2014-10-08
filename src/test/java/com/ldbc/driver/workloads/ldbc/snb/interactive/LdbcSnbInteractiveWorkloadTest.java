@@ -190,7 +190,7 @@ public class LdbcSnbInteractiveWorkloadTest {
         workload.init(config);
 
         GeneratorFactory gf = new GeneratorFactory(new RandomDataGeneratorFactory(42L));
-        Iterator<Operation<?>> operations = workload.operations(gf, MANY_ELEMENTS_COUNT);
+        Iterator<Operation<?>> operations = workload.streams(gf, MANY_ELEMENTS_COUNT);
         TimeSource timeSource = new SystemTimeSource();
         Time timeout = timeSource.now().plus(Duration.fromSeconds(30));
         boolean workloadGeneratedOperationsBeforeTimeout = TestUtils.generateBeforeTimeout(operations, timeout, timeSource, MANY_ELEMENTS_COUNT);
@@ -262,7 +262,7 @@ public class LdbcSnbInteractiveWorkloadTest {
 
         List<Class> operationsA = ImmutableList.copyOf(
                 Iterators.transform(
-                        workloadA.operations(new GeneratorFactory(new RandomDataGeneratorFactory(42L)), params.operationCount()),
+                        workloadA.streams(new GeneratorFactory(new RandomDataGeneratorFactory(42L)), params.operationCount()),
                         new Function<Operation<?>, Class>() {
                             @Override
                             public Class apply(Operation<?> operation) {
@@ -272,7 +272,7 @@ public class LdbcSnbInteractiveWorkloadTest {
 
         List<Class> operationsB = ImmutableList.copyOf(
                 Iterators.transform(
-                        workloadB.operations(new GeneratorFactory(new RandomDataGeneratorFactory(42L)), params.operationCount()),
+                        workloadB.streams(new GeneratorFactory(new RandomDataGeneratorFactory(42L)), params.operationCount()),
                         new Function<Operation<?>, Class>() {
                             @Override
                             public Class apply(Operation<?> operation) {
@@ -352,7 +352,7 @@ public class LdbcSnbInteractiveWorkloadTest {
         // When
 
         Iterator<Class> operationTypes = Iterators.transform(
-                workload.operations(new GeneratorFactory(new RandomDataGeneratorFactory(42L)), params.operationCount()),
+                workload.streams(new GeneratorFactory(new RandomDataGeneratorFactory(42L)), params.operationCount()),
                 new Function<Operation<?>, Class>() {
                     @Override
                     public Class apply(Operation<?> operation) {
@@ -497,7 +497,7 @@ public class LdbcSnbInteractiveWorkloadTest {
 
         Workload workload = new LdbcSnbInteractiveWorkload();
         workload.init(configuration);
-        List<Operation<?>> operations = Lists.newArrayList(workload.operations(new GeneratorFactory(new RandomDataGeneratorFactory(42L)), configuration.operationCount()));
+        List<Operation<?>> operations = Lists.newArrayList(workload.streams(new GeneratorFactory(new RandomDataGeneratorFactory(42L)), configuration.operationCount()));
 
         Time prevOperationScheduledStartTime = operations.get(0).scheduledStartTime().minus(Duration.fromMilli(1));
         for (Operation<?> operation : operations) {
@@ -630,7 +630,7 @@ public class LdbcSnbInteractiveWorkloadTest {
 
         Workload workload = new LdbcSnbInteractiveWorkload();
         workload.init(configuration);
-        List<Operation<?>> operations = Lists.newArrayList(workload.operations(new GeneratorFactory(new RandomDataGeneratorFactory(42L)), configuration.operationCount()));
+        List<Operation<?>> operations = Lists.newArrayList(workload.streams(new GeneratorFactory(new RandomDataGeneratorFactory(42L)), configuration.operationCount()));
 
         Time firstOperationScheduledStartTime = operations.get(0).scheduledStartTime();
 

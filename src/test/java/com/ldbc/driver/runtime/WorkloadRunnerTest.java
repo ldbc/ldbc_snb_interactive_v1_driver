@@ -119,7 +119,7 @@ public class WorkloadRunnerTest {
             workload = new LdbcSnbInteractiveWorkload();
             workload.init(configuration);
             GeneratorFactory generators = new GeneratorFactory(new RandomDataGeneratorFactory(42L));
-            Iterator<Operation<?>> operations = workload.operations(generators, configuration.operationCount());
+            Iterator<Operation<?>> operations = workload.streams(generators, configuration.operationCount());
             Iterator<Operation<?>> timeMappedOperations = generators.timeOffsetAndCompress(operations, controlService.workloadStartTime(), 1.0);
             Map<Class<? extends Operation>, OperationClassification> operationClassifications = workload.operationClassifications();
             boolean recordStartTimeDelayLatency = false == configuration.ignoreScheduledStartTimes();
@@ -266,7 +266,7 @@ public class WorkloadRunnerTest {
             workload = new LdbcSnbInteractiveWorkload();
             workload.init(configuration);
             GeneratorFactory generators = new GeneratorFactory(new RandomDataGeneratorFactory(42L));
-            Iterator<Operation<?>> operations = workload.operations(generators, configuration.operationCount());
+            Iterator<Operation<?>> operations = workload.streams(generators, configuration.operationCount());
             Iterator<Operation<?>> timeMappedOperations = generators.timeOffsetAndCompress(operations, controlService.workloadStartTime(), 1.0);
             Map<Class<? extends Operation>, OperationClassification> operationClassifications = workload.operationClassifications();
             boolean recordStartTimeDelayLatency = false == configuration.ignoreScheduledStartTimes();

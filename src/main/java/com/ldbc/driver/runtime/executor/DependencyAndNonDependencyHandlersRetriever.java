@@ -13,11 +13,11 @@ import com.ldbc.driver.temporal.Time;
 import com.ldbc.driver.temporal.TimeSource;
 
 import java.util.Iterator;
+import java.util.Set;
 
 // TODO test
 class DependencyAndNonDependencyHandlersRetriever {
     private static final LocalCompletionTimeWriter DUMMY_LOCAL_COMPLETION_TIME_WRITER = new DummyLocalCompletionTimeWriter();
-    private final WorkloadStreams.WorkloadStreamDefinition streamDefinition;
     private final Iterator<Operation<?>> gctNonWriteOperations;
     private final Iterator<Operation<?>> gctWriteOperations;
     private final Db db;
@@ -27,6 +27,7 @@ class DependencyAndNonDependencyHandlersRetriever {
     private final TimeSource timeSource;
     private final ConcurrentErrorReporter errorReporter;
     private final ConcurrentMetricsService metricsService;
+    private final Set<Class<? extends Operation<?>>> dependentOperationTypes;
     OperationHandler<?> nextGctReadHandler;
     OperationHandler<?> nextGctWriteHandler;
 
@@ -38,7 +39,6 @@ class DependencyAndNonDependencyHandlersRetriever {
                                                 TimeSource timeSource,
                                                 ConcurrentErrorReporter errorReporter,
                                                 ConcurrentMetricsService metricsService) {
-        this.streamDefinition = streamDefinition;
         this.gctNonWriteOperations = streamDefinition.nonDependencyOperations();
         this.gctWriteOperations = streamDefinition.dependencyOperations();
         this.db = db;
@@ -48,6 +48,7 @@ class DependencyAndNonDependencyHandlersRetriever {
         this.timeSource = timeSource;
         this.errorReporter = errorReporter;
         this.metricsService = metricsService;
+        this.dependentOperationTypes = streamDefinition.dependentOperationTypes();
         this.nextGctReadHandler = null;
         this.nextGctWriteHandler = null;
     }
@@ -120,7 +121,7 @@ class DependencyAndNonDependencyHandlersRetriever {
             throw new OperationHandlerExecutorException(String.format("Error while initializing handler for operation\nOperation: %s", operation));
         }
 
-        if (streamDefinition.isDependentOperation(operation))
+        if (dependentOperationTypes.contains(operation))
             operationHandler.addBeforeExecuteCheck(new GctDependencyCheck(globalCompletionTimeReader, operation, errorReporter));
 
         return operationHandler;

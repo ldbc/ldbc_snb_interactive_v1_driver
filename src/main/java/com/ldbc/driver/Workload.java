@@ -34,13 +34,13 @@ public abstract class Workload {
 
     protected abstract void onCleanup() throws WorkloadException;
 
-    public final WorkloadStreams operations(GeneratorFactory gf) throws WorkloadException {
+    public final WorkloadStreams streams(GeneratorFactory gf) throws WorkloadException {
         if (false == isInitialized)
             throw new WorkloadException("Workload has not been initialized");
-        return getOperations(gf);
+        return getStreams(gf);
     }
 
-    protected abstract WorkloadStreams getOperations(GeneratorFactory generators) throws WorkloadException;
+    protected abstract WorkloadStreams getStreams(GeneratorFactory generators) throws WorkloadException;
 
     public DbValidationParametersFilter dbValidationParametersFilter(final Integer requiredValidationParameterCount) {
         return new DbValidationParametersFilter() {

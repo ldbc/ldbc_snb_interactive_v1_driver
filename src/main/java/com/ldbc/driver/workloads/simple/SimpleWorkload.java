@@ -1,10 +1,11 @@
 package com.ldbc.driver.workloads.simple;
 
 import com.google.common.collect.Iterators;
+import com.google.common.collect.Sets;
 import com.ldbc.driver.Operation;
-import com.ldbc.driver.OperationClassification;
 import com.ldbc.driver.Workload;
 import com.ldbc.driver.WorkloadException;
+import com.ldbc.driver.WorkloadStreams;
 import com.ldbc.driver.generator.GeneratorFactory;
 import com.ldbc.driver.generator.MinMaxGenerator;
 import com.ldbc.driver.temporal.Duration;
@@ -35,23 +36,11 @@ public class SimpleWorkload extends Workload {
     final long INITIAL_INSERT_COUNT = 10;
 
     @Override
-    public Map<Class<? extends Operation>, OperationClassification> getOperationClassifications() {
-        Map<Class<? extends Operation>, OperationClassification> operationClassificationMapping = new HashMap<>();
-        // TODO use correct operation classifications
-        operationClassificationMapping.put(InsertOperation.class, new OperationClassification(OperationClassification.SchedulingMode.INDIVIDUAL_ASYNC, OperationClassification.DependencyMode.NONE));
-        operationClassificationMapping.put(ReadModifyWriteOperation.class, new OperationClassification(OperationClassification.SchedulingMode.INDIVIDUAL_ASYNC, OperationClassification.DependencyMode.NONE));
-        operationClassificationMapping.put(ReadOperation.class, new OperationClassification(OperationClassification.SchedulingMode.INDIVIDUAL_ASYNC, OperationClassification.DependencyMode.NONE));
-        operationClassificationMapping.put(ScanOperation.class, new OperationClassification(OperationClassification.SchedulingMode.INDIVIDUAL_ASYNC, OperationClassification.DependencyMode.NONE));
-        operationClassificationMapping.put(UpdateOperation.class, new OperationClassification(OperationClassification.SchedulingMode.INDIVIDUAL_ASYNC, OperationClassification.DependencyMode.NONE));
-        return operationClassificationMapping;
-    }
-
-    @Override
     public void onInit(Map<String, String> params) {
     }
 
     @Override
-    public Iterator<Operation<?>> getOperations(GeneratorFactory gf) throws WorkloadException {
+    public WorkloadStreams getStreams(GeneratorFactory gf) throws WorkloadException {
         Time workloadStartTime = Time.fromMilli(0);
 
         /**
@@ -184,7 +173,12 @@ public class SimpleWorkload extends Workload {
         Iterator<Time> startTimes = gf.constantIncrementTime(workloadStartTime.plus(Duration.fromMilli(1)), Duration.fromMilli(100));
         Iterator<Time> dependencyTimes = gf.constant(workloadStartTime);
 
-        return gf.assignDependencyTimes(dependencyTimes, gf.assignStartTimes(startTimes, workloadOperations));
+        WorkloadStreams workloadStreams = new WorkloadStreams();
+        workloadStreams.setAsynchronousStream(
+                Sets.<Class<? extends Operation<?>>>newHashSet(),
+                Collections.<Operation<?>>emptyIterator(),
+                gf.assignDependencyTimes(dependencyTimes, gf.assignStartTimes(startTimes, workloadOperations)));
+        return workloadStreams;
     }
 
     @Override

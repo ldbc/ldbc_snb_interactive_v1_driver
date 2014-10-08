@@ -244,13 +244,14 @@ public class Client {
                     recordStartTimeDelayLatency,
                     executionDelayPolicy,
                     csvResultsLogFileWriter);
-            GeneratorFactory generators = new GeneratorFactory(new RandomDataGeneratorFactory(RANDOM_SEED));
+            GeneratorFactory gf = new GeneratorFactory(new RandomDataGeneratorFactory(RANDOM_SEED));
 
             logger.info(String.format("Retrieving operation stream for workload: %s", workload.getClass().getSimpleName()));
-            Iterator<Operation<?>> timeMappedOperations;
+            WorkloadStreams timeMappedWorkloadStreams;
             try {
-                Iterator<Operation<?>> operations = workload.operations(generators, controlService.configuration().operationCount());
-                timeMappedOperations = generators.timeOffsetAndCompress(
+                WorkloadStreams workloadStreams = workload.streams(gf, controlService.configuration().operationCount());
+                Iterator<Operation<?>> operations = workload.streams(gf, controlService.configuration().operationCount());
+                timeMappedOperations = gf.timeOffsetAndCompress(
                         operations,
                         controlService.workloadStartTime(),
                         controlService.configuration().timeCompressionRatio());
@@ -439,7 +440,7 @@ public class Client {
 
             logger.info(String.format("Retrieving operation stream for workload: %s", workload.getClass().getSimpleName()));
             try {
-                Iterator<Operation<?>> operations = workload.operations(generators, controlService.configuration().operationCount());
+                Iterator<Operation<?>> operations = workload.streams(generators, controlService.configuration().operationCount());
                 timeMappedOperations = generators.timeOffsetAndCompress(
                         operations,
                         controlService.workloadStartTime(),
@@ -503,7 +504,7 @@ public class Client {
 
             logger.info(String.format("Retrieving operation stream for workload: %s", workload.getClass().getSimpleName()));
             try {
-                Iterator<Operation<?>> operations = workload.operations(generators, controlService.configuration().operationCount());
+                Iterator<Operation<?>> operations = workload.streams(generators, controlService.configuration().operationCount());
                 timeMappedOperations = generators.timeOffsetAndCompress(
                         operations,
                         controlService.workloadStartTime(),
