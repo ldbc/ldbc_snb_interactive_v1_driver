@@ -11,7 +11,7 @@ public class ListUtils {
             List<T> list2 = listOfLists2.get(i);
             if (list1.size() != list2.size()) return false;
             for (int j = 0; j < list1.size(); j++) {
-                if (false == list1.get(j).equals(list2.get(j))) return false;
+                if (false == list1.get(j).toString().equals(list2.get(j).toString())) return false;
             }
         }
         return true;

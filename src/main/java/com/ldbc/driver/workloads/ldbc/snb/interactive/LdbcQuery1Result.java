@@ -124,7 +124,7 @@ public class LdbcQuery1Result {
             return false;
         if (friendCityName != null ? !friendCityName.equals(other.friendCityName) : other.friendCityName != null)
             return false;
-        if (friendCompanies != null ? !ListUtils.listsOfListsEqual(sortListOfObjectLists(friendCompanies), sortListOfObjectLists(other.friendCompanies)) : other.friendCompanies != null)
+        if ((null == friendCompanies ^ null == other.friendCompanies) || false == ListUtils.listsOfListsEqual(sortListOfObjectLists(friendCompanies), sortListOfObjectLists(other.friendCompanies)))
             return false;
         if (friendEmails != null ? !ListUtils.listsEqual(sortStringList(friendEmails), sortStringList(other.friendEmails)) : other.friendEmails != null)
             return false;
@@ -147,22 +147,23 @@ public class LdbcQuery1Result {
         return list;
     }
 
+    private static final Comparator<List<Object>> threeElementStringListComparator = new Comparator<List<Object>>() {
+        @Override
+        public int compare(List<Object> o1, List<Object> o2) {
+            if (o1.size() != 3)
+                throw new RuntimeException("List must contain exactly three elements: " + o1);
+            if (o2.size() != 3)
+                throw new RuntimeException("List must contain exactly three elements: " + o1);
+            int result = o1.get(0).toString().compareTo(o2.get(0).toString());
+            if (0 != result) return result;
+            result = o1.get(1).toString().compareTo(o2.get(1).toString());
+            if (0 != result) return result;
+            return o1.get(2).toString().compareTo(o2.get(2).toString());
+        }
+    };
+
     private List<List<Object>> sortListOfObjectLists(Iterable<List<Object>> iterable) {
         List<List<Object>> list = Lists.newArrayList(iterable);
-        Comparator<List<Object>> threeElementStringListComparator = new Comparator<List<Object>>() {
-            @Override
-            public int compare(List<Object> o1, List<Object> o2) {
-                if (o1.size() != 3)
-                    throw new RuntimeException("List must contain exactly three elements: " + o1);
-                if (o2.size() != 3)
-                    throw new RuntimeException("List must contain exactly three elements: " + o1);
-                int result = o1.get(0).toString().compareTo(o2.get(0).toString());
-                if (0 != result) return result;
-                result = o1.get(1).toString().compareTo(o2.get(1).toString());
-                if (0 != result) return result;
-                return o1.get(2).toString().compareTo(o2.get(2).toString());
-            }
-        };
         Collections.sort(list, threeElementStringListComparator);
         return list;
     }
