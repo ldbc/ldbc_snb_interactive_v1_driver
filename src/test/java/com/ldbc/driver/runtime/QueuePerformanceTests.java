@@ -108,7 +108,7 @@ public class QueuePerformanceTests {
         workload.init(config);
 
         GeneratorFactory gf = new GeneratorFactory(new RandomDataGeneratorFactory(42L));
-        Iterator<Operation<?>> operations = workload.operations(gf, config.operationCount());
+        Iterator<Operation<?>> operations = workload.streams(gf).mergeSortedByStartTime(gf);
 
 //        System.out.println("Materializing...");
 //        List operationsList = ImmutableList.copyOf(operations);
