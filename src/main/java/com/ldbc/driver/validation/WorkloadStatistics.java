@@ -1,10 +1,6 @@
 package com.ldbc.driver.validation;
 
-import com.google.common.base.Function;
-import com.google.common.collect.Iterables;
-import com.google.common.collect.Lists;
 import com.ldbc.driver.Operation;
-import com.ldbc.driver.OperationClassification;
 import com.ldbc.driver.runtime.metrics.ContinuousMetricManager;
 import com.ldbc.driver.runtime.metrics.ContinuousMetricSnapshot;
 import com.ldbc.driver.temporal.Duration;
@@ -13,36 +9,40 @@ import com.ldbc.driver.util.Bucket;
 import com.ldbc.driver.util.Histogram;
 import com.ldbc.driver.util.MapUtils;
 
-import java.util.Collections;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
 public class WorkloadStatistics {
-    private final Histogram<Class, Long> operationMixHistogram;
-    private final ContinuousMetricManager operationInterleaves;
-    private final Map<OperationClassification.DependencyMode, ContinuousMetricManager> operationInterleavesByDependencyMode;
-    private final Map<Class, ContinuousMetricManager> operationInterleavesByOperationType;
     private final Map<Class, Time> firstStartTimesByOperationType;
     private final Map<Class, Time> lastStartTimesByOperationType;
-    private final Map<OperationClassification.DependencyMode, Set<Class>> operationsByDependencyMode;
+    private final Histogram<Class, Long> operationMixHistogram;
+    private final ContinuousMetricManager operationInterleaves;
+    private final ContinuousMetricManager interleavesForDependencyOperations;
+    private final ContinuousMetricManager interleavesForDependentOperations;
+    private final Map<Class, ContinuousMetricManager> operationInterleavesByOperationType;
+    private final Set<Class> dependencyOperationTypes;
+    private final Set<Class> dependentOperationTypes;
     private final Map<Class, Duration> lowestDependencyDurationByOperationType;
 
     public WorkloadStatistics(Map<Class, Time> firstStartTimesByOperationType,
                               Map<Class, Time> lastStartTimesByOperationType,
                               Histogram<Class, Long> operationMixHistogram,
                               ContinuousMetricManager operationInterleaves,
-                              Map<OperationClassification.DependencyMode, ContinuousMetricManager> operationInterleavesByDependencyMode,
+                              ContinuousMetricManager interleavesForDependencyOperations,
+                              ContinuousMetricManager interleavesForDependentOperations,
                               Map<Class, ContinuousMetricManager> operationInterleavesByOperationType,
-                              Map<OperationClassification.DependencyMode, Set<Class>> operationsByDependencyMode,
+                              Set<Class> dependencyOperationTypes,
+                              Set<Class> dependentOperationTypes,
                               Map<Class, Duration> lowestDependencyDurationByOperationType) {
         this.firstStartTimesByOperationType = firstStartTimesByOperationType;
         this.lastStartTimesByOperationType = lastStartTimesByOperationType;
         this.operationMixHistogram = operationMixHistogram;
         this.operationInterleaves = operationInterleaves;
-        this.operationInterleavesByDependencyMode = operationInterleavesByDependencyMode;
+        this.interleavesForDependencyOperations = interleavesForDependencyOperations;
+        this.interleavesForDependentOperations = interleavesForDependentOperations;
         this.operationInterleavesByOperationType = operationInterleavesByOperationType;
-        this.operationsByDependencyMode = operationsByDependencyMode;
+        this.dependencyOperationTypes = dependencyOperationTypes;
+        this.dependentOperationTypes = dependentOperationTypes;
         this.lowestDependencyDurationByOperationType = lowestDependencyDurationByOperationType;
     }
 
@@ -105,16 +105,24 @@ public class WorkloadStatistics {
         return operationInterleaves;
     }
 
-    public Map<OperationClassification.DependencyMode, ContinuousMetricManager> operationInterleavesByDependencyMode() {
-        return operationInterleavesByDependencyMode;
+    public ContinuousMetricManager interleavesForDependencyOperations() {
+        return interleavesForDependencyOperations;
+    }
+
+    public ContinuousMetricManager interleavesForDependentOperations() {
+        return interleavesForDependentOperations;
     }
 
     public Map<Class, ContinuousMetricManager> operationInterleavesByOperationType() {
         return operationInterleavesByOperationType;
     }
 
-    public Map<OperationClassification.DependencyMode, Set<Class>> operationsByDependencyMode() {
-        return operationsByDependencyMode;
+    public Set<Class> dependencyOperationTypes() {
+        return dependencyOperationTypes;
+    }
+
+    public Set<Class> dependentOperationTypes() {
+        return dependentOperationTypes;
     }
 
     public Map<Class, Duration> lowestDependencyDurationByOperationType() {
@@ -148,29 +156,22 @@ public class WorkloadStatistics {
             sb.append(String.format("%1$-" + padRightDistance + "s", "        " + operationType.getSimpleName() + ":")).append(operationCount).append("\n");
         }
         sb.append("     Operation Dependency Modes:\n");
-        for (Map.Entry<OperationClassification.DependencyMode, Set<Class>> operationsInDependencyMode : MapUtils.sortedEntrySet(operationsByDependencyMode())) {
-            OperationClassification.DependencyMode dependencyMode = operationsInDependencyMode.getKey();
-            List<String> operationNames = Lists.newArrayList(Iterables.transform(operationsInDependencyMode.getValue(), new Function<Class, String>() {
-                @Override
-                public String apply(Class operationType) {
-                    return operationType.getSimpleName();
-                }
-            }));
-            Collections.sort(operationNames);
-            sb.append(String.format("%1$-" + padRightDistance + "s", "        " + dependencyMode + ":")).append(operationNames.toString()).append("\n");
-        }
+        sb.append(String.format("%1$-" + padRightDistance + "s", "        Dependency Operations:")).append(dependencyOperationTypes.toString()).append("\n");
+        sb.append(String.format("%1$-" + padRightDistance + "s", "        Dependent Operations:")).append(dependentOperationTypes.toString()).append("\n");
         sb.append("  ------------------------------------------------------\n");
         sb.append("  BY DEPENDENCY MODE\n");
         sb.append("  ------------------------------------------------------\n");
         sb.append("     Interleaves:\n");
-        for (Map.Entry<OperationClassification.DependencyMode, ContinuousMetricManager> interleavesForDependencyMode : MapUtils.sortedEntrySet(operationInterleavesByDependencyMode())) {
-            OperationClassification.DependencyMode dependencyMode = interleavesForDependencyMode.getKey();
-            ContinuousMetricSnapshot interleavesForDependencyModeSnapshot = interleavesForDependencyMode.getValue().snapshot();
-            sb.append(String.format("%1$-" + padRightDistance + "s", "        " + dependencyMode + ":")).
-                    append("min = ").append(Duration.fromMilli(interleavesForDependencyModeSnapshot.min())).append(" / ").
-                    append("mean =").append(Duration.fromMilli(Math.round(interleavesForDependencyModeSnapshot.mean()))).append(" / ").
-                    append("max =").append(Duration.fromMilli(interleavesForDependencyModeSnapshot.max())).append("\n");
-        }
+        ContinuousMetricSnapshot interleavesForDependencyOperationsSnapshot = interleavesForDependencyOperations.snapshot();
+        sb.append(String.format("%1$-" + padRightDistance + "s", "        Dependency Operations:")).
+                append("min = ").append(Duration.fromMilli(interleavesForDependencyOperationsSnapshot.min())).append(" / ").
+                append("mean =").append(Duration.fromMilli(Math.round(interleavesForDependencyOperationsSnapshot.mean()))).append(" / ").
+                append("max =").append(Duration.fromMilli(interleavesForDependencyOperationsSnapshot.max())).append("\n");
+        ContinuousMetricSnapshot interleavesForDependentOperationsSnapshot = interleavesForDependentOperations.snapshot();
+        sb.append(String.format("%1$-" + padRightDistance + "s", "        Dependent Operations:")).
+                append("min = ").append(Duration.fromMilli(interleavesForDependentOperationsSnapshot.min())).append(" / ").
+                append("mean =").append(Duration.fromMilli(Math.round(interleavesForDependentOperationsSnapshot.mean()))).append(" / ").
+                append("max =").append(Duration.fromMilli(interleavesForDependentOperationsSnapshot.max())).append("\n");
         sb.append("  ------------------------------------------------------\n");
         sb.append("  BY OPERATION TYPE\n");
         sb.append("  ------------------------------------------------------\n");

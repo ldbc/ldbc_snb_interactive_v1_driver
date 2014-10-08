@@ -68,6 +68,7 @@ class PreciseIndividualAsyncOperationStreamExecutorServiceThread extends Thread 
                 errorReporter.reportError(this, errMsg);
                 continue;
             }
+
             startTimeOfLastOperationAsNano = handler.operation().scheduledStartTime().asNano();
 
             try {
