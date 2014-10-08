@@ -26,7 +26,6 @@ public class WorkloadRunner {
     private static final Duration WAIT_DURATION_FOR_OPERATION_HANDLER_EXECUTOR_TO_SHUTDOWN = Duration.fromSeconds(5);
     private static final LocalCompletionTimeWriter DUMMY_LOCAL_COMPLETION_TIME_WRITER = new DummyLocalCompletionTimeWriter();
 
-    private final TimeSource timeSource;
     private final Spinner exactSpinner;
 
     // TODO make service and inject into workload runner. this could report to coordinator OR a local console printer, for example
@@ -56,11 +55,10 @@ public class WorkloadRunner {
                           Duration durationToWaitForAllHandlersToFinishBeforeShutdown,
                           boolean ignoreScheduleStartTimes,
                           int operationHandlerExecutorsBoundedQueueSize) throws WorkloadException {
-        this.timeSource = timeSource;
         this.errorReporter = errorReporter;
         this.statusDisplayInterval = statusDisplayInterval;
 
-        this.exactSpinner = new Spinner(this.timeSource, spinnerSleepDuration, ignoreScheduleStartTimes);
+        this.exactSpinner = new Spinner(timeSource, spinnerSleepDuration, ignoreScheduleStartTimes);
 
         boolean detailedStatus = true;
         if (statusDisplayInterval.asSeconds() > 0)
@@ -84,7 +82,7 @@ public class WorkloadRunner {
             throw new WorkloadException("Error while attempting to create local completion time writer", e);
         }
         this.asynchronousStreamExecutorService = new PreciseIndividualAsyncOperationStreamExecutorService(
-                this.timeSource,
+                timeSource,
                 errorReporter,
                 asynchronousStream,
                 exactSpinner,
@@ -110,7 +108,7 @@ public class WorkloadRunner {
             }
             this.blockingStreamExecutorServices.add(
                     new PreciseIndividualBlockingOperationStreamExecutorService(
-                            this.timeSource,
+                            timeSource,
                             errorReporter,
                             blockingStream,
                             exactSpinner,
