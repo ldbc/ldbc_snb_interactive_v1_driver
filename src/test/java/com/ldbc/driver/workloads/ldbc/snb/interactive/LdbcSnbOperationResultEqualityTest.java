@@ -73,6 +73,22 @@ public class LdbcSnbOperationResultEqualityTest {
                 Lists.<List<Object>>newArrayList(Lists.<Object>newArrayList("1d", 2, "1f"), Lists.<Object>newArrayList("1a", 1, "1c"))
         );
 
+        LdbcQuery1Result result1c = new LdbcQuery1Result(
+                friendId1,
+                friendLastName1,
+                friendDistance1,
+                friendBirthday1,
+                friendCreationDate1,
+                friendGender1,
+                friendBrowserUsed1,
+                friendLocationIp1,
+                Lists.newArrayList("1b", "1a"),
+                Lists.newArrayList("1b", "1a"),
+                friendCityName1,
+                Sets.<List<Object>>newHashSet(Lists.<Object>newArrayList("1d", "1e", "1f"), Lists.<Object>newArrayList("1a", "1b", "1c")),
+                Lists.<List<Object>>newArrayList(Lists.<Object>newArrayList("1d", 2, "1f"), Lists.<Object>newArrayList("1a", "1", "1c"))
+        );
+
         LdbcQuery1Result result2a = new LdbcQuery1Result(
                 friendId2,
                 friendLastName2,
@@ -106,6 +122,8 @@ public class LdbcSnbOperationResultEqualityTest {
         );
 
         assertThat(result1a, equalTo(result1b));
+        assertThat(result1a, equalTo(result1c));
+        assertThat(result1b, equalTo(result1c));
         assertThat(result1a, not(equalTo(result2a)));
         assertThat(result1a, not(equalTo(result3a)));
         assertThat(result2a, not(equalTo(result3a)));
