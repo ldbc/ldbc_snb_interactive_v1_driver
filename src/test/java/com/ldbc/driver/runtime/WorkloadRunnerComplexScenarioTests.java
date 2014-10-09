@@ -1,6 +1,7 @@
 package com.ldbc.driver.runtime;
 
 import com.google.common.collect.Lists;
+import com.google.common.collect.Sets;
 import com.ldbc.driver.*;
 import com.ldbc.driver.control.DriverConfigurationException;
 import com.ldbc.driver.generator.GeneratorFactory;
@@ -131,16 +132,24 @@ public class WorkloadRunnerComplexScenarioTests {
             12                          []                                      []                               3
             13                          []                                      []                               3      BOOM S(2) took too long
              */
-            List<Operation<?>> readOperations = Lists.<Operation<?>>newArrayList(
-                    new TimedNamedOperation2(Time.fromMilli(2), Time.fromMilli(0), "S(2)D(0)"),
-                    new TimedNamedOperation1(Time.fromMilli(3), Time.fromMilli(0), "S(3)D(0)"),
-                    new TimedNamedOperation1(Time.fromMilli(4), Time.fromMilli(0), "S(4)D(0)"),
-                    new TimedNamedOperation1(Time.fromMilli(5), Time.fromMilli(0), "S(5)D(0)")
-            );
 
-            Map<Class<? extends Operation>, OperationClassification> classifications = new HashMap<>();
-            classifications.put(TimedNamedOperation1.class, new OperationClassification(OperationClassification.SchedulingMode.INDIVIDUAL_ASYNC, OperationClassification.DependencyMode.NONE));
-            classifications.put(TimedNamedOperation2.class, new OperationClassification(OperationClassification.SchedulingMode.INDIVIDUAL_BLOCKING, OperationClassification.DependencyMode.NONE));
+            WorkloadStreams workloadStreams = new WorkloadStreams();
+            workloadStreams.setAsynchronousStream(
+                    Sets.<Class<? extends Operation<?>>>newHashSet(),
+                    Collections.<Operation<?>>emptyIterator(),
+                    Lists.<Operation<?>>newArrayList(
+                            new TimedNamedOperation1(Time.fromMilli(3), Time.fromMilli(0), "S(3)D(0)"),
+                            new TimedNamedOperation1(Time.fromMilli(4), Time.fromMilli(0), "S(4)D(0)"),
+                            new TimedNamedOperation1(Time.fromMilli(5), Time.fromMilli(0), "S(5)D(0)")
+                    ).iterator()
+            );
+            workloadStreams.addBlockingStream(
+                    Sets.<Class<? extends Operation<?>>>newHashSet(),
+                    Collections.<Operation<?>>emptyIterator(),
+                    Lists.<Operation<?>>newArrayList(
+                            new TimedNamedOperation2(Time.fromMilli(2), Time.fromMilli(0), "S(2)D(0)")
+                    ).iterator()
+            );
 
             Map<String, String> params = new HashMap<>();
             params.put(DummyDb.ALLOWED_DEFAULT_ARG, Boolean.toString(false));
@@ -149,8 +158,7 @@ public class WorkloadRunnerComplexScenarioTests {
             WorkloadRunnerThread runnerThread = workloadRunnerThread(
                     timeSource,
                     WORKLOAD_START_TIME_0,
-                    readOperations.iterator(),
-                    classifications,
+                    workloadStreams,
                     threadCount,
                     executionWindowDuration,
                     toleratedExecutionDelayDuration,
@@ -279,16 +287,24 @@ public class WorkloadRunnerComplexScenarioTests {
             14                          [S(4)]                                  []                               3
             15                          [S(4)]                                  []                               3        BOOM S(4) took too long
              */
-            List<Operation<?>> readOperations = Lists.<Operation<?>>newArrayList(
-                    new TimedNamedOperation2(Time.fromMilli(2), Time.fromMilli(0), "S(2)D(0)"),
-                    new TimedNamedOperation1(Time.fromMilli(3), Time.fromMilli(0), "S(3)D(0)"),
-                    new TimedNamedOperation1(Time.fromMilli(4), Time.fromMilli(0), "S(4)D(0)"),
-                    new TimedNamedOperation1(Time.fromMilli(5), Time.fromMilli(0), "S(5)D(0)")
-            );
 
-            Map<Class<? extends Operation>, OperationClassification> classifications = new HashMap<>();
-            classifications.put(TimedNamedOperation1.class, new OperationClassification(OperationClassification.SchedulingMode.INDIVIDUAL_ASYNC, OperationClassification.DependencyMode.NONE));
-            classifications.put(TimedNamedOperation2.class, new OperationClassification(OperationClassification.SchedulingMode.INDIVIDUAL_BLOCKING, OperationClassification.DependencyMode.NONE));
+            WorkloadStreams workloadStreams = new WorkloadStreams();
+            workloadStreams.setAsynchronousStream(
+                    Sets.<Class<? extends Operation<?>>>newHashSet(),
+                    Collections.<Operation<?>>emptyIterator(),
+                    Lists.<Operation<?>>newArrayList(
+                            new TimedNamedOperation1(Time.fromMilli(3), Time.fromMilli(0), "S(3)D(0)"),
+                            new TimedNamedOperation1(Time.fromMilli(4), Time.fromMilli(0), "S(4)D(0)"),
+                            new TimedNamedOperation1(Time.fromMilli(5), Time.fromMilli(0), "S(5)D(0)")
+                    ).iterator()
+            );
+            workloadStreams.addBlockingStream(
+                    Sets.<Class<? extends Operation<?>>>newHashSet(),
+                    Collections.<Operation<?>>emptyIterator(),
+                    Lists.<Operation<?>>newArrayList(
+                            new TimedNamedOperation2(Time.fromMilli(2), Time.fromMilli(0), "S(2)D(0)")
+                    ).iterator()
+            );
 
             Map<String, String> params = new HashMap<>();
             params.put(DummyDb.ALLOWED_DEFAULT_ARG, Boolean.toString(false));
@@ -297,8 +313,7 @@ public class WorkloadRunnerComplexScenarioTests {
             WorkloadRunnerThread runnerThread = workloadRunnerThread(
                     timeSource,
                     WORKLOAD_START_TIME_0,
-                    readOperations.iterator(),
-                    classifications,
+                    workloadStreams,
                     threadCount,
                     executionWindowDuration,
                     toleratedExecutionDelayDuration,
@@ -467,22 +482,35 @@ public class WorkloadRunnerComplexScenarioTests {
 
         DummyDb db = new DummyDb();
 
-        List<Operation<?>> readOperations = Lists.<Operation<?>>newArrayList(
+        WorkloadStreams workloadStreams = new WorkloadStreams();
+        Set<Class<? extends Operation<?>>> asynchronousDependentOperationTypes = Sets.<Class<? extends Operation<?>>>newHashSet(
+                TimedNamedOperation1.class
+        );
+        Iterator<Operation<?>> asynchronousDependencyOperations = Collections.emptyIterator();
+        Iterator<Operation<?>> asynchronousNonDependencyOperations = Lists.<Operation<?>>newArrayList(
                 new TimedNamedOperation1(Time.fromMilli(2), Time.fromMilli(0), "S(2)D(0)"),
                 new TimedNamedOperation1(Time.fromMilli(3), Time.fromMilli(0), "S(3)D(0)"),
                 new TimedNamedOperation1(Time.fromMilli(7), Time.fromMilli(0), "S(7)D(0)")
+        ).iterator();
+        workloadStreams.setAsynchronousStream(
+                asynchronousDependentOperationTypes,
+                asynchronousDependencyOperations,
+                asynchronousNonDependencyOperations
         );
-
-        List<Operation<?>> readWriteOperations = Lists.<Operation<?>>newArrayList(
+        Set<Class<? extends Operation<?>>> blockingDependentOperationTypes = Sets.<Class<? extends Operation<?>>>newHashSet(
+                TimedNamedOperation2.class
+        );
+        Iterator<Operation<?>> blockingDependencyOperations = Lists.<Operation<?>>newArrayList(
                 new TimedNamedOperation2(Time.fromMilli(4), Time.fromMilli(0), "S(4)D(0)"),
                 new TimedNamedOperation2(Time.fromMilli(5), Time.fromMilli(0), "S(5)D(0)")
+        ).iterator();
+        Iterator<Operation<?>> blockingNonDependencyOperations = Lists.<Operation<?>>newArrayList(
+        ).iterator();
+        workloadStreams.addBlockingStream(
+                blockingDependentOperationTypes,
+                blockingDependencyOperations,
+                blockingNonDependencyOperations
         );
-
-        Iterator<Operation<?>> operations = gf.mergeSortOperationsByStartTime(readOperations.iterator(), readWriteOperations.iterator());
-
-        Map<Class<? extends Operation>, OperationClassification> classifications = new HashMap<>();
-        classifications.put(TimedNamedOperation1.class, new OperationClassification(SchedulingMode.INDIVIDUAL_ASYNC, OperationClassification.DependencyMode.READ));
-        classifications.put(TimedNamedOperation2.class, new OperationClassification(SchedulingMode.INDIVIDUAL_BLOCKING, OperationClassification.DependencyMode.READ_WRITE));
 
         Map<String, String> params = new HashMap<>();
         params.put(DummyDb.ALLOWED_DEFAULT_ARG, "true");
@@ -499,8 +527,7 @@ public class WorkloadRunnerComplexScenarioTests {
             WorkloadRunnerThread runnerThread = workloadRunnerThread(
                     timeSource,
                     WORKLOAD_START_TIME_0,
-                    operations,
-                    classifications,
+                    workloadStreams,
                     threadCount,
                     executionWindowDuration,
                     toleratedExecutionDelayDuration,
@@ -668,12 +695,25 @@ public class WorkloadRunnerComplexScenarioTests {
 
         DummyDb db = new DummyDb();
 
-        List<Operation<?>> readOperations = Lists.<Operation<?>>newArrayList(
+        WorkloadStreams workloadStreams = new WorkloadStreams();
+        Set<Class<? extends Operation<?>>> asynchronousDependentOperationTypes = Sets.<Class<? extends Operation<?>>>newHashSet(
+                TimedNamedOperation1.class
+        );
+        Iterator<Operation<?>> asynchronousDependencyOperations = Lists.<Operation<?>>newArrayList(
                 new TimedNamedOperation1(Time.fromMilli(2), Time.fromMilli(0), "read1"),
                 new TimedNamedOperation1(Time.fromMilli(5), Time.fromMilli(0), "read2")
+        ).iterator();
+        Iterator<Operation<?>> asynchronousNonDependencyOperations = Lists.<Operation<?>>newArrayList(
+        ).iterator();
+        workloadStreams.setAsynchronousStream(
+                asynchronousDependentOperationTypes,
+                asynchronousDependencyOperations,
+                asynchronousNonDependencyOperations
         );
-
-        List<Operation<?>> readWriteOperations = Lists.<Operation<?>>newArrayList(
+        Set<Class<? extends Operation<?>>> blockingDependentOperationTypes = Sets.<Class<? extends Operation<?>>>newHashSet(
+                TimedNamedOperation2.class
+        );
+        List<Operation<?>> blockingDependencyOperationsList = Lists.<Operation<?>>newArrayList(
                 new TimedNamedOperation2(Time.fromMilli(3), Time.fromMilli(0), "readwrite1")
         );
 
@@ -684,14 +724,16 @@ public class WorkloadRunnerComplexScenarioTests {
                         gf.constant(Time.fromMilli(0)),
                         gf.constant("oneOfManyReadWrite2")),
                 operationCountAtTime4);
+        blockingDependencyOperationsList.addAll(Lists.newArrayList(manyReadWriteOperationsAtTime4));
 
-        readWriteOperations.addAll(Lists.newArrayList(manyReadWriteOperationsAtTime4));
-
-        Iterator<Operation<?>> operations = gf.mergeSortOperationsByStartTime(readOperations.iterator(), readWriteOperations.iterator());
-
-        Map<Class<? extends Operation>, OperationClassification> classifications = new HashMap<>();
-        classifications.put(TimedNamedOperation1.class, new OperationClassification(SchedulingMode.INDIVIDUAL_ASYNC, OperationClassification.DependencyMode.READ_WRITE));
-        classifications.put(TimedNamedOperation2.class, new OperationClassification(SchedulingMode.INDIVIDUAL_BLOCKING, OperationClassification.DependencyMode.READ_WRITE));
+        Iterator<Operation<?>> blockingDependencyOperations = blockingDependencyOperationsList.iterator();
+        Iterator<Operation<?>> blockingNonDependencyOperations = Lists.<Operation<?>>newArrayList(
+        ).iterator();
+        workloadStreams.addBlockingStream(
+                blockingDependentOperationTypes,
+                blockingDependencyOperations,
+                blockingNonDependencyOperations
+        );
 
         Map<String, String> params = new HashMap<>();
         params.put(DummyDb.ALLOWED_DEFAULT_ARG, "true");
@@ -702,8 +744,7 @@ public class WorkloadRunnerComplexScenarioTests {
             WorkloadRunnerThread runnerThread = workloadRunnerThread(
                     timeSource,
                     WORKLOAD_START_TIME_0,
-                    operations,
-                    classifications,
+                    workloadStreams,
                     threadCount,
                     executionWindowDuration,
                     toleratedExecutionDelayDuration,
@@ -846,25 +887,40 @@ public class WorkloadRunnerComplexScenarioTests {
                 completionTimeServiceAssistant.newSynchronizedConcurrentCompletionTimeServiceFromPeerIds(peerIds);
 
         DummyDb db = new DummyDb();
-        List<Operation<?>> readOperations = Lists.<Operation<?>>newArrayList(
+
+        WorkloadStreams workloadStreams = new WorkloadStreams();
+        Set<Class<? extends Operation<?>>> asynchronousDependentOperationTypes = Sets.<Class<? extends Operation<?>>>newHashSet(
+                TimedNamedOperation1.class,
+                TimedNamedOperation2.class
+        );
+        Iterator<Operation<?>> asynchronousDependencyOperations = Lists.<Operation<?>>newArrayList(
+                new TimedNamedOperation2(Time.fromMilli(3), Time.fromMilli(0), "readwrite1"),
+                new TimedNamedOperation2(Time.fromMilli(6), Time.fromMilli(0), "readwrite2"),
+                new TimedNamedOperation2(Time.fromMilli(9), Time.fromMilli(0), "readwrite3")
+        ).iterator();
+        Iterator<Operation<?>> asynchronousNonDependencyOperations = Lists.<Operation<?>>newArrayList(
                 new TimedNamedOperation1(Time.fromMilli(2), Time.fromMilli(0), "read1"),
                 new TimedNamedOperation1(Time.fromMilli(4), Time.fromMilli(3), "read2"),
                 new TimedNamedOperation1(Time.fromMilli(7), Time.fromMilli(3), "read3"),
                 new TimedNamedOperation1(Time.fromMilli(11), Time.fromMilli(9), "read4"),
                 new TimedNamedOperation1(Time.fromMilli(13), Time.fromMilli(3), "read5")
+        ).iterator();
+        workloadStreams.setAsynchronousStream(
+                asynchronousDependentOperationTypes,
+                asynchronousDependencyOperations,
+                asynchronousNonDependencyOperations
         );
-
-        List<Operation<?>> readWriteOperations = Lists.<Operation<?>>newArrayList(
-                new TimedNamedOperation2(Time.fromMilli(3), Time.fromMilli(0), "readwrite1"),
-                new TimedNamedOperation2(Time.fromMilli(6), Time.fromMilli(0), "readwrite2"),
-                new TimedNamedOperation2(Time.fromMilli(9), Time.fromMilli(0), "readwrite3")
+        Set<Class<? extends Operation<?>>> blockingDependentOperationTypes = Sets.<Class<? extends Operation<?>>>newHashSet(
         );
-
-        Iterator<Operation<?>> operations = gf.mergeSortOperationsByStartTime(readOperations.iterator(), readWriteOperations.iterator());
-
-        Map<Class<? extends Operation>, OperationClassification> classifications = new HashMap<>();
-        classifications.put(TimedNamedOperation1.class, new OperationClassification(SchedulingMode.INDIVIDUAL_ASYNC, OperationClassification.DependencyMode.READ));
-        classifications.put(TimedNamedOperation2.class, new OperationClassification(SchedulingMode.INDIVIDUAL_ASYNC, OperationClassification.DependencyMode.READ_WRITE));
+        Iterator<Operation<?>> blockingDependencyOperations = Lists.<Operation<?>>newArrayList(
+        ).iterator();
+        Iterator<Operation<?>> blockingNonDependencyOperations = Lists.<Operation<?>>newArrayList(
+        ).iterator();
+        workloadStreams.addBlockingStream(
+                blockingDependentOperationTypes,
+                blockingDependencyOperations,
+                blockingNonDependencyOperations
+        );
 
         Map<String, String> params = new HashMap<>();
         params.put(DummyDb.ALLOWED_DEFAULT_ARG, "false");
@@ -875,8 +931,7 @@ public class WorkloadRunnerComplexScenarioTests {
             WorkloadRunnerThread runnerThread = workloadRunnerThread(
                     timeSource,
                     WORKLOAD_START_TIME_0,
-                    operations,
-                    classifications,
+                    workloadStreams,
                     threadCount,
                     executionWindowDuration,
                     toleratedExecutionDelayDuration,
@@ -1118,25 +1173,41 @@ public class WorkloadRunnerComplexScenarioTests {
 
         DummyDb db = new DummyDb();
 
-        List<Operation<?>> readOperations = Lists.<Operation<?>>newArrayList(
+        WorkloadStreams workloadStreams = new WorkloadStreams();
+        Set<Class<? extends Operation<?>>> asynchronousDependentOperationTypes = Sets.<Class<? extends Operation<?>>>newHashSet(
+                TimedNamedOperation1.class
+        );
+        Iterator<Operation<?>> asynchronousDependencyOperations = Lists.<Operation<?>>newArrayList(
+                // nothing
+        ).iterator();
+        Iterator<Operation<?>> asynchronousNonDependencyOperations = Lists.<Operation<?>>newArrayList(
                 new TimedNamedOperation1(Time.fromMilli(2), Time.fromMilli(0), "read1"),
                 new TimedNamedOperation1(Time.fromMilli(4), Time.fromMilli(3), "read2"),
                 new TimedNamedOperation1(Time.fromMilli(7), Time.fromMilli(3), "read3"),
                 new TimedNamedOperation1(Time.fromMilli(11), Time.fromMilli(3), "read4"),
                 new TimedNamedOperation1(Time.fromMilli(13), Time.fromMilli(3), "read5")
+        ).iterator();
+        workloadStreams.setAsynchronousStream(
+                asynchronousDependentOperationTypes,
+                asynchronousDependencyOperations,
+                asynchronousNonDependencyOperations
         );
-
-        List<Operation<?>> readWriteOperations = Lists.<Operation<?>>newArrayList(
+        Set<Class<? extends Operation<?>>> blockingDependentOperationTypes = Sets.<Class<? extends Operation<?>>>newHashSet(
+                TimedNamedOperation2.class
+        );
+        Iterator<Operation<?>> blockingDependencyOperations = Lists.<Operation<?>>newArrayList(
                 new TimedNamedOperation2(Time.fromMilli(3), Time.fromMilli(0), "readwrite1"),
                 new TimedNamedOperation2(Time.fromMilli(6), Time.fromMilli(0), "readwrite2"),
                 new TimedNamedOperation2(Time.fromMilli(9), Time.fromMilli(0), "readwrite3")
+        ).iterator();
+        Iterator<Operation<?>> blockingNonDependencyOperations = Lists.<Operation<?>>newArrayList(
+                // nothing
+        ).iterator();
+        workloadStreams.addBlockingStream(
+                blockingDependentOperationTypes,
+                blockingDependencyOperations,
+                blockingNonDependencyOperations
         );
-
-        Iterator<Operation<?>> operations = gf.mergeSortOperationsByStartTime(readOperations.iterator(), readWriteOperations.iterator());
-
-        Map<Class<? extends Operation>, OperationClassification> classifications = new HashMap<>();
-        classifications.put(TimedNamedOperation1.class, new OperationClassification(SchedulingMode.INDIVIDUAL_ASYNC, OperationClassification.DependencyMode.READ));
-        classifications.put(TimedNamedOperation2.class, new OperationClassification(SchedulingMode.INDIVIDUAL_BLOCKING, OperationClassification.DependencyMode.READ_WRITE));
 
         Map<String, String> params = new HashMap<>();
         params.put(DummyDb.ALLOWED_DEFAULT_ARG, "false");
@@ -1146,8 +1217,7 @@ public class WorkloadRunnerComplexScenarioTests {
             WorkloadRunnerThread runnerThread = workloadRunnerThread(
                     timeSource,
                     WORKLOAD_START_TIME_0,
-                    operations,
-                    classifications,
+                    workloadStreams,
                     threadCount,
                     executionWindowDuration,
                     toleratedExecutionDelayDuration,
@@ -1378,25 +1448,42 @@ public class WorkloadRunnerComplexScenarioTests {
 
         DummyDb db = new DummyDb();
 
-        Map<Class<? extends Operation>, OperationClassification> classifications = new HashMap<>();
-        classifications.put(TimedNamedOperation1.class, new OperationClassification(SchedulingMode.INDIVIDUAL_ASYNC, OperationClassification.DependencyMode.READ));
-        classifications.put(TimedNamedOperation2.class, new OperationClassification(SchedulingMode.INDIVIDUAL_ASYNC, OperationClassification.DependencyMode.READ_WRITE));
-
-        List<Operation<?>> readOperations = Lists.<Operation<?>>newArrayList(
+        WorkloadStreams workloadStreams = new WorkloadStreams();
+        Set<Class<? extends Operation<?>>> asynchronousDependentOperationTypes = Sets.<Class<? extends Operation<?>>>newHashSet(
+                TimedNamedOperation1.class,
+                TimedNamedOperation2.class
+        );
+        Iterator<Operation<?>> asynchronousDependencyOperations = Lists.<Operation<?>>newArrayList(
+                new TimedNamedOperation2(Time.fromMilli(3), Time.fromMilli(0), "readwrite1"),
+                new TimedNamedOperation2(Time.fromMilli(6), Time.fromMilli(0), "readwrite2"),
+                new TimedNamedOperation2(Time.fromMilli(9), Time.fromMilli(3), "readwrite3")
+        ).iterator();
+        Iterator<Operation<?>> asynchronousNonDependencyOperations = Lists.<Operation<?>>newArrayList(
                 new TimedNamedOperation1(Time.fromMilli(2), Time.fromMilli(0), "read1"),
                 new TimedNamedOperation1(Time.fromMilli(4), Time.fromMilli(0), "read2"),
                 new TimedNamedOperation1(Time.fromMilli(7), Time.fromMilli(3), "read3"),
                 new TimedNamedOperation1(Time.fromMilli(11), Time.fromMilli(0), "read4"),
                 new TimedNamedOperation1(Time.fromMilli(13), Time.fromMilli(6), "read5")
+        ).iterator();
+        workloadStreams.setAsynchronousStream(
+                asynchronousDependentOperationTypes,
+                asynchronousDependencyOperations,
+                asynchronousNonDependencyOperations
         );
-
-        List<Operation<?>> readWriteOperations = Lists.<Operation<?>>newArrayList(
-                new TimedNamedOperation2(Time.fromMilli(3), Time.fromMilli(0), "readwrite1"),
-                new TimedNamedOperation2(Time.fromMilli(6), Time.fromMilli(0), "readwrite2"),
-                new TimedNamedOperation2(Time.fromMilli(9), Time.fromMilli(3), "readwrite3")
+        Set<Class<? extends Operation<?>>> blockingDependentOperationTypes = Sets.<Class<? extends Operation<?>>>newHashSet(
+                // nothing
         );
-
-        Iterator<Operation<?>> operations = gf.mergeSortOperationsByStartTime(readOperations.iterator(), readWriteOperations.iterator());
+        Iterator<Operation<?>> blockingDependencyOperations = Lists.<Operation<?>>newArrayList(
+                // nothing
+        ).iterator();
+        Iterator<Operation<?>> blockingNonDependencyOperations = Lists.<Operation<?>>newArrayList(
+                // nothing
+        ).iterator();
+        workloadStreams.addBlockingStream(
+                blockingDependentOperationTypes,
+                blockingDependencyOperations,
+                blockingNonDependencyOperations
+        );
 
         Map<String, String> params = new HashMap<>();
         params.put(DummyDb.ALLOWED_DEFAULT_ARG, "false");
@@ -1407,8 +1494,7 @@ public class WorkloadRunnerComplexScenarioTests {
             WorkloadRunnerThread runnerThread = workloadRunnerThread(
                     timeSource,
                     WORKLOAD_START_TIME_0,
-                    operations,
-                    classifications,
+                    workloadStreams,
                     threadCount,
                     executionWindowDuration,
                     toleratedExecutionDelayDuration,
@@ -1627,25 +1713,41 @@ public class WorkloadRunnerComplexScenarioTests {
 
         DummyDb db = new DummyDb();
 
-        Map<Class<? extends Operation>, OperationClassification> classifications = new HashMap<>();
-        classifications.put(TimedNamedOperation1.class, new OperationClassification(SchedulingMode.INDIVIDUAL_ASYNC, OperationClassification.DependencyMode.READ));
-        classifications.put(TimedNamedOperation2.class, new OperationClassification(SchedulingMode.INDIVIDUAL_BLOCKING, OperationClassification.DependencyMode.READ_WRITE));
-
-        List<Operation<?>> readOperations = Lists.<Operation<?>>newArrayList(
+        WorkloadStreams workloadStreams = new WorkloadStreams();
+        Set<Class<? extends Operation<?>>> asynchronousDependentOperationTypes = Sets.<Class<? extends Operation<?>>>newHashSet(
+                TimedNamedOperation1.class
+        );
+        Iterator<Operation<?>> asynchronousDependencyOperations = Lists.<Operation<?>>newArrayList(
+                // nothing
+        ).iterator();
+        Iterator<Operation<?>> asynchronousNonDependencyOperations = Lists.<Operation<?>>newArrayList(
                 new TimedNamedOperation1(Time.fromMilli(2), Time.fromMilli(0), "read1"),
                 new TimedNamedOperation1(Time.fromMilli(4), Time.fromMilli(0), "read2"),
                 new TimedNamedOperation1(Time.fromMilli(7), Time.fromMilli(3), "read3"),
                 new TimedNamedOperation1(Time.fromMilli(11), Time.fromMilli(0), "read4"),
                 new TimedNamedOperation1(Time.fromMilli(13), Time.fromMilli(6), "read5")
+        ).iterator();
+        workloadStreams.setAsynchronousStream(
+                asynchronousDependentOperationTypes,
+                asynchronousDependencyOperations,
+                asynchronousNonDependencyOperations
         );
-
-        List<Operation<?>> readWriteOperations = Lists.<Operation<?>>newArrayList(
+        Set<Class<? extends Operation<?>>> blockingDependentOperationTypes = Sets.<Class<? extends Operation<?>>>newHashSet(
+                TimedNamedOperation2.class
+        );
+        Iterator<Operation<?>> blockingDependencyOperations = Lists.<Operation<?>>newArrayList(
                 new TimedNamedOperation2(Time.fromMilli(3), Time.fromMilli(0), "readwrite1"),
                 new TimedNamedOperation2(Time.fromMilli(6), Time.fromMilli(0), "readwrite2"),
                 new TimedNamedOperation2(Time.fromMilli(9), Time.fromMilli(3), "readwrite3")
+        ).iterator();
+        Iterator<Operation<?>> blockingNonDependencyOperations = Lists.<Operation<?>>newArrayList(
+                // nothing
+        ).iterator();
+        workloadStreams.addBlockingStream(
+                blockingDependentOperationTypes,
+                blockingDependencyOperations,
+                blockingNonDependencyOperations
         );
-
-        Iterator<Operation<?>> operations = gf.mergeSortOperationsByStartTime(readOperations.iterator(), readWriteOperations.iterator());
 
         Map<String, String> params = new HashMap<>();
         params.put(DummyDb.ALLOWED_DEFAULT_ARG, "false");
@@ -1656,8 +1758,7 @@ public class WorkloadRunnerComplexScenarioTests {
             WorkloadRunnerThread runnerThread = workloadRunnerThread(
                     timeSource,
                     WORKLOAD_START_TIME_0,
-                    operations,
-                    classifications,
+                    workloadStreams,
                     threadCount,
                     executionWindowDuration,
                     toleratedExecutionDelayDuration,
@@ -1876,25 +1977,41 @@ public class WorkloadRunnerComplexScenarioTests {
 
         DummyDb db = new DummyDb();
 
-        Map<Class<? extends Operation>, OperationClassification> classifications = new HashMap<>();
-        classifications.put(TimedNamedOperation1.class, new OperationClassification(SchedulingMode.INDIVIDUAL_BLOCKING, OperationClassification.DependencyMode.READ));
-        classifications.put(TimedNamedOperation2.class, new OperationClassification(SchedulingMode.INDIVIDUAL_ASYNC, OperationClassification.DependencyMode.READ_WRITE));
-
-        List<Operation<?>> readOperations = Lists.<Operation<?>>newArrayList(
+        WorkloadStreams workloadStreams = new WorkloadStreams();
+        Set<Class<? extends Operation<?>>> asynchronousDependentOperationTypes = Sets.<Class<? extends Operation<?>>>newHashSet(
+                TimedNamedOperation2.class
+        );
+        Iterator<Operation<?>> asynchronousDependencyOperations = Lists.<Operation<?>>newArrayList(
+                new TimedNamedOperation2(Time.fromMilli(3), Time.fromMilli(0), "readwrite1"),
+                new TimedNamedOperation2(Time.fromMilli(6), Time.fromMilli(0), "readwrite2"),
+                new TimedNamedOperation2(Time.fromMilli(9), Time.fromMilli(3), "readwrite3")
+        ).iterator();
+        Iterator<Operation<?>> asynchronousNonDependencyOperations = Lists.<Operation<?>>newArrayList(
+                // nothing
+        ).iterator();
+        workloadStreams.setAsynchronousStream(
+                asynchronousDependentOperationTypes,
+                asynchronousDependencyOperations,
+                asynchronousNonDependencyOperations
+        );
+        Set<Class<? extends Operation<?>>> blockingDependentOperationTypes = Sets.<Class<? extends Operation<?>>>newHashSet(
+                TimedNamedOperation1.class
+        );
+        Iterator<Operation<?>> blockingDependencyOperations = Lists.<Operation<?>>newArrayList(
+                // nothing
+        ).iterator();
+        Iterator<Operation<?>> blockingNonDependencyOperations = Lists.<Operation<?>>newArrayList(
                 new TimedNamedOperation1(Time.fromMilli(2), Time.fromMilli(0), "read1"),
                 new TimedNamedOperation1(Time.fromMilli(4), Time.fromMilli(0), "read2"),
                 new TimedNamedOperation1(Time.fromMilli(7), Time.fromMilli(3), "read3"),
                 new TimedNamedOperation1(Time.fromMilli(11), Time.fromMilli(0), "read4"),
                 new TimedNamedOperation1(Time.fromMilli(13), Time.fromMilli(6), "read5")
+        ).iterator();
+        workloadStreams.addBlockingStream(
+                blockingDependentOperationTypes,
+                blockingDependencyOperations,
+                blockingNonDependencyOperations
         );
-
-        List<Operation<?>> readWriteOperations = Lists.<Operation<?>>newArrayList(
-                new TimedNamedOperation2(Time.fromMilli(3), Time.fromMilli(0), "readwrite1"),
-                new TimedNamedOperation2(Time.fromMilli(6), Time.fromMilli(0), "readwrite2"),
-                new TimedNamedOperation2(Time.fromMilli(9), Time.fromMilli(3), "readwrite3")
-        );
-
-        Iterator<Operation<?>> operations = gf.mergeSortOperationsByStartTime(readOperations.iterator(), readWriteOperations.iterator());
 
         Map<String, String> params = new HashMap<>();
         params.put(DummyDb.ALLOWED_DEFAULT_ARG, "false");
@@ -1905,8 +2022,7 @@ public class WorkloadRunnerComplexScenarioTests {
             WorkloadRunnerThread runnerThread = workloadRunnerThread(
                     timeSource,
                     WORKLOAD_START_TIME_0,
-                    operations,
-                    classifications,
+                    workloadStreams,
                     threadCount,
                     executionWindowDuration,
                     toleratedExecutionDelayDuration,
@@ -2125,25 +2241,42 @@ public class WorkloadRunnerComplexScenarioTests {
 
         DummyDb db = new DummyDb();
 
-        Map<Class<? extends Operation>, OperationClassification> classifications = new HashMap<>();
-        classifications.put(TimedNamedOperation1.class, new OperationClassification(SchedulingMode.INDIVIDUAL_BLOCKING, OperationClassification.DependencyMode.READ));
-        classifications.put(TimedNamedOperation2.class, new OperationClassification(SchedulingMode.INDIVIDUAL_BLOCKING, OperationClassification.DependencyMode.READ_WRITE));
-
-        List<Operation<?>> readOperations = Lists.<Operation<?>>newArrayList(
+        WorkloadStreams workloadStreams = new WorkloadStreams();
+        Set<Class<? extends Operation<?>>> asynchronousDependentOperationTypes = Sets.<Class<? extends Operation<?>>>newHashSet(
+                // nothing
+        );
+        Iterator<Operation<?>> asynchronousDependencyOperations = Lists.<Operation<?>>newArrayList(
+                // nothing
+        ).iterator();
+        Iterator<Operation<?>> asynchronousNonDependencyOperations = Lists.<Operation<?>>newArrayList(
+                // nothing
+        ).iterator();
+        workloadStreams.setAsynchronousStream(
+                asynchronousDependentOperationTypes,
+                asynchronousDependencyOperations,
+                asynchronousNonDependencyOperations
+        );
+        Set<Class<? extends Operation<?>>> blockingDependentOperationTypes = Sets.<Class<? extends Operation<?>>>newHashSet(
+                TimedNamedOperation1.class,
+                TimedNamedOperation2.class
+        );
+        Iterator<Operation<?>> blockingDependencyOperations = Lists.<Operation<?>>newArrayList(
+                new TimedNamedOperation2(Time.fromMilli(3), Time.fromMilli(0), "readwrite1"),
+                new TimedNamedOperation2(Time.fromMilli(6), Time.fromMilli(0), "readwrite2"),
+                new TimedNamedOperation2(Time.fromMilli(9), Time.fromMilli(3), "readwrite3")
+        ).iterator();
+        Iterator<Operation<?>> blockingNonDependencyOperations = Lists.<Operation<?>>newArrayList(
                 new TimedNamedOperation1(Time.fromMilli(2), Time.fromMilli(0), "read1"),
                 new TimedNamedOperation1(Time.fromMilli(4), Time.fromMilli(0), "read2"),
                 new TimedNamedOperation1(Time.fromMilli(7), Time.fromMilli(3), "read3"),
                 new TimedNamedOperation1(Time.fromMilli(11), Time.fromMilli(0), "read4"),
                 new TimedNamedOperation1(Time.fromMilli(13), Time.fromMilli(6), "read5")
+        ).iterator();
+        workloadStreams.addBlockingStream(
+                blockingDependentOperationTypes,
+                blockingDependencyOperations,
+                blockingNonDependencyOperations
         );
-
-        List<Operation<?>> readWriteOperations = Lists.<Operation<?>>newArrayList(
-                new TimedNamedOperation2(Time.fromMilli(3), Time.fromMilli(0), "readwrite1"),
-                new TimedNamedOperation2(Time.fromMilli(6), Time.fromMilli(0), "readwrite2"),
-                new TimedNamedOperation2(Time.fromMilli(9), Time.fromMilli(3), "readwrite3")
-        );
-
-        Iterator<Operation<?>> operations = gf.mergeSortOperationsByStartTime(readOperations.iterator(), readWriteOperations.iterator());
 
         Map<String, String> params = new HashMap<>();
         params.put(DummyDb.ALLOWED_DEFAULT_ARG, "false");
@@ -2153,8 +2286,7 @@ public class WorkloadRunnerComplexScenarioTests {
             WorkloadRunnerThread runnerThread = workloadRunnerThread(
                     timeSource,
                     WORKLOAD_START_TIME_0,
-                    operations,
-                    classifications,
+                    workloadStreams,
                     threadCount,
                     executionWindowDuration,
                     toleratedExecutionDelayDuration,
@@ -2323,8 +2455,7 @@ public class WorkloadRunnerComplexScenarioTests {
 
     private WorkloadRunnerThread workloadRunnerThread(TimeSource timeSource,
                                                       Time workloadStartTime,
-                                                      Iterator<Operation<?>> operations,
-                                                      Map<Class<? extends Operation>, OperationClassification> classifications,
+                                                      WorkloadStreams workloadStreams,
                                                       int threadCount,
                                                       Duration executionWindowDuration,
                                                       Duration toleratedExecutionDelayDuration,
@@ -2341,8 +2472,7 @@ public class WorkloadRunnerComplexScenarioTests {
         WorkloadRunner runner = new WorkloadRunner(
                 timeSource,
                 db,
-                operations,
-                classifications,
+                workloadStreams,
                 metricsService,
                 errorReporter,
                 concurrentCompletionTimeService,

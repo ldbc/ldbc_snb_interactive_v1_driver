@@ -1,31 +1,71 @@
 package com.ldbc.driver.workloads.dummy;
 
+import com.google.common.base.Function;
+import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
+import com.google.common.collect.Sets;
 import com.ldbc.driver.*;
 import com.ldbc.driver.generator.GeneratorFactory;
 import com.ldbc.driver.temporal.Duration;
 import com.ldbc.driver.temporal.Time;
 
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 public class DummyWorkload extends Workload {
-    private final List<Operation<?>> operations;
-    private final Map<Class<? extends Operation>, OperationClassification> operationClassifications;
     private final Duration maxExpectedInterleave;
+    private final Set<Class<? extends Operation<?>>> asynchronousDependentOperationTypes;
+    private final List<Operation<?>> asynchronousDependencyOperations;
+    private final List<Operation<?>> asynchronousNonDependencyOperations;
+    private final List<Set<Class<? extends Operation<?>>>> blockingDependentOperationTypesList;
+    private final List<List<Operation<?>>> blockingDependencyOperationsList;
+    private final List<List<Operation<?>>> blockingNonDependencyOperationsList;
 
-    public DummyWorkload(Iterator<Operation<?>> operations,
-                         Map<Class<? extends Operation>, OperationClassification> operationClassifications,
+    public DummyWorkload(WorkloadStreams workloadStreams,
                          Duration maxExpectedInterleave) {
-        this.operations = Lists.newArrayList(operations);
-        this.operationClassifications = operationClassifications;
         this.maxExpectedInterleave = maxExpectedInterleave;
-    }
 
-    @Override
-    public Map<Class<? extends Operation>, OperationClassification> getOperationClassifications() {
-        return operationClassifications;
+        asynchronousDependentOperationTypes = workloadStreams.asynchronousStream().dependentOperationTypes();
+        asynchronousDependencyOperations = Lists.newArrayList(
+                workloadStreams.asynchronousStream().dependencyOperations()
+        );
+        asynchronousNonDependencyOperations = Lists.newArrayList(
+                workloadStreams.asynchronousStream().nonDependencyOperations()
+        );
+        blockingDependentOperationTypesList = Lists.newArrayList(
+                Iterables.transform(
+                        workloadStreams.blockingStreamDefinitions(),
+                        new Function<WorkloadStreams.WorkloadStreamDefinition, Set<Class<? extends Operation<?>>>>() {
+                            @Override
+                            public Set<Class<? extends Operation<?>>> apply(WorkloadStreams.WorkloadStreamDefinition streamDefinition) {
+                                return streamDefinition.dependentOperationTypes();
+                            }
+                        }
+                )
+        );
+        blockingDependencyOperationsList = Lists.newArrayList(
+                Iterables.transform(
+                        workloadStreams.blockingStreamDefinitions(),
+                        new Function<WorkloadStreams.WorkloadStreamDefinition, List<Operation<?>>>() {
+                            @Override
+                            public List<Operation<?>> apply(WorkloadStreams.WorkloadStreamDefinition streamDefinition) {
+                                return Lists.newArrayList(streamDefinition.dependencyOperations());
+                            }
+                        }
+                )
+        );
+        blockingNonDependencyOperationsList = Lists.newArrayList(
+                Iterables.transform(
+                        workloadStreams.blockingStreamDefinitions(),
+                        new Function<WorkloadStreams.WorkloadStreamDefinition, List<Operation<?>>>() {
+                            @Override
+                            public List<Operation<?>> apply(WorkloadStreams.WorkloadStreamDefinition streamDefinition) {
+                                return Lists.newArrayList(streamDefinition.nonDependencyOperations());
+                            }
+                        }
+                )
+        );
     }
 
     @Override
@@ -37,8 +77,28 @@ public class DummyWorkload extends Workload {
     }
 
     @Override
-    protected Iterator<Operation<?>> getStreams(GeneratorFactory generators) throws WorkloadException {
-        return operations.iterator();
+    protected WorkloadStreams getStreams(GeneratorFactory generators) throws WorkloadException {
+        return newCopyOfWorkloadStreams();
+    }
+
+    private WorkloadStreams newCopyOfWorkloadStreams() {
+        WorkloadStreams workloadStreams = new WorkloadStreams();
+
+        workloadStreams.setAsynchronousStream(
+                Sets.newHashSet(asynchronousDependentOperationTypes.iterator()),
+                asynchronousDependencyOperations.iterator(),
+                asynchronousNonDependencyOperations.iterator()
+        );
+
+        for (int i = 0; i < blockingDependentOperationTypesList.size(); i++) {
+            workloadStreams.addBlockingStream(
+                    Sets.newHashSet(blockingDependentOperationTypesList.get(i).iterator()),
+                    blockingDependencyOperationsList.get(i).iterator(),
+                    blockingNonDependencyOperationsList.get(i).iterator()
+            );
+        }
+
+        return workloadStreams;
     }
 
     @Override
