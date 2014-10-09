@@ -22,6 +22,7 @@ import com.ldbc.driver.temporal.TimeSource;
 import com.ldbc.driver.util.ClassLoaderHelper;
 import com.ldbc.driver.util.CsvFileReader;
 import com.ldbc.driver.util.CsvFileWriter;
+import com.ldbc.driver.util.Tuple;
 import com.ldbc.driver.validation.*;
 import org.apache.log4j.Logger;
 
@@ -241,7 +242,9 @@ public class Client {
 
             WorkloadStreams workloadStreams;
             try {
-                workloadStreams = WorkloadStreams.createLimitedWorkloadStreams(controlService.configuration(), gf);
+                Tuple.Tuple2<WorkloadStreams, Workload> streamsAndWorkload = WorkloadStreams.createNewWorkloadWithLimitedWorkloadStreams(controlService.configuration(), gf);
+                workload = streamsAndWorkload._2();
+                workloadStreams = streamsAndWorkload._1();
             } catch (Exception e) {
                 throw new ClientException(String.format("Error loading workload class: %s", controlService.configuration().workloadClassName()), e);
             }
@@ -505,7 +508,9 @@ public class Client {
 
             logger.info(String.format("Retrieving operation stream for workload: %s", workload.getClass().getSimpleName()));
             try {
-                Iterator<Operation<?>> operations = WorkloadStreams.createLimitedWorkloadStreams(controlService.configuration(), gf).mergeSortedByStartTime(gf);
+                Tuple.Tuple2<WorkloadStreams, Workload> streamsAndWorkload = WorkloadStreams.createNewWorkloadWithLimitedWorkloadStreams(controlService.configuration(), gf);
+                workload = streamsAndWorkload._2();
+                Iterator<Operation<?>> operations = streamsAndWorkload._1().mergeSortedByStartTime(gf);
                 timeMappedOperations = gf.timeOffsetAndCompress(
                         operations,
                         controlService.workloadStartTime(),

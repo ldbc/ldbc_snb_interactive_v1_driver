@@ -3,7 +3,6 @@ package com.ldbc.driver.validation;
 import com.google.common.collect.Iterators;
 import com.google.common.collect.Lists;
 import com.ldbc.driver.Operation;
-import com.ldbc.driver.OperationClassification;
 import com.ldbc.driver.Workload;
 import com.ldbc.driver.WorkloadException;
 import com.ldbc.driver.control.ConsoleAndFileDriverConfiguration;
@@ -37,6 +36,8 @@ public class WorkloadValidatorTest {
         Duration maxExpectedInterleave = Duration.fromMilli(1000);
         Duration windowDuration = Duration.fromMilli(10);
 
+
+        // george@georgebrock.com
         List<Iterator<Operation<?>>> validOperations = Lists.newArrayList(
                 Lists.<Operation<?>>newArrayList(
                         new TimedNamedOperation2(Time.fromMilli(10), Time.fromMilli(0), "name2"),

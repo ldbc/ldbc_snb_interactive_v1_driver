@@ -3,7 +3,9 @@ package com.ldbc.driver;
 import com.ldbc.driver.control.DriverConfiguration;
 import com.ldbc.driver.generator.GeneratorFactory;
 import com.ldbc.driver.temporal.Time;
-import com.ldbc.driver.util.ClassLoaderHelper;
+import com.ldbc.driver.util.Tuple;
+import com.ldbc.driver.validation.ClassNameWorkloadFactory;
+import com.ldbc.driver.validation.WorkloadFactory;
 
 import java.util.*;
 
@@ -51,10 +53,16 @@ public class WorkloadStreams {
     }
 
     // TODO test
-    public static WorkloadStreams createLimitedWorkloadStreams(DriverConfiguration configuration, GeneratorFactory gf) throws WorkloadException {
+    public static Tuple.Tuple2<WorkloadStreams, Workload> createNewWorkloadWithLimitedWorkloadStreams(DriverConfiguration configuration, GeneratorFactory gf) throws WorkloadException {
+        ClassNameWorkloadFactory workloadFactory = new ClassNameWorkloadFactory(configuration.workloadClassName());
+        return createNewWorkloadWithLimitedWorkloadStreams(workloadFactory, configuration, gf);
+    }
+
+    // TODO test
+    public static Tuple.Tuple2<WorkloadStreams, Workload> createNewWorkloadWithLimitedWorkloadStreams(WorkloadFactory workloadFactory, DriverConfiguration configuration, GeneratorFactory gf) throws WorkloadException {
         WorkloadStreams workloadStreams = new WorkloadStreams();
         // get workload
-        Workload workload = ClassLoaderHelper.loadWorkload(configuration.workloadClassName());
+        Workload workload = workloadFactory.createWorkload();
         workload.init(configuration);
         // retrieve unbounded streams
         WorkloadStreams unlimitedWorkloadStreams = workload.streams(gf);
@@ -69,7 +77,7 @@ public class WorkloadStreams {
         long[] limitForStream = WorkloadStreams.fromAmongAllRetrieveTopK(streams, configuration.operationCount());
         workload.cleanup();
         // reinitialize workload, so it can be streamed through from the beginning
-        workload = ClassLoaderHelper.loadWorkload(configuration.workloadClassName());
+        workload = workloadFactory.createWorkload();
         workload.init(configuration);
         // retrieve unbounded streams
         unlimitedWorkloadStreams = workload.streams(gf);
@@ -87,7 +95,7 @@ public class WorkloadStreams {
                     gf.limit(blockingStreams.get(i).nonDependencyOperations(), limitForStream[i * 2 + 3])
             );
         }
-        return workloadStreams;
+        return Tuple.tuple2(workloadStreams, workload);
     }
 
     public static long[] fromAmongAllRetrieveTopK(List<Iterator<Operation<?>>> streams, long k) {
