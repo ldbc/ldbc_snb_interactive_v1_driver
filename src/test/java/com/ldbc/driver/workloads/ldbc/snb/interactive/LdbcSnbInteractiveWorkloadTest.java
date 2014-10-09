@@ -9,10 +9,6 @@ import com.ldbc.driver.control.*;
 import com.ldbc.driver.generator.GeneratorFactory;
 import com.ldbc.driver.generator.RandomDataGeneratorFactory;
 import com.ldbc.driver.runtime.metrics.ThreadedQueuedConcurrentMetricsService;
-import com.ldbc.driver.runtime.streams.IteratorSplitter;
-import com.ldbc.driver.runtime.streams.IteratorSplittingException;
-import com.ldbc.driver.runtime.streams.SplitDefinition;
-import com.ldbc.driver.runtime.streams.SplitResult;
 import com.ldbc.driver.temporal.Duration;
 import com.ldbc.driver.temporal.SystemTimeSource;
 import com.ldbc.driver.temporal.Time;
@@ -190,7 +186,7 @@ public class LdbcSnbInteractiveWorkloadTest {
         workload.init(config);
 
         GeneratorFactory gf = new GeneratorFactory(new RandomDataGeneratorFactory(42L));
-        Iterator<Operation<?>> operations = workload.streams(gf, MANY_ELEMENTS_COUNT);
+        Iterator<Operation<?>> operations = gf.limit(workload.streams(gf).mergeSortedByStartTime(gf), MANY_ELEMENTS_COUNT);
         TimeSource timeSource = new SystemTimeSource();
         Time timeout = timeSource.now().plus(Duration.fromSeconds(30));
         boolean workloadGeneratedOperationsBeforeTimeout = TestUtils.generateBeforeTimeout(operations, timeout, timeSource, MANY_ELEMENTS_COUNT);
@@ -260,9 +256,10 @@ public class LdbcSnbInteractiveWorkloadTest {
         Workload workloadB = new LdbcSnbInteractiveWorkload();
         workloadB.init(params);
 
+        GeneratorFactory gf1 = new GeneratorFactory(new RandomDataGeneratorFactory(42L));
         List<Class> operationsA = ImmutableList.copyOf(
                 Iterators.transform(
-                        workloadA.streams(new GeneratorFactory(new RandomDataGeneratorFactory(42L)), params.operationCount()),
+                        gf1.limit(workloadA.streams(gf1).mergeSortedByStartTime(gf1), params.operationCount()),
                         new Function<Operation<?>, Class>() {
                             @Override
                             public Class apply(Operation<?> operation) {
@@ -270,9 +267,10 @@ public class LdbcSnbInteractiveWorkloadTest {
                             }
                         }));
 
+        GeneratorFactory gf2 = new GeneratorFactory(new RandomDataGeneratorFactory(42L));
         List<Class> operationsB = ImmutableList.copyOf(
                 Iterators.transform(
-                        workloadB.streams(new GeneratorFactory(new RandomDataGeneratorFactory(42L)), params.operationCount()),
+                        gf1.limit(workloadB.streams(gf2).mergeSortedByStartTime(gf2), params.operationCount()),
                         new Function<Operation<?>, Class>() {
                             @Override
                             public Class apply(Operation<?> operation) {
@@ -351,8 +349,9 @@ public class LdbcSnbInteractiveWorkloadTest {
 
         // When
 
+        GeneratorFactory gf = new GeneratorFactory(new RandomDataGeneratorFactory(42L));
         Iterator<Class> operationTypes = Iterators.transform(
-                workload.streams(new GeneratorFactory(new RandomDataGeneratorFactory(42L)), params.operationCount()),
+                gf.limit(workload.streams(gf).mergeSortedByStartTime(gf), params.operationCount()),
                 new Function<Operation<?>, Class>() {
                     @Override
                     public Class apply(Operation<?> operation) {
@@ -495,9 +494,10 @@ public class LdbcSnbInteractiveWorkloadTest {
                 shouldCreateResultsLog
         );
 
+        GeneratorFactory gf = new GeneratorFactory(new RandomDataGeneratorFactory(42L));
         Workload workload = new LdbcSnbInteractiveWorkload();
         workload.init(configuration);
-        List<Operation<?>> operations = Lists.newArrayList(workload.streams(new GeneratorFactory(new RandomDataGeneratorFactory(42L)), configuration.operationCount()));
+        List<Operation<?>> operations = Lists.newArrayList(gf.limit(workload.streams(gf).mergeSortedByStartTime(gf), configuration.operationCount()));
 
         Time prevOperationScheduledStartTime = operations.get(0).scheduledStartTime().minus(Duration.fromMilli(1));
         for (Operation<?> operation : operations) {
@@ -572,102 +572,6 @@ public class LdbcSnbInteractiveWorkloadTest {
         File resultsLog = new File(new File(resultDirPath), configuration.name() + ThreadedQueuedConcurrentMetricsService.RESULTS_LOG_FILENAME_SUFFIX);
         CsvFileReader csvResultsLogReader = new CsvFileReader(resultsLog, CsvFileReader.DEFAULT_COLUMN_SEPARATOR_PATTERN);
         assertThat((long) Iterators.size(csvResultsLogReader), is(configuration.operationCount() + 1)); // + 1 to account for csv headers
-    }
-
-    @Test
-    public void operationsShouldHaveMonotonicallyIncreasingScheduledStartTimesAfterSplitting() throws WorkloadException, IOException, DriverConfigurationException, IteratorSplittingException {
-        Map<String, String> paramsMap = LdbcSnbInteractiveWorkload.defaultConfig();
-        // LDBC Interactive Workload-specific parameters
-        paramsMap.put(LdbcSnbInteractiveWorkload.PARAMETERS_DIRECTORY, TestUtils.getResource("/").getAbsolutePath());
-        paramsMap.put(LdbcSnbInteractiveWorkload.DATA_DIRECTORY, TestUtils.getResource("/").getAbsolutePath());
-        // Driver-specific parameters
-        String name = "name";
-        String dbClassName = DummyLdbcSnbInteractiveDb.class.getName();
-        String workloadClassName = LdbcSnbInteractiveWorkload.class.getName();
-        long operationCount = 1000000;
-        int threadCount = 1;
-        Duration statusDisplayInterval = Duration.fromSeconds(1);
-        TimeUnit timeUnit = TimeUnit.MILLISECONDS;
-        String resultDirPath = temporaryFolder.newFolder().getAbsolutePath();
-        double timeCompressionRatio = 1.0;
-        Duration windowedExecutionWindowDuration = Duration.fromSeconds(1);
-        Set<String> peerIds = new HashSet<>();
-        Duration toleratedExecutionDelay = Duration.fromSeconds(1);
-        ConsoleAndFileDriverConfiguration.ConsoleAndFileValidationParamOptions validationParams = null;
-        String dbValidationFilePath = null;
-        boolean validateWorkload = false;
-        boolean calculateWorkloadStatistics = true;
-        Duration spinnerSleepDuration = Duration.fromMilli(0);
-        boolean printHelp = false;
-        boolean ignoreScheduledStartTimes = false;
-        boolean shouldCreateResultsLog = false;
-
-        assertThat(new File(resultDirPath).listFiles().length > 0, is(false));
-
-        DriverConfiguration configuration = new ConsoleAndFileDriverConfiguration(
-                paramsMap,
-                name,
-                dbClassName,
-                workloadClassName,
-                operationCount,
-                threadCount,
-                statusDisplayInterval,
-                timeUnit,
-                resultDirPath,
-                timeCompressionRatio,
-                windowedExecutionWindowDuration,
-                peerIds,
-                toleratedExecutionDelay,
-                validationParams,
-                dbValidationFilePath,
-                validateWorkload,
-                calculateWorkloadStatistics,
-                spinnerSleepDuration,
-                printHelp,
-                ignoreScheduledStartTimes,
-                shouldCreateResultsLog
-        );
-
-        Workload workload = new LdbcSnbInteractiveWorkload();
-        workload.init(configuration);
-        List<Operation<?>> operations = Lists.newArrayList(workload.streams(new GeneratorFactory(new RandomDataGeneratorFactory(42L)), configuration.operationCount()));
-
-        Time firstOperationScheduledStartTime = operations.get(0).scheduledStartTime();
-
-        Time prevOperationScheduledStartTime = firstOperationScheduledStartTime.minus(Duration.fromMilli(1));
-        for (Operation<?> operation : Lists.newArrayList(operations)) {
-            assertThat(operation.scheduledStartTime().gte(prevOperationScheduledStartTime), is(true));
-            prevOperationScheduledStartTime = operation.scheduledStartTime();
-        }
-
-        IteratorSplitter<Operation<?>> splitter = new IteratorSplitter<>(IteratorSplitter.UnmappedItemPolicy.ABORT);
-        SplitDefinition<Operation<?>> windowed = new SplitDefinition<>(Workload.operationTypesBySchedulingMode(workload.operationClassifications(), OperationClassification.SchedulingMode.WINDOWED));
-        SplitDefinition<Operation<?>> blocking = new SplitDefinition<>(Workload.operationTypesBySchedulingMode(workload.operationClassifications(), OperationClassification.SchedulingMode.INDIVIDUAL_BLOCKING));
-        SplitDefinition<Operation<?>> asynchronous = new SplitDefinition<>(Workload.operationTypesBySchedulingMode(workload.operationClassifications(), OperationClassification.SchedulingMode.INDIVIDUAL_ASYNC));
-        SplitResult splits = splitter.split(operations.iterator(), windowed, blocking, asynchronous);
-        List<Operation<?>> windowedOperations = Lists.newArrayList(splits.getSplitFor(windowed));
-        List<Operation<?>> blockingOperations = Lists.newArrayList(splits.getSplitFor(blocking));
-        List<Operation<?>> asynchronousOperations = Lists.newArrayList(splits.getSplitFor(asynchronous));
-
-        Time prevWindowedOperationScheduledStartTime = firstOperationScheduledStartTime.minus(Duration.fromMilli(1));
-        for (Operation<?> operation : windowedOperations) {
-            assertThat(operation.scheduledStartTime().gte(prevWindowedOperationScheduledStartTime), is(true));
-            prevWindowedOperationScheduledStartTime = operation.scheduledStartTime();
-        }
-
-        Time prevAsyncOperationScheduledStartTime = firstOperationScheduledStartTime.minus(Duration.fromMilli(1));
-        for (Operation<?> operation : asynchronousOperations) {
-            assertThat(operation.scheduledStartTime().gte(prevAsyncOperationScheduledStartTime), is(true));
-            prevAsyncOperationScheduledStartTime = operation.scheduledStartTime();
-        }
-
-        Time prevBlockingOperationScheduledStartTime = firstOperationScheduledStartTime.minus(Duration.fromMilli(1));
-        for (Operation<?> operation : blockingOperations) {
-            assertThat(operation.scheduledStartTime().gte(prevBlockingOperationScheduledStartTime), is(true));
-            prevBlockingOperationScheduledStartTime = operation.scheduledStartTime();
-        }
-
-        workload.cleanup();
     }
 
     @Test

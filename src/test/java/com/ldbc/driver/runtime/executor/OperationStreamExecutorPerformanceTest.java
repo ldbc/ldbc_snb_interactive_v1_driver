@@ -4,8 +4,7 @@ import com.google.common.collect.Lists;
 import com.ldbc.driver.Db;
 import com.ldbc.driver.DbException;
 import com.ldbc.driver.Operation;
-import com.ldbc.driver.OperationClassification;
-import com.ldbc.driver.OperationClassification.SchedulingMode;
+import com.ldbc.driver.WorkloadStreams;
 import com.ldbc.driver.generator.GeneratorFactory;
 import com.ldbc.driver.generator.RandomDataGeneratorFactory;
 import com.ldbc.driver.runtime.ConcurrentErrorReporter;
@@ -21,7 +20,6 @@ import com.ldbc.driver.runtime.metrics.MetricsCollectionException;
 import com.ldbc.driver.runtime.scheduling.Spinner;
 import com.ldbc.driver.temporal.*;
 import com.ldbc.driver.workloads.dummy.DummyDb;
-import com.ldbc.driver.workloads.dummy.TimedNamedOperation1;
 import com.ldbc.driver.workloads.dummy.TimedNamedOperation1Factory;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -92,7 +90,8 @@ public class OperationStreamExecutorPerformanceTest {
         synchronousExecutorPerformanceTestWithSpinnerDuration(spinnerSleepDuration, experimentRepetitions, operationCount);
     }
 
-    public void synchronousExecutorPerformanceTestWithSpinnerDuration(Duration spinnerSleepDuration, int experimentRepetitions, long operationCount) throws CompletionTimeException, MetricsCollectionException, DbException, OperationHandlerExecutorException {
+    public void synchronousExecutorPerformanceTestWithSpinnerDuration(Duration spinnerSleepDuration, int experimentRepetitions, long operationCount)
+            throws CompletionTimeException, MetricsCollectionException, DbException, OperationHandlerExecutorException {
         List<Duration> threadPoolExecutorTimes = new ArrayList<>();
         List<Duration> singleThreadExecutorTimes = new ArrayList<>();
         List<Duration> sameThreadExecutorTimes = new ArrayList<>();
@@ -105,8 +104,6 @@ public class OperationStreamExecutorPerformanceTest {
                 boolean ignoreScheduledStartTime = false;
                 ConcurrentErrorReporter errorReporter = new ConcurrentErrorReporter();
                 Spinner spinner = new Spinner(timeSource, spinnerSleepDuration, ignoreScheduledStartTime);
-                Map<Class<? extends Operation>, OperationClassification> operationClassifications = new HashMap<>();
-                operationClassifications.put(TimedNamedOperation1.class, new OperationClassification(SchedulingMode.INDIVIDUAL_BLOCKING, OperationClassification.DependencyMode.NONE));
                 DummyDb db = new DummyDb();
                 Map<String, String> dummyDbParameters = new HashMap<>();
                 dummyDbParameters.put(DummyDb.ALLOWED_DEFAULT_ARG, Boolean.toString(true));
@@ -119,13 +116,18 @@ public class OperationStreamExecutorPerformanceTest {
                 AtomicBoolean forceThreadToTerminate = new AtomicBoolean(false);
                 timeSource.setNowFromMilli(0);
 
+                WorkloadStreams.WorkloadStreamDefinition streamDefinition = new WorkloadStreams.WorkloadStreamDefinition(
+                        new HashSet<Class<? extends Operation<?>>>(),
+                        Collections.<Operation<?>>emptyIterator(),
+                        operations.iterator()
+                );
+
                 OperationHandlerExecutor executor = new ThreadPoolOperationHandlerExecutor(1, DefaultQueues.DEFAULT_BOUND_100);
                 PreciseIndividualBlockingOperationStreamExecutorServiceThread thread = getNewThread(
                         errorReporter,
-                        operations.iterator(),
+                        streamDefinition,
                         spinner,
                         executor,
-                        operationClassifications,
                         db,
                         localCompletionTimeWriter,
                         metricsService,
@@ -144,8 +146,6 @@ public class OperationStreamExecutorPerformanceTest {
                 boolean ignoreScheduledStartTime = false;
                 ConcurrentErrorReporter errorReporter = new ConcurrentErrorReporter();
                 Spinner spinner = new Spinner(timeSource, spinnerSleepDuration, ignoreScheduledStartTime);
-                Map<Class<? extends Operation>, OperationClassification> operationClassifications = new HashMap<>();
-                operationClassifications.put(TimedNamedOperation1.class, new OperationClassification(SchedulingMode.INDIVIDUAL_BLOCKING, OperationClassification.DependencyMode.NONE));
                 DummyDb db = new DummyDb();
                 Map<String, String> dummyDbParameters = new HashMap<>();
                 dummyDbParameters.put(DummyDb.ALLOWED_DEFAULT_ARG, Boolean.toString(true));
@@ -158,13 +158,18 @@ public class OperationStreamExecutorPerformanceTest {
                 AtomicBoolean forceThreadToTerminate = new AtomicBoolean(false);
                 timeSource.setNowFromMilli(0);
 
+                WorkloadStreams.WorkloadStreamDefinition streamDefinition = new WorkloadStreams.WorkloadStreamDefinition(
+                        new HashSet<Class<? extends Operation<?>>>(),
+                        Collections.<Operation<?>>emptyIterator(),
+                        operations.iterator()
+                );
+
                 OperationHandlerExecutor executor = new SingleThreadOperationHandlerExecutor(errorReporter, DefaultQueues.DEFAULT_BOUND_100);
                 PreciseIndividualBlockingOperationStreamExecutorServiceThread thread = getNewThread(
                         errorReporter,
-                        operations.iterator(),
+                        streamDefinition,
                         spinner,
                         executor,
-                        operationClassifications,
                         db,
                         localCompletionTimeWriter,
                         metricsService,
@@ -183,8 +188,6 @@ public class OperationStreamExecutorPerformanceTest {
                 boolean ignoreScheduledStartTime = false;
                 ConcurrentErrorReporter errorReporter = new ConcurrentErrorReporter();
                 Spinner spinner = new Spinner(timeSource, spinnerSleepDuration, ignoreScheduledStartTime);
-                Map<Class<? extends Operation>, OperationClassification> operationClassifications = new HashMap<>();
-                operationClassifications.put(TimedNamedOperation1.class, new OperationClassification(SchedulingMode.INDIVIDUAL_BLOCKING, OperationClassification.DependencyMode.NONE));
                 DummyDb db = new DummyDb();
                 Map<String, String> dummyDbParameters = new HashMap<>();
                 dummyDbParameters.put(DummyDb.ALLOWED_DEFAULT_ARG, Boolean.toString(true));
@@ -197,13 +200,18 @@ public class OperationStreamExecutorPerformanceTest {
                 AtomicBoolean forceThreadToTerminate = new AtomicBoolean(false);
                 timeSource.setNowFromMilli(0);
 
+                WorkloadStreams.WorkloadStreamDefinition streamDefinition = new WorkloadStreams.WorkloadStreamDefinition(
+                        new HashSet<Class<? extends Operation<?>>>(),
+                        Collections.<Operation<?>>emptyIterator(),
+                        operations.iterator()
+                );
+
                 OperationHandlerExecutor executor = new SameThreadOperationHandlerExecutor();
                 PreciseIndividualBlockingOperationStreamExecutorServiceThread thread = getNewThread(
                         errorReporter,
-                        operations.iterator(),
+                        streamDefinition,
                         spinner,
                         executor,
-                        operationClassifications,
                         db,
                         localCompletionTimeWriter,
                         metricsService,
@@ -271,10 +279,9 @@ public class OperationStreamExecutorPerformanceTest {
 
     private PreciseIndividualBlockingOperationStreamExecutorServiceThread getNewThread(
             ConcurrentErrorReporter errorReporter,
-            Iterator<Operation<?>> operations,
+            WorkloadStreams.WorkloadStreamDefinition streamDefinition,
             Spinner spinner,
             OperationHandlerExecutor operationHandlerExecutor,
-            Map<Class<? extends Operation>, OperationClassification> operationClassifications,
             Db db,
             LocalCompletionTimeWriter localCompletionTimeWriter,
             ConcurrentMetricsService metricsService,
@@ -287,11 +294,10 @@ public class OperationStreamExecutorPerformanceTest {
                         timeSource,
                         operationHandlerExecutor,
                         errorReporter,
-                        operations,
+                        streamDefinition,
                         executorHasFinished,
                         spinner,
                         forceThreadToTerminate,
-                        operationClassifications,
                         db,
                         localCompletionTimeWriter,
                         globalCompletionTimeReader,

@@ -90,7 +90,7 @@ public class SimpleWorkloadTest {
         Workload workload = new SimpleWorkload();
         workload.init(params);
         GeneratorFactory gf = new GeneratorFactory(new RandomDataGeneratorFactory(42L));
-        Iterator<Operation<?>> operations = workload.streams(gf, 1000000);
+        Iterator<Operation<?>> operations = gf.limit(workload.streams(gf).mergeSortedByStartTime(gf), 1000000);
         TimeSource timeSource = new SystemTimeSource();
         Time timeout = timeSource.now().plus(Duration.fromSeconds(30));
         boolean workloadGeneratedOperationsBeforeTimeout = TestUtils.generateBeforeTimeout(operations, timeout, timeSource, 1000000);
@@ -156,15 +156,17 @@ public class SimpleWorkloadTest {
             }
         };
 
+        GeneratorFactory gf1 = new GeneratorFactory(new RandomDataGeneratorFactory(42L));
         List<Class> operationsA = ImmutableList.copyOf(
                 Iterators.transform(
-                        workload.streams(new GeneratorFactory(new RandomDataGeneratorFactory(42L)), params.operationCount()),
+                        gf1.limit(workload.streams(gf1).mergeSortedByStartTime(gf1), params.operationCount()),
                         classFun
                 ));
 
+        GeneratorFactory gf2 = new GeneratorFactory(new RandomDataGeneratorFactory(42L));
         List<Class> operationsB = ImmutableList.copyOf(
                 Iterators.transform(
-                        workload.streams(new GeneratorFactory(new RandomDataGeneratorFactory(42L)), params.operationCount()),
+                        gf2.limit(workload.streams(gf2).mergeSortedByStartTime(gf2), params.operationCount()),
                         classFun
                 ));
 
@@ -301,9 +303,10 @@ public class SimpleWorkloadTest {
         Workload workloadB = new SimpleWorkload();
         workloadB.init(params);
 
+        GeneratorFactory gf1 = new GeneratorFactory(new RandomDataGeneratorFactory(42L));
         List<Class> operationsA = ImmutableList.copyOf(
                 Iterators.transform(
-                        workloadA.streams(new GeneratorFactory(new RandomDataGeneratorFactory(42L)), params.operationCount()),
+                        gf1.limit(workloadA.streams(gf1).mergeSortedByStartTime(gf1), params.operationCount()),
                         new Function<Operation<?>, Class>() {
                             @Override
                             public Class apply(Operation<?> operation) {
@@ -311,9 +314,10 @@ public class SimpleWorkloadTest {
                             }
                         }));
 
+        GeneratorFactory gf2 = new GeneratorFactory(new RandomDataGeneratorFactory(42L));
         List<Class> operationsB = ImmutableList.copyOf(
                 Iterators.transform(
-                        workloadB.streams(new GeneratorFactory(new RandomDataGeneratorFactory(42L)), params.operationCount()),
+                        gf2.limit(workloadA.streams(gf2).mergeSortedByStartTime(gf2), params.operationCount()),
                         new Function<Operation<?>, Class>() {
                             @Override
                             public Class apply(Operation<?> operation) {

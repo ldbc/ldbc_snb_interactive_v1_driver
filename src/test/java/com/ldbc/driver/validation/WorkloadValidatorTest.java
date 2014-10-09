@@ -2,27 +2,28 @@ package com.ldbc.driver.validation;
 
 import com.google.common.collect.Iterators;
 import com.google.common.collect.Lists;
+import com.google.common.collect.Sets;
 import com.ldbc.driver.Operation;
 import com.ldbc.driver.Workload;
 import com.ldbc.driver.WorkloadException;
+import com.ldbc.driver.WorkloadStreams;
 import com.ldbc.driver.control.ConsoleAndFileDriverConfiguration;
 import com.ldbc.driver.control.DriverConfiguration;
 import com.ldbc.driver.control.DriverConfigurationException;
 import com.ldbc.driver.generator.GeneratorFactory;
+import com.ldbc.driver.generator.RandomDataGeneratorFactory;
 import com.ldbc.driver.runtime.metrics.MetricsCollectionException;
 import com.ldbc.driver.temporal.Duration;
 import com.ldbc.driver.temporal.Time;
-import com.ldbc.driver.generator.RandomDataGeneratorFactory;
 import com.ldbc.driver.workloads.dummy.*;
 import org.junit.Test;
 
-import java.util.HashMap;
-import java.util.Iterator;
+import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
+import java.util.Set;
 
 import static com.ldbc.driver.validation.WorkloadValidationResult.ResultType;
-import static org.hamcrest.CoreMatchers.anyOf;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
 
@@ -30,104 +31,18 @@ public class WorkloadValidatorTest {
     GeneratorFactory gf = new GeneratorFactory(new RandomDataGeneratorFactory(42l));
 
     @Test
-    public void shouldTestDifferenceBetweenStartTimeAndDependencyTimeAtLeastWindowDurationForOperationsExecutedUsingWindowedSchedulingModeAndGctModeNotNone()
-            throws DriverConfigurationException, WorkloadException {
-        // Given
-        Duration maxExpectedInterleave = Duration.fromMilli(1000);
-        Duration windowDuration = Duration.fromMilli(10);
-
-
-        // george@georgebrock.com
-        List<Iterator<Operation<?>>> validOperations = Lists.newArrayList(
-                Lists.<Operation<?>>newArrayList(
-                        new TimedNamedOperation2(Time.fromMilli(10), Time.fromMilli(0), "name2"),
-                        new TimedNamedOperation2(Time.fromMilli(11), Time.fromMilli(1), "name2"),
-                        new TimedNamedOperation1(Time.fromMilli(12), Time.fromMilli(3), "name1")
-                ).iterator(),
-                Lists.<Operation<?>>newArrayList(
-                        new TimedNamedOperation2(Time.fromMilli(10), Time.fromMilli(0), "name2"),
-                        new TimedNamedOperation2(Time.fromMilli(11), Time.fromMilli(1), "name2"),
-                        new TimedNamedOperation1(Time.fromMilli(12), Time.fromMilli(3), "name1")
-                ).iterator(),
-                Lists.<Operation<?>>newArrayList(
-                        new TimedNamedOperation2(Time.fromMilli(10), Time.fromMilli(0), "name2"),
-                        new TimedNamedOperation2(Time.fromMilli(11), Time.fromMilli(1), "name2"),
-                        new TimedNamedOperation1(Time.fromMilli(12), Time.fromMilli(3), "name1")
-                ).iterator(),
-                Lists.<Operation<?>>newArrayList(
-                        new TimedNamedOperation2(Time.fromMilli(10), Time.fromMilli(0), "name2"),
-                        new TimedNamedOperation2(Time.fromMilli(11), Time.fromMilli(1), "name2"),
-                        new TimedNamedOperation1(Time.fromMilli(12), Time.fromMilli(3), "name1")
-                ).iterator()
-        );
-
-        List<Iterator<Operation<?>>> invalidOperations = Lists.newArrayList(
-                Lists.<Operation<?>>newArrayList(
-                        new TimedNamedOperation2(Time.fromMilli(10), Time.fromMilli(0), "name2"),
-                        new TimedNamedOperation2(Time.fromMilli(11), Time.fromMilli(1), "name2"),
-                        new TimedNamedOperation2(Time.fromMilli(12), Time.fromMilli(3), "name2")
-                ).iterator(),
-                Lists.<Operation<?>>newArrayList(
-                        new TimedNamedOperation2(Time.fromMilli(10), Time.fromMilli(0), "name2"),
-                        new TimedNamedOperation2(Time.fromMilli(11), Time.fromMilli(1), "name2"),
-                        new TimedNamedOperation2(Time.fromMilli(12), Time.fromMilli(3), "name2")
-                ).iterator()
-        );
-
-        long operationCount = validOperations.size();
-
-        Map<Class<? extends Operation>, OperationClassification> operationClassifications = new HashMap<>();
-        operationClassifications.put(
-                TimedNamedOperation2.class,
-                new OperationClassification(OperationClassification.SchedulingMode.WINDOWED, OperationClassification.DependencyMode.READ));
-        operationClassifications.put(
-                TimedNamedOperation1.class,
-                new OperationClassification(OperationClassification.SchedulingMode.INDIVIDUAL_ASYNC, OperationClassification.DependencyMode.NONE));
-
-        Map<String, String> nonDefaultParams = new HashMap<>();
-        nonDefaultParams.put(ConsoleAndFileDriverConfiguration.WINDOWED_EXECUTION_WINDOW_DURATION_ARG, Long.toString(windowDuration.asMilli()));
-        DriverConfiguration configuration = ConsoleAndFileDriverConfiguration.fromDefaults(null, null, operationCount).applyMap(nonDefaultParams);
-
-        WorkloadFactory validWorkloadFactory = new DummyWorkloadFactory(validOperations.iterator(), operationClassifications, maxExpectedInterleave);
-        WorkloadFactory invalidWorkloadFactory = new DummyWorkloadFactory(invalidOperations.iterator(), operationClassifications, maxExpectedInterleave);
-
-        // When
-        WorkloadValidator validWorkloadValidator = new WorkloadValidator();
-        WorkloadValidationResult validResult = validWorkloadValidator.validate(validWorkloadFactory, configuration);
-
-        WorkloadValidator invalidWorkloadValidator = new WorkloadValidator();
-        WorkloadValidationResult invalidResult = invalidWorkloadValidator.validate(invalidWorkloadFactory, configuration);
-
-        // Then
-        assertThat(validResult.errorMessage(), validResult.resultType(), is(ResultType.SUCCESSFUL));
-        assertThat(validResult.errorMessage(), validResult.isSuccessful(), is(true));
-
-        assertThat(invalidResult.errorMessage(), invalidResult.resultType(), is(ResultType.INSUFFICIENT_INTERVAL_BETWEEN_DEPENDENCY_TIME_AND_SCHEDULED_START_TIME));
-        assertThat(invalidResult.errorMessage(), invalidResult.isSuccessful(), is(false));
-    }
-
-    @Test
     public void shouldTestThatAllOperationsHaveDependencyTimeSet() throws DriverConfigurationException, WorkloadException {
         // Given
         Duration maxExpectedInterleave = Duration.fromMilli(1000);
-        Duration windowDuration = Duration.fromMilli(10);
 
-        List<Iterator<Operation<?>>> validOperations = Lists.newArrayList(
-                Lists.<Operation<?>>newArrayList(
-                        new TimedNamedOperation2(Time.fromMilli(10), Time.fromMilli(0), "name2"),
-                        new TimedNamedOperation2(Time.fromMilli(11), Time.fromMilli(1), "name2"),
-                        new TimedNamedOperation1(Time.fromMilli(12), Time.fromMilli(2), "name1")
-                ).iterator(),
-                Lists.<Operation<?>>newArrayList(
-                        new TimedNamedOperation2(Time.fromMilli(10), Time.fromMilli(0), "name2"),
-                        new TimedNamedOperation2(Time.fromMilli(11), Time.fromMilli(1), "name2"),
-                        new TimedNamedOperation1(Time.fromMilli(12), Time.fromMilli(2), "name1")
-                ).iterator(),
-                Lists.<Operation<?>>newArrayList(
-                        new TimedNamedOperation2(Time.fromMilli(10), Time.fromMilli(0), "name2"),
-                        new TimedNamedOperation2(Time.fromMilli(11), Time.fromMilli(1), "name2"),
-                        new TimedNamedOperation1(Time.fromMilli(12), Time.fromMilli(2), "name1")
-                ).iterator(),
+        Set<Class<? extends Operation<?>>> dependentOperationTypes = Sets.<Class<? extends Operation<?>>>newHashSet(
+                TimedNamedOperation2.class
+        );
+
+        WorkloadStreams workloadStreams1 = new WorkloadStreams();
+        workloadStreams1.setAsynchronousStream(
+                dependentOperationTypes,
+                Collections.<Operation<?>>emptyIterator(),
                 Lists.<Operation<?>>newArrayList(
                         new TimedNamedOperation2(Time.fromMilli(10), Time.fromMilli(0), "name2"),
                         new TimedNamedOperation2(Time.fromMilli(11), Time.fromMilli(1), "name2"),
@@ -135,7 +50,50 @@ public class WorkloadValidatorTest {
                 ).iterator()
         );
 
-        List<Iterator<Operation<?>>> invalidOperations = Lists.<Iterator<Operation<?>>>newArrayList(
+        WorkloadStreams workloadStreams2 = new WorkloadStreams();
+        workloadStreams2.setAsynchronousStream(
+                dependentOperationTypes,
+                Collections.<Operation<?>>emptyIterator(),
+                Lists.<Operation<?>>newArrayList(
+                        new TimedNamedOperation2(Time.fromMilli(10), Time.fromMilli(0), "name2"),
+                        new TimedNamedOperation2(Time.fromMilli(11), Time.fromMilli(1), "name2"),
+                        new TimedNamedOperation1(Time.fromMilli(12), Time.fromMilli(2), "name1")
+                ).iterator()
+        );
+
+        WorkloadStreams workloadStreams3 = new WorkloadStreams();
+        workloadStreams3.setAsynchronousStream(
+                dependentOperationTypes,
+                Collections.<Operation<?>>emptyIterator(),
+                Lists.<Operation<?>>newArrayList(
+                        new TimedNamedOperation2(Time.fromMilli(10), Time.fromMilli(0), "name2"),
+                        new TimedNamedOperation2(Time.fromMilli(11), Time.fromMilli(1), "name2"),
+                        new TimedNamedOperation1(Time.fromMilli(12), Time.fromMilli(2), "name1")
+                ).iterator()
+        );
+
+        WorkloadStreams workloadStreams4 = new WorkloadStreams();
+        workloadStreams4.setAsynchronousStream(
+                dependentOperationTypes,
+                Collections.<Operation<?>>emptyIterator(),
+                Lists.<Operation<?>>newArrayList(
+                        new TimedNamedOperation2(Time.fromMilli(10), Time.fromMilli(0), "name2"),
+                        new TimedNamedOperation2(Time.fromMilli(11), Time.fromMilli(1), "name2"),
+                        new TimedNamedOperation1(Time.fromMilli(12), Time.fromMilli(2), "name1")
+                ).iterator()
+        );
+
+        List<WorkloadStreams> validStreams = Lists.newArrayList(
+                workloadStreams1,
+                workloadStreams2,
+                workloadStreams3,
+                workloadStreams4
+        );
+
+        WorkloadStreams invalidWorkloadStreams1 = new WorkloadStreams();
+        invalidWorkloadStreams1.setAsynchronousStream(
+                dependentOperationTypes,
+                Collections.<Operation<?>>emptyIterator(),
                 Lists.<Operation<?>>newArrayList(
                         new TimedNamedOperation2(Time.fromMilli(10), Time.fromMilli(0), "name2"),
                         new TimedNamedOperation2(Time.fromMilli(11), Time.fromMilli(1), "name2"),
@@ -143,22 +101,16 @@ public class WorkloadValidatorTest {
                 ).iterator()
         );
 
-        long operationCount = validOperations.size();
+        List<WorkloadStreams> invalidStreams = Lists.newArrayList(
+                invalidWorkloadStreams1
+        );
 
-        Map<Class<? extends Operation>, OperationClassification> operationClassifications = new HashMap<>();
-        operationClassifications.put(
-                TimedNamedOperation2.class,
-                new OperationClassification(OperationClassification.SchedulingMode.WINDOWED, OperationClassification.DependencyMode.READ));
-        operationClassifications.put(
-                TimedNamedOperation1.class,
-                new OperationClassification(OperationClassification.SchedulingMode.INDIVIDUAL_ASYNC, OperationClassification.DependencyMode.NONE));
+        long operationCount = validStreams.size();
 
-        Map<String, String> nonDefaultParams = new HashMap<>();
-        nonDefaultParams.put(ConsoleAndFileDriverConfiguration.WINDOWED_EXECUTION_WINDOW_DURATION_ARG, Long.toString(windowDuration.asMilli()));
-        DriverConfiguration configuration = ConsoleAndFileDriverConfiguration.fromDefaults(null, null, operationCount).applyMap(nonDefaultParams);
+        DriverConfiguration configuration = ConsoleAndFileDriverConfiguration.fromDefaults(null, null, operationCount);
 
-        WorkloadFactory validWorkloadFactory = new DummyWorkloadFactory(validOperations.iterator(), operationClassifications, maxExpectedInterleave);
-        WorkloadFactory invalidWorkloadFactory = new DummyWorkloadFactory(invalidOperations.iterator(), operationClassifications, maxExpectedInterleave);
+        WorkloadFactory validWorkloadFactory = new DummyWorkloadFactory(validStreams.iterator(), maxExpectedInterleave);
+        WorkloadFactory invalidWorkloadFactory = new DummyWorkloadFactory(invalidStreams.iterator(), maxExpectedInterleave);
 
         // When
         WorkloadValidator validWorkloadValidator = new WorkloadValidator();
@@ -179,24 +131,15 @@ public class WorkloadValidatorTest {
     public void shouldTestThatDependencyTimesAreNeverGreaterThanScheduledStartTime() throws DriverConfigurationException, WorkloadException {
         // Given
         Duration maxExpectedInterleave = Duration.fromMilli(1000);
-        Duration windowDuration = Duration.fromMilli(10);
 
-        List<Iterator<Operation<?>>> validOperations = Lists.newArrayList(
-                Lists.<Operation<?>>newArrayList(
-                        new TimedNamedOperation2(Time.fromMilli(10), Time.fromMilli(0), "name2"),
-                        new TimedNamedOperation2(Time.fromMilli(11), Time.fromMilli(1), "name2"),
-                        new TimedNamedOperation1(Time.fromMilli(12), Time.fromMilli(11), "name1")
-                ).iterator(),
-                Lists.<Operation<?>>newArrayList(
-                        new TimedNamedOperation2(Time.fromMilli(10), Time.fromMilli(0), "name2"),
-                        new TimedNamedOperation2(Time.fromMilli(11), Time.fromMilli(1), "name2"),
-                        new TimedNamedOperation1(Time.fromMilli(12), Time.fromMilli(11), "name1")
-                ).iterator(),
-                Lists.<Operation<?>>newArrayList(
-                        new TimedNamedOperation2(Time.fromMilli(10), Time.fromMilli(0), "name2"),
-                        new TimedNamedOperation2(Time.fromMilli(11), Time.fromMilli(1), "name2"),
-                        new TimedNamedOperation1(Time.fromMilli(12), Time.fromMilli(11), "name1")
-                ).iterator(),
+        Set<Class<? extends Operation<?>>> dependentOperationTypes = Sets.<Class<? extends Operation<?>>>newHashSet(
+                TimedNamedOperation2.class
+        );
+
+        WorkloadStreams workloadStreams1 = new WorkloadStreams();
+        workloadStreams1.setAsynchronousStream(
+                dependentOperationTypes,
+                Collections.<Operation<?>>emptyIterator(),
                 Lists.<Operation<?>>newArrayList(
                         new TimedNamedOperation2(Time.fromMilli(10), Time.fromMilli(0), "name2"),
                         new TimedNamedOperation2(Time.fromMilli(11), Time.fromMilli(1), "name2"),
@@ -204,7 +147,50 @@ public class WorkloadValidatorTest {
                 ).iterator()
         );
 
-        List<Iterator<Operation<?>>> invalidOperations = Lists.<Iterator<Operation<?>>>newArrayList(
+        WorkloadStreams workloadStreams2 = new WorkloadStreams();
+        workloadStreams2.setAsynchronousStream(
+                dependentOperationTypes,
+                Collections.<Operation<?>>emptyIterator(),
+                Lists.<Operation<?>>newArrayList(
+                        new TimedNamedOperation2(Time.fromMilli(10), Time.fromMilli(0), "name2"),
+                        new TimedNamedOperation2(Time.fromMilli(11), Time.fromMilli(1), "name2"),
+                        new TimedNamedOperation1(Time.fromMilli(12), Time.fromMilli(11), "name1")
+                ).iterator()
+        );
+
+        WorkloadStreams workloadStreams3 = new WorkloadStreams();
+        workloadStreams3.setAsynchronousStream(
+                dependentOperationTypes,
+                Collections.<Operation<?>>emptyIterator(),
+                Lists.<Operation<?>>newArrayList(
+                        new TimedNamedOperation2(Time.fromMilli(10), Time.fromMilli(0), "name2"),
+                        new TimedNamedOperation2(Time.fromMilli(11), Time.fromMilli(1), "name2"),
+                        new TimedNamedOperation1(Time.fromMilli(12), Time.fromMilli(11), "name1")
+                ).iterator()
+        );
+
+        WorkloadStreams workloadStreams4 = new WorkloadStreams();
+        workloadStreams4.setAsynchronousStream(
+                dependentOperationTypes,
+                Collections.<Operation<?>>emptyIterator(),
+                Lists.<Operation<?>>newArrayList(
+                        new TimedNamedOperation2(Time.fromMilli(10), Time.fromMilli(0), "name2"),
+                        new TimedNamedOperation2(Time.fromMilli(11), Time.fromMilli(1), "name2"),
+                        new TimedNamedOperation1(Time.fromMilli(12), Time.fromMilli(11), "name1")
+                ).iterator()
+        );
+
+        List<WorkloadStreams> validStreams = Lists.newArrayList(
+                workloadStreams1,
+                workloadStreams2,
+                workloadStreams3,
+                workloadStreams4
+        );
+
+        WorkloadStreams invalidWorkloadStreams1 = new WorkloadStreams();
+        invalidWorkloadStreams1.setAsynchronousStream(
+                dependentOperationTypes,
+                Collections.<Operation<?>>emptyIterator(),
                 Lists.<Operation<?>>newArrayList(
                         new TimedNamedOperation2(Time.fromMilli(10), Time.fromMilli(0), "name2"),
                         new TimedNamedOperation2(Time.fromMilli(11), Time.fromMilli(1), "name2"),
@@ -212,22 +198,16 @@ public class WorkloadValidatorTest {
                 ).iterator()
         );
 
-        long operationCount = validOperations.size();
+        List<WorkloadStreams> invalidStreams = Lists.newArrayList(
+                invalidWorkloadStreams1
+        );
 
-        Map<Class<? extends Operation>, OperationClassification> operationClassifications = new HashMap<>();
-        operationClassifications.put(
-                TimedNamedOperation2.class,
-                new OperationClassification(OperationClassification.SchedulingMode.INDIVIDUAL_ASYNC, OperationClassification.DependencyMode.READ));
-        operationClassifications.put(
-                TimedNamedOperation1.class,
-                new OperationClassification(OperationClassification.SchedulingMode.INDIVIDUAL_ASYNC, OperationClassification.DependencyMode.NONE));
+        long operationCount = validStreams.size();
 
-        Map<String, String> nonDefaultParams = new HashMap<>();
-        nonDefaultParams.put(ConsoleAndFileDriverConfiguration.WINDOWED_EXECUTION_WINDOW_DURATION_ARG, Long.toString(windowDuration.asMilli()));
-        DriverConfiguration configuration = ConsoleAndFileDriverConfiguration.fromDefaults(null, null, operationCount).applyMap(nonDefaultParams);
+        DriverConfiguration configuration = ConsoleAndFileDriverConfiguration.fromDefaults(null, null, operationCount);
 
-        WorkloadFactory validWorkloadFactory = new DummyWorkloadFactory(validOperations.iterator(), operationClassifications, maxExpectedInterleave);
-        WorkloadFactory invalidWorkloadFactory = new DummyWorkloadFactory(invalidOperations.iterator(), operationClassifications, maxExpectedInterleave);
+        WorkloadFactory validWorkloadFactory = new DummyWorkloadFactory(validStreams.iterator(), maxExpectedInterleave);
+        WorkloadFactory invalidWorkloadFactory = new DummyWorkloadFactory(invalidStreams.iterator(), maxExpectedInterleave);
 
         // When
         WorkloadValidator validWorkloadValidator = new WorkloadValidator();
@@ -248,24 +228,15 @@ public class WorkloadValidatorTest {
     public void shouldTestThatWorkloadOnlyReturnsClassificationsForOperationsThatAreGenerated() throws DriverConfigurationException, WorkloadException {
         // Given
         Duration maxExpectedInterleave = Duration.fromMilli(1000);
-        Duration windowDuration = Duration.fromMilli(10);
 
-        List<Iterator<Operation<?>>> validOperations = Lists.newArrayList(
-                Lists.<Operation<?>>newArrayList(
-                        new TimedNamedOperation2(Time.fromMilli(10), Time.fromMilli(0), "name2"),
-                        new TimedNamedOperation2(Time.fromMilli(11), Time.fromMilli(1), "name2"),
-                        new TimedNamedOperation1(Time.fromMilli(12), Time.fromMilli(2), "name1")
-                ).iterator(),
-                Lists.<Operation<?>>newArrayList(
-                        new TimedNamedOperation2(Time.fromMilli(10), Time.fromMilli(0), "name2"),
-                        new TimedNamedOperation2(Time.fromMilli(11), Time.fromMilli(1), "name2"),
-                        new TimedNamedOperation1(Time.fromMilli(12), Time.fromMilli(2), "name1")
-                ).iterator(),
-                Lists.<Operation<?>>newArrayList(
-                        new TimedNamedOperation2(Time.fromMilli(10), Time.fromMilli(0), "name2"),
-                        new TimedNamedOperation2(Time.fromMilli(11), Time.fromMilli(1), "name2"),
-                        new TimedNamedOperation1(Time.fromMilli(12), Time.fromMilli(2), "name1")
-                ).iterator(),
+        Set<Class<? extends Operation<?>>> dependentOperationTypes = Sets.<Class<? extends Operation<?>>>newHashSet(
+                TimedNamedOperation2.class
+        );
+
+        WorkloadStreams workloadStreams1 = new WorkloadStreams();
+        workloadStreams1.setAsynchronousStream(
+                dependentOperationTypes,
+                Collections.<Operation<?>>emptyIterator(),
                 Lists.<Operation<?>>newArrayList(
                         new TimedNamedOperation2(Time.fromMilli(10), Time.fromMilli(0), "name2"),
                         new TimedNamedOperation2(Time.fromMilli(11), Time.fromMilli(1), "name2"),
@@ -273,12 +244,50 @@ public class WorkloadValidatorTest {
                 ).iterator()
         );
 
-        List<Iterator<Operation<?>>> invalidOperations = Lists.newArrayList(
+        WorkloadStreams workloadStreams2 = new WorkloadStreams();
+        workloadStreams2.setAsynchronousStream(
+                dependentOperationTypes,
+                Collections.<Operation<?>>emptyIterator(),
                 Lists.<Operation<?>>newArrayList(
                         new TimedNamedOperation2(Time.fromMilli(10), Time.fromMilli(0), "name2"),
                         new TimedNamedOperation2(Time.fromMilli(11), Time.fromMilli(1), "name2"),
-                        new TimedNamedOperation2(Time.fromMilli(12), Time.fromMilli(2), "name2")
-                ).iterator(),
+                        new TimedNamedOperation1(Time.fromMilli(12), Time.fromMilli(2), "name1")
+                ).iterator()
+        );
+
+        WorkloadStreams workloadStreams3 = new WorkloadStreams();
+        workloadStreams3.setAsynchronousStream(
+                dependentOperationTypes,
+                Collections.<Operation<?>>emptyIterator(),
+                Lists.<Operation<?>>newArrayList(
+                        new TimedNamedOperation2(Time.fromMilli(10), Time.fromMilli(0), "name2"),
+                        new TimedNamedOperation2(Time.fromMilli(11), Time.fromMilli(1), "name2"),
+                        new TimedNamedOperation1(Time.fromMilli(12), Time.fromMilli(2), "name1")
+                ).iterator()
+        );
+
+        WorkloadStreams workloadStreams4 = new WorkloadStreams();
+        workloadStreams4.setAsynchronousStream(
+                dependentOperationTypes,
+                Collections.<Operation<?>>emptyIterator(),
+                Lists.<Operation<?>>newArrayList(
+                        new TimedNamedOperation2(Time.fromMilli(10), Time.fromMilli(0), "name2"),
+                        new TimedNamedOperation2(Time.fromMilli(11), Time.fromMilli(1), "name2"),
+                        new TimedNamedOperation1(Time.fromMilli(12), Time.fromMilli(2), "name1")
+                ).iterator()
+        );
+
+        List<WorkloadStreams> validStreams = Lists.newArrayList(
+                workloadStreams1,
+                workloadStreams2,
+                workloadStreams3,
+                workloadStreams4
+        );
+
+        WorkloadStreams invalidWorkloadStreams1 = new WorkloadStreams();
+        invalidWorkloadStreams1.setAsynchronousStream(
+                dependentOperationTypes,
+                Collections.<Operation<?>>emptyIterator(),
                 Lists.<Operation<?>>newArrayList(
                         new TimedNamedOperation2(Time.fromMilli(10), Time.fromMilli(0), "name2"),
                         new TimedNamedOperation2(Time.fromMilli(11), Time.fromMilli(1), "name2"),
@@ -286,22 +295,27 @@ public class WorkloadValidatorTest {
                 ).iterator()
         );
 
-        long operationCount = validOperations.size();
+        WorkloadStreams invalidWorkloadStreams2 = new WorkloadStreams();
+        invalidWorkloadStreams2.setAsynchronousStream(
+                dependentOperationTypes,
+                Collections.<Operation<?>>emptyIterator(),
+                Lists.<Operation<?>>newArrayList(
+                        new TimedNamedOperation2(Time.fromMilli(10), Time.fromMilli(0), "name2"),
+                        new TimedNamedOperation2(Time.fromMilli(11), Time.fromMilli(1), "name2"),
+                        new TimedNamedOperation2(Time.fromMilli(12), Time.fromMilli(2), "name2")
+                ).iterator()
+        );
 
-        Map<Class<? extends Operation>, OperationClassification> operationClassifications = new HashMap<>();
-        operationClassifications.put(
-                TimedNamedOperation2.class,
-                new OperationClassification(OperationClassification.SchedulingMode.INDIVIDUAL_ASYNC, OperationClassification.DependencyMode.READ));
-        operationClassifications.put(
-                TimedNamedOperation1.class,
-                new OperationClassification(OperationClassification.SchedulingMode.INDIVIDUAL_ASYNC, OperationClassification.DependencyMode.NONE));
+        List<WorkloadStreams> invalidStreams = Lists.newArrayList(
+                invalidWorkloadStreams1
+        );
 
-        Map<String, String> nonDefaultParams = new HashMap<>();
-        nonDefaultParams.put(ConsoleAndFileDriverConfiguration.WINDOWED_EXECUTION_WINDOW_DURATION_ARG, Long.toString(windowDuration.asMilli()));
-        DriverConfiguration configuration = ConsoleAndFileDriverConfiguration.fromDefaults(null, null, operationCount).applyMap(nonDefaultParams);
+        long operationCount = invalidStreams.size();
 
-        WorkloadFactory validWorkloadFactory = new DummyWorkloadFactory(validOperations.iterator(), operationClassifications, maxExpectedInterleave);
-        WorkloadFactory invalidWorkloadFactory = new DummyWorkloadFactory(invalidOperations.iterator(), operationClassifications, maxExpectedInterleave);
+        DriverConfiguration configuration = ConsoleAndFileDriverConfiguration.fromDefaults(null, null, operationCount);
+
+        WorkloadFactory validWorkloadFactory = new DummyWorkloadFactory(validStreams.iterator(), maxExpectedInterleave);
+        WorkloadFactory invalidWorkloadFactory = new DummyWorkloadFactory(invalidStreams.iterator(), maxExpectedInterleave);
 
         // When
         WorkloadValidator validWorkloadValidator = new WorkloadValidator();
@@ -324,22 +338,14 @@ public class WorkloadValidatorTest {
         Duration maxExpectedInterleave = Duration.fromMilli(1000);
         Duration windowDuration = Duration.fromMilli(10);
 
-        List<Iterator<Operation<?>>> baseOperations1 = Lists.newArrayList(
-                Lists.<Operation<?>>newArrayList(
-                        new TimedNamedOperation2(Time.fromMilli(10), Time.fromMilli(0), "name2"),
-                        new TimedNamedOperation2(Time.fromMilli(11), Time.fromMilli(1), "name2"),
-                        new TimedNamedOperation1(Time.fromMilli(12), Time.fromMilli(2), "name1")
-                ).iterator(),
-                Lists.<Operation<?>>newArrayList(
-                        new TimedNamedOperation2(Time.fromMilli(10), Time.fromMilli(0), "name2"),
-                        new TimedNamedOperation2(Time.fromMilli(11), Time.fromMilli(1), "name2"),
-                        new TimedNamedOperation1(Time.fromMilli(12), Time.fromMilli(2), "name1")
-                ).iterator(),
-                Lists.<Operation<?>>newArrayList(
-                        new TimedNamedOperation2(Time.fromMilli(10), Time.fromMilli(0), "name2"),
-                        new TimedNamedOperation2(Time.fromMilli(11), Time.fromMilli(1), "name2"),
-                        new TimedNamedOperation1(Time.fromMilli(12), Time.fromMilli(2), "name1")
-                ).iterator(),
+        Set<Class<? extends Operation<?>>> dependentOperationTypes = Sets.<Class<? extends Operation<?>>>newHashSet(
+                TimedNamedOperation2.class
+        );
+
+        WorkloadStreams stream1 = new WorkloadStreams();
+        stream1.setAsynchronousStream(
+                dependentOperationTypes,
+                Collections.<Operation<?>>emptyIterator(),
                 Lists.<Operation<?>>newArrayList(
                         new TimedNamedOperation2(Time.fromMilli(10), Time.fromMilli(0), "name2"),
                         new TimedNamedOperation2(Time.fromMilli(11), Time.fromMilli(1), "name2"),
@@ -347,27 +353,93 @@ public class WorkloadValidatorTest {
                 ).iterator()
         );
 
-        List<Iterator<Operation<?>>> baseOperations2 = Lists.newArrayList(
-                Lists.<Operation<?>>newArrayList(
-                        new TimedNamedOperation2(Time.fromMilli(10), Time.fromMilli(0), "name2"),
-                        new TimedNamedOperation2(Time.fromMilli(11), Time.fromMilli(1), "name2"),
-                        new TimedNamedOperation1(Time.fromMilli(12), Time.fromMilli(2), "name1")
-                ).iterator(),
-                Lists.<Operation<?>>newArrayList(
-                        new TimedNamedOperation2(Time.fromMilli(10), Time.fromMilli(0), "name2"),
-                        new TimedNamedOperation2(Time.fromMilli(11), Time.fromMilli(1), "name2"),
-                        new TimedNamedOperation1(Time.fromMilli(12), Time.fromMilli(2), "name1")
-                ).iterator(),
-                Lists.<Operation<?>>newArrayList(
-                        new TimedNamedOperation2(Time.fromMilli(10), Time.fromMilli(0), "name2"),
-                        new TimedNamedOperation2(Time.fromMilli(11), Time.fromMilli(1), "name2"),
-                        new TimedNamedOperation1(Time.fromMilli(12), Time.fromMilli(2), "name1")
-                ).iterator(),
+        WorkloadStreams stream2 = new WorkloadStreams();
+        stream2.setAsynchronousStream(
+                dependentOperationTypes,
+                Collections.<Operation<?>>emptyIterator(),
                 Lists.<Operation<?>>newArrayList(
                         new TimedNamedOperation2(Time.fromMilli(10), Time.fromMilli(0), "name2"),
                         new TimedNamedOperation2(Time.fromMilli(11), Time.fromMilli(1), "name2"),
                         new TimedNamedOperation1(Time.fromMilli(12), Time.fromMilli(2), "name1")
                 ).iterator()
+        );
+
+        WorkloadStreams stream3 = new WorkloadStreams();
+        stream3.setAsynchronousStream(
+                dependentOperationTypes,
+                Collections.<Operation<?>>emptyIterator(),
+                Lists.<Operation<?>>newArrayList(
+                        new TimedNamedOperation2(Time.fromMilli(10), Time.fromMilli(0), "name2"),
+                        new TimedNamedOperation2(Time.fromMilli(11), Time.fromMilli(1), "name2"),
+                        new TimedNamedOperation1(Time.fromMilli(12), Time.fromMilli(2), "name1")
+                ).iterator()
+        );
+
+        WorkloadStreams stream4 = new WorkloadStreams();
+        stream4.setAsynchronousStream(
+                dependentOperationTypes,
+                Collections.<Operation<?>>emptyIterator(),
+                Lists.<Operation<?>>newArrayList(
+                        new TimedNamedOperation2(Time.fromMilli(10), Time.fromMilli(0), "name2"),
+                        new TimedNamedOperation2(Time.fromMilli(11), Time.fromMilli(1), "name2"),
+                        new TimedNamedOperation1(Time.fromMilli(12), Time.fromMilli(2), "name1")
+                ).iterator()
+        );
+
+        List<WorkloadStreams> streams1 = Lists.newArrayList(
+                stream1,
+                stream2,
+                stream3,
+                stream4
+        );
+
+        WorkloadStreams stream1a = new WorkloadStreams();
+        stream1a.setAsynchronousStream(
+                dependentOperationTypes,
+                Collections.<Operation<?>>emptyIterator(),
+                Lists.<Operation<?>>newArrayList(
+                        new TimedNamedOperation2(Time.fromMilli(10), Time.fromMilli(0), "name2"),
+                        new TimedNamedOperation2(Time.fromMilli(11), Time.fromMilli(1), "name2"),
+                        new TimedNamedOperation1(Time.fromMilli(12), Time.fromMilli(2), "name1")
+                ).iterator()
+        );
+
+        WorkloadStreams stream2a = new WorkloadStreams();
+        stream2a.setAsynchronousStream(
+                dependentOperationTypes,
+                Collections.<Operation<?>>emptyIterator(),
+                Lists.<Operation<?>>newArrayList(
+                        new TimedNamedOperation2(Time.fromMilli(10), Time.fromMilli(0), "name2"),
+                        new TimedNamedOperation2(Time.fromMilli(11), Time.fromMilli(1), "name2"),
+                        new TimedNamedOperation1(Time.fromMilli(12), Time.fromMilli(2), "name1")
+                ).iterator()
+        );
+        WorkloadStreams stream3a = new WorkloadStreams();
+        stream3a.setAsynchronousStream(
+                dependentOperationTypes,
+                Collections.<Operation<?>>emptyIterator(),
+                Lists.<Operation<?>>newArrayList(
+                        new TimedNamedOperation2(Time.fromMilli(10), Time.fromMilli(0), "name2"),
+                        new TimedNamedOperation2(Time.fromMilli(11), Time.fromMilli(1), "name2"),
+                        new TimedNamedOperation1(Time.fromMilli(12), Time.fromMilli(2), "name1")
+                ).iterator()
+        );
+        WorkloadStreams stream4a = new WorkloadStreams();
+        stream4a.setAsynchronousStream(
+                dependentOperationTypes,
+                Collections.<Operation<?>>emptyIterator(),
+                Lists.<Operation<?>>newArrayList(
+                        new TimedNamedOperation2(Time.fromMilli(10), Time.fromMilli(0), "name2"),
+                        new TimedNamedOperation2(Time.fromMilli(11), Time.fromMilli(1), "name2"),
+                        new TimedNamedOperation1(Time.fromMilli(12), Time.fromMilli(2), "name1")
+                ).iterator()
+        );
+
+        List<WorkloadStreams> streams1a = Lists.newArrayList(
+                stream1a,
+                stream2a,
+                stream3a,
+                stream4a
         );
 
         List<Operation<?>> validAlternativeOperations = Lists.<Operation<?>>newArrayList(
@@ -384,22 +456,12 @@ public class WorkloadValidatorTest {
                 new TimedNamedOperation1(Time.fromMilli(12), Time.fromMilli(5), "name7")
         );
 
-        long operationCount = baseOperations1.size();
+        long operationCount = streams1.size();
 
-        Map<Class<? extends Operation>, OperationClassification> operationClassifications = new HashMap<>();
-        operationClassifications.put(
-                TimedNamedOperation2.class,
-                new OperationClassification(OperationClassification.SchedulingMode.INDIVIDUAL_ASYNC, OperationClassification.DependencyMode.READ));
-        operationClassifications.put(
-                TimedNamedOperation1.class,
-                new OperationClassification(OperationClassification.SchedulingMode.INDIVIDUAL_ASYNC, OperationClassification.DependencyMode.NONE));
+        DriverConfiguration configuration = ConsoleAndFileDriverConfiguration.fromDefaults(null, null, operationCount);
 
-        Map<String, String> nonDefaultParams = new HashMap<>();
-        nonDefaultParams.put(ConsoleAndFileDriverConfiguration.WINDOWED_EXECUTION_WINDOW_DURATION_ARG, Long.toString(windowDuration.asMilli()));
-        DriverConfiguration configuration = ConsoleAndFileDriverConfiguration.fromDefaults(null, null, operationCount).applyMap(nonDefaultParams);
-
-        WorkloadFactory validWorkloadFactory = new DummyWorkloadFactory(baseOperations1.iterator(), validAlternativeOperations.iterator(), operationClassifications, maxExpectedInterleave);
-        WorkloadFactory invalidWorkloadFactory = new DummyWorkloadFactory(baseOperations2.iterator(), invalidAlternativeOperations.iterator(), operationClassifications, maxExpectedInterleave);
+        WorkloadFactory validWorkloadFactory = new DummyWorkloadFactory(streams1.iterator(), validAlternativeOperations.iterator(), maxExpectedInterleave);
+        WorkloadFactory invalidWorkloadFactory = new DummyWorkloadFactory(streams1a.iterator(), invalidAlternativeOperations.iterator(), maxExpectedInterleave);
 
         // When
         WorkloadValidator validWorkloadValidator = new WorkloadValidator();
@@ -417,155 +479,18 @@ public class WorkloadValidatorTest {
     }
 
     @Test
-    public void shouldTestThatAllOperationClassificationsContainSchedulingMode() throws DriverConfigurationException, WorkloadException {
-        // Given
-        Duration maxExpectedInterleave = Duration.fromMilli(1000);
-        Duration windowDuration = Duration.fromMilli(10);
-
-        List<Iterator<Operation<?>>> validOperations = Lists.newArrayList(
-                Lists.<Operation<?>>newArrayList(
-                        new TimedNamedOperation2(Time.fromMilli(10), Time.fromMilli(0), "name2"),
-                        new TimedNamedOperation2(Time.fromMilli(11), Time.fromMilli(1), "name2"),
-                        new TimedNamedOperation1(Time.fromMilli(12), Time.fromMilli(2), "name1")
-                ).iterator(),
-                Lists.<Operation<?>>newArrayList(
-                        new TimedNamedOperation2(Time.fromMilli(10), Time.fromMilli(0), "name2"),
-                        new TimedNamedOperation2(Time.fromMilli(11), Time.fromMilli(1), "name2"),
-                        new TimedNamedOperation1(Time.fromMilli(12), Time.fromMilli(2), "name1")
-                ).iterator(),
-                Lists.<Operation<?>>newArrayList(
-                        new TimedNamedOperation2(Time.fromMilli(10), Time.fromMilli(0), "name2"),
-                        new TimedNamedOperation2(Time.fromMilli(11), Time.fromMilli(1), "name2"),
-                        new TimedNamedOperation1(Time.fromMilli(12), Time.fromMilli(2), "name1")
-                ).iterator(),
-                Lists.<Operation<?>>newArrayList(
-                        new TimedNamedOperation2(Time.fromMilli(10), Time.fromMilli(0), "name2"),
-                        new TimedNamedOperation2(Time.fromMilli(11), Time.fromMilli(1), "name2"),
-                        new TimedNamedOperation1(Time.fromMilli(12), Time.fromMilli(2), "name1")
-                ).iterator()
-        );
-
-        List<Iterator<Operation<?>>> invalidOperations = Lists.newArrayList(
-                Lists.<Operation<?>>newArrayList(
-                        new TimedNamedOperation2(Time.fromMilli(10), Time.fromMilli(0), "name2"),
-                        new TimedNamedOperation2(Time.fromMilli(11), Time.fromMilli(1), "name2"),
-                        new TimedNamedOperation1(Time.fromMilli(12), Time.fromMilli(2), "name1")
-                ).iterator(),
-                Lists.<Operation<?>>newArrayList(
-                        new TimedNamedOperation2(Time.fromMilli(10), Time.fromMilli(0), "name2"),
-                        new TimedNamedOperation2(Time.fromMilli(11), Time.fromMilli(1), "name2"),
-                        new TimedNamedOperation1(Time.fromMilli(12), Time.fromMilli(2), "name1")
-                ).iterator()
-        );
-        long operationCount = validOperations.size();
-
-        Map<Class<? extends Operation>, OperationClassification> validOperationClassifications = new HashMap<>();
-        validOperationClassifications.put(
-                TimedNamedOperation2.class,
-                new OperationClassification(OperationClassification.SchedulingMode.INDIVIDUAL_ASYNC, OperationClassification.DependencyMode.READ));
-        validOperationClassifications.put(
-                TimedNamedOperation1.class,
-                new OperationClassification(OperationClassification.SchedulingMode.INDIVIDUAL_ASYNC, OperationClassification.DependencyMode.NONE));
-
-        Map<Class<? extends Operation>, OperationClassification> invalidOperationClassifications = new HashMap<>();
-        invalidOperationClassifications.put(
-                TimedNamedOperation2.class,
-                new OperationClassification(OperationClassification.SchedulingMode.INDIVIDUAL_ASYNC, OperationClassification.DependencyMode.READ));
-        invalidOperationClassifications.put(
-                TimedNamedOperation1.class,
-                new OperationClassification(null, OperationClassification.DependencyMode.NONE));
-
-        Map<String, String> nonDefaultParams = new HashMap<>();
-        nonDefaultParams.put(ConsoleAndFileDriverConfiguration.WINDOWED_EXECUTION_WINDOW_DURATION_ARG, Long.toString(windowDuration.asMilli()));
-        DriverConfiguration configuration = ConsoleAndFileDriverConfiguration.fromDefaults(null, null, operationCount).applyMap(nonDefaultParams);
-
-        WorkloadFactory validWorkloadFactory = new DummyWorkloadFactory(validOperations.iterator(), validOperationClassifications, maxExpectedInterleave);
-        WorkloadFactory invalidWorkloadFactory = new DummyWorkloadFactory(invalidOperations.iterator(), invalidOperationClassifications, maxExpectedInterleave);
-
-        // When
-        WorkloadValidator validWorkloadValidator = new WorkloadValidator();
-        WorkloadValidationResult validResult = validWorkloadValidator.validate(validWorkloadFactory, configuration);
-
-        WorkloadValidator invalidWorkloadValidator = new WorkloadValidator();
-        WorkloadValidationResult invalidResult = invalidWorkloadValidator.validate(invalidWorkloadFactory, configuration);
-
-        // Then
-        assertThat(validResult.errorMessage(), validResult.resultType(), is(ResultType.SUCCESSFUL));
-        assertThat(validResult.errorMessage(), validResult.isSuccessful(), is(true));
-
-        assertThat(invalidResult.errorMessage(), invalidResult.resultType(), is(ResultType.OPERATION_CLASSIFICATION_HAS_NO_SCHEDULING_MODE));
-        assertThat(invalidResult.errorMessage(), invalidResult.isSuccessful(), is(false));
-    }
-
-    @Test
-    public void shouldTestThatAllOperationClassificationsContainGctMode()
+    public void shouldPassWhenAllOperationsHaveStartTimesAndMaxInterleaveIsNotExceeded()
             throws DriverConfigurationException, WorkloadException {
         Duration maxExpectedInterleave = Duration.fromMilli(1000);
         Time startTime = Time.fromMilli(0);
         long operationCount = 1000;
 
-        List<Iterator<Operation<?>>> operations = Lists.<Iterator<Operation<?>>>newArrayList(
-                gf.limit(
-                        new TimedNamedOperation1Factory(
-                                gf.constantIncrementTime(startTime, Duration.fromMilli(10)),
-                                gf.constantIncrementTime(startTime.minus(Duration.fromMilli(1)), Duration.fromMilli(0)),
-                                gf.constant("name")),
-                        operationCount
-                ),
-                gf.limit(
-                        new TimedNamedOperation1Factory(
-                                gf.constantIncrementTime(startTime, Duration.fromMilli(10)),
-                                gf.constantIncrementTime(startTime.minus(Duration.fromMilli(1)), Duration.fromMilli(0)),
-                                gf.constant("name")),
-                        operationCount
-                )
-        );
+        Set<Class<? extends Operation<?>>> dependentOperationTypes = new HashSet<>();
 
-        Map<Class<? extends Operation>, OperationClassification> operationClassifications = new HashMap<>();
-        operationClassifications.put(
-                TimedNamedOperation1.class,
-                new OperationClassification(OperationClassification.SchedulingMode.INDIVIDUAL_ASYNC, null));
-
-        DriverConfiguration configuration = ConsoleAndFileDriverConfiguration.fromDefaults(null, null, operationCount);
-        WorkloadFactory workloadFactory = new DummyWorkloadFactory(operations.iterator(), operationClassifications, maxExpectedInterleave);
-        WorkloadValidator workloadValidator = new WorkloadValidator();
-        WorkloadValidationResult result = workloadValidator.validate(workloadFactory, configuration);
-
-        assertThat(result.errorMessage(), result.resultType(), is(ResultType.OPERATION_CLASSIFICATION_HAS_NO_GCT_MODE));
-        assertThat(result.errorMessage(), result.isSuccessful(), is(false));
-    }
-
-    @Test
-    public void shouldPassWhenAllOperationsHaveStartTimesAllOperationsHaveClassificationsAndMaxInterleaveIsNotExceeded()
-            throws DriverConfigurationException, WorkloadException {
-        Duration maxExpectedInterleave = Duration.fromMilli(1000);
-        Time startTime = Time.fromMilli(0);
-        long operationCount = 1000;
-        List<Iterator<Operation<?>>> operations = Lists.newArrayList(
-                gf.limit(
-                        new TimedNamedOperation1Factory(
-                                gf.constantIncrementTime(startTime, Duration.fromMilli(10)),
-                                gf.constantIncrementTime(startTime.minus(Duration.fromMilli(1)), Duration.fromMilli(0)),
-                                gf.constant("name")
-                        ),
-                        operationCount
-                ),
-                gf.limit(
-                        new TimedNamedOperation1Factory(
-                                gf.constantIncrementTime(startTime, Duration.fromMilli(10)),
-                                gf.constantIncrementTime(startTime.minus(Duration.fromMilli(1)), Duration.fromMilli(0)),
-                                gf.constant("name")
-                        ),
-                        operationCount
-                ),
-                gf.limit(
-                        new TimedNamedOperation1Factory(
-                                gf.constantIncrementTime(startTime, Duration.fromMilli(10)),
-                                gf.constantIncrementTime(startTime.minus(Duration.fromMilli(1)), Duration.fromMilli(0)),
-                                gf.constant("name")
-                        ),
-                        operationCount
-                ),
+        WorkloadStreams stream1 = new WorkloadStreams();
+        stream1.setAsynchronousStream(
+                dependentOperationTypes,
+                Collections.<Operation<?>>emptyIterator(),
                 gf.limit(
                         new TimedNamedOperation1Factory(
                                 gf.constantIncrementTime(startTime, Duration.fromMilli(10)),
@@ -576,14 +501,57 @@ public class WorkloadValidatorTest {
                 )
         );
 
-        Map<Class<? extends Operation>, OperationClassification> operationClassifications = new HashMap<>();
-        operationClassifications.put(
-                TimedNamedOperation1.class,
-                new OperationClassification(OperationClassification.SchedulingMode.INDIVIDUAL_ASYNC, OperationClassification.DependencyMode.NONE));
+        WorkloadStreams stream2 = new WorkloadStreams();
+        stream2.setAsynchronousStream(
+                dependentOperationTypes,
+                Collections.<Operation<?>>emptyIterator(),
+                gf.limit(
+                        new TimedNamedOperation1Factory(
+                                gf.constantIncrementTime(startTime, Duration.fromMilli(10)),
+                                gf.constantIncrementTime(startTime.minus(Duration.fromMilli(1)), Duration.fromMilli(0)),
+                                gf.constant("name")
+                        ),
+                        operationCount
+                )
+        );
 
+        WorkloadStreams stream3 = new WorkloadStreams();
+        stream3.setAsynchronousStream(
+                dependentOperationTypes,
+                Collections.<Operation<?>>emptyIterator(),
+                gf.limit(
+                        new TimedNamedOperation1Factory(
+                                gf.constantIncrementTime(startTime, Duration.fromMilli(10)),
+                                gf.constantIncrementTime(startTime.minus(Duration.fromMilli(1)), Duration.fromMilli(0)),
+                                gf.constant("name")
+                        ),
+                        operationCount
+                )
+        );
+
+        WorkloadStreams stream4 = new WorkloadStreams();
+        stream4.setAsynchronousStream(
+                dependentOperationTypes,
+                Collections.<Operation<?>>emptyIterator(),
+                gf.limit(
+                        new TimedNamedOperation1Factory(
+                                gf.constantIncrementTime(startTime, Duration.fromMilli(10)),
+                                gf.constantIncrementTime(startTime.minus(Duration.fromMilli(1)), Duration.fromMilli(0)),
+                                gf.constant("name")
+                        ),
+                        operationCount
+                )
+        );
+
+        List<WorkloadStreams> streams = Lists.newArrayList(
+                stream1,
+                stream2,
+                stream3,
+                stream4
+        );
 
         DriverConfiguration configuration = ConsoleAndFileDriverConfiguration.fromDefaults(null, null, operationCount);
-        WorkloadFactory workloadFactory = new DummyWorkloadFactory(operations.iterator(), operationClassifications, maxExpectedInterleave);
+        WorkloadFactory workloadFactory = new DummyWorkloadFactory(streams.iterator(), maxExpectedInterleave);
         WorkloadValidator workloadValidator = new WorkloadValidator();
         WorkloadValidationResult result = workloadValidator.validate(workloadFactory, configuration);
 
@@ -610,18 +578,12 @@ public class WorkloadValidatorTest {
                 )
         ).get(operationCount - 2).scheduledStartTime();
 
-        List<Iterator<Operation<?>>> operations = Lists.<Iterator<Operation<?>>>newArrayList(
-                Iterators.concat(
-                        gf.limit(
-                                new TimedNamedOperation1Factory(
-                                        gf.constantIncrementTime(startTime, Duration.fromMilli(10)),
-                                        gf.constantIncrementTime(startTime.minus(Duration.fromMilli(1)), Duration.fromMilli(0)),
-                                        gf.constant("name")
-                                ),
-                                operationCount - 1
-                        ),
-                        gf.<Operation<?>>identity(new TimedNamedOperation1(lastStartTime.plus(excessiveInterleave), Time.fromMilli(0), "name"))
-                ),
+        Set<Class<? extends Operation<?>>> dependentOperationTypes = new HashSet<>();
+
+        WorkloadStreams stream1 = new WorkloadStreams();
+        stream1.setAsynchronousStream(
+                dependentOperationTypes,
+                Collections.<Operation<?>>emptyIterator(),
                 Iterators.concat(
                         gf.limit(
                                 new TimedNamedOperation1Factory(
@@ -635,13 +597,30 @@ public class WorkloadValidatorTest {
                 )
         );
 
-        Map<Class<? extends Operation>, OperationClassification> operationClassifications = new HashMap<>();
-        operationClassifications.put(
-                TimedNamedOperation1.class,
-                new OperationClassification(OperationClassification.SchedulingMode.INDIVIDUAL_ASYNC, OperationClassification.DependencyMode.NONE));
+        WorkloadStreams stream2 = new WorkloadStreams();
+        stream2.setAsynchronousStream(
+                dependentOperationTypes,
+                Collections.<Operation<?>>emptyIterator(),
+                Iterators.concat(
+                        gf.limit(
+                                new TimedNamedOperation1Factory(
+                                        gf.constantIncrementTime(startTime, Duration.fromMilli(10)),
+                                        gf.constantIncrementTime(startTime.minus(Duration.fromMilli(1)), Duration.fromMilli(0)),
+                                        gf.constant("name")
+                                ),
+                                operationCount - 1
+                        ),
+                        gf.<Operation<?>>identity(new TimedNamedOperation1(lastStartTime.plus(excessiveInterleave), Time.fromMilli(0), "name"))
+                )
+        );
+
+        List<WorkloadStreams> streams = Lists.newArrayList(
+                stream1,
+                stream2
+        );
 
         DriverConfiguration configuration = ConsoleAndFileDriverConfiguration.fromDefaults(null, null, operationCount);
-        WorkloadFactory workloadFactory = new DummyWorkloadFactory(operations.iterator(), operationClassifications, maxExpectedInterleave);
+        WorkloadFactory workloadFactory = new DummyWorkloadFactory(streams.iterator(), maxExpectedInterleave);
         WorkloadValidator workloadValidator = new WorkloadValidator();
         WorkloadValidationResult result = workloadValidator.validate(workloadFactory, configuration);
 
@@ -650,48 +629,18 @@ public class WorkloadValidatorTest {
     }
 
     @Test
-    public void shouldFailWhenAllOperationsHaveStartTimesMaxInterleaveIsNotExceededButSomeOperationsHaveNoClassification()
+    public void shouldFailWhenMaxInterleaveIsNotExceededButSomeOperationsHaveNoStartTime()
             throws DriverConfigurationException, WorkloadException {
         Duration maxExpectedInterleave = Duration.fromMilli(1000);
         Time startTime = Time.fromMilli(0);
         long operationCount = 1000;
 
-        List<Iterator<Operation<?>>> operations = Lists.<Iterator<Operation<?>>>newArrayList(
-                gf.limit(
-                        new TimedNamedOperation1Factory(
-                                gf.constantIncrementTime(startTime, Duration.fromMilli(10)),
-                                gf.constantIncrementTime(startTime.minus(Duration.fromMilli(1)), Duration.fromMilli(0)),
-                                gf.constant("name")),
-                        operationCount
-                ),
-                gf.limit(
-                        new TimedNamedOperation1Factory(
-                                gf.constantIncrementTime(startTime, Duration.fromMilli(10)),
-                                gf.constantIncrementTime(startTime.minus(Duration.fromMilli(1)), Duration.fromMilli(0)),
-                                gf.constant("name")),
-                        operationCount
-                )
-        );
+        Set<Class<? extends Operation<?>>> dependentOperationTypes = new HashSet<>();
 
-        Map<Class<? extends Operation>, OperationClassification> operationClassifications = new HashMap<>();
-
-        DriverConfiguration configuration = ConsoleAndFileDriverConfiguration.fromDefaults(null, null, operationCount);
-        WorkloadFactory workloadFactory = new DummyWorkloadFactory(operations.iterator(), operationClassifications, maxExpectedInterleave);
-        WorkloadValidator workloadValidator = new WorkloadValidator();
-        WorkloadValidationResult result = workloadValidator.validate(workloadFactory, configuration);
-
-        assertThat(result.errorMessage(), result.resultType(), is(ResultType.OPERATION_HAS_NO_CLASSIFICATION));
-        assertThat(result.errorMessage(), result.isSuccessful(), is(false));
-    }
-
-    @Test
-    public void shouldFailWhenAllOperationsHaveClassificationsAndMaxInterleaveIsNotExceededButSomeOperationsHaveNoStartTime()
-            throws DriverConfigurationException, WorkloadException {
-        Duration maxExpectedInterleave = Duration.fromMilli(1000);
-        Time startTime = Time.fromMilli(0);
-        long operationCount = 1000;
-
-        List<Iterator<Operation<?>>> operations = Lists.<Iterator<Operation<?>>>newArrayList(
+        WorkloadStreams stream1 = new WorkloadStreams();
+        stream1.setAsynchronousStream(
+                dependentOperationTypes,
+                Collections.<Operation<?>>emptyIterator(),
                 Iterators.concat(
                         gf.limit(
                                 new TimedNamedOperation1Factory(
@@ -704,53 +653,16 @@ public class WorkloadValidatorTest {
                 )
         );
 
-        Map<Class<? extends Operation>, OperationClassification> operationClassifications = new HashMap<>();
-        operationClassifications.put(
-                TimedNamedOperation1.class,
-                new OperationClassification(OperationClassification.SchedulingMode.INDIVIDUAL_ASYNC, OperationClassification.DependencyMode.NONE));
-        operationClassifications.put(
-                NothingOperation.class,
-                new OperationClassification(OperationClassification.SchedulingMode.INDIVIDUAL_ASYNC, OperationClassification.DependencyMode.NONE));
+        List<WorkloadStreams> streams = Lists.newArrayList(
+                stream1
+        );
 
         DriverConfiguration configuration = ConsoleAndFileDriverConfiguration.fromDefaults(null, null, operationCount);
-        WorkloadFactory workloadFactory = new DummyWorkloadFactory(operations.iterator(), operationClassifications, maxExpectedInterleave);
+        WorkloadFactory workloadFactory = new DummyWorkloadFactory(streams.iterator(), maxExpectedInterleave);
         WorkloadValidator workloadValidator = new WorkloadValidator();
         WorkloadValidationResult result = workloadValidator.validate(workloadFactory, configuration);
 
         assertThat(result.errorMessage(), result.resultType(), is(ResultType.UNASSIGNED_SCHEDULED_START_TIME));
-        assertThat(result.errorMessage(), result.isSuccessful(), is(false));
-    }
-
-    @Test
-    public void shouldFailWhenMaxInterleaveIsNotExceededButSomeOperationsHaveNoStartTimeAndOperationsHaveNoClassification()
-            throws DriverConfigurationException, WorkloadException {
-        Time startTime = Time.fromMilli(0);
-        long operationCount = 1000;
-
-        List<Iterator<Operation<?>>> operations = Lists.<Iterator<Operation<?>>>newArrayList(
-                Iterators.concat(
-                        gf.limit(
-                                new TimedNamedOperation1Factory(
-                                        gf.constantIncrementTime(startTime, Duration.fromMilli(10)),
-                                        gf.constantIncrementTime(startTime.minus(Duration.fromMilli(1)), Duration.fromMilli(0)),
-                                        gf.constant("name")),
-                                operationCount - 1
-                        ),
-                        gf.identity(new NothingOperation())
-                )
-        );
-
-        Map<Class<? extends Operation>, OperationClassification> operationClassifications = new HashMap<>();
-        operationClassifications.put(
-                TimedNamedOperation1.class,
-                new OperationClassification(OperationClassification.SchedulingMode.INDIVIDUAL_ASYNC, OperationClassification.DependencyMode.NONE));
-
-        DriverConfiguration configuration = ConsoleAndFileDriverConfiguration.fromDefaults(null, null, operationCount);
-        WorkloadFactory workloadFactory = new DummyWorkloadFactory(operations.iterator(), operationClassifications, Workload.DEFAULT_MAXIMUM_EXPECTED_INTERLEAVE);
-        WorkloadValidator workloadValidator = new WorkloadValidator();
-        WorkloadValidationResult result = workloadValidator.validate(workloadFactory, configuration);
-
-        assertThat(result.errorMessage(), result.resultType(), anyOf(is(ResultType.UNASSIGNED_SCHEDULED_START_TIME), is(ResultType.OPERATION_HAS_NO_CLASSIFICATION)));
         assertThat(result.errorMessage(), result.isSuccessful(), is(false));
     }
 
@@ -770,17 +682,13 @@ public class WorkloadValidatorTest {
                 )
         ).get(operationCount - 2).scheduledStartTime().minus(Duration.fromNano(1));
 
-        List<Iterator<Operation<?>>> operations = Lists.<Iterator<Operation<?>>>newArrayList(
-                Iterators.concat(
-                        gf.limit(
-                                new TimedNamedOperation1Factory(
-                                        gf.constantIncrementTime(startTime, Duration.fromMilli(10)),
-                                        gf.constantIncrementTime(startTime.minus(Duration.fromMilli(1)), Duration.fromMilli(0)),
-                                        gf.constant("name")),
-                                operationCount - 1
-                        ),
-                        gf.identity(new TimedNamedOperation1(slightlyBeforeLastOperationStartTime, Time.fromMilli(0), "name"))
-                ),
+
+        Set<Class<? extends Operation<?>>> dependentOperationTypes = new HashSet<>();
+
+        WorkloadStreams stream1 = new WorkloadStreams();
+        stream1.setAsynchronousStream(
+                dependentOperationTypes,
+                Collections.<Operation<?>>emptyIterator(),
                 Iterators.concat(
                         gf.limit(
                                 new TimedNamedOperation1Factory(
@@ -793,55 +701,33 @@ public class WorkloadValidatorTest {
                 )
         );
 
-        Map<Class<? extends Operation>, OperationClassification> operationClassifications = new HashMap<>();
-        operationClassifications.put(
-                TimedNamedOperation1.class,
-                new OperationClassification(OperationClassification.SchedulingMode.INDIVIDUAL_ASYNC, OperationClassification.DependencyMode.NONE));
+        WorkloadStreams stream2 = new WorkloadStreams();
+        stream2.setAsynchronousStream(
+                dependentOperationTypes,
+                Collections.<Operation<?>>emptyIterator(),
+                Iterators.concat(
+                        gf.limit(
+                                new TimedNamedOperation1Factory(
+                                        gf.constantIncrementTime(startTime, Duration.fromMilli(10)),
+                                        gf.constantIncrementTime(startTime.minus(Duration.fromMilli(1)), Duration.fromMilli(0)),
+                                        gf.constant("name")),
+                                operationCount - 1
+                        ),
+                        gf.identity(new TimedNamedOperation1(slightlyBeforeLastOperationStartTime, Time.fromMilli(0), "name"))
+                )
+        );
+
+        List<WorkloadStreams> streams = Lists.newArrayList(
+                stream1,
+                stream2
+        );
 
         DriverConfiguration configuration = ConsoleAndFileDriverConfiguration.fromDefaults(null, null, operationCount);
-        WorkloadFactory workloadFactory = new DummyWorkloadFactory(operations.iterator(), operationClassifications, Workload.DEFAULT_MAXIMUM_EXPECTED_INTERLEAVE);
+        WorkloadFactory workloadFactory = new DummyWorkloadFactory(streams.iterator(), Workload.DEFAULT_MAXIMUM_EXPECTED_INTERLEAVE);
         WorkloadValidator workloadValidator = new WorkloadValidator();
         WorkloadValidationResult result = workloadValidator.validate(workloadFactory, configuration);
 
         assertThat(result.errorMessage(), result.resultType(), is(ResultType.SCHEDULED_START_TIMES_DO_NOT_INCREASE_MONOTONICALLY));
-        assertThat(result.errorMessage(), result.isSuccessful(), is(false));
-    }
-
-    @Test
-    public void shouldFailWhenSomeOperationClassificationsDoNotContainSchedulingMode()
-            throws DriverConfigurationException, WorkloadException {
-        Duration maxExpectedInterleave = Duration.fromMilli(1000);
-        Time startTime = Time.fromMilli(0);
-        long operationCount = 1000;
-
-        List<Iterator<Operation<?>>> operations = Lists.<Iterator<Operation<?>>>newArrayList(
-                gf.limit(
-                        new TimedNamedOperation1Factory(
-                                gf.constantIncrementTime(startTime, Duration.fromMilli(10)),
-                                gf.constantIncrementTime(startTime.minus(Duration.fromMilli(1)), Duration.fromMilli(0)),
-                                gf.constant("name")),
-                        operationCount
-                ),
-                gf.limit(
-                        new TimedNamedOperation1Factory(
-                                gf.constantIncrementTime(startTime, Duration.fromMilli(10)),
-                                gf.constantIncrementTime(startTime.minus(Duration.fromMilli(1)), Duration.fromMilli(0)),
-                                gf.constant("name")),
-                        operationCount
-                )
-        );
-
-        Map<Class<? extends Operation>, OperationClassification> operationClassifications = new HashMap<>();
-        operationClassifications.put(
-                TimedNamedOperation1.class,
-                new OperationClassification(null, OperationClassification.DependencyMode.NONE));
-
-        DriverConfiguration configuration = ConsoleAndFileDriverConfiguration.fromDefaults(null, null, operationCount);
-        WorkloadFactory workloadFactory = new DummyWorkloadFactory(operations.iterator(), operationClassifications, maxExpectedInterleave);
-        WorkloadValidator workloadValidator = new WorkloadValidator();
-        WorkloadValidationResult result = workloadValidator.validate(workloadFactory, configuration);
-
-        assertThat(result.errorMessage(), result.resultType(), is(ResultType.OPERATION_CLASSIFICATION_HAS_NO_SCHEDULING_MODE));
         assertThat(result.errorMessage(), result.isSuccessful(), is(false));
     }
 }

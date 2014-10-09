@@ -17,7 +17,6 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 class PreciseIndividualBlockingOperationStreamExecutorServiceThread extends Thread {
     private static final Duration POLL_INTERVAL_WHILE_WAITING_FOR_LAST_HANDLER_TO_FINISH = Duration.fromMilli(100);
-    private static final LocalCompletionTimeWriter DUMMY_LOCAL_COMPLETION_TIME_WRITER = new DummyLocalCompletionTimeWriter();
 
     private final TimeSource timeSource;
     private final OperationHandlerExecutor operationHandlerExecutor;
