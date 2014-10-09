@@ -320,6 +320,7 @@ public class LdbcSnbInteractiveWorkloadTest {
                 "-p", LdbcSnbInteractiveWorkload.READ_OPERATION_12_INTERLEAVE_KEY, "200",
                 "-p", LdbcSnbInteractiveWorkload.READ_OPERATION_13_INTERLEAVE_KEY, "100",
                 "-p", LdbcSnbInteractiveWorkload.READ_OPERATION_14_INTERLEAVE_KEY, "100",
+                "-p", LdbcSnbInteractiveWorkload.UPDATE_INTERLEAVE, "20",
                 "-p", LdbcSnbInteractiveWorkload.READ_OPERATION_1_ENABLE_KEY, "true",
                 "-p", LdbcSnbInteractiveWorkload.READ_OPERATION_2_ENABLE_KEY, "true",
                 "-p", LdbcSnbInteractiveWorkload.READ_OPERATION_3_ENABLE_KEY, "true",
@@ -416,7 +417,8 @@ public class LdbcSnbInteractiveWorkloadTest {
                 new File(DriverConfigurationFileTestHelper.getWorkloadsDirectory(), "ldbc/snb/interactive/ldbc_snb_interactive.properties").getAbsolutePath();
         String ldbcDriverTestPropertiesPath =
                 TestUtils.getResource("/ldbc_driver_default.properties").getAbsolutePath();
-
+        String updateStreamPropertiesPath =
+                new File(DriverConfigurationFileTestHelper.getWorkloadsDirectory(), "ldbc/snb/interactive/updateStream_0.properties").getAbsolutePath();
         String resultDirPath = temporaryFolder.newFolder().getAbsolutePath();
 
         assertThat(new File(resultDirPath).listFiles().length > 0, is(false));
@@ -430,8 +432,8 @@ public class LdbcSnbInteractiveWorkloadTest {
                 "-p", LdbcSnbInteractiveWorkload.PARAMETERS_DIRECTORY, TestUtils.getResource("/").getAbsolutePath(),
                 "-p", LdbcSnbInteractiveWorkload.DATA_DIRECTORY, TestUtils.getResource("/").getAbsolutePath(),
                 "-P", ldbcSnbInteractiveTestPropertiesPath,
-                "-P", ldbcDriverTestPropertiesPath});
-
+                "-P", ldbcDriverTestPropertiesPath,
+                "-P", updateStreamPropertiesPath});
 
         // When
         Client client = new Client(new LocalControlService(timeSource.now().plus(Duration.fromMilli(500)), configuration), timeSource);
