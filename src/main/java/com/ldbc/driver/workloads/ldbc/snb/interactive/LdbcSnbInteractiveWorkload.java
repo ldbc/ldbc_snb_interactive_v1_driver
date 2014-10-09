@@ -33,7 +33,7 @@ public class LdbcSnbInteractiveWorkload extends Workload {
         params.put(ConsoleAndFileDriverConfiguration.WORKLOAD_ARG, LdbcSnbInteractiveWorkload.class.getName());
         // LDBC Interactive Workload-specific parameters
         // average update interleave
-        params.put(UPDATE_INTERLEAVE,"20");
+        params.put(UPDATE_INTERLEAVE,"1");
         // reads: set frequency
         params.put(LdbcSnbInteractiveWorkload.READ_OPERATION_1_FREQUENCY_KEY, "205");
         params.put(LdbcSnbInteractiveWorkload.READ_OPERATION_2_FREQUENCY_KEY, "406");
@@ -330,6 +330,7 @@ public class LdbcSnbInteractiveWorkload extends Workload {
 
         compulsoryKeys.addAll(READ_OPERATION_ENABLE_KEYS);
         compulsoryKeys.addAll(WRITE_OPERATION_ENABLE_KEYS);
+
         compulsoryKeys.add(UPDATE_INTERLEAVE);
 
         List<String> missingPropertyParameters = missingPropertiesParameters(params, compulsoryKeys);

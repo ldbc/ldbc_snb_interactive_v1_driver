@@ -174,9 +174,24 @@ public class LdbcSnbInteractiveWorkloadReadTest {
         // Given
         String ldbcSnbInteractiveReadTestParamsFromFilePath = TestUtils.getResource("/ldbc_snb_interactive_read_test.properties").getAbsolutePath();
         Properties ldbcSnbInteractiveReadTestParamsFromFileProperties = new Properties();
+
+        String ldbcSnbInteractiveUpdateStream = TestUtils.getResource("/updateStream_0.properties").getAbsolutePath();
+        Properties ldbcSnbInteractiveUpdateStreamProperties = new Properties();
+        ldbcSnbInteractiveUpdateStreamProperties.load(new FileInputStream(ldbcSnbInteractiveUpdateStream));
+
+        Map<String, String> ldbcSnbInteractiveParamsFromUpdateStream =
+                ConsoleAndFileDriverConfiguration.convertLongKeysToShortKeys(MapUtils.<String, String>propertiesToMap(ldbcSnbInteractiveUpdateStreamProperties));
+
+        Map<String, String> ldbcSnbInteractiveUpdateDistance = new HashMap<String, String>();
+        ldbcSnbInteractiveUpdateDistance.put(LdbcSnbInteractiveWorkload.UPDATE_INTERLEAVE,
+                ldbcSnbInteractiveParamsFromUpdateStream.get(LdbcSnbInteractiveWorkload.UPDATE_INTERLEAVE));
+
         ldbcSnbInteractiveReadTestParamsFromFileProperties.load(new FileInputStream(ldbcSnbInteractiveReadTestParamsFromFilePath));
         Map<String, String> ldbcSnbInteractiveReadTestParamsFromFile =
                 ConsoleAndFileDriverConfiguration.convertLongKeysToShortKeys(MapUtils.<String, String>propertiesToMap(ldbcSnbInteractiveReadTestParamsFromFileProperties));
+
+        Map<String, String> unionLdbcSnbInteractiveReadTestParamsFromFiles =
+                MapUtils.mergeMaps(ldbcSnbInteractiveUpdateDistance, ldbcSnbInteractiveReadTestParamsFromFile,true);
 
         Map<String, String> ldbcSnbInteractiveReadTestParams = LdbcSnbInteractiveWorkload.defaultReadOnlyConfig();
 
@@ -185,9 +200,9 @@ public class LdbcSnbInteractiveWorkloadReadTest {
         // Then
         assertThat(
                 String.format("Expected:\n%sFound:\n%s",
-                        MapUtils.prettyPrint(ldbcSnbInteractiveReadTestParamsFromFile, "\t"),
+                        MapUtils.prettyPrint(unionLdbcSnbInteractiveReadTestParamsFromFiles, "\t"),
                         MapUtils.prettyPrint(ldbcSnbInteractiveReadTestParams, "\t")),
-                ldbcSnbInteractiveReadTestParamsFromFile,
+                unionLdbcSnbInteractiveReadTestParamsFromFiles,
                 equalTo(ldbcSnbInteractiveReadTestParams));
     }
 
@@ -481,6 +496,7 @@ public class LdbcSnbInteractiveWorkloadReadTest {
         String ldbcDriverPropertiesPath = TestUtils.getResource("/ldbc_driver_default.properties").getAbsolutePath();
         Properties ldbcDriverProperties = new Properties();
         ldbcDriverProperties.load(new FileInputStream(ldbcDriverPropertiesPath));
+
         Map<String, String> ldbcDriverParams = ConsoleAndFileDriverConfiguration.convertLongKeysToShortKeys(MapUtils.<String, String>propertiesToMap(ldbcDriverProperties));
 
         Map<String, String> baseParams = MapUtils.mergeMaps(ldbcDriverParams, defaultSnbParamsMapWithParametersDir(), true);
@@ -488,20 +504,21 @@ public class LdbcSnbInteractiveWorkloadReadTest {
         Map<String, String> changedQueryMixParams = new HashMap<>();
         changedQueryMixParams.put(ConsoleAndFileDriverConfiguration.OPERATION_COUNT_ARG, "10000");
         changedQueryMixParams.put(ConsoleAndFileDriverConfiguration.DB_ARG, "this will never be used");
-        changedQueryMixParams.put(LdbcSnbInteractiveWorkload.READ_OPERATION_1_INTERLEAVE_KEY, "100");
-        changedQueryMixParams.put(LdbcSnbInteractiveWorkload.READ_OPERATION_2_INTERLEAVE_KEY, "200");
-        changedQueryMixParams.put(LdbcSnbInteractiveWorkload.READ_OPERATION_3_INTERLEAVE_KEY, "400");
-        changedQueryMixParams.put(LdbcSnbInteractiveWorkload.READ_OPERATION_4_INTERLEAVE_KEY, "800");
-        changedQueryMixParams.put(LdbcSnbInteractiveWorkload.READ_OPERATION_5_INTERLEAVE_KEY, "1600");
-        changedQueryMixParams.put(LdbcSnbInteractiveWorkload.READ_OPERATION_6_INTERLEAVE_KEY, "1600");
-        changedQueryMixParams.put(LdbcSnbInteractiveWorkload.READ_OPERATION_7_INTERLEAVE_KEY, "800");
-        changedQueryMixParams.put(LdbcSnbInteractiveWorkload.READ_OPERATION_8_INTERLEAVE_KEY, "800");
-        changedQueryMixParams.put(LdbcSnbInteractiveWorkload.READ_OPERATION_9_INTERLEAVE_KEY, "400");
-        changedQueryMixParams.put(LdbcSnbInteractiveWorkload.READ_OPERATION_10_INTERLEAVE_KEY, "200");
-        changedQueryMixParams.put(LdbcSnbInteractiveWorkload.READ_OPERATION_11_INTERLEAVE_KEY, "200");
-        changedQueryMixParams.put(LdbcSnbInteractiveWorkload.READ_OPERATION_12_INTERLEAVE_KEY, "200");
-        changedQueryMixParams.put(LdbcSnbInteractiveWorkload.READ_OPERATION_13_INTERLEAVE_KEY, "100");
-        changedQueryMixParams.put(LdbcSnbInteractiveWorkload.READ_OPERATION_14_INTERLEAVE_KEY, "100");
+        changedQueryMixParams.put(LdbcSnbInteractiveWorkload.READ_OPERATION_1_FREQUENCY_KEY, "100");
+        changedQueryMixParams.put(LdbcSnbInteractiveWorkload.READ_OPERATION_2_FREQUENCY_KEY, "200");
+        changedQueryMixParams.put(LdbcSnbInteractiveWorkload.READ_OPERATION_3_FREQUENCY_KEY, "400");
+        changedQueryMixParams.put(LdbcSnbInteractiveWorkload.READ_OPERATION_4_FREQUENCY_KEY, "800");
+        changedQueryMixParams.put(LdbcSnbInteractiveWorkload.READ_OPERATION_5_FREQUENCY_KEY, "1600");
+        changedQueryMixParams.put(LdbcSnbInteractiveWorkload.READ_OPERATION_6_FREQUENCY_KEY, "1600");
+        changedQueryMixParams.put(LdbcSnbInteractiveWorkload.READ_OPERATION_7_FREQUENCY_KEY, "800");
+        changedQueryMixParams.put(LdbcSnbInteractiveWorkload.READ_OPERATION_8_FREQUENCY_KEY, "800");
+        changedQueryMixParams.put(LdbcSnbInteractiveWorkload.READ_OPERATION_9_FREQUENCY_KEY, "400");
+        changedQueryMixParams.put(LdbcSnbInteractiveWorkload.READ_OPERATION_10_FREQUENCY_KEY, "200");
+        changedQueryMixParams.put(LdbcSnbInteractiveWorkload.READ_OPERATION_11_FREQUENCY_KEY, "200");
+        changedQueryMixParams.put(LdbcSnbInteractiveWorkload.READ_OPERATION_12_FREQUENCY_KEY, "200");
+        changedQueryMixParams.put(LdbcSnbInteractiveWorkload.READ_OPERATION_13_FREQUENCY_KEY, "100");
+        changedQueryMixParams.put(LdbcSnbInteractiveWorkload.READ_OPERATION_14_FREQUENCY_KEY, "100");
+        changedQueryMixParams.put(LdbcSnbInteractiveWorkload.UPDATE_INTERLEAVE, "1");
 
         Map<String, String> params = MapUtils.mergeMaps(baseParams, changedQueryMixParams, true);
         DriverConfiguration configuration = ConsoleAndFileDriverConfiguration.fromParamsMap(params);
@@ -577,6 +594,9 @@ public class LdbcSnbInteractiveWorkloadReadTest {
         String ldbcDriverTestPropertiesPath =
                 TestUtils.getResource("/ldbc_driver_default.properties").getAbsolutePath();
 
+        String updateStreamPropertiesPath =
+                TestUtils.getResource("/updateStream_0.properties").getAbsolutePath();
+
         String resultDirPath = temporaryFolder.newFolder().getAbsolutePath();
 
         assertThat(new File(resultDirPath).listFiles().length > 0, is(false));
@@ -589,7 +609,8 @@ public class LdbcSnbInteractiveWorkloadReadTest {
                 "-" + ConsoleAndFileDriverConfiguration.DB_ARG, DummyLdbcSnbInteractiveDb.class.getName(),
                 "-p", LdbcSnbInteractiveWorkload.PARAMETERS_DIRECTORY, TestUtils.getResource("/").getAbsolutePath(),
                 "-P", ldbcSnbInteractiveTestPropertiesPath,
-                "-P", ldbcDriverTestPropertiesPath});
+                "-P", ldbcDriverTestPropertiesPath,
+                "-P", updateStreamPropertiesPath});
 
         assertThat(new File(resultDirPath).listFiles().length > 0, is(false));
 
