@@ -2,7 +2,6 @@ package com.ldbc.driver.runtime;
 
 import com.google.common.collect.Lists;
 import com.ldbc.driver.*;
-import com.ldbc.driver.OperationClassification.SchedulingMode;
 import com.ldbc.driver.control.DriverConfigurationException;
 import com.ldbc.driver.generator.GeneratorFactory;
 import com.ldbc.driver.generator.RandomDataGeneratorFactory;

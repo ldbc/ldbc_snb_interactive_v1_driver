@@ -5,6 +5,7 @@ import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Iterators;
 import com.google.common.collect.Lists;
+import com.google.common.collect.Sets;
 import com.ldbc.driver.*;
 import com.ldbc.driver.control.ConsoleAndFileDriverConfiguration;
 import com.ldbc.driver.generator.GeneratorFactory;
@@ -269,15 +270,8 @@ public class LdbcSnbInteractiveWorkload extends Workload {
     private Duration readOperation14Interleave;
 
     private Map<Class, Duration> readOperationInterleaves;
-    private Set<Class> readOperationFilter;
-    private Set<Class> writeOperationFilter;
-
-    private Map<Class<? extends Operation>, OperationClassification> operationClassifications;
-
-    @Override
-    public Map<Class<? extends Operation>, OperationClassification> getOperationClassifications() {
-        return operationClassifications;
-    }
+    private Set<Class> enabledReadOperationTypes;
+    private Set<Class<? extends Operation<?>>> enabledWriteOperationTypes;
 
     @Override
     public void onInit(Map<String, String> params) throws WorkloadException {
@@ -373,14 +367,14 @@ public class LdbcSnbInteractiveWorkload extends Workload {
             }
         }
 
-        readOperationFilter = new HashSet<>();
+        enabledReadOperationTypes = new HashSet<>();
         for (String readOperationEnableKey : READ_OPERATION_ENABLE_KEYS) {
             String readOperationEnabledString = params.get(readOperationEnableKey);
             Boolean readOperationEnabled = Boolean.parseBoolean(readOperationEnabledString);
             String readOperationClassName = LDBC_INTERACTIVE_PACKAGE_PREFIX + removePrefix(removeSuffix(readOperationEnableKey, ENABLE_SUFFIX), LDBC_SNB_INTERACTIVE_PARAM_NAME_PREFIX);
             try {
                 Class readOperationClass = ClassLoaderHelper.loadClass(readOperationClassName);
-                if (readOperationEnabled) readOperationFilter.add(readOperationClass);
+                if (readOperationEnabled) enabledReadOperationTypes.add(readOperationClass);
             } catch (ClassLoadingException e) {
                 throw new WorkloadException(
                         String.format("Unable to load operation class for parameter: %s\nGuessed incorrect class name: %s",
@@ -390,14 +384,14 @@ public class LdbcSnbInteractiveWorkload extends Workload {
             }
         }
 
-        writeOperationFilter = new HashSet<>();
+        enabledWriteOperationTypes = new HashSet<>();
         for (String writeOperationEnableKey : WRITE_OPERATION_ENABLE_KEYS) {
             String writeOperationEnabledString = params.get(writeOperationEnableKey);
             Boolean writeOperationEnabled = Boolean.parseBoolean(writeOperationEnabledString);
             String writeOperationClassName = LDBC_INTERACTIVE_PACKAGE_PREFIX + removePrefix(removeSuffix(writeOperationEnableKey, ENABLE_SUFFIX), LDBC_SNB_INTERACTIVE_PARAM_NAME_PREFIX);
             try {
                 Class writeOperationClass = ClassLoaderHelper.loadClass(writeOperationClassName);
-                if (writeOperationEnabled) writeOperationFilter.add(writeOperationClass);
+                if (writeOperationEnabled) enabledWriteOperationTypes.add(writeOperationClass);
             } catch (ClassLoadingException e) {
                 throw new WorkloadException(
                         String.format("Unable to load operation class for parameter: %s\nGuessed incorrect class name: %s",
@@ -405,58 +399,6 @@ public class LdbcSnbInteractiveWorkload extends Workload {
                         e
                 );
             }
-        }
-
-        // Create classifications for all operations
-        operationClassifications = new HashMap<>();
-        /*
-         * Modes (with examples from LDBC Interactive SNB Workload):
-         * - WINDOWED               & NONE -------------------> n/a
-         * - WINDOWED               & READ -------------------> Add Friendship
-         * - WINDOWED               & READ WRITE -------------> Add Person
-         * - INDIVIDUAL_BLOCKING    & NONE -------------------> n/a
-         * - INDIVIDUAL_BLOCKING    & READ -------------------> Add Post
-         *                                                      Add Comment
-         *                                                      Add Post Like
-         *                                                      Add Comment Like
-         *                                                      Add Forum
-         *                                                      Add Forum Membership
-         * - INDIVIDUAL_BLOCKING    & READ WRITE -------------> n/a
-         * - INDIVIDUAL_ASYNC       & NONE -------------------> Reads 1-14
-         * - INDIVIDUAL_ASYNC       & READ -------------------> n/a
-         * - INDIVIDUAL_ASYNC       & READ WRITE -------------> n/a
-        */
-        operationClassifications.put(LdbcQuery1.class, new OperationClassification(SchedulingMode.INDIVIDUAL_ASYNC, OperationClassification.DependencyMode.NONE));
-        operationClassifications.put(LdbcQuery2.class, new OperationClassification(SchedulingMode.INDIVIDUAL_ASYNC, OperationClassification.DependencyMode.NONE));
-        operationClassifications.put(LdbcQuery3.class, new OperationClassification(SchedulingMode.INDIVIDUAL_ASYNC, OperationClassification.DependencyMode.NONE));
-        operationClassifications.put(LdbcQuery4.class, new OperationClassification(SchedulingMode.INDIVIDUAL_ASYNC, OperationClassification.DependencyMode.NONE));
-        operationClassifications.put(LdbcQuery5.class, new OperationClassification(SchedulingMode.INDIVIDUAL_ASYNC, OperationClassification.DependencyMode.NONE));
-        operationClassifications.put(LdbcQuery6.class, new OperationClassification(SchedulingMode.INDIVIDUAL_ASYNC, OperationClassification.DependencyMode.NONE));
-        operationClassifications.put(LdbcQuery7.class, new OperationClassification(SchedulingMode.INDIVIDUAL_ASYNC, OperationClassification.DependencyMode.NONE));
-        operationClassifications.put(LdbcQuery8.class, new OperationClassification(SchedulingMode.INDIVIDUAL_ASYNC, OperationClassification.DependencyMode.NONE));
-        operationClassifications.put(LdbcQuery9.class, new OperationClassification(SchedulingMode.INDIVIDUAL_ASYNC, OperationClassification.DependencyMode.NONE));
-        operationClassifications.put(LdbcQuery10.class, new OperationClassification(SchedulingMode.INDIVIDUAL_ASYNC, OperationClassification.DependencyMode.NONE));
-        operationClassifications.put(LdbcQuery11.class, new OperationClassification(SchedulingMode.INDIVIDUAL_ASYNC, OperationClassification.DependencyMode.NONE));
-        operationClassifications.put(LdbcQuery12.class, new OperationClassification(SchedulingMode.INDIVIDUAL_ASYNC, OperationClassification.DependencyMode.NONE));
-        operationClassifications.put(LdbcQuery13.class, new OperationClassification(SchedulingMode.INDIVIDUAL_ASYNC, OperationClassification.DependencyMode.NONE));
-        operationClassifications.put(LdbcQuery14.class, new OperationClassification(SchedulingMode.INDIVIDUAL_ASYNC, OperationClassification.DependencyMode.NONE));
-        // TODO should this be ASYNC or WINDOWED?
-        operationClassifications.put(LdbcUpdate1AddPerson.class, new OperationClassification(SchedulingMode.INDIVIDUAL_ASYNC, OperationClassification.DependencyMode.READ_WRITE));
-        operationClassifications.put(LdbcUpdate2AddPostLike.class, new OperationClassification(SchedulingMode.INDIVIDUAL_BLOCKING, OperationClassification.DependencyMode.READ));
-        operationClassifications.put(LdbcUpdate3AddCommentLike.class, new OperationClassification(SchedulingMode.INDIVIDUAL_BLOCKING, OperationClassification.DependencyMode.READ));
-        operationClassifications.put(LdbcUpdate4AddForum.class, new OperationClassification(SchedulingMode.INDIVIDUAL_BLOCKING, OperationClassification.DependencyMode.READ));
-        operationClassifications.put(LdbcUpdate5AddForumMembership.class, new OperationClassification(SchedulingMode.INDIVIDUAL_BLOCKING, OperationClassification.DependencyMode.READ));
-        operationClassifications.put(LdbcUpdate6AddPost.class, new OperationClassification(SchedulingMode.INDIVIDUAL_BLOCKING, OperationClassification.DependencyMode.READ));
-        operationClassifications.put(LdbcUpdate7AddComment.class, new OperationClassification(SchedulingMode.INDIVIDUAL_BLOCKING, OperationClassification.DependencyMode.READ));
-        // TODO the planned scheduling mode for this is WINDOWED but ASYNC is simpler at this stage, and still correct - WINDOWED is an performance optimization only
-//        operationClassifications.put(LdbcUpdate8AddFriendship.class, new OperationClassification(SchedulingMode.WINDOWED, GctMode.READ));
-        operationClassifications.put(LdbcUpdate8AddFriendship.class, new OperationClassification(SchedulingMode.INDIVIDUAL_ASYNC, OperationClassification.DependencyMode.READ));
-
-        // Filter out classifications for operations that are not enabled
-        List<Class> operationTypes = Lists.<Class>newArrayList(operationClassifications.keySet());
-        for (Class operationType : operationTypes) {
-            if (false == readOperationFilter.contains(operationType) && false == writeOperationFilter.contains(operationType))
-                operationClassifications.remove(operationType);
         }
     }
 
@@ -497,7 +439,7 @@ public class LdbcSnbInteractiveWorkload extends Workload {
     }
 
     @Override
-    protected Iterator<Operation<?>> getStreams(GeneratorFactory gf) throws WorkloadException {
+    protected WorkloadStreams getStreams(GeneratorFactory gf) throws WorkloadException {
         // this is an arbitrary point in time that is simply used as reference point, Client will move times to the present anyway
         Time workloadStartTime = Time.fromMilli(0);
 
@@ -645,7 +587,7 @@ public class LdbcSnbInteractiveWorkload extends Workload {
         Predicate<Operation<?>> enabledWriteOperationsFilter = new Predicate<Operation<?>>() {
             @Override
             public boolean apply(Operation<?> operation) {
-                return writeOperationFilter.contains(operation.getClass());
+                return enabledWriteOperationTypes.contains(operation.getClass());
             }
         };
         Iterator<Operation<?>> filteredWriteOperationStream = Iterators.filter(unfilteredWriteOperationStream, enabledWriteOperationsFilter);
@@ -667,12 +609,14 @@ public class LdbcSnbInteractiveWorkload extends Workload {
         /*
          * Add Dependency Times To Dependent Write Operations
          */
+        final Set<Class> dependencyOperationType = Sets.<Class>newHashSet(
+                LdbcUpdate1AddPerson.class,
+                LdbcUpdate8AddFriendship.class
+        );
         Function1<Operation<?>, Boolean> isDependency = new Function1<Operation<?>, Boolean>() {
             @Override
             public Boolean apply(Operation<?> operation) {
-                OperationClassification.DependencyMode operationDependencyMode = operationClassifications.get(operation.getClass()).dependencyMode();
-                // TODO add GctMode.WRITE in future?
-                return operationDependencyMode.equals(OperationClassification.DependencyMode.READ_WRITE);
+                return dependencyOperationType.contains(operation.getClass());
             }
         };
         boolean canOverwriteDependencyTime = true;
@@ -682,51 +626,58 @@ public class LdbcSnbInteractiveWorkload extends Workload {
                 workloadStartTime,
                 canOverwriteDependencyTime);
 
-
         List<Iterator<Operation<?>>> streamsOfAllEnabledOperationTypes = new ArrayList<>();
-        if (false == writeOperationFilter.isEmpty())
-            streamsOfAllEnabledOperationTypes.add(offsetFilteredWriteOperationStreamWithDependencyTimes);
-        if (readOperationFilter.contains(LdbcQuery1.class))
+        if (enabledReadOperationTypes.contains(LdbcQuery1.class))
             streamsOfAllEnabledOperationTypes.add(readOperation1Stream);
-        if (readOperationFilter.contains(LdbcQuery2.class))
+        if (enabledReadOperationTypes.contains(LdbcQuery2.class))
             streamsOfAllEnabledOperationTypes.add(readOperation2Stream);
-        if (readOperationFilter.contains(LdbcQuery3.class))
+        if (enabledReadOperationTypes.contains(LdbcQuery3.class))
             streamsOfAllEnabledOperationTypes.add(readOperation3Stream);
-        if (readOperationFilter.contains(LdbcQuery4.class))
+        if (enabledReadOperationTypes.contains(LdbcQuery4.class))
             streamsOfAllEnabledOperationTypes.add(readOperation4Stream);
-        if (readOperationFilter.contains(LdbcQuery5.class))
+        if (enabledReadOperationTypes.contains(LdbcQuery5.class))
             streamsOfAllEnabledOperationTypes.add(readOperation5Stream);
-        if (readOperationFilter.contains(LdbcQuery6.class))
+        if (enabledReadOperationTypes.contains(LdbcQuery6.class))
             streamsOfAllEnabledOperationTypes.add(readOperation6Stream);
-        if (readOperationFilter.contains(LdbcQuery7.class))
+        if (enabledReadOperationTypes.contains(LdbcQuery7.class))
             streamsOfAllEnabledOperationTypes.add(readOperation7Stream);
-        if (readOperationFilter.contains(LdbcQuery8.class))
+        if (enabledReadOperationTypes.contains(LdbcQuery8.class))
             streamsOfAllEnabledOperationTypes.add(readOperation8Stream);
-        if (readOperationFilter.contains(LdbcQuery9.class))
+        if (enabledReadOperationTypes.contains(LdbcQuery9.class))
             streamsOfAllEnabledOperationTypes.add(readOperation9Stream);
-        if (readOperationFilter.contains(LdbcQuery10.class))
+        if (enabledReadOperationTypes.contains(LdbcQuery10.class))
             streamsOfAllEnabledOperationTypes.add(readOperation10Stream);
-        if (readOperationFilter.contains(LdbcQuery11.class))
+        if (enabledReadOperationTypes.contains(LdbcQuery11.class))
             streamsOfAllEnabledOperationTypes.add(readOperation11Stream);
-        if (readOperationFilter.contains(LdbcQuery12.class))
+        if (enabledReadOperationTypes.contains(LdbcQuery12.class))
             streamsOfAllEnabledOperationTypes.add(readOperation12Stream);
-        if (readOperationFilter.contains(LdbcQuery13.class))
+        if (enabledReadOperationTypes.contains(LdbcQuery13.class))
             streamsOfAllEnabledOperationTypes.add(readOperation13Stream);
-        if (readOperationFilter.contains(LdbcQuery14.class))
+        if (enabledReadOperationTypes.contains(LdbcQuery14.class))
             streamsOfAllEnabledOperationTypes.add(readOperation14Stream);
 
         /*
-         * Merge all operation streams, ordered by operation start times
+         * Merge all read operation streams, ordered by operation start times
          */
-        Iterator<Operation<?>> readAndWriteOperations = gf.mergeSortOperationsByStartTime(
+        Iterator<Operation<?>> readOperations = gf.mergeSortOperationsByStartTime(
                 streamsOfAllEnabledOperationTypes.toArray(new Iterator[streamsOfAllEnabledOperationTypes.size()])
         );
 
-        return readAndWriteOperations;
+        WorkloadStreams ldbcSnbInteractiveWorkloadStreams = new WorkloadStreams();
+        if (false == enabledWriteOperationTypes.isEmpty()) {
+            ldbcSnbInteractiveWorkloadStreams.addBlockingStream(
+                    enabledWriteOperationTypes,
+                    offsetFilteredWriteOperationStreamWithDependencyTimes,
+                    Collections.<Operation<?>>emptyIterator()
+            );
+        }
+        ldbcSnbInteractiveWorkloadStreams.setAsynchronousStream(
+                new HashSet<Class<? extends Operation<?>>>(),
+                Collections.<Operation<?>>emptyIterator(),
+                readOperations
+        );
 
-        // TODO alternatively, most aggressive, i.e., all operations have their dependencies met before starting
-//        Iterator<Time> dependencyTimes = gf.constantIncrementTime(workloadStartTime, Duration.fromMilli(0));
-//        return gf.assignDependencyTimes(dependencyTimes, readAndWriteOperations);
+        return ldbcSnbInteractiveWorkloadStreams;
     }
 
     @Override
@@ -741,7 +692,7 @@ public class LdbcSnbInteractiveWorkload extends Workload {
          * --> minimumResultCountPerOperationType = 8
          *
          */
-        Integer operationTypeCount = readOperationFilter.size();
+        Integer operationTypeCount = enabledReadOperationTypes.size();
         long minimumResultCountPerOperationType = Math.max(1, Math.round(Math.floor(requiredValidationParameterCount.doubleValue() / operationTypeCount.doubleValue())));
 
 //        if (requiredValidationParameterCount % operationTypeCount > 0)
@@ -749,7 +700,7 @@ public class LdbcSnbInteractiveWorkload extends Workload {
 
         final Map<Class, Long> remainingRequiredResultsPerOperationType = new HashMap<>();
         long resultCountsAssignedSoFar = 0;
-        for (Class operationType : readOperationFilter) {
+        for (Class operationType : enabledReadOperationTypes) {
             remainingRequiredResultsPerOperationType.put(operationType, minimumResultCountPerOperationType);
             resultCountsAssignedSoFar = resultCountsAssignedSoFar + minimumResultCountPerOperationType;
         }
@@ -765,7 +716,7 @@ public class LdbcSnbInteractiveWorkload extends Workload {
             public boolean useOperation(Operation<?> operation) {
                 Class operationType = operation.getClass();
 
-                boolean isNotReadOperation = false == readOperationFilter.contains(operationType);
+                boolean isNotReadOperation = false == enabledReadOperationTypes.contains(operationType);
                 if (isNotReadOperation) return false;
 
                 boolean alreadyHaveAllRequiredResultsForOperationType = false == remainingRequiredResultsPerOperationType.containsKey(operationType);
