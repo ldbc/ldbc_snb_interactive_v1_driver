@@ -12,7 +12,46 @@ public class WorkloadStreams {
     private List<WorkloadStreamDefinition> blockingStreams = new ArrayList<>();
 
     // TODO test
-    public static WorkloadStreams createLimitedWorkloadStream(DriverConfiguration configuration, GeneratorFactory gf) throws WorkloadException {
+    public static WorkloadStreams timeOffsetAndCompressWorkloadStreams(WorkloadStreams originalWorkloadStreams,
+                                                                       Time newStartTime,
+                                                                       double compressionRatio,
+                                                                       GeneratorFactory gf) throws WorkloadException {
+        // copy unbounded streams to new workload streams instance, applying time compression
+        WorkloadStreams timeOffsetAndCompressedWorkloadStreams = new WorkloadStreams();
+        timeOffsetAndCompressedWorkloadStreams.setAsynchronousStream(
+                originalWorkloadStreams.asynchronousStream().dependentOperationTypes(),
+                gf.timeOffsetAndCompress(
+                        originalWorkloadStreams.asynchronousStream().dependencyOperations(),
+                        newStartTime,
+                        compressionRatio
+                ),
+                gf.timeOffsetAndCompress(
+                        originalWorkloadStreams.asynchronousStream().nonDependencyOperations(),
+                        newStartTime,
+                        compressionRatio
+                )
+        );
+        List<WorkloadStreamDefinition> blockingStreams = originalWorkloadStreams.blockingStreamDefinitions();
+        for (int i = 0; i < blockingStreams.size(); i++) {
+            originalWorkloadStreams.addBlockingStream(
+                    blockingStreams.get(i).dependentOperationTypes(),
+                    gf.timeOffsetAndCompress(
+                            blockingStreams.get(i).dependencyOperations(),
+                            newStartTime,
+                            compressionRatio
+                    ),
+                    gf.timeOffsetAndCompress(
+                            blockingStreams.get(i).nonDependencyOperations(),
+                            newStartTime,
+                            compressionRatio
+                    )
+            );
+        }
+        return timeOffsetAndCompressedWorkloadStreams;
+    }
+
+    // TODO test
+    public static WorkloadStreams createLimitedWorkloadStreams(DriverConfiguration configuration, GeneratorFactory gf) throws WorkloadException {
         WorkloadStreams workloadStreams = new WorkloadStreams();
         // get workload
         Workload workload = ClassLoaderHelper.loadWorkload(configuration.workloadClassName());

@@ -241,30 +241,21 @@ public class Client {
 
             WorkloadStreams workloadStreams;
             try {
-                workloadStreams = WorkloadStreams.createLimitedWorkloadStream(controlService.configuration(), gf);
+                workloadStreams = WorkloadStreams.createLimitedWorkloadStreams(controlService.configuration(), gf);
             } catch (Exception e) {
                 throw new ClientException(String.format("Error loading workload class: %s", controlService.configuration().workloadClassName()), e);
             }
             logger.info(String.format("Loaded workload: %s", workload.getClass().getName()));
 
             logger.info(String.format("Retrieving operation stream for workload: %s", workload.getClass().getSimpleName()));
-//            WorkloadStreams timeMappedWorkloadStreams;
-//            try {
-//                WorkloadStreams workloadStreams = workload.streams(gf, controlService.configuration().operationCount());
-//                Iterator<Operation<?>> operations = workload.streams(gf, controlService.configuration().operationCount());
-//                timeMappedOperations = gf.timeOffsetAndCompress(
-//                        operations,
-//                        controlService.workloadStartTime(),
-//                        controlService.configuration().timeCompressionRatio());
-//            } catch (WorkloadException e) {
-//                throw new ClientException("Error while retrieving operation stream for workload", e);
-//            }
             WorkloadStreams timeMappedWorkloadStreams;
             try {
-                timeMappedOperations = gf.timeOffsetAndCompress(
-                        operations,
+                timeMappedWorkloadStreams = WorkloadStreams.timeOffsetAndCompressWorkloadStreams(
+                        workloadStreams,
                         controlService.workloadStartTime(),
-                        controlService.configuration().timeCompressionRatio());
+                        controlService.configuration().timeCompressionRatio(),
+                        gf
+                );
             } catch (WorkloadException e) {
                 throw new ClientException("Error while retrieving operation stream for workload", e);
             }
@@ -292,8 +283,7 @@ public class Client {
                 workloadRunner = new WorkloadRunner(
                         timeSource,
                         db,
-                        timeMappedOperations,
-                        workload.getOperationClassifications(),
+                        timeMappedWorkloadStreams,
                         metricsService,
                         errorReporter,
                         completionTimeService,
@@ -430,7 +420,7 @@ public class Client {
         private final ConcurrentControlService controlService;
 
         private Workload workload = null;
-        private Iterator<Operation<?>> timeMappedOperations = null;
+        private WorkloadStreams timeMappedWorkloadStreams = null;
 
         CalculateWorkloadStatisticsMode(ConcurrentControlService controlService) throws ClientException {
             this.controlService = controlService;
@@ -446,15 +436,17 @@ public class Client {
             }
             logger.info(String.format("Loaded Workload: %s", workload.getClass().getName()));
 
-            GeneratorFactory generators = new GeneratorFactory(new RandomDataGeneratorFactory(RANDOM_SEED));
+            GeneratorFactory gf = new GeneratorFactory(new RandomDataGeneratorFactory(RANDOM_SEED));
 
             logger.info(String.format("Retrieving operation stream for workload: %s", workload.getClass().getSimpleName()));
             try {
-                Iterator<Operation<?>> operations = workload.streams(generators, controlService.configuration().operationCount());
-                timeMappedOperations = generators.timeOffsetAndCompress(
-                        operations,
+                WorkloadStreams workloadStreams = workload.streams(gf);
+                timeMappedWorkloadStreams = WorkloadStreams.timeOffsetAndCompressWorkloadStreams(
+                        workloadStreams,
                         controlService.workloadStartTime(),
-                        controlService.configuration().timeCompressionRatio());
+                        controlService.configuration().timeCompressionRatio(),
+                        gf
+                );
             } catch (WorkloadException e) {
                 throw new ClientException("Error while retrieving operation stream for workload", e);
             }
@@ -469,8 +461,7 @@ public class Client {
             try {
                 WorkloadStatisticsCalculator workloadStatisticsCalculator = new WorkloadStatisticsCalculator();
                 workloadStatistics = workloadStatisticsCalculator.calculate(
-                        timeMappedOperations,
-                        workload.getOperationClassifications(),
+                        timeMappedWorkloadStreams,
                         workload.maxExpectedInterleave());
                 logger.info("Calculation complete\n" + workloadStatistics);
             } catch (MetricsCollectionException e) {
@@ -510,12 +501,12 @@ public class Client {
             }
             logger.info(String.format("Loaded DB: %s", db.getClass().getName()));
 
-            GeneratorFactory generators = new GeneratorFactory(new RandomDataGeneratorFactory(RANDOM_SEED));
+            GeneratorFactory gf = new GeneratorFactory(new RandomDataGeneratorFactory(RANDOM_SEED));
 
             logger.info(String.format("Retrieving operation stream for workload: %s", workload.getClass().getSimpleName()));
             try {
-                Iterator<Operation<?>> operations = workload.streams(generators, controlService.configuration().operationCount());
-                timeMappedOperations = generators.timeOffsetAndCompress(
+                Iterator<Operation<?>> operations = WorkloadStreams.createLimitedWorkloadStreams(controlService.configuration(), gf).mergeSortedByStartTime(gf);
+                timeMappedOperations = gf.timeOffsetAndCompress(
                         operations,
                         controlService.workloadStartTime(),
                         controlService.configuration().timeCompressionRatio());
@@ -565,7 +556,6 @@ public class Client {
 
             int validationParametersGenerated = ((ValidationParamsGenerator) validationParamsGenerator).entriesWrittenSoFar();
 
-            timeMappedOperations = timeMappedOperationsList.iterator();
             logger.info(String.format("Successfully generated %s database validation parameters", validationParametersGenerated));
 
             cleanupWorkload(workload);
