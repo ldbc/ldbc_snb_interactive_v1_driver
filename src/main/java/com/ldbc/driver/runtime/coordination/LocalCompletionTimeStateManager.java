@@ -207,10 +207,10 @@ public class LocalCompletionTimeStateManager implements LocalCompletionTimeReade
         public Time addInitiatedTimeAndReturnLastKnownLowestTime(Time time) throws CompletionTimeException {
             if (null != highestInitiatedTime && time.lt(highestInitiatedTime)) {
                 String errMsg = String.format("Submitted initiated time is lower than previously submitted initiated time\n"
-                                + "  Submitted: %s\n"
-                                + "  Previous: %s",
-                        time,
-                        highestInitiatedTime
+                                + "  Submitted: %s (%s ns)\n"
+                                + "  Previous: %s (%s ns)",
+                        time, time.asNano(),
+                        highestInitiatedTime, highestInitiatedTime.asNano()
                 );
                 throw new CompletionTimeException(errMsg);
             }

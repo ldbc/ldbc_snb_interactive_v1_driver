@@ -316,8 +316,8 @@ public class Client {
                     localCompletionTimeWriter.submitLocalCompletedTime(maxPossibleTime);
                 } else {
                     // There are some local completion time writers, initialize them to workload start time
-                    completionTimeServiceAssistant.writeInitiatedAndCompletedTimesToAllWriters(completionTimeService, controlService.workloadStartTime());
-                    completionTimeServiceAssistant.writeInitiatedAndCompletedTimesToAllWriters(completionTimeService, controlService.workloadStartTime().plus(Duration.fromNano(1)));
+                    completionTimeServiceAssistant.writeInitiatedAndCompletedTimesToAllWriters(completionTimeService, controlService.workloadStartTime().minus(Duration.fromNano(2)));
+                    completionTimeServiceAssistant.writeInitiatedAndCompletedTimesToAllWriters(completionTimeService, controlService.workloadStartTime().minus(Duration.fromNano(1)));
                 }
             } catch (CompletionTimeException e) {
                 throw new ClientException("Error while writing initial initiated and completed times to Completion Time Service", e);
@@ -328,7 +328,7 @@ public class Client {
                 Duration globalCompletionTimeWaitTimeoutDuration = Duration.fromSeconds(5);
                 boolean globalCompletionTimeAdvancedToDesiredTime = completionTimeServiceAssistant.waitForGlobalCompletionTime(
                         timeSource,
-                        controlService.workloadStartTime(),
+                        controlService.workloadStartTime().minus(Duration.fromNano(2)),
                         globalCompletionTimeWaitTimeoutDuration,
                         completionTimeService,
                         errorReporter);

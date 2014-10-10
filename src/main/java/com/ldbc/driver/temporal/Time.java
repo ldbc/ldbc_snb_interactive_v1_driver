@@ -76,7 +76,6 @@ public class Time implements Comparable<Time>, MultipleTimeUnitProvider<Time> {
     public int compareTo(Time other) {
         if (this.time.asNano() == other.time.asNano()) return 0;
         return this.time.asNano() < other.time.asNano() ? -1 : 1;
-
     }
 
     @Override
