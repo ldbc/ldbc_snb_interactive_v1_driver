@@ -33,7 +33,7 @@ public class LdbcSnbInteractiveWorkload extends Workload {
         params.put(ConsoleAndFileDriverConfiguration.WORKLOAD_ARG, LdbcSnbInteractiveWorkload.class.getName());
         // LDBC Interactive Workload-specific parameters
         // average update interleave
-        params.put(UPDATE_INTERLEAVE,"1");
+        params.put(UPDATE_INTERLEAVE, "1");
         // reads: set frequency
         params.put(LdbcSnbInteractiveWorkload.READ_OPERATION_1_FREQUENCY_KEY, "205");
         params.put(LdbcSnbInteractiveWorkload.READ_OPERATION_2_FREQUENCY_KEY, "406");
@@ -330,25 +330,21 @@ public class LdbcSnbInteractiveWorkload extends Workload {
 
         compulsoryKeys.addAll(READ_OPERATION_ENABLE_KEYS);
         compulsoryKeys.addAll(WRITE_OPERATION_ENABLE_KEYS);
-        compulsoryKeys.add(UPDATE_INTERLEAVE);
 
-        compulsoryKeys.add(UPDATE_INTERLEAVE);
-
-        List<String> missingPropertyParameters = missingPropertiesParameters(params, compulsoryKeys);
+        Set<String> missingPropertyParameters = missingPropertiesParameters(params, compulsoryKeys);
         if (false == missingPropertyParameters.isEmpty())
             throw new WorkloadException(String.format("Workload could not initialize due to missing parameters: %s", missingPropertyParameters.toString()));
 
         List<String> frequencyKeys = Lists.newArrayList(READ_OPERATION_FREQUENCY_KEYS);
-        List<String> missingFrequencyKeys = missingPropertiesParameters(params, frequencyKeys);
-        if (false == missingFrequencyKeys.isEmpty()){
+        Set<String> missingFrequencyKeys = missingPropertiesParameters(params, frequencyKeys);
+        if (false == missingFrequencyKeys.isEmpty()) {
             // if there are no frequencies set, there should be specified interleave times for read queries
             List<String> interleaveKeys = Lists.newArrayList(READ_OPERATION_INTERLEAVE_KEYS);
-            List<String> missingInterleaveKeys = missingPropertiesParameters(params, interleaveKeys);
-            if (false == missingInterleaveKeys.isEmpty()){
-                throw new WorkloadException(String.format("Workload could not initialize. One of the following groups of parameters should be set: %s or %s", missingFrequencyKeys.toString(),missingInterleaveKeys.toString()));
+            Set<String> missingInterleaveKeys = missingPropertiesParameters(params, interleaveKeys);
+            if (false == missingInterleaveKeys.isEmpty()) {
+                throw new WorkloadException(String.format("Workload could not initialize. One of the following groups of parameters should be set: %s or %s", missingFrequencyKeys.toString(), missingInterleaveKeys.toString()));
             }
-        }
-        else {
+        } else {
             // compute interleave based on frequencies
             LdbcSnbFrequencyConverter.convertFrequency(params);
         }
@@ -529,9 +525,9 @@ public class LdbcSnbInteractiveWorkload extends Workload {
         return (original.indexOf(prefix) == -1) ? original : original.substring(original.lastIndexOf(prefix) + prefix.length(), original.length());
     }
 
-    private static List<String> missingPropertiesParameters
-            (Map<String, String> properties, List<String> compulsoryPropertyKeys) {
-        List<String> missingPropertyKeys = new ArrayList<>();
+    private static Set<String> missingPropertiesParameters
+            (Map<String, String> properties, Iterable<String> compulsoryPropertyKeys) {
+        Set<String> missingPropertyKeys = new HashSet<>();
         for (String compulsoryKey : compulsoryPropertyKeys) {
             if (null == properties.get(compulsoryKey)) missingPropertyKeys.add(compulsoryKey);
         }
