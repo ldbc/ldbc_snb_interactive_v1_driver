@@ -32,8 +32,6 @@ public class LdbcSnbInteractiveWorkload extends Workload {
         params.put(ConsoleAndFileDriverConfiguration.OPERATION_COUNT_ARG, "1000");
         params.put(ConsoleAndFileDriverConfiguration.WORKLOAD_ARG, LdbcSnbInteractiveWorkload.class.getName());
         // LDBC Interactive Workload-specific parameters
-        // average update interleave
-        params.put(UPDATE_INTERLEAVE, "1");
         // reads: set frequency
         params.put(LdbcSnbInteractiveWorkload.READ_OPERATION_1_FREQUENCY_KEY, "205");
         params.put(LdbcSnbInteractiveWorkload.READ_OPERATION_2_FREQUENCY_KEY, "406");
@@ -186,6 +184,8 @@ public class LdbcSnbInteractiveWorkload extends Workload {
      * Average distance between updates in simulation time
      */
     public final static String UPDATE_INTERLEAVE = "update_interleave";
+    // Default value in case there is no update stream
+    public final static String DEFAULT_UPDATE_INTERLEAVE = "1";
 
     /*
      * Operation Enable
@@ -345,6 +345,12 @@ public class LdbcSnbInteractiveWorkload extends Workload {
                 throw new WorkloadException(String.format("Workload could not initialize. One of the following groups of parameters should be set: %s or %s", missingFrequencyKeys.toString(), missingInterleaveKeys.toString()));
             }
         } else {
+            // if UPDATE_INTERLEAVE is missing, set it to DEFAULT
+            Set<String> missingUpdateInterleave = missingPropertiesParameters(params, Lists.newArrayList(UPDATE_INTERLEAVE));
+            if (false == missingUpdateInterleave.isEmpty()){
+                params.put(UPDATE_INTERLEAVE, DEFAULT_UPDATE_INTERLEAVE);
+            }
+
             // compute interleave based on frequencies
             LdbcSnbFrequencyConverter.convertFrequency(params);
         }

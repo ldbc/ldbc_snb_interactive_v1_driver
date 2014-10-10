@@ -175,23 +175,9 @@ public class LdbcSnbInteractiveWorkloadReadTest {
         String ldbcSnbInteractiveReadTestParamsFromFilePath = TestUtils.getResource("/ldbc_snb_interactive_read_test.properties").getAbsolutePath();
         Properties ldbcSnbInteractiveReadTestParamsFromFileProperties = new Properties();
 
-        String ldbcSnbInteractiveUpdateStream = TestUtils.getResource("/updateStream_0.properties").getAbsolutePath();
-        Properties ldbcSnbInteractiveUpdateStreamProperties = new Properties();
-        ldbcSnbInteractiveUpdateStreamProperties.load(new FileInputStream(ldbcSnbInteractiveUpdateStream));
-
-        Map<String, String> ldbcSnbInteractiveParamsFromUpdateStream =
-                ConsoleAndFileDriverConfiguration.convertLongKeysToShortKeys(MapUtils.<String, String>propertiesToMap(ldbcSnbInteractiveUpdateStreamProperties));
-
-        Map<String, String> ldbcSnbInteractiveUpdateDistance = new HashMap<String, String>();
-        ldbcSnbInteractiveUpdateDistance.put(LdbcSnbInteractiveWorkload.UPDATE_INTERLEAVE,
-                ldbcSnbInteractiveParamsFromUpdateStream.get(LdbcSnbInteractiveWorkload.UPDATE_INTERLEAVE));
-
         ldbcSnbInteractiveReadTestParamsFromFileProperties.load(new FileInputStream(ldbcSnbInteractiveReadTestParamsFromFilePath));
         Map<String, String> ldbcSnbInteractiveReadTestParamsFromFile =
                 ConsoleAndFileDriverConfiguration.convertLongKeysToShortKeys(MapUtils.<String, String>propertiesToMap(ldbcSnbInteractiveReadTestParamsFromFileProperties));
-
-        Map<String, String> unionLdbcSnbInteractiveReadTestParamsFromFiles =
-                MapUtils.mergeMaps(ldbcSnbInteractiveUpdateDistance, ldbcSnbInteractiveReadTestParamsFromFile,true);
 
         Map<String, String> ldbcSnbInteractiveReadTestParams = LdbcSnbInteractiveWorkload.defaultReadOnlyConfig();
 
@@ -200,9 +186,9 @@ public class LdbcSnbInteractiveWorkloadReadTest {
         // Then
         assertThat(
                 String.format("Expected:\n%sFound:\n%s",
-                        MapUtils.prettyPrint(unionLdbcSnbInteractiveReadTestParamsFromFiles, "\t"),
+                        MapUtils.prettyPrint(ldbcSnbInteractiveReadTestParamsFromFile, "\t"),
                         MapUtils.prettyPrint(ldbcSnbInteractiveReadTestParams, "\t")),
-                unionLdbcSnbInteractiveReadTestParamsFromFiles,
+                ldbcSnbInteractiveReadTestParamsFromFile,
                 equalTo(ldbcSnbInteractiveReadTestParams));
     }
 
@@ -518,7 +504,7 @@ public class LdbcSnbInteractiveWorkloadReadTest {
         changedQueryMixParams.put(LdbcSnbInteractiveWorkload.READ_OPERATION_12_FREQUENCY_KEY, "200");
         changedQueryMixParams.put(LdbcSnbInteractiveWorkload.READ_OPERATION_13_FREQUENCY_KEY, "100");
         changedQueryMixParams.put(LdbcSnbInteractiveWorkload.READ_OPERATION_14_FREQUENCY_KEY, "100");
-        changedQueryMixParams.put(LdbcSnbInteractiveWorkload.UPDATE_INTERLEAVE, "1");
+//        changedQueryMixParams.put(LdbcSnbInteractiveWorkload.UPDATE_INTERLEAVE, "1");
 
         Map<String, String> params = MapUtils.mergeMaps(baseParams, changedQueryMixParams, true);
         DriverConfiguration configuration = ConsoleAndFileDriverConfiguration.fromParamsMap(params);
