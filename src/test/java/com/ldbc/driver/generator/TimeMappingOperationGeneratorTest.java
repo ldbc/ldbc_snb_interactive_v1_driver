@@ -308,7 +308,8 @@ public class TimeMappingOperationGeneratorTest {
         Workload workload = new LdbcSnbInteractiveWorkload();
         workload.init(configuration);
 
-        List<Operation<?>> operations = Lists.newArrayList(workload.streams(new GeneratorFactory(new RandomDataGeneratorFactory(42L)), configuration.operationCount()));
+        GeneratorFactory gf = new GeneratorFactory(new RandomDataGeneratorFactory(42L));
+        List<Operation<?>> operations = Lists.newArrayList(gf.limit(workload.streams(gf).mergeSortedByStartTime(gf), configuration.operationCount()));
         Time prevOperationScheduledStartTime = operations.get(0).scheduledStartTime().minus(Duration.fromMilli(1));
         for (Operation<?> operation : operations) {
             assertThat(operation.scheduledStartTime().gte(prevOperationScheduledStartTime), is(true));

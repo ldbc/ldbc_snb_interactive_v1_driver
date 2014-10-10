@@ -112,13 +112,15 @@ public class WorkloadStreams {
             long minNano = Long.MAX_VALUE;
             int indexOfMin = -1;
             for (int i = 0; i < streams.size(); i++) {
-                if (null == streamHeads[i] && streams.get(i).hasNext()) {
-                    streamHeads[i] = streams.get(i).next();
-                }
-                long streamHeadTimeAsNano = streamHeads[i].scheduledStartTime().asNano();
-                if (null != streamHeads[i] && streamHeadTimeAsNano < minNano) {
-                    minNano = streamHeadTimeAsNano;
-                    indexOfMin = i;
+                if (null != streamHeads[i] || streams.get(i).hasNext()) {
+                    if (null == streamHeads[i]) {
+                        streamHeads[i] = streams.get(i).next();
+                    }
+                    long streamHeadTimeAsNano = streamHeads[i].scheduledStartTime().asNano();
+                    if (null != streamHeads[i] && streamHeadTimeAsNano < minNano) {
+                        minNano = streamHeadTimeAsNano;
+                        indexOfMin = i;
+                    }
                 }
             }
             kForStream[indexOfMin] = kForStream[indexOfMin] + 1;

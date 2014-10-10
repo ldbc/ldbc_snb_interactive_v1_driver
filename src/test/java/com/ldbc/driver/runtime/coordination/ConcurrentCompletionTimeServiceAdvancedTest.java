@@ -5,7 +5,6 @@ import com.ldbc.driver.Operation;
 import com.ldbc.driver.Workload;
 import com.ldbc.driver.WorkloadException;
 import com.ldbc.driver.control.ConsoleAndFileDriverConfiguration;
-import com.ldbc.driver.control.DriverConfiguration;
 import com.ldbc.driver.control.DriverConfigurationException;
 import com.ldbc.driver.generator.GeneratorFactory;
 import com.ldbc.driver.generator.RandomDataGeneratorFactory;
@@ -14,15 +13,12 @@ import com.ldbc.driver.temporal.Duration;
 import com.ldbc.driver.temporal.SystemTimeSource;
 import com.ldbc.driver.temporal.Time;
 import com.ldbc.driver.temporal.TimeSource;
-import com.ldbc.driver.testutils.TestUtils;
-import com.ldbc.driver.util.MapUtils;
-import com.ldbc.driver.workloads.ldbc.snb.interactive.LdbcSnbInteractiveWorkload;
-import com.ldbc.driver.workloads.ldbc.snb.interactive.db.DummyLdbcSnbInteractiveDb;
 import com.ldbc.driver.workloads.simple.SimpleWorkload;
 import org.junit.Ignore;
 import org.junit.Test;
 
-import java.util.*;
+import java.util.Iterator;
+import java.util.Set;
 import java.util.concurrent.*;
 
 import static org.hamcrest.CoreMatchers.*;
@@ -98,8 +94,8 @@ public class ConcurrentCompletionTimeServiceAdvancedTest {
         // TODO consider using DummyWorkload instead
         Workload workload = new SimpleWorkload();
         workload.init(configuration);
-        GeneratorFactory generators = new GeneratorFactory(new RandomDataGeneratorFactory(42L));
-        Iterator<Operation<?>> operations = workload.streams(generators, configuration.operationCount());
+        GeneratorFactory gf = new GeneratorFactory(new RandomDataGeneratorFactory(42L));
+        Iterator<Operation<?>> operations = gf.limit(workload.streams(gf).mergeSortedByStartTime(gf), configuration.operationCount());
 
         // measure duration of experiment
         Time startTime = timeSource.now();

@@ -17,7 +17,7 @@ import static org.junit.Assert.assertThat;
 
 public class WorkloadStreamsTest {
     @Test
-    public void x() {
+    public void shouldLimitCorrectly() {
         GeneratorFactory gf = new GeneratorFactory(new RandomDataGeneratorFactory(42l));
 
         List<Operation<?>> stream0 = Lists.<Operation<?>>newArrayList(
