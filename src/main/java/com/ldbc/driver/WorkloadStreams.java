@@ -98,7 +98,7 @@ public class WorkloadStreams {
         return Tuple.tuple2(workloadStreams, workload);
     }
 
-    public static long[] fromAmongAllRetrieveTopK(List<Iterator<Operation<?>>> streams, long k) {
+    public static long[] fromAmongAllRetrieveTopK(List<Iterator<Operation<?>>> streams, long k) throws WorkloadException {
         long kSoFar = 0;
         long[] kForStream = new long[streams.size()];
         for (int i = 0; i < streams.size(); i++) {
@@ -116,9 +116,11 @@ public class WorkloadStreams {
                     if (null == streamHeads[i]) {
                         streamHeads[i] = streams.get(i).next();
                     }
-                    long streamHeadTimeAsNano = streamHeads[i].scheduledStartTime().asNano();
-                    if (null != streamHeads[i] && streamHeadTimeAsNano < minNano) {
-                        minNano = streamHeadTimeAsNano;
+                    Time streamHeadTime = streamHeads[i].scheduledStartTime();
+                    if (null == streamHeadTime)
+                        throw new WorkloadException(String.format("Operation must have start time\n%s", streamHeads[i]));
+                    if (null != streamHeads[i] && streamHeadTime.asNano() < minNano) {
+                        minNano = streamHeadTime.asNano();
                         indexOfMin = i;
                     }
                 }

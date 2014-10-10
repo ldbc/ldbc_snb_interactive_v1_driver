@@ -306,7 +306,7 @@ public class WorkloadValidator {
 
             Tuple.Tuple2<WorkloadStreams, Workload> streamsAndWorkload2 =
                     WorkloadStreams.createNewWorkloadWithLimitedWorkloadStreams(workloadFactory, configuration, new GeneratorFactory(new RandomDataGeneratorFactory(42l)));
-            workload2 = streamsAndWorkload1._2();
+            workload2 = streamsAndWorkload2._2();
             operationStream2 = gf.timeOffsetAndCompress(
                     streamsAndWorkload2._1().mergeSortedByStartTime(gf),
                     now,

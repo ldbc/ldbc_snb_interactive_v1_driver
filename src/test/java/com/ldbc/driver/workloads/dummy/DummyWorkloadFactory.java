@@ -33,9 +33,6 @@ public class DummyWorkloadFactory implements WorkloadFactory {
     public Workload createWorkload() throws WorkloadException {
         WorkloadStreams workloadStreams;
         if (null == alternativeLastOperations) {
-            System.out.println(streams);
-            System.out.println(streams.hasNext());
-//            System.out.println(streams.next());
             workloadStreams = streams.next();
         } else {
             workloadStreams = streams.next();
