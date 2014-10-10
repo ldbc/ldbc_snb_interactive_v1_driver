@@ -131,7 +131,7 @@ public class WorkloadRunner {
         AtomicBoolean[] executorFinishedFlags = new AtomicBoolean[blockingStreamExecutorServices.size() + 1];
         executorFinishedFlags[0] = asynchronousStreamExecutorService.execute();
         for (int i = 0; i < blockingStreamExecutorServices.size(); i++) {
-            executorFinishedFlags[i + 1] = blockingStreamExecutorServices.get(i - 1).execute();
+            executorFinishedFlags[i + 1] = blockingStreamExecutorServices.get(i).execute();
         }
 
         while (true) {

@@ -33,9 +33,10 @@ public class WorkloadStreams {
                         compressionRatio
                 )
         );
+
         List<WorkloadStreamDefinition> blockingStreams = originalWorkloadStreams.blockingStreamDefinitions();
         for (int i = 0; i < blockingStreams.size(); i++) {
-            originalWorkloadStreams.addBlockingStream(
+            timeOffsetAndCompressedWorkloadStreams.addBlockingStream(
                     blockingStreams.get(i).dependentOperationTypes(),
                     gf.timeOffsetAndCompress(
                             blockingStreams.get(i).dependencyOperations(),
@@ -49,6 +50,7 @@ public class WorkloadStreams {
                     )
             );
         }
+
         return timeOffsetAndCompressedWorkloadStreams;
     }
 
