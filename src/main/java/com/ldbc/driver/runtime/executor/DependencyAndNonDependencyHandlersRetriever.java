@@ -69,8 +69,6 @@ class DependencyAndNonDependencyHandlersRetriever {
             Operation<?> nextGctWriteOperation = gctWriteOperations.next();
             nextGctWriteHandler = getAndInitializeHandler(nextGctWriteOperation, localCompletionTimeWriter);
             // submit initiated time as soon as possible so GCT/dependencies can advance as soon as possible
-            // TODO remove
-//            System.out.println("SUBMIT " + nextGctWriteHandler.operation().getClass().getSimpleName() + " "+nextGctWriteHandler.operation().scheduledStartTime());
             nextGctWriteHandler.localCompletionTimeWriter().submitLocalInitiatedTime(nextGctWriteHandler.operation().scheduledStartTime());
             if (false == gctWriteOperations.hasNext()) {
                 // after last write operation, submit highest possible initiated time to ensure that GCT progresses to time of highest LCT write
