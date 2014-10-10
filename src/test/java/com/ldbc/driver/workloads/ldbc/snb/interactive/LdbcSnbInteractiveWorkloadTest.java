@@ -418,7 +418,7 @@ public class LdbcSnbInteractiveWorkloadTest {
         String ldbcDriverTestPropertiesPath =
                 TestUtils.getResource("/ldbc_driver_default.properties").getAbsolutePath();
         String updateStreamPropertiesPath =
-                new File(DriverConfigurationFileTestHelper.getWorkloadsDirectory(), "ldbc/snb/interactive/updateStream_0.properties").getAbsolutePath();
+                TestUtils.getResource("/updateStream_0.properties").getAbsolutePath();
         String resultDirPath = temporaryFolder.newFolder().getAbsolutePath();
 
         assertThat(new File(resultDirPath).listFiles().length > 0, is(false));
