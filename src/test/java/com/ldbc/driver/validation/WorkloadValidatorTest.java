@@ -543,11 +543,41 @@ public class WorkloadValidatorTest {
                 )
         );
 
+        WorkloadStreams stream5 = new WorkloadStreams();
+        stream4.setAsynchronousStream(
+                dependentOperationTypes,
+                Collections.<Operation<?>>emptyIterator(),
+                gf.limit(
+                        new TimedNamedOperation1Factory(
+                                gf.constantIncrementTime(startTime, Duration.fromMilli(10)),
+                                gf.constantIncrementTime(startTime.minus(Duration.fromMilli(1)), Duration.fromMilli(0)),
+                                gf.constant("name")
+                        ),
+                        operationCount
+                )
+        );
+
+        WorkloadStreams stream6 = new WorkloadStreams();
+        stream4.setAsynchronousStream(
+                dependentOperationTypes,
+                Collections.<Operation<?>>emptyIterator(),
+                gf.limit(
+                        new TimedNamedOperation1Factory(
+                                gf.constantIncrementTime(startTime, Duration.fromMilli(10)),
+                                gf.constantIncrementTime(startTime.minus(Duration.fromMilli(1)), Duration.fromMilli(0)),
+                                gf.constant("name")
+                        ),
+                        operationCount
+                )
+        );
+
         List<WorkloadStreams> streams = Lists.newArrayList(
                 stream1,
                 stream2,
                 stream3,
-                stream4
+                stream4,
+                stream5,
+                stream6
         );
 
         DriverConfiguration configuration = ConsoleAndFileDriverConfiguration.fromDefaults(null, null, operationCount);

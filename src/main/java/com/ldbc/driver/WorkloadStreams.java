@@ -123,6 +123,10 @@ public class WorkloadStreams {
                     }
                 }
             }
+            if (-1 == indexOfMin) {
+                // iterators are empty, nothing left to retrieve
+                break;
+            }
             kForStream[indexOfMin] = kForStream[indexOfMin] + 1;
             streamHeads[indexOfMin] = null;
             kSoFar = kSoFar + 1;
