@@ -13,8 +13,9 @@ import com.ldbc.driver.temporal.Duration;
 import com.ldbc.driver.temporal.SystemTimeSource;
 import com.ldbc.driver.temporal.Time;
 import com.ldbc.driver.temporal.TimeSource;
+import com.ldbc.driver.testutils.TestUtils;
+import com.ldbc.driver.testutils.ThreadPoolLoadGenerator;
 import com.ldbc.driver.workloads.simple.SimpleWorkload;
-import org.junit.Ignore;
 import org.junit.Test;
 
 import java.util.Iterator;
@@ -28,7 +29,36 @@ public class ConcurrentCompletionTimeServiceAdvancedTest {
     final TimeSource timeSource = new SystemTimeSource();
     final CompletionTimeServiceAssistant completionTimeServiceAssistant = new CompletionTimeServiceAssistant();
 
-    @Ignore
+    @Test
+    public void soakTestThreadedQueuedConcurrentCompletionTimeService() throws InterruptedException, ExecutionException, WorkloadException, CompletionTimeException, DriverConfigurationException {
+//        ThreadPoolLoadGenerator threadPoolLoadGenerator = TestUtils.newThreadPoolLoadGenerator(64, Duration.fromMilli(0));
+//        threadPoolLoadGenerator.start();
+        try {
+            int testRepetitions = 5;
+
+            ConcurrentErrorReporter errorReporter = new ConcurrentErrorReporter();
+            String otherPeerId = "somePeer";
+            Set<String> peerIds = Sets.newHashSet(otherPeerId);
+            long totalTestDurationForThreadedCompletionTimeService;
+
+            for (int workerThreads = 1; workerThreads < 33; workerThreads = workerThreads * 2) {
+                totalTestDurationForThreadedCompletionTimeService = 0;
+                for (int i = 0; i < testRepetitions; i++) {
+                    ConcurrentCompletionTimeService concurrentCompletionTimeService =
+                            completionTimeServiceAssistant.newThreadedQueuedConcurrentCompletionTimeServiceFromPeerIds(timeSource, peerIds, errorReporter);
+                    totalTestDurationForThreadedCompletionTimeService += parallelCompletionTimeServiceTest(concurrentCompletionTimeService, otherPeerId, errorReporter, workerThreads).asMilli();
+                    concurrentCompletionTimeService.shutdown();
+                    System.out.println("...");
+                }
+                System.out.printf("\t%s=%s\n",
+                        ThreadedQueuedConcurrentCompletionTimeService.class.getSimpleName(),
+                        Duration.fromMilli(totalTestDurationForThreadedCompletionTimeService / testRepetitions).toString());
+            }
+        } finally {
+//            threadPoolLoadGenerator.shutdown(Duration.fromSeconds(10));
+        }
+    }
+
     @Test
     public void completionTimeServicesShouldBehaveDeterministically() throws InterruptedException, ExecutionException, WorkloadException, CompletionTimeException, DriverConfigurationException {
         ConcurrentErrorReporter errorReporter = new ConcurrentErrorReporter();
@@ -72,7 +102,18 @@ public class ConcurrentCompletionTimeServiceAdvancedTest {
             throws WorkloadException, InterruptedException, ExecutionException, CompletionTimeException, DriverConfigurationException {
         // initialize executor
         int threadCount = workerThreadCount;
-        ThreadFactory threadFactory = Executors.defaultThreadFactory();
+        ThreadFactory threadFactory = new ThreadFactory() {
+            private final long factoryTimeStampId = System.currentTimeMillis();
+            int count = 0;
+
+            @Override
+            public Thread newThread(Runnable runnable) {
+                Thread newThread = new Thread(
+                        runnable,
+                        ConcurrentCompletionTimeServiceAdvancedTest.class.getSimpleName() + ".parallelCompletionTimeServiceTest-id(" + factoryTimeStampId + ")" + "-thread(" + count++ + ")");
+                return newThread;
+            }
+        };
         ExecutorService executorService = Executors.newFixedThreadPool(threadCount, threadFactory);
         CompletionService<Integer> completionService = new ExecutorCompletionService<>(executorService);
 
@@ -164,6 +205,14 @@ public class ConcurrentCompletionTimeServiceAdvancedTest {
         TEST 2nd CHECK POINT
          */
         Future<Time> future2WaitingForGtcCheckpointOperation2 = concurrentCompletionTimeService.globalCompletionTimeFuture();
+        // TODO here here here
+        // TODO here here here
+        // TODO here here here
+        // TODO here here here
+        // TODO here here here
+        // TODO here here here
+        // TODO here here here
+        // TODO here here here
         assertThat(future2WaitingForGtcCheckpointOperation2.get(), equalTo(gctCheckpointOperation2ScheduledStartTime));
 
         while (operations.hasNext()) {

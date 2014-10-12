@@ -11,7 +11,6 @@ import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.nullValue;
 import static org.junit.Assert.assertThat;
 
-//Completion Time = min( min(Initiated Events), max(Completed Events) )
 public class GlobalCompletionTimeTest {
 
     // LocalIT = none, LocalCT = none, ExternalCT = none --> null

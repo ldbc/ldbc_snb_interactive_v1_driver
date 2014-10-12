@@ -50,15 +50,6 @@ public class ThreadPoolOperationHandlerExecutorTest {
         }
     }
 
-    ;
-
-    @Ignore
-    @Test
-    public void addGctWriteOnlyMode() {
-        // TODO NONE, READ, WRITE (add this), READ_WRITE
-        assertThat(true, is(false));
-    }
-
     @Ignore
     @Test
     public void inWindowedModeOperationsShouldNotPerformGctCheckThemselvesInsteadTheExecutorShouldDoSoBeforeWindowExecution() {

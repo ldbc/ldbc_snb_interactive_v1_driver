@@ -57,11 +57,11 @@ public class ThreadedQueuedConcurrentCompletionTimeServiceThread extends Thread 
                 // it is not safe to write Local Completion Time directly through GlobalCompletionTimeStateManager,
                 // because there are, potentially, many Local Completion Time writers.
                 // every Local Completion Time writing thread must have its own LocalCompletionTimeWriter,
-                // to avoid race conditions where one thread submits tries to submit an Initiated Time,
+                // to avoid race conditions where one thread tries to submit an Initiated Time,
                 // another thread submits a higher Completed Time first, and then Local Completion Time advances,
                 // which will result in an error when the lower Initiated Time is finally submitted.
                 // MultiConsumerLocalCompletionTimeConcurrentStateManagerConsumer instances,
-                // via newLocalCompletionTimeWriter(), will perform the Local Completion Time writing.
+                // via newLocalCompletionTimeWriter(), will perform the Local Completion Time writing
                 null,
                 // *** ECT Reader ***
                 externalCompletionTimeReader,

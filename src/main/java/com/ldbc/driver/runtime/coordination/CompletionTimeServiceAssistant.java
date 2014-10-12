@@ -39,17 +39,8 @@ public class CompletionTimeServiceAssistant {
         return false;
     }
 
-    public SynchronizedConcurrentCompletionTimeService newSynchronizedConcurrentCompletionTimeServiceFromPeerIds() throws CompletionTimeException {
-        return new SynchronizedConcurrentCompletionTimeService(new HashSet<String>());
-    }
-
     public SynchronizedConcurrentCompletionTimeService newSynchronizedConcurrentCompletionTimeServiceFromPeerIds(Set<String> peerIds) throws CompletionTimeException {
         return new SynchronizedConcurrentCompletionTimeService(peerIds);
-    }
-
-    public ThreadedQueuedConcurrentCompletionTimeService newThreadedQueuedConcurrentCompletionTimeServiceFromPeerIds(TimeSource timeSource,
-                                                                                                                     ConcurrentErrorReporter errorReporter) throws CompletionTimeException {
-        return new ThreadedQueuedConcurrentCompletionTimeService(timeSource, new HashSet<String>(), errorReporter);
     }
 
     public ThreadedQueuedConcurrentCompletionTimeService newThreadedQueuedConcurrentCompletionTimeServiceFromPeerIds(TimeSource timeSource,
