@@ -32,21 +32,21 @@ public class LdbcSnbInteractiveWorkload extends Workload {
         params.put(ConsoleAndFileDriverConfiguration.OPERATION_COUNT_ARG, "1000");
         params.put(ConsoleAndFileDriverConfiguration.WORKLOAD_ARG, LdbcSnbInteractiveWorkload.class.getName());
         // LDBC Interactive Workload-specific parameters
-        // reads
-        params.put(LdbcSnbInteractiveWorkload.READ_OPERATION_1_INTERLEAVE_KEY, "30");
-        params.put(LdbcSnbInteractiveWorkload.READ_OPERATION_2_INTERLEAVE_KEY, "12");
-        params.put(LdbcSnbInteractiveWorkload.READ_OPERATION_3_INTERLEAVE_KEY, "72");
-        params.put(LdbcSnbInteractiveWorkload.READ_OPERATION_4_INTERLEAVE_KEY, "27");
-        params.put(LdbcSnbInteractiveWorkload.READ_OPERATION_5_INTERLEAVE_KEY, "42");
-        params.put(LdbcSnbInteractiveWorkload.READ_OPERATION_6_INTERLEAVE_KEY, "18");
-        params.put(LdbcSnbInteractiveWorkload.READ_OPERATION_7_INTERLEAVE_KEY, "13");
-        params.put(LdbcSnbInteractiveWorkload.READ_OPERATION_8_INTERLEAVE_KEY, "1");
-        params.put(LdbcSnbInteractiveWorkload.READ_OPERATION_9_INTERLEAVE_KEY, "40");
-        params.put(LdbcSnbInteractiveWorkload.READ_OPERATION_10_INTERLEAVE_KEY, "27");
-        params.put(LdbcSnbInteractiveWorkload.READ_OPERATION_11_INTERLEAVE_KEY, "18");
-        params.put(LdbcSnbInteractiveWorkload.READ_OPERATION_12_INTERLEAVE_KEY, "34");
-        params.put(LdbcSnbInteractiveWorkload.READ_OPERATION_13_INTERLEAVE_KEY, "1");
-        params.put(LdbcSnbInteractiveWorkload.READ_OPERATION_14_INTERLEAVE_KEY, "66");
+        // reads: set frequency
+        params.put(LdbcSnbInteractiveWorkload.READ_OPERATION_1_FREQUENCY_KEY, "205");
+        params.put(LdbcSnbInteractiveWorkload.READ_OPERATION_2_FREQUENCY_KEY, "406");
+        params.put(LdbcSnbInteractiveWorkload.READ_OPERATION_3_FREQUENCY_KEY, "42");
+        params.put(LdbcSnbInteractiveWorkload.READ_OPERATION_4_FREQUENCY_KEY, "6271");
+        params.put(LdbcSnbInteractiveWorkload.READ_OPERATION_5_FREQUENCY_KEY, "179");
+        params.put(LdbcSnbInteractiveWorkload.READ_OPERATION_6_FREQUENCY_KEY, "18");
+        params.put(LdbcSnbInteractiveWorkload.READ_OPERATION_7_FREQUENCY_KEY, "9235");
+        params.put(LdbcSnbInteractiveWorkload.READ_OPERATION_8_FREQUENCY_KEY, "30445");
+        params.put(LdbcSnbInteractiveWorkload.READ_OPERATION_9_FREQUENCY_KEY, "19");
+        params.put(LdbcSnbInteractiveWorkload.READ_OPERATION_10_FREQUENCY_KEY, "45");
+        params.put(LdbcSnbInteractiveWorkload.READ_OPERATION_11_FREQUENCY_KEY, "3069");
+        params.put(LdbcSnbInteractiveWorkload.READ_OPERATION_12_FREQUENCY_KEY, "155");
+        params.put(LdbcSnbInteractiveWorkload.READ_OPERATION_13_FREQUENCY_KEY, "204");
+        params.put(LdbcSnbInteractiveWorkload.READ_OPERATION_14_FREQUENCY_KEY, "109");
         params.put(LdbcSnbInteractiveWorkload.READ_OPERATION_1_ENABLE_KEY, "true");
         params.put(LdbcSnbInteractiveWorkload.READ_OPERATION_2_ENABLE_KEY, "true");
         params.put(LdbcSnbInteractiveWorkload.READ_OPERATION_3_ENABLE_KEY, "true");
@@ -105,7 +105,7 @@ public class LdbcSnbInteractiveWorkload extends Workload {
         return ConsoleAndFileDriverConfiguration.convertLongKeysToShortKeys(params);
     }
 
-    private final static String LDBC_SNB_INTERACTIVE_PARAM_NAME_PREFIX = "ldbc.snb.interactive.";
+    public final static String LDBC_SNB_INTERACTIVE_PARAM_NAME_PREFIX = "ldbc.snb.interactive.";
     public final static String DATA_DIRECTORY = LDBC_SNB_INTERACTIVE_PARAM_NAME_PREFIX + "data_dir";
     public final static String PARAMETERS_DIRECTORY = LDBC_SNB_INTERACTIVE_PARAM_NAME_PREFIX + "parameters_dir";
     private final static String LDBC_INTERACTIVE_PACKAGE_PREFIX = removeSuffix(LdbcQuery1.class.getName(), LdbcQuery1.class.getSimpleName());
@@ -143,6 +143,49 @@ public class LdbcSnbInteractiveWorkload extends Workload {
             READ_OPERATION_12_INTERLEAVE_KEY,
             READ_OPERATION_13_INTERLEAVE_KEY,
             READ_OPERATION_14_INTERLEAVE_KEY);
+
+    /*
+     * Operation frequency
+     */
+    private final static String FREQUENCY_SUFFIX = "_freq";
+    public final static String READ_OPERATION_1_FREQUENCY_KEY = LDBC_SNB_INTERACTIVE_PARAM_NAME_PREFIX + LdbcQuery1.class.getSimpleName() + FREQUENCY_SUFFIX;
+    public final static String READ_OPERATION_2_FREQUENCY_KEY = LDBC_SNB_INTERACTIVE_PARAM_NAME_PREFIX + LdbcQuery2.class.getSimpleName() + FREQUENCY_SUFFIX;
+    public final static String READ_OPERATION_3_FREQUENCY_KEY = LDBC_SNB_INTERACTIVE_PARAM_NAME_PREFIX + LdbcQuery3.class.getSimpleName() + FREQUENCY_SUFFIX;
+    public final static String READ_OPERATION_4_FREQUENCY_KEY = LDBC_SNB_INTERACTIVE_PARAM_NAME_PREFIX + LdbcQuery4.class.getSimpleName() + FREQUENCY_SUFFIX;
+    public final static String READ_OPERATION_5_FREQUENCY_KEY = LDBC_SNB_INTERACTIVE_PARAM_NAME_PREFIX + LdbcQuery5.class.getSimpleName() + FREQUENCY_SUFFIX;
+    public final static String READ_OPERATION_6_FREQUENCY_KEY = LDBC_SNB_INTERACTIVE_PARAM_NAME_PREFIX + LdbcQuery6.class.getSimpleName() + FREQUENCY_SUFFIX;
+    public final static String READ_OPERATION_7_FREQUENCY_KEY = LDBC_SNB_INTERACTIVE_PARAM_NAME_PREFIX + LdbcQuery7.class.getSimpleName() + FREQUENCY_SUFFIX;
+    public final static String READ_OPERATION_8_FREQUENCY_KEY = LDBC_SNB_INTERACTIVE_PARAM_NAME_PREFIX + LdbcQuery8.class.getSimpleName() + FREQUENCY_SUFFIX;
+    public final static String READ_OPERATION_9_FREQUENCY_KEY = LDBC_SNB_INTERACTIVE_PARAM_NAME_PREFIX + LdbcQuery9.class.getSimpleName() + FREQUENCY_SUFFIX;
+    public final static String READ_OPERATION_10_FREQUENCY_KEY = LDBC_SNB_INTERACTIVE_PARAM_NAME_PREFIX + LdbcQuery10.class.getSimpleName() + FREQUENCY_SUFFIX;
+    public final static String READ_OPERATION_11_FREQUENCY_KEY = LDBC_SNB_INTERACTIVE_PARAM_NAME_PREFIX + LdbcQuery11.class.getSimpleName() + FREQUENCY_SUFFIX;
+    public final static String READ_OPERATION_12_FREQUENCY_KEY = LDBC_SNB_INTERACTIVE_PARAM_NAME_PREFIX + LdbcQuery12.class.getSimpleName() + FREQUENCY_SUFFIX;
+    public final static String READ_OPERATION_13_FREQUENCY_KEY = LDBC_SNB_INTERACTIVE_PARAM_NAME_PREFIX + LdbcQuery13.class.getSimpleName() + FREQUENCY_SUFFIX;
+    public final static String READ_OPERATION_14_FREQUENCY_KEY = LDBC_SNB_INTERACTIVE_PARAM_NAME_PREFIX + LdbcQuery14.class.getSimpleName() + FREQUENCY_SUFFIX;
+    public final static List<String> READ_OPERATION_FREQUENCY_KEYS = Lists.newArrayList(
+            READ_OPERATION_1_FREQUENCY_KEY,
+            READ_OPERATION_2_FREQUENCY_KEY,
+            READ_OPERATION_3_FREQUENCY_KEY,
+            READ_OPERATION_4_FREQUENCY_KEY,
+            READ_OPERATION_5_FREQUENCY_KEY,
+            READ_OPERATION_6_FREQUENCY_KEY,
+            READ_OPERATION_7_FREQUENCY_KEY,
+            READ_OPERATION_8_FREQUENCY_KEY,
+            READ_OPERATION_9_FREQUENCY_KEY,
+            READ_OPERATION_10_FREQUENCY_KEY,
+            READ_OPERATION_11_FREQUENCY_KEY,
+            READ_OPERATION_12_FREQUENCY_KEY,
+            READ_OPERATION_13_FREQUENCY_KEY,
+            READ_OPERATION_14_FREQUENCY_KEY
+    );
+
+
+    /*
+     * Average distance between updates in simulation time
+     */
+    public final static String UPDATE_INTERLEAVE = "update_interleave";
+    // Default value in case there is no update stream
+    public final static String DEFAULT_UPDATE_INTERLEAVE = "1";
 
     /*
      * Operation Enable
@@ -277,14 +320,33 @@ public class LdbcSnbInteractiveWorkload extends Workload {
     public void onInit(Map<String, String> params) throws WorkloadException {
         List<String> compulsoryKeys = Lists.newArrayList(
                 PARAMETERS_DIRECTORY);
-        compulsoryKeys.addAll(READ_OPERATION_INTERLEAVE_KEYS);
+
         compulsoryKeys.addAll(READ_OPERATION_ENABLE_KEYS);
         compulsoryKeys.addAll(WRITE_OPERATION_ENABLE_KEYS);
 
-        List<String> missingPropertyParameters = missingPropertiesParameters(params, compulsoryKeys);
+        Set<String> missingPropertyParameters = missingPropertiesParameters(params, compulsoryKeys);
         if (false == missingPropertyParameters.isEmpty())
             throw new WorkloadException(String.format("Workload could not initialize due to missing parameters: %s", missingPropertyParameters.toString()));
 
+        List<String> frequencyKeys = Lists.newArrayList(READ_OPERATION_FREQUENCY_KEYS);
+        Set<String> missingFrequencyKeys = missingPropertiesParameters(params, frequencyKeys);
+        if (false == missingFrequencyKeys.isEmpty()) {
+            // if there are no frequencies set, there should be specified interleave times for read queries
+            List<String> interleaveKeys = Lists.newArrayList(READ_OPERATION_INTERLEAVE_KEYS);
+            Set<String> missingInterleaveKeys = missingPropertiesParameters(params, interleaveKeys);
+            if (false == missingInterleaveKeys.isEmpty()) {
+                throw new WorkloadException(String.format("Workload could not initialize. One of the following groups of parameters should be set: %s or %s", missingFrequencyKeys.toString(), missingInterleaveKeys.toString()));
+            }
+        } else {
+            // if UPDATE_INTERLEAVE is missing, set it to DEFAULT
+            Set<String> missingUpdateInterleave = missingPropertiesParameters(params, Lists.newArrayList(UPDATE_INTERLEAVE));
+            if (false == missingUpdateInterleave.isEmpty()){
+                params.put(UPDATE_INTERLEAVE, DEFAULT_UPDATE_INTERLEAVE);
+            }
+
+            // compute interleave based on frequencies
+            LdbcSnbFrequencyConverter.convertFrequency(params);
+        }
         String dataDirPath = params.get(DATA_DIRECTORY);
         if (null != dataDirPath) {
             File dataDir = new File(dataDirPath);
@@ -410,9 +472,9 @@ public class LdbcSnbInteractiveWorkload extends Workload {
         return (original.indexOf(prefix) == -1) ? original : original.substring(original.lastIndexOf(prefix) + prefix.length(), original.length());
     }
 
-    private static List<String> missingPropertiesParameters
-            (Map<String, String> properties, List<String> compulsoryPropertyKeys) {
-        List<String> missingPropertyKeys = new ArrayList<>();
+    private static Set<String> missingPropertiesParameters
+            (Map<String, String> properties, Iterable<String> compulsoryPropertyKeys) {
+        Set<String> missingPropertyKeys = new HashSet<>();
         for (String compulsoryKey : compulsoryPropertyKeys) {
             if (null == properties.get(compulsoryKey)) missingPropertyKeys.add(compulsoryKey);
         }

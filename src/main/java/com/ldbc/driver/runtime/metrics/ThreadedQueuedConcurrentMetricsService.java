@@ -28,8 +28,8 @@ public class ThreadedQueuedConcurrentMetricsService implements ConcurrentMetrics
     public static final String RESULTS_CONFIGURATION_FILENAME_SUFFIX = "-configuration.properties";
 
     // TODO this could come from config, if we had a max_runtime parameter. for now, it can default to something
-    public static final Duration DEFAULT_HIGHEST_EXPECTED_RUNTIME_DURATION = Duration.fromMinutes(30);
-    public static final Duration DEFAULT_HIGHEST_EXPECTED_DELAY_DURATION = Duration.fromMinutes(60);
+    public static final Duration DEFAULT_HIGHEST_EXPECTED_RUNTIME_DURATION = Duration.fromMinutes(90);
+    public static final Duration DEFAULT_HIGHEST_EXPECTED_DELAY_DURATION = Duration.fromMinutes(90);
 
     private final TimeSource timeSource;
     private final QueueEventSubmitter<MetricsCollectionEvent> queueEventSubmitter;
