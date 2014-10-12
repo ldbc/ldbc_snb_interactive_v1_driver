@@ -1,5 +1,8 @@
 package com.ldbc.driver.validation;
 
+import com.google.common.base.Function;
+import com.google.common.collect.Iterables;
+import com.google.common.collect.Lists;
 import com.ldbc.driver.Operation;
 import com.ldbc.driver.runtime.metrics.ContinuousMetricManager;
 import com.ldbc.driver.runtime.metrics.ContinuousMetricSnapshot;
@@ -9,6 +12,8 @@ import com.ldbc.driver.util.Bucket;
 import com.ldbc.driver.util.Histogram;
 import com.ldbc.driver.util.MapUtils;
 
+import java.util.Collections;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -143,11 +148,6 @@ public class WorkloadStatistics {
         sb.append(String.format("%1$-" + padRightDistance + "s", "     Unique Operation Types:")).append(operationTypeCount()).append("\n");
         sb.append(String.format("%1$-" + padRightDistance + "s", "     Total Duration:")).append(totalDuration()).append("\n");
         sb.append(String.format("%1$-" + padRightDistance + "s", "     Time Span:")).append(firstStartTime()).append(", ").append(lastStartTime()).append("\n");
-        ContinuousMetricSnapshot interleavesSnapshot = operationInterleaves().snapshot();
-        sb.append(String.format("%1$-" + padRightDistance + "s", "     Interleaves:")).
-                append("min = ").append(Duration.fromMilli(interleavesSnapshot.min())).append(" / ").
-                append("mean = ").append(Duration.fromMilli(Math.round(interleavesSnapshot.mean()))).append(" / ").
-                append("max = ").append(Duration.fromMilli(interleavesSnapshot.max())).append("\n");
         sb.append("     Operation Mix:\n");
         for (Map.Entry<Bucket<Class>, Long> operationMixForOperationType : MapUtils.sortedEntries(operationMix().getAllBuckets())) {
             Bucket.DiscreteBucket<Class> bucket = (Bucket.DiscreteBucket<Class>) operationMixForOperationType.getKey();
@@ -155,23 +155,58 @@ public class WorkloadStatistics {
             long operationCount = operationMixForOperationType.getValue();
             sb.append(String.format("%1$-" + padRightDistance + "s", "        " + operationType.getSimpleName() + ":")).append(operationCount).append("\n");
         }
-        sb.append("     Operation Dependency Modes:\n");
-        sb.append(String.format("%1$-" + padRightDistance + "s", "        Dependency Operations:")).append(dependencyOperationTypes.toString()).append("\n");
-        sb.append(String.format("%1$-" + padRightDistance + "s", "        Dependent Operations:")).append(dependentOperationTypes.toString()).append("\n");
+        sb.append("     Operation By Dependency Mode:\n");
+        sb.append(String.format("%1$-" + padRightDistance + "s", "        All Operations:")).append(toSortedClassNames(firstStartTimesByOperationType.keySet())).append("\n");
+        sb.append(String.format("%1$-" + padRightDistance + "s", "        Dependency Operations:")).append(toSortedClassNames(dependencyOperationTypes)).append("\n");
+        sb.append(String.format("%1$-" + padRightDistance + "s", "        Dependent Operations:")).append(toSortedClassNames(dependentOperationTypes)).append("\n");
         sb.append("  ------------------------------------------------------\n");
-        sb.append("  BY DEPENDENCY MODE\n");
+        sb.append("  INTERLEAVES\n");
         sb.append("  ------------------------------------------------------\n");
-        sb.append("     Interleaves:\n");
+        ContinuousMetricSnapshot interleavesSnapshot = operationInterleaves().snapshot();
+        sb.append(String.format("%1$-" + padRightDistance + "s", "        All Operations:")).
+                append("min = ").append(Duration.fromMilli(interleavesSnapshot.min())).append(" / ").
+                append("mean = ").append(Duration.fromMilli(Math.round(interleavesSnapshot.mean()))).append(" / ").
+                append("max = ").append(Duration.fromMilli(interleavesSnapshot.max())).append("\n");
         ContinuousMetricSnapshot interleavesForDependencyOperationsSnapshot = interleavesForDependencyOperations.snapshot();
+        String minInterleaveForDependencyOperations = (interleavesForDependencyOperationsSnapshot.count() == 0)
+                ?
+                "--"
+                :
+                Duration.fromMilli(interleavesForDependencyOperationsSnapshot.min()).toString();
+        String meanInterleaveForDependencyOperations = (interleavesForDependencyOperationsSnapshot.count() == 0)
+                ?
+                "--"
+                :
+                Duration.fromMilli(Math.round(interleavesForDependencyOperationsSnapshot.mean())).toString();
+        String maxInterleaveForDependencyOperations = (interleavesForDependencyOperationsSnapshot.count() == 0)
+                ?
+                "--"
+                :
+                Duration.fromMilli(interleavesForDependencyOperationsSnapshot.max()).toString();
         sb.append(String.format("%1$-" + padRightDistance + "s", "        Dependency Operations:")).
-                append("min = ").append(Duration.fromMilli(interleavesForDependencyOperationsSnapshot.min())).append(" / ").
-                append("mean =").append(Duration.fromMilli(Math.round(interleavesForDependencyOperationsSnapshot.mean()))).append(" / ").
-                append("max =").append(Duration.fromMilli(interleavesForDependencyOperationsSnapshot.max())).append("\n");
+                append("min = ").append(minInterleaveForDependencyOperations).append(" / ").
+                append("mean = ").append(meanInterleaveForDependencyOperations).append(" / ").
+                append("max = ").append(maxInterleaveForDependencyOperations).append("\n");
         ContinuousMetricSnapshot interleavesForDependentOperationsSnapshot = interleavesForDependentOperations.snapshot();
+        String minInterleaveForDependentOperations = (interleavesForDependentOperationsSnapshot.count() == 0)
+                ?
+                "--"
+                :
+                Duration.fromMilli(interleavesForDependentOperationsSnapshot.min()).toString();
+        String meanInterleaveForDependentOperations = (interleavesForDependentOperationsSnapshot.count() == 0)
+                ?
+                "--"
+                :
+                Duration.fromMilli(Math.round(interleavesForDependentOperationsSnapshot.mean())).toString();
+        String maxInterleaveForDependentOperations = (interleavesForDependentOperationsSnapshot.count() == 0)
+                ?
+                "--"
+                :
+                Duration.fromMilli(interleavesForDependentOperationsSnapshot.max()).toString();
         sb.append(String.format("%1$-" + padRightDistance + "s", "        Dependent Operations:")).
-                append("min = ").append(Duration.fromMilli(interleavesForDependentOperationsSnapshot.min())).append(" / ").
-                append("mean =").append(Duration.fromMilli(Math.round(interleavesForDependentOperationsSnapshot.mean()))).append(" / ").
-                append("max =").append(Duration.fromMilli(interleavesForDependentOperationsSnapshot.max())).append("\n");
+                append("min = ").append(minInterleaveForDependentOperations).append(" / ").
+                append("mean = ").append(meanInterleaveForDependentOperations).append(" / ").
+                append("max = ").append(maxInterleaveForDependentOperations).append("\n");
         sb.append("  ------------------------------------------------------\n");
         sb.append("  BY OPERATION TYPE\n");
         sb.append("  ------------------------------------------------------\n");
@@ -195,5 +230,20 @@ public class WorkloadStatistics {
         }
         sb.append("********************************************************");
         return sb.toString();
+    }
+
+    private List<String> toSortedClassNames(Iterable<Class> classes) {
+        List<String> classNames = Lists.newArrayList(
+                Iterables.transform(
+                        classes,
+                        new Function<Class, String>() {
+                            @Override
+                            public String apply(Class aClass) {
+                                return aClass.getSimpleName();
+                            }
+                        })
+        );
+        Collections.sort(classNames);
+        return classNames;
     }
 }

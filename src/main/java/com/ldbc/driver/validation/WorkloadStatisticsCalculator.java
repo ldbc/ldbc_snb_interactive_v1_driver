@@ -63,6 +63,7 @@ public class WorkloadStatisticsCalculator {
 
             @Override
             public Operation<?> apply(Operation<?> operation) {
+                dependencyOperationTypes.add(operation.getClass());
                 if (null == prevDependency) {
                     prevDependency = operation.scheduledStartTime();
                 } else {
