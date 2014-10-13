@@ -2,12 +2,8 @@ package com.ldbc.driver.workloads.ldbc.snb.interactive;
 
 import com.google.common.base.Function;
 import com.google.common.base.Predicate;
-import com.google.common.collect.Iterables;
-import com.google.common.collect.Iterators;
-import com.google.common.collect.Lists;
-import com.google.common.collect.Sets;
+import com.google.common.collect.*;
 import com.ldbc.driver.*;
-import com.ldbc.driver.control.ConsoleAndFileDriverConfiguration;
 import com.ldbc.driver.generator.GeneratorFactory;
 import com.ldbc.driver.temporal.Duration;
 import com.ldbc.driver.temporal.Time;
@@ -26,261 +22,8 @@ import java.util.*;
 import static com.ldbc.driver.generator.CsvEventStreamReader.EventReturnPolicy;
 
 public class LdbcSnbInteractiveWorkload extends Workload {
-    public static Map<String, String> defaultConfig() {
-        Map<String, String> params = new HashMap<>();
-        // General Driver parameters
-        params.put(ConsoleAndFileDriverConfiguration.OPERATION_COUNT_ARG, "1000");
-        params.put(ConsoleAndFileDriverConfiguration.WORKLOAD_ARG, LdbcSnbInteractiveWorkload.class.getName());
-        // LDBC Interactive Workload-specific parameters
-        // reads: set frequency
-        params.put(LdbcSnbInteractiveWorkload.READ_OPERATION_1_FREQUENCY_KEY, "205");
-        params.put(LdbcSnbInteractiveWorkload.READ_OPERATION_2_FREQUENCY_KEY, "406");
-        params.put(LdbcSnbInteractiveWorkload.READ_OPERATION_3_FREQUENCY_KEY, "42");
-        params.put(LdbcSnbInteractiveWorkload.READ_OPERATION_4_FREQUENCY_KEY, "6271");
-        params.put(LdbcSnbInteractiveWorkload.READ_OPERATION_5_FREQUENCY_KEY, "179");
-        params.put(LdbcSnbInteractiveWorkload.READ_OPERATION_6_FREQUENCY_KEY, "18");
-        params.put(LdbcSnbInteractiveWorkload.READ_OPERATION_7_FREQUENCY_KEY, "9235");
-        params.put(LdbcSnbInteractiveWorkload.READ_OPERATION_8_FREQUENCY_KEY, "30445");
-        params.put(LdbcSnbInteractiveWorkload.READ_OPERATION_9_FREQUENCY_KEY, "19");
-        params.put(LdbcSnbInteractiveWorkload.READ_OPERATION_10_FREQUENCY_KEY, "45");
-        params.put(LdbcSnbInteractiveWorkload.READ_OPERATION_11_FREQUENCY_KEY, "3069");
-        params.put(LdbcSnbInteractiveWorkload.READ_OPERATION_12_FREQUENCY_KEY, "155");
-        params.put(LdbcSnbInteractiveWorkload.READ_OPERATION_13_FREQUENCY_KEY, "204");
-        params.put(LdbcSnbInteractiveWorkload.READ_OPERATION_14_FREQUENCY_KEY, "109");
-        params.put(LdbcSnbInteractiveWorkload.READ_OPERATION_1_ENABLE_KEY, "true");
-        params.put(LdbcSnbInteractiveWorkload.READ_OPERATION_2_ENABLE_KEY, "true");
-        params.put(LdbcSnbInteractiveWorkload.READ_OPERATION_3_ENABLE_KEY, "true");
-        params.put(LdbcSnbInteractiveWorkload.READ_OPERATION_4_ENABLE_KEY, "true");
-        params.put(LdbcSnbInteractiveWorkload.READ_OPERATION_5_ENABLE_KEY, "true");
-        params.put(LdbcSnbInteractiveWorkload.READ_OPERATION_6_ENABLE_KEY, "true");
-        params.put(LdbcSnbInteractiveWorkload.READ_OPERATION_7_ENABLE_KEY, "true");
-        params.put(LdbcSnbInteractiveWorkload.READ_OPERATION_8_ENABLE_KEY, "true");
-        params.put(LdbcSnbInteractiveWorkload.READ_OPERATION_9_ENABLE_KEY, "true");
-        params.put(LdbcSnbInteractiveWorkload.READ_OPERATION_10_ENABLE_KEY, "true");
-        params.put(LdbcSnbInteractiveWorkload.READ_OPERATION_11_ENABLE_KEY, "true");
-        params.put(LdbcSnbInteractiveWorkload.READ_OPERATION_12_ENABLE_KEY, "true");
-        params.put(LdbcSnbInteractiveWorkload.READ_OPERATION_13_ENABLE_KEY, "true");
-        params.put(LdbcSnbInteractiveWorkload.READ_OPERATION_14_ENABLE_KEY, "true");
-        // writes
-        params.put(LdbcSnbInteractiveWorkload.WRITE_OPERATION_1_ENABLE_KEY, "true");
-        params.put(LdbcSnbInteractiveWorkload.WRITE_OPERATION_2_ENABLE_KEY, "true");
-        params.put(LdbcSnbInteractiveWorkload.WRITE_OPERATION_3_ENABLE_KEY, "true");
-        params.put(LdbcSnbInteractiveWorkload.WRITE_OPERATION_4_ENABLE_KEY, "true");
-        params.put(LdbcSnbInteractiveWorkload.WRITE_OPERATION_5_ENABLE_KEY, "true");
-        params.put(LdbcSnbInteractiveWorkload.WRITE_OPERATION_6_ENABLE_KEY, "true");
-        params.put(LdbcSnbInteractiveWorkload.WRITE_OPERATION_7_ENABLE_KEY, "true");
-        params.put(LdbcSnbInteractiveWorkload.WRITE_OPERATION_8_ENABLE_KEY, "true");
-        return ConsoleAndFileDriverConfiguration.convertLongKeysToShortKeys(params);
-    }
-
-    public static Map<String, String> defaultReadOnlyConfig() {
-        Map<String, String> params = defaultConfig();
-        params.put(LdbcSnbInteractiveWorkload.WRITE_OPERATION_1_ENABLE_KEY, "false");
-        params.put(LdbcSnbInteractiveWorkload.WRITE_OPERATION_2_ENABLE_KEY, "false");
-        params.put(LdbcSnbInteractiveWorkload.WRITE_OPERATION_3_ENABLE_KEY, "false");
-        params.put(LdbcSnbInteractiveWorkload.WRITE_OPERATION_4_ENABLE_KEY, "false");
-        params.put(LdbcSnbInteractiveWorkload.WRITE_OPERATION_5_ENABLE_KEY, "false");
-        params.put(LdbcSnbInteractiveWorkload.WRITE_OPERATION_6_ENABLE_KEY, "false");
-        params.put(LdbcSnbInteractiveWorkload.WRITE_OPERATION_7_ENABLE_KEY, "false");
-        params.put(LdbcSnbInteractiveWorkload.WRITE_OPERATION_8_ENABLE_KEY, "false");
-        return ConsoleAndFileDriverConfiguration.convertLongKeysToShortKeys(params);
-    }
-
-    public static Map<String, String> defaultWriteOnlyConfig() {
-        Map<String, String> params = defaultConfig();
-        params.put(LdbcSnbInteractiveWorkload.READ_OPERATION_1_ENABLE_KEY, "false");
-        params.put(LdbcSnbInteractiveWorkload.READ_OPERATION_2_ENABLE_KEY, "false");
-        params.put(LdbcSnbInteractiveWorkload.READ_OPERATION_3_ENABLE_KEY, "false");
-        params.put(LdbcSnbInteractiveWorkload.READ_OPERATION_4_ENABLE_KEY, "false");
-        params.put(LdbcSnbInteractiveWorkload.READ_OPERATION_5_ENABLE_KEY, "false");
-        params.put(LdbcSnbInteractiveWorkload.READ_OPERATION_6_ENABLE_KEY, "false");
-        params.put(LdbcSnbInteractiveWorkload.READ_OPERATION_7_ENABLE_KEY, "false");
-        params.put(LdbcSnbInteractiveWorkload.READ_OPERATION_8_ENABLE_KEY, "false");
-        params.put(LdbcSnbInteractiveWorkload.READ_OPERATION_9_ENABLE_KEY, "false");
-        params.put(LdbcSnbInteractiveWorkload.READ_OPERATION_10_ENABLE_KEY, "false");
-        params.put(LdbcSnbInteractiveWorkload.READ_OPERATION_11_ENABLE_KEY, "false");
-        params.put(LdbcSnbInteractiveWorkload.READ_OPERATION_12_ENABLE_KEY, "false");
-        params.put(LdbcSnbInteractiveWorkload.READ_OPERATION_13_ENABLE_KEY, "false");
-        params.put(LdbcSnbInteractiveWorkload.READ_OPERATION_14_ENABLE_KEY, "false");
-        return ConsoleAndFileDriverConfiguration.convertLongKeysToShortKeys(params);
-    }
-
-    public final static String LDBC_SNB_INTERACTIVE_PARAM_NAME_PREFIX = "ldbc.snb.interactive.";
-    public final static String DATA_DIRECTORY = LDBC_SNB_INTERACTIVE_PARAM_NAME_PREFIX + "data_dir";
-    public final static String PARAMETERS_DIRECTORY = LDBC_SNB_INTERACTIVE_PARAM_NAME_PREFIX + "parameters_dir";
-    private final static String LDBC_INTERACTIVE_PACKAGE_PREFIX = removeSuffix(LdbcQuery1.class.getName(), LdbcQuery1.class.getSimpleName());
-
-    /*
-     * Operation Interleave
-     */
-    private final static String INTERLEAVE_SUFFIX = "_interleave";
-    public final static String READ_OPERATION_1_INTERLEAVE_KEY = LDBC_SNB_INTERACTIVE_PARAM_NAME_PREFIX + LdbcQuery1.class.getSimpleName() + INTERLEAVE_SUFFIX;
-    public final static String READ_OPERATION_2_INTERLEAVE_KEY = LDBC_SNB_INTERACTIVE_PARAM_NAME_PREFIX + LdbcQuery2.class.getSimpleName() + INTERLEAVE_SUFFIX;
-    public final static String READ_OPERATION_3_INTERLEAVE_KEY = LDBC_SNB_INTERACTIVE_PARAM_NAME_PREFIX + LdbcQuery3.class.getSimpleName() + INTERLEAVE_SUFFIX;
-    public final static String READ_OPERATION_4_INTERLEAVE_KEY = LDBC_SNB_INTERACTIVE_PARAM_NAME_PREFIX + LdbcQuery4.class.getSimpleName() + INTERLEAVE_SUFFIX;
-    public final static String READ_OPERATION_5_INTERLEAVE_KEY = LDBC_SNB_INTERACTIVE_PARAM_NAME_PREFIX + LdbcQuery5.class.getSimpleName() + INTERLEAVE_SUFFIX;
-    public final static String READ_OPERATION_6_INTERLEAVE_KEY = LDBC_SNB_INTERACTIVE_PARAM_NAME_PREFIX + LdbcQuery6.class.getSimpleName() + INTERLEAVE_SUFFIX;
-    public final static String READ_OPERATION_7_INTERLEAVE_KEY = LDBC_SNB_INTERACTIVE_PARAM_NAME_PREFIX + LdbcQuery7.class.getSimpleName() + INTERLEAVE_SUFFIX;
-    public final static String READ_OPERATION_8_INTERLEAVE_KEY = LDBC_SNB_INTERACTIVE_PARAM_NAME_PREFIX + LdbcQuery8.class.getSimpleName() + INTERLEAVE_SUFFIX;
-    public final static String READ_OPERATION_9_INTERLEAVE_KEY = LDBC_SNB_INTERACTIVE_PARAM_NAME_PREFIX + LdbcQuery9.class.getSimpleName() + INTERLEAVE_SUFFIX;
-    public final static String READ_OPERATION_10_INTERLEAVE_KEY = LDBC_SNB_INTERACTIVE_PARAM_NAME_PREFIX + LdbcQuery10.class.getSimpleName() + INTERLEAVE_SUFFIX;
-    public final static String READ_OPERATION_11_INTERLEAVE_KEY = LDBC_SNB_INTERACTIVE_PARAM_NAME_PREFIX + LdbcQuery11.class.getSimpleName() + INTERLEAVE_SUFFIX;
-    public final static String READ_OPERATION_12_INTERLEAVE_KEY = LDBC_SNB_INTERACTIVE_PARAM_NAME_PREFIX + LdbcQuery12.class.getSimpleName() + INTERLEAVE_SUFFIX;
-    public final static String READ_OPERATION_13_INTERLEAVE_KEY = LDBC_SNB_INTERACTIVE_PARAM_NAME_PREFIX + LdbcQuery13.class.getSimpleName() + INTERLEAVE_SUFFIX;
-    public final static String READ_OPERATION_14_INTERLEAVE_KEY = LDBC_SNB_INTERACTIVE_PARAM_NAME_PREFIX + LdbcQuery14.class.getSimpleName() + INTERLEAVE_SUFFIX;
-    public final static List<String> READ_OPERATION_INTERLEAVE_KEYS = Lists.newArrayList(
-            READ_OPERATION_1_INTERLEAVE_KEY,
-            READ_OPERATION_2_INTERLEAVE_KEY,
-            READ_OPERATION_3_INTERLEAVE_KEY,
-            READ_OPERATION_4_INTERLEAVE_KEY,
-            READ_OPERATION_5_INTERLEAVE_KEY,
-            READ_OPERATION_6_INTERLEAVE_KEY,
-            READ_OPERATION_7_INTERLEAVE_KEY,
-            READ_OPERATION_8_INTERLEAVE_KEY,
-            READ_OPERATION_9_INTERLEAVE_KEY,
-            READ_OPERATION_10_INTERLEAVE_KEY,
-            READ_OPERATION_11_INTERLEAVE_KEY,
-            READ_OPERATION_12_INTERLEAVE_KEY,
-            READ_OPERATION_13_INTERLEAVE_KEY,
-            READ_OPERATION_14_INTERLEAVE_KEY);
-
-    /*
-     * Operation frequency
-     */
-    private final static String FREQUENCY_SUFFIX = "_freq";
-    public final static String READ_OPERATION_1_FREQUENCY_KEY = LDBC_SNB_INTERACTIVE_PARAM_NAME_PREFIX + LdbcQuery1.class.getSimpleName() + FREQUENCY_SUFFIX;
-    public final static String READ_OPERATION_2_FREQUENCY_KEY = LDBC_SNB_INTERACTIVE_PARAM_NAME_PREFIX + LdbcQuery2.class.getSimpleName() + FREQUENCY_SUFFIX;
-    public final static String READ_OPERATION_3_FREQUENCY_KEY = LDBC_SNB_INTERACTIVE_PARAM_NAME_PREFIX + LdbcQuery3.class.getSimpleName() + FREQUENCY_SUFFIX;
-    public final static String READ_OPERATION_4_FREQUENCY_KEY = LDBC_SNB_INTERACTIVE_PARAM_NAME_PREFIX + LdbcQuery4.class.getSimpleName() + FREQUENCY_SUFFIX;
-    public final static String READ_OPERATION_5_FREQUENCY_KEY = LDBC_SNB_INTERACTIVE_PARAM_NAME_PREFIX + LdbcQuery5.class.getSimpleName() + FREQUENCY_SUFFIX;
-    public final static String READ_OPERATION_6_FREQUENCY_KEY = LDBC_SNB_INTERACTIVE_PARAM_NAME_PREFIX + LdbcQuery6.class.getSimpleName() + FREQUENCY_SUFFIX;
-    public final static String READ_OPERATION_7_FREQUENCY_KEY = LDBC_SNB_INTERACTIVE_PARAM_NAME_PREFIX + LdbcQuery7.class.getSimpleName() + FREQUENCY_SUFFIX;
-    public final static String READ_OPERATION_8_FREQUENCY_KEY = LDBC_SNB_INTERACTIVE_PARAM_NAME_PREFIX + LdbcQuery8.class.getSimpleName() + FREQUENCY_SUFFIX;
-    public final static String READ_OPERATION_9_FREQUENCY_KEY = LDBC_SNB_INTERACTIVE_PARAM_NAME_PREFIX + LdbcQuery9.class.getSimpleName() + FREQUENCY_SUFFIX;
-    public final static String READ_OPERATION_10_FREQUENCY_KEY = LDBC_SNB_INTERACTIVE_PARAM_NAME_PREFIX + LdbcQuery10.class.getSimpleName() + FREQUENCY_SUFFIX;
-    public final static String READ_OPERATION_11_FREQUENCY_KEY = LDBC_SNB_INTERACTIVE_PARAM_NAME_PREFIX + LdbcQuery11.class.getSimpleName() + FREQUENCY_SUFFIX;
-    public final static String READ_OPERATION_12_FREQUENCY_KEY = LDBC_SNB_INTERACTIVE_PARAM_NAME_PREFIX + LdbcQuery12.class.getSimpleName() + FREQUENCY_SUFFIX;
-    public final static String READ_OPERATION_13_FREQUENCY_KEY = LDBC_SNB_INTERACTIVE_PARAM_NAME_PREFIX + LdbcQuery13.class.getSimpleName() + FREQUENCY_SUFFIX;
-    public final static String READ_OPERATION_14_FREQUENCY_KEY = LDBC_SNB_INTERACTIVE_PARAM_NAME_PREFIX + LdbcQuery14.class.getSimpleName() + FREQUENCY_SUFFIX;
-    public final static List<String> READ_OPERATION_FREQUENCY_KEYS = Lists.newArrayList(
-            READ_OPERATION_1_FREQUENCY_KEY,
-            READ_OPERATION_2_FREQUENCY_KEY,
-            READ_OPERATION_3_FREQUENCY_KEY,
-            READ_OPERATION_4_FREQUENCY_KEY,
-            READ_OPERATION_5_FREQUENCY_KEY,
-            READ_OPERATION_6_FREQUENCY_KEY,
-            READ_OPERATION_7_FREQUENCY_KEY,
-            READ_OPERATION_8_FREQUENCY_KEY,
-            READ_OPERATION_9_FREQUENCY_KEY,
-            READ_OPERATION_10_FREQUENCY_KEY,
-            READ_OPERATION_11_FREQUENCY_KEY,
-            READ_OPERATION_12_FREQUENCY_KEY,
-            READ_OPERATION_13_FREQUENCY_KEY,
-            READ_OPERATION_14_FREQUENCY_KEY
-    );
-
-
-    /*
-     * Average distance between updates in simulation time
-     */
-    public final static String UPDATE_INTERLEAVE = "update_interleave";
-    // Default value in case there is no update stream
-    public final static String DEFAULT_UPDATE_INTERLEAVE = "1";
-
-    /*
-     * Operation Enable
-     */
-    private final static String ENABLE_SUFFIX = "_enable";
-    public final static String READ_OPERATION_1_ENABLE_KEY = LDBC_SNB_INTERACTIVE_PARAM_NAME_PREFIX + LdbcQuery1.class.getSimpleName() + ENABLE_SUFFIX;
-    public final static String READ_OPERATION_2_ENABLE_KEY = LDBC_SNB_INTERACTIVE_PARAM_NAME_PREFIX + LdbcQuery2.class.getSimpleName() + ENABLE_SUFFIX;
-    public final static String READ_OPERATION_3_ENABLE_KEY = LDBC_SNB_INTERACTIVE_PARAM_NAME_PREFIX + LdbcQuery3.class.getSimpleName() + ENABLE_SUFFIX;
-    public final static String READ_OPERATION_4_ENABLE_KEY = LDBC_SNB_INTERACTIVE_PARAM_NAME_PREFIX + LdbcQuery4.class.getSimpleName() + ENABLE_SUFFIX;
-    public final static String READ_OPERATION_5_ENABLE_KEY = LDBC_SNB_INTERACTIVE_PARAM_NAME_PREFIX + LdbcQuery5.class.getSimpleName() + ENABLE_SUFFIX;
-    public final static String READ_OPERATION_6_ENABLE_KEY = LDBC_SNB_INTERACTIVE_PARAM_NAME_PREFIX + LdbcQuery6.class.getSimpleName() + ENABLE_SUFFIX;
-    public final static String READ_OPERATION_7_ENABLE_KEY = LDBC_SNB_INTERACTIVE_PARAM_NAME_PREFIX + LdbcQuery7.class.getSimpleName() + ENABLE_SUFFIX;
-    public final static String READ_OPERATION_8_ENABLE_KEY = LDBC_SNB_INTERACTIVE_PARAM_NAME_PREFIX + LdbcQuery8.class.getSimpleName() + ENABLE_SUFFIX;
-    public final static String READ_OPERATION_9_ENABLE_KEY = LDBC_SNB_INTERACTIVE_PARAM_NAME_PREFIX + LdbcQuery9.class.getSimpleName() + ENABLE_SUFFIX;
-    public final static String READ_OPERATION_10_ENABLE_KEY = LDBC_SNB_INTERACTIVE_PARAM_NAME_PREFIX + LdbcQuery10.class.getSimpleName() + ENABLE_SUFFIX;
-    public final static String READ_OPERATION_11_ENABLE_KEY = LDBC_SNB_INTERACTIVE_PARAM_NAME_PREFIX + LdbcQuery11.class.getSimpleName() + ENABLE_SUFFIX;
-    public final static String READ_OPERATION_12_ENABLE_KEY = LDBC_SNB_INTERACTIVE_PARAM_NAME_PREFIX + LdbcQuery12.class.getSimpleName() + ENABLE_SUFFIX;
-    public final static String READ_OPERATION_13_ENABLE_KEY = LDBC_SNB_INTERACTIVE_PARAM_NAME_PREFIX + LdbcQuery13.class.getSimpleName() + ENABLE_SUFFIX;
-    public final static String READ_OPERATION_14_ENABLE_KEY = LDBC_SNB_INTERACTIVE_PARAM_NAME_PREFIX + LdbcQuery14.class.getSimpleName() + ENABLE_SUFFIX;
-    public final static List<String> READ_OPERATION_ENABLE_KEYS = Lists.newArrayList(
-            READ_OPERATION_1_ENABLE_KEY,
-            READ_OPERATION_2_ENABLE_KEY,
-            READ_OPERATION_3_ENABLE_KEY,
-            READ_OPERATION_4_ENABLE_KEY,
-            READ_OPERATION_5_ENABLE_KEY,
-            READ_OPERATION_6_ENABLE_KEY,
-            READ_OPERATION_7_ENABLE_KEY,
-            READ_OPERATION_8_ENABLE_KEY,
-            READ_OPERATION_9_ENABLE_KEY,
-            READ_OPERATION_10_ENABLE_KEY,
-            READ_OPERATION_11_ENABLE_KEY,
-            READ_OPERATION_12_ENABLE_KEY,
-            READ_OPERATION_13_ENABLE_KEY,
-            READ_OPERATION_14_ENABLE_KEY);
-    public final static String WRITE_OPERATION_1_ENABLE_KEY = LDBC_SNB_INTERACTIVE_PARAM_NAME_PREFIX + LdbcUpdate1AddPerson.class.getSimpleName() + ENABLE_SUFFIX;
-    public final static String WRITE_OPERATION_2_ENABLE_KEY = LDBC_SNB_INTERACTIVE_PARAM_NAME_PREFIX + LdbcUpdate2AddPostLike.class.getSimpleName() + ENABLE_SUFFIX;
-    public final static String WRITE_OPERATION_3_ENABLE_KEY = LDBC_SNB_INTERACTIVE_PARAM_NAME_PREFIX + LdbcUpdate3AddCommentLike.class.getSimpleName() + ENABLE_SUFFIX;
-    public final static String WRITE_OPERATION_4_ENABLE_KEY = LDBC_SNB_INTERACTIVE_PARAM_NAME_PREFIX + LdbcUpdate4AddForum.class.getSimpleName() + ENABLE_SUFFIX;
-    public final static String WRITE_OPERATION_5_ENABLE_KEY = LDBC_SNB_INTERACTIVE_PARAM_NAME_PREFIX + LdbcUpdate5AddForumMembership.class.getSimpleName() + ENABLE_SUFFIX;
-    public final static String WRITE_OPERATION_6_ENABLE_KEY = LDBC_SNB_INTERACTIVE_PARAM_NAME_PREFIX + LdbcUpdate6AddPost.class.getSimpleName() + ENABLE_SUFFIX;
-    public final static String WRITE_OPERATION_7_ENABLE_KEY = LDBC_SNB_INTERACTIVE_PARAM_NAME_PREFIX + LdbcUpdate7AddComment.class.getSimpleName() + ENABLE_SUFFIX;
-    public final static String WRITE_OPERATION_8_ENABLE_KEY = LDBC_SNB_INTERACTIVE_PARAM_NAME_PREFIX + LdbcUpdate8AddFriendship.class.getSimpleName() + ENABLE_SUFFIX;
-    public final static List<String> WRITE_OPERATION_ENABLE_KEYS = Lists.newArrayList(
-            WRITE_OPERATION_1_ENABLE_KEY,
-            WRITE_OPERATION_2_ENABLE_KEY,
-            WRITE_OPERATION_3_ENABLE_KEY,
-            WRITE_OPERATION_4_ENABLE_KEY,
-            WRITE_OPERATION_5_ENABLE_KEY,
-            WRITE_OPERATION_6_ENABLE_KEY,
-            WRITE_OPERATION_7_ENABLE_KEY,
-            WRITE_OPERATION_8_ENABLE_KEY
-    );
-
-    /*
-     * Read Operation Parameters
-     */
-    public final static String READ_OPERATION_1_PARAMS_FILENAME = "query_1_param.txt";
-    public final static String READ_OPERATION_2_PARAMS_FILENAME = "query_2_param.txt";
-    public final static String READ_OPERATION_3_PARAMS_FILENAME = "query_3_param.txt";
-    public final static String READ_OPERATION_4_PARAMS_FILENAME = "query_4_param.txt";
-    public final static String READ_OPERATION_5_PARAMS_FILENAME = "query_5_param.txt";
-    public final static String READ_OPERATION_6_PARAMS_FILENAME = "query_6_param.txt";
-    public final static String READ_OPERATION_7_PARAMS_FILENAME = "query_7_param.txt";
-    public final static String READ_OPERATION_8_PARAMS_FILENAME = "query_8_param.txt";
-    public final static String READ_OPERATION_9_PARAMS_FILENAME = "query_9_param.txt";
-    public final static String READ_OPERATION_10_PARAMS_FILENAME = "query_10_param.txt";
-    public final static String READ_OPERATION_11_PARAMS_FILENAME = "query_11_param.txt";
-    public final static String READ_OPERATION_12_PARAMS_FILENAME = "query_12_param.txt";
-    public final static String READ_OPERATION_13_PARAMS_FILENAME = "query_13_param.txt";
-    public final static String READ_OPERATION_14_PARAMS_FILENAME = "query_14_param.txt";
-    public final static List<String> READ_OPERATION_PARAMS_FILENAMES = Lists.newArrayList(
-            READ_OPERATION_1_PARAMS_FILENAME,
-            READ_OPERATION_2_PARAMS_FILENAME,
-            READ_OPERATION_3_PARAMS_FILENAME,
-            READ_OPERATION_4_PARAMS_FILENAME,
-            READ_OPERATION_5_PARAMS_FILENAME,
-            READ_OPERATION_6_PARAMS_FILENAME,
-            READ_OPERATION_7_PARAMS_FILENAME,
-            READ_OPERATION_8_PARAMS_FILENAME,
-            READ_OPERATION_9_PARAMS_FILENAME,
-            READ_OPERATION_10_PARAMS_FILENAME,
-            READ_OPERATION_11_PARAMS_FILENAME,
-            READ_OPERATION_12_PARAMS_FILENAME,
-            READ_OPERATION_13_PARAMS_FILENAME,
-            READ_OPERATION_14_PARAMS_FILENAME
-    );
-
-    /*
-     * Write Operation Parameters
-     */
-    public final static String WRITE_OPERATIONS_FILENAME = "updateStream_0.csv";
-
-    private final static String CSV_SEPARATOR = "\\|";
-
-    private CsvFileReader writeOperationsFileReader = null;
+    private List<CsvFileReader> forumUpdateOperationsFileReaders = new ArrayList<>();
+    private List<CsvFileReader> personUpdateOperationsFileReaders = new ArrayList<>();
 
     private CsvFileReader readOperation1FileReader;
     private CsvFileReader readOperation2FileReader;
@@ -319,104 +62,125 @@ public class LdbcSnbInteractiveWorkload extends Workload {
     @Override
     public void onInit(Map<String, String> params) throws WorkloadException {
         List<String> compulsoryKeys = Lists.newArrayList(
-                PARAMETERS_DIRECTORY);
+                LdbcSnbInteractiveConfiguration.PARAMETERS_DIRECTORY);
 
-        compulsoryKeys.addAll(READ_OPERATION_ENABLE_KEYS);
-        compulsoryKeys.addAll(WRITE_OPERATION_ENABLE_KEYS);
+        compulsoryKeys.addAll(LdbcSnbInteractiveConfiguration.READ_OPERATION_ENABLE_KEYS);
+        compulsoryKeys.addAll(LdbcSnbInteractiveConfiguration.WRITE_OPERATION_ENABLE_KEYS);
 
-        Set<String> missingPropertyParameters = missingPropertiesParameters(params, compulsoryKeys);
+        Set<String> missingPropertyParameters = LdbcSnbInteractiveConfiguration.missingPropertiesParameters(params, compulsoryKeys);
         if (false == missingPropertyParameters.isEmpty())
             throw new WorkloadException(String.format("Workload could not initialize due to missing parameters: %s", missingPropertyParameters.toString()));
 
-        List<String> frequencyKeys = Lists.newArrayList(READ_OPERATION_FREQUENCY_KEYS);
-        Set<String> missingFrequencyKeys = missingPropertiesParameters(params, frequencyKeys);
+        List<String> frequencyKeys = Lists.newArrayList(LdbcSnbInteractiveConfiguration.READ_OPERATION_FREQUENCY_KEYS);
+        Set<String> missingFrequencyKeys = LdbcSnbInteractiveConfiguration.missingPropertiesParameters(params, frequencyKeys);
         if (false == missingFrequencyKeys.isEmpty()) {
             // if there are no frequencies set, there should be specified interleave times for read queries
-            List<String> interleaveKeys = Lists.newArrayList(READ_OPERATION_INTERLEAVE_KEYS);
-            Set<String> missingInterleaveKeys = missingPropertiesParameters(params, interleaveKeys);
+            List<String> interleaveKeys = Lists.newArrayList(LdbcSnbInteractiveConfiguration.READ_OPERATION_INTERLEAVE_KEYS);
+            Set<String> missingInterleaveKeys = LdbcSnbInteractiveConfiguration.missingPropertiesParameters(params, interleaveKeys);
             if (false == missingInterleaveKeys.isEmpty()) {
                 throw new WorkloadException(String.format("Workload could not initialize. One of the following groups of parameters should be set: %s or %s", missingFrequencyKeys.toString(), missingInterleaveKeys.toString()));
             }
         } else {
             // if UPDATE_INTERLEAVE is missing, set it to DEFAULT
-            Set<String> missingUpdateInterleave = missingPropertiesParameters(params, Lists.newArrayList(UPDATE_INTERLEAVE));
-            if (false == missingUpdateInterleave.isEmpty()){
-                params.put(UPDATE_INTERLEAVE, DEFAULT_UPDATE_INTERLEAVE);
+            Set<String> missingUpdateInterleave = LdbcSnbInteractiveConfiguration.missingPropertiesParameters(params, Lists.newArrayList(LdbcSnbInteractiveConfiguration.UPDATE_INTERLEAVE));
+            if (false == missingUpdateInterleave.isEmpty()) {
+                params.put(LdbcSnbInteractiveConfiguration.UPDATE_INTERLEAVE, LdbcSnbInteractiveConfiguration.DEFAULT_UPDATE_INTERLEAVE);
             }
 
             // compute interleave based on frequencies
-            LdbcSnbFrequencyConverter.convertFrequency(params);
+            params = LdbcSnbInteractiveConfiguration.convertFrequenciesToInterleaves(params);
         }
-        String dataDirPath = params.get(DATA_DIRECTORY);
-        if (null != dataDirPath) {
-            File dataDir = new File(dataDirPath);
-            if (false == dataDir.exists()) {
-                throw new WorkloadException(String.format("Data directory does not exist: %s", dataDir.getAbsolutePath()));
-            }
-            File writeOperationsFile = new File(dataDir, WRITE_OPERATIONS_FILENAME);
-            if (false == writeOperationsFile.exists()) {
-                throw new WorkloadException(String.format("Write events file does not exist: %s", writeOperationsFile.getAbsolutePath()));
-            }
+
+        Iterable<String> forumUpdateFilePaths = (params.containsKey(LdbcSnbInteractiveConfiguration.FORUM_UPDATE_FILES))
+                ?
+                LdbcSnbInteractiveConfiguration.parseFilePathsListFromConfiguration(params.get(LdbcSnbInteractiveConfiguration.FORUM_UPDATE_FILES))
+                :
+                new ArrayList<String>();
+        for (String forumUpdateFilePath : forumUpdateFilePaths) {
+            File forumUpdateFile = new File(forumUpdateFilePath);
             try {
-                writeOperationsFileReader = new CsvFileReader(writeOperationsFile, CSV_SEPARATOR);
+                CsvFileReader forumUpdateOperationsFileReader = new CsvFileReader(forumUpdateFile, LdbcSnbInteractiveConfiguration.PIPE_SEPARATOR);
+                forumUpdateOperationsFileReaders.add(forumUpdateOperationsFileReader);
             } catch (FileNotFoundException e) {
-                throw new WorkloadException("Unable to load write operation parameters file", e);
+                throw new WorkloadException("Unable to load forum update operation parameters file", e);
             }
         }
 
-        File parametersDir = new File(params.get(PARAMETERS_DIRECTORY));
+        Iterable<String> personUpdateFilePaths = (params.containsKey(LdbcSnbInteractiveConfiguration.PERSON_UPDATE_FILES))
+                ?
+                LdbcSnbInteractiveConfiguration.parseFilePathsListFromConfiguration(params.get(LdbcSnbInteractiveConfiguration.PERSON_UPDATE_FILES))
+                :
+                new ArrayList<String>();
+        for (String personUpdateFilePath : personUpdateFilePaths) {
+            File personUpdateFile = new File(personUpdateFilePath);
+            try {
+                CsvFileReader personUpdateOperationsFileReader = new CsvFileReader(personUpdateFile, LdbcSnbInteractiveConfiguration.PIPE_SEPARATOR);
+                personUpdateOperationsFileReaders.add(personUpdateOperationsFileReader);
+            } catch (FileNotFoundException e) {
+                throw new WorkloadException("Unable to load person update operation parameters file", e);
+            }
+        }
+
+        File parametersDir = new File(params.get(LdbcSnbInteractiveConfiguration.PARAMETERS_DIRECTORY));
         if (false == parametersDir.exists()) {
             throw new WorkloadException(String.format("Parameters directory does not exist: %s", parametersDir.getAbsolutePath()));
         }
-        for (String readOperationParamsFilename : READ_OPERATION_PARAMS_FILENAMES) {
+        for (String readOperationParamsFilename : LdbcSnbInteractiveConfiguration.READ_OPERATION_PARAMS_FILENAMES) {
             String readOperationParamsFullPath = parametersDir.getAbsolutePath() + "/" + readOperationParamsFilename;
             if (false == new File(readOperationParamsFullPath).exists()) {
                 throw new WorkloadException(String.format("Read operation parameters file does not exist: %s", readOperationParamsFullPath));
             }
         }
         try {
-            readOperation1FileReader = new CsvFileReader(new File(parametersDir, READ_OPERATION_1_PARAMS_FILENAME), CSV_SEPARATOR);
-            readOperation2FileReader = new CsvFileReader(new File(parametersDir, READ_OPERATION_2_PARAMS_FILENAME), CSV_SEPARATOR);
-            readOperation3FileReader = new CsvFileReader(new File(parametersDir, READ_OPERATION_3_PARAMS_FILENAME), CSV_SEPARATOR);
-            readOperation4FileReader = new CsvFileReader(new File(parametersDir, READ_OPERATION_4_PARAMS_FILENAME), CSV_SEPARATOR);
-            readOperation5FileReader = new CsvFileReader(new File(parametersDir, READ_OPERATION_5_PARAMS_FILENAME), CSV_SEPARATOR);
-            readOperation6FileReader = new CsvFileReader(new File(parametersDir, READ_OPERATION_6_PARAMS_FILENAME), CSV_SEPARATOR);
-            readOperation7FileReader = new CsvFileReader(new File(parametersDir, READ_OPERATION_7_PARAMS_FILENAME), CSV_SEPARATOR);
-            readOperation8FileReader = new CsvFileReader(new File(parametersDir, READ_OPERATION_8_PARAMS_FILENAME), CSV_SEPARATOR);
-            readOperation9FileReader = new CsvFileReader(new File(parametersDir, READ_OPERATION_9_PARAMS_FILENAME), CSV_SEPARATOR);
-            readOperation10FileReader = new CsvFileReader(new File(parametersDir, READ_OPERATION_10_PARAMS_FILENAME), CSV_SEPARATOR);
-            readOperation11FileReader = new CsvFileReader(new File(parametersDir, READ_OPERATION_11_PARAMS_FILENAME), CSV_SEPARATOR);
-            readOperation12FileReader = new CsvFileReader(new File(parametersDir, READ_OPERATION_12_PARAMS_FILENAME), CSV_SEPARATOR);
-            readOperation13FileReader = new CsvFileReader(new File(parametersDir, READ_OPERATION_13_PARAMS_FILENAME), CSV_SEPARATOR);
-            readOperation14FileReader = new CsvFileReader(new File(parametersDir, READ_OPERATION_14_PARAMS_FILENAME), CSV_SEPARATOR);
+            readOperation1FileReader = new CsvFileReader(new File(parametersDir, LdbcSnbInteractiveConfiguration.READ_OPERATION_1_PARAMS_FILENAME), LdbcSnbInteractiveConfiguration.PIPE_SEPARATOR);
+            readOperation2FileReader = new CsvFileReader(new File(parametersDir, LdbcSnbInteractiveConfiguration.READ_OPERATION_2_PARAMS_FILENAME), LdbcSnbInteractiveConfiguration.PIPE_SEPARATOR);
+            readOperation3FileReader = new CsvFileReader(new File(parametersDir, LdbcSnbInteractiveConfiguration.READ_OPERATION_3_PARAMS_FILENAME), LdbcSnbInteractiveConfiguration.PIPE_SEPARATOR);
+            readOperation4FileReader = new CsvFileReader(new File(parametersDir, LdbcSnbInteractiveConfiguration.READ_OPERATION_4_PARAMS_FILENAME), LdbcSnbInteractiveConfiguration.PIPE_SEPARATOR);
+            readOperation5FileReader = new CsvFileReader(new File(parametersDir, LdbcSnbInteractiveConfiguration.READ_OPERATION_5_PARAMS_FILENAME), LdbcSnbInteractiveConfiguration.PIPE_SEPARATOR);
+            readOperation6FileReader = new CsvFileReader(new File(parametersDir, LdbcSnbInteractiveConfiguration.READ_OPERATION_6_PARAMS_FILENAME), LdbcSnbInteractiveConfiguration.PIPE_SEPARATOR);
+            readOperation7FileReader = new CsvFileReader(new File(parametersDir, LdbcSnbInteractiveConfiguration.READ_OPERATION_7_PARAMS_FILENAME), LdbcSnbInteractiveConfiguration.PIPE_SEPARATOR);
+            readOperation8FileReader = new CsvFileReader(new File(parametersDir, LdbcSnbInteractiveConfiguration.READ_OPERATION_8_PARAMS_FILENAME), LdbcSnbInteractiveConfiguration.PIPE_SEPARATOR);
+            readOperation9FileReader = new CsvFileReader(new File(parametersDir, LdbcSnbInteractiveConfiguration.READ_OPERATION_9_PARAMS_FILENAME), LdbcSnbInteractiveConfiguration.PIPE_SEPARATOR);
+            readOperation10FileReader = new CsvFileReader(new File(parametersDir, LdbcSnbInteractiveConfiguration.READ_OPERATION_10_PARAMS_FILENAME), LdbcSnbInteractiveConfiguration.PIPE_SEPARATOR);
+            readOperation11FileReader = new CsvFileReader(new File(parametersDir, LdbcSnbInteractiveConfiguration.READ_OPERATION_11_PARAMS_FILENAME), LdbcSnbInteractiveConfiguration.PIPE_SEPARATOR);
+            readOperation12FileReader = new CsvFileReader(new File(parametersDir, LdbcSnbInteractiveConfiguration.READ_OPERATION_12_PARAMS_FILENAME), LdbcSnbInteractiveConfiguration.PIPE_SEPARATOR);
+            readOperation13FileReader = new CsvFileReader(new File(parametersDir, LdbcSnbInteractiveConfiguration.READ_OPERATION_13_PARAMS_FILENAME), LdbcSnbInteractiveConfiguration.PIPE_SEPARATOR);
+            readOperation14FileReader = new CsvFileReader(new File(parametersDir, LdbcSnbInteractiveConfiguration.READ_OPERATION_14_PARAMS_FILENAME), LdbcSnbInteractiveConfiguration.PIPE_SEPARATOR);
         } catch (FileNotFoundException e) {
             throw new WorkloadException("Unable to load one of the read operation parameters files", e);
         }
 
         try {
-            readOperation1Interleave = Duration.fromMilli(Long.parseLong(params.get(READ_OPERATION_1_INTERLEAVE_KEY)));
-            readOperation2Interleave = Duration.fromMilli(Long.parseLong(params.get(READ_OPERATION_2_INTERLEAVE_KEY)));
-            readOperation3Interleave = Duration.fromMilli(Long.parseLong(params.get(READ_OPERATION_3_INTERLEAVE_KEY)));
-            readOperation4Interleave = Duration.fromMilli(Long.parseLong(params.get(READ_OPERATION_4_INTERLEAVE_KEY)));
-            readOperation5Interleave = Duration.fromMilli(Long.parseLong(params.get(READ_OPERATION_5_INTERLEAVE_KEY)));
-            readOperation6Interleave = Duration.fromMilli(Long.parseLong(params.get(READ_OPERATION_6_INTERLEAVE_KEY)));
-            readOperation7Interleave = Duration.fromMilli(Long.parseLong(params.get(READ_OPERATION_7_INTERLEAVE_KEY)));
-            readOperation8Interleave = Duration.fromMilli(Long.parseLong(params.get(READ_OPERATION_8_INTERLEAVE_KEY)));
-            readOperation9Interleave = Duration.fromMilli(Long.parseLong(params.get(READ_OPERATION_9_INTERLEAVE_KEY)));
-            readOperation10Interleave = Duration.fromMilli(Long.parseLong(params.get(READ_OPERATION_10_INTERLEAVE_KEY)));
-            readOperation11Interleave = Duration.fromMilli(Long.parseLong(params.get(READ_OPERATION_11_INTERLEAVE_KEY)));
-            readOperation12Interleave = Duration.fromMilli(Long.parseLong(params.get(READ_OPERATION_12_INTERLEAVE_KEY)));
-            readOperation13Interleave = Duration.fromMilli(Long.parseLong(params.get(READ_OPERATION_13_INTERLEAVE_KEY)));
-            readOperation14Interleave = Duration.fromMilli(Long.parseLong(params.get(READ_OPERATION_14_INTERLEAVE_KEY)));
+            readOperation1Interleave = Duration.fromMilli(Long.parseLong(params.get(LdbcSnbInteractiveConfiguration.READ_OPERATION_1_INTERLEAVE_KEY)));
+            readOperation2Interleave = Duration.fromMilli(Long.parseLong(params.get(LdbcSnbInteractiveConfiguration.READ_OPERATION_2_INTERLEAVE_KEY)));
+            readOperation3Interleave = Duration.fromMilli(Long.parseLong(params.get(LdbcSnbInteractiveConfiguration.READ_OPERATION_3_INTERLEAVE_KEY)));
+            readOperation4Interleave = Duration.fromMilli(Long.parseLong(params.get(LdbcSnbInteractiveConfiguration.READ_OPERATION_4_INTERLEAVE_KEY)));
+            readOperation5Interleave = Duration.fromMilli(Long.parseLong(params.get(LdbcSnbInteractiveConfiguration.READ_OPERATION_5_INTERLEAVE_KEY)));
+            readOperation6Interleave = Duration.fromMilli(Long.parseLong(params.get(LdbcSnbInteractiveConfiguration.READ_OPERATION_6_INTERLEAVE_KEY)));
+            readOperation7Interleave = Duration.fromMilli(Long.parseLong(params.get(LdbcSnbInteractiveConfiguration.READ_OPERATION_7_INTERLEAVE_KEY)));
+            readOperation8Interleave = Duration.fromMilli(Long.parseLong(params.get(LdbcSnbInteractiveConfiguration.READ_OPERATION_8_INTERLEAVE_KEY)));
+            readOperation9Interleave = Duration.fromMilli(Long.parseLong(params.get(LdbcSnbInteractiveConfiguration.READ_OPERATION_9_INTERLEAVE_KEY)));
+            readOperation10Interleave = Duration.fromMilli(Long.parseLong(params.get(LdbcSnbInteractiveConfiguration.READ_OPERATION_10_INTERLEAVE_KEY)));
+            readOperation11Interleave = Duration.fromMilli(Long.parseLong(params.get(LdbcSnbInteractiveConfiguration.READ_OPERATION_11_INTERLEAVE_KEY)));
+            readOperation12Interleave = Duration.fromMilli(Long.parseLong(params.get(LdbcSnbInteractiveConfiguration.READ_OPERATION_12_INTERLEAVE_KEY)));
+            readOperation13Interleave = Duration.fromMilli(Long.parseLong(params.get(LdbcSnbInteractiveConfiguration.READ_OPERATION_13_INTERLEAVE_KEY)));
+            readOperation14Interleave = Duration.fromMilli(Long.parseLong(params.get(LdbcSnbInteractiveConfiguration.READ_OPERATION_14_INTERLEAVE_KEY)));
         } catch (NumberFormatException e) {
             throw new WorkloadException("Unable to parse one of the read operation interleave values", e);
         }
 
         readOperationInterleaves = new HashMap<>();
-        for (String readOperationInterleaveKey : READ_OPERATION_INTERLEAVE_KEYS) {
+        for (String readOperationInterleaveKey : LdbcSnbInteractiveConfiguration.READ_OPERATION_INTERLEAVE_KEYS) {
             String readOperationInterleaveString = params.get(readOperationInterleaveKey);
             Duration readOperationInterleaveDuration = Duration.fromMilli(Long.parseLong(readOperationInterleaveString));
-            String readOperationClassName = LDBC_INTERACTIVE_PACKAGE_PREFIX + removePrefix(removeSuffix(readOperationInterleaveKey, INTERLEAVE_SUFFIX), LDBC_SNB_INTERACTIVE_PARAM_NAME_PREFIX);
+            String readOperationClassName =
+                    LdbcSnbInteractiveConfiguration.LDBC_INTERACTIVE_PACKAGE_PREFIX + LdbcSnbInteractiveConfiguration.removePrefix(
+                            LdbcSnbInteractiveConfiguration.removeSuffix(
+                                    readOperationInterleaveKey,
+                                    LdbcSnbInteractiveConfiguration.INTERLEAVE_SUFFIX
+                            ),
+                            LdbcSnbInteractiveConfiguration.LDBC_SNB_INTERACTIVE_PARAM_NAME_PREFIX
+                    );
             try {
                 Class readOperationClass = ClassLoaderHelper.loadClass(readOperationClassName);
                 readOperationInterleaves.put(readOperationClass, readOperationInterleaveDuration);
@@ -430,10 +194,17 @@ public class LdbcSnbInteractiveWorkload extends Workload {
         }
 
         enabledReadOperationTypes = new HashSet<>();
-        for (String readOperationEnableKey : READ_OPERATION_ENABLE_KEYS) {
+        for (String readOperationEnableKey : LdbcSnbInteractiveConfiguration.READ_OPERATION_ENABLE_KEYS) {
             String readOperationEnabledString = params.get(readOperationEnableKey);
             Boolean readOperationEnabled = Boolean.parseBoolean(readOperationEnabledString);
-            String readOperationClassName = LDBC_INTERACTIVE_PACKAGE_PREFIX + removePrefix(removeSuffix(readOperationEnableKey, ENABLE_SUFFIX), LDBC_SNB_INTERACTIVE_PARAM_NAME_PREFIX);
+            String readOperationClassName = LdbcSnbInteractiveConfiguration.LDBC_INTERACTIVE_PACKAGE_PREFIX +
+                    LdbcSnbInteractiveConfiguration.removePrefix(
+                            LdbcSnbInteractiveConfiguration.removeSuffix(
+                                    readOperationEnableKey,
+                                    LdbcSnbInteractiveConfiguration.ENABLE_SUFFIX
+                            ),
+                            LdbcSnbInteractiveConfiguration.LDBC_SNB_INTERACTIVE_PARAM_NAME_PREFIX
+                    );
             try {
                 Class readOperationClass = ClassLoaderHelper.loadClass(readOperationClassName);
                 if (readOperationEnabled) enabledReadOperationTypes.add(readOperationClass);
@@ -447,10 +218,17 @@ public class LdbcSnbInteractiveWorkload extends Workload {
         }
 
         enabledWriteOperationTypes = new HashSet<>();
-        for (String writeOperationEnableKey : WRITE_OPERATION_ENABLE_KEYS) {
+        for (String writeOperationEnableKey : LdbcSnbInteractiveConfiguration.WRITE_OPERATION_ENABLE_KEYS) {
             String writeOperationEnabledString = params.get(writeOperationEnableKey);
             Boolean writeOperationEnabled = Boolean.parseBoolean(writeOperationEnabledString);
-            String writeOperationClassName = LDBC_INTERACTIVE_PACKAGE_PREFIX + removePrefix(removeSuffix(writeOperationEnableKey, ENABLE_SUFFIX), LDBC_SNB_INTERACTIVE_PARAM_NAME_PREFIX);
+            String writeOperationClassName = LdbcSnbInteractiveConfiguration.LDBC_INTERACTIVE_PACKAGE_PREFIX +
+                    LdbcSnbInteractiveConfiguration.removePrefix(
+                            LdbcSnbInteractiveConfiguration.removeSuffix(
+                                    writeOperationEnableKey,
+                                    LdbcSnbInteractiveConfiguration.ENABLE_SUFFIX
+                            ),
+                            LdbcSnbInteractiveConfiguration.LDBC_SNB_INTERACTIVE_PARAM_NAME_PREFIX
+                    );
             try {
                 Class writeOperationClass = ClassLoaderHelper.loadClass(writeOperationClassName);
                 if (writeOperationEnabled) enabledWriteOperationTypes.add(writeOperationClass);
@@ -464,26 +242,16 @@ public class LdbcSnbInteractiveWorkload extends Workload {
         }
     }
 
-    private static String removeSuffix(String original, String suffix) {
-        return (original.indexOf(suffix) == -1) ? original : original.substring(0, original.lastIndexOf(suffix));
-    }
-
-    private static String removePrefix(String original, String prefix) {
-        return (original.indexOf(prefix) == -1) ? original : original.substring(original.lastIndexOf(prefix) + prefix.length(), original.length());
-    }
-
-    private static Set<String> missingPropertiesParameters
-            (Map<String, String> properties, Iterable<String> compulsoryPropertyKeys) {
-        Set<String> missingPropertyKeys = new HashSet<>();
-        for (String compulsoryKey : compulsoryPropertyKeys) {
-            if (null == properties.get(compulsoryKey)) missingPropertyKeys.add(compulsoryKey);
-        }
-        return missingPropertyKeys;
-    }
-
     @Override
     protected void onCleanup() throws WorkloadException {
-        if (null != writeOperationsFileReader) writeOperationsFileReader.closeReader();
+        for (CsvFileReader forumUpdateOperationsFileReader : forumUpdateOperationsFileReaders) {
+            forumUpdateOperationsFileReader.closeReader();
+        }
+
+        for (CsvFileReader personUpdateOperationsFileReader : personUpdateOperationsFileReaders) {
+            personUpdateOperationsFileReader.closeReader();
+        }
+
         readOperation1FileReader.closeReader();
         readOperation2FileReader.closeReader();
         readOperation3FileReader.closeReader();
@@ -502,241 +270,275 @@ public class LdbcSnbInteractiveWorkload extends Workload {
 
     @Override
     protected WorkloadStreams getStreams(GeneratorFactory gf) throws WorkloadException {
-        // this is an arbitrary point in time that is simply used as reference point, Client will move times to the present anyway
-        Time workloadStartTime = Time.fromMilli(0);
+        Time workloadStartTime = null;
+        WorkloadStreams ldbcSnbInteractiveWorkloadStreams = new WorkloadStreams();
+
+        /* *******
+         * *******
+         * *******
+         *  WRITES
+         * *******
+         * *******
+         * *******/
+
+        Set<Class<? extends Operation<?>>> dependentAsynchronousOperationTypes = Sets.<Class<? extends Operation<?>>>newHashSet(
+                LdbcUpdate1AddPerson.class,
+                LdbcUpdate8AddFriendship.class
+        );
+        List<Iterator<?>> asynchronousDependencyStreamsList = new ArrayList<>();
+        List<Iterator<?>> asynchronousNonDependencyStreamsList = new ArrayList<>();
+
+        /*
+         * Create forum write operation streams
+         */
+        for (CsvFileReader forumUpdateOperationsFileReader : forumUpdateOperationsFileReaders) {
+            PeekingIterator<Operation<?>> unfilteredForumUpdateOperations = Iterators.peekingIterator(
+                    new WriteEventStreamReader(forumUpdateOperationsFileReader, EventReturnPolicy.AT_LEAST_ONE_MATCH)
+            );
+            try {
+                if (null == workloadStartTime || unfilteredForumUpdateOperations.peek().scheduledStartTime().lt(workloadStartTime)) {
+                    workloadStartTime = unfilteredForumUpdateOperations.peek().scheduledStartTime();
+                }
+            } catch (NoSuchElementException e) {
+                // do nothing, exception just means that stream was empty
+            }
+
+            // Filter Write Operations
+            Predicate<Operation<?>> enabledWriteOperationsFilter = new Predicate<Operation<?>>() {
+                @Override
+                public boolean apply(Operation<?> operation) {
+                    return enabledWriteOperationTypes.contains(operation.getClass());
+                }
+            };
+            Iterator<Operation<?>> filteredForumUpdateOperations = Iterators.filter(unfilteredForumUpdateOperations, enabledWriteOperationsFilter);
+            // TODO
+            // TODO
+            // TODO
+            // TODO this needs to be changed, if we get SafeT as input again we could set dependencyTime = scheduledStartTime - SafeT
+            // TODO
+            // TODO
+            // TODO
+            Iterator<Operation<?>> filteredForumUpdateOperationsWithDependencyTimes = gf.assignDependencyTimes(
+                    gf.constant(Time.fromMilli(0)),
+                    filteredForumUpdateOperations
+            );
+
+            Set<Class<? extends Operation<?>>> dependentForumUpdateOperationTypes = Sets.<Class<? extends Operation<?>>>newHashSet(
+                    LdbcUpdate2AddPostLike.class,
+                    LdbcUpdate3AddCommentLike.class,
+                    LdbcUpdate4AddForum.class,
+                    LdbcUpdate5AddForumMembership.class,
+                    LdbcUpdate6AddPost.class,
+                    LdbcUpdate7AddComment.class
+            );
+
+            ldbcSnbInteractiveWorkloadStreams.addBlockingStream(
+                    dependentForumUpdateOperationTypes,
+                    Collections.<Operation<?>>emptyIterator(),
+                    filteredForumUpdateOperationsWithDependencyTimes
+            );
+        }
+
+        for (CsvFileReader personUpdateOperationsFileReader : personUpdateOperationsFileReaders) {
+            PeekingIterator<Operation<?>> unfilteredPersonUpdateOperations = Iterators.peekingIterator(
+                    new WriteEventStreamReader(personUpdateOperationsFileReader, EventReturnPolicy.AT_LEAST_ONE_MATCH)
+            );
+            try {
+                if (null == workloadStartTime || unfilteredPersonUpdateOperations.peek().scheduledStartTime().lt(workloadStartTime)) {
+                    workloadStartTime = unfilteredPersonUpdateOperations.peek().scheduledStartTime();
+                }
+            } catch (NoSuchElementException e) {
+                // do nothing, exception just means that stream was empty
+            }
+
+            // Filter Write Operations
+            Predicate<Operation<?>> enabledWriteOperationsFilter = new Predicate<Operation<?>>() {
+                @Override
+                public boolean apply(Operation<?> operation) {
+                    return enabledWriteOperationTypes.contains(operation.getClass());
+                }
+            };
+            Iterator<Operation<?>> filteredPersonUpdateOperations = Iterators.filter(unfilteredPersonUpdateOperations, enabledWriteOperationsFilter);
+            // TODO
+            // TODO
+            // TODO
+            // TODO this needs to be changed, if we get SafeT as input again we could set dependencyTime = scheduledStartTime - SafeT
+            // TODO
+            // TODO
+            // TODO
+            Iterator<Operation<?>> filteredPersonUpdateOperationsWithDependencyTimes = gf.assignDependencyTimes(
+                    gf.constant(Time.fromMilli(0)),
+                    filteredPersonUpdateOperations
+            );
+
+            asynchronousDependencyStreamsList.add(filteredPersonUpdateOperationsWithDependencyTimes);
+        }
+
+        if (null == workloadStartTime) workloadStartTime = Time.fromMilli(0);
+
+        /* *******
+         * *******
+         * *******
+         *  READS
+         * *******
+         * *******
+         * *******/
 
         /*
          * Create read operation streams, with specified interleaves
          */
         Iterator<Operation<?>> operation1StreamWithoutTimes = new Query1EventStreamReader(gf.repeating(readOperation1FileReader), EventReturnPolicy.AT_LEAST_ONE_MATCH);
-        // TODO add parameter, or do in more intelligent way
-        Duration firstOperation1FromWorkloadStart = readOperation1Interleave;
-        Iterator<Time> operation1StartTimes = gf.constantIncrementTime(workloadStartTime.plus(firstOperation1FromWorkloadStart), readOperation1Interleave);
+        Iterator<Time> operation1StartTimes = gf.constantIncrementTime(workloadStartTime.plus(readOperation1Interleave), readOperation1Interleave);
         Iterator<Operation<?>> readOperation1Stream = gf.assignDependencyTimes(
                 gf.constant(workloadStartTime),
                 gf.assignStartTimes(operation1StartTimes, operation1StreamWithoutTimes)
         );
 
         Iterator<Operation<?>> operation2StreamWithoutTimes = new Query2EventStreamReader(gf.repeating(readOperation2FileReader), EventReturnPolicy.AT_LEAST_ONE_MATCH);
-        // TODO add parameter, or do in more intelligent way
-        Duration firstOperation2FromWorkloadStart = readOperation2Interleave;
-        Iterator<Time> operation2StartTimes = gf.constantIncrementTime(workloadStartTime.plus(firstOperation2FromWorkloadStart), readOperation2Interleave);
+        Iterator<Time> operation2StartTimes = gf.constantIncrementTime(workloadStartTime.plus(readOperation2Interleave), readOperation2Interleave);
         Iterator<Operation<?>> readOperation2Stream = gf.assignDependencyTimes(
                 gf.constant(workloadStartTime),
                 gf.assignStartTimes(operation2StartTimes, operation2StreamWithoutTimes)
         );
 
         Iterator<Operation<?>> operation3StreamWithoutTimes = new Query3EventStreamReader(gf.repeating(readOperation3FileReader), EventReturnPolicy.AT_LEAST_ONE_MATCH);
-        // TODO add parameter, or do in more intelligent way
-        Duration firstOperation3FromWorkloadStart = readOperation3Interleave;
-        Iterator<Time> operation3StartTimes = gf.constantIncrementTime(workloadStartTime.plus(firstOperation3FromWorkloadStart), readOperation3Interleave);
+        Iterator<Time> operation3StartTimes = gf.constantIncrementTime(workloadStartTime.plus(readOperation3Interleave), readOperation3Interleave);
         Iterator<Operation<?>> readOperation3Stream = gf.assignDependencyTimes(
                 gf.constant(workloadStartTime),
                 gf.assignStartTimes(operation3StartTimes, operation3StreamWithoutTimes)
         );
 
         Iterator<Operation<?>> operation4StreamWithoutTimes = new Query4EventStreamReader(gf.repeating(readOperation4FileReader), EventReturnPolicy.AT_LEAST_ONE_MATCH);
-        // TODO add parameter, or do in more intelligent way
-        Duration firstOperation4FromWorkloadStart = readOperation4Interleave;
-        Iterator<Time> operation4StartTimes = gf.constantIncrementTime(workloadStartTime.plus(firstOperation4FromWorkloadStart), readOperation4Interleave);
+        Iterator<Time> operation4StartTimes = gf.constantIncrementTime(workloadStartTime.plus(readOperation4Interleave), readOperation4Interleave);
         Iterator<Operation<?>> readOperation4Stream = gf.assignDependencyTimes(
                 gf.constant(workloadStartTime),
                 gf.assignStartTimes(operation4StartTimes, operation4StreamWithoutTimes)
         );
 
         Iterator<Operation<?>> operation5StreamWithoutTimes = new Query5EventStreamReader(gf.repeating(readOperation5FileReader), EventReturnPolicy.AT_LEAST_ONE_MATCH);
-        // TODO add parameter, or do in more intelligent way
-        Duration firstOperation5FromWorkloadStart = readOperation5Interleave;
-        Iterator<Time> operation5StartTimes = gf.constantIncrementTime(workloadStartTime.plus(firstOperation5FromWorkloadStart), readOperation5Interleave);
+        Iterator<Time> operation5StartTimes = gf.constantIncrementTime(workloadStartTime.plus(readOperation5Interleave), readOperation5Interleave);
         Iterator<Operation<?>> readOperation5Stream = gf.assignDependencyTimes(
                 gf.constant(workloadStartTime),
                 gf.assignStartTimes(operation5StartTimes, operation5StreamWithoutTimes)
         );
 
         Iterator<Operation<?>> operation6StreamWithoutTimes = new Query6EventStreamReader(gf.repeating(readOperation6FileReader), EventReturnPolicy.AT_LEAST_ONE_MATCH);
-        // TODO add parameter, or do in more intelligent way
-        Duration firstOperation6FromWorkloadStart = readOperation6Interleave;
-        Iterator<Time> operation6StartTimes = gf.constantIncrementTime(workloadStartTime.plus(firstOperation6FromWorkloadStart), readOperation6Interleave);
+        Iterator<Time> operation6StartTimes = gf.constantIncrementTime(workloadStartTime.plus(readOperation6Interleave), readOperation6Interleave);
         Iterator<Operation<?>> readOperation6Stream = gf.assignDependencyTimes(
                 gf.constant(workloadStartTime),
                 gf.assignStartTimes(operation6StartTimes, operation6StreamWithoutTimes)
         );
 
         Iterator<Operation<?>> operation7StreamWithoutTimes = new Query7EventStreamReader(gf.repeating(readOperation7FileReader), EventReturnPolicy.AT_LEAST_ONE_MATCH);
-        // TODO add parameter, or do in more intelligent way
-        Duration firstOperation7FromWorkloadStart = readOperation7Interleave;
-        Iterator<Time> operation7StartTimes = gf.constantIncrementTime(workloadStartTime.plus(firstOperation7FromWorkloadStart), readOperation7Interleave);
+        Iterator<Time> operation7StartTimes = gf.constantIncrementTime(workloadStartTime.plus(readOperation7Interleave), readOperation7Interleave);
         Iterator<Operation<?>> readOperation7Stream = gf.assignDependencyTimes(
                 gf.constant(workloadStartTime),
                 gf.assignStartTimes(operation7StartTimes, operation7StreamWithoutTimes)
         );
 
         Iterator<Operation<?>> operation8StreamWithoutTimes = new Query8EventStreamReader(gf.repeating(readOperation8FileReader), EventReturnPolicy.AT_LEAST_ONE_MATCH);
-        // TODO add parameter, or do in more intelligent way
-        Duration firstOperation8FromWorkloadStart = readOperation8Interleave;
-        Iterator<Time> operation8StartTimes = gf.constantIncrementTime(workloadStartTime.plus(firstOperation8FromWorkloadStart), readOperation8Interleave);
+        Iterator<Time> operation8StartTimes = gf.constantIncrementTime(workloadStartTime.plus(readOperation8Interleave), readOperation8Interleave);
         Iterator<Operation<?>> readOperation8Stream = gf.assignDependencyTimes(
                 gf.constant(workloadStartTime),
                 gf.assignStartTimes(operation8StartTimes, operation8StreamWithoutTimes)
         );
 
         Iterator<Operation<?>> operation9StreamWithoutTimes = new Query9EventStreamReader(gf.repeating(readOperation9FileReader), EventReturnPolicy.AT_LEAST_ONE_MATCH);
-        // TODO add parameter, or do in more intelligent way
-        Duration firstOperation9FromWorkloadStart = readOperation9Interleave;
-        Iterator<Time> operation9StartTimes = gf.constantIncrementTime(workloadStartTime.plus(firstOperation9FromWorkloadStart), readOperation9Interleave);
+        Iterator<Time> operation9StartTimes = gf.constantIncrementTime(workloadStartTime.plus(readOperation9Interleave), readOperation9Interleave);
         Iterator<Operation<?>> readOperation9Stream = gf.assignDependencyTimes(
                 gf.constant(workloadStartTime),
                 gf.assignStartTimes(operation9StartTimes, operation9StreamWithoutTimes)
         );
 
         Iterator<Operation<?>> operation10StreamWithoutTimes = new Query10EventStreamReader(gf.repeating(readOperation10FileReader), EventReturnPolicy.AT_LEAST_ONE_MATCH);
-        // TODO add parameter, or do in more intelligent way
-        Duration firstOperation10FromWorkloadStart = readOperation10Interleave;
-        Iterator<Time> operation10StartTimes = gf.constantIncrementTime(workloadStartTime.plus(firstOperation10FromWorkloadStart), readOperation10Interleave);
+        Iterator<Time> operation10StartTimes = gf.constantIncrementTime(workloadStartTime.plus(readOperation10Interleave), readOperation10Interleave);
         Iterator<Operation<?>> readOperation10Stream = gf.assignDependencyTimes(
                 gf.constant(workloadStartTime),
                 gf.assignStartTimes(operation10StartTimes, operation10StreamWithoutTimes)
         );
 
         Iterator<Operation<?>> operation11StreamWithoutTimes = new Query11EventStreamReader(gf.repeating(readOperation11FileReader), EventReturnPolicy.AT_LEAST_ONE_MATCH);
-        // TODO add parameter, or do in more intelligent way
-        Duration firstOperation11FromWorkloadStart = readOperation11Interleave;
-        Iterator<Time> operation11StartTimes = gf.constantIncrementTime(workloadStartTime.plus(firstOperation11FromWorkloadStart), readOperation11Interleave);
+        Iterator<Time> operation11StartTimes = gf.constantIncrementTime(workloadStartTime.plus(readOperation11Interleave), readOperation11Interleave);
         Iterator<Operation<?>> readOperation11Stream = gf.assignDependencyTimes(
                 gf.constant(workloadStartTime),
                 gf.assignStartTimes(operation11StartTimes, operation11StreamWithoutTimes)
         );
 
         Iterator<Operation<?>> operation12StreamWithoutTimes = new Query12EventStreamReader(gf.repeating(readOperation12FileReader), EventReturnPolicy.AT_LEAST_ONE_MATCH);
-        // TODO add parameter, or do in more intelligent way
-        Duration firstOperation12FromWorkloadStart = readOperation12Interleave;
-        Iterator<Time> operation12StartTimes = gf.constantIncrementTime(workloadStartTime.plus(firstOperation12FromWorkloadStart), readOperation12Interleave);
+        Iterator<Time> operation12StartTimes = gf.constantIncrementTime(workloadStartTime.plus(readOperation12Interleave), readOperation12Interleave);
         Iterator<Operation<?>> readOperation12Stream = gf.assignDependencyTimes(
                 gf.constant(workloadStartTime),
                 gf.assignStartTimes(operation12StartTimes, operation12StreamWithoutTimes)
         );
 
         Iterator<Operation<?>> operation13StreamWithoutTimes = new Query13EventStreamReader(gf.repeating(readOperation13FileReader), EventReturnPolicy.AT_LEAST_ONE_MATCH);
-        // TODO add parameter, or do in more intelligent way
-        Duration firstOperation13FromWorkloadStart = readOperation13Interleave;
-        Iterator<Time> operation13StartTimes = gf.constantIncrementTime(workloadStartTime.plus(firstOperation13FromWorkloadStart), readOperation13Interleave);
+        Iterator<Time> operation13StartTimes = gf.constantIncrementTime(workloadStartTime.plus(readOperation13Interleave), readOperation13Interleave);
         Iterator<Operation<?>> readOperation13Stream = gf.assignDependencyTimes(
                 gf.constant(workloadStartTime),
                 gf.assignStartTimes(operation13StartTimes, operation13StreamWithoutTimes)
         );
 
         Iterator<Operation<?>> operation14StreamWithoutTimes = new Query14EventStreamReader(gf.repeating(readOperation14FileReader), EventReturnPolicy.AT_LEAST_ONE_MATCH);
-        // TODO add parameter, or do in more intelligent way
-        Duration firstOperation14FromWorkloadStart = readOperation14Interleave;
-        Iterator<Time> operation14StartTimes = gf.constantIncrementTime(workloadStartTime.plus(firstOperation14FromWorkloadStart), readOperation14Interleave);
+        Iterator<Time> operation14StartTimes = gf.constantIncrementTime(workloadStartTime.plus(readOperation14Interleave), readOperation14Interleave);
         Iterator<Operation<?>> readOperation14Stream = gf.assignDependencyTimes(
                 gf.constant(workloadStartTime),
                 gf.assignStartTimes(operation14StartTimes, operation14StreamWithoutTimes)
         );
 
-        /*
-         * Create write operations stream
-         */
-        Iterator<Operation<?>> unfilteredWriteOperationStream;
-        if (null == writeOperationsFileReader)
-            unfilteredWriteOperationStream = Lists.<Operation<?>>newArrayList().iterator();
-        else
-            unfilteredWriteOperationStream = new WriteEventStreamReader(writeOperationsFileReader, EventReturnPolicy.AT_LEAST_ONE_MATCH);
-
-        /*
-         * Filter Write Operations
-         */
-        Predicate<Operation<?>> enabledWriteOperationsFilter = new Predicate<Operation<?>>() {
-            @Override
-            public boolean apply(Operation<?> operation) {
-                return enabledWriteOperationTypes.contains(operation.getClass());
-            }
-        };
-        Iterator<Operation<?>> filteredWriteOperationStream = Iterators.filter(unfilteredWriteOperationStream, enabledWriteOperationsFilter);
-
-        /*
-         * Move write operations to same start time as read operations
-         */
-        // TODO add parameter, or do in more intelligent way
-        Duration firstWriteOperationFromWorkloadStart = Duration.fromSeconds(1);
-        Iterator<Operation<?>> offsetFilteredWriteOperationStream = gf.timeOffset(
-                // assign place holder dependency times so time offset function does not complain about null values
-                gf.assignDependencyTimes(
-                        gf.constant(Time.fromMilli(0)),
-                        filteredWriteOperationStream
-                ),
-                workloadStartTime.plus(firstWriteOperationFromWorkloadStart)
-        );
-
-        /*
-         * Add Dependency Times To Dependent Write Operations
-         */
-        final Set<Class> dependencyOperationType = Sets.<Class>newHashSet(
-                LdbcUpdate1AddPerson.class,
-                LdbcUpdate8AddFriendship.class
-        );
-        Function1<Operation<?>, Boolean> isDependency = new Function1<Operation<?>, Boolean>() {
-            @Override
-            public Boolean apply(Operation<?> operation) {
-                return dependencyOperationType.contains(operation.getClass());
-            }
-        };
-        boolean canOverwriteDependencyTime = true;
-        Iterator<Operation<?>> offsetFilteredWriteOperationStreamWithDependencyTimes = gf.assignDependencyTimesEqualToLastEncounteredLowerDependencyStartTime(
-                offsetFilteredWriteOperationStream,
-                isDependency,
-                workloadStartTime,
-                canOverwriteDependencyTime);
-
-        List<Iterator<Operation<?>>> streamsOfAllEnabledOperationTypes = new ArrayList<>();
         if (enabledReadOperationTypes.contains(LdbcQuery1.class))
-            streamsOfAllEnabledOperationTypes.add(readOperation1Stream);
+            asynchronousNonDependencyStreamsList.add(readOperation1Stream);
         if (enabledReadOperationTypes.contains(LdbcQuery2.class))
-            streamsOfAllEnabledOperationTypes.add(readOperation2Stream);
+            asynchronousNonDependencyStreamsList.add(readOperation2Stream);
         if (enabledReadOperationTypes.contains(LdbcQuery3.class))
-            streamsOfAllEnabledOperationTypes.add(readOperation3Stream);
+            asynchronousNonDependencyStreamsList.add(readOperation3Stream);
         if (enabledReadOperationTypes.contains(LdbcQuery4.class))
-            streamsOfAllEnabledOperationTypes.add(readOperation4Stream);
+            asynchronousNonDependencyStreamsList.add(readOperation4Stream);
         if (enabledReadOperationTypes.contains(LdbcQuery5.class))
-            streamsOfAllEnabledOperationTypes.add(readOperation5Stream);
+            asynchronousNonDependencyStreamsList.add(readOperation5Stream);
         if (enabledReadOperationTypes.contains(LdbcQuery6.class))
-            streamsOfAllEnabledOperationTypes.add(readOperation6Stream);
+            asynchronousNonDependencyStreamsList.add(readOperation6Stream);
         if (enabledReadOperationTypes.contains(LdbcQuery7.class))
-            streamsOfAllEnabledOperationTypes.add(readOperation7Stream);
+            asynchronousNonDependencyStreamsList.add(readOperation7Stream);
         if (enabledReadOperationTypes.contains(LdbcQuery8.class))
-            streamsOfAllEnabledOperationTypes.add(readOperation8Stream);
+            asynchronousNonDependencyStreamsList.add(readOperation8Stream);
         if (enabledReadOperationTypes.contains(LdbcQuery9.class))
-            streamsOfAllEnabledOperationTypes.add(readOperation9Stream);
+            asynchronousNonDependencyStreamsList.add(readOperation9Stream);
         if (enabledReadOperationTypes.contains(LdbcQuery10.class))
-            streamsOfAllEnabledOperationTypes.add(readOperation10Stream);
+            asynchronousNonDependencyStreamsList.add(readOperation10Stream);
         if (enabledReadOperationTypes.contains(LdbcQuery11.class))
-            streamsOfAllEnabledOperationTypes.add(readOperation11Stream);
+            asynchronousNonDependencyStreamsList.add(readOperation11Stream);
         if (enabledReadOperationTypes.contains(LdbcQuery12.class))
-            streamsOfAllEnabledOperationTypes.add(readOperation12Stream);
+            asynchronousNonDependencyStreamsList.add(readOperation12Stream);
         if (enabledReadOperationTypes.contains(LdbcQuery13.class))
-            streamsOfAllEnabledOperationTypes.add(readOperation13Stream);
+            asynchronousNonDependencyStreamsList.add(readOperation13Stream);
         if (enabledReadOperationTypes.contains(LdbcQuery14.class))
-            streamsOfAllEnabledOperationTypes.add(readOperation14Stream);
+            asynchronousNonDependencyStreamsList.add(readOperation14Stream);
 
         /*
-         * Merge all read operation streams, ordered by operation start times
+         * Merge all dependency asynchronous operation streams, ordered by operation start times
          */
-        Iterator<Operation<?>> readOperations = gf.mergeSortOperationsByStartTime(
-                streamsOfAllEnabledOperationTypes.toArray(new Iterator[streamsOfAllEnabledOperationTypes.size()])
+        Iterator<Operation<?>> asynchronousDependencyStreams = gf.mergeSortOperationsByStartTime(
+                asynchronousDependencyStreamsList.toArray(new Iterator[asynchronousDependencyStreamsList.size()])
+        );
+        /*
+         * Merge all non dependency asynchronous operation streams, ordered by operation start times
+         */
+        Iterator<Operation<?>> asynchronousNonDependencyStreams = gf.mergeSortOperationsByStartTime(
+                asynchronousNonDependencyStreamsList.toArray(new Iterator[asynchronousNonDependencyStreamsList.size()])
         );
 
-        WorkloadStreams ldbcSnbInteractiveWorkloadStreams = new WorkloadStreams();
-        if (false == enabledWriteOperationTypes.isEmpty()) {
-            ldbcSnbInteractiveWorkloadStreams.addBlockingStream(
-                    enabledWriteOperationTypes,
-                    offsetFilteredWriteOperationStreamWithDependencyTimes,
-                    Collections.<Operation<?>>emptyIterator()
-            );
-        }
+        /* **************
+         * **************
+         * **************
+         *  FINAL STREAMS
+         * **************
+         * **************
+         * **************/
+
         ldbcSnbInteractiveWorkloadStreams.setAsynchronousStream(
-                new HashSet<Class<? extends Operation<?>>>(),
-                Collections.<Operation<?>>emptyIterator(),
-                readOperations
+                dependentAsynchronousOperationTypes,
+                asynchronousDependencyStreams,
+                asynchronousNonDependencyStreams
         );
 
         return ldbcSnbInteractiveWorkloadStreams;

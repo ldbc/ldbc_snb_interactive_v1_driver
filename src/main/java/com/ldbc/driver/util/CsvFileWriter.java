@@ -17,12 +17,12 @@ public class CsvFileWriter {
         this.columnSeparator = columnSeparator;
     }
 
-    synchronized public void writeRows(Iterator<String[]> csvRows) throws IOException {
+    public void writeRows(Iterator<String[]> csvRows) throws IOException {
         while (csvRows.hasNext())
             writeRow(csvRows.next());
     }
 
-    synchronized public void writeRow(String... columns) throws IOException {
+    public void writeRow(String... columns) throws IOException {
         for (int i = 0; i < columns.length - 1; i++) {
             bufferedWriter.write(columns[i]);
             bufferedWriter.write(columnSeparator);

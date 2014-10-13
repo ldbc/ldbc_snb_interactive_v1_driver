@@ -24,6 +24,7 @@ import com.ldbc.driver.temporal.TimeSource;
 import com.ldbc.driver.testutils.TestUtils;
 import com.ldbc.driver.util.CsvFileReader;
 import com.ldbc.driver.util.CsvFileWriter;
+import com.ldbc.driver.workloads.ldbc.snb.interactive.LdbcSnbInteractiveConfiguration;
 import com.ldbc.driver.workloads.ldbc.snb.interactive.LdbcSnbInteractiveWorkload;
 import com.ldbc.driver.workloads.ldbc.snb.interactive.db.DummyLdbcSnbInteractiveDb;
 import org.junit.Rule;
@@ -66,9 +67,10 @@ public class WorkloadRunnerTest {
         ConcurrentCompletionTimeService completionTimeService = null;
         ConcurrentErrorReporter errorReporter = new ConcurrentErrorReporter();
         try {
-            Map<String, String> paramsMap = LdbcSnbInteractiveWorkload.defaultReadOnlyConfig();
-            paramsMap.put(LdbcSnbInteractiveWorkload.PARAMETERS_DIRECTORY, TestUtils.getResource("/").getAbsolutePath());
-            paramsMap.put(LdbcSnbInteractiveWorkload.DATA_DIRECTORY, TestUtils.getResource("/").getAbsolutePath());
+            Map<String, String> paramsMap = LdbcSnbInteractiveConfiguration.defaultReadOnlyConfig();
+            paramsMap.put(LdbcSnbInteractiveConfiguration.PARAMETERS_DIRECTORY, TestUtils.getResource("/").getAbsolutePath());
+            List<String> forumUpdateFiles = Lists.newArrayList(TestUtils.getResource("/updateStream_0.csv").getAbsolutePath());
+            paramsMap.put(LdbcSnbInteractiveConfiguration.FORUM_UPDATE_FILES, LdbcSnbInteractiveConfiguration.serializeFilePathsListFromConfiguration(forumUpdateFiles));
             // Driver-specific parameters
             String name = null;
             String dbClassName = DummyLdbcSnbInteractiveDb.class.getName();
@@ -243,9 +245,10 @@ public class WorkloadRunnerTest {
         Workload workload = null;
         ConcurrentMetricsService metricsService = null;
         try {
-            Map<String, String> paramsMap = LdbcSnbInteractiveWorkload.defaultReadOnlyConfig();
-            paramsMap.put(LdbcSnbInteractiveWorkload.PARAMETERS_DIRECTORY, TestUtils.getResource("/").getAbsolutePath());
-            paramsMap.put(LdbcSnbInteractiveWorkload.DATA_DIRECTORY, TestUtils.getResource("/").getAbsolutePath());
+            Map<String, String> paramsMap = LdbcSnbInteractiveConfiguration.defaultReadOnlyConfig();
+            paramsMap.put(LdbcSnbInteractiveConfiguration.PARAMETERS_DIRECTORY, TestUtils.getResource("/").getAbsolutePath());
+            List<String> forumUpdateFiles = Lists.newArrayList(TestUtils.getResource("/updateStream_0.csv").getAbsolutePath());
+            paramsMap.put(LdbcSnbInteractiveConfiguration.FORUM_UPDATE_FILES, LdbcSnbInteractiveConfiguration.serializeFilePathsListFromConfiguration(forumUpdateFiles));
             // Driver-specific parameters
             String name = null;
             String dbClassName = DummyLdbcSnbInteractiveDb.class.getName();

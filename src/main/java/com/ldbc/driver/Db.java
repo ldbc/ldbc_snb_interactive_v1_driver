@@ -52,7 +52,7 @@ public abstract class Db {
         operationHandlerFactories.put(operationType, poolingOperationHandlerFactory);
     }
 
-    synchronized public final OperationHandler<?> getOperationHandler(Operation<?> operation) throws DbException {
+    public final OperationHandler<?> getOperationHandler(Operation<?> operation) throws DbException {
         OperationHandlerFactory operationHandlerFactory = operationHandlerFactories.get(operation.getClass());
         if (null == operationHandlerFactory)
             throw new DbException(String.format("No handler registered for %s", operation.getClass()));

@@ -9,7 +9,7 @@ public abstract class Generator<GENERATE_TYPE> implements Iterator<GENERATE_TYPE
     // Return null if nothing more to generate
     protected abstract GENERATE_TYPE doNext() throws GeneratorException;
 
-    public final synchronized GENERATE_TYPE next() {
+    public final GENERATE_TYPE next() {
         next = (next == null) ? doNext() : next;
         if (null == next) throw new NoSuchElementException("Generator has nothing more to generate");
         GENERATE_TYPE tempNext = next;

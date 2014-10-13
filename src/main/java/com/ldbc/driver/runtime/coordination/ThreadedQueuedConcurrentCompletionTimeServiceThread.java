@@ -11,7 +11,6 @@ import java.util.Set;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 
-@Deprecated
 public class ThreadedQueuedConcurrentCompletionTimeServiceThread extends Thread {
 
     /**

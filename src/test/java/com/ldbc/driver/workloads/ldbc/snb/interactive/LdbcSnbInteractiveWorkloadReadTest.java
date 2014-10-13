@@ -39,9 +39,9 @@ public class LdbcSnbInteractiveWorkloadReadTest {
 
     static Map<String, String> defaultSnbParamsMapWithParametersDir() {
         Map<String, String> additionalParams = new HashMap<>();
-        additionalParams.put(LdbcSnbInteractiveWorkload.PARAMETERS_DIRECTORY, TestUtils.getResource("/").getAbsolutePath());
+        additionalParams.put(LdbcSnbInteractiveConfiguration.PARAMETERS_DIRECTORY, TestUtils.getResource("/").getAbsolutePath());
         return MapUtils.mergeMaps(
-                LdbcSnbInteractiveWorkload.defaultReadOnlyConfig(),
+                LdbcSnbInteractiveConfiguration.defaultReadOnlyConfig(),
                 ConsoleAndFileDriverConfiguration.convertLongKeysToShortKeys(additionalParams),
                 true);
     }
@@ -53,7 +53,8 @@ public class LdbcSnbInteractiveWorkloadReadTest {
 
         Map<String, String> paramsMap = defaultSnbParamsMapWithParametersDir();
         // LDBC Interactive Workload-specific parameters
-        paramsMap.put(LdbcSnbInteractiveWorkload.DATA_DIRECTORY, TestUtils.getResource("/").getAbsolutePath());
+        List<String> forumUpdateFiles = Lists.newArrayList(TestUtils.getResource("/updateStream_0.csv").getAbsolutePath());
+        paramsMap.put(LdbcSnbInteractiveConfiguration.FORUM_UPDATE_FILES, LdbcSnbInteractiveConfiguration.serializeFilePathsListFromConfiguration(forumUpdateFiles));
         // Driver-specific parameters
         String name = null;
         String dbClassName = DummyLdbcSnbInteractiveDb.class.getName();
@@ -175,7 +176,7 @@ public class LdbcSnbInteractiveWorkloadReadTest {
         Map<String, String> ldbcSnbInteractiveReadTestParamsFromFile =
                 ConsoleAndFileDriverConfiguration.convertLongKeysToShortKeys(MapUtils.<String, String>propertiesToMap(ldbcSnbInteractiveReadTestParamsFromFileProperties));
 
-        Map<String, String> ldbcSnbInteractiveReadTestParams = LdbcSnbInteractiveWorkload.defaultReadOnlyConfig();
+        Map<String, String> ldbcSnbInteractiveReadTestParams = LdbcSnbInteractiveConfiguration.defaultReadOnlyConfig();
 
         // When
 
@@ -380,7 +381,8 @@ public class LdbcSnbInteractiveWorkloadReadTest {
         // Given
         Map<String, String> paramsMap = defaultSnbParamsMapWithParametersDir();
         // LDBC Interactive Workload-specific parameters
-        paramsMap.put(LdbcSnbInteractiveWorkload.DATA_DIRECTORY, TestUtils.getResource("/").getAbsolutePath());
+        List<String> forumUpdateFiles = Lists.newArrayList(TestUtils.getResource("/updateStream_0.csv").getAbsolutePath());
+        paramsMap.put(LdbcSnbInteractiveConfiguration.FORUM_UPDATE_FILES, LdbcSnbInteractiveConfiguration.serializeFilePathsListFromConfiguration(forumUpdateFiles));
         // DummyDb-specific parameters
         paramsMap.put(DummyLdbcSnbInteractiveDb.SLEEP_DURATION_MILLI_ARG, Long.toString(Duration.fromMilli(10).asMilli()));
         // Driver-specific parameters
@@ -488,20 +490,20 @@ public class LdbcSnbInteractiveWorkloadReadTest {
         Map<String, String> changedQueryMixParams = new HashMap<>();
         changedQueryMixParams.put(ConsoleAndFileDriverConfiguration.OPERATION_COUNT_ARG, "10000");
         changedQueryMixParams.put(ConsoleAndFileDriverConfiguration.DB_ARG, "this will never be used");
-        changedQueryMixParams.put(LdbcSnbInteractiveWorkload.READ_OPERATION_1_FREQUENCY_KEY, "100");
-        changedQueryMixParams.put(LdbcSnbInteractiveWorkload.READ_OPERATION_2_FREQUENCY_KEY, "200");
-        changedQueryMixParams.put(LdbcSnbInteractiveWorkload.READ_OPERATION_3_FREQUENCY_KEY, "400");
-        changedQueryMixParams.put(LdbcSnbInteractiveWorkload.READ_OPERATION_4_FREQUENCY_KEY, "800");
-        changedQueryMixParams.put(LdbcSnbInteractiveWorkload.READ_OPERATION_5_FREQUENCY_KEY, "1600");
-        changedQueryMixParams.put(LdbcSnbInteractiveWorkload.READ_OPERATION_6_FREQUENCY_KEY, "1600");
-        changedQueryMixParams.put(LdbcSnbInteractiveWorkload.READ_OPERATION_7_FREQUENCY_KEY, "800");
-        changedQueryMixParams.put(LdbcSnbInteractiveWorkload.READ_OPERATION_8_FREQUENCY_KEY, "800");
-        changedQueryMixParams.put(LdbcSnbInteractiveWorkload.READ_OPERATION_9_FREQUENCY_KEY, "400");
-        changedQueryMixParams.put(LdbcSnbInteractiveWorkload.READ_OPERATION_10_FREQUENCY_KEY, "200");
-        changedQueryMixParams.put(LdbcSnbInteractiveWorkload.READ_OPERATION_11_FREQUENCY_KEY, "200");
-        changedQueryMixParams.put(LdbcSnbInteractiveWorkload.READ_OPERATION_12_FREQUENCY_KEY, "200");
-        changedQueryMixParams.put(LdbcSnbInteractiveWorkload.READ_OPERATION_13_FREQUENCY_KEY, "100");
-        changedQueryMixParams.put(LdbcSnbInteractiveWorkload.READ_OPERATION_14_FREQUENCY_KEY, "100");
+        changedQueryMixParams.put(LdbcSnbInteractiveConfiguration.READ_OPERATION_1_FREQUENCY_KEY, "100");
+        changedQueryMixParams.put(LdbcSnbInteractiveConfiguration.READ_OPERATION_2_FREQUENCY_KEY, "200");
+        changedQueryMixParams.put(LdbcSnbInteractiveConfiguration.READ_OPERATION_3_FREQUENCY_KEY, "400");
+        changedQueryMixParams.put(LdbcSnbInteractiveConfiguration.READ_OPERATION_4_FREQUENCY_KEY, "800");
+        changedQueryMixParams.put(LdbcSnbInteractiveConfiguration.READ_OPERATION_5_FREQUENCY_KEY, "1600");
+        changedQueryMixParams.put(LdbcSnbInteractiveConfiguration.READ_OPERATION_6_FREQUENCY_KEY, "1600");
+        changedQueryMixParams.put(LdbcSnbInteractiveConfiguration.READ_OPERATION_7_FREQUENCY_KEY, "800");
+        changedQueryMixParams.put(LdbcSnbInteractiveConfiguration.READ_OPERATION_8_FREQUENCY_KEY, "800");
+        changedQueryMixParams.put(LdbcSnbInteractiveConfiguration.READ_OPERATION_9_FREQUENCY_KEY, "400");
+        changedQueryMixParams.put(LdbcSnbInteractiveConfiguration.READ_OPERATION_10_FREQUENCY_KEY, "200");
+        changedQueryMixParams.put(LdbcSnbInteractiveConfiguration.READ_OPERATION_11_FREQUENCY_KEY, "200");
+        changedQueryMixParams.put(LdbcSnbInteractiveConfiguration.READ_OPERATION_12_FREQUENCY_KEY, "200");
+        changedQueryMixParams.put(LdbcSnbInteractiveConfiguration.READ_OPERATION_13_FREQUENCY_KEY, "100");
+        changedQueryMixParams.put(LdbcSnbInteractiveConfiguration.READ_OPERATION_14_FREQUENCY_KEY, "100");
 //        changedQueryMixParams.put(LdbcSnbInteractiveWorkload.UPDATE_INTERLEAVE, "1");
 
         Map<String, String> params = MapUtils.mergeMaps(baseParams, changedQueryMixParams, true);
@@ -592,7 +594,7 @@ public class LdbcSnbInteractiveWorkloadReadTest {
         ConsoleAndFileDriverConfiguration configuration = ConsoleAndFileDriverConfiguration.fromArgs(new String[]{
                 "-" + ConsoleAndFileDriverConfiguration.RESULT_DIR_PATH_ARG, resultDirPath,
                 "-" + ConsoleAndFileDriverConfiguration.DB_ARG, DummyLdbcSnbInteractiveDb.class.getName(),
-                "-p", LdbcSnbInteractiveWorkload.PARAMETERS_DIRECTORY, TestUtils.getResource("/").getAbsolutePath(),
+                "-p", LdbcSnbInteractiveConfiguration.PARAMETERS_DIRECTORY, TestUtils.getResource("/").getAbsolutePath(),
                 "-P", ldbcSnbInteractiveTestPropertiesPath,
                 "-P", ldbcDriverTestPropertiesPath,
                 "-P", updateStreamPropertiesPath});

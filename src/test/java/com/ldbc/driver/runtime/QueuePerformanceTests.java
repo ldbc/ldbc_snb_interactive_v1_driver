@@ -1,9 +1,6 @@
 package com.ldbc.driver.runtime;
 
-import com.ldbc.driver.Operation;
-import com.ldbc.driver.SerializingMarshallingException;
-import com.ldbc.driver.Workload;
-import com.ldbc.driver.WorkloadException;
+import com.ldbc.driver.*;
 import com.ldbc.driver.control.ConsoleAndFileDriverConfiguration;
 import com.ldbc.driver.control.DriverConfiguration;
 import com.ldbc.driver.generator.GeneratorFactory;
@@ -14,6 +11,8 @@ import com.ldbc.driver.temporal.Time;
 import com.ldbc.driver.temporal.TimeSource;
 import com.ldbc.driver.testutils.TestUtils;
 import com.ldbc.driver.util.MapUtils;
+import com.ldbc.driver.util.Tuple;
+import com.ldbc.driver.workloads.ldbc.snb.interactive.LdbcSnbInteractiveConfiguration;
 import com.ldbc.driver.workloads.ldbc.snb.interactive.LdbcSnbInteractiveWorkload;
 import com.ldbc.driver.workloads.ldbc.snb.interactive.db.DummyLdbcSnbInteractiveDb;
 import org.junit.Ignore;
@@ -30,9 +29,9 @@ import static org.junit.Assert.assertThat;
 public class QueuePerformanceTests {
     static Map<String, String> defaultSnbParamsMapWithParametersDir() {
         Map<String, String> additionalParams = new HashMap<>();
-        additionalParams.put(LdbcSnbInteractiveWorkload.PARAMETERS_DIRECTORY, TestUtils.getResource("/").getAbsolutePath());
+        additionalParams.put(LdbcSnbInteractiveConfiguration.PARAMETERS_DIRECTORY, TestUtils.getResource("/").getAbsolutePath());
         return MapUtils.mergeMaps(
-                LdbcSnbInteractiveWorkload.defaultReadOnlyConfig(),
+                LdbcSnbInteractiveConfiguration.defaultReadOnlyConfig(),
                 ConsoleAndFileDriverConfiguration.convertLongKeysToShortKeys(additionalParams),
                 true);
     }
@@ -57,7 +56,6 @@ public class QueuePerformanceTests {
         // Given
         Map<String, String> paramsMap = defaultSnbParamsMapWithParametersDir();
         // LDBC Interactive Workload-specific parameters
-        paramsMap.put(LdbcSnbInteractiveWorkload.DATA_DIRECTORY, TestUtils.getResource("/").getAbsolutePath());
         // Driver-specific parameters
         String name = null;
         String dbClassName = DummyLdbcSnbInteractiveDb.class.getName();
@@ -104,22 +102,20 @@ public class QueuePerformanceTests {
                 shouldCreateResultsLog
         );
 
-        Workload workload = new LdbcSnbInteractiveWorkload();
-        workload.init(config);
-
         GeneratorFactory gf = new GeneratorFactory(new RandomDataGeneratorFactory(42L));
-        Iterator<Operation<?>> operations = workload.streams(gf).mergeSortedByStartTime(gf);
+        Tuple.Tuple2<WorkloadStreams, Workload> workloadStreamsAndWorkload = WorkloadStreams.createNewWorkloadWithLimitedWorkloadStreams(config, gf);
+        WorkloadStreams workloadStreams = workloadStreamsAndWorkload._1();
+        Workload workload = workloadStreamsAndWorkload._2();
 
-//        System.out.println("Materializing...");
-//        List operationsList = ImmutableList.copyOf(operations);
-//        operationsList.size();
-//        operations = operationsList.iterator();
+        Iterator<Operation<?>> operations = workloadStreams.mergeSortedByStartTime(gf);
+
         System.out.println("Benchmarking...");
 
 //        Duration duration = doOperationQueuePerformanceTest(operations, DefaultQueues.<Operation<?>>newBlockingBounded(1000));
         Duration duration = doOperationQueuePerformanceTest(operations, DefaultQueues.<Operation<?>>newBlockingBounded(10000));
         long opsPerSecond = Math.round(((double) config.operationCount() / duration.asNano()) * 1000000000);
         System.out.println(String.format("%s operations in %s: %s op/sec", config.operationCount(), duration, opsPerSecond));
+        workload.cleanup();
     }
 
     private Duration doOperationQueuePerformanceTest(final Iterator<Operation<?>> operations, final Queue<Operation<?>> queue) throws InterruptedException {

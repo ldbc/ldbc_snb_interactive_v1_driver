@@ -20,7 +20,6 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.atomic.AtomicReference;
 
-@Deprecated
 public class ThreadedQueuedConcurrentCompletionTimeService implements ConcurrentCompletionTimeService {
     private static final Duration SHUTDOWN_WAIT_TIMEOUT = Duration.fromSeconds(5);
 

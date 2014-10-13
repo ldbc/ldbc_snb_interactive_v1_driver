@@ -8,6 +8,7 @@ import com.ldbc.driver.control.DriverConfigurationFileTestHelper;
 import com.ldbc.driver.testutils.TestUtils;
 import com.ldbc.driver.util.CsvFileReader;
 import com.ldbc.driver.util.CsvFileWriter;
+import com.ldbc.driver.workloads.ldbc.snb.interactive.LdbcSnbInteractiveConfiguration;
 import com.ldbc.driver.workloads.ldbc.snb.interactive.LdbcSnbInteractiveWorkload;
 import com.ldbc.driver.workloads.ldbc.snb.interactive.db.DummyLdbcSnbInteractiveDb;
 import com.ldbc.driver.workloads.ldbc.snb.interactive.db.DummyLdbcSnbInteractiveOperationInstances;
@@ -37,9 +38,9 @@ public class ValidationParamsGeneratorTest {
 
         ConsoleAndFileDriverConfiguration configuration = DriverConfigurationFileTestHelper.readConfigurationFileAt(
                 DriverConfigurationFileTestHelper.getBaseConfigurationFilePublicLocation());
-        configuration = (ConsoleAndFileDriverConfiguration) configuration.applyMap(LdbcSnbInteractiveWorkload.defaultReadOnlyConfig());
+        configuration = (ConsoleAndFileDriverConfiguration) configuration.applyMap(LdbcSnbInteractiveConfiguration.defaultReadOnlyConfig());
         Map<String, String> additionalParamsMap = new HashMap<>();
-        additionalParamsMap.put(LdbcSnbInteractiveWorkload.PARAMETERS_DIRECTORY, TestUtils.getResource("/").getAbsolutePath());
+        additionalParamsMap.put(LdbcSnbInteractiveConfiguration.PARAMETERS_DIRECTORY, TestUtils.getResource("/").getAbsolutePath());
         configuration = (ConsoleAndFileDriverConfiguration) configuration.applyMap(additionalParamsMap);
 
 
