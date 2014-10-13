@@ -187,7 +187,8 @@ public class WorkloadRunnerTest {
             csvResultsLogReader.closeReader();
 
             double operationsPerSecond = Math.round(((double) operationCount / workloadResults.totalRunDuration().asNano()) * ONE_SECOND_AS_NANO);
-            System.out.println(String.format("[%s threads] Completed %s operations in %s = %s op/sec", threadCount, operationCount, workloadResults.totalRunDuration(), operationsPerSecond));
+            double microSecondPerOperation = (double) workloadResults.totalRunDuration().asMicro() / operationCount;
+            System.out.println(String.format("[%s threads] Completed %s operations in %s = %s op/sec = 1 op/%s us", threadCount, operationCount, workloadResults.totalRunDuration(), operationsPerSecond, microSecondPerOperation));
         } finally {
             System.out.println(errorReporter.toString());
             if (null != controlService) controlService.shutdown();
@@ -199,23 +200,48 @@ public class WorkloadRunnerTest {
     }
 
     @Test
-    public void shouldRunReadOnlyLdbcWorkloadWithNothingDbWhileIgnoringScheduledStartTimesAndReturnExpectedMetrics()
+    public void shouldRunReadOnlyLdbcWorkloadWithNothingDbWhileIgnoringScheduledStartTimesUsingSynchronizedCompletionTimeServiceAndReturnExpectedMetrics()
             throws InterruptedException, DbException, WorkloadException, IOException, MetricsCollectionException, CompletionTimeException {
         List<Integer> threadCounts = Lists.newArrayList(1, 2, 4);
         long operationCount = 1000000;
         for (int threadCount : threadCounts) {
-            doShouldRunReadOnlyLdbcWorkloadWithNothingDbWhileIgnoringScheduledStartTimesAndReturnExpectedMetrics(threadCount, operationCount);
+            ConcurrentErrorReporter errorReporter = new ConcurrentErrorReporter();
+            ConcurrentCompletionTimeService completionTimeService =
+                    completionTimeServiceAssistant.newSynchronizedConcurrentCompletionTimeServiceFromPeerIds(new HashSet<String>());
+            try {
+                doShouldRunReadOnlyLdbcWorkloadWithNothingDbWhileIgnoringScheduledStartTimesAndReturnExpectedMetrics(threadCount, operationCount, completionTimeService, errorReporter);
+            } finally {
+                completionTimeService.shutdown();
+            }
         }
     }
 
-    public void doShouldRunReadOnlyLdbcWorkloadWithNothingDbWhileIgnoringScheduledStartTimesAndReturnExpectedMetrics(int threadCount, long operationCount)
+    @Test
+    public void shouldRunReadOnlyLdbcWorkloadWithNothingDbWhileIgnoringScheduledStartTimesUsingThreadedCompletionTimeServiceAndReturnExpectedMetrics()
+            throws InterruptedException, DbException, WorkloadException, IOException, MetricsCollectionException, CompletionTimeException {
+        List<Integer> threadCounts = Lists.newArrayList(1, 2, 4);
+        long operationCount = 1000000;
+        for (int threadCount : threadCounts) {
+            ConcurrentErrorReporter errorReporter = new ConcurrentErrorReporter();
+            ConcurrentCompletionTimeService completionTimeService =
+                    completionTimeServiceAssistant.newThreadedQueuedConcurrentCompletionTimeServiceFromPeerIds(new SystemTimeSource(), new HashSet<String>(), new ConcurrentErrorReporter());
+            try {
+                doShouldRunReadOnlyLdbcWorkloadWithNothingDbWhileIgnoringScheduledStartTimesAndReturnExpectedMetrics(threadCount, operationCount, completionTimeService, errorReporter);
+            } finally {
+                completionTimeService.shutdown();
+            }
+        }
+    }
+
+    public void doShouldRunReadOnlyLdbcWorkloadWithNothingDbWhileIgnoringScheduledStartTimesAndReturnExpectedMetrics(int threadCount,
+                                                                                                                     long operationCount,
+                                                                                                                     ConcurrentCompletionTimeService completionTimeService,
+                                                                                                                     ConcurrentErrorReporter errorReporter)
             throws InterruptedException, DbException, WorkloadException, IOException, MetricsCollectionException, CompletionTimeException {
         ConcurrentControlService controlService = null;
         Db db = null;
         Workload workload = null;
         ConcurrentMetricsService metricsService = null;
-        ConcurrentCompletionTimeService completionTimeService = null;
-        ConcurrentErrorReporter errorReporter = new ConcurrentErrorReporter();
         try {
             Map<String, String> paramsMap = LdbcSnbInteractiveWorkload.defaultReadOnlyConfig();
             paramsMap.put(LdbcSnbInteractiveWorkload.PARAMETERS_DIRECTORY, TestUtils.getResource("/").getAbsolutePath());
@@ -295,10 +321,6 @@ public class WorkloadRunnerTest {
                     executionDelayPolicy,
                     csvResultsLogWriter);
 
-            ConcurrentCompletionTimeService concurrentCompletionTimeService =
-                    completionTimeServiceAssistant.newSynchronizedConcurrentCompletionTimeServiceFromPeerIds(
-                            controlService.configuration().peerIds());
-
             int boundedQueueSize = DefaultQueues.DEFAULT_BOUND_100;
             WorkloadRunner runner = new WorkloadRunner(
                     timeSource,
@@ -306,7 +328,7 @@ public class WorkloadRunnerTest {
                     workloadStreams,
                     metricsService,
                     errorReporter,
-                    concurrentCompletionTimeService,
+                    completionTimeService,
                     controlService.configuration().threadCount(),
                     controlService.configuration().statusDisplayInterval(),
                     controlService.workloadStartTime(),
@@ -315,7 +337,6 @@ public class WorkloadRunnerTest {
                     WorkloadRunner.DEFAULT_DURATION_TO_WAIT_FOR_ALL_HANDLERS_TO_FINISH,
                     controlService.configuration().ignoreScheduledStartTimes(),
                     boundedQueueSize);
-
 
             runner.executeWorkload();
 
@@ -338,7 +359,8 @@ public class WorkloadRunnerTest {
             csvResultsLogReader.closeReader();
 
             double operationsPerSecond = Math.round(((double) operationCount / workloadResults.totalRunDuration().asNano()) * ONE_SECOND_AS_NANO);
-            System.out.println(String.format("[%s threads] Completed %s operations in %s = %s op/sec", threadCount, operationCount, workloadResults.totalRunDuration(), operationsPerSecond));
+            double microSecondPerOperation = (double) workloadResults.totalRunDuration().asMicro() / operationCount;
+            System.out.println(String.format("[%s threads] Completed %s operations in %s = %s op/sec = 1 op/%s us", threadCount, operationCount, workloadResults.totalRunDuration(), operationsPerSecond, microSecondPerOperation));
         } finally {
             System.out.println(errorReporter.toString());
             if (null != controlService) controlService.shutdown();
