@@ -47,10 +47,10 @@ public class ThreadPoolOperationHandlerExecutor implements OperationHandlerExecu
                 List<Runnable> stillRunningThreads = threadPoolExecutorService.shutdownNow();
                 if (false == stillRunningThreads.isEmpty()) {
                     String errMsg = String.format(
-                            "%s shutdown before all handlers could complete\n%s handlers mid-execution\n%s handlers uncompleted (includes mid-execution)",
+                            "%s shutdown before all handlers could complete\n%s handlers were queued for execution but not yet started\n%s handlers were mid-execution",
                             getClass().getSimpleName(),
                             stillRunningThreads.size(),
-                            uncompletedHandlers);
+                            uncompletedHandlers.get() - stillRunningThreads.size());
                     throw new OperationHandlerExecutorException(errMsg);
                 }
             }
