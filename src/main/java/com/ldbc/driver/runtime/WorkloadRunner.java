@@ -27,7 +27,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import static com.ldbc.driver.OperationClassification.SchedulingMode;
 
 public class WorkloadRunner {
-    public static final Duration DEFAULT_DURATION_TO_WAIT_FOR_ALL_HANDLERS_TO_FINISH = Duration.fromMinutes(60);
+    public static final Duration DEFAULT_DURATION_TO_WAIT_FOR_ALL_HANDLERS_TO_FINISH = Duration.fromMinutes(120);
     public static final long RUNNER_POLLING_INTERVAL_AS_MILLI = Duration.fromMilli(100).asMilli();
     private static final Duration WAIT_DURATION_FOR_OPERATION_HANDLER_EXECUTOR_TO_SHUTDOWN = Duration.fromSeconds(5);
     private static final LocalCompletionTimeWriter DUMMY_LOCAL_COMPLETION_TIME_WRITER = new DummyLocalCompletionTimeWriter();
