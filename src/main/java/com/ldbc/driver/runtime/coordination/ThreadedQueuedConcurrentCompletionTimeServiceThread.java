@@ -32,7 +32,7 @@ public class ThreadedQueuedConcurrentCompletionTimeServiceThread extends Thread 
     private final ConcurrentErrorReporter errorReporter;
     private Long processedWriteEventCount = 0l;
     private Long expectedEventCount = null;
-    private final Map<Integer, LocalCompletionTimeWriter> localCompletionTimeWriters = new HashMap<>();
+    private final Map<Integer, LocalCompletionTimeWriter> localCompletionTimeWriters;
     private final AtomicBoolean shutdownComplete = new AtomicBoolean(false);
 
     ThreadedQueuedConcurrentCompletionTimeServiceThread(Queue<CompletionTimeEvent> completionTimeQueue,
@@ -41,6 +41,7 @@ public class ThreadedQueuedConcurrentCompletionTimeServiceThread extends Thread 
                                                         AtomicReference<Time> globalCompletionTimeSharedReference) throws CompletionTimeException {
         super(ThreadedQueuedConcurrentCompletionTimeServiceThread.class.getSimpleName() + "-" + System.currentTimeMillis());
         localCompletionTimeConcurrentStateManager = new MultiWriterLocalCompletionTimeConcurrentStateManager();
+        this.localCompletionTimeWriters = new HashMap<>();
         ExternalCompletionTimeStateManager externalCompletionTimeStateManager = new ExternalCompletionTimeStateManager(peerIds);
         ExternalCompletionTimeReader externalCompletionTimeReader =
                 (peerIds.isEmpty())
@@ -163,12 +164,12 @@ public class ThreadedQueuedConcurrentCompletionTimeServiceThread extends Thread 
 
     private void updateGlobalCompletionTime() throws CompletionTimeException {
         Time newGlobalCompletionTime = globalCompletionTimeStateManager.globalCompletionTime();
-        Time prevGlobalCompletionTime = globalCompletionTimeSharedReference.get();
         if (null == newGlobalCompletionTime) {
             // Either Completion Time has not been received from one or more peers, or no local Completion Time has been receive
             // Until both of the above have occurred there is no way of knowing what the lowest global time is
             return;
         }
+        Time prevGlobalCompletionTime = globalCompletionTimeSharedReference.get();
         if (null != prevGlobalCompletionTime && newGlobalCompletionTime.lt(prevGlobalCompletionTime)) {
             errorReporter.reportError(
                     this,
