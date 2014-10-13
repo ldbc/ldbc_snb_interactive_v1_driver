@@ -915,7 +915,5 @@ public class ConcurrentCompletionTimeServiceBasicTest {
             exceptionThrown = true;
         }
         assertThat(exceptionThrown, is(true));
-
-        assertThat(completionTimeService.globalCompletionTimeFuture().get(1, TimeUnit.SECONDS), is(Time.fromSeconds(5)));
     }
 }
