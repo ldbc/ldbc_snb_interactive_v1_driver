@@ -10,7 +10,6 @@ import com.ldbc.driver.temporal.Time;
 import com.ldbc.driver.temporal.TimeSource;
 import com.ldbc.driver.util.CsvFileWriter;
 
-import java.io.File;
 import java.util.Queue;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
@@ -20,8 +19,8 @@ import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.atomic.AtomicReference;
 
 public class ThreadedQueuedConcurrentMetricsService implements ConcurrentMetricsService {
-    private static final Duration SHUTDOWN_WAIT_TIMEOUT = Duration.fromSeconds(10);
-    private static final Duration FUTURE_GET_TIMEOUT = Duration.fromSeconds(10);
+    private static final Duration SHUTDOWN_WAIT_TIMEOUT = Duration.fromMinutes(1);
+    private static final Duration FUTURE_GET_TIMEOUT = Duration.fromMinutes(1);
 
     public static final String RESULTS_LOG_FILENAME_SUFFIX = "-results_log.csv";
     public static final String RESULTS_METRICS_FILENAME_SUFFIX = "-results.json";
