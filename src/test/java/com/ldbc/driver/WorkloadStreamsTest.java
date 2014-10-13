@@ -1,23 +1,201 @@
 package com.ldbc.driver;
 
+import com.google.common.collect.Iterators;
 import com.google.common.collect.Lists;
+import com.ldbc.driver.control.ConsoleAndFileDriverConfiguration;
+import com.ldbc.driver.control.DriverConfigurationException;
 import com.ldbc.driver.generator.GeneratorFactory;
 import com.ldbc.driver.generator.RandomDataGeneratorFactory;
 import com.ldbc.driver.temporal.Duration;
 import com.ldbc.driver.temporal.Time;
+import com.ldbc.driver.util.Tuple;
+import com.ldbc.driver.validation.WorkloadFactory;
 import com.ldbc.driver.workloads.dummy.TimedNamedOperation1;
 import com.ldbc.driver.workloads.dummy.TimedNamedOperation1Factory;
+import com.ldbc.driver.workloads.dummy.TimedNamedOperation2Factory;
+import com.ldbc.driver.workloads.dummy.TimedNamedOperation3Factory;
 import org.junit.Test;
 
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
 import static org.hamcrest.CoreMatchers.*;
 import static org.junit.Assert.assertThat;
 
 public class WorkloadStreamsTest {
+
     @Test
-    public void shouldLimitCorrectly() throws WorkloadException {
+    public void shouldReturnSameWorkloadStreamsAsCreatedWith() {
+        WorkloadStreams workloadStreamsBefore = getWorkloadStreams();
+
+        Operation<?> firstAsyncDependencyOperation = workloadStreamsBefore.asynchronousStream().dependencyOperations().next();
+        Operation<?> secondAsyncDependencyOperation = workloadStreamsBefore.asynchronousStream().dependencyOperations().next();
+        assertThat(firstAsyncDependencyOperation.scheduledStartTime(), is(Time.fromNano(0)));
+        assertThat(secondAsyncDependencyOperation.scheduledStartTime(), is(Time.fromNano(10)));
+        assertThat(secondAsyncDependencyOperation.scheduledStartTime().durationGreaterThan(firstAsyncDependencyOperation.scheduledStartTime()), is(Duration.fromNano(10)));
+        assertThat(secondAsyncDependencyOperation.dependencyTime().durationGreaterThan(firstAsyncDependencyOperation.dependencyTime()), is(Duration.fromNano(10)));
+
+        Operation<?> firstAsyncNonDependencyOperation = workloadStreamsBefore.asynchronousStream().nonDependencyOperations().next();
+        Operation<?> secondAsyncNonDependencyOperation = workloadStreamsBefore.asynchronousStream().nonDependencyOperations().next();
+        assertThat(firstAsyncNonDependencyOperation.scheduledStartTime(), is(Time.fromNano(1)));
+        assertThat(secondAsyncNonDependencyOperation.scheduledStartTime(), is(Time.fromNano(101)));
+        assertThat(secondAsyncNonDependencyOperation.scheduledStartTime().durationGreaterThan(firstAsyncNonDependencyOperation.scheduledStartTime()), is(Duration.fromNano(100)));
+        assertThat(secondAsyncNonDependencyOperation.dependencyTime().durationGreaterThan(firstAsyncNonDependencyOperation.dependencyTime()), is(Duration.fromNano(100)));
+
+        Operation<?> firstBlocking1DependencyOperation = workloadStreamsBefore.blockingStreamDefinitions().get(0).dependencyOperations().next();
+        Operation<?> secondBlocking1DependencyOperation = workloadStreamsBefore.blockingStreamDefinitions().get(0).dependencyOperations().next();
+        assertThat(firstBlocking1DependencyOperation.scheduledStartTime(), is(Time.fromNano(2)));
+        assertThat(secondBlocking1DependencyOperation.scheduledStartTime(), is(Time.fromNano(1002)));
+        assertThat(secondBlocking1DependencyOperation.scheduledStartTime().durationGreaterThan(firstBlocking1DependencyOperation.scheduledStartTime()), is(Duration.fromNano(1000)));
+        assertThat(secondBlocking1DependencyOperation.dependencyTime().durationGreaterThan(firstBlocking1DependencyOperation.dependencyTime()), is(Duration.fromNano(1000)));
+
+        Operation<?> firstBlocking1NonDependencyOperation = workloadStreamsBefore.blockingStreamDefinitions().get(0).nonDependencyOperations().next();
+        Operation<?> secondBlocking1NonDependencyOperation = workloadStreamsBefore.blockingStreamDefinitions().get(0).nonDependencyOperations().next();
+        assertThat(firstBlocking1NonDependencyOperation.scheduledStartTime(), is(Time.fromNano(3)));
+        assertThat(secondBlocking1NonDependencyOperation.scheduledStartTime(), is(Time.fromNano(10003)));
+        assertThat(secondBlocking1NonDependencyOperation.scheduledStartTime().durationGreaterThan(firstBlocking1NonDependencyOperation.scheduledStartTime()), is(Duration.fromNano(10000)));
+        assertThat(secondBlocking1NonDependencyOperation.dependencyTime().durationGreaterThan(firstBlocking1NonDependencyOperation.dependencyTime()), is(Duration.fromNano(10000)));
+
+        Operation<?> firstBlocking2DependencyOperation = workloadStreamsBefore.blockingStreamDefinitions().get(1).dependencyOperations().next();
+        Operation<?> secondBlocking2DependencyOperation = workloadStreamsBefore.blockingStreamDefinitions().get(1).dependencyOperations().next();
+        assertThat(firstBlocking2DependencyOperation.scheduledStartTime(), is(Time.fromNano(4)));
+        assertThat(secondBlocking2DependencyOperation.scheduledStartTime(), is(Time.fromNano(10004)));
+        assertThat(secondBlocking2DependencyOperation.scheduledStartTime().durationGreaterThan(firstBlocking2DependencyOperation.scheduledStartTime()), is(Duration.fromNano(10000)));
+        assertThat(secondBlocking2DependencyOperation.dependencyTime().durationGreaterThan(firstBlocking2DependencyOperation.dependencyTime()), is(Duration.fromNano(10000)));
+
+        Operation<?> firstBlocking2NonDependencyOperation = workloadStreamsBefore.blockingStreamDefinitions().get(1).nonDependencyOperations().next();
+        Operation<?> secondBlocking2NonDependencyOperation = workloadStreamsBefore.blockingStreamDefinitions().get(1).nonDependencyOperations().next();
+        assertThat(firstBlocking2NonDependencyOperation.scheduledStartTime(), is(Time.fromNano(5)));
+        assertThat(secondBlocking2NonDependencyOperation.scheduledStartTime(), is(Time.fromNano(100005)));
+        assertThat(secondBlocking2NonDependencyOperation.scheduledStartTime().durationGreaterThan(firstBlocking2NonDependencyOperation.scheduledStartTime()), is(Duration.fromNano(100000)));
+        assertThat(secondBlocking2NonDependencyOperation.dependencyTime().durationGreaterThan(firstBlocking2NonDependencyOperation.dependencyTime()), is(Duration.fromNano(100000)));
+    }
+
+    @Test
+    public void shouldPerformTimeOffsetCorrectly() throws WorkloadException {
+        Duration offset = Duration.fromSeconds(100);
+        WorkloadStreams workloadStreamsBefore = WorkloadStreams.timeOffsetAndCompressWorkloadStreams(
+                getWorkloadStreams(),
+                Time.fromNano(0).plus(offset),
+                1.0,
+                new GeneratorFactory(new RandomDataGeneratorFactory(42l)));
+
+        Operation<?> firstAsyncDependencyOperation = workloadStreamsBefore.asynchronousStream().dependencyOperations().next();
+        Operation<?> secondAsyncDependencyOperation = workloadStreamsBefore.asynchronousStream().dependencyOperations().next();
+        assertThat(firstAsyncDependencyOperation.scheduledStartTime(), is(Time.fromNano(0).plus(offset)));
+        assertThat(secondAsyncDependencyOperation.scheduledStartTime(), is(Time.fromNano(10).plus(offset)));
+        assertThat(secondAsyncDependencyOperation.scheduledStartTime().durationGreaterThan(firstAsyncDependencyOperation.scheduledStartTime()), is(Duration.fromNano(10)));
+        assertThat(secondAsyncDependencyOperation.dependencyTime().durationGreaterThan(firstAsyncDependencyOperation.dependencyTime()), is(Duration.fromNano(10)));
+
+        Operation<?> firstAsyncNonDependencyOperation = workloadStreamsBefore.asynchronousStream().nonDependencyOperations().next();
+        Operation<?> secondAsyncNonDependencyOperation = workloadStreamsBefore.asynchronousStream().nonDependencyOperations().next();
+        assertThat(firstAsyncNonDependencyOperation.scheduledStartTime(), is(Time.fromNano(1).plus(offset)));
+        assertThat(secondAsyncNonDependencyOperation.scheduledStartTime(), is(Time.fromNano(101).plus(offset)));
+        assertThat(secondAsyncNonDependencyOperation.scheduledStartTime().durationGreaterThan(firstAsyncNonDependencyOperation.scheduledStartTime()), is(Duration.fromNano(100)));
+        assertThat(secondAsyncNonDependencyOperation.dependencyTime().durationGreaterThan(firstAsyncNonDependencyOperation.dependencyTime()), is(Duration.fromNano(100)));
+
+        Operation<?> firstBlocking1DependencyOperation = workloadStreamsBefore.blockingStreamDefinitions().get(0).dependencyOperations().next();
+        Operation<?> secondBlocking1DependencyOperation = workloadStreamsBefore.blockingStreamDefinitions().get(0).dependencyOperations().next();
+        assertThat(firstBlocking1DependencyOperation.scheduledStartTime(), is(Time.fromNano(2).plus(offset)));
+        assertThat(secondBlocking1DependencyOperation.scheduledStartTime(), is(Time.fromNano(1002).plus(offset)));
+        assertThat(secondBlocking1DependencyOperation.scheduledStartTime().durationGreaterThan(firstBlocking1DependencyOperation.scheduledStartTime()), is(Duration.fromNano(1000)));
+        assertThat(secondBlocking1DependencyOperation.dependencyTime().durationGreaterThan(firstBlocking1DependencyOperation.dependencyTime()), is(Duration.fromNano(1000)));
+
+        Operation<?> firstBlocking1NonDependencyOperation = workloadStreamsBefore.blockingStreamDefinitions().get(0).nonDependencyOperations().next();
+        Operation<?> secondBlocking1NonDependencyOperation = workloadStreamsBefore.blockingStreamDefinitions().get(0).nonDependencyOperations().next();
+        assertThat(firstBlocking1NonDependencyOperation.scheduledStartTime(), is(Time.fromNano(3).plus(offset)));
+        assertThat(secondBlocking1NonDependencyOperation.scheduledStartTime(), is(Time.fromNano(10003).plus(offset)));
+        assertThat(secondBlocking1NonDependencyOperation.scheduledStartTime().durationGreaterThan(firstBlocking1NonDependencyOperation.scheduledStartTime()), is(Duration.fromNano(10000)));
+        assertThat(secondBlocking1NonDependencyOperation.dependencyTime().durationGreaterThan(firstBlocking1NonDependencyOperation.dependencyTime()), is(Duration.fromNano(10000)));
+
+        Operation<?> firstBlocking2DependencyOperation = workloadStreamsBefore.blockingStreamDefinitions().get(1).dependencyOperations().next();
+        Operation<?> secondBlocking2DependencyOperation = workloadStreamsBefore.blockingStreamDefinitions().get(1).dependencyOperations().next();
+        assertThat(firstBlocking2DependencyOperation.scheduledStartTime(), is(Time.fromNano(4).plus(offset)));
+        assertThat(secondBlocking2DependencyOperation.scheduledStartTime(), is(Time.fromNano(10004).plus(offset)));
+        assertThat(secondBlocking2DependencyOperation.scheduledStartTime().durationGreaterThan(firstBlocking2DependencyOperation.scheduledStartTime()), is(Duration.fromNano(10000)));
+        assertThat(secondBlocking2DependencyOperation.dependencyTime().durationGreaterThan(firstBlocking2DependencyOperation.dependencyTime()), is(Duration.fromNano(10000)));
+
+        Operation<?> firstBlocking2NonDependencyOperation = workloadStreamsBefore.blockingStreamDefinitions().get(1).nonDependencyOperations().next();
+        Operation<?> secondBlocking2NonDependencyOperation = workloadStreamsBefore.blockingStreamDefinitions().get(1).nonDependencyOperations().next();
+        assertThat(firstBlocking2NonDependencyOperation.scheduledStartTime(), is(Time.fromNano(5).plus(offset)));
+        assertThat(secondBlocking2NonDependencyOperation.scheduledStartTime(), is(Time.fromNano(100005).plus(offset)));
+        assertThat(secondBlocking2NonDependencyOperation.scheduledStartTime().durationGreaterThan(firstBlocking2NonDependencyOperation.scheduledStartTime()), is(Duration.fromNano(100000)));
+        assertThat(secondBlocking2NonDependencyOperation.dependencyTime().durationGreaterThan(firstBlocking2NonDependencyOperation.dependencyTime()), is(Duration.fromNano(100000)));
+    }
+
+    @Test
+    public void shouldPerformTimeOffsetAndCompressionCorrectly() throws WorkloadException {
+        Duration offset = Duration.fromSeconds(100);
+        WorkloadStreams workloadStreamsBefore = WorkloadStreams.timeOffsetAndCompressWorkloadStreams(
+                getWorkloadStreams(),
+                Time.fromNano(0).plus(offset),
+                0.5,
+                new GeneratorFactory(new RandomDataGeneratorFactory(42l)));
+
+        Operation<?> firstAsyncDependencyOperation = workloadStreamsBefore.asynchronousStream().dependencyOperations().next();
+        Operation<?> secondAsyncDependencyOperation = workloadStreamsBefore.asynchronousStream().dependencyOperations().next();
+        assertThat(firstAsyncDependencyOperation.scheduledStartTime(), is(Time.fromNano(0).plus(offset)));
+        assertThat(secondAsyncDependencyOperation.scheduledStartTime(), is(Time.fromNano(5).plus(offset)));
+        assertThat(secondAsyncDependencyOperation.scheduledStartTime().durationGreaterThan(firstAsyncDependencyOperation.scheduledStartTime()), is(Duration.fromNano(5)));
+        assertThat(secondAsyncDependencyOperation.dependencyTime().durationGreaterThan(firstAsyncDependencyOperation.dependencyTime()), is(Duration.fromNano(5)));
+
+        Operation<?> firstAsyncNonDependencyOperation = workloadStreamsBefore.asynchronousStream().nonDependencyOperations().next();
+        Operation<?> secondAsyncNonDependencyOperation = workloadStreamsBefore.asynchronousStream().nonDependencyOperations().next();
+        assertThat(firstAsyncNonDependencyOperation.scheduledStartTime(), is(Time.fromNano(1).plus(offset)));
+        assertThat(secondAsyncNonDependencyOperation.scheduledStartTime(), is(Time.fromNano(51).plus(offset)));
+        assertThat(secondAsyncNonDependencyOperation.scheduledStartTime().durationGreaterThan(firstAsyncNonDependencyOperation.scheduledStartTime()), is(Duration.fromNano(50)));
+        assertThat(secondAsyncNonDependencyOperation.dependencyTime().durationGreaterThan(firstAsyncNonDependencyOperation.dependencyTime()), is(Duration.fromNano(50)));
+
+        Operation<?> firstBlocking1DependencyOperation = workloadStreamsBefore.blockingStreamDefinitions().get(0).dependencyOperations().next();
+        Operation<?> secondBlocking1DependencyOperation = workloadStreamsBefore.blockingStreamDefinitions().get(0).dependencyOperations().next();
+        assertThat(firstBlocking1DependencyOperation.scheduledStartTime(), is(Time.fromNano(2).plus(offset)));
+        assertThat(secondBlocking1DependencyOperation.scheduledStartTime(), is(Time.fromNano(502).plus(offset)));
+        assertThat(secondBlocking1DependencyOperation.scheduledStartTime().durationGreaterThan(firstBlocking1DependencyOperation.scheduledStartTime()), is(Duration.fromNano(500)));
+        assertThat(secondBlocking1DependencyOperation.dependencyTime().durationGreaterThan(firstBlocking1DependencyOperation.dependencyTime()), is(Duration.fromNano(500)));
+
+        Operation<?> firstBlocking1NonDependencyOperation = workloadStreamsBefore.blockingStreamDefinitions().get(0).nonDependencyOperations().next();
+        Operation<?> secondBlocking1NonDependencyOperation = workloadStreamsBefore.blockingStreamDefinitions().get(0).nonDependencyOperations().next();
+        assertThat(firstBlocking1NonDependencyOperation.scheduledStartTime(), is(Time.fromNano(3).plus(offset)));
+        assertThat(secondBlocking1NonDependencyOperation.scheduledStartTime(), is(Time.fromNano(5003).plus(offset)));
+        assertThat(secondBlocking1NonDependencyOperation.scheduledStartTime().durationGreaterThan(firstBlocking1NonDependencyOperation.scheduledStartTime()), is(Duration.fromNano(5000)));
+        assertThat(secondBlocking1NonDependencyOperation.dependencyTime().durationGreaterThan(firstBlocking1NonDependencyOperation.dependencyTime()), is(Duration.fromNano(5000)));
+
+        Operation<?> firstBlocking2DependencyOperation = workloadStreamsBefore.blockingStreamDefinitions().get(1).dependencyOperations().next();
+        Operation<?> secondBlocking2DependencyOperation = workloadStreamsBefore.blockingStreamDefinitions().get(1).dependencyOperations().next();
+        assertThat(firstBlocking2DependencyOperation.scheduledStartTime(), is(Time.fromNano(4).plus(offset)));
+        assertThat(secondBlocking2DependencyOperation.scheduledStartTime(), is(Time.fromNano(5004).plus(offset)));
+        assertThat(secondBlocking2DependencyOperation.scheduledStartTime().durationGreaterThan(firstBlocking2DependencyOperation.scheduledStartTime()), is(Duration.fromNano(5000)));
+        assertThat(secondBlocking2DependencyOperation.dependencyTime().durationGreaterThan(firstBlocking2DependencyOperation.dependencyTime()), is(Duration.fromNano(5000)));
+
+        Operation<?> firstBlocking2NonDependencyOperation = workloadStreamsBefore.blockingStreamDefinitions().get(1).nonDependencyOperations().next();
+        Operation<?> secondBlocking2NonDependencyOperation = workloadStreamsBefore.blockingStreamDefinitions().get(1).nonDependencyOperations().next();
+        assertThat(firstBlocking2NonDependencyOperation.scheduledStartTime(), is(Time.fromNano(5).plus(offset)));
+        assertThat(secondBlocking2NonDependencyOperation.scheduledStartTime(), is(Time.fromNano(50005).plus(offset)));
+        assertThat(secondBlocking2NonDependencyOperation.scheduledStartTime().durationGreaterThan(firstBlocking2NonDependencyOperation.scheduledStartTime()), is(Duration.fromNano(50000)));
+        assertThat(secondBlocking2NonDependencyOperation.dependencyTime().durationGreaterThan(firstBlocking2NonDependencyOperation.dependencyTime()), is(Duration.fromNano(50000)));
+    }
+
+    @Test
+    public void shouldLimitWorkloadCorrectly() throws WorkloadException, DriverConfigurationException {
+        GeneratorFactory gf = new GeneratorFactory(new RandomDataGeneratorFactory(42l));
+        WorkloadFactory workloadFactory = new WorkloadFactory() {
+            @Override
+            public Workload createWorkload() throws WorkloadException {
+                return new TestWorkload();
+            }
+        };
+        ConsoleAndFileDriverConfiguration configuration = ConsoleAndFileDriverConfiguration.fromDefaults(null, null, 100);
+        Tuple.Tuple2<WorkloadStreams, Workload> limitedWorkloadStreamsAndWorkload = WorkloadStreams.createNewWorkloadWithLimitedWorkloadStreams(workloadFactory, configuration, gf);
+        WorkloadStreams workloadStreams = limitedWorkloadStreamsAndWorkload._1();
+        Workload workload = limitedWorkloadStreamsAndWorkload._2();
+        assertThat(Iterators.size(workloadStreams.mergeSortedByStartTime(gf)), is(100));
+        workload.cleanup();
+    }
+
+    @Test
+    public void shouldLimitStreamsCorrectly() throws WorkloadException {
         GeneratorFactory gf = new GeneratorFactory(new RandomDataGeneratorFactory(42l));
 
         List<Operation<?>> stream0 = Lists.<Operation<?>>newArrayList(
@@ -115,7 +293,7 @@ public class WorkloadStreamsTest {
     }
 
     @Test
-    public void shouldLimitCorrectlyWhenLimitIsHigherThanActualStreamsLength() throws WorkloadException {
+    public void shouldLimitStreamsCorrectlyWhenLimitIsHigherThanActualStreamsLength() throws WorkloadException {
         GeneratorFactory gf = new GeneratorFactory(new RandomDataGeneratorFactory(42l));
 
         List<Operation<?>> stream0 = Lists.<Operation<?>>newArrayList(
@@ -186,10 +364,6 @@ public class WorkloadStreamsTest {
                 )
         );
 
-        for (Operation<?> operation : topK) {
-            System.out.println(((TimedNamedOperation1) operation).name() + " " + operation.scheduledStartTime().asMilli());
-        }
-
         assertThat((long) topK.size(), is(k));
         assertThat(((TimedNamedOperation1) topK.get(0)).name(), anyOf(equalTo("0-1"), equalTo("1-1")));
         assertThat(((TimedNamedOperation1) topK.get(1)).name(), anyOf(equalTo("0-1"), equalTo("1-1")));
@@ -205,5 +379,82 @@ public class WorkloadStreamsTest {
         assertThat(((TimedNamedOperation1) topK.get(8)).name(), anyOf(equalTo("1-3"), equalTo("2-3")));
         assertThat(((TimedNamedOperation1) topK.get(7)).name(), not(equalTo(((TimedNamedOperation1) topK.get(8)).name())));
         assertThat(((TimedNamedOperation1) topK.get(9)).name(), anyOf(equalTo("0-4")));
+    }
+
+    private class TestWorkload extends Workload {
+
+        @Override
+        public void onInit(Map<String, String> params) throws WorkloadException {
+        }
+
+        @Override
+        protected void onCleanup() throws WorkloadException {
+        }
+
+        @Override
+        protected WorkloadStreams getStreams(GeneratorFactory generators) throws WorkloadException {
+            return getWorkloadStreams();
+        }
+
+        @Override
+        public String serializeOperation(Operation<?> operation) throws SerializingMarshallingException {
+            return null;
+        }
+
+        @Override
+        public Operation<?> marshalOperation(String serializedOperation) throws SerializingMarshallingException {
+            return null;
+        }
+    }
+
+    private WorkloadStreams getWorkloadStreams() {
+        GeneratorFactory gf = new GeneratorFactory(new RandomDataGeneratorFactory(42l));
+        Iterator<Operation<?>> asyncDependencyStream = new TimedNamedOperation1Factory(
+                gf.constantIncrementTime(Time.fromNano(0), Duration.fromNano(10)),
+                gf.constantIncrementTime(Time.fromNano(0), Duration.fromNano(10)),
+                gf.constant("ad")
+        );
+        Iterator<Operation<?>> asyncNonDependencyStream = new TimedNamedOperation1Factory(
+                gf.constantIncrementTime(Time.fromNano(1), Duration.fromNano(100)),
+                gf.constantIncrementTime(Time.fromNano(1), Duration.fromNano(100)),
+                gf.constant("an")
+        );
+        Iterator<Operation<?>> blockingDependencyStream1 = new TimedNamedOperation2Factory(
+                gf.constantIncrementTime(Time.fromNano(2), Duration.fromNano(1000)),
+                gf.constantIncrementTime(Time.fromNano(2), Duration.fromNano(1000)),
+                gf.constant("bd1")
+        );
+        Iterator<Operation<?>> blockingNonDependencyStream1 = new TimedNamedOperation2Factory(
+                gf.constantIncrementTime(Time.fromNano(3), Duration.fromNano(10000)),
+                gf.constantIncrementTime(Time.fromNano(3), Duration.fromNano(10000)),
+                gf.constant("bn1")
+        );
+        Iterator<Operation<?>> blockingDependencyStream2 = new TimedNamedOperation3Factory(
+                gf.constantIncrementTime(Time.fromNano(4), Duration.fromNano(10000)),
+                gf.constantIncrementTime(Time.fromNano(4), Duration.fromNano(10000)),
+                gf.constant("bd2")
+        );
+        Iterator<Operation<?>> blockingNonDependencyStream2 = new TimedNamedOperation3Factory(
+                gf.constantIncrementTime(Time.fromNano(5), Duration.fromNano(100000)),
+                gf.constantIncrementTime(Time.fromNano(5), Duration.fromNano(100000)),
+                gf.constant("bn2")
+        );
+        WorkloadStreams workloadStreams = new WorkloadStreams();
+        workloadStreams.setAsynchronousStream(
+                new HashSet<Class<? extends Operation<?>>>(),
+                asyncDependencyStream,
+                asyncNonDependencyStream
+        );
+        workloadStreams.addBlockingStream(
+                new HashSet<Class<? extends Operation<?>>>(),
+                blockingDependencyStream1,
+                blockingNonDependencyStream1
+        );
+        workloadStreams.addBlockingStream(
+                new HashSet<Class<? extends Operation<?>>>(),
+                blockingDependencyStream2,
+                blockingNonDependencyStream2
+        );
+        return workloadStreams;
     }
 }
