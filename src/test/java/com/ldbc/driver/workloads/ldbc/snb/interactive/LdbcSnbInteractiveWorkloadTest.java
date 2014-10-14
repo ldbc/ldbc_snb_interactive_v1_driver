@@ -17,6 +17,7 @@ import com.ldbc.driver.testutils.TestUtils;
 import com.ldbc.driver.util.Bucket;
 import com.ldbc.driver.util.CsvFileReader;
 import com.ldbc.driver.util.Histogram;
+import com.ldbc.driver.util.MapUtils;
 import com.ldbc.driver.workloads.ldbc.snb.interactive.db.DummyLdbcSnbInteractiveDb;
 import com.ldbc.driver.workloads.ldbc.snb.interactive.db.DummyLdbcSnbInteractiveOperationInstances;
 import org.junit.Ignore;
@@ -128,7 +129,7 @@ public class LdbcSnbInteractiveWorkloadTest {
     }
 
     @Test
-    public void shouldGenerateManyElementsInReasonableTime() throws WorkloadException, IOException {
+    public void shouldGenerateManyElementsInReasonableTime() throws WorkloadException, IOException, DriverConfigurationException {
         // Given
         long MANY_ELEMENTS_COUNT = 1000000;
 
@@ -161,7 +162,7 @@ public class LdbcSnbInteractiveWorkloadTest {
         boolean ignoreScheduledStartTimes = false;
         boolean shouldCreateResultsLog = false;
 
-        DriverConfiguration config = new ConsoleAndFileDriverConfiguration(
+        DriverConfiguration configuration = new ConsoleAndFileDriverConfiguration(
                 paramsMap,
                 name,
                 dbClassName,
@@ -185,8 +186,11 @@ public class LdbcSnbInteractiveWorkloadTest {
                 shouldCreateResultsLog
         );
 
+        Map<String, String> updateStreamParams = MapUtils.loadPropertiesToMap(TestUtils.getResource("/updateStream.properties"));
+        configuration = configuration.applyMap(updateStreamParams);
+
         Workload workload = new LdbcSnbInteractiveWorkload();
-        workload.init(config);
+        workload.init(configuration);
 
         GeneratorFactory gf = new GeneratorFactory(new RandomDataGeneratorFactory(42L));
         Iterator<Operation<?>> operations = gf.limit(workload.streams(gf).mergeSortedByStartTime(gf), MANY_ELEMENTS_COUNT);
@@ -232,7 +236,7 @@ public class LdbcSnbInteractiveWorkloadTest {
 
         assertThat(new File(resultDirPath).listFiles().length > 0, is(false));
 
-        DriverConfiguration params = new ConsoleAndFileDriverConfiguration(
+        DriverConfiguration configuration = new ConsoleAndFileDriverConfiguration(
                 paramsMap,
                 name,
                 dbClassName,
@@ -256,16 +260,19 @@ public class LdbcSnbInteractiveWorkloadTest {
                 shouldCreateResultsLog
         );
 
+        Map<String, String> updateStreamParams = MapUtils.loadPropertiesToMap(TestUtils.getResource("/updateStream.properties"));
+        configuration = configuration.applyMap(updateStreamParams);
+
         Workload workloadA = new LdbcSnbInteractiveWorkload();
-        workloadA.init(params);
+        workloadA.init(configuration);
 
         Workload workloadB = new LdbcSnbInteractiveWorkload();
-        workloadB.init(params);
+        workloadB.init(configuration);
 
         GeneratorFactory gf1 = new GeneratorFactory(new RandomDataGeneratorFactory(42L));
         List<Class> operationsA = ImmutableList.copyOf(
                 Iterators.transform(
-                        gf1.limit(workloadA.streams(gf1).mergeSortedByStartTime(gf1), params.operationCount()),
+                        gf1.limit(workloadA.streams(gf1).mergeSortedByStartTime(gf1), configuration.operationCount()),
                         new Function<Operation<?>, Class>() {
                             @Override
                             public Class apply(Operation<?> operation) {
@@ -276,7 +283,7 @@ public class LdbcSnbInteractiveWorkloadTest {
         GeneratorFactory gf2 = new GeneratorFactory(new RandomDataGeneratorFactory(42L));
         List<Class> operationsB = ImmutableList.copyOf(
                 Iterators.transform(
-                        gf1.limit(workloadB.streams(gf2).mergeSortedByStartTime(gf2), params.operationCount()),
+                        gf1.limit(workloadB.streams(gf2).mergeSortedByStartTime(gf2), configuration.operationCount()),
                         new Function<Operation<?>, Class>() {
                             @Override
                             public Class apply(Operation<?> operation) {
@@ -423,7 +430,7 @@ public class LdbcSnbInteractiveWorkloadTest {
         String ldbcDriverTestPropertiesPath =
                 TestUtils.getResource("/ldbc_driver_default.properties").getAbsolutePath();
         String updateStreamPropertiesPath =
-                TestUtils.getResource("/updateStream_0.properties").getAbsolutePath();
+                TestUtils.getResource("/updateStream.properties").getAbsolutePath();
         String resultDirPath = temporaryFolder.newFolder().getAbsolutePath();
 
         assertThat(new File(resultDirPath).listFiles().length > 0, is(false));
@@ -579,6 +586,9 @@ public class LdbcSnbInteractiveWorkloadTest {
                 shouldCreateResultsLog
         );
 
+        Map<String, String> updateStreamParams = MapUtils.loadPropertiesToMap(TestUtils.getResource("/updateStream.properties"));
+        configuration = configuration.applyMap(updateStreamParams);
+
         GeneratorFactory gf = new GeneratorFactory(new RandomDataGeneratorFactory(42L));
         Workload workload = new LdbcSnbInteractiveWorkload();
         workload.init(configuration);
@@ -652,6 +662,9 @@ public class LdbcSnbInteractiveWorkloadTest {
                 shouldCreateResultsLog
         );
 
+        Map<String, String> updateStreamParams = MapUtils.loadPropertiesToMap(TestUtils.getResource("/updateStream.properties"));
+        configuration = configuration.applyMap(updateStreamParams);
+
         Client client = new Client(new LocalControlService(timeSource.now().plus(Duration.fromSeconds(3)), configuration), timeSource);
         client.start();
 
@@ -663,7 +676,7 @@ public class LdbcSnbInteractiveWorkloadTest {
     }
 
     @Test
-    public void shouldPassWorkloadValidation() throws ClientException {
+    public void shouldPassWorkloadValidation() throws ClientException, IOException, DriverConfigurationException {
         Map<String, String> params = LdbcSnbInteractiveConfiguration.defaultWriteOnlyConfig();
         // LDBC Interactive Workload-specific parameters
         params.put(LdbcSnbInteractiveConfiguration.PARAMETERS_DIRECTORY, TestUtils.getResource("/").getAbsolutePath());
@@ -718,6 +731,9 @@ public class LdbcSnbInteractiveWorkloadTest {
                 ignoreScheduledStartTimes,
                 shouldCreateResultsLog
         );
+
+        Map<String, String> updateStreamParams = MapUtils.loadPropertiesToMap(TestUtils.getResource("/updateStream.properties"));
+        configuration = configuration.applyMap(updateStreamParams);
 
         // When
         Client client = new Client(new LocalControlService(timeSource.now().plus(Duration.fromSeconds(3)), configuration), timeSource);

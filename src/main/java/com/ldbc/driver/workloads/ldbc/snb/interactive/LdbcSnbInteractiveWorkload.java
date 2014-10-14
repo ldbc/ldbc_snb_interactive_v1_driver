@@ -4,13 +4,15 @@ import com.google.common.base.Function;
 import com.google.common.base.Predicate;
 import com.google.common.collect.*;
 import com.ldbc.driver.*;
+import com.ldbc.driver.control.ConsoleAndFileDriverConfiguration;
 import com.ldbc.driver.generator.GeneratorFactory;
+import com.ldbc.driver.runtime.coordination.ThreadedQueuedConcurrentCompletionTimeService;
+import com.ldbc.driver.runtime.metrics.ThreadedQueuedConcurrentMetricsService;
 import com.ldbc.driver.temporal.Duration;
 import com.ldbc.driver.temporal.Time;
 import com.ldbc.driver.util.ClassLoaderHelper;
 import com.ldbc.driver.util.ClassLoadingException;
 import com.ldbc.driver.util.CsvFileReader;
-import com.ldbc.driver.util.Function1;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.type.TypeReference;
 
@@ -58,6 +60,7 @@ public class LdbcSnbInteractiveWorkload extends Workload {
     private Map<Class, Duration> readOperationInterleaves;
     private Set<Class> enabledReadOperationTypes;
     private Set<Class<? extends Operation<?>>> enabledWriteOperationTypes;
+    private Duration safeTDuration;
 
     @Override
     public void onInit(Map<String, String> params) throws WorkloadException {
@@ -240,6 +243,15 @@ public class LdbcSnbInteractiveWorkload extends Workload {
                 );
             }
         }
+
+        if (false == enabledWriteOperationTypes.isEmpty()) {
+            if (false == params.containsKey(LdbcSnbInteractiveConfiguration.SAFE_T)) {
+                throw new WorkloadException(
+                        String.format("Parameter %s must be provided when any updates are enabled", LdbcSnbInteractiveConfiguration.SAFE_T)
+                );
+            }
+            safeTDuration = Duration.fromMilli(Long.parseLong(params.get(LdbcSnbInteractiveConfiguration.SAFE_T)));
+        }
     }
 
     @Override
@@ -318,9 +330,9 @@ public class LdbcSnbInteractiveWorkload extends Workload {
             // TODO
             // TODO
             // TODO
-            Iterator<Operation<?>> filteredForumUpdateOperationsWithDependencyTimes = gf.assignDependencyTimes(
-                    gf.constant(Time.fromMilli(0)),
-                    filteredForumUpdateOperations
+            Iterator<Operation<?>> filteredForumUpdateOperationsWithDependencyTimes = gf.assignDependencyTimesEqualToScheduledStartTimeMinusSafeT(
+                    filteredForumUpdateOperations,
+                    safeTDuration
             );
 
             Set<Class<? extends Operation<?>>> dependentForumUpdateOperationTypes = Sets.<Class<? extends Operation<?>>>newHashSet(
@@ -366,9 +378,9 @@ public class LdbcSnbInteractiveWorkload extends Workload {
             // TODO
             // TODO
             // TODO
-            Iterator<Operation<?>> filteredPersonUpdateOperationsWithDependencyTimes = gf.assignDependencyTimes(
-                    gf.constant(Time.fromMilli(0)),
-                    filteredPersonUpdateOperations
+            Iterator<Operation<?>> filteredPersonUpdateOperationsWithDependencyTimes = gf.assignDependencyTimesEqualToScheduledStartTimeMinusSafeT(
+                    filteredPersonUpdateOperations,
+                    safeTDuration
             );
 
             asynchronousDependencyStreamsList.add(filteredPersonUpdateOperationsWithDependencyTimes);
@@ -554,7 +566,6 @@ public class LdbcSnbInteractiveWorkload extends Workload {
          * --> minimumResultCountPerOperationType = 7
          * 100%14 == 2 > 0
          * --> minimumResultCountPerOperationType = 8
-         *
          */
         Integer operationTypeCount = enabledReadOperationTypes.size();
         long minimumResultCountPerOperationType = Math.max(1, Math.round(Math.floor(requiredValidationParameterCount.doubleValue() / operationTypeCount.doubleValue())));

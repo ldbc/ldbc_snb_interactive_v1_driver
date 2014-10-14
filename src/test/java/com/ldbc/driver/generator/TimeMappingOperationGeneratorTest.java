@@ -6,11 +6,13 @@ import com.ldbc.driver.Operation;
 import com.ldbc.driver.Workload;
 import com.ldbc.driver.WorkloadException;
 import com.ldbc.driver.control.ConsoleAndFileDriverConfiguration;
+import com.ldbc.driver.control.DriverConfigurationException;
 import com.ldbc.driver.temporal.Duration;
 import com.ldbc.driver.temporal.SystemTimeSource;
 import com.ldbc.driver.temporal.Time;
 import com.ldbc.driver.temporal.TimeSource;
 import com.ldbc.driver.testutils.TestUtils;
+import com.ldbc.driver.util.MapUtils;
 import com.ldbc.driver.workloads.dummy.TimedNamedOperation1;
 import com.ldbc.driver.workloads.dummy.TimedNamedOperation1Factory;
 import com.ldbc.driver.workloads.dummy.TimedNamedOperation2;
@@ -255,7 +257,7 @@ public class TimeMappingOperationGeneratorTest {
     }
 
     @Test
-    public void shouldNotBreakTheMonotonicallyIncreasingScheduledStartTimesOfOperationsFromLdbcWorkload() throws WorkloadException, IOException {
+    public void shouldNotBreakTheMonotonicallyIncreasingScheduledStartTimesOfOperationsFromLdbcWorkload() throws WorkloadException, IOException, DriverConfigurationException {
         Map<String, String> paramsMap = LdbcSnbInteractiveConfiguration.defaultConfig();
         // LDBC Interactive Workload-specific parameters
         paramsMap.put(LdbcSnbInteractiveConfiguration.PARAMETERS_DIRECTORY, TestUtils.getResource("/").getAbsolutePath());
@@ -304,6 +306,9 @@ public class TimeMappingOperationGeneratorTest {
                 ignoreScheduledStartTimes,
                 shouldCreateResultsLog
         );
+
+        Map<String, String> updateStreamParams = MapUtils.loadPropertiesToMap(TestUtils.getResource("/updateStream.properties"));
+        configuration = (ConsoleAndFileDriverConfiguration) configuration.applyMap(updateStreamParams);
 
         Workload workload = new LdbcSnbInteractiveWorkload();
         workload.init(configuration);

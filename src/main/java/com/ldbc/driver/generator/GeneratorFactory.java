@@ -310,6 +310,26 @@ public class GeneratorFactory {
     }
 
     /**
+     * Assigns dependency times to all operations
+     * The dependency time assigned is equal to scheduled start time minus safeT duration
+     * All operations in the returned iterator will have dependency times assigned to them
+     * @param operations
+     * @param safeTDuration
+     * @return
+     */
+    public Iterator<Operation<?>> assignDependencyTimesEqualToScheduledStartTimeMinusSafeT(Iterator<Operation<?>> operations,
+                                                                                           final Duration safeTDuration) {
+        Function1<Operation<?>, Operation<?>> dependencyTimeAssigningFun = new Function1<Operation<?>, Operation<?>>() {
+            @Override
+            public Operation<?> apply(Operation<?> operation) {
+                operation.setDependencyTime(operation.scheduledStartTime().minus(safeTDuration));
+                return operation;
+            }
+        };
+        return new MappingGenerator<>(operations, dependencyTimeAssigningFun);
+    }
+
+    /**
      * Assigns dependency times to all operations that do not yet have one assigned,
      * or to all if canOverwriteDependencyTime is true.
      * The dependency time assigned is equal to the scheduled start time of the last operation for which the

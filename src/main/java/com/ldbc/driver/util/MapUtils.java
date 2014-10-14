@@ -2,6 +2,10 @@ package com.ldbc.driver.util;
 
 import com.google.common.collect.Lists;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.util.*;
 import java.util.Map.Entry;
 
@@ -151,5 +155,11 @@ public class MapUtils {
             }
         }
         return resultMap;
+    }
+
+    public static Map<String,String> loadPropertiesToMap(File propertiesFile) throws IOException {
+        Properties properties = new Properties();
+        properties.load(new FileInputStream(propertiesFile));
+        return propertiesToMap(properties);
     }
 }

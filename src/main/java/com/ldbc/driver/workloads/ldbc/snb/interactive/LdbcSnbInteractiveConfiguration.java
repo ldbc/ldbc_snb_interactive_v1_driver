@@ -10,6 +10,7 @@ public class LdbcSnbInteractiveConfiguration {
     public final static String PARAMETERS_DIRECTORY = LDBC_SNB_INTERACTIVE_PARAM_NAME_PREFIX + "parameters_dir";
     public final static String FORUM_UPDATE_FILES = LDBC_SNB_INTERACTIVE_PARAM_NAME_PREFIX + "forum_update_files";
     public final static String PERSON_UPDATE_FILES = LDBC_SNB_INTERACTIVE_PARAM_NAME_PREFIX + "person_update_files";
+    public final static String SAFE_T = LDBC_SNB_INTERACTIVE_PARAM_NAME_PREFIX + "gct_delta_duration";
     public final static String LDBC_INTERACTIVE_PACKAGE_PREFIX = removeSuffix(LdbcQuery1.class.getName(), LdbcQuery1.class.getSimpleName());
 
     /*
