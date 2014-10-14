@@ -22,7 +22,7 @@ public class WriteEventStreamReader implements Iterator<Operation<?>> {
 
     private static final String DATE_FORMAT_STRING = "yyyy-MM-dd";
     private static final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat(DATE_FORMAT_STRING);
-    private static final String DATE_TIME_FORMAT_STRING = "yyyy-MM-dd'T'HH:mm:ss'Z'";
+    private static final String DATE_TIME_FORMAT_STRING = "yyyy-MM-dd'T'HH:mm:ss.SSSZ";
     private static final SimpleDateFormat DATE_TIME_FORMAT = new SimpleDateFormat(DATE_TIME_FORMAT_STRING);
     private static final ObjectMapper objectMapper = new ObjectMapper();
     private final CsvEventStreamReader<Operation<?>> csvEventStreamReader;

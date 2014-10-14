@@ -1,5 +1,6 @@
 package com.ldbc.driver.generator;
 
+import com.google.common.base.Function;
 import com.google.common.collect.Iterators;
 import com.google.common.collect.Lists;
 import com.ldbc.driver.Operation;
@@ -31,9 +32,9 @@ public class CsvEventStreamReaderTest {
     @Test
     public void shouldParseEntireFileWhenAllDecodersAreProvidedTest() throws FileNotFoundException {
         // Given
-        File file = TestUtils.getResource("/updateStream_0.csv");
+        File file = TestUtils.getResource("/updateStream_0_0_forum.csv");
         Iterable<EventDecoder<Operation<?>>> decoders = Lists.newArrayList(
-                WriteEventStreamReader.EVENT_DECODER_ADD_LIKE_POST,
+                WriteEventStreamReader.EVENT_DECODER_ADD_LIKE_COMMENT,
                 WriteEventStreamReader.EVENT_DECODER_ADD_FORUM_MEMBERSHIP);
         EventDescriptions<Operation<?>> eventDescriptions = new EventDescriptions<>(decoders, EventReturnPolicy.AT_LEAST_ONE_MATCH);
 
@@ -41,9 +42,9 @@ public class CsvEventStreamReaderTest {
         Iterator<Operation<?>> csvEventStreamReader = new CsvEventStreamReader<>(Iterators.limit(new CsvFileReader(file, "\\|"), 4), eventDescriptions);
 
         // Then
-        assertThat(csvEventStreamReader.next(), instanceOf(LdbcUpdate2AddPostLike.class));
+        assertThat(csvEventStreamReader.next(), instanceOf(LdbcUpdate3AddCommentLike.class));
         assertThat(csvEventStreamReader.next(), instanceOf(LdbcUpdate5AddForumMembership.class));
-        assertThat(csvEventStreamReader.next(), instanceOf(LdbcUpdate5AddForumMembership.class));
+        assertThat(csvEventStreamReader.next(), instanceOf(LdbcUpdate3AddCommentLike.class));
         assertThat(csvEventStreamReader.next(), instanceOf(LdbcUpdate5AddForumMembership.class));
         assertThat(csvEventStreamReader.hasNext(), is(false));
     }
@@ -51,16 +52,16 @@ public class CsvEventStreamReaderTest {
     @Test
     public void shouldFailToParseEntireFileWhenOneDecoderNotProvidedAndAtLeastOnePolicyTest() throws FileNotFoundException {
         // Given
-        File file = TestUtils.getResource("/updateStream_0.csv");
+        File file = TestUtils.getResource("/updateStream_0_0_forum.csv");
         Iterable<EventDecoder<Operation<?>>> decoders = Lists.newArrayList(
-                WriteEventStreamReader.EVENT_DECODER_ADD_LIKE_POST);
+                WriteEventStreamReader.EVENT_DECODER_ADD_LIKE_COMMENT);
         EventDescriptions<Operation<?>> eventDescriptions = new EventDescriptions<>(decoders, EventReturnPolicy.AT_LEAST_ONE_MATCH);
 
         // When
         Iterator<Operation<?>> csvEventStreamReader = new CsvEventStreamReader<>(Iterators.limit(new CsvFileReader(file, "\\|"), 3), eventDescriptions);
 
         // Then
-        assertThat(csvEventStreamReader.next(), instanceOf(LdbcUpdate2AddPostLike.class));
+        assertThat(csvEventStreamReader.next(), instanceOf(LdbcUpdate3AddCommentLike.class));
         boolean exceptionThrown = false;
         try {
             csvEventStreamReader.next();
@@ -73,16 +74,16 @@ public class CsvEventStreamReaderTest {
     @Test
     public void shouldFailToParseEntireFileWhenOneDecoderNotProvidedAndExactlyOnePolicyTest() throws FileNotFoundException {
         // Given
-        File file = TestUtils.getResource("/updateStream_0.csv");
+        File file = TestUtils.getResource("/updateStream_0_0_forum.csv");
         Iterable<EventDecoder<Operation<?>>> decoders = Lists.newArrayList(
-                WriteEventStreamReader.EVENT_DECODER_ADD_LIKE_POST);
+                WriteEventStreamReader.EVENT_DECODER_ADD_LIKE_COMMENT);
         EventDescriptions<Operation<?>> eventDescriptions = new EventDescriptions<>(decoders, EventReturnPolicy.EXACTLY_ONE_MATCH);
 
         // When
         Iterator<Operation<?>> csvEventStreamReader = new CsvEventStreamReader<>(Iterators.limit(new CsvFileReader(file, "\\|"), 3), eventDescriptions);
 
         // Then
-        assertThat(csvEventStreamReader.next(), instanceOf(LdbcUpdate2AddPostLike.class));
+        assertThat(csvEventStreamReader.next(), instanceOf(LdbcUpdate3AddCommentLike.class));
         boolean exceptionThrown = false;
         try {
             csvEventStreamReader.next();
@@ -95,10 +96,10 @@ public class CsvEventStreamReaderTest {
     @Test
     public void shouldParseEntireFileWhenMultipleDecodersMatchSameEventAndAtLeastOncePolicy() throws FileNotFoundException {
         // Given
-        File file = TestUtils.getResource("/updateStream_0.csv");
+        File file = TestUtils.getResource("/updateStream_0_0_forum.csv");
         Iterable<EventDecoder<Operation<?>>> decoders = Lists.newArrayList(
-                WriteEventStreamReader.EVENT_DECODER_ADD_LIKE_POST,
-                WriteEventStreamReader.EVENT_DECODER_ADD_LIKE_POST,
+                WriteEventStreamReader.EVENT_DECODER_ADD_LIKE_COMMENT,
+                WriteEventStreamReader.EVENT_DECODER_ADD_LIKE_COMMENT,
                 WriteEventStreamReader.EVENT_DECODER_ADD_FORUM_MEMBERSHIP);
         EventDescriptions<Operation<?>> eventDescriptions = new EventDescriptions<>(decoders, EventReturnPolicy.AT_LEAST_ONE_MATCH);
 
@@ -106,9 +107,9 @@ public class CsvEventStreamReaderTest {
         Iterator<Operation<?>> csvEventStreamReader = new CsvEventStreamReader<>(Iterators.limit(new CsvFileReader(file, "\\|"), 4), eventDescriptions);
 
         // Then
-        assertThat(csvEventStreamReader.next(), instanceOf(LdbcUpdate2AddPostLike.class));
+        assertThat(csvEventStreamReader.next(), instanceOf(LdbcUpdate3AddCommentLike.class));
         assertThat(csvEventStreamReader.next(), instanceOf(LdbcUpdate5AddForumMembership.class));
-        assertThat(csvEventStreamReader.next(), instanceOf(LdbcUpdate5AddForumMembership.class));
+        assertThat(csvEventStreamReader.next(), instanceOf(LdbcUpdate3AddCommentLike.class));
         assertThat(csvEventStreamReader.next(), instanceOf(LdbcUpdate5AddForumMembership.class));
         assertThat(csvEventStreamReader.hasNext(), is(false));
     }
@@ -116,18 +117,26 @@ public class CsvEventStreamReaderTest {
     @Test
     public void shouldFailToParseEntireFileWhenMultipleDecodersMatchSameEventAndExactlyOncePolicy() throws FileNotFoundException {
         // Given
-        File file = TestUtils.getResource("/updateStream_0.csv");
+        String filePath = TestUtils.getResource("/updateStream_0_0_forum.csv").getAbsolutePath();
+        File csvFile = new File(filePath);
+
         Iterable<EventDecoder<Operation<?>>> decoders = Lists.newArrayList(
-                WriteEventStreamReader.EVENT_DECODER_ADD_LIKE_POST,
+                WriteEventStreamReader.EVENT_DECODER_ADD_LIKE_COMMENT,
                 WriteEventStreamReader.EVENT_DECODER_ADD_FORUM_MEMBERSHIP,
                 WriteEventStreamReader.EVENT_DECODER_ADD_FORUM_MEMBERSHIP);
         EventDescriptions<Operation<?>> eventDescriptions = new EventDescriptions<>(decoders, EventReturnPolicy.EXACTLY_ONE_MATCH);
 
         // When
-        Iterator<Operation<?>> csvEventStreamReader = new CsvEventStreamReader<>(Iterators.limit(new CsvFileReader(file, "\\|"), 4), eventDescriptions);
+        Iterator<Operation<?>> csvEventStreamReader = new CsvEventStreamReader<>(
+                Iterators.limit(
+                        new CsvFileReader(csvFile, "\\|"),
+                        4
+                ),
+                eventDescriptions
+        );
 
         // Then
-        assertThat(csvEventStreamReader.next(), instanceOf(LdbcUpdate2AddPostLike.class));
+        assertThat(csvEventStreamReader.next(), instanceOf(LdbcUpdate3AddCommentLike.class));
         boolean exceptionThrown = false;
         try {
             csvEventStreamReader.next();

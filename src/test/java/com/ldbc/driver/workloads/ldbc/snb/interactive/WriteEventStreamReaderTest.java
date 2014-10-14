@@ -6,6 +6,7 @@ import com.google.common.collect.Lists;
 import com.ldbc.driver.Operation;
 import com.ldbc.driver.generator.CsvEventStreamReader;
 import com.ldbc.driver.generator.GeneratorFactory;
+import com.ldbc.driver.generator.RandomDataGeneratorFactory;
 import com.ldbc.driver.temporal.Duration;
 import com.ldbc.driver.temporal.SystemTimeSource;
 import com.ldbc.driver.temporal.Time;
@@ -13,7 +14,6 @@ import com.ldbc.driver.temporal.TimeSource;
 import com.ldbc.driver.testutils.TestUtils;
 import com.ldbc.driver.util.CsvFileReader;
 import com.ldbc.driver.util.Histogram;
-import com.ldbc.driver.generator.RandomDataGeneratorFactory;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
@@ -283,16 +283,31 @@ public class WriteEventStreamReaderTest {
 
     @Test
     public void shouldParseUpdateEventFileWithExactlyOneMatch() throws FileNotFoundException {
-        String csvFilePath = TestUtils.getResource("/updateStream_0.csv").getAbsolutePath();
-        File csvFile = new File(csvFilePath);
-        CsvFileReader csvFileReader = new CsvFileReader(csvFile, "\\|");
-        WriteEventStreamReader writeEventStreamReader = new WriteEventStreamReader(csvFileReader, CsvEventStreamReader.EventReturnPolicy.EXACTLY_ONE_MATCH);
-        Iterator<Class<?>> updateEventTypes = Iterators.transform(writeEventStreamReader, new Function<Operation<?>, Class<?>>() {
-            @Override
-            public Class<?> apply(Operation<?> input) {
-                return input.getClass();
-            }
-        });
+        String forumCsvFilePath = TestUtils.getResource("/updateStream_0_0_forum.csv").getAbsolutePath();
+        File forumCsvFile = new File(forumCsvFilePath);
+        CsvFileReader forumCsvFileReader = new CsvFileReader(forumCsvFile, "\\|");
+        WriteEventStreamReader forumWriteEventStreamReader = new WriteEventStreamReader(forumCsvFileReader, CsvEventStreamReader.EventReturnPolicy.EXACTLY_ONE_MATCH);
+
+        String personCsvFilePath = TestUtils.getResource("/updateStream_0_0_person.csv").getAbsolutePath();
+        File personCsvFile = new File(personCsvFilePath);
+        CsvFileReader personCsvFileReader = new CsvFileReader(personCsvFile, "\\|");
+        WriteEventStreamReader personWriteEventStreamReader = new WriteEventStreamReader(personCsvFileReader, CsvEventStreamReader.EventReturnPolicy.EXACTLY_ONE_MATCH);
+
+        GeneratorFactory gf = new GeneratorFactory(new RandomDataGeneratorFactory(42l));
+
+        Iterator<Class<?>> updateEventTypes = Iterators.transform(
+                gf.mergeSortOperationsByStartTime(
+                        forumWriteEventStreamReader,
+                        personWriteEventStreamReader
+                ),
+                new Function<Operation<?>, Class<?>>() {
+                    @Override
+                    public Class<?> apply(Operation<?> input) {
+                        return input.getClass();
+                    }
+                }
+        );
+
         Histogram<Class<?>, Long> histogram = new Histogram<>(0L);
         histogram.addBucket(DiscreteBucket.<Class<?>>create(LdbcUpdate1AddPerson.class));
         histogram.addBucket(DiscreteBucket.<Class<?>>create(LdbcUpdate2AddPostLike.class));
