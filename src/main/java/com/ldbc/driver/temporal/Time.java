@@ -2,11 +2,19 @@ package com.ldbc.driver.temporal;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.TimeZone;
 import java.util.concurrent.TimeUnit;
 
 public class Time implements Comparable<Time>, MultipleTimeUnitProvider<Time> {
-    private static final SimpleDateFormat TIME_FORMAT = new SimpleDateFormat("HH:mm:ss.SSS");
-    private static final SimpleDateFormat DATE_TIME_FORMAT = new SimpleDateFormat("yyyy-MM-dd - HH:mm:ss:SSS");
+    private static final SimpleDateFormat TIME_FORMAT;
+    private static final SimpleDateFormat DATE_TIME_FORMAT;
+
+    static {
+        TIME_FORMAT = new SimpleDateFormat("HH:mm:ss.SSS");
+        TIME_FORMAT.setTimeZone(TimeZone.getTimeZone("GCT"));
+        DATE_TIME_FORMAT = new SimpleDateFormat("yyyy-MM-dd - HH:mm:ss:SSS");
+        DATE_TIME_FORMAT.setTimeZone(TimeZone.getTimeZone("GMT"));
+    }
 
     public static Time fromNano(long ns) {
         return new Time(ns);

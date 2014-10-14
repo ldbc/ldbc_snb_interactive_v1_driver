@@ -13,14 +13,19 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Iterator;
+import java.util.TimeZone;
 
 public class Query9EventStreamReader implements Iterator<Operation<?>> {
-    private static final String DATE_FORMAT_STRING = "yyyy-MM-dd";
-    private static final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat(DATE_FORMAT_STRING);
-
     public static final String PERSON_ID = "PersonID";
     public static final String PERSON_URI = "PersonURI";
     public static final String DATE = "Date0";
+    private static final String DATE_FORMAT_STRING = "yyyy-MM-dd";
+    private static final SimpleDateFormat DATE_FORMAT;
+
+    static {
+        DATE_FORMAT = new SimpleDateFormat(DATE_FORMAT_STRING);
+        DATE_FORMAT.setTimeZone(TimeZone.getTimeZone("GMT"));
+    }
 
     private static final ObjectMapper objectMapper = new ObjectMapper();
     private final CsvEventStreamReader<Operation<?>> csvEventStreamReader;

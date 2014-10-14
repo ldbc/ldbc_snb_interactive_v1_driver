@@ -60,14 +60,15 @@ public class WriteEventStreamReaderTest {
         LdbcUpdate1AddPerson addPerson = (LdbcUpdate1AddPerson) decoder.decodeEvent(new String[]{"42", null, jsonString});
 
         // Then
-        Calendar c = Calendar.getInstance();
-        c.clear();
-        c.set(1989, Calendar.JULY, 21);
-        Date birthday = c.getTime();
-        c.clear();
-        c.set(2011, Calendar.JANUARY, 18, 8, 36, 4);
-        c.setTimeZone(TimeZone.getTimeZone("GMT"));
-        Date creationDate = c.getTime();
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTimeZone(TimeZone.getTimeZone("GMT"));
+        calendar.clear();
+        calendar.set(1989, Calendar.JULY, 21);
+        Date birthday = calendar.getTime();
+        calendar.clear();
+        calendar.set(2011, Calendar.JANUARY, 18, 8, 36, 4);
+        calendar.setTimeZone(TimeZone.getTimeZone("GMT"));
+        Date creationDate = calendar.getTime();
 
         assertThat(addPerson.scheduledStartTime(), is(Time.fromMilli(42)));
         assertThat(addPerson.personId(), is(409L));

@@ -10,6 +10,7 @@ import java.io.IOException;
 import java.text.ParseException;
 import java.util.Calendar;
 import java.util.List;
+import java.util.TimeZone;
 
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.is;
@@ -58,6 +59,7 @@ public class ReadQueryEventStreamReadersTest {
 
         // Then
         Calendar calendar = Calendar.getInstance();
+        calendar.setTimeZone(TimeZone.getTimeZone("GMT"));
         LdbcQuery2 operation;
 
         operation = (LdbcQuery2) reader.next();
@@ -100,6 +102,7 @@ public class ReadQueryEventStreamReadersTest {
 
         // Then
         Calendar calendar = Calendar.getInstance();
+        calendar.setTimeZone(TimeZone.getTimeZone("GMT"));
         LdbcQuery3 operation;
 
         operation = (LdbcQuery3) reader.next();
@@ -155,6 +158,7 @@ public class ReadQueryEventStreamReadersTest {
 
         // Then
         Calendar calendar = Calendar.getInstance();
+        calendar.setTimeZone(TimeZone.getTimeZone("GMT"));
         LdbcQuery4 operation;
 
         operation = (LdbcQuery4) reader.next();
@@ -201,6 +205,7 @@ public class ReadQueryEventStreamReadersTest {
 
         // Then
         Calendar calendar = Calendar.getInstance();
+        calendar.setTimeZone(TimeZone.getTimeZone("GMT"));
         LdbcQuery5 operation;
 
         operation = (LdbcQuery5) reader.next();
@@ -334,6 +339,7 @@ public class ReadQueryEventStreamReadersTest {
 
         // Then
         Calendar calendar = Calendar.getInstance();
+        calendar.setTimeZone(TimeZone.getTimeZone("GMT"));
         LdbcQuery9 operation;
 
         operation = (LdbcQuery9) reader.next();

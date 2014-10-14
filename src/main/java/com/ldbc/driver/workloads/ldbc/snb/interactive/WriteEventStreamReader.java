@@ -17,13 +17,22 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
+import java.util.TimeZone;
 
 public class WriteEventStreamReader implements Iterator<Operation<?>> {
 
     private static final String DATE_FORMAT_STRING = "yyyy-MM-dd";
-    private static final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat(DATE_FORMAT_STRING);
+    private static final SimpleDateFormat DATE_FORMAT;
     private static final String DATE_TIME_FORMAT_STRING = "yyyy-MM-dd'T'HH:mm:ss.SSSZ";
-    private static final SimpleDateFormat DATE_TIME_FORMAT = new SimpleDateFormat(DATE_TIME_FORMAT_STRING);
+    private static final SimpleDateFormat DATE_TIME_FORMAT;
+
+    static {
+        DATE_FORMAT = new SimpleDateFormat(DATE_FORMAT_STRING);
+        DATE_FORMAT.setTimeZone(TimeZone.getTimeZone("GMT"));
+        DATE_TIME_FORMAT = new SimpleDateFormat(DATE_TIME_FORMAT_STRING);
+        DATE_TIME_FORMAT.setTimeZone(TimeZone.getTimeZone("GMT"));
+    }
+
     private static final ObjectMapper objectMapper = new ObjectMapper();
     private final CsvEventStreamReader<Operation<?>> csvEventStreamReader;
 
