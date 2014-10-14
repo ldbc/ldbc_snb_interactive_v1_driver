@@ -613,7 +613,7 @@ public class LdbcSnbInteractiveWorkload extends Workload {
 
     @Override
     public Duration maxExpectedInterleave() {
-        return Duration.fromMinutes(30);
+        return Duration.fromHours(1);
     }
 
     private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();

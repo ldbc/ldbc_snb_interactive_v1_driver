@@ -22,10 +22,7 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.text.ParseException;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.Iterator;
-import java.util.List;
+import java.util.*;
 
 import static com.ldbc.driver.util.Bucket.DiscreteBucket;
 import static org.hamcrest.CoreMatchers.equalTo;
@@ -47,7 +44,7 @@ public class WriteEventStreamReaderTest {
                 "\"Zhao\"," +
                 "\"male\"," +
                 "\"1989-07-21\"," +
-                "\"2011-01-18T08:36:04Z\"," +
+                "\"2011-01-18T08:36:04.000+0000\"," +
                 "\"14.131.98.220\"," +
                 "\"Chrome\"," +
                 "392," +
@@ -69,6 +66,7 @@ public class WriteEventStreamReaderTest {
         Date birthday = c.getTime();
         c.clear();
         c.set(2011, Calendar.JANUARY, 18, 8, 36, 4);
+        c.setTimeZone(TimeZone.getTimeZone("GMT"));
         Date creationDate = c.getTime();
 
         assertThat(addPerson.scheduledStartTime(), is(Time.fromMilli(42)));
@@ -95,7 +93,7 @@ public class WriteEventStreamReaderTest {
     @Test
     public void shouldParseUpdate2AddLikePost() throws IOException, ParseException {
         // Given
-        String jsonString = "[1582,120207,\"2011-02-01T08:36:04Z\"]";
+        String jsonString = "[1582,120207,\"2011-02-01T08:36:04.000+0000\"]";
 
         // When
         CsvEventStreamReader.EventDecoder<Operation<?>> decoder = WriteEventStreamReader.EVENT_DECODER_ADD_LIKE_POST;
@@ -105,6 +103,7 @@ public class WriteEventStreamReaderTest {
         Calendar c = Calendar.getInstance();
         c.clear();
         c.set(2011, Calendar.FEBRUARY, 01, 8, 36, 04);
+        c.setTimeZone(TimeZone.getTimeZone("GMT"));
         Date creationDate = c.getTime();
 
         assertThat(addPostLike.scheduledStartTime(), is(Time.fromMilli(42)));
@@ -116,7 +115,7 @@ public class WriteEventStreamReaderTest {
     @Test
     public void shouldParseUpdate3AddLikeComment() throws IOException, ParseException {
         // Given
-        String jsonString = "[1095,120426,\"2011-01-24T05:44:13Z\"]";
+        String jsonString = "[1095,120426,\"2011-01-24T05:44:13.000+0000\"]";
 
         // When
         CsvEventStreamReader.EventDecoder<Operation<?>> decoder = WriteEventStreamReader.EVENT_DECODER_ADD_LIKE_COMMENT;
@@ -126,6 +125,7 @@ public class WriteEventStreamReaderTest {
         Calendar c = Calendar.getInstance();
         c.clear();
         c.set(2011, Calendar.JANUARY, 24, 5, 44, 13);
+        c.setTimeZone(TimeZone.getTimeZone("GMT"));
         Date creationDate = c.getTime();
 
         assertThat(addCommentLike.scheduledStartTime(), is(Time.fromMilli(42)));
@@ -137,7 +137,7 @@ public class WriteEventStreamReaderTest {
     @Test
     public void shouldParseUpdate4AddForum() throws IOException, ParseException {
         // Given
-        String jsonString = "[2118,\"Group for The_Beekeeper in Pakistan\",\"2011-01-03T06:04:47Z\",989,[10716]]";
+        String jsonString = "[2118,\"Group for The_Beekeeper in Pakistan\",\"2011-01-03T06:04:47.000+0000\",989,[10716]]";
 
         // When
         CsvEventStreamReader.EventDecoder<Operation<?>> decoder = WriteEventStreamReader.EVENT_DECODER_ADD_FORUM;
@@ -147,6 +147,7 @@ public class WriteEventStreamReaderTest {
         Calendar c = Calendar.getInstance();
         c.clear();
         c.set(2011, Calendar.JANUARY, 3, 6, 4, 47);
+        c.setTimeZone(TimeZone.getTimeZone("GMT"));
         Date creationDate = c.getTime();
 
         assertThat(addForum.scheduledStartTime(), is(Time.fromMilli(42)));
@@ -160,7 +161,7 @@ public class WriteEventStreamReaderTest {
     @Test
     public void shouldParseUpdate5AddForumMembership() throws IOException, ParseException {
         // Given
-        String jsonString = "[2153,372,\"2011-01-04T18:42:51Z\"]";
+        String jsonString = "[2153,372,\"2011-01-04T18:42:51.000+0000\"]";
 
         // When
         CsvEventStreamReader.EventDecoder<Operation<?>> decoder = WriteEventStreamReader.EVENT_DECODER_ADD_FORUM_MEMBERSHIP;
@@ -170,6 +171,7 @@ public class WriteEventStreamReaderTest {
         Calendar c = Calendar.getInstance();
         c.clear();
         c.set(2011, Calendar.JANUARY, 4, 18, 42, 51);
+        c.setTimeZone(TimeZone.getTimeZone("GMT"));
         Date creationDate = c.getTime();
 
         assertThat(addForumMembership.scheduledStartTime(), is(Time.fromMilli(42)));
@@ -184,7 +186,7 @@ public class WriteEventStreamReaderTest {
         String jsonString = "[" +
                 "120343," +
                 "\"\"," +
-                "\"2011-01-30T07:59:58Z\"," +
+                "\"2011-01-30T07:59:58.000+0000\"," +
                 "\"91.229.229.89\"," +
                 "\"Internet Explorer\"," +
                 "\"\"," +
@@ -203,6 +205,7 @@ public class WriteEventStreamReaderTest {
         Calendar c = Calendar.getInstance();
         c.clear();
         c.set(2011, Calendar.JANUARY, 30, 7, 59, 58);
+        c.setTimeZone(TimeZone.getTimeZone("GMT"));
         Date creationDate = c.getTime();
 
         assertThat(addPost.scheduledStartTime(), is(Time.fromMilli(42)));
@@ -225,7 +228,7 @@ public class WriteEventStreamReaderTest {
         // Given
         String jsonString = "[" +
                 "4034293," +
-                "\"2013-01-31T23:58:49Z\"," +
+                "\"2013-01-31T23:58:49.000+0000\"," +
                 "\"200.11.32.131\"," +
                 "\"Firefox\"," +
                 "\"words\"," +
@@ -244,6 +247,7 @@ public class WriteEventStreamReaderTest {
         Calendar c = Calendar.getInstance();
         c.clear();
         c.set(2013, Calendar.JANUARY, 31, 23, 58, 49);
+        c.setTimeZone(TimeZone.getTimeZone("GMT"));
         Date creationDate = c.getTime();
 
         assertThat(addComment.scheduledStartTime(), is(Time.fromMilli(42)));
@@ -263,7 +267,7 @@ public class WriteEventStreamReaderTest {
     @Test
     public void shouldParseUpdate8AddFriendship() throws IOException, ParseException {
         // Given
-        String jsonString = "[1920,655,\"2011-01-10T15:58:45Z\"]";
+        String jsonString = "[1920,655,\"2011-01-10T15:58:45.000+0000\"]";
 
         // When
         CsvEventStreamReader.EventDecoder<Operation<?>> decoder = WriteEventStreamReader.EVENT_DECODER_ADD_FRIENDSHIP;
@@ -273,6 +277,7 @@ public class WriteEventStreamReaderTest {
         Calendar c = Calendar.getInstance();
         c.clear();
         c.set(2011, Calendar.JANUARY, 10, 15, 58, 45);
+        c.setTimeZone(TimeZone.getTimeZone("GMT"));
         Date creationDate = c.getTime();
 
         assertThat(addFriendship.scheduledStartTime(), is(Time.fromMilli(42)));
@@ -332,16 +337,38 @@ public class WriteEventStreamReaderTest {
 
     @Test
     public void shouldParseUpdateEventFileWithAtLeastOneMatch() throws FileNotFoundException {
-        String csvFilePath = TestUtils.getResource("/updateStream_0.csv").getAbsolutePath();
-        File csvFile = new File(csvFilePath);
-        CsvFileReader csvFileReader = new CsvFileReader(csvFile, "\\|");
-        WriteEventStreamReader writeEventStreamReader = new WriteEventStreamReader(csvFileReader, CsvEventStreamReader.EventReturnPolicy.AT_LEAST_ONE_MATCH);
-        Iterator<Class<?>> updateEventTypes = Iterators.transform(writeEventStreamReader, new Function<Operation<?>, Class<?>>() {
-            @Override
-            public Class<?> apply(Operation<?> input) {
-                return input.getClass();
-            }
-        });
+        String forumCsvFilePath = TestUtils.getResource("/updateStream_0_0_forum.csv").getAbsolutePath();
+        File forumCsvFile = new File(forumCsvFilePath);
+        CsvFileReader forumCsvFileReader = new CsvFileReader(forumCsvFile, "\\|");
+        WriteEventStreamReader forumWriteEventStreamReader = new WriteEventStreamReader(
+                forumCsvFileReader,
+                CsvEventStreamReader.EventReturnPolicy.AT_LEAST_ONE_MATCH
+        );
+
+        String personCsvFilePath = TestUtils.getResource("/updateStream_0_0_person.csv").getAbsolutePath();
+        File personCsvFile = new File(personCsvFilePath);
+        CsvFileReader personCsvFileReader = new CsvFileReader(personCsvFile, "\\|");
+        WriteEventStreamReader personWriteEventStreamReader = new WriteEventStreamReader(
+                personCsvFileReader,
+                CsvEventStreamReader.EventReturnPolicy.AT_LEAST_ONE_MATCH
+        );
+
+        GeneratorFactory gf = new GeneratorFactory(new RandomDataGeneratorFactory(42l));
+        Iterator<Operation<?>> operations = gf.mergeSortOperationsByStartTime(
+                forumWriteEventStreamReader,
+                personWriteEventStreamReader
+        );
+
+        Iterator<Class<?>> updateEventTypes = Iterators.transform(
+                operations,
+                new Function<Operation<?>, Class<?>>() {
+                    @Override
+                    public Class<?> apply(Operation<?> input) {
+                        return input.getClass();
+                    }
+                }
+        );
+
         Histogram<Class<?>, Long> histogram = new Histogram<>(0L);
         histogram.addBucket(DiscreteBucket.<Class<?>>create(LdbcUpdate1AddPerson.class));
         histogram.addBucket(DiscreteBucket.<Class<?>>create(LdbcUpdate2AddPostLike.class));
@@ -366,13 +393,31 @@ public class WriteEventStreamReaderTest {
 
     @Test
     public void timestampsInUpdateStreamShouldBeMonotonicallyIncreasing() throws FileNotFoundException {
-        String csvFilePath = TestUtils.getResource("/updateStream_0.csv").getAbsolutePath();
-        File csvFile = new File(csvFilePath);
-        CsvFileReader csvFileReader = new CsvFileReader(csvFile, "\\|");
-        WriteEventStreamReader writeEventStreamReader = new WriteEventStreamReader(csvFileReader, CsvEventStreamReader.EventReturnPolicy.AT_LEAST_ONE_MATCH);
+        String forumCsvFilePath = TestUtils.getResource("/updateStream_0_0_forum.csv").getAbsolutePath();
+        File forumCsvFile = new File(forumCsvFilePath);
+        CsvFileReader forumCsvFileReader = new CsvFileReader(forumCsvFile, "\\|");
+        WriteEventStreamReader forumWriteEventStreamReader = new WriteEventStreamReader(
+                forumCsvFileReader,
+                CsvEventStreamReader.EventReturnPolicy.AT_LEAST_ONE_MATCH
+        );
+
+        String personCsvFilePath = TestUtils.getResource("/updateStream_0_0_person.csv").getAbsolutePath();
+        File personCsvFile = new File(personCsvFilePath);
+        CsvFileReader personCsvFileReader = new CsvFileReader(personCsvFile, "\\|");
+        WriteEventStreamReader personWriteEventStreamReader = new WriteEventStreamReader(
+                personCsvFileReader,
+                CsvEventStreamReader.EventReturnPolicy.AT_LEAST_ONE_MATCH
+        );
+
+        GeneratorFactory gf = new GeneratorFactory(new RandomDataGeneratorFactory(42l));
+        Iterator<Operation<?>> operations = gf.mergeSortOperationsByStartTime(
+                forumWriteEventStreamReader,
+                personWriteEventStreamReader
+        );
+
         Time previousOperationTime = Time.fromMilli(0);
-        while (writeEventStreamReader.hasNext()) {
-            Operation<?> writeOperation = writeEventStreamReader.next();
+        while (operations.hasNext()) {
+            Operation<?> writeOperation = operations.next();
             Time currentOperationTime = writeOperation.scheduledStartTime();
             assertThat(currentOperationTime.gte(previousOperationTime), is(true));
             previousOperationTime = currentOperationTime;
@@ -381,15 +426,32 @@ public class WriteEventStreamReaderTest {
 
     @Test
     public void timestampsInUpdateStreamShouldBeMonotonicallyIncreasingAfterOffset() throws FileNotFoundException {
-        GeneratorFactory gf = new GeneratorFactory(new RandomDataGeneratorFactory(42L));
-        String csvFilePath = TestUtils.getResource("/updateStream_0.csv").getAbsolutePath();
-        File csvFile = new File(csvFilePath);
-        CsvFileReader csvFileReader = new CsvFileReader(csvFile, "\\|");
+        String forumCsvFilePath = TestUtils.getResource("/updateStream_0_0_forum.csv").getAbsolutePath();
+        File forumCsvFile = new File(forumCsvFilePath);
+        CsvFileReader forumCsvFileReader = new CsvFileReader(forumCsvFile, "\\|");
+        WriteEventStreamReader forumWriteEventStreamReader = new WriteEventStreamReader(
+                forumCsvFileReader,
+                CsvEventStreamReader.EventReturnPolicy.AT_LEAST_ONE_MATCH
+        );
+
+        String personCsvFilePath = TestUtils.getResource("/updateStream_0_0_person.csv").getAbsolutePath();
+        File personCsvFile = new File(personCsvFilePath);
+        CsvFileReader personCsvFileReader = new CsvFileReader(personCsvFile, "\\|");
+        WriteEventStreamReader personWriteEventStreamReader = new WriteEventStreamReader(
+                personCsvFileReader,
+                CsvEventStreamReader.EventReturnPolicy.AT_LEAST_ONE_MATCH
+        );
+
+        GeneratorFactory gf = new GeneratorFactory(new RandomDataGeneratorFactory(42l));
+        Iterator<Operation<?>> operations = gf.mergeSortOperationsByStartTime(
+                forumWriteEventStreamReader,
+                personWriteEventStreamReader
+        );
 
         Iterator<Operation<?>> writeEventStreamReader =
                 gf.timeOffset(
                         gf.assignConservativeDependencyTimes(
-                                new WriteEventStreamReader(csvFileReader, CsvEventStreamReader.EventReturnPolicy.AT_LEAST_ONE_MATCH),
+                                operations,
                                 Time.fromMilli(10),
                                 true
                         ),

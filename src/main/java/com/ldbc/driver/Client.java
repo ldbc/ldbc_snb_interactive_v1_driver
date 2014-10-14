@@ -242,7 +242,8 @@ public class Client {
 
             WorkloadStreams workloadStreams;
             try {
-                Tuple.Tuple2<WorkloadStreams, Workload> streamsAndWorkload = WorkloadStreams.createNewWorkloadWithLimitedWorkloadStreams(controlService.configuration(), gf);
+                Tuple.Tuple2<WorkloadStreams, Workload> streamsAndWorkload =
+                        WorkloadStreams.createNewWorkloadWithLimitedWorkloadStreams(controlService.configuration(), gf);
                 workload = streamsAndWorkload._2();
                 workloadStreams = streamsAndWorkload._1();
             } catch (Exception e) {
@@ -465,7 +466,10 @@ public class Client {
                 WorkloadStatisticsCalculator workloadStatisticsCalculator = new WorkloadStatisticsCalculator();
                 workloadStatistics = workloadStatisticsCalculator.calculate(
                         timeMappedWorkloadStreams,
-                        workload.maxExpectedInterleave());
+                        Duration.fromHours(5)
+                        // TODO uncomment, maybe
+                        // workload.maxExpectedInterleave()
+                );
                 logger.info("Calculation complete\n" + workloadStatistics);
             } catch (MetricsCollectionException e) {
                 throw new ClientException("Error while calculating workload statistics", e);
@@ -510,11 +514,14 @@ public class Client {
             try {
                 Tuple.Tuple2<WorkloadStreams, Workload> streamsAndWorkload = WorkloadStreams.createNewWorkloadWithLimitedWorkloadStreams(controlService.configuration(), gf);
                 workload = streamsAndWorkload._2();
-                Iterator<Operation<?>> operations = streamsAndWorkload._1().mergeSortedByStartTime(gf);
-                timeMappedOperations = gf.timeOffsetAndCompress(
-                        operations,
+                WorkloadStreams workloadStreams = streamsAndWorkload._1();
+                WorkloadStreams offsetAndCompressedWorkloadStreams = WorkloadStreams.timeOffsetAndCompressWorkloadStreams(
+                        workloadStreams,
                         controlService.workloadStartTime(),
-                        controlService.configuration().timeCompressionRatio());
+                        controlService.configuration().timeCompressionRatio(),
+                        gf
+                );
+                timeMappedOperations = offsetAndCompressedWorkloadStreams.mergeSortedByStartTime(gf);
             } catch (WorkloadException e) {
                 throw new ClientException("Error while retrieving operation stream for workload", e);
             }

@@ -79,14 +79,14 @@ public class WorkloadStreams {
 
         try {
             Time first = peekingAsyncDependencyOperationStream.peek().scheduledStartTime();
-            peekingAsyncDependencyOperationStreamAheadOfMinBy = first.durationGreaterThan(minScheduledStartTime);
+            peekingAsyncDependencyOperationStreamAheadOfMinBy = Duration.fromNano(Math.round(first.durationGreaterThan(minScheduledStartTime).asNano() * compressionRatio));
         } catch (NoSuchElementException e) {
             // do nothing, just means stream was empty
         }
 
         try {
             Time first = peekingAsyncNonDependencyOperationStream.peek().scheduledStartTime();
-            peekingAsyncNonDependencyOperationStreamAheadOfMinBy = first.durationGreaterThan(minScheduledStartTime);
+            peekingAsyncNonDependencyOperationStreamAheadOfMinBy = Duration.fromNano(Math.round(first.durationGreaterThan(minScheduledStartTime).asNano() * compressionRatio));
         } catch (NoSuchElementException e) {
             // do nothing, just means stream was empty
         }
@@ -94,7 +94,7 @@ public class WorkloadStreams {
         for (int i = 0; i < peekingBlockingDependencyOperationStreams.size(); i++) {
             try {
                 Time first = peekingBlockingDependencyOperationStreams.get(i).peek().scheduledStartTime();
-                peekingBlockingDependencyOperationStreamsAheadOfMinBy.set(i, first.durationGreaterThan(minScheduledStartTime));
+                peekingBlockingDependencyOperationStreamsAheadOfMinBy.set(i, Duration.fromNano(Math.round(first.durationGreaterThan(minScheduledStartTime).asNano() * compressionRatio)));
             } catch (NoSuchElementException e) {
                 // do nothing, just means stream was empty
             }
@@ -103,7 +103,7 @@ public class WorkloadStreams {
         for (int i = 0; i < peekingBlockingNonDependencyOperationStreams.size(); i++) {
             try {
                 Time first = peekingBlockingNonDependencyOperationStreams.get(i).peek().scheduledStartTime();
-                peekingBlockingNonDependencyOperationStreamsAheadOfMinBy.set(i, first.durationGreaterThan(minScheduledStartTime));
+                peekingBlockingNonDependencyOperationStreamsAheadOfMinBy.set(i, Duration.fromNano(Math.round(first.durationGreaterThan(minScheduledStartTime).asNano() * compressionRatio)));
             } catch (NoSuchElementException e) {
                 // do nothing, just means stream was empty
             }

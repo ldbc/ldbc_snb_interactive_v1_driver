@@ -53,8 +53,10 @@ public class LdbcSnbInteractiveWorkloadReadTest {
 
         Map<String, String> paramsMap = defaultSnbParamsMapWithParametersDir();
         // LDBC Interactive Workload-specific parameters
-        List<String> forumUpdateFiles = Lists.newArrayList(TestUtils.getResource("/updateStream_0.csv").getAbsolutePath());
+        List<String> forumUpdateFiles = Lists.newArrayList(TestUtils.getResource("/updateStream_0_0_forum.csv").getAbsolutePath());
         paramsMap.put(LdbcSnbInteractiveConfiguration.FORUM_UPDATE_FILES, LdbcSnbInteractiveConfiguration.serializeFilePathsListFromConfiguration(forumUpdateFiles));
+        List<String> personUpdateFiles = Lists.newArrayList(TestUtils.getResource("/updateStream_0_0_person.csv").getAbsolutePath());
+        paramsMap.put(LdbcSnbInteractiveConfiguration.PERSON_UPDATE_FILES, LdbcSnbInteractiveConfiguration.serializeFilePathsListFromConfiguration(personUpdateFiles));
         // Driver-specific parameters
         String name = null;
         String dbClassName = DummyLdbcSnbInteractiveDb.class.getName();
@@ -381,8 +383,10 @@ public class LdbcSnbInteractiveWorkloadReadTest {
         // Given
         Map<String, String> paramsMap = defaultSnbParamsMapWithParametersDir();
         // LDBC Interactive Workload-specific parameters
-        List<String> forumUpdateFiles = Lists.newArrayList(TestUtils.getResource("/updateStream_0.csv").getAbsolutePath());
+        List<String> forumUpdateFiles = Lists.newArrayList(TestUtils.getResource("/updateStream_0_0_forum.csv").getAbsolutePath());
         paramsMap.put(LdbcSnbInteractiveConfiguration.FORUM_UPDATE_FILES, LdbcSnbInteractiveConfiguration.serializeFilePathsListFromConfiguration(forumUpdateFiles));
+        List<String> personUpdateFiles = Lists.newArrayList(TestUtils.getResource("/updateStream_0_0_person.csv").getAbsolutePath());
+        paramsMap.put(LdbcSnbInteractiveConfiguration.PERSON_UPDATE_FILES, LdbcSnbInteractiveConfiguration.serializeFilePathsListFromConfiguration(personUpdateFiles));
         // DummyDb-specific parameters
         paramsMap.put(DummyLdbcSnbInteractiveDb.SLEEP_DURATION_MILLI_ARG, Long.toString(Duration.fromMilli(10).asMilli()));
         // Driver-specific parameters
