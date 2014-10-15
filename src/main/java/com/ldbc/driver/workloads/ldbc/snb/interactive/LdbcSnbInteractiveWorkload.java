@@ -4,10 +4,7 @@ import com.google.common.base.Function;
 import com.google.common.base.Predicate;
 import com.google.common.collect.*;
 import com.ldbc.driver.*;
-import com.ldbc.driver.control.ConsoleAndFileDriverConfiguration;
 import com.ldbc.driver.generator.GeneratorFactory;
-import com.ldbc.driver.runtime.coordination.ThreadedQueuedConcurrentCompletionTimeService;
-import com.ldbc.driver.runtime.metrics.ThreadedQueuedConcurrentMetricsService;
 import com.ldbc.driver.temporal.Duration;
 import com.ldbc.driver.temporal.Time;
 import com.ldbc.driver.util.ClassLoaderHelper;
@@ -57,7 +54,6 @@ public class LdbcSnbInteractiveWorkload extends Workload {
     private Duration readOperation13Interleave;
     private Duration readOperation14Interleave;
 
-    private Map<Class, Duration> readOperationInterleaves;
     private Set<Class> enabledReadOperationTypes;
     private Set<Class<? extends Operation<?>>> enabledWriteOperationTypes;
     private Duration safeTDuration;
@@ -70,29 +66,9 @@ public class LdbcSnbInteractiveWorkload extends Workload {
         compulsoryKeys.addAll(LdbcSnbInteractiveConfiguration.READ_OPERATION_ENABLE_KEYS);
         compulsoryKeys.addAll(LdbcSnbInteractiveConfiguration.WRITE_OPERATION_ENABLE_KEYS);
 
-        Set<String> missingPropertyParameters = LdbcSnbInteractiveConfiguration.missingPropertiesParameters(params, compulsoryKeys);
+        Set<String> missingPropertyParameters = LdbcSnbInteractiveConfiguration.missingParameters(params, compulsoryKeys);
         if (false == missingPropertyParameters.isEmpty())
             throw new WorkloadException(String.format("Workload could not initialize due to missing parameters: %s", missingPropertyParameters.toString()));
-
-        List<String> frequencyKeys = Lists.newArrayList(LdbcSnbInteractiveConfiguration.READ_OPERATION_FREQUENCY_KEYS);
-        Set<String> missingFrequencyKeys = LdbcSnbInteractiveConfiguration.missingPropertiesParameters(params, frequencyKeys);
-        if (false == missingFrequencyKeys.isEmpty()) {
-            // if there are no frequencies set, there should be specified interleave times for read queries
-            List<String> interleaveKeys = Lists.newArrayList(LdbcSnbInteractiveConfiguration.READ_OPERATION_INTERLEAVE_KEYS);
-            Set<String> missingInterleaveKeys = LdbcSnbInteractiveConfiguration.missingPropertiesParameters(params, interleaveKeys);
-            if (false == missingInterleaveKeys.isEmpty()) {
-                throw new WorkloadException(String.format("Workload could not initialize. One of the following groups of parameters should be set: %s or %s", missingFrequencyKeys.toString(), missingInterleaveKeys.toString()));
-            }
-        } else {
-            // if UPDATE_INTERLEAVE is missing, set it to DEFAULT
-            Set<String> missingUpdateInterleave = LdbcSnbInteractiveConfiguration.missingPropertiesParameters(params, Lists.newArrayList(LdbcSnbInteractiveConfiguration.UPDATE_INTERLEAVE));
-            if (false == missingUpdateInterleave.isEmpty()) {
-                params.put(LdbcSnbInteractiveConfiguration.UPDATE_INTERLEAVE, LdbcSnbInteractiveConfiguration.DEFAULT_UPDATE_INTERLEAVE);
-            }
-
-            // compute interleave based on frequencies
-            params = LdbcSnbInteractiveConfiguration.convertFrequenciesToInterleaves(params);
-        }
 
         Iterable<String> forumUpdateFilePaths = (params.containsKey(LdbcSnbInteractiveConfiguration.FORUM_UPDATE_FILES))
                 ?
@@ -102,10 +78,10 @@ public class LdbcSnbInteractiveWorkload extends Workload {
         for (String forumUpdateFilePath : forumUpdateFilePaths) {
             File forumUpdateFile = new File(forumUpdateFilePath);
             try {
-                CsvFileReader forumUpdateOperationsFileReader = new CsvFileReader(forumUpdateFile, LdbcSnbInteractiveConfiguration.PIPE_SEPARATOR);
+                CsvFileReader forumUpdateOperationsFileReader = new CsvFileReader(forumUpdateFile, LdbcSnbInteractiveConfiguration.PIPE_SEPARATOR_REGEX);
                 forumUpdateOperationsFileReaders.add(forumUpdateOperationsFileReader);
             } catch (FileNotFoundException e) {
-                throw new WorkloadException("Unable to load forum update operation parameters file", e);
+                throw new WorkloadException("Unable to load forum update operation parameters file: " + forumUpdateFilePath, e);
             }
         }
 
@@ -117,7 +93,7 @@ public class LdbcSnbInteractiveWorkload extends Workload {
         for (String personUpdateFilePath : personUpdateFilePaths) {
             File personUpdateFile = new File(personUpdateFilePath);
             try {
-                CsvFileReader personUpdateOperationsFileReader = new CsvFileReader(personUpdateFile, LdbcSnbInteractiveConfiguration.PIPE_SEPARATOR);
+                CsvFileReader personUpdateOperationsFileReader = new CsvFileReader(personUpdateFile, LdbcSnbInteractiveConfiguration.PIPE_SEPARATOR_REGEX);
                 personUpdateOperationsFileReaders.add(personUpdateOperationsFileReader);
             } catch (FileNotFoundException e) {
                 throw new WorkloadException("Unable to load person update operation parameters file", e);
@@ -135,65 +111,22 @@ public class LdbcSnbInteractiveWorkload extends Workload {
             }
         }
         try {
-            readOperation1FileReader = new CsvFileReader(new File(parametersDir, LdbcSnbInteractiveConfiguration.READ_OPERATION_1_PARAMS_FILENAME), LdbcSnbInteractiveConfiguration.PIPE_SEPARATOR);
-            readOperation2FileReader = new CsvFileReader(new File(parametersDir, LdbcSnbInteractiveConfiguration.READ_OPERATION_2_PARAMS_FILENAME), LdbcSnbInteractiveConfiguration.PIPE_SEPARATOR);
-            readOperation3FileReader = new CsvFileReader(new File(parametersDir, LdbcSnbInteractiveConfiguration.READ_OPERATION_3_PARAMS_FILENAME), LdbcSnbInteractiveConfiguration.PIPE_SEPARATOR);
-            readOperation4FileReader = new CsvFileReader(new File(parametersDir, LdbcSnbInteractiveConfiguration.READ_OPERATION_4_PARAMS_FILENAME), LdbcSnbInteractiveConfiguration.PIPE_SEPARATOR);
-            readOperation5FileReader = new CsvFileReader(new File(parametersDir, LdbcSnbInteractiveConfiguration.READ_OPERATION_5_PARAMS_FILENAME), LdbcSnbInteractiveConfiguration.PIPE_SEPARATOR);
-            readOperation6FileReader = new CsvFileReader(new File(parametersDir, LdbcSnbInteractiveConfiguration.READ_OPERATION_6_PARAMS_FILENAME), LdbcSnbInteractiveConfiguration.PIPE_SEPARATOR);
-            readOperation7FileReader = new CsvFileReader(new File(parametersDir, LdbcSnbInteractiveConfiguration.READ_OPERATION_7_PARAMS_FILENAME), LdbcSnbInteractiveConfiguration.PIPE_SEPARATOR);
-            readOperation8FileReader = new CsvFileReader(new File(parametersDir, LdbcSnbInteractiveConfiguration.READ_OPERATION_8_PARAMS_FILENAME), LdbcSnbInteractiveConfiguration.PIPE_SEPARATOR);
-            readOperation9FileReader = new CsvFileReader(new File(parametersDir, LdbcSnbInteractiveConfiguration.READ_OPERATION_9_PARAMS_FILENAME), LdbcSnbInteractiveConfiguration.PIPE_SEPARATOR);
-            readOperation10FileReader = new CsvFileReader(new File(parametersDir, LdbcSnbInteractiveConfiguration.READ_OPERATION_10_PARAMS_FILENAME), LdbcSnbInteractiveConfiguration.PIPE_SEPARATOR);
-            readOperation11FileReader = new CsvFileReader(new File(parametersDir, LdbcSnbInteractiveConfiguration.READ_OPERATION_11_PARAMS_FILENAME), LdbcSnbInteractiveConfiguration.PIPE_SEPARATOR);
-            readOperation12FileReader = new CsvFileReader(new File(parametersDir, LdbcSnbInteractiveConfiguration.READ_OPERATION_12_PARAMS_FILENAME), LdbcSnbInteractiveConfiguration.PIPE_SEPARATOR);
-            readOperation13FileReader = new CsvFileReader(new File(parametersDir, LdbcSnbInteractiveConfiguration.READ_OPERATION_13_PARAMS_FILENAME), LdbcSnbInteractiveConfiguration.PIPE_SEPARATOR);
-            readOperation14FileReader = new CsvFileReader(new File(parametersDir, LdbcSnbInteractiveConfiguration.READ_OPERATION_14_PARAMS_FILENAME), LdbcSnbInteractiveConfiguration.PIPE_SEPARATOR);
+            readOperation1FileReader = new CsvFileReader(new File(parametersDir, LdbcSnbInteractiveConfiguration.READ_OPERATION_1_PARAMS_FILENAME), LdbcSnbInteractiveConfiguration.PIPE_SEPARATOR_REGEX);
+            readOperation2FileReader = new CsvFileReader(new File(parametersDir, LdbcSnbInteractiveConfiguration.READ_OPERATION_2_PARAMS_FILENAME), LdbcSnbInteractiveConfiguration.PIPE_SEPARATOR_REGEX);
+            readOperation3FileReader = new CsvFileReader(new File(parametersDir, LdbcSnbInteractiveConfiguration.READ_OPERATION_3_PARAMS_FILENAME), LdbcSnbInteractiveConfiguration.PIPE_SEPARATOR_REGEX);
+            readOperation4FileReader = new CsvFileReader(new File(parametersDir, LdbcSnbInteractiveConfiguration.READ_OPERATION_4_PARAMS_FILENAME), LdbcSnbInteractiveConfiguration.PIPE_SEPARATOR_REGEX);
+            readOperation5FileReader = new CsvFileReader(new File(parametersDir, LdbcSnbInteractiveConfiguration.READ_OPERATION_5_PARAMS_FILENAME), LdbcSnbInteractiveConfiguration.PIPE_SEPARATOR_REGEX);
+            readOperation6FileReader = new CsvFileReader(new File(parametersDir, LdbcSnbInteractiveConfiguration.READ_OPERATION_6_PARAMS_FILENAME), LdbcSnbInteractiveConfiguration.PIPE_SEPARATOR_REGEX);
+            readOperation7FileReader = new CsvFileReader(new File(parametersDir, LdbcSnbInteractiveConfiguration.READ_OPERATION_7_PARAMS_FILENAME), LdbcSnbInteractiveConfiguration.PIPE_SEPARATOR_REGEX);
+            readOperation8FileReader = new CsvFileReader(new File(parametersDir, LdbcSnbInteractiveConfiguration.READ_OPERATION_8_PARAMS_FILENAME), LdbcSnbInteractiveConfiguration.PIPE_SEPARATOR_REGEX);
+            readOperation9FileReader = new CsvFileReader(new File(parametersDir, LdbcSnbInteractiveConfiguration.READ_OPERATION_9_PARAMS_FILENAME), LdbcSnbInteractiveConfiguration.PIPE_SEPARATOR_REGEX);
+            readOperation10FileReader = new CsvFileReader(new File(parametersDir, LdbcSnbInteractiveConfiguration.READ_OPERATION_10_PARAMS_FILENAME), LdbcSnbInteractiveConfiguration.PIPE_SEPARATOR_REGEX);
+            readOperation11FileReader = new CsvFileReader(new File(parametersDir, LdbcSnbInteractiveConfiguration.READ_OPERATION_11_PARAMS_FILENAME), LdbcSnbInteractiveConfiguration.PIPE_SEPARATOR_REGEX);
+            readOperation12FileReader = new CsvFileReader(new File(parametersDir, LdbcSnbInteractiveConfiguration.READ_OPERATION_12_PARAMS_FILENAME), LdbcSnbInteractiveConfiguration.PIPE_SEPARATOR_REGEX);
+            readOperation13FileReader = new CsvFileReader(new File(parametersDir, LdbcSnbInteractiveConfiguration.READ_OPERATION_13_PARAMS_FILENAME), LdbcSnbInteractiveConfiguration.PIPE_SEPARATOR_REGEX);
+            readOperation14FileReader = new CsvFileReader(new File(parametersDir, LdbcSnbInteractiveConfiguration.READ_OPERATION_14_PARAMS_FILENAME), LdbcSnbInteractiveConfiguration.PIPE_SEPARATOR_REGEX);
         } catch (FileNotFoundException e) {
             throw new WorkloadException("Unable to load one of the read operation parameters files", e);
-        }
-
-        try {
-            readOperation1Interleave = Duration.fromMilli(Long.parseLong(params.get(LdbcSnbInteractiveConfiguration.READ_OPERATION_1_INTERLEAVE_KEY)));
-            readOperation2Interleave = Duration.fromMilli(Long.parseLong(params.get(LdbcSnbInteractiveConfiguration.READ_OPERATION_2_INTERLEAVE_KEY)));
-            readOperation3Interleave = Duration.fromMilli(Long.parseLong(params.get(LdbcSnbInteractiveConfiguration.READ_OPERATION_3_INTERLEAVE_KEY)));
-            readOperation4Interleave = Duration.fromMilli(Long.parseLong(params.get(LdbcSnbInteractiveConfiguration.READ_OPERATION_4_INTERLEAVE_KEY)));
-            readOperation5Interleave = Duration.fromMilli(Long.parseLong(params.get(LdbcSnbInteractiveConfiguration.READ_OPERATION_5_INTERLEAVE_KEY)));
-            readOperation6Interleave = Duration.fromMilli(Long.parseLong(params.get(LdbcSnbInteractiveConfiguration.READ_OPERATION_6_INTERLEAVE_KEY)));
-            readOperation7Interleave = Duration.fromMilli(Long.parseLong(params.get(LdbcSnbInteractiveConfiguration.READ_OPERATION_7_INTERLEAVE_KEY)));
-            readOperation8Interleave = Duration.fromMilli(Long.parseLong(params.get(LdbcSnbInteractiveConfiguration.READ_OPERATION_8_INTERLEAVE_KEY)));
-            readOperation9Interleave = Duration.fromMilli(Long.parseLong(params.get(LdbcSnbInteractiveConfiguration.READ_OPERATION_9_INTERLEAVE_KEY)));
-            readOperation10Interleave = Duration.fromMilli(Long.parseLong(params.get(LdbcSnbInteractiveConfiguration.READ_OPERATION_10_INTERLEAVE_KEY)));
-            readOperation11Interleave = Duration.fromMilli(Long.parseLong(params.get(LdbcSnbInteractiveConfiguration.READ_OPERATION_11_INTERLEAVE_KEY)));
-            readOperation12Interleave = Duration.fromMilli(Long.parseLong(params.get(LdbcSnbInteractiveConfiguration.READ_OPERATION_12_INTERLEAVE_KEY)));
-            readOperation13Interleave = Duration.fromMilli(Long.parseLong(params.get(LdbcSnbInteractiveConfiguration.READ_OPERATION_13_INTERLEAVE_KEY)));
-            readOperation14Interleave = Duration.fromMilli(Long.parseLong(params.get(LdbcSnbInteractiveConfiguration.READ_OPERATION_14_INTERLEAVE_KEY)));
-        } catch (NumberFormatException e) {
-            throw new WorkloadException("Unable to parse one of the read operation interleave values", e);
-        }
-
-        readOperationInterleaves = new HashMap<>();
-        for (String readOperationInterleaveKey : LdbcSnbInteractiveConfiguration.READ_OPERATION_INTERLEAVE_KEYS) {
-            String readOperationInterleaveString = params.get(readOperationInterleaveKey);
-            Duration readOperationInterleaveDuration = Duration.fromMilli(Long.parseLong(readOperationInterleaveString));
-            String readOperationClassName =
-                    LdbcSnbInteractiveConfiguration.LDBC_INTERACTIVE_PACKAGE_PREFIX + LdbcSnbInteractiveConfiguration.removePrefix(
-                            LdbcSnbInteractiveConfiguration.removeSuffix(
-                                    readOperationInterleaveKey,
-                                    LdbcSnbInteractiveConfiguration.INTERLEAVE_SUFFIX
-                            ),
-                            LdbcSnbInteractiveConfiguration.LDBC_SNB_INTERACTIVE_PARAM_NAME_PREFIX
-                    );
-            try {
-                Class readOperationClass = ClassLoaderHelper.loadClass(readOperationClassName);
-                readOperationInterleaves.put(readOperationClass, readOperationInterleaveDuration);
-            } catch (ClassLoadingException e) {
-                throw new WorkloadException(
-                        String.format("Unable to load operation class for parameter: %s\nGuessed incorrect class name: %s",
-                                readOperationInterleaveKey, readOperationClassName),
-                        e
-                );
-            }
         }
 
         enabledReadOperationTypes = new HashSet<>();
@@ -252,10 +185,50 @@ public class LdbcSnbInteractiveWorkload extends Workload {
             }
             safeTDuration = Duration.fromMilli(Long.parseLong(params.get(LdbcSnbInteractiveConfiguration.SAFE_T)));
         }
+
+        List<String> frequencyKeys = Lists.newArrayList(LdbcSnbInteractiveConfiguration.READ_OPERATION_FREQUENCY_KEYS);
+        Set<String> missingFrequencyKeys = LdbcSnbInteractiveConfiguration.missingParameters(params, frequencyKeys);
+        if (enabledWriteOperationTypes.isEmpty()) {
+            // if UPDATE_INTERLEAVE is missing, set it to DEFAULT
+            params.put(LdbcSnbInteractiveConfiguration.UPDATE_INTERLEAVE, LdbcSnbInteractiveConfiguration.DEFAULT_UPDATE_INTERLEAVE);
+        }
+        if (missingFrequencyKeys.isEmpty()) {
+            if (false == params.containsKey(LdbcSnbInteractiveConfiguration.UPDATE_INTERLEAVE)) {
+                throw new WorkloadException(String.format("Workload could not initialize. Missing parameter: %s", LdbcSnbInteractiveConfiguration.UPDATE_INTERLEAVE));
+            }
+            // compute interleave based on frequencies
+            params = LdbcSnbInteractiveConfiguration.convertFrequenciesToInterleaves(params);
+        } else {
+            // if any frequencies are not set, there should be specified interleave times for read queries
+            List<String> interleaveKeys = Lists.newArrayList(LdbcSnbInteractiveConfiguration.READ_OPERATION_INTERLEAVE_KEYS);
+            Set<String> missingInterleaveKeys = LdbcSnbInteractiveConfiguration.missingParameters(params, interleaveKeys);
+            if (false == missingInterleaveKeys.isEmpty()) {
+                throw new WorkloadException(String.format("Workload could not initialize. One of the following groups of parameters should be set: %s or %s", missingFrequencyKeys.toString(), missingInterleaveKeys.toString()));
+            }
+        }
+
+        try {
+            readOperation1Interleave = Duration.fromMilli(Long.parseLong(params.get(LdbcSnbInteractiveConfiguration.READ_OPERATION_1_INTERLEAVE_KEY)));
+            readOperation2Interleave = Duration.fromMilli(Long.parseLong(params.get(LdbcSnbInteractiveConfiguration.READ_OPERATION_2_INTERLEAVE_KEY)));
+            readOperation3Interleave = Duration.fromMilli(Long.parseLong(params.get(LdbcSnbInteractiveConfiguration.READ_OPERATION_3_INTERLEAVE_KEY)));
+            readOperation4Interleave = Duration.fromMilli(Long.parseLong(params.get(LdbcSnbInteractiveConfiguration.READ_OPERATION_4_INTERLEAVE_KEY)));
+            readOperation5Interleave = Duration.fromMilli(Long.parseLong(params.get(LdbcSnbInteractiveConfiguration.READ_OPERATION_5_INTERLEAVE_KEY)));
+            readOperation6Interleave = Duration.fromMilli(Long.parseLong(params.get(LdbcSnbInteractiveConfiguration.READ_OPERATION_6_INTERLEAVE_KEY)));
+            readOperation7Interleave = Duration.fromMilli(Long.parseLong(params.get(LdbcSnbInteractiveConfiguration.READ_OPERATION_7_INTERLEAVE_KEY)));
+            readOperation8Interleave = Duration.fromMilli(Long.parseLong(params.get(LdbcSnbInteractiveConfiguration.READ_OPERATION_8_INTERLEAVE_KEY)));
+            readOperation9Interleave = Duration.fromMilli(Long.parseLong(params.get(LdbcSnbInteractiveConfiguration.READ_OPERATION_9_INTERLEAVE_KEY)));
+            readOperation10Interleave = Duration.fromMilli(Long.parseLong(params.get(LdbcSnbInteractiveConfiguration.READ_OPERATION_10_INTERLEAVE_KEY)));
+            readOperation11Interleave = Duration.fromMilli(Long.parseLong(params.get(LdbcSnbInteractiveConfiguration.READ_OPERATION_11_INTERLEAVE_KEY)));
+            readOperation12Interleave = Duration.fromMilli(Long.parseLong(params.get(LdbcSnbInteractiveConfiguration.READ_OPERATION_12_INTERLEAVE_KEY)));
+            readOperation13Interleave = Duration.fromMilli(Long.parseLong(params.get(LdbcSnbInteractiveConfiguration.READ_OPERATION_13_INTERLEAVE_KEY)));
+            readOperation14Interleave = Duration.fromMilli(Long.parseLong(params.get(LdbcSnbInteractiveConfiguration.READ_OPERATION_14_INTERLEAVE_KEY)));
+        } catch (NumberFormatException e) {
+            throw new WorkloadException("Unable to parse one of the read operation interleave values", e);
+        }
     }
 
     @Override
-    protected void onCleanup() throws WorkloadException {
+    synchronized protected void onCleanup() throws WorkloadException {
         for (CsvFileReader forumUpdateOperationsFileReader : forumUpdateOperationsFileReaders) {
             forumUpdateOperationsFileReader.closeReader();
         }
@@ -284,6 +257,12 @@ public class LdbcSnbInteractiveWorkload extends Workload {
     protected WorkloadStreams getStreams(GeneratorFactory gf) throws WorkloadException {
         Time workloadStartTime = null;
         WorkloadStreams ldbcSnbInteractiveWorkloadStreams = new WorkloadStreams();
+        List<Iterator<?>> asynchronousDependencyStreamsList = new ArrayList<>();
+        List<Iterator<?>> asynchronousNonDependencyStreamsList = new ArrayList<>();
+        Set<Class<? extends Operation<?>>> dependentAsynchronousOperationTypes = Sets.<Class<? extends Operation<?>>>newHashSet(
+                LdbcUpdate1AddPerson.class,
+                LdbcUpdate8AddFriendship.class
+        );
 
         /* *******
          * *******
@@ -292,13 +271,6 @@ public class LdbcSnbInteractiveWorkload extends Workload {
          * *******
          * *******
          * *******/
-
-        Set<Class<? extends Operation<?>>> dependentAsynchronousOperationTypes = Sets.<Class<? extends Operation<?>>>newHashSet(
-                LdbcUpdate1AddPerson.class,
-                LdbcUpdate8AddFriendship.class
-        );
-        List<Iterator<?>> asynchronousDependencyStreamsList = new ArrayList<>();
-        List<Iterator<?>> asynchronousNonDependencyStreamsList = new ArrayList<>();
 
         /*
          * Create forum write operation streams
@@ -323,13 +295,6 @@ public class LdbcSnbInteractiveWorkload extends Workload {
                 }
             };
             Iterator<Operation<?>> filteredForumUpdateOperations = Iterators.filter(unfilteredForumUpdateOperations, enabledWriteOperationsFilter);
-            // TODO
-            // TODO
-            // TODO
-            // TODO this needs to be changed, if we get SafeT as input again we could set dependencyTime = scheduledStartTime - SafeT
-            // TODO
-            // TODO
-            // TODO
             Iterator<Operation<?>> filteredForumUpdateOperationsWithDependencyTimes = gf.assignDependencyTimesEqualToScheduledStartTimeMinusSafeT(
                     filteredForumUpdateOperations,
                     safeTDuration
@@ -371,13 +336,6 @@ public class LdbcSnbInteractiveWorkload extends Workload {
                 }
             };
             Iterator<Operation<?>> filteredPersonUpdateOperations = Iterators.filter(unfilteredPersonUpdateOperations, enabledWriteOperationsFilter);
-            // TODO
-            // TODO
-            // TODO
-            // TODO this needs to be changed, if we get SafeT as input again we could set dependencyTime = scheduledStartTime - SafeT
-            // TODO
-            // TODO
-            // TODO
             Iterator<Operation<?>> filteredPersonUpdateOperationsWithDependencyTimes = gf.assignDependencyTimesEqualToScheduledStartTimeMinusSafeT(
                     filteredPersonUpdateOperations,
                     safeTDuration

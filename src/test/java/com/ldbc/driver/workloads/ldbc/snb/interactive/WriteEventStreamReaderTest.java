@@ -56,7 +56,8 @@ public class WriteEventStreamReaderTest {
                 "]";
 
         // When
-        CsvEventStreamReader.EventDecoder<Operation<?>> decoder = WriteEventStreamReader.EVENT_DECODER_ADD_PERSON;
+        WriteEventStreamReader writeEventStreamReader = new WriteEventStreamReader(Collections.<String[]>emptyIterator(), CsvEventStreamReader.EventReturnPolicy.AT_LEAST_ONE_MATCH);
+        CsvEventStreamReader.EventDecoder<Operation<?>> decoder = writeEventStreamReader.addPersonDecoder();
         LdbcUpdate1AddPerson addPerson = (LdbcUpdate1AddPerson) decoder.decodeEvent(new String[]{"42", null, jsonString});
 
         // Then
@@ -88,7 +89,8 @@ public class WriteEventStreamReaderTest {
                 new LdbcUpdate1AddPerson.Organization(911L, 1970),
                 new LdbcUpdate1AddPerson.Organization(935L, 1970),
                 new LdbcUpdate1AddPerson.Organization(913L, 1971),
-                new LdbcUpdate1AddPerson.Organization(1539L, 1971))));
+                new LdbcUpdate1AddPerson.Organization(1539L, 1971)
+        )));
     }
 
     @Test
@@ -97,7 +99,8 @@ public class WriteEventStreamReaderTest {
         String jsonString = "[1582,120207,\"2011-02-01T08:36:04.000+0000\"]";
 
         // When
-        CsvEventStreamReader.EventDecoder<Operation<?>> decoder = WriteEventStreamReader.EVENT_DECODER_ADD_LIKE_POST;
+        WriteEventStreamReader writeEventStreamReader = new WriteEventStreamReader(Collections.<String[]>emptyIterator(), CsvEventStreamReader.EventReturnPolicy.AT_LEAST_ONE_MATCH);
+        CsvEventStreamReader.EventDecoder<Operation<?>> decoder = writeEventStreamReader.addLikePostDecoder();
         LdbcUpdate2AddPostLike addPostLike = (LdbcUpdate2AddPostLike) decoder.decodeEvent(new String[]{"42", null, jsonString});
 
         // Then
@@ -119,7 +122,8 @@ public class WriteEventStreamReaderTest {
         String jsonString = "[1095,120426,\"2011-01-24T05:44:13.000+0000\"]";
 
         // When
-        CsvEventStreamReader.EventDecoder<Operation<?>> decoder = WriteEventStreamReader.EVENT_DECODER_ADD_LIKE_COMMENT;
+        WriteEventStreamReader writeEventStreamReader = new WriteEventStreamReader(Collections.<String[]>emptyIterator(), CsvEventStreamReader.EventReturnPolicy.AT_LEAST_ONE_MATCH);
+        CsvEventStreamReader.EventDecoder<Operation<?>> decoder = writeEventStreamReader.addLikeCommentDecoder();
         LdbcUpdate3AddCommentLike addCommentLike = (LdbcUpdate3AddCommentLike) decoder.decodeEvent(new String[]{"42", null, jsonString});
 
         // Then
@@ -141,7 +145,8 @@ public class WriteEventStreamReaderTest {
         String jsonString = "[2118,\"Group for The_Beekeeper in Pakistan\",\"2011-01-03T06:04:47.000+0000\",989,[10716]]";
 
         // When
-        CsvEventStreamReader.EventDecoder<Operation<?>> decoder = WriteEventStreamReader.EVENT_DECODER_ADD_FORUM;
+        WriteEventStreamReader writeEventStreamReader = new WriteEventStreamReader(Collections.<String[]>emptyIterator(), CsvEventStreamReader.EventReturnPolicy.AT_LEAST_ONE_MATCH);
+        CsvEventStreamReader.EventDecoder<Operation<?>> decoder = writeEventStreamReader.addForumDecoder();
         LdbcUpdate4AddForum addForum = (LdbcUpdate4AddForum) decoder.decodeEvent(new String[]{"42", null, jsonString});
 
         // Then
@@ -165,7 +170,8 @@ public class WriteEventStreamReaderTest {
         String jsonString = "[2153,372,\"2011-01-04T18:42:51.000+0000\"]";
 
         // When
-        CsvEventStreamReader.EventDecoder<Operation<?>> decoder = WriteEventStreamReader.EVENT_DECODER_ADD_FORUM_MEMBERSHIP;
+        WriteEventStreamReader writeEventStreamReader = new WriteEventStreamReader(Collections.<String[]>emptyIterator(), CsvEventStreamReader.EventReturnPolicy.AT_LEAST_ONE_MATCH);
+        CsvEventStreamReader.EventDecoder<Operation<?>> decoder = writeEventStreamReader.addForumMembershipDecoder();
         LdbcUpdate5AddForumMembership addForumMembership = (LdbcUpdate5AddForumMembership) decoder.decodeEvent(new String[]{"42", null, jsonString});
 
         // Then
@@ -199,7 +205,8 @@ public class WriteEventStreamReaderTest {
                 "[1437]]";
 
         // When
-        CsvEventStreamReader.EventDecoder<Operation<?>> decoder = WriteEventStreamReader.EVENT_DECODER_ADD_POST;
+        WriteEventStreamReader writeEventStreamReader = new WriteEventStreamReader(Collections.<String[]>emptyIterator(), CsvEventStreamReader.EventReturnPolicy.AT_LEAST_ONE_MATCH);
+        CsvEventStreamReader.EventDecoder<Operation<?>> decoder = writeEventStreamReader.addPostDecoder();
         LdbcUpdate6AddPost addPost = (LdbcUpdate6AddPost) decoder.decodeEvent(new String[]{"42", null, jsonString});
 
         // Then
@@ -241,7 +248,8 @@ public class WriteEventStreamReaderTest {
                 "[1403,1990,2009,2081,2817,2855,2987,6316,7425,8224,8466]]";
 
         // When
-        CsvEventStreamReader.EventDecoder<Operation<?>> decoder = WriteEventStreamReader.EVENT_DECODER_ADD_COMMENT;
+        WriteEventStreamReader writeEventStreamReader = new WriteEventStreamReader(Collections.<String[]>emptyIterator(), CsvEventStreamReader.EventReturnPolicy.AT_LEAST_ONE_MATCH);
+        CsvEventStreamReader.EventDecoder<Operation<?>> decoder = writeEventStreamReader.addCommentDecoder();
         LdbcUpdate7AddComment addComment = (LdbcUpdate7AddComment) decoder.decodeEvent(new String[]{"42", null, jsonString});
 
         // Then
@@ -271,7 +279,8 @@ public class WriteEventStreamReaderTest {
         String jsonString = "[1920,655,\"2011-01-10T15:58:45.000+0000\"]";
 
         // When
-        CsvEventStreamReader.EventDecoder<Operation<?>> decoder = WriteEventStreamReader.EVENT_DECODER_ADD_FRIENDSHIP;
+        WriteEventStreamReader writeEventStreamReader = new WriteEventStreamReader(Collections.<String[]>emptyIterator(), CsvEventStreamReader.EventReturnPolicy.AT_LEAST_ONE_MATCH);
+        CsvEventStreamReader.EventDecoder<Operation<?>> decoder = writeEventStreamReader.addFriendshipDecoder();
         LdbcUpdate8AddFriendship addFriendship = (LdbcUpdate8AddFriendship) decoder.decodeEvent(new String[]{"42", null, jsonString});
 
         // Then

@@ -102,14 +102,16 @@ public abstract class OperationHandler<OPERATION_TYPE extends Operation<?>> impl
                 // Spinner result indicates operation should not be processed
                 return;
             }
-            long startTimeAsMilli = timeSource.nowAsMilli();
+
+            long actualStartTime = timeSource.nowAsMilli();
+            long startOfLatencyMeasurement = timeSource.nanoSnapshot();
             OperationResultReport operationResultReport = executeOperation(operation);
-            long finishTimeAsMilli = timeSource.nowAsMilli();
+            long endOfLatencyMeasurement = timeSource.nanoSnapshot();
             if (null == operationResultReport) {
                 throw new DbException(String.format("Handler returned null result:\n %s", toString()));
             }
-            operationResultReport.setRunDuration(Duration.fromMilli(finishTimeAsMilli - startTimeAsMilli));
-            operationResultReport.setActualStartTime(Time.fromMilli(startTimeAsMilli));
+            operationResultReport.setRunDuration(Duration.fromNano(endOfLatencyMeasurement - startOfLatencyMeasurement));
+            operationResultReport.setActualStartTime(Time.fromMilli(actualStartTime));
             localCompletionTimeWriter.submitLocalCompletedTime(operation.scheduledStartTime());
             metricsService.submitOperationResult(operationResultReport);
         } catch (DbException e) {

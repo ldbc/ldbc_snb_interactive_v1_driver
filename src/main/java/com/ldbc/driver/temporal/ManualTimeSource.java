@@ -20,6 +20,11 @@ public class ManualTimeSource implements TimeSource {
     }
 
     @Override
+    public long nanoSnapshot() {
+        return Time.fromMilli(nowAsMilli.get()).asNano();
+    }
+
+    @Override
     public long nowAsMilli() {
         return nowAsMilli.get();
     }

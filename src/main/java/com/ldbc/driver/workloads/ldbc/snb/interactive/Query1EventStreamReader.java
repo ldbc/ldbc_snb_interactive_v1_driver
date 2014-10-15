@@ -16,11 +16,42 @@ public class Query1EventStreamReader implements Iterator<Operation<?>> {
     public static final String PERSON_URI = "PersonURI";
     public static final String FIRST_NAME = "Name";
 
-    private static final ObjectMapper objectMapper = new ObjectMapper();
-
     private final CsvEventStreamReader<Operation<?>> csvEventStreamReader;
+    private final CsvEventStreamReader.EventDecoder<Operation<?>> decoder;
 
-    public static final CsvEventStreamReader.EventDecoder<Operation<?>> EVENT_DECODER = new CsvEventStreamReader.EventDecoder<Operation<?>>() {
+    public Query1EventStreamReader(Iterator<String[]> csvRowIterator) {
+        this(csvRowIterator, CsvEventStreamReader.EventReturnPolicy.AT_LEAST_ONE_MATCH);
+    }
+
+    public Query1EventStreamReader(Iterator<String[]> csvRowIterator, CsvEventStreamReader.EventReturnPolicy eventReturnPolicy) {
+        this.decoder = new EventDecoderQuery1(new ObjectMapper());
+        Iterable<CsvEventStreamReader.EventDecoder<Operation<?>>> decoders = Lists.newArrayList(this.decoder);
+        CsvEventStreamReader.EventDescriptions<Operation<?>> eventDescriptions = new CsvEventStreamReader.EventDescriptions<>(decoders, eventReturnPolicy);
+        this.csvEventStreamReader = new CsvEventStreamReader<>(csvRowIterator, eventDescriptions);
+    }
+
+    @Override
+    public boolean hasNext() {
+        return csvEventStreamReader.hasNext();
+    }
+
+    @Override
+    public Operation<?> next() {
+        return csvEventStreamReader.next();
+    }
+
+    @Override
+    public void remove() {
+        throw new UnsupportedOperationException(String.format("%s does not support remove()", getClass().getSimpleName()));
+    }
+
+    public static class EventDecoderQuery1 implements CsvEventStreamReader.EventDecoder<Operation<?>> {
+        private final ObjectMapper objectMapper;
+
+        public EventDecoderQuery1(ObjectMapper objectMapper) {
+            this.objectMapper = objectMapper;
+        }
+
         @Override
         public boolean eventMatchesDecoder(String[] csvRow) {
             return true;
@@ -40,30 +71,7 @@ public class Query1EventStreamReader implements Iterator<Operation<?>> {
             String personFirstName = params.get(FIRST_NAME).asText();
             return new LdbcQuery1(personId, personUri, personFirstName, LdbcQuery1.DEFAULT_LIMIT);
         }
-    };
-
-    public Query1EventStreamReader(Iterator<String[]> csvRowIterator) {
-        this(csvRowIterator, CsvEventStreamReader.EventReturnPolicy.AT_LEAST_ONE_MATCH);
     }
 
-    public Query1EventStreamReader(Iterator<String[]> csvRowIterator, CsvEventStreamReader.EventReturnPolicy eventReturnPolicy) {
-        Iterable<CsvEventStreamReader.EventDecoder<Operation<?>>> decoders = Lists.newArrayList(EVENT_DECODER);
-        CsvEventStreamReader.EventDescriptions<Operation<?>> eventDescriptions = new CsvEventStreamReader.EventDescriptions<>(decoders, eventReturnPolicy);
-        this.csvEventStreamReader = new CsvEventStreamReader<>(csvRowIterator, eventDescriptions);
-    }
-
-    @Override
-    public boolean hasNext() {
-        return csvEventStreamReader.hasNext();
-    }
-
-    @Override
-    public Operation<?> next() {
-        return csvEventStreamReader.next();
-    }
-
-    @Override
-    public void remove() {
-        throw new UnsupportedOperationException(String.format("%s does not support remove()", getClass().getSimpleName()));
-    }
+    ;
 }

@@ -28,7 +28,7 @@ public class ContinuousMetricManager {
     public void addMeasurement(long value) throws MetricsCollectionException {
         try {
             histogram.recordValue(value);
-        } catch (ArrayIndexOutOfBoundsException e) {
+        } catch (Throwable e) {
             throw new MetricsCollectionException(
                     String.format(
                             "Error encountered adding measurement [%s] - probably due to reporting of excessively high value",

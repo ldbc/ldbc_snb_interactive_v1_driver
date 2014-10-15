@@ -200,8 +200,11 @@ public class Client {
 
             try {
                 completionTimeService =
-                        completionTimeServiceAssistant.newSynchronizedConcurrentCompletionTimeServiceFromPeerIds(
-                                controlService.configuration().peerIds());
+                        completionTimeServiceAssistant.newThreadedQueuedConcurrentCompletionTimeServiceFromPeerIds(
+                                timeSource,
+                                controlService.configuration().peerIds(),
+                                errorReporter
+                        );
             } catch (CompletionTimeException e) {
                 throw new ClientException(
                         String.format("Error while instantiating Completion Time Service with peer IDs %s", controlService.configuration().peerIds().toString()), e);
@@ -432,19 +435,19 @@ public class Client {
 
         @Override
         public void init() throws ClientException {
+            GeneratorFactory gf = new GeneratorFactory(new RandomDataGeneratorFactory(RANDOM_SEED));
+            WorkloadStreams workloadStreams;
             try {
-                workload = ClassLoaderHelper.loadWorkload(controlService.configuration().workloadClassName());
-                workload.init(controlService.configuration());
+                Tuple.Tuple2<WorkloadStreams, Workload> workloadStreamsAndWorkload = WorkloadStreams.createNewWorkloadWithLimitedWorkloadStreams(controlService.configuration(), gf);
+                workloadStreams = workloadStreamsAndWorkload._1();
+                workload = workloadStreamsAndWorkload._2();
             } catch (Exception e) {
                 throw new ClientException(String.format("Error loading Workload class: %s", controlService.configuration().workloadClassName()), e);
             }
             logger.info(String.format("Loaded Workload: %s", workload.getClass().getName()));
 
-            GeneratorFactory gf = new GeneratorFactory(new RandomDataGeneratorFactory(RANDOM_SEED));
-
             logger.info(String.format("Retrieving operation stream for workload: %s", workload.getClass().getSimpleName()));
             try {
-                WorkloadStreams workloadStreams = workload.streams(gf);
                 timeMappedWorkloadStreams = WorkloadStreams.timeOffsetAndCompressWorkloadStreams(
                         workloadStreams,
                         controlService.workloadStartTime(),

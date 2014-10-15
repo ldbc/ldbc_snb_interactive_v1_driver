@@ -1,18 +1,20 @@
 package com.ldbc.driver.generator;
 
-import com.google.common.base.Function;
 import com.google.common.collect.Iterators;
 import com.google.common.collect.Lists;
 import com.ldbc.driver.Operation;
-import com.ldbc.driver.util.CsvFileReader;
 import com.ldbc.driver.testutils.TestUtils;
-import com.ldbc.driver.workloads.ldbc.snb.interactive.*;
+import com.ldbc.driver.util.CsvFileReader;
+import com.ldbc.driver.workloads.ldbc.snb.interactive.LdbcUpdate3AddCommentLike;
+import com.ldbc.driver.workloads.ldbc.snb.interactive.LdbcUpdate5AddForumMembership;
+import com.ldbc.driver.workloads.ldbc.snb.interactive.WriteEventStreamReader;
 import org.junit.Before;
 import org.junit.Test;
 
 import java.io.File;
 import java.io.FileNotFoundException;
-import java.util.Iterator;
+import java.text.SimpleDateFormat;
+import java.util.*;
 
 import static com.ldbc.driver.generator.CsvEventStreamReader.*;
 import static org.hamcrest.CoreMatchers.instanceOf;
@@ -33,9 +35,17 @@ public class CsvEventStreamReaderTest {
     public void shouldParseEntireFileWhenAllDecodersAreProvidedTest() throws FileNotFoundException {
         // Given
         File file = TestUtils.getResource("/updateStream_0_0_forum.csv");
-        Iterable<EventDecoder<Operation<?>>> decoders = Lists.newArrayList(
-                WriteEventStreamReader.EVENT_DECODER_ADD_LIKE_COMMENT,
-                WriteEventStreamReader.EVENT_DECODER_ADD_FORUM_MEMBERSHIP);
+        List<EventDecoder<Operation<?>>> decoders = new ArrayList<>();
+        {
+            SimpleDateFormat dateTimeFormat = new SimpleDateFormat(WriteEventStreamReader.DATE_TIME_FORMAT_STRING);
+            dateTimeFormat.setTimeZone(TimeZone.getTimeZone("GMT"));
+            decoders.add(new WriteEventStreamReader.EventDecoderAddLikeComment(dateTimeFormat));
+        }
+        {
+            SimpleDateFormat dateTimeFormat = new SimpleDateFormat(WriteEventStreamReader.DATE_TIME_FORMAT_STRING);
+            dateTimeFormat.setTimeZone(TimeZone.getTimeZone("GMT"));
+            decoders.add(new WriteEventStreamReader.EventDecoderAddForumMembership(dateTimeFormat));
+        }
         EventDescriptions<Operation<?>> eventDescriptions = new EventDescriptions<>(decoders, EventReturnPolicy.AT_LEAST_ONE_MATCH);
 
         // When
@@ -52,9 +62,11 @@ public class CsvEventStreamReaderTest {
     @Test
     public void shouldFailToParseEntireFileWhenOneDecoderNotProvidedAndAtLeastOnePolicyTest() throws FileNotFoundException {
         // Given
+        WriteEventStreamReader writeEventStreamReader = new WriteEventStreamReader(Collections.<String[]>emptyIterator(), EventReturnPolicy.AT_LEAST_ONE_MATCH);
         File file = TestUtils.getResource("/updateStream_0_0_forum.csv");
         Iterable<EventDecoder<Operation<?>>> decoders = Lists.newArrayList(
-                WriteEventStreamReader.EVENT_DECODER_ADD_LIKE_COMMENT);
+                writeEventStreamReader.addLikeCommentDecoder()
+        );
         EventDescriptions<Operation<?>> eventDescriptions = new EventDescriptions<>(decoders, EventReturnPolicy.AT_LEAST_ONE_MATCH);
 
         // When
@@ -74,9 +86,11 @@ public class CsvEventStreamReaderTest {
     @Test
     public void shouldFailToParseEntireFileWhenOneDecoderNotProvidedAndExactlyOnePolicyTest() throws FileNotFoundException {
         // Given
+        WriteEventStreamReader writeEventStreamReader = new WriteEventStreamReader(Collections.<String[]>emptyIterator(), EventReturnPolicy.AT_LEAST_ONE_MATCH);
         File file = TestUtils.getResource("/updateStream_0_0_forum.csv");
         Iterable<EventDecoder<Operation<?>>> decoders = Lists.newArrayList(
-                WriteEventStreamReader.EVENT_DECODER_ADD_LIKE_COMMENT);
+                writeEventStreamReader.addLikeCommentDecoder()
+        );
         EventDescriptions<Operation<?>> eventDescriptions = new EventDescriptions<>(decoders, EventReturnPolicy.EXACTLY_ONE_MATCH);
 
         // When
@@ -96,11 +110,13 @@ public class CsvEventStreamReaderTest {
     @Test
     public void shouldParseEntireFileWhenMultipleDecodersMatchSameEventAndAtLeastOncePolicy() throws FileNotFoundException {
         // Given
+        WriteEventStreamReader writeEventStreamReader = new WriteEventStreamReader(Collections.<String[]>emptyIterator(), EventReturnPolicy.AT_LEAST_ONE_MATCH);
         File file = TestUtils.getResource("/updateStream_0_0_forum.csv");
         Iterable<EventDecoder<Operation<?>>> decoders = Lists.newArrayList(
-                WriteEventStreamReader.EVENT_DECODER_ADD_LIKE_COMMENT,
-                WriteEventStreamReader.EVENT_DECODER_ADD_LIKE_COMMENT,
-                WriteEventStreamReader.EVENT_DECODER_ADD_FORUM_MEMBERSHIP);
+                writeEventStreamReader.addLikeCommentDecoder(),
+                writeEventStreamReader.addLikeCommentDecoder(),
+                writeEventStreamReader.addForumMembershipDecoder()
+        );
         EventDescriptions<Operation<?>> eventDescriptions = new EventDescriptions<>(decoders, EventReturnPolicy.AT_LEAST_ONE_MATCH);
 
         // When
@@ -117,13 +133,14 @@ public class CsvEventStreamReaderTest {
     @Test
     public void shouldFailToParseEntireFileWhenMultipleDecodersMatchSameEventAndExactlyOncePolicy() throws FileNotFoundException {
         // Given
+        WriteEventStreamReader writeEventStreamReader = new WriteEventStreamReader(Collections.<String[]>emptyIterator(), EventReturnPolicy.AT_LEAST_ONE_MATCH);
         String filePath = TestUtils.getResource("/updateStream_0_0_forum.csv").getAbsolutePath();
         File csvFile = new File(filePath);
-
         Iterable<EventDecoder<Operation<?>>> decoders = Lists.newArrayList(
-                WriteEventStreamReader.EVENT_DECODER_ADD_LIKE_COMMENT,
-                WriteEventStreamReader.EVENT_DECODER_ADD_FORUM_MEMBERSHIP,
-                WriteEventStreamReader.EVENT_DECODER_ADD_FORUM_MEMBERSHIP);
+                writeEventStreamReader.addLikeCommentDecoder(),
+                writeEventStreamReader.addForumMembershipDecoder(),
+                writeEventStreamReader.addForumMembershipDecoder()
+        );
         EventDescriptions<Operation<?>> eventDescriptions = new EventDescriptions<>(decoders, EventReturnPolicy.EXACTLY_ONE_MATCH);
 
         // When

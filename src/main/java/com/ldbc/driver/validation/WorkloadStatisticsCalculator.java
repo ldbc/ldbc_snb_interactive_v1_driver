@@ -41,9 +41,11 @@ public class WorkloadStatisticsCalculator {
         final ContinuousMetricManager interleavesForDependencyOperations = new ContinuousMetricManager(null, null, maxExpectedInterleave.asMilli(), 5);
         final ContinuousMetricManager interleavesForDependentOperations = new ContinuousMetricManager(null, null, maxExpectedInterleave.asMilli(), 5);
 
-        dependentOperationTypes.addAll(workloadStreams.asynchronousStream().dependentOperationTypes());
+        if (workloadStreams.asynchronousStream().dependencyOperations().hasNext() || workloadStreams.asynchronousStream().nonDependencyOperations().hasNext())
+            dependentOperationTypes.addAll(workloadStreams.asynchronousStream().dependentOperationTypes());
         for (WorkloadStreams.WorkloadStreamDefinition streamDefinition : workloadStreams.blockingStreamDefinitions()) {
-            dependentOperationTypes.addAll(streamDefinition.dependentOperationTypes());
+            if (streamDefinition.dependencyOperations().hasNext() || streamDefinition.nonDependencyOperations().hasNext())
+                dependentOperationTypes.addAll(streamDefinition.dependentOperationTypes());
         }
 
         List<Iterator<Operation<?>>> dependencyOperationIterators = new ArrayList<>();
@@ -94,7 +96,6 @@ public class WorkloadStatisticsCalculator {
         Iterator<Operation<?>> dependencyOperations = Iterators.transform(
                 gf.mergeSortOperationsByStartTime(dependencyOperationIterators.toArray(new Iterator[dependencyOperationIterators.size()])),
                 collectStatsForDependencyOperations
-
         );
 
         Function<Operation<?>, Operation<?>> collectStatsForNonDependentOperations = new Function<Operation<?>, Operation<?>>() {

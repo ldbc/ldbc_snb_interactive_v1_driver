@@ -14,29 +14,137 @@ import org.codehaus.jackson.map.ObjectMapper;
 import java.io.IOException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.Iterator;
-import java.util.List;
-import java.util.TimeZone;
+import java.util.*;
 
 public class WriteEventStreamReader implements Iterator<Operation<?>> {
 
-    private static final String DATE_FORMAT_STRING = "yyyy-MM-dd";
-    private static final SimpleDateFormat DATE_FORMAT;
-    private static final String DATE_TIME_FORMAT_STRING = "yyyy-MM-dd'T'HH:mm:ss.SSSZ";
-    private static final SimpleDateFormat DATE_TIME_FORMAT;
-
-    static {
-        DATE_FORMAT = new SimpleDateFormat(DATE_FORMAT_STRING);
-        DATE_FORMAT.setTimeZone(TimeZone.getTimeZone("GMT"));
-        DATE_TIME_FORMAT = new SimpleDateFormat(DATE_TIME_FORMAT_STRING);
-        DATE_TIME_FORMAT.setTimeZone(TimeZone.getTimeZone("GMT"));
-    }
+    public static final String DATE_FORMAT_STRING = "yyyy-MM-dd";
+    public static final String DATE_TIME_FORMAT_STRING = "yyyy-MM-dd'T'HH:mm:ss.SSSZ";
 
     private static final ObjectMapper objectMapper = new ObjectMapper();
     private final CsvEventStreamReader<Operation<?>> csvEventStreamReader;
 
-    public static final CsvEventStreamReader.EventDecoder<Operation<?>> EVENT_DECODER_ADD_PERSON = new CsvEventStreamReader.EventDecoder<Operation<?>>() {
+    private final CsvEventStreamReader.EventDecoder<Operation<?>> addPersonDecoder;
+    private final CsvEventStreamReader.EventDecoder<Operation<?>> addLikePostDecoder;
+    private final CsvEventStreamReader.EventDecoder<Operation<?>> addLikeCommentDecoder;
+    private final CsvEventStreamReader.EventDecoder<Operation<?>> addForumDecoder;
+    private final CsvEventStreamReader.EventDecoder<Operation<?>> addForumMembershipDecoder;
+    private final CsvEventStreamReader.EventDecoder<Operation<?>> addPostDecoder;
+    private final CsvEventStreamReader.EventDecoder<Operation<?>> addCommentDecoder;
+    private final CsvEventStreamReader.EventDecoder<Operation<?>> addFriendshipDecoder;
+
+    public WriteEventStreamReader(Iterator<String[]> csvRowIterator, CsvEventStreamReader.EventReturnPolicy eventReturnPolicy) {
+        List<CsvEventStreamReader.EventDecoder<Operation<?>>> decoders = new ArrayList<>();
+        {
+            SimpleDateFormat dateFormat = new SimpleDateFormat(DATE_FORMAT_STRING);
+            dateFormat.setTimeZone(TimeZone.getTimeZone("GMT"));
+            SimpleDateFormat dateTimeFormat = new SimpleDateFormat(DATE_TIME_FORMAT_STRING);
+            dateTimeFormat.setTimeZone(TimeZone.getTimeZone("GMT"));
+            this.addPersonDecoder = new EventDecoderAddPerson(dateFormat, dateTimeFormat);
+            decoders.add(this.addPersonDecoder);
+        }
+        {
+            SimpleDateFormat dateTimeFormat = new SimpleDateFormat(DATE_TIME_FORMAT_STRING);
+            dateTimeFormat.setTimeZone(TimeZone.getTimeZone("GMT"));
+            this.addLikePostDecoder = new EventDecoderAddLikePost(dateTimeFormat);
+            decoders.add(this.addLikePostDecoder);
+        }
+        {
+            SimpleDateFormat dateTimeFormat = new SimpleDateFormat(DATE_TIME_FORMAT_STRING);
+            dateTimeFormat.setTimeZone(TimeZone.getTimeZone("GMT"));
+            this.addLikeCommentDecoder = new EventDecoderAddLikeComment(dateTimeFormat);
+            decoders.add(this.addLikeCommentDecoder);
+        }
+        {
+            SimpleDateFormat dateTimeFormat = new SimpleDateFormat(DATE_TIME_FORMAT_STRING);
+            dateTimeFormat.setTimeZone(TimeZone.getTimeZone("GMT"));
+            this.addForumDecoder = new EventDecoderAddForum(dateTimeFormat);
+            decoders.add(this.addForumDecoder);
+        }
+        {
+            SimpleDateFormat dateTimeFormat = new SimpleDateFormat(DATE_TIME_FORMAT_STRING);
+            dateTimeFormat.setTimeZone(TimeZone.getTimeZone("GMT"));
+            this.addForumMembershipDecoder = new EventDecoderAddForumMembership(dateTimeFormat);
+            decoders.add(this.addForumMembershipDecoder);
+        }
+        {
+            SimpleDateFormat dateTimeFormat = new SimpleDateFormat(DATE_TIME_FORMAT_STRING);
+            dateTimeFormat.setTimeZone(TimeZone.getTimeZone("GMT"));
+            this.addPostDecoder = new EventDecoderAddPost(dateTimeFormat);
+            decoders.add(this.addPostDecoder);
+        }
+        {
+            SimpleDateFormat dateTimeFormat = new SimpleDateFormat(DATE_TIME_FORMAT_STRING);
+            dateTimeFormat.setTimeZone(TimeZone.getTimeZone("GMT"));
+            this.addCommentDecoder = new EventDecoderAddComment(dateTimeFormat);
+            decoders.add(this.addCommentDecoder);
+        }
+        {
+            SimpleDateFormat dateTimeFormat = new SimpleDateFormat(DATE_TIME_FORMAT_STRING);
+            dateTimeFormat.setTimeZone(TimeZone.getTimeZone("GMT"));
+            this.addFriendshipDecoder = new EventDecoderAddFriendship(dateTimeFormat);
+            decoders.add(this.addFriendshipDecoder);
+        }
+        CsvEventStreamReader.EventDescriptions<Operation<?>> eventDescriptions = new CsvEventStreamReader.EventDescriptions<>(decoders, eventReturnPolicy);
+        this.csvEventStreamReader = new CsvEventStreamReader<>(csvRowIterator, eventDescriptions);
+    }
+
+    public CsvEventStreamReader.EventDecoder<Operation<?>> addPersonDecoder() {
+        return addPersonDecoder;
+    }
+
+    public CsvEventStreamReader.EventDecoder<Operation<?>> addLikePostDecoder() {
+        return addLikePostDecoder;
+    }
+
+    public CsvEventStreamReader.EventDecoder<Operation<?>> addLikeCommentDecoder() {
+        return addLikeCommentDecoder;
+    }
+
+    public CsvEventStreamReader.EventDecoder<Operation<?>> addForumDecoder() {
+        return addForumDecoder;
+    }
+
+    public CsvEventStreamReader.EventDecoder<Operation<?>> addForumMembershipDecoder() {
+        return addForumMembershipDecoder;
+    }
+
+    public CsvEventStreamReader.EventDecoder<Operation<?>> addPostDecoder() {
+        return addPostDecoder;
+    }
+
+    public CsvEventStreamReader.EventDecoder<Operation<?>> addCommentDecoder() {
+        return addCommentDecoder;
+    }
+
+    public CsvEventStreamReader.EventDecoder<Operation<?>> addFriendshipDecoder() {
+        return addFriendshipDecoder;
+    }
+
+    @Override
+    public boolean hasNext() {
+        return csvEventStreamReader.hasNext();
+    }
+
+    @Override
+    public Operation<?> next() {
+        return csvEventStreamReader.next();
+    }
+
+    @Override
+    public void remove() {
+        throw new UnsupportedOperationException(String.format("%s does not support remove()", getClass().getSimpleName()));
+    }
+
+    public static class EventDecoderAddPerson implements CsvEventStreamReader.EventDecoder<Operation<?>> {
+        private final SimpleDateFormat dateFormat;
+        private final SimpleDateFormat dateTimeFormat;
+
+        public EventDecoderAddPerson(SimpleDateFormat dateFormat, SimpleDateFormat dateTimeFormat) {
+            this.dateFormat = dateFormat;
+            this.dateTimeFormat = dateTimeFormat;
+        }
+
         @Override
         public boolean eventMatchesDecoder(String[] csvRow) {
             return csvRow[1].equals("ADD_PERSON");
@@ -59,14 +167,14 @@ public class WriteEventStreamReader implements Iterator<Operation<?>> {
             String birthdayString = params.get(4).asText();
             Date birthday;
             try {
-                birthday = DATE_FORMAT.parse(birthdayString);
+                birthday = dateFormat.parse(birthdayString);
             } catch (ParseException e) {
                 throw new GeneratorException(String.format("Error parsing birthday string\n%s", birthdayString), e);
             }
             String creationDateString = params.get(5).asText();
             Date creationDate;
             try {
-                creationDate = DATE_TIME_FORMAT.parse(creationDateString);
+                creationDate = dateTimeFormat.parse(creationDateString);
             } catch (ParseException e) {
                 throw new GeneratorException(String.format("Error parsing creation date string\n%s", birthdayString), e);
             }
@@ -121,9 +229,15 @@ public class WriteEventStreamReader implements Iterator<Operation<?>> {
             operation.setScheduledStartTime(eventDueTime);
             return operation;
         }
-    };
+    }
 
-    public static final CsvEventStreamReader.EventDecoder<Operation<?>> EVENT_DECODER_ADD_LIKE_POST = new CsvEventStreamReader.EventDecoder<Operation<?>>() {
+    public static class EventDecoderAddLikePost implements CsvEventStreamReader.EventDecoder<Operation<?>> {
+        private final SimpleDateFormat dateTimeFormat;
+
+        public EventDecoderAddLikePost(SimpleDateFormat dateTimeFormat) {
+            this.dateTimeFormat = dateTimeFormat;
+        }
+
         @Override
         public boolean eventMatchesDecoder(String[] csvRow) {
             return csvRow[1].equals("ADD_LIKE_POST");
@@ -144,7 +258,7 @@ public class WriteEventStreamReader implements Iterator<Operation<?>> {
             String creationDateString = params.get(2).asText();
             Date creationDate;
             try {
-                creationDate = DATE_TIME_FORMAT.parse(creationDateString);
+                creationDate = dateTimeFormat.parse(creationDateString);
             } catch (ParseException e) {
                 throw new GeneratorException(String.format("Error parsing creation date string\n%s", creationDateString), e);
             }
@@ -152,9 +266,15 @@ public class WriteEventStreamReader implements Iterator<Operation<?>> {
             operation.setScheduledStartTime(eventDueTime);
             return operation;
         }
-    };
+    }
 
-    public static final CsvEventStreamReader.EventDecoder<Operation<?>> EVENT_DECODER_ADD_LIKE_COMMENT = new CsvEventStreamReader.EventDecoder<Operation<?>>() {
+    public static class EventDecoderAddLikeComment implements CsvEventStreamReader.EventDecoder<Operation<?>> {
+        private final SimpleDateFormat dateTimeFormat;
+
+        public EventDecoderAddLikeComment(SimpleDateFormat dateTimeFormat) {
+            this.dateTimeFormat = dateTimeFormat;
+        }
+
         @Override
         public boolean eventMatchesDecoder(String[] csvRow) {
             return csvRow[1].equals("ADD_LIKE_COMMENT");
@@ -175,7 +295,7 @@ public class WriteEventStreamReader implements Iterator<Operation<?>> {
             String creationDateString = params.get(2).asText();
             Date creationDate;
             try {
-                creationDate = DATE_TIME_FORMAT.parse(creationDateString);
+                creationDate = dateTimeFormat.parse(creationDateString);
             } catch (ParseException e) {
                 throw new GeneratorException(String.format("Error parsing creation date string\n%s", creationDateString), e);
             }
@@ -183,9 +303,15 @@ public class WriteEventStreamReader implements Iterator<Operation<?>> {
             operation.setScheduledStartTime(eventDueTime);
             return operation;
         }
-    };
+    }
 
-    public static final CsvEventStreamReader.EventDecoder<Operation<?>> EVENT_DECODER_ADD_FORUM = new CsvEventStreamReader.EventDecoder<Operation<?>>() {
+    public static class EventDecoderAddForum implements CsvEventStreamReader.EventDecoder<Operation<?>> {
+        private final SimpleDateFormat dateTimeFormat;
+
+        public EventDecoderAddForum(SimpleDateFormat dateTimeFormat) {
+            this.dateTimeFormat = dateTimeFormat;
+        }
+
         @Override
         public boolean eventMatchesDecoder(String[] csvRow) {
             return csvRow[1].equals("ADD_FORUM");
@@ -206,7 +332,7 @@ public class WriteEventStreamReader implements Iterator<Operation<?>> {
             String creationDateString = params.get(2).asText();
             Date creationDate;
             try {
-                creationDate = DATE_TIME_FORMAT.parse(creationDateString);
+                creationDate = dateTimeFormat.parse(creationDateString);
             } catch (ParseException e) {
                 throw new GeneratorException(String.format("Error parsing creation date string\n%s", creationDateString), e);
             }
@@ -221,9 +347,15 @@ public class WriteEventStreamReader implements Iterator<Operation<?>> {
             operation.setScheduledStartTime(eventDueTime);
             return operation;
         }
-    };
+    }
 
-    public static final CsvEventStreamReader.EventDecoder<Operation<?>> EVENT_DECODER_ADD_FORUM_MEMBERSHIP = new CsvEventStreamReader.EventDecoder<Operation<?>>() {
+    public static class EventDecoderAddForumMembership implements CsvEventStreamReader.EventDecoder<Operation<?>> {
+        private final SimpleDateFormat dateTimeFormat;
+
+        public EventDecoderAddForumMembership(SimpleDateFormat dateTimeFormat) {
+            this.dateTimeFormat = dateTimeFormat;
+        }
+
         @Override
         public boolean eventMatchesDecoder(String[] csvRow) {
             return csvRow[1].equals("ADD_FORUM_MEMBERSHIP");
@@ -244,7 +376,7 @@ public class WriteEventStreamReader implements Iterator<Operation<?>> {
             String creationDateString = params.get(2).asText();
             Date creationDate;
             try {
-                creationDate = DATE_TIME_FORMAT.parse(creationDateString);
+                creationDate = dateTimeFormat.parse(creationDateString);
             } catch (ParseException e) {
                 throw new GeneratorException(String.format("Error parsing creation date string\n%s", creationDateString), e);
             }
@@ -252,9 +384,15 @@ public class WriteEventStreamReader implements Iterator<Operation<?>> {
             operation.setScheduledStartTime(eventDueTime);
             return operation;
         }
-    };
+    }
 
-    public static final CsvEventStreamReader.EventDecoder<Operation<?>> EVENT_DECODER_ADD_POST = new CsvEventStreamReader.EventDecoder<Operation<?>>() {
+    public static class EventDecoderAddPost implements CsvEventStreamReader.EventDecoder<Operation<?>> {
+        private final SimpleDateFormat dateTimeFormat;
+
+        public EventDecoderAddPost(SimpleDateFormat dateTimeFormat) {
+            this.dateTimeFormat = dateTimeFormat;
+        }
+
         @Override
         public boolean eventMatchesDecoder(String[] csvRow) {
             return csvRow[1].equals("ADD_POST");
@@ -275,7 +413,7 @@ public class WriteEventStreamReader implements Iterator<Operation<?>> {
             String creationDateString = params.get(2).asText();
             Date creationDate;
             try {
-                creationDate = DATE_TIME_FORMAT.parse(creationDateString);
+                creationDate = dateTimeFormat.parse(creationDateString);
             } catch (ParseException e) {
                 throw new GeneratorException(String.format("Error parsing creation date string\n%s", creationDateString), e);
             }
@@ -309,9 +447,15 @@ public class WriteEventStreamReader implements Iterator<Operation<?>> {
             operation.setScheduledStartTime(eventDueTime);
             return operation;
         }
-    };
+    }
 
-    public static final CsvEventStreamReader.EventDecoder<Operation<?>> EVENT_DECODER_ADD_COMMENT = new CsvEventStreamReader.EventDecoder<Operation<?>>() {
+    public static class EventDecoderAddComment implements CsvEventStreamReader.EventDecoder<Operation<?>> {
+        private final SimpleDateFormat dateTimeFormat;
+
+        public EventDecoderAddComment(SimpleDateFormat dateTimeFormat) {
+            this.dateTimeFormat = dateTimeFormat;
+        }
+
         @Override
         public boolean eventMatchesDecoder(String[] csvRow) {
             return csvRow[1].equals("ADD_COMMENT");
@@ -331,7 +475,7 @@ public class WriteEventStreamReader implements Iterator<Operation<?>> {
             String creationDateString = params.get(1).asText();
             Date creationDate;
             try {
-                creationDate = DATE_TIME_FORMAT.parse(creationDateString);
+                creationDate = dateTimeFormat.parse(creationDateString);
             } catch (ParseException e) {
                 throw new GeneratorException(String.format("Error parsing creation date string\n%s", creationDateString), e);
             }
@@ -364,9 +508,15 @@ public class WriteEventStreamReader implements Iterator<Operation<?>> {
             operation.setScheduledStartTime(eventDueTime);
             return operation;
         }
-    };
+    }
 
-    public static final CsvEventStreamReader.EventDecoder<Operation<?>> EVENT_DECODER_ADD_FRIENDSHIP = new CsvEventStreamReader.EventDecoder<Operation<?>>() {
+    public static class EventDecoderAddFriendship implements CsvEventStreamReader.EventDecoder<Operation<?>> {
+        private final SimpleDateFormat dateTimeFormat;
+
+        public EventDecoderAddFriendship(SimpleDateFormat dateTimeFormat) {
+            this.dateTimeFormat = dateTimeFormat;
+        }
+
         @Override
         public boolean eventMatchesDecoder(String[] csvRow) {
             return csvRow[1].equals("ADD_FRIENDSHIP");
@@ -387,7 +537,7 @@ public class WriteEventStreamReader implements Iterator<Operation<?>> {
             String creationDateString = params.get(2).asText();
             Date creationDate;
             try {
-                creationDate = DATE_TIME_FORMAT.parse(creationDateString);
+                creationDate = dateTimeFormat.parse(creationDateString);
             } catch (ParseException e) {
                 throw new GeneratorException(String.format("Error parsing creation date string\n%s", creationDateString), e);
             }
@@ -395,38 +545,5 @@ public class WriteEventStreamReader implements Iterator<Operation<?>> {
             operation.setScheduledStartTime(eventDueTime);
             return operation;
         }
-    };
-
-    public WriteEventStreamReader(Iterator<String[]> csvRowIterator) {
-        this(csvRowIterator, CsvEventStreamReader.EventReturnPolicy.AT_LEAST_ONE_MATCH);
-    }
-
-    public WriteEventStreamReader(Iterator<String[]> csvRowIterator, CsvEventStreamReader.EventReturnPolicy eventReturnPolicy) {
-        Iterable<CsvEventStreamReader.EventDecoder<Operation<?>>> decoders = Lists.newArrayList(
-                EVENT_DECODER_ADD_PERSON,
-                EVENT_DECODER_ADD_LIKE_POST,
-                EVENT_DECODER_ADD_LIKE_COMMENT,
-                EVENT_DECODER_ADD_FORUM,
-                EVENT_DECODER_ADD_FORUM_MEMBERSHIP,
-                EVENT_DECODER_ADD_POST,
-                EVENT_DECODER_ADD_COMMENT,
-                EVENT_DECODER_ADD_FRIENDSHIP);
-        CsvEventStreamReader.EventDescriptions<Operation<?>> eventDescriptions = new CsvEventStreamReader.EventDescriptions<>(decoders, eventReturnPolicy);
-        this.csvEventStreamReader = new CsvEventStreamReader<>(csvRowIterator, eventDescriptions);
-    }
-
-    @Override
-    public boolean hasNext() {
-        return csvEventStreamReader.hasNext();
-    }
-
-    @Override
-    public Operation<?> next() {
-        return csvEventStreamReader.next();
-    }
-
-    @Override
-    public void remove() {
-        throw new UnsupportedOperationException(String.format("%s does not support remove()", getClass().getSimpleName()));
     }
 }

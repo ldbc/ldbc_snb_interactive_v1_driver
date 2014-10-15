@@ -51,7 +51,7 @@ public class OperationTypeMetricsManager {
             long startTimeDelayInAppropriateUnit = startTimeDelay.as(durationUnit);
             try {
                 startTimeDelayMetric.addMeasurement(startTimeDelayInAppropriateUnit);
-            } catch (MetricsCollectionException e) {
+            } catch (Throwable e) {
                 String errMsg = String.format("Error encountered adding start time delay measurement [%s %s] to [%s]",
                         startTimeDelayInAppropriateUnit, durationUnit.toString(), name);
                 throw new MetricsCollectionException(errMsg, e);

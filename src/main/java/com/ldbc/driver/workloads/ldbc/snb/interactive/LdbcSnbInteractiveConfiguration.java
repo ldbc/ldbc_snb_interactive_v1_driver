@@ -7,10 +7,16 @@ import java.util.*;
 
 public class LdbcSnbInteractiveConfiguration {
     public final static String LDBC_SNB_INTERACTIVE_PARAM_NAME_PREFIX = "ldbc.snb.interactive.";
+    // directory that contains the substitution parameters files
     public final static String PARAMETERS_DIRECTORY = LDBC_SNB_INTERACTIVE_PARAM_NAME_PREFIX + "parameters_dir";
+    // list of paths to forum update event streams
     public final static String FORUM_UPDATE_FILES = LDBC_SNB_INTERACTIVE_PARAM_NAME_PREFIX + "forum_update_files";
+    // list of paths to person update event streams
     public final static String PERSON_UPDATE_FILES = LDBC_SNB_INTERACTIVE_PARAM_NAME_PREFIX + "person_update_files";
+    // minimum duration between any two dependent operations in the update streams
     public final static String SAFE_T = LDBC_SNB_INTERACTIVE_PARAM_NAME_PREFIX + "gct_delta_duration";
+    // Average distance between updates in simulation time
+    public final static String UPDATE_INTERLEAVE = LDBC_SNB_INTERACTIVE_PARAM_NAME_PREFIX + "update_interleave";
     public final static String LDBC_INTERACTIVE_PACKAGE_PREFIX = removeSuffix(LdbcQuery1.class.getName(), LdbcQuery1.class.getSimpleName());
 
     /*
@@ -83,10 +89,6 @@ public class LdbcSnbInteractiveConfiguration {
     );
 
 
-    /*
-     * Average distance between updates in simulation time
-     */
-    public final static String UPDATE_INTERLEAVE = "update_interleave";
     // Default value in case there is no update stream
     public final static String DEFAULT_UPDATE_INTERLEAVE = "1";
 
@@ -179,7 +181,8 @@ public class LdbcSnbInteractiveConfiguration {
     /*
      * Write Operation Parameters
      */
-    public final static String PIPE_SEPARATOR = "\\|";
+    public final static String PIPE_SEPARATOR_REGEX = "\\|";
+    public final static String PIPE_SEPARATOR = "|";
 
     public static Map<String, String> convertFrequenciesToInterleaves(Map<String, String> params) {
         Integer updateDistance = Integer.parseInt(params.get(UPDATE_INTERLEAVE));
@@ -316,8 +319,7 @@ public class LdbcSnbInteractiveConfiguration {
         return (original.indexOf(prefix) == -1) ? original : original.substring(original.lastIndexOf(prefix) + prefix.length(), original.length());
     }
 
-    static Set<String> missingPropertiesParameters
-            (Map<String, String> properties, Iterable<String> compulsoryPropertyKeys) {
+    static Set<String> missingParameters(Map<String, String> properties, Iterable<String> compulsoryPropertyKeys) {
         Set<String> missingPropertyKeys = new HashSet<>();
         for (String compulsoryKey : compulsoryPropertyKeys) {
             if (null == properties.get(compulsoryKey)) missingPropertyKeys.add(compulsoryKey);
@@ -327,7 +329,7 @@ public class LdbcSnbInteractiveConfiguration {
 
     public static Set<String> parseFilePathsListFromConfiguration(String filePaths) {
         Set<String> filePathsSet = new HashSet<>();
-        String[] filePathsArray = filePaths.split(PIPE_SEPARATOR);
+        String[] filePathsArray = filePaths.split(PIPE_SEPARATOR_REGEX);
         for (String filePath : filePathsArray) {
             if (filePath.isEmpty()) continue;
             filePathsSet.add(filePath);
