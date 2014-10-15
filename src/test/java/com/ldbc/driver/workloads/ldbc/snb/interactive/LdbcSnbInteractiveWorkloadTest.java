@@ -1,6 +1,5 @@
 package com.ldbc.driver.workloads.ldbc.snb.interactive;
 
-import au.com.bytecode.opencsv.CSVReader;
 import com.google.common.base.Function;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Iterables;
@@ -25,7 +24,6 @@ import com.ldbc.driver.util.Bucket;
 import com.ldbc.driver.util.CsvFileReader;
 import com.ldbc.driver.util.Histogram;
 import com.ldbc.driver.util.MapUtils;
-import com.ldbc.driver.util.neo_csv.*;
 import com.ldbc.driver.workloads.ldbc.snb.interactive.db.DummyLdbcSnbInteractiveDb;
 import com.ldbc.driver.workloads.ldbc.snb.interactive.db.DummyLdbcSnbInteractiveOperationInstances;
 import org.junit.Ignore;
@@ -33,7 +31,9 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 
-import java.io.*;
+import java.io.File;
+import java.io.FilenameFilter;
+import java.io.IOException;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 
@@ -956,157 +956,6 @@ public class LdbcSnbInteractiveWorkloadTest {
         assertThat(client.workloadValidationResult(), is(notNullValue()));
         assertThat(client.workloadValidationResult().errorMessage(), client.workloadValidationResult().isSuccessful(), is(true));
         assertThat(client.workloadStatistics(), is(nullValue()));
-    }
-
-    @Ignore
-    @Test
-    public void csvReadingPerformanceTest() throws IOException {
-        File parentStreamsDir = new File("/Users/alexaverbuch/IdeaProjects/scale_factor_streams/");
-        File forumUpdateStream = new File(parentStreamsDir, "sf_10_partitions_01/updateStream_0_0_forum.csv");
-
-        {
-            // warm up file system
-            doDriverCsvReaderPerformanceTest(forumUpdateStream);
-        }
-
-        int repetitions = 2;
-        {
-            long lines = 0;
-            long startTimeAsMilli = timeSource.nowAsMilli();
-            for (int i = 0; i < repetitions; i++) {
-                lines += doDriverCsvReaderPerformanceTest(forumUpdateStream);
-            }
-            long endTimeAsMilli = timeSource.nowAsMilli();
-            long durationAsMilli = (endTimeAsMilli - startTimeAsMilli) / repetitions;
-            lines = lines / repetitions;
-
-            System.out.println(
-                    String.format("%s took %s to read %s line: %s lines/s",
-                            CsvFileReader.class.getSimpleName(),
-                            Duration.fromMilli(durationAsMilli),
-                            lines,
-                            (double) lines / Duration.fromMilli(durationAsMilli).asSeconds()
-                    )
-            );
-        }
-
-        {
-            long lines = 0;
-            long startTimeAsMilli = timeSource.nowAsMilli();
-            for (int i = 0; i < repetitions; i++) {
-                lines += doOpenCsvReaderPerformanceTest(forumUpdateStream);
-            }
-            long endTimeAsMilli = timeSource.nowAsMilli();
-            long durationAsMilli = (endTimeAsMilli - startTimeAsMilli) / repetitions;
-            lines = lines / repetitions;
-
-            System.out.println(
-                    String.format("%s took %s to read %s line: %s lines/s",
-                            CSVReader.class.getSimpleName(),
-                            Duration.fromMilli(durationAsMilli),
-                            lines,
-                            (double) lines / Duration.fromMilli(durationAsMilli).asSeconds()
-                    )
-            );
-        }
-
-        {
-            long lines = 0;
-            long startTimeAsMilli = timeSource.nowAsMilli();
-            for (int i = 0; i < repetitions; i++) {
-                lines += doCharSeekerPerformanceTest(forumUpdateStream);
-            }
-            long endTimeAsMilli = timeSource.nowAsMilli();
-            long durationAsMilli = (endTimeAsMilli - startTimeAsMilli) / repetitions;
-            lines = lines / repetitions;
-
-            System.out.println(
-                    String.format("%s took %s to read %s line: %s lines/s",
-                            CharSeeker.class.getSimpleName(),
-                            Duration.fromMilli(durationAsMilli),
-                            lines,
-                            (double) lines / Duration.fromMilli(durationAsMilli).asSeconds()
-                    )
-            );
-        }
-
-        {
-            long lines = 0;
-            long startTimeAsMilli = timeSource.nowAsMilli();
-            for (int i = 0; i < repetitions; i++) {
-                lines += doThreadedCharSeekerPerformanceTest(forumUpdateStream);
-            }
-            long endTimeAsMilli = timeSource.nowAsMilli();
-            long durationAsMilli = (endTimeAsMilli - startTimeAsMilli) / repetitions;
-            lines = lines / repetitions;
-
-            System.out.println(
-                    String.format("%s took %s to read %s line: %s lines/s",
-                            CharSeeker.class.getSimpleName(),
-                            Duration.fromMilli(durationAsMilli),
-                            lines,
-                            (double) lines / Duration.fromMilli(durationAsMilli).asSeconds()
-                    )
-            );
-        }    }
-
-    public long doDriverCsvReaderPerformanceTest(File forumUpdateStream) throws FileNotFoundException {
-        CsvFileReader csvFileReader = new CsvFileReader(forumUpdateStream, CsvFileReader.DEFAULT_COLUMN_SEPARATOR_PATTERN);
-        long lines = 0;
-        while (csvFileReader.hasNext()) {
-            csvFileReader.next();
-            lines++;
-        }
-        csvFileReader.closeReader();
-        return lines;
-    }
-
-    public long doOpenCsvReaderPerformanceTest(File forumUpdateStream) throws IOException {
-        CSVReader csvFileReader = new CSVReader(new FileReader(forumUpdateStream), '|');
-        long lines = 0;
-        while (null != csvFileReader.readNext()) {
-            lines++;
-        }
-        csvFileReader.close();
-        return lines;
-    }
-
-    public long doCharSeekerPerformanceTest(File forumUpdateStream) throws IOException {
-//        final CharSeeker seeker = QuoteAwareCharSeeker.quoteAware(new BufferedCharSeeker(new FileReader(forumUpdateStream)), '"');
-        final CharSeeker seeker = new BufferedCharSeeker(new FileReader(forumUpdateStream));
-        long lines = 0;
-        Mark mark = new Mark();
-        int[] delimiters = new int[]{'|', '\t'};
-        boolean tryAgain = true;
-        while (tryAgain) {
-            String value = null;
-            while (seeker.seek(mark, delimiters)) {
-                value = seeker.extract(mark, Extractors.STRING);
-            }
-            lines++;
-            tryAgain = value != null;
-        }
-        seeker.close();
-        return lines;
-    }
-
-    public long doThreadedCharSeekerPerformanceTest(File forumUpdateStream) throws IOException {
-//        final CharSeeker seeker = QuoteAwareCharSeeker.quoteAware(new BufferedCharSeeker(new FileReader(forumUpdateStream)), '"');
-        final CharSeeker seeker = new BufferedCharSeeker(ThreadAheadReadable.threadAhead(new FileReader(forumUpdateStream), 2 * 1024 * 1024));
-        long lines = 0;
-        Mark mark = new Mark();
-        int[] delimiters = new int[]{'|', '\t'};
-        boolean tryAgain = true;
-        while (tryAgain) {
-            String value = null;
-            while (seeker.seek(mark, delimiters)) {
-                value = seeker.extract(mark, Extractors.STRING);
-            }
-            lines++;
-            tryAgain = value != null;
-        }
-        seeker.close();
-        return lines;
     }
 
     @Ignore

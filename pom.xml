@@ -25,17 +25,11 @@
         <guava.version>18.0</guava.version>
         <commmons.cli.version>1.2</commmons.cli.version>
         <stormpot.version>2.2</stormpot.version>
-        <opencsv.version>2.3</opencsv.version>
         <maven.compiler.source>1.7</maven.compiler.source>
         <maven.compiler.target>1.7</maven.compiler.target>
     </properties>
 
     <dependencies>
-        <dependency>
-            <groupId>net.sf.opencsv</groupId>
-            <artifactId>opencsv</artifactId>
-            <version>${opencsv.version}</version>
-        </dependency>
         <dependency>
             <groupId>com.github.chrisvest</groupId>
             <artifactId>stormpot</artifactId>
