@@ -993,7 +993,7 @@ public class ConsoleAndFileDriverConfiguration implements DriverConfiguration {
         if (null == databaseValidationFilePath)
             sb.append("# ").append(DB_VALIDATION_FILE_PATH_ARG_LONG).append("=").append("\n");
         else
-            sb.append(DB_VALIDATION_FILE_PATH_ARG).append("=").append(databaseValidationFilePath).append("\n");
+            sb.append(DB_VALIDATION_FILE_PATH_ARG_LONG).append("=").append(databaseValidationFilePath).append("\n");
         sb.append("\n");
         sb.append("# generate validation parameters file for validating correctness of database implementations\n");
         sb.append("# parameter values specify: (1) where to create the validation parameters file (2) how many validation parameters to generate\n");
