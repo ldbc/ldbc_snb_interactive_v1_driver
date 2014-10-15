@@ -44,7 +44,6 @@ import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
 
-@Ignore
 public class WorkloadRunnerTest {
     @Rule
     public TemporaryFolder temporaryFolder = new TemporaryFolder();
