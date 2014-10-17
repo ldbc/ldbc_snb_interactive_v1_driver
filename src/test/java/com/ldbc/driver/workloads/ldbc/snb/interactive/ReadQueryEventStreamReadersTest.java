@@ -3,7 +3,7 @@ package com.ldbc.driver.workloads.ldbc.snb.interactive;
 import com.google.common.collect.ImmutableList;
 import com.ldbc.driver.Operation;
 import com.ldbc.driver.testutils.TestUtils;
-import com.ldbc.driver.util.CsvFileReader;
+import com.ldbc.driver.util.csv.SimpleCsvFileReader;
 import org.junit.Test;
 
 import java.io.IOException;
@@ -20,7 +20,7 @@ public class ReadQueryEventStreamReadersTest {
     @Test
     public void shouldParseAllQuery1Events() throws IOException, ParseException {
         // Given
-        Query1EventStreamReader reader = new Query1EventStreamReader(new CsvFileReader(TestUtils.getResource("/query_1_param.txt"), "\\|"));
+        Query1EventStreamReader reader = new Query1EventStreamReader(new SimpleCsvFileReader(TestUtils.getResource("/query_1_param.txt"), "\\|"));
 
         // When
 
@@ -53,7 +53,7 @@ public class ReadQueryEventStreamReadersTest {
     @Test
     public void shouldParseAllQuery2Events() throws IOException, ParseException {
         // Given
-        Query2EventStreamReader reader = new Query2EventStreamReader(new CsvFileReader(TestUtils.getResource("/query_2_param.txt"), "\\|"));
+        Query2EventStreamReader reader = new Query2EventStreamReader(new SimpleCsvFileReader(TestUtils.getResource("/query_2_param.txt"), "\\|"));
 
         // When
 
@@ -96,7 +96,7 @@ public class ReadQueryEventStreamReadersTest {
     @Test
     public void shouldParseAllQuery3Events() throws IOException, ParseException {
         // Given
-        Query3EventStreamReader reader = new Query3EventStreamReader(new CsvFileReader(TestUtils.getResource("/query_3_param.txt"), "\\|"));
+        Query3EventStreamReader reader = new Query3EventStreamReader(new SimpleCsvFileReader(TestUtils.getResource("/query_3_param.txt"), "\\|"));
 
         // When
 
@@ -152,7 +152,7 @@ public class ReadQueryEventStreamReadersTest {
     @Test
     public void shouldParseAllQuery4Events() throws IOException, ParseException {
         // Given
-        Query4EventStreamReader reader = new Query4EventStreamReader(new CsvFileReader(TestUtils.getResource("/query_4_param.txt"), "\\|"));
+        Query4EventStreamReader reader = new Query4EventStreamReader(new SimpleCsvFileReader(TestUtils.getResource("/query_4_param.txt"), "\\|"));
 
         // When
 
@@ -199,7 +199,7 @@ public class ReadQueryEventStreamReadersTest {
     @Test
     public void shouldParseAllQuery5Events() throws IOException, ParseException {
         // Given
-        Query5EventStreamReader reader = new Query5EventStreamReader(new CsvFileReader(TestUtils.getResource("/query_5_param.txt"), "\\|"));
+        Query5EventStreamReader reader = new Query5EventStreamReader(new SimpleCsvFileReader(TestUtils.getResource("/query_5_param.txt"), "\\|"));
 
         // When
 
@@ -242,7 +242,7 @@ public class ReadQueryEventStreamReadersTest {
     @Test
     public void shouldParseAllQuery6Events() throws IOException, ParseException {
         // Given
-        Query6EventStreamReader reader = new Query6EventStreamReader(new CsvFileReader(TestUtils.getResource("/query_6_param.txt"), "\\|"));
+        Query6EventStreamReader reader = new Query6EventStreamReader(new SimpleCsvFileReader(TestUtils.getResource("/query_6_param.txt"), "\\|"));
 
         // When
 
@@ -275,7 +275,7 @@ public class ReadQueryEventStreamReadersTest {
     @Test
     public void shouldParseAllQuery7Events() throws IOException, ParseException {
         // Given
-        Query7EventStreamReader reader = new Query7EventStreamReader(new CsvFileReader(TestUtils.getResource("/query_7_param.txt"), "\\|"));
+        Query7EventStreamReader reader = new Query7EventStreamReader(new SimpleCsvFileReader(TestUtils.getResource("/query_7_param.txt"), "\\|"));
 
         // When
 
@@ -304,7 +304,7 @@ public class ReadQueryEventStreamReadersTest {
     @Test
     public void shouldParseAllQuery8Events() throws IOException, ParseException {
         // Given
-        Query8EventStreamReader reader = new Query8EventStreamReader(new CsvFileReader(TestUtils.getResource("/query_8_param.txt"), "\\|"));
+        Query8EventStreamReader reader = new Query8EventStreamReader(new SimpleCsvFileReader(TestUtils.getResource("/query_8_param.txt"), "\\|"));
 
         // When
 
@@ -333,7 +333,7 @@ public class ReadQueryEventStreamReadersTest {
     @Test
     public void shouldParseAllQuery9Events() throws IOException, ParseException {
         // Given
-        Query9EventStreamReader reader = new Query9EventStreamReader(new CsvFileReader(TestUtils.getResource("/query_9_param.txt"), "\\|"));
+        Query9EventStreamReader reader = new Query9EventStreamReader(new SimpleCsvFileReader(TestUtils.getResource("/query_9_param.txt"), "\\|"));
 
         // When
 
@@ -376,7 +376,7 @@ public class ReadQueryEventStreamReadersTest {
     @Test
     public void shouldParseAllQuery10Events() throws IOException, ParseException {
         // Given
-        Query10EventStreamReader reader = new Query10EventStreamReader(new CsvFileReader(TestUtils.getResource("/query_10_param.txt"), "\\|"));
+        Query10EventStreamReader reader = new Query10EventStreamReader(new SimpleCsvFileReader(TestUtils.getResource("/query_10_param.txt"), "\\|"));
 
         // When
 
@@ -410,7 +410,7 @@ public class ReadQueryEventStreamReadersTest {
     @Test
     public void shouldParseAllQuery11Events() throws IOException, ParseException {
         // Given
-        Query11EventStreamReader reader = new Query11EventStreamReader(new CsvFileReader(TestUtils.getResource("/query_11_param.txt"), "\\|"));
+        Query11EventStreamReader reader = new Query11EventStreamReader(new SimpleCsvFileReader(TestUtils.getResource("/query_11_param.txt"), "\\|"));
 
         // When
 
@@ -447,7 +447,7 @@ public class ReadQueryEventStreamReadersTest {
     @Test
     public void shouldParseAllQuery12Events() throws IOException, ParseException {
         // Given
-        Query12EventStreamReader reader = new Query12EventStreamReader(new CsvFileReader(TestUtils.getResource("/query_12_param.txt"), "\\|"));
+        Query12EventStreamReader reader = new Query12EventStreamReader(new SimpleCsvFileReader(TestUtils.getResource("/query_12_param.txt"), "\\|"));
 
         // When
 
@@ -480,7 +480,7 @@ public class ReadQueryEventStreamReadersTest {
     @Test
     public void shouldParseAllQuery13Events() throws IOException, ParseException {
         // Given
-        Query13EventStreamReader reader = new Query13EventStreamReader(new CsvFileReader(TestUtils.getResource("/query_13_param.txt"), "\\|"));
+        Query13EventStreamReader reader = new Query13EventStreamReader(new SimpleCsvFileReader(TestUtils.getResource("/query_13_param.txt"), "\\|"));
 
         // When
 
@@ -517,7 +517,7 @@ public class ReadQueryEventStreamReadersTest {
     @Test
     public void shouldParseAllQuery14Events() throws IOException, ParseException {
         // Given
-        Query14EventStreamReader reader = new Query14EventStreamReader(new CsvFileReader(TestUtils.getResource("/query_14_param.txt"), "\\|"));
+        Query14EventStreamReader reader = new Query14EventStreamReader(new SimpleCsvFileReader(TestUtils.getResource("/query_14_param.txt"), "\\|"));
 
         // When
 
@@ -554,20 +554,20 @@ public class ReadQueryEventStreamReadersTest {
     @Test
     public void shouldParseAllParamsFilesWithoutError() throws IOException, ParseException {
         // Given
-        Query1EventStreamReader reader1 = new Query1EventStreamReader(new CsvFileReader(TestUtils.getResource("/query_1_param.txt"), "\\|"));
-        Query2EventStreamReader reader2 = new Query2EventStreamReader(new CsvFileReader(TestUtils.getResource("/query_2_param.txt"), "\\|"));
-        Query3EventStreamReader reader3 = new Query3EventStreamReader(new CsvFileReader(TestUtils.getResource("/query_3_param.txt"), "\\|"));
-        Query4EventStreamReader reader4 = new Query4EventStreamReader(new CsvFileReader(TestUtils.getResource("/query_4_param.txt"), "\\|"));
-        Query5EventStreamReader reader5 = new Query5EventStreamReader(new CsvFileReader(TestUtils.getResource("/query_5_param.txt"), "\\|"));
-        Query6EventStreamReader reader6 = new Query6EventStreamReader(new CsvFileReader(TestUtils.getResource("/query_6_param.txt"), "\\|"));
-        Query7EventStreamReader reader7 = new Query7EventStreamReader(new CsvFileReader(TestUtils.getResource("/query_7_param.txt"), "\\|"));
-        Query8EventStreamReader reader8 = new Query8EventStreamReader(new CsvFileReader(TestUtils.getResource("/query_8_param.txt"), "\\|"));
-        Query9EventStreamReader reader9 = new Query9EventStreamReader(new CsvFileReader(TestUtils.getResource("/query_9_param.txt"), "\\|"));
-        Query10EventStreamReader reader10 = new Query10EventStreamReader(new CsvFileReader(TestUtils.getResource("/query_10_param.txt"), "\\|"));
-        Query11EventStreamReader reader11 = new Query11EventStreamReader(new CsvFileReader(TestUtils.getResource("/query_11_param.txt"), "\\|"));
-        Query12EventStreamReader reader12 = new Query12EventStreamReader(new CsvFileReader(TestUtils.getResource("/query_12_param.txt"), "\\|"));
-        Query13EventStreamReader reader13 = new Query13EventStreamReader(new CsvFileReader(TestUtils.getResource("/query_13_param.txt"), "\\|"));
-        Query14EventStreamReader reader14 = new Query14EventStreamReader(new CsvFileReader(TestUtils.getResource("/query_14_param.txt"), "\\|"));
+        Query1EventStreamReader reader1 = new Query1EventStreamReader(new SimpleCsvFileReader(TestUtils.getResource("/query_1_param.txt"), "\\|"));
+        Query2EventStreamReader reader2 = new Query2EventStreamReader(new SimpleCsvFileReader(TestUtils.getResource("/query_2_param.txt"), "\\|"));
+        Query3EventStreamReader reader3 = new Query3EventStreamReader(new SimpleCsvFileReader(TestUtils.getResource("/query_3_param.txt"), "\\|"));
+        Query4EventStreamReader reader4 = new Query4EventStreamReader(new SimpleCsvFileReader(TestUtils.getResource("/query_4_param.txt"), "\\|"));
+        Query5EventStreamReader reader5 = new Query5EventStreamReader(new SimpleCsvFileReader(TestUtils.getResource("/query_5_param.txt"), "\\|"));
+        Query6EventStreamReader reader6 = new Query6EventStreamReader(new SimpleCsvFileReader(TestUtils.getResource("/query_6_param.txt"), "\\|"));
+        Query7EventStreamReader reader7 = new Query7EventStreamReader(new SimpleCsvFileReader(TestUtils.getResource("/query_7_param.txt"), "\\|"));
+        Query8EventStreamReader reader8 = new Query8EventStreamReader(new SimpleCsvFileReader(TestUtils.getResource("/query_8_param.txt"), "\\|"));
+        Query9EventStreamReader reader9 = new Query9EventStreamReader(new SimpleCsvFileReader(TestUtils.getResource("/query_9_param.txt"), "\\|"));
+        Query10EventStreamReader reader10 = new Query10EventStreamReader(new SimpleCsvFileReader(TestUtils.getResource("/query_10_param.txt"), "\\|"));
+        Query11EventStreamReader reader11 = new Query11EventStreamReader(new SimpleCsvFileReader(TestUtils.getResource("/query_11_param.txt"), "\\|"));
+        Query12EventStreamReader reader12 = new Query12EventStreamReader(new SimpleCsvFileReader(TestUtils.getResource("/query_12_param.txt"), "\\|"));
+        Query13EventStreamReader reader13 = new Query13EventStreamReader(new SimpleCsvFileReader(TestUtils.getResource("/query_13_param.txt"), "\\|"));
+        Query14EventStreamReader reader14 = new Query14EventStreamReader(new SimpleCsvFileReader(TestUtils.getResource("/query_14_param.txt"), "\\|"));
 
         // When
         List<Operation<?>> operation1List = ImmutableList.copyOf(reader1);

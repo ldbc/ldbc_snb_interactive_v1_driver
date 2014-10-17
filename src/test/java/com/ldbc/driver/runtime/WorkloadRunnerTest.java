@@ -23,14 +23,13 @@ import com.ldbc.driver.temporal.SystemTimeSource;
 import com.ldbc.driver.temporal.Time;
 import com.ldbc.driver.temporal.TimeSource;
 import com.ldbc.driver.testutils.TestUtils;
-import com.ldbc.driver.util.CsvFileReader;
-import com.ldbc.driver.util.CsvFileWriter;
+import com.ldbc.driver.util.csv.SimpleCsvFileReader;
+import com.ldbc.driver.util.csv.SimpleCsvFileWriter;
 import com.ldbc.driver.util.MapUtils;
 import com.ldbc.driver.util.Tuple;
 import com.ldbc.driver.workloads.ldbc.snb.interactive.LdbcSnbInteractiveConfiguration;
 import com.ldbc.driver.workloads.ldbc.snb.interactive.LdbcSnbInteractiveWorkload;
 import com.ldbc.driver.workloads.ldbc.snb.interactive.db.DummyLdbcSnbInteractiveDb;
-import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
@@ -146,7 +145,7 @@ public class WorkloadRunnerTest {
                     toleratedExecutionDelay,
                     errorReporter);
             File resultsLog = temporaryFolder.newFile();
-            CsvFileWriter csvResultsLogWriter = new CsvFileWriter(resultsLog, CsvFileWriter.DEFAULT_COLUMN_SEPARATOR);
+            SimpleCsvFileWriter csvResultsLogWriter = new SimpleCsvFileWriter(resultsLog, SimpleCsvFileWriter.DEFAULT_COLUMN_SEPARATOR);
             metricsService = ThreadedQueuedConcurrentMetricsService.newInstanceUsingBlockingQueue(
                     timeSource,
                     errorReporter,
@@ -194,7 +193,7 @@ public class WorkloadRunnerTest {
             assertThat(errorReporter.toString(), workloadResults.toJson(), equalTo(workloadResultsFromJson.toJson()));
 
             csvResultsLogWriter.close();
-            CsvFileReader csvResultsLogReader = new CsvFileReader(resultsLog, CsvFileReader.DEFAULT_COLUMN_SEPARATOR_PATTERN);
+            SimpleCsvFileReader csvResultsLogReader = new SimpleCsvFileReader(resultsLog, SimpleCsvFileReader.DEFAULT_COLUMN_SEPARATOR_PATTERN);
             assertThat((long) Iterators.size(csvResultsLogReader), is(configuration.operationCount())); // NOT + 1 because I didn't add csv headers
             csvResultsLogReader.closeReader();
 
@@ -327,7 +326,7 @@ public class WorkloadRunnerTest {
                     toleratedExecutionDelay,
                     errorReporter);
             File resultsLog = temporaryFolder.newFile();
-            CsvFileWriter csvResultsLogWriter = new CsvFileWriter(resultsLog, CsvFileWriter.DEFAULT_COLUMN_SEPARATOR);
+            SimpleCsvFileWriter csvResultsLogWriter = new SimpleCsvFileWriter(resultsLog, SimpleCsvFileWriter.DEFAULT_COLUMN_SEPARATOR);
             metricsService = ThreadedQueuedConcurrentMetricsService.newInstanceUsingBlockingQueue(
                     timeSource,
                     errorReporter,
@@ -371,7 +370,7 @@ public class WorkloadRunnerTest {
             assertThat(errorReporter.toString(), workloadResults.toJson(), equalTo(workloadResultsFromJson.toJson()));
 
             csvResultsLogWriter.close();
-            CsvFileReader csvResultsLogReader = new CsvFileReader(resultsLog, CsvFileReader.DEFAULT_COLUMN_SEPARATOR_PATTERN);
+            SimpleCsvFileReader csvResultsLogReader = new SimpleCsvFileReader(resultsLog, SimpleCsvFileReader.DEFAULT_COLUMN_SEPARATOR_PATTERN);
             assertThat((long) Iterators.size(csvResultsLogReader), is(configuration.operationCount())); // NOT + 1 because I didn't add csv headers
             csvResultsLogReader.closeReader();
 

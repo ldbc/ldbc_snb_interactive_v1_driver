@@ -4,7 +4,7 @@ import com.ldbc.driver.OperationResultReport;
 import com.ldbc.driver.runtime.ConcurrentErrorReporter;
 import com.ldbc.driver.runtime.QueueEventFetcher;
 import com.ldbc.driver.runtime.scheduling.ExecutionDelayPolicy;
-import com.ldbc.driver.util.CsvFileWriter;
+import com.ldbc.driver.util.csv.SimpleCsvFileWriter;
 
 import java.util.Queue;
 
@@ -14,7 +14,7 @@ public class ThreadedQueuedConcurrentMetricsServiceThread extends Thread {
     private final QueueEventFetcher<MetricsCollectionEvent> queueEventFetcher;
     private final ExecutionDelayPolicy executionDelayPolicy;
     private final boolean shouldRecordStartTimeDelayLatencies;
-    private final CsvFileWriter csvResultsLogWriter;
+    private final SimpleCsvFileWriter csvResultsLogWriter;
     private Long processedEventCount = 0l;
     private Long expectedEventCount = null;
 
@@ -23,7 +23,7 @@ public class ThreadedQueuedConcurrentMetricsServiceThread extends Thread {
                                                         MetricsManager metricsManager,
                                                         boolean shouldRecordStartTimeDelayLatencies,
                                                         ExecutionDelayPolicy executionDelayPolicy,
-                                                        CsvFileWriter csvResultsLogWriter) {
+                                                        SimpleCsvFileWriter csvResultsLogWriter) {
         this(errorReporter,
                 QueueEventFetcher.queueEventFetcherFor(metricsEventsQueue),
                 metricsManager,
@@ -37,7 +37,7 @@ public class ThreadedQueuedConcurrentMetricsServiceThread extends Thread {
                                                          MetricsManager metricsManager,
                                                          boolean shouldRecordStartTimeDelayLatencies,
                                                          ExecutionDelayPolicy executionDelayPolicy,
-                                                         CsvFileWriter csvResultsLogWriter) {
+                                                         SimpleCsvFileWriter csvResultsLogWriter) {
         super(ThreadedQueuedConcurrentMetricsServiceThread.class.getSimpleName() + "-" + System.currentTimeMillis());
         this.errorReporter = errorReporter;
         this.metricsManager = metricsManager;
@@ -59,7 +59,7 @@ public class ThreadedQueuedConcurrentMetricsServiceThread extends Thread {
 
                         if (null != csvResultsLogWriter) {
                             csvResultsLogWriter.writeRow(
-                                    result.operation().type(),
+                                    result.operation().getClass().getSimpleName(),
                                     Long.toString(result.operation().scheduledStartTime().asMilli()),
                                     Long.toString(result.actualStartTime().asMilli()),
                                     Long.toString(result.runDuration().asMilli()));

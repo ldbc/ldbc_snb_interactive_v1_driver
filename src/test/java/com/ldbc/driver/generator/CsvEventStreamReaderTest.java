@@ -4,7 +4,7 @@ import com.google.common.collect.Iterators;
 import com.google.common.collect.Lists;
 import com.ldbc.driver.Operation;
 import com.ldbc.driver.testutils.TestUtils;
-import com.ldbc.driver.util.CsvFileReader;
+import com.ldbc.driver.util.csv.SimpleCsvFileReader;
 import com.ldbc.driver.workloads.ldbc.snb.interactive.LdbcUpdate3AddCommentLike;
 import com.ldbc.driver.workloads.ldbc.snb.interactive.LdbcUpdate5AddForumMembership;
 import com.ldbc.driver.workloads.ldbc.snb.interactive.WriteEventStreamReader;
@@ -49,7 +49,7 @@ public class CsvEventStreamReaderTest {
         EventDescriptions<Operation<?>> eventDescriptions = new EventDescriptions<>(decoders, EventReturnPolicy.AT_LEAST_ONE_MATCH);
 
         // When
-        Iterator<Operation<?>> csvEventStreamReader = new CsvEventStreamReader<>(Iterators.limit(new CsvFileReader(file, "\\|"), 4), eventDescriptions);
+        Iterator<Operation<?>> csvEventStreamReader = new CsvEventStreamReader<>(Iterators.limit(new SimpleCsvFileReader(file, "\\|"), 4), eventDescriptions);
 
         // Then
         assertThat(csvEventStreamReader.next(), instanceOf(LdbcUpdate3AddCommentLike.class));
@@ -70,7 +70,7 @@ public class CsvEventStreamReaderTest {
         EventDescriptions<Operation<?>> eventDescriptions = new EventDescriptions<>(decoders, EventReturnPolicy.AT_LEAST_ONE_MATCH);
 
         // When
-        Iterator<Operation<?>> csvEventStreamReader = new CsvEventStreamReader<>(Iterators.limit(new CsvFileReader(file, "\\|"), 3), eventDescriptions);
+        Iterator<Operation<?>> csvEventStreamReader = new CsvEventStreamReader<>(Iterators.limit(new SimpleCsvFileReader(file, "\\|"), 3), eventDescriptions);
 
         // Then
         assertThat(csvEventStreamReader.next(), instanceOf(LdbcUpdate3AddCommentLike.class));
@@ -94,7 +94,7 @@ public class CsvEventStreamReaderTest {
         EventDescriptions<Operation<?>> eventDescriptions = new EventDescriptions<>(decoders, EventReturnPolicy.EXACTLY_ONE_MATCH);
 
         // When
-        Iterator<Operation<?>> csvEventStreamReader = new CsvEventStreamReader<>(Iterators.limit(new CsvFileReader(file, "\\|"), 3), eventDescriptions);
+        Iterator<Operation<?>> csvEventStreamReader = new CsvEventStreamReader<>(Iterators.limit(new SimpleCsvFileReader(file, "\\|"), 3), eventDescriptions);
 
         // Then
         assertThat(csvEventStreamReader.next(), instanceOf(LdbcUpdate3AddCommentLike.class));
@@ -120,7 +120,7 @@ public class CsvEventStreamReaderTest {
         EventDescriptions<Operation<?>> eventDescriptions = new EventDescriptions<>(decoders, EventReturnPolicy.AT_LEAST_ONE_MATCH);
 
         // When
-        Iterator<Operation<?>> csvEventStreamReader = new CsvEventStreamReader<>(Iterators.limit(new CsvFileReader(file, "\\|"), 4), eventDescriptions);
+        Iterator<Operation<?>> csvEventStreamReader = new CsvEventStreamReader<>(Iterators.limit(new SimpleCsvFileReader(file, "\\|"), 4), eventDescriptions);
 
         // Then
         assertThat(csvEventStreamReader.next(), instanceOf(LdbcUpdate3AddCommentLike.class));
@@ -146,7 +146,7 @@ public class CsvEventStreamReaderTest {
         // When
         Iterator<Operation<?>> csvEventStreamReader = new CsvEventStreamReader<>(
                 Iterators.limit(
-                        new CsvFileReader(csvFile, "\\|"),
+                        new SimpleCsvFileReader(csvFile, "\\|"),
                         4
                 ),
                 eventDescriptions

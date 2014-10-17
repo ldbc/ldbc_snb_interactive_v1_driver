@@ -6,8 +6,8 @@ import com.ldbc.driver.control.ConsoleAndFileDriverConfiguration;
 import com.ldbc.driver.control.DriverConfigurationException;
 import com.ldbc.driver.control.DriverConfigurationFileTestHelper;
 import com.ldbc.driver.testutils.TestUtils;
-import com.ldbc.driver.util.CsvFileReader;
-import com.ldbc.driver.util.CsvFileWriter;
+import com.ldbc.driver.util.csv.SimpleCsvFileReader;
+import com.ldbc.driver.util.csv.SimpleCsvFileWriter;
 import com.ldbc.driver.workloads.ldbc.snb.interactive.LdbcSnbInteractiveConfiguration;
 import com.ldbc.driver.workloads.ldbc.snb.interactive.LdbcSnbInteractiveWorkload;
 import com.ldbc.driver.workloads.ldbc.snb.interactive.db.DummyLdbcSnbInteractiveDb;
@@ -60,12 +60,12 @@ public class ValidationParamsGeneratorTest {
 
         Iterator<String[]> validationParamsAsCsvRows = new ValidationParamsToCsvRows(validationParamsBeforeList.iterator(), workload, true);
 
-        CsvFileWriter csvFileWriter = new CsvFileWriter(tempValidationFile, CsvFileWriter.DEFAULT_COLUMN_SEPARATOR);
-        csvFileWriter.writeRows(validationParamsAsCsvRows);
-        csvFileWriter.close();
+        SimpleCsvFileWriter simpleCsvFileWriter = new SimpleCsvFileWriter(tempValidationFile, SimpleCsvFileWriter.DEFAULT_COLUMN_SEPARATOR);
+        simpleCsvFileWriter.writeRows(validationParamsAsCsvRows);
+        simpleCsvFileWriter.close();
 
-        CsvFileReader csvFileReader = new CsvFileReader(tempValidationFile, CsvFileReader.DEFAULT_COLUMN_SEPARATOR_PATTERN);
-        ValidationParamsFromCsvRows validationParamsAfter = new ValidationParamsFromCsvRows(csvFileReader, workload);
+        SimpleCsvFileReader simpleCsvFileReader = new SimpleCsvFileReader(tempValidationFile, SimpleCsvFileReader.DEFAULT_COLUMN_SEPARATOR_PATTERN);
+        ValidationParamsFromCsvRows validationParamsAfter = new ValidationParamsFromCsvRows(simpleCsvFileReader, workload);
         List<ValidationParam> validationParamsAfterList = Lists.newArrayList(validationParamsAfter);
 
         int expectedValidationSetSize = Math.min(operationsList.size(), validationSetSize);
@@ -81,7 +81,7 @@ public class ValidationParamsGeneratorTest {
             assertThat(validationParamBefore, equalTo(validationParamAfter));
         }
 
-        csvFileReader.closeReader();
+        simpleCsvFileReader.closeReader();
         System.out.println(tempValidationFile.getAbsolutePath());
     }
 

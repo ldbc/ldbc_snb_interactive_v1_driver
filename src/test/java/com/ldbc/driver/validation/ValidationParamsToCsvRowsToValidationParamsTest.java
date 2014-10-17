@@ -2,8 +2,8 @@ package com.ldbc.driver.validation;
 
 import com.google.common.collect.Lists;
 import com.ldbc.driver.Workload;
-import com.ldbc.driver.util.CsvFileReader;
-import com.ldbc.driver.util.CsvFileWriter;
+import com.ldbc.driver.util.csv.SimpleCsvFileReader;
+import com.ldbc.driver.util.csv.SimpleCsvFileWriter;
 import com.ldbc.driver.workloads.ldbc.snb.interactive.*;
 import com.ldbc.driver.workloads.ldbc.snb.interactive.db.DummyLdbcSnbInteractiveOperationInstances;
 import com.ldbc.driver.workloads.ldbc.snb.interactive.db.DummyLdbcSnbInteractiveOperationResultInstances;
@@ -36,13 +36,13 @@ public class ValidationParamsToCsvRowsToValidationParamsTest {
 
         // (3) csv_rows->csv_file
         File csvFile1 = temporaryFolder.newFile();
-        CsvFileWriter csvFileWriter1 = new CsvFileWriter(csvFile1, CsvFileWriter.DEFAULT_COLUMN_SEPARATOR);
-        csvFileWriter1.writeRows(serializedValidationParamsAsCsvRows.iterator());
-        csvFileWriter1.close();
+        SimpleCsvFileWriter simpleCsvFileWriter1 = new SimpleCsvFileWriter(csvFile1, SimpleCsvFileWriter.DEFAULT_COLUMN_SEPARATOR);
+        simpleCsvFileWriter1.writeRows(serializedValidationParamsAsCsvRows.iterator());
+        simpleCsvFileWriter1.close();
 
         // (4) csv_file->csv_rows
         List<String[]> csvFile1Rows = Lists.newArrayList(
-                new CsvFileReader(csvFile1, CsvFileReader.DEFAULT_COLUMN_SEPARATOR_PATTERN)
+                new SimpleCsvFileReader(csvFile1, SimpleCsvFileReader.DEFAULT_COLUMN_SEPARATOR_PATTERN)
         );
 
         // (5) csv_rows->params
@@ -57,13 +57,13 @@ public class ValidationParamsToCsvRowsToValidationParamsTest {
 
         // (7) csv_rows->csv_file
         File csvFile2 = temporaryFolder.newFile();
-        CsvFileWriter csvFileWriter2 = new CsvFileWriter(csvFile2, CsvFileWriter.DEFAULT_COLUMN_SEPARATOR);
-        csvFileWriter2.writeRows(serializedValidationParamsAsCsvRowsAfterSerializingAndMarshalling.iterator());
-        csvFileWriter2.close();
+        SimpleCsvFileWriter simpleCsvFileWriter2 = new SimpleCsvFileWriter(csvFile2, SimpleCsvFileWriter.DEFAULT_COLUMN_SEPARATOR);
+        simpleCsvFileWriter2.writeRows(serializedValidationParamsAsCsvRowsAfterSerializingAndMarshalling.iterator());
+        simpleCsvFileWriter2.close();
 
         // (8) csv_file->csv_rows
         List<String[]> csvFile2Rows = Lists.newArrayList(
-                new CsvFileReader(csvFile2, CsvFileReader.DEFAULT_COLUMN_SEPARATOR_PATTERN)
+                new SimpleCsvFileReader(csvFile2, SimpleCsvFileReader.DEFAULT_COLUMN_SEPARATOR_PATTERN)
         );
 
         // (8) csv_rows->params

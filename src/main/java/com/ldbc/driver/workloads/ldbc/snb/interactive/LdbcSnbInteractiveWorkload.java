@@ -9,7 +9,7 @@ import com.ldbc.driver.temporal.Duration;
 import com.ldbc.driver.temporal.Time;
 import com.ldbc.driver.util.ClassLoaderHelper;
 import com.ldbc.driver.util.ClassLoadingException;
-import com.ldbc.driver.util.CsvFileReader;
+import com.ldbc.driver.util.csv.SimpleCsvFileReader;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.type.TypeReference;
 
@@ -21,23 +21,23 @@ import java.util.*;
 import static com.ldbc.driver.generator.CsvEventStreamReader.EventReturnPolicy;
 
 public class LdbcSnbInteractiveWorkload extends Workload {
-    private List<CsvFileReader> forumUpdateOperationsFileReaders = new ArrayList<>();
-    private List<CsvFileReader> personUpdateOperationsFileReaders = new ArrayList<>();
+    private List<SimpleCsvFileReader> forumUpdateOperationsFileReaders = new ArrayList<>();
+    private List<SimpleCsvFileReader> personUpdateOperationsFileReaders = new ArrayList<>();
 
-    private CsvFileReader readOperation1FileReader;
-    private CsvFileReader readOperation2FileReader;
-    private CsvFileReader readOperation3FileReader;
-    private CsvFileReader readOperation4FileReader;
-    private CsvFileReader readOperation5FileReader;
-    private CsvFileReader readOperation6FileReader;
-    private CsvFileReader readOperation7FileReader;
-    private CsvFileReader readOperation8FileReader;
-    private CsvFileReader readOperation9FileReader;
-    private CsvFileReader readOperation10FileReader;
-    private CsvFileReader readOperation11FileReader;
-    private CsvFileReader readOperation12FileReader;
-    private CsvFileReader readOperation13FileReader;
-    private CsvFileReader readOperation14FileReader;
+    private SimpleCsvFileReader readOperation1FileReader;
+    private SimpleCsvFileReader readOperation2FileReader;
+    private SimpleCsvFileReader readOperation3FileReader;
+    private SimpleCsvFileReader readOperation4FileReader;
+    private SimpleCsvFileReader readOperation5FileReader;
+    private SimpleCsvFileReader readOperation6FileReader;
+    private SimpleCsvFileReader readOperation7FileReader;
+    private SimpleCsvFileReader readOperation8FileReader;
+    private SimpleCsvFileReader readOperation9FileReader;
+    private SimpleCsvFileReader readOperation10FileReader;
+    private SimpleCsvFileReader readOperation11FileReader;
+    private SimpleCsvFileReader readOperation12FileReader;
+    private SimpleCsvFileReader readOperation13FileReader;
+    private SimpleCsvFileReader readOperation14FileReader;
 
     private Duration readOperation1Interleave;
     private Duration readOperation2Interleave;
@@ -78,7 +78,7 @@ public class LdbcSnbInteractiveWorkload extends Workload {
         for (String forumUpdateFilePath : forumUpdateFilePaths) {
             File forumUpdateFile = new File(forumUpdateFilePath);
             try {
-                CsvFileReader forumUpdateOperationsFileReader = new CsvFileReader(forumUpdateFile, LdbcSnbInteractiveConfiguration.PIPE_SEPARATOR_REGEX);
+                SimpleCsvFileReader forumUpdateOperationsFileReader = new SimpleCsvFileReader(forumUpdateFile, LdbcSnbInteractiveConfiguration.PIPE_SEPARATOR_REGEX);
                 forumUpdateOperationsFileReaders.add(forumUpdateOperationsFileReader);
             } catch (FileNotFoundException e) {
                 throw new WorkloadException("Unable to load forum update operation parameters file: " + forumUpdateFilePath, e);
@@ -93,7 +93,7 @@ public class LdbcSnbInteractiveWorkload extends Workload {
         for (String personUpdateFilePath : personUpdateFilePaths) {
             File personUpdateFile = new File(personUpdateFilePath);
             try {
-                CsvFileReader personUpdateOperationsFileReader = new CsvFileReader(personUpdateFile, LdbcSnbInteractiveConfiguration.PIPE_SEPARATOR_REGEX);
+                SimpleCsvFileReader personUpdateOperationsFileReader = new SimpleCsvFileReader(personUpdateFile, LdbcSnbInteractiveConfiguration.PIPE_SEPARATOR_REGEX);
                 personUpdateOperationsFileReaders.add(personUpdateOperationsFileReader);
             } catch (FileNotFoundException e) {
                 throw new WorkloadException("Unable to load person update operation parameters file", e);
@@ -111,20 +111,20 @@ public class LdbcSnbInteractiveWorkload extends Workload {
             }
         }
         try {
-            readOperation1FileReader = new CsvFileReader(new File(parametersDir, LdbcSnbInteractiveConfiguration.READ_OPERATION_1_PARAMS_FILENAME), LdbcSnbInteractiveConfiguration.PIPE_SEPARATOR_REGEX);
-            readOperation2FileReader = new CsvFileReader(new File(parametersDir, LdbcSnbInteractiveConfiguration.READ_OPERATION_2_PARAMS_FILENAME), LdbcSnbInteractiveConfiguration.PIPE_SEPARATOR_REGEX);
-            readOperation3FileReader = new CsvFileReader(new File(parametersDir, LdbcSnbInteractiveConfiguration.READ_OPERATION_3_PARAMS_FILENAME), LdbcSnbInteractiveConfiguration.PIPE_SEPARATOR_REGEX);
-            readOperation4FileReader = new CsvFileReader(new File(parametersDir, LdbcSnbInteractiveConfiguration.READ_OPERATION_4_PARAMS_FILENAME), LdbcSnbInteractiveConfiguration.PIPE_SEPARATOR_REGEX);
-            readOperation5FileReader = new CsvFileReader(new File(parametersDir, LdbcSnbInteractiveConfiguration.READ_OPERATION_5_PARAMS_FILENAME), LdbcSnbInteractiveConfiguration.PIPE_SEPARATOR_REGEX);
-            readOperation6FileReader = new CsvFileReader(new File(parametersDir, LdbcSnbInteractiveConfiguration.READ_OPERATION_6_PARAMS_FILENAME), LdbcSnbInteractiveConfiguration.PIPE_SEPARATOR_REGEX);
-            readOperation7FileReader = new CsvFileReader(new File(parametersDir, LdbcSnbInteractiveConfiguration.READ_OPERATION_7_PARAMS_FILENAME), LdbcSnbInteractiveConfiguration.PIPE_SEPARATOR_REGEX);
-            readOperation8FileReader = new CsvFileReader(new File(parametersDir, LdbcSnbInteractiveConfiguration.READ_OPERATION_8_PARAMS_FILENAME), LdbcSnbInteractiveConfiguration.PIPE_SEPARATOR_REGEX);
-            readOperation9FileReader = new CsvFileReader(new File(parametersDir, LdbcSnbInteractiveConfiguration.READ_OPERATION_9_PARAMS_FILENAME), LdbcSnbInteractiveConfiguration.PIPE_SEPARATOR_REGEX);
-            readOperation10FileReader = new CsvFileReader(new File(parametersDir, LdbcSnbInteractiveConfiguration.READ_OPERATION_10_PARAMS_FILENAME), LdbcSnbInteractiveConfiguration.PIPE_SEPARATOR_REGEX);
-            readOperation11FileReader = new CsvFileReader(new File(parametersDir, LdbcSnbInteractiveConfiguration.READ_OPERATION_11_PARAMS_FILENAME), LdbcSnbInteractiveConfiguration.PIPE_SEPARATOR_REGEX);
-            readOperation12FileReader = new CsvFileReader(new File(parametersDir, LdbcSnbInteractiveConfiguration.READ_OPERATION_12_PARAMS_FILENAME), LdbcSnbInteractiveConfiguration.PIPE_SEPARATOR_REGEX);
-            readOperation13FileReader = new CsvFileReader(new File(parametersDir, LdbcSnbInteractiveConfiguration.READ_OPERATION_13_PARAMS_FILENAME), LdbcSnbInteractiveConfiguration.PIPE_SEPARATOR_REGEX);
-            readOperation14FileReader = new CsvFileReader(new File(parametersDir, LdbcSnbInteractiveConfiguration.READ_OPERATION_14_PARAMS_FILENAME), LdbcSnbInteractiveConfiguration.PIPE_SEPARATOR_REGEX);
+            readOperation1FileReader = new SimpleCsvFileReader(new File(parametersDir, LdbcSnbInteractiveConfiguration.READ_OPERATION_1_PARAMS_FILENAME), LdbcSnbInteractiveConfiguration.PIPE_SEPARATOR_REGEX);
+            readOperation2FileReader = new SimpleCsvFileReader(new File(parametersDir, LdbcSnbInteractiveConfiguration.READ_OPERATION_2_PARAMS_FILENAME), LdbcSnbInteractiveConfiguration.PIPE_SEPARATOR_REGEX);
+            readOperation3FileReader = new SimpleCsvFileReader(new File(parametersDir, LdbcSnbInteractiveConfiguration.READ_OPERATION_3_PARAMS_FILENAME), LdbcSnbInteractiveConfiguration.PIPE_SEPARATOR_REGEX);
+            readOperation4FileReader = new SimpleCsvFileReader(new File(parametersDir, LdbcSnbInteractiveConfiguration.READ_OPERATION_4_PARAMS_FILENAME), LdbcSnbInteractiveConfiguration.PIPE_SEPARATOR_REGEX);
+            readOperation5FileReader = new SimpleCsvFileReader(new File(parametersDir, LdbcSnbInteractiveConfiguration.READ_OPERATION_5_PARAMS_FILENAME), LdbcSnbInteractiveConfiguration.PIPE_SEPARATOR_REGEX);
+            readOperation6FileReader = new SimpleCsvFileReader(new File(parametersDir, LdbcSnbInteractiveConfiguration.READ_OPERATION_6_PARAMS_FILENAME), LdbcSnbInteractiveConfiguration.PIPE_SEPARATOR_REGEX);
+            readOperation7FileReader = new SimpleCsvFileReader(new File(parametersDir, LdbcSnbInteractiveConfiguration.READ_OPERATION_7_PARAMS_FILENAME), LdbcSnbInteractiveConfiguration.PIPE_SEPARATOR_REGEX);
+            readOperation8FileReader = new SimpleCsvFileReader(new File(parametersDir, LdbcSnbInteractiveConfiguration.READ_OPERATION_8_PARAMS_FILENAME), LdbcSnbInteractiveConfiguration.PIPE_SEPARATOR_REGEX);
+            readOperation9FileReader = new SimpleCsvFileReader(new File(parametersDir, LdbcSnbInteractiveConfiguration.READ_OPERATION_9_PARAMS_FILENAME), LdbcSnbInteractiveConfiguration.PIPE_SEPARATOR_REGEX);
+            readOperation10FileReader = new SimpleCsvFileReader(new File(parametersDir, LdbcSnbInteractiveConfiguration.READ_OPERATION_10_PARAMS_FILENAME), LdbcSnbInteractiveConfiguration.PIPE_SEPARATOR_REGEX);
+            readOperation11FileReader = new SimpleCsvFileReader(new File(parametersDir, LdbcSnbInteractiveConfiguration.READ_OPERATION_11_PARAMS_FILENAME), LdbcSnbInteractiveConfiguration.PIPE_SEPARATOR_REGEX);
+            readOperation12FileReader = new SimpleCsvFileReader(new File(parametersDir, LdbcSnbInteractiveConfiguration.READ_OPERATION_12_PARAMS_FILENAME), LdbcSnbInteractiveConfiguration.PIPE_SEPARATOR_REGEX);
+            readOperation13FileReader = new SimpleCsvFileReader(new File(parametersDir, LdbcSnbInteractiveConfiguration.READ_OPERATION_13_PARAMS_FILENAME), LdbcSnbInteractiveConfiguration.PIPE_SEPARATOR_REGEX);
+            readOperation14FileReader = new SimpleCsvFileReader(new File(parametersDir, LdbcSnbInteractiveConfiguration.READ_OPERATION_14_PARAMS_FILENAME), LdbcSnbInteractiveConfiguration.PIPE_SEPARATOR_REGEX);
         } catch (FileNotFoundException e) {
             throw new WorkloadException("Unable to load one of the read operation parameters files", e);
         }
@@ -229,11 +229,11 @@ public class LdbcSnbInteractiveWorkload extends Workload {
 
     @Override
     synchronized protected void onCleanup() throws WorkloadException {
-        for (CsvFileReader forumUpdateOperationsFileReader : forumUpdateOperationsFileReaders) {
+        for (SimpleCsvFileReader forumUpdateOperationsFileReader : forumUpdateOperationsFileReaders) {
             forumUpdateOperationsFileReader.closeReader();
         }
 
-        for (CsvFileReader personUpdateOperationsFileReader : personUpdateOperationsFileReaders) {
+        for (SimpleCsvFileReader personUpdateOperationsFileReader : personUpdateOperationsFileReaders) {
             personUpdateOperationsFileReader.closeReader();
         }
 
@@ -275,7 +275,7 @@ public class LdbcSnbInteractiveWorkload extends Workload {
         /*
          * Create forum write operation streams
          */
-        for (CsvFileReader forumUpdateOperationsFileReader : forumUpdateOperationsFileReaders) {
+        for (SimpleCsvFileReader forumUpdateOperationsFileReader : forumUpdateOperationsFileReaders) {
             PeekingIterator<Operation<?>> unfilteredForumUpdateOperations = Iterators.peekingIterator(
                     new WriteEventStreamReader(forumUpdateOperationsFileReader, EventReturnPolicy.AT_LEAST_ONE_MATCH)
             );
@@ -316,7 +316,7 @@ public class LdbcSnbInteractiveWorkload extends Workload {
             );
         }
 
-        for (CsvFileReader personUpdateOperationsFileReader : personUpdateOperationsFileReaders) {
+        for (SimpleCsvFileReader personUpdateOperationsFileReader : personUpdateOperationsFileReaders) {
             PeekingIterator<Operation<?>> unfilteredPersonUpdateOperations = Iterators.peekingIterator(
                     new WriteEventStreamReader(personUpdateOperationsFileReader, EventReturnPolicy.AT_LEAST_ONE_MATCH)
             );

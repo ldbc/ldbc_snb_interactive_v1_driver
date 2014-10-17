@@ -20,8 +20,8 @@ import com.ldbc.driver.temporal.SystemTimeSource;
 import com.ldbc.driver.temporal.Time;
 import com.ldbc.driver.temporal.TimeSource;
 import com.ldbc.driver.util.ClassLoaderHelper;
-import com.ldbc.driver.util.CsvFileReader;
-import com.ldbc.driver.util.CsvFileWriter;
+import com.ldbc.driver.util.csv.SimpleCsvFileReader;
+import com.ldbc.driver.util.csv.SimpleCsvFileWriter;
 import com.ldbc.driver.util.Tuple;
 import com.ldbc.driver.validation.*;
 import org.apache.log4j.Logger;
@@ -169,7 +169,7 @@ public class Client {
         private ConcurrentCompletionTimeService completionTimeService = null;
         private WorkloadRunner workloadRunner = null;
 
-        CsvFileWriter csvResultsLogFileWriter = null;
+        SimpleCsvFileWriter csvResultsLogFileWriter = null;
 
         ExecuteWorkloadMode(ConcurrentControlService controlService, TimeSource timeSource) throws ClientException {
             this.controlService = controlService;
@@ -220,7 +220,7 @@ public class Client {
                 File resultDir = new File(controlService.configuration().resultDirPath());
                 File resultsLog = new File(resultDir, controlService.configuration().name() + ThreadedQueuedConcurrentMetricsService.RESULTS_LOG_FILENAME_SUFFIX);
                 try {
-                    csvResultsLogFileWriter = new CsvFileWriter(resultsLog, CsvFileWriter.DEFAULT_COLUMN_SEPARATOR);
+                    csvResultsLogFileWriter = new SimpleCsvFileWriter(resultsLog, SimpleCsvFileWriter.DEFAULT_COLUMN_SEPARATOR);
                     csvResultsLogFileWriter.writeRow(
                             "operation_type",
                             "scheduled_start_time",
@@ -550,21 +550,21 @@ public class Client {
             Iterator<String[]> csvRows =
                     new ValidationParamsToCsvRows(validationParamsGenerator, workload, performSerializationMarshallingChecks);
 
-            CsvFileWriter csvFileWriter;
+            SimpleCsvFileWriter simpleCsvFileWriter;
             try {
-                csvFileWriter = new CsvFileWriter(validationFileToGenerate, CsvFileWriter.DEFAULT_COLUMN_SEPARATOR);
+                simpleCsvFileWriter = new SimpleCsvFileWriter(validationFileToGenerate, SimpleCsvFileWriter.DEFAULT_COLUMN_SEPARATOR);
             } catch (IOException e) {
                 throw new ClientException("Error encountered trying to open CSV file writer", e);
             }
 
             try {
-                csvFileWriter.writeRows(csvRows);
+                simpleCsvFileWriter.writeRows(csvRows);
             } catch (IOException e) {
                 throw new ClientException("Error encountered trying to write validation parameters to CSV file writer", e);
             }
 
             try {
-                csvFileWriter.close();
+                simpleCsvFileWriter.close();
             } catch (IOException e) {
                 throw new ClientException("Error encountered trying to close CSV file writer", e);
             }
@@ -617,15 +617,15 @@ public class Client {
             logger.info(String.format("Validating database against expected results\n * Db: %s\n * Validation Params File: %s",
                     db.getClass().getName(), validationParamsFile.getAbsolutePath()));
 
-            CsvFileReader csvFileReader;
+            SimpleCsvFileReader simpleCsvFileReader;
             try {
-                csvFileReader = new CsvFileReader(validationParamsFile, CsvFileReader.DEFAULT_COLUMN_SEPARATOR_PATTERN);
+                simpleCsvFileReader = new SimpleCsvFileReader(validationParamsFile, SimpleCsvFileReader.DEFAULT_COLUMN_SEPARATOR_PATTERN);
             } catch (IOException e) {
                 throw new ClientException("Error encountered trying to create CSV file reader", e);
             }
 
             try {
-                Iterator<ValidationParam> validationParams = new ValidationParamsFromCsvRows(csvFileReader, workload);
+                Iterator<ValidationParam> validationParams = new ValidationParamsFromCsvRows(simpleCsvFileReader, workload);
                 DbValidator dbValidator = new DbValidator();
                 databaseValidationResult = dbValidator.validate(validationParams, db);
                 logger.info(databaseValidationResult.resultMessage());
@@ -633,7 +633,7 @@ public class Client {
                 throw new ClientException(String.format("Error reading validation parameters file\nFile: %s", validationParamsFile.getAbsolutePath()), e);
             }
 
-            csvFileReader.closeReader();
+            simpleCsvFileReader.closeReader();
 
             logger.info("Database Validation Successful");
 

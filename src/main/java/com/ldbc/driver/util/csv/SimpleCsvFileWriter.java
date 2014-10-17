@@ -1,17 +1,17 @@
-package com.ldbc.driver.util;
+package com.ldbc.driver.util.csv;
 
 import com.google.common.base.Charsets;
 
 import java.io.*;
 import java.util.Iterator;
 
-public class CsvFileWriter {
+public class SimpleCsvFileWriter {
     public static final String DEFAULT_COLUMN_SEPARATOR = "|";
 
     private final BufferedWriter bufferedWriter;
     private final String columnSeparator;
 
-    public CsvFileWriter(File file, String columnSeparator) throws IOException {
+    public SimpleCsvFileWriter(File file, String columnSeparator) throws IOException {
         this.bufferedWriter = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(file), Charsets.UTF_8));
 
         this.columnSeparator = columnSeparator;

@@ -8,7 +8,7 @@ import com.ldbc.driver.runtime.scheduling.ExecutionDelayPolicy;
 import com.ldbc.driver.temporal.Duration;
 import com.ldbc.driver.temporal.Time;
 import com.ldbc.driver.temporal.TimeSource;
-import com.ldbc.driver.util.CsvFileWriter;
+import com.ldbc.driver.util.csv.SimpleCsvFileWriter;
 
 import java.util.Queue;
 import java.util.concurrent.Future;
@@ -43,7 +43,7 @@ public class ThreadedQueuedConcurrentMetricsService implements ConcurrentMetrics
                                                                                           Duration maxRuntimeDuration,
                                                                                           boolean recordStartTimeDelayLatency,
                                                                                           ExecutionDelayPolicy executionDelayPolicy,
-                                                                                          CsvFileWriter csvResultsLogWriter) {
+                                                                                          SimpleCsvFileWriter csvResultsLogWriter) {
         Queue<MetricsCollectionEvent> queue = DefaultQueues.newNonBlocking();
         return new ThreadedQueuedConcurrentMetricsService(
                 timeSource,
@@ -64,7 +64,7 @@ public class ThreadedQueuedConcurrentMetricsService implements ConcurrentMetrics
                                                                                        Duration maxRuntimeDuration,
                                                                                        boolean recordStartTimeDelayLatency,
                                                                                        ExecutionDelayPolicy executionDelayPolicy,
-                                                                                       CsvFileWriter csvResultsLogWriter) {
+                                                                                       SimpleCsvFileWriter csvResultsLogWriter) {
         Queue<MetricsCollectionEvent> queue = DefaultQueues.newBlockingUnbounded();
         return new ThreadedQueuedConcurrentMetricsService(
                 timeSource,
@@ -86,7 +86,7 @@ public class ThreadedQueuedConcurrentMetricsService implements ConcurrentMetrics
                                                    Queue<MetricsCollectionEvent> queue,
                                                    boolean recordStartTimeDelayLatency,
                                                    ExecutionDelayPolicy executionDelayPolicy,
-                                                   CsvFileWriter csvResultsLogWriter) {
+                                                   SimpleCsvFileWriter csvResultsLogWriter) {
         this.timeSource = timeSource;
         this.queueEventSubmitter = QueueEventSubmitter.queueEventSubmitterFor(queue);
         this.initiatedEvents = new AtomicLong(0);

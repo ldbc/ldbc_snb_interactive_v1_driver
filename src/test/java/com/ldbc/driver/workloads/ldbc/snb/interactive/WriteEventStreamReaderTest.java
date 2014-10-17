@@ -12,7 +12,7 @@ import com.ldbc.driver.temporal.SystemTimeSource;
 import com.ldbc.driver.temporal.Time;
 import com.ldbc.driver.temporal.TimeSource;
 import com.ldbc.driver.testutils.TestUtils;
-import com.ldbc.driver.util.CsvFileReader;
+import com.ldbc.driver.util.csv.SimpleCsvFileReader;
 import com.ldbc.driver.util.Histogram;
 import org.junit.Rule;
 import org.junit.Test;
@@ -300,13 +300,13 @@ public class WriteEventStreamReaderTest {
     public void shouldParseUpdateEventFileWithExactlyOneMatch() throws FileNotFoundException {
         String forumCsvFilePath = TestUtils.getResource("/updateStream_0_0_forum.csv").getAbsolutePath();
         File forumCsvFile = new File(forumCsvFilePath);
-        CsvFileReader forumCsvFileReader = new CsvFileReader(forumCsvFile, "\\|");
-        WriteEventStreamReader forumWriteEventStreamReader = new WriteEventStreamReader(forumCsvFileReader, CsvEventStreamReader.EventReturnPolicy.EXACTLY_ONE_MATCH);
+        SimpleCsvFileReader forumSimpleCsvFileReader = new SimpleCsvFileReader(forumCsvFile, "\\|");
+        WriteEventStreamReader forumWriteEventStreamReader = new WriteEventStreamReader(forumSimpleCsvFileReader, CsvEventStreamReader.EventReturnPolicy.EXACTLY_ONE_MATCH);
 
         String personCsvFilePath = TestUtils.getResource("/updateStream_0_0_person.csv").getAbsolutePath();
         File personCsvFile = new File(personCsvFilePath);
-        CsvFileReader personCsvFileReader = new CsvFileReader(personCsvFile, "\\|");
-        WriteEventStreamReader personWriteEventStreamReader = new WriteEventStreamReader(personCsvFileReader, CsvEventStreamReader.EventReturnPolicy.EXACTLY_ONE_MATCH);
+        SimpleCsvFileReader personSimpleCsvFileReader = new SimpleCsvFileReader(personCsvFile, "\\|");
+        WriteEventStreamReader personWriteEventStreamReader = new WriteEventStreamReader(personSimpleCsvFileReader, CsvEventStreamReader.EventReturnPolicy.EXACTLY_ONE_MATCH);
 
         GeneratorFactory gf = new GeneratorFactory(new RandomDataGeneratorFactory(42l));
 
@@ -349,17 +349,17 @@ public class WriteEventStreamReaderTest {
     public void shouldParseUpdateEventFileWithAtLeastOneMatch() throws FileNotFoundException {
         String forumCsvFilePath = TestUtils.getResource("/updateStream_0_0_forum.csv").getAbsolutePath();
         File forumCsvFile = new File(forumCsvFilePath);
-        CsvFileReader forumCsvFileReader = new CsvFileReader(forumCsvFile, "\\|");
+        SimpleCsvFileReader forumSimpleCsvFileReader = new SimpleCsvFileReader(forumCsvFile, "\\|");
         WriteEventStreamReader forumWriteEventStreamReader = new WriteEventStreamReader(
-                forumCsvFileReader,
+                forumSimpleCsvFileReader,
                 CsvEventStreamReader.EventReturnPolicy.AT_LEAST_ONE_MATCH
         );
 
         String personCsvFilePath = TestUtils.getResource("/updateStream_0_0_person.csv").getAbsolutePath();
         File personCsvFile = new File(personCsvFilePath);
-        CsvFileReader personCsvFileReader = new CsvFileReader(personCsvFile, "\\|");
+        SimpleCsvFileReader personSimpleCsvFileReader = new SimpleCsvFileReader(personCsvFile, "\\|");
         WriteEventStreamReader personWriteEventStreamReader = new WriteEventStreamReader(
-                personCsvFileReader,
+                personSimpleCsvFileReader,
                 CsvEventStreamReader.EventReturnPolicy.AT_LEAST_ONE_MATCH
         );
 
@@ -405,17 +405,17 @@ public class WriteEventStreamReaderTest {
     public void timestampsInUpdateStreamShouldBeMonotonicallyIncreasing() throws FileNotFoundException {
         String forumCsvFilePath = TestUtils.getResource("/updateStream_0_0_forum.csv").getAbsolutePath();
         File forumCsvFile = new File(forumCsvFilePath);
-        CsvFileReader forumCsvFileReader = new CsvFileReader(forumCsvFile, "\\|");
+        SimpleCsvFileReader forumSimpleCsvFileReader = new SimpleCsvFileReader(forumCsvFile, "\\|");
         WriteEventStreamReader forumWriteEventStreamReader = new WriteEventStreamReader(
-                forumCsvFileReader,
+                forumSimpleCsvFileReader,
                 CsvEventStreamReader.EventReturnPolicy.AT_LEAST_ONE_MATCH
         );
 
         String personCsvFilePath = TestUtils.getResource("/updateStream_0_0_person.csv").getAbsolutePath();
         File personCsvFile = new File(personCsvFilePath);
-        CsvFileReader personCsvFileReader = new CsvFileReader(personCsvFile, "\\|");
+        SimpleCsvFileReader personSimpleCsvFileReader = new SimpleCsvFileReader(personCsvFile, "\\|");
         WriteEventStreamReader personWriteEventStreamReader = new WriteEventStreamReader(
-                personCsvFileReader,
+                personSimpleCsvFileReader,
                 CsvEventStreamReader.EventReturnPolicy.AT_LEAST_ONE_MATCH
         );
 
@@ -438,17 +438,17 @@ public class WriteEventStreamReaderTest {
     public void timestampsInUpdateStreamShouldBeMonotonicallyIncreasingAfterOffset() throws FileNotFoundException {
         String forumCsvFilePath = TestUtils.getResource("/updateStream_0_0_forum.csv").getAbsolutePath();
         File forumCsvFile = new File(forumCsvFilePath);
-        CsvFileReader forumCsvFileReader = new CsvFileReader(forumCsvFile, "\\|");
+        SimpleCsvFileReader forumSimpleCsvFileReader = new SimpleCsvFileReader(forumCsvFile, "\\|");
         WriteEventStreamReader forumWriteEventStreamReader = new WriteEventStreamReader(
-                forumCsvFileReader,
+                forumSimpleCsvFileReader,
                 CsvEventStreamReader.EventReturnPolicy.AT_LEAST_ONE_MATCH
         );
 
         String personCsvFilePath = TestUtils.getResource("/updateStream_0_0_person.csv").getAbsolutePath();
         File personCsvFile = new File(personCsvFilePath);
-        CsvFileReader personCsvFileReader = new CsvFileReader(personCsvFile, "\\|");
+        SimpleCsvFileReader personSimpleCsvFileReader = new SimpleCsvFileReader(personCsvFile, "\\|");
         WriteEventStreamReader personWriteEventStreamReader = new WriteEventStreamReader(
-                personCsvFileReader,
+                personSimpleCsvFileReader,
                 CsvEventStreamReader.EventReturnPolicy.AT_LEAST_ONE_MATCH
         );
 
