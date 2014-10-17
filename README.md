@@ -11,7 +11,7 @@ This driver is being developed as part of the Linked Data Benchmark Council EU-f
 
     git clone https://github.com/ldbc/ldbc_driver.git
     cd ldbc_driver
-    ./build.sh
+    mvn clean package -DskipTests
 
 To quickly test the driver try the "simpleworkload" that is shipped with it by doing the following:
 
