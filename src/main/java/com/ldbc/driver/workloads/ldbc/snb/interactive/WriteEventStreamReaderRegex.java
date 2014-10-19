@@ -14,73 +14,64 @@ import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.regex.Pattern;
 
-public class WriteEventStreamReader_NEW implements Iterator<Operation<?>> {
-
+public class WriteEventStreamReaderRegex implements Iterator<Operation<?>> {
     public static final String DATE_FORMAT_STRING = "yyyy-MM-dd";
     public static final String DATE_TIME_FORMAT_STRING = "yyyy-MM-dd'T'HH:mm:ss.SSSZ";
+    private static final List<String> EMPTY_LIST = new ArrayList<>();
 
     private final CsvEventStreamReader_NEW<Operation<?>, String> csvEventStreamReader;
 
-    private final CsvEventStreamReader_NEW.EventDecoder<Operation<?>> addPersonDecoder;
-    private final CsvEventStreamReader_NEW.EventDecoder<Operation<?>> addLikePostDecoder;
-    private final CsvEventStreamReader_NEW.EventDecoder<Operation<?>> addLikeCommentDecoder;
-    private final CsvEventStreamReader_NEW.EventDecoder<Operation<?>> addForumDecoder;
-    private final CsvEventStreamReader_NEW.EventDecoder<Operation<?>> addForumMembershipDecoder;
-    private final CsvEventStreamReader_NEW.EventDecoder<Operation<?>> addPostDecoder;
-    private final CsvEventStreamReader_NEW.EventDecoder<Operation<?>> addCommentDecoder;
-    private final CsvEventStreamReader_NEW.EventDecoder<Operation<?>> addFriendshipDecoder;
-
-    public WriteEventStreamReader_NEW(Iterator<String[]> csvRowIterator) {
+    public WriteEventStreamReaderRegex(Iterator<String[]> csvRowIterator) {
         Map<String, EventDecoder<Operation<?>>> decoders = new HashMap<>();
         {
             SimpleDateFormat dateFormat = new SimpleDateFormat(DATE_FORMAT_STRING);
             dateFormat.setTimeZone(TimeZone.getTimeZone("GMT"));
             SimpleDateFormat dateTimeFormat = new SimpleDateFormat(DATE_TIME_FORMAT_STRING);
             dateTimeFormat.setTimeZone(TimeZone.getTimeZone("GMT"));
-            this.addPersonDecoder = new EventDecoderAddPerson(dateFormat, dateTimeFormat);
-            decoders.put("ADD_PERSON", this.addPersonDecoder);
+            EventDecoder<Operation<?>> addPersonDecoder = new EventDecoderAddPerson(dateFormat, dateTimeFormat);
+            decoders.put("1", addPersonDecoder);
         }
         {
             SimpleDateFormat dateTimeFormat = new SimpleDateFormat(DATE_TIME_FORMAT_STRING);
             dateTimeFormat.setTimeZone(TimeZone.getTimeZone("GMT"));
-            this.addLikePostDecoder = new EventDecoderAddLikePost(dateTimeFormat);
-            decoders.put("ADD_LIKE_POST", this.addLikePostDecoder);
+            EventDecoder<Operation<?>> addLikePostDecoder = new EventDecoderAddLikePost(dateTimeFormat);
+            decoders.put("2", addLikePostDecoder);
         }
         {
             SimpleDateFormat dateTimeFormat = new SimpleDateFormat(DATE_TIME_FORMAT_STRING);
             dateTimeFormat.setTimeZone(TimeZone.getTimeZone("GMT"));
-            this.addLikeCommentDecoder = new EventDecoderAddLikeComment(dateTimeFormat);
-            decoders.put("ADD_LIKE_COMMENT", this.addLikeCommentDecoder);
+            EventDecoder<Operation<?>> addLikeCommentDecoder = new EventDecoderAddLikeComment(dateTimeFormat);
+            decoders.put("3", addLikeCommentDecoder);
         }
         {
             SimpleDateFormat dateTimeFormat = new SimpleDateFormat(DATE_TIME_FORMAT_STRING);
             dateTimeFormat.setTimeZone(TimeZone.getTimeZone("GMT"));
-            this.addForumDecoder = new EventDecoderAddForum(dateTimeFormat);
-            decoders.put("ADD_FORUM", this.addForumDecoder);
+            EventDecoder<Operation<?>> addForumDecoder = new EventDecoderAddForum(dateTimeFormat);
+            decoders.put("4", addForumDecoder);
         }
         {
             SimpleDateFormat dateTimeFormat = new SimpleDateFormat(DATE_TIME_FORMAT_STRING);
             dateTimeFormat.setTimeZone(TimeZone.getTimeZone("GMT"));
-            this.addForumMembershipDecoder = new EventDecoderAddForumMembership(dateTimeFormat);
-            decoders.put("ADD_FORUM_MEMBERSHIP", this.addForumMembershipDecoder);
+            EventDecoder<Operation<?>> addForumMembershipDecoder = new EventDecoderAddForumMembership(dateTimeFormat);
+            decoders.put("5", addForumMembershipDecoder);
         }
         {
             SimpleDateFormat dateTimeFormat = new SimpleDateFormat(DATE_TIME_FORMAT_STRING);
             dateTimeFormat.setTimeZone(TimeZone.getTimeZone("GMT"));
-            this.addPostDecoder = new EventDecoderAddPost(dateTimeFormat);
-            decoders.put("ADD_POST", this.addPostDecoder);
+            EventDecoder<Operation<?>> addPostDecoder = new EventDecoderAddPost(dateTimeFormat);
+            decoders.put("6", addPostDecoder);
         }
         {
             SimpleDateFormat dateTimeFormat = new SimpleDateFormat(DATE_TIME_FORMAT_STRING);
             dateTimeFormat.setTimeZone(TimeZone.getTimeZone("GMT"));
-            this.addCommentDecoder = new EventDecoderAddComment(dateTimeFormat);
-            decoders.put("ADD_COMMENT", this.addCommentDecoder);
+            EventDecoder<Operation<?>> addCommentDecoder = new EventDecoderAddComment(dateTimeFormat);
+            decoders.put("7", addCommentDecoder);
         }
         {
             SimpleDateFormat dateTimeFormat = new SimpleDateFormat(DATE_TIME_FORMAT_STRING);
             dateTimeFormat.setTimeZone(TimeZone.getTimeZone("GMT"));
-            this.addFriendshipDecoder = new EventDecoderAddFriendship(dateTimeFormat);
-            decoders.put("ADD_FRIENDSHIP", this.addFriendshipDecoder);
+            EventDecoder<Operation<?>> addFriendshipDecoder = new EventDecoderAddFriendship(dateTimeFormat);
+            decoders.put("8", addFriendshipDecoder);
         }
         Function1<String[], String> decoderKeyExtractor = new Function1<String[], String>() {
             @Override
@@ -89,38 +80,6 @@ public class WriteEventStreamReader_NEW implements Iterator<Operation<?>> {
             }
         };
         this.csvEventStreamReader = new CsvEventStreamReader_NEW<>(csvRowIterator, decoders, decoderKeyExtractor);
-    }
-
-    public CsvEventStreamReader_NEW.EventDecoder<Operation<?>> addPersonDecoder() {
-        return addPersonDecoder;
-    }
-
-    public CsvEventStreamReader_NEW.EventDecoder<Operation<?>> addLikePostDecoder() {
-        return addLikePostDecoder;
-    }
-
-    public CsvEventStreamReader_NEW.EventDecoder<Operation<?>> addLikeCommentDecoder() {
-        return addLikeCommentDecoder;
-    }
-
-    public CsvEventStreamReader_NEW.EventDecoder<Operation<?>> addForumDecoder() {
-        return addForumDecoder;
-    }
-
-    public CsvEventStreamReader_NEW.EventDecoder<Operation<?>> addForumMembershipDecoder() {
-        return addForumMembershipDecoder;
-    }
-
-    public CsvEventStreamReader_NEW.EventDecoder<Operation<?>> addPostDecoder() {
-        return addPostDecoder;
-    }
-
-    public CsvEventStreamReader_NEW.EventDecoder<Operation<?>> addCommentDecoder() {
-        return addCommentDecoder;
-    }
-
-    public CsvEventStreamReader_NEW.EventDecoder<Operation<?>> addFriendshipDecoder() {
-        return addFriendshipDecoder;
     }
 
     @Override
@@ -183,36 +142,51 @@ public class WriteEventStreamReader_NEW implements Iterator<Operation<?>> {
 
             long cityId = Long.parseLong(csvRow[10]);
 
-            List<String> languages = Lists.newArrayList(collectionSeparatorPattern.split(csvRow[11], -1));
+            String languagesString = csvRow[11];
+            List<String> languages = (languagesString.isEmpty())
+                    ? EMPTY_LIST
+                    : Lists.newArrayList(collectionSeparatorPattern.split(languagesString, -1));
 
-            List<String> emails = Lists.newArrayList(collectionSeparatorPattern.split(csvRow[12], -1));
+            String emailsString = csvRow[12];
+            List<String> emails = (emailsString.isEmpty())
+                    ? EMPTY_LIST
+                    : Lists.newArrayList(collectionSeparatorPattern.split(emailsString, -1));
 
-            String[] tagIdsAsStrings = collectionSeparatorPattern.split(csvRow[13], -1);
+            String tagIdsAsString = csvRow[13];
             List<Long> tagIds = new ArrayList<>();
-            for (String tagId : tagIdsAsStrings) {
-                tagIds.add(Long.parseLong(tagId));
+            if (false == tagIdsAsString.isEmpty()) {
+                String[] tagIdsAsStrings = collectionSeparatorPattern.split(tagIdsAsString, -1);
+                for (String tagId : tagIdsAsStrings) {
+                    tagIds.add(Long.parseLong(tagId));
+                }
             }
 
-            String[] studyAtsAsStrings = collectionSeparatorPattern.split(csvRow[14], -1);
+            String studyAtsAsString = csvRow[14];
             List<LdbcUpdate1AddPerson.Organization> studyAts = new ArrayList<>();
-            for (String studyAtAsString : studyAtsAsStrings) {
-                String[] studyAtAsStringArray = tupleSeparatorPattern.split(studyAtAsString, -1);
-                studyAts.add(new LdbcUpdate1AddPerson.Organization(
-                                Long.parseLong(studyAtAsStringArray[0]),
-                                Integer.parseInt(studyAtAsStringArray[1])
-                        )
-                );
+            if (false == studyAtsAsString.isEmpty()) {
+                String[] studyAtsAsStrings = collectionSeparatorPattern.split(studyAtsAsString, -1);
+                for (String studyAtAsString : studyAtsAsStrings) {
+                    String[] studyAtAsStringArray = tupleSeparatorPattern.split(studyAtAsString, -1);
+                    studyAts.add(new LdbcUpdate1AddPerson.Organization(
+                                    Long.parseLong(studyAtAsStringArray[0]),
+                                    Integer.parseInt(studyAtAsStringArray[1])
+                            )
+                    );
+                }
             }
 
-            String[] workAtsAsStrings = collectionSeparatorPattern.split(csvRow[15], -1);
+            String worksAtAsString = csvRow[15];
             List<LdbcUpdate1AddPerson.Organization> workAts = new ArrayList<>();
-            for (String workAtAsString : workAtsAsStrings) {
-                String[] workAtAsStringArray = tupleSeparatorPattern.split(workAtAsString, -1);
-                workAts.add(new LdbcUpdate1AddPerson.Organization(
-                                Long.parseLong(workAtAsStringArray[0]),
-                                Integer.parseInt(workAtAsStringArray[1])
-                        )
-                );
+            if (false == worksAtAsString.isEmpty()) {
+                String[] workAtsAsStrings = collectionSeparatorPattern.split(worksAtAsString, -1);
+                for (String workAtAsString : workAtsAsStrings) {
+                    String[] workAtAsStringArray = tupleSeparatorPattern.split(workAtAsString, -1);
+                    workAts.add(new LdbcUpdate1AddPerson.Organization(
+                                    Long.parseLong(workAtAsStringArray[0]),
+                                    Integer.parseInt(workAtAsStringArray[1])
+                            )
+                    );
+                }
             }
 
             Operation<?> operation = new LdbcUpdate1AddPerson(
@@ -320,10 +294,13 @@ public class WriteEventStreamReader_NEW implements Iterator<Operation<?>> {
 
             long moderatorPersonId = Long.parseLong(csvRow[5]);
 
-            String[] tagIdsAsStrings = collectionSeparatorPattern.split(csvRow[6], -1);
+            String tagIdsAsString = csvRow[6];
             List<Long> tagIds = new ArrayList<>();
-            for (String tagId : tagIdsAsStrings) {
-                tagIds.add(Long.parseLong(tagId));
+            if (false == tagIdsAsString.isEmpty()) {
+                String[] tagIdsAsStrings = collectionSeparatorPattern.split(tagIdsAsString, -1);
+                for (String tagId : tagIdsAsStrings) {
+                    tagIds.add(Long.parseLong(tagId));
+                }
             }
 
             Operation<?> operation = new LdbcUpdate4AddForum(forumId, forumTitle, creationDate, moderatorPersonId, tagIds);
@@ -401,9 +378,10 @@ public class WriteEventStreamReader_NEW implements Iterator<Operation<?>> {
 
             long countryId = Long.parseLong(csvRow[12]);
 
+            String tagIdsAsString = csvRow[13];
             List<Long> tagIds = new ArrayList<>();
-            if (false == csvRow[13].isEmpty()) {
-                String[] tagIdsAsStrings = collectionSeparatorPattern.split(csvRow[13], -1);
+            if (false == tagIdsAsString.isEmpty()) {
+                String[] tagIdsAsStrings = collectionSeparatorPattern.split(tagIdsAsString, -1);
                 for (String tagId : tagIdsAsStrings) {
                     tagIds.add(Long.parseLong(tagId));
                 }
@@ -465,9 +443,10 @@ public class WriteEventStreamReader_NEW implements Iterator<Operation<?>> {
 
             long replyOfCommentId = Long.parseLong(csvRow[11]);
 
+            String tagIdsAsString = csvRow[12];
             List<Long> tagIds = new ArrayList<>();
-            if (false == csvRow[12].isEmpty()) {
-                String[] tagIdsAsStrings = collectionSeparatorPattern.split(csvRow[12], -1);
+            if (false == tagIdsAsString.isEmpty()) {
+                String[] tagIdsAsStrings = collectionSeparatorPattern.split(tagIdsAsString, -1);
                 for (String tagId : tagIdsAsStrings) {
                     tagIds.add(Long.parseLong(tagId));
                 }

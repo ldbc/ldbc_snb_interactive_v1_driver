@@ -2,6 +2,7 @@ package com.ldbc.driver.generator;
 
 
 import com.ldbc.driver.util.csv.CharSeeker;
+import com.ldbc.driver.util.csv.Extractor;
 import com.ldbc.driver.util.csv.Extractors;
 import com.ldbc.driver.util.csv.Mark;
 
@@ -9,23 +10,25 @@ import java.io.IOException;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.NoSuchElementException;
+import java.util.concurrent.Executors;
 
 
-public class CsvEventStreamReader_NEW_NEW<BASE_EVENT_TYPE> implements Iterator<BASE_EVENT_TYPE> {
-    // TODO make Map<Integer, EventDecoder<BASE_EVENT_TYPE>> decoders
-    private final Map<String, EventDecoder<BASE_EVENT_TYPE>> decoders;
+public class CsvEventStreamReaderCharSeeker<BASE_EVENT_TYPE> implements Iterator<BASE_EVENT_TYPE> {
+    private final Map<Integer, EventDecoder<BASE_EVENT_TYPE>> decoders;
     private final CharSeeker charSeeker;
+    private final Extractors extractors;
     private final Mark mark;
-    private final int[] delimiters;
+    private final int[] columnDelimiters;
     private BASE_EVENT_TYPE nextEvent = null;
 
-    public CsvEventStreamReader_NEW_NEW(CharSeeker charSeeker,
-                                        // TODO make Map<Integer, EventDecoder<BASE_EVENT_TYPE>> decoders
-                                        Map<String, EventDecoder<BASE_EVENT_TYPE>> decoders,
-                                        int[] delimiters) {
+    public CsvEventStreamReaderCharSeeker(CharSeeker charSeeker,
+                                          Extractors extractors,
+                                          Map<Integer, EventDecoder<BASE_EVENT_TYPE>> decoders,
+                                          int columnDelimiter) {
         this.charSeeker = charSeeker;
+        this.extractors = extractors;
         this.mark = new Mark();
-        this.delimiters = delimiters;
+        this.columnDelimiters = new int[]{columnDelimiter};
         this.decoders = decoders;
     }
 
@@ -50,21 +53,20 @@ public class CsvEventStreamReader_NEW_NEW<BASE_EVENT_TYPE> implements Iterator<B
     BASE_EVENT_TYPE getNextEvent() {
         try {
             long scheduledStartTime;
-            if (charSeeker.seek(mark, delimiters)) {
+            if (charSeeker.seek(mark, columnDelimiters)) {
                 scheduledStartTime = charSeeker.extract(mark, Extractors.LONG);
             } else {
                 // if first column of next row contains nothing it means the file is finished
                 return null;
             }
 
-            String eventType;
-            if (charSeeker.seek(mark, delimiters)) {
-                eventType = charSeeker.extract(mark, Extractors.STRING);
+            int eventType;
+            if (charSeeker.seek(mark, columnDelimiters)) {
+                eventType = charSeeker.extract(mark, Extractors.INT);
             } else {
                 throw new GeneratorException("No event type found");
             }
 
-            // TODO make Map<Integer, EventDecoder<BASE_EVENT_TYPE>> decoders
             EventDecoder<BASE_EVENT_TYPE> decoder = decoders.get(eventType);
             if (null == decoder) {
                 throw new NoSuchElementException(String.format(
@@ -73,7 +75,7 @@ public class CsvEventStreamReader_NEW_NEW<BASE_EVENT_TYPE> implements Iterator<B
                 ));
             }
 
-            return decoder.decodeEvent(scheduledStartTime, charSeeker, delimiters);
+            return decoder.decodeEvent(scheduledStartTime, charSeeker, extractors, columnDelimiters);
         } catch (IOException e) {
             throw new GeneratorException("Error while retrieving next event", e);
         }
@@ -86,6 +88,6 @@ public class CsvEventStreamReader_NEW_NEW<BASE_EVENT_TYPE> implements Iterator<B
 
 
     public static interface EventDecoder<BASE_EVENT_TYPE> {
-        BASE_EVENT_TYPE decodeEvent(long scheduledStartTime, CharSeeker charSeeker, int[] delimiters);
+        BASE_EVENT_TYPE decodeEvent(long scheduledStartTime, CharSeeker charSeeker, Extractors extractors, int[] columnDelimiters);
     }
 }

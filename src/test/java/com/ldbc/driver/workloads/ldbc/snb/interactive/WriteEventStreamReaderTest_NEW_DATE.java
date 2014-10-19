@@ -19,44 +19,36 @@ import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
 
-public class WriteEventStreamReaderTest_NEW {
+public class WriteEventStreamReaderTest_NEW_DATE {
     @Test
-    public void shouldParseAllEventTypesWithWriteEventStreamReader_NEW() throws IOException, ParseException {
-        String data = WriteEventStreamReaderTestData_NEW.ROWS_FOR_ALL_EVENT_TYPES;
+    public void shouldParseAllEventTypesWithWriteEventStreamReaderRegex_DATE() throws IOException, ParseException {
+        String data = WriteEventStreamReaderTestData_NEW_DATE.ROWS_FOR_ALL_EVENT_TYPES;
         BufferedReader bufferedReader = new BufferedReader(new StringReader(data));
         SimpleCsvFileReader csvFileReader = new SimpleCsvFileReader(bufferedReader, SimpleCsvFileReader.DEFAULT_COLUMN_SEPARATOR_PATTERN);
-        WriteEventStreamReaderRegex writeEventStreamReader = new WriteEventStreamReaderRegex(csvFileReader);
+        WriteEventStreamReaderRegex_DATE writeEventStreamReader = new WriteEventStreamReaderRegex_DATE(csvFileReader);
         doShouldParseAllEventTypes(writeEventStreamReader);
         csvFileReader.close();
     }
 
     @Test
-    public void shouldParseAllEventTypesWithWriteEventStreamReader_NEW_NEW() throws IOException, ParseException {
-        String data = WriteEventStreamReaderTestData_NEW.ROWS_FOR_ALL_EVENT_TYPES;
+    public void shouldParseAllEventTypesWithWriteEventStreamReaderCharSeeker_DATE() throws IOException, ParseException {
+        String data = WriteEventStreamReaderTestData_NEW_DATE.ROWS_FOR_ALL_EVENT_TYPES;
         CharSeeker charSeeker = new BufferedCharSeeker(new StringReader(data));
         int columnDelimiter = '|';
         Extractors extractors = new Extractors(';');
-        WriteEventStreamReaderCharSeeker writeEventStreamReader = new WriteEventStreamReaderCharSeeker(charSeeker, extractors, columnDelimiter);
+        WriteEventStreamReaderCharSeeker_DATE writeEventStreamReader = new WriteEventStreamReaderCharSeeker_DATE(charSeeker, extractors, columnDelimiter);
         doShouldParseAllEventTypes(writeEventStreamReader);
         charSeeker.close();
     }
 
     public void doShouldParseAllEventTypes(Iterator<Operation<?>> writeEventStreamReader) throws IOException, ParseException {
         // Then
-        Calendar calendar;
         Date birthday;
         Date creationDate;
 
         LdbcUpdate1AddPerson addPerson = (LdbcUpdate1AddPerson) writeEventStreamReader.next();
-        calendar = Calendar.getInstance();
-        calendar.setTimeZone(TimeZone.getTimeZone("GMT"));
-        calendar.clear();
-        calendar.set(1989, Calendar.JULY, 21);
-        birthday = calendar.getTime();
-        calendar.clear();
-        calendar.set(2011, Calendar.JANUARY, 18, 8, 36, 4);
-        calendar.setTimeZone(TimeZone.getTimeZone("GMT"));
-        creationDate = calendar.getTime();
+        birthday = new Date(1234567890l);
+        creationDate = new Date(1234567890l);
 
         assertThat(addPerson.scheduledStartTime(), is(Time.fromMilli(42)));
         assertThat(addPerson.personId(), is(409L));
@@ -80,11 +72,7 @@ public class WriteEventStreamReaderTest_NEW {
         )));
 
         LdbcUpdate2AddPostLike addPostLike = (LdbcUpdate2AddPostLike) writeEventStreamReader.next();
-        calendar = Calendar.getInstance();
-        calendar.clear();
-        calendar.set(2011, Calendar.FEBRUARY, 01, 8, 36, 04);
-        calendar.setTimeZone(TimeZone.getTimeZone("GMT"));
-        creationDate = calendar.getTime();
+        creationDate = new Date(1234567890l);
 
         assertThat(addPostLike.scheduledStartTime(), is(Time.fromMilli(42)));
         assertThat(addPostLike.personId(), is(1582L));
@@ -92,11 +80,7 @@ public class WriteEventStreamReaderTest_NEW {
         assertThat(addPostLike.creationDate(), equalTo(creationDate));
 
         LdbcUpdate3AddCommentLike addCommentLike = (LdbcUpdate3AddCommentLike) writeEventStreamReader.next();
-        calendar = Calendar.getInstance();
-        calendar.clear();
-        calendar.set(2011, Calendar.JANUARY, 24, 5, 44, 13);
-        calendar.setTimeZone(TimeZone.getTimeZone("GMT"));
-        creationDate = calendar.getTime();
+        creationDate = new Date(1234567890l);
 
         assertThat(addCommentLike.scheduledStartTime(), is(Time.fromMilli(42)));
         assertThat(addCommentLike.personId(), is(1095L));
@@ -104,11 +88,7 @@ public class WriteEventStreamReaderTest_NEW {
         assertThat(addCommentLike.creationDate(), equalTo(creationDate));
 
         LdbcUpdate4AddForum addForum = (LdbcUpdate4AddForum) writeEventStreamReader.next();
-        calendar = Calendar.getInstance();
-        calendar.clear();
-        calendar.set(2011, Calendar.JANUARY, 3, 6, 4, 47);
-        calendar.setTimeZone(TimeZone.getTimeZone("GMT"));
-        creationDate = calendar.getTime();
+        creationDate = new Date(1234567890l);
 
         assertThat(addForum.scheduledStartTime(), is(Time.fromMilli(42)));
         assertThat(addForum.forumId(), is(2118L));
@@ -118,11 +98,7 @@ public class WriteEventStreamReaderTest_NEW {
         assertThat(addForum.tagIds(), equalTo((List) Lists.newArrayList(10716l)));
 
         LdbcUpdate5AddForumMembership addForumMembership = (LdbcUpdate5AddForumMembership) writeEventStreamReader.next();
-        calendar = Calendar.getInstance();
-        calendar.clear();
-        calendar.set(2011, Calendar.JANUARY, 4, 18, 42, 51);
-        calendar.setTimeZone(TimeZone.getTimeZone("GMT"));
-        creationDate = calendar.getTime();
+        creationDate = new Date(1234567890l);
 
         assertThat(addForumMembership.scheduledStartTime(), is(Time.fromMilli(42)));
         assertThat(addForumMembership.forumId(), is(2153L));
@@ -130,11 +106,7 @@ public class WriteEventStreamReaderTest_NEW {
         assertThat(addForumMembership.creationDate(), equalTo(creationDate));
 
         LdbcUpdate6AddPost addPost = (LdbcUpdate6AddPost) writeEventStreamReader.next();
-        calendar = Calendar.getInstance();
-        calendar.clear();
-        calendar.set(2011, Calendar.JANUARY, 30, 7, 59, 58);
-        calendar.setTimeZone(TimeZone.getTimeZone("GMT"));
-        creationDate = calendar.getTime();
+        creationDate = new Date(1234567890l);
 
         assertThat(addPost.scheduledStartTime(), is(Time.fromMilli(42)));
         assertThat(addPost.postId(), is(120343L));
@@ -151,11 +123,7 @@ public class WriteEventStreamReaderTest_NEW {
         assertThat(addPost.tagIds(), equalTo((List) Lists.newArrayList(1437l)));
 
         LdbcUpdate7AddComment addComment = (LdbcUpdate7AddComment) writeEventStreamReader.next();
-        calendar = Calendar.getInstance();
-        calendar.clear();
-        calendar.set(2013, Calendar.JANUARY, 31, 23, 58, 49);
-        calendar.setTimeZone(TimeZone.getTimeZone("GMT"));
-        creationDate = calendar.getTime();
+        creationDate = new Date(1234567890l);
 
         assertThat(addComment.scheduledStartTime(), is(Time.fromMilli(42)));
         assertThat(addComment.commentId(), is(4034293L));
@@ -171,11 +139,7 @@ public class WriteEventStreamReaderTest_NEW {
         assertThat(addComment.tagIds(), equalTo((List) Lists.newArrayList(1403l, 1990l, 2009l, 2081l, 2817l, 2855l, 2987l, 6316l, 7425l, 8224l, 8466l)));
 
         addComment = (LdbcUpdate7AddComment) writeEventStreamReader.next();
-        calendar = Calendar.getInstance();
-        calendar.clear();
-        calendar.set(2013, Calendar.JANUARY, 31, 23, 58, 49);
-        calendar.setTimeZone(TimeZone.getTimeZone("GMT"));
-        creationDate = calendar.getTime();
+        creationDate = new Date(1234567890l);
 
         assertThat(addComment.scheduledStartTime(), is(Time.fromMilli(42)));
         assertThat(addComment.commentId(), is(4034293L));
@@ -191,11 +155,7 @@ public class WriteEventStreamReaderTest_NEW {
         assertThat(addComment.tagIds(), equalTo((List) Lists.newArrayList()));
 
         LdbcUpdate8AddFriendship addFriendship = (LdbcUpdate8AddFriendship) writeEventStreamReader.next();
-        calendar = Calendar.getInstance();
-        calendar.clear();
-        calendar.set(2011, Calendar.JANUARY, 10, 15, 58, 45);
-        calendar.setTimeZone(TimeZone.getTimeZone("GMT"));
-        creationDate = calendar.getTime();
+        creationDate = new Date(1234567890l);
 
         assertThat(addFriendship.scheduledStartTime(), is(Time.fromMilli(42)));
         assertThat(addFriendship.person1Id(), is(1920L));
@@ -206,23 +166,23 @@ public class WriteEventStreamReaderTest_NEW {
     }
 
     @Test
-    public void shouldParseUpdate1AddPersonWithWriteEventStreamReader_NEW() throws IOException, ParseException {
-        String data = WriteEventStreamReaderTestData_NEW.UPDATE_1_ADD_PERSON_ROW;
+    public void shouldParseUpdate1AddPersonWithWriteEventStreamReaderRegex_DATE() throws IOException, ParseException {
+        String data = WriteEventStreamReaderTestData_NEW_DATE.UPDATE_1_ADD_PERSON_ROW;
         BufferedReader bufferedReader = new BufferedReader(new StringReader(data));
         SimpleCsvFileReader csvFileReader = new SimpleCsvFileReader(bufferedReader, SimpleCsvFileReader.DEFAULT_COLUMN_SEPARATOR_PATTERN);
-        WriteEventStreamReaderRegex writeEventStreamReader = new WriteEventStreamReaderRegex(csvFileReader);
+        WriteEventStreamReaderRegex_DATE writeEventStreamReader = new WriteEventStreamReaderRegex_DATE(csvFileReader);
         doShouldParseUpdate1AddPerson(writeEventStreamReader);
         csvFileReader.close();
     }
 
     @Test
-    public void shouldParseUpdate1AddPersonWithWriteEventStreamReader_NEW_NEW() throws IOException, ParseException {
+    public void shouldParseUpdate1AddPersonWithWriteEventStreamReaderCharSeeker_DATE() throws IOException, ParseException {
         // Given
-        String data = WriteEventStreamReaderTestData_NEW.UPDATE_1_ADD_PERSON_ROW;
+        String data = WriteEventStreamReaderTestData_NEW_DATE.UPDATE_1_ADD_PERSON_ROW;
         CharSeeker charSeeker = new BufferedCharSeeker(new StringReader(data));
         int columnDelimiter = '|';
         Extractors extractors = new Extractors(';');
-        WriteEventStreamReaderCharSeeker writeEventStreamReader = new WriteEventStreamReaderCharSeeker(charSeeker, extractors, columnDelimiter);
+        WriteEventStreamReaderCharSeeker_DATE writeEventStreamReader = new WriteEventStreamReaderCharSeeker_DATE(charSeeker, extractors, columnDelimiter);
         doShouldParseUpdate1AddPerson(writeEventStreamReader);
         charSeeker.close();
     }
@@ -231,15 +191,8 @@ public class WriteEventStreamReaderTest_NEW {
         LdbcUpdate1AddPerson addPerson = (LdbcUpdate1AddPerson) writeEventStreamReader.next();
 
         // Then
-        Calendar calendar = Calendar.getInstance();
-        calendar.setTimeZone(TimeZone.getTimeZone("GMT"));
-        calendar.clear();
-        calendar.set(1989, Calendar.JULY, 21);
-        Date birthday = calendar.getTime();
-        calendar.clear();
-        calendar.set(2011, Calendar.JANUARY, 18, 8, 36, 4);
-        calendar.setTimeZone(TimeZone.getTimeZone("GMT"));
-        Date creationDate = calendar.getTime();
+        Date birthday = new Date(1234567890l);
+        Date creationDate = new Date(1234567890l);
 
         assertThat(addPerson.scheduledStartTime(), is(Time.fromMilli(42)));
         assertThat(addPerson.personId(), is(409L));
@@ -265,23 +218,23 @@ public class WriteEventStreamReaderTest_NEW {
     }
 
     @Test
-    public void shouldParseUpdate1AddPersonWithOneLanguageWithWriteEventStreamReader_NEW() throws IOException, ParseException {
-        String data = WriteEventStreamReaderTestData_NEW.UPDATE_1_ADD_PERSON_ROW_ONE_LANGUAGE;
+    public void shouldParseUpdate1AddPersonWithOneLanguageWithWriteEventStreamReaderRegex_DATE() throws IOException, ParseException {
+        String data = WriteEventStreamReaderTestData_NEW_DATE.UPDATE_1_ADD_PERSON_ROW_ONE_LANGUAGE;
         BufferedReader bufferedReader = new BufferedReader(new StringReader(data));
         SimpleCsvFileReader csvFileReader = new SimpleCsvFileReader(bufferedReader, SimpleCsvFileReader.DEFAULT_COLUMN_SEPARATOR_PATTERN);
-        WriteEventStreamReaderRegex writeEventStreamReader = new WriteEventStreamReaderRegex(csvFileReader);
+        WriteEventStreamReaderRegex_DATE writeEventStreamReader = new WriteEventStreamReaderRegex_DATE(csvFileReader);
         doShouldParseUpdate1AddPersonWithOneLanguage(writeEventStreamReader);
         csvFileReader.close();
     }
 
     @Test
-    public void shouldParseUpdate1AddPersonWithOneLanguageWithWriteEventStreamReader_NEW_NEW() throws IOException, ParseException {
+    public void shouldParseUpdate1AddPersonWithOneLanguageWithWriteEventStreamReaderCharSeeker_DATE() throws IOException, ParseException {
         // Given
-        String data = WriteEventStreamReaderTestData_NEW.UPDATE_1_ADD_PERSON_ROW_ONE_LANGUAGE;
+        String data = WriteEventStreamReaderTestData_NEW_DATE.UPDATE_1_ADD_PERSON_ROW_ONE_LANGUAGE;
         CharSeeker charSeeker = new BufferedCharSeeker(new StringReader(data));
         int columnDelimiter = '|';
         Extractors extractors = new Extractors(';');
-        WriteEventStreamReaderCharSeeker writeEventStreamReader = new WriteEventStreamReaderCharSeeker(charSeeker, extractors, columnDelimiter);
+        WriteEventStreamReaderCharSeeker_DATE writeEventStreamReader = new WriteEventStreamReaderCharSeeker_DATE(charSeeker, extractors, columnDelimiter);
         doShouldParseUpdate1AddPersonWithOneLanguage(writeEventStreamReader);
         charSeeker.close();
     }
@@ -290,15 +243,8 @@ public class WriteEventStreamReaderTest_NEW {
         LdbcUpdate1AddPerson addPerson = (LdbcUpdate1AddPerson) writeEventStreamReader.next();
 
         // Then
-        Calendar calendar = Calendar.getInstance();
-        calendar.setTimeZone(TimeZone.getTimeZone("GMT"));
-        calendar.clear();
-        calendar.set(1989, Calendar.JULY, 21);
-        Date birthday = calendar.getTime();
-        calendar.clear();
-        calendar.set(2011, Calendar.JANUARY, 18, 8, 36, 4);
-        calendar.setTimeZone(TimeZone.getTimeZone("GMT"));
-        Date creationDate = calendar.getTime();
+        Date birthday = new Date(1234567890l);
+        Date creationDate = new Date(1234567890l);
 
         assertThat(addPerson.scheduledStartTime(), is(Time.fromMilli(42)));
         assertThat(addPerson.personId(), is(409L));
@@ -324,23 +270,23 @@ public class WriteEventStreamReaderTest_NEW {
     }
 
     @Test
-    public void shouldParseUpdate1AddPersonWithNoLanguagesWithWriteEventStreamReader_NEW() throws IOException, ParseException {
-        String data = WriteEventStreamReaderTestData_NEW.UPDATE_1_ADD_PERSON_ROW_NO_LANGUAGES;
+    public void shouldParseUpdate1AddPersonWithNoLanguagesWithWriteEventStreamReaderRegex_DATE() throws IOException, ParseException {
+        String data = WriteEventStreamReaderTestData_NEW_DATE.UPDATE_1_ADD_PERSON_ROW_NO_LANGUAGES;
         BufferedReader bufferedReader = new BufferedReader(new StringReader(data));
         SimpleCsvFileReader csvFileReader = new SimpleCsvFileReader(bufferedReader, SimpleCsvFileReader.DEFAULT_COLUMN_SEPARATOR_PATTERN);
-        WriteEventStreamReaderRegex writeEventStreamReader = new WriteEventStreamReaderRegex(csvFileReader);
+        WriteEventStreamReaderRegex_DATE writeEventStreamReader = new WriteEventStreamReaderRegex_DATE(csvFileReader);
         doShouldParseUpdate1AddPersonWithNoLanguages(writeEventStreamReader);
         csvFileReader.close();
     }
 
     @Test
-    public void shouldParseUpdate1AddPersonWithNoLanguagesWithWriteEventStreamReader_NEW_NEW() throws IOException, ParseException {
+    public void shouldParseUpdate1AddPersonWithNoLanguagesWithWriteEventStreamReaderCharSeeker_DATE() throws IOException, ParseException {
         // Given
-        String data = WriteEventStreamReaderTestData_NEW.UPDATE_1_ADD_PERSON_ROW_NO_LANGUAGES;
+        String data = WriteEventStreamReaderTestData_NEW_DATE.UPDATE_1_ADD_PERSON_ROW_NO_LANGUAGES;
         CharSeeker charSeeker = new BufferedCharSeeker(new StringReader(data));
         int columnDelimiter = '|';
         Extractors extractors = new Extractors(';');
-        WriteEventStreamReaderCharSeeker writeEventStreamReader = new WriteEventStreamReaderCharSeeker(charSeeker, extractors, columnDelimiter);
+        WriteEventStreamReaderCharSeeker_DATE writeEventStreamReader = new WriteEventStreamReaderCharSeeker_DATE(charSeeker, extractors, columnDelimiter);
         doShouldParseUpdate1AddPersonWithNoLanguages(writeEventStreamReader);
         charSeeker.close();
     }
@@ -349,15 +295,8 @@ public class WriteEventStreamReaderTest_NEW {
         LdbcUpdate1AddPerson addPerson = (LdbcUpdate1AddPerson) writeEventStreamReader.next();
 
         // Then
-        Calendar calendar = Calendar.getInstance();
-        calendar.setTimeZone(TimeZone.getTimeZone("GMT"));
-        calendar.clear();
-        calendar.set(1989, Calendar.JULY, 21);
-        Date birthday = calendar.getTime();
-        calendar.clear();
-        calendar.set(2011, Calendar.JANUARY, 18, 8, 36, 4);
-        calendar.setTimeZone(TimeZone.getTimeZone("GMT"));
-        Date creationDate = calendar.getTime();
+        Date birthday = new Date(1234567890l);
+        Date creationDate = new Date(1234567890l);
 
         assertThat(addPerson.scheduledStartTime(), is(Time.fromMilli(42)));
         assertThat(addPerson.personId(), is(409L));
@@ -383,23 +322,23 @@ public class WriteEventStreamReaderTest_NEW {
     }
 
     @Test
-    public void shouldParseUpdate1AddPersonWithOneCompanyWithWriteEventStreamReader_NEW() throws IOException, ParseException {
-        String data = WriteEventStreamReaderTestData_NEW.UPDATE_1_ADD_PERSON_ROW_ONE_COMPANY;
+    public void shouldParseUpdate1AddPersonWithOneCompanyWithWriteEventStreamReaderRegex_DATE() throws IOException, ParseException {
+        String data = WriteEventStreamReaderTestData_NEW_DATE.UPDATE_1_ADD_PERSON_ROW_ONE_COMPANY;
         BufferedReader bufferedReader = new BufferedReader(new StringReader(data));
         SimpleCsvFileReader csvFileReader = new SimpleCsvFileReader(bufferedReader, SimpleCsvFileReader.DEFAULT_COLUMN_SEPARATOR_PATTERN);
-        WriteEventStreamReaderRegex writeEventStreamReader = new WriteEventStreamReaderRegex(csvFileReader);
+        WriteEventStreamReaderRegex_DATE writeEventStreamReader = new WriteEventStreamReaderRegex_DATE(csvFileReader);
         doShouldParseUpdate1AddPersonWithOneCompany(writeEventStreamReader);
         csvFileReader.close();
     }
 
     @Test
-    public void shouldParseUpdate1AddPersonWithOneCompanyWithWriteEventStreamReader_NEW_NEW() throws IOException, ParseException {
+    public void shouldParseUpdate1AddPersonWithOneCompanyWithWriteEventStreamReaderCharSeeker_DATE() throws IOException, ParseException {
         // Given
-        String data = WriteEventStreamReaderTestData_NEW.UPDATE_1_ADD_PERSON_ROW_ONE_COMPANY;
+        String data = WriteEventStreamReaderTestData_NEW_DATE.UPDATE_1_ADD_PERSON_ROW_ONE_COMPANY;
         CharSeeker charSeeker = new BufferedCharSeeker(new StringReader(data));
         int columnDelimiter = '|';
         Extractors extractors = new Extractors(';');
-        WriteEventStreamReaderCharSeeker writeEventStreamReader = new WriteEventStreamReaderCharSeeker(charSeeker, extractors, columnDelimiter);
+        WriteEventStreamReaderCharSeeker_DATE writeEventStreamReader = new WriteEventStreamReaderCharSeeker_DATE(charSeeker, extractors, columnDelimiter);
         doShouldParseUpdate1AddPersonWithOneCompany(writeEventStreamReader);
         charSeeker.close();
     }
@@ -408,15 +347,8 @@ public class WriteEventStreamReaderTest_NEW {
         LdbcUpdate1AddPerson addPerson = (LdbcUpdate1AddPerson) writeEventStreamReader.next();
 
         // Then
-        Calendar calendar = Calendar.getInstance();
-        calendar.setTimeZone(TimeZone.getTimeZone("GMT"));
-        calendar.clear();
-        calendar.set(1989, Calendar.JULY, 21);
-        Date birthday = calendar.getTime();
-        calendar.clear();
-        calendar.set(2011, Calendar.JANUARY, 18, 8, 36, 4);
-        calendar.setTimeZone(TimeZone.getTimeZone("GMT"));
-        Date creationDate = calendar.getTime();
+        Date birthday = new Date(1234567890l);
+        Date creationDate = new Date(1234567890l);
 
         assertThat(addPerson.scheduledStartTime(), is(Time.fromMilli(42)));
         assertThat(addPerson.personId(), is(409L));
@@ -439,23 +371,23 @@ public class WriteEventStreamReaderTest_NEW {
     }
 
     @Test
-    public void shouldParseUpdate1AddPersonWithNoCompaniesWithWriteEventStreamReader_NEW() throws IOException, ParseException {
-        String data = WriteEventStreamReaderTestData_NEW.UPDATE_1_ADD_PERSON_ROW_NO_COMPANIES;
+    public void shouldParseUpdate1AddPersonWithNoCompaniesWithWriteEventStreamReaderRegex_DATE() throws IOException, ParseException {
+        String data = WriteEventStreamReaderTestData_NEW_DATE.UPDATE_1_ADD_PERSON_ROW_NO_COMPANIES;
         BufferedReader bufferedReader = new BufferedReader(new StringReader(data));
         SimpleCsvFileReader csvFileReader = new SimpleCsvFileReader(bufferedReader, SimpleCsvFileReader.DEFAULT_COLUMN_SEPARATOR_PATTERN);
-        WriteEventStreamReaderRegex writeEventStreamReader = new WriteEventStreamReaderRegex(csvFileReader);
+        WriteEventStreamReaderRegex_DATE writeEventStreamReader = new WriteEventStreamReaderRegex_DATE(csvFileReader);
         doShouldParseUpdate1AddPersonWithNoCompanies(writeEventStreamReader);
         csvFileReader.close();
     }
 
     @Test
-    public void shouldParseUpdate1AddPersonWithNoCompaniesWithWriteEventStreamReader_NEW_NEW() throws IOException, ParseException {
+    public void shouldParseUpdate1AddPersonWithNoCompaniesWithWriteEventStreamReaderCharSeeker_DATE() throws IOException, ParseException {
         // Given
-        String data = WriteEventStreamReaderTestData_NEW.UPDATE_1_ADD_PERSON_ROW_NO_COMPANIES;
+        String data = WriteEventStreamReaderTestData_NEW_DATE.UPDATE_1_ADD_PERSON_ROW_NO_COMPANIES;
         CharSeeker charSeeker = new BufferedCharSeeker(new StringReader(data));
         int columnDelimiter = '|';
         Extractors extractors = new Extractors(';');
-        WriteEventStreamReaderCharSeeker writeEventStreamReader = new WriteEventStreamReaderCharSeeker(charSeeker, extractors, columnDelimiter);
+        WriteEventStreamReaderCharSeeker_DATE writeEventStreamReader = new WriteEventStreamReaderCharSeeker_DATE(charSeeker, extractors, columnDelimiter);
         doShouldParseUpdate1AddPersonWithNoCompanies(writeEventStreamReader);
         charSeeker.close();
     }
@@ -464,15 +396,8 @@ public class WriteEventStreamReaderTest_NEW {
         LdbcUpdate1AddPerson addPerson = (LdbcUpdate1AddPerson) writeEventStreamReader.next();
 
         // Then
-        Calendar calendar = Calendar.getInstance();
-        calendar.setTimeZone(TimeZone.getTimeZone("GMT"));
-        calendar.clear();
-        calendar.set(1989, Calendar.JULY, 21);
-        Date birthday = calendar.getTime();
-        calendar.clear();
-        calendar.set(2011, Calendar.JANUARY, 18, 8, 36, 4);
-        calendar.setTimeZone(TimeZone.getTimeZone("GMT"));
-        Date creationDate = calendar.getTime();
+        Date birthday = new Date(1234567890l);
+        Date creationDate = new Date(1234567890l);
 
         assertThat(addPerson.scheduledStartTime(), is(Time.fromMilli(42)));
         assertThat(addPerson.personId(), is(409L));
@@ -493,23 +418,23 @@ public class WriteEventStreamReaderTest_NEW {
     }
 
     @Test
-    public void shouldParseUpdate1AddPersonWithNoUnisWithWriteEventStreamReader_NEW() throws IOException, ParseException {
-        String data = WriteEventStreamReaderTestData_NEW.UPDATE_1_ADD_PERSON_ROW_NO_UNIS;
+    public void shouldParseUpdate1AddPersonWithNoUnisWithWriteEventStreamReaderRegex_DATE() throws IOException, ParseException {
+        String data = WriteEventStreamReaderTestData_NEW_DATE.UPDATE_1_ADD_PERSON_ROW_NO_UNIS;
         BufferedReader bufferedReader = new BufferedReader(new StringReader(data));
         SimpleCsvFileReader csvFileReader = new SimpleCsvFileReader(bufferedReader, SimpleCsvFileReader.DEFAULT_COLUMN_SEPARATOR_PATTERN);
-        WriteEventStreamReaderRegex writeEventStreamReader = new WriteEventStreamReaderRegex(csvFileReader);
+        WriteEventStreamReaderRegex_DATE writeEventStreamReader = new WriteEventStreamReaderRegex_DATE(csvFileReader);
         doShouldParseUpdate1AddPersonWithNoUnis(writeEventStreamReader);
         csvFileReader.close();
     }
 
     @Test
-    public void shouldParseUpdate1AddPersonWithNoUnisWithWriteEventStreamReader_NEW_NEW() throws IOException, ParseException {
+    public void shouldParseUpdate1AddPersonWithNoUnisWithWriteEventStreamReaderCharSeeker_DATE() throws IOException, ParseException {
         // Given
-        String data = WriteEventStreamReaderTestData_NEW.UPDATE_1_ADD_PERSON_ROW_NO_UNIS;
+        String data = WriteEventStreamReaderTestData_NEW_DATE.UPDATE_1_ADD_PERSON_ROW_NO_UNIS;
         CharSeeker charSeeker = new BufferedCharSeeker(new StringReader(data));
         int columnDelimiter = '|';
         Extractors extractors = new Extractors(';');
-        WriteEventStreamReaderCharSeeker writeEventStreamReader = new WriteEventStreamReaderCharSeeker(charSeeker, extractors, columnDelimiter);
+        WriteEventStreamReaderCharSeeker_DATE writeEventStreamReader = new WriteEventStreamReaderCharSeeker_DATE(charSeeker, extractors, columnDelimiter);
         doShouldParseUpdate1AddPersonWithNoUnis(writeEventStreamReader);
         charSeeker.close();
     }
@@ -518,15 +443,8 @@ public class WriteEventStreamReaderTest_NEW {
         LdbcUpdate1AddPerson addPerson = (LdbcUpdate1AddPerson) writeEventStreamReader.next();
 
         // Then
-        Calendar calendar = Calendar.getInstance();
-        calendar.setTimeZone(TimeZone.getTimeZone("GMT"));
-        calendar.clear();
-        calendar.set(1989, Calendar.JULY, 21);
-        Date birthday = calendar.getTime();
-        calendar.clear();
-        calendar.set(2011, Calendar.JANUARY, 18, 8, 36, 4);
-        calendar.setTimeZone(TimeZone.getTimeZone("GMT"));
-        Date creationDate = calendar.getTime();
+        Date birthday = new Date(1234567890l);
+        Date creationDate = new Date(1234567890l);
 
         assertThat(addPerson.scheduledStartTime(), is(Time.fromMilli(42)));
         assertThat(addPerson.personId(), is(409L));
@@ -552,23 +470,23 @@ public class WriteEventStreamReaderTest_NEW {
     }
 
     @Test
-    public void shouldParseUpdate1AddPersonWithNoEmailsWithWriteEventStreamReader_NEW() throws IOException, ParseException {
-        String data = WriteEventStreamReaderTestData_NEW.UPDATE_1_ADD_PERSON_ROW_NO_EMAILS;
+    public void shouldParseUpdate1AddPersonWithNoEmailsWithWriteEventStreamReaderRegex_DATE() throws IOException, ParseException {
+        String data = WriteEventStreamReaderTestData_NEW_DATE.UPDATE_1_ADD_PERSON_ROW_NO_EMAILS;
         BufferedReader bufferedReader = new BufferedReader(new StringReader(data));
         SimpleCsvFileReader csvFileReader = new SimpleCsvFileReader(bufferedReader, SimpleCsvFileReader.DEFAULT_COLUMN_SEPARATOR_PATTERN);
-        WriteEventStreamReaderRegex writeEventStreamReader = new WriteEventStreamReaderRegex(csvFileReader);
+        WriteEventStreamReaderRegex_DATE writeEventStreamReader = new WriteEventStreamReaderRegex_DATE(csvFileReader);
         doShouldParseUpdate1AddPersonWithNoEmails(writeEventStreamReader);
         csvFileReader.close();
     }
 
     @Test
-    public void shouldParseUpdate1AddPersonWithNoEmailsWithWriteEventStreamReader_NEW_NEW() throws IOException, ParseException {
+    public void shouldParseUpdate1AddPersonWithNoEmailsWithWriteEventStreamReaderCharSeeker_DATE() throws IOException, ParseException {
         // Given
-        String data = WriteEventStreamReaderTestData_NEW.UPDATE_1_ADD_PERSON_ROW_NO_EMAILS;
+        String data = WriteEventStreamReaderTestData_NEW_DATE.UPDATE_1_ADD_PERSON_ROW_NO_EMAILS;
         CharSeeker charSeeker = new BufferedCharSeeker(new StringReader(data));
         int columnDelimiter = '|';
         Extractors extractors = new Extractors(';');
-        WriteEventStreamReaderCharSeeker writeEventStreamReader = new WriteEventStreamReaderCharSeeker(charSeeker, extractors, columnDelimiter);
+        WriteEventStreamReaderCharSeeker_DATE writeEventStreamReader = new WriteEventStreamReaderCharSeeker_DATE(charSeeker, extractors, columnDelimiter);
         doShouldParseUpdate1AddPersonWithNoEmails(writeEventStreamReader);
         charSeeker.close();
     }
@@ -577,15 +495,8 @@ public class WriteEventStreamReaderTest_NEW {
         LdbcUpdate1AddPerson addPerson = (LdbcUpdate1AddPerson) writeEventStreamReader.next();
 
         // Then
-        Calendar calendar = Calendar.getInstance();
-        calendar.setTimeZone(TimeZone.getTimeZone("GMT"));
-        calendar.clear();
-        calendar.set(1989, Calendar.JULY, 21);
-        Date birthday = calendar.getTime();
-        calendar.clear();
-        calendar.set(2011, Calendar.JANUARY, 18, 8, 36, 4);
-        calendar.setTimeZone(TimeZone.getTimeZone("GMT"));
-        Date creationDate = calendar.getTime();
+        Date birthday = new Date(1234567890l);
+        Date creationDate = new Date(1234567890l);
 
         assertThat(addPerson.scheduledStartTime(), is(Time.fromMilli(42)));
         assertThat(addPerson.personId(), is(409L));
@@ -611,23 +522,23 @@ public class WriteEventStreamReaderTest_NEW {
     }
 
     @Test
-    public void shouldParseUpdate1AddPersonWithNoTagsWithWriteEventStreamReader_NEW() throws IOException, ParseException {
-        String data = WriteEventStreamReaderTestData_NEW.UPDATE_1_ADD_PERSON_ROW_NO_TAGS;
+    public void shouldParseUpdate1AddPersonWithNoTagsWithWriteEventStreamReaderRegex_DATE() throws IOException, ParseException {
+        String data = WriteEventStreamReaderTestData_NEW_DATE.UPDATE_1_ADD_PERSON_ROW_NO_TAGS;
         BufferedReader bufferedReader = new BufferedReader(new StringReader(data));
         SimpleCsvFileReader csvFileReader = new SimpleCsvFileReader(bufferedReader, SimpleCsvFileReader.DEFAULT_COLUMN_SEPARATOR_PATTERN);
-        WriteEventStreamReaderRegex writeEventStreamReader = new WriteEventStreamReaderRegex(csvFileReader);
+        WriteEventStreamReaderRegex_DATE writeEventStreamReader = new WriteEventStreamReaderRegex_DATE(csvFileReader);
         doShouldParseUpdate1AddPersonWithNoTags(writeEventStreamReader);
         csvFileReader.close();
     }
 
     @Test
-    public void shouldParseUpdate1AddPersonWithNoTagsWithWriteEventStreamReader_NEW_NEW() throws IOException, ParseException {
+    public void shouldParseUpdate1AddPersonWithNoTagsWithWriteEventStreamReaderCharSeeker_DATE() throws IOException, ParseException {
         // Given
-        String data = WriteEventStreamReaderTestData_NEW.UPDATE_1_ADD_PERSON_ROW_NO_TAGS;
+        String data = WriteEventStreamReaderTestData_NEW_DATE.UPDATE_1_ADD_PERSON_ROW_NO_TAGS;
         CharSeeker charSeeker = new BufferedCharSeeker(new StringReader(data));
         int columnDelimiter = '|';
         Extractors extractors = new Extractors(';');
-        WriteEventStreamReaderCharSeeker writeEventStreamReader = new WriteEventStreamReaderCharSeeker(charSeeker, extractors, columnDelimiter);
+        WriteEventStreamReaderCharSeeker_DATE writeEventStreamReader = new WriteEventStreamReaderCharSeeker_DATE(charSeeker, extractors, columnDelimiter);
         doShouldParseUpdate1AddPersonWithNoTags(writeEventStreamReader);
         charSeeker.close();
     }
@@ -636,15 +547,8 @@ public class WriteEventStreamReaderTest_NEW {
         LdbcUpdate1AddPerson addPerson = (LdbcUpdate1AddPerson) writeEventStreamReader.next();
 
         // Then
-        Calendar calendar = Calendar.getInstance();
-        calendar.setTimeZone(TimeZone.getTimeZone("GMT"));
-        calendar.clear();
-        calendar.set(1989, Calendar.JULY, 21);
-        Date birthday = calendar.getTime();
-        calendar.clear();
-        calendar.set(2011, Calendar.JANUARY, 18, 8, 36, 4);
-        calendar.setTimeZone(TimeZone.getTimeZone("GMT"));
-        Date creationDate = calendar.getTime();
+        Date birthday = new Date(1234567890l);
+        Date creationDate = new Date(1234567890l);
 
         assertThat(addPerson.scheduledStartTime(), is(Time.fromMilli(42)));
         assertThat(addPerson.personId(), is(409L));
@@ -670,23 +574,23 @@ public class WriteEventStreamReaderTest_NEW {
     }
 
     @Test
-    public void shouldParseUpdate2AddLikePostWithWriteEventStreamReader_NEW() throws IOException, ParseException {
-        String data = WriteEventStreamReaderTestData_NEW.UPDATE_2_ADD_LIKE_POST_ROW;
+    public void shouldParseUpdate2AddLikePostWithWriteEventStreamReaderRegex_DATE() throws IOException, ParseException {
+        String data = WriteEventStreamReaderTestData_NEW_DATE.UPDATE_2_ADD_LIKE_POST_ROW;
         BufferedReader bufferedReader = new BufferedReader(new StringReader(data));
         SimpleCsvFileReader csvFileReader = new SimpleCsvFileReader(bufferedReader, SimpleCsvFileReader.DEFAULT_COLUMN_SEPARATOR_PATTERN);
-        WriteEventStreamReaderRegex writeEventStreamReader = new WriteEventStreamReaderRegex(csvFileReader);
+        WriteEventStreamReaderRegex_DATE writeEventStreamReader = new WriteEventStreamReaderRegex_DATE(csvFileReader);
         doShouldParseUpdate2AddLikePost(writeEventStreamReader);
         csvFileReader.close();
     }
 
     @Test
-    public void shouldParseUpdate2AddLikePostWithWriteEventStreamReader_NEW_NEW() throws IOException, ParseException {
+    public void shouldParseUpdate2AddLikePostWithWriteEventStreamReaderCharSeeker_DATE() throws IOException, ParseException {
         // Given
-        String data = WriteEventStreamReaderTestData_NEW.UPDATE_2_ADD_LIKE_POST_ROW;
+        String data = WriteEventStreamReaderTestData_NEW_DATE.UPDATE_2_ADD_LIKE_POST_ROW;
         CharSeeker charSeeker = new BufferedCharSeeker(new StringReader(data));
         int columnDelimiter = '|';
         Extractors extractors = new Extractors(';');
-        WriteEventStreamReaderCharSeeker writeEventStreamReader = new WriteEventStreamReaderCharSeeker(charSeeker, extractors, columnDelimiter);
+        WriteEventStreamReaderCharSeeker_DATE writeEventStreamReader = new WriteEventStreamReaderCharSeeker_DATE(charSeeker, extractors, columnDelimiter);
         doShouldParseUpdate2AddLikePost(writeEventStreamReader);
         charSeeker.close();
     }
@@ -695,11 +599,7 @@ public class WriteEventStreamReaderTest_NEW {
         LdbcUpdate2AddPostLike addPostLike = (LdbcUpdate2AddPostLike) writeEventStreamReader.next();
 
         // Then
-        Calendar c = Calendar.getInstance();
-        c.clear();
-        c.set(2011, Calendar.FEBRUARY, 01, 8, 36, 04);
-        c.setTimeZone(TimeZone.getTimeZone("GMT"));
-        Date creationDate = c.getTime();
+        Date creationDate = new Date(1234567890l);
 
         assertThat(addPostLike.scheduledStartTime(), is(Time.fromMilli(42)));
         assertThat(addPostLike.personId(), is(1582L));
@@ -709,22 +609,22 @@ public class WriteEventStreamReaderTest_NEW {
     }
 
     @Test
-    public void shouldParseUpdate3AddLikeCommentWithWriteEventStreamReader_NEW() throws IOException, ParseException {
-        String data = WriteEventStreamReaderTestData_NEW.UPDATE_3_ADD_LIKE_COMMENT;
+    public void shouldParseUpdate3AddLikeCommentWithWriteEventStreamReaderRegex_DATE() throws IOException, ParseException {
+        String data = WriteEventStreamReaderTestData_NEW_DATE.UPDATE_3_ADD_LIKE_COMMENT;
         BufferedReader bufferedReader = new BufferedReader(new StringReader(data));
         SimpleCsvFileReader csvFileReader = new SimpleCsvFileReader(bufferedReader, SimpleCsvFileReader.DEFAULT_COLUMN_SEPARATOR_PATTERN);
-        WriteEventStreamReaderRegex writeEventStreamReader = new WriteEventStreamReaderRegex(csvFileReader);
+        WriteEventStreamReaderRegex_DATE writeEventStreamReader = new WriteEventStreamReaderRegex_DATE(csvFileReader);
         doShouldParseUpdate3AddLikeComment(writeEventStreamReader);
         csvFileReader.close();
     }
 
     @Test
-    public void shouldParseUpdate3AddLikeCommentWithWriteEventStreamReader_NEW_NEW() throws IOException, ParseException {
-        String data = WriteEventStreamReaderTestData_NEW.UPDATE_3_ADD_LIKE_COMMENT;
+    public void shouldParseUpdate3AddLikeCommentWithWriteEventStreamReaderCharSeeker_DATE() throws IOException, ParseException {
+        String data = WriteEventStreamReaderTestData_NEW_DATE.UPDATE_3_ADD_LIKE_COMMENT;
         CharSeeker charSeeker = new BufferedCharSeeker(new StringReader(data));
         int columnDelimiter = '|';
         Extractors extractors = new Extractors(';');
-        WriteEventStreamReaderCharSeeker writeEventStreamReader = new WriteEventStreamReaderCharSeeker(charSeeker, extractors, columnDelimiter);
+        WriteEventStreamReaderCharSeeker_DATE writeEventStreamReader = new WriteEventStreamReaderCharSeeker_DATE(charSeeker, extractors, columnDelimiter);
         doShouldParseUpdate3AddLikeComment(writeEventStreamReader);
         charSeeker.close();
     }
@@ -733,11 +633,7 @@ public class WriteEventStreamReaderTest_NEW {
         LdbcUpdate3AddCommentLike addCommentLike = (LdbcUpdate3AddCommentLike) writeEventStreamReader.next();
 
         // Then
-        Calendar c = Calendar.getInstance();
-        c.clear();
-        c.set(2011, Calendar.JANUARY, 24, 5, 44, 13);
-        c.setTimeZone(TimeZone.getTimeZone("GMT"));
-        Date creationDate = c.getTime();
+        Date creationDate = new Date(1234567890l);
 
         assertThat(addCommentLike.scheduledStartTime(), is(Time.fromMilli(42)));
         assertThat(addCommentLike.personId(), is(1095L));
@@ -747,22 +643,22 @@ public class WriteEventStreamReaderTest_NEW {
     }
 
     @Test
-    public void shouldParseUpdate4AddForumWithWriteEventStreamReader_NEW() throws IOException, ParseException {
-        String data = WriteEventStreamReaderTestData_NEW.UPDATE_4_ADD_FORUM;
+    public void shouldParseUpdate4AddForumWithWriteEventStreamReaderRegex_DATE() throws IOException, ParseException {
+        String data = WriteEventStreamReaderTestData_NEW_DATE.UPDATE_4_ADD_FORUM;
         BufferedReader bufferedReader = new BufferedReader(new StringReader(data));
         SimpleCsvFileReader csvFileReader = new SimpleCsvFileReader(bufferedReader, SimpleCsvFileReader.DEFAULT_COLUMN_SEPARATOR_PATTERN);
-        WriteEventStreamReaderRegex writeEventStreamReader = new WriteEventStreamReaderRegex(csvFileReader);
+        WriteEventStreamReaderRegex_DATE writeEventStreamReader = new WriteEventStreamReaderRegex_DATE(csvFileReader);
         doShouldParseUpdate4AddForum(writeEventStreamReader);
         csvFileReader.close();
     }
 
     @Test
-    public void shouldParseUpdate4AddForumWithWriteEventStreamReader_NEW_NEW() throws IOException, ParseException {
-        String data = WriteEventStreamReaderTestData_NEW.UPDATE_4_ADD_FORUM;
+    public void shouldParseUpdate4AddForumWithWriteEventStreamReaderCharSeeker_DATE() throws IOException, ParseException {
+        String data = WriteEventStreamReaderTestData_NEW_DATE.UPDATE_4_ADD_FORUM;
         CharSeeker charSeeker = new BufferedCharSeeker(new StringReader(data));
         int columnDelimiter = '|';
         Extractors extractors = new Extractors(';');
-        WriteEventStreamReaderCharSeeker writeEventStreamReader = new WriteEventStreamReaderCharSeeker(charSeeker, extractors, columnDelimiter);
+        WriteEventStreamReaderCharSeeker_DATE writeEventStreamReader = new WriteEventStreamReaderCharSeeker_DATE(charSeeker, extractors, columnDelimiter);
         doShouldParseUpdate4AddForum(writeEventStreamReader);
         charSeeker.close();
     }
@@ -771,11 +667,7 @@ public class WriteEventStreamReaderTest_NEW {
         LdbcUpdate4AddForum addForum = (LdbcUpdate4AddForum) writeEventStreamReader.next();
 
         // Then
-        Calendar c = Calendar.getInstance();
-        c.clear();
-        c.set(2011, Calendar.JANUARY, 3, 6, 4, 47);
-        c.setTimeZone(TimeZone.getTimeZone("GMT"));
-        Date creationDate = c.getTime();
+        Date creationDate = new Date(1234567890l);
 
         assertThat(addForum.scheduledStartTime(), is(Time.fromMilli(42)));
         assertThat(addForum.forumId(), is(2118L));
@@ -787,22 +679,22 @@ public class WriteEventStreamReaderTest_NEW {
     }
 
     @Test
-    public void shouldParseUpdate5AddForumMembershipWithWriteEventStreamReader_NEW() throws IOException, ParseException {
-        String data = WriteEventStreamReaderTestData_NEW.UPDATE_5_ADD_FORUM_MEMBERSHIP;
+    public void shouldParseUpdate5AddForumMembershipWithWriteEventStreamReaderRegex_DATE() throws IOException, ParseException {
+        String data = WriteEventStreamReaderTestData_NEW_DATE.UPDATE_5_ADD_FORUM_MEMBERSHIP;
         BufferedReader bufferedReader = new BufferedReader(new StringReader(data));
         SimpleCsvFileReader csvFileReader = new SimpleCsvFileReader(bufferedReader, SimpleCsvFileReader.DEFAULT_COLUMN_SEPARATOR_PATTERN);
-        WriteEventStreamReaderRegex writeEventStreamReader = new WriteEventStreamReaderRegex(csvFileReader);
+        WriteEventStreamReaderRegex_DATE writeEventStreamReader = new WriteEventStreamReaderRegex_DATE(csvFileReader);
         shouldParseUpdate5AddForumMembership(writeEventStreamReader);
         csvFileReader.close();
     }
 
     @Test
-    public void shouldParseUpdate5AddForumMembershipWithWriteEventStreamReader_NEW_NEW() throws IOException, ParseException {
-        String data = WriteEventStreamReaderTestData_NEW.UPDATE_5_ADD_FORUM_MEMBERSHIP;
+    public void shouldParseUpdate5AddForumMembershipWithWriteEventStreamReaderCharSeeker_DATE() throws IOException, ParseException {
+        String data = WriteEventStreamReaderTestData_NEW_DATE.UPDATE_5_ADD_FORUM_MEMBERSHIP;
         CharSeeker charSeeker = new BufferedCharSeeker(new StringReader(data));
         int columnDelimiter = '|';
         Extractors extractors = new Extractors(';');
-        WriteEventStreamReaderCharSeeker writeEventStreamReader = new WriteEventStreamReaderCharSeeker(charSeeker, extractors, columnDelimiter);
+        WriteEventStreamReaderCharSeeker_DATE writeEventStreamReader = new WriteEventStreamReaderCharSeeker_DATE(charSeeker, extractors, columnDelimiter);
         shouldParseUpdate5AddForumMembership(writeEventStreamReader);
         charSeeker.close();
     }
@@ -811,11 +703,7 @@ public class WriteEventStreamReaderTest_NEW {
         LdbcUpdate5AddForumMembership addForumMembership = (LdbcUpdate5AddForumMembership) writeEventStreamReader.next();
 
         // Then
-        Calendar c = Calendar.getInstance();
-        c.clear();
-        c.set(2011, Calendar.JANUARY, 4, 18, 42, 51);
-        c.setTimeZone(TimeZone.getTimeZone("GMT"));
-        Date creationDate = c.getTime();
+        Date creationDate = new Date(1234567890l);
 
         assertThat(addForumMembership.scheduledStartTime(), is(Time.fromMilli(42)));
         assertThat(addForumMembership.forumId(), is(2153L));
@@ -825,22 +713,22 @@ public class WriteEventStreamReaderTest_NEW {
     }
 
     @Test
-    public void shouldParseUpdate6AddPostWithWriteEventStreamReader_NEW() throws IOException, ParseException {
-        String data = WriteEventStreamReaderTestData_NEW.UPDATE_6_ADD_POST;
+    public void shouldParseUpdate6AddPostWithWriteEventStreamReaderRegex_DATE() throws IOException, ParseException {
+        String data = WriteEventStreamReaderTestData_NEW_DATE.UPDATE_6_ADD_POST;
         BufferedReader bufferedReader = new BufferedReader(new StringReader(data));
         SimpleCsvFileReader csvFileReader = new SimpleCsvFileReader(bufferedReader, SimpleCsvFileReader.DEFAULT_COLUMN_SEPARATOR_PATTERN);
-        WriteEventStreamReaderRegex writeEventStreamReader = new WriteEventStreamReaderRegex(csvFileReader);
+        WriteEventStreamReaderRegex_DATE writeEventStreamReader = new WriteEventStreamReaderRegex_DATE(csvFileReader);
         doShouldParseUpdate6AddPost(writeEventStreamReader);
         csvFileReader.close();
     }
 
     @Test
-    public void shouldParseUpdate6AddPostWithWriteEventStreamReader_NEW_NEW() throws IOException, ParseException {
-        String data = WriteEventStreamReaderTestData_NEW.UPDATE_6_ADD_POST;
+    public void shouldParseUpdate6AddPostWithWriteEventStreamReaderCharSeeker_DATE() throws IOException, ParseException {
+        String data = WriteEventStreamReaderTestData_NEW_DATE.UPDATE_6_ADD_POST;
         CharSeeker charSeeker = new BufferedCharSeeker(new StringReader(data));
         int columnDelimiter = '|';
         Extractors extractors = new Extractors(';');
-        WriteEventStreamReaderCharSeeker writeEventStreamReader = new WriteEventStreamReaderCharSeeker(charSeeker, extractors, columnDelimiter);
+        WriteEventStreamReaderCharSeeker_DATE writeEventStreamReader = new WriteEventStreamReaderCharSeeker_DATE(charSeeker, extractors, columnDelimiter);
         doShouldParseUpdate6AddPost(writeEventStreamReader);
         charSeeker.close();
     }
@@ -849,11 +737,7 @@ public class WriteEventStreamReaderTest_NEW {
         LdbcUpdate6AddPost addPost = (LdbcUpdate6AddPost) writeEventStreamReader.next();
 
         // Then
-        Calendar c = Calendar.getInstance();
-        c.clear();
-        c.set(2011, Calendar.JANUARY, 30, 7, 59, 58);
-        c.setTimeZone(TimeZone.getTimeZone("GMT"));
-        Date creationDate = c.getTime();
+        Date creationDate = new Date(1234567890l);
 
         assertThat(addPost.scheduledStartTime(), is(Time.fromMilli(42)));
         assertThat(addPost.postId(), is(120343L));
@@ -872,22 +756,22 @@ public class WriteEventStreamReaderTest_NEW {
     }
 
     @Test
-    public void shouldParseUpdate6AddPostWithManyTagsWithWriteEventStreamReader_NEW() throws IOException, ParseException {
-        String data = WriteEventStreamReaderTestData_NEW.UPDATE_6_ADD_POST_MANY_TAGS;
+    public void shouldParseUpdate6AddPostWithManyTagsWithWriteEventStreamReaderRegex_DATE() throws IOException, ParseException {
+        String data = WriteEventStreamReaderTestData_NEW_DATE.UPDATE_6_ADD_POST_MANY_TAGS;
         BufferedReader bufferedReader = new BufferedReader(new StringReader(data));
         SimpleCsvFileReader csvFileReader = new SimpleCsvFileReader(bufferedReader, SimpleCsvFileReader.DEFAULT_COLUMN_SEPARATOR_PATTERN);
-        WriteEventStreamReaderRegex writeEventStreamReader = new WriteEventStreamReaderRegex(csvFileReader);
+        WriteEventStreamReaderRegex_DATE writeEventStreamReader = new WriteEventStreamReaderRegex_DATE(csvFileReader);
         doShouldParseUpdate6AddPostWithManyTags(writeEventStreamReader);
         csvFileReader.close();
     }
 
     @Test
-    public void shouldParseUpdate6AddPostWithManyTagsWithWriteEventStreamReader_NEW_NEW() throws IOException, ParseException {
-        String data = WriteEventStreamReaderTestData_NEW.UPDATE_6_ADD_POST_MANY_TAGS;
+    public void shouldParseUpdate6AddPostWithManyTagsWithWriteEventStreamReaderCharSeeker_DATE() throws IOException, ParseException {
+        String data = WriteEventStreamReaderTestData_NEW_DATE.UPDATE_6_ADD_POST_MANY_TAGS;
         CharSeeker charSeeker = new BufferedCharSeeker(new StringReader(data));
         int columnDelimiter = '|';
         Extractors extractors = new Extractors(';');
-        WriteEventStreamReaderCharSeeker writeEventStreamReader = new WriteEventStreamReaderCharSeeker(charSeeker, extractors, columnDelimiter);
+        WriteEventStreamReaderCharSeeker_DATE writeEventStreamReader = new WriteEventStreamReaderCharSeeker_DATE(charSeeker, extractors, columnDelimiter);
         doShouldParseUpdate6AddPostWithManyTags(writeEventStreamReader);
         charSeeker.close();
     }
@@ -896,11 +780,7 @@ public class WriteEventStreamReaderTest_NEW {
         LdbcUpdate6AddPost addPost = (LdbcUpdate6AddPost) writeEventStreamReader.next();
 
         // Then
-        Calendar c = Calendar.getInstance();
-        c.clear();
-        c.set(2011, Calendar.JANUARY, 30, 7, 59, 58);
-        c.setTimeZone(TimeZone.getTimeZone("GMT"));
-        Date creationDate = c.getTime();
+        Date creationDate = new Date(1234567890l);
 
         assertThat(addPost.scheduledStartTime(), is(Time.fromMilli(42)));
         assertThat(addPost.postId(), is(120343L));
@@ -919,22 +799,22 @@ public class WriteEventStreamReaderTest_NEW {
     }
 
     @Test
-    public void shouldParseUpdate6AddPostWithEmptyTagsWithWriteEventStreamReader_NEW() throws IOException, ParseException {
-        String data = WriteEventStreamReaderTestData_NEW.UPDATE_6_ADD_POST_NO_TAGS;
+    public void shouldParseUpdate6AddPostWithEmptyTagsWithWriteEventStreamReaderRegex_DATE() throws IOException, ParseException {
+        String data = WriteEventStreamReaderTestData_NEW_DATE.UPDATE_6_ADD_POST_NO_TAGS;
         BufferedReader bufferedReader = new BufferedReader(new StringReader(data));
         SimpleCsvFileReader csvFileReader = new SimpleCsvFileReader(bufferedReader, SimpleCsvFileReader.DEFAULT_COLUMN_SEPARATOR_PATTERN);
-        WriteEventStreamReaderRegex writeEventStreamReader = new WriteEventStreamReaderRegex(csvFileReader);
+        WriteEventStreamReaderRegex_DATE writeEventStreamReader = new WriteEventStreamReaderRegex_DATE(csvFileReader);
         doShouldParseUpdate6AddPostWithEmptyTags(writeEventStreamReader);
         csvFileReader.close();
     }
 
     @Test
-    public void shouldParseUpdate6AddPostWithEmptyTagsWithWriteEventStreamReader_NEW_NEW() throws IOException, ParseException {
-        String data = WriteEventStreamReaderTestData_NEW.UPDATE_6_ADD_POST_NO_TAGS;
+    public void shouldParseUpdate6AddPostWithEmptyTagsWithWriteEventStreamReaderCharSeeker_DATE() throws IOException, ParseException {
+        String data = WriteEventStreamReaderTestData_NEW_DATE.UPDATE_6_ADD_POST_NO_TAGS;
         CharSeeker charSeeker = new BufferedCharSeeker(new StringReader(data));
         int columnDelimiter = '|';
         Extractors extractors = new Extractors(';');
-        WriteEventStreamReaderCharSeeker writeEventStreamReader = new WriteEventStreamReaderCharSeeker(charSeeker, extractors, columnDelimiter);
+        WriteEventStreamReaderCharSeeker_DATE writeEventStreamReader = new WriteEventStreamReaderCharSeeker_DATE(charSeeker, extractors, columnDelimiter);
         doShouldParseUpdate6AddPostWithEmptyTags(writeEventStreamReader);
         charSeeker.close();
     }
@@ -943,11 +823,7 @@ public class WriteEventStreamReaderTest_NEW {
         LdbcUpdate6AddPost addPost = (LdbcUpdate6AddPost) writeEventStreamReader.next();
 
         // Then
-        Calendar c = Calendar.getInstance();
-        c.clear();
-        c.set(2011, Calendar.JANUARY, 30, 7, 59, 58);
-        c.setTimeZone(TimeZone.getTimeZone("GMT"));
-        Date creationDate = c.getTime();
+        Date creationDate = new Date(1234567890l);
 
         assertThat(addPost.scheduledStartTime(), is(Time.fromMilli(42)));
         assertThat(addPost.postId(), is(120343L));
@@ -966,22 +842,22 @@ public class WriteEventStreamReaderTest_NEW {
     }
 
     @Test
-    public void shouldParseUpdate7AddCommentWithWriteEventStreamReader_NEW() throws IOException, ParseException {
-        String data = WriteEventStreamReaderTestData_NEW.UPDATE_7_ADD_COMMENT;
+    public void shouldParseUpdate7AddCommentWithWriteEventStreamReaderRegex_DATE() throws IOException, ParseException {
+        String data = WriteEventStreamReaderTestData_NEW_DATE.UPDATE_7_ADD_COMMENT;
         BufferedReader bufferedReader = new BufferedReader(new StringReader(data));
         SimpleCsvFileReader csvFileReader = new SimpleCsvFileReader(bufferedReader, SimpleCsvFileReader.DEFAULT_COLUMN_SEPARATOR_PATTERN);
-        WriteEventStreamReaderRegex writeEventStreamReader = new WriteEventStreamReaderRegex(csvFileReader);
+        WriteEventStreamReaderRegex_DATE writeEventStreamReader = new WriteEventStreamReaderRegex_DATE(csvFileReader);
         doShouldParseUpdate7AddComment(writeEventStreamReader);
         csvFileReader.close();
     }
 
     @Test
-    public void shouldParseUpdate7AddCommentWithWriteEventStreamReader_NEW_NEW() throws IOException, ParseException {
-        String data = WriteEventStreamReaderTestData_NEW.UPDATE_7_ADD_COMMENT;
+    public void shouldParseUpdate7AddCommentWithWriteEventStreamReaderCharSeeker_DATE() throws IOException, ParseException {
+        String data = WriteEventStreamReaderTestData_NEW_DATE.UPDATE_7_ADD_COMMENT;
         CharSeeker charSeeker = new BufferedCharSeeker(new StringReader(data));
         int columnDelimiter = '|';
         Extractors extractors = new Extractors(';');
-        WriteEventStreamReaderCharSeeker writeEventStreamReader = new WriteEventStreamReaderCharSeeker(charSeeker, extractors, columnDelimiter);
+        WriteEventStreamReaderCharSeeker_DATE writeEventStreamReader = new WriteEventStreamReaderCharSeeker_DATE(charSeeker, extractors, columnDelimiter);
         doShouldParseUpdate7AddComment(writeEventStreamReader);
         charSeeker.close();
     }
@@ -990,11 +866,7 @@ public class WriteEventStreamReaderTest_NEW {
         LdbcUpdate7AddComment addComment = (LdbcUpdate7AddComment) writeEventStreamReader.next();
 
         // Then
-        Calendar c = Calendar.getInstance();
-        c.clear();
-        c.set(2013, Calendar.JANUARY, 31, 23, 58, 49);
-        c.setTimeZone(TimeZone.getTimeZone("GMT"));
-        Date creationDate = c.getTime();
+        Date creationDate = new Date(1234567890l);
 
         assertThat(addComment.scheduledStartTime(), is(Time.fromMilli(42)));
         assertThat(addComment.commentId(), is(4034293L));
@@ -1012,22 +884,22 @@ public class WriteEventStreamReaderTest_NEW {
     }
 
     @Test
-    public void shouldParseUpdate7AddCommentWithEmptyTagsWithWriteEventStreamReader_NEW() throws IOException, ParseException {
-        String data = WriteEventStreamReaderTestData_NEW.UPDATE_7_ADD_COMMENT_NO_TAGS;
+    public void shouldParseUpdate7AddCommentWithEmptyTagsWithWriteEventStreamReaderRegex_DATE() throws IOException, ParseException {
+        String data = WriteEventStreamReaderTestData_NEW_DATE.UPDATE_7_ADD_COMMENT_NO_TAGS;
         BufferedReader bufferedReader = new BufferedReader(new StringReader(data));
         SimpleCsvFileReader csvFileReader = new SimpleCsvFileReader(bufferedReader, SimpleCsvFileReader.DEFAULT_COLUMN_SEPARATOR_PATTERN);
-        WriteEventStreamReaderRegex writeEventStreamReader = new WriteEventStreamReaderRegex(csvFileReader);
+        WriteEventStreamReaderRegex_DATE writeEventStreamReader = new WriteEventStreamReaderRegex_DATE(csvFileReader);
         doShouldParseUpdate7AddCommentWithEmptyTags(writeEventStreamReader);
         csvFileReader.close();
     }
 
     @Test
-    public void shouldParseUpdate7AddCommentWithEmptyTagsWithWriteEventStreamReader_NEW_NEW() throws IOException, ParseException {
-        String data = WriteEventStreamReaderTestData_NEW.UPDATE_7_ADD_COMMENT_NO_TAGS;
+    public void shouldParseUpdate7AddCommentWithEmptyTagsWithWriteEventStreamReaderCharSeeker_DATE() throws IOException, ParseException {
+        String data = WriteEventStreamReaderTestData_NEW_DATE.UPDATE_7_ADD_COMMENT_NO_TAGS;
         CharSeeker charSeeker = new BufferedCharSeeker(new StringReader(data));
         int columnDelimiter = '|';
         Extractors extractors = new Extractors(';');
-        WriteEventStreamReaderCharSeeker writeEventStreamReader = new WriteEventStreamReaderCharSeeker(charSeeker, extractors, columnDelimiter);
+        WriteEventStreamReaderCharSeeker_DATE writeEventStreamReader = new WriteEventStreamReaderCharSeeker_DATE(charSeeker, extractors, columnDelimiter);
         doShouldParseUpdate7AddCommentWithEmptyTags(writeEventStreamReader);
         charSeeker.close();
     }
@@ -1036,11 +908,7 @@ public class WriteEventStreamReaderTest_NEW {
         LdbcUpdate7AddComment addComment = (LdbcUpdate7AddComment) writeEventStreamReader.next();
 
         // Then
-        Calendar c = Calendar.getInstance();
-        c.clear();
-        c.set(2013, Calendar.JANUARY, 31, 23, 58, 49);
-        c.setTimeZone(TimeZone.getTimeZone("GMT"));
-        Date creationDate = c.getTime();
+        Date creationDate = new Date(1234567890l);
 
         assertThat(addComment.scheduledStartTime(), is(Time.fromMilli(42)));
         assertThat(addComment.commentId(), is(4034293L));
@@ -1058,22 +926,22 @@ public class WriteEventStreamReaderTest_NEW {
     }
 
     @Test
-    public void shouldParseUpdate8AddFriendshipWithWriteEventStreamReader_NEW() throws IOException, ParseException {
-        String data = WriteEventStreamReaderTestData_NEW.UPDATE_8_ADD_FRIENDSHIP;
+    public void shouldParseUpdate8AddFriendshipWithWriteEventStreamReaderRegex_DATE() throws IOException, ParseException {
+        String data = WriteEventStreamReaderTestData_NEW_DATE.UPDATE_8_ADD_FRIENDSHIP;
         BufferedReader bufferedReader = new BufferedReader(new StringReader(data));
         SimpleCsvFileReader csvFileReader = new SimpleCsvFileReader(bufferedReader, SimpleCsvFileReader.DEFAULT_COLUMN_SEPARATOR_PATTERN);
-        WriteEventStreamReaderRegex writeEventStreamReader = new WriteEventStreamReaderRegex(csvFileReader);
+        WriteEventStreamReaderRegex_DATE writeEventStreamReader = new WriteEventStreamReaderRegex_DATE(csvFileReader);
         doShouldParseUpdate8AddFriendship(writeEventStreamReader);
         csvFileReader.close();
     }
 
     @Test
-    public void shouldParseUpdate8AddFriendshipWithWriteEventStreamReader_NEW_NEW() throws IOException, ParseException {
-        String data = WriteEventStreamReaderTestData_NEW.UPDATE_8_ADD_FRIENDSHIP;
+    public void shouldParseUpdate8AddFriendshipWithWriteEventStreamReaderCharSeeker_DATE() throws IOException, ParseException {
+        String data = WriteEventStreamReaderTestData_NEW_DATE.UPDATE_8_ADD_FRIENDSHIP;
         CharSeeker charSeeker = new BufferedCharSeeker(new StringReader(data));
         int columnDelimiter = '|';
         Extractors extractors = new Extractors(';');
-        WriteEventStreamReaderCharSeeker writeEventStreamReader = new WriteEventStreamReaderCharSeeker(charSeeker, extractors, columnDelimiter);
+        WriteEventStreamReaderCharSeeker_DATE writeEventStreamReader = new WriteEventStreamReaderCharSeeker_DATE(charSeeker, extractors, columnDelimiter);
         doShouldParseUpdate8AddFriendship(writeEventStreamReader);
         charSeeker.close();
     }
@@ -1082,11 +950,7 @@ public class WriteEventStreamReaderTest_NEW {
         LdbcUpdate8AddFriendship addFriendship = (LdbcUpdate8AddFriendship) writeEventStreamReader.next();
 
         // Then
-        Calendar c = Calendar.getInstance();
-        c.clear();
-        c.set(2011, Calendar.JANUARY, 10, 15, 58, 45);
-        c.setTimeZone(TimeZone.getTimeZone("GMT"));
-        Date creationDate = c.getTime();
+        Date creationDate = new Date(1234567890l);
 
         assertThat(addFriendship.scheduledStartTime(), is(Time.fromMilli(42)));
         assertThat(addFriendship.person1Id(), is(1920L));

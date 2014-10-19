@@ -7,7 +7,7 @@ import java.util.Iterator;
 import java.util.NoSuchElementException;
 import java.util.regex.Pattern;
 
-public class SimpleCsvFileReader implements Iterator<String[]> {
+public class SimpleCsvFileReader implements Iterator<String[]>, Closeable {
     public static final Pattern DEFAULT_COLUMN_SEPARATOR_PATTERN = Pattern.compile("\\|");
     private final Pattern columnSeparatorPattern;
     private final BufferedReader csvReader;
@@ -46,7 +46,10 @@ public class SimpleCsvFileReader implements Iterator<String[]> {
         if (closed) return false;
         next = (next == null) ? nextLine() : next;
         // TODO closeReader() really should be closed explicitly
-        if (null == next) closed = closeReader();
+        if (null == next) {
+            close();
+            return false;
+        }
         return (null != next);
     }
 
@@ -79,9 +82,10 @@ public class SimpleCsvFileReader implements Iterator<String[]> {
         return columnSeparatorPattern.split(csvLine, -1);
     }
 
-    public boolean closeReader() {
+    @Override
+    public void close() {
         if (closed) {
-            return true;
+            return;
             // TODO this really should throw an exception
 //            String errMsg = "Can not close file multiple times";
 //            throw new RuntimeException(errMsg);
@@ -95,6 +99,5 @@ public class SimpleCsvFileReader implements Iterator<String[]> {
             String errMsg = String.format("Error closing file [%s]", csvReader);
             throw new RuntimeException(errMsg, e);
         }
-        return true;
     }
 }

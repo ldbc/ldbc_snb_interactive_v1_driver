@@ -633,7 +633,7 @@ public class Client {
                 throw new ClientException(String.format("Error reading validation parameters file\nFile: %s", validationParamsFile.getAbsolutePath()), e);
             }
 
-            simpleCsvFileReader.closeReader();
+            simpleCsvFileReader.close();
 
             logger.info("Database Validation Successful");
 

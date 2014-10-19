@@ -195,7 +195,7 @@ public class WorkloadRunnerTest {
             csvResultsLogWriter.close();
             SimpleCsvFileReader csvResultsLogReader = new SimpleCsvFileReader(resultsLog, SimpleCsvFileReader.DEFAULT_COLUMN_SEPARATOR_PATTERN);
             assertThat((long) Iterators.size(csvResultsLogReader), is(configuration.operationCount())); // NOT + 1 because I didn't add csv headers
-            csvResultsLogReader.closeReader();
+            csvResultsLogReader.close();
 
             double operationsPerSecond = Math.round(((double) operationCount / workloadResults.totalRunDuration().asNano()) * ONE_SECOND_AS_NANO);
             double microSecondPerOperation = (double) workloadResults.totalRunDuration().asMicro() / operationCount;
@@ -372,7 +372,7 @@ public class WorkloadRunnerTest {
             csvResultsLogWriter.close();
             SimpleCsvFileReader csvResultsLogReader = new SimpleCsvFileReader(resultsLog, SimpleCsvFileReader.DEFAULT_COLUMN_SEPARATOR_PATTERN);
             assertThat((long) Iterators.size(csvResultsLogReader), is(configuration.operationCount())); // NOT + 1 because I didn't add csv headers
-            csvResultsLogReader.closeReader();
+            csvResultsLogReader.close();
 
             double operationsPerSecond = Math.round(((double) operationCount / workloadResults.totalRunDuration().asNano()) * ONE_SECOND_AS_NANO);
             double microSecondPerOperation = (double) workloadResults.totalRunDuration().asMicro() / operationCount;

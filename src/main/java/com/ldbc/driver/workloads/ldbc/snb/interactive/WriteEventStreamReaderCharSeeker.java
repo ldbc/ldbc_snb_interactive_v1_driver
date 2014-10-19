@@ -3,8 +3,8 @@ package com.ldbc.driver.workloads.ldbc.snb.interactive;
 
 import com.google.common.collect.Lists;
 import com.ldbc.driver.Operation;
-import com.ldbc.driver.generator.CsvEventStreamReader_NEW_NEW;
-import com.ldbc.driver.generator.CsvEventStreamReader_NEW_NEW.EventDecoder;
+import com.ldbc.driver.generator.CsvEventStreamReaderCharSeeker;
+import com.ldbc.driver.generator.CsvEventStreamReaderCharSeeker.EventDecoder;
 import com.ldbc.driver.generator.GeneratorException;
 import com.ldbc.driver.temporal.Time;
 import com.ldbc.driver.util.csv.CharSeeker;
@@ -17,65 +17,65 @@ import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.regex.Pattern;
 
-public class WriteEventStreamReader_NEW_NEW implements Iterator<Operation<?>> {
+public class WriteEventStreamReaderCharSeeker implements Iterator<Operation<?>> {
     public static final String DATE_FORMAT_STRING = "yyyy-MM-dd";
     public static final String DATE_TIME_FORMAT_STRING = "yyyy-MM-dd'T'HH:mm:ss.SSSZ";
 
-    private final CsvEventStreamReader_NEW_NEW<Operation<?>> csvEventStreamReader;
+    private final CsvEventStreamReaderCharSeeker<Operation<?>> csvEventStreamReader;
 
-    public WriteEventStreamReader_NEW_NEW(CharSeeker charSeeker, int[] delimiters) {
-        Map<String, EventDecoder<Operation<?>>> decoders = new HashMap<>();
+    public WriteEventStreamReaderCharSeeker(CharSeeker charSeeker, Extractors extractors, int columnDelimiter) {
+        Map<Integer, EventDecoder<Operation<?>>> decoders = new HashMap<>();
         {
             SimpleDateFormat dateFormat = new SimpleDateFormat(DATE_FORMAT_STRING);
             dateFormat.setTimeZone(TimeZone.getTimeZone("GMT"));
             SimpleDateFormat dateTimeFormat = new SimpleDateFormat(DATE_TIME_FORMAT_STRING);
             dateTimeFormat.setTimeZone(TimeZone.getTimeZone("GMT"));
             EventDecoder<Operation<?>> addPersonDecoder = new EventDecoderAddPerson(dateFormat, dateTimeFormat);
-            decoders.put("ADD_PERSON", addPersonDecoder);
+            decoders.put(1, addPersonDecoder);
         }
         {
             SimpleDateFormat dateTimeFormat = new SimpleDateFormat(DATE_TIME_FORMAT_STRING);
             dateTimeFormat.setTimeZone(TimeZone.getTimeZone("GMT"));
             EventDecoder<Operation<?>> addLikePostDecoder = new EventDecoderAddLikePost(dateTimeFormat);
-            decoders.put("ADD_LIKE_POST", addLikePostDecoder);
+            decoders.put(2, addLikePostDecoder);
         }
         {
             SimpleDateFormat dateTimeFormat = new SimpleDateFormat(DATE_TIME_FORMAT_STRING);
             dateTimeFormat.setTimeZone(TimeZone.getTimeZone("GMT"));
             EventDecoder<Operation<?>> addLikeCommentDecoder = new EventDecoderAddLikeComment(dateTimeFormat);
-            decoders.put("ADD_LIKE_COMMENT", addLikeCommentDecoder);
+            decoders.put(3, addLikeCommentDecoder);
         }
         {
             SimpleDateFormat dateTimeFormat = new SimpleDateFormat(DATE_TIME_FORMAT_STRING);
             dateTimeFormat.setTimeZone(TimeZone.getTimeZone("GMT"));
             EventDecoder<Operation<?>> addForumDecoder = new EventDecoderAddForum(dateTimeFormat);
-            decoders.put("ADD_FORUM", addForumDecoder);
+            decoders.put(4, addForumDecoder);
         }
         {
             SimpleDateFormat dateTimeFormat = new SimpleDateFormat(DATE_TIME_FORMAT_STRING);
             dateTimeFormat.setTimeZone(TimeZone.getTimeZone("GMT"));
             EventDecoder<Operation<?>> addForumMembershipDecoder = new EventDecoderAddForumMembership(dateTimeFormat);
-            decoders.put("ADD_FORUM_MEMBERSHIP", addForumMembershipDecoder);
+            decoders.put(5, addForumMembershipDecoder);
         }
         {
             SimpleDateFormat dateTimeFormat = new SimpleDateFormat(DATE_TIME_FORMAT_STRING);
             dateTimeFormat.setTimeZone(TimeZone.getTimeZone("GMT"));
             EventDecoder<Operation<?>> addPostDecoder = new EventDecoderAddPost(dateTimeFormat);
-            decoders.put("ADD_POST", addPostDecoder);
+            decoders.put(6, addPostDecoder);
         }
         {
             SimpleDateFormat dateTimeFormat = new SimpleDateFormat(DATE_TIME_FORMAT_STRING);
             dateTimeFormat.setTimeZone(TimeZone.getTimeZone("GMT"));
             EventDecoder<Operation<?>> addCommentDecoder = new EventDecoderAddComment(dateTimeFormat);
-            decoders.put("ADD_COMMENT", addCommentDecoder);
+            decoders.put(7, addCommentDecoder);
         }
         {
             SimpleDateFormat dateTimeFormat = new SimpleDateFormat(DATE_TIME_FORMAT_STRING);
             dateTimeFormat.setTimeZone(TimeZone.getTimeZone("GMT"));
             EventDecoder<Operation<?>> addFriendshipDecoder = new EventDecoderAddFriendship(dateTimeFormat);
-            decoders.put("ADD_FRIENDSHIP", addFriendshipDecoder);
+            decoders.put(8, addFriendshipDecoder);
         }
-        this.csvEventStreamReader = new CsvEventStreamReader_NEW_NEW<>(charSeeker, decoders, delimiters);
+        this.csvEventStreamReader = new CsvEventStreamReaderCharSeeker<>(charSeeker, extractors, decoders, columnDelimiter);
     }
 
     @Override
@@ -96,7 +96,6 @@ public class WriteEventStreamReader_NEW_NEW implements Iterator<Operation<?>> {
     public static class EventDecoderAddPerson implements EventDecoder<Operation<?>> {
         private final SimpleDateFormat dateFormat;
         private final SimpleDateFormat dateTimeFormat;
-        private final Pattern collectionSeparatorPattern = Pattern.compile(";");
         private final Pattern tupleSeparatorPattern = Pattern.compile(",");
         private final Mark mark;
 
@@ -107,40 +106,40 @@ public class WriteEventStreamReader_NEW_NEW implements Iterator<Operation<?>> {
         }
 
         @Override
-        public Operation<?> decodeEvent(long scheduledStartTime, CharSeeker charSeeker, int[] delimiters) {
+        public Operation<?> decodeEvent(long scheduledStartTime, CharSeeker charSeeker, Extractors extractors, int[] columnDelimiters) {
             try {
                 Time eventDueTime = Time.fromMilli(scheduledStartTime);
 
                 long personId;
-                if (charSeeker.seek(mark, delimiters)) {
+                if (charSeeker.seek(mark, columnDelimiters)) {
                     personId = charSeeker.extract(mark, Extractors.LONG);
                 } else {
                     throw new GeneratorException("Error retrieving person id");
                 }
 
                 String firstName;
-                if (charSeeker.seek(mark, delimiters)) {
+                if (charSeeker.seek(mark, columnDelimiters)) {
                     firstName = charSeeker.extract(mark, Extractors.STRING);
                 } else {
                     throw new GeneratorException("Error retrieving first name");
                 }
 
                 String lastName;
-                if (charSeeker.seek(mark, delimiters)) {
+                if (charSeeker.seek(mark, columnDelimiters)) {
                     lastName = charSeeker.extract(mark, Extractors.STRING);
                 } else {
                     throw new GeneratorException("Error retrieving last name");
                 }
 
                 String gender;
-                if (charSeeker.seek(mark, delimiters)) {
+                if (charSeeker.seek(mark, columnDelimiters)) {
                     gender = charSeeker.extract(mark, Extractors.STRING);
                 } else {
                     throw new GeneratorException("Error retrieving gender");
                 }
 
                 String birthdayString;
-                if (charSeeker.seek(mark, delimiters)) {
+                if (charSeeker.seek(mark, columnDelimiters)) {
                     birthdayString = charSeeker.extract(mark, Extractors.STRING);
                 } else {
                     throw new GeneratorException("Error retrieving birthday");
@@ -153,7 +152,7 @@ public class WriteEventStreamReader_NEW_NEW implements Iterator<Operation<?>> {
                 }
 
                 String creationDateString;
-                if (charSeeker.seek(mark, delimiters)) {
+                if (charSeeker.seek(mark, columnDelimiters)) {
                     creationDateString = charSeeker.extract(mark, Extractors.STRING);
                 } else {
                     throw new GeneratorException("Error retrieving creation date");
@@ -166,61 +165,66 @@ public class WriteEventStreamReader_NEW_NEW implements Iterator<Operation<?>> {
                 }
 
                 String locationIp;
-                if (charSeeker.seek(mark, delimiters)) {
+                if (charSeeker.seek(mark, columnDelimiters)) {
                     locationIp = charSeeker.extract(mark, Extractors.STRING);
                 } else {
                     throw new GeneratorException("Error retrieving location ip");
                 }
 
                 String browserUsed;
-                if (charSeeker.seek(mark, delimiters)) {
+                if (charSeeker.seek(mark, columnDelimiters)) {
                     browserUsed = charSeeker.extract(mark, Extractors.STRING);
                 } else {
                     throw new GeneratorException("Error retrieving browser");
                 }
 
                 long cityId;
-                if (charSeeker.seek(mark, delimiters)) {
+                if (charSeeker.seek(mark, columnDelimiters)) {
                     cityId = charSeeker.extract(mark, Extractors.LONG);
                 } else {
                     throw new GeneratorException("Error retrieving city id");
                 }
 
-                String languagesAsString;
-                if (charSeeker.seek(mark, delimiters)) {
-                    languagesAsString = charSeeker.extract(mark, Extractors.STRING);
+                List<String> languages;
+                if (charSeeker.seek(mark, columnDelimiters)) {
+                    String[] languagesArray = charSeeker.extract(mark, extractors.stringArray());
+                    languages = (null == languagesArray[0])
+                            ? new ArrayList<String>()
+                            : Lists.newArrayList(languagesArray);
                 } else {
-                    throw new GeneratorException("Error retrieving language");
+                    throw new GeneratorException("Error retrieving languages");
                 }
-                List<String> languages = Lists.newArrayList(collectionSeparatorPattern.split(languagesAsString, -1));
 
-                String emailsAsString;
-                if (charSeeker.seek(mark, delimiters)) {
-                    emailsAsString = charSeeker.extract(mark, Extractors.STRING);
+                List<String> emails;
+                if (charSeeker.seek(mark, columnDelimiters)) {
+                    String[] emailsArray = charSeeker.extract(mark, extractors.stringArray());
+                    emails = (null == emailsArray[0])
+                            ? new ArrayList<String>()
+                            : Lists.newArrayList(charSeeker.extract(mark, extractors.stringArray()));
                 } else {
                     throw new GeneratorException("Error retrieving emails");
                 }
-                List<String> emails = Lists.newArrayList(collectionSeparatorPattern.split(emailsAsString, -1));
 
-                String tagIdsAsString;
-                if (charSeeker.seek(mark, delimiters)) {
-                    tagIdsAsString = charSeeker.extract(mark, Extractors.STRING);
+                List<Long> tagIds = new ArrayList<>();
+                if (charSeeker.seek(mark, columnDelimiters)) {
+                    long[] tagIdsArray = charSeeker.extract(mark, extractors.longArray());
+                    for (long tagId : tagIdsArray) {
+                        tagIds.add(tagId);
+                    }
                 } else {
                     throw new GeneratorException("Error retrieving tags");
                 }
-                String[] tagIdsAsStrings = collectionSeparatorPattern.split(tagIdsAsString, -1);
-                List<Long> tagIds = new ArrayList<>();
-                for (String tagId : tagIdsAsStrings) {
-                    tagIds.add(Long.parseLong(tagId));
-                }
 
-                String studyAtsAsString;
-                if (charSeeker.seek(mark, delimiters)) {
-                    studyAtsAsString = charSeeker.extract(mark, Extractors.STRING);
+                // TODO with extractor
+                String[] studyAtsAsStrings;
+                if (charSeeker.seek(mark, columnDelimiters)) {
+                    studyAtsAsStrings = charSeeker.extract(mark, extractors.stringArray());
+                    if (null == studyAtsAsStrings[0]) {
+                        studyAtsAsStrings = new String[]{};
+                    }
                 } else {
                     throw new GeneratorException("Error retrieving universities");
                 }
-                String[] studyAtsAsStrings = collectionSeparatorPattern.split(studyAtsAsString, -1);
                 List<LdbcUpdate1AddPerson.Organization> studyAts = new ArrayList<>();
                 for (String studyAtAsString : studyAtsAsStrings) {
                     String[] studyAtAsStringArray = tupleSeparatorPattern.split(studyAtAsString, -1);
@@ -231,21 +235,20 @@ public class WriteEventStreamReader_NEW_NEW implements Iterator<Operation<?>> {
                     );
                 }
 
-                String workAtsAsString;
-                if (charSeeker.seek(mark, delimiters)) {
-                    workAtsAsString = charSeeker.extract(mark, Extractors.STRING);
-                } else {
-                    throw new GeneratorException("Error retrieving companies");
-                }
-                String[] workAtsAsStrings = collectionSeparatorPattern.split(workAtsAsString, -1);
+                // TODO with extractor
                 List<LdbcUpdate1AddPerson.Organization> workAts = new ArrayList<>();
-                for (String workAtAsString : workAtsAsStrings) {
-                    String[] workAtAsStringArray = tupleSeparatorPattern.split(workAtAsString, -1);
-                    workAts.add(new LdbcUpdate1AddPerson.Organization(
-                                    Long.parseLong(workAtAsStringArray[0]),
-                                    Integer.parseInt(workAtAsStringArray[1])
-                            )
-                    );
+                if (charSeeker.seek(mark, columnDelimiters)) {
+                    String[] workAtsAsStrings = charSeeker.extract(mark, extractors.stringArray());
+                    if (null != workAtsAsStrings[0]) {
+                        for (String workAtAsString : workAtsAsStrings) {
+                            String[] workAtAsStringArray = tupleSeparatorPattern.split(workAtAsString, -1);
+                            workAts.add(new LdbcUpdate1AddPerson.Organization(
+                                            Long.parseLong(workAtAsStringArray[0]),
+                                            Integer.parseInt(workAtAsStringArray[1])
+                                    )
+                            );
+                        }
+                    }
                 }
 
                 Operation<?> operation = new LdbcUpdate1AddPerson(
@@ -281,26 +284,26 @@ public class WriteEventStreamReader_NEW_NEW implements Iterator<Operation<?>> {
         }
 
         @Override
-        public Operation<?> decodeEvent(long scheduledStartTime, CharSeeker charSeeker, int[] delimiters) {
+        public Operation<?> decodeEvent(long scheduledStartTime, CharSeeker charSeeker, Extractors extractors, int[] columnDelimiters) {
             try {
                 Time eventDueTime = Time.fromMilli(scheduledStartTime);
 
                 long personId;
-                if (charSeeker.seek(mark, delimiters)) {
+                if (charSeeker.seek(mark, columnDelimiters)) {
                     personId = charSeeker.extract(mark, Extractors.LONG);
                 } else {
                     throw new GeneratorException("Error retrieving person id");
                 }
 
                 long postId;
-                if (charSeeker.seek(mark, delimiters)) {
+                if (charSeeker.seek(mark, columnDelimiters)) {
                     postId = charSeeker.extract(mark, Extractors.LONG);
                 } else {
                     throw new GeneratorException("Error retrieving post id");
                 }
 
                 String creationDateString;
-                if (charSeeker.seek(mark, delimiters)) {
+                if (charSeeker.seek(mark, columnDelimiters)) {
                     creationDateString = charSeeker.extract(mark, Extractors.STRING);
                 } else {
                     throw new GeneratorException("Error retrieving creation date");
@@ -331,26 +334,26 @@ public class WriteEventStreamReader_NEW_NEW implements Iterator<Operation<?>> {
         }
 
         @Override
-        public Operation<?> decodeEvent(long scheduledStartTime, CharSeeker charSeeker, int[] delimiters) {
+        public Operation<?> decodeEvent(long scheduledStartTime, CharSeeker charSeeker, Extractors extractors, int[] columnDelimiters) {
             try {
                 Time eventDueTime = Time.fromMilli(scheduledStartTime);
 
                 long personId;
-                if (charSeeker.seek(mark, delimiters)) {
+                if (charSeeker.seek(mark, columnDelimiters)) {
                     personId = charSeeker.extract(mark, Extractors.LONG);
                 } else {
                     throw new GeneratorException("Error retrieving person id");
                 }
 
                 long commentId;
-                if (charSeeker.seek(mark, delimiters)) {
+                if (charSeeker.seek(mark, columnDelimiters)) {
                     commentId = charSeeker.extract(mark, Extractors.LONG);
                 } else {
                     throw new GeneratorException("Error retrieving comment id");
                 }
 
                 String creationDateString;
-                if (charSeeker.seek(mark, delimiters)) {
+                if (charSeeker.seek(mark, columnDelimiters)) {
                     creationDateString = charSeeker.extract(mark, Extractors.STRING);
                 } else {
                     throw new GeneratorException("Error retrieving creation date");
@@ -373,7 +376,6 @@ public class WriteEventStreamReader_NEW_NEW implements Iterator<Operation<?>> {
 
     public static class EventDecoderAddForum implements EventDecoder<Operation<?>> {
         private final SimpleDateFormat dateTimeFormat;
-        private final Pattern collectionSeparatorPattern = Pattern.compile(";");
         private final Mark mark;
 
         public EventDecoderAddForum(SimpleDateFormat dateTimeFormat) {
@@ -382,26 +384,26 @@ public class WriteEventStreamReader_NEW_NEW implements Iterator<Operation<?>> {
         }
 
         @Override
-        public Operation<?> decodeEvent(long scheduledStartTime, CharSeeker charSeeker, int[] delimiters) {
+        public Operation<?> decodeEvent(long scheduledStartTime, CharSeeker charSeeker, Extractors extractors, int[] columnDelimiters) {
             try {
                 Time eventDueTime = Time.fromMilli(scheduledStartTime);
 
                 long forumId;
-                if (charSeeker.seek(mark, delimiters)) {
+                if (charSeeker.seek(mark, columnDelimiters)) {
                     forumId = charSeeker.extract(mark, Extractors.LONG);
                 } else {
                     throw new GeneratorException("Error retrieving forum id");
                 }
 
                 String forumTitle;
-                if (charSeeker.seek(mark, delimiters)) {
+                if (charSeeker.seek(mark, columnDelimiters)) {
                     forumTitle = charSeeker.extract(mark, Extractors.STRING);
                 } else {
                     throw new GeneratorException("Error retrieving forum title");
                 }
 
                 String creationDateString;
-                if (charSeeker.seek(mark, delimiters)) {
+                if (charSeeker.seek(mark, columnDelimiters)) {
                     creationDateString = charSeeker.extract(mark, Extractors.STRING);
                 } else {
                     throw new GeneratorException("Error retrieving creation date");
@@ -414,22 +416,18 @@ public class WriteEventStreamReader_NEW_NEW implements Iterator<Operation<?>> {
                 }
 
                 long moderatorPersonId;
-                if (charSeeker.seek(mark, delimiters)) {
+                if (charSeeker.seek(mark, columnDelimiters)) {
                     moderatorPersonId = charSeeker.extract(mark, Extractors.LONG);
                 } else {
                     throw new GeneratorException("Error retrieving moderator person id");
                 }
 
-                String tagIdsAsString;
-                if (charSeeker.seek(mark, delimiters)) {
-                    tagIdsAsString = charSeeker.extract(mark, Extractors.STRING);
-                } else {
-                    throw new GeneratorException("Error retrieving tags");
-                }
-                String[] tagIdsAsStrings = collectionSeparatorPattern.split(tagIdsAsString, -1);
                 List<Long> tagIds = new ArrayList<>();
-                for (String tagId : tagIdsAsStrings) {
-                    tagIds.add(Long.parseLong(tagId));
+                if (charSeeker.seek(mark, columnDelimiters)) {
+                    long[] tagIdsArray = charSeeker.extract(mark, extractors.longArray());
+                    for (long tagId : tagIdsArray) {
+                        tagIds.add(tagId);
+                    }
                 }
 
                 Operation<?> operation = new LdbcUpdate4AddForum(forumId, forumTitle, creationDate, moderatorPersonId, tagIds);
@@ -451,26 +449,26 @@ public class WriteEventStreamReader_NEW_NEW implements Iterator<Operation<?>> {
         }
 
         @Override
-        public Operation<?> decodeEvent(long scheduledStartTime, CharSeeker charSeeker, int[] delimiters) {
+        public Operation<?> decodeEvent(long scheduledStartTime, CharSeeker charSeeker, Extractors extractors, int[] columnDelimiters) {
             try {
                 Time eventDueTime = Time.fromMilli(scheduledStartTime);
 
                 long forumId;
-                if (charSeeker.seek(mark, delimiters)) {
+                if (charSeeker.seek(mark, columnDelimiters)) {
                     forumId = charSeeker.extract(mark, Extractors.LONG);
                 } else {
                     throw new GeneratorException("Error retrieving forum id");
                 }
 
                 long personId;
-                if (charSeeker.seek(mark, delimiters)) {
+                if (charSeeker.seek(mark, columnDelimiters)) {
                     personId = charSeeker.extract(mark, Extractors.LONG);
                 } else {
                     throw new GeneratorException("Error retrieving person id");
                 }
 
                 String creationDateString;
-                if (charSeeker.seek(mark, delimiters)) {
+                if (charSeeker.seek(mark, columnDelimiters)) {
                     creationDateString = charSeeker.extract(mark, Extractors.STRING);
                 } else {
                     throw new GeneratorException("Error retrieving creation date");
@@ -493,7 +491,6 @@ public class WriteEventStreamReader_NEW_NEW implements Iterator<Operation<?>> {
 
     public static class EventDecoderAddPost implements EventDecoder<Operation<?>> {
         private final SimpleDateFormat dateTimeFormat;
-        private final Pattern collectionSeparatorPattern = Pattern.compile(";");
         private final Mark mark;
 
         public EventDecoderAddPost(SimpleDateFormat dateTimeFormat) {
@@ -502,26 +499,26 @@ public class WriteEventStreamReader_NEW_NEW implements Iterator<Operation<?>> {
         }
 
         @Override
-        public Operation<?> decodeEvent(long scheduledStartTime, CharSeeker charSeeker, int[] delimiters) {
+        public Operation<?> decodeEvent(long scheduledStartTime, CharSeeker charSeeker, Extractors extractors, int[] columnDelimiters) {
             try {
                 Time eventDueTime = Time.fromMilli(scheduledStartTime);
 
                 long postId;
-                if (charSeeker.seek(mark, delimiters)) {
+                if (charSeeker.seek(mark, columnDelimiters)) {
                     postId = charSeeker.extract(mark, Extractors.LONG);
                 } else {
                     throw new GeneratorException("Error retrieving post id");
                 }
 
                 String imageFile;
-                if (charSeeker.seek(mark, delimiters)) {
+                if (charSeeker.seek(mark, columnDelimiters)) {
                     imageFile = charSeeker.extract(mark, Extractors.STRING);
                 } else {
                     throw new GeneratorException("Error retrieving image file");
                 }
 
                 String creationDateString;
-                if (charSeeker.seek(mark, delimiters)) {
+                if (charSeeker.seek(mark, columnDelimiters)) {
                     creationDateString = charSeeker.extract(mark, Extractors.STRING);
                 } else {
                     throw new GeneratorException("Error retrieving creation date");
@@ -534,70 +531,67 @@ public class WriteEventStreamReader_NEW_NEW implements Iterator<Operation<?>> {
                 }
 
                 String locationIp;
-                if (charSeeker.seek(mark, delimiters)) {
+                if (charSeeker.seek(mark, columnDelimiters)) {
                     locationIp = charSeeker.extract(mark, Extractors.STRING);
                 } else {
                     throw new GeneratorException("Error retrieving location ip");
                 }
 
                 String browserUsed;
-                if (charSeeker.seek(mark, delimiters)) {
+                if (charSeeker.seek(mark, columnDelimiters)) {
                     browserUsed = charSeeker.extract(mark, Extractors.STRING);
                 } else {
                     throw new GeneratorException("Error retrieving browser");
                 }
 
                 String language;
-                if (charSeeker.seek(mark, delimiters)) {
+                if (charSeeker.seek(mark, columnDelimiters)) {
                     language = charSeeker.extract(mark, Extractors.STRING);
                 } else {
                     throw new GeneratorException("Error retrieving language");
                 }
 
                 String content;
-                if (charSeeker.seek(mark, delimiters)) {
+                if (charSeeker.seek(mark, columnDelimiters)) {
                     content = charSeeker.extract(mark, Extractors.STRING);
                 } else {
                     throw new GeneratorException("Error retrieving content");
                 }
 
                 int length;
-                if (charSeeker.seek(mark, delimiters)) {
+                if (charSeeker.seek(mark, columnDelimiters)) {
                     length = charSeeker.extract(mark, Extractors.INT);
                 } else {
                     throw new GeneratorException("Error retrieving length");
                 }
 
                 long authorPersonId;
-                if (charSeeker.seek(mark, delimiters)) {
+                if (charSeeker.seek(mark, columnDelimiters)) {
                     authorPersonId = charSeeker.extract(mark, Extractors.LONG);
                 } else {
                     throw new GeneratorException("Error retrieving author person id");
                 }
 
                 long forumId;
-                if (charSeeker.seek(mark, delimiters)) {
+                if (charSeeker.seek(mark, columnDelimiters)) {
                     forumId = charSeeker.extract(mark, Extractors.LONG);
                 } else {
                     throw new GeneratorException("Error retrieving forum id");
                 }
 
                 long countryId;
-                if (charSeeker.seek(mark, delimiters)) {
+                if (charSeeker.seek(mark, columnDelimiters)) {
                     countryId = charSeeker.extract(mark, Extractors.LONG);
                 } else {
                     throw new GeneratorException("Error retrieving country id");
                 }
 
                 List<Long> tagIds = new ArrayList<>();
-                if (charSeeker.seek(mark, delimiters)) {
-                    String tagIdsAsString = charSeeker.extract(mark, Extractors.STRING);
-                    String[] tagIdsAsStrings = collectionSeparatorPattern.split(tagIdsAsString, -1);
-                    for (String tagId : tagIdsAsStrings) {
-                        tagIds.add(Long.parseLong(tagId));
+                if (charSeeker.seek(mark, columnDelimiters)) {
+                    long[] tagIdsArray = charSeeker.extract(mark, extractors.longArray());
+                    for (long tagId : tagIdsArray) {
+                        tagIds.add(tagId);
                     }
-                } else {
-                    tagIds = new ArrayList<>();
                 }
 
                 Operation<?> operation = new LdbcUpdate6AddPost(
@@ -623,7 +617,6 @@ public class WriteEventStreamReader_NEW_NEW implements Iterator<Operation<?>> {
 
     public static class EventDecoderAddComment implements EventDecoder<Operation<?>> {
         private final SimpleDateFormat dateTimeFormat;
-        private final Pattern collectionSeparatorPattern = Pattern.compile(";");
         private final Mark mark;
 
         public EventDecoderAddComment(SimpleDateFormat dateTimeFormat) {
@@ -632,19 +625,19 @@ public class WriteEventStreamReader_NEW_NEW implements Iterator<Operation<?>> {
         }
 
         @Override
-        public Operation<?> decodeEvent(long scheduledStartTime, CharSeeker charSeeker, int[] delimiters) {
+        public Operation<?> decodeEvent(long scheduledStartTime, CharSeeker charSeeker, Extractors extractors, int[] columnDelimiters) {
             try {
                 Time eventDueTime = Time.fromMilli(scheduledStartTime);
 
                 long commentId;
-                if (charSeeker.seek(mark, delimiters)) {
+                if (charSeeker.seek(mark, columnDelimiters)) {
                     commentId = charSeeker.extract(mark, Extractors.LONG);
                 } else {
                     throw new GeneratorException("Error retrieving comment id");
                 }
 
                 String creationDateString;
-                if (charSeeker.seek(mark, delimiters)) {
+                if (charSeeker.seek(mark, columnDelimiters)) {
                     creationDateString = charSeeker.extract(mark, Extractors.STRING);
                 } else {
                     throw new GeneratorException("Error retrieving creation date");
@@ -657,70 +650,67 @@ public class WriteEventStreamReader_NEW_NEW implements Iterator<Operation<?>> {
                 }
 
                 String locationIp;
-                if (charSeeker.seek(mark, delimiters)) {
+                if (charSeeker.seek(mark, columnDelimiters)) {
                     locationIp = charSeeker.extract(mark, Extractors.STRING);
                 } else {
                     throw new GeneratorException("Error retrieving location ip");
                 }
 
                 String browserUsed;
-                if (charSeeker.seek(mark, delimiters)) {
+                if (charSeeker.seek(mark, columnDelimiters)) {
                     browserUsed = charSeeker.extract(mark, Extractors.STRING);
                 } else {
                     throw new GeneratorException("Error retrieving browser");
                 }
 
                 String content;
-                if (charSeeker.seek(mark, delimiters)) {
+                if (charSeeker.seek(mark, columnDelimiters)) {
                     content = charSeeker.extract(mark, Extractors.STRING);
                 } else {
                     throw new GeneratorException("Error retrieving content");
                 }
 
                 int length;
-                if (charSeeker.seek(mark, delimiters)) {
+                if (charSeeker.seek(mark, columnDelimiters)) {
                     length = charSeeker.extract(mark, Extractors.INT);
                 } else {
                     throw new GeneratorException("Error retrieving length");
                 }
 
                 long authorPersonId;
-                if (charSeeker.seek(mark, delimiters)) {
+                if (charSeeker.seek(mark, columnDelimiters)) {
                     authorPersonId = charSeeker.extract(mark, Extractors.LONG);
                 } else {
                     throw new GeneratorException("Error retrieving author person id");
                 }
 
                 long countryId;
-                if (charSeeker.seek(mark, delimiters)) {
+                if (charSeeker.seek(mark, columnDelimiters)) {
                     countryId = charSeeker.extract(mark, Extractors.LONG);
                 } else {
                     throw new GeneratorException("Error retrieving country id");
                 }
 
                 long replyOfPostId;
-                if (charSeeker.seek(mark, delimiters)) {
+                if (charSeeker.seek(mark, columnDelimiters)) {
                     replyOfPostId = charSeeker.extract(mark, Extractors.LONG);
                 } else {
                     throw new GeneratorException("Error retrieving reply of post id");
                 }
 
                 long replyOfCommentId;
-                if (charSeeker.seek(mark, delimiters)) {
+                if (charSeeker.seek(mark, columnDelimiters)) {
                     replyOfCommentId = charSeeker.extract(mark, Extractors.LONG);
                 } else {
                     throw new GeneratorException("Error retrieving reply of comment id");
                 }
 
                 List<Long> tagIds = new ArrayList<>();
-                if (charSeeker.seek(mark, delimiters)) {
-                    String tagIdsAsString = charSeeker.extract(mark, Extractors.STRING);
-                    String[] tagIdsAsStrings = collectionSeparatorPattern.split(tagIdsAsString, -1);
-                    for (String tagId : tagIdsAsStrings) {
-                        tagIds.add(Long.parseLong(tagId));
+                if (charSeeker.seek(mark, columnDelimiters)) {
+                    long[] tagIdsArray = charSeeker.extract(mark, extractors.longArray());
+                    for (long tagId : tagIdsArray) {
+                        tagIds.add(tagId);
                     }
-                } else {
-                    tagIds = new ArrayList<>();
                 }
 
                 Operation<?> operation = new LdbcUpdate7AddComment(
@@ -753,26 +743,26 @@ public class WriteEventStreamReader_NEW_NEW implements Iterator<Operation<?>> {
         }
 
         @Override
-        public Operation<?> decodeEvent(long scheduledStartTime, CharSeeker charSeeker, int[] delimiters) {
+        public Operation<?> decodeEvent(long scheduledStartTime, CharSeeker charSeeker, Extractors extractors, int[] columnDelimiters) {
             try {
                 Time eventDueTime = Time.fromMilli(scheduledStartTime);
 
                 long person1Id;
-                if (charSeeker.seek(mark, delimiters)) {
+                if (charSeeker.seek(mark, columnDelimiters)) {
                     person1Id = charSeeker.extract(mark, Extractors.LONG);
                 } else {
                     throw new GeneratorException("Error retrieving person id 1");
                 }
 
                 long person2Id;
-                if (charSeeker.seek(mark, delimiters)) {
+                if (charSeeker.seek(mark, columnDelimiters)) {
                     person2Id = charSeeker.extract(mark, Extractors.LONG);
                 } else {
                     throw new GeneratorException("Error retrieving person id 2");
                 }
 
                 String creationDateString;
-                if (charSeeker.seek(mark, delimiters)) {
+                if (charSeeker.seek(mark, columnDelimiters)) {
                     creationDateString = charSeeker.extract(mark, Extractors.STRING);
                 } else {
                     throw new GeneratorException("Error retrieving creation date");

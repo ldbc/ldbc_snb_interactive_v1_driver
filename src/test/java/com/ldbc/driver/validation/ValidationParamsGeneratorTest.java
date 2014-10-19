@@ -81,7 +81,7 @@ public class ValidationParamsGeneratorTest {
             assertThat(validationParamBefore, equalTo(validationParamAfter));
         }
 
-        simpleCsvFileReader.closeReader();
+        simpleCsvFileReader.close();
         System.out.println(tempValidationFile.getAbsolutePath());
     }
 

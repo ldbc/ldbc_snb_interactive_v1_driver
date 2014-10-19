@@ -1,0 +1,62 @@
+------------------------------------------------------------------------------
+------------------------------------------------------------------------------
+Scale Factor:	10
+File Lines:		31,494,078
+------------------------------------------------------------------------------
+------------------------------------------------------------------------------
+
+------------------------------------------------------------------------------
+-- V0 FORUM UPDATES CSV FILE (EventTypes:STRING, Params:JSON, Dates:STRING) --
+------------------------------------------------------------------------------
+<LONG>|<STRING>|<ONE_JSON_COLUMN-STRING_FORMATTED_DATES>
+------------------------------------------------------------------------------
+FileSize                                                                                        3.2GB   * Baseline SIZE
+BufferedReader-2MB                                          00:05.983 (m:s.ms)      5,249,013 lines/s   * Baseline READ
+CharSeeker-2MB                                              00:17.255 (m:s.ms)      1,852,592 lines/s   * Baseline CHARSEEK   
+CharSeeker-ThreadAheadReadable-2MB                          00:13.035 (m:s.ms)      2,422,621 lines/s   * Baseline CHARSEEK READ
+SimpleCsvFileReader                                         00:19.465 (m:s.ms)      1,657,583 lines/s   * Baseline CSV 
+WriteEventStreamReader                                      01:22.703 (m:s.ms)        384,074 lines/s   * Baseline PARSE 					> 260,289,862 objects
+
+--------------------------------------------------------------------------
+-- V1 FORUM UPDATES CSV FILE (EventTypes:INT, Params:CSV, Dates:STRING) --
+--------------------------------------------------------------------------
+<LONG>|<INT>[|<?>] with STRING_FORMATTED_DATES
+--------------------------------------------------------------------------
+FileSize                                                                                        2.6GB
+BufferedReader-2MB                                          00:05.983 (m:s.ms)      6,298,815 lines/s
+CharSeeker-2MB                                              00:15.900 (m:s.ms)      19,80,759 lines/s
+CharSeeker-ThreadAheadReadable-2MB                          00:12.419 (m:s.ms)      2,535,959 lines/s
+SimpleCsvFileReader                                         00:20.237 (m:s.ms)      1,574,703 lines/s
+WriteEventStreamReaderRegex                                 01:10.365 (m:s.ms)        449,915 lines/s 	<<< 1.2x							> 214,134,271 objects <<< 1.2x
+WriteEventStreamReaderCharSeeker-1MB                        01:01.957 (m:s.ms)        516,296 lines/s
+WriteEventStreamReaderCharSeeker-ThreadAheadReadable-1MB    00:57.697 (m:s.ms)        552,527 lines/s
+WriteEventStreamReaderCharSeeker-2MB                        01:02.289 (m:s.ms)        507,969 lines/s 	<<< 1.3x							> 167,165,235 objects <<< 1.6x
+WriteEventStreamReaderCharSeeker-ThreadAheadReadable-2MB    00:57.371 (m:s.ms)        552,527 lines/s
+WriteEventStreamReaderCharSeeker-4MB                        01:00.836 (m:s.ms)        524,901 lines/s
+WriteEventStreamReaderCharSeeker-ThreadAheadReadable-4MB    01:00.948 (m:s.ms)        524,901 lines/s
+WriteEventStreamReaderCharSeeker-8MB                        01:03.531 (m:s.ms)        499,906 lines/s
+WriteEventStreamReaderCharSeeker-ThreadAheadReadable-8MB    01:01.166 (m:s.ms)        516,296 lines/s
+WriteEventStreamReaderCharSeeker-16MB                       01:04.395 (m:s.ms)        492,094 lines/s
+WriteEventStreamReaderCharSeeker-ThreadAheadReadable-16MB   00:57.794 (m:s.ms)        552,527 lines/s
+
+------------------------------------------------------------------------
+-- V2 FORUM UPDATES CSV FILE (EventTypes:INT, Params:CSV, Dates:LONG) --       
+------------------------------------------------------------------------
+<LONG>|<INT>[|<?>] with LONG_FORMATTED_DATES
+------------------------------------------------------------------------
+FileSize                                                                                        2.1GB   <-- 1.5x    <<< SIZE
+BufferedReader-2MB                                          00:04.340 (m:s.ms)      7,873,519 lines/s   <-- 1.5x    <<< READ
+CharSeeker-2MB                                              00:13.732 (m:s.ms)      2,293,480 lines/s   <-- 1.2x    <<< CHARSEEK
+CharSeeker-ThreadAheadReadable-2MB                          00:10.723 (m:s.ms)      2,937,058 lines/s   <-- 1.2x    <<< CHARSEEK THREAD
+SimpleCsvFileReader                                         00:17.725 (m:s.ms)      1,852,592 lines/s   <-- 1.1x    <<< CSV
+WriteEventStreamReaderRegex                                 00:26.491 (m:s.ms)      1,211,310 lines/s   <-- 3.2x    <<< PARSE				> 82,349,921 objects <<< 3.2x
+WriteEventStreamReaderCharSeeker-1MB                        00:16.926 (m:s.ms)      1,968,379 lines/s   <-- 5.1x   
+WriteEventStreamReaderCharSeeker-ThreadAheadReadable-1MB    00:14.360 (m:s.ms)      2,422,621 lines/s   <-- 6.3x															
+WriteEventStreamReaderCharSeeker-2MB                        00:17.196 (m:s.ms)      1,968,379 lines/s   <-- 5.1x    <<< PARSE				> 30,059,975 objects <<< 8.7x
+WriteEventStreamReaderCharSeeker-ThreadAheadReadable-2MB    00:13.967 (m:s.ms)      2,422,621 lines/s   <-- 6.3x    <<< PARSE
+WriteEventStreamReaderCharSeeker-4MB                        00:17.324 (m:s.ms)      1,968,379 lines/s   <-- 5.1x
+WriteEventStreamReaderCharSeeker-ThreadAheadReadable-4MB    00:14.629 (m:s.ms)      2,422,621 lines/s   <-- 6.3x
+WriteEventStreamReaderCharSeeker-8MB                        00:17.321 (m:s.ms)      1,968,379 lines/s   <-- 5.1x
+WriteEventStreamReaderCharSeeker-ThreadAheadReadable-8MB    00:14.620 (m:s.ms)      2,422,621 lines/s   <-- 6.3x
+WriteEventStreamReaderCharSeeker-16MB                       00:17.403 (m:s.ms)      1,968,379 lines/s   <-- 5.1x
+WriteEventStreamReaderCharSeeker-ThreadAheadReadable-16MB   00:14.278 (m:s.ms)      2,422,621 lines/s   <-- 6.3x

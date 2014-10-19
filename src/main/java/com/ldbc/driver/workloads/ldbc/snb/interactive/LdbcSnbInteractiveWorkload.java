@@ -230,27 +230,27 @@ public class LdbcSnbInteractiveWorkload extends Workload {
     @Override
     synchronized protected void onCleanup() throws WorkloadException {
         for (SimpleCsvFileReader forumUpdateOperationsFileReader : forumUpdateOperationsFileReaders) {
-            forumUpdateOperationsFileReader.closeReader();
+            forumUpdateOperationsFileReader.close();
         }
 
         for (SimpleCsvFileReader personUpdateOperationsFileReader : personUpdateOperationsFileReaders) {
-            personUpdateOperationsFileReader.closeReader();
+            personUpdateOperationsFileReader.close();
         }
 
-        readOperation1FileReader.closeReader();
-        readOperation2FileReader.closeReader();
-        readOperation3FileReader.closeReader();
-        readOperation4FileReader.closeReader();
-        readOperation5FileReader.closeReader();
-        readOperation6FileReader.closeReader();
-        readOperation7FileReader.closeReader();
-        readOperation8FileReader.closeReader();
-        readOperation9FileReader.closeReader();
-        readOperation10FileReader.closeReader();
-        readOperation11FileReader.closeReader();
-        readOperation12FileReader.closeReader();
-        readOperation13FileReader.closeReader();
-        readOperation14FileReader.closeReader();
+        readOperation1FileReader.close();
+        readOperation2FileReader.close();
+        readOperation3FileReader.close();
+        readOperation4FileReader.close();
+        readOperation5FileReader.close();
+        readOperation6FileReader.close();
+        readOperation7FileReader.close();
+        readOperation8FileReader.close();
+        readOperation9FileReader.close();
+        readOperation10FileReader.close();
+        readOperation11FileReader.close();
+        readOperation12FileReader.close();
+        readOperation13FileReader.close();
+        readOperation14FileReader.close();
     }
 
     @Override
