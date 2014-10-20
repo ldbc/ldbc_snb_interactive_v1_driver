@@ -277,7 +277,7 @@ public class LdbcSnbInteractiveWorkload extends Workload {
          */
         for (SimpleCsvFileReader forumUpdateOperationsFileReader : forumUpdateOperationsFileReaders) {
             PeekingIterator<Operation<?>> unfilteredForumUpdateOperations = Iterators.peekingIterator(
-                    new WriteEventStreamReaderRegex_DATE(
+                    new WriteEventStreamReaderRegex(
                             forumUpdateOperationsFileReader
                     )
             );
@@ -320,7 +320,7 @@ public class LdbcSnbInteractiveWorkload extends Workload {
 
         for (SimpleCsvFileReader personUpdateOperationsFileReader : personUpdateOperationsFileReaders) {
             PeekingIterator<Operation<?>> unfilteredPersonUpdateOperations = Iterators.peekingIterator(
-                    new WriteEventStreamReaderRegex_DATE(
+                    new WriteEventStreamReaderRegex(
                             personUpdateOperationsFileReader
                     )
             );

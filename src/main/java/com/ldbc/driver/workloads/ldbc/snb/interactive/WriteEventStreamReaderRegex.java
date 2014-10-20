@@ -5,74 +5,26 @@ import com.google.common.collect.Lists;
 import com.ldbc.driver.Operation;
 import com.ldbc.driver.generator.CsvEventStreamReaderCsvReader;
 import com.ldbc.driver.generator.CsvEventStreamReaderCsvReader.EventDecoder;
-import com.ldbc.driver.generator.GeneratorException;
 import com.ldbc.driver.temporal.Time;
 import com.ldbc.driver.util.Function1;
 
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.regex.Pattern;
 
 public class WriteEventStreamReaderRegex implements Iterator<Operation<?>> {
-    public static final String DATE_FORMAT_STRING = "yyyy-MM-dd";
-    public static final String DATE_TIME_FORMAT_STRING = "yyyy-MM-dd'T'HH:mm:ss.SSSZ";
     private static final List<String> EMPTY_LIST = new ArrayList<>();
-
     private final CsvEventStreamReaderCsvReader<Operation<?>, String> csvEventStreamReader;
 
     public WriteEventStreamReaderRegex(Iterator<String[]> csvRowIterator) {
         Map<String, EventDecoder<Operation<?>>> decoders = new HashMap<>();
-        {
-            SimpleDateFormat dateFormat = new SimpleDateFormat(DATE_FORMAT_STRING);
-            dateFormat.setTimeZone(TimeZone.getTimeZone("GMT"));
-            SimpleDateFormat dateTimeFormat = new SimpleDateFormat(DATE_TIME_FORMAT_STRING);
-            dateTimeFormat.setTimeZone(TimeZone.getTimeZone("GMT"));
-            EventDecoder<Operation<?>> addPersonDecoder = new EventDecoderAddPerson(dateFormat, dateTimeFormat);
-            decoders.put("1", addPersonDecoder);
-        }
-        {
-            SimpleDateFormat dateTimeFormat = new SimpleDateFormat(DATE_TIME_FORMAT_STRING);
-            dateTimeFormat.setTimeZone(TimeZone.getTimeZone("GMT"));
-            EventDecoder<Operation<?>> addLikePostDecoder = new EventDecoderAddLikePost(dateTimeFormat);
-            decoders.put("2", addLikePostDecoder);
-        }
-        {
-            SimpleDateFormat dateTimeFormat = new SimpleDateFormat(DATE_TIME_FORMAT_STRING);
-            dateTimeFormat.setTimeZone(TimeZone.getTimeZone("GMT"));
-            EventDecoder<Operation<?>> addLikeCommentDecoder = new EventDecoderAddLikeComment(dateTimeFormat);
-            decoders.put("3", addLikeCommentDecoder);
-        }
-        {
-            SimpleDateFormat dateTimeFormat = new SimpleDateFormat(DATE_TIME_FORMAT_STRING);
-            dateTimeFormat.setTimeZone(TimeZone.getTimeZone("GMT"));
-            EventDecoder<Operation<?>> addForumDecoder = new EventDecoderAddForum(dateTimeFormat);
-            decoders.put("4", addForumDecoder);
-        }
-        {
-            SimpleDateFormat dateTimeFormat = new SimpleDateFormat(DATE_TIME_FORMAT_STRING);
-            dateTimeFormat.setTimeZone(TimeZone.getTimeZone("GMT"));
-            EventDecoder<Operation<?>> addForumMembershipDecoder = new EventDecoderAddForumMembership(dateTimeFormat);
-            decoders.put("5", addForumMembershipDecoder);
-        }
-        {
-            SimpleDateFormat dateTimeFormat = new SimpleDateFormat(DATE_TIME_FORMAT_STRING);
-            dateTimeFormat.setTimeZone(TimeZone.getTimeZone("GMT"));
-            EventDecoder<Operation<?>> addPostDecoder = new EventDecoderAddPost(dateTimeFormat);
-            decoders.put("6", addPostDecoder);
-        }
-        {
-            SimpleDateFormat dateTimeFormat = new SimpleDateFormat(DATE_TIME_FORMAT_STRING);
-            dateTimeFormat.setTimeZone(TimeZone.getTimeZone("GMT"));
-            EventDecoder<Operation<?>> addCommentDecoder = new EventDecoderAddComment(dateTimeFormat);
-            decoders.put("7", addCommentDecoder);
-        }
-        {
-            SimpleDateFormat dateTimeFormat = new SimpleDateFormat(DATE_TIME_FORMAT_STRING);
-            dateTimeFormat.setTimeZone(TimeZone.getTimeZone("GMT"));
-            EventDecoder<Operation<?>> addFriendshipDecoder = new EventDecoderAddFriendship(dateTimeFormat);
-            decoders.put("8", addFriendshipDecoder);
-        }
+        decoders.put("1", new EventDecoderAddPerson());
+        decoders.put("2", new EventDecoderAddLikePost());
+        decoders.put("3", new EventDecoderAddLikeComment());
+        decoders.put("4", new EventDecoderAddForum());
+        decoders.put("5", new EventDecoderAddForumMembership());
+        decoders.put("6", new EventDecoderAddPost());
+        decoders.put("7", new EventDecoderAddComment());
+        decoders.put("8", new EventDecoderAddFriendship());
         Function1<String[], String> decoderKeyExtractor = new Function1<String[], String>() {
             @Override
             public String apply(String[] csvRow) {
@@ -97,15 +49,11 @@ public class WriteEventStreamReaderRegex implements Iterator<Operation<?>> {
         throw new UnsupportedOperationException(String.format("%s does not support remove()", getClass().getSimpleName()));
     }
 
-    public static class EventDecoderAddPerson implements CsvEventStreamReaderCsvReader.EventDecoder<Operation<?>> {
-        private final SimpleDateFormat dateFormat;
-        private final SimpleDateFormat dateTimeFormat;
+    public static class EventDecoderAddPerson implements EventDecoder<Operation<?>> {
         private final Pattern collectionSeparatorPattern = Pattern.compile(";");
         private final Pattern tupleSeparatorPattern = Pattern.compile(",");
 
-        public EventDecoderAddPerson(SimpleDateFormat dateFormat, SimpleDateFormat dateTimeFormat) {
-            this.dateFormat = dateFormat;
-            this.dateTimeFormat = dateTimeFormat;
+        public EventDecoderAddPerson() {
         }
 
         @Override
@@ -121,20 +69,10 @@ public class WriteEventStreamReaderRegex implements Iterator<Operation<?>> {
             String gender = csvRow[5];
 
             String birthdayString = csvRow[6];
-            Date birthday;
-            try {
-                birthday = dateFormat.parse(birthdayString);
-            } catch (ParseException e) {
-                throw new GeneratorException(String.format("Error parsing birthday string\n%s", birthdayString), e);
-            }
+            Date birthday = new Date(Long.parseLong(birthdayString));
 
             String creationDateString = csvRow[7];
-            Date creationDate;
-            try {
-                creationDate = dateTimeFormat.parse(creationDateString);
-            } catch (ParseException e) {
-                throw new GeneratorException(String.format("Error parsing creation date string\n%s", birthdayString), e);
-            }
+            Date creationDate = new Date(Long.parseLong(creationDateString));
 
             String locationIp = csvRow[8];
 
@@ -209,11 +147,8 @@ public class WriteEventStreamReaderRegex implements Iterator<Operation<?>> {
         }
     }
 
-    public static class EventDecoderAddLikePost implements CsvEventStreamReaderCsvReader.EventDecoder<Operation<?>> {
-        private final SimpleDateFormat dateTimeFormat;
-
-        public EventDecoderAddLikePost(SimpleDateFormat dateTimeFormat) {
-            this.dateTimeFormat = dateTimeFormat;
+    public static class EventDecoderAddLikePost implements EventDecoder<Operation<?>> {
+        public EventDecoderAddLikePost() {
         }
 
         @Override
@@ -225,12 +160,7 @@ public class WriteEventStreamReaderRegex implements Iterator<Operation<?>> {
             long postId = Long.parseLong(csvRow[3]);
 
             String creationDateString = csvRow[4];
-            Date creationDate;
-            try {
-                creationDate = dateTimeFormat.parse(creationDateString);
-            } catch (ParseException e) {
-                throw new GeneratorException(String.format("Error parsing creation date string\n%s", creationDateString), e);
-            }
+            Date creationDate = new Date(Long.parseLong(creationDateString));
 
             Operation<?> operation = new LdbcUpdate2AddPostLike(personId, postId, creationDate);
             operation.setScheduledStartTime(eventDueTime);
@@ -238,11 +168,8 @@ public class WriteEventStreamReaderRegex implements Iterator<Operation<?>> {
         }
     }
 
-    public static class EventDecoderAddLikeComment implements CsvEventStreamReaderCsvReader.EventDecoder<Operation<?>> {
-        private final SimpleDateFormat dateTimeFormat;
-
-        public EventDecoderAddLikeComment(SimpleDateFormat dateTimeFormat) {
-            this.dateTimeFormat = dateTimeFormat;
+    public static class EventDecoderAddLikeComment implements EventDecoder<Operation<?>> {
+        public EventDecoderAddLikeComment() {
         }
 
         @Override
@@ -254,12 +181,7 @@ public class WriteEventStreamReaderRegex implements Iterator<Operation<?>> {
             long commentId = Long.parseLong(csvRow[3]);
 
             String creationDateString = csvRow[4];
-            Date creationDate;
-            try {
-                creationDate = dateTimeFormat.parse(creationDateString);
-            } catch (ParseException e) {
-                throw new GeneratorException(String.format("Error parsing creation date string\n%s", creationDateString), e);
-            }
+            Date creationDate = new Date(Long.parseLong(creationDateString));
 
             Operation<?> operation = new LdbcUpdate3AddCommentLike(personId, commentId, creationDate);
             operation.setScheduledStartTime(eventDueTime);
@@ -267,12 +189,10 @@ public class WriteEventStreamReaderRegex implements Iterator<Operation<?>> {
         }
     }
 
-    public static class EventDecoderAddForum implements CsvEventStreamReaderCsvReader.EventDecoder<Operation<?>> {
-        private final SimpleDateFormat dateTimeFormat;
+    public static class EventDecoderAddForum implements EventDecoder<Operation<?>> {
         private final Pattern collectionSeparatorPattern = Pattern.compile(";");
 
-        public EventDecoderAddForum(SimpleDateFormat dateTimeFormat) {
-            this.dateTimeFormat = dateTimeFormat;
+        public EventDecoderAddForum() {
         }
 
         @Override
@@ -284,13 +204,7 @@ public class WriteEventStreamReaderRegex implements Iterator<Operation<?>> {
             String forumTitle = csvRow[3];
 
             String creationDateString = csvRow[4];
-
-            Date creationDate;
-            try {
-                creationDate = dateTimeFormat.parse(creationDateString);
-            } catch (ParseException e) {
-                throw new GeneratorException(String.format("Error parsing creation date string\n%s", creationDateString), e);
-            }
+            Date creationDate = new Date(Long.parseLong(creationDateString));
 
             long moderatorPersonId = Long.parseLong(csvRow[5]);
 
@@ -309,11 +223,8 @@ public class WriteEventStreamReaderRegex implements Iterator<Operation<?>> {
         }
     }
 
-    public static class EventDecoderAddForumMembership implements CsvEventStreamReaderCsvReader.EventDecoder<Operation<?>> {
-        private final SimpleDateFormat dateTimeFormat;
-
-        public EventDecoderAddForumMembership(SimpleDateFormat dateTimeFormat) {
-            this.dateTimeFormat = dateTimeFormat;
+    public static class EventDecoderAddForumMembership implements EventDecoder<Operation<?>> {
+        public EventDecoderAddForumMembership() {
         }
 
         @Override
@@ -325,12 +236,7 @@ public class WriteEventStreamReaderRegex implements Iterator<Operation<?>> {
             long personId = Long.parseLong(csvRow[3]);
 
             String creationDateString = csvRow[4];
-            Date creationDate;
-            try {
-                creationDate = dateTimeFormat.parse(creationDateString);
-            } catch (ParseException e) {
-                throw new GeneratorException(String.format("Error parsing creation date string\n%s", creationDateString), e);
-            }
+            Date creationDate = new Date(Long.parseLong(creationDateString));
 
             Operation<?> operation = new LdbcUpdate5AddForumMembership(forumId, personId, creationDate);
             operation.setScheduledStartTime(eventDueTime);
@@ -338,12 +244,10 @@ public class WriteEventStreamReaderRegex implements Iterator<Operation<?>> {
         }
     }
 
-    public static class EventDecoderAddPost implements CsvEventStreamReaderCsvReader.EventDecoder<Operation<?>> {
-        private final SimpleDateFormat dateTimeFormat;
+    public static class EventDecoderAddPost implements EventDecoder<Operation<?>> {
         private final Pattern collectionSeparatorPattern = Pattern.compile(";");
 
-        public EventDecoderAddPost(SimpleDateFormat dateTimeFormat) {
-            this.dateTimeFormat = dateTimeFormat;
+        public EventDecoderAddPost() {
         }
 
         @Override
@@ -355,12 +259,7 @@ public class WriteEventStreamReaderRegex implements Iterator<Operation<?>> {
             String imageFile = csvRow[3];
 
             String creationDateString = csvRow[4];
-            Date creationDate;
-            try {
-                creationDate = dateTimeFormat.parse(creationDateString);
-            } catch (ParseException e) {
-                throw new GeneratorException(String.format("Error parsing creation date string\n%s", creationDateString), e);
-            }
+            Date creationDate = new Date(Long.parseLong(creationDateString));
 
             String locationIp = csvRow[5];
 
@@ -405,12 +304,10 @@ public class WriteEventStreamReaderRegex implements Iterator<Operation<?>> {
         }
     }
 
-    public static class EventDecoderAddComment implements CsvEventStreamReaderCsvReader.EventDecoder<Operation<?>> {
-        private final SimpleDateFormat dateTimeFormat;
+    public static class EventDecoderAddComment implements EventDecoder<Operation<?>> {
         private final Pattern collectionSeparatorPattern = Pattern.compile(";");
 
-        public EventDecoderAddComment(SimpleDateFormat dateTimeFormat) {
-            this.dateTimeFormat = dateTimeFormat;
+        public EventDecoderAddComment() {
         }
 
         @Override
@@ -420,12 +317,7 @@ public class WriteEventStreamReaderRegex implements Iterator<Operation<?>> {
             long commentId = Long.parseLong(csvRow[2]);
 
             String creationDateString = csvRow[3];
-            Date creationDate;
-            try {
-                creationDate = dateTimeFormat.parse(creationDateString);
-            } catch (ParseException e) {
-                throw new GeneratorException(String.format("Error parsing creation date string\n%s", creationDateString), e);
-            }
+            Date creationDate = new Date(Long.parseLong(creationDateString));
 
             String locationIp = csvRow[4];
 
@@ -469,11 +361,8 @@ public class WriteEventStreamReaderRegex implements Iterator<Operation<?>> {
         }
     }
 
-    public static class EventDecoderAddFriendship implements CsvEventStreamReaderCsvReader.EventDecoder<Operation<?>> {
-        private final SimpleDateFormat dateTimeFormat;
-
-        public EventDecoderAddFriendship(SimpleDateFormat dateTimeFormat) {
-            this.dateTimeFormat = dateTimeFormat;
+    public static class EventDecoderAddFriendship implements EventDecoder<Operation<?>> {
+        public EventDecoderAddFriendship() {
         }
 
         @Override
@@ -485,12 +374,7 @@ public class WriteEventStreamReaderRegex implements Iterator<Operation<?>> {
             long person2Id = Long.parseLong(csvRow[3]);
 
             String creationDateString = csvRow[4];
-            Date creationDate;
-            try {
-                creationDate = dateTimeFormat.parse(creationDateString);
-            } catch (ParseException e) {
-                throw new GeneratorException(String.format("Error parsing creation date string\n%s", creationDateString), e);
-            }
+            Date creationDate = new Date(Long.parseLong(creationDateString));
 
             Operation<?> operation = new LdbcUpdate8AddFriendship(person1Id, person2Id, creationDate);
             operation.setScheduledStartTime(eventDueTime);

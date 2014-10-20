@@ -12,67 +12,44 @@ import com.ldbc.driver.util.csv.Extractors;
 import com.ldbc.driver.util.csv.Mark;
 
 import java.io.IOException;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.regex.Pattern;
 
 public class WriteEventStreamReaderCharSeeker implements Iterator<Operation<?>> {
-    public static final String DATE_FORMAT_STRING = "yyyy-MM-dd";
-    public static final String DATE_TIME_FORMAT_STRING = "yyyy-MM-dd'T'HH:mm:ss.SSSZ";
-
     private final CsvEventStreamReaderCharSeeker<Operation<?>> csvEventStreamReader;
 
     public WriteEventStreamReaderCharSeeker(CharSeeker charSeeker, Extractors extractors, int columnDelimiter) {
         Map<Integer, EventDecoder<Operation<?>>> decoders = new HashMap<>();
         {
-            SimpleDateFormat dateFormat = new SimpleDateFormat(DATE_FORMAT_STRING);
-            dateFormat.setTimeZone(TimeZone.getTimeZone("GMT"));
-            SimpleDateFormat dateTimeFormat = new SimpleDateFormat(DATE_TIME_FORMAT_STRING);
-            dateTimeFormat.setTimeZone(TimeZone.getTimeZone("GMT"));
-            EventDecoder<Operation<?>> addPersonDecoder = new EventDecoderAddPerson(dateFormat, dateTimeFormat);
+            EventDecoder<Operation<?>> addPersonDecoder = new EventDecoderAddPerson();
             decoders.put(1, addPersonDecoder);
         }
         {
-            SimpleDateFormat dateTimeFormat = new SimpleDateFormat(DATE_TIME_FORMAT_STRING);
-            dateTimeFormat.setTimeZone(TimeZone.getTimeZone("GMT"));
-            EventDecoder<Operation<?>> addLikePostDecoder = new EventDecoderAddLikePost(dateTimeFormat);
+            EventDecoder<Operation<?>> addLikePostDecoder = new EventDecoderAddLikePost();
             decoders.put(2, addLikePostDecoder);
         }
         {
-            SimpleDateFormat dateTimeFormat = new SimpleDateFormat(DATE_TIME_FORMAT_STRING);
-            dateTimeFormat.setTimeZone(TimeZone.getTimeZone("GMT"));
-            EventDecoder<Operation<?>> addLikeCommentDecoder = new EventDecoderAddLikeComment(dateTimeFormat);
+            EventDecoder<Operation<?>> addLikeCommentDecoder = new EventDecoderAddLikeComment();
             decoders.put(3, addLikeCommentDecoder);
         }
         {
-            SimpleDateFormat dateTimeFormat = new SimpleDateFormat(DATE_TIME_FORMAT_STRING);
-            dateTimeFormat.setTimeZone(TimeZone.getTimeZone("GMT"));
-            EventDecoder<Operation<?>> addForumDecoder = new EventDecoderAddForum(dateTimeFormat);
+            EventDecoder<Operation<?>> addForumDecoder = new EventDecoderAddForum();
             decoders.put(4, addForumDecoder);
         }
         {
-            SimpleDateFormat dateTimeFormat = new SimpleDateFormat(DATE_TIME_FORMAT_STRING);
-            dateTimeFormat.setTimeZone(TimeZone.getTimeZone("GMT"));
-            EventDecoder<Operation<?>> addForumMembershipDecoder = new EventDecoderAddForumMembership(dateTimeFormat);
+            EventDecoder<Operation<?>> addForumMembershipDecoder = new EventDecoderAddForumMembership();
             decoders.put(5, addForumMembershipDecoder);
         }
         {
-            SimpleDateFormat dateTimeFormat = new SimpleDateFormat(DATE_TIME_FORMAT_STRING);
-            dateTimeFormat.setTimeZone(TimeZone.getTimeZone("GMT"));
-            EventDecoder<Operation<?>> addPostDecoder = new EventDecoderAddPost(dateTimeFormat);
+            EventDecoder<Operation<?>> addPostDecoder = new EventDecoderAddPost();
             decoders.put(6, addPostDecoder);
         }
         {
-            SimpleDateFormat dateTimeFormat = new SimpleDateFormat(DATE_TIME_FORMAT_STRING);
-            dateTimeFormat.setTimeZone(TimeZone.getTimeZone("GMT"));
-            EventDecoder<Operation<?>> addCommentDecoder = new EventDecoderAddComment(dateTimeFormat);
+            EventDecoder<Operation<?>> addCommentDecoder = new EventDecoderAddComment();
             decoders.put(7, addCommentDecoder);
         }
         {
-            SimpleDateFormat dateTimeFormat = new SimpleDateFormat(DATE_TIME_FORMAT_STRING);
-            dateTimeFormat.setTimeZone(TimeZone.getTimeZone("GMT"));
-            EventDecoder<Operation<?>> addFriendshipDecoder = new EventDecoderAddFriendship(dateTimeFormat);
+            EventDecoder<Operation<?>> addFriendshipDecoder = new EventDecoderAddFriendship();
             decoders.put(8, addFriendshipDecoder);
         }
         this.csvEventStreamReader = new CsvEventStreamReaderCharSeeker<>(charSeeker, extractors, decoders, columnDelimiter);
@@ -94,14 +71,10 @@ public class WriteEventStreamReaderCharSeeker implements Iterator<Operation<?>> 
     }
 
     public static class EventDecoderAddPerson implements EventDecoder<Operation<?>> {
-        private final SimpleDateFormat dateFormat;
-        private final SimpleDateFormat dateTimeFormat;
         private final Pattern tupleSeparatorPattern = Pattern.compile(",");
         private final Mark mark;
 
-        public EventDecoderAddPerson(SimpleDateFormat dateFormat, SimpleDateFormat dateTimeFormat) {
-            this.dateFormat = dateFormat;
-            this.dateTimeFormat = dateTimeFormat;
+        public EventDecoderAddPerson() {
             this.mark = new Mark();
         }
 
@@ -138,31 +111,21 @@ public class WriteEventStreamReaderCharSeeker implements Iterator<Operation<?>> 
                     throw new GeneratorException("Error retrieving gender");
                 }
 
-                String birthdayString;
+                Long birthdayAsMilli;
                 if (charSeeker.seek(mark, columnDelimiters)) {
-                    birthdayString = charSeeker.extract(mark, Extractors.STRING);
+                    birthdayAsMilli = charSeeker.extract(mark, Extractors.LONG);
                 } else {
                     throw new GeneratorException("Error retrieving birthday");
                 }
-                Date birthday;
-                try {
-                    birthday = dateFormat.parse(birthdayString);
-                } catch (ParseException e) {
-                    throw new GeneratorException(String.format("Error parsing birthday string\n%s", birthdayString), e);
-                }
+                Date birthday = new Date(birthdayAsMilli);
 
-                String creationDateString;
+                long creationDateAsMilli;
                 if (charSeeker.seek(mark, columnDelimiters)) {
-                    creationDateString = charSeeker.extract(mark, Extractors.STRING);
+                    creationDateAsMilli = charSeeker.extract(mark, Extractors.LONG);
                 } else {
                     throw new GeneratorException("Error retrieving creation date");
                 }
-                Date creationDate;
-                try {
-                    creationDate = dateTimeFormat.parse(creationDateString);
-                } catch (ParseException e) {
-                    throw new GeneratorException(String.format("Error parsing creation date string\n%s", birthdayString), e);
-                }
+                Date creationDate = new Date(creationDateAsMilli);
 
                 String locationIp;
                 if (charSeeker.seek(mark, columnDelimiters)) {
@@ -275,11 +238,9 @@ public class WriteEventStreamReaderCharSeeker implements Iterator<Operation<?>> 
     }
 
     public static class EventDecoderAddLikePost implements EventDecoder<Operation<?>> {
-        private final SimpleDateFormat dateTimeFormat;
         private final Mark mark;
 
-        public EventDecoderAddLikePost(SimpleDateFormat dateTimeFormat) {
-            this.dateTimeFormat = dateTimeFormat;
+        public EventDecoderAddLikePost() {
             this.mark = new Mark();
         }
 
@@ -302,18 +263,13 @@ public class WriteEventStreamReaderCharSeeker implements Iterator<Operation<?>> 
                     throw new GeneratorException("Error retrieving post id");
                 }
 
-                String creationDateString;
+                long creationDateAsMilli;
                 if (charSeeker.seek(mark, columnDelimiters)) {
-                    creationDateString = charSeeker.extract(mark, Extractors.STRING);
+                    creationDateAsMilli = charSeeker.extract(mark, Extractors.LONG);
                 } else {
                     throw new GeneratorException("Error retrieving creation date");
                 }
-                Date creationDate;
-                try {
-                    creationDate = dateTimeFormat.parse(creationDateString);
-                } catch (ParseException e) {
-                    throw new GeneratorException(String.format("Error parsing creation date string\n%s", creationDateString), e);
-                }
+                Date creationDate = new Date(creationDateAsMilli);
 
                 Operation<?> operation = new LdbcUpdate2AddPostLike(personId, postId, creationDate);
                 operation.setScheduledStartTime(eventDueTime);
@@ -325,11 +281,9 @@ public class WriteEventStreamReaderCharSeeker implements Iterator<Operation<?>> 
     }
 
     public static class EventDecoderAddLikeComment implements EventDecoder<Operation<?>> {
-        private final SimpleDateFormat dateTimeFormat;
         private final Mark mark;
 
-        public EventDecoderAddLikeComment(SimpleDateFormat dateTimeFormat) {
-            this.dateTimeFormat = dateTimeFormat;
+        public EventDecoderAddLikeComment() {
             this.mark = new Mark();
         }
 
@@ -352,18 +306,13 @@ public class WriteEventStreamReaderCharSeeker implements Iterator<Operation<?>> 
                     throw new GeneratorException("Error retrieving comment id");
                 }
 
-                String creationDateString;
+                long creationDateAsMilli;
                 if (charSeeker.seek(mark, columnDelimiters)) {
-                    creationDateString = charSeeker.extract(mark, Extractors.STRING);
+                    creationDateAsMilli = charSeeker.extract(mark, Extractors.LONG);
                 } else {
                     throw new GeneratorException("Error retrieving creation date");
                 }
-                Date creationDate;
-                try {
-                    creationDate = dateTimeFormat.parse(creationDateString);
-                } catch (ParseException e) {
-                    throw new GeneratorException(String.format("Error parsing creation date string\n%s", creationDateString), e);
-                }
+                Date creationDate = new Date(creationDateAsMilli);
 
                 Operation<?> operation = new LdbcUpdate3AddCommentLike(personId, commentId, creationDate);
                 operation.setScheduledStartTime(eventDueTime);
@@ -375,11 +324,9 @@ public class WriteEventStreamReaderCharSeeker implements Iterator<Operation<?>> 
     }
 
     public static class EventDecoderAddForum implements EventDecoder<Operation<?>> {
-        private final SimpleDateFormat dateTimeFormat;
         private final Mark mark;
 
-        public EventDecoderAddForum(SimpleDateFormat dateTimeFormat) {
-            this.dateTimeFormat = dateTimeFormat;
+        public EventDecoderAddForum() {
             this.mark = new Mark();
         }
 
@@ -402,18 +349,13 @@ public class WriteEventStreamReaderCharSeeker implements Iterator<Operation<?>> 
                     throw new GeneratorException("Error retrieving forum title");
                 }
 
-                String creationDateString;
+                long creationDateAsMilli;
                 if (charSeeker.seek(mark, columnDelimiters)) {
-                    creationDateString = charSeeker.extract(mark, Extractors.STRING);
+                    creationDateAsMilli = charSeeker.extract(mark, Extractors.LONG);
                 } else {
                     throw new GeneratorException("Error retrieving creation date");
                 }
-                Date creationDate;
-                try {
-                    creationDate = dateTimeFormat.parse(creationDateString);
-                } catch (ParseException e) {
-                    throw new GeneratorException(String.format("Error parsing creation date string\n%s", creationDateString), e);
-                }
+                Date creationDate = new Date(creationDateAsMilli);
 
                 long moderatorPersonId;
                 if (charSeeker.seek(mark, columnDelimiters)) {
@@ -440,11 +382,9 @@ public class WriteEventStreamReaderCharSeeker implements Iterator<Operation<?>> 
     }
 
     public static class EventDecoderAddForumMembership implements EventDecoder<Operation<?>> {
-        private final SimpleDateFormat dateTimeFormat;
         private final Mark mark;
 
-        public EventDecoderAddForumMembership(SimpleDateFormat dateTimeFormat) {
-            this.dateTimeFormat = dateTimeFormat;
+        public EventDecoderAddForumMembership() {
             this.mark = new Mark();
         }
 
@@ -467,18 +407,13 @@ public class WriteEventStreamReaderCharSeeker implements Iterator<Operation<?>> 
                     throw new GeneratorException("Error retrieving person id");
                 }
 
-                String creationDateString;
+                long creationDateAsMilli;
                 if (charSeeker.seek(mark, columnDelimiters)) {
-                    creationDateString = charSeeker.extract(mark, Extractors.STRING);
+                    creationDateAsMilli = charSeeker.extract(mark, Extractors.LONG);
                 } else {
                     throw new GeneratorException("Error retrieving creation date");
                 }
-                Date creationDate;
-                try {
-                    creationDate = dateTimeFormat.parse(creationDateString);
-                } catch (ParseException e) {
-                    throw new GeneratorException(String.format("Error parsing creation date string\n%s", creationDateString), e);
-                }
+                Date creationDate = new Date(creationDateAsMilli);
 
                 Operation<?> operation = new LdbcUpdate5AddForumMembership(forumId, personId, creationDate);
                 operation.setScheduledStartTime(eventDueTime);
@@ -490,11 +425,9 @@ public class WriteEventStreamReaderCharSeeker implements Iterator<Operation<?>> 
     }
 
     public static class EventDecoderAddPost implements EventDecoder<Operation<?>> {
-        private final SimpleDateFormat dateTimeFormat;
         private final Mark mark;
 
-        public EventDecoderAddPost(SimpleDateFormat dateTimeFormat) {
-            this.dateTimeFormat = dateTimeFormat;
+        public EventDecoderAddPost() {
             this.mark = new Mark();
         }
 
@@ -517,18 +450,13 @@ public class WriteEventStreamReaderCharSeeker implements Iterator<Operation<?>> 
                     throw new GeneratorException("Error retrieving image file");
                 }
 
-                String creationDateString;
+                long creationDateAsMilli;
                 if (charSeeker.seek(mark, columnDelimiters)) {
-                    creationDateString = charSeeker.extract(mark, Extractors.STRING);
+                    creationDateAsMilli = charSeeker.extract(mark, Extractors.LONG);
                 } else {
                     throw new GeneratorException("Error retrieving creation date");
                 }
-                Date creationDate;
-                try {
-                    creationDate = dateTimeFormat.parse(creationDateString);
-                } catch (ParseException e) {
-                    throw new GeneratorException(String.format("Error parsing creation date string\n%s", creationDateString), e);
-                }
+                Date creationDate = new Date(creationDateAsMilli);
 
                 String locationIp;
                 if (charSeeker.seek(mark, columnDelimiters)) {
@@ -616,11 +544,9 @@ public class WriteEventStreamReaderCharSeeker implements Iterator<Operation<?>> 
     }
 
     public static class EventDecoderAddComment implements EventDecoder<Operation<?>> {
-        private final SimpleDateFormat dateTimeFormat;
         private final Mark mark;
 
-        public EventDecoderAddComment(SimpleDateFormat dateTimeFormat) {
-            this.dateTimeFormat = dateTimeFormat;
+        public EventDecoderAddComment() {
             this.mark = new Mark();
         }
 
@@ -636,18 +562,13 @@ public class WriteEventStreamReaderCharSeeker implements Iterator<Operation<?>> 
                     throw new GeneratorException("Error retrieving comment id");
                 }
 
-                String creationDateString;
+                long creationDateAsMilli;
                 if (charSeeker.seek(mark, columnDelimiters)) {
-                    creationDateString = charSeeker.extract(mark, Extractors.STRING);
+                    creationDateAsMilli = charSeeker.extract(mark, Extractors.LONG);
                 } else {
                     throw new GeneratorException("Error retrieving creation date");
                 }
-                Date creationDate;
-                try {
-                    creationDate = dateTimeFormat.parse(creationDateString);
-                } catch (ParseException e) {
-                    throw new GeneratorException(String.format("Error parsing creation date string\n%s", creationDateString), e);
-                }
+                Date creationDate = new Date(creationDateAsMilli);
 
                 String locationIp;
                 if (charSeeker.seek(mark, columnDelimiters)) {
@@ -734,11 +655,9 @@ public class WriteEventStreamReaderCharSeeker implements Iterator<Operation<?>> 
     }
 
     public static class EventDecoderAddFriendship implements EventDecoder<Operation<?>> {
-        private final SimpleDateFormat dateTimeFormat;
         private final Mark mark;
 
-        public EventDecoderAddFriendship(SimpleDateFormat dateTimeFormat) {
-            this.dateTimeFormat = dateTimeFormat;
+        public EventDecoderAddFriendship() {
             this.mark = new Mark();
         }
 
@@ -761,18 +680,13 @@ public class WriteEventStreamReaderCharSeeker implements Iterator<Operation<?>> 
                     throw new GeneratorException("Error retrieving person id 2");
                 }
 
-                String creationDateString;
+                long creationDateAsMilli;
                 if (charSeeker.seek(mark, columnDelimiters)) {
-                    creationDateString = charSeeker.extract(mark, Extractors.STRING);
+                    creationDateAsMilli = charSeeker.extract(mark, Extractors.LONG);
                 } else {
                     throw new GeneratorException("Error retrieving creation date");
                 }
-                Date creationDate;
-                try {
-                    creationDate = dateTimeFormat.parse(creationDateString);
-                } catch (ParseException e) {
-                    throw new GeneratorException(String.format("Error parsing creation date string\n%s", creationDateString), e);
-                }
+                Date creationDate = new Date(creationDateAsMilli);
 
                 Operation<?> operation = new LdbcUpdate8AddFriendship(person1Id, person2Id, creationDate);
                 operation.setScheduledStartTime(eventDueTime);
