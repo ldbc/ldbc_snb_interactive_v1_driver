@@ -18,10 +18,10 @@ public class WriteEventStreamReaderPerformanceTest {
 
     @Ignore
     @Test
-    public void newFormatLongDateCsvUpdateStreamReadingRegexParserProfileTest() throws IOException, InterruptedException {
+    public void forumCsvUpdateStreamReadingRegexParserProfileTest() throws IOException, InterruptedException {
         Thread.sleep(30000);
-        File parentStreamsDir = new File("/Users/alexaverbuch/IdeaProjects/scale_factor_streams/format_csv_date_long/");
-        File forumUpdateStream = new File(parentStreamsDir, "sf_10_partitions_01/updateStream_0_0_forum.csv");
+        File parentStreamsDir = new File("/Users/alexaverbuch/IdeaProjects/scale_factor_streams/");
+        File forumUpdateStream = new File(parentStreamsDir, "sf10_partitions_01/updateStream_0_0_forum.csv");
 
         long lines = 0;
         long startTimeAsMilli = timeSource.nowAsMilli();
@@ -44,10 +44,10 @@ public class WriteEventStreamReaderPerformanceTest {
 
     @Ignore
     @Test
-    public void newFormatLongDateCsvUpdateStreamReadingCharSeekerParserProfileTest() throws IOException, InterruptedException {
+    public void forumCsvUpdateStreamReadingCharSeekerParserProfileTest() throws IOException, InterruptedException {
         Thread.sleep(30000);
-        File parentStreamsDir = new File("/Users/alexaverbuch/IdeaProjects/scale_factor_streams/format_csv_date_long/");
-        File forumUpdateStream = new File(parentStreamsDir, "sf_10_partitions_01/updateStream_0_0_forum.csv");
+        File parentStreamsDir = new File("/Users/alexaverbuch/IdeaProjects/scale_factor_streams/");
+        File forumUpdateStream = new File(parentStreamsDir, "sf10_partitions_01/updateStream_0_0_forum.csv");
 
         int MB = 1024 * 1024;
         int bufferSize = 2 * MB;
@@ -74,9 +74,65 @@ public class WriteEventStreamReaderPerformanceTest {
 
     @Ignore
     @Test
-    public void newFormatLongDateCsvUpdateStreamReadingPerformanceTest() throws IOException {
-        File parentStreamsDir = new File("/Users/alexaverbuch/IdeaProjects/scale_factor_streams/format_csv_date_long/");
-        File forumUpdateStream = new File(parentStreamsDir, "sf_10_partitions_01/updateStream_0_0_forum.csv");
+    public void personCsvUpdateStreamReadingRegexParserProfileTest() throws IOException, InterruptedException {
+        Thread.sleep(30000);
+        File parentStreamsDir = new File("/Users/alexaverbuch/IdeaProjects/scale_factor_streams/");
+        File forumUpdateStream = new File(parentStreamsDir, "sf10_partitions_01/updateStream_0_0_person.csv");
+
+        long lines = 0;
+        long startTimeAsMilli = timeSource.nowAsMilli();
+        SimpleCsvFileReader simpleCsvFileReader = new SimpleCsvFileReader(forumUpdateStream, SimpleCsvFileReader.DEFAULT_COLUMN_SEPARATOR_PATTERN);
+        WriteEventStreamReaderRegex writeEventStreamReader = new WriteEventStreamReaderRegex(simpleCsvFileReader);
+        lines += doCsvUpdateStreamReadingPerformanceTest(writeEventStreamReader);
+        simpleCsvFileReader.close();
+        long endTimeAsMilli = timeSource.nowAsMilli();
+        long durationAsMilli = (endTimeAsMilli - startTimeAsMilli);
+
+        System.out.println(
+                String.format("%s took %s to read %s line: %s lines/s",
+                        WriteEventStreamReaderRegex.class.getSimpleName(),
+                        Duration.fromMilli(durationAsMilli),
+                        lines,
+                        (double) lines / Duration.fromMilli(durationAsMilli).asSeconds()
+                )
+        );
+    }
+
+    @Ignore
+    @Test
+    public void personCsvUpdateStreamReadingCharSeekerParserProfileTest() throws IOException, InterruptedException {
+        Thread.sleep(30000);
+        File parentStreamsDir = new File("/Users/alexaverbuch/IdeaProjects/scale_factor_streams/");
+        File forumUpdateStream = new File(parentStreamsDir, "sf10_partitions_01/updateStream_0_0_person.csv");
+
+        int MB = 1024 * 1024;
+        int bufferSize = 2 * MB;
+        long lines = 0;
+        long startTimeAsMilli = timeSource.nowAsMilli();
+        CharSeeker charSeeker = new BufferedCharSeeker(new InputStreamReader(new FileInputStream(forumUpdateStream), Charsets.UTF_8), bufferSize);
+        int columnDelimiter = '|';
+        Extractors extractors = new Extractors(';');
+        WriteEventStreamReaderCharSeeker writeEventStreamReader = new WriteEventStreamReaderCharSeeker(charSeeker, extractors, columnDelimiter);
+        lines += doCsvUpdateStreamReadingPerformanceTest(writeEventStreamReader);
+        charSeeker.close();
+        long endTimeAsMilli = timeSource.nowAsMilli();
+        long durationAsMilli = (endTimeAsMilli - startTimeAsMilli);
+
+        System.out.println(
+                String.format("%s took %s to read %s line: %s lines/s",
+                        WriteEventStreamReaderCharSeeker.class.getSimpleName() + "-" + bufferSize,
+                        Duration.fromMilli(durationAsMilli),
+                        lines,
+                        (double) lines / Duration.fromMilli(durationAsMilli).asSeconds()
+                )
+        );
+    }
+
+    @Ignore
+    @Test
+    public void forumCsvUpdateStreamReadingPerformanceTest() throws IOException {
+        File parentStreamsDir = new File("/Users/alexaverbuch/IdeaProjects/scale_factor_streams/");
+        File forumUpdateStream = new File(parentStreamsDir, "sf10_partitions_01/updateStream_0_0_forum.csv");
 
         {
             // warm up file system
@@ -264,14 +320,11 @@ public class WriteEventStreamReaderPerformanceTest {
         long lines = 0;
         Mark mark = new Mark();
         int[] delimiters = new int[]{'|'};
-        boolean tryAgain = true;
-        while (tryAgain) {
-            String value = null;
-            while (seeker.seek(mark, delimiters)) {
-                value = seeker.extract(mark, Extractors.STRING);
-            }
-            lines++;
-            tryAgain = value != null;
+        Extractors extractors = new Extractors(';');
+        while (seeker.seek(mark, delimiters)) {
+            seeker.extract(mark, extractors.string()).value();
+            if (mark.isEndOfLine())
+                lines++;
         }
         seeker.close();
         return lines;
@@ -282,14 +335,11 @@ public class WriteEventStreamReaderPerformanceTest {
         long lines = 0;
         Mark mark = new Mark();
         int[] delimiters = new int[]{'|'};
-        boolean tryAgain = true;
-        while (tryAgain) {
-            String value = null;
-            while (seeker.seek(mark, delimiters)) {
-                value = seeker.extract(mark, Extractors.STRING);
-            }
-            lines++;
-            tryAgain = value != null;
+        Extractors extractors = new Extractors(';');
+        while (seeker.seek(mark, delimiters)) {
+            seeker.extract(mark, extractors.string()).value();
+            if (mark.isEndOfLine())
+                lines++;
         }
         seeker.close();
         return lines;

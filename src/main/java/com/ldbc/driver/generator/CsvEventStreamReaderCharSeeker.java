@@ -2,7 +2,6 @@ package com.ldbc.driver.generator;
 
 
 import com.ldbc.driver.util.csv.CharSeeker;
-import com.ldbc.driver.util.csv.Extractor;
 import com.ldbc.driver.util.csv.Extractors;
 import com.ldbc.driver.util.csv.Mark;
 
@@ -10,7 +9,6 @@ import java.io.IOException;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.NoSuchElementException;
-import java.util.concurrent.Executors;
 
 
 public class CsvEventStreamReaderCharSeeker<BASE_EVENT_TYPE> implements Iterator<BASE_EVENT_TYPE> {
@@ -54,7 +52,7 @@ public class CsvEventStreamReaderCharSeeker<BASE_EVENT_TYPE> implements Iterator
         try {
             long scheduledStartTime;
             if (charSeeker.seek(mark, columnDelimiters)) {
-                scheduledStartTime = charSeeker.extract(mark, Extractors.LONG);
+                scheduledStartTime = charSeeker.extract(mark, extractors.long_()).longValue();
             } else {
                 // if first column of next row contains nothing it means the file is finished
                 return null;
@@ -62,7 +60,7 @@ public class CsvEventStreamReaderCharSeeker<BASE_EVENT_TYPE> implements Iterator
 
             int eventType;
             if (charSeeker.seek(mark, columnDelimiters)) {
-                eventType = charSeeker.extract(mark, Extractors.INT);
+                eventType = charSeeker.extract(mark, extractors.int_()).intValue();
             } else {
                 throw new GeneratorException("No event type found");
             }

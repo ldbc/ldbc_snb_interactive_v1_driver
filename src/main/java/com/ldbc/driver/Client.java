@@ -243,6 +243,7 @@ public class Client {
                     csvResultsLogFileWriter);
             GeneratorFactory gf = new GeneratorFactory(new RandomDataGeneratorFactory(RANDOM_SEED));
 
+            logger.info(String.format("Scanning workload streams to calculate their limits..."));
             WorkloadStreams workloadStreams;
             try {
                 Tuple.Tuple2<WorkloadStreams, Workload> streamsAndWorkload =

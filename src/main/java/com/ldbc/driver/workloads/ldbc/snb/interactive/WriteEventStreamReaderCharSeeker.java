@@ -85,35 +85,35 @@ public class WriteEventStreamReaderCharSeeker implements Iterator<Operation<?>> 
 
                 long personId;
                 if (charSeeker.seek(mark, columnDelimiters)) {
-                    personId = charSeeker.extract(mark, Extractors.LONG);
+                    personId = charSeeker.extract(mark, extractors.long_()).longValue();
                 } else {
                     throw new GeneratorException("Error retrieving person id");
                 }
 
                 String firstName;
                 if (charSeeker.seek(mark, columnDelimiters)) {
-                    firstName = charSeeker.extract(mark, Extractors.STRING);
+                    firstName = charSeeker.extract(mark, extractors.string()).value();
                 } else {
                     throw new GeneratorException("Error retrieving first name");
                 }
 
                 String lastName;
                 if (charSeeker.seek(mark, columnDelimiters)) {
-                    lastName = charSeeker.extract(mark, Extractors.STRING);
+                    lastName = charSeeker.extract(mark, extractors.string()).value();
                 } else {
                     throw new GeneratorException("Error retrieving last name");
                 }
 
                 String gender;
                 if (charSeeker.seek(mark, columnDelimiters)) {
-                    gender = charSeeker.extract(mark, Extractors.STRING);
+                    gender = charSeeker.extract(mark, extractors.string()).value();
                 } else {
                     throw new GeneratorException("Error retrieving gender");
                 }
 
                 Long birthdayAsMilli;
                 if (charSeeker.seek(mark, columnDelimiters)) {
-                    birthdayAsMilli = charSeeker.extract(mark, Extractors.LONG);
+                    birthdayAsMilli = charSeeker.extract(mark, extractors.long_()).longValue();
                 } else {
                     throw new GeneratorException("Error retrieving birthday");
                 }
@@ -121,7 +121,7 @@ public class WriteEventStreamReaderCharSeeker implements Iterator<Operation<?>> 
 
                 long creationDateAsMilli;
                 if (charSeeker.seek(mark, columnDelimiters)) {
-                    creationDateAsMilli = charSeeker.extract(mark, Extractors.LONG);
+                    creationDateAsMilli = charSeeker.extract(mark, extractors.long_()).longValue();
                 } else {
                     throw new GeneratorException("Error retrieving creation date");
                 }
@@ -129,48 +129,42 @@ public class WriteEventStreamReaderCharSeeker implements Iterator<Operation<?>> 
 
                 String locationIp;
                 if (charSeeker.seek(mark, columnDelimiters)) {
-                    locationIp = charSeeker.extract(mark, Extractors.STRING);
+                    locationIp = charSeeker.extract(mark, extractors.string()).value();
                 } else {
                     throw new GeneratorException("Error retrieving location ip");
                 }
 
                 String browserUsed;
                 if (charSeeker.seek(mark, columnDelimiters)) {
-                    browserUsed = charSeeker.extract(mark, Extractors.STRING);
+                    browserUsed = charSeeker.extract(mark, extractors.string()).value();
                 } else {
                     throw new GeneratorException("Error retrieving browser");
                 }
 
                 long cityId;
                 if (charSeeker.seek(mark, columnDelimiters)) {
-                    cityId = charSeeker.extract(mark, Extractors.LONG);
+                    cityId = charSeeker.extract(mark, extractors.long_()).longValue();
                 } else {
                     throw new GeneratorException("Error retrieving city id");
                 }
 
                 List<String> languages;
                 if (charSeeker.seek(mark, columnDelimiters)) {
-                    String[] languagesArray = charSeeker.extract(mark, extractors.stringArray());
-                    languages = (null == languagesArray[0])
-                            ? new ArrayList<String>()
-                            : Lists.newArrayList(languagesArray);
+                    languages = Lists.newArrayList(charSeeker.extract(mark, extractors.stringArray()).value());
                 } else {
                     throw new GeneratorException("Error retrieving languages");
                 }
 
                 List<String> emails;
                 if (charSeeker.seek(mark, columnDelimiters)) {
-                    String[] emailsArray = charSeeker.extract(mark, extractors.stringArray());
-                    emails = (null == emailsArray[0])
-                            ? new ArrayList<String>()
-                            : Lists.newArrayList(charSeeker.extract(mark, extractors.stringArray()));
+                    emails = Lists.newArrayList(charSeeker.extract(mark, extractors.stringArray()).value());
                 } else {
                     throw new GeneratorException("Error retrieving emails");
                 }
 
                 List<Long> tagIds = new ArrayList<>();
                 if (charSeeker.seek(mark, columnDelimiters)) {
-                    long[] tagIdsArray = charSeeker.extract(mark, extractors.longArray());
+                    long[] tagIdsArray = charSeeker.extract(mark, extractors.longArray()).value();
                     for (long tagId : tagIdsArray) {
                         tagIds.add(tagId);
                     }
@@ -179,39 +173,37 @@ public class WriteEventStreamReaderCharSeeker implements Iterator<Operation<?>> 
                 }
 
                 // TODO with extractor
-                String[] studyAtsAsStrings;
+                List<LdbcUpdate1AddPerson.Organization> studyAts;
                 if (charSeeker.seek(mark, columnDelimiters)) {
-                    studyAtsAsStrings = charSeeker.extract(mark, extractors.stringArray());
-                    if (null == studyAtsAsStrings[0]) {
-                        studyAtsAsStrings = new String[]{};
+                    studyAts = new ArrayList<>();
+                    String[] studyAtsAsStrings = charSeeker.extract(mark, extractors.stringArray()).value();
+                    for (String studyAtAsString : studyAtsAsStrings) {
+                        String[] studyAtAsStringArray = tupleSeparatorPattern.split(studyAtAsString, -1);
+                        studyAts.add(new LdbcUpdate1AddPerson.Organization(
+                                        Long.parseLong(studyAtAsStringArray[0]),
+                                        Integer.parseInt(studyAtAsStringArray[1])
+                                )
+                        );
                     }
                 } else {
                     throw new GeneratorException("Error retrieving universities");
                 }
-                List<LdbcUpdate1AddPerson.Organization> studyAts = new ArrayList<>();
-                for (String studyAtAsString : studyAtsAsStrings) {
-                    String[] studyAtAsStringArray = tupleSeparatorPattern.split(studyAtAsString, -1);
-                    studyAts.add(new LdbcUpdate1AddPerson.Organization(
-                                    Long.parseLong(studyAtAsStringArray[0]),
-                                    Integer.parseInt(studyAtAsStringArray[1])
-                            )
-                    );
-                }
 
                 // TODO with extractor
-                List<LdbcUpdate1AddPerson.Organization> workAts = new ArrayList<>();
+                List<LdbcUpdate1AddPerson.Organization> workAts;
                 if (charSeeker.seek(mark, columnDelimiters)) {
-                    String[] workAtsAsStrings = charSeeker.extract(mark, extractors.stringArray());
-                    if (null != workAtsAsStrings[0]) {
-                        for (String workAtAsString : workAtsAsStrings) {
-                            String[] workAtAsStringArray = tupleSeparatorPattern.split(workAtAsString, -1);
-                            workAts.add(new LdbcUpdate1AddPerson.Organization(
-                                            Long.parseLong(workAtAsStringArray[0]),
-                                            Integer.parseInt(workAtAsStringArray[1])
-                                    )
-                            );
-                        }
+                    workAts = new ArrayList<>();
+                    String[] workAtsAsStrings = charSeeker.extract(mark, extractors.stringArray()).value();
+                    for (String workAtAsString : workAtsAsStrings) {
+                        String[] workAtAsStringArray = tupleSeparatorPattern.split(workAtAsString, -1);
+                        workAts.add(new LdbcUpdate1AddPerson.Organization(
+                                        Long.parseLong(workAtAsStringArray[0]),
+                                        Integer.parseInt(workAtAsStringArray[1])
+                                )
+                        );
                     }
+                } else {
+                    throw new GeneratorException("Error retrieving companies");
                 }
 
                 Operation<?> operation = new LdbcUpdate1AddPerson(
@@ -251,25 +243,25 @@ public class WriteEventStreamReaderCharSeeker implements Iterator<Operation<?>> 
 
                 long personId;
                 if (charSeeker.seek(mark, columnDelimiters)) {
-                    personId = charSeeker.extract(mark, Extractors.LONG);
+                    personId = charSeeker.extract(mark, extractors.long_()).longValue();
                 } else {
                     throw new GeneratorException("Error retrieving person id");
                 }
 
                 long postId;
                 if (charSeeker.seek(mark, columnDelimiters)) {
-                    postId = charSeeker.extract(mark, Extractors.LONG);
+                    postId = charSeeker.extract(mark, extractors.long_()).longValue();
                 } else {
                     throw new GeneratorException("Error retrieving post id");
                 }
 
-                long creationDateAsMilli;
+                Date creationDate;
                 if (charSeeker.seek(mark, columnDelimiters)) {
-                    creationDateAsMilli = charSeeker.extract(mark, Extractors.LONG);
+                    long creationDateAsMilli = charSeeker.extract(mark, extractors.long_()).longValue();
+                    creationDate = new Date(creationDateAsMilli);
                 } else {
                     throw new GeneratorException("Error retrieving creation date");
                 }
-                Date creationDate = new Date(creationDateAsMilli);
 
                 Operation<?> operation = new LdbcUpdate2AddPostLike(personId, postId, creationDate);
                 operation.setScheduledStartTime(eventDueTime);
@@ -294,25 +286,25 @@ public class WriteEventStreamReaderCharSeeker implements Iterator<Operation<?>> 
 
                 long personId;
                 if (charSeeker.seek(mark, columnDelimiters)) {
-                    personId = charSeeker.extract(mark, Extractors.LONG);
+                    personId = charSeeker.extract(mark, extractors.long_()).longValue();
                 } else {
                     throw new GeneratorException("Error retrieving person id");
                 }
 
                 long commentId;
                 if (charSeeker.seek(mark, columnDelimiters)) {
-                    commentId = charSeeker.extract(mark, Extractors.LONG);
+                    commentId = charSeeker.extract(mark, extractors.long_()).longValue();
                 } else {
                     throw new GeneratorException("Error retrieving comment id");
                 }
 
-                long creationDateAsMilli;
+                Date creationDate;
                 if (charSeeker.seek(mark, columnDelimiters)) {
-                    creationDateAsMilli = charSeeker.extract(mark, Extractors.LONG);
+                    long creationDateAsMilli = charSeeker.extract(mark, extractors.long_()).longValue();
+                    creationDate = new Date(creationDateAsMilli);
                 } else {
                     throw new GeneratorException("Error retrieving creation date");
                 }
-                Date creationDate = new Date(creationDateAsMilli);
 
                 Operation<?> operation = new LdbcUpdate3AddCommentLike(personId, commentId, creationDate);
                 operation.setScheduledStartTime(eventDueTime);
@@ -337,39 +329,42 @@ public class WriteEventStreamReaderCharSeeker implements Iterator<Operation<?>> 
 
                 long forumId;
                 if (charSeeker.seek(mark, columnDelimiters)) {
-                    forumId = charSeeker.extract(mark, Extractors.LONG);
+                    forumId = charSeeker.extract(mark, extractors.long_()).longValue();
                 } else {
                     throw new GeneratorException("Error retrieving forum id");
                 }
 
                 String forumTitle;
                 if (charSeeker.seek(mark, columnDelimiters)) {
-                    forumTitle = charSeeker.extract(mark, Extractors.STRING);
+                    forumTitle = charSeeker.extract(mark, extractors.string()).value();
                 } else {
                     throw new GeneratorException("Error retrieving forum title");
                 }
 
-                long creationDateAsMilli;
+                Date creationDate;
                 if (charSeeker.seek(mark, columnDelimiters)) {
-                    creationDateAsMilli = charSeeker.extract(mark, Extractors.LONG);
+                    long creationDateAsMilli = charSeeker.extract(mark, extractors.long_()).longValue();
+                    creationDate = new Date(creationDateAsMilli);
                 } else {
                     throw new GeneratorException("Error retrieving creation date");
                 }
-                Date creationDate = new Date(creationDateAsMilli);
 
                 long moderatorPersonId;
                 if (charSeeker.seek(mark, columnDelimiters)) {
-                    moderatorPersonId = charSeeker.extract(mark, Extractors.LONG);
+                    moderatorPersonId = charSeeker.extract(mark, extractors.long_()).longValue();
                 } else {
                     throw new GeneratorException("Error retrieving moderator person id");
                 }
 
-                List<Long> tagIds = new ArrayList<>();
+                List<Long> tagIds;
                 if (charSeeker.seek(mark, columnDelimiters)) {
-                    long[] tagIdsArray = charSeeker.extract(mark, extractors.longArray());
+                    tagIds = new ArrayList<>();
+                    long[] tagIdsArray = charSeeker.extract(mark, extractors.longArray()).value();
                     for (long tagId : tagIdsArray) {
                         tagIds.add(tagId);
                     }
+                } else {
+                    throw new GeneratorException("Error retrieving tags");
                 }
 
                 Operation<?> operation = new LdbcUpdate4AddForum(forumId, forumTitle, creationDate, moderatorPersonId, tagIds);
@@ -395,25 +390,25 @@ public class WriteEventStreamReaderCharSeeker implements Iterator<Operation<?>> 
 
                 long forumId;
                 if (charSeeker.seek(mark, columnDelimiters)) {
-                    forumId = charSeeker.extract(mark, Extractors.LONG);
+                    forumId = charSeeker.extract(mark, extractors.long_()).longValue();
                 } else {
                     throw new GeneratorException("Error retrieving forum id");
                 }
 
                 long personId;
                 if (charSeeker.seek(mark, columnDelimiters)) {
-                    personId = charSeeker.extract(mark, Extractors.LONG);
+                    personId = charSeeker.extract(mark, extractors.long_()).longValue();
                 } else {
                     throw new GeneratorException("Error retrieving person id");
                 }
 
-                long creationDateAsMilli;
+                Date creationDate;
                 if (charSeeker.seek(mark, columnDelimiters)) {
-                    creationDateAsMilli = charSeeker.extract(mark, Extractors.LONG);
+                    long creationDateAsMilli = charSeeker.extract(mark, extractors.long_()).longValue();
+                    creationDate = new Date(creationDateAsMilli);
                 } else {
                     throw new GeneratorException("Error retrieving creation date");
                 }
-                Date creationDate = new Date(creationDateAsMilli);
 
                 Operation<?> operation = new LdbcUpdate5AddForumMembership(forumId, personId, creationDate);
                 operation.setScheduledStartTime(eventDueTime);
@@ -438,88 +433,91 @@ public class WriteEventStreamReaderCharSeeker implements Iterator<Operation<?>> 
 
                 long postId;
                 if (charSeeker.seek(mark, columnDelimiters)) {
-                    postId = charSeeker.extract(mark, Extractors.LONG);
+                    postId = charSeeker.extract(mark, extractors.long_()).longValue();
                 } else {
                     throw new GeneratorException("Error retrieving post id");
                 }
 
                 String imageFile;
                 if (charSeeker.seek(mark, columnDelimiters)) {
-                    imageFile = charSeeker.extract(mark, Extractors.STRING);
+                    imageFile = charSeeker.extract(mark, extractors.string()).value();
                 } else {
                     throw new GeneratorException("Error retrieving image file");
                 }
 
-                long creationDateAsMilli;
+                Date creationDate;
                 if (charSeeker.seek(mark, columnDelimiters)) {
-                    creationDateAsMilli = charSeeker.extract(mark, Extractors.LONG);
+                    long creationDateAsMilli = charSeeker.extract(mark, extractors.long_()).longValue();
+                    creationDate = new Date(creationDateAsMilli);
                 } else {
                     throw new GeneratorException("Error retrieving creation date");
                 }
-                Date creationDate = new Date(creationDateAsMilli);
 
                 String locationIp;
                 if (charSeeker.seek(mark, columnDelimiters)) {
-                    locationIp = charSeeker.extract(mark, Extractors.STRING);
+                    locationIp = charSeeker.extract(mark, extractors.string()).value();
                 } else {
                     throw new GeneratorException("Error retrieving location ip");
                 }
 
                 String browserUsed;
                 if (charSeeker.seek(mark, columnDelimiters)) {
-                    browserUsed = charSeeker.extract(mark, Extractors.STRING);
+                    browserUsed = charSeeker.extract(mark, extractors.string()).value();
                 } else {
                     throw new GeneratorException("Error retrieving browser");
                 }
 
                 String language;
                 if (charSeeker.seek(mark, columnDelimiters)) {
-                    language = charSeeker.extract(mark, Extractors.STRING);
+                    language = charSeeker.extract(mark, extractors.string()).value();
                 } else {
                     throw new GeneratorException("Error retrieving language");
                 }
 
                 String content;
                 if (charSeeker.seek(mark, columnDelimiters)) {
-                    content = charSeeker.extract(mark, Extractors.STRING);
+                    content = charSeeker.extract(mark, extractors.string()).value();
                 } else {
                     throw new GeneratorException("Error retrieving content");
                 }
 
                 int length;
                 if (charSeeker.seek(mark, columnDelimiters)) {
-                    length = charSeeker.extract(mark, Extractors.INT);
+                    length = charSeeker.extract(mark, extractors.int_()).intValue();
                 } else {
                     throw new GeneratorException("Error retrieving length");
                 }
 
                 long authorPersonId;
                 if (charSeeker.seek(mark, columnDelimiters)) {
-                    authorPersonId = charSeeker.extract(mark, Extractors.LONG);
+                    authorPersonId = charSeeker.extract(mark, extractors.long_()).longValue();
                 } else {
                     throw new GeneratorException("Error retrieving author person id");
                 }
 
                 long forumId;
                 if (charSeeker.seek(mark, columnDelimiters)) {
-                    forumId = charSeeker.extract(mark, Extractors.LONG);
+                    forumId = charSeeker.extract(mark, extractors.long_()).longValue();
                 } else {
                     throw new GeneratorException("Error retrieving forum id");
                 }
 
                 long countryId;
                 if (charSeeker.seek(mark, columnDelimiters)) {
-                    countryId = charSeeker.extract(mark, Extractors.LONG);
+                    countryId = charSeeker.extract(mark, extractors.long_()).longValue();
                 } else {
                     throw new GeneratorException("Error retrieving country id");
                 }
 
-                List<Long> tagIds = new ArrayList<>();
+                List<Long> tagIds;
                 if (charSeeker.seek(mark, columnDelimiters)) {
-                    long[] tagIdsArray = charSeeker.extract(mark, extractors.longArray());
+                    tagIds = new ArrayList<>();
+                    long[] tagIdsArray = charSeeker.extract(mark, extractors.longArray()).value();
                     for (long tagId : tagIdsArray) {
                         tagIds.add(tagId);
                     }
+                } else {
+                    throw new GeneratorException("Error retrieving tags");
                 }
 
                 Operation<?> operation = new LdbcUpdate6AddPost(
@@ -557,81 +555,84 @@ public class WriteEventStreamReaderCharSeeker implements Iterator<Operation<?>> 
 
                 long commentId;
                 if (charSeeker.seek(mark, columnDelimiters)) {
-                    commentId = charSeeker.extract(mark, Extractors.LONG);
+                    commentId = charSeeker.extract(mark, extractors.long_()).longValue();
                 } else {
                     throw new GeneratorException("Error retrieving comment id");
                 }
 
-                long creationDateAsMilli;
+                Date creationDate;
                 if (charSeeker.seek(mark, columnDelimiters)) {
-                    creationDateAsMilli = charSeeker.extract(mark, Extractors.LONG);
+                    long creationDateAsMilli = charSeeker.extract(mark, extractors.long_()).longValue();
+                    creationDate = new Date(creationDateAsMilli);
                 } else {
                     throw new GeneratorException("Error retrieving creation date");
                 }
-                Date creationDate = new Date(creationDateAsMilli);
 
                 String locationIp;
                 if (charSeeker.seek(mark, columnDelimiters)) {
-                    locationIp = charSeeker.extract(mark, Extractors.STRING);
+                    locationIp = charSeeker.extract(mark, extractors.string()).value();
                 } else {
                     throw new GeneratorException("Error retrieving location ip");
                 }
 
                 String browserUsed;
                 if (charSeeker.seek(mark, columnDelimiters)) {
-                    browserUsed = charSeeker.extract(mark, Extractors.STRING);
+                    browserUsed = charSeeker.extract(mark, extractors.string()).value();
                 } else {
                     throw new GeneratorException("Error retrieving browser");
                 }
 
                 String content;
                 if (charSeeker.seek(mark, columnDelimiters)) {
-                    content = charSeeker.extract(mark, Extractors.STRING);
+                    content = charSeeker.extract(mark, extractors.string()).value();
                 } else {
                     throw new GeneratorException("Error retrieving content");
                 }
 
                 int length;
                 if (charSeeker.seek(mark, columnDelimiters)) {
-                    length = charSeeker.extract(mark, Extractors.INT);
+                    length = charSeeker.extract(mark, extractors.int_()).intValue();
                 } else {
                     throw new GeneratorException("Error retrieving length");
                 }
 
                 long authorPersonId;
                 if (charSeeker.seek(mark, columnDelimiters)) {
-                    authorPersonId = charSeeker.extract(mark, Extractors.LONG);
+                    authorPersonId = charSeeker.extract(mark, extractors.long_()).longValue();
                 } else {
                     throw new GeneratorException("Error retrieving author person id");
                 }
 
                 long countryId;
                 if (charSeeker.seek(mark, columnDelimiters)) {
-                    countryId = charSeeker.extract(mark, Extractors.LONG);
+                    countryId = charSeeker.extract(mark, extractors.long_()).longValue();
                 } else {
                     throw new GeneratorException("Error retrieving country id");
                 }
 
                 long replyOfPostId;
                 if (charSeeker.seek(mark, columnDelimiters)) {
-                    replyOfPostId = charSeeker.extract(mark, Extractors.LONG);
+                    replyOfPostId = charSeeker.extract(mark, extractors.long_()).longValue();
                 } else {
                     throw new GeneratorException("Error retrieving reply of post id");
                 }
 
                 long replyOfCommentId;
                 if (charSeeker.seek(mark, columnDelimiters)) {
-                    replyOfCommentId = charSeeker.extract(mark, Extractors.LONG);
+                    replyOfCommentId = charSeeker.extract(mark, extractors.long_()).longValue();
                 } else {
                     throw new GeneratorException("Error retrieving reply of comment id");
                 }
 
-                List<Long> tagIds = new ArrayList<>();
+                List<Long> tagIds;
                 if (charSeeker.seek(mark, columnDelimiters)) {
-                    long[] tagIdsArray = charSeeker.extract(mark, extractors.longArray());
+                    tagIds = new ArrayList<>();
+                    long[] tagIdsArray = charSeeker.extract(mark, extractors.longArray()).value();
                     for (long tagId : tagIdsArray) {
                         tagIds.add(tagId);
                     }
+                } else {
+                    throw new GeneratorException("Error retrieving tags");
                 }
 
                 Operation<?> operation = new LdbcUpdate7AddComment(
@@ -668,25 +669,25 @@ public class WriteEventStreamReaderCharSeeker implements Iterator<Operation<?>> 
 
                 long person1Id;
                 if (charSeeker.seek(mark, columnDelimiters)) {
-                    person1Id = charSeeker.extract(mark, Extractors.LONG);
+                    person1Id = charSeeker.extract(mark, extractors.long_()).longValue();
                 } else {
                     throw new GeneratorException("Error retrieving person id 1");
                 }
 
                 long person2Id;
                 if (charSeeker.seek(mark, columnDelimiters)) {
-                    person2Id = charSeeker.extract(mark, Extractors.LONG);
+                    person2Id = charSeeker.extract(mark, extractors.long_()).longValue();
                 } else {
                     throw new GeneratorException("Error retrieving person id 2");
                 }
 
-                long creationDateAsMilli;
+                Date creationDate;
                 if (charSeeker.seek(mark, columnDelimiters)) {
-                    creationDateAsMilli = charSeeker.extract(mark, Extractors.LONG);
+                    long creationDateAsMilli = charSeeker.extract(mark, extractors.long_()).longValue();
+                    creationDate = new Date(creationDateAsMilli);
                 } else {
                     throw new GeneratorException("Error retrieving creation date");
                 }
-                Date creationDate = new Date(creationDateAsMilli);
 
                 Operation<?> operation = new LdbcUpdate8AddFriendship(person1Id, person2Id, creationDate);
                 operation.setScheduledStartTime(eventDueTime);

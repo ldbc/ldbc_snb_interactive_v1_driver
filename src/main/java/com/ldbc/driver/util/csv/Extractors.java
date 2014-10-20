@@ -29,9 +29,49 @@ import static java.lang.reflect.Modifier.isStatic;
 /**
  * Common implementations of {@link Extractor}. Since array values can have a delimiter of user choice this isn't
  * an enum, but a regular class with a constructor where that delimiter can be specified.
+ * <p/>
+ * The common {@link Extractor extractors} can be accessed using the accessor methods, like {@link #string()},
+ * {@link #long_()} and others. Specific classes are declared as return types for those providing additional
+ * value accessors, f.ex {@link LongExtractor#primitive()}.
+ * <p/>
+ * Typically an instance of {@link Extractors} would be instantiated along side a {@link BufferedCharSeeker},
+ * assumed to be used by a single thread, since each {@link Extractor} it has is stateful. Example:
+ * <p/>
+ * <pre>
+ * CharSeeker seeker = ...
+ * Mark mark = new Mark();
+ * Extractors extractors = new Extractors( ';' );
+ *
+ * // ... seek a value, then extract like this
+ * int boxFreeIntValue = seeker.extract( mark, extractors.int_() ).intValue();
+ * // ... or using any other type of extractor.
+ * </pre>
+ * <p/>
+ * Custom {@link Extractor extractors} can also be implemented and used, if need arises:
+ * <p/>
+ * <pre>
+ * CharSeeker seeker = ...
+ * Mark mark = new Mark();
+ * MyStringDateToLongExtractor dateExtractor = new MyStringDateToLongExtractor();
+ *
+ * // ... seek a value, then extract like this
+ * long timestamp = seeker.extract( mark, dateExtractor ).dateAsMillis();
+ * </pre>
+ * <p/>
+ * ... even {@link Extractors#add(Extractor) added} to an {@link Extractors} instance, where its
+ * {@link Extractor#toString() toString} value is used as key for lookup in {@link #valueOf(String)}.
  */
 public class Extractors {
     private final Map<String, Extractor<?>> instances = new HashMap<>();
+    private final Extractor<String> string;
+    private final LongExtractor long_;
+    private final IntExtractor int_;
+    private final CharExtractor char_;
+    private final ShortExtractor short_;
+    private final ByteExtractor byte_;
+    private final BooleanExtractor boolean_;
+    private final FloatExtractor float_;
+    private final DoubleExtractor double_;
     private final Extractor<String[]> stringArray;
     private final Extractor<boolean[]> booleanArray;
     private final Extractor<byte[]> byteArray;
@@ -58,20 +98,29 @@ public class Extractors {
                 }
             }
 
-            add(stringArray = new StringArray(arrayDelimiter));
-            add(booleanArray = new BooleanArray(arrayDelimiter));
-            add(byteArray = new ByteArray(arrayDelimiter));
-            add(shortArray = new ShortArray(arrayDelimiter));
-            add(intArray = new IntArray(arrayDelimiter));
-            add(longArray = new LongArray(arrayDelimiter));
-            add(floatArray = new FloatArray(arrayDelimiter));
-            add(doubleArray = new DoubleArray(arrayDelimiter));
+            add(string = new StringExtractor());
+            add(long_ = new LongExtractor());
+            add(int_ = new IntExtractor());
+            add(char_ = new CharExtractor());
+            add(short_ = new ShortExtractor());
+            add(byte_ = new ByteExtractor());
+            add(boolean_ = new BooleanExtractor());
+            add(float_ = new FloatExtractor());
+            add(double_ = new DoubleExtractor());
+            add(stringArray = new StringArrayExtractor(arrayDelimiter));
+            add(booleanArray = new BooleanArrayExtractor(arrayDelimiter));
+            add(byteArray = new ByteArrayExtractor(arrayDelimiter));
+            add(shortArray = new ShortArrayExtractor(arrayDelimiter));
+            add(intArray = new IntArrayExtractor(arrayDelimiter));
+            add(longArray = new LongArrayExtractor(arrayDelimiter));
+            add(floatArray = new FloatArrayExtractor(arrayDelimiter));
+            add(doubleArray = new DoubleArrayExtractor(arrayDelimiter));
         } catch (IllegalAccessException e) {
             throw new Error("Bug in reflection code gathering all extractors");
         }
     }
 
-    private void add(Extractor<?> extractor) {
+    public void add(Extractor<?> extractor) {
         instances.put(extractor.toString().toUpperCase(), extractor);
     }
 
@@ -81,6 +130,42 @@ public class Extractors {
             throw new IllegalArgumentException("'" + name + "'");
         }
         return instance;
+    }
+
+    public Extractor<String> string() {
+        return string;
+    }
+
+    public LongExtractor long_() {
+        return long_;
+    }
+
+    public IntExtractor int_() {
+        return int_;
+    }
+
+    public CharExtractor char_() {
+        return char_;
+    }
+
+    public ShortExtractor short_() {
+        return short_;
+    }
+
+    public ByteExtractor byte_() {
+        return byte_;
+    }
+
+    public BooleanExtractor boolean_() {
+        return boolean_;
+    }
+
+    public FloatExtractor float_() {
+        return float_;
+    }
+
+    public DoubleExtractor double_() {
+        return double_;
     }
 
     public Extractor<String[]> stringArray() {
@@ -115,104 +200,268 @@ public class Extractors {
         return doubleArray;
     }
 
-    public static Extractor<String> STRING = new Extractor<String>() {
+    private static class StringExtractor implements Extractor<String> {
+        private String value;
+
         @Override
-        public String extract(char[] data, int offset, int length) {
-            return new String(data, offset, length);
-        }
-    };
-
-    public static Extractor<Long> LONG = new Extractor<Long>() {
-        @Override
-        public Long extract(char[] data, int offset, int length) {
-            return extractLong(data, offset, length);
-        }
-    };
-
-    public static Extractor<Integer> INT = new Extractor<Integer>() {
-        @Override
-        public Integer extract(char[] data, int offset, int length) {
-            return CsvUtils.safeCastLongToInt(extractLong(data, offset, length));
-        }
-    };
-
-    public static Extractor<Short> SHORT = new Extractor<Short>() {
-        @Override
-        public Short extract(char[] data, int offset, int length) {
-            return CsvUtils.safeCastLongToShort(extractLong(data, offset, length));
-        }
-    };
-
-    public static Extractor<Byte> BYTE = new Extractor<Byte>() {
-        @Override
-        public Byte extract(char[] data, int offset, int length) {
-            return CsvUtils.safeCastLongToByte(extractLong(data, offset, length));
-        }
-    };
-
-    public static Extractor<Boolean> BOOLEAN = new Extractor<Boolean>() {
-        private final char[] match;
-
-        {
-            match = new char[Boolean.TRUE.toString().length()];
-            Boolean.TRUE.toString().getChars(0, match.length, match, 0);
+        public void extract(char[] data, int offset, int length) {
+            value = new String(data, offset, length);
         }
 
         @Override
-        public Boolean extract(char[] data, int offset, int length) {
-            return extractBoolean(data, offset, length);
+        public String value() {
+            return value;
         }
-    };
 
-    public static Extractor<Character> CHAR = new Extractor<Character>() {
         @Override
-        public Character extract(char[] data, int offset, int length) {
+        public String toString() {
+            return String.class.getSimpleName();
+        }
+    }
+
+    public static class LongExtractor implements Extractor<Long> {
+        private long value;
+
+        @Override
+        public void extract(char[] data, int offset, int length) {
+            value = extractLong(data, offset, length);
+        }
+
+        @Override
+        public Long value() {
+            return Long.valueOf(value);
+        }
+
+        /**
+         * Value accessor bypassing boxing.
+         *
+         * @return the number value in its primitive form.
+         */
+        public long longValue() {
+            return value;
+        }
+
+        @Override
+        public String toString() {
+            return Long.TYPE.getSimpleName();
+        }
+    }
+
+    public static class IntExtractor implements Extractor<Integer> {
+        private int value;
+
+        @Override
+        public void extract(char[] data, int offset, int length) {
+            value = safeCastLongToInt(extractLong(data, offset, length));
+        }
+
+        @Override
+        public Integer value() {
+            return Integer.valueOf(value);
+        }
+
+        /**
+         * Value accessor bypassing boxing.
+         *
+         * @return the number value in its primitive form.
+         */
+        public int intValue() {
+            return value;
+        }
+
+        @Override
+        public String toString() {
+            return Integer.TYPE.getSimpleName();
+        }
+    }
+
+    public static class ShortExtractor implements Extractor<Short> {
+        private short value;
+
+        @Override
+        public void extract(char[] data, int offset, int length) {
+            value = safeCastLongToShort(extractLong(data, offset, length));
+        }
+
+        @Override
+        public Short value() {
+            return Short.valueOf(value);
+        }
+
+        /**
+         * Value accessor bypassing boxing.
+         *
+         * @return the number value in its primitive form.
+         */
+        public short shortValue() {
+            return value;
+        }
+
+        @Override
+        public String toString() {
+            return Short.TYPE.getSimpleName();
+        }
+    }
+
+    public static class ByteExtractor implements Extractor<Byte> {
+        private byte value;
+
+        @Override
+        public void extract(char[] data, int offset, int length) {
+            value = safeCastLongToByte(extractLong(data, offset, length));
+        }
+
+        @Override
+        public Byte value() {
+            return Byte.valueOf(value);
+        }
+
+        /**
+         * Value accessor bypassing boxing.
+         *
+         * @return the number value in its primitive form.
+         */
+        public int byteValue() {
+            return value;
+        }
+
+        @Override
+        public String toString() {
+            return Byte.TYPE.getSimpleName();
+        }
+    }
+
+    private static final char[] BOOLEAN_MATCH;
+
+    static {
+        BOOLEAN_MATCH = new char[Boolean.TRUE.toString().length()];
+        Boolean.TRUE.toString().getChars(0, BOOLEAN_MATCH.length, BOOLEAN_MATCH, 0);
+    }
+
+    public static class BooleanExtractor implements Extractor<Boolean> {
+        private boolean value;
+
+        @Override
+        public void extract(char[] data, int offset, int length) {
+            value = extractBoolean(data, offset, length);
+        }
+
+        @Override
+        public Boolean value() {
+            return Boolean.valueOf(value);
+        }
+
+        public boolean booleanValue() {
+            return value;
+        }
+
+        @Override
+        public String toString() {
+            return Boolean.TYPE.getSimpleName();
+        }
+    }
+
+    public static class CharExtractor implements Extractor<Character> {
+        private char value;
+
+        @Override
+        public void extract(char[] data, int offset, int length) {
             if (length != 1) {
                 throw new IllegalStateException("Was told to extract a character, but length:" + length);
             }
-
-            return Character.valueOf(data[offset]);
+            value = data[offset];
         }
-    };
 
-    public static Extractor<Float> FLOAT = new Extractor<Float>() {
         @Override
-        public Float extract(char[] data, int offset, int length) {
-            // TODO Figure out a way to do this conversion without round tripping to String
-            return Float.valueOf(String.valueOf(data, offset, length));
+        public Character value() {
+            return Character.valueOf(value);
         }
-    };
 
-    public static Extractor<Double> DOUBLE = new Extractor<Double>() {
+        public char charValue() {
+            return value;
+        }
+
         @Override
-        public Double extract(char[] data, int offset, int length) {
-            // TODO Figure out a way to do this conversion without round tripping to String
-            return Double.valueOf(String.valueOf(data, offset, length));
+        public String toString() {
+            return Character.TYPE.getSimpleName();
         }
-    };
+    }
 
-    private static abstract class Array<T> implements Extractor<T> {
+    public static class FloatExtractor implements Extractor<Float> {
+        private float value;
+
+        @Override
+        public void extract(char[] data, int offset, int length) {
+            // TODO Figure out a way to do this conversion without round tripping to String
+            value = Float.parseFloat(String.valueOf(data, offset, length));
+        }
+
+        @Override
+        public Float value() {
+            return Float.valueOf(value);
+        }
+
+        public float floatValue() {
+            return value;
+        }
+
+        @Override
+        public String toString() {
+            return Float.TYPE.getSimpleName();
+        }
+    }
+
+    public static class DoubleExtractor implements Extractor<Double> {
+        private double value;
+
+        @Override
+        public void extract(char[] data, int offset, int length) {
+            // TODO Figure out a way to do this conversion without round tripping to String
+            value = Double.parseDouble(String.valueOf(data, offset, length));
+        }
+
+        @Override
+        public Double value() {
+            return Double.valueOf(value);
+        }
+
+        public double doubleValue() {
+            return value;
+        }
+
+        @Override
+        public String toString() {
+            return Double.TYPE.getSimpleName();
+        }
+    }
+
+    private static abstract class ArrayExtractor<T> implements Extractor<T> {
         protected final char arrayDelimiter;
         private final Class<?> componentType;
+        protected T value;
 
-        Array(char arrayDelimiter, Class<?> componentType) {
+        ArrayExtractor(char arrayDelimiter, Class<?> componentType) {
             this.arrayDelimiter = arrayDelimiter;
             this.componentType = componentType;
         }
 
+        @Override
+        public T value() {
+            return value;
+        }
+
         protected int charsToNextDelimiter(char[] data, int offset, int length) {
-            for (int i = 0; i < length - 1; i++) {
+            for (int i = 0; i < length; i++) {
                 if (data[offset + i] == arrayDelimiter) {
                     return i;
                 }
             }
-            return data[offset + length - 1] == arrayDelimiter ? length - 1 : length;
+            return length;
         }
 
         protected int numberOfValues(char[] data, int offset, int length) {
-            int count = 1;
-            // "length-1" because even if the last char is a delimiter we shouldn't count it anyways
-            for (int i = 0; i < length - 1; i++) {
+            int count = length > 0 ? 1 : 0;
+            for (int i = 0; i < length; i++) {
                 if (data[offset + i] == arrayDelimiter) {
                     count++;
                 }
@@ -236,145 +485,165 @@ public class Extractors {
         }
     }
 
-    private static class StringArray extends Array<String[]> {
-        StringArray(char arrayDelimiter) {
+    private static class StringArrayExtractor extends ArrayExtractor<String[]> {
+        private static final String[] EMPTY = new String[0];
+
+        StringArrayExtractor(char arrayDelimiter) {
             super(arrayDelimiter, String.class);
         }
 
         @Override
-        public String[] extract(char[] data, int offset, int length) {
-            String[] array = new String[numberOfValues(data, offset, length)];
-            for (int i = 0, index = 0; i < length; i++, index++) {
-                int numberOfChars = charsToNextDelimiter(data, offset + i, length - i);
-                array[index] = new String(data, offset + i, numberOfChars);
-                i += numberOfChars;
+        public void extract(char[] data, int offset, int length) {
+            int numberOfValues = numberOfValues(data, offset, length);
+            value = numberOfValues > 0 ? new String[numberOfValues] : EMPTY;
+            for (int arrayIndex = 0, charIndex = 0; arrayIndex < numberOfValues; arrayIndex++, charIndex++) {
+                int numberOfChars = charsToNextDelimiter(data, offset + charIndex, length - charIndex);
+                value[arrayIndex] = new String(data, offset + charIndex, numberOfChars);
+                charIndex += numberOfChars;
             }
-            return array;
         }
     }
 
-    private static class ByteArray extends Array<byte[]> {
-        ByteArray(char arrayDelimiter) {
+    private static class ByteArrayExtractor extends ArrayExtractor<byte[]> {
+        private static final byte[] EMPTY = new byte[0];
+
+        ByteArrayExtractor(char arrayDelimiter) {
             super(arrayDelimiter, Byte.TYPE);
         }
 
         @Override
-        public byte[] extract(char[] data, int offset, int length) {
-            byte[] array = new byte[numberOfValues(data, offset, length)];
-            for (int i = 0, index = 0; i < length; i++, index++) {
-                int numberOfChars = charsToNextDelimiter(data, offset + i, length - i);
-                array[index] = CsvUtils.safeCastLongToByte(extractLong(data, offset + i, numberOfChars));
-                i += numberOfChars;
+        public void extract(char[] data, int offset, int length) {
+            int numberOfValues = numberOfValues(data, offset, length);
+            value = numberOfValues > 0 ? new byte[numberOfValues] : EMPTY;
+            for (int arrayIndex = 0, charIndex = 0; arrayIndex < numberOfValues; arrayIndex++, charIndex++) {
+                int numberOfChars = charsToNextDelimiter(data, offset + charIndex, length - charIndex);
+                value[arrayIndex] = safeCastLongToByte(extractLong(data, offset + charIndex, numberOfChars));
+                charIndex += numberOfChars;
             }
-            return array;
         }
     }
 
-    private static class ShortArray extends Array<short[]> {
-        ShortArray(char arrayDelimiter) {
+    private static class ShortArrayExtractor extends ArrayExtractor<short[]> {
+        private static final short[] EMPTY = new short[0];
+
+        ShortArrayExtractor(char arrayDelimiter) {
             super(arrayDelimiter, Short.TYPE);
         }
 
         @Override
-        public short[] extract(char[] data, int offset, int length) {
-            short[] array = new short[numberOfValues(data, offset, length)];
-            for (int i = 0, index = 0; i < length; i++, index++) {
-                int numberOfChars = charsToNextDelimiter(data, offset + i, length - i);
-                array[index] = CsvUtils.safeCastLongToShort(extractLong(data, offset + i, numberOfChars));
-                i += numberOfChars;
+        public void extract(char[] data, int offset, int length) {
+            int numberOfValues = numberOfValues(data, offset, length);
+            value = numberOfValues > 0 ? new short[numberOfValues] : EMPTY;
+            for (int arrayIndex = 0, charIndex = 0; arrayIndex < numberOfValues; arrayIndex++, charIndex++) {
+                int numberOfChars = charsToNextDelimiter(data, offset + charIndex, length - charIndex);
+                value[arrayIndex] = safeCastLongToShort(extractLong(data, offset + charIndex, numberOfChars));
+                charIndex += numberOfChars;
             }
-            return array;
         }
     }
 
-    private static class IntArray extends Array<int[]> {
-        IntArray(char arrayDelimiter) {
+    private static class IntArrayExtractor extends ArrayExtractor<int[]> {
+        private static final int[] EMPTY = new int[0];
+
+        IntArrayExtractor(char arrayDelimiter) {
             super(arrayDelimiter, Integer.TYPE);
         }
 
         @Override
-        public int[] extract(char[] data, int offset, int length) {
-            int[] array = new int[numberOfValues(data, offset, length)];
-            for (int i = 0, index = 0; i < length; i++, index++) {
-                int numberOfChars = charsToNextDelimiter(data, offset + i, length - i);
-                array[index] = CsvUtils.safeCastLongToInt(extractLong(data, offset + i, numberOfChars));
-                i += numberOfChars;
+        public void extract(char[] data, int offset, int length) {
+            int numberOfValues = numberOfValues(data, offset, length);
+            value = numberOfValues > 0 ? new int[numberOfValues] : EMPTY;
+            for (int arrayIndex = 0, charIndex = 0; arrayIndex < numberOfValues; arrayIndex++, charIndex++) {
+                int numberOfChars = charsToNextDelimiter(data, offset + charIndex, length - charIndex);
+                value[arrayIndex] = safeCastLongToInt(extractLong(data, offset + charIndex, numberOfChars));
+                charIndex += numberOfChars;
             }
-            return array;
         }
     }
 
-    private static class LongArray extends Array<long[]> {
-        LongArray(char arrayDelimiter) {
+    private static class LongArrayExtractor extends ArrayExtractor<long[]> {
+        private static final long[] EMPTY = new long[0];
+
+        LongArrayExtractor(char arrayDelimiter) {
             super(arrayDelimiter, Long.TYPE);
         }
 
         @Override
-        public long[] extract(char[] data, int offset, int length) {
-            long[] array = new long[numberOfValues(data, offset, length)];
-            for (int i = 0, index = 0; i < length; i++, index++) {
-                int numberOfChars = charsToNextDelimiter(data, offset + i, length - i);
-                array[index] = extractLong(data, offset + i, numberOfChars);
-                i += numberOfChars;
+        public void extract(char[] data, int offset, int length) {
+            int numberOfValues = numberOfValues(data, offset, length);
+            value = numberOfValues > 0 ? new long[numberOfValues] : EMPTY;
+            for (int arrayIndex = 0, charIndex = 0; arrayIndex < numberOfValues; arrayIndex++, charIndex++) {
+                int numberOfChars = charsToNextDelimiter(data, offset + charIndex, length - charIndex);
+                value[arrayIndex] = extractLong(data, offset + charIndex, numberOfChars);
+                charIndex += numberOfChars;
             }
-            return array;
         }
     }
 
-    private static class FloatArray extends Array<float[]> {
-        FloatArray(char arrayDelimiter) {
+    private static class FloatArrayExtractor extends ArrayExtractor<float[]> {
+        private static final float[] EMPTY = new float[0];
+
+        FloatArrayExtractor(char arrayDelimiter) {
             super(arrayDelimiter, Float.TYPE);
         }
 
         @Override
-        public float[] extract(char[] data, int offset, int length) {
-            float[] array = new float[numberOfValues(data, offset, length)];
-            for (int i = 0, index = 0; i < length; i++, index++) {
-                int numberOfChars = charsToNextDelimiter(data, offset + i, length - i);
+        public void extract(char[] data, int offset, int length) {
+            int numberOfValues = numberOfValues(data, offset, length);
+            value = numberOfValues > 0 ? new float[numberOfValues] : EMPTY;
+            for (int arrayIndex = 0, charIndex = 0; arrayIndex < numberOfValues; arrayIndex++, charIndex++) {
+                int numberOfChars = charsToNextDelimiter(data, offset + charIndex, length - charIndex);
                 // TODO Figure out a way to do this conversion without round tripping to String
-                array[index] = Float.parseFloat(String.valueOf(data, offset + i, length - i));
-                i += numberOfChars;
+                value[arrayIndex] = Float.parseFloat(String.valueOf(data, offset + charIndex, numberOfChars));
+                charIndex += numberOfChars;
             }
-            return array;
         }
     }
 
-    private static class DoubleArray extends Array<double[]> {
-        DoubleArray(char arrayDelimiter) {
+    private static class DoubleArrayExtractor extends ArrayExtractor<double[]> {
+        private static final double[] EMPTY = new double[0];
+
+        DoubleArrayExtractor(char arrayDelimiter) {
             super(arrayDelimiter, Double.TYPE);
         }
 
         @Override
-        public double[] extract(char[] data, int offset, int length) {
-            double[] array = new double[numberOfValues(data, offset, length)];
-            for (int i = 0, index = 0; i < length; i++, index++) {
-                int numberOfChars = charsToNextDelimiter(data, offset + i, length - i);
+        public void extract(char[] data, int offset, int length) {
+            int numberOfValues = numberOfValues(data, offset, length);
+            value = numberOfValues > 0 ? new double[numberOfValues] : EMPTY;
+            for (int arrayIndex = 0, charIndex = 0; arrayIndex < numberOfValues; arrayIndex++, charIndex++) {
+                int numberOfChars = charsToNextDelimiter(data, offset + charIndex, length - charIndex);
                 // TODO Figure out a way to do this conversion without round tripping to String
-                array[index] = Double.parseDouble(String.valueOf(data, offset + i, length - i));
-                i += numberOfChars;
+                value[arrayIndex] = Double.parseDouble(String.valueOf(data, offset + charIndex, numberOfChars));
+                charIndex += numberOfChars;
             }
-            return array;
         }
     }
 
-    private static class BooleanArray extends Array<boolean[]> {
-        BooleanArray(char arrayDelimiter) {
+    private static class BooleanArrayExtractor extends ArrayExtractor<boolean[]> {
+        private static final boolean[] EMPTY = new boolean[0];
+
+        BooleanArrayExtractor(char arrayDelimiter) {
             super(arrayDelimiter, Boolean.TYPE);
         }
 
         @Override
-        public boolean[] extract(char[] data, int offset, int length) {
-            boolean[] array = new boolean[numberOfValues(data, offset, length)];
-            for (int i = 0, index = 0; i < length; i++, index++) {
-                int numberOfChars = charsToNextDelimiter(data, offset + i, length - i);
-                array[index] = extractBoolean(data, offset + i, length - i);
-                i += numberOfChars;
+        public void extract(char[] data, int offset, int length) {
+            int numberOfValues = numberOfValues(data, offset, length);
+            value = numberOfValues > 0 ? new boolean[numberOfValues] : EMPTY;
+            for (int arrayIndex = 0, charIndex = 0; arrayIndex < numberOfValues; arrayIndex++, charIndex++) {
+                int numberOfChars = charsToNextDelimiter(data, offset + charIndex, length - charIndex);
+                value[arrayIndex] = extractBoolean(data, offset + charIndex, numberOfChars);
+                charIndex += numberOfChars;
             }
-            return array;
         }
     }
 
     private static long extractLong(char[] data, int offset, int length) {
+        if (length == 0) {
+            throw new NumberFormatException("For input string \"" + String.valueOf(data, offset, length) + "\"");
+        }
+
         long result = 0;
         int i = 0;
         boolean negate = false;
@@ -414,5 +683,26 @@ public class Extractors {
             }
         }
         return true;
+    }
+
+    private static int safeCastLongToInt(long value) {
+        if (value > Integer.MAX_VALUE) {
+            throw new UnsupportedOperationException("Not supported a.t.m");
+        }
+        return (int) value;
+    }
+
+    private static short safeCastLongToShort(long value) {
+        if (value > Short.MAX_VALUE) {
+            throw new UnsupportedOperationException("Not supported a.t.m");
+        }
+        return (short) value;
+    }
+
+    private static byte safeCastLongToByte(long value) {
+        if (value > Byte.MAX_VALUE) {
+            throw new UnsupportedOperationException("Not supported a.t.m");
+        }
+        return (byte) value;
     }
 }

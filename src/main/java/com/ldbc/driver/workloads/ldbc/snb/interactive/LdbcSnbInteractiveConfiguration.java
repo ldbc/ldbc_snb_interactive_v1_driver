@@ -1,6 +1,7 @@
 package com.ldbc.driver.workloads.ldbc.snb.interactive;
 
 import com.google.common.collect.Lists;
+import com.ldbc.driver.WorkloadException;
 import com.ldbc.driver.control.ConsoleAndFileDriverConfiguration;
 
 import java.util.*;
@@ -17,6 +18,16 @@ public class LdbcSnbInteractiveConfiguration {
     public final static String SAFE_T = LDBC_SNB_INTERACTIVE_PARAM_NAME_PREFIX + "gct_delta_duration";
     // Average distance between updates in simulation time
     public final static String UPDATE_INTERLEAVE = LDBC_SNB_INTERACTIVE_PARAM_NAME_PREFIX + "update_interleave";
+
+    // The parser implementation to use when reading update events
+    public static enum UpdateStreamParser {
+        REGEX,
+        CHAR_SEEKER,
+        CHAR_SEEKER_THREAD
+    }
+
+    public final static String UPDATE_STREAM_PARSER = LDBC_SNB_INTERACTIVE_PARAM_NAME_PREFIX + "update_parser";
+    public final static UpdateStreamParser DEFAULT_UPDATE_STREAM_PARSER = UpdateStreamParser.CHAR_SEEKER;
     public final static String LDBC_INTERACTIVE_PACKAGE_PREFIX = removeSuffix(LdbcQuery1.class.getName(), LdbcQuery1.class.getSimpleName());
 
     /*
@@ -353,5 +364,16 @@ public class LdbcSnbInteractiveConfiguration {
         filePathsString += filePathsList.get(filePathsList.size() - 1);
 
         return filePathsString;
+    }
+
+    public static boolean isValidParser(String parserString) throws WorkloadException {
+        try {
+            UpdateStreamParser parser = UpdateStreamParser.valueOf(parserString);
+            Set<UpdateStreamParser> validParsers = new HashSet<>();
+            validParsers.addAll(Arrays.asList(UpdateStreamParser.values()));
+            return validParsers.contains(parser);
+        } catch (IllegalArgumentException e) {
+            throw new WorkloadException(String.format("Unsupported parser value: %s", parserString), e);
+        }
     }
 }

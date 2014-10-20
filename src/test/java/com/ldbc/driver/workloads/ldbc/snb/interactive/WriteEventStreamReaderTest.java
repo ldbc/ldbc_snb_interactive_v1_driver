@@ -7,14 +7,15 @@ import com.ldbc.driver.util.csv.BufferedCharSeeker;
 import com.ldbc.driver.util.csv.CharSeeker;
 import com.ldbc.driver.util.csv.Extractors;
 import com.ldbc.driver.util.csv.SimpleCsvFileReader;
-import org.junit.Ignore;
 import org.junit.Test;
 
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.StringReader;
 import java.text.ParseException;
-import java.util.*;
+import java.util.Date;
+import java.util.Iterator;
+import java.util.List;
 
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.is;
@@ -532,18 +533,6 @@ public class WriteEventStreamReaderTest {
         csvFileReader.close();
     }
 
-    // TODO unignore once latest neo4j-csv is available from maven
-    // TODO unignore once latest neo4j-csv is available from maven
-    // TODO unignore once latest neo4j-csv is available from maven
-    // TODO unignore once latest neo4j-csv is available from maven
-    // TODO unignore once latest neo4j-csv is available from maven
-    // TODO unignore once latest neo4j-csv is available from maven
-    // TODO unignore once latest neo4j-csv is available from maven
-    // TODO unignore once latest neo4j-csv is available from maven
-    // TODO unignore once latest neo4j-csv is available from maven
-    // TODO unignore once latest neo4j-csv is available from maven
-    // TODO unignore once latest neo4j-csv is available from maven
-    @Ignore
     @Test
     public void shouldParseUpdate1AddPersonWithNoTagsWithWriteEventStreamReaderCharSeeker_DATE() throws IOException, ParseException {
         // Given

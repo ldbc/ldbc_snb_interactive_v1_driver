@@ -52,7 +52,24 @@ import java.io.Reader;
  * @author Mattias Persson
  */
 public interface CharSeeker extends Closeable {
+    /**
+     * Seeks the next occurrence of any of the characters in {@code untilOneOfChars}, or if end-of-line,
+     * or even end-of-file.
+     *
+     * @param mark            the mutable {@link Mark} which will be updated with the findings, if any.
+     * @param untilOneOfChars array of characters to seek.
+     * @return {@code false} if the end was reached and hence no value found, otherwise {@code true}.
+     * @throws IOException in case of I/O error.
+     */
     boolean seek(Mark mark, int[] untilOneOfChars) throws IOException;
 
-    <T> T extract(Mark mark, Extractor<T> extractor);
+    /**
+     * Extracts the value specified by the {@link Mark}, previously populated by a call to {@link #seek(Mark, int[])}.
+     *
+     * @param mark      the {@link Mark} specifying which part of a bigger piece of data contains the found value.
+     * @param extractor {@link Extractor} capable of extracting the value.
+     * @return the supplied {@link Extractor}, which after the call carries the extracted value itself,
+     * where either {@link Extractor#value()} or a more specific accessor method can be called to access the value.
+     */
+    <EXTRACTOR extends Extractor<?>> EXTRACTOR extract(Mark mark, EXTRACTOR extractor);
 }

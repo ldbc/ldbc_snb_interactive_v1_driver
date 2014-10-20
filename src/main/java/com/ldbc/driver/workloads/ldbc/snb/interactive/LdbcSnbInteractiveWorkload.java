@@ -9,20 +9,24 @@ import com.ldbc.driver.temporal.Duration;
 import com.ldbc.driver.temporal.Time;
 import com.ldbc.driver.util.ClassLoaderHelper;
 import com.ldbc.driver.util.ClassLoadingException;
+import com.ldbc.driver.util.Tuple;
+import com.ldbc.driver.util.csv.BufferedCharSeeker;
+import com.ldbc.driver.util.csv.Extractors;
 import com.ldbc.driver.util.csv.SimpleCsvFileReader;
+import com.ldbc.driver.util.csv.ThreadAheadReadable;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.type.TypeReference;
 
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.IOException;
+import java.io.*;
 import java.util.*;
 
 import static com.ldbc.driver.generator.CsvEventStreamReader_OLD.EventReturnPolicy;
 
 public class LdbcSnbInteractiveWorkload extends Workload {
-    private List<SimpleCsvFileReader> forumUpdateOperationsFileReaders = new ArrayList<>();
-    private List<SimpleCsvFileReader> personUpdateOperationsFileReaders = new ArrayList<>();
+    private List<Closeable> forumUpdateOperationsFileReaders = new ArrayList<>();
+    private List<File> forumUpdateOperationFiles = new ArrayList<>();
+    private List<Closeable> personUpdateOperationsFileReaders = new ArrayList<>();
+    private List<File> personUpdateOperationFiles = new ArrayList<>();
 
     private SimpleCsvFileReader readOperation1FileReader;
     private SimpleCsvFileReader readOperation2FileReader;
@@ -57,6 +61,7 @@ public class LdbcSnbInteractiveWorkload extends Workload {
     private Set<Class> enabledReadOperationTypes;
     private Set<Class<? extends Operation<?>>> enabledWriteOperationTypes;
     private Duration safeTDuration;
+    private LdbcSnbInteractiveConfiguration.UpdateStreamParser parser;
 
     @Override
     public void onInit(Map<String, String> params) throws WorkloadException {
@@ -77,12 +82,7 @@ public class LdbcSnbInteractiveWorkload extends Workload {
                 new ArrayList<String>();
         for (String forumUpdateFilePath : forumUpdateFilePaths) {
             File forumUpdateFile = new File(forumUpdateFilePath);
-            try {
-                SimpleCsvFileReader forumUpdateOperationsFileReader = new SimpleCsvFileReader(forumUpdateFile, LdbcSnbInteractiveConfiguration.PIPE_SEPARATOR_REGEX);
-                forumUpdateOperationsFileReaders.add(forumUpdateOperationsFileReader);
-            } catch (FileNotFoundException e) {
-                throw new WorkloadException("Unable to load forum update operation parameters file: " + forumUpdateFilePath, e);
-            }
+            forumUpdateOperationFiles.add(forumUpdateFile);
         }
 
         Iterable<String> personUpdateFilePaths = (params.containsKey(LdbcSnbInteractiveConfiguration.PERSON_UPDATE_FILES))
@@ -92,12 +92,7 @@ public class LdbcSnbInteractiveWorkload extends Workload {
                 new ArrayList<String>();
         for (String personUpdateFilePath : personUpdateFilePaths) {
             File personUpdateFile = new File(personUpdateFilePath);
-            try {
-                SimpleCsvFileReader personUpdateOperationsFileReader = new SimpleCsvFileReader(personUpdateFile, LdbcSnbInteractiveConfiguration.PIPE_SEPARATOR_REGEX);
-                personUpdateOperationsFileReaders.add(personUpdateOperationsFileReader);
-            } catch (FileNotFoundException e) {
-                throw new WorkloadException("Unable to load person update operation parameters file", e);
-            }
+            personUpdateOperationFiles.add(personUpdateFile);
         }
 
         File parametersDir = new File(params.get(LdbcSnbInteractiveConfiguration.PARAMETERS_DIRECTORY));
@@ -225,16 +220,32 @@ public class LdbcSnbInteractiveWorkload extends Workload {
         } catch (NumberFormatException e) {
             throw new WorkloadException("Unable to parse one of the read operation interleave values", e);
         }
+
+        String parserString = params.get(LdbcSnbInteractiveConfiguration.UPDATE_STREAM_PARSER);
+        if (null == parserString)
+            parserString = LdbcSnbInteractiveConfiguration.DEFAULT_UPDATE_STREAM_PARSER.name();
+        if (false == LdbcSnbInteractiveConfiguration.isValidParser(parserString)) {
+            throw new WorkloadException("Invalid parser: " + parserString);
+        }
+        this.parser = LdbcSnbInteractiveConfiguration.UpdateStreamParser.valueOf(parserString);
     }
 
     @Override
     synchronized protected void onCleanup() throws WorkloadException {
-        for (SimpleCsvFileReader forumUpdateOperationsFileReader : forumUpdateOperationsFileReaders) {
-            forumUpdateOperationsFileReader.close();
+        for (Closeable forumUpdateOperationsFileReader : forumUpdateOperationsFileReaders) {
+            try {
+                forumUpdateOperationsFileReader.close();
+            } catch (IOException e) {
+                throw new WorkloadException("Error encountered while closing forum update reader", e);
+            }
         }
 
-        for (SimpleCsvFileReader personUpdateOperationsFileReader : personUpdateOperationsFileReaders) {
-            personUpdateOperationsFileReader.close();
+        for (Closeable personUpdateOperationsFileReader : personUpdateOperationsFileReaders) {
+            try {
+                personUpdateOperationsFileReader.close();
+            } catch (IOException e) {
+                throw new WorkloadException("Error encountered while closing forum update reader", e);
+            }
         }
 
         readOperation1FileReader.close();
@@ -251,6 +262,29 @@ public class LdbcSnbInteractiveWorkload extends Workload {
         readOperation12FileReader.close();
         readOperation13FileReader.close();
         readOperation14FileReader.close();
+    }
+
+    private Tuple.Tuple2<Iterator<Operation<?>>, Closeable> fileToFileStreamParser(File updateOperationsFile, LdbcSnbInteractiveConfiguration.UpdateStreamParser parser) throws IOException, WorkloadException {
+        switch (parser) {
+            case REGEX: {
+                SimpleCsvFileReader csvFileReader = new SimpleCsvFileReader(updateOperationsFile, SimpleCsvFileReader.DEFAULT_COLUMN_SEPARATOR_PATTERN);
+                return Tuple.<Iterator<Operation<?>>, Closeable>tuple2(new WriteEventStreamReaderRegex(csvFileReader), csvFileReader);
+            }
+            case CHAR_SEEKER: {
+                int bufferSize = 2 * 1024 * 1024;
+                BufferedCharSeeker charSeeker = new BufferedCharSeeker(new FileReader(updateOperationsFile), bufferSize);
+                Extractors extractors = new Extractors(';');
+                return Tuple.<Iterator<Operation<?>>, Closeable>tuple2(new WriteEventStreamReaderCharSeeker(charSeeker, extractors, '|'), charSeeker);
+            }
+            case CHAR_SEEKER_THREAD: {
+                int bufferSize = 2 * 1024 * 1024;
+                BufferedCharSeeker charSeeker = new BufferedCharSeeker(ThreadAheadReadable.threadAhead(new FileReader(updateOperationsFile), bufferSize), bufferSize);
+                Extractors extractors = new Extractors(';');
+                return Tuple.<Iterator<Operation<?>>, Closeable>tuple2(new WriteEventStreamReaderCharSeeker(charSeeker, extractors, '|'), charSeeker);
+            }
+        }
+        SimpleCsvFileReader csvFileReader = new SimpleCsvFileReader(updateOperationsFile, SimpleCsvFileReader.DEFAULT_COLUMN_SEPARATOR_PATTERN);
+        return Tuple.<Iterator<Operation<?>>, Closeable>tuple2(new WriteEventStreamReaderRegex(csvFileReader), csvFileReader);
     }
 
     @Override
@@ -275,12 +309,16 @@ public class LdbcSnbInteractiveWorkload extends Workload {
         /*
          * Create forum write operation streams
          */
-        for (SimpleCsvFileReader forumUpdateOperationsFileReader : forumUpdateOperationsFileReaders) {
-            PeekingIterator<Operation<?>> unfilteredForumUpdateOperations = Iterators.peekingIterator(
-                    new WriteEventStreamReaderRegex(
-                            forumUpdateOperationsFileReader
-                    )
-            );
+        for (File forumUpdateOperationFile : forumUpdateOperationFiles) {
+            Iterator<Operation<?>> forumUpdateOperationsParser;
+            try {
+                Tuple.Tuple2<Iterator<Operation<?>>, Closeable> parserAndCloseable = fileToFileStreamParser(forumUpdateOperationFile, parser);
+                forumUpdateOperationsParser = parserAndCloseable._1();
+                forumUpdateOperationsFileReaders.add(parserAndCloseable._2());
+            } catch (IOException e) {
+                throw new WorkloadException("Unable to open forum update stream: " + forumUpdateOperationFile.getAbsolutePath(), e);
+            }
+            PeekingIterator<Operation<?>> unfilteredForumUpdateOperations = Iterators.peekingIterator(forumUpdateOperationsParser);
             try {
                 if (null == workloadStartTime || unfilteredForumUpdateOperations.peek().scheduledStartTime().lt(workloadStartTime)) {
                     workloadStartTime = unfilteredForumUpdateOperations.peek().scheduledStartTime();
@@ -318,12 +356,18 @@ public class LdbcSnbInteractiveWorkload extends Workload {
             );
         }
 
-        for (SimpleCsvFileReader personUpdateOperationsFileReader : personUpdateOperationsFileReaders) {
-            PeekingIterator<Operation<?>> unfilteredPersonUpdateOperations = Iterators.peekingIterator(
-                    new WriteEventStreamReaderRegex(
-                            personUpdateOperationsFileReader
-                    )
-            );
+        for (File personUpdateOperationFile : personUpdateOperationFiles) {
+            Iterator<Operation<?>> personUpdateOperationsParser;
+            try {
+                Tuple.Tuple2<Iterator<Operation<?>>, Closeable> parserAndCloseable = fileToFileStreamParser(personUpdateOperationFile, parser);
+                personUpdateOperationsParser = parserAndCloseable._1();
+                personUpdateOperationsFileReaders.add(parserAndCloseable._2());
+            } catch (IOException e) {
+                throw new WorkloadException("Unable to open forum update stream: " + personUpdateOperationFile.getAbsolutePath(), e);
+            }
+            PeekingIterator<Operation<?>> unfilteredPersonUpdateOperations = Iterators.peekingIterator(personUpdateOperationsParser);
+
+
             try {
                 if (null == workloadStartTime || unfilteredPersonUpdateOperations.peek().scheduledStartTime().lt(workloadStartTime)) {
                     workloadStartTime = unfilteredPersonUpdateOperations.peek().scheduledStartTime();

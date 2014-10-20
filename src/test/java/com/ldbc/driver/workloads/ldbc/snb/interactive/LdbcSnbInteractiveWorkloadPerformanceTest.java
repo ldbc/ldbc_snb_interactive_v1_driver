@@ -26,6 +26,7 @@ import org.junit.rules.TemporaryFolder;
 import java.io.File;
 import java.io.FilenameFilter;
 import java.io.IOException;
+import java.text.DecimalFormat;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -44,11 +45,9 @@ public class LdbcSnbInteractiveWorkloadPerformanceTest {
             throws InterruptedException, DbException, WorkloadException, IOException, MetricsCollectionException, CompletionTimeException, DriverConfigurationException {
         File parentStreamsDir = new File("/Users/alexaverbuch/IdeaProjects/scale_factor_streams/");
         List<File> streamsDirs = Lists.newArrayList(
-                new File(parentStreamsDir, "sf_10_partitions_01/"),
-                new File(parentStreamsDir, "sf_10_partitions_02/"),
-                new File(parentStreamsDir, "sf_10_partitions_04/"),
-                new File(parentStreamsDir, "sf_10_partitions_08/"),
-                new File(parentStreamsDir, "sf_10_partitions_64/")
+                new File(parentStreamsDir, "sf10_partitions_01/"),
+                new File(parentStreamsDir, "sf10_partitions_04/"),
+                new File(parentStreamsDir, "sf10_partitions_16/")
         );
 
         for (File streamDir : streamsDirs) {
@@ -89,8 +88,8 @@ public class LdbcSnbInteractiveWorkloadPerformanceTest {
                     }
             );
 
-            List<Integer> threadCounts = Lists.newArrayList(1, 2, 4, 8);
-            long operationCount = 1000000;
+            List<Integer> threadCounts = Lists.newArrayList(1, 2, 4);
+            long operationCount = 10000000;
             for (int threadCount : threadCounts) {
                 doPerformanceTest(
                         threadCount,
@@ -181,7 +180,16 @@ public class LdbcSnbInteractiveWorkloadPerformanceTest {
 
             double operationsPerSecond = Math.round(((double) operationCount / resultsSnapshot.totalRunDuration().asNano()) * Duration.fromSeconds(1).asNano());
             double microSecondPerOperation = (double) resultsSnapshot.totalRunDuration().asMicro() / operationCount;
-            System.out.println(String.format("[%s]Completed %s operations in %s = %s op/sec = 1 op/%s us", name, operationCount, resultsSnapshot.totalRunDuration(), operationsPerSecond, microSecondPerOperation));
+            DecimalFormat numberFormatter = new DecimalFormat("###,###,###,###");
+            System.out.println(
+                    String.format("[%s]Completed %s operations in %s = %s op/sec = 1 op/%s us",
+                            name,
+                            numberFormatter.format(operationCount),
+                            resultsSnapshot.totalRunDuration(),
+                            numberFormatter.format(operationsPerSecond),
+                            microSecondPerOperation
+                    )
+            );
         } catch (Throwable e) {
             e.printStackTrace();
         } finally {
