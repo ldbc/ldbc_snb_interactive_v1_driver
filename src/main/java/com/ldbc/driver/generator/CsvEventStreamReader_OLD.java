@@ -6,7 +6,7 @@ import com.ldbc.driver.util.Function1;
 import java.util.Arrays;
 import java.util.Iterator;
 
-public class CsvEventStreamReader<BASE_EVENT_TYPE> implements Iterator<BASE_EVENT_TYPE> {
+public class CsvEventStreamReader_OLD<BASE_EVENT_TYPE> implements Iterator<BASE_EVENT_TYPE> {
     public static enum EventReturnPolicy {
         AT_LEAST_ONE_MATCH,
         EXACTLY_ONE_MATCH
@@ -65,7 +65,7 @@ public class CsvEventStreamReader<BASE_EVENT_TYPE> implements Iterator<BASE_EVEN
     private final EventDescriptions<BASE_EVENT_TYPE> eventDescriptions;
     private final Iterator<String[]> csvRowIterator;
 
-    public CsvEventStreamReader(Iterator<String[]> csvRowIterator, EventDescriptions<BASE_EVENT_TYPE> eventDescriptions) {
+    public CsvEventStreamReader_OLD(Iterator<String[]> csvRowIterator, EventDescriptions<BASE_EVENT_TYPE> eventDescriptions) {
         this.csvRowIterator = csvRowIterator;
         this.eventDescriptions = eventDescriptions;
     }

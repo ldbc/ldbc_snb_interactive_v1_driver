@@ -6,7 +6,9 @@ import com.ldbc.driver.testutils.TestUtils;
 import com.ldbc.driver.util.csv.SimpleCsvFileReader;
 import org.junit.Test;
 
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.StringReader;
 import java.text.ParseException;
 import java.util.Calendar;
 import java.util.List;
@@ -20,7 +22,10 @@ public class ReadQueryEventStreamReadersTest {
     @Test
     public void shouldParseAllQuery1Events() throws IOException, ParseException {
         // Given
-        Query1EventStreamReader reader = new Query1EventStreamReader(new SimpleCsvFileReader(TestUtils.getResource("/query_1_param.txt"), "\\|"));
+        String data = ReadQueryEventStreamReadersTestData.QUERY_1_CSV_ROWS;
+        BufferedReader bufferedReader = new BufferedReader(new StringReader(data));
+        SimpleCsvFileReader csvFileReader = new SimpleCsvFileReader(bufferedReader, SimpleCsvFileReader.DEFAULT_COLUMN_SEPARATOR_PATTERN);
+        Query1EventStreamReader reader = new Query1EventStreamReader(csvFileReader);
 
         // When
 
@@ -29,31 +34,34 @@ public class ReadQueryEventStreamReadersTest {
 
         operation = (LdbcQuery1) reader.next();
         assertThat(operation.personId(), is(10995117334833L));
-        assertThat(operation.personUri(), equalTo("http://www.ldbc.eu/ldbc_socialnet/1.0/data/pers10995117334833"));
+        assertThat(operation.personUri(), is("uri"));
         assertThat(operation.firstName(), equalTo("John"));
 
         operation = (LdbcQuery1) reader.next();
         assertThat(operation.personId(), is(14293651244033L));
-        assertThat(operation.personUri(), equalTo("http://www.ldbc.eu/ldbc_socialnet/1.0/data/pers14293651244033"));
+        assertThat(operation.personUri(), is("uri"));
         assertThat(operation.firstName(), equalTo("Yang"));
 
         operation = (LdbcQuery1) reader.next();
         assertThat(operation.personId(), is(6597070008725L));
-        assertThat(operation.personUri(), equalTo("http://www.ldbc.eu/ldbc_socialnet/1.0/data/pers6597070008725"));
+        assertThat(operation.personUri(), is("uri"));
         assertThat(operation.firstName(), equalTo("A."));
 
         operation = (LdbcQuery1) reader.next();
         assertThat(operation.personId(), is(2199023331001L));
-        assertThat(operation.personUri(), equalTo("http://www.ldbc.eu/ldbc_socialnet/1.0/data/pers2199023331001"));
+        assertThat(operation.personUri(), is("uri"));
         assertThat(operation.firstName(), equalTo("Chen"));
 
-        assertThat(reader.hasNext(), is(true));
+        assertThat(reader.hasNext(), is(false));
     }
 
     @Test
     public void shouldParseAllQuery2Events() throws IOException, ParseException {
         // Given
-        Query2EventStreamReader reader = new Query2EventStreamReader(new SimpleCsvFileReader(TestUtils.getResource("/query_2_param.txt"), "\\|"));
+        String data = ReadQueryEventStreamReadersTestData.QUERY_2_CSV_ROWS;
+        BufferedReader bufferedReader = new BufferedReader(new StringReader(data));
+        SimpleCsvFileReader csvFileReader = new SimpleCsvFileReader(bufferedReader, SimpleCsvFileReader.DEFAULT_COLUMN_SEPARATOR_PATTERN);
+        Query2EventStreamReader reader = new Query2EventStreamReader(csvFileReader);
 
         // When
 
@@ -64,39 +72,42 @@ public class ReadQueryEventStreamReadersTest {
 
         operation = (LdbcQuery2) reader.next();
         assertThat(operation.personId(), is(12094628092905L));
-        assertThat(operation.personUri(), equalTo("http://www.ldbc.eu/ldbc_socialnet/1.0/data/pers12094628092905"));
+        assertThat(operation.personUri(), equalTo("uri"));
         calendar.clear();
         calendar.set(2013, Calendar.JANUARY, 28);
         assertThat(operation.maxDate().getTime(), is(calendar.getTime().getTime()));
 
         operation = (LdbcQuery2) reader.next();
         assertThat(operation.personId(), is(9895606011404L));
-        assertThat(operation.personUri(), equalTo("http://www.ldbc.eu/ldbc_socialnet/1.0/data/pers9895606011404"));
+        assertThat(operation.personUri(), equalTo("uri"));
         calendar.clear();
         calendar.set(2013, Calendar.JANUARY, 28);
         assertThat(operation.maxDate().getTime(), is(calendar.getTime().getTime()));
 
         operation = (LdbcQuery2) reader.next();
         assertThat(operation.personId(), is(14293651244033L));
-        assertThat(operation.personUri(), equalTo("http://www.ldbc.eu/ldbc_socialnet/1.0/data/pers14293651244033"));
+        assertThat(operation.personUri(), equalTo("uri"));
         calendar.clear();
-        calendar.set(2013, Calendar.JANUARY, 28);
+        calendar.set(2013, Calendar.FEBRUARY, 2);
         assertThat(operation.maxDate().getTime(), is(calendar.getTime().getTime()));
 
         operation = (LdbcQuery2) reader.next();
         assertThat(operation.personId(), is(13194139602632L));
-        assertThat(operation.personUri(), equalTo("http://www.ldbc.eu/ldbc_socialnet/1.0/data/pers13194139602632"));
+        assertThat(operation.personUri(), equalTo("uri"));
         calendar.clear();
-        calendar.set(2013, Calendar.JANUARY, 28);
+        calendar.set(2013, Calendar.OCTOBER, 16);
         assertThat(operation.maxDate().getTime(), is(calendar.getTime().getTime()));
 
-        assertThat(reader.hasNext(), is(true));
+        assertThat(reader.hasNext(), is(false));
     }
 
     @Test
     public void shouldParseAllQuery3Events() throws IOException, ParseException {
         // Given
-        Query3EventStreamReader reader = new Query3EventStreamReader(new SimpleCsvFileReader(TestUtils.getResource("/query_3_param.txt"), "\\|"));
+        String data = ReadQueryEventStreamReadersTestData.QUERY_3_CSV_ROWS;
+        BufferedReader bufferedReader = new BufferedReader(new StringReader(data));
+        SimpleCsvFileReader csvFileReader = new SimpleCsvFileReader(bufferedReader, SimpleCsvFileReader.DEFAULT_COLUMN_SEPARATOR_PATTERN);
+        Query3EventStreamReader reader = new Query3EventStreamReader(csvFileReader);
 
         // When
 
@@ -107,7 +118,7 @@ public class ReadQueryEventStreamReadersTest {
 
         operation = (LdbcQuery3) reader.next();
         assertThat(operation.personId(), is(9895605643992L));
-        assertThat(operation.personUri(), is("http://www.ldbc.eu/ldbc_socialnet/1.0/data/pers9895605643992"));
+        assertThat(operation.personUri(), is("uri"));
         assertThat(operation.countryXName(), is("Taiwan"));
         assertThat(operation.countryYName(), is("Bulgaria"));
         assertThat(operation.durationDays(), is(53));
@@ -117,7 +128,7 @@ public class ReadQueryEventStreamReadersTest {
 
         operation = (LdbcQuery3) reader.next();
         assertThat(operation.personId(), is(979201L));
-        assertThat(operation.personUri(), is("http://www.ldbc.eu/ldbc_socialnet/1.0/data/pers979201"));
+        assertThat(operation.personUri(), is("uri"));
         assertThat(operation.countryXName(), is("Nicaragua"));
         assertThat(operation.countryYName(), is("Afghanistan"));
         assertThat(operation.durationDays(), is(64));
@@ -127,7 +138,7 @@ public class ReadQueryEventStreamReadersTest {
 
         operation = (LdbcQuery3) reader.next();
         assertThat(operation.personId(), is(129891L));
-        assertThat(operation.personUri(), is("http://www.ldbc.eu/ldbc_socialnet/1.0/data/pers129891"));
+        assertThat(operation.personUri(), is("uri"));
         assertThat(operation.countryXName(), is("Colombia"));
         assertThat(operation.countryYName(), is("Lithuania"));
         assertThat(operation.durationDays(), is(58));
@@ -137,7 +148,7 @@ public class ReadQueryEventStreamReadersTest {
 
         operation = (LdbcQuery3) reader.next();
         assertThat(operation.personId(), is(13194140498760L));
-        assertThat(operation.personUri(), is("http://www.ldbc.eu/ldbc_socialnet/1.0/data/pers13194140498760"));
+        assertThat(operation.personUri(), is("uri"));
         assertThat(operation.countryXName(), is("Lithuania"));
         assertThat(operation.countryYName(), is("Afghanistan"));
         assertThat(operation.durationDays(), is(53));
@@ -145,14 +156,16 @@ public class ReadQueryEventStreamReadersTest {
         calendar.set(2010, Calendar.DECEMBER, 1);
         assertThat(operation.startDate().getTime(), is(calendar.getTime().getTime()));
 
-        assertThat(reader.hasNext(), is(true));
+        assertThat(reader.hasNext(), is(false));
     }
-
 
     @Test
     public void shouldParseAllQuery4Events() throws IOException, ParseException {
         // Given
-        Query4EventStreamReader reader = new Query4EventStreamReader(new SimpleCsvFileReader(TestUtils.getResource("/query_4_param.txt"), "\\|"));
+        String data = ReadQueryEventStreamReadersTestData.QUERY_4_CSV_ROWS;
+        BufferedReader bufferedReader = new BufferedReader(new StringReader(data));
+        SimpleCsvFileReader csvFileReader = new SimpleCsvFileReader(bufferedReader, SimpleCsvFileReader.DEFAULT_COLUMN_SEPARATOR_PATTERN);
+        Query4EventStreamReader reader = new Query4EventStreamReader(csvFileReader);
 
         // When
 
@@ -163,7 +176,7 @@ public class ReadQueryEventStreamReadersTest {
 
         operation = (LdbcQuery4) reader.next();
         assertThat(operation.personId(), is(12094628092905L));
-        assertThat(operation.personUri(), is("http://www.ldbc.eu/ldbc_socialnet/1.0/data/pers12094628092905"));
+        assertThat(operation.personUri(), is("uri"));
         assertThat(operation.durationDays(), is(43));
         calendar.clear();
         calendar.set(2011, Calendar.APRIL, 1);
@@ -171,7 +184,7 @@ public class ReadQueryEventStreamReadersTest {
 
         operation = (LdbcQuery4) reader.next();
         assertThat(operation.personId(), is(9895606011404L));
-        assertThat(operation.personUri(), is("http://www.ldbc.eu/ldbc_socialnet/1.0/data/pers9895606011404"));
+        assertThat(operation.personUri(), is("uri"));
         assertThat(operation.durationDays(), is(36));
         calendar.clear();
         calendar.set(2012, Calendar.JANUARY, 1);
@@ -179,7 +192,7 @@ public class ReadQueryEventStreamReadersTest {
 
         operation = (LdbcQuery4) reader.next();
         assertThat(operation.personId(), is(14293651244033L));
-        assertThat(operation.personUri(), is("http://www.ldbc.eu/ldbc_socialnet/1.0/data/pers14293651244033"));
+        assertThat(operation.personUri(), is("uri"));
         assertThat(operation.durationDays(), is(57));
         calendar.clear();
         calendar.set(2011, Calendar.JULY, 1);
@@ -187,19 +200,22 @@ public class ReadQueryEventStreamReadersTest {
 
         operation = (LdbcQuery4) reader.next();
         assertThat(operation.personId(), is(13194139602632L));
-        assertThat(operation.personUri(), is("http://www.ldbc.eu/ldbc_socialnet/1.0/data/pers13194139602632"));
+        assertThat(operation.personUri(), is("uri"));
         assertThat(operation.durationDays(), is(81));
         calendar.clear();
         calendar.set(2011, Calendar.JULY, 1);
         assertThat(operation.startDate().getTime(), is(calendar.getTime().getTime()));
 
-        assertThat(reader.hasNext(), is(true));
+        assertThat(reader.hasNext(), is(false));
     }
 
     @Test
     public void shouldParseAllQuery5Events() throws IOException, ParseException {
         // Given
-        Query5EventStreamReader reader = new Query5EventStreamReader(new SimpleCsvFileReader(TestUtils.getResource("/query_5_param.txt"), "\\|"));
+        String data = ReadQueryEventStreamReadersTestData.QUERY_5_CSV_ROWS;
+        BufferedReader bufferedReader = new BufferedReader(new StringReader(data));
+        SimpleCsvFileReader csvFileReader = new SimpleCsvFileReader(bufferedReader, SimpleCsvFileReader.DEFAULT_COLUMN_SEPARATOR_PATTERN);
+        Query5EventStreamReader reader = new Query5EventStreamReader(csvFileReader);
 
         // When
 
@@ -210,39 +226,42 @@ public class ReadQueryEventStreamReadersTest {
 
         operation = (LdbcQuery5) reader.next();
         assertThat(operation.personId(), is(9895605643992L));
-        assertThat(operation.personUri(), is("http://www.ldbc.eu/ldbc_socialnet/1.0/data/pers9895605643992"));
+        assertThat(operation.personUri(), is("uri"));
         calendar.clear();
         calendar.set(2012, Calendar.DECEMBER, 15);
         assertThat(operation.minDate().getTime(), is(calendar.getTime().getTime()));
 
         operation = (LdbcQuery5) reader.next();
         assertThat(operation.personId(), is(979201L));
-        assertThat(operation.personUri(), is("http://www.ldbc.eu/ldbc_socialnet/1.0/data/pers979201"));
+        assertThat(operation.personUri(), is("uri"));
         calendar.clear();
         calendar.set(2012, Calendar.DECEMBER, 16);
         assertThat(operation.minDate().getTime(), is(calendar.getTime().getTime()));
 
         operation = (LdbcQuery5) reader.next();
         assertThat(operation.personId(), is(129891L));
-        assertThat(operation.personUri(), is("http://www.ldbc.eu/ldbc_socialnet/1.0/data/pers129891"));
+        assertThat(operation.personUri(), is("uri"));
         calendar.clear();
         calendar.set(2012, Calendar.DECEMBER, 14);
         assertThat(operation.minDate().getTime(), is(calendar.getTime().getTime()));
 
         operation = (LdbcQuery5) reader.next();
         assertThat(operation.personId(), is(13194140498760L));
-        assertThat(operation.personUri(), is("http://www.ldbc.eu/ldbc_socialnet/1.0/data/pers13194140498760"));
+        assertThat(operation.personUri(), is("uri"));
         calendar.clear();
         calendar.set(2012, Calendar.DECEMBER, 12);
         assertThat(operation.minDate().getTime(), is(calendar.getTime().getTime()));
 
-        assertThat(reader.hasNext(), is(true));
+        assertThat(reader.hasNext(), is(false));
     }
 
     @Test
     public void shouldParseAllQuery6Events() throws IOException, ParseException {
         // Given
-        Query6EventStreamReader reader = new Query6EventStreamReader(new SimpleCsvFileReader(TestUtils.getResource("/query_6_param.txt"), "\\|"));
+        String data = ReadQueryEventStreamReadersTestData.QUERY_6_CSV_ROWS;
+        BufferedReader bufferedReader = new BufferedReader(new StringReader(data));
+        SimpleCsvFileReader csvFileReader = new SimpleCsvFileReader(bufferedReader, SimpleCsvFileReader.DEFAULT_COLUMN_SEPARATOR_PATTERN);
+        Query6EventStreamReader reader = new Query6EventStreamReader(csvFileReader);
 
         // When
 
@@ -251,31 +270,34 @@ public class ReadQueryEventStreamReadersTest {
 
         operation = (LdbcQuery6) reader.next();
         assertThat(operation.personId(), is(9895605643992L));
-        assertThat(operation.personUri(), is("http://www.ldbc.eu/ldbc_socialnet/1.0/data/pers9895605643992"));
+        assertThat(operation.personUri(), is("uri"));
         assertThat(operation.tagName(), is("Jiang_Zemin"));
 
         operation = (LdbcQuery6) reader.next();
         assertThat(operation.personId(), is(979201L));
-        assertThat(operation.personUri(), is("http://www.ldbc.eu/ldbc_socialnet/1.0/data/pers979201"));
+        assertThat(operation.personUri(), is("uri"));
         assertThat(operation.tagName(), is("Nino_Rota"));
 
         operation = (LdbcQuery6) reader.next();
         assertThat(operation.personId(), is(129891L));
-        assertThat(operation.personUri(), is("http://www.ldbc.eu/ldbc_socialnet/1.0/data/pers129891"));
+        assertThat(operation.personUri(), is("uri"));
         assertThat(operation.tagName(), is("John_VI_of_Portugal"));
 
         operation = (LdbcQuery6) reader.next();
         assertThat(operation.personId(), is(13194140498760L));
-        assertThat(operation.personUri(), is("http://www.ldbc.eu/ldbc_socialnet/1.0/data/pers13194140498760"));
+        assertThat(operation.personUri(), is("uri"));
         assertThat(operation.tagName(), is("Nikolai_Gogol"));
 
-        assertThat(reader.hasNext(), is(true));
+        assertThat(reader.hasNext(), is(false));
     }
 
     @Test
     public void shouldParseAllQuery7Events() throws IOException, ParseException {
         // Given
-        Query7EventStreamReader reader = new Query7EventStreamReader(new SimpleCsvFileReader(TestUtils.getResource("/query_7_param.txt"), "\\|"));
+        String data = ReadQueryEventStreamReadersTestData.QUERY_7_CSV_ROWS;
+        BufferedReader bufferedReader = new BufferedReader(new StringReader(data));
+        SimpleCsvFileReader csvFileReader = new SimpleCsvFileReader(bufferedReader, SimpleCsvFileReader.DEFAULT_COLUMN_SEPARATOR_PATTERN);
+        Query7EventStreamReader reader = new Query7EventStreamReader(csvFileReader);
 
         // When
 
@@ -284,27 +306,30 @@ public class ReadQueryEventStreamReadersTest {
 
         operation = (LdbcQuery7) reader.next();
         assertThat(operation.personId(), is(16492675436774L));
-        assertThat(operation.personUri(), is("http://www.ldbc.eu/ldbc_socialnet/1.0/data/pers16492675436774"));
+        assertThat(operation.personUri(), is("uri"));
 
         operation = (LdbcQuery7) reader.next();
         assertThat(operation.personId(), is(14293651330072L));
-        assertThat(operation.personUri(), is("http://www.ldbc.eu/ldbc_socialnet/1.0/data/pers14293651330072"));
+        assertThat(operation.personUri(), is("uri"));
 
         operation = (LdbcQuery7) reader.next();
         assertThat(operation.personId(), is(4398047140913L));
-        assertThat(operation.personUri(), is("http://www.ldbc.eu/ldbc_socialnet/1.0/data/pers4398047140913"));
+        assertThat(operation.personUri(), is("uri"));
 
         operation = (LdbcQuery7) reader.next();
         assertThat(operation.personId(), is(13194140823804L));
-        assertThat(operation.personUri(), is("http://www.ldbc.eu/ldbc_socialnet/1.0/data/pers13194140823804"));
+        assertThat(operation.personUri(), is("uri"));
 
-        assertThat(reader.hasNext(), is(true));
+        assertThat(reader.hasNext(), is(false));
     }
 
     @Test
     public void shouldParseAllQuery8Events() throws IOException, ParseException {
         // Given
-        Query8EventStreamReader reader = new Query8EventStreamReader(new SimpleCsvFileReader(TestUtils.getResource("/query_8_param.txt"), "\\|"));
+        String data = ReadQueryEventStreamReadersTestData.QUERY_8_CSV_ROWS;
+        BufferedReader bufferedReader = new BufferedReader(new StringReader(data));
+        SimpleCsvFileReader csvFileReader = new SimpleCsvFileReader(bufferedReader, SimpleCsvFileReader.DEFAULT_COLUMN_SEPARATOR_PATTERN);
+        Query8EventStreamReader reader = new Query8EventStreamReader(csvFileReader);
 
         // When
 
@@ -313,27 +338,30 @@ public class ReadQueryEventStreamReadersTest {
 
         operation = (LdbcQuery8) reader.next();
         assertThat(operation.personId(), is(15393164184077L));
-        assertThat(operation.personUri(), is("http://www.ldbc.eu/ldbc_socialnet/1.0/data/pers15393164184077"));
+        assertThat(operation.personUri(), is("uri"));
 
         operation = (LdbcQuery8) reader.next();
         assertThat(operation.personId(), is(15393163594341L));
-        assertThat(operation.personUri(), is("http://www.ldbc.eu/ldbc_socialnet/1.0/data/pers15393163594341"));
+        assertThat(operation.personUri(), is("uri"));
 
         operation = (LdbcQuery8) reader.next();
         assertThat(operation.personId(), is(7696582593995L));
-        assertThat(operation.personUri(), is("http://www.ldbc.eu/ldbc_socialnet/1.0/data/pers7696582593995"));
+        assertThat(operation.personUri(), is("uri"));
 
         operation = (LdbcQuery8) reader.next();
         assertThat(operation.personId(), is(15393162809578L));
-        assertThat(operation.personUri(), is("http://www.ldbc.eu/ldbc_socialnet/1.0/data/pers15393162809578"));
+        assertThat(operation.personUri(), is("uri"));
 
-        assertThat(reader.hasNext(), is(true));
+        assertThat(reader.hasNext(), is(false));
     }
 
     @Test
     public void shouldParseAllQuery9Events() throws IOException, ParseException {
         // Given
-        Query9EventStreamReader reader = new Query9EventStreamReader(new SimpleCsvFileReader(TestUtils.getResource("/query_9_param.txt"), "\\|"));
+        String data = ReadQueryEventStreamReadersTestData.QUERY_9_CSV_ROWS;
+        BufferedReader bufferedReader = new BufferedReader(new StringReader(data));
+        SimpleCsvFileReader csvFileReader = new SimpleCsvFileReader(bufferedReader, SimpleCsvFileReader.DEFAULT_COLUMN_SEPARATOR_PATTERN);
+        Query9EventStreamReader reader = new Query9EventStreamReader(csvFileReader);
 
         // When
 
@@ -344,39 +372,42 @@ public class ReadQueryEventStreamReadersTest {
 
         operation = (LdbcQuery9) reader.next();
         assertThat(operation.personId(), is(9895605643992L));
-        assertThat(operation.personUri(), is("http://www.ldbc.eu/ldbc_socialnet/1.0/data/pers9895605643992"));
+        assertThat(operation.personUri(), is("uri"));
         calendar.clear();
         calendar.set(2011, Calendar.DECEMBER, 22);
         assertThat(operation.maxDate().getTime(), is(calendar.getTime().getTime()));
 
         operation = (LdbcQuery9) reader.next();
         assertThat(operation.personId(), is(979201L));
-        assertThat(operation.personUri(), is("http://www.ldbc.eu/ldbc_socialnet/1.0/data/pers979201"));
+        assertThat(operation.personUri(), is("uri"));
         calendar.clear();
         calendar.set(2011, Calendar.NOVEMBER, 19);
         assertThat(operation.maxDate().getTime(), is(calendar.getTime().getTime()));
 
         operation = (LdbcQuery9) reader.next();
         assertThat(operation.personId(), is(129891L));
-        assertThat(operation.personUri(), is("http://www.ldbc.eu/ldbc_socialnet/1.0/data/pers129891"));
+        assertThat(operation.personUri(), is("uri"));
         calendar.clear();
         calendar.set(2011, Calendar.NOVEMBER, 20);
         assertThat(operation.maxDate().getTime(), is(calendar.getTime().getTime()));
 
         operation = (LdbcQuery9) reader.next();
         assertThat(operation.personId(), is(13194140498760L));
-        assertThat(operation.personUri(), is("http://www.ldbc.eu/ldbc_socialnet/1.0/data/pers13194140498760"));
+        assertThat(operation.personUri(), is("uri"));
         calendar.clear();
         calendar.set(2011, Calendar.DECEMBER, 1);
         assertThat(operation.maxDate().getTime(), is(calendar.getTime().getTime()));
 
-        assertThat(reader.hasNext(), is(true));
+        assertThat(reader.hasNext(), is(false));
     }
 
     @Test
     public void shouldParseAllQuery10Events() throws IOException, ParseException {
         // Given
-        Query10EventStreamReader reader = new Query10EventStreamReader(new SimpleCsvFileReader(TestUtils.getResource("/query_10_param.txt"), "\\|"));
+        String data = ReadQueryEventStreamReadersTestData.QUERY_10_CSV_ROWS;
+        BufferedReader bufferedReader = new BufferedReader(new StringReader(data));
+        SimpleCsvFileReader csvFileReader = new SimpleCsvFileReader(bufferedReader, SimpleCsvFileReader.DEFAULT_COLUMN_SEPARATOR_PATTERN);
+        Query10EventStreamReader reader = new Query10EventStreamReader(csvFileReader);
 
         // When
 
@@ -385,32 +416,35 @@ public class ReadQueryEventStreamReadersTest {
 
         operation = (LdbcQuery10) reader.next();
         assertThat(operation.personId(), is(9895605643992L));
-        assertThat(operation.personUri(), is("http://www.ldbc.eu/ldbc_socialnet/1.0/data/pers9895605643992"));
+        assertThat(operation.personUri(), is("uri"));
         assertThat(operation.month(), is(2));
 
         operation = (LdbcQuery10) reader.next();
         assertThat(operation.personId(), is(979201L));
-        assertThat(operation.personUri(), is("http://www.ldbc.eu/ldbc_socialnet/1.0/data/pers979201"));
+        assertThat(operation.personUri(), is("uri"));
         assertThat(operation.month(), is(4));
 
         operation = (LdbcQuery10) reader.next();
         assertThat(operation.personId(), is(129891L));
-        assertThat(operation.personUri(), is("http://www.ldbc.eu/ldbc_socialnet/1.0/data/pers129891"));
+        assertThat(operation.personUri(), is("uri"));
         assertThat(operation.month(), is(2));
 
         operation = (LdbcQuery10) reader.next();
         assertThat(operation.personId(), is(13194140498760L));
-        assertThat(operation.personUri(), is("http://www.ldbc.eu/ldbc_socialnet/1.0/data/pers13194140498760"));
+        assertThat(operation.personUri(), is("uri"));
         assertThat(operation.month(), is(3));
 
 
-        assertThat(reader.hasNext(), is(true));
+        assertThat(reader.hasNext(), is(false));
     }
 
     @Test
     public void shouldParseAllQuery11Events() throws IOException, ParseException {
         // Given
-        Query11EventStreamReader reader = new Query11EventStreamReader(new SimpleCsvFileReader(TestUtils.getResource("/query_11_param.txt"), "\\|"));
+        String data = ReadQueryEventStreamReadersTestData.QUERY_11_CSV_ROWS;
+        BufferedReader bufferedReader = new BufferedReader(new StringReader(data));
+        SimpleCsvFileReader csvFileReader = new SimpleCsvFileReader(bufferedReader, SimpleCsvFileReader.DEFAULT_COLUMN_SEPARATOR_PATTERN);
+        Query11EventStreamReader reader = new Query11EventStreamReader(csvFileReader);
 
         // When
 
@@ -419,35 +453,38 @@ public class ReadQueryEventStreamReadersTest {
 
         operation = (LdbcQuery11) reader.next();
         assertThat(operation.personId(), is(9895605643992L));
-        assertThat(operation.personUri(), is("http://www.ldbc.eu/ldbc_socialnet/1.0/data/pers9895605643992"));
+        assertThat(operation.personUri(), is("uri"));
         assertThat(operation.countryName(), is("Taiwan"));
         assertThat(operation.workFromYear(), is(2013));
 
         operation = (LdbcQuery11) reader.next();
         assertThat(operation.personId(), is(979201L));
-        assertThat(operation.personUri(), is("http://www.ldbc.eu/ldbc_socialnet/1.0/data/pers979201"));
+        assertThat(operation.personUri(), is("uri"));
         assertThat(operation.countryName(), is("Nicaragua"));
         assertThat(operation.workFromYear(), is(1998));
 
         operation = (LdbcQuery11) reader.next();
         assertThat(operation.personId(), is(129891L));
-        assertThat(operation.personUri(), is("http://www.ldbc.eu/ldbc_socialnet/1.0/data/pers129891"));
+        assertThat(operation.personUri(), is("uri"));
         assertThat(operation.countryName(), is("Colombia"));
         assertThat(operation.workFromYear(), is(1974));
 
         operation = (LdbcQuery11) reader.next();
         assertThat(operation.personId(), is(13194140498760L));
-        assertThat(operation.personUri(), is("http://www.ldbc.eu/ldbc_socialnet/1.0/data/pers13194140498760"));
+        assertThat(operation.personUri(), is("uri"));
         assertThat(operation.countryName(), is("Lithuania"));
         assertThat(operation.workFromYear(), is(1984));
 
-        assertThat(reader.hasNext(), is(true));
+        assertThat(reader.hasNext(), is(false));
     }
 
     @Test
     public void shouldParseAllQuery12Events() throws IOException, ParseException {
         // Given
-        Query12EventStreamReader reader = new Query12EventStreamReader(new SimpleCsvFileReader(TestUtils.getResource("/query_12_param.txt"), "\\|"));
+        String data = ReadQueryEventStreamReadersTestData.QUERY_12_CSV_ROWS;
+        BufferedReader bufferedReader = new BufferedReader(new StringReader(data));
+        SimpleCsvFileReader csvFileReader = new SimpleCsvFileReader(bufferedReader, SimpleCsvFileReader.DEFAULT_COLUMN_SEPARATOR_PATTERN);
+        Query12EventStreamReader reader = new Query12EventStreamReader(csvFileReader);
 
         // When
 
@@ -456,31 +493,34 @@ public class ReadQueryEventStreamReadersTest {
 
         operation = (LdbcQuery12) reader.next();
         assertThat(operation.personId(), is(12094628092905L));
-        assertThat(operation.personUri(), equalTo("http://www.ldbc.eu/ldbc_socialnet/1.0/data/pers12094628092905"));
+        assertThat(operation.personUri(), equalTo("uri"));
         assertThat(operation.tagClassName(), equalTo("SoccerManager"));
 
         operation = (LdbcQuery12) reader.next();
         assertThat(operation.personId(), is(9895606011404L));
-        assertThat(operation.personUri(), equalTo("http://www.ldbc.eu/ldbc_socialnet/1.0/data/pers9895606011404"));
+        assertThat(operation.personUri(), equalTo("uri"));
         assertThat(operation.tagClassName(), equalTo("Chancellor"));
 
         operation = (LdbcQuery12) reader.next();
         assertThat(operation.personId(), is(14293651244033L));
-        assertThat(operation.personUri(), equalTo("http://www.ldbc.eu/ldbc_socialnet/1.0/data/pers14293651244033"));
+        assertThat(operation.personUri(), equalTo("uri"));
         assertThat(operation.tagClassName(), equalTo("EurovisionSongContestEntry"));
 
         operation = (LdbcQuery12) reader.next();
         assertThat(operation.personId(), is(13194139602632L));
-        assertThat(operation.personUri(), equalTo("http://www.ldbc.eu/ldbc_socialnet/1.0/data/pers13194139602632"));
+        assertThat(operation.personUri(), equalTo("uri"));
         assertThat(operation.tagClassName(), equalTo("GolfPlayer"));
 
-        assertThat(reader.hasNext(), is(true));
+        assertThat(reader.hasNext(), is(false));
     }
 
     @Test
     public void shouldParseAllQuery13Events() throws IOException, ParseException {
         // Given
-        Query13EventStreamReader reader = new Query13EventStreamReader(new SimpleCsvFileReader(TestUtils.getResource("/query_13_param.txt"), "\\|"));
+        String data = ReadQueryEventStreamReadersTestData.QUERY_13_CSV_ROWS;
+        BufferedReader bufferedReader = new BufferedReader(new StringReader(data));
+        SimpleCsvFileReader csvFileReader = new SimpleCsvFileReader(bufferedReader, SimpleCsvFileReader.DEFAULT_COLUMN_SEPARATOR_PATTERN);
+        Query13EventStreamReader reader = new Query13EventStreamReader(csvFileReader);
 
         // When
 
@@ -490,34 +530,37 @@ public class ReadQueryEventStreamReadersTest {
         operation = (LdbcQuery13) reader.next();
         assertThat(operation.person1Id(), is(9895605643992L));
         assertThat(operation.person2Id(), is(1099512323797L));
-        assertThat(operation.person1Uri(), equalTo("http://www.ldbc.eu/ldbc_socialnet/1.0/data/pers9895605643992"));
-        assertThat(operation.person2Uri(), equalTo("http://www.ldbc.eu/ldbc_socialnet/1.0/data/pers1099512323797"));
+        assertThat(operation.person1Uri(), equalTo("uri"));
+        assertThat(operation.person2Uri(), equalTo("uri"));
 
         operation = (LdbcQuery13) reader.next();
         assertThat(operation.person1Id(), is(979201L));
         assertThat(operation.person2Id(), is(95384L));
-        assertThat(operation.person1Uri(), is("http://www.ldbc.eu/ldbc_socialnet/1.0/data/pers979201"));
-        assertThat(operation.person2Uri(), is("http://www.ldbc.eu/ldbc_socialnet/1.0/data/pers95384"));
+        assertThat(operation.person1Uri(), is("uri"));
+        assertThat(operation.person2Uri(), is("uri"));
 
         operation = (LdbcQuery13) reader.next();
         assertThat(operation.person1Id(), is(129891L));
         assertThat(operation.person2Id(), is(9895606000517L));
-        assertThat(operation.person1Uri(), is("http://www.ldbc.eu/ldbc_socialnet/1.0/data/pers129891"));
-        assertThat(operation.person2Uri(), is("http://www.ldbc.eu/ldbc_socialnet/1.0/data/pers9895606000517"));
+        assertThat(operation.person1Uri(), is("uri"));
+        assertThat(operation.person2Uri(), is("uri"));
 
         operation = (LdbcQuery13) reader.next();
         assertThat(operation.person1Id(), is(13194140498760L));
         assertThat(operation.person2Id(), is(7696582276748L));
-        assertThat(operation.person1Uri(), is("http://www.ldbc.eu/ldbc_socialnet/1.0/data/pers13194140498760"));
-        assertThat(operation.person2Uri(), is("http://www.ldbc.eu/ldbc_socialnet/1.0/data/pers7696582276748"));
+        assertThat(operation.person1Uri(), is("uri"));
+        assertThat(operation.person2Uri(), is("uri"));
 
-        assertThat(reader.hasNext(), is(true));
+        assertThat(reader.hasNext(), is(false));
     }
 
     @Test
     public void shouldParseAllQuery14Events() throws IOException, ParseException {
         // Given
-        Query14EventStreamReader reader = new Query14EventStreamReader(new SimpleCsvFileReader(TestUtils.getResource("/query_14_param.txt"), "\\|"));
+        String data = ReadQueryEventStreamReadersTestData.QUERY_14_CSV_ROWS;
+        BufferedReader bufferedReader = new BufferedReader(new StringReader(data));
+        SimpleCsvFileReader csvFileReader = new SimpleCsvFileReader(bufferedReader, SimpleCsvFileReader.DEFAULT_COLUMN_SEPARATOR_PATTERN);
+        Query14EventStreamReader reader = new Query14EventStreamReader(csvFileReader);
 
         // When
 
@@ -527,28 +570,28 @@ public class ReadQueryEventStreamReadersTest {
         operation = (LdbcQuery14) reader.next();
         assertThat(operation.person1Id(), is(9895605643992L));
         assertThat(operation.person2Id(), is(4398046737628L));
-        assertThat(operation.person1Uri(), is("http://www.ldbc.eu/ldbc_socialnet/1.0/data/pers9895605643992"));
-        assertThat(operation.person2Uri(), is("http://www.ldbc.eu/ldbc_socialnet/1.0/data/pers4398046737628"));
+        assertThat(operation.person1Uri(), is("uri"));
+        assertThat(operation.person2Uri(), is("uri"));
 
         operation = (LdbcQuery14) reader.next();
         assertThat(operation.person1Id(), is(979201L));
         assertThat(operation.person2Id(), is(1277748L));
-        assertThat(operation.person1Uri(), is("http://www.ldbc.eu/ldbc_socialnet/1.0/data/pers979201"));
-        assertThat(operation.person2Uri(), is("http://www.ldbc.eu/ldbc_socialnet/1.0/data/pers1277748"));
+        assertThat(operation.person1Uri(), is("uri"));
+        assertThat(operation.person2Uri(), is("uri"));
 
         operation = (LdbcQuery14) reader.next();
         assertThat(operation.person1Id(), is(129891L));
         assertThat(operation.person2Id(), is(6597069967720L));
-        assertThat(operation.person1Uri(), is("http://www.ldbc.eu/ldbc_socialnet/1.0/data/pers129891"));
-        assertThat(operation.person2Uri(), is("http://www.ldbc.eu/ldbc_socialnet/1.0/data/pers6597069967720"));
+        assertThat(operation.person1Uri(), is("uri"));
+        assertThat(operation.person2Uri(), is("uri"));
 
         operation = (LdbcQuery14) reader.next();
         assertThat(operation.person1Id(), is(13194140498760L));
         assertThat(operation.person2Id(), is(3298534975254L));
-        assertThat(operation.person1Uri(), is("http://www.ldbc.eu/ldbc_socialnet/1.0/data/pers13194140498760"));
-        assertThat(operation.person2Uri(), is("http://www.ldbc.eu/ldbc_socialnet/1.0/data/pers3298534975254"));
+        assertThat(operation.person1Uri(), is("uri"));
+        assertThat(operation.person2Uri(), is("uri"));
 
-        assertThat(reader.hasNext(), is(true));
+        assertThat(reader.hasNext(), is(false));
     }
 
     @Test

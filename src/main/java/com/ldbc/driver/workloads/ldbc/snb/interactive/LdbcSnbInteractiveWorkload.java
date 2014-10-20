@@ -18,7 +18,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.*;
 
-import static com.ldbc.driver.generator.CsvEventStreamReader.EventReturnPolicy;
+import static com.ldbc.driver.generator.CsvEventStreamReader_OLD.EventReturnPolicy;
 
 public class LdbcSnbInteractiveWorkload extends Workload {
     private List<SimpleCsvFileReader> forumUpdateOperationsFileReaders = new ArrayList<>();
@@ -277,7 +277,9 @@ public class LdbcSnbInteractiveWorkload extends Workload {
          */
         for (SimpleCsvFileReader forumUpdateOperationsFileReader : forumUpdateOperationsFileReaders) {
             PeekingIterator<Operation<?>> unfilteredForumUpdateOperations = Iterators.peekingIterator(
-                    new WriteEventStreamReader(forumUpdateOperationsFileReader, EventReturnPolicy.AT_LEAST_ONE_MATCH)
+                    new WriteEventStreamReaderRegex_DATE(
+                            forumUpdateOperationsFileReader
+                    )
             );
             try {
                 if (null == workloadStartTime || unfilteredForumUpdateOperations.peek().scheduledStartTime().lt(workloadStartTime)) {
@@ -318,7 +320,9 @@ public class LdbcSnbInteractiveWorkload extends Workload {
 
         for (SimpleCsvFileReader personUpdateOperationsFileReader : personUpdateOperationsFileReaders) {
             PeekingIterator<Operation<?>> unfilteredPersonUpdateOperations = Iterators.peekingIterator(
-                    new WriteEventStreamReader(personUpdateOperationsFileReader, EventReturnPolicy.AT_LEAST_ONE_MATCH)
+                    new WriteEventStreamReaderRegex_DATE(
+                            personUpdateOperationsFileReader
+                    )
             );
             try {
                 if (null == workloadStartTime || unfilteredPersonUpdateOperations.peek().scheduledStartTime().lt(workloadStartTime)) {

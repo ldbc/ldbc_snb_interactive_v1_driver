@@ -9,14 +9,14 @@ import java.util.Map;
 import java.util.NoSuchElementException;
 
 
-public class CsvEventStreamReader_NEW<BASE_EVENT_TYPE, DECODER_KEY_TYPE> implements Iterator<BASE_EVENT_TYPE> {
+public class CsvEventStreamReaderCsvReader<BASE_EVENT_TYPE, DECODER_KEY_TYPE> implements Iterator<BASE_EVENT_TYPE> {
     private final Map<DECODER_KEY_TYPE, EventDecoder<BASE_EVENT_TYPE>> decoders;
     private final Iterator<String[]> csvRowIterator;
     private final Function1<String[], DECODER_KEY_TYPE> decoderKeyExtractor;
 
-    public CsvEventStreamReader_NEW(Iterator<String[]> csvRowIterator,
-                                    Map<DECODER_KEY_TYPE, EventDecoder<BASE_EVENT_TYPE>> decoders,
-                                    Function1<String[], DECODER_KEY_TYPE> decoderKeyExtractor) {
+    public CsvEventStreamReaderCsvReader(Iterator<String[]> csvRowIterator,
+                                         Map<DECODER_KEY_TYPE, EventDecoder<BASE_EVENT_TYPE>> decoders,
+                                         Function1<String[], DECODER_KEY_TYPE> decoderKeyExtractor) {
         this.csvRowIterator = csvRowIterator;
         this.decoders = decoders;
         this.decoderKeyExtractor = decoderKeyExtractor;

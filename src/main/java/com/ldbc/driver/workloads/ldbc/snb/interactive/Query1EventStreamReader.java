@@ -3,7 +3,7 @@ package com.ldbc.driver.workloads.ldbc.snb.interactive;
 
 import com.google.common.collect.Lists;
 import com.ldbc.driver.Operation;
-import com.ldbc.driver.generator.CsvEventStreamReader;
+import com.ldbc.driver.generator.CsvEventStreamReader_OLD;
 import com.ldbc.driver.generator.GeneratorException;
 import org.codehaus.jackson.JsonNode;
 import org.codehaus.jackson.map.ObjectMapper;
@@ -16,28 +16,28 @@ public class Query1EventStreamReader implements Iterator<Operation<?>> {
     public static final String PERSON_URI = "PersonURI";
     public static final String FIRST_NAME = "Name";
 
-    private final CsvEventStreamReader<Operation<?>> csvEventStreamReader;
-    private final CsvEventStreamReader.EventDecoder<Operation<?>> decoder;
+    private final CsvEventStreamReader_OLD<Operation<?>> csvEventStreamReaderOLD;
+    private final CsvEventStreamReader_OLD.EventDecoder<Operation<?>> decoder;
 
     public Query1EventStreamReader(Iterator<String[]> csvRowIterator) {
-        this(csvRowIterator, CsvEventStreamReader.EventReturnPolicy.AT_LEAST_ONE_MATCH);
+        this(csvRowIterator, CsvEventStreamReader_OLD.EventReturnPolicy.AT_LEAST_ONE_MATCH);
     }
 
-    public Query1EventStreamReader(Iterator<String[]> csvRowIterator, CsvEventStreamReader.EventReturnPolicy eventReturnPolicy) {
+    public Query1EventStreamReader(Iterator<String[]> csvRowIterator, CsvEventStreamReader_OLD.EventReturnPolicy eventReturnPolicy) {
         this.decoder = new EventDecoderQuery1(new ObjectMapper());
-        Iterable<CsvEventStreamReader.EventDecoder<Operation<?>>> decoders = Lists.newArrayList(this.decoder);
-        CsvEventStreamReader.EventDescriptions<Operation<?>> eventDescriptions = new CsvEventStreamReader.EventDescriptions<>(decoders, eventReturnPolicy);
-        this.csvEventStreamReader = new CsvEventStreamReader<>(csvRowIterator, eventDescriptions);
+        Iterable<CsvEventStreamReader_OLD.EventDecoder<Operation<?>>> decoders = Lists.newArrayList(this.decoder);
+        CsvEventStreamReader_OLD.EventDescriptions<Operation<?>> eventDescriptions = new CsvEventStreamReader_OLD.EventDescriptions<>(decoders, eventReturnPolicy);
+        this.csvEventStreamReaderOLD = new CsvEventStreamReader_OLD<>(csvRowIterator, eventDescriptions);
     }
 
     @Override
     public boolean hasNext() {
-        return csvEventStreamReader.hasNext();
+        return csvEventStreamReaderOLD.hasNext();
     }
 
     @Override
     public Operation<?> next() {
-        return csvEventStreamReader.next();
+        return csvEventStreamReaderOLD.next();
     }
 
     @Override
@@ -45,7 +45,7 @@ public class Query1EventStreamReader implements Iterator<Operation<?>> {
         throw new UnsupportedOperationException(String.format("%s does not support remove()", getClass().getSimpleName()));
     }
 
-    public static class EventDecoderQuery1 implements CsvEventStreamReader.EventDecoder<Operation<?>> {
+    public static class EventDecoderQuery1 implements CsvEventStreamReader_OLD.EventDecoder<Operation<?>> {
         private final ObjectMapper objectMapper;
 
         public EventDecoderQuery1(ObjectMapper objectMapper) {

@@ -3,8 +3,8 @@ package com.ldbc.driver.workloads.ldbc.snb.interactive;
 
 import com.google.common.collect.Lists;
 import com.ldbc.driver.Operation;
-import com.ldbc.driver.generator.CsvEventStreamReader_NEW;
-import com.ldbc.driver.generator.CsvEventStreamReader_NEW.EventDecoder;
+import com.ldbc.driver.generator.CsvEventStreamReaderCsvReader;
+import com.ldbc.driver.generator.CsvEventStreamReaderCsvReader.EventDecoder;
 import com.ldbc.driver.generator.GeneratorException;
 import com.ldbc.driver.temporal.Time;
 import com.ldbc.driver.util.Function1;
@@ -19,7 +19,7 @@ public class WriteEventStreamReaderRegex implements Iterator<Operation<?>> {
     public static final String DATE_TIME_FORMAT_STRING = "yyyy-MM-dd'T'HH:mm:ss.SSSZ";
     private static final List<String> EMPTY_LIST = new ArrayList<>();
 
-    private final CsvEventStreamReader_NEW<Operation<?>, String> csvEventStreamReader;
+    private final CsvEventStreamReaderCsvReader<Operation<?>, String> csvEventStreamReader;
 
     public WriteEventStreamReaderRegex(Iterator<String[]> csvRowIterator) {
         Map<String, EventDecoder<Operation<?>>> decoders = new HashMap<>();
@@ -79,7 +79,7 @@ public class WriteEventStreamReaderRegex implements Iterator<Operation<?>> {
                 return csvRow[1];
             }
         };
-        this.csvEventStreamReader = new CsvEventStreamReader_NEW<>(csvRowIterator, decoders, decoderKeyExtractor);
+        this.csvEventStreamReader = new CsvEventStreamReaderCsvReader<>(csvRowIterator, decoders, decoderKeyExtractor);
     }
 
     @Override
@@ -97,7 +97,7 @@ public class WriteEventStreamReaderRegex implements Iterator<Operation<?>> {
         throw new UnsupportedOperationException(String.format("%s does not support remove()", getClass().getSimpleName()));
     }
 
-    public static class EventDecoderAddPerson implements CsvEventStreamReader_NEW.EventDecoder<Operation<?>> {
+    public static class EventDecoderAddPerson implements CsvEventStreamReaderCsvReader.EventDecoder<Operation<?>> {
         private final SimpleDateFormat dateFormat;
         private final SimpleDateFormat dateTimeFormat;
         private final Pattern collectionSeparatorPattern = Pattern.compile(";");
@@ -209,7 +209,7 @@ public class WriteEventStreamReaderRegex implements Iterator<Operation<?>> {
         }
     }
 
-    public static class EventDecoderAddLikePost implements CsvEventStreamReader_NEW.EventDecoder<Operation<?>> {
+    public static class EventDecoderAddLikePost implements CsvEventStreamReaderCsvReader.EventDecoder<Operation<?>> {
         private final SimpleDateFormat dateTimeFormat;
 
         public EventDecoderAddLikePost(SimpleDateFormat dateTimeFormat) {
@@ -238,7 +238,7 @@ public class WriteEventStreamReaderRegex implements Iterator<Operation<?>> {
         }
     }
 
-    public static class EventDecoderAddLikeComment implements CsvEventStreamReader_NEW.EventDecoder<Operation<?>> {
+    public static class EventDecoderAddLikeComment implements CsvEventStreamReaderCsvReader.EventDecoder<Operation<?>> {
         private final SimpleDateFormat dateTimeFormat;
 
         public EventDecoderAddLikeComment(SimpleDateFormat dateTimeFormat) {
@@ -267,7 +267,7 @@ public class WriteEventStreamReaderRegex implements Iterator<Operation<?>> {
         }
     }
 
-    public static class EventDecoderAddForum implements CsvEventStreamReader_NEW.EventDecoder<Operation<?>> {
+    public static class EventDecoderAddForum implements CsvEventStreamReaderCsvReader.EventDecoder<Operation<?>> {
         private final SimpleDateFormat dateTimeFormat;
         private final Pattern collectionSeparatorPattern = Pattern.compile(";");
 
@@ -309,7 +309,7 @@ public class WriteEventStreamReaderRegex implements Iterator<Operation<?>> {
         }
     }
 
-    public static class EventDecoderAddForumMembership implements CsvEventStreamReader_NEW.EventDecoder<Operation<?>> {
+    public static class EventDecoderAddForumMembership implements CsvEventStreamReaderCsvReader.EventDecoder<Operation<?>> {
         private final SimpleDateFormat dateTimeFormat;
 
         public EventDecoderAddForumMembership(SimpleDateFormat dateTimeFormat) {
@@ -338,7 +338,7 @@ public class WriteEventStreamReaderRegex implements Iterator<Operation<?>> {
         }
     }
 
-    public static class EventDecoderAddPost implements CsvEventStreamReader_NEW.EventDecoder<Operation<?>> {
+    public static class EventDecoderAddPost implements CsvEventStreamReaderCsvReader.EventDecoder<Operation<?>> {
         private final SimpleDateFormat dateTimeFormat;
         private final Pattern collectionSeparatorPattern = Pattern.compile(";");
 
@@ -405,7 +405,7 @@ public class WriteEventStreamReaderRegex implements Iterator<Operation<?>> {
         }
     }
 
-    public static class EventDecoderAddComment implements CsvEventStreamReader_NEW.EventDecoder<Operation<?>> {
+    public static class EventDecoderAddComment implements CsvEventStreamReaderCsvReader.EventDecoder<Operation<?>> {
         private final SimpleDateFormat dateTimeFormat;
         private final Pattern collectionSeparatorPattern = Pattern.compile(";");
 
@@ -469,7 +469,7 @@ public class WriteEventStreamReaderRegex implements Iterator<Operation<?>> {
         }
     }
 
-    public static class EventDecoderAddFriendship implements CsvEventStreamReader_NEW.EventDecoder<Operation<?>> {
+    public static class EventDecoderAddFriendship implements CsvEventStreamReaderCsvReader.EventDecoder<Operation<?>> {
         private final SimpleDateFormat dateTimeFormat;
 
         public EventDecoderAddFriendship(SimpleDateFormat dateTimeFormat) {

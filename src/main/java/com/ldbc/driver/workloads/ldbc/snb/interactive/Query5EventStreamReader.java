@@ -3,7 +3,7 @@ package com.ldbc.driver.workloads.ldbc.snb.interactive;
 
 import com.google.common.collect.Lists;
 import com.ldbc.driver.Operation;
-import com.ldbc.driver.generator.CsvEventStreamReader;
+import com.ldbc.driver.generator.CsvEventStreamReader_OLD;
 import com.ldbc.driver.generator.GeneratorException;
 import org.codehaus.jackson.JsonNode;
 import org.codehaus.jackson.map.ObjectMapper;
@@ -28,9 +28,9 @@ public class Query5EventStreamReader implements Iterator<Operation<?>> {
     }
 
     private static final ObjectMapper objectMapper = new ObjectMapper();
-    private final CsvEventStreamReader<Operation<?>> csvEventStreamReader;
+    private final CsvEventStreamReader_OLD<Operation<?>> csvEventStreamReaderOLD;
 
-    public static final CsvEventStreamReader.EventDecoder<Operation<?>> EVENT_DECODER = new CsvEventStreamReader.EventDecoder<Operation<?>>() {
+    public static final CsvEventStreamReader_OLD.EventDecoder<Operation<?>> EVENT_DECODER = new CsvEventStreamReader_OLD.EventDecoder<Operation<?>>() {
         @Override
         public boolean eventMatchesDecoder(String[] csvRow) {
             return true;
@@ -59,23 +59,23 @@ public class Query5EventStreamReader implements Iterator<Operation<?>> {
     };
 
     public Query5EventStreamReader(Iterator<String[]> csvRowIterator) {
-        this(csvRowIterator, CsvEventStreamReader.EventReturnPolicy.AT_LEAST_ONE_MATCH);
+        this(csvRowIterator, CsvEventStreamReader_OLD.EventReturnPolicy.AT_LEAST_ONE_MATCH);
     }
 
-    public Query5EventStreamReader(Iterator<String[]> csvRowIterator, CsvEventStreamReader.EventReturnPolicy eventReturnPolicy) {
-        Iterable<CsvEventStreamReader.EventDecoder<Operation<?>>> decoders = Lists.newArrayList(EVENT_DECODER);
-        CsvEventStreamReader.EventDescriptions<Operation<?>> eventDescriptions = new CsvEventStreamReader.EventDescriptions<>(decoders, eventReturnPolicy);
-        this.csvEventStreamReader = new CsvEventStreamReader<>(csvRowIterator, eventDescriptions);
+    public Query5EventStreamReader(Iterator<String[]> csvRowIterator, CsvEventStreamReader_OLD.EventReturnPolicy eventReturnPolicy) {
+        Iterable<CsvEventStreamReader_OLD.EventDecoder<Operation<?>>> decoders = Lists.newArrayList(EVENT_DECODER);
+        CsvEventStreamReader_OLD.EventDescriptions<Operation<?>> eventDescriptions = new CsvEventStreamReader_OLD.EventDescriptions<>(decoders, eventReturnPolicy);
+        this.csvEventStreamReaderOLD = new CsvEventStreamReader_OLD<>(csvRowIterator, eventDescriptions);
     }
 
     @Override
     public boolean hasNext() {
-        return csvEventStreamReader.hasNext();
+        return csvEventStreamReaderOLD.hasNext();
     }
 
     @Override
     public Operation<?> next() {
-        return csvEventStreamReader.next();
+        return csvEventStreamReaderOLD.next();
     }
 
     @Override

@@ -3,8 +3,8 @@ package com.ldbc.driver.workloads.ldbc.snb.interactive;
 
 import com.google.common.collect.Lists;
 import com.ldbc.driver.Operation;
-import com.ldbc.driver.generator.CsvEventStreamReader_NEW;
-import com.ldbc.driver.generator.CsvEventStreamReader_NEW.EventDecoder;
+import com.ldbc.driver.generator.CsvEventStreamReaderCsvReader;
+import com.ldbc.driver.generator.CsvEventStreamReaderCsvReader.EventDecoder;
 import com.ldbc.driver.temporal.Time;
 import com.ldbc.driver.util.Function1;
 
@@ -13,7 +13,7 @@ import java.util.regex.Pattern;
 
 public class WriteEventStreamReaderRegex_DATE implements Iterator<Operation<?>> {
     private static final List<String> EMPTY_LIST = new ArrayList<>();
-    private final CsvEventStreamReader_NEW<Operation<?>, String> csvEventStreamReader;
+    private final CsvEventStreamReaderCsvReader<Operation<?>, String> csvEventStreamReader;
 
     public WriteEventStreamReaderRegex_DATE(Iterator<String[]> csvRowIterator) {
         Map<String, EventDecoder<Operation<?>>> decoders = new HashMap<>();
@@ -31,7 +31,7 @@ public class WriteEventStreamReaderRegex_DATE implements Iterator<Operation<?>> 
                 return csvRow[1];
             }
         };
-        this.csvEventStreamReader = new CsvEventStreamReader_NEW<>(csvRowIterator, decoders, decoderKeyExtractor);
+        this.csvEventStreamReader = new CsvEventStreamReaderCsvReader<>(csvRowIterator, decoders, decoderKeyExtractor);
     }
 
     @Override

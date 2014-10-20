@@ -4,7 +4,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 
-public class WriteEventStreamReaderTestData_NEW {
+public class WriteEventStreamReaderTestData {
     @Rule
     public TemporaryFolder temporaryFolder = new TemporaryFolder();
 
