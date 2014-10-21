@@ -25,4 +25,11 @@ public class MultiWriterLocalCompletionTimeConcurrentStateManagerWriter implemen
     int id() {
         return id;
     }
+
+    @Override
+    public String toString() {
+        return "MultiWriterLocalCompletionTimeConcurrentStateManagerWriter{" +
+                "id=" + id +
+                '}';
+    }
 }

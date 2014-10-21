@@ -2,6 +2,7 @@ package com.ldbc.driver.workloads.ldbc.snb.interactive;
 
 import com.google.common.base.Charsets;
 import com.google.common.collect.Lists;
+import com.ldbc.driver.Operation;
 import com.ldbc.driver.temporal.Duration;
 import com.ldbc.driver.temporal.SystemTimeSource;
 import com.ldbc.driver.temporal.TimeSource;
@@ -12,6 +13,9 @@ import org.junit.Test;
 import java.io.*;
 import java.util.Iterator;
 import java.util.List;
+
+import static org.hamcrest.CoreMatchers.is;
+import static org.junit.Assert.assertThat;
 
 public class WriteEventStreamReaderPerformanceTest {
     TimeSource timeSource = new SystemTimeSource();

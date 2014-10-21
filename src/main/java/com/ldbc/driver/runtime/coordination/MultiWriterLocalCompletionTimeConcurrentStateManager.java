@@ -3,7 +3,9 @@ package com.ldbc.driver.runtime.coordination;
 import com.ldbc.driver.temporal.Time;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Completion time is the point in time AT which there are no uncompleted events.
@@ -115,7 +117,7 @@ public class MultiWriterLocalCompletionTimeConcurrentStateManager implements Loc
 
         localInitiationTime = tempLocalInitiationTime;
 
-        Time tempLocalCompletionTime = null;
+        Time tempLocalCompletionTime = localCompletionTime;
         for (int i = 0; i < localCompletionTimeReaderWriters.size(); i++) {
             LocalCompletionTimeReader reader = localCompletionTimeReaderWriters.get(i);
             Time readerLocalCompletionTime = reader.localCompletionTime();
@@ -124,7 +126,6 @@ public class MultiWriterLocalCompletionTimeConcurrentStateManager implements Loc
                 // if at least one reader has non-null completion time it is still possible that local completion time is non-null
                 // initiation time already tells us that no more times will arrive BELOW that time
                 // continue checking completion times of other readers
-                continue;
             } else if (readerLocalCompletionTime.lt(tempLocalInitiationTime)) {
                 if (null == tempLocalCompletionTime || readerLocalCompletionTime.gt(tempLocalCompletionTime)) {
                     tempLocalCompletionTime = readerLocalCompletionTime;
@@ -132,10 +133,8 @@ public class MultiWriterLocalCompletionTimeConcurrentStateManager implements Loc
             } else {
                 // completion time must be lower than initiation time
                 // continue checking completion times of other readers
-                continue;
             }
         }
-
         localCompletionTime = tempLocalCompletionTime;
     }
 }

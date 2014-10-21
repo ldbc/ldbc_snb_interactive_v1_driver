@@ -28,10 +28,10 @@ public class TimeTest {
 
         Duration secondDuration = Duration.fromSeconds(1);
         Duration minuteDuration = Duration.fromMinutes(1);
-        Duration hourDuration = Duration.fromMinutes(60);
-        Duration dayDuration = Duration.fromMinutes(60 * 24);
-        Duration weekDuration = Duration.fromMinutes(60 * 24 * 7);
-        Duration yearDuration = Duration.fromMinutes(60 * 24 * 365);
+        Duration hourDuration = Duration.fromHours(1);
+        Duration dayDuration = Duration.fromHours(24);
+        Duration weekDuration = Duration.fromHours(24 * 7);
+        Duration yearDuration = Duration.fromHours(24 * 365);
 
         Time secondTime = Time.fromSeconds(1);
         Time minuteTime = Time.fromMinutes(1);

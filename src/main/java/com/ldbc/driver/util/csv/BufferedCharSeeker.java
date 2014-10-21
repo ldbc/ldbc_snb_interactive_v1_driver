@@ -1,24 +1,24 @@
 package com.ldbc.driver.util.csv;
 
 /**
- * Copyright (c) 2002-2014 "Neo Technology,"
- * Network Engine for Objects in Lund AB [http://neotechnology.com]
- *
- * This file is part of Neo4j.
- *
- * Neo4j is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- */
+* Copyright (c) 2002-2014 "Neo Technology,"
+* Network Engine for Objects in Lund AB [http://neotechnology.com]
+*
+* This file is part of Neo4j.
+*
+* Neo4j is free software: you can redistribute it and/or modify
+* it under the terms of the GNU General Public License as published by
+* the Free Software Foundation, either version 3 of the License, or
+* (at your option) any later version.
+*
+* This program is distributed in the hope that it will be useful,
+* but WITHOUT ANY WARRANTY; without even the implied warranty of
+* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+* GNU General Public License for more details.
+*
+* You should have received a copy of the GNU General Public License
+* along with this program.  If not, see <http://www.gnu.org/licenses/>.
+*/
 
 import java.io.BufferedReader;
 import java.io.Closeable;
@@ -27,8 +27,8 @@ import java.io.Reader;
 import java.nio.CharBuffer;
 
 /**
- * Much like a {@link BufferedReader} for a {@link Reader}.
- */
+* Much like a {@link BufferedReader} for a {@link Reader}.
+*/
 public class BufferedCharSeeker implements CharSeeker {
     private static final int KB = 1024, MB = KB * KB;
     public static final int DEFAULT_BUFFER_SIZE = 2 * MB;

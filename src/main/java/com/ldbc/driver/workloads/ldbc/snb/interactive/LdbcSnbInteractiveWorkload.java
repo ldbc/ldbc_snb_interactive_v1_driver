@@ -23,6 +23,7 @@ import java.util.*;
 import static com.ldbc.driver.generator.CsvEventStreamReader_OLD.EventReturnPolicy;
 
 public class LdbcSnbInteractiveWorkload extends Workload {
+
     private List<Closeable> forumUpdateOperationsFileReaders = new ArrayList<>();
     private List<File> forumUpdateOperationFiles = new ArrayList<>();
     private List<Closeable> personUpdateOperationsFileReaders = new ArrayList<>();
@@ -293,10 +294,7 @@ public class LdbcSnbInteractiveWorkload extends Workload {
         WorkloadStreams ldbcSnbInteractiveWorkloadStreams = new WorkloadStreams();
         List<Iterator<?>> asynchronousDependencyStreamsList = new ArrayList<>();
         List<Iterator<?>> asynchronousNonDependencyStreamsList = new ArrayList<>();
-        Set<Class<? extends Operation<?>>> dependentAsynchronousOperationTypes = Sets.<Class<? extends Operation<?>>>newHashSet(
-                LdbcUpdate1AddPerson.class,
-                LdbcUpdate8AddFriendship.class
-        );
+        Set<Class<? extends Operation<?>>> dependentAsynchronousOperationTypes = Sets.newHashSet();
 
         /* *******
          * *******
@@ -319,6 +317,7 @@ public class LdbcSnbInteractiveWorkload extends Workload {
                 throw new WorkloadException("Unable to open forum update stream: " + forumUpdateOperationFile.getAbsolutePath(), e);
             }
             PeekingIterator<Operation<?>> unfilteredForumUpdateOperations = Iterators.peekingIterator(forumUpdateOperationsParser);
+
             try {
                 if (null == workloadStartTime || unfilteredForumUpdateOperations.peek().scheduledStartTime().lt(workloadStartTime)) {
                     workloadStartTime = unfilteredForumUpdateOperations.peek().scheduledStartTime();
@@ -363,10 +362,9 @@ public class LdbcSnbInteractiveWorkload extends Workload {
                 personUpdateOperationsParser = parserAndCloseable._1();
                 personUpdateOperationsFileReaders.add(parserAndCloseable._2());
             } catch (IOException e) {
-                throw new WorkloadException("Unable to open forum update stream: " + personUpdateOperationFile.getAbsolutePath(), e);
+                throw new WorkloadException("Unable to open person update stream: " + personUpdateOperationFile.getAbsolutePath(), e);
             }
             PeekingIterator<Operation<?>> unfilteredPersonUpdateOperations = Iterators.peekingIterator(personUpdateOperationsParser);
-
 
             try {
                 if (null == workloadStartTime || unfilteredPersonUpdateOperations.peek().scheduledStartTime().lt(workloadStartTime)) {
@@ -389,7 +387,39 @@ public class LdbcSnbInteractiveWorkload extends Workload {
                     safeTDuration
             );
 
-            asynchronousDependencyStreamsList.add(filteredPersonUpdateOperationsWithDependencyTimes);
+            // TODO remove?
+            // TODO remove?
+            // TODO remove?
+            // TODO remove?
+            // TODO remove?
+            // TODO remove?
+            // TODO remove?
+            // TODO remove?
+            // TODO remove?
+            // TODO remove?
+            Set<Class<? extends Operation<?>>> dependentPersonUpdateOperationTypes = Sets.<Class<? extends Operation<?>>>newHashSet(
+                    LdbcUpdate1AddPerson.class,
+                    LdbcUpdate8AddFriendship.class
+            );
+            ldbcSnbInteractiveWorkloadStreams.addBlockingStream(
+                    dependentPersonUpdateOperationTypes,
+                    filteredPersonUpdateOperationsWithDependencyTimes,
+                    Collections.<Operation<?>>emptyIterator()
+            );
+
+            // TODO uncomment?
+            // TODO uncomment?
+            // TODO uncomment?
+            // TODO uncomment?
+            // TODO uncomment?
+            // TODO uncomment?
+            // TODO uncomment?
+            // TODO uncomment?
+            // TODO uncomment?
+            // TODO uncomment?
+            // TODO uncomment?
+            // TODO uncomment?
+//            asynchronousDependencyStreamsList.add(filteredPersonUpdateOperationsWithDependencyTimes);
         }
 
         if (null == workloadStartTime) workloadStartTime = Time.fromMilli(0);

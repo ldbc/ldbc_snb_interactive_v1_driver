@@ -20,7 +20,7 @@ import java.util.concurrent.atomic.AtomicReference;
 
 public class ThreadedQueuedConcurrentMetricsService implements ConcurrentMetricsService {
     private static final Duration SHUTDOWN_WAIT_TIMEOUT = Duration.fromMinutes(1);
-    private static final Duration FUTURE_GET_TIMEOUT = Duration.fromMinutes(1);
+    private static final Duration FUTURE_GET_TIMEOUT = Duration.fromMinutes(30);
 
     public static final String RESULTS_LOG_FILENAME_SUFFIX = "-results_log.csv";
     public static final String RESULTS_METRICS_FILENAME_SUFFIX = "-results.json";

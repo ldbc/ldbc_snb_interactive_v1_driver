@@ -57,44 +57,48 @@ class PreciseIndividualAsyncOperationStreamExecutorServiceThread extends Thread 
 
     @Override
     public void run() {
-        long startTimeOfLastOperationAsNano = 0;
-        while (dependencyAndNonDependencyHandlersRetriever.hasNextHandler() && false == forcedTerminate.get()) {
-            OperationHandler<?> handler;
-            try {
-                handler = dependencyAndNonDependencyHandlersRetriever.nextHandler();
-            } catch (Exception e) {
-                String errMsg = String.format("Error while retrieving next handler\n%s",
-                        ConcurrentErrorReporter.stackTraceToString(e));
-                errorReporter.reportError(this, errMsg);
-                continue;
+        try {
+            long startTimeOfLastOperationAsNano = 0;
+            while (dependencyAndNonDependencyHandlersRetriever.hasNextHandler() && false == forcedTerminate.get()) {
+                OperationHandler<?> handler;
+                try {
+                    handler = dependencyAndNonDependencyHandlersRetriever.nextHandler();
+                } catch (Exception e) {
+                    String errMsg = String.format("Error while retrieving next handler\n%s",
+                            ConcurrentErrorReporter.stackTraceToString(e));
+                    errorReporter.reportError(this, errMsg);
+                    continue;
+                }
+
+                startTimeOfLastOperationAsNano = handler.operation().scheduledStartTime().asNano();
+
+                try {
+                    // --- BLOCKING CALL (when bounded queue is full) ---
+                    operationHandlerExecutor.execute(handler);
+                } catch (OperationHandlerExecutorException e) {
+                    String errMsg = String.format("Error encountered while submitting operation for execution\n%s\n%s",
+                            handler.operation(),
+                            ConcurrentErrorReporter.stackTraceToString(e));
+                    errorReporter.reportError(this, errMsg);
+                    continue;
+                }
             }
 
-            startTimeOfLastOperationAsNano = handler.operation().scheduledStartTime().asNano();
-
-            try {
-                // --- BLOCKING CALL (when bounded queue is full) ---
-                operationHandlerExecutor.execute(handler);
-            } catch (OperationHandlerExecutorException e) {
-                String errMsg = String.format("Error encountered while submitting operation for execution\n%s\n%s",
-                        handler.operation(),
-                        ConcurrentErrorReporter.stackTraceToString(e));
-                errorReporter.reportError(this, errMsg);
-                continue;
+            boolean handlersFinishedInTime = awaitAllRunningHandlers(Time.fromNano(startTimeOfLastOperationAsNano), durationToWaitForAllHandlersToFinishBeforeShutdown);
+            if (false == handlersFinishedInTime) {
+                errorReporter.reportError(
+                        this,
+                        String.format(
+                                "%s operation handlers did not complete in time (within %s of the time the last operation was submitted for execution)",
+                                operationHandlerExecutor.uncompletedOperationHandlerCount(),
+                                durationToWaitForAllHandlersToFinishBeforeShutdown
+                        )
+                );
             }
+            this.hasFinished.set(true);
+        } catch (Throwable e) {
+            e.printStackTrace();
         }
-
-        boolean handlersFinishedInTime = awaitAllRunningHandlers(Time.fromNano(startTimeOfLastOperationAsNano), durationToWaitForAllHandlersToFinishBeforeShutdown);
-        if (false == handlersFinishedInTime) {
-            errorReporter.reportError(
-                    this,
-                    String.format(
-                            "%s operation handlers did not complete in time (within %s of the time the last operation was submitted for execution)",
-                            operationHandlerExecutor.uncompletedOperationHandlerCount(),
-                            durationToWaitForAllHandlersToFinishBeforeShutdown
-                    )
-            );
-        }
-        this.hasFinished.set(true);
     }
 
     private boolean awaitAllRunningHandlers(Time startTimeOfLastOperation, Duration timeoutDuration) {

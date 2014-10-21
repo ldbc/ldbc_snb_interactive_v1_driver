@@ -20,9 +20,9 @@ import com.ldbc.driver.temporal.SystemTimeSource;
 import com.ldbc.driver.temporal.Time;
 import com.ldbc.driver.temporal.TimeSource;
 import com.ldbc.driver.util.ClassLoaderHelper;
+import com.ldbc.driver.util.Tuple;
 import com.ldbc.driver.util.csv.SimpleCsvFileReader;
 import com.ldbc.driver.util.csv.SimpleCsvFileWriter;
-import com.ldbc.driver.util.Tuple;
 import com.ldbc.driver.validation.*;
 import org.apache.log4j.Logger;
 
@@ -323,6 +323,14 @@ public class Client {
                     // There are some local completion time writers, initialize them to workload start time
                     completionTimeServiceAssistant.writeInitiatedAndCompletedTimesToAllWriters(completionTimeService, controlService.workloadStartTime().minus(Duration.fromNano(2)));
                     completionTimeServiceAssistant.writeInitiatedAndCompletedTimesToAllWriters(completionTimeService, controlService.workloadStartTime().minus(Duration.fromNano(1)));
+                    completionTimeServiceAssistant.waitForGlobalCompletionTime(
+                            timeSource,
+                            controlService.workloadStartTime().minus(Duration.fromNano(2)),
+                            Duration.fromSeconds(5),
+                            completionTimeService,
+                            errorReporter
+                    );
+                    logger.info("GCT: " + completionTimeService.globalCompletionTime());
                 }
             } catch (CompletionTimeException e) {
                 throw new ClientException("Error while writing initial initiated and completed times to Completion Time Service", e);

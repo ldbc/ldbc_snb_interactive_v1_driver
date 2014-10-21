@@ -45,8 +45,8 @@ public class LdbcSnbInteractiveWorkloadPerformanceTest {
             throws InterruptedException, DbException, WorkloadException, IOException, MetricsCollectionException, CompletionTimeException, DriverConfigurationException {
         File parentStreamsDir = new File("/Users/alexaverbuch/IdeaProjects/scale_factor_streams/");
         List<File> streamsDirs = Lists.newArrayList(
-                new File(parentStreamsDir, "sf10_partitions_01/"),
-                new File(parentStreamsDir, "sf10_partitions_04/"),
+//                new File(parentStreamsDir, "sf10_partitions_01/"),
+//                new File(parentStreamsDir, "sf10_partitions_04/"),
                 new File(parentStreamsDir, "sf10_partitions_16/")
         );
 
@@ -89,7 +89,7 @@ public class LdbcSnbInteractiveWorkloadPerformanceTest {
             );
 
             List<Integer> threadCounts = Lists.newArrayList(1, 2, 4);
-            long operationCount = 10000000;
+            long operationCount = 1000000;
             for (int threadCount : threadCounts) {
                 doPerformanceTest(
                         threadCount,
@@ -128,7 +128,7 @@ public class LdbcSnbInteractiveWorkloadPerformanceTest {
             // Driver-specific parameters
             String dbClassName = DummyLdbcSnbInteractiveDb.class.getName();
             String workloadClassName = LdbcSnbInteractiveWorkload.class.getName();
-            Duration statusDisplayInterval = Duration.fromSeconds(0);
+            Duration statusDisplayInterval = Duration.fromSeconds(2);
             TimeUnit timeUnit = TimeUnit.MICROSECONDS;
             String resultDirPath = resultsDir;
             double timeCompressionRatio = 1.0;

@@ -134,7 +134,8 @@ public class LocalCompletionTimeStateManager implements LocalCompletionTimeReade
             return new LocalCompletedTimeTrackerImpl(Lists.<Time>newArrayList(), removeTimesLowerThanAndReturnHighestRemovedFun);
         }
 
-        private LocalCompletedTimeTrackerImpl(INITIATED_TIMES_CONTAINER_TYPE completedTimes, Function2<INITIATED_TIMES_CONTAINER_TYPE, Time, Time> removeTimesLowerThanAndReturnHighestRemovedFun) {
+        private LocalCompletedTimeTrackerImpl(INITIATED_TIMES_CONTAINER_TYPE completedTimes,
+                                              Function2<INITIATED_TIMES_CONTAINER_TYPE, Time, Time> removeTimesLowerThanAndReturnHighestRemovedFun) {
             this.completedTimes = completedTimes;
             this.removeTimesLowerThanAndReturnHighestRemovedFun = removeTimesLowerThanAndReturnHighestRemovedFun;
         }

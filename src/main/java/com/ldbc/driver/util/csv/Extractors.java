@@ -1,24 +1,24 @@
 package com.ldbc.driver.util.csv;
 
 /**
- * Copyright (c) 2002-2014 "Neo Technology,"
- * Network Engine for Objects in Lund AB [http://neotechnology.com]
- *
- * This file is part of Neo4j.
- *
- * Neo4j is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- */
+* Copyright (c) 2002-2014 "Neo Technology,"
+* Network Engine for Objects in Lund AB [http://neotechnology.com]
+*
+* This file is part of Neo4j.
+*
+* Neo4j is free software: you can redistribute it and/or modify
+* it under the terms of the GNU General Public License as published by
+* the Free Software Foundation, either version 3 of the License, or
+* (at your option) any later version.
+*
+* This program is distributed in the hope that it will be useful,
+* but WITHOUT ANY WARRANTY; without even the implied warranty of
+* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+* GNU General Public License for more details.
+*
+* You should have received a copy of the GNU General Public License
+* along with this program.  If not, see <http://www.gnu.org/licenses/>.
+*/
 
 import java.lang.reflect.Field;
 import java.util.HashMap;
@@ -27,40 +27,40 @@ import java.util.Map;
 import static java.lang.reflect.Modifier.isStatic;
 
 /**
- * Common implementations of {@link Extractor}. Since array values can have a delimiter of user choice this isn't
- * an enum, but a regular class with a constructor where that delimiter can be specified.
- * <p/>
- * The common {@link Extractor extractors} can be accessed using the accessor methods, like {@link #string()},
- * {@link #long_()} and others. Specific classes are declared as return types for those providing additional
- * value accessors, f.ex {@link LongExtractor#primitive()}.
- * <p/>
- * Typically an instance of {@link Extractors} would be instantiated along side a {@link BufferedCharSeeker},
- * assumed to be used by a single thread, since each {@link Extractor} it has is stateful. Example:
- * <p/>
- * <pre>
- * CharSeeker seeker = ...
- * Mark mark = new Mark();
- * Extractors extractors = new Extractors( ';' );
- *
- * // ... seek a value, then extract like this
- * int boxFreeIntValue = seeker.extract( mark, extractors.int_() ).intValue();
- * // ... or using any other type of extractor.
- * </pre>
- * <p/>
- * Custom {@link Extractor extractors} can also be implemented and used, if need arises:
- * <p/>
- * <pre>
- * CharSeeker seeker = ...
- * Mark mark = new Mark();
- * MyStringDateToLongExtractor dateExtractor = new MyStringDateToLongExtractor();
- *
- * // ... seek a value, then extract like this
- * long timestamp = seeker.extract( mark, dateExtractor ).dateAsMillis();
- * </pre>
- * <p/>
- * ... even {@link Extractors#add(Extractor) added} to an {@link Extractors} instance, where its
- * {@link Extractor#toString() toString} value is used as key for lookup in {@link #valueOf(String)}.
- */
+* Common implementations of {@link Extractor}. Since array values can have a delimiter of user choice this isn't
+* an enum, but a regular class with a constructor where that delimiter can be specified.
+* <p/>
+* The common {@link Extractor extractors} can be accessed using the accessor methods, like {@link #string()},
+* {@link #long_()} and others. Specific classes are declared as return types for those providing additional
+* value accessors, f.ex {@link LongExtractor#primitive()}.
+* <p/>
+* Typically an instance of {@link Extractors} would be instantiated along side a {@link BufferedCharSeeker},
+* assumed to be used by a single thread, since each {@link Extractor} it has is stateful. Example:
+* <p/>
+* <pre>
+* CharSeeker seeker = ...
+* Mark mark = new Mark();
+* Extractors extractors = new Extractors( ';' );
+*
+* // ... seek a value, then extract like this
+* int boxFreeIntValue = seeker.extract( mark, extractors.int_() ).intValue();
+* // ... or using any other type of extractor.
+* </pre>
+* <p/>
+* Custom {@link Extractor extractors} can also be implemented and used, if need arises:
+* <p/>
+* <pre>
+* CharSeeker seeker = ...
+* Mark mark = new Mark();
+* MyStringDateToLongExtractor dateExtractor = new MyStringDateToLongExtractor();
+*
+* // ... seek a value, then extract like this
+* long timestamp = seeker.extract( mark, dateExtractor ).dateAsMillis();
+* </pre>
+* <p/>
+* ... even {@link Extractors#add(Extractor) added} to an {@link Extractors} instance, where its
+* {@link Extractor#toString() toString} value is used as key for lookup in {@link #valueOf(String)}.
+*/
 public class Extractors {
     private final Map<String, Extractor<?>> instances = new HashMap<>();
     private final Extractor<String> string;

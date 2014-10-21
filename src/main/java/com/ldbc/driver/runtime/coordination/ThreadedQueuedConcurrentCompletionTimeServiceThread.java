@@ -172,7 +172,11 @@ public class ThreadedQueuedConcurrentCompletionTimeServiceThread extends Thread 
         if (null != prevGlobalCompletionTime && newGlobalCompletionTime.lt(prevGlobalCompletionTime)) {
             errorReporter.reportError(
                     this,
-                    String.format("New GCT %s smaller than previous GCT %s", newGlobalCompletionTime.toString(), prevGlobalCompletionTime.toString()));
+                    String.format("New GCT %s / %s smaller than previous GCT %s / %s",
+                            newGlobalCompletionTime,
+                            newGlobalCompletionTime.asNano(),
+                            prevGlobalCompletionTime,
+                            prevGlobalCompletionTime.asNano()));
         } else {
             globalCompletionTimeSharedReference.set(newGlobalCompletionTime);
         }

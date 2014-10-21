@@ -57,25 +57,22 @@ public class ThreadedQueuedConcurrentCompletionTimeService implements Concurrent
 
     @Override
     public LocalCompletionTimeWriter newLocalCompletionTimeWriter() throws CompletionTimeException {
-        long futureTimeoutDurationAsMilli = Duration.fromMilli(100).asMilli();
-        long timeoutTimeAsMilli = timeSource.now().plus(Duration.fromSeconds(2)).asMilli();
+        long futureTimeoutDurationAsMilli = Duration.fromMinutes(1).asMilli();
         try {
             LocalCompletionTimeWriterFuture future = new LocalCompletionTimeWriterFuture(timeSource);
             queueEventSubmitter.submitEventToQueue(CompletionTimeEvent.newLocalCompletionTimeWriter(future));
             int writerId;
-            while (timeSource.nowAsMilli() < timeoutTimeAsMilli) {
-                try {
-                    writerId = future.get(futureTimeoutDurationAsMilli, TimeUnit.MILLISECONDS);
-                    LocalCompletionTimeWriter writer =
-                            new ThreadedQueuedLocalCompletionTimeWriter(writerId, sharedIsShuttingDownReference, sharedWriteEventCountReference, queueEventSubmitter);
-                    writers.add(writer);
-                    return writer;
-                } catch (TimeoutException e) {
-                    // do nothing
-                }
+            try {
+                writerId = future.get(futureTimeoutDurationAsMilli, TimeUnit.MILLISECONDS);
+                LocalCompletionTimeWriter writer =
+                        new ThreadedQueuedLocalCompletionTimeWriter(writerId, sharedIsShuttingDownReference, sharedWriteEventCountReference, queueEventSubmitter);
+                writers.add(writer);
+                return writer;
+            } catch (TimeoutException e) {
+                // do nothing
                 if (errorReporter.errorEncountered()) throw new CompletionTimeException(errorReporter.toString());
+                throw new CompletionTimeException("Future took too long to return");
             }
-            throw new CompletionTimeException("Future took too long to return");
         } catch (Exception e) {
             String errMsg = String.format("Error requesting new local completion time writer");
             throw new CompletionTimeException(errMsg, e);
@@ -173,6 +170,13 @@ public class ThreadedQueuedConcurrentCompletionTimeService implements Concurrent
                 String errMsg = String.format("Error submitting completed time for Time[%s]", time.toString());
                 throw new CompletionTimeException(errMsg, e);
             }
+        }
+
+        @Override
+        public String toString() {
+            return "ThreadedQueuedLocalCompletionTimeWriter{" +
+                    "writerId=" + writerId +
+                    '}';
         }
     }
 
