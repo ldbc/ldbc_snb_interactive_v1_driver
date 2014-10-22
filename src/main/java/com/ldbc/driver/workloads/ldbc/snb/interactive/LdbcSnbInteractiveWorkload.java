@@ -25,68 +25,21 @@ public class LdbcSnbInteractiveWorkload extends Workload {
     private List<Closeable> personUpdateOperationsFileReaders = new ArrayList<>();
     private List<File> personUpdateOperationFiles = new ArrayList<>();
 
+    private List<Closeable> readOperationFileReaders = new ArrayList<>();
     private File readOperation1File;
-    private Closeable readOperation1FileReader;
     private File readOperation2File;
-    private Closeable readOperation2FileReader;
     private File readOperation3File;
-    private Closeable readOperation3FileReader;
     private File readOperation4File;
-    private Closeable readOperation4FileReader;
     private File readOperation5File;
-    private Closeable readOperation5FileReader;
     private File readOperation6File;
-    private Closeable readOperation6FileReader;
     private File readOperation7File;
-    private Closeable readOperation7FileReader;
     private File readOperation8File;
-    private Closeable readOperation8FileReader;
     private File readOperation9File;
-    private Closeable readOperation9FileReader;
     private File readOperation10File;
-    private Closeable readOperation10FileReader;
     private File readOperation11File;
-    private Closeable readOperation11FileReader;
     private File readOperation12File;
-    private Closeable readOperation12FileReader;
     private File readOperation13File;
-    private Closeable readOperation13FileReader;
     private File readOperation14File;
-    private Closeable readOperation14FileReader;
-// TODO uncomment
-// TODO uncomment
-// TODO uncomment
-// TODO uncomment
-// TODO uncomment
-// TODO uncomment
-// TODO uncomment
-// TODO uncomment
-// TODO uncomment
-// TODO uncomment
-// TODO uncomment
-// TODO uncomment
-// TODO uncomment
-// TODO uncomment
-// TODO uncomment
-// TODO uncomment
-// TODO uncomment
-// TODO uncomment
-// TODO uncomment
-// TODO uncomment
-//    private SimpleCsvFileReader readOperation1FileReader;
-//    private SimpleCsvFileReader readOperation2FileReader;
-//    private SimpleCsvFileReader readOperation3FileReader;
-//    private SimpleCsvFileReader readOperation4FileReader;
-//    private SimpleCsvFileReader readOperation5FileReader;
-//    private SimpleCsvFileReader readOperation6FileReader;
-//    private SimpleCsvFileReader readOperation7FileReader;
-//    private SimpleCsvFileReader readOperation8FileReader;
-//    private SimpleCsvFileReader readOperation9FileReader;
-//    private SimpleCsvFileReader readOperation10FileReader;
-//    private SimpleCsvFileReader readOperation11FileReader;
-//    private SimpleCsvFileReader readOperation12FileReader;
-//    private SimpleCsvFileReader readOperation13FileReader;
-//    private SimpleCsvFileReader readOperation14FileReader;
 
     private Duration readOperation1Interleave;
     private Duration readOperation2Interleave;
@@ -289,23 +242,12 @@ public class LdbcSnbInteractiveWorkload extends Workload {
             }
         }
 
-        try {
-            readOperation1FileReader.close();
-            readOperation2FileReader.close();
-            readOperation3FileReader.close();
-            readOperation4FileReader.close();
-            readOperation5FileReader.close();
-            readOperation6FileReader.close();
-            readOperation7FileReader.close();
-            readOperation8FileReader.close();
-            readOperation9FileReader.close();
-            readOperation10FileReader.close();
-            readOperation11FileReader.close();
-            readOperation12FileReader.close();
-            readOperation13FileReader.close();
-            readOperation14FileReader.close();
-        } catch (IOException e) {
-            throw new WorkloadException("Error encountered while closing read params reader", e);
+        for (Closeable readOperationFileReader : readOperationFileReaders) {
+            try {
+                readOperationFileReader.close();
+            } catch (IOException e) {
+                throw new WorkloadException("Error encountered while closing read parameters reader", e);
+            }
         }
     }
 
@@ -331,20 +273,6 @@ public class LdbcSnbInteractiveWorkload extends Workload {
         SimpleCsvFileReader csvFileReader = new SimpleCsvFileReader(updateOperationsFile, SimpleCsvFileReader.DEFAULT_COLUMN_SEPARATOR_PATTERN);
         return Tuple.<Iterator<Operation<?>>, Closeable>tuple2(new WriteEventStreamReaderRegex(csvFileReader), csvFileReader);
     }
-
-    // TODO comment
-    // TODO comment
-    // TODO comment
-    // TODO comment
-    // TODO comment
-    // TODO comment
-    // TODO comment
-    // TODO comment
-    // TODO comment
-    // TODO comment
-    // TODO comment
-    // TODO comment
-    //             readOperation1FileReader = new SimpleCsvFileReader(new File(parametersDir, LdbcSnbInteractiveConfiguration.READ_OPERATION_1_PARAMS_FILENAME), LdbcSnbInteractiveConfiguration.PIPE_SEPARATOR_REGEX);
 
     @Override
     protected WorkloadStreams getStreams(GeneratorFactory gf) throws WorkloadException {
@@ -473,21 +401,6 @@ public class LdbcSnbInteractiveWorkload extends Workload {
         char columnDelimiter = '|';
         char arrayDelimiter = ';';
 
-        // TODO uncomment
-        // TODO uncomment
-        // TODO uncomment
-        // TODO uncomment
-        // TODO uncomment
-        // TODO uncomment
-        // TODO uncomment
-        // TODO uncomment
-//        Iterator<Operation<?>> operation1StreamWithoutTimes = new Query1EventStreamReader_OLD(gf.repeating(readOperation1FileReader), EventReturnPolicy.AT_LEAST_ONE_MATCH);
-//        Iterator<Time> operation1StartTimes = gf.constantIncrementTime(workloadStartTime.plus(readOperation1Interleave), readOperation1Interleave);
-//        Iterator<Operation<?>> readOperation1Stream = gf.assignDependencyTimes(
-//                gf.constant(workloadStartTime),
-//                gf.assignStartTimes(operation1StartTimes, operation1StreamWithoutTimes)
-//        );
-
         Iterator<Operation<?>> readOperation1Stream;
         {
             CsvEventStreamReaderBasicCharSeeker.EventDecoder<Object[]> decoder = new Query1EventStreamReader.Query1Decoder();
@@ -529,24 +442,8 @@ public class LdbcSnbInteractiveWorkload extends Workload {
                     )
             );
 
-            readOperation1FileReader = charSeeker;
+            readOperationFileReaders.add(charSeeker);
         }
-
-
-        // TODO uncomment
-        // TODO uncomment
-        // TODO uncomment
-        // TODO uncomment
-        // TODO uncomment
-        // TODO uncomment
-        // TODO uncomment
-        // TODO uncomment
-//        Iterator<Operation<?>> operation2StreamWithoutTimes = new Query2EventStreamReader_OLD(gf.repeating(readOperation2FileReader), EventReturnPolicy.AT_LEAST_ONE_MATCH);
-//        Iterator<Time> operation2StartTimes = gf.constantIncrementTime(workloadStartTime.plus(readOperation2Interleave), readOperation2Interleave);
-//        Iterator<Operation<?>> readOperation2Stream = gf.assignDependencyTimes(
-//                gf.constant(workloadStartTime),
-//                gf.assignStartTimes(operation2StartTimes, operation2StreamWithoutTimes)
-//        );
 
         Iterator<Operation<?>> readOperation2Stream;
         {
@@ -589,23 +486,8 @@ public class LdbcSnbInteractiveWorkload extends Workload {
                     )
             );
 
-            readOperation2FileReader = charSeeker;
+            readOperationFileReaders.add(charSeeker);
         }
-
-        // TODO uncomment
-        // TODO uncomment
-        // TODO uncomment
-        // TODO uncomment
-        // TODO uncomment
-        // TODO uncomment
-        // TODO uncomment
-        // TODO uncomment
-//        Iterator<Operation<?>> operation3StreamWithoutTimes = new Query3EventStreamReader_OLD(gf.repeating(readOperation3FileReader), EventReturnPolicy.AT_LEAST_ONE_MATCH);
-//        Iterator<Time> operation3StartTimes = gf.constantIncrementTime(workloadStartTime.plus(readOperation3Interleave), readOperation3Interleave);
-//        Iterator<Operation<?>> readOperation3Stream = gf.assignDependencyTimes(
-//                gf.constant(workloadStartTime),
-//                gf.assignStartTimes(operation3StartTimes, operation3StreamWithoutTimes)
-//        );
 
         Iterator<Operation<?>> readOperation3Stream;
         {
@@ -620,6 +502,9 @@ public class LdbcSnbInteractiveWorkload extends Workload {
             Mark mark = new Mark();
             // skip headers
             try {
+                charSeeker.seek(mark, new int[]{columnDelimiter});
+                charSeeker.seek(mark, new int[]{columnDelimiter});
+                charSeeker.seek(mark, new int[]{columnDelimiter});
                 charSeeker.seek(mark, new int[]{columnDelimiter});
                 charSeeker.seek(mark, new int[]{columnDelimiter});
             } catch (IOException e) {
@@ -648,23 +533,8 @@ public class LdbcSnbInteractiveWorkload extends Workload {
                     )
             );
 
-            readOperation3FileReader = charSeeker;
+            readOperationFileReaders.add(charSeeker);
         }
-
-        // TODO uncomment
-        // TODO uncomment
-        // TODO uncomment
-        // TODO uncomment
-        // TODO uncomment
-        // TODO uncomment
-        // TODO uncomment
-        // TODO uncomment
-//        Iterator<Operation<?>> operation4StreamWithoutTimes = new Query4EventStreamReader_OLD(gf.repeating(readOperation4FileReader), EventReturnPolicy.AT_LEAST_ONE_MATCH);
-//        Iterator<Time> operation4StartTimes = gf.constantIncrementTime(workloadStartTime.plus(readOperation4Interleave), readOperation4Interleave);
-//        Iterator<Operation<?>> readOperation4Stream = gf.assignDependencyTimes(
-//                gf.constant(workloadStartTime),
-//                gf.assignStartTimes(operation4StartTimes, operation4StreamWithoutTimes)
-//        );
 
         Iterator<Operation<?>> readOperation4Stream;
         {
@@ -679,6 +549,7 @@ public class LdbcSnbInteractiveWorkload extends Workload {
             Mark mark = new Mark();
             // skip headers
             try {
+                charSeeker.seek(mark, new int[]{columnDelimiter});
                 charSeeker.seek(mark, new int[]{columnDelimiter});
                 charSeeker.seek(mark, new int[]{columnDelimiter});
             } catch (IOException e) {
@@ -707,22 +578,9 @@ public class LdbcSnbInteractiveWorkload extends Workload {
                     )
             );
 
-            readOperation4FileReader = charSeeker;
+            readOperationFileReaders.add(charSeeker);
         }
-        // TODO uncomment
-        // TODO uncomment
-        // TODO uncomment
-        // TODO uncomment
-        // TODO uncomment
-        // TODO uncomment
-        // TODO uncomment
-        // TODO uncomment
-//        Iterator<Operation<?>> operation5StreamWithoutTimes = new Query5EventStreamReader_OLD(gf.repeating(readOperation5FileReader), EventReturnPolicy.AT_LEAST_ONE_MATCH);
-//        Iterator<Time> operation5StartTimes = gf.constantIncrementTime(workloadStartTime.plus(readOperation5Interleave), readOperation5Interleave);
-//        Iterator<Operation<?>> readOperation5Stream = gf.assignDependencyTimes(
-//                gf.constant(workloadStartTime),
-//                gf.assignStartTimes(operation5StartTimes, operation5StreamWithoutTimes)
-//        );
+
         Iterator<Operation<?>> readOperation5Stream;
         {
             CsvEventStreamReaderBasicCharSeeker.EventDecoder<Object[]> decoder = new Query5EventStreamReader.Query5Decoder();
@@ -764,23 +622,9 @@ public class LdbcSnbInteractiveWorkload extends Workload {
                     )
             );
 
-            readOperation5FileReader = charSeeker;
+            readOperationFileReaders.add(charSeeker);
         }
 
-        // TODO uncomment
-        // TODO uncomment
-        // TODO uncomment
-        // TODO uncomment
-        // TODO uncomment
-        // TODO uncomment
-        // TODO uncomment
-        // TODO uncomment
-//        Iterator<Operation<?>> operation6StreamWithoutTimes = new Query6EventStreamReader_OLD(gf.repeating(readOperation6FileReader), EventReturnPolicy.AT_LEAST_ONE_MATCH);
-//        Iterator<Time> operation6StartTimes = gf.constantIncrementTime(workloadStartTime.plus(readOperation6Interleave), readOperation6Interleave);
-//        Iterator<Operation<?>> readOperation6Stream = gf.assignDependencyTimes(
-//                gf.constant(workloadStartTime),
-//                gf.assignStartTimes(operation6StartTimes, operation6StreamWithoutTimes)
-//        );
         Iterator<Operation<?>> readOperation6Stream;
         {
             CsvEventStreamReaderBasicCharSeeker.EventDecoder<Object[]> decoder = new Query6EventStreamReader.Query6Decoder();
@@ -822,23 +666,9 @@ public class LdbcSnbInteractiveWorkload extends Workload {
                     )
             );
 
-            readOperation6FileReader = charSeeker;
+            readOperationFileReaders.add(charSeeker);
         }
 
-        // TODO uncomment
-        // TODO uncomment
-        // TODO uncomment
-        // TODO uncomment
-        // TODO uncomment
-        // TODO uncomment
-        // TODO uncomment
-        // TODO uncomment
-//        Iterator<Operation<?>> operation7StreamWithoutTimes = new Query7EventStreamReader_OLD(gf.repeating(readOperation7FileReader), EventReturnPolicy.AT_LEAST_ONE_MATCH);
-//        Iterator<Time> operation7StartTimes = gf.constantIncrementTime(workloadStartTime.plus(readOperation7Interleave), readOperation7Interleave);
-//        Iterator<Operation<?>> readOperation7Stream = gf.assignDependencyTimes(
-//                gf.constant(workloadStartTime),
-//                gf.assignStartTimes(operation7StartTimes, operation7StreamWithoutTimes)
-//        );
         Iterator<Operation<?>> readOperation7Stream;
         {
             CsvEventStreamReaderBasicCharSeeker.EventDecoder<Object[]> decoder = new Query7EventStreamReader.Query7Decoder();
@@ -852,7 +682,6 @@ public class LdbcSnbInteractiveWorkload extends Workload {
             Mark mark = new Mark();
             // skip headers
             try {
-                charSeeker.seek(mark, new int[]{columnDelimiter});
                 charSeeker.seek(mark, new int[]{columnDelimiter});
             } catch (IOException e) {
                 throw new WorkloadException(String.format("Unable to advance parameters file beyond headers: %s", readOperation7File.getAbsolutePath()), e);
@@ -880,23 +709,9 @@ public class LdbcSnbInteractiveWorkload extends Workload {
                     )
             );
 
-            readOperation7FileReader = charSeeker;
+            readOperationFileReaders.add(charSeeker);
         }
 
-        // TODO uncomment
-        // TODO uncomment
-        // TODO uncomment
-        // TODO uncomment
-        // TODO uncomment
-        // TODO uncomment
-        // TODO uncomment
-        // TODO uncomment
-//        Iterator<Operation<?>> operation8StreamWithoutTimes = new Query8EventStreamReader_OLD(gf.repeating(readOperation8FileReader), EventReturnPolicy.AT_LEAST_ONE_MATCH);
-//        Iterator<Time> operation8StartTimes = gf.constantIncrementTime(workloadStartTime.plus(readOperation8Interleave), readOperation8Interleave);
-//        Iterator<Operation<?>> readOperation8Stream = gf.assignDependencyTimes(
-//                gf.constant(workloadStartTime),
-//                gf.assignStartTimes(operation8StartTimes, operation8StreamWithoutTimes)
-//        );
         Iterator<Operation<?>> readOperation8Stream;
         {
             CsvEventStreamReaderBasicCharSeeker.EventDecoder<Object[]> decoder = new Query8EventStreamReader.Query8Decoder();
@@ -910,7 +725,6 @@ public class LdbcSnbInteractiveWorkload extends Workload {
             Mark mark = new Mark();
             // skip headers
             try {
-                charSeeker.seek(mark, new int[]{columnDelimiter});
                 charSeeker.seek(mark, new int[]{columnDelimiter});
             } catch (IOException e) {
                 throw new WorkloadException(String.format("Unable to advance parameters file beyond headers: %s", readOperation8File.getAbsolutePath()), e);
@@ -938,23 +752,9 @@ public class LdbcSnbInteractiveWorkload extends Workload {
                     )
             );
 
-            readOperation8FileReader = charSeeker;
+            readOperationFileReaders.add(charSeeker);
         }
 
-        // TODO uncomment
-        // TODO uncomment
-        // TODO uncomment
-        // TODO uncomment
-        // TODO uncomment
-        // TODO uncomment
-        // TODO uncomment
-        // TODO uncomment
-//        Iterator<Operation<?>> operation9StreamWithoutTimes = new Query9EventStreamReader_OLD(gf.repeating(readOperation9FileReader), EventReturnPolicy.AT_LEAST_ONE_MATCH);
-//        Iterator<Time> operation9StartTimes = gf.constantIncrementTime(workloadStartTime.plus(readOperation9Interleave), readOperation9Interleave);
-//        Iterator<Operation<?>> readOperation9Stream = gf.assignDependencyTimes(
-//                gf.constant(workloadStartTime),
-//                gf.assignStartTimes(operation9StartTimes, operation9StreamWithoutTimes)
-//        );
         Iterator<Operation<?>> readOperation9Stream;
         {
             CsvEventStreamReaderBasicCharSeeker.EventDecoder<Object[]> decoder = new Query9EventStreamReader.Query9Decoder();
@@ -996,24 +796,9 @@ public class LdbcSnbInteractiveWorkload extends Workload {
                     )
             );
 
-            readOperation9FileReader = charSeeker;
+            readOperationFileReaders.add(charSeeker);
         }
 
-
-        // TODO uncomment
-        // TODO uncomment
-        // TODO uncomment
-        // TODO uncomment
-        // TODO uncomment
-        // TODO uncomment
-        // TODO uncomment
-        // TODO uncomment
-//        Iterator<Operation<?>> operation10StreamWithoutTimes = new Query10EventStreamReader_OLD(gf.repeating(readOperation10FileReader), EventReturnPolicy.AT_LEAST_ONE_MATCH);
-//        Iterator<Time> operation10StartTimes = gf.constantIncrementTime(workloadStartTime.plus(readOperation10Interleave), readOperation10Interleave);
-//        Iterator<Operation<?>> readOperation10Stream = gf.assignDependencyTimes(
-//                gf.constant(workloadStartTime),
-//                gf.assignStartTimes(operation10StartTimes, operation10StreamWithoutTimes)
-//        );
         Iterator<Operation<?>> readOperation10Stream;
         {
             CsvEventStreamReaderBasicCharSeeker.EventDecoder<Object[]> decoder = new Query10EventStreamReader.Query10Decoder();
@@ -1055,23 +840,9 @@ public class LdbcSnbInteractiveWorkload extends Workload {
                     )
             );
 
-            readOperation10FileReader = charSeeker;
+            readOperationFileReaders.add(charSeeker);
         }
 
-        // TODO uncomment
-        // TODO uncomment
-        // TODO uncomment
-        // TODO uncomment
-        // TODO uncomment
-        // TODO uncomment
-        // TODO uncomment
-        // TODO uncomment
-//        Iterator<Operation<?>> operation11StreamWithoutTimes = new Query11EventStreamReader_OLD(gf.repeating(readOperation11FileReader), EventReturnPolicy.AT_LEAST_ONE_MATCH);
-//        Iterator<Time> operation11StartTimes = gf.constantIncrementTime(workloadStartTime.plus(readOperation11Interleave), readOperation11Interleave);
-//        Iterator<Operation<?>> readOperation11Stream = gf.assignDependencyTimes(
-//                gf.constant(workloadStartTime),
-//                gf.assignStartTimes(operation11StartTimes, operation11StreamWithoutTimes)
-//        );
         Iterator<Operation<?>> readOperation11Stream;
         {
             CsvEventStreamReaderBasicCharSeeker.EventDecoder<Object[]> decoder = new Query11EventStreamReader.Query11Decoder();
@@ -1085,6 +856,7 @@ public class LdbcSnbInteractiveWorkload extends Workload {
             Mark mark = new Mark();
             // skip headers
             try {
+                charSeeker.seek(mark, new int[]{columnDelimiter});
                 charSeeker.seek(mark, new int[]{columnDelimiter});
                 charSeeker.seek(mark, new int[]{columnDelimiter});
             } catch (IOException e) {
@@ -1113,23 +885,9 @@ public class LdbcSnbInteractiveWorkload extends Workload {
                     )
             );
 
-            readOperation11FileReader = charSeeker;
+            readOperationFileReaders.add(charSeeker);
         }
 
-        // TODO uncomment
-        // TODO uncomment
-        // TODO uncomment
-        // TODO uncomment
-        // TODO uncomment
-        // TODO uncomment
-        // TODO uncomment
-        // TODO uncomment
-//        Iterator<Operation<?>> operation12StreamWithoutTimes = new Query12EventStreamReader_OLD(gf.repeating(readOperation12FileReader), EventReturnPolicy.AT_LEAST_ONE_MATCH);
-//        Iterator<Time> operation12StartTimes = gf.constantIncrementTime(workloadStartTime.plus(readOperation12Interleave), readOperation12Interleave);
-//        Iterator<Operation<?>> readOperation12Stream = gf.assignDependencyTimes(
-//                gf.constant(workloadStartTime),
-//                gf.assignStartTimes(operation12StartTimes, operation12StreamWithoutTimes)
-//        );
         Iterator<Operation<?>> readOperation12Stream;
         {
             CsvEventStreamReaderBasicCharSeeker.EventDecoder<Object[]> decoder = new Query12EventStreamReader.Query12Decoder();
@@ -1171,23 +929,9 @@ public class LdbcSnbInteractiveWorkload extends Workload {
                     )
             );
 
-            readOperation12FileReader = charSeeker;
+            readOperationFileReaders.add(charSeeker);
         }
 
-        // TODO uncomment
-        // TODO uncomment
-        // TODO uncomment
-        // TODO uncomment
-        // TODO uncomment
-        // TODO uncomment
-        // TODO uncomment
-        // TODO uncomment
-//        Iterator<Operation<?>> operation13StreamWithoutTimes = new Query13EventStreamReader_OLD(gf.repeating(readOperation13FileReader), EventReturnPolicy.AT_LEAST_ONE_MATCH);
-//        Iterator<Time> operation13StartTimes = gf.constantIncrementTime(workloadStartTime.plus(readOperation13Interleave), readOperation13Interleave);
-//        Iterator<Operation<?>> readOperation13Stream = gf.assignDependencyTimes(
-//                gf.constant(workloadStartTime),
-//                gf.assignStartTimes(operation13StartTimes, operation13StreamWithoutTimes)
-//        );
         Iterator<Operation<?>> readOperation13Stream;
         {
             CsvEventStreamReaderBasicCharSeeker.EventDecoder<Object[]> decoder = new Query13EventStreamReader.Query13Decoder();
@@ -1229,23 +973,9 @@ public class LdbcSnbInteractiveWorkload extends Workload {
                     )
             );
 
-            readOperation13FileReader = charSeeker;
+            readOperationFileReaders.add(charSeeker);
         }
 
-        // TODO uncomment
-        // TODO uncomment
-        // TODO uncomment
-        // TODO uncomment
-        // TODO uncomment
-        // TODO uncomment
-        // TODO uncomment
-        // TODO uncomment
-//        Iterator<Operation<?>> operation14StreamWithoutTimes = new Query14EventStreamReader_OLD(gf.repeating(readOperation14FileReader), EventReturnPolicy.AT_LEAST_ONE_MATCH);
-//        Iterator<Time> operation14StartTimes = gf.constantIncrementTime(workloadStartTime.plus(readOperation14Interleave), readOperation14Interleave);
-//        Iterator<Operation<?>> readOperation14Stream = gf.assignDependencyTimes(
-//                gf.constant(workloadStartTime),
-//                gf.assignStartTimes(operation14StartTimes, operation14StreamWithoutTimes)
-//        );
         Iterator<Operation<?>> readOperation14Stream;
         {
             CsvEventStreamReaderBasicCharSeeker.EventDecoder<Object[]> decoder = new Query14EventStreamReader.Query14Decoder();
@@ -1287,9 +1017,8 @@ public class LdbcSnbInteractiveWorkload extends Workload {
                     )
             );
 
-            readOperation14FileReader = charSeeker;
+            readOperationFileReaders.add(charSeeker);
         }
-
 
         if (enabledReadOperationTypes.contains(LdbcQuery1.class))
             asynchronousNonDependencyStreamsList.add(readOperation1Stream);

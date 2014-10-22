@@ -1,9 +1,10 @@
-{"PersonID": 3298535005849, "PersonURI": "http://www.ldbc.eu/ldbc_socialnet/1.0/data/pers00000003298535005849", "TagType": "Company"}
-{"PersonID": 2112, "PersonURI": "http://www.ldbc.eu/ldbc_socialnet/1.0/data/pers00000000000000002112", "TagType": "Criminal"}
-{"PersonID": 5497558227897, "PersonURI": "http://www.ldbc.eu/ldbc_socialnet/1.0/data/pers00000005497558227897", "TagType": "Chancellor"}
-{"PersonID": 2199023270669, "PersonURI": "http://www.ldbc.eu/ldbc_socialnet/1.0/data/pers00000002199023270669", "TagType": "BasketballPlayer"}
-{"PersonID": 4398046599167, "PersonURI": "http://www.ldbc.eu/ldbc_socialnet/1.0/data/pers00000004398046599167", "TagType": "Company"}
-{"PersonID": 3298534920504, "PersonURI": "http://www.ldbc.eu/ldbc_socialnet/1.0/data/pers00000003298534920504", "TagType": "Criminal"}
-{"PersonID": 3298534970824, "PersonURI": "http://www.ldbc.eu/ldbc_socialnet/1.0/data/pers00000003298534970824", "TagType": "Criminal"}
-{"PersonID": 4398046566897, "PersonURI": "http://www.ldbc.eu/ldbc_socialnet/1.0/data/pers00000004398046566897", "TagType": "Company"}
-{"PersonID": 1099511680914, "PersonURI": "http://www.ldbc.eu/ldbc_socialnet/1.0/data/pers00000001099511680914", "TagType": "BasketballPlayer"}
+Person|TagType
+3298535005849|Company
+2112|Criminal
+5497558227897|Chancellor
+2199023270669|BasketballPlayer
+4398046599167|Company
+3298534920504|Criminal
+3298534970824|Criminal
+4398046566897|Company
+1099511680914|BasketballPlayer

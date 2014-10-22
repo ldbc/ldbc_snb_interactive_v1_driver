@@ -4,6 +4,7 @@ import com.google.common.collect.ImmutableList;
 import com.ldbc.driver.Operation;
 import com.ldbc.driver.testutils.TestUtils;
 import com.ldbc.driver.util.csv.SimpleCsvFileReader;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import java.io.BufferedReader;
@@ -594,6 +595,7 @@ public class ReadQueryEventStreamReadersTest {
         assertThat(reader.hasNext(), is(false));
     }
 
+    @Ignore
     @Test
     public void shouldParseAllParamsFilesWithoutError() throws IOException, ParseException {
         // Given

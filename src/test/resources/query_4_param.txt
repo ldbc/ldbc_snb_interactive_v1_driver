@@ -1,9 +1,10 @@
-{"PersonID": 2199023293923, "Duration": 54, "PersonURI": "http://www.ldbc.eu/ldbc_socialnet/1.0/data/pers00000002199023293923", "Date0": "2010-6-1"}
-{"PersonID": 5497558208527, "Duration": 39, "PersonURI": "http://www.ldbc.eu/ldbc_socialnet/1.0/data/pers00000005497558208527", "Date0": "2010-7-1"}
-{"PersonID": 2199023366815, "Duration": 37, "PersonURI": "http://www.ldbc.eu/ldbc_socialnet/1.0/data/pers00000002199023366815", "Date0": "2010-6-1"}
-{"PersonID": 3298534958451, "Duration": 31, "PersonURI": "http://www.ldbc.eu/ldbc_socialnet/1.0/data/pers00000003298534958451", "Date0": "2010-5-1"}
-{"PersonID": 5497558202155, "Duration": 30, "PersonURI": "http://www.ldbc.eu/ldbc_socialnet/1.0/data/pers00000005497558202155", "Date0": "2010-6-1"}
-{"PersonID": 2199023354526, "Duration": 48, "PersonURI": "http://www.ldbc.eu/ldbc_socialnet/1.0/data/pers00000002199023354526", "Date0": "2010-7-1"}
-{"PersonID": 4398046583253, "Duration": 45, "PersonURI": "http://www.ldbc.eu/ldbc_socialnet/1.0/data/pers00000004398046583253", "Date0": "2010-7-1"}
-{"PersonID": 126438, "Duration": 40, "PersonURI": "http://www.ldbc.eu/ldbc_socialnet/1.0/data/pers00000000000000126438", "Date0": "2010-6-1"}
-{"PersonID": 4398046638141, "Duration": 43, "PersonURI": "http://www.ldbc.eu/ldbc_socialnet/1.0/data/pers00000004398046638141", "Date0": "2010-7-1"}
+Person|Date0|Duration
+2199023293923|1275350400|54
+5497558208527|1277942400|39
+2199023366815|1275350400|37
+3298534958451|1272672000|31
+5497558202155|1275350400|30
+2199023354526|1277942400|48
+4398046583253|1277942400|45
+126438|1275350400|40
+4398046638141|1277942400|43

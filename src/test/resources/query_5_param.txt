@@ -1,9 +1,10 @@
-{"PersonID": 2199023300682, "Date0": "2010-11-1", "PersonURI": "http://www.ldbc.eu/ldbc_socialnet/1.0/data/pers00000002199023300682"}
-{"PersonID": 3298534993015, "Date0": "2010-11-1", "PersonURI": "http://www.ldbc.eu/ldbc_socialnet/1.0/data/pers00000003298534993015"}
-{"PersonID": 2199023333944, "Date0": "2010-11-14", "PersonURI": "http://www.ldbc.eu/ldbc_socialnet/1.0/data/pers00000002199023333944"}
-{"PersonID": 2199023350762, "Date0": "2010-11-1", "PersonURI": "http://www.ldbc.eu/ldbc_socialnet/1.0/data/pers00000002199023350762"}
-{"PersonID": 1099511700529, "Date0": "2010-11-1", "PersonURI": "http://www.ldbc.eu/ldbc_socialnet/1.0/data/pers00000001099511700529"}
-{"PersonID": 4398046602292, "Date0": "2010-11-1", "PersonURI": "http://www.ldbc.eu/ldbc_socialnet/1.0/data/pers00000004398046602292"}
-{"PersonID": 3298534892660, "Date0": "2010-11-6", "PersonURI": "http://www.ldbc.eu/ldbc_socialnet/1.0/data/pers00000003298534892660"}
-{"PersonID": 4398046551213, "Date0": "2010-11-1", "PersonURI": "http://www.ldbc.eu/ldbc_socialnet/1.0/data/pers00000004398046551213"}
-{"PersonID": 3298534941874, "Date0": "2010-11-1", "PersonURI": "http://www.ldbc.eu/ldbc_socialnet/1.0/data/pers00000003298534941874"}
+Person|Date0
+2199023300682|1288569600
+3298534993015|1288569600
+2199023333944|1289692800
+2199023350762|1288569600
+1099511700529|1288569600
+4398046602292|1288569600
+3298534892660|1289001600
+4398046551213|1288569600
+3298534941874|1288569600
