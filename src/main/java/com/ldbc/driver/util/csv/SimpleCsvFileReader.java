@@ -45,9 +45,7 @@ public class SimpleCsvFileReader implements Iterator<String[]>, Closeable {
     public boolean hasNext() {
         if (closed) return false;
         next = (next == null) ? nextLine() : next;
-        // TODO closeReader() really should be closed explicitly
         if (null == next) {
-            close();
             return false;
         }
         return (null != next);
@@ -74,7 +72,7 @@ public class SimpleCsvFileReader implements Iterator<String[]>, Closeable {
             if (null == csvLine) return null;
             return parseLine(csvLine);
         } catch (IOException e) {
-            throw new RuntimeException(String.format("Error retrieving next csv entry from file [%s]", csvReader), e);
+            throw new RuntimeException(String.format("Error retrieving next csv entry from file"), e);
         }
     }
 
