@@ -1,6 +1,7 @@
 package com.ldbc.driver;
 
 import com.google.common.base.Charsets;
+import com.google.common.collect.Iterators;
 import com.google.common.collect.Lists;
 import com.ldbc.driver.control.*;
 import com.ldbc.driver.generator.GeneratorFactory;
@@ -527,12 +528,6 @@ public class Client {
                 Tuple.Tuple2<WorkloadStreams, Workload> streamsAndWorkload = WorkloadStreams.createNewWorkloadWithLimitedWorkloadStreams(controlService.configuration(), gf);
                 workload = streamsAndWorkload._2();
                 WorkloadStreams workloadStreams = streamsAndWorkload._1();
-//                WorkloadStreams offsetAndCompressedWorkloadStreams = WorkloadStreams.timeOffsetAndCompressWorkloadStreams(
-//                        workloadStreams,
-//                        controlService.workloadStartTime(),
-//                        controlService.configuration().timeCompressionRatio(),
-//                        gf
-//                );
                 timeMappedOperations = workloadStreams.mergeSortedByStartTime(gf);
             } catch (WorkloadException e) {
                 throw new ClientException("Error while retrieving operation stream for workload", e);
@@ -551,10 +546,8 @@ public class Client {
 
             logger.info(String.format("Generating database validation file: %s", validationFileToGenerate.getAbsolutePath()));
 
-            List<Operation<?>> timeMappedOperationsList = Lists.newArrayList(timeMappedOperations);
-
             Iterator<ValidationParam> validationParamsGenerator =
-                    new ValidationParamsGenerator(db, workload.dbValidationParametersFilter(validationSetSize), timeMappedOperationsList.iterator());
+                    new ValidationParamsGenerator(db, workload.dbValidationParametersFilter(validationSetSize), timeMappedOperations);
 
             Iterator<String[]> csvRows =
                     new ValidationParamsToCsvRows(validationParamsGenerator, workload, performSerializationMarshallingChecks);
