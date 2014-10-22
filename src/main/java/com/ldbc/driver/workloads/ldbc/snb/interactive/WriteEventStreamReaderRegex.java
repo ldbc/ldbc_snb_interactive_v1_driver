@@ -3,8 +3,8 @@ package com.ldbc.driver.workloads.ldbc.snb.interactive;
 
 import com.google.common.collect.Lists;
 import com.ldbc.driver.Operation;
-import com.ldbc.driver.generator.CsvEventStreamReaderCsvReader;
-import com.ldbc.driver.generator.CsvEventStreamReaderCsvReader.EventDecoder;
+import com.ldbc.driver.generator.CsvEventStreamReaderTimedTypedCsvReader;
+import com.ldbc.driver.generator.CsvEventStreamReaderTimedTypedCsvReader.EventDecoder;
 import com.ldbc.driver.temporal.Time;
 import com.ldbc.driver.util.Function1;
 
@@ -13,7 +13,7 @@ import java.util.regex.Pattern;
 
 public class WriteEventStreamReaderRegex implements Iterator<Operation<?>> {
     private static final List<String> EMPTY_LIST = new ArrayList<>();
-    private final CsvEventStreamReaderCsvReader<Operation<?>, String> csvEventStreamReader;
+    private final CsvEventStreamReaderTimedTypedCsvReader<Operation<?>, String> csvEventStreamReader;
 
     public WriteEventStreamReaderRegex(Iterator<String[]> csvRowIterator) {
         Map<String, EventDecoder<Operation<?>>> decoders = new HashMap<>();
@@ -31,7 +31,7 @@ public class WriteEventStreamReaderRegex implements Iterator<Operation<?>> {
                 return csvRow[1];
             }
         };
-        this.csvEventStreamReader = new CsvEventStreamReaderCsvReader<>(csvRowIterator, decoders, decoderKeyExtractor);
+        this.csvEventStreamReader = new CsvEventStreamReaderTimedTypedCsvReader<>(csvRowIterator, decoders, decoderKeyExtractor);
     }
 
     @Override

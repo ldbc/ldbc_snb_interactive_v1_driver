@@ -11,7 +11,7 @@ import java.util.Map;
 import java.util.NoSuchElementException;
 
 
-public class CsvEventStreamReaderCharSeeker<BASE_EVENT_TYPE> implements Iterator<BASE_EVENT_TYPE> {
+public class CsvEventStreamReaderTimedTypedCharSeeker<BASE_EVENT_TYPE> implements Iterator<BASE_EVENT_TYPE> {
     private final Map<Integer, EventDecoder<BASE_EVENT_TYPE>> decoders;
     private final CharSeeker charSeeker;
     private final Extractors extractors;
@@ -19,10 +19,10 @@ public class CsvEventStreamReaderCharSeeker<BASE_EVENT_TYPE> implements Iterator
     private final int[] columnDelimiters;
     private BASE_EVENT_TYPE nextEvent = null;
 
-    public CsvEventStreamReaderCharSeeker(CharSeeker charSeeker,
-                                          Extractors extractors,
-                                          Map<Integer, EventDecoder<BASE_EVENT_TYPE>> decoders,
-                                          int columnDelimiter) {
+    public CsvEventStreamReaderTimedTypedCharSeeker(CharSeeker charSeeker,
+                                                    Extractors extractors,
+                                                    Map<Integer, EventDecoder<BASE_EVENT_TYPE>> decoders,
+                                                    int columnDelimiter) {
         this.charSeeker = charSeeker;
         this.extractors = extractors;
         this.mark = new Mark();
@@ -73,7 +73,7 @@ public class CsvEventStreamReaderCharSeeker<BASE_EVENT_TYPE> implements Iterator
                 ));
             }
 
-            return decoder.decodeEvent(scheduledStartTime, charSeeker, extractors, columnDelimiters);
+            return decoder.decodeEvent(scheduledStartTime, charSeeker, extractors, columnDelimiters, mark);
         } catch (IOException e) {
             throw new GeneratorException("Error while retrieving next event", e);
         }
@@ -86,6 +86,6 @@ public class CsvEventStreamReaderCharSeeker<BASE_EVENT_TYPE> implements Iterator
 
 
     public static interface EventDecoder<BASE_EVENT_TYPE> {
-        BASE_EVENT_TYPE decodeEvent(long scheduledStartTime, CharSeeker charSeeker, Extractors extractors, int[] columnDelimiters);
+        BASE_EVENT_TYPE decodeEvent(long scheduledStartTime, CharSeeker charSeeker, Extractors extractors, int[] columnDelimiters, Mark mark);
     }
 }

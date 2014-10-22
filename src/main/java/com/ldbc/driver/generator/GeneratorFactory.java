@@ -484,13 +484,13 @@ public class GeneratorFactory {
      * and looking ahead a bounded distance in case nearby elements of any one input generator are out of order
      *
      * @param comparator
-     * @param lookaheadDistance
+     * @param lookAheadDistance
      * @param generators
      * @param <T>
      * @return
      */
-    public <T> Iterator<T> mergeSort(Comparator<T> comparator, int lookaheadDistance, Iterator<T>... generators) {
-        return new OrderedMultiGenerator<>(comparator, lookaheadDistance, generators);
+    public <T> Iterator<T> mergeSort(Comparator<T> comparator, int lookAheadDistance, Iterator<T>... generators) {
+        return new OrderedMultiGenerator<>(comparator, lookAheadDistance, generators);
     }
 
     /**

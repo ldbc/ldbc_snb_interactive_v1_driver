@@ -1,43 +1,37 @@
 package com.ldbc.driver.workloads.ldbc.snb.interactive;
 
 
-import com.google.common.collect.Lists;
 import com.ldbc.driver.Operation;
-import com.ldbc.driver.generator.CsvEventStreamReader_OLD;
+import com.ldbc.driver.generator.CsvEventStreamReaderBasicCharSeeker;
 import com.ldbc.driver.generator.GeneratorException;
-import org.codehaus.jackson.JsonNode;
-import org.codehaus.jackson.map.ObjectMapper;
+import com.ldbc.driver.util.csv.CharSeeker;
+import com.ldbc.driver.util.csv.Extractors;
+import com.ldbc.driver.util.csv.Mark;
 
 import java.io.IOException;
 import java.util.Iterator;
 
 public class Query1EventStreamReader implements Iterator<Operation<?>> {
-    public static final String PERSON_ID = "PersonID";
-    public static final String PERSON_URI = "PersonURI";
-    public static final String FIRST_NAME = "Name";
+    private final Iterator<Object[]> csvRows;
 
-    private final CsvEventStreamReader_OLD<Operation<?>> csvEventStreamReaderOLD;
-    private final CsvEventStreamReader_OLD.EventDecoder<Operation<?>> decoder;
-
-    public Query1EventStreamReader(Iterator<String[]> csvRowIterator) {
-        this(csvRowIterator, CsvEventStreamReader_OLD.EventReturnPolicy.AT_LEAST_ONE_MATCH);
-    }
-
-    public Query1EventStreamReader(Iterator<String[]> csvRowIterator, CsvEventStreamReader_OLD.EventReturnPolicy eventReturnPolicy) {
-        this.decoder = new EventDecoderQuery1(new ObjectMapper());
-        Iterable<CsvEventStreamReader_OLD.EventDecoder<Operation<?>>> decoders = Lists.newArrayList(this.decoder);
-        CsvEventStreamReader_OLD.EventDescriptions<Operation<?>> eventDescriptions = new CsvEventStreamReader_OLD.EventDescriptions<>(decoders, eventReturnPolicy);
-        this.csvEventStreamReaderOLD = new CsvEventStreamReader_OLD<>(csvRowIterator, eventDescriptions);
+    public Query1EventStreamReader(Iterator<Object[]> csvRows) {
+        this.csvRows = csvRows;
     }
 
     @Override
     public boolean hasNext() {
-        return csvEventStreamReaderOLD.hasNext();
+        return csvRows.hasNext();
     }
 
     @Override
     public Operation<?> next() {
-        return csvEventStreamReaderOLD.next();
+        Object[] rowAsObjects = csvRows.next();
+        return new LdbcQuery1(
+                (long) rowAsObjects[0],
+                null,
+                (String) rowAsObjects[1],
+                LdbcQuery1.DEFAULT_LIMIT
+        );
     }
 
     @Override
@@ -45,33 +39,29 @@ public class Query1EventStreamReader implements Iterator<Operation<?>> {
         throw new UnsupportedOperationException(String.format("%s does not support remove()", getClass().getSimpleName()));
     }
 
-    public static class EventDecoderQuery1 implements CsvEventStreamReader_OLD.EventDecoder<Operation<?>> {
-        private final ObjectMapper objectMapper;
-
-        public EventDecoderQuery1(ObjectMapper objectMapper) {
-            this.objectMapper = objectMapper;
-        }
-
+    public static class Query1Decoder implements CsvEventStreamReaderBasicCharSeeker.EventDecoder<Object[]> {
+        /*
+        Person|Name
+        2199032251700|Andrea
+         */
         @Override
-        public boolean eventMatchesDecoder(String[] csvRow) {
-            return true;
-        }
-
-        @Override
-        public Operation<?> decodeEvent(String[] csvRow) {
-            String eventParamsAsJsonString = csvRow[0];
-            JsonNode params;
-            try {
-                params = objectMapper.readTree(eventParamsAsJsonString);
-            } catch (IOException e) {
-                throw new GeneratorException(String.format("Error parsing JSON event params\n%s", eventParamsAsJsonString), e);
+        public Object[] decodeEvent(CharSeeker charSeeker, Extractors extractors, int[] columnDelimiters, Mark mark) throws IOException {
+            long personId;
+            if (charSeeker.seek(mark, columnDelimiters)) {
+                personId = charSeeker.extract(mark, extractors.long_()).longValue();
+            } else {
+                // if first column of next row contains nothing it means the file is finished
+                return null;
             }
-            long personId = params.get(PERSON_ID).asLong();
-            String personUri = params.get(PERSON_URI).asText();
-            String personFirstName = params.get(FIRST_NAME).asText();
-            return new LdbcQuery1(personId, personUri, personFirstName, LdbcQuery1.DEFAULT_LIMIT);
+
+            String personName;
+            if (charSeeker.seek(mark, columnDelimiters)) {
+                personName = charSeeker.extract(mark, extractors.string()).value();
+            } else {
+                throw new GeneratorException("Error retrieving person name");
+            }
+
+            return new Object[]{personId, personName};
         }
     }
-
-    ;
 }

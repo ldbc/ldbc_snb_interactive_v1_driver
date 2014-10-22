@@ -1,23 +1,5 @@
 package com.ldbc.driver.workloads.ldbc.snb.interactive;
 
-import com.google.common.collect.ImmutableList;
-import com.ldbc.driver.Operation;
-import com.ldbc.driver.testutils.TestUtils;
-import com.ldbc.driver.util.csv.SimpleCsvFileReader;
-import org.junit.Test;
-
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.StringReader;
-import java.text.ParseException;
-import java.util.Calendar;
-import java.util.List;
-import java.util.TimeZone;
-
-import static org.hamcrest.CoreMatchers.equalTo;
-import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertThat;
-
 public class ReadQueryEventStreamReadersTestData {
     public static final String QUERY_1_CSV_ROWS = ""
             + "{\"PersonID\": 10995117334833, \"Name\": \"John\", \"PersonURI\": \"uri\"}\n"

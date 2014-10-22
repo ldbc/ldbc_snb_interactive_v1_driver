@@ -25,7 +25,7 @@ public class ReadQueryEventStreamReadersTest {
         String data = ReadQueryEventStreamReadersTestData.QUERY_1_CSV_ROWS;
         BufferedReader bufferedReader = new BufferedReader(new StringReader(data));
         SimpleCsvFileReader csvFileReader = new SimpleCsvFileReader(bufferedReader, SimpleCsvFileReader.DEFAULT_COLUMN_SEPARATOR_PATTERN);
-        Query1EventStreamReader reader = new Query1EventStreamReader(csvFileReader);
+        Query1EventStreamReader_OLD reader = new Query1EventStreamReader_OLD(csvFileReader);
 
         // When
 
@@ -61,7 +61,7 @@ public class ReadQueryEventStreamReadersTest {
         String data = ReadQueryEventStreamReadersTestData.QUERY_2_CSV_ROWS;
         BufferedReader bufferedReader = new BufferedReader(new StringReader(data));
         SimpleCsvFileReader csvFileReader = new SimpleCsvFileReader(bufferedReader, SimpleCsvFileReader.DEFAULT_COLUMN_SEPARATOR_PATTERN);
-        Query2EventStreamReader reader = new Query2EventStreamReader(csvFileReader);
+        Query2EventStreamReader_OLD reader = new Query2EventStreamReader_OLD(csvFileReader);
 
         // When
 
@@ -107,7 +107,7 @@ public class ReadQueryEventStreamReadersTest {
         String data = ReadQueryEventStreamReadersTestData.QUERY_3_CSV_ROWS;
         BufferedReader bufferedReader = new BufferedReader(new StringReader(data));
         SimpleCsvFileReader csvFileReader = new SimpleCsvFileReader(bufferedReader, SimpleCsvFileReader.DEFAULT_COLUMN_SEPARATOR_PATTERN);
-        Query3EventStreamReader reader = new Query3EventStreamReader(csvFileReader);
+        Query3EventStreamReader_OLD reader = new Query3EventStreamReader_OLD(csvFileReader);
 
         // When
 
@@ -165,7 +165,7 @@ public class ReadQueryEventStreamReadersTest {
         String data = ReadQueryEventStreamReadersTestData.QUERY_4_CSV_ROWS;
         BufferedReader bufferedReader = new BufferedReader(new StringReader(data));
         SimpleCsvFileReader csvFileReader = new SimpleCsvFileReader(bufferedReader, SimpleCsvFileReader.DEFAULT_COLUMN_SEPARATOR_PATTERN);
-        Query4EventStreamReader reader = new Query4EventStreamReader(csvFileReader);
+        Query4EventStreamReader_OLD reader = new Query4EventStreamReader_OLD(csvFileReader);
 
         // When
 
@@ -215,7 +215,7 @@ public class ReadQueryEventStreamReadersTest {
         String data = ReadQueryEventStreamReadersTestData.QUERY_5_CSV_ROWS;
         BufferedReader bufferedReader = new BufferedReader(new StringReader(data));
         SimpleCsvFileReader csvFileReader = new SimpleCsvFileReader(bufferedReader, SimpleCsvFileReader.DEFAULT_COLUMN_SEPARATOR_PATTERN);
-        Query5EventStreamReader reader = new Query5EventStreamReader(csvFileReader);
+        Query5EventStreamReader_OLD reader = new Query5EventStreamReader_OLD(csvFileReader);
 
         // When
 
@@ -261,7 +261,7 @@ public class ReadQueryEventStreamReadersTest {
         String data = ReadQueryEventStreamReadersTestData.QUERY_6_CSV_ROWS;
         BufferedReader bufferedReader = new BufferedReader(new StringReader(data));
         SimpleCsvFileReader csvFileReader = new SimpleCsvFileReader(bufferedReader, SimpleCsvFileReader.DEFAULT_COLUMN_SEPARATOR_PATTERN);
-        Query6EventStreamReader reader = new Query6EventStreamReader(csvFileReader);
+        Query6EventStreamReader_OLD reader = new Query6EventStreamReader_OLD(csvFileReader);
 
         // When
 
@@ -297,7 +297,7 @@ public class ReadQueryEventStreamReadersTest {
         String data = ReadQueryEventStreamReadersTestData.QUERY_7_CSV_ROWS;
         BufferedReader bufferedReader = new BufferedReader(new StringReader(data));
         SimpleCsvFileReader csvFileReader = new SimpleCsvFileReader(bufferedReader, SimpleCsvFileReader.DEFAULT_COLUMN_SEPARATOR_PATTERN);
-        Query7EventStreamReader reader = new Query7EventStreamReader(csvFileReader);
+        Query7EventStreamReader_OLD reader = new Query7EventStreamReader_OLD(csvFileReader);
 
         // When
 
@@ -329,7 +329,7 @@ public class ReadQueryEventStreamReadersTest {
         String data = ReadQueryEventStreamReadersTestData.QUERY_8_CSV_ROWS;
         BufferedReader bufferedReader = new BufferedReader(new StringReader(data));
         SimpleCsvFileReader csvFileReader = new SimpleCsvFileReader(bufferedReader, SimpleCsvFileReader.DEFAULT_COLUMN_SEPARATOR_PATTERN);
-        Query8EventStreamReader reader = new Query8EventStreamReader(csvFileReader);
+        Query8EventStreamReader_OLD reader = new Query8EventStreamReader_OLD(csvFileReader);
 
         // When
 
@@ -361,7 +361,7 @@ public class ReadQueryEventStreamReadersTest {
         String data = ReadQueryEventStreamReadersTestData.QUERY_9_CSV_ROWS;
         BufferedReader bufferedReader = new BufferedReader(new StringReader(data));
         SimpleCsvFileReader csvFileReader = new SimpleCsvFileReader(bufferedReader, SimpleCsvFileReader.DEFAULT_COLUMN_SEPARATOR_PATTERN);
-        Query9EventStreamReader reader = new Query9EventStreamReader(csvFileReader);
+        Query9EventStreamReader_OLD reader = new Query9EventStreamReader_OLD(csvFileReader);
 
         // When
 
@@ -407,7 +407,7 @@ public class ReadQueryEventStreamReadersTest {
         String data = ReadQueryEventStreamReadersTestData.QUERY_10_CSV_ROWS;
         BufferedReader bufferedReader = new BufferedReader(new StringReader(data));
         SimpleCsvFileReader csvFileReader = new SimpleCsvFileReader(bufferedReader, SimpleCsvFileReader.DEFAULT_COLUMN_SEPARATOR_PATTERN);
-        Query10EventStreamReader reader = new Query10EventStreamReader(csvFileReader);
+        Query10EventStreamReader_OLD reader = new Query10EventStreamReader_OLD(csvFileReader);
 
         // When
 
@@ -444,7 +444,7 @@ public class ReadQueryEventStreamReadersTest {
         String data = ReadQueryEventStreamReadersTestData.QUERY_11_CSV_ROWS;
         BufferedReader bufferedReader = new BufferedReader(new StringReader(data));
         SimpleCsvFileReader csvFileReader = new SimpleCsvFileReader(bufferedReader, SimpleCsvFileReader.DEFAULT_COLUMN_SEPARATOR_PATTERN);
-        Query11EventStreamReader reader = new Query11EventStreamReader(csvFileReader);
+        Query11EventStreamReader_OLD reader = new Query11EventStreamReader_OLD(csvFileReader);
 
         // When
 
@@ -484,7 +484,7 @@ public class ReadQueryEventStreamReadersTest {
         String data = ReadQueryEventStreamReadersTestData.QUERY_12_CSV_ROWS;
         BufferedReader bufferedReader = new BufferedReader(new StringReader(data));
         SimpleCsvFileReader csvFileReader = new SimpleCsvFileReader(bufferedReader, SimpleCsvFileReader.DEFAULT_COLUMN_SEPARATOR_PATTERN);
-        Query12EventStreamReader reader = new Query12EventStreamReader(csvFileReader);
+        Query12EventStreamReader_OLD reader = new Query12EventStreamReader_OLD(csvFileReader);
 
         // When
 
@@ -520,7 +520,7 @@ public class ReadQueryEventStreamReadersTest {
         String data = ReadQueryEventStreamReadersTestData.QUERY_13_CSV_ROWS;
         BufferedReader bufferedReader = new BufferedReader(new StringReader(data));
         SimpleCsvFileReader csvFileReader = new SimpleCsvFileReader(bufferedReader, SimpleCsvFileReader.DEFAULT_COLUMN_SEPARATOR_PATTERN);
-        Query13EventStreamReader reader = new Query13EventStreamReader(csvFileReader);
+        Query13EventStreamReader_OLD reader = new Query13EventStreamReader_OLD(csvFileReader);
 
         // When
 
@@ -560,7 +560,7 @@ public class ReadQueryEventStreamReadersTest {
         String data = ReadQueryEventStreamReadersTestData.QUERY_14_CSV_ROWS;
         BufferedReader bufferedReader = new BufferedReader(new StringReader(data));
         SimpleCsvFileReader csvFileReader = new SimpleCsvFileReader(bufferedReader, SimpleCsvFileReader.DEFAULT_COLUMN_SEPARATOR_PATTERN);
-        Query14EventStreamReader reader = new Query14EventStreamReader(csvFileReader);
+        Query14EventStreamReader_OLD reader = new Query14EventStreamReader_OLD(csvFileReader);
 
         // When
 
@@ -597,20 +597,20 @@ public class ReadQueryEventStreamReadersTest {
     @Test
     public void shouldParseAllParamsFilesWithoutError() throws IOException, ParseException {
         // Given
-        Query1EventStreamReader reader1 = new Query1EventStreamReader(new SimpleCsvFileReader(TestUtils.getResource("/query_1_param.txt"), "\\|"));
-        Query2EventStreamReader reader2 = new Query2EventStreamReader(new SimpleCsvFileReader(TestUtils.getResource("/query_2_param.txt"), "\\|"));
-        Query3EventStreamReader reader3 = new Query3EventStreamReader(new SimpleCsvFileReader(TestUtils.getResource("/query_3_param.txt"), "\\|"));
-        Query4EventStreamReader reader4 = new Query4EventStreamReader(new SimpleCsvFileReader(TestUtils.getResource("/query_4_param.txt"), "\\|"));
-        Query5EventStreamReader reader5 = new Query5EventStreamReader(new SimpleCsvFileReader(TestUtils.getResource("/query_5_param.txt"), "\\|"));
-        Query6EventStreamReader reader6 = new Query6EventStreamReader(new SimpleCsvFileReader(TestUtils.getResource("/query_6_param.txt"), "\\|"));
-        Query7EventStreamReader reader7 = new Query7EventStreamReader(new SimpleCsvFileReader(TestUtils.getResource("/query_7_param.txt"), "\\|"));
-        Query8EventStreamReader reader8 = new Query8EventStreamReader(new SimpleCsvFileReader(TestUtils.getResource("/query_8_param.txt"), "\\|"));
-        Query9EventStreamReader reader9 = new Query9EventStreamReader(new SimpleCsvFileReader(TestUtils.getResource("/query_9_param.txt"), "\\|"));
-        Query10EventStreamReader reader10 = new Query10EventStreamReader(new SimpleCsvFileReader(TestUtils.getResource("/query_10_param.txt"), "\\|"));
-        Query11EventStreamReader reader11 = new Query11EventStreamReader(new SimpleCsvFileReader(TestUtils.getResource("/query_11_param.txt"), "\\|"));
-        Query12EventStreamReader reader12 = new Query12EventStreamReader(new SimpleCsvFileReader(TestUtils.getResource("/query_12_param.txt"), "\\|"));
-        Query13EventStreamReader reader13 = new Query13EventStreamReader(new SimpleCsvFileReader(TestUtils.getResource("/query_13_param.txt"), "\\|"));
-        Query14EventStreamReader reader14 = new Query14EventStreamReader(new SimpleCsvFileReader(TestUtils.getResource("/query_14_param.txt"), "\\|"));
+        Query1EventStreamReader_OLD reader1 = new Query1EventStreamReader_OLD(new SimpleCsvFileReader(TestUtils.getResource("/query_1_param.txt"), "\\|"));
+        Query2EventStreamReader_OLD reader2 = new Query2EventStreamReader_OLD(new SimpleCsvFileReader(TestUtils.getResource("/query_2_param.txt"), "\\|"));
+        Query3EventStreamReader_OLD reader3 = new Query3EventStreamReader_OLD(new SimpleCsvFileReader(TestUtils.getResource("/query_3_param.txt"), "\\|"));
+        Query4EventStreamReader_OLD reader4 = new Query4EventStreamReader_OLD(new SimpleCsvFileReader(TestUtils.getResource("/query_4_param.txt"), "\\|"));
+        Query5EventStreamReader_OLD reader5 = new Query5EventStreamReader_OLD(new SimpleCsvFileReader(TestUtils.getResource("/query_5_param.txt"), "\\|"));
+        Query6EventStreamReader_OLD reader6 = new Query6EventStreamReader_OLD(new SimpleCsvFileReader(TestUtils.getResource("/query_6_param.txt"), "\\|"));
+        Query7EventStreamReader_OLD reader7 = new Query7EventStreamReader_OLD(new SimpleCsvFileReader(TestUtils.getResource("/query_7_param.txt"), "\\|"));
+        Query8EventStreamReader_OLD reader8 = new Query8EventStreamReader_OLD(new SimpleCsvFileReader(TestUtils.getResource("/query_8_param.txt"), "\\|"));
+        Query9EventStreamReader_OLD reader9 = new Query9EventStreamReader_OLD(new SimpleCsvFileReader(TestUtils.getResource("/query_9_param.txt"), "\\|"));
+        Query10EventStreamReader_OLD reader10 = new Query10EventStreamReader_OLD(new SimpleCsvFileReader(TestUtils.getResource("/query_10_param.txt"), "\\|"));
+        Query11EventStreamReader_OLD reader11 = new Query11EventStreamReader_OLD(new SimpleCsvFileReader(TestUtils.getResource("/query_11_param.txt"), "\\|"));
+        Query12EventStreamReader_OLD reader12 = new Query12EventStreamReader_OLD(new SimpleCsvFileReader(TestUtils.getResource("/query_12_param.txt"), "\\|"));
+        Query13EventStreamReader_OLD reader13 = new Query13EventStreamReader_OLD(new SimpleCsvFileReader(TestUtils.getResource("/query_13_param.txt"), "\\|"));
+        Query14EventStreamReader_OLD reader14 = new Query14EventStreamReader_OLD(new SimpleCsvFileReader(TestUtils.getResource("/query_14_param.txt"), "\\|"));
 
         // When
         List<Operation<?>> operation1List = ImmutableList.copyOf(reader1);

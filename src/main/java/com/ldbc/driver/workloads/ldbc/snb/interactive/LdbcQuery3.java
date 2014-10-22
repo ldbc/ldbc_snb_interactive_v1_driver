@@ -13,7 +13,7 @@ import java.util.List;
 public class LdbcQuery3 extends Operation<List<LdbcQuery3Result>> {
     private static final ObjectMapper objectMapper = new ObjectMapper();
 
-    public static int DEFAULT_LIMIT = 20;
+    public static final int DEFAULT_LIMIT = 20;
     private final long personId;
     private final String personUri;
     private final String countryXName;

@@ -3,8 +3,8 @@ package com.ldbc.driver.workloads.ldbc.snb.interactive;
 
 import com.google.common.collect.Lists;
 import com.ldbc.driver.Operation;
-import com.ldbc.driver.generator.CsvEventStreamReaderCharSeeker;
-import com.ldbc.driver.generator.CsvEventStreamReaderCharSeeker.EventDecoder;
+import com.ldbc.driver.generator.CsvEventStreamReaderTimedTypedCharSeeker;
+import com.ldbc.driver.generator.CsvEventStreamReaderTimedTypedCharSeeker.EventDecoder;
 import com.ldbc.driver.generator.GeneratorException;
 import com.ldbc.driver.temporal.Time;
 import com.ldbc.driver.util.csv.CharSeeker;
@@ -16,7 +16,7 @@ import java.util.*;
 import java.util.regex.Pattern;
 
 public class WriteEventStreamReaderCharSeeker implements Iterator<Operation<?>> {
-    private final CsvEventStreamReaderCharSeeker<Operation<?>> csvEventStreamReader;
+    private final CsvEventStreamReaderTimedTypedCharSeeker<Operation<?>> csvEventStreamReader;
 
     public WriteEventStreamReaderCharSeeker(CharSeeker charSeeker, Extractors extractors, int columnDelimiter) {
         Map<Integer, EventDecoder<Operation<?>>> decoders = new HashMap<>();
@@ -52,7 +52,7 @@ public class WriteEventStreamReaderCharSeeker implements Iterator<Operation<?>> 
             EventDecoder<Operation<?>> addFriendshipDecoder = new EventDecoderAddFriendship();
             decoders.put(8, addFriendshipDecoder);
         }
-        this.csvEventStreamReader = new CsvEventStreamReaderCharSeeker<>(charSeeker, extractors, decoders, columnDelimiter);
+        this.csvEventStreamReader = new CsvEventStreamReaderTimedTypedCharSeeker<>(charSeeker, extractors, decoders, columnDelimiter);
     }
 
     @Override
@@ -72,14 +72,9 @@ public class WriteEventStreamReaderCharSeeker implements Iterator<Operation<?>> 
 
     public static class EventDecoderAddPerson implements EventDecoder<Operation<?>> {
         private final Pattern tupleSeparatorPattern = Pattern.compile(",");
-        private final Mark mark;
-
-        public EventDecoderAddPerson() {
-            this.mark = new Mark();
-        }
 
         @Override
-        public Operation<?> decodeEvent(long scheduledStartTime, CharSeeker charSeeker, Extractors extractors, int[] columnDelimiters) {
+        public Operation<?> decodeEvent(long scheduledStartTime, CharSeeker charSeeker, Extractors extractors, int[] columnDelimiters, Mark mark) {
             try {
                 Time eventDueTime = Time.fromMilli(scheduledStartTime);
 
@@ -230,14 +225,8 @@ public class WriteEventStreamReaderCharSeeker implements Iterator<Operation<?>> 
     }
 
     public static class EventDecoderAddLikePost implements EventDecoder<Operation<?>> {
-        private final Mark mark;
-
-        public EventDecoderAddLikePost() {
-            this.mark = new Mark();
-        }
-
         @Override
-        public Operation<?> decodeEvent(long scheduledStartTime, CharSeeker charSeeker, Extractors extractors, int[] columnDelimiters) {
+        public Operation<?> decodeEvent(long scheduledStartTime, CharSeeker charSeeker, Extractors extractors, int[] columnDelimiters, Mark mark) {
             try {
                 Time eventDueTime = Time.fromMilli(scheduledStartTime);
 
@@ -273,14 +262,8 @@ public class WriteEventStreamReaderCharSeeker implements Iterator<Operation<?>> 
     }
 
     public static class EventDecoderAddLikeComment implements EventDecoder<Operation<?>> {
-        private final Mark mark;
-
-        public EventDecoderAddLikeComment() {
-            this.mark = new Mark();
-        }
-
         @Override
-        public Operation<?> decodeEvent(long scheduledStartTime, CharSeeker charSeeker, Extractors extractors, int[] columnDelimiters) {
+        public Operation<?> decodeEvent(long scheduledStartTime, CharSeeker charSeeker, Extractors extractors, int[] columnDelimiters, Mark mark) {
             try {
                 Time eventDueTime = Time.fromMilli(scheduledStartTime);
 
@@ -316,14 +299,8 @@ public class WriteEventStreamReaderCharSeeker implements Iterator<Operation<?>> 
     }
 
     public static class EventDecoderAddForum implements EventDecoder<Operation<?>> {
-        private final Mark mark;
-
-        public EventDecoderAddForum() {
-            this.mark = new Mark();
-        }
-
         @Override
-        public Operation<?> decodeEvent(long scheduledStartTime, CharSeeker charSeeker, Extractors extractors, int[] columnDelimiters) {
+        public Operation<?> decodeEvent(long scheduledStartTime, CharSeeker charSeeker, Extractors extractors, int[] columnDelimiters, Mark mark) {
             try {
                 Time eventDueTime = Time.fromMilli(scheduledStartTime);
 
@@ -377,14 +354,8 @@ public class WriteEventStreamReaderCharSeeker implements Iterator<Operation<?>> 
     }
 
     public static class EventDecoderAddForumMembership implements EventDecoder<Operation<?>> {
-        private final Mark mark;
-
-        public EventDecoderAddForumMembership() {
-            this.mark = new Mark();
-        }
-
         @Override
-        public Operation<?> decodeEvent(long scheduledStartTime, CharSeeker charSeeker, Extractors extractors, int[] columnDelimiters) {
+        public Operation<?> decodeEvent(long scheduledStartTime, CharSeeker charSeeker, Extractors extractors, int[] columnDelimiters, Mark mark) {
             try {
                 Time eventDueTime = Time.fromMilli(scheduledStartTime);
 
@@ -420,14 +391,8 @@ public class WriteEventStreamReaderCharSeeker implements Iterator<Operation<?>> 
     }
 
     public static class EventDecoderAddPost implements EventDecoder<Operation<?>> {
-        private final Mark mark;
-
-        public EventDecoderAddPost() {
-            this.mark = new Mark();
-        }
-
         @Override
-        public Operation<?> decodeEvent(long scheduledStartTime, CharSeeker charSeeker, Extractors extractors, int[] columnDelimiters) {
+        public Operation<?> decodeEvent(long scheduledStartTime, CharSeeker charSeeker, Extractors extractors, int[] columnDelimiters, Mark mark) {
             try {
                 Time eventDueTime = Time.fromMilli(scheduledStartTime);
 
@@ -542,14 +507,8 @@ public class WriteEventStreamReaderCharSeeker implements Iterator<Operation<?>> 
     }
 
     public static class EventDecoderAddComment implements EventDecoder<Operation<?>> {
-        private final Mark mark;
-
-        public EventDecoderAddComment() {
-            this.mark = new Mark();
-        }
-
         @Override
-        public Operation<?> decodeEvent(long scheduledStartTime, CharSeeker charSeeker, Extractors extractors, int[] columnDelimiters) {
+        public Operation<?> decodeEvent(long scheduledStartTime, CharSeeker charSeeker, Extractors extractors, int[] columnDelimiters, Mark mark) {
             try {
                 Time eventDueTime = Time.fromMilli(scheduledStartTime);
 
@@ -656,14 +615,8 @@ public class WriteEventStreamReaderCharSeeker implements Iterator<Operation<?>> 
     }
 
     public static class EventDecoderAddFriendship implements EventDecoder<Operation<?>> {
-        private final Mark mark;
-
-        public EventDecoderAddFriendship() {
-            this.mark = new Mark();
-        }
-
         @Override
-        public Operation<?> decodeEvent(long scheduledStartTime, CharSeeker charSeeker, Extractors extractors, int[] columnDelimiters) {
+        public Operation<?> decodeEvent(long scheduledStartTime, CharSeeker charSeeker, Extractors extractors, int[] columnDelimiters, Mark mark) {
             try {
                 Time eventDueTime = Time.fromMilli(scheduledStartTime);
 
