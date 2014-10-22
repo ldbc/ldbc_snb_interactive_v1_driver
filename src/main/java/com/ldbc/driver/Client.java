@@ -527,13 +527,13 @@ public class Client {
                 Tuple.Tuple2<WorkloadStreams, Workload> streamsAndWorkload = WorkloadStreams.createNewWorkloadWithLimitedWorkloadStreams(controlService.configuration(), gf);
                 workload = streamsAndWorkload._2();
                 WorkloadStreams workloadStreams = streamsAndWorkload._1();
-                WorkloadStreams offsetAndCompressedWorkloadStreams = WorkloadStreams.timeOffsetAndCompressWorkloadStreams(
-                        workloadStreams,
-                        controlService.workloadStartTime(),
-                        controlService.configuration().timeCompressionRatio(),
-                        gf
-                );
-                timeMappedOperations = offsetAndCompressedWorkloadStreams.mergeSortedByStartTime(gf);
+//                WorkloadStreams offsetAndCompressedWorkloadStreams = WorkloadStreams.timeOffsetAndCompressWorkloadStreams(
+//                        workloadStreams,
+//                        controlService.workloadStartTime(),
+//                        controlService.configuration().timeCompressionRatio(),
+//                        gf
+//                );
+                timeMappedOperations = workloadStreams.mergeSortedByStartTime(gf);
             } catch (WorkloadException e) {
                 throw new ClientException("Error while retrieving operation stream for workload", e);
             }
