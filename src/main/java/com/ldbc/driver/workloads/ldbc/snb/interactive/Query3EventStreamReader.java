@@ -9,6 +9,7 @@ import com.ldbc.driver.util.csv.Extractors;
 import com.ldbc.driver.util.csv.Mark;
 
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.Iterator;
 
@@ -17,12 +18,6 @@ public class Query3EventStreamReader implements Iterator<Operation<?>> {
 
     public Query3EventStreamReader(Iterator<Object[]> csvRows) {
         this.csvRows = csvRows;
-        // skip first row (5 columns)
-        this.csvRows.next();
-        this.csvRows.next();
-        this.csvRows.next();
-        this.csvRows.next();
-        this.csvRows.next();
     }
 
     @Override
