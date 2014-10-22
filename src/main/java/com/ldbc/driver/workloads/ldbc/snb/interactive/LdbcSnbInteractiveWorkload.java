@@ -1128,7 +1128,9 @@ public class LdbcSnbInteractiveWorkload extends Workload {
                 Class operationType = operation.getClass();
 
                 boolean isEmptyResult = ((List) operationResult).isEmpty();
-                if (isEmptyResult) return DbValidationParametersFilterResult.REJECT_AND_CONTINUE;
+                if (isEmptyResult) {
+                    return DbValidationParametersFilterResult.REJECT_AND_CONTINUE;
+                }
 
                 long remainingRequiredResultsForOperationType = remainingRequiredResultsPerOperationType.get(operationType) - 1;
 
@@ -1137,10 +1139,11 @@ public class LdbcSnbInteractiveWorkload extends Workload {
                 else
                     remainingRequiredResultsPerOperationType.put(operationType, remainingRequiredResultsForOperationType);
 
-                if (remainingRequiredResultsPerOperationType.size() > 0)
+                if (remainingRequiredResultsPerOperationType.size() > 0) {
                     return DbValidationParametersFilterResult.ACCEPT_AND_CONTINUE;
-                else
+                } else {
                     return DbValidationParametersFilterResult.ACCEPT_AND_FINISH;
+                }
             }
         };
     }
