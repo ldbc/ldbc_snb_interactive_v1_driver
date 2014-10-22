@@ -122,7 +122,7 @@ public class OperationStreamExecutorPerformanceTest {
                         operations.iterator()
                 );
 
-                OperationHandlerExecutor executor = new ThreadPoolOperationHandlerExecutor(1, DefaultQueues.DEFAULT_BOUND_100);
+                OperationHandlerExecutor executor = new ThreadPoolOperationHandlerExecutor(1, DefaultQueues.DEFAULT_BOUND_1000);
                 PreciseIndividualBlockingOperationStreamExecutorServiceThread thread = getNewThread(
                         errorReporter,
                         streamDefinition,
@@ -164,7 +164,7 @@ public class OperationStreamExecutorPerformanceTest {
                         operations.iterator()
                 );
 
-                OperationHandlerExecutor executor = new SingleThreadOperationHandlerExecutor(errorReporter, DefaultQueues.DEFAULT_BOUND_100);
+                OperationHandlerExecutor executor = new SingleThreadOperationHandlerExecutor(errorReporter, DefaultQueues.DEFAULT_BOUND_1000);
                 PreciseIndividualBlockingOperationStreamExecutorServiceThread thread = getNewThread(
                         errorReporter,
                         streamDefinition,

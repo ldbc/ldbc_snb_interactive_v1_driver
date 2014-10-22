@@ -5,7 +5,6 @@ import com.google.common.collect.Lists;
 import com.ldbc.driver.Operation;
 import com.ldbc.driver.generator.CsvEventStreamReaderBasicCharSeeker;
 import com.ldbc.driver.generator.CsvEventStreamReaderBasicCharSeeker.EventDecoder;
-import com.ldbc.driver.generator.CsvEventStreamReader_OLD;
 import com.ldbc.driver.generator.GeneratorFactory;
 import com.ldbc.driver.generator.RandomDataGeneratorFactory;
 import com.ldbc.driver.temporal.Duration;
@@ -24,89 +23,6 @@ import java.util.List;
 public class EventStreamReaderPerformanceTest {
     TimeSource timeSource = new SystemTimeSource();
     DecimalFormat numberFormatter = new DecimalFormat("###,###,###,###");
-
-    @Ignore
-    @Test
-    public void oldReadParamsParsingPerformanceTest() throws IOException {
-        GeneratorFactory gf = new GeneratorFactory(new RandomDataGeneratorFactory(42l));
-        File parentStreamsDir = new File("/Users/alexaverbuch/IdeaProjects/scale_factor_streams/current/sf10_partitions_01/");
-        File paramsFile = new File(parentStreamsDir, "query_1_param.txt");
-
-        int bufferSize = 2 * 1024 * 1024;
-        {
-            // warm up file system
-            doBufferedReaderPerformanceTest(paramsFile, bufferSize);
-        }
-
-        long limit = 10000000;
-        int repetitions = 4;
-        {
-            long lines = 0;
-            long startTimeAsMilli = timeSource.nowAsMilli();
-            for (int i = 0; i < repetitions; i++) {
-                SimpleCsvFileReader readOperation1FileReader = new SimpleCsvFileReader(
-                        paramsFile,
-                        LdbcSnbInteractiveConfiguration.PIPE_SEPARATOR_REGEX
-                );
-                Iterator<String[]> csvStreamReader = gf.limit(
-                        gf.repeating(
-                                readOperation1FileReader
-                        ),
-                        limit
-                );
-                lines += readingStreamPerformanceTest(csvStreamReader);
-                readOperation1FileReader.close();
-            }
-            long endTimeAsMilli = timeSource.nowAsMilli();
-            long durationAsMilli = (endTimeAsMilli - startTimeAsMilli) / repetitions;
-            lines = lines / repetitions;
-
-            double linesPerSecond = Math.round(((double) lines / durationAsMilli) * Duration.fromSeconds(1).asMilli());
-            System.out.println(
-                    String.format("%s took %s to read %s line: %s lines/s",
-                            SimpleCsvFileReader.class.getSimpleName(),
-                            Duration.fromMilli(durationAsMilli),
-                            numberFormatter.format(lines),
-                            numberFormatter.format(linesPerSecond)
-                    )
-            );
-        }
-
-        {
-            long lines = 0;
-            long startTimeAsMilli = timeSource.nowAsMilli();
-            for (int i = 0; i < repetitions; i++) {
-                SimpleCsvFileReader readOperation1FileReader = new SimpleCsvFileReader(
-                        paramsFile,
-                        LdbcSnbInteractiveConfiguration.PIPE_SEPARATOR_REGEX
-                );
-                Iterator<Operation<?>> operation1StreamWithoutTimes = gf.limit(
-                        new Query1EventStreamReader_OLD(
-                                gf.repeating(
-                                        readOperation1FileReader
-                                ),
-                                CsvEventStreamReader_OLD.EventReturnPolicy.AT_LEAST_ONE_MATCH
-                        ),
-                        limit
-                );
-                lines += readingStreamPerformanceTest(operation1StreamWithoutTimes);
-                readOperation1FileReader.close();
-            }
-            long endTimeAsMilli = timeSource.nowAsMilli();
-            long durationAsMilli = (endTimeAsMilli - startTimeAsMilli) / repetitions;
-            lines = lines / repetitions;
-
-            double linesPerSecond = Math.round(((double) lines / durationAsMilli) * Duration.fromSeconds(1).asMilli());
-            System.out.println(
-                    String.format("%s took %s to read %s line: %s lines/s",
-                            Query1EventStreamReader_OLD.class.getSimpleName(),
-                            Duration.fromMilli(durationAsMilli),
-                            numberFormatter.format(lines),
-                            numberFormatter.format(linesPerSecond)
-                    )
-            );
-        }
-    }
 
     @Ignore
     @Test

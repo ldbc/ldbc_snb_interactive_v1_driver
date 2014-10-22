@@ -94,7 +94,9 @@ public class WorkloadRunner {
                 durationToWaitForAllHandlersToFinishBeforeShutdown);
 
         for (WorkloadStreamDefinition blockingStream : workloadStreams.blockingStreamDefinitions()) {
-            OperationHandlerExecutor executorForBlocking = new SameThreadOperationHandlerExecutor();
+            // TODO benchmark more to find out which policy is best Same Thread vs Single Thread
+//            OperationHandlerExecutor executorForBlocking = new SameThreadOperationHandlerExecutor();
+            OperationHandlerExecutor executorForBlocking = new SingleThreadOperationHandlerExecutor(errorReporter, operationHandlerExecutorsBoundedQueueSize);
             this.executorsForBlocking.add(executorForBlocking);
             // only create a local completion time writer for an executor if it contains at least one READ_WRITE operation
             // otherwise it will cause completion time to stall

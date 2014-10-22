@@ -9,6 +9,8 @@ public class WorkloadStatusSnapshot {
     private final long operationCount;
     private final Duration durationSinceLastMeasurement;
     private final double throughput;
+    DecimalFormat operationCountFormatter = new DecimalFormat("###,###,###,###");
+    DecimalFormat throughputFormatter = new DecimalFormat("###,###,###,##0.00");
 
     public WorkloadStatusSnapshot(Duration runDuration, long operationCount, Duration durationSinceLastMeasurement, double throughput) {
         this.runDuration = runDuration;
@@ -19,11 +21,10 @@ public class WorkloadStatusSnapshot {
 
     @Override
     public String toString() {
-        DecimalFormat throughputFormat = new DecimalFormat("0.00");
         return String.format("Runtime [%s], Operations [%s], Since Last Measurement [%s], Throughput (op/sec) [%s]",
                 (null == runDuration) ? "--" : runDuration,
-                operationCount,
+                operationCountFormatter.format(operationCount),
                 (null == durationSinceLastMeasurement) ? "--" : durationSinceLastMeasurement,
-                throughputFormat.format(throughput));
+                throughputFormatter.format(throughput));
     }
 }

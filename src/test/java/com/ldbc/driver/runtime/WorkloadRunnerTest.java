@@ -160,7 +160,7 @@ public class WorkloadRunnerTest {
                     completionTimeServiceAssistant.newSynchronizedConcurrentCompletionTimeServiceFromPeerIds(
                             controlService.configuration().peerIds());
 
-            int boundedQueueSize = DefaultQueues.DEFAULT_BOUND_100;
+            int boundedQueueSize = DefaultQueues.DEFAULT_BOUND_1000;
             WorkloadRunner runner = new WorkloadRunner(
                     timeSource,
                     db,
@@ -337,7 +337,7 @@ public class WorkloadRunnerTest {
                     executionDelayPolicy,
                     csvResultsLogWriter);
 
-            int boundedQueueSize = DefaultQueues.DEFAULT_BOUND_100;
+            int boundedQueueSize = DefaultQueues.DEFAULT_BOUND_1000;
             WorkloadRunner runner = new WorkloadRunner(
                     timeSource,
                     db,

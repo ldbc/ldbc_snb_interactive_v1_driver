@@ -68,7 +68,7 @@ public class ThreadPoolOperationHandlerExecutorTest {
         DummyCollectingConcurrentMetricsService metricsService = new DummyCollectingConcurrentMetricsService();
 
         int threadCount = 1;
-        int boundedQueueSize = DefaultQueues.DEFAULT_BOUND_100;
+        int boundedQueueSize = DefaultQueues.DEFAULT_BOUND_1000;
         OperationHandlerExecutor executor = new ThreadPoolOperationHandlerExecutor(threadCount, boundedQueueSize);
 
         Operation<?> operation = new NothingOperation();
@@ -115,7 +115,7 @@ public class ThreadPoolOperationHandlerExecutorTest {
         DummyCollectingConcurrentMetricsService metricsService = new DummyCollectingConcurrentMetricsService();
 
         int threadCount = 1;
-        int boundedQueueSize = DefaultQueues.DEFAULT_BOUND_100;
+        int boundedQueueSize = DefaultQueues.DEFAULT_BOUND_1000;
         OperationHandlerExecutor executor = new ThreadPoolOperationHandlerExecutor(threadCount, boundedQueueSize);
 
         Operation<?> operation1 = new NothingOperation();
@@ -180,7 +180,7 @@ public class ThreadPoolOperationHandlerExecutorTest {
         DummyCollectingConcurrentMetricsService metricsService = new DummyCollectingConcurrentMetricsService();
 
         int threadCount = 1;
-        int boundedQueueSize = DefaultQueues.DEFAULT_BOUND_100;
+        int boundedQueueSize = DefaultQueues.DEFAULT_BOUND_1000;
         OperationHandlerExecutor executor = new ThreadPoolOperationHandlerExecutor(threadCount, boundedQueueSize);
 
         Operation<?> operation = new NothingOperation();

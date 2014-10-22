@@ -287,7 +287,7 @@ public class Client {
             try {
                 // TODO will not be necessary once operations have maximum execution time
                 Duration durationToWaitForAllHandlersToFinishBeforeShutdown = WorkloadRunner.DEFAULT_DURATION_TO_WAIT_FOR_ALL_HANDLERS_TO_FINISH;
-                int operationHandlerExecutorsBoundedQueueSize = DefaultQueues.DEFAULT_BOUND_100;
+                int operationHandlerExecutorsBoundedQueueSize = DefaultQueues.DEFAULT_BOUND_1000;
                 workloadRunner = new WorkloadRunner(
                         timeSource,
                         db,

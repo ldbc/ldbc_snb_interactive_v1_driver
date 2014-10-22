@@ -8,9 +8,6 @@ import com.ldbc.driver.control.ConcurrentControlService;
 import com.ldbc.driver.control.ConsoleAndFileDriverConfiguration;
 import com.ldbc.driver.control.DriverConfigurationException;
 import com.ldbc.driver.control.LocalControlService;
-import com.ldbc.driver.generator.CsvEventStreamReader_OLD;
-import com.ldbc.driver.generator.GeneratorFactory;
-import com.ldbc.driver.generator.RandomDataGeneratorFactory;
 import com.ldbc.driver.runtime.ConcurrentErrorReporter;
 import com.ldbc.driver.runtime.coordination.CompletionTimeException;
 import com.ldbc.driver.runtime.metrics.ConcurrentMetricsService;
@@ -18,10 +15,8 @@ import com.ldbc.driver.runtime.metrics.MetricsCollectionException;
 import com.ldbc.driver.runtime.metrics.WorkloadResultsSnapshot;
 import com.ldbc.driver.temporal.Duration;
 import com.ldbc.driver.temporal.SystemTimeSource;
-import com.ldbc.driver.temporal.Time;
 import com.ldbc.driver.temporal.TimeSource;
 import com.ldbc.driver.util.MapUtils;
-import com.ldbc.driver.util.csv.SimpleCsvFileReader;
 import com.ldbc.driver.workloads.ldbc.snb.interactive.db.DummyLdbcSnbInteractiveDb;
 import org.junit.Ignore;
 import org.junit.Rule;
@@ -29,11 +24,13 @@ import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FilenameFilter;
 import java.io.IOException;
 import java.text.DecimalFormat;
-import java.util.*;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
 public class LdbcSnbInteractiveWorkloadPerformanceTest {
@@ -46,11 +43,11 @@ public class LdbcSnbInteractiveWorkloadPerformanceTest {
     @Test
     public void performanceTest()
             throws InterruptedException, DbException, WorkloadException, IOException, MetricsCollectionException, CompletionTimeException, DriverConfigurationException {
-        File parentStreamsDir = new File("/Users/alexaverbuch/IdeaProjects/scale_factor_streams/");
+        File parentStreamsDir = new File("/Users/alexaverbuch/IdeaProjects/scale_factor_streams/new_read_params/");
         List<File> streamsDirs = Lists.newArrayList(
-//                new File(parentStreamsDir, "sf10_partitions_01/"),
-//                new File(parentStreamsDir, "sf10_partitions_04/"),
-                new File(parentStreamsDir, "sf10_partitions_16/")
+                new File(parentStreamsDir, "sf10_partitions_01/")
+//                new File(parentStreamsDir, "sf10_partitions_04/")
+//                new File(parentStreamsDir, "sf10_partitions_16/")
         );
 
         for (File streamDir : streamsDirs) {
@@ -92,7 +89,7 @@ public class LdbcSnbInteractiveWorkloadPerformanceTest {
             );
 
             List<Integer> threadCounts = Lists.newArrayList(1, 2, 4);
-            long operationCount = 1000000;
+            long operationCount = 10000000;
             for (int threadCount : threadCounts) {
                 doPerformanceTest(
                         threadCount,

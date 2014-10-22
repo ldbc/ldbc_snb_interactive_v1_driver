@@ -7,6 +7,7 @@ import com.ldbc.driver.temporal.Duration;
 import com.ldbc.driver.temporal.Time;
 import org.apache.log4j.Logger;
 
+import java.text.DecimalFormat;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 class WorkloadStatusThread extends Thread {
