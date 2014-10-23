@@ -639,7 +639,7 @@ public class Client {
                 }
                 validationParamsReader.close();
 
-                File failedValidationOperationsFile = new File(validationParamsFile.getParentFile(), removeExtension(validationParamsFile.getName()) + "-failed.csv");
+                File failedValidationOperationsFile = new File(validationParamsFile.getParentFile(), removeExtension(validationParamsFile.getName()) + "-failed.json");
                 try (PrintStream out = new PrintStream(new FileOutputStream(failedValidationOperationsFile))) {
                     out.print(databaseValidationResult.failedOperationsAsJsonString(workload));
                     out.flush();
