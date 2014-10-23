@@ -634,6 +634,7 @@ public class ConsoleAndFileDriverConfiguration implements DriverConfiguration {
                                              boolean printHelp,
                                              boolean ignoreScheduledStartTimes,
                                              boolean shouldCreateResultsLog) {
+        if (null == paramsMap) paramsMap = new HashMap<>();
         this.paramsMap = paramsMap;
         this.name = name;
         this.dbClassName = dbClassName;
@@ -655,6 +656,33 @@ public class ConsoleAndFileDriverConfiguration implements DriverConfiguration {
         this.windowedExecutionWindowDuration = windowedExecutionWindowDuration;
         this.ignoreScheduledStartTimes = ignoreScheduledStartTimes;
         this.shouldCreateResultsLog = shouldCreateResultsLog;
+
+        if (null != name)
+            paramsMap.put(NAME_ARG, name);
+        if (null != dbClassName)
+            paramsMap.put(DB_ARG, dbClassName);
+        paramsMap.put(OPERATION_COUNT_ARG, Long.toString(operationCount));
+        if (null != workloadClassName)
+            paramsMap.put(WORKLOAD_ARG, workloadClassName);
+        paramsMap.put(THREADS_ARG, Integer.toString(threadCount));
+        paramsMap.put(SHOW_STATUS_ARG, Long.toString(statusDisplayInterval.asSeconds()));
+        paramsMap.put(TIME_UNIT_ARG, timeUnit.name());
+        if (null != resultDirPath)
+            paramsMap.put(RESULT_DIR_PATH_ARG, resultDirPath);
+        paramsMap.put(TIME_COMPRESSION_RATIO_ARG, Double.toString(timeCompressionRatio));
+        paramsMap.put(PEER_IDS_ARG, serializePeerIdsToCommandline(peerIds));
+        paramsMap.put(TOLERATED_EXECUTION_DELAY_ARG, Long.toString(toleratedExecutionDelay.asMilli()));
+        if (null != validationCreationParams)
+            paramsMap.put(CREATE_VALIDATION_PARAMS_ARG, validationCreationParams.toCommandlineString());
+        if (null != databaseValidationFilePath)
+            paramsMap.put(DB_VALIDATION_FILE_PATH_ARG, databaseValidationFilePath);
+        paramsMap.put(VALIDATE_WORKLOAD_ARG, Boolean.toString(validateWorkload));
+        paramsMap.put(CALCULATE_WORKLOAD_STATISTICS_ARG, Boolean.toString(calculateWorkloadStatistics));
+        paramsMap.put(SPINNER_SLEEP_DURATION_ARG, Long.toString(spinnerSleepDuration.asMilli()));
+        paramsMap.put(HELP_ARG, Boolean.toString(printHelp));
+        paramsMap.put(WINDOWED_EXECUTION_WINDOW_DURATION_ARG, Long.toString(windowedExecutionWindowDuration.asMilli()));
+        paramsMap.put(IGNORE_SCHEDULED_START_TIMES_ARG, Boolean.toString(ignoreScheduledStartTimes));
+        paramsMap.put(RESULTS_LOG_ARG, Boolean.toString(shouldCreateResultsLog));
     }
 
     @Override

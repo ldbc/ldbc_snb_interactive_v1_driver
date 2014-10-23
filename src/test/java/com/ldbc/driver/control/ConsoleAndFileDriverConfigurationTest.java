@@ -41,6 +41,71 @@ public class ConsoleAndFileDriverConfigurationTest {
     }
 
     @Test
+    public void toMapThenFromMapShouldEqualEvenWhenRequiredParamsAreNotSet() throws DriverConfigurationException {
+        String databaseClassName = null;
+        String workloadClassName = null;
+        long operationCount = 2;
+
+        ConsoleAndFileDriverConfiguration configurationBefore =
+                ConsoleAndFileDriverConfiguration.fromDefaults(databaseClassName, workloadClassName, operationCount);
+
+        DriverConfiguration configurationAfter = ConsoleAndFileDriverConfiguration.fromParamsMap(configurationBefore.asMap());
+
+        assertThat(configurationBefore, equalTo(configurationAfter));
+    }
+
+    @Test
+    public void toMapThenFromMapShouldReturnSameResultWhenAllParamsAreInitiallySetViaConstructor() throws DriverConfigurationException {
+        long operationCount = 2;
+        int threadCount = 4;
+        Duration statusDisplayInterval = Duration.fromSeconds(1);
+        TimeUnit timeUnit = TimeUnit.MILLISECONDS;
+        String resultDirPath = "results dir";
+        Double timeCompressionRatio = 1.0;
+        Set<String> peerIds = new HashSet<>();
+        Duration toleratedExecutionDelay = Duration.fromMinutes(60);
+        Duration windowedExecutionWindowDuration = Duration.fromSeconds(1);
+        ConsoleAndFileDriverConfiguration.ConsoleAndFileValidationParamOptions validationCreationParams = null;
+        String databaseValidationFilePath = null;
+        boolean validateWorkload = false;
+        boolean calculateWorkloadStatistics = false;
+        Duration spinnerSleepDuration = Duration.fromMilli(0);
+        boolean printHelp = false;
+        boolean shouldCreateResultsLog = true;
+        String name = "LDBC-SNB";
+        boolean ignoreScheduledStartTimes = true;
+        Map<String, String> paramsMap = new HashMap<>();
+
+        ConsoleAndFileDriverConfiguration configurationBefore = new ConsoleAndFileDriverConfiguration(
+                paramsMap,
+                name,
+                DummyLdbcSnbInteractiveDb.class.getName(),
+                LdbcSnbInteractiveWorkload.class.getName(),
+                operationCount,
+                threadCount,
+                statusDisplayInterval,
+                timeUnit,
+                resultDirPath,
+                timeCompressionRatio,
+                windowedExecutionWindowDuration,
+                peerIds,
+                toleratedExecutionDelay,
+                validationCreationParams,
+                databaseValidationFilePath,
+                validateWorkload,
+                calculateWorkloadStatistics,
+                spinnerSleepDuration,
+                printHelp,
+                ignoreScheduledStartTimes,
+                shouldCreateResultsLog
+        );
+
+        DriverConfiguration configurationAfter = ConsoleAndFileDriverConfiguration.fromParamsMap(configurationBefore.asMap());
+
+        assertThat(configurationBefore, equalTo(configurationAfter));
+    }
+
+    @Test
     public void toArgsThenFromArgsShouldEqualEvenWhenRequiredParamsAreNotSet() throws DriverConfigurationException {
         String databaseClassName = null;
         String workloadClassName = null;
