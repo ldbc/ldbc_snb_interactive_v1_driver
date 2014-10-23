@@ -2,12 +2,15 @@ package com.ldbc.driver.validation;
 
 import com.ldbc.driver.*;
 import com.ldbc.driver.runtime.ConcurrentErrorReporter;
-import com.ldbc.driver.workloads.ldbc.snb.interactive.LdbcQuery14;
+import com.ldbc.driver.util.Tuple;
 
+import java.io.BufferedWriter;
+import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
 
 public class DbValidator {
-
     public DbValidationResult validate(Iterator<ValidationParam> validationParameters,
                                        Db db) throws WorkloadException {
         DbValidationResult dbValidationResult = new DbValidationResult(db);

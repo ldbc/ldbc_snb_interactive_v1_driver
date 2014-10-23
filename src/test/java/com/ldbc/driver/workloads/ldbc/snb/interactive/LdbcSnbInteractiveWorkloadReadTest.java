@@ -37,7 +37,6 @@ public class LdbcSnbInteractiveWorkloadReadTest {
     public TemporaryFolder temporaryFolder = new TemporaryFolder();
 
     TimeSource timeSource = new SystemTimeSource();
-    DecimalFormat numberFormatter = new DecimalFormat("###,###,###,###");
 
     static Map<String, String> defaultSnbParamsMapWithParametersDir() {
         Map<String, String> additionalParams = new HashMap<>();

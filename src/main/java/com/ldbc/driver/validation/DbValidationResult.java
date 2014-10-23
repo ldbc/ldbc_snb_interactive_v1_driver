@@ -1,8 +1,7 @@
 package com.ldbc.driver.validation;
 
 import com.google.common.collect.Lists;
-import com.ldbc.driver.Db;
-import com.ldbc.driver.Operation;
+import com.ldbc.driver.*;
 import com.ldbc.driver.util.Tuple;
 
 import java.util.*;
@@ -59,6 +58,45 @@ public class DbValidationResult {
 
     public boolean isSuccessful() {
         return missingHandlersForOperationTypes.isEmpty() && unableToExecuteOperations.isEmpty() && incorrectResultsForOperations.isEmpty();
+    }
+
+    public String failedOperationsAsJsonString(Workload workload) throws WorkloadException {
+        StringBuilder sb = new StringBuilder();
+        sb.append("[");
+        for (int i = 0; i < incorrectResultsForOperations.size() - 1; i++) {
+            Operation<?> operation = incorrectResultsForOperations.get(i)._1();
+            Object result = incorrectResultsForOperations.get(i)._3();
+            sb.append(operationAndResultAsJsonMapString(operation, result, workload)).append(",");
+        }
+        if (incorrectResultsForOperations.size() >= 1) {
+            Operation<?> operation = incorrectResultsForOperations.get(incorrectResultsForOperations.size() - 1)._1();
+            Object result = incorrectResultsForOperations.get(incorrectResultsForOperations.size() - 1)._3();
+            sb.append(operationAndResultAsJsonMapString(operation, result, workload));
+        }
+        sb.append("]");
+        return sb.toString();
+    }
+
+    private String operationAndResultAsJsonMapString(Operation<?> operation, Object result, Workload workload) throws WorkloadException {
+        String serializedOperation;
+        try {
+            serializedOperation = workload.serializeOperation(operation);
+        } catch (SerializingMarshallingException e) {
+            throw new WorkloadException(
+                    String.format("Error occurred while serializing operation\nOperation: %s", operation),
+                    e
+            );
+        }
+        String serializedResult;
+        try {
+            serializedResult = operation.serializeResult(result);
+        } catch (SerializingMarshallingException e) {
+            throw new WorkloadException(
+                    String.format("Error occurred while serializing operation result\nResult: %s", result.toString()),
+                    e
+            );
+        }
+        return "{\"operation\":" + serializedOperation + ",\"result\":" + serializedResult + "}";
     }
 
     public String resultMessage() {

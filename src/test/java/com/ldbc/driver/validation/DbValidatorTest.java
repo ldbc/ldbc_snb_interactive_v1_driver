@@ -3,25 +3,39 @@ package com.ldbc.driver.validation;
 import com.google.common.collect.Lists;
 import com.ldbc.driver.Db;
 import com.ldbc.driver.DbException;
+import com.ldbc.driver.Workload;
 import com.ldbc.driver.WorkloadException;
+import com.ldbc.driver.control.ConsoleAndFileDriverConfiguration;
+import com.ldbc.driver.control.DriverConfigurationException;
 import com.ldbc.driver.generator.GeneratorFactory;
 import com.ldbc.driver.generator.RandomDataGeneratorFactory;
+import com.ldbc.driver.testutils.TestUtils;
+import com.ldbc.driver.util.csv.SimpleCsvFileWriter;
 import com.ldbc.driver.workloads.ldbc.snb.interactive.*;
 import com.ldbc.driver.workloads.ldbc.snb.interactive.db.DummyLdbcSnbInteractiveDb;
 import com.ldbc.driver.workloads.ldbc.snb.interactive.db.DummyLdbcSnbInteractiveOperationInstances;
 import com.ldbc.driver.workloads.ldbc.snb.interactive.db.DummyLdbcSnbInteractiveOperationResultInstances;
+import org.apache.commons.io.FileUtils;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.TemporaryFolder;
 
+import java.io.File;
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
 
 public class DbValidatorTest {
+    @Rule
+    public TemporaryFolder temporaryFolder = new TemporaryFolder();
+
     @Test
-    public void shouldFailValidationWhenDbImplementationIsIncorrect() throws DbException, WorkloadException {
+    public void shouldFailValidationWhenDbImplementationIsIncorrect() throws DbException, WorkloadException, IOException, DriverConfigurationException {
         // Given
         GeneratorFactory gf = new GeneratorFactory(new RandomDataGeneratorFactory(42l));
         List<ValidationParam> correctValidationParamsList = Lists.newArrayList(gf.limit(gf.repeating(buildParams().iterator()), 10000));
@@ -40,6 +54,22 @@ public class DbValidatorTest {
         db.init(new HashMap<String, String>());
         DbValidator dbValidator = new DbValidator();
 
+        long operationCount = 1;
+        String dbClassName = DummyLdbcSnbInteractiveDb.class.getName();
+        String workloadClassName = LdbcSnbInteractiveWorkload.class.getName();
+        ConsoleAndFileDriverConfiguration configuration = ConsoleAndFileDriverConfiguration.fromDefaults(dbClassName, workloadClassName, operationCount);
+
+        Map<String, String> paramsMap = LdbcSnbInteractiveConfiguration.defaultReadOnlyConfig();
+        paramsMap.put(LdbcSnbInteractiveConfiguration.PARAMETERS_DIRECTORY, TestUtils.getResource("/").getAbsolutePath());
+        List<String> forumUpdateFiles = Lists.newArrayList(TestUtils.getResource("/updateStream_0_0_forum.csv").getAbsolutePath());
+        paramsMap.put(LdbcSnbInteractiveConfiguration.FORUM_UPDATE_FILES, LdbcSnbInteractiveConfiguration.serializeFilePathsListFromConfiguration(forumUpdateFiles));
+        List<String> personUpdateFiles = Lists.newArrayList(TestUtils.getResource("/updateStream_0_0_person.csv").getAbsolutePath());
+        paramsMap.put(LdbcSnbInteractiveConfiguration.PERSON_UPDATE_FILES, LdbcSnbInteractiveConfiguration.serializeFilePathsListFromConfiguration(personUpdateFiles));
+        configuration = (ConsoleAndFileDriverConfiguration) configuration.applyMap(paramsMap);
+
+        Workload workload = new LdbcSnbInteractiveWorkload();
+        workload.init(configuration);
+
         // When
         DbValidationResult validationResult = dbValidator.validate(validationParams, db);
 
@@ -49,13 +79,29 @@ public class DbValidatorTest {
     }
 
     @Test
-    public void shouldPassValidationWhenDbImplementationIsCorrect() throws WorkloadException, DbException {
+    public void shouldPassValidationWhenDbImplementationIsCorrect() throws WorkloadException, DbException, IOException, DriverConfigurationException {
         // Given
         GeneratorFactory gf = new GeneratorFactory(new RandomDataGeneratorFactory(42l));
         Iterator<ValidationParam> validationParams = gf.limit(gf.repeating(buildParams().iterator()), 10000);
         Db db = new DummyLdbcSnbInteractiveDb();
         db.init(new HashMap<String, String>());
         DbValidator dbValidator = new DbValidator();
+
+        long operationCount = 1;
+        String dbClassName = DummyLdbcSnbInteractiveDb.class.getName();
+        String workloadClassName = LdbcSnbInteractiveWorkload.class.getName();
+        ConsoleAndFileDriverConfiguration configuration = ConsoleAndFileDriverConfiguration.fromDefaults(dbClassName, workloadClassName, operationCount);
+
+        Map<String, String> paramsMap = LdbcSnbInteractiveConfiguration.defaultReadOnlyConfig();
+        paramsMap.put(LdbcSnbInteractiveConfiguration.PARAMETERS_DIRECTORY, TestUtils.getResource("/").getAbsolutePath());
+        List<String> forumUpdateFiles = Lists.newArrayList(TestUtils.getResource("/updateStream_0_0_forum.csv").getAbsolutePath());
+        paramsMap.put(LdbcSnbInteractiveConfiguration.FORUM_UPDATE_FILES, LdbcSnbInteractiveConfiguration.serializeFilePathsListFromConfiguration(forumUpdateFiles));
+        List<String> personUpdateFiles = Lists.newArrayList(TestUtils.getResource("/updateStream_0_0_person.csv").getAbsolutePath());
+        paramsMap.put(LdbcSnbInteractiveConfiguration.PERSON_UPDATE_FILES, LdbcSnbInteractiveConfiguration.serializeFilePathsListFromConfiguration(personUpdateFiles));
+        configuration = (ConsoleAndFileDriverConfiguration) configuration.applyMap(paramsMap);
+
+        Workload workload = new LdbcSnbInteractiveWorkload();
+        workload.init(configuration);
 
         // When
         DbValidationResult validationResult = dbValidator.validate(validationParams, db);
