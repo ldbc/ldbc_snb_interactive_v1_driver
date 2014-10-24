@@ -403,7 +403,7 @@ public class ConsoleAndFileDriverConfigurationTest {
         assertThat(configurationFromParams.workloadClassName(), equalTo("workload class name"));
         assertThat(configurationFromParams.operationCount(), is(1l));
         assertThat(configurationFromParams.threadCount(), is(ConsoleAndFileDriverConfiguration.THREADS_DEFAULT));
-        assertThat(configurationFromParams.statusDisplayIntervalAsMilli(), is(ConsoleAndFileDriverConfiguration.SHOW_STATUS_DEFAULT));
+        assertThat(configurationFromParams.statusDisplayIntervalAsSeconds(), is(ConsoleAndFileDriverConfiguration.SHOW_STATUS_DEFAULT));
         assertThat(configurationFromParams.timeUnit(), is(ConsoleAndFileDriverConfiguration.TIME_UNIT_DEFAULT));
         assertThat(new File(configurationFromParams.resultDirPath()).getName(), is(ConsoleAndFileDriverConfiguration.RESULT_DIR_PATH_DEFAULT));
         assertThat(configurationFromParams.timeCompressionRatio(), is(ConsoleAndFileDriverConfiguration.TIME_COMPRESSION_RATIO_DEFAULT));
@@ -473,7 +473,7 @@ public class ConsoleAndFileDriverConfigurationTest {
         assertThat(params.workloadClassName(), equalTo(workloadClassName));
         assertThat(params.operationCount(), equalTo(operationCount));
         assertThat(params.threadCount(), equalTo(threadCount));
-        assertThat(params.statusDisplayIntervalAsMilli(), equalTo(statusDisplayInterval));
+        assertThat(params.statusDisplayIntervalAsSeconds(), equalTo(statusDisplayInterval));
         assertThat(params.timeUnit(), equalTo(timeUnit));
         assertThat(params.resultDirPath(), equalTo(resultDirPath));
         assertThat(params.timeCompressionRatio(), equalTo(timeCompressionRatio));

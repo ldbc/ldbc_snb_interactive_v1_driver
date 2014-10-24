@@ -15,7 +15,7 @@ public interface DriverConfiguration {
 
     int threadCount();
 
-    long statusDisplayIntervalAsMilli();
+    int statusDisplayIntervalAsSeconds();
 
     TimeUnit timeUnit();
 

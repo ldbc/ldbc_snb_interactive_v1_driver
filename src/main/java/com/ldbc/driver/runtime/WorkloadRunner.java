@@ -48,19 +48,19 @@ public class WorkloadRunner {
                           ConcurrentErrorReporter errorReporter,
                           ConcurrentCompletionTimeService completionTimeService,
                           int threadCount,
-                          long statusDisplayIntervalAsMilli,
+                          long statusDisplayIntervalAsSeconds,
                           long spinnerSleepDurationAsMilli,
                           boolean ignoreScheduleStartTimes,
                           int operationHandlerExecutorsBoundedQueueSize) throws WorkloadException {
         this.errorReporter = errorReporter;
-        this.statusDisplayIntervalAsMilli = statusDisplayIntervalAsMilli;
+        this.statusDisplayIntervalAsMilli = statusDisplayIntervalAsSeconds;
 
         this.exactSpinner = new Spinner(timeSource, spinnerSleepDurationAsMilli, ignoreScheduleStartTimes);
 
         boolean detailedStatus = true;
-        if (statusDisplayIntervalAsMilli > 0)
+        if (statusDisplayIntervalAsSeconds > 0)
             this.workloadStatusThread = new WorkloadStatusThread(
-                    statusDisplayIntervalAsMilli,
+                    TEMPORAL_UTIL.convert(statusDisplayIntervalAsSeconds, TimeUnit.SECONDS, TimeUnit.MILLISECONDS),
                     metricsService,
                     errorReporter,
                     completionTimeService,

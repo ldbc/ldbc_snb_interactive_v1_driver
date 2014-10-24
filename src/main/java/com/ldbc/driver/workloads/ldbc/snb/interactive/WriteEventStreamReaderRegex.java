@@ -5,7 +5,6 @@ import com.google.common.collect.Lists;
 import com.ldbc.driver.Operation;
 import com.ldbc.driver.generator.CsvEventStreamReaderTimedTypedCsvReader;
 import com.ldbc.driver.generator.CsvEventStreamReaderTimedTypedCsvReader.EventDecoder;
-import com.ldbc.driver.temporal.Time;
 import com.ldbc.driver.util.Function1;
 
 import java.util.*;
@@ -58,7 +57,7 @@ public class WriteEventStreamReaderRegex implements Iterator<Operation<?>> {
 
         @Override
         public Operation<?> decodeEvent(String[] csvRow) {
-            Time eventDueTime = Time.fromMilli(Long.parseLong(csvRow[0]));
+            long scheduledStartTimeAsMilli = Long.parseLong(csvRow[0]);
 
             long personId = Long.parseLong(csvRow[2]);
 
@@ -142,7 +141,7 @@ public class WriteEventStreamReaderRegex implements Iterator<Operation<?>> {
                     tagIds,
                     studyAts,
                     workAts);
-            operation.setScheduledStartTimeAsMilli(eventDueTime);
+            operation.setScheduledStartTimeAsMilli(scheduledStartTimeAsMilli);
             return operation;
         }
     }
@@ -153,7 +152,7 @@ public class WriteEventStreamReaderRegex implements Iterator<Operation<?>> {
 
         @Override
         public Operation<?> decodeEvent(String[] csvRow) {
-            Time eventDueTime = Time.fromMilli(Long.parseLong(csvRow[0]));
+            long scheduledStartTimeAsMilli = Long.parseLong(csvRow[0]);
 
             long personId = Long.parseLong(csvRow[2]);
 
@@ -163,7 +162,7 @@ public class WriteEventStreamReaderRegex implements Iterator<Operation<?>> {
             Date creationDate = new Date(Long.parseLong(creationDateString));
 
             Operation<?> operation = new LdbcUpdate2AddPostLike(personId, postId, creationDate);
-            operation.setScheduledStartTimeAsMilli(eventDueTime);
+            operation.setScheduledStartTimeAsMilli(scheduledStartTimeAsMilli);
             return operation;
         }
     }
@@ -174,7 +173,7 @@ public class WriteEventStreamReaderRegex implements Iterator<Operation<?>> {
 
         @Override
         public Operation<?> decodeEvent(String[] csvRow) {
-            Time eventDueTime = Time.fromMilli(Long.parseLong(csvRow[0]));
+            long scheduledStartTimeAsMilli = Long.parseLong(csvRow[0]);
 
             long personId = Long.parseLong(csvRow[2]);
 
@@ -184,7 +183,7 @@ public class WriteEventStreamReaderRegex implements Iterator<Operation<?>> {
             Date creationDate = new Date(Long.parseLong(creationDateString));
 
             Operation<?> operation = new LdbcUpdate3AddCommentLike(personId, commentId, creationDate);
-            operation.setScheduledStartTimeAsMilli(eventDueTime);
+            operation.setScheduledStartTimeAsMilli(scheduledStartTimeAsMilli);
             return operation;
         }
     }
@@ -197,7 +196,7 @@ public class WriteEventStreamReaderRegex implements Iterator<Operation<?>> {
 
         @Override
         public Operation<?> decodeEvent(String[] csvRow) {
-            Time eventDueTime = Time.fromMilli(Long.parseLong(csvRow[0]));
+            long scheduledStartTimeAsMilli = Long.parseLong(csvRow[0]);
 
             long forumId = Long.parseLong(csvRow[2]);
 
@@ -218,7 +217,7 @@ public class WriteEventStreamReaderRegex implements Iterator<Operation<?>> {
             }
 
             Operation<?> operation = new LdbcUpdate4AddForum(forumId, forumTitle, creationDate, moderatorPersonId, tagIds);
-            operation.setScheduledStartTimeAsMilli(eventDueTime);
+            operation.setScheduledStartTimeAsMilli(scheduledStartTimeAsMilli);
             return operation;
         }
     }
@@ -229,7 +228,7 @@ public class WriteEventStreamReaderRegex implements Iterator<Operation<?>> {
 
         @Override
         public Operation<?> decodeEvent(String[] csvRow) {
-            Time eventDueTime = Time.fromMilli(Long.parseLong(csvRow[0]));
+            long scheduledStartTimeAsMilli = Long.parseLong(csvRow[0]);
 
             long forumId = Long.parseLong(csvRow[2]);
 
@@ -239,7 +238,7 @@ public class WriteEventStreamReaderRegex implements Iterator<Operation<?>> {
             Date creationDate = new Date(Long.parseLong(creationDateString));
 
             Operation<?> operation = new LdbcUpdate5AddForumMembership(forumId, personId, creationDate);
-            operation.setScheduledStartTimeAsMilli(eventDueTime);
+            operation.setScheduledStartTimeAsMilli(scheduledStartTimeAsMilli);
             return operation;
         }
     }
@@ -252,7 +251,7 @@ public class WriteEventStreamReaderRegex implements Iterator<Operation<?>> {
 
         @Override
         public Operation<?> decodeEvent(String[] csvRow) {
-            Time eventDueTime = Time.fromMilli(Long.parseLong(csvRow[0]));
+            long scheduledStartTimeAsMilli = Long.parseLong(csvRow[0]);
 
             long postId = Long.parseLong(csvRow[2]);
 
@@ -299,7 +298,7 @@ public class WriteEventStreamReaderRegex implements Iterator<Operation<?>> {
                     forumId,
                     countryId,
                     tagIds);
-            operation.setScheduledStartTimeAsMilli(eventDueTime);
+            operation.setScheduledStartTimeAsMilli(scheduledStartTimeAsMilli);
             return operation;
         }
     }
@@ -312,7 +311,7 @@ public class WriteEventStreamReaderRegex implements Iterator<Operation<?>> {
 
         @Override
         public Operation<?> decodeEvent(String[] csvRow) {
-            Time eventDueTime = Time.fromMilli(Long.parseLong(csvRow[0]));
+            long scheduledStartTimeAsMilli = Long.parseLong(csvRow[0]);
 
             long commentId = Long.parseLong(csvRow[2]);
 
@@ -356,7 +355,7 @@ public class WriteEventStreamReaderRegex implements Iterator<Operation<?>> {
                     replyOfPostId,
                     replyOfCommentId,
                     tagIds);
-            operation.setScheduledStartTimeAsMilli(eventDueTime);
+            operation.setScheduledStartTimeAsMilli(scheduledStartTimeAsMilli);
             return operation;
         }
     }
@@ -367,7 +366,7 @@ public class WriteEventStreamReaderRegex implements Iterator<Operation<?>> {
 
         @Override
         public Operation<?> decodeEvent(String[] csvRow) {
-            Time eventDueTime = Time.fromMilli(Long.parseLong(csvRow[0]));
+            long scheduledStartTimeAsMilli = Long.parseLong(csvRow[0]);
 
             long person1Id = Long.parseLong(csvRow[2]);
 
@@ -377,7 +376,7 @@ public class WriteEventStreamReaderRegex implements Iterator<Operation<?>> {
             Date creationDate = new Date(Long.parseLong(creationDateString));
 
             Operation<?> operation = new LdbcUpdate8AddFriendship(person1Id, person2Id, creationDate);
-            operation.setScheduledStartTimeAsMilli(eventDueTime);
+            operation.setScheduledStartTimeAsMilli(scheduledStartTimeAsMilli);
             return operation;
         }
     }

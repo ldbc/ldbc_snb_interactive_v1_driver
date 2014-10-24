@@ -1,14 +1,15 @@
 package com.ldbc.driver.validation;
 
-import com.ldbc.driver.*;
+import com.ldbc.driver.Operation;
+import com.ldbc.driver.SerializingMarshallingException;
+import com.ldbc.driver.Workload;
+import com.ldbc.driver.WorkloadStreams;
 import com.ldbc.driver.control.DriverConfiguration;
 import com.ldbc.driver.generator.GeneratorFactory;
 import com.ldbc.driver.generator.RandomDataGeneratorFactory;
 import com.ldbc.driver.runtime.ConcurrentErrorReporter;
 import com.ldbc.driver.runtime.metrics.ContinuousMetricManager;
-import com.ldbc.driver.temporal.Duration;
 import com.ldbc.driver.temporal.SystemTimeSource;
-import com.ldbc.driver.temporal.Time;
 import com.ldbc.driver.temporal.TimeSource;
 import com.ldbc.driver.util.Tuple;
 
@@ -43,7 +44,7 @@ public class WorkloadValidator {
     public WorkloadValidationResult validate(WorkloadFactory workloadFactory, DriverConfiguration configuration) {
         GeneratorFactory gf = new GeneratorFactory(new RandomDataGeneratorFactory(42l));
         TimeSource timeSource = new SystemTimeSource();
-        Time now = timeSource.now();
+        long nowAsMilli = timeSource.nowAsMilli();
         long operationCount;
 
         /*
@@ -69,8 +70,8 @@ public class WorkloadValidator {
             operationCount++;
 
             // Operation has start time
-            Time operationStartTime = operation.scheduledStartTimeAsMilli();
-            if (null == operationStartTime) {
+            long operationStartTimeAsMilli = operation.scheduledStartTimeAsMilli();
+            if (-1 == operationStartTimeAsMilli) {
                 return new WorkloadValidationResult(
                         ResultType.UNASSIGNED_SCHEDULED_START_TIME,
                         String.format("Operation %s - Unassigned operation scheduled start time\n  %s",
@@ -78,9 +79,9 @@ public class WorkloadValidator {
                                 operation));
             }
 
-            Time operationDependencyTime = operation.dependencyTimeAsMilli();
+            long operationDependencyTimeAsMilli = operation.dependencyTimeAsMilli();
             // Operation has dependency time
-            if (null == operationDependencyTime) {
+            if (-1 == operationDependencyTimeAsMilli) {
                 return new WorkloadValidationResult(
                         ResultType.UNASSIGNED_DEPENDENCY_TIME,
                         String.format("Operation %s - Unassigned operation dependency time\nOperation: %s",
@@ -89,7 +90,7 @@ public class WorkloadValidator {
             }
 
             // Ensure operation dependency time is less than operation start time
-            if (false == operationDependencyTime.lt(operationStartTime)) {
+            if (false == operationDependencyTimeAsMilli < operationStartTimeAsMilli) {
                 return new WorkloadValidationResult(
                         ResultType.DEPENDENCY_TIME_IS_NOT_BEFORE_SCHEDULED_START_TIME,
                         String.format(""
@@ -125,7 +126,7 @@ public class WorkloadValidator {
             workloadPass2 = streamsAndWorkload._2();
             operationsPass2 = gf.timeOffsetAndCompress(
                     streamsAndWorkload._1().mergeSortedByStartTime(gf),
-                    now,
+                    nowAsMilli,
                     configuration.timeCompressionRatio()
             );
 
@@ -136,9 +137,9 @@ public class WorkloadValidator {
         }
 
         Operation<?> previousOperation = null;
-        Time previousOperationStartTime = null;
+        long previousOperationStartTimeAsMilli = -1;
 
-        Map<Class, Time> previousOperationStartTimesByOperationType = new HashMap<>();
+        Map<Class, Long> previousOperationStartTimesAsMilliByOperationType = new HashMap<>();
         Map<Class, ContinuousMetricManager> operationInterleavesByOperationType = new HashMap<>();
 
         operationCount = 0;
@@ -148,8 +149,8 @@ public class WorkloadValidator {
             operationCount++;
 
             // Operation has start time
-            Time operationStartTime = operation.scheduledStartTimeAsMilli();
-            if (null == operationStartTime) {
+            long operationStartTimeAsMilli = operation.scheduledStartTimeAsMilli();
+            if (-1 == operationStartTimeAsMilli) {
                 return new WorkloadValidationResult(
                         ResultType.UNASSIGNED_SCHEDULED_START_TIME,
                         String.format("Operation %s - Unassigned operation scheduled start time\n  %s",
@@ -158,8 +159,8 @@ public class WorkloadValidator {
             }
 
             // Operation start times increase monotonically
-            if (null != previousOperationStartTime) {
-                if (operationStartTime.lt(previousOperationStartTime))
+            if (-1 != previousOperationStartTimeAsMilli) {
+                if (operationStartTimeAsMilli < previousOperationStartTimeAsMilli)
                     return new WorkloadValidationResult(
                             ResultType.SCHEDULED_START_TIMES_DO_NOT_INCREASE_MONOTONICALLY,
                             String.format(""
@@ -172,9 +173,9 @@ public class WorkloadValidator {
             }
 
             // Interleaves do not exceed maximum
-            if (null != previousOperationStartTime) {
-                Duration interleaveDuration = operationStartTime.durationGreaterThan(previousOperationStartTime);
-                if (interleaveDuration.gt(workloadPass2.maxExpectedInterleaveAsMilli()))
+            if (-1 != previousOperationStartTimeAsMilli) {
+                long interleaveDurationAsMilli = operationStartTimeAsMilli - previousOperationStartTimeAsMilli;
+                if (interleaveDurationAsMilli > workloadPass2.maxExpectedInterleaveAsMilli())
                     return new WorkloadValidationResult(
                             ResultType.SCHEDULED_START_TIME_INTERVAL_EXCEEDS_MAXIMUM,
                             String.format(""
@@ -182,15 +183,15 @@ public class WorkloadValidator {
                                             + "  Previous: %s\n"
                                             + "  Current: %s",
                                     operationCount,
-                                    interleaveDuration,
+                                    interleaveDurationAsMilli,
                                     workloadPass2.maxExpectedInterleaveAsMilli(),
                                     previousOperation,
                                     operation));
             }
 
-            Time operationDependencyTime = operation.dependencyTimeAsMilli();
+            long operationDependencyTimeAsMilli = operation.dependencyTimeAsMilli();
             // Operation has dependency time
-            if (null == operationDependencyTime) {
+            if (-1 == operationDependencyTimeAsMilli) {
                 return new WorkloadValidationResult(
                         ResultType.UNASSIGNED_DEPENDENCY_TIME,
                         String.format("Operation %s - Unassigned operation dependency time\nOperation: %s",
@@ -199,7 +200,7 @@ public class WorkloadValidator {
             }
 
             // Ensure operation dependency time is less than operation start time
-            if (false == operationDependencyTime.lt(operationStartTime)) {
+            if (false == operationDependencyTimeAsMilli < operationStartTimeAsMilli) {
                 return new WorkloadValidationResult(
                         ResultType.DEPENDENCY_TIME_IS_NOT_BEFORE_SCHEDULED_START_TIME,
                         String.format(""
@@ -216,13 +217,13 @@ public class WorkloadValidator {
             // Interleaves by operation type do not exceed maximum
             ContinuousMetricManager operationInterleaveForOperationType = operationInterleavesByOperationType.get(operationType);
             if (null == operationInterleaveForOperationType) {
-                operationInterleaveForOperationType = new ContinuousMetricManager(null, null, workloadPass2.maxExpectedInterleaveAsMilli().asMilli(), 5);
+                operationInterleaveForOperationType = new ContinuousMetricManager(null, null, workloadPass2.maxExpectedInterleaveAsMilli(), 5);
                 operationInterleavesByOperationType.put(operationType, operationInterleaveForOperationType);
             }
-            Time previousOperationStartTimeByOperationType = previousOperationStartTimesByOperationType.get(operationType);
-            if (null != previousOperationStartTimeByOperationType) {
-                Duration interleaveDuration = operationStartTime.durationGreaterThan(previousOperationStartTimeByOperationType);
-                if (interleaveDuration.gt(workloadPass2.maxExpectedInterleaveAsMilli()))
+            long previousOperationStartTimeAsMilliByOperationType = previousOperationStartTimesAsMilliByOperationType.get(operationType);
+            if (-1 != previousOperationStartTimeAsMilliByOperationType) {
+                long interleaveDurationAsMilli = operationStartTimeAsMilli - previousOperationStartTimeAsMilliByOperationType;
+                if (interleaveDurationAsMilli > workloadPass2.maxExpectedInterleaveAsMilli())
                     return new WorkloadValidationResult(
                             ResultType.SCHEDULED_START_TIME_INTERVAL_EXCEEDS_MAXIMUM_FOR_OPERATION_TYPE,
                             String.format(""
@@ -231,10 +232,10 @@ public class WorkloadValidator {
                                             + "  Current: %s",
                                     operationCount,
                                     operationType.getSimpleName(),
-                                    interleaveDuration,
+                                    interleaveDurationAsMilli,
                                     workloadPass2.maxExpectedInterleaveAsMilli(),
-                                    previousOperationStartTimeByOperationType,
-                                    operationStartTime));
+                                    previousOperationStartTimeAsMilliByOperationType,
+                                    operationStartTimeAsMilli));
             }
 
             // Serializing and Marshalling operations works
@@ -272,8 +273,8 @@ public class WorkloadValidator {
             }
 
             previousOperation = operation;
-            previousOperationStartTime = operationStartTime;
-            previousOperationStartTimesByOperationType.put(operationType, operationStartTime);
+            previousOperationStartTimeAsMilli = operationStartTimeAsMilli;
+            previousOperationStartTimesAsMilliByOperationType.put(operationType, operationStartTimeAsMilli);
         }
 
         try {
@@ -299,7 +300,7 @@ public class WorkloadValidator {
             workload1 = streamsAndWorkload1._2();
             operationStream1 = gf.timeOffsetAndCompress(
                     streamsAndWorkload1._1().mergeSortedByStartTime(gf),
-                    now,
+                    nowAsMilli,
                     configuration.timeCompressionRatio()
             );
 
@@ -308,7 +309,7 @@ public class WorkloadValidator {
             workload2 = streamsAndWorkload2._2();
             operationStream2 = gf.timeOffsetAndCompress(
                     streamsAndWorkload2._1().mergeSortedByStartTime(gf),
-                    now,
+                    nowAsMilli,
                     configuration.timeCompressionRatio()
             );
         } catch (Exception e) {

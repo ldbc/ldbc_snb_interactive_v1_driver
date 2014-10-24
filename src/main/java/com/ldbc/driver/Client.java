@@ -295,7 +295,7 @@ public class Client {
                         errorReporter,
                         completionTimeService,
                         controlService.configuration().threadCount(),
-                        controlService.configuration().statusDisplayIntervalAsMilli(),
+                        controlService.configuration().statusDisplayIntervalAsSeconds(),
                         controlService.configuration().spinnerSleepDurationAsMilli(),
                         controlService.configuration().ignoreScheduledStartTimes(),
                         operationHandlerExecutorsBoundedQueueSize);
