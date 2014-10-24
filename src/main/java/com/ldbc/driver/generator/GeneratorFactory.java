@@ -3,7 +3,6 @@ package com.ldbc.driver.generator;
 import com.google.common.base.Predicate;
 import com.google.common.collect.Iterators;
 import com.ldbc.driver.Operation;
-import com.ldbc.driver.temporal.Time;
 import com.ldbc.driver.util.Function0;
 import com.ldbc.driver.util.Function1;
 import com.ldbc.driver.util.Function2;

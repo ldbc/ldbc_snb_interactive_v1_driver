@@ -1,11 +1,7 @@
 package com.ldbc.driver.runtime.coordination;
 
-import com.ldbc.driver.temporal.Time;
-
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 /**
  * Completion time is the point in time AT which there are no uncompleted events.
@@ -29,28 +25,28 @@ public class MultiWriterLocalCompletionTimeConcurrentStateManager implements Loc
     }
 
     private final List<LocalCompletionTimeReaderWriter> localCompletionTimeReaderWriters = new ArrayList<>();
-    private Time localCompletionTime = null;
-    private Time localInitiationTime = null;
+    private long localCompletionTimeAsMilli = -1;
+    private long localInitiationTimeAsMilli = -1;
 
     MultiWriterLocalCompletionTimeConcurrentStateManager() {
     }
 
     @Override
-    public Time lastKnownLowestInitiatedTime() throws CompletionTimeException {
-        return (Time) processEvent(Event.READ_LAST_KNOWN_LIT, -1, null);
+    public long lastKnownLowestInitiatedTimeAsMilli() throws CompletionTimeException {
+        return (long) processEvent(Event.READ_LAST_KNOWN_LIT, -1, -1);
     }
 
     @Override
-    public Time localCompletionTime() throws CompletionTimeException {
-        return (Time) processEvent(Event.READ_LCT, -1, null);
+    public long localCompletionTimeAsMilli() throws CompletionTimeException {
+        return (long) processEvent(Event.READ_LCT, -1, -1);
     }
 
-    void submitLocalInitiatedTime(int writerId, Time scheduledStartTime) throws CompletionTimeException {
-        processEvent(Event.WRITE_LIT, writerId, scheduledStartTime);
+    void submitLocalInitiatedTime(int writerId, long scheduledStartTimeAsMilli) throws CompletionTimeException {
+        processEvent(Event.WRITE_LIT, writerId, scheduledStartTimeAsMilli);
     }
 
-    void submitLocalCompletedTime(int writerId, Time scheduledStartTime) throws CompletionTimeException {
-        processEvent(Event.WRITE_LCT, writerId, scheduledStartTime);
+    void submitLocalCompletedTime(int writerId, long scheduledStartTimeAsMilli) throws CompletionTimeException {
+        processEvent(Event.WRITE_LCT, writerId, scheduledStartTimeAsMilli);
     }
 
     /**
@@ -60,22 +56,22 @@ public class MultiWriterLocalCompletionTimeConcurrentStateManager implements Loc
      * @throws CompletionTimeException
      */
     LocalCompletionTimeWriter newLocalCompletionTimeWriter() throws CompletionTimeException {
-        return (LocalCompletionTimeWriter) processEvent(Event.ADD_WRITER, -1, null);
+        return (LocalCompletionTimeWriter) processEvent(Event.ADD_WRITER, -1, -1);
     }
 
-    synchronized private Object processEvent(Event event, int writerId, Time scheduledStartTime) throws CompletionTimeException {
+    synchronized private Object processEvent(Event event, int writerId, long scheduledStartTimeAsMilli) throws CompletionTimeException {
         switch (event) {
             case READ_LAST_KNOWN_LIT: {
-                return localInitiationTime;
+                return localInitiationTimeAsMilli;
             }
             case READ_LCT: {
-                return localCompletionTime;
+                return localCompletionTimeAsMilli;
             }
             case WRITE_LIT: {
                 LocalCompletionTimeWriter localCompletionTimeWriter = localCompletionTimeReaderWriters.get(writerId);
                 if (null == localCompletionTimeWriter)
                     throw new CompletionTimeException(String.format("Writer ID %s does not exist", writerId));
-                localCompletionTimeWriter.submitLocalInitiatedTime(scheduledStartTime);
+                localCompletionTimeWriter.submitLocalInitiatedTime(scheduledStartTimeAsMilli);
                 updateCompletionTime();
                 return null;
             }
@@ -83,7 +79,7 @@ public class MultiWriterLocalCompletionTimeConcurrentStateManager implements Loc
                 LocalCompletionTimeWriter localCompletionTimeWriter = localCompletionTimeReaderWriters.get(writerId);
                 if (null == localCompletionTimeWriter)
                     throw new CompletionTimeException(String.format("Writer ID %s does not exist", writerId));
-                localCompletionTimeWriter.submitLocalCompletedTime(scheduledStartTime);
+                localCompletionTimeWriter.submitLocalCompletedTime(scheduledStartTimeAsMilli);
                 updateCompletionTime();
                 return null;
             }
@@ -101,40 +97,40 @@ public class MultiWriterLocalCompletionTimeConcurrentStateManager implements Loc
     }
 
     private void updateCompletionTime() throws CompletionTimeException {
-        Time tempLocalInitiationTime = null;
+        long tempLocalInitiationTimeAsMilli = -1;
         for (int i = 0; i < localCompletionTimeReaderWriters.size(); i++) {
             LocalCompletionTimeReader reader = localCompletionTimeReaderWriters.get(i);
-            Time readerLocalInitiationTime = reader.lastKnownLowestInitiatedTime();
-            if (null == readerLocalInitiationTime) {
+            long readerLocalInitiationTimeAsMilli = reader.lastKnownLowestInitiatedTimeAsMilli();
+            if (-1 == readerLocalInitiationTimeAsMilli) {
                 // if any initiation times are null, local initiation time and local completion time are undefined
                 return;
-            } else if (null == tempLocalInitiationTime || readerLocalInitiationTime.lt(tempLocalInitiationTime)) {
-                tempLocalInitiationTime = readerLocalInitiationTime;
+            } else if (-1 == tempLocalInitiationTimeAsMilli || readerLocalInitiationTimeAsMilli < tempLocalInitiationTimeAsMilli) {
+                tempLocalInitiationTimeAsMilli = readerLocalInitiationTimeAsMilli;
             } else {
                 // reader has initiation time, but it is greater than minimum initiation time
             }
         }
 
-        localInitiationTime = tempLocalInitiationTime;
+        localInitiationTimeAsMilli = tempLocalInitiationTimeAsMilli;
 
-        Time tempLocalCompletionTime = localCompletionTime;
+        long tempLocalCompletionTimeAsMilli = localCompletionTimeAsMilli;
         for (int i = 0; i < localCompletionTimeReaderWriters.size(); i++) {
             LocalCompletionTimeReader reader = localCompletionTimeReaderWriters.get(i);
-            Time readerLocalCompletionTime = reader.localCompletionTime();
-            if (null == readerLocalCompletionTime) {
+            long readerLocalCompletionTimeAsMilli = reader.localCompletionTimeAsMilli();
+            if (-1 == readerLocalCompletionTimeAsMilli) {
                 // reader has non-null initiation time and null completion time
                 // if at least one reader has non-null completion time it is still possible that local completion time is non-null
                 // initiation time already tells us that no more times will arrive BELOW that time
                 // continue checking completion times of other readers
-            } else if (readerLocalCompletionTime.lt(tempLocalInitiationTime)) {
-                if (null == tempLocalCompletionTime || readerLocalCompletionTime.gt(tempLocalCompletionTime)) {
-                    tempLocalCompletionTime = readerLocalCompletionTime;
+            } else if (readerLocalCompletionTimeAsMilli < tempLocalInitiationTimeAsMilli) {
+                if (-1 == tempLocalCompletionTimeAsMilli || readerLocalCompletionTimeAsMilli > tempLocalCompletionTimeAsMilli) {
+                    tempLocalCompletionTimeAsMilli = readerLocalCompletionTimeAsMilli;
                 }
             } else {
                 // completion time must be lower than initiation time
                 // continue checking completion times of other readers
             }
         }
-        localCompletionTime = tempLocalCompletionTime;
+        localCompletionTimeAsMilli = tempLocalCompletionTimeAsMilli;
     }
 }

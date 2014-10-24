@@ -9,7 +9,6 @@ import com.ldbc.driver.runtime.coordination.LocalCompletionTimeWriter;
 import com.ldbc.driver.runtime.metrics.ConcurrentMetricsService;
 import com.ldbc.driver.runtime.scheduling.GctDependencyCheck;
 import com.ldbc.driver.runtime.scheduling.Spinner;
-import com.ldbc.driver.temporal.Time;
 import com.ldbc.driver.temporal.TimeSource;
 
 import java.util.Iterator;
@@ -72,7 +71,7 @@ class DependencyAndNonDependencyHandlersRetriever {
             nextGctWriteHandler.localCompletionTimeWriter().submitLocalInitiatedTime(nextGctWriteHandler.operation().scheduledStartTimeAsMilli());
             if (false == gctWriteOperations.hasNext()) {
                 // after last write operation, submit highest possible initiated time to ensure that GCT progresses to time of highest LCT write
-                nextGctWriteHandler.localCompletionTimeWriter().submitLocalInitiatedTime(Time.fromNano(Long.MAX_VALUE));
+                nextGctWriteHandler.localCompletionTimeWriter().submitLocalInitiatedTime(Long.MAX_VALUE);
             }
         }
         // get and initialize next non gct writing handler
@@ -83,10 +82,10 @@ class DependencyAndNonDependencyHandlersRetriever {
         }
         // return handler with lowest start time
         if (null != nextGctWriteHandler && null != nextGctReadHandler) {
-            long nextGctWriteHandlerStartTime = nextGctWriteHandler.operation().scheduledStartTimeAsMilli().asNano();
-            long nextGctReadHandlerStartTime = nextGctReadHandler.operation().scheduledStartTimeAsMilli().asNano();
+            long nextGctWriteHandlerStartTimeAsMilli = nextGctWriteHandler.operation().scheduledStartTimeAsMilli();
+            long nextGctReadHandlerStartTimeAsMilli = nextGctReadHandler.operation().scheduledStartTimeAsMilli();
             OperationHandler<?> nextHandler;
-            if (nextGctReadHandlerStartTime < nextGctWriteHandlerStartTime) {
+            if (nextGctReadHandlerStartTimeAsMilli < nextGctWriteHandlerStartTimeAsMilli) {
                 nextHandler = nextGctReadHandler;
                 nextGctReadHandler = null;
             } else {

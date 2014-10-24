@@ -1,7 +1,6 @@
 package com.ldbc.driver;
 
-import com.ldbc.driver.temporal.Duration;
-import com.ldbc.driver.temporal.Time;
+import com.ldbc.driver.temporal.TemporalUtil;
 import stormpot.*;
 
 import java.util.concurrent.TimeUnit;
@@ -37,13 +36,19 @@ public class PoolingOperationHandlerFactory implements OperationHandlerFactory {
 
     @Override
     public void shutdown() throws OperationException {
+        TemporalUtil temporalUtil = new TemporalUtil();
         Timeout timeout = new Timeout(5, TimeUnit.SECONDS);
         innerOperationHandlerFactory.shutdown();
         Completion completion = operationHandlerPool.shutdown();
         try {
             boolean isSuccessfulShutdown = completion.await(timeout);
             if (false == isSuccessfulShutdown)
-                throw new OperationException(String.format("Operation handler pool did not shutdown before timeout (%s)", Duration.from(timeout.getUnit(), timeout.getTimeout())));
+                throw new OperationException(
+                        String.format(
+                                "Operation handler pool did not shutdown before timeout (%s)",
+                                temporalUtil.milliDurationToString(temporalUtil.convert(timeout.getTimeout(), timeout.getUnit(), TimeUnit.MILLISECONDS))
+                        )
+                );
         } catch (InterruptedException e) {
             throw new OperationException("Error encountered while shutting down operation handler pool", e);
         }

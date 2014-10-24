@@ -30,19 +30,19 @@ public class ExternalCompletionTimeTest {
         ExternalCompletionTimeStateManager ect = new ExternalCompletionTimeStateManager(peerIds);
 
         // When/Then
-        assertThat(ect.externalCompletionTime(), is(nullValue()));
+        assertThat(ect.externalCompletionTimeAsMilli(), is(nullValue()));
 
         ect.submitPeerCompletionTime(peerId1, Time.fromMilli(1));
-        assertThat(ect.externalCompletionTime(), is(nullValue()));
+        assertThat(ect.externalCompletionTimeAsMilli(), is(nullValue()));
 
         ect.submitPeerCompletionTime(peerId2, Time.fromMilli(1));
-        assertThat(ect.externalCompletionTime(), is(Time.fromMilli(1)));
+        assertThat(ect.externalCompletionTimeAsMilli(), is(Time.fromMilli(1)));
 
         ect.submitPeerCompletionTime(peerId1, Time.fromMilli(2));
-        assertThat(ect.externalCompletionTime(), is(Time.fromMilli(1)));
+        assertThat(ect.externalCompletionTimeAsMilli(), is(Time.fromMilli(1)));
 
         ect.submitPeerCompletionTime(peerId2, Time.fromMilli(2));
-        assertThat(ect.externalCompletionTime(), is(Time.fromMilli(2)));
+        assertThat(ect.externalCompletionTimeAsMilli(), is(Time.fromMilli(2)));
 
         boolean exceptionThrown = false;
         try {
@@ -51,7 +51,7 @@ public class ExternalCompletionTimeTest {
             exceptionThrown = true;
         }
         assertThat(exceptionThrown, is(true));
-        assertThat(ect.externalCompletionTime(), is(Time.fromMilli(2)));
+        assertThat(ect.externalCompletionTimeAsMilli(), is(Time.fromMilli(2)));
     }
 
     @Test(expected = CompletionTimeException.class)
@@ -81,7 +81,7 @@ public class ExternalCompletionTimeTest {
         // no events have been applied
 
         // Then
-        assertThat(ect.externalCompletionTime(), is(nullValue()));
+        assertThat(ect.externalCompletionTimeAsMilli(), is(nullValue()));
     }
 
     @Test
@@ -96,7 +96,7 @@ public class ExternalCompletionTimeTest {
         ect.submitPeerCompletionTime(peerId1, Time.fromMilli(1));
 
         // Then
-        assertThat(ect.externalCompletionTime(), is(nullValue()));
+        assertThat(ect.externalCompletionTimeAsMilli(), is(nullValue()));
     }
 
     @Test
@@ -112,7 +112,7 @@ public class ExternalCompletionTimeTest {
         ect.submitPeerCompletionTime(peerId2, Time.fromMilli(2));
 
         // Then
-        assertThat(ect.externalCompletionTime(), equalTo(Time.fromMilli(1)));
+        assertThat(ect.externalCompletionTimeAsMilli(), equalTo(Time.fromMilli(1)));
     }
 
     @Test(expected = CompletionTimeException.class)

@@ -1,7 +1,5 @@
 package com.ldbc.driver.runtime.coordination;
 
-import com.ldbc.driver.temporal.Time;
-
 import java.util.List;
 import java.util.concurrent.Future;
 
@@ -11,7 +9,7 @@ public interface ConcurrentCompletionTimeService extends
 
     LocalCompletionTimeWriter newLocalCompletionTimeWriter() throws CompletionTimeException;
 
-    Future<Time> globalCompletionTimeFuture() throws CompletionTimeException;
+    Future<Long> globalCompletionTimeAsMilliFuture() throws CompletionTimeException;
 
     List<LocalCompletionTimeWriter> getAllWriters() throws CompletionTimeException;
 

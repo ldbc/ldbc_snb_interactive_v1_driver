@@ -102,7 +102,7 @@ public class DummyWorkload extends Workload {
     }
 
     @Override
-    public Duration maxExpectedInterleave() {
+    public Duration maxExpectedInterleaveAsMilli() {
         return maxExpectedInterleave;
     }
 }

@@ -180,7 +180,7 @@ public class ConcurrentCompletionTimeServiceAdvancedTest {
         /*
         TEST 1st CHECK POINT
          */
-        Future<Time> future1WaitingForGtcCheckpointOperation1 = concurrentCompletionTimeService.globalCompletionTimeFuture();
+        Future<Time> future1WaitingForGtcCheckpointOperation1 = concurrentCompletionTimeService.globalCompletionTimeAsMilliFuture();
         assertThat(future1WaitingForGtcCheckpointOperation1.get(), equalTo(gctCheckpointOperation1ScheduledStartTime));
 
         /*
@@ -212,7 +212,7 @@ public class ConcurrentCompletionTimeServiceAdvancedTest {
         /*
         TEST 2nd CHECK POINT
          */
-        Future<Time> future2WaitingForGtcCheckpointOperation2 = concurrentCompletionTimeService.globalCompletionTimeFuture();
+        Future<Time> future2WaitingForGtcCheckpointOperation2 = concurrentCompletionTimeService.globalCompletionTimeAsMilliFuture();
         assertThat(future2WaitingForGtcCheckpointOperation2.get(), equalTo(gctCheckpointOperation2ScheduledStartTime));
 
         while (operations.hasNext()) {
@@ -240,7 +240,7 @@ public class ConcurrentCompletionTimeServiceAdvancedTest {
         /*
         TEST 3rd CHECK POINT
          */
-        Future<Time> future3WaitingForLastOperation = concurrentCompletionTimeService.globalCompletionTimeFuture();
+        Future<Time> future3WaitingForLastOperation = concurrentCompletionTimeService.globalCompletionTimeAsMilliFuture();
         assertThat(future3WaitingForLastOperation.get(), equalTo(lastScheduledStartTime));
 
         Duration testDuration = timeSource.now().durationGreaterThan(startTime);

@@ -663,7 +663,7 @@ public class WorkloadValidatorTest {
         );
 
         DriverConfiguration configuration = ConsoleAndFileDriverConfiguration.fromDefaults(null, null, operationCount);
-        WorkloadFactory workloadFactory = new DummyWorkloadFactory(streams.iterator(), Workload.DEFAULT_MAXIMUM_EXPECTED_INTERLEAVE);
+        WorkloadFactory workloadFactory = new DummyWorkloadFactory(streams.iterator(), Workload.DEFAULT_MAXIMUM_EXPECTED_INTERLEAVE_AS_MILLI);
         WorkloadValidator workloadValidator = new WorkloadValidator();
         WorkloadValidationResult result = workloadValidator.validate(workloadFactory, configuration);
 

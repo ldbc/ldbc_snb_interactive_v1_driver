@@ -1,8 +1,6 @@
 package com.ldbc.driver.generator;
 
 import com.ldbc.driver.Operation;
-import com.ldbc.driver.temporal.Duration;
-import com.ldbc.driver.temporal.Time;
 import com.ldbc.driver.util.Function1;
 
 import java.util.Iterator;
@@ -28,15 +26,15 @@ public class TimeMappingOperationGenerator extends Generator<Operation<?>> {
         Operation<?> nextOperation = operations.next();
         if (null == timeOffsetAsMilliFun) {
             // Create time offset function
-            Time firstStartTime = nextOperation.scheduledStartTimeAsMilli();
-            if (newStartTimeAsMilli.gt(firstStartTime)) {
+            long firstStartTimeAsMilli = nextOperation.scheduledStartTimeAsMilli();
+            if (newStartTimeAsMilli > firstStartTimeAsMilli) {
                 // offset to future
-                Duration offset = newStartTimeAsMilli.durationGreaterThan(firstStartTime);
-                timeOffsetAsMilliFun = new TimeFutureOffsetFun(offset);
+                long offsetAsMilli = newStartTimeAsMilli - firstStartTimeAsMilli;
+                timeOffsetAsMilliFun = new TimeFutureOffsetFun(offsetAsMilli);
             } else {
                 // offset to past
-                Duration offset = newStartTimeAsMilli.durationLessThan(firstStartTime);
-                timeOffsetAsMilliFun = new TimePastOffsetFun(offset);
+                long offsetAsMilli = newStartTimeAsMilli - firstStartTimeAsMilli;
+                timeOffsetAsMilliFun = new TimePastOffsetFun(offsetAsMilli);
             }
 
             // Create time compression function
@@ -48,63 +46,62 @@ public class TimeMappingOperationGenerator extends Generator<Operation<?>> {
                 dependencyTimeAsMilliCompressionFun = new TimeCompressionFun(timeCompressionRatio, timeOffsetAsMilliFun.apply(nextOperation.dependencyTimeAsMilli()));
             }
         }
-        Time offsetStartTime = timeOffsetAsMilliFun.apply(nextOperation.scheduledStartTimeAsMilli());
-        Time offsetDependencyTime = timeOffsetAsMilliFun.apply(nextOperation.dependencyTimeAsMilli());
-        Time offsetAndCompressedStartTime = startTimeAsMilliCompressionFun.apply(offsetStartTime);
-        Time offsetAndCompressedDependencyTime = dependencyTimeAsMilliCompressionFun.apply(offsetDependencyTime);
-        nextOperation.setScheduledStartTimeAsMilli(offsetAndCompressedStartTime);
-        nextOperation.setDependencyTimeAsMilli(offsetAndCompressedDependencyTime);
+        long offsetStartTimeAsMilli = timeOffsetAsMilliFun.apply(nextOperation.scheduledStartTimeAsMilli());
+        long offsetDependencyTimeAsMilli = timeOffsetAsMilliFun.apply(nextOperation.dependencyTimeAsMilli());
+        long offsetAndCompressedStartTimeAsMilli = startTimeAsMilliCompressionFun.apply(offsetStartTimeAsMilli);
+        long offsetAndCompressedDependencyTimeAsMilli = dependencyTimeAsMilliCompressionFun.apply(offsetDependencyTimeAsMilli);
+        nextOperation.setScheduledStartTimeAsMilli(offsetAndCompressedStartTimeAsMilli);
+        nextOperation.setDependencyTimeAsMilli(offsetAndCompressedDependencyTimeAsMilli);
         return nextOperation;
     }
 
-    private class IdentityTimeFun implements Function1<Time, Time> {
+    private class IdentityTimeFun implements Function1<Long, Long> {
         @Override
-        public Time apply(Time time) {
-            return time;
+        public Long apply(Long timeAsMilli) {
+            return timeAsMilli;
         }
     }
 
-    private class TimeFutureOffsetFun implements Function1<Time, Time> {
-        private final Duration offset;
+    private class TimeFutureOffsetFun implements Function1<Long, Long> {
+        private final long offsetAsMilli;
 
-        private TimeFutureOffsetFun(Duration offset) {
-            this.offset = offset;
+        private TimeFutureOffsetFun(long offsetAsMilli) {
+            this.offsetAsMilli = offsetAsMilli;
         }
 
         @Override
-        public Time apply(Time time) {
-            return time.plus(offset);
+        public Long apply(Long timeAsMilli) {
+            return timeAsMilli + offsetAsMilli;
         }
     }
 
-    private class TimePastOffsetFun implements Function1<Time, Time> {
-        private final Duration offset;
+    private class TimePastOffsetFun implements Function1<Long, Long> {
+        private final long offsetAsMilli;
 
-        private TimePastOffsetFun(Duration offset) {
-            this.offset = offset;
+        private TimePastOffsetFun(long offsetAsMilli) {
+            this.offsetAsMilli = offsetAsMilli;
         }
 
         @Override
-        public Time apply(Time time) {
-            return time.minus(offset);
+        public Long apply(Long timeAsMilli) {
+            return timeAsMilli - offsetAsMilli;
         }
     }
 
-    private class TimeCompressionFun implements Function1<Time, Time> {
-        private final Double timeCompressionRatio;
-        private Time firstTime;
+    private class TimeCompressionFun implements Function1<Long, Long> {
+        private final double timeCompressionRatio;
+        private long firstTimeAsMilli;
 
-        private TimeCompressionFun(Double timeCompressionRatio, Time firstTime) {
+        private TimeCompressionFun(double timeCompressionRatio, long firstTimeAsMilli) {
             this.timeCompressionRatio = timeCompressionRatio;
-            this.firstTime = firstTime;
+            this.firstTimeAsMilli = firstTimeAsMilli;
         }
 
         @Override
-        public Time apply(Time time) {
-            long durationFromOriginalStartTimeAsNano = time.durationGreaterThan(firstTime).asNano();
-            long compressedDurationFromOriginalStartTimeIsNano = Math.round(durationFromOriginalStartTimeAsNano * timeCompressionRatio);
-            Duration compressedDurationFromOriginalStartTime = Duration.fromNano(compressedDurationFromOriginalStartTimeIsNano);
-            return firstTime.plus(compressedDurationFromOriginalStartTime);
+        public Long apply(Long timeAsMilli) {
+            long durationFromOriginalStartTimeAsMilli = timeAsMilli - firstTimeAsMilli;
+            long compressedDurationFromOriginalStartTimeAsMilli = Math.round(durationFromOriginalStartTimeAsMilli * timeCompressionRatio);
+            return firstTimeAsMilli + compressedDurationFromOriginalStartTimeAsMilli;
         }
     }
 

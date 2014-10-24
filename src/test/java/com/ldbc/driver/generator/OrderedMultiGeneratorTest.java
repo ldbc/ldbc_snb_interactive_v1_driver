@@ -1,6 +1,5 @@
 package com.ldbc.driver.generator;
 
-import com.ldbc.driver.temporal.Time;
 import org.junit.Test;
 
 import java.util.Comparator;
@@ -159,20 +158,19 @@ public class OrderedMultiGeneratorTest {
     public void shouldOrderTime() {
         // Given
         int generatorCount = 1000;
-        Iterator<Time>[] allGenerators = new Iterator[generatorCount];
+        Iterator<Long>[] allGenerators = new Iterator[generatorCount];
 
         // When
         for (int i = 0; i < generatorCount; i++) {
-            allGenerators[i] = generators.identity(
-                    Time.fromMilli(0), Time.fromMilli(1), Time.fromMilli(2), Time.fromMilli(3), Time.fromMilli(4), Time.fromMilli(5), Time.fromMilli(6), Time.fromMilli(7), Time.fromMilli(8), Time.fromMilli(9), Time.fromMilli(10));
+            allGenerators[i] = generators.identity(0l, 1l, 2l, 3l, 4l, 5l, 6l, 7l, 8l, 9l, 10l);
         }
-        Iterator<Time> orderedGenerator = generators.mergeSortNumbers(allGenerators);
+        Iterator<Long> orderedGenerator = generators.mergeSortNumbers(allGenerators);
 
         // Then
-        Time previous = Time.fromMilli(0);
+        long previous = 0l;
         while (orderedGenerator.hasNext()) {
-            Time current = orderedGenerator.next();
-            assertThat(current.gte(previous), is(true));
+            long current = orderedGenerator.next();
+            assertThat(current >= previous, is(true));
             previous = current;
         }
     }

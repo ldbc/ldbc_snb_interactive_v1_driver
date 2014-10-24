@@ -1,7 +1,5 @@
 package com.ldbc.driver.runtime.coordination;
 
-import com.ldbc.driver.temporal.Time;
-
 public class GlobalCompletionTimeStateManager implements
         LocalCompletionTimeWriter,
         ExternalCompletionTimeWriter,
@@ -25,34 +23,34 @@ public class GlobalCompletionTimeStateManager implements
 
 
     @Override
-    public void submitPeerCompletionTime(String peerId, Time peerCompletionTime) throws CompletionTimeException {
-        externalCompletionTimeWriter.submitPeerCompletionTime(peerId, peerCompletionTime);
+    public void submitPeerCompletionTime(String peerId, long peerCompletionTimeAsMilli) throws CompletionTimeException {
+        externalCompletionTimeWriter.submitPeerCompletionTime(peerId, peerCompletionTimeAsMilli);
     }
 
     @Override
-    public void submitLocalInitiatedTime(Time timeAsMilli) throws CompletionTimeException {
+    public void submitLocalInitiatedTime(long timeAsMilli) throws CompletionTimeException {
         localCompletionTimeWriter.submitLocalInitiatedTime(timeAsMilli);
     }
 
     @Override
-    public void submitLocalCompletedTime(Time timeAsMilli) throws CompletionTimeException {
+    public void submitLocalCompletedTime(long timeAsMilli) throws CompletionTimeException {
         localCompletionTimeWriter.submitLocalCompletedTime(timeAsMilli);
     }
 
     @Override
-    public Time globalCompletionTimeAsMilli() throws CompletionTimeException {
-        Time localCompletionTimeValue = localCompletionTimeReader.localCompletionTime();
-        if (null == localCompletionTimeValue)
+    public long globalCompletionTimeAsMilli() throws CompletionTimeException {
+        long localCompletionTimeValue = localCompletionTimeReader.localCompletionTimeAsMilli();
+        if (-1 == localCompletionTimeValue)
             // Until we know what our local completion time is there is no way of knowing what GCT is
-            return null;
+            return -1;
 
-        Time externalCompletionTimeValue = externalCompletionTimeReader.externalCompletionTime();
-        if (null == externalCompletionTimeValue)
+        long externalCompletionTimeValue = externalCompletionTimeReader.externalCompletionTimeAsMilli();
+        if (-1 == externalCompletionTimeValue)
             // One or more of our peers have not replied yet -> no way of knowing what GCT is
-            return null;
+            return -1;
 
         // Return min(localCompletionTime,externalCompletionTime)
-        return (localCompletionTimeValue.lt(externalCompletionTimeValue))
+        return (localCompletionTimeValue < externalCompletionTimeValue)
                 ? localCompletionTimeValue
                 : externalCompletionTimeValue;
     }

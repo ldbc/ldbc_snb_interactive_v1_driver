@@ -3,8 +3,6 @@ package com.ldbc.driver.generator;
 import com.google.common.base.Predicate;
 import com.ldbc.driver.Operation;
 import com.ldbc.driver.OperationHandler;
-import com.ldbc.driver.temporal.Duration;
-import com.ldbc.driver.temporal.Time;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -98,22 +96,22 @@ public interface Window<INPUT_TYPE, RETURN_TYPE> {
     }
 
     public static class OperationHandlerTimeRangeWindow implements Window<OperationHandler<?>, List<OperationHandler<?>>> {
-        private final Time windowStartTimeInclusive;
-        private final Time windowEndTimeExclusive;
+        private final long windowStartTimeInclusiveAsMilli;
+        private final long windowEndTimeExclusiveAsMilli;
         private final List<OperationHandler<?>> contents;
         private boolean isComplete;
 
-        public OperationHandlerTimeRangeWindow(Time windowStartTimeInclusive, Duration windowDuration) {
-            this.windowStartTimeInclusive = windowStartTimeInclusive;
-            this.windowEndTimeExclusive = windowStartTimeInclusive.plus(windowDuration);
+        public OperationHandlerTimeRangeWindow(long windowStartTimeInclusiveAsMilli, long windowDurationAsMilli) {
+            this.windowStartTimeInclusiveAsMilli = windowStartTimeInclusiveAsMilli;
+            this.windowEndTimeExclusiveAsMilli = windowStartTimeInclusiveAsMilli + windowDurationAsMilli;
             this.contents = new ArrayList<>();
             this.isComplete = false;
         }
 
         @Override
         public boolean add(OperationHandler<?> operationHandler) {
-            Time startTime = operationHandler.operation().scheduledStartTimeAsMilli();
-            if (startTime.gte(windowStartTimeInclusive) && startTime.lt(windowEndTimeExclusive)) {
+            long startTimeAsMilli = operationHandler.operation().scheduledStartTimeAsMilli();
+            if (startTimeAsMilli >= windowStartTimeInclusiveAsMilli && startTimeAsMilli < windowEndTimeExclusiveAsMilli) {
                 return contents.add(operationHandler);
             }
             isComplete = true;
@@ -130,32 +128,32 @@ public interface Window<INPUT_TYPE, RETURN_TYPE> {
             return isComplete;
         }
 
-        public Time windowStartTimeInclusive() {
-            return windowStartTimeInclusive;
+        public long windowStartTimeAsMilliInclusive() {
+            return windowStartTimeInclusiveAsMilli;
         }
 
-        public Time windowEndTimeExclusive() {
-            return windowEndTimeExclusive;
+        public long windowEndTimeAsMilliExclusive() {
+            return windowEndTimeExclusiveAsMilli;
         }
     }
 
     public static class OperationTimeRangeWindow implements Window<Operation<?>, List<Operation<?>>> {
-        private final Time windowStartTimeInclusive;
-        private final Time windowEndTimeExclusive;
+        private final long windowStartTimeAsMilliInclusive;
+        private final long windowEndTimeAsMilliExclusive;
         private final List<Operation<?>> contents;
         private boolean isComplete;
 
-        public OperationTimeRangeWindow(Time windowStartTimeInclusive, Duration windowDuration) {
-            this.windowStartTimeInclusive = windowStartTimeInclusive;
-            this.windowEndTimeExclusive = windowStartTimeInclusive.plus(windowDuration);
+        public OperationTimeRangeWindow(long windowStartTimeAsMilliInclusive, long windowDurationAsMilli) {
+            this.windowStartTimeAsMilliInclusive = windowStartTimeAsMilliInclusive;
+            this.windowEndTimeAsMilliExclusive = windowStartTimeAsMilliInclusive + windowDurationAsMilli;
             this.contents = new ArrayList<>();
             this.isComplete = false;
         }
 
         @Override
         public boolean add(Operation<?> operation) {
-            Time startTime = operation.scheduledStartTimeAsMilli();
-            if (startTime.gte(windowStartTimeInclusive) && startTime.lt(windowEndTimeExclusive)) {
+            long startTimeAsMilli = operation.scheduledStartTimeAsMilli();
+            if (startTimeAsMilli >= windowStartTimeAsMilliInclusive && startTimeAsMilli < windowEndTimeAsMilliExclusive) {
                 return contents.add(operation);
             }
             isComplete = true;
@@ -172,12 +170,12 @@ public interface Window<INPUT_TYPE, RETURN_TYPE> {
             return isComplete;
         }
 
-        public Time windowStartTimeInclusive() {
-            return windowStartTimeInclusive;
+        public long windowStartTimeAsMilliInclusive() {
+            return windowStartTimeAsMilliInclusive;
         }
 
-        public Time windowEndTimeExclusive() {
-            return windowEndTimeExclusive;
+        public long windowEndTimeAsMilliExclusive() {
+            return windowEndTimeAsMilliExclusive;
         }
     }
 }

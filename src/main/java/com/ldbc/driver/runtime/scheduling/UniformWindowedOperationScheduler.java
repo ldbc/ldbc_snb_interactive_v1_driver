@@ -2,33 +2,35 @@ package com.ldbc.driver.runtime.scheduling;
 
 import com.ldbc.driver.Operation;
 import com.ldbc.driver.generator.Window;
-import com.ldbc.driver.temporal.Duration;
-import com.ldbc.driver.temporal.Time;
+import com.ldbc.driver.temporal.TemporalUtil;
 
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 public class UniformWindowedOperationScheduler implements Scheduler<List<Operation<?>>, Window.OperationTimeRangeWindow> {
+    private final TemporalUtil temporalUtil = new TemporalUtil();
+
     @Override
     public List<Operation<?>> schedule(Window.OperationTimeRangeWindow window) {
         return assignUniformlyDistributedStartTimes(
                 window.contents(),
-                window.windowStartTimeInclusive(),
-                window.windowEndTimeExclusive());
+                window.windowStartTimeAsMilliInclusive(),
+                window.windowEndTimeAsMilliExclusive());
     }
 
     private List<Operation<?>> assignUniformlyDistributedStartTimes(List<Operation<?>> operationsInWindow,
-                                                                    Time windowStartTime,
-                                                                    Time windowEndTime) {
+                                                                    long windowStartTimeAsMilli,
+                                                                    long windowEndTimeAsMilli) {
         if (operationsInWindow.isEmpty())
             return operationsInWindow;
 
         double operationCount = operationsInWindow.size();
-        Duration windowSize = windowEndTime.durationGreaterThan(windowStartTime);
-        double operationInterleaveAsNano = windowSize.asNano() / operationCount;
+        long windowSizeAsMilli = windowEndTimeAsMilli - windowStartTimeAsMilli;
+        double operationInterleaveAsNano = temporalUtil.convert(windowSizeAsMilli, TimeUnit.MILLISECONDS, TimeUnit.NANOSECONDS) / operationCount;
         for (int i = 0; i < operationsInWindow.size(); i++) {
-            Duration durationFromWindowStartTime = Duration.fromNano(Math.round(Math.floor(operationInterleaveAsNano * i)));
-            Time uniformOperationStartTime = windowStartTime.plus(durationFromWindowStartTime);
-            operationsInWindow.get(i).setScheduledStartTimeAsMilli(uniformOperationStartTime);
+            long durationFromWindowStartTimeAsMilli = temporalUtil.convert(Math.round(Math.floor(operationInterleaveAsNano * i)), TimeUnit.NANOSECONDS, TimeUnit.MILLISECONDS);
+            long uniformOperationStartTimeAsMilli = windowStartTimeAsMilli + durationFromWindowStartTimeAsMilli;
+            operationsInWindow.get(i).setScheduledStartTimeAsMilli(uniformOperationStartTimeAsMilli);
         }
         return operationsInWindow;
     }

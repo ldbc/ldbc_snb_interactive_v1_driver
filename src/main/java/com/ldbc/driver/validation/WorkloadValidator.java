@@ -174,7 +174,7 @@ public class WorkloadValidator {
             // Interleaves do not exceed maximum
             if (null != previousOperationStartTime) {
                 Duration interleaveDuration = operationStartTime.durationGreaterThan(previousOperationStartTime);
-                if (interleaveDuration.gt(workloadPass2.maxExpectedInterleave()))
+                if (interleaveDuration.gt(workloadPass2.maxExpectedInterleaveAsMilli()))
                     return new WorkloadValidationResult(
                             ResultType.SCHEDULED_START_TIME_INTERVAL_EXCEEDS_MAXIMUM,
                             String.format(""
@@ -183,7 +183,7 @@ public class WorkloadValidator {
                                             + "  Current: %s",
                                     operationCount,
                                     interleaveDuration,
-                                    workloadPass2.maxExpectedInterleave(),
+                                    workloadPass2.maxExpectedInterleaveAsMilli(),
                                     previousOperation,
                                     operation));
             }
@@ -216,13 +216,13 @@ public class WorkloadValidator {
             // Interleaves by operation type do not exceed maximum
             ContinuousMetricManager operationInterleaveForOperationType = operationInterleavesByOperationType.get(operationType);
             if (null == operationInterleaveForOperationType) {
-                operationInterleaveForOperationType = new ContinuousMetricManager(null, null, workloadPass2.maxExpectedInterleave().asMilli(), 5);
+                operationInterleaveForOperationType = new ContinuousMetricManager(null, null, workloadPass2.maxExpectedInterleaveAsMilli().asMilli(), 5);
                 operationInterleavesByOperationType.put(operationType, operationInterleaveForOperationType);
             }
             Time previousOperationStartTimeByOperationType = previousOperationStartTimesByOperationType.get(operationType);
             if (null != previousOperationStartTimeByOperationType) {
                 Duration interleaveDuration = operationStartTime.durationGreaterThan(previousOperationStartTimeByOperationType);
-                if (interleaveDuration.gt(workloadPass2.maxExpectedInterleave()))
+                if (interleaveDuration.gt(workloadPass2.maxExpectedInterleaveAsMilli()))
                     return new WorkloadValidationResult(
                             ResultType.SCHEDULED_START_TIME_INTERVAL_EXCEEDS_MAXIMUM_FOR_OPERATION_TYPE,
                             String.format(""
@@ -232,7 +232,7 @@ public class WorkloadValidator {
                                     operationCount,
                                     operationType.getSimpleName(),
                                     interleaveDuration,
-                                    workloadPass2.maxExpectedInterleave(),
+                                    workloadPass2.maxExpectedInterleaveAsMilli(),
                                     previousOperationStartTimeByOperationType,
                                     operationStartTime));
             }

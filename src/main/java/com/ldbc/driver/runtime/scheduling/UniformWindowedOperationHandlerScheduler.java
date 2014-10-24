@@ -12,8 +12,8 @@ public class UniformWindowedOperationHandlerScheduler implements Scheduler<List<
     public List<OperationHandler<?>> schedule(Window.OperationHandlerTimeRangeWindow window) {
         return assignUniformlyDistributedStartTimes(
                 window.contents(),
-                window.windowStartTimeInclusive(),
-                window.windowEndTimeExclusive());
+                window.windowStartTimeAsMilliInclusive(),
+                window.windowEndTimeAsMilliExclusive());
     }
 
     private List<OperationHandler<?>> assignUniformlyDistributedStartTimes(List<OperationHandler<?>> operationHandlersInWindow,

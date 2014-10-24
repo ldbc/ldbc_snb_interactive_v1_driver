@@ -6,8 +6,7 @@ import com.google.common.collect.*;
 import com.ldbc.driver.*;
 import com.ldbc.driver.generator.CsvEventStreamReaderBasicCharSeeker;
 import com.ldbc.driver.generator.GeneratorFactory;
-import com.ldbc.driver.temporal.Duration;
-import com.ldbc.driver.temporal.Time;
+import com.ldbc.driver.temporal.TemporalUtil;
 import com.ldbc.driver.util.ClassLoaderHelper;
 import com.ldbc.driver.util.ClassLoadingException;
 import com.ldbc.driver.util.Tuple;
@@ -17,6 +16,7 @@ import org.codehaus.jackson.type.TypeReference;
 
 import java.io.*;
 import java.util.*;
+import java.util.concurrent.TimeUnit;
 
 public class LdbcSnbInteractiveWorkload extends Workload {
 
@@ -41,24 +41,24 @@ public class LdbcSnbInteractiveWorkload extends Workload {
     private File readOperation13File;
     private File readOperation14File;
 
-    private Duration readOperation1Interleave;
-    private Duration readOperation2Interleave;
-    private Duration readOperation3Interleave;
-    private Duration readOperation4Interleave;
-    private Duration readOperation5Interleave;
-    private Duration readOperation6Interleave;
-    private Duration readOperation7Interleave;
-    private Duration readOperation8Interleave;
-    private Duration readOperation9Interleave;
-    private Duration readOperation10Interleave;
-    private Duration readOperation11Interleave;
-    private Duration readOperation12Interleave;
-    private Duration readOperation13Interleave;
-    private Duration readOperation14Interleave;
+    private long readOperation1InterleaveAsMilli;
+    private long readOperation2InterleaveAsMilli;
+    private long readOperation3InterleaveAsMilli;
+    private long readOperation4InterleaveAsMilli;
+    private long readOperation5InterleaveAsMilli;
+    private long readOperation6InterleaveAsMilli;
+    private long readOperation7InterleaveAsMilli;
+    private long readOperation8InterleaveAsMilli;
+    private long readOperation9InterleaveAsMilli;
+    private long readOperation10InterleaveAsMilli;
+    private long readOperation11InterleaveAsMilli;
+    private long readOperation12InterleaveAsMilli;
+    private long readOperation13InterleaveAsMilli;
+    private long readOperation14InterleaveAsMilli;
 
     private Set<Class> enabledReadOperationTypes;
     private Set<Class<? extends Operation<?>>> enabledWriteOperationTypes;
-    private Duration safeTDuration;
+    private long safeTDurationAsMilli;
     private LdbcSnbInteractiveConfiguration.UpdateStreamParser parser;
 
     @Override
@@ -172,7 +172,7 @@ public class LdbcSnbInteractiveWorkload extends Workload {
                         String.format("Parameter %s must be provided when any updates are enabled", LdbcSnbInteractiveConfiguration.SAFE_T)
                 );
             }
-            safeTDuration = Duration.fromMilli(Long.parseLong(params.get(LdbcSnbInteractiveConfiguration.SAFE_T)));
+            safeTDurationAsMilli = Long.parseLong(params.get(LdbcSnbInteractiveConfiguration.SAFE_T));
         }
 
         List<String> frequencyKeys = Lists.newArrayList(LdbcSnbInteractiveConfiguration.READ_OPERATION_FREQUENCY_KEYS);
@@ -197,20 +197,20 @@ public class LdbcSnbInteractiveWorkload extends Workload {
         }
 
         try {
-            readOperation1Interleave = Duration.fromMilli(Long.parseLong(params.get(LdbcSnbInteractiveConfiguration.READ_OPERATION_1_INTERLEAVE_KEY)));
-            readOperation2Interleave = Duration.fromMilli(Long.parseLong(params.get(LdbcSnbInteractiveConfiguration.READ_OPERATION_2_INTERLEAVE_KEY)));
-            readOperation3Interleave = Duration.fromMilli(Long.parseLong(params.get(LdbcSnbInteractiveConfiguration.READ_OPERATION_3_INTERLEAVE_KEY)));
-            readOperation4Interleave = Duration.fromMilli(Long.parseLong(params.get(LdbcSnbInteractiveConfiguration.READ_OPERATION_4_INTERLEAVE_KEY)));
-            readOperation5Interleave = Duration.fromMilli(Long.parseLong(params.get(LdbcSnbInteractiveConfiguration.READ_OPERATION_5_INTERLEAVE_KEY)));
-            readOperation6Interleave = Duration.fromMilli(Long.parseLong(params.get(LdbcSnbInteractiveConfiguration.READ_OPERATION_6_INTERLEAVE_KEY)));
-            readOperation7Interleave = Duration.fromMilli(Long.parseLong(params.get(LdbcSnbInteractiveConfiguration.READ_OPERATION_7_INTERLEAVE_KEY)));
-            readOperation8Interleave = Duration.fromMilli(Long.parseLong(params.get(LdbcSnbInteractiveConfiguration.READ_OPERATION_8_INTERLEAVE_KEY)));
-            readOperation9Interleave = Duration.fromMilli(Long.parseLong(params.get(LdbcSnbInteractiveConfiguration.READ_OPERATION_9_INTERLEAVE_KEY)));
-            readOperation10Interleave = Duration.fromMilli(Long.parseLong(params.get(LdbcSnbInteractiveConfiguration.READ_OPERATION_10_INTERLEAVE_KEY)));
-            readOperation11Interleave = Duration.fromMilli(Long.parseLong(params.get(LdbcSnbInteractiveConfiguration.READ_OPERATION_11_INTERLEAVE_KEY)));
-            readOperation12Interleave = Duration.fromMilli(Long.parseLong(params.get(LdbcSnbInteractiveConfiguration.READ_OPERATION_12_INTERLEAVE_KEY)));
-            readOperation13Interleave = Duration.fromMilli(Long.parseLong(params.get(LdbcSnbInteractiveConfiguration.READ_OPERATION_13_INTERLEAVE_KEY)));
-            readOperation14Interleave = Duration.fromMilli(Long.parseLong(params.get(LdbcSnbInteractiveConfiguration.READ_OPERATION_14_INTERLEAVE_KEY)));
+            readOperation1InterleaveAsMilli = Long.parseLong(params.get(LdbcSnbInteractiveConfiguration.READ_OPERATION_1_INTERLEAVE_KEY));
+            readOperation2InterleaveAsMilli = Long.parseLong(params.get(LdbcSnbInteractiveConfiguration.READ_OPERATION_2_INTERLEAVE_KEY));
+            readOperation3InterleaveAsMilli = Long.parseLong(params.get(LdbcSnbInteractiveConfiguration.READ_OPERATION_3_INTERLEAVE_KEY));
+            readOperation4InterleaveAsMilli = Long.parseLong(params.get(LdbcSnbInteractiveConfiguration.READ_OPERATION_4_INTERLEAVE_KEY));
+            readOperation5InterleaveAsMilli = Long.parseLong(params.get(LdbcSnbInteractiveConfiguration.READ_OPERATION_5_INTERLEAVE_KEY));
+            readOperation6InterleaveAsMilli = Long.parseLong(params.get(LdbcSnbInteractiveConfiguration.READ_OPERATION_6_INTERLEAVE_KEY));
+            readOperation7InterleaveAsMilli = Long.parseLong(params.get(LdbcSnbInteractiveConfiguration.READ_OPERATION_7_INTERLEAVE_KEY));
+            readOperation8InterleaveAsMilli = Long.parseLong(params.get(LdbcSnbInteractiveConfiguration.READ_OPERATION_8_INTERLEAVE_KEY));
+            readOperation9InterleaveAsMilli = Long.parseLong(params.get(LdbcSnbInteractiveConfiguration.READ_OPERATION_9_INTERLEAVE_KEY));
+            readOperation10InterleaveAsMilli = Long.parseLong(params.get(LdbcSnbInteractiveConfiguration.READ_OPERATION_10_INTERLEAVE_KEY));
+            readOperation11InterleaveAsMilli = Long.parseLong(params.get(LdbcSnbInteractiveConfiguration.READ_OPERATION_11_INTERLEAVE_KEY));
+            readOperation12InterleaveAsMilli = Long.parseLong(params.get(LdbcSnbInteractiveConfiguration.READ_OPERATION_12_INTERLEAVE_KEY));
+            readOperation13InterleaveAsMilli = Long.parseLong(params.get(LdbcSnbInteractiveConfiguration.READ_OPERATION_13_INTERLEAVE_KEY));
+            readOperation14InterleaveAsMilli = Long.parseLong(params.get(LdbcSnbInteractiveConfiguration.READ_OPERATION_14_INTERLEAVE_KEY));
         } catch (NumberFormatException e) {
             throw new WorkloadException("Unable to parse one of the read operation interleave values", e);
         }
@@ -264,7 +264,7 @@ public class LdbcSnbInteractiveWorkload extends Workload {
 
     @Override
     protected WorkloadStreams getStreams(GeneratorFactory gf) throws WorkloadException {
-        Time workloadStartTime = null;
+        long workloadStartTimeAsMilli = Long.MAX_VALUE;
         WorkloadStreams ldbcSnbInteractiveWorkloadStreams = new WorkloadStreams();
         List<Iterator<?>> asynchronousDependencyStreamsList = new ArrayList<>();
         List<Iterator<?>> asynchronousNonDependencyStreamsList = new ArrayList<>();
@@ -293,8 +293,8 @@ public class LdbcSnbInteractiveWorkload extends Workload {
             PeekingIterator<Operation<?>> unfilteredForumUpdateOperations = Iterators.peekingIterator(forumUpdateOperationsParser);
 
             try {
-                if (null == workloadStartTime || unfilteredForumUpdateOperations.peek().scheduledStartTimeAsMilli().lt(workloadStartTime)) {
-                    workloadStartTime = unfilteredForumUpdateOperations.peek().scheduledStartTimeAsMilli();
+                if (unfilteredForumUpdateOperations.peek().scheduledStartTimeAsMilli() < workloadStartTimeAsMilli) {
+                    workloadStartTimeAsMilli = unfilteredForumUpdateOperations.peek().scheduledStartTimeAsMilli();
                 }
             } catch (NoSuchElementException e) {
                 // do nothing, exception just means that stream was empty
@@ -310,7 +310,7 @@ public class LdbcSnbInteractiveWorkload extends Workload {
             Iterator<Operation<?>> filteredForumUpdateOperations = Iterators.filter(unfilteredForumUpdateOperations, enabledWriteOperationsFilter);
             Iterator<Operation<?>> filteredForumUpdateOperationsWithDependencyTimes = gf.assignDependencyTimesEqualToScheduledStartTimeMinusSafeT(
                     filteredForumUpdateOperations,
-                    safeTDuration
+                    safeTDurationAsMilli
             );
 
             Set<Class<? extends Operation<?>>> dependentForumUpdateOperationTypes = Sets.<Class<? extends Operation<?>>>newHashSet(
@@ -341,8 +341,8 @@ public class LdbcSnbInteractiveWorkload extends Workload {
             PeekingIterator<Operation<?>> unfilteredPersonUpdateOperations = Iterators.peekingIterator(personUpdateOperationsParser);
 
             try {
-                if (null == workloadStartTime || unfilteredPersonUpdateOperations.peek().scheduledStartTimeAsMilli().lt(workloadStartTime)) {
-                    workloadStartTime = unfilteredPersonUpdateOperations.peek().scheduledStartTimeAsMilli();
+                if (unfilteredPersonUpdateOperations.peek().scheduledStartTimeAsMilli() < workloadStartTimeAsMilli) {
+                    workloadStartTimeAsMilli = unfilteredPersonUpdateOperations.peek().scheduledStartTimeAsMilli();
                 }
             } catch (NoSuchElementException e) {
                 // do nothing, exception just means that stream was empty
@@ -358,7 +358,7 @@ public class LdbcSnbInteractiveWorkload extends Workload {
             Iterator<Operation<?>> filteredPersonUpdateOperations = Iterators.filter(unfilteredPersonUpdateOperations, enabledWriteOperationsFilter);
             Iterator<Operation<?>> filteredPersonUpdateOperationsWithDependencyTimes = gf.assignDependencyTimesEqualToScheduledStartTimeMinusSafeT(
                     filteredPersonUpdateOperations,
-                    safeTDuration
+                    safeTDurationAsMilli
             );
 
             Set<Class<? extends Operation<?>>> dependentPersonUpdateOperationTypes = Sets.<Class<? extends Operation<?>>>newHashSet(
@@ -372,7 +372,7 @@ public class LdbcSnbInteractiveWorkload extends Workload {
             );
         }
 
-        if (null == workloadStartTime) workloadStartTime = Time.fromMilli(0);
+        if (Long.MAX_VALUE == workloadStartTimeAsMilli) workloadStartTimeAsMilli = 0;
 
         /* *******
          * *******
@@ -420,10 +420,10 @@ public class LdbcSnbInteractiveWorkload extends Workload {
                     )
             );
 
-            Iterator<Time> operation1StartTimes = gf.constantIncrementTime(workloadStartTime.plus(readOperation1Interleave), readOperation1Interleave);
+            Iterator<Long> operation1StartTimes = gf.incrementing(workloadStartTimeAsMilli + readOperation1InterleaveAsMilli, readOperation1InterleaveAsMilli);
 
             readOperation1Stream = gf.assignDependencyTimes(
-                    gf.constant(workloadStartTime),
+                    gf.constant(workloadStartTimeAsMilli),
                     gf.assignStartTimes(
                             operation1StartTimes,
                             operation1StreamWithoutTimes
@@ -464,10 +464,10 @@ public class LdbcSnbInteractiveWorkload extends Workload {
                     )
             );
 
-            Iterator<Time> operation2StartTimes = gf.constantIncrementTime(workloadStartTime.plus(readOperation2Interleave), readOperation2Interleave);
+            Iterator<Long> operation2StartTimes = gf.incrementing(workloadStartTimeAsMilli + readOperation2InterleaveAsMilli, readOperation2InterleaveAsMilli);
 
             readOperation2Stream = gf.assignDependencyTimes(
-                    gf.constant(workloadStartTime),
+                    gf.constant(workloadStartTimeAsMilli),
                     gf.assignStartTimes(
                             operation2StartTimes,
                             operation2StreamWithoutTimes
@@ -511,10 +511,10 @@ public class LdbcSnbInteractiveWorkload extends Workload {
                     )
             );
 
-            Iterator<Time> operation3StartTimes = gf.constantIncrementTime(workloadStartTime.plus(readOperation3Interleave), readOperation3Interleave);
+            Iterator<Long> operation3StartTimes = gf.incrementing(workloadStartTimeAsMilli + readOperation3InterleaveAsMilli, readOperation3InterleaveAsMilli);
 
             readOperation3Stream = gf.assignDependencyTimes(
-                    gf.constant(workloadStartTime),
+                    gf.constant(workloadStartTimeAsMilli),
                     gf.assignStartTimes(
                             operation3StartTimes,
                             operation3StreamWithoutTimes
@@ -556,10 +556,10 @@ public class LdbcSnbInteractiveWorkload extends Workload {
                     )
             );
 
-            Iterator<Time> operation4StartTimes = gf.constantIncrementTime(workloadStartTime.plus(readOperation4Interleave), readOperation4Interleave);
+            Iterator<Long> operation4StartTimes = gf.incrementing(workloadStartTimeAsMilli + readOperation4InterleaveAsMilli, readOperation4InterleaveAsMilli);
 
             readOperation4Stream = gf.assignDependencyTimes(
-                    gf.constant(workloadStartTime),
+                    gf.constant(workloadStartTimeAsMilli),
                     gf.assignStartTimes(
                             operation4StartTimes,
                             operation4StreamWithoutTimes
@@ -600,10 +600,10 @@ public class LdbcSnbInteractiveWorkload extends Workload {
                     )
             );
 
-            Iterator<Time> operation5StartTimes = gf.constantIncrementTime(workloadStartTime.plus(readOperation5Interleave), readOperation5Interleave);
+            Iterator<Long> operation5StartTimes = gf.incrementing(workloadStartTimeAsMilli + readOperation5InterleaveAsMilli, readOperation5InterleaveAsMilli);
 
             readOperation5Stream = gf.assignDependencyTimes(
-                    gf.constant(workloadStartTime),
+                    gf.constant(workloadStartTimeAsMilli),
                     gf.assignStartTimes(
                             operation5StartTimes,
                             operation5StreamWithoutTimes
@@ -644,10 +644,10 @@ public class LdbcSnbInteractiveWorkload extends Workload {
                     )
             );
 
-            Iterator<Time> operation6StartTimes = gf.constantIncrementTime(workloadStartTime.plus(readOperation6Interleave), readOperation6Interleave);
+            Iterator<Long> operation6StartTimes = gf.incrementing(workloadStartTimeAsMilli + readOperation6InterleaveAsMilli, readOperation6InterleaveAsMilli);
 
             readOperation6Stream = gf.assignDependencyTimes(
-                    gf.constant(workloadStartTime),
+                    gf.constant(workloadStartTimeAsMilli),
                     gf.assignStartTimes(
                             operation6StartTimes,
                             operation6StreamWithoutTimes
@@ -687,10 +687,10 @@ public class LdbcSnbInteractiveWorkload extends Workload {
                     )
             );
 
-            Iterator<Time> operation7StartTimes = gf.constantIncrementTime(workloadStartTime.plus(readOperation7Interleave), readOperation7Interleave);
+            Iterator<Long> operation7StartTimes = gf.incrementing(workloadStartTimeAsMilli + readOperation7InterleaveAsMilli, readOperation7InterleaveAsMilli);
 
             readOperation7Stream = gf.assignDependencyTimes(
-                    gf.constant(workloadStartTime),
+                    gf.constant(workloadStartTimeAsMilli),
                     gf.assignStartTimes(
                             operation7StartTimes,
                             operation7StreamWithoutTimes
@@ -730,10 +730,10 @@ public class LdbcSnbInteractiveWorkload extends Workload {
                     )
             );
 
-            Iterator<Time> operation8StartTimes = gf.constantIncrementTime(workloadStartTime.plus(readOperation8Interleave), readOperation8Interleave);
+            Iterator<Long> operation8StartTimes = gf.incrementing(workloadStartTimeAsMilli + readOperation8InterleaveAsMilli, readOperation8InterleaveAsMilli);
 
             readOperation8Stream = gf.assignDependencyTimes(
-                    gf.constant(workloadStartTime),
+                    gf.constant(workloadStartTimeAsMilli),
                     gf.assignStartTimes(
                             operation8StartTimes,
                             operation8StreamWithoutTimes
@@ -774,10 +774,10 @@ public class LdbcSnbInteractiveWorkload extends Workload {
                     )
             );
 
-            Iterator<Time> operation9StartTimes = gf.constantIncrementTime(workloadStartTime.plus(readOperation9Interleave), readOperation9Interleave);
+            Iterator<Long> operation9StartTimes = gf.incrementing(workloadStartTimeAsMilli + readOperation9InterleaveAsMilli, readOperation9InterleaveAsMilli);
 
             readOperation9Stream = gf.assignDependencyTimes(
-                    gf.constant(workloadStartTime),
+                    gf.constant(workloadStartTimeAsMilli),
                     gf.assignStartTimes(
                             operation9StartTimes,
                             operation9StreamWithoutTimes
@@ -818,10 +818,10 @@ public class LdbcSnbInteractiveWorkload extends Workload {
                     )
             );
 
-            Iterator<Time> operation10StartTimes = gf.constantIncrementTime(workloadStartTime.plus(readOperation10Interleave), readOperation10Interleave);
+            Iterator<Long> operation10StartTimes = gf.incrementing(workloadStartTimeAsMilli + readOperation10InterleaveAsMilli, readOperation10InterleaveAsMilli);
 
             readOperation10Stream = gf.assignDependencyTimes(
-                    gf.constant(workloadStartTime),
+                    gf.constant(workloadStartTimeAsMilli),
                     gf.assignStartTimes(
                             operation10StartTimes,
                             operation10StreamWithoutTimes
@@ -863,10 +863,10 @@ public class LdbcSnbInteractiveWorkload extends Workload {
                     )
             );
 
-            Iterator<Time> operation11StartTimes = gf.constantIncrementTime(workloadStartTime.plus(readOperation11Interleave), readOperation11Interleave);
+            Iterator<Long> operation11StartTimes = gf.incrementing(workloadStartTimeAsMilli + readOperation11InterleaveAsMilli, readOperation11InterleaveAsMilli);
 
             readOperation11Stream = gf.assignDependencyTimes(
-                    gf.constant(workloadStartTime),
+                    gf.constant(workloadStartTimeAsMilli),
                     gf.assignStartTimes(
                             operation11StartTimes,
                             operation11StreamWithoutTimes
@@ -907,10 +907,10 @@ public class LdbcSnbInteractiveWorkload extends Workload {
                     )
             );
 
-            Iterator<Time> operation12StartTimes = gf.constantIncrementTime(workloadStartTime.plus(readOperation12Interleave), readOperation12Interleave);
+            Iterator<Long> operation12StartTimes = gf.incrementing(workloadStartTimeAsMilli + readOperation12InterleaveAsMilli, readOperation12InterleaveAsMilli);
 
             readOperation12Stream = gf.assignDependencyTimes(
-                    gf.constant(workloadStartTime),
+                    gf.constant(workloadStartTimeAsMilli),
                     gf.assignStartTimes(
                             operation12StartTimes,
                             operation12StreamWithoutTimes
@@ -951,10 +951,10 @@ public class LdbcSnbInteractiveWorkload extends Workload {
                     )
             );
 
-            Iterator<Time> operation13StartTimes = gf.constantIncrementTime(workloadStartTime.plus(readOperation13Interleave), readOperation13Interleave);
+            Iterator<Long> operation13StartTimes = gf.incrementing(workloadStartTimeAsMilli + readOperation13InterleaveAsMilli, readOperation13InterleaveAsMilli);
 
             readOperation13Stream = gf.assignDependencyTimes(
-                    gf.constant(workloadStartTime),
+                    gf.constant(workloadStartTimeAsMilli),
                     gf.assignStartTimes(
                             operation13StartTimes,
                             operation13StreamWithoutTimes
@@ -995,10 +995,10 @@ public class LdbcSnbInteractiveWorkload extends Workload {
                     )
             );
 
-            Iterator<Time> operation14StartTimes = gf.constantIncrementTime(workloadStartTime.plus(readOperation14Interleave), readOperation14Interleave);
+            Iterator<Long> operation14StartTimes = gf.incrementing(workloadStartTimeAsMilli + readOperation14InterleaveAsMilli, readOperation14InterleaveAsMilli);
 
             readOperation14Stream = gf.assignDependencyTimes(
-                    gf.constant(workloadStartTime),
+                    gf.constant(workloadStartTimeAsMilli),
                     gf.assignStartTimes(
                             operation14StartTimes,
                             operation14StreamWithoutTimes
@@ -1137,8 +1137,9 @@ public class LdbcSnbInteractiveWorkload extends Workload {
     }
 
     @Override
-    public Duration maxExpectedInterleave() {
-        return Duration.fromHours(1);
+    public long maxExpectedInterleaveAsMilli() {
+        TemporalUtil temporalUtil = new TemporalUtil();
+        return temporalUtil.convert(1, TimeUnit.HOURS, TimeUnit.MILLISECONDS);
     }
 
     private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();

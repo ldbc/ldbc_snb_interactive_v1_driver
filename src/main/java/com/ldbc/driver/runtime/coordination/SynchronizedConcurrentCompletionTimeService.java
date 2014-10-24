@@ -1,7 +1,5 @@
 package com.ldbc.driver.runtime.coordination;
 
-import com.ldbc.driver.temporal.Time;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
@@ -54,45 +52,45 @@ public class SynchronizedConcurrentCompletionTimeService implements ConcurrentCo
     }
 
     @Override
-    public Future<Time> globalCompletionTimeFuture() throws CompletionTimeException {
-        return (GlobalCompletionTimeFuture) processEvent(Event.READ_FUTURE_GLOBAL_COMPLETION_TIME, null, null);
+    public Future<Long> globalCompletionTimeAsMilliFuture() throws CompletionTimeException {
+        return (GlobalCompletionTimeAsMilliFuture) processEvent(Event.READ_FUTURE_GLOBAL_COMPLETION_TIME, null, -1);
     }
 
     @Override
     public List<LocalCompletionTimeWriter> getAllWriters() throws CompletionTimeException {
-        return (List<LocalCompletionTimeWriter>) processEvent(Event.GET_ALL_WRITERS, null, null);
+        return (List<LocalCompletionTimeWriter>) processEvent(Event.GET_ALL_WRITERS, null, -1);
     }
 
     @Override
-    public Time globalCompletionTimeAsMilli() throws CompletionTimeException {
-        return (Time) processEvent(Event.READ_GLOBAL_COMPLETION_TIME, null, null);
+    public long globalCompletionTimeAsMilli() throws CompletionTimeException {
+        return (long) processEvent(Event.READ_GLOBAL_COMPLETION_TIME, null, -1);
     }
 
     @Override
     public LocalCompletionTimeWriter newLocalCompletionTimeWriter() throws CompletionTimeException {
-        return (LocalCompletionTimeWriter) processEvent(Event.CREATE_NEW_LOCAL_COMPLETION_TIME_WRITER, null, null);
+        return (LocalCompletionTimeWriter) processEvent(Event.CREATE_NEW_LOCAL_COMPLETION_TIME_WRITER, null, -1);
     }
 
     @Override
-    public void submitPeerCompletionTime(String peerId, Time time) throws CompletionTimeException {
-        processEvent(Event.WRITE_EXTERNAL_COMPLETION_TIME, peerId, time);
+    public void submitPeerCompletionTime(String peerId, long timeAsMilli) throws CompletionTimeException {
+        processEvent(Event.WRITE_EXTERNAL_COMPLETION_TIME, peerId, timeAsMilli);
     }
 
     @Override
     public void shutdown() throws CompletionTimeException {
     }
 
-    private Object processEvent(Event event, String peerId, Time time) throws CompletionTimeException {
+    private Object processEvent(Event event, String peerId, long timeAsMilli) throws CompletionTimeException {
         synchronized (globalCompletionTimeStateManager) {
             switch (event) {
                 case READ_GLOBAL_COMPLETION_TIME: {
                     return globalCompletionTimeStateManager.globalCompletionTimeAsMilli();
                 }
                 case READ_FUTURE_GLOBAL_COMPLETION_TIME: {
-                    return new GlobalCompletionTimeFuture(globalCompletionTimeStateManager.globalCompletionTimeAsMilli());
+                    return new GlobalCompletionTimeAsMilliFuture(globalCompletionTimeStateManager.globalCompletionTimeAsMilli());
                 }
                 case WRITE_EXTERNAL_COMPLETION_TIME: {
-                    globalCompletionTimeStateManager.submitPeerCompletionTime(peerId, time);
+                    globalCompletionTimeStateManager.submitPeerCompletionTime(peerId, timeAsMilli);
                     return null;
                 }
                 case CREATE_NEW_LOCAL_COMPLETION_TIME_WRITER: {
@@ -110,11 +108,11 @@ public class SynchronizedConcurrentCompletionTimeService implements ConcurrentCo
         }
     }
 
-    private static class GlobalCompletionTimeFuture implements Future<Time> {
-        private final Time globalCompletionTimeValue;
+    private static class GlobalCompletionTimeAsMilliFuture implements Future<Long> {
+        private final long globalCompletionTimeValueAsMilli;
 
-        public GlobalCompletionTimeFuture(Time globalCompletionTimeValue) {
-            this.globalCompletionTimeValue = globalCompletionTimeValue;
+        public GlobalCompletionTimeAsMilliFuture(long globalCompletionTimeValueAsMilli) {
+            this.globalCompletionTimeValueAsMilli = globalCompletionTimeValueAsMilli;
         }
 
         @Override
@@ -133,13 +131,13 @@ public class SynchronizedConcurrentCompletionTimeService implements ConcurrentCo
         }
 
         @Override
-        public Time get() {
-            return globalCompletionTimeValue;
+        public Long get() {
+            return globalCompletionTimeValueAsMilli;
         }
 
         @Override
-        public Time get(long timeout, TimeUnit unit) {
-            return globalCompletionTimeValue;
+        public Long get(long timeout, TimeUnit unit) {
+            return globalCompletionTimeValueAsMilli;
         }
     }
 }

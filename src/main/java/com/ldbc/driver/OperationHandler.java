@@ -8,8 +8,6 @@ import com.ldbc.driver.runtime.metrics.MetricsCollectionException;
 import com.ldbc.driver.runtime.scheduling.MultiCheck;
 import com.ldbc.driver.runtime.scheduling.Spinner;
 import com.ldbc.driver.runtime.scheduling.SpinnerCheck;
-import com.ldbc.driver.temporal.Duration;
-import com.ldbc.driver.temporal.Time;
 import com.ldbc.driver.temporal.TimeSource;
 import com.ldbc.driver.util.Function0;
 import stormpot.Poolable;
@@ -102,16 +100,15 @@ public abstract class OperationHandler<OPERATION_TYPE extends Operation<?>> impl
                 // Spinner result indicates operation should not be processed
                 return;
             }
-
-            long actualStartTime = timeSource.nowAsMilli();
-            long startOfLatencyMeasurement = timeSource.nanoSnapshot();
+            long actualStartTimeAsMilli = timeSource.nowAsMilli();
+            long startOfLatencyMeasurementAsNano = timeSource.nanoSnapshot();
             OperationResultReport operationResultReport = executeOperation(operation);
-            long endOfLatencyMeasurement = timeSource.nanoSnapshot();
+            long endOfLatencyMeasurementAsNano = timeSource.nanoSnapshot();
             if (null == operationResultReport) {
                 throw new DbException(String.format("Handler returned null result:\n %s", toString()));
             }
-            operationResultReport.setRunDurationAsNano(Duration.fromNano(endOfLatencyMeasurement - startOfLatencyMeasurement));
-            operationResultReport.setActualStartTimeAsMilli(Time.fromMilli(actualStartTime));
+            operationResultReport.setRunDurationAsNano(endOfLatencyMeasurementAsNano - startOfLatencyMeasurementAsNano);
+            operationResultReport.setActualStartTimeAsMilli(actualStartTimeAsMilli);
             localCompletionTimeWriter.submitLocalCompletedTime(operation.scheduledStartTimeAsMilli());
             metricsService.submitOperationResult(operationResultReport);
         } catch (DbException e) {

@@ -2,14 +2,16 @@ package com.ldbc.driver;
 
 import com.ldbc.driver.control.DriverConfiguration;
 import com.ldbc.driver.generator.GeneratorFactory;
-import com.ldbc.driver.temporal.Duration;
+import com.ldbc.driver.temporal.TemporalUtil;
 
 import java.io.Closeable;
 import java.io.IOException;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 public abstract class Workload implements Closeable {
-    public static final Duration DEFAULT_MAXIMUM_EXPECTED_INTERLEAVE = Duration.fromMinutes(60);
+    private static final TemporalUtil TEMPORAL_UTIL = new TemporalUtil();
+    public static final long DEFAULT_MAXIMUM_EXPECTED_INTERLEAVE_AS_MILLI = TEMPORAL_UTIL.convert(1, TimeUnit.HOURS, TimeUnit.MILLISECONDS);
 
     private boolean isInitialized = false;
     private boolean isClosed = false;
@@ -65,8 +67,8 @@ public abstract class Workload implements Closeable {
         };
     }
 
-    public Duration maxExpectedInterleave() {
-        return DEFAULT_MAXIMUM_EXPECTED_INTERLEAVE;
+    public long maxExpectedInterleaveAsMilli() {
+        return DEFAULT_MAXIMUM_EXPECTED_INTERLEAVE_AS_MILLI;
     }
 
     public abstract String serializeOperation(Operation<?> operation) throws SerializingMarshallingException;

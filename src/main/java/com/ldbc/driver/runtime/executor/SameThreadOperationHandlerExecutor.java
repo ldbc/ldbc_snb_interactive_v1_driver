@@ -1,7 +1,6 @@
 package com.ldbc.driver.runtime.executor;
 
 import com.ldbc.driver.OperationHandler;
-import com.ldbc.driver.temporal.Duration;
 
 import java.util.concurrent.atomic.AtomicLong;
 
@@ -18,7 +17,7 @@ public class SameThreadOperationHandlerExecutor implements OperationHandlerExecu
     }
 
     @Override
-    synchronized public final void shutdown(Duration waitAsMilli) throws OperationHandlerExecutorException {
+    synchronized public final void shutdown(long waitAsMilli) throws OperationHandlerExecutorException {
     }
 
     @Override

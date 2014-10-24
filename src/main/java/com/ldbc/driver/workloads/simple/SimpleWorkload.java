@@ -8,8 +8,6 @@ import com.ldbc.driver.WorkloadException;
 import com.ldbc.driver.WorkloadStreams;
 import com.ldbc.driver.generator.GeneratorFactory;
 import com.ldbc.driver.generator.MinMaxGenerator;
-import com.ldbc.driver.temporal.Duration;
-import com.ldbc.driver.temporal.Time;
 import com.ldbc.driver.util.Tuple;
 import com.ldbc.driver.util.Tuple.Tuple2;
 import com.ldbc.driver.util.Tuple.Tuple3;
@@ -42,7 +40,7 @@ public class SimpleWorkload extends Workload {
 
     @Override
     public WorkloadStreams getStreams(GeneratorFactory gf) throws WorkloadException {
-        Time workloadStartTime = Time.fromMilli(0);
+        long workloadStartTimeAsMilli = 0;
 
         /**
          * **************************
@@ -171,14 +169,14 @@ public class SimpleWorkload extends Workload {
         // iterates initialInsertOperationGenerator before starting with transactionalInsertOperationGenerator
         Iterator<Operation<?>> workloadOperations = Iterators.concat(initialInsertOperationGenerator, transactionalOperationGenerator);
 
-        Iterator<Time> startTimes = gf.constantIncrementTime(workloadStartTime.plus(Duration.fromMilli(1)), Duration.fromMilli(100));
-        Iterator<Time> dependencyTimes = gf.constant(workloadStartTime);
+        Iterator<Long> startTimesAsMilli = gf.incrementing(workloadStartTimeAsMilli + 1, 100l);
+        Iterator<Long> dependencyTimesAsMilli = gf.constant(workloadStartTimeAsMilli);
 
         WorkloadStreams workloadStreams = new WorkloadStreams();
         workloadStreams.setAsynchronousStream(
                 Sets.<Class<? extends Operation<?>>>newHashSet(),
                 Collections.<Operation<?>>emptyIterator(),
-                gf.assignDependencyTimes(dependencyTimes, gf.assignStartTimes(startTimes, workloadOperations)));
+                gf.assignDependencyTimes(dependencyTimesAsMilli, gf.assignStartTimes(startTimesAsMilli, workloadOperations)));
         return workloadStreams;
     }
 

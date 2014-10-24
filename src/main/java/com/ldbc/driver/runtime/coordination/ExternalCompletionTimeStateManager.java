@@ -23,29 +23,29 @@ public class ExternalCompletionTimeStateManager implements ExternalCompletionTim
     }
 
     @Override
-    public void submitPeerCompletionTime(String peerId, Time peerCompletionTime) throws CompletionTimeException {
+    public void submitPeerCompletionTime(String peerId, Time timeAsMilli) throws CompletionTimeException {
         if (null == peerId)
             throw new CompletionTimeException("Peer ID can not be null");
-        if (null == peerCompletionTime)
+        if (null == timeAsMilli)
             throw new CompletionTimeException("Completion time can not be null");
         if (false == peerCompletionTimes.containsKey(peerId))
             throw new CompletionTimeException(String.format("Unrecognized peer ID: %s", peerId));
         Time previousPeerCompletionTime = peerCompletionTimes.get(peerId);
-        if (null != previousPeerCompletionTime && peerCompletionTime.lt(previousPeerCompletionTime))
+        if (null != previousPeerCompletionTime && timeAsMilli.lt(previousPeerCompletionTime))
             throw new CompletionTimeException(
                     String.format(
                             "Completion Time received from Peer(%s) is not monotonically increasing\n"
                                     + "  Previous Completion Time: %s\n"
                                     + "  Current Completion Time: %s",
                             peerId,
-                            peerCompletionTime,
+                            timeAsMilli,
                             previousPeerCompletionTime));
         notModifiedSinceLastGet = false;
-        peerCompletionTimes.put(peerId, peerCompletionTime);
+        peerCompletionTimes.put(peerId, timeAsMilli);
     }
 
     @Override
-    public Time externalCompletionTime() {
+    public Time externalCompletionTimeAsMilli() {
         if (notModifiedSinceLastGet)
             return completionTime;
 

@@ -2,14 +2,14 @@ package com.ldbc.driver.runtime.coordination;
 
 import com.ldbc.driver.runtime.ConcurrentErrorReporter;
 import com.ldbc.driver.runtime.QueueEventFetcher;
-import com.ldbc.driver.temporal.Time;
+import com.ldbc.driver.temporal.TemporalUtil;
 
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Queue;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.concurrent.atomic.AtomicReference;
+import java.util.concurrent.atomic.AtomicLong;
 
 public class ThreadedQueuedConcurrentCompletionTimeServiceThread extends Thread {
 
@@ -24,9 +24,10 @@ public class ThreadedQueuedConcurrentCompletionTimeServiceThread extends Thread 
      * - shared memory READS/WRITES can later be converted req/resp messages between actors
      */
 
+    private final TemporalUtil temporalUtil = new TemporalUtil();
     private final GlobalCompletionTimeStateManager globalCompletionTimeStateManager;
     private final MultiWriterLocalCompletionTimeConcurrentStateManager localCompletionTimeConcurrentStateManager;
-    private final AtomicReference<Time> globalCompletionTimeSharedReference;
+    private final AtomicLong globalCompletionTimeSharedReference;
     private final QueueEventFetcher<CompletionTimeEvent> completionTimeEventQueueEventFetcher;
     private final ConcurrentErrorReporter errorReporter;
     private Long processedWriteEventCount = 0l;
@@ -37,7 +38,7 @@ public class ThreadedQueuedConcurrentCompletionTimeServiceThread extends Thread 
     ThreadedQueuedConcurrentCompletionTimeServiceThread(Queue<CompletionTimeEvent> completionTimeQueue,
                                                         ConcurrentErrorReporter errorReporter,
                                                         Set<String> peerIds,
-                                                        AtomicReference<Time> globalCompletionTimeSharedReference) throws CompletionTimeException {
+                                                        AtomicLong globalCompletionTimeSharedReference) throws CompletionTimeException {
         super(ThreadedQueuedConcurrentCompletionTimeServiceThread.class.getSimpleName() + "-" + System.currentTimeMillis());
         localCompletionTimeConcurrentStateManager = new MultiWriterLocalCompletionTimeConcurrentStateManager();
         this.localCompletionTimeWriters = new HashMap<>();
@@ -83,28 +84,28 @@ public class ThreadedQueuedConcurrentCompletionTimeServiceThread extends Thread 
                 switch (event.type()) {
                     case WRITE_LOCAL_INITIATED_TIME: {
                         CompletionTimeEvent.LocalInitiatedTimeEvent localInitiatedTimeEvent = (CompletionTimeEvent.LocalInitiatedTimeEvent) event;
-                        Time initiatedTime = localInitiatedTimeEvent.time();
+                        long initiatedTimeAsMilli = localInitiatedTimeEvent.timeAsMilli();
                         int writerId = localInitiatedTimeEvent.localCompletionTimeWriterId();
                         LocalCompletionTimeWriter writer = localCompletionTimeWriters.get(writerId);
-                        writer.submitLocalInitiatedTime(initiatedTime);
+                        writer.submitLocalInitiatedTime(initiatedTimeAsMilli);
                         updateGlobalCompletionTime();
                         processedWriteEventCount++;
                         break;
                     }
                     case WRITE_LOCAL_COMPLETED_TIME: {
                         CompletionTimeEvent.LocalCompletedTimeEvent localCompletedTimeEvent = (CompletionTimeEvent.LocalCompletedTimeEvent) event;
-                        Time completedTime = localCompletedTimeEvent.time();
+                        long completedTimeAsMilli = localCompletedTimeEvent.timeAsMilli();
                         int writerId = localCompletedTimeEvent.localCompletionTimeWriterId();
                         LocalCompletionTimeWriter writer = localCompletionTimeWriters.get(writerId);
-                        writer.submitLocalCompletedTime(completedTime);
+                        writer.submitLocalCompletedTime(completedTimeAsMilli);
                         updateGlobalCompletionTime();
                         processedWriteEventCount++;
                         break;
                     }
                     case WRITE_EXTERNAL_COMPLETION_TIME: {
                         String peerId = ((CompletionTimeEvent.ExternalCompletionTimeEvent) event).peerId();
-                        Time peerCompletionTime = ((CompletionTimeEvent.ExternalCompletionTimeEvent) event).time();
-                        globalCompletionTimeStateManager.submitPeerCompletionTime(peerId, peerCompletionTime);
+                        long peerCompletionTimeAsMilli = ((CompletionTimeEvent.ExternalCompletionTimeEvent) event).timeAsMilli();
+                        globalCompletionTimeStateManager.submitPeerCompletionTime(peerId, peerCompletionTimeAsMilli);
                         updateGlobalCompletionTime();
                         processedWriteEventCount++;
                         break;
@@ -162,23 +163,23 @@ public class ThreadedQueuedConcurrentCompletionTimeServiceThread extends Thread 
     }
 
     private void updateGlobalCompletionTime() throws CompletionTimeException {
-        Time newGlobalCompletionTime = globalCompletionTimeStateManager.globalCompletionTimeAsMilli();
-        if (null == newGlobalCompletionTime) {
+        long newGlobalCompletionTimeAsMilli = globalCompletionTimeStateManager.globalCompletionTimeAsMilli();
+        if (-1 == newGlobalCompletionTimeAsMilli) {
             // Either Completion Time has not been received from one or more peers, or no local Completion Time has been receive
             // Until both of the above have occurred there is no way of knowing what the lowest global time is
             return;
         }
-        Time prevGlobalCompletionTime = globalCompletionTimeSharedReference.get();
-        if (null != prevGlobalCompletionTime && newGlobalCompletionTime.lt(prevGlobalCompletionTime)) {
+        long prevGlobalCompletionTimeAsMilli = globalCompletionTimeSharedReference.get();
+        if (-1 != prevGlobalCompletionTimeAsMilli && newGlobalCompletionTimeAsMilli < prevGlobalCompletionTimeAsMilli) {
             errorReporter.reportError(
                     this,
                     String.format("New GCT %s / %s smaller than previous GCT %s / %s",
-                            newGlobalCompletionTime,
-                            newGlobalCompletionTime.asNano(),
-                            prevGlobalCompletionTime,
-                            prevGlobalCompletionTime.asNano()));
+                            temporalUtil.millisecondsToDateTimeString(newGlobalCompletionTimeAsMilli),
+                            newGlobalCompletionTimeAsMilli,
+                            temporalUtil.millisecondsToDateTimeString(prevGlobalCompletionTimeAsMilli),
+                            prevGlobalCompletionTimeAsMilli));
         } else {
-            globalCompletionTimeSharedReference.set(newGlobalCompletionTime);
+            globalCompletionTimeSharedReference.set(newGlobalCompletionTimeAsMilli);
         }
     }
 }

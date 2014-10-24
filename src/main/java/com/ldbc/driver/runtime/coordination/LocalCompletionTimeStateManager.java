@@ -32,12 +32,12 @@ public class LocalCompletionTimeStateManager implements LocalCompletionTimeReade
     }
 
     @Override
-    public Time lastKnownLowestInitiatedTime() throws CompletionTimeException {
+    public Time lastKnownLowestInitiatedTimeAsMilli() throws CompletionTimeException {
         return lastKnownLowestInitiatedTime;
     }
 
     @Override
-    public Time localCompletionTime() {
+    public Time localCompletionTimeAsMilli() {
         return localCompletionTime;
     }
 
