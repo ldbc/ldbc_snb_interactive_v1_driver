@@ -24,6 +24,7 @@ import com.ldbc.driver.workloads.dummy.TimedNamedOperation1Factory;
 import org.junit.Ignore;
 import org.junit.Test;
 
+import java.io.IOException;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 
@@ -69,7 +70,7 @@ public class OperationStreamExecutorPerformanceTest {
      */
 
     @Test
-    public void synchronousExecutorPerformanceTest() throws CompletionTimeException, MetricsCollectionException, DbException, OperationHandlerExecutorException {
+    public void synchronousExecutorPerformanceTest() throws CompletionTimeException, MetricsCollectionException, DbException, OperationHandlerExecutorException, IOException {
         int experimentRepetitions;
         long operationCount;
         Duration spinnerSleepDuration;
@@ -91,7 +92,7 @@ public class OperationStreamExecutorPerformanceTest {
     }
 
     public void synchronousExecutorPerformanceTestWithSpinnerDuration(Duration spinnerSleepDuration, int experimentRepetitions, long operationCount)
-            throws CompletionTimeException, MetricsCollectionException, DbException, OperationHandlerExecutorException {
+            throws CompletionTimeException, MetricsCollectionException, DbException, OperationHandlerExecutorException, IOException {
         List<Duration> threadPoolExecutorTimes = new ArrayList<>();
         List<Duration> singleThreadExecutorTimes = new ArrayList<>();
         List<Duration> sameThreadExecutorTimes = new ArrayList<>();
@@ -138,7 +139,7 @@ public class OperationStreamExecutorPerformanceTest {
 
                 threadPoolExecutorTimes.add(doTest(thread, errorReporter, metricsService, operationCount));
                 executor.shutdown(Duration.fromSeconds(1));
-                db.shutdown();
+                db.close();
                 metricsService.shutdown();
             }
             // Single Thread Executor
@@ -180,7 +181,7 @@ public class OperationStreamExecutorPerformanceTest {
 
                 singleThreadExecutorTimes.add(doTest(thread, errorReporter, metricsService, operationCount));
                 executor.shutdown(Duration.fromSeconds(1));
-                db.shutdown();
+                db.close();
                 metricsService.shutdown();
             }
             // Same Thread Executor
@@ -222,7 +223,7 @@ public class OperationStreamExecutorPerformanceTest {
 
                 sameThreadExecutorTimes.add(doTest(thread, errorReporter, metricsService, operationCount));
                 executor.shutdown(Duration.fromSeconds(1));
-                db.shutdown();
+                db.close();
                 metricsService.shutdown();
             }
         }

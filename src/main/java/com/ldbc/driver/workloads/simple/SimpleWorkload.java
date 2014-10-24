@@ -14,6 +14,7 @@ import com.ldbc.driver.util.Tuple;
 import com.ldbc.driver.util.Tuple.Tuple2;
 import com.ldbc.driver.util.Tuple.Tuple3;
 
+import java.io.IOException;
 import java.util.*;
 
 public class SimpleWorkload extends Workload {
@@ -182,7 +183,7 @@ public class SimpleWorkload extends Workload {
     }
 
     @Override
-    protected void onCleanup() throws WorkloadException {
+    protected void onClose() throws IOException {
     }
 
     @Override

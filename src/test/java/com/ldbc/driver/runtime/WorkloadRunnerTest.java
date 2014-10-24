@@ -203,8 +203,8 @@ public class WorkloadRunnerTest {
         } finally {
             System.out.println(errorReporter.toString());
             if (null != controlService) controlService.shutdown();
-            if (null != db) db.shutdown();
-            if (null != workload) workload.cleanup();
+            if (null != db) db.close();
+            if (null != workload) workload.close();
             if (null != metricsService) metricsService.shutdown();
             if (null != completionTimeService) completionTimeService.shutdown();
         }
@@ -380,8 +380,8 @@ public class WorkloadRunnerTest {
         } finally {
             System.out.println(errorReporter.toString());
             if (null != controlService) controlService.shutdown();
-            if (null != db) db.shutdown();
-            if (null != workload) workload.cleanup();
+            if (null != db) db.close();
+            if (null != workload) workload.close();
             if (null != metricsService) metricsService.shutdown();
             if (null != completionTimeService) completionTimeService.shutdown();
         }

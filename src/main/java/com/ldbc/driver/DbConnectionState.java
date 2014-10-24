@@ -1,6 +1,8 @@
 package com.ldbc.driver;
 
-public abstract class DbConnectionState
+import java.io.Closeable;
+
+public abstract class DbConnectionState implements Closeable
 {
 
 }

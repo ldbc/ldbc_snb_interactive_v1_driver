@@ -301,12 +301,12 @@ public class LdbcSnbInteractiveWorkloadTest {
             assertThat(a, equalTo(b));
         }
 
-        workloadA.cleanup();
-        workloadB.cleanup();
+        workloadA.close();
+        workloadB.close();
     }
 
     @Test
-    public void shouldGenerateConfiguredQueryMix() throws ClientException, DriverConfigurationException, WorkloadException {
+    public void shouldGenerateConfiguredQueryMix() throws ClientException, DriverConfigurationException, WorkloadException, IOException {
         // Given
         String ldbcDriverPropertiesPath = TestUtils.getResource("/ldbc_driver_default.properties").getAbsolutePath();
 
@@ -419,7 +419,7 @@ public class LdbcSnbInteractiveWorkloadTest {
                         tolerance),
                 is(true));
 
-        workload.cleanup();
+        workload.close();
     }
 
     @Test
@@ -805,7 +805,7 @@ public class LdbcSnbInteractiveWorkloadTest {
             prevOperationScheduledStartTime = operation.scheduledStartTime();
         }
 
-        workload.cleanup();
+        workload.close();
     }
 
     @Test

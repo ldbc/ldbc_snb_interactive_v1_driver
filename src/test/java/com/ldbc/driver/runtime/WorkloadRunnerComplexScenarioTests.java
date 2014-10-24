@@ -28,6 +28,7 @@ import com.ldbc.driver.workloads.dummy.TimedNamedOperation2Factory;
 import org.junit.Ignore;
 import org.junit.Test;
 
+import java.io.IOException;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -92,12 +93,12 @@ public class WorkloadRunnerComplexScenarioTests {
      */
     @Ignore
     @Test
-    public void shouldCauseErrorIfLastSynchronousOperationHandlerTakesTooLongToComplete() throws CompletionTimeException, InterruptedException, MetricsCollectionException, WorkloadException, DbException {
+    public void shouldCauseErrorIfLastSynchronousOperationHandlerTakesTooLongToComplete() throws CompletionTimeException, InterruptedException, MetricsCollectionException, WorkloadException, DbException, IOException {
         shouldCauseErrorIfLastSynchronousOperationHandlerTakesTooLongToComplete(4);
         shouldCauseErrorIfLastSynchronousOperationHandlerTakesTooLongToComplete(16);
     }
 
-    public void shouldCauseErrorIfLastSynchronousOperationHandlerTakesTooLongToComplete(int threadCount) throws CompletionTimeException, InterruptedException, MetricsCollectionException, WorkloadException, DbException {
+    public void shouldCauseErrorIfLastSynchronousOperationHandlerTakesTooLongToComplete(int threadCount) throws CompletionTimeException, InterruptedException, MetricsCollectionException, WorkloadException, DbException, IOException {
         ConcurrentErrorReporter errorReporter = new ConcurrentErrorReporter();
         Duration toleratedExecutionDelayDuration = Duration.fromMilli(0);
         // Not used when Windowed Scheduling Mode is not used
@@ -106,10 +107,8 @@ public class WorkloadRunnerComplexScenarioTests {
         Set<String> peerIds = new HashSet<>();
         ConcurrentCompletionTimeService completionTimeService =
                 completionTimeServiceAssistant.newSynchronizedConcurrentCompletionTimeServiceFromPeerIds(peerIds);
-        DummyDb db = new DummyDb();
         Duration durationToWaitForAllHandlersToFinishBeforeShutdown = Duration.fromMilli(10);
-
-        try {
+        try (DummyDb db = new DummyDb()) {
             /*
                 Number of writers: 0 ()
                 Number of executors: 2 (blocking & async)
@@ -230,27 +229,26 @@ public class WorkloadRunnerComplexScenarioTests {
                 Spinner.powerNap(100);
             }
 
+            db.setAllowedValueForAll(true);
             assertThat(errorReporter.toString(), runnerThread.runnerHasCompleted(), is(true));
             assertThat(errorReporter.toString(), runnerThread.runnerCompletedSuccessfully(), is(false));
         } catch (Throwable e) {
             e.printStackTrace();
             throw e;
         } finally {
-            db.setAllowedValueForAll(true);
             Thread.sleep(ENOUGH_MILLISECONDS_FOR_RUNNER_THREAD_TO_DO_ITS_THING);
             metricsService.shutdown();
             completionTimeService.shutdown();
-            db.shutdown();
         }
     }
 
     @Test
-    public void shouldCauseErrorIfAnyAsynchronousOperationHandlerTakesTooLongToComplete() throws CompletionTimeException, InterruptedException, MetricsCollectionException, WorkloadException, DbException {
+    public void shouldCauseErrorIfAnyAsynchronousOperationHandlerTakesTooLongToComplete() throws CompletionTimeException, InterruptedException, MetricsCollectionException, WorkloadException, DbException, IOException {
         shouldCauseErrorIfAnyAsynchronousOperationHandlerTakesTooLongToComplete(4);
         shouldCauseErrorIfAnyAsynchronousOperationHandlerTakesTooLongToComplete(16);
     }
 
-    public void shouldCauseErrorIfAnyAsynchronousOperationHandlerTakesTooLongToComplete(int threadCount) throws CompletionTimeException, InterruptedException, MetricsCollectionException, WorkloadException, DbException {
+    public void shouldCauseErrorIfAnyAsynchronousOperationHandlerTakesTooLongToComplete(int threadCount) throws CompletionTimeException, InterruptedException, MetricsCollectionException, WorkloadException, DbException, IOException {
         ConcurrentErrorReporter errorReporter = new ConcurrentErrorReporter();
         Duration toleratedExecutionDelayDuration = Duration.fromMilli(100);
         // Not used when Windowed Scheduling Mode is not used
@@ -259,10 +257,9 @@ public class WorkloadRunnerComplexScenarioTests {
         Set<String> peerIds = new HashSet<>();
         ConcurrentCompletionTimeService completionTimeService =
                 completionTimeServiceAssistant.newSynchronizedConcurrentCompletionTimeServiceFromPeerIds(peerIds);
-        DummyDb db = new DummyDb();
         Duration durationToWaitForAllHandlersToFinishBeforeShutdown = Duration.fromMilli(10);
 
-        try {
+        try (DummyDb db = new DummyDb()) {
             /*
                 Number of writers: 0 ()
                 Number of executors: 2 (blocking & async)
@@ -409,29 +406,28 @@ public class WorkloadRunnerComplexScenarioTests {
                 Spinner.powerNap(100);
             }
 
+            db.setAllowedValueForAll(true);
             assertThat(errorReporter.toString(), runnerThread.runnerHasCompleted(), is(true));
             assertThat(errorReporter.toString(), runnerThread.runnerCompletedSuccessfully(), is(false));
         } catch (Throwable e) {
             e.printStackTrace();
             throw e;
         } finally {
-            db.setAllowedValueForAll(true);
             Thread.sleep(ENOUGH_MILLISECONDS_FOR_RUNNER_THREAD_TO_DO_ITS_THING);
             metricsService.shutdown();
             completionTimeService.shutdown();
-            db.shutdown();
         }
     }
 
     @Test
-    public void oneExecutorShouldNotBeAbleToStarveAnotherOfThreads() throws WorkloadException, CompletionTimeException, DbException, InterruptedException, MetricsCollectionException {
+    public void oneExecutorShouldNotBeAbleToStarveAnotherOfThreads() throws WorkloadException, CompletionTimeException, DbException, InterruptedException, MetricsCollectionException, IOException {
         // fails with 1 thread, need to investigate further, probably because there is no available thread to execute an operation handler in time <-- not necessarily a bug
         // oneExecutorShouldNotBeAbleToStarveAnotherOfThreads(1);
         oneExecutorShouldNotBeAbleToStarveAnotherOfThreads(4);
         oneExecutorShouldNotBeAbleToStarveAnotherOfThreads(16);
     }
 
-    public void oneExecutorShouldNotBeAbleToStarveAnotherOfThreads(int threadCount) throws WorkloadException, CompletionTimeException, DbException, InterruptedException, MetricsCollectionException {
+    public void oneExecutorShouldNotBeAbleToStarveAnotherOfThreads(int threadCount) throws WorkloadException, CompletionTimeException, DbException, InterruptedException, MetricsCollectionException, IOException {
             /*
                 Number of writers: 1 (blocking)
                 Number of executors: 2 (blocking & async)
@@ -480,8 +476,6 @@ public class WorkloadRunnerComplexScenarioTests {
         ConcurrentCompletionTimeService completionTimeService =
                 completionTimeServiceAssistant.newSynchronizedConcurrentCompletionTimeServiceFromPeerIds(peerIds);
 
-        DummyDb db = new DummyDb();
-
         WorkloadStreams workloadStreams = new WorkloadStreams();
         Set<Class<? extends Operation<?>>> asynchronousDependentOperationTypes = Sets.<Class<? extends Operation<?>>>newHashSet(
                 TimedNamedOperation1.class
@@ -515,7 +509,7 @@ public class WorkloadRunnerComplexScenarioTests {
         Map<String, String> params = new HashMap<>();
         params.put(DummyDb.ALLOWED_DEFAULT_ARG, "true");
 
-        try {
+        try (DummyDb db = new DummyDb()) {
             db.init(params);
 
             db.setNameAllowedValue("S(2)D(0)", false);
@@ -620,30 +614,29 @@ public class WorkloadRunnerComplexScenarioTests {
                 Spinner.powerNap(100);
             }
 
+            db.setAllowedValueForAll(true);
             assertThat(errorReporter.toString(), runnerThread.runnerHasCompleted(), is(true));
             assertThat(errorReporter.toString(), runnerThread.runnerCompletedSuccessfully(), is(true));
         } catch (Throwable e) {
             e.printStackTrace();
             throw e;
         } finally {
-            db.setAllowedValueForAll(true);
             Thread.sleep(ENOUGH_MILLISECONDS_FOR_RUNNER_THREAD_TO_DO_ITS_THING);
             metricsService.shutdown();
             completionTimeService.shutdown();
-            db.shutdown();
         }
     }
 
     @Test
     public void oneExecutorShouldNotBeCapableOfAdvancingInitiatedTimeOfAnotherExecutor()
-            throws CompletionTimeException, InterruptedException, MetricsCollectionException, DbException, WorkloadException {
+            throws CompletionTimeException, InterruptedException, MetricsCollectionException, DbException, WorkloadException, IOException {
         oneExecutorShouldNotBeCapableOfAdvancingInitiatedTimeOfAnotherExecutor(1);
         oneExecutorShouldNotBeCapableOfAdvancingInitiatedTimeOfAnotherExecutor(4);
         oneExecutorShouldNotBeCapableOfAdvancingInitiatedTimeOfAnotherExecutor(16);
     }
 
     public void oneExecutorShouldNotBeCapableOfAdvancingInitiatedTimeOfAnotherExecutor(int threadCount)
-            throws CompletionTimeException, InterruptedException, MetricsCollectionException, DbException, WorkloadException {
+            throws CompletionTimeException, InterruptedException, MetricsCollectionException, DbException, WorkloadException, IOException {
             /*
                 Number of writers: 2 (blocking & async)
                 Number of executors: 2 (blocking & async)
@@ -693,8 +686,6 @@ public class WorkloadRunnerComplexScenarioTests {
         ConcurrentCompletionTimeService completionTimeService =
                 completionTimeServiceAssistant.newSynchronizedConcurrentCompletionTimeServiceFromPeerIds(peerIds);
 
-        DummyDb db = new DummyDb();
-
         WorkloadStreams workloadStreams = new WorkloadStreams();
         Set<Class<? extends Operation<?>>> asynchronousDependentOperationTypes = Sets.<Class<? extends Operation<?>>>newHashSet(
                 TimedNamedOperation1.class
@@ -738,7 +729,7 @@ public class WorkloadRunnerComplexScenarioTests {
         Map<String, String> params = new HashMap<>();
         params.put(DummyDb.ALLOWED_DEFAULT_ARG, "true");
 
-        try {
+        try (DummyDb db = new DummyDb()) {
             db.init(params);
 
             WorkloadRunnerThread runnerThread = workloadRunnerThread(
@@ -809,24 +800,23 @@ public class WorkloadRunnerComplexScenarioTests {
                 Spinner.powerNap(100);
             }
 
+            db.setAllowedValueForAll(true);
             assertThat(errorReporter.toString(), runnerThread.runnerHasCompleted(), is(true));
             assertThat(errorReporter.toString(), runnerThread.runnerCompletedSuccessfully(), is(true));
         } catch (Throwable e) {
             e.printStackTrace();
             throw e;
         } finally {
-            db.setAllowedValueForAll(true);
             Thread.sleep(ENOUGH_MILLISECONDS_FOR_RUNNER_THREAD_TO_DO_ITS_THING);
             metricsService.shutdown();
             completionTimeService.shutdown();
-            db.shutdown();
         }
     }
 
     @Ignore
     @Test
     public void shouldFailWhenGctWriteOperationInAsyncModePreventsGctFromAdvancingHenceBlockingAnOperationFromExecutingBeforeToleratedDelay()
-            throws InterruptedException, MetricsCollectionException, DbException, CompletionTimeException, WorkloadException {
+            throws InterruptedException, MetricsCollectionException, DbException, CompletionTimeException, WorkloadException, IOException {
         // fails with 1 thread, need to investigate further, probably because there is no available thread to execute an operation handler in time <-- not necessarily a bug
         // shouldFailWhenGctWriteOperationInAsyncModePreventsGctFromAdvancingHenceBlockingAnOperationFromExecutingBeforeToleratedDelay(1);
         shouldFailWhenGctWriteOperationInAsyncModePreventsGctFromAdvancingHenceBlockingAnOperationFromExecutingBeforeToleratedDelay(4);
@@ -834,7 +824,7 @@ public class WorkloadRunnerComplexScenarioTests {
     }
 
     public void shouldFailWhenGctWriteOperationInAsyncModePreventsGctFromAdvancingHenceBlockingAnOperationFromExecutingBeforeToleratedDelay(int threadCount)
-            throws InterruptedException, MetricsCollectionException, DbException, CompletionTimeException, WorkloadException {
+            throws InterruptedException, MetricsCollectionException, DbException, CompletionTimeException, WorkloadException, IOException {
         /*
             Number of writers: 1 (async)
             Number of executors: 1 (async)
@@ -886,8 +876,6 @@ public class WorkloadRunnerComplexScenarioTests {
         ConcurrentCompletionTimeService completionTimeService =
                 completionTimeServiceAssistant.newSynchronizedConcurrentCompletionTimeServiceFromPeerIds(peerIds);
 
-        DummyDb db = new DummyDb();
-
         WorkloadStreams workloadStreams = new WorkloadStreams();
         Set<Class<? extends Operation<?>>> asynchronousDependentOperationTypes = Sets.<Class<? extends Operation<?>>>newHashSet(
                 TimedNamedOperation1.class,
@@ -925,7 +913,7 @@ public class WorkloadRunnerComplexScenarioTests {
         Map<String, String> params = new HashMap<>();
         params.put(DummyDb.ALLOWED_DEFAULT_ARG, "false");
 
-        try {
+        try (DummyDb db = new DummyDb()) {
             db.init(params);
 
             WorkloadRunnerThread runnerThread = workloadRunnerThread(
@@ -1094,6 +1082,7 @@ public class WorkloadRunnerComplexScenarioTests {
                 Spinner.powerNap(100);
             }
 
+            db.setAllowedValueForAll(true);
             assertThat(errorReporter.toString(), runnerThread.runnerHasCompleted(), is(true));
             assertThat(errorReporter.toString(), runnerThread.runnerCompletedSuccessfully(), is(false));
 
@@ -1102,24 +1091,22 @@ public class WorkloadRunnerComplexScenarioTests {
             System.out.println("Unexpected Error:\n" + ConcurrentErrorReporter.stackTraceToString(e));
             throw e;
         } finally {
-            db.setAllowedValueForAll(true);
             Thread.sleep(ENOUGH_MILLISECONDS_FOR_RUNNER_THREAD_TO_DO_ITS_THING);
             metricsService.shutdown();
             completionTimeService.shutdown();
-            db.shutdown();
         }
     }
 
     @Test
     public void shouldFailWhenPreviousOperationInBlockingModePreventsNextOperationFromExecutingBeforeToleratedDelay()
-            throws InterruptedException, MetricsCollectionException, DbException, CompletionTimeException, WorkloadException {
+            throws InterruptedException, MetricsCollectionException, DbException, CompletionTimeException, WorkloadException, IOException {
         shouldFailWhenPreviousOperationInBlockingModePreventsNextOperationFromExecutingBeforeToleratedDelay(1);
         shouldFailWhenPreviousOperationInBlockingModePreventsNextOperationFromExecutingBeforeToleratedDelay(4);
         shouldFailWhenPreviousOperationInBlockingModePreventsNextOperationFromExecutingBeforeToleratedDelay(16);
     }
 
     public void shouldFailWhenPreviousOperationInBlockingModePreventsNextOperationFromExecutingBeforeToleratedDelay(int threadCount)
-            throws InterruptedException, MetricsCollectionException, DbException, CompletionTimeException, WorkloadException {
+            throws InterruptedException, MetricsCollectionException, DbException, CompletionTimeException, WorkloadException, IOException {
             /*
                 Number of writers: 1 (blocking)
                 Number of executors: 2 (blocking & async)
@@ -1171,8 +1158,6 @@ public class WorkloadRunnerComplexScenarioTests {
         ConcurrentCompletionTimeService completionTimeService =
                 completionTimeServiceAssistant.newSynchronizedConcurrentCompletionTimeServiceFromPeerIds(peerIds);
 
-        DummyDb db = new DummyDb();
-
         WorkloadStreams workloadStreams = new WorkloadStreams();
         Set<Class<? extends Operation<?>>> asynchronousDependentOperationTypes = Sets.<Class<? extends Operation<?>>>newHashSet(
                 TimedNamedOperation1.class
@@ -1211,7 +1196,7 @@ public class WorkloadRunnerComplexScenarioTests {
 
         Map<String, String> params = new HashMap<>();
         params.put(DummyDb.ALLOWED_DEFAULT_ARG, "false");
-        try {
+        try (DummyDb db = new DummyDb()) {
             db.init(params);
 
             WorkloadRunnerThread runnerThread = workloadRunnerThread(
@@ -1373,30 +1358,29 @@ public class WorkloadRunnerComplexScenarioTests {
                 Spinner.powerNap(100);
             }
 
+            db.setAllowedValueForAll(true);
             assertThat(errorReporter.toString(), runnerThread.runnerHasCompleted(), is(true));
             assertThat(errorReporter.toString(), runnerThread.runnerCompletedSuccessfully(), is(false));
         } catch (Throwable e) {
             e.printStackTrace();
             throw e;
         } finally {
-            db.setAllowedValueForAll(true);
             Thread.sleep(ENOUGH_MILLISECONDS_FOR_RUNNER_THREAD_TO_DO_ITS_THING);
             metricsService.shutdown();
             completionTimeService.shutdown();
-            db.shutdown();
         }
     }
 
     @Test
     public void shouldSuccessfullyCompleteWhenAllOperationsFinishOnTimeWithReadAsyncReadWriteAsync()
-            throws DriverConfigurationException, DbException, CompletionTimeException, WorkloadException, InterruptedException, MetricsCollectionException {
+            throws DriverConfigurationException, DbException, CompletionTimeException, WorkloadException, InterruptedException, MetricsCollectionException, IOException {
         shouldSuccessfullyCompleteWhenAllOperationsFinishOnTimeWithReadAsyncReadWriteAsync(1);
         shouldSuccessfullyCompleteWhenAllOperationsFinishOnTimeWithReadAsyncReadWriteAsync(4);
         shouldSuccessfullyCompleteWhenAllOperationsFinishOnTimeWithReadAsyncReadWriteAsync(16);
     }
 
     public void shouldSuccessfullyCompleteWhenAllOperationsFinishOnTimeWithReadAsyncReadWriteAsync(int threadCount)
-            throws DriverConfigurationException, DbException, CompletionTimeException, WorkloadException, InterruptedException, MetricsCollectionException {
+            throws DriverConfigurationException, DbException, CompletionTimeException, WorkloadException, InterruptedException, MetricsCollectionException, IOException {
         /*
             Number of writers: 1 (async)
             Number of executors: 2 (blocking & async)
@@ -1446,8 +1430,6 @@ public class WorkloadRunnerComplexScenarioTests {
         ConcurrentCompletionTimeService completionTimeService =
                 completionTimeServiceAssistant.newSynchronizedConcurrentCompletionTimeServiceFromPeerIds(peerIds);
 
-        DummyDb db = new DummyDb();
-
         WorkloadStreams workloadStreams = new WorkloadStreams();
         Set<Class<? extends Operation<?>>> asynchronousDependentOperationTypes = Sets.<Class<? extends Operation<?>>>newHashSet(
                 TimedNamedOperation1.class,
@@ -1487,7 +1469,7 @@ public class WorkloadRunnerComplexScenarioTests {
 
         Map<String, String> params = new HashMap<>();
         params.put(DummyDb.ALLOWED_DEFAULT_ARG, "false");
-        try {
+        try (DummyDb db = new DummyDb()) {
             db.init(params);
 
             // TODO remove workload start time as public variable for this test class and always assume 0
@@ -1638,30 +1620,29 @@ public class WorkloadRunnerComplexScenarioTests {
                 Spinner.powerNap(100);
             }
 
+            db.setAllowedValueForAll(true);
             assertThat(errorReporter.toString(), runnerThread.runnerHasCompleted(), is(true));
             assertThat(errorReporter.toString(), runnerThread.runnerCompletedSuccessfully(), is(true));
         } catch (Throwable e) {
             e.printStackTrace();
             throw e;
         } finally {
-            db.setAllowedValueForAll(true);
             Thread.sleep(ENOUGH_MILLISECONDS_FOR_RUNNER_THREAD_TO_DO_ITS_THING);
             metricsService.shutdown();
             completionTimeService.shutdown();
-            db.shutdown();
         }
     }
 
     @Test
     public void shouldSuccessfullyCompleteWhenAllOperationsFinishOnTimeWithReadAsyncReadWriteBlocking()
-            throws DriverConfigurationException, DbException, CompletionTimeException, WorkloadException, InterruptedException, MetricsCollectionException {
+            throws DriverConfigurationException, DbException, CompletionTimeException, WorkloadException, InterruptedException, MetricsCollectionException, IOException {
         shouldSuccessfullyCompleteWhenAllOperationsFinishOnTimeWithReadAsyncReadWriteBlocking(1);
         shouldSuccessfullyCompleteWhenAllOperationsFinishOnTimeWithReadAsyncReadWriteBlocking(4);
         shouldSuccessfullyCompleteWhenAllOperationsFinishOnTimeWithReadAsyncReadWriteBlocking(16);
     }
 
     public void shouldSuccessfullyCompleteWhenAllOperationsFinishOnTimeWithReadAsyncReadWriteBlocking(int threadCount)
-            throws DriverConfigurationException, DbException, CompletionTimeException, WorkloadException, InterruptedException, MetricsCollectionException {
+            throws DriverConfigurationException, DbException, CompletionTimeException, WorkloadException, InterruptedException, MetricsCollectionException, IOException {
         /*
             Number of writers: 1 (blocking)
             Number of executors: 2 (blocking & async)
@@ -1711,8 +1692,6 @@ public class WorkloadRunnerComplexScenarioTests {
         ConcurrentCompletionTimeService completionTimeService =
                 completionTimeServiceAssistant.newSynchronizedConcurrentCompletionTimeServiceFromPeerIds(peerIds);
 
-        DummyDb db = new DummyDb();
-
         WorkloadStreams workloadStreams = new WorkloadStreams();
         Set<Class<? extends Operation<?>>> asynchronousDependentOperationTypes = Sets.<Class<? extends Operation<?>>>newHashSet(
                 TimedNamedOperation1.class
@@ -1751,7 +1730,7 @@ public class WorkloadRunnerComplexScenarioTests {
 
         Map<String, String> params = new HashMap<>();
         params.put(DummyDb.ALLOWED_DEFAULT_ARG, "false");
-        try {
+        try (DummyDb db = new DummyDb()) {
             db.init(params);
 
             // TODO remove workload start time as public variable for this test class and always assume 0
@@ -1786,47 +1765,47 @@ public class WorkloadRunnerComplexScenarioTests {
             // SameThreadOperationHandlerExecutor will be 0, as it must wait for previous operation to complete before it can initiate the next operation
             // SingleThread/ThreadPoolOperationHandlerExecutor will be 1, as it can initiate the next operation as soon as it has submitted the previous one for execution
             assertThat(errorReporter.toString(), metricsService.results().totalOperationCount(), is(0l));
-            assertThat(errorReporter.toString(), completionTimeService.globalCompletionTime(), anyOf(is(Time.fromMilli(0)),is(Time.fromMilli(1))));
+            assertThat(errorReporter.toString(), completionTimeService.globalCompletionTime(), anyOf(is(Time.fromMilli(0)), is(Time.fromMilli(1))));
             assertThat(errorReporter.toString(), errorReporter.errorEncountered(), is(false));
 
             timeSource.setNowFromMilli(1);
             Thread.sleep(ENOUGH_MILLISECONDS_FOR_RUNNER_THREAD_TO_DO_ITS_THING);
             assertThat(errorReporter.toString(), metricsService.results().totalOperationCount(), is(0l));
-            assertThat(errorReporter.toString(), completionTimeService.globalCompletionTime(), anyOf(is(Time.fromMilli(0)),is(Time.fromMilli(1))));
+            assertThat(errorReporter.toString(), completionTimeService.globalCompletionTime(), anyOf(is(Time.fromMilli(0)), is(Time.fromMilli(1))));
             assertThat(errorReporter.toString(), errorReporter.errorEncountered(), is(false));
 
             timeSource.setNowFromMilli(2);
             Thread.sleep(ENOUGH_MILLISECONDS_FOR_RUNNER_THREAD_TO_DO_ITS_THING);
             assertThat(errorReporter.toString(), metricsService.results().totalOperationCount(), is(0l));
-            assertThat(errorReporter.toString(), completionTimeService.globalCompletionTime(), anyOf(is(Time.fromMilli(0)),is(Time.fromMilli(1))));
+            assertThat(errorReporter.toString(), completionTimeService.globalCompletionTime(), anyOf(is(Time.fromMilli(0)), is(Time.fromMilli(1))));
             db.setNameAllowedValue("read1", true);
             Thread.sleep(ENOUGH_MILLISECONDS_FOR_RUNNER_THREAD_TO_DO_ITS_THING);
             assertThat(errorReporter.toString(), metricsService.results().totalOperationCount(), is(1l));
-            assertThat(errorReporter.toString(), completionTimeService.globalCompletionTime(), anyOf(is(Time.fromMilli(0)),is(Time.fromMilli(1))));
+            assertThat(errorReporter.toString(), completionTimeService.globalCompletionTime(), anyOf(is(Time.fromMilli(0)), is(Time.fromMilli(1))));
             assertThat(errorReporter.toString(), errorReporter.errorEncountered(), is(false));
 
             timeSource.setNowFromMilli(3);
             Thread.sleep(ENOUGH_MILLISECONDS_FOR_RUNNER_THREAD_TO_DO_ITS_THING);
             assertThat(errorReporter.toString(), metricsService.results().totalOperationCount(), is(1l));
             // anyOf because it depends on whether "readwrite2"/S(6)D(0) has been initialized yet, or not
-            assertThat(errorReporter.toString(), completionTimeService.globalCompletionTime(), anyOf(is(Time.fromMilli(1)),is(Time.fromMilli(3))));
+            assertThat(errorReporter.toString(), completionTimeService.globalCompletionTime(), anyOf(is(Time.fromMilli(1)), is(Time.fromMilli(3))));
             db.setNameAllowedValue("readwrite1", true);
             Thread.sleep(ENOUGH_MILLISECONDS_FOR_RUNNER_THREAD_TO_DO_ITS_THING);
             assertThat(errorReporter.toString(), metricsService.results().totalOperationCount(), is(2l));
             // anyOf because it depends on whether "readwrite2"/S(6)D(0) has been initialized yet, or not
-            assertThat(errorReporter.toString(), completionTimeService.globalCompletionTime(), anyOf(is(Time.fromMilli(1)),is(Time.fromMilli(3))));
+            assertThat(errorReporter.toString(), completionTimeService.globalCompletionTime(), anyOf(is(Time.fromMilli(1)), is(Time.fromMilli(3))));
             assertThat(errorReporter.toString(), errorReporter.errorEncountered(), is(false));
 
             timeSource.setNowFromMilli(4);
             Thread.sleep(ENOUGH_MILLISECONDS_FOR_RUNNER_THREAD_TO_DO_ITS_THING);
             assertThat(errorReporter.toString(), metricsService.results().totalOperationCount(), is(2l));
             // anyOf because it depends on whether "readwrite2"/S(6)D(0) has been initialized yet, or not
-            assertThat(errorReporter.toString(), completionTimeService.globalCompletionTime(), anyOf(is(Time.fromMilli(1)),is(Time.fromMilli(3))));
+            assertThat(errorReporter.toString(), completionTimeService.globalCompletionTime(), anyOf(is(Time.fromMilli(1)), is(Time.fromMilli(3))));
             db.setNameAllowedValue("read2", true);
             Thread.sleep(ENOUGH_MILLISECONDS_FOR_RUNNER_THREAD_TO_DO_ITS_THING);
             assertThat(errorReporter.toString(), metricsService.results().totalOperationCount(), is(3l));
             // anyOf because it depends on whether "readwrite2"/S(6)D(0) has been initialized yet, or not
-            assertThat(errorReporter.toString(), completionTimeService.globalCompletionTime(), anyOf(is(Time.fromMilli(1)),is(Time.fromMilli(3))));
+            assertThat(errorReporter.toString(), completionTimeService.globalCompletionTime(), anyOf(is(Time.fromMilli(1)), is(Time.fromMilli(3))));
             assertThat(errorReporter.toString(), errorReporter.errorEncountered(), is(false));
 
             timeSource.setNowFromMilli(5);
@@ -1834,44 +1813,44 @@ public class WorkloadRunnerComplexScenarioTests {
             assertThat(errorReporter.toString(), metricsService.results().totalOperationCount(), is(3l));
             assertThat(errorReporter.toString(), errorReporter.errorEncountered(), is(false));
             // anyOf because it depends on whether "readwrite2"/S(6)D(0) has been initialized yet, or not
-            assertThat(errorReporter.toString(), completionTimeService.globalCompletionTime(), anyOf(is(Time.fromMilli(1)),is(Time.fromMilli(3))));
+            assertThat(errorReporter.toString(), completionTimeService.globalCompletionTime(), anyOf(is(Time.fromMilli(1)), is(Time.fromMilli(3))));
 
             timeSource.setNowFromMilli(6);
             Thread.sleep(ENOUGH_MILLISECONDS_FOR_RUNNER_THREAD_TO_DO_ITS_THING);
             assertThat(errorReporter.toString(), metricsService.results().totalOperationCount(), is(3l));
             // anyOf because it depends on whether "readwrite3"/S(9)D(0) has been initialized yet, or not
-            assertThat(errorReporter.toString(), completionTimeService.globalCompletionTime(), anyOf(is(Time.fromMilli(3)),is(Time.fromMilli(6))));
+            assertThat(errorReporter.toString(), completionTimeService.globalCompletionTime(), anyOf(is(Time.fromMilli(3)), is(Time.fromMilli(6))));
             db.setNameAllowedValue("readwrite2", true);
             Thread.sleep(ENOUGH_MILLISECONDS_FOR_RUNNER_THREAD_TO_DO_ITS_THING);
             assertThat(errorReporter.toString(), metricsService.results().totalOperationCount(), is(4l));
             // anyOf because it depends on whether "readwrite3"/S(9)D(0) has been initialized yet, or not
-            assertThat(errorReporter.toString(), completionTimeService.globalCompletionTime(), anyOf(is(Time.fromMilli(3)),is(Time.fromMilli(6))));
+            assertThat(errorReporter.toString(), completionTimeService.globalCompletionTime(), anyOf(is(Time.fromMilli(3)), is(Time.fromMilli(6))));
             assertThat(errorReporter.toString(), errorReporter.errorEncountered(), is(false));
 
             timeSource.setNowFromMilli(7);
             Thread.sleep(ENOUGH_MILLISECONDS_FOR_RUNNER_THREAD_TO_DO_ITS_THING);
             assertThat(errorReporter.toString(), metricsService.results().totalOperationCount(), is(4l));
             // anyOf because it depends on whether "readwrite3"/S(9)D(0) has been initialized yet, or not
-            assertThat(errorReporter.toString(), completionTimeService.globalCompletionTime(), anyOf(is(Time.fromMilli(3)),is(Time.fromMilli(6))));
+            assertThat(errorReporter.toString(), completionTimeService.globalCompletionTime(), anyOf(is(Time.fromMilli(3)), is(Time.fromMilli(6))));
             db.setNameAllowedValue("read3", true);
             Thread.sleep(ENOUGH_MILLISECONDS_FOR_RUNNER_THREAD_TO_DO_ITS_THING);
             assertThat(errorReporter.toString(), metricsService.results().totalOperationCount(), is(5l));
             // anyOf because it depends on whether "readwrite3"/S(9)D(0) has been initialized yet, or not
-            assertThat(errorReporter.toString(), completionTimeService.globalCompletionTime(), anyOf(is(Time.fromMilli(3)),is(Time.fromMilli(6))));
+            assertThat(errorReporter.toString(), completionTimeService.globalCompletionTime(), anyOf(is(Time.fromMilli(3)), is(Time.fromMilli(6))));
             assertThat(errorReporter.toString(), errorReporter.errorEncountered(), is(false));
 
             timeSource.setNowFromMilli(8);
             Thread.sleep(ENOUGH_MILLISECONDS_FOR_RUNNER_THREAD_TO_DO_ITS_THING);
             assertThat(errorReporter.toString(), metricsService.results().totalOperationCount(), is(5l));
             // anyOf because it depends on whether "readwrite3"/S(9)D(0) has been initialized yet, or not
-            assertThat(errorReporter.toString(), completionTimeService.globalCompletionTime(), anyOf(is(Time.fromMilli(3)),is(Time.fromMilli(6))));
+            assertThat(errorReporter.toString(), completionTimeService.globalCompletionTime(), anyOf(is(Time.fromMilli(3)), is(Time.fromMilli(6))));
             assertThat(errorReporter.toString(), errorReporter.errorEncountered(), is(false));
 
             timeSource.setNowFromMilli(9);
             Thread.sleep(ENOUGH_MILLISECONDS_FOR_RUNNER_THREAD_TO_DO_ITS_THING);
             assertThat(errorReporter.toString(), metricsService.results().totalOperationCount(), is(5l));
             // anyOf because it depends on whether "readwrite3"/S(9)D(0) has been initialized yet, or not
-            assertThat(errorReporter.toString(), completionTimeService.globalCompletionTime(), anyOf(is(Time.fromMilli(6)),is(Time.fromMilli(9))));
+            assertThat(errorReporter.toString(), completionTimeService.globalCompletionTime(), anyOf(is(Time.fromMilli(6)), is(Time.fromMilli(9))));
             db.setNameAllowedValue("readwrite3", true);
             Thread.sleep(ENOUGH_MILLISECONDS_FOR_RUNNER_THREAD_TO_DO_ITS_THING);
             assertThat(errorReporter.toString(), metricsService.results().totalOperationCount(), is(6l));
@@ -1924,30 +1903,29 @@ public class WorkloadRunnerComplexScenarioTests {
                 Spinner.powerNap(100);
             }
 
+            db.setAllowedValueForAll(true);
             assertThat(errorReporter.toString(), runnerThread.runnerHasCompleted(), is(true));
             assertThat(errorReporter.toString(), runnerThread.runnerCompletedSuccessfully(), is(true));
         } catch (Throwable e) {
             e.printStackTrace();
             throw e;
         } finally {
-            db.setAllowedValueForAll(true);
             Thread.sleep(ENOUGH_MILLISECONDS_FOR_RUNNER_THREAD_TO_DO_ITS_THING);
             metricsService.shutdown();
             completionTimeService.shutdown();
-            db.shutdown();
         }
     }
 
     @Test
     public void shouldSuccessfullyCompleteWhenAllOperationsFinishOnTimeWithReadBlockingReadWriteAsync()
-            throws DriverConfigurationException, DbException, CompletionTimeException, WorkloadException, InterruptedException, MetricsCollectionException {
+            throws DriverConfigurationException, DbException, CompletionTimeException, WorkloadException, InterruptedException, MetricsCollectionException, IOException {
         shouldSuccessfullyCompleteWhenAllOperationsFinishOnTimeWithReadBlockingReadWriteAsync(1);
         shouldSuccessfullyCompleteWhenAllOperationsFinishOnTimeWithReadBlockingReadWriteAsync(4);
         shouldSuccessfullyCompleteWhenAllOperationsFinishOnTimeWithReadBlockingReadWriteAsync(16);
     }
 
     public void shouldSuccessfullyCompleteWhenAllOperationsFinishOnTimeWithReadBlockingReadWriteAsync(int threadCount)
-            throws DriverConfigurationException, DbException, CompletionTimeException, WorkloadException, InterruptedException, MetricsCollectionException {
+            throws DriverConfigurationException, DbException, CompletionTimeException, WorkloadException, InterruptedException, MetricsCollectionException, IOException {
         /*
             Number of writers: 1 (async)
             Number of executors: 2 (blocking & async)
@@ -1997,8 +1975,6 @@ public class WorkloadRunnerComplexScenarioTests {
         ConcurrentCompletionTimeService completionTimeService =
                 completionTimeServiceAssistant.newSynchronizedConcurrentCompletionTimeServiceFromPeerIds(peerIds);
 
-        DummyDb db = new DummyDb();
-
         WorkloadStreams workloadStreams = new WorkloadStreams();
         Set<Class<? extends Operation<?>>> asynchronousDependentOperationTypes = Sets.<Class<? extends Operation<?>>>newHashSet(
                 TimedNamedOperation2.class
@@ -2037,7 +2013,7 @@ public class WorkloadRunnerComplexScenarioTests {
 
         Map<String, String> params = new HashMap<>();
         params.put(DummyDb.ALLOWED_DEFAULT_ARG, "false");
-        try {
+        try (DummyDb db = new DummyDb()) {
             db.init(params);
 
             // TODO remove workload start time as public variable for this test class and always assume 0
@@ -2188,30 +2164,29 @@ public class WorkloadRunnerComplexScenarioTests {
                 Spinner.powerNap(100);
             }
 
+            db.setAllowedValueForAll(true);
             assertThat(errorReporter.toString(), runnerThread.runnerHasCompleted(), is(true));
             assertThat(errorReporter.toString(), runnerThread.runnerCompletedSuccessfully(), is(true));
         } catch (Throwable e) {
             e.printStackTrace();
             throw e;
         } finally {
-            db.setAllowedValueForAll(true);
             Thread.sleep(ENOUGH_MILLISECONDS_FOR_RUNNER_THREAD_TO_DO_ITS_THING);
             metricsService.shutdown();
             completionTimeService.shutdown();
-            db.shutdown();
         }
     }
 
     @Test
     public void shouldSuccessfullyCompleteWhenAllOperationsFinishOnTimeWithReadBlockingReadWriteBlocking()
-            throws DriverConfigurationException, DbException, CompletionTimeException, WorkloadException, InterruptedException, MetricsCollectionException {
+            throws DriverConfigurationException, DbException, CompletionTimeException, WorkloadException, InterruptedException, MetricsCollectionException, IOException {
         shouldSuccessfullyCompleteWhenAllOperationsFinishOnTimeWithReadBlockingReadWriteBlocking(1);
         shouldSuccessfullyCompleteWhenAllOperationsFinishOnTimeWithReadBlockingReadWriteBlocking(4);
         shouldSuccessfullyCompleteWhenAllOperationsFinishOnTimeWithReadBlockingReadWriteBlocking(16);
     }
 
     public void shouldSuccessfullyCompleteWhenAllOperationsFinishOnTimeWithReadBlockingReadWriteBlocking(int threadCount)
-            throws DriverConfigurationException, DbException, CompletionTimeException, WorkloadException, InterruptedException, MetricsCollectionException {
+            throws DriverConfigurationException, DbException, CompletionTimeException, WorkloadException, InterruptedException, MetricsCollectionException, IOException {
         /*
             Number of writers: 1 (blocking)
             Number of executors: 1 (blocking)
@@ -2261,8 +2236,6 @@ public class WorkloadRunnerComplexScenarioTests {
         ConcurrentCompletionTimeService completionTimeService =
                 completionTimeServiceAssistant.newSynchronizedConcurrentCompletionTimeServiceFromPeerIds(peerIds);
 
-        DummyDb db = new DummyDb();
-
         WorkloadStreams workloadStreams = new WorkloadStreams();
         Set<Class<? extends Operation<?>>> asynchronousDependentOperationTypes = Sets.<Class<? extends Operation<?>>>newHashSet(
                 // nothing
@@ -2302,7 +2275,7 @@ public class WorkloadRunnerComplexScenarioTests {
 
         Map<String, String> params = new HashMap<>();
         params.put(DummyDb.ALLOWED_DEFAULT_ARG, "false");
-        try {
+        try (DummyDb db = new DummyDb()) {
             db.init(params);
 
             WorkloadRunnerThread runnerThread = workloadRunnerThread(
@@ -2476,17 +2449,16 @@ public class WorkloadRunnerComplexScenarioTests {
                 Spinner.powerNap(100);
             }
 
+            db.setAllowedValueForAll(true);
             assertThat(errorReporter.toString(), runnerThread.runnerHasCompleted(), is(true));
             assertThat(errorReporter.toString(), runnerThread.runnerCompletedSuccessfully(), is(true));
         } catch (Throwable e) {
             e.printStackTrace();
             throw e;
         } finally {
-            db.setAllowedValueForAll(true);
             Thread.sleep(ENOUGH_MILLISECONDS_FOR_RUNNER_THREAD_TO_DO_ITS_THING);
             metricsService.shutdown();
             completionTimeService.shutdown();
-            db.shutdown();
         }
     }
 

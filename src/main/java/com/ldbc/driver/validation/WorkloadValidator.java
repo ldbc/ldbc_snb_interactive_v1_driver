@@ -1,6 +1,5 @@
 package com.ldbc.driver.validation;
 
-import com.google.common.collect.Sets;
 import com.ldbc.driver.*;
 import com.ldbc.driver.control.DriverConfiguration;
 import com.ldbc.driver.generator.GeneratorFactory;
@@ -13,10 +12,10 @@ import com.ldbc.driver.temporal.Time;
 import com.ldbc.driver.temporal.TimeSource;
 import com.ldbc.driver.util.Tuple;
 
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
-import java.util.Set;
 
 import static com.ldbc.driver.validation.WorkloadValidationResult.ResultType;
 
@@ -58,7 +57,7 @@ public class WorkloadValidator {
             Tuple.Tuple2<WorkloadStreams, Workload> streamsAndWorkload = WorkloadStreams.createNewWorkloadWithLimitedWorkloadStreams(workloadFactory, configuration, gf);
             operationsPass1 = streamsAndWorkload._1().mergeSortedByStartTime(gf);
             workloadPass1 = streamsAndWorkload._2();
-        } catch (WorkloadException e) {
+        } catch (Exception e) {
             return new WorkloadValidationResult(ResultType.UNEXPECTED,
                     String.format("Error while retrieving operations from workload\n%s",
                             ConcurrentErrorReporter.stackTraceToString(e)));
@@ -106,8 +105,8 @@ public class WorkloadValidator {
         }
 
         try {
-            workloadPass1.cleanup();
-        } catch (WorkloadException e) {
+            workloadPass1.close();
+        } catch (IOException e) {
             return new WorkloadValidationResult(
                     ResultType.UNEXPECTED,
                     "Error during workload cleanup\n" + ConcurrentErrorReporter.stackTraceToString(e));
@@ -130,7 +129,7 @@ public class WorkloadValidator {
                     configuration.timeCompressionRatio()
             );
 
-        } catch (WorkloadException e) {
+        } catch (Exception e) {
             return new WorkloadValidationResult(ResultType.UNEXPECTED,
                     String.format("Error while retrieving operations from workload\n%s",
                             ConcurrentErrorReporter.stackTraceToString(e)));
@@ -278,8 +277,8 @@ public class WorkloadValidator {
         }
 
         try {
-            workloadPass2.cleanup();
-        } catch (WorkloadException e) {
+            workloadPass2.close();
+        } catch (IOException e) {
             return new WorkloadValidationResult(
                     ResultType.UNEXPECTED,
                     "Error during workload cleanup\n" + ConcurrentErrorReporter.stackTraceToString(e));
@@ -312,7 +311,7 @@ public class WorkloadValidator {
                     now,
                     configuration.timeCompressionRatio()
             );
-        } catch (WorkloadException e) {
+        } catch (Exception e) {
             return new WorkloadValidationResult(ResultType.UNEXPECTED,
                     String.format("Error while retrieving operations from workload\n%s",
                             ConcurrentErrorReporter.stackTraceToString(e)));
@@ -335,9 +334,9 @@ public class WorkloadValidator {
         }
 
         try {
-            workload1.cleanup();
-            workload2.cleanup();
-        } catch (WorkloadException e) {
+            workload1.close();
+            workload2.close();
+        } catch (IOException e) {
             return new WorkloadValidationResult(
                     ResultType.UNEXPECTED,
                     "Error during workload creation\n" + ConcurrentErrorReporter.stackTraceToString(e));

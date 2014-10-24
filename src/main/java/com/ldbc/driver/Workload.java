@@ -4,13 +4,15 @@ import com.ldbc.driver.control.DriverConfiguration;
 import com.ldbc.driver.generator.GeneratorFactory;
 import com.ldbc.driver.temporal.Duration;
 
+import java.io.Closeable;
+import java.io.IOException;
 import java.util.Map;
 
-public abstract class Workload {
+public abstract class Workload implements Closeable {
     public static final Duration DEFAULT_MAXIMUM_EXPECTED_INTERLEAVE = Duration.fromMinutes(60);
 
     private boolean isInitialized = false;
-    private boolean isCleanedUp = false;
+    private boolean isClosed = false;
 
     /**
      * Called once to initialize state for workload
@@ -24,15 +26,16 @@ public abstract class Workload {
 
     public abstract void onInit(Map<String, String> params) throws WorkloadException;
 
-    public final void cleanup() throws WorkloadException {
-        if (isCleanedUp) {
-            throw new WorkloadException("Workload may be cleaned up only once");
+
+    public final void close() throws IOException {
+        if (isClosed) {
+            throw new IOException("Workload may be cleaned up only once");
         }
-        isCleanedUp = true;
-        onCleanup();
+        isClosed = true;
+        onClose();
     }
 
-    protected abstract void onCleanup() throws WorkloadException;
+    protected abstract void onClose() throws IOException;
 
     public final WorkloadStreams streams(GeneratorFactory gf) throws WorkloadException {
         if (false == isInitialized)

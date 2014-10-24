@@ -225,29 +225,17 @@ public class LdbcSnbInteractiveWorkload extends Workload {
     }
 
     @Override
-    synchronized protected void onCleanup() throws WorkloadException {
+    synchronized protected void onClose() throws IOException {
         for (Closeable forumUpdateOperationsFileReader : forumUpdateOperationsFileReaders) {
-            try {
-                forumUpdateOperationsFileReader.close();
-            } catch (IOException e) {
-                throw new WorkloadException("Error encountered while closing forum update reader", e);
-            }
+            forumUpdateOperationsFileReader.close();
         }
 
         for (Closeable personUpdateOperationsFileReader : personUpdateOperationsFileReaders) {
-            try {
-                personUpdateOperationsFileReader.close();
-            } catch (IOException e) {
-                throw new WorkloadException("Error encountered while closing forum update reader", e);
-            }
+            personUpdateOperationsFileReader.close();
         }
 
         for (Closeable readOperationFileReader : readOperationFileReaders) {
-            try {
-                readOperationFileReader.close();
-            } catch (IOException e) {
-                throw new WorkloadException("Error encountered while closing read parameters reader", e);
-            }
+            readOperationFileReader.close();
         }
     }
 

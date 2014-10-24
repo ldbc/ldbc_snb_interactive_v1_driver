@@ -5,6 +5,7 @@ import com.ldbc.driver.*;
 import com.ldbc.driver.runtime.scheduling.Spinner;
 import com.ldbc.driver.workloads.ldbc.snb.interactive.*;
 
+import java.io.IOException;
 import java.util.Map;
 
 public class DummyLdbcSnbInteractiveDb extends Db {
@@ -48,7 +49,7 @@ public class DummyLdbcSnbInteractiveDb extends Db {
     }
 
     @Override
-    protected void onCleanup() throws DbException {
+    protected void onClose() throws IOException {
     }
 
     @Override

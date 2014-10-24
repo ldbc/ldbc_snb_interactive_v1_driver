@@ -2,6 +2,7 @@ package com.ldbc.driver.workloads.dummy;
 
 import com.ldbc.driver.*;
 
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -27,6 +28,11 @@ public class DummyDb extends Db {
         private boolean isAllowed(String name) {
             if (false == nameAllowedMap.containsKey(name)) return defaultAllowed;
             return nameAllowedMap.get(name);
+        }
+
+        @Override
+        public void close() throws IOException {
+
         }
     }
 
@@ -56,7 +62,7 @@ public class DummyDb extends Db {
     }
 
     @Override
-    protected void onCleanup() throws DbException {
+    protected void onClose() throws IOException {
     }
 
     @Override

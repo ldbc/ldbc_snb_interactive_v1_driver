@@ -1,12 +1,14 @@
 package com.ldbc.driver;
 
+import java.io.Closeable;
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-public abstract class Db {
+public abstract class Db implements Closeable{
     private boolean isInitialized = false;
-    private AtomicBoolean isCleanedUp = new AtomicBoolean(false);
+    private AtomicBoolean isShutdown = new AtomicBoolean(false);
     private final Map<Class<? extends Operation<?>>, OperationHandlerFactory> operationHandlerFactories = new HashMap<>();
 
     public final void init(Map<String, String> properties) throws DbException {
@@ -22,27 +24,28 @@ public abstract class Db {
      */
     protected abstract void onInit(Map<String, String> properties) throws DbException;
 
-    synchronized public final void shutdown() throws DbException {
-        if (isCleanedUp.get()) {
-            throw new DbException("DB may be cleaned up only once");
+    @Override
+    synchronized public final void close() throws IOException {
+        if (isShutdown.get()) {
+            throw new IOException("DB may be cleaned up only once");
         }
-        isCleanedUp.set(true);
+        isShutdown.set(true);
         for (OperationHandlerFactory operationHandlerFactory : operationHandlerFactories.values()) {
             try {
                 operationHandlerFactory.shutdown();
             } catch (OperationException e) {
-                throw new DbException(
+                throw new IOException(
                         "Error shutting down operation handler factory - unclean shutdown: " + operationHandlerFactory.toString(),
                         e);
             }
         }
-        onCleanup();
+        onClose();
     }
 
     /**
      * Called once to cleanup state for DB client
      */
-    protected abstract void onCleanup() throws DbException;
+    protected abstract void onClose() throws IOException;
 
     public final <A extends Operation<?>, H extends OperationHandler<A>> void registerOperationHandler(Class<A> operationType, Class<H> operationHandlerType) throws DbException {
         if (operationHandlerFactories.containsKey(operationType))

@@ -10,6 +10,7 @@ import com.ldbc.driver.util.Tuple;
 import com.ldbc.driver.validation.ClassNameWorkloadFactory;
 import com.ldbc.driver.validation.WorkloadFactory;
 
+import java.io.IOException;
 import java.util.*;
 
 public class WorkloadStreams {
@@ -148,12 +149,12 @@ public class WorkloadStreams {
         return timeOffsetAndCompressedWorkloadStreams;
     }
 
-    public static Tuple.Tuple2<WorkloadStreams, Workload> createNewWorkloadWithLimitedWorkloadStreams(DriverConfiguration configuration, GeneratorFactory gf) throws WorkloadException {
+    public static Tuple.Tuple2<WorkloadStreams, Workload> createNewWorkloadWithLimitedWorkloadStreams(DriverConfiguration configuration, GeneratorFactory gf) throws WorkloadException, IOException {
         ClassNameWorkloadFactory workloadFactory = new ClassNameWorkloadFactory(configuration.workloadClassName());
         return createNewWorkloadWithLimitedWorkloadStreams(workloadFactory, configuration, gf);
     }
 
-    public static Tuple.Tuple2<WorkloadStreams, Workload> createNewWorkloadWithLimitedWorkloadStreams(WorkloadFactory workloadFactory, DriverConfiguration configuration, GeneratorFactory gf) throws WorkloadException {
+    public static Tuple.Tuple2<WorkloadStreams, Workload> createNewWorkloadWithLimitedWorkloadStreams(WorkloadFactory workloadFactory, DriverConfiguration configuration, GeneratorFactory gf) throws WorkloadException, IOException {
         WorkloadStreams workloadStreams = new WorkloadStreams();
         // get workload
         Workload workload = workloadFactory.createWorkload();
@@ -169,7 +170,7 @@ public class WorkloadStreams {
         }
         // stream through streams once, to calculate how many operations are needed from each, to get operation_count in total
         long[] limitForStream = WorkloadStreams.fromAmongAllRetrieveTopK(streams, configuration.operationCount());
-        workload.cleanup();
+        workload.close();
         // reinitialize workload, so it can be streamed through from the beginning
         workload = workloadFactory.createWorkload();
         workload.init(configuration);

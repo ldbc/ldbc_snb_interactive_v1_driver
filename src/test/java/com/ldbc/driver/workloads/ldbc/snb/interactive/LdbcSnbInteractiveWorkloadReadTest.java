@@ -25,7 +25,6 @@ import org.junit.rules.TemporaryFolder;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
-import java.text.DecimalFormat;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 
@@ -477,8 +476,8 @@ public class LdbcSnbInteractiveWorkloadReadTest {
             assertThat(a, equalTo(b));
         }
 
-        workloadA.cleanup();
-        workloadB.cleanup();
+        workloadA.close();
+        workloadB.close();
     }
 
     @Test
@@ -576,7 +575,7 @@ public class LdbcSnbInteractiveWorkloadReadTest {
                         tolerance),
                 is(true));
 
-        workload.cleanup();
+        workload.close();
     }
 
     @Test
@@ -676,6 +675,6 @@ public class LdbcSnbInteractiveWorkloadReadTest {
             prevOperationScheduledStartTime = operation.scheduledStartTime();
         }
 
-        workload.cleanup();
+        workload.close();
     }
 }

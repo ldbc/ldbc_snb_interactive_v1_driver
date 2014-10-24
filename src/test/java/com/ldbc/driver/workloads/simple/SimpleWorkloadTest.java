@@ -98,7 +98,7 @@ public class SimpleWorkloadTest {
     }
 
     @Test
-    public void shouldBeRepeatableWhenSameWorkloadIsUsedTwiceWithIdenticalGeneratorFactories() throws ClientException, DriverConfigurationException, WorkloadException {
+    public void shouldBeRepeatableWhenSameWorkloadIsUsedTwiceWithIdenticalGeneratorFactories() throws ClientException, DriverConfigurationException, WorkloadException, IOException {
         Map<String, String> paramsMap = null;
         String name = "name";
         String dbClassName = null;
@@ -180,7 +180,7 @@ public class SimpleWorkloadTest {
             Class b = operationsBIt.next();
             assertThat(a, equalTo(b));
         }
-        workload.cleanup();
+        workload.close();
     }
 
     @Ignore

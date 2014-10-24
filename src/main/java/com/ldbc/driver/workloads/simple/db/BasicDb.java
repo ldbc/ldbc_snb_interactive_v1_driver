@@ -3,6 +3,7 @@ package com.ldbc.driver.workloads.simple.db;
 import com.ldbc.driver.*;
 import com.ldbc.driver.workloads.simple.*;
 
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
@@ -28,6 +29,11 @@ public class BasicDb extends Db {
         BasicClient client() {
             return basicClient;
         }
+
+        @Override
+        public void close() throws IOException {
+
+        }
     }
 
     private BasicDbConnectionState connectionState = null;
@@ -45,7 +51,7 @@ public class BasicDb extends Db {
     }
 
     @Override
-    public void onCleanup() throws DbException {
+    public void onClose() throws IOException {
     }
 
     public static class InsertOperationHandler extends OperationHandler<InsertOperation> {

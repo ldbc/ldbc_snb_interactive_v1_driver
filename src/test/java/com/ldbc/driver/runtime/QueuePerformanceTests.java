@@ -18,6 +18,7 @@ import com.ldbc.driver.workloads.ldbc.snb.interactive.db.DummyLdbcSnbInteractive
 import org.junit.Ignore;
 import org.junit.Test;
 
+import java.io.IOException;
 import java.util.*;
 import java.util.concurrent.*;
 
@@ -52,7 +53,7 @@ public class QueuePerformanceTests {
     final TimeSource timeSource = new SystemTimeSource();
 
     @Test
-    public void operationQueuePerformanceTest() throws WorkloadException, InterruptedException {
+    public void operationQueuePerformanceTest() throws WorkloadException, InterruptedException, IOException {
         // Given
         Map<String, String> paramsMap = defaultSnbParamsMapWithParametersDir();
         // LDBC Interactive Workload-specific parameters
@@ -115,7 +116,7 @@ public class QueuePerformanceTests {
         Duration duration = doOperationQueuePerformanceTest(operations, DefaultQueues.<Operation<?>>newBlockingBounded(10000));
         long opsPerSecond = Math.round(((double) config.operationCount() / duration.asNano()) * 1000000000);
         System.out.println(String.format("%s operations in %s: %s op/sec", config.operationCount(), duration, opsPerSecond));
-        workload.cleanup();
+        workload.close();
     }
 
     private Duration doOperationQueuePerformanceTest(final Iterator<Operation<?>> operations, final Queue<Operation<?>> queue) throws InterruptedException {

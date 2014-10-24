@@ -163,7 +163,7 @@ public class Client {
         private final TimeSource timeSource;
 
         private Workload workload = null;
-        private Db db = null;
+        private Db database = null;
         private ConcurrentMetricsService metricsService = null;
         private ConcurrentCompletionTimeService completionTimeService = null;
         private WorkloadRunner workloadRunner = null;
@@ -188,12 +188,12 @@ public class Client {
             CompletionTimeServiceAssistant completionTimeServiceAssistant = new CompletionTimeServiceAssistant();
 
             try {
-                db = ClassLoaderHelper.loadDb(controlService.configuration().dbClassName());
-                db.init(controlService.configuration().asMap());
+                database = ClassLoaderHelper.loadDb(controlService.configuration().dbClassName());
+                database.init(controlService.configuration().asMap());
             } catch (DbException e) {
                 throw new ClientException(String.format("Error loading DB class: %s", controlService.configuration().dbClassName()), e);
             }
-            logger.info(String.format("Loaded DB: %s", db.getClass().getName()));
+            logger.info(String.format("Loaded DB: %s", database.getClass().getName()));
 
             ConcurrentErrorReporter errorReporter = new ConcurrentErrorReporter();
 
@@ -289,7 +289,7 @@ public class Client {
                 int operationHandlerExecutorsBoundedQueueSize = DefaultQueues.DEFAULT_BOUND_1000;
                 workloadRunner = new WorkloadRunner(
                         timeSource,
-                        db,
+                        database,
                         timeMappedWorkloadStreams,
                         metricsService,
                         errorReporter,
@@ -365,73 +365,68 @@ public class Client {
 
         @Override
         public void execute() throws ClientException {
-            try {
-                // TODO revise if this necessary here, and if not where??
-                controlService.waitForCommandToExecuteWorkload();
+            // TODO revise if this necessary here, and if not where??
+            controlService.waitForCommandToExecuteWorkload();
 
-                try {
-                    workloadRunner.executeWorkload();
-                } catch (WorkloadException e) {
-                    throw new ClientException("Error running Workload", e);
-                }
-
-                // TODO revise if this necessary here, and if not where??
-                controlService.waitForAllToCompleteExecutingWorkload();
-
-                logger.info("Shutting down completion time service...");
-                try {
-                    completionTimeService.shutdown();
-                } catch (CompletionTimeException e) {
-                    throw new ClientException("Error during shutdown of completion time service", e);
-                }
-
-                logger.info("Shutting down metrics collection service...");
-                WorkloadResultsSnapshot workloadResults;
-                try {
-                    workloadResults = metricsService.results();
-                    metricsService.shutdown();
-                } catch (MetricsCollectionException e) {
-                    throw new ClientException("Error during shutdown of metrics collection service", e);
-                }
-
-                logger.info(String.format("Runtime: %s", workloadResults.totalRunDuration()));
-
-                logger.info("Exporting workload metrics...");
-                try {
-                    MetricsManager.export(workloadResults, new SimpleOperationMetricsFormatter(), System.out, Charsets.UTF_8);
-                    if (null != controlService.configuration().resultDirPath()) {
-                        File resultDir = new File(controlService.configuration().resultDirPath());
-                        File resultFile = new File(resultDir, controlService.configuration().name() + ThreadedQueuedConcurrentMetricsService.RESULTS_METRICS_FILENAME_SUFFIX);
-                        MetricsManager.export(workloadResults, new JsonOperationMetricsFormatter(), new FileOutputStream(resultFile), Charsets.UTF_8);
-
-                        File configurationFile = new File(resultDir, controlService.configuration().name() + ThreadedQueuedConcurrentMetricsService.RESULTS_CONFIGURATION_FILENAME_SUFFIX);
-                        try (PrintStream out = new PrintStream(new FileOutputStream(configurationFile))) {
-                            out.print(controlService.configuration().toPropertiesString());
-                        } catch (DriverConfigurationException e) {
-                            throw new ClientException(
-                                    String.format("Encountered error while writing configuration to file.\nResult Dir: %s\nConfig File: %s",
-                                            resultDir.getAbsolutePath(),
-                                            configurationFile.getAbsolutePath()),
-                                    e
-                            );
-                        }
-                        if (null != csvResultsLogFileWriter) {
-                            csvResultsLogFileWriter.close();
-                        }
-                    }
-                } catch (MetricsCollectionException e) {
-                    throw new ClientException("Could not export workload metrics", e);
-                } catch (FileNotFoundException e) {
-                    throw new ClientException("Error encountered while trying to write results", e);
-                } catch (IOException e) {
-                    throw new ClientException("Error encountered while trying to write results", e);
-                }
-            } finally {
-                cleanupWorkload(workload);
-                cleanupDb(db);
+            try (Workload w = workload; Db db = database) {
+                workloadRunner.executeWorkload();
+            } catch (WorkloadException e) {
+                throw new ClientException("Error running Workload", e);
+            } catch (IOException e) {
+                throw new ClientException("Error running Workload", e);
             }
 
+            // TODO revise if this necessary here, and if not where??
+            controlService.waitForAllToCompleteExecutingWorkload();
 
+            logger.info("Shutting down completion time service...");
+            try {
+                completionTimeService.shutdown();
+            } catch (CompletionTimeException e) {
+                throw new ClientException("Error during shutdown of completion time service", e);
+            }
+
+            logger.info("Shutting down metrics collection service...");
+            WorkloadResultsSnapshot workloadResults;
+            try {
+                workloadResults = metricsService.results();
+                metricsService.shutdown();
+            } catch (MetricsCollectionException e) {
+                throw new ClientException("Error during shutdown of metrics collection service", e);
+            }
+
+            logger.info(String.format("Runtime: %s", workloadResults.totalRunDuration()));
+
+            logger.info("Exporting workload metrics...");
+            try {
+                MetricsManager.export(workloadResults, new SimpleOperationMetricsFormatter(), System.out, Charsets.UTF_8);
+                if (null != controlService.configuration().resultDirPath()) {
+                    File resultDir = new File(controlService.configuration().resultDirPath());
+                    File resultFile = new File(resultDir, controlService.configuration().name() + ThreadedQueuedConcurrentMetricsService.RESULTS_METRICS_FILENAME_SUFFIX);
+                    MetricsManager.export(workloadResults, new JsonOperationMetricsFormatter(), new FileOutputStream(resultFile), Charsets.UTF_8);
+
+                    File configurationFile = new File(resultDir, controlService.configuration().name() + ThreadedQueuedConcurrentMetricsService.RESULTS_CONFIGURATION_FILENAME_SUFFIX);
+                    try (PrintStream out = new PrintStream(new FileOutputStream(configurationFile))) {
+                        out.print(controlService.configuration().toPropertiesString());
+                    } catch (DriverConfigurationException e) {
+                        throw new ClientException(
+                                String.format("Encountered error while writing configuration to file.\nResult Dir: %s\nConfig File: %s",
+                                        resultDir.getAbsolutePath(),
+                                        configurationFile.getAbsolutePath()),
+                                e
+                        );
+                    }
+                    if (null != csvResultsLogFileWriter) {
+                        csvResultsLogFileWriter.close();
+                    }
+                }
+            } catch (MetricsCollectionException e) {
+                throw new ClientException("Could not export workload metrics", e);
+            } catch (FileNotFoundException e) {
+                throw new ClientException("Error encountered while trying to write results", e);
+            } catch (IOException e) {
+                throw new ClientException("Error encountered while trying to write results", e);
+            }
         }
     }
 
@@ -477,7 +472,7 @@ public class Client {
         @Override
         public void execute() throws ClientException {
             logger.info(String.format("Calculating workload statistics for: %s", workload.getClass().getSimpleName()));
-            try {
+            try (Workload w = workload) {
                 WorkloadStatisticsCalculator workloadStatisticsCalculator = new WorkloadStatisticsCalculator();
                 workloadStatistics = workloadStatisticsCalculator.calculate(
                         timeMappedWorkloadStreams,
@@ -488,9 +483,9 @@ public class Client {
                 logger.info("Calculation complete\n" + workloadStatistics);
             } catch (MetricsCollectionException e) {
                 throw new ClientException("Error while calculating workload statistics", e);
+            } catch (IOException e) {
+                throw new ClientException("Error while calculating workload statistics", e);
             }
-
-            cleanupWorkload(workload);
         }
     }
 
@@ -498,7 +493,7 @@ public class Client {
         private final ConcurrentControlService controlService;
 
         private Workload workload = null;
-        private Db db = null;
+        private Db database = null;
         private Iterator<Operation<?>> timeMappedOperations = null;
 
         CreateValidationParamsMode(ConcurrentControlService controlService) throws ClientException {
@@ -516,12 +511,12 @@ public class Client {
             logger.info(String.format("Loaded Workload: %s", workload.getClass().getName()));
 
             try {
-                db = ClassLoaderHelper.loadDb(controlService.configuration().dbClassName());
-                db.init(controlService.configuration().asMap());
+                database = ClassLoaderHelper.loadDb(controlService.configuration().dbClassName());
+                database.init(controlService.configuration().asMap());
             } catch (DbException e) {
                 throw new ClientException(String.format("Error loading DB class: %s", controlService.configuration().dbClassName()), e);
             }
-            logger.info(String.format("Loaded DB: %s", db.getClass().getName()));
+            logger.info(String.format("Loaded DB: %s", database.getClass().getName()));
 
             GeneratorFactory gf = new GeneratorFactory(new RandomDataGeneratorFactory(RANDOM_SEED));
 
@@ -533,6 +528,8 @@ public class Client {
                 timeMappedOperations = workloadStreams.mergeSortedByStartTime(gf);
             } catch (WorkloadException e) {
                 throw new ClientException("Error while retrieving operation stream for workload", e);
+            } catch (IOException e) {
+                throw new ClientException("Error while retrieving operation stream for workload", e);
             }
 
             logger.info("Driver Configuration");
@@ -541,44 +538,45 @@ public class Client {
 
         @Override
         public void execute() throws ClientException {
-            File validationFileToGenerate = new File(controlService.configuration().validationParamsCreationOptions().filePath());
-            int validationSetSize = controlService.configuration().validationParamsCreationOptions().validationSetSize();
-            // TODO get from config parameter
-            boolean performSerializationMarshallingChecks = true;
+            try (Workload w = workload; Db db = database) {
+                File validationFileToGenerate = new File(controlService.configuration().validationParamsCreationOptions().filePath());
+                int validationSetSize = controlService.configuration().validationParamsCreationOptions().validationSetSize();
+                // TODO get from config parameter
+                boolean performSerializationMarshallingChecks = true;
 
-            logger.info(String.format("Generating database validation file: %s", validationFileToGenerate.getAbsolutePath()));
+                logger.info(String.format("Generating database validation file: %s", validationFileToGenerate.getAbsolutePath()));
 
-            Iterator<ValidationParam> validationParamsGenerator =
-                    new ValidationParamsGenerator(db, workload.dbValidationParametersFilter(validationSetSize), timeMappedOperations);
+                Iterator<ValidationParam> validationParamsGenerator =
+                        new ValidationParamsGenerator(db, w.dbValidationParametersFilter(validationSetSize), timeMappedOperations);
 
-            Iterator<String[]> csvRows =
-                    new ValidationParamsToCsvRows(validationParamsGenerator, workload, performSerializationMarshallingChecks);
+                Iterator<String[]> csvRows =
+                        new ValidationParamsToCsvRows(validationParamsGenerator, w, performSerializationMarshallingChecks);
 
-            SimpleCsvFileWriter simpleCsvFileWriter;
-            try {
-                simpleCsvFileWriter = new SimpleCsvFileWriter(validationFileToGenerate, SimpleCsvFileWriter.DEFAULT_COLUMN_SEPARATOR);
+                SimpleCsvFileWriter simpleCsvFileWriter;
+                try {
+                    simpleCsvFileWriter = new SimpleCsvFileWriter(validationFileToGenerate, SimpleCsvFileWriter.DEFAULT_COLUMN_SEPARATOR);
+                } catch (IOException e) {
+                    throw new ClientException("Error encountered trying to open CSV file writer", e);
+                }
+
+                try {
+                    simpleCsvFileWriter.writeRows(csvRows);
+                } catch (IOException e) {
+                    throw new ClientException("Error encountered trying to write validation parameters to CSV file writer", e);
+                }
+
+                try {
+                    simpleCsvFileWriter.close();
+                } catch (IOException e) {
+                    throw new ClientException("Error encountered trying to close CSV file writer", e);
+                }
+
+                int validationParametersGenerated = ((ValidationParamsGenerator) validationParamsGenerator).entriesWrittenSoFar();
+
+                logger.info(String.format("Successfully generated %s database validation parameters", validationParametersGenerated));
             } catch (IOException e) {
-                throw new ClientException("Error encountered trying to open CSV file writer", e);
+                throw new ClientException("Error encountered duration validation parameter creation", e);
             }
-
-            try {
-                simpleCsvFileWriter.writeRows(csvRows);
-            } catch (IOException e) {
-                throw new ClientException("Error encountered trying to write validation parameters to CSV file writer", e);
-            }
-
-            try {
-                simpleCsvFileWriter.close();
-            } catch (IOException e) {
-                throw new ClientException("Error encountered trying to close CSV file writer", e);
-            }
-
-            int validationParametersGenerated = ((ValidationParamsGenerator) validationParamsGenerator).entriesWrittenSoFar();
-
-            logger.info(String.format("Successfully generated %s database validation parameters", validationParametersGenerated));
-
-            cleanupWorkload(workload);
-            cleanupDb(db);
         }
     }
 
@@ -586,7 +584,7 @@ public class Client {
         private final ConcurrentControlService controlService;
 
         private Workload workload = null;
-        private Db db = null;
+        private Db database = null;
 
         ValidateDatabaseMode(ConcurrentControlService controlService) throws ClientException {
             this.controlService = controlService;
@@ -603,12 +601,12 @@ public class Client {
             logger.info(String.format("Loaded Workload: %s", workload.getClass().getName()));
 
             try {
-                db = ClassLoaderHelper.loadDb(controlService.configuration().dbClassName());
-                db.init(controlService.configuration().asMap());
+                database = ClassLoaderHelper.loadDb(controlService.configuration().dbClassName());
+                database.init(controlService.configuration().asMap());
             } catch (DbException e) {
                 throw new ClientException(String.format("Error loading DB class: %s", controlService.configuration().dbClassName()), e);
             }
-            logger.info(String.format("Loaded DB: %s", db.getClass().getName()));
+            logger.info(String.format("Loaded DB: %s", database.getClass().getName()));
 
             logger.info("Driver Configuration");
             logger.info(controlService.toString());
@@ -616,7 +614,7 @@ public class Client {
 
         @Override
         public void execute() throws ClientException {
-            try {
+            try (Workload w = workload; Db db = database) {
                 File validationParamsFile = new File(controlService.configuration().databaseValidationFilePath());
 
                 logger.info(String.format("Validating database against expected results\n * Db: %s\n * Validation Params File: %s",
@@ -630,7 +628,7 @@ public class Client {
                 }
 
                 try {
-                    Iterator<ValidationParam> validationParams = new ValidationParamsFromCsvRows(validationParamsReader, workload);
+                    Iterator<ValidationParam> validationParams = new ValidationParamsFromCsvRows(validationParamsReader, w);
                     DbValidator dbValidator = new DbValidator();
                     databaseValidationResult = dbValidator.validate(validationParams, db);
                     logger.info(databaseValidationResult.resultMessage());
@@ -641,7 +639,7 @@ public class Client {
 
                 File failedValidationOperationsFile = new File(validationParamsFile.getParentFile(), removeExtension(validationParamsFile.getName()) + "-failed.json");
                 try (PrintStream out = new PrintStream(new FileOutputStream(failedValidationOperationsFile))) {
-                    out.print(databaseValidationResult.failedOperationsAsJsonString(workload));
+                    out.print(databaseValidationResult.failedOperationsAsJsonString(w));
                     out.flush();
                     out.close();
                 } catch (Exception e) {
@@ -653,10 +651,8 @@ public class Client {
                 }
 
                 logger.info("Database Validation Successful");
-            } finally {
-                cleanupWorkload(workload);
-                cleanupDb(db);
-
+            } catch (IOException e) {
+                throw new ClientException("Error occurred during database validation", e);
             }
         }
 
@@ -708,26 +704,6 @@ public class Client {
         public void execute() throws ClientException {
             logger.info(controlService.configuration().helpString());
         }
-    }
 
-    private final void cleanupDb(Db db) throws ClientException {
-        logger.info("Cleaning up DB...");
-        try {
-            db.shutdown();
-        } catch (DbException e) {
-            throw new ClientException("Error during DB cleanup", e);
-        }
-        logger.info("Complete");
-    }
-
-    private final void cleanupWorkload(Workload workload) throws ClientException {
-        logger.info("Cleaning up Workload...");
-        try {
-            workload.cleanup();
-        } catch (WorkloadException e) {
-            String errMsg = "Error during Workload cleanup";
-            throw new ClientException(errMsg, e);
-        }
-        logger.info("Complete");
     }
 }

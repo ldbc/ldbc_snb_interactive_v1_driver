@@ -327,7 +327,7 @@ public class TimeMappingOperationGeneratorTest {
             assertThat(operation.scheduledStartTime().gte(prevOffsetOperationScheduledStartTime), is(true));
             prevOffsetOperationScheduledStartTime = operation.scheduledStartTime();
         }
-        workload.cleanup();
+        workload.close();
     }
 
     @Test

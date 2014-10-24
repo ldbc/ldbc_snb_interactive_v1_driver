@@ -19,6 +19,7 @@ import com.ldbc.driver.workloads.simple.SimpleWorkload;
 import org.junit.Ignore;
 import org.junit.Test;
 
+import java.io.IOException;
 import java.util.Iterator;
 import java.util.Set;
 import java.util.concurrent.*;
@@ -33,7 +34,7 @@ public class ConcurrentCompletionTimeServiceAdvancedTest {
 
     @Ignore
     @Test
-    public void stressTestThreadedQueuedConcurrentCompletionTimeService() throws InterruptedException, ExecutionException, WorkloadException, CompletionTimeException, DriverConfigurationException {
+    public void stressTestThreadedQueuedConcurrentCompletionTimeService() throws InterruptedException, ExecutionException, WorkloadException, CompletionTimeException, DriverConfigurationException, IOException {
         ThreadPoolLoadGenerator threadPoolLoadGenerator = TestUtils.newThreadPoolLoadGenerator(128, Duration.fromMilli(0));
         threadPoolLoadGenerator.start();
         try {
@@ -65,7 +66,7 @@ public class ConcurrentCompletionTimeServiceAdvancedTest {
     }
 
     @Test
-    public void completionTimeServicesShouldBehaveDeterministically() throws InterruptedException, ExecutionException, WorkloadException, CompletionTimeException, DriverConfigurationException {
+    public void completionTimeServicesShouldBehaveDeterministically() throws InterruptedException, ExecutionException, WorkloadException, CompletionTimeException, DriverConfigurationException, IOException {
         ConcurrentErrorReporter errorReporter = new ConcurrentErrorReporter();
         String otherPeerId = "somePeer";
         Set<String> peerIds = Sets.newHashSet(otherPeerId);
@@ -104,7 +105,7 @@ public class ConcurrentCompletionTimeServiceAdvancedTest {
                                                       String otherPeerId,
                                                       ConcurrentErrorReporter errorReporter,
                                                       int threadCount)
-            throws WorkloadException, InterruptedException, ExecutionException, CompletionTimeException, DriverConfigurationException {
+            throws WorkloadException, InterruptedException, ExecutionException, CompletionTimeException, DriverConfigurationException, IOException {
         // initialize executor
         ThreadFactory threadFactory = new ThreadFactory() {
             private final long factoryTimeStampId = System.currentTimeMillis();
@@ -248,7 +249,7 @@ public class ConcurrentCompletionTimeServiceAdvancedTest {
         boolean allTasksCompletedInTime = executorService.awaitTermination(10, TimeUnit.SECONDS);
         assertThat(allTasksCompletedInTime, is(true));
         assertThat(errorReporter.toString(), errorReporter.errorEncountered(), is(false));
-        workload.cleanup();
+        workload.close();
         return testDuration;
     }
 

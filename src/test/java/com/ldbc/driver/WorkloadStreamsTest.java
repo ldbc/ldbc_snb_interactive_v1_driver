@@ -16,6 +16,7 @@ import com.ldbc.driver.workloads.dummy.TimedNamedOperation2Factory;
 import com.ldbc.driver.workloads.dummy.TimedNamedOperation3Factory;
 import org.junit.Test;
 
+import java.io.IOException;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
@@ -178,7 +179,7 @@ public class WorkloadStreamsTest {
     }
 
     @Test
-    public void shouldLimitWorkloadCorrectly() throws WorkloadException, DriverConfigurationException {
+    public void shouldLimitWorkloadCorrectly() throws WorkloadException, DriverConfigurationException, IOException {
         GeneratorFactory gf = new GeneratorFactory(new RandomDataGeneratorFactory(42l));
         WorkloadFactory workloadFactory = new WorkloadFactory() {
             @Override
@@ -191,7 +192,7 @@ public class WorkloadStreamsTest {
         WorkloadStreams workloadStreams = limitedWorkloadStreamsAndWorkload._1();
         Workload workload = limitedWorkloadStreamsAndWorkload._2();
         assertThat(Iterators.size(workloadStreams.mergeSortedByStartTime(gf)), is(100));
-        workload.cleanup();
+        workload.close();
     }
 
     @Test
@@ -384,7 +385,7 @@ public class WorkloadStreamsTest {
         }
 
         @Override
-        protected void onCleanup() throws WorkloadException {
+        protected void onClose() throws IOException {
         }
 
         @Override
