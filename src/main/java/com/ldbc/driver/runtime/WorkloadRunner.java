@@ -11,19 +11,22 @@ import com.ldbc.driver.runtime.executor.*;
 import com.ldbc.driver.runtime.metrics.ConcurrentMetricsService;
 import com.ldbc.driver.runtime.scheduling.Spinner;
 import com.ldbc.driver.temporal.Duration;
+import com.ldbc.driver.temporal.TemporalUtil;
 import com.ldbc.driver.temporal.Time;
 import com.ldbc.driver.temporal.TimeSource;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import static com.ldbc.driver.WorkloadStreams.WorkloadStreamDefinition;
 
 public class WorkloadRunner {
-    public static final Duration DEFAULT_DURATION_TO_WAIT_FOR_ALL_HANDLERS_TO_FINISH = Duration.fromMinutes(120);
-    public static final long RUNNER_POLLING_INTERVAL_AS_MILLI = Duration.fromMilli(100).asMilli();
-    private static final Duration WAIT_DURATION_FOR_OPERATION_HANDLER_EXECUTOR_TO_SHUTDOWN = Duration.fromSeconds(5);
+    private static final TemporalUtil TEMPORAL_UTIL = new TemporalUtil();
+    public static final long DEFAULT_DURATION_TO_WAIT_FOR_ALL_HANDLERS_TO_FINISH_AS_MILLI = TEMPORAL_UTIL.convert(180, TimeUnit.MINUTES, TimeUnit.MILLISECONDS);
+    public static final long RUNNER_POLLING_INTERVAL_AS_MILLI = 100;
+    private static final long WAIT_DURATION_FOR_OPERATION_HANDLER_EXECUTOR_TO_SHUTDOWN_AS_MILLI = TEMPORAL_UTIL.convert(10, TimeUnit.SECONDS, TimeUnit.MILLISECONDS);
     private static final LocalCompletionTimeWriter DUMMY_LOCAL_COMPLETION_TIME_WRITER = new DummyLocalCompletionTimeWriter();
 
     private final Spinner exactSpinner;
@@ -39,7 +42,7 @@ public class WorkloadRunner {
     private final PreciseIndividualAsyncOperationStreamExecutorService asynchronousStreamExecutorService;
     private final List<PreciseIndividualBlockingOperationStreamExecutorService> blockingStreamExecutorServices = new ArrayList<>();
 
-    private final Duration statusDisplayInterval;
+    private final long statusDisplayIntervalAsMilli;
 
     public WorkloadRunner(TimeSource timeSource,
                           Db db,
@@ -48,22 +51,22 @@ public class WorkloadRunner {
                           ConcurrentErrorReporter errorReporter,
                           ConcurrentCompletionTimeService completionTimeService,
                           int threadCount,
-                          Duration statusDisplayInterval,
-                          Time workloadStartTime,
-                          Duration spinnerSleepDuration,
+                          long statusDisplayIntervalAsMilli,
+                          long workloadStartTimeAsMilli,
+                          long spinnerSleepDurationAsMilli,
                           Duration executionWindowDuration,
                           Duration durationToWaitForAllHandlersToFinishBeforeShutdown,
                           boolean ignoreScheduleStartTimes,
                           int operationHandlerExecutorsBoundedQueueSize) throws WorkloadException {
         this.errorReporter = errorReporter;
-        this.statusDisplayInterval = statusDisplayInterval;
+        this.statusDisplayIntervalAsMilli = statusDisplayIntervalAsMilli;
 
-        this.exactSpinner = new Spinner(timeSource, spinnerSleepDuration, ignoreScheduleStartTimes);
+        this.exactSpinner = new Spinner(timeSource, spinnerSleepDurationAsMilli, ignoreScheduleStartTimes);
 
         boolean detailedStatus = true;
-        if (statusDisplayInterval.asSeconds() > 0)
+        if (statusDisplayIntervalAsMilli.asSeconds() > 0)
             this.workloadStatusThread = new WorkloadStatusThread(
-                    statusDisplayInterval,
+                    statusDisplayIntervalAsMilli,
                     metricsService,
                     errorReporter,
                     completionTimeService,
@@ -127,7 +130,7 @@ public class WorkloadRunner {
     // TODO executeWorkload should return a result (e.g., Success/Fail, and ErrorType if Fail)
     // TODO and then it does not need to throw an exception
     public void executeWorkload() throws WorkloadException {
-        if (statusDisplayInterval.asSeconds() > 0)
+        if (statusDisplayIntervalAsMilli.asSeconds() > 0)
             workloadStatusThread.start();
 
         AtomicBoolean[] executorFinishedFlags = new AtomicBoolean[blockingStreamExecutorServices.size() + 1];
@@ -209,9 +212,9 @@ public class WorkloadRunner {
                 }
             } else {
                 // if normal shutdown all executors have completed by this stage
-                executorForAsynchronous.shutdown(WAIT_DURATION_FOR_OPERATION_HANDLER_EXECUTOR_TO_SHUTDOWN);
+                executorForAsynchronous.shutdown(WAIT_DURATION_FOR_OPERATION_HANDLER_EXECUTOR_TO_SHUTDOWN_AS_MILLI);
                 for (OperationHandlerExecutor executorForBlocking : executorsForBlocking) {
-                    executorForBlocking.shutdown(WAIT_DURATION_FOR_OPERATION_HANDLER_EXECUTOR_TO_SHUTDOWN);
+                    executorForBlocking.shutdown(WAIT_DURATION_FOR_OPERATION_HANDLER_EXECUTOR_TO_SHUTDOWN_AS_MILLI);
                 }
             }
         } catch (OperationHandlerExecutorException e) {
@@ -219,7 +222,7 @@ public class WorkloadRunner {
                     ConcurrentErrorReporter.stackTraceToString(e));
         }
 
-        if (statusDisplayInterval.asSeconds() > 0) {
+        if (statusDisplayIntervalAsMilli.asSeconds() > 0) {
             workloadStatusThread.shutdown();
             workloadStatusThread.interrupt();
         }
