@@ -60,18 +60,35 @@ public class DbValidationResult {
         return missingHandlersForOperationTypes.isEmpty() && unableToExecuteOperations.isEmpty() && incorrectResultsForOperations.isEmpty();
     }
 
-    public String failedOperationsAsJsonString(Workload workload) throws WorkloadException {
+    public String actualResultsForFailedOperationsAsJsonString(Workload workload) throws WorkloadException {
         StringBuilder sb = new StringBuilder();
         sb.append("[");
         for (int i = 0; i < incorrectResultsForOperations.size() - 1; i++) {
             Operation<?> operation = incorrectResultsForOperations.get(i)._1();
-            Object result = incorrectResultsForOperations.get(i)._3();
-            sb.append(operationAndResultAsJsonMapString(operation, result, workload)).append(",");
+            Object actualResult = incorrectResultsForOperations.get(i)._3();
+            sb.append(operationAndResultAsJsonMapString(operation, actualResult, workload)).append(",");
         }
         if (incorrectResultsForOperations.size() >= 1) {
             Operation<?> operation = incorrectResultsForOperations.get(incorrectResultsForOperations.size() - 1)._1();
-            Object result = incorrectResultsForOperations.get(incorrectResultsForOperations.size() - 1)._3();
-            sb.append(operationAndResultAsJsonMapString(operation, result, workload));
+            Object actualResult = incorrectResultsForOperations.get(incorrectResultsForOperations.size() - 1)._3();
+            sb.append(operationAndResultAsJsonMapString(operation, actualResult, workload));
+        }
+        sb.append("]");
+        return sb.toString();
+    }
+
+    public String expectedResultsForFailedOperationsAsJsonString(Workload workload) throws WorkloadException {
+        StringBuilder sb = new StringBuilder();
+        sb.append("[");
+        for (int i = 0; i < incorrectResultsForOperations.size() - 1; i++) {
+            Operation<?> operation = incorrectResultsForOperations.get(i)._1();
+            Object expectedResult = incorrectResultsForOperations.get(i)._2();
+            sb.append(operationAndResultAsJsonMapString(operation, expectedResult, workload)).append(",");
+        }
+        if (incorrectResultsForOperations.size() >= 1) {
+            Operation<?> operation = incorrectResultsForOperations.get(incorrectResultsForOperations.size() - 1)._1();
+            Object expectedResult = incorrectResultsForOperations.get(incorrectResultsForOperations.size() - 1)._2();
+            sb.append(operationAndResultAsJsonMapString(operation, expectedResult, workload));
         }
         sb.append("]");
         return sb.toString();

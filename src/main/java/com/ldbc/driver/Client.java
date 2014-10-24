@@ -637,9 +637,22 @@ public class Client {
                 }
                 validationParamsReader.close();
 
-                File failedValidationOperationsFile = new File(validationParamsFile.getParentFile(), removeExtension(validationParamsFile.getName()) + "-failed.json");
+                File failedValidationOperationsFile = new File(validationParamsFile.getParentFile(), removeExtension(validationParamsFile.getName()) + "-failed-actual.json");
                 try (PrintStream out = new PrintStream(new FileOutputStream(failedValidationOperationsFile))) {
-                    out.print(databaseValidationResult.failedOperationsAsJsonString(w));
+                    out.print(databaseValidationResult.actualResultsForFailedOperationsAsJsonString(w));
+                    out.flush();
+                    out.close();
+                } catch (Exception e) {
+                    throw new ClientException(
+                            String.format("Encountered error while writing to file\nFile: %s",
+                                    failedValidationOperationsFile.getAbsolutePath()),
+                            e
+                    );
+                }
+
+                File expectedResultsForFailedValidationOperationsFile = new File(validationParamsFile.getParentFile(), removeExtension(validationParamsFile.getName()) + "-failed-expected.json");
+                try (PrintStream out = new PrintStream(new FileOutputStream(expectedResultsForFailedValidationOperationsFile))) {
+                    out.print(databaseValidationResult.expectedResultsForFailedOperationsAsJsonString(w));
                     out.flush();
                     out.close();
                 } catch (Exception e) {
