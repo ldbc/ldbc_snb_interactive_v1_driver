@@ -72,8 +72,8 @@ public class ThreadPoolOperationHandlerExecutorTest {
         OperationHandlerExecutor executor = new ThreadPoolOperationHandlerExecutor(threadCount, boundedQueueSize);
 
         Operation<?> operation = new NothingOperation();
-        operation.setScheduledStartTime(timeSource.now().plus(Duration.fromMilli(200)));
-        operation.setDependencyTime(Time.fromMilli(0));
+        operation.setScheduledStartTimeAsMilli(timeSource.now().plus(Duration.fromMilli(200)));
+        operation.setDependencyTimeAsMilli(Time.fromMilli(0));
         OperationHandler<?> handler = new OperationHandler<Operation<Integer>>() {
             @Override
             protected OperationResultReport executeOperation(Operation operation) throws DbException {
@@ -119,11 +119,11 @@ public class ThreadPoolOperationHandlerExecutorTest {
         OperationHandlerExecutor executor = new ThreadPoolOperationHandlerExecutor(threadCount, boundedQueueSize);
 
         Operation<?> operation1 = new NothingOperation();
-        operation1.setScheduledStartTime(timeSource.now().plus(Duration.fromMilli(100)));
-        operation1.setDependencyTime(Time.fromMilli(0));
+        operation1.setScheduledStartTimeAsMilli(timeSource.now().plus(Duration.fromMilli(100)));
+        operation1.setDependencyTimeAsMilli(Time.fromMilli(0));
         Operation<?> operation2 = new NothingOperation();
-        operation2.setScheduledStartTime(operation1.scheduledStartTime().plus(Duration.fromMilli(100)));
-        operation2.setDependencyTime(Time.fromMilli(0));
+        operation2.setScheduledStartTimeAsMilli(operation1.scheduledStartTimeAsMilli().plus(Duration.fromMilli(100)));
+        operation2.setDependencyTimeAsMilli(Time.fromMilli(0));
         OperationHandler<?> handler1 = new OperationHandler<Operation<Integer>>() {
             @Override
             protected OperationResultReport executeOperation(Operation operation) throws DbException {
@@ -184,8 +184,8 @@ public class ThreadPoolOperationHandlerExecutorTest {
         OperationHandlerExecutor executor = new ThreadPoolOperationHandlerExecutor(threadCount, boundedQueueSize);
 
         Operation<?> operation = new NothingOperation();
-        operation.setScheduledStartTime(timeSource.now().plus(Duration.fromMilli(200)));
-        operation.setDependencyTime(Time.fromMilli(0));
+        operation.setScheduledStartTimeAsMilli(timeSource.now().plus(Duration.fromMilli(200)));
+        operation.setDependencyTimeAsMilli(Time.fromMilli(0));
         OperationHandler<?> handler = new OperationHandler<Operation<Integer>>() {
             @Override
             protected OperationResultReport executeOperation(Operation operation) throws DbException {

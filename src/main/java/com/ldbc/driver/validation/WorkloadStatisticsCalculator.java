@@ -67,27 +67,27 @@ public class WorkloadStatisticsCalculator {
             public Operation<?> apply(Operation<?> operation) {
                 dependencyOperationTypes.add(operation.getClass());
                 if (null == prevDependency) {
-                    prevDependency = operation.scheduledStartTime();
+                    prevDependency = operation.scheduledStartTimeAsMilli();
                 } else {
-                    long interleaveAsMilli = operation.scheduledStartTime().durationGreaterThan(prevDependency).asMilli();
+                    long interleaveAsMilli = operation.scheduledStartTimeAsMilli().durationGreaterThan(prevDependency).asMilli();
                     try {
                         interleavesForDependencyOperations.addMeasurement(interleaveAsMilli);
                     } catch (MetricsCollectionException e) {
                         throw new RuntimeException("Error collectStatsForDependencyOperations", e);
                     }
-                    prevDependency = operation.scheduledStartTime();
+                    prevDependency = operation.scheduledStartTimeAsMilli();
                 }
                 if (dependentOperationTypes.contains(operation.getClass())) {
                     if (null == prevDependent) {
-                        prevDependent = operation.scheduledStartTime();
+                        prevDependent = operation.scheduledStartTimeAsMilli();
                     } else {
-                        long interleaveAsMilli = operation.scheduledStartTime().durationGreaterThan(prevDependent).asMilli();
+                        long interleaveAsMilli = operation.scheduledStartTimeAsMilli().durationGreaterThan(prevDependent).asMilli();
                         try {
                             interleavesForDependentOperations.addMeasurement(interleaveAsMilli);
                         } catch (MetricsCollectionException e) {
                             throw new RuntimeException("Error collectStatsForNonDependentOperations", e);
                         }
-                        prevDependent = operation.scheduledStartTime();
+                        prevDependent = operation.scheduledStartTimeAsMilli();
                     }
                 }
                 return operation;
@@ -105,15 +105,15 @@ public class WorkloadStatisticsCalculator {
             public Operation<?> apply(Operation<?> operation) {
                 if (dependentOperationTypes.contains(operation.getClass())) {
                     if (null == prevDependent) {
-                        prevDependent = operation.scheduledStartTime();
+                        prevDependent = operation.scheduledStartTimeAsMilli();
                     } else {
-                        long interleaveAsMilli = operation.scheduledStartTime().durationGreaterThan(prevDependent).asMilli();
+                        long interleaveAsMilli = operation.scheduledStartTimeAsMilli().durationGreaterThan(prevDependent).asMilli();
                         try {
                             interleavesForDependentOperations.addMeasurement(interleaveAsMilli);
                         } catch (MetricsCollectionException e) {
                             throw new RuntimeException("Error collectStatsForNonDependentOperations", e);
                         }
-                        prevDependent = operation.scheduledStartTime();
+                        prevDependent = operation.scheduledStartTimeAsMilli();
                     }
                 }
                 return operation;
@@ -131,8 +131,8 @@ public class WorkloadStatisticsCalculator {
         while (operations.hasNext()) {
             Operation<?> operation = operations.next();
             Class operationType = operation.getClass();
-            Time operationStartTime = operation.scheduledStartTime();
-            Time operationDependencyTime = operation.dependencyTime();
+            Time operationStartTime = operation.scheduledStartTimeAsMilli();
+            Time operationDependencyTime = operation.dependencyTimeAsMilli();
             Duration operationDependencyDuration = operationStartTime.durationGreaterThan(operationDependencyTime);
 
             // Operation Mix

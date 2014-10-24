@@ -484,7 +484,7 @@ public class WorkloadValidatorTest {
                         ),
                         operationCount - 1
                 )
-        ).get(operationCount - 2).scheduledStartTime();
+        ).get(operationCount - 2).scheduledStartTimeAsMilli();
 
         Set<Class<? extends Operation<?>>> dependentOperationTypes = new HashSet<>();
 
@@ -586,7 +586,7 @@ public class WorkloadValidatorTest {
                                 gf.constant("name")),
                         operationCount - 1
                 )
-        ).get(operationCount - 2).scheduledStartTime().minus(Duration.fromNano(1));
+        ).get(operationCount - 2).scheduledStartTimeAsMilli().minus(Duration.fromNano(1));
 
 
         Set<Class<? extends Operation<?>>> dependentOperationTypes = new HashSet<>();

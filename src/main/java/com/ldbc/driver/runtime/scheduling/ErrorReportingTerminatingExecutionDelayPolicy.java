@@ -20,7 +20,7 @@ public class ErrorReportingTerminatingExecutionDelayPolicy implements ExecutionD
     }
 
     @Override
-    public Duration toleratedDelay() {
+    public Duration toleratedDelayAsMilli() {
         return toleratedDelay;
     }
 
@@ -37,8 +37,8 @@ public class ErrorReportingTerminatingExecutionDelayPolicy implements ExecutionD
                 ,
                 operation,
                 toleratedDelay,
-                now.durationGreaterThan(operation.scheduledStartTime()),
-                operation.scheduledStartTime(),
+                now.durationGreaterThan(operation.scheduledStartTimeAsMilli()),
+                operation.scheduledStartTimeAsMilli(),
                 now
         );
         errorReporter.reportError(this, errMsg);

@@ -9,10 +9,10 @@ public class OperationResultReportTestHelper {
     }
 
     public static void setActualStartTime(OperationResultReport operationResultReport, Time time) {
-        operationResultReport.setActualStartTime(time);
+        operationResultReport.setActualStartTimeAsMilli(time);
     }
 
     public static void setRunDuration(OperationResultReport operationResultReport, Duration duration) {
-        operationResultReport.setRunDuration(duration);
+        operationResultReport.setRunDurationAsNano(duration);
     }
 }

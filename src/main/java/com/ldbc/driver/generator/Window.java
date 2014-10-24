@@ -112,7 +112,7 @@ public interface Window<INPUT_TYPE, RETURN_TYPE> {
 
         @Override
         public boolean add(OperationHandler<?> operationHandler) {
-            Time startTime = operationHandler.operation().scheduledStartTime();
+            Time startTime = operationHandler.operation().scheduledStartTimeAsMilli();
             if (startTime.gte(windowStartTimeInclusive) && startTime.lt(windowEndTimeExclusive)) {
                 return contents.add(operationHandler);
             }
@@ -154,7 +154,7 @@ public interface Window<INPUT_TYPE, RETURN_TYPE> {
 
         @Override
         public boolean add(Operation<?> operation) {
-            Time startTime = operation.scheduledStartTime();
+            Time startTime = operation.scheduledStartTimeAsMilli();
             if (startTime.gte(windowStartTimeInclusive) && startTime.lt(windowEndTimeExclusive)) {
                 return contents.add(operation);
             }

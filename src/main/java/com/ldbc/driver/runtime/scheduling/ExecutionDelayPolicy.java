@@ -1,7 +1,6 @@
 package com.ldbc.driver.runtime.scheduling;
 
 import com.ldbc.driver.Operation;
-import com.ldbc.driver.temporal.Duration;
 
 public interface ExecutionDelayPolicy {
 
@@ -10,7 +9,7 @@ public interface ExecutionDelayPolicy {
      * scheduled for execution. Useful for ensuring load generating machine is
      * capable of generating the target load.
      */
-    public Duration toleratedDelay();
+    public long toleratedDelayAsMilli();
 
     /**
      * Only called if tolerated delay is exceeded.

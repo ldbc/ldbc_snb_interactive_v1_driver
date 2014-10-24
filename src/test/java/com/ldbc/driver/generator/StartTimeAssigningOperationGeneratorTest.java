@@ -39,8 +39,8 @@ public class StartTimeAssigningOperationGeneratorTest {
         Time lastTime = Time.fromNano(firstNanoTime).minus(Duration.fromNano(incrementNanoTimeBy));
         while (startTimeOperationGenerator.hasNext()) {
             Operation<?> operation = startTimeOperationGenerator.next();
-            assertThat(operation.scheduledStartTime(), is(lastTime.plus(Duration.fromNano(incrementNanoTimeBy))));
-            lastTime = operation.scheduledStartTime();
+            assertThat(operation.scheduledStartTimeAsMilli(), is(lastTime.plus(Duration.fromNano(incrementNanoTimeBy))));
+            lastTime = operation.scheduledStartTimeAsMilli();
             count++;
         }
         assertThat(count, is(testIterations));

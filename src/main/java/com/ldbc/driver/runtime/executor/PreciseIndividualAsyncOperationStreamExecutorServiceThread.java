@@ -70,7 +70,7 @@ class PreciseIndividualAsyncOperationStreamExecutorServiceThread extends Thread 
                     continue;
                 }
 
-                startTimeOfLastOperationAsNano = handler.operation().scheduledStartTime().asNano();
+                startTimeOfLastOperationAsNano = handler.operation().scheduledStartTimeAsMilli().asNano();
 
                 try {
                     // --- BLOCKING CALL (when bounded queue is full) ---

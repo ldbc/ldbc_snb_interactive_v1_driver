@@ -4,7 +4,6 @@ import com.ldbc.driver.Db;
 import com.ldbc.driver.OperationHandler;
 import com.ldbc.driver.WorkloadStreams;
 import com.ldbc.driver.runtime.ConcurrentErrorReporter;
-import com.ldbc.driver.runtime.coordination.DummyLocalCompletionTimeWriter;
 import com.ldbc.driver.runtime.coordination.GlobalCompletionTimeReader;
 import com.ldbc.driver.runtime.coordination.LocalCompletionTimeWriter;
 import com.ldbc.driver.runtime.metrics.ConcurrentMetricsService;
@@ -70,7 +69,7 @@ class PreciseIndividualBlockingOperationStreamExecutorServiceThread extends Thre
                 continue;
             }
 
-            startTimeOfLastOperationAsNano = handler.operation().scheduledStartTime().asNano();
+            startTimeOfLastOperationAsNano = handler.operation().scheduledStartTimeAsMilli().asNano();
 
             try {
                 // --- BLOCKING CALL (when bounded queue is full) ---

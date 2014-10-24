@@ -4,6 +4,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLong;
 
 public class ManualTimeSource implements TimeSource {
+    private final TemporalUtil temporalUtil = new TemporalUtil();
     private AtomicLong nowAsMilli = new AtomicLong(0);
 
     public ManualTimeSource(long nowAsMilli) {
@@ -15,13 +16,8 @@ public class ManualTimeSource implements TimeSource {
     }
 
     @Override
-    public Time now() {
-        return Time.fromNano(Temporal.convert(nowAsMilli(), TimeUnit.MILLISECONDS, TimeUnit.NANOSECONDS));
-    }
-
-    @Override
     public long nanoSnapshot() {
-        return Time.fromMilli(nowAsMilli.get()).asNano();
+        return temporalUtil.convert(nowAsMilli.get(), TimeUnit.MILLISECONDS, TimeUnit.NANOSECONDS);
     }
 
     @Override

@@ -71,7 +71,7 @@ public class WindowGeneratorTest {
         NothingOperation[] operations = new NothingOperation[times.length];
         for (int i = 0; i < operations.length; i++) {
             NothingOperation operation = new NothingOperation();
-            operation.setScheduledStartTime(times[i]);
+            operation.setScheduledStartTimeAsMilli(times[i]);
             operations[i] = operation;
         }
 
@@ -98,20 +98,20 @@ public class WindowGeneratorTest {
         List<Operation<?>> nextOperationWindow;
         nextOperationWindow = windowGenerator.next().contents();
         assertThat(nextOperationWindow.size(), is(2));
-        assertThat(nextOperationWindow.get(0).scheduledStartTime(), equalTo(Time.fromSeconds(1)));
-        assertThat(nextOperationWindow.get(1).scheduledStartTime(), equalTo(Time.fromSeconds(3)));
+        assertThat(nextOperationWindow.get(0).scheduledStartTimeAsMilli(), equalTo(Time.fromSeconds(1)));
+        assertThat(nextOperationWindow.get(1).scheduledStartTimeAsMilli(), equalTo(Time.fromSeconds(3)));
         nextOperationWindow = windowGenerator.next().contents();
         assertThat(nextOperationWindow.size(), is(2));
-        assertThat(nextOperationWindow.get(0).scheduledStartTime(), equalTo(Time.fromSeconds(5)));
-        assertThat(nextOperationWindow.get(1).scheduledStartTime(), equalTo(Time.fromSeconds(6)));
+        assertThat(nextOperationWindow.get(0).scheduledStartTimeAsMilli(), equalTo(Time.fromSeconds(5)));
+        assertThat(nextOperationWindow.get(1).scheduledStartTimeAsMilli(), equalTo(Time.fromSeconds(6)));
         nextOperationWindow = windowGenerator.next().contents();
         assertThat(nextOperationWindow.size(), is(1));
-        assertThat(nextOperationWindow.get(0).scheduledStartTime(), equalTo(Time.fromSeconds(10)));
+        assertThat(nextOperationWindow.get(0).scheduledStartTimeAsMilli(), equalTo(Time.fromSeconds(10)));
         nextOperationWindow = windowGenerator.next().contents();
         assertThat(nextOperationWindow.size(), is(0));
         nextOperationWindow = windowGenerator.next().contents();
         assertThat(nextOperationWindow.size(), is(1));
-        assertThat(nextOperationWindow.get(0).scheduledStartTime(), equalTo(Time.fromSeconds(20)));
+        assertThat(nextOperationWindow.get(0).scheduledStartTimeAsMilli(), equalTo(Time.fromSeconds(20)));
         assertThat(windowGenerator.hasNext(), is(false));
     }
 
@@ -159,7 +159,7 @@ public class WindowGeneratorTest {
         NothingOperationHandler[] handlers = new NothingOperationHandler[times.length];
         for (int i = 0; i < handlers.length; i++) {
             NothingOperation operation = new NothingOperation();
-            operation.setScheduledStartTime(times[i]);
+            operation.setScheduledStartTimeAsMilli(times[i]);
             NothingOperationHandler handler = new NothingOperationHandler();
             Spinner spinner = null;
             LocalCompletionTimeWriter localCompletionTimeWriter = null;
@@ -192,20 +192,20 @@ public class WindowGeneratorTest {
         List<OperationHandler<?>> nextHandler;
         nextHandler = windowGenerator.next().contents();
         assertThat(nextHandler.size(), is(2));
-        assertThat(nextHandler.get(0).operation().scheduledStartTime(), equalTo(Time.fromSeconds(1)));
-        assertThat(nextHandler.get(1).operation().scheduledStartTime(), equalTo(Time.fromSeconds(3)));
+        assertThat(nextHandler.get(0).operation().scheduledStartTimeAsMilli(), equalTo(Time.fromSeconds(1)));
+        assertThat(nextHandler.get(1).operation().scheduledStartTimeAsMilli(), equalTo(Time.fromSeconds(3)));
         nextHandler = windowGenerator.next().contents();
         assertThat(nextHandler.size(), is(2));
-        assertThat(nextHandler.get(0).operation().scheduledStartTime(), equalTo(Time.fromSeconds(5)));
-        assertThat(nextHandler.get(1).operation().scheduledStartTime(), equalTo(Time.fromSeconds(6)));
+        assertThat(nextHandler.get(0).operation().scheduledStartTimeAsMilli(), equalTo(Time.fromSeconds(5)));
+        assertThat(nextHandler.get(1).operation().scheduledStartTimeAsMilli(), equalTo(Time.fromSeconds(6)));
         nextHandler = windowGenerator.next().contents();
         assertThat(nextHandler.size(), is(1));
-        assertThat(nextHandler.get(0).operation().scheduledStartTime(), equalTo(Time.fromSeconds(10)));
+        assertThat(nextHandler.get(0).operation().scheduledStartTimeAsMilli(), equalTo(Time.fromSeconds(10)));
         nextHandler = windowGenerator.next().contents();
         assertThat(nextHandler.size(), is(0));
         nextHandler = windowGenerator.next().contents();
         assertThat(nextHandler.size(), is(1));
-        assertThat(nextHandler.get(0).operation().scheduledStartTime(), equalTo(Time.fromSeconds(20)));
+        assertThat(nextHandler.get(0).operation().scheduledStartTimeAsMilli(), equalTo(Time.fromSeconds(20)));
         assertThat(windowGenerator.hasNext(), is(false));
     }
 

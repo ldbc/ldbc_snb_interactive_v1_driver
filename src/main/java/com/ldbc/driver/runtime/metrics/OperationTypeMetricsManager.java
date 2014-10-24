@@ -1,7 +1,7 @@
 package com.ldbc.driver.runtime.metrics;
 
 import com.ldbc.driver.OperationResultReport;
-import com.ldbc.driver.temporal.Duration;
+import com.ldbc.driver.temporal.TemporalUtil;
 
 import java.util.Comparator;
 import java.util.concurrent.TimeUnit;
@@ -13,19 +13,32 @@ public class OperationTypeMetricsManager {
 
     private static final int NUMBER_OF_SIGNIFICANT_HDR_HISTOGRAM_DIGITS = 5;
 
+    private final TemporalUtil temporalUtil = new TemporalUtil();
     private final ContinuousMetricManager runTimeMetric;
     private final ContinuousMetricManager startTimeDelayMetric;
     private final DiscreteMetricManager resultCodeMetric;
     private final String name;
-    private final TimeUnit durationUnit;
+    private final TimeUnit unit;
     private final boolean recordStartTimeDelayLatency;
     private long count = 0;
 
-    OperationTypeMetricsManager(String name, TimeUnit durationUnit, Duration highestExpectedRuntimeDuration, Duration highestExpectedDelayDuration, boolean recordStartTimeDelayLatency) {
+    OperationTypeMetricsManager(String name,
+                                TimeUnit unit,
+                                long highestExpectedRuntimeDurationAsNano,
+                                long highestExpectedDelayDurationAsMilli,
+                                boolean recordStartTimeDelayLatency) {
         this.name = name;
-        this.durationUnit = durationUnit;
-        this.runTimeMetric = new ContinuousMetricManager(METRIC_RUNTIME, durationUnit, highestExpectedRuntimeDuration.as(durationUnit), NUMBER_OF_SIGNIFICANT_HDR_HISTOGRAM_DIGITS);
-        this.startTimeDelayMetric = new ContinuousMetricManager(METRIC_START_TIME_DELAY, durationUnit, highestExpectedDelayDuration.as(durationUnit), NUMBER_OF_SIGNIFICANT_HDR_HISTOGRAM_DIGITS);
+        this.unit = unit;
+        this.runTimeMetric = new ContinuousMetricManager(
+                METRIC_RUNTIME,
+                unit,
+                temporalUtil.convert(highestExpectedRuntimeDurationAsNano, TimeUnit.NANOSECONDS, unit),
+                NUMBER_OF_SIGNIFICANT_HDR_HISTOGRAM_DIGITS);
+        this.startTimeDelayMetric = new ContinuousMetricManager(
+                METRIC_START_TIME_DELAY,
+                unit,
+                temporalUtil.convert(highestExpectedDelayDurationAsMilli, TimeUnit.MILLISECONDS, unit),
+                NUMBER_OF_SIGNIFICANT_HDR_HISTOGRAM_DIGITS);
         this.resultCodeMetric = new DiscreteMetricManager(METRIC_RESULT_CODE, "Result Code");
         this.recordStartTimeDelayLatency = recordStartTimeDelayLatency;
     }
@@ -34,12 +47,12 @@ public class OperationTypeMetricsManager {
         //
         // Measure operation runtime
         //
-        long runtimeInAppropriateUnit = operationResultReport.runDuration().as(durationUnit);
+        long runtimeInAppropriateUnit = temporalUtil.convert(operationResultReport.runDurationAsNano(), TimeUnit.NANOSECONDS, unit);
         try {
             runTimeMetric.addMeasurement(runtimeInAppropriateUnit);
         } catch (MetricsCollectionException e) {
             String errMsg = String.format("Error encountered adding runtime [%s %s] to [%s]",
-                    runtimeInAppropriateUnit, durationUnit.toString(), name);
+                    runtimeInAppropriateUnit, unit.toString(), name);
             throw new MetricsCollectionException(errMsg, e);
         }
 
@@ -47,13 +60,13 @@ public class OperationTypeMetricsManager {
         // Measure driver performance - how close is it to target throughput
         //
         if (recordStartTimeDelayLatency) {
-            Duration startTimeDelay = operationResultReport.actualStartTime().durationGreaterThan(operationResultReport.operation().scheduledStartTime());
-            long startTimeDelayInAppropriateUnit = startTimeDelay.as(durationUnit);
+            long startTimeDelayAsMilli = operationResultReport.actualStartTimeAsMilli() - operationResultReport.operation().scheduledStartTimeAsMilli();
+            long startTimeDelayInAppropriateUnit = temporalUtil.convert(startTimeDelayAsMilli, TimeUnit.MILLISECONDS, unit);
             try {
                 startTimeDelayMetric.addMeasurement(startTimeDelayInAppropriateUnit);
             } catch (Throwable e) {
                 String errMsg = String.format("Error encountered adding start time delay measurement [%s %s] to [%s]",
-                        startTimeDelayInAppropriateUnit, durationUnit.toString(), name);
+                        startTimeDelayInAppropriateUnit, unit.toString(), name);
                 throw new MetricsCollectionException(errMsg, e);
             }
         }
@@ -74,7 +87,7 @@ public class OperationTypeMetricsManager {
     }
 
     public OperationMetricsSnapshot snapshot() {
-        return new OperationMetricsSnapshot(name, durationUnit, count(), runTimeMetric.snapshot(), startTimeDelayMetric.snapshot(), resultCodeMetric.snapshot());
+        return new OperationMetricsSnapshot(name, unit, count(), runTimeMetric.snapshot(), startTimeDelayMetric.snapshot(), resultCodeMetric.snapshot());
     }
 
     public String name() {

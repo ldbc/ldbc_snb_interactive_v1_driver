@@ -142,7 +142,7 @@ public class WriteEventStreamReaderRegex implements Iterator<Operation<?>> {
                     tagIds,
                     studyAts,
                     workAts);
-            operation.setScheduledStartTime(eventDueTime);
+            operation.setScheduledStartTimeAsMilli(eventDueTime);
             return operation;
         }
     }
@@ -163,7 +163,7 @@ public class WriteEventStreamReaderRegex implements Iterator<Operation<?>> {
             Date creationDate = new Date(Long.parseLong(creationDateString));
 
             Operation<?> operation = new LdbcUpdate2AddPostLike(personId, postId, creationDate);
-            operation.setScheduledStartTime(eventDueTime);
+            operation.setScheduledStartTimeAsMilli(eventDueTime);
             return operation;
         }
     }
@@ -184,7 +184,7 @@ public class WriteEventStreamReaderRegex implements Iterator<Operation<?>> {
             Date creationDate = new Date(Long.parseLong(creationDateString));
 
             Operation<?> operation = new LdbcUpdate3AddCommentLike(personId, commentId, creationDate);
-            operation.setScheduledStartTime(eventDueTime);
+            operation.setScheduledStartTimeAsMilli(eventDueTime);
             return operation;
         }
     }
@@ -218,7 +218,7 @@ public class WriteEventStreamReaderRegex implements Iterator<Operation<?>> {
             }
 
             Operation<?> operation = new LdbcUpdate4AddForum(forumId, forumTitle, creationDate, moderatorPersonId, tagIds);
-            operation.setScheduledStartTime(eventDueTime);
+            operation.setScheduledStartTimeAsMilli(eventDueTime);
             return operation;
         }
     }
@@ -239,7 +239,7 @@ public class WriteEventStreamReaderRegex implements Iterator<Operation<?>> {
             Date creationDate = new Date(Long.parseLong(creationDateString));
 
             Operation<?> operation = new LdbcUpdate5AddForumMembership(forumId, personId, creationDate);
-            operation.setScheduledStartTime(eventDueTime);
+            operation.setScheduledStartTimeAsMilli(eventDueTime);
             return operation;
         }
     }
@@ -299,7 +299,7 @@ public class WriteEventStreamReaderRegex implements Iterator<Operation<?>> {
                     forumId,
                     countryId,
                     tagIds);
-            operation.setScheduledStartTime(eventDueTime);
+            operation.setScheduledStartTimeAsMilli(eventDueTime);
             return operation;
         }
     }
@@ -356,7 +356,7 @@ public class WriteEventStreamReaderRegex implements Iterator<Operation<?>> {
                     replyOfPostId,
                     replyOfCommentId,
                     tagIds);
-            operation.setScheduledStartTime(eventDueTime);
+            operation.setScheduledStartTimeAsMilli(eventDueTime);
             return operation;
         }
     }
@@ -377,7 +377,7 @@ public class WriteEventStreamReaderRegex implements Iterator<Operation<?>> {
             Date creationDate = new Date(Long.parseLong(creationDateString));
 
             Operation<?> operation = new LdbcUpdate8AddFriendship(person1Id, person2Id, creationDate);
-            operation.setScheduledStartTime(eventDueTime);
+            operation.setScheduledStartTimeAsMilli(eventDueTime);
             return operation;
         }
     }

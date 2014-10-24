@@ -69,7 +69,7 @@ class DependencyAndNonDependencyHandlersRetriever {
             Operation<?> nextGctWriteOperation = gctWriteOperations.next();
             nextGctWriteHandler = getAndInitializeHandler(nextGctWriteOperation, localCompletionTimeWriter);
             // submit initiated time as soon as possible so GCT/dependencies can advance as soon as possible
-            nextGctWriteHandler.localCompletionTimeWriter().submitLocalInitiatedTime(nextGctWriteHandler.operation().scheduledStartTime());
+            nextGctWriteHandler.localCompletionTimeWriter().submitLocalInitiatedTime(nextGctWriteHandler.operation().scheduledStartTimeAsMilli());
             if (false == gctWriteOperations.hasNext()) {
                 // after last write operation, submit highest possible initiated time to ensure that GCT progresses to time of highest LCT write
                 nextGctWriteHandler.localCompletionTimeWriter().submitLocalInitiatedTime(Time.fromNano(Long.MAX_VALUE));
@@ -83,8 +83,8 @@ class DependencyAndNonDependencyHandlersRetriever {
         }
         // return handler with lowest start time
         if (null != nextGctWriteHandler && null != nextGctReadHandler) {
-            long nextGctWriteHandlerStartTime = nextGctWriteHandler.operation().scheduledStartTime().asNano();
-            long nextGctReadHandlerStartTime = nextGctReadHandler.operation().scheduledStartTime().asNano();
+            long nextGctWriteHandlerStartTime = nextGctWriteHandler.operation().scheduledStartTimeAsMilli().asNano();
+            long nextGctReadHandlerStartTime = nextGctReadHandler.operation().scheduledStartTimeAsMilli().asNano();
             OperationHandler<?> nextHandler;
             if (nextGctReadHandlerStartTime < nextGctWriteHandlerStartTime) {
                 nextHandler = nextGctReadHandler;

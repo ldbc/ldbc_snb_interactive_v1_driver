@@ -28,7 +28,7 @@ public class UniformWindowedOperationScheduler implements Scheduler<List<Operati
         for (int i = 0; i < operationsInWindow.size(); i++) {
             Duration durationFromWindowStartTime = Duration.fromNano(Math.round(Math.floor(operationInterleaveAsNano * i)));
             Time uniformOperationStartTime = windowStartTime.plus(durationFromWindowStartTime);
-            operationsInWindow.get(i).setScheduledStartTime(uniformOperationStartTime);
+            operationsInWindow.get(i).setScheduledStartTimeAsMilli(uniformOperationStartTime);
         }
         return operationsInWindow;
     }

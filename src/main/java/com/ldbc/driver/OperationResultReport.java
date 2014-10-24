@@ -1,15 +1,15 @@
 package com.ldbc.driver;
 
-import com.ldbc.driver.temporal.Duration;
-import com.ldbc.driver.temporal.Time;
+import com.ldbc.driver.temporal.TemporalUtil;
 
 public class OperationResultReport {
+    private static final TemporalUtil TEMPORAL_UTIL = new TemporalUtil();
     private final int resultCode;
     private final Object operationResult;
     private final Operation<?> operation;
 
-    private Time actualStartTime = null;
-    private Duration runDuration = null;
+    private long actualStartTimeAsMilli = -1;
+    private long runDurationAsNano = -1;
 
     OperationResultReport(int resultCode, Object operationResult, Operation<?> operation) {
         this.resultCode = resultCode;
@@ -25,20 +25,20 @@ public class OperationResultReport {
         return operationResult;
     }
 
-    public Time actualStartTime() {
-        return actualStartTime;
+    public long actualStartTimeAsMilli() {
+        return actualStartTimeAsMilli;
     }
 
-    void setActualStartTime(Time actualStartTime) {
-        this.actualStartTime = actualStartTime;
+    void setActualStartTimeAsMilli(long actualStartTimeAsMilli) {
+        this.actualStartTimeAsMilli = actualStartTimeAsMilli;
     }
 
-    public Duration runDuration() {
-        return runDuration;
+    public long runDurationAsNano() {
+        return runDurationAsNano;
     }
 
-    void setRunDuration(Duration runDuration) {
-        this.runDuration = runDuration;
+    void setRunDurationAsNano(long runDurationAsNano) {
+        this.runDurationAsNano = runDurationAsNano;
     }
 
     public Operation<?> operation() {
@@ -47,8 +47,14 @@ public class OperationResultReport {
 
     @Override
     public String toString() {
-        return "OperationResultReport [resultCode=" + resultCode + ", operationResult=" + operationResult + ", scheduledStartTime="
-                + operation.scheduledStartTime() + ", actualStartTime=" + actualStartTime + ", runDuration=" + runDuration
-                + ", operationType=" + operation.type() + "]";
+        return "OperationResultReport{" +
+                "resultCode=" + resultCode +
+                ", operationResult=" + operationResult +
+                ", operation=" + operation +
+                ", actualStartTimeAsMilli=" + actualStartTimeAsMilli +
+                ", actualStartTime=" + TEMPORAL_UTIL.millisecondsToTimeString(actualStartTimeAsMilli) +
+                ", runDurationAsNano=" + runDurationAsNano +
+                ", runDuration=" + TEMPORAL_UTIL.nanoDurationToString(runDurationAsNano) +
+                '}';
     }
 }

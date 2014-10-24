@@ -21,7 +21,7 @@ public class ExecutionDelayPolicyTest {
         Duration toleratedDelay = Duration.fromMilli(10);
         ExecutionDelayPolicy delayPolicy = new ErrorReportingTerminatingExecutionDelayPolicy(timeSource, toleratedDelay, errorReporter);
         Operation<?> operation = new NothingOperation();
-        operation.setScheduledStartTime(timeSource.now().minus(Duration.fromMilli(2000)));
+        operation.setScheduledStartTimeAsMilli(timeSource.now().minus(Duration.fromMilli(2000)));
 
         assertThat(errorReporter.errorEncountered(), is(false));
 
@@ -42,6 +42,6 @@ public class ExecutionDelayPolicyTest {
         ExecutionDelayPolicy delayPolicy = new ErrorReportingTerminatingExecutionDelayPolicy(timeSource, toleratedDelay, errorReporter);
 
         // Then
-        assertThat(delayPolicy.toleratedDelay(), is(Duration.fromMilli(10)));
+        assertThat(delayPolicy.toleratedDelayAsMilli(), is(Duration.fromMilli(10)));
     }
 }

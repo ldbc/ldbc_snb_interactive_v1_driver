@@ -43,10 +43,10 @@ public class UniformWindowOperationSchedulerTest {
         List<Operation<?>> operations = scheduler.schedule(window);
 
         assertThat(operations.size(), is(4));
-        assertThat(operations.get(0).scheduledStartTime(), is(Time.fromMilli(0)));
-        assertThat(operations.get(1).scheduledStartTime(), is(Time.fromMilli(25)));
-        assertThat(operations.get(2).scheduledStartTime(), is(Time.fromMilli(50)));
-        assertThat(operations.get(3).scheduledStartTime(), is(Time.fromMilli(75)));
+        assertThat(operations.get(0).scheduledStartTimeAsMilli(), is(Time.fromMilli(0)));
+        assertThat(operations.get(1).scheduledStartTimeAsMilli(), is(Time.fromMilli(25)));
+        assertThat(operations.get(2).scheduledStartTimeAsMilli(), is(Time.fromMilli(50)));
+        assertThat(operations.get(3).scheduledStartTimeAsMilli(), is(Time.fromMilli(75)));
     }
 
     @Test
@@ -65,10 +65,10 @@ public class UniformWindowOperationSchedulerTest {
         List<Operation<?>> operations = scheduler.schedule(window);
 
         assertThat(operations.size(), is(4));
-        assertThat(operations.get(0).scheduledStartTime(), is(Time.fromMilli(0)));
-        assertThat(operations.get(1).scheduledStartTime(), is(Time.fromMilli(25)));
-        assertThat(operations.get(2).scheduledStartTime(), is(Time.fromMilli(50)));
-        assertThat(operations.get(3).scheduledStartTime(), is(Time.fromMilli(75)));
+        assertThat(operations.get(0).scheduledStartTimeAsMilli(), is(Time.fromMilli(0)));
+        assertThat(operations.get(1).scheduledStartTimeAsMilli(), is(Time.fromMilli(25)));
+        assertThat(operations.get(2).scheduledStartTimeAsMilli(), is(Time.fromMilli(50)));
+        assertThat(operations.get(3).scheduledStartTimeAsMilli(), is(Time.fromMilli(75)));
     }
 
     @Test
@@ -89,11 +89,11 @@ public class UniformWindowOperationSchedulerTest {
         List<Operation<?>> operations = scheduler.schedule(window);
 
         assertThat(operations.size(), is(6));
-        assertThat(operations.get(0).scheduledStartTime(), is(Time.fromNano(0)));
-        assertThat(operations.get(1).scheduledStartTime(), is(Time.fromNano(0)));
-        assertThat(operations.get(2).scheduledStartTime(), is(Time.fromNano(1)));
-        assertThat(operations.get(3).scheduledStartTime(), is(Time.fromNano(1)));
-        assertThat(operations.get(4).scheduledStartTime(), is(Time.fromNano(2)));
-        assertThat(operations.get(5).scheduledStartTime(), is(Time.fromNano(2)));
+        assertThat(operations.get(0).scheduledStartTimeAsMilli(), is(Time.fromNano(0)));
+        assertThat(operations.get(1).scheduledStartTimeAsMilli(), is(Time.fromNano(0)));
+        assertThat(operations.get(2).scheduledStartTimeAsMilli(), is(Time.fromNano(1)));
+        assertThat(operations.get(3).scheduledStartTimeAsMilli(), is(Time.fromNano(1)));
+        assertThat(operations.get(4).scheduledStartTimeAsMilli(), is(Time.fromNano(2)));
+        assertThat(operations.get(5).scheduledStartTimeAsMilli(), is(Time.fromNano(2)));
     }
 }

@@ -49,7 +49,7 @@ public class ThreadedQueuedConcurrentMetricsServiceThread extends Thread {
 
     @Override
     public void run() {
-        long toleratedDelayAsNano = executionDelayPolicy.toleratedDelay().asNano();
+        long toleratedDelayAsNano = executionDelayPolicy.toleratedDelayAsMilli().asNano();
         while (null == expectedEventCount || processedEventCount < expectedEventCount) {
             try {
                 MetricsCollectionEvent event = queueEventFetcher.fetchNextEvent();
@@ -60,9 +60,9 @@ public class ThreadedQueuedConcurrentMetricsServiceThread extends Thread {
                         if (null != csvResultsLogWriter) {
                             csvResultsLogWriter.writeRow(
                                     result.operation().getClass().getSimpleName(),
-                                    Long.toString(result.operation().scheduledStartTime().asMilli()),
-                                    Long.toString(result.actualStartTime().asMilli()),
-                                    Long.toString(result.runDuration().asMilli()));
+                                    Long.toString(result.operation().scheduledStartTimeAsMilli().asMilli()),
+                                    Long.toString(result.actualStartTimeAsMilli().asMilli()),
+                                    Long.toString(result.runDurationAsNano().asMilli()));
                         }
 
                         boolean shouldRecordResultMetricsForThisOperation = true;
@@ -73,7 +73,7 @@ public class ThreadedQueuedConcurrentMetricsServiceThread extends Thread {
                             // TOO EARLY = <---(now)--(scheduled)[<---delay--->]------> <=(Time Line)
                             // GOOD      = <-----(scheduled)[<-(now)--delay--->]------> <=(Time Line)
                             // TOO LATE  = <-----(scheduled)[<---delay--->]--(now)----> <=(Time Line)
-                            if (result.operation().scheduledStartTime().asNano() + toleratedDelayAsNano < result.actualStartTime().asNano()) {
+                            if (result.operation().scheduledStartTimeAsMilli().asNano() + toleratedDelayAsNano < result.actualStartTimeAsMilli().asNano()) {
                                 shouldRecordResultMetricsForThisOperation = executionDelayPolicy.handleExcessiveDelay(result.operation());
                             }
                         }

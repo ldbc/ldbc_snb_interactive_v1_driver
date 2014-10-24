@@ -110,9 +110,9 @@ public abstract class OperationHandler<OPERATION_TYPE extends Operation<?>> impl
             if (null == operationResultReport) {
                 throw new DbException(String.format("Handler returned null result:\n %s", toString()));
             }
-            operationResultReport.setRunDuration(Duration.fromNano(endOfLatencyMeasurement - startOfLatencyMeasurement));
-            operationResultReport.setActualStartTime(Time.fromMilli(actualStartTime));
-            localCompletionTimeWriter.submitLocalCompletedTime(operation.scheduledStartTime());
+            operationResultReport.setRunDurationAsNano(Duration.fromNano(endOfLatencyMeasurement - startOfLatencyMeasurement));
+            operationResultReport.setActualStartTimeAsMilli(Time.fromMilli(actualStartTime));
+            localCompletionTimeWriter.submitLocalCompletedTime(operation.scheduledStartTimeAsMilli());
             metricsService.submitOperationResult(operationResultReport);
         } catch (DbException e) {
             String errMsg = String.format(

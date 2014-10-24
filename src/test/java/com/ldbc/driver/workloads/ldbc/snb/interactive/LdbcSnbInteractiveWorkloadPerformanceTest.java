@@ -178,14 +178,14 @@ public class LdbcSnbInteractiveWorkloadPerformanceTest {
             File resultsFile = new File(resultsDir, name + "-results.json");
             WorkloadResultsSnapshot resultsSnapshot = WorkloadResultsSnapshot.fromJson(resultsFile);
 
-            double operationsPerSecond = Math.round(((double) operationCount / resultsSnapshot.totalRunDuration().asNano()) * Duration.fromSeconds(1).asNano());
-            double microSecondPerOperation = (double) resultsSnapshot.totalRunDuration().asMicro() / operationCount;
+            double operationsPerSecond = Math.round(((double) operationCount / resultsSnapshot.totalRunDurationAsNano().asNano()) * Duration.fromSeconds(1).asNano());
+            double microSecondPerOperation = (double) resultsSnapshot.totalRunDurationAsNano().asMicro() / operationCount;
             DecimalFormat numberFormatter = new DecimalFormat("###,###,###,###");
             System.out.println(
                     String.format("[%s]Completed %s operations in %s = %s op/sec = 1 op/%s us",
                             name,
                             numberFormatter.format(operationCount),
-                            resultsSnapshot.totalRunDuration(),
+                            resultsSnapshot.totalRunDurationAsNano(),
                             numberFormatter.format(operationsPerSecond),
                             microSecondPerOperation
                     )

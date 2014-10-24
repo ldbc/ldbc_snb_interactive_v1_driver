@@ -69,7 +69,7 @@ public class WorkloadValidator {
             operationCount++;
 
             // Operation has start time
-            Time operationStartTime = operation.scheduledStartTime();
+            Time operationStartTime = operation.scheduledStartTimeAsMilli();
             if (null == operationStartTime) {
                 return new WorkloadValidationResult(
                         ResultType.UNASSIGNED_SCHEDULED_START_TIME,
@@ -78,7 +78,7 @@ public class WorkloadValidator {
                                 operation));
             }
 
-            Time operationDependencyTime = operation.dependencyTime();
+            Time operationDependencyTime = operation.dependencyTimeAsMilli();
             // Operation has dependency time
             if (null == operationDependencyTime) {
                 return new WorkloadValidationResult(
@@ -99,8 +99,8 @@ public class WorkloadValidator {
                                         + "  Dependency Time: %s",
                                 operationCount,
                                 operation,
-                                operation.scheduledStartTime(),
-                                operation.dependencyTime()));
+                                operation.scheduledStartTimeAsMilli(),
+                                operation.dependencyTimeAsMilli()));
             }
         }
 
@@ -148,7 +148,7 @@ public class WorkloadValidator {
             operationCount++;
 
             // Operation has start time
-            Time operationStartTime = operation.scheduledStartTime();
+            Time operationStartTime = operation.scheduledStartTimeAsMilli();
             if (null == operationStartTime) {
                 return new WorkloadValidationResult(
                         ResultType.UNASSIGNED_SCHEDULED_START_TIME,
@@ -188,7 +188,7 @@ public class WorkloadValidator {
                                     operation));
             }
 
-            Time operationDependencyTime = operation.dependencyTime();
+            Time operationDependencyTime = operation.dependencyTimeAsMilli();
             // Operation has dependency time
             if (null == operationDependencyTime) {
                 return new WorkloadValidationResult(
@@ -209,8 +209,8 @@ public class WorkloadValidator {
                                         + "  Dependency Time: %s",
                                 operationCount,
                                 operation,
-                                operation.scheduledStartTime(),
-                                operation.dependencyTime()));
+                                operation.scheduledStartTimeAsMilli(),
+                                operation.dependencyTimeAsMilli()));
             }
 
             // Interleaves by operation type do not exceed maximum

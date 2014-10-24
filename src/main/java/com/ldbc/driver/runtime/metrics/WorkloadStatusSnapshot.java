@@ -1,30 +1,31 @@
 package com.ldbc.driver.runtime.metrics;
 
-import com.ldbc.driver.temporal.Duration;
-
 import java.text.DecimalFormat;
 
 public class WorkloadStatusSnapshot {
-    private final Duration runDuration;
+    private final long runDurationAsMilli;
     private final long operationCount;
-    private final Duration durationSinceLastMeasurement;
+    private final long durationSinceLastMeasurementAsMilli;
     private final double throughput;
     DecimalFormat operationCountFormatter = new DecimalFormat("###,###,###,###");
     DecimalFormat throughputFormatter = new DecimalFormat("###,###,###,##0.00");
 
-    public WorkloadStatusSnapshot(Duration runDuration, long operationCount, Duration durationSinceLastMeasurement, double throughput) {
-        this.runDuration = runDuration;
+    public WorkloadStatusSnapshot(long runDurationAsMilli,
+                                  long operationCount,
+                                  long durationSinceLastMeasurementAsMilli,
+                                  double throughput) {
+        this.runDurationAsMilli = runDurationAsMilli;
         this.operationCount = operationCount;
-        this.durationSinceLastMeasurement = durationSinceLastMeasurement;
+        this.durationSinceLastMeasurementAsMilli = durationSinceLastMeasurementAsMilli;
         this.throughput = throughput;
     }
 
     @Override
     public String toString() {
         return String.format("Runtime [%s], Operations [%s], Since Last Measurement [%s], Throughput (op/sec) [%s]",
-                (null == runDuration) ? "--" : runDuration,
+                (-1 == runDurationAsMilli) ? "--" : runDurationAsMilli,
                 operationCountFormatter.format(operationCount),
-                (null == durationSinceLastMeasurement) ? "--" : durationSinceLastMeasurement,
+                (-1 == durationSinceLastMeasurementAsMilli) ? "--" : durationSinceLastMeasurementAsMilli,
                 throughputFormatter.format(throughput));
     }
 }

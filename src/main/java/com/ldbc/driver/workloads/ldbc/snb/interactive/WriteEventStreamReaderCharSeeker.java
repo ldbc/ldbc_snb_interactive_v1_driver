@@ -216,7 +216,7 @@ public class WriteEventStreamReaderCharSeeker implements Iterator<Operation<?>> 
                         tagIds,
                         studyAts,
                         workAts);
-                operation.setScheduledStartTime(eventDueTime);
+                operation.setScheduledStartTimeAsMilli(eventDueTime);
                 return operation;
             } catch (IOException e) {
                 throw new GeneratorException("Error parsing add person event", e);
@@ -253,7 +253,7 @@ public class WriteEventStreamReaderCharSeeker implements Iterator<Operation<?>> 
                 }
 
                 Operation<?> operation = new LdbcUpdate2AddPostLike(personId, postId, creationDate);
-                operation.setScheduledStartTime(eventDueTime);
+                operation.setScheduledStartTimeAsMilli(eventDueTime);
                 return operation;
             } catch (IOException e) {
                 throw new GeneratorException("Error parsing add post like event", e);
@@ -290,7 +290,7 @@ public class WriteEventStreamReaderCharSeeker implements Iterator<Operation<?>> 
                 }
 
                 Operation<?> operation = new LdbcUpdate3AddCommentLike(personId, commentId, creationDate);
-                operation.setScheduledStartTime(eventDueTime);
+                operation.setScheduledStartTimeAsMilli(eventDueTime);
                 return operation;
             } catch (IOException e) {
                 throw new GeneratorException("Error parsing add comment like event", e);
@@ -345,7 +345,7 @@ public class WriteEventStreamReaderCharSeeker implements Iterator<Operation<?>> 
                 }
 
                 Operation<?> operation = new LdbcUpdate4AddForum(forumId, forumTitle, creationDate, moderatorPersonId, tagIds);
-                operation.setScheduledStartTime(eventDueTime);
+                operation.setScheduledStartTimeAsMilli(eventDueTime);
                 return operation;
             } catch (IOException e) {
                 throw new GeneratorException("Error parsing add forum event", e);
@@ -382,7 +382,7 @@ public class WriteEventStreamReaderCharSeeker implements Iterator<Operation<?>> 
                 }
 
                 Operation<?> operation = new LdbcUpdate5AddForumMembership(forumId, personId, creationDate);
-                operation.setScheduledStartTime(eventDueTime);
+                operation.setScheduledStartTimeAsMilli(eventDueTime);
                 return operation;
             } catch (IOException e) {
                 throw new GeneratorException("Error parsing add forum membership event", e);
@@ -498,7 +498,7 @@ public class WriteEventStreamReaderCharSeeker implements Iterator<Operation<?>> 
                         forumId,
                         countryId,
                         tagIds);
-                operation.setScheduledStartTime(eventDueTime);
+                operation.setScheduledStartTimeAsMilli(eventDueTime);
                 return operation;
             } catch (IOException e) {
                 throw new GeneratorException("Error parsing add post event", e);
@@ -606,7 +606,7 @@ public class WriteEventStreamReaderCharSeeker implements Iterator<Operation<?>> 
                         replyOfPostId,
                         replyOfCommentId,
                         tagIds);
-                operation.setScheduledStartTime(eventDueTime);
+                operation.setScheduledStartTimeAsMilli(eventDueTime);
                 return operation;
             } catch (IOException e) {
                 throw new GeneratorException("Error parsing add comment event", e);
@@ -643,7 +643,7 @@ public class WriteEventStreamReaderCharSeeker implements Iterator<Operation<?>> 
                 }
 
                 Operation<?> operation = new LdbcUpdate8AddFriendship(person1Id, person2Id, creationDate);
-                operation.setScheduledStartTime(eventDueTime);
+                operation.setScheduledStartTimeAsMilli(eventDueTime);
                 return operation;
             } catch (IOException e) {
                 throw new GeneratorException("Error parsing add friendship event", e);

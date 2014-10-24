@@ -1,25 +1,26 @@
 package com.ldbc.driver;
 
-import com.ldbc.driver.temporal.Time;
+import com.ldbc.driver.temporal.TemporalUtil;
 
 public abstract class Operation<RESULT_TYPE> {
-    private Time scheduledStartTime = null;
-    private Time dependencyTime = null;
+    private static final TemporalUtil temporalutil = new TemporalUtil();
+    private long scheduledStartTimeAsMilli = -1;
+    private long dependencyTimeAsMilli = -1;
 
-    public final void setScheduledStartTime(Time scheduledStartTime) {
-        this.scheduledStartTime = scheduledStartTime;
+    public final void setScheduledStartTimeAsMilli(long scheduledStartTimeAsMilli) {
+        this.scheduledStartTimeAsMilli = scheduledStartTimeAsMilli;
     }
 
-    public final void setDependencyTime(Time dependencyTime) {
-        this.dependencyTime = dependencyTime;
+    public final void setDependencyTimeAsMilli(long dependencyTimeAsMilli) {
+        this.dependencyTimeAsMilli = dependencyTimeAsMilli;
     }
 
-    public final Time scheduledStartTime() {
-        return scheduledStartTime;
+    public final long scheduledStartTimeAsMilli() {
+        return scheduledStartTimeAsMilli;
     }
 
-    public final Time dependencyTime() {
-        return dependencyTime;
+    public final long dependencyTimeAsMilli() {
+        return dependencyTimeAsMilli;
     }
 
     public final OperationResultReport buildResult(int resultCode, RESULT_TYPE result) {
@@ -33,9 +34,10 @@ public abstract class Operation<RESULT_TYPE> {
     @Override
     public String toString() {
         return "Operation{" +
-                "scheduledStartTime=" + scheduledStartTime +
-                ", dependencyTime=" + dependencyTime +
-                ", type=" + type() +
+                "scheduledStartTimeAsMilli=" + scheduledStartTimeAsMilli +
+                ", scheduledStartTime=" + temporalutil.millisecondsToTimeString(scheduledStartTimeAsMilli) +
+                ", dependencyTimeAsMilli=" + dependencyTimeAsMilli +
+                ", dependencyTime=" + temporalutil.millisecondsToTimeString(dependencyTimeAsMilli) +
                 '}';
     }
 

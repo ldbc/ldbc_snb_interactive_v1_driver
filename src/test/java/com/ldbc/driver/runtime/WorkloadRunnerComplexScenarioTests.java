@@ -466,7 +466,7 @@ public class WorkloadRunnerComplexScenarioTests {
                 errorReporter,
                 TimeUnit.MILLISECONDS,
                 WORKLOAD_START_TIME_0,
-                ThreadedQueuedConcurrentMetricsService.DEFAULT_HIGHEST_EXPECTED_RUNTIME_DURATION,
+                ThreadedQueuedConcurrentMetricsService.DEFAULT_HIGHEST_EXPECTED_RUNTIME_DURATION_AS_NANO,
                 recordStartTimeDelayLatency,
                 executionDelayPolicy,
                 csvResultsLogWriter);
@@ -676,7 +676,7 @@ public class WorkloadRunnerComplexScenarioTests {
                 errorReporter,
                 TimeUnit.MILLISECONDS,
                 WORKLOAD_START_TIME_0,
-                ThreadedQueuedConcurrentMetricsService.DEFAULT_HIGHEST_EXPECTED_RUNTIME_DURATION,
+                ThreadedQueuedConcurrentMetricsService.DEFAULT_HIGHEST_EXPECTED_RUNTIME_DURATION_AS_NANO,
                 recordStartTimeDelayLatency,
                 executionDelayPolicy,
                 csvResultsLogWriter);
@@ -866,7 +866,7 @@ public class WorkloadRunnerComplexScenarioTests {
                 errorReporter,
                 TimeUnit.MILLISECONDS,
                 WORKLOAD_START_TIME_0,
-                ThreadedQueuedConcurrentMetricsService.DEFAULT_HIGHEST_EXPECTED_RUNTIME_DURATION,
+                ThreadedQueuedConcurrentMetricsService.DEFAULT_HIGHEST_EXPECTED_RUNTIME_DURATION_AS_NANO,
                 recordStartTimeDelayLatency,
                 executionDelayPolicy,
                 csvResultsLogWriter);
@@ -1148,7 +1148,7 @@ public class WorkloadRunnerComplexScenarioTests {
                 errorReporter,
                 TimeUnit.MILLISECONDS,
                 WORKLOAD_START_TIME_0,
-                ThreadedQueuedConcurrentMetricsService.DEFAULT_HIGHEST_EXPECTED_RUNTIME_DURATION,
+                ThreadedQueuedConcurrentMetricsService.DEFAULT_HIGHEST_EXPECTED_RUNTIME_DURATION_AS_NANO,
                 recordStartTimeDelayLatency,
                 executionDelayPolicy,
                 csvResultsLogWriter);
@@ -1420,7 +1420,7 @@ public class WorkloadRunnerComplexScenarioTests {
                 errorReporter,
                 TimeUnit.MILLISECONDS,
                 WORKLOAD_START_TIME_0,
-                ThreadedQueuedConcurrentMetricsService.DEFAULT_HIGHEST_EXPECTED_RUNTIME_DURATION,
+                ThreadedQueuedConcurrentMetricsService.DEFAULT_HIGHEST_EXPECTED_RUNTIME_DURATION_AS_NANO,
                 recordStartTimeDelayLatency,
                 executionDelayPolicy,
                 csvResultsLogWriter);
@@ -1682,7 +1682,7 @@ public class WorkloadRunnerComplexScenarioTests {
                 errorReporter,
                 TimeUnit.MILLISECONDS,
                 WORKLOAD_START_TIME_0,
-                ThreadedQueuedConcurrentMetricsService.DEFAULT_HIGHEST_EXPECTED_RUNTIME_DURATION,
+                ThreadedQueuedConcurrentMetricsService.DEFAULT_HIGHEST_EXPECTED_RUNTIME_DURATION_AS_NANO,
                 recordStartTimeDelayLatency,
                 executionDelayPolicy,
                 csvResultsLogWriter);
@@ -1965,7 +1965,7 @@ public class WorkloadRunnerComplexScenarioTests {
                 errorReporter,
                 TimeUnit.MILLISECONDS,
                 WORKLOAD_START_TIME_0,
-                ThreadedQueuedConcurrentMetricsService.DEFAULT_HIGHEST_EXPECTED_RUNTIME_DURATION,
+                ThreadedQueuedConcurrentMetricsService.DEFAULT_HIGHEST_EXPECTED_RUNTIME_DURATION_AS_NANO,
                 recordStartTimeDelayLatency,
                 executionDelayPolicy,
                 csvResultsLogWriter);
@@ -2226,7 +2226,7 @@ public class WorkloadRunnerComplexScenarioTests {
                 errorReporter,
                 TimeUnit.MILLISECONDS,
                 WORKLOAD_START_TIME_0,
-                ThreadedQueuedConcurrentMetricsService.DEFAULT_HIGHEST_EXPECTED_RUNTIME_DURATION,
+                ThreadedQueuedConcurrentMetricsService.DEFAULT_HIGHEST_EXPECTED_RUNTIME_DURATION_AS_NANO,
                 recordStartTimeDelayLatency,
                 executionDelayPolicy,
                 csvResultsLogWriter);

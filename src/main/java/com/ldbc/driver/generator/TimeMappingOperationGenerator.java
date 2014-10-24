@@ -28,7 +28,7 @@ public class TimeMappingOperationGenerator extends Generator<Operation<?>> {
         Operation<?> nextOperation = operations.next();
         if (null == timeOffsetFun) {
             // Create timeOffsetFun
-            Time firstStartTime = nextOperation.scheduledStartTime();
+            Time firstStartTime = nextOperation.scheduledStartTimeAsMilli();
             if (newStartTime.gt(firstStartTime)) {
                 // offset to future
                 Duration offset = newStartTime.durationGreaterThan(firstStartTime);
@@ -44,16 +44,16 @@ public class TimeMappingOperationGenerator extends Generator<Operation<?>> {
                 startTimeCompressionFun = new IdentityTimeFun();
                 dependencyTimeCompressionFun = new IdentityTimeFun();
             } else {
-                startTimeCompressionFun = new TimeCompressionFun(timeCompressionRatio, timeOffsetFun.apply(nextOperation.scheduledStartTime()));
-                dependencyTimeCompressionFun = new TimeCompressionFun(timeCompressionRatio, timeOffsetFun.apply(nextOperation.dependencyTime()));
+                startTimeCompressionFun = new TimeCompressionFun(timeCompressionRatio, timeOffsetFun.apply(nextOperation.scheduledStartTimeAsMilli()));
+                dependencyTimeCompressionFun = new TimeCompressionFun(timeCompressionRatio, timeOffsetFun.apply(nextOperation.dependencyTimeAsMilli()));
             }
         }
-        Time offsetStartTime = timeOffsetFun.apply(nextOperation.scheduledStartTime());
-        Time offsetDependencyTime = timeOffsetFun.apply(nextOperation.dependencyTime());
+        Time offsetStartTime = timeOffsetFun.apply(nextOperation.scheduledStartTimeAsMilli());
+        Time offsetDependencyTime = timeOffsetFun.apply(nextOperation.dependencyTimeAsMilli());
         Time offsetAndCompressedStartTime = startTimeCompressionFun.apply(offsetStartTime);
         Time offsetAndCompressedDependencyTime = dependencyTimeCompressionFun.apply(offsetDependencyTime);
-        nextOperation.setScheduledStartTime(offsetAndCompressedStartTime);
-        nextOperation.setDependencyTime(offsetAndCompressedDependencyTime);
+        nextOperation.setScheduledStartTimeAsMilli(offsetAndCompressedStartTime);
+        nextOperation.setDependencyTimeAsMilli(offsetAndCompressedDependencyTime);
         return nextOperation;
     }
 

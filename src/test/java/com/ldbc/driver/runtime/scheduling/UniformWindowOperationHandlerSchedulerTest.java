@@ -67,10 +67,10 @@ public class UniformWindowOperationHandlerSchedulerTest {
             List<OperationHandler<?>> handlers = scheduler.schedule(window);
 
             assertThat(handlers.size(), is(4));
-            assertThat(handlers.get(0).operation().scheduledStartTime(), is(Time.fromMilli(0)));
-            assertThat(handlers.get(1).operation().scheduledStartTime(), is(Time.fromMilli(25)));
-            assertThat(handlers.get(2).operation().scheduledStartTime(), is(Time.fromMilli(50)));
-            assertThat(handlers.get(3).operation().scheduledStartTime(), is(Time.fromMilli(75)));
+            assertThat(handlers.get(0).operation().scheduledStartTimeAsMilli(), is(Time.fromMilli(0)));
+            assertThat(handlers.get(1).operation().scheduledStartTimeAsMilli(), is(Time.fromMilli(25)));
+            assertThat(handlers.get(2).operation().scheduledStartTimeAsMilli(), is(Time.fromMilli(50)));
+            assertThat(handlers.get(3).operation().scheduledStartTimeAsMilli(), is(Time.fromMilli(75)));
         } finally {
             if (null != operationHandler1) operationHandler1.cleanup();
             if (null != operationHandler2) operationHandler2.cleanup();
@@ -118,10 +118,10 @@ public class UniformWindowOperationHandlerSchedulerTest {
             List<OperationHandler<?>> handlers = scheduler.schedule(window);
 
             assertThat(handlers.size(), is(4));
-            assertThat(handlers.get(0).operation().scheduledStartTime(), is(Time.fromMilli(0)));
-            assertThat(handlers.get(1).operation().scheduledStartTime(), is(Time.fromMilli(25)));
-            assertThat(handlers.get(2).operation().scheduledStartTime(), is(Time.fromMilli(50)));
-            assertThat(handlers.get(3).operation().scheduledStartTime(), is(Time.fromMilli(75)));
+            assertThat(handlers.get(0).operation().scheduledStartTimeAsMilli(), is(Time.fromMilli(0)));
+            assertThat(handlers.get(1).operation().scheduledStartTimeAsMilli(), is(Time.fromMilli(25)));
+            assertThat(handlers.get(2).operation().scheduledStartTimeAsMilli(), is(Time.fromMilli(50)));
+            assertThat(handlers.get(3).operation().scheduledStartTimeAsMilli(), is(Time.fromMilli(75)));
         } finally {
             if (null != operationHandler1) operationHandler1.cleanup();
             if (null != operationHandler2) operationHandler2.cleanup();
@@ -179,12 +179,12 @@ public class UniformWindowOperationHandlerSchedulerTest {
             List<OperationHandler<?>> handlers = scheduler.schedule(window);
 
             assertThat(handlers.size(), is(6));
-            assertThat(handlers.get(0).operation().scheduledStartTime(), is(Time.fromNano(0)));
-            assertThat(handlers.get(1).operation().scheduledStartTime(), is(Time.fromNano(0)));
-            assertThat(handlers.get(2).operation().scheduledStartTime(), is(Time.fromNano(1)));
-            assertThat(handlers.get(3).operation().scheduledStartTime(), is(Time.fromNano(1)));
-            assertThat(handlers.get(4).operation().scheduledStartTime(), is(Time.fromNano(2)));
-            assertThat(handlers.get(5).operation().scheduledStartTime(), is(Time.fromNano(2)));
+            assertThat(handlers.get(0).operation().scheduledStartTimeAsMilli(), is(Time.fromNano(0)));
+            assertThat(handlers.get(1).operation().scheduledStartTimeAsMilli(), is(Time.fromNano(0)));
+            assertThat(handlers.get(2).operation().scheduledStartTimeAsMilli(), is(Time.fromNano(1)));
+            assertThat(handlers.get(3).operation().scheduledStartTimeAsMilli(), is(Time.fromNano(1)));
+            assertThat(handlers.get(4).operation().scheduledStartTimeAsMilli(), is(Time.fromNano(2)));
+            assertThat(handlers.get(5).operation().scheduledStartTimeAsMilli(), is(Time.fromNano(2)));
         } finally {
             if (null != operationHandler1) operationHandler1.cleanup();
             if (null != operationHandler2) operationHandler2.cleanup();

@@ -14,9 +14,8 @@ import com.ldbc.driver.runtime.coordination.LocalCompletionTimeWriter;
 import com.ldbc.driver.runtime.metrics.*;
 import com.ldbc.driver.runtime.scheduling.ErrorReportingTerminatingExecutionDelayPolicy;
 import com.ldbc.driver.runtime.scheduling.ExecutionDelayPolicy;
-import com.ldbc.driver.temporal.Duration;
 import com.ldbc.driver.temporal.SystemTimeSource;
-import com.ldbc.driver.temporal.Time;
+import com.ldbc.driver.temporal.TemporalUtil;
 import com.ldbc.driver.temporal.TimeSource;
 import com.ldbc.driver.util.ClassLoaderHelper;
 import com.ldbc.driver.util.Tuple;
@@ -29,6 +28,7 @@ import java.io.*;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 // TODO replace log4j with some interface like StatusReportingService
 
@@ -38,13 +38,14 @@ public class Client {
     private static final long RANDOM_SEED = 42;
 
     public static void main(String[] args) throws ClientException {
+        TemporalUtil temporalUtil = new TemporalUtil();
         ConcurrentControlService controlService = null;
         try {
             TimeSource systemTimeSource = new SystemTimeSource();
             ConsoleAndFileDriverConfiguration configuration = ConsoleAndFileDriverConfiguration.fromArgs(args);
             // TODO this method will not work with multiple processes - should come from controlService
-            Time workloadStartTime = systemTimeSource.now().plus(Duration.fromSeconds(10));
-            controlService = new LocalControlService(workloadStartTime, configuration);
+            long workloadStartTimeAsMilli = systemTimeSource.nowAsMilli() + temporalUtil.convert(10, TimeUnit.SECONDS, TimeUnit.MILLISECONDS);
+            controlService = new LocalControlService(workloadStartTimeAsMilli, configuration);
             Client client = new Client(controlService, systemTimeSource);
             client.start();
         } catch (DriverConfigurationException e) {
@@ -159,6 +160,7 @@ public class Client {
     }
 
     private class ExecuteWorkloadMode implements ClientMode {
+        private final TemporalUtil temporalUtil = new TemporalUtil();
         private final ConcurrentControlService controlService;
         private final TimeSource timeSource;
 
@@ -235,8 +237,8 @@ public class Client {
                     timeSource,
                     errorReporter,
                     controlService.configuration().timeUnit(),
-                    controlService.workloadStartTime(),
-                    ThreadedQueuedConcurrentMetricsService.DEFAULT_HIGHEST_EXPECTED_RUNTIME_DURATION,
+                    controlService.workloadStartTimeAsMilli(),
+                    ThreadedQueuedConcurrentMetricsService.DEFAULT_HIGHEST_EXPECTED_RUNTIME_DURATION_AS_NANO,
                     recordStartTimeDelayLatency,
                     executionDelayPolicy,
                     csvResultsLogFileWriter);
@@ -259,7 +261,7 @@ public class Client {
             try {
                 timeMappedWorkloadStreams = WorkloadStreams.timeOffsetAndCompressWorkloadStreams(
                         workloadStreams,
-                        controlService.workloadStartTime(),
+                        controlService.workloadStartTimeAsMilli(),
                         controlService.configuration().timeCompressionRatio(),
                         gf
                 );
@@ -296,7 +298,7 @@ public class Client {
                         completionTimeService,
                         controlService.configuration().threadCount(),
                         controlService.configuration().statusDisplayInterval(),
-                        controlService.workloadStartTime(),
+                        controlService.workloadStartTimeAsMilli(),
                         controlService.configuration().spinnerSleepDuration(),
                         controlService.configuration().windowedExecutionWindowDuration(),
                         durationToWaitForAllHandlersToFinishBeforeShutdown,
@@ -320,11 +322,11 @@ public class Client {
                     localCompletionTimeWriter.submitLocalCompletedTime(maxPossibleTime);
                 } else {
                     // There are some local completion time writers, initialize them to workload start time
-                    completionTimeServiceAssistant.writeInitiatedAndCompletedTimesToAllWriters(completionTimeService, controlService.workloadStartTime().minus(Duration.fromNano(2)));
-                    completionTimeServiceAssistant.writeInitiatedAndCompletedTimesToAllWriters(completionTimeService, controlService.workloadStartTime().minus(Duration.fromNano(1)));
+                    completionTimeServiceAssistant.writeInitiatedAndCompletedTimesToAllWriters(completionTimeService, controlService.workloadStartTimeAsMilli().minus(Duration.fromNano(2)));
+                    completionTimeServiceAssistant.writeInitiatedAndCompletedTimesToAllWriters(completionTimeService, controlService.workloadStartTimeAsMilli().minus(Duration.fromNano(1)));
                     completionTimeServiceAssistant.waitForGlobalCompletionTime(
                             timeSource,
-                            controlService.workloadStartTime().minus(Duration.fromNano(2)),
+                            controlService.workloadStartTimeAsMilli().minus(Duration.fromNano(2)),
                             Duration.fromSeconds(5),
                             completionTimeService,
                             errorReporter
@@ -340,7 +342,7 @@ public class Client {
                 Duration globalCompletionTimeWaitTimeoutDuration = Duration.fromSeconds(5);
                 boolean globalCompletionTimeAdvancedToDesiredTime = completionTimeServiceAssistant.waitForGlobalCompletionTime(
                         timeSource,
-                        controlService.workloadStartTime().minus(Duration.fromNano(2)),
+                        controlService.workloadStartTimeAsMilli().minus(Duration.fromNano(2)),
                         globalCompletionTimeWaitTimeoutDuration,
                         completionTimeService,
                         errorReporter);
@@ -349,12 +351,12 @@ public class Client {
                             String.format("Timed out [%s] while waiting for global completion time to advance to workload start time\nCurrent GCT: %s\nWaiting For GCT: %s",
                                     globalCompletionTimeWaitTimeoutDuration,
                                     completionTimeService.globalCompletionTime(),
-                                    controlService.workloadStartTime())
+                                    controlService.workloadStartTimeAsMilli())
                     );
                 }
             } catch (CompletionTimeException e) {
                 throw new ClientException(
-                        String.format("Error encountered while waiting for global completion time to advance to workload start time: %s", controlService.workloadStartTime())
+                        String.format("Error encountered while waiting for global completion time to advance to workload start time: %s", controlService.workloadStartTimeAsMilli())
                 );
             }
             logger.info("Initialization complete");
@@ -395,7 +397,7 @@ public class Client {
                 throw new ClientException("Error during shutdown of metrics collection service", e);
             }
 
-            logger.info(String.format("Runtime: %s", workloadResults.totalRunDuration()));
+            logger.info(String.format("Runtime: %s", workloadResults.totalRunDurationAsNano()));
 
             logger.info("Exporting workload metrics...");
             try {
@@ -457,7 +459,7 @@ public class Client {
             try {
                 timeMappedWorkloadStreams = WorkloadStreams.timeOffsetAndCompressWorkloadStreams(
                         workloadStreams,
-                        controlService.workloadStartTime(),
+                        controlService.workloadStartTimeAsMilli(),
                         controlService.configuration().timeCompressionRatio(),
                         gf
                 );

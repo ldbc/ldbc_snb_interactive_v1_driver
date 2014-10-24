@@ -33,45 +33,45 @@ public class WorkloadStreamsTest {
 
         Operation<?> firstAsyncDependencyOperation = workloadStreamsBefore.asynchronousStream().dependencyOperations().next();
         Operation<?> secondAsyncDependencyOperation = workloadStreamsBefore.asynchronousStream().dependencyOperations().next();
-        assertThat(firstAsyncDependencyOperation.scheduledStartTime(), is(Time.fromNano(0)));
-        assertThat(firstAsyncDependencyOperation.dependencyTime(), is(Time.fromNano(0)));
-        assertThat(secondAsyncDependencyOperation.scheduledStartTime(), is(Time.fromNano(10)));
-        assertThat(secondAsyncDependencyOperation.dependencyTime(), is(Time.fromNano(10)));
+        assertThat(firstAsyncDependencyOperation.scheduledStartTimeAsMilli(), is(Time.fromNano(0)));
+        assertThat(firstAsyncDependencyOperation.dependencyTimeAsMilli(), is(Time.fromNano(0)));
+        assertThat(secondAsyncDependencyOperation.scheduledStartTimeAsMilli(), is(Time.fromNano(10)));
+        assertThat(secondAsyncDependencyOperation.dependencyTimeAsMilli(), is(Time.fromNano(10)));
 
         Operation<?> firstAsyncNonDependencyOperation = workloadStreamsBefore.asynchronousStream().nonDependencyOperations().next();
         Operation<?> secondAsyncNonDependencyOperation = workloadStreamsBefore.asynchronousStream().nonDependencyOperations().next();
-        assertThat(firstAsyncNonDependencyOperation.scheduledStartTime(), is(Time.fromNano(2)));
-        assertThat(firstAsyncNonDependencyOperation.dependencyTime(), is(Time.fromNano(2)));
-        assertThat(secondAsyncNonDependencyOperation.scheduledStartTime(), is(Time.fromNano(102)));
-        assertThat(secondAsyncNonDependencyOperation.dependencyTime(), is(Time.fromNano(102)));
+        assertThat(firstAsyncNonDependencyOperation.scheduledStartTimeAsMilli(), is(Time.fromNano(2)));
+        assertThat(firstAsyncNonDependencyOperation.dependencyTimeAsMilli(), is(Time.fromNano(2)));
+        assertThat(secondAsyncNonDependencyOperation.scheduledStartTimeAsMilli(), is(Time.fromNano(102)));
+        assertThat(secondAsyncNonDependencyOperation.dependencyTimeAsMilli(), is(Time.fromNano(102)));
 
         Operation<?> firstBlocking1DependencyOperation = workloadStreamsBefore.blockingStreamDefinitions().get(0).dependencyOperations().next();
         Operation<?> secondBlocking1DependencyOperation = workloadStreamsBefore.blockingStreamDefinitions().get(0).dependencyOperations().next();
-        assertThat(firstBlocking1DependencyOperation.scheduledStartTime(), is(Time.fromNano(4)));
-        assertThat(firstBlocking1DependencyOperation.dependencyTime(), is(Time.fromNano(4)));
-        assertThat(secondBlocking1DependencyOperation.scheduledStartTime(), is(Time.fromNano(1004)));
-        assertThat(secondBlocking1DependencyOperation.dependencyTime(), is(Time.fromNano(1004)));
+        assertThat(firstBlocking1DependencyOperation.scheduledStartTimeAsMilli(), is(Time.fromNano(4)));
+        assertThat(firstBlocking1DependencyOperation.dependencyTimeAsMilli(), is(Time.fromNano(4)));
+        assertThat(secondBlocking1DependencyOperation.scheduledStartTimeAsMilli(), is(Time.fromNano(1004)));
+        assertThat(secondBlocking1DependencyOperation.dependencyTimeAsMilli(), is(Time.fromNano(1004)));
 
         Operation<?> firstBlocking1NonDependencyOperation = workloadStreamsBefore.blockingStreamDefinitions().get(0).nonDependencyOperations().next();
         Operation<?> secondBlocking1NonDependencyOperation = workloadStreamsBefore.blockingStreamDefinitions().get(0).nonDependencyOperations().next();
-        assertThat(firstBlocking1NonDependencyOperation.scheduledStartTime(), is(Time.fromNano(6)));
-        assertThat(firstBlocking1NonDependencyOperation.dependencyTime(), is(Time.fromNano(6)));
-        assertThat(secondBlocking1NonDependencyOperation.scheduledStartTime(), is(Time.fromNano(10006)));
-        assertThat(secondBlocking1NonDependencyOperation.dependencyTime(), is(Time.fromNano(10006)));
+        assertThat(firstBlocking1NonDependencyOperation.scheduledStartTimeAsMilli(), is(Time.fromNano(6)));
+        assertThat(firstBlocking1NonDependencyOperation.dependencyTimeAsMilli(), is(Time.fromNano(6)));
+        assertThat(secondBlocking1NonDependencyOperation.scheduledStartTimeAsMilli(), is(Time.fromNano(10006)));
+        assertThat(secondBlocking1NonDependencyOperation.dependencyTimeAsMilli(), is(Time.fromNano(10006)));
 
         Operation<?> firstBlocking2DependencyOperation = workloadStreamsBefore.blockingStreamDefinitions().get(1).dependencyOperations().next();
         Operation<?> secondBlocking2DependencyOperation = workloadStreamsBefore.blockingStreamDefinitions().get(1).dependencyOperations().next();
-        assertThat(firstBlocking2DependencyOperation.scheduledStartTime(), is(Time.fromNano(8)));
-        assertThat(firstBlocking2DependencyOperation.dependencyTime(), is(Time.fromNano(8)));
-        assertThat(secondBlocking2DependencyOperation.scheduledStartTime(), is(Time.fromNano(10008)));
-        assertThat(secondBlocking2DependencyOperation.dependencyTime(), is(Time.fromNano(10008)));
+        assertThat(firstBlocking2DependencyOperation.scheduledStartTimeAsMilli(), is(Time.fromNano(8)));
+        assertThat(firstBlocking2DependencyOperation.dependencyTimeAsMilli(), is(Time.fromNano(8)));
+        assertThat(secondBlocking2DependencyOperation.scheduledStartTimeAsMilli(), is(Time.fromNano(10008)));
+        assertThat(secondBlocking2DependencyOperation.dependencyTimeAsMilli(), is(Time.fromNano(10008)));
 
         Operation<?> firstBlocking2NonDependencyOperation = workloadStreamsBefore.blockingStreamDefinitions().get(1).nonDependencyOperations().next();
         Operation<?> secondBlocking2NonDependencyOperation = workloadStreamsBefore.blockingStreamDefinitions().get(1).nonDependencyOperations().next();
-        assertThat(firstBlocking2NonDependencyOperation.scheduledStartTime(), is(Time.fromNano(10)));
-        assertThat(firstBlocking2NonDependencyOperation.dependencyTime(), is(Time.fromNano(10)));
-        assertThat(secondBlocking2NonDependencyOperation.scheduledStartTime(), is(Time.fromNano(100010)));
-        assertThat(secondBlocking2NonDependencyOperation.dependencyTime(), is(Time.fromNano(100010)));
+        assertThat(firstBlocking2NonDependencyOperation.scheduledStartTimeAsMilli(), is(Time.fromNano(10)));
+        assertThat(firstBlocking2NonDependencyOperation.dependencyTimeAsMilli(), is(Time.fromNano(10)));
+        assertThat(secondBlocking2NonDependencyOperation.scheduledStartTimeAsMilli(), is(Time.fromNano(100010)));
+        assertThat(secondBlocking2NonDependencyOperation.dependencyTimeAsMilli(), is(Time.fromNano(100010)));
     }
 
     @Test
@@ -85,45 +85,45 @@ public class WorkloadStreamsTest {
 
         Operation<?> firstAsyncDependencyOperation = workloadStreamsBefore.asynchronousStream().dependencyOperations().next();
         Operation<?> secondAsyncDependencyOperation = workloadStreamsBefore.asynchronousStream().dependencyOperations().next();
-        assertThat(firstAsyncDependencyOperation.scheduledStartTime(), is(Time.fromNano(0).plus(offset)));
-        assertThat(firstAsyncDependencyOperation.dependencyTime(), is(Time.fromNano(0).plus(offset)));
-        assertThat(secondAsyncDependencyOperation.scheduledStartTime(), is(Time.fromNano(10).plus(offset)));
-        assertThat(secondAsyncDependencyOperation.dependencyTime(), is(Time.fromNano(10).plus(offset)));
+        assertThat(firstAsyncDependencyOperation.scheduledStartTimeAsMilli(), is(Time.fromNano(0).plus(offset)));
+        assertThat(firstAsyncDependencyOperation.dependencyTimeAsMilli(), is(Time.fromNano(0).plus(offset)));
+        assertThat(secondAsyncDependencyOperation.scheduledStartTimeAsMilli(), is(Time.fromNano(10).plus(offset)));
+        assertThat(secondAsyncDependencyOperation.dependencyTimeAsMilli(), is(Time.fromNano(10).plus(offset)));
 
         Operation<?> firstAsyncNonDependencyOperation = workloadStreamsBefore.asynchronousStream().nonDependencyOperations().next();
         Operation<?> secondAsyncNonDependencyOperation = workloadStreamsBefore.asynchronousStream().nonDependencyOperations().next();
-        assertThat(firstAsyncNonDependencyOperation.scheduledStartTime(), is(Time.fromNano(2).plus(offset)));
-        assertThat(firstAsyncNonDependencyOperation.dependencyTime(), is(Time.fromNano(2).plus(offset)));
-        assertThat(secondAsyncNonDependencyOperation.scheduledStartTime(), is(Time.fromNano(102).plus(offset)));
-        assertThat(secondAsyncNonDependencyOperation.dependencyTime(), is(Time.fromNano(102).plus(offset)));
+        assertThat(firstAsyncNonDependencyOperation.scheduledStartTimeAsMilli(), is(Time.fromNano(2).plus(offset)));
+        assertThat(firstAsyncNonDependencyOperation.dependencyTimeAsMilli(), is(Time.fromNano(2).plus(offset)));
+        assertThat(secondAsyncNonDependencyOperation.scheduledStartTimeAsMilli(), is(Time.fromNano(102).plus(offset)));
+        assertThat(secondAsyncNonDependencyOperation.dependencyTimeAsMilli(), is(Time.fromNano(102).plus(offset)));
 
         Operation<?> firstBlocking1DependencyOperation = workloadStreamsBefore.blockingStreamDefinitions().get(0).dependencyOperations().next();
         Operation<?> secondBlocking1DependencyOperation = workloadStreamsBefore.blockingStreamDefinitions().get(0).dependencyOperations().next();
-        assertThat(firstBlocking1DependencyOperation.scheduledStartTime(), is(Time.fromNano(4).plus(offset)));
-        assertThat(firstBlocking1DependencyOperation.dependencyTime(), is(Time.fromNano(4).plus(offset)));
-        assertThat(secondBlocking1DependencyOperation.scheduledStartTime(), is(Time.fromNano(1004).plus(offset)));
-        assertThat(secondBlocking1DependencyOperation.dependencyTime(), is(Time.fromNano(1004).plus(offset)));
+        assertThat(firstBlocking1DependencyOperation.scheduledStartTimeAsMilli(), is(Time.fromNano(4).plus(offset)));
+        assertThat(firstBlocking1DependencyOperation.dependencyTimeAsMilli(), is(Time.fromNano(4).plus(offset)));
+        assertThat(secondBlocking1DependencyOperation.scheduledStartTimeAsMilli(), is(Time.fromNano(1004).plus(offset)));
+        assertThat(secondBlocking1DependencyOperation.dependencyTimeAsMilli(), is(Time.fromNano(1004).plus(offset)));
 
         Operation<?> firstBlocking1NonDependencyOperation = workloadStreamsBefore.blockingStreamDefinitions().get(0).nonDependencyOperations().next();
         Operation<?> secondBlocking1NonDependencyOperation = workloadStreamsBefore.blockingStreamDefinitions().get(0).nonDependencyOperations().next();
-        assertThat(firstBlocking1NonDependencyOperation.scheduledStartTime(), is(Time.fromNano(6).plus(offset)));
-        assertThat(firstBlocking1NonDependencyOperation.dependencyTime(), is(Time.fromNano(6).plus(offset)));
-        assertThat(secondBlocking1NonDependencyOperation.scheduledStartTime(), is(Time.fromNano(10006).plus(offset)));
-        assertThat(secondBlocking1NonDependencyOperation.dependencyTime(), is(Time.fromNano(10006).plus(offset)));
+        assertThat(firstBlocking1NonDependencyOperation.scheduledStartTimeAsMilli(), is(Time.fromNano(6).plus(offset)));
+        assertThat(firstBlocking1NonDependencyOperation.dependencyTimeAsMilli(), is(Time.fromNano(6).plus(offset)));
+        assertThat(secondBlocking1NonDependencyOperation.scheduledStartTimeAsMilli(), is(Time.fromNano(10006).plus(offset)));
+        assertThat(secondBlocking1NonDependencyOperation.dependencyTimeAsMilli(), is(Time.fromNano(10006).plus(offset)));
 
         Operation<?> firstBlocking2DependencyOperation = workloadStreamsBefore.blockingStreamDefinitions().get(1).dependencyOperations().next();
         Operation<?> secondBlocking2DependencyOperation = workloadStreamsBefore.blockingStreamDefinitions().get(1).dependencyOperations().next();
-        assertThat(firstBlocking2DependencyOperation.scheduledStartTime(), is(Time.fromNano(8).plus(offset)));
-        assertThat(firstBlocking2DependencyOperation.dependencyTime(), is(Time.fromNano(8).plus(offset)));
-        assertThat(secondBlocking2DependencyOperation.scheduledStartTime(), is(Time.fromNano(10008).plus(offset)));
-        assertThat(secondBlocking2DependencyOperation.dependencyTime(), is(Time.fromNano(10008).plus(offset)));
+        assertThat(firstBlocking2DependencyOperation.scheduledStartTimeAsMilli(), is(Time.fromNano(8).plus(offset)));
+        assertThat(firstBlocking2DependencyOperation.dependencyTimeAsMilli(), is(Time.fromNano(8).plus(offset)));
+        assertThat(secondBlocking2DependencyOperation.scheduledStartTimeAsMilli(), is(Time.fromNano(10008).plus(offset)));
+        assertThat(secondBlocking2DependencyOperation.dependencyTimeAsMilli(), is(Time.fromNano(10008).plus(offset)));
 
         Operation<?> firstBlocking2NonDependencyOperation = workloadStreamsBefore.blockingStreamDefinitions().get(1).nonDependencyOperations().next();
         Operation<?> secondBlocking2NonDependencyOperation = workloadStreamsBefore.blockingStreamDefinitions().get(1).nonDependencyOperations().next();
-        assertThat(firstBlocking2NonDependencyOperation.scheduledStartTime(), is(Time.fromNano(10).plus(offset)));
-        assertThat(firstBlocking2NonDependencyOperation.dependencyTime(), is(Time.fromNano(10).plus(offset)));
-        assertThat(secondBlocking2NonDependencyOperation.scheduledStartTime(), is(Time.fromNano(100010).plus(offset)));
-        assertThat(secondBlocking2NonDependencyOperation.dependencyTime(), is(Time.fromNano(100010).plus(offset)));
+        assertThat(firstBlocking2NonDependencyOperation.scheduledStartTimeAsMilli(), is(Time.fromNano(10).plus(offset)));
+        assertThat(firstBlocking2NonDependencyOperation.dependencyTimeAsMilli(), is(Time.fromNano(10).plus(offset)));
+        assertThat(secondBlocking2NonDependencyOperation.scheduledStartTimeAsMilli(), is(Time.fromNano(100010).plus(offset)));
+        assertThat(secondBlocking2NonDependencyOperation.dependencyTimeAsMilli(), is(Time.fromNano(100010).plus(offset)));
     }
 
     @Test
@@ -137,45 +137,45 @@ public class WorkloadStreamsTest {
 
         Operation<?> firstAsyncDependencyOperation = workloadStreamsBefore.asynchronousStream().dependencyOperations().next();
         Operation<?> secondAsyncDependencyOperation = workloadStreamsBefore.asynchronousStream().dependencyOperations().next();
-        assertThat(firstAsyncDependencyOperation.scheduledStartTime(), is(Time.fromNano(0).plus(offset)));
-        assertThat(secondAsyncDependencyOperation.scheduledStartTime(), is(Time.fromNano(5).plus(offset)));
-        assertThat(secondAsyncDependencyOperation.scheduledStartTime().durationGreaterThan(firstAsyncDependencyOperation.scheduledStartTime()), is(Duration.fromNano(5)));
-        assertThat(secondAsyncDependencyOperation.dependencyTime().durationGreaterThan(firstAsyncDependencyOperation.dependencyTime()), is(Duration.fromNano(5)));
+        assertThat(firstAsyncDependencyOperation.scheduledStartTimeAsMilli(), is(Time.fromNano(0).plus(offset)));
+        assertThat(secondAsyncDependencyOperation.scheduledStartTimeAsMilli(), is(Time.fromNano(5).plus(offset)));
+        assertThat(secondAsyncDependencyOperation.scheduledStartTimeAsMilli().durationGreaterThan(firstAsyncDependencyOperation.scheduledStartTimeAsMilli()), is(Duration.fromNano(5)));
+        assertThat(secondAsyncDependencyOperation.dependencyTimeAsMilli().durationGreaterThan(firstAsyncDependencyOperation.dependencyTimeAsMilli()), is(Duration.fromNano(5)));
 
         Operation<?> firstAsyncNonDependencyOperation = workloadStreamsBefore.asynchronousStream().nonDependencyOperations().next();
         Operation<?> secondAsyncNonDependencyOperation = workloadStreamsBefore.asynchronousStream().nonDependencyOperations().next();
-        assertThat(firstAsyncNonDependencyOperation.scheduledStartTime(), is(Time.fromNano(1).plus(offset)));
-        assertThat(firstAsyncNonDependencyOperation.dependencyTime(), is(Time.fromNano(1).plus(offset)));
-        assertThat(secondAsyncNonDependencyOperation.scheduledStartTime(), is(Time.fromNano(51).plus(offset)));
-        assertThat(secondAsyncNonDependencyOperation.dependencyTime(), is(Time.fromNano(51).plus(offset)));
+        assertThat(firstAsyncNonDependencyOperation.scheduledStartTimeAsMilli(), is(Time.fromNano(1).plus(offset)));
+        assertThat(firstAsyncNonDependencyOperation.dependencyTimeAsMilli(), is(Time.fromNano(1).plus(offset)));
+        assertThat(secondAsyncNonDependencyOperation.scheduledStartTimeAsMilli(), is(Time.fromNano(51).plus(offset)));
+        assertThat(secondAsyncNonDependencyOperation.dependencyTimeAsMilli(), is(Time.fromNano(51).plus(offset)));
 
         Operation<?> firstBlocking1DependencyOperation = workloadStreamsBefore.blockingStreamDefinitions().get(0).dependencyOperations().next();
         Operation<?> secondBlocking1DependencyOperation = workloadStreamsBefore.blockingStreamDefinitions().get(0).dependencyOperations().next();
-        assertThat(firstBlocking1DependencyOperation.scheduledStartTime(), is(Time.fromNano(2).plus(offset)));
-        assertThat(firstBlocking1DependencyOperation.dependencyTime(), is(Time.fromNano(2).plus(offset)));
-        assertThat(secondBlocking1DependencyOperation.scheduledStartTime(), is(Time.fromNano(502).plus(offset)));
-        assertThat(secondBlocking1DependencyOperation.dependencyTime(), is(Time.fromNano(502).plus(offset)));
+        assertThat(firstBlocking1DependencyOperation.scheduledStartTimeAsMilli(), is(Time.fromNano(2).plus(offset)));
+        assertThat(firstBlocking1DependencyOperation.dependencyTimeAsMilli(), is(Time.fromNano(2).plus(offset)));
+        assertThat(secondBlocking1DependencyOperation.scheduledStartTimeAsMilli(), is(Time.fromNano(502).plus(offset)));
+        assertThat(secondBlocking1DependencyOperation.dependencyTimeAsMilli(), is(Time.fromNano(502).plus(offset)));
 
         Operation<?> firstBlocking1NonDependencyOperation = workloadStreamsBefore.blockingStreamDefinitions().get(0).nonDependencyOperations().next();
         Operation<?> secondBlocking1NonDependencyOperation = workloadStreamsBefore.blockingStreamDefinitions().get(0).nonDependencyOperations().next();
-        assertThat(firstBlocking1NonDependencyOperation.scheduledStartTime(), is(Time.fromNano(3).plus(offset)));
-        assertThat(firstBlocking1NonDependencyOperation.dependencyTime(), is(Time.fromNano(3).plus(offset)));
-        assertThat(secondBlocking1NonDependencyOperation.scheduledStartTime(), is(Time.fromNano(5003).plus(offset)));
-        assertThat(secondBlocking1NonDependencyOperation.dependencyTime(), is(Time.fromNano(5003).plus(offset)));
+        assertThat(firstBlocking1NonDependencyOperation.scheduledStartTimeAsMilli(), is(Time.fromNano(3).plus(offset)));
+        assertThat(firstBlocking1NonDependencyOperation.dependencyTimeAsMilli(), is(Time.fromNano(3).plus(offset)));
+        assertThat(secondBlocking1NonDependencyOperation.scheduledStartTimeAsMilli(), is(Time.fromNano(5003).plus(offset)));
+        assertThat(secondBlocking1NonDependencyOperation.dependencyTimeAsMilli(), is(Time.fromNano(5003).plus(offset)));
 
         Operation<?> firstBlocking2DependencyOperation = workloadStreamsBefore.blockingStreamDefinitions().get(1).dependencyOperations().next();
         Operation<?> secondBlocking2DependencyOperation = workloadStreamsBefore.blockingStreamDefinitions().get(1).dependencyOperations().next();
-        assertThat(firstBlocking2DependencyOperation.scheduledStartTime(), is(Time.fromNano(4).plus(offset)));
-        assertThat(firstBlocking2DependencyOperation.dependencyTime(), is(Time.fromNano(4).plus(offset)));
-        assertThat(secondBlocking2DependencyOperation.scheduledStartTime(), is(Time.fromNano(5004).plus(offset)));
-        assertThat(secondBlocking2DependencyOperation.dependencyTime(), is(Time.fromNano(5004).plus(offset)));
+        assertThat(firstBlocking2DependencyOperation.scheduledStartTimeAsMilli(), is(Time.fromNano(4).plus(offset)));
+        assertThat(firstBlocking2DependencyOperation.dependencyTimeAsMilli(), is(Time.fromNano(4).plus(offset)));
+        assertThat(secondBlocking2DependencyOperation.scheduledStartTimeAsMilli(), is(Time.fromNano(5004).plus(offset)));
+        assertThat(secondBlocking2DependencyOperation.dependencyTimeAsMilli(), is(Time.fromNano(5004).plus(offset)));
 
         Operation<?> firstBlocking2NonDependencyOperation = workloadStreamsBefore.blockingStreamDefinitions().get(1).nonDependencyOperations().next();
         Operation<?> secondBlocking2NonDependencyOperation = workloadStreamsBefore.blockingStreamDefinitions().get(1).nonDependencyOperations().next();
-        assertThat(firstBlocking2NonDependencyOperation.scheduledStartTime(), is(Time.fromNano(5).plus(offset)));
-        assertThat(firstBlocking2NonDependencyOperation.dependencyTime(), is(Time.fromNano(5).plus(offset)));
-        assertThat(secondBlocking2NonDependencyOperation.scheduledStartTime(), is(Time.fromNano(50005).plus(offset)));
-        assertThat(secondBlocking2NonDependencyOperation.dependencyTime(), is(Time.fromNano(50005).plus(offset)));
+        assertThat(firstBlocking2NonDependencyOperation.scheduledStartTimeAsMilli(), is(Time.fromNano(5).plus(offset)));
+        assertThat(firstBlocking2NonDependencyOperation.dependencyTimeAsMilli(), is(Time.fromNano(5).plus(offset)));
+        assertThat(secondBlocking2NonDependencyOperation.scheduledStartTimeAsMilli(), is(Time.fromNano(50005).plus(offset)));
+        assertThat(secondBlocking2NonDependencyOperation.dependencyTimeAsMilli(), is(Time.fromNano(50005).plus(offset)));
     }
 
     @Test

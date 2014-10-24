@@ -134,7 +134,7 @@ public class WorkloadRunnerTest {
 
             WorkloadStreams workloadStreams = WorkloadStreams.timeOffsetAndCompressWorkloadStreams(
                     workloadStreamsAndWorkload._1(),
-                    controlService.workloadStartTime(),
+                    controlService.workloadStartTimeAsMilli(),
                     configuration.timeCompressionRatio(),
                     gf
             );
@@ -150,8 +150,8 @@ public class WorkloadRunnerTest {
                     timeSource,
                     errorReporter,
                     configuration.timeUnit(),
-                    controlService.workloadStartTime(),
-                    ThreadedQueuedConcurrentMetricsService.DEFAULT_HIGHEST_EXPECTED_RUNTIME_DURATION,
+                    controlService.workloadStartTimeAsMilli(),
+                    ThreadedQueuedConcurrentMetricsService.DEFAULT_HIGHEST_EXPECTED_RUNTIME_DURATION_AS_NANO,
                     recordStartTimeDelayLatency,
                     executionDelayPolicy,
                     csvResultsLogWriter);
@@ -170,7 +170,7 @@ public class WorkloadRunnerTest {
                     concurrentCompletionTimeService,
                     controlService.configuration().threadCount(),
                     controlService.configuration().statusDisplayInterval(),
-                    controlService.workloadStartTime(),
+                    controlService.workloadStartTimeAsMilli(),
                     controlService.configuration().spinnerSleepDuration(),
                     controlService.configuration().windowedExecutionWindowDuration(),
                     WorkloadRunner.DEFAULT_DURATION_TO_WAIT_FOR_ALL_HANDLERS_TO_FINISH,
@@ -182,9 +182,9 @@ public class WorkloadRunnerTest {
             WorkloadResultsSnapshot workloadResults = metricsService.results();
 
             assertThat(errorReporter.toString() + "\n" + workloadResults.toString(), errorReporter.errorEncountered(), is(false));
-            assertThat(errorReporter.toString() + "\n" + workloadResults.toString(), workloadResults.startTime().gte(controlService.workloadStartTime()), is(true));
-            assertThat(errorReporter.toString() + "\n" + workloadResults.toString(), workloadResults.startTime().lt(controlService.workloadStartTime().plus(configuration.toleratedExecutionDelay())), is(true));
-            assertThat(errorReporter.toString() + "\n" + workloadResults.toString(), workloadResults.latestFinishTime().gte(workloadResults.startTime()), is(true));
+            assertThat(errorReporter.toString() + "\n" + workloadResults.toString(), workloadResults.startTimeAsMilli().gte(controlService.workloadStartTimeAsMilli()), is(true));
+            assertThat(errorReporter.toString() + "\n" + workloadResults.toString(), workloadResults.startTimeAsMilli().lt(controlService.workloadStartTimeAsMilli().plus(configuration.toleratedExecutionDelay())), is(true));
+            assertThat(errorReporter.toString() + "\n" + workloadResults.toString(), workloadResults.latestFinishTimeAsMilli().gte(workloadResults.startTimeAsMilli()), is(true));
             assertThat(errorReporter.toString() + "\n" + workloadResults.toString(), workloadResults.totalOperationCount(), is(operationCount));
 
             WorkloadResultsSnapshot workloadResultsFromJson = WorkloadResultsSnapshot.fromJson(workloadResults.toJson());
@@ -197,9 +197,9 @@ public class WorkloadRunnerTest {
             assertThat((long) Iterators.size(csvResultsLogReader), is(configuration.operationCount())); // NOT + 1 because I didn't add csv headers
             csvResultsLogReader.close();
 
-            double operationsPerSecond = Math.round(((double) operationCount / workloadResults.totalRunDuration().asNano()) * ONE_SECOND_AS_NANO);
-            double microSecondPerOperation = (double) workloadResults.totalRunDuration().asMicro() / operationCount;
-            System.out.println(String.format("[%s threads] Completed %s operations in %s = %s op/sec = 1 op/%s us", threadCount, operationCount, workloadResults.totalRunDuration(), operationsPerSecond, microSecondPerOperation));
+            double operationsPerSecond = Math.round(((double) operationCount / workloadResults.totalRunDurationAsNano().asNano()) * ONE_SECOND_AS_NANO);
+            double microSecondPerOperation = (double) workloadResults.totalRunDurationAsNano().asMicro() / operationCount;
+            System.out.println(String.format("[%s threads] Completed %s operations in %s = %s op/sec = 1 op/%s us", threadCount, operationCount, workloadResults.totalRunDurationAsNano(), operationsPerSecond, microSecondPerOperation));
         } finally {
             System.out.println(errorReporter.toString());
             if (null != controlService) controlService.shutdown();
@@ -313,7 +313,7 @@ public class WorkloadRunnerTest {
             workload.init(configuration);
             GeneratorFactory gf = new GeneratorFactory(new RandomDataGeneratorFactory(42L));
             Iterator<Operation<?>> operations = gf.limit(workload.streams(gf).mergeSortedByStartTime(gf), configuration.operationCount());
-            Iterator<Operation<?>> timeMappedOperations = gf.timeOffsetAndCompress(operations, controlService.workloadStartTime(), 1.0);
+            Iterator<Operation<?>> timeMappedOperations = gf.timeOffsetAndCompress(operations, controlService.workloadStartTimeAsMilli(), 1.0);
             WorkloadStreams workloadStreams = new WorkloadStreams();
             workloadStreams.setAsynchronousStream(
                     new HashSet<Class<? extends Operation<?>>>(),
@@ -331,8 +331,8 @@ public class WorkloadRunnerTest {
                     timeSource,
                     errorReporter,
                     configuration.timeUnit(),
-                    controlService.workloadStartTime(),
-                    ThreadedQueuedConcurrentMetricsService.DEFAULT_HIGHEST_EXPECTED_RUNTIME_DURATION,
+                    controlService.workloadStartTimeAsMilli(),
+                    ThreadedQueuedConcurrentMetricsService.DEFAULT_HIGHEST_EXPECTED_RUNTIME_DURATION_AS_NANO,
                     recordStartTimeDelayLatency,
                     executionDelayPolicy,
                     csvResultsLogWriter);
@@ -347,7 +347,7 @@ public class WorkloadRunnerTest {
                     completionTimeService,
                     controlService.configuration().threadCount(),
                     controlService.configuration().statusDisplayInterval(),
-                    controlService.workloadStartTime(),
+                    controlService.workloadStartTimeAsMilli(),
                     controlService.configuration().spinnerSleepDuration(),
                     controlService.configuration().windowedExecutionWindowDuration(),
                     WorkloadRunner.DEFAULT_DURATION_TO_WAIT_FOR_ALL_HANDLERS_TO_FINISH,
@@ -359,9 +359,9 @@ public class WorkloadRunnerTest {
             WorkloadResultsSnapshot workloadResults = metricsService.results();
 
             assertThat(errorReporter.toString() + "\n" + workloadResults.toString(), errorReporter.errorEncountered(), is(false));
-            assertThat(errorReporter.toString() + "\n" + workloadResults.toString(), workloadResults.startTime().gte(controlService.workloadStartTime()), is(true));
-            assertThat(errorReporter.toString() + "\n" + workloadResults.toString(), workloadResults.startTime().lt(controlService.workloadStartTime().plus(configuration.toleratedExecutionDelay())), is(true));
-            assertThat(errorReporter.toString() + "\n" + workloadResults.toString(), workloadResults.latestFinishTime().gte(workloadResults.startTime()), is(true));
+            assertThat(errorReporter.toString() + "\n" + workloadResults.toString(), workloadResults.startTimeAsMilli().gte(controlService.workloadStartTimeAsMilli()), is(true));
+            assertThat(errorReporter.toString() + "\n" + workloadResults.toString(), workloadResults.startTimeAsMilli().lt(controlService.workloadStartTimeAsMilli().plus(configuration.toleratedExecutionDelay())), is(true));
+            assertThat(errorReporter.toString() + "\n" + workloadResults.toString(), workloadResults.latestFinishTimeAsMilli().gte(workloadResults.startTimeAsMilli()), is(true));
             assertThat(errorReporter.toString() + "\n" + workloadResults.toString(), workloadResults.totalOperationCount(), is(operationCount));
 
             WorkloadResultsSnapshot workloadResultsFromJson = WorkloadResultsSnapshot.fromJson(workloadResults.toJson());
@@ -374,9 +374,9 @@ public class WorkloadRunnerTest {
             assertThat((long) Iterators.size(csvResultsLogReader), is(configuration.operationCount())); // NOT + 1 because I didn't add csv headers
             csvResultsLogReader.close();
 
-            double operationsPerSecond = Math.round(((double) operationCount / workloadResults.totalRunDuration().asNano()) * ONE_SECOND_AS_NANO);
-            double microSecondPerOperation = (double) workloadResults.totalRunDuration().asMicro() / operationCount;
-            System.out.println(String.format("[%s threads] Completed %s operations in %s = %s op/sec = 1 op/%s us", threadCount, operationCount, workloadResults.totalRunDuration(), operationsPerSecond, microSecondPerOperation));
+            double operationsPerSecond = Math.round(((double) operationCount / workloadResults.totalRunDurationAsNano().asNano()) * ONE_SECOND_AS_NANO);
+            double microSecondPerOperation = (double) workloadResults.totalRunDurationAsNano().asMicro() / operationCount;
+            System.out.println(String.format("[%s threads] Completed %s operations in %s = %s op/sec = 1 op/%s us", threadCount, operationCount, workloadResults.totalRunDurationAsNano(), operationsPerSecond, microSecondPerOperation));
         } finally {
             System.out.println(errorReporter.toString());
             if (null != controlService) controlService.shutdown();

@@ -33,7 +33,7 @@ public class ThreadedQueuedConcurrentMetricsServiceTest {
 
     public void doShouldNotAcceptOperationResultsAfterShutdownWhenBlockingQueueIsUsed(boolean recordStartTimeDelayLatency) throws WorkloadException, MetricsCollectionException {
         ConcurrentErrorReporter errorReporter = new ConcurrentErrorReporter();
-        Duration toleratedExecutionDelayDuration = ThreadedQueuedConcurrentMetricsService.DEFAULT_HIGHEST_EXPECTED_DELAY_DURATION;
+        Duration toleratedExecutionDelayDuration = ThreadedQueuedConcurrentMetricsService.DEFAULT_HIGHEST_EXPECTED_DELAY_DURATION_AS_MILLI;
         ExecutionDelayPolicy executionDelayPolicy = new ErrorReportingTerminatingExecutionDelayPolicy(
                 timeSource,
                 toleratedExecutionDelayDuration,
@@ -44,7 +44,7 @@ public class ThreadedQueuedConcurrentMetricsServiceTest {
                 new ConcurrentErrorReporter(),
                 TimeUnit.MILLISECONDS,
                 INITIAL_START_TIME,
-                ThreadedQueuedConcurrentMetricsService.DEFAULT_HIGHEST_EXPECTED_RUNTIME_DURATION,
+                ThreadedQueuedConcurrentMetricsService.DEFAULT_HIGHEST_EXPECTED_RUNTIME_DURATION_AS_NANO,
                 recordStartTimeDelayLatency,
                 executionDelayPolicy,
                 csvResultsLogWriter);
@@ -67,7 +67,7 @@ public class ThreadedQueuedConcurrentMetricsServiceTest {
 
     public void doShouldNotAcceptOperationResultsAfterShutdownWhenNonBlockingQueueIsUsed(boolean recordStartTimeDelayLatency) throws WorkloadException, MetricsCollectionException {
         ConcurrentErrorReporter errorReporter = new ConcurrentErrorReporter();
-        Duration toleratedExecutionDelayDuration = ThreadedQueuedConcurrentMetricsService.DEFAULT_HIGHEST_EXPECTED_DELAY_DURATION;
+        Duration toleratedExecutionDelayDuration = ThreadedQueuedConcurrentMetricsService.DEFAULT_HIGHEST_EXPECTED_DELAY_DURATION_AS_MILLI;
         ExecutionDelayPolicy executionDelayPolicy = new ErrorReportingTerminatingExecutionDelayPolicy(
                 timeSource,
                 toleratedExecutionDelayDuration,
@@ -78,7 +78,7 @@ public class ThreadedQueuedConcurrentMetricsServiceTest {
                 new ConcurrentErrorReporter(),
                 TimeUnit.MILLISECONDS,
                 INITIAL_START_TIME,
-                ThreadedQueuedConcurrentMetricsService.DEFAULT_HIGHEST_EXPECTED_RUNTIME_DURATION,
+                ThreadedQueuedConcurrentMetricsService.DEFAULT_HIGHEST_EXPECTED_RUNTIME_DURATION_AS_NANO,
                 recordStartTimeDelayLatency,
                 executionDelayPolicy,
                 csvResultsLogWriter);
@@ -101,7 +101,7 @@ public class ThreadedQueuedConcurrentMetricsServiceTest {
 
     public void doShouldReturnCorrectMeasurementsWhenBlockingQueueIsUsed(boolean recordStartTimeDelayLatency) throws WorkloadException, MetricsCollectionException {
         ConcurrentErrorReporter errorReporter = new ConcurrentErrorReporter();
-        Duration toleratedExecutionDelayDuration = ThreadedQueuedConcurrentMetricsService.DEFAULT_HIGHEST_EXPECTED_DELAY_DURATION;
+        Duration toleratedExecutionDelayDuration = ThreadedQueuedConcurrentMetricsService.DEFAULT_HIGHEST_EXPECTED_DELAY_DURATION_AS_MILLI;
         ExecutionDelayPolicy executionDelayPolicy = new ErrorReportingTerminatingExecutionDelayPolicy(
                 timeSource,
                 toleratedExecutionDelayDuration,
@@ -112,7 +112,7 @@ public class ThreadedQueuedConcurrentMetricsServiceTest {
                 new ConcurrentErrorReporter(),
                 TimeUnit.MILLISECONDS,
                 INITIAL_START_TIME,
-                ThreadedQueuedConcurrentMetricsService.DEFAULT_HIGHEST_EXPECTED_RUNTIME_DURATION,
+                ThreadedQueuedConcurrentMetricsService.DEFAULT_HIGHEST_EXPECTED_RUNTIME_DURATION_AS_NANO,
                 recordStartTimeDelayLatency,
                 executionDelayPolicy,
                 csvResultsLogWriter);
@@ -132,7 +132,7 @@ public class ThreadedQueuedConcurrentMetricsServiceTest {
 
     public void doShouldReturnCorrectMeasurementsWhenNonBlockingQueueIsUsed(boolean recordStartTimeDelayLatency) throws WorkloadException, MetricsCollectionException {
         ConcurrentErrorReporter errorReporter = new ConcurrentErrorReporter();
-        Duration toleratedExecutionDelayDuration = ThreadedQueuedConcurrentMetricsService.DEFAULT_HIGHEST_EXPECTED_DELAY_DURATION;
+        Duration toleratedExecutionDelayDuration = ThreadedQueuedConcurrentMetricsService.DEFAULT_HIGHEST_EXPECTED_DELAY_DURATION_AS_MILLI;
         ExecutionDelayPolicy executionDelayPolicy = new ErrorReportingTerminatingExecutionDelayPolicy(
                 timeSource,
                 toleratedExecutionDelayDuration,
@@ -143,7 +143,7 @@ public class ThreadedQueuedConcurrentMetricsServiceTest {
                 new ConcurrentErrorReporter(),
                 TimeUnit.MILLISECONDS,
                 INITIAL_START_TIME,
-                ThreadedQueuedConcurrentMetricsService.DEFAULT_HIGHEST_EXPECTED_RUNTIME_DURATION,
+                ThreadedQueuedConcurrentMetricsService.DEFAULT_HIGHEST_EXPECTED_RUNTIME_DURATION_AS_NANO,
                 recordStartTimeDelayLatency,
                 executionDelayPolicy,
                 csvResultsLogWriter);
@@ -156,33 +156,33 @@ public class ThreadedQueuedConcurrentMetricsServiceTest {
     }
 
     public void shouldReturnCorrectMeasurements(ConcurrentMetricsService metricsService) throws WorkloadException, MetricsCollectionException {
-        assertThat(metricsService.results().startTime(), equalTo(INITIAL_START_TIME));
-        assertThat(metricsService.results().latestFinishTime(), is(INITIAL_START_TIME));
+        assertThat(metricsService.results().startTimeAsMilli(), equalTo(INITIAL_START_TIME));
+        assertThat(metricsService.results().latestFinishTimeAsMilli(), is(INITIAL_START_TIME));
 
         Operation<?> operation1 = DummyLdbcSnbInteractiveOperationInstances.read1();
-        operation1.setScheduledStartTime(Time.fromMilli(1));
+        operation1.setScheduledStartTimeAsMilli(Time.fromMilli(1));
         OperationResultReport operationResultReport1 = OperationResultReportTestHelper.create(1, "result one", operation1);
         OperationResultReportTestHelper.setActualStartTime(operationResultReport1, Time.fromMilli(2));
         OperationResultReportTestHelper.setRunDuration(operationResultReport1, Duration.fromMilli(1));
 
         metricsService.submitOperationResult(operationResultReport1);
 
-        assertThat(metricsService.results().startTime(), equalTo(INITIAL_START_TIME));
-        assertThat(metricsService.results().latestFinishTime(), equalTo(Time.fromMilli(3)));
+        assertThat(metricsService.results().startTimeAsMilli(), equalTo(INITIAL_START_TIME));
+        assertThat(metricsService.results().latestFinishTimeAsMilli(), equalTo(Time.fromMilli(3)));
 
         Operation<?> operation2 = DummyLdbcSnbInteractiveOperationInstances.read1();
-        operation2.setScheduledStartTime(Time.fromMilli(1));
+        operation2.setScheduledStartTimeAsMilli(Time.fromMilli(1));
         OperationResultReport operationResultReport2 = OperationResultReportTestHelper.create(2, "result two", operation2);
         OperationResultReportTestHelper.setActualStartTime(operationResultReport2, Time.fromMilli(8));
         OperationResultReportTestHelper.setRunDuration(operationResultReport2, Duration.fromMilli(3));
 
         metricsService.submitOperationResult(operationResultReport2);
 
-        assertThat(metricsService.results().startTime(), equalTo(INITIAL_START_TIME));
-        assertThat(metricsService.results().latestFinishTime(), equalTo(Time.fromMilli(11)));
+        assertThat(metricsService.results().startTimeAsMilli(), equalTo(INITIAL_START_TIME));
+        assertThat(metricsService.results().latestFinishTimeAsMilli(), equalTo(Time.fromMilli(11)));
 
         Operation<?> operation3 = DummyLdbcSnbInteractiveOperationInstances.read2();
-        operation3.setScheduledStartTime(Time.fromMilli(1));
+        operation3.setScheduledStartTimeAsMilli(Time.fromMilli(1));
         OperationResultReport operationResultReport3 = OperationResultReportTestHelper.create(2, "result three", operation3);
         OperationResultReportTestHelper.setActualStartTime(operationResultReport3, Time.fromMilli(11));
         OperationResultReportTestHelper.setRunDuration(operationResultReport3, Duration.fromMilli(5));
@@ -190,7 +190,7 @@ public class ThreadedQueuedConcurrentMetricsServiceTest {
         metricsService.submitOperationResult(operationResultReport3);
 
         WorkloadResultsSnapshot results = metricsService.results();
-        assertThat(results.startTime(), equalTo(INITIAL_START_TIME));
-        assertThat(results.latestFinishTime(), equalTo(Time.fromMilli(16)));
+        assertThat(results.startTimeAsMilli(), equalTo(INITIAL_START_TIME));
+        assertThat(results.latestFinishTimeAsMilli(), equalTo(Time.fromMilli(16)));
     }
 }

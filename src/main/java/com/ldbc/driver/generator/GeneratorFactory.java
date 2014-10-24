@@ -104,8 +104,8 @@ public class GeneratorFactory {
                         String.format("operation %s\noperations not equal\nstream 1: %s\nstream 2: %s", operationNumber, next1, next2),
                         OperationStreamComparisonResultType.FAIL_OPERATIONS_NOT_EQUAL);
             if (compareTimes) {
-                Time scheduledStartTime1 = next1.scheduledStartTime();
-                Time scheduledStartTime2 = next2.scheduledStartTime();
+                Time scheduledStartTime1 = next1.scheduledStartTimeAsMilli();
+                Time scheduledStartTime2 = next2.scheduledStartTimeAsMilli();
                 if (null == scheduledStartTime1 && null == scheduledStartTime2) {
                     // do nothing
                 } else if (null == scheduledStartTime1 || null == scheduledStartTime2)
@@ -118,8 +118,8 @@ public class GeneratorFactory {
                             String.format("operation %s\nstart times not equal\nstream 1: %s\nstream 2: %s",
                                     operationNumber, scheduledStartTime1, scheduledStartTime2),
                             OperationStreamComparisonResultType.FAIL_START_TIMES_NOT_EQUAL);
-                Time dependencyTime1 = next1.dependencyTime();
-                Time dependencyTime2 = next2.dependencyTime();
+                Time dependencyTime1 = next1.dependencyTimeAsMilli();
+                Time dependencyTime2 = next2.dependencyTimeAsMilli();
                 if (null == dependencyTime1 && null == dependencyTime2) {
                     // do nothing
                 } else if (null == dependencyTime1 || null == dependencyTime2)
@@ -291,16 +291,16 @@ public class GeneratorFactory {
 
             @Override
             public Operation<?> apply(Operation<?> operation) {
-                if (null == operation.dependencyTime() || canOverwriteDependencyTime) {
-                    if (operation.scheduledStartTime().gt(mostRecentDependency))
-                        operation.setDependencyTime(mostRecentDependency);
+                if (null == operation.dependencyTimeAsMilli() || canOverwriteDependencyTime) {
+                    if (operation.scheduledStartTimeAsMilli().gt(mostRecentDependency))
+                        operation.setDependencyTimeAsMilli(mostRecentDependency);
                     else
-                        operation.setDependencyTime(secondMostRecentDependency);
+                        operation.setDependencyTimeAsMilli(secondMostRecentDependency);
                 }
                 if (isDependency.apply(operation)) {
-                    if (operation.scheduledStartTime().gt(mostRecentDependency)) {
+                    if (operation.scheduledStartTimeAsMilli().gt(mostRecentDependency)) {
                         secondMostRecentDependency = mostRecentDependency;
-                        mostRecentDependency = operation.scheduledStartTime();
+                        mostRecentDependency = operation.scheduledStartTimeAsMilli();
                     }
                 }
                 return operation;
@@ -322,7 +322,7 @@ public class GeneratorFactory {
         Function1<Operation<?>, Operation<?>> dependencyTimeAssigningFun = new Function1<Operation<?>, Operation<?>>() {
             @Override
             public Operation<?> apply(Operation<?> operation) {
-                operation.setDependencyTime(operation.scheduledStartTime().minus(safeTDuration));
+                operation.setDependencyTimeAsMilli(operation.scheduledStartTimeAsMilli().minus(safeTDuration));
                 return operation;
             }
         };
@@ -351,10 +351,10 @@ public class GeneratorFactory {
 
             @Override
             public Operation<?> apply(Operation<?> operation) {
-                if (null == operation.dependencyTime() || canOverwriteDependencyTime)
-                    operation.setDependencyTime(mostRecentDependency);
+                if (null == operation.dependencyTimeAsMilli() || canOverwriteDependencyTime)
+                    operation.setDependencyTimeAsMilli(mostRecentDependency);
                 if (isDependency.apply(operation)) {
-                    mostRecentDependency = operation.scheduledStartTime();
+                    mostRecentDependency = operation.scheduledStartTimeAsMilli();
                 }
                 return operation;
             }
@@ -374,7 +374,7 @@ public class GeneratorFactory {
         Function2<Time, Operation<?>, Operation<?>> startTimeAssigningFun = new Function2<Time, Operation<?>, Operation<?>>() {
             @Override
             public Operation<?> apply(Time time, Operation<?> operation) {
-                operation.setScheduledStartTime(time);
+                operation.setScheduledStartTimeAsMilli(time);
                 return operation;
             }
         };
@@ -393,7 +393,7 @@ public class GeneratorFactory {
         Function2<Time, Operation<?>, Operation<?>> dependencyTimeAssigningFun = new Function2<Time, Operation<?>, Operation<?>>() {
             @Override
             public Operation<?> apply(Time time, Operation<?> operation) {
-                operation.setDependencyTime(time);
+                operation.setDependencyTimeAsMilli(time);
                 return operation;
             }
         };
@@ -447,7 +447,7 @@ public class GeneratorFactory {
         return mergeSort(new Comparator<Operation<?>>() {
             @Override
             public int compare(Operation<?> o1, Operation<?> o2) {
-                return o1.scheduledStartTime().compareTo(o2.scheduledStartTime());
+                return o1.scheduledStartTimeAsMilli().compareTo(o2.scheduledStartTimeAsMilli());
             }
         }, generators);
     }

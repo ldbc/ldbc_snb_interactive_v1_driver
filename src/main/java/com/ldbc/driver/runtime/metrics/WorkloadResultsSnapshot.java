@@ -2,8 +2,7 @@ package com.ldbc.driver.runtime.metrics;
 
 import com.google.common.collect.Lists;
 import com.ldbc.driver.runtime.ConcurrentErrorReporter;
-import com.ldbc.driver.temporal.Duration;
-import com.ldbc.driver.temporal.Time;
+import com.ldbc.driver.temporal.TemporalUtil;
 import org.codehaus.jackson.annotate.JsonProperty;
 import org.codehaus.jackson.map.ObjectMapper;
 
@@ -15,6 +14,8 @@ import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 public class WorkloadResultsSnapshot {
+    private static final TemporalUtil TEMPORAL_UTIL = new TemporalUtil();
+
     @JsonProperty(value = "all_metrics")
     private List<OperationMetricsSnapshot> metrics;
 
@@ -49,12 +50,16 @@ public class WorkloadResultsSnapshot {
     private WorkloadResultsSnapshot() {
     }
 
-    public WorkloadResultsSnapshot(Map<String, OperationMetricsSnapshot> metrics, Time startTime, Time latestFinishTime, long operationCount, TimeUnit unit) {
+    public WorkloadResultsSnapshot(Map<String, OperationMetricsSnapshot> metrics,
+                                   long startTimeAsMilli,
+                                   long latestFinishTimeAsMilli,
+                                   long operationCount,
+                                   TimeUnit unit) {
         this.metrics = Lists.newArrayList(metrics.values());
         Collections.sort(this.metrics, new OperationTypeMetricsManager.OperationMetricsNameComparator());
-        this.startTimeAsUnit = startTime.as(unit);
-        this.latestFinishTimeAsUnit = latestFinishTime.as(unit);
-        this.totalRunDurationAsUnit = latestFinishTime.durationGreaterThan(startTime).as(unit);
+        this.startTimeAsUnit = TEMPORAL_UTIL.convert(startTimeAsMilli, TimeUnit.MILLISECONDS, unit);
+        this.latestFinishTimeAsUnit = TEMPORAL_UTIL.convert(latestFinishTimeAsMilli, TimeUnit.MILLISECONDS, unit);
+        this.totalRunDurationAsUnit = TEMPORAL_UTIL.convert((latestFinishTimeAsMilli - startTimeAsMilli), TimeUnit.MILLISECONDS, unit);
         this.operationCount = operationCount;
         this.unit = unit;
     }
@@ -70,16 +75,16 @@ public class WorkloadResultsSnapshot {
         Collections.sort(metrics, new OperationTypeMetricsManager.OperationMetricsNameComparator());
     }
 
-    public Time startTime() {
-        return Time.from(unit, startTimeAsUnit);
+    public long startTimeAsMilli() {
+        return TEMPORAL_UTIL.convert(startTimeAsUnit, unit, TimeUnit.MILLISECONDS);
     }
 
-    public Time latestFinishTime() {
-        return Time.from(unit, latestFinishTimeAsUnit);
+    public long latestFinishTimeAsMilli() {
+        return TEMPORAL_UTIL.convert(latestFinishTimeAsUnit, unit, TimeUnit.MILLISECONDS);
     }
 
-    public Duration totalRunDuration() {
-        return Duration.from(unit, totalRunDurationAsUnit);
+    public long totalRunDurationAsNano() {
+        return TEMPORAL_UTIL.convert(totalRunDurationAsUnit, unit, TimeUnit.NANOSECONDS);
     }
 
     public long totalOperationCount() {

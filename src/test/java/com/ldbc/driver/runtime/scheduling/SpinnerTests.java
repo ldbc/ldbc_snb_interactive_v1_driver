@@ -276,7 +276,7 @@ public class SpinnerTests {
 
         FastSameOperationIterator(Time scheduledStartTime, long operationCount) {
             operation = new NothingOperation();
-            operation.setScheduledStartTime(scheduledStartTime);
+            operation.setScheduledStartTimeAsMilli(scheduledStartTime);
             this.operationCount = operationCount;
         }
 

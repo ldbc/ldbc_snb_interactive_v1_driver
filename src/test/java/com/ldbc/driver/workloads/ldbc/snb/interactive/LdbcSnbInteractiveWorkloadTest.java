@@ -799,10 +799,10 @@ public class LdbcSnbInteractiveWorkloadTest {
         workload.init(configuration);
         List<Operation<?>> operations = Lists.newArrayList(gf.limit(workload.streams(gf).mergeSortedByStartTime(gf), configuration.operationCount()));
 
-        Time prevOperationScheduledStartTime = operations.get(0).scheduledStartTime().minus(Duration.fromMilli(1));
+        Time prevOperationScheduledStartTime = operations.get(0).scheduledStartTimeAsMilli().minus(Duration.fromMilli(1));
         for (Operation<?> operation : operations) {
-            assertThat(operation.scheduledStartTime().gte(prevOperationScheduledStartTime), is(true));
-            prevOperationScheduledStartTime = operation.scheduledStartTime();
+            assertThat(operation.scheduledStartTimeAsMilli().gte(prevOperationScheduledStartTime), is(true));
+            prevOperationScheduledStartTime = operation.scheduledStartTimeAsMilli();
         }
 
         workload.close();

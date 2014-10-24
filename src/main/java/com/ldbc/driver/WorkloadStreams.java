@@ -4,98 +4,111 @@ import com.google.common.collect.Iterators;
 import com.google.common.collect.PeekingIterator;
 import com.ldbc.driver.control.DriverConfiguration;
 import com.ldbc.driver.generator.GeneratorFactory;
-import com.ldbc.driver.temporal.Duration;
-import com.ldbc.driver.temporal.Time;
+import com.ldbc.driver.temporal.TemporalUtil;
 import com.ldbc.driver.util.Tuple;
 import com.ldbc.driver.validation.ClassNameWorkloadFactory;
 import com.ldbc.driver.validation.WorkloadFactory;
 
 import java.io.IOException;
 import java.util.*;
+import java.util.concurrent.TimeUnit;
 
 public class WorkloadStreams {
     private WorkloadStreamDefinition asynchronousStream = null;
     private List<WorkloadStreamDefinition> blockingStreams = new ArrayList<>();
 
     public static WorkloadStreams timeOffsetAndCompressWorkloadStreams(WorkloadStreams originalWorkloadStreams,
-                                                                       Time newStartTime,
+                                                                       long newStartTimeAsMilli,
                                                                        double compressionRatio,
                                                                        GeneratorFactory gf) throws WorkloadException {
-        Time minScheduledStartTime = null;
+        TemporalUtil temporalUtil = new TemporalUtil();
+        long minScheduledStartTimeAsMilli = Long.MAX_VALUE;
 
         /*
          * Find earliest scheduled start time from across all streams
          */
 
-        Duration peekingAsyncDependencyOperationStreamAheadOfMinBy = Duration.fromNano(0);
         PeekingIterator<Operation<?>> peekingAsyncDependencyOperationStream = Iterators.peekingIterator(originalWorkloadStreams.asynchronousStream().dependencyOperations());
         try {
-            Time first = peekingAsyncDependencyOperationStream.peek().scheduledStartTime();
-            if (null == minScheduledStartTime || first.lt(minScheduledStartTime)) minScheduledStartTime = first;
+            long firstAsMilli = peekingAsyncDependencyOperationStream.peek().scheduledStartTimeAsMilli();
+            if (firstAsMilli < minScheduledStartTimeAsMilli) minScheduledStartTimeAsMilli = firstAsMilli;
         } catch (NoSuchElementException e) {
             // do nothing, just means stream was empty
         }
 
-        Duration peekingAsyncNonDependencyOperationStreamAheadOfMinBy = Duration.fromNano(0);
         PeekingIterator<Operation<?>> peekingAsyncNonDependencyOperationStream = Iterators.peekingIterator(originalWorkloadStreams.asynchronousStream().nonDependencyOperations());
         try {
-            Time first = peekingAsyncNonDependencyOperationStream.peek().scheduledStartTime();
-            if (null == minScheduledStartTime || first.lt(minScheduledStartTime)) minScheduledStartTime = first;
+            long firstAsMilli = peekingAsyncNonDependencyOperationStream.peek().scheduledStartTimeAsMilli();
+            if (firstAsMilli < minScheduledStartTimeAsMilli) minScheduledStartTimeAsMilli = firstAsMilli;
         } catch (NoSuchElementException e) {
             // do nothing, just means stream was empty
         }
 
-        List<Duration> peekingBlockingDependencyOperationStreamsAheadOfMinBy = new ArrayList<>();
+        List<Long> peekingBlockingDependencyOperationStreamsAheadOfMinByMillis = new ArrayList<>();
         List<PeekingIterator<Operation<?>>> peekingBlockingDependencyOperationStreams = new ArrayList<>();
-        List<Duration> peekingBlockingNonDependencyOperationStreamsAheadOfMinBy = new ArrayList<>();
+        List<Long> peekingBlockingNonDependencyOperationStreamsAheadOfMinByMillis = new ArrayList<>();
         List<PeekingIterator<Operation<?>>> peekingBlockingNonDependencyOperationStreams = new ArrayList<>();
         List<WorkloadStreamDefinition> blockingStreams = originalWorkloadStreams.blockingStreamDefinitions();
         for (int i = 0; i < blockingStreams.size(); i++) {
             PeekingIterator<Operation<?>> peekingBlockingDependencyOperationStream = Iterators.peekingIterator(blockingStreams.get(i).dependencyOperations());
             try {
-                Time first = peekingBlockingDependencyOperationStream.peek().scheduledStartTime();
-                if (null == minScheduledStartTime || first.lt(minScheduledStartTime)) minScheduledStartTime = first;
+                long firstAsMilli = peekingBlockingDependencyOperationStream.peek().scheduledStartTimeAsMilli();
+                if (firstAsMilli < minScheduledStartTimeAsMilli) minScheduledStartTimeAsMilli = firstAsMilli;
             } catch (NoSuchElementException e) {
                 // do nothing, just means stream was empty
             }
-            peekingBlockingDependencyOperationStreamsAheadOfMinBy.add(Duration.fromNano(0));
+            peekingBlockingDependencyOperationStreamsAheadOfMinByMillis.add(0l);
             peekingBlockingDependencyOperationStreams.add(peekingBlockingDependencyOperationStream);
 
             PeekingIterator<Operation<?>> peekingBlockingNonDependencyOperationStream = Iterators.peekingIterator(blockingStreams.get(i).nonDependencyOperations());
             try {
-                Time first = peekingBlockingNonDependencyOperationStream.peek().scheduledStartTime();
-                if (null == minScheduledStartTime || first.lt(minScheduledStartTime)) minScheduledStartTime = first;
+                long firstAsMilli = peekingBlockingNonDependencyOperationStream.peek().scheduledStartTimeAsMilli();
+                if (firstAsMilli < minScheduledStartTimeAsMilli) minScheduledStartTimeAsMilli = firstAsMilli;
             } catch (NoSuchElementException e) {
                 // do nothing, just means stream was empty
             }
-            peekingBlockingNonDependencyOperationStreamsAheadOfMinBy.add(Duration.fromNano(0));
+            peekingBlockingNonDependencyOperationStreamsAheadOfMinByMillis.add(0l);
             peekingBlockingNonDependencyOperationStreams.add(peekingBlockingNonDependencyOperationStream);
         }
 
-        if (null == minScheduledStartTime) minScheduledStartTime = newStartTime;
+        if (Long.MAX_VALUE == minScheduledStartTimeAsMilli) minScheduledStartTimeAsMilli = newStartTimeAsMilli;
 
         /*
          * Find how far ahead of earliest scheduled start time each stream is when it starts
          */
 
+        long peekingAsyncDependencyOperationStreamAheadOfMinByAsMilli = 0;
         try {
-            Time first = peekingAsyncDependencyOperationStream.peek().scheduledStartTime();
-            peekingAsyncDependencyOperationStreamAheadOfMinBy = Duration.fromNano(Math.round(first.durationGreaterThan(minScheduledStartTime).asNano() * compressionRatio));
+            long firstAsMilli = peekingAsyncDependencyOperationStream.peek().scheduledStartTimeAsMilli();
+            peekingAsyncDependencyOperationStreamAheadOfMinByAsMilli = temporalUtil.convert(
+                    Math.round(temporalUtil.convert(firstAsMilli - minScheduledStartTimeAsMilli, TimeUnit.MILLISECONDS, TimeUnit.NANOSECONDS) * compressionRatio),
+                    TimeUnit.NANOSECONDS,
+                    TimeUnit.MILLISECONDS);
         } catch (NoSuchElementException e) {
             // do nothing, just means stream was empty
         }
 
+        long peekingAsyncNonDependencyOperationStreamAheadOfMinByAsMilli = 0l;
         try {
-            Time first = peekingAsyncNonDependencyOperationStream.peek().scheduledStartTime();
-            peekingAsyncNonDependencyOperationStreamAheadOfMinBy = Duration.fromNano(Math.round(first.durationGreaterThan(minScheduledStartTime).asNano() * compressionRatio));
+            long firstAsMilli = peekingAsyncNonDependencyOperationStream.peek().scheduledStartTimeAsMilli();
+            peekingAsyncNonDependencyOperationStreamAheadOfMinByAsMilli = temporalUtil.convert(
+                    Math.round(temporalUtil.convert(firstAsMilli - minScheduledStartTimeAsMilli, TimeUnit.MILLISECONDS, TimeUnit.NANOSECONDS) * compressionRatio),
+                    TimeUnit.NANOSECONDS,
+                    TimeUnit.MILLISECONDS);
         } catch (NoSuchElementException e) {
             // do nothing, just means stream was empty
         }
 
         for (int i = 0; i < peekingBlockingDependencyOperationStreams.size(); i++) {
             try {
-                Time first = peekingBlockingDependencyOperationStreams.get(i).peek().scheduledStartTime();
-                peekingBlockingDependencyOperationStreamsAheadOfMinBy.set(i, Duration.fromNano(Math.round(first.durationGreaterThan(minScheduledStartTime).asNano() * compressionRatio)));
+                long firstAsMilli = peekingBlockingDependencyOperationStreams.get(i).peek().scheduledStartTimeAsMilli();
+                peekingBlockingDependencyOperationStreamsAheadOfMinByMillis.set(
+                        i,
+                        temporalUtil.convert(
+                                Math.round(temporalUtil.convert(firstAsMilli - minScheduledStartTimeAsMilli, TimeUnit.MILLISECONDS, TimeUnit.NANOSECONDS) * compressionRatio),
+                                TimeUnit.NANOSECONDS,
+                                TimeUnit.MILLISECONDS)
+                );
             } catch (NoSuchElementException e) {
                 // do nothing, just means stream was empty
             }
@@ -103,8 +116,14 @@ public class WorkloadStreams {
 
         for (int i = 0; i < peekingBlockingNonDependencyOperationStreams.size(); i++) {
             try {
-                Time first = peekingBlockingNonDependencyOperationStreams.get(i).peek().scheduledStartTime();
-                peekingBlockingNonDependencyOperationStreamsAheadOfMinBy.set(i, Duration.fromNano(Math.round(first.durationGreaterThan(minScheduledStartTime).asNano() * compressionRatio)));
+                long firstAsMilli = peekingBlockingNonDependencyOperationStreams.get(i).peek().scheduledStartTimeAsMilli();
+                peekingBlockingNonDependencyOperationStreamsAheadOfMinByMillis.set(
+                        i,
+                        temporalUtil.convert(
+                                Math.round(temporalUtil.convert(firstAsMilli - minScheduledStartTimeAsMilli, TimeUnit.MILLISECONDS, TimeUnit.NANOSECONDS) * compressionRatio),
+                                TimeUnit.NANOSECONDS,
+                                TimeUnit.MILLISECONDS)
+                );
             } catch (NoSuchElementException e) {
                 // do nothing, just means stream was empty
             }
@@ -120,12 +139,12 @@ public class WorkloadStreams {
                 originalWorkloadStreams.asynchronousStream().dependentOperationTypes(),
                 gf.timeOffsetAndCompress(
                         peekingAsyncDependencyOperationStream,
-                        newStartTime.plus(peekingAsyncDependencyOperationStreamAheadOfMinBy),
+                        newStartTimeAsMilli + peekingAsyncDependencyOperationStreamAheadOfMinByAsMilli,
                         compressionRatio
                 ),
                 gf.timeOffsetAndCompress(
                         peekingAsyncNonDependencyOperationStream,
-                        newStartTime.plus(peekingAsyncNonDependencyOperationStreamAheadOfMinBy),
+                        newStartTimeAsMilli + peekingAsyncNonDependencyOperationStreamAheadOfMinByAsMilli,
                         compressionRatio
                 )
         );
@@ -135,12 +154,12 @@ public class WorkloadStreams {
                     blockingStreams.get(i).dependentOperationTypes(),
                     gf.timeOffsetAndCompress(
                             peekingBlockingDependencyOperationStreams.get(i),
-                            newStartTime.plus(peekingBlockingDependencyOperationStreamsAheadOfMinBy.get(i)),
+                            newStartTimeAsMilli + peekingBlockingDependencyOperationStreamsAheadOfMinByMillis.get(i),
                             compressionRatio
                     ),
                     gf.timeOffsetAndCompress(
                             peekingBlockingNonDependencyOperationStreams.get(i),
-                            newStartTime.plus(peekingBlockingNonDependencyOperationStreamsAheadOfMinBy.get(i)),
+                            newStartTimeAsMilli + peekingBlockingNonDependencyOperationStreamsAheadOfMinByMillis.get(i),
                             compressionRatio
                     )
             );
@@ -194,6 +213,7 @@ public class WorkloadStreams {
     }
 
     public static long[] fromAmongAllRetrieveTopK(List<Iterator<Operation<?>>> streams, long k) throws WorkloadException {
+        TemporalUtil temporalUtil = new TemporalUtil();
         long kSoFar = 0;
         long[] kForStream = new long[streams.size()];
         for (int i = 0; i < streams.size(); i++) {
@@ -211,11 +231,12 @@ public class WorkloadStreams {
                     if (null == streamHeads[i]) {
                         streamHeads[i] = streams.get(i).next();
                     }
-                    Time streamHeadTime = streamHeads[i].scheduledStartTime();
-                    if (null == streamHeadTime)
+                    long streamHeadTimeAsMilli = streamHeads[i].scheduledStartTimeAsMilli();
+                    if (-1 == streamHeadTimeAsMilli)
                         throw new WorkloadException(String.format("Operation must have start time\n%s", streamHeads[i]));
-                    if (null != streamHeads[i] && streamHeadTime.asNano() < minNano) {
-                        minNano = streamHeadTime.asNano();
+                    long streamHeadTimeAsNano = temporalUtil.convert(streamHeadTimeAsMilli, TimeUnit.MILLISECONDS, TimeUnit.NANOSECONDS);
+                    if (null != streamHeads[i] && streamHeadTimeAsNano < minNano) {
+                        minNano = streamHeadTimeAsNano;
                         indexOfMin = i;
                     }
                 }
@@ -258,25 +279,6 @@ public class WorkloadStreams {
                                   Iterator<Operation<?>> nonDependencyOperations) {
         WorkloadStreamDefinition blockingStream = new WorkloadStreamDefinition(dependentOperationTypes, dependencyOperations, nonDependencyOperations);
         this.blockingStreams.add(blockingStream);
-    }
-
-    public WorkloadStreams applyTimeOffsetAndCompressionRatio(GeneratorFactory gf, Time newStartTime, double timeCompressionRatio) {
-        // TODO test
-        // TODO actually apply time shift logic
-        WorkloadStreams workloadStreams = new WorkloadStreams();
-        for (WorkloadStreamDefinition streamDefinition : blockingStreamDefinitions()) {
-            workloadStreams.addBlockingStream(
-                    streamDefinition.dependentOperationTypes(),
-                    streamDefinition.dependencyOperations(),
-                    streamDefinition.nonDependencyOperations()
-            );
-        }
-        workloadStreams.setAsynchronousStream(
-                asynchronousStream().dependentOperationTypes(),
-                asynchronousStream().dependencyOperations(),
-                asynchronousStream().nonDependencyOperations()
-        );
-        return workloadStreams;
     }
 
     public Iterator<Operation<?>> mergeSortedByStartTime(GeneratorFactory gf) {

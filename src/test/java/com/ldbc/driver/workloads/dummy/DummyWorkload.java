@@ -1,18 +1,12 @@
 package com.ldbc.driver.workloads.dummy;
 
-import com.google.common.base.Function;
-import com.google.common.collect.Iterables;
-import com.google.common.collect.Lists;
-import com.google.common.collect.Sets;
 import com.ldbc.driver.*;
 import com.ldbc.driver.generator.GeneratorFactory;
 import com.ldbc.driver.temporal.Duration;
 import com.ldbc.driver.temporal.Time;
 
 import java.io.IOException;
-import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 public class DummyWorkload extends Workload {
     private final Duration maxExpectedInterleave;
@@ -53,17 +47,17 @@ public class DummyWorkload extends Workload {
         if (operation.getClass().equals(TimedNamedOperation1.class))
             return TimedNamedOperation1.class.getName()
                     + "|"
-                    + serializeTime(operation.scheduledStartTime())
+                    + serializeTime(operation.scheduledStartTimeAsMilli())
                     + "|"
-                    + serializeTime(operation.dependencyTime())
+                    + serializeTime(operation.dependencyTimeAsMilli())
                     + "|"
                     + serializeName(((TimedNamedOperation1) operation).name());
         if (operation.getClass().equals(TimedNamedOperation2.class))
             return TimedNamedOperation2.class.getName()
                     + "|"
-                    + serializeTime(operation.scheduledStartTime())
+                    + serializeTime(operation.scheduledStartTimeAsMilli())
                     + "|"
-                    + serializeTime(operation.dependencyTime())
+                    + serializeTime(operation.dependencyTimeAsMilli())
                     + "|"
                     + serializeName(((TimedNamedOperation2) operation).name());
         throw new SerializingMarshallingException("Unsupported Operation: " + operation.getClass().getName());

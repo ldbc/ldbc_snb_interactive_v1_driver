@@ -6,8 +6,8 @@ public class TimedNamedOperation3 extends NothingOperation {
     private final String name;
 
     public TimedNamedOperation3(Time startTime, Time dependencyTime, String name) {
-        setScheduledStartTime(startTime);
-        setDependencyTime(dependencyTime);
+        setScheduledStartTimeAsMilli(startTime);
+        setDependencyTimeAsMilli(dependencyTime);
         this.name = name;
     }
 
@@ -18,8 +18,8 @@ public class TimedNamedOperation3 extends NothingOperation {
     @Override
     public String toString() {
         return "TimedNamedOperation3{" +
-                "scheduledStartTime=" + scheduledStartTime() +
-                ", dependencyTime=" + dependencyTime() +
+                "scheduledStartTime=" + scheduledStartTimeAsMilli() +
+                ", dependencyTime=" + dependencyTimeAsMilli() +
                 ", name='" + name +
                 "'}";
     }
@@ -32,10 +32,10 @@ public class TimedNamedOperation3 extends NothingOperation {
 
         TimedNamedOperation3 operation = (TimedNamedOperation3) o;
 
-        if (dependencyTime() != null ? !dependencyTime().equals(operation.dependencyTime()) : operation.dependencyTime() != null)
+        if (dependencyTimeAsMilli() != null ? !dependencyTimeAsMilli().equals(operation.dependencyTimeAsMilli()) : operation.dependencyTimeAsMilli() != null)
             return false;
         if (name != null ? !name.equals(operation.name) : operation.name != null) return false;
-        if (scheduledStartTime() != null ? !scheduledStartTime().equals(operation.scheduledStartTime()) : operation.scheduledStartTime() != null)
+        if (scheduledStartTimeAsMilli() != null ? !scheduledStartTimeAsMilli().equals(operation.scheduledStartTimeAsMilli()) : operation.scheduledStartTimeAsMilli() != null)
             return false;
 
         return true;

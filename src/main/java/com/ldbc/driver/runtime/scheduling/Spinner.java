@@ -76,7 +76,7 @@ public class Spinner {
         @Override
         public Boolean apply(Operation<?> operation, SpinnerCheck check) {
             // earliest time at which operation may start
-            long scheduledStartTimeAsMilli = operation.scheduledStartTime().asMilli();
+            long scheduledStartTimeAsMilli = operation.scheduledStartTimeAsMilli().asMilli();
 
             // wait for checks to have all passed before allowing operation to start
             while (SpinnerCheck.SpinnerCheckResult.STILL_CHECKING == check.doCheck()) {

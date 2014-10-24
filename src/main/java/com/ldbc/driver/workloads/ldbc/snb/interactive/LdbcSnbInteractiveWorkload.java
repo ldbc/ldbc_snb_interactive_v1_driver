@@ -293,8 +293,8 @@ public class LdbcSnbInteractiveWorkload extends Workload {
             PeekingIterator<Operation<?>> unfilteredForumUpdateOperations = Iterators.peekingIterator(forumUpdateOperationsParser);
 
             try {
-                if (null == workloadStartTime || unfilteredForumUpdateOperations.peek().scheduledStartTime().lt(workloadStartTime)) {
-                    workloadStartTime = unfilteredForumUpdateOperations.peek().scheduledStartTime();
+                if (null == workloadStartTime || unfilteredForumUpdateOperations.peek().scheduledStartTimeAsMilli().lt(workloadStartTime)) {
+                    workloadStartTime = unfilteredForumUpdateOperations.peek().scheduledStartTimeAsMilli();
                 }
             } catch (NoSuchElementException e) {
                 // do nothing, exception just means that stream was empty
@@ -341,8 +341,8 @@ public class LdbcSnbInteractiveWorkload extends Workload {
             PeekingIterator<Operation<?>> unfilteredPersonUpdateOperations = Iterators.peekingIterator(personUpdateOperationsParser);
 
             try {
-                if (null == workloadStartTime || unfilteredPersonUpdateOperations.peek().scheduledStartTime().lt(workloadStartTime)) {
-                    workloadStartTime = unfilteredPersonUpdateOperations.peek().scheduledStartTime();
+                if (null == workloadStartTime || unfilteredPersonUpdateOperations.peek().scheduledStartTimeAsMilli().lt(workloadStartTime)) {
+                    workloadStartTime = unfilteredPersonUpdateOperations.peek().scheduledStartTimeAsMilli();
                 }
             } catch (NoSuchElementException e) {
                 // do nothing, exception just means that stream was empty
