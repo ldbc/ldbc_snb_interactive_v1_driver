@@ -30,17 +30,17 @@ public class GlobalCompletionTimeStateManager implements
     }
 
     @Override
-    public void submitLocalInitiatedTime(Time scheduledStartTime) throws CompletionTimeException {
-        localCompletionTimeWriter.submitLocalInitiatedTime(scheduledStartTime);
+    public void submitLocalInitiatedTime(Time timeAsMilli) throws CompletionTimeException {
+        localCompletionTimeWriter.submitLocalInitiatedTime(timeAsMilli);
     }
 
     @Override
-    public void submitLocalCompletedTime(Time scheduledStartTime) throws CompletionTimeException {
-        localCompletionTimeWriter.submitLocalCompletedTime(scheduledStartTime);
+    public void submitLocalCompletedTime(Time timeAsMilli) throws CompletionTimeException {
+        localCompletionTimeWriter.submitLocalCompletedTime(timeAsMilli);
     }
 
     @Override
-    public Time globalCompletionTime() throws CompletionTimeException {
+    public Time globalCompletionTimeAsMilli() throws CompletionTimeException {
         Time localCompletionTimeValue = localCompletionTimeReader.localCompletionTime();
         if (null == localCompletionTimeValue)
             // Until we know what our local completion time is there is no way of knowing what GCT is

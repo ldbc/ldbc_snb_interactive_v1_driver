@@ -51,7 +51,7 @@ public class ThreadedQueuedConcurrentCompletionTimeService implements Concurrent
     }
 
     @Override
-    public Time globalCompletionTime() {
+    public Time globalCompletionTimeAsMilli() {
         return sharedGctReference.get();
     }
 
@@ -148,26 +148,26 @@ public class ThreadedQueuedConcurrentCompletionTimeService implements Concurrent
         }
 
         @Override
-        public void submitLocalInitiatedTime(Time time) throws CompletionTimeException {
+        public void submitLocalInitiatedTime(Time timeAsMilli) throws CompletionTimeException {
             if (sharedIsShuttingDownReference.get()) {
                 throw new CompletionTimeException("Can not submit initiated time after calling shutdown");
             }
             try {
                 sharedWriteEventCountReference.incrementAndGet();
-                queueEventSubmitter.submitEventToQueue(CompletionTimeEvent.writeLocalInitiatedTime(writerId, time));
+                queueEventSubmitter.submitEventToQueue(CompletionTimeEvent.writeLocalInitiatedTime(writerId, timeAsMilli));
             } catch (Exception e) {
-                String errMsg = String.format("Error submitting initiated time for Time[%s]", time.toString());
+                String errMsg = String.format("Error submitting initiated time for Time[%s]", timeAsMilli.toString());
                 throw new CompletionTimeException(errMsg, e);
             }
         }
 
         @Override
-        public void submitLocalCompletedTime(Time time) throws CompletionTimeException {
+        public void submitLocalCompletedTime(Time timeAsMilli) throws CompletionTimeException {
             try {
                 sharedWriteEventCountReference.incrementAndGet();
-                queueEventSubmitter.submitEventToQueue(CompletionTimeEvent.writeLocalCompletedTime(writerId, time));
+                queueEventSubmitter.submitEventToQueue(CompletionTimeEvent.writeLocalCompletedTime(writerId, timeAsMilli));
             } catch (Exception e) {
-                String errMsg = String.format("Error submitting completed time for Time[%s]", time.toString());
+                String errMsg = String.format("Error submitting completed time for Time[%s]", timeAsMilli.toString());
                 throw new CompletionTimeException(errMsg, e);
             }
         }

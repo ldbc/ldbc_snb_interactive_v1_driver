@@ -60,7 +60,7 @@ public class ConcurrentCompletionTimeServiceBasicTest {
         // nothing
 
         // Then
-        assertThat(completionTimeService.globalCompletionTime(), is(nullValue()));
+        assertThat(completionTimeService.globalCompletionTimeAsMilli(), is(nullValue()));
         assertThat(completionTimeService.globalCompletionTimeFuture().get(1, TimeUnit.SECONDS), is(nullValue()));
     }
 
@@ -114,7 +114,7 @@ public class ConcurrentCompletionTimeServiceBasicTest {
 
         // Then
         assertThat(completionTimeService.globalCompletionTimeFuture().get(1, TimeUnit.SECONDS), is(Time.fromMilli(0)));
-        assertThat(completionTimeService.globalCompletionTime(), is(Time.fromMilli(0)));
+        assertThat(completionTimeService.globalCompletionTimeAsMilli(), is(Time.fromMilli(0)));
     }
 
     @Test

@@ -166,7 +166,7 @@ public class OrderedMultiGeneratorTest {
             allGenerators[i] = generators.identity(
                     Time.fromMilli(0), Time.fromMilli(1), Time.fromMilli(2), Time.fromMilli(3), Time.fromMilli(4), Time.fromMilli(5), Time.fromMilli(6), Time.fromMilli(7), Time.fromMilli(8), Time.fromMilli(9), Time.fromMilli(10));
         }
-        Iterator<Time> orderedGenerator = generators.mergeSortTimes(allGenerators);
+        Iterator<Time> orderedGenerator = generators.mergeSortNumbers(allGenerators);
 
         // Then
         Time previous = Time.fromMilli(0);

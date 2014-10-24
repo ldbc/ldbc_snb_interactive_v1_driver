@@ -12,7 +12,7 @@ public class DummyGlobalCompletionTimeReader implements GlobalCompletionTimeRead
     }
 
     @Override
-    public Time globalCompletionTime() throws CompletionTimeException {
+    public Time globalCompletionTimeAsMilli() throws CompletionTimeException {
         return globalCompletionTime;
     }
 }

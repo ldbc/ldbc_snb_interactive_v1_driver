@@ -711,7 +711,7 @@ public class ConsoleAndFileDriverConfiguration implements DriverConfiguration {
     }
 
     @Override
-    public Duration statusDisplayInterval() {
+    public Duration statusDisplayIntervalAsMilli() {
         return statusDisplayInterval;
     }
 
@@ -734,7 +734,7 @@ public class ConsoleAndFileDriverConfiguration implements DriverConfiguration {
     }
 
     @Override
-    public Duration windowedExecutionWindowDuration() {
+    public Duration windowedExecutionWindowDurationAsMilli() {
         return windowedExecutionWindowDuration;
     }
 
@@ -744,7 +744,7 @@ public class ConsoleAndFileDriverConfiguration implements DriverConfiguration {
     }
 
     @Override
-    public Duration toleratedExecutionDelay() {
+    public Duration toleratedExecutionDelayAsMilli() {
         return toleratedExecutionDelay;
     }
 
@@ -769,7 +769,7 @@ public class ConsoleAndFileDriverConfiguration implements DriverConfiguration {
     }
 
     @Override
-    public Duration spinnerSleepDuration() {
+    public Duration spinnerSleepDurationAsMilli() {
         return spinnerSleepDuration;
     }
 

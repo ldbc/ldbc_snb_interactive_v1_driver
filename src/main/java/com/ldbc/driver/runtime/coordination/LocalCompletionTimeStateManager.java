@@ -45,26 +45,26 @@ public class LocalCompletionTimeStateManager implements LocalCompletionTimeReade
      * Logs the new initiated time and updates completion time accordingly.
      * NOTE, initiated times MUST be applied in ascending order!
      *
-     * @param scheduledStartTime
+     * @param timeAsMilli
      */
     @Override
-    public void submitLocalInitiatedTime(Time scheduledStartTime) throws CompletionTimeException {
-        if (null == scheduledStartTime) throw new CompletionTimeException("Submitted initiated time may not be null");
-        lastKnownLowestInitiatedTime = localInitiatedTimeTracker.addInitiatedTimeAndReturnLastKnownLowestTime(scheduledStartTime);
+    public void submitLocalInitiatedTime(Time timeAsMilli) throws CompletionTimeException {
+        if (null == timeAsMilli) throw new CompletionTimeException("Submitted initiated time may not be null");
+        lastKnownLowestInitiatedTime = localInitiatedTimeTracker.addInitiatedTimeAndReturnLastKnownLowestTime(timeAsMilli);
         updateCompletionTime();
     }
 
     /**
      * Logs the new completed time and updates completion time accordingly.
      *
-     * @param scheduledStartTime
+     * @param timeAsMilli
      * @throws com.ldbc.driver.runtime.coordination.CompletionTimeException
      */
     @Override
-    public void submitLocalCompletedTime(Time scheduledStartTime) throws CompletionTimeException {
-        if (null == scheduledStartTime) throw new CompletionTimeException("Submitted completed time may not be null");
-        lastKnownLowestInitiatedTime = localInitiatedTimeTracker.removeTimeAndReturnLastKnownLowestTime(scheduledStartTime);
-        localCompletedTimeTracker.addCompletedTime(scheduledStartTime);
+    public void submitLocalCompletedTime(Time timeAsMilli) throws CompletionTimeException {
+        if (null == timeAsMilli) throw new CompletionTimeException("Submitted completed time may not be null");
+        lastKnownLowestInitiatedTime = localInitiatedTimeTracker.removeTimeAndReturnLastKnownLowestTime(timeAsMilli);
+        localCompletedTimeTracker.addCompletedTime(timeAsMilli);
         updateCompletionTime();
     }
 

@@ -72,7 +72,7 @@ public class ThreadedQueuedConcurrentCompletionTimeServiceThread extends Thread 
         this.completionTimeEventQueueEventFetcher = QueueEventFetcher.queueEventFetcherFor(completionTimeQueue);
         this.errorReporter = errorReporter;
         this.globalCompletionTimeSharedReference = globalCompletionTimeSharedReference;
-        this.globalCompletionTimeSharedReference.set(globalCompletionTimeStateManager.globalCompletionTime());
+        this.globalCompletionTimeSharedReference.set(globalCompletionTimeStateManager.globalCompletionTimeAsMilli());
     }
 
     @Override
@@ -162,7 +162,7 @@ public class ThreadedQueuedConcurrentCompletionTimeServiceThread extends Thread 
     }
 
     private void updateGlobalCompletionTime() throws CompletionTimeException {
-        Time newGlobalCompletionTime = globalCompletionTimeStateManager.globalCompletionTime();
+        Time newGlobalCompletionTime = globalCompletionTimeStateManager.globalCompletionTimeAsMilli();
         if (null == newGlobalCompletionTime) {
             // Either Completion Time has not been received from one or more peers, or no local Completion Time has been receive
             // Until both of the above have occurred there is no way of knowing what the lowest global time is

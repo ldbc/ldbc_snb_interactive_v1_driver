@@ -50,6 +50,10 @@ public class TemporalUtil {
         }
     }
 
+    public String milliDurationToString(long durationAsMilli) {
+        return nanoDurationToString(convert(durationAsMilli, TimeUnit.MILLISECONDS, TimeUnit.NANOSECONDS));
+    }
+
     public String nanoDurationToString(long durationAsNano) {
         long h = TimeUnit.NANOSECONDS.toHours(durationAsNano);
         if (h > 0) {

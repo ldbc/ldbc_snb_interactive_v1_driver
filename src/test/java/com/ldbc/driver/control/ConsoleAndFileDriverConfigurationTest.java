@@ -403,12 +403,12 @@ public class ConsoleAndFileDriverConfigurationTest {
         assertThat(configurationFromParams.workloadClassName(), equalTo("workload class name"));
         assertThat(configurationFromParams.operationCount(), is(1l));
         assertThat(configurationFromParams.threadCount(), is(ConsoleAndFileDriverConfiguration.THREADS_DEFAULT));
-        assertThat(configurationFromParams.statusDisplayInterval(), is(ConsoleAndFileDriverConfiguration.SHOW_STATUS_DEFAULT));
+        assertThat(configurationFromParams.statusDisplayIntervalAsMilli(), is(ConsoleAndFileDriverConfiguration.SHOW_STATUS_DEFAULT));
         assertThat(configurationFromParams.timeUnit(), is(ConsoleAndFileDriverConfiguration.TIME_UNIT_DEFAULT));
         assertThat(new File(configurationFromParams.resultDirPath()).getName(), is(ConsoleAndFileDriverConfiguration.RESULT_DIR_PATH_DEFAULT));
         assertThat(configurationFromParams.timeCompressionRatio(), is(ConsoleAndFileDriverConfiguration.TIME_COMPRESSION_RATIO_DEFAULT));
         assertThat(configurationFromParams.peerIds(), is(ConsoleAndFileDriverConfiguration.PEER_IDS_DEFAULT));
-        assertThat(configurationFromParams.toleratedExecutionDelay(), is(ConsoleAndFileDriverConfiguration.TOLERATED_EXECUTION_DELAY_DEFAULT));
+        assertThat(configurationFromParams.toleratedExecutionDelayAsMilli(), is(ConsoleAndFileDriverConfiguration.TOLERATED_EXECUTION_DELAY_DEFAULT));
         assertThat(configurationFromParams.validationParamsCreationOptions(), is((DriverConfiguration.ValidationParamOptions) ConsoleAndFileDriverConfiguration.CREATE_VALIDATION_PARAMS_DEFAULT));
         assertThat(configurationFromParams.databaseValidationFilePath(), is(ConsoleAndFileDriverConfiguration.DB_VALIDATION_FILE_PATH_DEFAULT));
         assertThat(configurationFromParams.validateWorkload(), is(ConsoleAndFileDriverConfiguration.VALIDATE_WORKLOAD_DEFAULT));
@@ -416,7 +416,7 @@ public class ConsoleAndFileDriverConfigurationTest {
         assertThat(configurationFromParams.shouldPrintHelpString(), is(ConsoleAndFileDriverConfiguration.HELP_DEFAULT));
         assertThat(configurationFromParams.ignoreScheduledStartTimes(), is(ConsoleAndFileDriverConfiguration.IGNORE_SCHEDULED_START_TIMES_DEFAULT));
         assertThat(configurationFromParams.shouldCreateResultsLog(), is(ConsoleAndFileDriverConfiguration.RESULTS_LOG_DEFAULT));
-        assertThat(configurationFromParams.spinnerSleepDuration(), is(ConsoleAndFileDriverConfiguration.SPINNER_SLEEP_DURATION_DEFAULT));
+        assertThat(configurationFromParams.spinnerSleepDurationAsMilli(), is(ConsoleAndFileDriverConfiguration.SPINNER_SLEEP_DURATION_DEFAULT));
     }
 
     @Test
@@ -473,12 +473,12 @@ public class ConsoleAndFileDriverConfigurationTest {
         assertThat(params.workloadClassName(), equalTo(workloadClassName));
         assertThat(params.operationCount(), equalTo(operationCount));
         assertThat(params.threadCount(), equalTo(threadCount));
-        assertThat(params.statusDisplayInterval(), equalTo(statusDisplayInterval));
+        assertThat(params.statusDisplayIntervalAsMilli(), equalTo(statusDisplayInterval));
         assertThat(params.timeUnit(), equalTo(timeUnit));
         assertThat(params.resultDirPath(), equalTo(resultDirPath));
         assertThat(params.timeCompressionRatio(), equalTo(timeCompressionRatio));
         assertThat(params.peerIds(), equalTo(peerIds));
-        assertThat(params.toleratedExecutionDelay(), equalTo(toleratedExecutionDelay));
+        assertThat(params.toleratedExecutionDelayAsMilli(), equalTo(toleratedExecutionDelay));
         assertThat(params.validationParamsCreationOptions(), equalTo((DriverConfiguration.ValidationParamOptions) validationParams));
         assertThat(params.databaseValidationFilePath(), equalTo(dbValidationFilePath));
         assertThat(params.validateWorkload(), equalTo(validateWorkload));
@@ -486,7 +486,7 @@ public class ConsoleAndFileDriverConfigurationTest {
         assertThat(params.shouldPrintHelpString(), equalTo(printHelp));
         assertThat(params.ignoreScheduledStartTimes(), equalTo(ignoreScheduledStartTimes));
         assertThat(params.shouldCreateResultsLog(), equalTo(shouldCreateResultsLog));
-        assertThat(params.spinnerSleepDuration(), equalTo(spinnerSleepDuration));
+        assertThat(params.spinnerSleepDurationAsMilli(), equalTo(spinnerSleepDuration));
     }
 
     @Test

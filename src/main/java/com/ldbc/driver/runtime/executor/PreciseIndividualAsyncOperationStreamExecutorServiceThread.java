@@ -8,22 +8,18 @@ import com.ldbc.driver.runtime.coordination.GlobalCompletionTimeReader;
 import com.ldbc.driver.runtime.coordination.LocalCompletionTimeWriter;
 import com.ldbc.driver.runtime.metrics.ConcurrentMetricsService;
 import com.ldbc.driver.runtime.scheduling.Spinner;
-import com.ldbc.driver.temporal.Duration;
-import com.ldbc.driver.temporal.Time;
 import com.ldbc.driver.temporal.TimeSource;
 
 import java.util.concurrent.atomic.AtomicBoolean;
 
 class PreciseIndividualAsyncOperationStreamExecutorServiceThread extends Thread {
-    private static final Duration POLL_INTERVAL_WHILE_WAITING_FOR_LAST_HANDLER_TO_FINISH = Duration.fromMilli(100);
+    private static final long POLL_INTERVAL_WHILE_WAITING_FOR_LAST_HANDLER_TO_FINISH_AS_MILLI = 100;
 
-    private final TimeSource timeSource;
     private final OperationHandlerExecutor operationHandlerExecutor;
     private final ConcurrentErrorReporter errorReporter;
     private final AtomicBoolean hasFinished;
     private final AtomicBoolean forcedTerminate;
     private final DependencyAndNonDependencyHandlersRetriever dependencyAndNonDependencyHandlersRetriever;
-    private final Duration durationToWaitForAllHandlersToFinishBeforeShutdown;
 
     public PreciseIndividualAsyncOperationStreamExecutorServiceThread(TimeSource timeSource,
                                                                       OperationHandlerExecutor operationHandlerExecutor,
@@ -35,15 +31,12 @@ class PreciseIndividualAsyncOperationStreamExecutorServiceThread extends Thread 
                                                                       Db db,
                                                                       LocalCompletionTimeWriter localCompletionTimeWriter,
                                                                       GlobalCompletionTimeReader globalCompletionTimeReader,
-                                                                      ConcurrentMetricsService metricsService,
-                                                                      Duration durationToWaitForAllHandlersToFinishBeforeShutdown) {
+                                                                      ConcurrentMetricsService metricsService) {
         super(PreciseIndividualAsyncOperationStreamExecutorServiceThread.class.getSimpleName() + "-" + System.currentTimeMillis());
-        this.timeSource = timeSource;
         this.operationHandlerExecutor = operationHandlerExecutor;
         this.errorReporter = errorReporter;
         this.hasFinished = hasFinished;
         this.forcedTerminate = forcedTerminate;
-        this.durationToWaitForAllHandlersToFinishBeforeShutdown = durationToWaitForAllHandlersToFinishBeforeShutdown;
         this.dependencyAndNonDependencyHandlersRetriever = new DependencyAndNonDependencyHandlersRetriever(
                 streamDefinition,
                 db,
@@ -58,7 +51,6 @@ class PreciseIndividualAsyncOperationStreamExecutorServiceThread extends Thread 
     @Override
     public void run() {
         try {
-            long startTimeOfLastOperationAsNano = 0;
             while (dependencyAndNonDependencyHandlersRetriever.hasNextHandler() && false == forcedTerminate.get()) {
                 OperationHandler<?> handler;
                 try {
@@ -69,8 +61,6 @@ class PreciseIndividualAsyncOperationStreamExecutorServiceThread extends Thread 
                     errorReporter.reportError(this, errMsg);
                     continue;
                 }
-
-                startTimeOfLastOperationAsNano = handler.operation().scheduledStartTimeAsMilli().asNano();
 
                 try {
                     // --- BLOCKING CALL (when bounded queue is full) ---
@@ -84,31 +74,19 @@ class PreciseIndividualAsyncOperationStreamExecutorServiceThread extends Thread 
                 }
             }
 
-            boolean handlersFinishedInTime = awaitAllRunningHandlers(Time.fromNano(startTimeOfLastOperationAsNano), durationToWaitForAllHandlersToFinishBeforeShutdown);
-            if (false == handlersFinishedInTime) {
-                errorReporter.reportError(
-                        this,
-                        String.format(
-                                "%s operation handlers did not complete in time (within %s of the time the last operation was submitted for execution)",
-                                operationHandlerExecutor.uncompletedOperationHandlerCount(),
-                                durationToWaitForAllHandlersToFinishBeforeShutdown
-                        )
-                );
-            }
+            awaitAllRunningHandlers();
             this.hasFinished.set(true);
         } catch (Throwable e) {
             e.printStackTrace();
         }
     }
 
-    private boolean awaitAllRunningHandlers(Time startTimeOfLastOperation, Duration timeoutDuration) {
-        long pollInterval = POLL_INTERVAL_WHILE_WAITING_FOR_LAST_HANDLER_TO_FINISH.asMilli();
-        long timeoutTimeMs = startTimeOfLastOperation.plus(timeoutDuration).asMilli();
-        while (timeSource.nowAsMilli() < timeoutTimeMs) {
-            if (0 == operationHandlerExecutor.uncompletedOperationHandlerCount()) return true;
-            if (forcedTerminate.get()) return true;
+    private void awaitAllRunningHandlers() {
+        long pollInterval = POLL_INTERVAL_WHILE_WAITING_FOR_LAST_HANDLER_TO_FINISH_AS_MILLI;
+        while (true) {
+            if (0 == operationHandlerExecutor.uncompletedOperationHandlerCount()) break;
+            if (forcedTerminate.get()) break;
             Spinner.powerNap(pollInterval);
         }
-        return false;
     }
 }

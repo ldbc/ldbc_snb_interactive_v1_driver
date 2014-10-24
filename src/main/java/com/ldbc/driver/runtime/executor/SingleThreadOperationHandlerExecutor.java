@@ -44,12 +44,12 @@ public class SingleThreadOperationHandlerExecutor implements OperationHandlerExe
     }
 
     @Override
-    synchronized public final void shutdown(Duration wait) throws OperationHandlerExecutorException {
+    synchronized public final void shutdown(Duration waitAsMilli) throws OperationHandlerExecutorException {
         if (shutdown.get())
             throw new OperationHandlerExecutorException("Executor has already been shutdown");
         try {
             operationHandlerQueueEventSubmitter.submitEventToQueue(TERMINATE_HANDLER);
-            executorThread.join(wait.asMilli());
+            executorThread.join(waitAsMilli.asMilli());
             if (uncompletedHandlers.get() > 0) {
                 executorThread.forceShutdown();
                 throw new OperationHandlerExecutorException(String.format("Executor shutdown before all handlers could complete - %s uncompleted handlers", uncompletedHandlers));

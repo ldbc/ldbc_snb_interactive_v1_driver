@@ -2,32 +2,34 @@ package com.ldbc.driver.runtime.scheduling;
 
 import com.ldbc.driver.Operation;
 import com.ldbc.driver.runtime.ConcurrentErrorReporter;
-import com.ldbc.driver.temporal.Duration;
-import com.ldbc.driver.temporal.Time;
+import com.ldbc.driver.temporal.TemporalUtil;
 import com.ldbc.driver.temporal.TimeSource;
 
+import java.util.concurrent.TimeUnit;
+
 public class ErrorReportingTerminatingExecutionDelayPolicy implements ExecutionDelayPolicy {
+    private final TemporalUtil temporalUtil = new TemporalUtil();
     private final TimeSource timeSource;
-    private final Duration toleratedDelay;
+    private final long toleratedDelayAsMilli;
     private final ConcurrentErrorReporter errorReporter;
 
     public ErrorReportingTerminatingExecutionDelayPolicy(TimeSource timeSource,
-                                                         Duration toleratedDelay,
+                                                         long toleratedDelayAsMilli,
                                                          ConcurrentErrorReporter errorReporter) {
         this.timeSource = timeSource;
-        this.toleratedDelay = toleratedDelay;
+        this.toleratedDelayAsMilli = toleratedDelayAsMilli;
         this.errorReporter = errorReporter;
     }
 
     @Override
-    public Duration toleratedDelayAsMilli() {
-        return toleratedDelay;
+    public long toleratedDelayAsMilli() {
+        return toleratedDelayAsMilli;
     }
 
     @Override
     public boolean handleExcessiveDelay(Operation<?> operation) {
         // Note, that this time is ever so slightly later than when the error actually occurred
-        Time now = timeSource.now();
+        long nowAsMilli = timeSource.nowAsMilli();
         String errMsg = String.format("Operation start time delayed excessively\n"
                         + "  Operation: %s\n"
                         + "  Tolerated Delay: %s\n"
@@ -36,10 +38,10 @@ public class ErrorReportingTerminatingExecutionDelayPolicy implements ExecutionD
                         + "  Time Now: %s\n"
                 ,
                 operation,
-                toleratedDelay,
-                now.durationGreaterThan(operation.scheduledStartTimeAsMilli()),
-                operation.scheduledStartTimeAsMilli(),
-                now
+                temporalUtil.nanoDurationToString(temporalUtil.convert(toleratedDelayAsMilli, TimeUnit.MILLISECONDS, TimeUnit.NANOSECONDS)),
+                temporalUtil.nanoDurationToString(temporalUtil.convert(nowAsMilli - operation.scheduledStartTimeAsMilli(), TimeUnit.MILLISECONDS, TimeUnit.NANOSECONDS)),
+                temporalUtil.millisecondsToDateTimeString(operation.scheduledStartTimeAsMilli()),
+                temporalUtil.millisecondsToDateTimeString(nowAsMilli)
         );
         errorReporter.reportError(this, errMsg);
         return false;

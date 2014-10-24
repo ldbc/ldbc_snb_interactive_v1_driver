@@ -1,7 +1,6 @@
 package com.ldbc.driver.runtime.scheduling;
 
 import com.ldbc.driver.Operation;
-import com.ldbc.driver.temporal.Duration;
 import com.ldbc.driver.temporal.TimeSource;
 import com.ldbc.driver.util.Function2;
 
@@ -13,22 +12,22 @@ import com.ldbc.driver.util.Function2;
 // TODO take boolean result from spinner into consideration, i.e., DO NOT execute handler for "Failed" operations
 
 public class Spinner {
-    public static final Duration DEFAULT_SLEEP_DURATION_10_MILLI = Duration.fromMilli(10);
+    public static final long DEFAULT_SLEEP_DURATION_10_MILLI = 10;
     private static final SpinnerCheck TRUE_CHECK = new TrueCheck();
 
     private final Function2<Operation<?>, SpinnerCheck, Boolean> spinFun;
 
     public Spinner(TimeSource timeSource,
-                   Duration sleepDuration,
+                   long sleepDurationAsMilli,
                    boolean ignoreScheduleStartTimes) {
         this.spinFun = (ignoreScheduleStartTimes)
                 ?
                 new WaitForChecksFun(
-                        sleepDuration.asMilli())
+                        sleepDurationAsMilli)
                 :
                 new WaitForChecksAndScheduledStartTimeFun(
                         timeSource,
-                        sleepDuration.asMilli());
+                        sleepDurationAsMilli);
     }
 
     public boolean waitForScheduledStartTime(Operation<?> operation) {
@@ -76,15 +75,13 @@ public class Spinner {
         @Override
         public Boolean apply(Operation<?> operation, SpinnerCheck check) {
             // earliest time at which operation may start
-            long scheduledStartTimeAsMilli = operation.scheduledStartTimeAsMilli().asMilli();
-
             // wait for checks to have all passed before allowing operation to start
             while (SpinnerCheck.SpinnerCheckResult.STILL_CHECKING == check.doCheck()) {
                 powerNap(sleepDurationAsMilli);
             }
 
             // wait for scheduled operation start time
-            while (timeSource.nowAsMilli() < scheduledStartTimeAsMilli) {
+            while (timeSource.nowAsMilli() < operation.scheduledStartTimeAsMilli()) {
                 powerNap(sleepDurationAsMilli);
             }
 

@@ -64,7 +64,7 @@ public class SynchronizedConcurrentCompletionTimeService implements ConcurrentCo
     }
 
     @Override
-    public Time globalCompletionTime() throws CompletionTimeException {
+    public Time globalCompletionTimeAsMilli() throws CompletionTimeException {
         return (Time) processEvent(Event.READ_GLOBAL_COMPLETION_TIME, null, null);
     }
 
@@ -86,10 +86,10 @@ public class SynchronizedConcurrentCompletionTimeService implements ConcurrentCo
         synchronized (globalCompletionTimeStateManager) {
             switch (event) {
                 case READ_GLOBAL_COMPLETION_TIME: {
-                    return globalCompletionTimeStateManager.globalCompletionTime();
+                    return globalCompletionTimeStateManager.globalCompletionTimeAsMilli();
                 }
                 case READ_FUTURE_GLOBAL_COMPLETION_TIME: {
-                    return new GlobalCompletionTimeFuture(globalCompletionTimeStateManager.globalCompletionTime());
+                    return new GlobalCompletionTimeFuture(globalCompletionTimeStateManager.globalCompletionTimeAsMilli());
                 }
                 case WRITE_EXTERNAL_COMPLETION_TIME: {
                     globalCompletionTimeStateManager.submitPeerCompletionTime(peerId, time);

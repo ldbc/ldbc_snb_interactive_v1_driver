@@ -10,9 +10,7 @@ import com.ldbc.driver.runtime.coordination.LocalCompletionTimeWriter;
 import com.ldbc.driver.runtime.executor.*;
 import com.ldbc.driver.runtime.metrics.ConcurrentMetricsService;
 import com.ldbc.driver.runtime.scheduling.Spinner;
-import com.ldbc.driver.temporal.Duration;
 import com.ldbc.driver.temporal.TemporalUtil;
-import com.ldbc.driver.temporal.Time;
 import com.ldbc.driver.temporal.TimeSource;
 
 import java.util.ArrayList;
@@ -24,7 +22,6 @@ import static com.ldbc.driver.WorkloadStreams.WorkloadStreamDefinition;
 
 public class WorkloadRunner {
     private static final TemporalUtil TEMPORAL_UTIL = new TemporalUtil();
-    public static final long DEFAULT_DURATION_TO_WAIT_FOR_ALL_HANDLERS_TO_FINISH_AS_MILLI = TEMPORAL_UTIL.convert(180, TimeUnit.MINUTES, TimeUnit.MILLISECONDS);
     public static final long RUNNER_POLLING_INTERVAL_AS_MILLI = 100;
     private static final long WAIT_DURATION_FOR_OPERATION_HANDLER_EXECUTOR_TO_SHUTDOWN_AS_MILLI = TEMPORAL_UTIL.convert(10, TimeUnit.SECONDS, TimeUnit.MILLISECONDS);
     private static final LocalCompletionTimeWriter DUMMY_LOCAL_COMPLETION_TIME_WRITER = new DummyLocalCompletionTimeWriter();
@@ -52,10 +49,7 @@ public class WorkloadRunner {
                           ConcurrentCompletionTimeService completionTimeService,
                           int threadCount,
                           long statusDisplayIntervalAsMilli,
-                          long workloadStartTimeAsMilli,
                           long spinnerSleepDurationAsMilli,
-                          Duration executionWindowDuration,
-                          Duration durationToWaitForAllHandlersToFinishBeforeShutdown,
                           boolean ignoreScheduleStartTimes,
                           int operationHandlerExecutorsBoundedQueueSize) throws WorkloadException {
         this.errorReporter = errorReporter;
@@ -64,7 +58,7 @@ public class WorkloadRunner {
         this.exactSpinner = new Spinner(timeSource, spinnerSleepDurationAsMilli, ignoreScheduleStartTimes);
 
         boolean detailedStatus = true;
-        if (statusDisplayIntervalAsMilli.asSeconds() > 0)
+        if (statusDisplayIntervalAsMilli > 0)
             this.workloadStatusThread = new WorkloadStatusThread(
                     statusDisplayIntervalAsMilli,
                     metricsService,
@@ -93,8 +87,7 @@ public class WorkloadRunner {
                 db,
                 localCompletionTimeWriterForAsynchronous,
                 completionTimeService,
-                metricsService,
-                durationToWaitForAllHandlersToFinishBeforeShutdown);
+                metricsService);
 
         for (WorkloadStreamDefinition blockingStream : workloadStreams.blockingStreamDefinitions()) {
             // TODO benchmark more to find out which policy is best Same Thread vs Single Thread
@@ -121,8 +114,7 @@ public class WorkloadRunner {
                             db,
                             localCompletionTimeWriterForBlocking,
                             completionTimeService,
-                            metricsService,
-                            durationToWaitForAllHandlersToFinishBeforeShutdown)
+                            metricsService)
             );
         }
     }
@@ -130,7 +122,7 @@ public class WorkloadRunner {
     // TODO executeWorkload should return a result (e.g., Success/Fail, and ErrorType if Fail)
     // TODO and then it does not need to throw an exception
     public void executeWorkload() throws WorkloadException {
-        if (statusDisplayIntervalAsMilli.asSeconds() > 0)
+        if (statusDisplayIntervalAsMilli > 0)
             workloadStatusThread.start();
 
         AtomicBoolean[] executorFinishedFlags = new AtomicBoolean[blockingStreamExecutorServices.size() + 1];
@@ -206,9 +198,9 @@ public class WorkloadRunner {
                 // if forced shutdown (error) some handlers likely still running,
                 // but for now it does not matter as the process will terminate anyway
                 // (though when running test suite it can result in many running threads, making the tests much slower)
-                executorForAsynchronous.shutdown(Duration.fromMilli(0));
+                executorForAsynchronous.shutdown(0);
                 for (OperationHandlerExecutor executorForBlocking : executorsForBlocking) {
-                    executorForBlocking.shutdown(Duration.fromMilli(0));
+                    executorForBlocking.shutdown(0);
                 }
             } else {
                 // if normal shutdown all executors have completed by this stage
@@ -222,7 +214,7 @@ public class WorkloadRunner {
                     ConcurrentErrorReporter.stackTraceToString(e));
         }
 
-        if (statusDisplayIntervalAsMilli.asSeconds() > 0) {
+        if (statusDisplayIntervalAsMilli > 0) {
             workloadStatusThread.shutdown();
             workloadStatusThread.interrupt();
         }

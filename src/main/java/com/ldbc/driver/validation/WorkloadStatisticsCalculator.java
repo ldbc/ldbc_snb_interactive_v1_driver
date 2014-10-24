@@ -8,8 +8,6 @@ import com.ldbc.driver.generator.GeneratorFactory;
 import com.ldbc.driver.generator.RandomDataGeneratorFactory;
 import com.ldbc.driver.runtime.metrics.ContinuousMetricManager;
 import com.ldbc.driver.runtime.metrics.MetricsCollectionException;
-import com.ldbc.driver.temporal.Duration;
-import com.ldbc.driver.temporal.Time;
 import com.ldbc.driver.util.Bucket;
 import com.ldbc.driver.util.Histogram;
 
@@ -22,24 +20,24 @@ public class WorkloadStatisticsCalculator {
      */
 
     public WorkloadStatistics calculate(WorkloadStreams workloadStreams,
-                                        Duration maxExpectedInterleave) throws MetricsCollectionException {
+                                        long maxExpectedInterleaveAsMilli) throws MetricsCollectionException {
         Histogram<Class, Long> operationMixHistogram = new Histogram<>(0l);
         GeneratorFactory gf = new GeneratorFactory(new RandomDataGeneratorFactory(42l));
 
-        ContinuousMetricManager operationInterleaves = new ContinuousMetricManager(null, null, maxExpectedInterleave.asMilli(), 5);
+        ContinuousMetricManager operationInterleaves = new ContinuousMetricManager(null, null, maxExpectedInterleaveAsMilli, 5);
 
-        Time previousOperationStartTime = null;
+        long previousOperationStartTimeAsMilli = -1;
 
-        final Map<Class, Time> previousOperationStartTimesByOperationType = new HashMap<>();
+        final Map<Class, Long> previousOperationStartTimesAsMilliByOperationType = new HashMap<>();
         Map<Class, ContinuousMetricManager> operationInterleavesByOperationType = new HashMap<>();
 
-        Map<Class, Time> firstStartTimesByOperationType = new HashMap<>();
-        Map<Class, Time> lastStartTimesByOperationType = new HashMap<>();
+        Map<Class, Long> firstStartTimesAsMilliByOperationType = new HashMap<>();
+        Map<Class, Long> lastStartTimesAsMilliByOperationType = new HashMap<>();
 
         final Set<Class> dependencyOperationTypes = new HashSet<>();
         final Set<Class> dependentOperationTypes = new HashSet<>();
-        final ContinuousMetricManager interleavesForDependencyOperations = new ContinuousMetricManager(null, null, maxExpectedInterleave.asMilli(), 5);
-        final ContinuousMetricManager interleavesForDependentOperations = new ContinuousMetricManager(null, null, maxExpectedInterleave.asMilli(), 5);
+        final ContinuousMetricManager interleavesForDependencyOperations = new ContinuousMetricManager(null, null, maxExpectedInterleaveAsMilli, 5);
+        final ContinuousMetricManager interleavesForDependentOperations = new ContinuousMetricManager(null, null, maxExpectedInterleaveAsMilli, 5);
 
         if (workloadStreams.asynchronousStream().dependencyOperations().hasNext() || workloadStreams.asynchronousStream().nonDependencyOperations().hasNext())
             dependentOperationTypes.addAll(workloadStreams.asynchronousStream().dependentOperationTypes());
@@ -60,34 +58,34 @@ public class WorkloadStatisticsCalculator {
         }
 
         Function<Operation<?>, Operation<?>> collectStatsForDependencyOperations = new Function<Operation<?>, Operation<?>>() {
-            Time prevDependency = null;
-            Time prevDependent = null;
+            long prevDependencyAsMilli = -1;
+            long prevDependentAsMilli = -1;
 
             @Override
             public Operation<?> apply(Operation<?> operation) {
                 dependencyOperationTypes.add(operation.getClass());
-                if (null == prevDependency) {
-                    prevDependency = operation.scheduledStartTimeAsMilli();
+                if (-1 == prevDependencyAsMilli) {
+                    prevDependencyAsMilli = operation.scheduledStartTimeAsMilli();
                 } else {
-                    long interleaveAsMilli = operation.scheduledStartTimeAsMilli().durationGreaterThan(prevDependency).asMilli();
+                    long interleaveAsMilli = operation.scheduledStartTimeAsMilli() - prevDependencyAsMilli;
                     try {
                         interleavesForDependencyOperations.addMeasurement(interleaveAsMilli);
                     } catch (MetricsCollectionException e) {
                         throw new RuntimeException("Error collectStatsForDependencyOperations", e);
                     }
-                    prevDependency = operation.scheduledStartTimeAsMilli();
+                    prevDependencyAsMilli = operation.scheduledStartTimeAsMilli();
                 }
                 if (dependentOperationTypes.contains(operation.getClass())) {
-                    if (null == prevDependent) {
-                        prevDependent = operation.scheduledStartTimeAsMilli();
+                    if (-1 == prevDependentAsMilli) {
+                        prevDependentAsMilli = operation.scheduledStartTimeAsMilli();
                     } else {
-                        long interleaveAsMilli = operation.scheduledStartTimeAsMilli().durationGreaterThan(prevDependent).asMilli();
+                        long interleaveAsMilli = operation.scheduledStartTimeAsMilli() - prevDependentAsMilli;
                         try {
                             interleavesForDependentOperations.addMeasurement(interleaveAsMilli);
                         } catch (MetricsCollectionException e) {
                             throw new RuntimeException("Error collectStatsForNonDependentOperations", e);
                         }
-                        prevDependent = operation.scheduledStartTimeAsMilli();
+                        prevDependentAsMilli = operation.scheduledStartTimeAsMilli();
                     }
                 }
                 return operation;
@@ -99,21 +97,21 @@ public class WorkloadStatisticsCalculator {
         );
 
         Function<Operation<?>, Operation<?>> collectStatsForNonDependentOperations = new Function<Operation<?>, Operation<?>>() {
-            Time prevDependent = null;
+            long prevDependentAsMilli = -1;
 
             @Override
             public Operation<?> apply(Operation<?> operation) {
                 if (dependentOperationTypes.contains(operation.getClass())) {
-                    if (null == prevDependent) {
-                        prevDependent = operation.scheduledStartTimeAsMilli();
+                    if (-1 == prevDependentAsMilli) {
+                        prevDependentAsMilli = operation.scheduledStartTimeAsMilli();
                     } else {
-                        long interleaveAsMilli = operation.scheduledStartTimeAsMilli().durationGreaterThan(prevDependent).asMilli();
+                        long interleaveAsMilli = operation.scheduledStartTimeAsMilli() - prevDependentAsMilli;
                         try {
                             interleavesForDependentOperations.addMeasurement(interleaveAsMilli);
                         } catch (MetricsCollectionException e) {
                             throw new RuntimeException("Error collectStatsForNonDependentOperations", e);
                         }
-                        prevDependent = operation.scheduledStartTimeAsMilli();
+                        prevDependentAsMilli = operation.scheduledStartTimeAsMilli();
                     }
                 }
                 return operation;
@@ -126,56 +124,56 @@ public class WorkloadStatisticsCalculator {
 
         Iterator<Operation<?>> operations = gf.mergeSortOperationsByStartTime(dependencyOperations, nonDependencyOperations);
 
-        Map<Class, Duration> lowestDependencyDurationByOperationType = new HashMap<>();
+        Map<Class, Long> lowestDependencyDurationAsMilliByOperationType = new HashMap<>();
 
         while (operations.hasNext()) {
             Operation<?> operation = operations.next();
             Class operationType = operation.getClass();
-            Time operationStartTime = operation.scheduledStartTimeAsMilli();
-            Time operationDependencyTime = operation.dependencyTimeAsMilli();
-            Duration operationDependencyDuration = operationStartTime.durationGreaterThan(operationDependencyTime);
+            long operationStartTimeAsMilli = operation.scheduledStartTimeAsMilli();
+            long operationDependencyTimeAsMilli = operation.dependencyTimeAsMilli();
+            long operationDependencyDurationAsMilli = operationStartTimeAsMilli - operationDependencyTimeAsMilli;
 
             // Operation Mix
             operationMixHistogram.incOrCreateBucket(Bucket.DiscreteBucket.create(operationType), 1l);
 
             // Interleaves
-            if (null != previousOperationStartTime) {
-                Duration interleaveDuration = operationStartTime.durationGreaterThan(previousOperationStartTime);
-                operationInterleaves.addMeasurement(interleaveDuration.asMilli());
+            if (-1 != previousOperationStartTimeAsMilli) {
+                long interleaveDurationAsMilli = operationStartTimeAsMilli - previousOperationStartTimeAsMilli;
+                operationInterleaves.addMeasurement(interleaveDurationAsMilli);
             }
-            previousOperationStartTime = operationStartTime;
+            previousOperationStartTimeAsMilli = operationStartTimeAsMilli;
 
             // Interleaves by operation type
             ContinuousMetricManager operationInterleaveForOperationType = operationInterleavesByOperationType.get(operationType);
             if (null == operationInterleaveForOperationType) {
-                operationInterleaveForOperationType = new ContinuousMetricManager(null, null, maxExpectedInterleave.asMilli(), 5);
+                operationInterleaveForOperationType = new ContinuousMetricManager(null, null, maxExpectedInterleaveAsMilli, 5);
                 operationInterleavesByOperationType.put(operationType, operationInterleaveForOperationType);
             }
-            Time previousOperationStartTimeForOperationType = previousOperationStartTimesByOperationType.get(operationType);
-            if (null != previousOperationStartTimeForOperationType) {
-                Duration interleaveDuration = operationStartTime.durationGreaterThan(previousOperationStartTimeForOperationType);
-                operationInterleaveForOperationType.addMeasurement(interleaveDuration.asMilli());
+            Long previousOperationStartTimeAsMilliForOperationType = previousOperationStartTimesAsMilliByOperationType.get(operationType);
+            if (null == previousOperationStartTimeAsMilliForOperationType) {
+                long interleaveDurationAsMilli = operationStartTimeAsMilli - previousOperationStartTimeAsMilliForOperationType;
+                operationInterleaveForOperationType.addMeasurement(interleaveDurationAsMilli);
             }
-            previousOperationStartTimesByOperationType.put(operationType, operationStartTime);
+            previousOperationStartTimesAsMilliByOperationType.put(operationType, operationStartTimeAsMilli);
 
             // Dependency duration by operation type
-            Duration lowestDependencyDurationForOperationType = (lowestDependencyDurationByOperationType.containsKey(operationType))
-                    ? lowestDependencyDurationByOperationType.get(operationType)
-                    : Duration.fromNano(Long.MAX_VALUE);
-            if (operationDependencyDuration.lt(lowestDependencyDurationForOperationType))
-                lowestDependencyDurationByOperationType.put(operationType, operationDependencyDuration);
+            long lowestDependencyDurationAsMilliForOperationType = (lowestDependencyDurationAsMilliByOperationType.containsKey(operationType))
+                    ? lowestDependencyDurationAsMilliByOperationType.get(operationType)
+                    : Long.MAX_VALUE;
+            if (operationDependencyDurationAsMilli < lowestDependencyDurationAsMilliForOperationType)
+                lowestDependencyDurationAsMilliByOperationType.put(operationType, operationDependencyDurationAsMilli);
 
             // First start times by operation type
-            if (false == firstStartTimesByOperationType.containsKey(operationType))
-                firstStartTimesByOperationType.put(operationType, operationStartTime);
+            if (false == firstStartTimesAsMilliByOperationType.containsKey(operationType))
+                firstStartTimesAsMilliByOperationType.put(operationType, operationStartTimeAsMilli);
 
             // Last start times by operation type
-            lastStartTimesByOperationType.put(operationType, operationStartTime);
+            lastStartTimesAsMilliByOperationType.put(operationType, operationStartTimeAsMilli);
         }
 
         return new WorkloadStatistics(
-                firstStartTimesByOperationType,
-                lastStartTimesByOperationType,
+                firstStartTimesAsMilliByOperationType,
+                lastStartTimesAsMilliByOperationType,
                 operationMixHistogram,
                 operationInterleaves,
                 interleavesForDependencyOperations,
@@ -183,6 +181,6 @@ public class WorkloadStatisticsCalculator {
                 operationInterleavesByOperationType,
                 dependencyOperationTypes,
                 dependentOperationTypes,
-                lowestDependencyDurationByOperationType);
+                lowestDependencyDurationAsMilliByOperationType);
     }
 }

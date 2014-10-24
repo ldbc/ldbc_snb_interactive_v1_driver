@@ -1,7 +1,5 @@
 package com.ldbc.driver.control;
 
-import com.ldbc.driver.temporal.Duration;
-
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
@@ -17,7 +15,7 @@ public interface DriverConfiguration {
 
     int threadCount();
 
-    Duration statusDisplayInterval();
+    long statusDisplayIntervalAsMilli();
 
     TimeUnit timeUnit();
 
@@ -25,11 +23,11 @@ public interface DriverConfiguration {
 
     double timeCompressionRatio();
 
-    Duration windowedExecutionWindowDuration();
+    long windowedExecutionWindowDurationAsMilli();
 
     Set<String> peerIds();
 
-    Duration toleratedExecutionDelay();
+    long toleratedExecutionDelayAsMilli();
 
     ValidationParamOptions validationParamsCreationOptions();
 
@@ -39,7 +37,7 @@ public interface DriverConfiguration {
 
     boolean calculateWorkloadStatistics();
 
-    Duration spinnerSleepDuration();
+    long spinnerSleepDurationAsMilli();
 
     boolean shouldPrintHelpString();
 

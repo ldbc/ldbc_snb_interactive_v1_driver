@@ -65,11 +65,11 @@ public class WorkloadStatisticsCalculatorTest {
 
         assertThat(stats.totalCount(), is(operationCount));
         assertThat(stats.operationTypeCount(), is(1));
-        assertThat(stats.totalDuration(), equalTo(Duration.fromMilli(expectedWorkloadDurationAsMilli)));
-        assertThat(stats.firstStartTime(), equalTo(workloadStartTime));
-        assertThat(stats.lastStartTime(), equalTo(workloadStartTime.plus(Duration.fromMilli(expectedWorkloadDurationAsMilli))));
-        assertThat(stats.firstStartTimesByOperationType().get(TimedNamedOperation1.class), equalTo(workloadStartTime));
-        assertThat(stats.lastStartTimesByOperationType().get(TimedNamedOperation1.class), equalTo(workloadStartTime.plus(Duration.fromMilli(expectedWorkloadDurationAsMilli))));
+        assertThat(stats.totalDurationAsMilli(), equalTo(Duration.fromMilli(expectedWorkloadDurationAsMilli)));
+        assertThat(stats.firstStartTimeAsMilli(), equalTo(workloadStartTime));
+        assertThat(stats.lastStartTimeAsMilli(), equalTo(workloadStartTime.plus(Duration.fromMilli(expectedWorkloadDurationAsMilli))));
+        assertThat(stats.firstStartTimesAsMilliByOperationType().get(TimedNamedOperation1.class), equalTo(workloadStartTime));
+        assertThat(stats.lastStartTimesAsMilliByOperationType().get(TimedNamedOperation1.class), equalTo(workloadStartTime.plus(Duration.fromMilli(expectedWorkloadDurationAsMilli))));
 
         double tolerance = 0.01d;
         Histogram<Class, Double> expectedOperationMix = new Histogram<>(0d);
@@ -177,15 +177,15 @@ public class WorkloadStatisticsCalculatorTest {
 
         assertThat(stats.totalCount(), is(operation1Count + operation2Count + operation3Count));
         assertThat(stats.operationTypeCount(), is(3));
-        assertThat(stats.totalDuration(), equalTo(Duration.fromMilli(expectedWorkloadDurationAsMilli)));
-        assertThat(stats.firstStartTime(), equalTo(operation1StartTime));
-        assertThat(stats.lastStartTime(), equalTo(operation1StartTime.plus(Duration.fromMilli(expectedWorkloadDurationAsMilli))));
-        assertThat(stats.firstStartTimesByOperationType().get(TimedNamedOperation1.class), equalTo(operation1StartTime));
-        assertThat(stats.firstStartTimesByOperationType().get(TimedNamedOperation2.class), equalTo(operation2StartTime));
-        assertThat(stats.firstStartTimesByOperationType().get(TimedNamedOperation3.class), equalTo(operation3StartTime));
-        assertThat(stats.lastStartTimesByOperationType().get(TimedNamedOperation1.class), equalTo(operation1StartTime.plus(Duration.fromMilli(expectedWorkloadOperation1DurationAsMilli))));
-        assertThat(stats.lastStartTimesByOperationType().get(TimedNamedOperation2.class), equalTo(operation2StartTime.plus(Duration.fromMilli(expectedWorkloadOperation2DurationAsMilli))));
-        assertThat(stats.lastStartTimesByOperationType().get(TimedNamedOperation3.class), equalTo(operation3StartTime.plus(Duration.fromMilli(expectedWorkloadOperation3DurationAsMilli))));
+        assertThat(stats.totalDurationAsMilli(), equalTo(Duration.fromMilli(expectedWorkloadDurationAsMilli)));
+        assertThat(stats.firstStartTimeAsMilli(), equalTo(operation1StartTime));
+        assertThat(stats.lastStartTimeAsMilli(), equalTo(operation1StartTime.plus(Duration.fromMilli(expectedWorkloadDurationAsMilli))));
+        assertThat(stats.firstStartTimesAsMilliByOperationType().get(TimedNamedOperation1.class), equalTo(operation1StartTime));
+        assertThat(stats.firstStartTimesAsMilliByOperationType().get(TimedNamedOperation2.class), equalTo(operation2StartTime));
+        assertThat(stats.firstStartTimesAsMilliByOperationType().get(TimedNamedOperation3.class), equalTo(operation3StartTime));
+        assertThat(stats.lastStartTimesAsMilliByOperationType().get(TimedNamedOperation1.class), equalTo(operation1StartTime.plus(Duration.fromMilli(expectedWorkloadOperation1DurationAsMilli))));
+        assertThat(stats.lastStartTimesAsMilliByOperationType().get(TimedNamedOperation2.class), equalTo(operation2StartTime.plus(Duration.fromMilli(expectedWorkloadOperation2DurationAsMilli))));
+        assertThat(stats.lastStartTimesAsMilliByOperationType().get(TimedNamedOperation3.class), equalTo(operation3StartTime.plus(Duration.fromMilli(expectedWorkloadOperation3DurationAsMilli))));
 
         double tolerance = 0.01d;
         Histogram<Class, Double> expectedOperationMix = new Histogram<>(0d);
@@ -231,9 +231,9 @@ public class WorkloadStatisticsCalculatorTest {
         assertThat(operation3Interleaves.count(), is(operation3Count - 1));
         assertThat(operation3Interleaves.mean(), is((double) operation3Interleave.asMilli()));
 
-        assertThat(stats.lowestDependencyDurationByOperationType().get(TimedNamedOperation1.class), is(Duration.fromMilli(100)));
-        assertThat(stats.lowestDependencyDurationByOperationType().get(TimedNamedOperation2.class), is(Duration.fromMilli(100)));
-        assertThat(stats.lowestDependencyDurationByOperationType().get(TimedNamedOperation3.class), is(Duration.fromMilli(10)));
+        assertThat(stats.lowestDependencyDurationAsMilliByOperationType().get(TimedNamedOperation1.class), is(Duration.fromMilli(100)));
+        assertThat(stats.lowestDependencyDurationAsMilliByOperationType().get(TimedNamedOperation2.class), is(Duration.fromMilli(100)));
+        assertThat(stats.lowestDependencyDurationAsMilliByOperationType().get(TimedNamedOperation3.class), is(Duration.fromMilli(10)));
 
         System.out.println(stats.toString());
     }

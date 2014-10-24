@@ -214,7 +214,7 @@ public class Client {
             boolean recordStartTimeDelayLatency = false == controlService.configuration().ignoreScheduledStartTimes();
             ExecutionDelayPolicy executionDelayPolicy = new ErrorReportingTerminatingExecutionDelayPolicy(
                     timeSource,
-                    controlService.configuration().toleratedExecutionDelay(),
+                    controlService.configuration().toleratedExecutionDelayAsMilli(),
                     errorReporter);
 
             if (null != controlService.configuration().resultDirPath() && controlService.configuration().shouldCreateResultsLog()) {
@@ -286,8 +286,6 @@ public class Client {
 
             logger.info(String.format("Instantiating %s", WorkloadRunner.class.getSimpleName()));
             try {
-                // TODO will not be necessary once operations have maximum execution time
-                Duration durationToWaitForAllHandlersToFinishBeforeShutdown = WorkloadRunner.DEFAULT_DURATION_TO_WAIT_FOR_ALL_HANDLERS_TO_FINISH;
                 int operationHandlerExecutorsBoundedQueueSize = DefaultQueues.DEFAULT_BOUND_1000;
                 workloadRunner = new WorkloadRunner(
                         timeSource,
@@ -297,11 +295,8 @@ public class Client {
                         errorReporter,
                         completionTimeService,
                         controlService.configuration().threadCount(),
-                        controlService.configuration().statusDisplayInterval(),
-                        controlService.workloadStartTimeAsMilli(),
-                        controlService.configuration().spinnerSleepDuration(),
-                        controlService.configuration().windowedExecutionWindowDuration(),
-                        durationToWaitForAllHandlersToFinishBeforeShutdown,
+                        controlService.configuration().statusDisplayIntervalAsMilli(),
+                        controlService.configuration().spinnerSleepDurationAsMilli(),
                         controlService.configuration().ignoreScheduledStartTimes(),
                         operationHandlerExecutorsBoundedQueueSize);
             } catch (WorkloadException e) {
@@ -312,26 +307,26 @@ public class Client {
             try {
                 if (completionTimeService.getAllWriters().isEmpty()) {
                     // There are no local completion time writers, GCT would never advance or be non-null, set to max so nothing ever waits on it
-                    Time nearlyMaxPossibleTime = Time.fromNano(Long.MAX_VALUE - 1);
-                    Time maxPossibleTime = Time.fromNano(Long.MAX_VALUE);
+                    long nearlyMaxPossibleTimeAsMilli = Long.MAX_VALUE - 1;
+                    long maxPossibleTimeAsMilli = Long.MAX_VALUE;
                     // Create a writer to use for advancing GCT
                     LocalCompletionTimeWriter localCompletionTimeWriter = completionTimeService.newLocalCompletionTimeWriter();
-                    localCompletionTimeWriter.submitLocalInitiatedTime(nearlyMaxPossibleTime);
-                    localCompletionTimeWriter.submitLocalCompletedTime(nearlyMaxPossibleTime);
-                    localCompletionTimeWriter.submitLocalInitiatedTime(maxPossibleTime);
-                    localCompletionTimeWriter.submitLocalCompletedTime(maxPossibleTime);
+                    localCompletionTimeWriter.submitLocalInitiatedTime(nearlyMaxPossibleTimeAsMilli);
+                    localCompletionTimeWriter.submitLocalCompletedTime(nearlyMaxPossibleTimeAsMilli);
+                    localCompletionTimeWriter.submitLocalInitiatedTime(maxPossibleTimeAsMilli);
+                    localCompletionTimeWriter.submitLocalCompletedTime(maxPossibleTimeAsMilli);
                 } else {
                     // There are some local completion time writers, initialize them to workload start time
-                    completionTimeServiceAssistant.writeInitiatedAndCompletedTimesToAllWriters(completionTimeService, controlService.workloadStartTimeAsMilli().minus(Duration.fromNano(2)));
-                    completionTimeServiceAssistant.writeInitiatedAndCompletedTimesToAllWriters(completionTimeService, controlService.workloadStartTimeAsMilli().minus(Duration.fromNano(1)));
+                    completionTimeServiceAssistant.writeInitiatedAndCompletedTimesToAllWriters(completionTimeService, controlService.workloadStartTimeAsMilli() - 2);
+                    completionTimeServiceAssistant.writeInitiatedAndCompletedTimesToAllWriters(completionTimeService, controlService.workloadStartTimeAsMilli() - 1);
                     completionTimeServiceAssistant.waitForGlobalCompletionTime(
                             timeSource,
-                            controlService.workloadStartTimeAsMilli().minus(Duration.fromNano(2)),
-                            Duration.fromSeconds(5),
+                            controlService.workloadStartTimeAsMilli() - 1,
+                            temporalUtil.convert(5, TimeUnit.SECONDS, TimeUnit.MILLISECONDS),
                             completionTimeService,
                             errorReporter
                     );
-                    logger.info("GCT: " + completionTimeService.globalCompletionTime());
+                    logger.info("GCT: " + completionTimeService.globalCompletionTimeAsMilli());
                 }
             } catch (CompletionTimeException e) {
                 throw new ClientException("Error while writing initial initiated and completed times to Completion Time Service", e);
@@ -339,18 +334,18 @@ public class Client {
 
             logger.info("Waiting for all driver processes to complete initialization");
             try {
-                Duration globalCompletionTimeWaitTimeoutDuration = Duration.fromSeconds(5);
+                long globalCompletionTimeWaitTimeoutDurationAsMilli = temporalUtil.convert(5, TimeUnit.SECONDS, TimeUnit.MILLISECONDS);
                 boolean globalCompletionTimeAdvancedToDesiredTime = completionTimeServiceAssistant.waitForGlobalCompletionTime(
                         timeSource,
-                        controlService.workloadStartTimeAsMilli().minus(Duration.fromNano(2)),
-                        globalCompletionTimeWaitTimeoutDuration,
+                        controlService.workloadStartTimeAsMilli() - 1,
+                        globalCompletionTimeWaitTimeoutDurationAsMilli,
                         completionTimeService,
                         errorReporter);
                 if (false == globalCompletionTimeAdvancedToDesiredTime) {
                     throw new ClientException(
                             String.format("Timed out [%s] while waiting for global completion time to advance to workload start time\nCurrent GCT: %s\nWaiting For GCT: %s",
-                                    globalCompletionTimeWaitTimeoutDuration,
-                                    completionTimeService.globalCompletionTime(),
+                                    globalCompletionTimeWaitTimeoutDurationAsMilli,
+                                    completionTimeService.globalCompletionTimeAsMilli(),
                                     controlService.workloadStartTimeAsMilli())
                     );
                 }
@@ -473,12 +468,13 @@ public class Client {
 
         @Override
         public void execute() throws ClientException {
+            TemporalUtil temporalUtil = new TemporalUtil();
             logger.info(String.format("Calculating workload statistics for: %s", workload.getClass().getSimpleName()));
             try (Workload w = workload) {
                 WorkloadStatisticsCalculator workloadStatisticsCalculator = new WorkloadStatisticsCalculator();
                 workloadStatistics = workloadStatisticsCalculator.calculate(
                         timeMappedWorkloadStreams,
-                        Duration.fromHours(5)
+                        temporalUtil.convert(5, TimeUnit.HOURS, TimeUnit.MILLISECONDS)
                         // TODO uncomment, maybe
                         // workload.maxExpectedInterleave()
                 );

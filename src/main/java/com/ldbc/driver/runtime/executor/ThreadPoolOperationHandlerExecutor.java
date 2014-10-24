@@ -37,12 +37,12 @@ public class ThreadPoolOperationHandlerExecutor implements OperationHandlerExecu
     }
 
     @Override
-    synchronized public final void shutdown(Duration wait) throws OperationHandlerExecutorException {
+    synchronized public final void shutdown(Duration waitAsMilli) throws OperationHandlerExecutorException {
         if (shutdown.get())
             throw new OperationHandlerExecutorException("Executor has already been shutdown");
         try {
             threadPoolExecutorService.shutdown();
-            boolean allHandlersCompleted = threadPoolExecutorService.awaitTermination(wait.asMilli(), TimeUnit.MILLISECONDS);
+            boolean allHandlersCompleted = threadPoolExecutorService.awaitTermination(waitAsMilli.asMilli(), TimeUnit.MILLISECONDS);
             if (false == allHandlersCompleted) {
                 List<Runnable> stillRunningThreads = threadPoolExecutorService.shutdownNow();
                 if (false == stillRunningThreads.isEmpty()) {

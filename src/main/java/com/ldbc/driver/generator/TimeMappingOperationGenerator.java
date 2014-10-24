@@ -9,16 +9,16 @@ import java.util.Iterator;
 
 public class TimeMappingOperationGenerator extends Generator<Operation<?>> {
     private final Iterator<Operation<?>> operations;
-    private final Time newStartTime;
+    private final long newStartTimeAsMilli;
     private final Double timeCompressionRatio;
 
-    private Function1<Time, Time> timeOffsetFun = null;
-    private Function1<Time, Time> startTimeCompressionFun = null;
-    private Function1<Time, Time> dependencyTimeCompressionFun = null;
+    private Function1<Long, Long> timeOffsetAsMilliFun = null;
+    private Function1<Long, Long> startTimeAsMilliCompressionFun = null;
+    private Function1<Long, Long> dependencyTimeAsMilliCompressionFun = null;
 
-    TimeMappingOperationGenerator(Iterator<Operation<?>> operations, Time newStartTime, Double timeCompressionRatio) {
+    TimeMappingOperationGenerator(Iterator<Operation<?>> operations, long newStartTimeAsMilli, Double timeCompressionRatio) {
         this.operations = operations;
-        this.newStartTime = newStartTime;
+        this.newStartTimeAsMilli = newStartTimeAsMilli;
         this.timeCompressionRatio = timeCompressionRatio;
     }
 
@@ -26,32 +26,32 @@ public class TimeMappingOperationGenerator extends Generator<Operation<?>> {
     protected Operation<?> doNext() throws GeneratorException {
         if (false == operations.hasNext()) return null;
         Operation<?> nextOperation = operations.next();
-        if (null == timeOffsetFun) {
-            // Create timeOffsetFun
+        if (null == timeOffsetAsMilliFun) {
+            // Create time offset function
             Time firstStartTime = nextOperation.scheduledStartTimeAsMilli();
-            if (newStartTime.gt(firstStartTime)) {
+            if (newStartTimeAsMilli.gt(firstStartTime)) {
                 // offset to future
-                Duration offset = newStartTime.durationGreaterThan(firstStartTime);
-                timeOffsetFun = new TimeFutureOffsetFun(offset);
+                Duration offset = newStartTimeAsMilli.durationGreaterThan(firstStartTime);
+                timeOffsetAsMilliFun = new TimeFutureOffsetFun(offset);
             } else {
                 // offset to past
-                Duration offset = newStartTime.durationLessThan(firstStartTime);
-                timeOffsetFun = new TimePastOffsetFun(offset);
+                Duration offset = newStartTimeAsMilli.durationLessThan(firstStartTime);
+                timeOffsetAsMilliFun = new TimePastOffsetFun(offset);
             }
 
             // Create time compression function
             if (null == timeCompressionRatio) {
-                startTimeCompressionFun = new IdentityTimeFun();
-                dependencyTimeCompressionFun = new IdentityTimeFun();
+                startTimeAsMilliCompressionFun = new IdentityTimeFun();
+                dependencyTimeAsMilliCompressionFun = new IdentityTimeFun();
             } else {
-                startTimeCompressionFun = new TimeCompressionFun(timeCompressionRatio, timeOffsetFun.apply(nextOperation.scheduledStartTimeAsMilli()));
-                dependencyTimeCompressionFun = new TimeCompressionFun(timeCompressionRatio, timeOffsetFun.apply(nextOperation.dependencyTimeAsMilli()));
+                startTimeAsMilliCompressionFun = new TimeCompressionFun(timeCompressionRatio, timeOffsetAsMilliFun.apply(nextOperation.scheduledStartTimeAsMilli()));
+                dependencyTimeAsMilliCompressionFun = new TimeCompressionFun(timeCompressionRatio, timeOffsetAsMilliFun.apply(nextOperation.dependencyTimeAsMilli()));
             }
         }
-        Time offsetStartTime = timeOffsetFun.apply(nextOperation.scheduledStartTimeAsMilli());
-        Time offsetDependencyTime = timeOffsetFun.apply(nextOperation.dependencyTimeAsMilli());
-        Time offsetAndCompressedStartTime = startTimeCompressionFun.apply(offsetStartTime);
-        Time offsetAndCompressedDependencyTime = dependencyTimeCompressionFun.apply(offsetDependencyTime);
+        Time offsetStartTime = timeOffsetAsMilliFun.apply(nextOperation.scheduledStartTimeAsMilli());
+        Time offsetDependencyTime = timeOffsetAsMilliFun.apply(nextOperation.dependencyTimeAsMilli());
+        Time offsetAndCompressedStartTime = startTimeAsMilliCompressionFun.apply(offsetStartTime);
+        Time offsetAndCompressedDependencyTime = dependencyTimeAsMilliCompressionFun.apply(offsetDependencyTime);
         nextOperation.setScheduledStartTimeAsMilli(offsetAndCompressedStartTime);
         nextOperation.setDependencyTimeAsMilli(offsetAndCompressedDependencyTime);
         return nextOperation;

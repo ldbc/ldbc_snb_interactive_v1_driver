@@ -18,7 +18,7 @@ public class SameThreadOperationHandlerExecutor implements OperationHandlerExecu
     }
 
     @Override
-    synchronized public final void shutdown(Duration wait) throws OperationHandlerExecutorException {
+    synchronized public final void shutdown(Duration waitAsMilli) throws OperationHandlerExecutorException {
     }
 
     @Override

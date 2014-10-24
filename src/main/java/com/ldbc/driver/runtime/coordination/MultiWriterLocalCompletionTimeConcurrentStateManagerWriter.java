@@ -13,13 +13,13 @@ public class MultiWriterLocalCompletionTimeConcurrentStateManagerWriter implemen
     }
 
     @Override
-    public void submitLocalInitiatedTime(Time scheduledStartTime) throws CompletionTimeException {
-        localCompletionTimeStateManager.submitLocalInitiatedTime(id, scheduledStartTime);
+    public void submitLocalInitiatedTime(Time timeAsMilli) throws CompletionTimeException {
+        localCompletionTimeStateManager.submitLocalInitiatedTime(id, timeAsMilli);
     }
 
     @Override
-    public void submitLocalCompletedTime(Time scheduledStartTime) throws CompletionTimeException {
-        localCompletionTimeStateManager.submitLocalCompletedTime(id, scheduledStartTime);
+    public void submitLocalCompletedTime(Time timeAsMilli) throws CompletionTimeException {
+        localCompletionTimeStateManager.submitLocalCompletedTime(id, timeAsMilli);
     }
 
     int id() {

@@ -7,13 +7,15 @@ import com.ldbc.driver.runtime.coordination.GlobalCompletionTimeReader;
 import com.ldbc.driver.runtime.coordination.LocalCompletionTimeWriter;
 import com.ldbc.driver.runtime.metrics.ConcurrentMetricsService;
 import com.ldbc.driver.runtime.scheduling.Spinner;
-import com.ldbc.driver.temporal.Duration;
+import com.ldbc.driver.temporal.TemporalUtil;
 import com.ldbc.driver.temporal.TimeSource;
 
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 public class PreciseIndividualBlockingOperationStreamExecutorService {
-    private static final Duration SHUTDOWN_WAIT_TIMEOUT = Duration.fromSeconds(5);
+    private static final TemporalUtil TEMPORAL_UTIL = new TemporalUtil();
+    private static final long SHUTDOWN_WAIT_TIMEOUT_AS_MILLI = TEMPORAL_UTIL.convert(5, TimeUnit.SECONDS, TimeUnit.MILLISECONDS);
     private final PreciseIndividualBlockingOperationStreamExecutorServiceThread preciseIndividualBlockingOperationStreamExecutorServiceThread;
     private final AtomicBoolean hasFinished = new AtomicBoolean(false);
     private final ConcurrentErrorReporter errorReporter;
@@ -29,8 +31,7 @@ public class PreciseIndividualBlockingOperationStreamExecutorService {
                                                                    Db db,
                                                                    LocalCompletionTimeWriter localCompletionTimeWriter,
                                                                    GlobalCompletionTimeReader globalCompletionTimeReader,
-                                                                   ConcurrentMetricsService metricsService,
-                                                                   Duration durationToWaitForAllHandlersToFinishBeforeShutdown) {
+                                                                   ConcurrentMetricsService metricsService) {
         this.errorReporter = errorReporter;
         if (streamDefinition.dependencyOperations().hasNext() || streamDefinition.nonDependencyOperations().hasNext()) {
             this.preciseIndividualBlockingOperationStreamExecutorServiceThread = new PreciseIndividualBlockingOperationStreamExecutorServiceThread(
@@ -44,8 +45,7 @@ public class PreciseIndividualBlockingOperationStreamExecutorService {
                     db,
                     localCompletionTimeWriter,
                     globalCompletionTimeReader,
-                    metricsService,
-                    durationToWaitForAllHandlersToFinishBeforeShutdown);
+                    metricsService);
         } else {
             this.preciseIndividualBlockingOperationStreamExecutorServiceThread = null;
             executing.set(true);
@@ -73,7 +73,7 @@ public class PreciseIndividualBlockingOperationStreamExecutorService {
     private void doShutdown() {
         try {
             forceThreadToTerminate.set(true);
-            preciseIndividualBlockingOperationStreamExecutorServiceThread.join(SHUTDOWN_WAIT_TIMEOUT.asMilli());
+            preciseIndividualBlockingOperationStreamExecutorServiceThread.join(SHUTDOWN_WAIT_TIMEOUT_AS_MILLI);
         } catch (Exception e) {
             String errMsg = String.format("Unexpected error encountered while shutting down thread\n%s",
                     ConcurrentErrorReporter.stackTraceToString(e));

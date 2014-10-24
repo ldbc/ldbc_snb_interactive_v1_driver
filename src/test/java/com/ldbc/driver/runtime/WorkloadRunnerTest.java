@@ -169,10 +169,10 @@ public class WorkloadRunnerTest {
                     errorReporter,
                     concurrentCompletionTimeService,
                     controlService.configuration().threadCount(),
-                    controlService.configuration().statusDisplayInterval(),
+                    controlService.configuration().statusDisplayIntervalAsMilli(),
                     controlService.workloadStartTimeAsMilli(),
-                    controlService.configuration().spinnerSleepDuration(),
-                    controlService.configuration().windowedExecutionWindowDuration(),
+                    controlService.configuration().spinnerSleepDurationAsMilli(),
+                    controlService.configuration().windowedExecutionWindowDurationAsMilli(),
                     WorkloadRunner.DEFAULT_DURATION_TO_WAIT_FOR_ALL_HANDLERS_TO_FINISH,
                     controlService.configuration().ignoreScheduledStartTimes(),
                     boundedQueueSize);
@@ -183,7 +183,7 @@ public class WorkloadRunnerTest {
 
             assertThat(errorReporter.toString() + "\n" + workloadResults.toString(), errorReporter.errorEncountered(), is(false));
             assertThat(errorReporter.toString() + "\n" + workloadResults.toString(), workloadResults.startTimeAsMilli().gte(controlService.workloadStartTimeAsMilli()), is(true));
-            assertThat(errorReporter.toString() + "\n" + workloadResults.toString(), workloadResults.startTimeAsMilli().lt(controlService.workloadStartTimeAsMilli().plus(configuration.toleratedExecutionDelay())), is(true));
+            assertThat(errorReporter.toString() + "\n" + workloadResults.toString(), workloadResults.startTimeAsMilli().lt(controlService.workloadStartTimeAsMilli().plus(configuration.toleratedExecutionDelayAsMilli())), is(true));
             assertThat(errorReporter.toString() + "\n" + workloadResults.toString(), workloadResults.latestFinishTimeAsMilli().gte(workloadResults.startTimeAsMilli()), is(true));
             assertThat(errorReporter.toString() + "\n" + workloadResults.toString(), workloadResults.totalOperationCount(), is(operationCount));
 
@@ -346,10 +346,10 @@ public class WorkloadRunnerTest {
                     errorReporter,
                     completionTimeService,
                     controlService.configuration().threadCount(),
-                    controlService.configuration().statusDisplayInterval(),
+                    controlService.configuration().statusDisplayIntervalAsMilli(),
                     controlService.workloadStartTimeAsMilli(),
-                    controlService.configuration().spinnerSleepDuration(),
-                    controlService.configuration().windowedExecutionWindowDuration(),
+                    controlService.configuration().spinnerSleepDurationAsMilli(),
+                    controlService.configuration().windowedExecutionWindowDurationAsMilli(),
                     WorkloadRunner.DEFAULT_DURATION_TO_WAIT_FOR_ALL_HANDLERS_TO_FINISH,
                     controlService.configuration().ignoreScheduledStartTimes(),
                     boundedQueueSize);
@@ -360,7 +360,7 @@ public class WorkloadRunnerTest {
 
             assertThat(errorReporter.toString() + "\n" + workloadResults.toString(), errorReporter.errorEncountered(), is(false));
             assertThat(errorReporter.toString() + "\n" + workloadResults.toString(), workloadResults.startTimeAsMilli().gte(controlService.workloadStartTimeAsMilli()), is(true));
-            assertThat(errorReporter.toString() + "\n" + workloadResults.toString(), workloadResults.startTimeAsMilli().lt(controlService.workloadStartTimeAsMilli().plus(configuration.toleratedExecutionDelay())), is(true));
+            assertThat(errorReporter.toString() + "\n" + workloadResults.toString(), workloadResults.startTimeAsMilli().lt(controlService.workloadStartTimeAsMilli().plus(configuration.toleratedExecutionDelayAsMilli())), is(true));
             assertThat(errorReporter.toString() + "\n" + workloadResults.toString(), workloadResults.latestFinishTimeAsMilli().gte(workloadResults.startTimeAsMilli()), is(true));
             assertThat(errorReporter.toString() + "\n" + workloadResults.toString(), workloadResults.totalOperationCount(), is(operationCount));
 

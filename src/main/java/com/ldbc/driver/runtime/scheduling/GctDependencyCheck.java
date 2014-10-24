@@ -21,7 +21,7 @@ public class GctDependencyCheck implements SpinnerCheck {
     @Override
     public SpinnerCheckResult doCheck() {
         try {
-            return (globalCompletionTimeReader.globalCompletionTime().gte(operation.dependencyTimeAsMilli())) ? SpinnerCheckResult.PASSED : SpinnerCheckResult.STILL_CHECKING;
+            return (globalCompletionTimeReader.globalCompletionTimeAsMilli().gte(operation.dependencyTimeAsMilli())) ? SpinnerCheckResult.PASSED : SpinnerCheckResult.STILL_CHECKING;
         } catch (CompletionTimeException e) {
             errorReporter.reportError(this,
                     String.format(
@@ -41,7 +41,7 @@ public class GctDependencyCheck implements SpinnerCheck {
                                     + "Operation: %s\n"
                                     + "Scheduled Start Time: %s\n"
                                     + "Dependency Time: %s",
-                            globalCompletionTimeReader.globalCompletionTime().toString(),
+                            globalCompletionTimeReader.globalCompletionTimeAsMilli().toString(),
                             operation.toString(),
                             operation.scheduledStartTimeAsMilli(),
                             operation.dependencyTimeAsMilli()));

@@ -3,7 +3,6 @@ package com.ldbc.driver.generator;
 import com.google.common.base.Predicate;
 import com.google.common.collect.Iterators;
 import com.ldbc.driver.Operation;
-import com.ldbc.driver.temporal.Duration;
 import com.ldbc.driver.temporal.Time;
 import com.ldbc.driver.util.Function0;
 import com.ldbc.driver.util.Function1;
@@ -104,33 +103,33 @@ public class GeneratorFactory {
                         String.format("operation %s\noperations not equal\nstream 1: %s\nstream 2: %s", operationNumber, next1, next2),
                         OperationStreamComparisonResultType.FAIL_OPERATIONS_NOT_EQUAL);
             if (compareTimes) {
-                Time scheduledStartTime1 = next1.scheduledStartTimeAsMilli();
-                Time scheduledStartTime2 = next2.scheduledStartTimeAsMilli();
-                if (null == scheduledStartTime1 && null == scheduledStartTime2) {
+                long scheduledStartTimeAsMilli1 = next1.scheduledStartTimeAsMilli();
+                long scheduledStartTimeAsMilli2 = next2.scheduledStartTimeAsMilli();
+                if (-1 == scheduledStartTimeAsMilli1 && -1 == scheduledStartTimeAsMilli2) {
                     // do nothing
-                } else if (null == scheduledStartTime1 || null == scheduledStartTime2)
+                } else if (-1 == scheduledStartTimeAsMilli1 || -1 == scheduledStartTimeAsMilli2)
                     return new OperationStreamComparisonResult(
                             String.format("operation %s\none start time is null\nstream 1: %s\nstream 2: %s",
-                                    scheduledStartTime1, scheduledStartTime2, operationNumber),
+                                    scheduledStartTimeAsMilli1, scheduledStartTimeAsMilli2, operationNumber),
                             OperationStreamComparisonResultType.FAIL_ONE_START_TIME_IS_NULL);
-                else if (false == scheduledStartTime1.equals(scheduledStartTime2))
+                else if (scheduledStartTimeAsMilli1 != scheduledStartTimeAsMilli2)
                     return new OperationStreamComparisonResult(
                             String.format("operation %s\nstart times not equal\nstream 1: %s\nstream 2: %s",
-                                    operationNumber, scheduledStartTime1, scheduledStartTime2),
+                                    operationNumber, scheduledStartTimeAsMilli1, scheduledStartTimeAsMilli2),
                             OperationStreamComparisonResultType.FAIL_START_TIMES_NOT_EQUAL);
-                Time dependencyTime1 = next1.dependencyTimeAsMilli();
-                Time dependencyTime2 = next2.dependencyTimeAsMilli();
-                if (null == dependencyTime1 && null == dependencyTime2) {
+                long dependencyTimeAsMilli1 = next1.dependencyTimeAsMilli();
+                long dependencyTimeAsMilli2 = next2.dependencyTimeAsMilli();
+                if (-1 == dependencyTimeAsMilli1 && -1 == dependencyTimeAsMilli2) {
                     // do nothing
-                } else if (null == dependencyTime1 || null == dependencyTime2)
+                } else if (-1 == dependencyTimeAsMilli1 || -1 == dependencyTimeAsMilli2)
                     return new OperationStreamComparisonResult(
                             String.format("operation %s\none dependency time is null\nstream1: %s\nstream2: %s",
-                                    dependencyTime1, dependencyTime2, operationNumber),
+                                    dependencyTimeAsMilli1, dependencyTimeAsMilli2, operationNumber),
                             OperationStreamComparisonResultType.FAIL_ONE_DEPENDENCY_TIME_IS_NULL);
-                else if (false == dependencyTime1.equals(dependencyTime2))
+                else if (dependencyTimeAsMilli1 != dependencyTimeAsMilli2)
                     return new OperationStreamComparisonResult(
                             String.format("operation %s\ndependency times not equal\nstream 1: %s\nstream 2: %s",
-                                    operationNumber, dependencyTime1, dependencyTime2),
+                                    operationNumber, dependencyTimeAsMilli1, dependencyTimeAsMilli2),
                             OperationStreamComparisonResultType.FAIL_DEPENDENCY_TIMES_NOT_EQUAL);
             }
         }
@@ -139,10 +138,6 @@ public class GeneratorFactory {
                     String.format("operation %s\nstream 1 is shorter", operationNumber),
                     OperationStreamComparisonResultType.FAIL_STREAMS_HAVE_DIFFERENT_LENGTH);
         return new OperationStreamComparisonResult("", OperationStreamComparisonResultType.PASS);
-    }
-
-    public <T> void exhaust(Iterator<T> generator) {
-        while (generator.hasNext()) generator.next();
     }
 
     /*
@@ -251,12 +246,12 @@ public class GeneratorFactory {
      * All operations in the returned iterator will have dependency times assigned to them.
      *
      * @param operations
-     * @param initialDependencyTime
+     * @param initialDependencyTimeAsMilli
      * @param canOverwriteDependencyTime
      * @return
      */
     public Iterator<Operation<?>> assignConservativeDependencyTimes(Iterator<Operation<?>> operations,
-                                                                    final Time initialDependencyTime,
+                                                                    final long initialDependencyTimeAsMilli,
                                                                     final boolean canOverwriteDependencyTime) {
         Function1<Operation<?>, Boolean> isDependency = new Function1<Operation<?>, Boolean>() {
             @Override
@@ -264,7 +259,7 @@ public class GeneratorFactory {
                 return true;
             }
         };
-        return assignDependencyTimesEqualToLastEncounteredDependencyStartTime(operations, isDependency, initialDependencyTime, canOverwriteDependencyTime);
+        return assignDependencyTimesEqualToLastEncounteredDependencyStartTime(operations, isDependency, initialDependencyTimeAsMilli, canOverwriteDependencyTime);
     }
 
     /**
@@ -277,30 +272,30 @@ public class GeneratorFactory {
      *
      * @param operations
      * @param isDependency
-     * @param initialDependencyTime
+     * @param initialDependencyTimeAsMilli
      * @param canOverwriteDependencyTime
      * @return
      */
     public Iterator<Operation<?>> assignDependencyTimesEqualToLastEncounteredLowerDependencyStartTime(Iterator<Operation<?>> operations,
                                                                                                       final Function1<Operation<?>, Boolean> isDependency,
-                                                                                                      final Time initialDependencyTime,
+                                                                                                      final long initialDependencyTimeAsMilli,
                                                                                                       final boolean canOverwriteDependencyTime) {
         Function1<Operation<?>, Operation<?>> dependencyTimeAssigningFun = new Function1<Operation<?>, Operation<?>>() {
-            private Time secondMostRecentDependency = initialDependencyTime;
-            private Time mostRecentDependency = initialDependencyTime;
+            private long secondMostRecentDependencyAsMilli = initialDependencyTimeAsMilli;
+            private long mostRecentDependencyAsMilli = initialDependencyTimeAsMilli;
 
             @Override
             public Operation<?> apply(Operation<?> operation) {
-                if (null == operation.dependencyTimeAsMilli() || canOverwriteDependencyTime) {
-                    if (operation.scheduledStartTimeAsMilli().gt(mostRecentDependency))
-                        operation.setDependencyTimeAsMilli(mostRecentDependency);
+                if (-1 == operation.dependencyTimeAsMilli() || canOverwriteDependencyTime) {
+                    if (operation.scheduledStartTimeAsMilli() > mostRecentDependencyAsMilli)
+                        operation.setDependencyTimeAsMilli(mostRecentDependencyAsMilli);
                     else
-                        operation.setDependencyTimeAsMilli(secondMostRecentDependency);
+                        operation.setDependencyTimeAsMilli(secondMostRecentDependencyAsMilli);
                 }
                 if (isDependency.apply(operation)) {
-                    if (operation.scheduledStartTimeAsMilli().gt(mostRecentDependency)) {
-                        secondMostRecentDependency = mostRecentDependency;
-                        mostRecentDependency = operation.scheduledStartTimeAsMilli();
+                    if (operation.scheduledStartTimeAsMilli() > mostRecentDependencyAsMilli) {
+                        secondMostRecentDependencyAsMilli = mostRecentDependencyAsMilli;
+                        mostRecentDependencyAsMilli = operation.scheduledStartTimeAsMilli();
                     }
                 }
                 return operation;
@@ -313,16 +308,17 @@ public class GeneratorFactory {
      * Assigns dependency times to all operations
      * The dependency time assigned is equal to scheduled start time minus safeT duration
      * All operations in the returned iterator will have dependency times assigned to them
+     *
      * @param operations
-     * @param safeTDuration
+     * @param safeTDurationAsMilli
      * @return
      */
     public Iterator<Operation<?>> assignDependencyTimesEqualToScheduledStartTimeMinusSafeT(Iterator<Operation<?>> operations,
-                                                                                           final Duration safeTDuration) {
+                                                                                           final long safeTDurationAsMilli) {
         Function1<Operation<?>, Operation<?>> dependencyTimeAssigningFun = new Function1<Operation<?>, Operation<?>>() {
             @Override
             public Operation<?> apply(Operation<?> operation) {
-                operation.setDependencyTimeAsMilli(operation.scheduledStartTimeAsMilli().minus(safeTDuration));
+                operation.setDependencyTimeAsMilli(operation.scheduledStartTimeAsMilli() - safeTDurationAsMilli);
                 return operation;
             }
         };
@@ -338,23 +334,23 @@ public class GeneratorFactory {
      *
      * @param operations
      * @param isDependency
-     * @param initialDependencyTime
+     * @param initialDependencyTimeAsMilli
      * @param canOverwriteDependencyTime
      * @return
      */
     public Iterator<Operation<?>> assignDependencyTimesEqualToLastEncounteredDependencyStartTime(Iterator<Operation<?>> operations,
                                                                                                  final Function1<Operation<?>, Boolean> isDependency,
-                                                                                                 final Time initialDependencyTime,
+                                                                                                 final long initialDependencyTimeAsMilli,
                                                                                                  final boolean canOverwriteDependencyTime) {
         Function1<Operation<?>, Operation<?>> dependencyTimeAssigningFun = new Function1<Operation<?>, Operation<?>>() {
-            private Time mostRecentDependency = initialDependencyTime;
+            private long mostRecentDependencyAsMilli = initialDependencyTimeAsMilli;
 
             @Override
             public Operation<?> apply(Operation<?> operation) {
-                if (null == operation.dependencyTimeAsMilli() || canOverwriteDependencyTime)
-                    operation.setDependencyTimeAsMilli(mostRecentDependency);
+                if (-1 == operation.dependencyTimeAsMilli() || canOverwriteDependencyTime)
+                    operation.setDependencyTimeAsMilli(mostRecentDependencyAsMilli);
                 if (isDependency.apply(operation)) {
-                    mostRecentDependency = operation.scheduledStartTimeAsMilli();
+                    mostRecentDependencyAsMilli = operation.scheduledStartTimeAsMilli();
                 }
                 return operation;
             }
@@ -366,75 +362,52 @@ public class GeneratorFactory {
      * Returns the same operation generator, with start times assigned to each operation taken from the start time
      * generator. Generator stops as soon as either of the generators, start times or operations, stops.
      *
-     * @param startTimes
+     * @param startTimesAsMilli
      * @param operations
      * @return
      */
-    public Iterator<Operation<?>> assignStartTimes(Iterator<Time> startTimes, Iterator<Operation<?>> operations) {
-        Function2<Time, Operation<?>, Operation<?>> startTimeAssigningFun = new Function2<Time, Operation<?>, Operation<?>>() {
+    public Iterator<Operation<?>> assignStartTimes(Iterator<Long> startTimesAsMilli, Iterator<Operation<?>> operations) {
+        Function2<Long, Operation<?>, Operation<?>> startTimeAssigningFun = new Function2<Long, Operation<?>, Operation<?>>() {
             @Override
-            public Operation<?> apply(Time time, Operation<?> operation) {
-                operation.setScheduledStartTimeAsMilli(time);
+            public Operation<?> apply(Long timeAsMilli, Operation<?> operation) {
+                operation.setScheduledStartTimeAsMilli(timeAsMilli);
                 return operation;
             }
         };
-        return new MergingGenerator<>(startTimes, operations, startTimeAssigningFun);
+        return new MergingGenerator<>(startTimesAsMilli, operations, startTimeAssigningFun);
     }
 
     /**
      * Returns the same operation generator, with dependency times assigned to each operation taken from the dependency time
      * generator. Generator stops as soon as either of the generators, dependency times or operations, stops.
      *
-     * @param dependencyTimes
+     * @param dependencyTimesAsMilli
      * @param operations
      * @return
      */
-    public Iterator<Operation<?>> assignDependencyTimes(Iterator<Time> dependencyTimes, Iterator<Operation<?>> operations) {
-        Function2<Time, Operation<?>, Operation<?>> dependencyTimeAssigningFun = new Function2<Time, Operation<?>, Operation<?>>() {
+    public Iterator<Operation<?>> assignDependencyTimes(Iterator<Long> dependencyTimesAsMilli, Iterator<Operation<?>> operations) {
+        Function2<Long, Operation<?>, Operation<?>> dependencyTimeAssigningFun = new Function2<Long, Operation<?>, Operation<?>>() {
             @Override
-            public Operation<?> apply(Time time, Operation<?> operation) {
-                operation.setDependencyTimeAsMilli(time);
+            public Operation<?> apply(Long timeAsMilli, Operation<?> operation) {
+                operation.setDependencyTimeAsMilli(timeAsMilli);
                 return operation;
             }
         };
-        return new MergingGenerator<>(dependencyTimes, operations, dependencyTimeAssigningFun);
+        return new MergingGenerator<>(dependencyTimesAsMilli, operations, dependencyTimeAssigningFun);
     }
 
     /**
-     * Returns times, starting at specified start time, and thereafter incrementing by a uniformly random duration
-     * between the minimum and maximum durations specified
+     * Returns numbers, starting at specified number, and thereafter incrementing by a uniformly random amount
+     * between the minimum and maximum amounts specified
      *
-     * @param startTime
+     * @param start
      * @param minIncrement
      * @param maxIncrement
      * @return
      */
-    public Iterator<Time> randomIncrementTime(Time startTime, Duration minIncrement, Duration maxIncrement) {
-        Iterator<Long> incrementTimeByNanoSecondsGenerator = uniform(minIncrement.asNano(), maxIncrement.asNano());
-        Iterator<Long> startTimeNanoSecondsGenerator = incrementing(startTime.asNano(), incrementTimeByNanoSecondsGenerator);
-        return timeFromNanoSeconds(startTimeNanoSecondsGenerator);
-    }
-
-    /**
-     * Returns times, starting at specified start time, and thereafter incrementing by exactly the specified duration increment
-     *
-     * @param startTime
-     * @param increment
-     * @return
-     */
-    public Iterator<Time> constantIncrementTime(Time startTime, Duration increment) {
-        Iterator<Long> startTimeNanoSecondsGenerator = incrementing(startTime.asNano(), increment.asNano());
-        return timeFromNanoSeconds(startTimeNanoSecondsGenerator);
-    }
-
-    private Iterator<Time> timeFromNanoSeconds(Iterator<Long> nanoSecondsGenerator) {
-        Function1<Long, Time> timeFromNanoFun = new Function1<Long, Time>() {
-            @Override
-            public Time apply(Long fromNano) {
-                return Time.fromNano(fromNano);
-            }
-        };
-        return new MappingGenerator<>(nanoSecondsGenerator, timeFromNanoFun);
+    public <T extends Number> Iterator<T> randomIncrement(T start, T minIncrement, T maxIncrement) {
+        Iterator<T> incrementAmountGenerator = uniform(minIncrement, maxIncrement);
+        return incrementing(start, incrementAmountGenerator);
     }
 
     /**
@@ -444,27 +417,37 @@ public class GeneratorFactory {
      * @return
      */
     public Iterator<Operation<?>> mergeSortOperationsByStartTime(Iterator<Operation<?>>... generators) {
-        return mergeSort(new Comparator<Operation<?>>() {
-            @Override
-            public int compare(Operation<?> o1, Operation<?> o2) {
-                return o1.scheduledStartTimeAsMilli().compareTo(o2.scheduledStartTimeAsMilli());
-            }
-        }, generators);
+        return mergeSort(
+                new Comparator<Operation<?>>() {
+                    @Override
+                    public int compare(Operation<?> o1, Operation<?> o2) {
+                        if (o1.scheduledStartTimeAsMilli() > o2.scheduledStartTimeAsMilli()) return 1;
+                        else if (o1.scheduledStartTimeAsMilli() < o2.scheduledStartTimeAsMilli()) return -1;
+                        else return 0;
+                    }
+                },
+                generators
+        );
     }
 
     /**
-     * Returned generator will merge all input generators into one, sorting by time, ascending
+     * Returned generator will merge all input generators into one, sorting by value, ascending
      *
      * @param generators
      * @return
      */
-    public Iterator<Time> mergeSortTimes(Iterator<Time>... generators) {
-        return mergeSort(new Comparator<Time>() {
-            @Override
-            public int compare(Time t1, Time t2) {
-                return t1.compareTo(t2);
-            }
-        }, generators);
+    public <T extends Number> Iterator<T> mergeSortNumbers(Iterator<T>... generators) {
+        return mergeSort(
+                new Comparator<T>() {
+                    @Override
+                    public int compare(T t1, T t2) {
+                        if (t1.longValue() > t2.longValue()) return 1;
+                        else if (t1.longValue() < t2.longValue()) return -1;
+                        else return 0;
+                    }
+                },
+                generators
+        );
     }
 
     /**
@@ -558,11 +541,11 @@ public class GeneratorFactory {
      * Offset start times of operations in stream such that first operation is now scheduled at new start time.
      *
      * @param generator
-     * @param newStartTime
+     * @param newStartTimeAsMilli
      * @return
      */
-    public Iterator<Operation<?>> timeOffset(Iterator<Operation<?>> generator, Time newStartTime) {
-        return timeOffsetAndCompress(generator, newStartTime, null);
+    public Iterator<Operation<?>> timeOffset(Iterator<Operation<?>> generator, long newStartTimeAsMilli) {
+        return timeOffsetAndCompress(generator, newStartTimeAsMilli, null);
     }
 
     // TODO timeCompress (without offset)
@@ -573,12 +556,12 @@ public class GeneratorFactory {
      * E.g. 2.0 = 2x slower, 0.5 = 2x faster
      *
      * @param generator
-     * @param newStartTime
+     * @param newStartTimeAsMilli
      * @param compressionRatio
      * @return
      */
-    public Iterator<Operation<?>> timeOffsetAndCompress(Iterator<Operation<?>> generator, Time newStartTime, Double compressionRatio) {
-        return new TimeMappingOperationGenerator(generator, newStartTime, compressionRatio);
+    public Iterator<Operation<?>> timeOffsetAndCompress(Iterator<Operation<?>> generator, long newStartTimeAsMilli, Double compressionRatio) {
+        return new TimeMappingOperationGenerator(generator, newStartTimeAsMilli, compressionRatio);
     }
 
     // TODO window generator
