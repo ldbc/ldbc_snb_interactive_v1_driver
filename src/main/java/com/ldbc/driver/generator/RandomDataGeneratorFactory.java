@@ -15,7 +15,7 @@ public class RandomDataGeneratorFactory {
      * Will use current time to seed a RandomGenerator, which will generate seeds for all returned RandomDataGenerator instances
      */
     public RandomDataGeneratorFactory() {
-        this.random = getRandomGenerator(timeSource.now().asNano());
+        this.random = getRandomGenerator(timeSource.nowAsMilli());
     }
 
     /**

@@ -919,10 +919,10 @@ public class ConsoleAndFileDriverConfiguration implements DriverConfiguration {
             argsList.add("-" + RESULTS_LOG_ARG);
         argsList.addAll(Lists.newArrayList("-" + TIME_UNIT_ARG, timeUnit.name()));
         argsList.addAll(Lists.newArrayList("-" + TIME_COMPRESSION_RATIO_ARG, Double.toString(timeCompressionRatio)));
-        argsList.addAll(Lists.newArrayList("-" + WINDOWED_EXECUTION_WINDOW_DURATION_ARG, Long.toString(windowedExecutionWindowDurationAsMilli.asMilli())));
+        argsList.addAll(Lists.newArrayList("-" + WINDOWED_EXECUTION_WINDOW_DURATION_ARG, Long.toString(windowedExecutionWindowDurationAsMilli)));
         if (false == peerIds.isEmpty())
             argsList.addAll(Lists.newArrayList("-" + PEER_IDS_ARG, serializePeerIdsToCommandline(peerIds)));
-        argsList.addAll(Lists.newArrayList("-" + TOLERATED_EXECUTION_DELAY_ARG, Long.toString(toleratedExecutionDelayAsMilli.asMilli())));
+        argsList.addAll(Lists.newArrayList("-" + TOLERATED_EXECUTION_DELAY_ARG, Long.toString(toleratedExecutionDelayAsMilli)));
         if (null != databaseValidationFilePath)
             argsList.addAll(Lists.newArrayList("-" + DB_VALIDATION_FILE_PATH_ARG, databaseValidationFilePath));
         if (null != validationCreationParams)
@@ -931,7 +931,7 @@ public class ConsoleAndFileDriverConfiguration implements DriverConfiguration {
             argsList.add("-" + VALIDATE_WORKLOAD_ARG);
         if (calculateWorkloadStatistics)
             argsList.add("-" + CALCULATE_WORKLOAD_STATISTICS_ARG);
-        argsList.addAll(Lists.newArrayList("-" + SPINNER_SLEEP_DURATION_ARG, Long.toString(spinnerSleepDurationAsMilli.asMilli())));
+        argsList.addAll(Lists.newArrayList("-" + SPINNER_SLEEP_DURATION_ARG, Long.toString(spinnerSleepDurationAsMilli)));
         if (printHelp)
             argsList.add("-" + HELP_ARG);
         if (ignoreScheduledStartTimes)
@@ -960,7 +960,7 @@ public class ConsoleAndFileDriverConfiguration implements DriverConfiguration {
         sb.append("# status display interval (intermittently show status during benchmark execution)\n");
         sb.append("# INTEGER (seconds)\n");
         sb.append("# COMMAND: ").append("-").append(SHOW_STATUS_ARG).append("/--").append(SHOW_STATUS_ARG_LONG).append("\n");
-        sb.append(SHOW_STATUS_ARG_LONG).append("=").append(statusDisplayIntervalAsSeconds.asSeconds()).append("\n");
+        sb.append(SHOW_STATUS_ARG_LONG).append("=").append(statusDisplayIntervalAsSeconds).append("\n");
         sb.append("\n");
         sb.append("# thread pool size to use for executing operation handlers\n");
         sb.append("# INTEGER\n");
@@ -1002,7 +1002,7 @@ public class ConsoleAndFileDriverConfiguration implements DriverConfiguration {
         sb.append("# size (i.e., duration) of execution window used by the windowed").append(" scheduling mode\n");
         sb.append("# LONG (milliseconds)\n");
         sb.append("# COMMAND: ").append("-").append(WINDOWED_EXECUTION_WINDOW_DURATION_ARG).append("/--").append(WINDOWED_EXECUTION_WINDOW_DURATION_ARG_LONG).append("\n");
-        sb.append(WINDOWED_EXECUTION_WINDOW_DURATION_ARG_LONG).append("=").append(windowedExecutionWindowDurationAsMilli.asMilli()).append("\n");
+        sb.append(WINDOWED_EXECUTION_WINDOW_DURATION_ARG_LONG).append("=").append(windowedExecutionWindowDurationAsMilli).append("\n");
         sb.append("\n");
         sb.append("# NOT USED AT PRESENT - reserved for distributed driver mode\n");
         sb.append("# specifies the addresses of other driver processes, so they can find each other\n");
@@ -1014,7 +1014,7 @@ public class ConsoleAndFileDriverConfiguration implements DriverConfiguration {
         sb.append("# if driver can not execute an operation within " + TOLERATED_EXECUTION_DELAY_ARG_LONG + " of its scheduled start time it will terminate\n");
         sb.append("# LONG (milliseconds)\n");
         sb.append("# COMMAND: ").append("-").append(TOLERATED_EXECUTION_DELAY_ARG).append("/--").append(TOLERATED_EXECUTION_DELAY_ARG_LONG).append("\n");
-        sb.append(TOLERATED_EXECUTION_DELAY_ARG_LONG).append("=").append(toleratedExecutionDelayAsMilli.asMilli()).append("\n");
+        sb.append(TOLERATED_EXECUTION_DELAY_ARG_LONG).append("=").append(toleratedExecutionDelayAsMilli).append("\n");
         sb.append("\n");
         sb.append("# enable validation that will check if the provided database implementation is correct\n");
         sb.append("# parameter value specifies where to find the validation parameters file\n");
@@ -1047,7 +1047,7 @@ public class ConsoleAndFileDriverConfiguration implements DriverConfiguration {
         sb.append("# sleep duration (ms) injected into busy wait loops (to reduce CPU consumption)\n");
         sb.append("# LONG (milliseconds)\n");
         sb.append("# COMMAND: ").append("-").append(SPINNER_SLEEP_DURATION_ARG).append("/--").append(SPINNER_SLEEP_DURATION_ARG_LONG).append("\n");
-        sb.append(SPINNER_SLEEP_DURATION_ARG_LONG).append("=").append(spinnerSleepDurationAsMilli.asMilli()).append("\n");
+        sb.append(SPINNER_SLEEP_DURATION_ARG_LONG).append("=").append(spinnerSleepDurationAsMilli).append("\n");
         sb.append("\n");
         sb.append("# print help string - usage instructions\n");
         sb.append("# BOOLEAN\n");
@@ -1120,9 +1120,9 @@ public class ConsoleAndFileDriverConfiguration implements DriverConfiguration {
         sb.append("\t").append(String.format("%1$-" + padRightDistance + "s", "Results Directory:")).append(resultDirPath()).append("\n");
         sb.append("\t").append(String.format("%1$-" + padRightDistance + "s", "Create Results Log:")).append(shouldCreateResultsLog).append("\n");
         sb.append("\t").append(String.format("%1$-" + padRightDistance + "s", "Time Compression Ratio:")).append(timeCompressionRatio).append("\n");
-        sb.append("\t").append(String.format("%1$-" + padRightDistance + "s", "Execution Window Size:")).append(windowedExecutionWindowDurationAsMilli.asMilli()).append(" (ms) / ").append(windowedExecutionWindowDurationAsMilli).append("\n");
+        sb.append("\t").append(String.format("%1$-" + padRightDistance + "s", "Execution Window Size:")).append(windowedExecutionWindowDurationAsMilli).append(" (ms) / ").append(windowedExecutionWindowDurationAsMilli).append("\n");
         sb.append("\t").append(String.format("%1$-" + padRightDistance + "s", "Peer IDs:")).append(peerIds.toString()).append("\n");
-        sb.append("\t").append(String.format("%1$-" + padRightDistance + "s", "Tolerated Execution Delay:")).append(toleratedExecutionDelayAsMilli.asMilli()).append(" (ms) / ").append(toleratedExecutionDelayAsMilli).append("\n");
+        sb.append("\t").append(String.format("%1$-" + padRightDistance + "s", "Tolerated Execution Delay:")).append(toleratedExecutionDelayAsMilli).append(" (ms) / ").append(toleratedExecutionDelayAsMilli).append("\n");
         String validationCreationParamsString = (null == validationCreationParams) ?
                 null :
                 String.format("File (%s) Validation Set Size (%s)", validationCreationParams.filePath(), validationCreationParams.validationSetSize);
@@ -1130,7 +1130,7 @@ public class ConsoleAndFileDriverConfiguration implements DriverConfiguration {
         sb.append("\t").append(String.format("%1$-" + padRightDistance + "s", "Database Validation File:")).append(databaseValidationFilePath).append("\n");
         sb.append("\t").append(String.format("%1$-" + padRightDistance + "s", "Validate Workload:")).append(validateWorkload).append("\n");
         sb.append("\t").append(String.format("%1$-" + padRightDistance + "s", "Calculate Workload Statistics:")).append(calculateWorkloadStatistics).append("\n");
-        sb.append("\t").append(String.format("%1$-" + padRightDistance + "s", "Spinner Sleep Duration:")).append(spinnerSleepDurationAsMilli.asMilli()).append(" (ms) / ").append(spinnerSleepDurationAsMilli).append("\n");
+        sb.append("\t").append(String.format("%1$-" + padRightDistance + "s", "Spinner Sleep Duration:")).append(spinnerSleepDurationAsMilli).append(" (ms) / ").append(spinnerSleepDurationAsMilli).append("\n");
         sb.append("\t").append(String.format("%1$-" + padRightDistance + "s", "Print Help:")).append(printHelp).append("\n");
         sb.append("\t").append(String.format("%1$-" + padRightDistance + "s", "Ignore Scheduled Start Times:")).append(ignoreScheduledStartTimes).append("\n");
 
@@ -1167,17 +1167,13 @@ public class ConsoleAndFileDriverConfiguration implements DriverConfiguration {
             return false;
         if (resultDirPath != null ? !resultDirPath.equals(that.resultDirPath) : that.resultDirPath != null)
             return false;
-        if (spinnerSleepDurationAsMilli != null ? !spinnerSleepDurationAsMilli.equals(that.spinnerSleepDurationAsMilli) : that.spinnerSleepDurationAsMilli != null)
-            return false;
-        if (statusDisplayIntervalAsSeconds != null ? !statusDisplayIntervalAsSeconds.equals(that.statusDisplayIntervalAsSeconds) : that.statusDisplayIntervalAsSeconds != null)
-            return false;
+        if (spinnerSleepDurationAsMilli != that.spinnerSleepDurationAsMilli) return false;
+        if (statusDisplayIntervalAsSeconds != that.statusDisplayIntervalAsSeconds) return false;
         if (timeUnit != that.timeUnit) return false;
-        if (toleratedExecutionDelayAsMilli != null ? !toleratedExecutionDelayAsMilli.equals(that.toleratedExecutionDelayAsMilli) : that.toleratedExecutionDelayAsMilli != null)
-            return false;
+        if (toleratedExecutionDelayAsMilli != that.toleratedExecutionDelayAsMilli) return false;
         if (validationCreationParams != null ? !validationCreationParams.equals(that.validationCreationParams) : that.validationCreationParams != null)
             return false;
-        if (windowedExecutionWindowDurationAsMilli != null ? !windowedExecutionWindowDurationAsMilli.equals(that.windowedExecutionWindowDurationAsMilli) : that.windowedExecutionWindowDurationAsMilli != null)
-            return false;
+        if (windowedExecutionWindowDurationAsMilli != that.windowedExecutionWindowDurationAsMilli) return false;
         if (workloadClassName != null ? !workloadClassName.equals(that.workloadClassName) : that.workloadClassName != null)
             return false;
 
@@ -1188,24 +1184,24 @@ public class ConsoleAndFileDriverConfiguration implements DriverConfiguration {
     public int hashCode() {
         int result;
         long temp;
-        result = dbClassName != null ? dbClassName.hashCode() : 0;
-        result = 31 * result + (name != null ? name.hashCode() : 0);
+        result = name != null ? name.hashCode() : 0;
+        result = 31 * result + (dbClassName != null ? dbClassName.hashCode() : 0);
         result = 31 * result + (workloadClassName != null ? workloadClassName.hashCode() : 0);
         result = 31 * result + (int) (operationCount ^ (operationCount >>> 32));
         result = 31 * result + threadCount;
-        result = 31 * result + (statusDisplayIntervalAsSeconds != null ? statusDisplayIntervalAsSeconds.hashCode() : 0);
+        result = 31 * result + statusDisplayIntervalAsSeconds;
         result = 31 * result + (timeUnit != null ? timeUnit.hashCode() : 0);
         result = 31 * result + (resultDirPath != null ? resultDirPath.hashCode() : 0);
         temp = Double.doubleToLongBits(timeCompressionRatio);
         result = 31 * result + (int) (temp ^ (temp >>> 32));
-        result = 31 * result + (windowedExecutionWindowDurationAsMilli != null ? windowedExecutionWindowDurationAsMilli.hashCode() : 0);
+        result = 31 * result + (int) (windowedExecutionWindowDurationAsMilli ^ (windowedExecutionWindowDurationAsMilli >>> 32));
         result = 31 * result + (peerIds != null ? peerIds.hashCode() : 0);
-        result = 31 * result + (toleratedExecutionDelayAsMilli != null ? toleratedExecutionDelayAsMilli.hashCode() : 0);
+        result = 31 * result + (int) (toleratedExecutionDelayAsMilli ^ (toleratedExecutionDelayAsMilli >>> 32));
         result = 31 * result + (validationCreationParams != null ? validationCreationParams.hashCode() : 0);
         result = 31 * result + (databaseValidationFilePath != null ? databaseValidationFilePath.hashCode() : 0);
         result = 31 * result + (validateWorkload ? 1 : 0);
         result = 31 * result + (calculateWorkloadStatistics ? 1 : 0);
-        result = 31 * result + (spinnerSleepDurationAsMilli != null ? spinnerSleepDurationAsMilli.hashCode() : 0);
+        result = 31 * result + (int) (spinnerSleepDurationAsMilli ^ (spinnerSleepDurationAsMilli >>> 32));
         result = 31 * result + (printHelp ? 1 : 0);
         result = 31 * result + (ignoreScheduledStartTimes ? 1 : 0);
         result = 31 * result + (shouldCreateResultsLog ? 1 : 0);

@@ -4,8 +4,10 @@ import com.ldbc.driver.Operation;
 import com.ldbc.driver.runtime.ConcurrentErrorReporter;
 import com.ldbc.driver.runtime.coordination.CompletionTimeException;
 import com.ldbc.driver.runtime.coordination.GlobalCompletionTimeReader;
+import com.ldbc.driver.temporal.TemporalUtil;
 
 public class GctDependencyCheck implements SpinnerCheck {
+    private static final TemporalUtil TEMPORAL_UTIL = new TemporalUtil();
     private final GlobalCompletionTimeReader globalCompletionTimeReader;
     private final Operation<?> operation;
     private final ConcurrentErrorReporter errorReporter;
@@ -21,7 +23,7 @@ public class GctDependencyCheck implements SpinnerCheck {
     @Override
     public SpinnerCheckResult doCheck() {
         try {
-            return (globalCompletionTimeReader.globalCompletionTimeAsMilli().gte(operation.dependencyTimeAsMilli())) ? SpinnerCheckResult.PASSED : SpinnerCheckResult.STILL_CHECKING;
+            return (globalCompletionTimeReader.globalCompletionTimeAsMilli() >= operation.dependencyTimeAsMilli()) ? SpinnerCheckResult.PASSED : SpinnerCheckResult.STILL_CHECKING;
         } catch (CompletionTimeException e) {
             errorReporter.reportError(this,
                     String.format(
@@ -41,7 +43,7 @@ public class GctDependencyCheck implements SpinnerCheck {
                                     + "Operation: %s\n"
                                     + "Scheduled Start Time: %s\n"
                                     + "Dependency Time: %s",
-                            globalCompletionTimeReader.globalCompletionTimeAsMilli().toString(),
+                            TEMPORAL_UTIL.millisecondsToDateTimeString(globalCompletionTimeReader.globalCompletionTimeAsMilli()),
                             operation.toString(),
                             operation.scheduledStartTimeAsMilli(),
                             operation.dependencyTimeAsMilli()));

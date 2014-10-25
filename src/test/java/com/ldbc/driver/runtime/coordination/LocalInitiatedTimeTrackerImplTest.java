@@ -184,10 +184,10 @@ public class LocalInitiatedTimeTrackerImplTest {
 
         while (times.hasNext()) {
             Time time = times.next();
-            tracker.addInitiatedTimeAndReturnLastKnownLowestTime(time);
-            tracker.removeTimeAndReturnLastKnownLowestTime(time);
+            tracker.addInitiatedTimeAndReturnLastKnownLowestTimeAsMilli(time);
+            tracker.removeTimeAndReturnLastKnownLowestTimeAsMilli(time);
             tracker.uncompletedInitiatedTimes();
-            tracker.highestInitiatedTime();
+            tracker.highestInitiatedTimeAsMilli();
         }
 
         Time finishTime = timeSource.now();
@@ -211,16 +211,16 @@ public class LocalInitiatedTimeTrackerImplTest {
 
         // add all times
         for (Time time : times) {
-            tracker.addInitiatedTimeAndReturnLastKnownLowestTime(time);
+            tracker.addInitiatedTimeAndReturnLastKnownLowestTimeAsMilli(time);
             tracker.uncompletedInitiatedTimes();
-            tracker.highestInitiatedTime();
+            tracker.highestInitiatedTimeAsMilli();
         }
 
         // remove all times
         for (Time time : times) {
-            tracker.removeTimeAndReturnLastKnownLowestTime(time);
+            tracker.removeTimeAndReturnLastKnownLowestTimeAsMilli(time);
             tracker.uncompletedInitiatedTimes();
-            tracker.highestInitiatedTime();
+            tracker.highestInitiatedTimeAsMilli();
         }
 
         Time finishTime = timeSource.now();
@@ -260,9 +260,9 @@ public class LocalInitiatedTimeTrackerImplTest {
         // add all times
         while (timesToAdd.hasNext()) {
             Time time = timesToAdd.next();
-            tracker.addInitiatedTimeAndReturnLastKnownLowestTime(time);
+            tracker.addInitiatedTimeAndReturnLastKnownLowestTimeAsMilli(time);
             tracker.uncompletedInitiatedTimes();
-            tracker.highestInitiatedTime();
+            tracker.highestInitiatedTimeAsMilli();
         }
 
         assertThat(tracker.uncompletedInitiatedTimes(), is(timesCount));
@@ -270,9 +270,9 @@ public class LocalInitiatedTimeTrackerImplTest {
         // remove all times
         while (timesToRemove.hasNext()) {
             Time time = timesToRemove.next();
-            tracker.removeTimeAndReturnLastKnownLowestTime(time);
+            tracker.removeTimeAndReturnLastKnownLowestTimeAsMilli(time);
             tracker.uncompletedInitiatedTimes();
-            tracker.highestInitiatedTime();
+            tracker.highestInitiatedTimeAsMilli();
         }
 
         Time finishTime = timeSource.now();
@@ -298,9 +298,9 @@ public class LocalInitiatedTimeTrackerImplTest {
 
         // add all times
         for (Time time : times) {
-            tracker.addInitiatedTimeAndReturnLastKnownLowestTime(time);
+            tracker.addInitiatedTimeAndReturnLastKnownLowestTimeAsMilli(time);
             tracker.uncompletedInitiatedTimes();
-            tracker.highestInitiatedTime();
+            tracker.highestInitiatedTimeAsMilli();
         }
 
         Time finishTime = timeSource.now();
@@ -335,10 +335,10 @@ public class LocalInitiatedTimeTrackerImplTest {
         // nothing
 
         // Then
-        assertThat(tracker.highestInitiatedTime(), is(nullValue()));
+        assertThat(tracker.highestInitiatedTimeAsMilli(), is(nullValue()));
         boolean exceptionThrown = false;
         try {
-            tracker.removeTimeAndReturnLastKnownLowestTime(Time.fromMilli(1));
+            tracker.removeTimeAndReturnLastKnownLowestTimeAsMilli(Time.fromMilli(1));
         } catch (CompletionTimeException e) {
             exceptionThrown = true;
         }
@@ -366,10 +366,10 @@ public class LocalInitiatedTimeTrackerImplTest {
         // tracker
 
         // When/Then
-        assertThat(tracker.highestInitiatedTime(), is(nullValue()));
+        assertThat(tracker.highestInitiatedTimeAsMilli(), is(nullValue()));
         boolean exceptionThrown = false;
         try {
-            tracker.removeTimeAndReturnLastKnownLowestTime(Time.fromMilli(1));
+            tracker.removeTimeAndReturnLastKnownLowestTimeAsMilli(Time.fromMilli(1));
         } catch (CompletionTimeException e) {
             exceptionThrown = true;
         }
@@ -377,143 +377,143 @@ public class LocalInitiatedTimeTrackerImplTest {
         assertThat(tracker.uncompletedInitiatedTimes(), is(0));
 
         // [0]
-        assertThat(tracker.addInitiatedTimeAndReturnLastKnownLowestTime(Time.fromMilli(0)), equalTo(Time.fromMilli(0)));
+        assertThat(tracker.addInitiatedTimeAndReturnLastKnownLowestTimeAsMilli(Time.fromMilli(0)), equalTo(Time.fromMilli(0)));
 
-        assertThat(tracker.highestInitiatedTime(), is(Time.fromMilli(0)));
+        assertThat(tracker.highestInitiatedTimeAsMilli(), is(Time.fromMilli(0)));
         assertThat(tracker.uncompletedInitiatedTimes(), is(1));
 
         // [0]
         exceptionThrown = false;
         try {
-            tracker.removeTimeAndReturnLastKnownLowestTime(Time.fromMilli(1));
+            tracker.removeTimeAndReturnLastKnownLowestTimeAsMilli(Time.fromMilli(1));
         } catch (CompletionTimeException e) {
             exceptionThrown = true;
         }
         assertThat(exceptionThrown, is(true));
 
         // [0,0]
-        assertThat(tracker.addInitiatedTimeAndReturnLastKnownLowestTime(Time.fromMilli(0)), equalTo(Time.fromMilli(0)));
+        assertThat(tracker.addInitiatedTimeAndReturnLastKnownLowestTimeAsMilli(Time.fromMilli(0)), equalTo(Time.fromMilli(0)));
 
-        assertThat(tracker.highestInitiatedTime(), is(Time.fromMilli(0)));
+        assertThat(tracker.highestInitiatedTimeAsMilli(), is(Time.fromMilli(0)));
         assertThat(tracker.uncompletedInitiatedTimes(), is(2));
 
         // [0,0]
         exceptionThrown = false;
         try {
-            tracker.removeTimeAndReturnLastKnownLowestTime(Time.fromMilli(1));
+            tracker.removeTimeAndReturnLastKnownLowestTimeAsMilli(Time.fromMilli(1));
         } catch (CompletionTimeException e) {
             exceptionThrown = true;
         }
         assertThat(exceptionThrown, is(true));
 
         // [0,0,1,1,4,5]
-        assertThat(tracker.addInitiatedTimeAndReturnLastKnownLowestTime(Time.fromMilli(1)), equalTo(Time.fromMilli(0)));
-        assertThat(tracker.addInitiatedTimeAndReturnLastKnownLowestTime(Time.fromMilli(1)), equalTo(Time.fromMilli(0)));
-        assertThat(tracker.addInitiatedTimeAndReturnLastKnownLowestTime(Time.fromMilli(4)), equalTo(Time.fromMilli(0)));
-        assertThat(tracker.addInitiatedTimeAndReturnLastKnownLowestTime(Time.fromMilli(5)), equalTo(Time.fromMilli(0)));
+        assertThat(tracker.addInitiatedTimeAndReturnLastKnownLowestTimeAsMilli(Time.fromMilli(1)), equalTo(Time.fromMilli(0)));
+        assertThat(tracker.addInitiatedTimeAndReturnLastKnownLowestTimeAsMilli(Time.fromMilli(1)), equalTo(Time.fromMilli(0)));
+        assertThat(tracker.addInitiatedTimeAndReturnLastKnownLowestTimeAsMilli(Time.fromMilli(4)), equalTo(Time.fromMilli(0)));
+        assertThat(tracker.addInitiatedTimeAndReturnLastKnownLowestTimeAsMilli(Time.fromMilli(5)), equalTo(Time.fromMilli(0)));
 
-        assertThat(tracker.highestInitiatedTime(), is(Time.fromMilli(5)));
+        assertThat(tracker.highestInitiatedTimeAsMilli(), is(Time.fromMilli(5)));
         assertThat(tracker.uncompletedInitiatedTimes(), is(6));
 
         // [0,0,1,1,4,5,7,9,10,15]
-        assertThat(tracker.addInitiatedTimeAndReturnLastKnownLowestTime(Time.fromMilli(7)), equalTo(Time.fromMilli(0)));
-        assertThat(tracker.addInitiatedTimeAndReturnLastKnownLowestTime(Time.fromMilli(9)), equalTo(Time.fromMilli(0)));
-        assertThat(tracker.addInitiatedTimeAndReturnLastKnownLowestTime(Time.fromMilli(10)), equalTo(Time.fromMilli(0)));
-        assertThat(tracker.addInitiatedTimeAndReturnLastKnownLowestTime(Time.fromMilli(15)), equalTo(Time.fromMilli(0)));
+        assertThat(tracker.addInitiatedTimeAndReturnLastKnownLowestTimeAsMilli(Time.fromMilli(7)), equalTo(Time.fromMilli(0)));
+        assertThat(tracker.addInitiatedTimeAndReturnLastKnownLowestTimeAsMilli(Time.fromMilli(9)), equalTo(Time.fromMilli(0)));
+        assertThat(tracker.addInitiatedTimeAndReturnLastKnownLowestTimeAsMilli(Time.fromMilli(10)), equalTo(Time.fromMilli(0)));
+        assertThat(tracker.addInitiatedTimeAndReturnLastKnownLowestTimeAsMilli(Time.fromMilli(15)), equalTo(Time.fromMilli(0)));
 
-        assertThat(tracker.highestInitiatedTime(), is(Time.fromMilli(15)));
+        assertThat(tracker.highestInitiatedTimeAsMilli(), is(Time.fromMilli(15)));
         assertThat(tracker.uncompletedInitiatedTimes(), is(10));
 
         // [0,0,1,1,4,5,7,9,10,15]
         exceptionThrown = false;
         try {
-            tracker.removeTimeAndReturnLastKnownLowestTime(Time.fromMilli(2));
+            tracker.removeTimeAndReturnLastKnownLowestTimeAsMilli(Time.fromMilli(2));
         } catch (CompletionTimeException e) {
             exceptionThrown = true;
         }
         assertThat(exceptionThrown, is(true));
         exceptionThrown = false;
         try {
-            tracker.removeTimeAndReturnLastKnownLowestTime(Time.fromMilli(3));
+            tracker.removeTimeAndReturnLastKnownLowestTimeAsMilli(Time.fromMilli(3));
         } catch (CompletionTimeException e) {
             exceptionThrown = true;
         }
         assertThat(exceptionThrown, is(true));
 
         // [ ,0,1,1,4,5,7,9,10,15]
-        assertThat(tracker.removeTimeAndReturnLastKnownLowestTime(Time.fromMilli(0)), is(Time.fromMilli(0)));
+        assertThat(tracker.removeTimeAndReturnLastKnownLowestTimeAsMilli(Time.fromMilli(0)), is(Time.fromMilli(0)));
         // [ ,0,1,1,4, ,7,9,10,15]
-        assertThat(tracker.removeTimeAndReturnLastKnownLowestTime(Time.fromMilli(5)), is(Time.fromMilli(0)));
+        assertThat(tracker.removeTimeAndReturnLastKnownLowestTimeAsMilli(Time.fromMilli(5)), is(Time.fromMilli(0)));
         // [ ,0,1,1,4, ,7,9, ,15]
-        assertThat(tracker.removeTimeAndReturnLastKnownLowestTime(Time.fromMilli(10)), is(Time.fromMilli(0)));
+        assertThat(tracker.removeTimeAndReturnLastKnownLowestTimeAsMilli(Time.fromMilli(10)), is(Time.fromMilli(0)));
 
         // [ ,0,1,1,4, ,7,9, ,15]
-        assertThat(tracker.highestInitiatedTime(), is(Time.fromMilli(15)));
+        assertThat(tracker.highestInitiatedTimeAsMilli(), is(Time.fromMilli(15)));
         assertThat(tracker.uncompletedInitiatedTimes(), is(7));
 
         // [ , ,1,1,4, ,7,9, ,15]
-        assertThat(tracker.removeTimeAndReturnLastKnownLowestTime(Time.fromMilli(0)), is(Time.fromMilli(1)));
+        assertThat(tracker.removeTimeAndReturnLastKnownLowestTimeAsMilli(Time.fromMilli(0)), is(Time.fromMilli(1)));
 
         // [ , ,1,1, , ,7,9, ,15]
-        assertThat(tracker.removeTimeAndReturnLastKnownLowestTime(Time.fromMilli(4)), is(Time.fromMilli(1)));
+        assertThat(tracker.removeTimeAndReturnLastKnownLowestTimeAsMilli(Time.fromMilli(4)), is(Time.fromMilli(1)));
 
         // [ , ,1,1, , ,7, , ,15]
-        assertThat(tracker.removeTimeAndReturnLastKnownLowestTime(Time.fromMilli(9)), is(Time.fromMilli(1)));
+        assertThat(tracker.removeTimeAndReturnLastKnownLowestTimeAsMilli(Time.fromMilli(9)), is(Time.fromMilli(1)));
 
         // [ , ,1,1, , ,7, , ,15]
-        assertThat(tracker.highestInitiatedTime(), is(Time.fromMilli(15)));
+        assertThat(tracker.highestInitiatedTimeAsMilli(), is(Time.fromMilli(15)));
         assertThat(tracker.uncompletedInitiatedTimes(), is(4));
 
         // [ , ,1,1, , ,7, , ,15,15,15]
         exceptionThrown = false;
         try {
-            tracker.addInitiatedTimeAndReturnLastKnownLowestTime(Time.fromMilli(14));
+            tracker.addInitiatedTimeAndReturnLastKnownLowestTimeAsMilli(Time.fromMilli(14));
         } catch (CompletionTimeException e) {
             exceptionThrown = true;
         }
         assertThat(exceptionThrown, is(true));
-        assertThat(tracker.addInitiatedTimeAndReturnLastKnownLowestTime(Time.fromMilli(15)), equalTo(Time.fromMilli(1)));
-        assertThat(tracker.addInitiatedTimeAndReturnLastKnownLowestTime(Time.fromMilli(15)), equalTo(Time.fromMilli(1)));
+        assertThat(tracker.addInitiatedTimeAndReturnLastKnownLowestTimeAsMilli(Time.fromMilli(15)), equalTo(Time.fromMilli(1)));
+        assertThat(tracker.addInitiatedTimeAndReturnLastKnownLowestTimeAsMilli(Time.fromMilli(15)), equalTo(Time.fromMilli(1)));
 
-        assertThat(tracker.highestInitiatedTime(), is(Time.fromMilli(15)));
+        assertThat(tracker.highestInitiatedTimeAsMilli(), is(Time.fromMilli(15)));
         assertThat(tracker.uncompletedInitiatedTimes(), is(6));
 
         // [ , ,1,1, , ,7, , , ,15,15]
-        assertThat(tracker.removeTimeAndReturnLastKnownLowestTime(Time.fromMilli(15)), is(Time.fromMilli(1)));
+        assertThat(tracker.removeTimeAndReturnLastKnownLowestTimeAsMilli(Time.fromMilli(15)), is(Time.fromMilli(1)));
 
         // [ , ,1,1, , ,7, , , , ,15]
-        assertThat(tracker.removeTimeAndReturnLastKnownLowestTime(Time.fromMilli(15)), is(Time.fromMilli(1)));
+        assertThat(tracker.removeTimeAndReturnLastKnownLowestTimeAsMilli(Time.fromMilli(15)), is(Time.fromMilli(1)));
 
         // [ , ,1,1, , ,7, , , , , ]
-        assertThat(tracker.removeTimeAndReturnLastKnownLowestTime(Time.fromMilli(15)), is(Time.fromMilli(1)));
+        assertThat(tracker.removeTimeAndReturnLastKnownLowestTimeAsMilli(Time.fromMilli(15)), is(Time.fromMilli(1)));
 
         // [ , ,1,1, , ,7, , , , , ]
-        assertThat(tracker.highestInitiatedTime(), is(Time.fromMilli(15)));
+        assertThat(tracker.highestInitiatedTimeAsMilli(), is(Time.fromMilli(15)));
         assertThat(tracker.uncompletedInitiatedTimes(), is(3));
 
         // [ , , ,1, , ,7, , , , , ]
-        assertThat(tracker.removeTimeAndReturnLastKnownLowestTime(Time.fromMilli(1)), is(Time.fromMilli(1)));
+        assertThat(tracker.removeTimeAndReturnLastKnownLowestTimeAsMilli(Time.fromMilli(1)), is(Time.fromMilli(1)));
 
         // [ , , , , , ,7, , , , , ]
-        assertThat(tracker.removeTimeAndReturnLastKnownLowestTime(Time.fromMilli(1)), is(Time.fromMilli(7)));
+        assertThat(tracker.removeTimeAndReturnLastKnownLowestTimeAsMilli(Time.fromMilli(1)), is(Time.fromMilli(7)));
 
         // [ , , , , , ,7, , , , , ]
-        assertThat(tracker.highestInitiatedTime(), is(Time.fromMilli(15)));
+        assertThat(tracker.highestInitiatedTimeAsMilli(), is(Time.fromMilli(15)));
         assertThat(tracker.uncompletedInitiatedTimes(), is(1));
 
         // [ , , , , , , , , , , , ]
-        assertThat(tracker.removeTimeAndReturnLastKnownLowestTime(Time.fromMilli(7)), is(Time.fromMilli(15)));
+        assertThat(tracker.removeTimeAndReturnLastKnownLowestTimeAsMilli(Time.fromMilli(7)), is(Time.fromMilli(15)));
 
         // [ , , , , , , , , , , , ]
-        assertThat(tracker.highestInitiatedTime(), is(Time.fromMilli(15)));
+        assertThat(tracker.highestInitiatedTimeAsMilli(), is(Time.fromMilli(15)));
         assertThat(tracker.uncompletedInitiatedTimes(), is(0));
 
         for (int i = 16; i < 10000; i++) {
-            assertThat(tracker.addInitiatedTimeAndReturnLastKnownLowestTime(Time.fromMilli(i)), equalTo(Time.fromMilli(16)));
+            assertThat(tracker.addInitiatedTimeAndReturnLastKnownLowestTimeAsMilli(Time.fromMilli(i)), equalTo(Time.fromMilli(16)));
         }
         for (int i = 16; i < 9999; i++) {
-            assertThat(tracker.removeTimeAndReturnLastKnownLowestTime(Time.fromMilli(i)), is(Time.fromMilli(i + 1)));
+            assertThat(tracker.removeTimeAndReturnLastKnownLowestTimeAsMilli(Time.fromMilli(i)), is(Time.fromMilli(i + 1)));
         }
-        assertThat(tracker.removeTimeAndReturnLastKnownLowestTime(Time.fromMilli(9999)), is(Time.fromMilli(9999)));
+        assertThat(tracker.removeTimeAndReturnLastKnownLowestTimeAsMilli(Time.fromMilli(9999)), is(Time.fromMilli(9999)));
     }
 }

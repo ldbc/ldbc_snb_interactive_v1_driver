@@ -1,37 +1,32 @@
 package com.ldbc.driver.runtime.coordination;
 
-import com.ldbc.driver.runtime.coordination.CompletionTimeException;
-import com.ldbc.driver.runtime.coordination.ExternalCompletionTimeReader;
-import com.ldbc.driver.runtime.coordination.ExternalCompletionTimeWriter;
-import com.ldbc.driver.temporal.Time;
-
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
 public class ExternalCompletionTimeStateManager implements ExternalCompletionTimeReader, ExternalCompletionTimeWriter {
-    private final Map<String, Time> peerCompletionTimes = new HashMap<>();
-    private Time completionTime = null;
+    private final Map<String, Long> peerCompletionTimesAsMilli = new HashMap<>();
+    private long completionTimeAsMilli = -1;
     private boolean notModifiedSinceLastGet = false;
 
     ExternalCompletionTimeStateManager(Set<String> peerIds) throws CompletionTimeException {
         for (String peerId : peerIds) {
             if (null == peerId)
                 throw new CompletionTimeException(String.format("Peer ID cannot be null\n%s", peerIds.toString()));
-            peerCompletionTimes.put(peerId, null);
+            peerCompletionTimesAsMilli.put(peerId, null);
         }
     }
 
     @Override
-    public void submitPeerCompletionTime(String peerId, Time timeAsMilli) throws CompletionTimeException {
+    public void submitPeerCompletionTime(String peerId, long timeAsMilli) throws CompletionTimeException {
         if (null == peerId)
             throw new CompletionTimeException("Peer ID can not be null");
-        if (null == timeAsMilli)
+        if (-1 == timeAsMilli)
             throw new CompletionTimeException("Completion time can not be null");
-        if (false == peerCompletionTimes.containsKey(peerId))
+        if (false == peerCompletionTimesAsMilli.containsKey(peerId))
             throw new CompletionTimeException(String.format("Unrecognized peer ID: %s", peerId));
-        Time previousPeerCompletionTime = peerCompletionTimes.get(peerId);
-        if (null != previousPeerCompletionTime && timeAsMilli.lt(previousPeerCompletionTime))
+        long previousPeerCompletionTimeAsMilli = peerCompletionTimesAsMilli.get(peerId);
+        if (-1 != previousPeerCompletionTimeAsMilli && timeAsMilli < previousPeerCompletionTimeAsMilli)
             throw new CompletionTimeException(
                     String.format(
                             "Completion Time received from Peer(%s) is not monotonically increasing\n"
@@ -39,31 +34,31 @@ public class ExternalCompletionTimeStateManager implements ExternalCompletionTim
                                     + "  Current Completion Time: %s",
                             peerId,
                             timeAsMilli,
-                            previousPeerCompletionTime));
+                            previousPeerCompletionTimeAsMilli));
         notModifiedSinceLastGet = false;
-        peerCompletionTimes.put(peerId, timeAsMilli);
+        peerCompletionTimesAsMilli.put(peerId, timeAsMilli);
     }
 
     @Override
-    public Time externalCompletionTimeAsMilli() {
+    public long externalCompletionTimeAsMilli() {
         if (notModifiedSinceLastGet)
-            return completionTime;
+            return completionTimeAsMilli;
 
         notModifiedSinceLastGet = true;
 
-        completionTime = minPeerCompletionTimeOrNull();
-        return completionTime;
+        completionTimeAsMilli = minPeerCompletionTimeOrNegativeOne();
+        return completionTimeAsMilli;
     }
 
-    private Time minPeerCompletionTimeOrNull() {
-        Time externalCompletionTime = null;
-        for (Time peerCompletionTime : peerCompletionTimes.values()) {
-            if (null == peerCompletionTime) return null;
-            if (null == externalCompletionTime)
-                externalCompletionTime = peerCompletionTime;
-            else if (peerCompletionTime.lt(externalCompletionTime))
-                externalCompletionTime = peerCompletionTime;
+    private long minPeerCompletionTimeOrNegativeOne() {
+        long externalCompletionTimeAsMilli = -1;
+        for (long peerCompletionTimeAsMilli : peerCompletionTimesAsMilli.values()) {
+            if (-1 == peerCompletionTimeAsMilli) return -1;
+            if (-1 == externalCompletionTimeAsMilli)
+                externalCompletionTimeAsMilli = peerCompletionTimeAsMilli;
+            else if (peerCompletionTimeAsMilli < externalCompletionTimeAsMilli)
+                externalCompletionTimeAsMilli = peerCompletionTimeAsMilli;
         }
-        return externalCompletionTime;
+        return externalCompletionTimeAsMilli;
     }
 }

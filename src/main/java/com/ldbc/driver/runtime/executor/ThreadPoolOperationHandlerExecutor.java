@@ -2,7 +2,6 @@ package com.ldbc.driver.runtime.executor;
 
 import com.ldbc.driver.OperationHandler;
 import com.ldbc.driver.runtime.DefaultQueues;
-import com.ldbc.driver.temporal.Duration;
 
 import java.util.List;
 import java.util.concurrent.*;
@@ -37,12 +36,12 @@ public class ThreadPoolOperationHandlerExecutor implements OperationHandlerExecu
     }
 
     @Override
-    synchronized public final void shutdown(Duration waitAsMilli) throws OperationHandlerExecutorException {
+    synchronized public final void shutdown(long waitAsMilli) throws OperationHandlerExecutorException {
         if (shutdown.get())
             throw new OperationHandlerExecutorException("Executor has already been shutdown");
         try {
             threadPoolExecutorService.shutdown();
-            boolean allHandlersCompleted = threadPoolExecutorService.awaitTermination(waitAsMilli.asMilli(), TimeUnit.MILLISECONDS);
+            boolean allHandlersCompleted = threadPoolExecutorService.awaitTermination(waitAsMilli, TimeUnit.MILLISECONDS);
             if (false == allHandlersCompleted) {
                 List<Runnable> stillRunningThreads = threadPoolExecutorService.shutdownNow();
                 if (false == stillRunningThreads.isEmpty()) {

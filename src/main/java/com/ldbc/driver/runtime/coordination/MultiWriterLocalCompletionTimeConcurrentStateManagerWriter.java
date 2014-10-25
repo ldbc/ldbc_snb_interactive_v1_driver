@@ -1,7 +1,5 @@
 package com.ldbc.driver.runtime.coordination;
 
-import com.ldbc.driver.temporal.Time;
-
 public class MultiWriterLocalCompletionTimeConcurrentStateManagerWriter implements LocalCompletionTimeWriter {
     private final int id;
     private final MultiWriterLocalCompletionTimeConcurrentStateManager localCompletionTimeStateManager;
@@ -13,12 +11,12 @@ public class MultiWriterLocalCompletionTimeConcurrentStateManagerWriter implemen
     }
 
     @Override
-    public void submitLocalInitiatedTime(Time timeAsMilli) throws CompletionTimeException {
+    public void submitLocalInitiatedTime(long timeAsMilli) throws CompletionTimeException {
         localCompletionTimeStateManager.submitLocalInitiatedTime(id, timeAsMilli);
     }
 
     @Override
-    public void submitLocalCompletedTime(Time timeAsMilli) throws CompletionTimeException {
+    public void submitLocalCompletedTime(long timeAsMilli) throws CompletionTimeException {
         localCompletionTimeStateManager.submitLocalCompletedTime(id, timeAsMilli);
     }
 

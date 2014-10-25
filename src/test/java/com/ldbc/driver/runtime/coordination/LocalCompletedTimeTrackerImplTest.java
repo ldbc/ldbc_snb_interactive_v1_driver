@@ -146,7 +146,7 @@ public class LocalCompletedTimeTrackerImplTest {
 
         while (times.hasNext()) {
             Time time = times.next();
-            tracker.addCompletedTime(time);
+            tracker.addCompletedTimeAsMilli(time);
             tracker.removeTimesLowerThanAndReturnHighestRemoved(time);
         }
 
@@ -171,7 +171,7 @@ public class LocalCompletedTimeTrackerImplTest {
 
         // add all times
         for (Time time : times) {
-            tracker.addCompletedTime(time);
+            tracker.addCompletedTimeAsMilli(time);
         }
 
         // remove all times
@@ -216,7 +216,7 @@ public class LocalCompletedTimeTrackerImplTest {
         // add all times
         while (timesToAdd.hasNext()) {
             Time time = timesToAdd.next();
-            tracker.addCompletedTime(time);
+            tracker.addCompletedTimeAsMilli(time);
         }
 
         // remove all times
@@ -246,7 +246,7 @@ public class LocalCompletedTimeTrackerImplTest {
 
         // add all times
         for (Time time : times) {
-            tracker.addCompletedTime(time);
+            tracker.addCompletedTimeAsMilli(time);
         }
 
         Time finishTime = timeSource.now();
@@ -286,7 +286,7 @@ public class LocalCompletedTimeTrackerImplTest {
         // tracker
 
         // When
-        tracker.addCompletedTime(Time.fromMilli(1));
+        tracker.addCompletedTimeAsMilli(Time.fromMilli(1));
 
         // Then
         assertThat(tracker.removeTimesLowerThanAndReturnHighestRemoved(Time.fromMilli(0)), is(nullValue()));
@@ -313,45 +313,45 @@ public class LocalCompletedTimeTrackerImplTest {
         assertThat(tracker.removeTimesLowerThanAndReturnHighestRemoved(Time.fromNano(Long.MAX_VALUE)), is(nullValue()));
 
         // [1]
-        tracker.addCompletedTime(Time.fromMilli(1));
+        tracker.addCompletedTimeAsMilli(Time.fromMilli(1));
 
         // [1]
         assertThat(tracker.removeTimesLowerThanAndReturnHighestRemoved(Time.fromMilli(0)), is(nullValue()));
         assertThat(tracker.removeTimesLowerThanAndReturnHighestRemoved(Time.fromMilli(1)), is(nullValue()));
 
         // [1,2]
-        tracker.addCompletedTime(Time.fromMilli(2));
+        tracker.addCompletedTimeAsMilli(Time.fromMilli(2));
 
         // [1,2]
         assertThat(tracker.removeTimesLowerThanAndReturnHighestRemoved(Time.fromMilli(0)), is(nullValue()));
         assertThat(tracker.removeTimesLowerThanAndReturnHighestRemoved(Time.fromMilli(1)), is(nullValue()));
 
         // [1,2,3]
-        tracker.addCompletedTime(Time.fromMilli(3));
+        tracker.addCompletedTimeAsMilli(Time.fromMilli(3));
 
         // [ ,2,3]
         assertThat(tracker.removeTimesLowerThanAndReturnHighestRemoved(Time.fromMilli(2)), is(Time.fromMilli(1)));
 
         // [ ,2,3,4]
-        tracker.addCompletedTime(Time.fromMilli(4));
+        tracker.addCompletedTimeAsMilli(Time.fromMilli(4));
 
         // [ ,2,3,4,5,6,7]
-        tracker.addCompletedTime(Time.fromMilli(5));
-        tracker.addCompletedTime(Time.fromMilli(6));
-        tracker.addCompletedTime(Time.fromMilli(7));
+        tracker.addCompletedTimeAsMilli(Time.fromMilli(5));
+        tracker.addCompletedTimeAsMilli(Time.fromMilli(6));
+        tracker.addCompletedTimeAsMilli(Time.fromMilli(7));
 
         // [ , , , ,5,6,7]
         assertThat(tracker.removeTimesLowerThanAndReturnHighestRemoved(Time.fromMilli(5)), is(Time.fromMilli(4)));
 
         // [ , , , ,5,6,7,8,9,10]
-        tracker.addCompletedTime(Time.fromMilli(8));
-        tracker.addCompletedTime(Time.fromMilli(9));
-        tracker.addCompletedTime(Time.fromMilli(10));
+        tracker.addCompletedTimeAsMilli(Time.fromMilli(8));
+        tracker.addCompletedTimeAsMilli(Time.fromMilli(9));
+        tracker.addCompletedTimeAsMilli(Time.fromMilli(10));
 
         // [ , , , ,5,6,7,8,9,10,11,14,15]
-        tracker.addCompletedTime(Time.fromMilli(11));
-        tracker.addCompletedTime(Time.fromMilli(14));
-        tracker.addCompletedTime(Time.fromMilli(15));
+        tracker.addCompletedTimeAsMilli(Time.fromMilli(11));
+        tracker.addCompletedTimeAsMilli(Time.fromMilli(14));
+        tracker.addCompletedTimeAsMilli(Time.fromMilli(15));
 
         // [ , , , , , , , , , , ,14,15]
         assertThat(tracker.removeTimesLowerThanAndReturnHighestRemoved(Time.fromMilli(13)), is(Time.fromMilli(11)));
@@ -379,46 +379,46 @@ public class LocalCompletedTimeTrackerImplTest {
         assertThat(tracker.removeTimesLowerThanAndReturnHighestRemoved(Time.fromNano(Long.MAX_VALUE)), is(nullValue()));
 
         // [1]
-        tracker.addCompletedTime(Time.fromMilli(1));
+        tracker.addCompletedTimeAsMilli(Time.fromMilli(1));
 
         // [0,0,1,1]
-        tracker.addCompletedTime(Time.fromMilli(0));
-        tracker.addCompletedTime(Time.fromMilli(0));
-        tracker.addCompletedTime(Time.fromMilli(1));
+        tracker.addCompletedTimeAsMilli(Time.fromMilli(0));
+        tracker.addCompletedTimeAsMilli(Time.fromMilli(0));
+        tracker.addCompletedTimeAsMilli(Time.fromMilli(1));
 
         // [0,0,1,1,9,2,6]
-        tracker.addCompletedTime(Time.fromMilli(9));
-        tracker.addCompletedTime(Time.fromMilli(2));
-        tracker.addCompletedTime(Time.fromMilli(6));
+        tracker.addCompletedTimeAsMilli(Time.fromMilli(9));
+        tracker.addCompletedTimeAsMilli(Time.fromMilli(2));
+        tracker.addCompletedTimeAsMilli(Time.fromMilli(6));
 
         // [ , , , ,9, ,6]
         assertThat(tracker.removeTimesLowerThanAndReturnHighestRemoved(Time.fromMilli(4)), is(Time.fromMilli(2)));
 
         // [ , , , ,9, ,6,1,0,0,4]
-        tracker.addCompletedTime(Time.fromMilli(1));
-        tracker.addCompletedTime(Time.fromMilli(0));
-        tracker.addCompletedTime(Time.fromMilli(0));
-        tracker.addCompletedTime(Time.fromMilli(4));
+        tracker.addCompletedTimeAsMilli(Time.fromMilli(1));
+        tracker.addCompletedTimeAsMilli(Time.fromMilli(0));
+        tracker.addCompletedTimeAsMilli(Time.fromMilli(0));
+        tracker.addCompletedTimeAsMilli(Time.fromMilli(4));
 
         // [ , , , ,9, ,6, , , ,4]
         assertThat(tracker.removeTimesLowerThanAndReturnHighestRemoved(Time.fromMilli(4)), is(Time.fromMilli(1)));
 
         // [ , , , ,9, ,6, , , ,4,1,2,3,4,5,6,7,8,9]
-        tracker.addCompletedTime(Time.fromMilli(1));
-        tracker.addCompletedTime(Time.fromMilli(2));
-        tracker.addCompletedTime(Time.fromMilli(3));
-        tracker.addCompletedTime(Time.fromMilli(4));
-        tracker.addCompletedTime(Time.fromMilli(5));
-        tracker.addCompletedTime(Time.fromMilli(6));
-        tracker.addCompletedTime(Time.fromMilli(7));
-        tracker.addCompletedTime(Time.fromMilli(8));
-        tracker.addCompletedTime(Time.fromMilli(9));
+        tracker.addCompletedTimeAsMilli(Time.fromMilli(1));
+        tracker.addCompletedTimeAsMilli(Time.fromMilli(2));
+        tracker.addCompletedTimeAsMilli(Time.fromMilli(3));
+        tracker.addCompletedTimeAsMilli(Time.fromMilli(4));
+        tracker.addCompletedTimeAsMilli(Time.fromMilli(5));
+        tracker.addCompletedTimeAsMilli(Time.fromMilli(6));
+        tracker.addCompletedTimeAsMilli(Time.fromMilli(7));
+        tracker.addCompletedTimeAsMilli(Time.fromMilli(8));
+        tracker.addCompletedTimeAsMilli(Time.fromMilli(9));
 
         // [ , , , ,9, ,6, , , , , , , , , ,6,7,8,9]
         assertThat(tracker.removeTimesLowerThanAndReturnHighestRemoved(Time.fromMilli(6)), is(Time.fromMilli(5)));
 
         // [ , , , ,9, ,6, , , , , , , , , ,6,7,8,9,10]
-        tracker.addCompletedTime(Time.fromMilli(10));
+        tracker.addCompletedTimeAsMilli(Time.fromMilli(10));
 
         // [ , , , ,9, ,6, , , , , , , , , ,6,7,8,9,10]
         assertThat(tracker.removeTimesLowerThanAndReturnHighestRemoved(Time.fromMilli(6)), is(nullValue()));
@@ -427,10 +427,10 @@ public class LocalCompletedTimeTrackerImplTest {
         assertThat(tracker.removeTimesLowerThanAndReturnHighestRemoved(Time.fromMilli(8)), is(Time.fromMilli(7)));
 
         // [ , , , ,9, , , , , , , , , , , , , ,8,9,10,0]
-        tracker.addCompletedTime(Time.fromMilli(0));
+        tracker.addCompletedTimeAsMilli(Time.fromMilli(0));
 
         // [ , , , ,9, , , , , , , , , , , , , ,8,9,10,0,15]
-        tracker.addCompletedTime(Time.fromMilli(15));
+        tracker.addCompletedTimeAsMilli(Time.fromMilli(15));
 
         // [ , , , ,9, , , , , , , , , , , , , ,8,9,10, ,15]
         assertThat(tracker.removeTimesLowerThanAndReturnHighestRemoved(Time.fromMilli(6)), is(Time.fromMilli(0)));

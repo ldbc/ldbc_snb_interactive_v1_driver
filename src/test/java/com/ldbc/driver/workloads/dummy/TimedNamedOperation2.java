@@ -1,13 +1,11 @@
 package com.ldbc.driver.workloads.dummy;
 
-import com.ldbc.driver.temporal.Time;
-
 public class TimedNamedOperation2 extends NothingOperation {
     private final String name;
 
-    public TimedNamedOperation2(Time startTime, Time dependencyTime, String name) {
-        setScheduledStartTimeAsMilli(startTime);
-        setDependencyTimeAsMilli(dependencyTime);
+    public TimedNamedOperation2(long startTimeAsMilli, long dependencyTimeAsMilli, String name) {
+        setScheduledStartTimeAsMilli(startTimeAsMilli);
+        setDependencyTimeAsMilli(dependencyTimeAsMilli);
         this.name = name;
     }
 
@@ -32,11 +30,9 @@ public class TimedNamedOperation2 extends NothingOperation {
 
         TimedNamedOperation2 operation = (TimedNamedOperation2) o;
 
-        if (dependencyTimeAsMilli() != null ? !dependencyTimeAsMilli().equals(operation.dependencyTimeAsMilli()) : operation.dependencyTimeAsMilli() != null)
-            return false;
+        if (dependencyTimeAsMilli() != operation.dependencyTimeAsMilli()) return false;
+        if (scheduledStartTimeAsMilli() != operation.scheduledStartTimeAsMilli()) return false;
         if (name != null ? !name.equals(operation.name) : operation.name != null) return false;
-        if (scheduledStartTimeAsMilli() != null ? !scheduledStartTimeAsMilli().equals(operation.scheduledStartTimeAsMilli()) : operation.scheduledStartTimeAsMilli() != null)
-            return false;
 
         return true;
     }

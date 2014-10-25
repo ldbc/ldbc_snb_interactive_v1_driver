@@ -4,11 +4,14 @@ import com.ldbc.driver.OperationResultReport;
 import com.ldbc.driver.runtime.ConcurrentErrorReporter;
 import com.ldbc.driver.runtime.QueueEventFetcher;
 import com.ldbc.driver.runtime.scheduling.ExecutionDelayPolicy;
+import com.ldbc.driver.temporal.TemporalUtil;
 import com.ldbc.driver.util.csv.SimpleCsvFileWriter;
 
 import java.util.Queue;
+import java.util.concurrent.TimeUnit;
 
 public class ThreadedQueuedConcurrentMetricsServiceThread extends Thread {
+    private final TemporalUtil temporalUtil = new TemporalUtil();
     private final MetricsManager metricsManager;
     private final ConcurrentErrorReporter errorReporter;
     private final QueueEventFetcher<MetricsCollectionEvent> queueEventFetcher;
@@ -49,7 +52,6 @@ public class ThreadedQueuedConcurrentMetricsServiceThread extends Thread {
 
     @Override
     public void run() {
-        long toleratedDelayAsNano = executionDelayPolicy.toleratedDelayAsMilli().asNano();
         while (null == expectedEventCount || processedEventCount < expectedEventCount) {
             try {
                 MetricsCollectionEvent event = queueEventFetcher.fetchNextEvent();
@@ -60,9 +62,10 @@ public class ThreadedQueuedConcurrentMetricsServiceThread extends Thread {
                         if (null != csvResultsLogWriter) {
                             csvResultsLogWriter.writeRow(
                                     result.operation().getClass().getSimpleName(),
-                                    Long.toString(result.operation().scheduledStartTimeAsMilli().asMilli()),
-                                    Long.toString(result.actualStartTimeAsMilli().asMilli()),
-                                    Long.toString(result.runDurationAsNano().asMilli()));
+                                    Long.toString(result.operation().scheduledStartTimeAsMilli()),
+                                    Long.toString(result.actualStartTimeAsMilli()),
+                                    // TODO change to nano later
+                                    Long.toString(temporalUtil.convert(result.runDurationAsNano(), TimeUnit.NANOSECONDS, TimeUnit.MILLISECONDS)));
                         }
 
                         boolean shouldRecordResultMetricsForThisOperation = true;
@@ -73,7 +76,7 @@ public class ThreadedQueuedConcurrentMetricsServiceThread extends Thread {
                             // TOO EARLY = <---(now)--(scheduled)[<---delay--->]------> <=(Time Line)
                             // GOOD      = <-----(scheduled)[<-(now)--delay--->]------> <=(Time Line)
                             // TOO LATE  = <-----(scheduled)[<---delay--->]--(now)----> <=(Time Line)
-                            if (result.operation().scheduledStartTimeAsMilli().asNano() + toleratedDelayAsNano < result.actualStartTimeAsMilli().asNano()) {
+                            if (result.operation().scheduledStartTimeAsMilli() + executionDelayPolicy.toleratedDelayAsMilli() < result.actualStartTimeAsMilli()) {
                                 shouldRecordResultMetricsForThisOperation = executionDelayPolicy.handleExcessiveDelay(result.operation());
                             }
                         }

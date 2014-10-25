@@ -7,7 +7,6 @@ import com.ldbc.driver.OperationResultReport;
 import com.ldbc.driver.runtime.ConcurrentErrorReporter;
 import com.ldbc.driver.runtime.DefaultQueues;
 import com.ldbc.driver.runtime.QueueEventSubmitter;
-import com.ldbc.driver.temporal.Duration;
 
 import java.util.Queue;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -44,12 +43,12 @@ public class SingleThreadOperationHandlerExecutor implements OperationHandlerExe
     }
 
     @Override
-    synchronized public final void shutdown(Duration waitAsMilli) throws OperationHandlerExecutorException {
+    synchronized public final void shutdown(long waitAsMilli) throws OperationHandlerExecutorException {
         if (shutdown.get())
             throw new OperationHandlerExecutorException("Executor has already been shutdown");
         try {
             operationHandlerQueueEventSubmitter.submitEventToQueue(TERMINATE_HANDLER);
-            executorThread.join(waitAsMilli.asMilli());
+            executorThread.join(waitAsMilli);
             if (uncompletedHandlers.get() > 0) {
                 executorThread.forceShutdown();
                 throw new OperationHandlerExecutorException(String.format("Executor shutdown before all handlers could complete - %s uncompleted handlers", uncompletedHandlers));
