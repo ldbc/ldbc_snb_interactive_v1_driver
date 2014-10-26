@@ -1,7 +1,6 @@
 package com.ldbc.driver.runtime.coordination;
 
 import com.google.common.collect.Sets;
-import com.ldbc.driver.temporal.Time;
 import org.junit.Ignore;
 import org.junit.Test;
 
@@ -32,26 +31,26 @@ public class ExternalCompletionTimeTest {
         // When/Then
         assertThat(ect.externalCompletionTimeAsMilli(), is(nullValue()));
 
-        ect.submitPeerCompletionTime(peerId1, Time.fromMilli(1));
+        ect.submitPeerCompletionTime(peerId1, 1);
         assertThat(ect.externalCompletionTimeAsMilli(), is(nullValue()));
 
-        ect.submitPeerCompletionTime(peerId2, Time.fromMilli(1));
-        assertThat(ect.externalCompletionTimeAsMilli(), is(Time.fromMilli(1)));
+        ect.submitPeerCompletionTime(peerId2, 1);
+        assertThat(ect.externalCompletionTimeAsMilli(), is(1l));
 
-        ect.submitPeerCompletionTime(peerId1, Time.fromMilli(2));
-        assertThat(ect.externalCompletionTimeAsMilli(), is(Time.fromMilli(1)));
+        ect.submitPeerCompletionTime(peerId1, 2l);
+        assertThat(ect.externalCompletionTimeAsMilli(), is(1l));
 
-        ect.submitPeerCompletionTime(peerId2, Time.fromMilli(2));
-        assertThat(ect.externalCompletionTimeAsMilli(), is(Time.fromMilli(2)));
+        ect.submitPeerCompletionTime(peerId2, 2l);
+        assertThat(ect.externalCompletionTimeAsMilli(), is(2l));
 
         boolean exceptionThrown = false;
         try {
-            ect.submitPeerCompletionTime(peerId2, Time.fromMilli(1));
+            ect.submitPeerCompletionTime(peerId2, 1);
         } catch (CompletionTimeException e) {
             exceptionThrown = true;
         }
         assertThat(exceptionThrown, is(true));
-        assertThat(ect.externalCompletionTimeAsMilli(), is(Time.fromMilli(2)));
+        assertThat(ect.externalCompletionTimeAsMilli(), is(2l));
     }
 
     @Test(expected = CompletionTimeException.class)
@@ -93,7 +92,7 @@ public class ExternalCompletionTimeTest {
         ExternalCompletionTimeStateManager ect = new ExternalCompletionTimeStateManager(peerIds);
 
         // When
-        ect.submitPeerCompletionTime(peerId1, Time.fromMilli(1));
+        ect.submitPeerCompletionTime(peerId1, 1);
 
         // Then
         assertThat(ect.externalCompletionTimeAsMilli(), is(nullValue()));
@@ -108,11 +107,11 @@ public class ExternalCompletionTimeTest {
         ExternalCompletionTimeStateManager ect = new ExternalCompletionTimeStateManager(peerIds);
 
         // When
-        ect.submitPeerCompletionTime(peerId1, Time.fromMilli(1));
-        ect.submitPeerCompletionTime(peerId2, Time.fromMilli(2));
+        ect.submitPeerCompletionTime(peerId1, 1);
+        ect.submitPeerCompletionTime(peerId2, 2l);
 
         // Then
-        assertThat(ect.externalCompletionTimeAsMilli(), equalTo(Time.fromMilli(1)));
+        assertThat(ect.externalCompletionTimeAsMilli(), equalTo(1l));
     }
 
     @Test(expected = CompletionTimeException.class)
@@ -124,7 +123,7 @@ public class ExternalCompletionTimeTest {
         ExternalCompletionTimeStateManager ect = new ExternalCompletionTimeStateManager(peerIds);
 
         // When
-        ect.submitPeerCompletionTime(null, Time.fromMilli(1));
+        ect.submitPeerCompletionTime(null, 1);
 
         // Then
         // should never get to this line
@@ -139,7 +138,7 @@ public class ExternalCompletionTimeTest {
         ExternalCompletionTimeStateManager ect = new ExternalCompletionTimeStateManager(peerIds);
 
         // When
-        ect.submitPeerCompletionTime(peerId1, null);
+        ect.submitPeerCompletionTime(peerId1, -1);
 
         // Then
         // should never get to this line

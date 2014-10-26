@@ -1,9 +1,7 @@
 package com.ldbc.driver.runtime.coordination;
 
 import com.ldbc.driver.runtime.ConcurrentErrorReporter;
-import com.ldbc.driver.temporal.Duration;
 import com.ldbc.driver.temporal.SystemTimeSource;
-import com.ldbc.driver.temporal.Time;
 import com.ldbc.driver.temporal.TimeSource;
 import org.junit.Test;
 
@@ -27,7 +25,7 @@ public class CompletionTimeServiceAssistantTest {
 
             // there are no writers, gct will never advance
             boolean gctAdvancedSuccessfully =
-                    assistant.waitForGlobalCompletionTime(timeSource, Time.fromMilli(0), Duration.fromSeconds(1), completionTimeService, errorReporter);
+                    assistant.waitForGlobalCompletionTime(timeSource, 0, 1000, completionTimeService, errorReporter);
             assertThat(gctAdvancedSuccessfully, is(false));
             assertThat(completionTimeService.globalCompletionTimeAsMilli(), is(nullValue()));
 
@@ -36,28 +34,28 @@ public class CompletionTimeServiceAssistantTest {
 
             // no initiated/completed times have been submitted, gct will never advance
             gctAdvancedSuccessfully =
-                    assistant.waitForGlobalCompletionTime(timeSource, Time.fromMilli(0), Duration.fromSeconds(1), completionTimeService, errorReporter);
+                    assistant.waitForGlobalCompletionTime(timeSource, 0, 1000, completionTimeService, errorReporter);
             assertThat(gctAdvancedSuccessfully, is(false));
             assertThat(completionTimeService.globalCompletionTimeAsMilli(), is(nullValue()));
 
-            assistant.writeInitiatedAndCompletedTimesToAllWriters(completionTimeService, Time.fromMilli(0));
+            assistant.writeInitiatedAndCompletedTimesToAllWriters(completionTimeService, 0);
 
             // gct can not be known at this stage, because more 0 times/values may arrive later
             // IT[ ] CT[0] --> GCT = ?
             gctAdvancedSuccessfully =
-                    assistant.waitForGlobalCompletionTime(timeSource, Time.fromMilli(0), Duration.fromSeconds(1), completionTimeService, errorReporter);
+                    assistant.waitForGlobalCompletionTime(timeSource, 0, 1000, completionTimeService, errorReporter);
             assertThat(gctAdvancedSuccessfully, is(false));
             assertThat(completionTimeService.globalCompletionTimeAsMilli(), is(nullValue()));
 
-            assistant.writeInitiatedAndCompletedTimesToAllWriters(completionTimeService, Time.fromMilli(1));
+            assistant.writeInitiatedAndCompletedTimesToAllWriters(completionTimeService, 1);
 
             // gct should now be 0, because no more 0 values/times can come after 1 values/times have been written to all writers
             // IT[ , ] CT[0,1] --> GCT = 0
             gctAdvancedSuccessfully =
-                    assistant.waitForGlobalCompletionTime(timeSource, Time.fromMilli(0), Duration.fromSeconds(1), completionTimeService, errorReporter);
+                    assistant.waitForGlobalCompletionTime(timeSource, 0, 1000, completionTimeService, errorReporter);
 
             assertThat(gctAdvancedSuccessfully, is(true));
-            assertThat(completionTimeService.globalCompletionTimeAsMilli(), is(Time.fromMilli(0)));
+            assertThat(completionTimeService.globalCompletionTimeAsMilli(), is(0l));
         } finally {
             completionTimeService.shutdown();
         }

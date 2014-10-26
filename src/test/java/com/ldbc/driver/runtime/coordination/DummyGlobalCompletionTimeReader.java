@@ -1,18 +1,14 @@
 package com.ldbc.driver.runtime.coordination;
 
-import com.ldbc.driver.runtime.coordination.CompletionTimeException;
-import com.ldbc.driver.runtime.coordination.GlobalCompletionTimeReader;
-import com.ldbc.driver.temporal.Time;
-
 public class DummyGlobalCompletionTimeReader implements GlobalCompletionTimeReader {
-    Time globalCompletionTime = null;
+    long globalCompletionTimeAsMilli = -1;
 
-    public void setGlobalCompletionTime(Time globalCompletionTime) {
-        this.globalCompletionTime = globalCompletionTime;
+    public void setGlobalCompletionTimeAsMilli(long globalCompletionTimeAsMilli) {
+        this.globalCompletionTimeAsMilli = globalCompletionTimeAsMilli;
     }
 
     @Override
-    public Time globalCompletionTimeAsMilli() throws CompletionTimeException {
-        return globalCompletionTime;
+    public long globalCompletionTimeAsMilli() throws CompletionTimeException {
+        return globalCompletionTimeAsMilli;
     }
 }

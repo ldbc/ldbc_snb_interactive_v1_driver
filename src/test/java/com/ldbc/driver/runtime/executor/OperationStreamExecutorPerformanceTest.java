@@ -112,7 +112,7 @@ public class OperationStreamExecutorPerformanceTest {
                 LocalCompletionTimeWriter localCompletionTimeWriter = new DummyLocalCompletionTimeWriter();
                 ConcurrentMetricsService metricsService = new DummyCountingConcurrentMetricsService();
                 DummyGlobalCompletionTimeReader globalCompletionTimeReader = new DummyGlobalCompletionTimeReader();
-                globalCompletionTimeReader.setGlobalCompletionTime(Time.fromNano(0));
+                globalCompletionTimeReader.setGlobalCompletionTimeAsMilli(Time.fromNano(0));
                 AtomicBoolean executorHasFinished = new AtomicBoolean(false);
                 AtomicBoolean forceThreadToTerminate = new AtomicBoolean(false);
                 timeSource.setNowFromMilli(0);
@@ -154,7 +154,7 @@ public class OperationStreamExecutorPerformanceTest {
                 LocalCompletionTimeWriter localCompletionTimeWriter = new DummyLocalCompletionTimeWriter();
                 ConcurrentMetricsService metricsService = new DummyCountingConcurrentMetricsService();
                 DummyGlobalCompletionTimeReader globalCompletionTimeReader = new DummyGlobalCompletionTimeReader();
-                globalCompletionTimeReader.setGlobalCompletionTime(Time.fromNano(0));
+                globalCompletionTimeReader.setGlobalCompletionTimeAsMilli(Time.fromNano(0));
                 AtomicBoolean executorHasFinished = new AtomicBoolean(false);
                 AtomicBoolean forceThreadToTerminate = new AtomicBoolean(false);
                 timeSource.setNowFromMilli(0);
@@ -196,7 +196,7 @@ public class OperationStreamExecutorPerformanceTest {
                 LocalCompletionTimeWriter localCompletionTimeWriter = new DummyLocalCompletionTimeWriter();
                 ConcurrentMetricsService metricsService = new DummyCountingConcurrentMetricsService();
                 DummyGlobalCompletionTimeReader globalCompletionTimeReader = new DummyGlobalCompletionTimeReader();
-                globalCompletionTimeReader.setGlobalCompletionTime(Time.fromNano(0));
+                globalCompletionTimeReader.setGlobalCompletionTimeAsMilli(Time.fromNano(0));
                 AtomicBoolean executorHasFinished = new AtomicBoolean(false);
                 AtomicBoolean forceThreadToTerminate = new AtomicBoolean(false);
                 timeSource.setNowFromMilli(0);

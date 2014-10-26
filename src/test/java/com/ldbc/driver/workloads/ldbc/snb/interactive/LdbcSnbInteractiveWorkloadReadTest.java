@@ -8,9 +8,8 @@ import com.ldbc.driver.*;
 import com.ldbc.driver.control.*;
 import com.ldbc.driver.generator.GeneratorFactory;
 import com.ldbc.driver.generator.RandomDataGeneratorFactory;
-import com.ldbc.driver.temporal.Duration;
 import com.ldbc.driver.temporal.SystemTimeSource;
-import com.ldbc.driver.temporal.Time;
+import com.ldbc.driver.temporal.TemporalUtil;
 import com.ldbc.driver.temporal.TimeSource;
 import com.ldbc.driver.testutils.TestUtils;
 import com.ldbc.driver.util.Bucket;
@@ -35,6 +34,7 @@ public class LdbcSnbInteractiveWorkloadReadTest {
     @Rule
     public TemporaryFolder temporaryFolder = new TemporaryFolder();
 
+    TemporalUtil temporalUtil = new TemporalUtil();
     TimeSource timeSource = new SystemTimeSource();
 
     static Map<String, String> defaultSnbParamsMapWithParametersDir() {
@@ -63,18 +63,18 @@ public class LdbcSnbInteractiveWorkloadReadTest {
         String workloadClassName = LdbcSnbInteractiveWorkload.class.getName();
         long operationCount = MANY_ELEMENTS_COUNT;
         int threadCount = 1;
-        Duration statusDisplayInterval = Duration.fromSeconds(0);
+        int statusDisplayIntervalAsSeconds = 0;
         TimeUnit timeUnit = TimeUnit.MILLISECONDS;
         String resultDirPath = temporaryFolder.newFolder().getAbsolutePath();
         double timeCompressionRatio = 1.0;
-        Duration windowedExecutionWindowDuration = Duration.fromSeconds(1);
+        long windowedExecutionWindowDurationAsMilli = 1000l;
         Set<String> peerIds = new HashSet<>();
-        Duration toleratedExecutionDelay = Duration.fromMinutes(60);
+        long toleratedExecutionDelayAsMilli = temporalUtil.convert(60, TimeUnit.MINUTES, TimeUnit.MILLISECONDS);
         ConsoleAndFileDriverConfiguration.ConsoleAndFileValidationParamOptions validationParams = null;
         String dbValidationFilePath = null;
         boolean validateWorkload = false;
         boolean calculateWorkloadStatistics = false;
-        Duration spinnerSleepDuration = Duration.fromMilli(0);
+        long spinnerSleepDurationAsMilli = 0l;
         boolean printHelp = false;
         boolean ignoreScheduledStartTimes = false;
         boolean shouldCreateResultsLog = false;
@@ -86,18 +86,18 @@ public class LdbcSnbInteractiveWorkloadReadTest {
                 workloadClassName,
                 operationCount,
                 threadCount,
-                statusDisplayInterval,
+                statusDisplayIntervalAsSeconds,
                 timeUnit,
                 resultDirPath,
                 timeCompressionRatio,
-                windowedExecutionWindowDuration,
+                windowedExecutionWindowDurationAsMilli,
                 peerIds,
-                toleratedExecutionDelay,
+                toleratedExecutionDelayAsMilli,
                 validationParams,
                 dbValidationFilePath,
                 validateWorkload,
                 calculateWorkloadStatistics,
-                spinnerSleepDuration,
+                spinnerSleepDurationAsMilli,
                 printHelp,
                 ignoreScheduledStartTimes,
                 shouldCreateResultsLog
@@ -109,8 +109,8 @@ public class LdbcSnbInteractiveWorkloadReadTest {
         GeneratorFactory gf = new GeneratorFactory(new RandomDataGeneratorFactory(42L));
         Iterator<Operation<?>> operations = gf.limit(workload.streams(gf).mergeSortedByStartTime(gf), MANY_ELEMENTS_COUNT);
         TimeSource timeSource = new SystemTimeSource();
-        Time timeout = timeSource.now().plus(Duration.fromSeconds(30));
-        boolean workloadGeneratedOperationsBeforeTimeout = TestUtils.generateBeforeTimeout(operations, timeout, timeSource, MANY_ELEMENTS_COUNT);
+        long timeoutAsMilli = timeSource.nowAsMilli() + temporalUtil.convert(30, TimeUnit.SECONDS, TimeUnit.MILLISECONDS);
+        boolean workloadGeneratedOperationsBeforeTimeout = TestUtils.generateBeforeTimeout(operations, timeoutAsMilli, timeSource, MANY_ELEMENTS_COUNT);
         assertThat(workloadGeneratedOperationsBeforeTimeout, is(true));
     }
 
@@ -204,26 +204,26 @@ public class LdbcSnbInteractiveWorkloadReadTest {
         // **************************************************
         Map<String, String> paramsMap = defaultSnbParamsMapWithParametersDir();
         // DummyDb-specific parameters
-        paramsMap.put(DummyLdbcSnbInteractiveDb.SLEEP_DURATION_MILLI_ARG, Long.toString(Duration.fromMilli(1).asMilli()));
+        paramsMap.put(DummyLdbcSnbInteractiveDb.SLEEP_DURATION_MILLI_ARG, Long.toString(1l));
         // Driver-specific parameters
         String name = "name";
         String dbClassName = DummyLdbcSnbInteractiveDb.class.getName();
         String workloadClassName = LdbcSnbInteractiveWorkload.class.getName();
         long operationCount = 10000;
         int threadCount = 64;
-        Duration statusDisplayInterval = Duration.fromSeconds(1);
+        int statusDisplayIntervalAsSeconds = 1;
         TimeUnit timeUnit = TimeUnit.MILLISECONDS;
         String resultDirPath = null;
         double timeCompressionRatio = 1.0;
-        Duration windowedExecutionWindowDuration = Duration.fromSeconds(1);
+        long windowedExecutionWindowDurationAsMilli = 1000l;
         Set<String> peerIds = new HashSet<>();
-        Duration toleratedExecutionDelay = Duration.fromMinutes(60);
+        long toleratedExecutionDelayAsMilli = temporalUtil.convert(60, TimeUnit.MINUTES, TimeUnit.MILLISECONDS);
         ConsoleAndFileDriverConfiguration.ConsoleAndFileValidationParamOptions validationParams =
                 new ConsoleAndFileDriverConfiguration.ConsoleAndFileValidationParamOptions(validationParamsFile.getAbsolutePath(), 1000);
         String dbValidationFilePath = null;
         boolean validateWorkload = false;
         boolean calculateWorkloadStatistics = false;
-        Duration spinnerSleepDuration = Duration.fromMilli(0);
+        long spinnerSleepDurationAsMilli = 0l;
         boolean printHelp = false;
         boolean ignoreScheduledStartTimes = false;
         boolean shouldCreateResultsLog = false;
@@ -235,18 +235,18 @@ public class LdbcSnbInteractiveWorkloadReadTest {
                 workloadClassName,
                 operationCount,
                 threadCount,
-                statusDisplayInterval,
+                statusDisplayIntervalAsSeconds,
                 timeUnit,
                 resultDirPath,
                 timeCompressionRatio,
-                windowedExecutionWindowDuration,
+                windowedExecutionWindowDurationAsMilli,
                 peerIds,
-                toleratedExecutionDelay,
+                toleratedExecutionDelayAsMilli,
                 validationParams,
                 dbValidationFilePath,
                 validateWorkload,
                 calculateWorkloadStatistics,
-                spinnerSleepDuration,
+                spinnerSleepDurationAsMilli,
                 printHelp,
                 ignoreScheduledStartTimes,
                 shouldCreateResultsLog
@@ -255,7 +255,7 @@ public class LdbcSnbInteractiveWorkloadReadTest {
         // **************************************************
         // create validation parameters file
         // **************************************************
-        Client clientForValidationFileCreation = new Client(new LocalControlService(timeSource.now().plus(Duration.fromMilli(1000)), params), timeSource);
+        Client clientForValidationFileCreation = new Client(new LocalControlService(timeSource.nowAsMilli() + 1000, params), timeSource);
         clientForValidationFileCreation.start();
 
         // **************************************************
@@ -279,18 +279,18 @@ public class LdbcSnbInteractiveWorkloadReadTest {
                 workloadClassName,
                 operationCount,
                 threadCount,
-                statusDisplayInterval,
+                statusDisplayIntervalAsSeconds,
                 timeUnit,
                 resultDirPath,
                 timeCompressionRatio,
-                windowedExecutionWindowDuration,
+                windowedExecutionWindowDurationAsMilli,
                 peerIds,
-                toleratedExecutionDelay,
+                toleratedExecutionDelayAsMilli,
                 validationParams,
                 dbValidationFilePath,
                 validateWorkload,
                 calculateWorkloadStatistics,
-                spinnerSleepDuration,
+                spinnerSleepDurationAsMilli,
                 printHelp,
                 ignoreScheduledStartTimes,
                 shouldCreateResultsLog
@@ -299,7 +299,7 @@ public class LdbcSnbInteractiveWorkloadReadTest {
         // **************************************************
         // validate the database
         // **************************************************
-        Client clientForDatabaseValidation = new Client(new LocalControlService(timeSource.now().plus(Duration.fromMilli(1000)), params), timeSource);
+        Client clientForDatabaseValidation = new Client(new LocalControlService(timeSource.nowAsMilli() + 1000, params), timeSource);
         clientForDatabaseValidation.start();
 
         // **************************************************
@@ -320,25 +320,25 @@ public class LdbcSnbInteractiveWorkloadReadTest {
         // Given
         Map<String, String> paramsMap = defaultSnbParamsMapWithParametersDir();
         // DummyDb-specific parameters
-        paramsMap.put(DummyLdbcSnbInteractiveDb.SLEEP_DURATION_MILLI_ARG, Long.toString(Duration.fromMilli(1).asMilli()));
+        paramsMap.put(DummyLdbcSnbInteractiveDb.SLEEP_DURATION_MILLI_ARG, Long.toString(1l));
         // Driver-specific parameters
         String name = null;
         String dbClassName = DummyLdbcSnbInteractiveDb.class.getName();
         String workloadClassName = LdbcSnbInteractiveWorkload.class.getName();
         long operationCount = 10000;
         int threadCount = 64;
-        Duration statusDisplayInterval = Duration.fromSeconds(1);
+        int statusDisplayIntervalAsSeconds = 1;
         TimeUnit timeUnit = TimeUnit.MILLISECONDS;
         String resultDirPath = null;
         double timeCompressionRatio = 1.0;
-        Duration windowedExecutionWindowDuration = Duration.fromSeconds(1);
+        long windowedExecutionWindowDurationAsMilli = 1000l;
         Set<String> peerIds = new HashSet<>();
-        Duration toleratedExecutionDelay = Duration.fromMinutes(60);
+        long toleratedExecutionDelayAsMilli = temporalUtil.convert(1, TimeUnit.HOURS, TimeUnit.MILLISECONDS);
         ConsoleAndFileDriverConfiguration.ConsoleAndFileValidationParamOptions validationParams = null;
         String dbValidationFilePath = null;
         boolean validateWorkload = true;
         boolean calculateWorkloadStatistics = false;
-        Duration spinnerSleepDuration = Duration.fromMilli(0);
+        long spinnerSleepDurationAsMilli = 0l;
         boolean printHelp = false;
         boolean ignoreScheduledStartTimes = false;
         boolean shouldCreateResultsLog = false;
@@ -350,25 +350,25 @@ public class LdbcSnbInteractiveWorkloadReadTest {
                 workloadClassName,
                 operationCount,
                 threadCount,
-                statusDisplayInterval,
+                statusDisplayIntervalAsSeconds,
                 timeUnit,
                 resultDirPath,
                 timeCompressionRatio,
-                windowedExecutionWindowDuration,
+                windowedExecutionWindowDurationAsMilli,
                 peerIds,
-                toleratedExecutionDelay,
+                toleratedExecutionDelayAsMilli,
                 validationParams,
                 dbValidationFilePath,
                 validateWorkload,
                 calculateWorkloadStatistics,
-                spinnerSleepDuration,
+                spinnerSleepDurationAsMilli,
                 printHelp,
                 ignoreScheduledStartTimes,
                 shouldCreateResultsLog
         );
 
         // When
-        Client client = new Client(new LocalControlService(timeSource.now().plus(Duration.fromMilli(500)), params), timeSource);
+        Client client = new Client(new LocalControlService(timeSource.nowAsMilli() + 500, params), timeSource);
         client.start();
 
         // Then
@@ -388,25 +388,25 @@ public class LdbcSnbInteractiveWorkloadReadTest {
         List<String> personUpdateFiles = Lists.newArrayList(TestUtils.getResource("/updateStream_0_0_person.csv").getAbsolutePath());
         paramsMap.put(LdbcSnbInteractiveConfiguration.PERSON_UPDATE_FILES, LdbcSnbInteractiveConfiguration.serializeFilePathsListFromConfiguration(personUpdateFiles));
         // DummyDb-specific parameters
-        paramsMap.put(DummyLdbcSnbInteractiveDb.SLEEP_DURATION_MILLI_ARG, Long.toString(Duration.fromMilli(10).asMilli()));
+        paramsMap.put(DummyLdbcSnbInteractiveDb.SLEEP_DURATION_MILLI_ARG, Long.toString(10));
         // Driver-specific parameters
         String name = "name";
         String dbClassName = DummyLdbcSnbInteractiveDb.class.getName();
         String workloadClassName = LdbcSnbInteractiveWorkload.class.getName();
         long operationCount = 10000;
         int threadCount = 1;
-        Duration statusDisplayInterval = Duration.fromSeconds(1);
+        int statusDisplayIntervalAsSeconds = 1;
         TimeUnit timeUnit = TimeUnit.MILLISECONDS;
         String resultDirPath = temporaryFolder.newFolder().getAbsolutePath();
         double timeCompressionRatio = 1.0;
-        Duration windowedExecutionWindowDuration = Duration.fromSeconds(1);
+        long windowedExecutionWindowDurationAsMilli = 1000l;
         Set<String> peerIds = new HashSet<>();
-        Duration toleratedExecutionDelay = Duration.fromMinutes(60);
+        long toleratedExecutionDelayAsMilli = temporalUtil.convert(1, TimeUnit.HOURS, TimeUnit.MILLISECONDS);
         ConsoleAndFileDriverConfiguration.ConsoleAndFileValidationParamOptions validationParams = null;
         String dbValidationFilePath = null;
         boolean validateWorkload = false;
         boolean calculateWorkloadStatistics = true;
-        Duration spinnerSleepDuration = Duration.fromMilli(10);
+        long spinnerSleepDurationAsMilli = 10;
         boolean printHelp = false;
         boolean ignoreScheduledStartTimes = false;
         boolean shouldCreateResultsLog = false;
@@ -420,18 +420,18 @@ public class LdbcSnbInteractiveWorkloadReadTest {
                 workloadClassName,
                 operationCount,
                 threadCount,
-                statusDisplayInterval,
+                statusDisplayIntervalAsSeconds,
                 timeUnit,
                 resultDirPath,
                 timeCompressionRatio,
-                windowedExecutionWindowDuration,
+                windowedExecutionWindowDurationAsMilli,
                 peerIds,
-                toleratedExecutionDelay,
+                toleratedExecutionDelayAsMilli,
                 validationParams,
                 dbValidationFilePath,
                 validateWorkload,
                 calculateWorkloadStatistics,
-                spinnerSleepDuration,
+                spinnerSleepDurationAsMilli,
                 printHelp,
                 ignoreScheduledStartTimes,
                 shouldCreateResultsLog
@@ -606,7 +606,7 @@ public class LdbcSnbInteractiveWorkloadReadTest {
         assertThat(new File(resultDirPath).listFiles().length > 0, is(false));
 
         // When
-        Client client = new Client(new LocalControlService(timeSource.now().plus(Duration.fromMilli(500)), configuration), timeSource);
+        Client client = new Client(new LocalControlService(timeSource.nowAsMilli() + 500, configuration), timeSource);
         client.start();
 
         // Then
@@ -622,18 +622,18 @@ public class LdbcSnbInteractiveWorkloadReadTest {
         String workloadClassName = LdbcSnbInteractiveWorkload.class.getName();
         long operationCount = 1000000;
         int threadCount = 1;
-        Duration statusDisplayInterval = Duration.fromSeconds(1);
+        int statusDisplayIntervalAsSeconds = 1;
         TimeUnit timeUnit = TimeUnit.MILLISECONDS;
         String resultDirPath = temporaryFolder.newFolder().getAbsolutePath();
         double timeCompressionRatio = 1.0;
-        Duration windowedExecutionWindowDuration = Duration.fromSeconds(1);
+        long windowedExecutionWindowDurationAsMilli = 1000l;
         Set<String> peerIds = new HashSet<>();
-        Duration toleratedExecutionDelay = Duration.fromSeconds(1);
+        long toleratedExecutionDelayAsMilli = 1000l;
         ConsoleAndFileDriverConfiguration.ConsoleAndFileValidationParamOptions validationParams = null;
         String dbValidationFilePath = null;
         boolean validateWorkload = false;
         boolean calculateWorkloadStatistics = true;
-        Duration spinnerSleepDuration = Duration.fromMilli(0);
+        long spinnerSleepDurationAsMilli = 0l;
         boolean printHelp = false;
         boolean ignoreScheduledStartTimes = false;
         boolean shouldCreateResultsLog = false;
@@ -647,18 +647,18 @@ public class LdbcSnbInteractiveWorkloadReadTest {
                 workloadClassName,
                 operationCount,
                 threadCount,
-                statusDisplayInterval,
+                statusDisplayIntervalAsSeconds,
                 timeUnit,
                 resultDirPath,
                 timeCompressionRatio,
-                windowedExecutionWindowDuration,
+                windowedExecutionWindowDurationAsMilli,
                 peerIds,
-                toleratedExecutionDelay,
+                toleratedExecutionDelayAsMilli,
                 validationParams,
                 dbValidationFilePath,
                 validateWorkload,
                 calculateWorkloadStatistics,
-                spinnerSleepDuration,
+                spinnerSleepDurationAsMilli,
                 printHelp,
                 ignoreScheduledStartTimes,
                 shouldCreateResultsLog
@@ -669,10 +669,10 @@ public class LdbcSnbInteractiveWorkloadReadTest {
         workload.init(configuration);
         List<Operation<?>> operations = Lists.newArrayList(gf.limit(workload.streams(gf).mergeSortedByStartTime(gf), configuration.operationCount()));
 
-        Time prevOperationScheduledStartTime = operations.get(0).scheduledStartTimeAsMilli().minus(Duration.fromMilli(1));
+        long prevOperationScheduledStartTimeAsMilli = operations.get(0).scheduledStartTimeAsMilli() - 1;
         for (Operation<?> operation : operations) {
-            assertThat(operation.scheduledStartTimeAsMilli().gte(prevOperationScheduledStartTime), is(true));
-            prevOperationScheduledStartTime = operation.scheduledStartTimeAsMilli();
+            assertThat(operation.scheduledStartTimeAsMilli() >= prevOperationScheduledStartTimeAsMilli, is(true));
+            prevOperationScheduledStartTimeAsMilli = operation.scheduledStartTimeAsMilli();
         }
 
         workload.close();

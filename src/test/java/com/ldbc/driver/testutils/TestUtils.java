@@ -1,8 +1,5 @@
 package com.ldbc.driver.testutils;
 
-import com.ldbc.driver.generator.GeneratorFactory;
-import com.ldbc.driver.temporal.Duration;
-import com.ldbc.driver.temporal.Time;
 import com.ldbc.driver.temporal.TimeSource;
 import org.apache.commons.io.FileUtils;
 
@@ -14,13 +11,12 @@ public class TestUtils {
         return FileUtils.toFile(TestUtils.class.getResource(path));
     }
 
-    public static ThreadPoolLoadGenerator newThreadPoolLoadGenerator(int threadCount, Duration sleepDuration) {
-        return new ThreadPoolLoadGenerator(threadCount, sleepDuration);
+    public static ThreadPoolLoadGenerator newThreadPoolLoadGenerator(int threadCount, long sleepDurationAsMilli) {
+        return new ThreadPoolLoadGenerator(threadCount, sleepDurationAsMilli);
     }
 
-    public static <T> boolean generateBeforeTimeout(Iterator<T> generator, Time timeout, TimeSource timeSource, long itemsToGenerate) {
+    public static <T> boolean generateBeforeTimeout(Iterator<T> generator, long timeoutAsMilli, TimeSource timeSource, long itemsToGenerate) {
         long startTimeAsMilli = timeSource.nowAsMilli();
-        long timeoutAsMilli = timeout.asMilli();
         long itemsGenerated = 0;
         while (generator.hasNext()) {
             generator.next();
@@ -32,8 +28,8 @@ public class TestUtils {
         }
         long finishTimeAsMilli = timeSource.nowAsMilli();
         boolean result = (finishTimeAsMilli < timeoutAsMilli) && (itemsGenerated >= itemsToGenerate);
-        Duration testDuration = Time.fromMilli(finishTimeAsMilli).durationGreaterThan(Time.fromMilli(startTimeAsMilli));
-        System.out.println(String.format("Generated %s elements in %s = %s elements/ms", itemsGenerated, testDuration, (double) itemsGenerated / testDuration.asMilli()));
+        long testDurationAsMilli = finishTimeAsMilli - startTimeAsMilli;
+        System.out.println(String.format("Generated %s elements in %s = %s elements/ms", itemsGenerated, testDurationAsMilli, (double) itemsGenerated / testDurationAsMilli));
         return result;
     }
 }

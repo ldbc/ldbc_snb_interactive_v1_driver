@@ -2,25 +2,17 @@ package com.ldbc.driver.workloads.dummy;
 
 import com.ldbc.driver.*;
 import com.ldbc.driver.generator.GeneratorFactory;
-import com.ldbc.driver.temporal.Duration;
-import com.ldbc.driver.temporal.Time;
 
 import java.io.IOException;
 import java.util.Map;
 
 public class DummyWorkload extends Workload {
-    private final Duration maxExpectedInterleave;
+    private final long maxExpectedInterleaveAsMilli;
     private final WorkloadStreams workloadStreams;
-//    private final Set<Class<? extends Operation<?>>> asynchronousDependentOperationTypes;
-//    private final List<Operation<?>> asynchronousDependencyOperations;
-//    private final List<Operation<?>> asynchronousNonDependencyOperations;
-//    private final List<Set<Class<? extends Operation<?>>>> blockingDependentOperationTypesList;
-//    private final List<List<Operation<?>>> blockingDependencyOperationsList;
-//    private final List<List<Operation<?>>> blockingNonDependencyOperationsList;
 
     public DummyWorkload(WorkloadStreams workloadStreams,
-                         Duration maxExpectedInterleave) {
-        this.maxExpectedInterleave = maxExpectedInterleave;
+                         long maxExpectedInterleaveAsMilli) {
+        this.maxExpectedInterleaveAsMilli = maxExpectedInterleaveAsMilli;
         this.workloadStreams = workloadStreams;
     }
 
@@ -47,17 +39,17 @@ public class DummyWorkload extends Workload {
         if (operation.getClass().equals(TimedNamedOperation1.class))
             return TimedNamedOperation1.class.getName()
                     + "|"
-                    + serializeTime(operation.scheduledStartTimeAsMilli())
+                    + Long.toString(operation.scheduledStartTimeAsMilli())
                     + "|"
-                    + serializeTime(operation.dependencyTimeAsMilli())
+                    + Long.toString(operation.dependencyTimeAsMilli())
                     + "|"
                     + serializeName(((TimedNamedOperation1) operation).name());
         if (operation.getClass().equals(TimedNamedOperation2.class))
             return TimedNamedOperation2.class.getName()
                     + "|"
-                    + serializeTime(operation.scheduledStartTimeAsMilli())
+                    + Long.toString(operation.scheduledStartTimeAsMilli())
                     + "|"
-                    + serializeTime(operation.dependencyTimeAsMilli())
+                    + Long.toString(operation.dependencyTimeAsMilli())
                     + "|"
                     + serializeName(((TimedNamedOperation2) operation).name());
         throw new SerializingMarshallingException("Unsupported Operation: " + operation.getClass().getName());
@@ -69,28 +61,20 @@ public class DummyWorkload extends Workload {
         if (serializedOperation.startsWith(TimedNamedOperation1.class.getName())) {
             String[] serializedOperationTokens = serializedOperation.split("\\|");
             return new TimedNamedOperation1(
-                    marshalTime(serializedOperationTokens[1]),
-                    marshalTime(serializedOperationTokens[2]),
+                    Long.parseLong(serializedOperationTokens[1]),
+                    Long.parseLong(serializedOperationTokens[2]),
                     marshalName(serializedOperationTokens[3])
             );
         }
         if (serializedOperation.startsWith(TimedNamedOperation2.class.getName())) {
             String[] serializedOperationTokens = serializedOperation.split("\\|");
             return new TimedNamedOperation2(
-                    marshalTime(serializedOperationTokens[1]),
-                    marshalTime(serializedOperationTokens[2]),
+                    Long.parseLong(serializedOperationTokens[1]),
+                    Long.parseLong(serializedOperationTokens[2]),
                     marshalName(serializedOperationTokens[3])
             );
         }
         throw new SerializingMarshallingException("Unsupported Operation: " + serializedOperation);
-    }
-
-    private String serializeTime(Time time) {
-        return (null == time) ? "null" : Long.toString(time.asMilli());
-    }
-
-    private Time marshalTime(String timeString) {
-        return ("null".equals(timeString)) ? null : Time.fromMilli(Long.parseLong(timeString));
     }
 
     private String serializeName(String name) {
@@ -102,7 +86,7 @@ public class DummyWorkload extends Workload {
     }
 
     @Override
-    public Duration maxExpectedInterleaveAsMilli() {
-        return maxExpectedInterleave;
+    public long maxExpectedInterleaveAsMilli() {
+        return maxExpectedInterleaveAsMilli;
     }
 }

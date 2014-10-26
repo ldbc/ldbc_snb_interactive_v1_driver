@@ -22,7 +22,7 @@ public class ExternalCompletionTimeStateManager implements ExternalCompletionTim
         if (null == peerId)
             throw new CompletionTimeException("Peer ID can not be null");
         if (-1 == timeAsMilli)
-            throw new CompletionTimeException("Completion time can not be null");
+            throw new CompletionTimeException("Invalid completion time " + timeAsMilli);
         if (false == peerCompletionTimesAsMilli.containsKey(peerId))
             throw new CompletionTimeException(String.format("Unrecognized peer ID: %s", peerId));
         long previousPeerCompletionTimeAsMilli = peerCompletionTimesAsMilli.get(peerId);

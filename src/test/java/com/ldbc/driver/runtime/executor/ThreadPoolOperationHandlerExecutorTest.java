@@ -8,9 +8,7 @@ import com.ldbc.driver.runtime.coordination.DummyLocalCompletionTimeWriter;
 import com.ldbc.driver.runtime.coordination.LocalCompletionTimeWriter;
 import com.ldbc.driver.runtime.metrics.DummyCollectingConcurrentMetricsService;
 import com.ldbc.driver.runtime.scheduling.Spinner;
-import com.ldbc.driver.temporal.Duration;
 import com.ldbc.driver.temporal.SystemTimeSource;
-import com.ldbc.driver.temporal.Time;
 import com.ldbc.driver.temporal.TimeSource;
 import com.ldbc.driver.util.Function0;
 import com.ldbc.driver.workloads.dummy.NothingOperation;
@@ -61,7 +59,7 @@ public class ThreadPoolOperationHandlerExecutorTest {
     public void executorShouldReturnExpectedResult() throws OperationHandlerExecutorException, ExecutionException, InterruptedException, OperationException, CompletionTimeException {
         // Given
         boolean ignoreScheduledStartTime = false;
-        Duration toleratedDelay = Duration.fromMilli(100);
+        long toleratedDelayAsMilli = 100;
         ConcurrentErrorReporter errorReporter = new ConcurrentErrorReporter();
         Spinner spinner = new Spinner(timeSource, Spinner.DEFAULT_SLEEP_DURATION_10_MILLI, ignoreScheduledStartTime);
         LocalCompletionTimeWriter dummyLocalCompletionTimeWriter = new DummyLocalCompletionTimeWriter();
@@ -72,8 +70,8 @@ public class ThreadPoolOperationHandlerExecutorTest {
         OperationHandlerExecutor executor = new ThreadPoolOperationHandlerExecutor(threadCount, boundedQueueSize);
 
         Operation<?> operation = new NothingOperation();
-        operation.setScheduledStartTimeAsMilli(timeSource.now().plus(Duration.fromMilli(200)));
-        operation.setDependencyTimeAsMilli(Time.fromMilli(0));
+        operation.setScheduledStartTimeAsMilli(timeSource.nowAsMilli() + 200);
+        operation.setDependencyTimeAsMilli(0l);
         OperationHandler<?> handler = new OperationHandler<Operation<Integer>>() {
             @Override
             protected OperationResultReport executeOperation(Operation operation) throws DbException {
@@ -88,8 +86,8 @@ public class ThreadPoolOperationHandlerExecutorTest {
         // When
         executor.execute(handler);
 
-        Time timeout = timeSource.now().plus(Duration.fromMilli(1000));
-        while (timeSource.now().lt(timeout)) {
+        long timeoutAsMilli = timeSource.nowAsMilli() + 1000l;
+        while (timeSource.nowAsMilli() < timeoutAsMilli) {
             if (finished.get()) break;
             // wait for handler to finish
             Spinner.powerNap(100);
@@ -99,7 +97,7 @@ public class ThreadPoolOperationHandlerExecutorTest {
         assertThat(metricsService.operationResultReports().size(), is(1));
         assertThat((Integer) metricsService.operationResultReports().get(0).operationResult(), is(42));
         assertThat(metricsService.operationResultReports().get(0).resultCode(), is(1));
-        executor.shutdown(Duration.fromSeconds(1));
+        executor.shutdown(1000l);
         assertThat(errorReporter.toString(), errorReporter.errorEncountered(), is(false));
     }
 
@@ -108,7 +106,7 @@ public class ThreadPoolOperationHandlerExecutorTest {
     public void executorShouldReturnAllResults() throws OperationHandlerExecutorException, ExecutionException, InterruptedException, OperationException, CompletionTimeException {
         // Given
         boolean ignoreScheduledStartTime = false;
-        Duration toleratedDelay = Duration.fromMilli(100);
+        long toleratedDelayAsMilli = 100l;
         ConcurrentErrorReporter errorReporter = new ConcurrentErrorReporter();
         Spinner spinner = new Spinner(timeSource, Spinner.DEFAULT_SLEEP_DURATION_10_MILLI, ignoreScheduledStartTime);
         LocalCompletionTimeWriter dummyLocalCompletionTimeWriter = new DummyLocalCompletionTimeWriter();
@@ -119,11 +117,11 @@ public class ThreadPoolOperationHandlerExecutorTest {
         OperationHandlerExecutor executor = new ThreadPoolOperationHandlerExecutor(threadCount, boundedQueueSize);
 
         Operation<?> operation1 = new NothingOperation();
-        operation1.setScheduledStartTimeAsMilli(timeSource.now().plus(Duration.fromMilli(100)));
-        operation1.setDependencyTimeAsMilli(Time.fromMilli(0));
+        operation1.setScheduledStartTimeAsMilli(timeSource.nowAsMilli() + 100l);
+        operation1.setDependencyTimeAsMilli(0l);
         Operation<?> operation2 = new NothingOperation();
-        operation2.setScheduledStartTimeAsMilli(operation1.scheduledStartTimeAsMilli().plus(Duration.fromMilli(100)));
-        operation2.setDependencyTimeAsMilli(Time.fromMilli(0));
+        operation2.setScheduledStartTimeAsMilli(operation1.scheduledStartTimeAsMilli() + 100l);
+        operation2.setDependencyTimeAsMilli(0l);
         OperationHandler<?> handler1 = new OperationHandler<Operation<Integer>>() {
             @Override
             protected OperationResultReport executeOperation(Operation operation) throws DbException {
@@ -152,8 +150,8 @@ public class ThreadPoolOperationHandlerExecutorTest {
         executor.execute(handler1);
         executor.execute(handler2);
 
-        Time timeout = timeSource.now().plus(Duration.fromMilli(1000));
-        while (timeSource.now().lt(timeout)) {
+        long timeoutAsMilli = timeSource.nowAsMilli() + 1000l;
+        while (timeSource.nowAsMilli() < timeoutAsMilli) {
             if (finished1.get() && finished2.get()) break;
             // wait for handler to finish
             Spinner.powerNap(100);
@@ -165,7 +163,7 @@ public class ThreadPoolOperationHandlerExecutorTest {
         assertThat(metricsService.operationResultReports().get(0).resultCode(), is(1));
         assertThat((Integer) metricsService.operationResultReports().get(1).operationResult(), anyOf(is(1), is(2)));
         assertThat(metricsService.operationResultReports().get(1).resultCode(), is(1));
-        executor.shutdown(Duration.fromSeconds(1));
+        executor.shutdown(1000l);
         assertThat(errorReporter.toString(), errorReporter.errorEncountered(), is(false));
     }
 
@@ -173,7 +171,7 @@ public class ThreadPoolOperationHandlerExecutorTest {
     public void executorShouldThrowExceptionIfShutdownMultipleTimes() throws OperationHandlerExecutorException, ExecutionException, InterruptedException, OperationException, CompletionTimeException {
         // Given
         boolean ignoreScheduledStartTime = false;
-        Duration toleratedDelay = Duration.fromMilli(100);
+        long toleratedDelayAsMilli = 100l;
         ConcurrentErrorReporter errorReporter = new ConcurrentErrorReporter();
         Spinner spinner = new Spinner(timeSource, Spinner.DEFAULT_SLEEP_DURATION_10_MILLI, ignoreScheduledStartTime);
         LocalCompletionTimeWriter dummyLocalCompletionTimeWriter = new DummyLocalCompletionTimeWriter();
@@ -184,8 +182,8 @@ public class ThreadPoolOperationHandlerExecutorTest {
         OperationHandlerExecutor executor = new ThreadPoolOperationHandlerExecutor(threadCount, boundedQueueSize);
 
         Operation<?> operation = new NothingOperation();
-        operation.setScheduledStartTimeAsMilli(timeSource.now().plus(Duration.fromMilli(200)));
-        operation.setDependencyTimeAsMilli(Time.fromMilli(0));
+        operation.setScheduledStartTimeAsMilli(timeSource.nowAsMilli() + 200l);
+        operation.setDependencyTimeAsMilli(0l);
         OperationHandler<?> handler = new OperationHandler<Operation<Integer>>() {
             @Override
             protected OperationResultReport executeOperation(Operation operation) throws DbException {
@@ -201,8 +199,8 @@ public class ThreadPoolOperationHandlerExecutorTest {
 
         executor.execute(handler);
 
-        Time timeout = timeSource.now().plus(Duration.fromMilli(1000));
-        while (timeSource.now().lt(timeout)) {
+        long timeoutAsMilli = timeSource.nowAsMilli() + 1000l;
+        while (timeSource.nowAsMilli() < timeoutAsMilli) {
             if (finished.get()) break;
             // wait for handler to finish
             Spinner.powerNap(100);
@@ -212,12 +210,12 @@ public class ThreadPoolOperationHandlerExecutorTest {
         assertThat(metricsService.operationResultReports().size(), is(1));
         assertThat((Integer) metricsService.operationResultReports().get(0).operationResult(), is(42));
         assertThat(metricsService.operationResultReports().get(0).resultCode(), is(1));
-        executor.shutdown(Duration.fromSeconds(1));
+        executor.shutdown(1000l);
         assertThat(errorReporter.toString(), errorReporter.errorEncountered(), is(false));
 
         boolean exceptionThrown = false;
         try {
-            executor.shutdown(Duration.fromSeconds(1));
+            executor.shutdown(1000l);
         } catch (OperationHandlerExecutorException e) {
             exceptionThrown = true;
         }

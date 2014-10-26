@@ -1,7 +1,6 @@
 package com.ldbc.driver.testutils;
 
 import com.ldbc.driver.runtime.scheduling.Spinner;
-import com.ldbc.driver.temporal.Duration;
 
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -12,13 +11,13 @@ import java.util.concurrent.atomic.AtomicBoolean;
 public class ThreadPoolLoadGenerator {
     private final int threadCount;
     private final ExecutorService executorService;
-    private final Duration sleepDuration;
+    private final long sleepDurationAsMilli;
     private final AtomicBoolean sharedDoTerminateReference = new AtomicBoolean(false);
     private final AtomicBoolean hasStarted = new AtomicBoolean(false);
 
-    ThreadPoolLoadGenerator(int threadCount, Duration sleepDuration) {
+    ThreadPoolLoadGenerator(int threadCount, long sleepDurationAsMilli) {
         this.threadCount = threadCount;
-        this.sleepDuration = sleepDuration;
+        this.sleepDurationAsMilli = sleepDurationAsMilli;
         ThreadFactory threadFactory = new ThreadFactory() {
             private final long factoryTimeStampId = System.currentTimeMillis();
             int count = 0;
@@ -39,20 +38,20 @@ public class ThreadPoolLoadGenerator {
         if (hasStarted.get())
             return;
         for (int i = 0; i < threadCount; i++) {
-            LoadGeneratingTask task = new LoadGeneratingTask(sharedDoTerminateReference, sleepDuration);
+            LoadGeneratingTask task = new LoadGeneratingTask(sharedDoTerminateReference, sleepDurationAsMilli);
             executorService.execute(task);
         }
         hasStarted.set(true);
     }
 
-    synchronized public boolean shutdown(Duration shutdownTimeout) throws InterruptedException {
+    synchronized public boolean shutdown(long shutdownTimeoutAsMilli) throws InterruptedException {
         if (true == sharedDoTerminateReference.get())
             return true;
 
         sharedDoTerminateReference.set(true);
 
         executorService.shutdown();
-        boolean allHandlersCompleted = executorService.awaitTermination(shutdownTimeout.asMilli(), TimeUnit.MILLISECONDS);
+        boolean allHandlersCompleted = executorService.awaitTermination(shutdownTimeoutAsMilli, TimeUnit.MILLISECONDS);
         return allHandlersCompleted;
     }
 
@@ -60,9 +59,9 @@ public class ThreadPoolLoadGenerator {
         private final AtomicBoolean sharedDoTerminateReference;
         private final long sleepDurationAsMilli;
 
-        private LoadGeneratingTask(AtomicBoolean sharedDoTerminateReference, Duration sleepDuration) {
+        private LoadGeneratingTask(AtomicBoolean sharedDoTerminateReference, long sleepDurationAsMilli) {
             this.sharedDoTerminateReference = sharedDoTerminateReference;
-            this.sleepDurationAsMilli = sleepDuration.asMilli();
+            this.sleepDurationAsMilli = sleepDurationAsMilli;
         }
 
         @Override
