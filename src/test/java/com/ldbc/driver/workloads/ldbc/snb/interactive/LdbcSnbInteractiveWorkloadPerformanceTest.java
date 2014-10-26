@@ -13,8 +13,8 @@ import com.ldbc.driver.runtime.coordination.CompletionTimeException;
 import com.ldbc.driver.runtime.metrics.ConcurrentMetricsService;
 import com.ldbc.driver.runtime.metrics.MetricsCollectionException;
 import com.ldbc.driver.runtime.metrics.WorkloadResultsSnapshot;
-import com.ldbc.driver.temporal.Duration;
 import com.ldbc.driver.temporal.SystemTimeSource;
+import com.ldbc.driver.temporal.TemporalUtil;
 import com.ldbc.driver.temporal.TimeSource;
 import com.ldbc.driver.util.MapUtils;
 import com.ldbc.driver.workloads.ldbc.snb.interactive.db.DummyLdbcSnbInteractiveDb;
@@ -34,6 +34,7 @@ import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
 public class LdbcSnbInteractiveWorkloadPerformanceTest {
+    private static final TemporalUtil TEMPORAL_UTIL = new TemporalUtil();
     @Rule
     public TemporaryFolder temporaryFolder = new TemporaryFolder();
 
@@ -128,18 +129,18 @@ public class LdbcSnbInteractiveWorkloadPerformanceTest {
             // Driver-specific parameters
             String dbClassName = DummyLdbcSnbInteractiveDb.class.getName();
             String workloadClassName = LdbcSnbInteractiveWorkload.class.getName();
-            Duration statusDisplayInterval = Duration.fromSeconds(2);
+            int statusDisplayInterval = 2;
             TimeUnit timeUnit = TimeUnit.MICROSECONDS;
             String resultDirPath = resultsDir;
             double timeCompressionRatio = 1.0;
-            Duration windowedExecutionWindowDuration = Duration.fromSeconds(1);
+            long windowedExecutionWindowDuration = 1000l;
             Set<String> peerIds = new HashSet<>();
-            Duration toleratedExecutionDelay = Duration.fromMinutes(60);
+            long toleratedExecutionDelay = TEMPORAL_UTIL.convert(60, TimeUnit.MINUTES, TimeUnit.MILLISECONDS);
             ConsoleAndFileDriverConfiguration.ConsoleAndFileValidationParamOptions validationParams = null;
             String dbValidationFilePath = null;
             boolean validateWorkload = false;
             boolean calculateWorkloadStatistics = false;
-            Duration spinnerSleepDuration = Duration.fromMilli(0);
+            long spinnerSleepDuration = 0;
             boolean printHelp = false;
             boolean ignoreScheduledStartTimes = true;
             boolean shouldCreateResultsLog = true;
@@ -171,15 +172,15 @@ public class LdbcSnbInteractiveWorkloadPerformanceTest {
             configuration = (ConsoleAndFileDriverConfiguration) configuration.applyMap(MapUtils.loadPropertiesToMap(new File(updateStreamPropertiesPath)));
 
             // When
-            Client client = new Client(new LocalControlService(timeSource.now().plus(Duration.fromSeconds(3)), configuration), timeSource);
+            Client client = new Client(new LocalControlService(timeSource.nowAsMilli() + 3000, configuration), timeSource);
             client.start();
 
             // Then
             File resultsFile = new File(resultsDir, name + "-results.json");
             WorkloadResultsSnapshot resultsSnapshot = WorkloadResultsSnapshot.fromJson(resultsFile);
 
-            double operationsPerSecond = Math.round(((double) operationCount / resultsSnapshot.totalRunDurationAsNano().asNano()) * Duration.fromSeconds(1).asNano());
-            double microSecondPerOperation = (double) resultsSnapshot.totalRunDurationAsNano().asMicro() / operationCount;
+            double operationsPerSecond = Math.round(((double) operationCount / resultsSnapshot.totalRunDurationAsNano()) * TEMPORAL_UTIL.convert(1, TimeUnit.SECONDS, TimeUnit.NANOSECONDS));
+            double microSecondPerOperation = (double) TEMPORAL_UTIL.convert(resultsSnapshot.totalRunDurationAsNano(), TimeUnit.NANOSECONDS, TimeUnit.MICROSECONDS) / operationCount;
             DecimalFormat numberFormatter = new DecimalFormat("###,###,###,###");
             System.out.println(
                     String.format("[%s]Completed %s operations in %s = %s op/sec = 1 op/%s us",

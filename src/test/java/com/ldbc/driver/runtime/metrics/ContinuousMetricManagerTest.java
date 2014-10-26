@@ -2,7 +2,7 @@ package com.ldbc.driver.runtime.metrics;
 
 import com.ldbc.driver.generator.GeneratorFactory;
 import com.ldbc.driver.generator.RandomDataGeneratorFactory;
-import com.ldbc.driver.temporal.Time;
+import com.ldbc.driver.temporal.TemporalUtil;
 import org.junit.Test;
 
 import java.util.Iterator;
@@ -57,10 +57,11 @@ public class ContinuousMetricManagerTest {
     @Test
     public void shouldBehaveAsExpectedWithHighNumberOfMeasurementsAndLargeRange() throws MetricsCollectionException {
         // Given
+        TemporalUtil temporalUtil = new TemporalUtil();
         String name = "name";
         TimeUnit timeUnit = TimeUnit.MILLISECONDS;
-        long highestExpectedValue = Time.fromMinutes(60).asMilli();
-        long lowestExpectedValue = Time.fromMinutes(1).asMilli();
+        long highestExpectedValue = temporalUtil.convert(60, TimeUnit.MINUTES, TimeUnit.MILLISECONDS);
+        long lowestExpectedValue = temporalUtil.convert(1, TimeUnit.MINUTES, TimeUnit.MILLISECONDS);
         long measurementCount = 10000000;
         int numberOfSignificantDigits = 5;
         ContinuousMetricManager continuousMetricManager = new ContinuousMetricManager(name, timeUnit, highestExpectedValue, numberOfSignificantDigits);

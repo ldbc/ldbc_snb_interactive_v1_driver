@@ -6,9 +6,7 @@ import com.ldbc.driver.runtime.coordination.LocalCompletionTimeWriter;
 import com.ldbc.driver.runtime.metrics.ConcurrentMetricsService;
 import com.ldbc.driver.runtime.metrics.DummyCollectingConcurrentMetricsService;
 import com.ldbc.driver.runtime.scheduling.Spinner;
-import com.ldbc.driver.temporal.Duration;
 import com.ldbc.driver.temporal.SystemTimeSource;
-import com.ldbc.driver.temporal.Time;
 import com.ldbc.driver.temporal.TimeSource;
 import com.ldbc.driver.workloads.dummy.NothingOperation;
 import com.ldbc.driver.workloads.dummy.NothingOperationHandler;
@@ -23,8 +21,8 @@ public class OperationHandlerFactoryTest {
         while (count < 10000000) {
             OperationHandlerFactory reflectionOperationHandlerFactory = getReflectionOperationHandlerFactoryFor(operationHandlerType);
             OperationHandlerFactory pooledReflectionOperationHandlerFactory = getPooledReflectionOperationHandlerFactoryFor(operationHandlerType);
-            Duration reflectionDuration = doOperationHandlerTest(count, reflectionOperationHandlerFactory, operation);
-            Duration pooledReflectionDuration = doOperationHandlerTest(count, pooledReflectionOperationHandlerFactory, operation);
+            long reflectionDuration = doOperationHandlerTest(count, reflectionOperationHandlerFactory, operation);
+            long pooledReflectionDuration = doOperationHandlerTest(count, pooledReflectionOperationHandlerFactory, operation);
             count = count * 4;
             System.out.println(String.format("Count: %s, Reflection: %s, PooledReflection: %s", count, reflectionDuration, pooledReflectionDuration));
             reflectionOperationHandlerFactory.shutdown();
@@ -32,21 +30,21 @@ public class OperationHandlerFactoryTest {
         }
     }
 
-    public Duration doOperationHandlerTest(int count, OperationHandlerFactory operationHandlerFactory, Operation<?> operation) throws OperationException {
+    public long doOperationHandlerTest(int count, OperationHandlerFactory operationHandlerFactory, Operation<?> operation) throws OperationException {
         boolean ignoreScheduledStartTime = false;
         TimeSource timeSource = new SystemTimeSource();
         ConcurrentErrorReporter errorReporter = new ConcurrentErrorReporter();
-        Duration spinnerSleepDuration = Duration.fromMilli(0);
+        long spinnerSleepDuration = 0;
         Spinner spinner = new Spinner(timeSource, spinnerSleepDuration, ignoreScheduledStartTime);
         LocalCompletionTimeWriter localCompletionTimeWriter = new DummyLocalCompletionTimeWriter();
         ConcurrentMetricsService metricsService = new DummyCollectingConcurrentMetricsService();
-        Time startTime = timeSource.now();
+        long startTime = timeSource.nowAsMilli();
         for (int i = 0; i < count; i++) {
             OperationHandler<?> operationHandler = operationHandlerFactory.newOperationHandler();
             operationHandler.init(timeSource, spinner, operation, localCompletionTimeWriter, errorReporter, metricsService);
             operationHandler.cleanup();
         }
-        return timeSource.now().durationGreaterThan(startTime);
+        return timeSource.nowAsMilli() - startTime;
     }
 
     OperationHandlerFactory getReflectionOperationHandlerFactoryFor(Class<? extends OperationHandler> operationHandlerType) {

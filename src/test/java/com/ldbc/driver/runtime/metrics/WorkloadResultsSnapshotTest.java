@@ -1,7 +1,6 @@
 package com.ldbc.driver.runtime.metrics;
 
 import com.ldbc.driver.WorkloadException;
-import com.ldbc.driver.temporal.Time;
 import org.junit.Test;
 
 import java.io.IOException;
@@ -100,8 +99,8 @@ public class WorkloadResultsSnapshotTest {
         Map<String, OperationMetricsSnapshot> metrics = new HashMap<>();
         metrics.put(Integer.toString(seed++), new OperationMetricsSnapshot(operationName, operationDurationUnit, operationCount, runTimeMetric, startTimeDelayMetric, resultCodeMetric));
 
-        Time operationStartTime = Time.fromMilli(seed++);
-        Time operationLatestFinishTime = Time.fromMilli(seed++);
+        long operationStartTime = seed++;
+        long operationLatestFinishTime = seed++;
         long count = seed++;
         TimeUnit unit = timeUnit4;
         return new WorkloadResultsSnapshot(metrics, operationStartTime, operationLatestFinishTime, count, unit);

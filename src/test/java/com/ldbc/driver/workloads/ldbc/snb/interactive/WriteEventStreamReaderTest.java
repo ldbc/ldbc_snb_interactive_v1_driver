@@ -2,7 +2,7 @@ package com.ldbc.driver.workloads.ldbc.snb.interactive;
 
 import com.google.common.collect.Lists;
 import com.ldbc.driver.Operation;
-import com.ldbc.driver.temporal.Time;
+import com.ldbc.driver.temporal.TemporalUtil;
 import com.ldbc.driver.util.csv.BufferedCharSeeker;
 import com.ldbc.driver.util.csv.CharSeeker;
 import com.ldbc.driver.util.csv.Extractors;
@@ -52,7 +52,7 @@ public class WriteEventStreamReaderTest {
         birthday = new Date(1234567890l);
         creationDate = new Date(1234567890l);
 
-        assertThat(addPerson.scheduledStartTimeAsMilli(), is(Time.fromMilli(42)));
+        assertThat(addPerson.scheduledStartTimeAsMilli(), is(42l));
         assertThat(addPerson.personId(), is(409L));
         assertThat(addPerson.personFirstName(), equalTo("Lei"));
         assertThat(addPerson.personLastName(), equalTo("Zhao"));
@@ -76,7 +76,7 @@ public class WriteEventStreamReaderTest {
         LdbcUpdate2AddPostLike addPostLike = (LdbcUpdate2AddPostLike) writeEventStreamReader.next();
         creationDate = new Date(1234567890l);
 
-        assertThat(addPostLike.scheduledStartTimeAsMilli(), is(Time.fromMilli(42)));
+        assertThat(addPostLike.scheduledStartTimeAsMilli(), is(42l));
         assertThat(addPostLike.personId(), is(1582L));
         assertThat(addPostLike.postId(), is(120207L));
         assertThat(addPostLike.creationDate(), equalTo(creationDate));
@@ -84,7 +84,7 @@ public class WriteEventStreamReaderTest {
         LdbcUpdate3AddCommentLike addCommentLike = (LdbcUpdate3AddCommentLike) writeEventStreamReader.next();
         creationDate = new Date(1234567890l);
 
-        assertThat(addCommentLike.scheduledStartTimeAsMilli(), is(Time.fromMilli(42)));
+        assertThat(addCommentLike.scheduledStartTimeAsMilli(), is(42l));
         assertThat(addCommentLike.personId(), is(1095L));
         assertThat(addCommentLike.commentId(), is(120426L));
         assertThat(addCommentLike.creationDate(), equalTo(creationDate));
@@ -92,7 +92,7 @@ public class WriteEventStreamReaderTest {
         LdbcUpdate4AddForum addForum = (LdbcUpdate4AddForum) writeEventStreamReader.next();
         creationDate = new Date(1234567890l);
 
-        assertThat(addForum.scheduledStartTimeAsMilli(), is(Time.fromMilli(42)));
+        assertThat(addForum.scheduledStartTimeAsMilli(), is(42l));
         assertThat(addForum.forumId(), is(2118L));
         assertThat(addForum.forumTitle(), equalTo("Group for The_Beekeeper in Pakistan"));
         assertThat(addForum.creationDate(), equalTo(creationDate));
@@ -102,7 +102,7 @@ public class WriteEventStreamReaderTest {
         LdbcUpdate5AddForumMembership addForumMembership = (LdbcUpdate5AddForumMembership) writeEventStreamReader.next();
         creationDate = new Date(1234567890l);
 
-        assertThat(addForumMembership.scheduledStartTimeAsMilli(), is(Time.fromMilli(42)));
+        assertThat(addForumMembership.scheduledStartTimeAsMilli(), is(42l));
         assertThat(addForumMembership.forumId(), is(2153L));
         assertThat(addForumMembership.personId(), is(372L));
         assertThat(addForumMembership.creationDate(), equalTo(creationDate));
@@ -110,7 +110,7 @@ public class WriteEventStreamReaderTest {
         LdbcUpdate6AddPost addPost = (LdbcUpdate6AddPost) writeEventStreamReader.next();
         creationDate = new Date(1234567890l);
 
-        assertThat(addPost.scheduledStartTimeAsMilli(), is(Time.fromMilli(42)));
+        assertThat(addPost.scheduledStartTimeAsMilli(), is(42l));
         assertThat(addPost.postId(), is(120343L));
         assertThat(addPost.imageFile(), equalTo(""));
         assertThat(addPost.creationDate(), equalTo(creationDate));
@@ -127,7 +127,7 @@ public class WriteEventStreamReaderTest {
         LdbcUpdate7AddComment addComment = (LdbcUpdate7AddComment) writeEventStreamReader.next();
         creationDate = new Date(1234567890l);
 
-        assertThat(addComment.scheduledStartTimeAsMilli(), is(Time.fromMilli(42)));
+        assertThat(addComment.scheduledStartTimeAsMilli(), is(42l));
         assertThat(addComment.commentId(), is(4034293L));
         assertThat(addComment.creationDate(), equalTo(creationDate));
         assertThat(addComment.locationIp(), equalTo("200.11.32.131"));
@@ -143,7 +143,7 @@ public class WriteEventStreamReaderTest {
         addComment = (LdbcUpdate7AddComment) writeEventStreamReader.next();
         creationDate = new Date(1234567890l);
 
-        assertThat(addComment.scheduledStartTimeAsMilli(), is(Time.fromMilli(42)));
+        assertThat(addComment.scheduledStartTimeAsMilli(), is(42l));
         assertThat(addComment.commentId(), is(4034293L));
         assertThat(addComment.creationDate(), equalTo(creationDate));
         assertThat(addComment.locationIp(), equalTo("200.11.32.131"));
@@ -159,7 +159,7 @@ public class WriteEventStreamReaderTest {
         LdbcUpdate8AddFriendship addFriendship = (LdbcUpdate8AddFriendship) writeEventStreamReader.next();
         creationDate = new Date(1234567890l);
 
-        assertThat(addFriendship.scheduledStartTimeAsMilli(), is(Time.fromMilli(42)));
+        assertThat(addFriendship.scheduledStartTimeAsMilli(), is(42l));
         assertThat(addFriendship.person1Id(), is(1920L));
         assertThat(addFriendship.person2Id(), is(655L));
         assertThat(addFriendship.creationDate(), equalTo(creationDate));
@@ -196,7 +196,7 @@ public class WriteEventStreamReaderTest {
         Date birthday = new Date(1234567890l);
         Date creationDate = new Date(1234567890l);
 
-        assertThat(addPerson.scheduledStartTimeAsMilli(), is(Time.fromMilli(42)));
+        assertThat(addPerson.scheduledStartTimeAsMilli(), is(42l));
         assertThat(addPerson.personId(), is(409L));
         assertThat(addPerson.personFirstName(), equalTo("Lei"));
         assertThat(addPerson.personLastName(), equalTo("Zhao"));
@@ -248,7 +248,7 @@ public class WriteEventStreamReaderTest {
         Date birthday = new Date(1234567890l);
         Date creationDate = new Date(1234567890l);
 
-        assertThat(addPerson.scheduledStartTimeAsMilli(), is(Time.fromMilli(42)));
+        assertThat(addPerson.scheduledStartTimeAsMilli(), is(42l));
         assertThat(addPerson.personId(), is(409L));
         assertThat(addPerson.personFirstName(), equalTo("Lei"));
         assertThat(addPerson.personLastName(), equalTo("Zhao"));
@@ -300,7 +300,7 @@ public class WriteEventStreamReaderTest {
         Date birthday = new Date(1234567890l);
         Date creationDate = new Date(1234567890l);
 
-        assertThat(addPerson.scheduledStartTimeAsMilli(), is(Time.fromMilli(42)));
+        assertThat(addPerson.scheduledStartTimeAsMilli(), is(42l));
         assertThat(addPerson.personId(), is(409L));
         assertThat(addPerson.personFirstName(), equalTo("Lei"));
         assertThat(addPerson.personLastName(), equalTo("Zhao"));
@@ -352,7 +352,7 @@ public class WriteEventStreamReaderTest {
         Date birthday = new Date(1234567890l);
         Date creationDate = new Date(1234567890l);
 
-        assertThat(addPerson.scheduledStartTimeAsMilli(), is(Time.fromMilli(42)));
+        assertThat(addPerson.scheduledStartTimeAsMilli(), is(42l));
         assertThat(addPerson.personId(), is(409L));
         assertThat(addPerson.personFirstName(), equalTo("Lei"));
         assertThat(addPerson.personLastName(), equalTo("Zhao"));
@@ -401,7 +401,7 @@ public class WriteEventStreamReaderTest {
         Date birthday = new Date(1234567890l);
         Date creationDate = new Date(1234567890l);
 
-        assertThat(addPerson.scheduledStartTimeAsMilli(), is(Time.fromMilli(42)));
+        assertThat(addPerson.scheduledStartTimeAsMilli(), is(42l));
         assertThat(addPerson.personId(), is(409L));
         assertThat(addPerson.personFirstName(), equalTo("Lei"));
         assertThat(addPerson.personLastName(), equalTo("Zhao"));
@@ -448,7 +448,7 @@ public class WriteEventStreamReaderTest {
         Date birthday = new Date(1234567890l);
         Date creationDate = new Date(1234567890l);
 
-        assertThat(addPerson.scheduledStartTimeAsMilli(), is(Time.fromMilli(42)));
+        assertThat(addPerson.scheduledStartTimeAsMilli(), is(42l));
         assertThat(addPerson.personId(), is(409L));
         assertThat(addPerson.personFirstName(), equalTo("Lei"));
         assertThat(addPerson.personLastName(), equalTo("Zhao"));
@@ -500,7 +500,7 @@ public class WriteEventStreamReaderTest {
         Date birthday = new Date(1234567890l);
         Date creationDate = new Date(1234567890l);
 
-        assertThat(addPerson.scheduledStartTimeAsMilli(), is(Time.fromMilli(42)));
+        assertThat(addPerson.scheduledStartTimeAsMilli(), is(42l));
         assertThat(addPerson.personId(), is(409L));
         assertThat(addPerson.personFirstName(), equalTo("Lei"));
         assertThat(addPerson.personLastName(), equalTo("Zhao"));
@@ -552,7 +552,7 @@ public class WriteEventStreamReaderTest {
         Date birthday = new Date(1234567890l);
         Date creationDate = new Date(1234567890l);
 
-        assertThat(addPerson.scheduledStartTimeAsMilli(), is(Time.fromMilli(42)));
+        assertThat(addPerson.scheduledStartTimeAsMilli(), is(42l));
         assertThat(addPerson.personId(), is(409L));
         assertThat(addPerson.personFirstName(), equalTo("Lei"));
         assertThat(addPerson.personLastName(), equalTo("Zhao"));
@@ -603,7 +603,7 @@ public class WriteEventStreamReaderTest {
         // Then
         Date creationDate = new Date(1234567890l);
 
-        assertThat(addPostLike.scheduledStartTimeAsMilli(), is(Time.fromMilli(42)));
+        assertThat(addPostLike.scheduledStartTimeAsMilli(), is(42l));
         assertThat(addPostLike.personId(), is(1582L));
         assertThat(addPostLike.postId(), is(120207L));
         assertThat(addPostLike.creationDate(), equalTo(creationDate));
@@ -637,7 +637,7 @@ public class WriteEventStreamReaderTest {
         // Then
         Date creationDate = new Date(1234567890l);
 
-        assertThat(addCommentLike.scheduledStartTimeAsMilli(), is(Time.fromMilli(42)));
+        assertThat(addCommentLike.scheduledStartTimeAsMilli(), is(42l));
         assertThat(addCommentLike.personId(), is(1095L));
         assertThat(addCommentLike.commentId(), is(120426L));
         assertThat(addCommentLike.creationDate(), equalTo(creationDate));
@@ -671,7 +671,7 @@ public class WriteEventStreamReaderTest {
         // Then
         Date creationDate = new Date(1234567890l);
 
-        assertThat(addForum.scheduledStartTimeAsMilli(), is(Time.fromMilli(42)));
+        assertThat(addForum.scheduledStartTimeAsMilli(), is(42l));
         assertThat(addForum.forumId(), is(2118L));
         assertThat(addForum.forumTitle(), equalTo("Group for The_Beekeeper in Pakistan"));
         assertThat(addForum.creationDate(), equalTo(creationDate));
@@ -707,7 +707,7 @@ public class WriteEventStreamReaderTest {
         // Then
         Date creationDate = new Date(1234567890l);
 
-        assertThat(addForumMembership.scheduledStartTimeAsMilli(), is(Time.fromMilli(42)));
+        assertThat(addForumMembership.scheduledStartTimeAsMilli(), is(42l));
         assertThat(addForumMembership.forumId(), is(2153L));
         assertThat(addForumMembership.personId(), is(372L));
         assertThat(addForumMembership.creationDate(), equalTo(creationDate));
@@ -741,7 +741,7 @@ public class WriteEventStreamReaderTest {
         // Then
         Date creationDate = new Date(1234567890l);
 
-        assertThat(addPost.scheduledStartTimeAsMilli(), is(Time.fromMilli(42)));
+        assertThat(addPost.scheduledStartTimeAsMilli(), is(42l));
         assertThat(addPost.postId(), is(120343L));
         assertThat(addPost.imageFile(), equalTo(""));
         assertThat(addPost.creationDate(), equalTo(creationDate));
@@ -784,7 +784,7 @@ public class WriteEventStreamReaderTest {
         // Then
         Date creationDate = new Date(1234567890l);
 
-        assertThat(addPost.scheduledStartTimeAsMilli(), is(Time.fromMilli(42)));
+        assertThat(addPost.scheduledStartTimeAsMilli(), is(42l));
         assertThat(addPost.postId(), is(120343L));
         assertThat(addPost.imageFile(), equalTo(""));
         assertThat(addPost.creationDate(), equalTo(creationDate));
@@ -827,7 +827,7 @@ public class WriteEventStreamReaderTest {
         // Then
         Date creationDate = new Date(1234567890l);
 
-        assertThat(addPost.scheduledStartTimeAsMilli(), is(Time.fromMilli(42)));
+        assertThat(addPost.scheduledStartTimeAsMilli(), is(42l));
         assertThat(addPost.postId(), is(120343L));
         assertThat(addPost.imageFile(), equalTo(""));
         assertThat(addPost.creationDate(), equalTo(creationDate));
@@ -870,7 +870,7 @@ public class WriteEventStreamReaderTest {
         // Then
         Date creationDate = new Date(1234567890l);
 
-        assertThat(addComment.scheduledStartTimeAsMilli(), is(Time.fromMilli(42)));
+        assertThat(addComment.scheduledStartTimeAsMilli(), is(42l));
         assertThat(addComment.commentId(), is(4034293L));
         assertThat(addComment.creationDate(), equalTo(creationDate));
         assertThat(addComment.locationIp(), equalTo("200.11.32.131"));
@@ -912,7 +912,7 @@ public class WriteEventStreamReaderTest {
         // Then
         Date creationDate = new Date(1234567890l);
 
-        assertThat(addComment.scheduledStartTimeAsMilli(), is(Time.fromMilli(42)));
+        assertThat(addComment.scheduledStartTimeAsMilli(), is(42l));
         assertThat(addComment.commentId(), is(4034293L));
         assertThat(addComment.creationDate(), equalTo(creationDate));
         assertThat(addComment.locationIp(), equalTo("200.11.32.131"));
@@ -954,7 +954,7 @@ public class WriteEventStreamReaderTest {
         // Then
         Date creationDate = new Date(1234567890l);
 
-        assertThat(addFriendship.scheduledStartTimeAsMilli(), is(Time.fromMilli(42)));
+        assertThat(addFriendship.scheduledStartTimeAsMilli(), is(42l));
         assertThat(addFriendship.person1Id(), is(1920L));
         assertThat(addFriendship.person2Id(), is(655L));
         assertThat(addFriendship.creationDate(), equalTo(creationDate));

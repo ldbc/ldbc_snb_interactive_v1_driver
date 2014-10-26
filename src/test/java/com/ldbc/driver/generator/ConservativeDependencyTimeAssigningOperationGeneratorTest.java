@@ -2,7 +2,6 @@ package com.ldbc.driver.generator;
 
 import com.google.common.collect.Lists;
 import com.ldbc.driver.Operation;
-import com.ldbc.driver.temporal.Time;
 import com.ldbc.driver.util.Function1;
 import com.ldbc.driver.workloads.dummy.TimedNamedOperation1;
 import com.ldbc.driver.workloads.dummy.TimedNamedOperation2;
@@ -19,18 +18,18 @@ public class ConservativeDependencyTimeAssigningOperationGeneratorTest {
     public void testAssignDependencyTimesEqualToLastEncounteredLowerDependencyStartTime() {
         // Given
         GeneratorFactory gf = new GeneratorFactory(new RandomDataGeneratorFactory(42l));
-        Time initialDependencyTime = Time.fromMilli(0);
+        long initialDependencyTime = 0l;
 
         Iterator<Operation<?>> operations = Lists.<Operation<?>>newArrayList(
-                new TimedNamedOperation1(Time.fromMilli(1), null, null), // R_W
-                new TimedNamedOperation2(Time.fromMilli(2), null, null), // R
-                new TimedNamedOperation1(Time.fromMilli(3), null, null), // R_W
-                new TimedNamedOperation2(Time.fromMilli(3), null, null), // R
-                new TimedNamedOperation1(Time.fromMilli(5), null, null), // R_W
-                new TimedNamedOperation2(Time.fromMilli(6), null, null), // R
-                new TimedNamedOperation1(Time.fromMilli(7), null, null), // R_W
-                new TimedNamedOperation2(Time.fromMilli(7), null, null), // R
-                new TimedNamedOperation2(Time.fromMilli(8), null, null)   // R
+                new TimedNamedOperation1(1l, -1, null), // R_W
+                new TimedNamedOperation2(2l, -1, null), // R
+                new TimedNamedOperation1(3l, -1, null), // R_W
+                new TimedNamedOperation2(3l, -1, null), // R
+                new TimedNamedOperation1(5l, -1, null), // R_W
+                new TimedNamedOperation2(6l, -1, null), // R
+                new TimedNamedOperation1(7l, -1, null), // R_W
+                new TimedNamedOperation2(7l, -1, null), // R
+                new TimedNamedOperation2(8l, -1, null)   // R
         ).iterator();
         Function1<Operation<?>, Boolean> isDependency = new Function1<Operation<?>, Boolean>() {
             @Override
@@ -47,40 +46,40 @@ public class ConservativeDependencyTimeAssigningOperationGeneratorTest {
         // Then
 
         Operation<?> operation1 = operationsWithDependencyTimes.next();
-        assertThat(operation1.scheduledStartTimeAsMilli(), equalTo(Time.fromMilli(1)));
-        assertThat(operation1.dependencyTimeAsMilli(), equalTo(Time.fromMilli(0)));
+        assertThat(operation1.scheduledStartTimeAsMilli(), equalTo(1l));
+        assertThat(operation1.dependencyTimeAsMilli(), equalTo(0l));
 
         Operation<?> operation2 = operationsWithDependencyTimes.next();
-        assertThat(operation2.scheduledStartTimeAsMilli(), equalTo(Time.fromMilli(2)));
-        assertThat(operation2.dependencyTimeAsMilli(), equalTo(Time.fromMilli(1)));
+        assertThat(operation2.scheduledStartTimeAsMilli(), equalTo(2l));
+        assertThat(operation2.dependencyTimeAsMilli(), equalTo(1l));
 
         Operation<?> operation3 = operationsWithDependencyTimes.next();
-        assertThat(operation3.scheduledStartTimeAsMilli(), equalTo(Time.fromMilli(3)));
-        assertThat(operation3.dependencyTimeAsMilli(), equalTo(Time.fromMilli(1)));
+        assertThat(operation3.scheduledStartTimeAsMilli(), equalTo(3l));
+        assertThat(operation3.dependencyTimeAsMilli(), equalTo(1l));
 
         Operation<?> operation4 = operationsWithDependencyTimes.next();
-        assertThat(operation4.scheduledStartTimeAsMilli(), equalTo(Time.fromMilli(3)));
-        assertThat(operation4.dependencyTimeAsMilli(), equalTo(Time.fromMilli(1)));
+        assertThat(operation4.scheduledStartTimeAsMilli(), equalTo(3l));
+        assertThat(operation4.dependencyTimeAsMilli(), equalTo(1l));
 
         Operation<?> operation5 = operationsWithDependencyTimes.next();
-        assertThat(operation5.scheduledStartTimeAsMilli(), equalTo(Time.fromMilli(5)));
-        assertThat(operation5.dependencyTimeAsMilli(), equalTo(Time.fromMilli(3)));
+        assertThat(operation5.scheduledStartTimeAsMilli(), equalTo(5l));
+        assertThat(operation5.dependencyTimeAsMilli(), equalTo(3l));
 
         Operation<?> operation6 = operationsWithDependencyTimes.next();
-        assertThat(operation6.scheduledStartTimeAsMilli(), equalTo(Time.fromMilli(6)));
-        assertThat(operation6.dependencyTimeAsMilli(), equalTo(Time.fromMilli(5)));
+        assertThat(operation6.scheduledStartTimeAsMilli(), equalTo(6l));
+        assertThat(operation6.dependencyTimeAsMilli(), equalTo(5l));
 
         Operation<?> operation7 = operationsWithDependencyTimes.next();
-        assertThat(operation7.scheduledStartTimeAsMilli(), equalTo(Time.fromMilli(7)));
-        assertThat(operation7.dependencyTimeAsMilli(), equalTo(Time.fromMilli(5)));
+        assertThat(operation7.scheduledStartTimeAsMilli(), equalTo(7l));
+        assertThat(operation7.dependencyTimeAsMilli(), equalTo(5l));
 
         Operation<?> operation8 = operationsWithDependencyTimes.next();
-        assertThat(operation8.scheduledStartTimeAsMilli(), equalTo(Time.fromMilli(7)));
-        assertThat(operation8.dependencyTimeAsMilli(), equalTo(Time.fromMilli(5)));
+        assertThat(operation8.scheduledStartTimeAsMilli(), equalTo(7l));
+        assertThat(operation8.dependencyTimeAsMilli(), equalTo(5l));
 
         Operation<?> operation9 = operationsWithDependencyTimes.next();
-        assertThat(operation9.scheduledStartTimeAsMilli(), equalTo(Time.fromMilli(8)));
-        assertThat(operation9.dependencyTimeAsMilli(), equalTo(Time.fromMilli(7)));
+        assertThat(operation9.scheduledStartTimeAsMilli(), equalTo(8l));
+        assertThat(operation9.dependencyTimeAsMilli(), equalTo(7l));
 
         assertThat(operationsWithDependencyTimes.hasNext(), is(false));
     }
@@ -89,18 +88,18 @@ public class ConservativeDependencyTimeAssigningOperationGeneratorTest {
     public void testAssignDependencyTimesEqualToLastEncounteredDependencyStartTime() {
         // Given
         GeneratorFactory gf = new GeneratorFactory(new RandomDataGeneratorFactory(42l));
-        Time initialDependencyTime = Time.fromMilli(0);
+        long initialDependencyTime = 0l;
 
         Iterator<Operation<?>> operations = Lists.<Operation<?>>newArrayList(
-                new TimedNamedOperation1(Time.fromMilli(1), null, null), // R_W
-                new TimedNamedOperation2(Time.fromMilli(2), null, null), // R
-                new TimedNamedOperation1(Time.fromMilli(3), null, null), // R_W
-                new TimedNamedOperation2(Time.fromMilli(3), null, null), // R
-                new TimedNamedOperation1(Time.fromMilli(5), null, null), // R_W
-                new TimedNamedOperation2(Time.fromMilli(6), null, null), // R
-                new TimedNamedOperation1(Time.fromMilli(7), null, null), // R_W
-                new TimedNamedOperation2(Time.fromMilli(7), null, null), // R
-                new TimedNamedOperation2(Time.fromMilli(8), null, null)   // R
+                new TimedNamedOperation1(1l, -1, null), // R_W
+                new TimedNamedOperation2(2l, -1, null), // R
+                new TimedNamedOperation1(3l, -1, null), // R_W
+                new TimedNamedOperation2(3l, -1, null), // R
+                new TimedNamedOperation1(5l, -1, null), // R_W
+                new TimedNamedOperation2(6l, -1, null), // R
+                new TimedNamedOperation1(7l, -1, null), // R_W
+                new TimedNamedOperation2(7l, -1, null), // R
+                new TimedNamedOperation2(8l, -1, null)   // R
         ).iterator();
         Function1<Operation<?>, Boolean> isDependency = new Function1<Operation<?>, Boolean>() {
             @Override
@@ -117,40 +116,40 @@ public class ConservativeDependencyTimeAssigningOperationGeneratorTest {
         // Then
 
         Operation<?> operation1 = operationsWithDependencyTimes.next();
-        assertThat(operation1.scheduledStartTimeAsMilli(), equalTo(Time.fromMilli(1)));
-        assertThat(operation1.dependencyTimeAsMilli(), equalTo(Time.fromMilli(0)));
+        assertThat(operation1.scheduledStartTimeAsMilli(), equalTo(1l));
+        assertThat(operation1.dependencyTimeAsMilli(), equalTo(0l));
 
         Operation<?> operation2 = operationsWithDependencyTimes.next();
-        assertThat(operation2.scheduledStartTimeAsMilli(), equalTo(Time.fromMilli(2)));
-        assertThat(operation2.dependencyTimeAsMilli(), equalTo(Time.fromMilli(1)));
+        assertThat(operation2.scheduledStartTimeAsMilli(), equalTo(2l));
+        assertThat(operation2.dependencyTimeAsMilli(), equalTo(1l));
 
         Operation<?> operation3 = operationsWithDependencyTimes.next();
-        assertThat(operation3.scheduledStartTimeAsMilli(), equalTo(Time.fromMilli(3)));
-        assertThat(operation3.dependencyTimeAsMilli(), equalTo(Time.fromMilli(1)));
+        assertThat(operation3.scheduledStartTimeAsMilli(), equalTo(3l));
+        assertThat(operation3.dependencyTimeAsMilli(), equalTo(1l));
 
         Operation<?> operation4 = operationsWithDependencyTimes.next();
-        assertThat(operation4.scheduledStartTimeAsMilli(), equalTo(Time.fromMilli(3)));
-        assertThat(operation4.dependencyTimeAsMilli(), equalTo(Time.fromMilli(3)));
+        assertThat(operation4.scheduledStartTimeAsMilli(), equalTo(3l));
+        assertThat(operation4.dependencyTimeAsMilli(), equalTo(3l));
 
         Operation<?> operation5 = operationsWithDependencyTimes.next();
-        assertThat(operation5.scheduledStartTimeAsMilli(), equalTo(Time.fromMilli(5)));
-        assertThat(operation5.dependencyTimeAsMilli(), equalTo(Time.fromMilli(3)));
+        assertThat(operation5.scheduledStartTimeAsMilli(), equalTo(5l));
+        assertThat(operation5.dependencyTimeAsMilli(), equalTo(3l));
 
         Operation<?> operation6 = operationsWithDependencyTimes.next();
-        assertThat(operation6.scheduledStartTimeAsMilli(), equalTo(Time.fromMilli(6)));
-        assertThat(operation6.dependencyTimeAsMilli(), equalTo(Time.fromMilli(5)));
+        assertThat(operation6.scheduledStartTimeAsMilli(), equalTo(6l));
+        assertThat(operation6.dependencyTimeAsMilli(), equalTo(5l));
 
         Operation<?> operation7 = operationsWithDependencyTimes.next();
-        assertThat(operation7.scheduledStartTimeAsMilli(), equalTo(Time.fromMilli(7)));
-        assertThat(operation7.dependencyTimeAsMilli(), equalTo(Time.fromMilli(5)));
+        assertThat(operation7.scheduledStartTimeAsMilli(), equalTo(7l));
+        assertThat(operation7.dependencyTimeAsMilli(), equalTo(5l));
 
         Operation<?> operation8 = operationsWithDependencyTimes.next();
-        assertThat(operation8.scheduledStartTimeAsMilli(), equalTo(Time.fromMilli(7)));
-        assertThat(operation8.dependencyTimeAsMilli(), equalTo(Time.fromMilli(7)));
+        assertThat(operation8.scheduledStartTimeAsMilli(), equalTo(7l));
+        assertThat(operation8.dependencyTimeAsMilli(), equalTo(7l));
 
         Operation<?> operation9 = operationsWithDependencyTimes.next();
-        assertThat(operation9.scheduledStartTimeAsMilli(), equalTo(Time.fromMilli(8)));
-        assertThat(operation9.dependencyTimeAsMilli(), equalTo(Time.fromMilli(7)));
+        assertThat(operation9.scheduledStartTimeAsMilli(), equalTo(8l));
+        assertThat(operation9.dependencyTimeAsMilli(), equalTo(7l));
 
         assertThat(operationsWithDependencyTimes.hasNext(), is(false));
     }
@@ -159,18 +158,18 @@ public class ConservativeDependencyTimeAssigningOperationGeneratorTest {
     public void testAssignConservativeDependencyTimes() {
         // Given
         GeneratorFactory gf = new GeneratorFactory(new RandomDataGeneratorFactory(42l));
-        Time initialDependencyTime = Time.fromMilli(0);
+        long initialDependencyTime = 0l;
 
         Iterator<Operation<?>> operations = Lists.<Operation<?>>newArrayList(
-                new TimedNamedOperation1(Time.fromMilli(1), null, null), // R_W
-                new TimedNamedOperation2(Time.fromMilli(2), null, null), // R
-                new TimedNamedOperation1(Time.fromMilli(3), null, null), // R_W
-                new TimedNamedOperation2(Time.fromMilli(3), null, null), // R
-                new TimedNamedOperation1(Time.fromMilli(5), null, null), // R_W
-                new TimedNamedOperation2(Time.fromMilli(6), null, null), // R
-                new TimedNamedOperation1(Time.fromMilli(7), null, null), // R_W
-                new TimedNamedOperation2(Time.fromMilli(7), null, null), // R
-                new TimedNamedOperation2(Time.fromMilli(8), null, null)   // R
+                new TimedNamedOperation1(1l, -1, null), // R_W
+                new TimedNamedOperation2(2l, -1, null), // R
+                new TimedNamedOperation1(3l, -1, null), // R_W
+                new TimedNamedOperation2(3l, -1, null), // R
+                new TimedNamedOperation1(5l, -1, null), // R_W
+                new TimedNamedOperation2(6l, -1, null), // R
+                new TimedNamedOperation1(7l, -1, null), // R_W
+                new TimedNamedOperation2(7l, -1, null), // R
+                new TimedNamedOperation2(8l, -1, null)   // R
         ).iterator();
 
         boolean canOverwriteDependencyTime = true;
@@ -182,40 +181,40 @@ public class ConservativeDependencyTimeAssigningOperationGeneratorTest {
         // Then
 
         Operation<?> operation1 = operationsWithDependencyTimes.next();
-        assertThat(operation1.scheduledStartTimeAsMilli(), equalTo(Time.fromMilli(1)));
-        assertThat(operation1.dependencyTimeAsMilli(), equalTo(Time.fromMilli(0)));
+        assertThat(operation1.scheduledStartTimeAsMilli(), equalTo(1l));
+        assertThat(operation1.dependencyTimeAsMilli(), equalTo(0l));
 
         Operation<?> operation2 = operationsWithDependencyTimes.next();
-        assertThat(operation2.scheduledStartTimeAsMilli(), equalTo(Time.fromMilli(2)));
-        assertThat(operation2.dependencyTimeAsMilli(), equalTo(Time.fromMilli(1)));
+        assertThat(operation2.scheduledStartTimeAsMilli(), equalTo(2l));
+        assertThat(operation2.dependencyTimeAsMilli(), equalTo(1l));
 
         Operation<?> operation3 = operationsWithDependencyTimes.next();
-        assertThat(operation3.scheduledStartTimeAsMilli(), equalTo(Time.fromMilli(3)));
-        assertThat(operation3.dependencyTimeAsMilli(), equalTo(Time.fromMilli(2)));
+        assertThat(operation3.scheduledStartTimeAsMilli(), equalTo(3l));
+        assertThat(operation3.dependencyTimeAsMilli(), equalTo(2l));
 
         Operation<?> operation4 = operationsWithDependencyTimes.next();
-        assertThat(operation4.scheduledStartTimeAsMilli(), equalTo(Time.fromMilli(3)));
-        assertThat(operation4.dependencyTimeAsMilli(), equalTo(Time.fromMilli(3)));
+        assertThat(operation4.scheduledStartTimeAsMilli(), equalTo(3l));
+        assertThat(operation4.dependencyTimeAsMilli(), equalTo(3l));
 
         Operation<?> operation5 = operationsWithDependencyTimes.next();
-        assertThat(operation5.scheduledStartTimeAsMilli(), equalTo(Time.fromMilli(5)));
-        assertThat(operation5.dependencyTimeAsMilli(), equalTo(Time.fromMilli(3)));
+        assertThat(operation5.scheduledStartTimeAsMilli(), equalTo(5l));
+        assertThat(operation5.dependencyTimeAsMilli(), equalTo(3l));
 
         Operation<?> operation6 = operationsWithDependencyTimes.next();
-        assertThat(operation6.scheduledStartTimeAsMilli(), equalTo(Time.fromMilli(6)));
-        assertThat(operation6.dependencyTimeAsMilli(), equalTo(Time.fromMilli(5)));
+        assertThat(operation6.scheduledStartTimeAsMilli(), equalTo(6l));
+        assertThat(operation6.dependencyTimeAsMilli(), equalTo(5l));
 
         Operation<?> operation7 = operationsWithDependencyTimes.next();
-        assertThat(operation7.scheduledStartTimeAsMilli(), equalTo(Time.fromMilli(7)));
-        assertThat(operation7.dependencyTimeAsMilli(), equalTo(Time.fromMilli(6)));
+        assertThat(operation7.scheduledStartTimeAsMilli(), equalTo(7l));
+        assertThat(operation7.dependencyTimeAsMilli(), equalTo(6l));
 
         Operation<?> operation8 = operationsWithDependencyTimes.next();
-        assertThat(operation8.scheduledStartTimeAsMilli(), equalTo(Time.fromMilli(7)));
-        assertThat(operation8.dependencyTimeAsMilli(), equalTo(Time.fromMilli(7)));
+        assertThat(operation8.scheduledStartTimeAsMilli(), equalTo(7l));
+        assertThat(operation8.dependencyTimeAsMilli(), equalTo(7l));
 
         Operation<?> operation9 = operationsWithDependencyTimes.next();
-        assertThat(operation9.scheduledStartTimeAsMilli(), equalTo(Time.fromMilli(8)));
-        assertThat(operation9.dependencyTimeAsMilli(), equalTo(Time.fromMilli(7)));
+        assertThat(operation9.scheduledStartTimeAsMilli(), equalTo(8l));
+        assertThat(operation9.dependencyTimeAsMilli(), equalTo(7l));
 
         assertThat(operationsWithDependencyTimes.hasNext(), is(false));
     }
