@@ -155,7 +155,13 @@ public class TimeMappingOperationGeneratorTest {
         // When
         long newStartTime = 500l;
         Double compressionRatio = 0.2;
-        List<Operation<?>> offsetAndCompressedOperationsList = ImmutableList.copyOf(gf.timeOffsetAndCompress(operationsList.iterator(), newStartTime, compressionRatio));
+        List<Operation<?>> offsetAndCompressedOperationsList = ImmutableList.copyOf(
+                gf.timeOffsetAndCompress(
+                        operationsList.iterator(),
+                        newStartTime,
+                        compressionRatio
+                )
+        );
 
         // Then
         assertThat(offsetAndCompressedOperationsList.size(), is(11));

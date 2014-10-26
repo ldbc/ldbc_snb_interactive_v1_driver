@@ -13,7 +13,7 @@ public class ExternalCompletionTimeStateManager implements ExternalCompletionTim
         for (String peerId : peerIds) {
             if (null == peerId)
                 throw new CompletionTimeException(String.format("Peer ID cannot be null\n%s", peerIds.toString()));
-            peerCompletionTimesAsMilli.put(peerId, null);
+            peerCompletionTimesAsMilli.put(peerId, -1l);
         }
     }
 

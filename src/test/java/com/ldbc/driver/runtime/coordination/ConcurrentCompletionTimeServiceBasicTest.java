@@ -13,7 +13,6 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
 import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.CoreMatchers.nullValue;
 import static org.junit.Assert.assertThat;
 
 public class ConcurrentCompletionTimeServiceBasicTest {
@@ -59,8 +58,8 @@ public class ConcurrentCompletionTimeServiceBasicTest {
         // nothing
 
         // Then
-        assertThat(completionTimeService.globalCompletionTimeAsMilli(), is(nullValue()));
-        assertThat(completionTimeService.globalCompletionTimeAsMilliFuture().get(1, TimeUnit.SECONDS), is(nullValue()));
+        assertThat(completionTimeService.globalCompletionTimeAsMilli(), is(-1l));
+        assertThat(completionTimeService.globalCompletionTimeAsMilliFuture().get(1, TimeUnit.SECONDS), is(-1l));
     }
 
     @Test
@@ -216,7 +215,7 @@ public class ConcurrentCompletionTimeServiceBasicTest {
         // no events have been initiated or completed
 
         // Then
-        assertThat(completionTimeService.globalCompletionTimeAsMilliFuture().get(1, TimeUnit.SECONDS), is(nullValue()));
+        assertThat(completionTimeService.globalCompletionTimeAsMilliFuture().get(1, TimeUnit.SECONDS), is(-1l));
     }
 
     @Test
@@ -262,7 +261,7 @@ public class ConcurrentCompletionTimeServiceBasicTest {
         localCompletionTimeWriter.submitLocalInitiatedTime(1000l);
 
         // Then
-        assertThat(completionTimeService.globalCompletionTimeAsMilliFuture().get(1, TimeUnit.SECONDS), is(nullValue()));
+        assertThat(completionTimeService.globalCompletionTimeAsMilliFuture().get(1, TimeUnit.SECONDS), is(-1l));
     }
 
     @Test
@@ -308,7 +307,7 @@ public class ConcurrentCompletionTimeServiceBasicTest {
         externalCompletionTimeWriter.submitPeerCompletionTime(otherPeerId, 1000l);
 
         // Then
-        assertThat(completionTimeService.globalCompletionTimeAsMilliFuture().get(1, TimeUnit.SECONDS), is(nullValue()));
+        assertThat(completionTimeService.globalCompletionTimeAsMilliFuture().get(1, TimeUnit.SECONDS), is(-1l));
     }
 
     @Test
@@ -355,7 +354,7 @@ public class ConcurrentCompletionTimeServiceBasicTest {
         localCompletionTimeWriter.submitLocalCompletedTime(1000l);
 
         // Then
-        assertThat(completionTimeService.globalCompletionTimeAsMilliFuture().get(1, TimeUnit.SECONDS), is(nullValue()));
+        assertThat(completionTimeService.globalCompletionTimeAsMilliFuture().get(1, TimeUnit.SECONDS), is(-1l));
     }
 
     @Test
@@ -403,7 +402,7 @@ public class ConcurrentCompletionTimeServiceBasicTest {
         externalCompletionTimeWriter.submitPeerCompletionTime(otherPeerId, 2000l);
 
         // Then
-        assertThat(completionTimeService.globalCompletionTimeAsMilliFuture().get(1, TimeUnit.SECONDS), is(nullValue()));
+        assertThat(completionTimeService.globalCompletionTimeAsMilliFuture().get(1, TimeUnit.SECONDS), is(-1l));
     }
 
     @Test
@@ -451,7 +450,7 @@ public class ConcurrentCompletionTimeServiceBasicTest {
         localCompletionTimeWriter.submitLocalCompletedTime(1000l);
         externalCompletionTimeWriter.submitPeerCompletionTime(otherPeerId, 2000l);
 
-        assertThat(completionTimeService.globalCompletionTimeAsMilliFuture().get(), is(nullValue()));
+        assertThat(completionTimeService.globalCompletionTimeAsMilliFuture().get(), is(-1l));
 
         localCompletionTimeWriter.submitLocalInitiatedTime(2000l);
 
@@ -503,7 +502,7 @@ public class ConcurrentCompletionTimeServiceBasicTest {
         localCompletionTimeWriter.submitLocalCompletedTime(2000l);
         externalCompletionTimeWriter.submitPeerCompletionTime(otherPeerId, 1000l);
 
-        assertThat(completionTimeService.globalCompletionTimeAsMilliFuture().get(1, TimeUnit.SECONDS), is(nullValue()));
+        assertThat(completionTimeService.globalCompletionTimeAsMilliFuture().get(1, TimeUnit.SECONDS), is(-1l));
 
         localCompletionTimeWriter.submitLocalInitiatedTime(3000l);
 
@@ -553,13 +552,13 @@ public class ConcurrentCompletionTimeServiceBasicTest {
         // completed []
         // external  (-)
         localCompletionTimeWriter.submitLocalInitiatedTime(1000l);
-        assertThat(completionTimeService.globalCompletionTimeAsMilliFuture().get(1, TimeUnit.SECONDS), is(nullValue()));
+        assertThat(completionTimeService.globalCompletionTimeAsMilliFuture().get(1, TimeUnit.SECONDS), is(-1l));
 
         // initiated [1]
         // completed [1]
         // external  (-)
         localCompletionTimeWriter.submitLocalCompletedTime(1000l);
-        assertThat(completionTimeService.globalCompletionTimeAsMilliFuture().get(1, TimeUnit.SECONDS), is(nullValue()));
+        assertThat(completionTimeService.globalCompletionTimeAsMilliFuture().get(1, TimeUnit.SECONDS), is(-1l));
 
         // initiated [1,2]
         // completed [1]
@@ -698,9 +697,9 @@ public class ConcurrentCompletionTimeServiceBasicTest {
         // initiated [1]
         // completed [1]
         localCompletionTimeWriter.submitLocalInitiatedTime(1000l);
-        assertThat(completionTimeService.globalCompletionTimeAsMilliFuture().get(1, TimeUnit.SECONDS), is(nullValue()));
+        assertThat(completionTimeService.globalCompletionTimeAsMilliFuture().get(1, TimeUnit.SECONDS), is(-1l));
         localCompletionTimeWriter.submitLocalCompletedTime(1000l);
-        assertThat(completionTimeService.globalCompletionTimeAsMilliFuture().get(1, TimeUnit.SECONDS), is(nullValue()));
+        assertThat(completionTimeService.globalCompletionTimeAsMilliFuture().get(1, TimeUnit.SECONDS), is(-1l));
 
         // initiated [1,2]
         // completed [1,2]
@@ -814,28 +813,28 @@ public class ConcurrentCompletionTimeServiceBasicTest {
         ExternalCompletionTimeWriter externalCompletionTimeWriter = completionTimeService;
 
         // When/Then
-        assertThat(completionTimeService.globalCompletionTimeAsMilliFuture().get(1, TimeUnit.SECONDS), is(nullValue()));
+        assertThat(completionTimeService.globalCompletionTimeAsMilliFuture().get(1, TimeUnit.SECONDS), is(-1l));
 
         // initiated [1]
         // completed [1]
         // external  (-)
         localCompletionTimeWriter.submitLocalInitiatedTime(1000l);
-        assertThat(completionTimeService.globalCompletionTimeAsMilliFuture().get(1, TimeUnit.SECONDS), is(nullValue()));
+        assertThat(completionTimeService.globalCompletionTimeAsMilliFuture().get(1, TimeUnit.SECONDS), is(-1l));
 
         localCompletionTimeWriter.submitLocalCompletedTime(1000l);
-        assertThat(completionTimeService.globalCompletionTimeAsMilliFuture().get(1, TimeUnit.SECONDS), is(nullValue()));
+        assertThat(completionTimeService.globalCompletionTimeAsMilliFuture().get(1, TimeUnit.SECONDS), is(-1l));
 
         // initiated [1]
         // completed [1]
         // external  (1)
         externalCompletionTimeWriter.submitPeerCompletionTime(otherPeerId, 1000l);
-        assertThat(completionTimeService.globalCompletionTimeAsMilliFuture().get(1, TimeUnit.SECONDS), is(nullValue()));
+        assertThat(completionTimeService.globalCompletionTimeAsMilliFuture().get(1, TimeUnit.SECONDS), is(-1l));
 
         // initiated [1]
         // completed [1]
         // external  (3)
         externalCompletionTimeWriter.submitPeerCompletionTime(otherPeerId, 3000l);
-        assertThat(completionTimeService.globalCompletionTimeAsMilliFuture().get(1, TimeUnit.SECONDS), is(nullValue()));
+        assertThat(completionTimeService.globalCompletionTimeAsMilliFuture().get(1, TimeUnit.SECONDS), is(-1l));
 
         // initiated [1,2]
         // completed [1]
