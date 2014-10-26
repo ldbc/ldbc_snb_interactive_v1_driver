@@ -2,7 +2,7 @@ package com.ldbc.driver.control;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
-import com.ldbc.driver.temporal.Duration;
+import com.ldbc.driver.temporal.TemporalUtil;
 import com.ldbc.driver.testutils.TestUtils;
 import com.ldbc.driver.util.MapUtils;
 import com.ldbc.driver.workloads.ldbc.snb.interactive.LdbcSnbInteractiveWorkload;
@@ -20,6 +20,8 @@ import static org.hamcrest.CoreMatchers.*;
 import static org.junit.Assert.assertThat;
 
 public class ConsoleAndFileDriverConfigurationTest {
+    private static final TemporalUtil TEMPORAL_UTIL = new TemporalUtil();
+
     @Test
     public void applyMapShouldWork() throws DriverConfigurationException {
         ConsoleAndFileDriverConfiguration configuration1 = ConsoleAndFileDriverConfiguration.fromDefaults("db1", "workload1", 1);
@@ -58,18 +60,18 @@ public class ConsoleAndFileDriverConfigurationTest {
     public void toMapThenFromMapShouldReturnSameResultWhenAllParamsAreInitiallySetViaConstructor() throws DriverConfigurationException {
         long operationCount = 2;
         int threadCount = 4;
-        Duration statusDisplayInterval = Duration.fromSeconds(1);
+        int statusDisplayInterval = 1000;
         TimeUnit timeUnit = TimeUnit.MILLISECONDS;
         String resultDirPath = "results dir";
         Double timeCompressionRatio = 1.0;
         Set<String> peerIds = new HashSet<>();
-        Duration toleratedExecutionDelay = Duration.fromMinutes(60);
-        Duration windowedExecutionWindowDuration = Duration.fromSeconds(1);
+        long toleratedExecutionDelay = TEMPORAL_UTIL.convert(60, TimeUnit.MINUTES, TimeUnit.MILLISECONDS);
+        long windowedExecutionWindowDuration = 1000l;
         ConsoleAndFileDriverConfiguration.ConsoleAndFileValidationParamOptions validationCreationParams = null;
         String databaseValidationFilePath = null;
         boolean validateWorkload = false;
         boolean calculateWorkloadStatistics = false;
-        Duration spinnerSleepDuration = Duration.fromMilli(0);
+        long spinnerSleepDuration = 0l;
         boolean printHelp = false;
         boolean shouldCreateResultsLog = true;
         String name = "LDBC-SNB";
@@ -427,18 +429,18 @@ public class ConsoleAndFileDriverConfigurationTest {
         String workloadClassName = "workloadClassName";
         long operationCount = 1;
         int threadCount = 3;
-        Duration statusDisplayInterval = Duration.fromSeconds(1);
+        int statusDisplayInterval = 1000;
         TimeUnit timeUnit = TimeUnit.SECONDS;
         String resultDirPath = null;
         Double timeCompressionRatio = 1.0;
-        Duration windowedExecutionWindowDuration = Duration.fromMilli(1);
+        long windowedExecutionWindowDuration = 1l;
         Set<String> peerIds = Sets.newHashSet("1");
-        Duration toleratedExecutionDelay = Duration.fromMilli(2);
+        long toleratedExecutionDelay = 2l;
         ConsoleAndFileDriverConfiguration.ConsoleAndFileValidationParamOptions validationParams = new ConsoleAndFileDriverConfiguration.ConsoleAndFileValidationParamOptions("file", 1);
         String dbValidationFilePath = null;
         boolean validateWorkload = false;
         boolean calculateWorkloadStatistics = false;
-        Duration spinnerSleepDuration = Duration.fromMilli(0);
+        long spinnerSleepDuration = 0l;
         boolean printHelp = false;
         boolean ignoreScheduledStartTimes = false;
         boolean shouldCreateResultsLog = true;

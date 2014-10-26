@@ -9,9 +9,7 @@ import com.ldbc.driver.runtime.ConcurrentErrorReporter;
 import com.ldbc.driver.runtime.coordination.LocalCompletionTimeWriter;
 import com.ldbc.driver.runtime.metrics.ConcurrentMetricsService;
 import com.ldbc.driver.runtime.scheduling.Spinner;
-import com.ldbc.driver.temporal.Duration;
 import com.ldbc.driver.temporal.SystemTimeSource;
-import com.ldbc.driver.temporal.Time;
 import com.ldbc.driver.temporal.TimeSource;
 import com.ldbc.driver.workloads.dummy.NothingOperation;
 import com.ldbc.driver.workloads.dummy.NothingOperationHandler;
@@ -36,16 +34,16 @@ public class WindowGeneratorTest {
         // Given
         Operation[] operations = new Operation[]{};
         Iterator<Operation<?>> identityGenerator = new IdentityGenerator<Operation<?>>(operations);
-        final Duration windowDuration = Duration.fromSeconds(5);
+        final long windowDuration = 5000l;
 
         // When
         Iterator<Window<Operation<?>, ?>> windows = new Generator<Window<Operation<?>, ?>>() {
-            private Time windowStartTime = Time.fromSeconds(0);
+            private long windowStartTime = 0l;
 
             @Override
             protected Window<Operation<?>, ?> doNext() throws GeneratorException {
                 Window<Operation<?>, ?> window = new Window.OperationTimeRangeWindow(windowStartTime, windowDuration);
-                windowStartTime = windowStartTime.plus(windowDuration);
+                windowStartTime = windowStartTime + windowDuration;
                 return window;
             }
         };
@@ -61,12 +59,12 @@ public class WindowGeneratorTest {
     @Test
     public void shouldReturnAllOperationWindows() throws OperationException {
         // Given
-        Time[] times = new Time[]{
-                Time.fromSeconds(1), Time.fromSeconds(3),
-                Time.fromSeconds(5), Time.fromSeconds(6),
-                Time.fromSeconds(10),
+        long[] times = new long[]{
+                1000l, 3000l,
+                5000l, 6000l,
+                10000l,
                 // nothing in this window 15-19
-                Time.fromSeconds(20),
+                20000l,
         };
         NothingOperation[] operations = new NothingOperation[times.length];
         for (int i = 0; i < operations.length; i++) {
@@ -76,16 +74,16 @@ public class WindowGeneratorTest {
         }
 
         Iterator<Operation<?>> identityGenerator = new IdentityGenerator<Operation<?>>(operations);
-        final Duration windowDuration = Duration.fromSeconds(5);
+        final long windowDuration = 5000l;
 
         // When
         Iterator<Window<Operation<?>, List<Operation<?>>>> windows = new Generator<Window<Operation<?>, List<Operation<?>>>>() {
-            private Time windowStartTime = Time.fromSeconds(0);
+            private long windowStartTime = 0l;
 
             @Override
             protected Window<Operation<?>, List<Operation<?>>> doNext() throws GeneratorException {
                 Window<Operation<?>, List<Operation<?>>> window = new Window.OperationTimeRangeWindow(windowStartTime, windowDuration);
-                windowStartTime = windowStartTime.plus(windowDuration);
+                windowStartTime = windowStartTime + windowDuration;
                 return window;
             }
         };
@@ -98,20 +96,20 @@ public class WindowGeneratorTest {
         List<Operation<?>> nextOperationWindow;
         nextOperationWindow = windowGenerator.next().contents();
         assertThat(nextOperationWindow.size(), is(2));
-        assertThat(nextOperationWindow.get(0).scheduledStartTimeAsMilli(), equalTo(Time.fromSeconds(1)));
-        assertThat(nextOperationWindow.get(1).scheduledStartTimeAsMilli(), equalTo(Time.fromSeconds(3)));
+        assertThat(nextOperationWindow.get(0).scheduledStartTimeAsMilli(), equalTo(1000l));
+        assertThat(nextOperationWindow.get(1).scheduledStartTimeAsMilli(), equalTo(3000l));
         nextOperationWindow = windowGenerator.next().contents();
         assertThat(nextOperationWindow.size(), is(2));
-        assertThat(nextOperationWindow.get(0).scheduledStartTimeAsMilli(), equalTo(Time.fromSeconds(5)));
-        assertThat(nextOperationWindow.get(1).scheduledStartTimeAsMilli(), equalTo(Time.fromSeconds(6)));
+        assertThat(nextOperationWindow.get(0).scheduledStartTimeAsMilli(), equalTo(5000l));
+        assertThat(nextOperationWindow.get(1).scheduledStartTimeAsMilli(), equalTo(6000l));
         nextOperationWindow = windowGenerator.next().contents();
         assertThat(nextOperationWindow.size(), is(1));
-        assertThat(nextOperationWindow.get(0).scheduledStartTimeAsMilli(), equalTo(Time.fromSeconds(10)));
+        assertThat(nextOperationWindow.get(0).scheduledStartTimeAsMilli(), equalTo(10000l));
         nextOperationWindow = windowGenerator.next().contents();
         assertThat(nextOperationWindow.size(), is(0));
         nextOperationWindow = windowGenerator.next().contents();
         assertThat(nextOperationWindow.size(), is(1));
-        assertThat(nextOperationWindow.get(0).scheduledStartTimeAsMilli(), equalTo(Time.fromSeconds(20)));
+        assertThat(nextOperationWindow.get(0).scheduledStartTimeAsMilli(), equalTo(20000l));
         assertThat(windowGenerator.hasNext(), is(false));
     }
 
@@ -124,16 +122,16 @@ public class WindowGeneratorTest {
         // Given
         OperationHandler[] handlers = new OperationHandler[]{};
         Iterator<OperationHandler<?>> identityGenerator = new IdentityGenerator<OperationHandler<?>>(handlers);
-        final Duration windowDuration = Duration.fromSeconds(5);
+        final long windowDuration = 5000l;
 
         // When
         Iterator<Window<OperationHandler<?>, ?>> windows = new Generator<Window<OperationHandler<?>, ?>>() {
-            private Time windowStartTime = Time.fromSeconds(0);
+            private long windowStartTime = 0l;
 
             @Override
             protected Window<OperationHandler<?>, ?> doNext() throws GeneratorException {
                 Window<OperationHandler<?>, ?> window = new Window.OperationHandlerTimeRangeWindow(windowStartTime, windowDuration);
-                windowStartTime = windowStartTime.plus(windowDuration);
+                windowStartTime = windowStartTime + windowDuration;
                 return window;
             }
         };
@@ -149,12 +147,12 @@ public class WindowGeneratorTest {
     @Test
     public void shouldReturnAllHandlerWindows() throws OperationException {
         // Given
-        Time[] times = new Time[]{
-                Time.fromSeconds(1), Time.fromSeconds(3),
-                Time.fromSeconds(5), Time.fromSeconds(6),
-                Time.fromSeconds(10),
+        long[] times = new long[]{
+                1000l, 3000l,
+                5000l, 6000l,
+                10000l,
                 // nothing in this window 15-19
-                Time.fromSeconds(20),
+                20000l,
         };
         NothingOperationHandler[] handlers = new NothingOperationHandler[times.length];
         for (int i = 0; i < handlers.length; i++) {
@@ -170,16 +168,16 @@ public class WindowGeneratorTest {
         }
 
         Iterator<OperationHandler<?>> identityGenerator = new IdentityGenerator<OperationHandler<?>>(handlers);
-        final Duration windowDuration = Duration.fromSeconds(5);
+        final long windowDuration = 5000l;
 
         // When
         Iterator<Window<OperationHandler<?>, List<OperationHandler<?>>>> windows = new Generator<Window<OperationHandler<?>, List<OperationHandler<?>>>>() {
-            private Time windowStartTime = Time.fromSeconds(0);
+            private long windowStartTime = 0l;
 
             @Override
             protected Window<OperationHandler<?>, List<OperationHandler<?>>> doNext() throws GeneratorException {
                 Window<OperationHandler<?>, List<OperationHandler<?>>> window = new Window.OperationHandlerTimeRangeWindow(windowStartTime, windowDuration);
-                windowStartTime = windowStartTime.plus(windowDuration);
+                windowStartTime = windowStartTime + windowDuration;
                 return window;
             }
         };
@@ -192,20 +190,20 @@ public class WindowGeneratorTest {
         List<OperationHandler<?>> nextHandler;
         nextHandler = windowGenerator.next().contents();
         assertThat(nextHandler.size(), is(2));
-        assertThat(nextHandler.get(0).operation().scheduledStartTimeAsMilli(), equalTo(Time.fromSeconds(1)));
-        assertThat(nextHandler.get(1).operation().scheduledStartTimeAsMilli(), equalTo(Time.fromSeconds(3)));
+        assertThat(nextHandler.get(0).operation().scheduledStartTimeAsMilli(), equalTo(1000l));
+        assertThat(nextHandler.get(1).operation().scheduledStartTimeAsMilli(), equalTo(3000l));
         nextHandler = windowGenerator.next().contents();
         assertThat(nextHandler.size(), is(2));
-        assertThat(nextHandler.get(0).operation().scheduledStartTimeAsMilli(), equalTo(Time.fromSeconds(5)));
-        assertThat(nextHandler.get(1).operation().scheduledStartTimeAsMilli(), equalTo(Time.fromSeconds(6)));
+        assertThat(nextHandler.get(0).operation().scheduledStartTimeAsMilli(), equalTo(5000l));
+        assertThat(nextHandler.get(1).operation().scheduledStartTimeAsMilli(), equalTo(6000l));
         nextHandler = windowGenerator.next().contents();
         assertThat(nextHandler.size(), is(1));
-        assertThat(nextHandler.get(0).operation().scheduledStartTimeAsMilli(), equalTo(Time.fromSeconds(10)));
+        assertThat(nextHandler.get(0).operation().scheduledStartTimeAsMilli(), equalTo(10000l));
         nextHandler = windowGenerator.next().contents();
         assertThat(nextHandler.size(), is(0));
         nextHandler = windowGenerator.next().contents();
         assertThat(nextHandler.size(), is(1));
-        assertThat(nextHandler.get(0).operation().scheduledStartTimeAsMilli(), equalTo(Time.fromSeconds(20)));
+        assertThat(nextHandler.get(0).operation().scheduledStartTimeAsMilli(), equalTo(20000l));
         assertThat(windowGenerator.hasNext(), is(false));
     }
 
@@ -216,27 +214,27 @@ public class WindowGeneratorTest {
     @Test
     public void shouldReturnNothingWhenTimesIsEmptyAndReturnStrategy() {
         // Given
-        Time[] times = new Time[]{};
-        Iterator<Time> identityGenerator = new IdentityGenerator<>(times);
-        final Duration windowDuration = Duration.fromSeconds(5);
+        Long[] times = new Long[]{};
+        Iterator<Long> identityGenerator = new IdentityGenerator<>(times);
+        final long windowDuration = 5000l;
 
         // When
-        Iterator<Window<Time, ?>> windows = new Generator<Window<Time, ?>>() {
-            private Time windowStartTime = Time.fromSeconds(0);
+        Iterator<Window<Long, ?>> windows = new Generator<Window<Long, ?>>() {
+            private Long windowStartTime = 0l;
 
             @Override
-            protected Window<Time, ?> doNext() throws GeneratorException {
-                Predicate<Time> timeInRange = new Predicate<Time>() {
+            protected Window<Long, ?> doNext() throws GeneratorException {
+                Predicate<Long> timeInRange = new Predicate<Long>() {
                     @Override
-                    public boolean apply(Time time) {
-                        return time.gte(windowStartTime) && time.lt(windowStartTime.plus(windowDuration));
+                    public boolean apply(Long time) {
+                        return time >= windowStartTime && time < (windowStartTime + windowDuration);
                     }
                 };
-                windowStartTime = windowStartTime.plus(windowDuration);
+                windowStartTime = windowStartTime + windowDuration;
                 return new Window.PredicateWindow<>(timeInRange);
             }
         };
-        Iterator<Window<Time, ?>> windowGenerator = new WindowGenerator<>(
+        Iterator<Window<Long, ?>> windowGenerator = new WindowGenerator<>(
                 identityGenerator,
                 windows,
                 WindowGenerator.PartialWindowStrategy.RETURN);
@@ -248,40 +246,40 @@ public class WindowGeneratorTest {
     @Test
     public void shouldReturnAllTimeWindows() {
         // Given
-        Time[] times = new Time[]{
-                Time.fromSeconds(1), Time.fromSeconds(3),
-                Time.fromSeconds(5), Time.fromSeconds(6),
-                Time.fromSeconds(10)};
-        Iterator<Time> identityGenerator = new IdentityGenerator<>(times);
-        final Duration windowDuration = Duration.fromSeconds(5);
+        Long[] times = new Long[]{
+                1000l, 3000l,
+                5000l, 6000l,
+                10000l};
+        Iterator<Long> identityGenerator = new IdentityGenerator<>(times);
+        final long windowDuration = 5000l;
 
         // When
-        Iterator<Window<Time, List<Time>>> windows = new Generator<Window<Time, List<Time>>>() {
-            private Time windowStartTime = Time.fromSeconds(0);
+        Iterator<Window<Long, List<Long>>> windows = new Generator<Window<Long, List<Long>>>() {
+            private long windowStartTime = 0l;
 
             @Override
-            protected Window<Time, List<Time>> doNext() throws GeneratorException {
-                Predicate<Time> timeInRange = new Predicate<Time>() {
-                    private Time myWindowStartTime = windowStartTime;
+            protected Window<Long, List<Long>> doNext() throws GeneratorException {
+                Predicate<Long> timeInRange = new Predicate<Long>() {
+                    private Long myWindowStartTime = windowStartTime;
 
                     @Override
-                    public boolean apply(Time time) {
-                        return time.gte(myWindowStartTime) && time.lt(myWindowStartTime.plus(windowDuration));
+                    public boolean apply(Long time) {
+                        return time >= myWindowStartTime && time < (myWindowStartTime + windowDuration);
                     }
                 };
-                windowStartTime = windowStartTime.plus(windowDuration);
+                windowStartTime = windowStartTime + windowDuration;
                 return new Window.PredicateWindow<>(timeInRange);
             }
         };
-        Iterator<Window<Time, List<Time>>> windowGenerator = new WindowGenerator<>(
+        Iterator<Window<Long, List<Long>>> windowGenerator = new WindowGenerator<>(
                 identityGenerator,
                 windows,
                 WindowGenerator.PartialWindowStrategy.RETURN);
 
         // Then
-        assertThat(windowGenerator.next().contents(), equalTo((List<Time>) Lists.newArrayList(Time.fromSeconds(1), Time.fromSeconds(3))));
-        assertThat(windowGenerator.next().contents(), equalTo((List<Time>) Lists.newArrayList(Time.fromSeconds(5), Time.fromSeconds(6))));
-        assertThat(windowGenerator.next().contents(), equalTo((List<Time>) Lists.newArrayList(Time.fromSeconds(10))));
+        assertThat(windowGenerator.next().contents(), equalTo((List<Long>) Lists.newArrayList(1000l, 3000l)));
+        assertThat(windowGenerator.next().contents(), equalTo((List<Long>) Lists.newArrayList(5000l, 6000l)));
+        assertThat(windowGenerator.next().contents(), equalTo((List<Long>) Lists.newArrayList(10000l)));
         assertThat(windowGenerator.hasNext(), is(false));
 
     }

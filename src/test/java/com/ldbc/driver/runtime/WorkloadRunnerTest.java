@@ -18,15 +18,14 @@ import com.ldbc.driver.runtime.metrics.ThreadedQueuedConcurrentMetricsService;
 import com.ldbc.driver.runtime.metrics.WorkloadResultsSnapshot;
 import com.ldbc.driver.runtime.scheduling.ErrorReportingTerminatingExecutionDelayPolicy;
 import com.ldbc.driver.runtime.scheduling.ExecutionDelayPolicy;
-import com.ldbc.driver.temporal.Duration;
 import com.ldbc.driver.temporal.SystemTimeSource;
-import com.ldbc.driver.temporal.Time;
+import com.ldbc.driver.temporal.TemporalUtil;
 import com.ldbc.driver.temporal.TimeSource;
 import com.ldbc.driver.testutils.TestUtils;
-import com.ldbc.driver.util.csv.SimpleCsvFileReader;
-import com.ldbc.driver.util.csv.SimpleCsvFileWriter;
 import com.ldbc.driver.util.MapUtils;
 import com.ldbc.driver.util.Tuple;
+import com.ldbc.driver.util.csv.SimpleCsvFileReader;
+import com.ldbc.driver.util.csv.SimpleCsvFileWriter;
 import com.ldbc.driver.workloads.ldbc.snb.interactive.LdbcSnbInteractiveConfiguration;
 import com.ldbc.driver.workloads.ldbc.snb.interactive.LdbcSnbInteractiveWorkload;
 import com.ldbc.driver.workloads.ldbc.snb.interactive.db.DummyLdbcSnbInteractiveDb;
@@ -44,9 +43,10 @@ import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
 
 public class WorkloadRunnerTest {
+    private static final TemporalUtil TEMPORAL_UTIL = new TemporalUtil();
     @Rule
     public TemporaryFolder temporaryFolder = new TemporaryFolder();
-    private static final long ONE_SECOND_AS_NANO = Time.fromSeconds(1).asNano();
+    private static final long ONE_SECOND_AS_NANO = TEMPORAL_UTIL.convert(1, TimeUnit.SECONDS, TimeUnit.NANOSECONDS);
 
     TimeSource timeSource = new SystemTimeSource();
     CompletionTimeServiceAssistant completionTimeServiceAssistant = new CompletionTimeServiceAssistant();
@@ -80,18 +80,18 @@ public class WorkloadRunnerTest {
             String name = null;
             String dbClassName = DummyLdbcSnbInteractiveDb.class.getName();
             String workloadClassName = LdbcSnbInteractiveWorkload.class.getName();
-            Duration statusDisplayInterval = Duration.fromSeconds(0);
+            int statusDisplayInterval = 0;
             TimeUnit timeUnit = TimeUnit.NANOSECONDS;
             String resultDirPath = temporaryFolder.newFolder().getAbsolutePath();
             double timeCompressionRatio = 0.0001;
-            Duration windowedExecutionWindowDuration = Duration.fromSeconds(1);
+            long windowedExecutionWindowDuration = 1000l;
             Set<String> peerIds = new HashSet<>();
-            Duration toleratedExecutionDelay = Duration.fromMinutes(60);
+            long toleratedExecutionDelay = TEMPORAL_UTIL.convert(1, TimeUnit.HOURS, TimeUnit.MILLISECONDS);
             ConsoleAndFileDriverConfiguration.ConsoleAndFileValidationParamOptions validationParams = null;
             String dbValidationFilePath = null;
             boolean validateWorkload = false;
             boolean calculateWorkloadStatistics = false;
-            Duration spinnerSleepDuration = Duration.fromMilli(0);
+            long spinnerSleepDuration = 0l;
             boolean printHelp = false;
             boolean ignoreScheduledStartTimes = false;
             boolean shouldCreateResultsLog = true;
@@ -122,7 +122,7 @@ public class WorkloadRunnerTest {
 
             configuration = (ConsoleAndFileDriverConfiguration) configuration.applyMap(MapUtils.loadPropertiesToMap(TestUtils.getResource("/updateStream.properties")));
 
-            controlService = new LocalControlService(timeSource.now(), configuration);
+            controlService = new LocalControlService(timeSource.nowAsMilli(), configuration);
             db = new DummyLdbcSnbInteractiveDb();
             db.init(configuration.asMap());
 
@@ -170,10 +170,7 @@ public class WorkloadRunnerTest {
                     concurrentCompletionTimeService,
                     controlService.configuration().threadCount(),
                     controlService.configuration().statusDisplayIntervalAsSeconds(),
-                    controlService.workloadStartTimeAsMilli(),
                     controlService.configuration().spinnerSleepDurationAsMilli(),
-                    controlService.configuration().windowedExecutionWindowDurationAsMilli(),
-                    WorkloadRunner.DEFAULT_DURATION_TO_WAIT_FOR_ALL_HANDLERS_TO_FINISH,
                     controlService.configuration().ignoreScheduledStartTimes(),
                     boundedQueueSize);
 
@@ -182,9 +179,9 @@ public class WorkloadRunnerTest {
             WorkloadResultsSnapshot workloadResults = metricsService.results();
 
             assertThat(errorReporter.toString() + "\n" + workloadResults.toString(), errorReporter.errorEncountered(), is(false));
-            assertThat(errorReporter.toString() + "\n" + workloadResults.toString(), workloadResults.startTimeAsMilli().gte(controlService.workloadStartTimeAsMilli()), is(true));
-            assertThat(errorReporter.toString() + "\n" + workloadResults.toString(), workloadResults.startTimeAsMilli().lt(controlService.workloadStartTimeAsMilli().plus(configuration.toleratedExecutionDelayAsMilli())), is(true));
-            assertThat(errorReporter.toString() + "\n" + workloadResults.toString(), workloadResults.latestFinishTimeAsMilli().gte(workloadResults.startTimeAsMilli()), is(true));
+            assertThat(errorReporter.toString() + "\n" + workloadResults.toString(), workloadResults.startTimeAsMilli() >= controlService.workloadStartTimeAsMilli(), is(true));
+            assertThat(errorReporter.toString() + "\n" + workloadResults.toString(), workloadResults.startTimeAsMilli() < (controlService.workloadStartTimeAsMilli() + configuration.toleratedExecutionDelayAsMilli()), is(true));
+            assertThat(errorReporter.toString() + "\n" + workloadResults.toString(), workloadResults.latestFinishTimeAsMilli() >= workloadResults.startTimeAsMilli(), is(true));
             assertThat(errorReporter.toString() + "\n" + workloadResults.toString(), workloadResults.totalOperationCount(), is(operationCount));
 
             WorkloadResultsSnapshot workloadResultsFromJson = WorkloadResultsSnapshot.fromJson(workloadResults.toJson());
@@ -197,8 +194,8 @@ public class WorkloadRunnerTest {
             assertThat((long) Iterators.size(csvResultsLogReader), is(configuration.operationCount())); // NOT + 1 because I didn't add csv headers
             csvResultsLogReader.close();
 
-            double operationsPerSecond = Math.round(((double) operationCount / workloadResults.totalRunDurationAsNano().asNano()) * ONE_SECOND_AS_NANO);
-            double microSecondPerOperation = (double) workloadResults.totalRunDurationAsNano().asMicro() / operationCount;
+            double operationsPerSecond = Math.round(((double) operationCount / workloadResults.totalRunDurationAsNano()) * ONE_SECOND_AS_NANO);
+            double microSecondPerOperation = (double) TEMPORAL_UTIL.convert(workloadResults.totalRunDurationAsNano(), TimeUnit.NANOSECONDS, TimeUnit.MICROSECONDS) / operationCount;
             System.out.println(String.format("[%s threads] Completed %s operations in %s = %s op/sec = 1 op/%s us", threadCount, operationCount, workloadResults.totalRunDurationAsNano(), operationsPerSecond, microSecondPerOperation));
         } finally {
             System.out.println(errorReporter.toString());
@@ -264,18 +261,18 @@ public class WorkloadRunnerTest {
             String name = null;
             String dbClassName = DummyLdbcSnbInteractiveDb.class.getName();
             String workloadClassName = LdbcSnbInteractiveWorkload.class.getName();
-            Duration statusDisplayInterval = Duration.fromSeconds(0);
+            int statusDisplayInterval = 0;
             TimeUnit timeUnit = TimeUnit.NANOSECONDS;
             String resultDirPath = temporaryFolder.newFolder().getAbsolutePath();
             double timeCompressionRatio = 1.0;
-            Duration windowedExecutionWindowDuration = Duration.fromSeconds(1);
+            long windowedExecutionWindowDuration = 1000l;
             Set<String> peerIds = new HashSet<>();
-            Duration toleratedExecutionDelay = Duration.fromMinutes(60);
+            long toleratedExecutionDelay = TEMPORAL_UTIL.convert(1, TimeUnit.HOURS, TimeUnit.MILLISECONDS);
             ConsoleAndFileDriverConfiguration.ConsoleAndFileValidationParamOptions validationParams = null;
             String dbValidationFilePath = null;
             boolean validateWorkload = false;
             boolean calculateWorkloadStatistics = false;
-            Duration spinnerSleepDuration = Duration.fromMilli(0);
+            long spinnerSleepDuration = 0l;
             boolean printHelp = false;
             boolean ignoreScheduledStartTimes = true;
             boolean shouldCreateResultsLog = true;
@@ -306,7 +303,7 @@ public class WorkloadRunnerTest {
 
             configuration = (ConsoleAndFileDriverConfiguration) configuration.applyMap(MapUtils.loadPropertiesToMap(TestUtils.getResource("/updateStream.properties")));
 
-            controlService = new LocalControlService(timeSource.now().plus(Duration.fromMilli(1000)), configuration);
+            controlService = new LocalControlService(timeSource.nowAsMilli() + 1000, configuration);
             db = new DummyLdbcSnbInteractiveDb();
             db.init(configuration.asMap());
             workload = new LdbcSnbInteractiveWorkload();
@@ -347,10 +344,7 @@ public class WorkloadRunnerTest {
                     completionTimeService,
                     controlService.configuration().threadCount(),
                     controlService.configuration().statusDisplayIntervalAsSeconds(),
-                    controlService.workloadStartTimeAsMilli(),
                     controlService.configuration().spinnerSleepDurationAsMilli(),
-                    controlService.configuration().windowedExecutionWindowDurationAsMilli(),
-                    WorkloadRunner.DEFAULT_DURATION_TO_WAIT_FOR_ALL_HANDLERS_TO_FINISH,
                     controlService.configuration().ignoreScheduledStartTimes(),
                     boundedQueueSize);
 
@@ -359,9 +353,9 @@ public class WorkloadRunnerTest {
             WorkloadResultsSnapshot workloadResults = metricsService.results();
 
             assertThat(errorReporter.toString() + "\n" + workloadResults.toString(), errorReporter.errorEncountered(), is(false));
-            assertThat(errorReporter.toString() + "\n" + workloadResults.toString(), workloadResults.startTimeAsMilli().gte(controlService.workloadStartTimeAsMilli()), is(true));
-            assertThat(errorReporter.toString() + "\n" + workloadResults.toString(), workloadResults.startTimeAsMilli().lt(controlService.workloadStartTimeAsMilli().plus(configuration.toleratedExecutionDelayAsMilli())), is(true));
-            assertThat(errorReporter.toString() + "\n" + workloadResults.toString(), workloadResults.latestFinishTimeAsMilli().gte(workloadResults.startTimeAsMilli()), is(true));
+            assertThat(errorReporter.toString() + "\n" + workloadResults.toString(), workloadResults.startTimeAsMilli() >= controlService.workloadStartTimeAsMilli(), is(true));
+            assertThat(errorReporter.toString() + "\n" + workloadResults.toString(), workloadResults.startTimeAsMilli() < (controlService.workloadStartTimeAsMilli() + configuration.toleratedExecutionDelayAsMilli()), is(true));
+            assertThat(errorReporter.toString() + "\n" + workloadResults.toString(), workloadResults.latestFinishTimeAsMilli() >= workloadResults.startTimeAsMilli(), is(true));
             assertThat(errorReporter.toString() + "\n" + workloadResults.toString(), workloadResults.totalOperationCount(), is(operationCount));
 
             WorkloadResultsSnapshot workloadResultsFromJson = WorkloadResultsSnapshot.fromJson(workloadResults.toJson());
@@ -374,8 +368,8 @@ public class WorkloadRunnerTest {
             assertThat((long) Iterators.size(csvResultsLogReader), is(configuration.operationCount())); // NOT + 1 because I didn't add csv headers
             csvResultsLogReader.close();
 
-            double operationsPerSecond = Math.round(((double) operationCount / workloadResults.totalRunDurationAsNano().asNano()) * ONE_SECOND_AS_NANO);
-            double microSecondPerOperation = (double) workloadResults.totalRunDurationAsNano().asMicro() / operationCount;
+            double operationsPerSecond = Math.round(((double) operationCount / workloadResults.totalRunDurationAsNano()) * ONE_SECOND_AS_NANO);
+            double microSecondPerOperation = (double) TEMPORAL_UTIL.convert(workloadResults.totalRunDurationAsNano(), TimeUnit.NANOSECONDS, TimeUnit.MICROSECONDS) / operationCount;
             System.out.println(String.format("[%s threads] Completed %s operations in %s = %s op/sec = 1 op/%s us", threadCount, operationCount, workloadResults.totalRunDurationAsNano(), operationsPerSecond, microSecondPerOperation));
         } finally {
             System.out.println(errorReporter.toString());

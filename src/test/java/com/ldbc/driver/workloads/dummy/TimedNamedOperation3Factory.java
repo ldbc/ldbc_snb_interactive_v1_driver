@@ -1,17 +1,16 @@
 package com.ldbc.driver.workloads.dummy;
 
 import com.ldbc.driver.Operation;
-import com.ldbc.driver.temporal.Time;
 
 import java.util.Iterator;
 
 public class TimedNamedOperation3Factory implements Iterator<Operation<?>> {
-    private final Iterator<Time> startTimes;
-    private final Iterator<Time> dependencyTimes;
+    private final Iterator<Long> startTimes;
+    private final Iterator<Long> dependencyTimes;
     private final Iterator<String> names;
 
-    public TimedNamedOperation3Factory(Iterator<Time> startTimes,
-                                       Iterator<Time> dependencyTimes,
+    public TimedNamedOperation3Factory(Iterator<Long> startTimes,
+                                       Iterator<Long> dependencyTimes,
                                        Iterator<String> names) {
         this.startTimes = startTimes;
         this.dependencyTimes = dependencyTimes;

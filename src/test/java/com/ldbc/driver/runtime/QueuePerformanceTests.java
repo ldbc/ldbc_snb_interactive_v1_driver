@@ -5,9 +5,8 @@ import com.ldbc.driver.control.ConsoleAndFileDriverConfiguration;
 import com.ldbc.driver.control.DriverConfiguration;
 import com.ldbc.driver.generator.GeneratorFactory;
 import com.ldbc.driver.generator.RandomDataGeneratorFactory;
-import com.ldbc.driver.temporal.Duration;
 import com.ldbc.driver.temporal.SystemTimeSource;
-import com.ldbc.driver.temporal.Time;
+import com.ldbc.driver.temporal.TemporalUtil;
 import com.ldbc.driver.temporal.TimeSource;
 import com.ldbc.driver.testutils.TestUtils;
 import com.ldbc.driver.util.MapUtils;
@@ -28,6 +27,8 @@ import static org.junit.Assert.assertThat;
 
 @Ignore
 public class QueuePerformanceTests {
+    private static final TemporalUtil TEMPORAL_UTIL = new TemporalUtil();
+
     static Map<String, String> defaultSnbParamsMapWithParametersDir() {
         Map<String, String> additionalParams = new HashMap<>();
         additionalParams.put(LdbcSnbInteractiveConfiguration.PARAMETERS_DIRECTORY, TestUtils.getResource("/").getAbsolutePath());
@@ -63,18 +64,18 @@ public class QueuePerformanceTests {
         String workloadClassName = LdbcSnbInteractiveWorkload.class.getName();
         long operationCount = 10000000;
         int threadCount = 1;
-        Duration statusDisplayInterval = Duration.fromSeconds(0);
+        int statusDisplayInterval = 0;
         TimeUnit timeUnit = TimeUnit.MILLISECONDS;
         String resultDirPath = null;
         double timeCompressionRatio = 1.0;
-        Duration windowedExecutionWindowDuration = Duration.fromSeconds(1);
+        long windowedExecutionWindowDuration = 1000l;
         Set<String> peerIds = new HashSet<>();
-        Duration toleratedExecutionDelay = Duration.fromMinutes(60);
+        long toleratedExecutionDelay = TEMPORAL_UTIL.convert(1, TimeUnit.HOURS, TimeUnit.MILLISECONDS);
         ConsoleAndFileDriverConfiguration.ConsoleAndFileValidationParamOptions validationParams = null;
         String dbValidationFilePath = null;
         boolean validateWorkload = false;
         boolean calculateWorkloadStatistics = false;
-        Duration spinnerSleepDuration = Duration.fromMilli(0);
+        long spinnerSleepDuration = 0l;
         boolean printHelp = false;
         boolean ignoreScheduledStartTimes = false;
         boolean shouldCreateResultsLog = false;
@@ -112,14 +113,14 @@ public class QueuePerformanceTests {
 
         System.out.println("Benchmarking...");
 
-//        Duration duration = doOperationQueuePerformanceTest(operations, DefaultQueues.<Operation<?>>newBlockingBounded(1000));
-        Duration duration = doOperationQueuePerformanceTest(operations, DefaultQueues.<Operation<?>>newBlockingBounded(10000));
-        long opsPerSecond = Math.round(((double) config.operationCount() / duration.asNano()) * 1000000000);
+//        long duration = doOperationQueuePerformanceTest(operations, DefaultQueues.<Operation<?>>newBlockingBounded(1000));
+        long duration = doOperationQueuePerformanceTest(operations, DefaultQueues.<Operation<?>>newBlockingBounded(10000));
+        long opsPerSecond = Math.round(((double) config.operationCount() / TEMPORAL_UTIL.convert(duration, TimeUnit.MILLISECONDS, TimeUnit.NANOSECONDS)) * 1000000000);
         System.out.println(String.format("%s operations in %s: %s op/sec", config.operationCount(), duration, opsPerSecond));
         workload.close();
     }
 
-    private Duration doOperationQueuePerformanceTest(final Iterator<Operation<?>> operations, final Queue<Operation<?>> queue) throws InterruptedException {
+    private long doOperationQueuePerformanceTest(final Iterator<Operation<?>> operations, final Queue<Operation<?>> queue) throws InterruptedException {
         final QueueEventSubmitter<Operation<?>> queueEventSubmitter = QueueEventSubmitter.queueEventSubmitterFor(queue);
         final QueueEventFetcher<Operation<?>> queueEventFetcher = QueueEventFetcher.queueEventFetcherFor(queue);
         Thread writeThread = new Thread() {
@@ -161,13 +162,13 @@ public class QueuePerformanceTests {
             }
         };
 
-        Time startTime = timeSource.now();
+        long startTime = timeSource.nowAsMilli();
         readThread.start();
         writeThread.start();
         writeThread.join();
         readThread.join();
 
-        return timeSource.now().durationGreaterThan(startTime);
+        return timeSource.nowAsMilli() - startTime;
     }
 
 
@@ -177,54 +178,54 @@ public class QueuePerformanceTests {
         int queueItemCount = 1000000;
         int experimentCount = 5;
 
-        Duration totalDurationConcurrentLinkedQueueNonBlocking = Duration.fromMilli(0);
+        long totalDurationConcurrentLinkedQueueNonBlocking = 0l;
 
-        Duration totalDurationLinkedBlockingQueueNonBlocking = Duration.fromMilli(0);
-        Duration totalDurationLinkedBlockingQueueBlocking = Duration.fromMilli(0);
+        long totalDurationLinkedBlockingQueueNonBlocking = 0l;
+        long totalDurationLinkedBlockingQueueBlocking = 0l;
 
-        Duration totalDurationArrayBlockingQueueNonBlocking = Duration.fromMilli(0);
-        Duration totalDurationArrayBlockingQueueBlocking = Duration.fromMilli(0);
+        long totalDurationArrayBlockingQueueNonBlocking = 0l;
+        long totalDurationArrayBlockingQueueBlocking = 0l;
 
-        Duration totalDurationLinkedTransferQueueAddPollNonBlocking = Duration.fromMilli(0);
-        Duration totalDurationLinkedTransferQueuePutTakeBlocking = Duration.fromMilli(0);
+        long totalDurationLinkedTransferQueueAddPollNonBlocking = 0l;
+        long totalDurationLinkedTransferQueuePutTakeBlocking = 0l;
 
-        Duration totalDurationSynchronousQueueBlocking = Duration.fromMilli(0);
+        long totalDurationSynchronousQueueBlocking = 0l;
 
         for (int i = 0; i < experimentCount; i++) {
             totalDurationConcurrentLinkedQueueNonBlocking =
-                    totalDurationConcurrentLinkedQueueNonBlocking.plus(nonBlockingQueuePerformanceTest(queueItemCount, new ConcurrentLinkedQueue<Integer>()));
+                    totalDurationConcurrentLinkedQueueNonBlocking + nonBlockingQueuePerformanceTest(queueItemCount, new ConcurrentLinkedQueue<Integer>());
 
             totalDurationLinkedBlockingQueueNonBlocking =
-                    totalDurationLinkedBlockingQueueNonBlocking.plus(nonBlockingQueuePerformanceTest(queueItemCount, new LinkedBlockingQueue<Integer>()));
+                    totalDurationLinkedBlockingQueueNonBlocking + nonBlockingQueuePerformanceTest(queueItemCount, new LinkedBlockingQueue<Integer>());
             totalDurationLinkedBlockingQueueBlocking =
-                    totalDurationLinkedBlockingQueueBlocking.plus(blockingQueuePerformanceTest(queueItemCount, new LinkedBlockingQueue<Integer>()));
+                    totalDurationLinkedBlockingQueueBlocking + blockingQueuePerformanceTest(queueItemCount, new LinkedBlockingQueue<Integer>());
 
             totalDurationArrayBlockingQueueNonBlocking =
-                    totalDurationArrayBlockingQueueNonBlocking.plus(nonBlockingQueuePerformanceTest(queueItemCount, new ArrayBlockingQueue<Integer>(queueItemCount)));
+                    totalDurationArrayBlockingQueueNonBlocking + nonBlockingQueuePerformanceTest(queueItemCount, new ArrayBlockingQueue<Integer>(queueItemCount));
             totalDurationArrayBlockingQueueBlocking =
-                    totalDurationArrayBlockingQueueBlocking.plus(blockingQueuePerformanceTest(queueItemCount, new ArrayBlockingQueue<Integer>(queueItemCount)));
+                    totalDurationArrayBlockingQueueBlocking + blockingQueuePerformanceTest(queueItemCount, new ArrayBlockingQueue<Integer>(queueItemCount));
 
             totalDurationLinkedTransferQueueAddPollNonBlocking =
-                    totalDurationLinkedTransferQueueAddPollNonBlocking.plus(nonBlockingQueuePerformanceTest(queueItemCount, new LinkedTransferQueue<Integer>()));
+                    totalDurationLinkedTransferQueueAddPollNonBlocking + nonBlockingQueuePerformanceTest(queueItemCount, new LinkedTransferQueue<Integer>());
             totalDurationLinkedTransferQueuePutTakeBlocking =
-                    totalDurationLinkedTransferQueuePutTakeBlocking.plus(blockingQueuePerformanceTest(queueItemCount, new LinkedTransferQueue<Integer>()));
+                    totalDurationLinkedTransferQueuePutTakeBlocking + blockingQueuePerformanceTest(queueItemCount, new LinkedTransferQueue<Integer>());
 
             totalDurationSynchronousQueueBlocking =
-                    totalDurationSynchronousQueueBlocking.plus(blockingQueuePerformanceTest(queueItemCount, new SynchronousQueue<Integer>()));
+                    totalDurationSynchronousQueueBlocking + blockingQueuePerformanceTest(queueItemCount, new SynchronousQueue<Integer>());
         }
 
-        long concurrentLinkedQueueNonBlockingItemsPerMs = (queueItemCount * experimentCount) / totalDurationConcurrentLinkedQueueNonBlocking.asMilli();
+        long concurrentLinkedQueueNonBlockingItemsPerMs = (queueItemCount * experimentCount) / totalDurationConcurrentLinkedQueueNonBlocking;
 
-        long linkedBlockingQueueNonBlockingItemsPerMs = (queueItemCount * experimentCount) / totalDurationLinkedBlockingQueueNonBlocking.asMilli();
-        long linkedBlockingQueueBlockingItemsPerMs = (queueItemCount * experimentCount) / totalDurationLinkedBlockingQueueBlocking.asMilli();
+        long linkedBlockingQueueNonBlockingItemsPerMs = (queueItemCount * experimentCount) / totalDurationLinkedBlockingQueueNonBlocking;
+        long linkedBlockingQueueBlockingItemsPerMs = (queueItemCount * experimentCount) / totalDurationLinkedBlockingQueueBlocking;
 
-        long arrayBlockingQueueNonBlockingItemsPerMs = (queueItemCount * experimentCount) / totalDurationArrayBlockingQueueNonBlocking.asMilli();
-        long arrayBlockingQueueBlockingItemsPerMs = (queueItemCount * experimentCount) / totalDurationArrayBlockingQueueBlocking.asMilli();
+        long arrayBlockingQueueNonBlockingItemsPerMs = (queueItemCount * experimentCount) / totalDurationArrayBlockingQueueNonBlocking;
+        long arrayBlockingQueueBlockingItemsPerMs = (queueItemCount * experimentCount) / totalDurationArrayBlockingQueueBlocking;
 
-        long linkedTransferQueueNonBlockingItemsPerMs = (queueItemCount * experimentCount) / totalDurationLinkedTransferQueueAddPollNonBlocking.asMilli();
-        long linkedTransferQueueBlockingItemsPerMs = (queueItemCount * experimentCount) / totalDurationLinkedTransferQueuePutTakeBlocking.asMilli();
+        long linkedTransferQueueNonBlockingItemsPerMs = (queueItemCount * experimentCount) / totalDurationLinkedTransferQueueAddPollNonBlocking;
+        long linkedTransferQueueBlockingItemsPerMs = (queueItemCount * experimentCount) / totalDurationLinkedTransferQueuePutTakeBlocking;
 
-        long synchronousQueueBlockingItemsPerMs = (queueItemCount * experimentCount) / totalDurationSynchronousQueueBlocking.asMilli();
+        long synchronousQueueBlockingItemsPerMs = (queueItemCount * experimentCount) / totalDurationSynchronousQueueBlocking;
 
 
         System.out.println("ConcurrentLinkedQueue(non-blocking) = \t" + concurrentLinkedQueueNonBlockingItemsPerMs + " item/ms");
@@ -241,7 +242,7 @@ public class QueuePerformanceTests {
         System.out.println("SynchronousQueue(blocking) = \t\t\t" + synchronousQueueBlockingItemsPerMs + " item/ms");
     }
 
-    public Duration nonBlockingQueuePerformanceTest(final int queueItemCount, final Queue<Integer> queue) throws InterruptedException {
+    public long nonBlockingQueuePerformanceTest(final int queueItemCount, final Queue<Integer> queue) throws InterruptedException {
         Thread writeThread = new Thread() {
             @Override
             public void run() {
@@ -269,10 +270,10 @@ public class QueuePerformanceTests {
         readThread.join();
         assertThat(queue.poll(), is(nullValue()));
         assertThat(queue.size(), is(0));
-        return Duration.fromMilli(timeSource.nowAsMilli() - startTimeAsMilli);
+        return timeSource.nowAsMilli() - startTimeAsMilli;
     }
 
-    public Duration blockingQueuePerformanceTest(final int queueItemCount, final BlockingQueue<Integer> queue) throws InterruptedException {
+    public long blockingQueuePerformanceTest(final int queueItemCount, final BlockingQueue<Integer> queue) throws InterruptedException {
         Thread writeThread = new Thread() {
             @Override
             public void run() {
@@ -308,6 +309,6 @@ public class QueuePerformanceTests {
         readThread.join();
         assertThat(queue.poll(), is(nullValue()));
         assertThat(queue.size(), is(0));
-        return Duration.fromMilli(timeSource.nowAsMilli() - startTimeAsMilli);
+        return timeSource.nowAsMilli() - startTimeAsMilli;
     }
 }

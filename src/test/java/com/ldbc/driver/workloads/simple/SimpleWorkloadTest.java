@@ -11,9 +11,8 @@ import com.ldbc.driver.control.LocalControlService;
 import com.ldbc.driver.generator.GeneratorFactory;
 import com.ldbc.driver.generator.RandomDataGeneratorFactory;
 import com.ldbc.driver.runtime.metrics.ThreadedQueuedConcurrentMetricsService;
-import com.ldbc.driver.temporal.Duration;
 import com.ldbc.driver.temporal.SystemTimeSource;
-import com.ldbc.driver.temporal.Time;
+import com.ldbc.driver.temporal.TemporalUtil;
 import com.ldbc.driver.temporal.TimeSource;
 import com.ldbc.driver.testutils.TestUtils;
 import com.ldbc.driver.util.csv.SimpleCsvFileReader;
@@ -46,18 +45,18 @@ public class SimpleWorkloadTest {
         String workloadClassName = null;
         long operationCount = 100;
         int threadCount = 1;
-        Duration statusDisplayInterval = Duration.fromSeconds(0);
+        int statusDisplayInterval = 0;
         TimeUnit timeUnit = TimeUnit.MILLISECONDS;
         String resultDirPath = null;
         Double timeCompressionRatio = 1.0;
-        Duration windowedExecutionWindowDuration = Duration.fromSeconds(1);
+        long windowedExecutionWindowDuration = 1000l;
         Set<String> peerIds = new HashSet<>();
-        Duration toleratedExecutionDelay = Duration.fromSeconds(1);
+        long toleratedExecutionDelay = 1000l;
         ConsoleAndFileDriverConfiguration.ConsoleAndFileValidationParamOptions validationParams = null;
         String dbValidationFilePath = null;
         boolean validateWorkload = false;
         boolean calculateWorkloadStatistics = false;
-        Duration spinnerSleepDuration = Duration.fromMilli(0);
+        long spinnerSleepDuration = 0l;
         boolean printHelp = false;
         boolean ignoreScheduledStartTimes = false;
         boolean shouldCreateResultsLog = false;
@@ -92,7 +91,7 @@ public class SimpleWorkloadTest {
         GeneratorFactory gf = new GeneratorFactory(new RandomDataGeneratorFactory(42L));
         Iterator<Operation<?>> operations = gf.limit(workload.streams(gf).mergeSortedByStartTime(gf), 1000000);
         TimeSource timeSource = new SystemTimeSource();
-        Time timeout = timeSource.now().plus(Duration.fromSeconds(30));
+        long timeout = timeSource.nowAsMilli() + 30000l;
         boolean workloadGeneratedOperationsBeforeTimeout = TestUtils.generateBeforeTimeout(operations, timeout, timeSource, 1000000);
         assertThat(workloadGeneratedOperationsBeforeTimeout, is(true));
     }
@@ -105,18 +104,18 @@ public class SimpleWorkloadTest {
         String workloadClassName = null;
         long operationCount = 100;
         int threadCount = 1;
-        Duration statusDisplayInterval = Duration.fromSeconds(0);
+        int statusDisplayInterval = 0;
         TimeUnit timeUnit = TimeUnit.MILLISECONDS;
         String resultDirPath = null;
         Double timeCompressionRatio = 1.0;
-        Duration windowedExecutionWindowDuration = Duration.fromSeconds(1);
+        long windowedExecutionWindowDuration = 1000l;
         Set<String> peerIds = new HashSet<>();
-        Duration toleratedExecutionDelay = Duration.fromSeconds(1);
+        long toleratedExecutionDelay = 1000l;
         ConsoleAndFileDriverConfiguration.ConsoleAndFileValidationParamOptions validationParams = null;
         String dbValidationFilePath = null;
         boolean validateWorkload = false;
         boolean calculateWorkloadStatistics = false;
-        Duration spinnerSleepDuration = Duration.fromMilli(0);
+        long spinnerSleepDuration = 0l;
         boolean printHelp = false;
         boolean ignoreScheduledStartTimes = false;
         boolean shouldCreateResultsLog = false;
@@ -193,18 +192,18 @@ public class SimpleWorkloadTest {
         String workloadClassName = SimpleWorkload.class.getName();
         long operationCount = 1000;
         int threadCount = 1;
-        Duration statusDisplayInterval = Duration.fromSeconds(1);
+        int statusDisplayInterval = 1000;
         TimeUnit timeUnit = TimeUnit.MILLISECONDS;
         String resultDirPath = null;
         Double timeCompressionRatio = 1.0;
-        Duration windowedExecutionWindowDuration = Duration.fromSeconds(1);
+        long windowedExecutionWindowDuration = 1000l;
         Set<String> peerIds = new HashSet<>();
-        Duration toleratedExecutionDelay = Duration.fromMinutes(60);
+        long toleratedExecutionDelay = new TemporalUtil().convert(1, TimeUnit.HOURS, TimeUnit.MILLISECONDS);
         ConsoleAndFileDriverConfiguration.ConsoleAndFileValidationParamOptions validationParams = null;
         String dbValidationFilePath = null;
         boolean validateWorkload = true;
         boolean calculateWorkloadStatistics = false;
-        Duration spinnerSleepDuration = Duration.fromMilli(0);
+        long spinnerSleepDuration = 0l;
         boolean printHelp = false;
         boolean ignoreScheduledStartTimes = false;
         boolean shouldCreateResultsLog = true;
@@ -237,7 +236,7 @@ public class SimpleWorkloadTest {
         workload.init(params);
 
         // When
-        Client client = new Client(new LocalControlService(timeSource.now().plus(Duration.fromMilli(500)), params), timeSource);
+        Client client = new Client(new LocalControlService(timeSource.nowAsMilli() + 500, params), timeSource);
         client.start();
 
         // Then
@@ -256,18 +255,18 @@ public class SimpleWorkloadTest {
         String workloadClassName = null;
         long operationCount = 100;
         int threadCount = 1;
-        Duration statusDisplayInterval = Duration.fromSeconds(0);
+        int statusDisplayInterval = 0;
         TimeUnit timeUnit = TimeUnit.MILLISECONDS;
         String resultDirPath = null;
         Double timeCompressionRatio = 1.0;
-        Duration windowedExecutionWindowDuration = Duration.fromSeconds(1);
+        long windowedExecutionWindowDuration = 1000l;
         Set<String> peerIds = new HashSet<>();
-        Duration toleratedExecutionDelay = Duration.fromSeconds(1);
+        long toleratedExecutionDelay = 1000l;
         ConsoleAndFileDriverConfiguration.ConsoleAndFileValidationParamOptions validationParams = null;
         String dbValidationFilePath = null;
         boolean validateWorkload = false;
         boolean calculateWorkloadStatistics = false;
-        Duration spinnerSleepDuration = Duration.fromMilli(0);
+        long spinnerSleepDuration = 0l;
         boolean printHelp = false;
         boolean ignoreScheduledStartTimes = false;
         boolean shouldCreateResultsLog = false;
@@ -362,7 +361,7 @@ public class SimpleWorkloadTest {
         assertThat(new File(resultDirPath).listFiles().length > 0, is(false));
 
         // When
-        Client client = new Client(new LocalControlService(timeSource.now().plus(Duration.fromMilli(500)), configuration), timeSource);
+        Client client = new Client(new LocalControlService(timeSource.nowAsMilli() + 500, configuration), timeSource);
         client.start();
 
         // Then

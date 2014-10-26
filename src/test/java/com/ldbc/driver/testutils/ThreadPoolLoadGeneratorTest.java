@@ -1,7 +1,6 @@
 package com.ldbc.driver.testutils;
 
 import com.ldbc.driver.runtime.scheduling.Spinner;
-import com.ldbc.driver.temporal.Duration;
 import org.junit.Ignore;
 import org.junit.Test;
 
@@ -27,13 +26,13 @@ public class ThreadPoolLoadGeneratorTest {
 
     public void shouldStartAndShutdownWithThreadCount(int threadCount) throws InterruptedException {
         // Given
-        Duration sleepDuration = Duration.fromMilli(0);
-        Duration shutdownTimeout = Duration.fromSeconds(5);
+        long sleepDuration = 0l;
+        long shutdownTimeout = 5000l;
         ThreadPoolLoadGenerator threadPoolLoadGenerator = new ThreadPoolLoadGenerator(threadCount, sleepDuration);
 
         // When
         threadPoolLoadGenerator.start();
-        Spinner.powerNap(Duration.fromSeconds(1).asMilli());
+        Spinner.powerNap(1000l);
         boolean shutdownSuccessfully = threadPoolLoadGenerator.shutdown(shutdownTimeout);
 
         // Then

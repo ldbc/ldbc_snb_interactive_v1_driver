@@ -2,8 +2,7 @@ package com.ldbc.driver.runtime.scheduling;
 
 import com.ldbc.driver.*;
 import com.ldbc.driver.generator.Window;
-import com.ldbc.driver.temporal.Duration;
-import com.ldbc.driver.temporal.Time;
+import com.ldbc.driver.temporal.TemporalUtil;
 import com.ldbc.driver.workloads.dummy.DummyDb;
 import com.ldbc.driver.workloads.dummy.TimedNamedOperation1;
 import org.junit.Test;
@@ -16,10 +15,12 @@ import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
 
 public class UniformWindowOperationHandlerSchedulerTest {
+    private static final TemporalUtil TEMPORAL_UTIL = new TemporalUtil();
+
     @Test
     public void shouldNotCrashWithEmptyWindow() throws OperationException {
-        Time windowStartTimeInclusive = Time.fromMilli(0);
-        Duration windowDuration = Duration.fromMilli(100);
+        long windowStartTimeInclusive = 0l;
+        long windowDuration = 100l;
         Window.OperationHandlerTimeRangeWindow window = new Window.OperationHandlerTimeRangeWindow(windowStartTimeInclusive, windowDuration);
 
         Scheduler<List<OperationHandler<?>>, Window.OperationHandlerTimeRangeWindow> scheduler = new UniformWindowedOperationHandlerScheduler();
@@ -31,8 +32,8 @@ public class UniformWindowOperationHandlerSchedulerTest {
 
     @Test
     public void shouldUniformlySpreadStartTimesStartingFromBeginningOfWindowTimeFrame() throws OperationException, DbException, IOException {
-        Time windowStartTimeInclusive = Time.fromMilli(0);
-        Duration windowDuration = Duration.fromMilli(100);
+        long windowStartTimeInclusive = 0l;
+        long windowDuration = 100l;
         Window.OperationHandlerTimeRangeWindow window = new Window.OperationHandlerTimeRangeWindow(windowStartTimeInclusive, windowDuration);
 
         Db db = new DummyDb();
@@ -42,10 +43,10 @@ public class UniformWindowOperationHandlerSchedulerTest {
         OperationHandler<?> operationHandler3 = null;
         OperationHandler<?> operationHandler4 = null;
         try {
-            Operation<?> operation1 = new TimedNamedOperation1(Time.fromMilli(10), Time.fromNano(0), "name");
-            Operation<?> operation2 = new TimedNamedOperation1(Time.fromMilli(11), Time.fromNano(0), "name");
-            Operation<?> operation3 = new TimedNamedOperation1(Time.fromMilli(12), Time.fromNano(0), "name");
-            Operation<?> operation4 = new TimedNamedOperation1(Time.fromMilli(13), Time.fromNano(0), "name");
+            Operation<?> operation1 = new TimedNamedOperation1(10l, 0l, "name");
+            Operation<?> operation2 = new TimedNamedOperation1(11l, 0l, "name");
+            Operation<?> operation3 = new TimedNamedOperation1(12l, 0l, "name");
+            Operation<?> operation4 = new TimedNamedOperation1(13l, 0l, "name");
 
             operationHandler1 = db.getOperationHandler(operation1);
             operationHandler2 = db.getOperationHandler(operation2);
@@ -67,10 +68,10 @@ public class UniformWindowOperationHandlerSchedulerTest {
             List<OperationHandler<?>> handlers = scheduler.schedule(window);
 
             assertThat(handlers.size(), is(4));
-            assertThat(handlers.get(0).operation().scheduledStartTimeAsMilli(), is(Time.fromMilli(0)));
-            assertThat(handlers.get(1).operation().scheduledStartTimeAsMilli(), is(Time.fromMilli(25)));
-            assertThat(handlers.get(2).operation().scheduledStartTimeAsMilli(), is(Time.fromMilli(50)));
-            assertThat(handlers.get(3).operation().scheduledStartTimeAsMilli(), is(Time.fromMilli(75)));
+            assertThat(handlers.get(0).operation().scheduledStartTimeAsMilli(), is(0l));
+            assertThat(handlers.get(1).operation().scheduledStartTimeAsMilli(), is(25l));
+            assertThat(handlers.get(2).operation().scheduledStartTimeAsMilli(), is(50l));
+            assertThat(handlers.get(3).operation().scheduledStartTimeAsMilli(), is(75l));
         } finally {
             if (null != operationHandler1) operationHandler1.cleanup();
             if (null != operationHandler2) operationHandler2.cleanup();
@@ -82,8 +83,8 @@ public class UniformWindowOperationHandlerSchedulerTest {
 
     @Test
     public void shouldUniformlySpreadStartTimesStartingFromBeginningOfWindowTimeFrameWhenOriginalTimesAreNotInAscendingOrder() throws OperationException, DbException, IOException {
-        Time windowStartTimeInclusive = Time.fromMilli(0);
-        Duration windowDuration = Duration.fromMilli(100);
+        long windowStartTimeInclusive = 0l;
+        long windowDuration = 100l;
         Window.OperationHandlerTimeRangeWindow window = new Window.OperationHandlerTimeRangeWindow(windowStartTimeInclusive, windowDuration);
 
         Db db = new DummyDb();
@@ -93,10 +94,10 @@ public class UniformWindowOperationHandlerSchedulerTest {
         OperationHandler<?> operationHandler3 = null;
         OperationHandler<?> operationHandler4 = null;
         try {
-            Operation<?> operation1 = new TimedNamedOperation1(Time.fromMilli(10), Time.fromNano(0), "name");
-            Operation<?> operation2 = new TimedNamedOperation1(Time.fromMilli(8), Time.fromNano(0), "name");
-            Operation<?> operation3 = new TimedNamedOperation1(Time.fromMilli(99), Time.fromNano(0), "name");
-            Operation<?> operation4 = new TimedNamedOperation1(Time.fromMilli(4), Time.fromNano(0), "name");
+            Operation<?> operation1 = new TimedNamedOperation1(10l, 0l, "name");
+            Operation<?> operation2 = new TimedNamedOperation1(8l, 0l, "name");
+            Operation<?> operation3 = new TimedNamedOperation1(99l, 0l, "name");
+            Operation<?> operation4 = new TimedNamedOperation1(4l, 0l, "name");
 
             operationHandler1 = db.getOperationHandler(operation1);
             operationHandler2 = db.getOperationHandler(operation2);
@@ -118,10 +119,10 @@ public class UniformWindowOperationHandlerSchedulerTest {
             List<OperationHandler<?>> handlers = scheduler.schedule(window);
 
             assertThat(handlers.size(), is(4));
-            assertThat(handlers.get(0).operation().scheduledStartTimeAsMilli(), is(Time.fromMilli(0)));
-            assertThat(handlers.get(1).operation().scheduledStartTimeAsMilli(), is(Time.fromMilli(25)));
-            assertThat(handlers.get(2).operation().scheduledStartTimeAsMilli(), is(Time.fromMilli(50)));
-            assertThat(handlers.get(3).operation().scheduledStartTimeAsMilli(), is(Time.fromMilli(75)));
+            assertThat(handlers.get(0).operation().scheduledStartTimeAsMilli(), is(0l));
+            assertThat(handlers.get(1).operation().scheduledStartTimeAsMilli(), is(25l));
+            assertThat(handlers.get(2).operation().scheduledStartTimeAsMilli(), is(50l));
+            assertThat(handlers.get(3).operation().scheduledStartTimeAsMilli(), is(75l));
         } finally {
             if (null != operationHandler1) operationHandler1.cleanup();
             if (null != operationHandler2) operationHandler2.cleanup();
@@ -133,8 +134,8 @@ public class UniformWindowOperationHandlerSchedulerTest {
 
     @Test
     public void shouldStillUniformlySpreadStartTimesStartingFromBeginningOfWindowTimeFrameWhenTimesAreCloseTogether() throws OperationException, DbException, IOException {
-        Time windowStartTimeInclusive = Time.fromNano(0);
-        Duration windowDuration = Duration.fromNano(3);
+        long windowStartTimeInclusive = 0l;
+        long windowDuration = 3l;
         Window.OperationHandlerTimeRangeWindow window = new Window.OperationHandlerTimeRangeWindow(windowStartTimeInclusive, windowDuration);
 
         Db db = new DummyDb();
@@ -146,12 +147,12 @@ public class UniformWindowOperationHandlerSchedulerTest {
         OperationHandler<?> operationHandler5 = null;
         OperationHandler<?> operationHandler6 = null;
         try {
-            Operation<?> operation1 = new TimedNamedOperation1(Time.fromNano(0), Time.fromNano(0), "name");
-            Operation<?> operation2 = new TimedNamedOperation1(Time.fromNano(0), Time.fromNano(0), "name");
-            Operation<?> operation3 = new TimedNamedOperation1(Time.fromNano(0), Time.fromNano(0), "name");
-            Operation<?> operation4 = new TimedNamedOperation1(Time.fromNano(0), Time.fromNano(0), "name");
-            Operation<?> operation5 = new TimedNamedOperation1(Time.fromNano(0), Time.fromNano(0), "name");
-            Operation<?> operation6 = new TimedNamedOperation1(Time.fromNano(2), Time.fromNano(0), "name");
+            Operation<?> operation1 = new TimedNamedOperation1(0l, 0l, "name");
+            Operation<?> operation2 = new TimedNamedOperation1(0l, 0l, "name");
+            Operation<?> operation3 = new TimedNamedOperation1(0l, 0l, "name");
+            Operation<?> operation4 = new TimedNamedOperation1(0l, 0l, "name");
+            Operation<?> operation5 = new TimedNamedOperation1(0l, 0l, "name");
+            Operation<?> operation6 = new TimedNamedOperation1(2l, 0l, "name");
 
             operationHandler1 = db.getOperationHandler(operation1);
             operationHandler2 = db.getOperationHandler(operation2);
@@ -179,12 +180,12 @@ public class UniformWindowOperationHandlerSchedulerTest {
             List<OperationHandler<?>> handlers = scheduler.schedule(window);
 
             assertThat(handlers.size(), is(6));
-            assertThat(handlers.get(0).operation().scheduledStartTimeAsMilli(), is(Time.fromNano(0)));
-            assertThat(handlers.get(1).operation().scheduledStartTimeAsMilli(), is(Time.fromNano(0)));
-            assertThat(handlers.get(2).operation().scheduledStartTimeAsMilli(), is(Time.fromNano(1)));
-            assertThat(handlers.get(3).operation().scheduledStartTimeAsMilli(), is(Time.fromNano(1)));
-            assertThat(handlers.get(4).operation().scheduledStartTimeAsMilli(), is(Time.fromNano(2)));
-            assertThat(handlers.get(5).operation().scheduledStartTimeAsMilli(), is(Time.fromNano(2)));
+            assertThat(handlers.get(0).operation().scheduledStartTimeAsMilli(), is(0l));
+            assertThat(handlers.get(1).operation().scheduledStartTimeAsMilli(), is(0l));
+            assertThat(handlers.get(2).operation().scheduledStartTimeAsMilli(), is(1l));
+            assertThat(handlers.get(3).operation().scheduledStartTimeAsMilli(), is(1l));
+            assertThat(handlers.get(4).operation().scheduledStartTimeAsMilli(), is(2l));
+            assertThat(handlers.get(5).operation().scheduledStartTimeAsMilli(), is(2l));
         } finally {
             if (null != operationHandler1) operationHandler1.cleanup();
             if (null != operationHandler2) operationHandler2.cleanup();

@@ -1,7 +1,6 @@
 package com.ldbc.driver.runtime.coordination;
 
 import com.google.common.collect.Sets;
-import com.ldbc.driver.temporal.Time;
 import org.junit.Test;
 
 import java.util.HashSet;
@@ -49,7 +48,7 @@ public class GlobalCompletionTimeTest {
                 externalCompletionTimeStateManager);
 
         // When
-        globalCompletionTimeStateManager.submitLocalInitiatedTime(Time.fromSeconds(1));
+        globalCompletionTimeStateManager.submitLocalInitiatedTime(1000l);
 
         // Then
         assertThat(globalCompletionTimeStateManager.globalCompletionTimeAsMilli(), is(nullValue()));
@@ -72,7 +71,7 @@ public class GlobalCompletionTimeTest {
         // When
         boolean exceptionThrown = false;
         try {
-            globalCompletionTimeStateManager.submitLocalCompletedTime(Time.fromSeconds(1));
+            globalCompletionTimeStateManager.submitLocalCompletedTime(1000l);
         } catch (CompletionTimeException e) {
             exceptionThrown = true;
         }
@@ -97,7 +96,7 @@ public class GlobalCompletionTimeTest {
                 externalCompletionTimeStateManager);
 
         // When
-        globalCompletionTimeStateManager.submitPeerCompletionTime(otherPeerId, Time.fromSeconds(1));
+        globalCompletionTimeStateManager.submitPeerCompletionTime(otherPeerId, 1000l);
 
         // Then
         assertThat(globalCompletionTimeStateManager.globalCompletionTimeAsMilli(), is(nullValue()));
@@ -118,8 +117,8 @@ public class GlobalCompletionTimeTest {
                 externalCompletionTimeStateManager);
 
         // When
-        globalCompletionTimeStateManager.submitLocalInitiatedTime(Time.fromSeconds(1));
-        globalCompletionTimeStateManager.submitLocalCompletedTime(Time.fromSeconds(1));
+        globalCompletionTimeStateManager.submitLocalInitiatedTime(1000l);
+        globalCompletionTimeStateManager.submitLocalCompletedTime(1000l);
 
         // Then
         assertThat(globalCompletionTimeStateManager.globalCompletionTimeAsMilli(), is(nullValue()));
@@ -140,8 +139,8 @@ public class GlobalCompletionTimeTest {
                 externalCompletionTimeStateManager);
 
         // When
-        globalCompletionTimeStateManager.submitLocalInitiatedTime(Time.fromSeconds(1));
-        globalCompletionTimeStateManager.submitPeerCompletionTime(otherPeerId, Time.fromSeconds(2));
+        globalCompletionTimeStateManager.submitLocalInitiatedTime(1000l);
+        globalCompletionTimeStateManager.submitPeerCompletionTime(otherPeerId, 2000l);
 
         // Then
         assertThat(globalCompletionTimeStateManager.globalCompletionTimeAsMilli(), is(nullValue()));
@@ -162,15 +161,15 @@ public class GlobalCompletionTimeTest {
                 externalCompletionTimeStateManager);
 
         // When/Then
-        globalCompletionTimeStateManager.submitLocalInitiatedTime(Time.fromSeconds(1));
-        globalCompletionTimeStateManager.submitLocalCompletedTime(Time.fromSeconds(1));
-        globalCompletionTimeStateManager.submitPeerCompletionTime(otherPeerId, Time.fromSeconds(2));
+        globalCompletionTimeStateManager.submitLocalInitiatedTime(1000l);
+        globalCompletionTimeStateManager.submitLocalCompletedTime(1000l);
+        globalCompletionTimeStateManager.submitPeerCompletionTime(otherPeerId, 2000l);
 
         assertThat(globalCompletionTimeStateManager.globalCompletionTimeAsMilli(), is(nullValue()));
 
-        globalCompletionTimeStateManager.submitLocalInitiatedTime(Time.fromSeconds(2));
+        globalCompletionTimeStateManager.submitLocalInitiatedTime(2000l);
 
-        assertThat(globalCompletionTimeStateManager.globalCompletionTimeAsMilli(), is(Time.fromSeconds(1)));
+        assertThat(globalCompletionTimeStateManager.globalCompletionTimeAsMilli(), is(1000l));
     }
 
     //  LocalIT = 2, LocalCT = 2, ExternalCT =  --> 1
@@ -188,15 +187,15 @@ public class GlobalCompletionTimeTest {
                 externalCompletionTimeStateManager);
 
         // When/Then
-        globalCompletionTimeStateManager.submitLocalInitiatedTime(Time.fromSeconds(2));
-        globalCompletionTimeStateManager.submitLocalCompletedTime(Time.fromSeconds(2));
-        globalCompletionTimeStateManager.submitPeerCompletionTime(otherPeerId, Time.fromSeconds(1));
+        globalCompletionTimeStateManager.submitLocalInitiatedTime(2000l);
+        globalCompletionTimeStateManager.submitLocalCompletedTime(2000l);
+        globalCompletionTimeStateManager.submitPeerCompletionTime(otherPeerId, 1000l);
 
         assertThat(globalCompletionTimeStateManager.globalCompletionTimeAsMilli(), is(nullValue()));
 
-        globalCompletionTimeStateManager.submitLocalInitiatedTime(Time.fromSeconds(3));
+        globalCompletionTimeStateManager.submitLocalInitiatedTime(3000l);
 
-        assertThat(globalCompletionTimeStateManager.globalCompletionTimeAsMilli(), is(Time.fromSeconds(1)));
+        assertThat(globalCompletionTimeStateManager.globalCompletionTimeAsMilli(), is(1000l));
     }
 
     @Test
@@ -217,108 +216,108 @@ public class GlobalCompletionTimeTest {
         // initiated [1]
         // completed []
         // external  (-)
-        globalCompletionTimeStateManager.submitLocalInitiatedTime(Time.fromSeconds(1));
+        globalCompletionTimeStateManager.submitLocalInitiatedTime(1000l);
         assertThat(globalCompletionTimeStateManager.globalCompletionTimeAsMilli(), is(nullValue()));
 
         // initiated [1]
         // completed [1]
         // external  (-)
-        globalCompletionTimeStateManager.submitLocalCompletedTime(Time.fromSeconds(1));
+        globalCompletionTimeStateManager.submitLocalCompletedTime(1000l);
         assertThat(globalCompletionTimeStateManager.globalCompletionTimeAsMilli(), is(nullValue()));
 
         // initiated [1,2]
         // completed [1]
         // external  (-)
-        globalCompletionTimeStateManager.submitLocalInitiatedTime(Time.fromSeconds(2));
-        assertThat(globalCompletionTimeStateManager.globalCompletionTimeAsMilli(), is(Time.fromSeconds(1)));
+        globalCompletionTimeStateManager.submitLocalInitiatedTime(2000l);
+        assertThat(globalCompletionTimeStateManager.globalCompletionTimeAsMilli(), is(1000l));
 
         // initiated [1,2]
         // completed [1,2]
         // external  (-)
-        globalCompletionTimeStateManager.submitLocalCompletedTime(Time.fromSeconds(2));
-        assertThat(globalCompletionTimeStateManager.globalCompletionTimeAsMilli(), is(Time.fromSeconds(1)));
+        globalCompletionTimeStateManager.submitLocalCompletedTime(2000l);
+        assertThat(globalCompletionTimeStateManager.globalCompletionTimeAsMilli(), is(1000l));
 
         // initiated [1,2,3]
         // completed [1,2]
         // external  (-)
-        globalCompletionTimeStateManager.submitLocalInitiatedTime(Time.fromSeconds(3));
-        assertThat(globalCompletionTimeStateManager.globalCompletionTimeAsMilli(), is(Time.fromSeconds(2)));
+        globalCompletionTimeStateManager.submitLocalInitiatedTime(3000l);
+        assertThat(globalCompletionTimeStateManager.globalCompletionTimeAsMilli(), is(2000l));
 
         // initiated [1,2,3,4]
         // completed [1,2]
         // external  (-)
-        globalCompletionTimeStateManager.submitLocalInitiatedTime(Time.fromSeconds(4));
-        assertThat(globalCompletionTimeStateManager.globalCompletionTimeAsMilli(), is(Time.fromSeconds(2)));
+        globalCompletionTimeStateManager.submitLocalInitiatedTime(4000l);
+        assertThat(globalCompletionTimeStateManager.globalCompletionTimeAsMilli(), is(2000l));
 
         // initiated [1,2,3,4,5]
         // completed [1,2]
         // external  (-)
-        globalCompletionTimeStateManager.submitLocalInitiatedTime(Time.fromSeconds(5));
-        assertThat(globalCompletionTimeStateManager.globalCompletionTimeAsMilli(), is(Time.fromSeconds(2)));
+        globalCompletionTimeStateManager.submitLocalInitiatedTime(5000l);
+        assertThat(globalCompletionTimeStateManager.globalCompletionTimeAsMilli(), is(2000l));
 
         // initiated [1,2,3,4,5]
         // completed [1,2, , ,5]
         // external  (-)
-        globalCompletionTimeStateManager.submitLocalCompletedTime(Time.fromSeconds(5));
-        assertThat(globalCompletionTimeStateManager.globalCompletionTimeAsMilli(), is(Time.fromSeconds(2)));
+        globalCompletionTimeStateManager.submitLocalCompletedTime(5000l);
+        assertThat(globalCompletionTimeStateManager.globalCompletionTimeAsMilli(), is(2000l));
 
         // initiated [1,2,3,4,5,6,7,8,9,10]
         // completed [1,2, , ,5, , , , ,  ]
         // external  (-)
-        globalCompletionTimeStateManager.submitLocalInitiatedTime(Time.fromSeconds(6));
-        globalCompletionTimeStateManager.submitLocalInitiatedTime(Time.fromSeconds(7));
-        globalCompletionTimeStateManager.submitLocalInitiatedTime(Time.fromSeconds(8));
-        globalCompletionTimeStateManager.submitLocalInitiatedTime(Time.fromSeconds(9));
-        globalCompletionTimeStateManager.submitLocalInitiatedTime(Time.fromSeconds(10));
-        assertThat(globalCompletionTimeStateManager.globalCompletionTimeAsMilli(), is(Time.fromSeconds(2)));
+        globalCompletionTimeStateManager.submitLocalInitiatedTime(6000l);
+        globalCompletionTimeStateManager.submitLocalInitiatedTime(7000l);
+        globalCompletionTimeStateManager.submitLocalInitiatedTime(8000l);
+        globalCompletionTimeStateManager.submitLocalInitiatedTime(9000l);
+        globalCompletionTimeStateManager.submitLocalInitiatedTime(10000l);
+        assertThat(globalCompletionTimeStateManager.globalCompletionTimeAsMilli(), is(2000l));
 
         // initiated [1,2,3,4,5,6,7,8,9,10]
         // completed [1,2, , ,5, , ,8, ,  ]
         // external  (-)
-        globalCompletionTimeStateManager.submitLocalCompletedTime(Time.fromSeconds(8));
-        assertThat(globalCompletionTimeStateManager.globalCompletionTimeAsMilli(), is(Time.fromSeconds(2)));
+        globalCompletionTimeStateManager.submitLocalCompletedTime(8000l);
+        assertThat(globalCompletionTimeStateManager.globalCompletionTimeAsMilli(), is(2000l));
 
         // initiated [1,2,3,4,5,6,7,8,9,10]
         // completed [1,2, , ,5, ,7,8, ,  ]
         // external  (-)
-        globalCompletionTimeStateManager.submitLocalCompletedTime(Time.fromSeconds(7));
-        assertThat(globalCompletionTimeStateManager.globalCompletionTimeAsMilli(), is(Time.fromSeconds(2)));
+        globalCompletionTimeStateManager.submitLocalCompletedTime(7000l);
+        assertThat(globalCompletionTimeStateManager.globalCompletionTimeAsMilli(), is(2000l));
 
         // initiated [1,2,3,4,5,6,7,8,9,10]
         // completed [1,2, , ,5, ,7,8,9,  ]
         // external  (-)
-        globalCompletionTimeStateManager.submitLocalCompletedTime(Time.fromSeconds(9));
-        assertThat(globalCompletionTimeStateManager.globalCompletionTimeAsMilli(), is(Time.fromSeconds(2)));
+        globalCompletionTimeStateManager.submitLocalCompletedTime(9000l);
+        assertThat(globalCompletionTimeStateManager.globalCompletionTimeAsMilli(), is(2000l));
 
         // initiated [1,2,3,4,5,6,7,8,9,10]
         // completed [1,2, ,4,5, ,7,8,9,  ]
         // external  (-)
-        globalCompletionTimeStateManager.submitLocalCompletedTime(Time.fromSeconds(4));
-        assertThat(globalCompletionTimeStateManager.globalCompletionTimeAsMilli(), is(Time.fromSeconds(2)));
+        globalCompletionTimeStateManager.submitLocalCompletedTime(4000l);
+        assertThat(globalCompletionTimeStateManager.globalCompletionTimeAsMilli(), is(2000l));
 
         // initiated [1,2,3,4,5,6,7,8,9,10]
         // completed [1,2,3,4,5, ,7,8,9,  ]
         // external  (-)
-        globalCompletionTimeStateManager.submitLocalCompletedTime(Time.fromSeconds(3));
-        assertThat(globalCompletionTimeStateManager.globalCompletionTimeAsMilli(), is(Time.fromSeconds(5)));
+        globalCompletionTimeStateManager.submitLocalCompletedTime(3000l);
+        assertThat(globalCompletionTimeStateManager.globalCompletionTimeAsMilli(), is(5000l));
 
         // initiated [1,2,3,4,5,6,7,8,9,10]
         // completed [1,2,3,4,5,6,7,8,9,  ]
         // external  (-)
-        globalCompletionTimeStateManager.submitLocalCompletedTime(Time.fromSeconds(6));
-        assertThat(globalCompletionTimeStateManager.globalCompletionTimeAsMilli(), is(Time.fromSeconds(9)));
+        globalCompletionTimeStateManager.submitLocalCompletedTime(6000l);
+        assertThat(globalCompletionTimeStateManager.globalCompletionTimeAsMilli(), is(9000l));
 
         // initiated [1,2,3,4,5,6,7,8,9,10]
         // completed [1,2,3,4,5,6,7,8,9,10]
         // external  (-)
-        globalCompletionTimeStateManager.submitLocalCompletedTime(Time.fromSeconds(10));
-        assertThat(globalCompletionTimeStateManager.globalCompletionTimeAsMilli(), is(Time.fromSeconds(9)));
+        globalCompletionTimeStateManager.submitLocalCompletedTime(10000l);
+        assertThat(globalCompletionTimeStateManager.globalCompletionTimeAsMilli(), is(9000l));
 
         // initiated [1,2,3,4,5,6,7,8,9,10,11]
         // completed [1,2,3,4,5,6,7,8,9,10,  ]
         // external  (-)
-        globalCompletionTimeStateManager.submitLocalInitiatedTime(Time.fromSeconds(11));
-        assertThat(globalCompletionTimeStateManager.globalCompletionTimeAsMilli(), is(Time.fromSeconds(10)));
+        globalCompletionTimeStateManager.submitLocalInitiatedTime(11000l);
+        assertThat(globalCompletionTimeStateManager.globalCompletionTimeAsMilli(), is(10000l));
     }
 
     @Test
@@ -338,77 +337,77 @@ public class GlobalCompletionTimeTest {
         // When/Then
         // initiated [1]
         // completed [1]
-        globalCompletionTimeStateManager.submitLocalInitiatedTime(Time.fromSeconds(1));
+        globalCompletionTimeStateManager.submitLocalInitiatedTime(1000l);
         assertThat(globalCompletionTimeStateManager.globalCompletionTimeAsMilli(), is(nullValue()));
-        globalCompletionTimeStateManager.submitLocalCompletedTime(Time.fromSeconds(1));
+        globalCompletionTimeStateManager.submitLocalCompletedTime(1000l);
         assertThat(globalCompletionTimeStateManager.globalCompletionTimeAsMilli(), is(nullValue()));
 
         // initiated [1,2]
         // completed [1,2]
-        globalCompletionTimeStateManager.submitLocalInitiatedTime(Time.fromSeconds(2));
-        assertThat(globalCompletionTimeStateManager.globalCompletionTimeAsMilli(), is(Time.fromSeconds(1)));
-        globalCompletionTimeStateManager.submitLocalCompletedTime(Time.fromSeconds(2));
-        assertThat(globalCompletionTimeStateManager.globalCompletionTimeAsMilli(), is(Time.fromSeconds(1)));
+        globalCompletionTimeStateManager.submitLocalInitiatedTime(2000l);
+        assertThat(globalCompletionTimeStateManager.globalCompletionTimeAsMilli(), is(1000l));
+        globalCompletionTimeStateManager.submitLocalCompletedTime(2000l);
+        assertThat(globalCompletionTimeStateManager.globalCompletionTimeAsMilli(), is(1000l));
 
         // initiated [1,2,3]
         // completed [1,2, ]
-        globalCompletionTimeStateManager.submitLocalInitiatedTime(Time.fromSeconds(3));
-        assertThat(globalCompletionTimeStateManager.globalCompletionTimeAsMilli(), is(Time.fromSeconds(2)));
+        globalCompletionTimeStateManager.submitLocalInitiatedTime(3000l);
+        assertThat(globalCompletionTimeStateManager.globalCompletionTimeAsMilli(), is(2000l));
 
         // initiated [1,2,3,3]
         // completed [1,2, , ]
-        globalCompletionTimeStateManager.submitLocalInitiatedTime(Time.fromSeconds(3));
-        assertThat(globalCompletionTimeStateManager.globalCompletionTimeAsMilli(), is(Time.fromSeconds(2)));
+        globalCompletionTimeStateManager.submitLocalInitiatedTime(3000l);
+        assertThat(globalCompletionTimeStateManager.globalCompletionTimeAsMilli(), is(2000l));
 
         // initiated [1,2,3,3,3]
         // completed [1,2, , , ]
-        globalCompletionTimeStateManager.submitLocalInitiatedTime(Time.fromSeconds(3));
-        assertThat(globalCompletionTimeStateManager.globalCompletionTimeAsMilli(), is(Time.fromSeconds(2)));
+        globalCompletionTimeStateManager.submitLocalInitiatedTime(3000l);
+        assertThat(globalCompletionTimeStateManager.globalCompletionTimeAsMilli(), is(2000l));
 
         // initiated [1,2,3,3,3,4]
         // completed [1,2, , , , ]
-        globalCompletionTimeStateManager.submitLocalInitiatedTime(Time.fromSeconds(4));
-        assertThat(globalCompletionTimeStateManager.globalCompletionTimeAsMilli(), is(Time.fromSeconds(2)));
+        globalCompletionTimeStateManager.submitLocalInitiatedTime(4000l);
+        assertThat(globalCompletionTimeStateManager.globalCompletionTimeAsMilli(), is(2000l));
 
         // initiated [1,2,3,3,3,4,5]
         // completed [1,2, , , , , ]
-        globalCompletionTimeStateManager.submitLocalInitiatedTime(Time.fromSeconds(5));
-        assertThat(globalCompletionTimeStateManager.globalCompletionTimeAsMilli(), is(Time.fromSeconds(2)));
+        globalCompletionTimeStateManager.submitLocalInitiatedTime(5000l);
+        assertThat(globalCompletionTimeStateManager.globalCompletionTimeAsMilli(), is(2000l));
 
         // initiated [1,2,3,3,3,4,5,6]
         // completed [1,2, , , , , , ]
-        globalCompletionTimeStateManager.submitLocalInitiatedTime(Time.fromSeconds(6));
-        assertThat(globalCompletionTimeStateManager.globalCompletionTimeAsMilli(), is(Time.fromSeconds(2)));
+        globalCompletionTimeStateManager.submitLocalInitiatedTime(6000l);
+        assertThat(globalCompletionTimeStateManager.globalCompletionTimeAsMilli(), is(2000l));
 
         // initiated [1,2,3,3,3,4,5,6]
         // completed [1,2, , , , ,5, ]
-        globalCompletionTimeStateManager.submitLocalCompletedTime(Time.fromSeconds(5));
-        assertThat(globalCompletionTimeStateManager.globalCompletionTimeAsMilli(), is(Time.fromSeconds(2)));
+        globalCompletionTimeStateManager.submitLocalCompletedTime(5000l);
+        assertThat(globalCompletionTimeStateManager.globalCompletionTimeAsMilli(), is(2000l));
 
         // initiated [1,2,3,3,3,4,5,6]
         // completed [1,2, , ,3, ,5, ]
-        globalCompletionTimeStateManager.submitLocalCompletedTime(Time.fromSeconds(3));
-        assertThat(globalCompletionTimeStateManager.globalCompletionTimeAsMilli(), is(Time.fromSeconds(2)));
+        globalCompletionTimeStateManager.submitLocalCompletedTime(3000l);
+        assertThat(globalCompletionTimeStateManager.globalCompletionTimeAsMilli(), is(2000l));
 
         // initiated [1,2,3,3,3,4,5,6]
         // completed [1,2, ,3,3, ,5, ]
-        globalCompletionTimeStateManager.submitLocalCompletedTime(Time.fromSeconds(3));
-        assertThat(globalCompletionTimeStateManager.globalCompletionTimeAsMilli(), is(Time.fromSeconds(2)));
+        globalCompletionTimeStateManager.submitLocalCompletedTime(3000l);
+        assertThat(globalCompletionTimeStateManager.globalCompletionTimeAsMilli(), is(2000l));
 
         // initiated [1,2,3,3,3,4,5,6]
         // completed [1,2,3,3,3, ,5, ]
-        globalCompletionTimeStateManager.submitLocalCompletedTime(Time.fromSeconds(3));
-        assertThat(globalCompletionTimeStateManager.globalCompletionTimeAsMilli(), is(Time.fromSeconds(3)));
+        globalCompletionTimeStateManager.submitLocalCompletedTime(3000l);
+        assertThat(globalCompletionTimeStateManager.globalCompletionTimeAsMilli(), is(3000l));
 
         // initiated [1,2,3,3,3,4,5,6]
         // completed [1,2,3,3,3,4,5, ]
-        globalCompletionTimeStateManager.submitLocalCompletedTime(Time.fromSeconds(4));
-        assertThat(globalCompletionTimeStateManager.globalCompletionTimeAsMilli(), is(Time.fromSeconds(5)));
+        globalCompletionTimeStateManager.submitLocalCompletedTime(4000l);
+        assertThat(globalCompletionTimeStateManager.globalCompletionTimeAsMilli(), is(5000l));
 
         // initiated [1,2,3,3,3,4,5,6]
         // completed [1,2,3,3,3,4,5,6]
-        globalCompletionTimeStateManager.submitLocalCompletedTime(Time.fromSeconds(6));
-        assertThat(globalCompletionTimeStateManager.globalCompletionTimeAsMilli(), is(Time.fromSeconds(5)));
+        globalCompletionTimeStateManager.submitLocalCompletedTime(6000l);
+        assertThat(globalCompletionTimeStateManager.globalCompletionTimeAsMilli(), is(5000l));
     }
 
     @Test
@@ -430,101 +429,101 @@ public class GlobalCompletionTimeTest {
         // initiated [1]
         // completed [1]
         // external  (-)
-        globalCompletionTimeStateManager.submitLocalInitiatedTime(Time.fromSeconds(1));
+        globalCompletionTimeStateManager.submitLocalInitiatedTime(1000l);
         assertThat(globalCompletionTimeStateManager.globalCompletionTimeAsMilli(), is(nullValue()));
 
-        globalCompletionTimeStateManager.submitLocalCompletedTime(Time.fromSeconds(1));
+        globalCompletionTimeStateManager.submitLocalCompletedTime(1000l);
         assertThat(globalCompletionTimeStateManager.globalCompletionTimeAsMilli(), is(nullValue()));
 
         // initiated [1]
         // completed [1]
         // external  (1)
-        globalCompletionTimeStateManager.submitPeerCompletionTime(otherPeerId, Time.fromSeconds(1));
+        globalCompletionTimeStateManager.submitPeerCompletionTime(otherPeerId, 1000l);
         assertThat(globalCompletionTimeStateManager.globalCompletionTimeAsMilli(), is(nullValue()));
 
         // initiated [1]
         // completed [1]
         // external  (3)
-        globalCompletionTimeStateManager.submitPeerCompletionTime(otherPeerId, Time.fromSeconds(3));
+        globalCompletionTimeStateManager.submitPeerCompletionTime(otherPeerId, 3000l);
         assertThat(globalCompletionTimeStateManager.globalCompletionTimeAsMilli(), is(nullValue()));
 
         // initiated [1,2]
         // completed [1]
         // external  (3)
-        globalCompletionTimeStateManager.submitLocalInitiatedTime(Time.fromSeconds(2));
-        assertThat(globalCompletionTimeStateManager.globalCompletionTimeAsMilli(), is(Time.fromSeconds(1)));
+        globalCompletionTimeStateManager.submitLocalInitiatedTime(2000l);
+        assertThat(globalCompletionTimeStateManager.globalCompletionTimeAsMilli(), is(1000l));
 
         // initiated [1,2,3]
         // completed [1]
         // external  (3)
-        globalCompletionTimeStateManager.submitLocalInitiatedTime(Time.fromSeconds(3));
-        assertThat(globalCompletionTimeStateManager.globalCompletionTimeAsMilli(), is(Time.fromSeconds(1)));
+        globalCompletionTimeStateManager.submitLocalInitiatedTime(3000l);
+        assertThat(globalCompletionTimeStateManager.globalCompletionTimeAsMilli(), is(1000l));
 
         // initiated [1,2,3,4]
         // completed [1]
         // external  (3)
-        globalCompletionTimeStateManager.submitLocalInitiatedTime(Time.fromSeconds(4));
-        assertThat(globalCompletionTimeStateManager.globalCompletionTimeAsMilli(), is(Time.fromSeconds(1)));
+        globalCompletionTimeStateManager.submitLocalInitiatedTime(4000l);
+        assertThat(globalCompletionTimeStateManager.globalCompletionTimeAsMilli(), is(1000l));
 
         // initiated [1,2,3,4]
         // completed [1, , ,4]
         // external  (3)
-        globalCompletionTimeStateManager.submitLocalCompletedTime(Time.fromSeconds(4));
-        assertThat(globalCompletionTimeStateManager.globalCompletionTimeAsMilli(), is(Time.fromSeconds(1)));
+        globalCompletionTimeStateManager.submitLocalCompletedTime(4000l);
+        assertThat(globalCompletionTimeStateManager.globalCompletionTimeAsMilli(), is(1000l));
 
         // initiated [1,2,3,4]
         // completed [1,2, ,4]
         // external  (3)
-        globalCompletionTimeStateManager.submitLocalCompletedTime(Time.fromSeconds(2));
-        assertThat(globalCompletionTimeStateManager.globalCompletionTimeAsMilli(), is(Time.fromSeconds(2)));
+        globalCompletionTimeStateManager.submitLocalCompletedTime(2000l);
+        assertThat(globalCompletionTimeStateManager.globalCompletionTimeAsMilli(), is(2000l));
 
         // initiated [1,2,3,4,5]
         // completed [1,2, ,4, ]
         // external  (3)
-        globalCompletionTimeStateManager.submitLocalInitiatedTime(Time.fromSeconds(5));
-        assertThat(globalCompletionTimeStateManager.globalCompletionTimeAsMilli(), is(Time.fromSeconds(2)));
+        globalCompletionTimeStateManager.submitLocalInitiatedTime(5000l);
+        assertThat(globalCompletionTimeStateManager.globalCompletionTimeAsMilli(), is(2000l));
 
         // initiated [1,2,3,4,5]
         // completed [1,2, ,4, ]
         // external  (4)
-        globalCompletionTimeStateManager.submitPeerCompletionTime(otherPeerId, Time.fromSeconds(4));
-        assertThat(globalCompletionTimeStateManager.globalCompletionTimeAsMilli(), is(Time.fromSeconds(2)));
+        globalCompletionTimeStateManager.submitPeerCompletionTime(otherPeerId, 4000l);
+        assertThat(globalCompletionTimeStateManager.globalCompletionTimeAsMilli(), is(2000l));
 
         // initiated [1,2,3,4,5]
         // completed [1,2,3,4, ]
         // external  (4)
-        globalCompletionTimeStateManager.submitLocalCompletedTime(Time.fromSeconds(3));
-        assertThat(globalCompletionTimeStateManager.globalCompletionTimeAsMilli(), is(Time.fromSeconds(4)));
+        globalCompletionTimeStateManager.submitLocalCompletedTime(3000l);
+        assertThat(globalCompletionTimeStateManager.globalCompletionTimeAsMilli(), is(4000l));
 
         // initiated [1,2,3,4,5]
         // completed [1,2,3,4,5]
         // external  (4)
-        globalCompletionTimeStateManager.submitLocalCompletedTime(Time.fromSeconds(5));
-        assertThat(globalCompletionTimeStateManager.globalCompletionTimeAsMilli(), is(Time.fromSeconds(4)));
+        globalCompletionTimeStateManager.submitLocalCompletedTime(5000l);
+        assertThat(globalCompletionTimeStateManager.globalCompletionTimeAsMilli(), is(4000l));
 
         // initiated [1,2,3,4,5]
         // completed [1,2,3,4,5]
         // external  (5)
-        globalCompletionTimeStateManager.submitPeerCompletionTime(otherPeerId, Time.fromSeconds(5));
-        assertThat(globalCompletionTimeStateManager.globalCompletionTimeAsMilli(), is(Time.fromSeconds(4)));
+        globalCompletionTimeStateManager.submitPeerCompletionTime(otherPeerId, 5000l);
+        assertThat(globalCompletionTimeStateManager.globalCompletionTimeAsMilli(), is(4000l));
 
         // initiated [1,2,3,4,5,6]
         // completed [1,2,3,4,5]
         // external  (5)
-        globalCompletionTimeStateManager.submitLocalInitiatedTime(Time.fromSeconds(6));
-        assertThat(globalCompletionTimeStateManager.globalCompletionTimeAsMilli(), is(Time.fromSeconds(5)));
+        globalCompletionTimeStateManager.submitLocalInitiatedTime(6000l);
+        assertThat(globalCompletionTimeStateManager.globalCompletionTimeAsMilli(), is(5000l));
 
         // initiated [1,2,3,4,5,6]
         // completed [1,2,3,4,5]
         // external  (4) <-- SHOULD NEVER DECREASE
         boolean exceptionThrown = false;
         try {
-            globalCompletionTimeStateManager.submitPeerCompletionTime(otherPeerId, Time.fromSeconds(4));
+            globalCompletionTimeStateManager.submitPeerCompletionTime(otherPeerId, 4000l);
         } catch (CompletionTimeException e) {
             exceptionThrown = true;
         }
         assertThat(exceptionThrown, is(true));
 
-        assertThat(globalCompletionTimeStateManager.globalCompletionTimeAsMilli(), is(Time.fromSeconds(5)));
+        assertThat(globalCompletionTimeStateManager.globalCompletionTimeAsMilli(), is(5000l));
     }
 }

@@ -7,9 +7,7 @@ import com.ldbc.driver.Workload;
 import com.ldbc.driver.WorkloadException;
 import com.ldbc.driver.control.ConsoleAndFileDriverConfiguration;
 import com.ldbc.driver.control.DriverConfigurationException;
-import com.ldbc.driver.temporal.Duration;
 import com.ldbc.driver.temporal.SystemTimeSource;
-import com.ldbc.driver.temporal.Time;
 import com.ldbc.driver.temporal.TimeSource;
 import com.ldbc.driver.testutils.TestUtils;
 import com.ldbc.driver.util.MapUtils;
@@ -51,9 +49,9 @@ public class TimeMappingOperationGeneratorTest {
         Iterator<Operation<?>> operations = gf.limit(
                 new TimedNamedOperation1Factory(
                         // start times
-                        gf.constantIncrementTime(Time.fromMilli(0), Duration.fromMilli(100)),
+                        gf.incrementing(0l, 100l),
                         // dependency times
-                        gf.constantIncrementTime(Time.fromMilli(0), Duration.fromMilli(50)),
+                        gf.incrementing(0l, 50l),
                         // names
                         gf.constant("name1")
                 ),
@@ -61,57 +59,57 @@ public class TimeMappingOperationGeneratorTest {
         );
         List<Operation<?>> operationsList = ImmutableList.copyOf(operations);
         assertThat(operationsList.size(), is(11));
-        assertThat(operationsList.get(0).scheduledStartTimeAsMilli(), equalTo(Time.fromMilli(0)));
-        assertThat(operationsList.get(0).dependencyTimeAsMilli(), equalTo(Time.fromMilli(0)));
-        assertThat(operationsList.get(1).scheduledStartTimeAsMilli(), equalTo(Time.fromMilli(100)));
-        assertThat(operationsList.get(1).dependencyTimeAsMilli(), equalTo(Time.fromMilli(50)));
-        assertThat(operationsList.get(2).scheduledStartTimeAsMilli(), equalTo(Time.fromMilli(200)));
-        assertThat(operationsList.get(2).dependencyTimeAsMilli(), equalTo(Time.fromMilli(100)));
-        assertThat(operationsList.get(3).scheduledStartTimeAsMilli(), equalTo(Time.fromMilli(300)));
-        assertThat(operationsList.get(3).dependencyTimeAsMilli(), equalTo(Time.fromMilli(150)));
-        assertThat(operationsList.get(4).scheduledStartTimeAsMilli(), equalTo(Time.fromMilli(400)));
-        assertThat(operationsList.get(4).dependencyTimeAsMilli(), equalTo(Time.fromMilli(200)));
-        assertThat(operationsList.get(5).scheduledStartTimeAsMilli(), equalTo(Time.fromMilli(500)));
-        assertThat(operationsList.get(5).dependencyTimeAsMilli(), equalTo(Time.fromMilli(250)));
-        assertThat(operationsList.get(6).scheduledStartTimeAsMilli(), equalTo(Time.fromMilli(600)));
-        assertThat(operationsList.get(6).dependencyTimeAsMilli(), equalTo(Time.fromMilli(300)));
-        assertThat(operationsList.get(7).scheduledStartTimeAsMilli(), equalTo(Time.fromMilli(700)));
-        assertThat(operationsList.get(7).dependencyTimeAsMilli(), equalTo(Time.fromMilli(350)));
-        assertThat(operationsList.get(8).scheduledStartTimeAsMilli(), equalTo(Time.fromMilli(800)));
-        assertThat(operationsList.get(8).dependencyTimeAsMilli(), equalTo(Time.fromMilli(400)));
-        assertThat(operationsList.get(9).scheduledStartTimeAsMilli(), equalTo(Time.fromMilli(900)));
-        assertThat(operationsList.get(9).dependencyTimeAsMilli(), equalTo(Time.fromMilli(450)));
-        assertThat(operationsList.get(10).scheduledStartTimeAsMilli(), equalTo(Time.fromMilli(1000)));
-        assertThat(operationsList.get(10).dependencyTimeAsMilli(), equalTo(Time.fromMilli(500)));
+        assertThat(operationsList.get(0).scheduledStartTimeAsMilli(), equalTo(0l));
+        assertThat(operationsList.get(0).dependencyTimeAsMilli(), equalTo(0l));
+        assertThat(operationsList.get(1).scheduledStartTimeAsMilli(), equalTo(100l));
+        assertThat(operationsList.get(1).dependencyTimeAsMilli(), equalTo(50l));
+        assertThat(operationsList.get(2).scheduledStartTimeAsMilli(), equalTo(200l));
+        assertThat(operationsList.get(2).dependencyTimeAsMilli(), equalTo(100l));
+        assertThat(operationsList.get(3).scheduledStartTimeAsMilli(), equalTo(300l));
+        assertThat(operationsList.get(3).dependencyTimeAsMilli(), equalTo(150l));
+        assertThat(operationsList.get(4).scheduledStartTimeAsMilli(), equalTo(400l));
+        assertThat(operationsList.get(4).dependencyTimeAsMilli(), equalTo(200l));
+        assertThat(operationsList.get(5).scheduledStartTimeAsMilli(), equalTo(500l));
+        assertThat(operationsList.get(5).dependencyTimeAsMilli(), equalTo(250l));
+        assertThat(operationsList.get(6).scheduledStartTimeAsMilli(), equalTo(600l));
+        assertThat(operationsList.get(6).dependencyTimeAsMilli(), equalTo(300l));
+        assertThat(operationsList.get(7).scheduledStartTimeAsMilli(), equalTo(700l));
+        assertThat(operationsList.get(7).dependencyTimeAsMilli(), equalTo(350l));
+        assertThat(operationsList.get(8).scheduledStartTimeAsMilli(), equalTo(800l));
+        assertThat(operationsList.get(8).dependencyTimeAsMilli(), equalTo(400l));
+        assertThat(operationsList.get(9).scheduledStartTimeAsMilli(), equalTo(900l));
+        assertThat(operationsList.get(9).dependencyTimeAsMilli(), equalTo(450l));
+        assertThat(operationsList.get(10).scheduledStartTimeAsMilli(), equalTo(1000l));
+        assertThat(operationsList.get(10).dependencyTimeAsMilli(), equalTo(500l));
 
         // When
-        Time newStartTime = Time.fromMilli(500);
+        long newStartTime = 500l;
         List<Operation<?>> offsetOperationsList = ImmutableList.copyOf(gf.timeOffset(operationsList.iterator(), newStartTime));
 
         // Then
         assertThat(offsetOperationsList.size(), is(11));
-        assertThat(offsetOperationsList.get(0).scheduledStartTimeAsMilli(), equalTo(Time.fromMilli(500)));
-        assertThat(offsetOperationsList.get(0).dependencyTimeAsMilli(), equalTo(Time.fromMilli(500)));
-        assertThat(offsetOperationsList.get(1).scheduledStartTimeAsMilli(), equalTo(Time.fromMilli(600)));
-        assertThat(offsetOperationsList.get(1).dependencyTimeAsMilli(), equalTo(Time.fromMilli(550)));
-        assertThat(offsetOperationsList.get(2).scheduledStartTimeAsMilli(), equalTo(Time.fromMilli(700)));
-        assertThat(offsetOperationsList.get(2).dependencyTimeAsMilli(), equalTo(Time.fromMilli(600)));
-        assertThat(offsetOperationsList.get(3).scheduledStartTimeAsMilli(), equalTo(Time.fromMilli(800)));
-        assertThat(offsetOperationsList.get(3).dependencyTimeAsMilli(), equalTo(Time.fromMilli(650)));
-        assertThat(offsetOperationsList.get(4).scheduledStartTimeAsMilli(), equalTo(Time.fromMilli(900)));
-        assertThat(offsetOperationsList.get(4).dependencyTimeAsMilli(), equalTo(Time.fromMilli(700)));
-        assertThat(offsetOperationsList.get(5).scheduledStartTimeAsMilli(), equalTo(Time.fromMilli(1000)));
-        assertThat(offsetOperationsList.get(5).dependencyTimeAsMilli(), equalTo(Time.fromMilli(750)));
-        assertThat(offsetOperationsList.get(6).scheduledStartTimeAsMilli(), equalTo(Time.fromMilli(1100)));
-        assertThat(offsetOperationsList.get(6).dependencyTimeAsMilli(), equalTo(Time.fromMilli(800)));
-        assertThat(offsetOperationsList.get(7).scheduledStartTimeAsMilli(), equalTo(Time.fromMilli(1200)));
-        assertThat(offsetOperationsList.get(7).dependencyTimeAsMilli(), equalTo(Time.fromMilli(850)));
-        assertThat(offsetOperationsList.get(8).scheduledStartTimeAsMilli(), equalTo(Time.fromMilli(1300)));
-        assertThat(offsetOperationsList.get(8).dependencyTimeAsMilli(), equalTo(Time.fromMilli(900)));
-        assertThat(offsetOperationsList.get(9).scheduledStartTimeAsMilli(), equalTo(Time.fromMilli(1400)));
-        assertThat(offsetOperationsList.get(9).dependencyTimeAsMilli(), equalTo(Time.fromMilli(950)));
-        assertThat(offsetOperationsList.get(10).scheduledStartTimeAsMilli(), equalTo(Time.fromMilli(1500)));
-        assertThat(offsetOperationsList.get(10).dependencyTimeAsMilli(), equalTo(Time.fromMilli(1000)));
+        assertThat(offsetOperationsList.get(0).scheduledStartTimeAsMilli(), equalTo(500l));
+        assertThat(offsetOperationsList.get(0).dependencyTimeAsMilli(), equalTo(500l));
+        assertThat(offsetOperationsList.get(1).scheduledStartTimeAsMilli(), equalTo(600l));
+        assertThat(offsetOperationsList.get(1).dependencyTimeAsMilli(), equalTo(550l));
+        assertThat(offsetOperationsList.get(2).scheduledStartTimeAsMilli(), equalTo(700l));
+        assertThat(offsetOperationsList.get(2).dependencyTimeAsMilli(), equalTo(600l));
+        assertThat(offsetOperationsList.get(3).scheduledStartTimeAsMilli(), equalTo(800l));
+        assertThat(offsetOperationsList.get(3).dependencyTimeAsMilli(), equalTo(650l));
+        assertThat(offsetOperationsList.get(4).scheduledStartTimeAsMilli(), equalTo(900l));
+        assertThat(offsetOperationsList.get(4).dependencyTimeAsMilli(), equalTo(700l));
+        assertThat(offsetOperationsList.get(5).scheduledStartTimeAsMilli(), equalTo(1000l));
+        assertThat(offsetOperationsList.get(5).dependencyTimeAsMilli(), equalTo(750l));
+        assertThat(offsetOperationsList.get(6).scheduledStartTimeAsMilli(), equalTo(1100l));
+        assertThat(offsetOperationsList.get(6).dependencyTimeAsMilli(), equalTo(800l));
+        assertThat(offsetOperationsList.get(7).scheduledStartTimeAsMilli(), equalTo(1200l));
+        assertThat(offsetOperationsList.get(7).dependencyTimeAsMilli(), equalTo(850l));
+        assertThat(offsetOperationsList.get(8).scheduledStartTimeAsMilli(), equalTo(1300l));
+        assertThat(offsetOperationsList.get(8).dependencyTimeAsMilli(), equalTo(900l));
+        assertThat(offsetOperationsList.get(9).scheduledStartTimeAsMilli(), equalTo(1400l));
+        assertThat(offsetOperationsList.get(9).dependencyTimeAsMilli(), equalTo(950l));
+        assertThat(offsetOperationsList.get(10).scheduledStartTimeAsMilli(), equalTo(1500l));
+        assertThat(offsetOperationsList.get(10).dependencyTimeAsMilli(), equalTo(1000l));
     }
 
     @Test
@@ -120,9 +118,9 @@ public class TimeMappingOperationGeneratorTest {
         Iterator<Operation<?>> operations = gf.limit(
                 new TimedNamedOperation1Factory(
                         // start times
-                        gf.constantIncrementTime(Time.fromMilli(1000), Duration.fromMilli(100)),
+                        gf.incrementing(1000l, 100l),
                         // dependency times
-                        gf.constantIncrementTime(Time.fromMilli(900), Duration.fromMilli(50)),
+                        gf.incrementing(900l, 50l),
                         // names
                         gf.constant("name1")
                 ),
@@ -131,58 +129,58 @@ public class TimeMappingOperationGeneratorTest {
         List<Operation<?>> operationsList = ImmutableList.copyOf(operations);
 
         assertThat(operationsList.size(), is(11));
-        assertThat(operationsList.get(0).scheduledStartTimeAsMilli(), equalTo(Time.fromMilli(1000)));
-        assertThat(operationsList.get(0).dependencyTimeAsMilli(), equalTo(Time.fromMilli(900)));
-        assertThat(operationsList.get(1).scheduledStartTimeAsMilli(), equalTo(Time.fromMilli(1100)));
-        assertThat(operationsList.get(1).dependencyTimeAsMilli(), equalTo(Time.fromMilli(950)));
-        assertThat(operationsList.get(2).scheduledStartTimeAsMilli(), equalTo(Time.fromMilli(1200)));
-        assertThat(operationsList.get(2).dependencyTimeAsMilli(), equalTo(Time.fromMilli(1000)));
-        assertThat(operationsList.get(3).scheduledStartTimeAsMilli(), equalTo(Time.fromMilli(1300)));
-        assertThat(operationsList.get(3).dependencyTimeAsMilli(), equalTo(Time.fromMilli(1050)));
-        assertThat(operationsList.get(4).scheduledStartTimeAsMilli(), equalTo(Time.fromMilli(1400)));
-        assertThat(operationsList.get(4).dependencyTimeAsMilli(), equalTo(Time.fromMilli(1100)));
-        assertThat(operationsList.get(5).scheduledStartTimeAsMilli(), equalTo(Time.fromMilli(1500)));
-        assertThat(operationsList.get(5).dependencyTimeAsMilli(), equalTo(Time.fromMilli(1150)));
-        assertThat(operationsList.get(6).scheduledStartTimeAsMilli(), equalTo(Time.fromMilli(1600)));
-        assertThat(operationsList.get(6).dependencyTimeAsMilli(), equalTo(Time.fromMilli(1200)));
-        assertThat(operationsList.get(7).scheduledStartTimeAsMilli(), equalTo(Time.fromMilli(1700)));
-        assertThat(operationsList.get(7).dependencyTimeAsMilli(), equalTo(Time.fromMilli(1250)));
-        assertThat(operationsList.get(8).scheduledStartTimeAsMilli(), equalTo(Time.fromMilli(1800)));
-        assertThat(operationsList.get(8).dependencyTimeAsMilli(), equalTo(Time.fromMilli(1300)));
-        assertThat(operationsList.get(9).scheduledStartTimeAsMilli(), equalTo(Time.fromMilli(1900)));
-        assertThat(operationsList.get(9).dependencyTimeAsMilli(), equalTo(Time.fromMilli(1350)));
-        assertThat(operationsList.get(10).scheduledStartTimeAsMilli(), equalTo(Time.fromMilli(2000)));
-        assertThat(operationsList.get(10).dependencyTimeAsMilli(), equalTo(Time.fromMilli(1400)));
+        assertThat(operationsList.get(0).scheduledStartTimeAsMilli(), equalTo(1000l));
+        assertThat(operationsList.get(0).dependencyTimeAsMilli(), equalTo(900l));
+        assertThat(operationsList.get(1).scheduledStartTimeAsMilli(), equalTo(1100l));
+        assertThat(operationsList.get(1).dependencyTimeAsMilli(), equalTo(950l));
+        assertThat(operationsList.get(2).scheduledStartTimeAsMilli(), equalTo(1200l));
+        assertThat(operationsList.get(2).dependencyTimeAsMilli(), equalTo(1000l));
+        assertThat(operationsList.get(3).scheduledStartTimeAsMilli(), equalTo(1300l));
+        assertThat(operationsList.get(3).dependencyTimeAsMilli(), equalTo(1050l));
+        assertThat(operationsList.get(4).scheduledStartTimeAsMilli(), equalTo(1400l));
+        assertThat(operationsList.get(4).dependencyTimeAsMilli(), equalTo(1100l));
+        assertThat(operationsList.get(5).scheduledStartTimeAsMilli(), equalTo(1500l));
+        assertThat(operationsList.get(5).dependencyTimeAsMilli(), equalTo(1150l));
+        assertThat(operationsList.get(6).scheduledStartTimeAsMilli(), equalTo(1600l));
+        assertThat(operationsList.get(6).dependencyTimeAsMilli(), equalTo(1200l));
+        assertThat(operationsList.get(7).scheduledStartTimeAsMilli(), equalTo(1700l));
+        assertThat(operationsList.get(7).dependencyTimeAsMilli(), equalTo(1250l));
+        assertThat(operationsList.get(8).scheduledStartTimeAsMilli(), equalTo(1800l));
+        assertThat(operationsList.get(8).dependencyTimeAsMilli(), equalTo(1300l));
+        assertThat(operationsList.get(9).scheduledStartTimeAsMilli(), equalTo(1900l));
+        assertThat(operationsList.get(9).dependencyTimeAsMilli(), equalTo(1350l));
+        assertThat(operationsList.get(10).scheduledStartTimeAsMilli(), equalTo(2000l));
+        assertThat(operationsList.get(10).dependencyTimeAsMilli(), equalTo(1400l));
 
         // When
-        Time newStartTime = Time.fromMilli(500);
+        long newStartTime = 500l;
         Double compressionRatio = 0.2;
         List<Operation<?>> offsetAndCompressedOperationsList = ImmutableList.copyOf(gf.timeOffsetAndCompress(operationsList.iterator(), newStartTime, compressionRatio));
 
         // Then
         assertThat(offsetAndCompressedOperationsList.size(), is(11));
-        assertThat(offsetAndCompressedOperationsList.get(0).scheduledStartTimeAsMilli(), equalTo(Time.fromMilli(500)));
-        assertThat(offsetAndCompressedOperationsList.get(0).dependencyTimeAsMilli(), equalTo(Time.fromMilli(400)));
-        assertThat(offsetAndCompressedOperationsList.get(1).scheduledStartTimeAsMilli(), equalTo(Time.fromMilli(520)));
-        assertThat(offsetAndCompressedOperationsList.get(1).dependencyTimeAsMilli(), equalTo(Time.fromMilli(410)));
-        assertThat(offsetAndCompressedOperationsList.get(2).scheduledStartTimeAsMilli(), equalTo(Time.fromMilli(540)));
-        assertThat(offsetAndCompressedOperationsList.get(2).dependencyTimeAsMilli(), equalTo(Time.fromMilli(420)));
-        assertThat(offsetAndCompressedOperationsList.get(3).scheduledStartTimeAsMilli(), equalTo(Time.fromMilli(560)));
-        assertThat(offsetAndCompressedOperationsList.get(3).dependencyTimeAsMilli(), equalTo(Time.fromMilli(430)));
-        assertThat(offsetAndCompressedOperationsList.get(4).scheduledStartTimeAsMilli(), equalTo(Time.fromMilli(580)));
-        assertThat(offsetAndCompressedOperationsList.get(4).dependencyTimeAsMilli(), equalTo(Time.fromMilli(440)));
-        assertThat(offsetAndCompressedOperationsList.get(5).scheduledStartTimeAsMilli(), equalTo(Time.fromMilli(600)));
-        assertThat(offsetAndCompressedOperationsList.get(5).dependencyTimeAsMilli(), equalTo(Time.fromMilli(450)));
-        assertThat(offsetAndCompressedOperationsList.get(6).scheduledStartTimeAsMilli(), equalTo(Time.fromMilli(620)));
-        assertThat(offsetAndCompressedOperationsList.get(6).dependencyTimeAsMilli(), equalTo(Time.fromMilli(460)));
-        assertThat(offsetAndCompressedOperationsList.get(7).scheduledStartTimeAsMilli(), equalTo(Time.fromMilli(640)));
-        assertThat(offsetAndCompressedOperationsList.get(7).dependencyTimeAsMilli(), equalTo(Time.fromMilli(470)));
-        assertThat(offsetAndCompressedOperationsList.get(8).scheduledStartTimeAsMilli(), equalTo(Time.fromMilli(660)));
-        assertThat(offsetAndCompressedOperationsList.get(8).dependencyTimeAsMilli(), equalTo(Time.fromMilli(480)));
-        assertThat(offsetAndCompressedOperationsList.get(9).scheduledStartTimeAsMilli(), equalTo(Time.fromMilli(680)));
-        assertThat(offsetAndCompressedOperationsList.get(9).dependencyTimeAsMilli(), equalTo(Time.fromMilli(490)));
-        assertThat(offsetAndCompressedOperationsList.get(10).scheduledStartTimeAsMilli(), equalTo(Time.fromMilli(700)));
-        assertThat(offsetAndCompressedOperationsList.get(10).dependencyTimeAsMilli(), equalTo(Time.fromMilli(500)));
+        assertThat(offsetAndCompressedOperationsList.get(0).scheduledStartTimeAsMilli(), equalTo(500l));
+        assertThat(offsetAndCompressedOperationsList.get(0).dependencyTimeAsMilli(), equalTo(400l));
+        assertThat(offsetAndCompressedOperationsList.get(1).scheduledStartTimeAsMilli(), equalTo(520l));
+        assertThat(offsetAndCompressedOperationsList.get(1).dependencyTimeAsMilli(), equalTo(410l));
+        assertThat(offsetAndCompressedOperationsList.get(2).scheduledStartTimeAsMilli(), equalTo(540l));
+        assertThat(offsetAndCompressedOperationsList.get(2).dependencyTimeAsMilli(), equalTo(420l));
+        assertThat(offsetAndCompressedOperationsList.get(3).scheduledStartTimeAsMilli(), equalTo(560l));
+        assertThat(offsetAndCompressedOperationsList.get(3).dependencyTimeAsMilli(), equalTo(430l));
+        assertThat(offsetAndCompressedOperationsList.get(4).scheduledStartTimeAsMilli(), equalTo(580l));
+        assertThat(offsetAndCompressedOperationsList.get(4).dependencyTimeAsMilli(), equalTo(440l));
+        assertThat(offsetAndCompressedOperationsList.get(5).scheduledStartTimeAsMilli(), equalTo(600l));
+        assertThat(offsetAndCompressedOperationsList.get(5).dependencyTimeAsMilli(), equalTo(450l));
+        assertThat(offsetAndCompressedOperationsList.get(6).scheduledStartTimeAsMilli(), equalTo(620l));
+        assertThat(offsetAndCompressedOperationsList.get(6).dependencyTimeAsMilli(), equalTo(460l));
+        assertThat(offsetAndCompressedOperationsList.get(7).scheduledStartTimeAsMilli(), equalTo(640l));
+        assertThat(offsetAndCompressedOperationsList.get(7).dependencyTimeAsMilli(), equalTo(470l));
+        assertThat(offsetAndCompressedOperationsList.get(8).scheduledStartTimeAsMilli(), equalTo(660l));
+        assertThat(offsetAndCompressedOperationsList.get(8).dependencyTimeAsMilli(), equalTo(480l));
+        assertThat(offsetAndCompressedOperationsList.get(9).scheduledStartTimeAsMilli(), equalTo(680l));
+        assertThat(offsetAndCompressedOperationsList.get(9).dependencyTimeAsMilli(), equalTo(490l));
+        assertThat(offsetAndCompressedOperationsList.get(10).scheduledStartTimeAsMilli(), equalTo(700l));
+        assertThat(offsetAndCompressedOperationsList.get(10).dependencyTimeAsMilli(), equalTo(500l));
     }
 
     @Test
@@ -191,9 +189,9 @@ public class TimeMappingOperationGeneratorTest {
         Iterator<Operation<?>> operations = gf.limit(
                 new TimedNamedOperation1Factory(
                         // start times
-                        gf.constantIncrementTime(Time.fromNano(0), Duration.fromNano(1)),
+                        gf.incrementing(0l, 1l),
                         // dependency times
-                        gf.constantIncrementTime(Time.fromNano(0), Duration.fromNano(0)),
+                        gf.incrementing(0l, 0l),
                         // names
                         gf.constant("name1")
                 ),
@@ -202,58 +200,58 @@ public class TimeMappingOperationGeneratorTest {
         List<Operation<?>> operationsList = ImmutableList.copyOf(operations);
 
         assertThat(operationsList.size(), is(11));
-        assertThat(operationsList.get(0).scheduledStartTimeAsMilli(), equalTo(Time.fromNano(0)));
-        assertThat(operationsList.get(0).dependencyTimeAsMilli(), equalTo(Time.fromNano(0)));
-        assertThat(operationsList.get(1).scheduledStartTimeAsMilli(), equalTo(Time.fromNano(1)));
-        assertThat(operationsList.get(1).dependencyTimeAsMilli(), equalTo(Time.fromNano(0)));
-        assertThat(operationsList.get(2).scheduledStartTimeAsMilli(), equalTo(Time.fromNano(2)));
-        assertThat(operationsList.get(2).dependencyTimeAsMilli(), equalTo(Time.fromNano(0)));
-        assertThat(operationsList.get(3).scheduledStartTimeAsMilli(), equalTo(Time.fromNano(3)));
-        assertThat(operationsList.get(3).dependencyTimeAsMilli(), equalTo(Time.fromNano(0)));
-        assertThat(operationsList.get(4).scheduledStartTimeAsMilli(), equalTo(Time.fromNano(4)));
-        assertThat(operationsList.get(4).dependencyTimeAsMilli(), equalTo(Time.fromNano(0)));
-        assertThat(operationsList.get(5).scheduledStartTimeAsMilli(), equalTo(Time.fromNano(5)));
-        assertThat(operationsList.get(5).dependencyTimeAsMilli(), equalTo(Time.fromNano(0)));
-        assertThat(operationsList.get(6).scheduledStartTimeAsMilli(), equalTo(Time.fromNano(6)));
-        assertThat(operationsList.get(6).dependencyTimeAsMilli(), equalTo(Time.fromNano(0)));
-        assertThat(operationsList.get(7).scheduledStartTimeAsMilli(), equalTo(Time.fromNano(7)));
-        assertThat(operationsList.get(7).dependencyTimeAsMilli(), equalTo(Time.fromNano(0)));
-        assertThat(operationsList.get(8).scheduledStartTimeAsMilli(), equalTo(Time.fromNano(8)));
-        assertThat(operationsList.get(8).dependencyTimeAsMilli(), equalTo(Time.fromNano(0)));
-        assertThat(operationsList.get(9).scheduledStartTimeAsMilli(), equalTo(Time.fromNano(9)));
-        assertThat(operationsList.get(9).dependencyTimeAsMilli(), equalTo(Time.fromNano(0)));
-        assertThat(operationsList.get(10).scheduledStartTimeAsMilli(), equalTo(Time.fromNano(10)));
-        assertThat(operationsList.get(10).dependencyTimeAsMilli(), equalTo(Time.fromNano(0)));
+        assertThat(operationsList.get(0).scheduledStartTimeAsMilli(), equalTo(0l));
+        assertThat(operationsList.get(0).dependencyTimeAsMilli(), equalTo(0l));
+        assertThat(operationsList.get(1).scheduledStartTimeAsMilli(), equalTo(1l));
+        assertThat(operationsList.get(1).dependencyTimeAsMilli(), equalTo(0l));
+        assertThat(operationsList.get(2).scheduledStartTimeAsMilli(), equalTo(2l));
+        assertThat(operationsList.get(2).dependencyTimeAsMilli(), equalTo(0l));
+        assertThat(operationsList.get(3).scheduledStartTimeAsMilli(), equalTo(3l));
+        assertThat(operationsList.get(3).dependencyTimeAsMilli(), equalTo(0l));
+        assertThat(operationsList.get(4).scheduledStartTimeAsMilli(), equalTo(4l));
+        assertThat(operationsList.get(4).dependencyTimeAsMilli(), equalTo(0l));
+        assertThat(operationsList.get(5).scheduledStartTimeAsMilli(), equalTo(5l));
+        assertThat(operationsList.get(5).dependencyTimeAsMilli(), equalTo(0l));
+        assertThat(operationsList.get(6).scheduledStartTimeAsMilli(), equalTo(6l));
+        assertThat(operationsList.get(6).dependencyTimeAsMilli(), equalTo(0l));
+        assertThat(operationsList.get(7).scheduledStartTimeAsMilli(), equalTo(7l));
+        assertThat(operationsList.get(7).dependencyTimeAsMilli(), equalTo(0l));
+        assertThat(operationsList.get(8).scheduledStartTimeAsMilli(), equalTo(8l));
+        assertThat(operationsList.get(8).dependencyTimeAsMilli(), equalTo(0l));
+        assertThat(operationsList.get(9).scheduledStartTimeAsMilli(), equalTo(9l));
+        assertThat(operationsList.get(9).dependencyTimeAsMilli(), equalTo(0l));
+        assertThat(operationsList.get(10).scheduledStartTimeAsMilli(), equalTo(10l));
+        assertThat(operationsList.get(10).dependencyTimeAsMilli(), equalTo(0l));
 
         // When
-        Time newStartTime = Time.fromNano(0);
+        long newStartTime = 0l;
         Double compressionRatio = 0.5;
         List<Operation<?>> offsetAndCompressedOperations = ImmutableList.copyOf(gf.timeOffsetAndCompress(operationsList.iterator(), newStartTime, compressionRatio));
 
         // Then
         assertThat(offsetAndCompressedOperations.size(), is(11));
-        assertThat(offsetAndCompressedOperations.get(0).scheduledStartTimeAsMilli(), equalTo(Time.fromNano(0)));
-        assertThat(offsetAndCompressedOperations.get(0).dependencyTimeAsMilli(), equalTo(Time.fromNano(0)));
-        assertThat(offsetAndCompressedOperations.get(1).scheduledStartTimeAsMilli(), equalTo(Time.fromNano(1)));
-        assertThat(offsetAndCompressedOperations.get(1).dependencyTimeAsMilli(), equalTo(Time.fromNano(0)));
-        assertThat(offsetAndCompressedOperations.get(2).scheduledStartTimeAsMilli(), equalTo(Time.fromNano(1)));
-        assertThat(offsetAndCompressedOperations.get(2).dependencyTimeAsMilli(), equalTo(Time.fromNano(0)));
-        assertThat(offsetAndCompressedOperations.get(3).scheduledStartTimeAsMilli(), equalTo(Time.fromNano(2)));
-        assertThat(offsetAndCompressedOperations.get(3).dependencyTimeAsMilli(), equalTo(Time.fromNano(0)));
-        assertThat(offsetAndCompressedOperations.get(4).scheduledStartTimeAsMilli(), equalTo(Time.fromNano(2)));
-        assertThat(offsetAndCompressedOperations.get(4).dependencyTimeAsMilli(), equalTo(Time.fromNano(0)));
-        assertThat(offsetAndCompressedOperations.get(5).scheduledStartTimeAsMilli(), equalTo(Time.fromNano(3)));
-        assertThat(offsetAndCompressedOperations.get(5).dependencyTimeAsMilli(), equalTo(Time.fromNano(0)));
-        assertThat(offsetAndCompressedOperations.get(6).scheduledStartTimeAsMilli(), equalTo(Time.fromNano(3)));
-        assertThat(offsetAndCompressedOperations.get(6).dependencyTimeAsMilli(), equalTo(Time.fromNano(0)));
-        assertThat(offsetAndCompressedOperations.get(7).scheduledStartTimeAsMilli(), equalTo(Time.fromNano(4)));
-        assertThat(offsetAndCompressedOperations.get(7).dependencyTimeAsMilli(), equalTo(Time.fromNano(0)));
-        assertThat(offsetAndCompressedOperations.get(8).scheduledStartTimeAsMilli(), equalTo(Time.fromNano(4)));
-        assertThat(offsetAndCompressedOperations.get(8).dependencyTimeAsMilli(), equalTo(Time.fromNano(0)));
-        assertThat(offsetAndCompressedOperations.get(9).scheduledStartTimeAsMilli(), equalTo(Time.fromNano(5)));
-        assertThat(offsetAndCompressedOperations.get(9).dependencyTimeAsMilli(), equalTo(Time.fromNano(0)));
-        assertThat(offsetAndCompressedOperations.get(10).scheduledStartTimeAsMilli(), equalTo(Time.fromNano(5)));
-        assertThat(offsetAndCompressedOperations.get(10).dependencyTimeAsMilli(), equalTo(Time.fromNano(0)));
+        assertThat(offsetAndCompressedOperations.get(0).scheduledStartTimeAsMilli(), equalTo(0l));
+        assertThat(offsetAndCompressedOperations.get(0).dependencyTimeAsMilli(), equalTo(0l));
+        assertThat(offsetAndCompressedOperations.get(1).scheduledStartTimeAsMilli(), equalTo(1l));
+        assertThat(offsetAndCompressedOperations.get(1).dependencyTimeAsMilli(), equalTo(0l));
+        assertThat(offsetAndCompressedOperations.get(2).scheduledStartTimeAsMilli(), equalTo(1l));
+        assertThat(offsetAndCompressedOperations.get(2).dependencyTimeAsMilli(), equalTo(0l));
+        assertThat(offsetAndCompressedOperations.get(3).scheduledStartTimeAsMilli(), equalTo(2l));
+        assertThat(offsetAndCompressedOperations.get(3).dependencyTimeAsMilli(), equalTo(0l));
+        assertThat(offsetAndCompressedOperations.get(4).scheduledStartTimeAsMilli(), equalTo(2l));
+        assertThat(offsetAndCompressedOperations.get(4).dependencyTimeAsMilli(), equalTo(0l));
+        assertThat(offsetAndCompressedOperations.get(5).scheduledStartTimeAsMilli(), equalTo(3l));
+        assertThat(offsetAndCompressedOperations.get(5).dependencyTimeAsMilli(), equalTo(0l));
+        assertThat(offsetAndCompressedOperations.get(6).scheduledStartTimeAsMilli(), equalTo(3l));
+        assertThat(offsetAndCompressedOperations.get(6).dependencyTimeAsMilli(), equalTo(0l));
+        assertThat(offsetAndCompressedOperations.get(7).scheduledStartTimeAsMilli(), equalTo(4l));
+        assertThat(offsetAndCompressedOperations.get(7).dependencyTimeAsMilli(), equalTo(0l));
+        assertThat(offsetAndCompressedOperations.get(8).scheduledStartTimeAsMilli(), equalTo(4l));
+        assertThat(offsetAndCompressedOperations.get(8).dependencyTimeAsMilli(), equalTo(0l));
+        assertThat(offsetAndCompressedOperations.get(9).scheduledStartTimeAsMilli(), equalTo(5l));
+        assertThat(offsetAndCompressedOperations.get(9).dependencyTimeAsMilli(), equalTo(0l));
+        assertThat(offsetAndCompressedOperations.get(10).scheduledStartTimeAsMilli(), equalTo(5l));
+        assertThat(offsetAndCompressedOperations.get(10).dependencyTimeAsMilli(), equalTo(0l));
     }
 
     @Test
@@ -267,18 +265,18 @@ public class TimeMappingOperationGeneratorTest {
         String workloadClassName = LdbcSnbInteractiveWorkload.class.getName();
         long operationCount = 100;
         int threadCount = 1;
-        Duration statusDisplayInterval = Duration.fromSeconds(1);
+        int statusDisplayInterval = 1;
         TimeUnit timeUnit = TimeUnit.MILLISECONDS;
         String resultDirPath = temporaryFolder.newFolder().getAbsolutePath();
         double timeCompressionRatio = 1.0;
-        Duration windowedExecutionWindowDuration = Duration.fromSeconds(1);
+        long windowedExecutionWindowDuration = 1000l;
         Set<String> peerIds = new HashSet<>();
-        Duration toleratedExecutionDelay = Duration.fromSeconds(1);
+        long toleratedExecutionDelay = 1000l;
         ConsoleAndFileDriverConfiguration.ConsoleAndFileValidationParamOptions validationParams = null;
         String dbValidationFilePath = null;
         boolean validateWorkload = false;
         boolean calculateWorkloadStatistics = false;
-        Duration spinnerSleepDuration = Duration.fromMilli(0);
+        long spinnerSleepDuration = 0l;
         boolean printHelp = false;
         boolean ignoreScheduledStartTimes = false;
         boolean shouldCreateResultsLog = false;
@@ -315,16 +313,16 @@ public class TimeMappingOperationGeneratorTest {
 
         GeneratorFactory gf = new GeneratorFactory(new RandomDataGeneratorFactory(42L));
         List<Operation<?>> operations = Lists.newArrayList(gf.limit(workload.streams(gf).mergeSortedByStartTime(gf), configuration.operationCount()));
-        Time prevOperationScheduledStartTime = operations.get(0).scheduledStartTimeAsMilli().minus(Duration.fromMilli(1));
+        long prevOperationScheduledStartTime = operations.get(0).scheduledStartTimeAsMilli() - 1;
         for (Operation<?> operation : operations) {
-            assertThat(operation.scheduledStartTimeAsMilli().gte(prevOperationScheduledStartTime), is(true));
+            assertThat(operation.scheduledStartTimeAsMilli() >= prevOperationScheduledStartTime, is(true));
             prevOperationScheduledStartTime = operation.scheduledStartTimeAsMilli();
         }
 
-        List<Operation<?>> offsetOperations = Lists.newArrayList(gf.timeOffset(operations.iterator(), timeSource.now().plus(Duration.fromMilli(500))));
-        Time prevOffsetOperationScheduledStartTime = offsetOperations.get(0).scheduledStartTimeAsMilli().minus(Duration.fromMilli(1));
+        List<Operation<?>> offsetOperations = Lists.newArrayList(gf.timeOffset(operations.iterator(), timeSource.nowAsMilli() + 500));
+        long prevOffsetOperationScheduledStartTime = offsetOperations.get(0).scheduledStartTimeAsMilli() - 1;
         for (Operation<?> operation : offsetOperations) {
-            assertThat(operation.scheduledStartTimeAsMilli().gte(prevOffsetOperationScheduledStartTime), is(true));
+            assertThat(operation.scheduledStartTimeAsMilli() >= prevOffsetOperationScheduledStartTime, is(true));
             prevOffsetOperationScheduledStartTime = operation.scheduledStartTimeAsMilli();
         }
         workload.close();
@@ -334,12 +332,12 @@ public class TimeMappingOperationGeneratorTest {
     public void shouldAlwaysProduceTheSameOutputWhenGivenTheSameInput() {
         // Given
         List<Operation<?>> operations = Lists.<Operation<?>>newArrayList(
-                new TimedNamedOperation2(Time.fromMilli(10), Time.fromMilli(0), "name2"),
-                new TimedNamedOperation2(Time.fromMilli(11), Time.fromMilli(1), "name2"),
-                new TimedNamedOperation1(Time.fromMilli(12), Time.fromMilli(2), "name1")
+                new TimedNamedOperation2(10l, 0l, "name2"),
+                new TimedNamedOperation2(11l, 1l, "name2"),
+                new TimedNamedOperation1(12l, 2l, "name1")
         );
 
-        Time now = new SystemTimeSource().now();
+        long now = new SystemTimeSource().nowAsMilli();
 
         List<Operation<?>> offsetOperations1 = Lists.newArrayList(gf.timeOffset(operations.iterator(), now));
         List<Operation<?>> offsetOperations2 = Lists.newArrayList(gf.timeOffset(operations.iterator(), now));

@@ -2,11 +2,9 @@ package com.ldbc.driver.runtime.coordination;
 
 import com.google.common.collect.Lists;
 import com.ldbc.driver.generator.GeneratorFactory;
-import com.ldbc.driver.temporal.Duration;
-import com.ldbc.driver.temporal.SystemTimeSource;
-import com.ldbc.driver.temporal.Time;
-import com.ldbc.driver.temporal.TimeSource;
 import com.ldbc.driver.generator.RandomDataGeneratorFactory;
+import com.ldbc.driver.temporal.SystemTimeSource;
+import com.ldbc.driver.temporal.TimeSource;
 import org.junit.Ignore;
 import org.junit.Test;
 
@@ -29,128 +27,116 @@ public class LocalInitiatedTimeTrackerImplTest {
         int timesCountSmaller = 10000;
         int benchmarkRepetitions = 5;
 
-        Duration totalDuration_TreeMultiset_AddedRemovedImmediately = Duration.fromMilli(0);
-        Duration totalDuration_List_AddedRemovedImmediately = Duration.fromMilli(0);
-        Duration totalDuration_MinMaxPriorityQueue_AddedRemovedImmediately = Duration.fromMilli(0);
+        long totalDuration_TreeMultiset_AddedRemovedImmediately = 0l;
+        long totalDuration_List_AddedRemovedImmediately = 0l;
+        long totalDuration_MinMaxPriorityQueue_AddedRemovedImmediately = 0l;
 
-        Duration totalDuration_TreeMultiset_AddAllThenRemoveAllSequentially = Duration.fromMilli(0);
-        Duration totalDuration_List_AddAllThenRemoveAllSequentially = Duration.fromMilli(0);
-        Duration totalDuration_MinMaxPriorityQueue_AddAllThenRemoveAllSequentially = Duration.fromMilli(0);
+        long totalDuration_TreeMultiset_AddAllThenRemoveAllSequentially = 0l;
+        long totalDuration_List_AddAllThenRemoveAllSequentially = 0l;
+        long totalDuration_MinMaxPriorityQueue_AddAllThenRemoveAllSequentially = 0l;
 
-        Duration totalDuration_TreeMultiSet_JustAdd = Duration.fromMilli(0);
-        Duration totalDuration_List_JustAdd = Duration.fromMilli(0);
-        Duration totalDuration_MinMaxPriorityQueue_JustAdd = Duration.fromMilli(0);
+        long totalDuration_TreeMultiSet_JustAdd = 0l;
+        long totalDuration_List_JustAdd = 0l;
+        long totalDuration_MinMaxPriorityQueue_JustAdd = 0l;
 
-        Duration totalDuration_TreeMultiset_AddAllThenRemoveAllRandomly = Duration.fromMilli(0);
-        Duration totalDuration_List_AddAllThenRemoveAllRandomly = Duration.fromMilli(0);
-        Duration totalDuration_MinMaxPriorityQueue_AddAllThenRemoveAllRandomly = Duration.fromMilli(0);
+        long totalDuration_TreeMultiset_AddAllThenRemoveAllRandomly = 0l;
+        long totalDuration_List_AddAllThenRemoveAllRandomly = 0l;
+        long totalDuration_MinMaxPriorityQueue_AddAllThenRemoveAllRandomly = 0l;
 
         for (int i = 0; i < benchmarkRepetitions; i++) {
             // ******
             // Added Removed Immediately
             // ******
             totalDuration_TreeMultiset_AddedRemovedImmediately =
-                    totalDuration_TreeMultiset_AddedRemovedImmediately.plus(
+                    totalDuration_TreeMultiset_AddedRemovedImmediately +
                             performanceOfLocalInitiatedTimeTrackerImplementationsWhenTimesAddedAndRemovedImmediately(
                                     LocalCompletionTimeStateManager.LocalInitiatedTimeTrackerImpl.createUsingTreeMultiSet(),
                                     timesCountBigger
-                            )
-                    );
+                            );
 
             totalDuration_List_AddedRemovedImmediately =
-                    totalDuration_List_AddedRemovedImmediately.plus(
+                    totalDuration_List_AddedRemovedImmediately +
                             performanceOfLocalInitiatedTimeTrackerImplementationsWhenTimesAddedAndRemovedImmediately(
                                     LocalCompletionTimeStateManager.LocalInitiatedTimeTrackerImpl.createUsingArrayList(),
                                     timesCountBigger
-                            )
-                    );
+                            );
             totalDuration_MinMaxPriorityQueue_AddedRemovedImmediately =
-                    totalDuration_MinMaxPriorityQueue_AddedRemovedImmediately.plus(
+                    totalDuration_MinMaxPriorityQueue_AddedRemovedImmediately +
                             performanceOfLocalInitiatedTimeTrackerImplementationsWhenTimesAddedAndRemovedImmediately(
                                     LocalCompletionTimeStateManager.LocalInitiatedTimeTrackerImpl.createUsingMinMaxPriorityQueue(),
                                     timesCountBigger
-                            )
-                    );
+                            );
 
             // ******
             // Add All Then Remove All Sequentially
             // ******
             totalDuration_TreeMultiset_AddAllThenRemoveAllSequentially =
-                    totalDuration_TreeMultiset_AddAllThenRemoveAllSequentially.plus(
+                    totalDuration_TreeMultiset_AddAllThenRemoveAllSequentially +
                             performanceOfLocalInitiatedTimeTrackerImplementationsWhenTimesAllAddedThenAllRemovedSequentially(
                                     LocalCompletionTimeStateManager.LocalInitiatedTimeTrackerImpl.createUsingTreeMultiSet(),
                                     timesCountSmaller
-                            )
-                    );
+                            );
 
             totalDuration_List_AddAllThenRemoveAllSequentially =
-                    totalDuration_List_AddAllThenRemoveAllSequentially.plus(
+                    totalDuration_List_AddAllThenRemoveAllSequentially +
                             performanceOfLocalInitiatedTimeTrackerImplementationsWhenTimesAllAddedThenAllRemovedSequentially(
                                     LocalCompletionTimeStateManager.LocalInitiatedTimeTrackerImpl.createUsingArrayList(),
                                     timesCountSmaller
-                            )
-                    );
+                            );
             totalDuration_MinMaxPriorityQueue_AddAllThenRemoveAllSequentially =
-                    totalDuration_MinMaxPriorityQueue_AddAllThenRemoveAllSequentially.plus(
+                    totalDuration_MinMaxPriorityQueue_AddAllThenRemoveAllSequentially +
                             performanceOfLocalInitiatedTimeTrackerImplementationsWhenTimesAllAddedThenAllRemovedSequentially(
                                     LocalCompletionTimeStateManager.LocalInitiatedTimeTrackerImpl.createUsingMinMaxPriorityQueue(),
                                     timesCountSmaller
-                            )
-                    );
+                            );
 
             // ******
             // Just Add
             // ******
             totalDuration_TreeMultiSet_JustAdd =
-                    totalDuration_TreeMultiSet_JustAdd.plus(
+                    totalDuration_TreeMultiSet_JustAdd +
                             performanceOfLocalInitiatedTimeTrackerImplementationsWhenTimesJustAdd(
                                     LocalCompletionTimeStateManager.LocalInitiatedTimeTrackerImpl.createUsingTreeMultiSet(),
                                     timesCountBigger
-                            )
-                    );
+                            );
 
             totalDuration_List_JustAdd =
-                    totalDuration_List_JustAdd.plus(
+                    totalDuration_List_JustAdd +
                             performanceOfLocalInitiatedTimeTrackerImplementationsWhenTimesJustAdd(
                                     LocalCompletionTimeStateManager.LocalInitiatedTimeTrackerImpl.createUsingArrayList(),
                                     timesCountBigger
-                            )
-                    );
+                            );
 
             totalDuration_MinMaxPriorityQueue_JustAdd =
-                    totalDuration_MinMaxPriorityQueue_JustAdd.plus(
+                    totalDuration_MinMaxPriorityQueue_JustAdd +
                             performanceOfLocalInitiatedTimeTrackerImplementationsWhenTimesJustAdd(
                                     LocalCompletionTimeStateManager.LocalInitiatedTimeTrackerImpl.createUsingMinMaxPriorityQueue(),
                                     timesCountBigger
-                            )
-                    );
+                            );
 
             // ******
             // Add All Then Remove All Randomly
             // ******
             totalDuration_TreeMultiset_AddAllThenRemoveAllRandomly =
-                    totalDuration_TreeMultiset_AddAllThenRemoveAllRandomly.plus(
+                    totalDuration_TreeMultiset_AddAllThenRemoveAllRandomly +
                             performanceOfLocalInitiatedTimeTrackerImplementationsWhenTimesAllAddedThenAllRemovedRandomly(
                                     LocalCompletionTimeStateManager.LocalInitiatedTimeTrackerImpl.createUsingTreeMultiSet(),
                                     timesCountSmaller
-                            )
-                    );
+                            );
 
             totalDuration_List_AddAllThenRemoveAllRandomly =
-                    totalDuration_List_AddAllThenRemoveAllRandomly.plus(
+                    totalDuration_List_AddAllThenRemoveAllRandomly +
                             performanceOfLocalInitiatedTimeTrackerImplementationsWhenTimesAllAddedThenAllRemovedRandomly(
                                     LocalCompletionTimeStateManager.LocalInitiatedTimeTrackerImpl.createUsingArrayList(),
                                     timesCountSmaller
-                            )
-                    );
+                            );
 
             totalDuration_MinMaxPriorityQueue_AddAllThenRemoveAllRandomly =
-                    totalDuration_MinMaxPriorityQueue_AddAllThenRemoveAllRandomly.plus(
+                    totalDuration_MinMaxPriorityQueue_AddAllThenRemoveAllRandomly +
                             performanceOfLocalInitiatedTimeTrackerImplementationsWhenTimesAllAddedThenAllRemovedRandomly(
                                     LocalCompletionTimeStateManager.LocalInitiatedTimeTrackerImpl.createUsingMinMaxPriorityQueue(),
                                     timesCountSmaller
-                            )
-                    );
+                            );
         }
 
         System.out.println("TreeMultiSet (add " + timesCountBigger + "):\t\t\t\t\t\t\t\t\t" + totalDuration_TreeMultiSet_JustAdd + " <- add to large/growing");
@@ -170,96 +156,96 @@ public class LocalInitiatedTimeTrackerImplTest {
         System.out.println("MinMaxPriorityQueue (add " + timesCountSmaller + "/remove " + timesCountSmaller + " randomly):\t\t" + totalDuration_MinMaxPriorityQueue_AddAllThenRemoveAllRandomly + " <- add to large/growing, removal from large/growing randomly");
     }
 
-    public Duration performanceOfLocalInitiatedTimeTrackerImplementationsWhenTimesAddedAndRemovedImmediately(
+    public long performanceOfLocalInitiatedTimeTrackerImplementationsWhenTimesAddedAndRemovedImmediately(
             LocalCompletionTimeStateManager.LocalInitiatedTimeTracker tracker,
             int timesCount) throws CompletionTimeException {
         TimeSource timeSource = new SystemTimeSource();
         GeneratorFactory gf = new GeneratorFactory(new RandomDataGeneratorFactory(42L));
 
-        Iterator<Time> times = gf.limit(
-                gf.constantIncrementTime(Time.fromMilli(0), Duration.fromMilli(1)),
+        Iterator<Long> times = gf.limit(
+                gf.incrementing(0l, 1l),
                 timesCount);
 
-        Time startTime = timeSource.now();
+        long startTimeAsMilli = timeSource.nowAsMilli();
 
         while (times.hasNext()) {
-            Time time = times.next();
+            long time = times.next();
             tracker.addInitiatedTimeAndReturnLastKnownLowestTimeAsMilli(time);
             tracker.removeTimeAndReturnLastKnownLowestTimeAsMilli(time);
             tracker.uncompletedInitiatedTimes();
             tracker.highestInitiatedTimeAsMilli();
         }
 
-        Time finishTime = timeSource.now();
+        long finishTime = timeSource.nowAsMilli();
 
-        return finishTime.durationGreaterThan(startTime);
+        return finishTime - startTimeAsMilli;
     }
 
-    public Duration performanceOfLocalInitiatedTimeTrackerImplementationsWhenTimesAllAddedThenAllRemovedSequentially(
+    public long performanceOfLocalInitiatedTimeTrackerImplementationsWhenTimesAllAddedThenAllRemovedSequentially(
             LocalCompletionTimeStateManager.LocalInitiatedTimeTracker tracker,
             int timesCount) throws CompletionTimeException {
         TimeSource timeSource = new SystemTimeSource();
         GeneratorFactory gf = new GeneratorFactory(new RandomDataGeneratorFactory(42L));
 
-        List<Time> times = Lists.newArrayList(
+        List<Long> times = Lists.newArrayList(
                 gf.limit(
-                        gf.constantIncrementTime(Time.fromMilli(0), Duration.fromMilli(1)),
+                        gf.incrementing(0l, 1l),
                         timesCount)
         );
 
-        Time startTime = timeSource.now();
+        long startTime = timeSource.nowAsMilli();
 
         // add all times
-        for (Time time : times) {
+        for (long time : times) {
             tracker.addInitiatedTimeAndReturnLastKnownLowestTimeAsMilli(time);
             tracker.uncompletedInitiatedTimes();
             tracker.highestInitiatedTimeAsMilli();
         }
 
         // remove all times
-        for (Time time : times) {
+        for (long time : times) {
             tracker.removeTimeAndReturnLastKnownLowestTimeAsMilli(time);
             tracker.uncompletedInitiatedTimes();
             tracker.highestInitiatedTimeAsMilli();
         }
 
-        Time finishTime = timeSource.now();
+        long finishTime = timeSource.nowAsMilli();
 
-        return finishTime.durationGreaterThan(startTime);
+        return finishTime - startTime;
     }
 
-    public Duration performanceOfLocalInitiatedTimeTrackerImplementationsWhenTimesAllAddedThenAllRemovedRandomly(
+    public long performanceOfLocalInitiatedTimeTrackerImplementationsWhenTimesAllAddedThenAllRemovedRandomly(
             LocalCompletionTimeStateManager.LocalInitiatedTimeTracker tracker,
             int timesCount) throws CompletionTimeException {
         TimeSource timeSource = new SystemTimeSource();
         GeneratorFactory gf = new GeneratorFactory(new RandomDataGeneratorFactory(42L));
 
-        final List<Time> times = Lists.newArrayList(
+        final List<Long> times = Lists.newArrayList(
                 gf.limit(
-                        gf.constantIncrementTime(Time.fromMilli(0), Duration.fromMilli(1)),
+                        gf.incrementing(0l, 1l),
                         timesCount)
         );
 
         // create iterator to add times from, in sequential order <-- requirement of tracker
-        Iterator<Time> timesToAdd = Lists.newArrayList(times).iterator();
+        Iterator<Long> timesToAdd = Lists.newArrayList(times).iterator();
 
         // create iterator to remove times from, in random order
-        List<Time> timesToRemoveList = new ArrayList<>();
+        List<Long> timesToRemoveList = new ArrayList<>();
         Iterator<Double> uniforms = gf.uniform(0.0, 1.0);
         while (false == times.isEmpty()) {
             int index = (int) Math.round(Math.floor(uniforms.next() * times.size()));
-            Time timeToRemove = times.remove(index);
+            long timeToRemove = times.remove(index);
             assertThat(timeToRemove, is(notNullValue()));
             timesToRemoveList.add(timeToRemove);
         }
         assertThat(timesToRemoveList.size(), is(timesCount));
-        Iterator<Time> timesToRemove = timesToRemoveList.iterator();
+        Iterator<Long> timesToRemove = timesToRemoveList.iterator();
 
-        Time startTime = timeSource.now();
+        long startTime = timeSource.nowAsMilli();
 
         // add all times
         while (timesToAdd.hasNext()) {
-            Time time = timesToAdd.next();
+            long time = timesToAdd.next();
             tracker.addInitiatedTimeAndReturnLastKnownLowestTimeAsMilli(time);
             tracker.uncompletedInitiatedTimes();
             tracker.highestInitiatedTimeAsMilli();
@@ -269,43 +255,43 @@ public class LocalInitiatedTimeTrackerImplTest {
 
         // remove all times
         while (timesToRemove.hasNext()) {
-            Time time = timesToRemove.next();
+            long time = timesToRemove.next();
             tracker.removeTimeAndReturnLastKnownLowestTimeAsMilli(time);
             tracker.uncompletedInitiatedTimes();
             tracker.highestInitiatedTimeAsMilli();
         }
 
-        Time finishTime = timeSource.now();
+        long finishTime = timeSource.nowAsMilli();
 
         assertThat(tracker.uncompletedInitiatedTimes(), is(0));
 
-        return finishTime.durationGreaterThan(startTime);
+        return finishTime - startTime;
     }
 
-    public Duration performanceOfLocalInitiatedTimeTrackerImplementationsWhenTimesJustAdd(
+    public long performanceOfLocalInitiatedTimeTrackerImplementationsWhenTimesJustAdd(
             LocalCompletionTimeStateManager.LocalInitiatedTimeTracker tracker,
             int timesCount) throws CompletionTimeException {
         TimeSource timeSource = new SystemTimeSource();
         GeneratorFactory gf = new GeneratorFactory(new RandomDataGeneratorFactory(42L));
 
-        List<Time> times = Lists.newArrayList(
+        List<Long> times = Lists.newArrayList(
                 gf.limit(
-                        gf.constantIncrementTime(Time.fromMilli(0), Duration.fromMilli(1)),
+                        gf.incrementing(0l, 1l),
                         timesCount)
         );
 
-        Time startTime = timeSource.now();
+        long startTime = timeSource.nowAsMilli();
 
         // add all times
-        for (Time time : times) {
+        for (long time : times) {
             tracker.addInitiatedTimeAndReturnLastKnownLowestTimeAsMilli(time);
             tracker.uncompletedInitiatedTimes();
             tracker.highestInitiatedTimeAsMilli();
         }
 
-        Time finishTime = timeSource.now();
+        long finishTime = timeSource.nowAsMilli();
 
-        return finishTime.durationGreaterThan(startTime);
+        return finishTime - startTime;
     }
 
     /*
@@ -338,7 +324,7 @@ public class LocalInitiatedTimeTrackerImplTest {
         assertThat(tracker.highestInitiatedTimeAsMilli(), is(nullValue()));
         boolean exceptionThrown = false;
         try {
-            tracker.removeTimeAndReturnLastKnownLowestTimeAsMilli(Time.fromMilli(1));
+            tracker.removeTimeAndReturnLastKnownLowestTimeAsMilli(1l);
         } catch (CompletionTimeException e) {
             exceptionThrown = true;
         }
@@ -369,7 +355,7 @@ public class LocalInitiatedTimeTrackerImplTest {
         assertThat(tracker.highestInitiatedTimeAsMilli(), is(nullValue()));
         boolean exceptionThrown = false;
         try {
-            tracker.removeTimeAndReturnLastKnownLowestTimeAsMilli(Time.fromMilli(1));
+            tracker.removeTimeAndReturnLastKnownLowestTimeAsMilli(1l);
         } catch (CompletionTimeException e) {
             exceptionThrown = true;
         }
@@ -377,143 +363,143 @@ public class LocalInitiatedTimeTrackerImplTest {
         assertThat(tracker.uncompletedInitiatedTimes(), is(0));
 
         // [0]
-        assertThat(tracker.addInitiatedTimeAndReturnLastKnownLowestTimeAsMilli(Time.fromMilli(0)), equalTo(Time.fromMilli(0)));
+        assertThat(tracker.addInitiatedTimeAndReturnLastKnownLowestTimeAsMilli(0l), equalTo(0l));
 
-        assertThat(tracker.highestInitiatedTimeAsMilli(), is(Time.fromMilli(0)));
+        assertThat(tracker.highestInitiatedTimeAsMilli(), is(0l));
         assertThat(tracker.uncompletedInitiatedTimes(), is(1));
 
         // [0]
         exceptionThrown = false;
         try {
-            tracker.removeTimeAndReturnLastKnownLowestTimeAsMilli(Time.fromMilli(1));
+            tracker.removeTimeAndReturnLastKnownLowestTimeAsMilli(1l);
         } catch (CompletionTimeException e) {
             exceptionThrown = true;
         }
         assertThat(exceptionThrown, is(true));
 
         // [0,0]
-        assertThat(tracker.addInitiatedTimeAndReturnLastKnownLowestTimeAsMilli(Time.fromMilli(0)), equalTo(Time.fromMilli(0)));
+        assertThat(tracker.addInitiatedTimeAndReturnLastKnownLowestTimeAsMilli(0l), equalTo(0l));
 
-        assertThat(tracker.highestInitiatedTimeAsMilli(), is(Time.fromMilli(0)));
+        assertThat(tracker.highestInitiatedTimeAsMilli(), is(0l));
         assertThat(tracker.uncompletedInitiatedTimes(), is(2));
 
         // [0,0]
         exceptionThrown = false;
         try {
-            tracker.removeTimeAndReturnLastKnownLowestTimeAsMilli(Time.fromMilli(1));
+            tracker.removeTimeAndReturnLastKnownLowestTimeAsMilli(1l);
         } catch (CompletionTimeException e) {
             exceptionThrown = true;
         }
         assertThat(exceptionThrown, is(true));
 
         // [0,0,1,1,4,5]
-        assertThat(tracker.addInitiatedTimeAndReturnLastKnownLowestTimeAsMilli(Time.fromMilli(1)), equalTo(Time.fromMilli(0)));
-        assertThat(tracker.addInitiatedTimeAndReturnLastKnownLowestTimeAsMilli(Time.fromMilli(1)), equalTo(Time.fromMilli(0)));
-        assertThat(tracker.addInitiatedTimeAndReturnLastKnownLowestTimeAsMilli(Time.fromMilli(4)), equalTo(Time.fromMilli(0)));
-        assertThat(tracker.addInitiatedTimeAndReturnLastKnownLowestTimeAsMilli(Time.fromMilli(5)), equalTo(Time.fromMilli(0)));
+        assertThat(tracker.addInitiatedTimeAndReturnLastKnownLowestTimeAsMilli(1l), equalTo(0l));
+        assertThat(tracker.addInitiatedTimeAndReturnLastKnownLowestTimeAsMilli(1l), equalTo(0l));
+        assertThat(tracker.addInitiatedTimeAndReturnLastKnownLowestTimeAsMilli(4l), equalTo(0l));
+        assertThat(tracker.addInitiatedTimeAndReturnLastKnownLowestTimeAsMilli(5l), equalTo(0l));
 
-        assertThat(tracker.highestInitiatedTimeAsMilli(), is(Time.fromMilli(5)));
+        assertThat(tracker.highestInitiatedTimeAsMilli(), is(5l));
         assertThat(tracker.uncompletedInitiatedTimes(), is(6));
 
         // [0,0,1,1,4,5,7,9,10,15]
-        assertThat(tracker.addInitiatedTimeAndReturnLastKnownLowestTimeAsMilli(Time.fromMilli(7)), equalTo(Time.fromMilli(0)));
-        assertThat(tracker.addInitiatedTimeAndReturnLastKnownLowestTimeAsMilli(Time.fromMilli(9)), equalTo(Time.fromMilli(0)));
-        assertThat(tracker.addInitiatedTimeAndReturnLastKnownLowestTimeAsMilli(Time.fromMilli(10)), equalTo(Time.fromMilli(0)));
-        assertThat(tracker.addInitiatedTimeAndReturnLastKnownLowestTimeAsMilli(Time.fromMilli(15)), equalTo(Time.fromMilli(0)));
+        assertThat(tracker.addInitiatedTimeAndReturnLastKnownLowestTimeAsMilli(7l), equalTo(0l));
+        assertThat(tracker.addInitiatedTimeAndReturnLastKnownLowestTimeAsMilli(9l), equalTo(0l));
+        assertThat(tracker.addInitiatedTimeAndReturnLastKnownLowestTimeAsMilli(10l), equalTo(0l));
+        assertThat(tracker.addInitiatedTimeAndReturnLastKnownLowestTimeAsMilli(15l), equalTo(0l));
 
-        assertThat(tracker.highestInitiatedTimeAsMilli(), is(Time.fromMilli(15)));
+        assertThat(tracker.highestInitiatedTimeAsMilli(), is(15l));
         assertThat(tracker.uncompletedInitiatedTimes(), is(10));
 
         // [0,0,1,1,4,5,7,9,10,15]
         exceptionThrown = false;
         try {
-            tracker.removeTimeAndReturnLastKnownLowestTimeAsMilli(Time.fromMilli(2));
+            tracker.removeTimeAndReturnLastKnownLowestTimeAsMilli(2l);
         } catch (CompletionTimeException e) {
             exceptionThrown = true;
         }
         assertThat(exceptionThrown, is(true));
         exceptionThrown = false;
         try {
-            tracker.removeTimeAndReturnLastKnownLowestTimeAsMilli(Time.fromMilli(3));
+            tracker.removeTimeAndReturnLastKnownLowestTimeAsMilli(3l);
         } catch (CompletionTimeException e) {
             exceptionThrown = true;
         }
         assertThat(exceptionThrown, is(true));
 
         // [ ,0,1,1,4,5,7,9,10,15]
-        assertThat(tracker.removeTimeAndReturnLastKnownLowestTimeAsMilli(Time.fromMilli(0)), is(Time.fromMilli(0)));
+        assertThat(tracker.removeTimeAndReturnLastKnownLowestTimeAsMilli(0l), is(0l));
         // [ ,0,1,1,4, ,7,9,10,15]
-        assertThat(tracker.removeTimeAndReturnLastKnownLowestTimeAsMilli(Time.fromMilli(5)), is(Time.fromMilli(0)));
+        assertThat(tracker.removeTimeAndReturnLastKnownLowestTimeAsMilli(5l), is(0l));
         // [ ,0,1,1,4, ,7,9, ,15]
-        assertThat(tracker.removeTimeAndReturnLastKnownLowestTimeAsMilli(Time.fromMilli(10)), is(Time.fromMilli(0)));
+        assertThat(tracker.removeTimeAndReturnLastKnownLowestTimeAsMilli(10l), is(0l));
 
         // [ ,0,1,1,4, ,7,9, ,15]
-        assertThat(tracker.highestInitiatedTimeAsMilli(), is(Time.fromMilli(15)));
+        assertThat(tracker.highestInitiatedTimeAsMilli(), is(15l));
         assertThat(tracker.uncompletedInitiatedTimes(), is(7));
 
         // [ , ,1,1,4, ,7,9, ,15]
-        assertThat(tracker.removeTimeAndReturnLastKnownLowestTimeAsMilli(Time.fromMilli(0)), is(Time.fromMilli(1)));
+        assertThat(tracker.removeTimeAndReturnLastKnownLowestTimeAsMilli(0l), is(1l));
 
         // [ , ,1,1, , ,7,9, ,15]
-        assertThat(tracker.removeTimeAndReturnLastKnownLowestTimeAsMilli(Time.fromMilli(4)), is(Time.fromMilli(1)));
+        assertThat(tracker.removeTimeAndReturnLastKnownLowestTimeAsMilli(4l), is(1l));
 
         // [ , ,1,1, , ,7, , ,15]
-        assertThat(tracker.removeTimeAndReturnLastKnownLowestTimeAsMilli(Time.fromMilli(9)), is(Time.fromMilli(1)));
+        assertThat(tracker.removeTimeAndReturnLastKnownLowestTimeAsMilli(9l), is(1l));
 
         // [ , ,1,1, , ,7, , ,15]
-        assertThat(tracker.highestInitiatedTimeAsMilli(), is(Time.fromMilli(15)));
+        assertThat(tracker.highestInitiatedTimeAsMilli(), is(15l));
         assertThat(tracker.uncompletedInitiatedTimes(), is(4));
 
         // [ , ,1,1, , ,7, , ,15,15,15]
         exceptionThrown = false;
         try {
-            tracker.addInitiatedTimeAndReturnLastKnownLowestTimeAsMilli(Time.fromMilli(14));
+            tracker.addInitiatedTimeAndReturnLastKnownLowestTimeAsMilli(14l);
         } catch (CompletionTimeException e) {
             exceptionThrown = true;
         }
         assertThat(exceptionThrown, is(true));
-        assertThat(tracker.addInitiatedTimeAndReturnLastKnownLowestTimeAsMilli(Time.fromMilli(15)), equalTo(Time.fromMilli(1)));
-        assertThat(tracker.addInitiatedTimeAndReturnLastKnownLowestTimeAsMilli(Time.fromMilli(15)), equalTo(Time.fromMilli(1)));
+        assertThat(tracker.addInitiatedTimeAndReturnLastKnownLowestTimeAsMilli(15l), equalTo(1l));
+        assertThat(tracker.addInitiatedTimeAndReturnLastKnownLowestTimeAsMilli(15l), equalTo(1l));
 
-        assertThat(tracker.highestInitiatedTimeAsMilli(), is(Time.fromMilli(15)));
+        assertThat(tracker.highestInitiatedTimeAsMilli(), is(15l));
         assertThat(tracker.uncompletedInitiatedTimes(), is(6));
 
         // [ , ,1,1, , ,7, , , ,15,15]
-        assertThat(tracker.removeTimeAndReturnLastKnownLowestTimeAsMilli(Time.fromMilli(15)), is(Time.fromMilli(1)));
+        assertThat(tracker.removeTimeAndReturnLastKnownLowestTimeAsMilli(15l), is(1l));
 
         // [ , ,1,1, , ,7, , , , ,15]
-        assertThat(tracker.removeTimeAndReturnLastKnownLowestTimeAsMilli(Time.fromMilli(15)), is(Time.fromMilli(1)));
+        assertThat(tracker.removeTimeAndReturnLastKnownLowestTimeAsMilli(15l), is(1l));
 
         // [ , ,1,1, , ,7, , , , , ]
-        assertThat(tracker.removeTimeAndReturnLastKnownLowestTimeAsMilli(Time.fromMilli(15)), is(Time.fromMilli(1)));
+        assertThat(tracker.removeTimeAndReturnLastKnownLowestTimeAsMilli(15l), is(1l));
 
         // [ , ,1,1, , ,7, , , , , ]
-        assertThat(tracker.highestInitiatedTimeAsMilli(), is(Time.fromMilli(15)));
+        assertThat(tracker.highestInitiatedTimeAsMilli(), is(15l));
         assertThat(tracker.uncompletedInitiatedTimes(), is(3));
 
         // [ , , ,1, , ,7, , , , , ]
-        assertThat(tracker.removeTimeAndReturnLastKnownLowestTimeAsMilli(Time.fromMilli(1)), is(Time.fromMilli(1)));
+        assertThat(tracker.removeTimeAndReturnLastKnownLowestTimeAsMilli(1l), is(1l));
 
         // [ , , , , , ,7, , , , , ]
-        assertThat(tracker.removeTimeAndReturnLastKnownLowestTimeAsMilli(Time.fromMilli(1)), is(Time.fromMilli(7)));
+        assertThat(tracker.removeTimeAndReturnLastKnownLowestTimeAsMilli(1l), is(7l));
 
         // [ , , , , , ,7, , , , , ]
-        assertThat(tracker.highestInitiatedTimeAsMilli(), is(Time.fromMilli(15)));
+        assertThat(tracker.highestInitiatedTimeAsMilli(), is(15l));
         assertThat(tracker.uncompletedInitiatedTimes(), is(1));
 
         // [ , , , , , , , , , , , ]
-        assertThat(tracker.removeTimeAndReturnLastKnownLowestTimeAsMilli(Time.fromMilli(7)), is(Time.fromMilli(15)));
+        assertThat(tracker.removeTimeAndReturnLastKnownLowestTimeAsMilli(7l), is(15l));
 
         // [ , , , , , , , , , , , ]
-        assertThat(tracker.highestInitiatedTimeAsMilli(), is(Time.fromMilli(15)));
+        assertThat(tracker.highestInitiatedTimeAsMilli(), is(15l));
         assertThat(tracker.uncompletedInitiatedTimes(), is(0));
 
         for (int i = 16; i < 10000; i++) {
-            assertThat(tracker.addInitiatedTimeAndReturnLastKnownLowestTimeAsMilli(Time.fromMilli(i)), equalTo(Time.fromMilli(16)));
+            assertThat(tracker.addInitiatedTimeAndReturnLastKnownLowestTimeAsMilli(i), equalTo(16l));
         }
         for (int i = 16; i < 9999; i++) {
-            assertThat(tracker.removeTimeAndReturnLastKnownLowestTimeAsMilli(Time.fromMilli(i)), is(Time.fromMilli(i + 1)));
+            assertThat(tracker.removeTimeAndReturnLastKnownLowestTimeAsMilli(i), is(i + 1l));
         }
-        assertThat(tracker.removeTimeAndReturnLastKnownLowestTimeAsMilli(Time.fromMilli(9999)), is(Time.fromMilli(9999)));
+        assertThat(tracker.removeTimeAndReturnLastKnownLowestTimeAsMilli(9999l), is(9999l));
     }
 }

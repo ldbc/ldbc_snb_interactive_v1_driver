@@ -7,9 +7,8 @@ import com.ldbc.driver.generator.CsvEventStreamReaderBasicCharSeeker;
 import com.ldbc.driver.generator.CsvEventStreamReaderBasicCharSeeker.EventDecoder;
 import com.ldbc.driver.generator.GeneratorFactory;
 import com.ldbc.driver.generator.RandomDataGeneratorFactory;
-import com.ldbc.driver.temporal.Duration;
 import com.ldbc.driver.temporal.SystemTimeSource;
-import com.ldbc.driver.temporal.Time;
+import com.ldbc.driver.temporal.TemporalUtil;
 import com.ldbc.driver.temporal.TimeSource;
 import com.ldbc.driver.util.csv.*;
 import org.junit.Ignore;
@@ -19,8 +18,10 @@ import java.io.*;
 import java.text.DecimalFormat;
 import java.util.Iterator;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 public class EventStreamReaderPerformanceTest {
+    private static final TemporalUtil TEMPORAL_UTIL = new TemporalUtil();
     TimeSource timeSource = new SystemTimeSource();
     DecimalFormat numberFormatter = new DecimalFormat("###,###,###,###");
 
@@ -60,11 +61,11 @@ public class EventStreamReaderPerformanceTest {
             long durationAsMilli = (endTimeAsMilli - startTimeAsMilli) / repetitions;
             lines = lines / repetitions;
 
-            double linesPerSecond = Math.round(((double) lines / durationAsMilli) * Duration.fromSeconds(1).asMilli());
+            double linesPerSecond = Math.round(((double) lines / durationAsMilli) * 1000l);
             System.out.println(
                     String.format("%s took %s to read %s line: %s lines/s",
                             SimpleCsvFileReader.class.getSimpleName(),
-                            Duration.fromMilli(durationAsMilli),
+                            durationAsMilli,
                             numberFormatter.format(lines),
                             numberFormatter.format(linesPerSecond)
                     )
@@ -101,11 +102,11 @@ public class EventStreamReaderPerformanceTest {
             long durationAsMilli = (endTimeAsMilli - startTimeAsMilli) / repetitions;
             lines = lines / repetitions;
 
-            double linesPerSecond = Math.round(((double) lines / durationAsMilli) * Duration.fromSeconds(1).asMilli());
+            double linesPerSecond = Math.round(((double) lines / durationAsMilli) * 1000l);
             System.out.println(
                     String.format("%s took %s to read %s line: %s lines/s",
                             CsvEventStreamReaderBasicCharSeeker.class.getSimpleName(),
-                            Duration.fromMilli(durationAsMilli),
+                            durationAsMilli,
                             numberFormatter.format(lines),
                             numberFormatter.format(linesPerSecond)
                     )
@@ -145,11 +146,11 @@ public class EventStreamReaderPerformanceTest {
             long durationAsMilli = (endTimeAsMilli - startTimeAsMilli) / repetitions;
             lines = lines / repetitions;
 
-            double linesPerSecond = Math.round(((double) lines / durationAsMilli) * Duration.fromSeconds(1).asMilli());
+            double linesPerSecond = Math.round(((double) lines / durationAsMilli) * 1000l);
             System.out.println(
                     String.format("%s took %s to read %s line: %s lines/s",
                             Query1EventStreamReader.class.getSimpleName(),
-                            Duration.fromMilli(durationAsMilli),
+                            durationAsMilli,
                             numberFormatter.format(lines),
                             numberFormatter.format(linesPerSecond)
                     )
@@ -182,7 +183,7 @@ public class EventStreamReaderPerformanceTest {
                         limit
                 );
                 Iterator<Operation<?>> query1OperationsWithTimes = gf.assignStartTimes(
-                        gf.constantIncrementTime(Time.fromMilli(0), Duration.fromMilli(1)),
+                        gf.incrementing(0l, 1l),
                         new Query1EventStreamReader(query1Parameters)
                 );
 
@@ -193,11 +194,11 @@ public class EventStreamReaderPerformanceTest {
             long durationAsMilli = (endTimeAsMilli - startTimeAsMilli) / repetitions;
             lines = lines / repetitions;
 
-            double linesPerSecond = Math.round(((double) lines / durationAsMilli) * Duration.fromSeconds(1).asMilli());
+            double linesPerSecond = Math.round(((double) lines / durationAsMilli) * 1000l);
             System.out.println(
                     String.format("%s took %s to read %s line: %s lines/s",
                             Query1EventStreamReader.class.getSimpleName(),
-                            Duration.fromMilli(durationAsMilli),
+                            durationAsMilli,
                             numberFormatter.format(lines),
                             numberFormatter.format(linesPerSecond)
                     )
@@ -228,7 +229,7 @@ public class EventStreamReaderPerformanceTest {
                 charSeeker1.seek(mark1, new int[]{columnDelimiter});
                 charSeeker1.seek(mark1, new int[]{columnDelimiter});
                 Iterator<Operation<?>> query1OperationsWithTimes = gf.assignStartTimes(
-                        gf.constantIncrementTime(Time.fromMilli(0), Duration.fromMilli(1)),
+                        gf.incrementing(0l, 1l),
                         new Query1EventStreamReader(
                                 gf.repeating(
                                         new CsvEventStreamReaderBasicCharSeeker<>(
@@ -249,7 +250,7 @@ public class EventStreamReaderPerformanceTest {
                 charSeeker2.seek(mark2, new int[]{columnDelimiter});
                 charSeeker2.seek(mark2, new int[]{columnDelimiter});
                 Iterator<Operation<?>> query2OperationsWithTimes = gf.assignStartTimes(
-                        gf.constantIncrementTime(Time.fromMilli(0), Duration.fromMilli(1)),
+                        gf.incrementing(0l, 1l),
                         new Query2EventStreamReader(
                                 gf.repeating(
                                         new CsvEventStreamReaderBasicCharSeeker<>(
@@ -273,7 +274,7 @@ public class EventStreamReaderPerformanceTest {
                 charSeeker3.seek(mark3, new int[]{columnDelimiter});
                 charSeeker3.seek(mark3, new int[]{columnDelimiter});
                 Iterator<Operation<?>> query3OperationsWithTimes = gf.assignStartTimes(
-                        gf.constantIncrementTime(Time.fromMilli(0), Duration.fromMilli(1)),
+                        gf.incrementing(0l, 1l),
                         new Query3EventStreamReader(
                                 gf.repeating(
                                         new CsvEventStreamReaderBasicCharSeeker<>(
@@ -295,7 +296,7 @@ public class EventStreamReaderPerformanceTest {
                 charSeeker4.seek(mark4, new int[]{columnDelimiter});
                 charSeeker4.seek(mark4, new int[]{columnDelimiter});
                 Iterator<Operation<?>> query4OperationsWithTimes = gf.assignStartTimes(
-                        gf.constantIncrementTime(Time.fromMilli(0), Duration.fromMilli(1)),
+                        gf.incrementing(0l, 1l),
                         new Query4EventStreamReader(
                                 gf.repeating(
                                         new CsvEventStreamReaderBasicCharSeeker<>(
@@ -316,7 +317,7 @@ public class EventStreamReaderPerformanceTest {
                 charSeeker5.seek(mark5, new int[]{columnDelimiter});
                 charSeeker5.seek(mark5, new int[]{columnDelimiter});
                 Iterator<Operation<?>> query5OperationsWithTimes = gf.assignStartTimes(
-                        gf.constantIncrementTime(Time.fromMilli(0), Duration.fromMilli(1)),
+                        gf.incrementing(0l, 1l),
                         new Query5EventStreamReader(
                                 gf.repeating(
                                         new CsvEventStreamReaderBasicCharSeeker<>(
@@ -337,7 +338,7 @@ public class EventStreamReaderPerformanceTest {
                 charSeeker6.seek(mark6, new int[]{columnDelimiter});
                 charSeeker6.seek(mark6, new int[]{columnDelimiter});
                 Iterator<Operation<?>> query6OperationsWithTimes = gf.assignStartTimes(
-                        gf.constantIncrementTime(Time.fromMilli(0), Duration.fromMilli(1)),
+                        gf.incrementing(0l, 1l),
                         new Query6EventStreamReader(
                                 gf.repeating(
                                         new CsvEventStreamReaderBasicCharSeeker<>(
@@ -357,7 +358,7 @@ public class EventStreamReaderPerformanceTest {
                 // skip headers
                 charSeeker7.seek(mark7, new int[]{columnDelimiter});
                 Iterator<Operation<?>> query7OperationsWithTimes = gf.assignStartTimes(
-                        gf.constantIncrementTime(Time.fromMilli(0), Duration.fromMilli(1)),
+                        gf.incrementing(0l, 1l),
                         new Query7EventStreamReader(
                                 gf.repeating(
                                         new CsvEventStreamReaderBasicCharSeeker<>(
@@ -377,7 +378,7 @@ public class EventStreamReaderPerformanceTest {
                 // skip headers
                 charSeeker8.seek(mark8, new int[]{columnDelimiter});
                 Iterator<Operation<?>> query8OperationsWithTimes = gf.assignStartTimes(
-                        gf.constantIncrementTime(Time.fromMilli(0), Duration.fromMilli(1)),
+                        gf.incrementing(0l, 1l),
                         new Query8EventStreamReader(
                                 gf.repeating(
                                         new CsvEventStreamReaderBasicCharSeeker<>(
@@ -398,7 +399,7 @@ public class EventStreamReaderPerformanceTest {
                 charSeeker9.seek(mark9, new int[]{columnDelimiter});
                 charSeeker9.seek(mark9, new int[]{columnDelimiter});
                 Iterator<Operation<?>> query9OperationsWithTimes = gf.assignStartTimes(
-                        gf.constantIncrementTime(Time.fromMilli(0), Duration.fromMilli(1)),
+                        gf.incrementing(0l, 1l),
                         new Query9EventStreamReader(
                                 gf.repeating(
                                         new CsvEventStreamReaderBasicCharSeeker<>(
@@ -419,7 +420,7 @@ public class EventStreamReaderPerformanceTest {
                 charSeeker10.seek(mark10, new int[]{columnDelimiter});
                 charSeeker10.seek(mark10, new int[]{columnDelimiter});
                 Iterator<Operation<?>> query10OperationsWithTimes = gf.assignStartTimes(
-                        gf.constantIncrementTime(Time.fromMilli(0), Duration.fromMilli(1)),
+                        gf.incrementing(0l, 1l),
                         new Query10EventStreamReader(
                                 gf.repeating(
                                         new CsvEventStreamReaderBasicCharSeeker<>(
@@ -441,7 +442,7 @@ public class EventStreamReaderPerformanceTest {
                 charSeeker11.seek(mark11, new int[]{columnDelimiter});
                 charSeeker11.seek(mark11, new int[]{columnDelimiter});
                 Iterator<Operation<?>> query11OperationsWithTimes = gf.assignStartTimes(
-                        gf.constantIncrementTime(Time.fromMilli(0), Duration.fromMilli(1)),
+                        gf.incrementing(0l, 1l),
                         new Query11EventStreamReader(
                                 gf.repeating(
                                         new CsvEventStreamReaderBasicCharSeeker<>(
@@ -462,7 +463,7 @@ public class EventStreamReaderPerformanceTest {
                 charSeeker12.seek(mark12, new int[]{columnDelimiter});
                 charSeeker12.seek(mark12, new int[]{columnDelimiter});
                 Iterator<Operation<?>> query12OperationsWithTimes = gf.assignStartTimes(
-                        gf.constantIncrementTime(Time.fromMilli(0), Duration.fromMilli(1)),
+                        gf.incrementing(0l, 1l),
                         new Query12EventStreamReader(
                                 gf.repeating(
                                         new CsvEventStreamReaderBasicCharSeeker<>(
@@ -483,7 +484,7 @@ public class EventStreamReaderPerformanceTest {
                 charSeeker13.seek(mark13, new int[]{columnDelimiter});
                 charSeeker13.seek(mark13, new int[]{columnDelimiter});
                 Iterator<Operation<?>> query13OperationsWithTimes = gf.assignStartTimes(
-                        gf.constantIncrementTime(Time.fromMilli(0), Duration.fromMilli(1)),
+                        gf.incrementing(0l, 1l),
                         new Query13EventStreamReader(
                                 gf.repeating(
                                         new CsvEventStreamReaderBasicCharSeeker<>(
@@ -504,7 +505,7 @@ public class EventStreamReaderPerformanceTest {
                 charSeeker14.seek(mark14, new int[]{columnDelimiter});
                 charSeeker14.seek(mark14, new int[]{columnDelimiter});
                 Iterator<Operation<?>> query14OperationsWithTimes = gf.assignStartTimes(
-                        gf.constantIncrementTime(Time.fromMilli(0), Duration.fromMilli(1)),
+                        gf.incrementing(0l, 1l),
                         new Query14EventStreamReader(
                                 gf.repeating(
                                         new CsvEventStreamReaderBasicCharSeeker<>(
@@ -559,11 +560,11 @@ public class EventStreamReaderPerformanceTest {
             long durationAsMilli = (endTimeAsMilli - startTimeAsMilli) / repetitions;
             lines = lines / repetitions;
 
-            double linesPerSecond = Math.round(((double) lines / durationAsMilli) * Duration.fromSeconds(1).asMilli());
+            double linesPerSecond = Math.round(((double) lines / durationAsMilli) * 1000l);
             System.out.println(
                     String.format("%s took %s to read %s line: %s lines/s",
                             "Merged",
-                            Duration.fromMilli(durationAsMilli),
+                            durationAsMilli,
                             numberFormatter.format(lines),
                             numberFormatter.format(linesPerSecond)
                     )
@@ -590,9 +591,9 @@ public class EventStreamReaderPerformanceTest {
         System.out.println(
                 String.format("%s took %s to read %s line: %s lines/s",
                         WriteEventStreamReaderRegex.class.getSimpleName(),
-                        Duration.fromMilli(durationAsMilli),
+                        durationAsMilli,
                         lines,
-                        (double) lines / Duration.fromMilli(durationAsMilli).asSeconds()
+                        (double) lines / TEMPORAL_UTIL.convert(durationAsMilli, TimeUnit.MILLISECONDS, TimeUnit.SECONDS)
                 )
         );
     }
@@ -620,9 +621,9 @@ public class EventStreamReaderPerformanceTest {
         System.out.println(
                 String.format("%s took %s to read %s line: %s lines/s",
                         WriteEventStreamReaderCharSeeker.class.getSimpleName() + "-" + bufferSize,
-                        Duration.fromMilli(durationAsMilli),
+                        durationAsMilli,
                         lines,
-                        (double) lines / Duration.fromMilli(durationAsMilli).asSeconds()
+                        (double) lines / TEMPORAL_UTIL.convert(durationAsMilli, TimeUnit.MILLISECONDS, TimeUnit.SECONDS)
                 )
         );
     }
@@ -646,9 +647,9 @@ public class EventStreamReaderPerformanceTest {
         System.out.println(
                 String.format("%s took %s to read %s line: %s lines/s",
                         WriteEventStreamReaderRegex.class.getSimpleName(),
-                        Duration.fromMilli(durationAsMilli),
+                        durationAsMilli,
                         lines,
-                        (double) lines / Duration.fromMilli(durationAsMilli).asSeconds()
+                        (double) lines / TEMPORAL_UTIL.convert(durationAsMilli, TimeUnit.MILLISECONDS, TimeUnit.SECONDS)
                 )
         );
     }
@@ -676,9 +677,9 @@ public class EventStreamReaderPerformanceTest {
         System.out.println(
                 String.format("%s took %s to read %s line: %s lines/s",
                         WriteEventStreamReaderCharSeeker.class.getSimpleName() + "-" + bufferSize,
-                        Duration.fromMilli(durationAsMilli),
+                        durationAsMilli,
                         lines,
-                        (double) lines / Duration.fromMilli(durationAsMilli).asSeconds()
+                        (double) lines / TEMPORAL_UTIL.convert(durationAsMilli, TimeUnit.MILLISECONDS, TimeUnit.SECONDS)
                 )
         );
     }
@@ -711,9 +712,9 @@ public class EventStreamReaderPerformanceTest {
             System.out.println(
                     String.format("%s took %s to read %s line: %s lines/s",
                             BufferedReader.class.getSimpleName() + "-" + bufferSize,
-                            Duration.fromMilli(durationAsMilli),
+                            durationAsMilli,
                             lines,
-                            (double) lines / Duration.fromMilli(durationAsMilli).asSeconds()
+                            (double) lines / TEMPORAL_UTIL.convert(durationAsMilli, TimeUnit.MILLISECONDS, TimeUnit.SECONDS)
                     )
             );
         }
@@ -732,9 +733,9 @@ public class EventStreamReaderPerformanceTest {
             System.out.println(
                     String.format("%s took %s to read %s line: %s lines/s",
                             CharSeeker.class.getSimpleName() + "-" + bufferSize,
-                            Duration.fromMilli(durationAsMilli),
+                            durationAsMilli,
                             lines,
-                            (double) lines / Duration.fromMilli(durationAsMilli).asSeconds()
+                            (double) lines / TEMPORAL_UTIL.convert(durationAsMilli, TimeUnit.MILLISECONDS, TimeUnit.SECONDS)
                     )
             );
         }
@@ -753,9 +754,9 @@ public class EventStreamReaderPerformanceTest {
             System.out.println(
                     String.format("%s took %s to read %s line: %s lines/s",
                             CharSeeker.class.getSimpleName() + "-" + ThreadAheadReadable.class.getSimpleName() + "-" + bufferSize,
-                            Duration.fromMilli(durationAsMilli),
+                            durationAsMilli,
                             lines,
-                            (double) lines / Duration.fromMilli(durationAsMilli).asSeconds()
+                            (double) lines / TEMPORAL_UTIL.convert(durationAsMilli, TimeUnit.MILLISECONDS, TimeUnit.SECONDS)
                     )
             );
         }
@@ -775,9 +776,9 @@ public class EventStreamReaderPerformanceTest {
             System.out.println(
                     String.format("%s took %s to read %s line: %s lines/s",
                             SimpleCsvFileReader.class.getSimpleName(),
-                            Duration.fromMilli(durationAsMilli),
+                            durationAsMilli,
                             lines,
-                            (double) lines / Duration.fromMilli(durationAsMilli).asSeconds()
+                            (double) lines / TEMPORAL_UTIL.convert(durationAsMilli, TimeUnit.MILLISECONDS, TimeUnit.SECONDS)
                     )
             );
         }
@@ -798,9 +799,9 @@ public class EventStreamReaderPerformanceTest {
             System.out.println(
                     String.format("%s took %s to read %s line: %s lines/s",
                             WriteEventStreamReaderRegex.class.getSimpleName(),
-                            Duration.fromMilli(durationAsMilli),
+                            durationAsMilli,
                             lines,
-                            (double) lines / Duration.fromMilli(durationAsMilli).asSeconds()
+                            (double) lines / TEMPORAL_UTIL.convert(durationAsMilli, TimeUnit.MILLISECONDS, TimeUnit.SECONDS)
                     )
             );
         }
@@ -826,9 +827,9 @@ public class EventStreamReaderPerformanceTest {
                 System.out.println(
                         String.format("%s took %s to read %s line: %s lines/s",
                                 WriteEventStreamReaderCharSeeker.class.getSimpleName() + "-" + bufferSize,
-                                Duration.fromMilli(durationAsMilli),
+                                durationAsMilli,
                                 lines,
-                                (double) lines / Duration.fromMilli(durationAsMilli).asSeconds()
+                                (double) lines / TEMPORAL_UTIL.convert(durationAsMilli, TimeUnit.MILLISECONDS, TimeUnit.SECONDS)
                         )
                 );
             }
@@ -852,9 +853,9 @@ public class EventStreamReaderPerformanceTest {
                 System.out.println(
                         String.format("%s took %s to read %s line: %s lines/s",
                                 WriteEventStreamReaderCharSeeker.class.getSimpleName() + "-" + ThreadAheadReadable.class.getSimpleName() + "-" + bufferSize,
-                                Duration.fromMilli(durationAsMilli),
+                                durationAsMilli,
                                 lines,
-                                (double) lines / Duration.fromMilli(durationAsMilli).asSeconds()
+                                (double) lines / TEMPORAL_UTIL.convert(durationAsMilli, TimeUnit.MILLISECONDS, TimeUnit.SECONDS)
                         )
                 );
             }
