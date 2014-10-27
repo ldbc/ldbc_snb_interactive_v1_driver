@@ -13,7 +13,7 @@ public class TemporalUtil {
     public TemporalUtil() {
         timeFormat = new SimpleDateFormat("HH:mm:ss.SSS");
         timeFormat.setTimeZone(TimeZone.getTimeZone("GMT"));
-        dateTimeFormat = new SimpleDateFormat("yyyy-MM-dd - HH:mm:ss:SSS");
+        dateTimeFormat = new SimpleDateFormat("yyyy-MM-dd - HH:mm:ss.SSS");
         dateTimeFormat.setTimeZone(TimeZone.getTimeZone("GMT"));
     }
 
