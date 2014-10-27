@@ -8,7 +8,6 @@ import org.junit.Test;
 import java.util.HashSet;
 
 import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.CoreMatchers.nullValue;
 import static org.junit.Assert.assertThat;
 
 public class CompletionTimeServiceAssistantTest {
@@ -21,13 +20,13 @@ public class CompletionTimeServiceAssistantTest {
                 assistant.newSynchronizedConcurrentCompletionTimeServiceFromPeerIds(new HashSet<String>());
         try {
             // initial gct should be null
-            assertThat(completionTimeService.globalCompletionTimeAsMilli(), is(nullValue()));
+            assertThat(completionTimeService.globalCompletionTimeAsMilli(), is(-1l));
 
             // there are no writers, gct will never advance
             boolean gctAdvancedSuccessfully =
                     assistant.waitForGlobalCompletionTime(timeSource, 0, 1000, completionTimeService, errorReporter);
             assertThat(gctAdvancedSuccessfully, is(false));
-            assertThat(completionTimeService.globalCompletionTimeAsMilli(), is(nullValue()));
+            assertThat(completionTimeService.globalCompletionTimeAsMilli(), is(-1l));
 
             LocalCompletionTimeWriter writer1 = completionTimeService.newLocalCompletionTimeWriter();
             LocalCompletionTimeWriter writer2 = completionTimeService.newLocalCompletionTimeWriter();
@@ -36,7 +35,7 @@ public class CompletionTimeServiceAssistantTest {
             gctAdvancedSuccessfully =
                     assistant.waitForGlobalCompletionTime(timeSource, 0, 1000, completionTimeService, errorReporter);
             assertThat(gctAdvancedSuccessfully, is(false));
-            assertThat(completionTimeService.globalCompletionTimeAsMilli(), is(nullValue()));
+            assertThat(completionTimeService.globalCompletionTimeAsMilli(), is(-1l));
 
             assistant.writeInitiatedAndCompletedTimesToAllWriters(completionTimeService, 0);
 
@@ -45,7 +44,7 @@ public class CompletionTimeServiceAssistantTest {
             gctAdvancedSuccessfully =
                     assistant.waitForGlobalCompletionTime(timeSource, 0, 1000, completionTimeService, errorReporter);
             assertThat(gctAdvancedSuccessfully, is(false));
-            assertThat(completionTimeService.globalCompletionTimeAsMilli(), is(nullValue()));
+            assertThat(completionTimeService.globalCompletionTimeAsMilli(), is(-1l));
 
             assistant.writeInitiatedAndCompletedTimesToAllWriters(completionTimeService, 1);
 

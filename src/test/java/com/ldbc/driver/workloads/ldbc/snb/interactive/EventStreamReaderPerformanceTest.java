@@ -65,7 +65,7 @@ public class EventStreamReaderPerformanceTest {
             System.out.println(
                     String.format("%s took %s to read %s line: %s lines/s",
                             SimpleCsvFileReader.class.getSimpleName(),
-                            durationAsMilli,
+                            TEMPORAL_UTIL.milliDurationToString(durationAsMilli),
                             numberFormatter.format(lines),
                             numberFormatter.format(linesPerSecond)
                     )
@@ -106,7 +106,7 @@ public class EventStreamReaderPerformanceTest {
             System.out.println(
                     String.format("%s took %s to read %s line: %s lines/s",
                             CsvEventStreamReaderBasicCharSeeker.class.getSimpleName(),
-                            durationAsMilli,
+                            TEMPORAL_UTIL.milliDurationToString(durationAsMilli),
                             numberFormatter.format(lines),
                             numberFormatter.format(linesPerSecond)
                     )
@@ -150,7 +150,7 @@ public class EventStreamReaderPerformanceTest {
             System.out.println(
                     String.format("%s took %s to read %s line: %s lines/s",
                             Query1EventStreamReader.class.getSimpleName(),
-                            durationAsMilli,
+                            TEMPORAL_UTIL.milliDurationToString(durationAsMilli),
                             numberFormatter.format(lines),
                             numberFormatter.format(linesPerSecond)
                     )
@@ -198,7 +198,7 @@ public class EventStreamReaderPerformanceTest {
             System.out.println(
                     String.format("%s took %s to read %s line: %s lines/s",
                             Query1EventStreamReader.class.getSimpleName(),
-                            durationAsMilli,
+                            TEMPORAL_UTIL.milliDurationToString(durationAsMilli),
                             numberFormatter.format(lines),
                             numberFormatter.format(linesPerSecond)
                     )
@@ -564,7 +564,7 @@ public class EventStreamReaderPerformanceTest {
             System.out.println(
                     String.format("%s took %s to read %s line: %s lines/s",
                             "Merged",
-                            durationAsMilli,
+                            TEMPORAL_UTIL.milliDurationToString(durationAsMilli),
                             numberFormatter.format(lines),
                             numberFormatter.format(linesPerSecond)
                     )
@@ -591,9 +591,9 @@ public class EventStreamReaderPerformanceTest {
         System.out.println(
                 String.format("%s took %s to read %s line: %s lines/s",
                         WriteEventStreamReaderRegex.class.getSimpleName(),
-                        durationAsMilli,
-                        lines,
-                        (double) lines / TEMPORAL_UTIL.convert(durationAsMilli, TimeUnit.MILLISECONDS, TimeUnit.SECONDS)
+                        TEMPORAL_UTIL.milliDurationToString(durationAsMilli),
+                        numberFormatter.format(lines),
+                        numberFormatter.format((double) lines / TEMPORAL_UTIL.convert(durationAsMilli, TimeUnit.MILLISECONDS, TimeUnit.SECONDS))
                 )
         );
     }
@@ -602,7 +602,7 @@ public class EventStreamReaderPerformanceTest {
     @Test
     public void forumCsvUpdateStreamReadingCharSeekerParserProfileTest() throws IOException, InterruptedException {
         Thread.sleep(30000);
-        File parentStreamsDir = new File("/Users/alexaverbuch/IdeaProjects/scale_factor_streams/");
+        File parentStreamsDir = new File("/Users/alexaverbuch/IdeaProjects/scale_factor_streams/current/");
         File forumUpdateStream = new File(parentStreamsDir, "sf10_partitions_01/updateStream_0_0_forum.csv");
 
         int MB = 1024 * 1024;
@@ -621,9 +621,9 @@ public class EventStreamReaderPerformanceTest {
         System.out.println(
                 String.format("%s took %s to read %s line: %s lines/s",
                         WriteEventStreamReaderCharSeeker.class.getSimpleName() + "-" + bufferSize,
-                        durationAsMilli,
-                        lines,
-                        (double) lines / TEMPORAL_UTIL.convert(durationAsMilli, TimeUnit.MILLISECONDS, TimeUnit.SECONDS)
+                        TEMPORAL_UTIL.milliDurationToString(durationAsMilli),
+                        numberFormatter.format(lines),
+                        numberFormatter.format((double) lines / TEMPORAL_UTIL.convert(durationAsMilli, TimeUnit.MILLISECONDS, TimeUnit.SECONDS))
                 )
         );
     }
@@ -647,9 +647,9 @@ public class EventStreamReaderPerformanceTest {
         System.out.println(
                 String.format("%s took %s to read %s line: %s lines/s",
                         WriteEventStreamReaderRegex.class.getSimpleName(),
-                        durationAsMilli,
-                        lines,
-                        (double) lines / TEMPORAL_UTIL.convert(durationAsMilli, TimeUnit.MILLISECONDS, TimeUnit.SECONDS)
+                        TEMPORAL_UTIL.milliDurationToString(durationAsMilli),
+                        numberFormatter.format(lines),
+                        numberFormatter.format((double) lines / TEMPORAL_UTIL.convert(durationAsMilli, TimeUnit.MILLISECONDS, TimeUnit.SECONDS))
                 )
         );
     }
@@ -677,9 +677,9 @@ public class EventStreamReaderPerformanceTest {
         System.out.println(
                 String.format("%s took %s to read %s line: %s lines/s",
                         WriteEventStreamReaderCharSeeker.class.getSimpleName() + "-" + bufferSize,
-                        durationAsMilli,
-                        lines,
-                        (double) lines / TEMPORAL_UTIL.convert(durationAsMilli, TimeUnit.MILLISECONDS, TimeUnit.SECONDS)
+                        TEMPORAL_UTIL.milliDurationToString(durationAsMilli),
+                        numberFormatter.format(lines),
+                        numberFormatter.format((double) lines / TEMPORAL_UTIL.convert(durationAsMilli, TimeUnit.MILLISECONDS, TimeUnit.SECONDS))
                 )
         );
     }
@@ -687,7 +687,7 @@ public class EventStreamReaderPerformanceTest {
     @Ignore
     @Test
     public void forumCsvUpdateStreamReadingPerformanceTest() throws IOException {
-        File parentStreamsDir = new File("/Users/alexaverbuch/IdeaProjects/scale_factor_streams/");
+        File parentStreamsDir = new File("/Users/alexaverbuch/IdeaProjects/scale_factor_streams/current/");
         File forumUpdateStream = new File(parentStreamsDir, "sf10_partitions_01/updateStream_0_0_forum.csv");
 
         {
@@ -712,9 +712,9 @@ public class EventStreamReaderPerformanceTest {
             System.out.println(
                     String.format("%s took %s to read %s line: %s lines/s",
                             BufferedReader.class.getSimpleName() + "-" + bufferSize,
-                            durationAsMilli,
-                            lines,
-                            (double) lines / TEMPORAL_UTIL.convert(durationAsMilli, TimeUnit.MILLISECONDS, TimeUnit.SECONDS)
+                            TEMPORAL_UTIL.milliDurationToString(durationAsMilli),
+                            numberFormatter.format(lines),
+                            numberFormatter.format((double) lines / TEMPORAL_UTIL.convert(durationAsMilli, TimeUnit.MILLISECONDS, TimeUnit.SECONDS))
                     )
             );
         }
@@ -733,9 +733,9 @@ public class EventStreamReaderPerformanceTest {
             System.out.println(
                     String.format("%s took %s to read %s line: %s lines/s",
                             CharSeeker.class.getSimpleName() + "-" + bufferSize,
-                            durationAsMilli,
-                            lines,
-                            (double) lines / TEMPORAL_UTIL.convert(durationAsMilli, TimeUnit.MILLISECONDS, TimeUnit.SECONDS)
+                            TEMPORAL_UTIL.milliDurationToString(durationAsMilli),
+                            numberFormatter.format(lines),
+                            numberFormatter.format((double) lines / TEMPORAL_UTIL.convert(durationAsMilli, TimeUnit.MILLISECONDS, TimeUnit.SECONDS))
                     )
             );
         }
@@ -754,9 +754,9 @@ public class EventStreamReaderPerformanceTest {
             System.out.println(
                     String.format("%s took %s to read %s line: %s lines/s",
                             CharSeeker.class.getSimpleName() + "-" + ThreadAheadReadable.class.getSimpleName() + "-" + bufferSize,
-                            durationAsMilli,
-                            lines,
-                            (double) lines / TEMPORAL_UTIL.convert(durationAsMilli, TimeUnit.MILLISECONDS, TimeUnit.SECONDS)
+                            TEMPORAL_UTIL.milliDurationToString(durationAsMilli),
+                            numberFormatter.format(lines),
+                            numberFormatter.format((double) lines / TEMPORAL_UTIL.convert(durationAsMilli, TimeUnit.MILLISECONDS, TimeUnit.SECONDS))
                     )
             );
         }
@@ -776,9 +776,9 @@ public class EventStreamReaderPerformanceTest {
             System.out.println(
                     String.format("%s took %s to read %s line: %s lines/s",
                             SimpleCsvFileReader.class.getSimpleName(),
-                            durationAsMilli,
-                            lines,
-                            (double) lines / TEMPORAL_UTIL.convert(durationAsMilli, TimeUnit.MILLISECONDS, TimeUnit.SECONDS)
+                            TEMPORAL_UTIL.milliDurationToString(durationAsMilli),
+                            numberFormatter.format(lines),
+                            numberFormatter.format((double) lines / TEMPORAL_UTIL.convert(durationAsMilli, TimeUnit.MILLISECONDS, TimeUnit.SECONDS))
                     )
             );
         }
@@ -799,9 +799,9 @@ public class EventStreamReaderPerformanceTest {
             System.out.println(
                     String.format("%s took %s to read %s line: %s lines/s",
                             WriteEventStreamReaderRegex.class.getSimpleName(),
-                            durationAsMilli,
-                            lines,
-                            (double) lines / TEMPORAL_UTIL.convert(durationAsMilli, TimeUnit.MILLISECONDS, TimeUnit.SECONDS)
+                            TEMPORAL_UTIL.milliDurationToString(durationAsMilli),
+                            numberFormatter.format(lines),
+                            numberFormatter.format((double) lines / TEMPORAL_UTIL.convert(durationAsMilli, TimeUnit.MILLISECONDS, TimeUnit.SECONDS))
                     )
             );
         }
@@ -827,9 +827,9 @@ public class EventStreamReaderPerformanceTest {
                 System.out.println(
                         String.format("%s took %s to read %s line: %s lines/s",
                                 WriteEventStreamReaderCharSeeker.class.getSimpleName() + "-" + bufferSize,
-                                durationAsMilli,
-                                lines,
-                                (double) lines / TEMPORAL_UTIL.convert(durationAsMilli, TimeUnit.MILLISECONDS, TimeUnit.SECONDS)
+                                TEMPORAL_UTIL.milliDurationToString(durationAsMilli),
+                                numberFormatter.format(lines),
+                                numberFormatter.format((double) lines / TEMPORAL_UTIL.convert(durationAsMilli, TimeUnit.MILLISECONDS, TimeUnit.SECONDS))
                         )
                 );
             }
@@ -853,9 +853,9 @@ public class EventStreamReaderPerformanceTest {
                 System.out.println(
                         String.format("%s took %s to read %s line: %s lines/s",
                                 WriteEventStreamReaderCharSeeker.class.getSimpleName() + "-" + ThreadAheadReadable.class.getSimpleName() + "-" + bufferSize,
-                                durationAsMilli,
-                                lines,
-                                (double) lines / TEMPORAL_UTIL.convert(durationAsMilli, TimeUnit.MILLISECONDS, TimeUnit.SECONDS)
+                                TEMPORAL_UTIL.milliDurationToString(durationAsMilli),
+                                numberFormatter.format(lines),
+                                numberFormatter.format((double) lines / TEMPORAL_UTIL.convert(durationAsMilli, TimeUnit.MILLISECONDS, TimeUnit.SECONDS))
                         )
                 );
             }

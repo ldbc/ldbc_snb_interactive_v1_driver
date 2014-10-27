@@ -3,7 +3,6 @@ package com.ldbc.driver.runtime.coordination;
 import org.junit.Test;
 
 import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.CoreMatchers.nullValue;
 import static org.junit.Assert.assertThat;
 
 public class LocalCompletionTimeTest {
@@ -17,8 +16,8 @@ public class LocalCompletionTimeTest {
 
         // IT []
         // CT []
-        assertThat(lct.lastKnownLowestInitiatedTimeAsMilli(), is(nullValue()));
-        assertThat(lct.localCompletionTimeAsMilli(), is(nullValue()));
+        assertThat(lct.lastKnownLowestInitiatedTimeAsMilli(), is(-1l));
+        assertThat(lct.localCompletionTimeAsMilli(), is(-1l));
     }
 
     @Test
@@ -35,7 +34,7 @@ public class LocalCompletionTimeTest {
         lct.submitLocalInitiatedTime(3000l);
 
         assertThat(lct.lastKnownLowestInitiatedTimeAsMilli(), is(1000l));
-        assertThat(lct.localCompletionTimeAsMilli(), is(nullValue()));
+        assertThat(lct.localCompletionTimeAsMilli(), is(-1l));
     }
 
     @Test
@@ -51,14 +50,14 @@ public class LocalCompletionTimeTest {
         lct.submitLocalInitiatedTime(2000l);
         lct.submitLocalInitiatedTime(3000l);
         assertThat(lct.lastKnownLowestInitiatedTimeAsMilli(), is(1000l));
-        assertThat(lct.localCompletionTimeAsMilli(), is(nullValue()));
+        assertThat(lct.localCompletionTimeAsMilli(), is(-1l));
 
         // IT [1, , ]
         // CT [ ,2,3]
         lct.submitLocalCompletedTime(2000l);
         lct.submitLocalCompletedTime(3000l);
         assertThat(lct.lastKnownLowestInitiatedTimeAsMilli(), is(1000l));
-        assertThat(lct.localCompletionTimeAsMilli(), is(nullValue()));
+        assertThat(lct.localCompletionTimeAsMilli(), is(-1l));
     }
 
     @Test
@@ -73,7 +72,7 @@ public class LocalCompletionTimeTest {
         lct.submitLocalInitiatedTime(2000l);
         lct.submitLocalInitiatedTime(3000l);
         assertThat(lct.lastKnownLowestInitiatedTimeAsMilli(), is(1000l));
-        assertThat(lct.localCompletionTimeAsMilli(), is(nullValue()));
+        assertThat(lct.localCompletionTimeAsMilli(), is(-1l));
 
         // IT [ ,2, ]
         // CT [1, ,3]
@@ -97,14 +96,14 @@ public class LocalCompletionTimeTest {
         lct.submitLocalInitiatedTime(2000l);
         lct.submitLocalInitiatedTime(3000l);
         assertThat(lct.lastKnownLowestInitiatedTimeAsMilli(), is(1000l));
-        assertThat(lct.localCompletionTimeAsMilli(), is(nullValue()));
+        assertThat(lct.localCompletionTimeAsMilli(), is(-1l));
 
         // IT [ ,1,2, ]
         // CT [1, , ,3]
         lct.submitLocalCompletedTime(3000l);
         lct.submitLocalCompletedTime(1000l);
         assertThat(lct.lastKnownLowestInitiatedTimeAsMilli(), is(1000l));
-        assertThat(lct.localCompletionTimeAsMilli(), is(nullValue()));
+        assertThat(lct.localCompletionTimeAsMilli(), is(-1l));
 
         // IT [ , ,2, ]
         // CT [1,1, ,3]
@@ -152,7 +151,7 @@ public class LocalCompletionTimeTest {
         lct.submitLocalInitiatedTime(2000l);
         lct.submitLocalInitiatedTime(3000l);
         assertThat(lct.lastKnownLowestInitiatedTimeAsMilli(), is(1000l));
-        assertThat(lct.localCompletionTimeAsMilli(), is(nullValue()));
+        assertThat(lct.localCompletionTimeAsMilli(), is(-1l));
 
         // IT [ ,2,3]
         // CT [1, , ]
@@ -199,14 +198,14 @@ public class LocalCompletionTimeTest {
         lct.submitLocalInitiatedTime(3000l);
         lct.submitLocalInitiatedTime(4000l);
         assertThat(lct.lastKnownLowestInitiatedTimeAsMilli(), is(1000l));
-        assertThat(lct.localCompletionTimeAsMilli(), is(nullValue()));
+        assertThat(lct.localCompletionTimeAsMilli(), is(-1l));
 
         // IT [1,2, , ]
         // CT [ , ,3,4]
         lct.submitLocalCompletedTime(4000l);
         lct.submitLocalCompletedTime(3000l);
         assertThat(lct.lastKnownLowestInitiatedTimeAsMilli(), is(1000l));
-        assertThat(lct.localCompletionTimeAsMilli(), is(nullValue()));
+        assertThat(lct.localCompletionTimeAsMilli(), is(-1l));
 
         // IT [ ,2, , ]
         // CT [1, ,3,4]
@@ -234,14 +233,14 @@ public class LocalCompletionTimeTest {
         lct.submitLocalInitiatedTime(3000l);
         lct.submitLocalInitiatedTime(4000l);
         assertThat(lct.lastKnownLowestInitiatedTimeAsMilli(), is(1000l));
-        assertThat(lct.localCompletionTimeAsMilli(), is(nullValue()));
+        assertThat(lct.localCompletionTimeAsMilli(), is(-1l));
 
         // IT [1,2, , ]
         // CT [ , ,3,4]
         lct.submitLocalCompletedTime(3000l);
         lct.submitLocalCompletedTime(4000l);
         assertThat(lct.lastKnownLowestInitiatedTimeAsMilli(), is(1000l));
-        assertThat(lct.localCompletionTimeAsMilli(), is(nullValue()));
+        assertThat(lct.localCompletionTimeAsMilli(), is(-1l));
 
         // IT [ ,2, , ]
         // CT [1, ,3,4]
@@ -269,20 +268,20 @@ public class LocalCompletionTimeTest {
         lct.submitLocalInitiatedTime(3000l);
         lct.submitLocalInitiatedTime(4000l);
         assertThat(lct.lastKnownLowestInitiatedTimeAsMilli(), is(1000l));
-        assertThat(lct.localCompletionTimeAsMilli(), is(nullValue()));
+        assertThat(lct.localCompletionTimeAsMilli(), is(-1l));
 
         // IT [1,2, , ]
         // CT [ , ,3,4]
         lct.submitLocalCompletedTime(4000l);
         lct.submitLocalCompletedTime(3000l);
         assertThat(lct.lastKnownLowestInitiatedTimeAsMilli(), is(1000l));
-        assertThat(lct.localCompletionTimeAsMilli(), is(nullValue()));
+        assertThat(lct.localCompletionTimeAsMilli(), is(-1l));
 
         // IT [1, , , ]
         // CT [ ,2,3,4]
         lct.submitLocalCompletedTime(2000l);
         assertThat(lct.lastKnownLowestInitiatedTimeAsMilli(), is(1000l));
-        assertThat(lct.localCompletionTimeAsMilli(), is(nullValue()));
+        assertThat(lct.localCompletionTimeAsMilli(), is(-1l));
 
         // IT [ , , , ]
         // CT [1,2,3,4]
@@ -304,7 +303,7 @@ public class LocalCompletionTimeTest {
         lct.submitLocalInitiatedTime(2000l);
         lct.submitLocalInitiatedTime(3000l);
         assertThat(lct.lastKnownLowestInitiatedTimeAsMilli(), is(1000l));
-        assertThat(lct.localCompletionTimeAsMilli(), is(nullValue()));
+        assertThat(lct.localCompletionTimeAsMilli(), is(-1l));
 
         // IT [ , , ]
         // CT [1,2,3]
@@ -328,13 +327,13 @@ public class LocalCompletionTimeTest {
         lct.submitLocalInitiatedTime(2000l);
         lct.submitLocalInitiatedTime(3000l);
         assertThat(lct.lastKnownLowestInitiatedTimeAsMilli(), is(1000l));
-        assertThat(lct.localCompletionTimeAsMilli(), is(nullValue()));
+        assertThat(lct.localCompletionTimeAsMilli(), is(-1l));
 
         // IT [ ,2,3]
         // CT [1, , ]
         lct.submitLocalCompletedTime(1000l);
         assertThat(lct.lastKnownLowestInitiatedTimeAsMilli(), is(2000l));
-        assertThat(lct.localCompletionTimeAsMilli(), is(1l));
+        assertThat(lct.localCompletionTimeAsMilli(), is(1000l));
 
         boolean exceptionThrown = false;
         try {
@@ -345,7 +344,7 @@ public class LocalCompletionTimeTest {
         }
         assertThat(exceptionThrown, is(true));
         assertThat(lct.lastKnownLowestInitiatedTimeAsMilli(), is(2000l));
-        assertThat(lct.localCompletionTimeAsMilli(), is(1l));
+        assertThat(lct.localCompletionTimeAsMilli(), is(1000l));
     }
 
     @Test
@@ -358,12 +357,12 @@ public class LocalCompletionTimeTest {
         // CT []
         lct.submitLocalInitiatedTime(1000l);
         assertThat(lct.lastKnownLowestInitiatedTimeAsMilli(), is(1000l));
-        assertThat(lct.localCompletionTimeAsMilli(), is(nullValue()));
+        assertThat(lct.localCompletionTimeAsMilli(), is(-1l));
         // IT [ ]
         // CT [1]
         lct.submitLocalCompletedTime(1000l);
         assertThat(lct.lastKnownLowestInitiatedTimeAsMilli(), is(1000l));
-        assertThat(lct.localCompletionTimeAsMilli(), is(nullValue()));
+        assertThat(lct.localCompletionTimeAsMilli(), is(-1l));
 
         // IT [ ,2]
         // CT [1, ]
@@ -453,13 +452,13 @@ public class LocalCompletionTimeTest {
         // CT [ ]
         lct.submitLocalInitiatedTime(1000l);
         assertThat(lct.lastKnownLowestInitiatedTimeAsMilli(), is(1000l));
-        assertThat(lct.localCompletionTimeAsMilli(), is(nullValue()));
+        assertThat(lct.localCompletionTimeAsMilli(), is(-1l));
 
         // IT [ ]
         // CT [1]
         lct.submitLocalCompletedTime(1000l);
         assertThat(lct.lastKnownLowestInitiatedTimeAsMilli(), is(1000l));
-        assertThat(lct.localCompletionTimeAsMilli(), is(nullValue()));
+        assertThat(lct.localCompletionTimeAsMilli(), is(-1l));
 
         // IT [ ,2]
         // CT [1, ]

@@ -33,7 +33,7 @@ public class TimeMappingOperationGenerator extends Generator<Operation<?>> {
                 timeOffsetAsMilliFun = new TimeFutureOffsetFun(offsetAsMilli);
             } else {
                 // offset to past
-                long offsetAsMilli = newStartTimeAsMilli - firstStartTimeAsMilli;
+                long offsetAsMilli = firstStartTimeAsMilli - newStartTimeAsMilli;
                 timeOffsetAsMilliFun = new TimePastOffsetFun(offsetAsMilli);
             }
 

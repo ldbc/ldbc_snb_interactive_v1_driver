@@ -41,8 +41,8 @@ public class MultiWriterLocalCompletionTimeConcurrentStateManagerTest {
         // no events have been initiated or completed
 
         // Then
-        assertThat(reader.lastKnownLowestInitiatedTimeAsMilli(), is(nullValue()));
-        assertThat(reader.localCompletionTimeAsMilli(), is(nullValue()));
+        assertThat(reader.lastKnownLowestInitiatedTimeAsMilli(), is(-1l));
+        assertThat(reader.localCompletionTimeAsMilli(), is(-1l));
     }
 
     @Test
@@ -61,7 +61,7 @@ public class MultiWriterLocalCompletionTimeConcurrentStateManagerTest {
 
         // Then
         assertThat(reader.lastKnownLowestInitiatedTimeAsMilli(), is(1l));
-        assertThat(reader.localCompletionTimeAsMilli(), is(nullValue()));
+        assertThat(reader.localCompletionTimeAsMilli(), is(-1l));
     }
 
     @Test
@@ -79,14 +79,14 @@ public class MultiWriterLocalCompletionTimeConcurrentStateManagerTest {
         writer.submitLocalInitiatedTime(3);
 
         assertThat(reader.lastKnownLowestInitiatedTimeAsMilli(), is(1l));
-        assertThat(reader.localCompletionTimeAsMilli(), is(nullValue()));
+        assertThat(reader.localCompletionTimeAsMilli(), is(-1l));
 
         writer.submitLocalCompletedTime(2);
         writer.submitLocalCompletedTime(3);
 
         // Then
         assertThat(reader.lastKnownLowestInitiatedTimeAsMilli(), is(1l));
-        assertThat(reader.localCompletionTimeAsMilli(), is(nullValue()));
+        assertThat(reader.localCompletionTimeAsMilli(), is(-1l));
     }
 
     @Test
@@ -103,7 +103,7 @@ public class MultiWriterLocalCompletionTimeConcurrentStateManagerTest {
         writer.submitLocalInitiatedTime(3);
 
         assertThat(reader.lastKnownLowestInitiatedTimeAsMilli(), is(1l));
-        assertThat(reader.localCompletionTimeAsMilli(), is(nullValue()));
+        assertThat(reader.localCompletionTimeAsMilli(), is(-1l));
 
         writer.submitLocalCompletedTime(3);
         writer.submitLocalCompletedTime(1);
@@ -129,14 +129,14 @@ public class MultiWriterLocalCompletionTimeConcurrentStateManagerTest {
         writer.submitLocalInitiatedTime(2);
         writer.submitLocalInitiatedTime(3);
         assertThat(reader.lastKnownLowestInitiatedTimeAsMilli(), is(1l));
-        assertThat(reader.localCompletionTimeAsMilli(), is(nullValue()));
+        assertThat(reader.localCompletionTimeAsMilli(), is(-1l));
 
         // IT [ ,1,2, ]
         // CT [1, , ,3]
         writer.submitLocalCompletedTime(3);
         writer.submitLocalCompletedTime(1);
         assertThat(reader.lastKnownLowestInitiatedTimeAsMilli(), is(1l));
-        assertThat(reader.localCompletionTimeAsMilli(), is(nullValue()));
+        assertThat(reader.localCompletionTimeAsMilli(), is(-1l));
 
         // IT [ , ,2, ]
         // CT [1,1, ,3]
@@ -188,7 +188,7 @@ public class MultiWriterLocalCompletionTimeConcurrentStateManagerTest {
         writer.submitLocalInitiatedTime(3);
 
         assertThat(reader.lastKnownLowestInitiatedTimeAsMilli(), is(1l));
-        assertThat(reader.localCompletionTimeAsMilli(), is(nullValue()));
+        assertThat(reader.localCompletionTimeAsMilli(), is(-1l));
 
         // IT [ ,2,3]
         // CT [1, , ]
@@ -238,14 +238,14 @@ public class MultiWriterLocalCompletionTimeConcurrentStateManagerTest {
         writer.submitLocalInitiatedTime(3);
         writer.submitLocalInitiatedTime(4);
         assertThat(reader.lastKnownLowestInitiatedTimeAsMilli(), is(1l));
-        assertThat(reader.localCompletionTimeAsMilli(), is(nullValue()));
+        assertThat(reader.localCompletionTimeAsMilli(), is(-1l));
 
         // IT [1,2, , ]
         // CT [ , ,3,4]
         writer.submitLocalCompletedTime(4);
         writer.submitLocalCompletedTime(3);
         assertThat(reader.lastKnownLowestInitiatedTimeAsMilli(), is(1l));
-        assertThat(reader.localCompletionTimeAsMilli(), is(nullValue()));
+        assertThat(reader.localCompletionTimeAsMilli(), is(-1l));
 
         // IT [ ,2, , ]
         // CT [1, ,3,4]
@@ -277,14 +277,14 @@ public class MultiWriterLocalCompletionTimeConcurrentStateManagerTest {
         writer.submitLocalInitiatedTime(3);
         writer.submitLocalInitiatedTime(4);
         assertThat(reader.lastKnownLowestInitiatedTimeAsMilli(), is(1l));
-        assertThat(reader.localCompletionTimeAsMilli(), is(nullValue()));
+        assertThat(reader.localCompletionTimeAsMilli(), is(-1l));
 
         // IT [1,2, , ]
         // CT [ , ,3,4]
         writer.submitLocalCompletedTime(3);
         writer.submitLocalCompletedTime(4);
         assertThat(reader.lastKnownLowestInitiatedTimeAsMilli(), is(1l));
-        assertThat(reader.localCompletionTimeAsMilli(), is(nullValue()));
+        assertThat(reader.localCompletionTimeAsMilli(), is(-1l));
 
         // IT [ ,2, , ]
         // CT [1, ,3,4]
@@ -315,20 +315,20 @@ public class MultiWriterLocalCompletionTimeConcurrentStateManagerTest {
         writer.submitLocalInitiatedTime(3);
         writer.submitLocalInitiatedTime(4);
         assertThat(reader.lastKnownLowestInitiatedTimeAsMilli(), is(1l));
-        assertThat(reader.localCompletionTimeAsMilli(), is(nullValue()));
+        assertThat(reader.localCompletionTimeAsMilli(), is(-1l));
 
         // IT [1,2, , ]
         // CT [ , ,3,4]
         writer.submitLocalCompletedTime(4);
         writer.submitLocalCompletedTime(3);
         assertThat(reader.lastKnownLowestInitiatedTimeAsMilli(), is(1l));
-        assertThat(reader.localCompletionTimeAsMilli(), is(nullValue()));
+        assertThat(reader.localCompletionTimeAsMilli(), is(-1l));
 
         // IT [1, , , ]
         // CT [ ,2,3,4]
         writer.submitLocalCompletedTime(2);
         assertThat(reader.lastKnownLowestInitiatedTimeAsMilli(), is(1l));
-        assertThat(reader.localCompletionTimeAsMilli(), is(nullValue()));
+        assertThat(reader.localCompletionTimeAsMilli(), is(-1l));
 
         // IT [ , , , ]
         // CT [1,2,3,4]
@@ -354,7 +354,7 @@ public class MultiWriterLocalCompletionTimeConcurrentStateManagerTest {
         writer.submitLocalInitiatedTime(3);
 
         assertThat(reader.lastKnownLowestInitiatedTimeAsMilli(), is(1l));
-        assertThat(reader.localCompletionTimeAsMilli(), is(nullValue()));
+        assertThat(reader.localCompletionTimeAsMilli(), is(-1l));
 
         // IT [ , , ]
         // CT [1,2,3]
@@ -383,7 +383,7 @@ public class MultiWriterLocalCompletionTimeConcurrentStateManagerTest {
         writer.submitLocalInitiatedTime(3);
 
         assertThat(reader.lastKnownLowestInitiatedTimeAsMilli(), is(1l));
-        assertThat(reader.localCompletionTimeAsMilli(), is(nullValue()));
+        assertThat(reader.localCompletionTimeAsMilli(), is(-1l));
 
         // IT [ ,2,3]
         // CT [1, , ]
@@ -417,12 +417,12 @@ public class MultiWriterLocalCompletionTimeConcurrentStateManagerTest {
         // CT [ ]
         writer.submitLocalInitiatedTime(1);
         assertThat(reader.lastKnownLowestInitiatedTimeAsMilli(), is(1l));
-        assertThat(reader.localCompletionTimeAsMilli(), is(nullValue()));
+        assertThat(reader.localCompletionTimeAsMilli(), is(-1l));
         // IT [ ]
         // CT [1]
         writer.submitLocalCompletedTime(1);
         assertThat(reader.lastKnownLowestInitiatedTimeAsMilli(), is(1l));
-        assertThat(reader.localCompletionTimeAsMilli(), is(nullValue()));
+        assertThat(reader.localCompletionTimeAsMilli(), is(-1l));
 
         // IT [ ,2]
         // CT [1, ]
@@ -512,12 +512,12 @@ public class MultiWriterLocalCompletionTimeConcurrentStateManagerTest {
         // CT [ ]
         writer.submitLocalInitiatedTime(1);
         assertThat(reader.lastKnownLowestInitiatedTimeAsMilli(), is(1l));
-        assertThat(reader.localCompletionTimeAsMilli(), is(nullValue()));
+        assertThat(reader.localCompletionTimeAsMilli(), is(-1l));
         // IT [ ]
         // CT [1]
         writer.submitLocalCompletedTime(1);
         assertThat(reader.lastKnownLowestInitiatedTimeAsMilli(), is(1l));
-        assertThat(reader.localCompletionTimeAsMilli(), is(nullValue()));
+        assertThat(reader.localCompletionTimeAsMilli(), is(-1l));
 
         // IT [ ,2]
         // CT [1, ]
@@ -593,8 +593,8 @@ public class MultiWriterLocalCompletionTimeConcurrentStateManagerTest {
         LocalCompletionTimeReader reader = multiWriterLocalCompletionTimeConcurrentStateManager;
 
         // Then
-        assertThat(reader.lastKnownLowestInitiatedTimeAsMilli(), is(nullValue()));
-        assertThat(reader.localCompletionTimeAsMilli(), is(nullValue()));
+        assertThat(reader.lastKnownLowestInitiatedTimeAsMilli(), is(-1l));
+        assertThat(reader.localCompletionTimeAsMilli(), is(-1l));
     }
 
     @Test
@@ -610,8 +610,8 @@ public class MultiWriterLocalCompletionTimeConcurrentStateManagerTest {
         // Then
         // IT(1) []
         // CT(1) []
-        assertThat(localCompletionTimeReader.lastKnownLowestInitiatedTimeAsMilli(), is(nullValue()));
-        assertThat(localCompletionTimeReader.localCompletionTimeAsMilli(), is(nullValue()));
+        assertThat(localCompletionTimeReader.lastKnownLowestInitiatedTimeAsMilli(), is(-1l));
+        assertThat(localCompletionTimeReader.localCompletionTimeAsMilli(), is(-1l));
     }
 
     @Test
@@ -633,8 +633,8 @@ public class MultiWriterLocalCompletionTimeConcurrentStateManagerTest {
         // CT(2) []
         // IT(3) []
         // CT(3) []
-        assertThat(localCompletionTimeReader.lastKnownLowestInitiatedTimeAsMilli(), is(nullValue()));
-        assertThat(localCompletionTimeReader.localCompletionTimeAsMilli(), is(nullValue()));
+        assertThat(localCompletionTimeReader.lastKnownLowestInitiatedTimeAsMilli(), is(-1l));
+        assertThat(localCompletionTimeReader.localCompletionTimeAsMilli(), is(-1l));
     }
 
     @Test
@@ -652,7 +652,7 @@ public class MultiWriterLocalCompletionTimeConcurrentStateManagerTest {
         // IT(1) []
         // CT(1) []
         assertThat(localCompletionTimeReader.lastKnownLowestInitiatedTimeAsMilli(), is(1l));
-        assertThat(localCompletionTimeReader.localCompletionTimeAsMilli(), is(nullValue()));
+        assertThat(localCompletionTimeReader.localCompletionTimeAsMilli(), is(-1l));
     }
 
     @Test
@@ -671,7 +671,7 @@ public class MultiWriterLocalCompletionTimeConcurrentStateManagerTest {
         localCompletionTimeWriter.submitLocalInitiatedTime(3);
 
         assertThat(localCompletionTimeReader.lastKnownLowestInitiatedTimeAsMilli(), is(1l));
-        assertThat(localCompletionTimeReader.localCompletionTimeAsMilli(), is(nullValue()));
+        assertThat(localCompletionTimeReader.localCompletionTimeAsMilli(), is(-1l));
     }
 
     @Test
@@ -690,8 +690,8 @@ public class MultiWriterLocalCompletionTimeConcurrentStateManagerTest {
         // CT(2) []
         localCompletionTimeWriter1.submitLocalInitiatedTime(1);
 
-        assertThat(localCompletionTimeReader.lastKnownLowestInitiatedTimeAsMilli(), is(nullValue()));
-        assertThat(localCompletionTimeReader.localCompletionTimeAsMilli(), is(nullValue()));
+        assertThat(localCompletionTimeReader.lastKnownLowestInitiatedTimeAsMilli(), is(-1l));
+        assertThat(localCompletionTimeReader.localCompletionTimeAsMilli(), is(-1l));
     }
 
     @Test
@@ -712,7 +712,7 @@ public class MultiWriterLocalCompletionTimeConcurrentStateManagerTest {
         localCompletionTimeWriter2.submitLocalInitiatedTime(1);
 
         assertThat(localCompletionTimeReader.lastKnownLowestInitiatedTimeAsMilli(), is(1l));
-        assertThat(localCompletionTimeReader.localCompletionTimeAsMilli(), is(nullValue()));
+        assertThat(localCompletionTimeReader.localCompletionTimeAsMilli(), is(-1l));
     }
 
     @Test
@@ -733,8 +733,8 @@ public class MultiWriterLocalCompletionTimeConcurrentStateManagerTest {
         localCompletionTimeWriter1.submitLocalInitiatedTime(2);
         localCompletionTimeWriter1.submitLocalInitiatedTime(3);
 
-        assertThat(localCompletionTimeReader.lastKnownLowestInitiatedTimeAsMilli(), is(nullValue()));
-        assertThat(localCompletionTimeReader.localCompletionTimeAsMilli(), is(nullValue()));
+        assertThat(localCompletionTimeReader.lastKnownLowestInitiatedTimeAsMilli(), is(-1l));
+        assertThat(localCompletionTimeReader.localCompletionTimeAsMilli(), is(-1l));
 
         // IT(1) [1,2,3]
         // CT(1) [ , , ]
@@ -745,7 +745,7 @@ public class MultiWriterLocalCompletionTimeConcurrentStateManagerTest {
         localCompletionTimeWriter2.submitLocalInitiatedTime(3);
 
         assertThat(localCompletionTimeReader.lastKnownLowestInitiatedTimeAsMilli(), is(1l));
-        assertThat(localCompletionTimeReader.localCompletionTimeAsMilli(), is(nullValue()));
+        assertThat(localCompletionTimeReader.localCompletionTimeAsMilli(), is(-1l));
     }
 
     @Test
@@ -764,7 +764,7 @@ public class MultiWriterLocalCompletionTimeConcurrentStateManagerTest {
 
         // Then
         assertThat(localCompletionTimeReader.lastKnownLowestInitiatedTimeAsMilli(), is(1l));
-        assertThat(localCompletionTimeReader.localCompletionTimeAsMilli(), is(nullValue()));
+        assertThat(localCompletionTimeReader.localCompletionTimeAsMilli(), is(-1l));
     }
 
     @Test
@@ -785,8 +785,8 @@ public class MultiWriterLocalCompletionTimeConcurrentStateManagerTest {
         localCompletionTimeWriter1.submitLocalCompletedTime(1);
 
         // Then
-        assertThat(localCompletionTimeReader.lastKnownLowestInitiatedTimeAsMilli(), is(nullValue()));
-        assertThat(localCompletionTimeReader.localCompletionTimeAsMilli(), is(nullValue()));
+        assertThat(localCompletionTimeReader.lastKnownLowestInitiatedTimeAsMilli(), is(-1l));
+        assertThat(localCompletionTimeReader.localCompletionTimeAsMilli(), is(-1l));
     }
 
     @Test
@@ -806,8 +806,8 @@ public class MultiWriterLocalCompletionTimeConcurrentStateManagerTest {
         localCompletionTimeWriter1.submitLocalInitiatedTime(1);
         localCompletionTimeWriter1.submitLocalCompletedTime(1);
 
-        assertThat(localCompletionTimeReader.lastKnownLowestInitiatedTimeAsMilli(), is(nullValue()));
-        assertThat(localCompletionTimeReader.localCompletionTimeAsMilli(), is(nullValue()));
+        assertThat(localCompletionTimeReader.lastKnownLowestInitiatedTimeAsMilli(), is(-1l));
+        assertThat(localCompletionTimeReader.localCompletionTimeAsMilli(), is(-1l));
 
         // IT(1) [ ]
         // CT(1) [1]
@@ -817,7 +817,7 @@ public class MultiWriterLocalCompletionTimeConcurrentStateManagerTest {
         localCompletionTimeWriter2.submitLocalCompletedTime(1);
 
         assertThat(localCompletionTimeReader.lastKnownLowestInitiatedTimeAsMilli(), is(1l));
-        assertThat(localCompletionTimeReader.localCompletionTimeAsMilli(), is(nullValue()));
+        assertThat(localCompletionTimeReader.localCompletionTimeAsMilli(), is(-1l));
     }
 
     @Test
@@ -837,8 +837,8 @@ public class MultiWriterLocalCompletionTimeConcurrentStateManagerTest {
         localCompletionTimeWriter1.submitLocalInitiatedTime(1);
         localCompletionTimeWriter1.submitLocalCompletedTime(1);
 
-        assertThat(localCompletionTimeReader.lastKnownLowestInitiatedTimeAsMilli(), is(nullValue()));
-        assertThat(localCompletionTimeReader.localCompletionTimeAsMilli(), is(nullValue()));
+        assertThat(localCompletionTimeReader.lastKnownLowestInitiatedTimeAsMilli(), is(-1l));
+        assertThat(localCompletionTimeReader.localCompletionTimeAsMilli(), is(-1l));
 
         // IT(1) [ ]
         // CT(1) [1]
@@ -848,7 +848,7 @@ public class MultiWriterLocalCompletionTimeConcurrentStateManagerTest {
         localCompletionTimeWriter2.submitLocalCompletedTime(2);
 
         assertThat(localCompletionTimeReader.lastKnownLowestInitiatedTimeAsMilli(), is(1l));
-        assertThat(localCompletionTimeReader.localCompletionTimeAsMilli(), is(nullValue()));
+        assertThat(localCompletionTimeReader.localCompletionTimeAsMilli(), is(-1l));
     }
 
     @Test
@@ -866,8 +866,8 @@ public class MultiWriterLocalCompletionTimeConcurrentStateManagerTest {
         // CT(1) []
         // IT(2) []
         // CT(2) []
-        assertThat(localCompletionTimeReader.lastKnownLowestInitiatedTimeAsMilli(), is(nullValue()));
-        assertThat(localCompletionTimeReader.localCompletionTimeAsMilli(), is(nullValue()));
+        assertThat(localCompletionTimeReader.lastKnownLowestInitiatedTimeAsMilli(), is(-1l));
+        assertThat(localCompletionTimeReader.localCompletionTimeAsMilli(), is(-1l));
 
         // IT(1) [ ]
         // CT(1) [1]
@@ -875,16 +875,16 @@ public class MultiWriterLocalCompletionTimeConcurrentStateManagerTest {
         // CT(2) []
         writer1.submitLocalInitiatedTime(1);
         writer1.submitLocalCompletedTime(1);
-        assertThat(localCompletionTimeReader.lastKnownLowestInitiatedTimeAsMilli(), is(nullValue()));
-        assertThat(localCompletionTimeReader.localCompletionTimeAsMilli(), is(nullValue()));
+        assertThat(localCompletionTimeReader.lastKnownLowestInitiatedTimeAsMilli(), is(-1l));
+        assertThat(localCompletionTimeReader.localCompletionTimeAsMilli(), is(-1l));
 
         // IT(1) [ ,2]
         // CT(1) [1, ]
         // IT(2) []
         // CT(2) []
         writer1.submitLocalInitiatedTime(2);
-        assertThat(localCompletionTimeReader.lastKnownLowestInitiatedTimeAsMilli(), is(nullValue()));
-        assertThat(localCompletionTimeReader.localCompletionTimeAsMilli(), is(nullValue()));
+        assertThat(localCompletionTimeReader.lastKnownLowestInitiatedTimeAsMilli(), is(-1l));
+        assertThat(localCompletionTimeReader.localCompletionTimeAsMilli(), is(-1l));
 
         // IT(1) [ ,2]
         // CT(1) [1, ]
@@ -1028,8 +1028,8 @@ public class MultiWriterLocalCompletionTimeConcurrentStateManagerTest {
         // CT(1) []
         // IT(2) []
         // CT(2) []
-        assertThat(localCompletionTimeReader.lastKnownLowestInitiatedTimeAsMilli(), is(nullValue()));
-        assertThat(localCompletionTimeReader.localCompletionTimeAsMilli(), is(nullValue()));
+        assertThat(localCompletionTimeReader.lastKnownLowestInitiatedTimeAsMilli(), is(-1l));
+        assertThat(localCompletionTimeReader.localCompletionTimeAsMilli(), is(-1l));
 
         // IT(1) [ ]
         // CT(1) [1]
@@ -1037,8 +1037,8 @@ public class MultiWriterLocalCompletionTimeConcurrentStateManagerTest {
         // CT(2) []
         writer1.submitLocalInitiatedTime(1);
         writer1.submitLocalCompletedTime(1);
-        assertThat(localCompletionTimeReader.lastKnownLowestInitiatedTimeAsMilli(), is(nullValue()));
-        assertThat(localCompletionTimeReader.localCompletionTimeAsMilli(), is(nullValue()));
+        assertThat(localCompletionTimeReader.lastKnownLowestInitiatedTimeAsMilli(), is(-1l));
+        assertThat(localCompletionTimeReader.localCompletionTimeAsMilli(), is(-1l));
 
         // IT(1) [ ]
         // CT(1) [1]
@@ -1047,7 +1047,7 @@ public class MultiWriterLocalCompletionTimeConcurrentStateManagerTest {
         writer2.submitLocalInitiatedTime(1);
         writer2.submitLocalCompletedTime(1);
         assertThat(localCompletionTimeReader.lastKnownLowestInitiatedTimeAsMilli(), is(1l));
-        assertThat(localCompletionTimeReader.localCompletionTimeAsMilli(), is(nullValue()));
+        assertThat(localCompletionTimeReader.localCompletionTimeAsMilli(), is(-1l));
 
         // IT(1) [ ]
         // CT(1) [1]
@@ -1056,7 +1056,7 @@ public class MultiWriterLocalCompletionTimeConcurrentStateManagerTest {
         writer2.submitLocalInitiatedTime(2);
         writer2.submitLocalCompletedTime(2);
         assertThat(localCompletionTimeReader.lastKnownLowestInitiatedTimeAsMilli(), is(1l));
-        assertThat(localCompletionTimeReader.localCompletionTimeAsMilli(), is(nullValue()));
+        assertThat(localCompletionTimeReader.localCompletionTimeAsMilli(), is(-1l));
 
         // IT(1) [ , ]
         // CT(1) [1,2]
@@ -1109,8 +1109,8 @@ public class MultiWriterLocalCompletionTimeConcurrentStateManagerTest {
         // CT(1) []
         // IT(2) []
         // CT(2) []
-        assertThat(localCompletionTimeReader.lastKnownLowestInitiatedTimeAsMilli(), is(nullValue()));
-        assertThat(localCompletionTimeReader.localCompletionTimeAsMilli(), is(nullValue()));
+        assertThat(localCompletionTimeReader.lastKnownLowestInitiatedTimeAsMilli(), is(-1l));
+        assertThat(localCompletionTimeReader.localCompletionTimeAsMilli(), is(-1l));
 
         // IT(1) [ ]
         // CT(1) [10]
@@ -1118,8 +1118,8 @@ public class MultiWriterLocalCompletionTimeConcurrentStateManagerTest {
         // CT(2) []
         writer1.submitLocalInitiatedTime(10);
         writer1.submitLocalCompletedTime(10);
-        assertThat(localCompletionTimeReader.lastKnownLowestInitiatedTimeAsMilli(), is(nullValue()));
-        assertThat(localCompletionTimeReader.localCompletionTimeAsMilli(), is(nullValue()));
+        assertThat(localCompletionTimeReader.lastKnownLowestInitiatedTimeAsMilli(), is(-1l));
+        assertThat(localCompletionTimeReader.localCompletionTimeAsMilli(), is(-1l));
 
         // IT(1) [ ]
         // CT(1) [10]
@@ -1127,7 +1127,7 @@ public class MultiWriterLocalCompletionTimeConcurrentStateManagerTest {
         // CT(2) [ ]
         writer2.submitLocalInitiatedTime(1);
         assertThat(localCompletionTimeReader.lastKnownLowestInitiatedTimeAsMilli(), is(1l));
-        assertThat(localCompletionTimeReader.localCompletionTimeAsMilli(), is(nullValue()));
+        assertThat(localCompletionTimeReader.localCompletionTimeAsMilli(), is(-1l));
 
         // IT(1) [ ]
         // CT(1) [10]
@@ -1135,7 +1135,7 @@ public class MultiWriterLocalCompletionTimeConcurrentStateManagerTest {
         // CT(2) [ , ]
         writer2.submitLocalInitiatedTime(2);
         assertThat(localCompletionTimeReader.lastKnownLowestInitiatedTimeAsMilli(), is(1l));
-        assertThat(localCompletionTimeReader.localCompletionTimeAsMilli(), is(nullValue()));
+        assertThat(localCompletionTimeReader.localCompletionTimeAsMilli(), is(-1l));
 
         // IT(1) [ ]
         // CT(1) [10]
@@ -1143,7 +1143,7 @@ public class MultiWriterLocalCompletionTimeConcurrentStateManagerTest {
         // CT(2) [ , ]
         writer2.submitLocalInitiatedTime(3);
         assertThat(localCompletionTimeReader.lastKnownLowestInitiatedTimeAsMilli(), is(1l));
-        assertThat(localCompletionTimeReader.localCompletionTimeAsMilli(), is(nullValue()));
+        assertThat(localCompletionTimeReader.localCompletionTimeAsMilli(), is(-1l));
 
         // IT(1) [ ]
         // CT(1) [10]
@@ -1385,8 +1385,8 @@ public class MultiWriterLocalCompletionTimeConcurrentStateManagerTest {
         // CT(2) [2,2,2,2,4,   ]
         // IT(3) []
         // CT(3) []
-        assertThat(reader.lastKnownLowestInitiatedTimeAsMilli(), is(nullValue()));
-        assertThat(reader.localCompletionTimeAsMilli(), is(nullValue()));
+        assertThat(reader.lastKnownLowestInitiatedTimeAsMilli(), is(-1l));
+        assertThat(reader.localCompletionTimeAsMilli(), is(-1l));
     }
 
     @Test

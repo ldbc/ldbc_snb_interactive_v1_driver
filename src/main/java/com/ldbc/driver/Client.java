@@ -337,7 +337,7 @@ public class Client {
                 long globalCompletionTimeWaitTimeoutDurationAsMilli = temporalUtil.convert(5, TimeUnit.SECONDS, TimeUnit.MILLISECONDS);
                 boolean globalCompletionTimeAdvancedToDesiredTime = completionTimeServiceAssistant.waitForGlobalCompletionTime(
                         timeSource,
-                        controlService.workloadStartTimeAsMilli() - 1,
+                        controlService.workloadStartTimeAsMilli() - 2,
                         globalCompletionTimeWaitTimeoutDurationAsMilli,
                         completionTimeService,
                         errorReporter);

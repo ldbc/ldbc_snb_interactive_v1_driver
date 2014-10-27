@@ -7,7 +7,6 @@ import java.util.HashSet;
 import java.util.Set;
 
 import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.CoreMatchers.nullValue;
 import static org.junit.Assert.assertThat;
 
 public class GlobalCompletionTimeTest {
@@ -30,7 +29,7 @@ public class GlobalCompletionTimeTest {
         // no events have been initiated or completed
 
         // Then
-        assertThat(globalCompletionTimeStateManager.globalCompletionTimeAsMilli(), is(nullValue()));
+        assertThat(globalCompletionTimeStateManager.globalCompletionTimeAsMilli(), is(-1l));
     }
 
     // LocalIT = some, LocalCT = none, ExternalCT = none --> null
@@ -51,7 +50,7 @@ public class GlobalCompletionTimeTest {
         globalCompletionTimeStateManager.submitLocalInitiatedTime(1000l);
 
         // Then
-        assertThat(globalCompletionTimeStateManager.globalCompletionTimeAsMilli(), is(nullValue()));
+        assertThat(globalCompletionTimeStateManager.globalCompletionTimeAsMilli(), is(-1l));
     }
 
     // LocalIT = none, LocalCT = some, ExternalCT = none --> Exception
@@ -99,7 +98,7 @@ public class GlobalCompletionTimeTest {
         globalCompletionTimeStateManager.submitPeerCompletionTime(otherPeerId, 1000l);
 
         // Then
-        assertThat(globalCompletionTimeStateManager.globalCompletionTimeAsMilli(), is(nullValue()));
+        assertThat(globalCompletionTimeStateManager.globalCompletionTimeAsMilli(), is(-1l));
     }
 
     //  LocalIT = some, LocalCT = some, ExternalCT = none --> null
@@ -121,7 +120,7 @@ public class GlobalCompletionTimeTest {
         globalCompletionTimeStateManager.submitLocalCompletedTime(1000l);
 
         // Then
-        assertThat(globalCompletionTimeStateManager.globalCompletionTimeAsMilli(), is(nullValue()));
+        assertThat(globalCompletionTimeStateManager.globalCompletionTimeAsMilli(), is(-1l));
     }
 
     //  LocalIT = 1, LocalCT = none, ExternalCT = 2 --> null
@@ -143,7 +142,7 @@ public class GlobalCompletionTimeTest {
         globalCompletionTimeStateManager.submitPeerCompletionTime(otherPeerId, 2000l);
 
         // Then
-        assertThat(globalCompletionTimeStateManager.globalCompletionTimeAsMilli(), is(nullValue()));
+        assertThat(globalCompletionTimeStateManager.globalCompletionTimeAsMilli(), is(-1l));
     }
 
     //  LocalIT = 1, LocalCT = 1, ExternalCT = 2 --> 1
@@ -165,7 +164,7 @@ public class GlobalCompletionTimeTest {
         globalCompletionTimeStateManager.submitLocalCompletedTime(1000l);
         globalCompletionTimeStateManager.submitPeerCompletionTime(otherPeerId, 2000l);
 
-        assertThat(globalCompletionTimeStateManager.globalCompletionTimeAsMilli(), is(nullValue()));
+        assertThat(globalCompletionTimeStateManager.globalCompletionTimeAsMilli(), is(-1l));
 
         globalCompletionTimeStateManager.submitLocalInitiatedTime(2000l);
 
@@ -191,7 +190,7 @@ public class GlobalCompletionTimeTest {
         globalCompletionTimeStateManager.submitLocalCompletedTime(2000l);
         globalCompletionTimeStateManager.submitPeerCompletionTime(otherPeerId, 1000l);
 
-        assertThat(globalCompletionTimeStateManager.globalCompletionTimeAsMilli(), is(nullValue()));
+        assertThat(globalCompletionTimeStateManager.globalCompletionTimeAsMilli(), is(-1l));
 
         globalCompletionTimeStateManager.submitLocalInitiatedTime(3000l);
 
@@ -217,13 +216,13 @@ public class GlobalCompletionTimeTest {
         // completed []
         // external  (-)
         globalCompletionTimeStateManager.submitLocalInitiatedTime(1000l);
-        assertThat(globalCompletionTimeStateManager.globalCompletionTimeAsMilli(), is(nullValue()));
+        assertThat(globalCompletionTimeStateManager.globalCompletionTimeAsMilli(), is(-1l));
 
         // initiated [1]
         // completed [1]
         // external  (-)
         globalCompletionTimeStateManager.submitLocalCompletedTime(1000l);
-        assertThat(globalCompletionTimeStateManager.globalCompletionTimeAsMilli(), is(nullValue()));
+        assertThat(globalCompletionTimeStateManager.globalCompletionTimeAsMilli(), is(-1l));
 
         // initiated [1,2]
         // completed [1]
@@ -338,9 +337,9 @@ public class GlobalCompletionTimeTest {
         // initiated [1]
         // completed [1]
         globalCompletionTimeStateManager.submitLocalInitiatedTime(1000l);
-        assertThat(globalCompletionTimeStateManager.globalCompletionTimeAsMilli(), is(nullValue()));
+        assertThat(globalCompletionTimeStateManager.globalCompletionTimeAsMilli(), is(-1l));
         globalCompletionTimeStateManager.submitLocalCompletedTime(1000l);
-        assertThat(globalCompletionTimeStateManager.globalCompletionTimeAsMilli(), is(nullValue()));
+        assertThat(globalCompletionTimeStateManager.globalCompletionTimeAsMilli(), is(-1l));
 
         // initiated [1,2]
         // completed [1,2]
@@ -424,28 +423,28 @@ public class GlobalCompletionTimeTest {
                 externalCompletionTimeStateManager);
 
         // When/Then
-        assertThat(globalCompletionTimeStateManager.globalCompletionTimeAsMilli(), is(nullValue()));
+        assertThat(globalCompletionTimeStateManager.globalCompletionTimeAsMilli(), is(-1l));
 
         // initiated [1]
         // completed [1]
         // external  (-)
         globalCompletionTimeStateManager.submitLocalInitiatedTime(1000l);
-        assertThat(globalCompletionTimeStateManager.globalCompletionTimeAsMilli(), is(nullValue()));
+        assertThat(globalCompletionTimeStateManager.globalCompletionTimeAsMilli(), is(-1l));
 
         globalCompletionTimeStateManager.submitLocalCompletedTime(1000l);
-        assertThat(globalCompletionTimeStateManager.globalCompletionTimeAsMilli(), is(nullValue()));
+        assertThat(globalCompletionTimeStateManager.globalCompletionTimeAsMilli(), is(-1l));
 
         // initiated [1]
         // completed [1]
         // external  (1)
         globalCompletionTimeStateManager.submitPeerCompletionTime(otherPeerId, 1000l);
-        assertThat(globalCompletionTimeStateManager.globalCompletionTimeAsMilli(), is(nullValue()));
+        assertThat(globalCompletionTimeStateManager.globalCompletionTimeAsMilli(), is(-1l));
 
         // initiated [1]
         // completed [1]
         // external  (3)
         globalCompletionTimeStateManager.submitPeerCompletionTime(otherPeerId, 3000l);
-        assertThat(globalCompletionTimeStateManager.globalCompletionTimeAsMilli(), is(nullValue()));
+        assertThat(globalCompletionTimeStateManager.globalCompletionTimeAsMilli(), is(-1l));
 
         // initiated [1,2]
         // completed [1]

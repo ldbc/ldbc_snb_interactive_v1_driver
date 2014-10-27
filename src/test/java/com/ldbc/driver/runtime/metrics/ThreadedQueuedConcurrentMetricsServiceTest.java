@@ -8,6 +8,7 @@ import com.ldbc.driver.runtime.ConcurrentErrorReporter;
 import com.ldbc.driver.runtime.scheduling.ErrorReportingTerminatingExecutionDelayPolicy;
 import com.ldbc.driver.runtime.scheduling.ExecutionDelayPolicy;
 import com.ldbc.driver.temporal.SystemTimeSource;
+import com.ldbc.driver.temporal.TemporalUtil;
 import com.ldbc.driver.temporal.TimeSource;
 import com.ldbc.driver.util.csv.SimpleCsvFileWriter;
 import com.ldbc.driver.workloads.ldbc.snb.interactive.db.DummyLdbcSnbInteractiveOperationInstances;
@@ -20,6 +21,7 @@ import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
 
 public class ThreadedQueuedConcurrentMetricsServiceTest {
+    private final TemporalUtil temporalUtil = new TemporalUtil();
     private TimeSource timeSource = new SystemTimeSource();
     private long INITIAL_START_TIME = 0l;
 
@@ -157,11 +159,12 @@ public class ThreadedQueuedConcurrentMetricsServiceTest {
         assertThat(metricsService.results().startTimeAsMilli(), equalTo(INITIAL_START_TIME));
         assertThat(metricsService.results().latestFinishTimeAsMilli(), is(INITIAL_START_TIME));
 
+        // scheduled: 1, actual: 2, duration: 1
         Operation<?> operation1 = DummyLdbcSnbInteractiveOperationInstances.read1();
         operation1.setScheduledStartTimeAsMilli(1l);
         OperationResultReport operationResultReport1 = OperationResultReportTestHelper.create(1, "result one", operation1);
         OperationResultReportTestHelper.setActualStartTime(operationResultReport1, 2l);
-        OperationResultReportTestHelper.setRunDuration(operationResultReport1, 1l);
+        OperationResultReportTestHelper.setRunDuration(operationResultReport1, temporalUtil.convert(1, TimeUnit.MILLISECONDS, TimeUnit.NANOSECONDS));
 
         metricsService.submitOperationResult(operationResultReport1);
 
@@ -172,7 +175,7 @@ public class ThreadedQueuedConcurrentMetricsServiceTest {
         operation2.setScheduledStartTimeAsMilli(1l);
         OperationResultReport operationResultReport2 = OperationResultReportTestHelper.create(2, "result two", operation2);
         OperationResultReportTestHelper.setActualStartTime(operationResultReport2, 8l);
-        OperationResultReportTestHelper.setRunDuration(operationResultReport2, 3l);
+        OperationResultReportTestHelper.setRunDuration(operationResultReport2, temporalUtil.convert(3, TimeUnit.MILLISECONDS, TimeUnit.NANOSECONDS));
 
         metricsService.submitOperationResult(operationResultReport2);
 
@@ -183,7 +186,7 @@ public class ThreadedQueuedConcurrentMetricsServiceTest {
         operation3.setScheduledStartTimeAsMilli(1l);
         OperationResultReport operationResultReport3 = OperationResultReportTestHelper.create(2, "result three", operation3);
         OperationResultReportTestHelper.setActualStartTime(operationResultReport3, 11l);
-        OperationResultReportTestHelper.setRunDuration(operationResultReport3, 5l);
+        OperationResultReportTestHelper.setRunDuration(operationResultReport3, temporalUtil.convert(5, TimeUnit.MILLISECONDS, TimeUnit.NANOSECONDS));
 
         metricsService.submitOperationResult(operationResultReport3);
 

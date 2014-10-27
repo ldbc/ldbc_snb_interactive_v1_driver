@@ -220,7 +220,9 @@ public class WorkloadValidator {
                 operationInterleaveForOperationType = new ContinuousMetricManager(null, null, workloadPass2.maxExpectedInterleaveAsMilli(), 5);
                 operationInterleavesByOperationType.put(operationType, operationInterleaveForOperationType);
             }
-            long previousOperationStartTimeAsMilliByOperationType = previousOperationStartTimesAsMilliByOperationType.get(operationType);
+            long previousOperationStartTimeAsMilliByOperationType = ((previousOperationStartTimesAsMilliByOperationType.containsKey(operationType)))
+                    ? previousOperationStartTimesAsMilliByOperationType.get(operationType)
+                    : -1;
             if (-1 != previousOperationStartTimeAsMilliByOperationType) {
                 long interleaveDurationAsMilli = operationStartTimeAsMilli - previousOperationStartTimeAsMilliByOperationType;
                 if (interleaveDurationAsMilli > workloadPass2.maxExpectedInterleaveAsMilli())

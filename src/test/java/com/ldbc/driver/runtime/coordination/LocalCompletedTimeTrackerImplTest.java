@@ -12,7 +12,8 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
-import static org.hamcrest.CoreMatchers.*;
+import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.junit.Assert.assertThat;
 
 public class LocalCompletedTimeTrackerImplTest {
@@ -261,7 +262,7 @@ public class LocalCompletedTimeTrackerImplTest {
         // nothing
 
         // Then
-        assertThat(tracker.removeTimesLowerThanAndReturnHighestRemoved(Long.MAX_VALUE), is(nullValue()));
+        assertThat(tracker.removeTimesLowerThanAndReturnHighestRemoved(Long.MAX_VALUE), is(-1l));
     }
 
     @Test
@@ -282,8 +283,8 @@ public class LocalCompletedTimeTrackerImplTest {
         tracker.addCompletedTimeAsMilli(1l);
 
         // Then
-        assertThat(tracker.removeTimesLowerThanAndReturnHighestRemoved(0l), is(nullValue()));
-        assertThat(tracker.removeTimesLowerThanAndReturnHighestRemoved(1l), is(nullValue()));
+        assertThat(tracker.removeTimesLowerThanAndReturnHighestRemoved(0l), is(-1l));
+        assertThat(tracker.removeTimesLowerThanAndReturnHighestRemoved(1l), is(-1l));
         assertThat(tracker.removeTimesLowerThanAndReturnHighestRemoved(Long.MAX_VALUE), is(1l));
     }
 
@@ -302,22 +303,22 @@ public class LocalCompletedTimeTrackerImplTest {
         // tracker
 
         // When/Then
-        assertThat(tracker.removeTimesLowerThanAndReturnHighestRemoved(0l), is(nullValue()));
-        assertThat(tracker.removeTimesLowerThanAndReturnHighestRemoved(Long.MAX_VALUE), is(nullValue()));
+        assertThat(tracker.removeTimesLowerThanAndReturnHighestRemoved(0l), is(-1l));
+        assertThat(tracker.removeTimesLowerThanAndReturnHighestRemoved(Long.MAX_VALUE), is(-1l));
 
         // [1]
         tracker.addCompletedTimeAsMilli(1l);
 
         // [1]
-        assertThat(tracker.removeTimesLowerThanAndReturnHighestRemoved(0l), is(nullValue()));
-        assertThat(tracker.removeTimesLowerThanAndReturnHighestRemoved(1l), is(nullValue()));
+        assertThat(tracker.removeTimesLowerThanAndReturnHighestRemoved(0l), is(-1l));
+        assertThat(tracker.removeTimesLowerThanAndReturnHighestRemoved(1l), is(-1l));
 
         // [1,2]
         tracker.addCompletedTimeAsMilli(2l);
 
         // [1,2]
-        assertThat(tracker.removeTimesLowerThanAndReturnHighestRemoved(0l), is(nullValue()));
-        assertThat(tracker.removeTimesLowerThanAndReturnHighestRemoved(1l), is(nullValue()));
+        assertThat(tracker.removeTimesLowerThanAndReturnHighestRemoved(0l), is(-1l));
+        assertThat(tracker.removeTimesLowerThanAndReturnHighestRemoved(1l), is(-1l));
 
         // [1,2,3]
         tracker.addCompletedTimeAsMilli(3l);
@@ -350,7 +351,7 @@ public class LocalCompletedTimeTrackerImplTest {
         assertThat(tracker.removeTimesLowerThanAndReturnHighestRemoved(13l), is(11l));
 
         assertThat(tracker.removeTimesLowerThanAndReturnHighestRemoved(Long.MAX_VALUE), is(15l));
-        assertThat(tracker.removeTimesLowerThanAndReturnHighestRemoved(Long.MAX_VALUE), is(nullValue()));
+        assertThat(tracker.removeTimesLowerThanAndReturnHighestRemoved(Long.MAX_VALUE), is(-1l));
     }
 
     @Test
@@ -368,8 +369,8 @@ public class LocalCompletedTimeTrackerImplTest {
         // tracker
 
         // When/Then
-        assertThat(tracker.removeTimesLowerThanAndReturnHighestRemoved(0l), is(nullValue()));
-        assertThat(tracker.removeTimesLowerThanAndReturnHighestRemoved(Long.MAX_VALUE), is(nullValue()));
+        assertThat(tracker.removeTimesLowerThanAndReturnHighestRemoved(0l), is(-1l));
+        assertThat(tracker.removeTimesLowerThanAndReturnHighestRemoved(Long.MAX_VALUE), is(-1l));
 
         // [1]
         tracker.addCompletedTimeAsMilli(1l);
@@ -414,7 +415,7 @@ public class LocalCompletedTimeTrackerImplTest {
         tracker.addCompletedTimeAsMilli(10l);
 
         // [ , , , ,9, ,6, , , , , , , , , ,6,7,8,9,10]
-        assertThat(tracker.removeTimesLowerThanAndReturnHighestRemoved(6l), is(nullValue()));
+        assertThat(tracker.removeTimesLowerThanAndReturnHighestRemoved(6l), is(-1l));
 
         // [ , , , ,9, , , , , , , , , , , , , ,8,9,10]
         assertThat(tracker.removeTimesLowerThanAndReturnHighestRemoved(8l), is(7l));
@@ -432,12 +433,12 @@ public class LocalCompletedTimeTrackerImplTest {
         assertThat(tracker.removeTimesLowerThanAndReturnHighestRemoved(12l), is(10l));
 
         // [ , , , , , , , , , , , , , , , , , , , , , ,15]
-        assertThat(tracker.removeTimesLowerThanAndReturnHighestRemoved(15l), is(nullValue()));
+        assertThat(tracker.removeTimesLowerThanAndReturnHighestRemoved(15l), is(-1l));
 
         // [ , , , , , , , , , , , , , , , , , , , , , , ]
         assertThat(tracker.removeTimesLowerThanAndReturnHighestRemoved(16l), is(15l));
 
         // [ , , , , , , , , , , , , , , , , , , , , , , ]
-        assertThat(tracker.removeTimesLowerThanAndReturnHighestRemoved(Long.MAX_VALUE), is(nullValue()));
+        assertThat(tracker.removeTimesLowerThanAndReturnHighestRemoved(Long.MAX_VALUE), is(-1l));
     }
 }

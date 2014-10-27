@@ -235,7 +235,7 @@ public class LocalInitiatedTimeTrackerImplTest {
         while (false == times.isEmpty()) {
             int index = (int) Math.round(Math.floor(uniforms.next() * times.size()));
             long timeToRemove = times.remove(index);
-            assertThat(timeToRemove, is(notNullValue()));
+            assertThat(timeToRemove, is(not(-1l)));
             timesToRemoveList.add(timeToRemove);
         }
         assertThat(timesToRemoveList.size(), is(timesCount));
@@ -321,7 +321,7 @@ public class LocalInitiatedTimeTrackerImplTest {
         // nothing
 
         // Then
-        assertThat(tracker.highestInitiatedTimeAsMilli(), is(nullValue()));
+        assertThat(tracker.highestInitiatedTimeAsMilli(), is(-1l));
         boolean exceptionThrown = false;
         try {
             tracker.removeTimeAndReturnLastKnownLowestTimeAsMilli(1l);
@@ -352,7 +352,7 @@ public class LocalInitiatedTimeTrackerImplTest {
         // tracker
 
         // When/Then
-        assertThat(tracker.highestInitiatedTimeAsMilli(), is(nullValue()));
+        assertThat(tracker.highestInitiatedTimeAsMilli(), is(-1l));
         boolean exceptionThrown = false;
         try {
             tracker.removeTimeAndReturnLastKnownLowestTimeAsMilli(1l);

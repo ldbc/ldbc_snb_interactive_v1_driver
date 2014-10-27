@@ -44,10 +44,11 @@ public class LdbcSnbInteractiveWorkloadPerformanceTest {
     @Test
     public void performanceTest()
             throws InterruptedException, DbException, WorkloadException, IOException, MetricsCollectionException, CompletionTimeException, DriverConfigurationException {
-        File parentStreamsDir = new File("/Users/alexaverbuch/IdeaProjects/scale_factor_streams/new_read_params/");
+        File paramsDir = new File("/Users/alexaverbuch/IdeaProjects/scale_factor_streams/new_read_params/sf10_partitions_01/");
+        File parentStreamsDir = new File("/Users/alexaverbuch/IdeaProjects/scale_factor_streams/current/");
         List<File> streamsDirs = Lists.newArrayList(
-                new File(parentStreamsDir, "sf10_partitions_01/")
-//                new File(parentStreamsDir, "sf10_partitions_04/")
+//                new File(parentStreamsDir, "sf10_partitions_01/")
+                new File(parentStreamsDir, "sf10_partitions_04/")
 //                new File(parentStreamsDir, "sf10_partitions_16/")
         );
 
@@ -97,7 +98,7 @@ public class LdbcSnbInteractiveWorkloadPerformanceTest {
                         operationCount,
                         forumFilePaths,
                         personFilePaths,
-                        streamDir.getAbsolutePath(),
+                        paramsDir.getAbsolutePath(),
                         streamDir.getAbsolutePath(),
                         "TC" + threadCount + "-" + streamDir.getName(),
                         new File(streamDir, "updateStream.properties").getAbsolutePath()

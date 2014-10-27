@@ -150,7 +150,7 @@ public class WorkloadStatisticsCalculator {
                 operationInterleavesByOperationType.put(operationType, operationInterleaveForOperationType);
             }
             Long previousOperationStartTimeAsMilliForOperationType = previousOperationStartTimesAsMilliByOperationType.get(operationType);
-            if (null == previousOperationStartTimeAsMilliForOperationType) {
+            if (null != previousOperationStartTimeAsMilliForOperationType) {
                 long interleaveDurationAsMilli = operationStartTimeAsMilli - previousOperationStartTimeAsMilliForOperationType;
                 operationInterleaveForOperationType.addMeasurement(interleaveDurationAsMilli);
             }

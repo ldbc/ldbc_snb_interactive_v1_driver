@@ -7,7 +7,8 @@ import org.junit.Test;
 import java.util.HashSet;
 import java.util.Set;
 
-import static org.hamcrest.CoreMatchers.*;
+import static org.hamcrest.CoreMatchers.equalTo;
+import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
 
 public class ExternalCompletionTimeTest {
@@ -29,10 +30,10 @@ public class ExternalCompletionTimeTest {
         ExternalCompletionTimeStateManager ect = new ExternalCompletionTimeStateManager(peerIds);
 
         // When/Then
-        assertThat(ect.externalCompletionTimeAsMilli(), is(nullValue()));
+        assertThat(ect.externalCompletionTimeAsMilli(), is(-1l));
 
         ect.submitPeerCompletionTime(peerId1, 1);
-        assertThat(ect.externalCompletionTimeAsMilli(), is(nullValue()));
+        assertThat(ect.externalCompletionTimeAsMilli(), is(-1l));
 
         ect.submitPeerCompletionTime(peerId2, 1);
         assertThat(ect.externalCompletionTimeAsMilli(), is(1l));
@@ -80,7 +81,7 @@ public class ExternalCompletionTimeTest {
         // no events have been applied
 
         // Then
-        assertThat(ect.externalCompletionTimeAsMilli(), is(nullValue()));
+        assertThat(ect.externalCompletionTimeAsMilli(), is(-1l));
     }
 
     @Test
@@ -95,7 +96,7 @@ public class ExternalCompletionTimeTest {
         ect.submitPeerCompletionTime(peerId1, 1);
 
         // Then
-        assertThat(ect.externalCompletionTimeAsMilli(), is(nullValue()));
+        assertThat(ect.externalCompletionTimeAsMilli(), is(-1l));
     }
 
     @Test
