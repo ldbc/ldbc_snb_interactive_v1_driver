@@ -15,23 +15,17 @@ public class LdbcQuery9 extends Operation<List<LdbcQuery9Result>> {
 
     public static final int DEFAULT_LIMIT = 20;
     private final long personId;
-    private final String personUri;
     private final Date maxDate;
     private final int limit;
 
-    public LdbcQuery9(long personId, String personUri, Date maxDate, int limit) {
+    public LdbcQuery9(long personId, Date maxDate, int limit) {
         this.personId = personId;
-        this.personUri = personUri;
         this.maxDate = maxDate;
         this.limit = limit;
     }
 
     public long personId() {
         return personId;
-    }
-
-    public String personUri() {
-        return personUri;
     }
 
     public Date maxDate() {
@@ -52,7 +46,6 @@ public class LdbcQuery9 extends Operation<List<LdbcQuery9Result>> {
         if (limit != that.limit) return false;
         if (personId != that.personId) return false;
         if (maxDate != null ? !maxDate.equals(that.maxDate) : that.maxDate != null) return false;
-        if (personUri != null ? !personUri.equals(that.personUri) : that.personUri != null) return false;
 
         return true;
     }
@@ -60,7 +53,6 @@ public class LdbcQuery9 extends Operation<List<LdbcQuery9Result>> {
     @Override
     public int hashCode() {
         int result = (int) (personId ^ (personId >>> 32));
-        result = 31 * result + (personUri != null ? personUri.hashCode() : 0);
         result = 31 * result + (maxDate != null ? maxDate.hashCode() : 0);
         result = 31 * result + limit;
         return result;
@@ -70,7 +62,6 @@ public class LdbcQuery9 extends Operation<List<LdbcQuery9Result>> {
     public String toString() {
         return "LdbcQuery9{" +
                 "personId=" + personId +
-                ", personUri='" + personUri + '\'' +
                 ", maxDate=" + maxDate +
                 ", limit=" + limit +
                 '}';

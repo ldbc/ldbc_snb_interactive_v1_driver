@@ -1,5 +1,6 @@
 package com.ldbc.driver.runtime.metrics;
 
+import com.ldbc.driver.temporal.TemporalUtil;
 import org.codehaus.jackson.annotate.JsonProperty;
 
 import java.util.concurrent.TimeUnit;

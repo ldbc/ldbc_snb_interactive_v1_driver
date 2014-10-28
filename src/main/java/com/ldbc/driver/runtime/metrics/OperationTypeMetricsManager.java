@@ -11,8 +11,6 @@ public class OperationTypeMetricsManager {
     private static final String METRIC_START_TIME_DELAY = "Start Time Delay";
     private static final String METRIC_RESULT_CODE = "Result Code";
 
-    private static final int NUMBER_OF_SIGNIFICANT_HDR_HISTOGRAM_DIGITS = 5;
-
     private final TemporalUtil temporalUtil = new TemporalUtil();
     private final ContinuousMetricManager runTimeMetric;
     private final ContinuousMetricManager startTimeDelayMetric;
@@ -33,12 +31,12 @@ public class OperationTypeMetricsManager {
                 METRIC_RUNTIME,
                 unit,
                 temporalUtil.convert(highestExpectedRuntimeDurationAsNano, TimeUnit.NANOSECONDS, unit),
-                NUMBER_OF_SIGNIFICANT_HDR_HISTOGRAM_DIGITS);
+                4);
         this.startTimeDelayMetric = new ContinuousMetricManager(
                 METRIC_START_TIME_DELAY,
                 unit,
                 temporalUtil.convert(highestExpectedDelayDurationAsMilli, TimeUnit.MILLISECONDS, unit),
-                NUMBER_OF_SIGNIFICANT_HDR_HISTOGRAM_DIGITS);
+                3);
         this.resultCodeMetric = new DiscreteMetricManager(METRIC_RESULT_CODE, "Result Code");
         this.recordStartTimeDelayLatency = recordStartTimeDelayLatency;
     }

@@ -5,6 +5,7 @@ import com.ldbc.driver.runtime.ConcurrentErrorReporter;
 import com.ldbc.driver.runtime.QueueEventFetcher;
 import com.ldbc.driver.runtime.scheduling.ExecutionDelayPolicy;
 import com.ldbc.driver.temporal.TemporalUtil;
+import com.ldbc.driver.temporal.TimeSource;
 import com.ldbc.driver.util.csv.SimpleCsvFileWriter;
 
 import java.util.Queue;
@@ -18,36 +19,53 @@ public class ThreadedQueuedConcurrentMetricsServiceThread extends Thread {
     private final ExecutionDelayPolicy executionDelayPolicy;
     private final boolean shouldRecordStartTimeDelayLatencies;
     private final SimpleCsvFileWriter csvResultsLogWriter;
+    private final TimeUnit unit;
     private Long processedEventCount = 0l;
     private Long expectedEventCount = null;
 
     public ThreadedQueuedConcurrentMetricsServiceThread(ConcurrentErrorReporter errorReporter,
                                                         Queue<MetricsCollectionEvent> metricsEventsQueue,
-                                                        MetricsManager metricsManager,
                                                         boolean shouldRecordStartTimeDelayLatencies,
                                                         ExecutionDelayPolicy executionDelayPolicy,
-                                                        SimpleCsvFileWriter csvResultsLogWriter) {
+                                                        SimpleCsvFileWriter csvResultsLogWriter,
+                                                        TimeSource timeSource,
+                                                        TimeUnit unit,
+                                                        long initialTimeAsMilli,
+                                                        long maxRuntimeDurationAsNano) {
         this(errorReporter,
                 QueueEventFetcher.queueEventFetcherFor(metricsEventsQueue),
-                metricsManager,
                 shouldRecordStartTimeDelayLatencies,
                 executionDelayPolicy,
-                csvResultsLogWriter);
+                csvResultsLogWriter,
+                timeSource,
+                unit,
+                initialTimeAsMilli,
+                maxRuntimeDurationAsNano);
     }
 
     private ThreadedQueuedConcurrentMetricsServiceThread(ConcurrentErrorReporter errorReporter,
                                                          QueueEventFetcher<MetricsCollectionEvent> queueEventFetcher,
-                                                         MetricsManager metricsManager,
                                                          boolean shouldRecordStartTimeDelayLatencies,
                                                          ExecutionDelayPolicy executionDelayPolicy,
-                                                         SimpleCsvFileWriter csvResultsLogWriter) {
+                                                         SimpleCsvFileWriter csvResultsLogWriter,
+                                                         TimeSource timeSource,
+                                                         TimeUnit unit,
+                                                         long initialTimeAsMilli,
+                                                         long maxRuntimeDurationAsNano) {
         super(ThreadedQueuedConcurrentMetricsServiceThread.class.getSimpleName() + "-" + System.currentTimeMillis());
         this.errorReporter = errorReporter;
-        this.metricsManager = metricsManager;
         this.queueEventFetcher = queueEventFetcher;
         this.shouldRecordStartTimeDelayLatencies = shouldRecordStartTimeDelayLatencies;
         this.executionDelayPolicy = executionDelayPolicy;
         this.csvResultsLogWriter = csvResultsLogWriter;
+        this.unit = unit;
+        this.metricsManager = new MetricsManager(
+                timeSource,
+                unit,
+                initialTimeAsMilli,
+                maxRuntimeDurationAsNano,
+                executionDelayPolicy.toleratedDelayAsMilli(),
+                shouldRecordStartTimeDelayLatencies);
     }
 
     @Override
@@ -65,7 +83,7 @@ public class ThreadedQueuedConcurrentMetricsServiceThread extends Thread {
                                     Long.toString(result.operation().scheduledStartTimeAsMilli()),
                                     Long.toString(result.actualStartTimeAsMilli()),
                                     // TODO change to nano later
-                                    Long.toString(temporalUtil.convert(result.runDurationAsNano(), TimeUnit.NANOSECONDS, TimeUnit.MILLISECONDS)));
+                                    Long.toString(temporalUtil.convert(result.runDurationAsNano(), TimeUnit.NANOSECONDS, unit)));
                         }
 
                         boolean shouldRecordResultMetricsForThisOperation = true;

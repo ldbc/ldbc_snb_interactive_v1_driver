@@ -9,7 +9,6 @@ import java.nio.charset.Charset;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicLong;
 
 public class MetricsManager {
     private static final long ONE_SECOND_AS_NANO = 1000000000;
@@ -23,7 +22,7 @@ public class MetricsManager {
     private final long highestExpectedDelayDurationAsMilli;
     private final boolean recordStartTimeDelayLatency;
     private long latestFinishTimeAsMilli;
-    private AtomicLong measurementCount = new AtomicLong(0);
+    private long measurementCount = 0;
 
     public static void export(WorkloadResultsSnapshot workloadResults,
                               OperationMetricsFormatter metricsFormatter,
@@ -59,18 +58,19 @@ public class MetricsManager {
 
         latestFinishTimeAsMilli = (operationFinishTimeAsMilli > latestFinishTimeAsMilli) ? operationFinishTimeAsMilli : latestFinishTimeAsMilli;
 
-        measurementCount.incrementAndGet();
+        measurementCount++;
 
         OperationTypeMetricsManager operationTypeMetricsManager = allOperationMetrics.get(result.operation().type());
-        if (null == operationTypeMetricsManager)
+        if (null == operationTypeMetricsManager) {
             operationTypeMetricsManager = new OperationTypeMetricsManager(
                     result.operation().type(),
                     unit,
-                    highestExpectedRuntimeDurationAsNano,
-                    highestExpectedDelayDurationAsMilli,
+                    temporalUtil.convert(highestExpectedRuntimeDurationAsNano, TimeUnit.NANOSECONDS, unit),
+                    temporalUtil.convert(highestExpectedDelayDurationAsMilli, TimeUnit.MILLISECONDS, unit),
                     recordStartTimeDelayLatency);
+            allOperationMetrics.put(result.operation().type(), operationTypeMetricsManager);
+        }
         operationTypeMetricsManager.measure(result);
-        allOperationMetrics.put(result.operation().type(), operationTypeMetricsManager);
     }
 
     long startTimeAsMilli() {
@@ -116,7 +116,7 @@ public class MetricsManager {
                     operationsPerSecond);
         } else {
             long runDurationAsMilli = nowAsMilli - startTimeAsMilli;
-            long operationCount = measurementCount.get();
+            long operationCount = measurementCount;
             long durationSinceLastMeasurementAsMilli = (-1 == latestFinishTimeAsMilli) ? -1 : nowAsMilli - latestFinishTimeAsMilli;
             double operationsPerSecond = ((double) operationCount / temporalUtil.convert(runDurationAsMilli, TimeUnit.MILLISECONDS, TimeUnit.NANOSECONDS)) * ONE_SECOND_AS_NANO;
             return new WorkloadStatusSnapshot(

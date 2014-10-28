@@ -66,7 +66,7 @@ public class ThreadedQueuedConcurrentMetricsService implements ConcurrentMetrics
                                                                                        boolean recordStartTimeDelayLatency,
                                                                                        ExecutionDelayPolicy executionDelayPolicy,
                                                                                        SimpleCsvFileWriter csvResultsLogWriter) {
-        Queue<MetricsCollectionEvent> queue = DefaultQueues.newBlockingUnbounded();
+        Queue<MetricsCollectionEvent> queue = DefaultQueues.newBlockingBounded(10000);
         return new ThreadedQueuedConcurrentMetricsService(
                 timeSource,
                 errorReporter,
@@ -94,16 +94,13 @@ public class ThreadedQueuedConcurrentMetricsService implements ConcurrentMetrics
         threadedQueuedConcurrentMetricsServiceThread = new ThreadedQueuedConcurrentMetricsServiceThread(
                 errorReporter,
                 queue,
-                new MetricsManager(
-                        timeSource,
-                        unit,
-                        initialTimeAsMilli,
-                        maxRuntimeDurationAsNano,
-                        executionDelayPolicy.toleratedDelayAsMilli(),
-                        recordStartTimeDelayLatency),
                 recordStartTimeDelayLatency,
                 executionDelayPolicy,
-                csvResultsLogWriter);
+                csvResultsLogWriter,
+                timeSource,
+                unit,
+                initialTimeAsMilli,
+                maxRuntimeDurationAsNano);
         threadedQueuedConcurrentMetricsServiceThread.start();
     }
 

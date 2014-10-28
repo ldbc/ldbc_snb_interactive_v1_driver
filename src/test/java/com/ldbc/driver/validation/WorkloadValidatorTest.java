@@ -334,7 +334,7 @@ public class WorkloadValidatorTest {
     public void shouldPassWhenAllOperationsHaveStartTimesAndMaxInterleaveIsNotExceeded()
             throws DriverConfigurationException, WorkloadException {
         long maxExpectedInterleaveAsMilli = 1000;
-        long startTimeAsMilli = 0;
+        long startTimeAsMilli = 1;
         long operationCount = 1000;
 
         Set<Class<? extends Operation<?>>> dependentOperationTypes = new HashSet<>();
@@ -476,7 +476,7 @@ public class WorkloadValidatorTest {
             throws DriverConfigurationException, WorkloadException {
         long maxExpectedInterleaveAsMilli = 1000;
         long excessiveInterleaveAsMilli = maxExpectedInterleaveAsMilli + 1;
-        long startTimeAsMilli = 0;
+        long startTimeAsMilli = 1;
         int operationCount = 1000;
 
         long lastStartTimeAsMilli = Lists.newArrayList(
@@ -579,7 +579,7 @@ public class WorkloadValidatorTest {
     @Test
     public void shouldFailWhenOperationStartTimesAreNotMonotonicallyIncreasing()
             throws DriverConfigurationException, WorkloadException {
-        long startTimeAsMilli = 0;
+        long startTimeAsMilli = 1;
         int operationCount = 1000;
 
         long slightlyBeforeLastOperationStartTimeAsMilli = Lists.newArrayList(

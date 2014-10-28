@@ -7,59 +7,59 @@ import java.util.Date;
 
 public class DummyLdbcSnbInteractiveOperationInstances {
     public static LdbcQuery1 read1() {
-        return new LdbcQuery1(1, "2", "3", 4);
+        return new LdbcQuery1(1, "3", 4);
     }
 
     public static LdbcQuery2 read2() {
-        return new LdbcQuery2(1, "2", new Date(3), 4);
+        return new LdbcQuery2(1, new Date(3), 4);
     }
 
     public static LdbcQuery3 read3() {
-        return new LdbcQuery3(1, "2", "3", "4", new Date(5), 6, 7);
+        return new LdbcQuery3(1, "3", "4", new Date(5), 6, 7);
     }
 
     public static LdbcQuery4 read4() {
-        return new LdbcQuery4(1, "2", new Date(3), 4, 5);
+        return new LdbcQuery4(1, new Date(3), 4, 5);
     }
 
     public static LdbcQuery5 read5() {
-        return new LdbcQuery5(1, "2", new Date(3), 4);
+        return new LdbcQuery5(1, new Date(3), 4);
     }
 
     public static LdbcQuery6 read6() {
-        return new LdbcQuery6(1, "2", "3", 4);
+        return new LdbcQuery6(1, "3", 4);
     }
 
     public static LdbcQuery7 read7() {
-        return new LdbcQuery7(1, "2", 3);
+        return new LdbcQuery7(1, 3);
     }
 
     public static LdbcQuery8 read8() {
-        return new LdbcQuery8(1, "2", 3);
+        return new LdbcQuery8(1, 3);
     }
 
     public static LdbcQuery9 read9() {
-        return new LdbcQuery9(1, "2", new Date(3), 4);
+        return new LdbcQuery9(1, new Date(3), 4);
     }
 
     public static LdbcQuery10 read10() {
-        return new LdbcQuery10(1, "2", 3, 4);
+        return new LdbcQuery10(1, 3, 4);
     }
 
     public static LdbcQuery11 read11() {
-        return new LdbcQuery11(1, "2", "3", 4, 5);
+        return new LdbcQuery11(1, "3", 4, 5);
     }
 
     public static LdbcQuery12 read12() {
-        return new LdbcQuery12(1, "2", "3", 4);
+        return new LdbcQuery12(1, "3", 4);
     }
 
     public static LdbcQuery13 read13() {
-        return new LdbcQuery13(1, "2", 3, "4");
+        return new LdbcQuery13(1, 3);
     }
 
     public static LdbcQuery14 read14() {
-        return new LdbcQuery14(1, "2", 3, "4");
+        return new LdbcQuery14(1, 3);
     }
 
     public static LdbcUpdate1AddPerson write1() {

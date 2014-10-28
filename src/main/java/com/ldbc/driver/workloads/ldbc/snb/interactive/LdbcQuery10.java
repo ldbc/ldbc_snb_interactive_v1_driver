@@ -14,23 +14,17 @@ public class LdbcQuery10 extends Operation<List<LdbcQuery10Result>> {
 
     public static final int DEFAULT_LIMIT = 10;
     private final long personId;
-    private final String personUri;
     private final int month;
     private final int limit;
 
-    public LdbcQuery10(long personId, String personUri, int month, int limit) {
+    public LdbcQuery10(long personId, int month, int limit) {
         this.personId = personId;
-        this.personUri = personUri;
         this.month = month;
         this.limit = limit;
     }
 
     public long personId() {
         return personId;
-    }
-
-    public String personUri() {
-        return personUri;
     }
 
     public int month() {
@@ -51,7 +45,6 @@ public class LdbcQuery10 extends Operation<List<LdbcQuery10Result>> {
         if (limit != that.limit) return false;
         if (month != that.month) return false;
         if (personId != that.personId) return false;
-        if (personUri != null ? !personUri.equals(that.personUri) : that.personUri != null) return false;
 
         return true;
     }
@@ -59,7 +52,6 @@ public class LdbcQuery10 extends Operation<List<LdbcQuery10Result>> {
     @Override
     public int hashCode() {
         int result = (int) (personId ^ (personId >>> 32));
-        result = 31 * result + (personUri != null ? personUri.hashCode() : 0);
         result = 31 * result + month;
         result = 31 * result + limit;
         return result;
@@ -69,7 +61,6 @@ public class LdbcQuery10 extends Operation<List<LdbcQuery10Result>> {
     public String toString() {
         return "LdbcQuery10{" +
                 "personId=" + personId +
-                ", personUri='" + personUri + '\'' +
                 ", month=" + month +
                 ", limit=" + limit +
                 '}';

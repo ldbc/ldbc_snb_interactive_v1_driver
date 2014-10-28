@@ -117,15 +117,15 @@ public class WorkloadStatisticsCalculatorTest {
         // Given
         long operation1Count = 1000;
         long operation1StartTime = 100l;
-        long operation1Interleave = 100l;
+        long operation1Interleave = 100l; //100,100
 
         long operation2Count = 100;
         long operation2StartTime = 100l;
-        long operation2Interleave = 1000l;
+        long operation2Interleave = 1000l; // 100,100
 
         long operation3Count = 10;
         long operation3StartTime = 100l;
-        long operation3Interleave = 10000l;
+        long operation3Interleave = 10000l; // 100,100
 
         Iterator<Operation<?>> operation1Stream = gf.limit(
                 new TimedNamedOperation1Factory(

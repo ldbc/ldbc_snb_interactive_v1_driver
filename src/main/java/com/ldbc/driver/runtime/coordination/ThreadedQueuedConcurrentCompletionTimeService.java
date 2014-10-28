@@ -37,7 +37,7 @@ public class ThreadedQueuedConcurrentCompletionTimeService implements Concurrent
                                                   ConcurrentErrorReporter errorReporter) throws CompletionTimeException {
         this.timeSource = timeSource;
         this.errorReporter = errorReporter;
-        Queue<CompletionTimeEvent> completionTimeEventQueue = DefaultQueues.newBlockingUnbounded();
+        Queue<CompletionTimeEvent> completionTimeEventQueue = DefaultQueues.newBlockingBounded(10000);
         this.queueEventSubmitter = QueueEventSubmitter.queueEventSubmitterFor(completionTimeEventQueue);
 
         this.sharedGctReference = new AtomicLong(-1);

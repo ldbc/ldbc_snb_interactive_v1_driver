@@ -4,9 +4,9 @@ package com.ldbc.driver.workloads.ldbc.snb.interactive;
 import com.ldbc.driver.Operation;
 import com.ldbc.driver.generator.CsvEventStreamReaderBasicCharSeeker;
 import com.ldbc.driver.generator.GeneratorException;
-import com.ldbc.driver.util.csv.CharSeeker;
-import com.ldbc.driver.util.csv.Extractors;
-import com.ldbc.driver.util.csv.Mark;
+import org.neo4j.csv.reader.CharSeeker;
+import org.neo4j.csv.reader.Extractors;
+import org.neo4j.csv.reader.Mark;
 
 import java.io.IOException;
 import java.util.Iterator;
@@ -28,7 +28,6 @@ public class Query12EventStreamReader implements Iterator<Operation<?>> {
         Object[] rowAsObjects = csvRows.next();
         return new LdbcQuery12(
                 (long) rowAsObjects[0],
-                null,
                 (String) rowAsObjects[1],
                 LdbcQuery12.DEFAULT_LIMIT
         );

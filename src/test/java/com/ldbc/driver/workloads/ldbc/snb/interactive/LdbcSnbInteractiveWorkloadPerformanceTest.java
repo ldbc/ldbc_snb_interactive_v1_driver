@@ -3,6 +3,7 @@ package com.ldbc.driver.workloads.ldbc.snb.interactive;
 import com.google.common.base.Function;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
+import com.google.common.primitives.Bytes;
 import com.ldbc.driver.*;
 import com.ldbc.driver.control.ConcurrentControlService;
 import com.ldbc.driver.control.ConsoleAndFileDriverConfiguration;
@@ -18,6 +19,7 @@ import com.ldbc.driver.temporal.TemporalUtil;
 import com.ldbc.driver.temporal.TimeSource;
 import com.ldbc.driver.util.MapUtils;
 import com.ldbc.driver.workloads.ldbc.snb.interactive.db.DummyLdbcSnbInteractiveDb;
+import org.HdrHistogram.Histogram;
 import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
@@ -27,10 +29,7 @@ import java.io.File;
 import java.io.FilenameFilter;
 import java.io.IOException;
 import java.text.DecimalFormat;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.TimeUnit;
 
 public class LdbcSnbInteractiveWorkloadPerformanceTest {
@@ -42,15 +41,43 @@ public class LdbcSnbInteractiveWorkloadPerformanceTest {
 
     @Ignore
     @Test
+    public void hdrShouldNotTakeAllTheFuckingRam() {
+        List<Histogram> histograms = new ArrayList<>();
+        long estimatedBytes = 0;
+        for (int i = 0; i < 100; i++) {
+            Histogram histogram = new Histogram(1l, new TemporalUtil().convert(90,TimeUnit.MINUTES,TimeUnit.NANOSECONDS), 4);
+            histograms.add(histogram);
+            estimatedBytes += histogram.getEstimatedFootprintInBytes();
+            long estimatedKb = estimatedBytes/1024;
+            long estimatedMb = estimatedKb/1024;
+            System.out.println("Estimated MB (cumulative): "+estimatedMb);
+        }
+    }
+
+    /*
+SF30 1,2,4 threads 1 partition
+[TC1-social_network]Completed 10,000,000 operations in 00:29.221 (m:s.ms) = 342,220 op/sec = 1 op/2.9221001 us
+[TC2-social_network]Completed 10,000,000 operations in 00:18.735 (m:s.ms) = 533,760 op/sec = 1 op/1.8735001 us
+[TC4-social_network]Completed 10,000,000 operations in 00:22.695 (m:s.ms) = 440,626 op/sec = 1 op/2.2695001 us
+     */
+    // -XX:+HeapDumpOnOutOfMemoryError
+    @Ignore
+    @Test
     public void performanceTest()
             throws InterruptedException, DbException, WorkloadException, IOException, MetricsCollectionException, CompletionTimeException, DriverConfigurationException {
-        File paramsDir = new File("/Users/alexaverbuch/IdeaProjects/scale_factor_streams/new_read_params/sf10_partitions_01/");
-        File parentStreamsDir = new File("/Users/alexaverbuch/IdeaProjects/scale_factor_streams/current/");
-        List<File> streamsDirs = Lists.newArrayList(
+//        File parentStreamsDir = new File("/Users/alexaverbuch/IdeaProjects/scale_factor_streams/new_read_params/");
+//        List<File> streamsDirs = Lists.newArrayList(
 //                new File(parentStreamsDir, "sf10_partitions_01/")
-                new File(parentStreamsDir, "sf10_partitions_04/")
-//                new File(parentStreamsDir, "sf10_partitions_16/")
+////                new File(parentStreamsDir, "sf10_partitions_04/")
+////                new File(parentStreamsDir, "sf10_partitions_16/")
+//        );
+
+        File parentStreamsDir = new File("/Users/alexaverbuch/hadoopTempDir/output/social_network/");
+        File paramsDir = new File("/Users/alexaverbuch/IdeaProjects/ldbc_snb_datagen/substitution_parameters/");
+        List<File> streamsDirs = Lists.newArrayList(
+                parentStreamsDir
         );
+
 
         for (File streamDir : streamsDirs) {
             Iterable<String> personFilePaths = Iterables.transform(
@@ -91,7 +118,7 @@ public class LdbcSnbInteractiveWorkloadPerformanceTest {
             );
 
             List<Integer> threadCounts = Lists.newArrayList(1, 2, 4);
-            long operationCount = 10000000;
+            long operationCount = 100000000;
             for (int threadCount : threadCounts) {
                 doPerformanceTest(
                         threadCount,

@@ -14,14 +14,12 @@ public class LdbcQuery11 extends Operation<List<LdbcQuery11Result>> {
 
     public static final int DEFAULT_LIMIT = 10;
     private final long personId;
-    private final String personUri;
     private final String countryName;
     private final int workFromYear;
     private final int limit;
 
-    public LdbcQuery11(long personId, String personUri, String countryName, int workFromYear, int limit) {
+    public LdbcQuery11(long personId, String countryName, int workFromYear, int limit) {
         this.personId = personId;
-        this.personUri = personUri;
         this.countryName = countryName;
         this.workFromYear = workFromYear;
         this.limit = limit;
@@ -29,10 +27,6 @@ public class LdbcQuery11 extends Operation<List<LdbcQuery11Result>> {
 
     public long personId() {
         return personId;
-    }
-
-    public String personUri() {
-        return personUri;
     }
 
     public String countryName() {
@@ -58,7 +52,6 @@ public class LdbcQuery11 extends Operation<List<LdbcQuery11Result>> {
         if (personId != that.personId) return false;
         if (workFromYear != that.workFromYear) return false;
         if (countryName != null ? !countryName.equals(that.countryName) : that.countryName != null) return false;
-        if (personUri != null ? !personUri.equals(that.personUri) : that.personUri != null) return false;
 
         return true;
     }
@@ -66,7 +59,6 @@ public class LdbcQuery11 extends Operation<List<LdbcQuery11Result>> {
     @Override
     public int hashCode() {
         int result = (int) (personId ^ (personId >>> 32));
-        result = 31 * result + (personUri != null ? personUri.hashCode() : 0);
         result = 31 * result + (countryName != null ? countryName.hashCode() : 0);
         result = 31 * result + workFromYear;
         result = 31 * result + limit;
@@ -77,7 +69,6 @@ public class LdbcQuery11 extends Operation<List<LdbcQuery11Result>> {
     public String toString() {
         return "LdbcQuery11{" +
                 "personId=" + personId +
-                ", personUri='" + personUri + '\'' +
                 ", countryName='" + countryName + '\'' +
                 ", workFromYear=" + workFromYear +
                 ", limit=" + limit +

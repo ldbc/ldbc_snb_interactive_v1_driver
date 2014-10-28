@@ -14,24 +14,18 @@ public class LdbcQuery6 extends Operation<List<LdbcQuery6Result>> {
 
     public static final int DEFAULT_LIMIT = 10;
     private final long personId;
-    private final String personUri;
     private final String tagName;
     private final int limit;
 
-    public LdbcQuery6(long personId, String personUri, String tagName, int limit) {
+    public LdbcQuery6(long personId, String tagName, int limit) {
         super();
         this.personId = personId;
-        this.personUri = personUri;
         this.tagName = tagName;
         this.limit = limit;
     }
 
     public long personId() {
         return personId;
-    }
-
-    public String personUri() {
-        return personUri;
     }
 
     public String tagName() {
@@ -51,7 +45,6 @@ public class LdbcQuery6 extends Operation<List<LdbcQuery6Result>> {
 
         if (limit != that.limit) return false;
         if (personId != that.personId) return false;
-        if (personUri != null ? !personUri.equals(that.personUri) : that.personUri != null) return false;
         if (tagName != null ? !tagName.equals(that.tagName) : that.tagName != null) return false;
 
         return true;
@@ -60,7 +53,6 @@ public class LdbcQuery6 extends Operation<List<LdbcQuery6Result>> {
     @Override
     public int hashCode() {
         int result = (int) (personId ^ (personId >>> 32));
-        result = 31 * result + (personUri != null ? personUri.hashCode() : 0);
         result = 31 * result + (tagName != null ? tagName.hashCode() : 0);
         result = 31 * result + limit;
         return result;
@@ -70,7 +62,6 @@ public class LdbcQuery6 extends Operation<List<LdbcQuery6Result>> {
     public String toString() {
         return "LdbcQuery6{" +
                 "personId=" + personId +
-                ", personUri='" + personUri + '\'' +
                 ", tagName='" + tagName + '\'' +
                 ", limit=" + limit +
                 '}';

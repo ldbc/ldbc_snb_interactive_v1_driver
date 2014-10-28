@@ -10,9 +10,10 @@ import com.ldbc.driver.temporal.TemporalUtil;
 import com.ldbc.driver.util.ClassLoaderHelper;
 import com.ldbc.driver.util.ClassLoadingException;
 import com.ldbc.driver.util.Tuple;
-import com.ldbc.driver.util.csv.*;
+import com.ldbc.driver.util.csv.SimpleCsvFileReader;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.type.TypeReference;
+import org.neo4j.csv.reader.*;
 
 import java.io.*;
 import java.util.*;
@@ -1153,7 +1154,6 @@ public class LdbcSnbInteractiveWorkload extends Workload {
             List<Object> operationAsList = new ArrayList<>();
             operationAsList.add(ldbcQuery.getClass().getName());
             operationAsList.add(ldbcQuery.personId());
-            operationAsList.add(ldbcQuery.personUri());
             operationAsList.add(ldbcQuery.firstName());
             operationAsList.add(ldbcQuery.limit());
             try {
@@ -1168,7 +1168,6 @@ public class LdbcSnbInteractiveWorkload extends Workload {
             List<Object> operationAsList = new ArrayList<>();
             operationAsList.add(ldbcQuery.getClass().getName());
             operationAsList.add(ldbcQuery.personId());
-            operationAsList.add(ldbcQuery.personUri());
             operationAsList.add(ldbcQuery.maxDate().getTime());
             operationAsList.add(ldbcQuery.limit());
             try {
@@ -1183,7 +1182,6 @@ public class LdbcSnbInteractiveWorkload extends Workload {
             List<Object> operationAsList = new ArrayList<>();
             operationAsList.add(ldbcQuery.getClass().getName());
             operationAsList.add(ldbcQuery.personId());
-            operationAsList.add(ldbcQuery.personUri());
             operationAsList.add(ldbcQuery.countryXName());
             operationAsList.add(ldbcQuery.countryYName());
             operationAsList.add(ldbcQuery.startDate().getTime());
@@ -1201,7 +1199,6 @@ public class LdbcSnbInteractiveWorkload extends Workload {
             List<Object> operationAsList = new ArrayList<>();
             operationAsList.add(ldbcQuery.getClass().getName());
             operationAsList.add(ldbcQuery.personId());
-            operationAsList.add(ldbcQuery.personUri());
             operationAsList.add(ldbcQuery.startDate().getTime());
             operationAsList.add(ldbcQuery.durationDays());
             operationAsList.add(ldbcQuery.limit());
@@ -1217,7 +1214,6 @@ public class LdbcSnbInteractiveWorkload extends Workload {
             List<Object> operationAsList = new ArrayList<>();
             operationAsList.add(ldbcQuery.getClass().getName());
             operationAsList.add(ldbcQuery.personId());
-            operationAsList.add(ldbcQuery.personUri());
             operationAsList.add(ldbcQuery.minDate().getTime());
             operationAsList.add(ldbcQuery.limit());
             try {
@@ -1232,7 +1228,6 @@ public class LdbcSnbInteractiveWorkload extends Workload {
             List<Object> operationAsList = new ArrayList<>();
             operationAsList.add(ldbcQuery.getClass().getName());
             operationAsList.add(ldbcQuery.personId());
-            operationAsList.add(ldbcQuery.personUri());
             operationAsList.add(ldbcQuery.tagName());
             operationAsList.add(ldbcQuery.limit());
             try {
@@ -1247,7 +1242,6 @@ public class LdbcSnbInteractiveWorkload extends Workload {
             List<Object> operationAsList = new ArrayList<>();
             operationAsList.add(ldbcQuery.getClass().getName());
             operationAsList.add(ldbcQuery.personId());
-            operationAsList.add(ldbcQuery.personUri());
             operationAsList.add(ldbcQuery.limit());
             try {
                 return OBJECT_MAPPER.writeValueAsString(operationAsList);
@@ -1261,7 +1255,6 @@ public class LdbcSnbInteractiveWorkload extends Workload {
             List<Object> operationAsList = new ArrayList<>();
             operationAsList.add(ldbcQuery.getClass().getName());
             operationAsList.add(ldbcQuery.personId());
-            operationAsList.add(ldbcQuery.personUri());
             operationAsList.add(ldbcQuery.limit());
             try {
                 return OBJECT_MAPPER.writeValueAsString(operationAsList);
@@ -1275,7 +1268,6 @@ public class LdbcSnbInteractiveWorkload extends Workload {
             List<Object> operationAsList = new ArrayList<>();
             operationAsList.add(ldbcQuery.getClass().getName());
             operationAsList.add(ldbcQuery.personId());
-            operationAsList.add(ldbcQuery.personUri());
             operationAsList.add(ldbcQuery.maxDate().getTime());
             operationAsList.add(ldbcQuery.limit());
             try {
@@ -1290,7 +1282,6 @@ public class LdbcSnbInteractiveWorkload extends Workload {
             List<Object> operationAsList = new ArrayList<>();
             operationAsList.add(ldbcQuery.getClass().getName());
             operationAsList.add(ldbcQuery.personId());
-            operationAsList.add(ldbcQuery.personUri());
             operationAsList.add(ldbcQuery.month());
             operationAsList.add(ldbcQuery.limit());
             try {
@@ -1305,7 +1296,6 @@ public class LdbcSnbInteractiveWorkload extends Workload {
             List<Object> operationAsList = new ArrayList<>();
             operationAsList.add(ldbcQuery.getClass().getName());
             operationAsList.add(ldbcQuery.personId());
-            operationAsList.add(ldbcQuery.personUri());
             operationAsList.add(ldbcQuery.countryName());
             operationAsList.add(ldbcQuery.workFromYear());
             operationAsList.add(ldbcQuery.limit());
@@ -1321,7 +1311,6 @@ public class LdbcSnbInteractiveWorkload extends Workload {
             List<Object> operationAsList = new ArrayList<>();
             operationAsList.add(ldbcQuery.getClass().getName());
             operationAsList.add(ldbcQuery.personId());
-            operationAsList.add(ldbcQuery.personUri());
             operationAsList.add(ldbcQuery.tagClassName());
             operationAsList.add(ldbcQuery.limit());
             try {
@@ -1336,9 +1325,7 @@ public class LdbcSnbInteractiveWorkload extends Workload {
             List<Object> operationAsList = new ArrayList<>();
             operationAsList.add(ldbcQuery.getClass().getName());
             operationAsList.add(ldbcQuery.person1Id());
-            operationAsList.add(ldbcQuery.person1Uri());
             operationAsList.add(ldbcQuery.person2Id());
-            operationAsList.add(ldbcQuery.person2Uri());
             try {
                 return OBJECT_MAPPER.writeValueAsString(operationAsList);
             } catch (IOException e) {
@@ -1351,9 +1338,7 @@ public class LdbcSnbInteractiveWorkload extends Workload {
             List<Object> operationAsList = new ArrayList<>();
             operationAsList.add(ldbcQuery.getClass().getName());
             operationAsList.add(ldbcQuery.person1Id());
-            operationAsList.add(ldbcQuery.person1Uri());
             operationAsList.add(ldbcQuery.person2Id());
-            operationAsList.add(ldbcQuery.person2Uri());
             try {
                 return OBJECT_MAPPER.writeValueAsString(operationAsList);
             } catch (IOException e) {
@@ -1539,117 +1524,101 @@ public class LdbcSnbInteractiveWorkload extends Workload {
 
         if (operationAsList.get(0).equals(LdbcQuery1.class.getName())) {
             long personId = ((Number) operationAsList.get(1)).longValue();
-            String personUri = (String) operationAsList.get(2);
-            String firstName = (String) operationAsList.get(3);
-            int limit = ((Number) operationAsList.get(4)).intValue();
-            return new LdbcQuery1(personId, personUri, firstName, limit);
+            String firstName = (String) operationAsList.get(2);
+            int limit = ((Number) operationAsList.get(3)).intValue();
+            return new LdbcQuery1(personId, firstName, limit);
         }
 
         if (operationAsList.get(0).equals(LdbcQuery2.class.getName())) {
             long personId = ((Number) operationAsList.get(1)).longValue();
-            String personUri = (String) operationAsList.get(2);
-            Date maxDate = new Date(((Number) operationAsList.get(3)).longValue());
-            int limit = ((Number) operationAsList.get(4)).intValue();
-            return new LdbcQuery2(personId, personUri, maxDate, limit);
+            Date maxDate = new Date(((Number) operationAsList.get(2)).longValue());
+            int limit = ((Number) operationAsList.get(3)).intValue();
+            return new LdbcQuery2(personId, maxDate, limit);
         }
 
         if (operationAsList.get(0).equals(LdbcQuery3.class.getName())) {
             long personId = ((Number) operationAsList.get(1)).longValue();
-            String personUri = (String) operationAsList.get(2);
-            String countryXName = (String) operationAsList.get(3);
-            String countryYName = (String) operationAsList.get(4);
-            Date startDate = new Date(((Number) operationAsList.get(5)).longValue());
-            int durationDays = ((Number) operationAsList.get(6)).intValue();
-            int limit = ((Number) operationAsList.get(7)).intValue();
-            return new LdbcQuery3(personId, personUri, countryXName, countryYName, startDate, durationDays, limit);
+            String countryXName = (String) operationAsList.get(2);
+            String countryYName = (String) operationAsList.get(3);
+            Date startDate = new Date(((Number) operationAsList.get(4)).longValue());
+            int durationDays = ((Number) operationAsList.get(5)).intValue();
+            int limit = ((Number) operationAsList.get(6)).intValue();
+            return new LdbcQuery3(personId, countryXName, countryYName, startDate, durationDays, limit);
         }
 
         if (operationAsList.get(0).equals(LdbcQuery4.class.getName())) {
             long personId = ((Number) operationAsList.get(1)).longValue();
-            String personUri = (String) operationAsList.get(2);
-            Date startDate = new Date(((Number) operationAsList.get(3)).longValue());
-            int durationDays = ((Number) operationAsList.get(4)).intValue();
-            int limit = ((Number) operationAsList.get(5)).intValue();
-            return new LdbcQuery4(personId, personUri, startDate, durationDays, limit);
+            Date startDate = new Date(((Number) operationAsList.get(2)).longValue());
+            int durationDays = ((Number) operationAsList.get(3)).intValue();
+            int limit = ((Number) operationAsList.get(4)).intValue();
+            return new LdbcQuery4(personId, startDate, durationDays, limit);
         }
 
         if (operationAsList.get(0).equals(LdbcQuery5.class.getName())) {
             long personId = ((Number) operationAsList.get(1)).longValue();
-            String personUri = (String) operationAsList.get(2);
-            Date minDate = new Date(((Number) operationAsList.get(3)).longValue());
-            int limit = ((Number) operationAsList.get(4)).intValue();
-            return new LdbcQuery5(personId, personUri, minDate, limit);
+            Date minDate = new Date(((Number) operationAsList.get(2)).longValue());
+            int limit = ((Number) operationAsList.get(3)).intValue();
+            return new LdbcQuery5(personId, minDate, limit);
         }
 
         if (operationAsList.get(0).equals(LdbcQuery6.class.getName())) {
             long personId = ((Number) operationAsList.get(1)).longValue();
-            String personUri = (String) operationAsList.get(2);
-            String tagName = (String) operationAsList.get(3);
-            int limit = ((Number) operationAsList.get(4)).intValue();
-            return new LdbcQuery6(personId, personUri, tagName, limit);
+            String tagName = (String) operationAsList.get(2);
+            int limit = ((Number) operationAsList.get(3)).intValue();
+            return new LdbcQuery6(personId, tagName, limit);
         }
 
         if (operationAsList.get(0).equals(LdbcQuery7.class.getName())) {
             long personId = ((Number) operationAsList.get(1)).longValue();
-            String personUri = (String) operationAsList.get(2);
-            int limit = ((Number) operationAsList.get(3)).intValue();
-            return new LdbcQuery7(personId, personUri, limit);
+            int limit = ((Number) operationAsList.get(2)).intValue();
+            return new LdbcQuery7(personId, limit);
         }
 
         if (operationAsList.get(0).equals(LdbcQuery8.class.getName())) {
             long personId = ((Number) operationAsList.get(1)).longValue();
-            String personUri = (String) operationAsList.get(2);
-            int limit = ((Number) operationAsList.get(3)).intValue();
-            return new LdbcQuery8(personId, personUri, limit);
+            int limit = ((Number) operationAsList.get(2)).intValue();
+            return new LdbcQuery8(personId, limit);
         }
 
         if (operationAsList.get(0).equals(LdbcQuery9.class.getName())) {
             long personId = ((Number) operationAsList.get(1)).longValue();
-            String personUri = (String) operationAsList.get(2);
-            Date maxDate = new Date(((Number) operationAsList.get(3)).longValue());
-            int limit = ((Number) operationAsList.get(4)).intValue();
-            return new LdbcQuery9(personId, personUri, maxDate, limit);
+            Date maxDate = new Date(((Number) operationAsList.get(2)).longValue());
+            int limit = ((Number) operationAsList.get(3)).intValue();
+            return new LdbcQuery9(personId, maxDate, limit);
         }
 
         if (operationAsList.get(0).equals(LdbcQuery10.class.getName())) {
             long personId = ((Number) operationAsList.get(1)).longValue();
-            String personUri = (String) operationAsList.get(2);
-            int month = ((Number) operationAsList.get(3)).intValue();
-            int limit = ((Number) operationAsList.get(4)).intValue();
-            return new LdbcQuery10(personId, personUri, month, limit);
+            int month = ((Number) operationAsList.get(2)).intValue();
+            int limit = ((Number) operationAsList.get(3)).intValue();
+            return new LdbcQuery10(personId, month, limit);
         }
 
         if (operationAsList.get(0).equals(LdbcQuery11.class.getName())) {
             long personId = ((Number) operationAsList.get(1)).longValue();
-            String personUri = (String) operationAsList.get(2);
-            String countryName = (String) operationAsList.get(3);
-            int workFromYear = ((Number) operationAsList.get(4)).intValue();
-            int limit = ((Number) operationAsList.get(5)).intValue();
-            return new LdbcQuery11(personId, personUri, countryName, workFromYear, limit);
+            String countryName = (String) operationAsList.get(2);
+            int workFromYear = ((Number) operationAsList.get(3)).intValue();
+            int limit = ((Number) operationAsList.get(4)).intValue();
+            return new LdbcQuery11(personId, countryName, workFromYear, limit);
         }
 
         if (operationAsList.get(0).equals(LdbcQuery12.class.getName())) {
             long personId = ((Number) operationAsList.get(1)).longValue();
-            String personUri = (String) operationAsList.get(2);
-            String tagClassName = (String) operationAsList.get(3);
-            int limit = ((Number) operationAsList.get(4)).intValue();
-            return new LdbcQuery12(personId, personUri, tagClassName, limit);
+            String tagClassName = (String) operationAsList.get(2);
+            int limit = ((Number) operationAsList.get(3)).intValue();
+            return new LdbcQuery12(personId, tagClassName, limit);
         }
 
         if (operationAsList.get(0).equals(LdbcQuery13.class.getName())) {
             long person1Id = ((Number) operationAsList.get(1)).longValue();
-            String person1Uri = (String) operationAsList.get(2);
-            long person2Id = ((Number) operationAsList.get(3)).longValue();
-            String person2Uri = (String) operationAsList.get(4);
-            return new LdbcQuery13(person1Id, person1Uri, person2Id, person2Uri);
+            long person2Id = ((Number) operationAsList.get(2)).longValue();
+            return new LdbcQuery13(person1Id, person2Id);
         }
 
         if (operationAsList.get(0).equals(LdbcQuery14.class.getName())) {
             long person1Id = ((Number) operationAsList.get(1)).longValue();
-            String person1Uri = (String) operationAsList.get(2);
-            long person2Id = ((Number) operationAsList.get(3)).longValue();
-            String person2Uri = (String) operationAsList.get(4);
-            return new LdbcQuery14(person1Id, person1Uri, person2Id, person2Uri);
+            long person2Id = ((Number) operationAsList.get(2)).longValue();
+            return new LdbcQuery14(person1Id, person2Id);
         }
 
         if (operationAsList.get(0).equals(LdbcUpdate1AddPerson.class.getName())) {

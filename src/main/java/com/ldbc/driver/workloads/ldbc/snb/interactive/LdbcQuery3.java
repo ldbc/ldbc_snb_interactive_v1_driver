@@ -15,16 +15,14 @@ public class LdbcQuery3 extends Operation<List<LdbcQuery3Result>> {
 
     public static final int DEFAULT_LIMIT = 20;
     private final long personId;
-    private final String personUri;
     private final String countryXName;
     private final String countryYName;
     private final Date startDate;
     private final int durationDays;
     private final int limit;
 
-    public LdbcQuery3(long personId, String personUri, String countryXName, String countryYName, Date startDate, int durationDays, int limit) {
+    public LdbcQuery3(long personId, String countryXName, String countryYName, Date startDate, int durationDays, int limit) {
         this.personId = personId;
-        this.personUri = personUri;
         this.countryXName = countryXName;
         this.countryYName = countryYName;
         this.startDate = startDate;
@@ -34,10 +32,6 @@ public class LdbcQuery3 extends Operation<List<LdbcQuery3Result>> {
 
     public long personId() {
         return personId;
-    }
-
-    public String personUri() {
-        return personUri;
     }
 
     public String countryXName() {
@@ -72,7 +66,6 @@ public class LdbcQuery3 extends Operation<List<LdbcQuery3Result>> {
         if (personId != that.personId) return false;
         if (countryXName != null ? !countryXName.equals(that.countryXName) : that.countryXName != null) return false;
         if (countryYName != null ? !countryYName.equals(that.countryYName) : that.countryYName != null) return false;
-        if (personUri != null ? !personUri.equals(that.personUri) : that.personUri != null) return false;
         if (startDate != null ? !startDate.equals(that.startDate) : that.startDate != null) return false;
 
         return true;
@@ -81,7 +74,6 @@ public class LdbcQuery3 extends Operation<List<LdbcQuery3Result>> {
     @Override
     public int hashCode() {
         int result = (int) (personId ^ (personId >>> 32));
-        result = 31 * result + (personUri != null ? personUri.hashCode() : 0);
         result = 31 * result + (countryXName != null ? countryXName.hashCode() : 0);
         result = 31 * result + (countryYName != null ? countryYName.hashCode() : 0);
         result = 31 * result + (startDate != null ? startDate.hashCode() : 0);
@@ -94,7 +86,6 @@ public class LdbcQuery3 extends Operation<List<LdbcQuery3Result>> {
     public String toString() {
         return "LdbcQuery3{" +
                 "personId=" + personId +
-                ", personUri='" + personUri + '\'' +
                 ", countryXName='" + countryXName + '\'' +
                 ", countryYName='" + countryYName + '\'' +
                 ", startDate=" + startDate +

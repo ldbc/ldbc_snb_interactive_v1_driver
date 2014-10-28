@@ -15,20 +15,18 @@ public class LdbcSnbOperationEqualityTest {
     public void ldbcQuery1ShouldDoEqualsCorrectly() {
         // Given
         long personId1 = 1;
-        String personUri1 = "ᚠ";
         String firstName1 = "さ";
         int limit1 = 4;
 
         long personId2 = 5;
-        String personUri2 = "丵";
         String firstName2 = "פ";
         int limit2 = 8;
 
         // When
-        LdbcQuery1 ldbcQuery1a = new LdbcQuery1(personId1, personUri1, firstName1, limit1);
-        LdbcQuery1 ldbcQuery1b = new LdbcQuery1(personId1, personUri1, firstName1, limit1);
-        LdbcQuery1 ldbcQuery2a = new LdbcQuery1(personId2, personUri2, firstName2, limit2);
-        LdbcQuery1 ldbcQuery3a = new LdbcQuery1(personId1, personUri1, firstName1, limit2);
+        LdbcQuery1 ldbcQuery1a = new LdbcQuery1(personId1, firstName1, limit1);
+        LdbcQuery1 ldbcQuery1b = new LdbcQuery1(personId1, firstName1, limit1);
+        LdbcQuery1 ldbcQuery2a = new LdbcQuery1(personId2, firstName2, limit2);
+        LdbcQuery1 ldbcQuery3a = new LdbcQuery1(personId1, firstName1, limit2);
 
         // Then
         assertThat(ldbcQuery1a, equalTo(ldbcQuery1b));
@@ -41,20 +39,18 @@ public class LdbcSnbOperationEqualityTest {
     public void ldbcQuery2ShouldDoEqualsCorrectly() {
         // Given
         long personId1 = 1;
-        String personUri1 = "ᚠ";
         Date maxDate1 = new Date(3);
         int limit1 = 4;
 
         long personId2 = 5;
-        String personUri2 = "丵";
         Date maxDate2 = new Date(7);
         int limit2 = 8;
 
         // When
-        LdbcQuery2 ldbcQuery1a = new LdbcQuery2(personId1, personUri1, maxDate1, limit1);
-        LdbcQuery2 ldbcQuery1b = new LdbcQuery2(personId1, personUri1, maxDate1, limit1);
-        LdbcQuery2 ldbcQuery2a = new LdbcQuery2(personId2, personUri2, maxDate2, limit2);
-        LdbcQuery2 ldbcQuery3a = new LdbcQuery2(personId1, personUri1, maxDate1, limit2);
+        LdbcQuery2 ldbcQuery1a = new LdbcQuery2(personId1, maxDate1, limit1);
+        LdbcQuery2 ldbcQuery1b = new LdbcQuery2(personId1, maxDate1, limit1);
+        LdbcQuery2 ldbcQuery2a = new LdbcQuery2(personId2, maxDate2, limit2);
+        LdbcQuery2 ldbcQuery3a = new LdbcQuery2(personId1, maxDate1, limit2);
 
         // Then
         assertThat(ldbcQuery1a, equalTo(ldbcQuery1b));
@@ -67,7 +63,6 @@ public class LdbcSnbOperationEqualityTest {
     public void ldbcQuery3ShouldDoEqualsCorrectly() {
         // Given
         long personId1 = 1;
-        String personUri1 = "ᚠ";
         String countryXName1 = "さ";
         String countryYName1 = "丵";
         Date startDate1 = new Date(5);
@@ -75,7 +70,6 @@ public class LdbcSnbOperationEqualityTest {
         int limit1 = 7;
 
         long personId2 = 8;
-        String personUri2 = "פ";
         String countryXName2 = "ش";
         String countryYName2 = "11";
         Date startDate2 = new Date(12);
@@ -83,10 +77,10 @@ public class LdbcSnbOperationEqualityTest {
         int limit2 = 14;
 
         // When
-        LdbcQuery3 ldbcQuery1a = new LdbcQuery3(personId1, personUri1, countryXName1, countryYName1, startDate1, durationDays1, limit1);
-        LdbcQuery3 ldbcQuery1b = new LdbcQuery3(personId1, personUri1, countryXName1, countryYName1, startDate1, durationDays1, limit1);
-        LdbcQuery3 ldbcQuery2a = new LdbcQuery3(personId2, personUri2, countryXName2, countryYName2, startDate2, durationDays2, limit2);
-        LdbcQuery3 ldbcQuery3a = new LdbcQuery3(personId1, personUri1, countryXName1, countryYName1, startDate1, durationDays1, limit2);
+        LdbcQuery3 ldbcQuery1a = new LdbcQuery3(personId1, countryXName1, countryYName1, startDate1, durationDays1, limit1);
+        LdbcQuery3 ldbcQuery1b = new LdbcQuery3(personId1, countryXName1, countryYName1, startDate1, durationDays1, limit1);
+        LdbcQuery3 ldbcQuery2a = new LdbcQuery3(personId2, countryXName2, countryYName2, startDate2, durationDays2, limit2);
+        LdbcQuery3 ldbcQuery3a = new LdbcQuery3(personId1, countryXName1, countryYName1, startDate1, durationDays1, limit2);
 
         // Then
         assertThat(ldbcQuery1a, equalTo(ldbcQuery1b));
@@ -99,22 +93,20 @@ public class LdbcSnbOperationEqualityTest {
     public void ldbcQuery4ShouldDoEqualsCorrectly() {
         // Given
         long personId1 = 1;
-        String personUri1 = "ᚠ";
         Date startDate1 = new Date(5);
         int durationDays1 = 6;
         int limit1 = 7;
 
         long personId2 = 8;
-        String personUri2 = "丵";
         Date startDate2 = new Date(12);
         int durationDays2 = 13;
         int limit2 = 14;
 
         // When
-        LdbcQuery4 ldbcQuery1a = new LdbcQuery4(personId1, personUri1, startDate1, durationDays1, limit1);
-        LdbcQuery4 ldbcQuery1b = new LdbcQuery4(personId1, personUri1, startDate1, durationDays1, limit1);
-        LdbcQuery4 ldbcQuery2a = new LdbcQuery4(personId2, personUri2, startDate2, durationDays2, limit2);
-        LdbcQuery4 ldbcQuery3a = new LdbcQuery4(personId1, personUri1, startDate1, durationDays1, limit2);
+        LdbcQuery4 ldbcQuery1a = new LdbcQuery4(personId1, startDate1, durationDays1, limit1);
+        LdbcQuery4 ldbcQuery1b = new LdbcQuery4(personId1, startDate1, durationDays1, limit1);
+        LdbcQuery4 ldbcQuery2a = new LdbcQuery4(personId2, startDate2, durationDays2, limit2);
+        LdbcQuery4 ldbcQuery3a = new LdbcQuery4(personId1, startDate1, durationDays1, limit2);
 
         // Then
         assertThat(ldbcQuery1a, equalTo(ldbcQuery1b));
@@ -127,20 +119,18 @@ public class LdbcSnbOperationEqualityTest {
     public void ldbcQuery5ShouldDoEqualsCorrectly() {
         // Given
         long personId1 = 1;
-        String personUri1 = "ᚠ";
         Date minDate1 = new Date(5);
         int limit1 = 7;
 
         long personId2 = 8;
-        String personUri2 = "丵";
         Date minDate2 = new Date(12);
         int limit2 = 14;
 
         // When
-        LdbcQuery5 ldbcQuery1a = new LdbcQuery5(personId1, personUri1, minDate1, limit1);
-        LdbcQuery5 ldbcQuery1b = new LdbcQuery5(personId1, personUri1, minDate1, limit1);
-        LdbcQuery5 ldbcQuery2a = new LdbcQuery5(personId2, personUri2, minDate2, limit2);
-        LdbcQuery5 ldbcQuery3a = new LdbcQuery5(personId1, personUri1, minDate1, limit2);
+        LdbcQuery5 ldbcQuery1a = new LdbcQuery5(personId1, minDate1, limit1);
+        LdbcQuery5 ldbcQuery1b = new LdbcQuery5(personId1, minDate1, limit1);
+        LdbcQuery5 ldbcQuery2a = new LdbcQuery5(personId2, minDate2, limit2);
+        LdbcQuery5 ldbcQuery3a = new LdbcQuery5(personId1, minDate1, limit2);
 
         // Then
         assertThat(ldbcQuery1a, equalTo(ldbcQuery1b));
@@ -153,20 +143,18 @@ public class LdbcSnbOperationEqualityTest {
     public void ldbcQuery6ShouldDoEqualsCorrectly() {
         // Given
         long personId1 = 1;
-        String personUri1 = "ᚠ";
         String tagName1 = "さ";
         int limit1 = 7;
 
         long personId2 = 8;
-        String personUri2 = "丵";
         String tagName2 = "פ";
         int limit2 = 14;
 
         // When
-        LdbcQuery6 ldbcQuery1a = new LdbcQuery6(personId1, personUri1, tagName1, limit1);
-        LdbcQuery6 ldbcQuery1b = new LdbcQuery6(personId1, personUri1, tagName1, limit1);
-        LdbcQuery6 ldbcQuery2a = new LdbcQuery6(personId2, personUri2, tagName2, limit2);
-        LdbcQuery6 ldbcQuery3a = new LdbcQuery6(personId1, personUri1, tagName1, limit2);
+        LdbcQuery6 ldbcQuery1a = new LdbcQuery6(personId1, tagName1, limit1);
+        LdbcQuery6 ldbcQuery1b = new LdbcQuery6(personId1, tagName1, limit1);
+        LdbcQuery6 ldbcQuery2a = new LdbcQuery6(personId2, tagName2, limit2);
+        LdbcQuery6 ldbcQuery3a = new LdbcQuery6(personId1, tagName1, limit2);
 
         // Then
         assertThat(ldbcQuery1a, equalTo(ldbcQuery1b));
@@ -179,18 +167,16 @@ public class LdbcSnbOperationEqualityTest {
     public void ldbcQuery7ShouldDoEqualsCorrectly() {
         // Given
         long personId1 = 1;
-        String personUri1 = "ᚠ";
         int limit1 = 7;
 
         long personId2 = 8;
-        String personUri2 = "丵";
         int limit2 = 14;
 
         // When
-        LdbcQuery7 ldbcQuery1a = new LdbcQuery7(personId1, personUri1, limit1);
-        LdbcQuery7 ldbcQuery1b = new LdbcQuery7(personId1, personUri1, limit1);
-        LdbcQuery7 ldbcQuery2a = new LdbcQuery7(personId2, personUri2, limit2);
-        LdbcQuery7 ldbcQuery3a = new LdbcQuery7(personId1, personUri1, limit2);
+        LdbcQuery7 ldbcQuery1a = new LdbcQuery7(personId1, limit1);
+        LdbcQuery7 ldbcQuery1b = new LdbcQuery7(personId1, limit1);
+        LdbcQuery7 ldbcQuery2a = new LdbcQuery7(personId2, limit2);
+        LdbcQuery7 ldbcQuery3a = new LdbcQuery7(personId1, limit2);
 
         // Then
         assertThat(ldbcQuery1a, equalTo(ldbcQuery1b));
@@ -203,18 +189,16 @@ public class LdbcSnbOperationEqualityTest {
     public void ldbcQuery8ShouldDoEqualsCorrectly() {
         // Given
         long personId1 = 1;
-        String personUri1 = "ᚠ";
         int limit1 = 7;
 
         long personId2 = 8;
-        String personUri2 = "丵";
         int limit2 = 14;
 
         // When
-        LdbcQuery8 ldbcQuery1a = new LdbcQuery8(personId1, personUri1, limit1);
-        LdbcQuery8 ldbcQuery1b = new LdbcQuery8(personId1, personUri1, limit1);
-        LdbcQuery8 ldbcQuery2a = new LdbcQuery8(personId2, personUri2, limit2);
-        LdbcQuery8 ldbcQuery3a = new LdbcQuery8(personId1, personUri1, limit2);
+        LdbcQuery8 ldbcQuery1a = new LdbcQuery8(personId1, limit1);
+        LdbcQuery8 ldbcQuery1b = new LdbcQuery8(personId1, limit1);
+        LdbcQuery8 ldbcQuery2a = new LdbcQuery8(personId2, limit2);
+        LdbcQuery8 ldbcQuery3a = new LdbcQuery8(personId1, limit2);
 
         // Then
         assertThat(ldbcQuery1a, equalTo(ldbcQuery1b));
@@ -227,20 +211,18 @@ public class LdbcSnbOperationEqualityTest {
     public void ldbcQuery9ShouldDoEqualsCorrectly() {
         // Given
         long personId1 = 1;
-        String personUri1 = "ᚠ";
         Date maxDate1 = new Date(3);
         int limit1 = 7;
 
         long personId2 = 8;
-        String personUri2 = "丵";
         Date maxDate2 = new Date(10);
         int limit2 = 14;
 
         // When
-        LdbcQuery9 ldbcQuery1a = new LdbcQuery9(personId1, personUri1, maxDate1, limit1);
-        LdbcQuery9 ldbcQuery1b = new LdbcQuery9(personId1, personUri1, maxDate1, limit1);
-        LdbcQuery9 ldbcQuery2a = new LdbcQuery9(personId2, personUri2, maxDate2, limit2);
-        LdbcQuery9 ldbcQuery3a = new LdbcQuery9(personId1, personUri1, maxDate1, limit2);
+        LdbcQuery9 ldbcQuery1a = new LdbcQuery9(personId1, maxDate1, limit1);
+        LdbcQuery9 ldbcQuery1b = new LdbcQuery9(personId1, maxDate1, limit1);
+        LdbcQuery9 ldbcQuery2a = new LdbcQuery9(personId2, maxDate2, limit2);
+        LdbcQuery9 ldbcQuery3a = new LdbcQuery9(personId1, maxDate1, limit2);
 
         // Then
         assertThat(ldbcQuery1a, equalTo(ldbcQuery1b));
@@ -253,20 +235,18 @@ public class LdbcSnbOperationEqualityTest {
     public void ldbcQuery10ShouldDoEqualsCorrectly() {
         // Given
         long personId1 = 1;
-        String personUri1 = "ᚠ";
         int month1 = 3;
         int limit1 = 7;
 
         long personId2 = 8;
-        String personUri2 = "丵";
         int month2 = 10;
         int limit2 = 12;
 
         // When
-        LdbcQuery10 ldbcQuery1a = new LdbcQuery10(personId1, personUri1, month1, limit1);
-        LdbcQuery10 ldbcQuery1b = new LdbcQuery10(personId1, personUri1, month1, limit1);
-        LdbcQuery10 ldbcQuery2a = new LdbcQuery10(personId2, personUri2, month2, limit2);
-        LdbcQuery10 ldbcQuery3a = new LdbcQuery10(personId1, personUri1, month1, limit2);
+        LdbcQuery10 ldbcQuery1a = new LdbcQuery10(personId1, month1, limit1);
+        LdbcQuery10 ldbcQuery1b = new LdbcQuery10(personId1, month1, limit1);
+        LdbcQuery10 ldbcQuery2a = new LdbcQuery10(personId2, month2, limit2);
+        LdbcQuery10 ldbcQuery3a = new LdbcQuery10(personId1, month1, limit2);
 
         // Then
         assertThat(ldbcQuery1a, equalTo(ldbcQuery1b));
@@ -279,22 +259,20 @@ public class LdbcSnbOperationEqualityTest {
     public void ldbcQuery11ShouldDoEqualsCorrectly() {
         // Given
         long personId1 = 1;
-        String personUri1 = "ᚠ";
         String countryName1 = "さ";
         int workFromYear1 = 4;
         int limit1 = 7;
 
         long personId2 = 8;
-        String personUri2 = "丵";
         String countryName2 = "פ";
         int workFromYear2 = 11;
         int limit2 = 12;
 
         // When
-        LdbcQuery11 ldbcQuery1a = new LdbcQuery11(personId1, personUri1, countryName1, workFromYear1, limit1);
-        LdbcQuery11 ldbcQuery1b = new LdbcQuery11(personId1, personUri1, countryName1, workFromYear1, limit1);
-        LdbcQuery11 ldbcQuery2a = new LdbcQuery11(personId2, personUri2, countryName2, workFromYear2, limit2);
-        LdbcQuery11 ldbcQuery3a = new LdbcQuery11(personId1, personUri1, countryName1, workFromYear1, limit2);
+        LdbcQuery11 ldbcQuery1a = new LdbcQuery11(personId1, countryName1, workFromYear1, limit1);
+        LdbcQuery11 ldbcQuery1b = new LdbcQuery11(personId1, countryName1, workFromYear1, limit1);
+        LdbcQuery11 ldbcQuery2a = new LdbcQuery11(personId2, countryName2, workFromYear2, limit2);
+        LdbcQuery11 ldbcQuery3a = new LdbcQuery11(personId1, countryName1, workFromYear1, limit2);
 
         // Then
         assertThat(ldbcQuery1a, equalTo(ldbcQuery1b));
@@ -307,20 +285,18 @@ public class LdbcSnbOperationEqualityTest {
     public void ldbcQuery12ShouldDoEqualsCorrectly() {
         // Given
         long personId1 = 1;
-        String personUri1 = "ᚠ";
         String tagClassName1 = "さ";
         int limit1 = 7;
 
         long personId2 = 8;
-        String personUri2 = "丵";
         String tagClassName2 = "פ";
         int limit2 = 12;
 
         // When
-        LdbcQuery12 ldbcQuery1a = new LdbcQuery12(personId1, personUri1, tagClassName1, limit1);
-        LdbcQuery12 ldbcQuery1b = new LdbcQuery12(personId1, personUri1, tagClassName1, limit1);
-        LdbcQuery12 ldbcQuery2a = new LdbcQuery12(personId2, personUri2, tagClassName2, limit2);
-        LdbcQuery12 ldbcQuery3a = new LdbcQuery12(personId1, personUri1, tagClassName1, limit2);
+        LdbcQuery12 ldbcQuery1a = new LdbcQuery12(personId1, tagClassName1, limit1);
+        LdbcQuery12 ldbcQuery1b = new LdbcQuery12(personId1, tagClassName1, limit1);
+        LdbcQuery12 ldbcQuery2a = new LdbcQuery12(personId2, tagClassName2, limit2);
+        LdbcQuery12 ldbcQuery3a = new LdbcQuery12(personId1, tagClassName1, limit2);
 
         // Then
         assertThat(ldbcQuery1a, equalTo(ldbcQuery1b));
@@ -333,20 +309,16 @@ public class LdbcSnbOperationEqualityTest {
     public void ldbcQuery13ShouldDoEqualsCorrectly() {
         // Given
         long person1Id1 = 1;
-        String person1Uri1 = "ᚠ";
-        long person2Id1 = 3;
-        String person2Uri1 = "丵";
+        long person2Id1 = 2;
 
-        long person1Id2 = 5;
-        String person1Uri2 = "פ";
-        long person2Id2 = 7;
-        String person2Uri2 = "ش";
+        long person1Id2 = 3;
+        long person2Id2 = 4;
 
         // When
-        LdbcQuery13 ldbcQuery1a = new LdbcQuery13(person1Id1, person1Uri1, person2Id1, person2Uri1);
-        LdbcQuery13 ldbcQuery1b = new LdbcQuery13(person1Id1, person1Uri1, person2Id1, person2Uri1);
-        LdbcQuery13 ldbcQuery2a = new LdbcQuery13(person1Id2, person1Uri2, person2Id2, person2Uri2);
-        LdbcQuery13 ldbcQuery3a = new LdbcQuery13(person1Id1, person1Uri1, person2Id1, person2Uri2);
+        LdbcQuery13 ldbcQuery1a = new LdbcQuery13(person1Id1, person2Id1);
+        LdbcQuery13 ldbcQuery1b = new LdbcQuery13(person1Id1, person2Id1);
+        LdbcQuery13 ldbcQuery2a = new LdbcQuery13(person1Id2, person2Id2);
+        LdbcQuery13 ldbcQuery3a = new LdbcQuery13(person1Id1, person2Id2);
 
         // Then
         assertThat(ldbcQuery1a, equalTo(ldbcQuery1b));
@@ -359,20 +331,16 @@ public class LdbcSnbOperationEqualityTest {
     public void ldbcQuery14ShouldDoEqualsCorrectly() {
         // Given
         long person1Id1 = 1;
-        String person1Uri1 = "ᚠ";
-        long person2Id1 = 3;
-        String person2Uri1 = "丵";
+        long person2Id1 = 2;
 
-        long person1Id2 = 5;
-        String person1Uri2 = "פ";
-        long person2Id2 = 7;
-        String person2Uri2 = "ش";
+        long person1Id2 = 3;
+        long person2Id2 = 4;
 
         // When
-        LdbcQuery13 ldbcQuery1a = new LdbcQuery13(person1Id1, person1Uri1, person2Id1, person2Uri1);
-        LdbcQuery13 ldbcQuery1b = new LdbcQuery13(person1Id1, person1Uri1, person2Id1, person2Uri1);
-        LdbcQuery13 ldbcQuery2a = new LdbcQuery13(person1Id2, person1Uri2, person2Id2, person2Uri2);
-        LdbcQuery13 ldbcQuery3a = new LdbcQuery13(person1Id1, person1Uri1, person2Id1, person2Uri2);
+        LdbcQuery13 ldbcQuery1a = new LdbcQuery13(person1Id1, person2Id1);
+        LdbcQuery13 ldbcQuery1b = new LdbcQuery13(person1Id1, person2Id1);
+        LdbcQuery13 ldbcQuery2a = new LdbcQuery13(person1Id2, person2Id2);
+        LdbcQuery13 ldbcQuery3a = new LdbcQuery13(person1Id1, person2Id2);
 
         // Then
         assertThat(ldbcQuery1a, equalTo(ldbcQuery1b));

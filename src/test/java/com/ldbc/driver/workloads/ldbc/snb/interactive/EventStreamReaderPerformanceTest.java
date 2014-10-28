@@ -7,23 +7,142 @@ import com.ldbc.driver.generator.CsvEventStreamReaderBasicCharSeeker;
 import com.ldbc.driver.generator.CsvEventStreamReaderBasicCharSeeker.EventDecoder;
 import com.ldbc.driver.generator.GeneratorFactory;
 import com.ldbc.driver.generator.RandomDataGeneratorFactory;
+import com.ldbc.driver.runtime.ConcurrentErrorReporter;
+import com.ldbc.driver.runtime.coordination.*;
 import com.ldbc.driver.temporal.SystemTimeSource;
 import com.ldbc.driver.temporal.TemporalUtil;
 import com.ldbc.driver.temporal.TimeSource;
-import com.ldbc.driver.util.csv.*;
+import com.ldbc.driver.util.Tuple;
+import com.ldbc.driver.util.csv.SimpleCsvFileReader;
 import org.junit.Ignore;
 import org.junit.Test;
+import org.neo4j.csv.reader.*;
 
 import java.io.*;
 import java.text.DecimalFormat;
+import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicLong;
 
 public class EventStreamReaderPerformanceTest {
     private static final TemporalUtil TEMPORAL_UTIL = new TemporalUtil();
     TimeSource timeSource = new SystemTimeSource();
     DecimalFormat numberFormatter = new DecimalFormat("###,###,###,###");
+
+    @Ignore
+    @Test
+    public void multiThreadedMultiPartitionParserPerformanceTest() throws FileNotFoundException, InterruptedException, CompletionTimeException {
+        File streamsDir = new File("/Users/alexaverbuch/hadoopTempDir/output/social_network/");
+        AtomicLong operationCount = new AtomicLong(0);
+        int bufferSize = 2 * 1024 * 1024;
+        List<Tuple.Tuple2<Iterator<Operation<?>>, LocalCompletionTimeWriter>> parsers = new ArrayList<>();
+        AtomicInteger parsersRunningCount = new AtomicInteger(0);
+        for (File personUpdateFile : streamsDir.listFiles(
+                new FilenameFilter() {
+                    @Override
+                    public boolean accept(File dir, String name) {
+                        return name.endsWith("_person.csv");
+                    }
+                }
+        )) {
+            CharSeeker charSeeker = new BufferedCharSeeker(new InputStreamReader(new FileInputStream(personUpdateFile), Charsets.UTF_8), bufferSize);
+            int columnDelimiter = '|';
+            Extractors extractors = new Extractors(';');
+            parsers.add(
+                    Tuple.<Iterator<Operation<?>>, LocalCompletionTimeWriter>tuple2(
+                            new WriteEventStreamReaderCharSeeker(charSeeker, extractors, columnDelimiter),
+                            new DummyLocalCompletionTimeWriter()
+                    )
+            );
+            parsersRunningCount.incrementAndGet();
+        }
+
+        CompletionTimeServiceAssistant completionTimeServiceAssistant = new CompletionTimeServiceAssistant();
+        ConcurrentCompletionTimeService completionTimeService = completionTimeServiceAssistant.newThreadedQueuedConcurrentCompletionTimeServiceFromPeerIds(
+                timeSource,
+                new HashSet<String>(),
+                new ConcurrentErrorReporter()
+        );
+
+        for (File forumUpdateFile : streamsDir.listFiles(
+                new FilenameFilter() {
+                    @Override
+                    public boolean accept(File dir, String name) {
+                        return name.endsWith("_forum.csv");
+                    }
+                }
+        )) {
+            CharSeeker charSeeker = new BufferedCharSeeker(new InputStreamReader(new FileInputStream(forumUpdateFile), Charsets.UTF_8), bufferSize);
+            int columnDelimiter = '|';
+            Extractors extractors = new Extractors(';');
+            parsers.add(
+                    Tuple.<Iterator<Operation<?>>, LocalCompletionTimeWriter>tuple2(
+                            new WriteEventStreamReaderCharSeeker(charSeeker, extractors, columnDelimiter),
+                            completionTimeService.newLocalCompletionTimeWriter()
+                    )
+            );
+            parsersRunningCount.incrementAndGet();
+        }
+
+        for (Tuple.Tuple2<Iterator<Operation<?>>, LocalCompletionTimeWriter> parser : parsers) {
+            ParserThread parserThread = new ParserThread(parsersRunningCount, parser._1(), parser._2(), operationCount);
+            parserThread.start();
+        }
+
+        long startTime = timeSource.nowAsMilli();
+        while (parsersRunningCount.get() > 0) {
+            System.out.println("Threads running: " + parsersRunningCount.get());
+            Thread.sleep(1000);
+        }
+        long finishTime = timeSource.nowAsMilli();
+        double throughput = (finishTime - (double) startTime) / (finishTime - startTime);
+        System.out.println(
+                String.format("%s operations in %s = %s op/ms",
+                        numberFormatter.format(operationCount.get()),
+                        new TemporalUtil().milliDurationToString(finishTime - startTime),
+                        numberFormatter.format(throughput)
+                )
+        );
+    }
+
+    private static class ParserThread extends Thread {
+        private final AtomicInteger parsersRunningCount;
+        private final Iterator<Operation<?>> parser;
+        private final LocalCompletionTimeWriter localCompletionTimeWriter;
+        private final AtomicLong operationCount;
+
+        private ParserThread(AtomicInteger parsersRunningCount,
+                             Iterator<Operation<?>> parser,
+                             LocalCompletionTimeWriter localCompletionTimeWriter,
+                             AtomicLong operationCount) {
+            this.parsersRunningCount = parsersRunningCount;
+            this.parser = parser;
+            this.localCompletionTimeWriter = localCompletionTimeWriter;
+            this.operationCount = operationCount;
+        }
+
+        @Override
+        public void run() {
+            long count = 0;
+            while (parser.hasNext()) {
+                long time = parser.next().scheduledStartTimeAsMilli();
+                try {
+                    localCompletionTimeWriter.submitLocalInitiatedTime(time);
+                    localCompletionTimeWriter.submitLocalCompletedTime(time);
+                } catch (CompletionTimeException e) {
+                    e.printStackTrace();
+                }
+                count++;
+            }
+            operationCount.addAndGet(count);
+            parsersRunningCount.decrementAndGet();
+        }
+
+    }
 
     @Ignore
     @Test
@@ -687,8 +806,11 @@ public class EventStreamReaderPerformanceTest {
     @Ignore
     @Test
     public void forumCsvUpdateStreamReadingPerformanceTest() throws IOException {
-        File parentStreamsDir = new File("/Users/alexaverbuch/IdeaProjects/scale_factor_streams/current/");
-        File forumUpdateStream = new File(parentStreamsDir, "sf10_partitions_01/updateStream_0_0_forum.csv");
+//        File parentStreamsDir = new File("/Users/alexaverbuch/IdeaProjects/scale_factor_streams/");
+//        File forumUpdateStream = new File(parentStreamsDir, "sf10_partitions_01/updateStream_0_0_forum.csv");
+
+        File parentStreamsDir = new File("/Users/alexaverbuch/hadoopTempDir/output/social_network/");
+        File forumUpdateStream = new File(parentStreamsDir, "updateStream_0_0_forum.csv");
 
         {
             // warm up file system
