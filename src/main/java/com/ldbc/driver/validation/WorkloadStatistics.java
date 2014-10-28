@@ -87,8 +87,9 @@ public class WorkloadStatistics {
     public long lastStartTimeAsMilli() {
         long lastStartTimeAsMilli = -1;
         for (Map.Entry<Class, Long> lastStartTimeForOperationType : lastStartTimesAsMilliByOperationType.entrySet()) {
-            if (-1 == lastStartTimeAsMilli || lastStartTimeForOperationType.getValue() < lastStartTimeAsMilli)
+            if (-1 == lastStartTimeAsMilli || lastStartTimeForOperationType.getValue() > lastStartTimeAsMilli) {
                 lastStartTimeAsMilli = lastStartTimeForOperationType.getValue();
+            }
         }
         return lastStartTimeAsMilli;
     }
