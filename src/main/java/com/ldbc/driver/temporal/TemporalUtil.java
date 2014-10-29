@@ -1,6 +1,5 @@
 package com.ldbc.driver.temporal;
 
-import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.TimeZone;
@@ -32,22 +31,6 @@ public class TemporalUtil {
 
     public String millisecondsToDateTimeString(long timeAsMilli) {
         return dateTimeFormat.format(new Date(timeAsMilli));
-    }
-
-    public long millisecondsFromTimeString(String timeString) throws TemporalException {
-        try {
-            return timeFormat.parse(timeString).getTime();
-        } catch (ParseException e) {
-            throw new TemporalException(String.format("Unable to parse: %s", timeString), e);
-        }
-    }
-
-    public long millisecondsFromDateTimeString(String dateTimeString) throws TemporalException {
-        try {
-            return dateTimeFormat.parse(dateTimeString).getTime();
-        } catch (ParseException e) {
-            throw new TemporalException(String.format("Unable to parse: %s", dateTimeString), e);
-        }
     }
 
     public String milliDurationToString(long durationAsMilli) {

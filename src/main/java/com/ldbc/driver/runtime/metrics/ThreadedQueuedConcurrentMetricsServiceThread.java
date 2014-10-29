@@ -30,7 +30,6 @@ public class ThreadedQueuedConcurrentMetricsServiceThread extends Thread {
                                                         SimpleCsvFileWriter csvResultsLogWriter,
                                                         TimeSource timeSource,
                                                         TimeUnit unit,
-                                                        long initialTimeAsMilli,
                                                         long maxRuntimeDurationAsNano) {
         this(errorReporter,
                 QueueEventFetcher.queueEventFetcherFor(metricsEventsQueue),
@@ -39,7 +38,6 @@ public class ThreadedQueuedConcurrentMetricsServiceThread extends Thread {
                 csvResultsLogWriter,
                 timeSource,
                 unit,
-                initialTimeAsMilli,
                 maxRuntimeDurationAsNano);
     }
 
@@ -50,7 +48,6 @@ public class ThreadedQueuedConcurrentMetricsServiceThread extends Thread {
                                                          SimpleCsvFileWriter csvResultsLogWriter,
                                                          TimeSource timeSource,
                                                          TimeUnit unit,
-                                                         long initialTimeAsMilli,
                                                          long maxRuntimeDurationAsNano) {
         super(ThreadedQueuedConcurrentMetricsServiceThread.class.getSimpleName() + "-" + System.currentTimeMillis());
         this.errorReporter = errorReporter;
@@ -62,7 +59,6 @@ public class ThreadedQueuedConcurrentMetricsServiceThread extends Thread {
         this.metricsManager = new MetricsManager(
                 timeSource,
                 unit,
-                initialTimeAsMilli,
                 maxRuntimeDurationAsNano,
                 executionDelayPolicy.toleratedDelayAsMilli(),
                 shouldRecordStartTimeDelayLatencies);
@@ -75,15 +71,17 @@ public class ThreadedQueuedConcurrentMetricsServiceThread extends Thread {
                 MetricsCollectionEvent event = queueEventFetcher.fetchNextEvent();
                 switch (event.type()) {
                     case SUBMIT_RESULT:
-                        OperationResultReport result = ((MetricsCollectionEvent.SubmitResultEvent) event).result();
+                        OperationResultReport result = (OperationResultReport) event.value();
+                        event.release();
 
                         if (null != csvResultsLogWriter) {
                             csvResultsLogWriter.writeRow(
                                     result.operation().getClass().getSimpleName(),
                                     Long.toString(result.operation().scheduledStartTimeAsMilli()),
                                     Long.toString(result.actualStartTimeAsMilli()),
-                                    // TODO change to nano later
-                                    Long.toString(temporalUtil.convert(result.runDurationAsNano(), TimeUnit.NANOSECONDS, unit)));
+                                    Long.toString(result.runDurationAsNano()),
+                                    Integer.toString(result.resultCode())
+                            );
                         }
 
                         boolean shouldRecordResultMetricsForThisOperation = true;
@@ -113,17 +111,21 @@ public class ThreadedQueuedConcurrentMetricsServiceThread extends Thread {
                         processedEventCount++;
                         break;
                     case WORKLOAD_STATUS:
-                        ThreadedQueuedConcurrentMetricsService.MetricsStatusFuture statusFuture = ((MetricsCollectionEvent.StatusEvent) event).future();
+                        ThreadedQueuedConcurrentMetricsService.MetricsStatusFuture statusFuture = (ThreadedQueuedConcurrentMetricsService.MetricsStatusFuture) event.value();
+                        event.release();
                         statusFuture.set(metricsManager.status());
                         break;
                     case WORKLOAD_RESULT:
-                        ThreadedQueuedConcurrentMetricsService.MetricsWorkloadResultFuture workloadResultFuture = ((MetricsCollectionEvent.WorkloadResultEvent) event).future();
+                        ThreadedQueuedConcurrentMetricsService.MetricsWorkloadResultFuture workloadResultFuture = (ThreadedQueuedConcurrentMetricsService.MetricsWorkloadResultFuture) event.value();
+                        event.release();
                         WorkloadResultsSnapshot resultsSnapshot = metricsManager.snapshot();
                         workloadResultFuture.set(resultsSnapshot);
                         break;
                     case TERMINATE_SERVICE:
-                        if (expectedEventCount == null) {
-                            expectedEventCount = ((MetricsCollectionEvent.TerminationEvent) event).expectedEventCount();
+                        long eventExpectedEventCount = (long) event.value();
+                        event.release();
+                        if (null == expectedEventCount) {
+                            expectedEventCount = eventExpectedEventCount;
                         } else {
                             // this is not the first termination event that the thread has received
                             errorReporter.reportError(
@@ -131,13 +133,14 @@ public class ThreadedQueuedConcurrentMetricsServiceThread extends Thread {
                                     String.format("Encountered multiple %s events. First expectedEventCount[%s]. Second expectedEventCount[%s]",
                                             MetricsCollectionEvent.MetricsEventType.TERMINATE_SERVICE.name(),
                                             expectedEventCount,
-                                            ((MetricsCollectionEvent.TerminationEvent) event).expectedEventCount()));
+                                            eventExpectedEventCount));
                         }
                         break;
                     default:
                         errorReporter.reportError(
                                 this,
                                 String.format("Encountered unexpected event type: %s", event.type().name()));
+                        event.release();
                         return;
                 }
             } catch (Throwable e) {

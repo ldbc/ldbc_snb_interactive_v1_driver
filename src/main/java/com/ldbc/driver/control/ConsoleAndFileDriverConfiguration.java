@@ -1115,14 +1115,14 @@ public class ConsoleAndFileDriverConfiguration implements DriverConfiguration {
         sb.append("\t").append(String.format("%1$-" + padRightDistance + "s", "Workload:")).append(workloadClassName).append("\n");
         sb.append("\t").append(String.format("%1$-" + padRightDistance + "s", "Operation Count:")).append(operationCount).append("\n");
         sb.append("\t").append(String.format("%1$-" + padRightDistance + "s", "Worker Threads:")).append(threadCount).append("\n");
-        sb.append("\t").append(String.format("%1$-" + padRightDistance + "s", "Status Display Interval:")).append(statusDisplayIntervalAsSeconds).append("\n");
+        sb.append("\t").append(String.format("%1$-" + padRightDistance + "s", "Status Display Interval:")).append(TEMPORAL_UTIL.milliDurationToString(TEMPORAL_UTIL.convert(statusDisplayIntervalAsSeconds, TimeUnit.SECONDS, TimeUnit.MILLISECONDS))).append("\n");
         sb.append("\t").append(String.format("%1$-" + padRightDistance + "s", "Time Unit:")).append(timeUnit).append("\n");
         sb.append("\t").append(String.format("%1$-" + padRightDistance + "s", "Results Directory:")).append(resultDirPath()).append("\n");
         sb.append("\t").append(String.format("%1$-" + padRightDistance + "s", "Create Results Log:")).append(shouldCreateResultsLog).append("\n");
         sb.append("\t").append(String.format("%1$-" + padRightDistance + "s", "Time Compression Ratio:")).append(timeCompressionRatio).append("\n");
-        sb.append("\t").append(String.format("%1$-" + padRightDistance + "s", "Execution Window Size:")).append(windowedExecutionWindowDurationAsMilli).append(" (ms) / ").append(windowedExecutionWindowDurationAsMilli).append("\n");
+        sb.append("\t").append(String.format("%1$-" + padRightDistance + "s", "Execution Window Size:")).append(TEMPORAL_UTIL.milliDurationToString(windowedExecutionWindowDurationAsMilli)).append(" / ").append(windowedExecutionWindowDurationAsMilli).append(" (ms)\n");
         sb.append("\t").append(String.format("%1$-" + padRightDistance + "s", "Peer IDs:")).append(peerIds.toString()).append("\n");
-        sb.append("\t").append(String.format("%1$-" + padRightDistance + "s", "Tolerated Execution Delay:")).append(toleratedExecutionDelayAsMilli).append(" (ms) / ").append(toleratedExecutionDelayAsMilli).append("\n");
+        sb.append("\t").append(String.format("%1$-" + padRightDistance + "s", "Tolerated Execution Delay:")).append(TEMPORAL_UTIL.milliDurationToString(toleratedExecutionDelayAsMilli)).append(" / ").append(toleratedExecutionDelayAsMilli).append(" (ms)\n");
         String validationCreationParamsString = (null == validationCreationParams) ?
                 null :
                 String.format("File (%s) Validation Set Size (%s)", validationCreationParams.filePath(), validationCreationParams.validationSetSize);
@@ -1130,7 +1130,7 @@ public class ConsoleAndFileDriverConfiguration implements DriverConfiguration {
         sb.append("\t").append(String.format("%1$-" + padRightDistance + "s", "Database Validation File:")).append(databaseValidationFilePath).append("\n");
         sb.append("\t").append(String.format("%1$-" + padRightDistance + "s", "Validate Workload:")).append(validateWorkload).append("\n");
         sb.append("\t").append(String.format("%1$-" + padRightDistance + "s", "Calculate Workload Statistics:")).append(calculateWorkloadStatistics).append("\n");
-        sb.append("\t").append(String.format("%1$-" + padRightDistance + "s", "Spinner Sleep Duration:")).append(spinnerSleepDurationAsMilli).append(" (ms) / ").append(spinnerSleepDurationAsMilli).append("\n");
+        sb.append("\t").append(String.format("%1$-" + padRightDistance + "s", "Spinner Sleep Duration:")).append(TEMPORAL_UTIL.milliDurationToString(spinnerSleepDurationAsMilli)).append(" / ").append(spinnerSleepDurationAsMilli).append(" (ms)\n");
         sb.append("\t").append(String.format("%1$-" + padRightDistance + "s", "Print Help:")).append(printHelp).append("\n");
         sb.append("\t").append(String.format("%1$-" + padRightDistance + "s", "Ignore Scheduled Start Times:")).append(ignoreScheduledStartTimes).append("\n");
 

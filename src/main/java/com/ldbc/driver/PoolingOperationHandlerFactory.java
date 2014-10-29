@@ -8,6 +8,7 @@ import java.util.concurrent.TimeUnit;
 public class PoolingOperationHandlerFactory implements OperationHandlerFactory {
     private static final Timeout POOL_CLAIM_TIMEOUT = new Timeout(100, TimeUnit.MILLISECONDS);
     private static final Timeout POOL_CLAIM_AFTER_RESIZE_TIMEOUT = new Timeout(1000, TimeUnit.MILLISECONDS);
+    private static final Timeout POOL_SHUTDOWN_TIMEOUT = new Timeout(10, TimeUnit.SECONDS);
     private final LifecycledResizablePool<OperationHandler<?>> operationHandlerPool;
     private final OperationHandlerFactory innerOperationHandlerFactory;
 
@@ -37,16 +38,15 @@ public class PoolingOperationHandlerFactory implements OperationHandlerFactory {
     @Override
     public void shutdown() throws OperationException {
         TemporalUtil temporalUtil = new TemporalUtil();
-        Timeout timeout = new Timeout(5, TimeUnit.SECONDS);
         innerOperationHandlerFactory.shutdown();
         Completion completion = operationHandlerPool.shutdown();
         try {
-            boolean isSuccessfulShutdown = completion.await(timeout);
+            boolean isSuccessfulShutdown = completion.await(POOL_SHUTDOWN_TIMEOUT);
             if (false == isSuccessfulShutdown)
                 throw new OperationException(
                         String.format(
                                 "Operation handler pool did not shutdown before timeout (%s)",
-                                temporalUtil.milliDurationToString(temporalUtil.convert(timeout.getTimeout(), timeout.getUnit(), TimeUnit.MILLISECONDS))
+                                temporalUtil.milliDurationToString(temporalUtil.convert(POOL_SHUTDOWN_TIMEOUT.getTimeout(), POOL_SHUTDOWN_TIMEOUT.getUnit(), TimeUnit.MILLISECONDS))
                         )
                 );
         } catch (InterruptedException e) {

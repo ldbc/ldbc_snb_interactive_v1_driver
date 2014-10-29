@@ -35,6 +35,7 @@ import org.junit.rules.TemporaryFolder;
 
 import java.io.File;
 import java.io.IOException;
+import java.text.DecimalFormat;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 
@@ -44,6 +45,9 @@ import static org.junit.Assert.assertThat;
 
 public class WorkloadRunnerTest {
     private static final TemporalUtil TEMPORAL_UTIL = new TemporalUtil();
+    DecimalFormat numberFormatter = new DecimalFormat("###,###,###,###");
+    DecimalFormat doubleNumberFormatter = new DecimalFormat("###,###,###,##0.00");
+
     @Rule
     public TemporaryFolder temporaryFolder = new TemporaryFolder();
     private static final long ONE_SECOND_AS_NANO = TEMPORAL_UTIL.convert(1, TimeUnit.SECONDS, TimeUnit.NANOSECONDS);
@@ -150,7 +154,6 @@ public class WorkloadRunnerTest {
                     timeSource,
                     errorReporter,
                     configuration.timeUnit(),
-                    controlService.workloadStartTimeAsMilli(),
                     ThreadedQueuedConcurrentMetricsService.DEFAULT_HIGHEST_EXPECTED_RUNTIME_DURATION_AS_NANO,
                     recordStartTimeDelayLatency,
                     executionDelayPolicy,
@@ -196,7 +199,14 @@ public class WorkloadRunnerTest {
 
             double operationsPerSecond = Math.round(((double) operationCount / workloadResults.totalRunDurationAsNano()) * ONE_SECOND_AS_NANO);
             double microSecondPerOperation = (double) TEMPORAL_UTIL.convert(workloadResults.totalRunDurationAsNano(), TimeUnit.NANOSECONDS, TimeUnit.MICROSECONDS) / operationCount;
-            System.out.println(String.format("[%s threads] Completed %s operations in %s = %s op/sec = 1 op/%s us", threadCount, operationCount, workloadResults.totalRunDurationAsNano(), operationsPerSecond, microSecondPerOperation));
+            System.out.println(
+                    String.format("[%s threads] Completed %s operations in %s = %s op/sec = 1 op/%s us",
+                            threadCount,
+                            numberFormatter.format(operationCount),
+                            TEMPORAL_UTIL.nanoDurationToString(workloadResults.totalRunDurationAsNano()),
+                            doubleNumberFormatter.format(operationsPerSecond),
+                            doubleNumberFormatter.format(microSecondPerOperation))
+            );
         } finally {
             System.out.println(errorReporter.toString());
             if (null != controlService) controlService.shutdown();
@@ -328,7 +338,6 @@ public class WorkloadRunnerTest {
                     timeSource,
                     errorReporter,
                     configuration.timeUnit(),
-                    controlService.workloadStartTimeAsMilli(),
                     ThreadedQueuedConcurrentMetricsService.DEFAULT_HIGHEST_EXPECTED_RUNTIME_DURATION_AS_NANO,
                     recordStartTimeDelayLatency,
                     executionDelayPolicy,
@@ -352,11 +361,18 @@ public class WorkloadRunnerTest {
 
             WorkloadResultsSnapshot workloadResults = metricsService.results();
 
-            assertThat(errorReporter.toString() + "\n" + workloadResults.toString(), errorReporter.errorEncountered(), is(false));
-            assertThat(errorReporter.toString() + "\n" + workloadResults.toString(), workloadResults.startTimeAsMilli() >= controlService.workloadStartTimeAsMilli(), is(true));
-            assertThat(errorReporter.toString() + "\n" + workloadResults.toString(), workloadResults.startTimeAsMilli() < (controlService.workloadStartTimeAsMilli() + configuration.toleratedExecutionDelayAsMilli()), is(true));
-            assertThat(errorReporter.toString() + "\n" + workloadResults.toString(), workloadResults.latestFinishTimeAsMilli() >= workloadResults.startTimeAsMilli(), is(true));
-            assertThat(errorReporter.toString() + "\n" + workloadResults.toString(), workloadResults.totalOperationCount(), is(operationCount));
+            assertThat(
+                    errorReporter.toString() + "\n" + workloadResults.toString(),
+                    errorReporter.errorEncountered(), is(false));
+            assertThat(
+                    errorReporter.toString() + "\n" + workloadResults.toString(),
+                    workloadResults.startTimeAsMilli() < (controlService.workloadStartTimeAsMilli() + configuration.toleratedExecutionDelayAsMilli()), is(true));
+            assertThat(
+                    errorReporter.toString() + "\n" + workloadResults.toString(),
+                    workloadResults.latestFinishTimeAsMilli() >= workloadResults.startTimeAsMilli(), is(true));
+            assertThat(
+                    errorReporter.toString() + "\n" + workloadResults.toString(),
+                    workloadResults.totalOperationCount(), is(operationCount));
 
             WorkloadResultsSnapshot workloadResultsFromJson = WorkloadResultsSnapshot.fromJson(workloadResults.toJson());
 
@@ -370,7 +386,15 @@ public class WorkloadRunnerTest {
 
             double operationsPerSecond = Math.round(((double) operationCount / workloadResults.totalRunDurationAsNano()) * ONE_SECOND_AS_NANO);
             double microSecondPerOperation = (double) TEMPORAL_UTIL.convert(workloadResults.totalRunDurationAsNano(), TimeUnit.NANOSECONDS, TimeUnit.MICROSECONDS) / operationCount;
-            System.out.println(String.format("[%s threads] Completed %s operations in %s = %s op/sec = 1 op/%s us", threadCount, operationCount, workloadResults.totalRunDurationAsNano(), operationsPerSecond, microSecondPerOperation));
+            System.out.println(
+                    String.format("[%s threads] Completed %s operations in %s = %s op/sec = 1 op/%s us",
+                            threadCount,
+                            numberFormatter.format(operationCount),
+                            TEMPORAL_UTIL.nanoDurationToString(workloadResults.totalRunDurationAsNano()),
+                            doubleNumberFormatter.format(operationsPerSecond),
+                            doubleNumberFormatter.format(microSecondPerOperation)
+                    )
+            );
         } finally {
             System.out.println(errorReporter.toString());
             if (null != controlService) controlService.shutdown();

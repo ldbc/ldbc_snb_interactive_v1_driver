@@ -3,7 +3,6 @@ package com.ldbc.driver.workloads.ldbc.snb.interactive;
 import com.google.common.base.Function;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
-import com.google.common.primitives.Bytes;
 import com.ldbc.driver.*;
 import com.ldbc.driver.control.ConcurrentControlService;
 import com.ldbc.driver.control.ConsoleAndFileDriverConfiguration;
@@ -45,22 +44,21 @@ public class LdbcSnbInteractiveWorkloadPerformanceTest {
         List<Histogram> histograms = new ArrayList<>();
         long estimatedBytes = 0;
         for (int i = 0; i < 100; i++) {
-            Histogram histogram = new Histogram(1l, new TemporalUtil().convert(90,TimeUnit.MINUTES,TimeUnit.NANOSECONDS), 4);
+            Histogram histogram = new Histogram(1l, new TemporalUtil().convert(90, TimeUnit.MINUTES, TimeUnit.NANOSECONDS), 4);
             histograms.add(histogram);
             estimatedBytes += histogram.getEstimatedFootprintInBytes();
-            long estimatedKb = estimatedBytes/1024;
-            long estimatedMb = estimatedKb/1024;
-            System.out.println("Estimated MB (cumulative): "+estimatedMb);
+            long estimatedKb = estimatedBytes / 1024;
+            long estimatedMb = estimatedKb / 1024;
+            System.out.println("Estimated MB (cumulative): " + estimatedMb);
         }
     }
 
     /*
 SF30 1,2,4 threads 1 partition
-[TC1-social_network]Completed 10,000,000 operations in 00:29.221 (m:s.ms) = 342,220 op/sec = 1 op/2.9221001 us
-[TC2-social_network]Completed 10,000,000 operations in 00:18.735 (m:s.ms) = 533,760 op/sec = 1 op/1.8735001 us
-[TC4-social_network]Completed 10,000,000 operations in 00:22.695 (m:s.ms) = 440,626 op/sec = 1 op/2.2695001 us
+[TC1-social_network]Completed 100,000,000 operations in 02:35.771.000 (m:s.ms.us) = 641,968 op/sec = 1 op/1.55771 us
+[TC2-social_network]Completed 100,000,000 operations in 02:35.916.000 (m:s.ms.us) = 641,371 op/sec = 1 op/1.55916 us
+[TC4-social_network]Completed 100,000,000 operations in 02:15.686.000 (m:s.ms.us) = 736,996 op/sec = 1 op/1.35686 us
      */
-    // -XX:+HeapDumpOnOutOfMemoryError
     @Ignore
     @Test
     public void performanceTest()
@@ -153,6 +151,7 @@ SF30 1,2,4 threads 1 partition
             paramsMap.put(LdbcSnbInteractiveConfiguration.PARAMETERS_DIRECTORY, parametersDir);
             paramsMap.put(LdbcSnbInteractiveConfiguration.FORUM_UPDATE_FILES, LdbcSnbInteractiveConfiguration.serializeFilePathsListFromConfiguration(forumFilePaths));
             paramsMap.put(LdbcSnbInteractiveConfiguration.PERSON_UPDATE_FILES, LdbcSnbInteractiveConfiguration.serializeFilePathsListFromConfiguration(personFilePaths));
+            paramsMap.put(LdbcSnbInteractiveConfiguration.UPDATE_STREAM_PARSER, LdbcSnbInteractiveConfiguration.UpdateStreamParser.CHAR_SEEKER.name());
             paramsMap.put(DummyLdbcSnbInteractiveDb.SLEEP_DURATION_MILLI_ARG, "0");
             // Driver-specific parameters
             String dbClassName = DummyLdbcSnbInteractiveDb.class.getName();
@@ -214,7 +213,7 @@ SF30 1,2,4 threads 1 partition
                     String.format("[%s]Completed %s operations in %s = %s op/sec = 1 op/%s us",
                             name,
                             numberFormatter.format(operationCount),
-                            resultsSnapshot.totalRunDurationAsNano(),
+                            TEMPORAL_UTIL.nanoDurationToString(resultsSnapshot.totalRunDurationAsNano()),
                             numberFormatter.format(operationsPerSecond),
                             microSecondPerOperation
                     )

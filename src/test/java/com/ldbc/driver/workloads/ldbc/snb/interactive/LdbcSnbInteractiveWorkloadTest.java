@@ -441,6 +441,7 @@ public class LdbcSnbInteractiveWorkloadTest {
         ConsoleAndFileDriverConfiguration configuration = ConsoleAndFileDriverConfiguration.fromArgs(new String[]{
                 "-" + ConsoleAndFileDriverConfiguration.RESULT_DIR_PATH_ARG, resultDirPath,
                 "-" + ConsoleAndFileDriverConfiguration.DB_ARG, DummyLdbcSnbInteractiveDb.class.getName(),
+                "-" + ConsoleAndFileDriverConfiguration.TIME_UNIT_ARG, TimeUnit.MICROSECONDS.name(),
                 "-p", LdbcSnbInteractiveConfiguration.PARAMETERS_DIRECTORY, TestUtils.getResource("/").getAbsolutePath(),
                 "-p", LdbcSnbInteractiveConfiguration.FORUM_UPDATE_FILES, TestUtils.getResource("/updateStream_0_0_forum.csv").getAbsolutePath(),
                 "-p", LdbcSnbInteractiveConfiguration.PERSON_UPDATE_FILES, TestUtils.getResource("/updateStream_0_0_person.csv").getAbsolutePath(),

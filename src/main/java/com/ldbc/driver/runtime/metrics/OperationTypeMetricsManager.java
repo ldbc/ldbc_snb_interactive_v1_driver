@@ -8,23 +8,16 @@ import java.util.concurrent.TimeUnit;
 
 public class OperationTypeMetricsManager {
     private static final String METRIC_RUNTIME = "Runtime";
-    private static final String METRIC_START_TIME_DELAY = "Start Time Delay";
-    private static final String METRIC_RESULT_CODE = "Result Code";
 
     private final TemporalUtil temporalUtil = new TemporalUtil();
     private final ContinuousMetricManager runTimeMetric;
-    private final ContinuousMetricManager startTimeDelayMetric;
-    private final DiscreteMetricManager resultCodeMetric;
     private final String name;
     private final TimeUnit unit;
-    private final boolean recordStartTimeDelayLatency;
     private long count = 0;
 
     OperationTypeMetricsManager(String name,
                                 TimeUnit unit,
-                                long highestExpectedRuntimeDurationAsNano,
-                                long highestExpectedDelayDurationAsMilli,
-                                boolean recordStartTimeDelayLatency) {
+                                long highestExpectedRuntimeDurationAsNano) {
         this.name = name;
         this.unit = unit;
         this.runTimeMetric = new ContinuousMetricManager(
@@ -32,13 +25,6 @@ public class OperationTypeMetricsManager {
                 unit,
                 temporalUtil.convert(highestExpectedRuntimeDurationAsNano, TimeUnit.NANOSECONDS, unit),
                 4);
-        this.startTimeDelayMetric = new ContinuousMetricManager(
-                METRIC_START_TIME_DELAY,
-                unit,
-                temporalUtil.convert(highestExpectedDelayDurationAsMilli, TimeUnit.MILLISECONDS, unit),
-                3);
-        this.resultCodeMetric = new DiscreteMetricManager(METRIC_RESULT_CODE, "Result Code");
-        this.recordStartTimeDelayLatency = recordStartTimeDelayLatency;
     }
 
     void measure(OperationResultReport operationResultReport) throws MetricsCollectionException {
@@ -53,39 +39,11 @@ public class OperationTypeMetricsManager {
                     runtimeInAppropriateUnit, unit.toString(), name);
             throw new MetricsCollectionException(errMsg, e);
         }
-
-        //
-        // Measure driver performance - how close is it to target throughput
-        //
-        if (recordStartTimeDelayLatency) {
-            long startTimeDelayAsMilli = operationResultReport.actualStartTimeAsMilli() - operationResultReport.operation().scheduledStartTimeAsMilli();
-            long startTimeDelayInAppropriateUnit = temporalUtil.convert(startTimeDelayAsMilli, TimeUnit.MILLISECONDS, unit);
-            try {
-                startTimeDelayMetric.addMeasurement(startTimeDelayInAppropriateUnit);
-            } catch (Throwable e) {
-                String errMsg = String.format("Error encountered adding start time delay measurement [%s %s] to [%s]",
-                        startTimeDelayInAppropriateUnit, unit.toString(), name);
-                throw new MetricsCollectionException(errMsg, e);
-            }
-        }
-
-        //
-        // Measure result code
-        //
-        int operationResultCode = operationResultReport.resultCode();
-        try {
-            resultCodeMetric.addMeasurement(operationResultCode);
-        } catch (Exception e) {
-            String errMsg = String.format("Error encountered adding result code measurement [%s] to [%s]",
-                    operationResultCode, name);
-            throw new MetricsCollectionException(errMsg, e);
-        }
-
         count++;
     }
 
     public OperationMetricsSnapshot snapshot() {
-        return new OperationMetricsSnapshot(name, unit, count(), runTimeMetric.snapshot(), startTimeDelayMetric.snapshot(), resultCodeMetric.snapshot());
+        return new OperationMetricsSnapshot(name, unit, count(), runTimeMetric.snapshot());
     }
 
     public String name() {

@@ -14,13 +14,13 @@ public class MetricsManager {
     private static final long ONE_SECOND_AS_NANO = 1000000000;
 
     private final TemporalUtil temporalUtil = new TemporalUtil();
-    private final long startTimeAsMilli;
     private final Map<String, OperationTypeMetricsManager> allOperationMetrics;
     private final TimeSource timeSource;
     private final TimeUnit unit;
     private final long highestExpectedRuntimeDurationAsNano;
     private final long highestExpectedDelayDurationAsMilli;
     private final boolean recordStartTimeDelayLatency;
+    private long startTimeAsMilli;
     private long latestFinishTimeAsMilli;
     private long measurementCount = 0;
 
@@ -39,24 +39,28 @@ public class MetricsManager {
 
     MetricsManager(TimeSource timeSource,
                    TimeUnit unit,
-                   long startTimeAsMilli,
                    long highestExpectedRuntimeDurationAsNano,
                    long highestExpectedDelayDurationAsMilli,
                    boolean recordStartTimeDelayLatency) {
-        this.startTimeAsMilli = startTimeAsMilli;
+        this.startTimeAsMilli = Long.MAX_VALUE;
+        this.latestFinishTimeAsMilli = Long.MIN_VALUE;
         this.timeSource = timeSource;
         this.unit = unit;
         this.allOperationMetrics = new HashMap<>();
         this.highestExpectedRuntimeDurationAsNano = highestExpectedRuntimeDurationAsNano;
         this.highestExpectedDelayDurationAsMilli = highestExpectedDelayDurationAsMilli;
-        this.latestFinishTimeAsMilli = startTimeAsMilli;
         this.recordStartTimeDelayLatency = recordStartTimeDelayLatency;
     }
 
     void measure(OperationResultReport result) throws MetricsCollectionException {
-        long operationFinishTimeAsMilli = result.actualStartTimeAsMilli() + temporalUtil.convert(result.runDurationAsNano(), TimeUnit.NANOSECONDS, TimeUnit.MILLISECONDS);
+        if (result.actualStartTimeAsMilli() < startTimeAsMilli) {
+            startTimeAsMilli = result.actualStartTimeAsMilli();
+        }
 
-        latestFinishTimeAsMilli = (operationFinishTimeAsMilli > latestFinishTimeAsMilli) ? operationFinishTimeAsMilli : latestFinishTimeAsMilli;
+        long operationFinishTimeAsMilli = result.actualStartTimeAsMilli() + temporalUtil.convert(result.runDurationAsNano(), TimeUnit.NANOSECONDS, TimeUnit.MILLISECONDS);
+        if (operationFinishTimeAsMilli > latestFinishTimeAsMilli) {
+            latestFinishTimeAsMilli = operationFinishTimeAsMilli;
+        }
 
         measurementCount++;
 
@@ -65,20 +69,11 @@ public class MetricsManager {
             operationTypeMetricsManager = new OperationTypeMetricsManager(
                     result.operation().type(),
                     unit,
-                    temporalUtil.convert(highestExpectedRuntimeDurationAsNano, TimeUnit.NANOSECONDS, unit),
-                    temporalUtil.convert(highestExpectedDelayDurationAsMilli, TimeUnit.MILLISECONDS, unit),
-                    recordStartTimeDelayLatency);
+                    temporalUtil.convert(highestExpectedRuntimeDurationAsNano, TimeUnit.NANOSECONDS, unit)
+            );
             allOperationMetrics.put(result.operation().type(), operationTypeMetricsManager);
         }
         operationTypeMetricsManager.measure(result);
-    }
-
-    long startTimeAsMilli() {
-        return startTimeAsMilli;
-    }
-
-    long latestFinishTimeAsMilli() {
-        return latestFinishTimeAsMilli;
     }
 
     private long totalOperationCount() {
@@ -96,8 +91,8 @@ public class MetricsManager {
         }
         return new WorkloadResultsSnapshot(
                 operationMetricsMap,
-                startTimeAsMilli,
-                latestFinishTimeAsMilli,
+                (startTimeAsMilli == Long.MAX_VALUE) ? -1 : startTimeAsMilli,
+                (latestFinishTimeAsMilli == Long.MIN_VALUE) ? -1 : latestFinishTimeAsMilli,
                 totalOperationCount(),
                 unit);
     }

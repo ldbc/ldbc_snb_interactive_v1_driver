@@ -37,7 +37,6 @@ import static org.junit.Assert.assertThat;
 
 public class WorkloadRunnerComplexScenarioTests {
     private static final TemporalUtil TEMPORAL_UTIL = new TemporalUtil();
-    private final long WORKLOAD_START_TIME_0_AS_MILLI = 0;
     private final long ENOUGH_MILLISECONDS_FOR_RUNNER_THREAD_TO_DO_ITS_THING = 300;
     private final long SPINNER_SLEEP_DURATION_AS_MILLI = 0;
     private final ManualTimeSource timeSource = new ManualTimeSource(0);
@@ -70,12 +69,6 @@ public class WorkloadRunnerComplexScenarioTests {
     public void haveMoreVariationsOfEachTest() {
         // TODO - different completion time service implementations
         // TODO - different metrics service implementations
-        assertThat(true, is(false));
-    }
-
-    @Ignore
-    @Test
-    public void makeTestsWithWindowedModeAfterHaveUnderstoodHowToTestItProperly() {
         assertThat(true, is(false));
     }
 
@@ -278,7 +271,6 @@ public class WorkloadRunnerComplexScenarioTests {
                 timeSource,
                 errorReporter,
                 TimeUnit.MILLISECONDS,
-                WORKLOAD_START_TIME_0_AS_MILLI,
                 ThreadedQueuedConcurrentMetricsService.DEFAULT_HIGHEST_EXPECTED_RUNTIME_DURATION_AS_NANO,
                 recordStartTimeDelayLatency,
                 executionDelayPolicy,
@@ -482,7 +474,6 @@ public class WorkloadRunnerComplexScenarioTests {
                 timeSource,
                 errorReporter,
                 TimeUnit.MILLISECONDS,
-                WORKLOAD_START_TIME_0_AS_MILLI,
                 ThreadedQueuedConcurrentMetricsService.DEFAULT_HIGHEST_EXPECTED_RUNTIME_DURATION_AS_NANO,
                 recordStartTimeDelayLatency,
                 executionDelayPolicy,
@@ -666,7 +657,6 @@ public class WorkloadRunnerComplexScenarioTests {
                 timeSource,
                 errorReporter,
                 TimeUnit.MILLISECONDS,
-                WORKLOAD_START_TIME_0_AS_MILLI,
                 ThreadedQueuedConcurrentMetricsService.DEFAULT_HIGHEST_EXPECTED_RUNTIME_DURATION_AS_NANO,
                 recordStartTimeDelayLatency,
                 executionDelayPolicy,
@@ -942,7 +932,6 @@ public class WorkloadRunnerComplexScenarioTests {
                 timeSource,
                 errorReporter,
                 TimeUnit.MILLISECONDS,
-                WORKLOAD_START_TIME_0_AS_MILLI,
                 ThreadedQueuedConcurrentMetricsService.DEFAULT_HIGHEST_EXPECTED_RUNTIME_DURATION_AS_NANO,
                 recordStartTimeDelayLatency,
                 executionDelayPolicy,
@@ -1208,7 +1197,6 @@ public class WorkloadRunnerComplexScenarioTests {
                 timeSource,
                 errorReporter,
                 TimeUnit.MILLISECONDS,
-                WORKLOAD_START_TIME_0_AS_MILLI,
                 ThreadedQueuedConcurrentMetricsService.DEFAULT_HIGHEST_EXPECTED_RUNTIME_DURATION_AS_NANO,
                 recordStartTimeDelayLatency,
                 executionDelayPolicy,
@@ -1464,7 +1452,6 @@ public class WorkloadRunnerComplexScenarioTests {
                 timeSource,
                 errorReporter,
                 TimeUnit.MILLISECONDS,
-                WORKLOAD_START_TIME_0_AS_MILLI,
                 ThreadedQueuedConcurrentMetricsService.DEFAULT_HIGHEST_EXPECTED_RUNTIME_DURATION_AS_NANO,
                 recordStartTimeDelayLatency,
                 executionDelayPolicy,
@@ -1741,7 +1728,6 @@ public class WorkloadRunnerComplexScenarioTests {
                 timeSource,
                 errorReporter,
                 TimeUnit.MILLISECONDS,
-                WORKLOAD_START_TIME_0_AS_MILLI,
                 ThreadedQueuedConcurrentMetricsService.DEFAULT_HIGHEST_EXPECTED_RUNTIME_DURATION_AS_NANO,
                 recordStartTimeDelayLatency,
                 executionDelayPolicy,
@@ -1996,7 +1982,6 @@ public class WorkloadRunnerComplexScenarioTests {
                 timeSource,
                 errorReporter,
                 TimeUnit.MILLISECONDS,
-                WORKLOAD_START_TIME_0_AS_MILLI,
                 ThreadedQueuedConcurrentMetricsService.DEFAULT_HIGHEST_EXPECTED_RUNTIME_DURATION_AS_NANO,
                 recordStartTimeDelayLatency,
                 executionDelayPolicy,

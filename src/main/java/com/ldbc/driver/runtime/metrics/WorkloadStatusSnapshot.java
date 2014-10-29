@@ -1,5 +1,7 @@
 package com.ldbc.driver.runtime.metrics;
 
+import com.ldbc.driver.temporal.TemporalUtil;
+
 import java.text.DecimalFormat;
 
 public class WorkloadStatusSnapshot {
@@ -7,8 +9,9 @@ public class WorkloadStatusSnapshot {
     private final long operationCount;
     private final long durationSinceLastMeasurementAsMilli;
     private final double throughput;
-    DecimalFormat operationCountFormatter = new DecimalFormat("###,###,###,###");
-    DecimalFormat throughputFormatter = new DecimalFormat("###,###,###,##0.00");
+    private final DecimalFormat operationCountFormatter = new DecimalFormat("###,###,###,###");
+    private final DecimalFormat throughputFormatter = new DecimalFormat("###,###,###,##0.00");
+    private final TemporalUtil temporalUtil = new TemporalUtil();
 
     public WorkloadStatusSnapshot(long runDurationAsMilli,
                                   long operationCount,
@@ -23,9 +26,9 @@ public class WorkloadStatusSnapshot {
     @Override
     public String toString() {
         return String.format("Runtime [%s], Operations [%s], Since Last Measurement [%s], Throughput (op/sec) [%s]",
-                (-1 == runDurationAsMilli) ? "--" : runDurationAsMilli,
+                (-1 == runDurationAsMilli) ? "--" : temporalUtil.milliDurationToString(runDurationAsMilli),
                 operationCountFormatter.format(operationCount),
-                (-1 == durationSinceLastMeasurementAsMilli) ? "--" : durationSinceLastMeasurementAsMilli,
+                (-1 == durationSinceLastMeasurementAsMilli) ? "--" : temporalUtil.milliDurationToString(durationSinceLastMeasurementAsMilli),
                 throughputFormatter.format(throughput));
     }
 }

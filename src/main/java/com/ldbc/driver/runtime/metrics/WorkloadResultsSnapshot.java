@@ -20,7 +20,7 @@ public class WorkloadResultsSnapshot {
     private List<OperationMetricsSnapshot> metrics;
 
     @JsonProperty(value = "format_version")
-    private int formatVersion = 1;
+    private int formatVersion = 2;
 
     @JsonProperty(value = "unit")
     private TimeUnit unit;
@@ -37,7 +37,6 @@ public class WorkloadResultsSnapshot {
     @JsonProperty(value = "total_count")
     private long operationCount;
 
-    // TODO test
     public static WorkloadResultsSnapshot fromJson(File jsonFile) throws
             IOException {
         return new ObjectMapper().readValue(jsonFile, WorkloadResultsSnapshot.class);

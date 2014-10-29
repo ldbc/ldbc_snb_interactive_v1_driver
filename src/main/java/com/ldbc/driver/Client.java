@@ -34,6 +34,7 @@ import java.util.concurrent.TimeUnit;
 
 public class Client {
     private static Logger logger = Logger.getLogger(Client.class);
+    private static final TemporalUtil TEMPORAL_UTIL = new TemporalUtil();
 
     private static final long RANDOM_SEED = 42;
 
@@ -224,9 +225,11 @@ public class Client {
                     csvResultsLogFileWriter = new SimpleCsvFileWriter(resultsLog, SimpleCsvFileWriter.DEFAULT_COLUMN_SEPARATOR);
                     csvResultsLogFileWriter.writeRow(
                             "operation_type",
-                            "scheduled_start_time",
-                            "actual_start_time",
-                            "execution_duration");
+                            "scheduled_start_time_ms",
+                            "actual_start_time_ms",
+                            "execution_duration_ns",
+                            "result_code"
+                    );
                 } catch (IOException e) {
                     throw new ClientException(
                             String.format("Error while creating results log file: ", resultsLog.getAbsolutePath()), e);
@@ -237,7 +240,6 @@ public class Client {
                     timeSource,
                     errorReporter,
                     controlService.configuration().timeUnit(),
-                    controlService.workloadStartTimeAsMilli(),
                     ThreadedQueuedConcurrentMetricsService.DEFAULT_HIGHEST_EXPECTED_RUNTIME_DURATION_AS_NANO,
                     recordStartTimeDelayLatency,
                     executionDelayPolicy,
@@ -326,7 +328,7 @@ public class Client {
                             completionTimeService,
                             errorReporter
                     );
-                    logger.info("GCT: " + completionTimeService.globalCompletionTimeAsMilli());
+                    logger.info("GCT: " + TEMPORAL_UTIL.millisecondsToDateTimeString(completionTimeService.globalCompletionTimeAsMilli()));
                 }
             } catch (CompletionTimeException e) {
                 throw new ClientException("Error while writing initial initiated and completed times to Completion Time Service", e);
@@ -391,8 +393,6 @@ public class Client {
             } catch (MetricsCollectionException e) {
                 throw new ClientException("Error during shutdown of metrics collection service", e);
             }
-
-            logger.info(String.format("Runtime: %s", workloadResults.totalRunDurationAsNano()));
 
             logger.info("Exporting workload metrics...");
             try {

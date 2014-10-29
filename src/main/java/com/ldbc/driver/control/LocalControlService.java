@@ -1,6 +1,9 @@
 package com.ldbc.driver.control;
 
+import com.ldbc.driver.temporal.TemporalUtil;
+
 public class LocalControlService implements ConcurrentControlService {
+    private final TemporalUtil temporalUtil = new TemporalUtil();
     private final long workloadStartTimeAsMilli;
     private final DriverConfiguration configuration;
 
@@ -37,7 +40,7 @@ public class LocalControlService implements ConcurrentControlService {
 
     @Override
     public String toString() {
-        return "Workload Start Time:\t" + workloadStartTimeAsMilli + "\n" +
+        return "Workload Start Time:\t" + temporalUtil.millisecondsToDateTimeString(workloadStartTimeAsMilli) + "\n" +
                 configuration.toString();
     }
 }

@@ -22,11 +22,9 @@ public class MetricsManagerTest {
 
     @Test
     public void shouldReturnCorrectMeasurements() throws WorkloadException, MetricsCollectionException {
-        long initialTime = 0l;
         MetricsManager metricsManager = new MetricsManager(
                 timeSource,
                 TimeUnit.MILLISECONDS,
-                initialTime,
                 ThreadedQueuedConcurrentMetricsService.DEFAULT_HIGHEST_EXPECTED_RUNTIME_DURATION_AS_NANO,
                 ThreadedQueuedConcurrentMetricsService.DEFAULT_HIGHEST_EXPECTED_DELAY_DURATION_AS_MILLI,
                 recordStartTimeDelayLatency
@@ -54,7 +52,8 @@ public class MetricsManagerTest {
         metricsManager.measure(operationResultReport2);
         metricsManager.measure(operationResultReport3);
 
-        assertThat(metricsManager.startTimeAsMilli(), equalTo(0l));
-        assertThat(metricsManager.latestFinishTimeAsMilli(), equalTo(16l));
+        WorkloadResultsSnapshot snapshot = metricsManager.snapshot();
+        assertThat(snapshot.startTimeAsMilli(), equalTo(2l));
+        assertThat(snapshot.latestFinishTimeAsMilli(), equalTo(16l));
     }
 }

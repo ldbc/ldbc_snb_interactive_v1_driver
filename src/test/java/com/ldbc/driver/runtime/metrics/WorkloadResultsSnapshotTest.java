@@ -67,37 +67,8 @@ public class WorkloadResultsSnapshotTest {
                 runTimePercentile95,
                 runTimePercentile99);
 
-        String startTimeDelayName = Integer.toString(seed++);
-        TimeUnit startTimeDelayUnit = timeUnit3;
-        long startTimeDelayCount = seed++;
-        double startTimeDelayMean = seed++;
-        long startTimeDelayMin = seed++;
-        long startTimeDelayMax = seed++;
-        long startTimeDelayPercentile50 = seed++;
-        long startTimeDelayPercentile90 = seed++;
-        long startTimeDelayPercentile95 = seed++;
-        long startTimeDelayPercentile99 = seed++;
-        ContinuousMetricSnapshot startTimeDelayMetric = new ContinuousMetricSnapshot(
-                startTimeDelayName,
-                startTimeDelayUnit,
-                startTimeDelayCount,
-                startTimeDelayMean,
-                startTimeDelayMin,
-                startTimeDelayMax,
-                startTimeDelayPercentile50,
-                startTimeDelayPercentile90,
-                startTimeDelayPercentile95,
-                startTimeDelayPercentile99);
-
-        String resultCodeName = Integer.toString(seed++);
-        String resultCodeUnit = Integer.toString(seed++);
-        long resultCodeCount = seed++;
-        Map<Long, Long> resultCodeAllValues = new HashMap<>();
-        resultCodeAllValues.put((long) seed++, (long) seed++);
-        DiscreteMetricSnapshot resultCodeMetric = new DiscreteMetricSnapshot(resultCodeName, resultCodeUnit, resultCodeCount, resultCodeAllValues);
-
         Map<String, OperationMetricsSnapshot> metrics = new HashMap<>();
-        metrics.put(Integer.toString(seed++), new OperationMetricsSnapshot(operationName, operationDurationUnit, operationCount, runTimeMetric, startTimeDelayMetric, resultCodeMetric));
+        metrics.put(Integer.toString(seed++), new OperationMetricsSnapshot(operationName, operationDurationUnit, operationCount, runTimeMetric));
 
         long operationStartTime = seed++;
         long operationLatestFinishTime = seed++;

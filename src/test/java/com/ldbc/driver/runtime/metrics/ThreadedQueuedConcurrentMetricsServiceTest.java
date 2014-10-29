@@ -23,7 +23,6 @@ import static org.junit.Assert.assertThat;
 public class ThreadedQueuedConcurrentMetricsServiceTest {
     private final TemporalUtil temporalUtil = new TemporalUtil();
     private TimeSource timeSource = new SystemTimeSource();
-    private long INITIAL_START_TIME = 0l;
 
     @Test
     public void shouldNotAcceptOperationResultsAfterShutdownWhenBlockingQueueIsUsed() throws WorkloadException, MetricsCollectionException {
@@ -43,7 +42,6 @@ public class ThreadedQueuedConcurrentMetricsServiceTest {
                 timeSource,
                 new ConcurrentErrorReporter(),
                 TimeUnit.MILLISECONDS,
-                INITIAL_START_TIME,
                 ThreadedQueuedConcurrentMetricsService.DEFAULT_HIGHEST_EXPECTED_RUNTIME_DURATION_AS_NANO,
                 recordStartTimeDelayLatency,
                 executionDelayPolicy,
@@ -77,7 +75,6 @@ public class ThreadedQueuedConcurrentMetricsServiceTest {
                 timeSource,
                 new ConcurrentErrorReporter(),
                 TimeUnit.MILLISECONDS,
-                INITIAL_START_TIME,
                 ThreadedQueuedConcurrentMetricsService.DEFAULT_HIGHEST_EXPECTED_RUNTIME_DURATION_AS_NANO,
                 recordStartTimeDelayLatency,
                 executionDelayPolicy,
@@ -111,7 +108,6 @@ public class ThreadedQueuedConcurrentMetricsServiceTest {
                 timeSource,
                 new ConcurrentErrorReporter(),
                 TimeUnit.MILLISECONDS,
-                INITIAL_START_TIME,
                 ThreadedQueuedConcurrentMetricsService.DEFAULT_HIGHEST_EXPECTED_RUNTIME_DURATION_AS_NANO,
                 recordStartTimeDelayLatency,
                 executionDelayPolicy,
@@ -142,7 +138,6 @@ public class ThreadedQueuedConcurrentMetricsServiceTest {
                 timeSource,
                 new ConcurrentErrorReporter(),
                 TimeUnit.MILLISECONDS,
-                INITIAL_START_TIME,
                 ThreadedQueuedConcurrentMetricsService.DEFAULT_HIGHEST_EXPECTED_RUNTIME_DURATION_AS_NANO,
                 recordStartTimeDelayLatency,
                 executionDelayPolicy,
@@ -156,8 +151,8 @@ public class ThreadedQueuedConcurrentMetricsServiceTest {
     }
 
     public void shouldReturnCorrectMeasurements(ConcurrentMetricsService metricsService) throws WorkloadException, MetricsCollectionException {
-        assertThat(metricsService.results().startTimeAsMilli(), equalTo(INITIAL_START_TIME));
-        assertThat(metricsService.results().latestFinishTimeAsMilli(), is(INITIAL_START_TIME));
+        assertThat(metricsService.results().startTimeAsMilli(), equalTo(-1l));
+        assertThat(metricsService.results().latestFinishTimeAsMilli(), is(-1l));
 
         // scheduled: 1, actual: 2, duration: 1
         Operation<?> operation1 = DummyLdbcSnbInteractiveOperationInstances.read1();
@@ -168,7 +163,7 @@ public class ThreadedQueuedConcurrentMetricsServiceTest {
 
         metricsService.submitOperationResult(operationResultReport1);
 
-        assertThat(metricsService.results().startTimeAsMilli(), equalTo(INITIAL_START_TIME));
+        assertThat(metricsService.results().startTimeAsMilli(), equalTo(2l));
         assertThat(metricsService.results().latestFinishTimeAsMilli(), equalTo(3l));
 
         Operation<?> operation2 = DummyLdbcSnbInteractiveOperationInstances.read1();
@@ -179,7 +174,7 @@ public class ThreadedQueuedConcurrentMetricsServiceTest {
 
         metricsService.submitOperationResult(operationResultReport2);
 
-        assertThat(metricsService.results().startTimeAsMilli(), equalTo(INITIAL_START_TIME));
+        assertThat(metricsService.results().startTimeAsMilli(), equalTo(2l));
         assertThat(metricsService.results().latestFinishTimeAsMilli(), equalTo(11l));
 
         Operation<?> operation3 = DummyLdbcSnbInteractiveOperationInstances.read2();
@@ -191,7 +186,7 @@ public class ThreadedQueuedConcurrentMetricsServiceTest {
         metricsService.submitOperationResult(operationResultReport3);
 
         WorkloadResultsSnapshot results = metricsService.results();
-        assertThat(results.startTimeAsMilli(), equalTo(INITIAL_START_TIME));
+        assertThat(results.startTimeAsMilli(), equalTo(2l));
         assertThat(results.latestFinishTimeAsMilli(), equalTo(16l));
     }
 }

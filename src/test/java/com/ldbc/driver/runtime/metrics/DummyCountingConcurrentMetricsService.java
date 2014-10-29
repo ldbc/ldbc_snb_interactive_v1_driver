@@ -12,7 +12,7 @@ public class DummyCountingConcurrentMetricsService implements ConcurrentMetricsS
 
     public DummyCountingConcurrentMetricsService() {
         metrics = new HashMap<>();
-        metrics.put("default", new OperationMetricsSnapshot(null, null, 0, null, null, null));
+        metrics.put("default", new OperationMetricsSnapshot(null, null, 0, null));
     }
 
     @Override
