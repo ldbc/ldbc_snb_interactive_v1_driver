@@ -77,7 +77,7 @@ public class ThreadedQueuedConcurrentMetricsServiceThread extends Thread {
                                     result.operation().getClass().getSimpleName(),
                                     Long.toString(result.operation().scheduledStartTimeAsMilli()),
                                     Long.toString(result.actualStartTimeAsMilli()),
-                                    Long.toString(result.runDurationAsNano()),
+                                    Long.toString(temporalUtil.convert(result.runDurationAsNano(), TimeUnit.NANOSECONDS, unit)),
                                     Integer.toString(result.resultCode())
                             );
                         }

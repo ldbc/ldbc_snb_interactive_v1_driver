@@ -10,12 +10,15 @@ import com.ldbc.driver.workloads.ldbc.snb.interactive.db.DummyLdbcSnbInteractive
 import org.apache.commons.cli.*;
 
 import java.io.*;
+import java.text.DecimalFormat;
 import java.util.*;
 import java.util.Map.Entry;
 import java.util.concurrent.TimeUnit;
 
 public class ConsoleAndFileDriverConfiguration implements DriverConfiguration {
     private static final TemporalUtil TEMPORAL_UTIL = new TemporalUtil();
+    private static final DecimalFormat INTEGRAL_FORMAT = new DecimalFormat("###,###,###,###,###");
+    private static final DecimalFormat FLOAT_FORMAT = new DecimalFormat("###,###,###,###,##0.0000000");
 
     // --- REQUIRED ---
     public static final String OPERATION_COUNT_ARG = "oc";
@@ -1113,13 +1116,13 @@ public class ConsoleAndFileDriverConfiguration implements DriverConfiguration {
         sb.append("\t").append(String.format("%1$-" + padRightDistance + "s", "Name:")).append(name).append("\n");
         sb.append("\t").append(String.format("%1$-" + padRightDistance + "s", "DB:")).append(dbClassName).append("\n");
         sb.append("\t").append(String.format("%1$-" + padRightDistance + "s", "Workload:")).append(workloadClassName).append("\n");
-        sb.append("\t").append(String.format("%1$-" + padRightDistance + "s", "Operation Count:")).append(operationCount).append("\n");
+        sb.append("\t").append(String.format("%1$-" + padRightDistance + "s", "Operation Count:")).append(INTEGRAL_FORMAT.format(operationCount)).append("\n");
         sb.append("\t").append(String.format("%1$-" + padRightDistance + "s", "Worker Threads:")).append(threadCount).append("\n");
         sb.append("\t").append(String.format("%1$-" + padRightDistance + "s", "Status Display Interval:")).append(TEMPORAL_UTIL.milliDurationToString(TEMPORAL_UTIL.convert(statusDisplayIntervalAsSeconds, TimeUnit.SECONDS, TimeUnit.MILLISECONDS))).append("\n");
         sb.append("\t").append(String.format("%1$-" + padRightDistance + "s", "Time Unit:")).append(timeUnit).append("\n");
         sb.append("\t").append(String.format("%1$-" + padRightDistance + "s", "Results Directory:")).append(resultDirPath()).append("\n");
         sb.append("\t").append(String.format("%1$-" + padRightDistance + "s", "Create Results Log:")).append(shouldCreateResultsLog).append("\n");
-        sb.append("\t").append(String.format("%1$-" + padRightDistance + "s", "Time Compression Ratio:")).append(timeCompressionRatio).append("\n");
+        sb.append("\t").append(String.format("%1$-" + padRightDistance + "s", "Time Compression Ratio:")).append(FLOAT_FORMAT.format(timeCompressionRatio)).append("\n");
         sb.append("\t").append(String.format("%1$-" + padRightDistance + "s", "Execution Window Size:")).append(TEMPORAL_UTIL.milliDurationToString(windowedExecutionWindowDurationAsMilli)).append(" / ").append(windowedExecutionWindowDurationAsMilli).append(" (ms)\n");
         sb.append("\t").append(String.format("%1$-" + padRightDistance + "s", "Peer IDs:")).append(peerIds.toString()).append("\n");
         sb.append("\t").append(String.format("%1$-" + padRightDistance + "s", "Tolerated Execution Delay:")).append(TEMPORAL_UTIL.milliDurationToString(toleratedExecutionDelayAsMilli)).append(" / ").append(toleratedExecutionDelayAsMilli).append(" (ms)\n");

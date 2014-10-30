@@ -223,11 +223,12 @@ public class Client {
                 File resultsLog = new File(resultDir, controlService.configuration().name() + ThreadedQueuedConcurrentMetricsService.RESULTS_LOG_FILENAME_SUFFIX);
                 try {
                     csvResultsLogFileWriter = new SimpleCsvFileWriter(resultsLog, SimpleCsvFileWriter.DEFAULT_COLUMN_SEPARATOR);
+
                     csvResultsLogFileWriter.writeRow(
                             "operation_type",
-                            "scheduled_start_time_ms",
-                            "actual_start_time_ms",
-                            "execution_duration_ns",
+                            "scheduled_start_time_" + TimeUnit.MILLISECONDS.name(),
+                            "actual_start_time_" + TimeUnit.MILLISECONDS.name(),
+                            "execution_duration_" + controlService.configuration().timeUnit().name(),
                             "result_code"
                     );
                 } catch (IOException e) {

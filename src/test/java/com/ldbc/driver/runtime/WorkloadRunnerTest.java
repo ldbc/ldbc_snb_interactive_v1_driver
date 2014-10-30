@@ -12,10 +12,7 @@ import com.ldbc.driver.generator.RandomDataGeneratorFactory;
 import com.ldbc.driver.runtime.coordination.CompletionTimeException;
 import com.ldbc.driver.runtime.coordination.CompletionTimeServiceAssistant;
 import com.ldbc.driver.runtime.coordination.ConcurrentCompletionTimeService;
-import com.ldbc.driver.runtime.metrics.ConcurrentMetricsService;
-import com.ldbc.driver.runtime.metrics.MetricsCollectionException;
-import com.ldbc.driver.runtime.metrics.ThreadedQueuedConcurrentMetricsService;
-import com.ldbc.driver.runtime.metrics.WorkloadResultsSnapshot;
+import com.ldbc.driver.runtime.metrics.*;
 import com.ldbc.driver.runtime.scheduling.ErrorReportingTerminatingExecutionDelayPolicy;
 import com.ldbc.driver.runtime.scheduling.ExecutionDelayPolicy;
 import com.ldbc.driver.temporal.SystemTimeSource;
@@ -58,7 +55,7 @@ public class WorkloadRunnerTest {
     @Test
     public void shouldRunReadOnlyLdbcWorkloadWithNothingDbAndReturnExpectedMetrics()
             throws InterruptedException, DbException, WorkloadException, IOException, MetricsCollectionException, CompletionTimeException, DriverConfigurationException {
-        List<Integer> threadCounts = Lists.newArrayList(1, 2, 4);
+        List<Integer> threadCounts = Lists.newArrayList(1, 2, 4, 8);
         long operationCount = 1000;
         for (int threadCount : threadCounts) {
             doShouldRunReadOnlyLdbcWorkloadWithNothingDbAndReturnExpectedMetricsIncludingResultsLog(threadCount, operationCount);
@@ -74,7 +71,7 @@ public class WorkloadRunnerTest {
         ConcurrentCompletionTimeService completionTimeService = null;
         ConcurrentErrorReporter errorReporter = new ConcurrentErrorReporter();
         try {
-            Map<String, String> paramsMap = LdbcSnbInteractiveConfiguration.defaultReadOnlyConfig();
+            Map<String, String> paramsMap = LdbcSnbInteractiveConfiguration.defaultConfig();
             paramsMap.put(LdbcSnbInteractiveConfiguration.PARAMETERS_DIRECTORY, TestUtils.getResource("/").getAbsolutePath());
             List<String> forumUpdateFiles = Lists.newArrayList(TestUtils.getResource("/updateStream_0_0_forum.csv").getAbsolutePath());
             paramsMap.put(LdbcSnbInteractiveConfiguration.FORUM_UPDATE_FILES, LdbcSnbInteractiveConfiguration.serializeFilePathsListFromConfiguration(forumUpdateFiles));
@@ -87,7 +84,7 @@ public class WorkloadRunnerTest {
             int statusDisplayInterval = 0;
             TimeUnit timeUnit = TimeUnit.NANOSECONDS;
             String resultDirPath = temporaryFolder.newFolder().getAbsolutePath();
-            double timeCompressionRatio = 0.0001;
+            double timeCompressionRatio = 0.00001;
             long windowedExecutionWindowDuration = 1000l;
             Set<String> peerIds = new HashSet<>();
             long toleratedExecutionDelay = TEMPORAL_UTIL.convert(1, TimeUnit.HOURS, TimeUnit.MILLISECONDS);
@@ -180,6 +177,9 @@ public class WorkloadRunnerTest {
             runner.executeWorkload();
 
             WorkloadResultsSnapshot workloadResults = metricsService.results();
+
+//            SimpleOperationMetricsFormatter metricsFormatter = new SimpleOperationMetricsFormatter();
+//            System.out.println(metricsFormatter.format(workloadResults));
 
             assertThat(errorReporter.toString() + "\n" + workloadResults.toString(), errorReporter.errorEncountered(), is(false));
             assertThat(errorReporter.toString() + "\n" + workloadResults.toString(), workloadResults.startTimeAsMilli() >= controlService.workloadStartTimeAsMilli(), is(true));

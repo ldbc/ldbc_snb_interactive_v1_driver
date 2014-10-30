@@ -11,6 +11,7 @@ import com.ldbc.driver.util.Bucket;
 import com.ldbc.driver.util.Histogram;
 import com.ldbc.driver.util.MapUtils;
 
+import java.text.DecimalFormat;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -137,6 +138,8 @@ public class WorkloadStatistics {
     @Override
     public String toString() {
         TemporalUtil temporalUtil = new TemporalUtil();
+        DecimalFormat integralFormat = new DecimalFormat("###,###,###,###,###");
+        DecimalFormat floatFormat = new DecimalFormat("###,###,###,###,##0.00");
         int padRightDistance = 40;
         StringBuilder sb = new StringBuilder();
         sb.append("********************************************************\n");
@@ -145,16 +148,18 @@ public class WorkloadStatistics {
         sb.append("  ------------------------------------------------------\n");
         sb.append("  GENERAL\n");
         sb.append("  ------------------------------------------------------\n");
-        sb.append(String.format("%1$-" + padRightDistance + "s", "     Operation Count:")).append(totalCount()).append("\n");
-        sb.append(String.format("%1$-" + padRightDistance + "s", "     Unique Operation Types:")).append(operationTypeCount()).append("\n");
-        sb.append(String.format("%1$-" + padRightDistance + "s", "     Total Duration:")).append(totalDurationAsMilli()).append("\n");
-        sb.append(String.format("%1$-" + padRightDistance + "s", "     Time Span:")).append(firstStartTimeAsMilli()).append(", ").append(lastStartTimeAsMilli()).append("\n");
+        double opsPerS = totalCount() / (double) totalDurationAsMilli() * 1000;
+        sb.append(String.format("%1$-" + padRightDistance + "s", "     Operation Count:")).append(integralFormat.format(totalCount())).append("\n");
+        sb.append(String.format("%1$-" + padRightDistance + "s", "     Total Duration:")).append(temporalUtil.milliDurationToString(totalDurationAsMilli())).append("\n");
+        sb.append(String.format("%1$-" + padRightDistance + "s", "     Throughput:")).append(floatFormat.format(opsPerS)).append(" (op/s)\n");
+        sb.append(String.format("%1$-" + padRightDistance + "s", "     Unique Operation Types:")).append(integralFormat.format(operationTypeCount())).append("\n");
+        sb.append(String.format("%1$-" + padRightDistance + "s", "     Time Span:")).append(temporalUtil.millisecondsToDateTimeString(firstStartTimeAsMilli())).append(" ---> ").append(temporalUtil.millisecondsToDateTimeString(lastStartTimeAsMilli())).append("\n");
         sb.append("     Operation Mix:\n");
         for (Map.Entry<Bucket<Class>, Long> operationMixForOperationType : MapUtils.sortedEntries(operationMix().getAllBuckets())) {
             Bucket.DiscreteBucket<Class> bucket = (Bucket.DiscreteBucket<Class>) operationMixForOperationType.getKey();
             Class<Operation<?>> operationType = bucket.getId();
             long operationCount = operationMixForOperationType.getValue();
-            sb.append(String.format("%1$-" + padRightDistance + "s", "        " + operationType.getSimpleName() + ":")).append(operationCount).append("\n");
+            sb.append(String.format("%1$-" + padRightDistance + "s", "        " + operationType.getSimpleName() + ":")).append(integralFormat.format(operationCount)).append("\n");
         }
         sb.append("     Operation By Dependency Mode:\n");
         sb.append(String.format("%1$-" + padRightDistance + "s", "        All Operations:")).append(toSortedClassNames(firstStartTimesAsMilliByOperationType.keySet())).append("\n");
@@ -221,7 +226,7 @@ public class WorkloadStatistics {
                 ContinuousMetricSnapshot interleavesForOperationTypeSnapshot = operationInterleavesByOperationType().get(operationType).snapshot();
                 sb.
                         append("Time Span(").
-                        append(firstStartAsMilliTypeForOperationType).append(", ").append(lastStartAsMilliTypeForOperationType).append(") ").
+                        append(temporalUtil.millisecondsToTimeString(firstStartAsMilliTypeForOperationType)).append(", ").append(temporalUtil.millisecondsToTimeString(lastStartAsMilliTypeForOperationType)).append(") ").
                         append("Interleave(").
                         append("min = ").append(temporalUtil.milliDurationToString(interleavesForOperationTypeSnapshot.min())).append(" / ").
                         append("mean = ").append(temporalUtil.milliDurationToString(Math.round(interleavesForOperationTypeSnapshot.mean()))).append(" / ").
