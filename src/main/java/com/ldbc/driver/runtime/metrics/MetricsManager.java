@@ -18,8 +18,6 @@ public class MetricsManager {
     private final TimeSource timeSource;
     private final TimeUnit unit;
     private final long highestExpectedRuntimeDurationAsNano;
-    private final long highestExpectedDelayDurationAsMilli;
-    private final boolean recordStartTimeDelayLatency;
     private long startTimeAsMilli;
     private long latestFinishTimeAsMilli;
     private long measurementCount = 0;
@@ -39,17 +37,13 @@ public class MetricsManager {
 
     MetricsManager(TimeSource timeSource,
                    TimeUnit unit,
-                   long highestExpectedRuntimeDurationAsNano,
-                   long highestExpectedDelayDurationAsMilli,
-                   boolean recordStartTimeDelayLatency) {
+                   long highestExpectedRuntimeDurationAsNano) {
         this.startTimeAsMilli = Long.MAX_VALUE;
         this.latestFinishTimeAsMilli = Long.MIN_VALUE;
         this.timeSource = timeSource;
         this.unit = unit;
         this.allOperationMetrics = new HashMap<>();
         this.highestExpectedRuntimeDurationAsNano = highestExpectedRuntimeDurationAsNano;
-        this.highestExpectedDelayDurationAsMilli = highestExpectedDelayDurationAsMilli;
-        this.recordStartTimeDelayLatency = recordStartTimeDelayLatency;
     }
 
     void measure(OperationResultReport result) throws MetricsCollectionException {
@@ -69,7 +63,7 @@ public class MetricsManager {
             operationTypeMetricsManager = new OperationTypeMetricsManager(
                     result.operation().type(),
                     unit,
-                    temporalUtil.convert(highestExpectedRuntimeDurationAsNano, TimeUnit.NANOSECONDS, unit)
+                    highestExpectedRuntimeDurationAsNano
             );
             allOperationMetrics.put(result.operation().type(), operationTypeMetricsManager);
         }
