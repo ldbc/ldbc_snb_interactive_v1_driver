@@ -59,9 +59,7 @@ public class ThreadedQueuedConcurrentMetricsServiceThread extends Thread {
         this.metricsManager = new MetricsManager(
                 timeSource,
                 unit,
-                maxRuntimeDurationAsNano,
-                executionDelayPolicy.toleratedDelayAsMilli(),
-                shouldRecordStartTimeDelayLatencies);
+                maxRuntimeDurationAsNano);
     }
 
     @Override

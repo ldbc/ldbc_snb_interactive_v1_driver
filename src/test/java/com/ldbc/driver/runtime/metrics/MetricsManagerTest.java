@@ -25,9 +25,7 @@ public class MetricsManagerTest {
         MetricsManager metricsManager = new MetricsManager(
                 timeSource,
                 TimeUnit.MILLISECONDS,
-                ThreadedQueuedConcurrentMetricsService.DEFAULT_HIGHEST_EXPECTED_RUNTIME_DURATION_AS_NANO,
-                ThreadedQueuedConcurrentMetricsService.DEFAULT_HIGHEST_EXPECTED_DELAY_DURATION_AS_MILLI,
-                recordStartTimeDelayLatency
+                ThreadedQueuedConcurrentMetricsService.DEFAULT_HIGHEST_EXPECTED_RUNTIME_DURATION_AS_NANO
         );
 
         Operation<?> operation1 = DummyLdbcSnbInteractiveOperationInstances.read1();
