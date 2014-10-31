@@ -164,7 +164,8 @@ public class LocalInitiatedTimeTrackerImplTest {
 
         Iterator<Long> times = gf.limit(
                 gf.incrementing(0l, 1l),
-                timesCount);
+                timesCount
+        );
 
         long startTimeAsMilli = timeSource.nowAsMilli();
 
@@ -190,7 +191,8 @@ public class LocalInitiatedTimeTrackerImplTest {
         List<Long> times = Lists.newArrayList(
                 gf.limit(
                         gf.incrementing(0l, 1l),
-                        timesCount)
+                        timesCount
+                )
         );
 
         long startTime = timeSource.nowAsMilli();
@@ -223,7 +225,8 @@ public class LocalInitiatedTimeTrackerImplTest {
         final List<Long> times = Lists.newArrayList(
                 gf.limit(
                         gf.incrementing(0l, 1l),
-                        timesCount)
+                        timesCount
+                )
         );
 
         // create iterator to add times from, in sequential order <-- requirement of tracker
@@ -277,7 +280,8 @@ public class LocalInitiatedTimeTrackerImplTest {
         List<Long> times = Lists.newArrayList(
                 gf.limit(
                         gf.incrementing(0l, 1l),
-                        timesCount)
+                        timesCount
+                )
         );
 
         long startTime = timeSource.nowAsMilli();

@@ -187,14 +187,13 @@ public class LocalCompletionTimeStateManager implements LocalCompletionTimeReade
         static LocalInitiatedTimeTrackerImpl createUsingMinMaxPriorityQueue() {
             // TODO this seems to have a bug for larger values, don't use it
             System.err.println(String.format("LocalInitiatedTimeTrackerImpl.createUsingMinMaxPriorityQueue() is buggy. When collection size is very large values seem to get dropped. DO NOT USE!"));
-            MinMaxPriorityQueue.<Long>create();
             Function1<MinMaxPriorityQueue<Long>, Long> getLastKnownLowestInitiatedTimeFun = new Function1<MinMaxPriorityQueue<Long>, Long>() {
                 @Override
                 public Long apply(MinMaxPriorityQueue<Long> initiatedTimesAsMilli) {
                     return initiatedTimesAsMilli.peekFirst();
                 }
             };
-            return new LocalInitiatedTimeTrackerImpl(MinMaxPriorityQueue.<Long>create(), getLastKnownLowestInitiatedTimeFun);
+            return new LocalInitiatedTimeTrackerImpl(MinMaxPriorityQueue.create(), getLastKnownLowestInitiatedTimeFun);
         }
 
         private LocalInitiatedTimeTrackerImpl(INITIATED_TIMES_CONTAINER_TYPE initiatedTimesAsMilli,
