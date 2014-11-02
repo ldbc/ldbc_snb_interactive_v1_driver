@@ -15,10 +15,10 @@ public class LdbcUpdate6AddPost extends Operation<Object> {
     private final String browserUsed;
     private final String language;
     private final String content;
-    private final int length; // <--- why is this needed? it wasn't in the previous old schema
+    private final int length;
     private final long authorPersonId;
     private final long forumId;
-    private final long countryId; // <--- country ID?
+    private final long countryId;
     private final List<Long> tagIds;
 
     public LdbcUpdate6AddPost(long postId,
