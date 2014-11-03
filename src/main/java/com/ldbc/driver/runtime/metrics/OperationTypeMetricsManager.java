@@ -13,6 +13,7 @@ public class OperationTypeMetricsManager {
     private final ContinuousMetricManager runTimeMetric;
     private final String name;
     private final TimeUnit unit;
+    private final long highestExpectedRuntimeDurationAsNano;
     private long count = 0;
 
     OperationTypeMetricsManager(String name,
@@ -20,6 +21,7 @@ public class OperationTypeMetricsManager {
                                 long highestExpectedRuntimeDurationAsNano) {
         this.name = name;
         this.unit = unit;
+        this.highestExpectedRuntimeDurationAsNano = highestExpectedRuntimeDurationAsNano;
         this.runTimeMetric = new ContinuousMetricManager(
                 METRIC_RUNTIME,
                 unit,
@@ -35,8 +37,17 @@ public class OperationTypeMetricsManager {
         try {
             runTimeMetric.addMeasurement(runtimeInAppropriateUnit);
         } catch (MetricsCollectionException e) {
-            String errMsg = String.format("Error encountered adding runtime [%s %s] to [%s]",
-                    runtimeInAppropriateUnit, unit.toString(), name);
+            String errMsg = String.format("Error encountered adding runtime: %s %s / %s %s\nTo: %s\nHighest expected value: %s %s / %s %s",
+                    operationResultReport.runDurationAsNano(),
+                    TimeUnit.NANOSECONDS.name(),
+                    runtimeInAppropriateUnit,
+                    unit.name(),
+                    name,
+                    highestExpectedRuntimeDurationAsNano,
+                    TimeUnit.NANOSECONDS.name(),
+                    temporalUtil.convert(highestExpectedRuntimeDurationAsNano, TimeUnit.NANOSECONDS, unit),
+                    unit.name()
+            );
             throw new MetricsCollectionException(errMsg, e);
         }
         count++;
