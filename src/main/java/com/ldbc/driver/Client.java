@@ -22,6 +22,7 @@ import com.ldbc.driver.util.Tuple;
 import com.ldbc.driver.util.csv.SimpleCsvFileReader;
 import com.ldbc.driver.util.csv.SimpleCsvFileWriter;
 import com.ldbc.driver.validation.*;
+import org.apache.commons.io.FileUtils;
 import org.apache.log4j.Logger;
 
 import java.io.*;
@@ -637,6 +638,9 @@ public class Client {
                 validationParamsReader.close();
 
                 File failedValidationOperationsFile = new File(validationParamsFile.getParentFile(), removeExtension(validationParamsFile.getName()) + "-failed-actual.json");
+                if (failedValidationOperationsFile.exists())
+                    FileUtils.forceDelete(failedValidationOperationsFile);
+                failedValidationOperationsFile.createNewFile();
                 try (PrintStream out = new PrintStream(new FileOutputStream(failedValidationOperationsFile))) {
                     out.print(databaseValidationResult.actualResultsForFailedOperationsAsJsonString(w));
                     out.flush();
@@ -650,6 +654,9 @@ public class Client {
                 }
 
                 File expectedResultsForFailedValidationOperationsFile = new File(validationParamsFile.getParentFile(), removeExtension(validationParamsFile.getName()) + "-failed-expected.json");
+                if (expectedResultsForFailedValidationOperationsFile.exists())
+                    FileUtils.forceDelete(expectedResultsForFailedValidationOperationsFile);
+                expectedResultsForFailedValidationOperationsFile.createNewFile();
                 try (PrintStream out = new PrintStream(new FileOutputStream(expectedResultsForFailedValidationOperationsFile))) {
                     out.print(databaseValidationResult.expectedResultsForFailedOperationsAsJsonString(w));
                     out.flush();
