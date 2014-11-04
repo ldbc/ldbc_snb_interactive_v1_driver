@@ -28,11 +28,131 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 
+import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.CoreMatchers.nullValue;
+import static org.junit.Assert.assertThat;
+
 public class EventStreamReaderPerformanceTest {
     private static final TemporalUtil TEMPORAL_UTIL = new TemporalUtil();
     TimeSource timeSource = new SystemTimeSource();
     DecimalFormat numberFormatter = new DecimalFormat("###,###,###,###");
 
+    @Ignore
+    @Test
+    public void safeTimeTest() throws FileNotFoundException {
+        File streamsDir = new File("/Users/alexaverbuch/IdeaProjects/ldbc_snb_workload_interactive_neo4j/data-import/src/test/resources/test_csv_files/");
+
+        int bufferSize = 2 * 1024 * 1024;
+        List<Iterator<Operation<?>>> parsers = new ArrayList<>();
+        for (File personUpdateFile : streamsDir.listFiles(
+                new FilenameFilter() {
+                    @Override
+                    public boolean accept(File dir, String name) {
+                        return name.endsWith("_person.csv");
+                    }
+                }
+        )) {
+            CharSeeker charSeeker = new BufferedCharSeeker(new InputStreamReader(new FileInputStream(personUpdateFile), Charsets.UTF_8), bufferSize);
+            int columnDelimiter = '|';
+            Extractors extractors = new Extractors(';');
+            parsers.add(new WriteEventStreamReaderCharSeeker(charSeeker, extractors, columnDelimiter));
+        }
+
+        for (File forumUpdateFile : streamsDir.listFiles(
+                new FilenameFilter() {
+                    @Override
+                    public boolean accept(File dir, String name) {
+                        return name.endsWith("_forum.csv");
+                    }
+                }
+        )) {
+            CharSeeker charSeeker = new BufferedCharSeeker(new InputStreamReader(new FileInputStream(forumUpdateFile), Charsets.UTF_8), bufferSize);
+            int columnDelimiter = '|';
+            Extractors extractors = new Extractors(';');
+            parsers.add(new WriteEventStreamReaderCharSeeker(charSeeker, extractors, columnDelimiter));
+        }
+
+        GeneratorFactory gf = new GeneratorFactory(new RandomDataGeneratorFactory(42l));
+        Iterator<Operation<?>> operations = gf.mergeSortOperationsByStartTime(parsers.toArray(new Iterator[parsers.size()]));
+
+        long safeTime = 10000;
+        List<Operation<?>> unsafeOperations = new ArrayList<>();
+
+        while (operations.hasNext()) {
+            Operation<?> operation = operations.next();
+
+            unsafeOperations = removeOperationsWithScheduledStartTimeBefore(unsafeOperations, operation.scheduledStartTimeAsMilli(), safeTime);
+
+            // TODO 5497558263122
+
+            if (operation.getClass().equals(LdbcUpdate1AddPerson.class)) {
+                // TODO remove
+                if (((LdbcUpdate1AddPerson) operation).personId() == 5497558263122l)
+                    System.out.println("ADDED! " + operation.scheduledStartTimeAsMilli());
+                unsafeOperations.add(operation);
+            } else if (operation.getClass().equals(LdbcUpdate2AddPostLike.class)) {
+                long personId = ((LdbcUpdate2AddPostLike) operation).personId();
+                Operation<?> dependentOn = isDependentOnUnsafeOperation(unsafeOperations, personId);
+                assertThat(String.format("\n%s - %s\n%s - %s", operation.scheduledStartTimeAsMilli(), operation, (null == dependentOn) ? "" : dependentOn.scheduledStartTimeAsMilli(), dependentOn),
+                        dependentOn, is(nullValue()));
+            } else if (operation.getClass().equals(LdbcUpdate3AddCommentLike.class)) {
+                long personId = ((LdbcUpdate3AddCommentLike) operation).personId();
+                Operation<?> dependentOn = isDependentOnUnsafeOperation(unsafeOperations, personId);
+                assertThat(String.format("\n%s - %s\n%s - %s", operation.scheduledStartTimeAsMilli(), operation, (null == dependentOn) ? "" : dependentOn.scheduledStartTimeAsMilli(), dependentOn),
+                        dependentOn, is(nullValue()));
+            } else if (operation.getClass().equals(LdbcUpdate4AddForum.class)) {
+                long personId = ((LdbcUpdate4AddForum) operation).moderatorPersonId();
+                // TODO remove
+                if (personId == 5497558263122l)
+                    System.out.println("ACCESSED! " + operation.scheduledStartTimeAsMilli());
+                Operation<?> dependentOn = isDependentOnUnsafeOperation(unsafeOperations, personId);
+                assertThat(String.format("\n%s - %s\n%s - %s", operation.scheduledStartTimeAsMilli(), operation, (null == dependentOn) ? "" : dependentOn.scheduledStartTimeAsMilli(), dependentOn),
+                        dependentOn, is(nullValue()));
+            } else if (operation.getClass().equals(LdbcUpdate5AddForumMembership.class)) {
+                long personId = ((LdbcUpdate5AddForumMembership) operation).personId();
+                Operation<?> dependentOn = isDependentOnUnsafeOperation(unsafeOperations, personId);
+                assertThat(String.format("\n%s - %s\n%s - %s", operation.scheduledStartTimeAsMilli(), operation, (null == dependentOn) ? "" : dependentOn.scheduledStartTimeAsMilli(), dependentOn),
+                        dependentOn, is(nullValue()));
+            } else if (operation.getClass().equals(LdbcUpdate6AddPost.class)) {
+                long personId = ((LdbcUpdate6AddPost) operation).authorPersonId();
+                Operation<?> dependentOn = isDependentOnUnsafeOperation(unsafeOperations, personId);
+                assertThat(String.format("\n%s - %s\n%s - %s", operation.scheduledStartTimeAsMilli(), operation, (null == dependentOn) ? "" : dependentOn.scheduledStartTimeAsMilli(), dependentOn),
+                        dependentOn, is(nullValue()));
+            } else if (operation.getClass().equals(LdbcUpdate7AddComment.class)) {
+                long personId = ((LdbcUpdate7AddComment) operation).authorPersonId();
+                Operation<?> dependentOn = isDependentOnUnsafeOperation(unsafeOperations, personId);
+                assertThat(String.format("\n%s - %s\n%s - %s", operation.scheduledStartTimeAsMilli(), operation, (null == dependentOn) ? "" : dependentOn.scheduledStartTimeAsMilli(), dependentOn),
+                        dependentOn, is(nullValue()));
+            } else if (operation.getClass().equals(LdbcUpdate8AddFriendship.class)) {
+                long personId = ((LdbcUpdate8AddFriendship) operation).person1Id();
+                Operation<?> dependentOn = isDependentOnUnsafeOperation(unsafeOperations, personId);
+                assertThat(String.format("\n%s - %s\n%s - %s", operation.scheduledStartTimeAsMilli(), operation, (null == dependentOn) ? "" : dependentOn.scheduledStartTimeAsMilli(), dependentOn),
+                        dependentOn, is(nullValue()));
+                personId = ((LdbcUpdate8AddFriendship) operation).person2Id();
+                dependentOn = isDependentOnUnsafeOperation(unsafeOperations, personId);
+                assertThat(String.format("\n%s - %s\n%s - %s", operation.scheduledStartTimeAsMilli(), operation, (null == dependentOn) ? "" : dependentOn.scheduledStartTimeAsMilli(), dependentOn),
+                        dependentOn, is(nullValue()));
+            }
+        }
+    }
+
+    private Operation<?> isDependentOnUnsafeOperation(List<Operation<?>> unsafeOperations, long personId) {
+        for (Operation<?> unsafeOperation : unsafeOperations) {
+            if (((LdbcUpdate1AddPerson) unsafeOperation).personId() == personId) return unsafeOperation;
+        }
+        return null;
+    }
+
+    private List<Operation<?>> removeOperationsWithScheduledStartTimeBefore(List<Operation<?>> dependencyOperations, long time, long safeTime) {
+        List<Operation<?>> remainingOperations = new ArrayList<>();
+        for (Operation<?> dependencyOperation : dependencyOperations) {
+            if (time - dependencyOperation.scheduledStartTimeAsMilli() < safeTime) {
+                remainingOperations.add(dependencyOperation);
+            }
+        }
+        return remainingOperations;
+    }
+    
     @Ignore
     @Test
     public void multiThreadedMultiPartitionParserPerformanceTest() throws FileNotFoundException, InterruptedException, CompletionTimeException {
