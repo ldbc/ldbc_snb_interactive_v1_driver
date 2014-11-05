@@ -641,10 +641,10 @@ public class Client {
                 if (failedValidationOperationsFile.exists())
                     FileUtils.forceDelete(failedValidationOperationsFile);
                 failedValidationOperationsFile.createNewFile();
-                try (PrintStream out = new PrintStream(new FileOutputStream(failedValidationOperationsFile))) {
-                    out.print(databaseValidationResult.actualResultsForFailedOperationsAsJsonString(w));
-                    out.flush();
-                    out.close();
+                try (Writer writer = new OutputStreamWriter(new FileOutputStream(failedValidationOperationsFile), Charsets.UTF_8)) {
+                    writer.write(databaseValidationResult.actualResultsForFailedOperationsAsJsonString(w));
+                    writer.flush();
+                    writer.close();
                 } catch (Exception e) {
                     throw new ClientException(
                             String.format("Encountered error while writing to file\nFile: %s",
@@ -657,10 +657,10 @@ public class Client {
                 if (expectedResultsForFailedValidationOperationsFile.exists())
                     FileUtils.forceDelete(expectedResultsForFailedValidationOperationsFile);
                 expectedResultsForFailedValidationOperationsFile.createNewFile();
-                try (PrintStream out = new PrintStream(new FileOutputStream(expectedResultsForFailedValidationOperationsFile))) {
-                    out.print(databaseValidationResult.expectedResultsForFailedOperationsAsJsonString(w));
-                    out.flush();
-                    out.close();
+                try (Writer writer = new OutputStreamWriter(new FileOutputStream(expectedResultsForFailedValidationOperationsFile), Charsets.UTF_8)) {
+                    writer.write(databaseValidationResult.expectedResultsForFailedOperationsAsJsonString(w));
+                    writer.flush();
+                    writer.close();
                 } catch (Exception e) {
                     throw new ClientException(
                             String.format("Encountered error while writing to file\nFile: %s",
