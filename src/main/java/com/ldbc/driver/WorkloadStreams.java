@@ -224,19 +224,20 @@ public class WorkloadStreams {
             streamHeads[i] = null;
         }
         while (kSoFar < k) {
-            long minNano = Long.MAX_VALUE;
+            long minAsMilli = temporalUtil.convert(Long.MAX_VALUE, TimeUnit.NANOSECONDS, TimeUnit.MILLISECONDS);
             int indexOfMin = -1;
             for (int i = 0; i < streams.size(); i++) {
                 if (null != streamHeads[i] || streams.get(i).hasNext()) {
                     if (null == streamHeads[i]) {
                         streamHeads[i] = streams.get(i).next();
                     }
+
                     long streamHeadTimeAsMilli = streamHeads[i].scheduledStartTimeAsMilli();
                     if (-1 == streamHeadTimeAsMilli)
                         throw new WorkloadException(String.format("Operation must have start time\n%s", streamHeads[i]));
-                    long streamHeadTimeAsNano = temporalUtil.convert(streamHeadTimeAsMilli, TimeUnit.MILLISECONDS, TimeUnit.NANOSECONDS);
-                    if (null != streamHeads[i] && streamHeadTimeAsNano < minNano) {
-                        minNano = streamHeadTimeAsNano;
+
+                    if (null != streamHeads[i] && streamHeadTimeAsMilli < minAsMilli) {
+                        minAsMilli = streamHeadTimeAsMilli;
                         indexOfMin = i;
                     }
                 }

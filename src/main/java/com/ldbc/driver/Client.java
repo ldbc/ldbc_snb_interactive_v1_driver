@@ -321,43 +321,30 @@ public class Client {
                     localCompletionTimeWriter.submitLocalCompletedTime(maxPossibleTimeAsMilli);
                 } else {
                     // There are some local completion time writers, initialize them to workload start time
-                    completionTimeServiceAssistant.writeInitiatedAndCompletedTimesToAllWriters(completionTimeService, controlService.workloadStartTimeAsMilli() - 2);
                     completionTimeServiceAssistant.writeInitiatedAndCompletedTimesToAllWriters(completionTimeService, controlService.workloadStartTimeAsMilli() - 1);
-                    completionTimeServiceAssistant.waitForGlobalCompletionTime(
+                    completionTimeServiceAssistant.writeInitiatedAndCompletedTimesToAllWriters(completionTimeService, controlService.workloadStartTimeAsMilli() );
+                    boolean globalCompletionTimeAdvancedToDesiredTime = completionTimeServiceAssistant.waitForGlobalCompletionTime(
                             timeSource,
                             controlService.workloadStartTimeAsMilli() - 1,
                             temporalUtil.convert(5, TimeUnit.SECONDS, TimeUnit.MILLISECONDS),
                             completionTimeService,
                             errorReporter
                     );
-                    logger.info("GCT: " + TEMPORAL_UTIL.millisecondsToDateTimeString(completionTimeService.globalCompletionTimeAsMilli()));
+                    long globalCompletionTimeWaitTimeoutDurationAsMilli = temporalUtil.convert(5, TimeUnit.SECONDS, TimeUnit.MILLISECONDS);
+                    if (false == globalCompletionTimeAdvancedToDesiredTime) {
+                        throw new ClientException(
+                                String.format("Timed out [%s] while waiting for global completion time to advance to workload start time\nCurrent GCT: %s\nWaiting For GCT: %s",
+                                        globalCompletionTimeWaitTimeoutDurationAsMilli,
+                                        completionTimeService.globalCompletionTimeAsMilli(),
+                                        controlService.workloadStartTimeAsMilli())
+                        );
+                    }
+                    logger.info("GCT: " + TEMPORAL_UTIL.millisecondsToDateTimeString(completionTimeService.globalCompletionTimeAsMilli()) + " / " + completionTimeService.globalCompletionTimeAsMilli());
                 }
             } catch (CompletionTimeException e) {
                 throw new ClientException("Error while writing initial initiated and completed times to Completion Time Service", e);
             }
 
-            logger.info("Waiting for all driver processes to complete initialization");
-            try {
-                long globalCompletionTimeWaitTimeoutDurationAsMilli = temporalUtil.convert(5, TimeUnit.SECONDS, TimeUnit.MILLISECONDS);
-                boolean globalCompletionTimeAdvancedToDesiredTime = completionTimeServiceAssistant.waitForGlobalCompletionTime(
-                        timeSource,
-                        controlService.workloadStartTimeAsMilli() - 2,
-                        globalCompletionTimeWaitTimeoutDurationAsMilli,
-                        completionTimeService,
-                        errorReporter);
-                if (false == globalCompletionTimeAdvancedToDesiredTime) {
-                    throw new ClientException(
-                            String.format("Timed out [%s] while waiting for global completion time to advance to workload start time\nCurrent GCT: %s\nWaiting For GCT: %s",
-                                    globalCompletionTimeWaitTimeoutDurationAsMilli,
-                                    completionTimeService.globalCompletionTimeAsMilli(),
-                                    controlService.workloadStartTimeAsMilli())
-                    );
-                }
-            } catch (CompletionTimeException e) {
-                throw new ClientException(
-                        String.format("Error encountered while waiting for global completion time to advance to workload start time: %s", controlService.workloadStartTimeAsMilli())
-                );
-            }
             logger.info("Initialization complete");
 
             logger.info("Driver Configuration");

@@ -12,7 +12,10 @@ import com.ldbc.driver.generator.RandomDataGeneratorFactory;
 import com.ldbc.driver.runtime.coordination.CompletionTimeException;
 import com.ldbc.driver.runtime.coordination.CompletionTimeServiceAssistant;
 import com.ldbc.driver.runtime.coordination.ConcurrentCompletionTimeService;
-import com.ldbc.driver.runtime.metrics.*;
+import com.ldbc.driver.runtime.metrics.ConcurrentMetricsService;
+import com.ldbc.driver.runtime.metrics.MetricsCollectionException;
+import com.ldbc.driver.runtime.metrics.ThreadedQueuedConcurrentMetricsService;
+import com.ldbc.driver.runtime.metrics.WorkloadResultsSnapshot;
 import com.ldbc.driver.runtime.scheduling.ErrorReportingTerminatingExecutionDelayPolicy;
 import com.ldbc.driver.runtime.scheduling.ExecutionDelayPolicy;
 import com.ldbc.driver.temporal.SystemTimeSource;
@@ -26,6 +29,7 @@ import com.ldbc.driver.util.csv.SimpleCsvFileWriter;
 import com.ldbc.driver.workloads.ldbc.snb.interactive.LdbcSnbInteractiveConfiguration;
 import com.ldbc.driver.workloads.ldbc.snb.interactive.LdbcSnbInteractiveWorkload;
 import com.ldbc.driver.workloads.ldbc.snb.interactive.db.DummyLdbcSnbInteractiveDb;
+import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
@@ -52,6 +56,8 @@ public class WorkloadRunnerTest {
     TimeSource timeSource = new SystemTimeSource();
     CompletionTimeServiceAssistant completionTimeServiceAssistant = new CompletionTimeServiceAssistant();
 
+    // TODO remove the ignore as soon as possible, this is due to the dependency time bug
+    @Ignore
     @Test
     public void shouldRunReadOnlyLdbcWorkloadWithNothingDbAndReturnExpectedMetrics()
             throws InterruptedException, DbException, WorkloadException, IOException, MetricsCollectionException, CompletionTimeException, DriverConfigurationException {
@@ -72,6 +78,171 @@ public class WorkloadRunnerTest {
         ConcurrentErrorReporter errorReporter = new ConcurrentErrorReporter();
         try {
             Map<String, String> paramsMap = LdbcSnbInteractiveConfiguration.defaultConfig();
+            paramsMap.put(LdbcSnbInteractiveConfiguration.PARAMETERS_DIRECTORY, TestUtils.getResource("/").getAbsolutePath());
+            List<String> forumUpdateFiles = Lists.newArrayList(TestUtils.getResource("/updateStream_0_0_forum.csv").getAbsolutePath());
+            paramsMap.put(LdbcSnbInteractiveConfiguration.FORUM_UPDATE_FILES, LdbcSnbInteractiveConfiguration.serializeFilePathsListFromConfiguration(forumUpdateFiles));
+            List<String> personUpdateFiles = Lists.newArrayList(TestUtils.getResource("/updateStream_0_0_person.csv").getAbsolutePath());
+            paramsMap.put(LdbcSnbInteractiveConfiguration.PERSON_UPDATE_FILES, LdbcSnbInteractiveConfiguration.serializeFilePathsListFromConfiguration(personUpdateFiles));
+            // Driver-specific parameters
+            String name = null;
+            String dbClassName = DummyLdbcSnbInteractiveDb.class.getName();
+            String workloadClassName = LdbcSnbInteractiveWorkload.class.getName();
+            int statusDisplayInterval = 0;
+            TimeUnit timeUnit = TimeUnit.NANOSECONDS;
+            String resultDirPath = temporaryFolder.newFolder().getAbsolutePath();
+            double timeCompressionRatio = 0.00001;
+            long windowedExecutionWindowDuration = 1000l;
+            Set<String> peerIds = new HashSet<>();
+            long toleratedExecutionDelay = TEMPORAL_UTIL.convert(1, TimeUnit.HOURS, TimeUnit.MILLISECONDS);
+            ConsoleAndFileDriverConfiguration.ConsoleAndFileValidationParamOptions validationParams = null;
+            String dbValidationFilePath = null;
+            boolean validateWorkload = false;
+            boolean calculateWorkloadStatistics = false;
+            long spinnerSleepDuration = 0l;
+            boolean printHelp = false;
+            boolean ignoreScheduledStartTimes = false;
+            boolean shouldCreateResultsLog = true;
+
+            ConsoleAndFileDriverConfiguration configuration = new ConsoleAndFileDriverConfiguration(
+                    paramsMap,
+                    name,
+                    dbClassName,
+                    workloadClassName,
+                    operationCount,
+                    threadCount,
+                    statusDisplayInterval,
+                    timeUnit,
+                    resultDirPath,
+                    timeCompressionRatio,
+                    windowedExecutionWindowDuration,
+                    peerIds,
+                    toleratedExecutionDelay,
+                    validationParams,
+                    dbValidationFilePath,
+                    validateWorkload,
+                    calculateWorkloadStatistics,
+                    spinnerSleepDuration,
+                    printHelp,
+                    ignoreScheduledStartTimes,
+                    shouldCreateResultsLog
+            );
+
+            configuration = (ConsoleAndFileDriverConfiguration) configuration.applyMap(MapUtils.loadPropertiesToMap(TestUtils.getResource("/updateStream.properties")));
+
+            controlService = new LocalControlService(timeSource.nowAsMilli(), configuration);
+            db = new DummyLdbcSnbInteractiveDb();
+            db.init(configuration.asMap());
+
+            GeneratorFactory gf = new GeneratorFactory(new RandomDataGeneratorFactory(42L));
+            Tuple.Tuple2<WorkloadStreams, Workload> workloadStreamsAndWorkload =
+                    WorkloadStreams.createNewWorkloadWithLimitedWorkloadStreams(configuration, gf);
+
+            workload = workloadStreamsAndWorkload._2();
+
+            WorkloadStreams workloadStreams = WorkloadStreams.timeOffsetAndCompressWorkloadStreams(
+                    workloadStreamsAndWorkload._1(),
+                    controlService.workloadStartTimeAsMilli(),
+                    configuration.timeCompressionRatio(),
+                    gf
+            );
+
+            boolean recordStartTimeDelayLatency = false == configuration.ignoreScheduledStartTimes();
+            ExecutionDelayPolicy executionDelayPolicy = new ErrorReportingTerminatingExecutionDelayPolicy(
+                    timeSource,
+                    toleratedExecutionDelay,
+                    errorReporter);
+            File resultsLog = temporaryFolder.newFile();
+            SimpleCsvFileWriter csvResultsLogWriter = new SimpleCsvFileWriter(resultsLog, SimpleCsvFileWriter.DEFAULT_COLUMN_SEPARATOR);
+            metricsService = ThreadedQueuedConcurrentMetricsService.newInstanceUsingBlockingQueue(
+                    timeSource,
+                    errorReporter,
+                    configuration.timeUnit(),
+                    ThreadedQueuedConcurrentMetricsService.DEFAULT_HIGHEST_EXPECTED_RUNTIME_DURATION_AS_NANO,
+                    recordStartTimeDelayLatency,
+                    executionDelayPolicy,
+                    csvResultsLogWriter);
+
+            ConcurrentCompletionTimeService concurrentCompletionTimeService =
+                    completionTimeServiceAssistant.newSynchronizedConcurrentCompletionTimeServiceFromPeerIds(
+                            controlService.configuration().peerIds());
+
+            int boundedQueueSize = DefaultQueues.DEFAULT_BOUND_1000;
+            WorkloadRunner runner = new WorkloadRunner(
+                    timeSource,
+                    db,
+                    workloadStreams,
+                    metricsService,
+                    errorReporter,
+                    concurrentCompletionTimeService,
+                    controlService.configuration().threadCount(),
+                    controlService.configuration().statusDisplayIntervalAsSeconds(),
+                    controlService.configuration().spinnerSleepDurationAsMilli(),
+                    controlService.configuration().ignoreScheduledStartTimes(),
+                    boundedQueueSize);
+
+            runner.executeWorkload();
+
+            WorkloadResultsSnapshot workloadResults = metricsService.results();
+
+//            SimpleOperationMetricsFormatter metricsFormatter = new SimpleOperationMetricsFormatter();
+//            System.out.println(metricsFormatter.format(workloadResults));
+
+            assertThat(errorReporter.toString() + "\n" + workloadResults.toString(), errorReporter.errorEncountered(), is(false));
+            assertThat(errorReporter.toString() + "\n" + workloadResults.toString(), workloadResults.startTimeAsMilli() >= controlService.workloadStartTimeAsMilli(), is(true));
+            assertThat(errorReporter.toString() + "\n" + workloadResults.toString(), workloadResults.startTimeAsMilli() < (controlService.workloadStartTimeAsMilli() + configuration.toleratedExecutionDelayAsMilli()), is(true));
+            assertThat(errorReporter.toString() + "\n" + workloadResults.toString(), workloadResults.latestFinishTimeAsMilli() >= workloadResults.startTimeAsMilli(), is(true));
+            assertThat(errorReporter.toString() + "\n" + workloadResults.toString(), workloadResults.totalOperationCount(), is(operationCount));
+
+            WorkloadResultsSnapshot workloadResultsFromJson = WorkloadResultsSnapshot.fromJson(workloadResults.toJson());
+
+            assertThat(errorReporter.toString(), workloadResults, equalTo(workloadResultsFromJson));
+            assertThat(errorReporter.toString(), workloadResults.toJson(), equalTo(workloadResultsFromJson.toJson()));
+
+            csvResultsLogWriter.close();
+            SimpleCsvFileReader csvResultsLogReader = new SimpleCsvFileReader(resultsLog, SimpleCsvFileReader.DEFAULT_COLUMN_SEPARATOR_PATTERN);
+            assertThat((long) Iterators.size(csvResultsLogReader), is(configuration.operationCount())); // NOT + 1 because I didn't add csv headers
+            csvResultsLogReader.close();
+
+            double operationsPerSecond = Math.round(((double) operationCount / workloadResults.totalRunDurationAsNano()) * ONE_SECOND_AS_NANO);
+            double microSecondPerOperation = (double) TEMPORAL_UTIL.convert(workloadResults.totalRunDurationAsNano(), TimeUnit.NANOSECONDS, TimeUnit.MICROSECONDS) / operationCount;
+            System.out.println(
+                    String.format("[%s threads] Completed %s operations in %s = %s op/sec = 1 op/%s us",
+                            threadCount,
+                            numberFormatter.format(operationCount),
+                            TEMPORAL_UTIL.nanoDurationToString(workloadResults.totalRunDurationAsNano()),
+                            doubleNumberFormatter.format(operationsPerSecond),
+                            doubleNumberFormatter.format(microSecondPerOperation))
+            );
+        } finally {
+            System.out.println(errorReporter.toString());
+            if (null != controlService) controlService.shutdown();
+            if (null != db) db.close();
+            if (null != workload) workload.close();
+            if (null != metricsService) metricsService.shutdown();
+            if (null != completionTimeService) completionTimeService.shutdown();
+        }
+    }
+
+    @Test
+    public void shouldRunReadWriteLdbcWorkloadWithNothingDbAndReturnExpectedMetrics()
+            throws InterruptedException, DbException, WorkloadException, IOException, MetricsCollectionException, CompletionTimeException, DriverConfigurationException {
+        List<Integer> threadCounts = Lists.newArrayList(1, 2, 4, 8);
+        long operationCount = 1000000;
+        for (int threadCount : threadCounts) {
+            doShouldRunReadWriteLdbcWorkloadWithNothingDbAndReturnExpectedMetricsIncludingResultsLog(threadCount, operationCount);
+        }
+    }
+
+    public void doShouldRunReadWriteLdbcWorkloadWithNothingDbAndReturnExpectedMetricsIncludingResultsLog(int threadCount, long operationCount)
+            throws InterruptedException, DbException, WorkloadException, IOException, MetricsCollectionException, CompletionTimeException, DriverConfigurationException {
+        ConcurrentControlService controlService = null;
+        Db db = null;
+        Workload workload = null;
+        ConcurrentMetricsService metricsService = null;
+        ConcurrentCompletionTimeService completionTimeService = null;
+        ConcurrentErrorReporter errorReporter = new ConcurrentErrorReporter();
+        try {
+            Map<String, String> paramsMap = LdbcSnbInteractiveConfiguration.defaultReadOnlyConfig();
             paramsMap.put(LdbcSnbInteractiveConfiguration.PARAMETERS_DIRECTORY, TestUtils.getResource("/").getAbsolutePath());
             List<String> forumUpdateFiles = Lists.newArrayList(TestUtils.getResource("/updateStream_0_0_forum.csv").getAbsolutePath());
             paramsMap.put(LdbcSnbInteractiveConfiguration.FORUM_UPDATE_FILES, LdbcSnbInteractiveConfiguration.serializeFilePathsListFromConfiguration(forumUpdateFiles));

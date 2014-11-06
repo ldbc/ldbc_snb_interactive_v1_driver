@@ -38,21 +38,6 @@ public class LdbcSnbInteractiveWorkloadPerformanceTest {
 
     TimeSource timeSource = new SystemTimeSource();
 
-    @Ignore
-    @Test
-    public void hdrShouldNotTakeAllTheFuckingRam() {
-        List<Histogram> histograms = new ArrayList<>();
-        long estimatedBytes = 0;
-        for (int i = 0; i < 100; i++) {
-            Histogram histogram = new Histogram(1l, new TemporalUtil().convert(90, TimeUnit.MINUTES, TimeUnit.NANOSECONDS), 4);
-            histograms.add(histogram);
-            estimatedBytes += histogram.getEstimatedFootprintInBytes();
-            long estimatedKb = estimatedBytes / 1024;
-            long estimatedMb = estimatedKb / 1024;
-            System.out.println("Estimated MB (cumulative): " + estimatedMb);
-        }
-    }
-
     /*
 SF30 1,2,4 threads 1 partition
 [TC1-social_network]Completed 100,000,000 operations in 02:35.771.000 (m:s.ms.us) = 641,968 op/sec = 1 op/1.55771 us
@@ -159,7 +144,8 @@ SF30 1,2,4 threads 1 partition
             int statusDisplayInterval = 2;
             TimeUnit timeUnit = TimeUnit.MICROSECONDS;
             String resultDirPath = resultsDir;
-            double timeCompressionRatio = 0.0000001;
+//            double timeCompressionRatio = 0.0000001;
+            double timeCompressionRatio = 10.0;
             long windowedExecutionWindowDuration = 1000l;
             Set<String> peerIds = new HashSet<>();
             long toleratedExecutionDelay = TEMPORAL_UTIL.convert(60, TimeUnit.MINUTES, TimeUnit.MILLISECONDS);
@@ -230,78 +216,6 @@ SF30 1,2,4 threads 1 partition
         }
     }
 
-
-    /*
-    ********************************************************
-************ Calculated Workload Statistics ************
-********************************************************
-  ------------------------------------------------------
-  GENERAL
-  ------------------------------------------------------
-     Operation Count:                   100,000,000
-     Unique Operation Types:            22
-     Total Duration:                    01:21.716.000 (m:s.ms.us)
-     Time Span:                         2014-10-30 - 11:10:05.546, 2014-10-30 - 11:11:27.262
-     Operation Mix:
-        LdbcQuery10:                    2,017,680
-        LdbcQuery11:                    29,584
-        LdbcQuery12:                    585,778
-        LdbcQuery13:                    445,076
-        LdbcQuery14:                    832,987
-        LdbcQuery1:                     442,905
-        LdbcQuery2:                     223,634
-        LdbcQuery3:                     2,161,800
-        LdbcQuery4:                     14,478
-        LdbcQuery5:                     507,238
-        LdbcQuery6:                     5,044,201
-        LdbcQuery7:                     9,831
-        LdbcQuery8:                     2,982
-        LdbcQuery9:                     4,778,717
-        LdbcUpdate1AddPerson:           15,697
-        LdbcUpdate2AddPostLike:         12,259,853
-        LdbcUpdate3AddCommentLike:      13,480,471
-        LdbcUpdate4AddForum:            285,310
-        LdbcUpdate5AddForumMembership:  42,432,546
-        LdbcUpdate6AddPost:             3,493,189
-        LdbcUpdate7AddComment:          8,547,315
-        LdbcUpdate8AddFriendship:       2,388,728
-     Operation By Dependency Mode:
-        All Operations:                 [LdbcQuery1, LdbcQuery10, LdbcQuery11, LdbcQuery12, LdbcQuery13, LdbcQuery14, LdbcQuery2, LdbcQuery3, LdbcQuery4, LdbcQuery5, LdbcQuery6, LdbcQuery7, LdbcQuery8, LdbcQuery9, LdbcUpdate1AddPerson, LdbcUpdate2AddPostLike, LdbcUpdate3AddCommentLike, LdbcUpdate4AddForum, LdbcUpdate5AddForumMembership, LdbcUpdate6AddPost, LdbcUpdate7AddComment, LdbcUpdate8AddFriendship]
-        Dependency Operations:          [LdbcUpdate1AddPerson, LdbcUpdate8AddFriendship]
-        Dependent Operations:           [LdbcUpdate1AddPerson, LdbcUpdate2AddPostLike, LdbcUpdate3AddCommentLike, LdbcUpdate4AddForum, LdbcUpdate5AddForumMembership, LdbcUpdate6AddPost, LdbcUpdate7AddComment, LdbcUpdate8AddFriendship]
-  ------------------------------------------------------
-  INTERLEAVES
-  ------------------------------------------------------
-        All Operations:                 min = 00:00.000.000 (m:s.ms.us) / mean = 00:00.000.000 (m:s.ms.us) / max = 00:00.001.000 (m:s.ms.us)
-        Dependency Operations:          min = 00:00.000.000 (m:s.ms.us) / mean = 00:00.000.000 (m:s.ms.us) / max = 00:00.001.000 (m:s.ms.us)
-        Dependent Operations:           min = 00:00.000.000 (m:s.ms.us) / mean = 00:00.000.000 (m:s.ms.us) / max = 00:00.001.000 (m:s.ms.us)
-  ------------------------------------------------------
-  BY OPERATION TYPE
-  ------------------------------------------------------
-     LdbcQuery10:                       Min Dependency Duration(1620) Time Span(11:10:05.546, 11:11:27.262) Interleave(min = 00:00.000.000 (m:s.ms.us) / mean = 00:00.000.000 (m:s.ms.us) / max = 00:00.001.000 (m:s.ms.us))
-     LdbcQuery11:                       Min Dependency Duration(1623) Time Span(11:10:05.549, 11:11:27.260) Interleave(min = 00:00.002.000 (m:s.ms.us) / mean = 00:00.003.000 (m:s.ms.us) / max = 00:00.003.000 (m:s.ms.us))
-     LdbcQuery12:                       Min Dependency Duration(1620) Time Span(11:10:05.546, 11:11:27.262) Interleave(min = 00:00.000.000 (m:s.ms.us) / mean = 00:00.000.000 (m:s.ms.us) / max = 00:00.001.000 (m:s.ms.us))
-     LdbcQuery13:                       Min Dependency Duration(1620) Time Span(11:10:05.546, 11:11:27.262) Interleave(min = 00:00.000.000 (m:s.ms.us) / mean = 00:00.000.000 (m:s.ms.us) / max = 00:00.001.000 (m:s.ms.us))
-     LdbcQuery14:                       Min Dependency Duration(1620) Time Span(11:10:05.546, 11:11:27.262) Interleave(min = 00:00.000.000 (m:s.ms.us) / mean = 00:00.000.000 (m:s.ms.us) / max = 00:00.001.000 (m:s.ms.us))
-     LdbcQuery1:                        Min Dependency Duration(1620) Time Span(11:10:05.546, 11:11:27.262) Interleave(min = 00:00.000.000 (m:s.ms.us) / mean = 00:00.000.000 (m:s.ms.us) / max = 00:00.001.000 (m:s.ms.us))
-     LdbcQuery2:                        Min Dependency Duration(1620) Time Span(11:10:05.546, 11:11:27.262) Interleave(min = 00:00.000.000 (m:s.ms.us) / mean = 00:00.000.000 (m:s.ms.us) / max = 00:00.001.000 (m:s.ms.us))
-     LdbcQuery3:                        Min Dependency Duration(1620) Time Span(11:10:05.546, 11:11:27.262) Interleave(min = 00:00.000.000 (m:s.ms.us) / mean = 00:00.000.000 (m:s.ms.us) / max = 00:00.001.000 (m:s.ms.us))
-     LdbcQuery4:                        Min Dependency Duration(1626) Time Span(11:10:05.552, 11:11:27.258) Interleave(min = 00:00.005.000 (m:s.ms.us) / mean = 00:00.006.000 (m:s.ms.us) / max = 00:00.006.000 (m:s.ms.us))
-     LdbcQuery5:                        Min Dependency Duration(1620) Time Span(11:10:05.546, 11:11:27.262) Interleave(min = 00:00.000.000 (m:s.ms.us) / mean = 00:00.000.000 (m:s.ms.us) / max = 00:00.001.000 (m:s.ms.us))
-     LdbcQuery6:                        Min Dependency Duration(1620) Time Span(11:10:05.546, 11:11:27.262) Interleave(min = 00:00.000.000 (m:s.ms.us) / mean = 00:00.000.000 (m:s.ms.us) / max = 00:00.001.000 (m:s.ms.us))
-     LdbcQuery7:                        Min Dependency Duration(1628) Time Span(11:10:05.554, 11:11:27.256) Interleave(min = 00:00.008.000 (m:s.ms.us) / mean = 00:00.008.000 (m:s.ms.us) / max = 00:00.009.000 (m:s.ms.us))
-     LdbcQuery8:                        Min Dependency Duration(1647) Time Span(11:10:05.573, 11:11:27.254) Interleave(min = 00:00.027.000 (m:s.ms.us) / mean = 00:00.027.000 (m:s.ms.us) / max = 00:00.028.000 (m:s.ms.us))
-     LdbcQuery9:                        Min Dependency Duration(1620) Time Span(11:10:05.546, 11:11:27.262) Interleave(min = 00:00.000.000 (m:s.ms.us) / mean = 00:00.000.000 (m:s.ms.us) / max = 00:00.001.000 (m:s.ms.us))
-     LdbcUpdate1AddPerson:              Min Dependency Duration(10000) Time Span(11:10:05.548, 11:11:27.255) Interleave(min = 00:00.000.000 (m:s.ms.us) / mean = 00:00.005.000 (m:s.ms.us) / max = 00:00.046.000 (m:s.ms.us))
-     LdbcUpdate2AddPostLike:            Min Dependency Duration(10000) Time Span(11:10:05.546, 11:11:27.262) Interleave(min = 00:00.000.000 (m:s.ms.us) / mean = 00:00.000.000 (m:s.ms.us) / max = 00:00.001.000 (m:s.ms.us))
-     LdbcUpdate3AddCommentLike:         Min Dependency Duration(10000) Time Span(11:10:05.546, 11:11:27.262) Interleave(min = 00:00.000.000 (m:s.ms.us) / mean = 00:00.000.000 (m:s.ms.us) / max = 00:00.001.000 (m:s.ms.us))
-     LdbcUpdate4AddForum:               Min Dependency Duration(10000) Time Span(11:10:05.546, 11:11:27.262) Interleave(min = 00:00.000.000 (m:s.ms.us) / mean = 00:00.000.000 (m:s.ms.us) / max = 00:00.004.000 (m:s.ms.us))
-     LdbcUpdate5AddForumMembership:     Min Dependency Duration(10000) Time Span(11:10:05.546, 11:11:27.262) Interleave(min = 00:00.000.000 (m:s.ms.us) / mean = 00:00.000.000 (m:s.ms.us) / max = 00:00.001.000 (m:s.ms.us))
-     LdbcUpdate6AddPost:                Min Dependency Duration(10000) Time Span(11:10:05.546, 11:11:27.262) Interleave(min = 00:00.000.000 (m:s.ms.us) / mean = 00:00.000.000 (m:s.ms.us) / max = 00:00.002.000 (m:s.ms.us))
-     LdbcUpdate7AddComment:             Min Dependency Duration(10000) Time Span(11:10:05.546, 11:11:27.262) Interleave(min = 00:00.000.000 (m:s.ms.us) / mean = 00:00.000.000 (m:s.ms.us) / max = 00:00.001.000 (m:s.ms.us))
-     LdbcUpdate8AddFriendship:          Min Dependency Duration(10000) Time Span(11:10:05.546, 11:11:27.262) Interleave(min = 00:00.000.000 (m:s.ms.us) / mean = 00:00.000.000 (m:s.ms.us) / max = 00:00.001.000 (m:s.ms.us))
-********************************************************
-     */
     @Ignore
     @Test
     public void withTimesPerformanceTest()

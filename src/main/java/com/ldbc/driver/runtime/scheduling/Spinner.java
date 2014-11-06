@@ -98,6 +98,7 @@ public class Spinner {
 
         @Override
         public Boolean apply(Operation<?> operation, SpinnerCheck check) {
+
             // wait for checks to have all passed before allowing operation to start
             while (SpinnerCheck.SpinnerCheckResult.STILL_CHECKING == check.doCheck()) {
                 powerNap(sleepDurationAsMilli);

@@ -39,7 +39,7 @@ class WorkloadStatusThread extends Thread {
                 String statusString = metricsService.status().toString();
                 if (detailedStatus) {
                     long gctAsMilli = concurrentCompletionTimeService.globalCompletionTimeAsMilli();
-                    statusString += ", GCT: " + ((-1 == gctAsMilli) ? "--" : temporalUtil.millisecondsToDateTimeString(gctAsMilli));
+                    statusString += ", GCT: " + ((-1 == gctAsMilli) ? "--" : temporalUtil.millisecondsToDateTimeString(gctAsMilli) + " / " + gctAsMilli);
                 }
                 logger.info(statusString);
                 Spinner.powerNap(statusUpdateIntervalAsMilli);

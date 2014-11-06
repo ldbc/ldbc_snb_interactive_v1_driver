@@ -279,6 +279,51 @@ public class LdbcSnbInteractiveWorkload extends Workload {
          * *******
          * *******/
 
+         /*
+         * Create person write operation streams
+         */
+        for (File personUpdateOperationFile : personUpdateOperationFiles) {
+            Iterator<Operation<?>> personUpdateOperationsParser;
+            try {
+                Tuple.Tuple2<Iterator<Operation<?>>, Closeable> parserAndCloseable = fileToWriteStreamParser(personUpdateOperationFile, parser);
+                personUpdateOperationsParser = parserAndCloseable._1();
+                personUpdateOperationsFileReaders.add(parserAndCloseable._2());
+            } catch (IOException e) {
+                throw new WorkloadException("Unable to open person update stream: " + personUpdateOperationFile.getAbsolutePath(), e);
+            }
+            PeekingIterator<Operation<?>> unfilteredPersonUpdateOperations = Iterators.peekingIterator(personUpdateOperationsParser);
+
+            try {
+                if (unfilteredPersonUpdateOperations.peek().scheduledStartTimeAsMilli() < workloadStartTimeAsMilli) {
+                    workloadStartTimeAsMilli = unfilteredPersonUpdateOperations.peek().scheduledStartTimeAsMilli();
+                }
+            } catch (NoSuchElementException e) {
+                // do nothing, exception just means that stream was empty
+            }
+
+            // Filter Write Operations
+            Predicate<Operation<?>> enabledWriteOperationsFilter = new Predicate<Operation<?>>() {
+                @Override
+                public boolean apply(Operation<?> operation) {
+                    return enabledWriteOperationTypes.contains(operation.getClass());
+                }
+            };
+            Iterator<Operation<?>> filteredPersonUpdateOperations = Iterators.filter(unfilteredPersonUpdateOperations, enabledWriteOperationsFilter);
+            Iterator<Operation<?>> filteredPersonUpdateOperationsWithDependencyTimes = gf.assignDependencyTimesEqualToScheduledStartTimeMinusSafeT(
+                    filteredPersonUpdateOperations,
+                    safeTDurationAsMilli
+            );
+
+            Set<Class<? extends Operation<?>>> dependentPersonUpdateOperationTypes = Sets.<Class<? extends Operation<?>>>newHashSet(
+                    LdbcUpdate8AddFriendship.class
+            );
+            ldbcSnbInteractiveWorkloadStreams.addBlockingStream(
+                    dependentPersonUpdateOperationTypes,
+                    filteredPersonUpdateOperationsWithDependencyTimes,
+                    Collections.<Operation<?>>emptyIterator()
+            );
+        }
+
         /*
          * Create forum write operation streams
          */
@@ -327,49 +372,6 @@ public class LdbcSnbInteractiveWorkload extends Workload {
                     dependentForumUpdateOperationTypes,
                     Collections.<Operation<?>>emptyIterator(),
                     filteredForumUpdateOperationsWithDependencyTimes
-            );
-        }
-
-        for (File personUpdateOperationFile : personUpdateOperationFiles) {
-            Iterator<Operation<?>> personUpdateOperationsParser;
-            try {
-                Tuple.Tuple2<Iterator<Operation<?>>, Closeable> parserAndCloseable = fileToWriteStreamParser(personUpdateOperationFile, parser);
-                personUpdateOperationsParser = parserAndCloseable._1();
-                personUpdateOperationsFileReaders.add(parserAndCloseable._2());
-            } catch (IOException e) {
-                throw new WorkloadException("Unable to open person update stream: " + personUpdateOperationFile.getAbsolutePath(), e);
-            }
-            PeekingIterator<Operation<?>> unfilteredPersonUpdateOperations = Iterators.peekingIterator(personUpdateOperationsParser);
-
-            try {
-                if (unfilteredPersonUpdateOperations.peek().scheduledStartTimeAsMilli() < workloadStartTimeAsMilli) {
-                    workloadStartTimeAsMilli = unfilteredPersonUpdateOperations.peek().scheduledStartTimeAsMilli();
-                }
-            } catch (NoSuchElementException e) {
-                // do nothing, exception just means that stream was empty
-            }
-
-            // Filter Write Operations
-            Predicate<Operation<?>> enabledWriteOperationsFilter = new Predicate<Operation<?>>() {
-                @Override
-                public boolean apply(Operation<?> operation) {
-                    return enabledWriteOperationTypes.contains(operation.getClass());
-                }
-            };
-            Iterator<Operation<?>> filteredPersonUpdateOperations = Iterators.filter(unfilteredPersonUpdateOperations, enabledWriteOperationsFilter);
-            Iterator<Operation<?>> filteredPersonUpdateOperationsWithDependencyTimes = gf.assignDependencyTimesEqualToScheduledStartTimeMinusSafeT(
-                    filteredPersonUpdateOperations,
-                    safeTDurationAsMilli
-            );
-
-            Set<Class<? extends Operation<?>>> dependentPersonUpdateOperationTypes = Sets.<Class<? extends Operation<?>>>newHashSet(
-                    LdbcUpdate1AddPerson.class,
-                    LdbcUpdate8AddFriendship.class
-            );
-            ldbcSnbInteractiveWorkloadStreams.addBlockingStream(
-                    dependentPersonUpdateOperationTypes,
-                    filteredPersonUpdateOperationsWithDependencyTimes,
-                    Collections.<Operation<?>>emptyIterator()
             );
         }
 

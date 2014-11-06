@@ -120,7 +120,7 @@ class DependencyAndNonDependencyHandlersRetriever {
             throw new OperationHandlerExecutorException(String.format("Error while initializing handler for operation\nOperation: %s", operation));
         }
 
-        if (dependentOperationTypes.contains(operation))
+        if (dependentOperationTypes.contains(operation.getClass()))
             operationHandler.addBeforeExecuteCheck(new GctDependencyCheck(globalCompletionTimeReader, operation, errorReporter));
 
         return operationHandler;
