@@ -57,6 +57,13 @@ public class CsvEventStreamReaderTimedTypedCharSeeker<BASE_EVENT_TYPE> implement
                 return null;
             }
 
+            long dependencyTime;
+            if (charSeeker.seek(mark, columnDelimiters)) {
+                dependencyTime = charSeeker.extract(mark, extractors.long_()).longValue();
+            } else {
+                throw new GeneratorException("No dependency time found");
+            }
+
             int eventType;
             if (charSeeker.seek(mark, columnDelimiters)) {
                 eventType = charSeeker.extract(mark, extractors.int_()).intValue();
@@ -72,7 +79,7 @@ public class CsvEventStreamReaderTimedTypedCharSeeker<BASE_EVENT_TYPE> implement
                 ));
             }
 
-            return decoder.decodeEvent(scheduledStartTime, charSeeker, extractors, columnDelimiters, mark);
+            return decoder.decodeEvent(scheduledStartTime, dependencyTime, charSeeker, extractors, columnDelimiters, mark);
         } catch (IOException e) {
             throw new GeneratorException("Error while retrieving next event", e);
         }
@@ -85,6 +92,6 @@ public class CsvEventStreamReaderTimedTypedCharSeeker<BASE_EVENT_TYPE> implement
 
 
     public static interface EventDecoder<BASE_EVENT_TYPE> {
-        BASE_EVENT_TYPE decodeEvent(long scheduledStartTime, CharSeeker charSeeker, Extractors extractors, int[] columnDelimiters, Mark mark);
+        BASE_EVENT_TYPE decodeEvent(long scheduledStartTime, long dependencyTime, CharSeeker charSeeker, Extractors extractors, int[] columnDelimiters, Mark mark);
     }
 }

@@ -309,17 +309,13 @@ public class LdbcSnbInteractiveWorkload extends Workload {
                 }
             };
             Iterator<Operation<?>> filteredPersonUpdateOperations = Iterators.filter(unfilteredPersonUpdateOperations, enabledWriteOperationsFilter);
-            Iterator<Operation<?>> filteredPersonUpdateOperationsWithDependencyTimes = gf.assignDependencyTimesEqualToScheduledStartTimeMinusSafeT(
-                    filteredPersonUpdateOperations,
-                    safeTDurationAsMilli
-            );
 
             Set<Class<? extends Operation<?>>> dependentPersonUpdateOperationTypes = Sets.<Class<? extends Operation<?>>>newHashSet(
                     LdbcUpdate8AddFriendship.class
             );
             ldbcSnbInteractiveWorkloadStreams.addBlockingStream(
                     dependentPersonUpdateOperationTypes,
-                    filteredPersonUpdateOperationsWithDependencyTimes,
+                    filteredPersonUpdateOperations,
                     Collections.<Operation<?>>emptyIterator()
             );
         }
@@ -354,10 +350,6 @@ public class LdbcSnbInteractiveWorkload extends Workload {
                 }
             };
             Iterator<Operation<?>> filteredForumUpdateOperations = Iterators.filter(unfilteredForumUpdateOperations, enabledWriteOperationsFilter);
-            Iterator<Operation<?>> filteredForumUpdateOperationsWithDependencyTimes = gf.assignDependencyTimesEqualToScheduledStartTimeMinusSafeT(
-                    filteredForumUpdateOperations,
-                    safeTDurationAsMilli
-            );
 
             Set<Class<? extends Operation<?>>> dependentForumUpdateOperationTypes = Sets.<Class<? extends Operation<?>>>newHashSet(
                     LdbcUpdate2AddPostLike.class,
@@ -371,7 +363,7 @@ public class LdbcSnbInteractiveWorkload extends Workload {
             ldbcSnbInteractiveWorkloadStreams.addBlockingStream(
                     dependentForumUpdateOperationTypes,
                     Collections.<Operation<?>>emptyIterator(),
-                    filteredForumUpdateOperationsWithDependencyTimes
+                    filteredForumUpdateOperations
             );
         }
 
@@ -425,12 +417,9 @@ public class LdbcSnbInteractiveWorkload extends Workload {
 
             Iterator<Long> operation1StartTimes = gf.incrementing(workloadStartTimeAsMilli + readOperation1InterleaveAsMilli, readOperation1InterleaveAsMilli);
 
-            readOperation1Stream = gf.assignDependencyTimes(
-                    gf.constant(workloadStartTimeAsMilli),
-                    gf.assignStartTimes(
-                            operation1StartTimes,
-                            operation1StreamWithoutTimes
-                    )
+            readOperation1Stream = gf.assignStartTimes(
+                    operation1StartTimes,
+                    operation1StreamWithoutTimes
             );
 
             readOperationFileReaders.add(charSeeker);
@@ -469,12 +458,9 @@ public class LdbcSnbInteractiveWorkload extends Workload {
 
             Iterator<Long> operation2StartTimes = gf.incrementing(workloadStartTimeAsMilli + readOperation2InterleaveAsMilli, readOperation2InterleaveAsMilli);
 
-            readOperation2Stream = gf.assignDependencyTimes(
-                    gf.constant(workloadStartTimeAsMilli),
-                    gf.assignStartTimes(
-                            operation2StartTimes,
-                            operation2StreamWithoutTimes
-                    )
+            readOperation2Stream = gf.assignStartTimes(
+                    operation2StartTimes,
+                    operation2StreamWithoutTimes
             );
 
             readOperationFileReaders.add(charSeeker);
@@ -516,12 +502,9 @@ public class LdbcSnbInteractiveWorkload extends Workload {
 
             Iterator<Long> operation3StartTimes = gf.incrementing(workloadStartTimeAsMilli + readOperation3InterleaveAsMilli, readOperation3InterleaveAsMilli);
 
-            readOperation3Stream = gf.assignDependencyTimes(
-                    gf.constant(workloadStartTimeAsMilli),
-                    gf.assignStartTimes(
-                            operation3StartTimes,
-                            operation3StreamWithoutTimes
-                    )
+            readOperation3Stream = gf.assignStartTimes(
+                    operation3StartTimes,
+                    operation3StreamWithoutTimes
             );
 
             readOperationFileReaders.add(charSeeker);
@@ -561,12 +544,9 @@ public class LdbcSnbInteractiveWorkload extends Workload {
 
             Iterator<Long> operation4StartTimes = gf.incrementing(workloadStartTimeAsMilli + readOperation4InterleaveAsMilli, readOperation4InterleaveAsMilli);
 
-            readOperation4Stream = gf.assignDependencyTimes(
-                    gf.constant(workloadStartTimeAsMilli),
-                    gf.assignStartTimes(
-                            operation4StartTimes,
-                            operation4StreamWithoutTimes
-                    )
+            readOperation4Stream = gf.assignStartTimes(
+                    operation4StartTimes,
+                    operation4StreamWithoutTimes
             );
 
             readOperationFileReaders.add(charSeeker);
@@ -605,12 +585,9 @@ public class LdbcSnbInteractiveWorkload extends Workload {
 
             Iterator<Long> operation5StartTimes = gf.incrementing(workloadStartTimeAsMilli + readOperation5InterleaveAsMilli, readOperation5InterleaveAsMilli);
 
-            readOperation5Stream = gf.assignDependencyTimes(
-                    gf.constant(workloadStartTimeAsMilli),
-                    gf.assignStartTimes(
-                            operation5StartTimes,
-                            operation5StreamWithoutTimes
-                    )
+            readOperation5Stream = gf.assignStartTimes(
+                    operation5StartTimes,
+                    operation5StreamWithoutTimes
             );
 
             readOperationFileReaders.add(charSeeker);
@@ -649,12 +626,9 @@ public class LdbcSnbInteractiveWorkload extends Workload {
 
             Iterator<Long> operation6StartTimes = gf.incrementing(workloadStartTimeAsMilli + readOperation6InterleaveAsMilli, readOperation6InterleaveAsMilli);
 
-            readOperation6Stream = gf.assignDependencyTimes(
-                    gf.constant(workloadStartTimeAsMilli),
-                    gf.assignStartTimes(
-                            operation6StartTimes,
-                            operation6StreamWithoutTimes
-                    )
+            readOperation6Stream = gf.assignStartTimes(
+                    operation6StartTimes,
+                    operation6StreamWithoutTimes
             );
 
             readOperationFileReaders.add(charSeeker);
@@ -692,12 +666,9 @@ public class LdbcSnbInteractiveWorkload extends Workload {
 
             Iterator<Long> operation7StartTimes = gf.incrementing(workloadStartTimeAsMilli + readOperation7InterleaveAsMilli, readOperation7InterleaveAsMilli);
 
-            readOperation7Stream = gf.assignDependencyTimes(
-                    gf.constant(workloadStartTimeAsMilli),
-                    gf.assignStartTimes(
-                            operation7StartTimes,
-                            operation7StreamWithoutTimes
-                    )
+            readOperation7Stream = gf.assignStartTimes(
+                    operation7StartTimes,
+                    operation7StreamWithoutTimes
             );
 
             readOperationFileReaders.add(charSeeker);
@@ -735,12 +706,9 @@ public class LdbcSnbInteractiveWorkload extends Workload {
 
             Iterator<Long> operation8StartTimes = gf.incrementing(workloadStartTimeAsMilli + readOperation8InterleaveAsMilli, readOperation8InterleaveAsMilli);
 
-            readOperation8Stream = gf.assignDependencyTimes(
-                    gf.constant(workloadStartTimeAsMilli),
-                    gf.assignStartTimes(
-                            operation8StartTimes,
-                            operation8StreamWithoutTimes
-                    )
+            readOperation8Stream = gf.assignStartTimes(
+                    operation8StartTimes,
+                    operation8StreamWithoutTimes
             );
 
             readOperationFileReaders.add(charSeeker);
@@ -779,12 +747,9 @@ public class LdbcSnbInteractiveWorkload extends Workload {
 
             Iterator<Long> operation9StartTimes = gf.incrementing(workloadStartTimeAsMilli + readOperation9InterleaveAsMilli, readOperation9InterleaveAsMilli);
 
-            readOperation9Stream = gf.assignDependencyTimes(
-                    gf.constant(workloadStartTimeAsMilli),
-                    gf.assignStartTimes(
-                            operation9StartTimes,
-                            operation9StreamWithoutTimes
-                    )
+            readOperation9Stream = gf.assignStartTimes(
+                    operation9StartTimes,
+                    operation9StreamWithoutTimes
             );
 
             readOperationFileReaders.add(charSeeker);
@@ -823,12 +788,9 @@ public class LdbcSnbInteractiveWorkload extends Workload {
 
             Iterator<Long> operation10StartTimes = gf.incrementing(workloadStartTimeAsMilli + readOperation10InterleaveAsMilli, readOperation10InterleaveAsMilli);
 
-            readOperation10Stream = gf.assignDependencyTimes(
-                    gf.constant(workloadStartTimeAsMilli),
-                    gf.assignStartTimes(
-                            operation10StartTimes,
-                            operation10StreamWithoutTimes
-                    )
+            readOperation10Stream = gf.assignStartTimes(
+                    operation10StartTimes,
+                    operation10StreamWithoutTimes
             );
 
             readOperationFileReaders.add(charSeeker);
@@ -868,12 +830,9 @@ public class LdbcSnbInteractiveWorkload extends Workload {
 
             Iterator<Long> operation11StartTimes = gf.incrementing(workloadStartTimeAsMilli + readOperation11InterleaveAsMilli, readOperation11InterleaveAsMilli);
 
-            readOperation11Stream = gf.assignDependencyTimes(
-                    gf.constant(workloadStartTimeAsMilli),
-                    gf.assignStartTimes(
-                            operation11StartTimes,
-                            operation11StreamWithoutTimes
-                    )
+            readOperation11Stream = gf.assignStartTimes(
+                    operation11StartTimes,
+                    operation11StreamWithoutTimes
             );
 
             readOperationFileReaders.add(charSeeker);
@@ -912,12 +871,9 @@ public class LdbcSnbInteractiveWorkload extends Workload {
 
             Iterator<Long> operation12StartTimes = gf.incrementing(workloadStartTimeAsMilli + readOperation12InterleaveAsMilli, readOperation12InterleaveAsMilli);
 
-            readOperation12Stream = gf.assignDependencyTimes(
-                    gf.constant(workloadStartTimeAsMilli),
-                    gf.assignStartTimes(
-                            operation12StartTimes,
-                            operation12StreamWithoutTimes
-                    )
+            readOperation12Stream = gf.assignStartTimes(
+                    operation12StartTimes,
+                    operation12StreamWithoutTimes
             );
 
             readOperationFileReaders.add(charSeeker);
@@ -956,12 +912,9 @@ public class LdbcSnbInteractiveWorkload extends Workload {
 
             Iterator<Long> operation13StartTimes = gf.incrementing(workloadStartTimeAsMilli + readOperation13InterleaveAsMilli, readOperation13InterleaveAsMilli);
 
-            readOperation13Stream = gf.assignDependencyTimes(
-                    gf.constant(workloadStartTimeAsMilli),
-                    gf.assignStartTimes(
-                            operation13StartTimes,
-                            operation13StreamWithoutTimes
-                    )
+            readOperation13Stream = gf.assignStartTimes(
+                    operation13StartTimes,
+                    operation13StreamWithoutTimes
             );
 
             readOperationFileReaders.add(charSeeker);
@@ -1000,12 +953,9 @@ public class LdbcSnbInteractiveWorkload extends Workload {
 
             Iterator<Long> operation14StartTimes = gf.incrementing(workloadStartTimeAsMilli + readOperation14InterleaveAsMilli, readOperation14InterleaveAsMilli);
 
-            readOperation14Stream = gf.assignDependencyTimes(
-                    gf.constant(workloadStartTimeAsMilli),
-                    gf.assignStartTimes(
-                            operation14StartTimes,
-                            operation14StreamWithoutTimes
-                    )
+            readOperation14Stream = gf.assignStartTimes(
+                    operation14StartTimes,
+                    operation14StreamWithoutTimes
             );
 
             readOperationFileReaders.add(charSeeker);

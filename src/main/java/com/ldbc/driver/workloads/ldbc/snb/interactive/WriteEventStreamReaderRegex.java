@@ -27,7 +27,7 @@ public class WriteEventStreamReaderRegex implements Iterator<Operation<?>> {
         Function1<String[], String> decoderKeyExtractor = new Function1<String[], String>() {
             @Override
             public String apply(String[] csvRow) {
-                return csvRow[1];
+                return csvRow[2];
             }
         };
         this.csvEventStreamReader = new CsvEventStreamReaderTimedTypedCsvReader<>(csvRowIterator, decoders, decoderKeyExtractor);
@@ -58,38 +58,39 @@ public class WriteEventStreamReaderRegex implements Iterator<Operation<?>> {
         @Override
         public Operation<?> decodeEvent(String[] csvRow) {
             long scheduledStartTimeAsMilli = Long.parseLong(csvRow[0]);
+            long dependencyTimeAsMilli = Long.parseLong(csvRow[1]);
 
-            long personId = Long.parseLong(csvRow[2]);
+            long personId = Long.parseLong(csvRow[3]);
 
-            String firstName = csvRow[3];
+            String firstName = csvRow[4];
 
-            String lastName = csvRow[4];
+            String lastName = csvRow[5];
 
-            String gender = csvRow[5];
+            String gender = csvRow[6];
 
-            String birthdayString = csvRow[6];
+            String birthdayString = csvRow[7];
             Date birthday = new Date(Long.parseLong(birthdayString));
 
-            String creationDateString = csvRow[7];
+            String creationDateString = csvRow[8];
             Date creationDate = new Date(Long.parseLong(creationDateString));
 
-            String locationIp = csvRow[8];
+            String locationIp = csvRow[9];
 
-            String browserUsed = csvRow[9];
+            String browserUsed = csvRow[10];
 
-            long cityId = Long.parseLong(csvRow[10]);
+            long cityId = Long.parseLong(csvRow[11]);
 
-            String languagesString = csvRow[11];
+            String languagesString = csvRow[12];
             List<String> languages = (languagesString.isEmpty())
                     ? EMPTY_LIST
                     : Lists.newArrayList(collectionSeparatorPattern.split(languagesString, -1));
 
-            String emailsString = csvRow[12];
+            String emailsString = csvRow[13];
             List<String> emails = (emailsString.isEmpty())
                     ? EMPTY_LIST
                     : Lists.newArrayList(collectionSeparatorPattern.split(emailsString, -1));
 
-            String tagIdsAsString = csvRow[13];
+            String tagIdsAsString = csvRow[14];
             List<Long> tagIds = new ArrayList<>();
             if (false == tagIdsAsString.isEmpty()) {
                 String[] tagIdsAsStrings = collectionSeparatorPattern.split(tagIdsAsString, -1);
@@ -98,7 +99,7 @@ public class WriteEventStreamReaderRegex implements Iterator<Operation<?>> {
                 }
             }
 
-            String studyAtsAsString = csvRow[14];
+            String studyAtsAsString = csvRow[15];
             List<LdbcUpdate1AddPerson.Organization> studyAts = new ArrayList<>();
             if (false == studyAtsAsString.isEmpty()) {
                 String[] studyAtsAsStrings = collectionSeparatorPattern.split(studyAtsAsString, -1);
@@ -112,7 +113,7 @@ public class WriteEventStreamReaderRegex implements Iterator<Operation<?>> {
                 }
             }
 
-            String worksAtAsString = csvRow[15];
+            String worksAtAsString = csvRow[16];
             List<LdbcUpdate1AddPerson.Organization> workAts = new ArrayList<>();
             if (false == worksAtAsString.isEmpty()) {
                 String[] workAtsAsStrings = collectionSeparatorPattern.split(worksAtAsString, -1);
@@ -142,6 +143,7 @@ public class WriteEventStreamReaderRegex implements Iterator<Operation<?>> {
                     studyAts,
                     workAts);
             operation.setScheduledStartTimeAsMilli(scheduledStartTimeAsMilli);
+            operation.setDependencyTimeAsMilli(dependencyTimeAsMilli);
             return operation;
         }
     }
@@ -153,16 +155,18 @@ public class WriteEventStreamReaderRegex implements Iterator<Operation<?>> {
         @Override
         public Operation<?> decodeEvent(String[] csvRow) {
             long scheduledStartTimeAsMilli = Long.parseLong(csvRow[0]);
+            long dependencyTimeAsMilli = Long.parseLong(csvRow[1]);
 
-            long personId = Long.parseLong(csvRow[2]);
+            long personId = Long.parseLong(csvRow[3]);
 
-            long postId = Long.parseLong(csvRow[3]);
+            long postId = Long.parseLong(csvRow[4]);
 
-            String creationDateString = csvRow[4];
+            String creationDateString = csvRow[5];
             Date creationDate = new Date(Long.parseLong(creationDateString));
 
             Operation<?> operation = new LdbcUpdate2AddPostLike(personId, postId, creationDate);
             operation.setScheduledStartTimeAsMilli(scheduledStartTimeAsMilli);
+            operation.setDependencyTimeAsMilli(dependencyTimeAsMilli);
             return operation;
         }
     }
@@ -174,16 +178,18 @@ public class WriteEventStreamReaderRegex implements Iterator<Operation<?>> {
         @Override
         public Operation<?> decodeEvent(String[] csvRow) {
             long scheduledStartTimeAsMilli = Long.parseLong(csvRow[0]);
+            long dependencyTimeAsMilli = Long.parseLong(csvRow[1]);
 
-            long personId = Long.parseLong(csvRow[2]);
+            long personId = Long.parseLong(csvRow[3]);
 
-            long commentId = Long.parseLong(csvRow[3]);
+            long commentId = Long.parseLong(csvRow[4]);
 
-            String creationDateString = csvRow[4];
+            String creationDateString = csvRow[5];
             Date creationDate = new Date(Long.parseLong(creationDateString));
 
             Operation<?> operation = new LdbcUpdate3AddCommentLike(personId, commentId, creationDate);
             operation.setScheduledStartTimeAsMilli(scheduledStartTimeAsMilli);
+            operation.setDependencyTimeAsMilli(dependencyTimeAsMilli);
             return operation;
         }
     }
@@ -197,17 +203,18 @@ public class WriteEventStreamReaderRegex implements Iterator<Operation<?>> {
         @Override
         public Operation<?> decodeEvent(String[] csvRow) {
             long scheduledStartTimeAsMilli = Long.parseLong(csvRow[0]);
+            long dependencyTimeAsMilli = Long.parseLong(csvRow[1]);
 
-            long forumId = Long.parseLong(csvRow[2]);
+            long forumId = Long.parseLong(csvRow[3]);
 
-            String forumTitle = csvRow[3];
+            String forumTitle = csvRow[4];
 
-            String creationDateString = csvRow[4];
+            String creationDateString = csvRow[5];
             Date creationDate = new Date(Long.parseLong(creationDateString));
 
-            long moderatorPersonId = Long.parseLong(csvRow[5]);
+            long moderatorPersonId = Long.parseLong(csvRow[6]);
 
-            String tagIdsAsString = csvRow[6];
+            String tagIdsAsString = csvRow[7];
             List<Long> tagIds = new ArrayList<>();
             if (false == tagIdsAsString.isEmpty()) {
                 String[] tagIdsAsStrings = collectionSeparatorPattern.split(tagIdsAsString, -1);
@@ -218,6 +225,7 @@ public class WriteEventStreamReaderRegex implements Iterator<Operation<?>> {
 
             Operation<?> operation = new LdbcUpdate4AddForum(forumId, forumTitle, creationDate, moderatorPersonId, tagIds);
             operation.setScheduledStartTimeAsMilli(scheduledStartTimeAsMilli);
+            operation.setDependencyTimeAsMilli(dependencyTimeAsMilli);
             return operation;
         }
     }
@@ -229,16 +237,18 @@ public class WriteEventStreamReaderRegex implements Iterator<Operation<?>> {
         @Override
         public Operation<?> decodeEvent(String[] csvRow) {
             long scheduledStartTimeAsMilli = Long.parseLong(csvRow[0]);
+            long dependencyTimeAsMilli = Long.parseLong(csvRow[1]);
 
-            long forumId = Long.parseLong(csvRow[2]);
+            long forumId = Long.parseLong(csvRow[3]);
 
-            long personId = Long.parseLong(csvRow[3]);
+            long personId = Long.parseLong(csvRow[4]);
 
-            String creationDateString = csvRow[4];
+            String creationDateString = csvRow[5];
             Date creationDate = new Date(Long.parseLong(creationDateString));
 
             Operation<?> operation = new LdbcUpdate5AddForumMembership(forumId, personId, creationDate);
             operation.setScheduledStartTimeAsMilli(scheduledStartTimeAsMilli);
+            operation.setDependencyTimeAsMilli(dependencyTimeAsMilli);
             return operation;
         }
     }
@@ -252,31 +262,32 @@ public class WriteEventStreamReaderRegex implements Iterator<Operation<?>> {
         @Override
         public Operation<?> decodeEvent(String[] csvRow) {
             long scheduledStartTimeAsMilli = Long.parseLong(csvRow[0]);
+            long dependencyTimeAsMilli = Long.parseLong(csvRow[1]);
 
-            long postId = Long.parseLong(csvRow[2]);
+            long postId = Long.parseLong(csvRow[3]);
 
-            String imageFile = csvRow[3];
+            String imageFile = csvRow[4];
 
-            String creationDateString = csvRow[4];
+            String creationDateString = csvRow[5];
             Date creationDate = new Date(Long.parseLong(creationDateString));
 
-            String locationIp = csvRow[5];
+            String locationIp = csvRow[6];
 
-            String browserUsed = csvRow[6];
+            String browserUsed = csvRow[7];
 
-            String language = csvRow[7];
+            String language = csvRow[8];
 
-            String content = csvRow[8];
+            String content = csvRow[9];
 
-            int length = Integer.parseInt(csvRow[9]);
+            int length = Integer.parseInt(csvRow[10]);
 
-            long authorPersonId = Long.parseLong(csvRow[10]);
+            long authorPersonId = Long.parseLong(csvRow[11]);
 
-            long forumId = Long.parseLong(csvRow[11]);
+            long forumId = Long.parseLong(csvRow[12]);
 
-            long countryId = Long.parseLong(csvRow[12]);
+            long countryId = Long.parseLong(csvRow[13]);
 
-            String tagIdsAsString = csvRow[13];
+            String tagIdsAsString = csvRow[14];
             List<Long> tagIds = new ArrayList<>();
             if (false == tagIdsAsString.isEmpty()) {
                 String[] tagIdsAsStrings = collectionSeparatorPattern.split(tagIdsAsString, -1);
@@ -299,6 +310,7 @@ public class WriteEventStreamReaderRegex implements Iterator<Operation<?>> {
                     countryId,
                     tagIds);
             operation.setScheduledStartTimeAsMilli(scheduledStartTimeAsMilli);
+            operation.setDependencyTimeAsMilli(dependencyTimeAsMilli);
             return operation;
         }
     }
@@ -312,29 +324,30 @@ public class WriteEventStreamReaderRegex implements Iterator<Operation<?>> {
         @Override
         public Operation<?> decodeEvent(String[] csvRow) {
             long scheduledStartTimeAsMilli = Long.parseLong(csvRow[0]);
+            long dependencyTimeAsMilli = Long.parseLong(csvRow[1]);
 
-            long commentId = Long.parseLong(csvRow[2]);
+            long commentId = Long.parseLong(csvRow[3]);
 
-            String creationDateString = csvRow[3];
+            String creationDateString = csvRow[4];
             Date creationDate = new Date(Long.parseLong(creationDateString));
 
-            String locationIp = csvRow[4];
+            String locationIp = csvRow[5];
 
-            String browserUsed = csvRow[5];
+            String browserUsed = csvRow[6];
 
-            String content = csvRow[6];
+            String content = csvRow[7];
 
-            int length = Integer.parseInt(csvRow[7]);
+            int length = Integer.parseInt(csvRow[8]);
 
-            long authorPersonId = Long.parseLong(csvRow[8]);
+            long authorPersonId = Long.parseLong(csvRow[9]);
 
-            long countryId = Long.parseLong(csvRow[9]);
+            long countryId = Long.parseLong(csvRow[10]);
 
-            long replyOfPostId = Long.parseLong(csvRow[10]);
+            long replyOfPostId = Long.parseLong(csvRow[11]);
 
-            long replyOfCommentId = Long.parseLong(csvRow[11]);
+            long replyOfCommentId = Long.parseLong(csvRow[12]);
 
-            String tagIdsAsString = csvRow[12];
+            String tagIdsAsString = csvRow[13];
             List<Long> tagIds = new ArrayList<>();
             if (false == tagIdsAsString.isEmpty()) {
                 String[] tagIdsAsStrings = collectionSeparatorPattern.split(tagIdsAsString, -1);
@@ -356,6 +369,7 @@ public class WriteEventStreamReaderRegex implements Iterator<Operation<?>> {
                     replyOfCommentId,
                     tagIds);
             operation.setScheduledStartTimeAsMilli(scheduledStartTimeAsMilli);
+            operation.setDependencyTimeAsMilli(dependencyTimeAsMilli);
             return operation;
         }
     }
@@ -367,16 +381,18 @@ public class WriteEventStreamReaderRegex implements Iterator<Operation<?>> {
         @Override
         public Operation<?> decodeEvent(String[] csvRow) {
             long scheduledStartTimeAsMilli = Long.parseLong(csvRow[0]);
+            long dependencyTimeAsMilli = Long.parseLong(csvRow[1]);
 
-            long person1Id = Long.parseLong(csvRow[2]);
+            long person1Id = Long.parseLong(csvRow[3]);
 
-            long person2Id = Long.parseLong(csvRow[3]);
+            long person2Id = Long.parseLong(csvRow[4]);
 
-            String creationDateString = csvRow[4];
+            String creationDateString = csvRow[5];
             Date creationDate = new Date(Long.parseLong(creationDateString));
 
             Operation<?> operation = new LdbcUpdate8AddFriendship(person1Id, person2Id, creationDate);
             operation.setScheduledStartTimeAsMilli(scheduledStartTimeAsMilli);
+            operation.setDependencyTimeAsMilli(dependencyTimeAsMilli);
             return operation;
         }
     }

@@ -48,19 +48,11 @@ SF30 1,2,4 threads 1 partition
     @Test
     public void ignoreTimesPerformanceTest()
             throws InterruptedException, DbException, WorkloadException, IOException, MetricsCollectionException, CompletionTimeException, DriverConfigurationException {
-//        File parentStreamsDir = new File("/Users/alexaverbuch/IdeaProjects/scale_factor_streams/new_read_params/");
-//        List<File> streamsDirs = Lists.newArrayList(
-//                new File(parentStreamsDir, "sf10_partitions_01/")
-////                new File(parentStreamsDir, "sf10_partitions_04/")
-////                new File(parentStreamsDir, "sf10_partitions_16/")
-//        );
-
-        File parentStreamsDir = new File("/Users/alexaverbuch/hadoopTempDir/output/social_network/");
-        File paramsDir = new File("/Users/alexaverbuch/IdeaProjects/ldbc_snb_datagen/substitution_parameters/");
+        File parentStreamsDir = new File("/Users/alexaverbuch/IdeaProjects/ldbc_snb_workload_interactive_neo4j/ldbc_driver/sf30/");
+        File paramsDir = new File("/Users/alexaverbuch/IdeaProjects/ldbc_snb_workload_interactive_neo4j/ldbc_driver/sf30/");
         List<File> streamsDirs = Lists.newArrayList(
                 parentStreamsDir
         );
-
 
         for (File streamDir : streamsDirs) {
             Iterable<String> personFilePaths = Iterables.transform(
@@ -145,7 +137,7 @@ SF30 1,2,4 threads 1 partition
             TimeUnit timeUnit = TimeUnit.MICROSECONDS;
             String resultDirPath = resultsDir;
 //            double timeCompressionRatio = 0.0000001;
-            double timeCompressionRatio = 10.0;
+            double timeCompressionRatio = 0.1;
             long windowedExecutionWindowDuration = 1000l;
             Set<String> peerIds = new HashSet<>();
             long toleratedExecutionDelay = TEMPORAL_UTIL.convert(60, TimeUnit.MINUTES, TimeUnit.MILLISECONDS);
@@ -220,19 +212,11 @@ SF30 1,2,4 threads 1 partition
     @Test
     public void withTimesPerformanceTest()
             throws InterruptedException, DbException, WorkloadException, IOException, MetricsCollectionException, CompletionTimeException, DriverConfigurationException {
-//        File parentStreamsDir = new File("/Users/alexaverbuch/IdeaProjects/scale_factor_streams/new_read_params/");
-//        List<File> streamsDirs = Lists.newArrayList(
-//                new File(parentStreamsDir, "sf10_partitions_01/")
-////                new File(parentStreamsDir, "sf10_partitions_04/")
-////                new File(parentStreamsDir, "sf10_partitions_16/")
-//        );
-
-        File parentStreamsDir = new File("/Users/alexaverbuch/hadoopTempDir/output/social_network/");
-        File paramsDir = new File("/Users/alexaverbuch/IdeaProjects/ldbc_snb_datagen/substitution_parameters/");
+        File parentStreamsDir = new File("/Users/alexaverbuch/IdeaProjects/ldbc_snb_workload_interactive_neo4j/ldbc_driver/sf30/");
+        File paramsDir = new File("/Users/alexaverbuch/IdeaProjects/ldbc_snb_workload_interactive_neo4j/ldbc_driver/sf30/");
         List<File> streamsDirs = Lists.newArrayList(
                 parentStreamsDir
         );
-
 
         for (File streamDir : streamsDirs) {
             Iterable<String> personFilePaths = Iterables.transform(
@@ -316,14 +300,14 @@ SF30 1,2,4 threads 1 partition
             int statusDisplayInterval = 2;
             TimeUnit timeUnit = TimeUnit.MICROSECONDS;
             String resultDirPath = resultsDir;
-            double timeCompressionRatio = 0.00001;
+            double timeCompressionRatio = 0.0001;
             long windowedExecutionWindowDuration = 1000l;
             Set<String> peerIds = new HashSet<>();
             long toleratedExecutionDelay = TEMPORAL_UTIL.convert(60, TimeUnit.MINUTES, TimeUnit.MILLISECONDS);
             ConsoleAndFileDriverConfiguration.ConsoleAndFileValidationParamOptions validationParams = null;
             String dbValidationFilePath = null;
             boolean validateWorkload = false;
-            boolean calculateWorkloadStatistics = true;
+            boolean calculateWorkloadStatistics = false;
             long spinnerSleepDuration = 0;
             boolean printHelp = false;
             boolean ignoreScheduledStartTimes = false;

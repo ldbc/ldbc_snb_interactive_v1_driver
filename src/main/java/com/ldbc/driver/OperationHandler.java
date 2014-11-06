@@ -10,6 +10,7 @@ import com.ldbc.driver.runtime.scheduling.Spinner;
 import com.ldbc.driver.runtime.scheduling.SpinnerCheck;
 import com.ldbc.driver.temporal.TimeSource;
 import com.ldbc.driver.util.Function0;
+import com.ldbc.driver.workloads.ldbc.snb.interactive.LdbcUpdate8AddFriendship;
 import stormpot.Poolable;
 import stormpot.Slot;
 
@@ -109,7 +110,9 @@ public abstract class OperationHandler<OPERATION_TYPE extends Operation<?>> impl
             }
             operationResultReport.setRunDurationAsNano(endOfLatencyMeasurementAsNano - startOfLatencyMeasurementAsNano);
             operationResultReport.setActualStartTimeAsMilli(actualStartTimeAsMilli);
-            localCompletionTimeWriter.submitLocalCompletedTime(operation.scheduledStartTimeAsMilli());
+            // TODO remove later, but at the moment Add Person and Add Friendship are in the same stream, and only Add Person should introduce a dependency
+            if (false == operation.getClass().equals(LdbcUpdate8AddFriendship.class))
+                localCompletionTimeWriter.submitLocalCompletedTime(operation.scheduledStartTimeAsMilli());
             metricsService.submitOperationResult(operationResultReport);
         } catch (DbException e) {
             String errMsg = String.format(

@@ -25,10 +25,12 @@ public class Query7EventStreamReader implements Iterator<Operation<?>> {
     @Override
     public Operation<?> next() {
         Object[] rowAsObjects = csvRows.next();
-        return new LdbcQuery7(
+        Operation<?> operation = new LdbcQuery7(
                 (long) rowAsObjects[0],
                 LdbcQuery7.DEFAULT_LIMIT
         );
+        operation.setDependencyTimeAsMilli(0);
+        return operation;
     }
 
     @Override

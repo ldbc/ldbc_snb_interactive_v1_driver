@@ -73,7 +73,7 @@ public class WriteEventStreamReaderCharSeeker implements Iterator<Operation<?>> 
         private final Pattern tupleSeparatorPattern = Pattern.compile(",");
 
         @Override
-        public Operation<?> decodeEvent(long scheduledStartTimeAsMilli, CharSeeker charSeeker, Extractors extractors, int[] columnDelimiters, Mark mark) {
+        public Operation<?> decodeEvent(long scheduledStartTimeAsMilli, long dependencyTimeAsMilli, CharSeeker charSeeker, Extractors extractors, int[] columnDelimiters, Mark mark) {
             try {
                 long personId;
                 if (charSeeker.seek(mark, columnDelimiters)) {
@@ -214,6 +214,7 @@ public class WriteEventStreamReaderCharSeeker implements Iterator<Operation<?>> 
                         studyAts,
                         workAts);
                 operation.setScheduledStartTimeAsMilli(scheduledStartTimeAsMilli);
+                operation.setDependencyTimeAsMilli(dependencyTimeAsMilli);
                 return operation;
             } catch (IOException e) {
                 throw new GeneratorException("Error parsing add person event", e);
@@ -223,7 +224,7 @@ public class WriteEventStreamReaderCharSeeker implements Iterator<Operation<?>> 
 
     public static class EventDecoderAddLikePost implements EventDecoder<Operation<?>> {
         @Override
-        public Operation<?> decodeEvent(long scheduledStartTimeAsMilli, CharSeeker charSeeker, Extractors extractors, int[] columnDelimiters, Mark mark) {
+        public Operation<?> decodeEvent(long scheduledStartTimeAsMilli, long dependencyTimeAsMilli, CharSeeker charSeeker, Extractors extractors, int[] columnDelimiters, Mark mark) {
             try {
                 long personId;
                 if (charSeeker.seek(mark, columnDelimiters)) {
@@ -249,6 +250,7 @@ public class WriteEventStreamReaderCharSeeker implements Iterator<Operation<?>> 
 
                 Operation<?> operation = new LdbcUpdate2AddPostLike(personId, postId, creationDate);
                 operation.setScheduledStartTimeAsMilli(scheduledStartTimeAsMilli);
+                operation.setDependencyTimeAsMilli(dependencyTimeAsMilli);
                 return operation;
             } catch (IOException e) {
                 throw new GeneratorException("Error parsing add post like event", e);
@@ -258,7 +260,7 @@ public class WriteEventStreamReaderCharSeeker implements Iterator<Operation<?>> 
 
     public static class EventDecoderAddLikeComment implements EventDecoder<Operation<?>> {
         @Override
-        public Operation<?> decodeEvent(long scheduledStartTimeAsMilli, CharSeeker charSeeker, Extractors extractors, int[] columnDelimiters, Mark mark) {
+        public Operation<?> decodeEvent(long scheduledStartTimeAsMilli, long dependencyTimeAsMilli, CharSeeker charSeeker, Extractors extractors, int[] columnDelimiters, Mark mark) {
             try {
                 long personId;
                 if (charSeeker.seek(mark, columnDelimiters)) {
@@ -284,6 +286,7 @@ public class WriteEventStreamReaderCharSeeker implements Iterator<Operation<?>> 
 
                 Operation<?> operation = new LdbcUpdate3AddCommentLike(personId, commentId, creationDate);
                 operation.setScheduledStartTimeAsMilli(scheduledStartTimeAsMilli);
+                operation.setDependencyTimeAsMilli(dependencyTimeAsMilli);
                 return operation;
             } catch (IOException e) {
                 throw new GeneratorException("Error parsing add comment like event", e);
@@ -293,7 +296,7 @@ public class WriteEventStreamReaderCharSeeker implements Iterator<Operation<?>> 
 
     public static class EventDecoderAddForum implements EventDecoder<Operation<?>> {
         @Override
-        public Operation<?> decodeEvent(long scheduledStartTimeAsMilli, CharSeeker charSeeker, Extractors extractors, int[] columnDelimiters, Mark mark) {
+        public Operation<?> decodeEvent(long scheduledStartTimeAsMilli, long dependencyTimeAsMilli, CharSeeker charSeeker, Extractors extractors, int[] columnDelimiters, Mark mark) {
             try {
                 long forumId;
                 if (charSeeker.seek(mark, columnDelimiters)) {
@@ -337,6 +340,7 @@ public class WriteEventStreamReaderCharSeeker implements Iterator<Operation<?>> 
 
                 Operation<?> operation = new LdbcUpdate4AddForum(forumId, forumTitle, creationDate, moderatorPersonId, tagIds);
                 operation.setScheduledStartTimeAsMilli(scheduledStartTimeAsMilli);
+                operation.setDependencyTimeAsMilli(dependencyTimeAsMilli);
                 return operation;
             } catch (IOException e) {
                 throw new GeneratorException("Error parsing add forum event", e);
@@ -346,7 +350,7 @@ public class WriteEventStreamReaderCharSeeker implements Iterator<Operation<?>> 
 
     public static class EventDecoderAddForumMembership implements EventDecoder<Operation<?>> {
         @Override
-        public Operation<?> decodeEvent(long scheduledStartTimeAsMilli, CharSeeker charSeeker, Extractors extractors, int[] columnDelimiters, Mark mark) {
+        public Operation<?> decodeEvent(long scheduledStartTimeAsMilli, long dependencyTimeAsMilli, CharSeeker charSeeker, Extractors extractors, int[] columnDelimiters, Mark mark) {
             try {
                 long forumId;
                 if (charSeeker.seek(mark, columnDelimiters)) {
@@ -372,6 +376,7 @@ public class WriteEventStreamReaderCharSeeker implements Iterator<Operation<?>> 
 
                 Operation<?> operation = new LdbcUpdate5AddForumMembership(forumId, personId, creationDate);
                 operation.setScheduledStartTimeAsMilli(scheduledStartTimeAsMilli);
+                operation.setDependencyTimeAsMilli(dependencyTimeAsMilli);
                 return operation;
             } catch (IOException e) {
                 throw new GeneratorException("Error parsing add forum membership event", e);
@@ -381,7 +386,7 @@ public class WriteEventStreamReaderCharSeeker implements Iterator<Operation<?>> 
 
     public static class EventDecoderAddPost implements EventDecoder<Operation<?>> {
         @Override
-        public Operation<?> decodeEvent(long scheduledStartTimeAsMilli, CharSeeker charSeeker, Extractors extractors, int[] columnDelimiters, Mark mark) {
+        public Operation<?> decodeEvent(long scheduledStartTimeAsMilli, long dependencyTimeAsMilli, CharSeeker charSeeker, Extractors extractors, int[] columnDelimiters, Mark mark) {
             try {
                 long postId;
                 if (charSeeker.seek(mark, columnDelimiters)) {
@@ -486,6 +491,7 @@ public class WriteEventStreamReaderCharSeeker implements Iterator<Operation<?>> 
                         countryId,
                         tagIds);
                 operation.setScheduledStartTimeAsMilli(scheduledStartTimeAsMilli);
+                operation.setDependencyTimeAsMilli(dependencyTimeAsMilli);
                 return operation;
             } catch (IOException e) {
                 throw new GeneratorException("Error parsing add post event", e);
@@ -495,7 +501,7 @@ public class WriteEventStreamReaderCharSeeker implements Iterator<Operation<?>> 
 
     public static class EventDecoderAddComment implements EventDecoder<Operation<?>> {
         @Override
-        public Operation<?> decodeEvent(long scheduledStartTimeAsMilli, CharSeeker charSeeker, Extractors extractors, int[] columnDelimiters, Mark mark) {
+        public Operation<?> decodeEvent(long scheduledStartTimeAsMilli, long dependencyTimeAsMilli, CharSeeker charSeeker, Extractors extractors, int[] columnDelimiters, Mark mark) {
             try {
                 long commentId;
                 if (charSeeker.seek(mark, columnDelimiters)) {
@@ -592,6 +598,7 @@ public class WriteEventStreamReaderCharSeeker implements Iterator<Operation<?>> 
                         replyOfCommentId,
                         tagIds);
                 operation.setScheduledStartTimeAsMilli(scheduledStartTimeAsMilli);
+                operation.setDependencyTimeAsMilli(dependencyTimeAsMilli);
                 return operation;
             } catch (IOException e) {
                 throw new GeneratorException("Error parsing add comment event", e);
@@ -601,7 +608,7 @@ public class WriteEventStreamReaderCharSeeker implements Iterator<Operation<?>> 
 
     public static class EventDecoderAddFriendship implements EventDecoder<Operation<?>> {
         @Override
-        public Operation<?> decodeEvent(long scheduledStartTimeAsMilli, CharSeeker charSeeker, Extractors extractors, int[] columnDelimiters, Mark mark) {
+        public Operation<?> decodeEvent(long scheduledStartTimeAsMilli, long dependencyTimeAsMilli, CharSeeker charSeeker, Extractors extractors, int[] columnDelimiters, Mark mark) {
             try {
                 long person1Id;
                 if (charSeeker.seek(mark, columnDelimiters)) {
@@ -627,6 +634,7 @@ public class WriteEventStreamReaderCharSeeker implements Iterator<Operation<?>> 
 
                 Operation<?> operation = new LdbcUpdate8AddFriendship(person1Id, person2Id, creationDate);
                 operation.setScheduledStartTimeAsMilli(scheduledStartTimeAsMilli);
+                operation.setDependencyTimeAsMilli(dependencyTimeAsMilli);
                 return operation;
             } catch (IOException e) {
                 throw new GeneratorException("Error parsing add friendship event", e);

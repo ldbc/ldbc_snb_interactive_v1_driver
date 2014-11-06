@@ -26,10 +26,12 @@ public class Query13EventStreamReader implements Iterator<Operation<?>> {
     @Override
     public Operation<?> next() {
         Object[] rowAsObjects = csvRows.next();
-        return new LdbcQuery13(
+        Operation<?> operation = new LdbcQuery13(
                 (long) rowAsObjects[0],
                 (long) rowAsObjects[1]
         );
+        operation.setDependencyTimeAsMilli(0);
+        return operation;
     }
 
     @Override

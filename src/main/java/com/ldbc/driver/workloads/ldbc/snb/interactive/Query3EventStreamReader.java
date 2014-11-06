@@ -27,7 +27,7 @@ public class Query3EventStreamReader implements Iterator<Operation<?>> {
     @Override
     public Operation<?> next() {
         Object[] rowAsObjects = csvRows.next();
-        return new LdbcQuery3(
+        Operation<?> operation = new LdbcQuery3(
                 (long) rowAsObjects[0],
                 (String) rowAsObjects[3],
                 (String) rowAsObjects[4],
@@ -35,6 +35,8 @@ public class Query3EventStreamReader implements Iterator<Operation<?>> {
                 (int) rowAsObjects[2],
                 LdbcQuery3.DEFAULT_LIMIT
         );
+        operation.setDependencyTimeAsMilli(0);
+        return operation;
     }
 
     @Override

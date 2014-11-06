@@ -27,11 +27,13 @@ public class Query2EventStreamReader implements Iterator<Operation<?>> {
     @Override
     public Operation<?> next() {
         Object[] rowAsObjects = csvRows.next();
-        return new LdbcQuery2(
+        Operation<?> operation = new LdbcQuery2(
                 (long) rowAsObjects[0],
                 (Date) rowAsObjects[1],
                 LdbcQuery2.DEFAULT_LIMIT
         );
+        operation.setDependencyTimeAsMilli(0);
+        return operation;
     }
 
     @Override

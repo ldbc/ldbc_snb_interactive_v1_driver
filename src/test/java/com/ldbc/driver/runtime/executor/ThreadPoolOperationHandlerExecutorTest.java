@@ -48,13 +48,6 @@ public class ThreadPoolOperationHandlerExecutorTest {
         }
     }
 
-    @Ignore
-    @Test
-    public void inWindowedModeOperationsShouldNotPerformGctCheckThemselvesInsteadTheExecutorShouldDoSoBeforeWindowExecution() {
-        // TODO synchronize code and documentation on the way we do such things
-        assertThat(true, is(false));
-    }
-
     @Test
     public void executorShouldReturnExpectedResult() throws OperationHandlerExecutorException, ExecutionException, InterruptedException, OperationException, CompletionTimeException {
         // Given
