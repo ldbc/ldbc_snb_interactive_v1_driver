@@ -93,7 +93,8 @@ SF30 1,2,4 threads 1 partition
             );
 
             List<Integer> threadCounts = Lists.newArrayList(1, 2, 4);
-            long operationCount = 100000000;
+//            long operationCount = 100000000;
+            long operationCount = 100000;
             for (int threadCount : threadCounts) {
                 doIgnoreTimesPerformanceTest(
                         threadCount,
@@ -124,7 +125,7 @@ SF30 1,2,4 threads 1 partition
         Workload workload = null;
         ConcurrentMetricsService metricsService = null;
         try {
-            Map<String, String> paramsMap = LdbcSnbInteractiveConfiguration.defaultConfig();
+            Map<String, String> paramsMap = LdbcSnbInteractiveConfiguration.defaultWriteOnlyConfig();
             paramsMap.put(LdbcSnbInteractiveConfiguration.PARAMETERS_DIRECTORY, parametersDir);
             paramsMap.put(LdbcSnbInteractiveConfiguration.FORUM_UPDATE_FILES, LdbcSnbInteractiveConfiguration.serializeFilePathsListFromConfiguration(forumFilePaths));
             paramsMap.put(LdbcSnbInteractiveConfiguration.PERSON_UPDATE_FILES, LdbcSnbInteractiveConfiguration.serializeFilePathsListFromConfiguration(personFilePaths));
@@ -136,8 +137,9 @@ SF30 1,2,4 threads 1 partition
             int statusDisplayInterval = 2;
             TimeUnit timeUnit = TimeUnit.MICROSECONDS;
             String resultDirPath = resultsDir;
+            // TODO uncomment
 //            double timeCompressionRatio = 0.0000001;
-            double timeCompressionRatio = 0.1;
+            double timeCompressionRatio = 100.0;
             long windowedExecutionWindowDuration = 1000l;
             Set<String> peerIds = new HashSet<>();
             long toleratedExecutionDelay = TEMPORAL_UTIL.convert(60, TimeUnit.MINUTES, TimeUnit.MILLISECONDS);

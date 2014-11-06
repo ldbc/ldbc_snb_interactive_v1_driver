@@ -31,7 +31,8 @@ public class WorkloadStreams {
         PeekingIterator<Operation<?>> peekingAsyncDependencyOperationStream = Iterators.peekingIterator(originalWorkloadStreams.asynchronousStream().dependencyOperations());
         try {
             long firstAsMilli = peekingAsyncDependencyOperationStream.peek().scheduledStartTimeAsMilli();
-            if (firstAsMilli < minScheduledStartTimeAsMilli) minScheduledStartTimeAsMilli = firstAsMilli;
+            if (firstAsMilli < minScheduledStartTimeAsMilli)
+                minScheduledStartTimeAsMilli = firstAsMilli;
         } catch (NoSuchElementException e) {
             // do nothing, just means stream was empty
         }
@@ -39,7 +40,8 @@ public class WorkloadStreams {
         PeekingIterator<Operation<?>> peekingAsyncNonDependencyOperationStream = Iterators.peekingIterator(originalWorkloadStreams.asynchronousStream().nonDependencyOperations());
         try {
             long firstAsMilli = peekingAsyncNonDependencyOperationStream.peek().scheduledStartTimeAsMilli();
-            if (firstAsMilli < minScheduledStartTimeAsMilli) minScheduledStartTimeAsMilli = firstAsMilli;
+            if (firstAsMilli < minScheduledStartTimeAsMilli)
+                minScheduledStartTimeAsMilli = firstAsMilli;
         } catch (NoSuchElementException e) {
             // do nothing, just means stream was empty
         }
@@ -53,7 +55,8 @@ public class WorkloadStreams {
             PeekingIterator<Operation<?>> peekingBlockingDependencyOperationStream = Iterators.peekingIterator(blockingStreams.get(i).dependencyOperations());
             try {
                 long firstAsMilli = peekingBlockingDependencyOperationStream.peek().scheduledStartTimeAsMilli();
-                if (firstAsMilli < minScheduledStartTimeAsMilli) minScheduledStartTimeAsMilli = firstAsMilli;
+                if (firstAsMilli < minScheduledStartTimeAsMilli)
+                    minScheduledStartTimeAsMilli = firstAsMilli;
             } catch (NoSuchElementException e) {
                 // do nothing, just means stream was empty
             }
@@ -63,7 +66,8 @@ public class WorkloadStreams {
             PeekingIterator<Operation<?>> peekingBlockingNonDependencyOperationStream = Iterators.peekingIterator(blockingStreams.get(i).nonDependencyOperations());
             try {
                 long firstAsMilli = peekingBlockingNonDependencyOperationStream.peek().scheduledStartTimeAsMilli();
-                if (firstAsMilli < minScheduledStartTimeAsMilli) minScheduledStartTimeAsMilli = firstAsMilli;
+                if (firstAsMilli < minScheduledStartTimeAsMilli)
+                    minScheduledStartTimeAsMilli = firstAsMilli;
             } catch (NoSuchElementException e) {
                 // do nothing, just means stream was empty
             }
@@ -80,10 +84,7 @@ public class WorkloadStreams {
         long peekingAsyncDependencyOperationStreamAheadOfMinByAsMilli = 0;
         try {
             long firstAsMilli = peekingAsyncDependencyOperationStream.peek().scheduledStartTimeAsMilli();
-            peekingAsyncDependencyOperationStreamAheadOfMinByAsMilli = temporalUtil.convert(
-                    Math.round(temporalUtil.convert(firstAsMilli - minScheduledStartTimeAsMilli, TimeUnit.MILLISECONDS, TimeUnit.NANOSECONDS) * compressionRatio),
-                    TimeUnit.NANOSECONDS,
-                    TimeUnit.MILLISECONDS);
+            peekingAsyncDependencyOperationStreamAheadOfMinByAsMilli = Math.round((firstAsMilli - minScheduledStartTimeAsMilli) * compressionRatio);
         } catch (NoSuchElementException e) {
             // do nothing, just means stream was empty
         }
@@ -91,10 +92,7 @@ public class WorkloadStreams {
         long peekingAsyncNonDependencyOperationStreamAheadOfMinByAsMilli = 0l;
         try {
             long firstAsMilli = peekingAsyncNonDependencyOperationStream.peek().scheduledStartTimeAsMilli();
-            peekingAsyncNonDependencyOperationStreamAheadOfMinByAsMilli = temporalUtil.convert(
-                    Math.round(temporalUtil.convert(firstAsMilli - minScheduledStartTimeAsMilli, TimeUnit.MILLISECONDS, TimeUnit.NANOSECONDS) * compressionRatio),
-                    TimeUnit.NANOSECONDS,
-                    TimeUnit.MILLISECONDS);
+            peekingAsyncNonDependencyOperationStreamAheadOfMinByAsMilli = Math.round((firstAsMilli - minScheduledStartTimeAsMilli) * compressionRatio);
         } catch (NoSuchElementException e) {
             // do nothing, just means stream was empty
         }
@@ -104,10 +102,7 @@ public class WorkloadStreams {
                 long firstAsMilli = peekingBlockingDependencyOperationStreams.get(i).peek().scheduledStartTimeAsMilli();
                 peekingBlockingDependencyOperationStreamsAheadOfMinByMillis.set(
                         i,
-                        temporalUtil.convert(
-                                Math.round(temporalUtil.convert(firstAsMilli - minScheduledStartTimeAsMilli, TimeUnit.MILLISECONDS, TimeUnit.NANOSECONDS) * compressionRatio),
-                                TimeUnit.NANOSECONDS,
-                                TimeUnit.MILLISECONDS)
+                        Math.round((firstAsMilli - minScheduledStartTimeAsMilli) * compressionRatio)
                 );
             } catch (NoSuchElementException e) {
                 // do nothing, just means stream was empty
@@ -119,10 +114,7 @@ public class WorkloadStreams {
                 long firstAsMilli = peekingBlockingNonDependencyOperationStreams.get(i).peek().scheduledStartTimeAsMilli();
                 peekingBlockingNonDependencyOperationStreamsAheadOfMinByMillis.set(
                         i,
-                        temporalUtil.convert(
-                                Math.round(temporalUtil.convert(firstAsMilli - minScheduledStartTimeAsMilli, TimeUnit.MILLISECONDS, TimeUnit.NANOSECONDS) * compressionRatio),
-                                TimeUnit.NANOSECONDS,
-                                TimeUnit.MILLISECONDS)
+                        Math.round((firstAsMilli - minScheduledStartTimeAsMilli) * compressionRatio)
                 );
             } catch (NoSuchElementException e) {
                 // do nothing, just means stream was empty
