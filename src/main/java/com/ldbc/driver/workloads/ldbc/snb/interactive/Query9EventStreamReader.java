@@ -32,7 +32,7 @@ public class Query9EventStreamReader implements Iterator<Operation<?>> {
                 (Date) rowAsObjects[1],
                 LdbcQuery9.DEFAULT_LIMIT
         );
-        operation.setDependencyTimeAsMilli(0);
+        operation.setDependencyTimeStamp(0);
         return operation;
     }
 

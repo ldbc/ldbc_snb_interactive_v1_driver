@@ -105,7 +105,7 @@ public class QueuePerformanceTests {
         );
 
         GeneratorFactory gf = new GeneratorFactory(new RandomDataGeneratorFactory(42L));
-        Tuple.Tuple2<WorkloadStreams, Workload> workloadStreamsAndWorkload = WorkloadStreams.createNewWorkloadWithLimitedWorkloadStreams(config, gf);
+        Tuple.Tuple3<WorkloadStreams, Workload, Long> workloadStreamsAndWorkload = WorkloadStreams.createNewWorkloadWithLimitedWorkloadStreams(config, gf);
         WorkloadStreams workloadStreams = workloadStreamsAndWorkload._1();
         Workload workload = workloadStreamsAndWorkload._2();
 

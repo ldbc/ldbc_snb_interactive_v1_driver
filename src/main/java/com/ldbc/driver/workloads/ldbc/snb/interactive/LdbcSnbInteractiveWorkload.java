@@ -993,13 +993,13 @@ public class LdbcSnbInteractiveWorkload extends Workload {
         /*
          * Merge all dependency asynchronous operation streams, ordered by operation start times
          */
-        Iterator<Operation<?>> asynchronousDependencyStreams = gf.mergeSortOperationsByStartTime(
+        Iterator<Operation<?>> asynchronousDependencyStreams = gf.mergeSortOperationsByTimeStamp(
                 asynchronousDependencyStreamsList.toArray(new Iterator[asynchronousDependencyStreamsList.size()])
         );
         /*
          * Merge all non dependency asynchronous operation streams, ordered by operation start times
          */
-        Iterator<Operation<?>> asynchronousNonDependencyStreams = gf.mergeSortOperationsByStartTime(
+        Iterator<Operation<?>> asynchronousNonDependencyStreams = gf.mergeSortOperationsByTimeStamp(
                 asynchronousNonDependencyStreamsList.toArray(new Iterator[asynchronousNonDependencyStreamsList.size()])
         );
 

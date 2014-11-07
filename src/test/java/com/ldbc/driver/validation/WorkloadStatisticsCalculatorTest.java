@@ -157,7 +157,7 @@ public class WorkloadStatisticsCalculatorTest {
         workloadStreams.setAsynchronousStream(
                 dependentOperations,
                 operation3Stream,
-                gf.mergeSortOperationsByStartTime(operation1Stream, operation2Stream)
+                gf.mergeSortOperationsByTimeStamp(operation1Stream, operation2Stream)
         );
 
         // When

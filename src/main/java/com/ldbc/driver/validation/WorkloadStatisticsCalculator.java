@@ -92,7 +92,7 @@ public class WorkloadStatisticsCalculator {
             }
         };
         Iterator<Operation<?>> dependencyOperations = Iterators.transform(
-                gf.mergeSortOperationsByStartTime(dependencyOperationIterators.toArray(new Iterator[dependencyOperationIterators.size()])),
+                gf.mergeSortOperationsByTimeStamp(dependencyOperationIterators.toArray(new Iterator[dependencyOperationIterators.size()])),
                 collectStatsForDependencyOperations
         );
 
@@ -118,11 +118,11 @@ public class WorkloadStatisticsCalculator {
             }
         };
         Iterator<Operation<?>> nonDependencyOperations = Iterators.transform(
-                gf.mergeSortOperationsByStartTime(nonDependencyOperationIterators.toArray(new Iterator[nonDependencyOperationIterators.size()])),
+                gf.mergeSortOperationsByTimeStamp(nonDependencyOperationIterators.toArray(new Iterator[nonDependencyOperationIterators.size()])),
                 collectStatsForNonDependentOperations
         );
 
-        Iterator<Operation<?>> operations = gf.mergeSortOperationsByStartTime(dependencyOperations, nonDependencyOperations);
+        Iterator<Operation<?>> operations = gf.mergeSortOperationsByTimeStamp(dependencyOperations, nonDependencyOperations);
 
         Map<Class, Long> lowestDependencyDurationAsMilliByOperationType = new HashMap<>();
 
@@ -130,7 +130,7 @@ public class WorkloadStatisticsCalculator {
             Operation<?> operation = operations.next();
             Class operationType = operation.getClass();
             long operationStartTimeAsMilli = operation.scheduledStartTimeAsMilli();
-            long operationDependencyTimeAsMilli = operation.dependencyTimeAsMilli();
+            long operationDependencyTimeAsMilli = operation.dependencyTimeStamp();
             long operationDependencyDurationAsMilli = operationStartTimeAsMilli - operationDependencyTimeAsMilli;
 
             // Operation Mix

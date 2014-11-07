@@ -24,7 +24,8 @@ public class TimedNamedOperation2Factory implements Iterator<Operation<?>> {
 
     @Override
     public TimedNamedOperation2 next() {
-        return new TimedNamedOperation2(startTimesAsMilli.next(), dependencyTimesAsMilli.next(), names.next());
+        long startTime = startTimesAsMilli.next();
+        return new TimedNamedOperation2(startTime,startTime, dependencyTimesAsMilli.next(), names.next());
     }
 
     @Override

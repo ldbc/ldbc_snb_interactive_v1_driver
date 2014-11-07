@@ -55,7 +55,8 @@ public class WorkloadValidator {
         Workload workloadPass1;
         Iterator<Operation<?>> operationsPass1;
         try {
-            Tuple.Tuple2<WorkloadStreams, Workload> streamsAndWorkload = WorkloadStreams.createNewWorkloadWithLimitedWorkloadStreams(workloadFactory, configuration, gf);
+            Tuple.Tuple3<WorkloadStreams, Workload, Long> streamsAndWorkload =
+                    WorkloadStreams.createNewWorkloadWithLimitedWorkloadStreams(workloadFactory, configuration, gf);
             operationsPass1 = streamsAndWorkload._1().mergeSortedByStartTime(gf);
             workloadPass1 = streamsAndWorkload._2();
         } catch (Exception e) {
@@ -79,7 +80,7 @@ public class WorkloadValidator {
                                 operation));
             }
 
-            long operationDependencyTimeAsMilli = operation.dependencyTimeAsMilli();
+            long operationDependencyTimeAsMilli = operation.dependencyTimeStamp();
             // Operation has dependency time
             if (-1 == operationDependencyTimeAsMilli) {
                 return new WorkloadValidationResult(
@@ -101,7 +102,7 @@ public class WorkloadValidator {
                                 operationCount,
                                 operation,
                                 operation.scheduledStartTimeAsMilli(),
-                                operation.dependencyTimeAsMilli()));
+                                operation.dependencyTimeStamp()));
             }
         }
 
@@ -122,7 +123,8 @@ public class WorkloadValidator {
         Workload workloadPass2;
         Iterator<Operation<?>> operationsPass2;
         try {
-            Tuple.Tuple2<WorkloadStreams, Workload> streamsAndWorkload = WorkloadStreams.createNewWorkloadWithLimitedWorkloadStreams(workloadFactory, configuration, gf);
+            Tuple.Tuple3<WorkloadStreams, Workload, Long> streamsAndWorkload =
+                    WorkloadStreams.createNewWorkloadWithLimitedWorkloadStreams(workloadFactory, configuration, gf);
             workloadPass2 = streamsAndWorkload._2();
             operationsPass2 = gf.timeOffsetAndCompress(
                     streamsAndWorkload._1().mergeSortedByStartTime(gf),
@@ -189,7 +191,7 @@ public class WorkloadValidator {
                                     operation));
             }
 
-            long operationDependencyTimeAsMilli = operation.dependencyTimeAsMilli();
+            long operationDependencyTimeAsMilli = operation.dependencyTimeStamp();
             // Operation has dependency time
             if (-1 == operationDependencyTimeAsMilli) {
                 return new WorkloadValidationResult(
@@ -211,7 +213,7 @@ public class WorkloadValidator {
                                 operationCount,
                                 operation,
                                 operation.scheduledStartTimeAsMilli(),
-                                operation.dependencyTimeAsMilli()));
+                                operation.dependencyTimeStamp()));
             }
 
             // Interleaves by operation type do not exceed maximum
@@ -297,7 +299,7 @@ public class WorkloadValidator {
         Iterator<Operation<?>> operationStream1;
         Iterator<Operation<?>> operationStream2;
         try {
-            Tuple.Tuple2<WorkloadStreams, Workload> streamsAndWorkload1 =
+            Tuple.Tuple3<WorkloadStreams, Workload, Long> streamsAndWorkload1 =
                     WorkloadStreams.createNewWorkloadWithLimitedWorkloadStreams(workloadFactory, configuration, new GeneratorFactory(new RandomDataGeneratorFactory(42l)));
             workload1 = streamsAndWorkload1._2();
             operationStream1 = gf.timeOffsetAndCompress(
@@ -306,7 +308,7 @@ public class WorkloadValidator {
                     configuration.timeCompressionRatio()
             );
 
-            Tuple.Tuple2<WorkloadStreams, Workload> streamsAndWorkload2 =
+            Tuple.Tuple3<WorkloadStreams, Workload, Long> streamsAndWorkload2 =
                     WorkloadStreams.createNewWorkloadWithLimitedWorkloadStreams(workloadFactory, configuration, new GeneratorFactory(new RandomDataGeneratorFactory(42l)));
             workload2 = streamsAndWorkload2._2();
             operationStream2 = gf.timeOffsetAndCompress(

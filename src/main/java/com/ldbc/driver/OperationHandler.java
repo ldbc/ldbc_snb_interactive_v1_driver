@@ -112,7 +112,7 @@ public abstract class OperationHandler<OPERATION_TYPE extends Operation<?>> impl
             operationResultReport.setActualStartTimeAsMilli(actualStartTimeAsMilli);
             // TODO remove later, but at the moment Add Person and Add Friendship are in the same stream, and only Add Person should introduce a dependency
             if (false == operation.getClass().equals(LdbcUpdate8AddFriendship.class))
-                localCompletionTimeWriter.submitLocalCompletedTime(operation.scheduledStartTimeAsMilli());
+                localCompletionTimeWriter.submitLocalCompletedTime(operation.timeStamp());
             metricsService.submitOperationResult(operationResultReport);
         } catch (DbException e) {
             String errMsg = String.format(

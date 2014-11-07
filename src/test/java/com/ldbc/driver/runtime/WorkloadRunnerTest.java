@@ -134,7 +134,7 @@ public class WorkloadRunnerTest {
             db.init(configuration.asMap());
 
             GeneratorFactory gf = new GeneratorFactory(new RandomDataGeneratorFactory(42L));
-            Tuple.Tuple2<WorkloadStreams, Workload> workloadStreamsAndWorkload =
+            Tuple.Tuple3<WorkloadStreams, Workload, Long> workloadStreamsAndWorkload =
                     WorkloadStreams.createNewWorkloadWithLimitedWorkloadStreams(configuration, gf);
 
             workload = workloadStreamsAndWorkload._2();
@@ -299,7 +299,7 @@ public class WorkloadRunnerTest {
             db.init(configuration.asMap());
 
             GeneratorFactory gf = new GeneratorFactory(new RandomDataGeneratorFactory(42L));
-            Tuple.Tuple2<WorkloadStreams, Workload> workloadStreamsAndWorkload =
+            Tuple.Tuple3<WorkloadStreams, Workload, Long> workloadStreamsAndWorkload =
                     WorkloadStreams.createNewWorkloadWithLimitedWorkloadStreams(configuration, gf);
 
             workload = workloadStreamsAndWorkload._2();

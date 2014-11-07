@@ -41,7 +41,9 @@ public class DummyWorkload extends Workload {
                     + "|"
                     + Long.toString(operation.scheduledStartTimeAsMilli())
                     + "|"
-                    + Long.toString(operation.dependencyTimeAsMilli())
+                    + Long.toString(operation.timeStamp())
+                    + "|"
+                    + Long.toString(operation.dependencyTimeStamp())
                     + "|"
                     + serializeName(((TimedNamedOperation1) operation).name());
         if (operation.getClass().equals(TimedNamedOperation2.class))
@@ -49,7 +51,9 @@ public class DummyWorkload extends Workload {
                     + "|"
                     + Long.toString(operation.scheduledStartTimeAsMilli())
                     + "|"
-                    + Long.toString(operation.dependencyTimeAsMilli())
+                    + Long.toString(operation.timeStamp())
+                    + "|"
+                    + Long.toString(operation.dependencyTimeStamp())
                     + "|"
                     + serializeName(((TimedNamedOperation2) operation).name());
         throw new SerializingMarshallingException("Unsupported Operation: " + operation.getClass().getName());
@@ -63,7 +67,8 @@ public class DummyWorkload extends Workload {
             return new TimedNamedOperation1(
                     Long.parseLong(serializedOperationTokens[1]),
                     Long.parseLong(serializedOperationTokens[2]),
-                    marshalName(serializedOperationTokens[3])
+                    Long.parseLong(serializedOperationTokens[3]),
+                    marshalName(serializedOperationTokens[4])
             );
         }
         if (serializedOperation.startsWith(TimedNamedOperation2.class.getName())) {
@@ -71,7 +76,8 @@ public class DummyWorkload extends Workload {
             return new TimedNamedOperation2(
                     Long.parseLong(serializedOperationTokens[1]),
                     Long.parseLong(serializedOperationTokens[2]),
-                    marshalName(serializedOperationTokens[3])
+                    Long.parseLong(serializedOperationTokens[3]),
+                    marshalName(serializedOperationTokens[4])
             );
         }
         throw new SerializingMarshallingException("Unsupported Operation: " + serializedOperation);

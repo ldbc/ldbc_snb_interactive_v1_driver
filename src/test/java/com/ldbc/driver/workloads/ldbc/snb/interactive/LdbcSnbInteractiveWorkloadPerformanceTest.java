@@ -18,7 +18,6 @@ import com.ldbc.driver.temporal.TemporalUtil;
 import com.ldbc.driver.temporal.TimeSource;
 import com.ldbc.driver.util.MapUtils;
 import com.ldbc.driver.workloads.ldbc.snb.interactive.db.DummyLdbcSnbInteractiveDb;
-import org.HdrHistogram.Histogram;
 import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
@@ -28,7 +27,10 @@ import java.io.File;
 import java.io.FilenameFilter;
 import java.io.IOException;
 import java.text.DecimalFormat;
-import java.util.*;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
 public class LdbcSnbInteractiveWorkloadPerformanceTest {
@@ -93,8 +95,7 @@ SF30 1,2,4 threads 1 partition
             );
 
             List<Integer> threadCounts = Lists.newArrayList(1, 2, 4);
-//            long operationCount = 100000000;
-            long operationCount = 100000;
+            long operationCount = 100000000;
             for (int threadCount : threadCounts) {
                 doIgnoreTimesPerformanceTest(
                         threadCount,
@@ -139,7 +140,7 @@ SF30 1,2,4 threads 1 partition
             String resultDirPath = resultsDir;
             // TODO uncomment
 //            double timeCompressionRatio = 0.0000001;
-            double timeCompressionRatio = 100.0;
+            double timeCompressionRatio = 1.0;
             long windowedExecutionWindowDuration = 1000l;
             Set<String> peerIds = new HashSet<>();
             long toleratedExecutionDelay = TEMPORAL_UTIL.convert(60, TimeUnit.MINUTES, TimeUnit.MILLISECONDS);
@@ -302,7 +303,7 @@ SF30 1,2,4 threads 1 partition
             int statusDisplayInterval = 2;
             TimeUnit timeUnit = TimeUnit.MICROSECONDS;
             String resultDirPath = resultsDir;
-            double timeCompressionRatio = 0.0001;
+            double timeCompressionRatio = 0.00001;
             long windowedExecutionWindowDuration = 1000l;
             Set<String> peerIds = new HashSet<>();
             long toleratedExecutionDelay = TEMPORAL_UTIL.convert(60, TimeUnit.MINUTES, TimeUnit.MILLISECONDS);

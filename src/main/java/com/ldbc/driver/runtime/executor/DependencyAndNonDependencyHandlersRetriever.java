@@ -71,7 +71,7 @@ class DependencyAndNonDependencyHandlersRetriever {
             // TODO remove later, but at the moment Add Person and Add Friendship are in the same stream, and only Add Person should introduce a dependency
             if (false == nextGctWriteOperation.getClass().equals(LdbcUpdate8AddFriendship.class))
                 // submit initiated time as soon as possible so GCT/dependencies can advance as soon as possible
-                nextGctWriteHandler.localCompletionTimeWriter().submitLocalInitiatedTime(nextGctWriteHandler.operation().scheduledStartTimeAsMilli());
+                nextGctWriteHandler.localCompletionTimeWriter().submitLocalInitiatedTime(nextGctWriteHandler.operation().timeStamp());
             if (false == gctWriteOperations.hasNext()) {
                 // after last write operation, submit highest possible initiated time to ensure that GCT progresses to time of highest LCT write
                 nextGctWriteHandler.localCompletionTimeWriter().submitLocalInitiatedTime(Long.MAX_VALUE);
@@ -85,8 +85,8 @@ class DependencyAndNonDependencyHandlersRetriever {
         }
         // return handler with lowest start time
         if (null != nextGctWriteHandler && null != nextGctReadHandler) {
-            long nextGctWriteHandlerStartTimeAsMilli = nextGctWriteHandler.operation().scheduledStartTimeAsMilli();
-            long nextGctReadHandlerStartTimeAsMilli = nextGctReadHandler.operation().scheduledStartTimeAsMilli();
+            long nextGctWriteHandlerStartTimeAsMilli = nextGctWriteHandler.operation().timeStamp();
+            long nextGctReadHandlerStartTimeAsMilli = nextGctReadHandler.operation().timeStamp();
             OperationHandler<?> nextHandler;
             if (nextGctReadHandlerStartTimeAsMilli < nextGctWriteHandlerStartTimeAsMilli) {
                 nextHandler = nextGctReadHandler;

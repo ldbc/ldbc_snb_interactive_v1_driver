@@ -30,7 +30,7 @@ public class Query14EventStreamReader implements Iterator<Operation<?>> {
                 (long) rowAsObjects[0],
                 (long) rowAsObjects[1]
         );
-        operation.setDependencyTimeAsMilli(0);
+        operation.setDependencyTimeStamp(0);
         return operation;
     }
 

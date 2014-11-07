@@ -4,14 +4,12 @@ import com.google.common.collect.Iterators;
 import com.google.common.collect.PeekingIterator;
 import com.ldbc.driver.control.DriverConfiguration;
 import com.ldbc.driver.generator.GeneratorFactory;
-import com.ldbc.driver.temporal.TemporalUtil;
 import com.ldbc.driver.util.Tuple;
 import com.ldbc.driver.validation.ClassNameWorkloadFactory;
 import com.ldbc.driver.validation.WorkloadFactory;
 
 import java.io.IOException;
 import java.util.*;
-import java.util.concurrent.TimeUnit;
 
 public class WorkloadStreams {
     private WorkloadStreamDefinition asynchronousStream = null;
@@ -21,7 +19,6 @@ public class WorkloadStreams {
                                                                        long newStartTimeAsMilli,
                                                                        double compressionRatio,
                                                                        GeneratorFactory gf) throws WorkloadException {
-        TemporalUtil temporalUtil = new TemporalUtil();
         long minScheduledStartTimeAsMilli = Long.MAX_VALUE;
 
         /*
@@ -160,12 +157,14 @@ public class WorkloadStreams {
         return timeOffsetAndCompressedWorkloadStreams;
     }
 
-    public static Tuple.Tuple2<WorkloadStreams, Workload> createNewWorkloadWithLimitedWorkloadStreams(DriverConfiguration configuration, GeneratorFactory gf) throws WorkloadException, IOException {
+    // returns (workload_streams, workload, minimum_timestamp)
+    public static Tuple.Tuple3<WorkloadStreams, Workload, Long> createNewWorkloadWithLimitedWorkloadStreams(DriverConfiguration configuration, GeneratorFactory gf) throws WorkloadException, IOException {
         ClassNameWorkloadFactory workloadFactory = new ClassNameWorkloadFactory(configuration.workloadClassName());
         return createNewWorkloadWithLimitedWorkloadStreams(workloadFactory, configuration, gf);
     }
 
-    public static Tuple.Tuple2<WorkloadStreams, Workload> createNewWorkloadWithLimitedWorkloadStreams(WorkloadFactory workloadFactory, DriverConfiguration configuration, GeneratorFactory gf) throws WorkloadException, IOException {
+    // returns (workload_streams, workload, minimum_timestamp)
+    public static Tuple.Tuple3<WorkloadStreams, Workload, Long> createNewWorkloadWithLimitedWorkloadStreams(WorkloadFactory workloadFactory, DriverConfiguration configuration, GeneratorFactory gf) throws WorkloadException, IOException {
         WorkloadStreams workloadStreams = new WorkloadStreams();
         // get workload
         Workload workload = workloadFactory.createWorkload();
@@ -180,7 +179,11 @@ public class WorkloadStreams {
             streams.add(stream.nonDependencyOperations());
         }
         // stream through streams once, to calculate how many operations are needed from each, to get operation_count in total
-        long[] limitForStream = WorkloadStreams.fromAmongAllRetrieveTopK(streams, configuration.operationCount());
+        Tuple.Tuple3<long[], Long, Long> limitsAndMinimumsForStream = WorkloadStreams.fromAmongAllRetrieveTopK(streams, configuration.operationCount());
+        long[] limitForStream = limitsAndMinimumsForStream._1();
+        long minimumDependencyTimeStamp = limitsAndMinimumsForStream._2();
+        long minimumTimeStamp = limitsAndMinimumsForStream._3();
+
         workload.close();
         // reinitialize workload, so it can be streamed through from the beginning
         workload = workloadFactory.createWorkload();
@@ -201,11 +204,13 @@ public class WorkloadStreams {
                     gf.limit(blockingStreams.get(i).nonDependencyOperations(), limitForStream[i * 2 + 3])
             );
         }
-        return Tuple.tuple2(workloadStreams, workload);
+        return Tuple.tuple3(workloadStreams, workload, minimumTimeStamp);
     }
 
-    public static long[] fromAmongAllRetrieveTopK(List<Iterator<Operation<?>>> streams, long k) throws WorkloadException {
-        TemporalUtil temporalUtil = new TemporalUtil();
+    // returns (limit_per_stream, minimum_dependency_timestamp, minimum_timestamp)
+    public static Tuple.Tuple3<long[], Long, Long> fromAmongAllRetrieveTopK(List<Iterator<Operation<?>>> streams, long k) throws WorkloadException {
+        long minimumDependencyTimeStamp = Long.MAX_VALUE;
+        long minimumTimeStamp = Long.MAX_VALUE;
         long kSoFar = 0;
         long[] kForStream = new long[streams.size()];
         for (int i = 0; i < streams.size(); i++) {
@@ -216,7 +221,7 @@ public class WorkloadStreams {
             streamHeads[i] = null;
         }
         while (kSoFar < k) {
-            long minAsMilli = temporalUtil.convert(Long.MAX_VALUE, TimeUnit.NANOSECONDS, TimeUnit.MILLISECONDS);
+            long minAsMilli = Long.MAX_VALUE;
             int indexOfMin = -1;
             for (int i = 0; i < streams.size(); i++) {
                 if (null != streamHeads[i] || streams.get(i).hasNext()) {
@@ -224,12 +229,21 @@ public class WorkloadStreams {
                         streamHeads[i] = streams.get(i).next();
                     }
 
-                    long streamHeadTimeAsMilli = streamHeads[i].scheduledStartTimeAsMilli();
-                    if (-1 == streamHeadTimeAsMilli)
-                        throw new WorkloadException(String.format("Operation must have start time\n%s", streamHeads[i]));
+                    long streamHeadTimeStampAsMilli = streamHeads[i].timeStamp();
+                    long streamHeadDependencyTimeStampAsMilli = streamHeads[i].dependencyTimeStamp();
 
-                    if (null != streamHeads[i] && streamHeadTimeAsMilli < minAsMilli) {
-                        minAsMilli = streamHeadTimeAsMilli;
+                    if (-1 == streamHeadTimeStampAsMilli)
+                        throw new WorkloadException(String.format("Operation must have time stamp\n%s", streamHeads[i]));
+                    if (-1 == streamHeadDependencyTimeStampAsMilli)
+                        throw new WorkloadException(String.format("Operation must have dependency time stamp\n%s", streamHeads[i]));
+
+                    if (streamHeadTimeStampAsMilli < minimumTimeStamp)
+                        minimumTimeStamp = streamHeadTimeStampAsMilli;
+                    if (-streamHeadDependencyTimeStampAsMilli < minimumDependencyTimeStamp)
+                        minimumDependencyTimeStamp = streamHeadDependencyTimeStampAsMilli;
+
+                    if (null != streamHeads[i] && streamHeadTimeStampAsMilli < minAsMilli) {
+                        minAsMilli = streamHeadTimeStampAsMilli;
                         indexOfMin = i;
                     }
                 }
@@ -242,7 +256,11 @@ public class WorkloadStreams {
             streamHeads[indexOfMin] = null;
             kSoFar = kSoFar + 1;
         }
-        return kForStream;
+        return Tuple.tuple3(
+                kForStream,
+                minimumDependencyTimeStamp,
+                minimumTimeStamp
+        );
     }
 
     public WorkloadStreamDefinition asynchronousStream() {
@@ -283,7 +301,7 @@ public class WorkloadStreams {
         }
         allStreams.add(asynchronousStream().dependencyOperations());
         allStreams.add(asynchronousStream().nonDependencyOperations());
-        return gf.mergeSortOperationsByStartTime(allStreams.toArray(new Iterator[allStreams.size()]));
+        return gf.mergeSortOperationsByTimeStamp(allStreams.toArray(new Iterator[allStreams.size()]));
     }
 
     public static class WorkloadStreamDefinition {

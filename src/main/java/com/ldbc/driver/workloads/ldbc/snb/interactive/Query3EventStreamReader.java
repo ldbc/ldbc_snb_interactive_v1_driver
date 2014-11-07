@@ -35,7 +35,7 @@ public class Query3EventStreamReader implements Iterator<Operation<?>> {
                 (int) rowAsObjects[2],
                 LdbcQuery3.DEFAULT_LIMIT
         );
-        operation.setDependencyTimeAsMilli(0);
+        operation.setDependencyTimeStamp(0);
         return operation;
     }
 

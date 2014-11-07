@@ -92,7 +92,9 @@ public class WorkloadRunner {
         for (WorkloadStreamDefinition blockingStream : workloadStreams.blockingStreamDefinitions()) {
             // TODO benchmark more to find out which policy is best Same Thread vs Single Thread
 //            OperationHandlerExecutor executorForBlocking = new SameThreadOperationHandlerExecutor();
-            OperationHandlerExecutor executorForBlocking = new SingleThreadOperationHandlerExecutor(errorReporter, operationHandlerExecutorsBoundedQueueSize);
+            // TODO move person friendship into different file, that is the reason the queue needs to be this big, it needs to leave enough room for the next add person to advance gct
+//            OperationHandlerExecutor executorForBlocking = new SingleThreadOperationHandlerExecutor(errorReporter, operationHandlerExecutorsBoundedQueueSize);
+            OperationHandlerExecutor executorForBlocking = new SingleThreadOperationHandlerExecutor(errorReporter, 10000);
             this.executorsForBlocking.add(executorForBlocking);
             // only create a local completion time writer for an executor if it contains at least one READ_WRITE operation
             // otherwise it will cause completion time to stall

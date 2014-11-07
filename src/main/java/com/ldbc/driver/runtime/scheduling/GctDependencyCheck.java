@@ -23,7 +23,7 @@ public class GctDependencyCheck implements SpinnerCheck {
     @Override
     public SpinnerCheckResult doCheck() {
         try {
-            return (globalCompletionTimeReader.globalCompletionTimeAsMilli() >= operation.dependencyTimeAsMilli()) ? SpinnerCheckResult.PASSED : SpinnerCheckResult.STILL_CHECKING;
+            return (globalCompletionTimeReader.globalCompletionTimeAsMilli() >= operation.dependencyTimeStamp()) ? SpinnerCheckResult.PASSED : SpinnerCheckResult.STILL_CHECKING;
         } catch (CompletionTimeException e) {
             errorReporter.reportError(this,
                     String.format(
@@ -41,12 +41,12 @@ public class GctDependencyCheck implements SpinnerCheck {
             errorReporter.reportError(this,
                     String.format("GCT(%s) has not advanced sufficiently to execute operation\n"
                                     + "Operation: %s\n"
-                                    + "Scheduled Start Time: %s\n"
-                                    + "Dependency Time: %s",
+                                    + "Time Stamp: %s\n"
+                                    + "Dependency Time Stamp: %s",
                             TEMPORAL_UTIL.millisecondsToDateTimeString(globalCompletionTimeReader.globalCompletionTimeAsMilli()),
                             operation.toString(),
-                            operation.scheduledStartTimeAsMilli(),
-                            operation.dependencyTimeAsMilli()));
+                            operation.timeStamp(),
+                            operation.dependencyTimeStamp()));
             return false;
         } catch (CompletionTimeException e) {
             errorReporter.reportError(this,

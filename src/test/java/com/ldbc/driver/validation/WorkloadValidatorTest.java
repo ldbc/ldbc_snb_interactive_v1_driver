@@ -25,6 +25,7 @@ import java.util.List;
 import java.util.Set;
 
 import static com.ldbc.driver.validation.WorkloadValidationResult.ResultType;
+import static org.hamcrest.CoreMatchers.anyOf;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
 
@@ -37,9 +38,9 @@ public class WorkloadValidatorTest {
                 dependentOperationTypes,
                 Collections.<Operation<?>>emptyIterator(),
                 Lists.<Operation<?>>newArrayList(
-                        new TimedNamedOperation2(10, 0, "name2"),
-                        new TimedNamedOperation2(11, 1, "name2"),
-                        new TimedNamedOperation1(12, 2, "name1")
+                        new TimedNamedOperation2(10, 10, 0, "name2"),
+                        new TimedNamedOperation2(11, 11, 1, "name2"),
+                        new TimedNamedOperation1(12, 12, 2, "name1")
                 ).iterator()
         );
         return workloadStreams;
@@ -51,9 +52,9 @@ public class WorkloadValidatorTest {
                 dependentOperationTypes,
                 Collections.<Operation<?>>emptyIterator(),
                 Lists.<Operation<?>>newArrayList(
-                        new TimedNamedOperation2(10, 0, "name2"),
-                        new TimedNamedOperation2(11, 1, "name2"),
-                        new TimedNamedOperation1(12, -1, "name1")
+                        new TimedNamedOperation2(10, 10, 0, "name2"),
+                        new TimedNamedOperation2(11, 11, 1, "name2"),
+                        new TimedNamedOperation1(12, 12, -1, "name1")
                 ).iterator()
         );
         return workloadStreams;
@@ -104,7 +105,7 @@ public class WorkloadValidatorTest {
         assertThat(validResult.errorMessage(), validResult.resultType(), is(ResultType.SUCCESSFUL));
         assertThat(validResult.errorMessage(), validResult.isSuccessful(), is(true));
 
-        assertThat(invalidResult.errorMessage(), invalidResult.resultType(), is(ResultType.UNASSIGNED_DEPENDENCY_TIME));
+        assertThat(invalidResult.errorMessage(), invalidResult.resultType(), anyOf(is(ResultType.UNASSIGNED_DEPENDENCY_TIME), is(ResultType.UNEXPECTED)));
         assertThat(invalidResult.errorMessage(), invalidResult.isSuccessful(), is(false));
     }
 
@@ -114,9 +115,9 @@ public class WorkloadValidatorTest {
                 dependentOperationTypes,
                 Collections.<Operation<?>>emptyIterator(),
                 Lists.<Operation<?>>newArrayList(
-                        new TimedNamedOperation2(10, 0, "name2"),
-                        new TimedNamedOperation2(11, 1, "name2"),
-                        new TimedNamedOperation1(12, 11, "name1")
+                        new TimedNamedOperation2(10, 10, 0, "name2"),
+                        new TimedNamedOperation2(11, 11, 1, "name2"),
+                        new TimedNamedOperation1(12, 12, 11, "name1")
                 ).iterator()
         );
         return workloadStreams;
@@ -128,9 +129,9 @@ public class WorkloadValidatorTest {
                 dependentOperationTypes,
                 Collections.<Operation<?>>emptyIterator(),
                 Lists.<Operation<?>>newArrayList(
-                        new TimedNamedOperation2(10, 0, "name2"),
-                        new TimedNamedOperation2(11, 1, "name2"),
-                        new TimedNamedOperation1(12, 13, "name1")
+                        new TimedNamedOperation2(10, 10, 0, "name2"),
+                        new TimedNamedOperation2(11, 11, 1, "name2"),
+                        new TimedNamedOperation1(12, 12, 13, "name1")
                 ).iterator()
         );
         return workloadStreams;
@@ -189,9 +190,9 @@ public class WorkloadValidatorTest {
                 dependentOperationTypes,
                 Collections.<Operation<?>>emptyIterator(),
                 Lists.<Operation<?>>newArrayList(
-                        new TimedNamedOperation2(10, 0, "name2"),
-                        new TimedNamedOperation2(11, 1, "name2"),
-                        new TimedNamedOperation1(12, 2, "name1")
+                        new TimedNamedOperation2(10, 10, 0, "name2"),
+                        new TimedNamedOperation2(11, 11, 1, "name2"),
+                        new TimedNamedOperation1(12, 12, 2, "name1")
                 ).iterator()
         );
         return workloadStreams;
@@ -203,9 +204,9 @@ public class WorkloadValidatorTest {
                 dependentOperationTypes,
                 Collections.<Operation<?>>emptyIterator(),
                 Lists.<Operation<?>>newArrayList(
-                        new TimedNamedOperation2(10, 0, "name2"),
-                        new TimedNamedOperation2(11, 1, "name2"),
-                        new TimedNamedOperation2(12, 2, "name2")
+                        new TimedNamedOperation2(10, 10, 0, "name2"),
+                        new TimedNamedOperation2(11, 11, 1, "name2"),
+                        new TimedNamedOperation2(12, 12, 2, "name2")
                 ).iterator()
         );
         return workloadStreams;
@@ -217,9 +218,9 @@ public class WorkloadValidatorTest {
                 dependentOperationTypes,
                 Collections.<Operation<?>>emptyIterator(),
                 Lists.<Operation<?>>newArrayList(
-                        new TimedNamedOperation2(10, 0, "name2"),
-                        new TimedNamedOperation2(11, 1, "name2"),
-                        new TimedNamedOperation1(12, 2, "name1")
+                        new TimedNamedOperation2(10, 10, 0, "name2"),
+                        new TimedNamedOperation2(11, 11, 1, "name2"),
+                        new TimedNamedOperation1(12, 12, 2, "name1")
                 ).iterator()
         );
         return workloadStreams;
@@ -231,9 +232,9 @@ public class WorkloadValidatorTest {
                 dependentOperationTypes,
                 Collections.<Operation<?>>emptyIterator(),
                 Lists.<Operation<?>>newArrayList(
-                        new TimedNamedOperation2(10, 0, "name2"),
-                        new TimedNamedOperation2(11, 1, "name2"),
-                        new TimedNamedOperation1(12, 2, "name1")
+                        new TimedNamedOperation2(10, 10, 0, "name2"),
+                        new TimedNamedOperation2(11, 11, 1, "name2"),
+                        new TimedNamedOperation1(12, 12, 2, "name1")
                 ).iterator()
         );
         return workloadStreams;
@@ -283,29 +284,29 @@ public class WorkloadValidatorTest {
         );
 
         List<Operation<?>> validAlternativeOperations = Lists.<Operation<?>>newArrayList(
-                new TimedNamedOperation1(12, 2, "name1"),
-                new TimedNamedOperation1(12, 2, "name1"),
-                new TimedNamedOperation1(12, 2, "name1"),
-                new TimedNamedOperation1(12, 2, "name1"),
-                new TimedNamedOperation1(12, 2, "name1"),
-                new TimedNamedOperation1(12, 2, "name1"),
-                new TimedNamedOperation1(12, 2, "name1"),
-                new TimedNamedOperation1(12, 2, "name1"),
-                new TimedNamedOperation1(12, 2, "name1"),
-                new TimedNamedOperation1(12, 2, "name1")
+                new TimedNamedOperation1(12, 12, 2, "name1"),
+                new TimedNamedOperation1(12, 12, 2, "name1"),
+                new TimedNamedOperation1(12, 12, 2, "name1"),
+                new TimedNamedOperation1(12, 12, 2, "name1"),
+                new TimedNamedOperation1(12, 12, 2, "name1"),
+                new TimedNamedOperation1(12, 12, 2, "name1"),
+                new TimedNamedOperation1(12, 12, 2, "name1"),
+                new TimedNamedOperation1(12, 12, 2, "name1"),
+                new TimedNamedOperation1(12, 12, 2, "name1"),
+                new TimedNamedOperation1(12, 12, 2, "name1")
         );
 
         List<Operation<?>> invalidAlternativeOperations = Lists.<Operation<?>>newArrayList(
-                new TimedNamedOperation1(12, 3, "name4"),
-                new TimedNamedOperation1(12, 3, "name5"),
-                new TimedNamedOperation1(12, 4, "name6"),
-                new TimedNamedOperation1(12, 5, "name6"),
-                new TimedNamedOperation1(12, 6, "name7"),
-                new TimedNamedOperation1(12, 7, "name8"),
-                new TimedNamedOperation1(12, 8, "name9"),
-                new TimedNamedOperation1(12, 9, "name10"),
-                new TimedNamedOperation1(12, 10, "name11"),
-                new TimedNamedOperation1(12, 11, "name12")
+                new TimedNamedOperation1(12, 12, 3, "name4"),
+                new TimedNamedOperation1(12, 12, 3, "name5"),
+                new TimedNamedOperation1(12, 12, 4, "name6"),
+                new TimedNamedOperation1(12, 12, 5, "name6"),
+                new TimedNamedOperation1(12, 12, 6, "name7"),
+                new TimedNamedOperation1(12, 12, 7, "name8"),
+                new TimedNamedOperation1(12, 12, 8, "name9"),
+                new TimedNamedOperation1(12, 12, 9, "name10"),
+                new TimedNamedOperation1(12, 12, 10, "name11"),
+                new TimedNamedOperation1(12, 12, 11, "name12")
         );
 
         long operationCount = streams1a.size();
@@ -505,7 +506,14 @@ public class WorkloadValidatorTest {
                                 ),
                                 operationCount - 1
                         ),
-                        gf.<Operation<?>>identity(new TimedNamedOperation1(lastStartTimeAsMilli + excessiveInterleaveAsMilli, 0, "name"))
+                        gf.<Operation<?>>identity(
+                                new TimedNamedOperation1(
+                                        lastStartTimeAsMilli + excessiveInterleaveAsMilli,
+                                        lastStartTimeAsMilli + excessiveInterleaveAsMilli,
+                                        0,
+                                        "name"
+                                )
+                        )
                 )
         );
 
@@ -522,7 +530,14 @@ public class WorkloadValidatorTest {
                                 ),
                                 operationCount - 1
                         ),
-                        gf.<Operation<?>>identity(new TimedNamedOperation1(lastStartTimeAsMilli + excessiveInterleaveAsMilli, 0, "name"))
+                        gf.<Operation<?>>identity(
+                                new TimedNamedOperation1(
+                                        lastStartTimeAsMilli + excessiveInterleaveAsMilli,
+                                        lastStartTimeAsMilli + excessiveInterleaveAsMilli,
+                                        0,
+                                        "name"
+                                )
+                        )
                 )
         );
 
@@ -539,7 +554,14 @@ public class WorkloadValidatorTest {
                                 ),
                                 operationCount - 1
                         ),
-                        gf.<Operation<?>>identity(new TimedNamedOperation1(lastStartTimeAsMilli + excessiveInterleaveAsMilli, 0, "name"))
+                        gf.<Operation<?>>identity(
+                                new TimedNamedOperation1(
+                                        lastStartTimeAsMilli + excessiveInterleaveAsMilli,
+                                        lastStartTimeAsMilli + excessiveInterleaveAsMilli,
+                                        0,
+                                        "name"
+                                )
+                        )
                 )
         );
 
@@ -556,7 +578,14 @@ public class WorkloadValidatorTest {
                                 ),
                                 operationCount - 1
                         ),
-                        gf.<Operation<?>>identity(new TimedNamedOperation1(lastStartTimeAsMilli + excessiveInterleaveAsMilli, 0, "name"))
+                        gf.<Operation<?>>identity(
+                                new TimedNamedOperation1(
+                                        lastStartTimeAsMilli + excessiveInterleaveAsMilli,
+                                        lastStartTimeAsMilli + excessiveInterleaveAsMilli,
+                                        0,
+                                        "name"
+                                )
+                        )
                 )
         );
 
@@ -607,7 +636,14 @@ public class WorkloadValidatorTest {
                                         gf.constant("name")),
                                 operationCount - 1
                         ),
-                        gf.identity(new TimedNamedOperation1(slightlyBeforeLastOperationStartTimeAsMilli, 0, "name"))
+                        gf.identity(
+                                new TimedNamedOperation1(
+                                        slightlyBeforeLastOperationStartTimeAsMilli,
+                                        slightlyBeforeLastOperationStartTimeAsMilli,
+                                        0,
+                                        "name"
+                                )
+                        )
                 )
         );
 
@@ -623,7 +659,14 @@ public class WorkloadValidatorTest {
                                         gf.constant("name")),
                                 operationCount - 1
                         ),
-                        gf.identity(new TimedNamedOperation1(slightlyBeforeLastOperationStartTimeAsMilli, 0, "name"))
+                        gf.identity(
+                                new TimedNamedOperation1(
+                                        slightlyBeforeLastOperationStartTimeAsMilli,
+                                        slightlyBeforeLastOperationStartTimeAsMilli,
+                                        0,
+                                        "name"
+                                )
+                        )
                 )
         );
 
@@ -639,7 +682,14 @@ public class WorkloadValidatorTest {
                                         gf.constant("name")),
                                 operationCount - 1
                         ),
-                        gf.identity(new TimedNamedOperation1(slightlyBeforeLastOperationStartTimeAsMilli, 0, "name"))
+                        gf.identity(
+                                new TimedNamedOperation1(
+                                        slightlyBeforeLastOperationStartTimeAsMilli,
+                                        slightlyBeforeLastOperationStartTimeAsMilli,
+                                        0,
+                                        "name"
+                                )
+                        )
                 )
         );
 
@@ -655,7 +705,14 @@ public class WorkloadValidatorTest {
                                         gf.constant("name")),
                                 operationCount - 1
                         ),
-                        gf.identity(new TimedNamedOperation1(slightlyBeforeLastOperationStartTimeAsMilli, 0, "name"))
+                        gf.identity(
+                                new TimedNamedOperation1(
+                                        slightlyBeforeLastOperationStartTimeAsMilli,
+                                        slightlyBeforeLastOperationStartTimeAsMilli,
+                                        0,
+                                        "name"
+                                )
+                        )
                 )
         );
 

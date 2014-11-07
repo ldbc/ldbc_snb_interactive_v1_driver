@@ -38,6 +38,7 @@ public class StartTimeAssigningOperationGeneratorTest {
         while (startTimeOperationGenerator.hasNext()) {
             Operation<?> operation = startTimeOperationGenerator.next();
             assertThat(operation.scheduledStartTimeAsMilli(), is(lastTime + incrementMilliTimeBy));
+            assertThat(operation.timeStamp(), is(lastTime + incrementMilliTimeBy));
             lastTime = operation.scheduledStartTimeAsMilli();
             count++;
         }

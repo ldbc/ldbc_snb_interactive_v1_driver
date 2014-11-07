@@ -60,27 +60,38 @@ public class TimeMappingOperationGeneratorTest {
         List<Operation<?>> operationsList = ImmutableList.copyOf(operations);
         assertThat(operationsList.size(), is(11));
         assertThat(operationsList.get(0).scheduledStartTimeAsMilli(), equalTo(0l));
-        assertThat(operationsList.get(0).dependencyTimeAsMilli(), equalTo(0l));
+        assertThat(operationsList.get(0).timeStamp(), equalTo(0l));
+        assertThat(operationsList.get(0).dependencyTimeStamp(), equalTo(0l));
         assertThat(operationsList.get(1).scheduledStartTimeAsMilli(), equalTo(100l));
-        assertThat(operationsList.get(1).dependencyTimeAsMilli(), equalTo(50l));
+        assertThat(operationsList.get(1).timeStamp(), equalTo(100l));
+        assertThat(operationsList.get(1).dependencyTimeStamp(), equalTo(50l));
         assertThat(operationsList.get(2).scheduledStartTimeAsMilli(), equalTo(200l));
-        assertThat(operationsList.get(2).dependencyTimeAsMilli(), equalTo(100l));
+        assertThat(operationsList.get(2).timeStamp(), equalTo(200l));
+        assertThat(operationsList.get(2).dependencyTimeStamp(), equalTo(100l));
         assertThat(operationsList.get(3).scheduledStartTimeAsMilli(), equalTo(300l));
-        assertThat(operationsList.get(3).dependencyTimeAsMilli(), equalTo(150l));
+        assertThat(operationsList.get(3).timeStamp(), equalTo(300l));
+        assertThat(operationsList.get(3).dependencyTimeStamp(), equalTo(150l));
         assertThat(operationsList.get(4).scheduledStartTimeAsMilli(), equalTo(400l));
-        assertThat(operationsList.get(4).dependencyTimeAsMilli(), equalTo(200l));
+        assertThat(operationsList.get(4).timeStamp(), equalTo(400l));
+        assertThat(operationsList.get(4).dependencyTimeStamp(), equalTo(200l));
         assertThat(operationsList.get(5).scheduledStartTimeAsMilli(), equalTo(500l));
-        assertThat(operationsList.get(5).dependencyTimeAsMilli(), equalTo(250l));
+        assertThat(operationsList.get(5).timeStamp(), equalTo(500l));
+        assertThat(operationsList.get(5).dependencyTimeStamp(), equalTo(250l));
         assertThat(operationsList.get(6).scheduledStartTimeAsMilli(), equalTo(600l));
-        assertThat(operationsList.get(6).dependencyTimeAsMilli(), equalTo(300l));
+        assertThat(operationsList.get(6).timeStamp(), equalTo(600l));
+        assertThat(operationsList.get(6).dependencyTimeStamp(), equalTo(300l));
         assertThat(operationsList.get(7).scheduledStartTimeAsMilli(), equalTo(700l));
-        assertThat(operationsList.get(7).dependencyTimeAsMilli(), equalTo(350l));
+        assertThat(operationsList.get(7).timeStamp(), equalTo(700l));
+        assertThat(operationsList.get(7).dependencyTimeStamp(), equalTo(350l));
         assertThat(operationsList.get(8).scheduledStartTimeAsMilli(), equalTo(800l));
-        assertThat(operationsList.get(8).dependencyTimeAsMilli(), equalTo(400l));
+        assertThat(operationsList.get(8).timeStamp(), equalTo(800l));
+        assertThat(operationsList.get(8).dependencyTimeStamp(), equalTo(400l));
         assertThat(operationsList.get(9).scheduledStartTimeAsMilli(), equalTo(900l));
-        assertThat(operationsList.get(9).dependencyTimeAsMilli(), equalTo(450l));
+        assertThat(operationsList.get(9).timeStamp(), equalTo(900l));
+        assertThat(operationsList.get(9).dependencyTimeStamp(), equalTo(450l));
         assertThat(operationsList.get(10).scheduledStartTimeAsMilli(), equalTo(1000l));
-        assertThat(operationsList.get(10).dependencyTimeAsMilli(), equalTo(500l));
+        assertThat(operationsList.get(10).timeStamp(), equalTo(1000l));
+        assertThat(operationsList.get(10).dependencyTimeStamp(), equalTo(500l));
 
         // When
         long newStartTime = 500l;
@@ -89,27 +100,38 @@ public class TimeMappingOperationGeneratorTest {
         // Then
         assertThat(offsetOperationsList.size(), is(11));
         assertThat(offsetOperationsList.get(0).scheduledStartTimeAsMilli(), equalTo(500l));
-        assertThat(offsetOperationsList.get(0).dependencyTimeAsMilli(), equalTo(500l));
+        assertThat(offsetOperationsList.get(0).timeStamp(), equalTo(0l));
+        assertThat(offsetOperationsList.get(0).dependencyTimeStamp(), equalTo(0l));
         assertThat(offsetOperationsList.get(1).scheduledStartTimeAsMilli(), equalTo(600l));
-        assertThat(offsetOperationsList.get(1).dependencyTimeAsMilli(), equalTo(550l));
+        assertThat(offsetOperationsList.get(1).timeStamp(), equalTo(100l));
+        assertThat(offsetOperationsList.get(1).dependencyTimeStamp(), equalTo(50l));
         assertThat(offsetOperationsList.get(2).scheduledStartTimeAsMilli(), equalTo(700l));
-        assertThat(offsetOperationsList.get(2).dependencyTimeAsMilli(), equalTo(600l));
+        assertThat(offsetOperationsList.get(2).timeStamp(), equalTo(200l));
+        assertThat(offsetOperationsList.get(2).dependencyTimeStamp(), equalTo(100l));
         assertThat(offsetOperationsList.get(3).scheduledStartTimeAsMilli(), equalTo(800l));
-        assertThat(offsetOperationsList.get(3).dependencyTimeAsMilli(), equalTo(650l));
+        assertThat(offsetOperationsList.get(3).timeStamp(), equalTo(300l));
+        assertThat(offsetOperationsList.get(3).dependencyTimeStamp(), equalTo(150l));
         assertThat(offsetOperationsList.get(4).scheduledStartTimeAsMilli(), equalTo(900l));
-        assertThat(offsetOperationsList.get(4).dependencyTimeAsMilli(), equalTo(700l));
+        assertThat(offsetOperationsList.get(4).timeStamp(), equalTo(400l));
+        assertThat(offsetOperationsList.get(4).dependencyTimeStamp(), equalTo(200l));
         assertThat(offsetOperationsList.get(5).scheduledStartTimeAsMilli(), equalTo(1000l));
-        assertThat(offsetOperationsList.get(5).dependencyTimeAsMilli(), equalTo(750l));
+        assertThat(offsetOperationsList.get(5).timeStamp(), equalTo(500l));
+        assertThat(offsetOperationsList.get(5).dependencyTimeStamp(), equalTo(250l));
         assertThat(offsetOperationsList.get(6).scheduledStartTimeAsMilli(), equalTo(1100l));
-        assertThat(offsetOperationsList.get(6).dependencyTimeAsMilli(), equalTo(800l));
+        assertThat(offsetOperationsList.get(6).timeStamp(), equalTo(600l));
+        assertThat(offsetOperationsList.get(6).dependencyTimeStamp(), equalTo(300l));
         assertThat(offsetOperationsList.get(7).scheduledStartTimeAsMilli(), equalTo(1200l));
-        assertThat(offsetOperationsList.get(7).dependencyTimeAsMilli(), equalTo(850l));
+        assertThat(offsetOperationsList.get(7).timeStamp(), equalTo(700l));
+        assertThat(offsetOperationsList.get(7).dependencyTimeStamp(), equalTo(350l));
         assertThat(offsetOperationsList.get(8).scheduledStartTimeAsMilli(), equalTo(1300l));
-        assertThat(offsetOperationsList.get(8).dependencyTimeAsMilli(), equalTo(900l));
+        assertThat(offsetOperationsList.get(8).timeStamp(), equalTo(800l));
+        assertThat(offsetOperationsList.get(8).dependencyTimeStamp(), equalTo(400l));
         assertThat(offsetOperationsList.get(9).scheduledStartTimeAsMilli(), equalTo(1400l));
-        assertThat(offsetOperationsList.get(9).dependencyTimeAsMilli(), equalTo(950l));
+        assertThat(offsetOperationsList.get(9).timeStamp(), equalTo(900l));
+        assertThat(offsetOperationsList.get(9).dependencyTimeStamp(), equalTo(450l));
         assertThat(offsetOperationsList.get(10).scheduledStartTimeAsMilli(), equalTo(1500l));
-        assertThat(offsetOperationsList.get(10).dependencyTimeAsMilli(), equalTo(1000l));
+        assertThat(offsetOperationsList.get(10).timeStamp(), equalTo(1000l));
+        assertThat(offsetOperationsList.get(10).dependencyTimeStamp(), equalTo(500l));
     }
 
     @Test
@@ -130,27 +152,38 @@ public class TimeMappingOperationGeneratorTest {
 
         assertThat(operationsList.size(), is(11));
         assertThat(operationsList.get(0).scheduledStartTimeAsMilli(), equalTo(1000l));
-        assertThat(operationsList.get(0).dependencyTimeAsMilli(), equalTo(900l));
+        assertThat(operationsList.get(0).timeStamp(), equalTo(1000l));
+        assertThat(operationsList.get(0).dependencyTimeStamp(), equalTo(900l));
         assertThat(operationsList.get(1).scheduledStartTimeAsMilli(), equalTo(1100l));
-        assertThat(operationsList.get(1).dependencyTimeAsMilli(), equalTo(950l));
+        assertThat(operationsList.get(1).timeStamp(), equalTo(1100l));
+        assertThat(operationsList.get(1).dependencyTimeStamp(), equalTo(950l));
         assertThat(operationsList.get(2).scheduledStartTimeAsMilli(), equalTo(1200l));
-        assertThat(operationsList.get(2).dependencyTimeAsMilli(), equalTo(1000l));
+        assertThat(operationsList.get(2).timeStamp(), equalTo(1200l));
+        assertThat(operationsList.get(2).dependencyTimeStamp(), equalTo(1000l));
         assertThat(operationsList.get(3).scheduledStartTimeAsMilli(), equalTo(1300l));
-        assertThat(operationsList.get(3).dependencyTimeAsMilli(), equalTo(1050l));
+        assertThat(operationsList.get(3).timeStamp(), equalTo(1300l));
+        assertThat(operationsList.get(3).dependencyTimeStamp(), equalTo(1050l));
         assertThat(operationsList.get(4).scheduledStartTimeAsMilli(), equalTo(1400l));
-        assertThat(operationsList.get(4).dependencyTimeAsMilli(), equalTo(1100l));
+        assertThat(operationsList.get(4).timeStamp(), equalTo(1400l));
+        assertThat(operationsList.get(4).dependencyTimeStamp(), equalTo(1100l));
         assertThat(operationsList.get(5).scheduledStartTimeAsMilli(), equalTo(1500l));
-        assertThat(operationsList.get(5).dependencyTimeAsMilli(), equalTo(1150l));
+        assertThat(operationsList.get(5).timeStamp(), equalTo(1500l));
+        assertThat(operationsList.get(5).dependencyTimeStamp(), equalTo(1150l));
         assertThat(operationsList.get(6).scheduledStartTimeAsMilli(), equalTo(1600l));
-        assertThat(operationsList.get(6).dependencyTimeAsMilli(), equalTo(1200l));
+        assertThat(operationsList.get(6).timeStamp(), equalTo(1600l));
+        assertThat(operationsList.get(6).dependencyTimeStamp(), equalTo(1200l));
         assertThat(operationsList.get(7).scheduledStartTimeAsMilli(), equalTo(1700l));
-        assertThat(operationsList.get(7).dependencyTimeAsMilli(), equalTo(1250l));
+        assertThat(operationsList.get(7).timeStamp(), equalTo(1700l));
+        assertThat(operationsList.get(7).dependencyTimeStamp(), equalTo(1250l));
         assertThat(operationsList.get(8).scheduledStartTimeAsMilli(), equalTo(1800l));
-        assertThat(operationsList.get(8).dependencyTimeAsMilli(), equalTo(1300l));
+        assertThat(operationsList.get(8).timeStamp(), equalTo(1800l));
+        assertThat(operationsList.get(8).dependencyTimeStamp(), equalTo(1300l));
         assertThat(operationsList.get(9).scheduledStartTimeAsMilli(), equalTo(1900l));
-        assertThat(operationsList.get(9).dependencyTimeAsMilli(), equalTo(1350l));
+        assertThat(operationsList.get(9).timeStamp(), equalTo(1900l));
+        assertThat(operationsList.get(9).dependencyTimeStamp(), equalTo(1350l));
         assertThat(operationsList.get(10).scheduledStartTimeAsMilli(), equalTo(2000l));
-        assertThat(operationsList.get(10).dependencyTimeAsMilli(), equalTo(1400l));
+        assertThat(operationsList.get(10).timeStamp(), equalTo(2000l));
+        assertThat(operationsList.get(10).dependencyTimeStamp(), equalTo(1400l));
 
         // When
         long newStartTime = 500l;
@@ -166,27 +199,38 @@ public class TimeMappingOperationGeneratorTest {
         // Then
         assertThat(offsetAndCompressedOperationsList.size(), is(11));
         assertThat(offsetAndCompressedOperationsList.get(0).scheduledStartTimeAsMilli(), equalTo(500l));
-        assertThat(offsetAndCompressedOperationsList.get(0).dependencyTimeAsMilli(), equalTo(400l));
+        assertThat(offsetAndCompressedOperationsList.get(0).timeStamp(), equalTo(1000l));
+        assertThat(offsetAndCompressedOperationsList.get(0).dependencyTimeStamp(), equalTo(900l));
         assertThat(offsetAndCompressedOperationsList.get(1).scheduledStartTimeAsMilli(), equalTo(520l));
-        assertThat(offsetAndCompressedOperationsList.get(1).dependencyTimeAsMilli(), equalTo(410l));
+        assertThat(offsetAndCompressedOperationsList.get(1).timeStamp(), equalTo(1100l));
+        assertThat(offsetAndCompressedOperationsList.get(1).dependencyTimeStamp(), equalTo(950l));
         assertThat(offsetAndCompressedOperationsList.get(2).scheduledStartTimeAsMilli(), equalTo(540l));
-        assertThat(offsetAndCompressedOperationsList.get(2).dependencyTimeAsMilli(), equalTo(420l));
+        assertThat(offsetAndCompressedOperationsList.get(2).timeStamp(), equalTo(1200l));
+        assertThat(offsetAndCompressedOperationsList.get(2).dependencyTimeStamp(), equalTo(1000l));
         assertThat(offsetAndCompressedOperationsList.get(3).scheduledStartTimeAsMilli(), equalTo(560l));
-        assertThat(offsetAndCompressedOperationsList.get(3).dependencyTimeAsMilli(), equalTo(430l));
+        assertThat(offsetAndCompressedOperationsList.get(3).timeStamp(), equalTo(1300l));
+        assertThat(offsetAndCompressedOperationsList.get(3).dependencyTimeStamp(), equalTo(1050l));
         assertThat(offsetAndCompressedOperationsList.get(4).scheduledStartTimeAsMilli(), equalTo(580l));
-        assertThat(offsetAndCompressedOperationsList.get(4).dependencyTimeAsMilli(), equalTo(440l));
+        assertThat(offsetAndCompressedOperationsList.get(4).timeStamp(), equalTo(1400l));
+        assertThat(offsetAndCompressedOperationsList.get(4).dependencyTimeStamp(), equalTo(1100l));
         assertThat(offsetAndCompressedOperationsList.get(5).scheduledStartTimeAsMilli(), equalTo(600l));
-        assertThat(offsetAndCompressedOperationsList.get(5).dependencyTimeAsMilli(), equalTo(450l));
+        assertThat(offsetAndCompressedOperationsList.get(5).timeStamp(), equalTo(1500l));
+        assertThat(offsetAndCompressedOperationsList.get(5).dependencyTimeStamp(), equalTo(1150l));
         assertThat(offsetAndCompressedOperationsList.get(6).scheduledStartTimeAsMilli(), equalTo(620l));
-        assertThat(offsetAndCompressedOperationsList.get(6).dependencyTimeAsMilli(), equalTo(460l));
+        assertThat(offsetAndCompressedOperationsList.get(6).timeStamp(), equalTo(1600l));
+        assertThat(offsetAndCompressedOperationsList.get(6).dependencyTimeStamp(), equalTo(1200l));
         assertThat(offsetAndCompressedOperationsList.get(7).scheduledStartTimeAsMilli(), equalTo(640l));
-        assertThat(offsetAndCompressedOperationsList.get(7).dependencyTimeAsMilli(), equalTo(470l));
+        assertThat(offsetAndCompressedOperationsList.get(7).timeStamp(), equalTo(1700l));
+        assertThat(offsetAndCompressedOperationsList.get(7).dependencyTimeStamp(), equalTo(1250l));
         assertThat(offsetAndCompressedOperationsList.get(8).scheduledStartTimeAsMilli(), equalTo(660l));
-        assertThat(offsetAndCompressedOperationsList.get(8).dependencyTimeAsMilli(), equalTo(480l));
+        assertThat(offsetAndCompressedOperationsList.get(8).timeStamp(), equalTo(1800l));
+        assertThat(offsetAndCompressedOperationsList.get(8).dependencyTimeStamp(), equalTo(1300l));
         assertThat(offsetAndCompressedOperationsList.get(9).scheduledStartTimeAsMilli(), equalTo(680l));
-        assertThat(offsetAndCompressedOperationsList.get(9).dependencyTimeAsMilli(), equalTo(490l));
+        assertThat(offsetAndCompressedOperationsList.get(9).timeStamp(), equalTo(1900l));
+        assertThat(offsetAndCompressedOperationsList.get(9).dependencyTimeStamp(), equalTo(1350l));
         assertThat(offsetAndCompressedOperationsList.get(10).scheduledStartTimeAsMilli(), equalTo(700l));
-        assertThat(offsetAndCompressedOperationsList.get(10).dependencyTimeAsMilli(), equalTo(500l));
+        assertThat(offsetAndCompressedOperationsList.get(10).timeStamp(), equalTo(2000l));
+        assertThat(offsetAndCompressedOperationsList.get(10).dependencyTimeStamp(), equalTo(1400l));
     }
 
     @Test
@@ -207,27 +251,38 @@ public class TimeMappingOperationGeneratorTest {
 
         assertThat(operationsList.size(), is(11));
         assertThat(operationsList.get(0).scheduledStartTimeAsMilli(), equalTo(0l));
-        assertThat(operationsList.get(0).dependencyTimeAsMilli(), equalTo(0l));
+        assertThat(operationsList.get(0).timeStamp(), equalTo(0l));
+        assertThat(operationsList.get(0).dependencyTimeStamp(), equalTo(0l));
         assertThat(operationsList.get(1).scheduledStartTimeAsMilli(), equalTo(1l));
-        assertThat(operationsList.get(1).dependencyTimeAsMilli(), equalTo(0l));
+        assertThat(operationsList.get(1).timeStamp(), equalTo(1l));
+        assertThat(operationsList.get(1).dependencyTimeStamp(), equalTo(0l));
         assertThat(operationsList.get(2).scheduledStartTimeAsMilli(), equalTo(2l));
-        assertThat(operationsList.get(2).dependencyTimeAsMilli(), equalTo(0l));
+        assertThat(operationsList.get(2).timeStamp(), equalTo(2l));
+        assertThat(operationsList.get(2).dependencyTimeStamp(), equalTo(0l));
         assertThat(operationsList.get(3).scheduledStartTimeAsMilli(), equalTo(3l));
-        assertThat(operationsList.get(3).dependencyTimeAsMilli(), equalTo(0l));
+        assertThat(operationsList.get(3).timeStamp(), equalTo(3l));
+        assertThat(operationsList.get(3).dependencyTimeStamp(), equalTo(0l));
         assertThat(operationsList.get(4).scheduledStartTimeAsMilli(), equalTo(4l));
-        assertThat(operationsList.get(4).dependencyTimeAsMilli(), equalTo(0l));
+        assertThat(operationsList.get(4).timeStamp(), equalTo(4l));
+        assertThat(operationsList.get(4).dependencyTimeStamp(), equalTo(0l));
         assertThat(operationsList.get(5).scheduledStartTimeAsMilli(), equalTo(5l));
-        assertThat(operationsList.get(5).dependencyTimeAsMilli(), equalTo(0l));
+        assertThat(operationsList.get(5).timeStamp(), equalTo(5l));
+        assertThat(operationsList.get(5).dependencyTimeStamp(), equalTo(0l));
         assertThat(operationsList.get(6).scheduledStartTimeAsMilli(), equalTo(6l));
-        assertThat(operationsList.get(6).dependencyTimeAsMilli(), equalTo(0l));
+        assertThat(operationsList.get(6).timeStamp(), equalTo(6l));
+        assertThat(operationsList.get(6).dependencyTimeStamp(), equalTo(0l));
         assertThat(operationsList.get(7).scheduledStartTimeAsMilli(), equalTo(7l));
-        assertThat(operationsList.get(7).dependencyTimeAsMilli(), equalTo(0l));
+        assertThat(operationsList.get(7).timeStamp(), equalTo(7l));
+        assertThat(operationsList.get(7).dependencyTimeStamp(), equalTo(0l));
         assertThat(operationsList.get(8).scheduledStartTimeAsMilli(), equalTo(8l));
-        assertThat(operationsList.get(8).dependencyTimeAsMilli(), equalTo(0l));
+        assertThat(operationsList.get(8).timeStamp(), equalTo(8l));
+        assertThat(operationsList.get(8).dependencyTimeStamp(), equalTo(0l));
         assertThat(operationsList.get(9).scheduledStartTimeAsMilli(), equalTo(9l));
-        assertThat(operationsList.get(9).dependencyTimeAsMilli(), equalTo(0l));
+        assertThat(operationsList.get(9).timeStamp(), equalTo(9l));
+        assertThat(operationsList.get(9).dependencyTimeStamp(), equalTo(0l));
         assertThat(operationsList.get(10).scheduledStartTimeAsMilli(), equalTo(10l));
-        assertThat(operationsList.get(10).dependencyTimeAsMilli(), equalTo(0l));
+        assertThat(operationsList.get(10).timeStamp(), equalTo(10l));
+        assertThat(operationsList.get(10).dependencyTimeStamp(), equalTo(0l));
 
         // When
         long newStartTime = 0l;
@@ -237,27 +292,38 @@ public class TimeMappingOperationGeneratorTest {
         // Then
         assertThat(offsetAndCompressedOperations.size(), is(11));
         assertThat(offsetAndCompressedOperations.get(0).scheduledStartTimeAsMilli(), equalTo(0l));
-        assertThat(offsetAndCompressedOperations.get(0).dependencyTimeAsMilli(), equalTo(0l));
+        assertThat(offsetAndCompressedOperations.get(0).timeStamp(), equalTo(0l));
+        assertThat(offsetAndCompressedOperations.get(0).dependencyTimeStamp(), equalTo(0l));
         assertThat(offsetAndCompressedOperations.get(1).scheduledStartTimeAsMilli(), equalTo(1l));
-        assertThat(offsetAndCompressedOperations.get(1).dependencyTimeAsMilli(), equalTo(0l));
+        assertThat(offsetAndCompressedOperations.get(1).timeStamp(), equalTo(1l));
+        assertThat(offsetAndCompressedOperations.get(1).dependencyTimeStamp(), equalTo(0l));
         assertThat(offsetAndCompressedOperations.get(2).scheduledStartTimeAsMilli(), equalTo(1l));
-        assertThat(offsetAndCompressedOperations.get(2).dependencyTimeAsMilli(), equalTo(0l));
+        assertThat(offsetAndCompressedOperations.get(2).timeStamp(), equalTo(2l));
+        assertThat(offsetAndCompressedOperations.get(2).dependencyTimeStamp(), equalTo(0l));
         assertThat(offsetAndCompressedOperations.get(3).scheduledStartTimeAsMilli(), equalTo(2l));
-        assertThat(offsetAndCompressedOperations.get(3).dependencyTimeAsMilli(), equalTo(0l));
+        assertThat(offsetAndCompressedOperations.get(3).timeStamp(), equalTo(3l));
+        assertThat(offsetAndCompressedOperations.get(3).dependencyTimeStamp(), equalTo(0l));
         assertThat(offsetAndCompressedOperations.get(4).scheduledStartTimeAsMilli(), equalTo(2l));
-        assertThat(offsetAndCompressedOperations.get(4).dependencyTimeAsMilli(), equalTo(0l));
+        assertThat(offsetAndCompressedOperations.get(4).timeStamp(), equalTo(4l));
+        assertThat(offsetAndCompressedOperations.get(4).dependencyTimeStamp(), equalTo(0l));
         assertThat(offsetAndCompressedOperations.get(5).scheduledStartTimeAsMilli(), equalTo(3l));
-        assertThat(offsetAndCompressedOperations.get(5).dependencyTimeAsMilli(), equalTo(0l));
+        assertThat(offsetAndCompressedOperations.get(5).timeStamp(), equalTo(5l));
+        assertThat(offsetAndCompressedOperations.get(5).dependencyTimeStamp(), equalTo(0l));
         assertThat(offsetAndCompressedOperations.get(6).scheduledStartTimeAsMilli(), equalTo(3l));
-        assertThat(offsetAndCompressedOperations.get(6).dependencyTimeAsMilli(), equalTo(0l));
+        assertThat(offsetAndCompressedOperations.get(6).timeStamp(), equalTo(6l));
+        assertThat(offsetAndCompressedOperations.get(6).dependencyTimeStamp(), equalTo(0l));
         assertThat(offsetAndCompressedOperations.get(7).scheduledStartTimeAsMilli(), equalTo(4l));
-        assertThat(offsetAndCompressedOperations.get(7).dependencyTimeAsMilli(), equalTo(0l));
+        assertThat(offsetAndCompressedOperations.get(7).timeStamp(), equalTo(7l));
+        assertThat(offsetAndCompressedOperations.get(7).dependencyTimeStamp(), equalTo(0l));
         assertThat(offsetAndCompressedOperations.get(8).scheduledStartTimeAsMilli(), equalTo(4l));
-        assertThat(offsetAndCompressedOperations.get(8).dependencyTimeAsMilli(), equalTo(0l));
+        assertThat(offsetAndCompressedOperations.get(8).timeStamp(), equalTo(8l));
+        assertThat(offsetAndCompressedOperations.get(8).dependencyTimeStamp(), equalTo(0l));
         assertThat(offsetAndCompressedOperations.get(9).scheduledStartTimeAsMilli(), equalTo(5l));
-        assertThat(offsetAndCompressedOperations.get(9).dependencyTimeAsMilli(), equalTo(0l));
+        assertThat(offsetAndCompressedOperations.get(9).timeStamp(), equalTo(9l));
+        assertThat(offsetAndCompressedOperations.get(9).dependencyTimeStamp(), equalTo(0l));
         assertThat(offsetAndCompressedOperations.get(10).scheduledStartTimeAsMilli(), equalTo(5l));
-        assertThat(offsetAndCompressedOperations.get(10).dependencyTimeAsMilli(), equalTo(0l));
+        assertThat(offsetAndCompressedOperations.get(10).timeStamp(), equalTo(10l));
+        assertThat(offsetAndCompressedOperations.get(10).dependencyTimeStamp(), equalTo(0l));
     }
 
     @Test
@@ -338,9 +404,9 @@ public class TimeMappingOperationGeneratorTest {
     public void shouldAlwaysProduceTheSameOutputWhenGivenTheSameInput() {
         // Given
         List<Operation<?>> operations = Lists.<Operation<?>>newArrayList(
-                new TimedNamedOperation2(10l, 0l, "name2"),
-                new TimedNamedOperation2(11l, 1l, "name2"),
-                new TimedNamedOperation1(12l, 2l, "name1")
+                new TimedNamedOperation2(10l, 10l, 0l, "name2"),
+                new TimedNamedOperation2(11l, 11l, 1l, "name2"),
+                new TimedNamedOperation1(12l, 12l, 2l, "name1")
         );
 
         long now = new SystemTimeSource().nowAsMilli();

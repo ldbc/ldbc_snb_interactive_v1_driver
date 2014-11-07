@@ -5,22 +5,31 @@ import com.ldbc.driver.temporal.TemporalUtil;
 public abstract class Operation<RESULT_TYPE> {
     private static final TemporalUtil temporalutil = new TemporalUtil();
     private long scheduledStartTimeAsMilli = -1;
-    private long dependencyTimeAsMilli = -1;
+    private long timeStamp = -1;
+    private long dependencyTimeStamp = -1;
 
     public final void setScheduledStartTimeAsMilli(long scheduledStartTimeAsMilli) {
         this.scheduledStartTimeAsMilli = scheduledStartTimeAsMilli;
     }
 
-    public final void setDependencyTimeAsMilli(long dependencyTimeAsMilli) {
-        this.dependencyTimeAsMilli = dependencyTimeAsMilli;
+    public final void setDependencyTimeStamp(long dependencyTimeStamp) {
+        this.dependencyTimeStamp = dependencyTimeStamp;
     }
 
     public final long scheduledStartTimeAsMilli() {
         return scheduledStartTimeAsMilli;
     }
 
-    public final long dependencyTimeAsMilli() {
-        return dependencyTimeAsMilli;
+    public final long dependencyTimeStamp() {
+        return dependencyTimeStamp;
+    }
+
+    public long timeStamp() {
+        return timeStamp;
+    }
+
+    public void setTimeStamp(long timeStamp) {
+        this.timeStamp = timeStamp;
     }
 
     public final OperationResultReport buildResult(int resultCode, RESULT_TYPE result) {
@@ -34,10 +43,9 @@ public abstract class Operation<RESULT_TYPE> {
     @Override
     public String toString() {
         return "Operation{" +
-                "scheduledStartTimeAsMilli=" + scheduledStartTimeAsMilli +
-                ", scheduledStartTime=" + temporalutil.millisecondsToTimeString(scheduledStartTimeAsMilli) +
-                ", dependencyTimeAsMilli=" + dependencyTimeAsMilli +
-                ", dependencyTime=" + temporalutil.millisecondsToTimeString(dependencyTimeAsMilli) +
+                "scheduledStartTime=" + temporalutil.millisecondsToDateTimeString(scheduledStartTimeAsMilli) +
+                ", timeStamp=" + temporalutil.millisecondsToDateTimeString(timeStamp) +
+                ", dependencyTimeStamp=" + temporalutil.millisecondsToDateTimeString(dependencyTimeStamp) +
                 '}';
     }
 

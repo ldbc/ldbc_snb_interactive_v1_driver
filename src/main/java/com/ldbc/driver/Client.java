@@ -250,11 +250,13 @@ public class Client {
 
             logger.info(String.format("Scanning workload streams to calculate their limits..."));
             WorkloadStreams workloadStreams;
+            long minimumTimeStamp;
             try {
-                Tuple.Tuple2<WorkloadStreams, Workload> streamsAndWorkload =
+                Tuple.Tuple3<WorkloadStreams, Workload, Long> streamsAndWorkloadAndMinimumTimeStamp =
                         WorkloadStreams.createNewWorkloadWithLimitedWorkloadStreams(controlService.configuration(), gf);
-                workload = streamsAndWorkload._2();
-                workloadStreams = streamsAndWorkload._1();
+                workload = streamsAndWorkloadAndMinimumTimeStamp._2();
+                workloadStreams = streamsAndWorkloadAndMinimumTimeStamp._1();
+                minimumTimeStamp = streamsAndWorkloadAndMinimumTimeStamp._3();
             } catch (Exception e) {
                 throw new ClientException(String.format("Error loading workload class: %s", controlService.configuration().workloadClassName()), e);
             }
@@ -320,12 +322,12 @@ public class Client {
                     localCompletionTimeWriter.submitLocalInitiatedTime(maxPossibleTimeAsMilli);
                     localCompletionTimeWriter.submitLocalCompletedTime(maxPossibleTimeAsMilli);
                 } else {
-                    // There are some local completion time writers, initialize them to workload start time
-                    completionTimeServiceAssistant.writeInitiatedAndCompletedTimesToAllWriters(completionTimeService, controlService.workloadStartTimeAsMilli() - 1);
-                    completionTimeServiceAssistant.writeInitiatedAndCompletedTimesToAllWriters(completionTimeService, controlService.workloadStartTimeAsMilli() );
+                    // There are some local completion time writers, initialize them to lowest time stamp in workload
+                    completionTimeServiceAssistant.writeInitiatedAndCompletedTimesToAllWriters(completionTimeService, minimumTimeStamp - 1);
+                    completionTimeServiceAssistant.writeInitiatedAndCompletedTimesToAllWriters(completionTimeService, minimumTimeStamp);
                     boolean globalCompletionTimeAdvancedToDesiredTime = completionTimeServiceAssistant.waitForGlobalCompletionTime(
                             timeSource,
-                            controlService.workloadStartTimeAsMilli() - 1,
+                            minimumTimeStamp - 1,
                             temporalUtil.convert(5, TimeUnit.SECONDS, TimeUnit.MILLISECONDS),
                             completionTimeService,
                             errorReporter
@@ -431,7 +433,8 @@ public class Client {
             GeneratorFactory gf = new GeneratorFactory(new RandomDataGeneratorFactory(RANDOM_SEED));
             WorkloadStreams workloadStreams;
             try {
-                Tuple.Tuple2<WorkloadStreams, Workload> workloadStreamsAndWorkload = WorkloadStreams.createNewWorkloadWithLimitedWorkloadStreams(controlService.configuration(), gf);
+                Tuple.Tuple3<WorkloadStreams, Workload, Long> workloadStreamsAndWorkload =
+                        WorkloadStreams.createNewWorkloadWithLimitedWorkloadStreams(controlService.configuration(), gf);
                 workloadStreams = workloadStreamsAndWorkload._1();
                 workload = workloadStreamsAndWorkload._2();
             } catch (Exception e) {
@@ -509,7 +512,8 @@ public class Client {
 
             logger.info(String.format("Retrieving operation stream for workload: %s", workload.getClass().getSimpleName()));
             try {
-                Tuple.Tuple2<WorkloadStreams, Workload> streamsAndWorkload = WorkloadStreams.createNewWorkloadWithLimitedWorkloadStreams(controlService.configuration(), gf);
+                Tuple.Tuple3<WorkloadStreams, Workload, Long> streamsAndWorkload =
+                        WorkloadStreams.createNewWorkloadWithLimitedWorkloadStreams(controlService.configuration(), gf);
                 workload = streamsAndWorkload._2();
                 WorkloadStreams workloadStreams = streamsAndWorkload._1();
                 timeMappedOperations = workloadStreams.mergeSortedByStartTime(gf);

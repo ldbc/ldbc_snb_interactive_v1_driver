@@ -73,7 +73,7 @@ public class EventStreamReaderPerformanceTest {
         }
 
         GeneratorFactory gf = new GeneratorFactory(new RandomDataGeneratorFactory(42l));
-        Iterator<Operation<?>> operations = gf.mergeSortOperationsByStartTime(parsers.toArray(new Iterator[parsers.size()]));
+        Iterator<Operation<?>> operations = gf.mergeSortOperationsByTimeStamp(parsers.toArray(new Iterator[parsers.size()]));
 
         long safeTime = 10000;
         List<Operation<?>> unsafeOperations = new ArrayList<>();
@@ -81,56 +81,56 @@ public class EventStreamReaderPerformanceTest {
         while (operations.hasNext()) {
             Operation<?> operation = operations.next();
 
-            unsafeOperations = removeOperationsWithScheduledStartTimeBefore(unsafeOperations, operation.scheduledStartTimeAsMilli(), safeTime);
+            unsafeOperations = removeOperationsWithScheduledStartTimeBefore(unsafeOperations, operation.timeStamp(), safeTime);
 
             // TODO 5497558263122
 
             if (operation.getClass().equals(LdbcUpdate1AddPerson.class)) {
                 // TODO remove
                 if (((LdbcUpdate1AddPerson) operation).personId() == 5497558263122l)
-                    System.out.println("ADDED! " + operation.scheduledStartTimeAsMilli());
+                    System.out.println("ADDED! " + operation.timeStamp());
                 unsafeOperations.add(operation);
             } else if (operation.getClass().equals(LdbcUpdate2AddPostLike.class)) {
                 long personId = ((LdbcUpdate2AddPostLike) operation).personId();
                 Operation<?> dependentOn = isDependentOnUnsafeOperation(unsafeOperations, personId);
-                assertThat(String.format("\n%s - %s\n%s - %s", operation.scheduledStartTimeAsMilli(), operation, (null == dependentOn) ? "" : dependentOn.scheduledStartTimeAsMilli(), dependentOn),
+                assertThat(String.format("\n%s - %s\n%s - %s", operation.timeStamp(), operation, (null == dependentOn) ? "" : dependentOn.timeStamp(), dependentOn),
                         dependentOn, is(nullValue()));
             } else if (operation.getClass().equals(LdbcUpdate3AddCommentLike.class)) {
                 long personId = ((LdbcUpdate3AddCommentLike) operation).personId();
                 Operation<?> dependentOn = isDependentOnUnsafeOperation(unsafeOperations, personId);
-                assertThat(String.format("\n%s - %s\n%s - %s", operation.scheduledStartTimeAsMilli(), operation, (null == dependentOn) ? "" : dependentOn.scheduledStartTimeAsMilli(), dependentOn),
+                assertThat(String.format("\n%s - %s\n%s - %s", operation.timeStamp(), operation, (null == dependentOn) ? "" : dependentOn.timeStamp(), dependentOn),
                         dependentOn, is(nullValue()));
             } else if (operation.getClass().equals(LdbcUpdate4AddForum.class)) {
                 long personId = ((LdbcUpdate4AddForum) operation).moderatorPersonId();
                 // TODO remove
                 if (personId == 5497558263122l)
-                    System.out.println("ACCESSED! " + operation.scheduledStartTimeAsMilli());
+                    System.out.println("ACCESSED! " + operation.timeStamp());
                 Operation<?> dependentOn = isDependentOnUnsafeOperation(unsafeOperations, personId);
-                assertThat(String.format("\n%s - %s\n%s - %s", operation.scheduledStartTimeAsMilli(), operation, (null == dependentOn) ? "" : dependentOn.scheduledStartTimeAsMilli(), dependentOn),
+                assertThat(String.format("\n%s - %s\n%s - %s", operation.timeStamp(), operation, (null == dependentOn) ? "" : dependentOn.timeStamp(), dependentOn),
                         dependentOn, is(nullValue()));
             } else if (operation.getClass().equals(LdbcUpdate5AddForumMembership.class)) {
                 long personId = ((LdbcUpdate5AddForumMembership) operation).personId();
                 Operation<?> dependentOn = isDependentOnUnsafeOperation(unsafeOperations, personId);
-                assertThat(String.format("\n%s - %s\n%s - %s", operation.scheduledStartTimeAsMilli(), operation, (null == dependentOn) ? "" : dependentOn.scheduledStartTimeAsMilli(), dependentOn),
+                assertThat(String.format("\n%s - %s\n%s - %s", operation.timeStamp(), operation, (null == dependentOn) ? "" : dependentOn.timeStamp(), dependentOn),
                         dependentOn, is(nullValue()));
             } else if (operation.getClass().equals(LdbcUpdate6AddPost.class)) {
                 long personId = ((LdbcUpdate6AddPost) operation).authorPersonId();
                 Operation<?> dependentOn = isDependentOnUnsafeOperation(unsafeOperations, personId);
-                assertThat(String.format("\n%s - %s\n%s - %s", operation.scheduledStartTimeAsMilli(), operation, (null == dependentOn) ? "" : dependentOn.scheduledStartTimeAsMilli(), dependentOn),
+                assertThat(String.format("\n%s - %s\n%s - %s", operation.timeStamp(), operation, (null == dependentOn) ? "" : dependentOn.timeStamp(), dependentOn),
                         dependentOn, is(nullValue()));
             } else if (operation.getClass().equals(LdbcUpdate7AddComment.class)) {
                 long personId = ((LdbcUpdate7AddComment) operation).authorPersonId();
                 Operation<?> dependentOn = isDependentOnUnsafeOperation(unsafeOperations, personId);
-                assertThat(String.format("\n%s - %s\n%s - %s", operation.scheduledStartTimeAsMilli(), operation, (null == dependentOn) ? "" : dependentOn.scheduledStartTimeAsMilli(), dependentOn),
+                assertThat(String.format("\n%s - %s\n%s - %s", operation.timeStamp(), operation, (null == dependentOn) ? "" : dependentOn.timeStamp(), dependentOn),
                         dependentOn, is(nullValue()));
             } else if (operation.getClass().equals(LdbcUpdate8AddFriendship.class)) {
                 long personId = ((LdbcUpdate8AddFriendship) operation).person1Id();
                 Operation<?> dependentOn = isDependentOnUnsafeOperation(unsafeOperations, personId);
-                assertThat(String.format("\n%s - %s\n%s - %s", operation.scheduledStartTimeAsMilli(), operation, (null == dependentOn) ? "" : dependentOn.scheduledStartTimeAsMilli(), dependentOn),
+                assertThat(String.format("\n%s - %s\n%s - %s", operation.timeStamp(), operation, (null == dependentOn) ? "" : dependentOn.timeStamp(), dependentOn),
                         dependentOn, is(nullValue()));
                 personId = ((LdbcUpdate8AddFriendship) operation).person2Id();
                 dependentOn = isDependentOnUnsafeOperation(unsafeOperations, personId);
-                assertThat(String.format("\n%s - %s\n%s - %s", operation.scheduledStartTimeAsMilli(), operation, (null == dependentOn) ? "" : dependentOn.scheduledStartTimeAsMilli(), dependentOn),
+                assertThat(String.format("\n%s - %s\n%s - %s", operation.timeStamp(), operation, (null == dependentOn) ? "" : dependentOn.timeStamp(), dependentOn),
                         dependentOn, is(nullValue()));
             }
         }
@@ -146,7 +146,7 @@ public class EventStreamReaderPerformanceTest {
     private List<Operation<?>> removeOperationsWithScheduledStartTimeBefore(List<Operation<?>> dependencyOperations, long time, long safeTime) {
         List<Operation<?>> remainingOperations = new ArrayList<>();
         for (Operation<?> dependencyOperation : dependencyOperations) {
-            if (time - dependencyOperation.scheduledStartTimeAsMilli() < safeTime) {
+            if (time - dependencyOperation.timeStamp() < safeTime) {
                 remainingOperations.add(dependencyOperation);
             }
         }
@@ -249,7 +249,7 @@ public class EventStreamReaderPerformanceTest {
         public void run() {
             long count = 0;
             while (parser.hasNext()) {
-                long time = parser.next().scheduledStartTimeAsMilli();
+                long time = parser.next().timeStamp();
                 try {
                     localCompletionTimeWriter.submitLocalInitiatedTime(time);
                     localCompletionTimeWriter.submitLocalCompletedTime(time);
@@ -760,7 +760,7 @@ public class EventStreamReaderPerformanceTest {
 
                 lines += readingStreamPerformanceTest(
                         gf.limit(
-                                gf.mergeSortOperationsByStartTime(
+                                gf.mergeSortOperationsByTimeStamp(
                                         query1OperationsWithTimes,
                                         query2OperationsWithTimes,
                                         query3OperationsWithTimes,

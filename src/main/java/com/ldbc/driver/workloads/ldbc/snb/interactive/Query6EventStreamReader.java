@@ -31,7 +31,7 @@ public class Query6EventStreamReader implements Iterator<Operation<?>> {
                 (String) rowAsObjects[1],
                 LdbcQuery6.DEFAULT_LIMIT
         );
-        operation.setDependencyTimeAsMilli(0);
+        operation.setDependencyTimeStamp(0);
         return operation;
     }
 

@@ -12,7 +12,6 @@ public class TimeMappingOperationGenerator extends Generator<Operation<?>> {
 
     private Function1<Long, Long> timeOffsetAsMilliFun = null;
     private Function1<Long, Long> startTimeAsMilliCompressionFun = null;
-    private Function1<Long, Long> dependencyTimeAsMilliCompressionFun = null;
 
     TimeMappingOperationGenerator(Iterator<Operation<?>> operations, long newStartTimeAsMilli, Double timeCompressionRatio) {
         this.operations = operations;
@@ -40,18 +39,13 @@ public class TimeMappingOperationGenerator extends Generator<Operation<?>> {
             // Create time compression function
             if (null == timeCompressionRatio) {
                 startTimeAsMilliCompressionFun = new IdentityTimeFun();
-                dependencyTimeAsMilliCompressionFun = new IdentityTimeFun();
             } else {
                 startTimeAsMilliCompressionFun = new TimeCompressionFun(timeCompressionRatio, timeOffsetAsMilliFun.apply(nextOperation.scheduledStartTimeAsMilli()));
-                dependencyTimeAsMilliCompressionFun = new TimeCompressionFun(timeCompressionRatio, timeOffsetAsMilliFun.apply(nextOperation.dependencyTimeAsMilli()));
             }
         }
         long offsetStartTimeAsMilli = timeOffsetAsMilliFun.apply(nextOperation.scheduledStartTimeAsMilli());
-        long offsetDependencyTimeAsMilli = timeOffsetAsMilliFun.apply(nextOperation.dependencyTimeAsMilli());
         long offsetAndCompressedStartTimeAsMilli = startTimeAsMilliCompressionFun.apply(offsetStartTimeAsMilli);
-        long offsetAndCompressedDependencyTimeAsMilli = dependencyTimeAsMilliCompressionFun.apply(offsetDependencyTimeAsMilli);
         nextOperation.setScheduledStartTimeAsMilli(offsetAndCompressedStartTimeAsMilli);
-        nextOperation.setDependencyTimeAsMilli(offsetAndCompressedDependencyTimeAsMilli);
         return nextOperation;
     }
 

@@ -12,7 +12,6 @@ import com.ldbc.driver.temporal.SystemTimeSource;
 import com.ldbc.driver.temporal.TimeSource;
 import com.ldbc.driver.util.Function0;
 import com.ldbc.driver.workloads.dummy.NothingOperation;
-import org.junit.Ignore;
 import org.junit.Test;
 import stormpot.Poolable;
 import stormpot.Slot;
@@ -64,7 +63,8 @@ public class ThreadPoolOperationHandlerExecutorTest {
 
         Operation<?> operation = new NothingOperation();
         operation.setScheduledStartTimeAsMilli(timeSource.nowAsMilli() + 200);
-        operation.setDependencyTimeAsMilli(0l);
+        operation.setTimeStamp(timeSource.nowAsMilli() + 200);
+        operation.setDependencyTimeStamp(0l);
         OperationHandler<?> handler = new OperationHandler<Operation<Integer>>() {
             @Override
             protected OperationResultReport executeOperation(Operation operation) throws DbException {
@@ -111,10 +111,12 @@ public class ThreadPoolOperationHandlerExecutorTest {
 
         Operation<?> operation1 = new NothingOperation();
         operation1.setScheduledStartTimeAsMilli(timeSource.nowAsMilli() + 100l);
-        operation1.setDependencyTimeAsMilli(0l);
+        operation1.setTimeStamp(operation1.scheduledStartTimeAsMilli());
+        operation1.setDependencyTimeStamp(0l);
         Operation<?> operation2 = new NothingOperation();
         operation2.setScheduledStartTimeAsMilli(operation1.scheduledStartTimeAsMilli() + 100l);
-        operation2.setDependencyTimeAsMilli(0l);
+        operation2.setTimeStamp(operation2.scheduledStartTimeAsMilli());
+        operation2.setDependencyTimeStamp(0l);
         OperationHandler<?> handler1 = new OperationHandler<Operation<Integer>>() {
             @Override
             protected OperationResultReport executeOperation(Operation operation) throws DbException {
@@ -176,7 +178,8 @@ public class ThreadPoolOperationHandlerExecutorTest {
 
         Operation<?> operation = new NothingOperation();
         operation.setScheduledStartTimeAsMilli(timeSource.nowAsMilli() + 200l);
-        operation.setDependencyTimeAsMilli(0l);
+        operation.setTimeStamp(timeSource.nowAsMilli() + 200l);
+        operation.setDependencyTimeStamp(0l);
         OperationHandler<?> handler = new OperationHandler<Operation<Integer>>() {
             @Override
             protected OperationResultReport executeOperation(Operation operation) throws DbException {

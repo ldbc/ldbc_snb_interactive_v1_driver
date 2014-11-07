@@ -157,6 +157,7 @@ public class ThreadedQueuedConcurrentMetricsServiceTest {
         // scheduled: 1, actual: 2, duration: 1
         Operation<?> operation1 = DummyLdbcSnbInteractiveOperationInstances.read1();
         operation1.setScheduledStartTimeAsMilli(1l);
+        operation1.setTimeStamp(1l);
         OperationResultReport operationResultReport1 = OperationResultReportTestHelper.create(1, "result one", operation1);
         OperationResultReportTestHelper.setActualStartTime(operationResultReport1, 2l);
         OperationResultReportTestHelper.setRunDuration(operationResultReport1, temporalUtil.convert(1, TimeUnit.MILLISECONDS, TimeUnit.NANOSECONDS));
@@ -168,6 +169,7 @@ public class ThreadedQueuedConcurrentMetricsServiceTest {
 
         Operation<?> operation2 = DummyLdbcSnbInteractiveOperationInstances.read1();
         operation2.setScheduledStartTimeAsMilli(1l);
+        operation2.setTimeStamp(1l);
         OperationResultReport operationResultReport2 = OperationResultReportTestHelper.create(2, "result two", operation2);
         OperationResultReportTestHelper.setActualStartTime(operationResultReport2, 8l);
         OperationResultReportTestHelper.setRunDuration(operationResultReport2, temporalUtil.convert(3, TimeUnit.MILLISECONDS, TimeUnit.NANOSECONDS));
@@ -179,6 +181,7 @@ public class ThreadedQueuedConcurrentMetricsServiceTest {
 
         Operation<?> operation3 = DummyLdbcSnbInteractiveOperationInstances.read2();
         operation3.setScheduledStartTimeAsMilli(1l);
+        operation3.setTimeStamp(1l);
         OperationResultReport operationResultReport3 = OperationResultReportTestHelper.create(2, "result three", operation3);
         OperationResultReportTestHelper.setActualStartTime(operationResultReport3, 11l);
         OperationResultReportTestHelper.setRunDuration(operationResultReport3, temporalUtil.convert(5, TimeUnit.MILLISECONDS, TimeUnit.NANOSECONDS));

@@ -126,16 +126,16 @@ public class WorkloadRunnerComplexScenarioTests {
                     Sets.<Class<? extends Operation<?>>>newHashSet(),
                     Collections.<Operation<?>>emptyIterator(),
                     Lists.<Operation<?>>newArrayList(
-                            new TimedNamedOperation1(3, 0, "S(3)D(0)"),
-                            new TimedNamedOperation1(4, 0, "S(4)D(0)"),
-                            new TimedNamedOperation1(5, 0, "S(5)D(0)")
+                            new TimedNamedOperation1(3, 3, 0, "S(3)D(0)"),
+                            new TimedNamedOperation1(4, 4, 0, "S(4)D(0)"),
+                            new TimedNamedOperation1(5, 5, 0, "S(5)D(0)")
                     ).iterator()
             );
             workloadStreams.addBlockingStream(
                     Sets.<Class<? extends Operation<?>>>newHashSet(),
                     Collections.<Operation<?>>emptyIterator(),
                     Lists.<Operation<?>>newArrayList(
-                            new TimedNamedOperation2(2, 0, "S(2)D(0)")
+                            new TimedNamedOperation2(2, 2, 0, "S(2)D(0)")
                     ).iterator()
             );
 
@@ -287,9 +287,9 @@ public class WorkloadRunnerComplexScenarioTests {
         );
         Iterator<Operation<?>> asynchronousDependencyOperations = Collections.emptyIterator();
         Iterator<Operation<?>> asynchronousNonDependencyOperations = Lists.<Operation<?>>newArrayList(
-                new TimedNamedOperation1(2, 0, "S(2)D(0)"),
-                new TimedNamedOperation1(3, 0, "S(3)D(0)"),
-                new TimedNamedOperation1(7, 0, "S(7)D(0)")
+                new TimedNamedOperation1(2, 2, 0, "S(2)D(0)"),
+                new TimedNamedOperation1(3, 3, 0, "S(3)D(0)"),
+                new TimedNamedOperation1(7, 7, 0, "S(7)D(0)")
         ).iterator();
         workloadStreams.setAsynchronousStream(
                 asynchronousDependentOperationTypes,
@@ -300,8 +300,8 @@ public class WorkloadRunnerComplexScenarioTests {
                 TimedNamedOperation2.class
         );
         Iterator<Operation<?>> blockingDependencyOperations = Lists.<Operation<?>>newArrayList(
-                new TimedNamedOperation2(4, 0, "S(4)D(0)"),
-                new TimedNamedOperation2(5, 0, "S(5)D(0)")
+                new TimedNamedOperation2(4, 4, 0, "S(4)D(0)"),
+                new TimedNamedOperation2(5, 5, 0, "S(5)D(0)")
         ).iterator();
         Iterator<Operation<?>> blockingNonDependencyOperations = Lists.<Operation<?>>newArrayList(
         ).iterator();
@@ -489,8 +489,8 @@ public class WorkloadRunnerComplexScenarioTests {
                 TimedNamedOperation1.class
         );
         Iterator<Operation<?>> asynchronousDependencyOperations = Lists.<Operation<?>>newArrayList(
-                new TimedNamedOperation1(2, 0, "read1"),
-                new TimedNamedOperation1(5, 0, "read2")
+                new TimedNamedOperation1(2, 2, 0, "read1"),
+                new TimedNamedOperation1(5, 5, 0, "read2")
         ).iterator();
         Iterator<Operation<?>> asynchronousNonDependencyOperations = Lists.<Operation<?>>newArrayList(
         ).iterator();
@@ -503,7 +503,7 @@ public class WorkloadRunnerComplexScenarioTests {
                 TimedNamedOperation2.class
         );
         List<Operation<?>> blockingDependencyOperationsList = Lists.<Operation<?>>newArrayList(
-                new TimedNamedOperation2(3, 0, "readwrite1")
+                new TimedNamedOperation2(3, 3, 0, "readwrite1")
         );
 
         int operationCountAtTime4 = 1000000;
@@ -673,16 +673,16 @@ public class WorkloadRunnerComplexScenarioTests {
                 TimedNamedOperation2.class
         );
         Iterator<Operation<?>> asynchronousDependencyOperations = Lists.<Operation<?>>newArrayList(
-                new TimedNamedOperation2(3, 0, "readwrite1"),
-                new TimedNamedOperation2(6, 0, "readwrite2"),
-                new TimedNamedOperation2(9, 0, "readwrite3")
+                new TimedNamedOperation2(3, 3, 0, "readwrite1"),
+                new TimedNamedOperation2(6, 6, 0, "readwrite2"),
+                new TimedNamedOperation2(9, 9, 0, "readwrite3")
         ).iterator();
         Iterator<Operation<?>> asynchronousNonDependencyOperations = Lists.<Operation<?>>newArrayList(
-                new TimedNamedOperation1(2, 0, "read1"),
-                new TimedNamedOperation1(4, 3, "read2"),
-                new TimedNamedOperation1(7, 3, "read3"),
-                new TimedNamedOperation1(11, 9, "read4"),
-                new TimedNamedOperation1(13, 3, "read5")
+                new TimedNamedOperation1(2, 2, 0, "read1"),
+                new TimedNamedOperation1(4, 4, 3, "read2"),
+                new TimedNamedOperation1(7, 7, 3, "read3"),
+                new TimedNamedOperation1(11, 11, 9, "read4"),
+                new TimedNamedOperation1(13, 13, 3, "read5")
         ).iterator();
         workloadStreams.setAsynchronousStream(
                 asynchronousDependentOperationTypes,
@@ -950,11 +950,11 @@ public class WorkloadRunnerComplexScenarioTests {
                 // nothing
         ).iterator();
         Iterator<Operation<?>> asynchronousNonDependencyOperations = Lists.<Operation<?>>newArrayList(
-                new TimedNamedOperation1(2, 0, "read1"),
-                new TimedNamedOperation1(4, 3, "read2"),
-                new TimedNamedOperation1(7, 3, "read3"),
-                new TimedNamedOperation1(11, 3, "read4"),
-                new TimedNamedOperation1(13, 3, "read5")
+                new TimedNamedOperation1(2, 2, 0, "read1"),
+                new TimedNamedOperation1(4, 4, 3, "read2"),
+                new TimedNamedOperation1(7, 7, 3, "read3"),
+                new TimedNamedOperation1(11, 11, 3, "read4"),
+                new TimedNamedOperation1(13, 13, 3, "read5")
         ).iterator();
         workloadStreams.setAsynchronousStream(
                 asynchronousDependentOperationTypes,
@@ -965,9 +965,9 @@ public class WorkloadRunnerComplexScenarioTests {
                 TimedNamedOperation2.class
         );
         Iterator<Operation<?>> blockingDependencyOperations = Lists.<Operation<?>>newArrayList(
-                new TimedNamedOperation2(3, 0, "readwrite1"),
-                new TimedNamedOperation2(6, 0, "readwrite2"),
-                new TimedNamedOperation2(9, 0, "readwrite3")
+                new TimedNamedOperation2(3, 3, 0, "readwrite1"),
+                new TimedNamedOperation2(6, 6, 0, "readwrite2"),
+                new TimedNamedOperation2(9, 9, 0, "readwrite3")
         ).iterator();
         Iterator<Operation<?>> blockingNonDependencyOperations = Lists.<Operation<?>>newArrayList(
                 // nothing
@@ -1213,16 +1213,16 @@ public class WorkloadRunnerComplexScenarioTests {
                 TimedNamedOperation2.class
         );
         Iterator<Operation<?>> asynchronousDependencyOperations = Lists.<Operation<?>>newArrayList(
-                new TimedNamedOperation2(3, 0, "readwrite1"),
-                new TimedNamedOperation2(6, 0, "readwrite2"),
-                new TimedNamedOperation2(9, 3, "readwrite3")
+                new TimedNamedOperation2(3, 3, 0, "readwrite1"),
+                new TimedNamedOperation2(6, 6, 0, "readwrite2"),
+                new TimedNamedOperation2(9, 9, 3, "readwrite3")
         ).iterator();
         Iterator<Operation<?>> asynchronousNonDependencyOperations = Lists.<Operation<?>>newArrayList(
-                new TimedNamedOperation1(2, 0, "read1"),
-                new TimedNamedOperation1(4, 0, "read2"),
-                new TimedNamedOperation1(7, 3, "read3"),
-                new TimedNamedOperation1(11, 0, "read4"),
-                new TimedNamedOperation1(13, 6, "read5")
+                new TimedNamedOperation1(2, 2, 0, "read1"),
+                new TimedNamedOperation1(4, 4, 0, "read2"),
+                new TimedNamedOperation1(7, 7, 3, "read3"),
+                new TimedNamedOperation1(11, 11, 0, "read4"),
+                new TimedNamedOperation1(13, 13, 6, "read5")
         ).iterator();
         workloadStreams.setAsynchronousStream(
                 asynchronousDependentOperationTypes,
@@ -1470,11 +1470,11 @@ public class WorkloadRunnerComplexScenarioTests {
                 // nothing
         ).iterator();
         Iterator<Operation<?>> asynchronousNonDependencyOperations = Lists.<Operation<?>>newArrayList(
-                new TimedNamedOperation1(2, 0, "read1"),
-                new TimedNamedOperation1(4, 0, "read2"),
-                new TimedNamedOperation1(7, 3, "read3"),
-                new TimedNamedOperation1(11, 0, "read4"),
-                new TimedNamedOperation1(13, 6, "read5")
+                new TimedNamedOperation1(2, 2, 0, "read1"),
+                new TimedNamedOperation1(4, 4, 0, "read2"),
+                new TimedNamedOperation1(7, 7, 3, "read3"),
+                new TimedNamedOperation1(11, 11, 0, "read4"),
+                new TimedNamedOperation1(13, 13, 6, "read5")
         ).iterator();
         workloadStreams.setAsynchronousStream(
                 asynchronousDependentOperationTypes,
@@ -1485,9 +1485,9 @@ public class WorkloadRunnerComplexScenarioTests {
                 TimedNamedOperation2.class
         );
         Iterator<Operation<?>> blockingDependencyOperations = Lists.<Operation<?>>newArrayList(
-                new TimedNamedOperation2(3, 0, "readwrite1"),
-                new TimedNamedOperation2(6, 0, "readwrite2"),
-                new TimedNamedOperation2(9, 3, "readwrite3")
+                new TimedNamedOperation2(3, 3, 0, "readwrite1"),
+                new TimedNamedOperation2(6, 6, 0, "readwrite2"),
+                new TimedNamedOperation2(9, 9, 3, "readwrite3")
         ).iterator();
         Iterator<Operation<?>> blockingNonDependencyOperations = Lists.<Operation<?>>newArrayList(
                 // nothing
@@ -1743,9 +1743,9 @@ public class WorkloadRunnerComplexScenarioTests {
                 TimedNamedOperation2.class
         );
         Iterator<Operation<?>> asynchronousDependencyOperations = Lists.<Operation<?>>newArrayList(
-                new TimedNamedOperation2(3, 0, "readwrite1"),
-                new TimedNamedOperation2(6, 0, "readwrite2"),
-                new TimedNamedOperation2(9, 3, "readwrite3")
+                new TimedNamedOperation2(3, 3, 0, "readwrite1"),
+                new TimedNamedOperation2(6, 6, 0, "readwrite2"),
+                new TimedNamedOperation2(9, 9, 3, "readwrite3")
         ).iterator();
         Iterator<Operation<?>> asynchronousNonDependencyOperations = Lists.<Operation<?>>newArrayList(
                 // nothing
@@ -1762,11 +1762,11 @@ public class WorkloadRunnerComplexScenarioTests {
                 // nothing
         ).iterator();
         Iterator<Operation<?>> blockingNonDependencyOperations = Lists.<Operation<?>>newArrayList(
-                new TimedNamedOperation1(2, 0, "read1"),
-                new TimedNamedOperation1(4, 0, "read2"),
-                new TimedNamedOperation1(7, 3, "read3"),
-                new TimedNamedOperation1(11, 0, "read4"),
-                new TimedNamedOperation1(13, 6, "read5")
+                new TimedNamedOperation1(2, 2, 0, "read1"),
+                new TimedNamedOperation1(4, 4, 0, "read2"),
+                new TimedNamedOperation1(7, 7, 3, "read3"),
+                new TimedNamedOperation1(11, 11, 0, "read4"),
+                new TimedNamedOperation1(13, 13, 6, "read5")
         ).iterator();
         workloadStreams.addBlockingStream(
                 blockingDependentOperationTypes,
@@ -2012,16 +2012,16 @@ public class WorkloadRunnerComplexScenarioTests {
                 TimedNamedOperation2.class
         );
         Iterator<Operation<?>> blockingDependencyOperations = Lists.<Operation<?>>newArrayList(
-                new TimedNamedOperation2(3, 0, "readwrite1"),
-                new TimedNamedOperation2(6, 0, "readwrite2"),
-                new TimedNamedOperation2(9, 3, "readwrite3")
+                new TimedNamedOperation2(3, 3, 0, "readwrite1"),
+                new TimedNamedOperation2(6, 6, 0, "readwrite2"),
+                new TimedNamedOperation2(9, 9, 3, "readwrite3")
         ).iterator();
         Iterator<Operation<?>> blockingNonDependencyOperations = Lists.<Operation<?>>newArrayList(
-                new TimedNamedOperation1(2, 0, "read1"),
-                new TimedNamedOperation1(4, 0, "read2"),
-                new TimedNamedOperation1(7, 3, "read3"),
-                new TimedNamedOperation1(11, 0, "read4"),
-                new TimedNamedOperation1(13, 6, "read5")
+                new TimedNamedOperation1(2, 2, 0, "read1"),
+                new TimedNamedOperation1(4, 4, 0, "read2"),
+                new TimedNamedOperation1(7, 7, 3, "read3"),
+                new TimedNamedOperation1(11, 11, 0, "read4"),
+                new TimedNamedOperation1(13, 13, 6, "read5")
         ).iterator();
         workloadStreams.addBlockingStream(
                 blockingDependentOperationTypes,

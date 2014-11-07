@@ -29,7 +29,7 @@ public class Query8EventStreamReader implements Iterator<Operation<?>> {
                 (long) rowAsObjects[0],
                 LdbcQuery8.DEFAULT_LIMIT
         );
-        operation.setDependencyTimeAsMilli(0);
+        operation.setDependencyTimeStamp(0);
         return operation;
     }
 

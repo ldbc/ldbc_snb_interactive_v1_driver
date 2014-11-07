@@ -21,6 +21,7 @@ public class ExecutionDelayPolicyTest {
         ExecutionDelayPolicy delayPolicy = new ErrorReportingTerminatingExecutionDelayPolicy(timeSource, toleratedDelayAsMilli, errorReporter);
         Operation<?> operation = new NothingOperation();
         operation.setScheduledStartTimeAsMilli(timeSource.nowAsMilli() - 2000);
+        operation.setTimeStamp(timeSource.nowAsMilli() - 2000);
 
         assertThat(errorReporter.errorEncountered(), is(false));
 

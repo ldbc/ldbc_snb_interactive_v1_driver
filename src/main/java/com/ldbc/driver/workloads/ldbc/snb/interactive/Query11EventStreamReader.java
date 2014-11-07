@@ -32,7 +32,7 @@ public class Query11EventStreamReader implements Iterator<Operation<?>> {
                 (int) rowAsObjects[2],
                 LdbcQuery11.DEFAULT_LIMIT
         );
-        operation.setDependencyTimeAsMilli(0);
+        operation.setDependencyTimeStamp(0);
         return operation;
     }
 

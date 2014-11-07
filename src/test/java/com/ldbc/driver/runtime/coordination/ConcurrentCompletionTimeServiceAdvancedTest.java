@@ -152,7 +152,7 @@ public class ConcurrentCompletionTimeServiceAdvancedTest {
         CREATE 1st CHECK POINT
          */
         Operation<?> gctCheckpointOperation1 = operations.next();
-        long gctCheckpointOperation1ScheduledStartTimeAsMilli = gctCheckpointOperation1.scheduledStartTimeAsMilli();
+        long gctCheckpointOperation1ScheduledStartTimeAsMilli = gctCheckpointOperation1.timeStamp();
         externalCompletionTimeWriter.submitPeerCompletionTime(otherPeerId, gctCheckpointOperation1ScheduledStartTimeAsMilli);
         localCompletionTimeWriter.submitLocalInitiatedTime(gctCheckpointOperation1ScheduledStartTimeAsMilli);
         localCompletionTimeWriter.submitLocalCompletedTime(gctCheckpointOperation1ScheduledStartTimeAsMilli);
@@ -163,9 +163,9 @@ public class ConcurrentCompletionTimeServiceAdvancedTest {
 
         for (int i = completedOperations; i < operationCountCheckPoint1; i++) {
             Operation<?> operation = operations.next();
-            assertThat(operation.scheduledStartTimeAsMilli() >= lastScheduledStartTimeAsMilli, is(true));
-            lastScheduledStartTimeAsMilli = operation.scheduledStartTimeAsMilli();
-            localCompletionTimeWriter.submitLocalInitiatedTime(operation.scheduledStartTimeAsMilli());
+            assertThat(operation.timeStamp() >= lastScheduledStartTimeAsMilli, is(true));
+            lastScheduledStartTimeAsMilli = operation.timeStamp();
+            localCompletionTimeWriter.submitLocalInitiatedTime(operation.timeStamp());
             completionService.submit(new GctAccessingCallable(operation, localCompletionTimeWriter, errorReporter));
         }
 
@@ -187,7 +187,7 @@ public class ConcurrentCompletionTimeServiceAdvancedTest {
         CREATE 2nd CHECK POINT
          */
         Operation<?> gctCheckpointOperation2 = operations.next();
-        long gctCheckpointOperation2ScheduledStartTimeAsMilli = gctCheckpointOperation2.scheduledStartTimeAsMilli();
+        long gctCheckpointOperation2ScheduledStartTimeAsMilli = gctCheckpointOperation2.timeStamp();
         externalCompletionTimeWriter.submitPeerCompletionTime(otherPeerId, gctCheckpointOperation2ScheduledStartTimeAsMilli);
         localCompletionTimeWriter.submitLocalInitiatedTime(gctCheckpointOperation2ScheduledStartTimeAsMilli);
         localCompletionTimeWriter.submitLocalCompletedTime(gctCheckpointOperation2ScheduledStartTimeAsMilli);
@@ -195,9 +195,9 @@ public class ConcurrentCompletionTimeServiceAdvancedTest {
 
         for (int i = completedOperations; i < operationCountCheckPoint2; i++) {
             Operation<?> operation = operations.next();
-            assertThat(operation.scheduledStartTimeAsMilli() >= lastScheduledStartTimeAsMilli, is(true));
-            lastScheduledStartTimeAsMilli = operation.scheduledStartTimeAsMilli();
-            localCompletionTimeWriter.submitLocalInitiatedTime(operation.scheduledStartTimeAsMilli());
+            assertThat(operation.timeStamp() >= lastScheduledStartTimeAsMilli, is(true));
+            lastScheduledStartTimeAsMilli = operation.timeStamp();
+            localCompletionTimeWriter.submitLocalInitiatedTime(operation.timeStamp());
             completionService.submit(new GctAccessingCallable(operation, localCompletionTimeWriter, errorReporter));
         }
 
@@ -217,9 +217,9 @@ public class ConcurrentCompletionTimeServiceAdvancedTest {
 
         while (operations.hasNext()) {
             Operation<?> operation = operations.next();
-            assertThat(operation.scheduledStartTimeAsMilli() >= lastScheduledStartTimeAsMilli, is(true));
-            lastScheduledStartTimeAsMilli = operation.scheduledStartTimeAsMilli();
-            localCompletionTimeWriter.submitLocalInitiatedTime(operation.scheduledStartTimeAsMilli());
+            assertThat(operation.timeStamp() >= lastScheduledStartTimeAsMilli, is(true));
+            lastScheduledStartTimeAsMilli = operation.timeStamp();
+            localCompletionTimeWriter.submitLocalInitiatedTime(operation.timeStamp());
             completionService.submit(new GctAccessingCallable(operation, localCompletionTimeWriter, errorReporter));
         }
 
@@ -269,7 +269,7 @@ public class ConcurrentCompletionTimeServiceAdvancedTest {
         public Integer call() throws Exception {
             try {
                 // operation completes
-                localCompletionTimeWriter.submitLocalCompletedTime(operation.scheduledStartTimeAsMilli());
+                localCompletionTimeWriter.submitLocalCompletedTime(operation.timeStamp());
                 return 1;
             } catch (Exception e) {
                 errorReporter.reportError(this, "Error in call()");

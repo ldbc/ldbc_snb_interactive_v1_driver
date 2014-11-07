@@ -32,7 +32,7 @@ public class SpinnerTests {
         Spinner spinner = new Spinner(timeSource, spinnerSleepDuration, ignoreScheduledStartTime);
 
         long scheduledStartTime = 10l;
-        Operation<?> operation = new TimedNamedOperation1(scheduledStartTime, 0l, "name");
+        Operation<?> operation = new TimedNamedOperation1(scheduledStartTime, scheduledStartTime, 0l, "name");
 
         SpinningThread spinningThread = new SpinningThread(spinner, operation);
 
@@ -65,7 +65,7 @@ public class SpinnerTests {
         Spinner spinner = new Spinner(timeSource, spinnerSleepDuration, ignoreScheduledStartTime);
 
         long scheduledStartTime = 10l;
-        Operation<?> operation = new TimedNamedOperation1(scheduledStartTime, 0l, "name");
+        Operation<?> operation = new TimedNamedOperation1(scheduledStartTime, scheduledStartTime, 0l, "name");
 
         SpinningThread spinningThread = new SpinningThread(spinner, operation, check);
 
@@ -112,7 +112,7 @@ public class SpinnerTests {
         Spinner spinner = new Spinner(timeSource, spinnerSleepDuration, ignoreScheduledStartTime);
 
         long scheduledStartTime = 10l;
-        Operation<?> operation = new TimedNamedOperation1(scheduledStartTime, 0l, "name");
+        Operation<?> operation = new TimedNamedOperation1(scheduledStartTime, scheduledStartTime, 0l, "name");
 
         SpinningThread spinningThread = new SpinningThread(spinner, operation, check);
 
@@ -282,6 +282,7 @@ public class SpinnerTests {
         FastSameOperationIterator(long scheduledStartTime, long operationCount) {
             operation = new NothingOperation();
             operation.setScheduledStartTimeAsMilli(scheduledStartTime);
+            operation.setTimeStamp(scheduledStartTime);
             this.operationCount = operationCount;
         }
 
