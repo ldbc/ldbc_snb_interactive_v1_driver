@@ -33,7 +33,25 @@ public class OperationTypeMetricsManager {
         //
         // Measure operation runtime
         //
+        if (operationResultReport.runDurationAsNano() > highestExpectedRuntimeDurationAsNano) {
+            String errMsg = String.format(""
+                            + "Error recording runtime - reported value exceeds maximum allowed\n"
+                            + "Reported: %s %s / %s\n"
+                            + "For: %s\n"
+                            + "Maximum: %s %s / %s",
+                    operationResultReport.runDurationAsNano(),
+                    TimeUnit.NANOSECONDS.name(),
+                    temporalUtil.nanoDurationToString(operationResultReport.runDurationAsNano()),
+                    name,
+                    highestExpectedRuntimeDurationAsNano,
+                    TimeUnit.NANOSECONDS.name(),
+                    temporalUtil.nanoDurationToString(highestExpectedRuntimeDurationAsNano)
+            );
+            throw new MetricsCollectionException(errMsg);
+        }
+
         long runtimeInAppropriateUnit = temporalUtil.convert(operationResultReport.runDurationAsNano(), TimeUnit.NANOSECONDS, unit);
+
         try {
             runTimeMetric.addMeasurement(runtimeInAppropriateUnit);
         } catch (MetricsCollectionException e) {
@@ -50,6 +68,7 @@ public class OperationTypeMetricsManager {
             );
             throw new MetricsCollectionException(errMsg, e);
         }
+
         count++;
     }
 

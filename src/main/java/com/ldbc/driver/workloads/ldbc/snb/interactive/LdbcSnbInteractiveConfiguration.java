@@ -4,16 +4,17 @@ import com.google.common.collect.Lists;
 import com.ldbc.driver.WorkloadException;
 import com.ldbc.driver.control.ConsoleAndFileDriverConfiguration;
 
+import java.io.File;
+import java.io.FilenameFilter;
 import java.util.*;
 
 public class LdbcSnbInteractiveConfiguration {
     public final static String LDBC_SNB_INTERACTIVE_PARAM_NAME_PREFIX = "ldbc.snb.interactive.";
     // directory that contains the substitution parameters files
     public final static String PARAMETERS_DIRECTORY = LDBC_SNB_INTERACTIVE_PARAM_NAME_PREFIX + "parameters_dir";
-    // list of paths to forum update event streams
-    public final static String FORUM_UPDATE_FILES = LDBC_SNB_INTERACTIVE_PARAM_NAME_PREFIX + "forum_update_files";
-    // list of paths to person update event streams
-    public final static String PERSON_UPDATE_FILES = LDBC_SNB_INTERACTIVE_PARAM_NAME_PREFIX + "person_update_files";
+    // directory containing forum and person update event streams
+    public final static String UPDATES_DIRECTORY = LDBC_SNB_INTERACTIVE_PARAM_NAME_PREFIX + "updates_dir";
+
     // minimum duration between any two dependent operations in the update streams
     public final static String SAFE_T = LDBC_SNB_INTERACTIVE_PARAM_NAME_PREFIX + "gct_delta_duration";
     // Average distance between updates in simulation time
@@ -338,35 +339,7 @@ public class LdbcSnbInteractiveConfiguration {
         return missingPropertyKeys;
     }
 
-    public static Set<String> parseFilePathsListFromConfiguration(String filePaths) {
-        Set<String> filePathsSet = new HashSet<>();
-        String[] filePathsArray = filePaths.split(PIPE_SEPARATOR_REGEX);
-        for (String filePath : filePathsArray) {
-            if (filePath.isEmpty()) continue;
-            filePathsSet.add(filePath);
-        }
-        return filePathsSet;
-    }
-
-    public static String serializeFilePathsListFromConfiguration(Iterable<String> filePaths) {
-        List<String> filePathsList = Lists.newArrayList(filePaths);
-
-        if (0 == filePathsList.size())
-            return "";
-
-        if (1 == filePathsList.size())
-            return filePathsList.get(0);
-
-        String filePathsString = "";
-        for (int i = 0; i < filePathsList.size() - 1; i++) {
-            filePathsString += filePathsList.get(i) + PIPE_SEPARATOR;
-        }
-        filePathsString += filePathsList.get(filePathsList.size() - 1);
-
-        return filePathsString;
-    }
-
-    public static boolean isValidParser(String parserString) throws WorkloadException {
+    static boolean isValidParser(String parserString) throws WorkloadException {
         try {
             UpdateStreamParser parser = UpdateStreamParser.valueOf(parserString);
             Set<UpdateStreamParser> validParsers = new HashSet<>();
@@ -375,5 +348,26 @@ public class LdbcSnbInteractiveConfiguration {
         } catch (IllegalArgumentException e) {
             throw new WorkloadException(String.format("Unsupported parser value: %s", parserString), e);
         }
+    }
+
+    static List<File> forumUpdateFilesInDirectory(File directory) {
+        return filesWithSuffixInDirectory(directory, "_forum.csv");
+    }
+
+    static List<File> personUpdateFilesInDirectory(File directory) {
+        return filesWithSuffixInDirectory(directory, "_person.csv");
+    }
+
+    private static List<File> filesWithSuffixInDirectory(File directory, final String fileNameSuffix) {
+        return Lists.newArrayList(
+                directory.listFiles(
+                        new FilenameFilter() {
+                            @Override
+                            public boolean accept(File dir, String name) {
+                                return name.endsWith(fileNameSuffix);
+                            }
+                        }
+                )
+        );
     }
 }

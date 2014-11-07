@@ -1,7 +1,5 @@
 package com.ldbc.driver.workloads.ldbc.snb.interactive;
 
-import com.google.common.base.Function;
-import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import com.ldbc.driver.*;
 import com.ldbc.driver.control.ConcurrentControlService;
@@ -24,7 +22,6 @@ import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 
 import java.io.File;
-import java.io.FilenameFilter;
 import java.io.IOException;
 import java.text.DecimalFormat;
 import java.util.HashSet;
@@ -57,51 +54,13 @@ SF30 1,2,4 threads 1 partition
         );
 
         for (File streamDir : streamsDirs) {
-            Iterable<String> personFilePaths = Iterables.transform(
-                    Lists.newArrayList(
-                            streamDir.listFiles(
-                                    new FilenameFilter() {
-                                        @Override
-                                        public boolean accept(File dir, String name) {
-                                            return name.endsWith("_person.csv");
-                                        }
-                                    }
-                            )
-                    ),
-                    new Function<File, String>() {
-                        @Override
-                        public String apply(File file) {
-                            return file.getAbsolutePath();
-                        }
-                    }
-            );
-            Iterable<String> forumFilePaths = Iterables.transform(
-                    Lists.newArrayList(
-                            streamDir.listFiles(
-                                    new FilenameFilter() {
-                                        @Override
-                                        public boolean accept(File dir, String name) {
-                                            return name.endsWith("_forum.csv");
-                                        }
-                                    }
-                            )
-                    ),
-                    new Function<File, String>() {
-                        @Override
-                        public String apply(File file) {
-                            return file.getAbsolutePath();
-                        }
-                    }
-            );
-
             List<Integer> threadCounts = Lists.newArrayList(1, 2, 4);
             long operationCount = 100000000;
             for (int threadCount : threadCounts) {
                 doIgnoreTimesPerformanceTest(
                         threadCount,
                         operationCount,
-                        forumFilePaths,
-                        personFilePaths,
+                        streamDir.getAbsolutePath(),
                         paramsDir.getAbsolutePath(),
                         streamDir.getAbsolutePath(),
                         "TC" + threadCount + "-" + streamDir.getName(),
@@ -113,8 +72,7 @@ SF30 1,2,4 threads 1 partition
 
     public void doIgnoreTimesPerformanceTest(int threadCount,
                                              long operationCount,
-                                             Iterable<String> forumFilePaths,
-                                             Iterable<String> personFilePaths,
+                                             String updateStreamsDir,
                                              String parametersDir,
                                              String resultsDir,
                                              String name,
@@ -126,10 +84,9 @@ SF30 1,2,4 threads 1 partition
         Workload workload = null;
         ConcurrentMetricsService metricsService = null;
         try {
-            Map<String, String> paramsMap = LdbcSnbInteractiveConfiguration.defaultWriteOnlyConfig();
+            Map<String, String> paramsMap = LdbcSnbInteractiveConfiguration.defaultConfig();
             paramsMap.put(LdbcSnbInteractiveConfiguration.PARAMETERS_DIRECTORY, parametersDir);
-            paramsMap.put(LdbcSnbInteractiveConfiguration.FORUM_UPDATE_FILES, LdbcSnbInteractiveConfiguration.serializeFilePathsListFromConfiguration(forumFilePaths));
-            paramsMap.put(LdbcSnbInteractiveConfiguration.PERSON_UPDATE_FILES, LdbcSnbInteractiveConfiguration.serializeFilePathsListFromConfiguration(personFilePaths));
+            paramsMap.put(LdbcSnbInteractiveConfiguration.UPDATES_DIRECTORY, updateStreamsDir);
             paramsMap.put(LdbcSnbInteractiveConfiguration.UPDATE_STREAM_PARSER, LdbcSnbInteractiveConfiguration.UpdateStreamParser.CHAR_SEEKER.name());
             paramsMap.put(DummyLdbcSnbInteractiveDb.SLEEP_DURATION_MILLI_ARG, "0");
             // Driver-specific parameters
@@ -222,51 +179,13 @@ SF30 1,2,4 threads 1 partition
         );
 
         for (File streamDir : streamsDirs) {
-            Iterable<String> personFilePaths = Iterables.transform(
-                    Lists.newArrayList(
-                            streamDir.listFiles(
-                                    new FilenameFilter() {
-                                        @Override
-                                        public boolean accept(File dir, String name) {
-                                            return name.endsWith("_person.csv");
-                                        }
-                                    }
-                            )
-                    ),
-                    new Function<File, String>() {
-                        @Override
-                        public String apply(File file) {
-                            return file.getAbsolutePath();
-                        }
-                    }
-            );
-            Iterable<String> forumFilePaths = Iterables.transform(
-                    Lists.newArrayList(
-                            streamDir.listFiles(
-                                    new FilenameFilter() {
-                                        @Override
-                                        public boolean accept(File dir, String name) {
-                                            return name.endsWith("_forum.csv");
-                                        }
-                                    }
-                            )
-                    ),
-                    new Function<File, String>() {
-                        @Override
-                        public String apply(File file) {
-                            return file.getAbsolutePath();
-                        }
-                    }
-            );
-
             List<Integer> threadCounts = Lists.newArrayList(1, 2, 4);
             long operationCount = 100000000;
             for (int threadCount : threadCounts) {
                 doWithTimesPerformanceTest(
                         threadCount,
                         operationCount,
-                        forumFilePaths,
-                        personFilePaths,
+                        streamDir.getAbsolutePath(),
                         paramsDir.getAbsolutePath(),
                         streamDir.getAbsolutePath(),
                         "TC" + threadCount + "-" + streamDir.getName(),
@@ -278,8 +197,7 @@ SF30 1,2,4 threads 1 partition
 
     public void doWithTimesPerformanceTest(int threadCount,
                                            long operationCount,
-                                           Iterable<String> forumFilePaths,
-                                           Iterable<String> personFilePaths,
+                                           String updateStreamsDir,
                                            String parametersDir,
                                            String resultsDir,
                                            String name,
@@ -293,8 +211,7 @@ SF30 1,2,4 threads 1 partition
         try {
             Map<String, String> paramsMap = LdbcSnbInteractiveConfiguration.defaultConfig();
             paramsMap.put(LdbcSnbInteractiveConfiguration.PARAMETERS_DIRECTORY, parametersDir);
-            paramsMap.put(LdbcSnbInteractiveConfiguration.FORUM_UPDATE_FILES, LdbcSnbInteractiveConfiguration.serializeFilePathsListFromConfiguration(forumFilePaths));
-            paramsMap.put(LdbcSnbInteractiveConfiguration.PERSON_UPDATE_FILES, LdbcSnbInteractiveConfiguration.serializeFilePathsListFromConfiguration(personFilePaths));
+            paramsMap.put(LdbcSnbInteractiveConfiguration.UPDATES_DIRECTORY, updateStreamsDir);
             paramsMap.put(LdbcSnbInteractiveConfiguration.UPDATE_STREAM_PARSER, LdbcSnbInteractiveConfiguration.UpdateStreamParser.CHAR_SEEKER.name());
             paramsMap.put(DummyLdbcSnbInteractiveDb.SLEEP_DURATION_MILLI_ARG, "0");
             // Driver-specific parameters

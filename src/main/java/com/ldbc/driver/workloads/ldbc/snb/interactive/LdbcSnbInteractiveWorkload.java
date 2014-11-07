@@ -74,24 +74,18 @@ public class LdbcSnbInteractiveWorkload extends Workload {
         if (false == missingPropertyParameters.isEmpty())
             throw new WorkloadException(String.format("Workload could not initialize due to missing parameters: %s", missingPropertyParameters.toString()));
 
-        Iterable<String> forumUpdateFilePaths = (params.containsKey(LdbcSnbInteractiveConfiguration.FORUM_UPDATE_FILES))
-                ?
-                LdbcSnbInteractiveConfiguration.parseFilePathsListFromConfiguration(params.get(LdbcSnbInteractiveConfiguration.FORUM_UPDATE_FILES))
-                :
-                new ArrayList<String>();
-        for (String forumUpdateFilePath : forumUpdateFilePaths) {
-            File forumUpdateFile = new File(forumUpdateFilePath);
-            forumUpdateOperationFiles.add(forumUpdateFile);
-        }
-
-        Iterable<String> personUpdateFilePaths = (params.containsKey(LdbcSnbInteractiveConfiguration.PERSON_UPDATE_FILES))
-                ?
-                LdbcSnbInteractiveConfiguration.parseFilePathsListFromConfiguration(params.get(LdbcSnbInteractiveConfiguration.PERSON_UPDATE_FILES))
-                :
-                new ArrayList<String>();
-        for (String personUpdateFilePath : personUpdateFilePaths) {
-            File personUpdateFile = new File(personUpdateFilePath);
-            personUpdateOperationFiles.add(personUpdateFile);
+        if (params.containsKey(LdbcSnbInteractiveConfiguration.UPDATES_DIRECTORY)) {
+            String updatesDirectoryPath = params.get(LdbcSnbInteractiveConfiguration.UPDATES_DIRECTORY);
+            File updatesDirectory = new File(updatesDirectoryPath);
+            if (false == updatesDirectory.exists())
+                throw new WorkloadException(String.format("Updates directory does not exist\nDirectory: %s", updatesDirectory.getAbsolutePath()));
+            if (false == updatesDirectory.isDirectory())
+                throw new WorkloadException(String.format("Updates directory is not a directory\nDirectory: %s", updatesDirectory.getAbsolutePath()));
+            forumUpdateOperationFiles = LdbcSnbInteractiveConfiguration.forumUpdateFilesInDirectory(updatesDirectory);
+            personUpdateOperationFiles = LdbcSnbInteractiveConfiguration.personUpdateFilesInDirectory(updatesDirectory);
+        } else {
+            forumUpdateOperationFiles = new ArrayList<>();
+            personUpdateOperationFiles = new ArrayList<>();
         }
 
         File parametersDir = new File(params.get(LdbcSnbInteractiveConfiguration.PARAMETERS_DIRECTORY));
@@ -311,8 +305,8 @@ public class LdbcSnbInteractiveWorkload extends Workload {
             Iterator<Operation<?>> filteredPersonUpdateOperations = Iterators.filter(unfilteredPersonUpdateOperations, enabledWriteOperationsFilter);
 
             Set<Class<? extends Operation<?>>> dependentPersonUpdateOperationTypes = Sets.<Class<? extends Operation<?>>>newHashSet(
-                    LdbcUpdate8AddFriendship.class
             );
+
             ldbcSnbInteractiveWorkloadStreams.addBlockingStream(
                     dependentPersonUpdateOperationTypes,
                     filteredPersonUpdateOperations,
@@ -357,7 +351,8 @@ public class LdbcSnbInteractiveWorkload extends Workload {
                     LdbcUpdate4AddForum.class,
                     LdbcUpdate5AddForumMembership.class,
                     LdbcUpdate6AddPost.class,
-                    LdbcUpdate7AddComment.class
+                    LdbcUpdate7AddComment.class,
+                    LdbcUpdate8AddFriendship.class
             );
 
             ldbcSnbInteractiveWorkloadStreams.addBlockingStream(

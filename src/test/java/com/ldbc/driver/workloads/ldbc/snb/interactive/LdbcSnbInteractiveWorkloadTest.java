@@ -136,10 +136,7 @@ public class LdbcSnbInteractiveWorkloadTest {
         Map<String, String> paramsMap = LdbcSnbInteractiveConfiguration.defaultConfig();
         // LDBC Interactive Workload-specific parameters
         paramsMap.put(LdbcSnbInteractiveConfiguration.PARAMETERS_DIRECTORY, TestUtils.getResource("/").getAbsolutePath());
-        List<String> forumUpdateFiles = Lists.newArrayList(TestUtils.getResource("/updateStream_0_0_forum.csv").getAbsolutePath());
-        paramsMap.put(LdbcSnbInteractiveConfiguration.FORUM_UPDATE_FILES, LdbcSnbInteractiveConfiguration.serializeFilePathsListFromConfiguration(forumUpdateFiles));
-        List<String> personUpdateFiles = Lists.newArrayList(TestUtils.getResource("/updateStream_0_0_person.csv").getAbsolutePath());
-        paramsMap.put(LdbcSnbInteractiveConfiguration.PERSON_UPDATE_FILES, LdbcSnbInteractiveConfiguration.serializeFilePathsListFromConfiguration(personUpdateFiles));
+        paramsMap.put(LdbcSnbInteractiveConfiguration.UPDATES_DIRECTORY, TestUtils.getResource("/").getAbsolutePath());
         // Driver-specific parameters
         String name = null;
         String dbClassName = DummyLdbcSnbInteractiveDb.class.getName();
@@ -206,10 +203,7 @@ public class LdbcSnbInteractiveWorkloadTest {
         Map<String, String> paramsMap = LdbcSnbInteractiveConfiguration.defaultConfig();
         // LDBC Interactive Workload-specific parameters
         paramsMap.put(LdbcSnbInteractiveConfiguration.PARAMETERS_DIRECTORY, TestUtils.getResource("/").getAbsolutePath());
-        List<String> forumUpdateFiles = Lists.newArrayList(TestUtils.getResource("/updateStream_0_0_forum.csv").getAbsolutePath());
-        paramsMap.put(LdbcSnbInteractiveConfiguration.FORUM_UPDATE_FILES, LdbcSnbInteractiveConfiguration.serializeFilePathsListFromConfiguration(forumUpdateFiles));
-        List<String> personUpdateFiles = Lists.newArrayList(TestUtils.getResource("/updateStream_0_0_person.csv").getAbsolutePath());
-        paramsMap.put(LdbcSnbInteractiveConfiguration.PERSON_UPDATE_FILES, LdbcSnbInteractiveConfiguration.serializeFilePathsListFromConfiguration(personUpdateFiles));
+        paramsMap.put(LdbcSnbInteractiveConfiguration.UPDATES_DIRECTORY, TestUtils.getResource("/").getAbsolutePath());
         // DummyDb-specific parameters
         paramsMap.put(DummyLdbcSnbInteractiveDb.SLEEP_DURATION_MILLI_ARG, Long.toString(100));
         // Driver-specific parameters
@@ -353,8 +347,7 @@ public class LdbcSnbInteractiveWorkloadTest {
                 "-p", LdbcSnbInteractiveConfiguration.WRITE_OPERATION_6_ENABLE_KEY, "false",
                 "-p", LdbcSnbInteractiveConfiguration.WRITE_OPERATION_7_ENABLE_KEY, "false",
                 "-p", LdbcSnbInteractiveConfiguration.WRITE_OPERATION_8_ENABLE_KEY, "false",
-                "-p", LdbcSnbInteractiveConfiguration.FORUM_UPDATE_FILES, TestUtils.getResource("/updateStream_0_0_forum.csv").getAbsolutePath(),
-                "-p", LdbcSnbInteractiveConfiguration.PERSON_UPDATE_FILES, TestUtils.getResource("/updateStream_0_0_person.csv").getAbsolutePath(),
+                "-p", LdbcSnbInteractiveConfiguration.UPDATES_DIRECTORY, TestUtils.getResource("/").getAbsolutePath(),
                 "-p", LdbcSnbInteractiveConfiguration.PARAMETERS_DIRECTORY, TestUtils.getResource("/").getAbsolutePath()
         });
 
@@ -443,8 +436,7 @@ public class LdbcSnbInteractiveWorkloadTest {
                 "-" + ConsoleAndFileDriverConfiguration.DB_ARG, DummyLdbcSnbInteractiveDb.class.getName(),
                 "-" + ConsoleAndFileDriverConfiguration.TIME_UNIT_ARG, TimeUnit.MICROSECONDS.name(),
                 "-p", LdbcSnbInteractiveConfiguration.PARAMETERS_DIRECTORY, TestUtils.getResource("/").getAbsolutePath(),
-                "-p", LdbcSnbInteractiveConfiguration.FORUM_UPDATE_FILES, TestUtils.getResource("/updateStream_0_0_forum.csv").getAbsolutePath(),
-                "-p", LdbcSnbInteractiveConfiguration.PERSON_UPDATE_FILES, TestUtils.getResource("/updateStream_0_0_person.csv").getAbsolutePath(),
+                "-p", LdbcSnbInteractiveConfiguration.UPDATES_DIRECTORY, TestUtils.getResource("/").getAbsolutePath(),
                 "-P", ldbcSnbInteractiveTestPropertiesPath,
                 "-P", ldbcDriverTestPropertiesPath,
                 "-P", updateStreamPropertiesPath});
@@ -506,8 +498,7 @@ public class LdbcSnbInteractiveWorkloadTest {
                 "-p", LdbcSnbInteractiveConfiguration.WRITE_OPERATION_7_ENABLE_KEY, "true",
                 "-p", LdbcSnbInteractiveConfiguration.WRITE_OPERATION_8_ENABLE_KEY, "true",
                 "-p", LdbcSnbInteractiveConfiguration.SAFE_T, "1",
-                "-p", LdbcSnbInteractiveConfiguration.FORUM_UPDATE_FILES, TestUtils.getResource("/updateStream_0_0_forum.csv").getAbsolutePath(),
-                "-p", LdbcSnbInteractiveConfiguration.PERSON_UPDATE_FILES, TestUtils.getResource("/updateStream_0_0_person.csv").getAbsolutePath(),
+                "-p", LdbcSnbInteractiveConfiguration.UPDATES_DIRECTORY, TestUtils.getResource("/").getAbsolutePath(),
                 "-p", LdbcSnbInteractiveConfiguration.PARAMETERS_DIRECTORY, TestUtils.getResource("/").getAbsolutePath()
         });
 
@@ -581,8 +572,7 @@ public class LdbcSnbInteractiveWorkloadTest {
                 "-p", LdbcSnbInteractiveConfiguration.WRITE_OPERATION_7_ENABLE_KEY, "false",
                 "-p", LdbcSnbInteractiveConfiguration.WRITE_OPERATION_8_ENABLE_KEY, "false",
                 "-p", LdbcSnbInteractiveConfiguration.SAFE_T, "1",
-                "-p", LdbcSnbInteractiveConfiguration.FORUM_UPDATE_FILES, TestUtils.getResource("/updateStream_0_0_forum.csv").getAbsolutePath(),
-                "-p", LdbcSnbInteractiveConfiguration.PERSON_UPDATE_FILES, TestUtils.getResource("/updateStream_0_0_person.csv").getAbsolutePath(),
+                "-p", LdbcSnbInteractiveConfiguration.UPDATES_DIRECTORY, TestUtils.getResource("/").getAbsolutePath(),
                 "-p", LdbcSnbInteractiveConfiguration.PARAMETERS_DIRECTORY, TestUtils.getResource("/").getAbsolutePath()
         });
 
@@ -656,8 +646,7 @@ public class LdbcSnbInteractiveWorkloadTest {
                 "-p", LdbcSnbInteractiveConfiguration.WRITE_OPERATION_7_ENABLE_KEY, "false",
                 "-p", LdbcSnbInteractiveConfiguration.WRITE_OPERATION_8_ENABLE_KEY, "false",
                 "-p", LdbcSnbInteractiveConfiguration.SAFE_T, "1",
-                "-p", LdbcSnbInteractiveConfiguration.FORUM_UPDATE_FILES, TestUtils.getResource("/updateStream_0_0_forum.csv").getAbsolutePath(),
-                "-p", LdbcSnbInteractiveConfiguration.PERSON_UPDATE_FILES, TestUtils.getResource("/updateStream_0_0_person.csv").getAbsolutePath(),
+                "-p", LdbcSnbInteractiveConfiguration.UPDATES_DIRECTORY, TestUtils.getResource("/").getAbsolutePath(),
                 "-p", LdbcSnbInteractiveConfiguration.PARAMETERS_DIRECTORY, TestUtils.getResource("/").getAbsolutePath()
         });
 
@@ -717,8 +706,7 @@ public class LdbcSnbInteractiveWorkloadTest {
                 "-p", LdbcSnbInteractiveConfiguration.WRITE_OPERATION_7_ENABLE_KEY, "false",
                 "-p", LdbcSnbInteractiveConfiguration.WRITE_OPERATION_8_ENABLE_KEY, "false",
                 "-p", LdbcSnbInteractiveConfiguration.SAFE_T, "1",
-                "-p", LdbcSnbInteractiveConfiguration.FORUM_UPDATE_FILES, TestUtils.getResource("/updateStream_0_0_forum.csv").getAbsolutePath(),
-                "-p", LdbcSnbInteractiveConfiguration.PERSON_UPDATE_FILES, TestUtils.getResource("/updateStream_0_0_person.csv").getAbsolutePath(),
+                "-p", LdbcSnbInteractiveConfiguration.UPDATES_DIRECTORY, TestUtils.getResource("/").getAbsolutePath(),
                 "-p", LdbcSnbInteractiveConfiguration.PARAMETERS_DIRECTORY, TestUtils.getResource("/").getAbsolutePath()
         });
 
@@ -741,10 +729,7 @@ public class LdbcSnbInteractiveWorkloadTest {
         Map<String, String> paramsMap = LdbcSnbInteractiveConfiguration.defaultConfig();
         // LDBC Interactive Workload-specific parameters
         paramsMap.put(LdbcSnbInteractiveConfiguration.PARAMETERS_DIRECTORY, TestUtils.getResource("/").getAbsolutePath());
-        List<String> forumUpdateFiles = Lists.newArrayList(TestUtils.getResource("/updateStream_0_0_forum.csv").getAbsolutePath());
-        paramsMap.put(LdbcSnbInteractiveConfiguration.FORUM_UPDATE_FILES, LdbcSnbInteractiveConfiguration.serializeFilePathsListFromConfiguration(forumUpdateFiles));
-        List<String> personUpdateFiles = Lists.newArrayList(TestUtils.getResource("/updateStream_0_0_person.csv").getAbsolutePath());
-        paramsMap.put(LdbcSnbInteractiveConfiguration.PERSON_UPDATE_FILES, LdbcSnbInteractiveConfiguration.serializeFilePathsListFromConfiguration(personUpdateFiles));
+        paramsMap.put(LdbcSnbInteractiveConfiguration.UPDATES_DIRECTORY, TestUtils.getResource("/").getAbsolutePath());
         // Driver-specific parameters
         String name = "name";
         String dbClassName = DummyLdbcSnbInteractiveDb.class.getName();
@@ -815,10 +800,7 @@ public class LdbcSnbInteractiveWorkloadTest {
         Map<String, String> params = LdbcSnbInteractiveConfiguration.defaultWriteOnlyConfig();
         // LDBC Interactive Workload-specific parameters
         params.put(LdbcSnbInteractiveConfiguration.PARAMETERS_DIRECTORY, TestUtils.getResource("/").getAbsolutePath());
-        List<String> forumUpdateFiles = Lists.newArrayList(TestUtils.getResource("/updateStream_0_0_forum.csv").getAbsolutePath());
-        params.put(LdbcSnbInteractiveConfiguration.FORUM_UPDATE_FILES, LdbcSnbInteractiveConfiguration.serializeFilePathsListFromConfiguration(forumUpdateFiles));
-        List<String> personUpdateFiles = Lists.newArrayList(TestUtils.getResource("/updateStream_0_0_person.csv").getAbsolutePath());
-        params.put(LdbcSnbInteractiveConfiguration.PERSON_UPDATE_FILES, LdbcSnbInteractiveConfiguration.serializeFilePathsListFromConfiguration(personUpdateFiles));
+        params.put(LdbcSnbInteractiveConfiguration.UPDATES_DIRECTORY, TestUtils.getResource("/").getAbsolutePath());
         // DummyDb-specific parameters
         params.put(DummyLdbcSnbInteractiveDb.SLEEP_DURATION_MILLI_ARG, Long.toString(1));
         // Driver-specific parameters
@@ -887,10 +869,7 @@ public class LdbcSnbInteractiveWorkloadTest {
         Map<String, String> params = LdbcSnbInteractiveConfiguration.defaultWriteOnlyConfig();
         // LDBC Interactive Workload-specific parameters
         params.put(LdbcSnbInteractiveConfiguration.PARAMETERS_DIRECTORY, TestUtils.getResource("/").getAbsolutePath());
-        List<String> forumUpdateFiles = Lists.newArrayList(TestUtils.getResource("/updateStream_0_0_forum.csv").getAbsolutePath());
-        params.put(LdbcSnbInteractiveConfiguration.FORUM_UPDATE_FILES, LdbcSnbInteractiveConfiguration.serializeFilePathsListFromConfiguration(forumUpdateFiles));
-        List<String> personUpdateFiles = Lists.newArrayList(TestUtils.getResource("/updateStream_0_0_person.csv").getAbsolutePath());
-        params.put(LdbcSnbInteractiveConfiguration.PERSON_UPDATE_FILES, LdbcSnbInteractiveConfiguration.serializeFilePathsListFromConfiguration(personUpdateFiles));
+        params.put(LdbcSnbInteractiveConfiguration.UPDATES_DIRECTORY, TestUtils.getResource("/").getAbsolutePath());
         // DummyDb-specific parameters
         params.put(DummyLdbcSnbInteractiveDb.SLEEP_DURATION_MILLI_ARG, Long.toString(1));
         // Driver-specific parameters
