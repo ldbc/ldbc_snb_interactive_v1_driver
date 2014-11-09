@@ -360,6 +360,7 @@ public class Client {
 
             try (Workload w = workload; Db db = database) {
                 workloadRunner.executeWorkload();
+                logger.info("Shutting down workload & database connector...");
             } catch (WorkloadException e) {
                 throw new ClientException("Error running Workload", e);
             } catch (IOException e) {
