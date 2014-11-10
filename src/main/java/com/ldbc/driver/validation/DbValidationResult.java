@@ -123,9 +123,9 @@ public class DbValidationResult {
         sb.append("Database: ").append(db.getClass().getName()).append("\n");
         sb.append("  ***\n");
         sb.append("  Successfully executed ").append(successfullyExecutedOperationsPerOperationType.size()).append(" operation types:\n");
-        for (Class operationType : sort(successfullyExecutedOperationsPerOperationType.keySet()))
+        for (Class operationType : sort(totalOperationsPerOperationType.keySet()))
             sb.append("    ").
-                    append(successfullyExecutedOperationsPerOperationType.get(operationType)).append(" / ").
+                    append((successfullyExecutedOperationsPerOperationType.containsKey(operationType)) ? successfullyExecutedOperationsPerOperationType.get(operationType) : 0).append(" / ").
                     append(String.format("%1$-" + padRightDistance + "s", totalOperationsPerOperationType.get(operationType))).
                     append(operationType.getSimpleName()).
                     append("\n");
