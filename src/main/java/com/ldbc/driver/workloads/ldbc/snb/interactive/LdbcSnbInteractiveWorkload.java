@@ -241,13 +241,13 @@ public class LdbcSnbInteractiveWorkload extends Workload {
                 return Tuple.<Iterator<Operation<?>>, Closeable>tuple2(new WriteEventStreamReaderRegex(csvFileReader), csvFileReader);
             }
             case CHAR_SEEKER: {
-                int bufferSize = 2 * 1024 * 1024;
+                int bufferSize = 1 * 1024 * 1024;
                 BufferedCharSeeker charSeeker = new BufferedCharSeeker(new FileReader(updateOperationsFile), bufferSize);
                 Extractors extractors = new Extractors(';');
                 return Tuple.<Iterator<Operation<?>>, Closeable>tuple2(new WriteEventStreamReaderCharSeeker(charSeeker, extractors, '|'), charSeeker);
             }
             case CHAR_SEEKER_THREAD: {
-                int bufferSize = 2 * 1024 * 1024;
+                int bufferSize = 1 * 1024 * 1024;
                 BufferedCharSeeker charSeeker = new BufferedCharSeeker(ThreadAheadReadable.threadAhead(new FileReader(updateOperationsFile), bufferSize), bufferSize);
                 Extractors extractors = new Extractors(';');
                 return Tuple.<Iterator<Operation<?>>, Closeable>tuple2(new WriteEventStreamReaderCharSeeker(charSeeker, extractors, '|'), charSeeker);
@@ -375,7 +375,7 @@ public class LdbcSnbInteractiveWorkload extends Workload {
         /*
          * Create read operation streams, with specified interleaves
          */
-        int bufferSize = 2 * 1024 * 1024;
+        int bufferSize = 1 * 1024 * 1024;
         char columnDelimiter = '|';
         char arrayDelimiter = ';';
 
