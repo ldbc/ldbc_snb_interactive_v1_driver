@@ -403,6 +403,7 @@ public class WriteEventStreamReaderCharSeeker implements Iterator<Operation<?>> 
                 String imageFile;
                 if (charSeeker.seek(mark, columnDelimiters)) {
                     imageFile = charSeeker.extract(mark, extractors.string()).value();
+                    if (null == imageFile) imageFile = "";
                 } else {
                     throw new GeneratorException("Error retrieving image file");
                 }
@@ -439,6 +440,7 @@ public class WriteEventStreamReaderCharSeeker implements Iterator<Operation<?>> 
                 String content;
                 if (charSeeker.seek(mark, columnDelimiters)) {
                     content = charSeeker.extract(mark, extractors.string()).value();
+                    if (null == content) content = "";
                 } else {
                     throw new GeneratorException("Error retrieving content");
                 }
@@ -541,6 +543,7 @@ public class WriteEventStreamReaderCharSeeker implements Iterator<Operation<?>> 
                 String content;
                 if (charSeeker.seek(mark, columnDelimiters)) {
                     content = charSeeker.extract(mark, extractors.string()).value();
+                    if (null == content) content = "";
                 } else {
                     throw new GeneratorException("Error retrieving content");
                 }
