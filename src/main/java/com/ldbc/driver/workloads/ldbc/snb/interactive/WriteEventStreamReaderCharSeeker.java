@@ -85,6 +85,7 @@ public class WriteEventStreamReaderCharSeeker implements Iterator<Operation<?>> 
                 String firstName;
                 if (charSeeker.seek(mark, columnDelimiters)) {
                     firstName = charSeeker.extract(mark, extractors.string()).value();
+                    if (null == firstName) firstName = "";
                 } else {
                     throw new GeneratorException("Error retrieving first name");
                 }
@@ -92,6 +93,7 @@ public class WriteEventStreamReaderCharSeeker implements Iterator<Operation<?>> 
                 String lastName;
                 if (charSeeker.seek(mark, columnDelimiters)) {
                     lastName = charSeeker.extract(mark, extractors.string()).value();
+                    if (null == lastName) lastName = "";
                 } else {
                     throw new GeneratorException("Error retrieving last name");
                 }
@@ -99,6 +101,7 @@ public class WriteEventStreamReaderCharSeeker implements Iterator<Operation<?>> 
                 String gender;
                 if (charSeeker.seek(mark, columnDelimiters)) {
                     gender = charSeeker.extract(mark, extractors.string()).value();
+                    if (null == gender) gender = "";
                 } else {
                     throw new GeneratorException("Error retrieving gender");
                 }
@@ -122,6 +125,7 @@ public class WriteEventStreamReaderCharSeeker implements Iterator<Operation<?>> 
                 String locationIp;
                 if (charSeeker.seek(mark, columnDelimiters)) {
                     locationIp = charSeeker.extract(mark, extractors.string()).value();
+                    if (null == locationIp) locationIp = "";
                 } else {
                     throw new GeneratorException("Error retrieving location ip");
                 }
@@ -129,6 +133,7 @@ public class WriteEventStreamReaderCharSeeker implements Iterator<Operation<?>> 
                 String browserUsed;
                 if (charSeeker.seek(mark, columnDelimiters)) {
                     browserUsed = charSeeker.extract(mark, extractors.string()).value();
+                    if (null == browserUsed) browserUsed = "";
                 } else {
                     throw new GeneratorException("Error retrieving browser");
                 }
@@ -311,6 +316,7 @@ public class WriteEventStreamReaderCharSeeker implements Iterator<Operation<?>> 
                 String forumTitle;
                 if (charSeeker.seek(mark, columnDelimiters)) {
                     forumTitle = charSeeker.extract(mark, extractors.string()).value();
+                    if (null == forumTitle) forumTitle = "";
                 } else {
                     throw new GeneratorException("Error retrieving forum title");
                 }
@@ -419,6 +425,7 @@ public class WriteEventStreamReaderCharSeeker implements Iterator<Operation<?>> 
                 String locationIp;
                 if (charSeeker.seek(mark, columnDelimiters)) {
                     locationIp = charSeeker.extract(mark, extractors.string()).value();
+                    if (null == locationIp) locationIp = "";
                 } else {
                     throw new GeneratorException("Error retrieving location ip");
                 }
@@ -426,6 +433,7 @@ public class WriteEventStreamReaderCharSeeker implements Iterator<Operation<?>> 
                 String browserUsed;
                 if (charSeeker.seek(mark, columnDelimiters)) {
                     browserUsed = charSeeker.extract(mark, extractors.string()).value();
+                    if (null == browserUsed) browserUsed = "";
                 } else {
                     throw new GeneratorException("Error retrieving browser");
                 }
@@ -433,6 +441,7 @@ public class WriteEventStreamReaderCharSeeker implements Iterator<Operation<?>> 
                 String language;
                 if (charSeeker.seek(mark, columnDelimiters)) {
                     language = charSeeker.extract(mark, extractors.string()).value();
+                    if (null == language) language = "";
                 } else {
                     throw new GeneratorException("Error retrieving language");
                 }
@@ -529,6 +538,7 @@ public class WriteEventStreamReaderCharSeeker implements Iterator<Operation<?>> 
                 String locationIp;
                 if (charSeeker.seek(mark, columnDelimiters)) {
                     locationIp = charSeeker.extract(mark, extractors.string()).value();
+                    if (null == locationIp) locationIp = "";
                 } else {
                     throw new GeneratorException("Error retrieving location ip");
                 }
@@ -536,6 +546,7 @@ public class WriteEventStreamReaderCharSeeker implements Iterator<Operation<?>> 
                 String browserUsed;
                 if (charSeeker.seek(mark, columnDelimiters)) {
                     browserUsed = charSeeker.extract(mark, extractors.string()).value();
+                    if (null == browserUsed) browserUsed = "";
                 } else {
                     throw new GeneratorException("Error retrieving browser");
                 }
