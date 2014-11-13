@@ -30,7 +30,7 @@ public class ConcurrentErrorReporter {
 
     public static String formatErrors(List<ErrorReport> errors) {
         StringBuilder sb = new StringBuilder();
-        sb.append("- Error Log -");
+        sb.append("\n- Start Error Log -");
         // Do this to avoid ConcurrentModificationException in case error is reported while iterating through errors
         Iterator<ErrorReport> errorsIterator = ImmutableList.copyOf(errors).iterator();
         while (errorsIterator.hasNext()) {
@@ -38,6 +38,7 @@ public class ConcurrentErrorReporter {
             sb.append("\n\tSOURCE:\t").append(error.source());
             sb.append("\n\tERROR:\t").append(error.error());
         }
+        sb.append("\n- End Error Log -\n");
         return sb.toString();
     }
 
