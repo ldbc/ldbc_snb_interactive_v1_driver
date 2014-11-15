@@ -9,6 +9,7 @@ import com.ldbc.driver.validation.ClassNameWorkloadFactory;
 import com.ldbc.driver.validation.WorkloadFactory;
 
 import java.io.IOException;
+import java.text.DecimalFormat;
 import java.util.*;
 
 public class WorkloadStreams {
@@ -209,10 +210,12 @@ public class WorkloadStreams {
 
     // returns (limit_per_stream, minimum_dependency_timestamp, minimum_timestamp)
     public static Tuple.Tuple3<long[], Long, Long> fromAmongAllRetrieveTopK(List<Iterator<Operation<?>>> streams, long k) throws WorkloadException {
+        final DecimalFormat numberFormat = new DecimalFormat("###,###,###,###,###");
         long minimumDependencyTimeStamp = Long.MAX_VALUE;
         long minimumTimeStamp = Long.MAX_VALUE;
         long kSoFar = 0;
         long[] kForStream = new long[streams.size()];
+
         for (int i = 0; i < streams.size(); i++) {
             kForStream[i] = 0;
         }
@@ -255,7 +258,11 @@ public class WorkloadStreams {
             kForStream[indexOfMin] = kForStream[indexOfMin] + 1;
             streamHeads[indexOfMin] = null;
             kSoFar = kSoFar + 1;
+
+            if (kSoFar % 1000000 == 0)
+                System.out.print(String.format("Scanned %s of %s\r", numberFormat.format(kSoFar), numberFormat.format(k)));
         }
+
         return Tuple.tuple3(
                 kForStream,
                 minimumDependencyTimeStamp,
