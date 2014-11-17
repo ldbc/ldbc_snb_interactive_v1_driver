@@ -6,11 +6,14 @@ import stormpot.*;
 import java.util.concurrent.TimeUnit;
 
 public class PoolingOperationHandlerFactory implements OperationHandlerFactory {
+    private static final int INITIAL_POOL_SIZE = 512;
+    private static final int MAX_POOL_SIZE = (int) Math.round(Math.pow(2, 15)); // ~32,000
     private static final Timeout POOL_CLAIM_TIMEOUT = new Timeout(100, TimeUnit.MILLISECONDS);
     private static final Timeout POOL_CLAIM_AFTER_RESIZE_TIMEOUT = new Timeout(1000, TimeUnit.MILLISECONDS);
     private static final Timeout POOL_SHUTDOWN_TIMEOUT = new Timeout(10, TimeUnit.SECONDS);
     private final LifecycledResizablePool<OperationHandler<?>> operationHandlerPool;
     private final OperationHandlerFactory innerOperationHandlerFactory;
+    int highestSetPoolSize = 0;
 
     public PoolingOperationHandlerFactory(OperationHandlerFactory operationHandlerFactory) {
         this.innerOperationHandlerFactory = operationHandlerFactory;
@@ -18,7 +21,8 @@ public class PoolingOperationHandlerFactory implements OperationHandlerFactory {
         Config<OperationHandler<?>> operationHandlerPoolConfig = new Config<>();
         operationHandlerPoolConfig.setAllocator(operationHandlerAllocator);
         this.operationHandlerPool = new BlazePool<>(operationHandlerPoolConfig);
-        this.operationHandlerPool.setTargetSize(64);
+        this.operationHandlerPool.setTargetSize(INITIAL_POOL_SIZE);
+        this.highestSetPoolSize = INITIAL_POOL_SIZE;
     }
 
     @Override
@@ -26,12 +30,26 @@ public class PoolingOperationHandlerFactory implements OperationHandlerFactory {
         try {
             OperationHandler<?> operationHandler = operationHandlerPool.claim(POOL_CLAIM_TIMEOUT);
             while (null == operationHandler) {
-                operationHandlerPool.setTargetSize(operationHandlerPool.getTargetSize() * 2);
+                int currentPoolSize = operationHandlerPool.getTargetSize();
+                if (currentPoolSize < MAX_POOL_SIZE) {
+                    operationHandlerPool.setTargetSize(currentPoolSize * 2);
+                    highestSetPoolSize = currentPoolSize * 2;
+                }
                 operationHandler = operationHandlerPool.claim(POOL_CLAIM_AFTER_RESIZE_TIMEOUT);
             }
             return operationHandler;
-        } catch (InterruptedException e) {
-            throw new OperationException("Error encountered while attempting to allocate handler from pool", e);
+        } catch (Exception e) {
+            int currentPoolSize = operationHandlerPool.getTargetSize();
+            throw new OperationException(
+                    String.format("Error encountered while attempting to allocate handler from pool\n"
+                                    + "Max pool size: %s\n"
+                                    + "Highest set pool size: %s\n"
+                                    + "Current pool size: %s",
+                            MAX_POOL_SIZE,
+                            highestSetPoolSize,
+                            currentPoolSize),
+                    e
+            );
         }
     }
 
