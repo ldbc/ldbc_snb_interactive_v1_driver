@@ -1386,7 +1386,7 @@ public class LdbcSnbInteractiveWorkload extends Workload {
             operationAsList.add(ldbcQuery.getClass().getName());
             operationAsList.add(ldbcQuery.forumId());
             operationAsList.add(ldbcQuery.personId());
-            operationAsList.add(ldbcQuery.creationDate().getTime());
+            operationAsList.add(ldbcQuery.joinDate().getTime());
             try {
                 return OBJECT_MAPPER.writeValueAsString(operationAsList);
             } catch (IOException e) {

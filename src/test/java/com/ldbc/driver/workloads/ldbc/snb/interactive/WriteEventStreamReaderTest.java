@@ -114,7 +114,7 @@ public class WriteEventStreamReaderTest {
         assertThat(addForumMembership.dependencyTimeStamp(), is(666l));
         assertThat(addForumMembership.forumId(), is(2153L));
         assertThat(addForumMembership.personId(), is(372L));
-        assertThat(addForumMembership.creationDate(), equalTo(creationDate));
+        assertThat(addForumMembership.joinDate(), equalTo(creationDate));
 
         LdbcUpdate6AddPost addPost = (LdbcUpdate6AddPost) writeEventStreamReader.next();
         creationDate = new Date(1234567890l);
@@ -751,7 +751,7 @@ public class WriteEventStreamReaderTest {
         assertThat(addForumMembership.dependencyTimeStamp(), is(666l));
         assertThat(addForumMembership.forumId(), is(2153L));
         assertThat(addForumMembership.personId(), is(372L));
-        assertThat(addForumMembership.creationDate(), equalTo(creationDate));
+        assertThat(addForumMembership.joinDate(), equalTo(creationDate));
         assertThat(writeEventStreamReader.hasNext(), is(false));
     }
 

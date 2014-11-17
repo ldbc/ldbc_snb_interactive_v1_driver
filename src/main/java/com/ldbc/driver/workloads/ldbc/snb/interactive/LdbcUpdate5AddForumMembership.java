@@ -7,12 +7,12 @@ import java.util.Date;
 public class LdbcUpdate5AddForumMembership extends Operation<Object> {
     private final long forumId;
     private final long personId;
-    private final Date creationDate;
+    private final Date joinDate;
 
-    public LdbcUpdate5AddForumMembership(long forumId, long personId, Date creationDate) {
+    public LdbcUpdate5AddForumMembership(long forumId, long personId, Date joinDate) {
         this.forumId = forumId;
         this.personId = personId;
-        this.creationDate = creationDate;
+        this.joinDate = joinDate;
     }
 
     public long forumId() {
@@ -23,8 +23,8 @@ public class LdbcUpdate5AddForumMembership extends Operation<Object> {
         return personId;
     }
 
-    public Date creationDate() {
-        return creationDate;
+    public Date joinDate() {
+        return joinDate;
     }
 
     @Override
@@ -36,7 +36,7 @@ public class LdbcUpdate5AddForumMembership extends Operation<Object> {
 
         if (forumId != that.forumId) return false;
         if (personId != that.personId) return false;
-        if (creationDate != null ? !creationDate.equals(that.creationDate) : that.creationDate != null) return false;
+        if (joinDate != null ? !joinDate.equals(that.joinDate) : that.joinDate != null) return false;
 
         return true;
     }
@@ -45,7 +45,7 @@ public class LdbcUpdate5AddForumMembership extends Operation<Object> {
     public int hashCode() {
         int result = (int) (forumId ^ (forumId >>> 32));
         result = 31 * result + (int) (personId ^ (personId >>> 32));
-        result = 31 * result + (creationDate != null ? creationDate.hashCode() : 0);
+        result = 31 * result + (joinDate != null ? joinDate.hashCode() : 0);
         return result;
     }
 
@@ -54,7 +54,7 @@ public class LdbcUpdate5AddForumMembership extends Operation<Object> {
         return "LdbcUpdate5AddForumMembership{" +
                 "forumId=" + forumId +
                 ", personId=" + personId +
-                ", creationDate=" + creationDate +
+                ", joinDate=" + joinDate +
                 '}';
     }
 
