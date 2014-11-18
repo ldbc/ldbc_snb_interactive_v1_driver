@@ -8,7 +8,7 @@ public class ClassLoaderHelper {
     /**
      * DB
      */
-    synchronized public static Db loadDb(String dbClassName) throws DbException {
+    public static Db loadDb(String dbClassName) throws DbException {
         try {
             return loadDb(loadClass(dbClassName, Db.class));
         } catch (ClassLoadingException e) {
@@ -16,7 +16,7 @@ public class ClassLoaderHelper {
         }
     }
 
-    synchronized public static Db loadDb(Class<? extends Db> dbClass) throws DbException {
+    public static Db loadDb(Class<? extends Db> dbClass) throws DbException {
         try {
             return dbClass.getConstructor().newInstance();
         } catch (Exception e) {
@@ -27,7 +27,7 @@ public class ClassLoaderHelper {
     /**
      * Workload
      */
-    synchronized public static Workload loadWorkload(String workloadClassName) throws WorkloadException {
+    public static Workload loadWorkload(String workloadClassName) throws WorkloadException {
         try {
             return loadWorkload(loadClass(workloadClassName, Workload.class));
         } catch (ClassLoadingException e) {
@@ -35,7 +35,7 @@ public class ClassLoaderHelper {
         }
     }
 
-    synchronized public static Workload loadWorkload(Class<? extends Workload> workloadClass) throws WorkloadException {
+    public static Workload loadWorkload(Class<? extends Workload> workloadClass) throws WorkloadException {
         try {
             return workloadClass.getConstructor().newInstance();
         } catch (Exception e) {
@@ -43,27 +43,13 @@ public class ClassLoaderHelper {
         }
     }
 
-    /**
-     * OperationHandler
-     */
-    synchronized public static Constructor<? extends OperationHandler> loadOperationHandlerConstructor(Class<? extends OperationHandler> operationHandlerClass) throws OperationException {
-        try {
-            Constructor<? extends OperationHandler> operationHandlerConstructor = operationHandlerClass.getConstructor();
-            return operationHandlerConstructor;
-        } catch (Exception e) {
-            throw new OperationException(
-                    String.format("Error creating OperationHandler [%s] with Operation [%s]", operationHandlerClass.getName()),
-                    e);
-        }
-    }
-
-    synchronized public static OperationHandler<?> loadOperationHandler(Class<? extends OperationHandler> operationHandlerClass) throws OperationException {
+    public static OperationHandler<?> loadOperationHandler(Class<? extends OperationHandler> operationHandlerClass) throws OperationException {
         try {
             OperationHandler<?> operationHandler = operationHandlerClass.getConstructor().newInstance();
             return operationHandler;
         } catch (Exception e) {
             throw new OperationException(
-                    String.format("Error creating OperationHandler [%s] with Operation [%s]", operationHandlerClass.getName()),
+                    String.format("Error creating OperationHandler [%s]", operationHandlerClass.getName()),
                     e);
         }
     }
@@ -71,7 +57,7 @@ public class ClassLoaderHelper {
     /**
      * Helper Methods
      */
-    synchronized public static <C> Class<? extends C> loadClass(String className, Class<C> baseClass) throws ClassLoadingException {
+    public static <C> Class<? extends C> loadClass(String className, Class<C> baseClass) throws ClassLoadingException {
         try {
             ClassLoader classLoader = ClassLoaderHelper.class.getClassLoader();
             Class<?> loadedClass = classLoader.loadClass(className);
@@ -82,7 +68,7 @@ public class ClassLoaderHelper {
         }
     }
 
-    synchronized public static Class<?> loadClass(String className) throws ClassLoadingException {
+    public static Class<?> loadClass(String className) throws ClassLoadingException {
         try {
             ClassLoader classLoader = ClassLoaderHelper.class.getClassLoader();
             Class<?> loadedClass = classLoader.loadClass(className);
