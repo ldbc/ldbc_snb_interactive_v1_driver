@@ -411,6 +411,26 @@ public class GeneratorFactory {
      * @param generators
      * @return
      */
+    public Iterator<Operation<?>> mergeSortOperationsByScheduledStartTime(Iterator<Operation<?>>... generators) {
+        return mergeSort(
+                new Comparator<Operation<?>>() {
+                    @Override
+                    public int compare(Operation<?> o1, Operation<?> o2) {
+                        if (o1.scheduledStartTimeAsMilli() > o2.scheduledStartTimeAsMilli()) return 1;
+                        else if (o1.scheduledStartTimeAsMilli() < o2.scheduledStartTimeAsMilli()) return -1;
+                        else return 0;
+                    }
+                },
+                generators
+        );
+    }
+
+    /**
+     * Returned generator will merge all input generators into one, sorting on the time stamp of operations, ascending
+     *
+     * @param generators
+     * @return
+     */
     public Iterator<Operation<?>> mergeSortOperationsByTimeStamp(Iterator<Operation<?>>... generators) {
         return mergeSort(
                 new Comparator<Operation<?>>() {
