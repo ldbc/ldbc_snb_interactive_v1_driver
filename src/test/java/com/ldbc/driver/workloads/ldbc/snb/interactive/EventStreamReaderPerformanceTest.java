@@ -52,7 +52,7 @@ public class EventStreamReaderPerformanceTest {
                     }
                 }
         )) {
-            CharSeeker charSeeker = new BufferedCharSeeker(new InputStreamReader(new FileInputStream(personUpdateFile), Charsets.UTF_8), bufferSize);
+            CharSeeker charSeeker = new BufferedCharSeeker(Readables.wrap(new InputStreamReader(new FileInputStream(personUpdateFile), Charsets.UTF_8)), bufferSize);
             int columnDelimiter = '|';
             Extractors extractors = new Extractors(';');
             parsers.add(new WriteEventStreamReaderCharSeeker(charSeeker, extractors, columnDelimiter));
@@ -66,7 +66,7 @@ public class EventStreamReaderPerformanceTest {
                     }
                 }
         )) {
-            CharSeeker charSeeker = new BufferedCharSeeker(new InputStreamReader(new FileInputStream(forumUpdateFile), Charsets.UTF_8), bufferSize);
+            CharSeeker charSeeker = new BufferedCharSeeker(Readables.wrap(new InputStreamReader(new FileInputStream(forumUpdateFile), Charsets.UTF_8)), bufferSize);
             int columnDelimiter = '|';
             Extractors extractors = new Extractors(';');
             parsers.add(new WriteEventStreamReaderCharSeeker(charSeeker, extractors, columnDelimiter));
@@ -83,12 +83,7 @@ public class EventStreamReaderPerformanceTest {
 
             unsafeOperations = removeOperationsWithScheduledStartTimeBefore(unsafeOperations, operation.timeStamp(), safeTime);
 
-            // TODO 5497558263122
-
             if (operation.getClass().equals(LdbcUpdate1AddPerson.class)) {
-                // TODO remove
-                if (((LdbcUpdate1AddPerson) operation).personId() == 5497558263122l)
-                    System.out.println("ADDED! " + operation.timeStamp());
                 unsafeOperations.add(operation);
             } else if (operation.getClass().equals(LdbcUpdate2AddPostLike.class)) {
                 long personId = ((LdbcUpdate2AddPostLike) operation).personId();
@@ -102,9 +97,6 @@ public class EventStreamReaderPerformanceTest {
                         dependentOn, is(nullValue()));
             } else if (operation.getClass().equals(LdbcUpdate4AddForum.class)) {
                 long personId = ((LdbcUpdate4AddForum) operation).moderatorPersonId();
-                // TODO remove
-                if (personId == 5497558263122l)
-                    System.out.println("ACCESSED! " + operation.timeStamp());
                 Operation<?> dependentOn = isDependentOnUnsafeOperation(unsafeOperations, personId);
                 assertThat(String.format("\n%s - %s\n%s - %s", operation.timeStamp(), operation, (null == dependentOn) ? "" : dependentOn.timeStamp(), dependentOn),
                         dependentOn, is(nullValue()));
@@ -152,7 +144,7 @@ public class EventStreamReaderPerformanceTest {
         }
         return remainingOperations;
     }
-    
+
     @Ignore
     @Test
     public void multiThreadedMultiPartitionParserPerformanceTest() throws FileNotFoundException, InterruptedException, CompletionTimeException {
@@ -169,7 +161,7 @@ public class EventStreamReaderPerformanceTest {
                     }
                 }
         )) {
-            CharSeeker charSeeker = new BufferedCharSeeker(new InputStreamReader(new FileInputStream(personUpdateFile), Charsets.UTF_8), bufferSize);
+            CharSeeker charSeeker = new BufferedCharSeeker(Readables.wrap(new InputStreamReader(new FileInputStream(personUpdateFile), Charsets.UTF_8)), bufferSize);
             int columnDelimiter = '|';
             Extractors extractors = new Extractors(';');
             parsers.add(
@@ -196,7 +188,7 @@ public class EventStreamReaderPerformanceTest {
                     }
                 }
         )) {
-            CharSeeker charSeeker = new BufferedCharSeeker(new InputStreamReader(new FileInputStream(forumUpdateFile), Charsets.UTF_8), bufferSize);
+            CharSeeker charSeeker = new BufferedCharSeeker(Readables.wrap(new InputStreamReader(new FileInputStream(forumUpdateFile), Charsets.UTF_8)), bufferSize);
             int columnDelimiter = '|';
             Extractors extractors = new Extractors(';');
             parsers.add(
@@ -315,7 +307,7 @@ public class EventStreamReaderPerformanceTest {
             long lines = 0;
             long startTimeAsMilli = timeSource.nowAsMilli();
             for (int i = 0; i < repetitions; i++) {
-                CharSeeker charSeeker = new BufferedCharSeeker(new FileReader(paramsFile), bufferSize);
+                CharSeeker charSeeker = new BufferedCharSeeker(Readables.wrap(new FileReader(paramsFile)), bufferSize);
                 Extractors extractors = new Extractors(';');
                 Mark mark = new Mark();
                 int columnDelimiter = '|';
@@ -356,7 +348,7 @@ public class EventStreamReaderPerformanceTest {
             long lines = 0;
             long startTimeAsMilli = timeSource.nowAsMilli();
             for (int i = 0; i < repetitions; i++) {
-                CharSeeker charSeeker = new BufferedCharSeeker(new FileReader(paramsFile), bufferSize);
+                CharSeeker charSeeker = new BufferedCharSeeker(Readables.wrap(new FileReader(paramsFile)), bufferSize);
                 Extractors extractors = new Extractors(';');
                 Mark mark = new Mark();
                 int columnDelimiter = '|';
@@ -400,7 +392,7 @@ public class EventStreamReaderPerformanceTest {
             long lines = 0;
             long startTimeAsMilli = timeSource.nowAsMilli();
             for (int i = 0; i < repetitions; i++) {
-                CharSeeker charSeeker = new BufferedCharSeeker(new FileReader(paramsFile), bufferSize);
+                CharSeeker charSeeker = new BufferedCharSeeker(Readables.wrap(new FileReader(paramsFile)), bufferSize);
                 Extractors extractors = new Extractors(';');
                 Mark mark = new Mark();
                 int columnDelimiter = '|';
@@ -462,7 +454,7 @@ public class EventStreamReaderPerformanceTest {
             for (int i = 0; i < repetitions; i++) {
 
                 EventDecoder<Object[]> decoder1 = new Query1EventStreamReader.Query1Decoder();
-                CharSeeker charSeeker1 = new BufferedCharSeeker(new FileReader(new File(parentStreamsDir, "query_1_param.txt")), bufferSize);
+                CharSeeker charSeeker1 = new BufferedCharSeeker(Readables.wrap(new FileReader(new File(parentStreamsDir, "query_1_param.txt"))), bufferSize);
                 Mark mark1 = new Mark();
                 // skip headers
                 charSeeker1.seek(mark1, new int[]{columnDelimiter});
@@ -483,7 +475,7 @@ public class EventStreamReaderPerformanceTest {
                 );
 
                 EventDecoder<Object[]> decoder2 = new Query2EventStreamReader.Query2Decoder();
-                CharSeeker charSeeker2 = new BufferedCharSeeker(new FileReader(new File(parentStreamsDir, "query_2_param.txt")), bufferSize);
+                CharSeeker charSeeker2 = new BufferedCharSeeker(Readables.wrap(new FileReader(new File(parentStreamsDir, "query_2_param.txt"))), bufferSize);
                 Mark mark2 = new Mark();
                 // skip headers
                 charSeeker2.seek(mark2, new int[]{columnDelimiter});
@@ -504,7 +496,7 @@ public class EventStreamReaderPerformanceTest {
                 );
 
                 EventDecoder<Object[]> decoder3 = new Query3EventStreamReader.Query3Decoder();
-                CharSeeker charSeeker3 = new BufferedCharSeeker(new FileReader(new File(parentStreamsDir, "query_3_param.txt")), bufferSize);
+                CharSeeker charSeeker3 = new BufferedCharSeeker(Readables.wrap(new FileReader(new File(parentStreamsDir, "query_3_param.txt"))), bufferSize);
                 Mark mark3 = new Mark();
                 // skip headers
                 charSeeker3.seek(mark3, new int[]{columnDelimiter});
@@ -528,7 +520,7 @@ public class EventStreamReaderPerformanceTest {
                 );
 
                 EventDecoder<Object[]> decoder4 = new Query4EventStreamReader.Query4Decoder();
-                CharSeeker charSeeker4 = new BufferedCharSeeker(new FileReader(new File(parentStreamsDir, "query_4_param.txt")), bufferSize);
+                CharSeeker charSeeker4 = new BufferedCharSeeker(Readables.wrap(new FileReader(new File(parentStreamsDir, "query_4_param.txt"))), bufferSize);
                 Mark mark4 = new Mark();
                 // skip headers
                 charSeeker4.seek(mark4, new int[]{columnDelimiter});
@@ -550,7 +542,7 @@ public class EventStreamReaderPerformanceTest {
                 );
 
                 EventDecoder<Object[]> decoder5 = new Query5EventStreamReader.Query5Decoder();
-                CharSeeker charSeeker5 = new BufferedCharSeeker(new FileReader(new File(parentStreamsDir, "query_5_param.txt")), bufferSize);
+                CharSeeker charSeeker5 = new BufferedCharSeeker(Readables.wrap(new FileReader(new File(parentStreamsDir, "query_5_param.txt"))), bufferSize);
                 Mark mark5 = new Mark();
                 // skip headers
                 charSeeker5.seek(mark5, new int[]{columnDelimiter});
@@ -571,7 +563,7 @@ public class EventStreamReaderPerformanceTest {
                 );
 
                 EventDecoder<Object[]> decoder6 = new Query6EventStreamReader.Query6Decoder();
-                CharSeeker charSeeker6 = new BufferedCharSeeker(new FileReader(new File(parentStreamsDir, "query_6_param.txt")), bufferSize);
+                CharSeeker charSeeker6 = new BufferedCharSeeker(Readables.wrap(new FileReader(new File(parentStreamsDir, "query_6_param.txt"))), bufferSize);
                 Mark mark6 = new Mark();
                 // skip headers
                 charSeeker6.seek(mark6, new int[]{columnDelimiter});
@@ -592,7 +584,7 @@ public class EventStreamReaderPerformanceTest {
                 );
 
                 EventDecoder<Object[]> decoder7 = new Query7EventStreamReader.Query7Decoder();
-                CharSeeker charSeeker7 = new BufferedCharSeeker(new FileReader(new File(parentStreamsDir, "query_7_param.txt")), bufferSize);
+                CharSeeker charSeeker7 = new BufferedCharSeeker(Readables.wrap(new FileReader(new File(parentStreamsDir, "query_7_param.txt"))), bufferSize);
                 Mark mark7 = new Mark();
                 // skip headers
                 charSeeker7.seek(mark7, new int[]{columnDelimiter});
@@ -612,7 +604,7 @@ public class EventStreamReaderPerformanceTest {
                 );
 
                 EventDecoder<Object[]> decoder8 = new Query8EventStreamReader.Query8Decoder();
-                CharSeeker charSeeker8 = new BufferedCharSeeker(new FileReader(new File(parentStreamsDir, "query_8_param.txt")), bufferSize);
+                CharSeeker charSeeker8 = new BufferedCharSeeker(Readables.wrap(new FileReader(new File(parentStreamsDir, "query_8_param.txt"))), bufferSize);
                 Mark mark8 = new Mark();
                 // skip headers
                 charSeeker8.seek(mark8, new int[]{columnDelimiter});
@@ -632,7 +624,7 @@ public class EventStreamReaderPerformanceTest {
                 );
 
                 EventDecoder<Object[]> decoder9 = new Query9EventStreamReader.Query9Decoder();
-                CharSeeker charSeeker9 = new BufferedCharSeeker(new FileReader(new File(parentStreamsDir, "query_9_param.txt")), bufferSize);
+                CharSeeker charSeeker9 = new BufferedCharSeeker(Readables.wrap(new FileReader(new File(parentStreamsDir, "query_9_param.txt"))), bufferSize);
                 Mark mark9 = new Mark();
                 // skip headers
                 charSeeker9.seek(mark9, new int[]{columnDelimiter});
@@ -653,7 +645,7 @@ public class EventStreamReaderPerformanceTest {
                 );
 
                 EventDecoder<Object[]> decoder10 = new Query10EventStreamReader.Query10Decoder();
-                CharSeeker charSeeker10 = new BufferedCharSeeker(new FileReader(new File(parentStreamsDir, "query_10_param.txt")), bufferSize);
+                CharSeeker charSeeker10 = new BufferedCharSeeker(Readables.wrap(new FileReader(new File(parentStreamsDir, "query_10_param.txt"))), bufferSize);
                 Mark mark10 = new Mark();
                 // skip headers
                 charSeeker10.seek(mark10, new int[]{columnDelimiter});
@@ -674,7 +666,7 @@ public class EventStreamReaderPerformanceTest {
                 );
 
                 EventDecoder<Object[]> decoder11 = new Query11EventStreamReader.Query11Decoder();
-                CharSeeker charSeeker11 = new BufferedCharSeeker(new FileReader(new File(parentStreamsDir, "query_11_param.txt")), bufferSize);
+                CharSeeker charSeeker11 = new BufferedCharSeeker(Readables.wrap(new FileReader(new File(parentStreamsDir, "query_11_param.txt"))), bufferSize);
                 Mark mark11 = new Mark();
                 // skip headers
                 charSeeker11.seek(mark11, new int[]{columnDelimiter});
@@ -696,7 +688,7 @@ public class EventStreamReaderPerformanceTest {
                 );
 
                 EventDecoder<Object[]> decoder12 = new Query12EventStreamReader.Query12Decoder();
-                CharSeeker charSeeker12 = new BufferedCharSeeker(new FileReader(new File(parentStreamsDir, "query_12_param.txt")), bufferSize);
+                CharSeeker charSeeker12 = new BufferedCharSeeker(Readables.wrap(new FileReader(new File(parentStreamsDir, "query_12_param.txt"))), bufferSize);
                 Mark mark12 = new Mark();
                 // skip headers
                 charSeeker12.seek(mark12, new int[]{columnDelimiter});
@@ -717,7 +709,7 @@ public class EventStreamReaderPerformanceTest {
                 );
 
                 EventDecoder<Object[]> decoder13 = new Query13EventStreamReader.Query13Decoder();
-                CharSeeker charSeeker13 = new BufferedCharSeeker(new FileReader(new File(parentStreamsDir, "query_13_param.txt")), bufferSize);
+                CharSeeker charSeeker13 = new BufferedCharSeeker(Readables.wrap(new FileReader(new File(parentStreamsDir, "query_13_param.txt"))), bufferSize);
                 Mark mark13 = new Mark();
                 // skip headers
                 charSeeker13.seek(mark13, new int[]{columnDelimiter});
@@ -738,7 +730,7 @@ public class EventStreamReaderPerformanceTest {
                 );
 
                 EventDecoder<Object[]> decoder14 = new Query14EventStreamReader.Query14Decoder();
-                CharSeeker charSeeker14 = new BufferedCharSeeker(new FileReader(new File(parentStreamsDir, "query_14_param.txt")), bufferSize);
+                CharSeeker charSeeker14 = new BufferedCharSeeker(Readables.wrap(new FileReader(new File(parentStreamsDir, "query_14_param.txt"))), bufferSize);
                 Mark mark14 = new Mark();
                 // skip headers
                 charSeeker14.seek(mark14, new int[]{columnDelimiter});
@@ -848,7 +840,7 @@ public class EventStreamReaderPerformanceTest {
         int bufferSize = 2 * MB;
         long lines = 0;
         long startTimeAsMilli = timeSource.nowAsMilli();
-        CharSeeker charSeeker = new BufferedCharSeeker(new InputStreamReader(new FileInputStream(forumUpdateStream), Charsets.UTF_8), bufferSize);
+        CharSeeker charSeeker = new BufferedCharSeeker(Readables.wrap(new InputStreamReader(new FileInputStream(forumUpdateStream), Charsets.UTF_8)), bufferSize);
         int columnDelimiter = '|';
         Extractors extractors = new Extractors(';');
         WriteEventStreamReaderCharSeeker writeEventStreamReader = new WriteEventStreamReaderCharSeeker(charSeeker, extractors, columnDelimiter);
@@ -904,7 +896,7 @@ public class EventStreamReaderPerformanceTest {
         int bufferSize = 2 * MB;
         long lines = 0;
         long startTimeAsMilli = timeSource.nowAsMilli();
-        CharSeeker charSeeker = new BufferedCharSeeker(new InputStreamReader(new FileInputStream(forumUpdateStream), Charsets.UTF_8), bufferSize);
+        CharSeeker charSeeker = new BufferedCharSeeker(Readables.wrap(new InputStreamReader(new FileInputStream(forumUpdateStream), Charsets.UTF_8)), bufferSize);
         int columnDelimiter = '|';
         Extractors extractors = new Extractors(';');
         WriteEventStreamReaderCharSeeker writeEventStreamReader = new WriteEventStreamReaderCharSeeker(charSeeker, extractors, columnDelimiter);
@@ -1055,7 +1047,7 @@ public class EventStreamReaderPerformanceTest {
                 long lines = 0;
                 long startTimeAsMilli = timeSource.nowAsMilli();
                 for (int i = 0; i < repetitions; i++) {
-                    CharSeeker charSeeker = new BufferedCharSeeker(new InputStreamReader(new FileInputStream(forumUpdateStream), Charsets.UTF_8), bufferSize);
+                    CharSeeker charSeeker = new BufferedCharSeeker(Readables.wrap(new InputStreamReader(new FileInputStream(forumUpdateStream), Charsets.UTF_8)), bufferSize);
                     int columnDelimiter = '|';
                     Extractors extractors = new Extractors(';');
                     WriteEventStreamReaderCharSeeker writeEventStreamReader = new WriteEventStreamReaderCharSeeker(charSeeker, extractors, columnDelimiter);
@@ -1080,8 +1072,8 @@ public class EventStreamReaderPerformanceTest {
                 long lines = 0;
                 long startTimeAsMilli = timeSource.nowAsMilli();
                 for (int i = 0; i < repetitions; i++) {
-                    Readable readable = new InputStreamReader(new FileInputStream(forumUpdateStream), Charsets.UTF_8);
-                    CharSeeker charSeeker = new BufferedCharSeeker(ThreadAheadReadable.threadAhead(readable, bufferSize), bufferSize);
+                    Reader reader = new InputStreamReader(new FileInputStream(forumUpdateStream), Charsets.UTF_8);
+                    CharSeeker charSeeker = new BufferedCharSeeker(ThreadAheadReadable.threadAhead(Readables.wrap(reader), bufferSize), bufferSize);
                     int columnDelimiter = '|';
                     Extractors extractors = new Extractors(';');
                     WriteEventStreamReaderCharSeeker writeEventStreamReader = new WriteEventStreamReaderCharSeeker(charSeeker, extractors, columnDelimiter);
@@ -1114,7 +1106,7 @@ public class EventStreamReaderPerformanceTest {
     }
 
     public long doCharSeekerPerformanceTest(File forumUpdateStream, int bufferSize) throws IOException {
-        CharSeeker seeker = new BufferedCharSeeker(new FileReader(forumUpdateStream), bufferSize);
+        CharSeeker seeker = new BufferedCharSeeker(Readables.wrap(new FileReader(forumUpdateStream)), bufferSize);
         long lines = 0;
         Mark mark = new Mark();
         int[] delimiters = new int[]{'|'};
@@ -1129,7 +1121,7 @@ public class EventStreamReaderPerformanceTest {
     }
 
     public long doThreadedCharSeekerPerformanceTest(File forumUpdateStream, int bufferSize) throws IOException {
-        CharSeeker seeker = new BufferedCharSeeker(ThreadAheadReadable.threadAhead(new FileReader(forumUpdateStream), bufferSize), bufferSize);
+        CharSeeker seeker = new BufferedCharSeeker(ThreadAheadReadable.threadAhead(Readables.wrap(new FileReader(forumUpdateStream)), bufferSize), bufferSize);
         long lines = 0;
         Mark mark = new Mark();
         int[] delimiters = new int[]{'|'};

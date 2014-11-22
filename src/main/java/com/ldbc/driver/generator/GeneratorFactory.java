@@ -579,8 +579,6 @@ public class GeneratorFactory {
         return new TimeMappingOperationGenerator(generator, newStartTimeAsMilli, compressionRatio);
     }
 
-    // TODO window generator
-
     /**
      * Prefix every generated item with prefix string
      *

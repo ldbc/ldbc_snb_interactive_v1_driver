@@ -23,11 +23,7 @@ public interface DriverConfiguration {
 
     double timeCompressionRatio();
 
-    long windowedExecutionWindowDurationAsMilli();
-
     Set<String> peerIds();
-
-    long toleratedExecutionDelayAsMilli();
 
     ValidationParamOptions validationParamsCreationOptions();
 

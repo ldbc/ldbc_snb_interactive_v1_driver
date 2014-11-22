@@ -12,7 +12,9 @@ import com.ldbc.driver.temporal.SystemTimeSource;
 import com.ldbc.driver.temporal.TemporalUtil;
 import com.ldbc.driver.temporal.TimeSource;
 import com.ldbc.driver.testutils.TestUtils;
-import com.ldbc.driver.util.*;
+import com.ldbc.driver.util.Bucket;
+import com.ldbc.driver.util.Histogram;
+import com.ldbc.driver.util.MapUtils;
 import com.ldbc.driver.workloads.ldbc.snb.interactive.db.DummyLdbcSnbInteractiveDb;
 import com.ldbc.driver.workloads.ldbc.snb.interactive.db.DummyLdbcSnbInteractiveOperationInstances;
 import org.junit.Rule;
@@ -62,9 +64,7 @@ public class LdbcSnbInteractiveWorkloadReadTest {
         TimeUnit timeUnit = TimeUnit.MILLISECONDS;
         String resultDirPath = temporaryFolder.newFolder().getAbsolutePath();
         double timeCompressionRatio = 1.0;
-        long windowedExecutionWindowDurationAsMilli = 1000l;
         Set<String> peerIds = new HashSet<>();
-        long toleratedExecutionDelayAsMilli = temporalUtil.convert(60, TimeUnit.MINUTES, TimeUnit.MILLISECONDS);
         ConsoleAndFileDriverConfiguration.ConsoleAndFileValidationParamOptions validationParams = null;
         String dbValidationFilePath = null;
         boolean validateWorkload = false;
@@ -85,9 +85,7 @@ public class LdbcSnbInteractiveWorkloadReadTest {
                 timeUnit,
                 resultDirPath,
                 timeCompressionRatio,
-                windowedExecutionWindowDurationAsMilli,
                 peerIds,
-                toleratedExecutionDelayAsMilli,
                 validationParams,
                 dbValidationFilePath,
                 validateWorkload,
@@ -210,9 +208,7 @@ public class LdbcSnbInteractiveWorkloadReadTest {
         TimeUnit timeUnit = TimeUnit.MILLISECONDS;
         String resultDirPath = null;
         double timeCompressionRatio = 1.0;
-        long windowedExecutionWindowDurationAsMilli = 1000l;
         Set<String> peerIds = new HashSet<>();
-        long toleratedExecutionDelayAsMilli = temporalUtil.convert(60, TimeUnit.MINUTES, TimeUnit.MILLISECONDS);
         ConsoleAndFileDriverConfiguration.ConsoleAndFileValidationParamOptions validationParams =
                 new ConsoleAndFileDriverConfiguration.ConsoleAndFileValidationParamOptions(validationParamsFile.getAbsolutePath(), 1000);
         String dbValidationFilePath = null;
@@ -234,9 +230,7 @@ public class LdbcSnbInteractiveWorkloadReadTest {
                 timeUnit,
                 resultDirPath,
                 timeCompressionRatio,
-                windowedExecutionWindowDurationAsMilli,
                 peerIds,
-                toleratedExecutionDelayAsMilli,
                 validationParams,
                 dbValidationFilePath,
                 validateWorkload,
@@ -278,9 +272,7 @@ public class LdbcSnbInteractiveWorkloadReadTest {
                 timeUnit,
                 resultDirPath,
                 timeCompressionRatio,
-                windowedExecutionWindowDurationAsMilli,
                 peerIds,
-                toleratedExecutionDelayAsMilli,
                 validationParams,
                 dbValidationFilePath,
                 validateWorkload,
@@ -326,9 +318,7 @@ public class LdbcSnbInteractiveWorkloadReadTest {
         TimeUnit timeUnit = TimeUnit.MILLISECONDS;
         String resultDirPath = null;
         double timeCompressionRatio = 1.0;
-        long windowedExecutionWindowDurationAsMilli = 1000l;
         Set<String> peerIds = new HashSet<>();
-        long toleratedExecutionDelayAsMilli = temporalUtil.convert(1, TimeUnit.HOURS, TimeUnit.MILLISECONDS);
         ConsoleAndFileDriverConfiguration.ConsoleAndFileValidationParamOptions validationParams = null;
         String dbValidationFilePath = null;
         boolean validateWorkload = true;
@@ -349,9 +339,7 @@ public class LdbcSnbInteractiveWorkloadReadTest {
                 timeUnit,
                 resultDirPath,
                 timeCompressionRatio,
-                windowedExecutionWindowDurationAsMilli,
                 peerIds,
-                toleratedExecutionDelayAsMilli,
                 validationParams,
                 dbValidationFilePath,
                 validateWorkload,
@@ -391,9 +379,7 @@ public class LdbcSnbInteractiveWorkloadReadTest {
         TimeUnit timeUnit = TimeUnit.MILLISECONDS;
         String resultDirPath = temporaryFolder.newFolder().getAbsolutePath();
         double timeCompressionRatio = 1.0;
-        long windowedExecutionWindowDurationAsMilli = 1000l;
         Set<String> peerIds = new HashSet<>();
-        long toleratedExecutionDelayAsMilli = temporalUtil.convert(1, TimeUnit.HOURS, TimeUnit.MILLISECONDS);
         ConsoleAndFileDriverConfiguration.ConsoleAndFileValidationParamOptions validationParams = null;
         String dbValidationFilePath = null;
         boolean validateWorkload = false;
@@ -416,9 +402,7 @@ public class LdbcSnbInteractiveWorkloadReadTest {
                 timeUnit,
                 resultDirPath,
                 timeCompressionRatio,
-                windowedExecutionWindowDurationAsMilli,
                 peerIds,
-                toleratedExecutionDelayAsMilli,
                 validationParams,
                 dbValidationFilePath,
                 validateWorkload,
@@ -618,9 +602,7 @@ public class LdbcSnbInteractiveWorkloadReadTest {
         TimeUnit timeUnit = TimeUnit.MILLISECONDS;
         String resultDirPath = temporaryFolder.newFolder().getAbsolutePath();
         double timeCompressionRatio = 1.0;
-        long windowedExecutionWindowDurationAsMilli = 1000l;
         Set<String> peerIds = new HashSet<>();
-        long toleratedExecutionDelayAsMilli = 1000l;
         ConsoleAndFileDriverConfiguration.ConsoleAndFileValidationParamOptions validationParams = null;
         String dbValidationFilePath = null;
         boolean validateWorkload = false;
@@ -643,9 +625,7 @@ public class LdbcSnbInteractiveWorkloadReadTest {
                 timeUnit,
                 resultDirPath,
                 timeCompressionRatio,
-                windowedExecutionWindowDurationAsMilli,
                 peerIds,
-                toleratedExecutionDelayAsMilli,
                 validationParams,
                 dbValidationFilePath,
                 validateWorkload,

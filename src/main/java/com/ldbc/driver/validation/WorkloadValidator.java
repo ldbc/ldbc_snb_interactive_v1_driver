@@ -20,19 +20,15 @@ import java.util.Map;
 
 import static com.ldbc.driver.validation.WorkloadValidationResult.ResultType;
 
-// TODO add check that all ExecutionMode:GctMode combinations make sense (e.g., Partial+GctNone does not make sense unless window size can somehow be specified)
 // TODO the below could be used as a guide for how to do this
 // Synchronous      NONE    makesSense(y)    dependencyTime(n)  startTimeDependencyTimeDifference(n)
 // Asynchronous     NONE    makesSense(y)    dependencyTime(n)  startTimeDependencyTimeDifference(n)
-// Windowed         NONE    makesSense(n)
 //
 // Synchronous      READ    makesSense(y)    dependencyTime(y)  startTimeDependencyTimeDifference(>=0)
 // Asynchronous     READ    makesSense(y)    dependencyTime(y)  startTimeDependencyTimeDifference(>=0)
-// Windowed         READ    makesSense(y)    dependencyTime(y)  startTimeDependencyTimeDifference(>=windowDuration)
 //
 // Synchronous      READ_WRITE    makesSense(y)    dependencyTime(y)  startTimeDependencyTimeDifference(>=0)
 // Asynchronous     READ_WRITE    makesSense(y)    dependencyTime(y)  startTimeDependencyTimeDifference(>=0)
-// Windowed         READ_WRITE    makesSense(y)    dependencyTime(y)  startTimeDependencyTimeDifference(>=windowDuration)
 
 // TODO add test for ResultType.SCHEDULED_START_TIME_INTERVAL_EXCEEDS_MAXIMUM_FOR_SCHEDULING_MODE
 public class WorkloadValidator {

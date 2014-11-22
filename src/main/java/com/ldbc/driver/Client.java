@@ -12,8 +12,6 @@ import com.ldbc.driver.runtime.coordination.CompletionTimeServiceAssistant;
 import com.ldbc.driver.runtime.coordination.ConcurrentCompletionTimeService;
 import com.ldbc.driver.runtime.coordination.LocalCompletionTimeWriter;
 import com.ldbc.driver.runtime.metrics.*;
-import com.ldbc.driver.runtime.scheduling.ErrorReportingTerminatingExecutionDelayPolicy;
-import com.ldbc.driver.runtime.scheduling.ExecutionDelayPolicy;
 import com.ldbc.driver.temporal.SystemTimeSource;
 import com.ldbc.driver.temporal.TemporalUtil;
 import com.ldbc.driver.temporal.TimeSource;
@@ -213,12 +211,6 @@ public class Client {
                         String.format("Error while instantiating Completion Time Service with peer IDs %s", controlService.configuration().peerIds().toString()), e);
             }
 
-            boolean recordStartTimeDelayLatency = false == controlService.configuration().ignoreScheduledStartTimes();
-            ExecutionDelayPolicy executionDelayPolicy = new ErrorReportingTerminatingExecutionDelayPolicy(
-                    timeSource,
-                    controlService.configuration().toleratedExecutionDelayAsMilli(),
-                    errorReporter);
-
             if (null != controlService.configuration().resultDirPath() && controlService.configuration().shouldCreateResultsLog()) {
                 File resultDir = new File(controlService.configuration().resultDirPath());
                 File resultsLog = new File(resultDir, controlService.configuration().name() + ThreadedQueuedConcurrentMetricsService.RESULTS_LOG_FILENAME_SUFFIX);
@@ -243,8 +235,6 @@ public class Client {
                     errorReporter,
                     controlService.configuration().timeUnit(),
                     ThreadedQueuedConcurrentMetricsService.DEFAULT_HIGHEST_EXPECTED_RUNTIME_DURATION_AS_NANO,
-                    recordStartTimeDelayLatency,
-                    executionDelayPolicy,
                     csvResultsLogFileWriter);
             GeneratorFactory gf = new GeneratorFactory(new RandomDataGeneratorFactory(RANDOM_SEED));
 
@@ -274,21 +264,6 @@ public class Client {
             } catch (WorkloadException e) {
                 throw new ClientException("Error while retrieving operation stream for workload", e);
             }
-
-            // TODO replace
-            // TODO controlService.configuration().windowedExecutionWindowDuration().gt(controlService.configuration().compressedGctDeltaDuration())
-            // TODO with
-            // TODO controlService.configuration().windowedExecutionWindowDuration().gt(MIN_GAP_BETWEEN_DEPENDENT_OPERATIONS)
-//            if (controlService.configuration().windowedExecutionWindowDuration().gt(controlService.configuration().compressedGctDeltaDuration()))
-//                throw new ClientException(
-//                        String.format(""
-//                                + "Windowed-execution window duration may not exceed GCT delta duration\n"
-//                                + "  GCT Delta: %s\n"
-//                                + "  Compressed GCT Delta: %s\n"
-//                                + "  Window Duration: %s",
-//                                controlService.configuration().gctDeltaDuration(),
-//                                controlService.configuration().compressedGctDeltaDuration(),
-//                                controlService.configuration().windowedExecutionWindowDuration()));
 
             logger.info(String.format("Instantiating %s", WorkloadRunner.class.getSimpleName()));
             try {

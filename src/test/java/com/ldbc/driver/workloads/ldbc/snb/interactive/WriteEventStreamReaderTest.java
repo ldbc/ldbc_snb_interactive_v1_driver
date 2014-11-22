@@ -7,6 +7,7 @@ import org.junit.Test;
 import org.neo4j.csv.reader.BufferedCharSeeker;
 import org.neo4j.csv.reader.CharSeeker;
 import org.neo4j.csv.reader.Extractors;
+import org.neo4j.csv.reader.Readables;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -34,7 +35,7 @@ public class WriteEventStreamReaderTest {
     @Test
     public void shouldParseAllEventTypesWithWriteEventStreamReaderCharSeeker_DATE() throws IOException, ParseException {
         String data = WriteEventStreamReaderTestData.ROWS_FOR_ALL_EVENT_TYPES;
-        CharSeeker charSeeker = new BufferedCharSeeker(new StringReader(data));
+        CharSeeker charSeeker = new BufferedCharSeeker(Readables.wrap(new StringReader(data)));
         int columnDelimiter = '|';
         Extractors extractors = new Extractors(';');
         WriteEventStreamReaderCharSeeker writeEventStreamReader = new WriteEventStreamReaderCharSeeker(charSeeker, extractors, columnDelimiter);
@@ -198,7 +199,7 @@ public class WriteEventStreamReaderTest {
     public void shouldParseUpdate1AddPersonWithWriteEventStreamReaderCharSeeker_DATE() throws IOException, ParseException {
         // Given
         String data = WriteEventStreamReaderTestData.UPDATE_1_ADD_PERSON_ROW;
-        CharSeeker charSeeker = new BufferedCharSeeker(new StringReader(data));
+        CharSeeker charSeeker = new BufferedCharSeeker(Readables.wrap(new StringReader(data)));
         int columnDelimiter = '|';
         Extractors extractors = new Extractors(';');
         WriteEventStreamReaderCharSeeker writeEventStreamReader = new WriteEventStreamReaderCharSeeker(charSeeker, extractors, columnDelimiter);
@@ -252,7 +253,7 @@ public class WriteEventStreamReaderTest {
     public void shouldParseUpdate1AddPersonWithOneLanguageWithWriteEventStreamReaderCharSeeker_DATE() throws IOException, ParseException {
         // Given
         String data = WriteEventStreamReaderTestData.UPDATE_1_ADD_PERSON_ROW_ONE_LANGUAGE;
-        CharSeeker charSeeker = new BufferedCharSeeker(new StringReader(data));
+        CharSeeker charSeeker = new BufferedCharSeeker(Readables.wrap(new StringReader(data)));
         int columnDelimiter = '|';
         Extractors extractors = new Extractors(';');
         WriteEventStreamReaderCharSeeker writeEventStreamReader = new WriteEventStreamReaderCharSeeker(charSeeker, extractors, columnDelimiter);
@@ -306,7 +307,7 @@ public class WriteEventStreamReaderTest {
     public void shouldParseUpdate1AddPersonWithNoLanguagesWithWriteEventStreamReaderCharSeeker_DATE() throws IOException, ParseException {
         // Given
         String data = WriteEventStreamReaderTestData.UPDATE_1_ADD_PERSON_ROW_NO_LANGUAGES;
-        CharSeeker charSeeker = new BufferedCharSeeker(new StringReader(data));
+        CharSeeker charSeeker = new BufferedCharSeeker(Readables.wrap(new StringReader(data)));
         int columnDelimiter = '|';
         Extractors extractors = new Extractors(';');
         WriteEventStreamReaderCharSeeker writeEventStreamReader = new WriteEventStreamReaderCharSeeker(charSeeker, extractors, columnDelimiter);
@@ -360,7 +361,7 @@ public class WriteEventStreamReaderTest {
     public void shouldParseUpdate1AddPersonWithOneCompanyWithWriteEventStreamReaderCharSeeker_DATE() throws IOException, ParseException {
         // Given
         String data = WriteEventStreamReaderTestData.UPDATE_1_ADD_PERSON_ROW_ONE_COMPANY;
-        CharSeeker charSeeker = new BufferedCharSeeker(new StringReader(data));
+        CharSeeker charSeeker = new BufferedCharSeeker(Readables.wrap(new StringReader(data)));
         int columnDelimiter = '|';
         Extractors extractors = new Extractors(';');
         WriteEventStreamReaderCharSeeker writeEventStreamReader = new WriteEventStreamReaderCharSeeker(charSeeker, extractors, columnDelimiter);
@@ -411,7 +412,7 @@ public class WriteEventStreamReaderTest {
     public void shouldParseUpdate1AddPersonWithNoCompaniesWithWriteEventStreamReaderCharSeeker_DATE() throws IOException, ParseException {
         // Given
         String data = WriteEventStreamReaderTestData.UPDATE_1_ADD_PERSON_ROW_NO_COMPANIES;
-        CharSeeker charSeeker = new BufferedCharSeeker(new StringReader(data));
+        CharSeeker charSeeker = new BufferedCharSeeker(Readables.wrap(new StringReader(data)));
         int columnDelimiter = '|';
         Extractors extractors = new Extractors(';');
         WriteEventStreamReaderCharSeeker writeEventStreamReader = new WriteEventStreamReaderCharSeeker(charSeeker, extractors, columnDelimiter);
@@ -460,7 +461,7 @@ public class WriteEventStreamReaderTest {
     public void shouldParseUpdate1AddPersonWithNoUnisWithWriteEventStreamReaderCharSeeker_DATE() throws IOException, ParseException {
         // Given
         String data = WriteEventStreamReaderTestData.UPDATE_1_ADD_PERSON_ROW_NO_UNIS;
-        CharSeeker charSeeker = new BufferedCharSeeker(new StringReader(data));
+        CharSeeker charSeeker = new BufferedCharSeeker(Readables.wrap(new StringReader(data)));
         int columnDelimiter = '|';
         Extractors extractors = new Extractors(';');
         WriteEventStreamReaderCharSeeker writeEventStreamReader = new WriteEventStreamReaderCharSeeker(charSeeker, extractors, columnDelimiter);
@@ -514,7 +515,7 @@ public class WriteEventStreamReaderTest {
     public void shouldParseUpdate1AddPersonWithNoEmailsWithWriteEventStreamReaderCharSeeker_DATE() throws IOException, ParseException {
         // Given
         String data = WriteEventStreamReaderTestData.UPDATE_1_ADD_PERSON_ROW_NO_EMAILS;
-        CharSeeker charSeeker = new BufferedCharSeeker(new StringReader(data));
+        CharSeeker charSeeker = new BufferedCharSeeker(Readables.wrap(new StringReader(data)));
         int columnDelimiter = '|';
         Extractors extractors = new Extractors(';');
         WriteEventStreamReaderCharSeeker writeEventStreamReader = new WriteEventStreamReaderCharSeeker(charSeeker, extractors, columnDelimiter);
@@ -568,7 +569,7 @@ public class WriteEventStreamReaderTest {
     public void shouldParseUpdate1AddPersonWithNoTagsWithWriteEventStreamReaderCharSeeker_DATE() throws IOException, ParseException {
         // Given
         String data = WriteEventStreamReaderTestData.UPDATE_1_ADD_PERSON_ROW_NO_TAGS;
-        CharSeeker charSeeker = new BufferedCharSeeker(new StringReader(data));
+        CharSeeker charSeeker = new BufferedCharSeeker(Readables.wrap(new StringReader(data)));
         int columnDelimiter = '|';
         Extractors extractors = new Extractors(';');
         WriteEventStreamReaderCharSeeker writeEventStreamReader = new WriteEventStreamReaderCharSeeker(charSeeker, extractors, columnDelimiter);
@@ -622,7 +623,7 @@ public class WriteEventStreamReaderTest {
     public void shouldParseUpdate2AddLikePostWithWriteEventStreamReaderCharSeeker_DATE() throws IOException, ParseException {
         // Given
         String data = WriteEventStreamReaderTestData.UPDATE_2_ADD_LIKE_POST_ROW;
-        CharSeeker charSeeker = new BufferedCharSeeker(new StringReader(data));
+        CharSeeker charSeeker = new BufferedCharSeeker(Readables.wrap(new StringReader(data)));
         int columnDelimiter = '|';
         Extractors extractors = new Extractors(';');
         WriteEventStreamReaderCharSeeker writeEventStreamReader = new WriteEventStreamReaderCharSeeker(charSeeker, extractors, columnDelimiter);
@@ -658,7 +659,7 @@ public class WriteEventStreamReaderTest {
     @Test
     public void shouldParseUpdate3AddLikeCommentWithWriteEventStreamReaderCharSeeker_DATE() throws IOException, ParseException {
         String data = WriteEventStreamReaderTestData.UPDATE_3_ADD_LIKE_COMMENT;
-        CharSeeker charSeeker = new BufferedCharSeeker(new StringReader(data));
+        CharSeeker charSeeker = new BufferedCharSeeker(Readables.wrap(new StringReader(data)));
         int columnDelimiter = '|';
         Extractors extractors = new Extractors(';');
         WriteEventStreamReaderCharSeeker writeEventStreamReader = new WriteEventStreamReaderCharSeeker(charSeeker, extractors, columnDelimiter);
@@ -694,7 +695,7 @@ public class WriteEventStreamReaderTest {
     @Test
     public void shouldParseUpdate4AddForumWithWriteEventStreamReaderCharSeeker_DATE() throws IOException, ParseException {
         String data = WriteEventStreamReaderTestData.UPDATE_4_ADD_FORUM;
-        CharSeeker charSeeker = new BufferedCharSeeker(new StringReader(data));
+        CharSeeker charSeeker = new BufferedCharSeeker(Readables.wrap(new StringReader(data)));
         int columnDelimiter = '|';
         Extractors extractors = new Extractors(';');
         WriteEventStreamReaderCharSeeker writeEventStreamReader = new WriteEventStreamReaderCharSeeker(charSeeker, extractors, columnDelimiter);
@@ -732,7 +733,7 @@ public class WriteEventStreamReaderTest {
     @Test
     public void shouldParseUpdate5AddForumMembershipWithWriteEventStreamReaderCharSeeker_DATE() throws IOException, ParseException {
         String data = WriteEventStreamReaderTestData.UPDATE_5_ADD_FORUM_MEMBERSHIP;
-        CharSeeker charSeeker = new BufferedCharSeeker(new StringReader(data));
+        CharSeeker charSeeker = new BufferedCharSeeker(Readables.wrap(new StringReader(data)));
         int columnDelimiter = '|';
         Extractors extractors = new Extractors(';');
         WriteEventStreamReaderCharSeeker writeEventStreamReader = new WriteEventStreamReaderCharSeeker(charSeeker, extractors, columnDelimiter);
@@ -768,7 +769,7 @@ public class WriteEventStreamReaderTest {
     @Test
     public void shouldParseUpdate6AddPostWithWriteEventStreamReaderCharSeeker_DATE() throws IOException, ParseException {
         String data = WriteEventStreamReaderTestData.UPDATE_6_ADD_POST;
-        CharSeeker charSeeker = new BufferedCharSeeker(new StringReader(data));
+        CharSeeker charSeeker = new BufferedCharSeeker(Readables.wrap(new StringReader(data)));
         int columnDelimiter = '|';
         Extractors extractors = new Extractors(';');
         WriteEventStreamReaderCharSeeker writeEventStreamReader = new WriteEventStreamReaderCharSeeker(charSeeker, extractors, columnDelimiter);
@@ -813,7 +814,7 @@ public class WriteEventStreamReaderTest {
     @Test
     public void shouldParseUpdate6AddPostWithManyTagsWithWriteEventStreamReaderCharSeeker_DATE() throws IOException, ParseException {
         String data = WriteEventStreamReaderTestData.UPDATE_6_ADD_POST_MANY_TAGS;
-        CharSeeker charSeeker = new BufferedCharSeeker(new StringReader(data));
+        CharSeeker charSeeker = new BufferedCharSeeker(Readables.wrap(new StringReader(data)));
         int columnDelimiter = '|';
         Extractors extractors = new Extractors(';');
         WriteEventStreamReaderCharSeeker writeEventStreamReader = new WriteEventStreamReaderCharSeeker(charSeeker, extractors, columnDelimiter);
@@ -858,7 +859,7 @@ public class WriteEventStreamReaderTest {
     @Test
     public void shouldParseUpdate6AddPostWithEmptyTagsWithWriteEventStreamReaderCharSeeker_DATE() throws IOException, ParseException {
         String data = WriteEventStreamReaderTestData.UPDATE_6_ADD_POST_NO_TAGS;
-        CharSeeker charSeeker = new BufferedCharSeeker(new StringReader(data));
+        CharSeeker charSeeker = new BufferedCharSeeker(Readables.wrap(new StringReader(data)));
         int columnDelimiter = '|';
         Extractors extractors = new Extractors(';');
         WriteEventStreamReaderCharSeeker writeEventStreamReader = new WriteEventStreamReaderCharSeeker(charSeeker, extractors, columnDelimiter);
@@ -903,7 +904,7 @@ public class WriteEventStreamReaderTest {
     @Test
     public void shouldParseUpdate7AddCommentWithWriteEventStreamReaderCharSeeker_DATE() throws IOException, ParseException {
         String data = WriteEventStreamReaderTestData.UPDATE_7_ADD_COMMENT;
-        CharSeeker charSeeker = new BufferedCharSeeker(new StringReader(data));
+        CharSeeker charSeeker = new BufferedCharSeeker(Readables.wrap(new StringReader(data)));
         int columnDelimiter = '|';
         Extractors extractors = new Extractors(';');
         WriteEventStreamReaderCharSeeker writeEventStreamReader = new WriteEventStreamReaderCharSeeker(charSeeker, extractors, columnDelimiter);
@@ -947,7 +948,7 @@ public class WriteEventStreamReaderTest {
     @Test
     public void shouldParseUpdate7AddCommentWithEmptyTagsWithWriteEventStreamReaderCharSeeker_DATE() throws IOException, ParseException {
         String data = WriteEventStreamReaderTestData.UPDATE_7_ADD_COMMENT_NO_TAGS;
-        CharSeeker charSeeker = new BufferedCharSeeker(new StringReader(data));
+        CharSeeker charSeeker = new BufferedCharSeeker(Readables.wrap(new StringReader(data)));
         int columnDelimiter = '|';
         Extractors extractors = new Extractors(';');
         WriteEventStreamReaderCharSeeker writeEventStreamReader = new WriteEventStreamReaderCharSeeker(charSeeker, extractors, columnDelimiter);
@@ -991,7 +992,7 @@ public class WriteEventStreamReaderTest {
     @Test
     public void shouldParseUpdate8AddFriendshipWithWriteEventStreamReaderCharSeeker_DATE() throws IOException, ParseException {
         String data = WriteEventStreamReaderTestData.UPDATE_8_ADD_FRIENDSHIP;
-        CharSeeker charSeeker = new BufferedCharSeeker(new StringReader(data));
+        CharSeeker charSeeker = new BufferedCharSeeker(Readables.wrap(new StringReader(data)));
         int columnDelimiter = '|';
         Extractors extractors = new Extractors(';');
         WriteEventStreamReaderCharSeeker writeEventStreamReader = new WriteEventStreamReaderCharSeeker(charSeeker, extractors, columnDelimiter);

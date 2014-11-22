@@ -242,13 +242,13 @@ public class LdbcSnbInteractiveWorkload extends Workload {
             }
             case CHAR_SEEKER: {
                 int bufferSize = 1 * 1024 * 1024;
-                BufferedCharSeeker charSeeker = new BufferedCharSeeker(new FileReader(updateOperationsFile), bufferSize);
+                BufferedCharSeeker charSeeker = new BufferedCharSeeker(Readables.wrap(new FileReader(updateOperationsFile)), bufferSize);
                 Extractors extractors = new Extractors(';');
                 return Tuple.<Iterator<Operation<?>>, Closeable>tuple2(new WriteEventStreamReaderCharSeeker(charSeeker, extractors, '|'), charSeeker);
             }
             case CHAR_SEEKER_THREAD: {
                 int bufferSize = 1 * 1024 * 1024;
-                BufferedCharSeeker charSeeker = new BufferedCharSeeker(ThreadAheadReadable.threadAhead(new FileReader(updateOperationsFile), bufferSize), bufferSize);
+                BufferedCharSeeker charSeeker = new BufferedCharSeeker(ThreadAheadReadable.threadAhead(Readables.wrap(new FileReader(updateOperationsFile)), bufferSize), bufferSize);
                 Extractors extractors = new Extractors(';');
                 return Tuple.<Iterator<Operation<?>>, Closeable>tuple2(new WriteEventStreamReaderCharSeeker(charSeeker, extractors, '|'), charSeeker);
             }
@@ -385,7 +385,7 @@ public class LdbcSnbInteractiveWorkload extends Workload {
             Extractors extractors = new Extractors(arrayDelimiter);
             CharSeeker charSeeker;
             try {
-                charSeeker = new BufferedCharSeeker(new FileReader(readOperation1File), bufferSize);
+                charSeeker = new BufferedCharSeeker(Readables.wrap(new FileReader(readOperation1File)), bufferSize);
             } catch (FileNotFoundException e) {
                 throw new WorkloadException(String.format("Unable to open parameters file: %s", readOperation1File.getAbsolutePath()), e);
             }
@@ -426,7 +426,7 @@ public class LdbcSnbInteractiveWorkload extends Workload {
             Extractors extractors = new Extractors(arrayDelimiter);
             CharSeeker charSeeker;
             try {
-                charSeeker = new BufferedCharSeeker(new FileReader(readOperation2File), bufferSize);
+                charSeeker = new BufferedCharSeeker(Readables.wrap(new FileReader(readOperation2File)), bufferSize);
             } catch (FileNotFoundException e) {
                 throw new WorkloadException(String.format("Unable to open parameters file: %s", readOperation2File.getAbsolutePath()), e);
             }
@@ -467,7 +467,7 @@ public class LdbcSnbInteractiveWorkload extends Workload {
             Extractors extractors = new Extractors(arrayDelimiter);
             CharSeeker charSeeker;
             try {
-                charSeeker = new BufferedCharSeeker(new FileReader(readOperation3File), bufferSize);
+                charSeeker = new BufferedCharSeeker(Readables.wrap(new FileReader(readOperation3File)), bufferSize);
             } catch (FileNotFoundException e) {
                 throw new WorkloadException(String.format("Unable to open parameters file: %s", readOperation3File.getAbsolutePath()), e);
             }
@@ -511,7 +511,7 @@ public class LdbcSnbInteractiveWorkload extends Workload {
             Extractors extractors = new Extractors(arrayDelimiter);
             CharSeeker charSeeker;
             try {
-                charSeeker = new BufferedCharSeeker(new FileReader(readOperation4File), bufferSize);
+                charSeeker = new BufferedCharSeeker(Readables.wrap(new FileReader(readOperation4File)), bufferSize);
             } catch (FileNotFoundException e) {
                 throw new WorkloadException(String.format("Unable to open parameters file: %s", readOperation4File.getAbsolutePath()), e);
             }
@@ -553,7 +553,7 @@ public class LdbcSnbInteractiveWorkload extends Workload {
             Extractors extractors = new Extractors(arrayDelimiter);
             CharSeeker charSeeker;
             try {
-                charSeeker = new BufferedCharSeeker(new FileReader(readOperation5File), bufferSize);
+                charSeeker = new BufferedCharSeeker(Readables.wrap(new FileReader(readOperation5File)), bufferSize);
             } catch (FileNotFoundException e) {
                 throw new WorkloadException(String.format("Unable to open parameters file: %s", readOperation5File.getAbsolutePath()), e);
             }
@@ -594,7 +594,7 @@ public class LdbcSnbInteractiveWorkload extends Workload {
             Extractors extractors = new Extractors(arrayDelimiter);
             CharSeeker charSeeker;
             try {
-                charSeeker = new BufferedCharSeeker(new FileReader(readOperation6File), bufferSize);
+                charSeeker = new BufferedCharSeeker(Readables.wrap(new FileReader(readOperation6File)), bufferSize);
             } catch (FileNotFoundException e) {
                 throw new WorkloadException(String.format("Unable to open parameters file: %s", readOperation6File.getAbsolutePath()), e);
             }
@@ -635,7 +635,7 @@ public class LdbcSnbInteractiveWorkload extends Workload {
             Extractors extractors = new Extractors(arrayDelimiter);
             CharSeeker charSeeker;
             try {
-                charSeeker = new BufferedCharSeeker(new FileReader(readOperation7File), bufferSize);
+                charSeeker = new BufferedCharSeeker(Readables.wrap(new FileReader(readOperation7File)), bufferSize);
             } catch (FileNotFoundException e) {
                 throw new WorkloadException(String.format("Unable to open parameters file: %s", readOperation7File.getAbsolutePath()), e);
             }
@@ -675,7 +675,7 @@ public class LdbcSnbInteractiveWorkload extends Workload {
             Extractors extractors = new Extractors(arrayDelimiter);
             CharSeeker charSeeker;
             try {
-                charSeeker = new BufferedCharSeeker(new FileReader(readOperation8File), bufferSize);
+                charSeeker = new BufferedCharSeeker(Readables.wrap(new FileReader(readOperation8File)), bufferSize);
             } catch (FileNotFoundException e) {
                 throw new WorkloadException(String.format("Unable to open parameters file: %s", readOperation8File.getAbsolutePath()), e);
             }
@@ -715,7 +715,7 @@ public class LdbcSnbInteractiveWorkload extends Workload {
             Extractors extractors = new Extractors(arrayDelimiter);
             CharSeeker charSeeker;
             try {
-                charSeeker = new BufferedCharSeeker(new FileReader(readOperation9File), bufferSize);
+                charSeeker = new BufferedCharSeeker(Readables.wrap(new FileReader(readOperation9File)), bufferSize);
             } catch (FileNotFoundException e) {
                 throw new WorkloadException(String.format("Unable to open parameters file: %s", readOperation9File.getAbsolutePath()), e);
             }
@@ -756,7 +756,7 @@ public class LdbcSnbInteractiveWorkload extends Workload {
             Extractors extractors = new Extractors(arrayDelimiter);
             CharSeeker charSeeker;
             try {
-                charSeeker = new BufferedCharSeeker(new FileReader(readOperation10File), bufferSize);
+                charSeeker = new BufferedCharSeeker(Readables.wrap(new FileReader(readOperation10File)), bufferSize);
             } catch (FileNotFoundException e) {
                 throw new WorkloadException(String.format("Unable to open parameters file: %s", readOperation10File.getAbsolutePath()), e);
             }
@@ -797,7 +797,7 @@ public class LdbcSnbInteractiveWorkload extends Workload {
             Extractors extractors = new Extractors(arrayDelimiter);
             CharSeeker charSeeker;
             try {
-                charSeeker = new BufferedCharSeeker(new FileReader(readOperation11File), bufferSize);
+                charSeeker = new BufferedCharSeeker(Readables.wrap(new FileReader(readOperation11File)), bufferSize);
             } catch (FileNotFoundException e) {
                 throw new WorkloadException(String.format("Unable to open parameters file: %s", readOperation11File.getAbsolutePath()), e);
             }
@@ -839,7 +839,7 @@ public class LdbcSnbInteractiveWorkload extends Workload {
             Extractors extractors = new Extractors(arrayDelimiter);
             CharSeeker charSeeker;
             try {
-                charSeeker = new BufferedCharSeeker(new FileReader(readOperation12File), bufferSize);
+                charSeeker = new BufferedCharSeeker(Readables.wrap(new FileReader(readOperation12File)), bufferSize);
             } catch (FileNotFoundException e) {
                 throw new WorkloadException(String.format("Unable to open parameters file: %s", readOperation12File.getAbsolutePath()), e);
             }
@@ -880,7 +880,7 @@ public class LdbcSnbInteractiveWorkload extends Workload {
             Extractors extractors = new Extractors(arrayDelimiter);
             CharSeeker charSeeker;
             try {
-                charSeeker = new BufferedCharSeeker(new FileReader(readOperation13File), bufferSize);
+                charSeeker = new BufferedCharSeeker(Readables.wrap(new FileReader(readOperation13File)), bufferSize);
             } catch (FileNotFoundException e) {
                 throw new WorkloadException(String.format("Unable to open parameters file: %s", readOperation13File.getAbsolutePath()), e);
             }
@@ -921,7 +921,7 @@ public class LdbcSnbInteractiveWorkload extends Workload {
             Extractors extractors = new Extractors(arrayDelimiter);
             CharSeeker charSeeker;
             try {
-                charSeeker = new BufferedCharSeeker(new FileReader(readOperation14File), bufferSize);
+                charSeeker = new BufferedCharSeeker(Readables.wrap(new FileReader(readOperation14File)), bufferSize);
             } catch (FileNotFoundException e) {
                 throw new WorkloadException(String.format("Unable to open parameters file: %s", readOperation14File.getAbsolutePath()), e);
             }

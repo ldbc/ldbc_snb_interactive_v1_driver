@@ -12,7 +12,6 @@ import com.ldbc.driver.generator.GeneratorFactory;
 import com.ldbc.driver.generator.RandomDataGeneratorFactory;
 import com.ldbc.driver.runtime.metrics.ThreadedQueuedConcurrentMetricsService;
 import com.ldbc.driver.temporal.SystemTimeSource;
-import com.ldbc.driver.temporal.TemporalUtil;
 import com.ldbc.driver.temporal.TimeSource;
 import com.ldbc.driver.testutils.TestUtils;
 import com.ldbc.driver.util.csv.SimpleCsvFileReader;
@@ -49,9 +48,7 @@ public class SimpleWorkloadTest {
         TimeUnit timeUnit = TimeUnit.MILLISECONDS;
         String resultDirPath = null;
         Double timeCompressionRatio = 1.0;
-        long windowedExecutionWindowDuration = 1000l;
         Set<String> peerIds = new HashSet<>();
-        long toleratedExecutionDelay = 1000l;
         ConsoleAndFileDriverConfiguration.ConsoleAndFileValidationParamOptions validationParams = null;
         String dbValidationFilePath = null;
         boolean validateWorkload = false;
@@ -73,9 +70,7 @@ public class SimpleWorkloadTest {
                         timeUnit,
                         resultDirPath,
                         timeCompressionRatio,
-                        windowedExecutionWindowDuration,
                         peerIds,
-                        toleratedExecutionDelay,
                         validationParams,
                         dbValidationFilePath,
                         validateWorkload,
@@ -108,9 +103,7 @@ public class SimpleWorkloadTest {
         TimeUnit timeUnit = TimeUnit.MILLISECONDS;
         String resultDirPath = null;
         Double timeCompressionRatio = 1.0;
-        long windowedExecutionWindowDuration = 1000l;
         Set<String> peerIds = new HashSet<>();
-        long toleratedExecutionDelay = 1000l;
         ConsoleAndFileDriverConfiguration.ConsoleAndFileValidationParamOptions validationParams = null;
         String dbValidationFilePath = null;
         boolean validateWorkload = false;
@@ -132,9 +125,7 @@ public class SimpleWorkloadTest {
                         timeUnit,
                         resultDirPath,
                         timeCompressionRatio,
-                        windowedExecutionWindowDuration,
                         peerIds,
-                        toleratedExecutionDelay,
                         validationParams,
                         dbValidationFilePath,
                         validateWorkload,
@@ -182,6 +173,7 @@ public class SimpleWorkloadTest {
         workload.close();
     }
 
+    // TODO operation & operation result serialization/marshalling
     @Ignore
     @Test
     public void shouldPassWorkloadValidation() throws WorkloadException, ClientException {
@@ -196,9 +188,7 @@ public class SimpleWorkloadTest {
         TimeUnit timeUnit = TimeUnit.MILLISECONDS;
         String resultDirPath = null;
         Double timeCompressionRatio = 1.0;
-        long windowedExecutionWindowDuration = 1000l;
         Set<String> peerIds = new HashSet<>();
-        long toleratedExecutionDelay = new TemporalUtil().convert(1, TimeUnit.HOURS, TimeUnit.MILLISECONDS);
         ConsoleAndFileDriverConfiguration.ConsoleAndFileValidationParamOptions validationParams = null;
         String dbValidationFilePath = null;
         boolean validateWorkload = true;
@@ -219,9 +209,7 @@ public class SimpleWorkloadTest {
                 timeUnit,
                 resultDirPath,
                 timeCompressionRatio,
-                windowedExecutionWindowDuration,
                 peerIds,
-                toleratedExecutionDelay,
                 validationParams,
                 dbValidationFilePath,
                 validateWorkload,
@@ -259,9 +247,7 @@ public class SimpleWorkloadTest {
         TimeUnit timeUnit = TimeUnit.MILLISECONDS;
         String resultDirPath = null;
         Double timeCompressionRatio = 1.0;
-        long windowedExecutionWindowDuration = 1000l;
         Set<String> peerIds = new HashSet<>();
-        long toleratedExecutionDelay = 1000l;
         ConsoleAndFileDriverConfiguration.ConsoleAndFileValidationParamOptions validationParams = null;
         String dbValidationFilePath = null;
         boolean validateWorkload = false;
@@ -283,9 +269,7 @@ public class SimpleWorkloadTest {
                         timeUnit,
                         resultDirPath,
                         timeCompressionRatio,
-                        windowedExecutionWindowDuration,
                         peerIds,
-                        toleratedExecutionDelay,
                         validationParams,
                         dbValidationFilePath,
                         validateWorkload,

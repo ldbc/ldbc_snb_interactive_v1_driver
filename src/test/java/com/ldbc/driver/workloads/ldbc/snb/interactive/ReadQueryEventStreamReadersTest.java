@@ -3,10 +3,7 @@ package com.ldbc.driver.workloads.ldbc.snb.interactive;
 import com.ldbc.driver.Operation;
 import com.ldbc.driver.generator.CsvEventStreamReaderBasicCharSeeker;
 import org.junit.Test;
-import org.neo4j.csv.reader.BufferedCharSeeker;
-import org.neo4j.csv.reader.CharSeeker;
-import org.neo4j.csv.reader.Extractors;
-import org.neo4j.csv.reader.Mark;
+import org.neo4j.csv.reader.*;
 
 import java.io.IOException;
 import java.io.StringReader;
@@ -25,7 +22,7 @@ public class ReadQueryEventStreamReadersTest {
         // Given
         String data = ReadQueryEventStreamReadersTestData.QUERY_1_CSV_ROWS();
         System.out.println(data + "\n");
-        CharSeeker charSeeker = new BufferedCharSeeker(new StringReader(data));
+        CharSeeker charSeeker = new BufferedCharSeeker(Readables.wrap(new StringReader(data)));
         int columnDelimiter = '|';
         Extractors extractors = new Extractors(';');
         CsvEventStreamReaderBasicCharSeeker.EventDecoder<Object[]> decoder = new Query1EventStreamReader.Query1Decoder();
@@ -69,7 +66,7 @@ public class ReadQueryEventStreamReadersTest {
         // Given
         String data = ReadQueryEventStreamReadersTestData.QUERY_2_CSV_ROWS();
         System.out.println(data + "\n");
-        CharSeeker charSeeker = new BufferedCharSeeker(new StringReader(data));
+        CharSeeker charSeeker = new BufferedCharSeeker(Readables.wrap(new StringReader(data)));
         int columnDelimiter = '|';
         Extractors extractors = new Extractors(';');
         CsvEventStreamReaderBasicCharSeeker.EventDecoder<Object[]> decoder = new Query2EventStreamReader.Query2Decoder();
@@ -123,7 +120,7 @@ public class ReadQueryEventStreamReadersTest {
         // Given
         String data = ReadQueryEventStreamReadersTestData.QUERY_3_CSV_ROWS();
         System.out.println(data + "\n");
-        CharSeeker charSeeker = new BufferedCharSeeker(new StringReader(data));
+        CharSeeker charSeeker = new BufferedCharSeeker(Readables.wrap(new StringReader(data)));
         int columnDelimiter = '|';
         Extractors extractors = new Extractors(';');
         CsvEventStreamReaderBasicCharSeeker.EventDecoder<Object[]> decoder = new Query3EventStreamReader.Query3Decoder();
@@ -189,7 +186,7 @@ public class ReadQueryEventStreamReadersTest {
         // Given
         String data = ReadQueryEventStreamReadersTestData.QUERY_4_CSV_ROWS();
         System.out.println(data + "\n");
-        CharSeeker charSeeker = new BufferedCharSeeker(new StringReader(data));
+        CharSeeker charSeeker = new BufferedCharSeeker(Readables.wrap(new StringReader(data)));
         int columnDelimiter = '|';
         Extractors extractors = new Extractors(';');
         CsvEventStreamReaderBasicCharSeeker.EventDecoder<Object[]> decoder = new Query4EventStreamReader.Query4Decoder();
@@ -247,7 +244,7 @@ public class ReadQueryEventStreamReadersTest {
         // Given
         String data = ReadQueryEventStreamReadersTestData.QUERY_5_CSV_ROWS();
         System.out.println(data + "\n");
-        CharSeeker charSeeker = new BufferedCharSeeker(new StringReader(data));
+        CharSeeker charSeeker = new BufferedCharSeeker(Readables.wrap(new StringReader(data)));
         int columnDelimiter = '|';
         Extractors extractors = new Extractors(';');
         CsvEventStreamReaderBasicCharSeeker.EventDecoder<Object[]> decoder = new Query5EventStreamReader.Query5Decoder();
@@ -301,7 +298,7 @@ public class ReadQueryEventStreamReadersTest {
         // Given
         String data = ReadQueryEventStreamReadersTestData.QUERY_6_CSV_ROWS();
         System.out.println(data + "\n");
-        CharSeeker charSeeker = new BufferedCharSeeker(new StringReader(data));
+        CharSeeker charSeeker = new BufferedCharSeeker(Readables.wrap(new StringReader(data)));
         int columnDelimiter = '|';
         Extractors extractors = new Extractors(';');
         CsvEventStreamReaderBasicCharSeeker.EventDecoder<Object[]> decoder = new Query6EventStreamReader.Query6Decoder();
@@ -345,7 +342,7 @@ public class ReadQueryEventStreamReadersTest {
         // Given
         String data = ReadQueryEventStreamReadersTestData.QUERY_7_CSV_ROWS();
         System.out.println(data + "\n");
-        CharSeeker charSeeker = new BufferedCharSeeker(new StringReader(data));
+        CharSeeker charSeeker = new BufferedCharSeeker(Readables.wrap(new StringReader(data)));
         int columnDelimiter = '|';
         Extractors extractors = new Extractors(';');
         CsvEventStreamReaderBasicCharSeeker.EventDecoder<Object[]> decoder = new Query7EventStreamReader.Query7Decoder();
@@ -385,7 +382,7 @@ public class ReadQueryEventStreamReadersTest {
         // Given
         String data = ReadQueryEventStreamReadersTestData.QUERY_8_CSV_ROWS();
         System.out.println(data + "\n");
-        CharSeeker charSeeker = new BufferedCharSeeker(new StringReader(data));
+        CharSeeker charSeeker = new BufferedCharSeeker(Readables.wrap(new StringReader(data)));
         int columnDelimiter = '|';
         Extractors extractors = new Extractors(';');
         CsvEventStreamReaderBasicCharSeeker.EventDecoder<Object[]> decoder = new Query8EventStreamReader.Query8Decoder();
@@ -425,7 +422,7 @@ public class ReadQueryEventStreamReadersTest {
         // Given
         String data = ReadQueryEventStreamReadersTestData.QUERY_9_CSV_ROWS();
         System.out.println(data + "\n");
-        CharSeeker charSeeker = new BufferedCharSeeker(new StringReader(data));
+        CharSeeker charSeeker = new BufferedCharSeeker(Readables.wrap(new StringReader(data)));
         int columnDelimiter = '|';
         Extractors extractors = new Extractors(';');
         CsvEventStreamReaderBasicCharSeeker.EventDecoder<Object[]> decoder = new Query9EventStreamReader.Query9Decoder();
@@ -479,7 +476,7 @@ public class ReadQueryEventStreamReadersTest {
         // Given
         String data = ReadQueryEventStreamReadersTestData.QUERY_10_CSV_ROWS();
         System.out.println(data + "\n");
-        CharSeeker charSeeker = new BufferedCharSeeker(new StringReader(data));
+        CharSeeker charSeeker = new BufferedCharSeeker(Readables.wrap(new StringReader(data)));
         int columnDelimiter = '|';
         Extractors extractors = new Extractors(';');
         CsvEventStreamReaderBasicCharSeeker.EventDecoder<Object[]> decoder = new Query10EventStreamReader.Query10Decoder();
@@ -524,7 +521,7 @@ public class ReadQueryEventStreamReadersTest {
         // Given
         String data = ReadQueryEventStreamReadersTestData.QUERY_11_CSV_ROWS();
         System.out.println(data + "\n");
-        CharSeeker charSeeker = new BufferedCharSeeker(new StringReader(data));
+        CharSeeker charSeeker = new BufferedCharSeeker(Readables.wrap(new StringReader(data)));
         int columnDelimiter = '|';
         Extractors extractors = new Extractors(';');
         CsvEventStreamReaderBasicCharSeeker.EventDecoder<Object[]> decoder = new Query11EventStreamReader.Query11Decoder();
@@ -572,7 +569,7 @@ public class ReadQueryEventStreamReadersTest {
         // Given
         String data = ReadQueryEventStreamReadersTestData.QUERY_12_CSV_ROWS();
         System.out.println(data + "\n");
-        CharSeeker charSeeker = new BufferedCharSeeker(new StringReader(data));
+        CharSeeker charSeeker = new BufferedCharSeeker(Readables.wrap(new StringReader(data)));
         int columnDelimiter = '|';
         Extractors extractors = new Extractors(';');
         CsvEventStreamReaderBasicCharSeeker.EventDecoder<Object[]> decoder = new Query12EventStreamReader.Query12Decoder();
@@ -616,7 +613,7 @@ public class ReadQueryEventStreamReadersTest {
         // Given
         String data = ReadQueryEventStreamReadersTestData.QUERY_13_CSV_ROWS();
         System.out.println(data + "\n");
-        CharSeeker charSeeker = new BufferedCharSeeker(new StringReader(data));
+        CharSeeker charSeeker = new BufferedCharSeeker(Readables.wrap(new StringReader(data)));
         int columnDelimiter = '|';
         Extractors extractors = new Extractors(';');
         CsvEventStreamReaderBasicCharSeeker.EventDecoder<Object[]> decoder = new Query13EventStreamReader.Query13Decoder();
@@ -660,7 +657,7 @@ public class ReadQueryEventStreamReadersTest {
         // Given
         String data = ReadQueryEventStreamReadersTestData.QUERY_14_CSV_ROWS();
         System.out.println(data + "\n");
-        CharSeeker charSeeker = new BufferedCharSeeker(new StringReader(data));
+        CharSeeker charSeeker = new BufferedCharSeeker(Readables.wrap(new StringReader(data)));
         int columnDelimiter = '|';
         Extractors extractors = new Extractors(';');
         CsvEventStreamReaderBasicCharSeeker.EventDecoder<Object[]> decoder = new Query14EventStreamReader.Query14Decoder();

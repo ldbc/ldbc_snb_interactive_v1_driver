@@ -12,7 +12,7 @@ import com.ldbc.driver.temporal.TimeSource;
 
 import java.util.concurrent.atomic.AtomicBoolean;
 
-class PreciseIndividualAsyncOperationStreamExecutorServiceThread extends Thread {
+class OperationStreamExecutorServiceThread extends Thread {
     private static final long POLL_INTERVAL_WHILE_WAITING_FOR_LAST_HANDLER_TO_FINISH_AS_MILLI = 100;
 
     private final OperationHandlerExecutor operationHandlerExecutor;
@@ -21,18 +21,18 @@ class PreciseIndividualAsyncOperationStreamExecutorServiceThread extends Thread 
     private final AtomicBoolean forcedTerminate;
     private final DependencyAndNonDependencyHandlersRetriever dependencyAndNonDependencyHandlersRetriever;
 
-    public PreciseIndividualAsyncOperationStreamExecutorServiceThread(TimeSource timeSource,
-                                                                      OperationHandlerExecutor operationHandlerExecutor,
-                                                                      ConcurrentErrorReporter errorReporter,
-                                                                      WorkloadStreamDefinition streamDefinition,
-                                                                      AtomicBoolean hasFinished,
-                                                                      Spinner spinner,
-                                                                      AtomicBoolean forcedTerminate,
-                                                                      Db db,
-                                                                      LocalCompletionTimeWriter localCompletionTimeWriter,
-                                                                      GlobalCompletionTimeReader globalCompletionTimeReader,
-                                                                      ConcurrentMetricsService metricsService) {
-        super(PreciseIndividualAsyncOperationStreamExecutorServiceThread.class.getSimpleName() + "-" + System.currentTimeMillis());
+    public OperationStreamExecutorServiceThread(TimeSource timeSource,
+                                                OperationHandlerExecutor operationHandlerExecutor,
+                                                ConcurrentErrorReporter errorReporter,
+                                                WorkloadStreamDefinition streamDefinition,
+                                                AtomicBoolean hasFinished,
+                                                Spinner spinner,
+                                                AtomicBoolean forcedTerminate,
+                                                Db db,
+                                                LocalCompletionTimeWriter localCompletionTimeWriter,
+                                                GlobalCompletionTimeReader globalCompletionTimeReader,
+                                                ConcurrentMetricsService metricsService) {
+        super(OperationStreamExecutorServiceThread.class.getSimpleName() + "-" + System.currentTimeMillis());
         this.operationHandlerExecutor = operationHandlerExecutor;
         this.errorReporter = errorReporter;
         this.hasFinished = hasFinished;
@@ -77,7 +77,7 @@ class PreciseIndividualAsyncOperationStreamExecutorServiceThread extends Thread 
             awaitAllRunningHandlers();
             this.hasFinished.set(true);
         } catch (Throwable e) {
-            e.printStackTrace();
+            errorReporter.reportError(this, ConcurrentErrorReporter.stackTraceToString(e));
         }
     }
 

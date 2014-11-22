@@ -4,7 +4,6 @@ import com.ldbc.driver.OperationResultReport;
 import com.ldbc.driver.runtime.ConcurrentErrorReporter;
 import com.ldbc.driver.runtime.DefaultQueues;
 import com.ldbc.driver.runtime.QueueEventSubmitter;
-import com.ldbc.driver.runtime.scheduling.ExecutionDelayPolicy;
 import com.ldbc.driver.temporal.TemporalUtil;
 import com.ldbc.driver.temporal.TimeSource;
 import com.ldbc.driver.util.csv.SimpleCsvFileWriter;
@@ -28,7 +27,6 @@ public class ThreadedQueuedConcurrentMetricsService implements ConcurrentMetrics
 
     // TODO this could come from config, if we had a max_runtime parameter. for now, it can default to something
     public static final long DEFAULT_HIGHEST_EXPECTED_RUNTIME_DURATION_AS_NANO = TEMPORAL_UTIL.convert(90, TimeUnit.MINUTES, TimeUnit.NANOSECONDS);
-    public static final long DEFAULT_HIGHEST_EXPECTED_DELAY_DURATION_AS_MILLI = TEMPORAL_UTIL.convert(90, TimeUnit.MINUTES, TimeUnit.MILLISECONDS);
 
     private static final TemporalUtil temporalUtil = new TemporalUtil();
     private final TimeSource timeSource;
@@ -42,8 +40,6 @@ public class ThreadedQueuedConcurrentMetricsService implements ConcurrentMetrics
                                                                                           ConcurrentErrorReporter errorReporter,
                                                                                           TimeUnit unit,
                                                                                           long maxRuntimeDurationAsNano,
-                                                                                          boolean recordStartTimeDelayLatency,
-                                                                                          ExecutionDelayPolicy executionDelayPolicy,
                                                                                           SimpleCsvFileWriter csvResultsLogWriter) {
         Queue<MetricsCollectionEvent> queue = DefaultQueues.newNonBlocking();
         return new ThreadedQueuedConcurrentMetricsService(
@@ -52,8 +48,6 @@ public class ThreadedQueuedConcurrentMetricsService implements ConcurrentMetrics
                 unit,
                 maxRuntimeDurationAsNano,
                 queue,
-                recordStartTimeDelayLatency,
-                executionDelayPolicy,
                 csvResultsLogWriter);
     }
 
@@ -61,8 +55,6 @@ public class ThreadedQueuedConcurrentMetricsService implements ConcurrentMetrics
                                                                                        ConcurrentErrorReporter errorReporter,
                                                                                        TimeUnit unit,
                                                                                        long maxRuntimeDurationAsNano,
-                                                                                       boolean recordStartTimeDelayLatency,
-                                                                                       ExecutionDelayPolicy executionDelayPolicy,
                                                                                        SimpleCsvFileWriter csvResultsLogWriter) {
         Queue<MetricsCollectionEvent> queue = DefaultQueues.newBlockingBounded(10000);
         return new ThreadedQueuedConcurrentMetricsService(
@@ -71,8 +63,6 @@ public class ThreadedQueuedConcurrentMetricsService implements ConcurrentMetrics
                 unit,
                 maxRuntimeDurationAsNano,
                 queue,
-                recordStartTimeDelayLatency,
-                executionDelayPolicy,
                 csvResultsLogWriter);
     }
 
@@ -81,8 +71,6 @@ public class ThreadedQueuedConcurrentMetricsService implements ConcurrentMetrics
                                                    TimeUnit unit,
                                                    long maxRuntimeDurationAsNano,
                                                    Queue<MetricsCollectionEvent> queue,
-                                                   boolean recordStartTimeDelayLatency,
-                                                   ExecutionDelayPolicy executionDelayPolicy,
                                                    SimpleCsvFileWriter csvResultsLogWriter) {
         // TODO enable
 //        this.metricsCollectionEventFactory = new PoolingMetricsCollectionEventFactory(
@@ -95,8 +83,6 @@ public class ThreadedQueuedConcurrentMetricsService implements ConcurrentMetrics
         threadedQueuedConcurrentMetricsServiceThread = new ThreadedQueuedConcurrentMetricsServiceThread(
                 errorReporter,
                 queue,
-                recordStartTimeDelayLatency,
-                executionDelayPolicy,
                 csvResultsLogWriter,
                 timeSource,
                 unit,

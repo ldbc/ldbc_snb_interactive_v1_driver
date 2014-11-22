@@ -3,7 +3,6 @@ package com.ldbc.driver.runtime.metrics;
 import com.ldbc.driver.OperationResultReport;
 import com.ldbc.driver.runtime.ConcurrentErrorReporter;
 import com.ldbc.driver.runtime.QueueEventFetcher;
-import com.ldbc.driver.runtime.scheduling.ExecutionDelayPolicy;
 import com.ldbc.driver.temporal.TemporalUtil;
 import com.ldbc.driver.temporal.TimeSource;
 import com.ldbc.driver.util.csv.SimpleCsvFileWriter;
@@ -16,8 +15,6 @@ public class ThreadedQueuedConcurrentMetricsServiceThread extends Thread {
     private final MetricsManager metricsManager;
     private final ConcurrentErrorReporter errorReporter;
     private final QueueEventFetcher<MetricsCollectionEvent> queueEventFetcher;
-    private final ExecutionDelayPolicy executionDelayPolicy;
-    private final boolean shouldRecordStartTimeDelayLatencies;
     private final SimpleCsvFileWriter csvResultsLogWriter;
     private final TimeUnit unit;
     private Long processedEventCount = 0l;
@@ -25,16 +22,12 @@ public class ThreadedQueuedConcurrentMetricsServiceThread extends Thread {
 
     public ThreadedQueuedConcurrentMetricsServiceThread(ConcurrentErrorReporter errorReporter,
                                                         Queue<MetricsCollectionEvent> metricsEventsQueue,
-                                                        boolean shouldRecordStartTimeDelayLatencies,
-                                                        ExecutionDelayPolicy executionDelayPolicy,
                                                         SimpleCsvFileWriter csvResultsLogWriter,
                                                         TimeSource timeSource,
                                                         TimeUnit unit,
                                                         long maxRuntimeDurationAsNano) {
         this(errorReporter,
                 QueueEventFetcher.queueEventFetcherFor(metricsEventsQueue),
-                shouldRecordStartTimeDelayLatencies,
-                executionDelayPolicy,
                 csvResultsLogWriter,
                 timeSource,
                 unit,
@@ -43,8 +36,6 @@ public class ThreadedQueuedConcurrentMetricsServiceThread extends Thread {
 
     private ThreadedQueuedConcurrentMetricsServiceThread(ConcurrentErrorReporter errorReporter,
                                                          QueueEventFetcher<MetricsCollectionEvent> queueEventFetcher,
-                                                         boolean shouldRecordStartTimeDelayLatencies,
-                                                         ExecutionDelayPolicy executionDelayPolicy,
                                                          SimpleCsvFileWriter csvResultsLogWriter,
                                                          TimeSource timeSource,
                                                          TimeUnit unit,
@@ -52,8 +43,6 @@ public class ThreadedQueuedConcurrentMetricsServiceThread extends Thread {
         super(ThreadedQueuedConcurrentMetricsServiceThread.class.getSimpleName() + "-" + System.currentTimeMillis());
         this.errorReporter = errorReporter;
         this.queueEventFetcher = queueEventFetcher;
-        this.shouldRecordStartTimeDelayLatencies = shouldRecordStartTimeDelayLatencies;
-        this.executionDelayPolicy = executionDelayPolicy;
         this.csvResultsLogWriter = csvResultsLogWriter;
         this.unit = unit;
         this.metricsManager = new MetricsManager(
@@ -82,30 +71,16 @@ public class ThreadedQueuedConcurrentMetricsServiceThread extends Thread {
                             );
                         }
 
-                        boolean shouldRecordResultMetricsForThisOperation = true;
-                        if (shouldRecordStartTimeDelayLatencies) {
-                            // TODO if operation is blocked in spinner because something like GCT_CHECK never returns there needs to be a way to detect and terminate
-                            // TODO this may not be triggered by maximum runtime check, as execution does not begin until spinner returns
-                            // TODO perhaps it can be done in the same/similar way though, by somehow getting metrics service to occasionally check for "progress"? look into further
-                            // TOO EARLY = <---(now)--(scheduled)[<---delay--->]------> <=(Time Line)
-                            // GOOD      = <-----(scheduled)[<-(now)--delay--->]------> <=(Time Line)
-                            // TOO LATE  = <-----(scheduled)[<---delay--->]--(now)----> <=(Time Line)
-                            if (result.operation().scheduledStartTimeAsMilli() + executionDelayPolicy.toleratedDelayAsMilli() < result.actualStartTimeAsMilli()) {
-                                shouldRecordResultMetricsForThisOperation = executionDelayPolicy.handleExcessiveDelay(result.operation());
-                            }
+                        try {
+                            metricsManager.measure(result);
+                        } catch (MetricsCollectionException e) {
+                            errorReporter.reportError(
+                                    this,
+                                    String.format("Encountered error while collecting metrics for result: %s\n%s",
+                                            result.toString(),
+                                            ConcurrentErrorReporter.stackTraceToString(e)));
                         }
 
-                        if (shouldRecordResultMetricsForThisOperation) {
-                            try {
-                                metricsManager.measure(result);
-                            } catch (MetricsCollectionException e) {
-                                errorReporter.reportError(
-                                        this,
-                                        String.format("Encountered error while collecting metrics for result: %s\n%s",
-                                                result.toString(),
-                                                ConcurrentErrorReporter.stackTraceToString(e)));
-                            }
-                        }
                         processedEventCount++;
                         break;
                     case WORKLOAD_STATUS:

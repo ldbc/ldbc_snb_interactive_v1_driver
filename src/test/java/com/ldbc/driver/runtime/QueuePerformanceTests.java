@@ -68,9 +68,7 @@ public class QueuePerformanceTests {
         TimeUnit timeUnit = TimeUnit.MILLISECONDS;
         String resultDirPath = null;
         double timeCompressionRatio = 1.0;
-        long windowedExecutionWindowDuration = 1000l;
         Set<String> peerIds = new HashSet<>();
-        long toleratedExecutionDelay = TEMPORAL_UTIL.convert(1, TimeUnit.HOURS, TimeUnit.MILLISECONDS);
         ConsoleAndFileDriverConfiguration.ConsoleAndFileValidationParamOptions validationParams = null;
         String dbValidationFilePath = null;
         boolean validateWorkload = false;
@@ -91,9 +89,7 @@ public class QueuePerformanceTests {
                 timeUnit,
                 resultDirPath,
                 timeCompressionRatio,
-                windowedExecutionWindowDuration,
                 peerIds,
-                toleratedExecutionDelay,
                 validationParams,
                 dbValidationFilePath,
                 validateWorkload,

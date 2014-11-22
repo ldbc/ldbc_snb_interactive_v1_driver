@@ -16,8 +16,6 @@ import com.ldbc.driver.runtime.metrics.ConcurrentMetricsService;
 import com.ldbc.driver.runtime.metrics.MetricsCollectionException;
 import com.ldbc.driver.runtime.metrics.ThreadedQueuedConcurrentMetricsService;
 import com.ldbc.driver.runtime.metrics.WorkloadResultsSnapshot;
-import com.ldbc.driver.runtime.scheduling.ErrorReportingTerminatingExecutionDelayPolicy;
-import com.ldbc.driver.runtime.scheduling.ExecutionDelayPolicy;
 import com.ldbc.driver.temporal.SystemTimeSource;
 import com.ldbc.driver.temporal.TemporalUtil;
 import com.ldbc.driver.temporal.TimeSource;
@@ -29,7 +27,6 @@ import com.ldbc.driver.util.csv.SimpleCsvFileWriter;
 import com.ldbc.driver.workloads.ldbc.snb.interactive.LdbcSnbInteractiveConfiguration;
 import com.ldbc.driver.workloads.ldbc.snb.interactive.LdbcSnbInteractiveWorkload;
 import com.ldbc.driver.workloads.ldbc.snb.interactive.db.DummyLdbcSnbInteractiveDb;
-import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
@@ -56,8 +53,6 @@ public class WorkloadRunnerTest {
     TimeSource timeSource = new SystemTimeSource();
     CompletionTimeServiceAssistant completionTimeServiceAssistant = new CompletionTimeServiceAssistant();
 
-    // TODO remove the ignore as soon as possible, this is due to the dependency time bug
-    @Ignore
     @Test
     public void shouldRunReadOnlyLdbcWorkloadWithNothingDbAndReturnExpectedMetrics()
             throws InterruptedException, DbException, WorkloadException, IOException, MetricsCollectionException, CompletionTimeException, DriverConfigurationException {
@@ -88,9 +83,7 @@ public class WorkloadRunnerTest {
             TimeUnit timeUnit = TimeUnit.NANOSECONDS;
             String resultDirPath = temporaryFolder.newFolder().getAbsolutePath();
             double timeCompressionRatio = 0.00001;
-            long windowedExecutionWindowDuration = 1000l;
             Set<String> peerIds = new HashSet<>();
-            long toleratedExecutionDelay = TEMPORAL_UTIL.convert(1, TimeUnit.HOURS, TimeUnit.MILLISECONDS);
             ConsoleAndFileDriverConfiguration.ConsoleAndFileValidationParamOptions validationParams = null;
             String dbValidationFilePath = null;
             boolean validateWorkload = false;
@@ -111,9 +104,7 @@ public class WorkloadRunnerTest {
                     timeUnit,
                     resultDirPath,
                     timeCompressionRatio,
-                    windowedExecutionWindowDuration,
                     peerIds,
-                    toleratedExecutionDelay,
                     validationParams,
                     dbValidationFilePath,
                     validateWorkload,
@@ -143,11 +134,6 @@ public class WorkloadRunnerTest {
                     gf
             );
 
-            boolean recordStartTimeDelayLatency = false == configuration.ignoreScheduledStartTimes();
-            ExecutionDelayPolicy executionDelayPolicy = new ErrorReportingTerminatingExecutionDelayPolicy(
-                    timeSource,
-                    toleratedExecutionDelay,
-                    errorReporter);
             File resultsLog = temporaryFolder.newFile();
             SimpleCsvFileWriter csvResultsLogWriter = new SimpleCsvFileWriter(resultsLog, SimpleCsvFileWriter.DEFAULT_COLUMN_SEPARATOR);
             metricsService = ThreadedQueuedConcurrentMetricsService.newInstanceUsingBlockingQueue(
@@ -155,8 +141,6 @@ public class WorkloadRunnerTest {
                     errorReporter,
                     configuration.timeUnit(),
                     ThreadedQueuedConcurrentMetricsService.DEFAULT_HIGHEST_EXPECTED_RUNTIME_DURATION_AS_NANO,
-                    recordStartTimeDelayLatency,
-                    executionDelayPolicy,
                     csvResultsLogWriter);
 
             ConcurrentCompletionTimeService concurrentCompletionTimeService =
@@ -186,7 +170,6 @@ public class WorkloadRunnerTest {
 
             assertThat(errorReporter.toString() + "\n" + workloadResults.toString(), errorReporter.errorEncountered(), is(false));
             assertThat(errorReporter.toString() + "\n" + workloadResults.toString(), workloadResults.startTimeAsMilli() >= controlService.workloadStartTimeAsMilli(), is(true));
-            assertThat(errorReporter.toString() + "\n" + workloadResults.toString(), workloadResults.startTimeAsMilli() < (controlService.workloadStartTimeAsMilli() + configuration.toleratedExecutionDelayAsMilli()), is(true));
             assertThat(errorReporter.toString() + "\n" + workloadResults.toString(), workloadResults.latestFinishTimeAsMilli() >= workloadResults.startTimeAsMilli(), is(true));
             assertThat(errorReporter.toString() + "\n" + workloadResults.toString(), workloadResults.totalOperationCount(), is(operationCount));
 
@@ -250,9 +233,7 @@ public class WorkloadRunnerTest {
             TimeUnit timeUnit = TimeUnit.NANOSECONDS;
             String resultDirPath = temporaryFolder.newFolder().getAbsolutePath();
             double timeCompressionRatio = 0.00001;
-            long windowedExecutionWindowDuration = 1000l;
             Set<String> peerIds = new HashSet<>();
-            long toleratedExecutionDelay = TEMPORAL_UTIL.convert(1, TimeUnit.HOURS, TimeUnit.MILLISECONDS);
             ConsoleAndFileDriverConfiguration.ConsoleAndFileValidationParamOptions validationParams = null;
             String dbValidationFilePath = null;
             boolean validateWorkload = false;
@@ -273,9 +254,7 @@ public class WorkloadRunnerTest {
                     timeUnit,
                     resultDirPath,
                     timeCompressionRatio,
-                    windowedExecutionWindowDuration,
                     peerIds,
-                    toleratedExecutionDelay,
                     validationParams,
                     dbValidationFilePath,
                     validateWorkload,
@@ -305,11 +284,6 @@ public class WorkloadRunnerTest {
                     gf
             );
 
-            boolean recordStartTimeDelayLatency = false == configuration.ignoreScheduledStartTimes();
-            ExecutionDelayPolicy executionDelayPolicy = new ErrorReportingTerminatingExecutionDelayPolicy(
-                    timeSource,
-                    toleratedExecutionDelay,
-                    errorReporter);
             File resultsLog = temporaryFolder.newFile();
             SimpleCsvFileWriter csvResultsLogWriter = new SimpleCsvFileWriter(resultsLog, SimpleCsvFileWriter.DEFAULT_COLUMN_SEPARATOR);
             metricsService = ThreadedQueuedConcurrentMetricsService.newInstanceUsingBlockingQueue(
@@ -317,8 +291,6 @@ public class WorkloadRunnerTest {
                     errorReporter,
                     configuration.timeUnit(),
                     ThreadedQueuedConcurrentMetricsService.DEFAULT_HIGHEST_EXPECTED_RUNTIME_DURATION_AS_NANO,
-                    recordStartTimeDelayLatency,
-                    executionDelayPolicy,
                     csvResultsLogWriter);
 
             ConcurrentCompletionTimeService concurrentCompletionTimeService =
@@ -348,7 +320,6 @@ public class WorkloadRunnerTest {
 
             assertThat(errorReporter.toString() + "\n" + workloadResults.toString(), errorReporter.errorEncountered(), is(false));
             assertThat(errorReporter.toString() + "\n" + workloadResults.toString(), workloadResults.startTimeAsMilli() >= controlService.workloadStartTimeAsMilli(), is(true));
-            assertThat(errorReporter.toString() + "\n" + workloadResults.toString(), workloadResults.startTimeAsMilli() < (controlService.workloadStartTimeAsMilli() + configuration.toleratedExecutionDelayAsMilli()), is(true));
             assertThat(errorReporter.toString() + "\n" + workloadResults.toString(), workloadResults.latestFinishTimeAsMilli() >= workloadResults.startTimeAsMilli(), is(true));
             assertThat(errorReporter.toString() + "\n" + workloadResults.toString(), workloadResults.totalOperationCount(), is(operationCount));
 
@@ -437,9 +408,7 @@ public class WorkloadRunnerTest {
             TimeUnit timeUnit = TimeUnit.NANOSECONDS;
             String resultDirPath = temporaryFolder.newFolder().getAbsolutePath();
             double timeCompressionRatio = 1.0;
-            long windowedExecutionWindowDuration = 1000l;
             Set<String> peerIds = new HashSet<>();
-            long toleratedExecutionDelay = TEMPORAL_UTIL.convert(1, TimeUnit.HOURS, TimeUnit.MILLISECONDS);
             ConsoleAndFileDriverConfiguration.ConsoleAndFileValidationParamOptions validationParams = null;
             String dbValidationFilePath = null;
             boolean validateWorkload = false;
@@ -460,9 +429,7 @@ public class WorkloadRunnerTest {
                     timeUnit,
                     resultDirPath,
                     timeCompressionRatio,
-                    windowedExecutionWindowDuration,
                     peerIds,
-                    toleratedExecutionDelay,
                     validationParams,
                     dbValidationFilePath,
                     validateWorkload,
@@ -489,11 +456,7 @@ public class WorkloadRunnerTest {
                     Collections.<Operation<?>>emptyIterator(),
                     timeMappedOperations
             );
-            boolean recordStartTimeDelayLatency = false == configuration.ignoreScheduledStartTimes();
-            ExecutionDelayPolicy executionDelayPolicy = new ErrorReportingTerminatingExecutionDelayPolicy(
-                    timeSource,
-                    toleratedExecutionDelay,
-                    errorReporter);
+
             File resultsLog = temporaryFolder.newFile();
             SimpleCsvFileWriter csvResultsLogWriter = new SimpleCsvFileWriter(resultsLog, SimpleCsvFileWriter.DEFAULT_COLUMN_SEPARATOR);
             metricsService = ThreadedQueuedConcurrentMetricsService.newInstanceUsingBlockingQueue(
@@ -501,8 +464,6 @@ public class WorkloadRunnerTest {
                     errorReporter,
                     configuration.timeUnit(),
                     ThreadedQueuedConcurrentMetricsService.DEFAULT_HIGHEST_EXPECTED_RUNTIME_DURATION_AS_NANO,
-                    recordStartTimeDelayLatency,
-                    executionDelayPolicy,
                     csvResultsLogWriter);
 
             int boundedQueueSize = DefaultQueues.DEFAULT_BOUND_1000;
@@ -526,9 +487,6 @@ public class WorkloadRunnerTest {
             assertThat(
                     errorReporter.toString() + "\n" + workloadResults.toString(),
                     errorReporter.errorEncountered(), is(false));
-            assertThat(
-                    errorReporter.toString() + "\n" + workloadResults.toString(),
-                    workloadResults.startTimeAsMilli() < (controlService.workloadStartTimeAsMilli() + configuration.toleratedExecutionDelayAsMilli()), is(true));
             assertThat(
                     errorReporter.toString() + "\n" + workloadResults.toString(),
                     workloadResults.latestFinishTimeAsMilli() >= workloadResults.startTimeAsMilli(), is(true));

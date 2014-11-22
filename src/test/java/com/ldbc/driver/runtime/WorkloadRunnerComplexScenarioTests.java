@@ -10,11 +10,8 @@ import com.ldbc.driver.runtime.coordination.CompletionTimeException;
 import com.ldbc.driver.runtime.coordination.CompletionTimeServiceAssistant;
 import com.ldbc.driver.runtime.coordination.ConcurrentCompletionTimeService;
 import com.ldbc.driver.runtime.metrics.ConcurrentMetricsService;
-import com.ldbc.driver.runtime.metrics.DummyCountingConcurrentMetricsService;
 import com.ldbc.driver.runtime.metrics.MetricsCollectionException;
 import com.ldbc.driver.runtime.metrics.ThreadedQueuedConcurrentMetricsService;
-import com.ldbc.driver.runtime.scheduling.ErrorReportingTerminatingExecutionDelayPolicy;
-import com.ldbc.driver.runtime.scheduling.ExecutionDelayPolicy;
 import com.ldbc.driver.runtime.scheduling.Spinner;
 import com.ldbc.driver.temporal.ManualTimeSource;
 import com.ldbc.driver.temporal.TemporalUtil;
@@ -24,7 +21,6 @@ import com.ldbc.driver.workloads.dummy.DummyDb;
 import com.ldbc.driver.workloads.dummy.TimedNamedOperation1;
 import com.ldbc.driver.workloads.dummy.TimedNamedOperation2;
 import com.ldbc.driver.workloads.dummy.TimedNamedOperation2Factory;
-import org.junit.Ignore;
 import org.junit.Test;
 
 import java.io.IOException;
@@ -42,195 +38,11 @@ public class WorkloadRunnerComplexScenarioTests {
     private final ManualTimeSource timeSource = new ManualTimeSource(0);
     private final CompletionTimeServiceAssistant completionTimeServiceAssistant = new CompletionTimeServiceAssistant();
     private final GeneratorFactory gf = new GeneratorFactory(new RandomDataGeneratorFactory(42l));
-    private final boolean recordStartTimeDelayLatency = true;
-
-    // TODO consider putting all of the following into one, single background thread:
-    // TODO  - completion time service (possibly not, for performance reasons)
-    // TODO  - metrics collection service
-    // TODO  - status printout
-
-    @Ignore
-    @Test
-    public void writeTestsThatCheckForExcessiveExecutionTime() {
-        // TODO add a mechanism to terminate if any query exceeds maximum execution time
-        // TODO this would need to be placed in MetricsReporter/CompletionTimeService/Executors/?
-        // TODO or something similar that checks for initiated but uncompleted operations
-        assertThat(true, is(false));
-    }
-
-    @Ignore
-    @Test
-    public void writeTestsWhereBothExecutorsHaveREADOperations() {
-        assertThat(true, is(false));
-    }
-
-    @Ignore
-    @Test
-    public void haveMoreVariationsOfEachTest() {
-        // TODO - different completion time service implementations
-        // TODO - different metrics service implementations
-        assertThat(true, is(false));
-    }
-
-    @Ignore
-    @Test
-    public void forCleanShutdownExecutorsDefinitelyNeedToManageTheirOwnThreadPools() {
-        assertThat(true, is(false));
-    }
-
-    /*
-    TODO Ignore for now, for the following reasons:
-    TODO - when SameThreadOperationHandlerExecutor used PreciseIndividualSynchronousStreamExecutorService blocks on OperationHandlerExecutor.execute()
-    TODO - Synchronous operations are supposed to be fast operations, so fast that single threaded execution is fast enough
-    TODO - when MetricsService (or similar) can test for maximum query runtime the executors will not have to do this
-     */
-    @Ignore
-    @Test
-    public void shouldCauseErrorIfLastSynchronousOperationHandlerTakesTooLongToComplete() throws CompletionTimeException, InterruptedException, MetricsCollectionException, WorkloadException, DbException, IOException {
-        shouldCauseErrorIfLastSynchronousOperationHandlerTakesTooLongToComplete(4);
-        shouldCauseErrorIfLastSynchronousOperationHandlerTakesTooLongToComplete(16);
-    }
-
-    public void shouldCauseErrorIfLastSynchronousOperationHandlerTakesTooLongToComplete(int threadCount) throws CompletionTimeException, InterruptedException, MetricsCollectionException, WorkloadException, DbException, IOException {
-        ConcurrentErrorReporter errorReporter = new ConcurrentErrorReporter();
-        ConcurrentMetricsService metricsService = new DummyCountingConcurrentMetricsService();
-        Set<String> peerIds = new HashSet<>();
-        ConcurrentCompletionTimeService completionTimeService =
-                completionTimeServiceAssistant.newSynchronizedConcurrentCompletionTimeServiceFromPeerIds(peerIds);
-        try (DummyDb db = new DummyDb()) {
-            /*
-                Number of writers: 0 ()
-                Number of executors: 2 (blocking & async)
-                Initialized to: IT[ , ] CT[0,1]
-                Thread Pool Size: ---
-                Tolerated Delay == 1
-                Shutdown Timeout = 10
-
-                ASYNC                   PROCESSING      BLOCKING                PROCESSING      ACTION           COMPLETED
-                READ                                    READ_WRITE
-                TimedNamedOperation1                    TimedNamedOperation2
-            0                           []                                      []                               0
-            1                           []                                      []                               0
-            2                           []              S(2)D(0)                []              BLOCK S(2)D(0)   0
-            3   S(3)D(0)                S(3)<-[]                                []                               1
-            4   S(4)D(0)                S(4)<-[]                                []                               2
-            5   S(5)D(0)                S(5)<-[]                                []                               3
-            ...
-            11                          []                                      []                               3
-            12                          []                                      []                               3
-            13                          []                                      []                               3      BOOM S(2) took too long
-             */
-
-            WorkloadStreams workloadStreams = new WorkloadStreams();
-            workloadStreams.setAsynchronousStream(
-                    Sets.<Class<? extends Operation<?>>>newHashSet(),
-                    Collections.<Operation<?>>emptyIterator(),
-                    Lists.<Operation<?>>newArrayList(
-                            new TimedNamedOperation1(3, 3, 0, "S(3)D(0)"),
-                            new TimedNamedOperation1(4, 4, 0, "S(4)D(0)"),
-                            new TimedNamedOperation1(5, 5, 0, "S(5)D(0)")
-                    ).iterator()
-            );
-            workloadStreams.addBlockingStream(
-                    Sets.<Class<? extends Operation<?>>>newHashSet(),
-                    Collections.<Operation<?>>emptyIterator(),
-                    Lists.<Operation<?>>newArrayList(
-                            new TimedNamedOperation2(2, 2, 0, "S(2)D(0)")
-                    ).iterator()
-            );
-
-            Map<String, String> params = new HashMap<>();
-            params.put(DummyDb.ALLOWED_DEFAULT_ARG, Boolean.toString(false));
-            db.init(params);
-
-            WorkloadRunnerThread runnerThread = workloadRunnerThread(
-                    timeSource,
-                    workloadStreams,
-                    threadCount,
-                    errorReporter,
-                    metricsService,
-                    completionTimeService,
-                    db
-            );
-
-            timeSource.setNowFromMilli(0);
-            assertThat(errorReporter.toString(), metricsService.results().totalOperationCount(), is(0l));
-            assertThat(errorReporter.toString(), errorReporter.errorEncountered(), is(false));
-
-            runnerThread.start();
-
-            Thread.sleep(ENOUGH_MILLISECONDS_FOR_RUNNER_THREAD_TO_DO_ITS_THING);
-            assertThat(errorReporter.toString(), metricsService.results().totalOperationCount(), is(0l));
-            assertThat(errorReporter.toString(), errorReporter.errorEncountered(), is(false));
-
-            timeSource.setNowFromMilli(1);
-            Thread.sleep(ENOUGH_MILLISECONDS_FOR_RUNNER_THREAD_TO_DO_ITS_THING);
-            assertThat(errorReporter.toString(), metricsService.results().totalOperationCount(), is(0l));
-            assertThat(errorReporter.toString(), errorReporter.errorEncountered(), is(false));
-
-            // S(2)D(0) is blocked
-            timeSource.setNowFromMilli(2);
-            Thread.sleep(ENOUGH_MILLISECONDS_FOR_RUNNER_THREAD_TO_DO_ITS_THING);
-            assertThat(errorReporter.toString(), metricsService.results().totalOperationCount(), is(0l));
-            assertThat(errorReporter.toString(), errorReporter.errorEncountered(), is(false));
-
-            timeSource.setNowFromMilli(3);
-            db.setNameAllowedValue("S(3)D(0)", true);
-            Thread.sleep(ENOUGH_MILLISECONDS_FOR_RUNNER_THREAD_TO_DO_ITS_THING);
-            assertThat(errorReporter.toString(), metricsService.results().totalOperationCount(), is(1l));
-            assertThat(errorReporter.toString(), errorReporter.errorEncountered(), is(false));
-
-            timeSource.setNowFromMilli(4);
-            db.setNameAllowedValue("S(4)D(0)", true);
-            Thread.sleep(ENOUGH_MILLISECONDS_FOR_RUNNER_THREAD_TO_DO_ITS_THING);
-            assertThat(errorReporter.toString(), metricsService.results().totalOperationCount(), is(2l));
-            assertThat(errorReporter.toString(), errorReporter.errorEncountered(), is(false));
-
-            timeSource.setNowFromMilli(5);
-            db.setNameAllowedValue("S(5)D(0)", true);
-            Thread.sleep(ENOUGH_MILLISECONDS_FOR_RUNNER_THREAD_TO_DO_ITS_THING);
-            assertThat(errorReporter.toString(), metricsService.results().totalOperationCount(), is(3l));
-            assertThat(errorReporter.toString(), errorReporter.errorEncountered(), is(false));
-
-            timeSource.setNowFromMilli(11);
-            Thread.sleep(ENOUGH_MILLISECONDS_FOR_RUNNER_THREAD_TO_DO_ITS_THING);
-            assertThat(errorReporter.toString(), metricsService.results().totalOperationCount(), is(3l));
-            assertThat(errorReporter.toString(), errorReporter.errorEncountered(), is(false));
-
-            // 10 ms after last synchronous operation
-            timeSource.setNowFromMilli(12);
-            Thread.sleep(ENOUGH_MILLISECONDS_FOR_RUNNER_THREAD_TO_DO_ITS_THING);
-            assertThat(errorReporter.toString(), metricsService.results().totalOperationCount(), is(3l));
-            // TODO expect true get false
-            assertThat(errorReporter.toString(), errorReporter.errorEncountered(), is(true));
-
-            // free S(2)D(0) so everything shuts down cleanly
-            db.setNameAllowedValue("S(2)D(0)", true);
-
-            long durationToWaitForRunnerToCompleteAsMilli = WorkloadRunner.RUNNER_POLLING_INTERVAL_AS_MILLI * 4;
-            long timeoutTimeAsMilli = timeSource.nowAsMilli() + durationToWaitForRunnerToCompleteAsMilli;
-            while (timeSource.nowAsMilli() < timeoutTimeAsMilli) {
-                if (runnerThread.runnerHasCompleted()) break;
-                Spinner.powerNap(100);
-            }
-
-            db.setAllowedValueForAll(true);
-            assertThat(errorReporter.toString(), runnerThread.runnerHasCompleted(), is(true));
-            assertThat(errorReporter.toString(), runnerThread.runnerCompletedSuccessfully(), is(false));
-        } catch (Throwable e) {
-            e.printStackTrace();
-            throw e;
-        } finally {
-            Thread.sleep(ENOUGH_MILLISECONDS_FOR_RUNNER_THREAD_TO_DO_ITS_THING);
-            metricsService.shutdown();
-            completionTimeService.shutdown();
-        }
-    }
 
     @Test
     public void oneExecutorShouldNotBeAbleToStarveAnotherOfThreads() throws WorkloadException, CompletionTimeException, DbException, InterruptedException, MetricsCollectionException, IOException {
         // fails with 1 thread, need to investigate further, probably because there is no available thread to execute an operation handler in time <-- not necessarily a bug
-        // oneExecutorShouldNotBeAbleToStarveAnotherOfThreads(1);
+//        oneExecutorShouldNotBeAbleToStarveAnotherOfThreads(1);
         oneExecutorShouldNotBeAbleToStarveAnotherOfThreads(4);
         oneExecutorShouldNotBeAbleToStarveAnotherOfThreads(16);
     }
@@ -241,7 +53,6 @@ public class WorkloadRunnerComplexScenarioTests {
                 Number of executors: 2 (blocking & async)
                 Initialized to: IT[ , ] CT[0,1]
                 Thread Pool Size: 2
-                Tolerated Delay == 3
 
                 ASYNC                   THREADS         BLOCKING                THREADS
                 READ                                    READ_WRITE                          GCT (assumes initiated time submitted quickly)  ACTION                          COMPLETED
@@ -261,19 +72,12 @@ public class WorkloadRunnerComplexScenarioTests {
              */
 
         ConcurrentErrorReporter errorReporter = new ConcurrentErrorReporter();
-        long toleratedExecutionDelayDurationAsMilli = 3;
-        ExecutionDelayPolicy executionDelayPolicy = new ErrorReportingTerminatingExecutionDelayPolicy(
-                timeSource,
-                toleratedExecutionDelayDurationAsMilli,
-                errorReporter);
         SimpleCsvFileWriter csvResultsLogWriter = null;
         ConcurrentMetricsService metricsService = ThreadedQueuedConcurrentMetricsService.newInstanceUsingBlockingQueue(
                 timeSource,
                 errorReporter,
                 TimeUnit.MILLISECONDS,
                 ThreadedQueuedConcurrentMetricsService.DEFAULT_HIGHEST_EXPECTED_RUNTIME_DURATION_AS_NANO,
-                recordStartTimeDelayLatency,
-                executionDelayPolicy,
                 csvResultsLogWriter);
 
         Set<String> peerIds = new HashSet<>();
@@ -443,7 +247,6 @@ public class WorkloadRunnerComplexScenarioTests {
                 Number of executors: 2 (blocking & async)
                 Initialized to: IT[ , ] CT[0,1]
 
-                Tolerated Delay == 10 <-- high enough that it plays no role in this test
                 ASYNC                   BLOCKING
                 READ_WRITE              READ_WRITE                  GCT (assumes initiated time submitted quickly)          ACTION
                 TimedNamedOperation1    TimedNamedOperation2
@@ -464,19 +267,12 @@ public class WorkloadRunnerComplexScenarioTests {
              */
         ConcurrentErrorReporter errorReporter = new ConcurrentErrorReporter();
 
-        long toleratedExecutionDelayDurationAsMilli = 10;
-        ExecutionDelayPolicy executionDelayPolicy = new ErrorReportingTerminatingExecutionDelayPolicy(
-                timeSource,
-                toleratedExecutionDelayDurationAsMilli,
-                errorReporter);
         SimpleCsvFileWriter csvResultsLogWriter = null;
         ConcurrentMetricsService metricsService = ThreadedQueuedConcurrentMetricsService.newInstanceUsingBlockingQueue(
                 timeSource,
                 errorReporter,
                 TimeUnit.MILLISECONDS,
                 ThreadedQueuedConcurrentMetricsService.DEFAULT_HIGHEST_EXPECTED_RUNTIME_DURATION_AS_NANO,
-                recordStartTimeDelayLatency,
-                executionDelayPolicy,
                 csvResultsLogWriter);
 
         Set<String> peerIds = new HashSet<>();
@@ -607,550 +403,6 @@ public class WorkloadRunnerComplexScenarioTests {
         }
     }
 
-    @Ignore
-    @Test
-    public void shouldFailWhenGctWriteOperationInAsyncModePreventsGctFromAdvancingHenceBlockingAnOperationFromExecutingBeforeToleratedDelay()
-            throws InterruptedException, MetricsCollectionException, DbException, CompletionTimeException, WorkloadException, IOException {
-        // fails with 1 thread, need to investigate further, probably because there is no available thread to execute an operation handler in time <-- not necessarily a bug
-        // shouldFailWhenGctWriteOperationInAsyncModePreventsGctFromAdvancingHenceBlockingAnOperationFromExecutingBeforeToleratedDelay(1);
-        shouldFailWhenGctWriteOperationInAsyncModePreventsGctFromAdvancingHenceBlockingAnOperationFromExecutingBeforeToleratedDelay(4);
-//        shouldFailWhenGctWriteOperationInAsyncModePreventsGctFromAdvancingHenceBlockingAnOperationFromExecutingBeforeToleratedDelay(16);
-    }
-
-    public void shouldFailWhenGctWriteOperationInAsyncModePreventsGctFromAdvancingHenceBlockingAnOperationFromExecutingBeforeToleratedDelay(int threadCount)
-            throws InterruptedException, MetricsCollectionException, DbException, CompletionTimeException, WorkloadException, IOException {
-        /*
-            Number of writers: 1 (async)
-            Number of executors: 1 (async)
-            Initialized to: IT[ , ] CT[0,1]
-
-            Tolerated Delay == 3
-            ASYNC                   ASYNC
-            READ                    READ_WRITE              GCT (assumes initiated time submitted quickly)
-            TimedNamedOperation1    TimedNamedOperation2
-        0                                                   1 <~~ S(2)D(0) initialized (READ ONLY)
-        1                                                   1
-        2   S(2)D(0)                                        1 <-- S(3)D(0) initialized
-        3                           S(3)D(0)                3 <~~ S(4)D(0) initialized (READ ONLY)
-        4   S(4)D(3)                                        3 <-- S(6)D(0) initialized
-        5                                                   3
-        6                           S(6)D(0) !!BLOCKS!!     3 <~~ S(7)D(3) initialized (READ ONLY)
-        7   S(7)D(3)                                        3 <-- S(9)D(0) initialized
-        8                                                   3
-        9                           S(9)D(0)                3 <~~ S(11)D(9) initialized (READ ONLY)
-        10                                                  3
-        11  S(11)D(9) !!WAITS!!                             3 <~~ S(13)D(3) initialized (READ ONLY)
-        12                                                  3
-        13  S(13)D(3)                                       3
-        14                                                  3
-        15  !!"S(11)D(9)" !!DELAY!!                         3
-         */
-        ConcurrentErrorReporter errorReporter = new ConcurrentErrorReporter();
-
-        long toleratedExecutionDelayDurationAsMilli = 3;
-        ExecutionDelayPolicy executionDelayPolicy = new ErrorReportingTerminatingExecutionDelayPolicy(
-                timeSource,
-                toleratedExecutionDelayDurationAsMilli,
-                errorReporter);
-        SimpleCsvFileWriter csvResultsLogWriter = null;
-        ConcurrentMetricsService metricsService = ThreadedQueuedConcurrentMetricsService.newInstanceUsingBlockingQueue(
-                timeSource,
-                errorReporter,
-                TimeUnit.MILLISECONDS,
-                ThreadedQueuedConcurrentMetricsService.DEFAULT_HIGHEST_EXPECTED_RUNTIME_DURATION_AS_NANO,
-                recordStartTimeDelayLatency,
-                executionDelayPolicy,
-                csvResultsLogWriter);
-
-        Set<String> peerIds = new HashSet<>();
-        // TODO test also with threaded completion time service implementation
-        ConcurrentCompletionTimeService completionTimeService =
-                completionTimeServiceAssistant.newSynchronizedConcurrentCompletionTimeServiceFromPeerIds(peerIds);
-
-        WorkloadStreams workloadStreams = new WorkloadStreams();
-        Set<Class<? extends Operation<?>>> asynchronousDependentOperationTypes = Sets.<Class<? extends Operation<?>>>newHashSet(
-                TimedNamedOperation1.class,
-                TimedNamedOperation2.class
-        );
-        Iterator<Operation<?>> asynchronousDependencyOperations = Lists.<Operation<?>>newArrayList(
-                new TimedNamedOperation2(3, 3, 0, "readwrite1"),
-                new TimedNamedOperation2(6, 6, 0, "readwrite2"),
-                new TimedNamedOperation2(9, 9, 0, "readwrite3")
-        ).iterator();
-        Iterator<Operation<?>> asynchronousNonDependencyOperations = Lists.<Operation<?>>newArrayList(
-                new TimedNamedOperation1(2, 2, 0, "read1"),
-                new TimedNamedOperation1(4, 4, 3, "read2"),
-                new TimedNamedOperation1(7, 7, 3, "read3"),
-                new TimedNamedOperation1(11, 11, 9, "read4"),
-                new TimedNamedOperation1(13, 13, 3, "read5")
-        ).iterator();
-        workloadStreams.setAsynchronousStream(
-                asynchronousDependentOperationTypes,
-                asynchronousDependencyOperations,
-                asynchronousNonDependencyOperations
-        );
-        Set<Class<? extends Operation<?>>> blockingDependentOperationTypes = Sets.<Class<? extends Operation<?>>>newHashSet(
-        );
-        Iterator<Operation<?>> blockingDependencyOperations = Lists.<Operation<?>>newArrayList(
-        ).iterator();
-        Iterator<Operation<?>> blockingNonDependencyOperations = Lists.<Operation<?>>newArrayList(
-        ).iterator();
-        workloadStreams.addBlockingStream(
-                blockingDependentOperationTypes,
-                blockingDependencyOperations,
-                blockingNonDependencyOperations
-        );
-
-        Map<String, String> params = new HashMap<>();
-        params.put(DummyDb.ALLOWED_DEFAULT_ARG, "false");
-
-        try (DummyDb db = new DummyDb()) {
-            db.init(params);
-
-            WorkloadRunnerThread runnerThread = workloadRunnerThread(
-                    timeSource,
-                    workloadStreams,
-                    threadCount,
-                    errorReporter,
-                    metricsService,
-                    completionTimeService,
-                    db
-            );
-
-            // initialize GCT
-            completionTimeServiceAssistant.writeInitiatedAndCompletedTimesToAllWriters(completionTimeService, 0);
-            completionTimeServiceAssistant.writeInitiatedAndCompletedTimesToAllWriters(completionTimeService, 1);
-
-            timeSource.setNowFromMilli(0);
-            assertThat(errorReporter.toString(), completionTimeService.globalCompletionTimeAsMilli(), is(0l));
-            assertThat(errorReporter.toString(), metricsService.results().totalOperationCount(), is(0l));
-            assertThat(errorReporter.toString(), errorReporter.errorEncountered(), is(false));
-
-            runnerThread.start();
-
-            Thread.sleep(ENOUGH_MILLISECONDS_FOR_RUNNER_THREAD_TO_DO_ITS_THING);
-            assertThat(errorReporter.toString(), metricsService.results().totalOperationCount(), is(0l));
-            assertThat(errorReporter.toString(), completionTimeService.globalCompletionTimeAsMilli(), equalTo(1l));
-            assertThat(errorReporter.toString(), errorReporter.errorEncountered(), is(false));
-
-            timeSource.setNowFromMilli(1);
-            Thread.sleep(ENOUGH_MILLISECONDS_FOR_RUNNER_THREAD_TO_DO_ITS_THING);
-            assertThat(errorReporter.toString(), metricsService.results().totalOperationCount(), is(0l));
-            assertThat(errorReporter.toString(), completionTimeService.globalCompletionTimeAsMilli(), equalTo(1l));
-            assertThat(errorReporter.toString(), errorReporter.errorEncountered(), is(false));
-
-            timeSource.setNowFromMilli(2);
-            Thread.sleep(ENOUGH_MILLISECONDS_FOR_RUNNER_THREAD_TO_DO_ITS_THING);
-            assertThat(errorReporter.toString(), metricsService.results().totalOperationCount(), is(0l));
-            assertThat(errorReporter.toString(), completionTimeService.globalCompletionTimeAsMilli(), equalTo(1l));
-            db.setNameAllowedValue("read1", true);
-            Thread.sleep(ENOUGH_MILLISECONDS_FOR_RUNNER_THREAD_TO_DO_ITS_THING);
-            assertThat(errorReporter.toString(), metricsService.results().totalOperationCount(), is(1l));
-            assertThat(errorReporter.toString(), completionTimeService.globalCompletionTimeAsMilli(), equalTo(1l));
-            assertThat(errorReporter.toString(), errorReporter.errorEncountered(), is(false));
-
-            timeSource.setNowFromMilli(3);
-            Thread.sleep(ENOUGH_MILLISECONDS_FOR_RUNNER_THREAD_TO_DO_ITS_THING);
-            assertThat(errorReporter.toString(), metricsService.results().totalOperationCount(), is(1l));
-            assertThat(errorReporter.toString(), completionTimeService.globalCompletionTimeAsMilli(), equalTo(1l));
-            db.setNameAllowedValue("readwrite1", true);
-            Thread.sleep(ENOUGH_MILLISECONDS_FOR_RUNNER_THREAD_TO_DO_ITS_THING);
-            assertThat(errorReporter.toString(), metricsService.results().totalOperationCount(), is(2l));
-            assertThat(errorReporter.toString(), completionTimeService.globalCompletionTimeAsMilli(), equalTo(3l));
-            assertThat(errorReporter.toString(), errorReporter.errorEncountered(), is(false));
-
-            timeSource.setNowFromMilli(4);
-            Thread.sleep(ENOUGH_MILLISECONDS_FOR_RUNNER_THREAD_TO_DO_ITS_THING);
-            assertThat(errorReporter.toString(), metricsService.results().totalOperationCount(), is(2l));
-            assertThat(errorReporter.toString(), completionTimeService.globalCompletionTimeAsMilli(), equalTo(3l));
-            db.setNameAllowedValue("read2", true);
-            Thread.sleep(ENOUGH_MILLISECONDS_FOR_RUNNER_THREAD_TO_DO_ITS_THING);
-            assertThat(errorReporter.toString(), metricsService.results().totalOperationCount(), is(3l));
-            assertThat(errorReporter.toString(), completionTimeService.globalCompletionTimeAsMilli(), equalTo(3l));
-            assertThat(errorReporter.toString(), errorReporter.errorEncountered(), is(false));
-
-            timeSource.setNowFromMilli(5);
-            Thread.sleep(ENOUGH_MILLISECONDS_FOR_RUNNER_THREAD_TO_DO_ITS_THING);
-            assertThat(errorReporter.toString(), metricsService.results().totalOperationCount(), is(3l));
-            assertThat(errorReporter.toString(), completionTimeService.globalCompletionTimeAsMilli(), equalTo(3l));
-            assertThat(errorReporter.toString(), errorReporter.errorEncountered(), is(false));
-
-            timeSource.setNowFromMilli(6);
-            Thread.sleep(ENOUGH_MILLISECONDS_FOR_RUNNER_THREAD_TO_DO_ITS_THING);
-            assertThat(errorReporter.toString(), metricsService.results().totalOperationCount(), is(3l));
-            assertThat(errorReporter.toString(), completionTimeService.globalCompletionTimeAsMilli(), equalTo(3l));
-            // DO NOT ALLOW "readwrite2" to execute
-            db.setNameAllowedValue("readwrite2", false);
-            Thread.sleep(ENOUGH_MILLISECONDS_FOR_RUNNER_THREAD_TO_DO_ITS_THING);
-            assertThat(errorReporter.toString(), metricsService.results().totalOperationCount(), is(3l));
-            assertThat(errorReporter.toString(), completionTimeService.globalCompletionTimeAsMilli(), equalTo(3l));
-            assertThat(errorReporter.toString(), errorReporter.errorEncountered(), is(false));
-
-            timeSource.setNowFromMilli(7);
-            Thread.sleep(ENOUGH_MILLISECONDS_FOR_RUNNER_THREAD_TO_DO_ITS_THING);
-            assertThat(errorReporter.toString(), metricsService.results().totalOperationCount(), is(3l));
-            assertThat(errorReporter.toString(), completionTimeService.globalCompletionTimeAsMilli(), equalTo(3l));
-            db.setNameAllowedValue("read3", true);
-            Thread.sleep(ENOUGH_MILLISECONDS_FOR_RUNNER_THREAD_TO_DO_ITS_THING);
-            assertThat(errorReporter.toString(), metricsService.results().totalOperationCount(), is(4l));
-            assertThat(errorReporter.toString(), completionTimeService.globalCompletionTimeAsMilli(), equalTo(3l));
-            assertThat(errorReporter.toString(), errorReporter.errorEncountered(), is(false));
-
-            timeSource.setNowFromMilli(8);
-            Thread.sleep(ENOUGH_MILLISECONDS_FOR_RUNNER_THREAD_TO_DO_ITS_THING);
-            assertThat(errorReporter.toString(), metricsService.results().totalOperationCount(), is(4l));
-            assertThat(errorReporter.toString(), completionTimeService.globalCompletionTimeAsMilli(), equalTo(3l));
-            assertThat(errorReporter.toString(), errorReporter.errorEncountered(), is(false));
-
-            timeSource.setNowFromMilli(9);
-            Thread.sleep(ENOUGH_MILLISECONDS_FOR_RUNNER_THREAD_TO_DO_ITS_THING);
-            assertThat(errorReporter.toString(), metricsService.results().totalOperationCount(), is(4l));
-            assertThat(errorReporter.toString(), completionTimeService.globalCompletionTimeAsMilli(), equalTo(3l));
-            db.setNameAllowedValue("readwrite3", true);
-            Thread.sleep(ENOUGH_MILLISECONDS_FOR_RUNNER_THREAD_TO_DO_ITS_THING);
-            assertThat(errorReporter.toString(), metricsService.results().totalOperationCount(), is(5l));
-            assertThat(errorReporter.toString(), completionTimeService.globalCompletionTimeAsMilli(), equalTo(3l));
-            assertThat(errorReporter.toString(), errorReporter.errorEncountered(), is(false));
-
-            timeSource.setNowFromMilli(10);
-            Thread.sleep(ENOUGH_MILLISECONDS_FOR_RUNNER_THREAD_TO_DO_ITS_THING);
-            assertThat(errorReporter.toString(), metricsService.results().totalOperationCount(), is(5l));
-            assertThat(errorReporter.toString(), completionTimeService.globalCompletionTimeAsMilli(), equalTo(3l));
-            assertThat(errorReporter.toString(), errorReporter.errorEncountered(), is(false));
-
-            timeSource.setNowFromMilli(11);
-            Thread.sleep(ENOUGH_MILLISECONDS_FOR_RUNNER_THREAD_TO_DO_ITS_THING);
-            assertThat(errorReporter.toString(), metricsService.results().totalOperationCount(), is(5l));
-            assertThat(errorReporter.toString(), completionTimeService.globalCompletionTimeAsMilli(), equalTo(3l));
-            db.setNameAllowedValue("read4", true);
-            Thread.sleep(ENOUGH_MILLISECONDS_FOR_RUNNER_THREAD_TO_DO_ITS_THING);
-            assertThat(errorReporter.toString(), metricsService.results().totalOperationCount(), is(5l));
-            assertThat(errorReporter.toString(), completionTimeService.globalCompletionTimeAsMilli(), equalTo(3l));
-            assertThat(errorReporter.toString(), errorReporter.errorEncountered(), is(false));
-
-            timeSource.setNowFromMilli(12);
-            Thread.sleep(ENOUGH_MILLISECONDS_FOR_RUNNER_THREAD_TO_DO_ITS_THING);
-            assertThat(errorReporter.toString(), metricsService.results().totalOperationCount(), is(5l));
-            assertThat(errorReporter.toString(), completionTimeService.globalCompletionTimeAsMilli(), equalTo(3l));
-            assertThat(errorReporter.toString(), errorReporter.errorEncountered(), is(false));
-
-            timeSource.setNowFromMilli(13);
-            Thread.sleep(ENOUGH_MILLISECONDS_FOR_RUNNER_THREAD_TO_DO_ITS_THING);
-            assertThat(errorReporter.toString(), metricsService.results().totalOperationCount(), is(5l));
-            assertThat(errorReporter.toString(), completionTimeService.globalCompletionTimeAsMilli(), equalTo(3l));
-            db.setNameAllowedValue("read5", true);
-            Thread.sleep(ENOUGH_MILLISECONDS_FOR_RUNNER_THREAD_TO_DO_ITS_THING);
-            assertThat(errorReporter.toString(), metricsService.results().totalOperationCount(), is(6l));
-            assertThat(errorReporter.toString(), completionTimeService.globalCompletionTimeAsMilli(), equalTo(3l));
-            assertThat(errorReporter.toString(), errorReporter.errorEncountered(), is(false));
-
-            timeSource.setNowFromMilli(14);
-            Thread.sleep(ENOUGH_MILLISECONDS_FOR_RUNNER_THREAD_TO_DO_ITS_THING);
-            assertThat(errorReporter.toString(), metricsService.results().totalOperationCount(), is(6l));
-            assertThat(errorReporter.toString(), completionTimeService.globalCompletionTimeAsMilli(), equalTo(3l));
-            assertThat(errorReporter.toString(), errorReporter.errorEncountered(), is(false));
-
-            // At this point maximum tolerated delay for "read4" should be triggered
-            timeSource.setNowFromMilli(15);
-            db.setAllowedValueForAll(true);
-            Thread.sleep(ENOUGH_MILLISECONDS_FOR_RUNNER_THREAD_TO_DO_ITS_THING);
-            Thread.sleep(ENOUGH_MILLISECONDS_FOR_RUNNER_THREAD_TO_DO_ITS_THING);
-            assertThat(errorReporter.toString(), metricsService.results().totalOperationCount(), is(8l));
-            assertThat(errorReporter.toString(), completionTimeService.globalCompletionTimeAsMilli(), equalTo(9l));
-            assertThat(errorReporter.toString(), errorReporter.errorEncountered(), is(true));
-
-            // allow readwrite2 to complete so the thread can be cleaned up
-//            db.setNameAllowedValue("readwrite2", true);
-
-            long durationToWaitForRunnerToCompleteAsMilli = WorkloadRunner.RUNNER_POLLING_INTERVAL_AS_MILLI * 4;
-            long timeoutTimeAsMilli = timeSource.nowAsMilli() + durationToWaitForRunnerToCompleteAsMilli;
-            while (timeSource.nowAsMilli() < timeoutTimeAsMilli) {
-                if (runnerThread.runnerHasCompleted()) break;
-                Spinner.powerNap(100);
-            }
-
-            db.setAllowedValueForAll(true);
-            assertThat(errorReporter.toString(), runnerThread.runnerHasCompleted(), is(true));
-            assertThat(errorReporter.toString(), runnerThread.runnerCompletedSuccessfully(), is(false));
-
-//            System.out.println(errorReporter.toString());
-        } catch (Throwable e) {
-            System.out.println("Unexpected Error:\n" + ConcurrentErrorReporter.stackTraceToString(e));
-            throw e;
-        } finally {
-            Thread.sleep(ENOUGH_MILLISECONDS_FOR_RUNNER_THREAD_TO_DO_ITS_THING);
-            metricsService.shutdown();
-            completionTimeService.shutdown();
-        }
-    }
-
-    @Test
-    public void shouldFailWhenPreviousOperationInBlockingModePreventsNextOperationFromExecutingBeforeToleratedDelay()
-            throws InterruptedException, MetricsCollectionException, DbException, CompletionTimeException, WorkloadException, IOException {
-        shouldFailWhenPreviousOperationInBlockingModePreventsNextOperationFromExecutingBeforeToleratedDelay(1);
-        shouldFailWhenPreviousOperationInBlockingModePreventsNextOperationFromExecutingBeforeToleratedDelay(4);
-        shouldFailWhenPreviousOperationInBlockingModePreventsNextOperationFromExecutingBeforeToleratedDelay(16);
-    }
-
-    public void shouldFailWhenPreviousOperationInBlockingModePreventsNextOperationFromExecutingBeforeToleratedDelay(int threadCount)
-            throws InterruptedException, MetricsCollectionException, DbException, CompletionTimeException, WorkloadException, IOException {
-            /*
-                Number of writers: 1 (blocking)
-                Number of executors: 2 (blocking & async)
-                Initialized to: IT[ , ] CT[0,1]
-
-                Tolerated Delay == 4
-                ASYNC                   BLOCKING
-                READ                    READ_WRITE              GCT (assumes initiated time submitted quickly)
-                TimedNamedOperation1    TimedNamedOperation2
-            0                                                   1 <-- S(3)D(0) initialized <~~ S(2)D(0) initialized (READ ONLY)
-            1                                                   1
-            2   S(2)D(0)                                        1 <~~ S(4)D(3) initialized (READ ONLY)
-            3                           S(3)D(0)                3 <-- S(6)D(0) initialized
-            4   S(4)D(3)                                        3 <~~ S(7)D(3) initialized (READ ONLY)
-            5                                                   3
-            6                           S(6)D(0) !!BLOCKS!!     3 <-- S(9)D(0) initialized
-            7   S(7)D(3)                                        3 <~~ S(11)D(9) initialized
-            8                                                   3
-            9                           S(9)D(0) !!WAITS!!      3
-            10                                                  3
-            11  S(11)D(3)                                       3 <~~ S(13)D(3) initialized
-            12                                                  3
-            13  S(13)D(3)                                       3
-            14                          !!"S(9)D(0)" !!DELAY!!  3 [UNBLOCK S(6)D(0)]
-            15
-             */
-        ConcurrentErrorReporter errorReporter = new ConcurrentErrorReporter();
-
-        long toleratedExecutionDelayDurationAsMilli = 4;
-        ExecutionDelayPolicy executionDelayPolicy = new ErrorReportingTerminatingExecutionDelayPolicy(
-                timeSource,
-                toleratedExecutionDelayDurationAsMilli,
-                errorReporter);
-        SimpleCsvFileWriter csvResultsLogWriter = null;
-        ConcurrentMetricsService metricsService = ThreadedQueuedConcurrentMetricsService.newInstanceUsingBlockingQueue(
-                timeSource,
-                errorReporter,
-                TimeUnit.MILLISECONDS,
-                ThreadedQueuedConcurrentMetricsService.DEFAULT_HIGHEST_EXPECTED_RUNTIME_DURATION_AS_NANO,
-                recordStartTimeDelayLatency,
-                executionDelayPolicy,
-                csvResultsLogWriter);
-
-        Set<String> peerIds = new HashSet<>();
-        // TODO test also with threaded completion time service implementation
-        ConcurrentCompletionTimeService completionTimeService =
-                completionTimeServiceAssistant.newSynchronizedConcurrentCompletionTimeServiceFromPeerIds(peerIds);
-
-        WorkloadStreams workloadStreams = new WorkloadStreams();
-        Set<Class<? extends Operation<?>>> asynchronousDependentOperationTypes = Sets.<Class<? extends Operation<?>>>newHashSet(
-                TimedNamedOperation1.class
-        );
-        Iterator<Operation<?>> asynchronousDependencyOperations = Lists.<Operation<?>>newArrayList(
-                // nothing
-        ).iterator();
-        Iterator<Operation<?>> asynchronousNonDependencyOperations = Lists.<Operation<?>>newArrayList(
-                new TimedNamedOperation1(2, 2, 0, "read1"),
-                new TimedNamedOperation1(4, 4, 3, "read2"),
-                new TimedNamedOperation1(7, 7, 3, "read3"),
-                new TimedNamedOperation1(11, 11, 3, "read4"),
-                new TimedNamedOperation1(13, 13, 3, "read5")
-        ).iterator();
-        workloadStreams.setAsynchronousStream(
-                asynchronousDependentOperationTypes,
-                asynchronousDependencyOperations,
-                asynchronousNonDependencyOperations
-        );
-        Set<Class<? extends Operation<?>>> blockingDependentOperationTypes = Sets.<Class<? extends Operation<?>>>newHashSet(
-                TimedNamedOperation2.class
-        );
-        Iterator<Operation<?>> blockingDependencyOperations = Lists.<Operation<?>>newArrayList(
-                new TimedNamedOperation2(3, 3, 0, "readwrite1"),
-                new TimedNamedOperation2(6, 6, 0, "readwrite2"),
-                new TimedNamedOperation2(9, 9, 0, "readwrite3")
-        ).iterator();
-        Iterator<Operation<?>> blockingNonDependencyOperations = Lists.<Operation<?>>newArrayList(
-                // nothing
-        ).iterator();
-        workloadStreams.addBlockingStream(
-                blockingDependentOperationTypes,
-                blockingDependencyOperations,
-                blockingNonDependencyOperations
-        );
-
-        Map<String, String> params = new HashMap<>();
-        params.put(DummyDb.ALLOWED_DEFAULT_ARG, "false");
-        try (DummyDb db = new DummyDb()) {
-            db.init(params);
-
-            WorkloadRunnerThread runnerThread = workloadRunnerThread(
-                    timeSource,
-                    workloadStreams,
-                    threadCount,
-                    errorReporter,
-                    metricsService,
-                    completionTimeService,
-                    db
-            );
-
-            // initialize GCT
-            completionTimeServiceAssistant.writeInitiatedAndCompletedTimesToAllWriters(completionTimeService, 0);
-            completionTimeServiceAssistant.writeInitiatedAndCompletedTimesToAllWriters(completionTimeService, 1);
-
-            timeSource.setNowFromMilli(0);
-            assertThat(errorReporter.toString(), completionTimeService.globalCompletionTimeAsMilli(), is(0l));
-            assertThat(errorReporter.toString(), metricsService.results().totalOperationCount(), is(0l));
-            assertThat(errorReporter.toString(), errorReporter.errorEncountered(), is(false));
-
-            runnerThread.start();
-
-            Thread.sleep(ENOUGH_MILLISECONDS_FOR_RUNNER_THREAD_TO_DO_ITS_THING);
-            assertThat(errorReporter.toString(), metricsService.results().totalOperationCount(), is(0l));
-            assertThat(errorReporter.toString(), completionTimeService.globalCompletionTimeAsMilli(), equalTo(1l));
-            assertThat(errorReporter.toString(), errorReporter.errorEncountered(), is(false));
-
-            timeSource.setNowFromMilli(1);
-            Thread.sleep(ENOUGH_MILLISECONDS_FOR_RUNNER_THREAD_TO_DO_ITS_THING);
-            assertThat(errorReporter.toString(), metricsService.results().totalOperationCount(), is(0l));
-            assertThat(errorReporter.toString(), completionTimeService.globalCompletionTimeAsMilli(), equalTo(1l));
-            assertThat(errorReporter.toString(), errorReporter.errorEncountered(), is(false));
-
-            timeSource.setNowFromMilli(2);
-            Thread.sleep(ENOUGH_MILLISECONDS_FOR_RUNNER_THREAD_TO_DO_ITS_THING);
-            assertThat(errorReporter.toString(), metricsService.results().totalOperationCount(), is(0l));
-            assertThat(errorReporter.toString(), completionTimeService.globalCompletionTimeAsMilli(), equalTo(1l));
-            db.setNameAllowedValue("read1", true);
-            Thread.sleep(ENOUGH_MILLISECONDS_FOR_RUNNER_THREAD_TO_DO_ITS_THING);
-            assertThat(errorReporter.toString(), metricsService.results().totalOperationCount(), is(1l));
-            assertThat(errorReporter.toString(), completionTimeService.globalCompletionTimeAsMilli(), equalTo(1l));
-            assertThat(errorReporter.toString(), errorReporter.errorEncountered(), is(false));
-
-            timeSource.setNowFromMilli(3);
-            Thread.sleep(ENOUGH_MILLISECONDS_FOR_RUNNER_THREAD_TO_DO_ITS_THING);
-            assertThat(errorReporter.toString(), metricsService.results().totalOperationCount(), is(1l));
-            assertThat(errorReporter.toString(), completionTimeService.globalCompletionTimeAsMilli(), equalTo(1l));
-            db.setNameAllowedValue("readwrite1", true);
-            Thread.sleep(ENOUGH_MILLISECONDS_FOR_RUNNER_THREAD_TO_DO_ITS_THING);
-            assertThat(errorReporter.toString(), metricsService.results().totalOperationCount(), is(2l));
-            assertThat(errorReporter.toString(), completionTimeService.globalCompletionTimeAsMilli(), equalTo(3l));
-            assertThat(errorReporter.toString(), errorReporter.errorEncountered(), is(false));
-
-            timeSource.setNowFromMilli(4);
-            Thread.sleep(ENOUGH_MILLISECONDS_FOR_RUNNER_THREAD_TO_DO_ITS_THING);
-            assertThat(errorReporter.toString(), metricsService.results().totalOperationCount(), is(2l));
-            assertThat(errorReporter.toString(), completionTimeService.globalCompletionTimeAsMilli(), equalTo(3l));
-            db.setNameAllowedValue("read2", true);
-            Thread.sleep(ENOUGH_MILLISECONDS_FOR_RUNNER_THREAD_TO_DO_ITS_THING);
-            assertThat(errorReporter.toString(), metricsService.results().totalOperationCount(), is(3l));
-            assertThat(errorReporter.toString(), completionTimeService.globalCompletionTimeAsMilli(), equalTo(3l));
-            assertThat(errorReporter.toString(), errorReporter.errorEncountered(), is(false));
-
-            timeSource.setNowFromMilli(5);
-            Thread.sleep(ENOUGH_MILLISECONDS_FOR_RUNNER_THREAD_TO_DO_ITS_THING);
-            assertThat(errorReporter.toString(), metricsService.results().totalOperationCount(), is(3l));
-            assertThat(errorReporter.toString(), completionTimeService.globalCompletionTimeAsMilli(), equalTo(3l));
-            assertThat(errorReporter.toString(), errorReporter.errorEncountered(), is(false));
-
-            timeSource.setNowFromMilli(6);
-            Thread.sleep(ENOUGH_MILLISECONDS_FOR_RUNNER_THREAD_TO_DO_ITS_THING);
-            assertThat(errorReporter.toString(), metricsService.results().totalOperationCount(), is(3l));
-            assertThat(errorReporter.toString(), completionTimeService.globalCompletionTimeAsMilli(), equalTo(3l));
-            // DO NOT ALLOW "readwrite2" to execute
-            db.setNameAllowedValue("readwrite2", false);
-            Thread.sleep(ENOUGH_MILLISECONDS_FOR_RUNNER_THREAD_TO_DO_ITS_THING);
-            assertThat(errorReporter.toString(), metricsService.results().totalOperationCount(), is(3l));
-            assertThat(errorReporter.toString(), completionTimeService.globalCompletionTimeAsMilli(), equalTo(3l));
-            assertThat(errorReporter.toString(), errorReporter.errorEncountered(), is(false));
-
-            timeSource.setNowFromMilli(7);
-            Thread.sleep(ENOUGH_MILLISECONDS_FOR_RUNNER_THREAD_TO_DO_ITS_THING);
-            assertThat(errorReporter.toString(), metricsService.results().totalOperationCount(), is(3l));
-            assertThat(errorReporter.toString(), completionTimeService.globalCompletionTimeAsMilli(), equalTo(3l));
-            db.setNameAllowedValue("read3", true);
-            Thread.sleep(ENOUGH_MILLISECONDS_FOR_RUNNER_THREAD_TO_DO_ITS_THING);
-            assertThat(errorReporter.toString(), metricsService.results().totalOperationCount(), is(4l));
-            assertThat(errorReporter.toString(), completionTimeService.globalCompletionTimeAsMilli(), equalTo(3l));
-            assertThat(errorReporter.toString(), errorReporter.errorEncountered(), is(false));
-
-            timeSource.setNowFromMilli(8);
-            Thread.sleep(ENOUGH_MILLISECONDS_FOR_RUNNER_THREAD_TO_DO_ITS_THING);
-            assertThat(errorReporter.toString(), metricsService.results().totalOperationCount(), is(4l));
-            assertThat(errorReporter.toString(), completionTimeService.globalCompletionTimeAsMilli(), equalTo(3l));
-            assertThat(errorReporter.toString(), errorReporter.errorEncountered(), is(false));
-
-            timeSource.setNowFromMilli(9);
-            Thread.sleep(ENOUGH_MILLISECONDS_FOR_RUNNER_THREAD_TO_DO_ITS_THING);
-            assertThat(errorReporter.toString(), metricsService.results().totalOperationCount(), is(4l));
-            assertThat(errorReporter.toString(), completionTimeService.globalCompletionTimeAsMilli(), equalTo(3l));
-            db.setNameAllowedValue("readwrite3", true);
-            Thread.sleep(ENOUGH_MILLISECONDS_FOR_RUNNER_THREAD_TO_DO_ITS_THING);
-            assertThat(errorReporter.toString(), metricsService.results().totalOperationCount(), is(4l));
-            assertThat(errorReporter.toString(), completionTimeService.globalCompletionTimeAsMilli(), equalTo(3l));
-            assertThat(errorReporter.toString(), errorReporter.errorEncountered(), is(false));
-
-            timeSource.setNowFromMilli(10);
-            Thread.sleep(ENOUGH_MILLISECONDS_FOR_RUNNER_THREAD_TO_DO_ITS_THING);
-            assertThat(errorReporter.toString(), metricsService.results().totalOperationCount(), is(4l));
-            assertThat(errorReporter.toString(), completionTimeService.globalCompletionTimeAsMilli(), equalTo(3l));
-            assertThat(errorReporter.toString(), errorReporter.errorEncountered(), is(false));
-
-            timeSource.setNowFromMilli(11);
-            Thread.sleep(ENOUGH_MILLISECONDS_FOR_RUNNER_THREAD_TO_DO_ITS_THING);
-            assertThat(errorReporter.toString(), metricsService.results().totalOperationCount(), is(4l));
-            assertThat(errorReporter.toString(), completionTimeService.globalCompletionTimeAsMilli(), equalTo(3l));
-            db.setNameAllowedValue("read4", true);
-            Thread.sleep(ENOUGH_MILLISECONDS_FOR_RUNNER_THREAD_TO_DO_ITS_THING);
-            assertThat(errorReporter.toString(), metricsService.results().totalOperationCount(), is(5l));
-            assertThat(errorReporter.toString(), completionTimeService.globalCompletionTimeAsMilli(), equalTo(3l));
-            assertThat(errorReporter.toString(), errorReporter.errorEncountered(), is(false));
-
-            timeSource.setNowFromMilli(12);
-            Thread.sleep(ENOUGH_MILLISECONDS_FOR_RUNNER_THREAD_TO_DO_ITS_THING);
-            assertThat(errorReporter.toString(), metricsService.results().totalOperationCount(), is(5l));
-            assertThat(errorReporter.toString(), completionTimeService.globalCompletionTimeAsMilli(), equalTo(3l));
-            assertThat(errorReporter.toString(), errorReporter.errorEncountered(), is(false));
-
-            timeSource.setNowFromMilli(13);
-            Thread.sleep(ENOUGH_MILLISECONDS_FOR_RUNNER_THREAD_TO_DO_ITS_THING);
-            assertThat(errorReporter.toString(), metricsService.results().totalOperationCount(), is(5l));
-            assertThat(errorReporter.toString(), completionTimeService.globalCompletionTimeAsMilli(), equalTo(3l));
-            db.setNameAllowedValue("read5", true);
-            Thread.sleep(ENOUGH_MILLISECONDS_FOR_RUNNER_THREAD_TO_DO_ITS_THING);
-            assertThat(errorReporter.toString(), metricsService.results().totalOperationCount(), is(6l));
-            assertThat(errorReporter.toString(), completionTimeService.globalCompletionTimeAsMilli(), equalTo(3l));
-            assertThat(errorReporter.toString(), errorReporter.errorEncountered(), is(false));
-
-            // At this point maximum tolerated delay for "readwrite3" should be triggered
-            timeSource.setNowFromMilli(14);
-            Thread.sleep(ENOUGH_MILLISECONDS_FOR_RUNNER_THREAD_TO_DO_ITS_THING);
-            assertThat(errorReporter.toString(), metricsService.results().totalOperationCount(), is(6l));
-            assertThat(errorReporter.toString(), completionTimeService.globalCompletionTimeAsMilli(), equalTo(3l));
-
-            // let readwrite2 complete, so readwrite3 can start. readwrite3 then starts to execute and fails due to excessive delay
-            db.setNameAllowedValue("readwrite2", true);
-            Thread.sleep(ENOUGH_MILLISECONDS_FOR_RUNNER_THREAD_TO_DO_ITS_THING);
-            assertThat(errorReporter.toString(), errorReporter.errorEncountered(), is(true));
-
-            long durationToWaitForRunnerToCompleteAsMilli = WorkloadRunner.RUNNER_POLLING_INTERVAL_AS_MILLI * 4;
-            long timeoutTimeAsMilli = timeSource.nowAsMilli() + durationToWaitForRunnerToCompleteAsMilli;
-            while (timeSource.nowAsMilli() < timeoutTimeAsMilli) {
-                if (runnerThread.runnerHasCompleted()) break;
-                Spinner.powerNap(100);
-            }
-
-            db.setAllowedValueForAll(true);
-            assertThat(errorReporter.toString(), runnerThread.runnerHasCompleted(), is(true));
-            assertThat(errorReporter.toString(), runnerThread.runnerCompletedSuccessfully(), is(false));
-        } catch (Throwable e) {
-            e.printStackTrace();
-            throw e;
-        } finally {
-            Thread.sleep(ENOUGH_MILLISECONDS_FOR_RUNNER_THREAD_TO_DO_ITS_THING);
-            metricsService.shutdown();
-            completionTimeService.shutdown();
-        }
-    }
-
     @Test
     public void shouldSuccessfullyCompleteWhenAllOperationsFinishOnTimeWithReadAsyncReadWriteAsync()
             throws DriverConfigurationException, DbException, CompletionTimeException, WorkloadException, InterruptedException, MetricsCollectionException, IOException {
@@ -1186,20 +438,12 @@ public class WorkloadRunnerComplexScenarioTests {
          */
         ConcurrentErrorReporter errorReporter = new ConcurrentErrorReporter();
 
-        // set very high so it never triggers a failure
-        long toleratedExecutionDelayDurationAsMilli = TEMPORAL_UTIL.convert(100, TimeUnit.MINUTES, TimeUnit.MILLISECONDS);
-        ExecutionDelayPolicy executionDelayPolicy = new ErrorReportingTerminatingExecutionDelayPolicy(
-                timeSource,
-                toleratedExecutionDelayDurationAsMilli,
-                errorReporter);
         SimpleCsvFileWriter csvResultsLogWriter = null;
         ConcurrentMetricsService metricsService = ThreadedQueuedConcurrentMetricsService.newInstanceUsingBlockingQueue(
                 timeSource,
                 errorReporter,
                 TimeUnit.MILLISECONDS,
                 ThreadedQueuedConcurrentMetricsService.DEFAULT_HIGHEST_EXPECTED_RUNTIME_DURATION_AS_NANO,
-                recordStartTimeDelayLatency,
-                executionDelayPolicy,
                 csvResultsLogWriter);
 
         Set<String> peerIds = new HashSet<>();
@@ -1249,7 +493,6 @@ public class WorkloadRunnerComplexScenarioTests {
         try (DummyDb db = new DummyDb()) {
             db.init(params);
 
-            // TODO remove workload start time as public variable for this test class and always assume 0
             WorkloadRunnerThread runnerThread = workloadRunnerThread(
                     timeSource,
                     workloadStreams,
@@ -1441,20 +684,12 @@ public class WorkloadRunnerComplexScenarioTests {
          */
         ConcurrentErrorReporter errorReporter = new ConcurrentErrorReporter();
 
-        // set very high so it never triggers a failure
-        long toleratedExecutionDelayDurationAsMilli = TEMPORAL_UTIL.convert(100, TimeUnit.MINUTES, TimeUnit.MILLISECONDS);
-        ExecutionDelayPolicy executionDelayPolicy = new ErrorReportingTerminatingExecutionDelayPolicy(
-                timeSource,
-                toleratedExecutionDelayDurationAsMilli,
-                errorReporter);
         SimpleCsvFileWriter csvResultsLogWriter = null;
         ConcurrentMetricsService metricsService = ThreadedQueuedConcurrentMetricsService.newInstanceUsingBlockingQueue(
                 timeSource,
                 errorReporter,
                 TimeUnit.MILLISECONDS,
                 ThreadedQueuedConcurrentMetricsService.DEFAULT_HIGHEST_EXPECTED_RUNTIME_DURATION_AS_NANO,
-                recordStartTimeDelayLatency,
-                executionDelayPolicy,
                 csvResultsLogWriter);
 
         Set<String> peerIds = new HashSet<>();
@@ -1503,7 +738,6 @@ public class WorkloadRunnerComplexScenarioTests {
         try (DummyDb db = new DummyDb()) {
             db.init(params);
 
-            // TODO remove workload start time as public variable for this test class and always assume 0
             WorkloadRunnerThread runnerThread = workloadRunnerThread(
                     timeSource,
                     workloadStreams,
@@ -1717,20 +951,12 @@ public class WorkloadRunnerComplexScenarioTests {
          */
         ConcurrentErrorReporter errorReporter = new ConcurrentErrorReporter();
 
-        // set very high so it never triggers a failure
-        long toleratedExecutionDelayDurationAsMilli = TEMPORAL_UTIL.convert(100, TimeUnit.MINUTES, TimeUnit.MILLISECONDS);
-        ExecutionDelayPolicy executionDelayPolicy = new ErrorReportingTerminatingExecutionDelayPolicy(
-                timeSource,
-                toleratedExecutionDelayDurationAsMilli,
-                errorReporter);
         SimpleCsvFileWriter csvResultsLogWriter = null;
         ConcurrentMetricsService metricsService = ThreadedQueuedConcurrentMetricsService.newInstanceUsingBlockingQueue(
                 timeSource,
                 errorReporter,
                 TimeUnit.MILLISECONDS,
                 ThreadedQueuedConcurrentMetricsService.DEFAULT_HIGHEST_EXPECTED_RUNTIME_DURATION_AS_NANO,
-                recordStartTimeDelayLatency,
-                executionDelayPolicy,
                 csvResultsLogWriter);
 
         Set<String> peerIds = new HashSet<>();
@@ -1779,7 +1005,6 @@ public class WorkloadRunnerComplexScenarioTests {
         try (DummyDb db = new DummyDb()) {
             db.init(params);
 
-            // TODO remove workload start time as public variable for this test class and always assume 0
             WorkloadRunnerThread runnerThread = workloadRunnerThread(
                     timeSource,
                     workloadStreams,
@@ -1971,20 +1196,12 @@ public class WorkloadRunnerComplexScenarioTests {
          */
         ConcurrentErrorReporter errorReporter = new ConcurrentErrorReporter();
 
-        // set very high so it never triggers a failure
-        long toleratedExecutionDelayDurationAsMilli = TEMPORAL_UTIL.convert(100, TimeUnit.MINUTES, TimeUnit.MILLISECONDS);
-        ExecutionDelayPolicy executionDelayPolicy = new ErrorReportingTerminatingExecutionDelayPolicy(
-                timeSource,
-                toleratedExecutionDelayDurationAsMilli,
-                errorReporter);
         SimpleCsvFileWriter csvResultsLogWriter = null;
         ConcurrentMetricsService metricsService = ThreadedQueuedConcurrentMetricsService.newInstanceUsingBlockingQueue(
                 timeSource,
                 errorReporter,
                 TimeUnit.MILLISECONDS,
                 ThreadedQueuedConcurrentMetricsService.DEFAULT_HIGHEST_EXPECTED_RUNTIME_DURATION_AS_NANO,
-                recordStartTimeDelayLatency,
-                executionDelayPolicy,
                 csvResultsLogWriter);
 
         Set<String> peerIds = new HashSet<>();

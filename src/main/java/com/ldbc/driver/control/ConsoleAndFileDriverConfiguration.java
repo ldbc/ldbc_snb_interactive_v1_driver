@@ -121,24 +121,11 @@ public class ConsoleAndFileDriverConfiguration implements DriverConfiguration {
     public static final String TIME_COMPRESSION_RATIO_DEFAULT_STRING = Double.toString(TIME_COMPRESSION_RATIO_DEFAULT);
     private static final String TIME_COMPRESSION_RATIO_DESCRIPTION = "change duration between operations of workload";
 
-    public static final String WINDOWED_EXECUTION_WINDOW_DURATION_ARG = "wd";
-    private static final String WINDOWED_EXECUTION_WINDOW_DURATION_ARG_LONG = "window_duration";
-    public static final long WINDOWED_EXECUTION_WINDOW_DURATION_DEFAULT = TEMPORAL_UTIL.convert(1, TimeUnit.SECONDS, TimeUnit.MILLISECONDS);
-    public static final String WINDOWED_EXECUTION_WINDOW_DURATION_DEFAULT_STRING = Long.toString(WINDOWED_EXECUTION_WINDOW_DURATION_DEFAULT);
-    private static final String WINDOWED_EXECUTION_WINDOW_DURATION_DESCRIPTION = "duration (ms) of execution window used in 'Windowed Execution' mode";
-
-
     public static final String PEER_IDS_ARG = "pids";
     private static final String PEER_IDS_ARG_LONG = "peer_identifiers";
     public static final Set<String> PEER_IDS_DEFAULT = Sets.newHashSet();
     public static final String PEER_IDS_DEFAULT_STRING = serializePeerIdsToCommandline(PEER_IDS_DEFAULT);
     private static final String PEER_IDS_DESCRIPTION = "identifiers/addresses of other driver workers (for distributed mode)";
-
-    public static final String TOLERATED_EXECUTION_DELAY_ARG = "del";
-    private static final String TOLERATED_EXECUTION_DELAY_ARG_LONG = "tolerated_execution_delay";
-    public static final long TOLERATED_EXECUTION_DELAY_DEFAULT = TEMPORAL_UTIL.convert(30, TimeUnit.MINUTES, TimeUnit.MILLISECONDS);
-    public static final String TOLERATED_EXECUTION_DELAY_DEFAULT_STRING = Long.toString(TOLERATED_EXECUTION_DELAY_DEFAULT);
-    private static final String TOLERATED_EXECUTION_DELAY_DESCRIPTION = "duration (ms) an operation handler may miss its scheduled start time by";
 
     public static final String SPINNER_SLEEP_DURATION_ARG = "sw";
     private static final String SPINNER_SLEEP_DURATION_ARG_LONG = "spinner_wait_duration";
@@ -178,9 +165,7 @@ public class ConsoleAndFileDriverConfiguration implements DriverConfiguration {
         defaultParamsMap.put(CALCULATE_WORKLOAD_STATISTICS_ARG, CALCULATE_WORKLOAD_STATISTICS_DEFAULT_STRING);
         defaultParamsMap.put(TIME_UNIT_ARG, TIME_UNIT_DEFAULT_STRING);
         defaultParamsMap.put(TIME_COMPRESSION_RATIO_ARG, TIME_COMPRESSION_RATIO_DEFAULT_STRING);
-        defaultParamsMap.put(WINDOWED_EXECUTION_WINDOW_DURATION_ARG, WINDOWED_EXECUTION_WINDOW_DURATION_DEFAULT_STRING);
         defaultParamsMap.put(PEER_IDS_ARG, PEER_IDS_DEFAULT_STRING);
-        defaultParamsMap.put(TOLERATED_EXECUTION_DELAY_ARG, TOLERATED_EXECUTION_DELAY_DEFAULT_STRING);
         defaultParamsMap.put(SPINNER_SLEEP_DURATION_ARG, SPINNER_SLEEP_DURATION_DEFAULT_STRING);
         return defaultParamsMap;
     }
@@ -228,9 +213,7 @@ public class ConsoleAndFileDriverConfiguration implements DriverConfiguration {
             TimeUnit timeUnit = TimeUnit.valueOf(paramsMap.get(TIME_UNIT_ARG));
             String resultDirPath = paramsMap.get(RESULT_DIR_PATH_ARG);
             double timeCompressionRatio = Double.parseDouble(paramsMap.get(TIME_COMPRESSION_RATIO_ARG));
-            long windowedExecutionWindowDurationAsMilli = Long.parseLong(paramsMap.get(WINDOWED_EXECUTION_WINDOW_DURATION_ARG));
             Set<String> peerIds = parsePeerIdsFromCommandline(paramsMap.get(PEER_IDS_ARG));
-            long toleratedExecutionDelayAsMilli = Long.parseLong(paramsMap.get(TOLERATED_EXECUTION_DELAY_ARG));
             ConsoleAndFileValidationParamOptions databaseConsoleAndFileValidationParams =
                     (null == paramsMap.get(CREATE_VALIDATION_PARAMS_ARG)) ?
                             null :
@@ -253,9 +236,7 @@ public class ConsoleAndFileDriverConfiguration implements DriverConfiguration {
                     timeUnit,
                     resultDirPath,
                     timeCompressionRatio,
-                    windowedExecutionWindowDurationAsMilli,
                     peerIds,
-                    toleratedExecutionDelayAsMilli,
                     databaseConsoleAndFileValidationParams,
                     databaseValidationFilePath,
                     validateWorkload,
@@ -322,12 +303,6 @@ public class ConsoleAndFileDriverConfiguration implements DriverConfiguration {
 
         if (cmd.hasOption(TIME_COMPRESSION_RATIO_ARG))
             cmdParams.put(TIME_COMPRESSION_RATIO_ARG, cmd.getOptionValue(TIME_COMPRESSION_RATIO_ARG));
-
-        if (cmd.hasOption(WINDOWED_EXECUTION_WINDOW_DURATION_ARG))
-            cmdParams.put(WINDOWED_EXECUTION_WINDOW_DURATION_ARG, cmd.getOptionValue(WINDOWED_EXECUTION_WINDOW_DURATION_ARG));
-
-        if (cmd.hasOption(TOLERATED_EXECUTION_DELAY_ARG))
-            cmdParams.put(TOLERATED_EXECUTION_DELAY_ARG, cmd.getOptionValue(TOLERATED_EXECUTION_DELAY_ARG));
 
         if (cmd.hasOption(CREATE_VALIDATION_PARAMS_ARG))
             cmdParams.put(CREATE_VALIDATION_PARAMS_ARG, cmd.getOptionValue(CREATE_VALIDATION_PARAMS_ARG));
@@ -407,9 +382,7 @@ public class ConsoleAndFileDriverConfiguration implements DriverConfiguration {
         paramsMap = replaceKey(paramsMap, RESULT_DIR_PATH_ARG_LONG, RESULT_DIR_PATH_ARG);
         paramsMap = replaceKey(paramsMap, RESULTS_LOG_ARG_LONG, RESULTS_LOG_ARG);
         paramsMap = replaceKey(paramsMap, TIME_COMPRESSION_RATIO_ARG_LONG, TIME_COMPRESSION_RATIO_ARG);
-        paramsMap = replaceKey(paramsMap, WINDOWED_EXECUTION_WINDOW_DURATION_ARG_LONG, WINDOWED_EXECUTION_WINDOW_DURATION_ARG);
         paramsMap = replaceKey(paramsMap, PEER_IDS_ARG_LONG, PEER_IDS_ARG);
-        paramsMap = replaceKey(paramsMap, TOLERATED_EXECUTION_DELAY_ARG_LONG, TOLERATED_EXECUTION_DELAY_ARG);
         paramsMap = replaceKey(paramsMap, CREATE_VALIDATION_PARAMS_ARG_LONG, CREATE_VALIDATION_PARAMS_ARG);
         paramsMap = replaceKey(paramsMap, DB_VALIDATION_FILE_PATH_ARG_LONG, DB_VALIDATION_FILE_PATH_ARG);
         paramsMap = replaceKey(paramsMap, VALIDATE_WORKLOAD_ARG_LONG, VALIDATE_WORKLOAD_ARG);
@@ -472,17 +445,9 @@ public class ConsoleAndFileDriverConfiguration implements DriverConfiguration {
                 TIME_COMPRESSION_RATIO_ARG_LONG).create(TIME_COMPRESSION_RATIO_ARG);
         options.addOption(timeCompressionRatioOption);
 
-        Option windowedExecutionWindowDurationOption = OptionBuilder.hasArgs(1).withArgName("duration").withDescription(WINDOWED_EXECUTION_WINDOW_DURATION_DESCRIPTION).withLongOpt(
-                WINDOWED_EXECUTION_WINDOW_DURATION_ARG_LONG).create(WINDOWED_EXECUTION_WINDOW_DURATION_ARG);
-        options.addOption(windowedExecutionWindowDurationOption);
-
         Option peerIdsOption = OptionBuilder.hasArgs().withValueSeparator(COMMANDLINE_SEPARATOR_CHAR).withArgName("peerId1" + COMMANDLINE_SEPARATOR_CHAR + "peerId2").withDescription(
                 PEER_IDS_DESCRIPTION).withLongOpt(PEER_IDS_ARG_LONG).create(PEER_IDS_ARG);
         options.addOption(peerIdsOption);
-
-        Option toleratedExecutionDelayOption = OptionBuilder.hasArgs(1).withArgName("duration").withDescription(TOLERATED_EXECUTION_DELAY_DESCRIPTION).withLongOpt(
-                TOLERATED_EXECUTION_DELAY_ARG_LONG).create(TOLERATED_EXECUTION_DELAY_ARG);
-        options.addOption(toleratedExecutionDelayOption);
 
         Option dbValidationParamsOption = OptionBuilder.hasArgs(2).withValueSeparator(COMMANDLINE_SEPARATOR_CHAR).withArgName("path" + COMMANDLINE_SEPARATOR_CHAR + "count").withDescription(CREATE_VALIDATION_PARAMS_DESCRIPTION).withLongOpt(
                 CREATE_VALIDATION_PARAMS_ARG_LONG).create(CREATE_VALIDATION_PARAMS_ARG);
@@ -563,9 +528,7 @@ public class ConsoleAndFileDriverConfiguration implements DriverConfiguration {
                 TIME_UNIT_ARG,
                 RESULT_DIR_PATH_ARG,
                 TIME_COMPRESSION_RATIO_ARG,
-                WINDOWED_EXECUTION_WINDOW_DURATION_ARG,
                 PEER_IDS_ARG,
-                TOLERATED_EXECUTION_DELAY_ARG,
                 CREATE_VALIDATION_PARAMS_ARG,
                 DB_VALIDATION_FILE_PATH_ARG,
                 VALIDATE_WORKLOAD_ARG,
@@ -606,9 +569,7 @@ public class ConsoleAndFileDriverConfiguration implements DriverConfiguration {
     private final TimeUnit timeUnit;
     private final String resultDirPath;
     private final double timeCompressionRatio;
-    private final long windowedExecutionWindowDurationAsMilli;
     private final Set<String> peerIds;
-    private final long toleratedExecutionDelayAsMilli;
     private final ConsoleAndFileValidationParamOptions validationCreationParams;
     private final String databaseValidationFilePath;
     private final boolean validateWorkload;
@@ -628,9 +589,7 @@ public class ConsoleAndFileDriverConfiguration implements DriverConfiguration {
                                              TimeUnit timeUnit,
                                              String resultDirPath,
                                              double timeCompressionRatio,
-                                             long windowedExecutionWindowDurationAsMilli,
                                              Set<String> peerIds,
-                                             long toleratedExecutionDelayAsMilli,
                                              ConsoleAndFileValidationParamOptions validationCreationParams,
                                              String databaseValidationFilePath,
                                              boolean validateWorkload,
@@ -651,14 +610,12 @@ public class ConsoleAndFileDriverConfiguration implements DriverConfiguration {
         this.resultDirPath = resultDirPath;
         this.timeCompressionRatio = timeCompressionRatio;
         this.peerIds = peerIds;
-        this.toleratedExecutionDelayAsMilli = toleratedExecutionDelayAsMilli;
         this.validationCreationParams = validationCreationParams;
         this.databaseValidationFilePath = databaseValidationFilePath;
         this.validateWorkload = validateWorkload;
         this.calculateWorkloadStatistics = calculateWorkloadStatistics;
         this.spinnerSleepDurationAsMilli = spinnerSleepDurationAsMilli;
         this.printHelp = printHelp;
-        this.windowedExecutionWindowDurationAsMilli = windowedExecutionWindowDurationAsMilli;
         this.ignoreScheduledStartTimes = ignoreScheduledStartTimes;
         this.shouldCreateResultsLog = shouldCreateResultsLog;
 
@@ -676,7 +633,6 @@ public class ConsoleAndFileDriverConfiguration implements DriverConfiguration {
             paramsMap.put(RESULT_DIR_PATH_ARG, resultDirPath);
         paramsMap.put(TIME_COMPRESSION_RATIO_ARG, Double.toString(timeCompressionRatio));
         paramsMap.put(PEER_IDS_ARG, serializePeerIdsToCommandline(peerIds));
-        paramsMap.put(TOLERATED_EXECUTION_DELAY_ARG, Long.toString(toleratedExecutionDelayAsMilli));
         if (null != validationCreationParams)
             paramsMap.put(CREATE_VALIDATION_PARAMS_ARG, validationCreationParams.toCommandlineString());
         if (null != databaseValidationFilePath)
@@ -685,7 +641,6 @@ public class ConsoleAndFileDriverConfiguration implements DriverConfiguration {
         paramsMap.put(CALCULATE_WORKLOAD_STATISTICS_ARG, Boolean.toString(calculateWorkloadStatistics));
         paramsMap.put(SPINNER_SLEEP_DURATION_ARG, Long.toString(spinnerSleepDurationAsMilli));
         paramsMap.put(HELP_ARG, Boolean.toString(printHelp));
-        paramsMap.put(WINDOWED_EXECUTION_WINDOW_DURATION_ARG, Long.toString(windowedExecutionWindowDurationAsMilli));
         paramsMap.put(IGNORE_SCHEDULED_START_TIMES_ARG, Boolean.toString(ignoreScheduledStartTimes));
         paramsMap.put(RESULTS_LOG_ARG, Boolean.toString(shouldCreateResultsLog));
     }
@@ -739,18 +694,8 @@ public class ConsoleAndFileDriverConfiguration implements DriverConfiguration {
     }
 
     @Override
-    public long windowedExecutionWindowDurationAsMilli() {
-        return windowedExecutionWindowDurationAsMilli;
-    }
-
-    @Override
     public Set<String> peerIds() {
         return peerIds;
-    }
-
-    @Override
-    public long toleratedExecutionDelayAsMilli() {
-        return toleratedExecutionDelayAsMilli;
     }
 
     @Override
@@ -845,15 +790,9 @@ public class ConsoleAndFileDriverConfiguration implements DriverConfiguration {
         double newTimeCompressionRatio = (newParamsMapWithShortKeys.containsKey(TIME_COMPRESSION_RATIO_ARG)) ?
                 Double.parseDouble(newParamsMapWithShortKeys.get(TIME_COMPRESSION_RATIO_ARG)) :
                 timeCompressionRatio;
-        long newWindowedExecutionWindowDurationAsMilli = (newParamsMapWithShortKeys.containsKey(WINDOWED_EXECUTION_WINDOW_DURATION_ARG)) ?
-                Long.parseLong(newParamsMapWithShortKeys.get(WINDOWED_EXECUTION_WINDOW_DURATION_ARG)) :
-                windowedExecutionWindowDurationAsMilli;
         Set<String> newPeerIds = (newParamsMapWithShortKeys.containsKey(PEER_IDS_ARG)) ?
                 parsePeerIdsFromCommandline(newParamsMapWithShortKeys.get(PEER_IDS_ARG)) :
                 peerIds;
-        long newToleratedExecutionDelayAsMilli = (newParamsMapWithShortKeys.containsKey(TOLERATED_EXECUTION_DELAY_ARG)) ?
-                Long.parseLong(newParamsMapWithShortKeys.get(TOLERATED_EXECUTION_DELAY_ARG)) :
-                toleratedExecutionDelayAsMilli;
         ConsoleAndFileValidationParamOptions newValidationParams = (newParamsMapWithShortKeys.containsKey(CREATE_VALIDATION_PARAMS_ARG))
                 ? (null == newParamsMapWithShortKeys.get(CREATE_VALIDATION_PARAMS_ARG)) ? null : ConsoleAndFileValidationParamOptions.fromCommandlineString(newParamsMapWithShortKeys.get(CREATE_VALIDATION_PARAMS_ARG))
                 : validationCreationParams;
@@ -890,9 +829,7 @@ public class ConsoleAndFileDriverConfiguration implements DriverConfiguration {
                 newTimeUnit,
                 newResultDirPath,
                 newTimeCompressionRatio,
-                newWindowedExecutionWindowDurationAsMilli,
                 newPeerIds,
-                newToleratedExecutionDelayAsMilli,
                 newValidationParams,
                 newDatabaseValidationFilePath,
                 newValidateWorkload,
@@ -922,10 +859,8 @@ public class ConsoleAndFileDriverConfiguration implements DriverConfiguration {
             argsList.add("-" + RESULTS_LOG_ARG);
         argsList.addAll(Lists.newArrayList("-" + TIME_UNIT_ARG, timeUnit.name()));
         argsList.addAll(Lists.newArrayList("-" + TIME_COMPRESSION_RATIO_ARG, Double.toString(timeCompressionRatio)));
-        argsList.addAll(Lists.newArrayList("-" + WINDOWED_EXECUTION_WINDOW_DURATION_ARG, Long.toString(windowedExecutionWindowDurationAsMilli)));
         if (false == peerIds.isEmpty())
             argsList.addAll(Lists.newArrayList("-" + PEER_IDS_ARG, serializePeerIdsToCommandline(peerIds)));
-        argsList.addAll(Lists.newArrayList("-" + TOLERATED_EXECUTION_DELAY_ARG, Long.toString(toleratedExecutionDelayAsMilli)));
         if (null != databaseValidationFilePath)
             argsList.addAll(Lists.newArrayList("-" + DB_VALIDATION_FILE_PATH_ARG, databaseValidationFilePath));
         if (null != validationCreationParams)
@@ -1002,22 +937,11 @@ public class ConsoleAndFileDriverConfiguration implements DriverConfiguration {
         sb.append("# COMMAND: ").append("-").append(TIME_COMPRESSION_RATIO_ARG).append("/--").append(TIME_COMPRESSION_RATIO_ARG_LONG).append("\n");
         sb.append(TIME_COMPRESSION_RATIO_ARG_LONG).append("=").append(timeCompressionRatio).append("\n");
         sb.append("\n");
-        sb.append("# size (i.e., duration) of execution window used by the windowed").append(" scheduling mode\n");
-        sb.append("# LONG (milliseconds)\n");
-        sb.append("# COMMAND: ").append("-").append(WINDOWED_EXECUTION_WINDOW_DURATION_ARG).append("/--").append(WINDOWED_EXECUTION_WINDOW_DURATION_ARG_LONG).append("\n");
-        sb.append(WINDOWED_EXECUTION_WINDOW_DURATION_ARG_LONG).append("=").append(windowedExecutionWindowDurationAsMilli).append("\n");
-        sb.append("\n");
         sb.append("# NOT USED AT PRESENT - reserved for distributed driver mode\n");
         sb.append("# specifies the addresses of other driver processes, so they can find each other\n");
         sb.append("# LIST (e.g., peer1|peer2|peer3)\n");
         sb.append("# COMMAND: ").append("-").append(PEER_IDS_ARG).append("/--").append(PEER_IDS_ARG_LONG).append("\n");
         sb.append(PEER_IDS_ARG_LONG).append("=").append(serializePeerIdsToCommandline(peerIds)).append("\n");
-        sb.append("\n");
-        sb.append("# tolerated duration (in milliseconds) that operation execution may be late by\n");
-        sb.append("# if driver can not execute an operation within " + TOLERATED_EXECUTION_DELAY_ARG_LONG + " of its scheduled start time it will terminate\n");
-        sb.append("# LONG (milliseconds)\n");
-        sb.append("# COMMAND: ").append("-").append(TOLERATED_EXECUTION_DELAY_ARG).append("/--").append(TOLERATED_EXECUTION_DELAY_ARG_LONG).append("\n");
-        sb.append(TOLERATED_EXECUTION_DELAY_ARG_LONG).append("=").append(toleratedExecutionDelayAsMilli).append("\n");
         sb.append("\n");
         sb.append("# enable validation that will check if the provided database implementation is correct\n");
         sb.append("# parameter value specifies where to find the validation parameters file\n");
@@ -1123,9 +1047,7 @@ public class ConsoleAndFileDriverConfiguration implements DriverConfiguration {
         sb.append("\t").append(String.format("%1$-" + padRightDistance + "s", "Results Directory:")).append(resultDirPath()).append("\n");
         sb.append("\t").append(String.format("%1$-" + padRightDistance + "s", "Create Results Log:")).append(shouldCreateResultsLog).append("\n");
         sb.append("\t").append(String.format("%1$-" + padRightDistance + "s", "Time Compression Ratio:")).append(FLOAT_FORMAT.format(timeCompressionRatio)).append("\n");
-        sb.append("\t").append(String.format("%1$-" + padRightDistance + "s", "Execution Window Size:")).append(TEMPORAL_UTIL.milliDurationToString(windowedExecutionWindowDurationAsMilli)).append(" / ").append(windowedExecutionWindowDurationAsMilli).append(" (ms)\n");
         sb.append("\t").append(String.format("%1$-" + padRightDistance + "s", "Peer IDs:")).append(peerIds.toString()).append("\n");
-        sb.append("\t").append(String.format("%1$-" + padRightDistance + "s", "Tolerated Execution Delay:")).append(TEMPORAL_UTIL.milliDurationToString(toleratedExecutionDelayAsMilli)).append(" / ").append(toleratedExecutionDelayAsMilli).append(" (ms)\n");
         String validationCreationParamsString = (null == validationCreationParams) ?
                 null :
                 String.format("File (%s) Validation Set Size (%s)", validationCreationParams.filePath(), validationCreationParams.validationSetSize);
@@ -1138,7 +1060,8 @@ public class ConsoleAndFileDriverConfiguration implements DriverConfiguration {
         sb.append("\t").append(String.format("%1$-" + padRightDistance + "s", "Ignore Scheduled Start Times:")).append(ignoreScheduledStartTimes).append("\n");
 
         Set<String> excludedKeys = coreConfigurationParameterKeys();
-        Map<String, String> filteredParamsMap = MapUtils.copyExcludingKeys(paramsMap, excludedKeys);
+
+        Map<String, String> filteredParamsMap = MapUtils.copyExcludingKeys(convertLongKeysToShortKeys(paramsMap), excludedKeys);
         if (false == filteredParamsMap.isEmpty()) {
             sb.append("\t").append("User-defined parameters:").append("\n");
             sb.append(MapUtils.prettyPrint(filteredParamsMap, "\t\t"));
@@ -1173,10 +1096,8 @@ public class ConsoleAndFileDriverConfiguration implements DriverConfiguration {
         if (spinnerSleepDurationAsMilli != that.spinnerSleepDurationAsMilli) return false;
         if (statusDisplayIntervalAsSeconds != that.statusDisplayIntervalAsSeconds) return false;
         if (timeUnit != that.timeUnit) return false;
-        if (toleratedExecutionDelayAsMilli != that.toleratedExecutionDelayAsMilli) return false;
         if (validationCreationParams != null ? !validationCreationParams.equals(that.validationCreationParams) : that.validationCreationParams != null)
             return false;
-        if (windowedExecutionWindowDurationAsMilli != that.windowedExecutionWindowDurationAsMilli) return false;
         if (workloadClassName != null ? !workloadClassName.equals(that.workloadClassName) : that.workloadClassName != null)
             return false;
 
@@ -1197,9 +1118,7 @@ public class ConsoleAndFileDriverConfiguration implements DriverConfiguration {
         result = 31 * result + (resultDirPath != null ? resultDirPath.hashCode() : 0);
         temp = Double.doubleToLongBits(timeCompressionRatio);
         result = 31 * result + (int) (temp ^ (temp >>> 32));
-        result = 31 * result + (int) (windowedExecutionWindowDurationAsMilli ^ (windowedExecutionWindowDurationAsMilli >>> 32));
         result = 31 * result + (peerIds != null ? peerIds.hashCode() : 0);
-        result = 31 * result + (int) (toleratedExecutionDelayAsMilli ^ (toleratedExecutionDelayAsMilli >>> 32));
         result = 31 * result + (validationCreationParams != null ? validationCreationParams.hashCode() : 0);
         result = 31 * result + (databaseValidationFilePath != null ? databaseValidationFilePath.hashCode() : 0);
         result = 31 * result + (validateWorkload ? 1 : 0);

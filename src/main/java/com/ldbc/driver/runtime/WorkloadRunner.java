@@ -36,8 +36,8 @@ public class WorkloadRunner {
     private final OperationHandlerExecutor executorForAsynchronous;
     private final List<OperationHandlerExecutor> executorsForBlocking = new ArrayList<>();
 
-    private final PreciseIndividualAsyncOperationStreamExecutorService asynchronousStreamExecutorService;
-    private final List<PreciseIndividualBlockingOperationStreamExecutorService> blockingStreamExecutorServices = new ArrayList<>();
+    private final OperationStreamExecutorService asynchronousStreamExecutorService;
+    private final List<OperationStreamExecutorService> blockingStreamExecutorServices = new ArrayList<>();
 
     private final long statusDisplayIntervalAsMilli;
 
@@ -78,7 +78,7 @@ public class WorkloadRunner {
         } catch (CompletionTimeException e) {
             throw new WorkloadException("Error while attempting to create local completion time writer", e);
         }
-        this.asynchronousStreamExecutorService = new PreciseIndividualAsyncOperationStreamExecutorService(
+        this.asynchronousStreamExecutorService = new OperationStreamExecutorService(
                 timeSource,
                 errorReporter,
                 asynchronousStream,
@@ -105,7 +105,7 @@ public class WorkloadRunner {
                 throw new WorkloadException("Error while attempting to create local completion time writer", e);
             }
             this.blockingStreamExecutorServices.add(
-                    new PreciseIndividualBlockingOperationStreamExecutorService(
+                    new OperationStreamExecutorService(
                             timeSource,
                             errorReporter,
                             blockingStream,
@@ -183,7 +183,7 @@ public class WorkloadRunner {
                     ConcurrentErrorReporter.stackTraceToString(e));
         }
 
-        for (PreciseIndividualBlockingOperationStreamExecutorService blockingStreamExecutorService : blockingStreamExecutorServices) {
+        for (OperationStreamExecutorService blockingStreamExecutorService : blockingStreamExecutorServices) {
             try {
                 blockingStreamExecutorService.shutdown();
             } catch (OperationHandlerExecutorException e) {

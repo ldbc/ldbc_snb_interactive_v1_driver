@@ -2,7 +2,6 @@ package com.ldbc.driver.control;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
-import com.ldbc.driver.temporal.TemporalUtil;
 import com.ldbc.driver.testutils.TestUtils;
 import com.ldbc.driver.util.MapUtils;
 import com.ldbc.driver.workloads.ldbc.snb.interactive.LdbcSnbInteractiveWorkload;
@@ -20,8 +19,6 @@ import static org.hamcrest.CoreMatchers.*;
 import static org.junit.Assert.assertThat;
 
 public class ConsoleAndFileDriverConfigurationTest {
-    private static final TemporalUtil TEMPORAL_UTIL = new TemporalUtil();
-
     @Test
     public void applyMapShouldWork() throws DriverConfigurationException {
         ConsoleAndFileDriverConfiguration configuration1 = ConsoleAndFileDriverConfiguration.fromDefaults("db1", "workload1", 1);
@@ -65,8 +62,6 @@ public class ConsoleAndFileDriverConfigurationTest {
         String resultDirPath = "results dir";
         Double timeCompressionRatio = 1.0;
         Set<String> peerIds = new HashSet<>();
-        long toleratedExecutionDelay = TEMPORAL_UTIL.convert(60, TimeUnit.MINUTES, TimeUnit.MILLISECONDS);
-        long windowedExecutionWindowDuration = 1000l;
         ConsoleAndFileDriverConfiguration.ConsoleAndFileValidationParamOptions validationCreationParams = null;
         String databaseValidationFilePath = null;
         boolean validateWorkload = false;
@@ -89,9 +84,7 @@ public class ConsoleAndFileDriverConfigurationTest {
                 timeUnit,
                 resultDirPath,
                 timeCompressionRatio,
-                windowedExecutionWindowDuration,
                 peerIds,
-                toleratedExecutionDelay,
                 validationCreationParams,
                 databaseValidationFilePath,
                 validateWorkload,
@@ -165,8 +158,6 @@ public class ConsoleAndFileDriverConfigurationTest {
                 ConsoleAndFileDriverConfiguration.TIME_COMPRESSION_RATIO_ARG, ConsoleAndFileDriverConfiguration.TIME_COMPRESSION_RATIO_DEFAULT_STRING);
         paramsFromPublicStaticDefaultValuesAsMap.put(
                 ConsoleAndFileDriverConfiguration.PEER_IDS_ARG, ConsoleAndFileDriverConfiguration.serializePeerIdsToCommandline(peerIds));
-        paramsFromPublicStaticDefaultValuesAsMap.put(
-                ConsoleAndFileDriverConfiguration.TOLERATED_EXECUTION_DELAY_ARG, ConsoleAndFileDriverConfiguration.TOLERATED_EXECUTION_DELAY_DEFAULT_STRING);
         paramsFromPublicStaticDefaultValuesAsMap.put(
                 ConsoleAndFileDriverConfiguration.CREATE_VALIDATION_PARAMS_ARG, validationParamOptions.toCommandlineString());
         paramsFromPublicStaticDefaultValuesAsMap.put(
@@ -263,8 +254,6 @@ public class ConsoleAndFileDriverConfigurationTest {
         paramsFromPublicStaticDefaultValuesAsMap.put(
                 ConsoleAndFileDriverConfiguration.TIME_COMPRESSION_RATIO_ARG, ConsoleAndFileDriverConfiguration.TIME_COMPRESSION_RATIO_DEFAULT_STRING);
         paramsFromPublicStaticDefaultValuesAsMap.put(ConsoleAndFileDriverConfiguration.PEER_IDS_ARG, ConsoleAndFileDriverConfiguration.PEER_IDS_DEFAULT_STRING);
-        paramsFromPublicStaticDefaultValuesAsMap.put(
-                ConsoleAndFileDriverConfiguration.TOLERATED_EXECUTION_DELAY_ARG, ConsoleAndFileDriverConfiguration.TOLERATED_EXECUTION_DELAY_DEFAULT_STRING);
         if (null != ConsoleAndFileDriverConfiguration.CREATE_VALIDATION_PARAMS_DEFAULT)
             paramsFromPublicStaticDefaultValuesAsMap.put(
                     ConsoleAndFileDriverConfiguration.CREATE_VALIDATION_PARAMS_ARG, ConsoleAndFileDriverConfiguration.CREATE_VALIDATION_PARAMS_DEFAULT.toCommandlineString());
@@ -324,7 +313,6 @@ public class ConsoleAndFileDriverConfigurationTest {
         optionalParamsMap.put(ConsoleAndFileDriverConfiguration.RESULT_DIR_PATH_ARG, ConsoleAndFileDriverConfiguration.RESULT_DIR_PATH_DEFAULT_STRING);
         optionalParamsMap.put(ConsoleAndFileDriverConfiguration.TIME_COMPRESSION_RATIO_ARG, ConsoleAndFileDriverConfiguration.TIME_COMPRESSION_RATIO_DEFAULT_STRING);
         optionalParamsMap.put(ConsoleAndFileDriverConfiguration.PEER_IDS_ARG, ConsoleAndFileDriverConfiguration.serializePeerIdsToCommandline(peerIds));
-        optionalParamsMap.put(ConsoleAndFileDriverConfiguration.TOLERATED_EXECUTION_DELAY_ARG, ConsoleAndFileDriverConfiguration.TOLERATED_EXECUTION_DELAY_DEFAULT_STRING);
         if (null != ConsoleAndFileDriverConfiguration.CREATE_VALIDATION_PARAMS_DEFAULT)
             optionalParamsMap.put(ConsoleAndFileDriverConfiguration.CREATE_VALIDATION_PARAMS_ARG, ConsoleAndFileDriverConfiguration.CREATE_VALIDATION_PARAMS_DEFAULT.toCommandlineString());
         if (null != ConsoleAndFileDriverConfiguration.DB_VALIDATION_FILE_PATH_DEFAULT_STRING)
@@ -355,7 +343,6 @@ public class ConsoleAndFileDriverConfigurationTest {
             optionalParamsArgsList.addAll(Lists.newArrayList("-" + ConsoleAndFileDriverConfiguration.RESULT_DIR_PATH_ARG, ConsoleAndFileDriverConfiguration.RESULT_DIR_PATH_DEFAULT_STRING));
         optionalParamsArgsList.addAll(Lists.newArrayList("-" + ConsoleAndFileDriverConfiguration.TIME_COMPRESSION_RATIO_ARG, ConsoleAndFileDriverConfiguration.TIME_COMPRESSION_RATIO_DEFAULT_STRING));
         optionalParamsArgsList.addAll(Lists.newArrayList("-" + ConsoleAndFileDriverConfiguration.PEER_IDS_ARG, ConsoleAndFileDriverConfiguration.serializePeerIdsToCommandline(peerIds)));
-        optionalParamsArgsList.addAll(Lists.newArrayList("-" + ConsoleAndFileDriverConfiguration.TOLERATED_EXECUTION_DELAY_ARG, ConsoleAndFileDriverConfiguration.TOLERATED_EXECUTION_DELAY_DEFAULT_STRING));
         if (null != ConsoleAndFileDriverConfiguration.CREATE_VALIDATION_PARAMS_DEFAULT)
             optionalParamsArgsList.addAll(Lists.newArrayList("-" + ConsoleAndFileDriverConfiguration.CREATE_VALIDATION_PARAMS_ARG, ConsoleAndFileDriverConfiguration.CREATE_VALIDATION_PARAMS_DEFAULT.toCommandlineString()));
         if (null != ConsoleAndFileDriverConfiguration.DB_VALIDATION_FILE_PATH_DEFAULT_STRING)
@@ -410,7 +397,6 @@ public class ConsoleAndFileDriverConfigurationTest {
         assertThat(new File(configurationFromParams.resultDirPath()).getName(), is(ConsoleAndFileDriverConfiguration.RESULT_DIR_PATH_DEFAULT));
         assertThat(configurationFromParams.timeCompressionRatio(), is(ConsoleAndFileDriverConfiguration.TIME_COMPRESSION_RATIO_DEFAULT));
         assertThat(configurationFromParams.peerIds(), is(ConsoleAndFileDriverConfiguration.PEER_IDS_DEFAULT));
-        assertThat(configurationFromParams.toleratedExecutionDelayAsMilli(), is(ConsoleAndFileDriverConfiguration.TOLERATED_EXECUTION_DELAY_DEFAULT));
         assertThat(configurationFromParams.validationParamsCreationOptions(), is((DriverConfiguration.ValidationParamOptions) ConsoleAndFileDriverConfiguration.CREATE_VALIDATION_PARAMS_DEFAULT));
         assertThat(configurationFromParams.databaseValidationFilePath(), is(ConsoleAndFileDriverConfiguration.DB_VALIDATION_FILE_PATH_DEFAULT));
         assertThat(configurationFromParams.validateWorkload(), is(ConsoleAndFileDriverConfiguration.VALIDATE_WORKLOAD_DEFAULT));
@@ -433,9 +419,7 @@ public class ConsoleAndFileDriverConfigurationTest {
         TimeUnit timeUnit = TimeUnit.SECONDS;
         String resultDirPath = null;
         Double timeCompressionRatio = 1.0;
-        long windowedExecutionWindowDuration = 1l;
         Set<String> peerIds = Sets.newHashSet("1");
-        long toleratedExecutionDelay = 2l;
         ConsoleAndFileDriverConfiguration.ConsoleAndFileValidationParamOptions validationParams = new ConsoleAndFileDriverConfiguration.ConsoleAndFileValidationParamOptions("file", 1);
         String dbValidationFilePath = null;
         boolean validateWorkload = false;
@@ -456,9 +440,7 @@ public class ConsoleAndFileDriverConfigurationTest {
                 timeUnit,
                 resultDirPath,
                 timeCompressionRatio,
-                windowedExecutionWindowDuration,
                 peerIds,
-                toleratedExecutionDelay,
                 validationParams,
                 dbValidationFilePath,
                 validateWorkload,
@@ -480,7 +462,6 @@ public class ConsoleAndFileDriverConfigurationTest {
         assertThat(params.resultDirPath(), equalTo(resultDirPath));
         assertThat(params.timeCompressionRatio(), equalTo(timeCompressionRatio));
         assertThat(params.peerIds(), equalTo(peerIds));
-        assertThat(params.toleratedExecutionDelayAsMilli(), equalTo(toleratedExecutionDelay));
         assertThat(params.validationParamsCreationOptions(), equalTo((DriverConfiguration.ValidationParamOptions) validationParams));
         assertThat(params.databaseValidationFilePath(), equalTo(dbValidationFilePath));
         assertThat(params.validateWorkload(), equalTo(validateWorkload));

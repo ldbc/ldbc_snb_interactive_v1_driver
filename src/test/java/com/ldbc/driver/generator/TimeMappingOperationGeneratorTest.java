@@ -341,9 +341,7 @@ public class TimeMappingOperationGeneratorTest {
         TimeUnit timeUnit = TimeUnit.MILLISECONDS;
         String resultDirPath = temporaryFolder.newFolder().getAbsolutePath();
         double timeCompressionRatio = 1.0;
-        long windowedExecutionWindowDuration = 1000l;
         Set<String> peerIds = new HashSet<>();
-        long toleratedExecutionDelay = 1000l;
         ConsoleAndFileDriverConfiguration.ConsoleAndFileValidationParamOptions validationParams = null;
         String dbValidationFilePath = null;
         boolean validateWorkload = false;
@@ -364,9 +362,7 @@ public class TimeMappingOperationGeneratorTest {
                 timeUnit,
                 resultDirPath,
                 timeCompressionRatio,
-                windowedExecutionWindowDuration,
                 peerIds,
-                toleratedExecutionDelay,
                 validationParams,
                 dbValidationFilePath,
                 validateWorkload,

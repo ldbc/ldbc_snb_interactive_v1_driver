@@ -37,12 +37,6 @@ public class LdbcSnbInteractiveWorkloadPerformanceTest {
 
     TimeSource timeSource = new SystemTimeSource();
 
-    /*
-SF30 1,2,4 threads 1 partition
-[TC1-social_network]Completed 100,000,000 operations in 02:35.771.000 (m:s.ms.us) = 641,968 op/sec = 1 op/1.55771 us
-[TC2-social_network]Completed 100,000,000 operations in 02:35.916.000 (m:s.ms.us) = 641,371 op/sec = 1 op/1.55916 us
-[TC4-social_network]Completed 100,000,000 operations in 02:15.686.000 (m:s.ms.us) = 736,996 op/sec = 1 op/1.35686 us
-     */
     @Ignore
     @Test
     public void ignoreTimesPerformanceTest()
@@ -95,12 +89,8 @@ SF30 1,2,4 threads 1 partition
             int statusDisplayInterval = 2;
             TimeUnit timeUnit = TimeUnit.MICROSECONDS;
             String resultDirPath = resultsDir;
-            // TODO uncomment
-//            double timeCompressionRatio = 0.0000001;
-            double timeCompressionRatio = 1.0;
-            long windowedExecutionWindowDuration = 1000l;
+            double timeCompressionRatio = 0.0000001;
             Set<String> peerIds = new HashSet<>();
-            long toleratedExecutionDelay = TEMPORAL_UTIL.convert(60, TimeUnit.MINUTES, TimeUnit.MILLISECONDS);
             ConsoleAndFileDriverConfiguration.ConsoleAndFileValidationParamOptions validationParams = null;
             String dbValidationFilePath = null;
             boolean validateWorkload = false;
@@ -121,9 +111,7 @@ SF30 1,2,4 threads 1 partition
                     timeUnit,
                     resultDirPath,
                     timeCompressionRatio,
-                    windowedExecutionWindowDuration,
                     peerIds,
-                    toleratedExecutionDelay,
                     validationParams,
                     dbValidationFilePath,
                     validateWorkload,
@@ -221,9 +209,7 @@ SF30 1,2,4 threads 1 partition
             TimeUnit timeUnit = TimeUnit.MICROSECONDS;
             String resultDirPath = resultsDir;
             double timeCompressionRatio = 0.00001;
-            long windowedExecutionWindowDuration = 1000l;
             Set<String> peerIds = new HashSet<>();
-            long toleratedExecutionDelay = TEMPORAL_UTIL.convert(60, TimeUnit.MINUTES, TimeUnit.MILLISECONDS);
             ConsoleAndFileDriverConfiguration.ConsoleAndFileValidationParamOptions validationParams = null;
             String dbValidationFilePath = null;
             boolean validateWorkload = false;
@@ -244,9 +230,7 @@ SF30 1,2,4 threads 1 partition
                     timeUnit,
                     resultDirPath,
                     timeCompressionRatio,
-                    windowedExecutionWindowDuration,
                     peerIds,
-                    toleratedExecutionDelay,
                     validationParams,
                     dbValidationFilePath,
                     validateWorkload,

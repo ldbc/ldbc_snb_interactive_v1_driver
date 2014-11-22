@@ -5,8 +5,6 @@ import com.ldbc.driver.OperationResultReport;
 import com.ldbc.driver.OperationResultReportTestHelper;
 import com.ldbc.driver.WorkloadException;
 import com.ldbc.driver.runtime.ConcurrentErrorReporter;
-import com.ldbc.driver.runtime.scheduling.ErrorReportingTerminatingExecutionDelayPolicy;
-import com.ldbc.driver.runtime.scheduling.ExecutionDelayPolicy;
 import com.ldbc.driver.temporal.SystemTimeSource;
 import com.ldbc.driver.temporal.TemporalUtil;
 import com.ldbc.driver.temporal.TimeSource;
@@ -26,25 +24,13 @@ public class ThreadedQueuedConcurrentMetricsServiceTest {
 
     @Test
     public void shouldNotAcceptOperationResultsAfterShutdownWhenBlockingQueueIsUsed() throws WorkloadException, MetricsCollectionException {
-        doShouldNotAcceptOperationResultsAfterShutdownWhenBlockingQueueIsUsed(true);
-        doShouldNotAcceptOperationResultsAfterShutdownWhenBlockingQueueIsUsed(false);
-    }
-
-    public void doShouldNotAcceptOperationResultsAfterShutdownWhenBlockingQueueIsUsed(boolean recordStartTimeDelayLatency) throws WorkloadException, MetricsCollectionException {
         ConcurrentErrorReporter errorReporter = new ConcurrentErrorReporter();
-        long toleratedExecutionDelayDuration = ThreadedQueuedConcurrentMetricsService.DEFAULT_HIGHEST_EXPECTED_DELAY_DURATION_AS_MILLI;
-        ExecutionDelayPolicy executionDelayPolicy = new ErrorReportingTerminatingExecutionDelayPolicy(
-                timeSource,
-                toleratedExecutionDelayDuration,
-                errorReporter);
         SimpleCsvFileWriter csvResultsLogWriter = null;
         ConcurrentMetricsService metricsService = ThreadedQueuedConcurrentMetricsService.newInstanceUsingBlockingQueue(
                 timeSource,
-                new ConcurrentErrorReporter(),
+                errorReporter,
                 TimeUnit.MILLISECONDS,
                 ThreadedQueuedConcurrentMetricsService.DEFAULT_HIGHEST_EXPECTED_RUNTIME_DURATION_AS_NANO,
-                recordStartTimeDelayLatency,
-                executionDelayPolicy,
                 csvResultsLogWriter);
 
         metricsService.shutdown();
@@ -59,25 +45,13 @@ public class ThreadedQueuedConcurrentMetricsServiceTest {
 
     @Test
     public void shouldNotAcceptOperationResultsAfterShutdownWhenNonBlockingQueueIsUsed() throws WorkloadException, MetricsCollectionException {
-        doShouldNotAcceptOperationResultsAfterShutdownWhenNonBlockingQueueIsUsed(true);
-        doShouldNotAcceptOperationResultsAfterShutdownWhenNonBlockingQueueIsUsed(false);
-    }
-
-    public void doShouldNotAcceptOperationResultsAfterShutdownWhenNonBlockingQueueIsUsed(boolean recordStartTimeDelayLatency) throws WorkloadException, MetricsCollectionException {
         ConcurrentErrorReporter errorReporter = new ConcurrentErrorReporter();
-        long toleratedExecutionDelayDuration = ThreadedQueuedConcurrentMetricsService.DEFAULT_HIGHEST_EXPECTED_DELAY_DURATION_AS_MILLI;
-        ExecutionDelayPolicy executionDelayPolicy = new ErrorReportingTerminatingExecutionDelayPolicy(
-                timeSource,
-                toleratedExecutionDelayDuration,
-                errorReporter);
         SimpleCsvFileWriter csvResultsLogWriter = null;
         ConcurrentMetricsService metricsService = ThreadedQueuedConcurrentMetricsService.newInstanceUsingNonBlockingQueue(
                 timeSource,
-                new ConcurrentErrorReporter(),
+                errorReporter,
                 TimeUnit.MILLISECONDS,
                 ThreadedQueuedConcurrentMetricsService.DEFAULT_HIGHEST_EXPECTED_RUNTIME_DURATION_AS_NANO,
-                recordStartTimeDelayLatency,
-                executionDelayPolicy,
                 csvResultsLogWriter);
 
         metricsService.shutdown();
@@ -92,25 +66,13 @@ public class ThreadedQueuedConcurrentMetricsServiceTest {
 
     @Test
     public void shouldReturnCorrectMeasurementsWhenBlockingQueueIsUsed() throws WorkloadException, MetricsCollectionException {
-        doShouldReturnCorrectMeasurementsWhenBlockingQueueIsUsed(true);
-        doShouldReturnCorrectMeasurementsWhenBlockingQueueIsUsed(false);
-    }
-
-    public void doShouldReturnCorrectMeasurementsWhenBlockingQueueIsUsed(boolean recordStartTimeDelayLatency) throws WorkloadException, MetricsCollectionException {
         ConcurrentErrorReporter errorReporter = new ConcurrentErrorReporter();
-        long toleratedExecutionDelayDuration = ThreadedQueuedConcurrentMetricsService.DEFAULT_HIGHEST_EXPECTED_DELAY_DURATION_AS_MILLI;
-        ExecutionDelayPolicy executionDelayPolicy = new ErrorReportingTerminatingExecutionDelayPolicy(
-                timeSource,
-                toleratedExecutionDelayDuration,
-                errorReporter);
         SimpleCsvFileWriter csvResultsLogWriter = null;
         ConcurrentMetricsService metricsService = ThreadedQueuedConcurrentMetricsService.newInstanceUsingBlockingQueue(
                 timeSource,
-                new ConcurrentErrorReporter(),
+                errorReporter,
                 TimeUnit.MILLISECONDS,
                 ThreadedQueuedConcurrentMetricsService.DEFAULT_HIGHEST_EXPECTED_RUNTIME_DURATION_AS_NANO,
-                recordStartTimeDelayLatency,
-                executionDelayPolicy,
                 csvResultsLogWriter);
         try {
             shouldReturnCorrectMeasurements(metricsService);
@@ -122,25 +84,13 @@ public class ThreadedQueuedConcurrentMetricsServiceTest {
 
     @Test
     public void shouldReturnCorrectMeasurementsWhenNonBlockingQueueIsUsed() throws WorkloadException, MetricsCollectionException {
-        doShouldReturnCorrectMeasurementsWhenNonBlockingQueueIsUsed(true);
-        doShouldReturnCorrectMeasurementsWhenNonBlockingQueueIsUsed(false);
-    }
-
-    public void doShouldReturnCorrectMeasurementsWhenNonBlockingQueueIsUsed(boolean recordStartTimeDelayLatency) throws WorkloadException, MetricsCollectionException {
         ConcurrentErrorReporter errorReporter = new ConcurrentErrorReporter();
-        long toleratedExecutionDelayDuration = ThreadedQueuedConcurrentMetricsService.DEFAULT_HIGHEST_EXPECTED_DELAY_DURATION_AS_MILLI;
-        ExecutionDelayPolicy executionDelayPolicy = new ErrorReportingTerminatingExecutionDelayPolicy(
-                timeSource,
-                toleratedExecutionDelayDuration,
-                errorReporter);
         SimpleCsvFileWriter csvResultsLogWriter = null;
         ConcurrentMetricsService metricsService = ThreadedQueuedConcurrentMetricsService.newInstanceUsingBlockingQueue(
                 timeSource,
-                new ConcurrentErrorReporter(),
+                errorReporter,
                 TimeUnit.MILLISECONDS,
                 ThreadedQueuedConcurrentMetricsService.DEFAULT_HIGHEST_EXPECTED_RUNTIME_DURATION_AS_NANO,
-                recordStartTimeDelayLatency,
-                executionDelayPolicy,
                 csvResultsLogWriter);
         try {
             shouldReturnCorrectMeasurements(metricsService);

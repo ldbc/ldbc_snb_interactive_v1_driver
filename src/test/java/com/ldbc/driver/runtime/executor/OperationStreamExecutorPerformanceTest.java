@@ -128,7 +128,7 @@ public class OperationStreamExecutorPerformanceTest {
                 );
 
                 OperationHandlerExecutor executor = new ThreadPoolOperationHandlerExecutor(1, DefaultQueues.DEFAULT_BOUND_1000);
-                PreciseIndividualBlockingOperationStreamExecutorServiceThread thread = getNewThread(
+                OperationStreamExecutorServiceThread thread = getNewThread(
                         errorReporter,
                         streamDefinition,
                         spinner,
@@ -170,7 +170,7 @@ public class OperationStreamExecutorPerformanceTest {
                 );
 
                 OperationHandlerExecutor executor = new SingleThreadOperationHandlerExecutor(errorReporter, DefaultQueues.DEFAULT_BOUND_1000);
-                PreciseIndividualBlockingOperationStreamExecutorServiceThread thread = getNewThread(
+                OperationStreamExecutorServiceThread thread = getNewThread(
                         errorReporter,
                         streamDefinition,
                         spinner,
@@ -212,7 +212,7 @@ public class OperationStreamExecutorPerformanceTest {
                 );
 
                 OperationHandlerExecutor executor = new SameThreadOperationHandlerExecutor();
-                PreciseIndividualBlockingOperationStreamExecutorServiceThread thread = getNewThread(
+                OperationStreamExecutorServiceThread thread = getNewThread(
                         errorReporter,
                         streamDefinition,
                         spinner,
@@ -282,7 +282,7 @@ public class OperationStreamExecutorPerformanceTest {
         return operations;
     }
 
-    private PreciseIndividualBlockingOperationStreamExecutorServiceThread getNewThread(
+    private OperationStreamExecutorServiceThread getNewThread(
             ConcurrentErrorReporter errorReporter,
             WorkloadStreams.WorkloadStreamDefinition streamDefinition,
             Spinner spinner,
@@ -294,8 +294,8 @@ public class OperationStreamExecutorPerformanceTest {
             AtomicBoolean executorHasFinished,
             AtomicBoolean forceThreadToTerminate
     ) throws CompletionTimeException, MetricsCollectionException, DbException {
-        PreciseIndividualBlockingOperationStreamExecutorServiceThread operationStreamExecutorThread =
-                new PreciseIndividualBlockingOperationStreamExecutorServiceThread(
+        OperationStreamExecutorServiceThread operationStreamExecutorThread =
+                new OperationStreamExecutorServiceThread(
                         timeSource,
                         operationHandlerExecutor,
                         errorReporter,

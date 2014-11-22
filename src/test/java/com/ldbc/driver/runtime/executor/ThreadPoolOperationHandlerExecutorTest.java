@@ -51,7 +51,6 @@ public class ThreadPoolOperationHandlerExecutorTest {
     public void executorShouldReturnExpectedResult() throws OperationHandlerExecutorException, ExecutionException, InterruptedException, OperationException, CompletionTimeException {
         // Given
         boolean ignoreScheduledStartTime = false;
-        long toleratedDelayAsMilli = 100;
         ConcurrentErrorReporter errorReporter = new ConcurrentErrorReporter();
         Spinner spinner = new Spinner(timeSource, Spinner.DEFAULT_SLEEP_DURATION_10_MILLI, ignoreScheduledStartTime);
         LocalCompletionTimeWriter dummyLocalCompletionTimeWriter = new DummyLocalCompletionTimeWriter();
@@ -99,7 +98,6 @@ public class ThreadPoolOperationHandlerExecutorTest {
     public void executorShouldReturnAllResults() throws OperationHandlerExecutorException, ExecutionException, InterruptedException, OperationException, CompletionTimeException {
         // Given
         boolean ignoreScheduledStartTime = false;
-        long toleratedDelayAsMilli = 100l;
         ConcurrentErrorReporter errorReporter = new ConcurrentErrorReporter();
         Spinner spinner = new Spinner(timeSource, Spinner.DEFAULT_SLEEP_DURATION_10_MILLI, ignoreScheduledStartTime);
         LocalCompletionTimeWriter dummyLocalCompletionTimeWriter = new DummyLocalCompletionTimeWriter();
@@ -166,7 +164,6 @@ public class ThreadPoolOperationHandlerExecutorTest {
     public void executorShouldThrowExceptionIfShutdownMultipleTimes() throws OperationHandlerExecutorException, ExecutionException, InterruptedException, OperationException, CompletionTimeException {
         // Given
         boolean ignoreScheduledStartTime = false;
-        long toleratedDelayAsMilli = 100l;
         ConcurrentErrorReporter errorReporter = new ConcurrentErrorReporter();
         Spinner spinner = new Spinner(timeSource, Spinner.DEFAULT_SLEEP_DURATION_10_MILLI, ignoreScheduledStartTime);
         LocalCompletionTimeWriter dummyLocalCompletionTimeWriter = new DummyLocalCompletionTimeWriter();
