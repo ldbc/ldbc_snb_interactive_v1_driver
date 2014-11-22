@@ -2,6 +2,7 @@ package com.ldbc.driver.generator;
 
 import com.google.common.base.Predicate;
 import com.google.common.collect.Iterators;
+import com.google.common.collect.Lists;
 import com.ldbc.driver.Operation;
 import com.ldbc.driver.util.Function0;
 import com.ldbc.driver.util.Function1;
@@ -474,7 +475,7 @@ public class GeneratorFactory {
      * @return
      */
     public <T> Iterator<T> mergeSort(Comparator<T> comparator, Iterator<T>... generators) {
-        return mergeSort(comparator, 1, generators);
+        return Iterators.mergeSorted(Lists.newArrayList(generators), comparator);
     }
 
     /**

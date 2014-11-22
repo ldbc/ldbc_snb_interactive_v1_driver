@@ -5,15 +5,9 @@ import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
 
-
 public class OrderedMultiGenerator<GENERATE_TYPE> extends Generator<GENERATE_TYPE> {
-    private static final int DEFAULT_LOOK_AHEAD_DISTANCE = 1;
     private final List<GeneratorHead<GENERATE_TYPE>> generatorHeads;
     private final Comparator<GENERATE_TYPE> comparator;
-
-    OrderedMultiGenerator(Comparator<GENERATE_TYPE> comparator, Iterator<GENERATE_TYPE>... generators) {
-        this(comparator, DEFAULT_LOOK_AHEAD_DISTANCE, generators);
-    }
 
     public OrderedMultiGenerator(Comparator<GENERATE_TYPE> comparator, int lookAheadDistance, Iterator<GENERATE_TYPE>... generators) {
         this.comparator = comparator;
