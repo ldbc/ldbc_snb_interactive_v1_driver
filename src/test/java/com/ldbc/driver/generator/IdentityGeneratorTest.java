@@ -1,32 +1,27 @@
 package com.ldbc.driver.generator;
 
+import org.junit.Test;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import org.junit.Test;
-
-import com.ldbc.driver.generator.Generator;
-
 import static org.junit.Assert.assertEquals;
 
-public class IdentityGeneratorTest
-{
+public class IdentityGeneratorTest {
     @Test
-    public void shouldStopAtLimitTest()
-    {
+    public void shouldStopAtLimitTest() {
         // Given
-        Integer[] numbers = new Integer[] { 1, 2, 3, 4, 5, 6 };
-        Generator<Integer> identityGenerator = new IdentityGenerator<Integer>( numbers );
+        Integer[] numbers = new Integer[]{1, 2, 3, 4, 5, 6};
+        Generator<Integer> identityGenerator = new IdentityGenerator<Integer>(numbers);
 
         // When
         List<Integer> generatorNumbers = new ArrayList<Integer>();
-        while ( identityGenerator.hasNext() )
-        {
-            generatorNumbers.add( identityGenerator.next() );
+        while (identityGenerator.hasNext()) {
+            generatorNumbers.add(identityGenerator.next());
         }
 
         // Then
-        assertEquals( Arrays.asList( numbers ), generatorNumbers );
+        assertEquals(Arrays.asList(numbers), generatorNumbers);
     }
 };
