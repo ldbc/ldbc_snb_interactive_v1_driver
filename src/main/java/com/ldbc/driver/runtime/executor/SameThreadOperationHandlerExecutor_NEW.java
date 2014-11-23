@@ -1,6 +1,9 @@
 package com.ldbc.driver.runtime.executor;
 
-import com.ldbc.driver.*;
+import com.ldbc.driver.Db;
+import com.ldbc.driver.DbException;
+import com.ldbc.driver.Operation;
+import com.ldbc.driver.OperationHandlerRunnableContext;
 import com.ldbc.driver.runtime.ConcurrentErrorReporter;
 
 import java.util.concurrent.atomic.AtomicLong;
@@ -15,9 +18,11 @@ public class SameThreadOperationHandlerExecutor_NEW implements OperationExecutor
 
     @Override
     public final void execute(Operation operation) throws OperationHandlerExecutorException {
-        OperationHandlerRunnableContext operationHandlerRunnableContext;
+        uncompletedHandlers.incrementAndGet();
         try {
-            operationHandlerRunnableContext = db.getOperationHandlerRunnableContext(operation);
+            OperationHandlerRunnableContext operationHandlerRunnableContext = db.getOperationHandlerRunnableContext(operation);
+            operationHandlerRunnableContext.run();
+            operationHandlerRunnableContext.cleanup();
         } catch (DbException e) {
             throw new OperationHandlerExecutorException(
                     String.format("Error retrieving handler\nOperation: %s\n%s",
@@ -25,15 +30,9 @@ public class SameThreadOperationHandlerExecutor_NEW implements OperationExecutor
                             ConcurrentErrorReporter.stackTraceToString(e)),
                     e
             );
+        } finally {
+            uncompletedHandlers.decrementAndGet();
         }
-
-
-
-
-        uncompletedHandlers.incrementAndGet();
-        operation.run();
-        operation.cleanup();
-        uncompletedHandlers.decrementAndGet();
     }
 
     @Override

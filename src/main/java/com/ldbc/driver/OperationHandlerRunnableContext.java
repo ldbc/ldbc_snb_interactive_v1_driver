@@ -30,6 +30,9 @@ public class OperationHandlerRunnableContext implements Runnable, Poolable {
     // set by DependencyAndNonDependencyHandlersRetriever
     private SpinnerCheck beforeExecuteCheck = null;
 
+    // set internally
+    private OperationResultReport operationResultReport = null;
+
     private boolean initialized = false;
 
     public final void setSlot(Slot slot) {
@@ -51,7 +54,8 @@ public class OperationHandlerRunnableContext implements Runnable, Poolable {
         this.localCompletionTimeWriter = localCompletionTimeWriter;
         this.errorReporter = errorReporter;
         this.metricsService = metricsService;
-        beforeExecuteCheck = Spinner.TRUE_CHECK;
+        this.beforeExecuteCheck = Spinner.TRUE_CHECK;
+        this.operationResultReport = null;
 
         this.initialized = true;
     }
@@ -84,6 +88,10 @@ public class OperationHandlerRunnableContext implements Runnable, Poolable {
         return dbConnectionState;
     }
 
+    public final OperationResultReport operationResultReport() {
+        return operationResultReport;
+    }
+
     /**
      * Internally calls the method executeOperation(operation)
      * and returns the associated OperationResultReport if execution was successful.
@@ -108,7 +116,7 @@ public class OperationHandlerRunnableContext implements Runnable, Poolable {
             }
             long actualStartTimeAsMilli = timeSource.nowAsMilli();
             long startOfLatencyMeasurementAsNano = timeSource.nanoSnapshot();
-            OperationResultReport operationResultReport = operationHandler.executeOperation(operation, dbConnectionState);
+            operationResultReport = operationHandler.executeOperation(operation, dbConnectionState);
             long endOfLatencyMeasurementAsNano = timeSource.nanoSnapshot();
             if (null == operationResultReport) {
                 throw new DbException(String.format("Handler returned null result:\n %s", toString()));
