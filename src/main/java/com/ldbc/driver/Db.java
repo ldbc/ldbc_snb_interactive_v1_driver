@@ -21,11 +21,11 @@ public abstract class Db implements Closeable {
         }
         onInit(properties);
         dbConnectionState = getConnectionState();
-        operationHandlerRunnableContextFactory = new InstantiatingOperationHandlerRunnerFactory();
+//        operationHandlerRunnableContextFactory = new InstantiatingOperationHandlerRunnerFactory();
         // TODO enable
-//        operationHandlerRunnableContextFactory = new PoolingOperationHandlerRunnerFactory(
-//                new InstantiatingOperationHandlerRunnerFactory()
-//        );
+        operationHandlerRunnableContextFactory = new PoolingOperationHandlerRunnerFactory(
+                new InstantiatingOperationHandlerRunnerFactory()
+        );
         isInitialized = true;
     }
 

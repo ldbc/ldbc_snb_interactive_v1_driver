@@ -22,7 +22,7 @@ public class OperationHandlerRunnableContextFactoryTest {
             long instantiatingDuration = doOperationHandlerTest(count, instantiatingOperationHandlerRunnerFactory, operation);
             long pooledInstantiatingDuration = doOperationHandlerTest(count, pooledInstantiatingOperationHandlerRunnerFactory, operation);
             count = count * 4;
-            System.out.println(String.format("Count: %s, Instantiating: %s, PooledInstantiating: %s", count, instantiatingDuration, pooledInstantiatingDuration));
+            System.out.println(String.format("Count: %s, Instantiating: %s, PooledInstantiating: %s, Speedup: %s", count, instantiatingDuration, pooledInstantiatingDuration, instantiatingDuration / (double) pooledInstantiatingDuration));
             instantiatingOperationHandlerRunnerFactory.shutdown();
             pooledInstantiatingOperationHandlerRunnerFactory.shutdown();
         }

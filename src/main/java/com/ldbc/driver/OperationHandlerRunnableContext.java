@@ -12,16 +12,24 @@ import stormpot.Poolable;
 import stormpot.Slot;
 
 public class OperationHandlerRunnableContext implements Runnable, Poolable {
+    // set by OperationHandlerRunnerFactory
     private Slot slot = null;
+
+    // set by Db
+    private DbConnectionState dbConnectionState = null;
+    private OperationHandler operationHandler = null;
+
+    // set by DependencyAndNonDependencyHandlersRetriever
     private TimeSource timeSource = null;
     private Spinner spinner = null;
     private Operation operation = null;
-    private DbConnectionState dbConnectionState = null;
     private LocalCompletionTimeWriter localCompletionTimeWriter = null;
     private ConcurrentErrorReporter errorReporter = null;
     private ConcurrentMetricsService metricsService = null;
-    private SpinnerCheck beforeExecuteCheck = Spinner.TRUE_CHECK;
-    private OperationHandler operationHandler = null;
+
+    // set by DependencyAndNonDependencyHandlersRetriever
+    private SpinnerCheck beforeExecuteCheck = null;
+
     private boolean initialized = false;
 
     public final void setSlot(Slot slot) {
@@ -43,6 +51,7 @@ public class OperationHandlerRunnableContext implements Runnable, Poolable {
         this.localCompletionTimeWriter = localCompletionTimeWriter;
         this.errorReporter = errorReporter;
         this.metricsService = metricsService;
+        beforeExecuteCheck = Spinner.TRUE_CHECK;
 
         this.initialized = true;
     }

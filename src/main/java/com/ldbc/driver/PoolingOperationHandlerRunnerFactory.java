@@ -21,7 +21,7 @@ public class PoolingOperationHandlerRunnerFactory implements OperationHandlerRun
         Config<OperationHandlerRunnableContext> operationHandlerRunnerPoolConfig = new Config<>();
         operationHandlerRunnerPoolConfig.setAllocator(operationHandlerRunnerAllocator);
         operationHandlerRunnerPoolConfig.setBackgroundExpirationEnabled(false);
-        operationHandlerRunnerPoolConfig.setPreciseLeakDetectionEnabled(true);
+        operationHandlerRunnerPoolConfig.setPreciseLeakDetectionEnabled(false);
         this.operationHandlerRunnerPool = new BlazePool<>(operationHandlerRunnerPoolConfig);
         this.operationHandlerRunnerPool.setTargetSize(INITIAL_POOL_SIZE);
         this.highestSetPoolSize = INITIAL_POOL_SIZE;
