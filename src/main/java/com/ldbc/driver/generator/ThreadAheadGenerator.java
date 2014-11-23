@@ -4,7 +4,6 @@ import java.util.Iterator;
 import java.util.NoSuchElementException;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.atomic.AtomicReference;
@@ -25,14 +24,14 @@ public class ThreadAheadGenerator<GENERATE_TYPE> implements Iterator<GENERATE_TY
 
     @Override
     public boolean hasNext() {
-        if (next == null)
+        if (null == next)
             next = doNext();
         return null != next;
     }
 
     @Override
     public GENERATE_TYPE next() {
-        if (next == null)
+        if (null == next)
             next = doNext();
         if (null == next)
             throw new NoSuchElementException(getClass().getSimpleName() + " has nothing more to generate");
@@ -46,37 +45,40 @@ public class ThreadAheadGenerator<GENERATE_TYPE> implements Iterator<GENERATE_TY
         threadAheadGeneratorThread.forceShutdown();
     }
 
+    int i = 0;
+
     private GENERATE_TYPE doNext() throws GeneratorException {
         try {
             if (itemsConsumed < threadAheadGeneratorThread.itemsProduced()) {
                 // queue not empty --> return next thing
                 return queue.take();
 
-            } else if (false == threadAheadGeneratorThread.finished()) {
-                GENERATE_TYPE tempNext;
-                // queue empty && thread not finished --> more might come, wait for next thing
-                while (null == (tempNext = queue.poll())) {
-                    if (threadAheadGeneratorThread.finished()) {
-                        if (null == threadAheadGeneratorThread.error()) {
-                            // queue empty && thread finished && no error --> we're done
-                            return null;
-                        } else {
-                            // queue empty && thread finished && error --> throw exception
-                            throw new GeneratorException("Encountered error while retrieving next thing from queue", threadAheadGeneratorThread.error());
-                        }
-                    }
-                }
-                // new thing arrived --> return next thing
-                return tempNext;
-
-            } else {
-                if (null == threadAheadGeneratorThread.error()) {
+            } else if (threadAheadGeneratorThread.finished()) {
+                if (null == threadAheadGeneratorThread.error() && itemsConsumed >= threadAheadGeneratorThread.itemsProduced()) {
                     // queue empty && thread finished && no error --> we're done
                     return null;
                 } else {
                     // queue empty && thread finished && error --> throw exception
                     throw new GeneratorException("Encountered error while retrieving next thing from queue", threadAheadGeneratorThread.error());
                 }
+
+            } else {
+                GENERATE_TYPE tempNext;
+                // queue empty && thread not finished --> more might come, wait for next thing
+                while (null == (tempNext = queue.poll())) {
+                    if (threadAheadGeneratorThread.finished()) {
+                        if (null != threadAheadGeneratorThread.error()) {
+                            // queue empty && thread finished && error --> throw exception
+                            throw new GeneratorException("Encountered error while retrieving next thing from queue", threadAheadGeneratorThread.error());
+                        }
+                        if (itemsConsumed >= threadAheadGeneratorThread.itemsProduced()) {
+                            // queue empty && thread finished && no error --> we're done
+                            return null;
+                        }
+                    }
+                }
+                // new thing arrived --> return next thing
+                return tempNext;
             }
         } catch (Throwable e) {
             throw new GeneratorException("Encountered error while retrieving next thing from queue", e);
@@ -106,8 +108,8 @@ public class ThreadAheadGenerator<GENERATE_TYPE> implements Iterator<GENERATE_TY
         }
 
         private void forceShutdown() {
-            itemsProduced.set(-1);
             finished.set(true);
+            itemsProduced.set(-1);
             forcedShutdown.set(true);
         }
 
@@ -129,12 +131,13 @@ public class ThreadAheadGenerator<GENERATE_TYPE> implements Iterator<GENERATE_TY
             try {
                 while (inner.hasNext() && false == forcedShutdown.get()) {
                     GENERATE_TYPE next = inner.next();
-                    queue.put(next);
                     itemsProduced.incrementAndGet();
+                    queue.put(next);
                 }
                 finished.set(true);
             } catch (Throwable e) {
                 error.set(e);
+                itemsProduced.set(-1);
                 finished.set(true);
             }
         }

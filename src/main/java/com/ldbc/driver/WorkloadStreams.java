@@ -4,6 +4,7 @@ import com.google.common.collect.Iterators;
 import com.google.common.collect.PeekingIterator;
 import com.ldbc.driver.control.DriverConfiguration;
 import com.ldbc.driver.generator.GeneratorFactory;
+import com.ldbc.driver.generator.ThreadAheadGenerator;
 import com.ldbc.driver.util.Tuple;
 import com.ldbc.driver.validation.ClassNameWorkloadFactory;
 import com.ldbc.driver.validation.WorkloadFactory;
@@ -207,6 +208,59 @@ public class WorkloadStreams {
         }
         return Tuple.tuple3(workloadStreams, workload, minimumTimeStamp);
     }
+
+//    // returns (workload_streams, workload, minimum_timestamp)
+//    public static Tuple.Tuple3<WorkloadStreams, Workload, Long> createNewWorkloadWithLimitedWorkloadStreams(WorkloadFactory workloadFactory,
+//                                                                                                            DriverConfiguration configuration,
+//                                                                                                            GeneratorFactory gf) throws WorkloadException, IOException {
+//        WorkloadStreams workloadStreams = new WorkloadStreams();
+//        // get workload
+//        Workload workload = workloadFactory.createWorkload();
+//        workload.init(configuration);
+//        // retrieve unbounded streams
+//        WorkloadStreams unlimitedWorkloadStreams = workload.streams(gf);
+//        List<Iterator<Operation<?>>> streams = new ArrayList<>();
+//        int threadAheadDistance = 100;
+//        streams.add(gf.threadAhead(unlimitedWorkloadStreams.asynchronousStream().dependencyOperations(), threadAheadDistance));
+//        streams.add(gf.threadAhead(unlimitedWorkloadStreams.asynchronousStream().nonDependencyOperations(), threadAheadDistance));
+//        for (WorkloadStreamDefinition stream : unlimitedWorkloadStreams.blockingStreamDefinitions()) {
+//            streams.add(gf.threadAhead(stream.dependencyOperations(), threadAheadDistance));
+//            streams.add(gf.threadAhead(stream.nonDependencyOperations(), threadAheadDistance));
+//        }
+//
+//        // stream through streams once, to calculate how many operations are needed from each, to get operation_count in total
+//        Tuple.Tuple3<long[], Long, Long> limitsAndMinimumsForStream = WorkloadStreams.fromAmongAllRetrieveTopK(streams, configuration.operationCount());
+//
+//        long[] limitForStream = limitsAndMinimumsForStream._1();
+//        long minimumDependencyTimeStamp = limitsAndMinimumsForStream._2();
+//        long minimumTimeStamp = limitsAndMinimumsForStream._3();
+//
+//        for (Iterator<Operation<?>> stream : streams) {
+//            ((ThreadAheadGenerator) stream).forceShutdown();
+//        }
+//
+//        workload.close();
+//        // reinitialize workload, so it can be streamed through from the beginning
+//        workload = workloadFactory.createWorkload();
+//        workload.init(configuration);
+//        // retrieve unbounded streams
+//        unlimitedWorkloadStreams = workload.streams(gf);
+//        // copy unbounded streams to new workload streams instance, applying limits we just computed
+//        workloadStreams.setAsynchronousStream(
+//                unlimitedWorkloadStreams.asynchronousStream().dependentOperationTypes(),
+//                gf.limit(unlimitedWorkloadStreams.asynchronousStream().dependencyOperations(), limitForStream[0]),
+//                gf.limit(unlimitedWorkloadStreams.asynchronousStream().nonDependencyOperations(), limitForStream[1])
+//        );
+//        List<WorkloadStreamDefinition> blockingStreams = unlimitedWorkloadStreams.blockingStreamDefinitions();
+//        for (int i = 0; i < blockingStreams.size(); i++) {
+//            workloadStreams.addBlockingStream(
+//                    blockingStreams.get(i).dependentOperationTypes(),
+//                    gf.limit(blockingStreams.get(i).dependencyOperations(), limitForStream[i * 2 + 2]),
+//                    gf.limit(blockingStreams.get(i).nonDependencyOperations(), limitForStream[i * 2 + 3])
+//            );
+//        }
+//        return Tuple.tuple3(workloadStreams, workload, minimumTimeStamp);
+//    }
 
     // returns (limit_per_stream, minimum_dependency_timestamp, minimum_timestamp)
     public static Tuple.Tuple3<long[], Long, Long> fromAmongAllRetrieveTopK(List<Iterator<Operation<?>>> streams, long k) throws WorkloadException {
