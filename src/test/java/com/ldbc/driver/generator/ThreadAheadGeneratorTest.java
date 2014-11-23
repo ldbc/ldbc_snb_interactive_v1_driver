@@ -1,5 +1,6 @@
 package com.ldbc.driver.generator;
 
+import com.google.common.collect.Iterators;
 import com.google.common.collect.Lists;
 import org.junit.Test;
 
@@ -7,6 +8,7 @@ import java.util.Iterator;
 import java.util.List;
 
 import static org.hamcrest.CoreMatchers.equalTo;
+import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
 
 public class ThreadAheadGeneratorTest {
@@ -25,9 +27,9 @@ public class ThreadAheadGeneratorTest {
         List<Integer> largeAfter = Lists.newArrayList(gf.threadAhead(largeBefore.iterator(), threadAheadDistance));
 
         // Then
-        assertThat(emptyBefore, equalTo(emptyAfter));
-        assertThat(smallBefore, equalTo(smallAfter));
-        assertThat(largeBefore, equalTo(largeAfter));
+        assertThat(emptyAfter, equalTo(emptyBefore));
+        assertThat(smallAfter, equalTo(smallBefore));
+        assertThat(largeAfter, equalTo(largeBefore));
     }
 
     @Test
@@ -37,19 +39,13 @@ public class ThreadAheadGeneratorTest {
         long count = 10000000;
         int threadAheadDistance = 1000;
         GeneratorFactory gf = new GeneratorFactory(new RandomDataGeneratorFactory(42l));
-        Iterator<Long> before = gf.limit(gf.incrementing(first, 1l), count);
 
         // When
-        Iterator<Long> after = gf.threadAhead(before, threadAheadDistance);
+        Iterator<Long> before = gf.limit(gf.incrementing(first, 1l), count);
+        Iterator<Long> after = gf.threadAhead(gf.limit(gf.incrementing(first, 1l), count), threadAheadDistance);
 
         // Then
-        long current = first - 1;
-        while (after.hasNext()) {
-            current++;
-            after.next();
-            assertThat(after.next(), equalTo(current));
-        }
-        assertThat(current, equalTo(count));
+        assertThat(Iterators.elementsEqual(before, after), is(true));
     }
 
     @Test
