@@ -2,8 +2,6 @@ package com.ldbc.driver.util;
 
 import com.ldbc.driver.*;
 
-import java.lang.reflect.Constructor;
-
 public class ClassLoaderHelper {
     /**
      * DB
@@ -43,9 +41,9 @@ public class ClassLoaderHelper {
         }
     }
 
-    public static OperationHandler<?> loadOperationHandler(Class<? extends OperationHandler> operationHandlerClass) throws OperationException {
+    public static OperationHandler loadOperationHandler(Class<? extends OperationHandler> operationHandlerClass) throws OperationException {
         try {
-            OperationHandler<?> operationHandler = operationHandlerClass.getConstructor().newInstance();
+            OperationHandler operationHandler = operationHandlerClass.getConstructor().newInstance();
             return operationHandler;
         } catch (Exception e) {
             throw new OperationException(

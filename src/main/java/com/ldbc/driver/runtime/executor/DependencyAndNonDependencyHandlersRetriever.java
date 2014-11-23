@@ -27,8 +27,8 @@ class DependencyAndNonDependencyHandlersRetriever {
     private final ConcurrentErrorReporter errorReporter;
     private final ConcurrentMetricsService metricsService;
     private final Set<Class<? extends Operation<?>>> dependentOperationTypes;
-    OperationHandler<?> nextGctReadHandler;
-    OperationHandler<?> nextGctWriteHandler;
+    OperationHandlerRunnableContext nextGctReadHandlerRunner;
+    OperationHandlerRunnableContext nextGctWriteHandlerRunner;
 
     DependencyAndNonDependencyHandlersRetriever(WorkloadStreams.WorkloadStreamDefinition streamDefinition,
                                                 Db db,
@@ -48,11 +48,11 @@ class DependencyAndNonDependencyHandlersRetriever {
         this.errorReporter = errorReporter;
         this.metricsService = metricsService;
         this.dependentOperationTypes = streamDefinition.dependentOperationTypes();
-        this.nextGctReadHandler = null;
-        this.nextGctWriteHandler = null;
+        this.nextGctReadHandlerRunner = null;
+        this.nextGctWriteHandlerRunner = null;
     }
 
-    public boolean hasNextHandler() {
+    public boolean hasNextHandlerRunner() {
         return gctNonWriteOperations.hasNext() || gctWriteOperations.hasNext();
     }
 
@@ -62,67 +62,67 @@ class DependencyAndNonDependencyHandlersRetriever {
     3. submit initiated time, for gct writing handler
     4. return handler with lowest scheduled start time
      */
-    public OperationHandler<?> nextHandler() throws OperationHandlerExecutorException, CompletionTimeException {
+    public OperationHandlerRunnableContext nextHandlerRunner() throws OperationHandlerExecutorException, CompletionTimeException {
         // get and initialize next gct writing handler
-        if (gctWriteOperations.hasNext() && null == nextGctWriteHandler) {
+        if (gctWriteOperations.hasNext() && null == nextGctWriteHandlerRunner) {
             Operation<?> nextGctWriteOperation = gctWriteOperations.next();
-            nextGctWriteHandler = getAndInitializeHandler(nextGctWriteOperation, localCompletionTimeWriter);
+            nextGctWriteHandlerRunner = getAndInitializeHandler(nextGctWriteOperation, localCompletionTimeWriter);
             // submit initiated time as soon as possible so GCT/dependencies can advance as soon as possible
-            nextGctWriteHandler.localCompletionTimeWriter().submitLocalInitiatedTime(nextGctWriteHandler.operation().timeStamp());
+            nextGctWriteHandlerRunner.localCompletionTimeWriter().submitLocalInitiatedTime(nextGctWriteHandlerRunner.operation().timeStamp());
             if (false == gctWriteOperations.hasNext()) {
                 // after last write operation, submit highest possible initiated time to ensure that GCT progresses to time of highest LCT write
-                nextGctWriteHandler.localCompletionTimeWriter().submitLocalInitiatedTime(Long.MAX_VALUE);
+                nextGctWriteHandlerRunner.localCompletionTimeWriter().submitLocalInitiatedTime(Long.MAX_VALUE);
             }
         }
         // get and initialize next non gct writing handler
-        if (gctNonWriteOperations.hasNext() && null == nextGctReadHandler) {
+        if (gctNonWriteOperations.hasNext() && null == nextGctReadHandlerRunner) {
             Operation<?> nextGctReadOperation = gctNonWriteOperations.next();
-            nextGctReadHandler = getAndInitializeHandler(nextGctReadOperation, DUMMY_LOCAL_COMPLETION_TIME_WRITER);
+            nextGctReadHandlerRunner = getAndInitializeHandler(nextGctReadOperation, DUMMY_LOCAL_COMPLETION_TIME_WRITER);
             // no need to submit initiated time for an operation that should not write to GCT
         }
         // return handler with lowest start time
-        if (null != nextGctWriteHandler && null != nextGctReadHandler) {
-            long nextGctWriteHandlerStartTimeAsMilli = nextGctWriteHandler.operation().timeStamp();
-            long nextGctReadHandlerStartTimeAsMilli = nextGctReadHandler.operation().timeStamp();
-            OperationHandler<?> nextHandler;
+        if (null != nextGctWriteHandlerRunner && null != nextGctReadHandlerRunner) {
+            long nextGctWriteHandlerStartTimeAsMilli = nextGctWriteHandlerRunner.operation().timeStamp();
+            long nextGctReadHandlerStartTimeAsMilli = nextGctReadHandlerRunner.operation().timeStamp();
+            OperationHandlerRunnableContext nextHandlerRunner;
             if (nextGctReadHandlerStartTimeAsMilli < nextGctWriteHandlerStartTimeAsMilli) {
-                nextHandler = nextGctReadHandler;
-                nextGctReadHandler = null;
+                nextHandlerRunner = nextGctReadHandlerRunner;
+                nextGctReadHandlerRunner = null;
             } else {
-                nextHandler = nextGctWriteHandler;
-                nextGctWriteHandler = null;
+                nextHandlerRunner = nextGctWriteHandlerRunner;
+                nextGctWriteHandlerRunner = null;
             }
-            return nextHandler;
-        } else if (null == nextGctWriteHandler && null != nextGctReadHandler) {
-            OperationHandler<?> nextHandler = nextGctReadHandler;
-            nextGctReadHandler = null;
-            return nextHandler;
-        } else if (null != nextGctWriteHandler && null == nextGctReadHandler) {
-            OperationHandler<?> nextHandler = nextGctWriteHandler;
-            nextGctWriteHandler = null;
-            return nextHandler;
+            return nextHandlerRunner;
+        } else if (null == nextGctWriteHandlerRunner && null != nextGctReadHandlerRunner) {
+            OperationHandlerRunnableContext nextHandlerRunner = nextGctReadHandlerRunner;
+            nextGctReadHandlerRunner = null;
+            return nextHandlerRunner;
+        } else if (null != nextGctWriteHandlerRunner && null == nextGctReadHandlerRunner) {
+            OperationHandlerRunnableContext nextHandlerRunner = nextGctWriteHandlerRunner;
+            nextGctWriteHandlerRunner = null;
+            return nextHandlerRunner;
         } else {
             throw new OperationHandlerExecutorException("Unexpected error in " + getClass().getSimpleName());
         }
     }
 
-    private OperationHandler<?> getAndInitializeHandler(Operation<?> operation, LocalCompletionTimeWriter localCompletionTimeWriterForHandler) throws OperationHandlerExecutorException {
-        OperationHandler<?> operationHandler;
+    private OperationHandlerRunnableContext getAndInitializeHandler(Operation<?> operation, LocalCompletionTimeWriter localCompletionTimeWriterForHandler) throws OperationHandlerExecutorException {
+        OperationHandlerRunnableContext operationHandlerRunnableContext;
         try {
-            operationHandler = db.getOperationHandler(operation);
+            operationHandlerRunnableContext = db.getOperationHandlerRunnableContext(operation);
         } catch (DbException e) {
             throw new OperationHandlerExecutorException(String.format("Error while retrieving handler for operation\nOperation: %s", operation));
         }
 
         try {
-            operationHandler.init(timeSource, spinner, operation, localCompletionTimeWriterForHandler, errorReporter, metricsService);
+            operationHandlerRunnableContext.init(timeSource, spinner, operation, localCompletionTimeWriterForHandler, errorReporter, metricsService);
         } catch (OperationException e) {
             throw new OperationHandlerExecutorException(String.format("Error while initializing handler for operation\nOperation: %s", operation));
         }
 
         if (dependentOperationTypes.contains(operation.getClass()))
-            operationHandler.addBeforeExecuteCheck(new GctDependencyCheck(globalCompletionTimeReader, operation, errorReporter));
+            operationHandlerRunnableContext.setBeforeExecuteCheck(new GctDependencyCheck(globalCompletionTimeReader, operation, errorReporter));
 
-        return operationHandler;
+        return operationHandlerRunnableContext;
     }
 }

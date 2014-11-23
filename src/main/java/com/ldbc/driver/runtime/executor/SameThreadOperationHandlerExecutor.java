@@ -1,6 +1,6 @@
 package com.ldbc.driver.runtime.executor;
 
-import com.ldbc.driver.OperationHandler;
+import com.ldbc.driver.OperationHandlerRunnableContext;
 
 import java.util.concurrent.atomic.AtomicLong;
 
@@ -8,11 +8,10 @@ public class SameThreadOperationHandlerExecutor implements OperationHandlerExecu
     private final AtomicLong uncompletedHandlers = new AtomicLong(0);
 
     @Override
-    public final void execute(OperationHandler<?> operationHandler) throws OperationHandlerExecutorException {
+    public final void execute(OperationHandlerRunnableContext operationHandlerRunnableContext) throws OperationHandlerExecutorException {
         uncompletedHandlers.incrementAndGet();
-        operationHandler.run();
-        operationHandler.onComplete();
-        operationHandler.cleanup();
+        operationHandlerRunnableContext.run();
+        operationHandlerRunnableContext.cleanup();
         uncompletedHandlers.decrementAndGet();
     }
 

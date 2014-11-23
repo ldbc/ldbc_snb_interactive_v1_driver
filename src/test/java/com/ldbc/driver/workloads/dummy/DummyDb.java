@@ -70,17 +70,16 @@ public class DummyDb extends Db {
         return allowedConnectionState;
     }
 
-    public static class NothingOperationHandler extends OperationHandler<NothingOperation> {
+    public static class NothingOperationHandler extends OperationHandler<NothingOperation, AllowedConnectionState> {
         @Override
-        protected OperationResultReport executeOperation(NothingOperation operation) throws DbException {
+        public OperationResultReport executeOperation(NothingOperation operation, AllowedConnectionState connectionState) throws DbException {
             return operation.buildResult(0, new DummyResult());
         }
     }
 
-    public static class TimedNamedOperation1Handler extends OperationHandler<TimedNamedOperation1> {
+    public static class TimedNamedOperation1Handler extends OperationHandler<TimedNamedOperation1, AllowedConnectionState> {
         @Override
-        protected OperationResultReport executeOperation(TimedNamedOperation1 operation) throws DbException {
-            AllowedConnectionState connectionState = (AllowedConnectionState) dbConnectionState();
+        public OperationResultReport executeOperation(TimedNamedOperation1 operation, AllowedConnectionState connectionState) throws DbException {
             while (false == connectionState.isAllowed(operation.name())) {
                 // wait to be a allowed to execute
             }
@@ -88,10 +87,9 @@ public class DummyDb extends Db {
         }
     }
 
-    public static class TimedNamedOperation2Handler extends OperationHandler<TimedNamedOperation2> {
+    public static class TimedNamedOperation2Handler extends OperationHandler<TimedNamedOperation2, AllowedConnectionState> {
         @Override
-        protected OperationResultReport executeOperation(TimedNamedOperation2 operation) throws DbException {
-            AllowedConnectionState connectionState = (AllowedConnectionState) dbConnectionState();
+        public OperationResultReport executeOperation(TimedNamedOperation2 operation, AllowedConnectionState connectionState) throws DbException {
             while (false == connectionState.isAllowed(operation.name())) {
                 // wait to be a allowed to execute
             }
@@ -99,10 +97,9 @@ public class DummyDb extends Db {
         }
     }
 
-    public static class TimedNamedOperation3Handler extends OperationHandler<TimedNamedOperation3> {
+    public static class TimedNamedOperation3Handler extends OperationHandler<TimedNamedOperation3, AllowedConnectionState> {
         @Override
-        protected OperationResultReport executeOperation(TimedNamedOperation3 operation) throws DbException {
-            AllowedConnectionState connectionState = (AllowedConnectionState) dbConnectionState();
+        public OperationResultReport executeOperation(TimedNamedOperation3 operation, AllowedConnectionState connectionState) throws DbException {
             while (false == connectionState.isAllowed(operation.name())) {
                 // wait to be a allowed to execute
             }

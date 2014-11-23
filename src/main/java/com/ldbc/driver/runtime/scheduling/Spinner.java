@@ -13,7 +13,7 @@ import com.ldbc.driver.util.Function2;
 
 public class Spinner {
     public static final long DEFAULT_SLEEP_DURATION_10_MILLI = 10;
-    private static final SpinnerCheck TRUE_CHECK = new TrueCheck();
+    public static final SpinnerCheck TRUE_CHECK = new TrueCheck();
 
     private final Function2<Operation<?>, SpinnerCheck, Boolean> spinFun;
 

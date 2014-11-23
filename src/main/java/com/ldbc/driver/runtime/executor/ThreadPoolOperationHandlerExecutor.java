@@ -1,6 +1,6 @@
 package com.ldbc.driver.runtime.executor;
 
-import com.ldbc.driver.OperationHandler;
+import com.ldbc.driver.OperationHandlerRunnableContext;
 import com.ldbc.driver.runtime.DefaultQueues;
 
 import java.util.List;
@@ -30,9 +30,9 @@ public class ThreadPoolOperationHandlerExecutor implements OperationHandlerExecu
     }
 
     @Override
-    public final void execute(OperationHandler<?> operationHandler) {
+    public final void execute(OperationHandlerRunnableContext operationHandlerRunner) {
         uncompletedHandlers.incrementAndGet();
-        threadPoolExecutorService.execute(operationHandler);
+        threadPoolExecutorService.execute(operationHandlerRunner);
     }
 
     @Override
@@ -82,10 +82,9 @@ public class ThreadPoolOperationHandlerExecutor implements OperationHandlerExecu
         }
 
         @Override
-        protected void afterExecute(Runnable operationHandler, Throwable throwable) {
-            super.afterExecute(operationHandler, throwable);
-            ((OperationHandler) operationHandler).onComplete();
-            ((OperationHandler) operationHandler).cleanup();
+        protected void afterExecute(Runnable operationHandlerRunner, Throwable throwable) {
+            super.afterExecute(operationHandlerRunner, throwable);
+            ((OperationHandlerRunnableContext) operationHandlerRunner).cleanup();
             uncompletedHandlers.decrementAndGet();
         }
     }

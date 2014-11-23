@@ -2,13 +2,8 @@ package com.ldbc.driver.validation;
 
 import com.ldbc.driver.*;
 import com.ldbc.driver.runtime.ConcurrentErrorReporter;
-import com.ldbc.driver.util.Tuple;
 
-import java.io.BufferedWriter;
-import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Iterator;
-import java.util.List;
 
 public class DbValidator {
     public DbValidationResult validate(Iterator<ValidationParam> validationParameters,
@@ -19,9 +14,9 @@ public class DbValidator {
             Operation<?> operation = validationParam.operation();
             Object expectedOperationResult = validationParam.operationResult();
 
-            OperationHandler<Operation<?>> handler;
+            OperationHandlerRunnableContext handlerRunner;
             try {
-                handler = (OperationHandler<Operation<?>>) db.getOperationHandler(operation);
+                handlerRunner = db.getOperationHandlerRunnableContext(operation);
             } catch (DbException e) {
                 dbValidationResult.reportMissingHandlerForOperation(operation);
                 continue;
@@ -29,12 +24,14 @@ public class DbValidator {
 
             OperationResultReport actualOperationResultReport;
             try {
-                actualOperationResultReport = handler.executeOperationUnsafe(operation);
+                OperationHandler handler = handlerRunner.operationHandler();
+                DbConnectionState dbConnectionState = handlerRunner.dbConnectionState();
+                actualOperationResultReport = handler.executeOperation(operation, dbConnectionState);
             } catch (DbException e) {
                 dbValidationResult.reportUnableToExecuteOperation(operation, ConcurrentErrorReporter.stackTraceToString(e));
                 continue;
             } finally {
-                handler.cleanup();
+                handlerRunner.cleanup();
             }
 
             Object actualOperationResult = actualOperationResultReport.operationResult();

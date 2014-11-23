@@ -1,9 +1,6 @@
 package com.ldbc.driver.runtime.executor;
 
-import com.ldbc.driver.DbException;
-import com.ldbc.driver.Operation;
-import com.ldbc.driver.OperationHandler;
-import com.ldbc.driver.OperationResultReport;
+import com.ldbc.driver.OperationHandlerRunnableContext;
 import com.ldbc.driver.runtime.ConcurrentErrorReporter;
 import com.ldbc.driver.runtime.DefaultQueues;
 import com.ldbc.driver.runtime.QueueEventSubmitter;
@@ -13,30 +10,25 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicLong;
 
 public class SingleThreadOperationHandlerExecutor implements OperationHandlerExecutor {
-    static final OperationHandler<?> TERMINATE_HANDLER = new OperationHandler<Operation<?>>() {
-        @Override
-        protected OperationResultReport executeOperation(Operation<?> operation) throws DbException {
-            return null;
-        }
-    };
+    static final OperationHandlerRunnableContext TERMINATE_HANDLER_RUNNER = new OperationHandlerRunnableContext();
 
     private final SingleThreadOperationHandlerExecutorThread executorThread;
-    private final QueueEventSubmitter<OperationHandler<?>> operationHandlerQueueEventSubmitter;
+    private final QueueEventSubmitter<OperationHandlerRunnableContext> operationHandlerQueueEventSubmitter;
     private final AtomicLong uncompletedHandlers = new AtomicLong(0);
     private final AtomicBoolean shutdown = new AtomicBoolean(false);
 
     public SingleThreadOperationHandlerExecutor(ConcurrentErrorReporter errorReporter, int boundedQueueSize) {
-        Queue<OperationHandler<?>> operationHandlerQueue = DefaultQueues.newAlwaysBlockingBounded(boundedQueueSize);
+        Queue<OperationHandlerRunnableContext> operationHandlerQueue = DefaultQueues.newAlwaysBlockingBounded(boundedQueueSize);
         this.operationHandlerQueueEventSubmitter = QueueEventSubmitter.queueEventSubmitterFor(operationHandlerQueue);
         this.executorThread = new SingleThreadOperationHandlerExecutorThread(operationHandlerQueue, errorReporter, uncompletedHandlers);
         this.executorThread.start();
     }
 
     @Override
-    public final void execute(OperationHandler<?> operationHandler) throws OperationHandlerExecutorException {
+    public final void execute(OperationHandlerRunnableContext operationHandlerRunner) throws OperationHandlerExecutorException {
         uncompletedHandlers.incrementAndGet();
         try {
-            operationHandlerQueueEventSubmitter.submitEventToQueue(operationHandler);
+            operationHandlerQueueEventSubmitter.submitEventToQueue(operationHandlerRunner);
         } catch (InterruptedException e) {
             throw new OperationHandlerExecutorException("Error encountered while submitting handler to queue", e);
         }
@@ -47,7 +39,7 @@ public class SingleThreadOperationHandlerExecutor implements OperationHandlerExe
         if (shutdown.get())
             throw new OperationHandlerExecutorException("Executor has already been shutdown");
         try {
-            operationHandlerQueueEventSubmitter.submitEventToQueue(TERMINATE_HANDLER);
+            operationHandlerQueueEventSubmitter.submitEventToQueue(TERMINATE_HANDLER_RUNNER);
             executorThread.join(waitAsMilli);
             if (uncompletedHandlers.get() > 0) {
                 executorThread.forceShutdown();

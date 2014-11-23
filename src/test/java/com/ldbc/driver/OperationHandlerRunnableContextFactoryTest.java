@@ -9,28 +9,26 @@ import com.ldbc.driver.runtime.scheduling.Spinner;
 import com.ldbc.driver.temporal.SystemTimeSource;
 import com.ldbc.driver.temporal.TimeSource;
 import com.ldbc.driver.workloads.dummy.NothingOperation;
-import com.ldbc.driver.workloads.dummy.NothingOperationHandler;
 import org.junit.Test;
 
-public class OperationHandlerFactoryTest {
+public class OperationHandlerRunnableContextFactoryTest {
     @Test
     public void shouldRunOperationHandlerTest() throws OperationException, InterruptedException {
-        Class<? extends OperationHandler> operationHandlerType = NothingOperationHandler.class;
         Operation<?> operation = new NothingOperation();
         int count = 100;
         while (count < 10000000) {
-            OperationHandlerFactory reflectionOperationHandlerFactory = getReflectionOperationHandlerFactoryFor(operationHandlerType);
-            OperationHandlerFactory pooledReflectionOperationHandlerFactory = getPooledReflectionOperationHandlerFactoryFor(operationHandlerType);
-            long reflectionDuration = doOperationHandlerTest(count, reflectionOperationHandlerFactory, operation);
-            long pooledReflectionDuration = doOperationHandlerTest(count, pooledReflectionOperationHandlerFactory, operation);
+            OperationHandlerRunnerFactory instantiatingOperationHandlerRunnerFactory = new InstantiatingOperationHandlerRunnerFactory();
+            OperationHandlerRunnerFactory pooledInstantiatingOperationHandlerRunnerFactory = new PoolingOperationHandlerRunnerFactory(new InstantiatingOperationHandlerRunnerFactory());
+            long instantiatingDuration = doOperationHandlerTest(count, instantiatingOperationHandlerRunnerFactory, operation);
+            long pooledInstantiatingDuration = doOperationHandlerTest(count, pooledInstantiatingOperationHandlerRunnerFactory, operation);
             count = count * 4;
-            System.out.println(String.format("Count: %s, Reflection: %s, PooledReflection: %s", count, reflectionDuration, pooledReflectionDuration));
-            reflectionOperationHandlerFactory.shutdown();
-            pooledReflectionOperationHandlerFactory.shutdown();
+            System.out.println(String.format("Count: %s, Instantiating: %s, PooledInstantiating: %s", count, instantiatingDuration, pooledInstantiatingDuration));
+            instantiatingOperationHandlerRunnerFactory.shutdown();
+            pooledInstantiatingOperationHandlerRunnerFactory.shutdown();
         }
     }
 
-    public long doOperationHandlerTest(int count, OperationHandlerFactory operationHandlerFactory, Operation<?> operation) throws OperationException {
+    public long doOperationHandlerTest(int count, OperationHandlerRunnerFactory operationHandlerRunnerFactory, Operation<?> operation) throws OperationException {
         boolean ignoreScheduledStartTime = false;
         TimeSource timeSource = new SystemTimeSource();
         ConcurrentErrorReporter errorReporter = new ConcurrentErrorReporter();
@@ -40,18 +38,10 @@ public class OperationHandlerFactoryTest {
         ConcurrentMetricsService metricsService = new DummyCollectingConcurrentMetricsService();
         long startTime = timeSource.nowAsMilli();
         for (int i = 0; i < count; i++) {
-            OperationHandler<?> operationHandler = operationHandlerFactory.newOperationHandler();
+            OperationHandlerRunnableContext operationHandler = operationHandlerRunnerFactory.newOperationHandlerRunner();
             operationHandler.init(timeSource, spinner, operation, localCompletionTimeWriter, errorReporter, metricsService);
             operationHandler.cleanup();
         }
         return timeSource.nowAsMilli() - startTime;
-    }
-
-    OperationHandlerFactory getReflectionOperationHandlerFactoryFor(Class<? extends OperationHandler> operationHandlerType) {
-        return new ReflectionOperationHandlerFactory(operationHandlerType);
-    }
-
-    OperationHandlerFactory getPooledReflectionOperationHandlerFactoryFor(Class<? extends OperationHandler> operationHandlerType) {
-        return new PoolingOperationHandlerFactory(new ReflectionOperationHandlerFactory(operationHandlerType));
     }
 }

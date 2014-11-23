@@ -1,7 +1,7 @@
 package com.ldbc.driver.runtime.executor;
 
 import com.ldbc.driver.Db;
-import com.ldbc.driver.OperationHandler;
+import com.ldbc.driver.OperationHandlerRunnableContext;
 import com.ldbc.driver.WorkloadStreams.WorkloadStreamDefinition;
 import com.ldbc.driver.runtime.ConcurrentErrorReporter;
 import com.ldbc.driver.runtime.coordination.GlobalCompletionTimeReader;
@@ -51,11 +51,11 @@ class OperationStreamExecutorServiceThread extends Thread {
     @Override
     public void run() {
         try {
-            while (dependencyAndNonDependencyHandlersRetriever.hasNextHandler() && false == forcedTerminate.get()) {
-                OperationHandler<?> handler;
+            while (dependencyAndNonDependencyHandlersRetriever.hasNextHandlerRunner() && false == forcedTerminate.get()) {
+                OperationHandlerRunnableContext handlerRunner;
                 try {
-                    handler = dependencyAndNonDependencyHandlersRetriever.nextHandler();
-                } catch (Exception e) {
+                    handlerRunner = dependencyAndNonDependencyHandlersRetriever.nextHandlerRunner();
+                } catch (Throwable e) {
                     String errMsg = String.format("Error while retrieving next handler\n%s",
                             ConcurrentErrorReporter.stackTraceToString(e));
                     errorReporter.reportError(this, errMsg);
@@ -64,10 +64,10 @@ class OperationStreamExecutorServiceThread extends Thread {
 
                 try {
                     // --- BLOCKING CALL (when bounded queue is full) ---
-                    operationHandlerExecutor.execute(handler);
+                    operationHandlerExecutor.execute(handlerRunner);
                 } catch (OperationHandlerExecutorException e) {
                     String errMsg = String.format("Error encountered while submitting operation for execution\n%s\n%s",
-                            handler.operation(),
+                            handlerRunner.operation(),
                             ConcurrentErrorReporter.stackTraceToString(e));
                     errorReporter.reportError(this, errMsg);
                     continue;

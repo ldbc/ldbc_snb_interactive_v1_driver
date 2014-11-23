@@ -64,19 +64,23 @@ public class ThreadPoolOperationHandlerExecutorTest {
         operation.setScheduledStartTimeAsMilli(timeSource.nowAsMilli() + 200);
         operation.setTimeStamp(timeSource.nowAsMilli() + 200);
         operation.setDependencyTimeStamp(0l);
-        OperationHandler<?> handler = new OperationHandler<Operation<Integer>>() {
+
+        final AtomicBoolean finished = new AtomicBoolean(false);
+        OperationHandler handler = new OperationHandler<Operation<Integer>, DbConnectionState>() {
             @Override
-            protected OperationResultReport executeOperation(Operation operation) throws DbException {
+            public OperationResultReport executeOperation(Operation operation, DbConnectionState dbConnectionState) throws DbException {
+                finished.set(true);
                 return operation.buildResult(1, 42);
             }
         };
-        handler.setSlot(DUMMY_SLOT);
-        handler.init(timeSource, spinner, operation, dummyLocalCompletionTimeWriter, errorReporter, metricsService);
-        final AtomicBoolean finished = new AtomicBoolean(false);
-        handler.addOnCompleteTask(new SetFlagFun(finished));
+
+        OperationHandlerRunnableContext operationHandlerRunnableContext = new OperationHandlerRunnableContext();
+        operationHandlerRunnableContext.setSlot(DUMMY_SLOT);
+        operationHandlerRunnableContext.setOperationHandler(handler);
+        operationHandlerRunnableContext.init(timeSource, spinner, operation, dummyLocalCompletionTimeWriter, errorReporter, metricsService);
 
         // When
-        executor.execute(handler);
+        executor.execute(operationHandlerRunnableContext);
 
         long timeoutAsMilli = timeSource.nowAsMilli() + 1000l;
         while (timeSource.nowAsMilli() < timeoutAsMilli) {
@@ -111,37 +115,44 @@ public class ThreadPoolOperationHandlerExecutorTest {
         operation1.setScheduledStartTimeAsMilli(timeSource.nowAsMilli() + 100l);
         operation1.setTimeStamp(operation1.scheduledStartTimeAsMilli());
         operation1.setDependencyTimeStamp(0l);
+
         Operation<?> operation2 = new NothingOperation();
         operation2.setScheduledStartTimeAsMilli(operation1.scheduledStartTimeAsMilli() + 100l);
         operation2.setTimeStamp(operation2.scheduledStartTimeAsMilli());
         operation2.setDependencyTimeStamp(0l);
-        OperationHandler<?> handler1 = new OperationHandler<Operation<Integer>>() {
+
+        final AtomicBoolean finished1 = new AtomicBoolean(false);
+        OperationHandler handler1 = new OperationHandler<Operation<Integer>, DbConnectionState>() {
             @Override
-            protected OperationResultReport executeOperation(Operation operation) throws DbException {
+            public OperationResultReport executeOperation(Operation operation, DbConnectionState dbConnectionState) throws DbException {
+                finished1.set(true);
                 return operation.buildResult(1, 1);
             }
         };
-        OperationHandler<?> handler2 = new OperationHandler<Operation<Integer>>() {
+
+        final AtomicBoolean finished2 = new AtomicBoolean(false);
+        OperationHandler handler2 = new OperationHandler<Operation<Integer>, DbConnectionState>() {
             @Override
-            protected OperationResultReport executeOperation(Operation operation) throws DbException {
+            public OperationResultReport executeOperation(Operation operation, DbConnectionState dbConnectionState) throws DbException {
+                finished2.set(true);
                 return operation.buildResult(1, 2);
             }
         };
 
         // When
 
-        handler1.setSlot(DUMMY_SLOT);
-        handler1.init(timeSource, spinner, operation1, dummyLocalCompletionTimeWriter, errorReporter, metricsService);
-        final AtomicBoolean finished1 = new AtomicBoolean(false);
-        handler1.addOnCompleteTask(new SetFlagFun(finished1));
+        OperationHandlerRunnableContext operationHandlerRunnableContext1 = new OperationHandlerRunnableContext();
+        operationHandlerRunnableContext1.setSlot(DUMMY_SLOT);
+        operationHandlerRunnableContext1.setOperationHandler(handler1);
+        operationHandlerRunnableContext1.init(timeSource, spinner, operation1, dummyLocalCompletionTimeWriter, errorReporter, metricsService);
 
-        handler2.setSlot(DUMMY_SLOT);
-        handler2.init(timeSource, spinner, operation2, dummyLocalCompletionTimeWriter, errorReporter, metricsService);
-        final AtomicBoolean finished2 = new AtomicBoolean(false);
-        handler2.addOnCompleteTask(new SetFlagFun(finished2));
+        OperationHandlerRunnableContext operationHandlerRunnableContext2 = new OperationHandlerRunnableContext();
+        operationHandlerRunnableContext2.setSlot(DUMMY_SLOT);
+        operationHandlerRunnableContext2.setOperationHandler(handler2);
+        operationHandlerRunnableContext2.init(timeSource, spinner, operation2, dummyLocalCompletionTimeWriter, errorReporter, metricsService);
 
-        executor.execute(handler1);
-        executor.execute(handler2);
+        executor.execute(operationHandlerRunnableContext1);
+        executor.execute(operationHandlerRunnableContext2);
 
         long timeoutAsMilli = timeSource.nowAsMilli() + 1000l;
         while (timeSource.nowAsMilli() < timeoutAsMilli) {
@@ -177,20 +188,23 @@ public class ThreadPoolOperationHandlerExecutorTest {
         operation.setScheduledStartTimeAsMilli(timeSource.nowAsMilli() + 200l);
         operation.setTimeStamp(timeSource.nowAsMilli() + 200l);
         operation.setDependencyTimeStamp(0l);
-        OperationHandler<?> handler = new OperationHandler<Operation<Integer>>() {
+
+        final AtomicBoolean finished = new AtomicBoolean(false);
+        OperationHandler handler = new OperationHandler<Operation<Integer>, DbConnectionState>() {
             @Override
-            protected OperationResultReport executeOperation(Operation operation) throws DbException {
+            public OperationResultReport executeOperation(Operation operation, DbConnectionState dbConnectionState) throws DbException {
+                finished.set(true);
                 return operation.buildResult(1, 42);
             }
         };
 
-        // When
-        handler.setSlot(DUMMY_SLOT);
-        handler.init(timeSource, spinner, operation, dummyLocalCompletionTimeWriter, errorReporter, metricsService);
-        final AtomicBoolean finished = new AtomicBoolean(false);
-        handler.addOnCompleteTask(new SetFlagFun(finished));
+        OperationHandlerRunnableContext operationHandlerRunnableContext = new OperationHandlerRunnableContext();
+        operationHandlerRunnableContext.setSlot(DUMMY_SLOT);
+        operationHandlerRunnableContext.setOperationHandler(handler);
+        operationHandlerRunnableContext.init(timeSource, spinner, operation, dummyLocalCompletionTimeWriter, errorReporter, metricsService);
 
-        executor.execute(handler);
+        // When
+        executor.execute(operationHandlerRunnableContext);
 
         long timeoutAsMilli = timeSource.nowAsMilli() + 1000l;
         while (timeSource.nowAsMilli() < timeoutAsMilli) {

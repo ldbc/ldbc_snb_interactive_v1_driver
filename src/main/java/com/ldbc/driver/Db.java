@@ -1,22 +1,32 @@
 package com.ldbc.driver;
 
+import com.ldbc.driver.util.ClassLoaderHelper;
+
 import java.io.Closeable;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-public abstract class Db implements Closeable{
+public abstract class Db implements Closeable {
     private boolean isInitialized = false;
     private AtomicBoolean isShutdown = new AtomicBoolean(false);
-    private final Map<Class<? extends Operation<?>>, OperationHandlerFactory> operationHandlerFactories = new HashMap<>();
+    private DbConnectionState dbConnectionState = null;
+    private final Map<Class<? extends Operation>, OperationHandler> operationHandlers = new HashMap<>();
+    private OperationHandlerRunnerFactory operationHandlerRunnableContextFactory = null;
 
-    public final void init(Map<String, String> properties) throws DbException {
+    synchronized public final void init(Map<String, String> properties) throws DbException {
         if (true == isInitialized) {
             throw new DbException("DB may be initialized only once");
         }
-        isInitialized = true;
         onInit(properties);
+        dbConnectionState = getConnectionState();
+        operationHandlerRunnableContextFactory = new InstantiatingOperationHandlerRunnerFactory();
+        // TODO enable
+//        operationHandlerRunnableContextFactory = new PoolingOperationHandlerRunnerFactory(
+//                new InstantiatingOperationHandlerRunnerFactory()
+//        );
+        isInitialized = true;
     }
 
     /**
@@ -30,15 +40,6 @@ public abstract class Db implements Closeable{
             throw new IOException("DB may be cleaned up only once");
         }
         isShutdown.set(true);
-        for (OperationHandlerFactory operationHandlerFactory : operationHandlerFactories.values()) {
-            try {
-                operationHandlerFactory.shutdown();
-            } catch (OperationException e) {
-                throw new IOException(
-                        "Error shutting down operation handler factory - unclean shutdown: " + operationHandlerFactory.toString(),
-                        e);
-            }
-        }
         onClose();
     }
 
@@ -47,23 +48,32 @@ public abstract class Db implements Closeable{
      */
     protected abstract void onClose() throws IOException;
 
-    public final <A extends Operation<?>, H extends OperationHandler<A>> void registerOperationHandler(Class<A> operationType, Class<H> operationHandlerType) throws DbException {
-        if (operationHandlerFactories.containsKey(operationType))
+    public final <A extends Operation<?>, H extends OperationHandler<A, ?>> void registerOperationHandler(Class<A> operationType, Class<H> operationHandlerType) throws DbException {
+        if (operationHandlers.containsKey(operationType))
             throw new DbException(String.format("Client already has handler registered for %s", operationType.getClass()));
-        ReflectionOperationHandlerFactory reflectionOperationHandlerFactory = new ReflectionOperationHandlerFactory(operationHandlerType);
-        PoolingOperationHandlerFactory poolingOperationHandlerFactory = new PoolingOperationHandlerFactory(reflectionOperationHandlerFactory);
-        operationHandlerFactories.put(operationType, poolingOperationHandlerFactory);
+        try {
+            OperationHandler operationHandler = ClassLoaderHelper.loadOperationHandler(operationHandlerType);
+            operationHandlers.put(operationType, operationHandler);
+        } catch (OperationException e) {
+            throw new DbException(
+                    String.format("%s could not instantiate instance of %s",
+                            getClass().getSimpleName(),
+                            operationHandlerType.getSimpleName()
+                    ),
+                    e);
+        }
     }
 
-    public final OperationHandler<?> getOperationHandler(Operation<?> operation) throws DbException {
-        OperationHandlerFactory operationHandlerFactory = operationHandlerFactories.get(operation.getClass());
-        if (null == operationHandlerFactory)
+    public final OperationHandlerRunnableContext getOperationHandlerRunnableContext(Operation<?> operation) throws DbException {
+        OperationHandler operationHandler = operationHandlers.get(operation.getClass());
+        if (null == operationHandler)
             throw new DbException(String.format("No handler registered for %s", operation.getClass()));
 
         try {
-            OperationHandler<?> operationHandler = operationHandlerFactory.newOperationHandler();
-            operationHandler.setDbConnectionState(getConnectionState());
-            return operationHandler;
+            OperationHandlerRunnableContext operationHandlerRunnableContext = operationHandlerRunnableContextFactory.newOperationHandlerRunner();
+            operationHandlerRunnableContext.setOperationHandler(operationHandler);
+            operationHandlerRunnableContext.setDbConnectionState(dbConnectionState);
+            return operationHandlerRunnableContext;
         } catch (Exception e) {
             throw new DbException(String.format("Unable to instantiate handler for operation:\n%s", operation), e);
         }

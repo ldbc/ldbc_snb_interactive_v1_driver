@@ -35,9 +35,9 @@ public class ValidationParamsGenerator extends Generator<ValidationParam> {
             if (false == dbValidationParametersFilter.useOperation(operation))
                 continue;
 
-            OperationHandler<Operation<?>> operationHandler;
+            OperationHandlerRunnableContext operationHandlerRunner;
             try {
-                operationHandler = (OperationHandler<Operation<?>>) db.getOperationHandler(operation);
+                operationHandlerRunner = db.getOperationHandlerRunnableContext(operation);
             } catch (DbException e) {
                 throw new GeneratorException(
                         String.format(""
@@ -49,7 +49,9 @@ public class ValidationParamsGenerator extends Generator<ValidationParam> {
             }
             OperationResultReport operationResultReport;
             try {
-                operationResultReport = operationHandler.executeOperationUnsafe(operation);
+                OperationHandler operationHandler = operationHandlerRunner.operationHandler();
+                DbConnectionState dbConnectionState = operationHandlerRunner.dbConnectionState();
+                operationResultReport = operationHandler.executeOperation(operation, dbConnectionState);
             } catch (DbException e) {
                 throw new GeneratorException(
                         String.format(""
@@ -59,7 +61,7 @@ public class ValidationParamsGenerator extends Generator<ValidationParam> {
                                 db.getClass().getName(), operation),
                         e);
             } finally {
-                operationHandler.cleanup();
+                operationHandlerRunner.cleanup();
             }
 
             Object operationResult = operationResultReport.operationResult();
