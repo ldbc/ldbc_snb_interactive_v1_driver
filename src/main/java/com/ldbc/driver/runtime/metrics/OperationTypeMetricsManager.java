@@ -2,11 +2,13 @@ package com.ldbc.driver.runtime.metrics;
 
 import com.ldbc.driver.OperationResultReport;
 import com.ldbc.driver.temporal.TemporalUtil;
+import org.apache.log4j.Logger;
 
 import java.util.Comparator;
 import java.util.concurrent.TimeUnit;
 
 public class OperationTypeMetricsManager {
+    private static Logger logger = Logger.getLogger(OperationTypeMetricsManager.class);
     private static final String METRIC_RUNTIME = "Runtime";
 
     private final TemporalUtil temporalUtil = new TemporalUtil();
@@ -33,9 +35,10 @@ public class OperationTypeMetricsManager {
         //
         // Measure operation runtime
         //
-        if (operationResultReport.runDurationAsNano() > highestExpectedRuntimeDurationAsNano) {
+        long runDurationAsNano = operationResultReport.runDurationAsNano();
+        if (runDurationAsNano > highestExpectedRuntimeDurationAsNano) {
             String errMsg = String.format(""
-                            + "Error recording runtime - reported value exceeds maximum allowed\n"
+                            + "Error recording runtime - reported value exceeds maximum allowed. Time reported as maximum.\n"
                             + "Reported: %s %s / %s\n"
                             + "For: %s\n"
                             + "Maximum: %s %s / %s",
@@ -47,10 +50,12 @@ public class OperationTypeMetricsManager {
                     TimeUnit.NANOSECONDS.name(),
                     temporalUtil.nanoDurationToString(highestExpectedRuntimeDurationAsNano)
             );
-            throw new MetricsCollectionException(errMsg);
+            logger.warn(errMsg);
+            runDurationAsNano = highestExpectedRuntimeDurationAsNano;
+//            throw new MetricsCollectionException(errMsg);
         }
 
-        long runtimeInAppropriateUnit = temporalUtil.convert(operationResultReport.runDurationAsNano(), TimeUnit.NANOSECONDS, unit);
+        long runtimeInAppropriateUnit = temporalUtil.convert(runDurationAsNano, TimeUnit.NANOSECONDS, unit);
 
         try {
             runTimeMetric.addMeasurement(runtimeInAppropriateUnit);
