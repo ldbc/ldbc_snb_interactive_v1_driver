@@ -139,7 +139,7 @@ public class WorkloadStatistics {
     public String toString() {
         TemporalUtil temporalUtil = new TemporalUtil();
         DecimalFormat integralFormat = new DecimalFormat("###,###,###,###,###");
-        DecimalFormat floatFormat = new DecimalFormat("###,###,###,###,##0.00");
+        DecimalFormat floatFormat = new DecimalFormat("###,###,###,###,#00.00");
         int padRightDistance = 40;
         StringBuilder sb = new StringBuilder();
         sb.append("********************************************************\n");
@@ -153,14 +153,24 @@ public class WorkloadStatistics {
         sb.append(String.format("%1$-" + padRightDistance + "s", "     Total Duration:")).append(temporalUtil.milliDurationToString(totalDurationAsMilli())).append("\n");
         sb.append(String.format("%1$-" + padRightDistance + "s", "     Throughput:")).append(floatFormat.format(opsPerS)).append(" (op/s)\n");
         sb.append(String.format("%1$-" + padRightDistance + "s", "     Unique Operation Types:")).append(integralFormat.format(operationTypeCount())).append("\n");
-        sb.append(String.format("%1$-" + padRightDistance + "s", "     Time Span:")).append(temporalUtil.millisecondsToDateTimeString(firstStartTimeAsMilli())).append(" ---> ").append(temporalUtil.millisecondsToDateTimeString(lastStartTimeAsMilli())).append("\n");
+        sb.append(String.format("%1$-" + padRightDistance + "s", "     Time Span:")).append(temporalUtil.millisecondsToDateTimeString(firstStartTimeAsMilli())).append(" ===> ").append(temporalUtil.millisecondsToDateTimeString(lastStartTimeAsMilli())).append("\n");
         sb.append("     Operation Mix:\n");
-        for (Map.Entry<Bucket<Class>, Long> operationMixForOperationType : MapUtils.sortedEntries(operationMix().getAllBuckets())) {
-            Bucket.DiscreteBucket<Class> bucket = (Bucket.DiscreteBucket<Class>) operationMixForOperationType.getKey();
+
+        List<Map.Entry<Bucket<Class>, Long>> absoluteOperationMixEntryList = Lists.newArrayList(MapUtils.sortedEntries(operationMix().getAllBuckets()));
+        List<Map.Entry<Bucket<Class>, Double>> percentageOperationMixEntryList = Lists.newArrayList(MapUtils.sortedEntries(operationMix().toPercentageValues().getAllBuckets()));
+        for (int i = 0; i < absoluteOperationMixEntryList.size(); i++) {
+            Map.Entry<Bucket<Class>, Long> absoluteOperationMixEntry = absoluteOperationMixEntryList.get(i);
+            Map.Entry<Bucket<Class>, Double> percentageOperationMixEntry = percentageOperationMixEntryList.get(i);
+            Bucket.DiscreteBucket<Class> bucket = (Bucket.DiscreteBucket<Class>) absoluteOperationMixEntry.getKey();
             Class<Operation<?>> operationType = bucket.getId();
-            long operationCount = operationMixForOperationType.getValue();
-            sb.append(String.format("%1$-" + padRightDistance + "s", "        " + operationType.getSimpleName() + ":")).append(integralFormat.format(operationCount)).append("\n");
+            long absoluteOperationCount = absoluteOperationMixEntry.getValue();
+            double percentageOperationCount = percentageOperationMixEntry.getValue();
+            sb.append(String.format("%1$-" + padRightDistance + "s", "        " + operationType.getSimpleName() + ":"));
+            sb.append(String.format("%1$-" + 20 + "s", integralFormat.format(absoluteOperationCount)));
+            sb.append(floatFormat.format(percentageOperationCount * 100)).append(" %").append("\n");
+
         }
+
         sb.append("     Operation By Dependency Mode:\n");
         sb.append(String.format("%1$-" + padRightDistance + "s", "        All Operations:")).append(toSortedClassNames(firstStartTimesAsMilliByOperationType.keySet())).append("\n");
         sb.append(String.format("%1$-" + padRightDistance + "s", "        Dependency Operations:")).append(toSortedClassNames(dependencyOperationTypes)).append("\n");
@@ -221,7 +231,7 @@ public class WorkloadStatistics {
             long firstStartAsMilliTypeForOperationType = firstStartTimesAsMilliByOperationType().get(operationType);
             long lastStartAsMilliTypeForOperationType = lastStartTimesAsMilliByOperationType().get(operationType);
             sb.append(String.format("%1$-" + padRightDistance + "s", "     " + operationType.getSimpleName() + ":")).
-                    append("Min Dependency Duration(").append(lowestDependencyDurationAsMilliForOperationType.getValue()).append(") ");
+                    append("Min Dependency Duration(").append(temporalUtil.milliDurationToString(lowestDependencyDurationAsMilliForOperationType.getValue())).append(") ");
             if (operationInterleavesByOperationType().containsKey(operationType)) {
                 ContinuousMetricSnapshot interleavesForOperationTypeSnapshot = operationInterleavesByOperationType().get(operationType).snapshot();
                 sb.
