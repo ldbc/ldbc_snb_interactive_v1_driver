@@ -40,17 +40,6 @@ public class LdbcSnbInteractiveWorkloadTest {
 
     TimeSource timeSource = new SystemTimeSource();
 
-    @Ignore
-    @Test
-    public void addFunctionalityForSerializingWorkloadStreamWithoutDbImplementationSoItCanBeShared() {
-        // TODO functionality would:
-        // TODO (1) allow a stream to be written to file, e.g., instead of running
-        // TODO (2) allow a stream to be read from file, e.g., instead of generating
-        // TODO (3) persist configuration file at the same time, so others can use the same settings
-        // TODO (4) read from that configuration file later, so others can use the same settings
-        assertThat(true, is(false));
-    }
-
     @Test
     public void shouldBeAbleToSerializeAndMarshalAllOperations() throws SerializingMarshallingException {
         // Given
@@ -295,7 +284,7 @@ public class LdbcSnbInteractiveWorkloadTest {
     @Test
     public void shouldGenerateConfiguredQueryMix() throws ClientException, DriverConfigurationException, WorkloadException, IOException {
         // Given
-        String ldbcDriverPropertiesPath = TestUtils.getResource("/ldbc_driver_default.properties").getAbsolutePath();
+        String ldbcDriverPropertiesPath = DriverConfigurationFileHelper.getBaseConfigurationFilePublicLocation().getAbsolutePath();
 
         ConsoleAndFileDriverConfiguration params = ConsoleAndFileDriverConfiguration.fromArgs(new String[]{
                 "-w", LdbcSnbInteractiveWorkload.class.getName(),
@@ -411,9 +400,8 @@ public class LdbcSnbInteractiveWorkloadTest {
     @Test
     public void shouldLoadFromConfigFile() throws DriverConfigurationException, ClientException, IOException {
         String ldbcSnbInteractiveTestPropertiesPath =
-                new File(DriverConfigurationFileTestHelper.getWorkloadsDirectory(), "ldbc/snb/interactive/ldbc_snb_interactive.properties").getAbsolutePath();
-        String ldbcDriverTestPropertiesPath =
-                TestUtils.getResource("/ldbc_driver_default.properties").getAbsolutePath();
+                new File(DriverConfigurationFileHelper.getWorkloadsDirectory(), "ldbc/snb/interactive/ldbc_snb_interactive.properties").getAbsolutePath();
+        String ldbcDriverTestPropertiesPath = DriverConfigurationFileHelper.getBaseConfigurationFilePublicLocation().getAbsolutePath();
         String updateStreamPropertiesPath =
                 TestUtils.getResource("/updateStream.properties").getAbsolutePath();
         String resultDirPath = temporaryFolder.newFolder().getAbsolutePath();
@@ -427,6 +415,8 @@ public class LdbcSnbInteractiveWorkloadTest {
                 "-" + ConsoleAndFileDriverConfiguration.RESULT_DIR_PATH_ARG, resultDirPath,
                 "-" + ConsoleAndFileDriverConfiguration.DB_ARG, DummyLdbcSnbInteractiveDb.class.getName(),
                 "-" + ConsoleAndFileDriverConfiguration.TIME_UNIT_ARG, TimeUnit.MICROSECONDS.name(),
+                "-p", ConsoleAndFileDriverConfiguration.OPERATION_COUNT_ARG, "1000",
+                "-p", ConsoleAndFileDriverConfiguration.TIME_COMPRESSION_RATIO_ARG, "0.00005",
                 "-p", LdbcSnbInteractiveConfiguration.PARAMETERS_DIRECTORY, TestUtils.getResource("/").getAbsolutePath(),
                 "-p", LdbcSnbInteractiveConfiguration.UPDATES_DIRECTORY, TestUtils.getResource("/").getAbsolutePath(),
                 "-P", ldbcSnbInteractiveTestPropertiesPath,
@@ -444,7 +434,7 @@ public class LdbcSnbInteractiveWorkloadTest {
     @Test
     public void shouldConvertFrequenciesToInterleavesWhenAllFrequenciesProvidedAndAllUpdatesEnabled() throws WorkloadException, DriverConfigurationException {
         // Given
-        String ldbcDriverPropertiesPath = TestUtils.getResource("/ldbc_driver_default.properties").getAbsolutePath();
+        String ldbcDriverPropertiesPath = DriverConfigurationFileHelper.getBaseConfigurationFilePublicLocation().getAbsolutePath();
 
         ConsoleAndFileDriverConfiguration params = ConsoleAndFileDriverConfiguration.fromArgs(new String[]{
                 "-w", LdbcSnbInteractiveWorkload.class.getName(),
@@ -518,7 +508,7 @@ public class LdbcSnbInteractiveWorkloadTest {
     @Test
     public void shouldConvertFrequenciesToInterleavesWhenAllFrequenciesProvidedAndOnlyOneUpdateEnabled() throws WorkloadException, DriverConfigurationException {
         // Given
-        String ldbcDriverPropertiesPath = TestUtils.getResource("/ldbc_driver_default.properties").getAbsolutePath();
+        String ldbcDriverPropertiesPath = DriverConfigurationFileHelper.getBaseConfigurationFilePublicLocation().getAbsolutePath();
 
         ConsoleAndFileDriverConfiguration params = ConsoleAndFileDriverConfiguration.fromArgs(new String[]{
                 "-w", LdbcSnbInteractiveWorkload.class.getName(),
@@ -592,7 +582,7 @@ public class LdbcSnbInteractiveWorkloadTest {
     @Test
     public void shouldConvertFrequenciesToInterleavesWhenAllFrequenciesProvidedAndAllUpdatesDisabled() throws WorkloadException, DriverConfigurationException {
         // Given
-        String ldbcDriverPropertiesPath = TestUtils.getResource("/ldbc_driver_default.properties").getAbsolutePath();
+        String ldbcDriverPropertiesPath = DriverConfigurationFileHelper.getBaseConfigurationFilePublicLocation().getAbsolutePath();
 
         ConsoleAndFileDriverConfiguration params = ConsoleAndFileDriverConfiguration.fromArgs(new String[]{
                 "-w", LdbcSnbInteractiveWorkload.class.getName(),
@@ -666,7 +656,7 @@ public class LdbcSnbInteractiveWorkloadTest {
     @Test
     public void shouldConvertFrequenciesToInterleavesWhenFrequenciesNotProvidedAndAllUpdatesDisabled() throws WorkloadException, DriverConfigurationException {
         // Given
-        String ldbcDriverPropertiesPath = TestUtils.getResource("/ldbc_driver_default.properties").getAbsolutePath();
+        String ldbcDriverPropertiesPath = DriverConfigurationFileHelper.getBaseConfigurationFilePublicLocation().getAbsolutePath();
 
         ConsoleAndFileDriverConfiguration params = ConsoleAndFileDriverConfiguration.fromArgs(new String[]{
                 "-w", LdbcSnbInteractiveWorkload.class.getName(),

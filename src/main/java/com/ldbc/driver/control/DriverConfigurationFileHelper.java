@@ -1,6 +1,5 @@
 package com.ldbc.driver.control;
 
-import com.ldbc.driver.testutils.TestUtils;
 import com.ldbc.driver.util.MapUtils;
 import com.ldbc.driver.workloads.ldbc.snb.interactive.LdbcSnbInteractiveWorkload;
 import com.ldbc.driver.workloads.ldbc.snb.interactive.db.DummyLdbcSnbInteractiveDb;
@@ -13,11 +12,7 @@ import java.io.IOException;
 import java.util.Map;
 import java.util.Properties;
 
-import static org.hamcrest.CoreMatchers.equalTo;
-import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertThat;
-
-public class DriverConfigurationFileTestHelper {
+public class DriverConfigurationFileHelper {
     public static void main(String[] args) throws IOException, DriverConfigurationException {
         updateDefaultConfigurationFiles();
         print();
@@ -28,15 +23,11 @@ public class DriverConfigurationFileTestHelper {
 
         File baseConfigurationFilePublicLocation = getBaseConfigurationFilePublicLocation(driverRootDirectory);
         createBaseConfigurationAt(baseConfigurationFilePublicLocation);
-        assertThat(readConfigurationFileAt(baseConfigurationFilePublicLocation), equalTo(baseConfiguration()));
-
-        File baseConfigurationFilePublicTestResourcesLocation = getBaseConfigurationFilePublicTestResourcesLocation(driverRootDirectory);
-        createBaseConfigurationAt(baseConfigurationFilePublicTestResourcesLocation);
-        assertThat(readConfigurationFileAt(baseConfigurationFilePublicTestResourcesLocation), equalTo(baseConfiguration()));
-
-        assertThat(
-                readConfigurationFileAt(baseConfigurationFilePublicLocation),
-                equalTo(readConfigurationFileAt(baseConfigurationFilePublicTestResourcesLocation)));
+        if (false == readConfigurationFileAt(baseConfigurationFilePublicLocation).equals(baseConfiguration())) {
+            throw new DriverConfigurationException(String.format("Default config file not equal to base configuration\n%s\n%s",
+                    baseConfiguration().toString(),
+                    readConfigurationFileAt(baseConfigurationFilePublicLocation)));
+        }
     }
 
     public static void print() throws DriverConfigurationException {
@@ -66,7 +57,10 @@ public class DriverConfigurationFileTestHelper {
     }
 
     public static ConsoleAndFileDriverConfiguration readConfigurationFileAt(File configurationFile) throws IOException, DriverConfigurationException {
-        assertThat(configurationFile.exists(), is(true));
+        if (false == configurationFile.exists()) {
+            throw new DriverConfigurationException("Config file does not exist: " + configurationFile.getAbsolutePath());
+        }
+
         Properties ldbcDriverDefaultConfigurationProperties = new Properties();
         ldbcDriverDefaultConfigurationProperties.load(new FileInputStream(configurationFile));
         Map<String, String> ldbcDriverDefaultConfigurationAsParamsMap =
@@ -80,14 +74,18 @@ public class DriverConfigurationFileTestHelper {
         return ConsoleAndFileDriverConfiguration.fromParamsMap(ldbcDriverDefaultConfigurationAsParamsMap);
     }
 
-    public static File getBaseConfigurationFilePublicLocation() {
+    public static File getBaseConfigurationFilePublicLocation() throws DriverConfigurationException {
         return getBaseConfigurationFilePublicLocation(getDriverRootDirectory());
     }
 
-    public static File getWorkloadsDirectory() {
+    public static File getWorkloadsDirectory() throws DriverConfigurationException {
         File workloadsDirectory = new File(getDriverRootDirectory(), "workloads");
-        assertThat(workloadsDirectory.exists(), is(true));
-        assertThat(workloadsDirectory.isDirectory(), is(true));
+        if (false == workloadsDirectory.exists()) {
+            throw new DriverConfigurationException("Directory does not exist: " + workloadsDirectory.getAbsolutePath());
+        }
+        if (false == workloadsDirectory.isDirectory()) {
+            throw new DriverConfigurationException("Directory not a directory: " + workloadsDirectory.getAbsolutePath());
+        }
         return workloadsDirectory;
     }
 
@@ -99,7 +97,7 @@ public class DriverConfigurationFileTestHelper {
     }
 
     private static File getDriverRootDirectory() {
-        File targetDirectory = TestUtils.getResource("/");
+        File targetDirectory = FileUtils.toFile(DriverConfigurationFileHelper.class.getResource("/"));
         while (false == "target".equals(targetDirectory.getName())) {
             targetDirectory = targetDirectory.getParentFile();
         }
@@ -107,15 +105,11 @@ public class DriverConfigurationFileTestHelper {
         return targetDirectory.getParentFile();
     }
 
-    private static File getBaseConfigurationFilePublicLocation(File driverRootDirectory) {
+    private static File getBaseConfigurationFilePublicLocation(File driverRootDirectory) throws DriverConfigurationException {
         File workloadsDirectory = new File(driverRootDirectory, "workloads");
-        assertThat(workloadsDirectory.exists(), is(true));
+        if (false == workloadsDirectory.exists()) {
+            throw new DriverConfigurationException("Directory does not exist: " + workloadsDirectory.getAbsolutePath());
+        }
         return new File(workloadsDirectory, "ldbc_driver_default.properties");
-    }
-
-    private static File getBaseConfigurationFilePublicTestResourcesLocation(File driverRootDirectory) throws IOException {
-        File testResourcesDirectory = new File(driverRootDirectory, "src/test/resources");
-        assertThat(testResourcesDirectory.exists(), is(true));
-        return new File(testResourcesDirectory, "ldbc_driver_default.properties");
     }
 }

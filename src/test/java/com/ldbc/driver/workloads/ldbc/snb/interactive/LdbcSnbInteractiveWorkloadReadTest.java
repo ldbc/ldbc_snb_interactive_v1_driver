@@ -162,29 +162,6 @@ public class LdbcSnbInteractiveWorkloadReadTest {
     }
 
     @Test
-    public void testConfigFileShouldContainSameParamsAndValuesAsTestParamsInThisTestClass() throws IOException {
-        // Given
-        String ldbcSnbInteractiveReadTestParamsFromFilePath = TestUtils.getResource("/ldbc_snb_interactive_read_test.properties").getAbsolutePath();
-        Properties ldbcSnbInteractiveReadTestParamsFromFileProperties = new Properties();
-
-        ldbcSnbInteractiveReadTestParamsFromFileProperties.load(new FileInputStream(ldbcSnbInteractiveReadTestParamsFromFilePath));
-        Map<String, String> ldbcSnbInteractiveReadTestParamsFromFile =
-                ConsoleAndFileDriverConfiguration.convertLongKeysToShortKeys(MapUtils.<String, String>propertiesToMap(ldbcSnbInteractiveReadTestParamsFromFileProperties));
-
-        Map<String, String> ldbcSnbInteractiveReadTestParams = LdbcSnbInteractiveConfiguration.defaultReadOnlyConfig();
-
-        // When
-
-        // Then
-        assertThat(
-                String.format("Expected:\n%sFound:\n%s",
-                        MapUtils.prettyPrint(ldbcSnbInteractiveReadTestParamsFromFile, "\t"),
-                        MapUtils.prettyPrint(ldbcSnbInteractiveReadTestParams, "\t")),
-                ldbcSnbInteractiveReadTestParamsFromFile,
-                equalTo(ldbcSnbInteractiveReadTestParams));
-    }
-
-    @Test
     public void shouldCreateValidationParametersThenUseThemToPerformDatabaseValidationThenPass() throws ClientException, IOException {
         // **************************************************
         // where validation parameters should be written (ensure file does not yet exist)
@@ -459,7 +436,7 @@ public class LdbcSnbInteractiveWorkloadReadTest {
     @Test
     public void shouldGenerateConfiguredQueryMix() throws ClientException, DriverConfigurationException, WorkloadException, IOException {
         // Given
-        String ldbcDriverPropertiesPath = TestUtils.getResource("/ldbc_driver_default.properties").getAbsolutePath();
+        String ldbcDriverPropertiesPath = DriverConfigurationFileHelper.getBaseConfigurationFilePublicLocation().getAbsolutePath();
         Properties ldbcDriverProperties = new Properties();
         ldbcDriverProperties.load(new FileInputStream(ldbcDriverPropertiesPath));
 
@@ -557,9 +534,8 @@ public class LdbcSnbInteractiveWorkloadReadTest {
     @Test
     public void shouldLoadFromConfigFile() throws DriverConfigurationException, ClientException, IOException {
         String ldbcSnbInteractiveTestPropertiesPath =
-                new File(DriverConfigurationFileTestHelper.getWorkloadsDirectory(), "ldbc/snb/interactive/ldbc_snb_interactive.properties").getAbsolutePath();
-        String ldbcDriverTestPropertiesPath =
-                TestUtils.getResource("/ldbc_driver_default.properties").getAbsolutePath();
+                new File(DriverConfigurationFileHelper.getWorkloadsDirectory(), "ldbc/snb/interactive/ldbc_snb_interactive.properties").getAbsolutePath();
+        String ldbcDriverTestPropertiesPath = DriverConfigurationFileHelper.getBaseConfigurationFilePublicLocation().getAbsolutePath();
 
         String updateStreamPropertiesPath =
                 TestUtils.getResource("/updateStream.properties").getAbsolutePath();
@@ -574,6 +550,8 @@ public class LdbcSnbInteractiveWorkloadReadTest {
         ConsoleAndFileDriverConfiguration configuration = ConsoleAndFileDriverConfiguration.fromArgs(new String[]{
                 "-" + ConsoleAndFileDriverConfiguration.RESULT_DIR_PATH_ARG, resultDirPath,
                 "-" + ConsoleAndFileDriverConfiguration.DB_ARG, DummyLdbcSnbInteractiveDb.class.getName(),
+                "-p", ConsoleAndFileDriverConfiguration.OPERATION_COUNT_ARG, "1000",
+                "-p", ConsoleAndFileDriverConfiguration.TIME_COMPRESSION_RATIO_ARG, "0.00005",
                 "-p", LdbcSnbInteractiveConfiguration.PARAMETERS_DIRECTORY, TestUtils.getResource("/").getAbsolutePath(),
                 "-P", ldbcSnbInteractiveTestPropertiesPath,
                 "-P", ldbcDriverTestPropertiesPath,
