@@ -174,7 +174,7 @@ public class LdbcSnbInteractiveWorkloadReadTest {
         // **************************************************
         Map<String, String> paramsMap = defaultSnbParamsMapWithParametersDir();
         // DummyDb-specific parameters
-        paramsMap.put(DummyLdbcSnbInteractiveDb.SLEEP_DURATION_MILLI_ARG, Long.toString(1l));
+        paramsMap.put(DummyLdbcSnbInteractiveDb.SLEEP_DURATION_NANO_ARG, Long.toString(TimeUnit.MILLISECONDS.toNanos(1)));
         // Driver-specific parameters
         String name = "name";
         String dbClassName = DummyLdbcSnbInteractiveDb.class.getName();
@@ -284,7 +284,7 @@ public class LdbcSnbInteractiveWorkloadReadTest {
         // Given
         Map<String, String> paramsMap = defaultSnbParamsMapWithParametersDir();
         // DummyDb-specific parameters
-        paramsMap.put(DummyLdbcSnbInteractiveDb.SLEEP_DURATION_MILLI_ARG, Long.toString(1l));
+        paramsMap.put(DummyLdbcSnbInteractiveDb.SLEEP_DURATION_NANO_ARG, Long.toString(TimeUnit.MILLISECONDS.toNanos(1)));
         // Driver-specific parameters
         String name = null;
         String dbClassName = DummyLdbcSnbInteractiveDb.class.getName();
@@ -345,7 +345,7 @@ public class LdbcSnbInteractiveWorkloadReadTest {
         // LDBC Interactive Workload-specific parameters
         paramsMap.put(LdbcSnbInteractiveConfiguration.UPDATES_DIRECTORY, TestUtils.getResource("/").getAbsolutePath());
         // DummyDb-specific parameters
-        paramsMap.put(DummyLdbcSnbInteractiveDb.SLEEP_DURATION_MILLI_ARG, Long.toString(10));
+        paramsMap.put(DummyLdbcSnbInteractiveDb.SLEEP_DURATION_NANO_ARG, Long.toString(TimeUnit.MILLISECONDS.toNanos(10)));
         // Driver-specific parameters
         String name = "name";
         String dbClassName = DummyLdbcSnbInteractiveDb.class.getName();

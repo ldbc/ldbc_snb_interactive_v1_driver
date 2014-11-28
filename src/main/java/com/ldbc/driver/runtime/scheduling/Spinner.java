@@ -6,9 +6,12 @@ import com.ldbc.driver.util.Function2;
 
 // TODO if an error policy DOES NOT terminate the benchmark and DOES NOT allow the operation to complete
 // TODO something needs to be done about DEPENDENT/GCT, because the initiated time for the operation has already been reported
-// TODO perhaps the completed time for that operation needs to be reported too (to GCT service, not to MetricsService, right?),
+// TODO perhaps the completed time for that operation needs to be reported too (to GCT service, not to MetricsService),
 // TODO to make sure DEPENDENT/GCT does not freeze at the start time of that "Failed" operation
-
+//
+// TODO alternatively, if the operation is a Dependency the run should terminate for sure, as the data may not have been written
+// TODO and if it is not a Dependency a policy could decide if the benchmark should terminate or not
+//
 // TODO take boolean result from spinner into consideration, i.e., DO NOT execute handler for "Failed" operations
 
 public class Spinner {
