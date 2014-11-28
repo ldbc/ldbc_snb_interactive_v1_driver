@@ -15,7 +15,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 public class OperationStreamExecutorService {
     private static final TemporalUtil TEMPORAL_UTIL = new TemporalUtil();
-    private static final long SHUTDOWN_WAIT_TIMEOUT_AS_MILLI = TEMPORAL_UTIL.convert(10, TimeUnit.SECONDS, TimeUnit.MILLISECONDS);
+    public static final long SHUTDOWN_WAIT_TIMEOUT_AS_MILLI = TEMPORAL_UTIL.convert(10, TimeUnit.SECONDS, TimeUnit.MILLISECONDS);
 
     private final OperationStreamExecutorServiceThread operationStreamExecutorServiceThread;
     private final AtomicBoolean hasFinished = new AtomicBoolean(false);
@@ -63,18 +63,18 @@ public class OperationStreamExecutorService {
         return hasFinished;
     }
 
-    synchronized public void shutdown() throws OperationHandlerExecutorException {
+    synchronized public void shutdown(long shutdownWait) throws OperationHandlerExecutorException {
         if (shutdown.get())
             throw new OperationHandlerExecutorException("Executor has already been shutdown");
         if (null != operationStreamExecutorServiceThread)
-            doShutdown();
+            doShutdown(shutdownWait);
         shutdown.set(true);
     }
 
-    private void doShutdown() {
+    private void doShutdown(long shutdownWait) {
         try {
             forceThreadToTerminate.set(true);
-            operationStreamExecutorServiceThread.join(SHUTDOWN_WAIT_TIMEOUT_AS_MILLI);
+            operationStreamExecutorServiceThread.join(shutdownWait);
         } catch (Exception e) {
             String errMsg = String.format("Unexpected error encountered while shutting down thread\n%s",
                     ConcurrentErrorReporter.stackTraceToString(e));

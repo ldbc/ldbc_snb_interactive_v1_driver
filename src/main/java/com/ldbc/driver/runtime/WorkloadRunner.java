@@ -23,7 +23,6 @@ import static com.ldbc.driver.WorkloadStreams.WorkloadStreamDefinition;
 public class WorkloadRunner {
     private static final TemporalUtil TEMPORAL_UTIL = new TemporalUtil();
     public static final long RUNNER_POLLING_INTERVAL_AS_MILLI = 100;
-    private static final long WAIT_DURATION_FOR_OPERATION_HANDLER_EXECUTOR_TO_SHUTDOWN_AS_MILLI = TEMPORAL_UTIL.convert(10, TimeUnit.SECONDS, TimeUnit.MILLISECONDS);
     private static final LocalCompletionTimeWriter DUMMY_LOCAL_COMPLETION_TIME_WRITER = new DummyLocalCompletionTimeWriter();
 
     private final Spinner exactSpinner;
@@ -135,9 +134,8 @@ public class WorkloadRunner {
             // Error encountered in one or more of the worker threads --> terminate run
             if (errorReporter.errorEncountered()) {
                 boolean forced = true;
-                String shutdownErrMsg = shutdownEverything(forced);
-                throw new WorkloadException(String.format("%s\nError encountered while running workload\n%s",
-                        shutdownErrMsg,
+                shutdownEverything(forced, errorReporter);
+                throw new WorkloadException(String.format("Error encountered while running workload\n%s",
                         errorReporter.toString()));
             }
 
@@ -158,67 +156,70 @@ public class WorkloadRunner {
         // One last check for errors encountered in any of the worker threads --> terminate run
         if (errorReporter.errorEncountered()) {
             boolean forced = true;
-            String showdownErrMsg = shutdownEverything(forced);
-            throw new WorkloadException(String.format("%sEncountered error while running workload. Driver terminating.\n%s",
-                    showdownErrMsg,
+            shutdownEverything(forced, errorReporter);
+            throw new WorkloadException(String.format("Encountered error while running workload. Driver terminating.\n%s",
                     errorReporter.toString()));
         }
 
         boolean forced = false;
-        String shutdownErrMsg = shutdownEverything(forced);
+        shutdownEverything(forced, errorReporter);
 
-        if (false == "".equals(shutdownErrMsg)) {
-            throw new WorkloadException(shutdownErrMsg);
+        if (errorReporter.errorEncountered()) {
+            throw new WorkloadException(errorReporter.toString());
         }
     }
 
-    private String shutdownEverything(boolean forced) {
-        String errMsg = "";
+    private void shutdownEverything(boolean forced, ConcurrentErrorReporter errorReporter) {
+        // if forced shutdown (error) some handlers likely still running,
+        // but for now it does not matter as the process will terminate anyway
+        // (though when running test suite it can result in many running threads, making the tests much slower)
+        //
+        // if normal shutdown all executors have completed by this stage
+        long shutdownWait = (forced) ? 1 : OperationStreamExecutorService.SHUTDOWN_WAIT_TIMEOUT_AS_MILLI;
 
         try {
-            asynchronousStreamExecutorService.shutdown();
+            asynchronousStreamExecutorService.shutdown(shutdownWait);
         } catch (OperationHandlerExecutorException e) {
-            errMsg += String.format("Encountered error while shutting down %s\n%s\n",
-                    asynchronousStreamExecutorService.getClass().getSimpleName(),
-                    ConcurrentErrorReporter.stackTraceToString(e));
+            errorReporter.reportError(
+                    this,
+                    String.format("Encountered error while shutting down %s\n%s\n",
+                            asynchronousStreamExecutorService.getClass().getSimpleName(),
+                            ConcurrentErrorReporter.stackTraceToString(e))
+            );
         }
 
         for (OperationStreamExecutorService blockingStreamExecutorService : blockingStreamExecutorServices) {
             try {
-                blockingStreamExecutorService.shutdown();
+                blockingStreamExecutorService.shutdown(shutdownWait);
             } catch (OperationHandlerExecutorException e) {
-                errMsg += String.format("Encountered error while shutting down %s\n%s\n",
-                        blockingStreamExecutorService.getClass().getSimpleName(),
-                        ConcurrentErrorReporter.stackTraceToString(e));
+                errorReporter.reportError(
+                        this,
+                        String.format("Encountered error while shutting down %s\n%s\n",
+                                blockingStreamExecutorService.getClass().getSimpleName(),
+                                ConcurrentErrorReporter.stackTraceToString(e))
+                );
             }
         }
 
         try {
-            if (forced) {
-                // if forced shutdown (error) some handlers likely still running,
-                // but for now it does not matter as the process will terminate anyway
-                // (though when running test suite it can result in many running threads, making the tests much slower)
-                executorForAsynchronous.shutdown(0);
-                for (OperationHandlerExecutor executorForBlocking : executorsForBlocking) {
-                    executorForBlocking.shutdown(0);
-                }
-            } else {
-                // if normal shutdown all executors have completed by this stage
-                executorForAsynchronous.shutdown(WAIT_DURATION_FOR_OPERATION_HANDLER_EXECUTOR_TO_SHUTDOWN_AS_MILLI);
-                for (OperationHandlerExecutor executorForBlocking : executorsForBlocking) {
-                    executorForBlocking.shutdown(WAIT_DURATION_FOR_OPERATION_HANDLER_EXECUTOR_TO_SHUTDOWN_AS_MILLI);
-                }
+            // if forced shutdown (error) some handlers likely still running,
+            // but for now it does not matter as the process will terminate anyway
+            // (though when running test suite it can result in many running threads, making the tests much slower)
+            executorForAsynchronous.shutdown(shutdownWait);
+            for (OperationHandlerExecutor executorForBlocking : executorsForBlocking) {
+                executorForBlocking.shutdown(shutdownWait);
             }
         } catch (OperationHandlerExecutorException e) {
-            errMsg += String.format("Encountered error while shutting down\n%s",
-                    ConcurrentErrorReporter.stackTraceToString(e));
+            errorReporter.reportError(
+                    this,
+                    String.format("Encountered error while shutting down\n%s",
+                            ConcurrentErrorReporter.stackTraceToString(e))
+            );
         }
 
         if (statusDisplayIntervalAsMilli > 0) {
             workloadStatusThread.shutdown();
             workloadStatusThread.interrupt();
         }
-
-        return errMsg;
     }
 }
