@@ -1,6 +1,5 @@
 package com.ldbc.driver.runtime.scheduling;
 
-import com.google.common.collect.Lists;
 import com.ldbc.driver.Operation;
 import com.ldbc.driver.temporal.ManualTimeSource;
 import com.ldbc.driver.temporal.SystemTimeSource;
@@ -11,6 +10,7 @@ import com.ldbc.driver.workloads.dummy.TimedNamedOperation1;
 import org.junit.Ignore;
 import org.junit.Test;
 
+import java.text.DecimalFormat;
 import java.util.Iterator;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -22,6 +22,7 @@ public class SpinnerTests {
     private static final TemporalUtil TEMPORAL_UTIL = new TemporalUtil();
     long ENOUGH_MILLISECONDS_FOR_SPINNER_THREAD_TO_DO_ITS_THING = 500;
     ManualTimeSource timeSource = new ManualTimeSource(0);
+    DecimalFormat integerFormat = new DecimalFormat("###,###,###,###,###");
 
     @Test
     public void shouldPassWhenNoCheckAndStartTimeArrives() throws InterruptedException {
@@ -203,28 +204,10 @@ public class SpinnerTests {
 
         ignoreScheduledStartTime = false;
         Spinner spinnerWithStartTimeCheck = new Spinner(timeSource, 0l, ignoreScheduledStartTime);
-        ignoreScheduledStartTime = true;
-        Spinner spinnerWithoutStartTimeCheck = new Spinner(timeSource, 0l, ignoreScheduledStartTime);
         SpinnerCheck singleTrueCheck = new SettableSpinnerCheck(SpinnerCheck.SpinnerCheckResult.PASSED);
-        SpinnerCheck manyTrueChecks = new MultiCheck(
-                Lists.<SpinnerCheck>newArrayList(
-                        new SettableSpinnerCheck(SpinnerCheck.SpinnerCheckResult.PASSED),
-                        new SettableSpinnerCheck(SpinnerCheck.SpinnerCheckResult.PASSED),
-                        new SettableSpinnerCheck(SpinnerCheck.SpinnerCheckResult.PASSED),
-                        new SettableSpinnerCheck(SpinnerCheck.SpinnerCheckResult.PASSED),
-                        new SettableSpinnerCheck(SpinnerCheck.SpinnerCheckResult.PASSED),
-                        new SettableSpinnerCheck(SpinnerCheck.SpinnerCheckResult.PASSED),
-                        new SettableSpinnerCheck(SpinnerCheck.SpinnerCheckResult.PASSED),
-                        new SettableSpinnerCheck(SpinnerCheck.SpinnerCheckResult.PASSED),
-                        new SettableSpinnerCheck(SpinnerCheck.SpinnerCheckResult.PASSED),
-                        new SettableSpinnerCheck(SpinnerCheck.SpinnerCheckResult.PASSED)
-                )
-        );
 
         long singleCheckWithStartTimeCheckTestDuration = 0l;
-        long manyChecksWithStartTimeCheckTestDuration = 0l;
         long singleCheckWithoutStartTimeCheckTestDuration = 0l;
-        long manyChecksWithoutStartTimeCheckTestDuration = 0l;
 
         for (int i = 0; i < experimentCount; i++) {
             FastSameOperationIterator operationsSingleCheckWithStartTimeCheck = new FastSameOperationIterator(scheduledStartTime, operationCount);
@@ -234,44 +217,22 @@ public class SpinnerTests {
             singleCheckWithStartTimeCheckTestDuration =
                     singleCheckWithStartTimeCheckTestDuration + (systemTimeSource.nowAsMilli() - singleCheckWithStartTimeCheckTestStartTime);
 
-            FastSameOperationIterator operationsManyChecksWithStartTimeCheck = new FastSameOperationIterator(scheduledStartTime, operationCount);
-            long manyChecksWithStartTimeCheckTestStartTime = systemTimeSource.nowAsMilli();
-            while (operationsManyChecksWithStartTimeCheck.hasNext())
-                spinnerWithStartTimeCheck.waitForScheduledStartTime(operationsManyChecksWithStartTimeCheck.next(), manyTrueChecks);
-            manyChecksWithStartTimeCheckTestDuration =
-                    manyChecksWithStartTimeCheckTestDuration + (systemTimeSource.nowAsMilli() - manyChecksWithStartTimeCheckTestStartTime);
-
             FastSameOperationIterator operationsSingleCheckWithoutStartTimeCheck = new FastSameOperationIterator(scheduledStartTime, operationCount);
             long singleCheckWithoutStartTimeCheckTestStartTime = systemTimeSource.nowAsMilli();
             while (operationsSingleCheckWithoutStartTimeCheck.hasNext())
                 spinnerWithStartTimeCheck.waitForScheduledStartTime(operationsSingleCheckWithoutStartTimeCheck.next(), singleTrueCheck);
             singleCheckWithoutStartTimeCheckTestDuration =
                     singleCheckWithoutStartTimeCheckTestDuration + (systemTimeSource.nowAsMilli() - singleCheckWithoutStartTimeCheckTestStartTime);
-
-            FastSameOperationIterator operationsManyChecksWithoutStartTimeCheck = new FastSameOperationIterator(scheduledStartTime, operationCount);
-            long manyChecksWithoutStartTimeCheckTestStartTime = systemTimeSource.nowAsMilli();
-            while (operationsManyChecksWithoutStartTimeCheck.hasNext())
-                spinnerWithoutStartTimeCheck.waitForScheduledStartTime(operationsManyChecksWithoutStartTimeCheck.next(), manyTrueChecks);
-            manyChecksWithoutStartTimeCheckTestDuration =
-                    manyChecksWithoutStartTimeCheckTestDuration + (systemTimeSource.nowAsMilli() - manyChecksWithoutStartTimeCheckTestStartTime);
         }
 
         singleCheckWithStartTimeCheckTestDuration = singleCheckWithStartTimeCheckTestDuration / experimentCount;
-        manyChecksWithStartTimeCheckTestDuration = manyChecksWithStartTimeCheckTestDuration / experimentCount;
         singleCheckWithoutStartTimeCheckTestDuration = singleCheckWithoutStartTimeCheckTestDuration / experimentCount;
-        manyChecksWithoutStartTimeCheckTestDuration = manyChecksWithoutStartTimeCheckTestDuration / experimentCount;
 
-        System.out.println(String.format("Spinner(start time check = true) (1 true check) processed %s operations in %s time: %s ops/ms, %s ns/op",
-                operationCount, singleCheckWithStartTimeCheckTestDuration, operationCount / singleCheckWithStartTimeCheckTestDuration, TEMPORAL_UTIL.convert(singleCheckWithStartTimeCheckTestDuration, TimeUnit.MILLISECONDS, TimeUnit.NANOSECONDS) / operationCount));
+        System.out.println(String.format("Spinner(start time check = true) (1 true check) processed %s operations in %s: %s ops/ms, %s ns/op",
+                operationCount, TEMPORAL_UTIL.milliDurationToString(singleCheckWithStartTimeCheckTestDuration), integerFormat.format(operationCount / singleCheckWithStartTimeCheckTestDuration), TEMPORAL_UTIL.convert(singleCheckWithStartTimeCheckTestDuration, TimeUnit.MILLISECONDS, TimeUnit.NANOSECONDS) / operationCount));
 
-        System.out.println(String.format("Spinner(start time check = true) (10 true checks) processed %s operations in %s time: %s ops/ms, %s ns/op",
-                operationCount, manyChecksWithStartTimeCheckTestDuration, operationCount / manyChecksWithStartTimeCheckTestDuration, TEMPORAL_UTIL.convert(manyChecksWithStartTimeCheckTestDuration, TimeUnit.MILLISECONDS, TimeUnit.NANOSECONDS) / operationCount));
-
-        System.out.println(String.format("Spinner(start time check = false) (1 true check) processed %s operations in %s time: %s ops/ms, %s ns/op",
-                operationCount, singleCheckWithoutStartTimeCheckTestDuration, operationCount / singleCheckWithoutStartTimeCheckTestDuration, TEMPORAL_UTIL.convert(singleCheckWithoutStartTimeCheckTestDuration, TimeUnit.MILLISECONDS, TimeUnit.NANOSECONDS) / operationCount));
-
-        System.out.println(String.format("Spinner(start time check = false) (10 true checks) processed %s operations in %s time: %s ops/ms, %s ns/op",
-                operationCount, manyChecksWithoutStartTimeCheckTestDuration, operationCount / manyChecksWithoutStartTimeCheckTestDuration, TEMPORAL_UTIL.convert(manyChecksWithoutStartTimeCheckTestDuration, TimeUnit.MILLISECONDS, TimeUnit.NANOSECONDS) / operationCount));
+        System.out.println(String.format("Spinner(start time check = false) (1 true check) processed %s operations in %s: %s ops/ms, %s ns/op",
+                operationCount, TEMPORAL_UTIL.milliDurationToString(singleCheckWithoutStartTimeCheckTestDuration), integerFormat.format(operationCount / singleCheckWithoutStartTimeCheckTestDuration), TEMPORAL_UTIL.convert(singleCheckWithoutStartTimeCheckTestDuration, TimeUnit.MILLISECONDS, TimeUnit.NANOSECONDS) / operationCount));
     }
 
     private static class FastSameOperationIterator implements Iterator<Operation<?>> {
