@@ -37,7 +37,6 @@ public class SingleThreadOperationHandlerExecutorThread extends Thread {
             errorReporter.reportError(
                     this,
                     String.format("Encountered unexpected exception\n%s", ConcurrentErrorReporter.stackTraceToString(e)));
-            return;
         }
     }
 

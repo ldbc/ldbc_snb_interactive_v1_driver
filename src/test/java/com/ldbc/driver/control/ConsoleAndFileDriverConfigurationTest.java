@@ -475,15 +475,14 @@ public class ConsoleAndFileDriverConfigurationTest {
     @Test
     // Make sure that all tests that use test resources configuration file are using the same file as in the public directory
     public void testResourcesBaseConfigurationFileAndPublicBaseConfigurationFilesShouldBeEqual() throws DriverConfigurationException, IOException {
-        File ldbcDriverConfigurationInTestResourcesFile =
-                TestUtils.getResource("/ldbc_driver_default.properties");
+        File ldbcDriverConfigurationInTestResourcesFile = DriverConfigurationFileHelper.getBaseConfigurationFilePublicLocation();
         Properties ldbcDriverConfigurationInTestResourcesProperties = new Properties();
         ldbcDriverConfigurationInTestResourcesProperties.load(new FileInputStream(ldbcDriverConfigurationInTestResourcesFile));
         Map<String, String> configurationInTestResourcesAsMap =
                 MapUtils.propertiesToMap(ldbcDriverConfigurationInTestResourcesProperties);
 
         File ldbcDriverConfigurationInWorkloadsDirectoryFile =
-                DriverConfigurationFileTestHelper.getBaseConfigurationFilePublicLocation();
+                DriverConfigurationFileHelper.getBaseConfigurationFilePublicLocation();
         Properties ldbcDriverConfigurationInWorkloadsDirectoryProperties = new Properties();
         ldbcDriverConfigurationInWorkloadsDirectoryProperties.load(new FileInputStream(ldbcDriverConfigurationInWorkloadsDirectoryFile));
         Map<String, String> configurationInWorkloadsDirectoryAsMap =

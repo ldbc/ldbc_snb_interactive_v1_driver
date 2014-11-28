@@ -6,7 +6,7 @@ import com.google.common.collect.Iterators;
 import com.ldbc.driver.*;
 import com.ldbc.driver.control.ConsoleAndFileDriverConfiguration;
 import com.ldbc.driver.control.DriverConfigurationException;
-import com.ldbc.driver.control.DriverConfigurationFileTestHelper;
+import com.ldbc.driver.control.DriverConfigurationFileHelper;
 import com.ldbc.driver.control.LocalControlService;
 import com.ldbc.driver.generator.GeneratorFactory;
 import com.ldbc.driver.generator.RandomDataGeneratorFactory;
@@ -323,9 +323,8 @@ public class SimpleWorkloadTest {
     @Test
     public void shouldLoadFromConfigFile() throws DriverConfigurationException, ClientException, IOException {
         String simpleTestPropertiesPath =
-                new File(DriverConfigurationFileTestHelper.getWorkloadsDirectory(), "simple/simpleworkload.properties").getAbsolutePath();
-        String ldbcDriverTestPropertiesPath =
-                TestUtils.getResource("/ldbc_driver_default.properties").getAbsolutePath();
+                new File(DriverConfigurationFileHelper.getWorkloadsDirectory(), "simple/simpleworkload.properties").getAbsolutePath();
+        String ldbcDriverTestPropertiesPath = DriverConfigurationFileHelper.getBaseConfigurationFilePublicLocation().getAbsolutePath();
 
         String resultDirPath = temporaryFolder.newFolder().getAbsolutePath();
 

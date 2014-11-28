@@ -59,7 +59,7 @@ class OperationStreamExecutorServiceThread extends Thread {
                     String errMsg = String.format("Error while retrieving next handler\n%s",
                             ConcurrentErrorReporter.stackTraceToString(e));
                     errorReporter.reportError(this, errMsg);
-                    continue;
+                    break;
                 }
 
                 try {
@@ -70,7 +70,7 @@ class OperationStreamExecutorServiceThread extends Thread {
                             handlerRunner.operation(),
                             ConcurrentErrorReporter.stackTraceToString(e));
                     errorReporter.reportError(this, errMsg);
-                    continue;
+                    break;
                 }
             }
 
@@ -78,6 +78,7 @@ class OperationStreamExecutorServiceThread extends Thread {
             this.hasFinished.set(true);
         } catch (Throwable e) {
             errorReporter.reportError(this, ConcurrentErrorReporter.stackTraceToString(e));
+            this.hasFinished.set(true);
         }
     }
 
