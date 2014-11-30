@@ -6,7 +6,6 @@ import com.ldbc.driver.workloads.ldbc.snb.interactive.*;
 
 import java.io.IOException;
 import java.util.Map;
-import java.util.concurrent.TimeUnit;
 
 public class DummyLdbcSnbInteractiveDb extends Db {
     private static class DummyDbConnectionState extends DbConnectionState {
@@ -15,8 +14,22 @@ public class DummyLdbcSnbInteractiveDb extends Db {
         }
     }
 
+    public static enum SleepType {
+        THREAD_SLEEP,
+        SPIN
+    }
+
     public static final String SLEEP_DURATION_NANO_ARG = "ldbc.snb.interactive.db.sleep_duration_nano";
+    public static final String SLEEP_TYPE_ARG = "ldbc.snb.interactive.db.sleep_type";
+
     private static long sleepDurationAsNano;
+    private SleepType sleepType;
+
+    private static interface SleepFun {
+        void sleep(long sleepNs);
+    }
+
+    private static SleepFun sleepFun;
 
     @Override
     protected void onInit(Map<String, String> properties) throws DbException {
@@ -30,6 +43,55 @@ public class DummyLdbcSnbInteractiveDb extends Db {
                 throw new DbException(String.format("Error encountered while trying to parse value [%s] for %s", sleepDurationAsNanoAsString, SLEEP_DURATION_NANO_ARG), e);
             }
         }
+        String sleepTypeString = properties.get(SLEEP_TYPE_ARG);
+        if (null == sleepTypeString) {
+            sleepType = SleepType.SPIN;
+        } else {
+            try {
+                sleepType = SleepType.valueOf(properties.get(SLEEP_TYPE_ARG));
+            } catch (IllegalArgumentException e) {
+                throw new DbException(String.format("Invalid sleep type: %s", sleepTypeString));
+            }
+        }
+
+        if (0 == sleepDurationAsNano) {
+            sleepFun = new SleepFun() {
+                @Override
+                public void sleep(long sleepNs) {
+                    // do nothing
+                }
+            };
+        } else {
+            switch (sleepType) {
+                case THREAD_SLEEP:
+                    sleepFun = new SleepFun() {
+                        @Override
+                        public void sleep(long sleepNs) {
+                            try {
+                                Thread.sleep(sleepNs / 1000000);
+                            } catch (InterruptedException e) {
+                                // do nothing
+                            }
+                        }
+                    };
+                    break;
+                case SPIN:
+                    sleepFun = new SleepFun() {
+                        @Override
+                        public void sleep(long sleepNs) {
+                            long endTimeAsNano = System.nanoTime() + sleepNs;
+                            while (System.nanoTime() < endTimeAsNano) {
+                                // busy wait
+                            }
+                        }
+                    };
+                    break;
+            }
+        }
+
+        properties.put(SLEEP_DURATION_NANO_ARG, Long.toString(sleepDurationAsNano));
+        properties.put(SLEEP_TYPE_ARG, sleepType.name());
+
         registerOperationHandler(LdbcQuery1.class, LdbcQuery1ToNothing.class);
         registerOperationHandler(LdbcQuery2.class, LdbcQuery2ToNothing.class);
         registerOperationHandler(LdbcQuery3.class, LdbcQuery3ToNothing.class);
@@ -64,18 +126,7 @@ public class DummyLdbcSnbInteractiveDb extends Db {
     }
 
     private static void sleep(long sleepNs) {
-        if (sleepNs > 1000000) {
-            try {
-                Thread.sleep(TimeUnit.NANOSECONDS.toMillis(sleepNs));
-            } catch (InterruptedException e) {
-                // do nothing
-            }
-        } else {
-            long endTimeAsNano = System.nanoTime() + sleepNs;
-            while (System.nanoTime() < endTimeAsNano) {
-                // busy wait
-            }
-        }
+        sleepFun.sleep(sleepNs);
     }
 
     public static class LdbcQuery1ToNothing extends OperationHandler<LdbcQuery1, DummyDbConnectionState> {

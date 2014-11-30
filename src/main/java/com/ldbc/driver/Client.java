@@ -253,6 +253,7 @@ public class Client {
             logger.info(String.format("Loaded workload: %s", workload.getClass().getName()));
 
             logger.info(String.format("Retrieving operation stream for workload: %s", workload.getClass().getSimpleName()));
+            controlService.setWorkloadStartTimeAsMilli(System.currentTimeMillis() + TimeUnit.SECONDS.toMillis(2));
             WorkloadStreams timeMappedWorkloadStreams;
             try {
                 timeMappedWorkloadStreams = WorkloadStreams.timeOffsetAndCompressWorkloadStreams(

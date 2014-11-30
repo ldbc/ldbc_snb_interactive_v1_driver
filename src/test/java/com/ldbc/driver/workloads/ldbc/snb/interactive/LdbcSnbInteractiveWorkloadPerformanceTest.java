@@ -41,15 +41,15 @@ public class LdbcSnbInteractiveWorkloadPerformanceTest {
     @Test
     public void ignoreTimesPerformanceTest()
             throws InterruptedException, DbException, WorkloadException, IOException, MetricsCollectionException, CompletionTimeException, DriverConfigurationException {
-        File parentStreamsDir = new File("/Users/alexaverbuch/IdeaProjects/ldbc_snb_workload_interactive_neo4j/ldbc_driver/sample_data/sf30-32/");
-        File paramsDir = new File("/Users/alexaverbuch/IdeaProjects/ldbc_snb_workload_interactive_neo4j/ldbc_driver/sample_data/sf30-32/");
+        File parentStreamsDir = new File("/Users/alexaverbuch/IdeaProjects/ldbc_snb_workload_interactive_neo4j/ldbc_driver/sample_data/sf10-256/");
+        File paramsDir = new File("/Users/alexaverbuch/IdeaProjects/ldbc_snb_workload_interactive_neo4j/ldbc_driver/sample_data/sf10-256/");
         List<File> streamsDirs = Lists.newArrayList(
                 parentStreamsDir
         );
 
         for (File streamDir : streamsDirs) {
-            List<Integer> threadCounts = Lists.newArrayList(1, 2, 4);
-            long operationCount = 100000000;
+            List<Integer> threadCounts = Lists.newArrayList(1);
+            long operationCount = 1000000;
             for (int threadCount : threadCounts) {
                 doIgnoreTimesPerformanceTest(
                         threadCount,
@@ -82,7 +82,8 @@ public class LdbcSnbInteractiveWorkloadPerformanceTest {
             paramsMap.put(LdbcSnbInteractiveConfiguration.PARAMETERS_DIRECTORY, parametersDir);
             paramsMap.put(LdbcSnbInteractiveConfiguration.UPDATES_DIRECTORY, updateStreamsDir);
             paramsMap.put(LdbcSnbInteractiveConfiguration.UPDATE_STREAM_PARSER, LdbcSnbInteractiveConfiguration.UpdateStreamParser.CHAR_SEEKER.name());
-            paramsMap.put(DummyLdbcSnbInteractiveDb.SLEEP_DURATION_NANO_ARG, "0");
+            paramsMap.put(DummyLdbcSnbInteractiveDb.SLEEP_DURATION_NANO_ARG, Long.toString(TimeUnit.MICROSECONDS.toNanos(100)));
+            paramsMap.put(DummyLdbcSnbInteractiveDb.SLEEP_TYPE_ARG, DummyLdbcSnbInteractiveDb.SleepType.SPIN.name());
             // Driver-specific parameters
             String dbClassName = DummyLdbcSnbInteractiveDb.class.getName();
             String workloadClassName = LdbcSnbInteractiveWorkload.class.getName();
@@ -160,15 +161,15 @@ public class LdbcSnbInteractiveWorkloadPerformanceTest {
     @Test
     public void withTimesPerformanceTest()
             throws InterruptedException, DbException, WorkloadException, IOException, MetricsCollectionException, CompletionTimeException, DriverConfigurationException {
-        File parentStreamsDir = new File("/Users/alexaverbuch/IdeaProjects/ldbc_snb_workload_interactive_neo4j/ldbc_driver/sample_data/sf30-32/");
-        File paramsDir = new File("/Users/alexaverbuch/IdeaProjects/ldbc_snb_workload_interactive_neo4j/ldbc_driver/sample_data/sf30-32/");
+        File parentStreamsDir = new File("/Users/alexaverbuch/IdeaProjects/ldbc_snb_workload_interactive_neo4j/ldbc_driver/sample_data/sf10-064/");
+        File paramsDir = new File("/Users/alexaverbuch/IdeaProjects/ldbc_snb_workload_interactive_neo4j/ldbc_driver/sample_data/sf10-064/");
         List<File> streamsDirs = Lists.newArrayList(
                 parentStreamsDir
         );
 
         for (File streamDir : streamsDirs) {
-            List<Integer> threadCounts = Lists.newArrayList(1, 2, 4);
-            long operationCount = 100000000;
+            List<Integer> threadCounts = Lists.newArrayList(1);
+            long operationCount = 10000000;
             for (int threadCount : threadCounts) {
                 doWithTimesPerformanceTest(
                         threadCount,
@@ -202,14 +203,15 @@ public class LdbcSnbInteractiveWorkloadPerformanceTest {
             paramsMap.put(LdbcSnbInteractiveConfiguration.PARAMETERS_DIRECTORY, parametersDir);
             paramsMap.put(LdbcSnbInteractiveConfiguration.UPDATES_DIRECTORY, updateStreamsDir);
             paramsMap.put(LdbcSnbInteractiveConfiguration.UPDATE_STREAM_PARSER, LdbcSnbInteractiveConfiguration.UpdateStreamParser.CHAR_SEEKER.name());
-            paramsMap.put(DummyLdbcSnbInteractiveDb.SLEEP_DURATION_NANO_ARG, "0");
+            paramsMap.put(DummyLdbcSnbInteractiveDb.SLEEP_DURATION_NANO_ARG, Long.toString(TimeUnit.MICROSECONDS.toNanos(100)));
+            paramsMap.put(DummyLdbcSnbInteractiveDb.SLEEP_TYPE_ARG, DummyLdbcSnbInteractiveDb.SleepType.SPIN.name());
             // Driver-specific parameters
             String dbClassName = DummyLdbcSnbInteractiveDb.class.getName();
             String workloadClassName = LdbcSnbInteractiveWorkload.class.getName();
             int statusDisplayInterval = 2;
             TimeUnit timeUnit = TimeUnit.MICROSECONDS;
             String resultDirPath = resultsDir;
-            double timeCompressionRatio = 0.000001;
+            double timeCompressionRatio = 0.00001;
             Set<String> peerIds = new HashSet<>();
             ConsoleAndFileDriverConfiguration.ConsoleAndFileValidationParamOptions validationParams = null;
             String dbValidationFilePath = null;
@@ -245,7 +247,7 @@ public class LdbcSnbInteractiveWorkloadPerformanceTest {
             configuration = (ConsoleAndFileDriverConfiguration) configuration.applyMap(MapUtils.loadPropertiesToMap(new File(updateStreamPropertiesPath)));
 
             // When
-            Client client = new Client(new LocalControlService(timeSource.nowAsMilli() + 3000, configuration), timeSource);
+            Client client = new Client(new LocalControlService(timeSource.nowAsMilli(), configuration), timeSource);
             client.start();
 
             // Then
