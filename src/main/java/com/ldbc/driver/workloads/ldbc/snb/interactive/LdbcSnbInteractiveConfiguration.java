@@ -257,7 +257,17 @@ public class LdbcSnbInteractiveConfiguration {
     }
 
     public static Map<String, String> defaultReadOnlyConfig() throws DriverConfigurationException, IOException {
-        Map<String, String> params = defaultConfig();
+        Map<String, String> params = withoutWrites(defaultConfig());
+        return ConsoleAndFileDriverConfiguration.convertLongKeysToShortKeys(params);
+    }
+
+    public static Map<String, String> defaultWriteOnlyConfig() throws DriverConfigurationException, IOException {
+        Map<String, String> params = withoutReads(defaultConfig());
+        return ConsoleAndFileDriverConfiguration.convertLongKeysToShortKeys(params);
+    }
+
+    public static Map<String, String> withoutWrites(Map<String, String> originalParams) throws DriverConfigurationException, IOException {
+        Map<String, String> params = MapUtils.copyExcludingKeys(originalParams, new HashSet<String>());
         params.put(WRITE_OPERATION_1_ENABLE_KEY, "false");
         params.put(WRITE_OPERATION_2_ENABLE_KEY, "false");
         params.put(WRITE_OPERATION_3_ENABLE_KEY, "false");
@@ -269,8 +279,8 @@ public class LdbcSnbInteractiveConfiguration {
         return ConsoleAndFileDriverConfiguration.convertLongKeysToShortKeys(params);
     }
 
-    public static Map<String, String> defaultWriteOnlyConfig() throws DriverConfigurationException, IOException {
-        Map<String, String> params = defaultConfig();
+    public static Map<String, String> withoutReads(Map<String, String> originalParams) throws DriverConfigurationException, IOException {
+        Map<String, String> params = MapUtils.copyExcludingKeys(originalParams, new HashSet<String>());
         params.put(READ_OPERATION_1_ENABLE_KEY, "false");
         params.put(READ_OPERATION_2_ENABLE_KEY, "false");
         params.put(READ_OPERATION_3_ENABLE_KEY, "false");
@@ -287,6 +297,7 @@ public class LdbcSnbInteractiveConfiguration {
         params.put(READ_OPERATION_14_ENABLE_KEY, "false");
         return ConsoleAndFileDriverConfiguration.convertLongKeysToShortKeys(params);
     }
+
 
     static String removeSuffix(String original, String suffix) {
         return (original.indexOf(suffix) == -1) ? original : original.substring(0, original.lastIndexOf(suffix));
