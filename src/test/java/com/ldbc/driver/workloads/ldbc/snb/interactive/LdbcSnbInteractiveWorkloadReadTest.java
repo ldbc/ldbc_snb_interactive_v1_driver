@@ -37,21 +37,13 @@ public class LdbcSnbInteractiveWorkloadReadTest {
     TemporalUtil temporalUtil = new TemporalUtil();
     TimeSource timeSource = new SystemTimeSource();
 
-    static Map<String, String> defaultSnbParamsMapWithParametersDir() {
-        Map<String, String> additionalParams = new HashMap<>();
-        additionalParams.put(LdbcSnbInteractiveConfiguration.PARAMETERS_DIRECTORY, TestUtils.getResource("/").getAbsolutePath());
-        return MapUtils.mergeMaps(
-                LdbcSnbInteractiveConfiguration.defaultReadOnlyConfig(),
-                ConsoleAndFileDriverConfiguration.convertLongKeysToShortKeys(additionalParams),
-                true);
-    }
-
     @Test
-    public void shouldGenerateManyElementsInReasonableTime() throws WorkloadException, IOException {
+    public void shouldGenerateManyElementsInReasonableTime() throws WorkloadException, IOException, DriverConfigurationException {
         // Given
         long MANY_ELEMENTS_COUNT = 1000000;
 
-        Map<String, String> paramsMap = defaultSnbParamsMapWithParametersDir();
+        Map<String, String> paramsMap = LdbcSnbInteractiveConfiguration.defaultReadOnlyConfig();
+        paramsMap.put(LdbcSnbInteractiveConfiguration.PARAMETERS_DIRECTORY, TestUtils.getResource("/").getAbsolutePath());
         // LDBC Interactive Workload-specific parameters
         paramsMap.put(LdbcSnbInteractiveConfiguration.UPDATES_DIRECTORY, TestUtils.getResource("/").getAbsolutePath());
         // Driver-specific parameters
@@ -162,7 +154,7 @@ public class LdbcSnbInteractiveWorkloadReadTest {
     }
 
     @Test
-    public void shouldCreateValidationParametersThenUseThemToPerformDatabaseValidationThenPass() throws ClientException, IOException {
+    public void shouldCreateValidationParametersThenUseThemToPerformDatabaseValidationThenPass() throws ClientException, IOException, DriverConfigurationException {
         // **************************************************
         // where validation parameters should be written (ensure file does not yet exist)
         // **************************************************
@@ -172,7 +164,8 @@ public class LdbcSnbInteractiveWorkloadReadTest {
         // **************************************************
         // configuration for generating validation parameters
         // **************************************************
-        Map<String, String> paramsMap = defaultSnbParamsMapWithParametersDir();
+        Map<String, String> paramsMap = LdbcSnbInteractiveConfiguration.defaultReadOnlyConfig();
+        paramsMap.put(LdbcSnbInteractiveConfiguration.PARAMETERS_DIRECTORY, TestUtils.getResource("/").getAbsolutePath());
         // DummyDb-specific parameters
         paramsMap.put(DummyLdbcSnbInteractiveDb.SLEEP_DURATION_NANO_ARG, Long.toString(TimeUnit.MILLISECONDS.toNanos(1)));
         paramsMap.put(DummyLdbcSnbInteractiveDb.SLEEP_TYPE_ARG, DummyLdbcSnbInteractiveDb.SleepType.SPIN.name());
@@ -281,9 +274,10 @@ public class LdbcSnbInteractiveWorkloadReadTest {
     }
 
     @Test
-    public void shouldPassWorkloadValidation() throws ClientException {
+    public void shouldPassWorkloadValidation() throws ClientException, DriverConfigurationException, IOException {
         // Given
-        Map<String, String> paramsMap = defaultSnbParamsMapWithParametersDir();
+        Map<String, String> paramsMap = LdbcSnbInteractiveConfiguration.defaultReadOnlyConfig();
+        paramsMap.put(LdbcSnbInteractiveConfiguration.PARAMETERS_DIRECTORY, TestUtils.getResource("/").getAbsolutePath());
         // DummyDb-specific parameters
         paramsMap.put(DummyLdbcSnbInteractiveDb.SLEEP_DURATION_NANO_ARG, Long.toString(TimeUnit.MILLISECONDS.toNanos(1)));
         paramsMap.put(DummyLdbcSnbInteractiveDb.SLEEP_TYPE_ARG, DummyLdbcSnbInteractiveDb.SleepType.SPIN.name());
@@ -343,7 +337,8 @@ public class LdbcSnbInteractiveWorkloadReadTest {
     @Test
     public void shouldBeRepeatableWhenTwoIdenticalWorkloadsAreUsedWithIdenticalGeneratorFactories() throws ClientException, DriverConfigurationException, WorkloadException, IOException {
         // Given
-        Map<String, String> paramsMap = defaultSnbParamsMapWithParametersDir();
+        Map<String, String> paramsMap = LdbcSnbInteractiveConfiguration.defaultReadOnlyConfig();
+        paramsMap.put(LdbcSnbInteractiveConfiguration.PARAMETERS_DIRECTORY, TestUtils.getResource("/").getAbsolutePath());
         // LDBC Interactive Workload-specific parameters
         paramsMap.put(LdbcSnbInteractiveConfiguration.UPDATES_DIRECTORY, TestUtils.getResource("/").getAbsolutePath());
         // DummyDb-specific parameters
@@ -444,8 +439,10 @@ public class LdbcSnbInteractiveWorkloadReadTest {
         ldbcDriverProperties.load(new FileInputStream(ldbcDriverPropertiesPath));
 
         Map<String, String> ldbcDriverParams = ConsoleAndFileDriverConfiguration.convertLongKeysToShortKeys(MapUtils.<String, String>propertiesToMap(ldbcDriverProperties));
+        Map<String, String> ldbcSnbParams = LdbcSnbInteractiveConfiguration.defaultReadOnlyConfig();
+        ldbcSnbParams.put(LdbcSnbInteractiveConfiguration.PARAMETERS_DIRECTORY, TestUtils.getResource("/").getAbsolutePath());
 
-        Map<String, String> baseParams = MapUtils.mergeMaps(ldbcDriverParams, defaultSnbParamsMapWithParametersDir(), true);
+        Map<String, String> baseParams = MapUtils.mergeMaps(ldbcDriverParams, ldbcSnbParams, true);
 
         Map<String, String> changedQueryMixParams = new HashMap<>();
         changedQueryMixParams.put(ConsoleAndFileDriverConfiguration.OPERATION_COUNT_ARG, "10000");
@@ -572,7 +569,8 @@ public class LdbcSnbInteractiveWorkloadReadTest {
 
     @Test
     public void shouldAssignMonotonicallyIncreasingScheduledStartTimesToOperations() throws WorkloadException, IOException, DriverConfigurationException, InterruptedException {
-        Map<String, String> paramsMap = defaultSnbParamsMapWithParametersDir();
+        Map<String, String> paramsMap = LdbcSnbInteractiveConfiguration.defaultReadOnlyConfig();
+        paramsMap.put(LdbcSnbInteractiveConfiguration.PARAMETERS_DIRECTORY, TestUtils.getResource("/").getAbsolutePath());
         // Driver-specific parameters
         String name = null;
         String dbClassName = DummyLdbcSnbInteractiveDb.class.getName();

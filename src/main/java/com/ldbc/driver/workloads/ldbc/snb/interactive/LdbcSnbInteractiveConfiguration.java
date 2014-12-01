@@ -3,9 +3,13 @@ package com.ldbc.driver.workloads.ldbc.snb.interactive;
 import com.google.common.collect.Lists;
 import com.ldbc.driver.WorkloadException;
 import com.ldbc.driver.control.ConsoleAndFileDriverConfiguration;
+import com.ldbc.driver.control.DriverConfigurationException;
+import com.ldbc.driver.control.DriverConfigurationFileHelper;
+import com.ldbc.driver.util.MapUtils;
 
 import java.io.File;
 import java.io.FilenameFilter;
+import java.io.IOException;
 import java.util.*;
 
 public class LdbcSnbInteractiveConfiguration {
@@ -244,54 +248,15 @@ public class LdbcSnbInteractiveConfiguration {
         return params;
     }
 
-    public static Map<String, String> defaultConfig() {
-        Map<String, String> params = new HashMap<>();
-        // General Driver parameters
-        params.put(ConsoleAndFileDriverConfiguration.OPERATION_COUNT_ARG, "1000");
-        params.put(ConsoleAndFileDriverConfiguration.WORKLOAD_ARG, LdbcSnbInteractiveWorkload.class.getName());
-        // LDBC Interactive Workload-specific parameters
-        // reads: set frequency
-        params.put(READ_OPERATION_1_FREQUENCY_KEY, "205");
-        params.put(READ_OPERATION_2_FREQUENCY_KEY, "406");
-        params.put(READ_OPERATION_3_FREQUENCY_KEY, "42");
-        params.put(READ_OPERATION_4_FREQUENCY_KEY, "6271");
-        params.put(READ_OPERATION_5_FREQUENCY_KEY, "179");
-        params.put(READ_OPERATION_6_FREQUENCY_KEY, "18");
-        params.put(READ_OPERATION_7_FREQUENCY_KEY, "9235");
-        params.put(READ_OPERATION_8_FREQUENCY_KEY, "30445");
-        params.put(READ_OPERATION_9_FREQUENCY_KEY, "19");
-        params.put(READ_OPERATION_10_FREQUENCY_KEY, "45");
-        params.put(READ_OPERATION_11_FREQUENCY_KEY, "3069");
-        params.put(READ_OPERATION_12_FREQUENCY_KEY, "155");
-        params.put(READ_OPERATION_13_FREQUENCY_KEY, "204");
-        params.put(READ_OPERATION_14_FREQUENCY_KEY, "109");
-        params.put(READ_OPERATION_1_ENABLE_KEY, "true");
-        params.put(READ_OPERATION_2_ENABLE_KEY, "true");
-        params.put(READ_OPERATION_3_ENABLE_KEY, "true");
-        params.put(READ_OPERATION_4_ENABLE_KEY, "true");
-        params.put(READ_OPERATION_5_ENABLE_KEY, "true");
-        params.put(READ_OPERATION_6_ENABLE_KEY, "true");
-        params.put(READ_OPERATION_7_ENABLE_KEY, "true");
-        params.put(READ_OPERATION_8_ENABLE_KEY, "true");
-        params.put(READ_OPERATION_9_ENABLE_KEY, "true");
-        params.put(READ_OPERATION_10_ENABLE_KEY, "true");
-        params.put(READ_OPERATION_11_ENABLE_KEY, "true");
-        params.put(READ_OPERATION_12_ENABLE_KEY, "true");
-        params.put(READ_OPERATION_13_ENABLE_KEY, "true");
-        params.put(READ_OPERATION_14_ENABLE_KEY, "true");
-        // writes
-        params.put(WRITE_OPERATION_1_ENABLE_KEY, "true");
-        params.put(WRITE_OPERATION_2_ENABLE_KEY, "true");
-        params.put(WRITE_OPERATION_3_ENABLE_KEY, "true");
-        params.put(WRITE_OPERATION_4_ENABLE_KEY, "true");
-        params.put(WRITE_OPERATION_5_ENABLE_KEY, "true");
-        params.put(WRITE_OPERATION_6_ENABLE_KEY, "true");
-        params.put(WRITE_OPERATION_7_ENABLE_KEY, "true");
-        params.put(WRITE_OPERATION_8_ENABLE_KEY, "true");
-        return ConsoleAndFileDriverConfiguration.convertLongKeysToShortKeys(params);
+    public static Map<String, String> defaultConfig() throws DriverConfigurationException, IOException {
+        return ConsoleAndFileDriverConfiguration.convertLongKeysToShortKeys(
+                MapUtils.loadPropertiesToMap(
+                        new File(DriverConfigurationFileHelper.getWorkloadsDirectory(), "ldbc/snb/interactive/ldbc_snb_interactive.properties")
+                )
+        );
     }
 
-    public static Map<String, String> defaultReadOnlyConfig() {
+    public static Map<String, String> defaultReadOnlyConfig() throws DriverConfigurationException, IOException {
         Map<String, String> params = defaultConfig();
         params.put(WRITE_OPERATION_1_ENABLE_KEY, "false");
         params.put(WRITE_OPERATION_2_ENABLE_KEY, "false");
@@ -304,7 +269,7 @@ public class LdbcSnbInteractiveConfiguration {
         return ConsoleAndFileDriverConfiguration.convertLongKeysToShortKeys(params);
     }
 
-    public static Map<String, String> defaultWriteOnlyConfig() {
+    public static Map<String, String> defaultWriteOnlyConfig() throws DriverConfigurationException, IOException {
         Map<String, String> params = defaultConfig();
         params.put(READ_OPERATION_1_ENABLE_KEY, "false");
         params.put(READ_OPERATION_2_ENABLE_KEY, "false");
