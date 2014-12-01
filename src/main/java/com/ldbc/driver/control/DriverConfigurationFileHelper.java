@@ -79,7 +79,8 @@ public class DriverConfigurationFileHelper {
     }
 
     public static File getWorkloadsDirectory() throws DriverConfigurationException {
-        File workloadsDirectory = new File(getDriverRootDirectory(), "workloads");
+        File rootDirectory = getDriverRootDirectory();
+        File workloadsDirectory = new File(rootDirectory, "workloads");
         if (false == workloadsDirectory.exists()) {
             throw new DriverConfigurationException("Directory does not exist: " + workloadsDirectory.getAbsolutePath());
         }
@@ -97,11 +98,8 @@ public class DriverConfigurationFileHelper {
     }
 
     private static File getDriverRootDirectory() {
-        File targetDirectory = FileUtils.toFile(DriverConfigurationFileHelper.class.getResource("/"));
-        while (false == "target".equals(targetDirectory.getName())) {
-            targetDirectory = targetDirectory.getParentFile();
-        }
-        // root is one step up from "target/"
+        File resourcesDirectory = FileUtils.toFile(DriverConfigurationFileHelper.class.getResource("/"));
+        File targetDirectory = resourcesDirectory.getParentFile();
         return targetDirectory.getParentFile();
     }
 
