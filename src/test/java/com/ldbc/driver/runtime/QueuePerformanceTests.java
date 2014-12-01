@@ -3,13 +3,13 @@ package com.ldbc.driver.runtime;
 import com.ldbc.driver.*;
 import com.ldbc.driver.control.ConsoleAndFileDriverConfiguration;
 import com.ldbc.driver.control.DriverConfiguration;
+import com.ldbc.driver.control.DriverConfigurationException;
 import com.ldbc.driver.generator.GeneratorFactory;
 import com.ldbc.driver.generator.RandomDataGeneratorFactory;
 import com.ldbc.driver.temporal.SystemTimeSource;
 import com.ldbc.driver.temporal.TemporalUtil;
 import com.ldbc.driver.temporal.TimeSource;
 import com.ldbc.driver.testutils.TestUtils;
-import com.ldbc.driver.util.MapUtils;
 import com.ldbc.driver.util.Tuple;
 import com.ldbc.driver.workloads.ldbc.snb.interactive.LdbcSnbInteractiveConfiguration;
 import com.ldbc.driver.workloads.ldbc.snb.interactive.LdbcSnbInteractiveWorkload;
@@ -29,15 +29,6 @@ import static org.junit.Assert.assertThat;
 public class QueuePerformanceTests {
     private static final TemporalUtil TEMPORAL_UTIL = new TemporalUtil();
 
-    static Map<String, String> defaultSnbParamsMapWithParametersDir() {
-        Map<String, String> additionalParams = new HashMap<>();
-        additionalParams.put(LdbcSnbInteractiveConfiguration.PARAMETERS_DIRECTORY, TestUtils.getResource("/").getAbsolutePath());
-        return MapUtils.mergeMaps(
-                LdbcSnbInteractiveConfiguration.defaultReadOnlyConfig(),
-                ConsoleAndFileDriverConfiguration.convertLongKeysToShortKeys(additionalParams),
-                true);
-    }
-
     final Operation<?> TERMINATE_OPERATION = new Operation<Object>() {
         @Override
         public Object marshalResult(String serializedOperationResult) throws SerializingMarshallingException {
@@ -54,9 +45,10 @@ public class QueuePerformanceTests {
     final TimeSource timeSource = new SystemTimeSource();
 
     @Test
-    public void operationQueuePerformanceTest() throws WorkloadException, InterruptedException, IOException {
+    public void operationQueuePerformanceTest() throws WorkloadException, InterruptedException, IOException, DriverConfigurationException {
         // Given
-        Map<String, String> paramsMap = defaultSnbParamsMapWithParametersDir();
+        Map<String, String> paramsMap = LdbcSnbInteractiveConfiguration.defaultReadOnlyConfig();
+        paramsMap.put(LdbcSnbInteractiveConfiguration.PARAMETERS_DIRECTORY, TestUtils.getResource("/").getAbsolutePath());
         // LDBC Interactive Workload-specific parameters
         // Driver-specific parameters
         String name = null;
