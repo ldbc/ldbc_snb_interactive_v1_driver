@@ -4,6 +4,7 @@ import com.google.common.base.Function;
 import com.google.common.base.Predicate;
 import com.google.common.collect.*;
 import com.ldbc.driver.*;
+import com.ldbc.driver.csv.*;
 import com.ldbc.driver.generator.CsvEventStreamReaderBasicCharSeeker;
 import com.ldbc.driver.generator.GeneratorFactory;
 import com.ldbc.driver.temporal.TemporalUtil;
@@ -13,7 +14,6 @@ import com.ldbc.driver.util.Tuple;
 import com.ldbc.driver.util.csv.SimpleCsvFileReader;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.type.TypeReference;
-import org.neo4j.csv.reader.*;
 
 import java.io.*;
 import java.util.*;
