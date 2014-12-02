@@ -2,12 +2,12 @@ package com.ldbc.driver.workloads.ldbc.snb.interactive;
 
 import com.google.common.collect.Lists;
 import com.ldbc.driver.Operation;
+import com.ldbc.driver.csv.BufferedCharSeeker;
+import com.ldbc.driver.csv.CharSeeker;
+import com.ldbc.driver.csv.Extractors;
+import com.ldbc.driver.csv.Readables;
 import com.ldbc.driver.util.csv.SimpleCsvFileReader;
 import org.junit.Test;
-import org.neo4j.csv.reader.BufferedCharSeeker;
-import org.neo4j.csv.reader.CharSeeker;
-import org.neo4j.csv.reader.Extractors;
-import org.neo4j.csv.reader.Readables;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -22,6 +22,7 @@ import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
 
 public class WriteEventStreamReaderTest {
+
     @Test
     public void shouldParseAllEventTypesWithWriteEventStreamReaderRegex_DATE() throws IOException, ParseException {
         String data = WriteEventStreamReaderTestData.ROWS_FOR_ALL_EVENT_TYPES;

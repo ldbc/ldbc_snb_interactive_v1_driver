@@ -1,9 +1,9 @@
 package com.ldbc.driver.workloads.ldbc.snb.interactive;
 
 import com.ldbc.driver.Operation;
+import com.ldbc.driver.csv.*;
 import com.ldbc.driver.generator.CsvEventStreamReaderBasicCharSeeker;
 import org.junit.Test;
-import org.neo4j.csv.reader.*;
 
 import java.io.IOException;
 import java.io.StringReader;

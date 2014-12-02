@@ -1,14 +1,13 @@
 package com.ldbc.driver.generator;
 
-import org.neo4j.csv.reader.CharSeeker;
-import org.neo4j.csv.reader.Extractors;
-import org.neo4j.csv.reader.Mark;
+import com.ldbc.driver.csv.CharSeeker;
+import com.ldbc.driver.csv.Extractors;
+import com.ldbc.driver.csv.Mark;
 
 import java.io.IOException;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.NoSuchElementException;
-
 
 public class CsvEventStreamReaderTimedTypedCharSeeker<BASE_EVENT_TYPE> implements Iterator<BASE_EVENT_TYPE> {
     private final Map<Integer, EventDecoder<BASE_EVENT_TYPE>> decoders;

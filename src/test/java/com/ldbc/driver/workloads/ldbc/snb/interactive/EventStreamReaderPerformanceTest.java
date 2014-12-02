@@ -3,6 +3,7 @@ package com.ldbc.driver.workloads.ldbc.snb.interactive;
 import com.google.common.base.Charsets;
 import com.google.common.collect.Lists;
 import com.ldbc.driver.Operation;
+import com.ldbc.driver.csv.*;
 import com.ldbc.driver.generator.CsvEventStreamReaderBasicCharSeeker;
 import com.ldbc.driver.generator.CsvEventStreamReaderBasicCharSeeker.EventDecoder;
 import com.ldbc.driver.generator.GeneratorFactory;
@@ -16,7 +17,6 @@ import com.ldbc.driver.util.Tuple;
 import com.ldbc.driver.util.csv.SimpleCsvFileReader;
 import org.junit.Ignore;
 import org.junit.Test;
-import org.neo4j.csv.reader.*;
 
 import java.io.*;
 import java.text.DecimalFormat;
