@@ -11,7 +11,6 @@ import com.ldbc.driver.runtime.scheduling.GctDependencyCheck;
 import com.ldbc.driver.runtime.scheduling.Spinner;
 import com.ldbc.driver.temporal.TimeSource;
 
-import java.util.HashSet;
 import java.util.Set;
 
 // TODO test
@@ -43,9 +42,7 @@ class OperationHandlerRunnableContextRetriever {
         this.errorReporter = errorReporter;
         this.metricsService = metricsService;
         this.dependentOperationTypes = streamDefinition.dependentOperationTypes();
-        // TODO
-//        this.dependencyOperationTypes = streamDefinition.dependencyOperationTypes();
-        this.dependencyOperationTypes = new HashSet<>();
+        this.dependencyOperationTypes = streamDefinition.dependencyOperationTypes();
     }
 
     public OperationHandlerRunnableContext getInitializedHandlerFor(Operation operation) throws OperationHandlerExecutorException, CompletionTimeException, DbException {

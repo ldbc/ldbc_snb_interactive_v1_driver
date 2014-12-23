@@ -4,7 +4,6 @@ import com.google.common.collect.Iterators;
 import com.google.common.collect.PeekingIterator;
 import com.ldbc.driver.control.DriverConfiguration;
 import com.ldbc.driver.generator.GeneratorFactory;
-import com.ldbc.driver.generator.ThreadAheadGenerator;
 import com.ldbc.driver.util.Tuple;
 import com.ldbc.driver.validation.ClassNameWorkloadFactory;
 import com.ldbc.driver.validation.WorkloadFactory;
@@ -128,6 +127,7 @@ public class WorkloadStreams {
 
         timeOffsetAndCompressedWorkloadStreams.setAsynchronousStream(
                 originalWorkloadStreams.asynchronousStream().dependentOperationTypes(),
+                originalWorkloadStreams.asynchronousStream().dependencyOperationTypes(),
                 gf.timeOffsetAndCompress(
                         peekingAsyncDependencyOperationStream,
                         newStartTimeAsMilli + peekingAsyncDependencyOperationStreamAheadOfMinByAsMilli,
@@ -143,6 +143,7 @@ public class WorkloadStreams {
         for (int i = 0; i < blockingStreams.size(); i++) {
             timeOffsetAndCompressedWorkloadStreams.addBlockingStream(
                     blockingStreams.get(i).dependentOperationTypes(),
+                    blockingStreams.get(i).dependencyOperationTypes(),
                     gf.timeOffsetAndCompress(
                             peekingBlockingDependencyOperationStreams.get(i),
                             newStartTimeAsMilli + peekingBlockingDependencyOperationStreamsAheadOfMinByMillis.get(i),
@@ -195,6 +196,7 @@ public class WorkloadStreams {
         // copy unbounded streams to new workload streams instance, applying limits we just computed
         workloadStreams.setAsynchronousStream(
                 unlimitedWorkloadStreams.asynchronousStream().dependentOperationTypes(),
+                unlimitedWorkloadStreams.asynchronousStream().dependencyOperationTypes(),
                 gf.limit(unlimitedWorkloadStreams.asynchronousStream().dependencyOperations(), limitForStream[0]),
                 gf.limit(unlimitedWorkloadStreams.asynchronousStream().nonDependencyOperations(), limitForStream[1])
         );
@@ -202,6 +204,7 @@ public class WorkloadStreams {
         for (int i = 0; i < blockingStreams.size(); i++) {
             workloadStreams.addBlockingStream(
                     blockingStreams.get(i).dependentOperationTypes(),
+                    blockingStreams.get(i).dependencyOperationTypes(),
                     gf.limit(blockingStreams.get(i).dependencyOperations(), limitForStream[i * 2 + 2]),
                     gf.limit(blockingStreams.get(i).nonDependencyOperations(), limitForStream[i * 2 + 3])
             );
@@ -326,20 +329,25 @@ public class WorkloadStreams {
 
     public WorkloadStreamDefinition asynchronousStream() {
         return (null != asynchronousStream)
-                ?
-                asynchronousStream
-                :
-                new WorkloadStreamDefinition(
-                        new HashSet<Class<? extends Operation<?>>>(),
-                        Collections.<Operation<?>>emptyIterator(),
-                        Collections.<Operation<?>>emptyIterator()
-                );
+                ? asynchronousStream
+                : new WorkloadStreamDefinition(
+                new HashSet<Class<? extends Operation<?>>>(),
+                new HashSet<Class<? extends Operation<?>>>(),
+                Collections.<Operation<?>>emptyIterator(),
+                Collections.<Operation<?>>emptyIterator()
+        );
     }
 
     public void setAsynchronousStream(Set<Class<? extends Operation<?>>> dependentOperationTypes,
+                                      Set<Class<? extends Operation<?>>> nonDependentOperationTypes,
                                       Iterator<Operation<?>> dependencyOperations,
                                       Iterator<Operation<?>> nonDependencyOperations) {
-        this.asynchronousStream = new WorkloadStreamDefinition(dependentOperationTypes, dependencyOperations, nonDependencyOperations);
+        this.asynchronousStream = new WorkloadStreamDefinition(
+                dependentOperationTypes,
+                nonDependentOperationTypes,
+                dependencyOperations,
+                nonDependencyOperations
+        );
     }
 
     public List<WorkloadStreamDefinition> blockingStreamDefinitions() {
@@ -347,9 +355,15 @@ public class WorkloadStreams {
     }
 
     public void addBlockingStream(Set<Class<? extends Operation<?>>> dependentOperationTypes,
+                                  Set<Class<? extends Operation<?>>> nonDependentOperationTypes,
                                   Iterator<Operation<?>> dependencyOperations,
                                   Iterator<Operation<?>> nonDependencyOperations) {
-        WorkloadStreamDefinition blockingStream = new WorkloadStreamDefinition(dependentOperationTypes, dependencyOperations, nonDependencyOperations);
+        WorkloadStreamDefinition blockingStream = new WorkloadStreamDefinition(
+                dependentOperationTypes,
+                nonDependentOperationTypes,
+                dependencyOperations,
+                nonDependencyOperations
+        );
         this.blockingStreams.add(blockingStream);
     }
 
@@ -367,13 +381,16 @@ public class WorkloadStreams {
 
     public static class WorkloadStreamDefinition {
         private final Set<Class<? extends Operation<?>>> dependentOperationTypes;
+        private final Set<Class<? extends Operation<?>>> dependencyOperationTypes;
         private final Iterator<Operation<?>> dependencyOperations;
         private final Iterator<Operation<?>> nonDependencyOperations;
 
         public WorkloadStreamDefinition(Set<Class<? extends Operation<?>>> dependentOperationTypes,
+                                        Set<Class<? extends Operation<?>>> dependencyOperationTypes,
                                         Iterator<Operation<?>> dependencyOperations,
                                         Iterator<Operation<?>> nonDependencyOperations) {
             this.dependentOperationTypes = dependentOperationTypes;
+            this.dependencyOperationTypes = dependencyOperationTypes;
             this.dependencyOperations = dependencyOperations;
             this.nonDependencyOperations = nonDependencyOperations;
         }
@@ -388,6 +405,10 @@ public class WorkloadStreams {
 
         public Set<Class<? extends Operation<?>>> dependentOperationTypes() {
             return (null != dependentOperationTypes) ? dependentOperationTypes : new HashSet<Class<? extends Operation<?>>>();
+        }
+
+        public Set<Class<? extends Operation<?>>> dependencyOperationTypes() {
+            return (null != dependencyOperationTypes) ? dependencyOperationTypes : new HashSet<Class<? extends Operation<?>>>();
         }
     }
 }

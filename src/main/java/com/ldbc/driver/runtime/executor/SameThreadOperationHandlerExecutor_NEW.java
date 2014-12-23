@@ -46,17 +46,17 @@ public class SameThreadOperationHandlerExecutor_NEW implements OperationExecutor
             operationHandlerRunnableContext.run();
             if (null != childOperationGenerator) {
                 OperationResultReport resultReport = operationHandlerRunnableContext.operationResultReport();
+                operationHandlerRunnableContext.cleanup();
                 double state = childOperationGenerator.initialState();
                 while (childOperationGenerator.hasNext(state)) {
                     Operation childOperation = childOperationGenerator.nextOperation(resultReport);
                     OperationHandlerRunnableContext childOperationHandlerRunnableContext =
                             operationHandlerRunnableContextInitializer.getInitializedHandlerFor(childOperation);
                     childOperationHandlerRunnableContext.run();
-                    state = childOperationGenerator.updateState(state);
                     resultReport = childOperationHandlerRunnableContext.operationResultReport();
                     childOperationHandlerRunnableContext.cleanup();
+                    state = childOperationGenerator.updateState(state);
                 }
-                operationHandlerRunnableContext.cleanup();
             }
         } catch (Throwable e) {
             throw new OperationHandlerExecutorException(
