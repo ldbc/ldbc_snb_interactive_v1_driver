@@ -264,6 +264,7 @@ public class LdbcSnbInteractiveWorkload extends Workload {
         List<Iterator<?>> asynchronousDependencyStreamsList = new ArrayList<>();
         List<Iterator<?>> asynchronousNonDependencyStreamsList = new ArrayList<>();
         Set<Class<? extends Operation<?>>> dependentAsynchronousOperationTypes = Sets.newHashSet();
+        Set<Class<? extends Operation<?>>> dependencyAsynchronousOperationTypes = Sets.newHashSet();
 
         /* *******
          * *******
@@ -304,11 +305,14 @@ public class LdbcSnbInteractiveWorkload extends Workload {
             };
             Iterator<Operation<?>> filteredPersonUpdateOperations = Iterators.filter(unfilteredPersonUpdateOperations, enabledWriteOperationsFilter);
 
-            Set<Class<? extends Operation<?>>> dependentPersonUpdateOperationTypes = Sets.<Class<? extends Operation<?>>>newHashSet(
+            Set<Class<? extends Operation<?>>> dependentPersonUpdateOperationTypes = Sets.newHashSet();
+            Set<Class<? extends Operation<?>>> dependencyPersonUpdateOperationTypes = Sets.<Class<? extends Operation<?>>>newHashSet(
+                    LdbcUpdate1AddPerson.class
             );
 
             ldbcSnbInteractiveWorkloadStreams.addBlockingStream(
                     dependentPersonUpdateOperationTypes,
+                    dependencyPersonUpdateOperationTypes,
                     filteredPersonUpdateOperations,
                     Collections.<Operation<?>>emptyIterator()
             );
@@ -354,9 +358,11 @@ public class LdbcSnbInteractiveWorkload extends Workload {
                     LdbcUpdate7AddComment.class,
                     LdbcUpdate8AddFriendship.class
             );
+            Set<Class<? extends Operation<?>>> dependencyForumUpdateOperationTypes = Sets.newHashSet();
 
             ldbcSnbInteractiveWorkloadStreams.addBlockingStream(
                     dependentForumUpdateOperationTypes,
+                    dependencyForumUpdateOperationTypes,
                     Collections.<Operation<?>>emptyIterator(),
                     filteredForumUpdateOperations
             );
@@ -1008,6 +1014,7 @@ public class LdbcSnbInteractiveWorkload extends Workload {
 
         ldbcSnbInteractiveWorkloadStreams.setAsynchronousStream(
                 dependentAsynchronousOperationTypes,
+                dependencyAsynchronousOperationTypes,
                 asynchronousDependencyStreams,
                 asynchronousNonDependencyStreams
         );

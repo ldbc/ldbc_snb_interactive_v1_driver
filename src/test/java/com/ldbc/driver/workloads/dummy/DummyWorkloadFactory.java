@@ -40,8 +40,9 @@ public class DummyWorkloadFactory implements WorkloadFactory {
             asynchronousNonDependencyOperationsToReturn.add(alternativeLastOperations.next());
             workloadStreams.setAsynchronousStream(
                     workloadStreams.asynchronousStream().dependentOperationTypes(),
-                    asynchronousNonDependencyOperationsToReturn.iterator(),
-                    workloadStreams.asynchronousStream().nonDependencyOperations()
+                    workloadStreams.asynchronousStream().dependencyOperationTypes(),
+                    workloadStreams.asynchronousStream().dependencyOperations(),
+                    asynchronousNonDependencyOperationsToReturn.iterator()
             );
         }
         return new DummyWorkload(workloadStreams, maxExpectedInterleaveAsMilli);

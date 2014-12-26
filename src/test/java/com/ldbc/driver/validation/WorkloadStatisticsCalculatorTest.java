@@ -50,6 +50,7 @@ public class WorkloadStatisticsCalculatorTest {
         WorkloadStreams workloadStreams = new WorkloadStreams();
         workloadStreams.setAsynchronousStream(
                 Sets.<Class<? extends Operation<?>>>newHashSet(),
+                Sets.<Class<? extends Operation<?>>>newHashSet(),
                 Collections.<Operation<?>>emptyIterator(),
                 operations
         );
@@ -156,6 +157,7 @@ public class WorkloadStatisticsCalculatorTest {
         );
         workloadStreams.setAsynchronousStream(
                 dependentOperations,
+                Sets.<Class<? extends Operation<?>>>newHashSet(TimedNamedOperation3.class),
                 operation3Stream,
                 gf.mergeSortOperationsByTimeStamp(operation1Stream, operation2Stream)
         );

@@ -123,6 +123,7 @@ public class OperationStreamExecutorPerformanceTest {
 
                 WorkloadStreams.WorkloadStreamDefinition streamDefinition = new WorkloadStreams.WorkloadStreamDefinition(
                         new HashSet<Class<? extends Operation<?>>>(),
+                        new HashSet<Class<? extends Operation<?>>>(),
                         Collections.<Operation<?>>emptyIterator(),
                         operations.iterator()
                 );
@@ -165,6 +166,7 @@ public class OperationStreamExecutorPerformanceTest {
 
                 WorkloadStreams.WorkloadStreamDefinition streamDefinition = new WorkloadStreams.WorkloadStreamDefinition(
                         new HashSet<Class<? extends Operation<?>>>(),
+                        new HashSet<Class<? extends Operation<?>>>(),
                         Collections.<Operation<?>>emptyIterator(),
                         operations.iterator()
                 );
@@ -206,6 +208,7 @@ public class OperationStreamExecutorPerformanceTest {
                 timeSource.setNowFromMilli(0);
 
                 WorkloadStreams.WorkloadStreamDefinition streamDefinition = new WorkloadStreams.WorkloadStreamDefinition(
+                        new HashSet<Class<? extends Operation<?>>>(),
                         new HashSet<Class<? extends Operation<?>>>(),
                         Collections.<Operation<?>>emptyIterator(),
                         operations.iterator()

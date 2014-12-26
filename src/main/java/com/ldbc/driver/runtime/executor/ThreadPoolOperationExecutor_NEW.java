@@ -14,23 +14,23 @@ import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicLong;
 
-public class ThreadPoolOperationHandlerExecutor_NEW implements OperationExecutor_NEW {
+public class ThreadPoolOperationExecutor_NEW implements OperationExecutor_NEW {
     private final ExecutorService threadPoolExecutorService;
     private final AtomicLong uncompletedHandlers = new AtomicLong(0);
     private final AtomicBoolean shutdown = new AtomicBoolean(false);
     private final OperationHandlerRunnableContextRetriever operationHandlerRunnableContextRetriever;
 
-    public ThreadPoolOperationHandlerExecutor_NEW(int threadCount,
-                                                  int boundedQueueSize,
-                                                  Db db,
-                                                  WorkloadStreams.WorkloadStreamDefinition streamDefinition,
-                                                  LocalCompletionTimeWriter localCompletionTimeWriter,
-                                                  GlobalCompletionTimeReader globalCompletionTimeReader,
-                                                  Spinner spinner,
-                                                  TimeSource timeSource,
-                                                  ConcurrentErrorReporter errorReporter,
-                                                  ConcurrentMetricsService metricsService,
-                                                  ChildOperationGenerator childOperationGenerator) {
+    public ThreadPoolOperationExecutor_NEW(int threadCount,
+                                           int boundedQueueSize,
+                                           Db db,
+                                           WorkloadStreams.WorkloadStreamDefinition streamDefinition,
+                                           LocalCompletionTimeWriter localCompletionTimeWriter,
+                                           GlobalCompletionTimeReader globalCompletionTimeReader,
+                                           Spinner spinner,
+                                           TimeSource timeSource,
+                                           ConcurrentErrorReporter errorReporter,
+                                           ConcurrentMetricsService metricsService,
+                                           ChildOperationGenerator childOperationGenerator) {
         this.operationHandlerRunnableContextRetriever = new OperationHandlerRunnableContextRetriever(
                 streamDefinition,
                 db,
@@ -49,7 +49,7 @@ public class ThreadPoolOperationHandlerExecutor_NEW implements OperationExecutor
             public Thread newThread(Runnable runnable) {
                 Thread newThread = new Thread(
                         runnable,
-                        ThreadPoolOperationHandlerExecutor_NEW.class.getSimpleName() + "-id(" + factoryTimeStampId + ")" + "-thread(" + count++ + ")"
+                        ThreadPoolOperationExecutor_NEW.class.getSimpleName() + "-id(" + factoryTimeStampId + ")" + "-thread(" + count++ + ")"
                 );
                 return newThread;
             }

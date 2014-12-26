@@ -1,14 +1,9 @@
 package com.ldbc.driver.runtime.executor;
 
-import com.ldbc.driver.Db;
 import com.ldbc.driver.WorkloadStreams.WorkloadStreamDefinition;
 import com.ldbc.driver.runtime.ConcurrentErrorReporter;
-import com.ldbc.driver.runtime.coordination.GlobalCompletionTimeReader;
 import com.ldbc.driver.runtime.coordination.LocalCompletionTimeWriter;
-import com.ldbc.driver.runtime.metrics.ConcurrentMetricsService;
-import com.ldbc.driver.runtime.scheduling.Spinner;
 import com.ldbc.driver.temporal.TemporalUtil;
-import com.ldbc.driver.temporal.TimeSource;
 
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -24,29 +19,19 @@ public class OperationStreamExecutorService_NEW {
     private final AtomicBoolean shutdown = new AtomicBoolean(false);
     private final AtomicBoolean forceThreadToTerminate = new AtomicBoolean(false);
 
-    public OperationStreamExecutorService_NEW(TimeSource timeSource,
-                                              ConcurrentErrorReporter errorReporter,
+    public OperationStreamExecutorService_NEW(ConcurrentErrorReporter errorReporter,
                                               WorkloadStreamDefinition streamDefinition,
-                                              Spinner spinner,
-                                              OperationHandlerExecutor operationHandlerExecutor,
-                                              Db db,
-                                              LocalCompletionTimeWriter localCompletionTimeWriter,
-                                              GlobalCompletionTimeReader globalCompletionTimeReader,
-                                              ConcurrentMetricsService metricsService) {
+                                              OperationExecutor_NEW operationExecutor,
+                                              LocalCompletionTimeWriter localCompletionTimeWriter) {
         this.errorReporter = errorReporter;
         if (streamDefinition.dependencyOperations().hasNext() || streamDefinition.nonDependencyOperations().hasNext()) {
             this.operationStreamExecutorServiceThread = new OperationStreamExecutorServiceThread_NEW(
-                    timeSource,
-                    operationHandlerExecutor,
+                    operationExecutor,
                     errorReporter,
                     streamDefinition,
                     hasFinished,
-                    spinner,
                     forceThreadToTerminate,
-                    db,
-                    localCompletionTimeWriter,
-                    globalCompletionTimeReader,
-                    metricsService);
+                    localCompletionTimeWriter);
         } else {
             this.operationStreamExecutorServiceThread = null;
             executing.set(true);

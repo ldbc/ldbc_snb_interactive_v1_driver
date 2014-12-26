@@ -11,7 +11,7 @@ import java.util.Queue;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicLong;
 
-public class SingleThreadOperationHandlerExecutorThread_NEW extends Thread {
+public class SingleThreadOperationExecutorThread_NEW extends Thread {
     private final QueueEventFetcher<Operation> operationQueueEventFetcher;
     private final ConcurrentErrorReporter errorReporter;
     private final AtomicLong uncompletedHandlers;
@@ -19,12 +19,12 @@ public class SingleThreadOperationHandlerExecutorThread_NEW extends Thread {
     private final OperationHandlerRunnableContextRetriever operationHandlerRunnableContextRetriever;
     private final ChildOperationGenerator childOperationGenerator;
 
-    SingleThreadOperationHandlerExecutorThread_NEW(Queue<Operation> operationHandlerRunnerQueue,
-                                                   ConcurrentErrorReporter errorReporter,
-                                                   AtomicLong uncompletedHandlers,
-                                                   OperationHandlerRunnableContextRetriever operationHandlerRunnableContextRetriever,
-                                                   ChildOperationGenerator childOperationGenerator) {
-        super(SingleThreadOperationHandlerExecutorThread_NEW.class.getSimpleName() + "-" + System.currentTimeMillis());
+    SingleThreadOperationExecutorThread_NEW(Queue<Operation> operationHandlerRunnerQueue,
+                                            ConcurrentErrorReporter errorReporter,
+                                            AtomicLong uncompletedHandlers,
+                                            OperationHandlerRunnableContextRetriever operationHandlerRunnableContextRetriever,
+                                            ChildOperationGenerator childOperationGenerator) {
+        super(SingleThreadOperationExecutorThread_NEW.class.getSimpleName() + "-" + System.currentTimeMillis());
         this.operationQueueEventFetcher = QueueEventFetcher.queueEventFetcherFor(operationHandlerRunnerQueue);
         this.errorReporter = errorReporter;
         this.uncompletedHandlers = uncompletedHandlers;
@@ -37,7 +37,7 @@ public class SingleThreadOperationHandlerExecutorThread_NEW extends Thread {
         Operation operation = null;
         try {
             operation = operationQueueEventFetcher.fetchNextEvent();
-            while (operation != SingleThreadOperationHandlerExecutor_NEW.TERMINATE_OPERATION && false == forcedShutdownRequested.get()) {
+            while (operation != SingleThreadOperationExecutor_NEW.TERMINATE_OPERATION && false == forcedShutdownRequested.get()) {
                 OperationHandlerRunnableContext operationHandlerRunnableContext =
                         operationHandlerRunnableContextRetriever.getInitializedHandlerFor(operation);
                 operationHandlerRunnableContext.run();

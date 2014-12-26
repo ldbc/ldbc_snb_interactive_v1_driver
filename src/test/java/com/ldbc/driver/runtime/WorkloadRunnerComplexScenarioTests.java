@@ -89,6 +89,7 @@ public class WorkloadRunnerComplexScenarioTests {
         Set<Class<? extends Operation<?>>> asynchronousDependentOperationTypes = Sets.<Class<? extends Operation<?>>>newHashSet(
                 TimedNamedOperation1.class
         );
+        Set<Class<? extends Operation<?>>> asynchronousDependencyOperationTypes = Sets.newHashSet();
         Iterator<Operation<?>> asynchronousDependencyOperations = Collections.emptyIterator();
         Iterator<Operation<?>> asynchronousNonDependencyOperations = Lists.<Operation<?>>newArrayList(
                 new TimedNamedOperation1(2, 2, 0, "S(2)D(0)"),
@@ -97,12 +98,14 @@ public class WorkloadRunnerComplexScenarioTests {
         ).iterator();
         workloadStreams.setAsynchronousStream(
                 asynchronousDependentOperationTypes,
+                asynchronousDependencyOperationTypes,
                 asynchronousDependencyOperations,
                 asynchronousNonDependencyOperations
         );
         Set<Class<? extends Operation<?>>> blockingDependentOperationTypes = Sets.<Class<? extends Operation<?>>>newHashSet(
                 TimedNamedOperation2.class
         );
+        Set<Class<? extends Operation<?>>> blockingDependencyOperationTypes = Sets.newHashSet();
         Iterator<Operation<?>> blockingDependencyOperations = Lists.<Operation<?>>newArrayList(
                 new TimedNamedOperation2(4, 4, 0, "S(4)D(0)"),
                 new TimedNamedOperation2(5, 5, 0, "S(5)D(0)")
@@ -111,6 +114,7 @@ public class WorkloadRunnerComplexScenarioTests {
         ).iterator();
         workloadStreams.addBlockingStream(
                 blockingDependentOperationTypes,
+                blockingDependencyOperationTypes,
                 blockingDependencyOperations,
                 blockingNonDependencyOperations
         );
@@ -284,6 +288,9 @@ public class WorkloadRunnerComplexScenarioTests {
         Set<Class<? extends Operation<?>>> asynchronousDependentOperationTypes = Sets.<Class<? extends Operation<?>>>newHashSet(
                 TimedNamedOperation1.class
         );
+        Set<Class<? extends Operation<?>>> asynchronousDependencyOperationTypes = Sets.<Class<? extends Operation<?>>>newHashSet(
+                TimedNamedOperation1.class
+        );
         Iterator<Operation<?>> asynchronousDependencyOperations = Lists.<Operation<?>>newArrayList(
                 new TimedNamedOperation1(2, 2, 0, "read1"),
                 new TimedNamedOperation1(5, 5, 0, "read2")
@@ -292,10 +299,14 @@ public class WorkloadRunnerComplexScenarioTests {
         ).iterator();
         workloadStreams.setAsynchronousStream(
                 asynchronousDependentOperationTypes,
+                asynchronousDependencyOperationTypes,
                 asynchronousDependencyOperations,
                 asynchronousNonDependencyOperations
         );
         Set<Class<? extends Operation<?>>> blockingDependentOperationTypes = Sets.<Class<? extends Operation<?>>>newHashSet(
+                TimedNamedOperation2.class
+        );
+        Set<Class<? extends Operation<?>>> blockingDependencyOperationTypes = Sets.<Class<? extends Operation<?>>>newHashSet(
                 TimedNamedOperation2.class
         );
         List<Operation<?>> blockingDependencyOperationsList = Lists.<Operation<?>>newArrayList(
@@ -316,6 +327,7 @@ public class WorkloadRunnerComplexScenarioTests {
         ).iterator();
         workloadStreams.addBlockingStream(
                 blockingDependentOperationTypes,
+                blockingDependencyOperationTypes,
                 blockingDependencyOperations,
                 blockingNonDependencyOperations
         );
@@ -456,6 +468,9 @@ public class WorkloadRunnerComplexScenarioTests {
                 TimedNamedOperation1.class,
                 TimedNamedOperation2.class
         );
+        Set<Class<? extends Operation<?>>> asynchronousDependencyOperationTypes = Sets.<Class<? extends Operation<?>>>newHashSet(
+                TimedNamedOperation2.class
+        );
         Iterator<Operation<?>> asynchronousDependencyOperations = Lists.<Operation<?>>newArrayList(
                 new TimedNamedOperation2(3, 3, 0, "readwrite1"),
                 new TimedNamedOperation2(6, 6, 0, "readwrite2"),
@@ -470,10 +485,14 @@ public class WorkloadRunnerComplexScenarioTests {
         ).iterator();
         workloadStreams.setAsynchronousStream(
                 asynchronousDependentOperationTypes,
+                asynchronousDependencyOperationTypes,
                 asynchronousDependencyOperations,
                 asynchronousNonDependencyOperations
         );
         Set<Class<? extends Operation<?>>> blockingDependentOperationTypes = Sets.newHashSet(
+                // nothing
+        );
+        Set<Class<? extends Operation<?>>> blockingDependencyOperationTypes = Sets.newHashSet(
                 // nothing
         );
         Iterator<Operation<?>> blockingDependencyOperations = Lists.<Operation<?>>newArrayList(
@@ -484,6 +503,7 @@ public class WorkloadRunnerComplexScenarioTests {
         ).iterator();
         workloadStreams.addBlockingStream(
                 blockingDependentOperationTypes,
+                blockingDependencyOperationTypes,
                 blockingDependencyOperations,
                 blockingNonDependencyOperations
         );
@@ -701,6 +721,8 @@ public class WorkloadRunnerComplexScenarioTests {
         Set<Class<? extends Operation<?>>> asynchronousDependentOperationTypes = Sets.<Class<? extends Operation<?>>>newHashSet(
                 TimedNamedOperation1.class
         );
+        Set<Class<? extends Operation<?>>> asynchronousDependencyOperationTypes = Sets.<Class<? extends Operation<?>>>newHashSet(
+        );
         Iterator<Operation<?>> asynchronousDependencyOperations = Lists.<Operation<?>>newArrayList(
                 // nothing
         ).iterator();
@@ -713,10 +735,14 @@ public class WorkloadRunnerComplexScenarioTests {
         ).iterator();
         workloadStreams.setAsynchronousStream(
                 asynchronousDependentOperationTypes,
+                asynchronousDependencyOperationTypes,
                 asynchronousDependencyOperations,
                 asynchronousNonDependencyOperations
         );
         Set<Class<? extends Operation<?>>> blockingDependentOperationTypes = Sets.<Class<? extends Operation<?>>>newHashSet(
+                TimedNamedOperation2.class
+        );
+        Set<Class<? extends Operation<?>>> blockingDependencyOperationTypes = Sets.<Class<? extends Operation<?>>>newHashSet(
                 TimedNamedOperation2.class
         );
         Iterator<Operation<?>> blockingDependencyOperations = Lists.<Operation<?>>newArrayList(
@@ -729,6 +755,7 @@ public class WorkloadRunnerComplexScenarioTests {
         ).iterator();
         workloadStreams.addBlockingStream(
                 blockingDependentOperationTypes,
+                blockingDependencyOperationTypes,
                 blockingDependencyOperations,
                 blockingNonDependencyOperations
         );
@@ -968,6 +995,9 @@ public class WorkloadRunnerComplexScenarioTests {
         Set<Class<? extends Operation<?>>> asynchronousDependentOperationTypes = Sets.<Class<? extends Operation<?>>>newHashSet(
                 TimedNamedOperation2.class
         );
+        Set<Class<? extends Operation<?>>> asynchronousDependencyOperationTypes = Sets.<Class<? extends Operation<?>>>newHashSet(
+                TimedNamedOperation2.class
+        );
         Iterator<Operation<?>> asynchronousDependencyOperations = Lists.<Operation<?>>newArrayList(
                 new TimedNamedOperation2(3, 3, 0, "readwrite1"),
                 new TimedNamedOperation2(6, 6, 0, "readwrite2"),
@@ -978,11 +1008,14 @@ public class WorkloadRunnerComplexScenarioTests {
         ).iterator();
         workloadStreams.setAsynchronousStream(
                 asynchronousDependentOperationTypes,
+                asynchronousDependencyOperationTypes,
                 asynchronousDependencyOperations,
                 asynchronousNonDependencyOperations
         );
         Set<Class<? extends Operation<?>>> blockingDependentOperationTypes = Sets.<Class<? extends Operation<?>>>newHashSet(
                 TimedNamedOperation1.class
+        );
+        Set<Class<? extends Operation<?>>> blockingDependencyOperationTypes = Sets.<Class<? extends Operation<?>>>newHashSet(
         );
         Iterator<Operation<?>> blockingDependencyOperations = Lists.<Operation<?>>newArrayList(
                 // nothing
@@ -996,6 +1029,7 @@ public class WorkloadRunnerComplexScenarioTests {
         ).iterator();
         workloadStreams.addBlockingStream(
                 blockingDependentOperationTypes,
+                blockingDependencyOperationTypes,
                 blockingDependencyOperations,
                 blockingNonDependencyOperations
         );
@@ -1213,6 +1247,9 @@ public class WorkloadRunnerComplexScenarioTests {
         Set<Class<? extends Operation<?>>> asynchronousDependentOperationTypes = Sets.<Class<? extends Operation<?>>>newHashSet(
                 // nothing
         );
+        Set<Class<? extends Operation<?>>> asynchronousDependencyOperationTypes = Sets.<Class<? extends Operation<?>>>newHashSet(
+                // nothing
+        );
         Iterator<Operation<?>> asynchronousDependencyOperations = Lists.<Operation<?>>newArrayList(
                 // nothing
         ).iterator();
@@ -1221,11 +1258,15 @@ public class WorkloadRunnerComplexScenarioTests {
         ).iterator();
         workloadStreams.setAsynchronousStream(
                 asynchronousDependentOperationTypes,
+                asynchronousDependencyOperationTypes,
                 asynchronousDependencyOperations,
                 asynchronousNonDependencyOperations
         );
         Set<Class<? extends Operation<?>>> blockingDependentOperationTypes = Sets.<Class<? extends Operation<?>>>newHashSet(
                 TimedNamedOperation1.class,
+                TimedNamedOperation2.class
+        );
+        Set<Class<? extends Operation<?>>> blockingDependencyOperationTypes = Sets.<Class<? extends Operation<?>>>newHashSet(
                 TimedNamedOperation2.class
         );
         Iterator<Operation<?>> blockingDependencyOperations = Lists.<Operation<?>>newArrayList(
@@ -1242,6 +1283,7 @@ public class WorkloadRunnerComplexScenarioTests {
         ).iterator();
         workloadStreams.addBlockingStream(
                 blockingDependentOperationTypes,
+                blockingDependencyOperationTypes,
                 blockingDependencyOperations,
                 blockingNonDependencyOperations
         );

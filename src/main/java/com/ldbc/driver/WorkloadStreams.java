@@ -328,23 +328,25 @@ public class WorkloadStreams {
     }
 
     public WorkloadStreamDefinition asynchronousStream() {
-        return (null != asynchronousStream)
-                ? asynchronousStream
-                : new WorkloadStreamDefinition(
-                new HashSet<Class<? extends Operation<?>>>(),
-                new HashSet<Class<? extends Operation<?>>>(),
-                Collections.<Operation<?>>emptyIterator(),
-                Collections.<Operation<?>>emptyIterator()
-        );
+        if (null != asynchronousStream) {
+            return asynchronousStream;
+        } else {
+            return new WorkloadStreamDefinition(
+                    new HashSet<Class<? extends Operation<?>>>(),
+                    new HashSet<Class<? extends Operation<?>>>(),
+                    Collections.<Operation<?>>emptyIterator(),
+                    Collections.<Operation<?>>emptyIterator()
+            );
+        }
     }
 
     public void setAsynchronousStream(Set<Class<? extends Operation<?>>> dependentOperationTypes,
-                                      Set<Class<? extends Operation<?>>> nonDependentOperationTypes,
+                                      Set<Class<? extends Operation<?>>> dependencyOperationTypes,
                                       Iterator<Operation<?>> dependencyOperations,
                                       Iterator<Operation<?>> nonDependencyOperations) {
         this.asynchronousStream = new WorkloadStreamDefinition(
                 dependentOperationTypes,
-                nonDependentOperationTypes,
+                dependencyOperationTypes,
                 dependencyOperations,
                 nonDependencyOperations
         );
@@ -355,12 +357,12 @@ public class WorkloadStreams {
     }
 
     public void addBlockingStream(Set<Class<? extends Operation<?>>> dependentOperationTypes,
-                                  Set<Class<? extends Operation<?>>> nonDependentOperationTypes,
+                                  Set<Class<? extends Operation<?>>> dependencyOperationTypes,
                                   Iterator<Operation<?>> dependencyOperations,
                                   Iterator<Operation<?>> nonDependencyOperations) {
         WorkloadStreamDefinition blockingStream = new WorkloadStreamDefinition(
                 dependentOperationTypes,
-                nonDependentOperationTypes,
+                dependencyOperationTypes,
                 dependencyOperations,
                 nonDependencyOperations
         );

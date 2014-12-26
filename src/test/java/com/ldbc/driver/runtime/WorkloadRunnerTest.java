@@ -453,6 +453,7 @@ public class WorkloadRunnerTest {
             WorkloadStreams workloadStreams = new WorkloadStreams();
             workloadStreams.setAsynchronousStream(
                     new HashSet<Class<? extends Operation<?>>>(),
+                    new HashSet<Class<? extends Operation<?>>>(),
                     Collections.<Operation<?>>emptyIterator(),
                     timeMappedOperations
             );
