@@ -1,7 +1,6 @@
 package com.ldbc.driver.runtime.executor;
 
 import com.google.common.collect.Lists;
-import com.ldbc.driver.Db;
 import com.ldbc.driver.DbException;
 import com.ldbc.driver.Operation;
 import com.ldbc.driver.WorkloadStreams;
@@ -40,41 +39,8 @@ public class OperationStreamExecutorPerformanceTest {
     private final ManualTimeSource timeSource = new ManualTimeSource(0);
     private final GeneratorFactory gf = new GeneratorFactory(new RandomDataGeneratorFactory(42l));
 
-    /*
-2014/09/??
-
-    Spinner [Sleep = 0 ms] (OLD thread OLD executor) 100000 ops in 00:00.063 (m:s.ms): 1575.299306868305 ops/ms
-    Spinner [Sleep = 0 ms] (OLD thread NEW executor) 100000 ops in 00:00.058 (m:s.ms): 1696.06512890095 ops/ms
-    Spinner [Sleep = 0 ms] (NEW thread OLD executor) 100000 ops in 00:00.055 (m:s.ms): 1800.1800180018001 ops/ms
-    Spinner [Sleep = 0 ms] (NEW thread NEW executor) 100000 ops in 00:00.049 (m:s.ms): 2012.477359629704 ops/ms
-
-    Spinner [Sleep = 1 ms] (OLD thread OLD executor) 10000 ops in 00:04.506 (m:s.ms): 2.218859417505026 ops/ms
-    Spinner [Sleep = 1 ms] (OLD thread NEW executor) 10000 ops in 00:00.005 (m:s.ms): 1769.9115044247787 ops/ms
-    Spinner [Sleep = 1 ms] (NEW thread OLD executor) 10000 ops in 00:00.005 (m:s.ms): 1824.817518248175 ops/ms
-    Spinner [Sleep = 1 ms] (NEW thread NEW executor) 10000 ops in 00:00.004 (m:s.ms): 2032.5203252032522 ops/ms
-
-    Spinner [Sleep = 10 ms] (OLD thread OLD executor) 1000 ops in 00:04.420 (m:s.ms): 0.2262034020991676 ops/ms
-    Spinner [Sleep = 10 ms] (OLD thread NEW executor) 1000 ops in 00:00.000 (m:s.ms): 1923.076923076923 ops/ms
-    Spinner [Sleep = 10 ms] (NEW thread OLD executor) 1000 ops in 00:00.000 (m:s.ms): 1369.86301369863 ops/ms
-    Spinner [Sleep = 10 ms] (NEW thread NEW executor) 1000 ops in 00:00.000 (m:s.ms): 2127.6595744680853 ops/ms
-
-2014/09/26
-
-    Spinner [Sleep = 0 ms] (thread pool executor) 100000 ops in 00:00.057 (m:s.ms): 1731.6017316017317 ops/ms
-    Spinner [Sleep = 0 ms] (single thread executor) 100000 ops in 00:00.050 (m:s.ms): 1980.1980198019803 ops/ms
-    Spinner [Sleep = 0 ms] (same thread executor) 100000 ops in 00:00.016 (m:s.ms): 6191.9504643962855 ops/ms
-
-    Spinner [Sleep = 1 ms] (thread pool executor) 100000 ops in 00:00.051 (m:s.ms): 1942.8793471925392 ops/ms
-    Spinner [Sleep = 1 ms] (single thread executor) 100000 ops in 00:00.054 (m:s.ms): 1843.9977872026552 ops/ms
-    Spinner [Sleep = 1 ms] (same thread executor) 100000 ops in 00:00.015 (m:s.ms): 6317.119393556539 ops/ms
-
-    Spinner [Sleep = 10 ms] (thread pool executor) 100000 ops in 00:00.053 (m:s.ms): 1876.172607879925 ops/ms
-    Spinner [Sleep = 10 ms] (single thread executor) 100000 ops in 00:00.047 (m:s.ms): 2100.8403361344535 ops/ms
-    Spinner [Sleep = 10 ms] (same thread executor) 100000 ops in 00:00.015 (m:s.ms): 6377.551020408164 ops/ms
-     */
-
     @Test
-    public void synchronousExecutorPerformanceTest() throws CompletionTimeException, MetricsCollectionException, DbException, OperationHandlerExecutorException, IOException {
+    public void synchronousExecutorPerformanceTest() throws CompletionTimeException, MetricsCollectionException, DbException, OperationExecutorException, IOException {
         int experimentRepetitions;
         long operationCount;
         long spinnerSleepDuration;
@@ -96,7 +62,7 @@ public class OperationStreamExecutorPerformanceTest {
     }
 
     public void synchronousExecutorPerformanceTestWithSpinnerDuration(long spinnerSleepDuration, int experimentRepetitions, long operationCount)
-            throws CompletionTimeException, MetricsCollectionException, DbException, OperationHandlerExecutorException, IOException {
+            throws CompletionTimeException, MetricsCollectionException, DbException, OperationExecutorException, IOException {
         List<Long> threadPoolExecutorTimes = new ArrayList<>();
         List<Long> singleThreadExecutorTimes = new ArrayList<>();
         List<Long> sameThreadExecutorTimes = new ArrayList<>();
@@ -125,19 +91,28 @@ public class OperationStreamExecutorPerformanceTest {
                         new HashSet<Class<? extends Operation<?>>>(),
                         new HashSet<Class<? extends Operation<?>>>(),
                         Collections.<Operation<?>>emptyIterator(),
-                        operations.iterator()
+                        operations.iterator(),
+                        null
                 );
 
-                OperationHandlerExecutor executor = new ThreadPoolOperationHandlerExecutor(1, DefaultQueues.DEFAULT_BOUND_1000);
-                OperationStreamExecutorServiceThread thread = getNewThread(
+                OperationExecutor_NEW executor = new ThreadPoolOperationExecutor_NEW(
+                        1,
+                        DefaultQueues.DEFAULT_BOUND_1000,
+                        db,
+                        streamDefinition,
+                        localCompletionTimeWriter,
+                        globalCompletionTimeReader,
+                        spinner,
+                        timeSource,
+                        errorReporter,
+                        metricsService,
+                        streamDefinition.childOperationGenerator()
+                );
+                OperationStreamExecutorServiceThread_NEW thread = getNewThread(
                         errorReporter,
                         streamDefinition,
-                        spinner,
                         executor,
-                        db,
                         localCompletionTimeWriter,
-                        metricsService,
-                        globalCompletionTimeReader,
                         executorHasFinished,
                         forceThreadToTerminate
                 );
@@ -168,19 +143,27 @@ public class OperationStreamExecutorPerformanceTest {
                         new HashSet<Class<? extends Operation<?>>>(),
                         new HashSet<Class<? extends Operation<?>>>(),
                         Collections.<Operation<?>>emptyIterator(),
-                        operations.iterator()
+                        operations.iterator(),
+                        null
                 );
 
-                OperationHandlerExecutor executor = new SingleThreadOperationHandlerExecutor(errorReporter, DefaultQueues.DEFAULT_BOUND_1000);
-                OperationStreamExecutorServiceThread thread = getNewThread(
+                OperationExecutor_NEW executor = new SingleThreadOperationExecutor_NEW(
+                        db,
+                        streamDefinition,
+                        localCompletionTimeWriter,
+                        globalCompletionTimeReader,
+                        spinner,
+                        timeSource,
+                        errorReporter,
+                        metricsService,
+                        streamDefinition.childOperationGenerator(),
+                        DefaultQueues.DEFAULT_BOUND_1000
+                );
+                OperationStreamExecutorServiceThread_NEW thread = getNewThread(
                         errorReporter,
                         streamDefinition,
-                        spinner,
                         executor,
-                        db,
                         localCompletionTimeWriter,
-                        metricsService,
-                        globalCompletionTimeReader,
                         executorHasFinished,
                         forceThreadToTerminate
                 );
@@ -211,19 +194,26 @@ public class OperationStreamExecutorPerformanceTest {
                         new HashSet<Class<? extends Operation<?>>>(),
                         new HashSet<Class<? extends Operation<?>>>(),
                         Collections.<Operation<?>>emptyIterator(),
-                        operations.iterator()
+                        operations.iterator(),
+                        null
                 );
 
-                OperationHandlerExecutor executor = new SameThreadOperationHandlerExecutor();
-                OperationStreamExecutorServiceThread thread = getNewThread(
+                OperationExecutor_NEW executor = new SameThreadOperationExecutor_NEW(
+                        db,
+                        streamDefinition,
+                        localCompletionTimeWriter,
+                        globalCompletionTimeReader,
+                        spinner,
+                        timeSource,
+                        errorReporter,
+                        metricsService,
+                        streamDefinition.childOperationGenerator()
+                );
+                OperationStreamExecutorServiceThread_NEW thread = getNewThread(
                         errorReporter,
                         streamDefinition,
-                        spinner,
                         executor,
-                        db,
                         localCompletionTimeWriter,
-                        metricsService,
-                        globalCompletionTimeReader,
                         executorHasFinished,
                         forceThreadToTerminate
                 );
@@ -285,31 +275,22 @@ public class OperationStreamExecutorPerformanceTest {
         return operations;
     }
 
-    private OperationStreamExecutorServiceThread getNewThread(
+    private OperationStreamExecutorServiceThread_NEW getNewThread(
             ConcurrentErrorReporter errorReporter,
             WorkloadStreams.WorkloadStreamDefinition streamDefinition,
-            Spinner spinner,
-            OperationHandlerExecutor operationHandlerExecutor,
-            Db db,
+            OperationExecutor_NEW operationExecutor,
             LocalCompletionTimeWriter localCompletionTimeWriter,
-            ConcurrentMetricsService metricsService,
-            DummyGlobalCompletionTimeReader globalCompletionTimeReader,
             AtomicBoolean executorHasFinished,
             AtomicBoolean forceThreadToTerminate
     ) throws CompletionTimeException, MetricsCollectionException, DbException {
-        OperationStreamExecutorServiceThread operationStreamExecutorThread =
-                new OperationStreamExecutorServiceThread(
-                        timeSource,
-                        operationHandlerExecutor,
+        OperationStreamExecutorServiceThread_NEW operationStreamExecutorThread =
+                new OperationStreamExecutorServiceThread_NEW(
+                        operationExecutor,
                         errorReporter,
                         streamDefinition,
                         executorHasFinished,
-                        spinner,
                         forceThreadToTerminate,
-                        db,
-                        localCompletionTimeWriter,
-                        globalCompletionTimeReader,
-                        metricsService
+                        localCompletionTimeWriter
                 );
 
         return operationStreamExecutorThread;

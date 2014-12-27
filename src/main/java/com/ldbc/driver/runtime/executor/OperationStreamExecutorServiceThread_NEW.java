@@ -50,7 +50,7 @@ class OperationStreamExecutorServiceThread_NEW extends Thread {
                 try {
                     // --- BLOCKING CALL (when bounded queue is full) ---
                     operationExecutor.execute(operation);
-                } catch (OperationHandlerExecutorException e) {
+                } catch (OperationExecutorException e) {
                     String errMsg = String.format("Error encountered while submitting operation for execution\n%s\n%s",
                             operation,
                             ConcurrentErrorReporter.stackTraceToString(e));

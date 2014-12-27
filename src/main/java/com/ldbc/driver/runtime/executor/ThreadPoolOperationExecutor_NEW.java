@@ -66,14 +66,14 @@ public class ThreadPoolOperationExecutor_NEW implements OperationExecutor_NEW {
     }
 
     @Override
-    public final void execute(Operation operation) throws OperationHandlerExecutorException {
+    public final void execute(Operation operation) throws OperationExecutorException {
         uncompletedHandlers.incrementAndGet();
         try {
             OperationHandlerRunnableContext operationHandlerRunnableContext =
                     operationHandlerRunnableContextRetriever.getInitializedHandlerFor(operation);
             threadPoolExecutorService.execute(operationHandlerRunnableContext);
         } catch (Throwable e) {
-            throw new OperationHandlerExecutorException(
+            throw new OperationExecutorException(
                     String.format("Error retrieving handler\nOperation: %s\n%s",
                             operation,
                             ConcurrentErrorReporter.stackTraceToString(e)),
@@ -83,9 +83,9 @@ public class ThreadPoolOperationExecutor_NEW implements OperationExecutor_NEW {
     }
 
     @Override
-    synchronized public final void shutdown(long waitAsMilli) throws OperationHandlerExecutorException {
+    synchronized public final void shutdown(long waitAsMilli) throws OperationExecutorException {
         if (shutdown.get())
-            throw new OperationHandlerExecutorException("Executor has already been shutdown");
+            throw new OperationExecutorException("Executor has already been shutdown");
         try {
             threadPoolExecutorService.shutdown();
             boolean allHandlersCompleted = threadPoolExecutorService.awaitTermination(waitAsMilli, TimeUnit.MILLISECONDS);
@@ -97,11 +97,11 @@ public class ThreadPoolOperationExecutor_NEW implements OperationExecutor_NEW {
                             getClass().getSimpleName(),
                             stillRunningThreads.size(),
                             uncompletedHandlers.get() - stillRunningThreads.size());
-                    throw new OperationHandlerExecutorException(errMsg);
+                    throw new OperationExecutorException(errMsg);
                 }
             }
         } catch (Exception e) {
-            throw new OperationHandlerExecutorException("Error encountered while trying to shutdown", e);
+            throw new OperationExecutorException("Error encountered while trying to shutdown", e);
         }
         shutdown.set(true);
     }
@@ -167,8 +167,8 @@ public class ThreadPoolOperationExecutor_NEW implements OperationExecutor_NEW {
             super.afterExecute(operationHandlerRunner, throwable);
             OperationHandlerRunnableContext operationHandlerRunnableContext = (OperationHandlerRunnableContext) operationHandlerRunner;
 
-            try {
-                if (null != childOperationGenerator) {
+            if (null != childOperationGenerator) {
+                try {
                     OperationResultReport resultReport = operationHandlerRunnableContext.operationResultReport();
                     double state = childOperationGenerator.initialState();
                     while (childOperationGenerator.hasNext(state)) {
@@ -180,11 +180,10 @@ public class ThreadPoolOperationExecutor_NEW implements OperationExecutor_NEW {
                         resultReport = childOperationHandlerRunnableContext.operationResultReport();
                         childOperationHandlerRunnableContext.cleanup();
                     }
-                    operationHandlerRunnableContext.cleanup();
+                } catch (Throwable e) {
+                    errorReporter.reportError(this, String.format("Error retrieving handler\n%s",
+                            ConcurrentErrorReporter.stackTraceToString(e)));
                 }
-            } catch (Throwable e) {
-                errorReporter.reportError(this, String.format("Error retrieving handler\n%s",
-                        ConcurrentErrorReporter.stackTraceToString(e)));
             }
 
             operationHandlerRunnableContext.cleanup();

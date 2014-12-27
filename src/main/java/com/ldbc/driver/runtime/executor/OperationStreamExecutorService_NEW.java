@@ -48,9 +48,9 @@ public class OperationStreamExecutorService_NEW {
         return hasFinished;
     }
 
-    synchronized public void shutdown(long shutdownWait) throws OperationHandlerExecutorException {
+    synchronized public void shutdown(long shutdownWait) throws OperationExecutorException {
         if (shutdown.get())
-            throw new OperationHandlerExecutorException("Executor has already been shutdown");
+            throw new OperationExecutorException("Executor has already been shutdown");
         if (null != operationStreamExecutorServiceThread)
             doShutdown(shutdownWait);
         shutdown.set(true);

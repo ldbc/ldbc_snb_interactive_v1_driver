@@ -52,7 +52,8 @@ public class WorkloadStatisticsCalculatorTest {
                 Sets.<Class<? extends Operation<?>>>newHashSet(),
                 Sets.<Class<? extends Operation<?>>>newHashSet(),
                 Collections.<Operation<?>>emptyIterator(),
-                operations
+                operations,
+                null
         );
 
         // When
@@ -159,7 +160,8 @@ public class WorkloadStatisticsCalculatorTest {
                 dependentOperations,
                 Sets.<Class<? extends Operation<?>>>newHashSet(TimedNamedOperation3.class),
                 operation3Stream,
-                gf.mergeSortOperationsByTimeStamp(operation1Stream, operation2Stream)
+                gf.mergeSortOperationsByTimeStamp(operation1Stream, operation2Stream),
+                null
         );
 
         // When

@@ -177,7 +177,9 @@ public class SimpleWorkload extends Workload {
                 Sets.<Class<? extends Operation<?>>>newHashSet(),
                 Sets.<Class<? extends Operation<?>>>newHashSet(),
                 Collections.<Operation<?>>emptyIterator(),
-                gf.assignDependencyTimes(dependencyTimesAsMilli, gf.assignStartTimes(startTimesAsMilli, workloadOperations)));
+                gf.assignDependencyTimes(dependencyTimesAsMilli, gf.assignStartTimes(startTimesAsMilli, workloadOperations)),
+                null
+        );
         return workloadStreams;
     }
 

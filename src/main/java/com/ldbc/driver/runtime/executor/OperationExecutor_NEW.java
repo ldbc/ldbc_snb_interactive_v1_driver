@@ -7,15 +7,15 @@ public interface OperationExecutor_NEW {
      * @param operation
      * @return
      */
-    public void execute(Operation operation) throws OperationHandlerExecutorException;
+    public void execute(Operation operation) throws OperationExecutorException;
 
     /**
      * Returns after executor has completed shutting down
      *
      * @param waitAsMilli duration to wait for all running operation handlers to complete execution
-     * @throws OperationHandlerExecutorException
+     * @throws OperationExecutorException
      */
-    public void shutdown(long waitAsMilli) throws OperationHandlerExecutorException;
+    public void shutdown(long waitAsMilli) throws OperationExecutorException;
 
     public long uncompletedOperationHandlerCount();
 }

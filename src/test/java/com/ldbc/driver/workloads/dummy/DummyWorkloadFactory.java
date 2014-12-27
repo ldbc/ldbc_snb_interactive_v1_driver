@@ -42,7 +42,8 @@ public class DummyWorkloadFactory implements WorkloadFactory {
                     workloadStreams.asynchronousStream().dependentOperationTypes(),
                     workloadStreams.asynchronousStream().dependencyOperationTypes(),
                     workloadStreams.asynchronousStream().dependencyOperations(),
-                    asynchronousNonDependencyOperationsToReturn.iterator()
+                    asynchronousNonDependencyOperationsToReturn.iterator(),
+                    workloadStreams.asynchronousStream().childOperationGenerator()
             );
         }
         return new DummyWorkload(workloadStreams, maxExpectedInterleaveAsMilli);

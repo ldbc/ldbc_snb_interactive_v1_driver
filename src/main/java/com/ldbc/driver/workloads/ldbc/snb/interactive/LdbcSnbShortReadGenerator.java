@@ -30,6 +30,7 @@ public class LdbcSnbShortReadGenerator implements ChildOperationGenerator {
     @Override
     public Operation<?> nextOperation(OperationResultReport resultReport) {
         // TODO
+        System.out.println(getClass().getSimpleName() + " " + resultReport);
         return null;
     }
 

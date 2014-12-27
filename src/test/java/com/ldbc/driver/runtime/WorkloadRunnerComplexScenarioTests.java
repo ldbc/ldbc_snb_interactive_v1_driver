@@ -14,7 +14,6 @@ import com.ldbc.driver.runtime.metrics.MetricsCollectionException;
 import com.ldbc.driver.runtime.metrics.ThreadedQueuedConcurrentMetricsService;
 import com.ldbc.driver.runtime.scheduling.Spinner;
 import com.ldbc.driver.temporal.ManualTimeSource;
-import com.ldbc.driver.temporal.TemporalUtil;
 import com.ldbc.driver.temporal.TimeSource;
 import com.ldbc.driver.util.csv.SimpleCsvFileWriter;
 import com.ldbc.driver.workloads.dummy.DummyDb;
@@ -32,7 +31,6 @@ import static org.hamcrest.CoreMatchers.*;
 import static org.junit.Assert.assertThat;
 
 public class WorkloadRunnerComplexScenarioTests {
-    private static final TemporalUtil TEMPORAL_UTIL = new TemporalUtil();
     private final long ENOUGH_MILLISECONDS_FOR_RUNNER_THREAD_TO_DO_ITS_THING = 300;
     private final long SPINNER_SLEEP_DURATION_AS_MILLI = 0;
     private final ManualTimeSource timeSource = new ManualTimeSource(0);
@@ -89,7 +87,9 @@ public class WorkloadRunnerComplexScenarioTests {
         Set<Class<? extends Operation<?>>> asynchronousDependentOperationTypes = Sets.<Class<? extends Operation<?>>>newHashSet(
                 TimedNamedOperation1.class
         );
-        Set<Class<? extends Operation<?>>> asynchronousDependencyOperationTypes = Sets.newHashSet();
+        Set<Class<? extends Operation<?>>> asynchronousDependencyOperationTypes = Sets.newHashSet(
+                // nothing
+        );
         Iterator<Operation<?>> asynchronousDependencyOperations = Collections.emptyIterator();
         Iterator<Operation<?>> asynchronousNonDependencyOperations = Lists.<Operation<?>>newArrayList(
                 new TimedNamedOperation1(2, 2, 0, "S(2)D(0)"),
@@ -100,12 +100,15 @@ public class WorkloadRunnerComplexScenarioTests {
                 asynchronousDependentOperationTypes,
                 asynchronousDependencyOperationTypes,
                 asynchronousDependencyOperations,
-                asynchronousNonDependencyOperations
+                asynchronousNonDependencyOperations,
+                null
         );
         Set<Class<? extends Operation<?>>> blockingDependentOperationTypes = Sets.<Class<? extends Operation<?>>>newHashSet(
                 TimedNamedOperation2.class
         );
-        Set<Class<? extends Operation<?>>> blockingDependencyOperationTypes = Sets.newHashSet();
+        Set<Class<? extends Operation<?>>> blockingDependencyOperationTypes = Sets.<Class<? extends Operation<?>>>newHashSet(
+                TimedNamedOperation2.class
+        );
         Iterator<Operation<?>> blockingDependencyOperations = Lists.<Operation<?>>newArrayList(
                 new TimedNamedOperation2(4, 4, 0, "S(4)D(0)"),
                 new TimedNamedOperation2(5, 5, 0, "S(5)D(0)")
@@ -116,7 +119,8 @@ public class WorkloadRunnerComplexScenarioTests {
                 blockingDependentOperationTypes,
                 blockingDependencyOperationTypes,
                 blockingDependencyOperations,
-                blockingNonDependencyOperations
+                blockingNonDependencyOperations,
+                null
         );
 
         Map<String, String> params = new HashMap<>();
@@ -301,7 +305,8 @@ public class WorkloadRunnerComplexScenarioTests {
                 asynchronousDependentOperationTypes,
                 asynchronousDependencyOperationTypes,
                 asynchronousDependencyOperations,
-                asynchronousNonDependencyOperations
+                asynchronousNonDependencyOperations,
+                null
         );
         Set<Class<? extends Operation<?>>> blockingDependentOperationTypes = Sets.<Class<? extends Operation<?>>>newHashSet(
                 TimedNamedOperation2.class
@@ -329,7 +334,8 @@ public class WorkloadRunnerComplexScenarioTests {
                 blockingDependentOperationTypes,
                 blockingDependencyOperationTypes,
                 blockingDependencyOperations,
-                blockingNonDependencyOperations
+                blockingNonDependencyOperations,
+                null
         );
 
         Map<String, String> params = new HashMap<>();
@@ -487,7 +493,8 @@ public class WorkloadRunnerComplexScenarioTests {
                 asynchronousDependentOperationTypes,
                 asynchronousDependencyOperationTypes,
                 asynchronousDependencyOperations,
-                asynchronousNonDependencyOperations
+                asynchronousNonDependencyOperations,
+                null
         );
         Set<Class<? extends Operation<?>>> blockingDependentOperationTypes = Sets.newHashSet(
                 // nothing
@@ -505,7 +512,8 @@ public class WorkloadRunnerComplexScenarioTests {
                 blockingDependentOperationTypes,
                 blockingDependencyOperationTypes,
                 blockingDependencyOperations,
-                blockingNonDependencyOperations
+                blockingNonDependencyOperations,
+                null
         );
 
         Map<String, String> params = new HashMap<>();
@@ -737,7 +745,8 @@ public class WorkloadRunnerComplexScenarioTests {
                 asynchronousDependentOperationTypes,
                 asynchronousDependencyOperationTypes,
                 asynchronousDependencyOperations,
-                asynchronousNonDependencyOperations
+                asynchronousNonDependencyOperations,
+                null
         );
         Set<Class<? extends Operation<?>>> blockingDependentOperationTypes = Sets.<Class<? extends Operation<?>>>newHashSet(
                 TimedNamedOperation2.class
@@ -757,7 +766,8 @@ public class WorkloadRunnerComplexScenarioTests {
                 blockingDependentOperationTypes,
                 blockingDependencyOperationTypes,
                 blockingDependencyOperations,
-                blockingNonDependencyOperations
+                blockingNonDependencyOperations,
+                null
         );
 
         Map<String, String> params = new HashMap<>();
@@ -1010,7 +1020,8 @@ public class WorkloadRunnerComplexScenarioTests {
                 asynchronousDependentOperationTypes,
                 asynchronousDependencyOperationTypes,
                 asynchronousDependencyOperations,
-                asynchronousNonDependencyOperations
+                asynchronousNonDependencyOperations,
+                null
         );
         Set<Class<? extends Operation<?>>> blockingDependentOperationTypes = Sets.<Class<? extends Operation<?>>>newHashSet(
                 TimedNamedOperation1.class
@@ -1031,7 +1042,8 @@ public class WorkloadRunnerComplexScenarioTests {
                 blockingDependentOperationTypes,
                 blockingDependencyOperationTypes,
                 blockingDependencyOperations,
-                blockingNonDependencyOperations
+                blockingNonDependencyOperations,
+                null
         );
 
         Map<String, String> params = new HashMap<>();
@@ -1260,7 +1272,8 @@ public class WorkloadRunnerComplexScenarioTests {
                 asynchronousDependentOperationTypes,
                 asynchronousDependencyOperationTypes,
                 asynchronousDependencyOperations,
-                asynchronousNonDependencyOperations
+                asynchronousNonDependencyOperations,
+                null
         );
         Set<Class<? extends Operation<?>>> blockingDependentOperationTypes = Sets.<Class<? extends Operation<?>>>newHashSet(
                 TimedNamedOperation1.class,
@@ -1285,7 +1298,8 @@ public class WorkloadRunnerComplexScenarioTests {
                 blockingDependentOperationTypes,
                 blockingDependencyOperationTypes,
                 blockingDependencyOperations,
-                blockingNonDependencyOperations
+                blockingNonDependencyOperations,
+                null
         );
 
         Map<String, String> params = new HashMap<>();

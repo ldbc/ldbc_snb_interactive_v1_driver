@@ -67,28 +67,28 @@ public class SingleThreadOperationExecutor_NEW implements OperationExecutor_NEW 
         this.executorThread.start();
     }
 
-    public final void execute(Operation operation) throws OperationHandlerExecutorException {
+    public final void execute(Operation operation) throws OperationExecutorException {
         uncompletedHandlers.incrementAndGet();
         try {
             operationQueueEventSubmitter.submitEventToQueue(operation);
         } catch (InterruptedException e) {
-            throw new OperationHandlerExecutorException("Error encountered while submitting handler to queue", e);
+            throw new OperationExecutorException("Error encountered while submitting handler to queue", e);
         }
     }
 
     @Override
-    synchronized public final void shutdown(long waitAsMilli) throws OperationHandlerExecutorException {
+    synchronized public final void shutdown(long waitAsMilli) throws OperationExecutorException {
         if (shutdown.get())
-            throw new OperationHandlerExecutorException("Executor has already been shutdown");
+            throw new OperationExecutorException("Executor has already been shutdown");
         try {
             operationQueueEventSubmitter.submitEventToQueue(TERMINATE_OPERATION);
             executorThread.join(waitAsMilli);
             if (uncompletedHandlers.get() > 0) {
                 executorThread.forceShutdown();
-                throw new OperationHandlerExecutorException(String.format("Executor shutdown before all handlers could complete - %s uncompleted handlers", uncompletedHandlers));
+                throw new OperationExecutorException(String.format("Executor shutdown before all handlers could complete - %s uncompleted handlers", uncompletedHandlers));
             }
         } catch (Exception e) {
-            throw new OperationHandlerExecutorException("Error encountered while trying to shutdown", e);
+            throw new OperationExecutorException("Error encountered while trying to shutdown", e);
         }
         shutdown.set(true);
     }

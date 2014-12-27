@@ -310,11 +310,14 @@ public class LdbcSnbInteractiveWorkload extends Workload {
                     LdbcUpdate1AddPerson.class
             );
 
+            ChildOperationGenerator personUpdateChildOperationGenerator = null;
+
             ldbcSnbInteractiveWorkloadStreams.addBlockingStream(
                     dependentPersonUpdateOperationTypes,
                     dependencyPersonUpdateOperationTypes,
                     filteredPersonUpdateOperations,
-                    Collections.<Operation<?>>emptyIterator()
+                    Collections.<Operation<?>>emptyIterator(),
+                    personUpdateChildOperationGenerator
             );
         }
 
@@ -360,11 +363,14 @@ public class LdbcSnbInteractiveWorkload extends Workload {
             );
             Set<Class<? extends Operation<?>>> dependencyForumUpdateOperationTypes = Sets.newHashSet();
 
+            ChildOperationGenerator forumUpdateChildOperationGenerator = null;
+
             ldbcSnbInteractiveWorkloadStreams.addBlockingStream(
                     dependentForumUpdateOperationTypes,
                     dependencyForumUpdateOperationTypes,
                     Collections.<Operation<?>>emptyIterator(),
-                    filteredForumUpdateOperations
+                    filteredForumUpdateOperations,
+                    forumUpdateChildOperationGenerator
             );
         }
 
@@ -1012,11 +1018,23 @@ public class LdbcSnbInteractiveWorkload extends Workload {
          * **************
          * **************/
 
+        // TODO tune this
+        // TODO expose some tuning stuff through config
+        double initialProbability = 1.0;
+        double probabilityDegradationFactor = 0.5;
+        double minimumProbability = 0.1;
+        ChildOperationGenerator shortReadsChildGenerator = new LdbcSnbShortReadGenerator(
+                initialProbability,
+                probabilityDegradationFactor,
+                minimumProbability
+        );
+
         ldbcSnbInteractiveWorkloadStreams.setAsynchronousStream(
                 dependentAsynchronousOperationTypes,
                 dependencyAsynchronousOperationTypes,
                 asynchronousDependencyStreams,
-                asynchronousNonDependencyStreams
+                asynchronousNonDependencyStreams,
+                shortReadsChildGenerator
         );
 
         return ldbcSnbInteractiveWorkloadStreams;

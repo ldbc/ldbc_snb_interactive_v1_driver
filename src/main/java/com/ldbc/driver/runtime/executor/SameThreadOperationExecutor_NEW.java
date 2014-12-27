@@ -38,7 +38,7 @@ public class SameThreadOperationExecutor_NEW implements OperationExecutor_NEW {
     }
 
     @Override
-    public final void execute(Operation operation) throws OperationHandlerExecutorException {
+    public final void execute(Operation operation) throws OperationExecutorException {
         uncompletedHandlers.incrementAndGet();
         try {
             OperationHandlerRunnableContext operationHandlerRunnableContext =
@@ -46,7 +46,6 @@ public class SameThreadOperationExecutor_NEW implements OperationExecutor_NEW {
             operationHandlerRunnableContext.run();
             if (null != childOperationGenerator) {
                 OperationResultReport resultReport = operationHandlerRunnableContext.operationResultReport();
-                operationHandlerRunnableContext.cleanup();
                 double state = childOperationGenerator.initialState();
                 while (childOperationGenerator.hasNext(state)) {
                     Operation childOperation = childOperationGenerator.nextOperation(resultReport);
@@ -58,8 +57,9 @@ public class SameThreadOperationExecutor_NEW implements OperationExecutor_NEW {
                     state = childOperationGenerator.updateState(state);
                 }
             }
+            operationHandlerRunnableContext.cleanup();
         } catch (Throwable e) {
-            throw new OperationHandlerExecutorException(
+            throw new OperationExecutorException(
                     String.format("Error retrieving handler\nOperation: %s\n%s",
                             operation,
                             ConcurrentErrorReporter.stackTraceToString(e)),
@@ -71,7 +71,7 @@ public class SameThreadOperationExecutor_NEW implements OperationExecutor_NEW {
     }
 
     @Override
-    synchronized public final void shutdown(long waitAsMilli) throws OperationHandlerExecutorException {
+    synchronized public final void shutdown(long waitAsMilli) throws OperationExecutorException {
     }
 
     @Override

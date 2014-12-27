@@ -25,18 +25,18 @@ public class WorkloadRunner {
     public static final long RUNNER_POLLING_INTERVAL_AS_MILLI = 100;
     private static final LocalCompletionTimeWriter DUMMY_LOCAL_COMPLETION_TIME_WRITER = new DummyLocalCompletionTimeWriter();
 
-    private final Spinner exactSpinner;
+    private final Spinner spinner;
 
     // TODO make service and inject into workload runner. this could report to coordinator OR a local console printer, for example
     private WorkloadStatusThread workloadStatusThread;
 
     private final ConcurrentErrorReporter errorReporter;
 
-    private final OperationHandlerExecutor executorForAsynchronous;
-    private final List<OperationHandlerExecutor> executorsForBlocking = new ArrayList<>();
+    private final OperationExecutor_NEW executorForAsynchronous;
+    private final List<OperationExecutor_NEW> executorsForBlocking = new ArrayList<>();
 
-    private final OperationStreamExecutorService asynchronousStreamExecutorService;
-    private final List<OperationStreamExecutorService> blockingStreamExecutorServices = new ArrayList<>();
+    private final OperationStreamExecutorService_NEW asynchronousStreamExecutorService;
+    private final List<OperationStreamExecutorService_NEW> blockingStreamExecutorServices = new ArrayList<>();
 
     private final long statusDisplayIntervalAsMilli;
 
@@ -54,21 +54,20 @@ public class WorkloadRunner {
         this.errorReporter = errorReporter;
         this.statusDisplayIntervalAsMilli = statusDisplayIntervalAsSeconds;
 
-        this.exactSpinner = new Spinner(timeSource, spinnerSleepDurationAsMilli, ignoreScheduleStartTimes);
+        this.spinner = new Spinner(timeSource, spinnerSleepDurationAsMilli, ignoreScheduleStartTimes);
 
         boolean detailedStatus = true;
-        if (statusDisplayIntervalAsSeconds > 0)
+        if (statusDisplayIntervalAsSeconds > 0) {
             this.workloadStatusThread = new WorkloadStatusThread(
                     TEMPORAL_UTIL.convert(statusDisplayIntervalAsSeconds, TimeUnit.SECONDS, TimeUnit.MILLISECONDS),
                     metricsService,
                     errorReporter,
                     completionTimeService,
                     detailedStatus);
-
+        }
         // only create a local completion time writer for an executor if it contains at least one READ_WRITE operation
         // otherwise it will cause completion time to stall
         WorkloadStreamDefinition asynchronousStream = workloadStreams.asynchronousStream();
-        this.executorForAsynchronous = new ThreadPoolOperationHandlerExecutor(threadCount, operationHandlerExecutorsBoundedQueueSize);
         LocalCompletionTimeWriter localCompletionTimeWriterForAsynchronous;
         try {
             localCompletionTimeWriterForAsynchronous = (asynchronousStream.dependencyOperations().hasNext())
@@ -77,22 +76,27 @@ public class WorkloadRunner {
         } catch (CompletionTimeException e) {
             throw new WorkloadException("Error while attempting to create local completion time writer", e);
         }
-        this.asynchronousStreamExecutorService = new OperationStreamExecutorService(
-                timeSource,
-                errorReporter,
-                asynchronousStream,
-                exactSpinner,
-                executorForAsynchronous,
+        this.executorForAsynchronous = new ThreadPoolOperationExecutor_NEW(
+                threadCount,
+                operationHandlerExecutorsBoundedQueueSize,
                 db,
+                asynchronousStream,
                 localCompletionTimeWriterForAsynchronous,
                 completionTimeService,
-                metricsService);
+                spinner,
+                timeSource,
+                errorReporter,
+                metricsService,
+                asynchronousStream.childOperationGenerator()
+        );
+        this.asynchronousStreamExecutorService = new OperationStreamExecutorService_NEW(
+                errorReporter,
+                asynchronousStream,
+                executorForAsynchronous,
+                localCompletionTimeWriterForAsynchronous
+        );
 
         for (WorkloadStreamDefinition blockingStream : workloadStreams.blockingStreamDefinitions()) {
-            // TODO benchmark more to find out which policy is best Same Thread vs Single Thread
-            OperationHandlerExecutor executorForBlocking = new SameThreadOperationHandlerExecutor();
-//            OperationHandlerExecutor executorForBlocking = new SingleThreadOperationHandlerExecutor(errorReporter, operationHandlerExecutorsBoundedQueueSize);
-            this.executorsForBlocking.add(executorForBlocking);
             // only create a local completion time writer for an executor if it contains at least one READ_WRITE operation
             // otherwise it will cause completion time to stall
             LocalCompletionTimeWriter localCompletionTimeWriterForBlocking;
@@ -103,17 +107,26 @@ public class WorkloadRunner {
             } catch (CompletionTimeException e) {
                 throw new WorkloadException("Error while attempting to create local completion time writer", e);
             }
+            // TODO benchmark more to find out which policy is best Same Thread vs Single Thread
+            OperationExecutor_NEW executorForBlocking = new SameThreadOperationExecutor_NEW(
+                    db,
+                    blockingStream,
+                    localCompletionTimeWriterForBlocking,
+                    completionTimeService,
+                    spinner,
+                    timeSource,
+                    errorReporter,
+                    metricsService,
+                    blockingStream.childOperationGenerator()
+            );
+            this.executorsForBlocking.add(executorForBlocking);
             this.blockingStreamExecutorServices.add(
-                    new OperationStreamExecutorService(
-                            timeSource,
+                    new OperationStreamExecutorService_NEW(
                             errorReporter,
                             blockingStream,
-                            exactSpinner,
                             executorForBlocking,
-                            db,
-                            localCompletionTimeWriterForBlocking,
-                            completionTimeService,
-                            metricsService)
+                            localCompletionTimeWriterForBlocking
+                    )
             );
         }
     }
@@ -175,11 +188,11 @@ public class WorkloadRunner {
         // (though when running test suite it can result in many running threads, making the tests much slower)
         //
         // if normal shutdown all executors have completed by this stage
-        long shutdownWait = (forced) ? 1 : OperationStreamExecutorService.SHUTDOWN_WAIT_TIMEOUT_AS_MILLI;
+        long shutdownWait = (forced) ? 1 : OperationStreamExecutorService_NEW.SHUTDOWN_WAIT_TIMEOUT_AS_MILLI;
 
         try {
             asynchronousStreamExecutorService.shutdown(shutdownWait);
-        } catch (OperationHandlerExecutorException e) {
+        } catch (OperationExecutorException e) {
             errorReporter.reportError(
                     this,
                     String.format("Encountered error while shutting down %s\n%s\n",
@@ -188,10 +201,10 @@ public class WorkloadRunner {
             );
         }
 
-        for (OperationStreamExecutorService blockingStreamExecutorService : blockingStreamExecutorServices) {
+        for (OperationStreamExecutorService_NEW blockingStreamExecutorService : blockingStreamExecutorServices) {
             try {
                 blockingStreamExecutorService.shutdown(shutdownWait);
-            } catch (OperationHandlerExecutorException e) {
+            } catch (OperationExecutorException e) {
                 errorReporter.reportError(
                         this,
                         String.format("Encountered error while shutting down %s\n%s\n",
@@ -206,10 +219,10 @@ public class WorkloadRunner {
             // but for now it does not matter as the process will terminate anyway
             // (though when running test suite it can result in many running threads, making the tests much slower)
             executorForAsynchronous.shutdown(shutdownWait);
-            for (OperationHandlerExecutor executorForBlocking : executorsForBlocking) {
+            for (OperationExecutor_NEW executorForBlocking : executorsForBlocking) {
                 executorForBlocking.shutdown(shutdownWait);
             }
-        } catch (OperationHandlerExecutorException e) {
+        } catch (OperationExecutorException e) {
             errorReporter.reportError(
                     this,
                     String.format("Encountered error while shutting down\n%s",

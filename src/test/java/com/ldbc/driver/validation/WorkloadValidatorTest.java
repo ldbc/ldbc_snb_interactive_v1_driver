@@ -42,7 +42,8 @@ public class WorkloadValidatorTest {
                         new TimedNamedOperation2(10, 10, 0, "name2"),
                         new TimedNamedOperation2(11, 11, 1, "name2"),
                         new TimedNamedOperation1(12, 12, 2, "name1")
-                ).iterator()
+                ).iterator(),
+                null
         );
         return workloadStreams;
     }
@@ -57,7 +58,8 @@ public class WorkloadValidatorTest {
                         new TimedNamedOperation2(10, 10, 0, "name2"),
                         new TimedNamedOperation2(11, 11, 1, "name2"),
                         new TimedNamedOperation1(12, 12, -1, "name1")
-                ).iterator()
+                ).iterator(),
+                null
         );
         return workloadStreams;
     }
@@ -121,7 +123,8 @@ public class WorkloadValidatorTest {
                         new TimedNamedOperation2(10, 10, 0, "name2"),
                         new TimedNamedOperation2(11, 11, 1, "name2"),
                         new TimedNamedOperation1(12, 12, 11, "name1")
-                ).iterator()
+                ).iterator(),
+                null
         );
         return workloadStreams;
     }
@@ -136,7 +139,8 @@ public class WorkloadValidatorTest {
                         new TimedNamedOperation2(10, 10, 0, "name2"),
                         new TimedNamedOperation2(11, 11, 1, "name2"),
                         new TimedNamedOperation1(12, 12, 13, "name1")
-                ).iterator()
+                ).iterator(),
+                null
         );
         return workloadStreams;
     }
@@ -198,7 +202,8 @@ public class WorkloadValidatorTest {
                         new TimedNamedOperation2(10, 10, 0, "name2"),
                         new TimedNamedOperation2(11, 11, 1, "name2"),
                         new TimedNamedOperation1(12, 12, 2, "name1")
-                ).iterator()
+                ).iterator(),
+                null
         );
         return workloadStreams;
     }
@@ -213,7 +218,8 @@ public class WorkloadValidatorTest {
                         new TimedNamedOperation2(10, 10, 0, "name2"),
                         new TimedNamedOperation2(11, 11, 1, "name2"),
                         new TimedNamedOperation2(12, 12, 2, "name2")
-                ).iterator()
+                ).iterator(),
+                null
         );
         return workloadStreams;
     }
@@ -228,7 +234,8 @@ public class WorkloadValidatorTest {
                         new TimedNamedOperation2(10, 10, 0, "name2"),
                         new TimedNamedOperation2(11, 11, 1, "name2"),
                         new TimedNamedOperation1(12, 12, 2, "name1")
-                ).iterator()
+                ).iterator(),
+                null
         );
         return workloadStreams;
     }
@@ -243,7 +250,8 @@ public class WorkloadValidatorTest {
                         new TimedNamedOperation2(10, 10, 0, "name2"),
                         new TimedNamedOperation2(11, 11, 1, "name2"),
                         new TimedNamedOperation1(12, 12, 2, "name1")
-                ).iterator()
+                ).iterator(),
+                null
         );
         return workloadStreams;
     }
@@ -360,7 +368,8 @@ public class WorkloadValidatorTest {
                                 gf.constant("name")
                         ),
                         operationCount
-                )
+                ),
+                null
         );
 
         WorkloadStreams stream2 = new WorkloadStreams();
@@ -375,7 +384,8 @@ public class WorkloadValidatorTest {
                                 gf.constant("name")
                         ),
                         operationCount
-                )
+                ),
+                null
         );
 
         WorkloadStreams stream3 = new WorkloadStreams();
@@ -390,7 +400,8 @@ public class WorkloadValidatorTest {
                                 gf.constant("name")
                         ),
                         operationCount
-                )
+                ),
+                null
         );
 
         WorkloadStreams stream4 = new WorkloadStreams();
@@ -405,7 +416,8 @@ public class WorkloadValidatorTest {
                                 gf.constant("name")
                         ),
                         operationCount
-                )
+                ),
+                null
         );
 
         WorkloadStreams stream5 = new WorkloadStreams();
@@ -420,7 +432,8 @@ public class WorkloadValidatorTest {
                                 gf.constant("name")
                         ),
                         operationCount
-                )
+                ),
+                null
         );
 
         WorkloadStreams stream6 = new WorkloadStreams();
@@ -435,7 +448,8 @@ public class WorkloadValidatorTest {
                                 gf.constant("name")
                         ),
                         operationCount
-                )
+                ),
+                null
         );
 
         WorkloadStreams stream7 = new WorkloadStreams();
@@ -450,7 +464,8 @@ public class WorkloadValidatorTest {
                                 gf.constant("name")
                         ),
                         operationCount
-                )
+                ),
+                null
         );
 
         WorkloadStreams stream8 = new WorkloadStreams();
@@ -465,7 +480,8 @@ public class WorkloadValidatorTest {
                                 gf.constant("name")
                         ),
                         operationCount
-                )
+                ),
+                null
         );
 
         List<WorkloadStreams> streams = Lists.newArrayList(
@@ -531,7 +547,8 @@ public class WorkloadValidatorTest {
                                         "name"
                                 )
                         )
-                )
+                ),
+                null
         );
 
         WorkloadStreams stream2 = new WorkloadStreams();
@@ -556,7 +573,8 @@ public class WorkloadValidatorTest {
                                         "name"
                                 )
                         )
-                )
+                ),
+                null
         );
 
         WorkloadStreams stream3 = new WorkloadStreams();
@@ -581,7 +599,8 @@ public class WorkloadValidatorTest {
                                         "name"
                                 )
                         )
-                )
+                ),
+                null
         );
 
         WorkloadStreams stream4 = new WorkloadStreams();
@@ -606,7 +625,8 @@ public class WorkloadValidatorTest {
                                         "name"
                                 )
                         )
-                )
+                ),
+                null
         );
 
         List<WorkloadStreams> streams = Lists.newArrayList(
@@ -665,7 +685,8 @@ public class WorkloadValidatorTest {
                                         "name"
                                 )
                         )
-                )
+                ),
+                null
         );
 
         WorkloadStreams stream2 = new WorkloadStreams();
@@ -689,7 +710,8 @@ public class WorkloadValidatorTest {
                                         "name"
                                 )
                         )
-                )
+                ),
+                null
         );
 
         WorkloadStreams stream3 = new WorkloadStreams();
@@ -713,7 +735,8 @@ public class WorkloadValidatorTest {
                                         "name"
                                 )
                         )
-                )
+                ),
+                null
         );
 
         WorkloadStreams stream4 = new WorkloadStreams();
@@ -737,7 +760,8 @@ public class WorkloadValidatorTest {
                                         "name"
                                 )
                         )
-                )
+                ),
+                null
         );
 
         List<WorkloadStreams> streams = Lists.newArrayList(

@@ -43,7 +43,6 @@ public class SingleThreadOperationExecutorThread_NEW extends Thread {
                 operationHandlerRunnableContext.run();
                 if (null != childOperationGenerator) {
                     OperationResultReport resultReport = operationHandlerRunnableContext.operationResultReport();
-                    operationHandlerRunnableContext.cleanup();
                     double state = childOperationGenerator.initialState();
                     while (childOperationGenerator.hasNext(state)) {
                         Operation childOperation = childOperationGenerator.nextOperation(resultReport);
@@ -55,6 +54,7 @@ public class SingleThreadOperationExecutorThread_NEW extends Thread {
                         state = childOperationGenerator.updateState(state);
                     }
                 }
+                operationHandlerRunnableContext.cleanup();
                 uncompletedHandlers.decrementAndGet();
                 operation = operationQueueEventFetcher.fetchNextEvent();
             }

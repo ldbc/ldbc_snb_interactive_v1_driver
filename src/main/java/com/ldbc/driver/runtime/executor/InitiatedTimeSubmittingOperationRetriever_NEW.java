@@ -31,7 +31,7 @@ class InitiatedTimeSubmittingOperationRetriever_NEW {
     2. submit initiated time
     4. return operation with lowest scheduled start time
      */
-    public Operation nextOperation() throws OperationHandlerExecutorException, CompletionTimeException {
+    public Operation nextOperation() throws OperationExecutorException, CompletionTimeException {
         if (dependencyOperations.hasNext() && null == nextDependencyOperation) {
             nextDependencyOperation = dependencyOperations.next();
             // submit initiated time as soon as possible so GCT/dependencies can advance as soon as possible
@@ -42,7 +42,7 @@ class InitiatedTimeSubmittingOperationRetriever_NEW {
             }
         }
         if (nonDependencyOperations.hasNext() && null == nextNonDependencyOperation) {
-            nextDependencyOperation = nonDependencyOperations.next();
+            nextNonDependencyOperation = nonDependencyOperations.next();
             // no need to submit initiated time for an operation that should not write to GCT
         }
         // return operation with lowest start time
@@ -65,7 +65,7 @@ class InitiatedTimeSubmittingOperationRetriever_NEW {
             nextDependencyOperation = null;
             return nextOperation;
         } else {
-            throw new OperationHandlerExecutorException("Unexpected error in " + getClass().getSimpleName());
+            throw new OperationExecutorException("Unexpected error in " + getClass().getSimpleName());
         }
     }
 }

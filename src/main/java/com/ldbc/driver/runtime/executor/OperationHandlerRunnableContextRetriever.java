@@ -45,12 +45,12 @@ class OperationHandlerRunnableContextRetriever {
         this.dependencyOperationTypes = streamDefinition.dependencyOperationTypes();
     }
 
-    public OperationHandlerRunnableContext getInitializedHandlerFor(Operation operation) throws OperationHandlerExecutorException, CompletionTimeException, DbException {
+    public OperationHandlerRunnableContext getInitializedHandlerFor(Operation operation) throws OperationExecutorException, CompletionTimeException, DbException {
         OperationHandlerRunnableContext operationHandlerRunnableContext;
         try {
             operationHandlerRunnableContext = db.getOperationHandlerRunnableContext(operation);
-        } catch (DbException e) {
-            throw new OperationHandlerExecutorException(String.format("Error while retrieving handler for operation\nOperation: %s", operation));
+        } catch (Exception e) {
+            throw new OperationExecutorException(String.format("Error while retrieving handler for operation\nOperation: %s", operation), e);
         }
         LocalCompletionTimeWriter localCompletionTimeWriterForHandler;
         if (dependencyOperationTypes.contains(operation.getClass())) {
@@ -60,8 +60,8 @@ class OperationHandlerRunnableContextRetriever {
         }
         try {
             operationHandlerRunnableContext.init(timeSource, spinner, operation, localCompletionTimeWriterForHandler, errorReporter, metricsService);
-        } catch (OperationException e) {
-            throw new OperationHandlerExecutorException(String.format("Error while initializing handler for operation\nOperation: %s", operation));
+        } catch (Exception e) {
+            throw new OperationExecutorException(String.format("Error while initializing handler for operation\nOperation: %s", operation), e);
         }
         if (dependentOperationTypes.contains(operation.getClass())) {
             operationHandlerRunnableContext.setBeforeExecuteCheck(new GctDependencyCheck(globalCompletionTimeReader, operation, errorReporter));

@@ -455,7 +455,8 @@ public class WorkloadRunnerTest {
                     new HashSet<Class<? extends Operation<?>>>(),
                     new HashSet<Class<? extends Operation<?>>>(),
                     Collections.<Operation<?>>emptyIterator(),
-                    timeMappedOperations
+                    timeMappedOperations,
+                    null
             );
 
             File resultsLog = temporaryFolder.newFile();

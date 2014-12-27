@@ -488,19 +488,22 @@ public class WorkloadStreamsTest {
                 new HashSet<Class<? extends Operation<?>>>(),
                 Sets.<Class<? extends Operation<?>>>newHashSet(TimedNamedOperation1.class),
                 asyncDependencyStream,
-                asyncNonDependencyStream
+                asyncNonDependencyStream,
+                null
         );
         workloadStreams.addBlockingStream(
                 new HashSet<Class<? extends Operation<?>>>(),
                 Sets.<Class<? extends Operation<?>>>newHashSet(TimedNamedOperation2.class),
                 blockingDependencyStream1,
-                blockingNonDependencyStream1
+                blockingNonDependencyStream1,
+                null
         );
         workloadStreams.addBlockingStream(
                 new HashSet<Class<? extends Operation<?>>>(),
                 Sets.<Class<? extends Operation<?>>>newHashSet(TimedNamedOperation3.class),
                 blockingDependencyStream2,
-                blockingNonDependencyStream2
+                blockingNonDependencyStream2,
+                null
         );
         return workloadStreams;
     }
