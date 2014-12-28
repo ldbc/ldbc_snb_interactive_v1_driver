@@ -80,4 +80,9 @@ public class LdbcShortQuery5MessageCreator extends Operation<LdbcShortQuery5Mess
                 "messageId=" + messageId +
                 '}';
     }
+
+    @Override
+    public int type() {
+        return 105;
+    }
 }

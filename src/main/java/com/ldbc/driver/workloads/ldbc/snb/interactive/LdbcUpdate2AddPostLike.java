@@ -67,4 +67,9 @@ public class LdbcUpdate2AddPostLike extends Operation<Object> {
     public String serializeResult(Object operationResultInstance) {
         return null;
     }
+
+    @Override
+    public int type() {
+        return 1002;
+    }
 }

@@ -8,15 +8,9 @@ import org.junit.Test;
 import java.util.List;
 
 import static org.hamcrest.CoreMatchers.equalTo;
-import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
 
 public class LdbcOperationsSerializeMarshalOperationResultsTest {
-    @Test
-    public void operationTypeShouldBeIntegerSoSwitchStatementsCanBeUsed() throws SerializingMarshallingException {
-        assertThat(true, is(false));
-    }
-
     @Test
     public void ldbcQuery1ShouldSerializeAndMarshalLdbcQuery1Result() throws SerializingMarshallingException {
         // Given

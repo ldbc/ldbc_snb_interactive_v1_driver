@@ -36,9 +36,7 @@ public abstract class Operation<RESULT_TYPE> {
         return new OperationResultReport(resultCode, result, this);
     }
 
-    public String type() {
-        return getClass().getName();
-    }
+    public abstract int type();
 
     @Override
     public String toString() {

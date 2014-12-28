@@ -88,4 +88,9 @@ public class LdbcShortQuery1PersonProfile extends Operation<LdbcShortQuery1Perso
                 "personId=" + personId +
                 '}';
     }
+
+    @Override
+    public int type() {
+        return 101;
+    }
 }

@@ -119,4 +119,9 @@ public class LdbcQuery7 extends Operation<List<LdbcQuery7Result>> {
             throw new SerializingMarshallingException(String.format("Error while trying to serialize result\n%s", results.toString()), e);
         }
     }
+
+    @Override
+    public int type() {
+        return 7;
+    }
 }

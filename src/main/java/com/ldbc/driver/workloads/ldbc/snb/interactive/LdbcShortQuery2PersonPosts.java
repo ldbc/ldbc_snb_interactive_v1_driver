@@ -91,4 +91,9 @@ public class LdbcShortQuery2PersonPosts extends Operation<List<LdbcShortQuery2Pe
                 "personId=" + personId +
                 '}';
     }
+
+    @Override
+    public int type() {
+        return 102;
+    }
 }

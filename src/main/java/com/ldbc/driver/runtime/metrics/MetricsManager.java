@@ -14,7 +14,7 @@ public class MetricsManager {
     private static final long ONE_SECOND_AS_NANO = 1000000000;
 
     private final TemporalUtil temporalUtil = new TemporalUtil();
-    private final Map<String, OperationTypeMetricsManager> allOperationMetrics;
+    private final Map<Integer, OperationTypeMetricsManager> allOperationMetrics;
     private final TimeSource timeSource;
     private final TimeUnit unit;
     private final long highestExpectedRuntimeDurationAsNano;
@@ -61,7 +61,7 @@ public class MetricsManager {
         OperationTypeMetricsManager operationTypeMetricsManager = allOperationMetrics.get(result.operation().type());
         if (null == operationTypeMetricsManager) {
             operationTypeMetricsManager = new OperationTypeMetricsManager(
-                    result.operation().type(),
+                    result.operation().getClass().getSimpleName(),
                     unit,
                     highestExpectedRuntimeDurationAsNano
             );
@@ -80,8 +80,9 @@ public class MetricsManager {
 
     WorkloadResultsSnapshot snapshot() {
         Map<String, OperationMetricsSnapshot> operationMetricsMap = new HashMap<>();
-        for (Map.Entry<String, OperationTypeMetricsManager> metricsManagerEntry : allOperationMetrics.entrySet()) {
-            operationMetricsMap.put(metricsManagerEntry.getKey(), metricsManagerEntry.getValue().snapshot());
+        for (Map.Entry<Integer, OperationTypeMetricsManager> metricsManagerEntry : allOperationMetrics.entrySet()) {
+            OperationMetricsSnapshot snapshot = metricsManagerEntry.getValue().snapshot();
+            operationMetricsMap.put(snapshot.name(), snapshot);
         }
         return new WorkloadResultsSnapshot(
                 operationMetricsMap,

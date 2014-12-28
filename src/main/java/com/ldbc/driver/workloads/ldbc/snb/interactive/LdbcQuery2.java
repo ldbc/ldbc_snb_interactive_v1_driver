@@ -123,4 +123,9 @@ public class LdbcQuery2 extends Operation<List<LdbcQuery2Result>> {
             throw new SerializingMarshallingException(String.format("Error while trying to serialize result\n%s", results.toString()), e);
         }
     }
+
+    @Override
+    public int type() {
+        return 2;
+    }
 }

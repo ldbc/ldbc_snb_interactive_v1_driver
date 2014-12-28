@@ -86,4 +86,9 @@ public class LdbcShortQuery6MessageForum extends Operation<LdbcShortQuery6Messag
                 "messageId=" + messageId +
                 '}';
     }
+
+    @Override
+    public int type() {
+        return 106;
+    }
 }

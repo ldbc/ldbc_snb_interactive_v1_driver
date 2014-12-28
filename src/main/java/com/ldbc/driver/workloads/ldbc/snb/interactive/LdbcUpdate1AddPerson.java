@@ -237,4 +237,9 @@ public class LdbcUpdate1AddPerson extends Operation<Object> {
                     '}';
         }
     }
+
+    @Override
+    public int type() {
+        return 1001;
+    }
 }

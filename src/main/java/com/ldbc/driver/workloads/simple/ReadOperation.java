@@ -38,4 +38,9 @@ public class ReadOperation extends Operation<Map<String, Iterator<Byte>>> {
     public String serializeResult(Object operationResultInstance) {
         return null;
     }
+
+    @Override
+    public int type() {
+        return 3;
+    }
 }

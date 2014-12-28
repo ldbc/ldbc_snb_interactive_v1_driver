@@ -31,6 +31,11 @@ public class QueuePerformanceTests {
 
     final Operation<?> TERMINATE_OPERATION = new Operation<Object>() {
         @Override
+        public int type() {
+            return -1;
+        }
+
+        @Override
         public Object marshalResult(String serializedOperationResult) throws SerializingMarshallingException {
             return null;
         }

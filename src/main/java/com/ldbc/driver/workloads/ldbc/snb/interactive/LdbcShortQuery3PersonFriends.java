@@ -94,4 +94,9 @@ public class LdbcShortQuery3PersonFriends extends Operation<List<LdbcShortQuery3
                 "personId=" + personId +
                 '}';
     }
+
+    @Override
+    public int type() {
+        return 103;
+    }
 }

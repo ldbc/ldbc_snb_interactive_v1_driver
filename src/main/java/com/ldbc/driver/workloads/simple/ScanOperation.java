@@ -46,4 +46,9 @@ public class ScanOperation extends Operation<Vector<Map<String, Iterator<Byte>>>
     public String serializeResult(Object operationResultInstance) {
         return null;
     }
+
+    @Override
+    public int type() {
+        return 5;
+    }
 }

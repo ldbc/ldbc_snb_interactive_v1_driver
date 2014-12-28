@@ -110,4 +110,9 @@ public class LdbcQuery6 extends Operation<List<LdbcQuery6Result>> {
             throw new SerializingMarshallingException(String.format("Error while trying to serialize result\n%s", results.toString()), e);
         }
     }
+
+    @Override
+    public int type() {
+        return 6;
+    }
 }

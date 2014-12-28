@@ -9,6 +9,11 @@ public class NothingOperation extends Operation<DummyResult> {
     }
 
     @Override
+    public int type() {
+        return 0;
+    }
+
+    @Override
     public DummyResult marshalResult(String serializedOperationResult) {
         return new DummyResult();
     }

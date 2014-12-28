@@ -46,4 +46,9 @@ public class ReadModifyWriteOperation extends Operation<Object> {
     public String serializeResult(Object operationResultInstance) {
         return null;
     }
+
+    @Override
+    public int type() {
+        return 1;
+    }
 }

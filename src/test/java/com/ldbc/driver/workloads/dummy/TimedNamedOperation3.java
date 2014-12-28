@@ -39,4 +39,9 @@ public class TimedNamedOperation3 extends NothingOperation {
 
         return true;
     }
+
+    @Override
+    public int type() {
+        return 3;
+    }
 }

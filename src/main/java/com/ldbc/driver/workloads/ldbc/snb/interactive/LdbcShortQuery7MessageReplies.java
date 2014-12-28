@@ -91,4 +91,9 @@ public class LdbcShortQuery7MessageReplies extends Operation<List<LdbcShortQuery
                 "messageId=" + messageId +
                 '}';
     }
+
+    @Override
+    public int type() {
+        return 107;
+    }
 }

@@ -67,4 +67,9 @@ public class LdbcUpdate8AddFriendship extends Operation<Object> {
     public String serializeResult(Object operationResultInstance) {
         return null;
     }
+
+    @Override
+    public int type() {
+        return 1008;
+    }
 }

@@ -82,4 +82,9 @@ public class LdbcQuery13 extends Operation<LdbcQuery13Result> {
             throw new SerializingMarshallingException(String.format("Error while trying to serialize result\n%s", result.toString()), e);
         }
     }
+
+    @Override
+    public int type() {
+        return 13;
+    }
 }

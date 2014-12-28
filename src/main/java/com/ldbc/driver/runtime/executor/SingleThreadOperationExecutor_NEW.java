@@ -17,6 +17,11 @@ import java.util.concurrent.atomic.AtomicLong;
 public class SingleThreadOperationExecutor_NEW implements OperationExecutor_NEW {
     static final Operation TERMINATE_OPERATION = new Operation() {
         @Override
+        public int type() {
+            return -1;
+        }
+
+        @Override
         public Object marshalResult(String serializedOperationResult) throws SerializingMarshallingException {
             return null;
         }
@@ -25,6 +30,7 @@ public class SingleThreadOperationExecutor_NEW implements OperationExecutor_NEW 
         public String serializeResult(Object operationResultInstance) throws SerializingMarshallingException {
             return null;
         }
+
     };
 
     private final SingleThreadOperationExecutorThread_NEW executorThread;

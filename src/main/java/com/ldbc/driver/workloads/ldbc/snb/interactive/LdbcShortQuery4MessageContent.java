@@ -73,4 +73,9 @@ public class LdbcShortQuery4MessageContent extends Operation<LdbcShortQuery4Mess
                 "messageId=" + messageId +
                 '}';
     }
+
+    @Override
+    public int type() {
+        return 104;
+    }
 }
