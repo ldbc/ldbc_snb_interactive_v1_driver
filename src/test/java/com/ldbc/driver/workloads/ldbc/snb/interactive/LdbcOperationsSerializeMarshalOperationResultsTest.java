@@ -8,9 +8,15 @@ import org.junit.Test;
 import java.util.List;
 
 import static org.hamcrest.CoreMatchers.equalTo;
+import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
 
 public class LdbcOperationsSerializeMarshalOperationResultsTest {
+    @Test
+    public void operationTypeShouldBeIntegerSoSwitchStatementsCanBeUsed() throws SerializingMarshallingException {
+        assertThat(true, is(false));
+    }
+
     @Test
     public void ldbcQuery1ShouldSerializeAndMarshalLdbcQuery1Result() throws SerializingMarshallingException {
         // Given
@@ -391,10 +397,10 @@ public class LdbcOperationsSerializeMarshalOperationResultsTest {
         LdbcQuery13 operation = DummyLdbcSnbInteractiveOperationInstances.read13();
 
         int shortestPathLength1 = 1;
-        List<LdbcQuery13Result> before = Lists.newArrayList(new LdbcQuery13Result(shortestPathLength1));
+        LdbcQuery13Result before = new LdbcQuery13Result(shortestPathLength1);
 
         // When
-        List<LdbcQuery13Result> after = operation.marshalResult(
+        LdbcQuery13Result after = operation.marshalResult(
                 operation.serializeResult(
                         operation.marshalResult(
                                 operation.serializeResult(before)
@@ -415,6 +421,155 @@ public class LdbcOperationsSerializeMarshalOperationResultsTest {
 
         // When
         List<LdbcQuery14Result> after = operation.marshalResult(
+                operation.serializeResult(
+                        operation.marshalResult(
+                                operation.serializeResult(before)
+                        )
+                )
+        );
+
+        // Then
+        assertThat(before, equalTo(after));
+    }
+
+    @Test
+    public void ldbcShortQuery1ShouldSerializeAndMarshalLdbcShortQuery1Result() throws SerializingMarshallingException {
+        // Given
+        LdbcShortQuery1PersonProfile operation = DummyLdbcSnbInteractiveOperationInstances.short1();
+
+        LdbcShortQuery1PersonProfileResult before = new LdbcShortQuery1PersonProfileResult("a", "b", 1, "c", "d", 5);
+
+        // When
+        LdbcShortQuery1PersonProfileResult after = operation.marshalResult(
+                operation.serializeResult(
+                        operation.marshalResult(
+                                operation.serializeResult(before)
+                        )
+                )
+        );
+
+        // Then
+        assertThat(before, equalTo(after));
+    }
+
+    @Test
+    public void ldbcShortQuery2ShouldSerializeAndMarshalLdbcShortQuery2Result() throws SerializingMarshallingException {
+        // Given
+        LdbcShortQuery2PersonPosts operation = DummyLdbcSnbInteractiveOperationInstances.short2();
+
+        List<LdbcShortQuery2PersonPostsResult> before = Lists.newArrayList(
+                new LdbcShortQuery2PersonPostsResult(1, "a"),
+                new LdbcShortQuery2PersonPostsResult(2, "b")
+        );
+
+        // When
+        List<LdbcShortQuery2PersonPostsResult> after = operation.marshalResult(
+                operation.serializeResult(
+                        operation.marshalResult(
+                                operation.serializeResult(before)
+                        )
+                )
+        );
+
+        // Then
+        assertThat(before, equalTo(after));
+    }
+
+    @Test
+    public void ldbcShortQuery3ShouldSerializeAndMarshalLdbcShortQuery3Result() throws SerializingMarshallingException {
+        // Given
+        LdbcShortQuery3PersonFriends operation = DummyLdbcSnbInteractiveOperationInstances.short3();
+
+        List<LdbcShortQuery3PersonFriendsResult> before = Lists.newArrayList(
+                new LdbcShortQuery3PersonFriendsResult(1, "a", "b"),
+                new LdbcShortQuery3PersonFriendsResult(2, "c", "d")
+        );
+
+        // When
+        List<LdbcShortQuery3PersonFriendsResult> after = operation.marshalResult(
+                operation.serializeResult(
+                        operation.marshalResult(
+                                operation.serializeResult(before)
+                        )
+                )
+        );
+
+        // Then
+        assertThat(before, equalTo(after));
+    }
+
+    @Test
+    public void ldbcShortQuery4ShouldSerializeAndMarshalLdbcShortQuery4Result() throws SerializingMarshallingException {
+        // Given
+        LdbcShortQuery4MessageContent operation = DummyLdbcSnbInteractiveOperationInstances.short4();
+
+        LdbcShortQuery4MessageContentResult before = new LdbcShortQuery4MessageContentResult("a");
+
+        // When
+        LdbcShortQuery4MessageContentResult after = operation.marshalResult(
+                operation.serializeResult(
+                        operation.marshalResult(
+                                operation.serializeResult(before)
+                        )
+                )
+        );
+
+        // Then
+        assertThat(before, equalTo(after));
+    }
+
+    @Test
+    public void ldbcShortQuery5ShouldSerializeAndMarshalLdbcShortQuery5Result() throws SerializingMarshallingException {
+        // Given
+        LdbcShortQuery5MessageCreator operation = DummyLdbcSnbInteractiveOperationInstances.short5();
+
+        LdbcShortQuery5MessageCreatorResult before = new LdbcShortQuery5MessageCreatorResult(1, "a", "b");
+
+        // When
+        LdbcShortQuery5MessageCreatorResult after = operation.marshalResult(
+                operation.serializeResult(
+                        operation.marshalResult(
+                                operation.serializeResult(before)
+                        )
+                )
+        );
+
+        // Then
+        assertThat(before, equalTo(after));
+    }
+
+    @Test
+    public void ldbcShortQuery6ShouldSerializeAndMarshalLdbcShortQuery6Result() throws SerializingMarshallingException {
+        // Given
+        LdbcShortQuery6MessageForum operation = DummyLdbcSnbInteractiveOperationInstances.short6();
+
+        LdbcShortQuery6MessageForumResult before = new LdbcShortQuery6MessageForumResult(1, "a", 2, "b", "c");
+
+        // When
+        LdbcShortQuery6MessageForumResult after = operation.marshalResult(
+                operation.serializeResult(
+                        operation.marshalResult(
+                                operation.serializeResult(before)
+                        )
+                )
+        );
+
+        // Then
+        assertThat(before, equalTo(after));
+    }
+
+    @Test
+    public void ldbcShortQuery7ShouldSerializeAndMarshalLdbcShortQuery7Result() throws SerializingMarshallingException {
+        // Given
+        LdbcShortQuery7MessageReplies operation = DummyLdbcSnbInteractiveOperationInstances.short7();
+
+        List<LdbcShortQuery7MessageRepliesResult> before = Lists.newArrayList(
+                new LdbcShortQuery7MessageRepliesResult(1, "a"),
+                new LdbcShortQuery7MessageRepliesResult(2, "b")
+        );
+
+        // When
+        List<LdbcShortQuery7MessageRepliesResult> after = operation.marshalResult(
                 operation.serializeResult(
                         operation.marshalResult(
                                 operation.serializeResult(before)

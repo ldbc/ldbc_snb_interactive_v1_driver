@@ -3,9 +3,7 @@ package com.ldbc.driver;
 public interface ChildOperationGenerator {
     double initialState();
 
-    boolean hasNext(double state);
-
-    Operation<?> nextOperation(OperationResultReport resultReport);
+    Operation<?> nextOperation(double state, OperationResultReport resultReport) throws WorkloadException;
 
     double updateState(double state);
 }

@@ -6,6 +6,11 @@ import com.ldbc.driver.workloads.ldbc.snb.interactive.*;
 import java.util.Date;
 
 public class DummyLdbcSnbInteractiveOperationInstances {
+
+    /*
+    LONG READS
+     */
+
     public static LdbcQuery1 read1() {
         return new LdbcQuery1(1, "3", 4);
     }
@@ -61,6 +66,42 @@ public class DummyLdbcSnbInteractiveOperationInstances {
     public static LdbcQuery14 read14() {
         return new LdbcQuery14(1, 3);
     }
+
+    /*
+    SHORT READS
+     */
+
+    public static LdbcShortQuery1PersonProfile short1() {
+        return new LdbcShortQuery1PersonProfile(1);
+    }
+
+    public static LdbcShortQuery2PersonPosts short2() {
+        return new LdbcShortQuery2PersonPosts(2);
+    }
+
+    public static LdbcShortQuery3PersonFriends short3() {
+        return new LdbcShortQuery3PersonFriends(3);
+    }
+
+    public static LdbcShortQuery4MessageContent short4() {
+        return new LdbcShortQuery4MessageContent(4);
+    }
+
+    public static LdbcShortQuery5MessageCreator short5() {
+        return new LdbcShortQuery5MessageCreator(5);
+    }
+
+    public static LdbcShortQuery6MessageForum short6() {
+        return new LdbcShortQuery6MessageForum(6);
+    }
+
+    public static LdbcShortQuery7MessageReplies short7() {
+        return new LdbcShortQuery7MessageReplies(7);
+    }
+
+    /*
+    UPDATES
+     */
 
     public static LdbcUpdate1AddPerson write1() {
         return new LdbcUpdate1AddPerson(

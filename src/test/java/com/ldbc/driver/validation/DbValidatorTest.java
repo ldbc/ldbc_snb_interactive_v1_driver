@@ -10,10 +10,14 @@ import com.ldbc.driver.control.DriverConfigurationException;
 import com.ldbc.driver.generator.GeneratorFactory;
 import com.ldbc.driver.generator.RandomDataGeneratorFactory;
 import com.ldbc.driver.testutils.TestUtils;
-import com.ldbc.driver.workloads.ldbc.snb.interactive.*;
+import com.ldbc.driver.workloads.ldbc.snb.interactive.LdbcQuery14;
+import com.ldbc.driver.workloads.ldbc.snb.interactive.LdbcQuery14Result;
+import com.ldbc.driver.workloads.ldbc.snb.interactive.LdbcSnbInteractiveConfiguration;
+import com.ldbc.driver.workloads.ldbc.snb.interactive.LdbcSnbInteractiveWorkload;
 import com.ldbc.driver.workloads.ldbc.snb.interactive.db.DummyLdbcSnbInteractiveDb;
 import com.ldbc.driver.workloads.ldbc.snb.interactive.db.DummyLdbcSnbInteractiveOperationInstances;
 import com.ldbc.driver.workloads.ldbc.snb.interactive.db.DummyLdbcSnbInteractiveOperationResultInstances;
+import com.ldbc.driver.workloads.ldbc.snb.interactive.db.DummyLdbcSnbInteractiveOperationResultSets;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
@@ -38,12 +42,10 @@ public class DbValidatorTest {
         List<ValidationParam> correctValidationParamsList = Lists.newArrayList(gf.limit(gf.repeating(buildParams().iterator()), 10000));
 
         LdbcQuery14 operation14 = DummyLdbcSnbInteractiveOperationInstances.read14();
-        List<LdbcQuery14Result> unexpectedResult4 = Lists.newArrayList(
-                DummyLdbcSnbInteractiveOperationResultInstances.read14Result(),
-                DummyLdbcSnbInteractiveOperationResultInstances.read14Result()
-        );
+        List<LdbcQuery14Result> unexpectedResult14 = DummyLdbcSnbInteractiveOperationResultSets.read14Results();
+        unexpectedResult14.add(DummyLdbcSnbInteractiveOperationResultInstances.read14Result());
 
-        ValidationParam unexpectedValidationParam14 = new ValidationParam(operation14, unexpectedResult4);
+        ValidationParam unexpectedValidationParam14 = new ValidationParam(operation14, unexpectedResult14);
         correctValidationParamsList.add(unexpectedValidationParam14);
 
         Iterator<ValidationParam> validationParams = correctValidationParamsList.iterator();
@@ -104,105 +106,133 @@ public class DbValidatorTest {
     }
 
     List<ValidationParam> buildParams() {
-        LdbcQuery1 operation1 = DummyLdbcSnbInteractiveOperationInstances.read1();
-        List<LdbcQuery1Result> result1 = Lists.newArrayList(
-                DummyLdbcSnbInteractiveOperationResultInstances.read1Result()
+        ValidationParam validationParamLong1 = new ValidationParam(
+                DummyLdbcSnbInteractiveOperationInstances.read1(),
+                DummyLdbcSnbInteractiveOperationResultSets.read1Results()
         );
-        ValidationParam validationParam1 = new ValidationParam(operation1, result1);
 
-        LdbcQuery2 operation2 = DummyLdbcSnbInteractiveOperationInstances.read2();
-        List<LdbcQuery2Result> result2 = Lists.newArrayList(
-                DummyLdbcSnbInteractiveOperationResultInstances.read2Result()
+        ValidationParam validationParamLong2 = new ValidationParam(
+                DummyLdbcSnbInteractiveOperationInstances.read2(),
+                DummyLdbcSnbInteractiveOperationResultSets.read2Results()
         );
-        ValidationParam validationParam2 = new ValidationParam(operation2, result2);
 
-        LdbcQuery3 operation3 = DummyLdbcSnbInteractiveOperationInstances.read3();
-        List<LdbcQuery3Result> result3 = Lists.newArrayList(
-                DummyLdbcSnbInteractiveOperationResultInstances.read3Result()
+        ValidationParam validationParamLong3 = new ValidationParam(
+                DummyLdbcSnbInteractiveOperationInstances.read3(),
+                DummyLdbcSnbInteractiveOperationResultSets.read3Results()
         );
-        ValidationParam validationParam3 = new ValidationParam(operation3, result3);
 
-        LdbcQuery4 operation4 = DummyLdbcSnbInteractiveOperationInstances.read4();
-        List<LdbcQuery4Result> result4 = Lists.newArrayList(
-                DummyLdbcSnbInteractiveOperationResultInstances.read4Result()
+        ValidationParam validationParamLong4 = new ValidationParam(
+                DummyLdbcSnbInteractiveOperationInstances.read4(),
+                DummyLdbcSnbInteractiveOperationResultSets.read4Results()
         );
-        ValidationParam validationParam4 = new ValidationParam(operation4, result4);
 
-        LdbcQuery5 operation5 = DummyLdbcSnbInteractiveOperationInstances.read5();
-        List<LdbcQuery5Result> result5 = Lists.newArrayList(
-                DummyLdbcSnbInteractiveOperationResultInstances.read5Result()
+        ValidationParam validationParamLong5 = new ValidationParam(
+                DummyLdbcSnbInteractiveOperationInstances.read5(),
+                DummyLdbcSnbInteractiveOperationResultSets.read5Results()
         );
-        ValidationParam validationParam5 = new ValidationParam(operation5, result5);
 
-        LdbcQuery6 operation6 = DummyLdbcSnbInteractiveOperationInstances.read6();
-        List<LdbcQuery6Result> result6 = Lists.newArrayList(
-                DummyLdbcSnbInteractiveOperationResultInstances.read6Result()
+        ValidationParam validationParamLong6 = new ValidationParam(
+                DummyLdbcSnbInteractiveOperationInstances.read6(),
+                DummyLdbcSnbInteractiveOperationResultSets.read6Results()
         );
-        ValidationParam validationParam6 = new ValidationParam(operation6, result6);
 
-        LdbcQuery7 operation7 = DummyLdbcSnbInteractiveOperationInstances.read7();
-        List<LdbcQuery7Result> result7 = Lists.newArrayList(
-                DummyLdbcSnbInteractiveOperationResultInstances.read7Result()
+        ValidationParam validationParamLong7 = new ValidationParam(
+                DummyLdbcSnbInteractiveOperationInstances.read7(),
+                DummyLdbcSnbInteractiveOperationResultSets.read7Results()
         );
-        ValidationParam validationParam7 = new ValidationParam(operation7, result7);
 
-        LdbcQuery8 operation8 = DummyLdbcSnbInteractiveOperationInstances.read8();
-        List<LdbcQuery8Result> result8 = Lists.newArrayList(
-                DummyLdbcSnbInteractiveOperationResultInstances.read8Result()
+        ValidationParam validationParamLong8 = new ValidationParam(
+                DummyLdbcSnbInteractiveOperationInstances.read8(),
+                DummyLdbcSnbInteractiveOperationResultSets.read8Results()
         );
-        ValidationParam validationParam8 = new ValidationParam(operation8, result8);
 
-        LdbcQuery9 operation9 = DummyLdbcSnbInteractiveOperationInstances.read9();
-        List<LdbcQuery9Result> result9 = Lists.newArrayList(
-                DummyLdbcSnbInteractiveOperationResultInstances.read9Result()
+        ValidationParam validationParamLong9 = new ValidationParam(
+                DummyLdbcSnbInteractiveOperationInstances.read9(),
+                DummyLdbcSnbInteractiveOperationResultSets.read9Results()
         );
-        ValidationParam validationParam9 = new ValidationParam(operation9, result9);
 
-        LdbcQuery10 operation10 = DummyLdbcSnbInteractiveOperationInstances.read10();
-        List<LdbcQuery10Result> result10 = Lists.newArrayList(
-                DummyLdbcSnbInteractiveOperationResultInstances.read10Result()
+        ValidationParam validationParamLong10 = new ValidationParam(
+                DummyLdbcSnbInteractiveOperationInstances.read10(),
+                DummyLdbcSnbInteractiveOperationResultSets.read10Results()
         );
-        ValidationParam validationParam10 = new ValidationParam(operation10, result10);
 
-        LdbcQuery11 operation11 = DummyLdbcSnbInteractiveOperationInstances.read11();
-        List<LdbcQuery11Result> result11 = Lists.newArrayList(
-                DummyLdbcSnbInteractiveOperationResultInstances.read11Result()
+        ValidationParam validationParamLong11 = new ValidationParam(
+                DummyLdbcSnbInteractiveOperationInstances.read11(),
+                DummyLdbcSnbInteractiveOperationResultSets.read11Results()
         );
-        ValidationParam validationParam11 = new ValidationParam(operation11, result11);
 
-        LdbcQuery12 operation12 = DummyLdbcSnbInteractiveOperationInstances.read12();
-        List<LdbcQuery12Result> result12 = Lists.newArrayList(
-                DummyLdbcSnbInteractiveOperationResultInstances.read12Result()
+        ValidationParam validationParamLong12 = new ValidationParam(
+                DummyLdbcSnbInteractiveOperationInstances.read12(),
+                DummyLdbcSnbInteractiveOperationResultSets.read12Results()
         );
-        ValidationParam validationParam12 = new ValidationParam(operation12, result12);
 
-        LdbcQuery13 operation13 = DummyLdbcSnbInteractiveOperationInstances.read13();
-        List<LdbcQuery13Result> result13 = Lists.newArrayList(
+        ValidationParam validationParamLong13 = new ValidationParam(
+                DummyLdbcSnbInteractiveOperationInstances.read13(),
                 DummyLdbcSnbInteractiveOperationResultInstances.read13Result()
         );
-        ValidationParam validationParam13 = new ValidationParam(operation13, result13);
 
-        LdbcQuery14 operation14 = DummyLdbcSnbInteractiveOperationInstances.read14();
-        List<LdbcQuery14Result> result14 = Lists.newArrayList(
-                DummyLdbcSnbInteractiveOperationResultInstances.read14Result()
+        ValidationParam validationParamLong14 = new ValidationParam(
+                DummyLdbcSnbInteractiveOperationInstances.read14(),
+                DummyLdbcSnbInteractiveOperationResultSets.read14Results()
         );
-        ValidationParam validationParam14 = new ValidationParam(operation14, result14);
+
+        ValidationParam validationParamShort1 = new ValidationParam(
+                DummyLdbcSnbInteractiveOperationInstances.short1(),
+                DummyLdbcSnbInteractiveOperationResultSets.short1Results()
+        );
+
+        ValidationParam validationParamShort2 = new ValidationParam(
+                DummyLdbcSnbInteractiveOperationInstances.short2(),
+                DummyLdbcSnbInteractiveOperationResultSets.short2Results()
+        );
+
+        ValidationParam validationParamShort3 = new ValidationParam(
+                DummyLdbcSnbInteractiveOperationInstances.short3(),
+                DummyLdbcSnbInteractiveOperationResultSets.short3Results()
+        );
+
+        ValidationParam validationParamShort4 = new ValidationParam(
+                DummyLdbcSnbInteractiveOperationInstances.short4(),
+                DummyLdbcSnbInteractiveOperationResultSets.short4Results()
+        );
+
+        ValidationParam validationParamShort5 = new ValidationParam(
+                DummyLdbcSnbInteractiveOperationInstances.short5(),
+                DummyLdbcSnbInteractiveOperationResultSets.short5Results()
+        );
+
+        ValidationParam validationParamShort6 = new ValidationParam(
+                DummyLdbcSnbInteractiveOperationInstances.short6(),
+                DummyLdbcSnbInteractiveOperationResultSets.short6Results()
+        );
+
+        ValidationParam validationParamShort7 = new ValidationParam(
+                DummyLdbcSnbInteractiveOperationInstances.short7(),
+                DummyLdbcSnbInteractiveOperationResultSets.short7Results()
+        );
 
         return Lists.newArrayList(
-                validationParam1,
-                validationParam2,
-                validationParam3,
-                validationParam4,
-                validationParam5,
-                validationParam6,
-                validationParam7,
-                validationParam8,
-                validationParam9,
-                validationParam10,
-                validationParam11,
-                validationParam12,
-                validationParam13,
-                validationParam14
+                validationParamLong1,
+                validationParamLong2,
+                validationParamLong3,
+                validationParamLong4,
+                validationParamLong5,
+                validationParamLong6,
+                validationParamLong7,
+                validationParamLong8,
+                validationParamLong9,
+                validationParamLong10,
+                validationParamLong11,
+                validationParamLong12,
+                validationParamLong13,
+                validationParamLong14,
+                validationParamShort1,
+                validationParamShort2,
+                validationParamShort3,
+                validationParamShort4,
+                validationParamShort5,
+                validationParamShort6,
+                validationParamShort7
         );
     }
 }

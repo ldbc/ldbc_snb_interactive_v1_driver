@@ -12,10 +12,7 @@ import com.ldbc.driver.generator.RandomDataGeneratorFactory;
 import com.ldbc.driver.runtime.coordination.CompletionTimeException;
 import com.ldbc.driver.runtime.coordination.CompletionTimeServiceAssistant;
 import com.ldbc.driver.runtime.coordination.ConcurrentCompletionTimeService;
-import com.ldbc.driver.runtime.metrics.ConcurrentMetricsService;
-import com.ldbc.driver.runtime.metrics.MetricsCollectionException;
-import com.ldbc.driver.runtime.metrics.ThreadedQueuedConcurrentMetricsService;
-import com.ldbc.driver.runtime.metrics.WorkloadResultsSnapshot;
+import com.ldbc.driver.runtime.metrics.*;
 import com.ldbc.driver.temporal.SystemTimeSource;
 import com.ldbc.driver.temporal.TemporalUtil;
 import com.ldbc.driver.temporal.TimeSource;
@@ -39,6 +36,7 @@ import java.util.concurrent.TimeUnit;
 
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.Matchers.greaterThanOrEqualTo;
 import static org.junit.Assert.assertThat;
 
 public class WorkloadRunnerTest {
@@ -165,13 +163,12 @@ public class WorkloadRunnerTest {
 
             WorkloadResultsSnapshot workloadResults = metricsService.results();
 
-//            SimpleOperationMetricsFormatter metricsFormatter = new SimpleOperationMetricsFormatter();
-//            System.out.println(metricsFormatter.format(workloadResults));
+            SimpleOperationMetricsFormatter metricsFormatter = new SimpleOperationMetricsFormatter();
 
-            assertThat(errorReporter.toString() + "\n" + workloadResults.toString(), errorReporter.errorEncountered(), is(false));
-            assertThat(errorReporter.toString() + "\n" + workloadResults.toString(), workloadResults.startTimeAsMilli() >= controlService.workloadStartTimeAsMilli(), is(true));
-            assertThat(errorReporter.toString() + "\n" + workloadResults.toString(), workloadResults.latestFinishTimeAsMilli() >= workloadResults.startTimeAsMilli(), is(true));
-            assertThat(errorReporter.toString() + "\n" + workloadResults.toString(), workloadResults.totalOperationCount(), is(operationCount));
+            assertThat(errorReporter.toString() + "\n" + metricsFormatter.format(workloadResults), errorReporter.errorEncountered(), is(false));
+            assertThat(errorReporter.toString() + "\n" + metricsFormatter.format(workloadResults), workloadResults.startTimeAsMilli() >= controlService.workloadStartTimeAsMilli(), is(true));
+            assertThat(errorReporter.toString() + "\n" + metricsFormatter.format(workloadResults), workloadResults.latestFinishTimeAsMilli() >= workloadResults.startTimeAsMilli(), is(true));
+            assertThat(errorReporter.toString() + "\n" + metricsFormatter.format(workloadResults), workloadResults.totalOperationCount(), greaterThanOrEqualTo(operationCount));
 
             WorkloadResultsSnapshot workloadResultsFromJson = WorkloadResultsSnapshot.fromJson(workloadResults.toJson());
 
@@ -180,7 +177,9 @@ public class WorkloadRunnerTest {
 
             csvResultsLogWriter.close();
             SimpleCsvFileReader csvResultsLogReader = new SimpleCsvFileReader(resultsLog, SimpleCsvFileReader.DEFAULT_COLUMN_SEPARATOR_PATTERN);
-            assertThat((long) Iterators.size(csvResultsLogReader), is(configuration.operationCount())); // NOT + 1 because I didn't add csv headers
+            // NOT + 1 because I didn't add csv headers
+            // GREATER THAN or equal because number of Short Reads is operation result-dependent
+            assertThat((long) Iterators.size(csvResultsLogReader), greaterThanOrEqualTo(configuration.operationCount()));
             csvResultsLogReader.close();
 
             double operationsPerSecond = Math.round(((double) operationCount / workloadResults.totalRunDurationAsNano()) * ONE_SECOND_AS_NANO);
@@ -315,13 +314,13 @@ public class WorkloadRunnerTest {
 
             WorkloadResultsSnapshot workloadResults = metricsService.results();
 
-//            SimpleOperationMetricsFormatter metricsFormatter = new SimpleOperationMetricsFormatter();
-//            System.out.println(metricsFormatter.format(workloadResults));
+            SimpleOperationMetricsFormatter metricsFormatter = new SimpleOperationMetricsFormatter();
 
-            assertThat(errorReporter.toString() + "\n" + workloadResults.toString(), errorReporter.errorEncountered(), is(false));
-            assertThat(errorReporter.toString() + "\n" + workloadResults.toString(), workloadResults.startTimeAsMilli() >= controlService.workloadStartTimeAsMilli(), is(true));
-            assertThat(errorReporter.toString() + "\n" + workloadResults.toString(), workloadResults.latestFinishTimeAsMilli() >= workloadResults.startTimeAsMilli(), is(true));
-            assertThat(errorReporter.toString() + "\n" + workloadResults.toString(), workloadResults.totalOperationCount(), is(operationCount));
+            assertThat(errorReporter.toString() + "\n" + metricsFormatter.format(workloadResults), errorReporter.errorEncountered(), is(false));
+            assertThat(errorReporter.toString() + "\n" + metricsFormatter.format(workloadResults), workloadResults.startTimeAsMilli() >= controlService.workloadStartTimeAsMilli(), is(true));
+            assertThat(errorReporter.toString() + "\n" + metricsFormatter.format(workloadResults), workloadResults.latestFinishTimeAsMilli() >= workloadResults.startTimeAsMilli(), is(true));
+            // GREATER THAN or equal because number of Short Reads is operation result-dependent
+            assertThat(errorReporter.toString() + "\n" + metricsFormatter.format(workloadResults), workloadResults.totalOperationCount(), greaterThanOrEqualTo(operationCount));
 
             WorkloadResultsSnapshot workloadResultsFromJson = WorkloadResultsSnapshot.fromJson(workloadResults.toJson());
 
@@ -330,7 +329,9 @@ public class WorkloadRunnerTest {
 
             csvResultsLogWriter.close();
             SimpleCsvFileReader csvResultsLogReader = new SimpleCsvFileReader(resultsLog, SimpleCsvFileReader.DEFAULT_COLUMN_SEPARATOR_PATTERN);
-            assertThat((long) Iterators.size(csvResultsLogReader), is(configuration.operationCount())); // NOT + 1 because I didn't add csv headers
+            // NOT + 1 because I didn't add csv headers
+            // GREATER THAN or equal because number of Short Reads is operation result-dependent
+            assertThat((long) Iterators.size(csvResultsLogReader), greaterThanOrEqualTo(configuration.operationCount()));
             csvResultsLogReader.close();
 
             double operationsPerSecond = Math.round(((double) operationCount / workloadResults.totalRunDurationAsNano()) * ONE_SECOND_AS_NANO);
@@ -485,15 +486,16 @@ public class WorkloadRunnerTest {
             runner.executeWorkload();
 
             WorkloadResultsSnapshot workloadResults = metricsService.results();
+            SimpleOperationMetricsFormatter metricsFormatter = new SimpleOperationMetricsFormatter();
 
             assertThat(
-                    errorReporter.toString() + "\n" + workloadResults.toString(),
+                    errorReporter.toString() + "\n" + metricsFormatter.format(workloadResults),
                     errorReporter.errorEncountered(), is(false));
             assertThat(
-                    errorReporter.toString() + "\n" + workloadResults.toString(),
+                    errorReporter.toString() + "\n" + metricsFormatter.format(workloadResults),
                     workloadResults.latestFinishTimeAsMilli() >= workloadResults.startTimeAsMilli(), is(true));
             assertThat(
-                    errorReporter.toString() + "\n" + workloadResults.toString(),
+                    errorReporter.toString() + "\n" + metricsFormatter.format(workloadResults),
                     workloadResults.totalOperationCount(), is(operationCount));
 
             WorkloadResultsSnapshot workloadResultsFromJson = WorkloadResultsSnapshot.fromJson(workloadResults.toJson());

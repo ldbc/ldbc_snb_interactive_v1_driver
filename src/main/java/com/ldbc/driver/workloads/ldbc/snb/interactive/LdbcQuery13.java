@@ -9,7 +9,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-public class LdbcQuery13 extends Operation<List<LdbcQuery13Result>> {
+public class LdbcQuery13 extends Operation<LdbcQuery13Result> {
     private static final ObjectMapper objectMapper = new ObjectMapper();
 
     private final long person1Id;
@@ -57,43 +57,29 @@ public class LdbcQuery13 extends Operation<List<LdbcQuery13Result>> {
     }
 
     @Override
-    public List<LdbcQuery13Result> marshalResult(String serializedResults) throws SerializingMarshallingException {
-        List<List<Object>> resultsAsList;
+    public LdbcQuery13Result marshalResult(String serializedResult) throws SerializingMarshallingException {
+        List<Object> resultAsList;
         try {
-            resultsAsList = objectMapper.readValue(serializedResults, new TypeReference<List<List<Object>>>() {
+            resultAsList = objectMapper.readValue(serializedResult, new TypeReference<List<Object>>() {
             });
         } catch (IOException e) {
-            throw new SerializingMarshallingException(String.format("Error while parsing serialized results\n%s", serializedResults), e);
+            throw new SerializingMarshallingException(String.format("Error while parsing serialized results\n%s", serializedResult), e);
         }
 
-        List<LdbcQuery13Result> results = new ArrayList<>();
-        for (int i = 0; i < resultsAsList.size(); i++) {
-            List<Object> resultAsList = resultsAsList.get(i);
-            int shortestPathLength = ((Number) resultAsList.get(0)).intValue();
-
-            results.add(new LdbcQuery13Result(
-                    shortestPathLength
-            ));
-        }
-
-        return results;
+        int shortestPathLength = ((Number) resultAsList.get(0)).intValue();
+        return new LdbcQuery13Result(shortestPathLength);
     }
 
     @Override
-    public String serializeResult(Object resultsObject) throws SerializingMarshallingException {
-        List<LdbcQuery13Result> results = (List<LdbcQuery13Result>) resultsObject;
-        List<List<Object>> resultsFields = new ArrayList<>();
-        for (int i = 0; i < results.size(); i++) {
-            LdbcQuery13Result result = results.get(i);
-            List<Object> resultFields = new ArrayList<>();
-            resultFields.add(result.shortestPathLength());
-            resultsFields.add(resultFields);
-        }
+    public String serializeResult(Object resultObject) throws SerializingMarshallingException {
+        LdbcQuery13Result result = (LdbcQuery13Result) resultObject;
+        List<Object> resultFields = new ArrayList<>();
+        resultFields.add(result.shortestPathLength());
 
         try {
-            return objectMapper.writeValueAsString(resultsFields);
+            return objectMapper.writeValueAsString(resultFields);
         } catch (IOException e) {
-            throw new SerializingMarshallingException(String.format("Error while trying to serialize result\n%s", results.toString()), e);
+            throw new SerializingMarshallingException(String.format("Error while trying to serialize result\n%s", result.toString()), e);
         }
     }
 }

@@ -1042,6 +1042,43 @@ public class LdbcSnbInteractiveWorkload extends Workload {
 
     @Override
     public DbValidationParametersFilter dbValidationParametersFilter(Integer requiredValidationParameterCount) {
+        final Set<Class<? extends Operation>> nullResultOperations = Sets.<Class<? extends Operation>>newHashSet(
+                LdbcUpdate1AddPerson.class,
+                LdbcUpdate2AddPostLike.class,
+                LdbcUpdate3AddCommentLike.class,
+                LdbcUpdate4AddForum.class,
+                LdbcUpdate5AddForumMembership.class,
+                LdbcUpdate6AddPost.class,
+                LdbcUpdate7AddComment.class,
+                LdbcUpdate8AddFriendship.class
+        );
+
+        final Set<Class<? extends Operation>> singleResultOperations = Sets.<Class<? extends Operation>>newHashSet(
+                LdbcShortQuery1PersonProfile.class,
+                LdbcShortQuery4MessageContent.class,
+                LdbcShortQuery5MessageCreator.class,
+                LdbcShortQuery6MessageForum.class,
+                LdbcQuery13.class
+        );
+
+        final Set<Class<? extends Operation>> multiResultOperations = Sets.<Class<? extends Operation>>newHashSet(
+                LdbcShortQuery2PersonPosts.class,
+                LdbcShortQuery3PersonFriends.class,
+                LdbcShortQuery7MessageReplies.class,
+                LdbcQuery1.class,
+                LdbcQuery2.class,
+                LdbcQuery3.class,
+                LdbcQuery4.class,
+                LdbcQuery5.class,
+                LdbcQuery6.class,
+                LdbcQuery7.class,
+                LdbcQuery8.class,
+                LdbcQuery9.class,
+                LdbcQuery10.class,
+                LdbcQuery11.class,
+                LdbcQuery12.class,
+                LdbcQuery14.class
+        );
         /**
          * TODO
          * operationTypeCount = 14
@@ -1074,22 +1111,25 @@ public class LdbcSnbInteractiveWorkload extends Workload {
             @Override
             public boolean useOperation(Operation<?> operation) {
                 Class operationType = operation.getClass();
-
-                boolean isNotReadOperation = false == enabledReadOperationTypes.contains(operationType);
-                if (isNotReadOperation) return false;
-
-                boolean alreadyHaveAllRequiredResultsForOperationType = false == remainingRequiredResultsPerOperationType.containsKey(operationType);
-                if (alreadyHaveAllRequiredResultsForOperationType) return false;
-
+                if (isNotReadOperation(operationType)) return false;
+                if (alreadyHaveAllRequiredResultsForOperationType(operationType)) return false;
                 return true;
+            }
+
+            private boolean isNotReadOperation(Class operationType) {
+                return false == enabledReadOperationTypes.contains(operationType);
+            }
+
+            private boolean alreadyHaveAllRequiredResultsForOperationType(Class operationType) {
+                return false == remainingRequiredResultsPerOperationType.containsKey(operationType);
             }
 
             @Override
             public DbValidationParametersFilterResult useOperationAndResultForValidation(Operation<?> operation, Object operationResult) {
                 Class operationType = operation.getClass();
 
-                boolean isEmptyResult = ((List) operationResult).isEmpty();
-                if (isEmptyResult) {
+                if (multiResultOperations.contains(operationType) && ((List) operationResult).isEmpty()) {
+                    // don't use empty results for validation
                     return DbValidationParametersFilterResult.REJECT_AND_CONTINUE;
                 }
 

@@ -44,8 +44,8 @@ public class SingleThreadOperationExecutorThread_NEW extends Thread {
                 if (null != childOperationGenerator) {
                     OperationResultReport resultReport = operationHandlerRunnableContext.operationResultReport();
                     double state = childOperationGenerator.initialState();
-                    while (childOperationGenerator.hasNext(state)) {
-                        Operation childOperation = childOperationGenerator.nextOperation(resultReport);
+                    Operation childOperation;
+                    while (null != (childOperation = childOperationGenerator.nextOperation(state, resultReport))) {
                         OperationHandlerRunnableContext childOperationHandlerRunnableContext =
                                 operationHandlerRunnableContextRetriever.getInitializedHandlerFor(childOperation);
                         childOperationHandlerRunnableContext.run();

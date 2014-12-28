@@ -159,8 +159,7 @@ public class ValidationParamsToCsvRowsToValidationParamsTest {
         ValidationParam validationParam12 = new ValidationParam(operation12, result12);
 
         LdbcQuery13 operation13 = DummyLdbcSnbInteractiveOperationInstances.read13();
-        List<LdbcQuery13Result> result13 = Lists.newArrayList(
-        );
+        LdbcQuery13Result result13 = DummyLdbcSnbInteractiveOperationResultInstances.read13Result();
         ValidationParam validationParam13 = new ValidationParam(operation13, result13);
 
         LdbcQuery14 operation14 = DummyLdbcSnbInteractiveOperationInstances.read14();

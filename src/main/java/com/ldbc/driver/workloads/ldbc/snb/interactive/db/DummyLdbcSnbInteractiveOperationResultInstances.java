@@ -6,6 +6,11 @@ import com.ldbc.driver.workloads.ldbc.snb.interactive.*;
 import java.util.List;
 
 public class DummyLdbcSnbInteractiveOperationResultInstances {
+
+    /*
+    LONG READS
+     */
+
     public static LdbcQuery1Result read1Result() {
         return new LdbcQuery1Result(1, "ᚠ", 3, 4, 5, "さ", "丵", "ش", Lists.newArrayList("פ"), Lists.newArrayList("10"), "11", Lists.<List<Object>>newArrayList(Lists.<Object>newArrayList("12", "13", "14")), Lists.<List<Object>>newArrayList(Lists.<Object>newArrayList("15", "16", "17")));
     }
@@ -60,5 +65,37 @@ public class DummyLdbcSnbInteractiveOperationResultInstances {
 
     public static LdbcQuery14Result read14Result() {
         return new LdbcQuery14Result(Lists.newArrayList(1l, 2l), 3);
+    }
+
+    /*
+    SHORT READS
+     */
+
+    public static LdbcShortQuery1PersonProfileResult short1Result() {
+        return new LdbcShortQuery1PersonProfileResult("ᚠ", "さ", 1, "丵", "ش", 2);
+    }
+
+    public static LdbcShortQuery2PersonPostsResult short2Result() {
+        return new LdbcShortQuery2PersonPostsResult(1, "ش");
+    }
+
+    public static LdbcShortQuery3PersonFriendsResult short3Result() {
+        return new LdbcShortQuery3PersonFriendsResult(1, "ش", "さ");
+    }
+
+    public static LdbcShortQuery4MessageContentResult short4Result() {
+        return new LdbcShortQuery4MessageContentResult("ᚠ");
+    }
+
+    public static LdbcShortQuery5MessageCreatorResult short5Result() {
+        return new LdbcShortQuery5MessageCreatorResult(1, "ش", "さ");
+    }
+
+    public static LdbcShortQuery6MessageForumResult short6Result() {
+        return new LdbcShortQuery6MessageForumResult(1, "ش", 2, "丵", "ش");
+    }
+
+    public static LdbcShortQuery7MessageRepliesResult short7Result() {
+        return new LdbcShortQuery7MessageRepliesResult(1, "ش");
     }
 }
