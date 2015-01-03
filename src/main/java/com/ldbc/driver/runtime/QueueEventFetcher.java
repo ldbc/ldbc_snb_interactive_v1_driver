@@ -2,6 +2,7 @@ package com.ldbc.driver.runtime;
 
 import java.util.Queue;
 import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.locks.LockSupport;
 
 public abstract class QueueEventFetcher<EVENT_TYPE> {
     public abstract EVENT_TYPE fetchNextEvent() throws InterruptedException;
@@ -21,9 +22,9 @@ public abstract class QueueEventFetcher<EVENT_TYPE> {
 
         @Override
         public EVENT_TYPE_NON_BLOCKING fetchNextEvent() throws InterruptedException {
-            EVENT_TYPE_NON_BLOCKING event = null;
-            while (event == null) {
-                event = queue.poll();
+            EVENT_TYPE_NON_BLOCKING event;
+            while (null == (event = queue.poll())) {
+                LockSupport.parkNanos(1);
             }
             return event;
         }

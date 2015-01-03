@@ -229,10 +229,10 @@ public class SpinnerTests {
         singleCheckWithoutStartTimeCheckTestDuration = singleCheckWithoutStartTimeCheckTestDuration / experimentCount;
 
         System.out.println(String.format("Spinner(start time check = true) (1 true check) processed %s operations in %s: %s ops/ms, %s ns/op",
-                operationCount, TEMPORAL_UTIL.milliDurationToString(singleCheckWithStartTimeCheckTestDuration), integerFormat.format(operationCount / singleCheckWithStartTimeCheckTestDuration), TEMPORAL_UTIL.convert(singleCheckWithStartTimeCheckTestDuration, TimeUnit.MILLISECONDS, TimeUnit.NANOSECONDS) / operationCount));
+                operationCount, TEMPORAL_UTIL.milliDurationToString(singleCheckWithStartTimeCheckTestDuration), integerFormat.format(operationCount / singleCheckWithStartTimeCheckTestDuration), TimeUnit.MILLISECONDS.toNanos(singleCheckWithStartTimeCheckTestDuration) / operationCount));
 
         System.out.println(String.format("Spinner(start time check = false) (1 true check) processed %s operations in %s: %s ops/ms, %s ns/op",
-                operationCount, TEMPORAL_UTIL.milliDurationToString(singleCheckWithoutStartTimeCheckTestDuration), integerFormat.format(operationCount / singleCheckWithoutStartTimeCheckTestDuration), TEMPORAL_UTIL.convert(singleCheckWithoutStartTimeCheckTestDuration, TimeUnit.MILLISECONDS, TimeUnit.NANOSECONDS) / operationCount));
+                operationCount, TEMPORAL_UTIL.milliDurationToString(singleCheckWithoutStartTimeCheckTestDuration), integerFormat.format(operationCount / singleCheckWithoutStartTimeCheckTestDuration), TimeUnit.MILLISECONDS.toNanos(singleCheckWithoutStartTimeCheckTestDuration) / operationCount));
     }
 
     private static class FastSameOperationIterator implements Iterator<Operation<?>> {

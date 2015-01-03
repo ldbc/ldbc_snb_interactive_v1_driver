@@ -95,7 +95,7 @@ public class OperationStreamExecutorPerformanceTest {
                         null
                 );
 
-                OperationExecutor_NEW executor = new ThreadPoolOperationExecutor_NEW(
+                OperationExecutor executor = new ThreadPoolOperationExecutor(
                         1,
                         DefaultQueues.DEFAULT_BOUND_1000,
                         db,
@@ -108,7 +108,7 @@ public class OperationStreamExecutorPerformanceTest {
                         metricsService,
                         streamDefinition.childOperationGenerator()
                 );
-                OperationStreamExecutorServiceThread_NEW thread = getNewThread(
+                OperationStreamExecutorServiceThread thread = getNewThread(
                         errorReporter,
                         streamDefinition,
                         executor,
@@ -147,7 +147,7 @@ public class OperationStreamExecutorPerformanceTest {
                         null
                 );
 
-                OperationExecutor_NEW executor = new SingleThreadOperationExecutor_NEW(
+                OperationExecutor executor = new SingleThreadOperationExecutor(
                         db,
                         streamDefinition,
                         localCompletionTimeWriter,
@@ -159,7 +159,7 @@ public class OperationStreamExecutorPerformanceTest {
                         streamDefinition.childOperationGenerator(),
                         DefaultQueues.DEFAULT_BOUND_1000
                 );
-                OperationStreamExecutorServiceThread_NEW thread = getNewThread(
+                OperationStreamExecutorServiceThread thread = getNewThread(
                         errorReporter,
                         streamDefinition,
                         executor,
@@ -198,7 +198,7 @@ public class OperationStreamExecutorPerformanceTest {
                         null
                 );
 
-                OperationExecutor_NEW executor = new SameThreadOperationExecutor_NEW(
+                OperationExecutor executor = new SameThreadOperationExecutor(
                         db,
                         streamDefinition,
                         localCompletionTimeWriter,
@@ -209,7 +209,7 @@ public class OperationStreamExecutorPerformanceTest {
                         metricsService,
                         streamDefinition.childOperationGenerator()
                 );
-                OperationStreamExecutorServiceThread_NEW thread = getNewThread(
+                OperationStreamExecutorServiceThread thread = getNewThread(
                         errorReporter,
                         streamDefinition,
                         executor,
@@ -226,11 +226,11 @@ public class OperationStreamExecutorPerformanceTest {
         }
 
         long meanThreadPool = meanDuration(threadPoolExecutorTimes);
-        System.out.println(String.format("Spinner [Sleep = %s ms] (thread pool executor) %s ops in %s: %s ops/ms", spinnerSleepDuration, operationCount, meanThreadPool, (operationCount / (double) TEMPORAL_UTIL.convert(meanThreadPool, TimeUnit.MILLISECONDS, TimeUnit.NANOSECONDS)) * 1000000));
+        System.out.println(String.format("Spinner [Sleep = %s ms] (thread pool executor) %s ops in %s: %s ops/ms", spinnerSleepDuration, operationCount, meanThreadPool, (operationCount / (double) TimeUnit.MILLISECONDS.toNanos(meanThreadPool)) * 1000000));
         long meanSingleThread = meanDuration(singleThreadExecutorTimes);
-        System.out.println(String.format("Spinner [Sleep = %s ms] (single thread executor) %s ops in %s: %s ops/ms", spinnerSleepDuration, operationCount, meanSingleThread, (operationCount / (double) TEMPORAL_UTIL.convert(meanSingleThread, TimeUnit.MILLISECONDS, TimeUnit.NANOSECONDS)) * 1000000));
+        System.out.println(String.format("Spinner [Sleep = %s ms] (single thread executor) %s ops in %s: %s ops/ms", spinnerSleepDuration, operationCount, meanSingleThread, (operationCount / (double) TimeUnit.MILLISECONDS.toNanos(meanSingleThread)) * 1000000));
         long meanSameThread = meanDuration(sameThreadExecutorTimes);
-        System.out.println(String.format("Spinner [Sleep = %s ms] (same thread executor) %s ops in %s: %s ops/ms", spinnerSleepDuration, operationCount, meanSameThread, (operationCount / (double) TEMPORAL_UTIL.convert(meanSameThread, TimeUnit.MILLISECONDS, TimeUnit.NANOSECONDS)) * 1000000));
+        System.out.println(String.format("Spinner [Sleep = %s ms] (same thread executor) %s ops in %s: %s ops/ms", spinnerSleepDuration, operationCount, meanSameThread, (operationCount / (double) TimeUnit.MILLISECONDS.toNanos(meanSameThread)) * 1000000));
         System.out.println();
     }
 
@@ -275,16 +275,16 @@ public class OperationStreamExecutorPerformanceTest {
         return operations;
     }
 
-    private OperationStreamExecutorServiceThread_NEW getNewThread(
+    private OperationStreamExecutorServiceThread getNewThread(
             ConcurrentErrorReporter errorReporter,
             WorkloadStreams.WorkloadStreamDefinition streamDefinition,
-            OperationExecutor_NEW operationExecutor,
+            OperationExecutor operationExecutor,
             LocalCompletionTimeWriter localCompletionTimeWriter,
             AtomicBoolean executorHasFinished,
             AtomicBoolean forceThreadToTerminate
     ) throws CompletionTimeException, MetricsCollectionException, DbException {
-        OperationStreamExecutorServiceThread_NEW operationStreamExecutorThread =
-                new OperationStreamExecutorServiceThread_NEW(
+        OperationStreamExecutorServiceThread operationStreamExecutorThread =
+                new OperationStreamExecutorServiceThread(
                         operationExecutor,
                         errorReporter,
                         streamDefinition,

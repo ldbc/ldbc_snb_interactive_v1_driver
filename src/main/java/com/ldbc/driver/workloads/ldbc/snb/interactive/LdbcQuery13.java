@@ -12,6 +12,7 @@ import java.util.List;
 public class LdbcQuery13 extends Operation<LdbcQuery13Result> {
     private static final ObjectMapper objectMapper = new ObjectMapper();
 
+    public static final int TYPE = 13;
     private final long person1Id;
     private final long person2Id;
 
@@ -85,6 +86,6 @@ public class LdbcQuery13 extends Operation<LdbcQuery13Result> {
 
     @Override
     public int type() {
-        return 13;
+        return TYPE;
     }
 }

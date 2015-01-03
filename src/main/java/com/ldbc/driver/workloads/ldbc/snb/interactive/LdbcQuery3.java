@@ -13,6 +13,7 @@ import java.util.List;
 public class LdbcQuery3 extends Operation<List<LdbcQuery3Result>> {
     private static final ObjectMapper objectMapper = new ObjectMapper();
 
+    public static final int TYPE = 3;
     public static final int DEFAULT_LIMIT = 20;
     private final long personId;
     private final String countryXName;
@@ -152,6 +153,6 @@ public class LdbcQuery3 extends Operation<List<LdbcQuery3Result>> {
 
     @Override
     public int type() {
-        return 3;
+        return TYPE;
     }
 }

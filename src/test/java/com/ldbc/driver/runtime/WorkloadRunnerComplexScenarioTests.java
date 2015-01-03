@@ -16,10 +16,7 @@ import com.ldbc.driver.runtime.scheduling.Spinner;
 import com.ldbc.driver.temporal.ManualTimeSource;
 import com.ldbc.driver.temporal.TimeSource;
 import com.ldbc.driver.util.csv.SimpleCsvFileWriter;
-import com.ldbc.driver.workloads.dummy.DummyDb;
-import com.ldbc.driver.workloads.dummy.TimedNamedOperation1;
-import com.ldbc.driver.workloads.dummy.TimedNamedOperation2;
-import com.ldbc.driver.workloads.dummy.TimedNamedOperation2Factory;
+import com.ldbc.driver.workloads.dummy.*;
 import org.junit.Test;
 
 import java.io.IOException;
@@ -71,12 +68,17 @@ public class WorkloadRunnerComplexScenarioTests {
 
         ConcurrentErrorReporter errorReporter = new ConcurrentErrorReporter();
         SimpleCsvFileWriter csvResultsLogWriter = null;
-        ConcurrentMetricsService metricsService = ThreadedQueuedConcurrentMetricsService.newInstanceUsingBlockingQueue(
+        Map<Integer, Class<? extends Operation<?>>> operationTypeToClassMapping = new HashMap<>();
+        operationTypeToClassMapping.put(TimedNamedOperation1.TYPE, TimedNamedOperation1.class);
+        operationTypeToClassMapping.put(TimedNamedOperation2.TYPE, TimedNamedOperation2.class);
+        operationTypeToClassMapping.put(TimedNamedOperation3.TYPE, TimedNamedOperation3.class);
+        ConcurrentMetricsService metricsService = ThreadedQueuedConcurrentMetricsService.newInstanceUsingBlockingBoundedQueue(
                 timeSource,
                 errorReporter,
                 TimeUnit.MILLISECONDS,
                 ThreadedQueuedConcurrentMetricsService.DEFAULT_HIGHEST_EXPECTED_RUNTIME_DURATION_AS_NANO,
-                csvResultsLogWriter);
+                csvResultsLogWriter,
+                operationTypeToClassMapping);
 
         Set<String> peerIds = new HashSet<>();
         // TODO test also with threaded completion time service implementation
@@ -276,12 +278,17 @@ public class WorkloadRunnerComplexScenarioTests {
         ConcurrentErrorReporter errorReporter = new ConcurrentErrorReporter();
 
         SimpleCsvFileWriter csvResultsLogWriter = null;
-        ConcurrentMetricsService metricsService = ThreadedQueuedConcurrentMetricsService.newInstanceUsingBlockingQueue(
+        Map<Integer, Class<? extends Operation<?>>> operationTypeToClassMapping = new HashMap<>();
+        operationTypeToClassMapping.put(TimedNamedOperation1.TYPE, TimedNamedOperation1.class);
+        operationTypeToClassMapping.put(TimedNamedOperation2.TYPE, TimedNamedOperation2.class);
+        operationTypeToClassMapping.put(TimedNamedOperation3.TYPE, TimedNamedOperation3.class);
+        ConcurrentMetricsService metricsService = ThreadedQueuedConcurrentMetricsService.newInstanceUsingBlockingBoundedQueue(
                 timeSource,
                 errorReporter,
                 TimeUnit.MILLISECONDS,
                 ThreadedQueuedConcurrentMetricsService.DEFAULT_HIGHEST_EXPECTED_RUNTIME_DURATION_AS_NANO,
-                csvResultsLogWriter);
+                csvResultsLogWriter,
+                operationTypeToClassMapping);
 
         Set<String> peerIds = new HashSet<>();
         // TODO test also with threaded completion time service implementation
@@ -457,12 +464,17 @@ public class WorkloadRunnerComplexScenarioTests {
         ConcurrentErrorReporter errorReporter = new ConcurrentErrorReporter();
 
         SimpleCsvFileWriter csvResultsLogWriter = null;
-        ConcurrentMetricsService metricsService = ThreadedQueuedConcurrentMetricsService.newInstanceUsingBlockingQueue(
+        Map<Integer, Class<? extends Operation<?>>> operationTypeToClassMapping = new HashMap<>();
+        operationTypeToClassMapping.put(TimedNamedOperation1.TYPE, TimedNamedOperation1.class);
+        operationTypeToClassMapping.put(TimedNamedOperation2.TYPE, TimedNamedOperation2.class);
+        operationTypeToClassMapping.put(TimedNamedOperation3.TYPE, TimedNamedOperation3.class);
+        ConcurrentMetricsService metricsService = ThreadedQueuedConcurrentMetricsService.newInstanceUsingBlockingBoundedQueue(
                 timeSource,
                 errorReporter,
                 TimeUnit.MILLISECONDS,
                 ThreadedQueuedConcurrentMetricsService.DEFAULT_HIGHEST_EXPECTED_RUNTIME_DURATION_AS_NANO,
-                csvResultsLogWriter);
+                csvResultsLogWriter,
+                operationTypeToClassMapping);
 
         Set<String> peerIds = new HashSet<>();
         // TODO test also with threaded completion time service implementation
@@ -713,12 +725,17 @@ public class WorkloadRunnerComplexScenarioTests {
         ConcurrentErrorReporter errorReporter = new ConcurrentErrorReporter();
 
         SimpleCsvFileWriter csvResultsLogWriter = null;
-        ConcurrentMetricsService metricsService = ThreadedQueuedConcurrentMetricsService.newInstanceUsingBlockingQueue(
+        Map<Integer, Class<? extends Operation<?>>> operationTypeToClassMapping = new HashMap<>();
+        operationTypeToClassMapping.put(TimedNamedOperation1.TYPE, TimedNamedOperation1.class);
+        operationTypeToClassMapping.put(TimedNamedOperation2.TYPE, TimedNamedOperation2.class);
+        operationTypeToClassMapping.put(TimedNamedOperation3.TYPE, TimedNamedOperation3.class);
+        ConcurrentMetricsService metricsService = ThreadedQueuedConcurrentMetricsService.newInstanceUsingBlockingBoundedQueue(
                 timeSource,
                 errorReporter,
                 TimeUnit.MILLISECONDS,
                 ThreadedQueuedConcurrentMetricsService.DEFAULT_HIGHEST_EXPECTED_RUNTIME_DURATION_AS_NANO,
-                csvResultsLogWriter);
+                csvResultsLogWriter,
+                operationTypeToClassMapping);
 
         Set<String> peerIds = new HashSet<>();
         // TODO test also with threaded completion time service implementation
@@ -989,12 +1006,17 @@ public class WorkloadRunnerComplexScenarioTests {
         ConcurrentErrorReporter errorReporter = new ConcurrentErrorReporter();
 
         SimpleCsvFileWriter csvResultsLogWriter = null;
-        ConcurrentMetricsService metricsService = ThreadedQueuedConcurrentMetricsService.newInstanceUsingBlockingQueue(
+        Map<Integer, Class<? extends Operation<?>>> operationTypeToClassMapping = new HashMap<>();
+        operationTypeToClassMapping.put(TimedNamedOperation1.TYPE, TimedNamedOperation1.class);
+        operationTypeToClassMapping.put(TimedNamedOperation2.TYPE, TimedNamedOperation2.class);
+        operationTypeToClassMapping.put(TimedNamedOperation3.TYPE, TimedNamedOperation3.class);
+        ConcurrentMetricsService metricsService = ThreadedQueuedConcurrentMetricsService.newInstanceUsingBlockingBoundedQueue(
                 timeSource,
                 errorReporter,
                 TimeUnit.MILLISECONDS,
                 ThreadedQueuedConcurrentMetricsService.DEFAULT_HIGHEST_EXPECTED_RUNTIME_DURATION_AS_NANO,
-                csvResultsLogWriter);
+                csvResultsLogWriter,
+                operationTypeToClassMapping);
 
         Set<String> peerIds = new HashSet<>();
         // TODO test also with threaded completion time service implementation
@@ -1243,12 +1265,17 @@ public class WorkloadRunnerComplexScenarioTests {
         ConcurrentErrorReporter errorReporter = new ConcurrentErrorReporter();
 
         SimpleCsvFileWriter csvResultsLogWriter = null;
-        ConcurrentMetricsService metricsService = ThreadedQueuedConcurrentMetricsService.newInstanceUsingBlockingQueue(
+        Map<Integer, Class<? extends Operation<?>>> operationTypeToClassMapping = new HashMap<>();
+        operationTypeToClassMapping.put(TimedNamedOperation1.TYPE, TimedNamedOperation1.class);
+        operationTypeToClassMapping.put(TimedNamedOperation2.TYPE, TimedNamedOperation2.class);
+        operationTypeToClassMapping.put(TimedNamedOperation3.TYPE, TimedNamedOperation3.class);
+        ConcurrentMetricsService metricsService = ThreadedQueuedConcurrentMetricsService.newInstanceUsingBlockingBoundedQueue(
                 timeSource,
                 errorReporter,
                 TimeUnit.MILLISECONDS,
                 ThreadedQueuedConcurrentMetricsService.DEFAULT_HIGHEST_EXPECTED_RUNTIME_DURATION_AS_NANO,
-                csvResultsLogWriter);
+                csvResultsLogWriter,
+                operationTypeToClassMapping);
 
         Set<String> peerIds = new HashSet<>();
         // TODO test also with threaded completion time service implementation

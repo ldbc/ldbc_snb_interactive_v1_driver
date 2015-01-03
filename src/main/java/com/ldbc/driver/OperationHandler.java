@@ -1,7 +1,7 @@
 package com.ldbc.driver;
 
 public abstract class OperationHandler<OPERATION_TYPE extends Operation<?>, DB_CONNECTION_STATE_TYPE extends DbConnectionState> {
-    public abstract OperationResultReport executeOperation(OPERATION_TYPE operation, DB_CONNECTION_STATE_TYPE dbConnectionState) throws DbException;
+    public abstract void executeOperation(OPERATION_TYPE operation, DB_CONNECTION_STATE_TYPE dbConnectionState, ResultReporter resultReporter) throws DbException;
 
     @Override
     public String toString() {

@@ -6,6 +6,8 @@ import java.util.Iterator;
 import java.util.Map;
 
 public class InsertOperation extends Operation<Object> {
+    public static final int TYPE = 2;
+
     private final String table;
     private final String key;
     private final Map<String, Iterator<Byte>> valuedFields;
@@ -41,6 +43,6 @@ public class InsertOperation extends Operation<Object> {
 
     @Override
     public int type() {
-        return 2;
+        return TYPE;
     }
 }

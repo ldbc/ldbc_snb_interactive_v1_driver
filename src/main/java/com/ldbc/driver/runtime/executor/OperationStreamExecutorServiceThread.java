@@ -8,27 +8,27 @@ import com.ldbc.driver.runtime.scheduling.Spinner;
 
 import java.util.concurrent.atomic.AtomicBoolean;
 
-class OperationStreamExecutorServiceThread_NEW extends Thread {
+class OperationStreamExecutorServiceThread extends Thread {
     private static final long POLL_INTERVAL_WHILE_WAITING_FOR_LAST_HANDLER_TO_FINISH_AS_MILLI = 100;
 
-    private final OperationExecutor_NEW operationExecutor;
+    private final OperationExecutor operationExecutor;
     private final ConcurrentErrorReporter errorReporter;
     private final AtomicBoolean hasFinished;
     private final AtomicBoolean forcedTerminate;
-    private final InitiatedTimeSubmittingOperationRetriever_NEW initiatedTimeSubmittingOperationRetriever;
+    private final InitiatedTimeSubmittingOperationRetriever initiatedTimeSubmittingOperationRetriever;
 
-    public OperationStreamExecutorServiceThread_NEW(OperationExecutor_NEW operationExecutor,
-                                                    ConcurrentErrorReporter errorReporter,
-                                                    WorkloadStreamDefinition streamDefinition,
-                                                    AtomicBoolean hasFinished,
-                                                    AtomicBoolean forcedTerminate,
-                                                    LocalCompletionTimeWriter localCompletionTimeWriter) {
-        super(OperationStreamExecutorServiceThread_NEW.class.getSimpleName() + "-" + System.currentTimeMillis());
+    public OperationStreamExecutorServiceThread(OperationExecutor operationExecutor,
+                                                ConcurrentErrorReporter errorReporter,
+                                                WorkloadStreamDefinition streamDefinition,
+                                                AtomicBoolean hasFinished,
+                                                AtomicBoolean forcedTerminate,
+                                                LocalCompletionTimeWriter localCompletionTimeWriter) {
+        super(OperationStreamExecutorServiceThread.class.getSimpleName() + "-" + System.currentTimeMillis());
         this.operationExecutor = operationExecutor;
         this.errorReporter = errorReporter;
         this.hasFinished = hasFinished;
         this.forcedTerminate = forcedTerminate;
-        this.initiatedTimeSubmittingOperationRetriever = new InitiatedTimeSubmittingOperationRetriever_NEW(
+        this.initiatedTimeSubmittingOperationRetriever = new InitiatedTimeSubmittingOperationRetriever(
                 streamDefinition,
                 localCompletionTimeWriter);
     }

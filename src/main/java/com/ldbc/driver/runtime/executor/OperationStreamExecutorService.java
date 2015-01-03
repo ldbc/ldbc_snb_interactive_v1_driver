@@ -3,29 +3,27 @@ package com.ldbc.driver.runtime.executor;
 import com.ldbc.driver.WorkloadStreams.WorkloadStreamDefinition;
 import com.ldbc.driver.runtime.ConcurrentErrorReporter;
 import com.ldbc.driver.runtime.coordination.LocalCompletionTimeWriter;
-import com.ldbc.driver.temporal.TemporalUtil;
 
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-public class OperationStreamExecutorService_NEW {
-    private static final TemporalUtil TEMPORAL_UTIL = new TemporalUtil();
-    public static final long SHUTDOWN_WAIT_TIMEOUT_AS_MILLI = TEMPORAL_UTIL.convert(10, TimeUnit.SECONDS, TimeUnit.MILLISECONDS);
+public class OperationStreamExecutorService {
+    public static final long SHUTDOWN_WAIT_TIMEOUT_AS_MILLI = TimeUnit.SECONDS.toMillis(10);
 
-    private final OperationStreamExecutorServiceThread_NEW operationStreamExecutorServiceThread;
+    private final OperationStreamExecutorServiceThread operationStreamExecutorServiceThread;
     private final AtomicBoolean hasFinished = new AtomicBoolean(false);
     private final ConcurrentErrorReporter errorReporter;
     private final AtomicBoolean executing = new AtomicBoolean(false);
     private final AtomicBoolean shutdown = new AtomicBoolean(false);
     private final AtomicBoolean forceThreadToTerminate = new AtomicBoolean(false);
 
-    public OperationStreamExecutorService_NEW(ConcurrentErrorReporter errorReporter,
-                                              WorkloadStreamDefinition streamDefinition,
-                                              OperationExecutor_NEW operationExecutor,
-                                              LocalCompletionTimeWriter localCompletionTimeWriter) {
+    public OperationStreamExecutorService(ConcurrentErrorReporter errorReporter,
+                                          WorkloadStreamDefinition streamDefinition,
+                                          OperationExecutor operationExecutor,
+                                          LocalCompletionTimeWriter localCompletionTimeWriter) {
         this.errorReporter = errorReporter;
         if (streamDefinition.dependencyOperations().hasNext() || streamDefinition.nonDependencyOperations().hasNext()) {
-            this.operationStreamExecutorServiceThread = new OperationStreamExecutorServiceThread_NEW(
+            this.operationStreamExecutorServiceThread = new OperationStreamExecutorServiceThread(
                     operationExecutor,
                     errorReporter,
                     streamDefinition,

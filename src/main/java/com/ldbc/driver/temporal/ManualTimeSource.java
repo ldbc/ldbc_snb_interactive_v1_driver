@@ -17,7 +17,7 @@ public class ManualTimeSource implements TimeSource {
 
     @Override
     public long nanoSnapshot() {
-        return temporalUtil.convert(nowAsMilli.get(), TimeUnit.MILLISECONDS, TimeUnit.NANOSECONDS);
+        return TimeUnit.MILLISECONDS.toNanos(nowAsMilli());
     }
 
     @Override

@@ -8,6 +8,7 @@ import java.util.Date;
 import java.util.List;
 
 public class LdbcUpdate1AddPerson extends Operation<Object> {
+    public static final int TYPE = 1001;
     private final long personId;
     private final String personFirstName;
     private final String personLastName;
@@ -240,6 +241,6 @@ public class LdbcUpdate1AddPerson extends Operation<Object> {
 
     @Override
     public int type() {
-        return 1001;
+        return TYPE;
     }
 }

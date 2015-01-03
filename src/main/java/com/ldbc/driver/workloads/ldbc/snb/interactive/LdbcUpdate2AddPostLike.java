@@ -5,6 +5,7 @@ import com.ldbc.driver.Operation;
 import java.util.Date;
 
 public class LdbcUpdate2AddPostLike extends Operation<Object> {
+    public static final int TYPE = 1002;
     private final long personId;
     private final long postId;
     private final Date creationDate;
@@ -70,6 +71,6 @@ public class LdbcUpdate2AddPostLike extends Operation<Object> {
 
     @Override
     public int type() {
-        return 1002;
+        return TYPE;
     }
 }

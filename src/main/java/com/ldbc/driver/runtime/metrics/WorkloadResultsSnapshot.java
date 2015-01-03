@@ -2,7 +2,6 @@ package com.ldbc.driver.runtime.metrics;
 
 import com.google.common.collect.Lists;
 import com.ldbc.driver.runtime.ConcurrentErrorReporter;
-import com.ldbc.driver.temporal.TemporalUtil;
 import org.codehaus.jackson.annotate.JsonProperty;
 import org.codehaus.jackson.map.ObjectMapper;
 
@@ -14,8 +13,6 @@ import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 public class WorkloadResultsSnapshot {
-    private final TemporalUtil temporalUtil = new TemporalUtil();
-
     @JsonProperty(value = "all_metrics")
     private List<OperationMetricsSnapshot> metrics;
 
@@ -56,9 +53,9 @@ public class WorkloadResultsSnapshot {
                                    TimeUnit unit) {
         this.metrics = Lists.newArrayList(metrics.values());
         Collections.sort(this.metrics, new OperationTypeMetricsManager.OperationMetricsNameComparator());
-        this.startTimeAsUnit = temporalUtil.convert(startTimeAsMilli, TimeUnit.MILLISECONDS, unit);
-        this.latestFinishTimeAsUnit = temporalUtil.convert(latestFinishTimeAsMilli, TimeUnit.MILLISECONDS, unit);
-        this.totalRunDurationAsUnit = temporalUtil.convert((latestFinishTimeAsMilli - startTimeAsMilli), TimeUnit.MILLISECONDS, unit);
+        this.startTimeAsUnit = unit.convert(startTimeAsMilli, TimeUnit.MILLISECONDS);
+        this.latestFinishTimeAsUnit = unit.convert(latestFinishTimeAsMilli, TimeUnit.MILLISECONDS);
+        this.totalRunDurationAsUnit = unit.convert(latestFinishTimeAsMilli - startTimeAsMilli, TimeUnit.MILLISECONDS);
         this.operationCount = operationCount;
         this.unit = unit;
     }
@@ -75,15 +72,15 @@ public class WorkloadResultsSnapshot {
     }
 
     public long startTimeAsMilli() {
-        return temporalUtil.convert(startTimeAsUnit, unit, TimeUnit.MILLISECONDS);
+        return unit.toMillis(startTimeAsUnit);
     }
 
     public long latestFinishTimeAsMilli() {
-        return temporalUtil.convert(latestFinishTimeAsUnit, unit, TimeUnit.MILLISECONDS);
+        return unit.toMillis(latestFinishTimeAsUnit);
     }
 
     public long totalRunDurationAsNano() {
-        return temporalUtil.convert(totalRunDurationAsUnit, unit, TimeUnit.NANOSECONDS);
+        return unit.toNanos(totalRunDurationAsUnit);
     }
 
     public long totalOperationCount() {

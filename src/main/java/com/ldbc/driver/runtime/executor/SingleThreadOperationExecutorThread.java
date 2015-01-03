@@ -3,7 +3,6 @@ package com.ldbc.driver.runtime.executor;
 import com.ldbc.driver.ChildOperationGenerator;
 import com.ldbc.driver.Operation;
 import com.ldbc.driver.OperationHandlerRunnableContext;
-import com.ldbc.driver.OperationResultReport;
 import com.ldbc.driver.runtime.ConcurrentErrorReporter;
 import com.ldbc.driver.runtime.QueueEventFetcher;
 
@@ -11,7 +10,7 @@ import java.util.Queue;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicLong;
 
-public class SingleThreadOperationExecutorThread_NEW extends Thread {
+public class SingleThreadOperationExecutorThread extends Thread {
     private final QueueEventFetcher<Operation> operationQueueEventFetcher;
     private final ConcurrentErrorReporter errorReporter;
     private final AtomicLong uncompletedHandlers;
@@ -19,12 +18,12 @@ public class SingleThreadOperationExecutorThread_NEW extends Thread {
     private final OperationHandlerRunnableContextRetriever operationHandlerRunnableContextRetriever;
     private final ChildOperationGenerator childOperationGenerator;
 
-    SingleThreadOperationExecutorThread_NEW(Queue<Operation> operationHandlerRunnerQueue,
-                                            ConcurrentErrorReporter errorReporter,
-                                            AtomicLong uncompletedHandlers,
-                                            OperationHandlerRunnableContextRetriever operationHandlerRunnableContextRetriever,
-                                            ChildOperationGenerator childOperationGenerator) {
-        super(SingleThreadOperationExecutorThread_NEW.class.getSimpleName() + "-" + System.currentTimeMillis());
+    SingleThreadOperationExecutorThread(Queue<Operation> operationHandlerRunnerQueue,
+                                        ConcurrentErrorReporter errorReporter,
+                                        AtomicLong uncompletedHandlers,
+                                        OperationHandlerRunnableContextRetriever operationHandlerRunnableContextRetriever,
+                                        ChildOperationGenerator childOperationGenerator) {
+        super(SingleThreadOperationExecutorThread.class.getSimpleName() + "-" + System.currentTimeMillis());
         this.operationQueueEventFetcher = QueueEventFetcher.queueEventFetcherFor(operationHandlerRunnerQueue);
         this.errorReporter = errorReporter;
         this.uncompletedHandlers = uncompletedHandlers;
@@ -37,19 +36,18 @@ public class SingleThreadOperationExecutorThread_NEW extends Thread {
         Operation operation = null;
         try {
             operation = operationQueueEventFetcher.fetchNextEvent();
-            while (operation != SingleThreadOperationExecutor_NEW.TERMINATE_OPERATION && false == forcedShutdownRequested.get()) {
+            while (operation != SingleThreadOperationExecutor.TERMINATE_OPERATION && false == forcedShutdownRequested.get()) {
                 OperationHandlerRunnableContext operationHandlerRunnableContext =
                         operationHandlerRunnableContextRetriever.getInitializedHandlerFor(operation);
                 operationHandlerRunnableContext.run();
                 if (null != childOperationGenerator) {
-                    OperationResultReport resultReport = operationHandlerRunnableContext.operationResultReport();
+                    Object result = operationHandlerRunnableContext.resultReporter().result();
                     double state = childOperationGenerator.initialState();
-                    Operation childOperation;
-                    while (null != (childOperation = childOperationGenerator.nextOperation(state, resultReport))) {
+                    while (null != (operation = childOperationGenerator.nextOperation(state, operation, result))) {
                         OperationHandlerRunnableContext childOperationHandlerRunnableContext =
-                                operationHandlerRunnableContextRetriever.getInitializedHandlerFor(childOperation);
+                                operationHandlerRunnableContextRetriever.getInitializedHandlerFor(operation);
                         childOperationHandlerRunnableContext.run();
-                        resultReport = childOperationHandlerRunnableContext.operationResultReport();
+                        result = childOperationHandlerRunnableContext.resultReporter().result();
                         childOperationHandlerRunnableContext.cleanup();
                         state = childOperationGenerator.updateState(state);
                     }

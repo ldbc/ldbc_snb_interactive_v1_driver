@@ -70,7 +70,7 @@ public class PoolingOperationHandlerRunnerFactory implements OperationHandlerRun
                                         + "Pool Allocation Count: %s\n"
                                         + "Pool Failed Allocation Count: %s\n"
                                         + "Pool Leaked Objects Count: %s\n",
-                                temporalUtil.milliDurationToString(temporalUtil.convert(POOL_SHUTDOWN_TIMEOUT.getTimeout(), POOL_SHUTDOWN_TIMEOUT.getUnit(), TimeUnit.MILLISECONDS)),
+                                temporalUtil.milliDurationToString(TimeUnit.MILLISECONDS.convert(POOL_SHUTDOWN_TIMEOUT.getTimeout(), POOL_SHUTDOWN_TIMEOUT.getUnit())),
                                 operationHandlerRunnerPool.getTargetSize(),
                                 operationHandlerRunnerPool.getAllocationCount(),
                                 operationHandlerRunnerPool.getFailedAllocationCount(),

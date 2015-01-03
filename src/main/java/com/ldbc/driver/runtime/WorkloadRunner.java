@@ -32,11 +32,11 @@ public class WorkloadRunner {
 
     private final ConcurrentErrorReporter errorReporter;
 
-    private final OperationExecutor_NEW executorForAsynchronous;
-    private final List<OperationExecutor_NEW> executorsForBlocking = new ArrayList<>();
+    private final OperationExecutor executorForAsynchronous;
+    private final List<OperationExecutor> executorsForBlocking = new ArrayList<>();
 
-    private final OperationStreamExecutorService_NEW asynchronousStreamExecutorService;
-    private final List<OperationStreamExecutorService_NEW> blockingStreamExecutorServices = new ArrayList<>();
+    private final OperationStreamExecutorService asynchronousStreamExecutorService;
+    private final List<OperationStreamExecutorService> blockingStreamExecutorServices = new ArrayList<>();
 
     private final long statusDisplayIntervalAsMilli;
 
@@ -59,7 +59,7 @@ public class WorkloadRunner {
         boolean detailedStatus = true;
         if (statusDisplayIntervalAsSeconds > 0) {
             this.workloadStatusThread = new WorkloadStatusThread(
-                    TEMPORAL_UTIL.convert(statusDisplayIntervalAsSeconds, TimeUnit.SECONDS, TimeUnit.MILLISECONDS),
+                    TimeUnit.SECONDS.toMillis(statusDisplayIntervalAsSeconds),
                     metricsService,
                     errorReporter,
                     completionTimeService,
@@ -76,7 +76,7 @@ public class WorkloadRunner {
         } catch (CompletionTimeException e) {
             throw new WorkloadException("Error while attempting to create local completion time writer", e);
         }
-        this.executorForAsynchronous = new ThreadPoolOperationExecutor_NEW(
+        this.executorForAsynchronous = new ThreadPoolOperationExecutor(
                 threadCount,
                 operationHandlerExecutorsBoundedQueueSize,
                 db,
@@ -89,7 +89,7 @@ public class WorkloadRunner {
                 metricsService,
                 asynchronousStream.childOperationGenerator()
         );
-        this.asynchronousStreamExecutorService = new OperationStreamExecutorService_NEW(
+        this.asynchronousStreamExecutorService = new OperationStreamExecutorService(
                 errorReporter,
                 asynchronousStream,
                 executorForAsynchronous,
@@ -108,7 +108,7 @@ public class WorkloadRunner {
                 throw new WorkloadException("Error while attempting to create local completion time writer", e);
             }
             // TODO benchmark more to find out which policy is best Same Thread vs Single Thread
-            OperationExecutor_NEW executorForBlocking = new SameThreadOperationExecutor_NEW(
+            OperationExecutor executorForBlocking = new SameThreadOperationExecutor(
                     db,
                     blockingStream,
                     localCompletionTimeWriterForBlocking,
@@ -121,7 +121,7 @@ public class WorkloadRunner {
             );
             this.executorsForBlocking.add(executorForBlocking);
             this.blockingStreamExecutorServices.add(
-                    new OperationStreamExecutorService_NEW(
+                    new OperationStreamExecutorService(
                             errorReporter,
                             blockingStream,
                             executorForBlocking,
@@ -188,7 +188,7 @@ public class WorkloadRunner {
         // (though when running test suite it can result in many running threads, making the tests much slower)
         //
         // if normal shutdown all executors have completed by this stage
-        long shutdownWait = (forced) ? 1 : OperationStreamExecutorService_NEW.SHUTDOWN_WAIT_TIMEOUT_AS_MILLI;
+        long shutdownWait = (forced) ? 1 : OperationStreamExecutorService.SHUTDOWN_WAIT_TIMEOUT_AS_MILLI;
 
         try {
             asynchronousStreamExecutorService.shutdown(shutdownWait);
@@ -201,7 +201,7 @@ public class WorkloadRunner {
             );
         }
 
-        for (OperationStreamExecutorService_NEW blockingStreamExecutorService : blockingStreamExecutorServices) {
+        for (OperationStreamExecutorService blockingStreamExecutorService : blockingStreamExecutorServices) {
             try {
                 blockingStreamExecutorService.shutdown(shutdownWait);
             } catch (OperationExecutorException e) {
@@ -219,7 +219,7 @@ public class WorkloadRunner {
             // but for now it does not matter as the process will terminate anyway
             // (though when running test suite it can result in many running threads, making the tests much slower)
             executorForAsynchronous.shutdown(shutdownWait);
-            for (OperationExecutor_NEW executorForBlocking : executorsForBlocking) {
+            for (OperationExecutor executorForBlocking : executorsForBlocking) {
                 executorForBlocking.shutdown(shutdownWait);
             }
         } catch (OperationExecutorException e) {

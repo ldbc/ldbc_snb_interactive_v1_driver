@@ -6,6 +6,7 @@ import java.util.Iterator;
 import java.util.Map;
 
 public class UpdateOperation extends Operation<Object> {
+    public static final int TYPE = 4;
     private final String table;
     private final String key;
     private final Map<String, Iterator<Byte>> values;
@@ -40,6 +41,6 @@ public class UpdateOperation extends Operation<Object> {
 
     @Override
     public int type() {
-        return 4;
+        return TYPE;
     }
 }

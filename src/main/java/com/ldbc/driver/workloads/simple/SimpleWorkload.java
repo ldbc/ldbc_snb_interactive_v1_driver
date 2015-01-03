@@ -11,6 +11,7 @@ import com.ldbc.driver.generator.MinMaxGenerator;
 import com.ldbc.driver.util.Tuple;
 import com.ldbc.driver.util.Tuple.Tuple2;
 import com.ldbc.driver.util.Tuple.Tuple3;
+import com.ldbc.driver.workloads.ldbc.snb.interactive.*;
 
 import java.io.IOException;
 import java.util.*;
@@ -33,6 +34,17 @@ public class SimpleWorkload extends Workload {
     final double READ_MODIFY_WRITE_RATIO = 0.20;
 
     final long INITIAL_INSERT_COUNT = 10;
+
+    @Override
+    public Map<Integer, Class<? extends Operation<?>>> operationTypeToClassMapping(Map<String, String> params) {
+        Map<Integer, Class<? extends Operation<?>>> operationTypeToClassMapping = new HashMap<>();
+        operationTypeToClassMapping.put(LdbcQuery1.TYPE, InsertOperation.class);
+        operationTypeToClassMapping.put(LdbcQuery2.TYPE, ReadModifyWriteOperation.class);
+        operationTypeToClassMapping.put(LdbcQuery3.TYPE, ReadOperation.class);
+        operationTypeToClassMapping.put(LdbcQuery4.TYPE, ScanOperation.class);
+        operationTypeToClassMapping.put(LdbcQuery5.TYPE, UpdateOperation.class);
+        return operationTypeToClassMapping;
+    }
 
     @Override
     public void onInit(Map<String, String> params) {

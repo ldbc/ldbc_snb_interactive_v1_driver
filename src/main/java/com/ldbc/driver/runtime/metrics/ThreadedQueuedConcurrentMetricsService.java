@@ -1,13 +1,13 @@
 package com.ldbc.driver.runtime.metrics;
 
-import com.ldbc.driver.OperationResultReport;
+import com.ldbc.driver.Operation;
 import com.ldbc.driver.runtime.ConcurrentErrorReporter;
 import com.ldbc.driver.runtime.DefaultQueues;
 import com.ldbc.driver.runtime.QueueEventSubmitter;
-import com.ldbc.driver.temporal.TemporalUtil;
 import com.ldbc.driver.temporal.TimeSource;
 import com.ldbc.driver.util.csv.SimpleCsvFileWriter;
 
+import java.util.Map;
 import java.util.Queue;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
@@ -17,66 +17,63 @@ import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.atomic.AtomicReference;
 
 public class ThreadedQueuedConcurrentMetricsService implements ConcurrentMetricsService {
-    private static final TemporalUtil TEMPORAL_UTIL = new TemporalUtil();
-    private static final long SHUTDOWN_WAIT_TIMEOUT_AS_MILLI = TEMPORAL_UTIL.convert(1, TimeUnit.MINUTES, TimeUnit.MILLISECONDS);
-    private static final long FUTURE_GET_TIMEOUT_AS_MILLI = TEMPORAL_UTIL.convert(30, TimeUnit.MINUTES, TimeUnit.MILLISECONDS);
+    private static final long SHUTDOWN_WAIT_TIMEOUT_AS_MILLI = TimeUnit.MINUTES.toMillis(1);
+    private static final long FUTURE_GET_TIMEOUT_AS_MILLI = TimeUnit.MINUTES.toMillis(30);
 
     public static final String RESULTS_LOG_FILENAME_SUFFIX = "-results_log.csv";
     public static final String RESULTS_METRICS_FILENAME_SUFFIX = "-results.json";
     public static final String RESULTS_CONFIGURATION_FILENAME_SUFFIX = "-configuration.properties";
 
     // TODO this could come from config, if we had a max_runtime parameter. for now, it can default to something
-    public static final long DEFAULT_HIGHEST_EXPECTED_RUNTIME_DURATION_AS_NANO = TEMPORAL_UTIL.convert(90, TimeUnit.MINUTES, TimeUnit.NANOSECONDS);
+    public static final long DEFAULT_HIGHEST_EXPECTED_RUNTIME_DURATION_AS_NANO = TimeUnit.MINUTES.toNanos(90);
 
-    private static final TemporalUtil temporalUtil = new TemporalUtil();
     private final TimeSource timeSource;
-    private final QueueEventSubmitter<MetricsCollectionEvent> queueEventSubmitter;
+    private final QueueEventSubmitter<ThreadedQueuedMetricsCollectionEvent> queueEventSubmitter;
     private final AtomicLong initiatedEvents;
     private final ThreadedQueuedConcurrentMetricsServiceThread threadedQueuedConcurrentMetricsServiceThread;
-    private final MetricsCollectionEventFactory metricsCollectionEventFactory;
     private final AtomicBoolean shutdown = new AtomicBoolean(false);
 
-    public static ThreadedQueuedConcurrentMetricsService newInstanceUsingNonBlockingQueue(TimeSource timeSource,
-                                                                                          ConcurrentErrorReporter errorReporter,
-                                                                                          TimeUnit unit,
-                                                                                          long maxRuntimeDurationAsNano,
-                                                                                          SimpleCsvFileWriter csvResultsLogWriter) {
-        Queue<MetricsCollectionEvent> queue = DefaultQueues.newNonBlocking();
+    public static ThreadedQueuedConcurrentMetricsService newInstanceUsingNonBlockingBoundedQueue(TimeSource timeSource,
+                                                                                                 ConcurrentErrorReporter errorReporter,
+                                                                                                 TimeUnit unit,
+                                                                                                 long maxRuntimeDurationAsNano,
+                                                                                                 SimpleCsvFileWriter csvResultsLogWriter,
+                                                                                                 Map<Integer, Class<? extends Operation<?>>> operationTypeToClassMapping) throws MetricsCollectionException {
+        Queue<ThreadedQueuedMetricsCollectionEvent> queue = DefaultQueues.newNonBlockingBounded(10000);
         return new ThreadedQueuedConcurrentMetricsService(
                 timeSource,
                 errorReporter,
                 unit,
                 maxRuntimeDurationAsNano,
                 queue,
-                csvResultsLogWriter);
+                csvResultsLogWriter,
+                operationTypeToClassMapping);
     }
 
-    public static ThreadedQueuedConcurrentMetricsService newInstanceUsingBlockingQueue(TimeSource timeSource,
-                                                                                       ConcurrentErrorReporter errorReporter,
-                                                                                       TimeUnit unit,
-                                                                                       long maxRuntimeDurationAsNano,
-                                                                                       SimpleCsvFileWriter csvResultsLogWriter) {
-        Queue<MetricsCollectionEvent> queue = DefaultQueues.newBlockingBounded(10000);
+    public static ThreadedQueuedConcurrentMetricsService newInstanceUsingBlockingBoundedQueue(TimeSource timeSource,
+                                                                                              ConcurrentErrorReporter errorReporter,
+                                                                                              TimeUnit unit,
+                                                                                              long maxRuntimeDurationAsNano,
+                                                                                              SimpleCsvFileWriter csvResultsLogWriter,
+                                                                                              Map<Integer, Class<? extends Operation<?>>> operationTypeToClassMapping) throws MetricsCollectionException {
+        Queue<ThreadedQueuedMetricsCollectionEvent> queue = DefaultQueues.newBlockingBounded(10000);
         return new ThreadedQueuedConcurrentMetricsService(
                 timeSource,
                 errorReporter,
                 unit,
                 maxRuntimeDurationAsNano,
                 queue,
-                csvResultsLogWriter);
+                csvResultsLogWriter,
+                operationTypeToClassMapping);
     }
 
     private ThreadedQueuedConcurrentMetricsService(TimeSource timeSource,
                                                    ConcurrentErrorReporter errorReporter,
                                                    TimeUnit unit,
                                                    long maxRuntimeDurationAsNano,
-                                                   Queue<MetricsCollectionEvent> queue,
-                                                   SimpleCsvFileWriter csvResultsLogWriter) {
-        // TODO enable
-//        this.metricsCollectionEventFactory = new PoolingMetricsCollectionEventFactory(
-//                new InstantiatingMetricsCollectionEventFactory()
-//        );
-        this.metricsCollectionEventFactory = new InstantiatingMetricsCollectionEventFactory();
+                                                   Queue<ThreadedQueuedMetricsCollectionEvent> queue,
+                                                   SimpleCsvFileWriter csvResultsLogWriter,
+                                                   Map<Integer, Class<? extends Operation<?>>> operationTypeToClassMapping) throws MetricsCollectionException {
         this.timeSource = timeSource;
         this.queueEventSubmitter = QueueEventSubmitter.queueEventSubmitterFor(queue);
         this.initiatedEvents = new AtomicLong(0);
@@ -86,23 +83,48 @@ public class ThreadedQueuedConcurrentMetricsService implements ConcurrentMetrics
                 csvResultsLogWriter,
                 timeSource,
                 unit,
-                maxRuntimeDurationAsNano);
+                maxRuntimeDurationAsNano,
+                operationTypeToClassMapping);
+
         threadedQueuedConcurrentMetricsServiceThread.start();
     }
 
     @Override
-    public void submitOperationResult(OperationResultReport operationResultReport) throws MetricsCollectionException {
+    public void submitOperationResult(
+            int operationType,
+            long scheduledStartTimeAsMilli,
+            long actualStartTimeAsMilli,
+            long runDurationAsNano,
+            int resultCode
+    ) throws MetricsCollectionException {
         if (shutdown.get()) {
             throw new MetricsCollectionException("Can not submit a result after calling shutdown");
         }
         try {
             initiatedEvents.incrementAndGet();
-            MetricsCollectionEvent event = metricsCollectionEventFactory.newMetricsCollectionEvent();
-            event.setType(MetricsCollectionEvent.MetricsEventType.SUBMIT_RESULT);
-            event.setValue(operationResultReport);
+            ThreadedQueuedMetricsCollectionEvent event = new ThreadedQueuedMetricsCollectionEvent.SubmitOperationResult(
+                    operationType,
+                    scheduledStartTimeAsMilli,
+                    actualStartTimeAsMilli,
+                    runDurationAsNano,
+                    resultCode
+            );
             queueEventSubmitter.submitEventToQueue(event);
         } catch (InterruptedException e) {
-            String errMsg = String.format("Error submitting result [%s]", operationResultReport.toString());
+            String errMsg = String.format(
+                    "Error submitting result\n"
+                            + "Operation Type: %s\n"
+                            + "Scheduled Start Time Ms: %s\n"
+                            + "Actual Start Time Ms: %s\n"
+                            + "Duration Ns: %s\n"
+                            + "Result Code: %s\n"
+                    ,
+                    operationType,
+                    scheduledStartTimeAsMilli,
+                    actualStartTimeAsMilli,
+                    runDurationAsNano,
+                    resultCode
+            );
             throw new MetricsCollectionException(errMsg, e);
         }
     }
@@ -114,14 +136,10 @@ public class ThreadedQueuedConcurrentMetricsService implements ConcurrentMetrics
         }
         try {
             MetricsStatusFuture statusFuture = new MetricsStatusFuture(timeSource);
-            MetricsCollectionEvent event = metricsCollectionEventFactory.newMetricsCollectionEvent();
-            event.setType(MetricsCollectionEvent.MetricsEventType.WORKLOAD_STATUS);
-            event.setValue(statusFuture);
+            ThreadedQueuedMetricsCollectionEvent event = new ThreadedQueuedMetricsCollectionEvent.Status(statusFuture);
             queueEventSubmitter.submitEventToQueue(event);
             return statusFuture.get(FUTURE_GET_TIMEOUT_AS_MILLI, TimeUnit.MILLISECONDS);
-        } catch (InterruptedException e) {
-            throw new MetricsCollectionException("Error while submitting request for workload status", e);
-        } catch (TimeoutException e) {
+        } catch (Exception e) {
             throw new MetricsCollectionException("Error while submitting request for workload status", e);
         }
     }
@@ -133,14 +151,10 @@ public class ThreadedQueuedConcurrentMetricsService implements ConcurrentMetrics
         }
         try {
             MetricsWorkloadResultFuture workloadResultFuture = new MetricsWorkloadResultFuture(timeSource);
-            MetricsCollectionEvent event = metricsCollectionEventFactory.newMetricsCollectionEvent();
-            event.setType(MetricsCollectionEvent.MetricsEventType.WORKLOAD_RESULT);
-            event.setValue(workloadResultFuture);
+            ThreadedQueuedMetricsCollectionEvent event = new ThreadedQueuedMetricsCollectionEvent.GetWorkloadResults(workloadResultFuture);
             queueEventSubmitter.submitEventToQueue(event);
             return workloadResultFuture.get(FUTURE_GET_TIMEOUT_AS_MILLI, TimeUnit.MILLISECONDS);
-        } catch (InterruptedException e) {
-            throw new MetricsCollectionException("Error while submitting request for workload results", e);
-        } catch (TimeoutException e) {
+        } catch (Exception e) {
             throw new MetricsCollectionException("Error while submitting request for workload results", e);
         }
     }
@@ -150,12 +164,9 @@ public class ThreadedQueuedConcurrentMetricsService implements ConcurrentMetrics
         if (shutdown.get())
             throw new MetricsCollectionException("Metrics service has already been shutdown");
         try {
-            MetricsCollectionEvent event = metricsCollectionEventFactory.newMetricsCollectionEvent();
-            event.setType(MetricsCollectionEvent.MetricsEventType.TERMINATE_SERVICE);
-            event.setValue(initiatedEvents.get());
+            ThreadedQueuedMetricsCollectionEvent event = new ThreadedQueuedMetricsCollectionEvent.Shutdown(initiatedEvents.get());
             queueEventSubmitter.submitEventToQueue(event);
             threadedQueuedConcurrentMetricsServiceThread.join(SHUTDOWN_WAIT_TIMEOUT_AS_MILLI);
-            metricsCollectionEventFactory.shutdown();
         } catch (InterruptedException e) {
             String errMsg = String.format("Thread was interrupted while waiting for %s to complete",
                     threadedQueuedConcurrentMetricsServiceThread.getClass().getSimpleName());
@@ -167,7 +178,7 @@ public class ThreadedQueuedConcurrentMetricsService implements ConcurrentMetrics
     public static class MetricsWorkloadResultFuture implements Future<WorkloadResultsSnapshot> {
         private final TimeSource timeSource;
         private final AtomicBoolean done = new AtomicBoolean(false);
-        private final AtomicReference<WorkloadResultsSnapshot> startTime = new AtomicReference<WorkloadResultsSnapshot>(null);
+        private final AtomicReference<WorkloadResultsSnapshot> startTime = new AtomicReference<>(null);
 
         private MetricsWorkloadResultFuture(TimeSource timeSource) {
             this.timeSource = timeSource;
@@ -205,7 +216,7 @@ public class ThreadedQueuedConcurrentMetricsService implements ConcurrentMetrics
 
         @Override
         public WorkloadResultsSnapshot get(long timeout, TimeUnit unit) throws TimeoutException {
-            long waitDurationMs = temporalUtil.convert(timeout, unit, TimeUnit.MILLISECONDS);
+            long waitDurationMs = unit.toMillis(timeout);
             long startTimeMs = timeSource.nowAsMilli();
             while (timeSource.nowAsMilli() - startTimeMs < waitDurationMs) {
                 // wait for value to be set
@@ -257,7 +268,7 @@ public class ThreadedQueuedConcurrentMetricsService implements ConcurrentMetrics
 
         @Override
         public WorkloadStatusSnapshot get(long timeout, TimeUnit unit) throws TimeoutException {
-            long waitDurationMs = temporalUtil.convert(timeout, unit, TimeUnit.MILLISECONDS);
+            long waitDurationMs = unit.toMillis(timeout);
             long startTimeMs = timeSource.nowAsMilli();
             while (timeSource.nowAsMilli() - startTimeMs < waitDurationMs) {
                 // wait for value to be set

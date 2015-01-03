@@ -5,6 +5,7 @@ import com.ldbc.driver.Operation;
 import java.util.Date;
 
 public class LdbcUpdate3AddCommentLike extends Operation<Object> {
+    public static final int TYPE = 1003;
     private final long personId;
     private final long commentId;
     private final Date creationDate;
@@ -70,6 +71,6 @@ public class LdbcUpdate3AddCommentLike extends Operation<Object> {
 
     @Override
     public int type() {
-        return 1003;
+        return TYPE;
     }
 }

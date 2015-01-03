@@ -1,7 +1,6 @@
 package com.ldbc.driver.runtime.metrics;
 
 import com.ldbc.driver.Operation;
-import com.ldbc.driver.ResultReporter;
 import com.ldbc.driver.WorkloadException;
 import com.ldbc.driver.runtime.ConcurrentErrorReporter;
 import com.ldbc.driver.temporal.SystemTimeSource;
@@ -20,7 +19,7 @@ import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
 
-public class ThreadedQueuedConcurrentMetricsServiceTest {
+public class DisruptorConcurrentMetricsServiceTest {
     private TimeSource timeSource = new SystemTimeSource();
 
     @Test
@@ -30,14 +29,14 @@ public class ThreadedQueuedConcurrentMetricsServiceTest {
         Map<Integer, Class<? extends Operation<?>>> operationTypeToClassMapping = new HashMap<>();
         operationTypeToClassMapping.put(LdbcQuery1.TYPE, LdbcQuery1.class);
         operationTypeToClassMapping.put(LdbcQuery2.TYPE, LdbcQuery2.class);
-        ConcurrentMetricsService metricsService = ThreadedQueuedConcurrentMetricsService.newInstanceUsingBlockingBoundedQueue(
+        ConcurrentMetricsService metricsService = new DisruptorConcurrentMetricsService(
                 timeSource,
                 errorReporter,
                 TimeUnit.MILLISECONDS,
-                ThreadedQueuedConcurrentMetricsService.DEFAULT_HIGHEST_EXPECTED_RUNTIME_DURATION_AS_NANO,
+                DisruptorConcurrentMetricsService.DEFAULT_HIGHEST_EXPECTED_RUNTIME_DURATION_AS_NANO,
                 csvResultsLogWriter,
-                operationTypeToClassMapping);
-
+                operationTypeToClassMapping
+        );
         metricsService.shutdown();
         boolean exceptionThrown = false;
         try {
@@ -55,13 +54,14 @@ public class ThreadedQueuedConcurrentMetricsServiceTest {
         Map<Integer, Class<? extends Operation<?>>> operationTypeToClassMapping = new HashMap<>();
         operationTypeToClassMapping.put(LdbcQuery1.TYPE, LdbcQuery1.class);
         operationTypeToClassMapping.put(LdbcQuery2.TYPE, LdbcQuery2.class);
-        ConcurrentMetricsService metricsService = ThreadedQueuedConcurrentMetricsService.newInstanceUsingNonBlockingBoundedQueue(
+        ConcurrentMetricsService metricsService = new DisruptorConcurrentMetricsService(
                 timeSource,
                 errorReporter,
                 TimeUnit.MILLISECONDS,
-                ThreadedQueuedConcurrentMetricsService.DEFAULT_HIGHEST_EXPECTED_RUNTIME_DURATION_AS_NANO,
+                DisruptorConcurrentMetricsService.DEFAULT_HIGHEST_EXPECTED_RUNTIME_DURATION_AS_NANO,
                 csvResultsLogWriter,
-                operationTypeToClassMapping);
+                operationTypeToClassMapping
+        );
 
         metricsService.shutdown();
         boolean exceptionThrown = false;
@@ -80,13 +80,14 @@ public class ThreadedQueuedConcurrentMetricsServiceTest {
         Map<Integer, Class<? extends Operation<?>>> operationTypeToClassMapping = new HashMap<>();
         operationTypeToClassMapping.put(LdbcQuery1.TYPE, LdbcQuery1.class);
         operationTypeToClassMapping.put(LdbcQuery2.TYPE, LdbcQuery2.class);
-        ConcurrentMetricsService metricsService = ThreadedQueuedConcurrentMetricsService.newInstanceUsingBlockingBoundedQueue(
+        ConcurrentMetricsService metricsService = new DisruptorConcurrentMetricsService(
                 timeSource,
                 errorReporter,
                 TimeUnit.MILLISECONDS,
-                ThreadedQueuedConcurrentMetricsService.DEFAULT_HIGHEST_EXPECTED_RUNTIME_DURATION_AS_NANO,
+                DisruptorConcurrentMetricsService.DEFAULT_HIGHEST_EXPECTED_RUNTIME_DURATION_AS_NANO,
                 csvResultsLogWriter,
-                operationTypeToClassMapping);
+                operationTypeToClassMapping
+        );
         try {
             shouldReturnCorrectMeasurements(metricsService);
         } finally {
@@ -102,13 +103,14 @@ public class ThreadedQueuedConcurrentMetricsServiceTest {
         Map<Integer, Class<? extends Operation<?>>> operationTypeToClassMapping = new HashMap<>();
         operationTypeToClassMapping.put(LdbcQuery1.TYPE, LdbcQuery1.class);
         operationTypeToClassMapping.put(LdbcQuery2.TYPE, LdbcQuery2.class);
-        ConcurrentMetricsService metricsService = ThreadedQueuedConcurrentMetricsService.newInstanceUsingBlockingBoundedQueue(
+        ConcurrentMetricsService metricsService = new DisruptorConcurrentMetricsService(
                 timeSource,
                 errorReporter,
                 TimeUnit.MILLISECONDS,
-                ThreadedQueuedConcurrentMetricsService.DEFAULT_HIGHEST_EXPECTED_RUNTIME_DURATION_AS_NANO,
+                DisruptorConcurrentMetricsService.DEFAULT_HIGHEST_EXPECTED_RUNTIME_DURATION_AS_NANO,
                 csvResultsLogWriter,
-                operationTypeToClassMapping);
+                operationTypeToClassMapping
+        );
         try {
             shouldReturnCorrectMeasurements(metricsService);
         } finally {
@@ -118,7 +120,6 @@ public class ThreadedQueuedConcurrentMetricsServiceTest {
     }
 
     public void shouldReturnCorrectMeasurements(ConcurrentMetricsService metricsService) throws WorkloadException, MetricsCollectionException {
-        ResultReporter resultReporter = new ResultReporter.SimpleResultReporter();
         assertThat(metricsService.results().startTimeAsMilli(), equalTo(-1l));
         assertThat(metricsService.results().latestFinishTimeAsMilli(), is(-1l));
 

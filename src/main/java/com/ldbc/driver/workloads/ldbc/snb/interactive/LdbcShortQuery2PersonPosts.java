@@ -10,6 +10,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class LdbcShortQuery2PersonPosts extends Operation<List<LdbcShortQuery2PersonPostsResult>> {
+    public static final int TYPE = 102;
     private static final ObjectMapper objectMapper = new ObjectMapper();
     private final long personId;
 
@@ -94,6 +95,6 @@ public class LdbcShortQuery2PersonPosts extends Operation<List<LdbcShortQuery2Pe
 
     @Override
     public int type() {
-        return 102;
+        return TYPE;
     }
 }

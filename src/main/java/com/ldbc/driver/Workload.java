@@ -2,7 +2,6 @@ package com.ldbc.driver;
 
 import com.ldbc.driver.control.DriverConfiguration;
 import com.ldbc.driver.generator.GeneratorFactory;
-import com.ldbc.driver.temporal.TemporalUtil;
 
 import java.io.Closeable;
 import java.io.IOException;
@@ -10,11 +9,12 @@ import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 public abstract class Workload implements Closeable {
-    private static final TemporalUtil TEMPORAL_UTIL = new TemporalUtil();
-    public static final long DEFAULT_MAXIMUM_EXPECTED_INTERLEAVE_AS_MILLI = TEMPORAL_UTIL.convert(1, TimeUnit.HOURS, TimeUnit.MILLISECONDS);
+    public static final long DEFAULT_MAXIMUM_EXPECTED_INTERLEAVE_AS_MILLI = TimeUnit.HOURS.toMillis(1);
 
     private boolean isInitialized = false;
     private boolean isClosed = false;
+
+    public abstract Map<Integer, Class<? extends Operation<?>>> operationTypeToClassMapping(Map<String, String> params);
 
     /**
      * Called once to initialize state for workload

@@ -8,6 +8,7 @@ import java.util.Date;
 import java.util.List;
 
 public class LdbcUpdate7AddComment extends Operation<Object> {
+    public static final int TYPE = 1007;
     private final long commentId;
     private final Date creationDate;
     private final String locationIp;
@@ -161,6 +162,6 @@ public class LdbcUpdate7AddComment extends Operation<Object> {
 
     @Override
     public int type() {
-        return 1007;
+        return TYPE;
     }
 }

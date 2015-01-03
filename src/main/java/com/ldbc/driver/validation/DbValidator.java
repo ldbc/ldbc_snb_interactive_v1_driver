@@ -9,6 +9,7 @@ public class DbValidator {
     public DbValidationResult validate(Iterator<ValidationParam> validationParameters,
                                        Db db) throws WorkloadException {
         DbValidationResult dbValidationResult = new DbValidationResult(db);
+        ResultReporter resultReporter = new ResultReporter.SimpleResultReporter();
         while (validationParameters.hasNext()) {
             ValidationParam validationParam = validationParameters.next();
             Operation<?> operation = validationParam.operation();
@@ -22,11 +23,10 @@ public class DbValidator {
                 continue;
             }
 
-            OperationResultReport actualOperationResultReport;
             try {
                 OperationHandler handler = handlerRunner.operationHandler();
                 DbConnectionState dbConnectionState = handlerRunner.dbConnectionState();
-                actualOperationResultReport = handler.executeOperation(operation, dbConnectionState);
+                handler.executeOperation(operation, dbConnectionState, resultReporter);
             } catch (DbException e) {
                 dbValidationResult.reportUnableToExecuteOperation(operation, ConcurrentErrorReporter.stackTraceToString(e));
                 continue;
@@ -34,7 +34,7 @@ public class DbValidator {
                 handlerRunner.cleanup();
             }
 
-            Object actualOperationResult = actualOperationResultReport.operationResult();
+            Object actualOperationResult = resultReporter.result();
 
             if (false == expectedOperationResult.equals(actualOperationResult)) {
                 dbValidationResult.reportIncorrectResultForOperation(operation, expectedOperationResult, actualOperationResult);

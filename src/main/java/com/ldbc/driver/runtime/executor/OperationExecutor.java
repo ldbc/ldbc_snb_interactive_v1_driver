@@ -2,7 +2,7 @@ package com.ldbc.driver.runtime.executor;
 
 import com.ldbc.driver.Operation;
 
-public interface OperationExecutor_NEW {
+public interface OperationExecutor {
     /**
      * @param operation
      * @return

@@ -8,6 +8,7 @@ import java.util.Date;
 import java.util.List;
 
 public class LdbcUpdate4AddForum extends Operation<Object> {
+    public static final int TYPE = 1004;
     private final long forumId;
     private final String forumTitle;
     private final Date creationDate;
@@ -97,6 +98,6 @@ public class LdbcUpdate4AddForum extends Operation<Object> {
 
     @Override
     public int type() {
-        return 1004;
+        return TYPE;
     }
 }

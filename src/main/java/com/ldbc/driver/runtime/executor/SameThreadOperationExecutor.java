@@ -10,20 +10,20 @@ import com.ldbc.driver.temporal.TimeSource;
 
 import java.util.concurrent.atomic.AtomicLong;
 
-public class SameThreadOperationExecutor_NEW implements OperationExecutor_NEW {
+public class SameThreadOperationExecutor implements OperationExecutor {
     private final AtomicLong uncompletedHandlers = new AtomicLong(0);
     private final OperationHandlerRunnableContextRetriever operationHandlerRunnableContextInitializer;
     private final ChildOperationGenerator childOperationGenerator;
 
-    public SameThreadOperationExecutor_NEW(Db db,
-                                           WorkloadStreams.WorkloadStreamDefinition streamDefinition,
-                                           LocalCompletionTimeWriter localCompletionTimeWriter,
-                                           GlobalCompletionTimeReader globalCompletionTimeReader,
-                                           Spinner spinner,
-                                           TimeSource timeSource,
-                                           ConcurrentErrorReporter errorReporter,
-                                           ConcurrentMetricsService metricsService,
-                                           ChildOperationGenerator childOperationGenerator) {
+    public SameThreadOperationExecutor(Db db,
+                                       WorkloadStreams.WorkloadStreamDefinition streamDefinition,
+                                       LocalCompletionTimeWriter localCompletionTimeWriter,
+                                       GlobalCompletionTimeReader globalCompletionTimeReader,
+                                       Spinner spinner,
+                                       TimeSource timeSource,
+                                       ConcurrentErrorReporter errorReporter,
+                                       ConcurrentMetricsService metricsService,
+                                       ChildOperationGenerator childOperationGenerator) {
         this.childOperationGenerator = childOperationGenerator;
         this.operationHandlerRunnableContextInitializer = new OperationHandlerRunnableContextRetriever(
                 streamDefinition,
@@ -45,14 +45,13 @@ public class SameThreadOperationExecutor_NEW implements OperationExecutor_NEW {
                     operationHandlerRunnableContextInitializer.getInitializedHandlerFor(operation);
             operationHandlerRunnableContext.run();
             if (null != childOperationGenerator) {
-                OperationResultReport resultReport = operationHandlerRunnableContext.operationResultReport();
+                Object result = operationHandlerRunnableContext.resultReporter().result();
                 double state = childOperationGenerator.initialState();
-                Operation childOperation;
-                while (null != (childOperation = childOperationGenerator.nextOperation(state, resultReport))) {
+                while (null != (operation = childOperationGenerator.nextOperation(state, operation, result))) {
                     OperationHandlerRunnableContext childOperationHandlerRunnableContext =
-                            operationHandlerRunnableContextInitializer.getInitializedHandlerFor(childOperation);
+                            operationHandlerRunnableContextInitializer.getInitializedHandlerFor(operation);
                     childOperationHandlerRunnableContext.run();
-                    resultReport = childOperationHandlerRunnableContext.operationResultReport();
+                    result = childOperationHandlerRunnableContext.resultReporter().result();
                     childOperationHandlerRunnableContext.cleanup();
                     state = childOperationGenerator.updateState(state);
                 }

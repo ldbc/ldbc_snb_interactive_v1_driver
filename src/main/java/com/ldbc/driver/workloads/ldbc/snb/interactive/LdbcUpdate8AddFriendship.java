@@ -5,6 +5,7 @@ import com.ldbc.driver.Operation;
 import java.util.Date;
 
 public class LdbcUpdate8AddFriendship extends Operation<Object> {
+    public static final int TYPE = 1008;
     private final long person1Id;
     private final long person2Id;
     private final Date creationDate;
@@ -70,6 +71,6 @@ public class LdbcUpdate8AddFriendship extends Operation<Object> {
 
     @Override
     public int type() {
-        return 1008;
+        return TYPE;
     }
 }

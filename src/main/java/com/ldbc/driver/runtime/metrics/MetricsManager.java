@@ -1,7 +1,7 @@
 package com.ldbc.driver.runtime.metrics;
 
-import com.ldbc.driver.OperationResultReport;
-import com.ldbc.driver.temporal.TemporalUtil;
+import com.google.common.collect.Ordering;
+import com.ldbc.driver.Operation;
 import com.ldbc.driver.temporal.TimeSource;
 
 import java.io.OutputStream;
@@ -11,19 +11,14 @@ import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 public class MetricsManager {
-    private static final long ONE_SECOND_AS_NANO = 1000000000;
-
-    private final TemporalUtil temporalUtil = new TemporalUtil();
-    private final Map<Integer, OperationTypeMetricsManager> allOperationMetrics;
     private final TimeSource timeSource;
     private final TimeUnit unit;
-    private final long highestExpectedRuntimeDurationAsNano;
     private long startTimeAsMilli;
     private long latestFinishTimeAsMilli;
-    private long measurementCount = 0;
+    private final OperationTypeMetricsManager[] operationTypeMetricsManagers;
 
     public static void export(WorkloadResultsSnapshot workloadResults,
-                              OperationMetricsFormatter metricsFormatter,
+                              WorkloadMetricsFormatter metricsFormatter,
                               OutputStream outputStream,
                               Charset charSet)
             throws MetricsCollectionException {
@@ -35,54 +30,105 @@ public class MetricsManager {
         }
     }
 
+    public static OperationTypeMetricsManager[] toOperationTypeMetricsManagerArray(Map<Integer, Class<? extends Operation<?>>> operationTypeToClassMapping,
+                                                                                   TimeUnit unit,
+                                                                                   long highestExpectedRuntimeDurationAsNano) throws MetricsCollectionException {
+        if (operationTypeToClassMapping.isEmpty()) {
+            return new OperationTypeMetricsManager[]{};
+        } else {
+            final int minOperationType = Ordering.<Integer>natural().min(operationTypeToClassMapping.keySet());
+            if (minOperationType < 0) {
+                throw new MetricsCollectionException(String.format("Encountered Operation with type code lower than 0: %s", minOperationType));
+            }
+
+            final int maxOperationType = Ordering.<Integer>natural().max(operationTypeToClassMapping.keySet());
+            OperationTypeMetricsManager[] operationTypeMetricsManagers = new OperationTypeMetricsManager[maxOperationType + 1];
+            for (int i = 0; i < operationTypeMetricsManagers.length; i++) {
+                Class<? extends Operation<?>> operationClass = operationTypeToClassMapping.get(i);
+                if (null == operationClass) {
+                    operationTypeMetricsManagers[i] = null;
+                } else {
+                    operationTypeMetricsManagers[i] = new OperationTypeMetricsManager(
+                            operationClass.getSimpleName(),
+                            unit,
+                            highestExpectedRuntimeDurationAsNano
+                    );
+                }
+            }
+            return operationTypeMetricsManagers;
+        }
+    }
+
+    public static String[] toOperationNameArray(Map<Integer, Class<? extends Operation<?>>> operationTypeToClassMapping) throws MetricsCollectionException {
+        if (operationTypeToClassMapping.isEmpty()) {
+            return new String[]{};
+        } else {
+            final int minOperationType = Ordering.<Integer>natural().min(operationTypeToClassMapping.keySet());
+            if (minOperationType < 0) {
+                throw new MetricsCollectionException(String.format("Encountered Operation with type code lower than 0: %s", minOperationType));
+            }
+            final int maxOperationType = Ordering.<Integer>natural().max(operationTypeToClassMapping.keySet());
+            String[] operationNames = new String[maxOperationType + 1];
+            for (int i = 0; i < operationNames.length; i++) {
+                Class<? extends Operation<?>> operationClass = operationTypeToClassMapping.get(i);
+                if (null == operationClass) {
+                    operationNames[i] = null;
+                } else {
+                    operationNames[i] = operationClass.getSimpleName();
+                }
+            }
+            return operationNames;
+        }
+    }
+
     MetricsManager(TimeSource timeSource,
                    TimeUnit unit,
-                   long highestExpectedRuntimeDurationAsNano) {
+                   long highestExpectedRuntimeDurationAsNano,
+                   Map<Integer, Class<? extends Operation<?>>> operationTypeToClassMapping) throws MetricsCollectionException {
+        operationTypeMetricsManagers = toOperationTypeMetricsManagerArray(
+                operationTypeToClassMapping,
+                unit,
+                highestExpectedRuntimeDurationAsNano
+        );
+
         this.startTimeAsMilli = Long.MAX_VALUE;
         this.latestFinishTimeAsMilli = Long.MIN_VALUE;
         this.timeSource = timeSource;
         this.unit = unit;
-        this.allOperationMetrics = new HashMap<>();
-        this.highestExpectedRuntimeDurationAsNano = highestExpectedRuntimeDurationAsNano;
     }
 
-    void measure(OperationResultReport result) throws MetricsCollectionException {
-        if (result.actualStartTimeAsMilli() < startTimeAsMilli) {
-            startTimeAsMilli = result.actualStartTimeAsMilli();
+    final static long ONE_MS_AS_NS = TimeUnit.MILLISECONDS.toNanos(1);
+
+    void measure(long actualStartTimeAsMilli, long runDurationAsNano, int operationType) throws MetricsCollectionException {
+        if (actualStartTimeAsMilli < startTimeAsMilli) {
+            startTimeAsMilli = actualStartTimeAsMilli;
         }
 
-        long operationFinishTimeAsMilli = result.actualStartTimeAsMilli() + temporalUtil.convert(result.runDurationAsNano(), TimeUnit.NANOSECONDS, TimeUnit.MILLISECONDS);
+        long operationFinishTimeAsMilli = actualStartTimeAsMilli + (runDurationAsNano / ONE_MS_AS_NS);
         if (operationFinishTimeAsMilli > latestFinishTimeAsMilli) {
             latestFinishTimeAsMilli = operationFinishTimeAsMilli;
         }
 
-        measurementCount++;
-
-        OperationTypeMetricsManager operationTypeMetricsManager = allOperationMetrics.get(result.operation().type());
-        if (null == operationTypeMetricsManager) {
-            operationTypeMetricsManager = new OperationTypeMetricsManager(
-                    result.operation().getClass().getSimpleName(),
-                    unit,
-                    highestExpectedRuntimeDurationAsNano
-            );
-            allOperationMetrics.put(result.operation().type(), operationTypeMetricsManager);
-        }
-        operationTypeMetricsManager.measure(result);
+        operationTypeMetricsManagers[operationType].measure(runDurationAsNano);
     }
 
     private long totalOperationCount() {
         long count = 0;
-        for (OperationTypeMetricsManager operationTypeMetricsManager : allOperationMetrics.values()) {
-            count += operationTypeMetricsManager.count();
+        for (OperationTypeMetricsManager operationTypeMetricsManager : operationTypeMetricsManagers) {
+            if (null != operationTypeMetricsManager && operationTypeMetricsManager.count() > 0) {
+                count += operationTypeMetricsManager.count();
+            }
         }
         return count;
     }
 
     WorkloadResultsSnapshot snapshot() {
         Map<String, OperationMetricsSnapshot> operationMetricsMap = new HashMap<>();
-        for (Map.Entry<Integer, OperationTypeMetricsManager> metricsManagerEntry : allOperationMetrics.entrySet()) {
-            OperationMetricsSnapshot snapshot = metricsManagerEntry.getValue().snapshot();
-            operationMetricsMap.put(snapshot.name(), snapshot);
+        for (OperationTypeMetricsManager operationTypeMetricsManager : operationTypeMetricsManagers) {
+            if (null != operationTypeMetricsManager && operationTypeMetricsManager.count() > 0) {
+                OperationMetricsSnapshot snapshot = operationTypeMetricsManager.snapshot();
+                operationMetricsMap.put(snapshot.name(), snapshot);
+            }
         }
         return new WorkloadResultsSnapshot(
                 operationMetricsMap,
@@ -106,9 +152,9 @@ public class MetricsManager {
                     operationsPerSecond);
         } else {
             long runDurationAsMilli = nowAsMilli - startTimeAsMilli;
-            long operationCount = measurementCount;
+            long operationCount = totalOperationCount();
             long durationSinceLastMeasurementAsMilli = (-1 == latestFinishTimeAsMilli) ? -1 : nowAsMilli - latestFinishTimeAsMilli;
-            double operationsPerSecond = ((double) operationCount / temporalUtil.convert(runDurationAsMilli, TimeUnit.MILLISECONDS, TimeUnit.NANOSECONDS)) * ONE_SECOND_AS_NANO;
+            double operationsPerSecond = ((double) operationCount / TimeUnit.MILLISECONDS.toNanos(runDurationAsMilli)) * TimeUnit.SECONDS.toNanos(1);
             return new WorkloadStatusSnapshot(
                     runDurationAsMilli,
                     operationCount,

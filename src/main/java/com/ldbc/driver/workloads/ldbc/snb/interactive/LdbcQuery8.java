@@ -12,6 +12,7 @@ import java.util.List;
 public class LdbcQuery8 extends Operation<List<LdbcQuery8Result>> {
     private static final ObjectMapper objectMapper = new ObjectMapper();
 
+    public static final int TYPE = 8;
     public static final int DEFAULT_LIMIT = 20;
     private final long personId;
     private final int limit;
@@ -116,6 +117,6 @@ public class LdbcQuery8 extends Operation<List<LdbcQuery8Result>> {
 
     @Override
     public int type() {
-        return 8;
+        return TYPE;
     }
 }

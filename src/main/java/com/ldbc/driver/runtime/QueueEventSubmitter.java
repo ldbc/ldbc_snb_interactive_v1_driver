@@ -2,6 +2,7 @@ package com.ldbc.driver.runtime;
 
 import java.util.Queue;
 import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.locks.LockSupport;
 
 public abstract class QueueEventSubmitter<EVENT_TYPE> {
 
@@ -22,7 +23,9 @@ public abstract class QueueEventSubmitter<EVENT_TYPE> {
 
         @Override
         public void submitEventToQueue(EVENT_TYPE_NON_BLOCKING event) throws InterruptedException {
-            queue.add(event);
+            while (false == queue.offer(event)) {
+                LockSupport.parkNanos(1);
+            }
         }
     }
 

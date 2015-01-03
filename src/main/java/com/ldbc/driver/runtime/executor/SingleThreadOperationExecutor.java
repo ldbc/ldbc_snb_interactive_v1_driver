@@ -14,7 +14,7 @@ import java.util.Queue;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicLong;
 
-public class SingleThreadOperationExecutor_NEW implements OperationExecutor_NEW {
+public class SingleThreadOperationExecutor implements OperationExecutor {
     static final Operation TERMINATE_OPERATION = new Operation() {
         @Override
         public int type() {
@@ -33,21 +33,21 @@ public class SingleThreadOperationExecutor_NEW implements OperationExecutor_NEW 
 
     };
 
-    private final SingleThreadOperationExecutorThread_NEW executorThread;
+    private final SingleThreadOperationExecutorThread executorThread;
     private final QueueEventSubmitter<Operation> operationQueueEventSubmitter;
     private final AtomicLong uncompletedHandlers = new AtomicLong(0);
     private final AtomicBoolean shutdown = new AtomicBoolean(false);
 
-    public SingleThreadOperationExecutor_NEW(Db db,
-                                             WorkloadStreams.WorkloadStreamDefinition streamDefinition,
-                                             LocalCompletionTimeWriter localCompletionTimeWriter,
-                                             GlobalCompletionTimeReader globalCompletionTimeReader,
-                                             Spinner spinner,
-                                             TimeSource timeSource,
-                                             ConcurrentErrorReporter errorReporter,
-                                             ConcurrentMetricsService metricsService,
-                                             ChildOperationGenerator childOperationGenerator,
-                                             int boundedQueueSize) {
+    public SingleThreadOperationExecutor(Db db,
+                                         WorkloadStreams.WorkloadStreamDefinition streamDefinition,
+                                         LocalCompletionTimeWriter localCompletionTimeWriter,
+                                         GlobalCompletionTimeReader globalCompletionTimeReader,
+                                         Spinner spinner,
+                                         TimeSource timeSource,
+                                         ConcurrentErrorReporter errorReporter,
+                                         ConcurrentMetricsService metricsService,
+                                         ChildOperationGenerator childOperationGenerator,
+                                         int boundedQueueSize) {
         Queue<Operation> operationQueue = DefaultQueues.newAlwaysBlockingBounded(boundedQueueSize);
         this.operationQueueEventSubmitter = QueueEventSubmitter.queueEventSubmitterFor(operationQueue);
 
@@ -63,7 +63,7 @@ public class SingleThreadOperationExecutor_NEW implements OperationExecutor_NEW 
                 metricsService
         );
 
-        this.executorThread = new SingleThreadOperationExecutorThread_NEW(
+        this.executorThread = new SingleThreadOperationExecutorThread(
                 operationQueue,
                 errorReporter,
                 uncompletedHandlers,

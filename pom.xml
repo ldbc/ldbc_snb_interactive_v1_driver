@@ -28,9 +28,38 @@
         <stormpot.version>2.3</stormpot.version>
         <maven.compiler.source>1.7</maven.compiler.source>
         <maven.compiler.target>1.7</maven.compiler.target>
+        <gs-collections-version>5.1.0</gs-collections-version>
+        <disruptor-version>3.3.0</disruptor-version>
+        <javolution-version>6.0.0</javolution-version>
+        <jctools-core-version>1.0</jctools-core-version>
     </properties>
 
     <dependencies>
+        <dependency>
+            <groupId>org.jctools</groupId>
+            <artifactId>jctools-core</artifactId>
+            <version>${jctools-core-version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.javolution</groupId>
+            <artifactId>javolution-core-java</artifactId>
+            <version>${javolution-version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.lmax</groupId>
+            <artifactId>disruptor</artifactId>
+            <version>${disruptor-version}</version>
+        </dependency>
+        <dependency>
+            <groupId>it.unimi.dsi</groupId>
+            <artifactId>fastutil</artifactId>
+            <version>6.5.16</version>
+        </dependency>
+        <dependency>
+            <groupId>com.goldmansachs</groupId>
+            <artifactId>gs-collections</artifactId>
+            <version>${gs-collections-version}</version>
+        </dependency>
         <dependency>
             <groupId>org.hamcrest</groupId>
             <artifactId>hamcrest-all</artifactId>
@@ -94,15 +123,6 @@
             <id>central</id>
             <url>http://repo1.maven.org/maven2/</url>
         </repository>
-        <repository>
-            <id>neo4j-snapshots</id>
-            <name>Neo4j Snapshots</name>
-            <url>http://m2.neo4j.org/snapshots</url>
-            <snapshots>
-                <enabled>true</enabled>
-                <updatePolicy>always</updatePolicy>
-            </snapshots>
-        </repository>
     </repositories>
     <build>
         <plugins>
@@ -111,6 +131,7 @@
                 <artifactId>maven-assembly-plugin</artifactId>
                 <version>${maven.assembly.version}</version>
                 <configuration>
+                    <encoding>${project.build.sourceEncoding}</encoding>
                     <descriptorRefs>
                         <descriptorRef>jar-with-dependencies</descriptorRef>
                     </descriptorRefs>

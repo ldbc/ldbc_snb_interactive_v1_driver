@@ -1,10 +1,8 @@
 package com.ldbc.driver;
 
 import com.ldbc.driver.runtime.ConcurrentErrorReporter;
-import com.ldbc.driver.runtime.coordination.CompletionTimeException;
 import com.ldbc.driver.runtime.coordination.LocalCompletionTimeWriter;
 import com.ldbc.driver.runtime.metrics.ConcurrentMetricsService;
-import com.ldbc.driver.runtime.metrics.MetricsCollectionException;
 import com.ldbc.driver.runtime.scheduling.Spinner;
 import com.ldbc.driver.runtime.scheduling.SpinnerCheck;
 import com.ldbc.driver.temporal.TimeSource;
@@ -30,10 +28,9 @@ public class OperationHandlerRunnableContext implements Runnable, Poolable {
     // set by DependencyAndNonDependencyHandlersRetriever
     private SpinnerCheck beforeExecuteCheck = null;
 
-    // set internally
-    private OperationResultReport operationResultReport = null;
-
     private boolean initialized = false;
+
+    private final ResultReporter resultReporter = new ResultReporter.SimpleResultReporter();
 
     public final void setSlot(Slot slot) {
         this.slot = slot;
@@ -55,7 +52,6 @@ public class OperationHandlerRunnableContext implements Runnable, Poolable {
         this.errorReporter = errorReporter;
         this.metricsService = metricsService;
         this.beforeExecuteCheck = Spinner.TRUE_CHECK;
-        this.operationResultReport = null;
 
         this.initialized = true;
     }
@@ -88,8 +84,8 @@ public class OperationHandlerRunnableContext implements Runnable, Poolable {
         return dbConnectionState;
     }
 
-    public final OperationResultReport operationResultReport() {
-        return operationResultReport;
+    public final ResultReporter resultReporter() {
+        return resultReporter;
     }
 
     /**
@@ -116,36 +112,20 @@ public class OperationHandlerRunnableContext implements Runnable, Poolable {
             }
             long actualStartTimeAsMilli = timeSource.nowAsMilli();
             long startOfLatencyMeasurementAsNano = timeSource.nanoSnapshot();
-            operationResultReport = operationHandler.executeOperation(operation, dbConnectionState);
+            operationHandler.executeOperation(operation, dbConnectionState, resultReporter);
             long endOfLatencyMeasurementAsNano = timeSource.nanoSnapshot();
-            if (null == operationResultReport) {
-                throw new DbException(String.format("Handler returned null result:\n %s", toString()));
-            }
-            operationResultReport.setRunDurationAsNano(endOfLatencyMeasurementAsNano - startOfLatencyMeasurementAsNano);
-            operationResultReport.setActualStartTimeAsMilli(actualStartTimeAsMilli);
+            long runDurationAsNano = endOfLatencyMeasurementAsNano - startOfLatencyMeasurementAsNano;
             localCompletionTimeWriter.submitLocalCompletedTime(operation.timeStamp());
-            metricsService.submitOperationResult(operationResultReport);
-        } catch (DbException e) {
-            String errMsg = String.format(
-                    "Error encountered while executing query %s\n%s",
-                    operation.toString(),
-                    ConcurrentErrorReporter.stackTraceToString(e));
-            errorReporter.reportError(this, errMsg);
-        } catch (MetricsCollectionException e) {
-            String errMsg = String.format(
-                    "Error encountered while collecting metrics for query %s\n%s",
-                    operation.toString(),
-                    ConcurrentErrorReporter.stackTraceToString(e));
-            errorReporter.reportError(this, errMsg);
-        } catch (CompletionTimeException e) {
-            String errMsg = String.format(
-                    "Error encountered while submitting completed time for query %s\n%s",
-                    operation.toString(),
-                    ConcurrentErrorReporter.stackTraceToString(e));
-            errorReporter.reportError(this, errMsg);
+            metricsService.submitOperationResult(
+                    operation.type(),
+                    operation.scheduledStartTimeAsMilli(),
+                    actualStartTimeAsMilli,
+                    runDurationAsNano,
+                    resultReporter.resultCode()
+            );
         } catch (Throwable e) {
             String errMsg = String.format(
-                    "Unexpected error while executing query %s\n%s",
+                    "Error encountered\n%s\n%s",
                     operation.toString(),
                     ConcurrentErrorReporter.stackTraceToString(e));
             errorReporter.reportError(this, errMsg);

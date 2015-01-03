@@ -7,9 +7,6 @@ import com.ldbc.driver.generator.GeneratorException;
 import java.util.Iterator;
 import java.util.List;
 
-/**
- * Created by alexaverbuch on 7/11/14.
- */
 class ReadOperationGenerator extends Generator<Operation<?>> {
     private final String table;
     private final Iterator<String> keyGenerator;

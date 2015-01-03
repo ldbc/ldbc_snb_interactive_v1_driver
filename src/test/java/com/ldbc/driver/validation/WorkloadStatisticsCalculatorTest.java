@@ -59,7 +59,7 @@ public class WorkloadStatisticsCalculatorTest {
         // When
 
         WorkloadStatisticsCalculator calculator = new WorkloadStatisticsCalculator();
-        WorkloadStatistics stats = calculator.calculate(workloadStreams, TEMPORAL_UTIL.convert(60, TimeUnit.MINUTES, TimeUnit.MILLISECONDS));
+        WorkloadStatistics stats = calculator.calculate(workloadStreams, TimeUnit.MINUTES.toMillis(60));
 
         // Then
 
@@ -167,7 +167,7 @@ public class WorkloadStatisticsCalculatorTest {
         // When
 
         WorkloadStatisticsCalculator calculator = new WorkloadStatisticsCalculator();
-        WorkloadStatistics stats = calculator.calculate(workloadStreams, TEMPORAL_UTIL.convert(60, TimeUnit.MINUTES, TimeUnit.MILLISECONDS));
+        WorkloadStatistics stats = calculator.calculate(workloadStreams, TimeUnit.MINUTES.toMillis(60));
 
         // Then
 

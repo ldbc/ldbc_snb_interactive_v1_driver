@@ -1042,7 +1042,7 @@ public class ConsoleAndFileDriverConfiguration implements DriverConfiguration {
         sb.append("\t").append(String.format("%1$-" + padRightDistance + "s", "Workload:")).append(workloadClassName).append("\n");
         sb.append("\t").append(String.format("%1$-" + padRightDistance + "s", "Operation Count:")).append(INTEGRAL_FORMAT.format(operationCount)).append("\n");
         sb.append("\t").append(String.format("%1$-" + padRightDistance + "s", "Worker Threads:")).append(threadCount).append("\n");
-        sb.append("\t").append(String.format("%1$-" + padRightDistance + "s", "Status Display Interval:")).append(TEMPORAL_UTIL.milliDurationToString(TEMPORAL_UTIL.convert(statusDisplayIntervalAsSeconds, TimeUnit.SECONDS, TimeUnit.MILLISECONDS))).append("\n");
+        sb.append("\t").append(String.format("%1$-" + padRightDistance + "s", "Status Display Interval:")).append(TEMPORAL_UTIL.milliDurationToString(TimeUnit.SECONDS.toMillis(statusDisplayIntervalAsSeconds))).append("\n");
         sb.append("\t").append(String.format("%1$-" + padRightDistance + "s", "Time Unit:")).append(timeUnit).append("\n");
         sb.append("\t").append(String.format("%1$-" + padRightDistance + "s", "Results Directory:")).append(resultDirPath()).append("\n");
         sb.append("\t").append(String.format("%1$-" + padRightDistance + "s", "Create Results Log:")).append(shouldCreateResultsLog).append("\n");

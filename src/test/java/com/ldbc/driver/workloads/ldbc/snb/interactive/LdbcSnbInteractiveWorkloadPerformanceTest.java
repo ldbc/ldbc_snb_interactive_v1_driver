@@ -28,6 +28,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
 
 public class LdbcSnbInteractiveWorkloadPerformanceTest {
@@ -133,8 +134,8 @@ public class LdbcSnbInteractiveWorkloadPerformanceTest {
             File resultsFile = new File(resultsDir, name + "-results.json");
             WorkloadResultsSnapshot resultsSnapshot = WorkloadResultsSnapshot.fromJson(resultsFile);
 
-            double operationsPerSecond = Math.round(((double) operationCount / resultsSnapshot.totalRunDurationAsNano()) * TEMPORAL_UTIL.convert(1, TimeUnit.SECONDS, TimeUnit.NANOSECONDS));
-            double microSecondPerOperation = (double) TEMPORAL_UTIL.convert(resultsSnapshot.totalRunDurationAsNano(), TimeUnit.NANOSECONDS, TimeUnit.MICROSECONDS) / operationCount;
+            double operationsPerSecond = Math.round(((double) operationCount / resultsSnapshot.totalRunDurationAsNano()) * TimeUnit.SECONDS.toNanos(1));
+            double microSecondPerOperation = (double) TimeUnit.NANOSECONDS.toMicros(resultsSnapshot.totalRunDurationAsNano()) / operationCount;
             DecimalFormat numberFormatter = new DecimalFormat("###,###,###,###");
             System.out.println(
                     String.format("[%s]Completed %s operations in %s = %s op/sec = 1 op/%s us",
@@ -161,15 +162,15 @@ public class LdbcSnbInteractiveWorkloadPerformanceTest {
     @Test
     public void withTimesPerformanceTest()
             throws InterruptedException, DbException, WorkloadException, IOException, MetricsCollectionException, CompletionTimeException, DriverConfigurationException {
-        File parentStreamsDir = new File("/Users/alexaverbuch/IdeaProjects/ldbc_snb_workload_interactive_neo4j/ldbc_driver/sample_data/sf10-016/");
-        File paramsDir = new File("/Users/alexaverbuch/IdeaProjects/ldbc_snb_workload_interactive_neo4j/ldbc_driver/sample_data/sf10-016/");
+        File parentStreamsDir = new File("/Users/alexaverbuch/IdeaProjects/ldbc_snb_workload_interactive_neo4j/ldbc_driver/sample_data/sf10-004/");
+        File paramsDir = new File("/Users/alexaverbuch/IdeaProjects/ldbc_snb_workload_interactive_neo4j/ldbc_driver/sample_data/sf10-004/");
         List<File> streamsDirs = Lists.newArrayList(
                 parentStreamsDir
         );
 
         for (File streamDir : streamsDirs) {
-            List<Integer> threadCounts = Lists.newArrayList(1);
-            long operationCount = 10000000;
+            List<Integer> threadCounts = Lists.newArrayList(1, 2, 4);
+            long operationCount = 50000000;
             for (int threadCount : threadCounts) {
                 doWithTimesPerformanceTest(
                         threadCount,
@@ -200,10 +201,11 @@ public class LdbcSnbInteractiveWorkloadPerformanceTest {
         try {
 //            Map<String, String> paramsMap = LdbcSnbInteractiveConfiguration.defaultConfig();
             Map<String, String> paramsMap = LdbcSnbInteractiveConfiguration.defaultWriteOnlyConfig();
+//            Map<String, String> paramsMap = LdbcSnbInteractiveConfiguration.defaultReadOnlyConfig();
             paramsMap.put(LdbcSnbInteractiveConfiguration.PARAMETERS_DIRECTORY, parametersDir);
             paramsMap.put(LdbcSnbInteractiveConfiguration.UPDATES_DIRECTORY, updateStreamsDir);
             paramsMap.put(LdbcSnbInteractiveConfiguration.UPDATE_STREAM_PARSER, LdbcSnbInteractiveConfiguration.UpdateStreamParser.CHAR_SEEKER.name());
-            paramsMap.put(DummyLdbcSnbInteractiveDb.SLEEP_DURATION_NANO_ARG, Long.toString(TimeUnit.MICROSECONDS.toNanos(100)));
+            paramsMap.put(DummyLdbcSnbInteractiveDb.SLEEP_DURATION_NANO_ARG, Long.toString(TimeUnit.MICROSECONDS.toNanos(10)));
             paramsMap.put(DummyLdbcSnbInteractiveDb.SLEEP_TYPE_ARG, DummyLdbcSnbInteractiveDb.SleepType.SPIN.name());
             // Driver-specific parameters
             String dbClassName = DummyLdbcSnbInteractiveDb.class.getName();
@@ -211,7 +213,7 @@ public class LdbcSnbInteractiveWorkloadPerformanceTest {
             int statusDisplayInterval = 2;
             TimeUnit timeUnit = TimeUnit.MICROSECONDS;
             String resultDirPath = resultsDir;
-            double timeCompressionRatio = 0.00001;
+            double timeCompressionRatio = 0.0000001;
             Set<String> peerIds = new HashSet<>();
             ConsoleAndFileDriverConfiguration.ConsoleAndFileValidationParamOptions validationParams = null;
             String dbValidationFilePath = null;
@@ -254,13 +256,14 @@ public class LdbcSnbInteractiveWorkloadPerformanceTest {
             File resultsFile = new File(resultsDir, name + "-results.json");
             WorkloadResultsSnapshot resultsSnapshot = WorkloadResultsSnapshot.fromJson(resultsFile);
 
-            double operationsPerSecond = Math.round(((double) operationCount / resultsSnapshot.totalRunDurationAsNano()) * TEMPORAL_UTIL.convert(1, TimeUnit.SECONDS, TimeUnit.NANOSECONDS));
-            double microSecondPerOperation = (double) TEMPORAL_UTIL.convert(resultsSnapshot.totalRunDurationAsNano(), TimeUnit.NANOSECONDS, TimeUnit.MICROSECONDS) / operationCount;
+            double actualOperationCount = resultsSnapshot.totalOperationCount();
+            double operationsPerSecond = Math.round((actualOperationCount / resultsSnapshot.totalRunDurationAsNano()) * TimeUnit.SECONDS.toNanos(1));
+            double microSecondPerOperation = (double) TimeUnit.NANOSECONDS.toMicros(resultsSnapshot.totalRunDurationAsNano()) / actualOperationCount;
             DecimalFormat numberFormatter = new DecimalFormat("###,###,###,###");
             System.out.println(
                     String.format("[%s]Completed %s operations in %s = %s op/sec = 1 op/%s us",
                             name,
-                            numberFormatter.format(operationCount),
+                            numberFormatter.format(actualOperationCount),
                             TEMPORAL_UTIL.nanoDurationToString(resultsSnapshot.totalRunDurationAsNano()),
                             numberFormatter.format(operationsPerSecond),
                             microSecondPerOperation

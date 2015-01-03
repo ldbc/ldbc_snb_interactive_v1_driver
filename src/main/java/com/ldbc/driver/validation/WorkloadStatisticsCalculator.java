@@ -70,7 +70,7 @@ public class WorkloadStatisticsCalculator {
                     long interleaveAsMilli = operation.scheduledStartTimeAsMilli() - prevDependencyAsMilli;
                     try {
                         interleavesForDependencyOperations.addMeasurement(interleaveAsMilli);
-                    } catch (MetricsCollectionException e) {
+                    } catch (Throwable e) {
                         throw new RuntimeException("Error collectStatsForDependencyOperations", e);
                     }
                     prevDependencyAsMilli = operation.scheduledStartTimeAsMilli();
@@ -82,7 +82,7 @@ public class WorkloadStatisticsCalculator {
                         long interleaveAsMilli = operation.scheduledStartTimeAsMilli() - prevDependentAsMilli;
                         try {
                             interleavesForDependentOperations.addMeasurement(interleaveAsMilli);
-                        } catch (MetricsCollectionException e) {
+                        } catch (Throwable e) {
                             throw new RuntimeException("Error collectStatsForNonDependentOperations", e);
                         }
                         prevDependentAsMilli = operation.scheduledStartTimeAsMilli();
@@ -108,7 +108,7 @@ public class WorkloadStatisticsCalculator {
                         long interleaveAsMilli = operation.scheduledStartTimeAsMilli() - prevDependentAsMilli;
                         try {
                             interleavesForDependentOperations.addMeasurement(interleaveAsMilli);
-                        } catch (MetricsCollectionException e) {
+                        } catch (Throwable e) {
                             throw new RuntimeException("Error collectStatsForNonDependentOperations", e);
                         }
                         prevDependentAsMilli = operation.scheduledStartTimeAsMilli();

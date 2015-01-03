@@ -46,7 +46,7 @@ public class WorkloadRunnerTest {
 
     @Rule
     public TemporaryFolder temporaryFolder = new TemporaryFolder();
-    private static final long ONE_SECOND_AS_NANO = TEMPORAL_UTIL.convert(1, TimeUnit.SECONDS, TimeUnit.NANOSECONDS);
+    private static final long ONE_SECOND_AS_NANO = TimeUnit.SECONDS.toNanos(1);
 
     TimeSource timeSource = new SystemTimeSource();
     CompletionTimeServiceAssistant completionTimeServiceAssistant = new CompletionTimeServiceAssistant();
@@ -70,14 +70,14 @@ public class WorkloadRunnerTest {
         ConcurrentCompletionTimeService completionTimeService = null;
         ConcurrentErrorReporter errorReporter = new ConcurrentErrorReporter();
         try {
-            Map<String, String> paramsMap = LdbcSnbInteractiveConfiguration.defaultConfig();
+            Map<String, String> paramsMap = LdbcSnbInteractiveConfiguration.defaultReadOnlyConfig();
             paramsMap.put(LdbcSnbInteractiveConfiguration.PARAMETERS_DIRECTORY, TestUtils.getResource("/").getAbsolutePath());
             paramsMap.put(LdbcSnbInteractiveConfiguration.UPDATES_DIRECTORY, TestUtils.getResource("/").getAbsolutePath());
             // Driver-specific parameters
             String name = null;
             String dbClassName = DummyLdbcSnbInteractiveDb.class.getName();
             String workloadClassName = LdbcSnbInteractiveWorkload.class.getName();
-            int statusDisplayInterval = 0;
+            int statusDisplayInterval = 1;
             TimeUnit timeUnit = TimeUnit.NANOSECONDS;
             String resultDirPath = temporaryFolder.newFolder().getAbsolutePath();
             double timeCompressionRatio = 0.00001;
@@ -134,12 +134,14 @@ public class WorkloadRunnerTest {
 
             File resultsLog = temporaryFolder.newFile();
             SimpleCsvFileWriter csvResultsLogWriter = new SimpleCsvFileWriter(resultsLog, SimpleCsvFileWriter.DEFAULT_COLUMN_SEPARATOR);
-            metricsService = ThreadedQueuedConcurrentMetricsService.newInstanceUsingBlockingQueue(
+            metricsService = ThreadedQueuedConcurrentMetricsService.newInstanceUsingBlockingBoundedQueue(
                     timeSource,
                     errorReporter,
                     configuration.timeUnit(),
                     ThreadedQueuedConcurrentMetricsService.DEFAULT_HIGHEST_EXPECTED_RUNTIME_DURATION_AS_NANO,
-                    csvResultsLogWriter);
+                    csvResultsLogWriter,
+                    workload.operationTypeToClassMapping(configuration.asMap())
+            );
 
             ConcurrentCompletionTimeService concurrentCompletionTimeService =
                     completionTimeServiceAssistant.newSynchronizedConcurrentCompletionTimeServiceFromPeerIds(
@@ -163,7 +165,7 @@ public class WorkloadRunnerTest {
 
             WorkloadResultsSnapshot workloadResults = metricsService.results();
 
-            SimpleOperationMetricsFormatter metricsFormatter = new SimpleOperationMetricsFormatter();
+            SimpleWorkloadMetricsFormatter metricsFormatter = new SimpleWorkloadMetricsFormatter();
 
             assertThat(errorReporter.toString() + "\n" + metricsFormatter.format(workloadResults), errorReporter.errorEncountered(), is(false));
             assertThat(errorReporter.toString() + "\n" + metricsFormatter.format(workloadResults), workloadResults.startTimeAsMilli() >= controlService.workloadStartTimeAsMilli(), is(true));
@@ -183,7 +185,7 @@ public class WorkloadRunnerTest {
             csvResultsLogReader.close();
 
             double operationsPerSecond = Math.round(((double) operationCount / workloadResults.totalRunDurationAsNano()) * ONE_SECOND_AS_NANO);
-            double microSecondPerOperation = (double) TEMPORAL_UTIL.convert(workloadResults.totalRunDurationAsNano(), TimeUnit.NANOSECONDS, TimeUnit.MICROSECONDS) / operationCount;
+            double microSecondPerOperation = (double) TimeUnit.NANOSECONDS.toMicros(workloadResults.totalRunDurationAsNano()) / operationCount;
             System.out.println(
                     String.format("[%s threads] Completed %s operations in %s = %s op/sec = 1 op/%s us",
                             threadCount,
@@ -206,7 +208,7 @@ public class WorkloadRunnerTest {
     public void shouldRunReadWriteLdbcWorkloadWithNothingDbAndReturnExpectedMetrics()
             throws InterruptedException, DbException, WorkloadException, IOException, MetricsCollectionException, CompletionTimeException, DriverConfigurationException {
         List<Integer> threadCounts = Lists.newArrayList(1, 2, 4, 8);
-        long operationCount = 1000000;
+        long operationCount = 10000;
         for (int threadCount : threadCounts) {
             doShouldRunReadWriteLdbcWorkloadWithNothingDbAndReturnExpectedMetricsIncludingResultsLog(threadCount, operationCount);
         }
@@ -221,17 +223,17 @@ public class WorkloadRunnerTest {
         ConcurrentCompletionTimeService completionTimeService = null;
         ConcurrentErrorReporter errorReporter = new ConcurrentErrorReporter();
         try {
-            Map<String, String> paramsMap = LdbcSnbInteractiveConfiguration.defaultReadOnlyConfig();
+            Map<String, String> paramsMap = LdbcSnbInteractiveConfiguration.defaultConfig();
             paramsMap.put(LdbcSnbInteractiveConfiguration.PARAMETERS_DIRECTORY, TestUtils.getResource("/").getAbsolutePath());
             paramsMap.put(LdbcSnbInteractiveConfiguration.UPDATES_DIRECTORY, TestUtils.getResource("/").getAbsolutePath());
             // Driver-specific parameters
             String name = null;
             String dbClassName = DummyLdbcSnbInteractiveDb.class.getName();
             String workloadClassName = LdbcSnbInteractiveWorkload.class.getName();
-            int statusDisplayInterval = 0;
+            int statusDisplayInterval = 1;
             TimeUnit timeUnit = TimeUnit.NANOSECONDS;
             String resultDirPath = temporaryFolder.newFolder().getAbsolutePath();
-            double timeCompressionRatio = 0.00001;
+            double timeCompressionRatio = 0.000001;
             Set<String> peerIds = new HashSet<>();
             ConsoleAndFileDriverConfiguration.ConsoleAndFileValidationParamOptions validationParams = null;
             String dbValidationFilePath = null;
@@ -285,12 +287,14 @@ public class WorkloadRunnerTest {
 
             File resultsLog = temporaryFolder.newFile();
             SimpleCsvFileWriter csvResultsLogWriter = new SimpleCsvFileWriter(resultsLog, SimpleCsvFileWriter.DEFAULT_COLUMN_SEPARATOR);
-            metricsService = ThreadedQueuedConcurrentMetricsService.newInstanceUsingBlockingQueue(
+            metricsService = ThreadedQueuedConcurrentMetricsService.newInstanceUsingBlockingBoundedQueue(
                     timeSource,
                     errorReporter,
                     configuration.timeUnit(),
                     ThreadedQueuedConcurrentMetricsService.DEFAULT_HIGHEST_EXPECTED_RUNTIME_DURATION_AS_NANO,
-                    csvResultsLogWriter);
+                    csvResultsLogWriter,
+                    workload.operationTypeToClassMapping(configuration.asMap())
+            );
 
             ConcurrentCompletionTimeService concurrentCompletionTimeService =
                     completionTimeServiceAssistant.newSynchronizedConcurrentCompletionTimeServiceFromPeerIds(
@@ -314,7 +318,7 @@ public class WorkloadRunnerTest {
 
             WorkloadResultsSnapshot workloadResults = metricsService.results();
 
-            SimpleOperationMetricsFormatter metricsFormatter = new SimpleOperationMetricsFormatter();
+            SimpleWorkloadMetricsFormatter metricsFormatter = new SimpleWorkloadMetricsFormatter();
 
             assertThat(errorReporter.toString() + "\n" + metricsFormatter.format(workloadResults), errorReporter.errorEncountered(), is(false));
             assertThat(errorReporter.toString() + "\n" + metricsFormatter.format(workloadResults), workloadResults.startTimeAsMilli() >= controlService.workloadStartTimeAsMilli(), is(true));
@@ -335,7 +339,7 @@ public class WorkloadRunnerTest {
             csvResultsLogReader.close();
 
             double operationsPerSecond = Math.round(((double) operationCount / workloadResults.totalRunDurationAsNano()) * ONE_SECOND_AS_NANO);
-            double microSecondPerOperation = (double) TEMPORAL_UTIL.convert(workloadResults.totalRunDurationAsNano(), TimeUnit.NANOSECONDS, TimeUnit.MICROSECONDS) / operationCount;
+            double microSecondPerOperation = (double) TimeUnit.NANOSECONDS.toMicros(workloadResults.totalRunDurationAsNano()) / operationCount;
             System.out.println(
                     String.format("[%s threads] Completed %s operations in %s = %s op/sec = 1 op/%s us",
                             threadCount,
@@ -405,7 +409,7 @@ public class WorkloadRunnerTest {
             String name = null;
             String dbClassName = DummyLdbcSnbInteractiveDb.class.getName();
             String workloadClassName = LdbcSnbInteractiveWorkload.class.getName();
-            int statusDisplayInterval = 0;
+            int statusDisplayInterval = 1;
             TimeUnit timeUnit = TimeUnit.NANOSECONDS;
             String resultDirPath = temporaryFolder.newFolder().getAbsolutePath();
             double timeCompressionRatio = 1.0;
@@ -462,12 +466,14 @@ public class WorkloadRunnerTest {
 
             File resultsLog = temporaryFolder.newFile();
             SimpleCsvFileWriter csvResultsLogWriter = new SimpleCsvFileWriter(resultsLog, SimpleCsvFileWriter.DEFAULT_COLUMN_SEPARATOR);
-            metricsService = ThreadedQueuedConcurrentMetricsService.newInstanceUsingBlockingQueue(
+            metricsService = ThreadedQueuedConcurrentMetricsService.newInstanceUsingBlockingBoundedQueue(
                     timeSource,
                     errorReporter,
                     configuration.timeUnit(),
                     ThreadedQueuedConcurrentMetricsService.DEFAULT_HIGHEST_EXPECTED_RUNTIME_DURATION_AS_NANO,
-                    csvResultsLogWriter);
+                    csvResultsLogWriter,
+                    workload.operationTypeToClassMapping(configuration.asMap())
+            );
 
             int boundedQueueSize = DefaultQueues.DEFAULT_BOUND_1000;
             WorkloadRunner runner = new WorkloadRunner(
@@ -486,7 +492,7 @@ public class WorkloadRunnerTest {
             runner.executeWorkload();
 
             WorkloadResultsSnapshot workloadResults = metricsService.results();
-            SimpleOperationMetricsFormatter metricsFormatter = new SimpleOperationMetricsFormatter();
+            SimpleWorkloadMetricsFormatter metricsFormatter = new SimpleWorkloadMetricsFormatter();
 
             assertThat(
                     errorReporter.toString() + "\n" + metricsFormatter.format(workloadResults),
@@ -509,7 +515,7 @@ public class WorkloadRunnerTest {
             csvResultsLogReader.close();
 
             double operationsPerSecond = Math.round(((double) operationCount / workloadResults.totalRunDurationAsNano()) * ONE_SECOND_AS_NANO);
-            double microSecondPerOperation = (double) TEMPORAL_UTIL.convert(workloadResults.totalRunDurationAsNano(), TimeUnit.NANOSECONDS, TimeUnit.MICROSECONDS) / operationCount;
+            double microSecondPerOperation = (double) TimeUnit.NANOSECONDS.toMicros(workloadResults.totalRunDurationAsNano()) / operationCount;
             System.out.println(
                     String.format("[%s threads] Completed %s operations in %s = %s op/sec = 1 op/%s us",
                             threadCount,

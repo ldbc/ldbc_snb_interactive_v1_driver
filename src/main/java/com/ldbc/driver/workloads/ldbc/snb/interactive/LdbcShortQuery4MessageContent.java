@@ -10,6 +10,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class LdbcShortQuery4MessageContent extends Operation<LdbcShortQuery4MessageContentResult> {
+    public static final int TYPE = 104;
     private static final ObjectMapper objectMapper = new ObjectMapper();
     private final long messageId;
 
@@ -76,6 +77,6 @@ public class LdbcShortQuery4MessageContent extends Operation<LdbcShortQuery4Mess
 
     @Override
     public int type() {
-        return 104;
+        return TYPE;
     }
 }

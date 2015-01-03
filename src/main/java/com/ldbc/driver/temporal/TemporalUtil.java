@@ -16,15 +16,6 @@ public class TemporalUtil {
         dateTimeFormat.setTimeZone(TimeZone.getTimeZone("GMT"));
     }
 
-    public long convert(long unitOfTime, TimeUnit timeUnitFrom, TimeUnit timeUnitTo) throws TemporalException {
-        long unitOfTimeInNewUnit = timeUnitTo.convert(unitOfTime, timeUnitFrom);
-        if (unitOfTimeInNewUnit == Long.MIN_VALUE || unitOfTimeInNewUnit == Long.MAX_VALUE) {
-            throw new TemporalException(
-                    String.format("Overflow while converting %s %s to %s", unitOfTime, timeUnitFrom, timeUnitTo));
-        }
-        return unitOfTimeInNewUnit;
-    }
-
     public String millisecondsToTimeString(long timeAsMilli) {
         return timeFormat.format(new Date(timeAsMilli));
     }
@@ -34,7 +25,7 @@ public class TemporalUtil {
     }
 
     public String milliDurationToString(long durationAsMilli) {
-        return nanoDurationToString(convert(durationAsMilli, TimeUnit.MILLISECONDS, TimeUnit.NANOSECONDS));
+        return nanoDurationToString(TimeUnit.MILLISECONDS.toNanos(durationAsMilli));
     }
 
     public String nanoDurationToString(long durationAsNano) {

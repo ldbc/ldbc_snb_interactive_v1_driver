@@ -44,7 +44,7 @@ public class Client {
             TimeSource systemTimeSource = new SystemTimeSource();
             ConsoleAndFileDriverConfiguration configuration = ConsoleAndFileDriverConfiguration.fromArgs(args);
             // TODO this method will not work with multiple processes - should come from controlService
-            long workloadStartTimeAsMilli = systemTimeSource.nowAsMilli() + temporalUtil.convert(10, TimeUnit.SECONDS, TimeUnit.MILLISECONDS);
+            long workloadStartTimeAsMilli = systemTimeSource.nowAsMilli() + TimeUnit.SECONDS.toMillis(10);
             controlService = new LocalControlService(workloadStartTimeAsMilli, configuration);
             Client client = new Client(controlService, systemTimeSource);
             client.start();
@@ -230,12 +230,6 @@ public class Client {
                 }
             }
 
-            metricsService = ThreadedQueuedConcurrentMetricsService.newInstanceUsingBlockingQueue(
-                    timeSource,
-                    errorReporter,
-                    controlService.configuration().timeUnit(),
-                    ThreadedQueuedConcurrentMetricsService.DEFAULT_HIGHEST_EXPECTED_RUNTIME_DURATION_AS_NANO,
-                    csvResultsLogFileWriter);
             GeneratorFactory gf = new GeneratorFactory(new RandomDataGeneratorFactory(RANDOM_SEED));
 
             logger.info(String.format("Scanning workload streams to calculate their limits..."));
@@ -251,6 +245,26 @@ public class Client {
                 throw new ClientException(String.format("Error loading workload class: %s", controlService.configuration().workloadClassName()), e);
             }
             logger.info(String.format("Loaded workload: %s", workload.getClass().getName()));
+
+            try {
+//                metricsService = ThreadedQueuedConcurrentMetricsService.newInstanceUsingBlockingBoundedQueue(
+//                        timeSource,
+//                        errorReporter,
+//                        controlService.configuration().timeUnit(),
+//                        ThreadedQueuedConcurrentMetricsService.DEFAULT_HIGHEST_EXPECTED_RUNTIME_DURATION_AS_NANO,
+//                        csvResultsLogFileWriter,
+//                        workload.operationTypeToClassMapping(controlService.configuration().asMap()));
+                metricsService = new DisruptorConcurrentMetricsService(
+                        timeSource,
+                        errorReporter,
+                        controlService.configuration().timeUnit(),
+                        DisruptorConcurrentMetricsService.DEFAULT_HIGHEST_EXPECTED_RUNTIME_DURATION_AS_NANO,
+                        csvResultsLogFileWriter,
+                        workload.operationTypeToClassMapping(controlService.configuration().asMap())
+                );
+            } catch (MetricsCollectionException e) {
+                throw new ClientException("Error creating metrics service", e);
+            }
 
             logger.info(String.format("Retrieving operation stream for workload: %s", workload.getClass().getSimpleName()));
             controlService.setWorkloadStartTimeAsMilli(System.currentTimeMillis() + TimeUnit.SECONDS.toMillis(2));
@@ -304,11 +318,11 @@ public class Client {
                     boolean globalCompletionTimeAdvancedToDesiredTime = completionTimeServiceAssistant.waitForGlobalCompletionTime(
                             timeSource,
                             minimumTimeStamp - 1,
-                            temporalUtil.convert(5, TimeUnit.SECONDS, TimeUnit.MILLISECONDS),
+                            TimeUnit.SECONDS.toMillis(5),
                             completionTimeService,
                             errorReporter
                     );
-                    long globalCompletionTimeWaitTimeoutDurationAsMilli = temporalUtil.convert(5, TimeUnit.SECONDS, TimeUnit.MILLISECONDS);
+                    long globalCompletionTimeWaitTimeoutDurationAsMilli = TimeUnit.SECONDS.toMillis(5);
                     if (false == globalCompletionTimeAdvancedToDesiredTime) {
                         throw new ClientException(
                                 String.format("Timed out [%s] while waiting for global completion time to advance to workload start time\nCurrent GCT: %s\nWaiting For GCT: %s",
@@ -364,11 +378,11 @@ public class Client {
 
             logger.info("Exporting workload metrics...");
             try {
-                MetricsManager.export(workloadResults, new SimpleOperationMetricsFormatter(), System.out, Charsets.UTF_8);
+                MetricsManager.export(workloadResults, new SimpleWorkloadMetricsFormatter(), System.out, Charsets.UTF_8);
                 if (null != controlService.configuration().resultDirPath()) {
                     File resultDir = new File(controlService.configuration().resultDirPath());
                     File resultFile = new File(resultDir, controlService.configuration().name() + ThreadedQueuedConcurrentMetricsService.RESULTS_METRICS_FILENAME_SUFFIX);
-                    MetricsManager.export(workloadResults, new JsonOperationMetricsFormatter(), new FileOutputStream(resultFile), Charsets.UTF_8);
+                    MetricsManager.export(workloadResults, new JsonWorkloadMetricsFormatter(), new FileOutputStream(resultFile), Charsets.UTF_8);
 
                     File configurationFile = new File(resultDir, controlService.configuration().name() + ThreadedQueuedConcurrentMetricsService.RESULTS_CONFIGURATION_FILENAME_SUFFIX);
                     try (PrintStream out = new PrintStream(new FileOutputStream(configurationFile))) {
@@ -443,7 +457,7 @@ public class Client {
                 WorkloadStatisticsCalculator workloadStatisticsCalculator = new WorkloadStatisticsCalculator();
                 workloadStatistics = workloadStatisticsCalculator.calculate(
                         timeMappedWorkloadStreams,
-                        temporalUtil.convert(5, TimeUnit.HOURS, TimeUnit.MILLISECONDS)
+                        TimeUnit.HOURS.toMillis(5)
                         // TODO uncomment, maybe
                         // workload.maxExpectedInterleave()
                 );

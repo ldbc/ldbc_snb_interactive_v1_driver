@@ -14,23 +14,23 @@ import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicLong;
 
-public class ThreadPoolOperationExecutor_NEW implements OperationExecutor_NEW {
+public class ThreadPoolOperationExecutor implements OperationExecutor {
     private final ExecutorService threadPoolExecutorService;
     private final AtomicLong uncompletedHandlers = new AtomicLong(0);
     private final AtomicBoolean shutdown = new AtomicBoolean(false);
     private final OperationHandlerRunnableContextRetriever operationHandlerRunnableContextRetriever;
 
-    public ThreadPoolOperationExecutor_NEW(int threadCount,
-                                           int boundedQueueSize,
-                                           Db db,
-                                           WorkloadStreams.WorkloadStreamDefinition streamDefinition,
-                                           LocalCompletionTimeWriter localCompletionTimeWriter,
-                                           GlobalCompletionTimeReader globalCompletionTimeReader,
-                                           Spinner spinner,
-                                           TimeSource timeSource,
-                                           ConcurrentErrorReporter errorReporter,
-                                           ConcurrentMetricsService metricsService,
-                                           ChildOperationGenerator childOperationGenerator) {
+    public ThreadPoolOperationExecutor(int threadCount,
+                                       int boundedQueueSize,
+                                       Db db,
+                                       WorkloadStreams.WorkloadStreamDefinition streamDefinition,
+                                       LocalCompletionTimeWriter localCompletionTimeWriter,
+                                       GlobalCompletionTimeReader globalCompletionTimeReader,
+                                       Spinner spinner,
+                                       TimeSource timeSource,
+                                       ConcurrentErrorReporter errorReporter,
+                                       ConcurrentMetricsService metricsService,
+                                       ChildOperationGenerator childOperationGenerator) {
         this.operationHandlerRunnableContextRetriever = new OperationHandlerRunnableContextRetriever(
                 streamDefinition,
                 db,
@@ -49,7 +49,7 @@ public class ThreadPoolOperationExecutor_NEW implements OperationExecutor_NEW {
             public Thread newThread(Runnable runnable) {
                 Thread newThread = new Thread(
                         runnable,
-                        ThreadPoolOperationExecutor_NEW.class.getSimpleName() + "-id(" + factoryTimeStampId + ")" + "-thread(" + count++ + ")"
+                        ThreadPoolOperationExecutor.class.getSimpleName() + "-id(" + factoryTimeStampId + ")" + "-thread(" + count++ + ")"
                 );
                 return newThread;
             }
@@ -169,15 +169,15 @@ public class ThreadPoolOperationExecutor_NEW implements OperationExecutor_NEW {
 
             if (null != childOperationGenerator) {
                 try {
-                    OperationResultReport resultReport = operationHandlerRunnableContext.operationResultReport();
+                    Object result = operationHandlerRunnableContext.resultReporter().result();
                     double state = childOperationGenerator.initialState();
-                    Operation childOperation;
-                    while (null != (childOperation = childOperationGenerator.nextOperation(state, resultReport))) {
+                    Operation operation = operationHandlerRunnableContext.operation();
+                    while (null != (operation = childOperationGenerator.nextOperation(state, operation, result))) {
                         OperationHandlerRunnableContext childOperationHandlerRunnableContext =
-                                operationHandlerRunnableContextInitializer.getInitializedHandlerFor(childOperation);
+                                operationHandlerRunnableContextInitializer.getInitializedHandlerFor(operation);
                         childOperationHandlerRunnableContext.run();
                         state = childOperationGenerator.updateState(state);
-                        resultReport = childOperationHandlerRunnableContext.operationResultReport();
+                        result = childOperationHandlerRunnableContext.resultReporter().result();
                         childOperationHandlerRunnableContext.cleanup();
                     }
                 } catch (Throwable e) {

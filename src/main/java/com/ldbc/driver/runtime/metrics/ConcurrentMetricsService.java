@@ -1,9 +1,13 @@
 package com.ldbc.driver.runtime.metrics;
 
-import com.ldbc.driver.OperationResultReport;
-
 public interface ConcurrentMetricsService {
-    void submitOperationResult(OperationResultReport operationResultReport) throws MetricsCollectionException;
+    void submitOperationResult(
+            int operationType,
+            long scheduledStartTimeAsMilli,
+            long actualStartTimeAsMilli,
+            long runDurationAsNano,
+            int resultCode
+    ) throws MetricsCollectionException;
 
     WorkloadStatusSnapshot status() throws MetricsCollectionException;
 

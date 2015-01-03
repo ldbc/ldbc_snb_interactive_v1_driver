@@ -25,16 +25,8 @@ public class ContinuousMetricManager {
         this.unit = unit;
     }
 
-    public void addMeasurement(long value) throws MetricsCollectionException {
-        try {
-            histogram.recordValue(value);
-        } catch (Throwable e) {
-            throw new MetricsCollectionException(
-                    String.format(
-                            "Error encountered adding measurement [%s] - probably due to reporting of excessively high value",
-                            value),
-                    e);
-        }
+    public void addMeasurement(long value) {
+        histogram.recordValue(value);
     }
 
     public ContinuousMetricSnapshot snapshot() {

@@ -824,7 +824,7 @@ public class EventStreamReaderPerformanceTest {
                         WriteEventStreamReaderRegex.class.getSimpleName(),
                         TEMPORAL_UTIL.milliDurationToString(durationAsMilli),
                         numberFormatter.format(lines),
-                        numberFormatter.format((double) lines / TEMPORAL_UTIL.convert(durationAsMilli, TimeUnit.MILLISECONDS, TimeUnit.SECONDS))
+                        numberFormatter.format((double) lines / TimeUnit.MILLISECONDS.toSeconds(durationAsMilli))
                 )
         );
     }
@@ -854,7 +854,7 @@ public class EventStreamReaderPerformanceTest {
                         WriteEventStreamReaderCharSeeker.class.getSimpleName() + "-" + bufferSize,
                         TEMPORAL_UTIL.milliDurationToString(durationAsMilli),
                         numberFormatter.format(lines),
-                        numberFormatter.format((double) lines / TEMPORAL_UTIL.convert(durationAsMilli, TimeUnit.MILLISECONDS, TimeUnit.SECONDS))
+                        numberFormatter.format((double) lines / TimeUnit.MILLISECONDS.toSeconds(durationAsMilli))
                 )
         );
     }
@@ -880,7 +880,7 @@ public class EventStreamReaderPerformanceTest {
                         WriteEventStreamReaderRegex.class.getSimpleName(),
                         TEMPORAL_UTIL.milliDurationToString(durationAsMilli),
                         numberFormatter.format(lines),
-                        numberFormatter.format((double) lines / TEMPORAL_UTIL.convert(durationAsMilli, TimeUnit.MILLISECONDS, TimeUnit.SECONDS))
+                        numberFormatter.format((double) lines / TimeUnit.MILLISECONDS.toSeconds(durationAsMilli))
                 )
         );
     }
@@ -910,7 +910,7 @@ public class EventStreamReaderPerformanceTest {
                         WriteEventStreamReaderCharSeeker.class.getSimpleName() + "-" + bufferSize,
                         TEMPORAL_UTIL.milliDurationToString(durationAsMilli),
                         numberFormatter.format(lines),
-                        numberFormatter.format((double) lines / TEMPORAL_UTIL.convert(durationAsMilli, TimeUnit.MILLISECONDS, TimeUnit.SECONDS))
+                        numberFormatter.format((double) lines / TimeUnit.MILLISECONDS.toSeconds(durationAsMilli))
                 )
         );
     }
@@ -948,7 +948,7 @@ public class EventStreamReaderPerformanceTest {
                             BufferedReader.class.getSimpleName() + "-" + bufferSize,
                             TEMPORAL_UTIL.milliDurationToString(durationAsMilli),
                             numberFormatter.format(lines),
-                            numberFormatter.format((double) lines / TEMPORAL_UTIL.convert(durationAsMilli, TimeUnit.MILLISECONDS, TimeUnit.SECONDS))
+                            numberFormatter.format((double) lines / TimeUnit.MILLISECONDS.toSeconds(durationAsMilli))
                     )
             );
         }
@@ -969,7 +969,7 @@ public class EventStreamReaderPerformanceTest {
                             CharSeeker.class.getSimpleName() + "-" + bufferSize,
                             TEMPORAL_UTIL.milliDurationToString(durationAsMilli),
                             numberFormatter.format(lines),
-                            numberFormatter.format((double) lines / TEMPORAL_UTIL.convert(durationAsMilli, TimeUnit.MILLISECONDS, TimeUnit.SECONDS))
+                            numberFormatter.format((double) lines / TimeUnit.MILLISECONDS.toSeconds(durationAsMilli))
                     )
             );
         }
@@ -990,7 +990,7 @@ public class EventStreamReaderPerformanceTest {
                             CharSeeker.class.getSimpleName() + "-" + ThreadAheadReadable.class.getSimpleName() + "-" + bufferSize,
                             TEMPORAL_UTIL.milliDurationToString(durationAsMilli),
                             numberFormatter.format(lines),
-                            numberFormatter.format((double) lines / TEMPORAL_UTIL.convert(durationAsMilli, TimeUnit.MILLISECONDS, TimeUnit.SECONDS))
+                            numberFormatter.format((double) lines / TimeUnit.MILLISECONDS.toSeconds(durationAsMilli))
                     )
             );
         }
@@ -1012,7 +1012,7 @@ public class EventStreamReaderPerformanceTest {
                             SimpleCsvFileReader.class.getSimpleName(),
                             TEMPORAL_UTIL.milliDurationToString(durationAsMilli),
                             numberFormatter.format(lines),
-                            numberFormatter.format((double) lines / TEMPORAL_UTIL.convert(durationAsMilli, TimeUnit.MILLISECONDS, TimeUnit.SECONDS))
+                            numberFormatter.format((double) lines / TimeUnit.MILLISECONDS.toSeconds(durationAsMilli))
                     )
             );
         }
@@ -1035,7 +1035,7 @@ public class EventStreamReaderPerformanceTest {
                             WriteEventStreamReaderRegex.class.getSimpleName(),
                             TEMPORAL_UTIL.milliDurationToString(durationAsMilli),
                             numberFormatter.format(lines),
-                            numberFormatter.format((double) lines / TEMPORAL_UTIL.convert(durationAsMilli, TimeUnit.MILLISECONDS, TimeUnit.SECONDS))
+                            numberFormatter.format((double) lines / TimeUnit.MILLISECONDS.toSeconds(durationAsMilli))
                     )
             );
         }
@@ -1063,7 +1063,7 @@ public class EventStreamReaderPerformanceTest {
                                 WriteEventStreamReaderCharSeeker.class.getSimpleName() + "-" + bufferSize,
                                 TEMPORAL_UTIL.milliDurationToString(durationAsMilli),
                                 numberFormatter.format(lines),
-                                numberFormatter.format((double) lines / TEMPORAL_UTIL.convert(durationAsMilli, TimeUnit.MILLISECONDS, TimeUnit.SECONDS))
+                                numberFormatter.format((double) lines / TimeUnit.MILLISECONDS.toSeconds(durationAsMilli))
                         )
                 );
             }
@@ -1089,7 +1089,7 @@ public class EventStreamReaderPerformanceTest {
                                 WriteEventStreamReaderCharSeeker.class.getSimpleName() + "-" + ThreadAheadReadable.class.getSimpleName() + "-" + bufferSize,
                                 TEMPORAL_UTIL.milliDurationToString(durationAsMilli),
                                 numberFormatter.format(lines),
-                                numberFormatter.format((double) lines / TEMPORAL_UTIL.convert(durationAsMilli, TimeUnit.MILLISECONDS, TimeUnit.SECONDS))
+                                numberFormatter.format((double) lines / TimeUnit.MILLISECONDS.toSeconds(durationAsMilli))
                         )
                 );
             }

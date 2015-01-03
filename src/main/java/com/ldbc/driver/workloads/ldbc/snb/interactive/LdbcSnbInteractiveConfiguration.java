@@ -1,6 +1,7 @@
 package com.ldbc.driver.workloads.ldbc.snb.interactive;
 
 import com.google.common.collect.Lists;
+import com.ldbc.driver.Operation;
 import com.ldbc.driver.WorkloadException;
 import com.ldbc.driver.control.ConsoleAndFileDriverConfiguration;
 import com.ldbc.driver.control.DriverConfigurationException;
@@ -112,35 +113,52 @@ public class LdbcSnbInteractiveConfiguration {
      * Operation Enable
      */
     public final static String ENABLE_SUFFIX = "_enable";
-    public final static String READ_OPERATION_1_ENABLE_KEY = LDBC_SNB_INTERACTIVE_PARAM_NAME_PREFIX + LdbcQuery1.class.getSimpleName() + ENABLE_SUFFIX;
-    public final static String READ_OPERATION_2_ENABLE_KEY = LDBC_SNB_INTERACTIVE_PARAM_NAME_PREFIX + LdbcQuery2.class.getSimpleName() + ENABLE_SUFFIX;
-    public final static String READ_OPERATION_3_ENABLE_KEY = LDBC_SNB_INTERACTIVE_PARAM_NAME_PREFIX + LdbcQuery3.class.getSimpleName() + ENABLE_SUFFIX;
-    public final static String READ_OPERATION_4_ENABLE_KEY = LDBC_SNB_INTERACTIVE_PARAM_NAME_PREFIX + LdbcQuery4.class.getSimpleName() + ENABLE_SUFFIX;
-    public final static String READ_OPERATION_5_ENABLE_KEY = LDBC_SNB_INTERACTIVE_PARAM_NAME_PREFIX + LdbcQuery5.class.getSimpleName() + ENABLE_SUFFIX;
-    public final static String READ_OPERATION_6_ENABLE_KEY = LDBC_SNB_INTERACTIVE_PARAM_NAME_PREFIX + LdbcQuery6.class.getSimpleName() + ENABLE_SUFFIX;
-    public final static String READ_OPERATION_7_ENABLE_KEY = LDBC_SNB_INTERACTIVE_PARAM_NAME_PREFIX + LdbcQuery7.class.getSimpleName() + ENABLE_SUFFIX;
-    public final static String READ_OPERATION_8_ENABLE_KEY = LDBC_SNB_INTERACTIVE_PARAM_NAME_PREFIX + LdbcQuery8.class.getSimpleName() + ENABLE_SUFFIX;
-    public final static String READ_OPERATION_9_ENABLE_KEY = LDBC_SNB_INTERACTIVE_PARAM_NAME_PREFIX + LdbcQuery9.class.getSimpleName() + ENABLE_SUFFIX;
-    public final static String READ_OPERATION_10_ENABLE_KEY = LDBC_SNB_INTERACTIVE_PARAM_NAME_PREFIX + LdbcQuery10.class.getSimpleName() + ENABLE_SUFFIX;
-    public final static String READ_OPERATION_11_ENABLE_KEY = LDBC_SNB_INTERACTIVE_PARAM_NAME_PREFIX + LdbcQuery11.class.getSimpleName() + ENABLE_SUFFIX;
-    public final static String READ_OPERATION_12_ENABLE_KEY = LDBC_SNB_INTERACTIVE_PARAM_NAME_PREFIX + LdbcQuery12.class.getSimpleName() + ENABLE_SUFFIX;
-    public final static String READ_OPERATION_13_ENABLE_KEY = LDBC_SNB_INTERACTIVE_PARAM_NAME_PREFIX + LdbcQuery13.class.getSimpleName() + ENABLE_SUFFIX;
-    public final static String READ_OPERATION_14_ENABLE_KEY = LDBC_SNB_INTERACTIVE_PARAM_NAME_PREFIX + LdbcQuery14.class.getSimpleName() + ENABLE_SUFFIX;
-    public final static List<String> READ_OPERATION_ENABLE_KEYS = Lists.newArrayList(
-            READ_OPERATION_1_ENABLE_KEY,
-            READ_OPERATION_2_ENABLE_KEY,
-            READ_OPERATION_3_ENABLE_KEY,
-            READ_OPERATION_4_ENABLE_KEY,
-            READ_OPERATION_5_ENABLE_KEY,
-            READ_OPERATION_6_ENABLE_KEY,
-            READ_OPERATION_7_ENABLE_KEY,
-            READ_OPERATION_8_ENABLE_KEY,
-            READ_OPERATION_9_ENABLE_KEY,
-            READ_OPERATION_10_ENABLE_KEY,
-            READ_OPERATION_11_ENABLE_KEY,
-            READ_OPERATION_12_ENABLE_KEY,
-            READ_OPERATION_13_ENABLE_KEY,
-            READ_OPERATION_14_ENABLE_KEY);
+    public final static String LONG_READ_OPERATION_1_ENABLE_KEY = LDBC_SNB_INTERACTIVE_PARAM_NAME_PREFIX + LdbcQuery1.class.getSimpleName() + ENABLE_SUFFIX;
+    public final static String LONG_READ_OPERATION_2_ENABLE_KEY = LDBC_SNB_INTERACTIVE_PARAM_NAME_PREFIX + LdbcQuery2.class.getSimpleName() + ENABLE_SUFFIX;
+    public final static String LONG_READ_OPERATION_3_ENABLE_KEY = LDBC_SNB_INTERACTIVE_PARAM_NAME_PREFIX + LdbcQuery3.class.getSimpleName() + ENABLE_SUFFIX;
+    public final static String LONG_READ_OPERATION_4_ENABLE_KEY = LDBC_SNB_INTERACTIVE_PARAM_NAME_PREFIX + LdbcQuery4.class.getSimpleName() + ENABLE_SUFFIX;
+    public final static String LONG_READ_OPERATION_5_ENABLE_KEY = LDBC_SNB_INTERACTIVE_PARAM_NAME_PREFIX + LdbcQuery5.class.getSimpleName() + ENABLE_SUFFIX;
+    public final static String LONG_READ_OPERATION_6_ENABLE_KEY = LDBC_SNB_INTERACTIVE_PARAM_NAME_PREFIX + LdbcQuery6.class.getSimpleName() + ENABLE_SUFFIX;
+    public final static String LONG_READ_OPERATION_7_ENABLE_KEY = LDBC_SNB_INTERACTIVE_PARAM_NAME_PREFIX + LdbcQuery7.class.getSimpleName() + ENABLE_SUFFIX;
+    public final static String LONG_READ_OPERATION_8_ENABLE_KEY = LDBC_SNB_INTERACTIVE_PARAM_NAME_PREFIX + LdbcQuery8.class.getSimpleName() + ENABLE_SUFFIX;
+    public final static String LONG_READ_OPERATION_9_ENABLE_KEY = LDBC_SNB_INTERACTIVE_PARAM_NAME_PREFIX + LdbcQuery9.class.getSimpleName() + ENABLE_SUFFIX;
+    public final static String LONG_READ_OPERATION_10_ENABLE_KEY = LDBC_SNB_INTERACTIVE_PARAM_NAME_PREFIX + LdbcQuery10.class.getSimpleName() + ENABLE_SUFFIX;
+    public final static String LONG_READ_OPERATION_11_ENABLE_KEY = LDBC_SNB_INTERACTIVE_PARAM_NAME_PREFIX + LdbcQuery11.class.getSimpleName() + ENABLE_SUFFIX;
+    public final static String LONG_READ_OPERATION_12_ENABLE_KEY = LDBC_SNB_INTERACTIVE_PARAM_NAME_PREFIX + LdbcQuery12.class.getSimpleName() + ENABLE_SUFFIX;
+    public final static String LONG_READ_OPERATION_13_ENABLE_KEY = LDBC_SNB_INTERACTIVE_PARAM_NAME_PREFIX + LdbcQuery13.class.getSimpleName() + ENABLE_SUFFIX;
+    public final static String LONG_READ_OPERATION_14_ENABLE_KEY = LDBC_SNB_INTERACTIVE_PARAM_NAME_PREFIX + LdbcQuery14.class.getSimpleName() + ENABLE_SUFFIX;
+    public final static List<String> LONG_READ_OPERATION_ENABLE_KEYS = Lists.newArrayList(
+            LONG_READ_OPERATION_1_ENABLE_KEY,
+            LONG_READ_OPERATION_2_ENABLE_KEY,
+            LONG_READ_OPERATION_3_ENABLE_KEY,
+            LONG_READ_OPERATION_4_ENABLE_KEY,
+            LONG_READ_OPERATION_5_ENABLE_KEY,
+            LONG_READ_OPERATION_6_ENABLE_KEY,
+            LONG_READ_OPERATION_7_ENABLE_KEY,
+            LONG_READ_OPERATION_8_ENABLE_KEY,
+            LONG_READ_OPERATION_9_ENABLE_KEY,
+            LONG_READ_OPERATION_10_ENABLE_KEY,
+            LONG_READ_OPERATION_11_ENABLE_KEY,
+            LONG_READ_OPERATION_12_ENABLE_KEY,
+            LONG_READ_OPERATION_13_ENABLE_KEY,
+            LONG_READ_OPERATION_14_ENABLE_KEY
+    );
+    public final static String SHORT_READ_OPERATION_1_ENABLE_KEY = LDBC_SNB_INTERACTIVE_PARAM_NAME_PREFIX + LdbcShortQuery1PersonProfile.class.getSimpleName() + ENABLE_SUFFIX;
+    public final static String SHORT_READ_OPERATION_2_ENABLE_KEY = LDBC_SNB_INTERACTIVE_PARAM_NAME_PREFIX + LdbcShortQuery2PersonPosts.class.getSimpleName() + ENABLE_SUFFIX;
+    public final static String SHORT_READ_OPERATION_3_ENABLE_KEY = LDBC_SNB_INTERACTIVE_PARAM_NAME_PREFIX + LdbcShortQuery3PersonFriends.class.getSimpleName() + ENABLE_SUFFIX;
+    public final static String SHORT_READ_OPERATION_4_ENABLE_KEY = LDBC_SNB_INTERACTIVE_PARAM_NAME_PREFIX + LdbcShortQuery4MessageContent.class.getSimpleName() + ENABLE_SUFFIX;
+    public final static String SHORT_READ_OPERATION_5_ENABLE_KEY = LDBC_SNB_INTERACTIVE_PARAM_NAME_PREFIX + LdbcShortQuery5MessageCreator.class.getSimpleName() + ENABLE_SUFFIX;
+    public final static String SHORT_READ_OPERATION_6_ENABLE_KEY = LDBC_SNB_INTERACTIVE_PARAM_NAME_PREFIX + LdbcShortQuery6MessageForum.class.getSimpleName() + ENABLE_SUFFIX;
+    public final static String SHORT_READ_OPERATION_7_ENABLE_KEY = LDBC_SNB_INTERACTIVE_PARAM_NAME_PREFIX + LdbcShortQuery7MessageReplies.class.getSimpleName() + ENABLE_SUFFIX;
+    public final static List<String> SHORT_READ_OPERATION_ENABLE_KEYS = Lists.newArrayList(
+            SHORT_READ_OPERATION_1_ENABLE_KEY,
+            SHORT_READ_OPERATION_2_ENABLE_KEY,
+            SHORT_READ_OPERATION_3_ENABLE_KEY,
+            SHORT_READ_OPERATION_4_ENABLE_KEY,
+            SHORT_READ_OPERATION_5_ENABLE_KEY,
+            SHORT_READ_OPERATION_6_ENABLE_KEY,
+            SHORT_READ_OPERATION_7_ENABLE_KEY
+    );
     public final static String WRITE_OPERATION_1_ENABLE_KEY = LDBC_SNB_INTERACTIVE_PARAM_NAME_PREFIX + LdbcUpdate1AddPerson.class.getSimpleName() + ENABLE_SUFFIX;
     public final static String WRITE_OPERATION_2_ENABLE_KEY = LDBC_SNB_INTERACTIVE_PARAM_NAME_PREFIX + LdbcUpdate2AddPostLike.class.getSimpleName() + ENABLE_SUFFIX;
     public final static String WRITE_OPERATION_3_ENABLE_KEY = LDBC_SNB_INTERACTIVE_PARAM_NAME_PREFIX + LdbcUpdate3AddCommentLike.class.getSimpleName() + ENABLE_SUFFIX;
@@ -281,23 +299,63 @@ public class LdbcSnbInteractiveConfiguration {
 
     public static Map<String, String> withoutReads(Map<String, String> originalParams) throws DriverConfigurationException, IOException {
         Map<String, String> params = MapUtils.copyExcludingKeys(originalParams, new HashSet<String>());
-        params.put(READ_OPERATION_1_ENABLE_KEY, "false");
-        params.put(READ_OPERATION_2_ENABLE_KEY, "false");
-        params.put(READ_OPERATION_3_ENABLE_KEY, "false");
-        params.put(READ_OPERATION_4_ENABLE_KEY, "false");
-        params.put(READ_OPERATION_5_ENABLE_KEY, "false");
-        params.put(READ_OPERATION_6_ENABLE_KEY, "false");
-        params.put(READ_OPERATION_7_ENABLE_KEY, "false");
-        params.put(READ_OPERATION_8_ENABLE_KEY, "false");
-        params.put(READ_OPERATION_9_ENABLE_KEY, "false");
-        params.put(READ_OPERATION_10_ENABLE_KEY, "false");
-        params.put(READ_OPERATION_11_ENABLE_KEY, "false");
-        params.put(READ_OPERATION_12_ENABLE_KEY, "false");
-        params.put(READ_OPERATION_13_ENABLE_KEY, "false");
-        params.put(READ_OPERATION_14_ENABLE_KEY, "false");
+        params.put(LONG_READ_OPERATION_1_ENABLE_KEY, "false");
+        params.put(LONG_READ_OPERATION_2_ENABLE_KEY, "false");
+        params.put(LONG_READ_OPERATION_3_ENABLE_KEY, "false");
+        params.put(LONG_READ_OPERATION_4_ENABLE_KEY, "false");
+        params.put(LONG_READ_OPERATION_5_ENABLE_KEY, "false");
+        params.put(LONG_READ_OPERATION_6_ENABLE_KEY, "false");
+        params.put(LONG_READ_OPERATION_7_ENABLE_KEY, "false");
+        params.put(LONG_READ_OPERATION_8_ENABLE_KEY, "false");
+        params.put(LONG_READ_OPERATION_9_ENABLE_KEY, "false");
+        params.put(LONG_READ_OPERATION_10_ENABLE_KEY, "false");
+        params.put(LONG_READ_OPERATION_11_ENABLE_KEY, "false");
+        params.put(LONG_READ_OPERATION_12_ENABLE_KEY, "false");
+        params.put(LONG_READ_OPERATION_13_ENABLE_KEY, "false");
+        params.put(LONG_READ_OPERATION_14_ENABLE_KEY, "false");
+        params.put(SHORT_READ_OPERATION_1_ENABLE_KEY, "false");
+        params.put(SHORT_READ_OPERATION_2_ENABLE_KEY, "false");
+        params.put(SHORT_READ_OPERATION_3_ENABLE_KEY, "false");
+        params.put(SHORT_READ_OPERATION_4_ENABLE_KEY, "false");
+        params.put(SHORT_READ_OPERATION_5_ENABLE_KEY, "false");
+        params.put(SHORT_READ_OPERATION_6_ENABLE_KEY, "false");
+        params.put(SHORT_READ_OPERATION_7_ENABLE_KEY, "false");
         return ConsoleAndFileDriverConfiguration.convertLongKeysToShortKeys(params);
     }
 
+    public static Map<Integer, Class<? extends Operation<?>>> operationTypeToClassMapping() {
+        Map<Integer, Class<? extends Operation<?>>> operationTypeToClassMapping = new HashMap<>();
+        operationTypeToClassMapping.put(LdbcQuery1.TYPE, LdbcQuery1.class);
+        operationTypeToClassMapping.put(LdbcQuery2.TYPE, LdbcQuery2.class);
+        operationTypeToClassMapping.put(LdbcQuery3.TYPE, LdbcQuery3.class);
+        operationTypeToClassMapping.put(LdbcQuery4.TYPE, LdbcQuery4.class);
+        operationTypeToClassMapping.put(LdbcQuery5.TYPE, LdbcQuery5.class);
+        operationTypeToClassMapping.put(LdbcQuery6.TYPE, LdbcQuery6.class);
+        operationTypeToClassMapping.put(LdbcQuery7.TYPE, LdbcQuery7.class);
+        operationTypeToClassMapping.put(LdbcQuery8.TYPE, LdbcQuery8.class);
+        operationTypeToClassMapping.put(LdbcQuery9.TYPE, LdbcQuery9.class);
+        operationTypeToClassMapping.put(LdbcQuery10.TYPE, LdbcQuery10.class);
+        operationTypeToClassMapping.put(LdbcQuery11.TYPE, LdbcQuery11.class);
+        operationTypeToClassMapping.put(LdbcQuery12.TYPE, LdbcQuery12.class);
+        operationTypeToClassMapping.put(LdbcQuery13.TYPE, LdbcQuery13.class);
+        operationTypeToClassMapping.put(LdbcQuery14.TYPE, LdbcQuery14.class);
+        operationTypeToClassMapping.put(LdbcShortQuery1PersonProfile.TYPE, LdbcShortQuery1PersonProfile.class);
+        operationTypeToClassMapping.put(LdbcShortQuery2PersonPosts.TYPE, LdbcShortQuery2PersonPosts.class);
+        operationTypeToClassMapping.put(LdbcShortQuery3PersonFriends.TYPE, LdbcShortQuery3PersonFriends.class);
+        operationTypeToClassMapping.put(LdbcShortQuery4MessageContent.TYPE, LdbcShortQuery4MessageContent.class);
+        operationTypeToClassMapping.put(LdbcShortQuery5MessageCreator.TYPE, LdbcShortQuery5MessageCreator.class);
+        operationTypeToClassMapping.put(LdbcShortQuery6MessageForum.TYPE, LdbcShortQuery6MessageForum.class);
+        operationTypeToClassMapping.put(LdbcShortQuery7MessageReplies.TYPE, LdbcShortQuery7MessageReplies.class);
+        operationTypeToClassMapping.put(LdbcUpdate1AddPerson.TYPE, LdbcUpdate1AddPerson.class);
+        operationTypeToClassMapping.put(LdbcUpdate2AddPostLike.TYPE, LdbcUpdate2AddPostLike.class);
+        operationTypeToClassMapping.put(LdbcUpdate3AddCommentLike.TYPE, LdbcUpdate3AddCommentLike.class);
+        operationTypeToClassMapping.put(LdbcUpdate4AddForum.TYPE, LdbcUpdate4AddForum.class);
+        operationTypeToClassMapping.put(LdbcUpdate5AddForumMembership.TYPE, LdbcUpdate5AddForumMembership.class);
+        operationTypeToClassMapping.put(LdbcUpdate6AddPost.TYPE, LdbcUpdate6AddPost.class);
+        operationTypeToClassMapping.put(LdbcUpdate7AddComment.TYPE, LdbcUpdate7AddComment.class);
+        operationTypeToClassMapping.put(LdbcUpdate8AddFriendship.TYPE, LdbcUpdate8AddFriendship.class);
+        return operationTypeToClassMapping;
+    }
 
     static String removeSuffix(String original, String suffix) {
         return (original.indexOf(suffix) == -1) ? original : original.substring(0, original.lastIndexOf(suffix));

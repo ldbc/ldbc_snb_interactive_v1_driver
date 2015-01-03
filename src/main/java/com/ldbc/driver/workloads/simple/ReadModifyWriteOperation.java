@@ -7,6 +7,8 @@ import java.util.List;
 import java.util.Map;
 
 public class ReadModifyWriteOperation extends Operation<Object> {
+    public static final int TYPE = 1;
+
     private final String table;
     private final String key;
     private final List<String> readFields;
@@ -49,6 +51,6 @@ public class ReadModifyWriteOperation extends Operation<Object> {
 
     @Override
     public int type() {
-        return 1;
+        return TYPE;
     }
 }

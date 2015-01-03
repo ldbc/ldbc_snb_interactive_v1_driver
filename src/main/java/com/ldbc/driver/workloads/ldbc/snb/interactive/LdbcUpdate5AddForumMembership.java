@@ -5,6 +5,7 @@ import com.ldbc.driver.Operation;
 import java.util.Date;
 
 public class LdbcUpdate5AddForumMembership extends Operation<Object> {
+    public static final int TYPE = 1005;
     private final long forumId;
     private final long personId;
     private final Date joinDate;
@@ -70,6 +71,6 @@ public class LdbcUpdate5AddForumMembership extends Operation<Object> {
 
     @Override
     public int type() {
-        return 1005;
+        return TYPE;
     }
 }

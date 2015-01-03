@@ -56,7 +56,7 @@ public class BasicDb extends Db {
 
     public static class InsertOperationHandler extends OperationHandler<InsertOperation, BasicDbConnectionState> {
         @Override
-        public OperationResultReport executeOperation(InsertOperation operation, BasicDbConnectionState dbConnectionState) {
+        public void executeOperation(InsertOperation operation, BasicDbConnectionState dbConnectionState, ResultReporter resultReporter) {
             Map<String, Object> queryParams = new HashMap<>();
             queryParams.put("table", operation.getTable());
             queryParams.put("key", operation.getKey());
@@ -69,13 +69,13 @@ public class BasicDb extends Db {
             Object result = client.execute(queryString, queryParams);
 
             // TODO replace with actual result code
-            return operation.buildResult(0, result);
+            resultReporter.report(0, result, operation);
         }
     }
 
     public static class ReadOperationHandler extends OperationHandler<ReadOperation, BasicDbConnectionState> {
         @Override
-        public OperationResultReport executeOperation(ReadOperation operation, BasicDbConnectionState dbConnectionState) {
+        public void executeOperation(ReadOperation operation, BasicDbConnectionState dbConnectionState, ResultReporter resultReporter) {
             Map<String, Object> queryParams = new HashMap<>();
             queryParams.put("table", operation.getTable());
             queryParams.put("key", operation.getKey());
@@ -88,13 +88,13 @@ public class BasicDb extends Db {
             Map<String, Iterator<Byte>> result = (Map<String, Iterator<Byte>>) client.execute(queryString, queryParams);
 
             // TODO replace with actual result code
-            return operation.buildResult(0, result);
+            resultReporter.report(0, result, operation);
         }
     }
 
     public static class UpdateOperationHandler extends OperationHandler<UpdateOperation, BasicDbConnectionState> {
         @Override
-        public OperationResultReport executeOperation(UpdateOperation operation, BasicDbConnectionState dbConnectionState) {
+        public void executeOperation(UpdateOperation operation, BasicDbConnectionState dbConnectionState, ResultReporter resultReporter) {
             Map<String, Object> queryParams = new HashMap<>();
             queryParams.put("table", operation.getTable());
             queryParams.put("key", operation.getKey());
@@ -106,13 +106,13 @@ public class BasicDb extends Db {
             Map<String, Iterator<Byte>> result = (Map<String, Iterator<Byte>>) dbConnectionState.client().execute(queryString, queryParams);
 
             // TODO replace with actual result code
-            return operation.buildResult(0, result);
+            resultReporter.report(0, result, operation);
         }
     }
 
     public static class ScanOperationHandler extends OperationHandler<ScanOperation, BasicDbConnectionState> {
         @Override
-        public OperationResultReport executeOperation(ScanOperation operation, BasicDbConnectionState dbConnectionState) {
+        public void executeOperation(ScanOperation operation, BasicDbConnectionState dbConnectionState, ResultReporter resultReporter) {
             Map<String, Object> queryParams = new HashMap<>();
             queryParams.put("table", operation.getTable());
             queryParams.put("key", operation.getStartkey());
@@ -125,13 +125,13 @@ public class BasicDb extends Db {
             Vector<Map<String, Iterator<Byte>>> result = (Vector<Map<String, Iterator<Byte>>>) dbConnectionState.client().execute(queryString, queryParams);
 
             // TODO replace with actual result code
-            return operation.buildResult(0, result);
+            resultReporter.report(0, result, operation);
         }
     }
 
     public static class ReadModifyWriteOperationHandler extends OperationHandler<ReadModifyWriteOperation, BasicDbConnectionState> {
         @Override
-        public OperationResultReport executeOperation(ReadModifyWriteOperation operation, BasicDbConnectionState dbConnectionState) {
+        public void executeOperation(ReadModifyWriteOperation operation, BasicDbConnectionState dbConnectionState, ResultReporter resultReporter) {
             Map<String, Object> queryParams = new HashMap<>();
             queryParams.put("table", operation.getTable());
             queryParams.put("key", operation.getKey());
@@ -144,7 +144,7 @@ public class BasicDb extends Db {
             Object result = dbConnectionState.client().execute(queryString, queryParams);
 
             // TODO replace with actual result code
-            return operation.buildResult(0, result);
+            resultReporter.report(0, result, operation);
         }
     }
 

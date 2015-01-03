@@ -10,7 +10,7 @@ import java.util.List;
 import java.util.TimeZone;
 import java.util.concurrent.TimeUnit;
 
-public class SimpleOperationMetricsFormatter implements OperationMetricsFormatter {
+public class SimpleWorkloadMetricsFormatter implements WorkloadMetricsFormatter {
     private static final String DEFAULT_NAME = "<no name given>";
     private static final String DEFAULT_UNIT = "<no unit given>";
     private static final String OFFSET = "    ";
@@ -29,7 +29,7 @@ public class SimpleOperationMetricsFormatter implements OperationMetricsFormatte
         sb.append(String.format("%1$-" + padRightDistance + "s", "Operation Count:")).append(INTEGER_FORMATTER.format(workloadResultsSnapshot.totalOperationCount())).append("\n");
         sb.append(String.format("%1$-" + padRightDistance + "s", "Duration:")).append(TEMPORAL_UTIL.nanoDurationToString(workloadResultsSnapshot.totalRunDurationAsNano())).append("\n");
         double opsPerNs = (workloadResultsSnapshot.totalOperationCount() / (double) workloadResultsSnapshot.totalRunDurationAsNano());
-        double opsPerS = opsPerNs * TEMPORAL_UTIL.convert(1, TimeUnit.SECONDS, TimeUnit.NANOSECONDS);
+        double opsPerS = opsPerNs * TimeUnit.SECONDS.toNanos(1);
         sb.append(String.format("%1$-" + padRightDistance + "s", "Throughput:")).append(FLOAT_FORMATTER.format(opsPerS)).append(" (op/s)\n");
         sb.append(String.format("%1$-" + padRightDistance + "s", "Start Time (" + TimeZone.getDefault().getDisplayName() + "):")).append(dateTimeFormat.format(workloadResultsSnapshot.startTimeAsMilli())).append("\n");
         sb.append(String.format("%1$-" + padRightDistance + "s", "Finish Time (" + TimeZone.getDefault().getDisplayName() + "):")).append(dateTimeFormat.format(workloadResultsSnapshot.latestFinishTimeAsMilli())).append("\n");

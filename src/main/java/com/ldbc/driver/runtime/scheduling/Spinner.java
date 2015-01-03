@@ -57,6 +57,7 @@ public class Spinner {
     // sleep to reduce CPU load while spinning
     // NOTE: longer sleep == lower scheduling accuracy AND lower achievable throughput
     public static void powerNap(long sleepMs) {
+        // TODO replace with LockSupport.parkNanos(nsToPark);
         if (0 == sleepMs) return;
         try {
             Thread.sleep(sleepMs);

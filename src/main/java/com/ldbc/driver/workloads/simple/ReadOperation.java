@@ -7,6 +7,8 @@ import java.util.List;
 import java.util.Map;
 
 public class ReadOperation extends Operation<Map<String, Iterator<Byte>>> {
+    public static final int TYPE = 3;
+
     private final String table;
     private final String key;
     private final List<String> fields;
@@ -41,6 +43,6 @@ public class ReadOperation extends Operation<Map<String, Iterator<Byte>>> {
 
     @Override
     public int type() {
-        return 3;
+        return TYPE;
     }
 }

@@ -14,10 +14,7 @@ import com.ldbc.driver.workloads.dummy.*;
 import org.junit.Test;
 
 import java.io.IOException;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.TimeUnit;
 
 import static org.hamcrest.CoreMatchers.*;
@@ -87,7 +84,7 @@ public class WorkloadStreamsTest {
 
     @Test
     public void shouldPerformTimeOffsetCorrectly() throws WorkloadException {
-        long offset = TEMPORAL_UTIL.convert(100, TimeUnit.SECONDS, TimeUnit.MILLISECONDS);
+        long offset = TimeUnit.SECONDS.toMillis(100);
         WorkloadStreams workloadStreamsBefore = WorkloadStreams.timeOffsetAndCompressWorkloadStreams(
                 getWorkloadStreams(),
                 0l + offset,
@@ -151,7 +148,7 @@ public class WorkloadStreamsTest {
 
     @Test
     public void shouldPerformTimeOffsetAndCompressionCorrectly() throws WorkloadException {
-        long offset = TEMPORAL_UTIL.convert(100, TimeUnit.SECONDS, TimeUnit.MILLISECONDS);
+        long offset = TimeUnit.SECONDS.toMillis(100);
         WorkloadStreams workloadStreamsBefore = WorkloadStreams.timeOffsetAndCompressWorkloadStreams(
                 getWorkloadStreams(),
                 0l + offset,
@@ -426,6 +423,16 @@ public class WorkloadStreamsTest {
     }
 
     private class TestWorkload extends Workload {
+
+        @Override
+        public Map<Integer, Class<? extends Operation<?>>> operationTypeToClassMapping(Map<String, String> params) {
+            Map<Integer, Class<? extends Operation<?>>> operationTypeToClassMapping = new HashMap<>();
+            operationTypeToClassMapping.put(NothingOperation.TYPE, NothingOperation.class);
+            operationTypeToClassMapping.put(TimedNamedOperation1.TYPE, TimedNamedOperation1.class);
+            operationTypeToClassMapping.put(TimedNamedOperation2.TYPE, TimedNamedOperation2.class);
+            operationTypeToClassMapping.put(TimedNamedOperation3.TYPE, TimedNamedOperation3.class);
+            return operationTypeToClassMapping;
+        }
 
         @Override
         public void onInit(Map<String, String> params) throws WorkloadException {

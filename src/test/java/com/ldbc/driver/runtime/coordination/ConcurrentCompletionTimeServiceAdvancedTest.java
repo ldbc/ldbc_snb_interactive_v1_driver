@@ -61,7 +61,7 @@ public class ConcurrentCompletionTimeServiceAdvancedTest {
                         TEMPORAL_UTIL.milliDurationToString(totalTestDurationForThreadedCompletionTimeServiceAsMilli / testRepetitions));
             }
         } finally {
-            threadPoolLoadGenerator.shutdown(TEMPORAL_UTIL.convert(10, TimeUnit.SECONDS, TimeUnit.MILLISECONDS));
+            threadPoolLoadGenerator.shutdown(TimeUnit.SECONDS.toMillis(10));
         }
     }
 

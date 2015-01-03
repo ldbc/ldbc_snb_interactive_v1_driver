@@ -10,6 +10,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class LdbcShortQuery3PersonFriends extends Operation<List<LdbcShortQuery3PersonFriendsResult>> {
+    public static final int TYPE = 103;
     private static final ObjectMapper objectMapper = new ObjectMapper();
     private final long personId;
 
@@ -97,6 +98,6 @@ public class LdbcShortQuery3PersonFriends extends Operation<List<LdbcShortQuery3
 
     @Override
     public int type() {
-        return 103;
+        return TYPE;
     }
 }

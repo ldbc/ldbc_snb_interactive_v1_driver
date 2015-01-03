@@ -8,7 +8,7 @@ import com.ldbc.driver.runtime.DefaultQueues;
 import com.ldbc.driver.runtime.coordination.DummyGlobalCompletionTimeReader;
 import com.ldbc.driver.runtime.coordination.DummyLocalCompletionTimeWriter;
 import com.ldbc.driver.runtime.coordination.LocalCompletionTimeWriter;
-import com.ldbc.driver.runtime.metrics.DummyCollectingConcurrentMetricsService;
+import com.ldbc.driver.runtime.metrics.DummyCountingConcurrentMetricsService;
 import com.ldbc.driver.runtime.scheduling.Spinner;
 import com.ldbc.driver.temporal.SystemTimeSource;
 import com.ldbc.driver.temporal.TimeSource;
@@ -34,7 +34,7 @@ public class ThreadPoolOperationExecutorTest {
         LocalCompletionTimeWriter dummyLocalCompletionTimeWriter = new DummyLocalCompletionTimeWriter();
         DummyGlobalCompletionTimeReader dummyGlobalCompletionTimeReader = new DummyGlobalCompletionTimeReader();
         dummyGlobalCompletionTimeReader.setGlobalCompletionTimeAsMilli(Long.MAX_VALUE);
-        DummyCollectingConcurrentMetricsService metricsService = new DummyCollectingConcurrentMetricsService();
+        DummyCountingConcurrentMetricsService metricsService = new DummyCountingConcurrentMetricsService();
         WorkloadStreams.WorkloadStreamDefinition streamDefinition = new WorkloadStreams.WorkloadStreamDefinition(
                 new HashSet<Class<? extends Operation<?>>>(),
                 new HashSet<Class<? extends Operation<?>>>(),
@@ -48,7 +48,7 @@ public class ThreadPoolOperationExecutorTest {
         int threadCount = 1;
         int boundedQueueSize = DefaultQueues.DEFAULT_BOUND_1000;
 
-        OperationExecutor_NEW executor = new ThreadPoolOperationExecutor_NEW(
+        OperationExecutor executor = new ThreadPoolOperationExecutor(
                 threadCount,
                 boundedQueueSize,
                 db,
@@ -76,7 +76,7 @@ public class ThreadPoolOperationExecutorTest {
         }
 
         // Then
-        assertThat(metricsService.operationResultReports().size(), is(1));
+        assertThat(metricsService.count(), is(1l));
         executor.shutdown(1000l);
         assertThat(errorReporter.toString(), errorReporter.errorEncountered(), is(false));
     }
@@ -92,7 +92,7 @@ public class ThreadPoolOperationExecutorTest {
         LocalCompletionTimeWriter dummyLocalCompletionTimeWriter = new DummyLocalCompletionTimeWriter();
         DummyGlobalCompletionTimeReader dummyGlobalCompletionTimeReader = new DummyGlobalCompletionTimeReader();
         dummyGlobalCompletionTimeReader.setGlobalCompletionTimeAsMilli(Long.MAX_VALUE);
-        DummyCollectingConcurrentMetricsService metricsService = new DummyCollectingConcurrentMetricsService();
+        DummyCountingConcurrentMetricsService metricsService = new DummyCountingConcurrentMetricsService();
         WorkloadStreams.WorkloadStreamDefinition streamDefinition = new WorkloadStreams.WorkloadStreamDefinition(
                 new HashSet<Class<? extends Operation<?>>>(),
                 new HashSet<Class<? extends Operation<?>>>(),
@@ -106,7 +106,7 @@ public class ThreadPoolOperationExecutorTest {
         int threadCount = 1;
         int boundedQueueSize = DefaultQueues.DEFAULT_BOUND_1000;
 
-        OperationExecutor_NEW executor = new ThreadPoolOperationExecutor_NEW(
+        OperationExecutor executor = new ThreadPoolOperationExecutor(
                 threadCount,
                 boundedQueueSize,
                 db,
@@ -141,7 +141,7 @@ public class ThreadPoolOperationExecutorTest {
         }
 
         // Then
-        assertThat(metricsService.operationResultReports().size(), is(2));
+        assertThat(metricsService.count(), is(2l));
         executor.shutdown(1000l);
         assertThat(errorReporter.toString(), errorReporter.errorEncountered(), is(false));
     }
@@ -156,7 +156,7 @@ public class ThreadPoolOperationExecutorTest {
         LocalCompletionTimeWriter dummyLocalCompletionTimeWriter = new DummyLocalCompletionTimeWriter();
         DummyGlobalCompletionTimeReader dummyGlobalCompletionTimeReader = new DummyGlobalCompletionTimeReader();
         dummyGlobalCompletionTimeReader.setGlobalCompletionTimeAsMilli(Long.MAX_VALUE);
-        DummyCollectingConcurrentMetricsService metricsService = new DummyCollectingConcurrentMetricsService();
+        DummyCountingConcurrentMetricsService metricsService = new DummyCountingConcurrentMetricsService();
         WorkloadStreams.WorkloadStreamDefinition streamDefinition = new WorkloadStreams.WorkloadStreamDefinition(
                 new HashSet<Class<? extends Operation<?>>>(),
                 new HashSet<Class<? extends Operation<?>>>(),
@@ -170,7 +170,7 @@ public class ThreadPoolOperationExecutorTest {
         int threadCount = 1;
         int boundedQueueSize = DefaultQueues.DEFAULT_BOUND_1000;
 
-        OperationExecutor_NEW executor = new ThreadPoolOperationExecutor_NEW(
+        OperationExecutor executor = new ThreadPoolOperationExecutor(
                 threadCount,
                 boundedQueueSize,
                 db,
@@ -198,7 +198,7 @@ public class ThreadPoolOperationExecutorTest {
         }
 
         // Then
-        assertThat(metricsService.operationResultReports().size(), is(1));
+        assertThat(metricsService.count(), is(1l));
         executor.shutdown(1000l);
         assertThat(errorReporter.toString(), errorReporter.errorEncountered(), is(false));
 

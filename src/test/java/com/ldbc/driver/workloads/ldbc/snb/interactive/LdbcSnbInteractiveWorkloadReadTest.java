@@ -9,7 +9,6 @@ import com.ldbc.driver.control.*;
 import com.ldbc.driver.generator.GeneratorFactory;
 import com.ldbc.driver.generator.RandomDataGeneratorFactory;
 import com.ldbc.driver.temporal.SystemTimeSource;
-import com.ldbc.driver.temporal.TemporalUtil;
 import com.ldbc.driver.temporal.TimeSource;
 import com.ldbc.driver.testutils.TestUtils;
 import com.ldbc.driver.util.Bucket;
@@ -34,7 +33,6 @@ public class LdbcSnbInteractiveWorkloadReadTest {
     @Rule
     public TemporaryFolder temporaryFolder = new TemporaryFolder();
 
-    TemporalUtil temporalUtil = new TemporalUtil();
     TimeSource timeSource = new SystemTimeSource();
 
     @Test
@@ -94,7 +92,7 @@ public class LdbcSnbInteractiveWorkloadReadTest {
         GeneratorFactory gf = new GeneratorFactory(new RandomDataGeneratorFactory(42L));
         Iterator<Operation<?>> operations = gf.limit(workload.streams(gf).mergeSortedByStartTime(gf), MANY_ELEMENTS_COUNT);
         TimeSource timeSource = new SystemTimeSource();
-        long timeoutAsMilli = timeSource.nowAsMilli() + temporalUtil.convert(30, TimeUnit.SECONDS, TimeUnit.MILLISECONDS);
+        long timeoutAsMilli = timeSource.nowAsMilli() + TimeUnit.SECONDS.toMillis(30);
         boolean workloadGeneratedOperationsBeforeTimeout = TestUtils.generateBeforeTimeout(operations, timeoutAsMilli, timeSource, MANY_ELEMENTS_COUNT);
         assertThat(workloadGeneratedOperationsBeforeTimeout, is(true));
     }

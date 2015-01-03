@@ -8,15 +8,15 @@ import com.ldbc.driver.runtime.coordination.LocalCompletionTimeWriter;
 import java.util.Iterator;
 
 // TODO test
-class InitiatedTimeSubmittingOperationRetriever_NEW {
+class InitiatedTimeSubmittingOperationRetriever {
     private final Iterator<Operation<?>> nonDependencyOperations;
     private final Iterator<Operation<?>> dependencyOperations;
     private final LocalCompletionTimeWriter localCompletionTimeWriter;
     private Operation nextNonDependencyOperation = null;
     private Operation nextDependencyOperation = null;
 
-    InitiatedTimeSubmittingOperationRetriever_NEW(WorkloadStreams.WorkloadStreamDefinition streamDefinition,
-                                                  LocalCompletionTimeWriter localCompletionTimeWriter) {
+    InitiatedTimeSubmittingOperationRetriever(WorkloadStreams.WorkloadStreamDefinition streamDefinition,
+                                              LocalCompletionTimeWriter localCompletionTimeWriter) {
         this.nonDependencyOperations = streamDefinition.nonDependencyOperations();
         this.dependencyOperations = streamDefinition.dependencyOperations();
         this.localCompletionTimeWriter = localCompletionTimeWriter;

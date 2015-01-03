@@ -32,10 +32,6 @@ public abstract class Operation<RESULT_TYPE> {
         this.timeStamp = timeStamp;
     }
 
-    public final OperationResultReport buildResult(int resultCode, RESULT_TYPE result) {
-        return new OperationResultReport(resultCode, result, this);
-    }
-
     public abstract int type();
 
     @Override

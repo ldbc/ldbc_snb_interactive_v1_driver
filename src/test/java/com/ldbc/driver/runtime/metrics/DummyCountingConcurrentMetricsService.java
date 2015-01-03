@@ -1,7 +1,5 @@
 package com.ldbc.driver.runtime.metrics;
 
-import com.ldbc.driver.OperationResultReport;
-
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
@@ -16,8 +14,16 @@ public class DummyCountingConcurrentMetricsService implements ConcurrentMetricsS
     }
 
     @Override
-    synchronized public void submitOperationResult(OperationResultReport operationResultReport) throws MetricsCollectionException {
+    public void submitOperationResult(int operationType,
+                                      long scheduledStartTimeAsMilli,
+                                      long actualStartTimeAsMilli,
+                                      long runDurationAsNano,
+                                      int resultCode) throws MetricsCollectionException {
         count++;
+    }
+
+    public long count() {
+        return count;
     }
 
     @Override

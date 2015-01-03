@@ -19,10 +19,8 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 
 public class ThreadedQueuedConcurrentCompletionTimeService implements ConcurrentCompletionTimeService {
-    private static final TemporalUtil TEMPORAL_UTIL = new TemporalUtil();
-    private static final long SHUTDOWN_WAIT_TIMEOUT_AS_MILLI = TEMPORAL_UTIL.convert(10, TimeUnit.SECONDS, TimeUnit.MILLISECONDS);
+    private static final long SHUTDOWN_WAIT_TIMEOUT_AS_MILLI = TimeUnit.SECONDS.toMillis(10);
 
-    private final TemporalUtil temporalUtil = new TemporalUtil();
     private final TimeSource timeSource;
     private final QueueEventSubmitter<CompletionTimeEvent> queueEventSubmitter;
     private final AtomicLong sharedGctReference;
@@ -57,7 +55,7 @@ public class ThreadedQueuedConcurrentCompletionTimeService implements Concurrent
 
     @Override
     public LocalCompletionTimeWriter newLocalCompletionTimeWriter() throws CompletionTimeException {
-        long futureTimeoutDurationAsMilli = temporalUtil.convert(1, TimeUnit.MINUTES, TimeUnit.MILLISECONDS);
+        long futureTimeoutDurationAsMilli = TimeUnit.MINUTES.toMillis(1);
         try {
             LocalCompletionTimeWriterFuture future = new LocalCompletionTimeWriterFuture(timeSource);
             queueEventSubmitter.submitEventToQueue(CompletionTimeEvent.newLocalCompletionTimeWriter(future));
@@ -222,7 +220,7 @@ public class ThreadedQueuedConcurrentCompletionTimeService implements Concurrent
 
         @Override
         public Long get(long timeout, TimeUnit unit) throws TimeoutException {
-            long timeoutDurationAsMilli = TEMPORAL_UTIL.convert(timeout, unit, TimeUnit.MILLISECONDS);
+            long timeoutDurationAsMilli = unit.toMillis(timeout);
             long timeoutTimeAsMilli = timeSource.nowAsMilli() + timeoutDurationAsMilli;
             while (timeSource.nowAsMilli() < timeoutTimeAsMilli) {
                 // wait for value to be set
@@ -274,7 +272,7 @@ public class ThreadedQueuedConcurrentCompletionTimeService implements Concurrent
 
         @Override
         public Integer get(long timeout, TimeUnit unit) throws TimeoutException {
-            long timeoutDurationAsMilli = TEMPORAL_UTIL.convert(timeout, unit, TimeUnit.MILLISECONDS);
+            long timeoutDurationAsMilli = unit.toMillis(timeout);
             long timeoutTimeAsMilli = timeSource.nowAsMilli() + timeoutDurationAsMilli;
             while (timeSource.nowAsMilli() < timeoutTimeAsMilli) {
                 // wait for value to be set

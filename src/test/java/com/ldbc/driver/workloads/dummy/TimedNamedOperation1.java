@@ -1,6 +1,7 @@
 package com.ldbc.driver.workloads.dummy;
 
 public class TimedNamedOperation1 extends NothingOperation {
+    public static final int TYPE = 1;
     private final String name;
 
     public TimedNamedOperation1(long scheduledStartTimeAsMilli, long timeStamp, long dependencyTimeAsMilli, String name) {
@@ -42,6 +43,6 @@ public class TimedNamedOperation1 extends NothingOperation {
 
     @Override
     public int type() {
-        return 1;
+        return TYPE;
     }
 }

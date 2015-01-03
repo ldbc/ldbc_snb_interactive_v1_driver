@@ -1,10 +1,10 @@
 package com.ldbc.driver.runtime;
 
+import org.jctools.queues.QueueFactory;
+import org.jctools.queues.spec.ConcurrentQueueSpec;
+
 import java.util.Queue;
-import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.ConcurrentLinkedQueue;
-import java.util.concurrent.LinkedBlockingQueue;
-import java.util.concurrent.LinkedTransferQueue;
+import java.util.concurrent.*;
 
 public class DefaultQueues {
     public static <T> Queue<T> newNonBlocking() {
@@ -17,8 +17,13 @@ public class DefaultQueues {
 
     public static final int DEFAULT_BOUND_1000 = 1000;
 
+    public static <T> Queue<T> newNonBlockingBounded(int capacity) {
+        return QueueFactory.newQueue(ConcurrentQueueSpec.createBoundedMpsc(capacity));
+    }
+
     public static <T> BlockingQueue<T> newBlockingBounded(int capacity) {
         return new LinkedBlockingQueue<>(capacity);
+//        return new ArrayBlockingQueue<T>(capacity);
     }
 
     public static <T> BlockingQueue<T> newAlwaysBlockingBounded(int capacity) {

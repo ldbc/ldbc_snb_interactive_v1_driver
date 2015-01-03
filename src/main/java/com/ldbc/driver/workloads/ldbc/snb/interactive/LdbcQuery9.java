@@ -13,6 +13,7 @@ import java.util.List;
 public class LdbcQuery9 extends Operation<List<LdbcQuery9Result>> {
     private static final ObjectMapper objectMapper = new ObjectMapper();
 
+    public static final int TYPE = 9;
     public static final int DEFAULT_LIMIT = 20;
     private final long personId;
     private final Date maxDate;
@@ -125,6 +126,6 @@ public class LdbcQuery9 extends Operation<List<LdbcQuery9Result>> {
 
     @Override
     public int type() {
-        return 9;
+        return TYPE;
     }
 }

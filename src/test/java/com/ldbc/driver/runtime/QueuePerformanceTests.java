@@ -108,7 +108,7 @@ public class QueuePerformanceTests {
 
 //        long duration = doOperationQueuePerformanceTest(operations, DefaultQueues.<Operation<?>>newBlockingBounded(1000));
         long duration = doOperationQueuePerformanceTest(operations, DefaultQueues.<Operation<?>>newBlockingBounded(10000));
-        long opsPerSecond = Math.round(((double) config.operationCount() / TEMPORAL_UTIL.convert(duration, TimeUnit.MILLISECONDS, TimeUnit.NANOSECONDS)) * 1000000000);
+        long opsPerSecond = Math.round(((double) config.operationCount() / TimeUnit.MILLISECONDS.toNanos(duration)) * 1000000000);
         System.out.println(String.format("%s operations in %s: %s op/sec", config.operationCount(), duration, opsPerSecond));
         workload.close();
     }

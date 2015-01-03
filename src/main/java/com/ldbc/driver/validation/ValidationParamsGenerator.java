@@ -10,6 +10,7 @@ public class ValidationParamsGenerator extends Generator<ValidationParam> {
     private final Db db;
     private final Workload.DbValidationParametersFilter dbValidationParametersFilter;
     private final Iterator<Operation<?>> operations;
+    private final ResultReporter resultReporter = new ResultReporter.SimpleResultReporter();
     private int entriesWrittenSoFar;
     private boolean needMoreValidationParameters;
 
@@ -29,6 +30,7 @@ public class ValidationParamsGenerator extends Generator<ValidationParam> {
 
     @Override
     protected ValidationParam doNext() throws GeneratorException {
+
         while (operations.hasNext() && needMoreValidationParameters) {
             Operation<?> operation = operations.next();
 
@@ -47,11 +49,10 @@ public class ValidationParamsGenerator extends Generator<ValidationParam> {
                                 db.getClass().getName(), operation),
                         e);
             }
-            OperationResultReport operationResultReport;
             try {
                 OperationHandler operationHandler = operationHandlerRunner.operationHandler();
                 DbConnectionState dbConnectionState = operationHandlerRunner.dbConnectionState();
-                operationResultReport = operationHandler.executeOperation(operation, dbConnectionState);
+                operationHandler.executeOperation(operation, dbConnectionState, resultReporter);
             } catch (DbException e) {
                 throw new GeneratorException(
                         String.format(""
@@ -64,7 +65,7 @@ public class ValidationParamsGenerator extends Generator<ValidationParam> {
                 operationHandlerRunner.cleanup();
             }
 
-            Object operationResult = operationResultReport.operationResult();
+            Object operationResult = resultReporter.result();
 
             switch (dbValidationParametersFilter.useOperationAndResultForValidation(operation, operationResult)) {
                 case REJECT_AND_CONTINUE:

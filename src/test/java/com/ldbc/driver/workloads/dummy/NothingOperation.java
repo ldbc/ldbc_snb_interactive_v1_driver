@@ -3,6 +3,8 @@ package com.ldbc.driver.workloads.dummy;
 import com.ldbc.driver.Operation;
 
 public class NothingOperation extends Operation<DummyResult> {
+    public static final int TYPE = 0;
+
     @Override
     public boolean equals(Object that) {
         return true;
@@ -10,7 +12,7 @@ public class NothingOperation extends Operation<DummyResult> {
 
     @Override
     public int type() {
-        return 0;
+        return TYPE;
     }
 
     @Override

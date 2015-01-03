@@ -4,6 +4,7 @@ import com.ldbc.driver.*;
 import com.ldbc.driver.generator.GeneratorFactory;
 
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.Map;
 
 public class DummyWorkload extends Workload {
@@ -14,6 +15,16 @@ public class DummyWorkload extends Workload {
                          long maxExpectedInterleaveAsMilli) {
         this.maxExpectedInterleaveAsMilli = maxExpectedInterleaveAsMilli;
         this.workloadStreams = workloadStreams;
+    }
+
+    @Override
+    public Map<Integer, Class<? extends Operation<?>>> operationTypeToClassMapping(Map<String, String> params) {
+        Map<Integer, Class<? extends Operation<?>>> operationTypeToClassMapping = new HashMap<>();
+        operationTypeToClassMapping.put(NothingOperation.TYPE, NothingOperation.class);
+        operationTypeToClassMapping.put(TimedNamedOperation1.TYPE, TimedNamedOperation1.class);
+        operationTypeToClassMapping.put(TimedNamedOperation2.TYPE, TimedNamedOperation2.class);
+        operationTypeToClassMapping.put(TimedNamedOperation3.TYPE, TimedNamedOperation3.class);
+        return operationTypeToClassMapping;
     }
 
     @Override

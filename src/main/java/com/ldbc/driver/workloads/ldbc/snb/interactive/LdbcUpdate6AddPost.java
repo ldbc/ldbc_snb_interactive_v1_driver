@@ -8,6 +8,7 @@ import java.util.Date;
 import java.util.List;
 
 public class LdbcUpdate6AddPost extends Operation<Object> {
+    public static final int TYPE = 1006;
     private final long postId;
     private final String imageFile;
     private final Date creationDate;
@@ -171,6 +172,6 @@ public class LdbcUpdate6AddPost extends Operation<Object> {
 
     @Override
     public int type() {
-        return 1006;
+        return TYPE;
     }
 }

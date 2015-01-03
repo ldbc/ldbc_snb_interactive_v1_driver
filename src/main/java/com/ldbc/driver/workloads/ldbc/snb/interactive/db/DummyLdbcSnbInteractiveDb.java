@@ -145,113 +145,113 @@ public class DummyLdbcSnbInteractiveDb extends Db {
 
     public static class LdbcQuery1Handler extends OperationHandler<LdbcQuery1, DummyDbConnectionState> {
         @Override
-        public OperationResultReport executeOperation(LdbcQuery1 operation, DummyDbConnectionState dbConnectionState) throws DbException {
+        public void executeOperation(LdbcQuery1 operation, DummyDbConnectionState dbConnectionState, ResultReporter resultReporter) throws DbException {
             sleep(sleepDurationAsNano);
-            return operation.buildResult(0, DummyLdbcSnbInteractiveOperationResultSets.read1Results());
+            resultReporter.report(0, DummyLdbcSnbInteractiveOperationResultSets.read1Results(), operation);
         }
     }
 
     public static class LdbcQuery2Handler extends OperationHandler<LdbcQuery2, DummyDbConnectionState> {
         @Override
-        public OperationResultReport executeOperation(LdbcQuery2 operation, DummyDbConnectionState dbConnectionState) throws DbException {
+        public void executeOperation(LdbcQuery2 operation, DummyDbConnectionState dbConnectionState, ResultReporter resultReporter) throws DbException {
             sleep(sleepDurationAsNano);
-            return operation.buildResult(0, DummyLdbcSnbInteractiveOperationResultSets.read2Results());
+            resultReporter.report(0, DummyLdbcSnbInteractiveOperationResultSets.read2Results(), operation);
         }
     }
 
     public static class LdbcQuery3Handler extends OperationHandler<LdbcQuery3, DummyDbConnectionState> {
         @Override
-        public OperationResultReport executeOperation(LdbcQuery3 operation, DummyDbConnectionState dbConnectionState) throws DbException {
+        public void executeOperation(LdbcQuery3 operation, DummyDbConnectionState dbConnectionState, ResultReporter resultReporter) throws DbException {
             sleep(sleepDurationAsNano);
-            return operation.buildResult(0, DummyLdbcSnbInteractiveOperationResultSets.read3Results());
+            resultReporter.report(0, DummyLdbcSnbInteractiveOperationResultSets.read3Results(), operation);
         }
     }
 
     public static class LdbcQuery4Handler extends OperationHandler<LdbcQuery4, DummyDbConnectionState> {
         @Override
-        public OperationResultReport executeOperation(LdbcQuery4 operation, DummyDbConnectionState dbConnectionState) throws DbException {
+        public void executeOperation(LdbcQuery4 operation, DummyDbConnectionState dbConnectionState, ResultReporter resultReporter) throws DbException {
             sleep(sleepDurationAsNano);
-            return operation.buildResult(0, DummyLdbcSnbInteractiveOperationResultSets.read4Results());
+            resultReporter.report(0, DummyLdbcSnbInteractiveOperationResultSets.read4Results(), operation);
         }
     }
 
     public static class LdbcQuery5Handler extends OperationHandler<LdbcQuery5, DummyDbConnectionState> {
         @Override
-        public OperationResultReport executeOperation(LdbcQuery5 operation, DummyDbConnectionState dbConnectionState) throws DbException {
+        public void executeOperation(LdbcQuery5 operation, DummyDbConnectionState dbConnectionState, ResultReporter resultReporter) throws DbException {
             sleep(sleepDurationAsNano);
-            return operation.buildResult(0, DummyLdbcSnbInteractiveOperationResultSets.read5Results());
+            resultReporter.report(0, DummyLdbcSnbInteractiveOperationResultSets.read5Results(), operation);
         }
     }
 
     public static class LdbcQuery6Handler extends OperationHandler<LdbcQuery6, DummyDbConnectionState> {
         @Override
-        public OperationResultReport executeOperation(LdbcQuery6 operation, DummyDbConnectionState dummyDbConnectionState) throws DbException {
+        public void executeOperation(LdbcQuery6 operation, DummyDbConnectionState dummyDbConnectionState, ResultReporter resultReporter) throws DbException {
             sleep(sleepDurationAsNano);
-            return operation.buildResult(0, DummyLdbcSnbInteractiveOperationResultSets.read6Results());
+            resultReporter.report(0, DummyLdbcSnbInteractiveOperationResultSets.read6Results(), operation);
         }
     }
 
     public static class LdbcQuery7Handler extends OperationHandler<LdbcQuery7, DummyDbConnectionState> {
         @Override
-        public OperationResultReport executeOperation(LdbcQuery7 operation, DummyDbConnectionState dbConnectionState) throws DbException {
+        public void executeOperation(LdbcQuery7 operation, DummyDbConnectionState dbConnectionState, ResultReporter resultReporter) throws DbException {
             sleep(sleepDurationAsNano);
-            return operation.buildResult(0, DummyLdbcSnbInteractiveOperationResultSets.read7Results());
+            resultReporter.report(0, DummyLdbcSnbInteractiveOperationResultSets.read7Results(), operation);
         }
     }
 
     public static class LdbcQuery8Handler extends OperationHandler<LdbcQuery8, DummyDbConnectionState> {
         @Override
-        public OperationResultReport executeOperation(LdbcQuery8 operation, DummyDbConnectionState dbConnectionState) throws DbException {
+        public void executeOperation(LdbcQuery8 operation, DummyDbConnectionState dbConnectionState, ResultReporter resultReporter) throws DbException {
             sleep(sleepDurationAsNano);
-            return operation.buildResult(0, DummyLdbcSnbInteractiveOperationResultSets.read8Results());
+            resultReporter.report(0, DummyLdbcSnbInteractiveOperationResultSets.read8Results(), operation);
         }
     }
 
     public static class LdbcQuery9Handler extends OperationHandler<LdbcQuery9, DummyDbConnectionState> {
         @Override
-        public OperationResultReport executeOperation(LdbcQuery9 operation, DummyDbConnectionState dbConnectionState) throws DbException {
+        public void executeOperation(LdbcQuery9 operation, DummyDbConnectionState dbConnectionState, ResultReporter resultReporter) throws DbException {
             sleep(sleepDurationAsNano);
-            return operation.buildResult(0, DummyLdbcSnbInteractiveOperationResultSets.read9Results());
+            resultReporter.report(0, DummyLdbcSnbInteractiveOperationResultSets.read9Results(), operation);
         }
     }
 
     public static class LdbcQuery10Handler extends OperationHandler<LdbcQuery10, DummyDbConnectionState> {
         @Override
-        public OperationResultReport executeOperation(LdbcQuery10 operation, DummyDbConnectionState dbConnectionState) throws DbException {
+        public void executeOperation(LdbcQuery10 operation, DummyDbConnectionState dbConnectionState, ResultReporter resultReporter) throws DbException {
             sleep(sleepDurationAsNano);
-            return operation.buildResult(0, DummyLdbcSnbInteractiveOperationResultSets.read10Results());
+            resultReporter.report(0, DummyLdbcSnbInteractiveOperationResultSets.read10Results(), operation);
         }
     }
 
     public static class LdbcQuery11Handler extends OperationHandler<LdbcQuery11, DummyDbConnectionState> {
         @Override
-        public OperationResultReport executeOperation(LdbcQuery11 operation, DummyDbConnectionState dbConnectionState) throws DbException {
+        public void executeOperation(LdbcQuery11 operation, DummyDbConnectionState dbConnectionState, ResultReporter resultReporter) throws DbException {
             sleep(sleepDurationAsNano);
-            return operation.buildResult(0, DummyLdbcSnbInteractiveOperationResultSets.read11Results());
+            resultReporter.report(0, DummyLdbcSnbInteractiveOperationResultSets.read11Results(), operation);
         }
     }
 
     public static class LdbcQuery12Handler extends OperationHandler<LdbcQuery12, DummyDbConnectionState> {
         @Override
-        public OperationResultReport executeOperation(LdbcQuery12 operation, DummyDbConnectionState dbConnectionState) throws DbException {
+        public void executeOperation(LdbcQuery12 operation, DummyDbConnectionState dbConnectionState, ResultReporter resultReporter) throws DbException {
             sleep(sleepDurationAsNano);
-            return operation.buildResult(0, DummyLdbcSnbInteractiveOperationResultSets.read12Results());
+            resultReporter.report(0, DummyLdbcSnbInteractiveOperationResultSets.read12Results(), operation);
         }
     }
 
     public static class LdbcQuery13Handler extends OperationHandler<LdbcQuery13, DummyDbConnectionState> {
         @Override
-        public OperationResultReport executeOperation(LdbcQuery13 operation, DummyDbConnectionState dbConnectionState) throws DbException {
+        public void executeOperation(LdbcQuery13 operation, DummyDbConnectionState dbConnectionState, ResultReporter resultReporter) throws DbException {
             sleep(sleepDurationAsNano);
-            return operation.buildResult(0, DummyLdbcSnbInteractiveOperationResultSets.read13Results());
+            resultReporter.report(0, DummyLdbcSnbInteractiveOperationResultSets.read13Results(), operation);
         }
     }
 
     public static class LdbcQuery14Handler extends OperationHandler<LdbcQuery14, DummyDbConnectionState> {
         @Override
-        public OperationResultReport executeOperation(LdbcQuery14 operation, DummyDbConnectionState dbConnectionState) throws DbException {
+        public void executeOperation(LdbcQuery14 operation, DummyDbConnectionState dbConnectionState, ResultReporter resultReporter) throws DbException {
             sleep(sleepDurationAsNano);
-            return operation.buildResult(0, DummyLdbcSnbInteractiveOperationResultSets.read14Results());
+            resultReporter.report(0, DummyLdbcSnbInteractiveOperationResultSets.read14Results(), operation);
         }
     }
 
@@ -261,57 +261,57 @@ public class DummyLdbcSnbInteractiveDb extends Db {
 
     public static class LdbcShortQuery1PersonProfileHandler extends OperationHandler<LdbcShortQuery1PersonProfile, DummyDbConnectionState> {
         @Override
-        public OperationResultReport executeOperation(LdbcShortQuery1PersonProfile operation, DummyDbConnectionState dbConnectionState) throws DbException {
+        public void executeOperation(LdbcShortQuery1PersonProfile operation, DummyDbConnectionState dbConnectionState, ResultReporter resultReporter) throws DbException {
             sleep(sleepDurationAsNano);
-            return operation.buildResult(0, DummyLdbcSnbInteractiveOperationResultSets.short1Results());
+            resultReporter.report(0, DummyLdbcSnbInteractiveOperationResultSets.short1Results(), operation);
         }
     }
 
     public static class LdbcShortQuery2PersonPostsHandler extends OperationHandler<LdbcShortQuery2PersonPosts, DummyDbConnectionState> {
         @Override
-        public OperationResultReport executeOperation(LdbcShortQuery2PersonPosts operation, DummyDbConnectionState dbConnectionState) throws DbException {
+        public void executeOperation(LdbcShortQuery2PersonPosts operation, DummyDbConnectionState dbConnectionState, ResultReporter resultReporter) throws DbException {
             sleep(sleepDurationAsNano);
-            return operation.buildResult(0, DummyLdbcSnbInteractiveOperationResultSets.short2Results());
+            resultReporter.report(0, DummyLdbcSnbInteractiveOperationResultSets.short2Results(), operation);
         }
     }
 
     public static class LdbcShortQuery3PersonFriendsHandler extends OperationHandler<LdbcShortQuery3PersonFriends, DummyDbConnectionState> {
         @Override
-        public OperationResultReport executeOperation(LdbcShortQuery3PersonFriends operation, DummyDbConnectionState dbConnectionState) throws DbException {
+        public void executeOperation(LdbcShortQuery3PersonFriends operation, DummyDbConnectionState dbConnectionState, ResultReporter resultReporter) throws DbException {
             sleep(sleepDurationAsNano);
-            return operation.buildResult(0, DummyLdbcSnbInteractiveOperationResultSets.short3Results());
+            resultReporter.report(0, DummyLdbcSnbInteractiveOperationResultSets.short3Results(), operation);
         }
     }
 
     public static class LdbcShortQuery4MessageContentHandler extends OperationHandler<LdbcShortQuery4MessageContent, DummyDbConnectionState> {
         @Override
-        public OperationResultReport executeOperation(LdbcShortQuery4MessageContent operation, DummyDbConnectionState dbConnectionState) throws DbException {
+        public void executeOperation(LdbcShortQuery4MessageContent operation, DummyDbConnectionState dbConnectionState, ResultReporter resultReporter) throws DbException {
             sleep(sleepDurationAsNano);
-            return operation.buildResult(0, DummyLdbcSnbInteractiveOperationResultSets.short4Results());
+            resultReporter.report(0, DummyLdbcSnbInteractiveOperationResultSets.short4Results(), operation);
         }
     }
 
     public static class LdbcShortQuery5MessageCreatorHandler extends OperationHandler<LdbcShortQuery5MessageCreator, DummyDbConnectionState> {
         @Override
-        public OperationResultReport executeOperation(LdbcShortQuery5MessageCreator operation, DummyDbConnectionState dbConnectionState) throws DbException {
+        public void executeOperation(LdbcShortQuery5MessageCreator operation, DummyDbConnectionState dbConnectionState, ResultReporter resultReporter) throws DbException {
             sleep(sleepDurationAsNano);
-            return operation.buildResult(0, DummyLdbcSnbInteractiveOperationResultSets.short5Results());
+            resultReporter.report(0, DummyLdbcSnbInteractiveOperationResultSets.short5Results(), operation);
         }
     }
 
     public static class LdbcShortQuery6MessageForumHandler extends OperationHandler<LdbcShortQuery6MessageForum, DummyDbConnectionState> {
         @Override
-        public OperationResultReport executeOperation(LdbcShortQuery6MessageForum operation, DummyDbConnectionState dbConnectionState) throws DbException {
+        public void executeOperation(LdbcShortQuery6MessageForum operation, DummyDbConnectionState dbConnectionState, ResultReporter resultReporter) throws DbException {
             sleep(sleepDurationAsNano);
-            return operation.buildResult(0, DummyLdbcSnbInteractiveOperationResultSets.short6Results());
+            resultReporter.report(0, DummyLdbcSnbInteractiveOperationResultSets.short6Results(), operation);
         }
     }
 
     public static class LdbcShortQuery7MessageRepliesHandler extends OperationHandler<LdbcShortQuery7MessageReplies, DummyDbConnectionState> {
         @Override
-        public OperationResultReport executeOperation(LdbcShortQuery7MessageReplies operation, DummyDbConnectionState dbConnectionState) throws DbException {
+        public void executeOperation(LdbcShortQuery7MessageReplies operation, DummyDbConnectionState dbConnectionState, ResultReporter resultReporter) throws DbException {
             sleep(sleepDurationAsNano);
-            return operation.buildResult(0, DummyLdbcSnbInteractiveOperationResultSets.short7Results());
+            resultReporter.report(0, DummyLdbcSnbInteractiveOperationResultSets.short7Results(), operation);
         }
     }
 
@@ -321,65 +321,65 @@ public class DummyLdbcSnbInteractiveDb extends Db {
 
     public static class LdbcUpdate1AddPersonHandler extends OperationHandler<LdbcUpdate1AddPerson, DummyDbConnectionState> {
         @Override
-        public OperationResultReport executeOperation(LdbcUpdate1AddPerson operation, DummyDbConnectionState dbConnectionState) throws DbException {
+        public void executeOperation(LdbcUpdate1AddPerson operation, DummyDbConnectionState dbConnectionState, ResultReporter resultReporter) throws DbException {
             sleep(sleepDurationAsNano);
-            return operation.buildResult(0, null);
+            resultReporter.report(0, null, operation);
         }
     }
 
     public static class LdbcUpdate2AddPostLikeHandler extends OperationHandler<LdbcUpdate2AddPostLike, DummyDbConnectionState> {
         @Override
-        public OperationResultReport executeOperation(LdbcUpdate2AddPostLike operation, DummyDbConnectionState dbConnectionState) throws DbException {
+        public void executeOperation(LdbcUpdate2AddPostLike operation, DummyDbConnectionState dbConnectionState, ResultReporter resultReporter) throws DbException {
             sleep(sleepDurationAsNano);
-            return operation.buildResult(0, null);
+            resultReporter.report(0, null, operation);
         }
     }
 
     public static class LdbcUpdate3AddCommentLikeHandler extends OperationHandler<LdbcUpdate3AddCommentLike, DummyDbConnectionState> {
         @Override
-        public OperationResultReport executeOperation(LdbcUpdate3AddCommentLike operation, DummyDbConnectionState dbConnectionState) throws DbException {
+        public void executeOperation(LdbcUpdate3AddCommentLike operation, DummyDbConnectionState dbConnectionState, ResultReporter resultReporter) throws DbException {
             sleep(sleepDurationAsNano);
-            return operation.buildResult(0, null);
+            resultReporter.report(0, null, operation);
         }
     }
 
     public static class LdbcUpdate4AddForumHandler extends OperationHandler<LdbcUpdate4AddForum, DummyDbConnectionState> {
         @Override
-        public OperationResultReport executeOperation(LdbcUpdate4AddForum operation, DummyDbConnectionState dbConnectionState) throws DbException {
+        public void executeOperation(LdbcUpdate4AddForum operation, DummyDbConnectionState dbConnectionState, ResultReporter resultReporter) throws DbException {
             sleep(sleepDurationAsNano);
-            return operation.buildResult(0, null);
+            resultReporter.report(0, null, operation);
         }
     }
 
     public static class LdbcUpdate5AddForumMembershipHandler extends OperationHandler<LdbcUpdate5AddForumMembership, DummyDbConnectionState> {
         @Override
-        public OperationResultReport executeOperation(LdbcUpdate5AddForumMembership operation, DummyDbConnectionState dbConnectionState) throws DbException {
+        public void executeOperation(LdbcUpdate5AddForumMembership operation, DummyDbConnectionState dbConnectionState, ResultReporter resultReporter) throws DbException {
             sleep(sleepDurationAsNano);
-            return operation.buildResult(0, null);
+            resultReporter.report(0, null, operation);
         }
     }
 
     public static class LdbcUpdate6AddPostHandler extends OperationHandler<LdbcUpdate6AddPost, DummyDbConnectionState> {
         @Override
-        public OperationResultReport executeOperation(LdbcUpdate6AddPost operation, DummyDbConnectionState dbConnectionState) throws DbException {
+        public void executeOperation(LdbcUpdate6AddPost operation, DummyDbConnectionState dbConnectionState, ResultReporter resultReporter) throws DbException {
             sleep(sleepDurationAsNano);
-            return operation.buildResult(0, null);
+            resultReporter.report(0, null, operation);
         }
     }
 
     public static class LdbcUpdate7AddCommentHandler extends OperationHandler<LdbcUpdate7AddComment, DummyDbConnectionState> {
         @Override
-        public OperationResultReport executeOperation(LdbcUpdate7AddComment operation, DummyDbConnectionState dbConnectionState) throws DbException {
+        public void executeOperation(LdbcUpdate7AddComment operation, DummyDbConnectionState dbConnectionState, ResultReporter resultReporter) throws DbException {
             sleep(sleepDurationAsNano);
-            return operation.buildResult(0, null);
+            resultReporter.report(0, null, operation);
         }
     }
 
     public static class LdbcUpdate8AddFriendshipHandler extends OperationHandler<LdbcUpdate8AddFriendship, DummyDbConnectionState> {
         @Override
-        public OperationResultReport executeOperation(LdbcUpdate8AddFriendship operation, DummyDbConnectionState dbConnectionState) throws DbException {
+        public void executeOperation(LdbcUpdate8AddFriendship operation, DummyDbConnectionState dbConnectionState, ResultReporter resultReporter) throws DbException {
             sleep(sleepDurationAsNano);
-            return operation.buildResult(0, null);
+            resultReporter.report(0, null, operation);
         }
     }
 }

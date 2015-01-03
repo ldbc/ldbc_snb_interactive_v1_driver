@@ -10,6 +10,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class LdbcShortQuery6MessageForum extends Operation<LdbcShortQuery6MessageForumResult> {
+    public static final int TYPE = 106;
     private static final ObjectMapper objectMapper = new ObjectMapper();
     private final long messageId;
 
@@ -89,6 +90,6 @@ public class LdbcShortQuery6MessageForum extends Operation<LdbcShortQuery6Messag
 
     @Override
     public int type() {
-        return 106;
+        return TYPE;
     }
 }

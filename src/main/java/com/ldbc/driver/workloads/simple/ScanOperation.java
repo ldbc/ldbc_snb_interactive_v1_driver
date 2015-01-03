@@ -8,6 +8,8 @@ import java.util.Map;
 import java.util.Vector;
 
 public class ScanOperation extends Operation<Vector<Map<String, Iterator<Byte>>>> {
+    public static final int TYPE = 5;
+
     private final String table;
     private final String startKey;
     private final int recordCount;
@@ -49,6 +51,6 @@ public class ScanOperation extends Operation<Vector<Map<String, Iterator<Byte>>>
 
     @Override
     public int type() {
-        return 5;
+        return TYPE;
     }
 }

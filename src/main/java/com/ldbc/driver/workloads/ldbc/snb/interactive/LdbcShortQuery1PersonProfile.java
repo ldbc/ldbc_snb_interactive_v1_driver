@@ -11,6 +11,7 @@ import java.util.List;
 
 public class LdbcShortQuery1PersonProfile extends Operation<LdbcShortQuery1PersonProfileResult> {
     private static final ObjectMapper objectMapper = new ObjectMapper();
+    public static final int TYPE = 101;
     private final long personId;
 
     public LdbcShortQuery1PersonProfile(long personId) {
@@ -91,6 +92,6 @@ public class LdbcShortQuery1PersonProfile extends Operation<LdbcShortQuery1Perso
 
     @Override
     public int type() {
-        return 101;
+        return TYPE;
     }
 }
