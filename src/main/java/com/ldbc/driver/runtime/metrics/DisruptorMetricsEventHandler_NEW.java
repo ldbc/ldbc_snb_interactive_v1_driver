@@ -66,7 +66,7 @@ class DisruptorMetricsEventHandler_NEW implements EventHandler<DirectBuffer> {
 
     @Override
     public void onEvent(DirectBuffer event, long l, boolean b) throws Exception {
-        METRICS_EVENT.wrapForDecode(event, 0, actingBlockLength, actingVersion);
+        METRICS_EVENT.wrapForDecode(event, messageHeaderSize, actingBlockLength, actingVersion);
 
         switch (METRICS_EVENT.eventType()) {
             case DisruptorMetricsCollectionEvent.SUBMIT_RESULT: {
