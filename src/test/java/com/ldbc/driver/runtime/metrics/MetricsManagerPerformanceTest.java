@@ -169,14 +169,6 @@ public class MetricsManagerPerformanceTest {
         */
 
     @Test
-    public void test() {
-        System.out.println(Math.round(Math.pow(2, 31)));
-        System.out.println(Integer.MAX_VALUE);
-        System.out.println(Math.round(Math.pow(2, 63)));
-        System.out.println(Long.MAX_VALUE);
-    }
-
-    @Test
     public void maximumThroughputBaseline() throws MetricsCollectionException {
         final long benchmarkStartTime = System.currentTimeMillis();
         for (int startTime = 0; startTime < benchmarkOperationCount; startTime++) {
@@ -548,7 +540,7 @@ public class MetricsManagerPerformanceTest {
     }
 
     @Test
-    public void maximumThroughputDisruptorMetricsService() throws MetricsCollectionException {
+    public void maximumThroughputJavolutionDisruptorMetricsService() throws MetricsCollectionException {
         final ConcurrentErrorReporter errorReporter = new ConcurrentErrorReporter();
         ConcurrentMetricsService metricsService = new DisruptorConcurrentMetricsService(
                 timeSource,
@@ -588,32 +580,79 @@ public class MetricsManagerPerformanceTest {
         metricsService.shutdown();
     }
 
+    // TODO
+    @Test
+    public void maximumThroughputSbeDisruptorMetricsService() throws MetricsCollectionException {
+        final ConcurrentErrorReporter errorReporter = new ConcurrentErrorReporter();
+        ConcurrentMetricsService metricsService = new DisruptorConcurrentMetricsService_NEW(
+                timeSource,
+                errorReporter,
+                timeUnit,
+                highestExpectedRuntimeDurationAsNano,
+                null,
+                LdbcSnbInteractiveConfiguration.operationTypeToClassMapping()
+        );
+        final long benchmarkStartTime = System.currentTimeMillis();
+        for (int startTime = 0; startTime < benchmarkOperationCount; startTime++) {
+            int operationTypeIndex = startTime % operationTypeCount;
+            long duration = durations[startTime % highestExpectedRuntimeDurationAsNano];
+            int operationType = operationTypes[operationTypeIndex];
+            metricsService.submitOperationResult(operationType, startTime, startTime, duration, resultCode);
+        }
+        final WorkloadResultsSnapshot snapshot = metricsService.results();
+        final long benchmarkFinishTime = System.currentTimeMillis();
+        final long benchmarkDurationMs = benchmarkFinishTime - benchmarkStartTime;
+
+        final TemporalUtil temporalUtil = new TemporalUtil();
+        final DecimalFormat decimalFormat = new DecimalFormat("###,###,###,###,###,##0");
+        final double operationsPerMs = benchmarkOperationCount / (double) benchmarkDurationMs;
+        final double operationsPerSecond = operationsPerMs * 1000;
+
+        System.out.println(
+                String.format(
+                        "Completed %s operations in %s --> %s op/s",
+                        decimalFormat.format(benchmarkOperationCount),
+                        temporalUtil.milliDurationToString(benchmarkDurationMs),
+                        decimalFormat.format(operationsPerSecond)
+                )
+        );
+
+        final WorkloadMetricsFormatter formatter = new SimpleWorkloadMetricsFormatter();
+        System.out.println(formatter.format(snapshot));
+        metricsService.shutdown();
+    }
+
     /*
-    Disruptor - BlockingWaitStrategy
+    Disruptor - Javolution - BlockingWaitStrategy
         DisruptorConcurrentMetricsService 1 threads 1,000,000,000 operations in 01:40.084.000 (m:s.ms.us) --> 9,991,607 op/s
         DisruptorConcurrentMetricsService 2 threads 1,000,000,000 operations in 01:19.931.000 (m:s.ms.us) --> 12,510,791 op/s
         DisruptorConcurrentMetricsService 4 threads 1,000,000,000 operations in 02:37.760.000 (m:s.ms.us) --> 6,338,742 op/s
         DisruptorConcurrentMetricsService 8 threads 1,000,000,000 operations in 02:47.957.000 (m:s.ms.us) --> 5,953,905 op/s
-    Disruptor - LiteBlockingWaitStrategy
+    Disruptor - Javolution - LiteBlockingWaitStrategy
         DisruptorConcurrentMetricsService 1 threads 1,000,000,000 operations in 01:18.993.000 (m:s.ms.us) --> 12,659,350 op/s
         DisruptorConcurrentMetricsService 2 threads 1,000,000,000 operations in 01:33.577.000 (m:s.ms.us) --> 10,686,387 op/s
         DisruptorConcurrentMetricsService 4 threads 1,000,000,000 operations in 01:28.682.000 (m:s.ms.us) --> 11,276,245 op/s
         DisruptorConcurrentMetricsService 8 threads 1,000,000,000 operations in 01:58.724.000 (m:s.ms.us) --> 8,422,897 op/s
-    Disruptor - SleepingWaitStrategy
+    Disruptor - Javolution - SleepingWaitStrategy
         DisruptorConcurrentMetricsService 1 threads 1,000,000,000 operations in 01:36.366.000 (m:s.ms.us) --> 10,377,104 op/s
         DisruptorConcurrentMetricsService 2 threads 1,000,000,000 operations in 01:20.450.000 (m:s.ms.us) --> 12,430,081 op/s
         DisruptorConcurrentMetricsService 4 threads 1,000,000,000 operations in 01:21.367.000 (m:s.ms.us) --> 12,289,995 op/s
         DisruptorConcurrentMetricsService 8 threads 1,000,000,000 operations in 01:40.621.000 (m:s.ms.us) --> 9,938,283 op/s
+
+    Disruptor - SBE - LiteBlockingWaitStrategy
+
     LinkedBlockingQueue: Bounded Blocking
         ThreadedQueuedConcurrentMetricsService 1 threads 1,000,000,000 operations in 03:23.162.000 (m:s.ms.us) --> 4,922,180 op/s
         ThreadedQueuedConcurrentMetricsService 2 threads 1,000,000,000 operations in 04:55.122.000 (m:s.ms.us) --> 3,388,429 op/s
         ThreadedQueuedConcurrentMetricsService 4 threads 1,000,000,000 operations in 04:23.480.000 (m:s.ms.us) --> 3,795,354 op/s
         ThreadedQueuedConcurrentMetricsService 8 threads 1,000,000,000 operations in 04:28.738.000 (m:s.ms.us) --> 3,721,096 op/s
+
     ArrayBlockingQueue: Bounded Blocking
         ThreadedQueuedConcurrentMetricsService 1 threads 1,000,000,000 operations in 04:21.546.000 (m:s.ms.us) --> 3,823,419 op/s
         ThreadedQueuedConcurrentMetricsService 2 threads 1,000,000,000 operations in 02:10.107.000 (m:s.ms.us) --> 7,685,982 op/s
         ThreadedQueuedConcurrentMetricsService 4 threads 1,000,000,000 operations in 02:03.633.000 (m:s.ms.us) --> 8,088,455 op/s
         ThreadedQueuedConcurrentMetricsService 8 threads 1,000,000,000 operations in 02:32.904.000 (m:s.ms.us) --> 6,540,051 op/s
+
     JCTools MPSC: Bounded Non-Blocking - LockSupport.parkNanos(1)
         ThreadedQueuedConcurrentMetricsService 1 threads 1,000,000,000 operations in 00:30.147.000 (m:s.ms.us) --> 33,170,796 op/s
         ThreadedQueuedConcurrentMetricsService 2 threads 1,000,000,000 operations in 01:16.771.000 (m:s.ms.us) --> 13,025,752 op/s
@@ -632,6 +671,7 @@ public class MetricsManagerPerformanceTest {
         CountDownLatch readyLatch = new CountDownLatch(threadCount);
         CountDownLatch startLatch = new CountDownLatch(1);
         CountDownLatch stopLatch = new CountDownLatch(threadCount);
+
 //        ConcurrentMetricsService metricsService = new DisruptorConcurrentMetricsService(
 //                timeSource,
 //                errorReporter,
@@ -640,7 +680,8 @@ public class MetricsManagerPerformanceTest {
 //                null,
 //                LdbcSnbInteractiveConfiguration.operationTypeToClassMapping()
 //        );
-        ConcurrentMetricsService metricsService = ThreadedQueuedConcurrentMetricsService.newInstanceUsingNonBlockingBoundedQueue(
+
+        ConcurrentMetricsService metricsService = new DisruptorConcurrentMetricsService_NEW(
                 timeSource,
                 errorReporter,
                 timeUnit,
@@ -648,6 +689,16 @@ public class MetricsManagerPerformanceTest {
                 null,
                 LdbcSnbInteractiveConfiguration.operationTypeToClassMapping()
         );
+
+//        ConcurrentMetricsService metricsService = ThreadedQueuedConcurrentMetricsService.newInstanceUsingNonBlockingBoundedQueue(
+//                timeSource,
+//                errorReporter,
+//                timeUnit,
+//                highestExpectedRuntimeDurationAsNano,
+//                null,
+//                LdbcSnbInteractiveConfiguration.operationTypeToClassMapping()
+//        );
+
         for (int i = 0; i < threadCount; i++) {
             new MetricsServiceWriterThread(
                     metricsService,
