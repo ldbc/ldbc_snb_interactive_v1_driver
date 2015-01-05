@@ -21,8 +21,6 @@ import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.atomic.AtomicStampedReference;
 import java.util.concurrent.locks.LockSupport;
 
-import static com.ldbc.driver.runtime.metrics.DisruptorMetricsCollectionEvent.SET_AS_REQUEST_WORKLOAD_RESULT;
-
 @Ignore
 public class MetricsManagerPerformanceTest {
     final static LdbcQuery1 LDBC_QUERY_1 = new LdbcQuery1(1, null, 2);
@@ -169,6 +167,14 @@ public class MetricsManagerPerformanceTest {
         ========================================================================================
 
         */
+
+    @Test
+    public void test() {
+        System.out.println(Math.round(Math.pow(2, 31)));
+        System.out.println(Integer.MAX_VALUE);
+        System.out.println(Math.round(Math.pow(2, 63)));
+        System.out.println(Long.MAX_VALUE);
+    }
 
     @Test
     public void maximumThroughputBaseline() throws MetricsCollectionException {
@@ -395,7 +401,7 @@ public class MetricsManagerPerformanceTest {
         int oldStamp = resultsSnapshotReference.getStamp();
         DisruptorMetricsCollectionEvent snapshotEvent = new DisruptorMetricsCollectionEvent();
         snapshotEvent.setEventType(DisruptorMetricsCollectionEvent.WORKLOAD_RESULT);
-        eventHandler.onEvent(snapshotEvent,1,true);
+        eventHandler.onEvent(snapshotEvent, 1, true);
         while (resultsSnapshotReference.getStamp() <= oldStamp) {
             LockSupport.parkNanos(TimeUnit.MILLISECONDS.toNanos(1));
         }

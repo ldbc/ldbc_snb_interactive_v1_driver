@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<sbe:messageSchema xmlns:sbe="http://www.fixprotocol.org/ns/simple/1.0"
+                   package="com.ldbc.driver.runtime.metrics.event"
+                   id="1"
+                   version="0"
+                   semanticVersion="5.2"
+                   description="Event for performance metrics encapsulation"
+                   byteOrder="littleEndian">
+    <types>
+        <composite name="messageHeader" description="Message identifiers and length of message root">
+            <type name="blockLength" primitiveType="uint16"/>
+            <type name="templateId" primitiveType="uint16"/>
+            <type name="schemaId" primitiveType="uint16"/>
+            <type name="version" primitiveType="uint16"/>
+        </composite>
+        <composite name="groupSizeEncoding" description="Repeating group dimensions">
+            <type name="blockLength" primitiveType="uint16"/>
+            <type name="numInGroup" primitiveType="uint8"/>
+        </composite>
+        <composite name="varDataEncoding">
+            <type name="length" primitiveType="uint8"/>
+            <type name="varData" primitiveType="uint8" length="0" characterEncoding="UTF-8"/>
+        </composite>
+    </types>
+    <types>
+        <type name="ModelYear" primitiveType="uint16"/>
+    </types>
+    <sbe:message name="MetricsEvent" id="1" description="Performance metrics of an operation execution">
+        <field name="eventType" id="1" type="uint8"/>
+        <field name="operationType" id="2" type="uint16"/>
+        <field name="scheduledStartTimeAsMilli" id="3" type="uint32"/>
+        <field name="actualStartTimeAsMilli" id="4" type="uint32"/>
+        <field name="runDurationAsNano" id="5" type="uint32"/>
+        <field name="resultCode" id="6" type="uint16"/>
+    </sbe:message>
+</sbe:messageSchema>

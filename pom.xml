@@ -32,9 +32,15 @@
         <disruptor-version>3.3.0</disruptor-version>
         <javolution-version>6.0.0</javolution-version>
         <jctools-core-version>1.0</jctools-core-version>
+        <sbe-version>1.0.3-RC2</sbe-version>
     </properties>
 
     <dependencies>
+        <dependency>
+            <groupId>uk.co.real-logic</groupId>
+            <artifactId>sbe</artifactId>
+            <version>${sbe-version}</version>
+        </dependency>
         <dependency>
             <groupId>org.jctools</groupId>
             <artifactId>jctools-core</artifactId>
