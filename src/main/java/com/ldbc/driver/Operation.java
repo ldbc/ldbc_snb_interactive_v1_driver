@@ -43,9 +43,9 @@ public abstract class Operation<RESULT_TYPE> {
     @Override
     public String toString() {
         return "Operation{" +
-                "scheduledStartTime=" + temporalutil.millisecondsToDateTimeString(scheduledStartTimeAsMilli) +
-                ", timeStamp=" + temporalutil.millisecondsToDateTimeString(timeStamp) +
-                ", dependencyTimeStamp=" + temporalutil.millisecondsToDateTimeString(dependencyTimeStamp) +
+                "scheduledStartTime=" + temporalutil.milliTimeToDateTimeString(scheduledStartTimeAsMilli) +
+                ", timeStamp=" + temporalutil.milliTimeToDateTimeString(timeStamp) +
+                ", dependencyTimeStamp=" + temporalutil.milliTimeToDateTimeString(dependencyTimeStamp) +
                 '}';
     }
 

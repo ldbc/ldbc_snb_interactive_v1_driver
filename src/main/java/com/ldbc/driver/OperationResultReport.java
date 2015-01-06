@@ -52,7 +52,7 @@ public class OperationResultReport {
                 ", operationResult=" + operationResult +
                 ", operation=" + operation +
                 ", actualStartTimeAsMilli=" + actualStartTimeAsMilli +
-                ", actualStartTime=" + TEMPORAL_UTIL.millisecondsToTimeString(actualStartTimeAsMilli) +
+                ", actualStartTime=" + TEMPORAL_UTIL.milliTimeToTimeString(actualStartTimeAsMilli) +
                 ", runDurationAsNano=" + runDurationAsNano +
                 ", runDuration=" + TEMPORAL_UTIL.nanoDurationToString(runDurationAsNano) +
                 '}';

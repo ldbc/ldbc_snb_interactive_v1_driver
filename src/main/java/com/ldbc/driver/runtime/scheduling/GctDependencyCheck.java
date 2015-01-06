@@ -43,7 +43,7 @@ public class GctDependencyCheck implements SpinnerCheck {
                                     + "Operation: %s\n"
                                     + "Time Stamp: %s\n"
                                     + "Dependency Time Stamp: %s",
-                            TEMPORAL_UTIL.millisecondsToDateTimeString(globalCompletionTimeReader.globalCompletionTimeAsMilli()),
+                            TEMPORAL_UTIL.milliTimeToDateTimeString(globalCompletionTimeReader.globalCompletionTimeAsMilli()),
                             operation.toString(),
                             operation.timeStamp(),
                             operation.dependencyTimeStamp()));
