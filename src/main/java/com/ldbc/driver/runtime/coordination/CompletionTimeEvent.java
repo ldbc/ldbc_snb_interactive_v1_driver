@@ -73,7 +73,7 @@ abstract class CompletionTimeEvent {
             return "InitiatedEvent{" +
                     "localCompletionTimeWriterId=" + localCompletionTimeWriterId +
                     ", timeAsMilli=" + timeAsMilli +
-                    ", time=" + TEMPORAL_UTIL.millisecondsToTimeString(timeAsMilli) +
+                    ", time=" + TEMPORAL_UTIL.milliTimeToTimeString(timeAsMilli) +
                     '}';
         }
     }
@@ -106,7 +106,7 @@ abstract class CompletionTimeEvent {
             return "InitiatedEvent{" +
                     "localCompletionTimeWriterId=" + localCompletionTimeWriterId +
                     ", timeAsMilli=" + timeAsMilli +
-                    ", time=" + TEMPORAL_UTIL.millisecondsToTimeString(timeAsMilli) +
+                    ", time=" + TEMPORAL_UTIL.milliTimeToTimeString(timeAsMilli) +
                     '}';
         }
     }
@@ -138,7 +138,7 @@ abstract class CompletionTimeEvent {
         public String toString() {
             return "ExternalCompletionTimeEvent{" +
                     "timeAsMilli=" + timeAsMilli +
-                    ", time=" + TEMPORAL_UTIL.millisecondsToTimeString(timeAsMilli) +
+                    ", time=" + TEMPORAL_UTIL.milliTimeToTimeString(timeAsMilli) +
                     ", peerId='" + peerId + '\'' +
                     '}';
         }

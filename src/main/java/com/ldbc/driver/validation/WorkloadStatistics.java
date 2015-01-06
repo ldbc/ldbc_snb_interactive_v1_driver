@@ -153,7 +153,7 @@ public class WorkloadStatistics {
         sb.append(String.format("%1$-" + padRightDistance + "s", "     Total Duration:")).append(temporalUtil.milliDurationToString(totalDurationAsMilli())).append("\n");
         sb.append(String.format("%1$-" + padRightDistance + "s", "     Throughput:")).append(floatFormat.format(opsPerS)).append(" (op/s)\n");
         sb.append(String.format("%1$-" + padRightDistance + "s", "     Unique Operation Types:")).append(integralFormat.format(operationTypeCount())).append("\n");
-        sb.append(String.format("%1$-" + padRightDistance + "s", "     Time Span:")).append(temporalUtil.millisecondsToDateTimeString(firstStartTimeAsMilli())).append(" ===> ").append(temporalUtil.millisecondsToDateTimeString(lastStartTimeAsMilli())).append("\n");
+        sb.append(String.format("%1$-" + padRightDistance + "s", "     Time Span:")).append(temporalUtil.milliTimeToDateTimeString(firstStartTimeAsMilli())).append(" ===> ").append(temporalUtil.milliTimeToDateTimeString(lastStartTimeAsMilli())).append("\n");
         sb.append("     Operation Mix:\n");
 
         List<Map.Entry<Bucket<Class>, Long>> absoluteOperationMixEntryList = Lists.newArrayList(MapUtils.sortedEntries(operationMix().getAllBuckets()));
@@ -236,7 +236,7 @@ public class WorkloadStatistics {
                 ContinuousMetricSnapshot interleavesForOperationTypeSnapshot = operationInterleavesByOperationType().get(operationType).snapshot();
                 sb.
                         append("Time Span(").
-                        append(temporalUtil.millisecondsToTimeString(firstStartAsMilliTypeForOperationType)).append(", ").append(temporalUtil.millisecondsToTimeString(lastStartAsMilliTypeForOperationType)).append(") ").
+                        append(temporalUtil.milliTimeToTimeString(firstStartAsMilliTypeForOperationType)).append(", ").append(temporalUtil.milliTimeToTimeString(lastStartAsMilliTypeForOperationType)).append(") ").
                         append("Interleave(").
                         append("min = ").append(temporalUtil.milliDurationToString(interleavesForOperationTypeSnapshot.min())).append(" / ").
                         append("mean = ").append(temporalUtil.milliDurationToString(Math.round(interleavesForOperationTypeSnapshot.mean()))).append(" / ").

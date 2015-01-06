@@ -45,7 +45,7 @@ public class LocalControlService implements ConcurrentControlService {
 
     @Override
     public String toString() {
-        return "Workload Start Time:\t" + temporalUtil.millisecondsToDateTimeString(workloadStartTimeAsMilli) + "\n" +
+        return "Workload Start Time:\t" + temporalUtil.milliTimeToDateTimeString(workloadStartTimeAsMilli) + "\n" +
                 configuration.toString();
     }
 }

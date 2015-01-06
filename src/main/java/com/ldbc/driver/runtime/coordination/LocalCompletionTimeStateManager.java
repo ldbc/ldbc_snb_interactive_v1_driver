@@ -208,8 +208,8 @@ public class LocalCompletionTimeStateManager implements LocalCompletionTimeReade
                 String errMsg = String.format("Submitted initiated time is lower than previously submitted initiated time\n"
                                 + "  Submitted: %s (%s ms)\n"
                                 + "  Previous: %s (%s ms)",
-                        temporalUtil.millisecondsToDateTimeString(initiatedTimeAsMilli), initiatedTimeAsMilli,
-                        temporalUtil.millisecondsToDateTimeString(highestInitiatedTimeAsMilli), highestInitiatedTimeAsMilli
+                        temporalUtil.milliTimeToDateTimeString(initiatedTimeAsMilli), initiatedTimeAsMilli,
+                        temporalUtil.milliTimeToDateTimeString(highestInitiatedTimeAsMilli), highestInitiatedTimeAsMilli
                 );
                 throw new CompletionTimeException(errMsg);
             }
@@ -251,9 +251,9 @@ public class LocalCompletionTimeStateManager implements LocalCompletionTimeReade
             return "LocalInitiatedTimeTrackerImpl{" +
                     "initiatedTimesAsMilli=" + initiatedTimesAsMilli.toString() +
                     ", lastKnownLowestInitiatedTimeAsMilli=" + lastKnownLowestInitiatedTimeAsMilli +
-                    ", lastKnownLowestInitiatedTimeAsMilli=" + temporalUtil.millisecondsToDateTimeString(lastKnownLowestInitiatedTimeAsMilli) +
+                    ", lastKnownLowestInitiatedTimeAsMilli=" + temporalUtil.milliTimeToDateTimeString(lastKnownLowestInitiatedTimeAsMilli) +
                     ", highestInitiatedTimeAsMilli=" + highestInitiatedTimeAsMilli +
-                    ", highestInitiatedTimeAsMilli=" + temporalUtil.millisecondsToDateTimeString(highestInitiatedTimeAsMilli) +
+                    ", highestInitiatedTimeAsMilli=" + temporalUtil.milliTimeToDateTimeString(highestInitiatedTimeAsMilli) +
                     ", uncompletedInitiatedTimes=" + uncompletedInitiatedTimes +
                     '}';
         }

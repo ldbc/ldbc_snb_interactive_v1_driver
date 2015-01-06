@@ -174,9 +174,9 @@ public class ThreadedQueuedConcurrentCompletionTimeServiceThread extends Thread 
             errorReporter.reportError(
                     this,
                     String.format("New GCT %s / %s smaller than previous GCT %s / %s",
-                            temporalUtil.millisecondsToDateTimeString(newGlobalCompletionTimeAsMilli),
+                            temporalUtil.milliTimeToDateTimeString(newGlobalCompletionTimeAsMilli),
                             newGlobalCompletionTimeAsMilli,
-                            temporalUtil.millisecondsToDateTimeString(prevGlobalCompletionTimeAsMilli),
+                            temporalUtil.milliTimeToDateTimeString(prevGlobalCompletionTimeAsMilli),
                             prevGlobalCompletionTimeAsMilli));
         } else {
             globalCompletionTimeSharedReference.set(newGlobalCompletionTimeAsMilli);

@@ -331,7 +331,7 @@ public class Client {
                                         controlService.workloadStartTimeAsMilli())
                         );
                     }
-                    logger.info("GCT: " + TEMPORAL_UTIL.millisecondsToDateTimeString(completionTimeService.globalCompletionTimeAsMilli()) + " / " + completionTimeService.globalCompletionTimeAsMilli());
+                    logger.info("GCT: " + TEMPORAL_UTIL.milliTimeToDateTimeString(completionTimeService.globalCompletionTimeAsMilli()) + " / " + completionTimeService.globalCompletionTimeAsMilli());
                 }
             } catch (CompletionTimeException e) {
                 throw new ClientException("Error while writing initial initiated and completed times to Completion Time Service", e);

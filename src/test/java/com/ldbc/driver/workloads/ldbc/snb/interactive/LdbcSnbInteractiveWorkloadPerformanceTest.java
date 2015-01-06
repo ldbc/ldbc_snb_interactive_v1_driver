@@ -169,7 +169,7 @@ public class LdbcSnbInteractiveWorkloadPerformanceTest {
         );
 
         for (File streamDir : streamsDirs) {
-            List<Integer> threadCounts = Lists.newArrayList(1, 2, 4);
+            List<Integer> threadCounts = Lists.newArrayList(1);
             long operationCount = 50000000;
             for (int threadCount : threadCounts) {
                 doWithTimesPerformanceTest(
@@ -205,7 +205,7 @@ public class LdbcSnbInteractiveWorkloadPerformanceTest {
             paramsMap.put(LdbcSnbInteractiveConfiguration.PARAMETERS_DIRECTORY, parametersDir);
             paramsMap.put(LdbcSnbInteractiveConfiguration.UPDATES_DIRECTORY, updateStreamsDir);
             paramsMap.put(LdbcSnbInteractiveConfiguration.UPDATE_STREAM_PARSER, LdbcSnbInteractiveConfiguration.UpdateStreamParser.CHAR_SEEKER.name());
-            paramsMap.put(DummyLdbcSnbInteractiveDb.SLEEP_DURATION_NANO_ARG, Long.toString(TimeUnit.MICROSECONDS.toNanos(10)));
+            paramsMap.put(DummyLdbcSnbInteractiveDb.SLEEP_DURATION_NANO_ARG, Long.toString(TimeUnit.MICROSECONDS.toNanos(0)));
             paramsMap.put(DummyLdbcSnbInteractiveDb.SLEEP_TYPE_ARG, DummyLdbcSnbInteractiveDb.SleepType.SPIN.name());
             // Driver-specific parameters
             String dbClassName = DummyLdbcSnbInteractiveDb.class.getName();

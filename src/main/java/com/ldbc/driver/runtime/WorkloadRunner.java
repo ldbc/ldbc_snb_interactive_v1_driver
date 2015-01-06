@@ -56,7 +56,7 @@ public class WorkloadRunner {
 
         this.spinner = new Spinner(timeSource, spinnerSleepDurationAsMilli, ignoreScheduleStartTimes);
 
-        boolean detailedStatus = true;
+        boolean detailedStatus = false;
         if (statusDisplayIntervalAsSeconds > 0) {
             this.workloadStatusThread = new WorkloadStatusThread(
                     TimeUnit.SECONDS.toMillis(statusDisplayIntervalAsSeconds),
