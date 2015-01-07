@@ -56,12 +56,12 @@ public class Spinner {
 
     // sleep to reduce CPU load while spinning
     // NOTE: longer sleep == lower scheduling accuracy AND lower achievable throughput
-    public static void powerNap(long sleepMs) throws RuntimeException {
+    public static void powerNap(long sleepMs) {
         if (0 == sleepMs) return;
         try {
             Thread.sleep(sleepMs);
         } catch (InterruptedException e) {
-            throw new RuntimeException(e);
+            // do nothing
         }
     }
 
