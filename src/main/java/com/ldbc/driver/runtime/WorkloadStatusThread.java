@@ -43,7 +43,7 @@ class WorkloadStatusThread extends Thread {
 
     @Override
     public void run() {
-        EvictingQueue<OperationCountAtDuration> operationCountsAtDurations = EvictingQueue.create(3);
+        EvictingQueue<OperationCountAtDuration> operationCountsAtDurations = EvictingQueue.create(5);
         while (continueRunning.get()) {
             try {
                 WorkloadStatusSnapshot status = metricsService.status();
