@@ -38,7 +38,6 @@ public class Client {
     private static final long RANDOM_SEED = 42;
 
     public static void main(String[] args) throws ClientException {
-        TemporalUtil temporalUtil = new TemporalUtil();
         ConcurrentControlService controlService = null;
         try {
             TimeSource systemTimeSource = new SystemTimeSource();
@@ -213,7 +212,7 @@ public class Client {
 
             if (null != controlService.configuration().resultDirPath() && controlService.configuration().shouldCreateResultsLog()) {
                 File resultDir = new File(controlService.configuration().resultDirPath());
-                File resultsLog = new File(resultDir, controlService.configuration().name() + ThreadedQueuedConcurrentMetricsService.RESULTS_LOG_FILENAME_SUFFIX);
+                File resultsLog = new File(resultDir, controlService.configuration().name() + ThreadedQueuedMetricsService.RESULTS_LOG_FILENAME_SUFFIX);
                 try {
                     csvResultsLogFileWriter = new SimpleCsvFileWriter(resultsLog, SimpleCsvFileWriter.DEFAULT_COLUMN_SEPARATOR);
 
@@ -254,11 +253,19 @@ public class Client {
 //                        ThreadedQueuedConcurrentMetricsService.DEFAULT_HIGHEST_EXPECTED_RUNTIME_DURATION_AS_NANO,
 //                        csvResultsLogFileWriter,
 //                        workload.operationTypeToClassMapping(controlService.configuration().asMap()));
-                metricsService = new DisruptorConcurrentMetricsService(
+//                metricsService = new DisruptorJavolutionMetricsService(
+//                        timeSource,
+//                        errorReporter,
+//                        controlService.configuration().timeUnit(),
+//                        DisruptorJavolutionMetricsService.DEFAULT_HIGHEST_EXPECTED_RUNTIME_DURATION_AS_NANO,
+//                        csvResultsLogFileWriter,
+//                        workload.operationTypeToClassMapping(controlService.configuration().asMap())
+//                );
+                metricsService = new DisruptorSbeMetricsService(
                         timeSource,
                         errorReporter,
                         controlService.configuration().timeUnit(),
-                        DisruptorConcurrentMetricsService.DEFAULT_HIGHEST_EXPECTED_RUNTIME_DURATION_AS_NANO,
+                        DisruptorSbeMetricsService.DEFAULT_HIGHEST_EXPECTED_RUNTIME_DURATION_AS_NANO,
                         csvResultsLogFileWriter,
                         workload.operationTypeToClassMapping(controlService.configuration().asMap())
                 );
@@ -295,7 +302,7 @@ public class Client {
                         controlService.configuration().spinnerSleepDurationAsMilli(),
                         controlService.configuration().ignoreScheduledStartTimes(),
                         operationHandlerExecutorsBoundedQueueSize);
-            } catch (WorkloadException e) {
+            } catch (Exception e) {
                 throw new ClientException(String.format("Error instantiating %s", WorkloadRunner.class.getSimpleName()), e);
             }
 
@@ -370,7 +377,7 @@ public class Client {
             logger.info("Shutting down metrics collection service...");
             WorkloadResultsSnapshot workloadResults;
             try {
-                workloadResults = metricsService.results();
+                workloadResults = metricsService.getWriter().results();
                 metricsService.shutdown();
             } catch (MetricsCollectionException e) {
                 throw new ClientException("Error during shutdown of metrics collection service", e);
@@ -381,10 +388,10 @@ public class Client {
                 MetricsManager.export(workloadResults, new SimpleWorkloadMetricsFormatter(), System.out, Charsets.UTF_8);
                 if (null != controlService.configuration().resultDirPath()) {
                     File resultDir = new File(controlService.configuration().resultDirPath());
-                    File resultFile = new File(resultDir, controlService.configuration().name() + ThreadedQueuedConcurrentMetricsService.RESULTS_METRICS_FILENAME_SUFFIX);
+                    File resultFile = new File(resultDir, controlService.configuration().name() + ThreadedQueuedMetricsService.RESULTS_METRICS_FILENAME_SUFFIX);
                     MetricsManager.export(workloadResults, new JsonWorkloadMetricsFormatter(), new FileOutputStream(resultFile), Charsets.UTF_8);
 
-                    File configurationFile = new File(resultDir, controlService.configuration().name() + ThreadedQueuedConcurrentMetricsService.RESULTS_CONFIGURATION_FILENAME_SUFFIX);
+                    File configurationFile = new File(resultDir, controlService.configuration().name() + ThreadedQueuedMetricsService.RESULTS_CONFIGURATION_FILENAME_SUFFIX);
                     try (PrintStream out = new PrintStream(new FileOutputStream(configurationFile))) {
                         out.print(controlService.configuration().toPropertiesString());
                     } catch (DriverConfigurationException e) {

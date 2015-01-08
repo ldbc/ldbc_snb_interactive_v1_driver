@@ -10,7 +10,7 @@ import java.util.Map;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicStampedReference;
 
-class DisruptorMetricsEventHandler implements EventHandler<DisruptorMetricsCollectionEvent> {
+class DisruptorJavolutionMetricsEventHandler implements EventHandler<DisruptorJavolutionMetricsEvent> {
     private final AtomicStampedReference<WorkloadStatusSnapshot> statusSnapshotReference = new AtomicStampedReference<>(null, 0);
     private final AtomicStampedReference<WorkloadResultsSnapshot> resultsSnapshotReference = new AtomicStampedReference<>(null, 0);
 
@@ -21,12 +21,12 @@ class DisruptorMetricsEventHandler implements EventHandler<DisruptorMetricsColle
     private long processedEventCount = 0l;
     private final String[] operationNames;
 
-    DisruptorMetricsEventHandler(ConcurrentErrorReporter errorReporter,
-                                 SimpleCsvFileWriter csvResultsLogWriter,
-                                 TimeUnit unit,
-                                 TimeSource timeSource,
-                                 long maxRuntimeDurationAsNano,
-                                 Map<Integer, Class<? extends Operation<?>>> operationTypeToClassMapping) throws MetricsCollectionException {
+    DisruptorJavolutionMetricsEventHandler(ConcurrentErrorReporter errorReporter,
+                                           SimpleCsvFileWriter csvResultsLogWriter,
+                                           TimeUnit unit,
+                                           TimeSource timeSource,
+                                           long maxRuntimeDurationAsNano,
+                                           Map<Integer, Class<? extends Operation<?>>> operationTypeToClassMapping) throws MetricsCollectionException {
         this.errorReporter = errorReporter;
         this.csvResultsLogWriter = csvResultsLogWriter;
         this.unit = unit;
@@ -51,9 +51,9 @@ class DisruptorMetricsEventHandler implements EventHandler<DisruptorMetricsColle
     }
 
     @Override
-    public void onEvent(DisruptorMetricsCollectionEvent event, long l, boolean b) throws Exception {
+    public void onEvent(DisruptorJavolutionMetricsEvent event, long l, boolean b) throws Exception {
         switch (event.eventType()) {
-            case DisruptorMetricsCollectionEvent.SUBMIT_RESULT: {
+            case DisruptorJavolutionMetricsEvent.SUBMIT_RESULT: {
                 if (null != csvResultsLogWriter) {
                     csvResultsLogWriter.writeRow(
                             operationNames[event.operationType()],
@@ -67,7 +67,7 @@ class DisruptorMetricsEventHandler implements EventHandler<DisruptorMetricsColle
                 processedEventCount++;
                 break;
             }
-            case DisruptorMetricsCollectionEvent.WORKLOAD_STATUS: {
+            case DisruptorJavolutionMetricsEvent.WORKLOAD_STATUS: {
                 WorkloadStatusSnapshot newStatus = metricsManager.status();
                 WorkloadStatusSnapshot oldStatus;
                 int oldStamp;
@@ -78,7 +78,7 @@ class DisruptorMetricsEventHandler implements EventHandler<DisruptorMetricsColle
                 while (false == statusSnapshotReference.compareAndSet(oldStatus, newStatus, oldStamp, oldStamp + 1));
                 break;
             }
-            case DisruptorMetricsCollectionEvent.WORKLOAD_RESULT: {
+            case DisruptorJavolutionMetricsEvent.WORKLOAD_RESULT: {
                 WorkloadResultsSnapshot newResults = metricsManager.snapshot();
                 WorkloadResultsSnapshot oldResults;
                 int oldStamp;

@@ -10,6 +10,8 @@ import com.lmax.disruptor.TimeoutException;
 import com.lmax.disruptor.dsl.Disruptor;
 import com.lmax.disruptor.dsl.ProducerType;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
@@ -18,9 +20,9 @@ import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.atomic.AtomicStampedReference;
 import java.util.concurrent.locks.LockSupport;
 
-import static com.ldbc.driver.runtime.metrics.DisruptorMetricsCollectionEvent.*;
+import static com.ldbc.driver.runtime.metrics.DisruptorJavolutionMetricsEvent.*;
 
-public class DisruptorConcurrentMetricsService implements ConcurrentMetricsService {
+public class DisruptorJavolutionMetricsService implements ConcurrentMetricsService {
     private static final long SHUTDOWN_WAIT_TIMEOUT_AS_MILLI = TimeUnit.SECONDS.toMillis(10);
 
     public static final String RESULTS_LOG_FILENAME_SUFFIX = "-results_log.csv";
@@ -33,11 +35,12 @@ public class DisruptorConcurrentMetricsService implements ConcurrentMetricsServi
     private final AtomicLong initiatedEvents = new AtomicLong(0);
     private final AtomicBoolean shutdown = new AtomicBoolean(false);
     private final TimeSource timeSource;
-    private final RingBuffer<DisruptorMetricsCollectionEvent> ringBuffer;
-    private final Disruptor<DisruptorMetricsCollectionEvent> disruptor;
-    private final DisruptorMetricsEventHandler eventHandler;
+    private final RingBuffer<DisruptorJavolutionMetricsEvent> ringBuffer;
+    private final Disruptor<DisruptorJavolutionMetricsEvent> disruptor;
+    private final DisruptorJavolutionMetricsEventHandler eventHandler;
+    private final List<DisruptorJavolutionConcurrentMetricsServiceWriter> metricsServiceWriters;
 
-    public DisruptorConcurrentMetricsService(TimeSource timeSource,
+    public DisruptorJavolutionMetricsService(TimeSource timeSource,
                                              ConcurrentErrorReporter errorReporter,
                                              TimeUnit timeUnit,
                                              long maxRuntimeDurationAsNano,
@@ -63,7 +66,7 @@ public class DisruptorConcurrentMetricsService implements ConcurrentMetricsServi
         );
 
         // Connect the handler
-        eventHandler = new DisruptorMetricsEventHandler(
+        eventHandler = new DisruptorJavolutionMetricsEventHandler(
                 errorReporter,
                 csvResultsLogWriter,
                 timeUnit,
@@ -81,49 +84,7 @@ public class DisruptorConcurrentMetricsService implements ConcurrentMetricsServi
         ringBuffer = disruptor.start();
 
         this.timeSource = timeSource;
-    }
-
-    @Override
-    public void submitOperationResult(
-            int operationType,
-            long scheduledStartTimeAsMilli,
-            long actualStartTimeAsMilli,
-            long runDurationAsNano,
-            int resultCode
-    ) throws MetricsCollectionException {
-        if (shutdown.get()) {
-            throw new MetricsCollectionException("Can not submit a result after calling shutdown");
-        }
-        initiatedEvents.incrementAndGet();
-        ringBuffer.publishEvent(SET_AS_SUBMIT_OPERATION_RESULT, operationType, scheduledStartTimeAsMilli, actualStartTimeAsMilli, runDurationAsNano, resultCode);
-    }
-
-    @Override
-    public WorkloadStatusSnapshot status() throws MetricsCollectionException {
-        if (shutdown.get()) {
-            throw new MetricsCollectionException("Can not read metrics status after calling shutdown");
-        }
-        AtomicStampedReference<WorkloadStatusSnapshot> statusSnapshotReference = eventHandler.statusSnapshot();
-        int oldStamp = statusSnapshotReference.getStamp();
-        ringBuffer.publishEvent(SET_AS_STATUS);
-        while (statusSnapshotReference.getStamp() <= oldStamp) {
-            LockSupport.parkNanos(TimeUnit.MILLISECONDS.toNanos(100));
-        }
-        return statusSnapshotReference.getReference();
-    }
-
-    @Override
-    public WorkloadResultsSnapshot results() throws MetricsCollectionException {
-        if (shutdown.get()) {
-            throw new MetricsCollectionException("Can not retrieve results after calling shutdown");
-        }
-        AtomicStampedReference<WorkloadResultsSnapshot> resultsSnapshotReference = eventHandler.resultsSnapshot();
-        int oldStamp = resultsSnapshotReference.getStamp();
-        ringBuffer.publishEvent(SET_AS_REQUEST_WORKLOAD_RESULT);
-        while (resultsSnapshotReference.getStamp() <= oldStamp) {
-            LockSupport.parkNanos(TimeUnit.MILLISECONDS.toNanos(100));
-        }
-        return resultsSnapshotReference.getReference();
+        metricsServiceWriters = new ArrayList<>();
     }
 
     @Override
@@ -157,6 +118,82 @@ public class DisruptorConcurrentMetricsService implements ConcurrentMetricsServi
             );
             throw new MetricsCollectionException(errMsg, e);
         }
+        AlreadyShutdownPolicy alreadyShutdownPolicy = new AlreadyShutdownPolicy();
+        for (DisruptorJavolutionConcurrentMetricsServiceWriter metricsServiceWriter: metricsServiceWriters){
+            metricsServiceWriter.setAlreadyShutdownPolicy(alreadyShutdownPolicy);
+        }
         shutdown.set(true);
+    }
+
+    @Override
+    public ConcurrentMetricsServiceWriter getWriter() throws MetricsCollectionException {
+        if (shutdown.get()){
+            throw new MetricsCollectionException("Metrics service has already been shutdown");
+        }
+        DisruptorJavolutionConcurrentMetricsServiceWriter metricsServiceWriter =
+                new DisruptorJavolutionConcurrentMetricsServiceWriter(initiatedEvents, ringBuffer, eventHandler);
+        metricsServiceWriters.add(metricsServiceWriter);
+        return metricsServiceWriter;
+    }
+
+    private static class DisruptorJavolutionConcurrentMetricsServiceWriter implements ConcurrentMetricsServiceWriter {
+        private final AtomicLong initiatedEvents;
+        private final RingBuffer<DisruptorJavolutionMetricsEvent> ringBuffer;
+        private final DisruptorJavolutionMetricsEventHandler eventHandler;
+
+        private AlreadyShutdownPolicy alreadyShutdownPolicy = null;
+
+        private DisruptorJavolutionConcurrentMetricsServiceWriter(AtomicLong initiatedEvents, RingBuffer<DisruptorJavolutionMetricsEvent> ringBuffer, DisruptorJavolutionMetricsEventHandler eventHandler) {
+            this.initiatedEvents = initiatedEvents;
+            this.ringBuffer = ringBuffer;
+            this.eventHandler = eventHandler;
+        }
+
+        private void setAlreadyShutdownPolicy(AlreadyShutdownPolicy alreadyShutdownPolicy) {
+            this.alreadyShutdownPolicy = alreadyShutdownPolicy;
+        }
+
+        @Override
+        public void submitOperationResult(int operationType, long scheduledStartTimeAsMilli, long actualStartTimeAsMilli, long runDurationAsNano, int resultCode) throws MetricsCollectionException {
+            if (null != alreadyShutdownPolicy) {
+                alreadyShutdownPolicy.apply();
+            }
+            initiatedEvents.incrementAndGet();
+            ringBuffer.publishEvent(SET_AS_SUBMIT_OPERATION_RESULT, operationType, scheduledStartTimeAsMilli, actualStartTimeAsMilli, runDurationAsNano, resultCode);
+        }
+
+        @Override
+        public WorkloadStatusSnapshot status() throws MetricsCollectionException {
+            if (null != alreadyShutdownPolicy) {
+                alreadyShutdownPolicy.apply();
+            }
+            AtomicStampedReference<WorkloadStatusSnapshot> statusSnapshotReference = eventHandler.statusSnapshot();
+            int oldStamp = statusSnapshotReference.getStamp();
+            ringBuffer.publishEvent(SET_AS_STATUS);
+            while (statusSnapshotReference.getStamp() <= oldStamp) {
+                LockSupport.parkNanos(TimeUnit.MILLISECONDS.toNanos(100));
+            }
+            return statusSnapshotReference.getReference();
+        }
+
+        @Override
+        public WorkloadResultsSnapshot results() throws MetricsCollectionException {
+            if (null != alreadyShutdownPolicy) {
+                alreadyShutdownPolicy.apply();
+            }
+            AtomicStampedReference<WorkloadResultsSnapshot> resultsSnapshotReference = eventHandler.resultsSnapshot();
+            int oldStamp = resultsSnapshotReference.getStamp();
+            ringBuffer.publishEvent(SET_AS_REQUEST_WORKLOAD_RESULT);
+            while (resultsSnapshotReference.getStamp() <= oldStamp) {
+                LockSupport.parkNanos(TimeUnit.MILLISECONDS.toNanos(100));
+            }
+            return resultsSnapshotReference.getReference();
+        }
+    }
+
+    private static class AlreadyShutdownPolicy {
+        void apply() throws MetricsCollectionException {
+            throw new MetricsCollectionException("Metrics service has already been shutdown");
+        }
     }
 }

@@ -1,16 +1,15 @@
 package com.ldbc.driver.runtime.metrics;
 
-import com.ldbc.driver.Operation;
 import com.lmax.disruptor.EventFactory;
 import com.lmax.disruptor.EventTranslator;
 import com.lmax.disruptor.EventTranslatorVararg;
 import javolution.io.Struct;
 
-public class DisruptorMetricsCollectionEvent extends Struct {
-    public static class MetricsCollectionEventFactory implements EventFactory<DisruptorMetricsCollectionEvent> {
+public class DisruptorJavolutionMetricsEvent extends Struct {
+    public static class MetricsCollectionEventFactory implements EventFactory<DisruptorJavolutionMetricsEvent> {
         @Override
-        public DisruptorMetricsCollectionEvent newInstance() {
-            return new DisruptorMetricsCollectionEvent();
+        public DisruptorJavolutionMetricsEvent newInstance() {
+            return new DisruptorJavolutionMetricsEvent();
         }
     }
 
@@ -28,7 +27,7 @@ public class DisruptorMetricsCollectionEvent extends Struct {
     private final Signed64 runDurationAsNano;
     private final Signed32 resultCode;
 
-    public DisruptorMetricsCollectionEvent() {
+    public DisruptorJavolutionMetricsEvent() {
         this.eventType = new Signed8();
         this.operationType = new Signed32();
         this.scheduledStartTimeAsMilli = new Signed64();
@@ -102,10 +101,10 @@ public class DisruptorMetricsCollectionEvent extends Struct {
                 '}';
     }
 
-    public static final EventTranslatorVararg<DisruptorMetricsCollectionEvent> SET_AS_SUBMIT_OPERATION_RESULT =
-            new EventTranslatorVararg<DisruptorMetricsCollectionEvent>() {
+    public static final EventTranslatorVararg<DisruptorJavolutionMetricsEvent> SET_AS_SUBMIT_OPERATION_RESULT =
+            new EventTranslatorVararg<DisruptorJavolutionMetricsEvent>() {
                 @Override
-                public void translateTo(DisruptorMetricsCollectionEvent event, long l, Object... fields) {
+                public void translateTo(DisruptorJavolutionMetricsEvent event, long l, Object... fields) {
                     event.setEventType(SUBMIT_RESULT);
                     event.setOperationType((int) fields[0]);
                     event.setScheduledStartTimeAsMilli((long) fields[1]);
@@ -115,18 +114,18 @@ public class DisruptorMetricsCollectionEvent extends Struct {
                 }
             };
 
-    public static final EventTranslator<DisruptorMetricsCollectionEvent> SET_AS_STATUS =
-            new EventTranslator<DisruptorMetricsCollectionEvent>() {
+    public static final EventTranslator<DisruptorJavolutionMetricsEvent> SET_AS_STATUS =
+            new EventTranslator<DisruptorJavolutionMetricsEvent>() {
                 @Override
-                public void translateTo(DisruptorMetricsCollectionEvent event, long l) {
+                public void translateTo(DisruptorJavolutionMetricsEvent event, long l) {
                     event.setEventType(WORKLOAD_STATUS);
                 }
             };
 
-    public static final EventTranslator<DisruptorMetricsCollectionEvent> SET_AS_REQUEST_WORKLOAD_RESULT =
-            new EventTranslator<DisruptorMetricsCollectionEvent>() {
+    public static final EventTranslator<DisruptorJavolutionMetricsEvent> SET_AS_REQUEST_WORKLOAD_RESULT =
+            new EventTranslator<DisruptorJavolutionMetricsEvent>() {
                 @Override
-                public void translateTo(DisruptorMetricsCollectionEvent event, long l) {
+                public void translateTo(DisruptorJavolutionMetricsEvent event, long l) {
                     event.setEventType(WORKLOAD_RESULT);
                 }
             };

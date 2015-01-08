@@ -170,7 +170,7 @@ public class LdbcSnbInteractiveWorkloadPerformanceTest {
 
         for (File streamDir : streamsDirs) {
             List<Integer> threadCounts = Lists.newArrayList(1);
-            long operationCount = 50000000;
+            long operationCount = 10000000;
             for (int threadCount : threadCounts) {
                 doWithTimesPerformanceTest(
                         threadCount,
@@ -222,7 +222,8 @@ public class LdbcSnbInteractiveWorkloadPerformanceTest {
             long spinnerSleepDuration = 0;
             boolean printHelp = false;
             boolean ignoreScheduledStartTimes = false;
-            boolean shouldCreateResultsLog = true;
+            // TODO
+            boolean shouldCreateResultsLog = false;
 
             ConsoleAndFileDriverConfiguration configuration = new ConsoleAndFileDriverConfiguration(
                     paramsMap,

@@ -4,6 +4,7 @@ import com.ldbc.driver.Operation;
 import com.ldbc.driver.ResultReporter;
 import com.ldbc.driver.WorkloadException;
 import com.ldbc.driver.runtime.ConcurrentErrorReporter;
+import com.ldbc.driver.runtime.metrics.ConcurrentMetricsService.ConcurrentMetricsServiceWriter;
 import com.ldbc.driver.temporal.SystemTimeSource;
 import com.ldbc.driver.temporal.TimeSource;
 import com.ldbc.driver.util.csv.SimpleCsvFileWriter;
@@ -20,7 +21,7 @@ import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
 
-public class ThreadedQueuedConcurrentMetricsServiceTest {
+public class ThreadedQueuedMetricsServiceTest {
     private TimeSource timeSource = new SystemTimeSource();
 
     @Test
@@ -30,18 +31,18 @@ public class ThreadedQueuedConcurrentMetricsServiceTest {
         Map<Integer, Class<? extends Operation<?>>> operationTypeToClassMapping = new HashMap<>();
         operationTypeToClassMapping.put(LdbcQuery1.TYPE, LdbcQuery1.class);
         operationTypeToClassMapping.put(LdbcQuery2.TYPE, LdbcQuery2.class);
-        ConcurrentMetricsService metricsService = ThreadedQueuedConcurrentMetricsService.newInstanceUsingBlockingBoundedQueue(
+        ConcurrentMetricsService metricsService = ThreadedQueuedMetricsService.newInstanceUsingBlockingBoundedQueue(
                 timeSource,
                 errorReporter,
                 TimeUnit.MILLISECONDS,
-                ThreadedQueuedConcurrentMetricsService.DEFAULT_HIGHEST_EXPECTED_RUNTIME_DURATION_AS_NANO,
+                ThreadedQueuedMetricsService.DEFAULT_HIGHEST_EXPECTED_RUNTIME_DURATION_AS_NANO,
                 csvResultsLogWriter,
                 operationTypeToClassMapping);
 
         metricsService.shutdown();
         boolean exceptionThrown = false;
         try {
-            shouldReturnCorrectMeasurements(metricsService);
+            shouldReturnCorrectMeasurements(metricsService.getWriter());
         } catch (MetricsCollectionException e) {
             exceptionThrown = true;
         }
@@ -55,18 +56,18 @@ public class ThreadedQueuedConcurrentMetricsServiceTest {
         Map<Integer, Class<? extends Operation<?>>> operationTypeToClassMapping = new HashMap<>();
         operationTypeToClassMapping.put(LdbcQuery1.TYPE, LdbcQuery1.class);
         operationTypeToClassMapping.put(LdbcQuery2.TYPE, LdbcQuery2.class);
-        ConcurrentMetricsService metricsService = ThreadedQueuedConcurrentMetricsService.newInstanceUsingNonBlockingBoundedQueue(
+        ConcurrentMetricsService metricsService = ThreadedQueuedMetricsService.newInstanceUsingNonBlockingBoundedQueue(
                 timeSource,
                 errorReporter,
                 TimeUnit.MILLISECONDS,
-                ThreadedQueuedConcurrentMetricsService.DEFAULT_HIGHEST_EXPECTED_RUNTIME_DURATION_AS_NANO,
+                ThreadedQueuedMetricsService.DEFAULT_HIGHEST_EXPECTED_RUNTIME_DURATION_AS_NANO,
                 csvResultsLogWriter,
                 operationTypeToClassMapping);
 
         metricsService.shutdown();
         boolean exceptionThrown = false;
         try {
-            shouldReturnCorrectMeasurements(metricsService);
+            shouldReturnCorrectMeasurements(metricsService.getWriter());
         } catch (MetricsCollectionException e) {
             exceptionThrown = true;
         }
@@ -80,15 +81,15 @@ public class ThreadedQueuedConcurrentMetricsServiceTest {
         Map<Integer, Class<? extends Operation<?>>> operationTypeToClassMapping = new HashMap<>();
         operationTypeToClassMapping.put(LdbcQuery1.TYPE, LdbcQuery1.class);
         operationTypeToClassMapping.put(LdbcQuery2.TYPE, LdbcQuery2.class);
-        ConcurrentMetricsService metricsService = ThreadedQueuedConcurrentMetricsService.newInstanceUsingBlockingBoundedQueue(
+        ConcurrentMetricsService metricsService = ThreadedQueuedMetricsService.newInstanceUsingBlockingBoundedQueue(
                 timeSource,
                 errorReporter,
                 TimeUnit.MILLISECONDS,
-                ThreadedQueuedConcurrentMetricsService.DEFAULT_HIGHEST_EXPECTED_RUNTIME_DURATION_AS_NANO,
+                ThreadedQueuedMetricsService.DEFAULT_HIGHEST_EXPECTED_RUNTIME_DURATION_AS_NANO,
                 csvResultsLogWriter,
                 operationTypeToClassMapping);
         try {
-            shouldReturnCorrectMeasurements(metricsService);
+            shouldReturnCorrectMeasurements(metricsService.getWriter());
         } finally {
             System.out.println(errorReporter.toString());
             metricsService.shutdown();
@@ -102,25 +103,25 @@ public class ThreadedQueuedConcurrentMetricsServiceTest {
         Map<Integer, Class<? extends Operation<?>>> operationTypeToClassMapping = new HashMap<>();
         operationTypeToClassMapping.put(LdbcQuery1.TYPE, LdbcQuery1.class);
         operationTypeToClassMapping.put(LdbcQuery2.TYPE, LdbcQuery2.class);
-        ConcurrentMetricsService metricsService = ThreadedQueuedConcurrentMetricsService.newInstanceUsingBlockingBoundedQueue(
+        ConcurrentMetricsService metricsService = ThreadedQueuedMetricsService.newInstanceUsingBlockingBoundedQueue(
                 timeSource,
                 errorReporter,
                 TimeUnit.MILLISECONDS,
-                ThreadedQueuedConcurrentMetricsService.DEFAULT_HIGHEST_EXPECTED_RUNTIME_DURATION_AS_NANO,
+                ThreadedQueuedMetricsService.DEFAULT_HIGHEST_EXPECTED_RUNTIME_DURATION_AS_NANO,
                 csvResultsLogWriter,
                 operationTypeToClassMapping);
         try {
-            shouldReturnCorrectMeasurements(metricsService);
+            shouldReturnCorrectMeasurements(metricsService.getWriter());
         } finally {
             System.out.println(errorReporter.toString());
             metricsService.shutdown();
         }
     }
 
-    public void shouldReturnCorrectMeasurements(ConcurrentMetricsService metricsService) throws WorkloadException, MetricsCollectionException {
+    public void shouldReturnCorrectMeasurements(ConcurrentMetricsServiceWriter metricsServiceWriter) throws WorkloadException, MetricsCollectionException {
         ResultReporter resultReporter = new ResultReporter.SimpleResultReporter();
-        assertThat(metricsService.results().startTimeAsMilli(), equalTo(-1l));
-        assertThat(metricsService.results().latestFinishTimeAsMilli(), is(-1l));
+        assertThat(metricsServiceWriter.results().startTimeAsMilli(), equalTo(-1l));
+        assertThat(metricsServiceWriter.results().latestFinishTimeAsMilli(), is(-1l));
 
         // scheduled: 1, actual: 2, duration: 1
         Operation<?> operation1 = DummyLdbcSnbInteractiveOperationInstances.read1();
@@ -130,10 +131,10 @@ public class ThreadedQueuedConcurrentMetricsServiceTest {
         long operation1ActualStartTime = 2;
         long operation1RunDuration = TimeUnit.MILLISECONDS.toNanos(1);
 
-        metricsService.submitOperationResult(operation1.type(), operation1.scheduledStartTimeAsMilli(), operation1ActualStartTime, operation1RunDuration, operation1ResultCode);
+        metricsServiceWriter.submitOperationResult(operation1.type(), operation1.scheduledStartTimeAsMilli(), operation1ActualStartTime, operation1RunDuration, operation1ResultCode);
 
-        assertThat(metricsService.results().startTimeAsMilli(), equalTo(2l));
-        assertThat(metricsService.results().latestFinishTimeAsMilli(), equalTo(3l));
+        assertThat(metricsServiceWriter.results().startTimeAsMilli(), equalTo(2l));
+        assertThat(metricsServiceWriter.results().latestFinishTimeAsMilli(), equalTo(3l));
 
         Operation<?> operation2 = DummyLdbcSnbInteractiveOperationInstances.read1();
         operation2.setScheduledStartTimeAsMilli(1l);
@@ -142,10 +143,10 @@ public class ThreadedQueuedConcurrentMetricsServiceTest {
         long operation2ActualStartTime = 8;
         long operation2RunDuration = TimeUnit.MILLISECONDS.toNanos(3);
 
-        metricsService.submitOperationResult(operation2.type(), operation2.scheduledStartTimeAsMilli(), operation2ActualStartTime, operation2RunDuration, operation2ResultCode);
+        metricsServiceWriter.submitOperationResult(operation2.type(), operation2.scheduledStartTimeAsMilli(), operation2ActualStartTime, operation2RunDuration, operation2ResultCode);
 
-        assertThat(metricsService.results().startTimeAsMilli(), equalTo(2l));
-        assertThat(metricsService.results().latestFinishTimeAsMilli(), equalTo(11l));
+        assertThat(metricsServiceWriter.results().startTimeAsMilli(), equalTo(2l));
+        assertThat(metricsServiceWriter.results().latestFinishTimeAsMilli(), equalTo(11l));
 
         Operation<?> operation3 = DummyLdbcSnbInteractiveOperationInstances.read2();
         operation3.setScheduledStartTimeAsMilli(1l);
@@ -154,9 +155,9 @@ public class ThreadedQueuedConcurrentMetricsServiceTest {
         long operation3ActualStartTime = 11;
         long operation3RunDuration = TimeUnit.MILLISECONDS.toNanos(5);
 
-        metricsService.submitOperationResult(operation3.type(), operation3.scheduledStartTimeAsMilli(), operation3ActualStartTime, operation3RunDuration, operation3ResultCode);
+        metricsServiceWriter.submitOperationResult(operation3.type(), operation3.scheduledStartTimeAsMilli(), operation3ActualStartTime, operation3RunDuration, operation3ResultCode);
 
-        WorkloadResultsSnapshot results = metricsService.results();
+        WorkloadResultsSnapshot results = metricsServiceWriter.results();
         assertThat(results.startTimeAsMilli(), equalTo(2l));
         assertThat(results.latestFinishTimeAsMilli(), equalTo(16l));
     }

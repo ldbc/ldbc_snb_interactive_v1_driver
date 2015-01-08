@@ -2,7 +2,7 @@ package com.ldbc.driver.runtime;
 
 import com.google.common.collect.EvictingQueue;
 import com.ldbc.driver.runtime.coordination.ConcurrentCompletionTimeService;
-import com.ldbc.driver.runtime.metrics.ConcurrentMetricsService;
+import com.ldbc.driver.runtime.metrics.ConcurrentMetricsService.ConcurrentMetricsServiceWriter;
 import com.ldbc.driver.runtime.metrics.WorkloadStatusSnapshot;
 import com.ldbc.driver.runtime.scheduling.Spinner;
 import com.ldbc.driver.temporal.TemporalUtil;
@@ -15,6 +15,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 class WorkloadStatusThread extends Thread {
+    stuff is getting reported incorrectely here. possibly because metrics service doing strange things.
     private static Logger logger = Logger.getLogger(WorkloadStatusThread.class);
 
     private static final TemporalUtil TEMPORAL_UTIL = new TemporalUtil();
@@ -22,20 +23,20 @@ class WorkloadStatusThread extends Thread {
     private static final DecimalFormat THROUGHPUT_FORMATTER = new DecimalFormat("###,###,###,##0.00");
 
     private final long statusUpdateIntervalAsMilli;
-    private final ConcurrentMetricsService metricsService;
+    private final ConcurrentMetricsServiceWriter metricsServiceWriter;
     private final ConcurrentErrorReporter errorReporter;
     private final ConcurrentCompletionTimeService concurrentCompletionTimeService;
     private final boolean detailedStatus;
     private AtomicBoolean continueRunning = new AtomicBoolean(true);
 
     WorkloadStatusThread(long statusUpdateIntervalAsMilli,
-                         ConcurrentMetricsService metricsService,
+                         ConcurrentMetricsServiceWriter metricsServiceWriter,
                          ConcurrentErrorReporter errorReporter,
                          ConcurrentCompletionTimeService concurrentCompletionTimeService,
                          boolean detailedStatus) {
         super(WorkloadStatusThread.class.getSimpleName() + "-" + System.currentTimeMillis());
         this.statusUpdateIntervalAsMilli = statusUpdateIntervalAsMilli;
-        this.metricsService = metricsService;
+        this.metricsServiceWriter = metricsServiceWriter;
         this.errorReporter = errorReporter;
         this.concurrentCompletionTimeService = concurrentCompletionTimeService;
         this.detailedStatus = detailedStatus;
@@ -46,7 +47,10 @@ class WorkloadStatusThread extends Thread {
         EvictingQueue<OperationCountAtDuration> operationCountsAtDurations = EvictingQueue.create(5);
         while (continueRunning.get()) {
             try {
-                WorkloadStatusSnapshot status = metricsService.status();
+                WorkloadStatusSnapshot status = metricsServiceWriter.status();
+
+                // TODO remove
+                System.out.println(status.throughput());
 
                 operationCountsAtDurations.add(
                         new OperationCountAtDuration(status.operationCount(), status.runDurationAsMilli())

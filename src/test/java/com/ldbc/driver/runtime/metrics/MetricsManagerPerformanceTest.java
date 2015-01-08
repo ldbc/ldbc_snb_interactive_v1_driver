@@ -332,8 +332,8 @@ public class MetricsManagerPerformanceTest {
 
     @Test
     public void maximumThroughputDisruptorEventHandlerBaseline() throws Exception {
-        final DisruptorMetricsCollectionEvent event = new DisruptorMetricsCollectionEvent();
-        event.setEventType(DisruptorMetricsCollectionEvent.SUBMIT_RESULT);
+        final DisruptorJavolutionMetricsEvent event = new DisruptorJavolutionMetricsEvent();
+        event.setEventType(DisruptorJavolutionMetricsEvent.SUBMIT_RESULT);
         event.setResultCode(resultCode);
         final long benchmarkStartTime = System.currentTimeMillis();
         for (int startTime = 0; startTime < benchmarkOperationCount; startTime++) {
@@ -366,11 +366,11 @@ public class MetricsManagerPerformanceTest {
 
     @Test
     public void maximumThroughputDisruptorEventHandler() throws Exception {
-        final DisruptorMetricsCollectionEvent event = new DisruptorMetricsCollectionEvent();
-        event.setEventType(DisruptorMetricsCollectionEvent.SUBMIT_RESULT);
+        final DisruptorJavolutionMetricsEvent event = new DisruptorJavolutionMetricsEvent();
+        event.setEventType(DisruptorJavolutionMetricsEvent.SUBMIT_RESULT);
         event.setResultCode(resultCode);
         final ConcurrentErrorReporter errorReporter = new ConcurrentErrorReporter();
-        final DisruptorMetricsEventHandler eventHandler = new DisruptorMetricsEventHandler(
+        final DisruptorJavolutionMetricsEventHandler eventHandler = new DisruptorJavolutionMetricsEventHandler(
                 errorReporter,
                 null,
                 timeUnit,
@@ -391,8 +391,8 @@ public class MetricsManagerPerformanceTest {
         }
         AtomicStampedReference<WorkloadResultsSnapshot> resultsSnapshotReference = eventHandler.resultsSnapshot();
         int oldStamp = resultsSnapshotReference.getStamp();
-        DisruptorMetricsCollectionEvent snapshotEvent = new DisruptorMetricsCollectionEvent();
-        snapshotEvent.setEventType(DisruptorMetricsCollectionEvent.WORKLOAD_RESULT);
+        DisruptorJavolutionMetricsEvent snapshotEvent = new DisruptorJavolutionMetricsEvent();
+        snapshotEvent.setEventType(DisruptorJavolutionMetricsEvent.WORKLOAD_RESULT);
         eventHandler.onEvent(snapshotEvent, 1, true);
         while (resultsSnapshotReference.getStamp() <= oldStamp) {
             LockSupport.parkNanos(TimeUnit.MILLISECONDS.toNanos(1));
@@ -426,7 +426,7 @@ public class MetricsManagerPerformanceTest {
             int operationTypeIndex = startTime % operationTypeCount;
             long duration = durations[startTime % highestExpectedRuntimeDurationAsNano];
             int operationType = operationTypes[operationTypeIndex];
-            ThreadedQueuedMetricsCollectionEvent event = new ThreadedQueuedMetricsCollectionEvent.SubmitOperationResult(
+            ThreadedQueuedMetricsEvent event = new ThreadedQueuedMetricsEvent.SubmitOperationResult(
                     operationType,
                     startTime,
                     startTime,
@@ -456,9 +456,9 @@ public class MetricsManagerPerformanceTest {
     @Test
     public void maximumThroughputThreadedQueuedMetricsServiceHandler() throws MetricsCollectionException, IOException {
         final ConcurrentErrorReporter errorReporter = new ConcurrentErrorReporter();
-        ThreadedQueuedConcurrentMetricsServiceThread metricsServiceThread = new ThreadedQueuedConcurrentMetricsServiceThread(
+        ThreadedQueuedMetricsServiceThread metricsServiceThread = new ThreadedQueuedMetricsServiceThread(
                 errorReporter,
-                DefaultQueues.<ThreadedQueuedMetricsCollectionEvent>newNonBlockingBounded(10000),
+                DefaultQueues.<ThreadedQueuedMetricsEvent>newNonBlockingBounded(10000),
                 null,
                 timeSource,
                 timeUnit,
@@ -470,7 +470,7 @@ public class MetricsManagerPerformanceTest {
             int operationTypeIndex = startTime % operationTypeCount;
             long duration = durations[startTime % highestExpectedRuntimeDurationAsNano];
             int operationType = operationTypes[operationTypeIndex];
-            ThreadedQueuedMetricsCollectionEvent event = new ThreadedQueuedMetricsCollectionEvent.SubmitOperationResult(
+            ThreadedQueuedMetricsEvent event = new ThreadedQueuedMetricsEvent.SubmitOperationResult(
                     operationType,
                     startTime,
                     startTime,
@@ -501,7 +501,7 @@ public class MetricsManagerPerformanceTest {
     @Test
     public void maximumThroughputThreadedQueuedMetricsServiceNonBlockingBounded() throws MetricsCollectionException {
         final ConcurrentErrorReporter errorReporter = new ConcurrentErrorReporter();
-        ConcurrentMetricsService metricsService = ThreadedQueuedConcurrentMetricsService.newInstanceUsingNonBlockingBoundedQueue(
+        ConcurrentMetricsService metricsService = ThreadedQueuedMetricsService.newInstanceUsingNonBlockingBoundedQueue(
                 timeSource,
                 errorReporter,
                 timeUnit,
@@ -509,14 +509,15 @@ public class MetricsManagerPerformanceTest {
                 null,
                 LdbcSnbInteractiveConfiguration.operationTypeToClassMapping()
         );
+        ConcurrentMetricsService.ConcurrentMetricsServiceWriter metricsServiceWriter = metricsService.getWriter();
         final long benchmarkStartTime = System.currentTimeMillis();
         for (int startTime = 0; startTime < benchmarkOperationCount; startTime++) {
             int operationTypeIndex = startTime % operationTypeCount;
             long duration = durations[startTime % highestExpectedRuntimeDurationAsNano];
             int operationType = operationTypes[operationTypeIndex];
-            metricsService.submitOperationResult(operationType, startTime, startTime, duration, resultCode);
+            metricsServiceWriter.submitOperationResult(operationType, startTime, startTime, duration, resultCode);
         }
-        final WorkloadResultsSnapshot snapshot = metricsService.results();
+        final WorkloadResultsSnapshot snapshot = metricsServiceWriter.results();
         final long benchmarkFinishTime = System.currentTimeMillis();
         final long benchmarkDurationMs = benchmarkFinishTime - benchmarkStartTime;
 
@@ -542,7 +543,7 @@ public class MetricsManagerPerformanceTest {
     @Test
     public void maximumThroughputJavolutionDisruptorMetricsService() throws MetricsCollectionException {
         final ConcurrentErrorReporter errorReporter = new ConcurrentErrorReporter();
-        ConcurrentMetricsService metricsService = new DisruptorConcurrentMetricsService(
+        ConcurrentMetricsService metricsService = new DisruptorJavolutionMetricsService(
                 timeSource,
                 errorReporter,
                 timeUnit,
@@ -550,14 +551,15 @@ public class MetricsManagerPerformanceTest {
                 null,
                 LdbcSnbInteractiveConfiguration.operationTypeToClassMapping()
         );
+        ConcurrentMetricsService.ConcurrentMetricsServiceWriter metricsServiceWriter = metricsService.getWriter();
         final long benchmarkStartTime = System.currentTimeMillis();
         for (int startTime = 0; startTime < benchmarkOperationCount; startTime++) {
             int operationTypeIndex = startTime % operationTypeCount;
             long duration = durations[startTime % highestExpectedRuntimeDurationAsNano];
             int operationType = operationTypes[operationTypeIndex];
-            metricsService.submitOperationResult(operationType, startTime, startTime, duration, resultCode);
+            metricsServiceWriter.submitOperationResult(operationType, startTime, startTime, duration, resultCode);
         }
-        final WorkloadResultsSnapshot snapshot = metricsService.results();
+        final WorkloadResultsSnapshot snapshot = metricsServiceWriter.results();
         final long benchmarkFinishTime = System.currentTimeMillis();
         final long benchmarkDurationMs = benchmarkFinishTime - benchmarkStartTime;
 
@@ -580,11 +582,10 @@ public class MetricsManagerPerformanceTest {
         metricsService.shutdown();
     }
 
-    // TODO
     @Test
     public void maximumThroughputSbeDisruptorMetricsService() throws MetricsCollectionException {
         final ConcurrentErrorReporter errorReporter = new ConcurrentErrorReporter();
-        ConcurrentMetricsService metricsService = new DisruptorConcurrentMetricsService_NEW(
+        ConcurrentMetricsService metricsService = new DisruptorSbeMetricsService(
                 timeSource,
                 errorReporter,
                 timeUnit,
@@ -592,14 +593,15 @@ public class MetricsManagerPerformanceTest {
                 null,
                 LdbcSnbInteractiveConfiguration.operationTypeToClassMapping()
         );
+        ConcurrentMetricsService.ConcurrentMetricsServiceWriter metricsServiceWriter = metricsService.getWriter();
         final long benchmarkStartTime = System.currentTimeMillis();
         for (int startTime = 0; startTime < benchmarkOperationCount; startTime++) {
             int operationTypeIndex = startTime % operationTypeCount;
             long duration = durations[startTime % highestExpectedRuntimeDurationAsNano];
             int operationType = operationTypes[operationTypeIndex];
-            metricsService.submitOperationResult(operationType, startTime, startTime, duration, resultCode);
+            metricsServiceWriter.submitOperationResult(operationType, startTime, startTime, duration, resultCode);
         }
-        final WorkloadResultsSnapshot snapshot = metricsService.results();
+        final WorkloadResultsSnapshot snapshot = metricsServiceWriter.results();
         final long benchmarkFinishTime = System.currentTimeMillis();
         final long benchmarkDurationMs = benchmarkFinishTime - benchmarkStartTime;
 
@@ -663,7 +665,7 @@ public class MetricsManagerPerformanceTest {
      */
     @Test
     public void multiThreadedTest() throws InterruptedException, MetricsCollectionException {
-        int threadCount = 8;
+        int threadCount = 1;
         int operationCount = 1000000000;
 
         ConcurrentErrorReporter errorReporter = new ConcurrentErrorReporter();
@@ -681,7 +683,7 @@ public class MetricsManagerPerformanceTest {
 //                LdbcSnbInteractiveConfiguration.operationTypeToClassMapping()
 //        );
 
-        ConcurrentMetricsService metricsService = new DisruptorConcurrentMetricsService_NEW(
+        ConcurrentMetricsService metricsService = new DisruptorSbeMetricsService(
                 timeSource,
                 errorReporter,
                 timeUnit,
@@ -701,7 +703,7 @@ public class MetricsManagerPerformanceTest {
 
         for (int i = 0; i < threadCount; i++) {
             new MetricsServiceWriterThread(
-                    metricsService,
+                    metricsService.getWriter(),
                     operationCount / threadCount,
                     readyLatch,
                     startLatch,
@@ -713,7 +715,7 @@ public class MetricsManagerPerformanceTest {
         startLatch.countDown();
         long startTime = System.currentTimeMillis();
         stopLatch.await();
-        final WorkloadResultsSnapshot snapshot = metricsService.results();
+        final WorkloadResultsSnapshot snapshot = metricsService.getWriter().results();
         long finishTime = System.currentTimeMillis();
 
         long benchmarkDurationMs = finishTime - startTime;
@@ -740,21 +742,21 @@ public class MetricsManagerPerformanceTest {
     }
 
     public class MetricsServiceWriterThread extends Thread {
-        private final ConcurrentMetricsService metricsService;
+        private final ConcurrentMetricsService.ConcurrentMetricsServiceWriter metricsServiceWriter;
         private final int operationCount;
         private final CountDownLatch readyLatch;
         private final CountDownLatch startLatch;
         private final CountDownLatch stopLatch;
         private final AtomicLong processedOperationCount;
 
-        public MetricsServiceWriterThread(ConcurrentMetricsService metricsService,
+        public MetricsServiceWriterThread(ConcurrentMetricsService.ConcurrentMetricsServiceWriter metricsServiceWriter,
                                           int operationCount,
                                           CountDownLatch readyLatch,
                                           CountDownLatch startLatch,
                                           CountDownLatch stopLatch,
                                           AtomicLong processedOperationCount) {
             super(MetricsServiceWriterThread.class.getSimpleName() + "-" + System.currentTimeMillis());
-            this.metricsService = metricsService;
+            this.metricsServiceWriter = metricsServiceWriter;
             this.operationCount = operationCount;
             this.readyLatch = readyLatch;
             this.startLatch = startLatch;
@@ -776,7 +778,7 @@ public class MetricsManagerPerformanceTest {
                 long duration = durations[startTime % highestExpectedRuntimeDurationAsNano];
                 int operationType = operationTypes[operationTypeIndex];
                 try {
-                    metricsService.submitOperationResult(operationType, startTime, startTime, duration, resultCode);
+                    metricsServiceWriter.submitOperationResult(operationType, startTime, startTime, duration, resultCode);
                 } catch (MetricsCollectionException e) {
                     e.printStackTrace();
                     return;

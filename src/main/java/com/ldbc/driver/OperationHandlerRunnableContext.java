@@ -3,6 +3,8 @@ package com.ldbc.driver;
 import com.ldbc.driver.runtime.ConcurrentErrorReporter;
 import com.ldbc.driver.runtime.coordination.LocalCompletionTimeWriter;
 import com.ldbc.driver.runtime.metrics.ConcurrentMetricsService;
+import com.ldbc.driver.runtime.metrics.ConcurrentMetricsService.ConcurrentMetricsServiceWriter;
+import com.ldbc.driver.runtime.metrics.MetricsCollectionException;
 import com.ldbc.driver.runtime.scheduling.Spinner;
 import com.ldbc.driver.runtime.scheduling.SpinnerCheck;
 import com.ldbc.driver.temporal.TimeSource;
@@ -23,7 +25,7 @@ public class OperationHandlerRunnableContext implements Runnable, Poolable {
     private Operation operation = null;
     private LocalCompletionTimeWriter localCompletionTimeWriter = null;
     private ConcurrentErrorReporter errorReporter = null;
-    private ConcurrentMetricsService metricsService = null;
+    private ConcurrentMetricsServiceWriter metricsServiceWriter = null;
 
     // set by DependencyAndNonDependencyHandlersRetriever
     private SpinnerCheck beforeExecuteCheck = null;
@@ -45,14 +47,19 @@ public class OperationHandlerRunnableContext implements Runnable, Poolable {
         if (initialized) {
             throw new OperationException(String.format("%s can not be initialized twice", getClass().getSimpleName()));
         }
-        this.timeSource = timeSource;
-        this.spinner = spinner;
+        if (null == this.timeSource) {
+            this.timeSource = timeSource;
+            this.spinner = spinner;
+            this.errorReporter = errorReporter;
+            try {
+                this.metricsServiceWriter = metricsService.getWriter();
+            } catch (MetricsCollectionException e) {
+                throw new OperationException("Error while retrieving metrics writer", e);
+            }
+        }
         this.operation = operation;
         this.localCompletionTimeWriter = localCompletionTimeWriter;
-        this.errorReporter = errorReporter;
-        this.metricsService = metricsService;
         this.beforeExecuteCheck = Spinner.TRUE_CHECK;
-
         this.initialized = true;
     }
 
@@ -116,7 +123,7 @@ public class OperationHandlerRunnableContext implements Runnable, Poolable {
             long endOfLatencyMeasurementAsNano = timeSource.nanoSnapshot();
             long runDurationAsNano = endOfLatencyMeasurementAsNano - startOfLatencyMeasurementAsNano;
             localCompletionTimeWriter.submitLocalCompletedTime(operation.timeStamp());
-            metricsService.submitOperationResult(
+            metricsServiceWriter.submitOperationResult(
                     operation.type(),
                     operation.scheduledStartTimeAsMilli(),
                     actualStartTimeAsMilli,
@@ -143,7 +150,7 @@ public class OperationHandlerRunnableContext implements Runnable, Poolable {
                 ", dbConnectionState=" + dbConnectionState +
                 ", localCompletionTimeWriter=" + localCompletionTimeWriter +
                 ", errorReporter=" + errorReporter +
-                ", metricsService=" + metricsService +
+                ", metricsServiceWriter=" + metricsServiceWriter +
                 ", beforeExecuteCheck=" + beforeExecuteCheck +
                 ", operationHandler=" + operationHandler +
                 ", initialized=" + initialized +

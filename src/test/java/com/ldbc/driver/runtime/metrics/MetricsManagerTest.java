@@ -21,7 +21,7 @@ public class MetricsManagerTest {
         MetricsManager metricsManager = new MetricsManager(
                 timeSource,
                 TimeUnit.MILLISECONDS,
-                ThreadedQueuedConcurrentMetricsService.DEFAULT_HIGHEST_EXPECTED_RUNTIME_DURATION_AS_NANO,
+                ThreadedQueuedMetricsService.DEFAULT_HIGHEST_EXPECTED_RUNTIME_DURATION_AS_NANO,
                 LdbcSnbInteractiveConfiguration.operationTypeToClassMapping()
         );
 

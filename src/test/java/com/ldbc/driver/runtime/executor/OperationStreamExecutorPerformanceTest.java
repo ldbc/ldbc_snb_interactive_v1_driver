@@ -257,11 +257,12 @@ public class OperationStreamExecutorPerformanceTest {
         assertThat(errorReporter.toString(), errorReporter.errorEncountered(), is(false));
 
         // wait for all results to get processed by metrics service
+        ConcurrentMetricsService.ConcurrentMetricsServiceWriter metricsServiceWriter = metricsService.getWriter();
         long metricsCollectionTimeoutAsMilli = systemTimeSource.nowAsMilli() + 2000;
-        while (systemTimeSource.nowAsMilli() < metricsCollectionTimeoutAsMilli && metricsService.results().totalOperationCount() < operationCount) {
+        while (systemTimeSource.nowAsMilli() < metricsCollectionTimeoutAsMilli && metricsServiceWriter.results().totalOperationCount() < operationCount) {
             Spinner.powerNap(500);
         }
-        long numberResultsCollected = metricsService.results().totalOperationCount();
+        long numberResultsCollected = metricsServiceWriter.results().totalOperationCount();
         assertThat(String.format("%s of %s results collected by metrics service", numberResultsCollected, operationCount), numberResultsCollected, is(operationCount));
 
         return benchmarkDuration;

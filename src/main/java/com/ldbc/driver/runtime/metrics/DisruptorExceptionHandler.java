@@ -15,12 +15,14 @@ public class DisruptorExceptionHandler implements ExceptionHandler {
         errorReporter.reportError(
                 this,
                 String.format("%s encountered error on event\nl = %s\no = %s\n%s",
-                        DisruptorConcurrentMetricsService.class.getSimpleName(),
+                        DisruptorJavolutionMetricsService.class.getSimpleName(),
                         l,
                         o.toString(),
                         ConcurrentErrorReporter.stackTraceToString(throwable)
                 )
         );
+        // TODO remove
+        throwable.printStackTrace();
     }
 
     @Override
@@ -28,10 +30,12 @@ public class DisruptorExceptionHandler implements ExceptionHandler {
         errorReporter.reportError(
                 this,
                 String.format("%s encountered error on start\n%s",
-                        DisruptorConcurrentMetricsService.class.getSimpleName(),
+                        DisruptorJavolutionMetricsService.class.getSimpleName(),
                         ConcurrentErrorReporter.stackTraceToString(throwable)
                 )
         );
+        // TODO remove
+        throwable.printStackTrace();
     }
 
     @Override
@@ -39,9 +43,11 @@ public class DisruptorExceptionHandler implements ExceptionHandler {
         errorReporter.reportError(
                 this,
                 String.format("%s encountered error on shutdown\n%s",
-                        DisruptorConcurrentMetricsService.class.getSimpleName(),
+                        DisruptorJavolutionMetricsService.class.getSimpleName(),
                         ConcurrentErrorReporter.stackTraceToString(throwable)
                 )
         );
+        // TODO remove
+        throwable.printStackTrace();
     }
 }

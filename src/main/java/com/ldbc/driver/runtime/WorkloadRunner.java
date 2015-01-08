@@ -9,6 +9,7 @@ import com.ldbc.driver.runtime.coordination.DummyLocalCompletionTimeWriter;
 import com.ldbc.driver.runtime.coordination.LocalCompletionTimeWriter;
 import com.ldbc.driver.runtime.executor.*;
 import com.ldbc.driver.runtime.metrics.ConcurrentMetricsService;
+import com.ldbc.driver.runtime.metrics.MetricsCollectionException;
 import com.ldbc.driver.runtime.scheduling.Spinner;
 import com.ldbc.driver.temporal.TemporalUtil;
 import com.ldbc.driver.temporal.TimeSource;
@@ -50,7 +51,7 @@ public class WorkloadRunner {
                           long statusDisplayIntervalAsSeconds,
                           long spinnerSleepDurationAsMilli,
                           boolean ignoreScheduleStartTimes,
-                          int operationHandlerExecutorsBoundedQueueSize) throws WorkloadException {
+                          int operationHandlerExecutorsBoundedQueueSize) throws WorkloadException, MetricsCollectionException {
         this.errorReporter = errorReporter;
         this.statusDisplayIntervalAsMilli = statusDisplayIntervalAsSeconds;
 
@@ -60,7 +61,7 @@ public class WorkloadRunner {
         if (statusDisplayIntervalAsSeconds > 0) {
             this.workloadStatusThread = new WorkloadStatusThread(
                     TimeUnit.SECONDS.toMillis(statusDisplayIntervalAsSeconds),
-                    metricsService,
+                    metricsService.getWriter(),
                     errorReporter,
                     completionTimeService,
                     detailedStatus);

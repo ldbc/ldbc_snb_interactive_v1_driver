@@ -12,7 +12,7 @@ import java.util.Map;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicStampedReference;
 
-class DisruptorMetricsEventHandler_NEW implements EventHandler<DirectBuffer> {
+class DisruptorSbeMetricsEventHandler implements EventHandler<DirectBuffer> {
     private final AtomicStampedReference<WorkloadStatusSnapshot> statusSnapshotReference = new AtomicStampedReference<>(null, 0);
     private final AtomicStampedReference<WorkloadResultsSnapshot> resultsSnapshotReference = new AtomicStampedReference<>(null, 0);
 
@@ -22,22 +22,20 @@ class DisruptorMetricsEventHandler_NEW implements EventHandler<DirectBuffer> {
     private final TimeUnit unit;
     private long processedEventCount = 0l;
     private final String[] operationNames;
-
-    private static final MetricsEvent METRICS_EVENT = new MetricsEvent();
-
+    private final MetricsEvent metricsEvent;
     private final int actingBlockLength;
     private final int actingVersion;
     private final int messageHeaderSize;
 
-    DisruptorMetricsEventHandler_NEW(ConcurrentErrorReporter errorReporter,
-                                     SimpleCsvFileWriter csvResultsLogWriter,
-                                     TimeUnit unit,
-                                     TimeSource timeSource,
-                                     long maxRuntimeDurationAsNano,
-                                     Map<Integer, Class<? extends Operation<?>>> operationTypeToClassMapping,
-                                     int actingBlockLength,
-                                     int actingVersion,
-                                     int messageHeaderSize) throws MetricsCollectionException {
+    DisruptorSbeMetricsEventHandler(ConcurrentErrorReporter errorReporter,
+                                    SimpleCsvFileWriter csvResultsLogWriter,
+                                    TimeUnit unit,
+                                    TimeSource timeSource,
+                                    long maxRuntimeDurationAsNano,
+                                    Map<Integer, Class<? extends Operation<?>>> operationTypeToClassMapping,
+                                    int actingBlockLength,
+                                    int actingVersion,
+                                    int messageHeaderSize) throws MetricsCollectionException {
         this.errorReporter = errorReporter;
         this.csvResultsLogWriter = csvResultsLogWriter;
         this.unit = unit;
@@ -47,6 +45,7 @@ class DisruptorMetricsEventHandler_NEW implements EventHandler<DirectBuffer> {
                 maxRuntimeDurationAsNano,
                 operationTypeToClassMapping);
         operationNames = MetricsManager.toOperationNameArray(operationTypeToClassMapping);
+        this.metricsEvent = new MetricsEvent();
         this.actingBlockLength = actingBlockLength;
         this.actingVersion = actingVersion;
         this.messageHeaderSize = messageHeaderSize;
@@ -66,15 +65,15 @@ class DisruptorMetricsEventHandler_NEW implements EventHandler<DirectBuffer> {
 
     @Override
     public void onEvent(DirectBuffer event, long l, boolean b) throws Exception {
-        METRICS_EVENT.wrapForDecode(event, messageHeaderSize, actingBlockLength, actingVersion);
+        metricsEvent.wrapForDecode(event, messageHeaderSize, actingBlockLength, actingVersion);
 
-        switch (METRICS_EVENT.eventType()) {
-            case DisruptorMetricsCollectionEvent.SUBMIT_RESULT: {
-                int operationType = METRICS_EVENT.operationType();
-                long scheduledStartTimeAsMilli = METRICS_EVENT.scheduledStartTimeAsMilli();
-                long actualStartTimeAsMilli = METRICS_EVENT.actualStartTimeAsMilli();
-                long runDurationAsNano = METRICS_EVENT.runDurationAsNano();
-                int resultCode = METRICS_EVENT.resultCode();
+        switch (metricsEvent.eventType()) {
+            case DisruptorJavolutionMetricsEvent.SUBMIT_RESULT: {
+                int operationType = metricsEvent.operationType();
+                long scheduledStartTimeAsMilli = metricsEvent.scheduledStartTimeAsMilli();
+                long actualStartTimeAsMilli = metricsEvent.actualStartTimeAsMilli();
+                long runDurationAsNano = metricsEvent.runDurationAsNano();
+                int resultCode = metricsEvent.resultCode();
 
                 if (null != csvResultsLogWriter) {
                     csvResultsLogWriter.writeRow(
@@ -89,7 +88,7 @@ class DisruptorMetricsEventHandler_NEW implements EventHandler<DirectBuffer> {
                 processedEventCount++;
                 break;
             }
-            case DisruptorMetricsCollectionEvent.WORKLOAD_STATUS: {
+            case DisruptorJavolutionMetricsEvent.WORKLOAD_STATUS: {
                 WorkloadStatusSnapshot newStatus = metricsManager.status();
                 WorkloadStatusSnapshot oldStatus;
                 int oldStamp;
@@ -100,7 +99,7 @@ class DisruptorMetricsEventHandler_NEW implements EventHandler<DirectBuffer> {
                 while (false == statusSnapshotReference.compareAndSet(oldStatus, newStatus, oldStamp, oldStamp + 1));
                 break;
             }
-            case DisruptorMetricsCollectionEvent.WORKLOAD_RESULT: {
+            case DisruptorJavolutionMetricsEvent.WORKLOAD_RESULT: {
                 WorkloadResultsSnapshot newResults = metricsManager.snapshot();
                 WorkloadResultsSnapshot oldResults;
                 int oldStamp;

@@ -1,6 +1,6 @@
 package com.ldbc.driver.runtime.metrics;
 
-abstract class ThreadedQueuedMetricsCollectionEvent {
+abstract class ThreadedQueuedMetricsEvent {
 
     public static enum MetricsEventType {
         // Submit operation result for its metrics to be collected
@@ -15,7 +15,7 @@ abstract class ThreadedQueuedMetricsCollectionEvent {
 
     public abstract MetricsEventType type();
 
-    static public class SubmitOperationResult extends ThreadedQueuedMetricsCollectionEvent {
+    static public class SubmitOperationResult extends ThreadedQueuedMetricsEvent {
         private final int operationType;
         private final long scheduledStartTimeAsMilli;
         private final long actualStartTimeAsMilli;
@@ -61,14 +61,14 @@ abstract class ThreadedQueuedMetricsCollectionEvent {
         }
     }
 
-    static public class Status extends ThreadedQueuedMetricsCollectionEvent {
-        private final ThreadedQueuedConcurrentMetricsService.MetricsStatusFuture statusFuture;
+    static public class Status extends ThreadedQueuedMetricsEvent {
+        private final ThreadedQueuedMetricsService.MetricsStatusFuture statusFuture;
 
-        public Status(ThreadedQueuedConcurrentMetricsService.MetricsStatusFuture statusFuture) {
+        public Status(ThreadedQueuedMetricsService.MetricsStatusFuture statusFuture) {
             this.statusFuture = statusFuture;
         }
 
-        public ThreadedQueuedConcurrentMetricsService.MetricsStatusFuture statusFuture() {
+        public ThreadedQueuedMetricsService.MetricsStatusFuture statusFuture() {
             return statusFuture;
         }
 
@@ -78,14 +78,14 @@ abstract class ThreadedQueuedMetricsCollectionEvent {
         }
     }
 
-    static public class GetWorkloadResults extends ThreadedQueuedMetricsCollectionEvent {
-        private final ThreadedQueuedConcurrentMetricsService.MetricsWorkloadResultFuture workloadResultFuture;
+    static public class GetWorkloadResults extends ThreadedQueuedMetricsEvent {
+        private final ThreadedQueuedMetricsService.MetricsWorkloadResultFuture workloadResultFuture;
 
-        public GetWorkloadResults(ThreadedQueuedConcurrentMetricsService.MetricsWorkloadResultFuture workloadResultFuture) {
+        public GetWorkloadResults(ThreadedQueuedMetricsService.MetricsWorkloadResultFuture workloadResultFuture) {
             this.workloadResultFuture = workloadResultFuture;
         }
 
-        public ThreadedQueuedConcurrentMetricsService.MetricsWorkloadResultFuture workloadResultFuture() {
+        public ThreadedQueuedMetricsService.MetricsWorkloadResultFuture workloadResultFuture() {
             return workloadResultFuture;
         }
 
@@ -95,7 +95,7 @@ abstract class ThreadedQueuedMetricsCollectionEvent {
         }
     }
 
-    static public class Shutdown extends ThreadedQueuedMetricsCollectionEvent {
+    static public class Shutdown extends ThreadedQueuedMetricsEvent {
         private final long initiatedEvents;
 
         public Shutdown(long initiatedEvents) {

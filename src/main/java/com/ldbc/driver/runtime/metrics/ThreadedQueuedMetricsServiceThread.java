@@ -3,10 +3,10 @@ package com.ldbc.driver.runtime.metrics;
 import com.ldbc.driver.Operation;
 import com.ldbc.driver.runtime.ConcurrentErrorReporter;
 import com.ldbc.driver.runtime.QueueEventFetcher;
-import com.ldbc.driver.runtime.metrics.ThreadedQueuedMetricsCollectionEvent.GetWorkloadResults;
-import com.ldbc.driver.runtime.metrics.ThreadedQueuedMetricsCollectionEvent.Shutdown;
-import com.ldbc.driver.runtime.metrics.ThreadedQueuedMetricsCollectionEvent.Status;
-import com.ldbc.driver.runtime.metrics.ThreadedQueuedMetricsCollectionEvent.SubmitOperationResult;
+import com.ldbc.driver.runtime.metrics.ThreadedQueuedMetricsEvent.GetWorkloadResults;
+import com.ldbc.driver.runtime.metrics.ThreadedQueuedMetricsEvent.Shutdown;
+import com.ldbc.driver.runtime.metrics.ThreadedQueuedMetricsEvent.Status;
+import com.ldbc.driver.runtime.metrics.ThreadedQueuedMetricsEvent.SubmitOperationResult;
 import com.ldbc.driver.temporal.TimeSource;
 import com.ldbc.driver.util.csv.SimpleCsvFileWriter;
 
@@ -15,23 +15,23 @@ import java.util.Map;
 import java.util.Queue;
 import java.util.concurrent.TimeUnit;
 
-public class ThreadedQueuedConcurrentMetricsServiceThread extends Thread {
+public class ThreadedQueuedMetricsServiceThread extends Thread {
     private final MetricsManager metricsManager;
     private final ConcurrentErrorReporter errorReporter;
-    private final QueueEventFetcher<ThreadedQueuedMetricsCollectionEvent> queueEventFetcher;
+    private final QueueEventFetcher<ThreadedQueuedMetricsEvent> queueEventFetcher;
     private final SimpleCsvFileWriter csvResultsLogWriter;
     private final TimeUnit unit;
     private Long processedEventCount = 0l;
     private Long expectedEventCount = null;
     private final String[] operationNames;
 
-    public ThreadedQueuedConcurrentMetricsServiceThread(ConcurrentErrorReporter errorReporter,
-                                                        Queue<ThreadedQueuedMetricsCollectionEvent> metricsEventsQueue,
-                                                        SimpleCsvFileWriter csvResultsLogWriter,
-                                                        TimeSource timeSource,
-                                                        TimeUnit unit,
-                                                        long maxRuntimeDurationAsNano,
-                                                        Map<Integer, Class<? extends Operation<?>>> operationTypeToClassMapping) throws MetricsCollectionException {
+    public ThreadedQueuedMetricsServiceThread(ConcurrentErrorReporter errorReporter,
+                                              Queue<ThreadedQueuedMetricsEvent> metricsEventsQueue,
+                                              SimpleCsvFileWriter csvResultsLogWriter,
+                                              TimeSource timeSource,
+                                              TimeUnit unit,
+                                              long maxRuntimeDurationAsNano,
+                                              Map<Integer, Class<? extends Operation<?>>> operationTypeToClassMapping) throws MetricsCollectionException {
         this(errorReporter,
                 QueueEventFetcher.queueEventFetcherFor(metricsEventsQueue),
                 csvResultsLogWriter,
@@ -41,14 +41,14 @@ public class ThreadedQueuedConcurrentMetricsServiceThread extends Thread {
                 operationTypeToClassMapping);
     }
 
-    private ThreadedQueuedConcurrentMetricsServiceThread(ConcurrentErrorReporter errorReporter,
-                                                         QueueEventFetcher<ThreadedQueuedMetricsCollectionEvent> queueEventFetcher,
-                                                         SimpleCsvFileWriter csvResultsLogWriter,
-                                                         TimeSource timeSource,
-                                                         TimeUnit unit,
-                                                         long maxRuntimeDurationAsNano,
-                                                         Map<Integer, Class<? extends Operation<?>>> operationTypeToClassMapping) throws MetricsCollectionException {
-        super(ThreadedQueuedConcurrentMetricsServiceThread.class.getSimpleName() + "-" + System.currentTimeMillis());
+    private ThreadedQueuedMetricsServiceThread(ConcurrentErrorReporter errorReporter,
+                                               QueueEventFetcher<ThreadedQueuedMetricsEvent> queueEventFetcher,
+                                               SimpleCsvFileWriter csvResultsLogWriter,
+                                               TimeSource timeSource,
+                                               TimeUnit unit,
+                                               long maxRuntimeDurationAsNano,
+                                               Map<Integer, Class<? extends Operation<?>>> operationTypeToClassMapping) throws MetricsCollectionException {
+        super(ThreadedQueuedMetricsServiceThread.class.getSimpleName() + "-" + System.currentTimeMillis());
         this.errorReporter = errorReporter;
         this.queueEventFetcher = queueEventFetcher;
         this.csvResultsLogWriter = csvResultsLogWriter;
@@ -65,7 +65,7 @@ public class ThreadedQueuedConcurrentMetricsServiceThread extends Thread {
     public void run() {
         while (null == expectedEventCount || processedEventCount < expectedEventCount) {
             try {
-                ThreadedQueuedMetricsCollectionEvent event = queueEventFetcher.fetchNextEvent();
+                ThreadedQueuedMetricsEvent event = queueEventFetcher.fetchNextEvent();
                 onEvent(event);
             } catch (Throwable e) {
                 errorReporter.reportError(
@@ -76,7 +76,7 @@ public class ThreadedQueuedConcurrentMetricsServiceThread extends Thread {
         }
     }
 
-    public void onEvent(ThreadedQueuedMetricsCollectionEvent event) throws IOException, MetricsCollectionException {
+    public void onEvent(ThreadedQueuedMetricsEvent event) throws IOException, MetricsCollectionException {
         switch (event.type()) {
             case SUBMIT_RESULT:
                 SubmitOperationResult submitOperationResultEvent = (SubmitOperationResult) event;
@@ -120,11 +120,11 @@ public class ThreadedQueuedConcurrentMetricsServiceThread extends Thread {
                 processedEventCount++;
                 break;
             case WORKLOAD_STATUS:
-                ThreadedQueuedConcurrentMetricsService.MetricsStatusFuture statusFuture = ((Status) event).statusFuture();
+                ThreadedQueuedMetricsService.MetricsStatusFuture statusFuture = ((Status) event).statusFuture();
                 statusFuture.set(metricsManager.status());
                 break;
             case WORKLOAD_RESULT:
-                ThreadedQueuedConcurrentMetricsService.MetricsWorkloadResultFuture workloadResultFuture = ((GetWorkloadResults) event).workloadResultFuture();
+                ThreadedQueuedMetricsService.MetricsWorkloadResultFuture workloadResultFuture = ((GetWorkloadResults) event).workloadResultFuture();
                 WorkloadResultsSnapshot resultsSnapshot = metricsManager.snapshot();
                 workloadResultFuture.set(resultsSnapshot);
                 break;
@@ -136,7 +136,7 @@ public class ThreadedQueuedConcurrentMetricsServiceThread extends Thread {
                     errorReporter.reportError(
                             this,
                             String.format("Encountered multiple %s events. First expectedEventCount[%s]. Second expectedEventCount[%s]",
-                                    ThreadedQueuedMetricsCollectionEvent.MetricsEventType.SHUTDOWN_SERVICE.name(),
+                                    ThreadedQueuedMetricsEvent.MetricsEventType.SHUTDOWN_SERVICE.name(),
                                     expectedEventCount,
                                     ((Shutdown) event).initiatedEvents()));
                 }

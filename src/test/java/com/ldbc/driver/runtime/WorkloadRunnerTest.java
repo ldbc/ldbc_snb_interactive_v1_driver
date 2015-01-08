@@ -134,11 +134,11 @@ public class WorkloadRunnerTest {
 
             File resultsLog = temporaryFolder.newFile();
             SimpleCsvFileWriter csvResultsLogWriter = new SimpleCsvFileWriter(resultsLog, SimpleCsvFileWriter.DEFAULT_COLUMN_SEPARATOR);
-            metricsService = ThreadedQueuedConcurrentMetricsService.newInstanceUsingBlockingBoundedQueue(
+            metricsService = ThreadedQueuedMetricsService.newInstanceUsingBlockingBoundedQueue(
                     timeSource,
                     errorReporter,
                     configuration.timeUnit(),
-                    ThreadedQueuedConcurrentMetricsService.DEFAULT_HIGHEST_EXPECTED_RUNTIME_DURATION_AS_NANO,
+                    ThreadedQueuedMetricsService.DEFAULT_HIGHEST_EXPECTED_RUNTIME_DURATION_AS_NANO,
                     csvResultsLogWriter,
                     workload.operationTypeToClassMapping(configuration.asMap())
             );
@@ -163,7 +163,7 @@ public class WorkloadRunnerTest {
 
             runner.executeWorkload();
 
-            WorkloadResultsSnapshot workloadResults = metricsService.results();
+            WorkloadResultsSnapshot workloadResults = metricsService.getWriter().results();
 
             SimpleWorkloadMetricsFormatter metricsFormatter = new SimpleWorkloadMetricsFormatter();
 
@@ -287,11 +287,11 @@ public class WorkloadRunnerTest {
 
             File resultsLog = temporaryFolder.newFile();
             SimpleCsvFileWriter csvResultsLogWriter = new SimpleCsvFileWriter(resultsLog, SimpleCsvFileWriter.DEFAULT_COLUMN_SEPARATOR);
-            metricsService = ThreadedQueuedConcurrentMetricsService.newInstanceUsingBlockingBoundedQueue(
+            metricsService = ThreadedQueuedMetricsService.newInstanceUsingBlockingBoundedQueue(
                     timeSource,
                     errorReporter,
                     configuration.timeUnit(),
-                    ThreadedQueuedConcurrentMetricsService.DEFAULT_HIGHEST_EXPECTED_RUNTIME_DURATION_AS_NANO,
+                    ThreadedQueuedMetricsService.DEFAULT_HIGHEST_EXPECTED_RUNTIME_DURATION_AS_NANO,
                     csvResultsLogWriter,
                     workload.operationTypeToClassMapping(configuration.asMap())
             );
@@ -316,7 +316,7 @@ public class WorkloadRunnerTest {
 
             runner.executeWorkload();
 
-            WorkloadResultsSnapshot workloadResults = metricsService.results();
+            WorkloadResultsSnapshot workloadResults = metricsService.getWriter().results();
 
             SimpleWorkloadMetricsFormatter metricsFormatter = new SimpleWorkloadMetricsFormatter();
 
@@ -466,11 +466,11 @@ public class WorkloadRunnerTest {
 
             File resultsLog = temporaryFolder.newFile();
             SimpleCsvFileWriter csvResultsLogWriter = new SimpleCsvFileWriter(resultsLog, SimpleCsvFileWriter.DEFAULT_COLUMN_SEPARATOR);
-            metricsService = ThreadedQueuedConcurrentMetricsService.newInstanceUsingBlockingBoundedQueue(
+            metricsService = ThreadedQueuedMetricsService.newInstanceUsingBlockingBoundedQueue(
                     timeSource,
                     errorReporter,
                     configuration.timeUnit(),
-                    ThreadedQueuedConcurrentMetricsService.DEFAULT_HIGHEST_EXPECTED_RUNTIME_DURATION_AS_NANO,
+                    ThreadedQueuedMetricsService.DEFAULT_HIGHEST_EXPECTED_RUNTIME_DURATION_AS_NANO,
                     csvResultsLogWriter,
                     workload.operationTypeToClassMapping(configuration.asMap())
             );
@@ -491,7 +491,7 @@ public class WorkloadRunnerTest {
 
             runner.executeWorkload();
 
-            WorkloadResultsSnapshot workloadResults = metricsService.results();
+            WorkloadResultsSnapshot workloadResults = metricsService.getWriter().results();
             SimpleWorkloadMetricsFormatter metricsFormatter = new SimpleWorkloadMetricsFormatter();
 
             assertThat(
