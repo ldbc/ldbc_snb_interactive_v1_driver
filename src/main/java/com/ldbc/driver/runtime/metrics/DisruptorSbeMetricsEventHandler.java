@@ -3,7 +3,6 @@ package com.ldbc.driver.runtime.metrics;
 import com.ldbc.driver.Operation;
 import com.ldbc.driver.runtime.ConcurrentErrorReporter;
 import com.ldbc.driver.runtime.metrics.sbe.MetricsEvent;
-import com.ldbc.driver.temporal.TemporalUtil;
 import com.ldbc.driver.temporal.TimeSource;
 import com.ldbc.driver.util.csv.SimpleCsvFileWriter;
 import com.lmax.disruptor.EventHandler;
@@ -24,19 +23,13 @@ class DisruptorSbeMetricsEventHandler implements EventHandler<DirectBuffer> {
     private long processedEventCount = 0l;
     private final String[] operationNames;
     private final MetricsEvent metricsEvent;
-    private final int actingBlockLength;
-    private final int actingVersion;
-    private final int messageHeaderSize;
 
     DisruptorSbeMetricsEventHandler(ConcurrentErrorReporter errorReporter,
                                     SimpleCsvFileWriter csvResultsLogWriter,
                                     TimeUnit unit,
                                     TimeSource timeSource,
                                     long maxRuntimeDurationAsNano,
-                                    Map<Integer, Class<? extends Operation<?>>> operationTypeToClassMapping,
-                                    int actingBlockLength,
-                                    int actingVersion,
-                                    int messageHeaderSize) throws MetricsCollectionException {
+                                    Map<Integer, Class<? extends Operation<?>>> operationTypeToClassMapping) throws MetricsCollectionException {
         this.errorReporter = errorReporter;
         this.csvResultsLogWriter = csvResultsLogWriter;
         this.unit = unit;
@@ -47,9 +40,6 @@ class DisruptorSbeMetricsEventHandler implements EventHandler<DirectBuffer> {
                 operationTypeToClassMapping);
         operationNames = MetricsManager.toOperationNameArray(operationTypeToClassMapping);
         this.metricsEvent = new MetricsEvent();
-        this.actingBlockLength = actingBlockLength;
-        this.actingVersion = actingVersion;
-        this.messageHeaderSize = messageHeaderSize;
     }
 
     AtomicStampedReference<WorkloadStatusSnapshot> statusSnapshot() {
@@ -64,11 +54,14 @@ class DisruptorSbeMetricsEventHandler implements EventHandler<DirectBuffer> {
         return processedEventCount;
     }
 
-    // TODO remove
-    static TemporalUtil temporalUtil = new TemporalUtil();
     @Override
     public void onEvent(DirectBuffer event, long l, boolean b) throws Exception {
-        metricsEvent.wrapForDecode(event, messageHeaderSize, actingBlockLength, actingVersion);
+        metricsEvent.wrapForDecode(
+                event,
+                DisruptorSbeMetricsEvent.MESSAGE_HEADER_SIZE,
+                DisruptorSbeMetricsEvent.ACTING_BLOCK_LENGTH,
+                DisruptorSbeMetricsEvent.ACTING_VERSION
+        );
 
         switch (metricsEvent.eventType()) {
             case DisruptorJavolutionMetricsEvent.SUBMIT_RESULT: {
@@ -77,9 +70,6 @@ class DisruptorSbeMetricsEventHandler implements EventHandler<DirectBuffer> {
                 long actualStartTimeAsMilli = metricsEvent.actualStartTimeAsMilli();
                 long runDurationAsNano = metricsEvent.runDurationAsNano();
                 int resultCode = metricsEvent.resultCode();
-
-                // TODO remove
-                System.out.println(temporalUtil.milliTimeToDateTimeString(actualStartTimeAsMilli));
 
                 if (null != csvResultsLogWriter) {
                     csvResultsLogWriter.writeRow(

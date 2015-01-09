@@ -1,12 +1,11 @@
 /* Generated SBE (Simple Binary Encoding) message codec */
 package com.ldbc.driver.runtime.metrics.sbe;
 
-import uk.co.real_logic.sbe.codec.java.CodecUtil;
-import uk.co.real_logic.sbe.codec.java.DirectBuffer;
+import uk.co.real_logic.sbe.codec.java.*;
 
 public class MetricsEvent
 {
-    public static final int BLOCK_LENGTH = 17;
+    public static final int BLOCK_LENGTH = 33;
     public static final int TEMPLATE_ID = 1;
     public static final int SCHEMA_ID = 1;
     public static final int SCHEMA_VERSION = 0;
@@ -104,29 +103,29 @@ public class MetricsEvent
         return "";
     }
 
-    public static short eventTypeNullValue()
+    public static byte eventTypeNullValue()
     {
-        return (short)255;
+        return (byte)-128;
     }
 
-    public static short eventTypeMinValue()
+    public static byte eventTypeMinValue()
     {
-        return (short)0;
+        return (byte)-127;
     }
 
-    public static short eventTypeMaxValue()
+    public static byte eventTypeMaxValue()
     {
-        return (short)254;
+        return (byte)127;
     }
 
-    public short eventType()
+    public byte eventType()
     {
-        return CodecUtil.uint8Get(buffer, offset + 0);
+        return CodecUtil.int8Get(buffer, offset + 0);
     }
 
-    public MetricsEvent eventType(final short value)
+    public MetricsEvent eventType(final byte value)
     {
-        CodecUtil.uint8Put(buffer, offset + 0, value);
+        CodecUtil.int8Put(buffer, offset + 0, value);
         return this;
     }
 
@@ -149,27 +148,27 @@ public class MetricsEvent
 
     public static int operationTypeNullValue()
     {
-        return 65535;
+        return -2147483648;
     }
 
     public static int operationTypeMinValue()
     {
-        return 0;
+        return -2147483647;
     }
 
     public static int operationTypeMaxValue()
     {
-        return 65534;
+        return 2147483647;
     }
 
     public int operationType()
     {
-        return CodecUtil.uint16Get(buffer, offset + 1, java.nio.ByteOrder.LITTLE_ENDIAN);
+        return CodecUtil.int32Get(buffer, offset + 1, java.nio.ByteOrder.LITTLE_ENDIAN);
     }
 
     public MetricsEvent operationType(final int value)
     {
-        CodecUtil.uint16Put(buffer, offset + 1, value, java.nio.ByteOrder.LITTLE_ENDIAN);
+        CodecUtil.int32Put(buffer, offset + 1, value, java.nio.ByteOrder.LITTLE_ENDIAN);
         return this;
     }
 
@@ -192,27 +191,27 @@ public class MetricsEvent
 
     public static long scheduledStartTimeAsMilliNullValue()
     {
-        return 4294967294L;
+        return -9223372036854775808L;
     }
 
     public static long scheduledStartTimeAsMilliMinValue()
     {
-        return 0L;
+        return -9223372036854775807L;
     }
 
     public static long scheduledStartTimeAsMilliMaxValue()
     {
-        return 4294967293L;
+        return 9223372036854775807L;
     }
 
     public long scheduledStartTimeAsMilli()
     {
-        return CodecUtil.uint32Get(buffer, offset + 3, java.nio.ByteOrder.LITTLE_ENDIAN);
+        return CodecUtil.int64Get(buffer, offset + 5, java.nio.ByteOrder.LITTLE_ENDIAN);
     }
 
     public MetricsEvent scheduledStartTimeAsMilli(final long value)
     {
-        CodecUtil.uint32Put(buffer, offset + 3, value, java.nio.ByteOrder.LITTLE_ENDIAN);
+        CodecUtil.int64Put(buffer, offset + 5, value, java.nio.ByteOrder.LITTLE_ENDIAN);
         return this;
     }
 
@@ -235,27 +234,27 @@ public class MetricsEvent
 
     public static long actualStartTimeAsMilliNullValue()
     {
-        return 4294967294L;
+        return -9223372036854775808L;
     }
 
     public static long actualStartTimeAsMilliMinValue()
     {
-        return 0L;
+        return -9223372036854775807L;
     }
 
     public static long actualStartTimeAsMilliMaxValue()
     {
-        return 4294967293L;
+        return 9223372036854775807L;
     }
 
     public long actualStartTimeAsMilli()
     {
-        return CodecUtil.uint32Get(buffer, offset + 7, java.nio.ByteOrder.LITTLE_ENDIAN);
+        return CodecUtil.int64Get(buffer, offset + 13, java.nio.ByteOrder.LITTLE_ENDIAN);
     }
 
     public MetricsEvent actualStartTimeAsMilli(final long value)
     {
-        CodecUtil.uint32Put(buffer, offset + 7, value, java.nio.ByteOrder.LITTLE_ENDIAN);
+        CodecUtil.int64Put(buffer, offset + 13, value, java.nio.ByteOrder.LITTLE_ENDIAN);
         return this;
     }
 
@@ -278,27 +277,27 @@ public class MetricsEvent
 
     public static long runDurationAsNanoNullValue()
     {
-        return 4294967294L;
+        return -9223372036854775808L;
     }
 
     public static long runDurationAsNanoMinValue()
     {
-        return 0L;
+        return -9223372036854775807L;
     }
 
     public static long runDurationAsNanoMaxValue()
     {
-        return 4294967293L;
+        return 9223372036854775807L;
     }
 
     public long runDurationAsNano()
     {
-        return CodecUtil.uint32Get(buffer, offset + 11, java.nio.ByteOrder.LITTLE_ENDIAN);
+        return CodecUtil.int64Get(buffer, offset + 21, java.nio.ByteOrder.LITTLE_ENDIAN);
     }
 
     public MetricsEvent runDurationAsNano(final long value)
     {
-        CodecUtil.uint32Put(buffer, offset + 11, value, java.nio.ByteOrder.LITTLE_ENDIAN);
+        CodecUtil.int64Put(buffer, offset + 21, value, java.nio.ByteOrder.LITTLE_ENDIAN);
         return this;
     }
 
@@ -321,27 +320,27 @@ public class MetricsEvent
 
     public static int resultCodeNullValue()
     {
-        return 65535;
+        return -2147483648;
     }
 
     public static int resultCodeMinValue()
     {
-        return 0;
+        return -2147483647;
     }
 
     public static int resultCodeMaxValue()
     {
-        return 65534;
+        return 2147483647;
     }
 
     public int resultCode()
     {
-        return CodecUtil.uint16Get(buffer, offset + 15, java.nio.ByteOrder.LITTLE_ENDIAN);
+        return CodecUtil.int32Get(buffer, offset + 29, java.nio.ByteOrder.LITTLE_ENDIAN);
     }
 
     public MetricsEvent resultCode(final int value)
     {
-        CodecUtil.uint16Put(buffer, offset + 15, value, java.nio.ByteOrder.LITTLE_ENDIAN);
+        CodecUtil.int32Put(buffer, offset + 29, value, java.nio.ByteOrder.LITTLE_ENDIAN);
         return this;
     }
 }

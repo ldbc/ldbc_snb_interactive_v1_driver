@@ -69,10 +69,7 @@ public class DisruptorSbeMetricsService implements ConcurrentMetricsService {
                 timeUnit,
                 timeSource,
                 maxRuntimeDurationAsNano,
-                operationTypeToClassMapping,
-                DisruptorSbeMetricsEvent.ACTING_BLOCK_LENGTH,
-                DisruptorSbeMetricsEvent.ACTING_VERSION,
-                DisruptorSbeMetricsEvent.MESSAGE_HEADER_SIZE
+                operationTypeToClassMapping
         );
 
         disruptor.handleEventsWith(eventHandler);
@@ -212,9 +209,6 @@ public class DisruptorSbeMetricsService implements ConcurrentMetricsService {
 
             @Override
             public void translateTo(DirectBuffer event, long l, Object... fields) {
-                // TODO remove
-                System.out.println(new TemporalUtil().milliTimeToDateTimeString((long)fields[2]));
-
                 metricsEvent.wrapForEncode(event, MESSAGE_HEADER_SIZE)
                         .eventType(SUBMIT_OPERATION_RESULT)
                         .operationType((int) fields[0])

@@ -1,5 +1,5 @@
 /* Generated SBE (Simple Binary Encoding) message codec */
-package com.ldbc.driver.runtime.metrics.event;
+package com.ldbc.driver.runtime.metrics.sbe;
 
 import uk.co.real_logic.sbe.codec.java.*;
 

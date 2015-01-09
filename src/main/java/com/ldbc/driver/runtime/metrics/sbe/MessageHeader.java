@@ -1,8 +1,7 @@
 /* Generated SBE (Simple Binary Encoding) message codec */
 package com.ldbc.driver.runtime.metrics.sbe;
 
-import uk.co.real_logic.sbe.codec.java.CodecUtil;
-import uk.co.real_logic.sbe.codec.java.DirectBuffer;
+import uk.co.real_logic.sbe.codec.java.*;
 
 public class MessageHeader
 {

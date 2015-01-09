@@ -23,8 +23,8 @@ public class DisruptorSbeMetricsEvent {
     static {
         MetricsEvent metricsEvent = new MetricsEvent();
         MessageHeader messageHeader = new MessageHeader();
-        DirectBuffer buffer = new DisruptorSbeMetricsEvent.MetricsCollectionEventFactory().newInstance();
-        messageHeader.wrap(buffer, 0, MESSAGE_TEMPLATE_VERSION)
+        DirectBuffer directBuffer = new DisruptorSbeMetricsEvent.MetricsCollectionEventFactory().newInstance();
+        messageHeader.wrap(directBuffer, 0, MESSAGE_TEMPLATE_VERSION)
                 .blockLength(metricsEvent.sbeBlockLength())
                 .templateId(metricsEvent.sbeTemplateId())
                 .schemaId(metricsEvent.sbeSchemaId())
@@ -41,7 +41,7 @@ public class DisruptorSbeMetricsEvent {
 
         @Override
         public DirectBuffer newInstance() {
-            final ByteBuffer byteBuffer = ByteBuffer.allocateDirect(32);
+            final ByteBuffer byteBuffer = ByteBuffer.allocateDirect(48);
             DirectBuffer directBuffer = new DirectBuffer(byteBuffer);
             messageHeader.wrap(directBuffer, 0, MESSAGE_TEMPLATE_VERSION)
                     .blockLength(metricsEvent.sbeBlockLength())
