@@ -15,7 +15,6 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 class WorkloadStatusThread extends Thread {
-    stuff is getting reported incorrectely here. possibly because metrics service doing strange things.
     private static Logger logger = Logger.getLogger(WorkloadStatusThread.class);
 
     private static final TemporalUtil TEMPORAL_UTIL = new TemporalUtil();
@@ -50,7 +49,14 @@ class WorkloadStatusThread extends Thread {
                 WorkloadStatusSnapshot status = metricsServiceWriter.status();
 
                 // TODO remove
-                System.out.println(status.throughput());
+//                System.out.println(status.durationSinceLastMeasurementAsMilli());
+//                System.out.println(TEMPORAL_UTIL.milliDurationToString(status.durationSinceLastMeasurementAsMilli()));
+//                System.out.println("--");
+//                System.out.println(THROUGHPUT_FORMATTER.format(status.throughput()));
+//                System.out.println(TEMPORAL_UTIL.milliDurationToString(status.durationSinceLastMeasurementAsMilli()));
+//                System.out.println(OPERATION_COUNT_FORMATTER.format(status.operationCount()));
+//                System.out.println(TEMPORAL_UTIL.milliDurationToString(status.runDurationAsMilli()));
+//                System.out.println("--");
 
                 operationCountsAtDurations.add(
                         new OperationCountAtDuration(status.operationCount(), status.runDurationAsMilli())

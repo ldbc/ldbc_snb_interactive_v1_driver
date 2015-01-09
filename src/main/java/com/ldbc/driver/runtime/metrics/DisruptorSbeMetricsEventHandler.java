@@ -3,6 +3,7 @@ package com.ldbc.driver.runtime.metrics;
 import com.ldbc.driver.Operation;
 import com.ldbc.driver.runtime.ConcurrentErrorReporter;
 import com.ldbc.driver.runtime.metrics.sbe.MetricsEvent;
+import com.ldbc.driver.temporal.TemporalUtil;
 import com.ldbc.driver.temporal.TimeSource;
 import com.ldbc.driver.util.csv.SimpleCsvFileWriter;
 import com.lmax.disruptor.EventHandler;
@@ -63,6 +64,8 @@ class DisruptorSbeMetricsEventHandler implements EventHandler<DirectBuffer> {
         return processedEventCount;
     }
 
+    // TODO remove
+    static TemporalUtil temporalUtil = new TemporalUtil();
     @Override
     public void onEvent(DirectBuffer event, long l, boolean b) throws Exception {
         metricsEvent.wrapForDecode(event, messageHeaderSize, actingBlockLength, actingVersion);
@@ -74,6 +77,9 @@ class DisruptorSbeMetricsEventHandler implements EventHandler<DirectBuffer> {
                 long actualStartTimeAsMilli = metricsEvent.actualStartTimeAsMilli();
                 long runDurationAsNano = metricsEvent.runDurationAsNano();
                 int resultCode = metricsEvent.resultCode();
+
+                // TODO remove
+                System.out.println(temporalUtil.milliTimeToDateTimeString(actualStartTimeAsMilli));
 
                 if (null != csvResultsLogWriter) {
                     csvResultsLogWriter.writeRow(

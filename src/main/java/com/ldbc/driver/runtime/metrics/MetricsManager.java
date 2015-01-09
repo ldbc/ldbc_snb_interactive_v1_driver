@@ -2,6 +2,7 @@ package com.ldbc.driver.runtime.metrics;
 
 import com.google.common.collect.Ordering;
 import com.ldbc.driver.Operation;
+import com.ldbc.driver.temporal.TemporalUtil;
 import com.ldbc.driver.temporal.TimeSource;
 
 import java.io.OutputStream;
