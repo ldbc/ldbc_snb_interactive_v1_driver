@@ -1,16 +1,13 @@
 package com.ldbc.driver.runtime;
 
-import com.google.common.collect.EvictingQueue;
 import com.ldbc.driver.runtime.coordination.ConcurrentCompletionTimeService;
 import com.ldbc.driver.runtime.metrics.ConcurrentMetricsService.ConcurrentMetricsServiceWriter;
 import com.ldbc.driver.runtime.metrics.WorkloadStatusSnapshot;
 import com.ldbc.driver.runtime.scheduling.Spinner;
 import com.ldbc.driver.temporal.TemporalUtil;
-import com.ldbc.driver.util.Tuple;
 import org.apache.log4j.Logger;
 
 import java.text.DecimalFormat;
-import java.util.Queue;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 
@@ -43,14 +40,23 @@ class WorkloadStatusThread extends Thread {
 
     @Override
     public void run() {
-        EvictingQueue<OperationCountAtDuration> operationCountsAtDurations = EvictingQueue.create(5);
+        final RecentThroughputAndDuration recentThroughputAndDuration = new RecentThroughputAndDuration();
+        final int statusRecency = 5;
+        final long[][] operationCountsAtDurations = new long[statusRecency][2];
+        for (int i = 0; i < operationCountsAtDurations.length; i++) {
+            operationCountsAtDurations[i][0] = -1;
+            operationCountsAtDurations[i][1] = -1;
+        }
+        int statusRecencyIndex = 0;
+
         while (continueRunning.get()) {
             try {
                 WorkloadStatusSnapshot status = metricsServiceWriter.status();
-                operationCountsAtDurations.add(
-                        new OperationCountAtDuration(status.operationCount(), status.runDurationAsMilli())
-                );
-                Tuple.Tuple2<Double, Long> recentThroughput = recentThroughput(operationCountsAtDurations);
+                operationCountsAtDurations[statusRecencyIndex][0] = status.operationCount();
+                operationCountsAtDurations[statusRecencyIndex][1] = status.runDurationAsMilli();
+                statusRecencyIndex = (statusRecencyIndex + 1) % statusRecency;
+
+                updateRecentThroughput(operationCountsAtDurations, recentThroughputAndDuration);
 
                 String statusString = (detailedStatus) ?
                         formatWithGct(
@@ -58,16 +64,16 @@ class WorkloadStatusThread extends Thread {
                                 status.runDurationAsMilli(),
                                 status.durationSinceLastMeasurementAsMilli(),
                                 status.throughput(),
-                                recentThroughput._1(),
-                                recentThroughput._2(),
+                                recentThroughputAndDuration.throughput(),
+                                recentThroughputAndDuration.duration(),
                                 concurrentCompletionTimeService.globalCompletionTimeAsMilli()) :
                         formatWithoutGct(
                                 status.operationCount(),
                                 status.runDurationAsMilli(),
                                 status.durationSinceLastMeasurementAsMilli(),
                                 status.throughput(),
-                                recentThroughput._1(),
-                                recentThroughput._2());
+                                recentThroughputAndDuration.throughput(),
+                                recentThroughputAndDuration.duration());
 
                 logger.info(statusString);
 
@@ -109,14 +115,16 @@ class WorkloadStatusThread extends Thread {
         continueRunning.set(false);
     }
 
-    private Tuple.Tuple2<Double, Long> recentThroughput(Queue<OperationCountAtDuration> recentOperationCountsAtDurations) {
+    private void updateRecentThroughput(final long[][] recentOperationCountsAtDurations,
+                                        final RecentThroughputAndDuration recentThroughputAndDuration) {
         long minOperationCount = Long.MAX_VALUE;
         long maxOperationCount = Long.MIN_VALUE;
         long minDurationAsMilli = Long.MAX_VALUE;
         long maxDurationAsMilli = Long.MIN_VALUE;
-        for (OperationCountAtDuration operationCountAtDuration : recentOperationCountsAtDurations) {
-            long operationCount = operationCountAtDuration.operationCount();
-            long durationAsMilli = operationCountAtDuration.durationAsMilli();
+        for (int i = 0; i < recentOperationCountsAtDurations.length; i++) {
+            long operationCount = recentOperationCountsAtDurations[i][0];
+            long durationAsMilli = recentOperationCountsAtDurations[i][1];
+            if (-1 == operationCount) continue;
             minOperationCount = Math.min(minOperationCount, operationCount);
             maxOperationCount = Math.max(maxOperationCount, operationCount);
             minDurationAsMilli = Math.min(minDurationAsMilli, durationAsMilli);
@@ -127,24 +135,28 @@ class WorkloadStatusThread extends Thread {
         double recentThroughput = (0 == recentRunDurationAsMilli)
                 ? 0
                 : (double) recentOperationCount / recentRunDurationAsMilli * 1000;
-        return Tuple.tuple2(recentThroughput, recentRunDurationAsMilli);
+        recentThroughputAndDuration.setThroughput(recentThroughput);
+        recentThroughputAndDuration.setDuration(recentRunDurationAsMilli);
     }
 
-    private class OperationCountAtDuration {
-        private final long operationCount;
-        private final long durationAsMilli;
+    private class RecentThroughputAndDuration {
+        private double throughput = 0.0;
+        private long duration = 0;
 
-        private OperationCountAtDuration(long operationCount, long durationAsMilli) {
-            this.operationCount = operationCount;
-            this.durationAsMilli = durationAsMilli;
+        void setThroughput(double throughput) {
+            this.throughput = throughput;
         }
 
-        public long operationCount() {
-            return operationCount;
+        void setDuration(long duration) {
+            this.duration = duration;
         }
 
-        public long durationAsMilli() {
-            return durationAsMilli;
+        double throughput() {
+            return throughput;
+        }
+
+        long duration() {
+            return duration;
         }
     }
 }
