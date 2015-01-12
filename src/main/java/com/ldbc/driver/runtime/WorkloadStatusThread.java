@@ -41,7 +41,7 @@ class WorkloadStatusThread extends Thread {
     @Override
     public void run() {
         final RecentThroughputAndDuration recentThroughputAndDuration = new RecentThroughputAndDuration();
-        final int statusRecency = 5;
+        final int statusRecency = 4;
         final long[][] operationCountsAtDurations = new long[statusRecency][2];
         for (int i = 0; i < operationCountsAtDurations.length; i++) {
             operationCountsAtDurations[i][0] = -1;
