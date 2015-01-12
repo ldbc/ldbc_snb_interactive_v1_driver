@@ -8,12 +8,10 @@ import com.ldbc.driver.generator.CsvEventStreamReaderBasicCharSeeker;
 import com.ldbc.driver.generator.CsvEventStreamReaderBasicCharSeeker.EventDecoder;
 import com.ldbc.driver.generator.GeneratorFactory;
 import com.ldbc.driver.generator.RandomDataGeneratorFactory;
-import com.ldbc.driver.runtime.ConcurrentErrorReporter;
-import com.ldbc.driver.runtime.coordination.*;
+import com.ldbc.driver.runtime.coordination.CompletionTimeException;
 import com.ldbc.driver.temporal.SystemTimeSource;
 import com.ldbc.driver.temporal.TemporalUtil;
 import com.ldbc.driver.temporal.TimeSource;
-import com.ldbc.driver.util.Tuple;
 import com.ldbc.driver.util.csv.SimpleCsvFileReader;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -21,239 +19,111 @@ import org.junit.Test;
 import java.io.*;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicInteger;
-import java.util.concurrent.atomic.AtomicLong;
-
-import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.CoreMatchers.nullValue;
-import static org.junit.Assert.assertThat;
 
 public class EventStreamReaderPerformanceTest {
     private static final TemporalUtil TEMPORAL_UTIL = new TemporalUtil();
     TimeSource timeSource = new SystemTimeSource();
-    DecimalFormat numberFormatter = new DecimalFormat("###,###,###,###");
+    DecimalFormat numberFormatter = new DecimalFormat("###,###,###,##0.00");
 
-    @Ignore
-    @Test
-    public void safeTimeTest() throws FileNotFoundException {
-        File streamsDir = new File("/Users/alexaverbuch/IdeaProjects/ldbc_snb_workload_interactive_neo4j/data-import/src/test/resources/test_csv_files/");
-
-        int bufferSize = 2 * 1024 * 1024;
-        List<Iterator<Operation<?>>> parsers = new ArrayList<>();
-        for (File personUpdateFile : streamsDir.listFiles(
-                new FilenameFilter() {
-                    @Override
-                    public boolean accept(File dir, String name) {
-                        return name.endsWith("_person.csv");
-                    }
-                }
-        )) {
-            CharSeeker charSeeker = new BufferedCharSeeker(Readables.wrap(new InputStreamReader(new FileInputStream(personUpdateFile), Charsets.UTF_8)), bufferSize);
-            int columnDelimiter = '|';
-            Extractors extractors = new Extractors(';');
-            parsers.add(new WriteEventStreamReaderCharSeeker(charSeeker, extractors, columnDelimiter));
-        }
-
-        for (File forumUpdateFile : streamsDir.listFiles(
-                new FilenameFilter() {
-                    @Override
-                    public boolean accept(File dir, String name) {
-                        return name.endsWith("_forum.csv");
-                    }
-                }
-        )) {
-            CharSeeker charSeeker = new BufferedCharSeeker(Readables.wrap(new InputStreamReader(new FileInputStream(forumUpdateFile), Charsets.UTF_8)), bufferSize);
-            int columnDelimiter = '|';
-            Extractors extractors = new Extractors(';');
-            parsers.add(new WriteEventStreamReaderCharSeeker(charSeeker, extractors, columnDelimiter));
-        }
-
-        GeneratorFactory gf = new GeneratorFactory(new RandomDataGeneratorFactory(42l));
-        Iterator<Operation<?>> operations = gf.mergeSortOperationsByTimeStamp(parsers.toArray(new Iterator[parsers.size()]));
-
-        long safeTime = 10000;
-        List<Operation<?>> unsafeOperations = new ArrayList<>();
-
-        while (operations.hasNext()) {
-            Operation<?> operation = operations.next();
-
-            unsafeOperations = removeOperationsWithScheduledStartTimeBefore(unsafeOperations, operation.timeStamp(), safeTime);
-
-            if (operation.getClass().equals(LdbcUpdate1AddPerson.class)) {
-                unsafeOperations.add(operation);
-            } else if (operation.getClass().equals(LdbcUpdate2AddPostLike.class)) {
-                long personId = ((LdbcUpdate2AddPostLike) operation).personId();
-                Operation<?> dependentOn = isDependentOnUnsafeOperation(unsafeOperations, personId);
-                assertThat(String.format("\n%s - %s\n%s - %s", operation.timeStamp(), operation, (null == dependentOn) ? "" : dependentOn.timeStamp(), dependentOn),
-                        dependentOn, is(nullValue()));
-            } else if (operation.getClass().equals(LdbcUpdate3AddCommentLike.class)) {
-                long personId = ((LdbcUpdate3AddCommentLike) operation).personId();
-                Operation<?> dependentOn = isDependentOnUnsafeOperation(unsafeOperations, personId);
-                assertThat(String.format("\n%s - %s\n%s - %s", operation.timeStamp(), operation, (null == dependentOn) ? "" : dependentOn.timeStamp(), dependentOn),
-                        dependentOn, is(nullValue()));
-            } else if (operation.getClass().equals(LdbcUpdate4AddForum.class)) {
-                long personId = ((LdbcUpdate4AddForum) operation).moderatorPersonId();
-                Operation<?> dependentOn = isDependentOnUnsafeOperation(unsafeOperations, personId);
-                assertThat(String.format("\n%s - %s\n%s - %s", operation.timeStamp(), operation, (null == dependentOn) ? "" : dependentOn.timeStamp(), dependentOn),
-                        dependentOn, is(nullValue()));
-            } else if (operation.getClass().equals(LdbcUpdate5AddForumMembership.class)) {
-                long personId = ((LdbcUpdate5AddForumMembership) operation).personId();
-                Operation<?> dependentOn = isDependentOnUnsafeOperation(unsafeOperations, personId);
-                assertThat(String.format("\n%s - %s\n%s - %s", operation.timeStamp(), operation, (null == dependentOn) ? "" : dependentOn.timeStamp(), dependentOn),
-                        dependentOn, is(nullValue()));
-            } else if (operation.getClass().equals(LdbcUpdate6AddPost.class)) {
-                long personId = ((LdbcUpdate6AddPost) operation).authorPersonId();
-                Operation<?> dependentOn = isDependentOnUnsafeOperation(unsafeOperations, personId);
-                assertThat(String.format("\n%s - %s\n%s - %s", operation.timeStamp(), operation, (null == dependentOn) ? "" : dependentOn.timeStamp(), dependentOn),
-                        dependentOn, is(nullValue()));
-            } else if (operation.getClass().equals(LdbcUpdate7AddComment.class)) {
-                long personId = ((LdbcUpdate7AddComment) operation).authorPersonId();
-                Operation<?> dependentOn = isDependentOnUnsafeOperation(unsafeOperations, personId);
-                assertThat(String.format("\n%s - %s\n%s - %s", operation.timeStamp(), operation, (null == dependentOn) ? "" : dependentOn.timeStamp(), dependentOn),
-                        dependentOn, is(nullValue()));
-            } else if (operation.getClass().equals(LdbcUpdate8AddFriendship.class)) {
-                long personId = ((LdbcUpdate8AddFriendship) operation).person1Id();
-                Operation<?> dependentOn = isDependentOnUnsafeOperation(unsafeOperations, personId);
-                assertThat(String.format("\n%s - %s\n%s - %s", operation.timeStamp(), operation, (null == dependentOn) ? "" : dependentOn.timeStamp(), dependentOn),
-                        dependentOn, is(nullValue()));
-                personId = ((LdbcUpdate8AddFriendship) operation).person2Id();
-                dependentOn = isDependentOnUnsafeOperation(unsafeOperations, personId);
-                assertThat(String.format("\n%s - %s\n%s - %s", operation.timeStamp(), operation, (null == dependentOn) ? "" : dependentOn.timeStamp(), dependentOn),
-                        dependentOn, is(nullValue()));
-            }
-        }
-    }
-
-    private Operation<?> isDependentOnUnsafeOperation(List<Operation<?>> unsafeOperations, long personId) {
-        for (Operation<?> unsafeOperation : unsafeOperations) {
-            if (((LdbcUpdate1AddPerson) unsafeOperation).personId() == personId) return unsafeOperation;
-        }
-        return null;
-    }
-
-    private List<Operation<?>> removeOperationsWithScheduledStartTimeBefore(List<Operation<?>> dependencyOperations, long time, long safeTime) {
-        List<Operation<?>> remainingOperations = new ArrayList<>();
-        for (Operation<?> dependencyOperation : dependencyOperations) {
-            if (time - dependencyOperation.timeStamp() < safeTime) {
-                remainingOperations.add(dependencyOperation);
-            }
-        }
-        return remainingOperations;
-    }
-
+    //1 threads 99,010,827.00 operations in 01:04.351.000 (m:s.ms.us) = 1,538,605.88 op/ms
+    //2 threads 198,021,654.00 operations in 01:05.156.000 (m:s.ms.us) = 3,039,192.92 op/ms
+    //3 threads 297,032,481.00 operations in 01:13.117.000 (m:s.ms.us) = 4,062,427.08 op/ms
+    //4 threads 396,043,308.00 operations in 01:21.316.000 (m:s.ms.us) = 4,870,422.89 op/ms
     @Ignore
     @Test
     public void multiThreadedMultiPartitionParserPerformanceTest() throws FileNotFoundException, InterruptedException, CompletionTimeException {
-        File streamsDir = new File("/Users/alexaverbuch/hadoopTempDir/output/social_network/");
-        AtomicLong operationCount = new AtomicLong(0);
-        int bufferSize = 2 * 1024 * 1024;
-        List<Tuple.Tuple2<Iterator<Operation<?>>, LocalCompletionTimeWriter>> parsers = new ArrayList<>();
-        AtomicInteger parsersRunningCount = new AtomicInteger(0);
-        for (File personUpdateFile : streamsDir.listFiles(
-                new FilenameFilter() {
-                    @Override
-                    public boolean accept(File dir, String name) {
-                        return name.endsWith("_person.csv");
-                    }
-                }
-        )) {
-            CharSeeker charSeeker = new BufferedCharSeeker(Readables.wrap(new InputStreamReader(new FileInputStream(personUpdateFile), Charsets.UTF_8)), bufferSize);
-            int columnDelimiter = '|';
-            Extractors extractors = new Extractors(';');
-            parsers.add(
-                    Tuple.<Iterator<Operation<?>>, LocalCompletionTimeWriter>tuple2(
-                            new WriteEventStreamReaderCharSeeker(charSeeker, extractors, columnDelimiter),
-                            new DummyLocalCompletionTimeWriter()
-                    )
-            );
-            parsersRunningCount.incrementAndGet();
-        }
-
-        CompletionTimeServiceAssistant completionTimeServiceAssistant = new CompletionTimeServiceAssistant();
-        ConcurrentCompletionTimeService completionTimeService = completionTimeServiceAssistant.newThreadedQueuedConcurrentCompletionTimeServiceFromPeerIds(
-                timeSource,
-                new HashSet<String>(),
-                new ConcurrentErrorReporter()
+        List<File> updateStreams = Lists.newArrayList(
+//                new File("/Users/alexaverbuch/IdeaProjects/ldbc_snb_workload_interactive_neo4j/ldbc_driver/sample_data/sf30-001-with-replica-streams/updateStream_forum_0.csv"),
+//                new File("/Users/alexaverbuch/IdeaProjects/ldbc_snb_workload_interactive_neo4j/ldbc_driver/sample_data/sf30-001-with-replica-streams/updateStream_forum_1.csv"),
+//                new File("/Users/alexaverbuch/IdeaProjects/ldbc_snb_workload_interactive_neo4j/ldbc_driver/sample_data/sf30-001-with-replica-streams/updateStream_forum_2.csv"),
+//                new File("/Users/alexaverbuch/IdeaProjects/ldbc_snb_workload_interactive_neo4j/ldbc_driver/sample_data/sf30-001-with-replica-streams/updateStream_forum_3.csv")
+                new File("/Users/alexaverbuch/IdeaProjects/ldbc_snb_workload_interactive_neo4j/ldbc_driver/sample_data/sf30-001-with-replica-streams/updateStream_forum_0.csv"),
+                new File("/Users/alexaverbuch/IdeaProjects/ldbc_snb_workload_interactive_neo4j/ldbc_driver/sample_data/sf30-001-with-replica-streams/updateStream_forum_1.csv"),
+                new File("/Users/alexaverbuch/IdeaProjects/ldbc_snb_workload_interactive_neo4j/ldbc_driver/sample_data/sf30-001-with-replica-streams/updateStream_forum_2.csv"),
+                new File("/Users/alexaverbuch/IdeaProjects/ldbc_snb_workload_interactive_neo4j/ldbc_driver/sample_data/sf30-001-with-replica-streams/updateStream_forum_3.csv")
         );
 
-        for (File forumUpdateFile : streamsDir.listFiles(
-                new FilenameFilter() {
-                    @Override
-                    public boolean accept(File dir, String name) {
-                        return name.endsWith("_forum.csv");
-                    }
-                }
-        )) {
-            CharSeeker charSeeker = new BufferedCharSeeker(Readables.wrap(new InputStreamReader(new FileInputStream(forumUpdateFile), Charsets.UTF_8)), bufferSize);
+        int bufferSize = 2 * 1024 * 1024;
+        List<UpdateStreamReadingThread> updateStreamReadingThreads = new ArrayList<>();
+        CountDownLatch readyLatch = new CountDownLatch(updateStreams.size());
+        CountDownLatch startLatch = new CountDownLatch(1);
+        CountDownLatch stopLatch = new CountDownLatch(updateStreams.size());
+        for (File updateStream : updateStreams) {
+            CharSeeker charSeeker = new BufferedCharSeeker(Readables.wrap(new InputStreamReader(new FileInputStream(updateStream), Charsets.UTF_8)), bufferSize);
             int columnDelimiter = '|';
             Extractors extractors = new Extractors(';');
-            parsers.add(
-                    Tuple.<Iterator<Operation<?>>, LocalCompletionTimeWriter>tuple2(
-                            new WriteEventStreamReaderCharSeeker(charSeeker, extractors, columnDelimiter),
-                            completionTimeService.newLocalCompletionTimeWriter()
-                    )
+            UpdateStreamReadingThread updateStreamReadingThread = new UpdateStreamReadingThread(
+                    readyLatch,
+                    startLatch,
+                    stopLatch,
+                    new WriteEventStreamReaderCharSeeker(charSeeker, extractors, columnDelimiter)
             );
-            parsersRunningCount.incrementAndGet();
+            updateStreamReadingThread.start();
+            updateStreamReadingThreads.add(
+                    updateStreamReadingThread
+            );
         }
 
-        for (Tuple.Tuple2<Iterator<Operation<?>>, LocalCompletionTimeWriter> parser : parsers) {
-            ParserThread parserThread = new ParserThread(parsersRunningCount, parser._1(), parser._2(), operationCount);
-            parserThread.start();
-        }
+        readyLatch.await();
 
+        startLatch.countDown();
         long startTime = timeSource.nowAsMilli();
-        while (parsersRunningCount.get() > 0) {
-            System.out.println("Threads running: " + parsersRunningCount.get());
-            Thread.sleep(1000);
-        }
+        stopLatch.await();
         long finishTime = timeSource.nowAsMilli();
-        double throughput = (finishTime - (double) startTime) / (finishTime - startTime);
+
+        long operationCount = 0;
+        for (UpdateStreamReadingThread updateStreamReadingThread : updateStreamReadingThreads) {
+            operationCount += updateStreamReadingThread.count();
+        }
+        double throughput = 1000 * (double) operationCount / (finishTime - startTime);
         System.out.println(
                 String.format("%s operations in %s = %s op/ms",
-                        numberFormatter.format(operationCount.get()),
+                        numberFormatter.format(operationCount),
                         new TemporalUtil().milliDurationToString(finishTime - startTime),
                         numberFormatter.format(throughput)
                 )
         );
     }
 
-    private static class ParserThread extends Thread {
-        private final AtomicInteger parsersRunningCount;
-        private final Iterator<Operation<?>> parser;
-        private final LocalCompletionTimeWriter localCompletionTimeWriter;
-        private final AtomicLong operationCount;
+    private static class UpdateStreamReadingThread extends Thread {
+        private final CountDownLatch readyLatch;
+        private final CountDownLatch startLatch;
+        private final CountDownLatch stopLatch;
+        private final Iterator<Operation<?>> updateStreamReader;
+        private long count = 0;
 
-        private ParserThread(AtomicInteger parsersRunningCount,
-                             Iterator<Operation<?>> parser,
-                             LocalCompletionTimeWriter localCompletionTimeWriter,
-                             AtomicLong operationCount) {
-            this.parsersRunningCount = parsersRunningCount;
-            this.parser = parser;
-            this.localCompletionTimeWriter = localCompletionTimeWriter;
-            this.operationCount = operationCount;
+        private UpdateStreamReadingThread(CountDownLatch readyLatch,
+                                          CountDownLatch startLatch,
+                                          CountDownLatch stopLatch,
+                                          Iterator<Operation<?>> updateStreamReader) {
+            this.readyLatch = readyLatch;
+            this.startLatch = startLatch;
+            this.stopLatch = stopLatch;
+            this.updateStreamReader = updateStreamReader;
         }
 
         @Override
         public void run() {
-            long count = 0;
-            while (parser.hasNext()) {
-                long time = parser.next().timeStamp();
-                try {
-                    localCompletionTimeWriter.submitLocalInitiatedTime(time);
-                    localCompletionTimeWriter.submitLocalCompletedTime(time);
-                } catch (CompletionTimeException e) {
-                    e.printStackTrace();
-                }
+            readyLatch.countDown();
+            try {
+                startLatch.await();
+            } catch (InterruptedException e) {
+                // do nothing
+            }
+            while (updateStreamReader.hasNext()) {
+                updateStreamReader.next().timeStamp();
                 count++;
             }
-            operationCount.addAndGet(count);
-            parsersRunningCount.decrementAndGet();
+            stopLatch.countDown();
         }
 
+        public long count() {
+            return count;
+        }
     }
 
     @Ignore
