@@ -13,59 +13,18 @@ import java.io.IOException;
 import java.util.*;
 import java.util.regex.Pattern;
 
-public class WriteEventStreamReaderCharSeeker implements Iterator<Operation<?>> {
-    private final CsvEventStreamReaderTimedTypedCharSeeker<Operation<?>> csvEventStreamReader;
-
-    public WriteEventStreamReaderCharSeeker(CharSeeker charSeeker, Extractors extractors, int columnDelimiter) {
+public class WriteEventStreamReaderCharSeeker {
+    public static Iterator<Operation<?>> create(CharSeeker charSeeker, Extractors extractors, int columnDelimiter) {
         Map<Integer, EventDecoder<Operation<?>>> decoders = new HashMap<>();
-        {
-            EventDecoder<Operation<?>> addPersonDecoder = new EventDecoderAddPerson();
-            decoders.put(1, addPersonDecoder);
-        }
-        {
-            EventDecoder<Operation<?>> addLikePostDecoder = new EventDecoderAddLikePost();
-            decoders.put(2, addLikePostDecoder);
-        }
-        {
-            EventDecoder<Operation<?>> addLikeCommentDecoder = new EventDecoderAddLikeComment();
-            decoders.put(3, addLikeCommentDecoder);
-        }
-        {
-            EventDecoder<Operation<?>> addForumDecoder = new EventDecoderAddForum();
-            decoders.put(4, addForumDecoder);
-        }
-        {
-            EventDecoder<Operation<?>> addForumMembershipDecoder = new EventDecoderAddForumMembership();
-            decoders.put(5, addForumMembershipDecoder);
-        }
-        {
-            EventDecoder<Operation<?>> addPostDecoder = new EventDecoderAddPost();
-            decoders.put(6, addPostDecoder);
-        }
-        {
-            EventDecoder<Operation<?>> addCommentDecoder = new EventDecoderAddComment();
-            decoders.put(7, addCommentDecoder);
-        }
-        {
-            EventDecoder<Operation<?>> addFriendshipDecoder = new EventDecoderAddFriendship();
-            decoders.put(8, addFriendshipDecoder);
-        }
-        this.csvEventStreamReader = new CsvEventStreamReaderTimedTypedCharSeeker<>(charSeeker, extractors, decoders, columnDelimiter);
-    }
-
-    @Override
-    public boolean hasNext() {
-        return csvEventStreamReader.hasNext();
-    }
-
-    @Override
-    public Operation<?> next() {
-        return csvEventStreamReader.next();
-    }
-
-    @Override
-    public void remove() {
-        throw new UnsupportedOperationException(String.format("%s does not support remove()", getClass().getSimpleName()));
+        decoders.put(1, new EventDecoderAddPerson());
+        decoders.put(2, new EventDecoderAddLikePost());
+        decoders.put(3, new EventDecoderAddLikeComment());
+        decoders.put(4, new EventDecoderAddForum());
+        decoders.put(5, new EventDecoderAddForumMembership());
+        decoders.put(6, new EventDecoderAddPost());
+        decoders.put(7, new EventDecoderAddComment());
+        decoders.put(8, new EventDecoderAddFriendship());
+        return new CsvEventStreamReaderTimedTypedCharSeeker<>(charSeeker, extractors, decoders, columnDelimiter);
     }
 
     public static class EventDecoderAddPerson implements EventDecoder<Operation<?>> {

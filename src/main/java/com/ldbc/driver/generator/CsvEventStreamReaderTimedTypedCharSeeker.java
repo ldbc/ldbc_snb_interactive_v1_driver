@@ -1,5 +1,6 @@
 package com.ldbc.driver.generator;
 
+import com.google.common.collect.Ordering;
 import com.ldbc.driver.csv.CharSeeker;
 import com.ldbc.driver.csv.Extractors;
 import com.ldbc.driver.csv.Mark;
@@ -10,7 +11,7 @@ import java.util.Map;
 import java.util.NoSuchElementException;
 
 public class CsvEventStreamReaderTimedTypedCharSeeker<BASE_EVENT_TYPE> implements Iterator<BASE_EVENT_TYPE> {
-    private final Map<Integer, EventDecoder<BASE_EVENT_TYPE>> decoders;
+    private final EventDecoder<BASE_EVENT_TYPE>[] decoders;
     private final CharSeeker charSeeker;
     private final Extractors extractors;
     private final Mark mark;
@@ -25,7 +26,15 @@ public class CsvEventStreamReaderTimedTypedCharSeeker<BASE_EVENT_TYPE> implement
         this.extractors = extractors;
         this.mark = new Mark();
         this.columnDelimiters = new int[]{columnDelimiter};
-        this.decoders = decoders;
+        int minEventTypeCode = Ordering.<Integer>natural().min(decoders.keySet());
+        int maxEventTypeCode = Ordering.<Integer>natural().max(decoders.keySet());
+        if (minEventTypeCode < 0) {
+            throw new GeneratorException("Event codes must be positive numbers: " + decoders.keySet().toString());
+        }
+        this.decoders = new EventDecoder[maxEventTypeCode + 1];
+        for (Integer eventTypeCode : decoders.keySet()) {
+            this.decoders[eventTypeCode] = decoders.get(eventTypeCode);
+        }
     }
 
     @Override
@@ -70,7 +79,7 @@ public class CsvEventStreamReaderTimedTypedCharSeeker<BASE_EVENT_TYPE> implement
                 throw new GeneratorException("No event type found");
             }
 
-            EventDecoder<BASE_EVENT_TYPE> decoder = decoders.get(eventType);
+            EventDecoder<BASE_EVENT_TYPE> decoder = decoders[eventType];
             if (null == decoder) {
                 throw new NoSuchElementException(String.format(
                         "No decoder found that matches this column\nDECODER KEY: %s",

@@ -238,23 +238,23 @@ public class LdbcSnbInteractiveWorkload extends Workload {
         switch (parser) {
             case REGEX: {
                 SimpleCsvFileReader csvFileReader = new SimpleCsvFileReader(updateOperationsFile, SimpleCsvFileReader.DEFAULT_COLUMN_SEPARATOR_PATTERN);
-                return Tuple.<Iterator<Operation<?>>, Closeable>tuple2(new WriteEventStreamReaderRegex(csvFileReader), csvFileReader);
+                return Tuple.<Iterator<Operation<?>>, Closeable>tuple2(WriteEventStreamReaderRegex.create(csvFileReader), csvFileReader);
             }
             case CHAR_SEEKER: {
                 int bufferSize = 1 * 1024 * 1024;
                 BufferedCharSeeker charSeeker = new BufferedCharSeeker(Readables.wrap(new FileReader(updateOperationsFile)), bufferSize);
                 Extractors extractors = new Extractors(';');
-                return Tuple.<Iterator<Operation<?>>, Closeable>tuple2(new WriteEventStreamReaderCharSeeker(charSeeker, extractors, '|'), charSeeker);
+                return Tuple.<Iterator<Operation<?>>, Closeable>tuple2(WriteEventStreamReaderCharSeeker.create(charSeeker, extractors, '|'), charSeeker);
             }
             case CHAR_SEEKER_THREAD: {
                 int bufferSize = 1 * 1024 * 1024;
                 BufferedCharSeeker charSeeker = new BufferedCharSeeker(ThreadAheadReadable.threadAhead(Readables.wrap(new FileReader(updateOperationsFile)), bufferSize), bufferSize);
                 Extractors extractors = new Extractors(';');
-                return Tuple.<Iterator<Operation<?>>, Closeable>tuple2(new WriteEventStreamReaderCharSeeker(charSeeker, extractors, '|'), charSeeker);
+                return Tuple.<Iterator<Operation<?>>, Closeable>tuple2(WriteEventStreamReaderCharSeeker.create(charSeeker, extractors, '|'), charSeeker);
             }
         }
         SimpleCsvFileReader csvFileReader = new SimpleCsvFileReader(updateOperationsFile, SimpleCsvFileReader.DEFAULT_COLUMN_SEPARATOR_PATTERN);
-        return Tuple.<Iterator<Operation<?>>, Closeable>tuple2(new WriteEventStreamReaderRegex(csvFileReader), csvFileReader);
+        return Tuple.<Iterator<Operation<?>>, Closeable>tuple2(WriteEventStreamReaderRegex.create(csvFileReader), csvFileReader);
     }
 
     @Override
