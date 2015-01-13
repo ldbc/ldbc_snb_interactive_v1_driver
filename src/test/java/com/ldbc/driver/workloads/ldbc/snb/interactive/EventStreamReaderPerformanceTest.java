@@ -62,7 +62,7 @@ public class EventStreamReaderPerformanceTest {
                     readyLatch,
                     startLatch,
                     stopLatch,
-                    new WriteEventStreamReaderCharSeeker(charSeeker, extractors, columnDelimiter)
+                    WriteEventStreamReaderCharSeeker.create(charSeeker, extractors, columnDelimiter)
             );
             updateStreamReadingThread.start();
             updateStreamReadingThreads.add(
@@ -685,7 +685,7 @@ public class EventStreamReaderPerformanceTest {
         long lines = 0;
         long startTimeAsMilli = timeSource.nowAsMilli();
         SimpleCsvFileReader simpleCsvFileReader = new SimpleCsvFileReader(forumUpdateStream, SimpleCsvFileReader.DEFAULT_COLUMN_SEPARATOR_PATTERN);
-        WriteEventStreamReaderRegex writeEventStreamReader = new WriteEventStreamReaderRegex(simpleCsvFileReader);
+        Iterator<Operation<?>> writeEventStreamReader = WriteEventStreamReaderRegex.create(simpleCsvFileReader);
         lines += readingStreamPerformanceTest(writeEventStreamReader);
         simpleCsvFileReader.close();
         long endTimeAsMilli = timeSource.nowAsMilli();
@@ -715,7 +715,7 @@ public class EventStreamReaderPerformanceTest {
         CharSeeker charSeeker = new BufferedCharSeeker(Readables.wrap(new InputStreamReader(new FileInputStream(forumUpdateStream), Charsets.UTF_8)), bufferSize);
         int columnDelimiter = '|';
         Extractors extractors = new Extractors(';');
-        WriteEventStreamReaderCharSeeker writeEventStreamReader = new WriteEventStreamReaderCharSeeker(charSeeker, extractors, columnDelimiter);
+        Iterator<Operation<?>> writeEventStreamReader = WriteEventStreamReaderCharSeeker.create(charSeeker, extractors, columnDelimiter);
         lines += readingStreamPerformanceTest(writeEventStreamReader);
         charSeeker.close();
         long endTimeAsMilli = timeSource.nowAsMilli();
@@ -741,7 +741,7 @@ public class EventStreamReaderPerformanceTest {
         long lines = 0;
         long startTimeAsMilli = timeSource.nowAsMilli();
         SimpleCsvFileReader simpleCsvFileReader = new SimpleCsvFileReader(forumUpdateStream, SimpleCsvFileReader.DEFAULT_COLUMN_SEPARATOR_PATTERN);
-        WriteEventStreamReaderRegex writeEventStreamReader = new WriteEventStreamReaderRegex(simpleCsvFileReader);
+        Iterator<Operation<?>> writeEventStreamReader = WriteEventStreamReaderRegex.create(simpleCsvFileReader);
         lines += readingStreamPerformanceTest(writeEventStreamReader);
         simpleCsvFileReader.close();
         long endTimeAsMilli = timeSource.nowAsMilli();
@@ -771,7 +771,7 @@ public class EventStreamReaderPerformanceTest {
         CharSeeker charSeeker = new BufferedCharSeeker(Readables.wrap(new InputStreamReader(new FileInputStream(forumUpdateStream), Charsets.UTF_8)), bufferSize);
         int columnDelimiter = '|';
         Extractors extractors = new Extractors(';');
-        WriteEventStreamReaderCharSeeker writeEventStreamReader = new WriteEventStreamReaderCharSeeker(charSeeker, extractors, columnDelimiter);
+        Iterator<Operation<?>> writeEventStreamReader = WriteEventStreamReaderCharSeeker.create(charSeeker, extractors, columnDelimiter);
         lines += readingStreamPerformanceTest(writeEventStreamReader);
         charSeeker.close();
         long endTimeAsMilli = timeSource.nowAsMilli();
@@ -894,7 +894,7 @@ public class EventStreamReaderPerformanceTest {
             long startTimeAsMilli = timeSource.nowAsMilli();
             for (int i = 0; i < repetitions; i++) {
                 SimpleCsvFileReader simpleCsvFileReader = new SimpleCsvFileReader(forumUpdateStream, SimpleCsvFileReader.DEFAULT_COLUMN_SEPARATOR_PATTERN);
-                WriteEventStreamReaderRegex writeEventStreamReader = new WriteEventStreamReaderRegex(simpleCsvFileReader);
+                Iterator<Operation<?>> writeEventStreamReader = WriteEventStreamReaderRegex.create(simpleCsvFileReader);
                 lines += readingStreamPerformanceTest(writeEventStreamReader);
                 simpleCsvFileReader.close();
             }
@@ -922,7 +922,7 @@ public class EventStreamReaderPerformanceTest {
                     CharSeeker charSeeker = new BufferedCharSeeker(Readables.wrap(new InputStreamReader(new FileInputStream(forumUpdateStream), Charsets.UTF_8)), bufferSize);
                     int columnDelimiter = '|';
                     Extractors extractors = new Extractors(';');
-                    WriteEventStreamReaderCharSeeker writeEventStreamReader = new WriteEventStreamReaderCharSeeker(charSeeker, extractors, columnDelimiter);
+                    Iterator<Operation<?>> writeEventStreamReader = WriteEventStreamReaderCharSeeker.create(charSeeker, extractors, columnDelimiter);
                     lines += readingStreamPerformanceTest(writeEventStreamReader);
                     charSeeker.close();
                 }
@@ -948,7 +948,7 @@ public class EventStreamReaderPerformanceTest {
                     CharSeeker charSeeker = new BufferedCharSeeker(ThreadAheadReadable.threadAhead(Readables.wrap(reader), bufferSize), bufferSize);
                     int columnDelimiter = '|';
                     Extractors extractors = new Extractors(';');
-                    WriteEventStreamReaderCharSeeker writeEventStreamReader = new WriteEventStreamReaderCharSeeker(charSeeker, extractors, columnDelimiter);
+                    Iterator<Operation<?>> writeEventStreamReader = WriteEventStreamReaderCharSeeker.create(charSeeker, extractors, columnDelimiter);
                     lines += readingStreamPerformanceTest(writeEventStreamReader);
                     charSeeker.close();
                 }

@@ -10,11 +10,10 @@ import com.ldbc.driver.util.Function1;
 import java.util.*;
 import java.util.regex.Pattern;
 
-public class WriteEventStreamReaderRegex implements Iterator<Operation<?>> {
+public class WriteEventStreamReaderRegex {
     private static final List<String> EMPTY_LIST = new ArrayList<>();
-    private final CsvEventStreamReaderTimedTypedCsvReader<Operation<?>, String> csvEventStreamReader;
 
-    public WriteEventStreamReaderRegex(Iterator<String[]> csvRowIterator) {
+    public static Iterator<Operation<?>> create(Iterator<String[]> csvRowIterator) {
         Map<String, EventDecoder<Operation<?>>> decoders = new HashMap<>();
         decoders.put("1", new EventDecoderAddPerson());
         decoders.put("2", new EventDecoderAddLikePost());
@@ -30,22 +29,7 @@ public class WriteEventStreamReaderRegex implements Iterator<Operation<?>> {
                 return csvRow[2];
             }
         };
-        this.csvEventStreamReader = new CsvEventStreamReaderTimedTypedCsvReader<>(csvRowIterator, decoders, decoderKeyExtractor);
-    }
-
-    @Override
-    public boolean hasNext() {
-        return csvEventStreamReader.hasNext();
-    }
-
-    @Override
-    public Operation<?> next() {
-        return csvEventStreamReader.next();
-    }
-
-    @Override
-    public void remove() {
-        throw new UnsupportedOperationException(String.format("%s does not support remove()", getClass().getSimpleName()));
+        return new CsvEventStreamReaderTimedTypedCsvReader<>(csvRowIterator, decoders, decoderKeyExtractor);
     }
 
     public static class EventDecoderAddPerson implements EventDecoder<Operation<?>> {
