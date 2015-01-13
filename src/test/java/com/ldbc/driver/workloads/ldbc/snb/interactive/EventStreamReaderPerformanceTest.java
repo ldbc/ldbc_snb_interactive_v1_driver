@@ -33,18 +33,20 @@ public class EventStreamReaderPerformanceTest {
     //2 threads 198,021,654.00 operations in 01:05.156.000 (m:s.ms.us) = 3,039,192.92 op/ms
     //3 threads 297,032,481.00 operations in 01:13.117.000 (m:s.ms.us) = 4,062,427.08 op/ms
     //4 threads 396,043,308.00 operations in 01:21.316.000 (m:s.ms.us) = 4,870,422.89 op/ms
+
+    //4 396,043,308.00 operations in 01:17.399.000 (m:s.ms.us) = 5,116,904.71 op/ms
+    //5 495,054,135.00 operations in 01:27.476.000 (m:s.ms.us) = 5,659,313.81 op/ms
+    //6 594,064,962.00 operations in 01:39.579.000 (m:s.ms.us) = 5,965,765.49 op/ms
     @Ignore
     @Test
     public void multiThreadedMultiPartitionParserPerformanceTest() throws FileNotFoundException, InterruptedException, CompletionTimeException {
         List<File> updateStreams = Lists.newArrayList(
-//                new File("/Users/alexaverbuch/IdeaProjects/ldbc_snb_workload_interactive_neo4j/ldbc_driver/sample_data/sf30-001-with-replica-streams/updateStream_forum_0.csv"),
-//                new File("/Users/alexaverbuch/IdeaProjects/ldbc_snb_workload_interactive_neo4j/ldbc_driver/sample_data/sf30-001-with-replica-streams/updateStream_forum_1.csv"),
-//                new File("/Users/alexaverbuch/IdeaProjects/ldbc_snb_workload_interactive_neo4j/ldbc_driver/sample_data/sf30-001-with-replica-streams/updateStream_forum_2.csv"),
-//                new File("/Users/alexaverbuch/IdeaProjects/ldbc_snb_workload_interactive_neo4j/ldbc_driver/sample_data/sf30-001-with-replica-streams/updateStream_forum_3.csv")
-                new File("/Users/alexaverbuch/IdeaProjects/ldbc_snb_workload_interactive_neo4j/ldbc_driver/sample_data/sf30-001-with-replica-streams/updateStream_forum_0.csv"),
-                new File("/Users/alexaverbuch/IdeaProjects/ldbc_snb_workload_interactive_neo4j/ldbc_driver/sample_data/sf30-001-with-replica-streams/updateStream_forum_1.csv"),
-                new File("/Users/alexaverbuch/IdeaProjects/ldbc_snb_workload_interactive_neo4j/ldbc_driver/sample_data/sf30-001-with-replica-streams/updateStream_forum_2.csv"),
-                new File("/Users/alexaverbuch/IdeaProjects/ldbc_snb_workload_interactive_neo4j/ldbc_driver/sample_data/sf30-001-with-replica-streams/updateStream_forum_3.csv")
+                new File("/Users/alexaverbuch/IdeaProjects/ldbc_snb_workload_interactive_neo4j/ldbc_driver/sample_data/sf30_001-with-replica-streams/updateStream_forum_0.csv"),
+                new File("/Users/alexaverbuch/IdeaProjects/ldbc_snb_workload_interactive_neo4j/ldbc_driver/sample_data/sf30_001-with-replica-streams/updateStream_forum_1.csv"),
+                new File("/Users/alexaverbuch/IdeaProjects/ldbc_snb_workload_interactive_neo4j/ldbc_driver/sample_data/sf30_001-with-replica-streams/updateStream_forum_2.csv"),
+                new File("/Users/alexaverbuch/IdeaProjects/ldbc_snb_workload_interactive_neo4j/ldbc_driver/sample_data/sf30_001-with-replica-streams/updateStream_forum_3.csv"),
+                new File("/Users/alexaverbuch/IdeaProjects/ldbc_snb_workload_interactive_neo4j/ldbc_driver/sample_data/sf30_001-with-replica-streams/updateStream_forum_4.csv"),
+                new File("/Users/alexaverbuch/IdeaProjects/ldbc_snb_workload_interactive_neo4j/ldbc_driver/sample_data/sf30_001-with-replica-streams/updateStream_forum_5.csv")
         );
 
         int bufferSize = 2 * 1024 * 1024;
@@ -115,7 +117,7 @@ public class EventStreamReaderPerformanceTest {
                 // do nothing
             }
             while (updateStreamReader.hasNext()) {
-                updateStreamReader.next().timeStamp();
+                updateStreamReader.next();
                 count++;
             }
             stopLatch.countDown();
