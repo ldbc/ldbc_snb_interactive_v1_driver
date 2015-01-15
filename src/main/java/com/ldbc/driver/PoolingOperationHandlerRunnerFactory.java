@@ -22,6 +22,7 @@ public class PoolingOperationHandlerRunnerFactory implements OperationHandlerRun
         operationHandlerRunnerPoolConfig.setAllocator(operationHandlerRunnerAllocator);
         operationHandlerRunnerPoolConfig.setBackgroundExpirationEnabled(false);
         operationHandlerRunnerPoolConfig.setPreciseLeakDetectionEnabled(false);
+        operationHandlerRunnerPoolConfig.setExpiration(new NeverExpiration());
         this.operationHandlerRunnerPool = new BlazePool<>(operationHandlerRunnerPoolConfig);
         this.operationHandlerRunnerPool.setTargetSize(INITIAL_POOL_SIZE);
         this.highestSetPoolSize = INITIAL_POOL_SIZE;
@@ -121,6 +122,13 @@ public class PoolingOperationHandlerRunnerFactory implements OperationHandlerRun
         @Override
         public void deallocate(OperationHandlerRunnableContext operationHandlerRunner) throws Exception {
             // I think nothing needs to be done here
+        }
+    }
+
+    private static class NeverExpiration implements Expiration<OperationHandlerRunnableContext> {
+        @Override
+        public boolean hasExpired(SlotInfo<? extends OperationHandlerRunnableContext> slotInfo) throws Exception {
+            return false;
         }
     }
 }
