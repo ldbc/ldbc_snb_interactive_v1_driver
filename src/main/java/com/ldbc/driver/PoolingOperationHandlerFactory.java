@@ -20,6 +20,7 @@ public class PoolingOperationHandlerFactory implements OperationHandlerFactory {
         OperationHandlerAllocator operationHandlerAllocator = new OperationHandlerAllocator(innerOperationHandlerFactory);
         Config<OperationHandler<?>> operationHandlerPoolConfig = new Config<>();
         operationHandlerPoolConfig.setAllocator(operationHandlerAllocator);
+        operationHandlerPoolConfig.setExpiration(new NeverExpiration());
         this.operationHandlerPool = new BlazePool<>(operationHandlerPoolConfig);
         this.operationHandlerPool.setTargetSize(INITIAL_POOL_SIZE);
         this.highestSetPoolSize = INITIAL_POOL_SIZE;
@@ -94,6 +95,13 @@ public class PoolingOperationHandlerFactory implements OperationHandlerFactory {
         @Override
         public void deallocate(OperationHandler operationHandler) throws Exception {
             // I think nothing needs to be done here
+        }
+    }
+
+    private static class NeverExpiration implements Expiration<OperationHandler<?>> {
+        @Override
+        public boolean hasExpired(SlotInfo<? extends OperationHandler<?>> slotInfo) throws Exception {
+            return false;
         }
     }
 }

@@ -6,7 +6,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-public abstract class Db implements Closeable{
+public abstract class Db implements Closeable {
     private boolean isInitialized = false;
     private AtomicBoolean isShutdown = new AtomicBoolean(false);
     private final Map<Class<? extends Operation<?>>, OperationHandlerFactory> operationHandlerFactories = new HashMap<>();
