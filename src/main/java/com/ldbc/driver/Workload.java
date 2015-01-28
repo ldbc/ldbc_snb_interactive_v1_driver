@@ -5,6 +5,8 @@ import com.ldbc.driver.generator.GeneratorFactory;
 
 import java.io.Closeable;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
@@ -49,6 +51,7 @@ public abstract class Workload implements Closeable {
 
     public DbValidationParametersFilter dbValidationParametersFilter(final Integer requiredValidationParameterCount) {
         return new DbValidationParametersFilter() {
+            private final List<Operation> injectedOperations = new ArrayList<>();
             int validationParameterCount = 0;
 
             @Override
@@ -60,9 +63,14 @@ public abstract class Workload implements Closeable {
             public DbValidationParametersFilterResult useOperationAndResultForValidation(Operation<?> operation, Object operationResult) {
                 if (validationParameterCount < requiredValidationParameterCount) {
                     validationParameterCount++;
-                    return DbValidationParametersFilterResult.ACCEPT_AND_CONTINUE;
+                    return new DbValidationParametersFilterResult(DbValidationParametersFilterAcceptance.ACCEPT_AND_CONTINUE, injectedOperations);
                 }
-                return DbValidationParametersFilterResult.REJECT_AND_FINISH;
+                return new DbValidationParametersFilterResult(DbValidationParametersFilterAcceptance.REJECT_AND_FINISH, injectedOperations);
+            }
+
+            @Override
+            public Object curateResult(Operation operation, Object result) {
+                return result;
             }
         };
     }
@@ -79,13 +87,34 @@ public abstract class Workload implements Closeable {
         boolean useOperation(Operation<?> operation);
 
         DbValidationParametersFilterResult useOperationAndResultForValidation(Operation<?> operation, Object operationResult);
+
+        Object curateResult(Operation operation, Object result);
     }
 
-    public enum DbValidationParametersFilterResult {
+    public enum DbValidationParametersFilterAcceptance {
         ACCEPT_AND_CONTINUE,
         ACCEPT_AND_FINISH,
         REJECT_AND_CONTINUE,
-        REJECT_AND_FINISH
+        REJECT_AND_FINISH;
+    }
+
+    public static class DbValidationParametersFilterResult {
+        public static final int NO_RESULT = -1;
+        private final DbValidationParametersFilterAcceptance acceptance;
+        private final List<Operation> injectedOperations;
+
+        public DbValidationParametersFilterResult(DbValidationParametersFilterAcceptance acceptance, List<Operation> injectedOperations) {
+            this.acceptance = acceptance;
+            this.injectedOperations = injectedOperations;
+        }
+
+        public DbValidationParametersFilterAcceptance acceptance() {
+            return acceptance;
+        }
+
+        public List<Operation> injectedOperations() {
+            return injectedOperations;
+        }
     }
 
 }

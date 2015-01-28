@@ -7,7 +7,8 @@ import java.util.Iterator;
 
 public class DbValidator {
     public DbValidationResult validate(Iterator<ValidationParam> validationParameters,
-                                       Db db) throws WorkloadException {
+                                       Db db,
+                                       Workload.DbValidationParametersFilter dbValidationParametersFilter) throws WorkloadException {
         DbValidationResult dbValidationResult = new DbValidationResult(db);
         ResultReporter resultReporter = new ResultReporter.SimpleResultReporter();
         while (validationParameters.hasNext()) {
@@ -34,7 +35,7 @@ public class DbValidator {
                 handlerRunner.cleanup();
             }
 
-            Object actualOperationResult = resultReporter.result();
+            Object actualOperationResult = dbValidationParametersFilter.curateResult(operation, resultReporter.result());
 
             if (false == expectedOperationResult.equals(actualOperationResult)) {
                 dbValidationResult.reportIncorrectResultForOperation(operation, expectedOperationResult, actualOperationResult);

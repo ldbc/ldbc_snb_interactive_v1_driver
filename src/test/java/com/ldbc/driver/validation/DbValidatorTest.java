@@ -67,7 +67,11 @@ public class DbValidatorTest {
         workload.init(configuration);
 
         // When
-        DbValidationResult validationResult = dbValidator.validate(validationParams, db);
+        DbValidationResult validationResult = dbValidator.validate(
+                validationParams,
+                db,
+                workload.dbValidationParametersFilter(0)
+        );
 
         // Then
         System.out.println(validationResult.resultMessage());
@@ -97,7 +101,11 @@ public class DbValidatorTest {
         workload.init(configuration);
 
         // When
-        DbValidationResult validationResult = dbValidator.validate(validationParams, db);
+        DbValidationResult validationResult = dbValidator.validate(
+                validationParams,
+                db,
+                workload.dbValidationParametersFilter(0)
+        );
 
         // Then
         System.out.println(validationResult.resultMessage());

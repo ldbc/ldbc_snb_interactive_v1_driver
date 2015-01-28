@@ -62,7 +62,7 @@ public class LdbcSnbInteractiveWorkload extends Workload {
 
     private Set<Class> enabledLongReadOperationTypes;
     private Set<Class> enabledShortReadOperationTypes;
-    private Set<Class<? extends Operation<?>>> enabledWriteOperationTypes;
+    private Set<Class> enabledWriteOperationTypes;
     private LdbcSnbInteractiveConfiguration.UpdateStreamParser parser;
 
     @Override
@@ -1079,26 +1079,7 @@ public class LdbcSnbInteractiveWorkload extends Workload {
 
     @Override
     public DbValidationParametersFilter dbValidationParametersFilter(Integer requiredValidationParameterCount) {
-        final Set<Class<? extends Operation>> nullResultOperations = Sets.<Class<? extends Operation>>newHashSet(
-                LdbcUpdate1AddPerson.class,
-                LdbcUpdate2AddPostLike.class,
-                LdbcUpdate3AddCommentLike.class,
-                LdbcUpdate4AddForum.class,
-                LdbcUpdate5AddForumMembership.class,
-                LdbcUpdate6AddPost.class,
-                LdbcUpdate7AddComment.class,
-                LdbcUpdate8AddFriendship.class
-        );
-
-        final Set<Class<? extends Operation>> singleResultOperations = Sets.<Class<? extends Operation>>newHashSet(
-                LdbcShortQuery1PersonProfile.class,
-                LdbcShortQuery4MessageContent.class,
-                LdbcShortQuery5MessageCreator.class,
-                LdbcShortQuery6MessageForum.class,
-                LdbcQuery13.class
-        );
-
-        final Set<Class<? extends Operation>> multiResultOperations = Sets.<Class<? extends Operation>>newHashSet(
+        final Set<Class> multiResultOperations = Sets.<Class>newHashSet(
                 LdbcShortQuery2PersonPosts.class,
                 LdbcShortQuery3PersonFriends.class,
                 LdbcShortQuery7MessageReplies.class,
@@ -1116,20 +1097,8 @@ public class LdbcSnbInteractiveWorkload extends Workload {
                 LdbcQuery12.class,
                 LdbcQuery14.class
         );
-        /**
-         * TODO
-         * operationTypeCount = 14
-         * requiredValidationParameterCount = 100
-         * 100/14 == 7.14
-         * --> minimumResultCountPerOperationType = 7
-         * 100%14 == 2 > 0
-         * --> minimumResultCountPerOperationType = 8
-         */
-        Integer operationTypeCount = enabledLongReadOperationTypes.size();
-        long minimumResultCountPerOperationType = Math.max(1, Math.round(Math.floor(requiredValidationParameterCount.doubleValue() / operationTypeCount.doubleValue())));
-
-//        if (requiredValidationParameterCount % operationTypeCount > 0)
-//            minimumResultCountPerOperationType++;
+        Integer longReadOperationTypeCount = enabledLongReadOperationTypes.size();
+        long minimumResultCountPerOperationType = Math.max(1, Math.round(Math.floor(requiredValidationParameterCount.doubleValue() / longReadOperationTypeCount.doubleValue())));
 
         final Map<Class, Long> remainingRequiredResultsPerOperationType = new HashMap<>();
         long resultCountsAssignedSoFar = 0;
@@ -1144,46 +1113,16 @@ public class LdbcSnbInteractiveWorkload extends Workload {
             resultCountsAssignedSoFar++;
         }
 
-        return new DbValidationParametersFilter() {
-            @Override
-            public boolean useOperation(Operation<?> operation) {
-                Class operationType = operation.getClass();
-                if (isNotReadOperation(operationType)) return false;
-                if (alreadyHaveAllRequiredResultsForOperationType(operationType)) return false;
-                return true;
-            }
+        // TODO magic number - could do better than this
+        int writeAddPersonOperationCount = 5;
 
-            private boolean isNotReadOperation(Class operationType) {
-                return false == enabledLongReadOperationTypes.contains(operationType);
-            }
-
-            private boolean alreadyHaveAllRequiredResultsForOperationType(Class operationType) {
-                return false == remainingRequiredResultsPerOperationType.containsKey(operationType);
-            }
-
-            @Override
-            public DbValidationParametersFilterResult useOperationAndResultForValidation(Operation<?> operation, Object operationResult) {
-                Class operationType = operation.getClass();
-
-                if (multiResultOperations.contains(operationType) && ((List) operationResult).isEmpty()) {
-                    // don't use empty results for validation
-                    return DbValidationParametersFilterResult.REJECT_AND_CONTINUE;
-                }
-
-                long remainingRequiredResultsForOperationType = remainingRequiredResultsPerOperationType.get(operationType) - 1;
-
-                if (0 == remainingRequiredResultsForOperationType)
-                    remainingRequiredResultsPerOperationType.remove(operationType);
-                else
-                    remainingRequiredResultsPerOperationType.put(operationType, remainingRequiredResultsForOperationType);
-
-                if (remainingRequiredResultsPerOperationType.size() > 0) {
-                    return DbValidationParametersFilterResult.ACCEPT_AND_CONTINUE;
-                } else {
-                    return DbValidationParametersFilterResult.ACCEPT_AND_FINISH;
-                }
-            }
-        };
+        return new LdbcSnbInteractiveDbValidationParametersFilter(
+                multiResultOperations,
+                remainingRequiredResultsPerOperationType,
+                enabledShortReadOperationTypes,
+                enabledWriteOperationTypes,
+                writeAddPersonOperationCount
+        );
     }
 
     @Override
@@ -1807,4 +1746,5 @@ public class LdbcSnbInteractiveWorkload extends Workload {
                         operationAsList.get(0),
                         serializedOperation));
     }
+
 }

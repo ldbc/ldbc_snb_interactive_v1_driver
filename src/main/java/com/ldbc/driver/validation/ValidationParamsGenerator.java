@@ -1,21 +1,25 @@
 package com.ldbc.driver.validation;
 
 import com.ldbc.driver.*;
+import com.ldbc.driver.Workload.DbValidationParametersFilter;
+import com.ldbc.driver.Workload.DbValidationParametersFilterResult;
 import com.ldbc.driver.generator.Generator;
 import com.ldbc.driver.generator.GeneratorException;
 
+import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
 
 public class ValidationParamsGenerator extends Generator<ValidationParam> {
     private final Db db;
-    private final Workload.DbValidationParametersFilter dbValidationParametersFilter;
+    private final DbValidationParametersFilter dbValidationParametersFilter;
     private final Iterator<Operation<?>> operations;
     private final ResultReporter resultReporter = new ResultReporter.SimpleResultReporter();
     private int entriesWrittenSoFar;
     private boolean needMoreValidationParameters;
 
     public ValidationParamsGenerator(Db db,
-                                     Workload.DbValidationParametersFilter dbValidationParametersFilter,
+                                     DbValidationParametersFilter dbValidationParametersFilter,
                                      Iterator<Operation<?>> operations) {
         this.db = db;
         this.dbValidationParametersFilter = dbValidationParametersFilter;
@@ -30,9 +34,11 @@ public class ValidationParamsGenerator extends Generator<ValidationParam> {
 
     @Override
     protected ValidationParam doNext() throws GeneratorException {
-
-        while (operations.hasNext() && needMoreValidationParameters) {
-            Operation<?> operation = operations.next();
+        List<Operation> injectedOperations = new ArrayList<>();
+        while ((injectedOperations.size() > 0 || operations.hasNext()) && needMoreValidationParameters) {
+            Operation<?> operation = (injectedOperations.isEmpty())
+                    ? operations.next()
+                    : injectedOperations.remove(0);
 
             if (false == dbValidationParametersFilter.useOperation(operation))
                 continue;
@@ -65,9 +71,11 @@ public class ValidationParamsGenerator extends Generator<ValidationParam> {
                 operationHandlerRunner.cleanup();
             }
 
-            Object operationResult = resultReporter.result();
-
-            switch (dbValidationParametersFilter.useOperationAndResultForValidation(operation, operationResult)) {
+            Object result = resultReporter.result();
+            DbValidationParametersFilterResult dbValidationParametersFilterResult = dbValidationParametersFilter.useOperationAndResultForValidation(operation, result);
+            injectedOperations.addAll(dbValidationParametersFilterResult.injectedOperations());
+            result = dbValidationParametersFilter.curateResult(operation, result);
+            switch (dbValidationParametersFilterResult.acceptance()) {
                 case REJECT_AND_CONTINUE:
                     continue;
                 case REJECT_AND_FINISH:
@@ -75,11 +83,11 @@ public class ValidationParamsGenerator extends Generator<ValidationParam> {
                     continue;
                 case ACCEPT_AND_CONTINUE:
                     entriesWrittenSoFar++;
-                    return new ValidationParam(operation, operationResult);
+                    return new ValidationParam(operation, result);
                 case ACCEPT_AND_FINISH:
                     entriesWrittenSoFar++;
                     needMoreValidationParameters = false;
-                    return new ValidationParam(operation, operationResult);
+                    return new ValidationParam(operation, result);
             }
         }
         // ran out of operations OR validation set size has been reached

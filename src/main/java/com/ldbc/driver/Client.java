@@ -619,7 +619,11 @@ public class Client {
                 try {
                     Iterator<ValidationParam> validationParams = new ValidationParamsFromCsvRows(validationParamsReader, w);
                     DbValidator dbValidator = new DbValidator();
-                    databaseValidationResult = dbValidator.validate(validationParams, db);
+                    databaseValidationResult = dbValidator.validate(
+                            validationParams,
+                            db,
+                            workload.dbValidationParametersFilter(0)
+                    );
                     logger.info(databaseValidationResult.resultMessage());
                 } catch (WorkloadException e) {
                     throw new ClientException(String.format("Error reading validation parameters file\nFile: %s", validationParamsFile.getAbsolutePath()), e);
