@@ -577,6 +577,68 @@ public class Extractors {
         }
     }
 
+//    private static class IntIntArrayExtractor extends AbstractExtractor<int[][]> {
+//        private static final int[][] EMPTY = new int[0][0];
+//
+//        protected final char arrayDelimiter;
+//        protected int[][] value;
+//
+//        IntIntArrayExtractor(char arrayDelimiter, Class<?> componentType) {
+//            super(componentType.getSimpleName() + "[]");
+//            this.arrayDelimiter = arrayDelimiter;
+//        }
+//
+//        @Override
+//        public T value() {
+//            return value;
+//        }
+//
+//        protected int charsToNextDelimiter(char[] data, int offset, int length) {
+//            for (int i = 0; i < length; i++) {
+//                if (data[offset + i] == arrayDelimiter) {
+//                    return i;
+//                }
+//            }
+//            return length;
+//        }
+//
+//        protected int numberOfValues(char[] data, int offset, int length) {
+//            int count = length > 0 ? 1 : 0;
+//            for (int i = 0; i < length; i++) {
+//                if (data[offset + i] == arrayDelimiter) {
+//                    count++;
+//                }
+//            }
+//            return count;
+//        }
+//
+//        @Override
+//        public int hashCode() {
+//            return getClass().hashCode();
+//        }
+//
+//        @Override
+//        public boolean equals(Object obj) {
+//            return getClass().equals(obj.getClass());
+//        }
+//
+//
+//        IntIntArrayExtractor(char arrayDelimiter, char arrayArrayDelimiter) {
+//            super(arrayDelimiter, Integer.TYPE);
+//        }
+//
+//        @Override
+//        public void extract(char[] data, int offset, int length) {
+//            int numberOfValues = numberOfValues(data, offset, length);
+//            value = numberOfValues > 0 ? new long[numberOfValues] : EMPTY;
+//            for (int arrayIndex = 0, charIndex = 0; arrayIndex < numberOfValues; arrayIndex++, charIndex++) {
+//                int numberOfChars = charsToNextDelimiter(data, offset + charIndex, length - charIndex);
+//                value[arrayIndex] = extractLong(data, offset + charIndex, numberOfChars);
+//                charIndex += numberOfChars;
+//            }
+//        }
+//    }
+
     private static class FloatArrayExtractor extends ArrayExtractor<float[]> {
         private static final float[] EMPTY = new float[0];
 
