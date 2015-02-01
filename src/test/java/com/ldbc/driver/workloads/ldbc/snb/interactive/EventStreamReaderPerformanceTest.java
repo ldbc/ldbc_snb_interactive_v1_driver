@@ -54,7 +54,7 @@ public class EventStreamReaderPerformanceTest {
         )) {
             CharSeeker charSeeker = new BufferedCharSeeker(Readables.wrap(new InputStreamReader(new FileInputStream(personUpdateFile), Charsets.UTF_8)), bufferSize);
             int columnDelimiter = '|';
-            Extractors extractors = new Extractors(';');
+            Extractors extractors = new Extractors(';',',');
             parsers.add(WriteEventStreamReaderCharSeeker.create(charSeeker, extractors, columnDelimiter));
         }
 
@@ -68,7 +68,7 @@ public class EventStreamReaderPerformanceTest {
         )) {
             CharSeeker charSeeker = new BufferedCharSeeker(Readables.wrap(new InputStreamReader(new FileInputStream(forumUpdateFile), Charsets.UTF_8)), bufferSize);
             int columnDelimiter = '|';
-            Extractors extractors = new Extractors(';');
+            Extractors extractors = new Extractors(';',',');
             parsers.add(WriteEventStreamReaderCharSeeker.create(charSeeker, extractors, columnDelimiter));
         }
 
@@ -163,7 +163,7 @@ public class EventStreamReaderPerformanceTest {
         )) {
             CharSeeker charSeeker = new BufferedCharSeeker(Readables.wrap(new InputStreamReader(new FileInputStream(personUpdateFile), Charsets.UTF_8)), bufferSize);
             int columnDelimiter = '|';
-            Extractors extractors = new Extractors(';');
+            Extractors extractors = new Extractors(';',',');
             parsers.add(
                     Tuple.<Iterator<Operation<?>>, LocalCompletionTimeWriter>tuple2(
                             WriteEventStreamReaderCharSeeker.create(charSeeker, extractors, columnDelimiter),
@@ -190,7 +190,7 @@ public class EventStreamReaderPerformanceTest {
         )) {
             CharSeeker charSeeker = new BufferedCharSeeker(Readables.wrap(new InputStreamReader(new FileInputStream(forumUpdateFile), Charsets.UTF_8)), bufferSize);
             int columnDelimiter = '|';
-            Extractors extractors = new Extractors(';');
+            Extractors extractors = new Extractors(';',',');
             parsers.add(
                     Tuple.<Iterator<Operation<?>>, LocalCompletionTimeWriter>tuple2(
                             WriteEventStreamReaderCharSeeker.create(charSeeker, extractors, columnDelimiter),
@@ -308,7 +308,7 @@ public class EventStreamReaderPerformanceTest {
             long startTimeAsMilli = timeSource.nowAsMilli();
             for (int i = 0; i < repetitions; i++) {
                 CharSeeker charSeeker = new BufferedCharSeeker(Readables.wrap(new FileReader(paramsFile)), bufferSize);
-                Extractors extractors = new Extractors(';');
+                Extractors extractors = new Extractors(';',',');
                 Mark mark = new Mark();
                 int columnDelimiter = '|';
                 // skip headers - this file has 2 columns per row
@@ -349,7 +349,7 @@ public class EventStreamReaderPerformanceTest {
             long startTimeAsMilli = timeSource.nowAsMilli();
             for (int i = 0; i < repetitions; i++) {
                 CharSeeker charSeeker = new BufferedCharSeeker(Readables.wrap(new FileReader(paramsFile)), bufferSize);
-                Extractors extractors = new Extractors(';');
+                Extractors extractors = new Extractors(';',',');
                 Mark mark = new Mark();
                 int columnDelimiter = '|';
 
@@ -393,7 +393,7 @@ public class EventStreamReaderPerformanceTest {
             long startTimeAsMilli = timeSource.nowAsMilli();
             for (int i = 0; i < repetitions; i++) {
                 CharSeeker charSeeker = new BufferedCharSeeker(Readables.wrap(new FileReader(paramsFile)), bufferSize);
-                Extractors extractors = new Extractors(';');
+                Extractors extractors = new Extractors(';',',');
                 Mark mark = new Mark();
                 int columnDelimiter = '|';
 
@@ -446,7 +446,7 @@ public class EventStreamReaderPerformanceTest {
         long limit = 100000000;
         int bufferSize = 2 * 1024 * 1024;
         int repetitions = 1;
-        Extractors extractors = new Extractors(';');
+        Extractors extractors = new Extractors(';',',');
         int columnDelimiter = '|';
         {
             long lines = 0;
@@ -842,7 +842,7 @@ public class EventStreamReaderPerformanceTest {
         long startTimeAsMilli = timeSource.nowAsMilli();
         CharSeeker charSeeker = new BufferedCharSeeker(Readables.wrap(new InputStreamReader(new FileInputStream(forumUpdateStream), Charsets.UTF_8)), bufferSize);
         int columnDelimiter = '|';
-        Extractors extractors = new Extractors(';');
+        Extractors extractors = new Extractors(';',',');
         Iterator<Operation<?>> writeEventStreamReader = WriteEventStreamReaderCharSeeker.create(charSeeker, extractors, columnDelimiter);
         lines += readingStreamPerformanceTest(writeEventStreamReader);
         charSeeker.close();
@@ -898,7 +898,7 @@ public class EventStreamReaderPerformanceTest {
         long startTimeAsMilli = timeSource.nowAsMilli();
         CharSeeker charSeeker = new BufferedCharSeeker(Readables.wrap(new InputStreamReader(new FileInputStream(forumUpdateStream), Charsets.UTF_8)), bufferSize);
         int columnDelimiter = '|';
-        Extractors extractors = new Extractors(';');
+        Extractors extractors = new Extractors(';',',');
         Iterator<Operation<?>> writeEventStreamReader = WriteEventStreamReaderCharSeeker.create(charSeeker, extractors, columnDelimiter);
         lines += readingStreamPerformanceTest(writeEventStreamReader);
         charSeeker.close();
@@ -1049,7 +1049,7 @@ public class EventStreamReaderPerformanceTest {
                 for (int i = 0; i < repetitions; i++) {
                     CharSeeker charSeeker = new BufferedCharSeeker(Readables.wrap(new InputStreamReader(new FileInputStream(forumUpdateStream), Charsets.UTF_8)), bufferSize);
                     int columnDelimiter = '|';
-                    Extractors extractors = new Extractors(';');
+                    Extractors extractors = new Extractors(';',',');
                     Iterator<Operation<?>> writeEventStreamReader = WriteEventStreamReaderCharSeeker.create(charSeeker, extractors, columnDelimiter);
                     lines += readingStreamPerformanceTest(writeEventStreamReader);
                     charSeeker.close();
@@ -1075,7 +1075,7 @@ public class EventStreamReaderPerformanceTest {
                     Reader reader = new InputStreamReader(new FileInputStream(forumUpdateStream), Charsets.UTF_8);
                     CharSeeker charSeeker = new BufferedCharSeeker(ThreadAheadReadable.threadAhead(Readables.wrap(reader), bufferSize), bufferSize);
                     int columnDelimiter = '|';
-                    Extractors extractors = new Extractors(';');
+                    Extractors extractors = new Extractors(';',',');
                     Iterator<Operation<?>> writeEventStreamReader = WriteEventStreamReaderCharSeeker.create(charSeeker, extractors, columnDelimiter);
                     lines += readingStreamPerformanceTest(writeEventStreamReader);
                     charSeeker.close();
@@ -1110,7 +1110,7 @@ public class EventStreamReaderPerformanceTest {
         long lines = 0;
         Mark mark = new Mark();
         int[] delimiters = new int[]{'|'};
-        Extractors extractors = new Extractors(';');
+        Extractors extractors = new Extractors(';',',');
         while (seeker.seek(mark, delimiters)) {
             seeker.extract(mark, extractors.string()).value();
             if (mark.isEndOfLine())
@@ -1125,7 +1125,7 @@ public class EventStreamReaderPerformanceTest {
         long lines = 0;
         Mark mark = new Mark();
         int[] delimiters = new int[]{'|'};
-        Extractors extractors = new Extractors(';');
+        Extractors extractors = new Extractors(';',',');
         while (seeker.seek(mark, delimiters)) {
             seeker.extract(mark, extractors.string()).value();
             if (mark.isEndOfLine())

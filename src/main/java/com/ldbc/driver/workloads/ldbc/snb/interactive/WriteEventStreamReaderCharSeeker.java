@@ -11,7 +11,6 @@ import com.ldbc.driver.generator.GeneratorException;
 
 import java.io.IOException;
 import java.util.*;
-import java.util.regex.Pattern;
 
 public class WriteEventStreamReaderCharSeeker {
     public static Iterator<Operation<?>> create(CharSeeker charSeeker, Extractors extractors, int columnDelimiter) {
@@ -28,7 +27,6 @@ public class WriteEventStreamReaderCharSeeker {
     }
 
     public static class EventDecoderAddPerson implements EventDecoder<Operation<?>> {
-        private final Pattern tupleSeparatorPattern = Pattern.compile(",");
 
         @Override
         public Operation<?> decodeEvent(long scheduledStartTimeAsMilli, long dependencyTimeAsMilli, CharSeeker charSeeker, Extractors extractors, int[] columnDelimiters, Mark mark) {
@@ -127,16 +125,14 @@ public class WriteEventStreamReaderCharSeeker {
                     throw new GeneratorException("Error retrieving tags");
                 }
 
-                // TODO with extractor
                 List<LdbcUpdate1AddPerson.Organization> studyAts;
                 if (charSeeker.seek(mark, columnDelimiters)) {
                     studyAts = new ArrayList<>();
-                    String[] studyAtsAsStrings = charSeeker.extract(mark, extractors.stringArray()).value();
-                    for (String studyAtAsString : studyAtsAsStrings) {
-                        String[] studyAtAsStringArray = tupleSeparatorPattern.split(studyAtAsString, -1);
+                    int[][] studyAtsArray = charSeeker.extract(mark, extractors.intTupleArray(2)).value();
+                    for (int i = 0; i < studyAtsArray.length; i++) {
                         studyAts.add(new LdbcUpdate1AddPerson.Organization(
-                                        Long.parseLong(studyAtAsStringArray[0]),
-                                        Integer.parseInt(studyAtAsStringArray[1])
+                                        studyAtsArray[i][0],
+                                        studyAtsArray[i][1]
                                 )
                         );
                     }
@@ -144,16 +140,14 @@ public class WriteEventStreamReaderCharSeeker {
                     throw new GeneratorException("Error retrieving universities");
                 }
 
-                // TODO with extractor
                 List<LdbcUpdate1AddPerson.Organization> workAts;
                 if (charSeeker.seek(mark, columnDelimiters)) {
                     workAts = new ArrayList<>();
-                    String[] workAtsAsStrings = charSeeker.extract(mark, extractors.stringArray()).value();
-                    for (String workAtAsString : workAtsAsStrings) {
-                        String[] workAtAsStringArray = tupleSeparatorPattern.split(workAtAsString, -1);
+                    int[][] workAtsArray = charSeeker.extract(mark, extractors.intTupleArray(2)).value();
+                    for (int i = 0; i < workAtsArray.length; i++) {
                         workAts.add(new LdbcUpdate1AddPerson.Organization(
-                                        Long.parseLong(workAtAsStringArray[0]),
-                                        Integer.parseInt(workAtAsStringArray[1])
+                                        workAtsArray[i][0],
+                                        workAtsArray[i][1]
                                 )
                         );
                     }
