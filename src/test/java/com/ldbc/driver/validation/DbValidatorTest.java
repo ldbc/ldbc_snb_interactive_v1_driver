@@ -219,6 +219,47 @@ public class DbValidatorTest {
                 DummyLdbcSnbInteractiveOperationResultSets.short7Results()
         );
 
+        // TODO
+        ValidationParam validationParamWrite1 = new ValidationParam(
+                DummyLdbcSnbInteractiveOperationInstances.write1(),
+                null
+        );
+
+        ValidationParam validationParamWrite2 = new ValidationParam(
+                DummyLdbcSnbInteractiveOperationInstances.write2(),
+                null
+        );
+
+        ValidationParam validationParamWrite3 = new ValidationParam(
+                DummyLdbcSnbInteractiveOperationInstances.write3(),
+                null
+        );
+
+        ValidationParam validationParamWrite4 = new ValidationParam(
+                DummyLdbcSnbInteractiveOperationInstances.write4(),
+                null
+        );
+
+        ValidationParam validationParamWrite5 = new ValidationParam(
+                DummyLdbcSnbInteractiveOperationInstances.write5(),
+                null
+        );
+
+        ValidationParam validationParamWrite6 = new ValidationParam(
+                DummyLdbcSnbInteractiveOperationInstances.write6(),
+                null
+        );
+
+        ValidationParam validationParamWrite7 = new ValidationParam(
+                DummyLdbcSnbInteractiveOperationInstances.write7(),
+                null
+        );
+
+        ValidationParam validationParamWrite8 = new ValidationParam(
+                DummyLdbcSnbInteractiveOperationInstances.write8(),
+                null
+        );
+
         return Lists.newArrayList(
                 validationParamLong1,
                 validationParamLong2,
@@ -240,7 +281,15 @@ public class DbValidatorTest {
                 validationParamShort4,
                 validationParamShort5,
                 validationParamShort6,
-                validationParamShort7
+                validationParamShort7,
+                validationParamWrite1,
+                validationParamWrite2,
+                validationParamWrite3,
+                validationParamWrite4,
+                validationParamWrite5,
+                validationParamWrite6,
+                validationParamWrite7,
+                validationParamWrite8
         );
     }
 }
