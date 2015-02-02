@@ -54,7 +54,7 @@ public class BasicDb extends Db {
     public void onClose() throws IOException {
     }
 
-    public static class InsertOperationHandler extends OperationHandler<InsertOperation, BasicDbConnectionState> {
+    public static class InsertOperationHandler implements OperationHandler<InsertOperation, BasicDbConnectionState> {
         @Override
         public void executeOperation(InsertOperation operation, BasicDbConnectionState dbConnectionState, ResultReporter resultReporter) {
             Map<String, Object> queryParams = new HashMap<>();
@@ -73,7 +73,7 @@ public class BasicDb extends Db {
         }
     }
 
-    public static class ReadOperationHandler extends OperationHandler<ReadOperation, BasicDbConnectionState> {
+    public static class ReadOperationHandler implements OperationHandler<ReadOperation, BasicDbConnectionState> {
         @Override
         public void executeOperation(ReadOperation operation, BasicDbConnectionState dbConnectionState, ResultReporter resultReporter) {
             Map<String, Object> queryParams = new HashMap<>();
@@ -92,7 +92,7 @@ public class BasicDb extends Db {
         }
     }
 
-    public static class UpdateOperationHandler extends OperationHandler<UpdateOperation, BasicDbConnectionState> {
+    public static class UpdateOperationHandler implements OperationHandler<UpdateOperation, BasicDbConnectionState> {
         @Override
         public void executeOperation(UpdateOperation operation, BasicDbConnectionState dbConnectionState, ResultReporter resultReporter) {
             Map<String, Object> queryParams = new HashMap<>();
@@ -110,7 +110,7 @@ public class BasicDb extends Db {
         }
     }
 
-    public static class ScanOperationHandler extends OperationHandler<ScanOperation, BasicDbConnectionState> {
+    public static class ScanOperationHandler implements OperationHandler<ScanOperation, BasicDbConnectionState> {
         @Override
         public void executeOperation(ScanOperation operation, BasicDbConnectionState dbConnectionState, ResultReporter resultReporter) {
             Map<String, Object> queryParams = new HashMap<>();
@@ -129,7 +129,7 @@ public class BasicDb extends Db {
         }
     }
 
-    public static class ReadModifyWriteOperationHandler extends OperationHandler<ReadModifyWriteOperation, BasicDbConnectionState> {
+    public static class ReadModifyWriteOperationHandler implements OperationHandler<ReadModifyWriteOperation, BasicDbConnectionState> {
         @Override
         public void executeOperation(ReadModifyWriteOperation operation, BasicDbConnectionState dbConnectionState, ResultReporter resultReporter) {
             Map<String, Object> queryParams = new HashMap<>();

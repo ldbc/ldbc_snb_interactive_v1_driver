@@ -5,7 +5,7 @@ import com.ldbc.driver.DbException;
 import com.ldbc.driver.OperationHandler;
 import com.ldbc.driver.ResultReporter;
 
-public class NothingOperationHandler extends OperationHandler<NothingOperation, DbConnectionState> {
+public class NothingOperationHandler implements OperationHandler<NothingOperation, DbConnectionState> {
     @Override
     public void executeOperation(NothingOperation operation, DbConnectionState dbConnectionState, ResultReporter resultReporter) throws DbException {
     }

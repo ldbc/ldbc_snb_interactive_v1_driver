@@ -70,14 +70,14 @@ public class DummyDb extends Db {
         return allowedConnectionState;
     }
 
-    public static class NothingOperationHandler extends OperationHandler<NothingOperation, AllowedConnectionState> {
+    public static class NothingOperationHandler implements OperationHandler<NothingOperation, AllowedConnectionState> {
         @Override
         public void executeOperation(NothingOperation operation, AllowedConnectionState connectionState, ResultReporter resultReporter) throws DbException {
             resultReporter.report(0, new DummyResult(), operation);
         }
     }
 
-    public static class TimedNamedOperation1Handler extends OperationHandler<TimedNamedOperation1, AllowedConnectionState> {
+    public static class TimedNamedOperation1Handler implements OperationHandler<TimedNamedOperation1, AllowedConnectionState> {
         @Override
         public void executeOperation(TimedNamedOperation1 operation, AllowedConnectionState connectionState, ResultReporter resultReporter) throws DbException {
             while (false == connectionState.isAllowed(operation.name())) {
@@ -87,7 +87,7 @@ public class DummyDb extends Db {
         }
     }
 
-    public static class TimedNamedOperation2Handler extends OperationHandler<TimedNamedOperation2, AllowedConnectionState> {
+    public static class TimedNamedOperation2Handler implements OperationHandler<TimedNamedOperation2, AllowedConnectionState> {
         @Override
         public void executeOperation(TimedNamedOperation2 operation, AllowedConnectionState connectionState, ResultReporter resultReporter) throws DbException {
             while (false == connectionState.isAllowed(operation.name())) {
@@ -97,7 +97,7 @@ public class DummyDb extends Db {
         }
     }
 
-    public static class TimedNamedOperation3Handler extends OperationHandler<TimedNamedOperation3, AllowedConnectionState> {
+    public static class TimedNamedOperation3Handler implements OperationHandler<TimedNamedOperation3, AllowedConnectionState> {
         @Override
         public void executeOperation(TimedNamedOperation3 operation, AllowedConnectionState connectionState, ResultReporter resultReporter) throws DbException {
             while (false == connectionState.isAllowed(operation.name())) {

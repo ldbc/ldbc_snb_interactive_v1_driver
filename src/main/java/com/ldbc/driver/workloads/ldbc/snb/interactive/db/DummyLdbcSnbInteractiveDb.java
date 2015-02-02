@@ -143,7 +143,7 @@ public class DummyLdbcSnbInteractiveDb extends Db {
     LONG READS
      */
 
-    public static class LdbcQuery1Handler extends OperationHandler<LdbcQuery1, DummyDbConnectionState> {
+    public static class LdbcQuery1Handler implements OperationHandler<LdbcQuery1, DummyDbConnectionState> {
         @Override
         public void executeOperation(LdbcQuery1 operation, DummyDbConnectionState dbConnectionState, ResultReporter resultReporter) throws DbException {
             sleep(sleepDurationAsNano);
@@ -151,7 +151,7 @@ public class DummyLdbcSnbInteractiveDb extends Db {
         }
     }
 
-    public static class LdbcQuery2Handler extends OperationHandler<LdbcQuery2, DummyDbConnectionState> {
+    public static class LdbcQuery2Handler implements OperationHandler<LdbcQuery2, DummyDbConnectionState> {
         @Override
         public void executeOperation(LdbcQuery2 operation, DummyDbConnectionState dbConnectionState, ResultReporter resultReporter) throws DbException {
             sleep(sleepDurationAsNano);
@@ -159,7 +159,7 @@ public class DummyLdbcSnbInteractiveDb extends Db {
         }
     }
 
-    public static class LdbcQuery3Handler extends OperationHandler<LdbcQuery3, DummyDbConnectionState> {
+    public static class LdbcQuery3Handler implements OperationHandler<LdbcQuery3, DummyDbConnectionState> {
         @Override
         public void executeOperation(LdbcQuery3 operation, DummyDbConnectionState dbConnectionState, ResultReporter resultReporter) throws DbException {
             sleep(sleepDurationAsNano);
@@ -167,7 +167,7 @@ public class DummyLdbcSnbInteractiveDb extends Db {
         }
     }
 
-    public static class LdbcQuery4Handler extends OperationHandler<LdbcQuery4, DummyDbConnectionState> {
+    public static class LdbcQuery4Handler implements OperationHandler<LdbcQuery4, DummyDbConnectionState> {
         @Override
         public void executeOperation(LdbcQuery4 operation, DummyDbConnectionState dbConnectionState, ResultReporter resultReporter) throws DbException {
             sleep(sleepDurationAsNano);
@@ -175,7 +175,7 @@ public class DummyLdbcSnbInteractiveDb extends Db {
         }
     }
 
-    public static class LdbcQuery5Handler extends OperationHandler<LdbcQuery5, DummyDbConnectionState> {
+    public static class LdbcQuery5Handler implements OperationHandler<LdbcQuery5, DummyDbConnectionState> {
         @Override
         public void executeOperation(LdbcQuery5 operation, DummyDbConnectionState dbConnectionState, ResultReporter resultReporter) throws DbException {
             sleep(sleepDurationAsNano);
@@ -183,7 +183,7 @@ public class DummyLdbcSnbInteractiveDb extends Db {
         }
     }
 
-    public static class LdbcQuery6Handler extends OperationHandler<LdbcQuery6, DummyDbConnectionState> {
+    public static class LdbcQuery6Handler implements OperationHandler<LdbcQuery6, DummyDbConnectionState> {
         @Override
         public void executeOperation(LdbcQuery6 operation, DummyDbConnectionState dummyDbConnectionState, ResultReporter resultReporter) throws DbException {
             sleep(sleepDurationAsNano);
@@ -191,7 +191,7 @@ public class DummyLdbcSnbInteractiveDb extends Db {
         }
     }
 
-    public static class LdbcQuery7Handler extends OperationHandler<LdbcQuery7, DummyDbConnectionState> {
+    public static class LdbcQuery7Handler implements OperationHandler<LdbcQuery7, DummyDbConnectionState> {
         @Override
         public void executeOperation(LdbcQuery7 operation, DummyDbConnectionState dbConnectionState, ResultReporter resultReporter) throws DbException {
             sleep(sleepDurationAsNano);
@@ -199,7 +199,7 @@ public class DummyLdbcSnbInteractiveDb extends Db {
         }
     }
 
-    public static class LdbcQuery8Handler extends OperationHandler<LdbcQuery8, DummyDbConnectionState> {
+    public static class LdbcQuery8Handler implements OperationHandler<LdbcQuery8, DummyDbConnectionState> {
         @Override
         public void executeOperation(LdbcQuery8 operation, DummyDbConnectionState dbConnectionState, ResultReporter resultReporter) throws DbException {
             sleep(sleepDurationAsNano);
@@ -207,7 +207,7 @@ public class DummyLdbcSnbInteractiveDb extends Db {
         }
     }
 
-    public static class LdbcQuery9Handler extends OperationHandler<LdbcQuery9, DummyDbConnectionState> {
+    public static class LdbcQuery9Handler implements OperationHandler<LdbcQuery9, DummyDbConnectionState> {
         @Override
         public void executeOperation(LdbcQuery9 operation, DummyDbConnectionState dbConnectionState, ResultReporter resultReporter) throws DbException {
             sleep(sleepDurationAsNano);
@@ -215,7 +215,7 @@ public class DummyLdbcSnbInteractiveDb extends Db {
         }
     }
 
-    public static class LdbcQuery10Handler extends OperationHandler<LdbcQuery10, DummyDbConnectionState> {
+    public static class LdbcQuery10Handler implements OperationHandler<LdbcQuery10, DummyDbConnectionState> {
         @Override
         public void executeOperation(LdbcQuery10 operation, DummyDbConnectionState dbConnectionState, ResultReporter resultReporter) throws DbException {
             sleep(sleepDurationAsNano);
@@ -223,7 +223,7 @@ public class DummyLdbcSnbInteractiveDb extends Db {
         }
     }
 
-    public static class LdbcQuery11Handler extends OperationHandler<LdbcQuery11, DummyDbConnectionState> {
+    public static class LdbcQuery11Handler implements OperationHandler<LdbcQuery11, DummyDbConnectionState> {
         @Override
         public void executeOperation(LdbcQuery11 operation, DummyDbConnectionState dbConnectionState, ResultReporter resultReporter) throws DbException {
             sleep(sleepDurationAsNano);
@@ -231,7 +231,7 @@ public class DummyLdbcSnbInteractiveDb extends Db {
         }
     }
 
-    public static class LdbcQuery12Handler extends OperationHandler<LdbcQuery12, DummyDbConnectionState> {
+    public static class LdbcQuery12Handler implements OperationHandler<LdbcQuery12, DummyDbConnectionState> {
         @Override
         public void executeOperation(LdbcQuery12 operation, DummyDbConnectionState dbConnectionState, ResultReporter resultReporter) throws DbException {
             sleep(sleepDurationAsNano);
@@ -239,7 +239,7 @@ public class DummyLdbcSnbInteractiveDb extends Db {
         }
     }
 
-    public static class LdbcQuery13Handler extends OperationHandler<LdbcQuery13, DummyDbConnectionState> {
+    public static class LdbcQuery13Handler implements OperationHandler<LdbcQuery13, DummyDbConnectionState> {
         @Override
         public void executeOperation(LdbcQuery13 operation, DummyDbConnectionState dbConnectionState, ResultReporter resultReporter) throws DbException {
             sleep(sleepDurationAsNano);
@@ -247,7 +247,7 @@ public class DummyLdbcSnbInteractiveDb extends Db {
         }
     }
 
-    public static class LdbcQuery14Handler extends OperationHandler<LdbcQuery14, DummyDbConnectionState> {
+    public static class LdbcQuery14Handler implements OperationHandler<LdbcQuery14, DummyDbConnectionState> {
         @Override
         public void executeOperation(LdbcQuery14 operation, DummyDbConnectionState dbConnectionState, ResultReporter resultReporter) throws DbException {
             sleep(sleepDurationAsNano);
@@ -259,7 +259,7 @@ public class DummyLdbcSnbInteractiveDb extends Db {
     SHORT READS
      */
 
-    public static class LdbcShortQuery1PersonProfileHandler extends OperationHandler<LdbcShortQuery1PersonProfile, DummyDbConnectionState> {
+    public static class LdbcShortQuery1PersonProfileHandler implements OperationHandler<LdbcShortQuery1PersonProfile, DummyDbConnectionState> {
         @Override
         public void executeOperation(LdbcShortQuery1PersonProfile operation, DummyDbConnectionState dbConnectionState, ResultReporter resultReporter) throws DbException {
             sleep(sleepDurationAsNano);
@@ -267,7 +267,7 @@ public class DummyLdbcSnbInteractiveDb extends Db {
         }
     }
 
-    public static class LdbcShortQuery2PersonPostsHandler extends OperationHandler<LdbcShortQuery2PersonPosts, DummyDbConnectionState> {
+    public static class LdbcShortQuery2PersonPostsHandler implements OperationHandler<LdbcShortQuery2PersonPosts, DummyDbConnectionState> {
         @Override
         public void executeOperation(LdbcShortQuery2PersonPosts operation, DummyDbConnectionState dbConnectionState, ResultReporter resultReporter) throws DbException {
             sleep(sleepDurationAsNano);
@@ -275,7 +275,7 @@ public class DummyLdbcSnbInteractiveDb extends Db {
         }
     }
 
-    public static class LdbcShortQuery3PersonFriendsHandler extends OperationHandler<LdbcShortQuery3PersonFriends, DummyDbConnectionState> {
+    public static class LdbcShortQuery3PersonFriendsHandler implements OperationHandler<LdbcShortQuery3PersonFriends, DummyDbConnectionState> {
         @Override
         public void executeOperation(LdbcShortQuery3PersonFriends operation, DummyDbConnectionState dbConnectionState, ResultReporter resultReporter) throws DbException {
             sleep(sleepDurationAsNano);
@@ -283,7 +283,7 @@ public class DummyLdbcSnbInteractiveDb extends Db {
         }
     }
 
-    public static class LdbcShortQuery4MessageContentHandler extends OperationHandler<LdbcShortQuery4MessageContent, DummyDbConnectionState> {
+    public static class LdbcShortQuery4MessageContentHandler implements OperationHandler<LdbcShortQuery4MessageContent, DummyDbConnectionState> {
         @Override
         public void executeOperation(LdbcShortQuery4MessageContent operation, DummyDbConnectionState dbConnectionState, ResultReporter resultReporter) throws DbException {
             sleep(sleepDurationAsNano);
@@ -291,7 +291,7 @@ public class DummyLdbcSnbInteractiveDb extends Db {
         }
     }
 
-    public static class LdbcShortQuery5MessageCreatorHandler extends OperationHandler<LdbcShortQuery5MessageCreator, DummyDbConnectionState> {
+    public static class LdbcShortQuery5MessageCreatorHandler implements OperationHandler<LdbcShortQuery5MessageCreator, DummyDbConnectionState> {
         @Override
         public void executeOperation(LdbcShortQuery5MessageCreator operation, DummyDbConnectionState dbConnectionState, ResultReporter resultReporter) throws DbException {
             sleep(sleepDurationAsNano);
@@ -299,7 +299,7 @@ public class DummyLdbcSnbInteractiveDb extends Db {
         }
     }
 
-    public static class LdbcShortQuery6MessageForumHandler extends OperationHandler<LdbcShortQuery6MessageForum, DummyDbConnectionState> {
+    public static class LdbcShortQuery6MessageForumHandler implements OperationHandler<LdbcShortQuery6MessageForum, DummyDbConnectionState> {
         @Override
         public void executeOperation(LdbcShortQuery6MessageForum operation, DummyDbConnectionState dbConnectionState, ResultReporter resultReporter) throws DbException {
             sleep(sleepDurationAsNano);
@@ -307,7 +307,7 @@ public class DummyLdbcSnbInteractiveDb extends Db {
         }
     }
 
-    public static class LdbcShortQuery7MessageRepliesHandler extends OperationHandler<LdbcShortQuery7MessageReplies, DummyDbConnectionState> {
+    public static class LdbcShortQuery7MessageRepliesHandler implements OperationHandler<LdbcShortQuery7MessageReplies, DummyDbConnectionState> {
         @Override
         public void executeOperation(LdbcShortQuery7MessageReplies operation, DummyDbConnectionState dbConnectionState, ResultReporter resultReporter) throws DbException {
             sleep(sleepDurationAsNano);
@@ -319,7 +319,7 @@ public class DummyLdbcSnbInteractiveDb extends Db {
     UPDATES
      */
 
-    public static class LdbcUpdate1AddPersonHandler extends OperationHandler<LdbcUpdate1AddPerson, DummyDbConnectionState> {
+    public static class LdbcUpdate1AddPersonHandler implements OperationHandler<LdbcUpdate1AddPerson, DummyDbConnectionState> {
         @Override
         public void executeOperation(LdbcUpdate1AddPerson operation, DummyDbConnectionState dbConnectionState, ResultReporter resultReporter) throws DbException {
             sleep(sleepDurationAsNano);
@@ -327,7 +327,7 @@ public class DummyLdbcSnbInteractiveDb extends Db {
         }
     }
 
-    public static class LdbcUpdate2AddPostLikeHandler extends OperationHandler<LdbcUpdate2AddPostLike, DummyDbConnectionState> {
+    public static class LdbcUpdate2AddPostLikeHandler implements OperationHandler<LdbcUpdate2AddPostLike, DummyDbConnectionState> {
         @Override
         public void executeOperation(LdbcUpdate2AddPostLike operation, DummyDbConnectionState dbConnectionState, ResultReporter resultReporter) throws DbException {
             sleep(sleepDurationAsNano);
@@ -335,7 +335,7 @@ public class DummyLdbcSnbInteractiveDb extends Db {
         }
     }
 
-    public static class LdbcUpdate3AddCommentLikeHandler extends OperationHandler<LdbcUpdate3AddCommentLike, DummyDbConnectionState> {
+    public static class LdbcUpdate3AddCommentLikeHandler implements OperationHandler<LdbcUpdate3AddCommentLike, DummyDbConnectionState> {
         @Override
         public void executeOperation(LdbcUpdate3AddCommentLike operation, DummyDbConnectionState dbConnectionState, ResultReporter resultReporter) throws DbException {
             sleep(sleepDurationAsNano);
@@ -343,7 +343,7 @@ public class DummyLdbcSnbInteractiveDb extends Db {
         }
     }
 
-    public static class LdbcUpdate4AddForumHandler extends OperationHandler<LdbcUpdate4AddForum, DummyDbConnectionState> {
+    public static class LdbcUpdate4AddForumHandler implements OperationHandler<LdbcUpdate4AddForum, DummyDbConnectionState> {
         @Override
         public void executeOperation(LdbcUpdate4AddForum operation, DummyDbConnectionState dbConnectionState, ResultReporter resultReporter) throws DbException {
             sleep(sleepDurationAsNano);
@@ -351,7 +351,7 @@ public class DummyLdbcSnbInteractiveDb extends Db {
         }
     }
 
-    public static class LdbcUpdate5AddForumMembershipHandler extends OperationHandler<LdbcUpdate5AddForumMembership, DummyDbConnectionState> {
+    public static class LdbcUpdate5AddForumMembershipHandler implements OperationHandler<LdbcUpdate5AddForumMembership, DummyDbConnectionState> {
         @Override
         public void executeOperation(LdbcUpdate5AddForumMembership operation, DummyDbConnectionState dbConnectionState, ResultReporter resultReporter) throws DbException {
             sleep(sleepDurationAsNano);
@@ -359,7 +359,7 @@ public class DummyLdbcSnbInteractiveDb extends Db {
         }
     }
 
-    public static class LdbcUpdate6AddPostHandler extends OperationHandler<LdbcUpdate6AddPost, DummyDbConnectionState> {
+    public static class LdbcUpdate6AddPostHandler implements OperationHandler<LdbcUpdate6AddPost, DummyDbConnectionState> {
         @Override
         public void executeOperation(LdbcUpdate6AddPost operation, DummyDbConnectionState dbConnectionState, ResultReporter resultReporter) throws DbException {
             sleep(sleepDurationAsNano);
@@ -367,7 +367,7 @@ public class DummyLdbcSnbInteractiveDb extends Db {
         }
     }
 
-    public static class LdbcUpdate7AddCommentHandler extends OperationHandler<LdbcUpdate7AddComment, DummyDbConnectionState> {
+    public static class LdbcUpdate7AddCommentHandler implements OperationHandler<LdbcUpdate7AddComment, DummyDbConnectionState> {
         @Override
         public void executeOperation(LdbcUpdate7AddComment operation, DummyDbConnectionState dbConnectionState, ResultReporter resultReporter) throws DbException {
             sleep(sleepDurationAsNano);
@@ -375,7 +375,7 @@ public class DummyLdbcSnbInteractiveDb extends Db {
         }
     }
 
-    public static class LdbcUpdate8AddFriendshipHandler extends OperationHandler<LdbcUpdate8AddFriendship, DummyDbConnectionState> {
+    public static class LdbcUpdate8AddFriendshipHandler implements OperationHandler<LdbcUpdate8AddFriendship, DummyDbConnectionState> {
         @Override
         public void executeOperation(LdbcUpdate8AddFriendship operation, DummyDbConnectionState dbConnectionState, ResultReporter resultReporter) throws DbException {
             sleep(sleepDurationAsNano);
