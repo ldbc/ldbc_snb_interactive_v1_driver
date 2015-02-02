@@ -31,7 +31,7 @@ import static java.lang.reflect.Modifier.isStatic;
  * <p/>
  * The common {@link Extractor extractors} can be accessed using the accessor methods, like {@link #string()},
  * {@link #long_()} and others. Specific classes are declared as return types for those providing additional
- * value accessors, f.ex {@link LongExtractor#primitive()}.
+ * value accessors
  * <p/>
  * Typically an instance of {@link Extractors} would be instantiated along side a {@link BufferedCharSeeker},
  * assumed to be used by a single thread, since each {@link Extractor} it has is stateful. Example:
@@ -79,6 +79,7 @@ public class Extractors {
     private final Extractor<long[]> longArray;
     private final Extractor<float[]> floatArray;
     private final Extractor<double[]> doubleArray;
+    private final IntTupleArrayExtractor intTupleArray;
 
     /**
      * Why do we have a public constructor here and why isn't this class an enum?
@@ -86,7 +87,7 @@ public class Extractors {
      * something that would be impossible otherwise. There's an equivalent {@link #valueOf(String)}
      * method to keep the feel of an enum.
      */
-    public Extractors(char arrayDelimiter) {
+    public Extractors(char arrayDelimiter, char tupleDelimiter) {
         try {
             for (Field field : getClass().getDeclaredFields()) {
                 if (isStatic(field.getModifiers())) {
@@ -114,6 +115,7 @@ public class Extractors {
             add(longArray = new LongArrayExtractor(arrayDelimiter));
             add(floatArray = new FloatArrayExtractor(arrayDelimiter));
             add(doubleArray = new DoubleArrayExtractor(arrayDelimiter));
+            add(intTupleArray = new IntTupleArrayExtractor(arrayDelimiter, tupleDelimiter));
         } catch (IllegalAccessException e) {
             throw new Error("Bug in reflection code gathering all extractors");
         }
@@ -197,6 +199,11 @@ public class Extractors {
 
     public Extractor<double[]> doubleArray() {
         return doubleArray;
+    }
+
+    public Extractor<int[][]> intTupleArray(int tupleLength) {
+        intTupleArray.setInnerTupleLength(tupleLength);
+        return intTupleArray;
     }
 
     private static abstract class AbstractExtractor<T> implements Extractor<T> {
@@ -572,6 +579,88 @@ public class Extractors {
             for (int arrayIndex = 0, charIndex = 0; arrayIndex < numberOfValues; arrayIndex++, charIndex++) {
                 int numberOfChars = charsToNextDelimiter(data, offset + charIndex, length - charIndex);
                 value[arrayIndex] = extractLong(data, offset + charIndex, numberOfChars);
+                charIndex += numberOfChars;
+            }
+        }
+    }
+
+    private static class IntTupleArrayExtractor extends AbstractExtractor<int[][]> {
+        private static final int[][] EMPTY = new int[0][0];
+
+        protected final char outerArrayDelimiter;
+        protected final char innerTupleDelimiter;
+        protected int innerTupleLength;
+        protected int[][] value;
+
+        IntTupleArrayExtractor(char outerArrayDelimiter, char innerTupleDelimiter) {
+            super(Integer.TYPE + "[][]");
+            this.outerArrayDelimiter = outerArrayDelimiter;
+            this.innerTupleDelimiter = innerTupleDelimiter;
+        }
+
+        void setInnerTupleLength(int tupleLength) {
+            innerTupleLength = tupleLength;
+        }
+
+        @Override
+        public int[][] value() {
+            return value;
+        }
+
+        protected int charsToNextOuterArrayDelimiter(char[] data, int offset, int length) {
+            for (int i = 0; i < length; i++) {
+                if (data[offset + i] == outerArrayDelimiter) {
+                    return i;
+                }
+            }
+            return length;
+        }
+
+        protected int charsToNextInnerTupleDelimiter(char[] data, int offset, int length) {
+            for (int i = 0; i < length; i++) {
+                if (data[offset + i] == innerTupleDelimiter) {
+                    return i;
+                }
+            }
+            return length;
+        }
+
+        protected int numberOfValues(char[] data, int offset, int length) {
+            int count = length > 0 ? 1 : 0;
+            for (int i = 0; i < length; i++) {
+                if (data[offset + i] == outerArrayDelimiter) {
+                    count++;
+                }
+            }
+            return count;
+        }
+
+        @Override
+        public int hashCode() {
+            return getClass().hashCode();
+        }
+
+        @Override
+        public boolean equals(Object obj) {
+            return getClass().equals(obj.getClass());
+        }
+
+
+        @Override
+        public void extract(char[] data, int offset, int length) {
+            int numberOfValues = numberOfValues(data, offset, length);
+            value = numberOfValues > 0 ? new int[numberOfValues][innerTupleLength] : EMPTY;
+            for (int arrayIndex = 0, charIndex = 0; arrayIndex < numberOfValues; arrayIndex++, charIndex++) {
+                int numberOfChars = charsToNextOuterArrayDelimiter(data, offset + charIndex, length - charIndex);
+                extractInnerTuple(data, offset + charIndex, numberOfChars, arrayIndex);
+                charIndex += numberOfChars;
+            }
+        }
+
+        private void extractInnerTuple(char[] data, int offset, int length, int outerArrayIndex) {
+            for (int innerTupleIndex = 0, charIndex = 0; innerTupleIndex < innerTupleLength; innerTupleIndex++, charIndex++) {
+                int numberOfChars = charsToNextInnerTupleDelimiter(data, offset + charIndex, length - charIndex);
+                value[outerArrayIndex][innerTupleIndex] = safeCastLongToInt(extractLong(data, offset + charIndex, numberOfChars));
                 charIndex += numberOfChars;
             }
         }

@@ -38,7 +38,7 @@ public class WriteEventStreamReaderTest {
         String data = WriteEventStreamReaderTestData.ROWS_FOR_ALL_EVENT_TYPES;
         CharSeeker charSeeker = new BufferedCharSeeker(Readables.wrap(new StringReader(data)));
         int columnDelimiter = '|';
-        Extractors extractors = new Extractors(';');
+        Extractors extractors = new Extractors(';', ',');
         Iterator<Operation<?>> writeEventStreamReader = WriteEventStreamReaderCharSeeker.create(charSeeker, extractors, columnDelimiter);
         doShouldParseAllEventTypes(writeEventStreamReader);
         charSeeker.close();
@@ -202,7 +202,7 @@ public class WriteEventStreamReaderTest {
         String data = WriteEventStreamReaderTestData.UPDATE_1_ADD_PERSON_ROW;
         CharSeeker charSeeker = new BufferedCharSeeker(Readables.wrap(new StringReader(data)));
         int columnDelimiter = '|';
-        Extractors extractors = new Extractors(';');
+        Extractors extractors = new Extractors(';', ',');
         Iterator<Operation<?>> writeEventStreamReader = WriteEventStreamReaderCharSeeker.create(charSeeker, extractors, columnDelimiter);
         doShouldParseUpdate1AddPerson(writeEventStreamReader);
         charSeeker.close();
@@ -256,7 +256,7 @@ public class WriteEventStreamReaderTest {
         String data = WriteEventStreamReaderTestData.UPDATE_1_ADD_PERSON_ROW_ONE_LANGUAGE;
         CharSeeker charSeeker = new BufferedCharSeeker(Readables.wrap(new StringReader(data)));
         int columnDelimiter = '|';
-        Extractors extractors = new Extractors(';');
+        Extractors extractors = new Extractors(';', ',');
         Iterator<Operation<?>> writeEventStreamReader = WriteEventStreamReaderCharSeeker.create(charSeeker, extractors, columnDelimiter);
         doShouldParseUpdate1AddPersonWithOneLanguage(writeEventStreamReader);
         charSeeker.close();
@@ -310,7 +310,7 @@ public class WriteEventStreamReaderTest {
         String data = WriteEventStreamReaderTestData.UPDATE_1_ADD_PERSON_ROW_NO_LANGUAGES;
         CharSeeker charSeeker = new BufferedCharSeeker(Readables.wrap(new StringReader(data)));
         int columnDelimiter = '|';
-        Extractors extractors = new Extractors(';');
+        Extractors extractors = new Extractors(';', ',');
         Iterator<Operation<?>> writeEventStreamReader = WriteEventStreamReaderCharSeeker.create(charSeeker, extractors, columnDelimiter);
         doShouldParseUpdate1AddPersonWithNoLanguages(writeEventStreamReader);
         charSeeker.close();
@@ -364,7 +364,7 @@ public class WriteEventStreamReaderTest {
         String data = WriteEventStreamReaderTestData.UPDATE_1_ADD_PERSON_ROW_ONE_COMPANY;
         CharSeeker charSeeker = new BufferedCharSeeker(Readables.wrap(new StringReader(data)));
         int columnDelimiter = '|';
-        Extractors extractors = new Extractors(';');
+        Extractors extractors = new Extractors(';', ',');
         Iterator<Operation<?>> writeEventStreamReader = WriteEventStreamReaderCharSeeker.create(charSeeker, extractors, columnDelimiter);
         doShouldParseUpdate1AddPersonWithOneCompany(writeEventStreamReader);
         charSeeker.close();
@@ -415,7 +415,7 @@ public class WriteEventStreamReaderTest {
         String data = WriteEventStreamReaderTestData.UPDATE_1_ADD_PERSON_ROW_NO_COMPANIES;
         CharSeeker charSeeker = new BufferedCharSeeker(Readables.wrap(new StringReader(data)));
         int columnDelimiter = '|';
-        Extractors extractors = new Extractors(';');
+        Extractors extractors = new Extractors(';', ',');
         Iterator<Operation<?>> writeEventStreamReader = WriteEventStreamReaderCharSeeker.create(charSeeker, extractors, columnDelimiter);
         doShouldParseUpdate1AddPersonWithNoCompanies(writeEventStreamReader);
         charSeeker.close();
@@ -464,7 +464,7 @@ public class WriteEventStreamReaderTest {
         String data = WriteEventStreamReaderTestData.UPDATE_1_ADD_PERSON_ROW_NO_UNIS;
         CharSeeker charSeeker = new BufferedCharSeeker(Readables.wrap(new StringReader(data)));
         int columnDelimiter = '|';
-        Extractors extractors = new Extractors(';');
+        Extractors extractors = new Extractors(';', ',');
         Iterator<Operation<?>> writeEventStreamReader = WriteEventStreamReaderCharSeeker.create(charSeeker, extractors, columnDelimiter);
         doShouldParseUpdate1AddPersonWithNoUnis(writeEventStreamReader);
         charSeeker.close();
@@ -518,7 +518,7 @@ public class WriteEventStreamReaderTest {
         String data = WriteEventStreamReaderTestData.UPDATE_1_ADD_PERSON_ROW_NO_EMAILS;
         CharSeeker charSeeker = new BufferedCharSeeker(Readables.wrap(new StringReader(data)));
         int columnDelimiter = '|';
-        Extractors extractors = new Extractors(';');
+        Extractors extractors = new Extractors(';', ',');
         Iterator<Operation<?>> writeEventStreamReader = WriteEventStreamReaderCharSeeker.create(charSeeker, extractors, columnDelimiter);
         doShouldParseUpdate1AddPersonWithNoEmails(writeEventStreamReader);
         charSeeker.close();
@@ -572,7 +572,7 @@ public class WriteEventStreamReaderTest {
         String data = WriteEventStreamReaderTestData.UPDATE_1_ADD_PERSON_ROW_NO_TAGS;
         CharSeeker charSeeker = new BufferedCharSeeker(Readables.wrap(new StringReader(data)));
         int columnDelimiter = '|';
-        Extractors extractors = new Extractors(';');
+        Extractors extractors = new Extractors(';', ',');
         Iterator<Operation<?>> writeEventStreamReader = WriteEventStreamReaderCharSeeker.create(charSeeker, extractors, columnDelimiter);
         doShouldParseUpdate1AddPersonWithNoTags(writeEventStreamReader);
         charSeeker.close();
@@ -626,7 +626,7 @@ public class WriteEventStreamReaderTest {
         String data = WriteEventStreamReaderTestData.UPDATE_2_ADD_LIKE_POST_ROW;
         CharSeeker charSeeker = new BufferedCharSeeker(Readables.wrap(new StringReader(data)));
         int columnDelimiter = '|';
-        Extractors extractors = new Extractors(';');
+        Extractors extractors = new Extractors(';', ',');
         Iterator<Operation<?>> writeEventStreamReader = WriteEventStreamReaderCharSeeker.create(charSeeker, extractors, columnDelimiter);
         doShouldParseUpdate2AddLikePost(writeEventStreamReader);
         charSeeker.close();
@@ -662,7 +662,7 @@ public class WriteEventStreamReaderTest {
         String data = WriteEventStreamReaderTestData.UPDATE_3_ADD_LIKE_COMMENT;
         CharSeeker charSeeker = new BufferedCharSeeker(Readables.wrap(new StringReader(data)));
         int columnDelimiter = '|';
-        Extractors extractors = new Extractors(';');
+        Extractors extractors = new Extractors(';', ',');
         Iterator<Operation<?>> writeEventStreamReader = WriteEventStreamReaderCharSeeker.create(charSeeker, extractors, columnDelimiter);
         doShouldParseUpdate3AddLikeComment(writeEventStreamReader);
         charSeeker.close();
@@ -698,7 +698,7 @@ public class WriteEventStreamReaderTest {
         String data = WriteEventStreamReaderTestData.UPDATE_4_ADD_FORUM;
         CharSeeker charSeeker = new BufferedCharSeeker(Readables.wrap(new StringReader(data)));
         int columnDelimiter = '|';
-        Extractors extractors = new Extractors(';');
+        Extractors extractors = new Extractors(';', ',');
         Iterator<Operation<?>> writeEventStreamReader = WriteEventStreamReaderCharSeeker.create(charSeeker, extractors, columnDelimiter);
         doShouldParseUpdate4AddForum(writeEventStreamReader);
         charSeeker.close();
@@ -736,7 +736,7 @@ public class WriteEventStreamReaderTest {
         String data = WriteEventStreamReaderTestData.UPDATE_5_ADD_FORUM_MEMBERSHIP;
         CharSeeker charSeeker = new BufferedCharSeeker(Readables.wrap(new StringReader(data)));
         int columnDelimiter = '|';
-        Extractors extractors = new Extractors(';');
+        Extractors extractors = new Extractors(';', ',');
         Iterator<Operation<?>> writeEventStreamReader = WriteEventStreamReaderCharSeeker.create(charSeeker, extractors, columnDelimiter);
         shouldParseUpdate5AddForumMembership(writeEventStreamReader);
         charSeeker.close();
@@ -772,7 +772,7 @@ public class WriteEventStreamReaderTest {
         String data = WriteEventStreamReaderTestData.UPDATE_6_ADD_POST;
         CharSeeker charSeeker = new BufferedCharSeeker(Readables.wrap(new StringReader(data)));
         int columnDelimiter = '|';
-        Extractors extractors = new Extractors(';');
+        Extractors extractors = new Extractors(';', ',');
         Iterator<Operation<?>> writeEventStreamReader = WriteEventStreamReaderCharSeeker.create(charSeeker, extractors, columnDelimiter);
         doShouldParseUpdate6AddPost(writeEventStreamReader);
         charSeeker.close();
@@ -817,7 +817,7 @@ public class WriteEventStreamReaderTest {
         String data = WriteEventStreamReaderTestData.UPDATE_6_ADD_POST_MANY_TAGS;
         CharSeeker charSeeker = new BufferedCharSeeker(Readables.wrap(new StringReader(data)));
         int columnDelimiter = '|';
-        Extractors extractors = new Extractors(';');
+        Extractors extractors = new Extractors(';', ',');
         Iterator<Operation<?>> writeEventStreamReader = WriteEventStreamReaderCharSeeker.create(charSeeker, extractors, columnDelimiter);
         doShouldParseUpdate6AddPostWithManyTags(writeEventStreamReader);
         charSeeker.close();
@@ -862,7 +862,7 @@ public class WriteEventStreamReaderTest {
         String data = WriteEventStreamReaderTestData.UPDATE_6_ADD_POST_NO_TAGS;
         CharSeeker charSeeker = new BufferedCharSeeker(Readables.wrap(new StringReader(data)));
         int columnDelimiter = '|';
-        Extractors extractors = new Extractors(';');
+        Extractors extractors = new Extractors(';', ',');
         Iterator<Operation<?>> writeEventStreamReader = WriteEventStreamReaderCharSeeker.create(charSeeker, extractors, columnDelimiter);
         doShouldParseUpdate6AddPostWithEmptyTags(writeEventStreamReader);
         charSeeker.close();
@@ -907,7 +907,7 @@ public class WriteEventStreamReaderTest {
         String data = WriteEventStreamReaderTestData.UPDATE_7_ADD_COMMENT;
         CharSeeker charSeeker = new BufferedCharSeeker(Readables.wrap(new StringReader(data)));
         int columnDelimiter = '|';
-        Extractors extractors = new Extractors(';');
+        Extractors extractors = new Extractors(';', ',');
         Iterator<Operation<?>> writeEventStreamReader = WriteEventStreamReaderCharSeeker.create(charSeeker, extractors, columnDelimiter);
         doShouldParseUpdate7AddComment(writeEventStreamReader);
         charSeeker.close();
@@ -951,7 +951,7 @@ public class WriteEventStreamReaderTest {
         String data = WriteEventStreamReaderTestData.UPDATE_7_ADD_COMMENT_NO_TAGS;
         CharSeeker charSeeker = new BufferedCharSeeker(Readables.wrap(new StringReader(data)));
         int columnDelimiter = '|';
-        Extractors extractors = new Extractors(';');
+        Extractors extractors = new Extractors(';', ',');
         Iterator<Operation<?>> writeEventStreamReader = WriteEventStreamReaderCharSeeker.create(charSeeker, extractors, columnDelimiter);
         doShouldParseUpdate7AddCommentWithEmptyTags(writeEventStreamReader);
         charSeeker.close();
@@ -995,7 +995,7 @@ public class WriteEventStreamReaderTest {
         String data = WriteEventStreamReaderTestData.UPDATE_8_ADD_FRIENDSHIP;
         CharSeeker charSeeker = new BufferedCharSeeker(Readables.wrap(new StringReader(data)));
         int columnDelimiter = '|';
-        Extractors extractors = new Extractors(';');
+        Extractors extractors = new Extractors(';', ',');
         Iterator<Operation<?>> writeEventStreamReader = WriteEventStreamReaderCharSeeker.create(charSeeker, extractors, columnDelimiter);
         doShouldParseUpdate8AddFriendship(writeEventStreamReader);
         charSeeker.close();

@@ -268,13 +268,13 @@ public class LdbcSnbInteractiveWorkload extends Workload {
             case CHAR_SEEKER: {
                 int bufferSize = 1 * 1024 * 1024;
                 BufferedCharSeeker charSeeker = new BufferedCharSeeker(Readables.wrap(new FileReader(updateOperationsFile)), bufferSize);
-                Extractors extractors = new Extractors(';');
+                Extractors extractors = new Extractors(';', ',');
                 return Tuple.<Iterator<Operation<?>>, Closeable>tuple2(WriteEventStreamReaderCharSeeker.create(charSeeker, extractors, '|'), charSeeker);
             }
             case CHAR_SEEKER_THREAD: {
                 int bufferSize = 1 * 1024 * 1024;
                 BufferedCharSeeker charSeeker = new BufferedCharSeeker(ThreadAheadReadable.threadAhead(Readables.wrap(new FileReader(updateOperationsFile)), bufferSize), bufferSize);
-                Extractors extractors = new Extractors(';');
+                Extractors extractors = new Extractors(';', ',');
                 return Tuple.<Iterator<Operation<?>>, Closeable>tuple2(WriteEventStreamReaderCharSeeker.create(charSeeker, extractors, '|'), charSeeker);
             }
         }
@@ -415,11 +415,12 @@ public class LdbcSnbInteractiveWorkload extends Workload {
         int bufferSize = 1 * 1024 * 1024;
         char columnDelimiter = '|';
         char arrayDelimiter = ';';
+        char tupleDelimiter = ',';
 
         Iterator<Operation<?>> readOperation1Stream;
         {
             CsvEventStreamReaderBasicCharSeeker.EventDecoder<Object[]> decoder = new Query1EventStreamReader.Query1Decoder();
-            Extractors extractors = new Extractors(arrayDelimiter);
+            Extractors extractors = new Extractors(arrayDelimiter, tupleDelimiter);
             CharSeeker charSeeker;
             try {
                 charSeeker = new BufferedCharSeeker(Readables.wrap(new FileReader(readOperation1File)), bufferSize);
@@ -460,7 +461,7 @@ public class LdbcSnbInteractiveWorkload extends Workload {
         Iterator<Operation<?>> readOperation2Stream;
         {
             CsvEventStreamReaderBasicCharSeeker.EventDecoder<Object[]> decoder = new Query2EventStreamReader.Query2Decoder();
-            Extractors extractors = new Extractors(arrayDelimiter);
+            Extractors extractors = new Extractors(arrayDelimiter, tupleDelimiter);
             CharSeeker charSeeker;
             try {
                 charSeeker = new BufferedCharSeeker(Readables.wrap(new FileReader(readOperation2File)), bufferSize);
@@ -501,7 +502,7 @@ public class LdbcSnbInteractiveWorkload extends Workload {
         Iterator<Operation<?>> readOperation3Stream;
         {
             CsvEventStreamReaderBasicCharSeeker.EventDecoder<Object[]> decoder = new Query3EventStreamReader.Query3Decoder();
-            Extractors extractors = new Extractors(arrayDelimiter);
+            Extractors extractors = new Extractors(arrayDelimiter, tupleDelimiter);
             CharSeeker charSeeker;
             try {
                 charSeeker = new BufferedCharSeeker(Readables.wrap(new FileReader(readOperation3File)), bufferSize);
@@ -545,7 +546,7 @@ public class LdbcSnbInteractiveWorkload extends Workload {
         Iterator<Operation<?>> readOperation4Stream;
         {
             CsvEventStreamReaderBasicCharSeeker.EventDecoder<Object[]> decoder = new Query4EventStreamReader.Query4Decoder();
-            Extractors extractors = new Extractors(arrayDelimiter);
+            Extractors extractors = new Extractors(arrayDelimiter, tupleDelimiter);
             CharSeeker charSeeker;
             try {
                 charSeeker = new BufferedCharSeeker(Readables.wrap(new FileReader(readOperation4File)), bufferSize);
@@ -587,7 +588,7 @@ public class LdbcSnbInteractiveWorkload extends Workload {
         Iterator<Operation<?>> readOperation5Stream;
         {
             CsvEventStreamReaderBasicCharSeeker.EventDecoder<Object[]> decoder = new Query5EventStreamReader.Query5Decoder();
-            Extractors extractors = new Extractors(arrayDelimiter);
+            Extractors extractors = new Extractors(arrayDelimiter, tupleDelimiter);
             CharSeeker charSeeker;
             try {
                 charSeeker = new BufferedCharSeeker(Readables.wrap(new FileReader(readOperation5File)), bufferSize);
@@ -628,7 +629,7 @@ public class LdbcSnbInteractiveWorkload extends Workload {
         Iterator<Operation<?>> readOperation6Stream;
         {
             CsvEventStreamReaderBasicCharSeeker.EventDecoder<Object[]> decoder = new Query6EventStreamReader.Query6Decoder();
-            Extractors extractors = new Extractors(arrayDelimiter);
+            Extractors extractors = new Extractors(arrayDelimiter, tupleDelimiter);
             CharSeeker charSeeker;
             try {
                 charSeeker = new BufferedCharSeeker(Readables.wrap(new FileReader(readOperation6File)), bufferSize);
@@ -669,7 +670,7 @@ public class LdbcSnbInteractiveWorkload extends Workload {
         Iterator<Operation<?>> readOperation7Stream;
         {
             CsvEventStreamReaderBasicCharSeeker.EventDecoder<Object[]> decoder = new Query7EventStreamReader.Query7Decoder();
-            Extractors extractors = new Extractors(arrayDelimiter);
+            Extractors extractors = new Extractors(arrayDelimiter, tupleDelimiter);
             CharSeeker charSeeker;
             try {
                 charSeeker = new BufferedCharSeeker(Readables.wrap(new FileReader(readOperation7File)), bufferSize);
@@ -709,7 +710,7 @@ public class LdbcSnbInteractiveWorkload extends Workload {
         Iterator<Operation<?>> readOperation8Stream;
         {
             CsvEventStreamReaderBasicCharSeeker.EventDecoder<Object[]> decoder = new Query8EventStreamReader.Query8Decoder();
-            Extractors extractors = new Extractors(arrayDelimiter);
+            Extractors extractors = new Extractors(arrayDelimiter, tupleDelimiter);
             CharSeeker charSeeker;
             try {
                 charSeeker = new BufferedCharSeeker(Readables.wrap(new FileReader(readOperation8File)), bufferSize);
@@ -749,7 +750,7 @@ public class LdbcSnbInteractiveWorkload extends Workload {
         Iterator<Operation<?>> readOperation9Stream;
         {
             CsvEventStreamReaderBasicCharSeeker.EventDecoder<Object[]> decoder = new Query9EventStreamReader.Query9Decoder();
-            Extractors extractors = new Extractors(arrayDelimiter);
+            Extractors extractors = new Extractors(arrayDelimiter, tupleDelimiter);
             CharSeeker charSeeker;
             try {
                 charSeeker = new BufferedCharSeeker(Readables.wrap(new FileReader(readOperation9File)), bufferSize);
@@ -790,7 +791,7 @@ public class LdbcSnbInteractiveWorkload extends Workload {
         Iterator<Operation<?>> readOperation10Stream;
         {
             CsvEventStreamReaderBasicCharSeeker.EventDecoder<Object[]> decoder = new Query10EventStreamReader.Query10Decoder();
-            Extractors extractors = new Extractors(arrayDelimiter);
+            Extractors extractors = new Extractors(arrayDelimiter, tupleDelimiter);
             CharSeeker charSeeker;
             try {
                 charSeeker = new BufferedCharSeeker(Readables.wrap(new FileReader(readOperation10File)), bufferSize);
@@ -831,7 +832,7 @@ public class LdbcSnbInteractiveWorkload extends Workload {
         Iterator<Operation<?>> readOperation11Stream;
         {
             CsvEventStreamReaderBasicCharSeeker.EventDecoder<Object[]> decoder = new Query11EventStreamReader.Query11Decoder();
-            Extractors extractors = new Extractors(arrayDelimiter);
+            Extractors extractors = new Extractors(arrayDelimiter, tupleDelimiter);
             CharSeeker charSeeker;
             try {
                 charSeeker = new BufferedCharSeeker(Readables.wrap(new FileReader(readOperation11File)), bufferSize);
@@ -873,7 +874,7 @@ public class LdbcSnbInteractiveWorkload extends Workload {
         Iterator<Operation<?>> readOperation12Stream;
         {
             CsvEventStreamReaderBasicCharSeeker.EventDecoder<Object[]> decoder = new Query12EventStreamReader.Query12Decoder();
-            Extractors extractors = new Extractors(arrayDelimiter);
+            Extractors extractors = new Extractors(arrayDelimiter, tupleDelimiter);
             CharSeeker charSeeker;
             try {
                 charSeeker = new BufferedCharSeeker(Readables.wrap(new FileReader(readOperation12File)), bufferSize);
@@ -914,7 +915,7 @@ public class LdbcSnbInteractiveWorkload extends Workload {
         Iterator<Operation<?>> readOperation13Stream;
         {
             CsvEventStreamReaderBasicCharSeeker.EventDecoder<Object[]> decoder = new Query13EventStreamReader.Query13Decoder();
-            Extractors extractors = new Extractors(arrayDelimiter);
+            Extractors extractors = new Extractors(arrayDelimiter, tupleDelimiter);
             CharSeeker charSeeker;
             try {
                 charSeeker = new BufferedCharSeeker(Readables.wrap(new FileReader(readOperation13File)), bufferSize);
@@ -955,7 +956,7 @@ public class LdbcSnbInteractiveWorkload extends Workload {
         Iterator<Operation<?>> readOperation14Stream;
         {
             CsvEventStreamReaderBasicCharSeeker.EventDecoder<Object[]> decoder = new Query14EventStreamReader.Query14Decoder();
-            Extractors extractors = new Extractors(arrayDelimiter);
+            Extractors extractors = new Extractors(arrayDelimiter, tupleDelimiter);
             CharSeeker charSeeker;
             try {
                 charSeeker = new BufferedCharSeeker(Readables.wrap(new FileReader(readOperation14File)), bufferSize);
