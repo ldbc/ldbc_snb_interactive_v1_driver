@@ -1,10 +1,14 @@
 package com.ldbc.driver.workloads.ldbc.snb.interactive;
 
 import com.ldbc.driver.Operation;
+import com.ldbc.driver.SerializingMarshallingException;
+import org.codehaus.jackson.map.ObjectMapper;
 
+import java.io.IOException;
 import java.util.Date;
 
 public class LdbcUpdate5AddForumMembership extends Operation<Object> {
+    private static final ObjectMapper objectMapper = new ObjectMapper();
     public static final int TYPE = 1005;
     private final long forumId;
     private final long personId;
@@ -61,12 +65,16 @@ public class LdbcUpdate5AddForumMembership extends Operation<Object> {
 
     @Override
     public Object marshalResult(String serializedOperationResult) {
-        return null;
+        return LdbcSnbInteractiveConfiguration.WRITE_OPERATION_NO_RESULT_DEFAULT_RESULT;
     }
 
     @Override
-    public String serializeResult(Object operationResultInstance) {
-        return null;
+    public String serializeResult(Object operationResultInstance) throws SerializingMarshallingException {
+        try {
+            return objectMapper.writeValueAsString(LdbcSnbInteractiveConfiguration.WRITE_OPERATION_NO_RESULT_DEFAULT_RESULT);
+        } catch (IOException e) {
+            throw new SerializingMarshallingException(String.format("Error while trying to serialize result\n%s", operationResultInstance), e);
+        }
     }
 
     @Override

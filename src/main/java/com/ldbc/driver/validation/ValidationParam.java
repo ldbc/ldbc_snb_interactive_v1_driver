@@ -2,20 +2,28 @@ package com.ldbc.driver.validation;
 
 import com.ldbc.driver.Operation;
 
-public class ValidationParam<OPERATION extends Operation<RESULT>, RESULT> {
-    private final OPERATION operation;
-    private final RESULT operationResult;
+public class ValidationParam {
+    private final Operation operation;
+    private final Object operationResult;
 
-    public ValidationParam(OPERATION operation, RESULT operationResult) {
+    public static <OPERATION extends Operation<RESULT>, RESULT> ValidationParam createTyped(OPERATION operation, RESULT operationResult) {
+        return new ValidationParam(operation, operationResult);
+    }
+
+    public static ValidationParam createUntyped(Operation operation, Object operationResult) {
+        return new ValidationParam(operation, operationResult);
+    }
+
+    private ValidationParam(Operation operation, Object operationResult) {
         this.operation = operation;
         this.operationResult = operationResult;
     }
 
-    public OPERATION operation() {
+    public Operation operation() {
         return operation;
     }
 
-    public RESULT operationResult() {
+    public Object operationResult() {
         return operationResult;
     }
 

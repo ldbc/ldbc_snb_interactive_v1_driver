@@ -14,6 +14,7 @@ import java.io.IOException;
 import java.util.*;
 
 public class LdbcSnbInteractiveConfiguration {
+    public static final int WRITE_OPERATION_NO_RESULT_DEFAULT_RESULT = -1;
     public final static String LDBC_SNB_INTERACTIVE_PARAM_NAME_PREFIX = "ldbc.snb.interactive.";
     // directory that contains the substitution parameters files
     public final static String PARAMETERS_DIRECTORY = LDBC_SNB_INTERACTIVE_PARAM_NAME_PREFIX + "parameters_dir";

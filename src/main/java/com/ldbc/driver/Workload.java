@@ -88,7 +88,7 @@ public abstract class Workload implements Closeable {
 
         DbValidationParametersFilterResult useOperationAndResultForValidation(Operation<?> operation, Object operationResult);
 
-        Object curateResult(Operation operation, Object result);
+        <T> T curateResult(Operation operation, T result);
     }
 
     public enum DbValidationParametersFilterAcceptance {
@@ -99,7 +99,6 @@ public abstract class Workload implements Closeable {
     }
 
     public static class DbValidationParametersFilterResult {
-        public static final int NO_RESULT = -1;
         private final DbValidationParametersFilterAcceptance acceptance;
         private final List<Operation> injectedOperations;
 

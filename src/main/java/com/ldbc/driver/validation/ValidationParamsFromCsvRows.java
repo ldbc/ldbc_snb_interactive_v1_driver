@@ -40,7 +40,7 @@ public class ValidationParamsFromCsvRows implements Iterator<ValidationParam> {
         } catch (SerializingMarshallingException e) {
             throw new GeneratorException(String.format("Error marshalling operation result\n%s", serializedOperationResult), e);
         }
-        return new ValidationParam(operation, operationResult);
+        return ValidationParam.createUntyped(operation, operationResult);
     }
 
     @Override

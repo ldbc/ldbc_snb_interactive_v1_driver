@@ -83,11 +83,11 @@ public class ValidationParamsGenerator extends Generator<ValidationParam> {
                     continue;
                 case ACCEPT_AND_CONTINUE:
                     entriesWrittenSoFar++;
-                    return new ValidationParam(operation, result);
+                    return ValidationParam.createUntyped(operation, result);
                 case ACCEPT_AND_FINISH:
                     entriesWrittenSoFar++;
                     needMoreValidationParameters = false;
-                    return new ValidationParam(operation, result);
+                    return ValidationParam.createUntyped(operation, result);
             }
         }
         // ran out of operations OR validation set size has been reached

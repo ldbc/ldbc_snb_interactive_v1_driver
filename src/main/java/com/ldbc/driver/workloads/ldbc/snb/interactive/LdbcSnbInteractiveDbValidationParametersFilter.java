@@ -15,6 +15,7 @@ class LdbcSnbInteractiveDbValidationParametersFilter implements DbValidationPara
     private final Map<Class, Long> remainingRequiredResultsPerOperationType;
     private final Set<Class> enabledShortReadOperationTypes;
     private final Set<Class> enabledWriteOperationTypes;
+    private final Object noResultDefaultResult;
 
     private int writeAddPersonOperationCount;
     private int uncompletedShortReads;
@@ -23,13 +24,15 @@ class LdbcSnbInteractiveDbValidationParametersFilter implements DbValidationPara
                                                    Map<Class, Long> remainingRequiredResultsPerOperationType,
                                                    Set<Class> enabledShortReadOperationTypes,
                                                    Set<Class> enabledWriteOperationTypes,
-                                                   int writeAddPersonOperationCount) {
+                                                   int writeAddPersonOperationCount,
+                                                   Object noResultDefaultResult) {
         this.multiResultOperations = multiResultOperations;
         this.remainingRequiredResultsPerOperationType = remainingRequiredResultsPerOperationType;
         this.enabledShortReadOperationTypes = enabledShortReadOperationTypes;
         this.enabledWriteOperationTypes = enabledWriteOperationTypes;
         this.writeAddPersonOperationCount = writeAddPersonOperationCount;
         this.uncompletedShortReads = 0;
+        this.noResultDefaultResult=noResultDefaultResult;
     }
 
     @Override
@@ -76,7 +79,7 @@ class LdbcSnbInteractiveDbValidationParametersFilter implements DbValidationPara
     @Override
     public Object curateResult(Operation operation, Object result) {
         return (enabledWriteOperationTypes.contains(operation.getClass()))
-                ? DbValidationParametersFilterResult.NO_RESULT
+                ? noResultDefaultResult
                 : result;
     }
 
