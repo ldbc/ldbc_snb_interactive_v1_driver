@@ -161,8 +161,8 @@ public class LdbcSnbInteractiveWorkloadPerformanceTest {
     @Test
     public void withTimesPerformanceTest()
             throws InterruptedException, DbException, WorkloadException, IOException, MetricsCollectionException, CompletionTimeException, DriverConfigurationException {
-        File parentStreamsDir = new File("/Users/alexaverbuch/IdeaProjects/ldbc_snb_workload_interactive_neo4j/ldbc_driver/sample_data/sf10-008/");
-        File paramsDir = new File("/Users/alexaverbuch/IdeaProjects/ldbc_snb_workload_interactive_neo4j/ldbc_driver/sample_data/sf10-008/");
+        File parentStreamsDir = new File("/Users/alexaverbuch/IdeaProjects/ldbc_snb_workload_interactive_neo4j/ldbc_driver/sample_data/sf010_p006/");
+        File paramsDir = new File("/Users/alexaverbuch/IdeaProjects/ldbc_snb_workload_interactive_neo4j/ldbc_driver/sample_data/sf010_p006/");
         List<File> streamsDirs = Lists.newArrayList(
                 parentStreamsDir
         );

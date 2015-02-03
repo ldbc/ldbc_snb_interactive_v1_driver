@@ -11,10 +11,7 @@ import com.ldbc.driver.generator.GeneratorFactory;
 import com.ldbc.driver.generator.RandomDataGeneratorFactory;
 import com.ldbc.driver.testutils.TestUtils;
 import com.ldbc.driver.util.MapUtils;
-import com.ldbc.driver.workloads.ldbc.snb.interactive.LdbcQuery14;
-import com.ldbc.driver.workloads.ldbc.snb.interactive.LdbcQuery14Result;
-import com.ldbc.driver.workloads.ldbc.snb.interactive.LdbcSnbInteractiveConfiguration;
-import com.ldbc.driver.workloads.ldbc.snb.interactive.LdbcSnbInteractiveWorkload;
+import com.ldbc.driver.workloads.ldbc.snb.interactive.*;
 import com.ldbc.driver.workloads.ldbc.snb.interactive.db.DummyLdbcSnbInteractiveDb;
 import com.ldbc.driver.workloads.ldbc.snb.interactive.db.DummyLdbcSnbInteractiveOperationInstances;
 import com.ldbc.driver.workloads.ldbc.snb.interactive.db.DummyLdbcSnbInteractiveOperationResultInstances;
@@ -57,7 +54,7 @@ public class DbValidatorTest {
         workload.init(configuration);
 
         GeneratorFactory gf = new GeneratorFactory(new RandomDataGeneratorFactory(42l));
-        List<ValidationParam> correctValidationParamsList = Lists.newArrayList(gf.limit(gf.repeating(buildParams(workload.dbValidationParametersFilter(0)).iterator()), 10000));
+        List<ValidationParam> correctValidationParamsList = Lists.newArrayList(gf.limit(gf.repeating(buildParams().iterator()), 10000));
 
         LdbcQuery14 operation14 = DummyLdbcSnbInteractiveOperationInstances.read14();
         List<LdbcQuery14Result> unexpectedResult14 = DummyLdbcSnbInteractiveOperationResultSets.read14Results();
@@ -106,7 +103,7 @@ public class DbValidatorTest {
 
         GeneratorFactory gf = new GeneratorFactory(new RandomDataGeneratorFactory(42l));
         Iterator<ValidationParam> validationParams = gf.limit(
-                gf.repeating(buildParams(workload.dbValidationParametersFilter(0)).iterator()),
+                gf.repeating(buildParams().iterator()),
                 10000
         );
 
@@ -128,7 +125,7 @@ public class DbValidatorTest {
                 validationResult.isSuccessful(), is(true));
     }
 
-    List<ValidationParam> buildParams(Workload.DbValidationParametersFilter dbValidationParametersFilter) {
+    List<ValidationParam> buildParams() {
         ValidationParam validationParamLong1 = ValidationParam.createTyped(
                 DummyLdbcSnbInteractiveOperationInstances.read1(),
                 DummyLdbcSnbInteractiveOperationResultSets.read1Results()
@@ -231,47 +228,47 @@ public class DbValidatorTest {
 
         ValidationParam validationParamShort7 = ValidationParam.createTyped(
                 DummyLdbcSnbInteractiveOperationInstances.short7(),
-                dbValidationParametersFilter.curateResult(DummyLdbcSnbInteractiveOperationInstances.short7(), DummyLdbcSnbInteractiveOperationResultSets.short7Results())
+                DummyLdbcSnbInteractiveOperationResultSets.short7Results()
         );
 
         ValidationParam validationParamWrite1 = ValidationParam.createTyped(
                 DummyLdbcSnbInteractiveOperationInstances.write1(),
-                dbValidationParametersFilter.curateResult(DummyLdbcSnbInteractiveOperationInstances.write1(), null)
+                LdbcNoResult.INSTANCE
         );
 
         ValidationParam validationParamWrite2 = ValidationParam.createTyped(
                 DummyLdbcSnbInteractiveOperationInstances.write2(),
-                dbValidationParametersFilter.curateResult(DummyLdbcSnbInteractiveOperationInstances.write2(), null)
+                LdbcNoResult.INSTANCE
         );
 
         ValidationParam validationParamWrite3 = ValidationParam.createTyped(
                 DummyLdbcSnbInteractiveOperationInstances.write3(),
-                dbValidationParametersFilter.curateResult(DummyLdbcSnbInteractiveOperationInstances.write3(), null)
+                LdbcNoResult.INSTANCE
         );
 
         ValidationParam validationParamWrite4 = ValidationParam.createTyped(
                 DummyLdbcSnbInteractiveOperationInstances.write4(),
-                dbValidationParametersFilter.curateResult(DummyLdbcSnbInteractiveOperationInstances.write4(), null)
+                LdbcNoResult.INSTANCE
         );
 
         ValidationParam validationParamWrite5 = ValidationParam.createTyped(
                 DummyLdbcSnbInteractiveOperationInstances.write5(),
-                dbValidationParametersFilter.curateResult(DummyLdbcSnbInteractiveOperationInstances.write5(), null)
+                LdbcNoResult.INSTANCE
         );
 
         ValidationParam validationParamWrite6 = ValidationParam.createTyped(
                 DummyLdbcSnbInteractiveOperationInstances.write6(),
-                dbValidationParametersFilter.curateResult(DummyLdbcSnbInteractiveOperationInstances.write6(), null)
+                LdbcNoResult.INSTANCE
         );
 
         ValidationParam validationParamWrite7 = ValidationParam.createTyped(
                 DummyLdbcSnbInteractiveOperationInstances.write7(),
-                dbValidationParametersFilter.curateResult(DummyLdbcSnbInteractiveOperationInstances.write7(), null)
+                LdbcNoResult.INSTANCE
         );
 
         ValidationParam validationParamWrite8 = ValidationParam.createTyped(
                 DummyLdbcSnbInteractiveOperationInstances.write8(),
-                dbValidationParametersFilter.curateResult(DummyLdbcSnbInteractiveOperationInstances.write8(), null)
+                LdbcNoResult.INSTANCE
         );
 
         return Lists.newArrayList(

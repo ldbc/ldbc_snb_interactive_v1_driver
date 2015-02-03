@@ -10,7 +10,7 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 
-public class LdbcUpdate1AddPerson extends Operation<Object> {
+public class LdbcUpdate1AddPerson extends Operation<LdbcNoResult> {
     private static final ObjectMapper objectMapper = new ObjectMapper();
     public static final int TYPE = 1001;
     private final long personId;
@@ -188,8 +188,8 @@ public class LdbcUpdate1AddPerson extends Operation<Object> {
     }
 
     @Override
-    public Object marshalResult(String serializedOperationResult) {
-        return LdbcSnbInteractiveConfiguration.WRITE_OPERATION_NO_RESULT_DEFAULT_RESULT;
+    public LdbcNoResult marshalResult(String serializedOperationResult) {
+        return LdbcNoResult.INSTANCE;
     }
 
     @Override

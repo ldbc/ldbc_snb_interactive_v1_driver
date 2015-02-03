@@ -323,7 +323,7 @@ public class DummyLdbcSnbInteractiveDb extends Db {
         @Override
         public void executeOperation(LdbcUpdate1AddPerson operation, DummyDbConnectionState dbConnectionState, ResultReporter resultReporter) throws DbException {
             sleep(sleepDurationAsNano);
-            resultReporter.report(0, null, operation);
+            resultReporter.report(0, LdbcNoResult.INSTANCE, operation);
         }
     }
 
@@ -331,7 +331,7 @@ public class DummyLdbcSnbInteractiveDb extends Db {
         @Override
         public void executeOperation(LdbcUpdate2AddPostLike operation, DummyDbConnectionState dbConnectionState, ResultReporter resultReporter) throws DbException {
             sleep(sleepDurationAsNano);
-            resultReporter.report(0, null, operation);
+            resultReporter.report(0, LdbcNoResult.INSTANCE, operation);
         }
     }
 
@@ -339,7 +339,7 @@ public class DummyLdbcSnbInteractiveDb extends Db {
         @Override
         public void executeOperation(LdbcUpdate3AddCommentLike operation, DummyDbConnectionState dbConnectionState, ResultReporter resultReporter) throws DbException {
             sleep(sleepDurationAsNano);
-            resultReporter.report(0, null, operation);
+            resultReporter.report(0, LdbcNoResult.INSTANCE, operation);
         }
     }
 
@@ -347,7 +347,7 @@ public class DummyLdbcSnbInteractiveDb extends Db {
         @Override
         public void executeOperation(LdbcUpdate4AddForum operation, DummyDbConnectionState dbConnectionState, ResultReporter resultReporter) throws DbException {
             sleep(sleepDurationAsNano);
-            resultReporter.report(0, null, operation);
+            resultReporter.report(0, LdbcNoResult.INSTANCE, operation);
         }
     }
 
@@ -355,7 +355,7 @@ public class DummyLdbcSnbInteractiveDb extends Db {
         @Override
         public void executeOperation(LdbcUpdate5AddForumMembership operation, DummyDbConnectionState dbConnectionState, ResultReporter resultReporter) throws DbException {
             sleep(sleepDurationAsNano);
-            resultReporter.report(0, null, operation);
+            resultReporter.report(0, LdbcNoResult.INSTANCE, operation);
         }
     }
 
@@ -363,7 +363,7 @@ public class DummyLdbcSnbInteractiveDb extends Db {
         @Override
         public void executeOperation(LdbcUpdate6AddPost operation, DummyDbConnectionState dbConnectionState, ResultReporter resultReporter) throws DbException {
             sleep(sleepDurationAsNano);
-            resultReporter.report(0, null, operation);
+            resultReporter.report(0, LdbcNoResult.INSTANCE, operation);
         }
     }
 
@@ -371,7 +371,7 @@ public class DummyLdbcSnbInteractiveDb extends Db {
         @Override
         public void executeOperation(LdbcUpdate7AddComment operation, DummyDbConnectionState dbConnectionState, ResultReporter resultReporter) throws DbException {
             sleep(sleepDurationAsNano);
-            resultReporter.report(0, null, operation);
+            resultReporter.report(0, LdbcNoResult.INSTANCE, operation);
         }
     }
 
@@ -379,7 +379,7 @@ public class DummyLdbcSnbInteractiveDb extends Db {
         @Override
         public void executeOperation(LdbcUpdate8AddFriendship operation, DummyDbConnectionState dbConnectionState, ResultReporter resultReporter) throws DbException {
             sleep(sleepDurationAsNano);
-            resultReporter.report(0, null, operation);
+            resultReporter.report(0, LdbcNoResult.INSTANCE, operation);
         }
     }
 }

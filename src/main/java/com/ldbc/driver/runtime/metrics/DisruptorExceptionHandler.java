@@ -21,8 +21,6 @@ public class DisruptorExceptionHandler implements ExceptionHandler {
                         ConcurrentErrorReporter.stackTraceToString(throwable)
                 )
         );
-        // TODO remove
-        throwable.printStackTrace();
     }
 
     @Override
@@ -34,8 +32,6 @@ public class DisruptorExceptionHandler implements ExceptionHandler {
                         ConcurrentErrorReporter.stackTraceToString(throwable)
                 )
         );
-        // TODO remove
-        throwable.printStackTrace();
     }
 
     @Override
@@ -47,7 +43,5 @@ public class DisruptorExceptionHandler implements ExceptionHandler {
                         ConcurrentErrorReporter.stackTraceToString(throwable)
                 )
         );
-        // TODO remove
-        throwable.printStackTrace();
     }
 }

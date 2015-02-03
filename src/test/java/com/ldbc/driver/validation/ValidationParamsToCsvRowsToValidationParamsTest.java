@@ -229,36 +229,28 @@ public class ValidationParamsToCsvRowsToValidationParamsTest {
         ValidationParam validationParamShortRead7 = ValidationParam.createTyped(shortRead7, shortReadResult7);
 
         LdbcUpdate1AddPerson write1 = DummyLdbcSnbInteractiveOperationInstances.write1();
-        Object writeResult1 = dbValidationParametersFilter.curateResult(write1, null);
-        ValidationParam validationParamWrite1 = ValidationParam.createTyped(write1, writeResult1);
+        ValidationParam validationParamWrite1 = ValidationParam.createTyped(write1, LdbcNoResult.INSTANCE);
 
         LdbcUpdate2AddPostLike write2 = DummyLdbcSnbInteractiveOperationInstances.write2();
-        Object writeResult2 = dbValidationParametersFilter.curateResult(write2, LdbcSnbInteractiveConfiguration.WRITE_OPERATION_NO_RESULT_DEFAULT_RESULT);
-        ValidationParam validationParamWrite2 = ValidationParam.createTyped(write2, writeResult2);
+        ValidationParam validationParamWrite2 = ValidationParam.createTyped(write2, LdbcNoResult.INSTANCE);
 
         LdbcUpdate3AddCommentLike write3 = DummyLdbcSnbInteractiveOperationInstances.write3();
-        Object writeResult3 = dbValidationParametersFilter.curateResult(write3, null);
-        ValidationParam validationParamWrite3 = ValidationParam.createTyped(write3, writeResult3);
+        ValidationParam validationParamWrite3 = ValidationParam.createTyped(write3, LdbcNoResult.INSTANCE);
 
         LdbcUpdate4AddForum write4 = DummyLdbcSnbInteractiveOperationInstances.write4();
-        Object writeResult4 = dbValidationParametersFilter.curateResult(write4, null);
-        ValidationParam validationParamWrite4 = ValidationParam.createTyped(write4, writeResult4);
+        ValidationParam validationParamWrite4 = ValidationParam.createTyped(write4, LdbcNoResult.INSTANCE);
 
         LdbcUpdate5AddForumMembership write5 = DummyLdbcSnbInteractiveOperationInstances.write5();
-        Object writeResult5 = dbValidationParametersFilter.curateResult(write5, LdbcSnbInteractiveConfiguration.WRITE_OPERATION_NO_RESULT_DEFAULT_RESULT);
-        ValidationParam validationParamWrite5 = ValidationParam.createTyped(write5, writeResult5);
+        ValidationParam validationParamWrite5 = ValidationParam.createTyped(write5, LdbcNoResult.INSTANCE);
 
         LdbcUpdate6AddPost write6 = DummyLdbcSnbInteractiveOperationInstances.write6();
-        Object writeResult6 = dbValidationParametersFilter.curateResult(write6, null);
-        ValidationParam validationParamWrite6 = ValidationParam.createTyped(write6, writeResult6);
+        ValidationParam validationParamWrite6 = ValidationParam.createTyped(write6, LdbcNoResult.INSTANCE);
 
         LdbcUpdate7AddComment write7 = DummyLdbcSnbInteractiveOperationInstances.write7();
-        Object writeResult7 = dbValidationParametersFilter.curateResult(write7, LdbcSnbInteractiveConfiguration.WRITE_OPERATION_NO_RESULT_DEFAULT_RESULT);
-        ValidationParam validationParamWrite7 = ValidationParam.createTyped(write7, writeResult7);
+        ValidationParam validationParamWrite7 = ValidationParam.createTyped(write7, LdbcNoResult.INSTANCE);
 
         LdbcUpdate8AddFriendship write8 = DummyLdbcSnbInteractiveOperationInstances.write8();
-        Object writeResult8 = dbValidationParametersFilter.curateResult(write8, null);
-        ValidationParam validationParamWrite8 = ValidationParam.createTyped(write8, writeResult8);
+        ValidationParam validationParamWrite8 = ValidationParam.createTyped(write8, LdbcNoResult.INSTANCE);
 
         return Lists.newArrayList(
                 // Long Reads

@@ -1120,9 +1120,7 @@ public class LdbcSnbInteractiveWorkload extends Workload {
                 multiResultOperations,
                 remainingRequiredResultsPerOperationType,
                 enabledShortReadOperationTypes,
-                enabledWriteOperationTypes,
-                writeAddPersonOperationCount,
-                LdbcSnbInteractiveConfiguration.WRITE_OPERATION_NO_RESULT_DEFAULT_RESULT
+                writeAddPersonOperationCount
         );
     }
 
@@ -1569,7 +1567,7 @@ public class LdbcSnbInteractiveWorkload extends Workload {
             throw new SerializingMarshallingException(String.format("Error while parsing serialized results\n%s", serializedOperation), e);
         }
 
-        String operationTypeName = (String)operationAsList.get(0);
+        String operationTypeName = (String) operationAsList.get(0);
 
         if (operationTypeName.equals(LdbcQuery1.class.getName())) {
             long personId = ((Number) operationAsList.get(1)).longValue();

@@ -281,7 +281,19 @@ public class LdbcSnbInteractiveConfiguration {
     }
 
     public static Map<String, String> defaultWriteOnlyConfig() throws DriverConfigurationException, IOException {
-        Map<String, String> params = withoutReads(defaultConfig());
+        Map<String, String> params = withoutLongReads(defaultConfig());
+        return ConsoleAndFileDriverConfiguration.convertLongKeysToShortKeys(params);
+    }
+
+    public static Map<String, String> withoutShortReads(Map<String, String> originalParams) throws DriverConfigurationException, IOException {
+        Map<String, String> params = MapUtils.copyExcludingKeys(originalParams, new HashSet<String>());
+        params.put(SHORT_READ_OPERATION_1_ENABLE_KEY, "false");
+        params.put(SHORT_READ_OPERATION_2_ENABLE_KEY, "false");
+        params.put(SHORT_READ_OPERATION_3_ENABLE_KEY, "false");
+        params.put(SHORT_READ_OPERATION_4_ENABLE_KEY, "false");
+        params.put(SHORT_READ_OPERATION_5_ENABLE_KEY, "false");
+        params.put(SHORT_READ_OPERATION_6_ENABLE_KEY, "false");
+        params.put(SHORT_READ_OPERATION_7_ENABLE_KEY, "false");
         return ConsoleAndFileDriverConfiguration.convertLongKeysToShortKeys(params);
     }
 
@@ -298,7 +310,7 @@ public class LdbcSnbInteractiveConfiguration {
         return ConsoleAndFileDriverConfiguration.convertLongKeysToShortKeys(params);
     }
 
-    public static Map<String, String> withoutReads(Map<String, String> originalParams) throws DriverConfigurationException, IOException {
+    public static Map<String, String> withoutLongReads(Map<String, String> originalParams) throws DriverConfigurationException, IOException {
         Map<String, String> params = MapUtils.copyExcludingKeys(originalParams, new HashSet<String>());
         params.put(LONG_READ_OPERATION_1_ENABLE_KEY, "false");
         params.put(LONG_READ_OPERATION_2_ENABLE_KEY, "false");

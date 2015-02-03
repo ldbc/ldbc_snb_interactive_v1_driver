@@ -35,7 +35,7 @@ public class DbValidator {
                 handlerRunner.cleanup();
             }
 
-            Object actualOperationResult = dbValidationParametersFilter.curateResult(operation, resultReporter.result());
+            Object actualOperationResult = resultReporter.result();
 
             if (false == expectedOperationResult.equals(actualOperationResult)) {
                 dbValidationResult.reportIncorrectResultForOperation(operation, expectedOperationResult, actualOperationResult);

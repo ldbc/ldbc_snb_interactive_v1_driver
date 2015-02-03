@@ -74,7 +74,6 @@ public class ValidationParamsGenerator extends Generator<ValidationParam> {
             Object result = resultReporter.result();
             DbValidationParametersFilterResult dbValidationParametersFilterResult = dbValidationParametersFilter.useOperationAndResultForValidation(operation, result);
             injectedOperations.addAll(dbValidationParametersFilterResult.injectedOperations());
-            result = dbValidationParametersFilter.curateResult(operation, result);
             switch (dbValidationParametersFilterResult.acceptance()) {
                 case REJECT_AND_CONTINUE:
                     continue;

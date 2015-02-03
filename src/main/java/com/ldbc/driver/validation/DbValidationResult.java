@@ -141,11 +141,12 @@ public class DbValidationResult {
                     append("               ").append(failedOperationExecution._2()).append("\n");
         sb.append("  ***\n");
         sb.append("  Incorrect results for ").append(incorrectResultsForOperations.size()).append(" operations:\n");
-        for (Tuple.Tuple3<Operation<?>, Object, Object> incorrectResult : incorrectResultsForOperations)
+        for (Tuple.Tuple3<Operation<?>, Object, Object> incorrectResult : incorrectResultsForOperations) {
             sb.
                     append("    Operation:        ").append(incorrectResult._1().toString()).append("\n").
                     append("    Expected Result:  ").append(incorrectResult._2().toString()).append("\n").
                     append("    Actual Result  :  ").append(incorrectResult._3().toString()).append("\n");
+        }
         sb.append("  ***\n");
         return sb.toString();
     }

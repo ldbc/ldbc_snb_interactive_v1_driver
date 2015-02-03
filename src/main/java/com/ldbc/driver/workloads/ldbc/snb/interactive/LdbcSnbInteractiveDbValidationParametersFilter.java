@@ -14,25 +14,18 @@ class LdbcSnbInteractiveDbValidationParametersFilter implements DbValidationPara
     private final Set<Class> multiResultOperations;
     private final Map<Class, Long> remainingRequiredResultsPerOperationType;
     private final Set<Class> enabledShortReadOperationTypes;
-    private final Set<Class> enabledWriteOperationTypes;
-    private final Object noResultDefaultResult;
-
     private int writeAddPersonOperationCount;
     private int uncompletedShortReads;
 
     LdbcSnbInteractiveDbValidationParametersFilter(Set<Class> multiResultOperations,
                                                    Map<Class, Long> remainingRequiredResultsPerOperationType,
                                                    Set<Class> enabledShortReadOperationTypes,
-                                                   Set<Class> enabledWriteOperationTypes,
-                                                   int writeAddPersonOperationCount,
-                                                   Object noResultDefaultResult) {
+                                                   int writeAddPersonOperationCount) {
         this.multiResultOperations = multiResultOperations;
         this.remainingRequiredResultsPerOperationType = remainingRequiredResultsPerOperationType;
         this.enabledShortReadOperationTypes = enabledShortReadOperationTypes;
-        this.enabledWriteOperationTypes = enabledWriteOperationTypes;
         this.writeAddPersonOperationCount = writeAddPersonOperationCount;
         this.uncompletedShortReads = 0;
-        this.noResultDefaultResult=noResultDefaultResult;
     }
 
     @Override
@@ -74,13 +67,6 @@ class LdbcSnbInteractiveDbValidationParametersFilter implements DbValidationPara
         } else {
             return new DbValidationParametersFilterResult(DbValidationParametersFilterAcceptance.ACCEPT_AND_CONTINUE, injectedOperations);
         }
-    }
-
-    @Override
-    public Object curateResult(Operation operation, Object result) {
-        return (enabledWriteOperationTypes.contains(operation.getClass()))
-                ? noResultDefaultResult
-                : result;
     }
 
     private boolean validationParameterGenerationFinished(Map<Class, Long> requiredResultsPerOperationType) {

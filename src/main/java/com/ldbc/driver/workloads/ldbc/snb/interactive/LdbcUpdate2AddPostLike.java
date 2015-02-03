@@ -7,7 +7,7 @@ import org.codehaus.jackson.map.ObjectMapper;
 import java.io.IOException;
 import java.util.Date;
 
-public class LdbcUpdate2AddPostLike extends Operation<Object> {
+public class LdbcUpdate2AddPostLike extends Operation<LdbcNoResult> {
     private static final ObjectMapper objectMapper = new ObjectMapper();
     public static final int TYPE = 1002;
     private final long personId;
@@ -64,8 +64,8 @@ public class LdbcUpdate2AddPostLike extends Operation<Object> {
     }
 
     @Override
-    public Object marshalResult(String serializedOperationResult) {
-        return LdbcSnbInteractiveConfiguration.WRITE_OPERATION_NO_RESULT_DEFAULT_RESULT;
+    public LdbcNoResult marshalResult(String serializedOperationResult) {
+        return LdbcNoResult.INSTANCE;
     }
 
     @Override
