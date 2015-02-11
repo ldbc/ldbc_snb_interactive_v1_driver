@@ -1120,6 +1120,7 @@ public class LdbcSnbInteractiveWorkload extends Workload {
                 multiResultOperations,
                 remainingRequiredResultsPerOperationType,
                 enabledShortReadOperationTypes,
+                enabledWriteOperationTypes,
                 writeAddPersonOperationCount
         );
     }
@@ -1335,6 +1336,7 @@ public class LdbcSnbInteractiveWorkload extends Workload {
                 List<Object> operationAsList = new ArrayList<>();
                 operationAsList.add(ldbcQuery.getClass().getName());
                 operationAsList.add(ldbcQuery.personId());
+                operationAsList.add(ldbcQuery.limit());
                 try {
                     return OBJECT_MAPPER.writeValueAsString(operationAsList);
                 } catch (IOException e) {
@@ -1675,7 +1677,8 @@ public class LdbcSnbInteractiveWorkload extends Workload {
 
         if (operationTypeName.equals(LdbcShortQuery2PersonPosts.class.getName())) {
             long personId = ((Number) operationAsList.get(1)).longValue();
-            return new LdbcShortQuery2PersonPosts(personId);
+            int limit = ((Number) operationAsList.get(2)).intValue();
+            return new LdbcShortQuery2PersonPosts(personId, limit);
         }
 
         if (operationTypeName.equals(LdbcShortQuery3PersonFriends.class.getName())) {

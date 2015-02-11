@@ -6,13 +6,15 @@ import json
 import sys
 
 arg_count = len(sys.argv)-1
-if arg_count != 3:
-	print "3 parameters expected (input_file_a, input_file_b, legend_location left/center/right/none) - %s given"%arg_count
+if arg_count != 5:
+	print "5 parameters expected (input_file_a, name_a, input_file_b, name_b legend_location left/center/right/none) - %s given"%arg_count
 	exit()
 
 filename_1 = sys.argv[1]
-filename_2 = sys.argv[2]
-legend_location = sys.argv[3]
+name_a = sys.argv[2]
+filename_2 = sys.argv[3]
+name_b = sys.argv[4]
+legend_location = sys.argv[5]
 
 json_data_a=open(filename_1).read()
 json_data_b=open(filename_2).read()
@@ -22,10 +24,10 @@ query_data_a = sorted(query_data_a, key=lambda query: int(query["name"][ query["
 query_data_b = json.loads(json_data_b)["all_metrics"]
 query_data_b = sorted(query_data_b, key=lambda query: int(query["name"][ query["name"].rfind("y")+1 : ]))
 
-time_90_a = [query["run_time"]["90th_percentile"] for query in query_data_a]
-time_90_b = [query["run_time"]["90th_percentile"] for query in query_data_b]
-time_50_a = [query["run_time"]["50th_percentile"] for query in query_data_a]
-time_50_b = [query["run_time"]["50th_percentile"] for query in query_data_b]
+time_95_a = [query["run_time"]["95th_percentile"] for query in query_data_a]
+time_95_b = [query["run_time"]["95th_percentile"] for query in query_data_b]
+time_mean_a = [query["run_time"]["mean"] for query in query_data_a]
+time_mean_b = [query["run_time"]["mean"] for query in query_data_b]
 
 query_names = [query["name"].split(".")[-1] for query in query_data_a]
 
@@ -34,10 +36,10 @@ w = 0.34       # the width of the bars
 
 fig, ax = plt.subplots()
 
-rects_90_a = ax.bar(ind, time_90_a, width=w, color='green', align='center', log=True, hatch='/')
-rects_90_b = ax.bar(ind+w, time_90_b, width=w, color='yellow', align='center', log=True, hatch='/')
-rects_50_a = ax.bar(ind+w+w, time_50_a, width=w, color='green', align='center', log=True)
-rects_50_b = ax.bar(ind+w+w+w, time_50_b, width=w, color='yellow', align='center', log=True)
+rects_95_a = ax.bar(ind, time_95_a, width=w, color='green', align='center', log=True, hatch='/')
+rects_95_b = ax.bar(ind+w, time_95_b, width=w, color='yellow', align='center', log=True, hatch='/')
+rects_mean_a = ax.bar(ind+w+w, time_mean_a, width=w, color='green', align='center', log=True)
+rects_mean_b = ax.bar(ind+w+w+w, time_mean_b, width=w, color='yellow', align='center', log=True)
 
 time_unit = query_data_a[0]["run_time"]["unit"]
 ax.set_ylabel('Runtime (%s)'%time_unit)
@@ -54,7 +56,7 @@ fig.autofmt_xdate()
 fontP = FontProperties()
 fontP.set_size('small')
 if legend_location != "none":
-	ax.legend( (rects_90_a[0], rects_90_b[0], rects_50_a[0], rects_50_b[0],), ('90th a', '90th b', '50th a', '50th b'),
+	ax.legend( (rects_95_a[0], rects_95_b[0], rects_mean_a[0], rects_mean_b[0],), ('95th '+ name_a, '95th ' + name_b, 'mean ' + name_a, 'mean ' + name_b),
 		loc='upper %s'%legend_location, fancybox=True, shadow=False, ncol=1, prop=fontP)#, bbox_to_anchor=(1.2, 1.0))
 
 # attach some text labels
@@ -66,13 +68,13 @@ def autolabel(rects):
 		else:
 			ax.text(rect.get_x()+rect.get_width()/2., 0.9*height, '%d'%int(height), ha='center', va='top', rotation=90, size='small')
 
-autolabel(rects_90_a)
-autolabel(rects_90_b)
+autolabel(rects_95_a)
+autolabel(rects_95_b)
 
 # ax.autoscale_view()
 
 # plt.xlim([0,len(query_names)])
-y_upper = 1.1 * max(max(time_90_a),max(time_90_b))
+y_upper = 1.1 * max(max(time_95_a),max(time_95_b))
 plt.ylim(ymax = y_upper, ymin = 0)
 # plt.axis('tight')
 plt.margins(0.05, 0.0)

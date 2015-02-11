@@ -3,7 +3,7 @@ package com.ldbc.driver.runtime;
 import com.google.common.collect.Iterators;
 import com.google.common.collect.Lists;
 import com.ldbc.driver.*;
-import com.ldbc.driver.control.ConcurrentControlService;
+import com.ldbc.driver.control.ControlService;
 import com.ldbc.driver.control.ConsoleAndFileDriverConfiguration;
 import com.ldbc.driver.control.DriverConfigurationException;
 import com.ldbc.driver.control.LocalControlService;
@@ -63,7 +63,7 @@ public class WorkloadRunnerTest {
 
     public void doShouldRunReadOnlyLdbcWorkloadWithNothingDbAndReturnExpectedMetricsIncludingResultsLog(int threadCount, long operationCount)
             throws InterruptedException, DbException, WorkloadException, IOException, MetricsCollectionException, CompletionTimeException, DriverConfigurationException {
-        ConcurrentControlService controlService = null;
+        ControlService controlService = null;
         Db db = null;
         Workload workload = null;
         ConcurrentMetricsService metricsService = null;
@@ -216,7 +216,7 @@ public class WorkloadRunnerTest {
 
     public void doShouldRunReadWriteLdbcWorkloadWithNothingDbAndReturnExpectedMetricsIncludingResultsLog(int threadCount, long operationCount)
             throws InterruptedException, DbException, WorkloadException, IOException, MetricsCollectionException, CompletionTimeException, DriverConfigurationException {
-        ConcurrentControlService controlService = null;
+        ControlService controlService = null;
         Db db = null;
         Workload workload = null;
         ConcurrentMetricsService metricsService = null;
@@ -397,7 +397,7 @@ public class WorkloadRunnerTest {
                                                                                                                      ConcurrentCompletionTimeService completionTimeService,
                                                                                                                      ConcurrentErrorReporter errorReporter)
             throws InterruptedException, DbException, WorkloadException, IOException, MetricsCollectionException, CompletionTimeException, DriverConfigurationException {
-        ConcurrentControlService controlService = null;
+        ControlService controlService = null;
         Db db = null;
         Workload workload = null;
         ConcurrentMetricsService metricsService = null;

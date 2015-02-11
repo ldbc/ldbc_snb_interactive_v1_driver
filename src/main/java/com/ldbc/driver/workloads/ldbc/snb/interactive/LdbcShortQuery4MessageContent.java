@@ -32,10 +32,12 @@ public class LdbcShortQuery4MessageContent extends Operation<LdbcShortQuery4Mess
             throw new SerializingMarshallingException(String.format("Error while parsing serialized results\n%s", serializedResult), e);
         }
 
-        String messageContent = (String) resultAsList.get(0);
+        long marshaledMessageId = ((Number) resultAsList.get(0)).longValue();
+        String marshaledMessageContent = (String) resultAsList.get(1);
 
         return new LdbcShortQuery4MessageContentResult(
-                messageContent
+                marshaledMessageId,
+                marshaledMessageContent
         );
     }
 
@@ -43,6 +45,7 @@ public class LdbcShortQuery4MessageContent extends Operation<LdbcShortQuery4Mess
     public String serializeResult(Object operationResultInstance) throws SerializingMarshallingException {
         LdbcShortQuery4MessageContentResult result = (LdbcShortQuery4MessageContentResult) operationResultInstance;
         List<Object> resultFields = new ArrayList<>();
+        resultFields.add(result.messageId());
         resultFields.add(result.messageContent());
         try {
             return objectMapper.writeValueAsString(resultFields);

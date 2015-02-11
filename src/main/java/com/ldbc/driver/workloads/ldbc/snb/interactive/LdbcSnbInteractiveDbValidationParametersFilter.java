@@ -14,16 +14,19 @@ class LdbcSnbInteractiveDbValidationParametersFilter implements DbValidationPara
     private final Set<Class> multiResultOperations;
     private final Map<Class, Long> remainingRequiredResultsPerOperationType;
     private final Set<Class> enabledShortReadOperationTypes;
+    private final Set<Class> enabledWriteOperationTypes;
     private int writeAddPersonOperationCount;
     private int uncompletedShortReads;
 
     LdbcSnbInteractiveDbValidationParametersFilter(Set<Class> multiResultOperations,
                                                    Map<Class, Long> remainingRequiredResultsPerOperationType,
                                                    Set<Class> enabledShortReadOperationTypes,
+                                                   Set<Class> enabledWriteOperationTypes,
                                                    int writeAddPersonOperationCount) {
         this.multiResultOperations = multiResultOperations;
         this.remainingRequiredResultsPerOperationType = remainingRequiredResultsPerOperationType;
         this.enabledShortReadOperationTypes = enabledShortReadOperationTypes;
+        this.enabledWriteOperationTypes = enabledWriteOperationTypes;
         this.writeAddPersonOperationCount = writeAddPersonOperationCount;
         this.uncompletedShortReads = 0;
     }
@@ -31,7 +34,7 @@ class LdbcSnbInteractiveDbValidationParametersFilter implements DbValidationPara
     @Override
     public boolean useOperation(Operation<?> operation) {
         Class operationType = operation.getClass();
-        if (operationType.equals(LdbcUpdate1AddPerson.class)) {
+        if (enabledWriteOperationTypes.contains(operationType)) {
             return writeAddPersonOperationCount > 0;
         } else if (enabledShortReadOperationTypes.contains(operationType)) {
             return true;
@@ -44,19 +47,24 @@ class LdbcSnbInteractiveDbValidationParametersFilter implements DbValidationPara
     public DbValidationParametersFilterResult useOperationAndResultForValidation(Operation<?> operation,
                                                                                  Object operationResult) {
         Class operationType = operation.getClass();
-        List<Operation> injectedOperations = generateOperationsToInject(operation);
-        uncompletedShortReads += injectedOperations.size();
+        List<Operation> injectedOperations = new ArrayList<>();
 
         // do not use empty results for validation
         if (multiResultOperations.contains(operationType) && ((List) operationResult).isEmpty()) {
             return new DbValidationParametersFilterResult(DbValidationParametersFilterAcceptance.REJECT_AND_CONTINUE, injectedOperations);
         }
 
+        injectedOperations.addAll(generateOperationsToInject(operation));
+        uncompletedShortReads += injectedOperations.size();
+
         if (operationType.equals(LdbcUpdate1AddPerson.class)) {
             // updates do not return anything, but they should be executed and some default result needs to be stored in the validation parameters
             writeAddPersonOperationCount--;
         } else if (enabledShortReadOperationTypes.contains(operationType)) {
+            // keep track of how many injected operations have completed (only short reads are injected)
             uncompletedShortReads--;
+        } else if (enabledWriteOperationTypes.contains(operationType)) {
+            // updates do not return anything, but they should be executed and some default result needs to be stored in the validation parameters
         } else {
             // decrement count for operation type
             remainingRequiredResultsPerOperationType.put(operationType, remainingRequiredResultsPerOperationType.get(operationType) - 1);
@@ -89,6 +97,7 @@ class LdbcSnbInteractiveDbValidationParametersFilter implements DbValidationPara
                 injectShort1(operationsToInject, ((LdbcUpdate1AddPerson) operation).personId());
                 injectShort2(operationsToInject, ((LdbcUpdate1AddPerson) operation).personId());
                 injectShort3(operationsToInject, ((LdbcUpdate1AddPerson) operation).personId());
+                break;
             }
             case LdbcUpdate2AddPostLike.TYPE: {
                 injectShort1(operationsToInject, ((LdbcUpdate2AddPostLike) operation).personId());
@@ -98,6 +107,7 @@ class LdbcSnbInteractiveDbValidationParametersFilter implements DbValidationPara
                 injectShort5(operationsToInject, ((LdbcUpdate2AddPostLike) operation).postId());
                 injectShort6(operationsToInject, ((LdbcUpdate2AddPostLike) operation).postId());
                 injectShort7(operationsToInject, ((LdbcUpdate2AddPostLike) operation).postId());
+                break;
             }
             case LdbcUpdate3AddCommentLike.TYPE: {
                 injectShort1(operationsToInject, ((LdbcUpdate3AddCommentLike) operation).personId());
@@ -107,16 +117,19 @@ class LdbcSnbInteractiveDbValidationParametersFilter implements DbValidationPara
                 injectShort5(operationsToInject, ((LdbcUpdate3AddCommentLike) operation).commentId());
                 injectShort6(operationsToInject, ((LdbcUpdate3AddCommentLike) operation).commentId());
                 injectShort7(operationsToInject, ((LdbcUpdate3AddCommentLike) operation).commentId());
+                break;
             }
             case LdbcUpdate4AddForum.TYPE: {
                 injectShort1(operationsToInject, ((LdbcUpdate4AddForum) operation).moderatorPersonId());
                 injectShort2(operationsToInject, ((LdbcUpdate4AddForum) operation).moderatorPersonId());
                 injectShort3(operationsToInject, ((LdbcUpdate4AddForum) operation).moderatorPersonId());
+                break;
             }
             case LdbcUpdate5AddForumMembership.TYPE: {
                 injectShort1(operationsToInject, ((LdbcUpdate5AddForumMembership) operation).personId());
                 injectShort2(operationsToInject, ((LdbcUpdate5AddForumMembership) operation).personId());
                 injectShort3(operationsToInject, ((LdbcUpdate5AddForumMembership) operation).personId());
+                break;
             }
             case LdbcUpdate6AddPost.TYPE: {
                 injectShort1(operationsToInject, ((LdbcUpdate6AddPost) operation).authorPersonId());
@@ -126,6 +139,7 @@ class LdbcSnbInteractiveDbValidationParametersFilter implements DbValidationPara
                 injectShort5(operationsToInject, ((LdbcUpdate6AddPost) operation).postId());
                 injectShort6(operationsToInject, ((LdbcUpdate6AddPost) operation).postId());
                 injectShort7(operationsToInject, ((LdbcUpdate6AddPost) operation).postId());
+                break;
             }
             case LdbcUpdate7AddComment.TYPE: {
                 injectShort1(operationsToInject, ((LdbcUpdate7AddComment) operation).authorPersonId());
@@ -135,6 +149,7 @@ class LdbcSnbInteractiveDbValidationParametersFilter implements DbValidationPara
                 injectShort5(operationsToInject, ((LdbcUpdate7AddComment) operation).commentId());
                 injectShort6(operationsToInject, ((LdbcUpdate7AddComment) operation).commentId());
                 injectShort7(operationsToInject, ((LdbcUpdate7AddComment) operation).commentId());
+                break;
             }
             case LdbcUpdate8AddFriendship.TYPE: {
                 injectShort1(operationsToInject, ((LdbcUpdate8AddFriendship) operation).person1Id());
@@ -143,6 +158,7 @@ class LdbcSnbInteractiveDbValidationParametersFilter implements DbValidationPara
                 injectShort1(operationsToInject, ((LdbcUpdate8AddFriendship) operation).person2Id());
                 injectShort2(operationsToInject, ((LdbcUpdate8AddFriendship) operation).person2Id());
                 injectShort3(operationsToInject, ((LdbcUpdate8AddFriendship) operation).person2Id());
+                break;
             }
         }
         return operationsToInject;
@@ -159,7 +175,7 @@ class LdbcSnbInteractiveDbValidationParametersFilter implements DbValidationPara
     private void injectShort2(List<Operation> operationsToInject, long personId) {
         if (enabledShortReadOperationTypes.contains(LdbcShortQuery2PersonPosts.class)) {
             operationsToInject.add(
-                    new LdbcShortQuery2PersonPosts(personId)
+                    new LdbcShortQuery2PersonPosts(personId, LdbcShortQuery2PersonPosts.DEFAULT_LIMIT)
             );
         }
     }

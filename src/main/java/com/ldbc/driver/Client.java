@@ -38,7 +38,7 @@ public class Client {
     private static final long RANDOM_SEED = 42;
 
     public static void main(String[] args) throws ClientException {
-        ConcurrentControlService controlService = null;
+        ControlService controlService = null;
         try {
             TimeSource systemTimeSource = new SystemTimeSource();
             ConsoleAndFileDriverConfiguration configuration = ConsoleAndFileDriverConfiguration.fromArgs(args);
@@ -68,7 +68,7 @@ public class Client {
 
     // TODO should not be doing things like ConsoleAndFileDriverConfiguration.DB_ARG
     // TODO ConsoleAndFileDriverConfiguration could maybe have a DriverParam(enum)-to-String(arg) method?
-    public Client(ConcurrentControlService controlService, TimeSource timeSource) throws ClientException {
+    public Client(ControlService controlService, TimeSource timeSource) throws ClientException {
         if (controlService.configuration().shouldPrintHelpString()) {
             // Print Help
             clientMode = new PrintHelpMode(controlService);
@@ -160,7 +160,7 @@ public class Client {
 
     private class ExecuteWorkloadMode implements ClientMode {
         private final TemporalUtil temporalUtil = new TemporalUtil();
-        private final ConcurrentControlService controlService;
+        private final ControlService controlService;
         private final TimeSource timeSource;
 
         private Workload workload = null;
@@ -171,7 +171,7 @@ public class Client {
 
         SimpleCsvFileWriter csvResultsLogFileWriter = null;
 
-        ExecuteWorkloadMode(ConcurrentControlService controlService, TimeSource timeSource) throws ClientException {
+        ExecuteWorkloadMode(ControlService controlService, TimeSource timeSource) throws ClientException {
             this.controlService = controlService;
             this.timeSource = timeSource;
         }
@@ -417,12 +417,12 @@ public class Client {
     }
 
     private class CalculateWorkloadStatisticsMode implements ClientMode {
-        private final ConcurrentControlService controlService;
+        private final ControlService controlService;
 
         private Workload workload = null;
         private WorkloadStreams timeMappedWorkloadStreams = null;
 
-        CalculateWorkloadStatisticsMode(ConcurrentControlService controlService) throws ClientException {
+        CalculateWorkloadStatisticsMode(ControlService controlService) throws ClientException {
             this.controlService = controlService;
         }
 
@@ -478,13 +478,13 @@ public class Client {
     }
 
     private class CreateValidationParamsMode implements ClientMode {
-        private final ConcurrentControlService controlService;
+        private final ControlService controlService;
 
         private Workload workload = null;
         private Db database = null;
         private Iterator<Operation<?>> timeMappedOperations = null;
 
-        CreateValidationParamsMode(ConcurrentControlService controlService) throws ClientException {
+        CreateValidationParamsMode(ControlService controlService) throws ClientException {
             this.controlService = controlService;
         }
 
@@ -570,12 +570,12 @@ public class Client {
     }
 
     private class ValidateDatabaseMode implements ClientMode {
-        private final ConcurrentControlService controlService;
+        private final ControlService controlService;
 
         private Workload workload = null;
         private Db database = null;
 
-        ValidateDatabaseMode(ConcurrentControlService controlService) throws ClientException {
+        ValidateDatabaseMode(ControlService controlService) throws ClientException {
             this.controlService = controlService;
         }
 
@@ -675,10 +675,10 @@ public class Client {
     }
 
     private class ValidateWorkloadMode implements ClientMode {
-        private final ConcurrentControlService controlService;
+        private final ControlService controlService;
         private final WorkloadFactory workloadFactory;
 
-        ValidateWorkloadMode(final ConcurrentControlService controlService) throws ClientException {
+        ValidateWorkloadMode(final ControlService controlService) throws ClientException {
             this.controlService = controlService;
             this.workloadFactory = new ClassNameWorkloadFactory(controlService.configuration().workloadClassName());
         }
@@ -702,9 +702,9 @@ public class Client {
     }
 
     private class PrintHelpMode implements ClientMode {
-        private final ConcurrentControlService controlService;
+        private final ControlService controlService;
 
-        PrintHelpMode(ConcurrentControlService controlService) {
+        PrintHelpMode(ControlService controlService) {
             this.controlService = controlService;
         }
 

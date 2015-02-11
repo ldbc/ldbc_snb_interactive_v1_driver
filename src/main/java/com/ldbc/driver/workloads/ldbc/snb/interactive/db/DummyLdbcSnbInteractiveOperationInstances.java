@@ -76,7 +76,7 @@ public class DummyLdbcSnbInteractiveOperationInstances {
     }
 
     public static LdbcShortQuery2PersonPosts short2() {
-        return new LdbcShortQuery2PersonPosts(2);
+        return new LdbcShortQuery2PersonPosts(2, 3);
     }
 
     public static LdbcShortQuery3PersonFriends short3() {

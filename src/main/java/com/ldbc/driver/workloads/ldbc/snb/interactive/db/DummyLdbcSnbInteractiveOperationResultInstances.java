@@ -72,19 +72,19 @@ public class DummyLdbcSnbInteractiveOperationResultInstances {
      */
 
     public static LdbcShortQuery1PersonProfileResult short1Result() {
-        return new LdbcShortQuery1PersonProfileResult("ᚠ", "さ", 1, "丵", "ش", 2);
+        return new LdbcShortQuery1PersonProfileResult("ᚠ", "さ", 1, "丵", "ش", 2, "a", 3);
     }
 
     public static LdbcShortQuery2PersonPostsResult short2Result() {
-        return new LdbcShortQuery2PersonPostsResult(1, "ش");
+        return new LdbcShortQuery2PersonPostsResult(1, "ش", 2);
     }
 
     public static LdbcShortQuery3PersonFriendsResult short3Result() {
-        return new LdbcShortQuery3PersonFriendsResult(1, "ش", "さ");
+        return new LdbcShortQuery3PersonFriendsResult(1, "ش", "さ", 2);
     }
 
     public static LdbcShortQuery4MessageContentResult short4Result() {
-        return new LdbcShortQuery4MessageContentResult("ᚠ");
+        return new LdbcShortQuery4MessageContentResult(1, "ᚠ");
     }
 
     public static LdbcShortQuery5MessageCreatorResult short5Result() {
@@ -96,6 +96,6 @@ public class DummyLdbcSnbInteractiveOperationResultInstances {
     }
 
     public static LdbcShortQuery7MessageRepliesResult short7Result() {
-        return new LdbcShortQuery7MessageRepliesResult(1, "ش");
+        return new LdbcShortQuery7MessageRepliesResult(1, "ش", 2, 2, "丵", "さ", true);
     }
 }

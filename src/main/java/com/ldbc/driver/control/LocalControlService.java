@@ -2,7 +2,7 @@ package com.ldbc.driver.control;
 
 import com.ldbc.driver.temporal.TemporalUtil;
 
-public class LocalControlService implements ConcurrentControlService {
+public class LocalControlService implements ControlService {
     private final TemporalUtil temporalUtil = new TemporalUtil();
     private final DriverConfiguration configuration;
     private long workloadStartTimeAsMilli;

@@ -38,11 +38,21 @@ public class LdbcShortQuery7MessageReplies extends Operation<List<LdbcShortQuery
 
             long commentId = ((Number) resultAsList.get(0)).longValue();
             String commentContent = (String) resultAsList.get(1);
+            long commentCreationDate = ((Number) resultAsList.get(2)).longValue();
+            long replyAuthorId = ((Number) resultAsList.get(3)).longValue();
+            String replyAuthorFirstName = (String) resultAsList.get(4);
+            String replyAuthorLastName = (String) resultAsList.get(5);
+            boolean isReplyAuthorKnowsOriginalMessageAuthor = (Boolean) resultAsList.get(6);
 
             results.add(
                     new LdbcShortQuery7MessageRepliesResult(
                             commentId,
-                            commentContent
+                            commentContent,
+                            commentCreationDate,
+                            replyAuthorId,
+                            replyAuthorFirstName,
+                            replyAuthorLastName,
+                            isReplyAuthorKnowsOriginalMessageAuthor
                     )
             );
         }
@@ -59,6 +69,11 @@ public class LdbcShortQuery7MessageReplies extends Operation<List<LdbcShortQuery
             List<Object> resultFields = new ArrayList<>();
             resultFields.add(result.commentId());
             resultFields.add(result.commentContent());
+            resultFields.add(result.commentCreationDate());
+            resultFields.add(result.replyAuthorId());
+            resultFields.add(result.replyAuthorFirstName());
+            resultFields.add(result.replyAuthorLastName());
+            resultFields.add(result.isReplyAuthorKnowsOriginalMessageAuthor());
             resultsFields.add(resultFields);
         }
 

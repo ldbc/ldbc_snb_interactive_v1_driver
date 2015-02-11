@@ -1,6 +1,6 @@
 package com.ldbc.driver.control;
 
-public interface ConcurrentControlService {
+public interface ControlService {
     DriverConfiguration configuration();
 
     void setWorkloadStartTimeAsMilli(long workloadStartTimeAsMilli);

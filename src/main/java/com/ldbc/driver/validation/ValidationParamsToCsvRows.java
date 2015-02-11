@@ -37,8 +37,8 @@ public class ValidationParamsToCsvRows implements Iterator<String[]> {
         } catch (SerializingMarshallingException e) {
             throw new GeneratorException(
                     String.format(""
-                            + "Workload(%s) unable to serialize operation\n"
-                            + "Operation: %s",
+                                    + "Workload(%s) unable to serialize operation\n"
+                                    + "Operation: %s",
                             operation),
                     e);
         }
@@ -49,9 +49,9 @@ public class ValidationParamsToCsvRows implements Iterator<String[]> {
         } catch (SerializingMarshallingException e) {
             throw new GeneratorException(
                     String.format(""
-                            + "Error serializing operation result\n"
-                            + "Operation: %s\n"
-                            + "Operation Result: %s",
+                                    + "Error serializing operation result\n"
+                                    + "Operation: %s\n"
+                                    + "Operation Result: %s",
                             operation, operationResult),
                     e);
         }
@@ -64,21 +64,22 @@ public class ValidationParamsToCsvRows implements Iterator<String[]> {
             } catch (SerializingMarshallingException e) {
                 throw new GeneratorException(
                         String.format(""
-                                + "Error marshalling serialized operation result\n"
-                                + "Operation: %s\n"
-                                + "Operation Result: %s\n"
-                                + "Serialized Result: %s",
+                                        + "Error marshalling serialized operation result\n"
+                                        + "Operation: %s\n"
+                                        + "Operation Result: %s\n"
+                                        + "Serialized Result: %s",
                                 operation, operationResult, serializedOperationResult),
                         e);
             }
             if (false == marshaledOperationResult.equals(operationResult))
                 throw new GeneratorException(
                         String.format(""
-                                + "Operation result and serialized-then-marshaled operation result do not equal\n"
-                                + "Original: %s\n"
-                                + "Serialized: %s\n"
-                                + "Marshaled: %s",
-                                operationResult, serializedOperationResult, marshaledOperationResult)
+                                        + "Operation result and serialized-then-marshaled operation result do not equal\n"
+                                        + "Operation: %s\n"
+                                        + "Actual Result: %s\n"
+                                        + "Serialized Result: %s\n"
+                                        + "Marshaled Result: %s",
+                                operation, operationResult, serializedOperationResult, marshaledOperationResult)
                 );
         }
 

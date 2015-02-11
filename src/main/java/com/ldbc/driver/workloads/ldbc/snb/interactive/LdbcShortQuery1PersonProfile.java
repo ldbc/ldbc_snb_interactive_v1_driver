@@ -38,6 +38,8 @@ public class LdbcShortQuery1PersonProfile extends Operation<LdbcShortQuery1Perso
         String locationIp = (String) resultAsList.get(3);
         String browserUsed = (String) resultAsList.get(4);
         long cityId = ((Number) resultAsList.get(5)).longValue();
+        String gender = (String) resultAsList.get(6);
+        long creationDate = ((Number) resultAsList.get(7)).longValue();
 
         return new LdbcShortQuery1PersonProfileResult(
                 firstName,
@@ -45,7 +47,9 @@ public class LdbcShortQuery1PersonProfile extends Operation<LdbcShortQuery1Perso
                 birthday,
                 locationIp,
                 browserUsed,
-                cityId
+                cityId,
+                gender,
+                creationDate
         );
     }
 
@@ -59,6 +63,8 @@ public class LdbcShortQuery1PersonProfile extends Operation<LdbcShortQuery1Perso
         resultFields.add(result.locationIp());
         resultFields.add(result.browserUsed());
         resultFields.add(result.cityId());
+        resultFields.add(result.gender());
+        resultFields.add(result.creationDate());
         try {
             return objectMapper.writeValueAsString(resultFields);
         } catch (IOException e) {

@@ -38,7 +38,7 @@ public class MetricsManagerPerformanceTest {
     final static LdbcQuery13 LDBC_QUERY_13 = new LdbcQuery13(1, 2);
     final static LdbcQuery14 LDBC_QUERY_14 = new LdbcQuery14(1, 2);
     final static LdbcShortQuery1PersonProfile LDBC_SHORT_QUERY_1_PERSON_PROFILE = new LdbcShortQuery1PersonProfile(1);
-    final static LdbcShortQuery2PersonPosts LDBC_SHORT_QUERY_2_PERSON_POSTS = new LdbcShortQuery2PersonPosts(1);
+    final static LdbcShortQuery2PersonPosts LDBC_SHORT_QUERY_2_PERSON_POSTS = new LdbcShortQuery2PersonPosts(1, 2);
     final static LdbcShortQuery3PersonFriends LDBC_SHORT_QUERY_3_PERSON_FRIENDS = new LdbcShortQuery3PersonFriends(1);
     final static LdbcShortQuery4MessageContent LDBC_SHORT_QUERY_4_MESSAGE_CONTENT = new LdbcShortQuery4MessageContent(1);
     final static LdbcShortQuery5MessageCreator LDBC_SHORT_QUERY_5_MESSAGE_CREATOR = new LdbcShortQuery5MessageCreator(1);

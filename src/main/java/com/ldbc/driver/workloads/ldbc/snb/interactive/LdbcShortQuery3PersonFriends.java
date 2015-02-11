@@ -39,12 +39,14 @@ public class LdbcShortQuery3PersonFriends extends Operation<List<LdbcShortQuery3
             long friendId = ((Number) resultAsList.get(0)).longValue();
             String firstName = (String) resultAsList.get(1);
             String lastName = (String) resultAsList.get(2);
+            long friendshipCreationDate = ((Number) resultAsList.get(3)).longValue();
 
             results.add(
                     new LdbcShortQuery3PersonFriendsResult(
                             friendId,
                             firstName,
-                            lastName
+                            lastName,
+                            friendshipCreationDate
                     )
             );
         }
@@ -62,6 +64,7 @@ public class LdbcShortQuery3PersonFriends extends Operation<List<LdbcShortQuery3
             resultFields.add(result.personId());
             resultFields.add(result.firstName());
             resultFields.add(result.lastName());
+            resultFields.add(result.friendshipCreationDate());
             resultsFields.add(resultFields);
         }
 

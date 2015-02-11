@@ -374,7 +374,7 @@ public class LdbcSnbShortReadGenerator implements ChildOperationGenerator {
     private class LdbcShortQuery2Factory implements LdbcShortQueryFactory {
         @Override
         public Operation create(long id, long previousScheduledStartTime) {
-            Operation operation = new LdbcShortQuery2PersonPosts(id);
+            Operation operation = new LdbcShortQuery2PersonPosts(id, LdbcShortQuery2PersonPosts.DEFAULT_LIMIT);
             operation.setScheduledStartTimeAsMilli(previousScheduledStartTime + interleaveAsMilli);
             return operation;
         }

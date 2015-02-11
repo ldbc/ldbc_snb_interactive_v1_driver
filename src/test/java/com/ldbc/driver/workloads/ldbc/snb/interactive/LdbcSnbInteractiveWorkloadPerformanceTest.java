@@ -2,7 +2,7 @@ package com.ldbc.driver.workloads.ldbc.snb.interactive;
 
 import com.google.common.collect.Lists;
 import com.ldbc.driver.*;
-import com.ldbc.driver.control.ConcurrentControlService;
+import com.ldbc.driver.control.ControlService;
 import com.ldbc.driver.control.ConsoleAndFileDriverConfiguration;
 import com.ldbc.driver.control.DriverConfigurationException;
 import com.ldbc.driver.control.LocalControlService;
@@ -73,7 +73,7 @@ public class LdbcSnbInteractiveWorkloadPerformanceTest {
                                              String updateStreamPropertiesPath)
             throws InterruptedException, DbException, WorkloadException, IOException, MetricsCollectionException, CompletionTimeException, DriverConfigurationException {
         ConcurrentErrorReporter errorReporter = new ConcurrentErrorReporter();
-        ConcurrentControlService controlService = null;
+        ControlService controlService = null;
         Db db = null;
         Workload workload = null;
         ConcurrentMetricsService metricsService = null;
@@ -193,7 +193,7 @@ public class LdbcSnbInteractiveWorkloadPerformanceTest {
                                            String updateStreamPropertiesPath)
             throws InterruptedException, DbException, WorkloadException, IOException, MetricsCollectionException, CompletionTimeException, DriverConfigurationException {
         ConcurrentErrorReporter errorReporter = new ConcurrentErrorReporter();
-        ConcurrentControlService controlService = null;
+        ControlService controlService = null;
         Db db = null;
         Workload workload = null;
         ConcurrentMetricsService metricsService = null;
