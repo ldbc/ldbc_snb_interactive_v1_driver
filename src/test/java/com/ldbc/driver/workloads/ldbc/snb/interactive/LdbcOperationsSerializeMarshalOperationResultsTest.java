@@ -452,8 +452,8 @@ public class LdbcOperationsSerializeMarshalOperationResultsTest {
         LdbcShortQuery2PersonPosts operation = DummyLdbcSnbInteractiveOperationInstances.short2();
 
         List<LdbcShortQuery2PersonPostsResult> before = Lists.newArrayList(
-                new LdbcShortQuery2PersonPostsResult(1, "a", 3),
-                new LdbcShortQuery2PersonPostsResult(2, "b", 4)
+                new LdbcShortQuery2PersonPostsResult(1, "a", 3, 5, 7, "c", "e"),
+                new LdbcShortQuery2PersonPostsResult(2, "b", 4, 6, 8, "d", "f")
         );
 
         // When
@@ -517,7 +517,7 @@ public class LdbcOperationsSerializeMarshalOperationResultsTest {
         // Given
         LdbcShortQuery5MessageCreator operation = DummyLdbcSnbInteractiveOperationInstances.short5();
 
-        LdbcShortQuery5MessageCreatorResult before = new LdbcShortQuery5MessageCreatorResult(1, "a", "b");
+        LdbcShortQuery5MessageCreatorResult before = new LdbcShortQuery5MessageCreatorResult(1, "a", "b", 2);
 
         // When
         LdbcShortQuery5MessageCreatorResult after = operation.marshalResult(

@@ -286,7 +286,7 @@ public class LdbcSnbShortReadGenerator implements ChildOperationGenerator {
                         int randomResultIndex = (1 == resultCount) ? 0 : random.nextInt(0, resultCount - 1);
                         int operationFactoryIndex = (1 == messageOperationFactoriesCount) ? 0 : random.nextInt(0, 3);
                         return messageOperationFactories[operationFactoryIndex].create(
-                                typedResult.get(randomResultIndex).postId(),
+                                typedResult.get(randomResultIndex).messageId(),
                                 operation.scheduledStartTimeAsMilli()
                         );
                     } else {

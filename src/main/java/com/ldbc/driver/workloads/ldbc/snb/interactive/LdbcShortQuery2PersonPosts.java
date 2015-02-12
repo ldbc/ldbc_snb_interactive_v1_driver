@@ -43,15 +43,23 @@ public class LdbcShortQuery2PersonPosts extends Operation<List<LdbcShortQuery2Pe
         for (int i = 0; i < resultsAsList.size(); i++) {
             List<Object> resultAsList = resultsAsList.get(i);
 
-            long postId = ((Number) resultAsList.get(0)).longValue();
-            String postContent = (String) resultAsList.get(1);
-            long postCreationDate = ((Number) resultAsList.get(2)).longValue();
+            long messageId = ((Number) resultAsList.get(0)).longValue();
+            String messageContent = (String) resultAsList.get(1);
+            long messageCreationDate = ((Number) resultAsList.get(2)).longValue();
+            long originalPostId = ((Number) resultAsList.get(3)).longValue();
+            long originalPostAuthorId = ((Number) resultAsList.get(4)).longValue();
+            String originalPostAuthorFirstName = (String) resultAsList.get(5);
+            String originalPostAuthorLastName = (String) resultAsList.get(6);
 
             results.add(
                     new LdbcShortQuery2PersonPostsResult(
-                            postId,
-                            postContent,
-                            postCreationDate
+                            messageId,
+                            messageContent,
+                            messageCreationDate,
+                            originalPostId,
+                            originalPostAuthorId,
+                            originalPostAuthorFirstName,
+                            originalPostAuthorLastName
                     )
             );
         }
@@ -66,9 +74,13 @@ public class LdbcShortQuery2PersonPosts extends Operation<List<LdbcShortQuery2Pe
         for (int i = 0; i < results.size(); i++) {
             LdbcShortQuery2PersonPostsResult result = results.get(i);
             List<Object> resultFields = new ArrayList<>();
-            resultFields.add(result.postId());
-            resultFields.add(result.postContent());
-            resultFields.add(result.creationDate());
+            resultFields.add(result.messageId());
+            resultFields.add(result.messageContent());
+            resultFields.add(result.messageCreationDate());
+            resultFields.add(result.originalPostId());
+            resultFields.add(result.originalPostAuthorId());
+            resultFields.add(result.originalPostAuthorFirstName());
+            resultFields.add(result.originalPostAuthorLastName());
             resultsFields.add(resultFields);
         }
 

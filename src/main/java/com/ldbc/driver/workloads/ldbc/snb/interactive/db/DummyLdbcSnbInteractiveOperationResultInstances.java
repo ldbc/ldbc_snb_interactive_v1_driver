@@ -76,7 +76,7 @@ public class DummyLdbcSnbInteractiveOperationResultInstances {
     }
 
     public static LdbcShortQuery2PersonPostsResult short2Result() {
-        return new LdbcShortQuery2PersonPostsResult(1, "ش", 2);
+        return new LdbcShortQuery2PersonPostsResult(1, "ش", 2, 3, 4, "a", "b");
     }
 
     public static LdbcShortQuery3PersonFriendsResult short3Result() {
@@ -88,7 +88,7 @@ public class DummyLdbcSnbInteractiveOperationResultInstances {
     }
 
     public static LdbcShortQuery5MessageCreatorResult short5Result() {
-        return new LdbcShortQuery5MessageCreatorResult(1, "ش", "さ");
+        return new LdbcShortQuery5MessageCreatorResult(1, "ش", "さ", 2);
     }
 
     public static LdbcShortQuery6MessageForumResult short6Result() {

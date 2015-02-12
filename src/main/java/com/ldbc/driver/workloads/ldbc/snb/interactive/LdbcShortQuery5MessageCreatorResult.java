@@ -4,11 +4,13 @@ public class LdbcShortQuery5MessageCreatorResult {
     private final long personId;
     private final String firstName;
     private final String lastName;
+    private final long messageCreationDate;
 
-    public LdbcShortQuery5MessageCreatorResult(long personId, String firstName, String lastName) {
+    public LdbcShortQuery5MessageCreatorResult(long personId, String firstName, String lastName, long messageCreationDate) {
         this.personId = personId;
         this.firstName = firstName;
         this.lastName = lastName;
+        this.messageCreationDate = messageCreationDate;
     }
 
     public long personId() {
@@ -23,6 +25,10 @@ public class LdbcShortQuery5MessageCreatorResult {
         return lastName;
     }
 
+    public long messageCreationDate() {
+        return messageCreationDate;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -30,6 +36,7 @@ public class LdbcShortQuery5MessageCreatorResult {
 
         LdbcShortQuery5MessageCreatorResult that = (LdbcShortQuery5MessageCreatorResult) o;
 
+        if (messageCreationDate != that.messageCreationDate) return false;
         if (personId != that.personId) return false;
         if (firstName != null ? !firstName.equals(that.firstName) : that.firstName != null) return false;
         if (lastName != null ? !lastName.equals(that.lastName) : that.lastName != null) return false;
@@ -42,6 +49,7 @@ public class LdbcShortQuery5MessageCreatorResult {
         int result = (int) (personId ^ (personId >>> 32));
         result = 31 * result + (firstName != null ? firstName.hashCode() : 0);
         result = 31 * result + (lastName != null ? lastName.hashCode() : 0);
+        result = 31 * result + (int) (messageCreationDate ^ (messageCreationDate >>> 32));
         return result;
     }
 
@@ -51,6 +59,7 @@ public class LdbcShortQuery5MessageCreatorResult {
                 "personId=" + personId +
                 ", firstName='" + firstName + '\'' +
                 ", lastName='" + lastName + '\'' +
+                ", messageCreationDate=" + messageCreationDate +
                 '}';
     }
 }
