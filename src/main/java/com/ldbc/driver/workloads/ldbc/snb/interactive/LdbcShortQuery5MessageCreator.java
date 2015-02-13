@@ -35,13 +35,11 @@ public class LdbcShortQuery5MessageCreator extends Operation<LdbcShortQuery5Mess
         long personId = ((Number) resultAsList.get(0)).longValue();
         String firstName = (String) resultAsList.get(1);
         String lastName = (String) resultAsList.get(2);
-        long messageCreationDate = ((Number) resultAsList.get(3)).longValue();
 
         return new LdbcShortQuery5MessageCreatorResult(
                 personId,
                 firstName,
-                lastName,
-                messageCreationDate
+                lastName
         );
     }
 
@@ -52,7 +50,6 @@ public class LdbcShortQuery5MessageCreator extends Operation<LdbcShortQuery5Mess
         resultFields.add(result.personId());
         resultFields.add(result.firstName());
         resultFields.add(result.lastName());
-        resultFields.add(result.messageCreationDate());
 
         try {
             return objectMapper.writeValueAsString(resultFields);

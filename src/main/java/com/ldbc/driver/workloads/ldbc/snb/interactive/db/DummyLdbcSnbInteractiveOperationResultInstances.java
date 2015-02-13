@@ -84,11 +84,11 @@ public class DummyLdbcSnbInteractiveOperationResultInstances {
     }
 
     public static LdbcShortQuery4MessageContentResult short4Result() {
-        return new LdbcShortQuery4MessageContentResult(1, "ᚠ");
+        return new LdbcShortQuery4MessageContentResult("ᚠ", 1);
     }
 
     public static LdbcShortQuery5MessageCreatorResult short5Result() {
-        return new LdbcShortQuery5MessageCreatorResult(1, "ش", "さ", 2);
+        return new LdbcShortQuery5MessageCreatorResult(1, "ش", "さ");
     }
 
     public static LdbcShortQuery6MessageForumResult short6Result() {

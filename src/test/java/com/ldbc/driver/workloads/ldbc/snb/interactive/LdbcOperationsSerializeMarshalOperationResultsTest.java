@@ -497,7 +497,7 @@ public class LdbcOperationsSerializeMarshalOperationResultsTest {
         // Given
         LdbcShortQuery4MessageContent operation = DummyLdbcSnbInteractiveOperationInstances.short4();
 
-        LdbcShortQuery4MessageContentResult before = new LdbcShortQuery4MessageContentResult(1, "a");
+        LdbcShortQuery4MessageContentResult before = new LdbcShortQuery4MessageContentResult("a", 1);
 
         // When
         LdbcShortQuery4MessageContentResult after = operation.marshalResult(
@@ -517,7 +517,7 @@ public class LdbcOperationsSerializeMarshalOperationResultsTest {
         // Given
         LdbcShortQuery5MessageCreator operation = DummyLdbcSnbInteractiveOperationInstances.short5();
 
-        LdbcShortQuery5MessageCreatorResult before = new LdbcShortQuery5MessageCreatorResult(1, "a", "b", 2);
+        LdbcShortQuery5MessageCreatorResult before = new LdbcShortQuery5MessageCreatorResult(1, "a", "b");
 
         // When
         LdbcShortQuery5MessageCreatorResult after = operation.marshalResult(

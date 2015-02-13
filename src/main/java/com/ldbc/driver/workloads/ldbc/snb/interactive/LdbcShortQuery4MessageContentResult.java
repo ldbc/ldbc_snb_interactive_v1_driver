@@ -1,20 +1,20 @@
 package com.ldbc.driver.workloads.ldbc.snb.interactive;
 
 public class LdbcShortQuery4MessageContentResult {
-    private final long messageId;
     private final String messageContent;
+    private final long messageCreationDate;
 
-    public LdbcShortQuery4MessageContentResult(long messageId, String messageContent) {
-        this.messageId = messageId;
+    public LdbcShortQuery4MessageContentResult(String messageContent, long messageCreationDate) {
         this.messageContent = messageContent;
-    }
-
-    public long messageId() {
-        return messageId;
+        this.messageCreationDate = messageCreationDate;
     }
 
     public String messageContent() {
         return messageContent;
+    }
+
+    public long messageCreationDate() {
+        return messageCreationDate;
     }
 
     @Override
@@ -24,7 +24,7 @@ public class LdbcShortQuery4MessageContentResult {
 
         LdbcShortQuery4MessageContentResult that = (LdbcShortQuery4MessageContentResult) o;
 
-        if (messageId != that.messageId) return false;
+        if (messageCreationDate != that.messageCreationDate) return false;
         if (messageContent != null ? !messageContent.equals(that.messageContent) : that.messageContent != null)
             return false;
 
@@ -33,16 +33,16 @@ public class LdbcShortQuery4MessageContentResult {
 
     @Override
     public int hashCode() {
-        int result = (int) (messageId ^ (messageId >>> 32));
-        result = 31 * result + (messageContent != null ? messageContent.hashCode() : 0);
+        int result = messageContent != null ? messageContent.hashCode() : 0;
+        result = 31 * result + (int) (messageCreationDate ^ (messageCreationDate >>> 32));
         return result;
     }
 
     @Override
     public String toString() {
         return "LdbcShortQuery4MessageContentResult{" +
-                "messageId=" + messageId +
-                ", messageContent='" + messageContent + '\'' +
+                "messageContent='" + messageContent + '\'' +
+                ", messageCreationDate=" + messageCreationDate +
                 '}';
     }
 }
