@@ -3,7 +3,6 @@ package com.ldbc.driver.runtime.metrics;
 import com.ldbc.driver.Operation;
 import com.ldbc.driver.runtime.ConcurrentErrorReporter;
 import com.ldbc.driver.runtime.metrics.sbe.MetricsEvent;
-import com.ldbc.driver.temporal.TemporalUtil;
 import com.ldbc.driver.temporal.TimeSource;
 import com.ldbc.driver.util.csv.SimpleCsvFileWriter;
 import com.lmax.disruptor.*;
@@ -24,7 +23,7 @@ import java.util.concurrent.locks.LockSupport;
 import static com.ldbc.driver.runtime.metrics.DisruptorSbeMetricsEvent.*;
 
 public class DisruptorSbeMetricsService implements ConcurrentMetricsService {
-    private static final long SHUTDOWN_WAIT_TIMEOUT_AS_MILLI = TimeUnit.SECONDS.toMillis(30);
+    private static final long SHUTDOWN_WAIT_TIMEOUT_AS_MILLI = TimeUnit.SECONDS.toMillis(5);
 
     // TODO this could come from config, if we had a max_runtime parameter. for now, it can default to something
     public static final long DEFAULT_HIGHEST_EXPECTED_RUNTIME_DURATION_AS_NANO = TimeUnit.MINUTES.toNanos(90);
@@ -35,7 +34,7 @@ public class DisruptorSbeMetricsService implements ConcurrentMetricsService {
     private final RingBuffer<DirectBuffer> ringBuffer;
     private final Disruptor<DirectBuffer> disruptor;
     private final DisruptorSbeMetricsEventHandler eventHandler;
-    private final List<DisruptorSbeConcurrentMetricsServiceWriter_NEW> metricsServiceWriters;
+    private final List<DisruptorSbeConcurrentMetricsServiceWriter> metricsServiceWriters;
 
     public DisruptorSbeMetricsService(TimeSource timeSource,
                                       ConcurrentErrorReporter errorReporter,
@@ -53,8 +52,8 @@ public class DisruptorSbeMetricsService implements ConcurrentMetricsService {
                 // Executor that will be used to construct new threads for consumers
                 Executors.newSingleThreadExecutor(),
                 ProducerType.MULTI,
-//                new BlockingWaitStrategy()
-                new LiteBlockingWaitStrategy()
+                new BlockingWaitStrategy()
+//                new LiteBlockingWaitStrategy()
 //                new SleepingWaitStrategy()
 //                new YieldingWaitStrategy()
 //                new BusySpinWaitStrategy()
@@ -116,7 +115,7 @@ public class DisruptorSbeMetricsService implements ConcurrentMetricsService {
             throw new MetricsCollectionException(errMsg, e);
         }
         AlreadyShutdownPolicy alreadyShutdownPolicy = new AlreadyShutdownPolicy();
-        for (DisruptorSbeConcurrentMetricsServiceWriter_NEW metricsServiceWriter : metricsServiceWriters) {
+        for (DisruptorSbeConcurrentMetricsServiceWriter metricsServiceWriter : metricsServiceWriters) {
             metricsServiceWriter.setAlreadyShutdownPolicy(alreadyShutdownPolicy);
         }
         shutdown.set(true);
@@ -127,13 +126,13 @@ public class DisruptorSbeMetricsService implements ConcurrentMetricsService {
         if (shutdown.get()) {
             throw new MetricsCollectionException("Metrics service has already been shutdown");
         }
-        DisruptorSbeConcurrentMetricsServiceWriter_NEW metricsServiceWriter =
-                new DisruptorSbeConcurrentMetricsServiceWriter_NEW(initiatedEvents, ringBuffer, eventHandler);
+        DisruptorSbeConcurrentMetricsServiceWriter metricsServiceWriter =
+                new DisruptorSbeConcurrentMetricsServiceWriter(initiatedEvents, ringBuffer, eventHandler);
         metricsServiceWriters.add(metricsServiceWriter);
         return metricsServiceWriter;
     }
 
-    private static class DisruptorSbeConcurrentMetricsServiceWriter_NEW implements ConcurrentMetricsServiceWriter {
+    private static class DisruptorSbeConcurrentMetricsServiceWriter implements ConcurrentMetricsServiceWriter {
         private final AtomicLong initiatedEvents;
         private final RingBuffer<DirectBuffer> ringBuffer;
         private final DisruptorSbeMetricsEventHandler eventHandler;
@@ -143,9 +142,9 @@ public class DisruptorSbeMetricsService implements ConcurrentMetricsService {
 
         private AlreadyShutdownPolicy alreadyShutdownPolicy = null;
 
-        public DisruptorSbeConcurrentMetricsServiceWriter_NEW(AtomicLong initiatedEvents,
-                                                              RingBuffer<DirectBuffer> ringBuffer,
-                                                              DisruptorSbeMetricsEventHandler eventHandler) {
+        public DisruptorSbeConcurrentMetricsServiceWriter(AtomicLong initiatedEvents,
+                                                          RingBuffer<DirectBuffer> ringBuffer,
+                                                          DisruptorSbeMetricsEventHandler eventHandler) {
             this.initiatedEvents = initiatedEvents;
             this.ringBuffer = ringBuffer;
             this.eventHandler = eventHandler;
