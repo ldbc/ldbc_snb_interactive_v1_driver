@@ -38,7 +38,7 @@ public class LdbcSnbShortReadGeneratorTest {
         EvictingQueue<Long> messageIdBuffer = EvictingQueue.create(100);
         messageIdBuffer.addAll(Lists.newArrayList(1l, 2l, 3l, 4l, 5l));
         RandomDataGeneratorFactory randomFactory = new RandomDataGeneratorFactory(1l);
-        LdbcSnbShortReadGenerator_NEW shortReadGenerator = new LdbcSnbShortReadGenerator_NEW(
+        LdbcSnbShortReadGenerator shortReadGenerator = new LdbcSnbShortReadGenerator(
                 initialProbability,
                 probabilityDegradationFactor,
                 interleaveAsMilli,
@@ -225,7 +225,7 @@ public class LdbcSnbShortReadGeneratorTest {
         EvictingQueue<Long> messageIdBuffer = EvictingQueue.create(100);
         messageIdBuffer.addAll(Lists.newArrayList(1l, 2l, 3l, 4l, 5l));
         RandomDataGeneratorFactory randomFactory = new RandomDataGeneratorFactory(1l);
-        LdbcSnbShortReadGenerator_NEW shortReadGenerator = new LdbcSnbShortReadGenerator_NEW(
+        LdbcSnbShortReadGenerator shortReadGenerator = new LdbcSnbShortReadGenerator(
                 initialProbability,
                 probabilityDegradationFactor,
                 interleaveAsMilli,
@@ -346,7 +346,7 @@ public class LdbcSnbShortReadGeneratorTest {
         EvictingQueue<Long> messageIdBuffer = EvictingQueue.create(100);
         messageIdBuffer.addAll(Lists.newArrayList(1l, 2l, 3l, 4l, 5l));
         RandomDataGeneratorFactory randomFactory = new RandomDataGeneratorFactory(1l);
-        LdbcSnbShortReadGenerator_NEW shortReadGenerator = new LdbcSnbShortReadGenerator_NEW(
+        LdbcSnbShortReadGenerator shortReadGenerator = new LdbcSnbShortReadGenerator(
                 initialProbability,
                 probabilityDegradationFactor,
                 interleaveAsMilli,
@@ -452,7 +452,7 @@ public class LdbcSnbShortReadGeneratorTest {
         EvictingQueue<Long> messageIdBuffer = EvictingQueue.create(100);
         messageIdBuffer.addAll(Lists.newArrayList(1l, 2l, 3l, 4l, 5l));
         RandomDataGeneratorFactory randomFactory = new RandomDataGeneratorFactory(1l);
-        LdbcSnbShortReadGenerator_NEW shortReadGenerator = new LdbcSnbShortReadGenerator_NEW(
+        LdbcSnbShortReadGenerator shortReadGenerator = new LdbcSnbShortReadGenerator(
                 initialProbability,
                 probabilityDegradationFactor,
                 interleaveAsMilli,
@@ -561,7 +561,7 @@ public class LdbcSnbShortReadGeneratorTest {
         EvictingQueue<Long> messageIdBuffer = EvictingQueue.create(100);
         messageIdBuffer.addAll(Lists.newArrayList(1l, 2l, 3l, 4l, 5l));
         RandomDataGeneratorFactory randomFactory = new RandomDataGeneratorFactory(1l);
-        LdbcSnbShortReadGenerator_NEW shortReadGenerator = new LdbcSnbShortReadGenerator_NEW(
+        LdbcSnbShortReadGenerator shortReadGenerator = new LdbcSnbShortReadGenerator(
                 initialProbability,
                 probabilityDegradationFactor,
                 interleaveAsMilli,

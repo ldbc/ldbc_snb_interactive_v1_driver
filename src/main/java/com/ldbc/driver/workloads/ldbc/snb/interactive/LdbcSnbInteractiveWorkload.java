@@ -1060,10 +1060,9 @@ public class LdbcSnbInteractiveWorkload extends Workload {
             RandomDataGeneratorFactory randomFactory = new RandomDataGeneratorFactory(42l);
             double initialProbability = 1.0;
             double probabilityDegradationFactor = 0.1;
-//            double minimumProbability = 0.0;
             Queue<Long> personIdBuffer = EvictingQueue.create(1024);
             Queue<Long> messageIdBuffer = EvictingQueue.create(1024);
-            shortReadsChildGenerator = new LdbcSnbShortReadGenerator_NEW(
+            shortReadsChildGenerator = new LdbcSnbShortReadGenerator(
                     initialProbability,
                     probabilityDegradationFactor,
                     updateInterleaveAsMilli,
@@ -1073,15 +1072,6 @@ public class LdbcSnbInteractiveWorkload extends Workload {
                     messageIdBuffer,
                     randomFactory
             );
-
-//            shortReadsChildGenerator = new LdbcSnbShortReadGenerator(
-//                    initialProbability,
-//                    probabilityDegradationFactor,
-//                    minimumProbability,
-//                    updateInterleaveAsMilli,
-//                    enabledShortReadOperationTypes,
-//                    compressionRatio
-//            );
         }
 
         /* **************
