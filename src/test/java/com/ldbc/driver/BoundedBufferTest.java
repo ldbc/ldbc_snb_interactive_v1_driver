@@ -71,7 +71,7 @@ public class BoundedBufferTest {
         long nanoStop = TIME_SOURCE.nanoSnapshot();
 
         System.out.println(
-                String.format("%s added %s things in %s = %s things/ms",
+                String.format("%s added/removed %s things in %s = %s things/ms",
                         queue.getClass().getSimpleName(),
                         INTEGRAL_FORMAT.format(count),
                         TEMPORAL_UTIL.nanoDurationToString(nanoStop - nanoStart),
@@ -84,7 +84,7 @@ public class BoundedBufferTest {
         nanoStop = TIME_SOURCE.nanoSnapshot();
 
         System.out.println(
-                String.format("Synchronized %s added %s things in %s = %s things/ms",
+                String.format("Synchronized %s added/removed %s things in %s = %s things/ms",
                         queue.getClass().getSimpleName(),
                         INTEGRAL_FORMAT.format(count),
                         TEMPORAL_UTIL.nanoDurationToString(nanoStop - nanoStart),
