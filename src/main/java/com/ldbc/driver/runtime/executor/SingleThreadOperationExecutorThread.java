@@ -49,7 +49,7 @@ public class SingleThreadOperationExecutorThread extends Thread {
                         childOperationHandlerRunnableContext.run();
                         result = childOperationHandlerRunnableContext.resultReporter().result();
                         childOperationHandlerRunnableContext.cleanup();
-                        state = childOperationGenerator.updateState(state);
+                        state = childOperationGenerator.updateState(state, operation.type());
                     }
                 }
                 operationHandlerRunnableContext.cleanup();

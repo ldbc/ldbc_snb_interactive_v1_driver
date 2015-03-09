@@ -5,5 +5,5 @@ public interface ChildOperationGenerator {
 
     Operation<?> nextOperation(double state, Operation operation, Object result) throws WorkloadException;
 
-    double updateState(double previousState);
+    double updateState(double previousState, int operationType);
 }

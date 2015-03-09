@@ -8,6 +8,7 @@ import com.ldbc.driver.control.ConsoleAndFileDriverConfiguration;
 import com.ldbc.driver.csv.*;
 import com.ldbc.driver.generator.CsvEventStreamReaderBasicCharSeeker;
 import com.ldbc.driver.generator.GeneratorFactory;
+import com.ldbc.driver.generator.RandomDataGeneratorFactory;
 import com.ldbc.driver.util.ClassLoaderHelper;
 import com.ldbc.driver.util.ClassLoadingException;
 import com.ldbc.driver.util.Tuple;
@@ -1056,17 +1057,31 @@ public class LdbcSnbInteractiveWorkload extends Workload {
 
         ChildOperationGenerator shortReadsChildGenerator = null;
         if (false == enabledShortReadOperationTypes.isEmpty()) {
+            RandomDataGeneratorFactory randomFactory = new RandomDataGeneratorFactory(42l);
             double initialProbability = 1.0;
-            double probabilityDegradationFactor = 0.5;
-            double minimumProbability = 0.1;
-            shortReadsChildGenerator = new LdbcSnbShortReadGenerator(
+            double probabilityDegradationFactor = 0.1;
+//            double minimumProbability = 0.0;
+            Queue<Long> personIdBuffer = EvictingQueue.create(1024);
+            Queue<Long> messageIdBuffer = EvictingQueue.create(1024);
+            shortReadsChildGenerator = new LdbcSnbShortReadGenerator_NEW(
                     initialProbability,
                     probabilityDegradationFactor,
-                    minimumProbability,
                     updateInterleaveAsMilli,
                     enabledShortReadOperationTypes,
-                    compressionRatio
+                    compressionRatio,
+                    personIdBuffer,
+                    messageIdBuffer,
+                    randomFactory
             );
+
+//            shortReadsChildGenerator = new LdbcSnbShortReadGenerator(
+//                    initialProbability,
+//                    probabilityDegradationFactor,
+//                    minimumProbability,
+//                    updateInterleaveAsMilli,
+//                    enabledShortReadOperationTypes,
+//                    compressionRatio
+//            );
         }
 
         /* **************

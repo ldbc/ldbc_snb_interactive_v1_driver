@@ -354,7 +354,7 @@ public class LdbcSnbShortReadGenerator implements ChildOperationGenerator {
     }
 
     @Override
-    public double updateState(double state) {
+    public double updateState(double state, int operationType) {
         return state * probabilityDegradationFactor;
     }
 

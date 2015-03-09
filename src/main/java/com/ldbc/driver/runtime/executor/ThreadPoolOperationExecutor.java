@@ -176,7 +176,7 @@ public class ThreadPoolOperationExecutor implements OperationExecutor {
                         OperationHandlerRunnableContext childOperationHandlerRunnableContext =
                                 operationHandlerRunnableContextInitializer.getInitializedHandlerFor(operation);
                         childOperationHandlerRunnableContext.run();
-                        state = childOperationGenerator.updateState(state);
+                        state = childOperationGenerator.updateState(state, operation.type());
                         result = childOperationHandlerRunnableContext.resultReporter().result();
                         childOperationHandlerRunnableContext.cleanup();
                     }
