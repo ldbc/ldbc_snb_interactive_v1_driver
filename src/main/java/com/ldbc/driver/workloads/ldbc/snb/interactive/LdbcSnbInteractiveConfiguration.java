@@ -276,12 +276,18 @@ public class LdbcSnbInteractiveConfiguration {
     }
 
     public static Map<String, String> defaultReadOnlyConfig() throws DriverConfigurationException, IOException {
-        Map<String, String> params = withoutWrites(defaultConfig());
+        Map<String, String> params = withoutWrites(
+                defaultConfig()
+        );
         return ConsoleAndFileDriverConfiguration.convertLongKeysToShortKeys(params);
     }
 
     public static Map<String, String> defaultWriteOnlyConfig() throws DriverConfigurationException, IOException {
-        Map<String, String> params = withoutLongReads(defaultConfig());
+        Map<String, String> params = withoutShortReads(
+                withoutLongReads(
+                        defaultConfig()
+                )
+        );
         return ConsoleAndFileDriverConfiguration.convertLongKeysToShortKeys(params);
     }
 
