@@ -37,36 +37,8 @@ public class LdbcSnbShortReadGenerator_NEW implements ChildOperationGenerator {
 
     private LdbcShortQueryFactory[] buildLdbcShortQueryFactories(Set<Class> enabledShortReadOperationTypes,
                                                                  RandomDataGeneratorFactory randomFactory) {
-        Tuple.Tuple2<Integer, LdbcShortQueryFactory> firstPersonQuery = firstPersonQueryOrNoOp(enabledShortReadOperationTypes, randomFactory);
-        Tuple.Tuple2<Integer, LdbcShortQueryFactory> firstMessageQuery = firstMessageQueryOrNoOp(enabledShortReadOperationTypes, randomFactory);
-        LdbcShortQueryFactory randomFirstQuery = selectRandomFirstShortQuery(firstPersonQuery._2(), firstMessageQuery._2());
-
         int maxOperationType = Ordering.<Integer>natural().max(LdbcQuery14.TYPE, LdbcShortQuery7MessageReplies.TYPE);
-        LdbcShortQueryFactory[] ldbcShortQueryFactories = new LdbcShortQueryFactory[maxOperationType + 1];
-
-        ldbcShortQueryFactories[LdbcQuery1.TYPE] = randomFirstQuery;
-        ldbcShortQueryFactories[LdbcQuery2.TYPE] = randomFirstQuery;
-        ldbcShortQueryFactories[LdbcQuery3.TYPE] = randomFirstQuery;
-        ldbcShortQueryFactories[LdbcQuery4.TYPE] = randomFirstQuery;
-        ldbcShortQueryFactories[LdbcQuery5.TYPE] = randomFirstQuery;
-        ldbcShortQueryFactories[LdbcQuery6.TYPE] = randomFirstQuery;
-        ldbcShortQueryFactories[LdbcQuery7.TYPE] = randomFirstQuery;
-        ldbcShortQueryFactories[LdbcQuery8.TYPE] = randomFirstQuery;
-        ldbcShortQueryFactories[LdbcQuery9.TYPE] = randomFirstQuery;
-        ldbcShortQueryFactories[LdbcQuery10.TYPE] = randomFirstQuery;
-        ldbcShortQueryFactories[LdbcQuery11.TYPE] = randomFirstQuery;
-        ldbcShortQueryFactories[LdbcQuery12.TYPE] = randomFirstQuery;
-        ldbcShortQueryFactories[LdbcQuery13.TYPE] = randomFirstQuery;
-        ldbcShortQueryFactories[LdbcQuery14.TYPE] = randomFirstQuery;
-
-        ldbcShortQueryFactories[LdbcUpdate1AddPerson.TYPE] = new NoOpFactory();
-        ldbcShortQueryFactories[LdbcUpdate2AddPostLike.TYPE] = new NoOpFactory();
-        ldbcShortQueryFactories[LdbcUpdate3AddCommentLike.TYPE] = new NoOpFactory();
-        ldbcShortQueryFactories[LdbcUpdate4AddForum.TYPE] = new NoOpFactory();
-        ldbcShortQueryFactories[LdbcUpdate5AddForumMembership.TYPE] = new NoOpFactory();
-        ldbcShortQueryFactories[LdbcUpdate6AddPost.TYPE] = new NoOpFactory();
-        ldbcShortQueryFactories[LdbcUpdate7AddComment.TYPE] = new NoOpFactory();
-        ldbcShortQueryFactories[LdbcUpdate8AddFriendship.TYPE] = new NoOpFactory();
+        LdbcShortQueryFactory[] shortReadFactories = new LdbcShortQueryFactory[maxOperationType + 1];
 
         /*
         ENABLED
@@ -77,7 +49,17 @@ public class LdbcSnbShortReadGenerator_NEW implements ChildOperationGenerator {
             S5_INDEX -> true/false
             S6_INDEX -> true/false
             S7_INDEX -> true/false
+         */
+        boolean[] enabledShortReads = new boolean[maxOperationType];
+        enabledShortReads[LdbcShortQuery1PersonProfile.TYPE] = enabledShortReadOperationTypes.contains(LdbcShortQuery1PersonProfile.class);
+        enabledShortReads[LdbcShortQuery2PersonPosts.TYPE] = enabledShortReadOperationTypes.contains(LdbcShortQuery2PersonPosts.class);
+        enabledShortReads[LdbcShortQuery3PersonFriends.TYPE] = enabledShortReadOperationTypes.contains(LdbcShortQuery3PersonFriends.class);
+        enabledShortReads[LdbcShortQuery4MessageContent.TYPE] = enabledShortReadOperationTypes.contains(LdbcShortQuery4MessageContent.class);
+        enabledShortReads[LdbcShortQuery5MessageCreator.TYPE] = enabledShortReadOperationTypes.contains(LdbcShortQuery5MessageCreator.class);
+        enabledShortReads[LdbcShortQuery6MessageForum.TYPE] = enabledShortReadOperationTypes.contains(LdbcShortQuery6MessageForum.class);
+        enabledShortReads[LdbcShortQuery7MessageReplies.TYPE] = enabledShortReadOperationTypes.contains(LdbcShortQuery7MessageReplies.class);
 
+        /*
         MAPPING
             S1_INDEX -> S1
             S2_INDEX -> S2
@@ -86,7 +68,16 @@ public class LdbcSnbShortReadGenerator_NEW implements ChildOperationGenerator {
             S5_INDEX -> S5
             S6_INDEX -> S6
             S7_INDEX -> S7
-
+         */
+        LdbcShortQueryFactory[] baseShortReadFactories = new LdbcShortQueryFactory[maxOperationType];
+        baseShortReadFactories[LdbcShortQuery1PersonProfile.TYPE] = new LdbcShortQuery1Factory();
+        baseShortReadFactories[LdbcShortQuery2PersonPosts.TYPE] = new LdbcShortQuery2Factory();
+        baseShortReadFactories[LdbcShortQuery3PersonFriends.TYPE] = new LdbcShortQuery3Factory();
+        baseShortReadFactories[LdbcShortQuery4MessageContent.TYPE] = new LdbcShortQuery4Factory();
+        baseShortReadFactories[LdbcShortQuery5MessageCreator.TYPE] = new LdbcShortQuery5Factory();
+        baseShortReadFactories[LdbcShortQuery6MessageForum.TYPE] = new LdbcShortQuery6Factory()
+        baseShortReadFactories[LdbcShortQuery7MessageReplies.TYPE] = new LdbcShortQuery7Factory();
+        /*
         FACTORIES
             S1_INDEX -> <if> (false == ENABLED[S1]) <then> ERROR
             S2_INDEX -> <if> (false == ENABLED[S2]) <then> ERROR
@@ -95,27 +86,94 @@ public class LdbcSnbShortReadGenerator_NEW implements ChildOperationGenerator {
             S5_INDEX -> <if> (false == ENABLED[S5]) <then> ERROR
             S6_INDEX -> <if> (false == ENABLED[S6]) <then> ERROR
             S7_INDEX -> <if> (false == ENABLED[S7]) <then> ERROR
-
+         */
+        if (false == enabledShortReads[LdbcShortQuery1PersonProfile.TYPE]) {
+            shortReadFactories[LdbcShortQuery1PersonProfile.TYPE] = new ErrorFactory(LdbcShortQuery1PersonProfile.class);
+        }
+        if (false == enabledShortReads[LdbcShortQuery2PersonPosts.TYPE]) {
+            shortReadFactories[LdbcShortQuery2PersonPosts.TYPE] = new ErrorFactory(LdbcShortQuery2PersonPosts.class);
+        }
+        if (false == enabledShortReads[LdbcShortQuery3PersonFriends.TYPE]) {
+            shortReadFactories[LdbcShortQuery3PersonFriends.TYPE] = new ErrorFactory(LdbcShortQuery3PersonFriends.class);
+        }
+        if (false == enabledShortReads[LdbcShortQuery4MessageContent.TYPE]) {
+            shortReadFactories[LdbcShortQuery4MessageContent.TYPE] = new ErrorFactory(LdbcShortQuery4MessageContent.class);
+        }
+        if (false == enabledShortReads[LdbcShortQuery5MessageCreator.TYPE]) {
+            shortReadFactories[LdbcShortQuery5MessageCreator.TYPE] = new ErrorFactory(LdbcShortQuery5MessageCreator.class);
+        }
+        if (false == enabledShortReads[LdbcShortQuery6MessageForum.TYPE]) {
+            shortReadFactories[LdbcShortQuery6MessageForum.TYPE] = new ErrorFactory(LdbcShortQuery6MessageForum.class);
+        }
+        if (false == enabledShortReads[LdbcShortQuery7MessageReplies.TYPE]) {
+            shortReadFactories[LdbcShortQuery7MessageReplies.TYPE] = new ErrorFactory(LdbcShortQuery7MessageReplies.class);
+        }
+        /*
         (FIRST_PERSON,FIRST_PERSON_INDEX) = ...
         (FIRST_MESSAGE,FIRST_MESSAGE_INDEX) = ...
         RANDOM_FIRST = RANDOM(FIRST_PERSON,FIRST_MESSAGE)
+         */
+        Tuple.Tuple2<Integer, LdbcShortQueryFactory> firstPersonQueryAndIndex = firstPersonQueryOrNoOp(enabledShortReadOperationTypes, randomFactory);
+        Tuple.Tuple2<Integer, LdbcShortQueryFactory> firstMessageQueryAndIndex = firstMessageQueryOrNoOp(enabledShortReadOperationTypes, randomFactory);
+        // TODO selectRandomFirstShortQuery should be called after the reassignment of FIRST_PERSON etc. below and slightly rewritten, accordingly
+        LdbcShortQueryFactory randomFirstQuery = selectRandomFirstShortQuery(firstPersonQueryAndIndex._2(), firstMessageQueryAndIndex._2());
 
+        /*
         FIRST_PERSON = <if> (MAX_INTEGER == FIRST_PERSON_INDEX) <then> FIRST_MESSAGE <else> FIRST_PERSON
         FIRST_MESSAGE = <if> (MAX_INTEGER == FIRST_MESSAGE_INDEX) <then> FIRST_PERSON <else> FIRST_MESSAGE
+         */
+        LdbcShortQueryFactory firstPersonQuery = (Integer.MAX_VALUE == firstPersonQueryAndIndex._1())
+                ? firstMessageQueryAndIndex._2()
+                : firstPersonQueryAndIndex._2();
+        LdbcShortQueryFactory firstMessageQuery = (Integer.MAX_VALUE == firstMessageQueryAndIndex._1())
+                ? firstPersonQueryAndIndex._2()
+                : firstMessageQueryAndIndex._2();
 
+        /*
+        TODO
         LAST_PERSON_INDEX = ...
         LAST_MESSAGE_INDEX = ...
+         */
 
+        /*
         FACTORIES
             [LONG_READ_INDEXES] -> RANDOM_FIRST
             [UPDATE_INDEXES] -> NO_OP
+         */
+        shortReadFactories[LdbcQuery1.TYPE] = randomFirstQuery;
+        shortReadFactories[LdbcQuery2.TYPE] = randomFirstQuery;
+        shortReadFactories[LdbcQuery3.TYPE] = randomFirstQuery;
+        shortReadFactories[LdbcQuery4.TYPE] = randomFirstQuery;
+        shortReadFactories[LdbcQuery5.TYPE] = randomFirstQuery;
+        shortReadFactories[LdbcQuery6.TYPE] = randomFirstQuery;
+        shortReadFactories[LdbcQuery7.TYPE] = randomFirstQuery;
+        shortReadFactories[LdbcQuery8.TYPE] = randomFirstQuery;
+        shortReadFactories[LdbcQuery9.TYPE] = randomFirstQuery;
+        shortReadFactories[LdbcQuery10.TYPE] = randomFirstQuery;
+        shortReadFactories[LdbcQuery11.TYPE] = randomFirstQuery;
+        shortReadFactories[LdbcQuery12.TYPE] = randomFirstQuery;
+        shortReadFactories[LdbcQuery13.TYPE] = randomFirstQuery;
+        shortReadFactories[LdbcQuery14.TYPE] = randomFirstQuery;
 
+        shortReadFactories[LdbcUpdate1AddPerson.TYPE] = new NoOpFactory();
+        shortReadFactories[LdbcUpdate2AddPostLike.TYPE] = new NoOpFactory();
+        shortReadFactories[LdbcUpdate3AddCommentLike.TYPE] = new NoOpFactory();
+        shortReadFactories[LdbcUpdate4AddForum.TYPE] = new NoOpFactory();
+        shortReadFactories[LdbcUpdate5AddForumMembership.TYPE] = new NoOpFactory();
+        shortReadFactories[LdbcUpdate6AddPost.TYPE] = new NoOpFactory();
+        shortReadFactories[LdbcUpdate7AddComment.TYPE] = new NoOpFactory();
+        shortReadFactories[LdbcUpdate8AddFriendship.TYPE] = new NoOpFactory();
+
+        /*
+        TODO
         FACTORIES
             <if> (LAST_PERSON_INDEX != MAX_INTEGER) <then>
                 LAST_PERSON_INDEX (S1/S2/S3) -> FIRST_MESSAGE
             <if> (LAST_MESSAGE_INDEX != MAX_INTEGER) <then>
                 LAST_MESSAGE_INDEX (S4/S5/S6/S7) -> FIRST_PERSON
-
+         */
+        /*
+        TODO
         FACTORIES
             S1_INDEX -> <if> (ENABLED[S1_INDEX] && UNASSIGNED == FACTORIES[S1_INDEX]) <then>
                             index = indexOfNextEnabledAndUnassigned(MAPPING,S1_INDEX)
@@ -135,24 +193,24 @@ public class LdbcSnbShortReadGenerator_NEW implements ChildOperationGenerator {
                             <if> (index > LAST_MESSAGE_INDEX) <then> FIRST_PERSON <else> MAPPING[index]
             S7_INDEX -> // must have already been assigned, or is disabled
          */
-        // TODO uncomment
-//        ldbcShortQueryFactories[LdbcShortQuery3PersonFriends.TYPE] = (firstMessageQuery._2().getClass().equals(NoOpFactory.class))
-//                ? firstPersonQuery._2()
-//                : firstMessageQuery._2();
-//        ldbcShortQueryFactories[LdbcShortQuery2PersonPosts.TYPE] = (enabledShortReadOperationTypes.contains(LdbcShortQuery3PersonFriends.class))
-//                ? new LdbcShortQuery3Factory()
-//                :
-//                ldbcShortQueryFactories[LdbcShortQuery1PersonProfile.TYPE] = new NoOpFactory(); // TODO 2/3/null
 
-        ldbcShortQueryFactories[LdbcShortQuery7MessageReplies.TYPE] = (firstPersonQuery._2().getClass().equals(NoOpFactory.class))
-                ? firstMessageQuery._2()
-                : firstPersonQuery._2();
+        shortReadFactories[LdbcShortQuery3PersonFriends.TYPE] = (firstMessageQueryAndIndex._2().getClass().equals(NoOpFactory.class))
+                ? firstPersonQueryAndIndex._2()
+                : firstMessageQueryAndIndex._2();
+        shortReadFactories[LdbcShortQuery2PersonPosts.TYPE] = (enabledShortReadOperationTypes.contains(LdbcShortQuery3PersonFriends.class))
+                ? new LdbcShortQuery3Factory()
+                :
+                shortReadFactories[LdbcShortQuery1PersonProfile.TYPE] = new NoOpFactory(); // TODO 2/3/null
 
-        ldbcShortQueryFactories[LdbcShortQuery4MessageContent.TYPE] = new NoOpFactory(); // TODO 5/6/7/null
-        ldbcShortQueryFactories[LdbcShortQuery5MessageCreator.TYPE] = new NoOpFactory(); // TODO 6/7/null
-        ldbcShortQueryFactories[LdbcShortQuery6MessageForum.TYPE] = new NoOpFactory(); // TODO 7/null
+        shortReadFactories[LdbcShortQuery7MessageReplies.TYPE] = (firstPersonQueryAndIndex._2().getClass().equals(NoOpFactory.class))
+                ? firstMessageQueryAndIndex._2()
+                : firstPersonQueryAndIndex._2();
 
-        return ldbcShortQueryFactories;
+        shortReadFactories[LdbcShortQuery4MessageContent.TYPE] = new NoOpFactory(); // TODO 5/6/7/null
+        shortReadFactories[LdbcShortQuery5MessageCreator.TYPE] = new NoOpFactory(); // TODO 6/7/null
+        shortReadFactories[LdbcShortQuery6MessageForum.TYPE] = new NoOpFactory(); // TODO 7/null
+
+        return shortReadFactories;
     }
 
     private Tuple.Tuple2<Integer, LdbcShortQueryFactory> firstPersonQueryOrNoOp(Set<Class> enabledShortReadOperationTypes,
@@ -348,6 +406,19 @@ public class LdbcSnbShortReadGenerator_NEW implements ChildOperationGenerator {
         @Override
         public Operation create(Queue<Long> personIdBuffer, Queue<Long> messageIdBuffer, long previousScheduledStartTime, double state) {
             return null;
+        }
+    }
+
+    private class ErrorFactory implements LdbcShortQueryFactory {
+        private final Class operationType;
+
+        private ErrorFactory(Class operationType) {
+            this.operationType = operationType;
+        }
+
+        @Override
+        public Operation create(Queue<Long> personIdBuffer, Queue<Long> messageIdBuffer, long previousScheduledStartTime, double state) {
+            throw new RuntimeException(String.format("Encountered disabled short read: %s - it should not have been executed", operationType.getSimpleName()));
         }
     }
 
