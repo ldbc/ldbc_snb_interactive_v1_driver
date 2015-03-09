@@ -10,7 +10,6 @@ import com.ldbc.driver.generator.GeneratorFactory;
 import com.ldbc.driver.generator.RandomDataGeneratorFactory;
 import com.ldbc.driver.runtime.metrics.ThreadedQueuedMetricsService;
 import com.ldbc.driver.temporal.SystemTimeSource;
-import com.ldbc.driver.temporal.TemporalUtil;
 import com.ldbc.driver.temporal.TimeSource;
 import com.ldbc.driver.testutils.TestUtils;
 import com.ldbc.driver.util.Bucket;
@@ -32,8 +31,6 @@ import static org.hamcrest.CoreMatchers.*;
 import static org.junit.Assert.assertThat;
 
 public class LdbcSnbInteractiveWorkloadTest {
-    private static final TemporalUtil TEMPORAL_UTIL = new TemporalUtil();
-
     @Rule
     public TemporaryFolder temporaryFolder = new TemporaryFolder();
 
@@ -58,6 +55,7 @@ public class LdbcSnbInteractiveWorkloadTest {
         LdbcQuery12 read12 = DummyLdbcSnbInteractiveOperationInstances.read12();
         LdbcQuery13 read13 = DummyLdbcSnbInteractiveOperationInstances.read13();
         LdbcQuery14 read14 = DummyLdbcSnbInteractiveOperationInstances.read14();
+
         LdbcShortQuery1PersonProfile shortRead1 = DummyLdbcSnbInteractiveOperationInstances.short1();
         LdbcShortQuery2PersonPosts shortRead2 = DummyLdbcSnbInteractiveOperationInstances.short2();
         LdbcShortQuery3PersonFriends shortRead3 = DummyLdbcSnbInteractiveOperationInstances.short3();
@@ -65,6 +63,7 @@ public class LdbcSnbInteractiveWorkloadTest {
         LdbcShortQuery5MessageCreator shortRead5 = DummyLdbcSnbInteractiveOperationInstances.short5();
         LdbcShortQuery6MessageForum shortRead6 = DummyLdbcSnbInteractiveOperationInstances.short6();
         LdbcShortQuery7MessageReplies shortRead7 = DummyLdbcSnbInteractiveOperationInstances.short7();
+
         LdbcUpdate1AddPerson write1 = DummyLdbcSnbInteractiveOperationInstances.write1();
         LdbcUpdate2AddPostLike write2 = DummyLdbcSnbInteractiveOperationInstances.write2();
         LdbcUpdate3AddCommentLike write3 = DummyLdbcSnbInteractiveOperationInstances.write3();
@@ -89,6 +88,7 @@ public class LdbcSnbInteractiveWorkloadTest {
         String serializedRead12 = workload.serializeOperation(read12);
         String serializedRead13 = workload.serializeOperation(read13);
         String serializedRead14 = workload.serializeOperation(read14);
+
         String serializedShortRead1 = workload.serializeOperation(shortRead1);
         String serializedShortRead2 = workload.serializeOperation(shortRead2);
         String serializedShortRead3 = workload.serializeOperation(shortRead3);
@@ -96,6 +96,7 @@ public class LdbcSnbInteractiveWorkloadTest {
         String serializedShortRead5 = workload.serializeOperation(shortRead5);
         String serializedShortRead6 = workload.serializeOperation(shortRead6);
         String serializedShortRead7 = workload.serializeOperation(shortRead7);
+
         String serializedWrite1 = workload.serializeOperation(write1);
         String serializedWrite2 = workload.serializeOperation(write2);
         String serializedWrite3 = workload.serializeOperation(write3);
@@ -120,6 +121,7 @@ public class LdbcSnbInteractiveWorkloadTest {
         assertThat((Operation) workload.marshalOperation(serializedRead12), equalTo((Operation) read12));
         assertThat((Operation) workload.marshalOperation(serializedRead13), equalTo((Operation) read13));
         assertThat((Operation) workload.marshalOperation(serializedRead14), equalTo((Operation) read14));
+
         assertThat((Operation) workload.marshalOperation(serializedShortRead1), equalTo((Operation) shortRead1));
         assertThat((Operation) workload.marshalOperation(serializedShortRead2), equalTo((Operation) shortRead2));
         assertThat((Operation) workload.marshalOperation(serializedShortRead3), equalTo((Operation) shortRead3));
@@ -127,6 +129,7 @@ public class LdbcSnbInteractiveWorkloadTest {
         assertThat((Operation) workload.marshalOperation(serializedShortRead5), equalTo((Operation) shortRead5));
         assertThat((Operation) workload.marshalOperation(serializedShortRead6), equalTo((Operation) shortRead6));
         assertThat((Operation) workload.marshalOperation(serializedShortRead7), equalTo((Operation) shortRead7));
+
         assertThat((Operation) workload.marshalOperation(serializedWrite1), equalTo((Operation) write1));
         assertThat((Operation) workload.marshalOperation(serializedWrite2), equalTo((Operation) write2));
         assertThat((Operation) workload.marshalOperation(serializedWrite3), equalTo((Operation) write3));
@@ -138,19 +141,87 @@ public class LdbcSnbInteractiveWorkloadTest {
     }
 
     @Test
-    public void shouldGenerateManyElementsInReasonableTime() throws WorkloadException, IOException, DriverConfigurationException {
-        // Given
-        long MANY_ELEMENTS_COUNT = 1000000;
+    public void shouldGenerateManyOperationsInReasonableTimeForLongReadOnly() throws WorkloadException, IOException, DriverConfigurationException {
+        Map<String, String> workloadParams = LdbcSnbInteractiveConfiguration.withoutWrites(
+                LdbcSnbInteractiveConfiguration.withoutShortReads(
+                        LdbcSnbInteractiveConfiguration.defaultConfig()
+                )
+        );
+        workloadParams.put(LdbcSnbInteractiveConfiguration.PARAMETERS_DIRECTORY, TestUtils.getResource("/").getAbsolutePath());
+        workloadParams.put(LdbcSnbInteractiveConfiguration.UPDATES_DIRECTORY, TestUtils.getResource("/").getAbsolutePath());
+        workloadParams = MapUtils.mergeMaps(
+                workloadParams,
+                MapUtils.loadPropertiesToMap(TestUtils.getResource("/updateStream.properties")),
+                true
+        );
+        doShouldGenerateManyElementsInReasonableTime(workloadParams, 1_000_000, TimeUnit.SECONDS.toMillis(5));
+    }
 
-        Map<String, String> paramsMap = LdbcSnbInteractiveConfiguration.defaultConfig();
-        // LDBC Interactive Workload-specific parameters
-        paramsMap.put(LdbcSnbInteractiveConfiguration.PARAMETERS_DIRECTORY, TestUtils.getResource("/").getAbsolutePath());
-        paramsMap.put(LdbcSnbInteractiveConfiguration.UPDATES_DIRECTORY, TestUtils.getResource("/").getAbsolutePath());
+    @Test
+    public void shouldGenerateManyOperationsInReasonableTimeForWriteOnly() throws WorkloadException, IOException, DriverConfigurationException {
+        Map<String, String> workloadParams = LdbcSnbInteractiveConfiguration.withoutLongReads(
+                LdbcSnbInteractiveConfiguration.withoutShortReads(
+                        LdbcSnbInteractiveConfiguration.defaultConfig()
+                )
+        );
+        workloadParams.put(LdbcSnbInteractiveConfiguration.PARAMETERS_DIRECTORY, TestUtils.getResource("/").getAbsolutePath());
+        workloadParams.put(LdbcSnbInteractiveConfiguration.UPDATES_DIRECTORY, TestUtils.getResource("/").getAbsolutePath());
+        workloadParams = MapUtils.mergeMaps(
+                workloadParams,
+                MapUtils.loadPropertiesToMap(TestUtils.getResource("/updateStream.properties")),
+                true
+        );
+        doShouldGenerateManyElementsInReasonableTime(workloadParams, 50_000, TimeUnit.SECONDS.toMillis(5));
+    }
+
+    @Test
+    public void shouldGenerateManyOperationsInReasonableTimeForReadOnly() throws WorkloadException, IOException, DriverConfigurationException {
+        Map<String, String> workloadParams = LdbcSnbInteractiveConfiguration.withoutWrites(
+                LdbcSnbInteractiveConfiguration.defaultConfig()
+        );
+        workloadParams.put(LdbcSnbInteractiveConfiguration.PARAMETERS_DIRECTORY, TestUtils.getResource("/").getAbsolutePath());
+        workloadParams.put(LdbcSnbInteractiveConfiguration.UPDATES_DIRECTORY, TestUtils.getResource("/").getAbsolutePath());
+        workloadParams = MapUtils.mergeMaps(
+                workloadParams,
+                MapUtils.loadPropertiesToMap(TestUtils.getResource("/updateStream.properties")),
+                true
+        );
+        doShouldGenerateManyElementsInReasonableTime(workloadParams, 1_000_000, TimeUnit.SECONDS.toMillis(5));
+    }
+
+    @Test
+    public void shouldGenerateManyOperationsInReasonableTimeForFullWorkload() throws WorkloadException, IOException, DriverConfigurationException {
+        Map<String, String> workloadParams = LdbcSnbInteractiveConfiguration.defaultConfig();
+        workloadParams.put(LdbcSnbInteractiveConfiguration.PARAMETERS_DIRECTORY, TestUtils.getResource("/").getAbsolutePath());
+        workloadParams.put(LdbcSnbInteractiveConfiguration.UPDATES_DIRECTORY, TestUtils.getResource("/").getAbsolutePath());
+        workloadParams = MapUtils.mergeMaps(
+                workloadParams,
+                MapUtils.loadPropertiesToMap(TestUtils.getResource("/updateStream.properties")),
+                true
+        );
+        doShouldGenerateManyElementsInReasonableTime(workloadParams, 1_000_000, TimeUnit.SECONDS.toMillis(5));
+    }
+
+    @Test
+    public void shouldGenerateManyOperationsInReasonableTimeForOperation1Only() throws WorkloadException, IOException, DriverConfigurationException {
+        Map<String, String> workloadParams = LdbcSnbInteractiveConfiguration.defaultConfig();
+        workloadParams.put(LdbcSnbInteractiveConfiguration.PARAMETERS_DIRECTORY, TestUtils.getResource("/").getAbsolutePath());
+        workloadParams.put(LdbcSnbInteractiveConfiguration.UPDATES_DIRECTORY, TestUtils.getResource("/").getAbsolutePath());
+        workloadParams = MapUtils.mergeMaps(
+                workloadParams,
+                MapUtils.loadPropertiesToMap(TestUtils.getResource("/updateStream.properties")),
+                true
+        );
+        doShouldGenerateManyElementsInReasonableTime(workloadParams, 1_000_000, TimeUnit.SECONDS.toMillis(5));
+    }
+
+    private void doShouldGenerateManyElementsInReasonableTime(Map<String, String> workloadParams, long operationCount, long timeoutAsMilli) throws WorkloadException, IOException, DriverConfigurationException {
+        // Given
+
         // Driver-specific parameters
         String name = null;
         String dbClassName = DummyLdbcSnbInteractiveDb.class.getName();
         String workloadClassName = LdbcSnbInteractiveWorkload.class.getName();
-        long operationCount = MANY_ELEMENTS_COUNT;
         int threadCount = 1;
         int statusDisplayInterval = 0;
         TimeUnit timeUnit = TimeUnit.MILLISECONDS;
@@ -167,7 +238,7 @@ public class LdbcSnbInteractiveWorkloadTest {
         boolean shouldCreateResultsLog = false;
 
         DriverConfiguration configuration = new ConsoleAndFileDriverConfiguration(
-                paramsMap,
+                workloadParams,
                 name,
                 dbClassName,
                 workloadClassName,
@@ -188,17 +259,14 @@ public class LdbcSnbInteractiveWorkloadTest {
                 shouldCreateResultsLog
         );
 
-        Map<String, String> updateStreamParams = MapUtils.loadPropertiesToMap(TestUtils.getResource("/updateStream.properties"));
-        configuration = configuration.applyMap(updateStreamParams);
-
         Workload workload = new LdbcSnbInteractiveWorkload();
         workload.init(configuration);
 
         GeneratorFactory gf = new GeneratorFactory(new RandomDataGeneratorFactory(42L));
-        Iterator<Operation<?>> operations = gf.limit(workload.streams(gf).mergeSortedByStartTime(gf), MANY_ELEMENTS_COUNT);
+        Iterator<Operation<?>> operations = gf.limit(workload.streams(gf).mergeSortedByStartTime(gf), operationCount);
         TimeSource timeSource = new SystemTimeSource();
-        long timeout = timeSource.nowAsMilli() + TimeUnit.SECONDS.toMillis(30);
-        boolean workloadGeneratedOperationsBeforeTimeout = TestUtils.generateBeforeTimeout(operations, timeout, timeSource, MANY_ELEMENTS_COUNT);
+        long timeout = timeSource.nowAsMilli() + timeoutAsMilli;
+        boolean workloadGeneratedOperationsBeforeTimeout = TestUtils.generateBeforeTimeout(operations, timeout, timeSource, operationCount);
         assertThat(workloadGeneratedOperationsBeforeTimeout, is(true));
     }
 
@@ -420,11 +488,12 @@ public class LdbcSnbInteractiveWorkloadTest {
 
     @Test
     public void shouldLoadFromConfigFile() throws DriverConfigurationException, ClientException, IOException {
-        String ldbcSnbInteractiveTestPropertiesPath =
-                new File(DriverConfigurationFileHelper.getWorkloadsDirectory(), "ldbc/snb/interactive/ldbc_snb_interactive.properties").getAbsolutePath();
+        String ldbcSnbInteractiveTestPropertiesPath = new File(
+                DriverConfigurationFileHelper.getWorkloadsDirectory(),
+                "ldbc/snb/interactive/ldbc_snb_interactive.properties"
+        ).getAbsolutePath();
         String ldbcDriverTestPropertiesPath = DriverConfigurationFileHelper.getBaseConfigurationFilePublicLocation().getAbsolutePath();
-        String updateStreamPropertiesPath =
-                TestUtils.getResource("/updateStream.properties").getAbsolutePath();
+        String updateStreamPropertiesPath = TestUtils.getResource("/updateStream.properties").getAbsolutePath();
         String resultDirPath = temporaryFolder.newFolder().getAbsolutePath();
 
         assertThat(new File(resultDirPath).listFiles().length > 0, is(false));
@@ -436,8 +505,8 @@ public class LdbcSnbInteractiveWorkloadTest {
                 "-" + ConsoleAndFileDriverConfiguration.RESULT_DIR_PATH_ARG, resultDirPath,
                 "-" + ConsoleAndFileDriverConfiguration.DB_ARG, DummyLdbcSnbInteractiveDb.class.getName(),
                 "-" + ConsoleAndFileDriverConfiguration.TIME_UNIT_ARG, TimeUnit.MICROSECONDS.name(),
-                "-p", ConsoleAndFileDriverConfiguration.OPERATION_COUNT_ARG, "1000",
-                "-p", ConsoleAndFileDriverConfiguration.TIME_COMPRESSION_RATIO_ARG, "0.00005",
+                "-p", ConsoleAndFileDriverConfiguration.OPERATION_COUNT_ARG, Long.toString(10_000),
+                "-p", ConsoleAndFileDriverConfiguration.TIME_COMPRESSION_RATIO_ARG, Double.toString(0.00001),
                 "-p", LdbcSnbInteractiveConfiguration.PARAMETERS_DIRECTORY, TestUtils.getResource("/").getAbsolutePath(),
                 "-p", LdbcSnbInteractiveConfiguration.UPDATES_DIRECTORY, TestUtils.getResource("/").getAbsolutePath(),
                 "-P", ldbcSnbInteractiveTestPropertiesPath,
@@ -795,24 +864,80 @@ public class LdbcSnbInteractiveWorkloadTest {
     }
 
     @Test
-    public void shouldWorkWhenOnlyWriteOperationsAreEnabled() throws WorkloadException, ClientException, IOException, DriverConfigurationException {
-        Map<String, String> params = LdbcSnbInteractiveConfiguration.defaultWriteOnlyConfig();
-        // LDBC Interactive Workload-specific parameters
-        params.put(LdbcSnbInteractiveConfiguration.PARAMETERS_DIRECTORY, TestUtils.getResource("/").getAbsolutePath());
-        params.put(LdbcSnbInteractiveConfiguration.UPDATES_DIRECTORY, TestUtils.getResource("/").getAbsolutePath());
+    public void shouldRunWorkloadForLongReadsOnly() throws WorkloadException, ClientException, IOException, DriverConfigurationException {
+        Map<String, String> workloadParams = LdbcSnbInteractiveConfiguration.withoutWrites(
+                LdbcSnbInteractiveConfiguration.withoutShortReads(
+                        LdbcSnbInteractiveConfiguration.defaultConfig()
+                )
+        );
+        workloadParams.put(LdbcSnbInteractiveConfiguration.PARAMETERS_DIRECTORY, TestUtils.getResource("/").getAbsolutePath());
+        workloadParams.put(LdbcSnbInteractiveConfiguration.UPDATES_DIRECTORY, TestUtils.getResource("/").getAbsolutePath());
+        workloadParams = MapUtils.mergeMaps(
+                workloadParams,
+                MapUtils.loadPropertiesToMap(TestUtils.getResource("/updateStream.properties")),
+                true
+        );
+        doShouldRunWorkload(workloadParams, 100_000);
+    }
+
+    @Test
+    public void shouldRunWorkloadForReadsOnly() throws WorkloadException, ClientException, IOException, DriverConfigurationException {
+        Map<String, String> workloadParams = LdbcSnbInteractiveConfiguration.withoutWrites(
+                LdbcSnbInteractiveConfiguration.defaultConfig()
+        );
+        workloadParams.put(LdbcSnbInteractiveConfiguration.PARAMETERS_DIRECTORY, TestUtils.getResource("/").getAbsolutePath());
+        workloadParams.put(LdbcSnbInteractiveConfiguration.UPDATES_DIRECTORY, TestUtils.getResource("/").getAbsolutePath());
+        workloadParams = MapUtils.mergeMaps(
+                workloadParams,
+                MapUtils.loadPropertiesToMap(TestUtils.getResource("/updateStream.properties")),
+                true
+        );
+        doShouldRunWorkload(workloadParams, 100_000);
+    }
+
+    @Test
+    public void shouldRunWorkloadForWritesOnly() throws WorkloadException, ClientException, IOException, DriverConfigurationException {
+        Map<String, String> workloadParams = LdbcSnbInteractiveConfiguration.withoutLongReads(
+                LdbcSnbInteractiveConfiguration.withoutShortReads(
+                        LdbcSnbInteractiveConfiguration.defaultConfig()
+                )
+        );
+        workloadParams.put(LdbcSnbInteractiveConfiguration.PARAMETERS_DIRECTORY, TestUtils.getResource("/").getAbsolutePath());
+        workloadParams.put(LdbcSnbInteractiveConfiguration.UPDATES_DIRECTORY, TestUtils.getResource("/").getAbsolutePath());
+        workloadParams = MapUtils.mergeMaps(
+                workloadParams,
+                MapUtils.loadPropertiesToMap(TestUtils.getResource("/updateStream.properties")),
+                true
+        );
+        doShouldRunWorkload(workloadParams, 50_000);
+    }
+
+    @Test
+    public void shouldRunWorkloadForFullWorkload() throws WorkloadException, ClientException, IOException, DriverConfigurationException {
+        Map<String, String> workloadParams = LdbcSnbInteractiveConfiguration.defaultConfig();
+        workloadParams.put(LdbcSnbInteractiveConfiguration.PARAMETERS_DIRECTORY, TestUtils.getResource("/").getAbsolutePath());
+        workloadParams.put(LdbcSnbInteractiveConfiguration.UPDATES_DIRECTORY, TestUtils.getResource("/").getAbsolutePath());
+        workloadParams = MapUtils.mergeMaps(
+                workloadParams,
+                MapUtils.loadPropertiesToMap(TestUtils.getResource("/updateStream.properties")),
+                true
+        );
+        doShouldRunWorkload(workloadParams, 100_000);
+    }
+
+    private void doShouldRunWorkload(Map<String, String> workloadParams, long operationCount) throws WorkloadException, ClientException, IOException, DriverConfigurationException {
         // DummyDb-specific parameters
-        params.put(DummyLdbcSnbInteractiveDb.SLEEP_DURATION_NANO_ARG, Long.toString(TimeUnit.MICROSECONDS.toNanos(100)));
-        params.put(DummyLdbcSnbInteractiveDb.SLEEP_TYPE_ARG, DummyLdbcSnbInteractiveDb.SleepType.SPIN.name());
+        workloadParams.put(DummyLdbcSnbInteractiveDb.SLEEP_DURATION_NANO_ARG, Long.toString(TimeUnit.MICROSECONDS.toNanos(10)));
+        workloadParams.put(DummyLdbcSnbInteractiveDb.SLEEP_TYPE_ARG, DummyLdbcSnbInteractiveDb.SleepType.SPIN.name());
         // Driver-specific parameters
         String name = null;
         String dbClassName = DummyLdbcSnbInteractiveDb.class.getName();
         String workloadClassName = LdbcSnbInteractiveWorkload.class.getName();
-        long operationCount = 40000;
         int threadCount = 1;
         int statusDisplayInterval = 1;
         TimeUnit timeUnit = TimeUnit.MICROSECONDS;
         String resultDirPath = temporaryFolder.newFolder().getAbsolutePath();
-        double timeCompressionRatio = 0.000001;
+        double timeCompressionRatio = 0.0000001;
         Set<String> peerIds = new HashSet<>();
         ConsoleAndFileDriverConfiguration.ConsoleAndFileValidationParamOptions validationParams = null;
         String dbValidationFilePath = null;
@@ -826,7 +951,7 @@ public class LdbcSnbInteractiveWorkloadTest {
         assertThat(new File(resultDirPath).listFiles().length > 0, is(false));
 
         DriverConfiguration configuration = new ConsoleAndFileDriverConfiguration(
-                params,
+                workloadParams,
                 name,
                 dbClassName,
                 workloadClassName,
@@ -847,9 +972,6 @@ public class LdbcSnbInteractiveWorkloadTest {
                 shouldCreateResultsLog
         );
 
-        Map<String, String> updateStreamParams = MapUtils.loadPropertiesToMap(TestUtils.getResource("/updateStream.properties"));
-        configuration = configuration.applyMap(updateStreamParams);
-
         Client client = new Client(new LocalControlService(timeSource.nowAsMilli() + 3000, configuration), timeSource);
         client.start();
 
@@ -857,23 +979,79 @@ public class LdbcSnbInteractiveWorkloadTest {
 
         File resultsLog = new File(new File(resultDirPath), configuration.name() + ThreadedQueuedMetricsService.RESULTS_LOG_FILENAME_SUFFIX);
         SimpleCsvFileReader csvResultsLogReader = new SimpleCsvFileReader(resultsLog, SimpleCsvFileReader.DEFAULT_COLUMN_SEPARATOR_PATTERN);
-        assertThat((long) Iterators.size(csvResultsLogReader), is(configuration.operationCount() + 1)); // + 1 to account for csv headers
+        assertThat((long) Iterators.size(csvResultsLogReader) > configuration.operationCount(), is(true));
     }
 
     @Test
-    public void shouldPassWorkloadValidation() throws ClientException, IOException, DriverConfigurationException {
-        Map<String, String> params = LdbcSnbInteractiveConfiguration.defaultWriteOnlyConfig();
-        // LDBC Interactive Workload-specific parameters
-        params.put(LdbcSnbInteractiveConfiguration.PARAMETERS_DIRECTORY, TestUtils.getResource("/").getAbsolutePath());
-        params.put(LdbcSnbInteractiveConfiguration.UPDATES_DIRECTORY, TestUtils.getResource("/").getAbsolutePath());
+    public void shouldPassWorkloadValidationForLongReadsOnly() throws WorkloadException, ClientException, IOException, DriverConfigurationException {
+        Map<String, String> workloadParams = LdbcSnbInteractiveConfiguration.withoutWrites(
+                LdbcSnbInteractiveConfiguration.withoutShortReads(
+                        LdbcSnbInteractiveConfiguration.defaultConfig()
+                )
+        );
+        workloadParams.put(LdbcSnbInteractiveConfiguration.PARAMETERS_DIRECTORY, TestUtils.getResource("/").getAbsolutePath());
+        workloadParams.put(LdbcSnbInteractiveConfiguration.UPDATES_DIRECTORY, TestUtils.getResource("/").getAbsolutePath());
+        workloadParams = MapUtils.mergeMaps(
+                workloadParams,
+                MapUtils.loadPropertiesToMap(TestUtils.getResource("/updateStream.properties")),
+                true
+        );
+        doShouldPassWorkloadValidation(workloadParams, 100_000);
+    }
+
+    @Test
+    public void shouldPassWorkloadValidationForReadsOnly() throws WorkloadException, ClientException, IOException, DriverConfigurationException {
+        Map<String, String> workloadParams = LdbcSnbInteractiveConfiguration.withoutWrites(
+                LdbcSnbInteractiveConfiguration.defaultConfig()
+        );
+        workloadParams.put(LdbcSnbInteractiveConfiguration.PARAMETERS_DIRECTORY, TestUtils.getResource("/").getAbsolutePath());
+        workloadParams.put(LdbcSnbInteractiveConfiguration.UPDATES_DIRECTORY, TestUtils.getResource("/").getAbsolutePath());
+        workloadParams = MapUtils.mergeMaps(
+                workloadParams,
+                MapUtils.loadPropertiesToMap(TestUtils.getResource("/updateStream.properties")),
+                true
+        );
+        doShouldPassWorkloadValidation(workloadParams, 100_000);
+    }
+
+    @Test
+    public void shouldPassWorkloadValidationForWritesOnly() throws WorkloadException, ClientException, IOException, DriverConfigurationException {
+        Map<String, String> workloadParams = LdbcSnbInteractiveConfiguration.withoutLongReads(
+                LdbcSnbInteractiveConfiguration.withoutShortReads(
+                        LdbcSnbInteractiveConfiguration.defaultConfig()
+                )
+        );
+        workloadParams.put(LdbcSnbInteractiveConfiguration.PARAMETERS_DIRECTORY, TestUtils.getResource("/").getAbsolutePath());
+        workloadParams.put(LdbcSnbInteractiveConfiguration.UPDATES_DIRECTORY, TestUtils.getResource("/").getAbsolutePath());
+        workloadParams = MapUtils.mergeMaps(
+                workloadParams,
+                MapUtils.loadPropertiesToMap(TestUtils.getResource("/updateStream.properties")),
+                true
+        );
+        doShouldPassWorkloadValidation(workloadParams, 100_000);
+    }
+
+    @Test
+    public void shouldPassWorkloadValidationForFullWorkload() throws WorkloadException, ClientException, IOException, DriverConfigurationException {
+        Map<String, String> workloadParams = LdbcSnbInteractiveConfiguration.defaultConfig();
+        workloadParams.put(LdbcSnbInteractiveConfiguration.PARAMETERS_DIRECTORY, TestUtils.getResource("/").getAbsolutePath());
+        workloadParams.put(LdbcSnbInteractiveConfiguration.UPDATES_DIRECTORY, TestUtils.getResource("/").getAbsolutePath());
+        workloadParams = MapUtils.mergeMaps(
+                workloadParams,
+                MapUtils.loadPropertiesToMap(TestUtils.getResource("/updateStream.properties")),
+                true
+        );
+        doShouldPassWorkloadValidation(workloadParams, 100_000);
+    }
+
+    private void doShouldPassWorkloadValidation(Map<String, String> workloadParams, long operationCount) throws ClientException, IOException, DriverConfigurationException {
         // DummyDb-specific parameters
-        params.put(DummyLdbcSnbInteractiveDb.SLEEP_DURATION_NANO_ARG, Long.toString(TimeUnit.MILLISECONDS.toNanos(1)));
-        params.put(DummyLdbcSnbInteractiveDb.SLEEP_TYPE_ARG, DummyLdbcSnbInteractiveDb.SleepType.SPIN.name());
+        workloadParams.put(DummyLdbcSnbInteractiveDb.SLEEP_DURATION_NANO_ARG, Long.toString(TimeUnit.MILLISECONDS.toNanos(1)));
+        workloadParams.put(DummyLdbcSnbInteractiveDb.SLEEP_TYPE_ARG, DummyLdbcSnbInteractiveDb.SleepType.SPIN.name());
         // Driver-specific parameters
         String name = null;
         String dbClassName = DummyLdbcSnbInteractiveDb.class.getName();
         String workloadClassName = LdbcSnbInteractiveWorkload.class.getName();
-        long operationCount = 10000;
         int threadCount = 1;
         int statusDisplayInterval = 1;
         TimeUnit timeUnit = TimeUnit.MILLISECONDS;
@@ -890,7 +1068,7 @@ public class LdbcSnbInteractiveWorkloadTest {
         boolean shouldCreateResultsLog = false;
 
         DriverConfiguration configuration = new ConsoleAndFileDriverConfiguration(
-                params,
+                workloadParams,
                 name,
                 dbClassName,
                 workloadClassName,
@@ -923,5 +1101,184 @@ public class LdbcSnbInteractiveWorkloadTest {
         assertThat(client.workloadValidationResult(), is(notNullValue()));
         assertThat(client.workloadValidationResult().errorMessage(), client.workloadValidationResult().isSuccessful(), is(true));
         assertThat(client.workloadStatistics(), is(nullValue()));
+    }
+
+    @Test
+    public void shouldCreateValidationParametersThenUseThemToPerformDatabaseValidationThenPassForLongReadsOnly() throws ClientException, IOException, DriverConfigurationException {
+        Map<String, String> workloadParams = LdbcSnbInteractiveConfiguration.withoutShortReads(
+                LdbcSnbInteractiveConfiguration.withoutWrites(
+                        LdbcSnbInteractiveConfiguration.defaultConfig()
+                )
+        );
+        workloadParams.put(LdbcSnbInteractiveConfiguration.PARAMETERS_DIRECTORY, TestUtils.getResource("/").getAbsolutePath());
+        workloadParams.put(LdbcSnbInteractiveConfiguration.UPDATES_DIRECTORY, TestUtils.getResource("/").getAbsolutePath());
+        workloadParams = MapUtils.mergeMaps(
+                workloadParams,
+                MapUtils.loadPropertiesToMap(TestUtils.getResource("/updateStream.properties")),
+                true
+        );
+        doShouldCreateValidationParametersThenUseThemToPerformDatabaseValidationThenPass(workloadParams);
+    }
+
+    @Test
+    public void shouldCreateValidationParametersThenUseThemToPerformDatabaseValidationThenPassForReadsOnly() throws ClientException, IOException, DriverConfigurationException {
+        Map<String, String> workloadParams = LdbcSnbInteractiveConfiguration.withoutWrites(
+                LdbcSnbInteractiveConfiguration.defaultConfig()
+        );
+        workloadParams.put(LdbcSnbInteractiveConfiguration.PARAMETERS_DIRECTORY, TestUtils.getResource("/").getAbsolutePath());
+        workloadParams.put(LdbcSnbInteractiveConfiguration.UPDATES_DIRECTORY, TestUtils.getResource("/").getAbsolutePath());
+        workloadParams = MapUtils.mergeMaps(
+                workloadParams,
+                MapUtils.loadPropertiesToMap(TestUtils.getResource("/updateStream.properties")),
+                true
+        );
+        doShouldCreateValidationParametersThenUseThemToPerformDatabaseValidationThenPass(workloadParams);
+    }
+
+    @Test
+    public void shouldCreateValidationParametersThenUseThemToPerformDatabaseValidationThenPassForWritesOnly() throws ClientException, IOException, DriverConfigurationException {
+        Map<String, String> workloadParams = LdbcSnbInteractiveConfiguration.withoutLongReads(
+                LdbcSnbInteractiveConfiguration.withoutShortReads(
+                        LdbcSnbInteractiveConfiguration.defaultConfig()
+                )
+        );
+        workloadParams.put(LdbcSnbInteractiveConfiguration.PARAMETERS_DIRECTORY, TestUtils.getResource("/").getAbsolutePath());
+        workloadParams.put(LdbcSnbInteractiveConfiguration.UPDATES_DIRECTORY, TestUtils.getResource("/").getAbsolutePath());
+        workloadParams = MapUtils.mergeMaps(
+                workloadParams,
+                MapUtils.loadPropertiesToMap(TestUtils.getResource("/updateStream.properties")),
+                true
+        );
+        doShouldCreateValidationParametersThenUseThemToPerformDatabaseValidationThenPass(workloadParams);
+    }
+
+    @Test
+    public void shouldCreateValidationParametersThenUseThemToPerformDatabaseValidationThenPassForFullWorkload() throws ClientException, IOException, DriverConfigurationException {
+        Map<String, String> workloadParams = LdbcSnbInteractiveConfiguration.defaultConfig();
+        workloadParams.put(LdbcSnbInteractiveConfiguration.PARAMETERS_DIRECTORY, TestUtils.getResource("/").getAbsolutePath());
+        workloadParams.put(LdbcSnbInteractiveConfiguration.UPDATES_DIRECTORY, TestUtils.getResource("/").getAbsolutePath());
+        workloadParams = MapUtils.mergeMaps(
+                workloadParams,
+                MapUtils.loadPropertiesToMap(TestUtils.getResource("/updateStream.properties")),
+                true
+        );
+        doShouldCreateValidationParametersThenUseThemToPerformDatabaseValidationThenPass(workloadParams);
+    }
+
+    private void doShouldCreateValidationParametersThenUseThemToPerformDatabaseValidationThenPass(Map<String, String> workloadParams) throws ClientException, IOException, DriverConfigurationException {
+        // **************************************************
+        // where validation parameters should be written (ensure file does not yet exist)
+        // **************************************************
+        File validationParamsFile = temporaryFolder.newFile();
+        assertThat(validationParamsFile.length(), is(0l));
+
+        // **************************************************
+        // configuration for generating validation parameters
+        // **************************************************
+        // DummyDb-specific parameters
+        workloadParams.put(DummyLdbcSnbInteractiveDb.SLEEP_DURATION_NANO_ARG, Long.toString(TimeUnit.MILLISECONDS.toNanos(1)));
+        workloadParams.put(DummyLdbcSnbInteractiveDb.SLEEP_TYPE_ARG, DummyLdbcSnbInteractiveDb.SleepType.SPIN.name());
+        // Driver-specific parameters
+        String name = "name";
+        String dbClassName = DummyLdbcSnbInteractiveDb.class.getName();
+        String workloadClassName = LdbcSnbInteractiveWorkload.class.getName();
+        long operationCount = 10000;
+        int threadCount = 64;
+        int statusDisplayIntervalAsSeconds = 1;
+        TimeUnit timeUnit = TimeUnit.MILLISECONDS;
+        String resultDirPath = null;
+        double timeCompressionRatio = 1.0;
+        Set<String> peerIds = new HashSet<>();
+        ConsoleAndFileDriverConfiguration.ConsoleAndFileValidationParamOptions validationParams =
+                new ConsoleAndFileDriverConfiguration.ConsoleAndFileValidationParamOptions(validationParamsFile.getAbsolutePath(), 1000);
+        String dbValidationFilePath = null;
+        boolean validateWorkload = false;
+        boolean calculateWorkloadStatistics = false;
+        long spinnerSleepDurationAsMilli = 0l;
+        boolean printHelp = false;
+        boolean ignoreScheduledStartTimes = false;
+        boolean shouldCreateResultsLog = false;
+
+        DriverConfiguration params = new ConsoleAndFileDriverConfiguration(
+                workloadParams,
+                name,
+                dbClassName,
+                workloadClassName,
+                operationCount,
+                threadCount,
+                statusDisplayIntervalAsSeconds,
+                timeUnit,
+                resultDirPath,
+                timeCompressionRatio,
+                peerIds,
+                validationParams,
+                dbValidationFilePath,
+                validateWorkload,
+                calculateWorkloadStatistics,
+                spinnerSleepDurationAsMilli,
+                printHelp,
+                ignoreScheduledStartTimes,
+                shouldCreateResultsLog
+        );
+
+        // **************************************************
+        // create validation parameters file
+        // **************************************************
+        Client clientForValidationFileCreation = new Client(new LocalControlService(timeSource.nowAsMilli() + 1000, params), timeSource);
+        clientForValidationFileCreation.start();
+
+        // **************************************************
+        // check that validation file creation worked
+        // **************************************************
+        assertThat(validationParamsFile.length() > 0, is(true));
+        assertThat(clientForValidationFileCreation.workloadValidationResult(), is(nullValue()));
+        assertThat(clientForValidationFileCreation.workloadStatistics(), is(nullValue()));
+        assertThat(clientForValidationFileCreation.databaseValidationResult(), is(nullValue()));
+
+        // **************************************************
+        // configuration for using validation parameters file to validate the database
+        // **************************************************
+        validationParams = null;
+        dbValidationFilePath = validationParamsFile.getAbsolutePath();
+
+        params = new ConsoleAndFileDriverConfiguration(
+                workloadParams,
+                name,
+                dbClassName,
+                workloadClassName,
+                operationCount,
+                threadCount,
+                statusDisplayIntervalAsSeconds,
+                timeUnit,
+                resultDirPath,
+                timeCompressionRatio,
+                peerIds,
+                validationParams,
+                dbValidationFilePath,
+                validateWorkload,
+                calculateWorkloadStatistics,
+                spinnerSleepDurationAsMilli,
+                printHelp,
+                ignoreScheduledStartTimes,
+                shouldCreateResultsLog
+        );
+
+        // **************************************************
+        // validate the database
+        // **************************************************
+        Client clientForDatabaseValidation = new Client(new LocalControlService(timeSource.nowAsMilli() + 1000, params), timeSource);
+        clientForDatabaseValidation.start();
+
+        // **************************************************
+        // check that validation was successful
+        // **************************************************
+        assertThat(validationParamsFile.length() > 0, is(true));
+        assertThat(clientForDatabaseValidation.workloadValidationResult(), is(nullValue()));
+        assertThat(clientForDatabaseValidation.workloadStatistics(), is(nullValue()));
+        assertThat(clientForDatabaseValidation.databaseValidationResult(), is(notNullValue()));
+        assertThat(
+                String.format("Validation with following error\n%s", clientForDatabaseValidation.databaseValidationResult().resultMessage()),
+                clientForDatabaseValidation.databaseValidationResult().isSuccessful(),
+                is(true));
     }
 }

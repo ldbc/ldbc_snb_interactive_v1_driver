@@ -19,7 +19,6 @@ public class LdbcQuery6 extends Operation<List<LdbcQuery6Result>> {
     private final int limit;
 
     public LdbcQuery6(long personId, String tagName, int limit) {
-        super();
         this.personId = personId;
         this.tagName = tagName;
         this.limit = limit;

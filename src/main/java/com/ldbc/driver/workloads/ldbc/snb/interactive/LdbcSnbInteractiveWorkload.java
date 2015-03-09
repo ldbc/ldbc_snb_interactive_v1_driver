@@ -301,101 +301,112 @@ public class LdbcSnbInteractiveWorkload extends Workload {
          /*
          * Create person write operation streams
          */
-        for (File personUpdateOperationFile : personUpdateOperationFiles) {
-            Iterator<Operation<?>> personUpdateOperationsParser;
-            try {
-                Tuple.Tuple2<Iterator<Operation<?>>, Closeable> parserAndCloseable = fileToWriteStreamParser(personUpdateOperationFile, parser);
-                personUpdateOperationsParser = parserAndCloseable._1();
-                personUpdateOperationsFileReaders.add(parserAndCloseable._2());
-            } catch (IOException e) {
-                throw new WorkloadException("Unable to open person update stream: " + personUpdateOperationFile.getAbsolutePath(), e);
-            }
-            PeekingIterator<Operation<?>> unfilteredPersonUpdateOperations = Iterators.peekingIterator(personUpdateOperationsParser);
-
-            try {
-                if (unfilteredPersonUpdateOperations.peek().scheduledStartTimeAsMilli() < workloadStartTimeAsMilli) {
-                    workloadStartTimeAsMilli = unfilteredPersonUpdateOperations.peek().scheduledStartTimeAsMilli();
+        if (enabledWriteOperationTypes.contains(LdbcUpdate1AddPerson.class)) {
+            for (File personUpdateOperationFile : personUpdateOperationFiles) {
+                Iterator<Operation<?>> personUpdateOperationsParser;
+                try {
+                    Tuple.Tuple2<Iterator<Operation<?>>, Closeable> parserAndCloseable = fileToWriteStreamParser(personUpdateOperationFile, parser);
+                    personUpdateOperationsParser = parserAndCloseable._1();
+                    personUpdateOperationsFileReaders.add(parserAndCloseable._2());
+                } catch (IOException e) {
+                    throw new WorkloadException("Unable to open person update stream: " + personUpdateOperationFile.getAbsolutePath(), e);
                 }
-            } catch (NoSuchElementException e) {
-                // do nothing, exception just means that stream was empty
-            }
+                PeekingIterator<Operation<?>> unfilteredPersonUpdateOperations = Iterators.peekingIterator(personUpdateOperationsParser);
 
-            // Filter Write Operations
-            Predicate<Operation<?>> enabledWriteOperationsFilter = new Predicate<Operation<?>>() {
-                @Override
-                public boolean apply(Operation<?> operation) {
-                    return enabledWriteOperationTypes.contains(operation.getClass());
+                try {
+                    if (unfilteredPersonUpdateOperations.peek().scheduledStartTimeAsMilli() < workloadStartTimeAsMilli) {
+                        workloadStartTimeAsMilli = unfilteredPersonUpdateOperations.peek().scheduledStartTimeAsMilli();
+                    }
+                } catch (NoSuchElementException e) {
+                    // do nothing, exception just means that stream was empty
                 }
-            };
-            Iterator<Operation<?>> filteredPersonUpdateOperations = Iterators.filter(unfilteredPersonUpdateOperations, enabledWriteOperationsFilter);
 
-            Set<Class<? extends Operation<?>>> dependentPersonUpdateOperationTypes = Sets.newHashSet();
-            Set<Class<? extends Operation<?>>> dependencyPersonUpdateOperationTypes = Sets.<Class<? extends Operation<?>>>newHashSet(
-                    LdbcUpdate1AddPerson.class
-            );
+                // Filter Write Operations
+                Predicate<Operation<?>> enabledWriteOperationsFilter = new Predicate<Operation<?>>() {
+                    @Override
+                    public boolean apply(Operation<?> operation) {
+                        return enabledWriteOperationTypes.contains(operation.getClass());
+                    }
+                };
+                Iterator<Operation<?>> filteredPersonUpdateOperations = Iterators.filter(unfilteredPersonUpdateOperations, enabledWriteOperationsFilter);
 
-            ChildOperationGenerator personUpdateChildOperationGenerator = null;
+                Set<Class<? extends Operation<?>>> dependentPersonUpdateOperationTypes = Sets.newHashSet();
+                Set<Class<? extends Operation<?>>> dependencyPersonUpdateOperationTypes = Sets.<Class<? extends Operation<?>>>newHashSet(
+                        LdbcUpdate1AddPerson.class
+                );
 
-            ldbcSnbInteractiveWorkloadStreams.addBlockingStream(
-                    dependentPersonUpdateOperationTypes,
-                    dependencyPersonUpdateOperationTypes,
-                    filteredPersonUpdateOperations,
-                    Collections.<Operation<?>>emptyIterator(),
-                    personUpdateChildOperationGenerator
-            );
+                ChildOperationGenerator personUpdateChildOperationGenerator = null;
+
+                ldbcSnbInteractiveWorkloadStreams.addBlockingStream(
+                        dependentPersonUpdateOperationTypes,
+                        dependencyPersonUpdateOperationTypes,
+                        filteredPersonUpdateOperations,
+                        Collections.<Operation<?>>emptyIterator(),
+                        personUpdateChildOperationGenerator
+                );
+            }
         }
 
         /*
          * Create forum write operation streams
          */
-        for (File forumUpdateOperationFile : forumUpdateOperationFiles) {
-            Iterator<Operation<?>> forumUpdateOperationsParser;
-            try {
-                Tuple.Tuple2<Iterator<Operation<?>>, Closeable> parserAndCloseable = fileToWriteStreamParser(forumUpdateOperationFile, parser);
-                forumUpdateOperationsParser = parserAndCloseable._1();
-                forumUpdateOperationsFileReaders.add(parserAndCloseable._2());
-            } catch (IOException e) {
-                throw new WorkloadException("Unable to open forum update stream: " + forumUpdateOperationFile.getAbsolutePath(), e);
-            }
-            PeekingIterator<Operation<?>> unfilteredForumUpdateOperations = Iterators.peekingIterator(forumUpdateOperationsParser);
-
-            try {
-                if (unfilteredForumUpdateOperations.peek().scheduledStartTimeAsMilli() < workloadStartTimeAsMilli) {
-                    workloadStartTimeAsMilli = unfilteredForumUpdateOperations.peek().scheduledStartTimeAsMilli();
+        if (enabledWriteOperationTypes.contains(LdbcUpdate2AddPostLike.class) ||
+                enabledWriteOperationTypes.contains(LdbcUpdate3AddCommentLike.class) ||
+                enabledWriteOperationTypes.contains(LdbcUpdate4AddForum.class) ||
+                enabledWriteOperationTypes.contains(LdbcUpdate5AddForumMembership.class) ||
+                enabledWriteOperationTypes.contains(LdbcUpdate6AddPost.class) ||
+                enabledWriteOperationTypes.contains(LdbcUpdate7AddComment.class) ||
+                enabledWriteOperationTypes.contains(LdbcUpdate8AddFriendship.class)
+                ) {
+            for (File forumUpdateOperationFile : forumUpdateOperationFiles) {
+                Iterator<Operation<?>> forumUpdateOperationsParser;
+                try {
+                    Tuple.Tuple2<Iterator<Operation<?>>, Closeable> parserAndCloseable = fileToWriteStreamParser(forumUpdateOperationFile, parser);
+                    forumUpdateOperationsParser = parserAndCloseable._1();
+                    forumUpdateOperationsFileReaders.add(parserAndCloseable._2());
+                } catch (IOException e) {
+                    throw new WorkloadException("Unable to open forum update stream: " + forumUpdateOperationFile.getAbsolutePath(), e);
                 }
-            } catch (NoSuchElementException e) {
-                // do nothing, exception just means that stream was empty
-            }
+                PeekingIterator<Operation<?>> unfilteredForumUpdateOperations = Iterators.peekingIterator(forumUpdateOperationsParser);
 
-            // Filter Write Operations
-            Predicate<Operation<?>> enabledWriteOperationsFilter = new Predicate<Operation<?>>() {
-                @Override
-                public boolean apply(Operation<?> operation) {
-                    return enabledWriteOperationTypes.contains(operation.getClass());
+                try {
+                    if (unfilteredForumUpdateOperations.peek().scheduledStartTimeAsMilli() < workloadStartTimeAsMilli) {
+                        workloadStartTimeAsMilli = unfilteredForumUpdateOperations.peek().scheduledStartTimeAsMilli();
+                    }
+                } catch (NoSuchElementException e) {
+                    // do nothing, exception just means that stream was empty
                 }
-            };
-            Iterator<Operation<?>> filteredForumUpdateOperations = Iterators.filter(unfilteredForumUpdateOperations, enabledWriteOperationsFilter);
 
-            Set<Class<? extends Operation<?>>> dependentForumUpdateOperationTypes = Sets.<Class<? extends Operation<?>>>newHashSet(
-                    LdbcUpdate2AddPostLike.class,
-                    LdbcUpdate3AddCommentLike.class,
-                    LdbcUpdate4AddForum.class,
-                    LdbcUpdate5AddForumMembership.class,
-                    LdbcUpdate6AddPost.class,
-                    LdbcUpdate7AddComment.class,
-                    LdbcUpdate8AddFriendship.class
-            );
-            Set<Class<? extends Operation<?>>> dependencyForumUpdateOperationTypes = Sets.newHashSet();
+                // Filter Write Operations
+                Predicate<Operation<?>> enabledWriteOperationsFilter = new Predicate<Operation<?>>() {
+                    @Override
+                    public boolean apply(Operation<?> operation) {
+                        return enabledWriteOperationTypes.contains(operation.getClass());
+                    }
+                };
+                Iterator<Operation<?>> filteredForumUpdateOperations = Iterators.filter(unfilteredForumUpdateOperations, enabledWriteOperationsFilter);
 
-            ChildOperationGenerator forumUpdateChildOperationGenerator = null;
+                Set<Class<? extends Operation<?>>> dependentForumUpdateOperationTypes = Sets.<Class<? extends Operation<?>>>newHashSet(
+                        LdbcUpdate2AddPostLike.class,
+                        LdbcUpdate3AddCommentLike.class,
+                        LdbcUpdate4AddForum.class,
+                        LdbcUpdate5AddForumMembership.class,
+                        LdbcUpdate6AddPost.class,
+                        LdbcUpdate7AddComment.class,
+                        LdbcUpdate8AddFriendship.class
+                );
+                Set<Class<? extends Operation<?>>> dependencyForumUpdateOperationTypes = Sets.newHashSet();
 
-            ldbcSnbInteractiveWorkloadStreams.addBlockingStream(
-                    dependentForumUpdateOperationTypes,
-                    dependencyForumUpdateOperationTypes,
-                    Collections.<Operation<?>>emptyIterator(),
-                    filteredForumUpdateOperations,
-                    forumUpdateChildOperationGenerator
-            );
+                ChildOperationGenerator forumUpdateChildOperationGenerator = null;
+
+                ldbcSnbInteractiveWorkloadStreams.addBlockingStream(
+                        dependentForumUpdateOperationTypes,
+                        dependencyForumUpdateOperationTypes,
+                        Collections.<Operation<?>>emptyIterator(),
+                        filteredForumUpdateOperations,
+                        forumUpdateChildOperationGenerator
+                );
+            }
         }
 
         if (Long.MAX_VALUE == workloadStartTimeAsMilli) workloadStartTimeAsMilli = 0;

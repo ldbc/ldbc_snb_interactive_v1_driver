@@ -5,7 +5,6 @@ public class LdbcQuery5Result {
     private final int postCount;
 
     public LdbcQuery5Result(String forumTitle, int postCount) {
-        super();
         this.forumTitle = forumTitle;
         this.postCount = postCount;
     }
