@@ -1860,5 +1860,4 @@ public class LdbcSnbInteractiveWorkload extends Workload {
                         operationTypeName,
                         serializedOperation));
     }
-
 }
