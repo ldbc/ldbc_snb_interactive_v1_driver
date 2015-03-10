@@ -8,8 +8,8 @@ import com.ldbc.driver.generator.GeneratorFactory;
 import com.ldbc.driver.generator.RandomDataGeneratorFactory;
 import com.ldbc.driver.runtime.coordination.CompletionTimeException;
 import com.ldbc.driver.runtime.coordination.CompletionTimeServiceAssistant;
-import com.ldbc.driver.runtime.coordination.ConcurrentCompletionTimeService;
-import com.ldbc.driver.runtime.metrics.ConcurrentMetricsService;
+import com.ldbc.driver.runtime.coordination.CompletionTimeService;
+import com.ldbc.driver.runtime.metrics.MetricsService;
 import com.ldbc.driver.runtime.metrics.MetricsCollectionException;
 import com.ldbc.driver.runtime.metrics.ThreadedQueuedMetricsService;
 import com.ldbc.driver.runtime.scheduling.Spinner;
@@ -72,7 +72,7 @@ public class WorkloadRunnerComplexScenarioTests {
         operationTypeToClassMapping.put(TimedNamedOperation1.TYPE, TimedNamedOperation1.class);
         operationTypeToClassMapping.put(TimedNamedOperation2.TYPE, TimedNamedOperation2.class);
         operationTypeToClassMapping.put(TimedNamedOperation3.TYPE, TimedNamedOperation3.class);
-        ConcurrentMetricsService metricsService = ThreadedQueuedMetricsService.newInstanceUsingBlockingBoundedQueue(
+        MetricsService metricsService = ThreadedQueuedMetricsService.newInstanceUsingBlockingBoundedQueue(
                 timeSource,
                 errorReporter,
                 TimeUnit.MILLISECONDS,
@@ -82,7 +82,7 @@ public class WorkloadRunnerComplexScenarioTests {
 
         Set<String> peerIds = new HashSet<>();
         // TODO test also with threaded completion time service implementation
-        ConcurrentCompletionTimeService completionTimeService =
+        CompletionTimeService completionTimeService =
                 completionTimeServiceAssistant.newSynchronizedConcurrentCompletionTimeServiceFromPeerIds(peerIds);
 
         WorkloadStreams workloadStreams = new WorkloadStreams();
@@ -147,7 +147,7 @@ public class WorkloadRunnerComplexScenarioTests {
                     db
             );
 
-            ConcurrentMetricsService.ConcurrentMetricsServiceWriter concurrentMetricsServiceWriter = metricsService.getWriter();
+            MetricsService.ConcurrentMetricsServiceWriter concurrentMetricsServiceWriter = metricsService.getWriter();
 
             // initialize GCT
             completionTimeServiceAssistant.writeInitiatedAndCompletedTimesToAllWriters(completionTimeService, 0);
@@ -284,7 +284,7 @@ public class WorkloadRunnerComplexScenarioTests {
         operationTypeToClassMapping.put(TimedNamedOperation1.TYPE, TimedNamedOperation1.class);
         operationTypeToClassMapping.put(TimedNamedOperation2.TYPE, TimedNamedOperation2.class);
         operationTypeToClassMapping.put(TimedNamedOperation3.TYPE, TimedNamedOperation3.class);
-        ConcurrentMetricsService metricsService = ThreadedQueuedMetricsService.newInstanceUsingBlockingBoundedQueue(
+        MetricsService metricsService = ThreadedQueuedMetricsService.newInstanceUsingBlockingBoundedQueue(
                 timeSource,
                 errorReporter,
                 TimeUnit.MILLISECONDS,
@@ -294,7 +294,7 @@ public class WorkloadRunnerComplexScenarioTests {
 
         Set<String> peerIds = new HashSet<>();
         // TODO test also with threaded completion time service implementation
-        ConcurrentCompletionTimeService completionTimeService =
+        CompletionTimeService completionTimeService =
                 completionTimeServiceAssistant.newSynchronizedConcurrentCompletionTimeServiceFromPeerIds(peerIds);
 
         WorkloadStreams workloadStreams = new WorkloadStreams();
@@ -363,7 +363,7 @@ public class WorkloadRunnerComplexScenarioTests {
                     db
             );
 
-            ConcurrentMetricsService.ConcurrentMetricsServiceWriter concurrentMetricsServiceWriter = metricsService.getWriter();
+            MetricsService.ConcurrentMetricsServiceWriter concurrentMetricsServiceWriter = metricsService.getWriter();
 
             // initialize GCT
             completionTimeServiceAssistant.writeInitiatedAndCompletedTimesToAllWriters(completionTimeService, 0);
@@ -472,7 +472,7 @@ public class WorkloadRunnerComplexScenarioTests {
         operationTypeToClassMapping.put(TimedNamedOperation1.TYPE, TimedNamedOperation1.class);
         operationTypeToClassMapping.put(TimedNamedOperation2.TYPE, TimedNamedOperation2.class);
         operationTypeToClassMapping.put(TimedNamedOperation3.TYPE, TimedNamedOperation3.class);
-        ConcurrentMetricsService metricsService = ThreadedQueuedMetricsService.newInstanceUsingBlockingBoundedQueue(
+        MetricsService metricsService = ThreadedQueuedMetricsService.newInstanceUsingBlockingBoundedQueue(
                 timeSource,
                 errorReporter,
                 TimeUnit.MILLISECONDS,
@@ -482,7 +482,7 @@ public class WorkloadRunnerComplexScenarioTests {
 
         Set<String> peerIds = new HashSet<>();
         // TODO test also with threaded completion time service implementation
-        ConcurrentCompletionTimeService completionTimeService =
+        CompletionTimeService completionTimeService =
                 completionTimeServiceAssistant.newSynchronizedConcurrentCompletionTimeServiceFromPeerIds(peerIds);
 
         WorkloadStreams workloadStreams = new WorkloadStreams();
@@ -547,7 +547,7 @@ public class WorkloadRunnerComplexScenarioTests {
                     db
             );
 
-            ConcurrentMetricsService.ConcurrentMetricsServiceWriter concurrentMetricsServiceWriter = metricsService.getWriter();
+            MetricsService.ConcurrentMetricsServiceWriter concurrentMetricsServiceWriter = metricsService.getWriter();
 
             // initialize GCT
             completionTimeServiceAssistant.writeInitiatedAndCompletedTimesToAllWriters(completionTimeService, 0);
@@ -735,7 +735,7 @@ public class WorkloadRunnerComplexScenarioTests {
         operationTypeToClassMapping.put(TimedNamedOperation1.TYPE, TimedNamedOperation1.class);
         operationTypeToClassMapping.put(TimedNamedOperation2.TYPE, TimedNamedOperation2.class);
         operationTypeToClassMapping.put(TimedNamedOperation3.TYPE, TimedNamedOperation3.class);
-        ConcurrentMetricsService metricsService = ThreadedQueuedMetricsService.newInstanceUsingBlockingBoundedQueue(
+        MetricsService metricsService = ThreadedQueuedMetricsService.newInstanceUsingBlockingBoundedQueue(
                 timeSource,
                 errorReporter,
                 TimeUnit.MILLISECONDS,
@@ -745,7 +745,7 @@ public class WorkloadRunnerComplexScenarioTests {
 
         Set<String> peerIds = new HashSet<>();
         // TODO test also with threaded completion time service implementation
-        ConcurrentCompletionTimeService completionTimeService =
+        CompletionTimeService completionTimeService =
                 completionTimeServiceAssistant.newSynchronizedConcurrentCompletionTimeServiceFromPeerIds(peerIds);
 
         WorkloadStreams workloadStreams = new WorkloadStreams();
@@ -808,7 +808,7 @@ public class WorkloadRunnerComplexScenarioTests {
                     db
             );
 
-            ConcurrentMetricsService.ConcurrentMetricsServiceWriter concurrentMetricsServiceWriter = metricsService.getWriter();
+            MetricsService.ConcurrentMetricsServiceWriter concurrentMetricsServiceWriter = metricsService.getWriter();
 
             // initialize GCT
             completionTimeServiceAssistant.writeInitiatedAndCompletedTimesToAllWriters(completionTimeService, 0);
@@ -1018,7 +1018,7 @@ public class WorkloadRunnerComplexScenarioTests {
         operationTypeToClassMapping.put(TimedNamedOperation1.TYPE, TimedNamedOperation1.class);
         operationTypeToClassMapping.put(TimedNamedOperation2.TYPE, TimedNamedOperation2.class);
         operationTypeToClassMapping.put(TimedNamedOperation3.TYPE, TimedNamedOperation3.class);
-        ConcurrentMetricsService metricsService = ThreadedQueuedMetricsService.newInstanceUsingBlockingBoundedQueue(
+        MetricsService metricsService = ThreadedQueuedMetricsService.newInstanceUsingBlockingBoundedQueue(
                 timeSource,
                 errorReporter,
                 TimeUnit.MILLISECONDS,
@@ -1028,7 +1028,7 @@ public class WorkloadRunnerComplexScenarioTests {
 
         Set<String> peerIds = new HashSet<>();
         // TODO test also with threaded completion time service implementation
-        ConcurrentCompletionTimeService completionTimeService =
+        CompletionTimeService completionTimeService =
                 completionTimeServiceAssistant.newSynchronizedConcurrentCompletionTimeServiceFromPeerIds(peerIds);
 
         WorkloadStreams workloadStreams = new WorkloadStreams();
@@ -1091,7 +1091,7 @@ public class WorkloadRunnerComplexScenarioTests {
                     db
             );
 
-            ConcurrentMetricsService.ConcurrentMetricsServiceWriter concurrentMetricsServiceWriter = metricsService.getWriter();
+            MetricsService.ConcurrentMetricsServiceWriter concurrentMetricsServiceWriter = metricsService.getWriter();
 
             // initialize GCT
             completionTimeServiceAssistant.writeInitiatedAndCompletedTimesToAllWriters(completionTimeService, 0);
@@ -1279,7 +1279,7 @@ public class WorkloadRunnerComplexScenarioTests {
         operationTypeToClassMapping.put(TimedNamedOperation1.TYPE, TimedNamedOperation1.class);
         operationTypeToClassMapping.put(TimedNamedOperation2.TYPE, TimedNamedOperation2.class);
         operationTypeToClassMapping.put(TimedNamedOperation3.TYPE, TimedNamedOperation3.class);
-        ConcurrentMetricsService metricsService = ThreadedQueuedMetricsService.newInstanceUsingBlockingBoundedQueue(
+        MetricsService metricsService = ThreadedQueuedMetricsService.newInstanceUsingBlockingBoundedQueue(
                 timeSource,
                 errorReporter,
                 TimeUnit.MILLISECONDS,
@@ -1289,7 +1289,7 @@ public class WorkloadRunnerComplexScenarioTests {
 
         Set<String> peerIds = new HashSet<>();
         // TODO test also with threaded completion time service implementation
-        ConcurrentCompletionTimeService completionTimeService =
+        CompletionTimeService completionTimeService =
                 completionTimeServiceAssistant.newSynchronizedConcurrentCompletionTimeServiceFromPeerIds(peerIds);
 
         WorkloadStreams workloadStreams = new WorkloadStreams();
@@ -1354,7 +1354,7 @@ public class WorkloadRunnerComplexScenarioTests {
                     db
             );
 
-            ConcurrentMetricsService.ConcurrentMetricsServiceWriter concurrentMetricsServiceWriter = metricsService.getWriter();
+            MetricsService.ConcurrentMetricsServiceWriter concurrentMetricsServiceWriter = metricsService.getWriter();
 
             // initialize GCT
             completionTimeServiceAssistant.writeInitiatedAndCompletedTimesToAllWriters(completionTimeService, 0);
@@ -1530,8 +1530,8 @@ public class WorkloadRunnerComplexScenarioTests {
                                                       WorkloadStreams workloadStreams,
                                                       int threadCount,
                                                       ConcurrentErrorReporter errorReporter,
-                                                      ConcurrentMetricsService metricsService,
-                                                      ConcurrentCompletionTimeService concurrentCompletionTimeService,
+                                                      MetricsService metricsService,
+                                                      CompletionTimeService completionTimeService,
                                                       Db db)
             throws WorkloadException, CompletionTimeException, DbException, MetricsCollectionException {
         boolean ignoreScheduledStartTime = false;
@@ -1544,7 +1544,7 @@ public class WorkloadRunnerComplexScenarioTests {
                 workloadStreams,
                 metricsService,
                 errorReporter,
-                concurrentCompletionTimeService,
+                completionTimeService,
                 threadCount,
                 statusDisplayIntervalAsMilli,
                 spinnerSleepDurationAsMilli,

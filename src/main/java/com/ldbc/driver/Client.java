@@ -9,7 +9,7 @@ import com.ldbc.driver.runtime.DefaultQueues;
 import com.ldbc.driver.runtime.WorkloadRunner;
 import com.ldbc.driver.runtime.coordination.CompletionTimeException;
 import com.ldbc.driver.runtime.coordination.CompletionTimeServiceAssistant;
-import com.ldbc.driver.runtime.coordination.ConcurrentCompletionTimeService;
+import com.ldbc.driver.runtime.coordination.CompletionTimeService;
 import com.ldbc.driver.runtime.coordination.LocalCompletionTimeWriter;
 import com.ldbc.driver.runtime.metrics.*;
 import com.ldbc.driver.temporal.SystemTimeSource;
@@ -165,8 +165,8 @@ public class Client {
 
         private Workload workload = null;
         private Db database = null;
-        private ConcurrentMetricsService metricsService = null;
-        private ConcurrentCompletionTimeService completionTimeService = null;
+        private MetricsService metricsService = null;
+        private CompletionTimeService completionTimeService = null;
         private WorkloadRunner workloadRunner = null;
 
         SimpleCsvFileWriter csvResultsLogFileWriter = null;
@@ -246,11 +246,11 @@ public class Client {
             logger.info(String.format("Loaded workload: %s", workload.getClass().getName()));
 
             try {
-//                metricsService = ThreadedQueuedConcurrentMetricsService.newInstanceUsingBlockingBoundedQueue(
+//                metricsService = ThreadedQueuedMetricsService.newInstanceUsingBlockingBoundedQueue(
 //                        timeSource,
 //                        errorReporter,
 //                        controlService.configuration().timeUnit(),
-//                        ThreadedQueuedConcurrentMetricsService.DEFAULT_HIGHEST_EXPECTED_RUNTIME_DURATION_AS_NANO,
+//                        ThreadedQueuedMetricsService.DEFAULT_HIGHEST_EXPECTED_RUNTIME_DURATION_AS_NANO,
 //                        csvResultsLogFileWriter,
 //                        workload.operationTypeToClassMapping(controlService.configuration().asMap()));
 //                metricsService = new DisruptorJavolutionMetricsService(
@@ -390,7 +390,6 @@ public class Client {
                     File resultDir = new File(controlService.configuration().resultDirPath());
                     File resultFile = new File(resultDir, controlService.configuration().name() + ThreadedQueuedMetricsService.RESULTS_METRICS_FILENAME_SUFFIX);
                     MetricsManager.export(workloadResults, new JsonWorkloadMetricsFormatter(), new FileOutputStream(resultFile), Charsets.UTF_8);
-
                     File configurationFile = new File(resultDir, controlService.configuration().name() + ThreadedQueuedMetricsService.RESULTS_CONFIGURATION_FILENAME_SUFFIX);
                     try (PrintStream out = new PrintStream(new FileOutputStream(configurationFile))) {
                         out.print(controlService.configuration().toPropertiesString());

@@ -18,7 +18,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 
-public class ThreadedQueuedConcurrentCompletionTimeService implements ConcurrentCompletionTimeService {
+public class ThreadedQueuedCompletionTimeService implements CompletionTimeService {
     private static final long SHUTDOWN_WAIT_TIMEOUT_AS_MILLI = TimeUnit.SECONDS.toMillis(10);
 
     private final TimeSource timeSource;
@@ -30,9 +30,9 @@ public class ThreadedQueuedConcurrentCompletionTimeService implements Concurrent
     private final ConcurrentErrorReporter errorReporter;
     private final List<LocalCompletionTimeWriter> writers = new ArrayList<>();
 
-    ThreadedQueuedConcurrentCompletionTimeService(TimeSource timeSource,
-                                                  Set<String> peerIds,
-                                                  ConcurrentErrorReporter errorReporter) throws CompletionTimeException {
+    ThreadedQueuedCompletionTimeService(TimeSource timeSource,
+                                        Set<String> peerIds,
+                                        ConcurrentErrorReporter errorReporter) throws CompletionTimeException {
         this.timeSource = timeSource;
         this.errorReporter = errorReporter;
         Queue<CompletionTimeEvent> completionTimeEventQueue = DefaultQueues.newBlockingBounded(10000);

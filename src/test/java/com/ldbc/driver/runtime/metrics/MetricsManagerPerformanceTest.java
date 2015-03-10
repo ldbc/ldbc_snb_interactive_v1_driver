@@ -501,7 +501,7 @@ public class MetricsManagerPerformanceTest {
     @Test
     public void maximumThroughputThreadedQueuedMetricsServiceNonBlockingBounded() throws MetricsCollectionException {
         final ConcurrentErrorReporter errorReporter = new ConcurrentErrorReporter();
-        ConcurrentMetricsService metricsService = ThreadedQueuedMetricsService.newInstanceUsingNonBlockingBoundedQueue(
+        MetricsService metricsService = ThreadedQueuedMetricsService.newInstanceUsingNonBlockingBoundedQueue(
                 timeSource,
                 errorReporter,
                 timeUnit,
@@ -509,7 +509,7 @@ public class MetricsManagerPerformanceTest {
                 null,
                 LdbcSnbInteractiveConfiguration.operationTypeToClassMapping()
         );
-        ConcurrentMetricsService.ConcurrentMetricsServiceWriter metricsServiceWriter = metricsService.getWriter();
+        MetricsService.ConcurrentMetricsServiceWriter metricsServiceWriter = metricsService.getWriter();
         final long benchmarkStartTime = System.currentTimeMillis();
         for (int startTime = 0; startTime < benchmarkOperationCount; startTime++) {
             int operationTypeIndex = startTime % operationTypeCount;
@@ -543,7 +543,7 @@ public class MetricsManagerPerformanceTest {
     @Test
     public void maximumThroughputJavolutionDisruptorMetricsService() throws MetricsCollectionException {
         final ConcurrentErrorReporter errorReporter = new ConcurrentErrorReporter();
-        ConcurrentMetricsService metricsService = new DisruptorJavolutionMetricsService(
+        MetricsService metricsService = new DisruptorJavolutionMetricsService(
                 timeSource,
                 errorReporter,
                 timeUnit,
@@ -551,7 +551,7 @@ public class MetricsManagerPerformanceTest {
                 null,
                 LdbcSnbInteractiveConfiguration.operationTypeToClassMapping()
         );
-        ConcurrentMetricsService.ConcurrentMetricsServiceWriter metricsServiceWriter = metricsService.getWriter();
+        MetricsService.ConcurrentMetricsServiceWriter metricsServiceWriter = metricsService.getWriter();
         final long benchmarkStartTime = System.currentTimeMillis();
         for (int startTime = 0; startTime < benchmarkOperationCount; startTime++) {
             int operationTypeIndex = startTime % operationTypeCount;
@@ -585,7 +585,7 @@ public class MetricsManagerPerformanceTest {
     @Test
     public void maximumThroughputSbeDisruptorMetricsService() throws MetricsCollectionException {
         final ConcurrentErrorReporter errorReporter = new ConcurrentErrorReporter();
-        ConcurrentMetricsService metricsService = new DisruptorSbeMetricsService(
+        MetricsService metricsService = new DisruptorSbeMetricsService(
                 timeSource,
                 errorReporter,
                 timeUnit,
@@ -593,7 +593,7 @@ public class MetricsManagerPerformanceTest {
                 null,
                 LdbcSnbInteractiveConfiguration.operationTypeToClassMapping()
         );
-        ConcurrentMetricsService.ConcurrentMetricsServiceWriter metricsServiceWriter = metricsService.getWriter();
+        MetricsService.ConcurrentMetricsServiceWriter metricsServiceWriter = metricsService.getWriter();
         final long benchmarkStartTime = System.currentTimeMillis();
         for (int startTime = 0; startTime < benchmarkOperationCount; startTime++) {
             int operationTypeIndex = startTime % operationTypeCount;
@@ -683,7 +683,7 @@ public class MetricsManagerPerformanceTest {
 //                LdbcSnbInteractiveConfiguration.operationTypeToClassMapping()
 //        );
 
-        ConcurrentMetricsService metricsService = new DisruptorSbeMetricsService(
+        MetricsService metricsService = new DisruptorSbeMetricsService(
                 timeSource,
                 errorReporter,
                 timeUnit,
@@ -742,14 +742,14 @@ public class MetricsManagerPerformanceTest {
     }
 
     public class MetricsServiceWriterThread extends Thread {
-        private final ConcurrentMetricsService.ConcurrentMetricsServiceWriter metricsServiceWriter;
+        private final MetricsService.ConcurrentMetricsServiceWriter metricsServiceWriter;
         private final int operationCount;
         private final CountDownLatch readyLatch;
         private final CountDownLatch startLatch;
         private final CountDownLatch stopLatch;
         private final AtomicLong processedOperationCount;
 
-        public MetricsServiceWriterThread(ConcurrentMetricsService.ConcurrentMetricsServiceWriter metricsServiceWriter,
+        public MetricsServiceWriterThread(MetricsService.ConcurrentMetricsServiceWriter metricsServiceWriter,
                                           int operationCount,
                                           CountDownLatch readyLatch,
                                           CountDownLatch startLatch,

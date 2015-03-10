@@ -5,7 +5,7 @@ import com.ldbc.driver.runtime.ConcurrentErrorReporter;
 import com.ldbc.driver.runtime.DefaultQueues;
 import com.ldbc.driver.runtime.coordination.GlobalCompletionTimeReader;
 import com.ldbc.driver.runtime.coordination.LocalCompletionTimeWriter;
-import com.ldbc.driver.runtime.metrics.ConcurrentMetricsService;
+import com.ldbc.driver.runtime.metrics.MetricsService;
 import com.ldbc.driver.runtime.scheduling.Spinner;
 import com.ldbc.driver.temporal.TimeSource;
 
@@ -29,7 +29,7 @@ public class ThreadPoolOperationExecutor implements OperationExecutor {
                                        Spinner spinner,
                                        TimeSource timeSource,
                                        ConcurrentErrorReporter errorReporter,
-                                       ConcurrentMetricsService metricsService,
+                                       MetricsService metricsService,
                                        ChildOperationGenerator childOperationGenerator) {
         this.operationHandlerRunnableContextRetriever = new OperationHandlerRunnableContextRetriever(
                 streamDefinition,

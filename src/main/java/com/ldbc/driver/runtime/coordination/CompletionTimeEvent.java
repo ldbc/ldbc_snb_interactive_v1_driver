@@ -35,11 +35,11 @@ abstract class CompletionTimeEvent {
         return new TerminationServiceEvent(expectedEventCount);
     }
 
-    public static GlobalCompletionTimeFutureEvent globalCompletionTimeFuture(ThreadedQueuedConcurrentCompletionTimeService.GlobalCompletionTimeFuture future) {
+    public static GlobalCompletionTimeFutureEvent globalCompletionTimeFuture(ThreadedQueuedCompletionTimeService.GlobalCompletionTimeFuture future) {
         return new GlobalCompletionTimeFutureEvent(future);
     }
 
-    public static NewLocalCompletionTimeWriterEvent newLocalCompletionTimeWriter(ThreadedQueuedConcurrentCompletionTimeService.LocalCompletionTimeWriterFuture future) {
+    public static NewLocalCompletionTimeWriterEvent newLocalCompletionTimeWriter(ThreadedQueuedCompletionTimeService.LocalCompletionTimeWriterFuture future) {
         return new NewLocalCompletionTimeWriterEvent(future);
     }
 
@@ -169,9 +169,9 @@ abstract class CompletionTimeEvent {
     }
 
     static class GlobalCompletionTimeFutureEvent extends CompletionTimeEvent {
-        private final ThreadedQueuedConcurrentCompletionTimeService.GlobalCompletionTimeFuture future;
+        private final ThreadedQueuedCompletionTimeService.GlobalCompletionTimeFuture future;
 
-        private GlobalCompletionTimeFutureEvent(ThreadedQueuedConcurrentCompletionTimeService.GlobalCompletionTimeFuture future) {
+        private GlobalCompletionTimeFutureEvent(ThreadedQueuedCompletionTimeService.GlobalCompletionTimeFuture future) {
             this.future = future;
         }
 
@@ -180,7 +180,7 @@ abstract class CompletionTimeEvent {
             return CompletionTimeEventType.READ_GCT_FUTURE;
         }
 
-        ThreadedQueuedConcurrentCompletionTimeService.GlobalCompletionTimeFuture future() {
+        ThreadedQueuedCompletionTimeService.GlobalCompletionTimeFuture future() {
             return future;
         }
 
@@ -193,9 +193,9 @@ abstract class CompletionTimeEvent {
     }
 
     static class NewLocalCompletionTimeWriterEvent extends CompletionTimeEvent {
-        private final ThreadedQueuedConcurrentCompletionTimeService.LocalCompletionTimeWriterFuture future;
+        private final ThreadedQueuedCompletionTimeService.LocalCompletionTimeWriterFuture future;
 
-        private NewLocalCompletionTimeWriterEvent(ThreadedQueuedConcurrentCompletionTimeService.LocalCompletionTimeWriterFuture future) {
+        private NewLocalCompletionTimeWriterEvent(ThreadedQueuedCompletionTimeService.LocalCompletionTimeWriterFuture future) {
             this.future = future;
         }
 
@@ -204,7 +204,7 @@ abstract class CompletionTimeEvent {
             return CompletionTimeEventType.NEW_LOCAL_COMPLETION_TIME_WRITER;
         }
 
-        ThreadedQueuedConcurrentCompletionTimeService.LocalCompletionTimeWriterFuture future() {
+        ThreadedQueuedCompletionTimeService.LocalCompletionTimeWriterFuture future() {
             return future;
         }
 

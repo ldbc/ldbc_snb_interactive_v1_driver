@@ -1,6 +1,6 @@
 package com.ldbc.driver.runtime.metrics;
 
-public interface ConcurrentMetricsService {
+public interface MetricsService {
     void shutdown() throws MetricsCollectionException;
 
     ConcurrentMetricsServiceWriter getWriter() throws MetricsCollectionException;

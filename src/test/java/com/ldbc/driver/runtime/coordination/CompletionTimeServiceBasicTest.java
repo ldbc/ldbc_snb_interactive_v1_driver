@@ -15,13 +15,13 @@ import java.util.concurrent.TimeoutException;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
 
-public class ConcurrentCompletionTimeServiceBasicTest {
+public class CompletionTimeServiceBasicTest {
     @Test
     public void shouldBehavePredictablyAfterInstantiationWithSynchronizedImplementation() throws CompletionTimeException, InterruptedException, ExecutionException, TimeoutException {
         // Given
         CompletionTimeServiceAssistant assistant = new CompletionTimeServiceAssistant();
         Set<String> peerIds = new HashSet<>();
-        ConcurrentCompletionTimeService completionTimeService =
+        CompletionTimeService completionTimeService =
                 assistant.newSynchronizedConcurrentCompletionTimeServiceFromPeerIds(peerIds);
 
         // Then
@@ -39,7 +39,7 @@ public class ConcurrentCompletionTimeServiceBasicTest {
         ConcurrentErrorReporter errorReporter = new ConcurrentErrorReporter();
         CompletionTimeServiceAssistant assistant = new CompletionTimeServiceAssistant();
         Set<String> peerIds = new HashSet<>();
-        ConcurrentCompletionTimeService completionTimeService =
+        CompletionTimeService completionTimeService =
                 assistant.newThreadedQueuedConcurrentCompletionTimeServiceFromPeerIds(timeSource, peerIds, errorReporter);
 
         // Then
@@ -50,7 +50,7 @@ public class ConcurrentCompletionTimeServiceBasicTest {
         }
     }
 
-    public void shouldBehavePredictablyAfterInstantiation(ConcurrentCompletionTimeService completionTimeService) throws CompletionTimeException, InterruptedException, ExecutionException, TimeoutException {
+    public void shouldBehavePredictablyAfterInstantiation(CompletionTimeService completionTimeService) throws CompletionTimeException, InterruptedException, ExecutionException, TimeoutException {
         // Given
         // instantiated completion time service
 
@@ -67,7 +67,7 @@ public class ConcurrentCompletionTimeServiceBasicTest {
         // Given
         CompletionTimeServiceAssistant assistant = new CompletionTimeServiceAssistant();
         Set<String> peerIds = new HashSet<>();
-        ConcurrentCompletionTimeService completionTimeService =
+        CompletionTimeService completionTimeService =
                 assistant.newSynchronizedConcurrentCompletionTimeServiceFromPeerIds(peerIds);
 
         // Then
@@ -85,7 +85,7 @@ public class ConcurrentCompletionTimeServiceBasicTest {
         ConcurrentErrorReporter errorReporter = new ConcurrentErrorReporter();
         CompletionTimeServiceAssistant assistant = new CompletionTimeServiceAssistant();
         Set<String> peerIds = new HashSet<>();
-        ConcurrentCompletionTimeService completionTimeService =
+        CompletionTimeService completionTimeService =
                 assistant.newThreadedQueuedConcurrentCompletionTimeServiceFromPeerIds(timeSource, peerIds, errorReporter);
 
         // Then
@@ -96,7 +96,7 @@ public class ConcurrentCompletionTimeServiceBasicTest {
         }
     }
 
-    public void shouldAdvanceGctWhenWriterSubmitInitiatedAndCompletedTimes(ConcurrentCompletionTimeService completionTimeService) throws CompletionTimeException, InterruptedException, ExecutionException, TimeoutException {
+    public void shouldAdvanceGctWhenWriterSubmitInitiatedAndCompletedTimes(CompletionTimeService completionTimeService) throws CompletionTimeException, InterruptedException, ExecutionException, TimeoutException {
         // Given
         LocalCompletionTimeWriter writer1 = completionTimeService.newLocalCompletionTimeWriter();
         LocalCompletionTimeWriter writer2 = completionTimeService.newLocalCompletionTimeWriter();
@@ -120,7 +120,7 @@ public class ConcurrentCompletionTimeServiceBasicTest {
         // Given
         CompletionTimeServiceAssistant assistant = new CompletionTimeServiceAssistant();
         Set<String> peerIds = new HashSet<>();
-        ConcurrentCompletionTimeService completionTimeService =
+        CompletionTimeService completionTimeService =
                 assistant.newSynchronizedConcurrentCompletionTimeServiceFromPeerIds(peerIds);
 
 
@@ -139,7 +139,7 @@ public class ConcurrentCompletionTimeServiceBasicTest {
         ConcurrentErrorReporter errorReporter = new ConcurrentErrorReporter();
         CompletionTimeServiceAssistant assistant = new CompletionTimeServiceAssistant();
         Set<String> peerIds = new HashSet<>();
-        ConcurrentCompletionTimeService completionTimeService =
+        CompletionTimeService completionTimeService =
                 assistant.newThreadedQueuedConcurrentCompletionTimeServiceFromPeerIds(timeSource, peerIds, errorReporter);
 
 
@@ -151,7 +151,7 @@ public class ConcurrentCompletionTimeServiceBasicTest {
         }
     }
 
-    public void shouldReturnAllWriters(ConcurrentCompletionTimeService completionTimeService) throws CompletionTimeException {
+    public void shouldReturnAllWriters(CompletionTimeService completionTimeService) throws CompletionTimeException {
         // Given
         // instantiated completion time service
 
@@ -177,7 +177,7 @@ public class ConcurrentCompletionTimeServiceBasicTest {
         // Given
         CompletionTimeServiceAssistant assistant = new CompletionTimeServiceAssistant();
         Set<String> peerIds = new HashSet<>();
-        ConcurrentCompletionTimeService completionTimeService =
+        CompletionTimeService completionTimeService =
                 assistant.newSynchronizedConcurrentCompletionTimeServiceFromPeerIds(peerIds);
 
         // Then
@@ -195,7 +195,7 @@ public class ConcurrentCompletionTimeServiceBasicTest {
         ConcurrentErrorReporter errorReporter = new ConcurrentErrorReporter();
         CompletionTimeServiceAssistant assistant = new CompletionTimeServiceAssistant();
         Set<String> peerIds = new HashSet<>();
-        ConcurrentCompletionTimeService completionTimeService =
+        CompletionTimeService completionTimeService =
                 assistant.newThreadedQueuedConcurrentCompletionTimeServiceFromPeerIds(timeSource, peerIds, errorReporter);
 
         // Then
@@ -207,7 +207,7 @@ public class ConcurrentCompletionTimeServiceBasicTest {
     }
 
     // LocalIT = none, LocalCT = none, ExternalCT = none --> null
-    public void doShouldReturnNullWhenNoLocalITNoLocalCTNoExternalCT(ConcurrentCompletionTimeService completionTimeService) throws CompletionTimeException, InterruptedException, ExecutionException, TimeoutException {
+    public void doShouldReturnNullWhenNoLocalITNoLocalCTNoExternalCT(CompletionTimeService completionTimeService) throws CompletionTimeException, InterruptedException, ExecutionException, TimeoutException {
         // Given
         LocalCompletionTimeWriter localCompletionTimeWriter = completionTimeService.newLocalCompletionTimeWriter();
 
@@ -223,7 +223,7 @@ public class ConcurrentCompletionTimeServiceBasicTest {
         // Given
         CompletionTimeServiceAssistant assistant = new CompletionTimeServiceAssistant();
         Set<String> peerIds = new HashSet<>();
-        ConcurrentCompletionTimeService completionTimeService =
+        CompletionTimeService completionTimeService =
                 assistant.newSynchronizedConcurrentCompletionTimeServiceFromPeerIds(peerIds);
 
         // Then
@@ -241,7 +241,7 @@ public class ConcurrentCompletionTimeServiceBasicTest {
         ConcurrentErrorReporter errorReporter = new ConcurrentErrorReporter();
         CompletionTimeServiceAssistant assistant = new CompletionTimeServiceAssistant();
         Set<String> peerIds = new HashSet<>();
-        ConcurrentCompletionTimeService completionTimeService =
+        CompletionTimeService completionTimeService =
                 assistant.newThreadedQueuedConcurrentCompletionTimeServiceFromPeerIds(timeSource, peerIds, errorReporter);
 
         // Then
@@ -253,7 +253,7 @@ public class ConcurrentCompletionTimeServiceBasicTest {
     }
 
     // LocalIT = some, LocalCT = none, ExternalCT = none --> null
-    public void doShouldReturnNullWhenSomeITAndNoCTAndNoExternalCT(ConcurrentCompletionTimeService completionTimeService) throws CompletionTimeException, InterruptedException, ExecutionException, TimeoutException {
+    public void doShouldReturnNullWhenSomeITAndNoCTAndNoExternalCT(CompletionTimeService completionTimeService) throws CompletionTimeException, InterruptedException, ExecutionException, TimeoutException {
         // Given
         LocalCompletionTimeWriter localCompletionTimeWriter = completionTimeService.newLocalCompletionTimeWriter();
 
@@ -269,7 +269,7 @@ public class ConcurrentCompletionTimeServiceBasicTest {
         // Given
         CompletionTimeServiceAssistant assistant = new CompletionTimeServiceAssistant();
         Set<String> peerIds = Sets.newHashSet("other");
-        ConcurrentCompletionTimeService completionTimeService =
+        CompletionTimeService completionTimeService =
                 assistant.newSynchronizedConcurrentCompletionTimeServiceFromPeerIds(peerIds);
 
         // Then
@@ -287,7 +287,7 @@ public class ConcurrentCompletionTimeServiceBasicTest {
         ConcurrentErrorReporter errorReporter = new ConcurrentErrorReporter();
         CompletionTimeServiceAssistant assistant = new CompletionTimeServiceAssistant();
         Set<String> peerIds = Sets.newHashSet("other");
-        ConcurrentCompletionTimeService completionTimeService =
+        CompletionTimeService completionTimeService =
                 assistant.newThreadedQueuedConcurrentCompletionTimeServiceFromPeerIds(timeSource, peerIds, errorReporter);
 
         // Then
@@ -299,7 +299,7 @@ public class ConcurrentCompletionTimeServiceBasicTest {
     }
 
     //  LocalIT = none, LocalCT = none, ExternalCT = some --> null
-    public void doShouldReturnNullWhenNoLocalITAndNoLocalCTAndSomeExternalCT(ConcurrentCompletionTimeService completionTimeService, String otherPeerId) throws CompletionTimeException, InterruptedException, ExecutionException, TimeoutException {
+    public void doShouldReturnNullWhenNoLocalITAndNoLocalCTAndSomeExternalCT(CompletionTimeService completionTimeService, String otherPeerId) throws CompletionTimeException, InterruptedException, ExecutionException, TimeoutException {
         // Given
         ExternalCompletionTimeWriter externalCompletionTimeWriter = completionTimeService;
 
@@ -315,7 +315,7 @@ public class ConcurrentCompletionTimeServiceBasicTest {
         // Given
         CompletionTimeServiceAssistant assistant = new CompletionTimeServiceAssistant();
         Set<String> peerIds = Sets.newHashSet();
-        ConcurrentCompletionTimeService completionTimeService =
+        CompletionTimeService completionTimeService =
                 assistant.newSynchronizedConcurrentCompletionTimeServiceFromPeerIds(peerIds);
 
         // Then
@@ -333,7 +333,7 @@ public class ConcurrentCompletionTimeServiceBasicTest {
         ConcurrentErrorReporter errorReporter = new ConcurrentErrorReporter();
         CompletionTimeServiceAssistant assistant = new CompletionTimeServiceAssistant();
         Set<String> peerIds = Sets.newHashSet();
-        ConcurrentCompletionTimeService completionTimeService =
+        CompletionTimeService completionTimeService =
                 assistant.newThreadedQueuedConcurrentCompletionTimeServiceFromPeerIds(timeSource, peerIds, errorReporter);
 
         // Then
@@ -345,7 +345,7 @@ public class ConcurrentCompletionTimeServiceBasicTest {
     }
 
     //  LocalIT = some, LocalCT = some, ExternalCT = none --> null
-    public void doShouldReturnNullWhenSomeLocalITAndSomeLocalCTAndNoExternalCT(ConcurrentCompletionTimeService completionTimeService) throws CompletionTimeException, InterruptedException, ExecutionException, TimeoutException {
+    public void doShouldReturnNullWhenSomeLocalITAndSomeLocalCTAndNoExternalCT(CompletionTimeService completionTimeService) throws CompletionTimeException, InterruptedException, ExecutionException, TimeoutException {
         // Given
         LocalCompletionTimeWriter localCompletionTimeWriter = completionTimeService.newLocalCompletionTimeWriter();
 
@@ -362,7 +362,7 @@ public class ConcurrentCompletionTimeServiceBasicTest {
         // Given
         CompletionTimeServiceAssistant assistant = new CompletionTimeServiceAssistant();
         Set<String> peerIds = Sets.newHashSet("other");
-        ConcurrentCompletionTimeService completionTimeService =
+        CompletionTimeService completionTimeService =
                 assistant.newSynchronizedConcurrentCompletionTimeServiceFromPeerIds(peerIds);
 
         // Then
@@ -380,7 +380,7 @@ public class ConcurrentCompletionTimeServiceBasicTest {
         ConcurrentErrorReporter errorReporter = new ConcurrentErrorReporter();
         CompletionTimeServiceAssistant assistant = new CompletionTimeServiceAssistant();
         Set<String> peerIds = Sets.newHashSet("other");
-        ConcurrentCompletionTimeService completionTimeService =
+        CompletionTimeService completionTimeService =
                 assistant.newThreadedQueuedConcurrentCompletionTimeServiceFromPeerIds(timeSource, peerIds, errorReporter);
 
         // Then
@@ -392,7 +392,7 @@ public class ConcurrentCompletionTimeServiceBasicTest {
     }
 
     //  LocalIT = 1, LocalCT = none, ExternalCT = 2 --> null
-    public void doShouldReturnNullWhenSomeLocalITAndNoLocalCTAndSomeExternalCT(ConcurrentCompletionTimeService completionTimeService, String otherPeerId) throws CompletionTimeException, InterruptedException, ExecutionException, TimeoutException {
+    public void doShouldReturnNullWhenSomeLocalITAndNoLocalCTAndSomeExternalCT(CompletionTimeService completionTimeService, String otherPeerId) throws CompletionTimeException, InterruptedException, ExecutionException, TimeoutException {
         // Given
         LocalCompletionTimeWriter localCompletionTimeWriter = completionTimeService.newLocalCompletionTimeWriter();
         ExternalCompletionTimeWriter externalCompletionTimeWriter = completionTimeService;
@@ -410,7 +410,7 @@ public class ConcurrentCompletionTimeServiceBasicTest {
         // Given
         CompletionTimeServiceAssistant assistant = new CompletionTimeServiceAssistant();
         Set<String> peerIds = Sets.newHashSet("other");
-        ConcurrentCompletionTimeService completionTimeService =
+        CompletionTimeService completionTimeService =
                 assistant.newSynchronizedConcurrentCompletionTimeServiceFromPeerIds(peerIds);
 
         // Then
@@ -428,7 +428,7 @@ public class ConcurrentCompletionTimeServiceBasicTest {
         ConcurrentErrorReporter errorReporter = new ConcurrentErrorReporter();
         CompletionTimeServiceAssistant assistant = new CompletionTimeServiceAssistant();
         Set<String> peerIds = Sets.newHashSet("other");
-        ConcurrentCompletionTimeService completionTimeService =
+        CompletionTimeService completionTimeService =
                 assistant.newThreadedQueuedConcurrentCompletionTimeServiceFromPeerIds(timeSource, peerIds, errorReporter);
 
         // Then
@@ -440,7 +440,7 @@ public class ConcurrentCompletionTimeServiceBasicTest {
     }
 
     //  LocalIT = 1, LocalCT = 1, ExternalCT = 2 --> 1
-    public void doShouldReturnLCTWhenLowerLCTThanExternalCT(ConcurrentCompletionTimeService completionTimeService, String otherPeerId) throws CompletionTimeException, ExecutionException, InterruptedException, TimeoutException {
+    public void doShouldReturnLCTWhenLowerLCTThanExternalCT(CompletionTimeService completionTimeService, String otherPeerId) throws CompletionTimeException, ExecutionException, InterruptedException, TimeoutException {
         // Given
         LocalCompletionTimeWriter localCompletionTimeWriter = completionTimeService.newLocalCompletionTimeWriter();
         ExternalCompletionTimeWriter externalCompletionTimeWriter = completionTimeService;
@@ -462,7 +462,7 @@ public class ConcurrentCompletionTimeServiceBasicTest {
         // Given
         CompletionTimeServiceAssistant assistant = new CompletionTimeServiceAssistant();
         Set<String> peerIds = Sets.newHashSet("other");
-        ConcurrentCompletionTimeService completionTimeService =
+        CompletionTimeService completionTimeService =
                 assistant.newSynchronizedConcurrentCompletionTimeServiceFromPeerIds(peerIds);
 
         // Then
@@ -480,7 +480,7 @@ public class ConcurrentCompletionTimeServiceBasicTest {
         ConcurrentErrorReporter errorReporter = new ConcurrentErrorReporter();
         CompletionTimeServiceAssistant assistant = new CompletionTimeServiceAssistant();
         Set<String> peerIds = Sets.newHashSet("other");
-        ConcurrentCompletionTimeService completionTimeService =
+        CompletionTimeService completionTimeService =
                 assistant.newThreadedQueuedConcurrentCompletionTimeServiceFromPeerIds(timeSource, peerIds, errorReporter);
 
         // Then
@@ -492,7 +492,7 @@ public class ConcurrentCompletionTimeServiceBasicTest {
     }
 
     //  LocalIT = 2, LocalCT = 2, ExternalCT =  --> 1
-    public void doShouldReturnExternalCTWhenLowerLCTThanExternalCT(ConcurrentCompletionTimeService completionTimeService, String otherPeerId) throws CompletionTimeException, InterruptedException, ExecutionException, TimeoutException {
+    public void doShouldReturnExternalCTWhenLowerLCTThanExternalCT(CompletionTimeService completionTimeService, String otherPeerId) throws CompletionTimeException, InterruptedException, ExecutionException, TimeoutException {
         // Given
         LocalCompletionTimeWriter localCompletionTimeWriter = completionTimeService.newLocalCompletionTimeWriter();
         ExternalCompletionTimeWriter externalCompletionTimeWriter = completionTimeService;
@@ -514,7 +514,7 @@ public class ConcurrentCompletionTimeServiceBasicTest {
         // Given
         CompletionTimeServiceAssistant assistant = new CompletionTimeServiceAssistant();
         Set<String> peerIds = Sets.newHashSet();
-        ConcurrentCompletionTimeService completionTimeService =
+        CompletionTimeService completionTimeService =
                 assistant.newSynchronizedConcurrentCompletionTimeServiceFromPeerIds(peerIds);
 
         // Then
@@ -532,7 +532,7 @@ public class ConcurrentCompletionTimeServiceBasicTest {
         ConcurrentErrorReporter errorReporter = new ConcurrentErrorReporter();
         CompletionTimeServiceAssistant assistant = new CompletionTimeServiceAssistant();
         Set<String> peerIds = Sets.newHashSet();
-        ConcurrentCompletionTimeService completionTimeService =
+        CompletionTimeService completionTimeService =
                 assistant.newThreadedQueuedConcurrentCompletionTimeServiceFromPeerIds(timeSource, peerIds, errorReporter);
 
         // Then
@@ -543,7 +543,7 @@ public class ConcurrentCompletionTimeServiceBasicTest {
         }
     }
 
-    public void doShouldReturnTimeOfEarliestITThatHasHadNoMatchingCTWhenNoPeers(ConcurrentCompletionTimeService completionTimeService) throws CompletionTimeException, InterruptedException, ExecutionException, TimeoutException {
+    public void doShouldReturnTimeOfEarliestITThatHasHadNoMatchingCTWhenNoPeers(CompletionTimeService completionTimeService) throws CompletionTimeException, InterruptedException, ExecutionException, TimeoutException {
         // Given
         LocalCompletionTimeWriter localCompletionTimeWriter = completionTimeService.newLocalCompletionTimeWriter();
 
@@ -660,7 +660,7 @@ public class ConcurrentCompletionTimeServiceBasicTest {
         // Given
         CompletionTimeServiceAssistant assistant = new CompletionTimeServiceAssistant();
         Set<String> peerIds = Sets.newHashSet();
-        ConcurrentCompletionTimeService completionTimeService =
+        CompletionTimeService completionTimeService =
                 assistant.newSynchronizedConcurrentCompletionTimeServiceFromPeerIds(peerIds);
 
         // Then
@@ -678,7 +678,7 @@ public class ConcurrentCompletionTimeServiceBasicTest {
         ConcurrentErrorReporter errorReporter = new ConcurrentErrorReporter();
         CompletionTimeServiceAssistant assistant = new CompletionTimeServiceAssistant();
         Set<String> peerIds = Sets.newHashSet();
-        ConcurrentCompletionTimeService completionTimeService =
+        CompletionTimeService completionTimeService =
                 assistant.newThreadedQueuedConcurrentCompletionTimeServiceFromPeerIds(timeSource, peerIds, errorReporter);
 
         // Then
@@ -689,7 +689,7 @@ public class ConcurrentCompletionTimeServiceBasicTest {
         }
     }
 
-    public void doShouldReturnTimeOfEarliestITThatHasHadNoMatchingCTWhenNoPeersWithDuplicateTimes(ConcurrentCompletionTimeService completionTimeService) throws CompletionTimeException, InterruptedException, ExecutionException, TimeoutException {
+    public void doShouldReturnTimeOfEarliestITThatHasHadNoMatchingCTWhenNoPeersWithDuplicateTimes(CompletionTimeService completionTimeService) throws CompletionTimeException, InterruptedException, ExecutionException, TimeoutException {
         // Given
         LocalCompletionTimeWriter localCompletionTimeWriter = completionTimeService.newLocalCompletionTimeWriter();
 
@@ -774,7 +774,7 @@ public class ConcurrentCompletionTimeServiceBasicTest {
         // Given
         CompletionTimeServiceAssistant assistant = new CompletionTimeServiceAssistant();
         Set<String> peerIds = Sets.newHashSet("other");
-        ConcurrentCompletionTimeService completionTimeService =
+        CompletionTimeService completionTimeService =
                 assistant.newSynchronizedConcurrentCompletionTimeServiceFromPeerIds(peerIds);
 
         // Then
@@ -792,7 +792,7 @@ public class ConcurrentCompletionTimeServiceBasicTest {
         ConcurrentErrorReporter errorReporter = new ConcurrentErrorReporter();
         CompletionTimeServiceAssistant assistant = new CompletionTimeServiceAssistant();
         Set<String> peerIds = Sets.newHashSet("other");
-        ConcurrentCompletionTimeService completionTimeService =
+        CompletionTimeService completionTimeService =
                 assistant.newThreadedQueuedConcurrentCompletionTimeServiceFromPeerIds(timeSource, peerIds, errorReporter);
 
         // Then
@@ -807,7 +807,7 @@ public class ConcurrentCompletionTimeServiceBasicTest {
         }
     }
 
-    public void doShouldReturnTimeOfEarliestITThatHasHadNoMatchingCTWithDuplicateTimes(ConcurrentCompletionTimeService completionTimeService, String otherPeerId) throws CompletionTimeException, InterruptedException, ExecutionException, TimeoutException {
+    public void doShouldReturnTimeOfEarliestITThatHasHadNoMatchingCTWithDuplicateTimes(CompletionTimeService completionTimeService, String otherPeerId) throws CompletionTimeException, InterruptedException, ExecutionException, TimeoutException {
         // Given
         LocalCompletionTimeWriter localCompletionTimeWriter = completionTimeService.newLocalCompletionTimeWriter();
         ExternalCompletionTimeWriter externalCompletionTimeWriter = completionTimeService;

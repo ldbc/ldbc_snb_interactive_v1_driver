@@ -13,6 +13,7 @@ import uk.co.real_logic.sbe.codec.java.DirectBuffer;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -22,7 +23,7 @@ import java.util.concurrent.locks.LockSupport;
 
 import static com.ldbc.driver.runtime.metrics.DisruptorSbeMetricsEvent.*;
 
-public class DisruptorSbeMetricsService implements ConcurrentMetricsService {
+public class DisruptorSbeMetricsService implements MetricsService {
     private static final long SHUTDOWN_WAIT_TIMEOUT_AS_MILLI = TimeUnit.SECONDS.toMillis(5);
 
     // TODO this could come from config, if we had a max_runtime parameter. for now, it can default to something
@@ -35,6 +36,7 @@ public class DisruptorSbeMetricsService implements ConcurrentMetricsService {
     private final Disruptor<DirectBuffer> disruptor;
     private final DisruptorSbeMetricsEventHandler eventHandler;
     private final List<DisruptorSbeConcurrentMetricsServiceWriter> metricsServiceWriters;
+    private final ExecutorService executor;
 
     public DisruptorSbeMetricsService(TimeSource timeSource,
                                       ConcurrentErrorReporter errorReporter,
@@ -45,12 +47,13 @@ public class DisruptorSbeMetricsService implements ConcurrentMetricsService {
         // Specify the size of the ring buffer, must be power of 2
         int bufferSize = 1024;
 
+        this.executor = Executors.newSingleThreadExecutor();
         // Construct the Disruptor
         disruptor = new Disruptor(
                 new MetricsCollectionEventFactory(),
                 bufferSize,
                 // Executor that will be used to construct new threads for consumers
-                Executors.newSingleThreadExecutor(),
+                this.executor,
                 ProducerType.MULTI,
                 new BlockingWaitStrategy()
 //                new LiteBlockingWaitStrategy()
@@ -105,6 +108,24 @@ public class DisruptorSbeMetricsService implements ConcurrentMetricsService {
             );
             throw new MetricsCollectionException(errMsg);
         }
+
+        try {
+            executor.shutdown();
+            boolean terminatedSuccessfully = executor.awaitTermination(SHUTDOWN_WAIT_TIMEOUT_AS_MILLI, TimeUnit.MILLISECONDS);
+            if (false == terminatedSuccessfully) {
+                List<Runnable> stillRunningThreads = executor.shutdownNow();
+                if (false == stillRunningThreads.isEmpty()) {
+                    String errMsg = String.format(
+                            "%s shutdown before all executor threads could complete\n%s threads were queued for execution but not yet started",
+                            getClass().getSimpleName(),
+                            stillRunningThreads.size());
+                    throw new MetricsCollectionException(errMsg);
+                }
+            }
+        } catch (Exception e) {
+            throw new MetricsCollectionException("Error encountered while trying to shutdown metrics service disruptor executor", e);
+        }
+
         try {
             disruptor.shutdown(SHUTDOWN_WAIT_TIMEOUT_AS_MILLI, TimeUnit.MILLISECONDS);
         } catch (TimeoutException e) {

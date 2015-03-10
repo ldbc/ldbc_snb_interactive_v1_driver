@@ -4,7 +4,7 @@ import com.ldbc.driver.Operation;
 import com.ldbc.driver.ResultReporter;
 import com.ldbc.driver.WorkloadException;
 import com.ldbc.driver.runtime.ConcurrentErrorReporter;
-import com.ldbc.driver.runtime.metrics.ConcurrentMetricsService.ConcurrentMetricsServiceWriter;
+import com.ldbc.driver.runtime.metrics.MetricsService.ConcurrentMetricsServiceWriter;
 import com.ldbc.driver.temporal.SystemTimeSource;
 import com.ldbc.driver.temporal.TimeSource;
 import com.ldbc.driver.util.csv.SimpleCsvFileWriter;
@@ -31,7 +31,7 @@ public class ThreadedQueuedMetricsServiceTest {
         Map<Integer, Class<? extends Operation<?>>> operationTypeToClassMapping = new HashMap<>();
         operationTypeToClassMapping.put(LdbcQuery1.TYPE, LdbcQuery1.class);
         operationTypeToClassMapping.put(LdbcQuery2.TYPE, LdbcQuery2.class);
-        ConcurrentMetricsService metricsService = ThreadedQueuedMetricsService.newInstanceUsingBlockingBoundedQueue(
+        MetricsService metricsService = ThreadedQueuedMetricsService.newInstanceUsingBlockingBoundedQueue(
                 timeSource,
                 errorReporter,
                 TimeUnit.MILLISECONDS,
@@ -56,7 +56,7 @@ public class ThreadedQueuedMetricsServiceTest {
         Map<Integer, Class<? extends Operation<?>>> operationTypeToClassMapping = new HashMap<>();
         operationTypeToClassMapping.put(LdbcQuery1.TYPE, LdbcQuery1.class);
         operationTypeToClassMapping.put(LdbcQuery2.TYPE, LdbcQuery2.class);
-        ConcurrentMetricsService metricsService = ThreadedQueuedMetricsService.newInstanceUsingNonBlockingBoundedQueue(
+        MetricsService metricsService = ThreadedQueuedMetricsService.newInstanceUsingNonBlockingBoundedQueue(
                 timeSource,
                 errorReporter,
                 TimeUnit.MILLISECONDS,
@@ -81,7 +81,7 @@ public class ThreadedQueuedMetricsServiceTest {
         Map<Integer, Class<? extends Operation<?>>> operationTypeToClassMapping = new HashMap<>();
         operationTypeToClassMapping.put(LdbcQuery1.TYPE, LdbcQuery1.class);
         operationTypeToClassMapping.put(LdbcQuery2.TYPE, LdbcQuery2.class);
-        ConcurrentMetricsService metricsService = ThreadedQueuedMetricsService.newInstanceUsingBlockingBoundedQueue(
+        MetricsService metricsService = ThreadedQueuedMetricsService.newInstanceUsingBlockingBoundedQueue(
                 timeSource,
                 errorReporter,
                 TimeUnit.MILLISECONDS,
@@ -103,7 +103,7 @@ public class ThreadedQueuedMetricsServiceTest {
         Map<Integer, Class<? extends Operation<?>>> operationTypeToClassMapping = new HashMap<>();
         operationTypeToClassMapping.put(LdbcQuery1.TYPE, LdbcQuery1.class);
         operationTypeToClassMapping.put(LdbcQuery2.TYPE, LdbcQuery2.class);
-        ConcurrentMetricsService metricsService = ThreadedQueuedMetricsService.newInstanceUsingBlockingBoundedQueue(
+        MetricsService metricsService = ThreadedQueuedMetricsService.newInstanceUsingBlockingBoundedQueue(
                 timeSource,
                 errorReporter,
                 TimeUnit.MILLISECONDS,

@@ -16,7 +16,7 @@ public class CompletionTimeServiceAssistantTest {
         TimeSource timeSource = new SystemTimeSource();
         ConcurrentErrorReporter errorReporter = new ConcurrentErrorReporter();
         CompletionTimeServiceAssistant assistant = new CompletionTimeServiceAssistant();
-        ConcurrentCompletionTimeService completionTimeService =
+        CompletionTimeService completionTimeService =
                 assistant.newSynchronizedConcurrentCompletionTimeServiceFromPeerIds(new HashSet<String>());
         try {
             // initial gct should be null

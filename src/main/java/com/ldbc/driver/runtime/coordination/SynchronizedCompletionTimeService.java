@@ -6,7 +6,7 @@ import java.util.Set;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 
-public class SynchronizedConcurrentCompletionTimeService implements ConcurrentCompletionTimeService {
+public class SynchronizedCompletionTimeService implements CompletionTimeService {
     private final GlobalCompletionTimeStateManager globalCompletionTimeStateManager;
     private final MultiWriterLocalCompletionTimeConcurrentStateManager localCompletionTimeConcurrentStateManager;
     private final List<LocalCompletionTimeWriter> localCompletionTimeWriters;
@@ -19,7 +19,7 @@ public class SynchronizedConcurrentCompletionTimeService implements ConcurrentCo
         GET_ALL_WRITERS
     }
 
-    SynchronizedConcurrentCompletionTimeService(Set<String> peerIds) throws CompletionTimeException {
+    SynchronizedCompletionTimeService(Set<String> peerIds) throws CompletionTimeException {
         this.localCompletionTimeConcurrentStateManager = new MultiWriterLocalCompletionTimeConcurrentStateManager();
         this.localCompletionTimeWriters = new ArrayList<>();
         ExternalCompletionTimeStateManager externalCompletionTimeStateManager = new ExternalCompletionTimeStateManager(peerIds);

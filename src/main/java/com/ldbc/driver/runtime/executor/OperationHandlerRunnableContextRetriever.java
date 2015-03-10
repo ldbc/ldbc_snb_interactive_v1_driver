@@ -6,7 +6,7 @@ import com.ldbc.driver.runtime.coordination.CompletionTimeException;
 import com.ldbc.driver.runtime.coordination.DummyLocalCompletionTimeWriter;
 import com.ldbc.driver.runtime.coordination.GlobalCompletionTimeReader;
 import com.ldbc.driver.runtime.coordination.LocalCompletionTimeWriter;
-import com.ldbc.driver.runtime.metrics.ConcurrentMetricsService;
+import com.ldbc.driver.runtime.metrics.MetricsService;
 import com.ldbc.driver.runtime.scheduling.GctDependencyCheck;
 import com.ldbc.driver.runtime.scheduling.Spinner;
 import com.ldbc.driver.temporal.TimeSource;
@@ -22,7 +22,7 @@ class OperationHandlerRunnableContextRetriever {
     private final Spinner spinner;
     private final TimeSource timeSource;
     private final ConcurrentErrorReporter errorReporter;
-    private final ConcurrentMetricsService metricsService;
+    private final MetricsService metricsService;
     private final Set<Class<? extends Operation<?>>> dependencyOperationTypes;
     private final Set<Class<? extends Operation<?>>> dependentOperationTypes;
 
@@ -33,7 +33,7 @@ class OperationHandlerRunnableContextRetriever {
                                              Spinner spinner,
                                              TimeSource timeSource,
                                              ConcurrentErrorReporter errorReporter,
-                                             ConcurrentMetricsService metricsService) {
+                                             MetricsService metricsService) {
         this.db = db;
         this.localCompletionTimeWriter = localCompletionTimeWriter;
         this.globalCompletionTimeReader = globalCompletionTimeReader;

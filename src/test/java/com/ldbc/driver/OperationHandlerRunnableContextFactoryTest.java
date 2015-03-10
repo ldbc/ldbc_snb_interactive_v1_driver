@@ -3,8 +3,8 @@ package com.ldbc.driver;
 import com.ldbc.driver.runtime.ConcurrentErrorReporter;
 import com.ldbc.driver.runtime.coordination.DummyLocalCompletionTimeWriter;
 import com.ldbc.driver.runtime.coordination.LocalCompletionTimeWriter;
-import com.ldbc.driver.runtime.metrics.ConcurrentMetricsService;
-import com.ldbc.driver.runtime.metrics.DummyCountingConcurrentMetricsService;
+import com.ldbc.driver.runtime.metrics.DummyCountingMetricsService;
+import com.ldbc.driver.runtime.metrics.MetricsService;
 import com.ldbc.driver.runtime.scheduling.Spinner;
 import com.ldbc.driver.temporal.SystemTimeSource;
 import com.ldbc.driver.temporal.TimeSource;
@@ -35,7 +35,7 @@ public class OperationHandlerRunnableContextFactoryTest {
         long spinnerSleepDuration = 0;
         Spinner spinner = new Spinner(timeSource, spinnerSleepDuration, ignoreScheduledStartTime);
         LocalCompletionTimeWriter localCompletionTimeWriter = new DummyLocalCompletionTimeWriter();
-        ConcurrentMetricsService metricsService = new DummyCountingConcurrentMetricsService();
+        MetricsService metricsService = new DummyCountingMetricsService();
         long startTime = timeSource.nowAsMilli();
         for (int i = 0; i < count; i++) {
             OperationHandlerRunnableContext operationHandler = operationHandlerRunnerFactory.newOperationHandlerRunner();

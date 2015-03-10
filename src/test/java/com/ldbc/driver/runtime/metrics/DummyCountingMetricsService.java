@@ -4,11 +4,11 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
-public class DummyCountingConcurrentMetricsService implements ConcurrentMetricsService, ConcurrentMetricsService.ConcurrentMetricsServiceWriter {
+public class DummyCountingMetricsService implements MetricsService, MetricsService.ConcurrentMetricsServiceWriter {
     private long count = 0;
     private final Map<String, OperationMetricsSnapshot> metrics;
 
-    public DummyCountingConcurrentMetricsService() {
+    public DummyCountingMetricsService() {
         metrics = new HashMap<>();
         metrics.put("default", new OperationMetricsSnapshot(null, null, 0, null));
     }

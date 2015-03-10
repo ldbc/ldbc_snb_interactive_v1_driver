@@ -8,7 +8,7 @@ import com.ldbc.driver.runtime.DefaultQueues;
 import com.ldbc.driver.runtime.coordination.DummyGlobalCompletionTimeReader;
 import com.ldbc.driver.runtime.coordination.DummyLocalCompletionTimeWriter;
 import com.ldbc.driver.runtime.coordination.LocalCompletionTimeWriter;
-import com.ldbc.driver.runtime.metrics.DummyCountingConcurrentMetricsService;
+import com.ldbc.driver.runtime.metrics.DummyCountingMetricsService;
 import com.ldbc.driver.runtime.scheduling.Spinner;
 import com.ldbc.driver.temporal.SystemTimeSource;
 import com.ldbc.driver.temporal.TimeSource;
@@ -34,7 +34,7 @@ public class ThreadPoolOperationExecutorTest {
         LocalCompletionTimeWriter dummyLocalCompletionTimeWriter = new DummyLocalCompletionTimeWriter();
         DummyGlobalCompletionTimeReader dummyGlobalCompletionTimeReader = new DummyGlobalCompletionTimeReader();
         dummyGlobalCompletionTimeReader.setGlobalCompletionTimeAsMilli(Long.MAX_VALUE);
-        DummyCountingConcurrentMetricsService metricsService = new DummyCountingConcurrentMetricsService();
+        DummyCountingMetricsService metricsService = new DummyCountingMetricsService();
         WorkloadStreams.WorkloadStreamDefinition streamDefinition = new WorkloadStreams.WorkloadStreamDefinition(
                 new HashSet<Class<? extends Operation<?>>>(),
                 new HashSet<Class<? extends Operation<?>>>(),
@@ -92,7 +92,7 @@ public class ThreadPoolOperationExecutorTest {
         LocalCompletionTimeWriter dummyLocalCompletionTimeWriter = new DummyLocalCompletionTimeWriter();
         DummyGlobalCompletionTimeReader dummyGlobalCompletionTimeReader = new DummyGlobalCompletionTimeReader();
         dummyGlobalCompletionTimeReader.setGlobalCompletionTimeAsMilli(Long.MAX_VALUE);
-        DummyCountingConcurrentMetricsService metricsService = new DummyCountingConcurrentMetricsService();
+        DummyCountingMetricsService metricsService = new DummyCountingMetricsService();
         WorkloadStreams.WorkloadStreamDefinition streamDefinition = new WorkloadStreams.WorkloadStreamDefinition(
                 new HashSet<Class<? extends Operation<?>>>(),
                 new HashSet<Class<? extends Operation<?>>>(),
@@ -156,7 +156,7 @@ public class ThreadPoolOperationExecutorTest {
         LocalCompletionTimeWriter dummyLocalCompletionTimeWriter = new DummyLocalCompletionTimeWriter();
         DummyGlobalCompletionTimeReader dummyGlobalCompletionTimeReader = new DummyGlobalCompletionTimeReader();
         dummyGlobalCompletionTimeReader.setGlobalCompletionTimeAsMilli(Long.MAX_VALUE);
-        DummyCountingConcurrentMetricsService metricsService = new DummyCountingConcurrentMetricsService();
+        DummyCountingMetricsService metricsService = new DummyCountingMetricsService();
         WorkloadStreams.WorkloadStreamDefinition streamDefinition = new WorkloadStreams.WorkloadStreamDefinition(
                 new HashSet<Class<? extends Operation<?>>>(),
                 new HashSet<Class<? extends Operation<?>>>(),

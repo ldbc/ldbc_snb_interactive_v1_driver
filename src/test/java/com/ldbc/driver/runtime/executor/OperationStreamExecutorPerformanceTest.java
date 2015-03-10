@@ -12,8 +12,8 @@ import com.ldbc.driver.runtime.coordination.CompletionTimeException;
 import com.ldbc.driver.runtime.coordination.DummyGlobalCompletionTimeReader;
 import com.ldbc.driver.runtime.coordination.DummyLocalCompletionTimeWriter;
 import com.ldbc.driver.runtime.coordination.LocalCompletionTimeWriter;
-import com.ldbc.driver.runtime.metrics.ConcurrentMetricsService;
-import com.ldbc.driver.runtime.metrics.DummyCountingConcurrentMetricsService;
+import com.ldbc.driver.runtime.metrics.DummyCountingMetricsService;
+import com.ldbc.driver.runtime.metrics.MetricsService;
 import com.ldbc.driver.runtime.metrics.MetricsCollectionException;
 import com.ldbc.driver.runtime.scheduling.Spinner;
 import com.ldbc.driver.temporal.ManualTimeSource;
@@ -80,7 +80,7 @@ public class OperationStreamExecutorPerformanceTest {
                 dummyDbParameters.put(DummyDb.ALLOWED_DEFAULT_ARG, Boolean.toString(true));
                 db.init(dummyDbParameters);
                 LocalCompletionTimeWriter localCompletionTimeWriter = new DummyLocalCompletionTimeWriter();
-                ConcurrentMetricsService metricsService = new DummyCountingConcurrentMetricsService();
+                MetricsService metricsService = new DummyCountingMetricsService();
                 DummyGlobalCompletionTimeReader globalCompletionTimeReader = new DummyGlobalCompletionTimeReader();
                 globalCompletionTimeReader.setGlobalCompletionTimeAsMilli(0l);
                 AtomicBoolean executorHasFinished = new AtomicBoolean(false);
@@ -132,7 +132,7 @@ public class OperationStreamExecutorPerformanceTest {
                 dummyDbParameters.put(DummyDb.ALLOWED_DEFAULT_ARG, Boolean.toString(true));
                 db.init(dummyDbParameters);
                 LocalCompletionTimeWriter localCompletionTimeWriter = new DummyLocalCompletionTimeWriter();
-                ConcurrentMetricsService metricsService = new DummyCountingConcurrentMetricsService();
+                MetricsService metricsService = new DummyCountingMetricsService();
                 DummyGlobalCompletionTimeReader globalCompletionTimeReader = new DummyGlobalCompletionTimeReader();
                 globalCompletionTimeReader.setGlobalCompletionTimeAsMilli(0l);
                 AtomicBoolean executorHasFinished = new AtomicBoolean(false);
@@ -183,7 +183,7 @@ public class OperationStreamExecutorPerformanceTest {
                 dummyDbParameters.put(DummyDb.ALLOWED_DEFAULT_ARG, Boolean.toString(true));
                 db.init(dummyDbParameters);
                 LocalCompletionTimeWriter localCompletionTimeWriter = new DummyLocalCompletionTimeWriter();
-                ConcurrentMetricsService metricsService = new DummyCountingConcurrentMetricsService();
+                MetricsService metricsService = new DummyCountingMetricsService();
                 DummyGlobalCompletionTimeReader globalCompletionTimeReader = new DummyGlobalCompletionTimeReader();
                 globalCompletionTimeReader.setGlobalCompletionTimeAsMilli(0l);
                 AtomicBoolean executorHasFinished = new AtomicBoolean(false);
@@ -242,7 +242,7 @@ public class OperationStreamExecutorPerformanceTest {
         return totalAsMilli / durations.size();
     }
 
-    private long doTest(Thread thread, ConcurrentErrorReporter errorReporter, ConcurrentMetricsService metricsService, long operationCount) throws MetricsCollectionException {
+    private long doTest(Thread thread, ConcurrentErrorReporter errorReporter, MetricsService metricsService, long operationCount) throws MetricsCollectionException {
         TimeSource systemTimeSource = new SystemTimeSource();
         long benchmarkStartTime = systemTimeSource.nowAsMilli();
 
@@ -257,7 +257,7 @@ public class OperationStreamExecutorPerformanceTest {
         assertThat(errorReporter.toString(), errorReporter.errorEncountered(), is(false));
 
         // wait for all results to get processed by metrics service
-        ConcurrentMetricsService.ConcurrentMetricsServiceWriter metricsServiceWriter = metricsService.getWriter();
+        MetricsService.ConcurrentMetricsServiceWriter metricsServiceWriter = metricsService.getWriter();
         long metricsCollectionTimeoutAsMilli = systemTimeSource.nowAsMilli() + 2000;
         while (systemTimeSource.nowAsMilli() < metricsCollectionTimeoutAsMilli && metricsServiceWriter.results().totalOperationCount() < operationCount) {
             Spinner.powerNap(500);

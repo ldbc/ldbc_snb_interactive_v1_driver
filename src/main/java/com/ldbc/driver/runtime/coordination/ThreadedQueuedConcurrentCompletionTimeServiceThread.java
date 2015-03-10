@@ -111,12 +111,12 @@ public class ThreadedQueuedConcurrentCompletionTimeServiceThread extends Thread 
                         break;
                     }
                     case READ_GCT_FUTURE: {
-                        ThreadedQueuedConcurrentCompletionTimeService.GlobalCompletionTimeFuture future = ((CompletionTimeEvent.GlobalCompletionTimeFutureEvent) event).future();
+                        ThreadedQueuedCompletionTimeService.GlobalCompletionTimeFuture future = ((CompletionTimeEvent.GlobalCompletionTimeFutureEvent) event).future();
                         future.set(globalCompletionTimeSharedReference.get());
                         break;
                     }
                     case NEW_LOCAL_COMPLETION_TIME_WRITER: {
-                        ThreadedQueuedConcurrentCompletionTimeService.LocalCompletionTimeWriterFuture future = ((CompletionTimeEvent.NewLocalCompletionTimeWriterEvent) event).future();
+                        ThreadedQueuedCompletionTimeService.LocalCompletionTimeWriterFuture future = ((CompletionTimeEvent.NewLocalCompletionTimeWriterEvent) event).future();
                         MultiWriterLocalCompletionTimeConcurrentStateManagerWriter localCompletionTimeWriter =
                                 (MultiWriterLocalCompletionTimeConcurrentStateManagerWriter) localCompletionTimeConcurrentStateManager.newLocalCompletionTimeWriter();
                         localCompletionTimeWriters.put(localCompletionTimeWriter.id(), localCompletionTimeWriter);

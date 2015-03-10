@@ -8,7 +8,7 @@ import java.util.List;
 import java.util.Set;
 
 public class CompletionTimeServiceAssistant {
-    public void writeInitiatedAndCompletedTimesToAllWriters(ConcurrentCompletionTimeService completionTimeService, long timeAsMilli) throws CompletionTimeException {
+    public void writeInitiatedAndCompletedTimesToAllWriters(CompletionTimeService completionTimeService, long timeAsMilli) throws CompletionTimeException {
         List<LocalCompletionTimeWriter> writers = completionTimeService.getAllWriters();
         for (LocalCompletionTimeWriter writer : writers) {
             writer.submitLocalInitiatedTime(timeAsMilli);
@@ -19,7 +19,7 @@ public class CompletionTimeServiceAssistant {
     public boolean waitForGlobalCompletionTime(TimeSource timeSource,
                                                long globalCompletionTimeToWaitForAsMilli,
                                                long timeoutDurationAsMilli,
-                                               ConcurrentCompletionTimeService completionTimeService,
+                                               CompletionTimeService completionTimeService,
                                                ConcurrentErrorReporter errorReporter) throws CompletionTimeException {
         long sleepDurationAsMilli = 100;
         long timeoutTimeAsMilli = timeSource.nowAsMilli() + timeoutDurationAsMilli;
@@ -36,13 +36,13 @@ public class CompletionTimeServiceAssistant {
         return false;
     }
 
-    public SynchronizedConcurrentCompletionTimeService newSynchronizedConcurrentCompletionTimeServiceFromPeerIds(Set<String> peerIds) throws CompletionTimeException {
-        return new SynchronizedConcurrentCompletionTimeService(peerIds);
+    public SynchronizedCompletionTimeService newSynchronizedConcurrentCompletionTimeServiceFromPeerIds(Set<String> peerIds) throws CompletionTimeException {
+        return new SynchronizedCompletionTimeService(peerIds);
     }
 
-    public ThreadedQueuedConcurrentCompletionTimeService newThreadedQueuedConcurrentCompletionTimeServiceFromPeerIds(TimeSource timeSource,
+    public ThreadedQueuedCompletionTimeService newThreadedQueuedConcurrentCompletionTimeServiceFromPeerIds(TimeSource timeSource,
                                                                                                                      Set<String> peerIds,
                                                                                                                      ConcurrentErrorReporter errorReporter) throws CompletionTimeException {
-        return new ThreadedQueuedConcurrentCompletionTimeService(timeSource, peerIds, errorReporter);
+        return new ThreadedQueuedCompletionTimeService(timeSource, peerIds, errorReporter);
     }
 }

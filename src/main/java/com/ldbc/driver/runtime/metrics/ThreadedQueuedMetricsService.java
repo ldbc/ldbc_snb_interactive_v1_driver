@@ -18,7 +18,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.atomic.AtomicReference;
 
-public class ThreadedQueuedMetricsService implements ConcurrentMetricsService {
+public class ThreadedQueuedMetricsService implements MetricsService {
     private static final long SHUTDOWN_WAIT_TIMEOUT_AS_MILLI = TimeUnit.MINUTES.toMillis(1);
     private static final long FUTURE_GET_TIMEOUT_AS_MILLI = TimeUnit.MINUTES.toMillis(30);
 
@@ -34,7 +34,7 @@ public class ThreadedQueuedMetricsService implements ConcurrentMetricsService {
     private final AtomicLong initiatedEvents;
     private final ThreadedQueuedMetricsServiceThread threadedQueuedMetricsServiceThread;
     private final AtomicBoolean shutdown = new AtomicBoolean(false);
-    private final List<ThreadedQueuedConcurrentMetricsServiceWriter> metricsServiceWriters;
+    private final List<ThreadedQueuedMetricsServiceWriter> metricsServiceWriters;
 
     public static ThreadedQueuedMetricsService newInstanceUsingNonBlockingBoundedQueue(TimeSource timeSource,
                                                                                                  ConcurrentErrorReporter errorReporter,
@@ -106,7 +106,7 @@ public class ThreadedQueuedMetricsService implements ConcurrentMetricsService {
             throw new MetricsCollectionException(errMsg, e);
         }
         AlreadyShutdownPolicy alreadyShutdownPolicy = new AlreadyShutdownPolicy();
-        for (ThreadedQueuedConcurrentMetricsServiceWriter metricsServiceWriter : metricsServiceWriters) {
+        for (ThreadedQueuedMetricsServiceWriter metricsServiceWriter : metricsServiceWriters) {
             metricsServiceWriter.setAlreadyShutdownPolicy(alreadyShutdownPolicy);
         }
         shutdown.set(true);
@@ -117,22 +117,22 @@ public class ThreadedQueuedMetricsService implements ConcurrentMetricsService {
         if (shutdown.get()){
             throw new MetricsCollectionException("Metrics service has already been shutdown");
         }
-        ThreadedQueuedConcurrentMetricsServiceWriter metricsServiceWriter =
-                new ThreadedQueuedConcurrentMetricsServiceWriter(initiatedEvents, queueEventSubmitter, timeSource);
+        ThreadedQueuedMetricsServiceWriter metricsServiceWriter =
+                new ThreadedQueuedMetricsServiceWriter(initiatedEvents, queueEventSubmitter, timeSource);
         metricsServiceWriters.add(metricsServiceWriter);
         return metricsServiceWriter;
     }
 
-    private static class ThreadedQueuedConcurrentMetricsServiceWriter implements ConcurrentMetricsServiceWriter {
+    private static class ThreadedQueuedMetricsServiceWriter implements ConcurrentMetricsServiceWriter {
         private final AtomicLong initiatedEvents;
         private final QueueEventSubmitter<ThreadedQueuedMetricsEvent> queueEventSubmitter;
         private final TimeSource timeSource;
 
         private AlreadyShutdownPolicy alreadyShutdownPolicy = null;
 
-        private ThreadedQueuedConcurrentMetricsServiceWriter(AtomicLong initiatedEvents,
-                                                             QueueEventSubmitter<ThreadedQueuedMetricsEvent> queueEventSubmitter,
-                                                             TimeSource timeSource) {
+        private ThreadedQueuedMetricsServiceWriter(AtomicLong initiatedEvents,
+                                                   QueueEventSubmitter<ThreadedQueuedMetricsEvent> queueEventSubmitter,
+                                                   TimeSource timeSource) {
             this.initiatedEvents = initiatedEvents;
             this.queueEventSubmitter = queueEventSubmitter;
             this.timeSource = timeSource;

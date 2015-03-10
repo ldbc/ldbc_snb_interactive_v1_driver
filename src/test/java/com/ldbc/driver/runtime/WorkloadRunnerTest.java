@@ -11,7 +11,7 @@ import com.ldbc.driver.generator.GeneratorFactory;
 import com.ldbc.driver.generator.RandomDataGeneratorFactory;
 import com.ldbc.driver.runtime.coordination.CompletionTimeException;
 import com.ldbc.driver.runtime.coordination.CompletionTimeServiceAssistant;
-import com.ldbc.driver.runtime.coordination.ConcurrentCompletionTimeService;
+import com.ldbc.driver.runtime.coordination.CompletionTimeService;
 import com.ldbc.driver.runtime.metrics.*;
 import com.ldbc.driver.temporal.SystemTimeSource;
 import com.ldbc.driver.temporal.TemporalUtil;
@@ -55,7 +55,7 @@ public class WorkloadRunnerTest {
     public void shouldRunReadOnlyLdbcWorkloadWithNothingDbAndReturnExpectedMetrics()
             throws InterruptedException, DbException, WorkloadException, IOException, MetricsCollectionException, CompletionTimeException, DriverConfigurationException {
         List<Integer> threadCounts = Lists.newArrayList(1, 2, 4, 8);
-        long operationCount = 1000;
+        long operationCount = 100000;
         for (int threadCount : threadCounts) {
             doShouldRunReadOnlyLdbcWorkloadWithNothingDbAndReturnExpectedMetricsIncludingResultsLog(threadCount, operationCount);
         }
@@ -66,8 +66,8 @@ public class WorkloadRunnerTest {
         ControlService controlService = null;
         Db db = null;
         Workload workload = null;
-        ConcurrentMetricsService metricsService = null;
-        ConcurrentCompletionTimeService completionTimeService = null;
+        MetricsService metricsService = null;
+        CompletionTimeService completionTimeService = null;
         ConcurrentErrorReporter errorReporter = new ConcurrentErrorReporter();
         try {
             Map<String, String> paramsMap = LdbcSnbInteractiveConfiguration.defaultReadOnlyConfig();
@@ -143,7 +143,7 @@ public class WorkloadRunnerTest {
                     workload.operationTypeToClassMapping(configuration.asMap())
             );
 
-            ConcurrentCompletionTimeService concurrentCompletionTimeService =
+            CompletionTimeService concurrentCompletionTimeService =
                     completionTimeServiceAssistant.newSynchronizedConcurrentCompletionTimeServiceFromPeerIds(
                             controlService.configuration().peerIds());
 
@@ -219,8 +219,8 @@ public class WorkloadRunnerTest {
         ControlService controlService = null;
         Db db = null;
         Workload workload = null;
-        ConcurrentMetricsService metricsService = null;
-        ConcurrentCompletionTimeService completionTimeService = null;
+        MetricsService metricsService = null;
+        CompletionTimeService completionTimeService = null;
         ConcurrentErrorReporter errorReporter = new ConcurrentErrorReporter();
         try {
             Map<String, String> paramsMap = LdbcSnbInteractiveConfiguration.defaultConfig();
@@ -296,7 +296,7 @@ public class WorkloadRunnerTest {
                     workload.operationTypeToClassMapping(configuration.asMap())
             );
 
-            ConcurrentCompletionTimeService concurrentCompletionTimeService =
+            CompletionTimeService concurrentCompletionTimeService =
                     completionTimeServiceAssistant.newSynchronizedConcurrentCompletionTimeServiceFromPeerIds(
                             controlService.configuration().peerIds());
 
@@ -365,7 +365,7 @@ public class WorkloadRunnerTest {
         long operationCount = 1000000;
         for (int threadCount : threadCounts) {
             ConcurrentErrorReporter errorReporter = new ConcurrentErrorReporter();
-            ConcurrentCompletionTimeService completionTimeService =
+            CompletionTimeService completionTimeService =
                     completionTimeServiceAssistant.newSynchronizedConcurrentCompletionTimeServiceFromPeerIds(new HashSet<String>());
             try {
                 doShouldRunReadOnlyLdbcWorkloadWithNothingDbWhileIgnoringScheduledStartTimesAndReturnExpectedMetrics(threadCount, operationCount, completionTimeService, errorReporter);
@@ -382,7 +382,7 @@ public class WorkloadRunnerTest {
         long operationCount = 1000000;
         for (int threadCount : threadCounts) {
             ConcurrentErrorReporter errorReporter = new ConcurrentErrorReporter();
-            ConcurrentCompletionTimeService completionTimeService =
+            CompletionTimeService completionTimeService =
                     completionTimeServiceAssistant.newThreadedQueuedConcurrentCompletionTimeServiceFromPeerIds(new SystemTimeSource(), new HashSet<String>(), new ConcurrentErrorReporter());
             try {
                 doShouldRunReadOnlyLdbcWorkloadWithNothingDbWhileIgnoringScheduledStartTimesAndReturnExpectedMetrics(threadCount, operationCount, completionTimeService, errorReporter);
@@ -394,13 +394,13 @@ public class WorkloadRunnerTest {
 
     public void doShouldRunReadOnlyLdbcWorkloadWithNothingDbWhileIgnoringScheduledStartTimesAndReturnExpectedMetrics(int threadCount,
                                                                                                                      long operationCount,
-                                                                                                                     ConcurrentCompletionTimeService completionTimeService,
+                                                                                                                     CompletionTimeService completionTimeService,
                                                                                                                      ConcurrentErrorReporter errorReporter)
             throws InterruptedException, DbException, WorkloadException, IOException, MetricsCollectionException, CompletionTimeException, DriverConfigurationException {
         ControlService controlService = null;
         Db db = null;
         Workload workload = null;
-        ConcurrentMetricsService metricsService = null;
+        MetricsService metricsService = null;
         try {
             Map<String, String> paramsMap = LdbcSnbInteractiveConfiguration.defaultReadOnlyConfig();
             paramsMap.put(LdbcSnbInteractiveConfiguration.PARAMETERS_DIRECTORY, TestUtils.getResource("/").getAbsolutePath());

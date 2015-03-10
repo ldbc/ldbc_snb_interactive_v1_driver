@@ -6,7 +6,7 @@ import com.ldbc.driver.runtime.DefaultQueues;
 import com.ldbc.driver.runtime.QueueEventSubmitter;
 import com.ldbc.driver.runtime.coordination.GlobalCompletionTimeReader;
 import com.ldbc.driver.runtime.coordination.LocalCompletionTimeWriter;
-import com.ldbc.driver.runtime.metrics.ConcurrentMetricsService;
+import com.ldbc.driver.runtime.metrics.MetricsService;
 import com.ldbc.driver.runtime.scheduling.Spinner;
 import com.ldbc.driver.temporal.TimeSource;
 
@@ -45,7 +45,7 @@ public class SingleThreadOperationExecutor implements OperationExecutor {
                                          Spinner spinner,
                                          TimeSource timeSource,
                                          ConcurrentErrorReporter errorReporter,
-                                         ConcurrentMetricsService metricsService,
+                                         MetricsService metricsService,
                                          ChildOperationGenerator childOperationGenerator,
                                          int boundedQueueSize) {
         Queue<Operation> operationQueue = DefaultQueues.newAlwaysBlockingBounded(boundedQueueSize);

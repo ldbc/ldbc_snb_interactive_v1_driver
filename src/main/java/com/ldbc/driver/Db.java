@@ -21,8 +21,6 @@ public abstract class Db implements Closeable {
         }
         onInit(properties);
         dbConnectionState = getConnectionState();
-//        operationHandlerRunnableContextFactory = new InstantiatingOperationHandlerRunnerFactory();
-        // TODO enable
         operationHandlerRunnableContextFactory = new PoolingOperationHandlerRunnerFactory(
                 new InstantiatingOperationHandlerRunnerFactory()
         );
@@ -41,6 +39,11 @@ public abstract class Db implements Closeable {
         }
         isShutdown.set(true);
         onClose();
+        try {
+            operationHandlerRunnableContextFactory.shutdown();
+        } catch (OperationException e) {
+            throw new IOException(e);
+        }
     }
 
     /**

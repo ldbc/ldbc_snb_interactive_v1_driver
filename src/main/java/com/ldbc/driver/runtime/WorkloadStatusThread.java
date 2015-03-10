@@ -1,7 +1,7 @@
 package com.ldbc.driver.runtime;
 
-import com.ldbc.driver.runtime.coordination.ConcurrentCompletionTimeService;
-import com.ldbc.driver.runtime.metrics.ConcurrentMetricsService.ConcurrentMetricsServiceWriter;
+import com.ldbc.driver.runtime.coordination.CompletionTimeService;
+import com.ldbc.driver.runtime.metrics.MetricsService.ConcurrentMetricsServiceWriter;
 import com.ldbc.driver.runtime.metrics.WorkloadStatusSnapshot;
 import com.ldbc.driver.runtime.scheduling.Spinner;
 import com.ldbc.driver.temporal.TemporalUtil;
@@ -21,20 +21,20 @@ class WorkloadStatusThread extends Thread {
     private final long statusUpdateIntervalAsMilli;
     private final ConcurrentMetricsServiceWriter metricsServiceWriter;
     private final ConcurrentErrorReporter errorReporter;
-    private final ConcurrentCompletionTimeService concurrentCompletionTimeService;
+    private final CompletionTimeService completionTimeService;
     private final boolean detailedStatus;
     private AtomicBoolean continueRunning = new AtomicBoolean(true);
 
     WorkloadStatusThread(long statusUpdateIntervalAsMilli,
                          ConcurrentMetricsServiceWriter metricsServiceWriter,
                          ConcurrentErrorReporter errorReporter,
-                         ConcurrentCompletionTimeService concurrentCompletionTimeService,
+                         CompletionTimeService completionTimeService,
                          boolean detailedStatus) {
         super(WorkloadStatusThread.class.getSimpleName() + "-" + System.currentTimeMillis());
         this.statusUpdateIntervalAsMilli = statusUpdateIntervalAsMilli;
         this.metricsServiceWriter = metricsServiceWriter;
         this.errorReporter = errorReporter;
-        this.concurrentCompletionTimeService = concurrentCompletionTimeService;
+        this.completionTimeService = completionTimeService;
         this.detailedStatus = detailedStatus;
     }
 
@@ -66,7 +66,7 @@ class WorkloadStatusThread extends Thread {
                                 status.throughput(),
                                 recentThroughputAndDuration.throughput(),
                                 recentThroughputAndDuration.duration(),
-                                concurrentCompletionTimeService.globalCompletionTimeAsMilli()) :
+                                completionTimeService.globalCompletionTimeAsMilli()) :
                         formatWithoutGct(
                                 status.operationCount(),
                                 status.runDurationAsMilli(),

@@ -2,8 +2,8 @@ package com.ldbc.driver;
 
 import com.ldbc.driver.runtime.ConcurrentErrorReporter;
 import com.ldbc.driver.runtime.coordination.LocalCompletionTimeWriter;
-import com.ldbc.driver.runtime.metrics.ConcurrentMetricsService;
-import com.ldbc.driver.runtime.metrics.ConcurrentMetricsService.ConcurrentMetricsServiceWriter;
+import com.ldbc.driver.runtime.metrics.MetricsService;
+import com.ldbc.driver.runtime.metrics.MetricsService.ConcurrentMetricsServiceWriter;
 import com.ldbc.driver.runtime.metrics.MetricsCollectionException;
 import com.ldbc.driver.runtime.scheduling.Spinner;
 import com.ldbc.driver.runtime.scheduling.SpinnerCheck;
@@ -43,7 +43,7 @@ public class OperationHandlerRunnableContext implements Runnable, Poolable {
                            Operation operation,
                            LocalCompletionTimeWriter localCompletionTimeWriter,
                            ConcurrentErrorReporter errorReporter,
-                           ConcurrentMetricsService metricsService) throws OperationException {
+                           MetricsService metricsService) throws OperationException {
         if (initialized) {
             throw new OperationException(String.format("%s can not be initialized twice", getClass().getSimpleName()));
         }

@@ -3,7 +3,7 @@ package com.ldbc.driver.runtime.metrics;
 import com.ldbc.driver.Operation;
 import com.ldbc.driver.WorkloadException;
 import com.ldbc.driver.runtime.ConcurrentErrorReporter;
-import com.ldbc.driver.runtime.metrics.ConcurrentMetricsService.ConcurrentMetricsServiceWriter;
+import com.ldbc.driver.runtime.metrics.MetricsService.ConcurrentMetricsServiceWriter;
 import com.ldbc.driver.temporal.SystemTimeSource;
 import com.ldbc.driver.temporal.TimeSource;
 import com.ldbc.driver.util.csv.SimpleCsvFileWriter;
@@ -24,13 +24,13 @@ public class DisruptorJavolutionMetricsServiceTest {
     private TimeSource timeSource = new SystemTimeSource();
 
     @Test
-    public void shouldNotAcceptOperationResultsAfterShutdownWhenBlockingQueueIsUsed() throws WorkloadException, MetricsCollectionException {
+    public void shouldNotAcceptOperationResultsAfterShutdown() throws WorkloadException, MetricsCollectionException {
         ConcurrentErrorReporter errorReporter = new ConcurrentErrorReporter();
         SimpleCsvFileWriter csvResultsLogWriter = null;
         Map<Integer, Class<? extends Operation<?>>> operationTypeToClassMapping = new HashMap<>();
         operationTypeToClassMapping.put(LdbcQuery1.TYPE, LdbcQuery1.class);
         operationTypeToClassMapping.put(LdbcQuery2.TYPE, LdbcQuery2.class);
-        ConcurrentMetricsService metricsService = new DisruptorJavolutionMetricsService(
+        MetricsService metricsService = new DisruptorJavolutionMetricsService(
                 timeSource,
                 errorReporter,
                 TimeUnit.MILLISECONDS,
@@ -49,62 +49,13 @@ public class DisruptorJavolutionMetricsServiceTest {
     }
 
     @Test
-    public void shouldNotAcceptOperationResultsAfterShutdownWhenNonBlockingQueueIsUsed() throws WorkloadException, MetricsCollectionException {
+    public void shouldReturnCorrectMeasurements() throws WorkloadException, MetricsCollectionException {
         ConcurrentErrorReporter errorReporter = new ConcurrentErrorReporter();
         SimpleCsvFileWriter csvResultsLogWriter = null;
         Map<Integer, Class<? extends Operation<?>>> operationTypeToClassMapping = new HashMap<>();
         operationTypeToClassMapping.put(LdbcQuery1.TYPE, LdbcQuery1.class);
         operationTypeToClassMapping.put(LdbcQuery2.TYPE, LdbcQuery2.class);
-        ConcurrentMetricsService metricsService = new DisruptorJavolutionMetricsService(
-                timeSource,
-                errorReporter,
-                TimeUnit.MILLISECONDS,
-                DisruptorJavolutionMetricsService.DEFAULT_HIGHEST_EXPECTED_RUNTIME_DURATION_AS_NANO,
-                csvResultsLogWriter,
-                operationTypeToClassMapping
-        );
-
-        metricsService.shutdown();
-        boolean exceptionThrown = false;
-        try {
-            shouldReturnCorrectMeasurements(metricsService.getWriter());
-        } catch (MetricsCollectionException e) {
-            exceptionThrown = true;
-        }
-        assertThat(exceptionThrown, is(true));
-    }
-
-    @Test
-    public void shouldReturnCorrectMeasurementsWhenBlockingQueueIsUsed() throws WorkloadException, MetricsCollectionException {
-        ConcurrentErrorReporter errorReporter = new ConcurrentErrorReporter();
-        SimpleCsvFileWriter csvResultsLogWriter = null;
-        Map<Integer, Class<? extends Operation<?>>> operationTypeToClassMapping = new HashMap<>();
-        operationTypeToClassMapping.put(LdbcQuery1.TYPE, LdbcQuery1.class);
-        operationTypeToClassMapping.put(LdbcQuery2.TYPE, LdbcQuery2.class);
-        ConcurrentMetricsService metricsService = new DisruptorJavolutionMetricsService(
-                timeSource,
-                errorReporter,
-                TimeUnit.MILLISECONDS,
-                DisruptorJavolutionMetricsService.DEFAULT_HIGHEST_EXPECTED_RUNTIME_DURATION_AS_NANO,
-                csvResultsLogWriter,
-                operationTypeToClassMapping
-        );
-        try {
-            shouldReturnCorrectMeasurements(metricsService.getWriter());
-        } finally {
-            System.out.println(errorReporter.toString());
-            metricsService.shutdown();
-        }
-    }
-
-    @Test
-    public void shouldReturnCorrectMeasurementsWhenNonBlockingQueueIsUsed() throws WorkloadException, MetricsCollectionException {
-        ConcurrentErrorReporter errorReporter = new ConcurrentErrorReporter();
-        SimpleCsvFileWriter csvResultsLogWriter = null;
-        Map<Integer, Class<? extends Operation<?>>> operationTypeToClassMapping = new HashMap<>();
-        operationTypeToClassMapping.put(LdbcQuery1.TYPE, LdbcQuery1.class);
-        operationTypeToClassMapping.put(LdbcQuery2.TYPE, LdbcQuery2.class);
-        ConcurrentMetricsService metricsService = new DisruptorJavolutionMetricsService(
+        MetricsService metricsService = new DisruptorJavolutionMetricsService(
                 timeSource,
                 errorReporter,
                 TimeUnit.MILLISECONDS,

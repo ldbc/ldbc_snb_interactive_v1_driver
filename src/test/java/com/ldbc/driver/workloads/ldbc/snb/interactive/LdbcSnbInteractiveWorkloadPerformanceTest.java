@@ -8,7 +8,7 @@ import com.ldbc.driver.control.DriverConfigurationException;
 import com.ldbc.driver.control.LocalControlService;
 import com.ldbc.driver.runtime.ConcurrentErrorReporter;
 import com.ldbc.driver.runtime.coordination.CompletionTimeException;
-import com.ldbc.driver.runtime.metrics.ConcurrentMetricsService;
+import com.ldbc.driver.runtime.metrics.MetricsService;
 import com.ldbc.driver.runtime.metrics.MetricsCollectionException;
 import com.ldbc.driver.runtime.metrics.WorkloadResultsSnapshot;
 import com.ldbc.driver.temporal.SystemTimeSource;
@@ -76,7 +76,7 @@ public class LdbcSnbInteractiveWorkloadPerformanceTest {
         ControlService controlService = null;
         Db db = null;
         Workload workload = null;
-        ConcurrentMetricsService metricsService = null;
+        MetricsService metricsService = null;
         try {
             Map<String, String> paramsMap = LdbcSnbInteractiveConfiguration.defaultConfig();
             paramsMap.put(LdbcSnbInteractiveConfiguration.PARAMETERS_DIRECTORY, parametersDir);
@@ -196,7 +196,7 @@ public class LdbcSnbInteractiveWorkloadPerformanceTest {
         ControlService controlService = null;
         Db db = null;
         Workload workload = null;
-        ConcurrentMetricsService metricsService = null;
+        MetricsService metricsService = null;
         try {
 //            Map<String, String> paramsMap = LdbcSnbInteractiveConfiguration.defaultConfig();
             Map<String, String> paramsMap = LdbcSnbInteractiveConfiguration.defaultWriteOnlyConfig();

@@ -13,6 +13,7 @@ import com.lmax.disruptor.dsl.ProducerType;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -22,7 +23,7 @@ import java.util.concurrent.locks.LockSupport;
 
 import static com.ldbc.driver.runtime.metrics.DisruptorJavolutionMetricsEvent.*;
 
-public class DisruptorJavolutionMetricsService implements ConcurrentMetricsService {
+public class DisruptorJavolutionMetricsService implements MetricsService {
     private static final long SHUTDOWN_WAIT_TIMEOUT_AS_MILLI = TimeUnit.SECONDS.toMillis(10);
 
     public static final String RESULTS_LOG_FILENAME_SUFFIX = "-results_log.csv";
@@ -39,6 +40,7 @@ public class DisruptorJavolutionMetricsService implements ConcurrentMetricsServi
     private final Disruptor<DisruptorJavolutionMetricsEvent> disruptor;
     private final DisruptorJavolutionMetricsEventHandler eventHandler;
     private final List<DisruptorJavolutionConcurrentMetricsServiceWriter> metricsServiceWriters;
+    private final ExecutorService executor;
 
     public DisruptorJavolutionMetricsService(TimeSource timeSource,
                                              ConcurrentErrorReporter errorReporter,
@@ -49,6 +51,7 @@ public class DisruptorJavolutionMetricsService implements ConcurrentMetricsServi
         // Specify the size of the ring buffer, must be power of 2.
         int bufferSize = 1024;
 
+        this.executor = Executors.newSingleThreadExecutor();
         // Construct the Disruptor
         disruptor = new Disruptor(
                 new MetricsCollectionEventFactory(),
@@ -109,6 +112,25 @@ public class DisruptorJavolutionMetricsService implements ConcurrentMetricsServi
             );
             throw new MetricsCollectionException(errMsg);
         }
+
+        try {
+            executor.shutdown();
+            boolean terminatedSuccessfully = executor.awaitTermination(SHUTDOWN_WAIT_TIMEOUT_AS_MILLI, TimeUnit.MILLISECONDS);
+            if (false == terminatedSuccessfully) {
+                List<Runnable> stillRunningThreads = executor.shutdownNow();
+                if (false == stillRunningThreads.isEmpty()) {
+                    String errMsg = String.format(
+                            "%s shutdown before all executor threads could complete\n%s threads were queued for execution but not yet started",
+                            getClass().getSimpleName(),
+                            stillRunningThreads.size());
+                    throw new MetricsCollectionException(errMsg);
+                }
+            }
+        } catch (Exception e) {
+            throw new MetricsCollectionException("Error encountered while trying to shutdown metrics service disruptor executor", e);
+        }
+
+
         try {
             disruptor.shutdown(SHUTDOWN_WAIT_TIMEOUT_AS_MILLI, TimeUnit.MILLISECONDS);
         } catch (TimeoutException e) {
@@ -119,7 +141,7 @@ public class DisruptorJavolutionMetricsService implements ConcurrentMetricsServi
             throw new MetricsCollectionException(errMsg, e);
         }
         AlreadyShutdownPolicy alreadyShutdownPolicy = new AlreadyShutdownPolicy();
-        for (DisruptorJavolutionConcurrentMetricsServiceWriter metricsServiceWriter: metricsServiceWriters){
+        for (DisruptorJavolutionConcurrentMetricsServiceWriter metricsServiceWriter : metricsServiceWriters) {
             metricsServiceWriter.setAlreadyShutdownPolicy(alreadyShutdownPolicy);
         }
         shutdown.set(true);
@@ -127,7 +149,7 @@ public class DisruptorJavolutionMetricsService implements ConcurrentMetricsServi
 
     @Override
     public ConcurrentMetricsServiceWriter getWriter() throws MetricsCollectionException {
-        if (shutdown.get()){
+        if (shutdown.get()) {
             throw new MetricsCollectionException("Metrics service has already been shutdown");
         }
         DisruptorJavolutionConcurrentMetricsServiceWriter metricsServiceWriter =

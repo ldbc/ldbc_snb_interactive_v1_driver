@@ -14,8 +14,7 @@ public class DisruptorExceptionHandler implements ExceptionHandler {
     public void handleEventException(Throwable throwable, long l, Object o) {
         errorReporter.reportError(
                 this,
-                String.format("%s encountered error on event\nl = %s\no = %s\n%s",
-                        DisruptorJavolutionMetricsService.class.getSimpleName(),
+                String.format("Disruptor encountered error on event\nl = %s\no = %s\n%s",
                         l,
                         o.toString(),
                         ConcurrentErrorReporter.stackTraceToString(throwable)
@@ -27,8 +26,7 @@ public class DisruptorExceptionHandler implements ExceptionHandler {
     public void handleOnStartException(Throwable throwable) {
         errorReporter.reportError(
                 this,
-                String.format("%s encountered error on start\n%s",
-                        DisruptorJavolutionMetricsService.class.getSimpleName(),
+                String.format("Disruptor encountered error on start\n%s",
                         ConcurrentErrorReporter.stackTraceToString(throwable)
                 )
         );

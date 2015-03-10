@@ -4,11 +4,11 @@ import com.ldbc.driver.Db;
 import com.ldbc.driver.WorkloadException;
 import com.ldbc.driver.WorkloadStreams;
 import com.ldbc.driver.runtime.coordination.CompletionTimeException;
-import com.ldbc.driver.runtime.coordination.ConcurrentCompletionTimeService;
+import com.ldbc.driver.runtime.coordination.CompletionTimeService;
 import com.ldbc.driver.runtime.coordination.DummyLocalCompletionTimeWriter;
 import com.ldbc.driver.runtime.coordination.LocalCompletionTimeWriter;
 import com.ldbc.driver.runtime.executor.*;
-import com.ldbc.driver.runtime.metrics.ConcurrentMetricsService;
+import com.ldbc.driver.runtime.metrics.MetricsService;
 import com.ldbc.driver.runtime.metrics.MetricsCollectionException;
 import com.ldbc.driver.runtime.scheduling.Spinner;
 import com.ldbc.driver.temporal.TemporalUtil;
@@ -44,9 +44,9 @@ public class WorkloadRunner {
     public WorkloadRunner(TimeSource timeSource,
                           Db db,
                           WorkloadStreams workloadStreams,
-                          ConcurrentMetricsService metricsService,
+                          MetricsService metricsService,
                           ConcurrentErrorReporter errorReporter,
-                          ConcurrentCompletionTimeService completionTimeService,
+                          CompletionTimeService completionTimeService,
                           int threadCount,
                           long statusDisplayIntervalAsSeconds,
                           long spinnerSleepDurationAsMilli,
