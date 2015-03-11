@@ -1067,6 +1067,22 @@ public class LdbcSnbInteractiveWorkload extends Workload {
 
         ChildOperationGenerator shortReadsChildGenerator = null;
         if (false == enabledShortReadOperationTypes.isEmpty()) {
+            Map<Integer, Long> longReadInterleavesAsMilli = new HashMap<>();
+            longReadInterleavesAsMilli.put(LdbcQuery1.TYPE, readOperation1InterleaveAsMilli);
+            longReadInterleavesAsMilli.put(LdbcQuery2.TYPE, readOperation2InterleaveAsMilli);
+            longReadInterleavesAsMilli.put(LdbcQuery3.TYPE, readOperation3InterleaveAsMilli);
+            longReadInterleavesAsMilli.put(LdbcQuery4.TYPE, readOperation4InterleaveAsMilli);
+            longReadInterleavesAsMilli.put(LdbcQuery5.TYPE, readOperation5InterleaveAsMilli);
+            longReadInterleavesAsMilli.put(LdbcQuery6.TYPE, readOperation6InterleaveAsMilli);
+            longReadInterleavesAsMilli.put(LdbcQuery7.TYPE, readOperation7InterleaveAsMilli);
+            longReadInterleavesAsMilli.put(LdbcQuery8.TYPE, readOperation8InterleaveAsMilli);
+            longReadInterleavesAsMilli.put(LdbcQuery9.TYPE, readOperation9InterleaveAsMilli);
+            longReadInterleavesAsMilli.put(LdbcQuery10.TYPE, readOperation10InterleaveAsMilli);
+            longReadInterleavesAsMilli.put(LdbcQuery11.TYPE, readOperation11InterleaveAsMilli);
+            longReadInterleavesAsMilli.put(LdbcQuery12.TYPE, readOperation12InterleaveAsMilli);
+            longReadInterleavesAsMilli.put(LdbcQuery13.TYPE, readOperation13InterleaveAsMilli);
+            longReadInterleavesAsMilli.put(LdbcQuery14.TYPE, readOperation14InterleaveAsMilli);
+
             RandomDataGeneratorFactory randomFactory = new RandomDataGeneratorFactory(42l);
             double initialProbability = 1.0;
             Queue<Long> personIdBuffer = Queues.synchronizedQueue(EvictingQueue.<Long>create(1024));
@@ -1079,7 +1095,8 @@ public class LdbcSnbInteractiveWorkload extends Workload {
                     compressionRatio,
                     personIdBuffer,
                     messageIdBuffer,
-                    randomFactory
+                    randomFactory,
+                    longReadInterleavesAsMilli
             );
         }
 

@@ -9,6 +9,7 @@ import com.ldbc.driver.util.Tuple;
 import org.apache.commons.math3.random.RandomDataGenerator;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Queue;
 import java.util.Set;
 
@@ -16,25 +17,39 @@ public class LdbcSnbShortReadGenerator implements ChildOperationGenerator {
     private final double initialProbability;
     private final LdbcShortQueryFactory[] shortReadFactories;
     private final double[] probabilityDegradationFactors;
-    private final long interleaveAsMilli;
     private final Queue<Long> personIdBuffer;
     private final Queue<Long> messageIdBuffer;
+    private final long[] interleavesAsMilli;
 
     // TODO scheduled start times that follow long reads should be long read start time + long read interval
     // TODO scheduled start times that follow short reads should be short read start time + short read interval
 
     public LdbcSnbShortReadGenerator(double initialProbability,
                                      double probabilityDegradationFactor,
-                                     long interleaveAsMilli,
+                                     long updateInterleaveAsMilli,
                                      Set<Class> enabledShortReadOperationTypes,
                                      double compressionRatio,
                                      Queue<Long> personIdBuffer,
                                      Queue<Long> messageIdBuffer,
-                                     RandomDataGeneratorFactory randomFactory) {
+                                     RandomDataGeneratorFactory randomFactory,
+                                     Map<Integer, Long> longReadInterleaves) {
         this.initialProbability = initialProbability;
         this.personIdBuffer = personIdBuffer;
         this.messageIdBuffer = messageIdBuffer;
-        this.interleaveAsMilli = Math.round(Math.ceil(compressionRatio * interleaveAsMilli));
+
+        int maxReadOperationType = Ordering.<Integer>natural().max(LdbcQuery14.TYPE, LdbcShortQuery7MessageReplies.TYPE) + 1;
+        this.interleavesAsMilli = new long[maxReadOperationType];
+        for (Integer longReadOperationType : longReadInterleaves.keySet()) {
+            this.interleavesAsMilli[longReadOperationType] = Math.round(Math.ceil(compressionRatio * longReadInterleaves.get(longReadOperationType)));
+        }
+        this.interleavesAsMilli[LdbcShortQuery1PersonProfile.TYPE] = Math.round(Math.ceil(compressionRatio * updateInterleaveAsMilli));
+        this.interleavesAsMilli[LdbcShortQuery2PersonPosts.TYPE] = Math.round(Math.ceil(compressionRatio * updateInterleaveAsMilli));
+        this.interleavesAsMilli[LdbcShortQuery3PersonFriends.TYPE] = Math.round(Math.ceil(compressionRatio * updateInterleaveAsMilli));
+        this.interleavesAsMilli[LdbcShortQuery4MessageContent.TYPE] = Math.round(Math.ceil(compressionRatio * updateInterleaveAsMilli));
+        this.interleavesAsMilli[LdbcShortQuery5MessageCreator.TYPE] = Math.round(Math.ceil(compressionRatio * updateInterleaveAsMilli));
+        this.interleavesAsMilli[LdbcShortQuery6MessageForum.TYPE] = Math.round(Math.ceil(compressionRatio * updateInterleaveAsMilli));
+        this.interleavesAsMilli[LdbcShortQuery7MessageReplies.TYPE] = Math.round(Math.ceil(compressionRatio * updateInterleaveAsMilli));
+
         int maxOperationType = Ordering.<Integer>natural().max(LdbcQuery14.TYPE, LdbcShortQuery7MessageReplies.TYPE, LdbcUpdate8AddFriendship.TYPE) + 1;
         this.shortReadFactories = new LdbcShortQueryFactory[maxOperationType];
         this.probabilityDegradationFactors = new double[maxOperationType];
@@ -462,7 +477,7 @@ public class LdbcSnbShortReadGenerator implements ChildOperationGenerator {
                 break;
             }
         }
-        return shortReadFactories[operation.type()].create(personIdBuffer, messageIdBuffer, operation.scheduledStartTimeAsMilli(), state);
+        return shortReadFactories[operation.type()].create(personIdBuffer, messageIdBuffer, operation, state);
     }
 
     @Override
@@ -471,14 +486,14 @@ public class LdbcSnbShortReadGenerator implements ChildOperationGenerator {
     }
 
     private interface LdbcShortQueryFactory {
-        Operation create(Queue<Long> personIdBuffer, Queue<Long> messageIdBuffer, long previousScheduledStartTime, double state);
+        Operation create(Queue<Long> personIdBuffer, Queue<Long> messageIdBuffer, Operation previousOperation, double state);
 
         String describe();
     }
 
     private class NoOpFactory implements LdbcShortQueryFactory {
         @Override
-        public Operation create(Queue<Long> personIdBuffer, Queue<Long> messageIdBuffer, long previousScheduledStartTime, double state) {
+        public Operation create(Queue<Long> personIdBuffer, Queue<Long> messageIdBuffer, Operation previousOperation, double state) {
             return null;
         }
 
@@ -496,7 +511,7 @@ public class LdbcSnbShortReadGenerator implements ChildOperationGenerator {
         }
 
         @Override
-        public Operation create(Queue<Long> personIdBuffer, Queue<Long> messageIdBuffer, long previousScheduledStartTime, double state) {
+        public Operation create(Queue<Long> personIdBuffer, Queue<Long> messageIdBuffer, Operation previousOperation, double state) {
             throw new RuntimeException(String.format("Encountered disabled short read: %s - it should not have been executed", operationType.getSimpleName()));
         }
 
@@ -520,10 +535,10 @@ public class LdbcSnbShortReadGenerator implements ChildOperationGenerator {
         }
 
         @Override
-        public Operation create(Queue<Long> personIdBuffer, Queue<Long> messageIdBuffer, long previousScheduledStartTime, double state) {
+        public Operation create(Queue<Long> personIdBuffer, Queue<Long> messageIdBuffer, Operation previousOperation, double state) {
             double coinToss = random.nextUniform(min, max);
             if (state > coinToss)
-                return innerFactory.create(personIdBuffer, messageIdBuffer, previousScheduledStartTime, state);
+                return innerFactory.create(personIdBuffer, messageIdBuffer, previousOperation, state);
             else
                 return null;
         }
@@ -546,9 +561,9 @@ public class LdbcSnbShortReadGenerator implements ChildOperationGenerator {
         }
 
         @Override
-        public Operation create(Queue<Long> personIdBuffer, Queue<Long> messageIdBuffer, long previousScheduledStartTime, double state) {
+        public Operation create(Queue<Long> personIdBuffer, Queue<Long> messageIdBuffer, Operation previousOperation, double state) {
             nextFactoryIndex = (nextFactoryIndex + 1) % innerFactoriesCount;
-            return innerFactories[nextFactoryIndex].create(personIdBuffer, messageIdBuffer, previousScheduledStartTime, state);
+            return innerFactories[nextFactoryIndex].create(personIdBuffer, messageIdBuffer, previousOperation, state);
         }
 
         @Override
@@ -566,13 +581,13 @@ public class LdbcSnbShortReadGenerator implements ChildOperationGenerator {
 
     private class LdbcShortQuery1Factory implements LdbcShortQueryFactory {
         @Override
-        public Operation create(Queue<Long> personIdBuffer, Queue<Long> messageIdBuffer, long previousScheduledStartTime, double state) {
+        public Operation create(Queue<Long> personIdBuffer, Queue<Long> messageIdBuffer, Operation previousOperation, double state) {
             Long id = personIdBuffer.poll();
             if (null == id) {
                 return null;
             } else {
                 Operation operation = new LdbcShortQuery1PersonProfile(id);
-                operation.setScheduledStartTimeAsMilli(previousScheduledStartTime + interleaveAsMilli);
+                operation.setScheduledStartTimeAsMilli(previousOperation.scheduledStartTimeAsMilli() + interleavesAsMilli[previousOperation.type()]);
                 return operation;
             }
         }
@@ -585,13 +600,13 @@ public class LdbcSnbShortReadGenerator implements ChildOperationGenerator {
 
     private class LdbcShortQuery2Factory implements LdbcShortQueryFactory {
         @Override
-        public Operation create(Queue<Long> personIdBuffer, Queue<Long> messageIdBuffer, long previousScheduledStartTime, double state) {
+        public Operation create(Queue<Long> personIdBuffer, Queue<Long> messageIdBuffer, Operation previousOperation, double state) {
             Long id = personIdBuffer.poll();
             if (null == id) {
                 return null;
             } else {
                 Operation operation = new LdbcShortQuery2PersonPosts(id, LdbcShortQuery2PersonPosts.DEFAULT_LIMIT);
-                operation.setScheduledStartTimeAsMilli(previousScheduledStartTime + interleaveAsMilli);
+                operation.setScheduledStartTimeAsMilli(previousOperation.scheduledStartTimeAsMilli() + interleavesAsMilli[previousOperation.type()]);
                 return operation;
             }
         }
@@ -604,13 +619,13 @@ public class LdbcSnbShortReadGenerator implements ChildOperationGenerator {
 
     private class LdbcShortQuery3Factory implements LdbcShortQueryFactory {
         @Override
-        public Operation create(Queue<Long> personIdBuffer, Queue<Long> messageIdBuffer, long previousScheduledStartTime, double state) {
+        public Operation create(Queue<Long> personIdBuffer, Queue<Long> messageIdBuffer, Operation previousOperation, double state) {
             Long id = personIdBuffer.poll();
             if (null == id) {
                 return null;
             } else {
                 Operation operation = new LdbcShortQuery3PersonFriends(id);
-                operation.setScheduledStartTimeAsMilli(previousScheduledStartTime + interleaveAsMilli);
+                operation.setScheduledStartTimeAsMilli(previousOperation.scheduledStartTimeAsMilli() + interleavesAsMilli[previousOperation.type()]);
                 return operation;
             }
         }
@@ -623,13 +638,13 @@ public class LdbcSnbShortReadGenerator implements ChildOperationGenerator {
 
     private class LdbcShortQuery4Factory implements LdbcShortQueryFactory {
         @Override
-        public Operation create(Queue<Long> personIdBuffer, Queue<Long> messageIdBuffer, long previousScheduledStartTime, double state) {
+        public Operation create(Queue<Long> personIdBuffer, Queue<Long> messageIdBuffer, Operation previousOperation, double state) {
             Long id = messageIdBuffer.poll();
             if (null == id) {
                 return null;
             } else {
                 Operation operation = new LdbcShortQuery4MessageContent(id);
-                operation.setScheduledStartTimeAsMilli(previousScheduledStartTime + interleaveAsMilli);
+                operation.setScheduledStartTimeAsMilli(previousOperation.scheduledStartTimeAsMilli() + interleavesAsMilli[previousOperation.type()]);
                 return operation;
             }
         }
@@ -642,13 +657,13 @@ public class LdbcSnbShortReadGenerator implements ChildOperationGenerator {
 
     private class LdbcShortQuery5Factory implements LdbcShortQueryFactory {
         @Override
-        public Operation create(Queue<Long> personIdBuffer, Queue<Long> messageIdBuffer, long previousScheduledStartTime, double state) {
+        public Operation create(Queue<Long> personIdBuffer, Queue<Long> messageIdBuffer, Operation previousOperation, double state) {
             Long id = messageIdBuffer.poll();
             if (null == id) {
                 return null;
             } else {
                 Operation operation = new LdbcShortQuery5MessageCreator(id);
-                operation.setScheduledStartTimeAsMilli(previousScheduledStartTime + interleaveAsMilli);
+                operation.setScheduledStartTimeAsMilli(previousOperation.scheduledStartTimeAsMilli() + interleavesAsMilli[previousOperation.type()]);
                 return operation;
             }
         }
@@ -661,13 +676,13 @@ public class LdbcSnbShortReadGenerator implements ChildOperationGenerator {
 
     private class LdbcShortQuery6Factory implements LdbcShortQueryFactory {
         @Override
-        public Operation create(Queue<Long> personIdBuffer, Queue<Long> messageIdBuffer, long previousScheduledStartTime, double state) {
+        public Operation create(Queue<Long> personIdBuffer, Queue<Long> messageIdBuffer, Operation previousOperation, double state) {
             Long id = messageIdBuffer.poll();
             if (null == id) {
                 return null;
             } else {
                 Operation operation = new LdbcShortQuery6MessageForum(id);
-                operation.setScheduledStartTimeAsMilli(previousScheduledStartTime + interleaveAsMilli);
+                operation.setScheduledStartTimeAsMilli(previousOperation.scheduledStartTimeAsMilli() + interleavesAsMilli[previousOperation.type()]);
                 return operation;
             }
         }
@@ -680,13 +695,13 @@ public class LdbcSnbShortReadGenerator implements ChildOperationGenerator {
 
     private class LdbcShortQuery7Factory implements LdbcShortQueryFactory {
         @Override
-        public Operation create(Queue<Long> personIdBuffer, Queue<Long> messageIdBuffer, long previousScheduledStartTime, double state) {
+        public Operation create(Queue<Long> personIdBuffer, Queue<Long> messageIdBuffer, Operation previousOperation, double state) {
             Long id = messageIdBuffer.poll();
             if (null == id) {
                 return null;
             } else {
                 Operation operation = new LdbcShortQuery7MessageReplies(id);
-                operation.setScheduledStartTimeAsMilli(previousScheduledStartTime + interleaveAsMilli);
+                operation.setScheduledStartTimeAsMilli(previousOperation.scheduledStartTimeAsMilli() + interleavesAsMilli[previousOperation.type()]);
                 return operation;
             }
         }

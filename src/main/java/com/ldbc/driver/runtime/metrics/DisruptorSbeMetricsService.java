@@ -13,6 +13,7 @@ import uk.co.real_logic.sbe.codec.java.DirectBuffer;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
@@ -35,7 +36,7 @@ public class DisruptorSbeMetricsService implements MetricsService {
     private final RingBuffer<DirectBuffer> ringBuffer;
     private final Disruptor<DirectBuffer> disruptor;
     private final DisruptorSbeMetricsEventHandler eventHandler;
-    private final List<DisruptorSbeConcurrentMetricsServiceWriter> metricsServiceWriters;
+    private final ConcurrentLinkedQueue<DisruptorSbeConcurrentMetricsServiceWriter> metricsServiceWriters;
     private final ExecutorService executor;
 
     public DisruptorSbeMetricsService(TimeSource timeSource,
@@ -83,7 +84,7 @@ public class DisruptorSbeMetricsService implements MetricsService {
         ringBuffer = disruptor.start();
 
         this.timeSource = timeSource;
-        metricsServiceWriters = new ArrayList<>();
+        metricsServiceWriters = new ConcurrentLinkedQueue<>();
     }
 
     @Override

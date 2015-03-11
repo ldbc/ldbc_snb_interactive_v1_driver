@@ -13,6 +13,7 @@ import com.lmax.disruptor.dsl.ProducerType;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
@@ -39,7 +40,7 @@ public class DisruptorJavolutionMetricsService implements MetricsService {
     private final RingBuffer<DisruptorJavolutionMetricsEvent> ringBuffer;
     private final Disruptor<DisruptorJavolutionMetricsEvent> disruptor;
     private final DisruptorJavolutionMetricsEventHandler eventHandler;
-    private final List<DisruptorJavolutionConcurrentMetricsServiceWriter> metricsServiceWriters;
+    private final ConcurrentLinkedQueue<DisruptorJavolutionConcurrentMetricsServiceWriter> metricsServiceWriters;
     private final ExecutorService executor;
 
     public DisruptorJavolutionMetricsService(TimeSource timeSource,
@@ -87,7 +88,7 @@ public class DisruptorJavolutionMetricsService implements MetricsService {
         ringBuffer = disruptor.start();
 
         this.timeSource = timeSource;
-        metricsServiceWriters = new ArrayList<>();
+        metricsServiceWriters = new ConcurrentLinkedQueue<>();
     }
 
     @Override

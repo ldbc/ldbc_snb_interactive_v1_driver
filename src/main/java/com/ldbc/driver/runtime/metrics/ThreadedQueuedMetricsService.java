@@ -11,6 +11,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Queue;
+import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
@@ -34,7 +35,7 @@ public class ThreadedQueuedMetricsService implements MetricsService {
     private final AtomicLong initiatedEvents;
     private final ThreadedQueuedMetricsServiceThread threadedQueuedMetricsServiceThread;
     private final AtomicBoolean shutdown = new AtomicBoolean(false);
-    private final List<ThreadedQueuedMetricsServiceWriter> metricsServiceWriters;
+    private final ConcurrentLinkedQueue<ThreadedQueuedMetricsServiceWriter> metricsServiceWriters;
 
     public static ThreadedQueuedMetricsService newInstanceUsingNonBlockingBoundedQueue(TimeSource timeSource,
                                                                                                  ConcurrentErrorReporter errorReporter,
@@ -80,7 +81,7 @@ public class ThreadedQueuedMetricsService implements MetricsService {
         this.timeSource = timeSource;
         queueEventSubmitter = QueueEventSubmitter.queueEventSubmitterFor(queue);
         initiatedEvents = new AtomicLong(0);
-        metricsServiceWriters = new ArrayList<>();
+        metricsServiceWriters = new ConcurrentLinkedQueue<>();
         threadedQueuedMetricsServiceThread = new ThreadedQueuedMetricsServiceThread(
                 errorReporter,
                 queue,
