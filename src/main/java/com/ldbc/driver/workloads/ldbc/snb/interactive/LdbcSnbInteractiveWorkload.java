@@ -195,7 +195,7 @@ public class LdbcSnbInteractiveWorkload extends Workload {
 
         List<String> frequencyKeys = Lists.newArrayList(LdbcSnbInteractiveConfiguration.READ_OPERATION_FREQUENCY_KEYS);
         Set<String> missingFrequencyKeys = LdbcSnbInteractiveConfiguration.missingParameters(params, frequencyKeys);
-        if (enabledWriteOperationTypes.isEmpty()) {
+        if (enabledWriteOperationTypes.isEmpty() && false == params.containsKey(LdbcSnbInteractiveConfiguration.UPDATE_INTERLEAVE)) {
             // if UPDATE_INTERLEAVE is missing, set it to DEFAULT
             params.put(LdbcSnbInteractiveConfiguration.UPDATE_INTERLEAVE, LdbcSnbInteractiveConfiguration.DEFAULT_UPDATE_INTERLEAVE);
         }
