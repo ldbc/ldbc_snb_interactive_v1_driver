@@ -1,6 +1,7 @@
 package com.ldbc.driver;
 
 import com.google.common.base.Charsets;
+import com.google.common.collect.Iterators;
 import com.ldbc.driver.control.*;
 import com.ldbc.driver.generator.GeneratorFactory;
 import com.ldbc.driver.generator.RandomDataGeneratorFactory;
@@ -159,7 +160,6 @@ public class Client {
     }
 
     private class ExecuteWorkloadMode implements ClientMode {
-        private final TemporalUtil temporalUtil = new TemporalUtil();
         private final ControlService controlService;
         private final TimeSource timeSource;
 
@@ -280,7 +280,7 @@ public class Client {
             }
 
             logger.info(String.format("Retrieving operation stream for workload: %s", workload.getClass().getSimpleName()));
-            controlService.setWorkloadStartTimeAsMilli(System.currentTimeMillis() + TimeUnit.SECONDS.toMillis(2));
+            controlService.setWorkloadStartTimeAsMilli(System.currentTimeMillis() + TimeUnit.SECONDS.toMillis(10));
             WorkloadStreams timeMappedWorkloadStreams;
             try {
                 timeMappedWorkloadStreams = WorkloadStreams.timeOffsetAndCompressWorkloadStreams(
@@ -614,8 +614,12 @@ public class Client {
                 logger.info(String.format("Validating database against expected results\n * Db: %s\n * Validation Params File: %s",
                         db.getClass().getName(), validationParamsFile.getAbsolutePath()));
 
+                int validationParamsCount;
                 SimpleCsvFileReader validationParamsReader;
                 try {
+                    validationParamsReader = new SimpleCsvFileReader(validationParamsFile, SimpleCsvFileReader.DEFAULT_COLUMN_SEPARATOR_PATTERN);
+                    validationParamsCount = Iterators.size(validationParamsReader);
+                    validationParamsReader.close();
                     validationParamsReader = new SimpleCsvFileReader(validationParamsFile, SimpleCsvFileReader.DEFAULT_COLUMN_SEPARATOR_PATTERN);
                 } catch (IOException e) {
                     throw new ClientException("Error encountered trying to create CSV file reader", e);
@@ -627,7 +631,7 @@ public class Client {
                     databaseValidationResult = dbValidator.validate(
                             validationParams,
                             db,
-                            workload.dbValidationParametersFilter(0)
+                            validationParamsCount
                     );
                     logger.info(databaseValidationResult.resultMessage());
                 } catch (WorkloadException e) {

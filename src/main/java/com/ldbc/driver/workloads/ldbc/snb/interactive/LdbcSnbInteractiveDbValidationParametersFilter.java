@@ -88,13 +88,21 @@ class LdbcSnbInteractiveDbValidationParametersFilter implements DbValidationPara
 
     private boolean validationParameterGenerationFinished() {
         // check that all writes have completed
-        haveCompletedAllRequiredResultsPerOperationType(remainingRequiredResultsPerWriteType);
+        if (false == haveCompletedAllRequiredResultsPerOperationType(remainingRequiredResultsPerWriteType)) {
+            return false;
+        }
         // check that all long reads have completed
-        haveCompletedAllRequiredResultsPerOperationType(remainingRequiredResultsPerLongReadType);
+        if (false == haveCompletedAllRequiredResultsPerOperationType(remainingRequiredResultsPerLongReadType)) {
+            return false;
+        }
         // check that all Add Person writes have completed
-        if (writeAddPersonOperationCount > 0) return false;
+        if (writeAddPersonOperationCount > 0) {
+            return false;
+        }
         // check that all short reads have completed
-        if (uncompletedShortReads > 0) return false;
+        if (uncompletedShortReads > 0) {
+            return false;
+        }
         // we're done
         return true;
     }

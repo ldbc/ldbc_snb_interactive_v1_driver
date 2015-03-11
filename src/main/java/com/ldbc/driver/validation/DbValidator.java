@@ -3,14 +3,18 @@ package com.ldbc.driver.validation;
 import com.ldbc.driver.*;
 import com.ldbc.driver.runtime.ConcurrentErrorReporter;
 
+import java.text.DecimalFormat;
 import java.util.Iterator;
 
 public class DbValidator {
     public DbValidationResult validate(Iterator<ValidationParam> validationParameters,
                                        Db db,
-                                       Workload.DbValidationParametersFilter dbValidationParametersFilter) throws WorkloadException {
+                                       int validationParamsCount) throws WorkloadException {
+        System.out.println("----");
+        DecimalFormat numberFormat = new DecimalFormat("###,###,###,###,###");
         DbValidationResult dbValidationResult = new DbValidationResult(db);
         ResultReporter resultReporter = new ResultReporter.SimpleResultReporter();
+        int validationParamsCompletedSoFar = 0;
         while (validationParameters.hasNext()) {
             ValidationParam validationParam = validationParameters.next();
             Operation<?> operation = validationParam.operation();
@@ -32,6 +36,9 @@ public class DbValidator {
                 dbValidationResult.reportUnableToExecuteOperation(operation, ConcurrentErrorReporter.stackTraceToString(e));
                 continue;
             } finally {
+                validationParamsCompletedSoFar++;
+                if (validationParamsCompletedSoFar % 10 == 0)
+                    System.out.print(String.format("Validated %s of %s\r", numberFormat.format(validationParamsCompletedSoFar), numberFormat.format(validationParamsCount)));
                 handlerRunner.cleanup();
             }
 
@@ -44,6 +51,7 @@ public class DbValidator {
 
             dbValidationResult.reportSuccessfulExecution(operation);
         }
+        System.out.println("----");
         return dbValidationResult;
     }
 }

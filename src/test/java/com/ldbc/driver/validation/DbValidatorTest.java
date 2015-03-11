@@ -72,7 +72,7 @@ public class DbValidatorTest {
         DbValidationResult validationResult = dbValidator.validate(
                 validationParams,
                 db,
-                workload.dbValidationParametersFilter(0)
+                correctValidationParamsList.size()
         );
 
         // Then
@@ -116,7 +116,7 @@ public class DbValidatorTest {
         DbValidationResult validationResult = dbValidator.validate(
                 validationParams,
                 db,
-                workload.dbValidationParametersFilter(0)
+                10000
         );
 
         // Then
