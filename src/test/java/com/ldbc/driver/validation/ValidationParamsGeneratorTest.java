@@ -33,6 +33,7 @@ public class ValidationParamsGeneratorTest {
     @Rule
     public TemporaryFolder temporaryFolder = new TemporaryFolder();
 
+    // TODO remove
     @Ignore
     @Test
     public void generatedValidationFileLengthShouldEqualMinimumOfValidationSetSizeParamAndOperationsStreamLengthWhenBothAreEqual() throws IOException, DriverConfigurationException, WorkloadException, DbException {

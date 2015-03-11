@@ -80,7 +80,7 @@ public class WorkloadRunnerTest {
             int statusDisplayInterval = 1;
             TimeUnit timeUnit = TimeUnit.NANOSECONDS;
             String resultDirPath = temporaryFolder.newFolder().getAbsolutePath();
-            double timeCompressionRatio = 0.00001;
+            double timeCompressionRatio = 0.0000001;
             Set<String> peerIds = new HashSet<>();
             ConsoleAndFileDriverConfiguration.ConsoleAndFileValidationParamOptions validationParams = null;
             String dbValidationFilePath = null;
@@ -184,6 +184,7 @@ public class WorkloadRunnerTest {
             assertThat((long) Iterators.size(csvResultsLogReader), greaterThanOrEqualTo(configuration.operationCount()));
             csvResultsLogReader.close();
 
+            operationCount = metricsService.getWriter().results().totalOperationCount();
             double operationsPerSecond = Math.round(((double) operationCount / workloadResults.totalRunDurationAsNano()) * ONE_SECOND_AS_NANO);
             double microSecondPerOperation = (double) TimeUnit.NANOSECONDS.toMicros(workloadResults.totalRunDurationAsNano()) / operationCount;
             System.out.println(
@@ -338,6 +339,7 @@ public class WorkloadRunnerTest {
             assertThat((long) Iterators.size(csvResultsLogReader), greaterThanOrEqualTo(configuration.operationCount()));
             csvResultsLogReader.close();
 
+            operationCount = metricsService.getWriter().results().totalOperationCount();
             double operationsPerSecond = Math.round(((double) operationCount / workloadResults.totalRunDurationAsNano()) * ONE_SECOND_AS_NANO);
             double microSecondPerOperation = (double) TimeUnit.NANOSECONDS.toMicros(workloadResults.totalRunDurationAsNano()) / operationCount;
             System.out.println(
@@ -514,6 +516,7 @@ public class WorkloadRunnerTest {
             assertThat((long) Iterators.size(csvResultsLogReader), is(configuration.operationCount())); // NOT + 1 because I didn't add csv headers
             csvResultsLogReader.close();
 
+            operationCount = metricsService.getWriter().results().totalOperationCount();
             double operationsPerSecond = Math.round(((double) operationCount / workloadResults.totalRunDurationAsNano()) * ONE_SECOND_AS_NANO);
             double microSecondPerOperation = (double) TimeUnit.NANOSECONDS.toMicros(workloadResults.totalRunDurationAsNano()) / operationCount;
             System.out.println(

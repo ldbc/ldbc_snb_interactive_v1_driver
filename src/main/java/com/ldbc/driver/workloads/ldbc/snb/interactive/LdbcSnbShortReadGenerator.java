@@ -20,6 +20,9 @@ public class LdbcSnbShortReadGenerator implements ChildOperationGenerator {
     private final Queue<Long> personIdBuffer;
     private final Queue<Long> messageIdBuffer;
 
+    // TODO scheduled start times that follow long reads should be long read start time + long read interval
+    // TODO scheduled start times that follow short reads should be short read start time + short read interval
+
     public LdbcSnbShortReadGenerator(double initialProbability,
                                      double probabilityDegradationFactor,
                                      long interleaveAsMilli,

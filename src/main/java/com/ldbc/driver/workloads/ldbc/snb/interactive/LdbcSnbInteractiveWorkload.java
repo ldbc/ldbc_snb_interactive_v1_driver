@@ -59,6 +59,7 @@ public class LdbcSnbInteractiveWorkload extends Workload {
 
     private long updateInterleaveAsMilli;
     private double compressionRatio;
+    private double shortReadDissipationFactor;
 
     private Set<Class> enabledLongReadOperationTypes;
     private Set<Class> enabledShortReadOperationTypes;
@@ -166,6 +167,15 @@ public class LdbcSnbInteractiveWorkload extends Workload {
                                 shortReadOperationEnableKey, shortReadOperationClassName),
                         e
                 );
+            }
+        }
+        if (false == enabledShortReadOperationTypes.isEmpty()) {
+            if (false == params.containsKey(LdbcSnbInteractiveConfiguration.SHORT_READ_DISSIPATION)) {
+                throw new WorkloadException(String.format("Configuration parameter missing: %s", LdbcSnbInteractiveConfiguration.SHORT_READ_DISSIPATION));
+            }
+            shortReadDissipationFactor = Double.parseDouble(params.get(LdbcSnbInteractiveConfiguration.SHORT_READ_DISSIPATION));
+            if (shortReadDissipationFactor < 0 || shortReadDissipationFactor > 1) {
+                throw new WorkloadException(String.format("Configuration parameter %s should be in interval [1.0,0.0] but is: %s", shortReadDissipationFactor));
             }
         }
 
@@ -1059,12 +1069,11 @@ public class LdbcSnbInteractiveWorkload extends Workload {
         if (false == enabledShortReadOperationTypes.isEmpty()) {
             RandomDataGeneratorFactory randomFactory = new RandomDataGeneratorFactory(42l);
             double initialProbability = 1.0;
-            double probabilityDegradationFactor = 0.1;
             Queue<Long> personIdBuffer = Queues.synchronizedQueue(EvictingQueue.<Long>create(1024));
             Queue<Long> messageIdBuffer = Queues.synchronizedQueue(EvictingQueue.<Long>create(1024));
             shortReadsChildGenerator = new LdbcSnbShortReadGenerator(
                     initialProbability,
-                    probabilityDegradationFactor,
+                    shortReadDissipationFactor,
                     updateInterleaveAsMilli,
                     enabledShortReadOperationTypes,
                     compressionRatio,

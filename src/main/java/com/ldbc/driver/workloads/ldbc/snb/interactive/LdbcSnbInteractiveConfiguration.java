@@ -21,6 +21,10 @@ public class LdbcSnbInteractiveConfiguration {
     // directory containing forum and person update event streams
     public final static String UPDATES_DIRECTORY = LDBC_SNB_INTERACTIVE_PARAM_NAME_PREFIX + "updates_dir";
 
+    // Short reads random walk dissipation rate, in the interval [1.0-0.0]
+    // Higher values translate to shorter walks and therefore fewer short reads
+    public final static String SHORT_READ_DISSIPATION = LDBC_SNB_INTERACTIVE_PARAM_NAME_PREFIX + "short_read_dissipation";
+
     // minimum duration between any two dependent operations in the update streams
     public final static String SAFE_T = LDBC_SNB_INTERACTIVE_PARAM_NAME_PREFIX + "gct_delta_duration";
     // Average distance between updates in simulation time
