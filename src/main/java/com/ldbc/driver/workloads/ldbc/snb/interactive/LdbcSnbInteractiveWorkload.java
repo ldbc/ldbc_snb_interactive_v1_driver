@@ -199,11 +199,11 @@ public class LdbcSnbInteractiveWorkload extends Workload {
             // if UPDATE_INTERLEAVE is missing, set it to DEFAULT
             params.put(LdbcSnbInteractiveConfiguration.UPDATE_INTERLEAVE, LdbcSnbInteractiveConfiguration.DEFAULT_UPDATE_INTERLEAVE);
         }
+        if (false == params.containsKey(LdbcSnbInteractiveConfiguration.UPDATE_INTERLEAVE)) {
+            throw new WorkloadException(String.format("Workload could not initialize. Missing parameter: %s", LdbcSnbInteractiveConfiguration.UPDATE_INTERLEAVE));
+        }
         updateInterleaveAsMilli = Integer.parseInt(params.get(LdbcSnbInteractiveConfiguration.UPDATE_INTERLEAVE));
         if (missingFrequencyKeys.isEmpty()) {
-            if (false == params.containsKey(LdbcSnbInteractiveConfiguration.UPDATE_INTERLEAVE)) {
-                throw new WorkloadException(String.format("Workload could not initialize. Missing parameter: %s", LdbcSnbInteractiveConfiguration.UPDATE_INTERLEAVE));
-            }
             // compute interleave based on frequencies
             params = LdbcSnbInteractiveConfiguration.convertFrequenciesToInterleaves(params);
         } else {
@@ -1113,31 +1113,38 @@ public class LdbcSnbInteractiveWorkload extends Workload {
                 LdbcQuery12.class,
                 LdbcQuery14.class
         );
-        Integer longReadOperationTypeCount = enabledLongReadOperationTypes.size();
-        long minimumResultCountPerOperationType = Math.max(1, Math.round(Math.floor(requiredValidationParameterCount.doubleValue() / longReadOperationTypeCount.doubleValue())));
 
-        final Map<Class, Long> remainingRequiredResultsPerOperationType = new HashMap<>();
-        long resultCountsAssignedSoFar = 0;
-        for (Class operationType : enabledLongReadOperationTypes) {
-            remainingRequiredResultsPerOperationType.put(operationType, minimumResultCountPerOperationType);
-            resultCountsAssignedSoFar = resultCountsAssignedSoFar + minimumResultCountPerOperationType;
-        }
-        for (Class operationType : remainingRequiredResultsPerOperationType.keySet()) {
-            if (resultCountsAssignedSoFar >= requiredValidationParameterCount)
-                break;
-            remainingRequiredResultsPerOperationType.put(operationType, remainingRequiredResultsPerOperationType.get(operationType) + 1);
-            resultCountsAssignedSoFar++;
+        Integer operationTypeCount = enabledLongReadOperationTypes.size() + enabledWriteOperationTypes.size();
+        long minimumResultCountPerOperationType = Math.max(
+                1,
+                Math.round(Math.floor(requiredValidationParameterCount.doubleValue() / operationTypeCount.doubleValue()))
+        );
+
+        long writeAddPersonOperationCount = (enabledWriteOperationTypes.contains(LdbcUpdate1AddPerson.class))
+                ? minimumResultCountPerOperationType
+                : 0;
+
+        final Map<Class, Long> remainingRequiredResultsPerUpdateType = new HashMap<>();
+        long resultCountsAssignedForUpdateTypesSoFar = 0;
+        for (Class updateOperationType : enabledWriteOperationTypes) {
+            if (updateOperationType.equals(LdbcUpdate1AddPerson.class)) continue;
+            remainingRequiredResultsPerUpdateType.put(updateOperationType, minimumResultCountPerOperationType);
+            resultCountsAssignedForUpdateTypesSoFar = resultCountsAssignedForUpdateTypesSoFar + minimumResultCountPerOperationType;
         }
 
-        // TODO magic number - could do better than this
-        int writeAddPersonOperationCount = 5;
+        final Map<Class, Long> remainingRequiredResultsPerLongReadType = new HashMap<>();
+        long resultCountsAssignedForLongReadTypesSoFar = 0;
+        for (Class longReadOperationType : enabledLongReadOperationTypes) {
+            remainingRequiredResultsPerLongReadType.put(longReadOperationType, minimumResultCountPerOperationType);
+            resultCountsAssignedForLongReadTypesSoFar = resultCountsAssignedForLongReadTypesSoFar + minimumResultCountPerOperationType;
+        }
 
         return new LdbcSnbInteractiveDbValidationParametersFilter(
                 multiResultOperations,
-                remainingRequiredResultsPerOperationType,
-                enabledShortReadOperationTypes,
-                enabledWriteOperationTypes,
-                writeAddPersonOperationCount
+                writeAddPersonOperationCount,
+                remainingRequiredResultsPerUpdateType,
+                remainingRequiredResultsPerLongReadType,
+                enabledShortReadOperationTypes
         );
     }
 

@@ -17,6 +17,7 @@ public class ValidationParamsGenerator extends Generator<ValidationParam> {
     private final ResultReporter resultReporter = new ResultReporter.SimpleResultReporter();
     private int entriesWrittenSoFar;
     private boolean needMoreValidationParameters;
+    private final List<Operation> injectedOperations;
 
     public ValidationParamsGenerator(Db db,
                                      DbValidationParametersFilter dbValidationParametersFilter,
@@ -26,6 +27,7 @@ public class ValidationParamsGenerator extends Generator<ValidationParam> {
         this.operations = operations;
         this.entriesWrittenSoFar = 0;
         this.needMoreValidationParameters = true;
+        this.injectedOperations = new ArrayList<>();
     }
 
     public int entriesWrittenSoFar() {
@@ -34,11 +36,13 @@ public class ValidationParamsGenerator extends Generator<ValidationParam> {
 
     @Override
     protected ValidationParam doNext() throws GeneratorException {
-        List<Operation> injectedOperations = new ArrayList<>();
         while ((injectedOperations.size() > 0 || operations.hasNext()) && needMoreValidationParameters) {
-            Operation<?> operation = (injectedOperations.isEmpty())
-                    ? operations.next()
-                    : injectedOperations.remove(0);
+            Operation<?> operation;
+            if (injectedOperations.isEmpty()) {
+                operation = operations.next();
+            } else {
+                operation = injectedOperations.remove(0);
+            }
 
             if (false == dbValidationParametersFilter.useOperation(operation))
                 continue;
@@ -74,6 +78,7 @@ public class ValidationParamsGenerator extends Generator<ValidationParam> {
             Object result = resultReporter.result();
             DbValidationParametersFilterResult dbValidationParametersFilterResult = dbValidationParametersFilter.useOperationAndResultForValidation(operation, result);
             injectedOperations.addAll(dbValidationParametersFilterResult.injectedOperations());
+
             switch (dbValidationParametersFilterResult.acceptance()) {
                 case REJECT_AND_CONTINUE:
                     continue;
@@ -87,6 +92,13 @@ public class ValidationParamsGenerator extends Generator<ValidationParam> {
                     entriesWrittenSoFar++;
                     needMoreValidationParameters = false;
                     return ValidationParam.createUntyped(operation, result);
+                default:
+                    throw new GeneratorException(
+                            String.format("Unrecognized %s value: %s",
+                                    Workload.DbValidationParametersFilterAcceptance.class.getSimpleName(),
+                                    dbValidationParametersFilterResult.acceptance().name()
+                            )
+                    );
             }
         }
         // ran out of operations OR validation set size has been reached

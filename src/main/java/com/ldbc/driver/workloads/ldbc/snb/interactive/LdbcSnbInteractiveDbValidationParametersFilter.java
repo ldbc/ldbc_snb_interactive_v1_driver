@@ -12,34 +12,40 @@ import java.util.Set;
 
 class LdbcSnbInteractiveDbValidationParametersFilter implements DbValidationParametersFilter {
     private final Set<Class> multiResultOperations;
-    private final Map<Class, Long> remainingRequiredResultsPerOperationType;
+    private final Map<Class, Long> remainingRequiredResultsPerWriteType;
+    private final Map<Class, Long> remainingRequiredResultsPerLongReadType;
     private final Set<Class> enabledShortReadOperationTypes;
-    private final Set<Class> enabledWriteOperationTypes;
-    private int writeAddPersonOperationCount;
+    private long writeAddPersonOperationCount;
     private int uncompletedShortReads;
 
     LdbcSnbInteractiveDbValidationParametersFilter(Set<Class> multiResultOperations,
-                                                   Map<Class, Long> remainingRequiredResultsPerOperationType,
-                                                   Set<Class> enabledShortReadOperationTypes,
-                                                   Set<Class> enabledWriteOperationTypes,
-                                                   int writeAddPersonOperationCount) {
+                                                   long writeAddPersonOperationCount,
+                                                   Map<Class, Long> remainingRequiredResultsPerWriteType,
+                                                   Map<Class, Long> remainingRequiredResultsPerLongReadType,
+                                                   Set<Class> enabledShortReadOperationTypes) {
         this.multiResultOperations = multiResultOperations;
-        this.remainingRequiredResultsPerOperationType = remainingRequiredResultsPerOperationType;
-        this.enabledShortReadOperationTypes = enabledShortReadOperationTypes;
-        this.enabledWriteOperationTypes = enabledWriteOperationTypes;
         this.writeAddPersonOperationCount = writeAddPersonOperationCount;
+        this.remainingRequiredResultsPerWriteType = remainingRequiredResultsPerWriteType;
+        this.remainingRequiredResultsPerLongReadType = remainingRequiredResultsPerLongReadType;
+        this.enabledShortReadOperationTypes = enabledShortReadOperationTypes;
         this.uncompletedShortReads = 0;
     }
 
     @Override
     public boolean useOperation(Operation<?> operation) {
         Class operationType = operation.getClass();
-        if (enabledWriteOperationTypes.contains(operationType)) {
-            return writeAddPersonOperationCount > 0;
-        } else if (enabledShortReadOperationTypes.contains(operationType)) {
+
+        if (enabledShortReadOperationTypes.contains(operationType)) {
             return true;
+        } else if (operationType.equals(LdbcUpdate1AddPerson.class)) {
+            return writeAddPersonOperationCount > 0;
+        } else if (remainingRequiredResultsPerWriteType.containsKey(operationType)) {
+            return false == haveCompletedAllRequiredResultsPerOperationType(remainingRequiredResultsPerWriteType);
+        } else if (remainingRequiredResultsPerLongReadType.containsKey(operationType)) {
+            return remainingRequiredResultsPerLongReadType.get(operationType) > 0;
         } else {
-            return remainingRequiredResultsPerOperationType.containsKey(operationType) && remainingRequiredResultsPerOperationType.get(operationType) > 0;
+            // disabled operation
+            return false;
         }
     }
 
@@ -58,35 +64,45 @@ class LdbcSnbInteractiveDbValidationParametersFilter implements DbValidationPara
         uncompletedShortReads += injectedOperations.size();
 
         if (operationType.equals(LdbcUpdate1AddPerson.class)) {
-            // updates do not return anything, but they should be executed and some default result needs to be stored in the validation parameters
+            // writes do not return anything, but they should be executed and some default result needs to be stored in the validation parameters
             writeAddPersonOperationCount--;
         } else if (enabledShortReadOperationTypes.contains(operationType)) {
             // keep track of how many injected operations have completed (only short reads are injected)
             uncompletedShortReads--;
-        } else if (enabledWriteOperationTypes.contains(operationType)) {
-            // updates do not return anything, but they should be executed and some default result needs to be stored in the validation parameters
+        } else if (remainingRequiredResultsPerWriteType.containsKey(operationType)) {
+            // decrement count for write operation type
+            remainingRequiredResultsPerWriteType.put(operationType, Math.max(0, remainingRequiredResultsPerWriteType.get(operationType) - 1));
+        } else if (remainingRequiredResultsPerLongReadType.containsKey(operationType)) {
+            // decrement count for long read operation type
+            remainingRequiredResultsPerLongReadType.put(operationType, remainingRequiredResultsPerLongReadType.get(operationType) - 1);
         } else {
-            // decrement count for operation type
-            remainingRequiredResultsPerOperationType.put(operationType, remainingRequiredResultsPerOperationType.get(operationType) - 1);
+            throw new RuntimeException("Unexpected operation type: " + operationType.getSimpleName());
         }
 
-        if (validationParameterGenerationFinished(remainingRequiredResultsPerOperationType)) {
+        if (validationParameterGenerationFinished()) {
             return new DbValidationParametersFilterResult(DbValidationParametersFilterAcceptance.ACCEPT_AND_FINISH, injectedOperations);
         } else {
             return new DbValidationParametersFilterResult(DbValidationParametersFilterAcceptance.ACCEPT_AND_CONTINUE, injectedOperations);
         }
     }
 
-    private boolean validationParameterGenerationFinished(Map<Class, Long> requiredResultsPerOperationType) {
+    private boolean validationParameterGenerationFinished() {
+        // check that all writes have completed
+        haveCompletedAllRequiredResultsPerOperationType(remainingRequiredResultsPerWriteType);
         // check that all long reads have completed
-        for (Long value : requiredResultsPerOperationType.values()) {
-            if (0 < value) return false;
-        }
+        haveCompletedAllRequiredResultsPerOperationType(remainingRequiredResultsPerLongReadType);
         // check that all Add Person writes have completed
         if (writeAddPersonOperationCount > 0) return false;
         // check that all short reads have completed
         if (uncompletedShortReads > 0) return false;
         // we're done
+        return true;
+    }
+
+    private boolean haveCompletedAllRequiredResultsPerOperationType(Map<Class, Long> requiredResultsPerOperationType) {
+        for (Long value : requiredResultsPerOperationType.values()) {
+            if (value > 0) return false;
+        }
         return true;
     }
 
