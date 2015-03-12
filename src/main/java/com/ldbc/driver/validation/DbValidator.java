@@ -31,14 +31,17 @@ public class DbValidator {
             try {
                 OperationHandler handler = handlerRunner.operationHandler();
                 DbConnectionState dbConnectionState = handlerRunner.dbConnectionState();
+                System.out.print(String.format("Validated %s / %s - currently executing: %s...\r",
+                        numberFormat.format(validationParamsCompletedSoFar),
+                        numberFormat.format(validationParamsCount),
+                        operation.getClass().getSimpleName()
+                ));
                 handler.executeOperation(operation, dbConnectionState, resultReporter);
             } catch (DbException e) {
                 dbValidationResult.reportUnableToExecuteOperation(operation, ConcurrentErrorReporter.stackTraceToString(e));
                 continue;
             } finally {
                 validationParamsCompletedSoFar++;
-                if (validationParamsCompletedSoFar % 10 == 0)
-                    System.out.print(String.format("Validated %s of %s\r", numberFormat.format(validationParamsCompletedSoFar), numberFormat.format(validationParamsCount)));
                 handlerRunner.cleanup();
             }
 

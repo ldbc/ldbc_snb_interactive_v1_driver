@@ -123,22 +123,25 @@ public class DbValidationResult {
         sb.append("Database: ").append(db.getClass().getName()).append("\n");
         sb.append("  ***\n");
         sb.append("  Successfully executed ").append(successfullyExecutedOperationsPerOperationType.size()).append(" operation types:\n");
-        for (Class operationType : sort(totalOperationsPerOperationType.keySet()))
+        for (Class operationType : sort(totalOperationsPerOperationType.keySet())) {
             sb.append("    ").
                     append((successfullyExecutedOperationsPerOperationType.containsKey(operationType)) ? successfullyExecutedOperationsPerOperationType.get(operationType) : 0).append(" / ").
                     append(String.format("%1$-" + padRightDistance + "s", totalOperationsPerOperationType.get(operationType))).
                     append(operationType.getSimpleName()).
                     append("\n");
+        }
         sb.append("  ***\n");
         sb.append("  Missing handler implementations for ").append(missingHandlersForOperationTypes.size()).append(" operation types:\n");
-        for (Class operationType : sort(missingHandlersForOperationTypes))
+        for (Class operationType : sort(missingHandlersForOperationTypes)) {
             sb.append("    ").append(String.format("%1$-" + padRightDistance + "s", operationType.getName())).append("\n");
+        }
         sb.append("  ***\n");
         sb.append("  Unable to execute ").append(unableToExecuteOperations.size()).append(" operations:\n");
-        for (Tuple.Tuple2<Operation<?>, String> failedOperationExecution : unableToExecuteOperations)
-            sb.
-                    append("    Operation: ").append(failedOperationExecution._1().toString()).append("\n").
-                    append("               ").append(failedOperationExecution._2()).append("\n");
+        for (Tuple.Tuple2<Operation<?>, String> failedOperationExecution : unableToExecuteOperations) {
+//            sb.
+//                    append("    Operation: ").append(failedOperationExecution._1().toString()).append("\n").
+//                    append("               ").append(failedOperationExecution._2()).append("\n");
+        }
         sb.append("  ***\n");
         sb.append("  Incorrect results for ").append(incorrectResultsForOperations.size()).append(" operations\n");
 //        for (Tuple.Tuple3<Operation<?>, Object, Object> incorrectResult : incorrectResultsForOperations) {
