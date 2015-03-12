@@ -71,11 +71,8 @@ public class LdbcSnbShortReadGeneratorTest {
         );
 
         // When
-        long correctedUpdateInterleaveAsMilli = Math.round(updateInterleaveAsMilli * compressionRatio);
-        long correctedLongReadInterleaveAsMilli = Math.round(longReadInterleaveAsMilli * compressionRatio);
         double state = shortReadGenerator.initialState();
         assertThat(state, is(initialProbability));
-        long previousScheduledStartTime = DummyLdbcSnbInteractiveOperationInstances.read1().scheduledStartTimeAsMilli();
         Operation operation = shortReadGenerator.nextOperation(
                 state,
                 DummyLdbcSnbInteractiveOperationInstances.read1(),
@@ -89,8 +86,7 @@ public class LdbcSnbShortReadGeneratorTest {
         // Then
         // round robbin will choose short read 1 before short read 4
         assertThat(operation.type(), equalTo(LdbcShortQuery1PersonProfile.TYPE));
-        assertThat(operation.scheduledStartTimeAsMilli(), is(previousScheduledStartTime + correctedLongReadInterleaveAsMilli));
-        previousScheduledStartTime = operation.scheduledStartTimeAsMilli();
+        assertThat(operation.scheduledStartTimeAsMilli() >= System.currentTimeMillis() && operation.scheduledStartTimeAsMilli() < System.currentTimeMillis() + 500, is(true));
         assertThat(state, is(initialProbability));
 
         state = shortReadGenerator.updateState(state, operation.type());
@@ -103,8 +99,7 @@ public class LdbcSnbShortReadGeneratorTest {
                 )
         );
         assertThat(operation.type(), equalTo(LdbcShortQuery2PersonPosts.TYPE));
-        assertThat(operation.scheduledStartTimeAsMilli(), is(previousScheduledStartTime + correctedUpdateInterleaveAsMilli));
-        previousScheduledStartTime = operation.scheduledStartTimeAsMilli();
+        assertThat(operation.scheduledStartTimeAsMilli() >= System.currentTimeMillis() && operation.scheduledStartTimeAsMilli() < System.currentTimeMillis() + 500, is(true));
 
         state = shortReadGenerator.updateState(state, operation.type());
         assertThat(state, is(initialProbability));
@@ -117,8 +112,7 @@ public class LdbcSnbShortReadGeneratorTest {
                 )
         );
         assertThat(operation.type(), equalTo(LdbcShortQuery3PersonFriends.TYPE));
-        assertThat(operation.scheduledStartTimeAsMilli(), is(previousScheduledStartTime + correctedUpdateInterleaveAsMilli));
-        previousScheduledStartTime = operation.scheduledStartTimeAsMilli();
+        assertThat(operation.scheduledStartTimeAsMilli() >= System.currentTimeMillis() && operation.scheduledStartTimeAsMilli() < System.currentTimeMillis() + 500, is(true));
 
         state = shortReadGenerator.updateState(state, operation.type());
         assertThat(state, is(initialProbability - probabilityDegradationFactor));
@@ -131,8 +125,7 @@ public class LdbcSnbShortReadGeneratorTest {
                 )
         );
         assertThat(operation.type(), equalTo(LdbcShortQuery4MessageContent.TYPE));
-        assertThat(operation.scheduledStartTimeAsMilli(), is(previousScheduledStartTime + correctedUpdateInterleaveAsMilli));
-        previousScheduledStartTime = operation.scheduledStartTimeAsMilli();
+        assertThat(operation.scheduledStartTimeAsMilli() >= System.currentTimeMillis() && operation.scheduledStartTimeAsMilli() < System.currentTimeMillis() + 500, is(true));
 
         state = shortReadGenerator.updateState(state, operation.type());
         assertThat(state, is(initialProbability - probabilityDegradationFactor));
@@ -145,8 +138,7 @@ public class LdbcSnbShortReadGeneratorTest {
                 )
         );
         assertThat(operation.type(), equalTo(LdbcShortQuery5MessageCreator.TYPE));
-        assertThat(operation.scheduledStartTimeAsMilli(), is(previousScheduledStartTime + correctedUpdateInterleaveAsMilli));
-        previousScheduledStartTime = operation.scheduledStartTimeAsMilli();
+        assertThat(operation.scheduledStartTimeAsMilli() >= System.currentTimeMillis() && operation.scheduledStartTimeAsMilli() < System.currentTimeMillis() + 500, is(true));
 
         state = shortReadGenerator.updateState(state, operation.type());
         assertThat(state, is(initialProbability - probabilityDegradationFactor));
@@ -156,8 +148,7 @@ public class LdbcSnbShortReadGeneratorTest {
                 DummyLdbcSnbInteractiveOperationResultInstances.short5Result()
         );
         assertThat(operation.type(), equalTo(LdbcShortQuery6MessageForum.TYPE));
-        assertThat(operation.scheduledStartTimeAsMilli(), is(previousScheduledStartTime + correctedUpdateInterleaveAsMilli));
-        previousScheduledStartTime = operation.scheduledStartTimeAsMilli();
+        assertThat(operation.scheduledStartTimeAsMilli() >= System.currentTimeMillis() && operation.scheduledStartTimeAsMilli() < System.currentTimeMillis() + 500, is(true));
 
         state = shortReadGenerator.updateState(state, operation.type());
         assertThat(state, is(initialProbability - probabilityDegradationFactor));
@@ -167,8 +158,7 @@ public class LdbcSnbShortReadGeneratorTest {
                 DummyLdbcSnbInteractiveOperationResultInstances.short6Result()
         );
         assertThat(operation.type(), equalTo(LdbcShortQuery7MessageReplies.TYPE));
-        assertThat(operation.scheduledStartTimeAsMilli(), is(previousScheduledStartTime + correctedUpdateInterleaveAsMilli));
-        previousScheduledStartTime = operation.scheduledStartTimeAsMilli();
+        assertThat(operation.scheduledStartTimeAsMilli() >= System.currentTimeMillis() && operation.scheduledStartTimeAsMilli() < System.currentTimeMillis() + 500, is(true));
 
         state = shortReadGenerator.updateState(state, operation.type());
         assertThat(state, is(initialProbability - probabilityDegradationFactor - probabilityDegradationFactor));
@@ -181,8 +171,7 @@ public class LdbcSnbShortReadGeneratorTest {
                 )
         );
         assertThat(operation.type(), equalTo(LdbcShortQuery1PersonProfile.TYPE));
-        assertThat(operation.scheduledStartTimeAsMilli(), is(previousScheduledStartTime + correctedUpdateInterleaveAsMilli));
-        previousScheduledStartTime = operation.scheduledStartTimeAsMilli();
+        assertThat(operation.scheduledStartTimeAsMilli() >= System.currentTimeMillis() && operation.scheduledStartTimeAsMilli() < System.currentTimeMillis() + 500, is(true));
 
         state = shortReadGenerator.updateState(state, operation.type());
         assertThat(state, is(initialProbability - probabilityDegradationFactor - probabilityDegradationFactor));
@@ -195,8 +184,7 @@ public class LdbcSnbShortReadGeneratorTest {
                 )
         );
         assertThat(operation.type(), equalTo(LdbcShortQuery2PersonPosts.TYPE));
-        assertThat(operation.scheduledStartTimeAsMilli(), is(previousScheduledStartTime + correctedUpdateInterleaveAsMilli));
-        previousScheduledStartTime = operation.scheduledStartTimeAsMilli();
+        assertThat(operation.scheduledStartTimeAsMilli() >= System.currentTimeMillis() && operation.scheduledStartTimeAsMilli() < System.currentTimeMillis() + 500, is(true));
 
         state = shortReadGenerator.updateState(state, operation.type());
         assertThat(state, is(initialProbability - probabilityDegradationFactor - probabilityDegradationFactor));
@@ -209,8 +197,7 @@ public class LdbcSnbShortReadGeneratorTest {
                 )
         );
         assertThat(operation.type(), equalTo(LdbcShortQuery3PersonFriends.TYPE));
-        assertThat(operation.scheduledStartTimeAsMilli(), is(previousScheduledStartTime + correctedUpdateInterleaveAsMilli));
-        previousScheduledStartTime = operation.scheduledStartTimeAsMilli();
+        assertThat(operation.scheduledStartTimeAsMilli() >= System.currentTimeMillis() && operation.scheduledStartTimeAsMilli() < System.currentTimeMillis() + 500, is(true));
 
         state = shortReadGenerator.updateState(state, operation.type());
         assertThat(state, is(initialProbability - probabilityDegradationFactor - probabilityDegradationFactor - probabilityDegradationFactor));
@@ -223,7 +210,7 @@ public class LdbcSnbShortReadGeneratorTest {
                 )
         );
         assertThat(operation.type(), equalTo(LdbcShortQuery4MessageContent.TYPE));
-        assertThat(operation.scheduledStartTimeAsMilli(), is(previousScheduledStartTime + correctedUpdateInterleaveAsMilli));
+        assertThat(operation.scheduledStartTimeAsMilli() >= System.currentTimeMillis() && operation.scheduledStartTimeAsMilli() < System.currentTimeMillis() + 500, is(true));
     }
 
     @Test
@@ -278,11 +265,8 @@ public class LdbcSnbShortReadGeneratorTest {
         );
 
         // When
-        long correctedUpdateInterleaveAsMilli = Math.round(updateInterleaveAsMilli * compressionRatio);
-        long correctedLongReadInterleaveAsMilli = Math.round(longReadInterleaveAsMilli * compressionRatio);
         double state = shortReadGenerator.initialState();
         assertThat(state, is(initialProbability));
-        long previousScheduledStartTime = DummyLdbcSnbInteractiveOperationInstances.read2().scheduledStartTimeAsMilli();
         Operation operation = shortReadGenerator.nextOperation(
                 state,
                 DummyLdbcSnbInteractiveOperationInstances.read2(),
@@ -296,8 +280,7 @@ public class LdbcSnbShortReadGeneratorTest {
         // Then
         // round robbin will choose short read 2 before short read 4
         assertThat(operation.type(), equalTo(LdbcShortQuery2PersonPosts.TYPE));
-        assertThat(operation.scheduledStartTimeAsMilli(), is(previousScheduledStartTime + correctedLongReadInterleaveAsMilli));
-        previousScheduledStartTime = operation.scheduledStartTimeAsMilli();
+        assertThat(operation.scheduledStartTimeAsMilli() >= System.currentTimeMillis() && operation.scheduledStartTimeAsMilli() < System.currentTimeMillis() + 500, is(true));
         assertThat(state, is(initialProbability));
 
         state = shortReadGenerator.updateState(state, operation.type());
@@ -311,8 +294,7 @@ public class LdbcSnbShortReadGeneratorTest {
                 )
         );
         assertThat(operation.type(), equalTo(LdbcShortQuery4MessageContent.TYPE));
-        assertThat(operation.scheduledStartTimeAsMilli(), is(previousScheduledStartTime + correctedUpdateInterleaveAsMilli));
-        previousScheduledStartTime = operation.scheduledStartTimeAsMilli();
+        assertThat(operation.scheduledStartTimeAsMilli() >= System.currentTimeMillis() && operation.scheduledStartTimeAsMilli() < System.currentTimeMillis() + 500, is(true));
 
         state = shortReadGenerator.updateState(state, operation.type());
         assertThat(state, is(initialProbability - probabilityDegradationFactor));
@@ -325,8 +307,7 @@ public class LdbcSnbShortReadGeneratorTest {
                 )
         );
         assertThat(operation.type(), equalTo(LdbcShortQuery5MessageCreator.TYPE));
-        assertThat(operation.scheduledStartTimeAsMilli(), is(previousScheduledStartTime + correctedUpdateInterleaveAsMilli));
-        previousScheduledStartTime = operation.scheduledStartTimeAsMilli();
+        assertThat(operation.scheduledStartTimeAsMilli() >= System.currentTimeMillis() && operation.scheduledStartTimeAsMilli() < System.currentTimeMillis() + 500, is(true));
 
         state = shortReadGenerator.updateState(state, operation.type());
         assertThat(state, is(initialProbability - probabilityDegradationFactor));
@@ -336,8 +317,7 @@ public class LdbcSnbShortReadGeneratorTest {
                 DummyLdbcSnbInteractiveOperationResultInstances.short5Result()
         );
         assertThat(operation.type(), equalTo(LdbcShortQuery7MessageReplies.TYPE));
-        assertThat(operation.scheduledStartTimeAsMilli(), is(previousScheduledStartTime + correctedUpdateInterleaveAsMilli));
-        previousScheduledStartTime = operation.scheduledStartTimeAsMilli();
+        assertThat(operation.scheduledStartTimeAsMilli() >= System.currentTimeMillis() && operation.scheduledStartTimeAsMilli() < System.currentTimeMillis() + 500, is(true));
 
         state = shortReadGenerator.updateState(state, operation.type());
         assertThat(state, is(initialProbability - probabilityDegradationFactor - probabilityDegradationFactor));
@@ -350,8 +330,7 @@ public class LdbcSnbShortReadGeneratorTest {
                 )
         );
         assertThat(operation.type(), equalTo(LdbcShortQuery2PersonPosts.TYPE));
-        assertThat(operation.scheduledStartTimeAsMilli(), is(previousScheduledStartTime + correctedUpdateInterleaveAsMilli));
-        previousScheduledStartTime = operation.scheduledStartTimeAsMilli();
+        assertThat(operation.scheduledStartTimeAsMilli() >= System.currentTimeMillis() && operation.scheduledStartTimeAsMilli() < System.currentTimeMillis() + 500, is(true));
 
         state = shortReadGenerator.updateState(state, operation.type());
         assertThat(state, is(initialProbability - probabilityDegradationFactor - probabilityDegradationFactor - probabilityDegradationFactor));
@@ -364,7 +343,7 @@ public class LdbcSnbShortReadGeneratorTest {
                 )
         );
         assertThat(operation.type(), equalTo(LdbcShortQuery4MessageContent.TYPE));
-        assertThat(operation.scheduledStartTimeAsMilli(), is(previousScheduledStartTime + correctedUpdateInterleaveAsMilli));
+        assertThat(operation.scheduledStartTimeAsMilli() >= System.currentTimeMillis() && operation.scheduledStartTimeAsMilli() < System.currentTimeMillis() + 500, is(true));
     }
 
     @Test
@@ -419,11 +398,8 @@ public class LdbcSnbShortReadGeneratorTest {
         );
 
         // When
-        long correctedUpdateInterleaveAsMilli = Math.round(updateInterleaveAsMilli * compressionRatio);
-        long correctedLongReadInterleaveAsMilli = Math.round(longReadInterleaveAsMilli * compressionRatio);
         double state = shortReadGenerator.initialState();
         assertThat(state, is(initialProbability));
-        long previousScheduledStartTime = DummyLdbcSnbInteractiveOperationInstances.read3().scheduledStartTimeAsMilli();
         Operation operation = shortReadGenerator.nextOperation(
                 state,
                 DummyLdbcSnbInteractiveOperationInstances.read3(),
@@ -436,8 +412,7 @@ public class LdbcSnbShortReadGeneratorTest {
 
         // Then
         assertThat(operation.type(), equalTo(LdbcShortQuery4MessageContent.TYPE));
-        assertThat(operation.scheduledStartTimeAsMilli(), is(previousScheduledStartTime + correctedLongReadInterleaveAsMilli));
-        previousScheduledStartTime = operation.scheduledStartTimeAsMilli();
+        assertThat(operation.scheduledStartTimeAsMilli() >= System.currentTimeMillis() && operation.scheduledStartTimeAsMilli() < System.currentTimeMillis() + 500, is(true));
         assertThat(state, is(initialProbability));
 
         state = shortReadGenerator.updateState(state, operation.type());
@@ -451,8 +426,7 @@ public class LdbcSnbShortReadGeneratorTest {
                 )
         );
         assertThat(operation.type(), equalTo(LdbcShortQuery5MessageCreator.TYPE));
-        assertThat(operation.scheduledStartTimeAsMilli(), is(previousScheduledStartTime + correctedUpdateInterleaveAsMilli));
-        previousScheduledStartTime = operation.scheduledStartTimeAsMilli();
+        assertThat(operation.scheduledStartTimeAsMilli() >= System.currentTimeMillis() && operation.scheduledStartTimeAsMilli() < System.currentTimeMillis() + 500, is(true));
 
         state = shortReadGenerator.updateState(state, operation.type());
         assertThat(state, is(initialProbability));
@@ -462,8 +436,7 @@ public class LdbcSnbShortReadGeneratorTest {
                 DummyLdbcSnbInteractiveOperationResultInstances.short5Result()
         );
         assertThat(operation.type(), equalTo(LdbcShortQuery7MessageReplies.TYPE));
-        assertThat(operation.scheduledStartTimeAsMilli(), is(previousScheduledStartTime + correctedUpdateInterleaveAsMilli));
-        previousScheduledStartTime = operation.scheduledStartTimeAsMilli();
+        assertThat(operation.scheduledStartTimeAsMilli() >= System.currentTimeMillis() && operation.scheduledStartTimeAsMilli() < System.currentTimeMillis() + 500, is(true));
 
         state = shortReadGenerator.updateState(state, operation.type());
         assertThat(state, is(initialProbability - probabilityDegradationFactor));
@@ -476,8 +449,7 @@ public class LdbcSnbShortReadGeneratorTest {
                 )
         );
         assertThat(operation.type(), equalTo(LdbcShortQuery4MessageContent.TYPE));
-        assertThat(operation.scheduledStartTimeAsMilli(), is(previousScheduledStartTime + correctedUpdateInterleaveAsMilli));
-        previousScheduledStartTime = operation.scheduledStartTimeAsMilli();
+        assertThat(operation.scheduledStartTimeAsMilli() >= System.currentTimeMillis() && operation.scheduledStartTimeAsMilli() < System.currentTimeMillis() + 500, is(true));
 
         state = shortReadGenerator.updateState(state, operation.type());
         assertThat(state, is(initialProbability - probabilityDegradationFactor));
@@ -490,7 +462,7 @@ public class LdbcSnbShortReadGeneratorTest {
                 )
         );
         assertThat(operation.type(), equalTo(LdbcShortQuery5MessageCreator.TYPE));
-        assertThat(operation.scheduledStartTimeAsMilli(), is(previousScheduledStartTime + correctedUpdateInterleaveAsMilli));
+        assertThat(operation.scheduledStartTimeAsMilli() >= System.currentTimeMillis() && operation.scheduledStartTimeAsMilli() < System.currentTimeMillis() + 500, is(true));
     }
 
     @Test
@@ -545,11 +517,8 @@ public class LdbcSnbShortReadGeneratorTest {
         );
 
         // When
-        long correctedUpdateInterleaveAsMilli = Math.round(updateInterleaveAsMilli * compressionRatio);
-        long correctedLongReadInterleaveAsMilli = Math.round(longReadInterleaveAsMilli * compressionRatio);
         double state = shortReadGenerator.initialState();
         assertThat(state, is(initialProbability));
-        long previousScheduledStartTime = DummyLdbcSnbInteractiveOperationInstances.read2().scheduledStartTimeAsMilli();
         Operation operation = shortReadGenerator.nextOperation(
                 state,
                 DummyLdbcSnbInteractiveOperationInstances.read1(),
@@ -562,8 +531,7 @@ public class LdbcSnbShortReadGeneratorTest {
 
         // Then
         assertThat(operation.type(), equalTo(LdbcShortQuery7MessageReplies.TYPE));
-        assertThat(operation.scheduledStartTimeAsMilli(), is(previousScheduledStartTime + correctedLongReadInterleaveAsMilli));
-        previousScheduledStartTime = operation.scheduledStartTimeAsMilli();
+        assertThat(operation.scheduledStartTimeAsMilli() >= System.currentTimeMillis() && operation.scheduledStartTimeAsMilli() < System.currentTimeMillis() + 500, is(true));
         assertThat(state, is(initialProbability));
 
         state = shortReadGenerator.updateState(state, operation.type());
@@ -577,8 +545,7 @@ public class LdbcSnbShortReadGeneratorTest {
                 )
         );
         assertThat(operation.type(), equalTo(LdbcShortQuery7MessageReplies.TYPE));
-        assertThat(operation.scheduledStartTimeAsMilli(), is(previousScheduledStartTime + correctedUpdateInterleaveAsMilli));
-        previousScheduledStartTime = operation.scheduledStartTimeAsMilli();
+        assertThat(operation.scheduledStartTimeAsMilli() >= System.currentTimeMillis() && operation.scheduledStartTimeAsMilli() < System.currentTimeMillis() + 500, is(true));
 
         state = shortReadGenerator.updateState(state, operation.type());
         assertThat(state, is(initialProbability - probabilityDegradationFactor - probabilityDegradationFactor));
@@ -591,8 +558,7 @@ public class LdbcSnbShortReadGeneratorTest {
                 )
         );
         assertThat(operation.type(), equalTo(LdbcShortQuery7MessageReplies.TYPE));
-        assertThat(operation.scheduledStartTimeAsMilli(), is(previousScheduledStartTime + correctedUpdateInterleaveAsMilli));
-        previousScheduledStartTime = operation.scheduledStartTimeAsMilli();
+        assertThat(operation.scheduledStartTimeAsMilli() >= System.currentTimeMillis() && operation.scheduledStartTimeAsMilli() < System.currentTimeMillis() + 500, is(true));
 
         state = shortReadGenerator.updateState(state, operation.type());
         assertThat(state, is(initialProbability - probabilityDegradationFactor - probabilityDegradationFactor - probabilityDegradationFactor));
@@ -605,8 +571,7 @@ public class LdbcSnbShortReadGeneratorTest {
                 )
         );
         assertThat(operation.type(), equalTo(LdbcShortQuery7MessageReplies.TYPE));
-        assertThat(operation.scheduledStartTimeAsMilli(), is(previousScheduledStartTime + correctedUpdateInterleaveAsMilli));
-        previousScheduledStartTime = operation.scheduledStartTimeAsMilli();
+        assertThat(operation.scheduledStartTimeAsMilli() >= System.currentTimeMillis() && operation.scheduledStartTimeAsMilli() < System.currentTimeMillis() + 500, is(true));
 
         state = shortReadGenerator.updateState(state, operation.type());
         assertThat(state, is(initialProbability - probabilityDegradationFactor - probabilityDegradationFactor - probabilityDegradationFactor - probabilityDegradationFactor));
@@ -619,7 +584,7 @@ public class LdbcSnbShortReadGeneratorTest {
                 )
         );
         assertThat(operation.type(), equalTo(LdbcShortQuery7MessageReplies.TYPE));
-        assertThat(operation.scheduledStartTimeAsMilli(), is(previousScheduledStartTime + correctedUpdateInterleaveAsMilli));
+        assertThat(operation.scheduledStartTimeAsMilli() >= System.currentTimeMillis() && operation.scheduledStartTimeAsMilli() < System.currentTimeMillis() + 500, is(true));
     }
 
     @Test
@@ -646,7 +611,7 @@ public class LdbcSnbShortReadGeneratorTest {
         longReadInterleavesAsMilli.put(LdbcQuery13.TYPE, longReadInterleaveAsMilli);
         longReadInterleavesAsMilli.put(LdbcQuery14.TYPE, longReadInterleaveAsMilli);
 
-        Set<Class> enabledShortReadOperationTypes = Sets.<Class>newHashSet(
+        Set<Class> enabledShortReadOperationTypes = Sets.newHashSet(
 //                LdbcShortQuery1PersonProfile.class,
 //                LdbcShortQuery2PersonPosts.class,
 //                LdbcShortQuery3PersonFriends.class,

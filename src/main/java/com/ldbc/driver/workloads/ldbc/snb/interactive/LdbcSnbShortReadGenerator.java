@@ -21,9 +21,6 @@ public class LdbcSnbShortReadGenerator implements ChildOperationGenerator {
     private final Queue<Long> messageIdBuffer;
     private final long[] interleavesAsMilli;
 
-    // TODO scheduled start times that follow long reads should be long read start time + long read interval
-    // TODO scheduled start times that follow short reads should be short read start time + short read interval
-
     public LdbcSnbShortReadGenerator(double initialProbability,
                                      double probabilityDegradationFactor,
                                      long updateInterleaveAsMilli,
@@ -587,7 +584,8 @@ public class LdbcSnbShortReadGenerator implements ChildOperationGenerator {
                 return null;
             } else {
                 Operation operation = new LdbcShortQuery1PersonProfile(id);
-                operation.setScheduledStartTimeAsMilli(previousOperation.scheduledStartTimeAsMilli() + interleavesAsMilli[previousOperation.type()]);
+//                operation.setScheduledStartTimeAsMilli(previousOperation.scheduledStartTimeAsMilli() + interleavesAsMilli[previousOperation.type()]);
+                operation.setScheduledStartTimeAsMilli(System.currentTimeMillis());
                 return operation;
             }
         }
@@ -606,7 +604,8 @@ public class LdbcSnbShortReadGenerator implements ChildOperationGenerator {
                 return null;
             } else {
                 Operation operation = new LdbcShortQuery2PersonPosts(id, LdbcShortQuery2PersonPosts.DEFAULT_LIMIT);
-                operation.setScheduledStartTimeAsMilli(previousOperation.scheduledStartTimeAsMilli() + interleavesAsMilli[previousOperation.type()]);
+//                operation.setScheduledStartTimeAsMilli(previousOperation.scheduledStartTimeAsMilli() + interleavesAsMilli[previousOperation.type()]);
+                operation.setScheduledStartTimeAsMilli(System.currentTimeMillis());
                 return operation;
             }
         }
@@ -625,7 +624,8 @@ public class LdbcSnbShortReadGenerator implements ChildOperationGenerator {
                 return null;
             } else {
                 Operation operation = new LdbcShortQuery3PersonFriends(id);
-                operation.setScheduledStartTimeAsMilli(previousOperation.scheduledStartTimeAsMilli() + interleavesAsMilli[previousOperation.type()]);
+//                operation.setScheduledStartTimeAsMilli(previousOperation.scheduledStartTimeAsMilli() + interleavesAsMilli[previousOperation.type()]);
+                operation.setScheduledStartTimeAsMilli(System.currentTimeMillis());
                 return operation;
             }
         }
@@ -644,7 +644,8 @@ public class LdbcSnbShortReadGenerator implements ChildOperationGenerator {
                 return null;
             } else {
                 Operation operation = new LdbcShortQuery4MessageContent(id);
-                operation.setScheduledStartTimeAsMilli(previousOperation.scheduledStartTimeAsMilli() + interleavesAsMilli[previousOperation.type()]);
+//                operation.setScheduledStartTimeAsMilli(previousOperation.scheduledStartTimeAsMilli() + interleavesAsMilli[previousOperation.type()]);
+                operation.setScheduledStartTimeAsMilli(System.currentTimeMillis());
                 return operation;
             }
         }
@@ -663,7 +664,8 @@ public class LdbcSnbShortReadGenerator implements ChildOperationGenerator {
                 return null;
             } else {
                 Operation operation = new LdbcShortQuery5MessageCreator(id);
-                operation.setScheduledStartTimeAsMilli(previousOperation.scheduledStartTimeAsMilli() + interleavesAsMilli[previousOperation.type()]);
+//                operation.setScheduledStartTimeAsMilli(previousOperation.scheduledStartTimeAsMilli() + interleavesAsMilli[previousOperation.type()]);
+                operation.setScheduledStartTimeAsMilli(System.currentTimeMillis());
                 return operation;
             }
         }
@@ -682,7 +684,8 @@ public class LdbcSnbShortReadGenerator implements ChildOperationGenerator {
                 return null;
             } else {
                 Operation operation = new LdbcShortQuery6MessageForum(id);
-                operation.setScheduledStartTimeAsMilli(previousOperation.scheduledStartTimeAsMilli() + interleavesAsMilli[previousOperation.type()]);
+//                operation.setScheduledStartTimeAsMilli(previousOperation.scheduledStartTimeAsMilli() + interleavesAsMilli[previousOperation.type()]);
+                operation.setScheduledStartTimeAsMilli(System.currentTimeMillis());
                 return operation;
             }
         }
@@ -701,7 +704,8 @@ public class LdbcSnbShortReadGenerator implements ChildOperationGenerator {
                 return null;
             } else {
                 Operation operation = new LdbcShortQuery7MessageReplies(id);
-                operation.setScheduledStartTimeAsMilli(previousOperation.scheduledStartTimeAsMilli() + interleavesAsMilli[previousOperation.type()]);
+//                operation.setScheduledStartTimeAsMilli(previousOperation.scheduledStartTimeAsMilli() + interleavesAsMilli[previousOperation.type()]);
+                operation.setScheduledStartTimeAsMilli(System.currentTimeMillis());
                 return operation;
             }
         }

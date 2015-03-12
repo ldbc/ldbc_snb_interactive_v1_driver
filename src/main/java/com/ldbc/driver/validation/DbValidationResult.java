@@ -144,8 +144,8 @@ public class DbValidationResult {
         for (Tuple.Tuple3<Operation<?>, Object, Object> incorrectResult : incorrectResultsForOperations) {
             sb.
                     append("    Operation:        ").append(incorrectResult._1().toString()).append("\n").
-                    append("    Expected Result:  ").append(incorrectResult._2().toString()).append("\n").
-                    append("    Actual Result  :  ").append(incorrectResult._3().toString()).append("\n");
+                    append("    Expected Result:  ").append((null == incorrectResult._2()) ? null : incorrectResult._2().toString()).append("\n").
+                    append("    Actual Result  :  ").append((null == incorrectResult._3()) ? null : incorrectResult._3().toString()).append("\n");
         }
         sb.append("  ***\n");
         return sb.toString();
