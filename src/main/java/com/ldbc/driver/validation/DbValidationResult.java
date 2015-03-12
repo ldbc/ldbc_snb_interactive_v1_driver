@@ -140,13 +140,13 @@ public class DbValidationResult {
                     append("    Operation: ").append(failedOperationExecution._1().toString()).append("\n").
                     append("               ").append(failedOperationExecution._2()).append("\n");
         sb.append("  ***\n");
-        sb.append("  Incorrect results for ").append(incorrectResultsForOperations.size()).append(" operations:\n");
-        for (Tuple.Tuple3<Operation<?>, Object, Object> incorrectResult : incorrectResultsForOperations) {
-            sb.
-                    append("    Operation:        ").append(incorrectResult._1().toString()).append("\n").
-                    append("    Expected Result:  ").append((null == incorrectResult._2()) ? null : incorrectResult._2().toString()).append("\n").
-                    append("    Actual Result  :  ").append((null == incorrectResult._3()) ? null : incorrectResult._3().toString()).append("\n");
-        }
+        sb.append("  Incorrect results for ").append(incorrectResultsForOperations.size()).append(" operations\n");
+//        for (Tuple.Tuple3<Operation<?>, Object, Object> incorrectResult : incorrectResultsForOperations) {
+//            sb.
+//                    append("    Operation:        ").append(incorrectResult._1().toString()).append("\n").
+//                    append("    Expected Result:  ").append((null == incorrectResult._2()) ? null : incorrectResult._2().toString()).append("\n").
+//                    append("    Actual Result  :  ").append((null == incorrectResult._3()) ? null : incorrectResult._3().toString()).append("\n");
+//        }
         sb.append("  ***\n");
         return sb.toString();
     }

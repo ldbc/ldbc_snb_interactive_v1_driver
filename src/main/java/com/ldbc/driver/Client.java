@@ -633,7 +633,6 @@ public class Client {
                             db,
                             validationParamsCount
                     );
-                    logger.info(databaseValidationResult.resultMessage());
                 } catch (WorkloadException e) {
                     throw new ClientException(String.format("Error reading validation parameters file\nFile: %s", validationParamsFile.getAbsolutePath()), e);
                 }
@@ -671,7 +670,12 @@ public class Client {
                     );
                 }
 
-                logger.info("Database Validation Successful");
+                logger.info(databaseValidationResult.resultMessage());
+                logger.info(String.format(
+                        "For details see the following files:\n * %s\n * %s",
+                        failedValidationOperationsFile.getAbsolutePath(),
+                        expectedResultsForFailedValidationOperationsFile.getAbsolutePath()
+                ));
             } catch (IOException e) {
                 throw new ClientException("Error occurred during database validation", e);
             }
