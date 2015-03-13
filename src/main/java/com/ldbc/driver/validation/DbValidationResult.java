@@ -2,6 +2,7 @@ package com.ldbc.driver.validation;
 
 import com.google.common.collect.Lists;
 import com.ldbc.driver.*;
+import com.ldbc.driver.util.MapUtils;
 import com.ldbc.driver.util.Tuple;
 
 import java.util.*;
@@ -117,12 +118,12 @@ public class DbValidationResult {
     }
 
     public String resultMessage() {
-        int padRightDistance = 10;
+        int padRightDistance = 15;
         StringBuilder sb = new StringBuilder();
         sb.append("Validation Result: ").append((isSuccessful()) ? "PASS" : "FAIL").append("\n");
         sb.append("Database: ").append(db.getClass().getName()).append("\n");
         sb.append("  ***\n");
-        sb.append("  Successfully executed ").append(successfullyExecutedOperationsPerOperationType.size()).append(" operation types:\n");
+        sb.append("  Successfully executed ").append(successfullyExecutedOperationsPerOperationType.size()).append(" operation types\n");
         for (Class operationType : sort(totalOperationsPerOperationType.keySet())) {
             sb.append("    ").
                     append((successfullyExecutedOperationsPerOperationType.containsKey(operationType)) ? successfullyExecutedOperationsPerOperationType.get(operationType) : 0).append(" / ").
@@ -131,25 +132,26 @@ public class DbValidationResult {
                     append("\n");
         }
         sb.append("  ***\n");
-        sb.append("  Missing handler implementations for ").append(missingHandlersForOperationTypes.size()).append(" operation types:\n");
+        sb.append("  Missing handler implementations for ").append(missingHandlersForOperationTypes.size()).append(" operation types\n");
         for (Class operationType : sort(missingHandlersForOperationTypes)) {
             sb.append("    ").append(String.format("%1$-" + padRightDistance + "s", operationType.getName())).append("\n");
         }
         sb.append("  ***\n");
-        sb.append("  Unable to execute ").append(unableToExecuteOperations.size()).append(" operations:\n");
-        for (Tuple.Tuple2<Operation<?>, String> failedOperationExecution : unableToExecuteOperations) {
-//            sb.
-//                    append("    Operation: ").append(failedOperationExecution._1().toString()).append("\n").
-//                    append("               ").append(failedOperationExecution._2()).append("\n");
+        sb.append("  Unable to execute ").append(unableToExecuteOperations.size()).append(" operations\n");
+        Map<Class, Integer> unableToExecuteOperationsGrouping = unableToExecuteOperationsGrouping(unableToExecuteOperations);
+        for (Map.Entry<Class, Integer> failedOperationType : MapUtils.sortedEntrySet(unableToExecuteOperationsGrouping)) {
+            sb.
+                    append(failedOperationType.getKey().getSimpleName()).
+                    append("               ").append(failedOperationType.getValue()).append("\n");
         }
         sb.append("  ***\n");
         sb.append("  Incorrect results for ").append(incorrectResultsForOperations.size()).append(" operations\n");
-//        for (Tuple.Tuple3<Operation<?>, Object, Object> incorrectResult : incorrectResultsForOperations) {
-//            sb.
-//                    append("    Operation:        ").append(incorrectResult._1().toString()).append("\n").
-//                    append("    Expected Result:  ").append((null == incorrectResult._2()) ? null : incorrectResult._2().toString()).append("\n").
-//                    append("    Actual Result  :  ").append((null == incorrectResult._3()) ? null : incorrectResult._3().toString()).append("\n");
-//        }
+        Map<Class, Integer> incorrectResultsForOperationsGrouping = incorrectResultsForOperationsGrouping(incorrectResultsForOperations);
+        for (Map.Entry<Class, Integer> failedOperationType : MapUtils.sortedEntrySet(incorrectResultsForOperationsGrouping)) {
+            sb.
+                    append(failedOperationType.getKey().getSimpleName()).
+                    append("               ").append(failedOperationType.getValue()).append("\n");
+        }
         sb.append("  ***\n");
         return sb.toString();
     }
@@ -158,6 +160,34 @@ public class DbValidationResult {
         List<T> sorted = Lists.newArrayList(unsorted);
         Collections.sort(sorted, new DefaultComparator<T>());
         return sorted;
+    }
+
+    private Map<Class, Integer> unableToExecuteOperationsGrouping(List<Tuple.Tuple2<Operation<?>, String>> unableToExecuteOperations) {
+        Map<Class, Integer> grouping = new HashMap<>();
+        for (Tuple.Tuple2<Operation<?>, String> failedOperation : unableToExecuteOperations) {
+            Class operationType = failedOperation._1().getClass();
+            if (grouping.containsKey(operationType)) {
+                int count = grouping.get(operationType);
+                grouping.put(operationType, count + 1);
+            } else {
+                grouping.put(operationType, 1);
+            }
+        }
+        return grouping;
+    }
+
+    private Map<Class, Integer> incorrectResultsForOperationsGrouping(List<Tuple.Tuple3<Operation<?>, Object, Object>> incorrectResultsForOperations) {
+        Map<Class, Integer> grouping = new HashMap<>();
+        for (Tuple.Tuple3<Operation<?>, Object, Object> failedOperation : incorrectResultsForOperations) {
+            Class operationType = failedOperation._1().getClass();
+            if (grouping.containsKey(operationType)) {
+                int count = grouping.get(operationType);
+                grouping.put(operationType, count + 1);
+            } else {
+                grouping.put(operationType, 1);
+            }
+        }
+        return grouping;
     }
 
     private static class DefaultComparator<T> implements Comparator<T> {

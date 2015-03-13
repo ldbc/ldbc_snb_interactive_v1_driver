@@ -38,6 +38,8 @@ public class DbValidator {
                 ));
                 handler.executeOperation(operation, dbConnectionState, resultReporter);
             } catch (DbException e) {
+                // TODO remove
+                e.printStackTrace();
                 dbValidationResult.reportUnableToExecuteOperation(operation, ConcurrentErrorReporter.stackTraceToString(e));
                 continue;
             } finally {
