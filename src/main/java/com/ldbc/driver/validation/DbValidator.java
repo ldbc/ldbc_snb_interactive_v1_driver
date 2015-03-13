@@ -14,7 +14,11 @@ public class DbValidator {
         DecimalFormat numberFormat = new DecimalFormat("###,###,###,###,###");
         DbValidationResult dbValidationResult = new DbValidationResult(db);
         ResultReporter resultReporter = new ResultReporter.SimpleResultReporter();
-        int validationParamsCompletedSoFar = 0;
+
+        int validationParamsProcessedSoFar = 0;
+        int validationParamsCrashedSoFar = 0;
+        int validationParamsIncorrectSoFar = 0;
+
         while (validationParameters.hasNext()) {
             ValidationParam validationParam = validationParameters.next();
             Operation<?> operation = validationParam.operation();
@@ -31,25 +35,27 @@ public class DbValidator {
             try {
                 OperationHandler handler = handlerRunner.operationHandler();
                 DbConnectionState dbConnectionState = handlerRunner.dbConnectionState();
-                System.out.print(String.format("Validated %s / %s - currently executing: %s...\r",
-                        numberFormat.format(validationParamsCompletedSoFar),
+                System.out.print(String.format("Processed %s / %s -- Crashed %s -- Incorrect %s -- Currently processing %s...\r",
+                        numberFormat.format(validationParamsProcessedSoFar),
                         numberFormat.format(validationParamsCount),
+                        numberFormat.format(validationParamsCrashedSoFar),
+                        numberFormat.format(validationParamsIncorrectSoFar),
                         operation.getClass().getSimpleName()
                 ));
                 handler.executeOperation(operation, dbConnectionState, resultReporter);
             } catch (DbException e) {
-                // TODO remove
-                e.printStackTrace();
+                validationParamsCrashedSoFar++;
                 dbValidationResult.reportUnableToExecuteOperation(operation, ConcurrentErrorReporter.stackTraceToString(e));
                 continue;
             } finally {
-                validationParamsCompletedSoFar++;
+                validationParamsProcessedSoFar++;
                 handlerRunner.cleanup();
             }
 
             Object actualOperationResult = resultReporter.result();
 
             if (false == expectedOperationResult.equals(actualOperationResult)) {
+                validationParamsIncorrectSoFar++;
                 dbValidationResult.reportIncorrectResultForOperation(operation, expectedOperationResult, actualOperationResult);
                 continue;
             }
