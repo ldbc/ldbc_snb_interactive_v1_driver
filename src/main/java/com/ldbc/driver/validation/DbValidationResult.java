@@ -6,6 +6,7 @@ import com.ldbc.driver.util.MapUtils;
 import com.ldbc.driver.util.Tuple;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.type.TypeReference;
+import org.codehaus.jackson.util.DefaultPrettyPrinter;
 
 import java.io.IOException;
 import java.util.*;
@@ -20,6 +21,7 @@ public class DbValidationResult {
     private final ObjectMapper objectMapper;
     private static final TypeReference<List<Map<String, Object>>> TYPE_REFERENCE = new TypeReference<List<Map<String, Object>>>() {
     };
+    private final DefaultPrettyPrinter defaultPrettyPrinter;
 
     DbValidationResult(Db db) {
         this.db = db;
@@ -29,6 +31,8 @@ public class DbValidationResult {
         this.successfullyExecutedOperationsPerOperationType = new HashMap<>();
         this.totalOperationsPerOperationType = new HashMap<>();
         this.objectMapper = new ObjectMapper();
+        this.defaultPrettyPrinter = new DefaultPrettyPrinter();
+        this.defaultPrettyPrinter.indentArraysWith(new DefaultPrettyPrinter.Lf2SpacesIndenter());
     }
 
     void reportMissingHandlerForOperation(Operation operation) {
@@ -83,7 +87,7 @@ public class DbValidationResult {
         }
         sb.append("]");
         try {
-            return objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(objectMapper.readValue(sb.toString(), TYPE_REFERENCE));
+            return objectMapper.writer(defaultPrettyPrinter).writeValueAsString(objectMapper.readValue(sb.toString(), TYPE_REFERENCE));
         } catch (IOException e) {
             throw new WorkloadException("Error encountered while trying to pretty print JSON output", e);
         }
@@ -104,7 +108,7 @@ public class DbValidationResult {
         }
         sb.append("]");
         try {
-            return objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(objectMapper.readValue(sb.toString(), TYPE_REFERENCE));
+            return objectMapper.writer(defaultPrettyPrinter).writeValueAsString(objectMapper.readValue(sb.toString(), TYPE_REFERENCE));
         } catch (IOException e) {
             throw new WorkloadException("Error encountered while trying to pretty print JSON output", e);
         }
