@@ -27,11 +27,10 @@ public class DbValidator {
             OperationHandlerRunnableContext handlerRunner;
             try {
                 handlerRunner = db.getOperationHandlerRunnableContext(operation);
-            } catch (DbException e) {
+            } catch (Throwable e) {
                 // Not necessary, but perhaps useful for debugging
                 e.printStackTrace();
                 dbValidationResult.reportMissingHandlerForOperation(operation);
-                resultReporter.report(0, null, null);
                 continue;
             }
 
@@ -46,12 +45,11 @@ public class DbValidator {
                         operation.getClass().getSimpleName()
                 ));
                 handler.executeOperation(operation, dbConnectionState, resultReporter);
-            } catch (DbException e) {
+            } catch (Throwable e) {
                 // Not necessary, but perhaps useful for debugging
                 e.printStackTrace();
                 validationParamsCrashedSoFar++;
                 dbValidationResult.reportUnableToExecuteOperation(operation, ConcurrentErrorReporter.stackTraceToString(e));
-                resultReporter.report(0, null, null);
                 continue;
             } finally {
                 validationParamsProcessedSoFar++;
