@@ -21,13 +21,15 @@ public class DbValidator {
 
         while (validationParameters.hasNext()) {
             ValidationParam validationParam = validationParameters.next();
-            Operation<?> operation = validationParam.operation();
+            Operation operation = validationParam.operation();
             Object expectedOperationResult = validationParam.operationResult();
 
             OperationHandlerRunnableContext handlerRunner;
             try {
                 handlerRunner = db.getOperationHandlerRunnableContext(operation);
             } catch (DbException e) {
+                // Not necessary, but perhaps useful for debugging
+                e.printStackTrace();
                 dbValidationResult.reportMissingHandlerForOperation(operation);
                 continue;
             }
@@ -44,6 +46,8 @@ public class DbValidator {
                 ));
                 handler.executeOperation(operation, dbConnectionState, resultReporter);
             } catch (DbException e) {
+                // Not necessary, but perhaps useful for debugging
+                e.printStackTrace();
                 validationParamsCrashedSoFar++;
                 dbValidationResult.reportUnableToExecuteOperation(operation, ConcurrentErrorReporter.stackTraceToString(e));
                 continue;

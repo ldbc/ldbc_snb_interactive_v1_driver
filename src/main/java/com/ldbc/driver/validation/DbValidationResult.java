@@ -4,16 +4,22 @@ import com.google.common.collect.Lists;
 import com.ldbc.driver.*;
 import com.ldbc.driver.util.MapUtils;
 import com.ldbc.driver.util.Tuple;
+import org.codehaus.jackson.map.ObjectMapper;
+import org.codehaus.jackson.type.TypeReference;
 
+import java.io.IOException;
 import java.util.*;
 
 public class DbValidationResult {
     private final Db db;
     private final Set<Class> missingHandlersForOperationTypes;
-    private final List<Tuple.Tuple2<Operation<?>, String>> unableToExecuteOperations;
-    private final List<Tuple.Tuple3<Operation<?>, Object, Object>> incorrectResultsForOperations;
+    private final List<Tuple.Tuple2<Operation, String>> unableToExecuteOperations;
+    private final List<Tuple.Tuple3<Operation, Object, Object>> incorrectResultsForOperations;
     private final Map<Class, Integer> successfullyExecutedOperationsPerOperationType;
     private final Map<Class, Integer> totalOperationsPerOperationType;
+    private final ObjectMapper objectMapper;
+    private static final TypeReference<List<Map<String, Object>>> TYPE_REFERENCE = new TypeReference<List<Map<String, Object>>>() {
+    };
 
     DbValidationResult(Db db) {
         this.db = db;
@@ -22,24 +28,25 @@ public class DbValidationResult {
         this.incorrectResultsForOperations = new ArrayList<>();
         this.successfullyExecutedOperationsPerOperationType = new HashMap<>();
         this.totalOperationsPerOperationType = new HashMap<>();
+        this.objectMapper = new ObjectMapper();
     }
 
-    void reportMissingHandlerForOperation(Operation<?> operation) {
+    void reportMissingHandlerForOperation(Operation operation) {
         missingHandlersForOperationTypes.add(operation.getClass());
         incrementOperationCountPerOperationType(operation.getClass());
     }
 
-    void reportUnableToExecuteOperation(Operation<?> operation, String errorMessage) {
-        unableToExecuteOperations.add(Tuple.<Operation<?>, String>tuple2(operation, errorMessage));
+    void reportUnableToExecuteOperation(Operation operation, String errorMessage) {
+        unableToExecuteOperations.add(Tuple.tuple2(operation, errorMessage));
         incrementOperationCountPerOperationType(operation.getClass());
     }
 
-    void reportIncorrectResultForOperation(Operation<?> operation, Object expectedResult, Object actualResult) {
-        incorrectResultsForOperations.add(Tuple.<Operation<?>, Object, Object>tuple3(operation, expectedResult, actualResult));
+    void reportIncorrectResultForOperation(Operation operation, Object expectedResult, Object actualResult) {
+        incorrectResultsForOperations.add(Tuple.tuple3(operation, expectedResult, actualResult));
         incrementOperationCountPerOperationType(operation.getClass());
     }
 
-    void reportSuccessfulExecution(Operation<?> operation) {
+    void reportSuccessfulExecution(Operation operation) {
         if (false == successfullyExecutedOperationsPerOperationType.containsKey(operation.getClass()))
             successfullyExecutedOperationsPerOperationType.put(operation.getClass(), 0);
         int successfullyExecutedOperationsForOperationType = successfullyExecutedOperationsPerOperationType.get(operation.getClass());
@@ -65,37 +72,45 @@ public class DbValidationResult {
         StringBuilder sb = new StringBuilder();
         sb.append("[");
         for (int i = 0; i < incorrectResultsForOperations.size() - 1; i++) {
-            Operation<?> operation = incorrectResultsForOperations.get(i)._1();
+            Operation operation = incorrectResultsForOperations.get(i)._1();
             Object actualResult = incorrectResultsForOperations.get(i)._3();
             sb.append(operationAndResultAsJsonMapString(operation, actualResult, workload)).append(",");
         }
         if (incorrectResultsForOperations.size() >= 1) {
-            Operation<?> operation = incorrectResultsForOperations.get(incorrectResultsForOperations.size() - 1)._1();
+            Operation operation = incorrectResultsForOperations.get(incorrectResultsForOperations.size() - 1)._1();
             Object actualResult = incorrectResultsForOperations.get(incorrectResultsForOperations.size() - 1)._3();
             sb.append(operationAndResultAsJsonMapString(operation, actualResult, workload));
         }
         sb.append("]");
-        return sb.toString();
+        try {
+            return objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(objectMapper.readValue(sb.toString(), TYPE_REFERENCE));
+        } catch (IOException e) {
+            throw new WorkloadException("Error encountered while trying to pretty print JSON output", e);
+        }
     }
 
     public String expectedResultsForFailedOperationsAsJsonString(Workload workload) throws WorkloadException {
         StringBuilder sb = new StringBuilder();
         sb.append("[");
         for (int i = 0; i < incorrectResultsForOperations.size() - 1; i++) {
-            Operation<?> operation = incorrectResultsForOperations.get(i)._1();
+            Operation operation = incorrectResultsForOperations.get(i)._1();
             Object expectedResult = incorrectResultsForOperations.get(i)._2();
             sb.append(operationAndResultAsJsonMapString(operation, expectedResult, workload)).append(",");
         }
         if (incorrectResultsForOperations.size() >= 1) {
-            Operation<?> operation = incorrectResultsForOperations.get(incorrectResultsForOperations.size() - 1)._1();
+            Operation operation = incorrectResultsForOperations.get(incorrectResultsForOperations.size() - 1)._1();
             Object expectedResult = incorrectResultsForOperations.get(incorrectResultsForOperations.size() - 1)._2();
             sb.append(operationAndResultAsJsonMapString(operation, expectedResult, workload));
         }
         sb.append("]");
-        return sb.toString();
+        try {
+            return objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(objectMapper.readValue(sb.toString(), TYPE_REFERENCE));
+        } catch (IOException e) {
+            throw new WorkloadException("Error encountered while trying to pretty print JSON output", e);
+        }
     }
 
-    private String operationAndResultAsJsonMapString(Operation<?> operation, Object result, Workload workload) throws WorkloadException {
+    private String operationAndResultAsJsonMapString(Operation operation, Object result, Workload workload) throws WorkloadException {
         String serializedOperation;
         try {
             serializedOperation = workload.serializeOperation(operation);
@@ -162,9 +177,9 @@ public class DbValidationResult {
         return sorted;
     }
 
-    private Map<Class, Integer> unableToExecuteOperationsGrouping(List<Tuple.Tuple2<Operation<?>, String>> unableToExecuteOperations) {
+    private Map<Class, Integer> unableToExecuteOperationsGrouping(List<Tuple.Tuple2<Operation, String>> unableToExecuteOperations) {
         Map<Class, Integer> grouping = new HashMap<>();
-        for (Tuple.Tuple2<Operation<?>, String> failedOperation : unableToExecuteOperations) {
+        for (Tuple.Tuple2<Operation, String> failedOperation : unableToExecuteOperations) {
             Class operationType = failedOperation._1().getClass();
             if (grouping.containsKey(operationType)) {
                 int count = grouping.get(operationType);
@@ -176,9 +191,9 @@ public class DbValidationResult {
         return grouping;
     }
 
-    private Map<Class, Integer> incorrectResultsForOperationsGrouping(List<Tuple.Tuple3<Operation<?>, Object, Object>> incorrectResultsForOperations) {
+    private Map<Class, Integer> incorrectResultsForOperationsGrouping(List<Tuple.Tuple3<Operation, Object, Object>> incorrectResultsForOperations) {
         Map<Class, Integer> grouping = new HashMap<>();
-        for (Tuple.Tuple3<Operation<?>, Object, Object> failedOperation : incorrectResultsForOperations) {
+        for (Tuple.Tuple3<Operation, Object, Object> failedOperation : incorrectResultsForOperations) {
             Class operationType = failedOperation._1().getClass();
             if (grouping.containsKey(operationType)) {
                 int count = grouping.get(operationType);
