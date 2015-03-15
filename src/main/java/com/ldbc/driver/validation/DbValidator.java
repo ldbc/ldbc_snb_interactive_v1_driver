@@ -31,6 +31,7 @@ public class DbValidator {
                 // Not necessary, but perhaps useful for debugging
                 e.printStackTrace();
                 dbValidationResult.reportMissingHandlerForOperation(operation);
+                resultReporter.report(0, null, null);
                 continue;
             }
 
@@ -50,6 +51,7 @@ public class DbValidator {
                 e.printStackTrace();
                 validationParamsCrashedSoFar++;
                 dbValidationResult.reportUnableToExecuteOperation(operation, ConcurrentErrorReporter.stackTraceToString(e));
+                resultReporter.report(0, null, null);
                 continue;
             } finally {
                 validationParamsProcessedSoFar++;
