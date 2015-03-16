@@ -1197,7 +1197,7 @@ public class LdbcSnbInteractiveWorkloadTest {
         double timeCompressionRatio = 1.0;
         Set<String> peerIds = new HashSet<>();
         ConsoleAndFileDriverConfiguration.ConsoleAndFileValidationParamOptions validationParams =
-                new ConsoleAndFileDriverConfiguration.ConsoleAndFileValidationParamOptions(validationParamsFile.getAbsolutePath(), 1000);
+                new ConsoleAndFileDriverConfiguration.ConsoleAndFileValidationParamOptions(validationParamsFile.getAbsolutePath(), 500);
         String dbValidationFilePath = null;
         boolean validateWorkload = false;
         boolean calculateWorkloadStatistics = false;
