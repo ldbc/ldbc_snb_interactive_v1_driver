@@ -53,7 +53,7 @@ public class DbValidator {
                 validationParamsCrashedSoFar++;
                 dbValidationResult.reportUnableToExecuteOperation(operation, ConcurrentErrorReporter.stackTraceToString(e));
                 // TODO remove
-                System.out.println(String.format("CRASHED: %s %s %s", operation.getClass().getSimpleName(), expectedOperationResult.getClass().getSimpleName()));
+                System.out.println(String.format("CRASHED: %s %s", operation.getClass().getSimpleName(), expectedOperationResult.getClass().getSimpleName()));
                 continue;
             } finally {
                 validationParamsProcessedSoFar++;
