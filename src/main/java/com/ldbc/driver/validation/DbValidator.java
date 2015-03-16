@@ -20,6 +20,7 @@ public class DbValidator {
         int validationParamsIncorrectSoFar = 0;
 
         while (validationParameters.hasNext()) {
+            resultReporter.report(-1, null, null);
             ValidationParam validationParam = validationParameters.next();
             Operation operation = validationParam.operation();
             Object expectedOperationResult = validationParam.operationResult();
@@ -45,6 +46,8 @@ public class DbValidator {
                         operation.getClass().getSimpleName()
                 ));
                 handler.executeOperation(operation, dbConnectionState, resultReporter);
+                if (null == resultReporter.result())
+                    throw new DbException(String.format("Db returned null result for: %s", operation.getClass().getSimpleName()));
             } catch (Throwable e) {
                 // Not necessary, but perhaps useful for debugging
                 e.printStackTrace();
