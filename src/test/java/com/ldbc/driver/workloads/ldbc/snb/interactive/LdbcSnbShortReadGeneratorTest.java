@@ -100,7 +100,8 @@ public class LdbcSnbShortReadGeneratorTest {
                 )
         );
         assertThat(operation.type(), equalTo(LdbcShortQuery2PersonPosts.TYPE));
-        assertThat(operation.scheduledStartTimeAsMilli() >= System.currentTimeMillis() && operation.scheduledStartTimeAsMilli() < System.currentTimeMillis() + 500, is(true));
+        // within 10 seconds (it's excessive, but just in case a massive GC pause occurs during testing)
+        assertThat(operation.scheduledStartTimeAsMilli() >= System.currentTimeMillis() && operation.scheduledStartTimeAsMilli() < System.currentTimeMillis() + 10000, is(true));
 
         state = shortReadGenerator.updateState(state, operation.type());
         assertThat(state, is(initialProbability));
@@ -113,7 +114,8 @@ public class LdbcSnbShortReadGeneratorTest {
                 )
         );
         assertThat(operation.type(), equalTo(LdbcShortQuery3PersonFriends.TYPE));
-        assertThat(operation.scheduledStartTimeAsMilli() >= System.currentTimeMillis() && operation.scheduledStartTimeAsMilli() < System.currentTimeMillis() + 500, is(true));
+        // within 10 seconds (it's excessive, but just in case a massive GC pause occurs during testing)
+        assertThat(operation.scheduledStartTimeAsMilli() >= System.currentTimeMillis() && operation.scheduledStartTimeAsMilli() < System.currentTimeMillis() + 10000, is(true));
 
         state = shortReadGenerator.updateState(state, operation.type());
         assertThat(state, is(initialProbability - probabilityDegradationFactor));
@@ -126,7 +128,8 @@ public class LdbcSnbShortReadGeneratorTest {
                 )
         );
         assertThat(operation.type(), equalTo(LdbcShortQuery4MessageContent.TYPE));
-        assertThat(operation.scheduledStartTimeAsMilli() >= System.currentTimeMillis() && operation.scheduledStartTimeAsMilli() < System.currentTimeMillis() + 500, is(true));
+        // within 10 seconds (it's excessive, but just in case a massive GC pause occurs during testing)
+        assertThat(operation.scheduledStartTimeAsMilli() >= System.currentTimeMillis() && operation.scheduledStartTimeAsMilli() < System.currentTimeMillis() + 10000, is(true));
 
         state = shortReadGenerator.updateState(state, operation.type());
         assertThat(state, is(initialProbability - probabilityDegradationFactor));
@@ -139,7 +142,8 @@ public class LdbcSnbShortReadGeneratorTest {
                 )
         );
         assertThat(operation.type(), equalTo(LdbcShortQuery5MessageCreator.TYPE));
-        assertThat(operation.scheduledStartTimeAsMilli() >= System.currentTimeMillis() && operation.scheduledStartTimeAsMilli() < System.currentTimeMillis() + 500, is(true));
+        // within 10 seconds (it's excessive, but just in case a massive GC pause occurs during testing)
+        assertThat(operation.scheduledStartTimeAsMilli() >= System.currentTimeMillis() && operation.scheduledStartTimeAsMilli() < System.currentTimeMillis() + 10000, is(true));
 
         state = shortReadGenerator.updateState(state, operation.type());
         assertThat(state, is(initialProbability - probabilityDegradationFactor));
@@ -149,7 +153,8 @@ public class LdbcSnbShortReadGeneratorTest {
                 DummyLdbcSnbInteractiveOperationResultInstances.short5Result()
         );
         assertThat(operation.type(), equalTo(LdbcShortQuery6MessageForum.TYPE));
-        assertThat(operation.scheduledStartTimeAsMilli() >= System.currentTimeMillis() && operation.scheduledStartTimeAsMilli() < System.currentTimeMillis() + 500, is(true));
+        // within 10 seconds (it's excessive, but just in case a massive GC pause occurs during testing)
+        assertThat(operation.scheduledStartTimeAsMilli() >= System.currentTimeMillis() && operation.scheduledStartTimeAsMilli() < System.currentTimeMillis() + 10000, is(true));
 
         state = shortReadGenerator.updateState(state, operation.type());
         assertThat(state, is(initialProbability - probabilityDegradationFactor));
@@ -159,7 +164,8 @@ public class LdbcSnbShortReadGeneratorTest {
                 DummyLdbcSnbInteractiveOperationResultInstances.short6Result()
         );
         assertThat(operation.type(), equalTo(LdbcShortQuery7MessageReplies.TYPE));
-        assertThat(operation.scheduledStartTimeAsMilli() >= System.currentTimeMillis() && operation.scheduledStartTimeAsMilli() < System.currentTimeMillis() + 500, is(true));
+        // within 10 seconds (it's excessive, but just in case a massive GC pause occurs during testing)
+        assertThat(operation.scheduledStartTimeAsMilli() >= System.currentTimeMillis() && operation.scheduledStartTimeAsMilli() < System.currentTimeMillis() + 10000, is(true));
 
         state = shortReadGenerator.updateState(state, operation.type());
         assertThat(state, is(initialProbability - probabilityDegradationFactor - probabilityDegradationFactor));
@@ -172,7 +178,8 @@ public class LdbcSnbShortReadGeneratorTest {
                 )
         );
         assertThat(operation.type(), equalTo(LdbcShortQuery1PersonProfile.TYPE));
-        assertThat(operation.scheduledStartTimeAsMilli() >= System.currentTimeMillis() && operation.scheduledStartTimeAsMilli() < System.currentTimeMillis() + 500, is(true));
+        // within 10 seconds (it's excessive, but just in case a massive GC pause occurs during testing)
+        assertThat(operation.scheduledStartTimeAsMilli() >= System.currentTimeMillis() && operation.scheduledStartTimeAsMilli() < System.currentTimeMillis() + 10000, is(true));
 
         state = shortReadGenerator.updateState(state, operation.type());
         assertThat(state, is(initialProbability - probabilityDegradationFactor - probabilityDegradationFactor));
@@ -185,7 +192,8 @@ public class LdbcSnbShortReadGeneratorTest {
                 )
         );
         assertThat(operation.type(), equalTo(LdbcShortQuery2PersonPosts.TYPE));
-        assertThat(operation.scheduledStartTimeAsMilli() >= System.currentTimeMillis() && operation.scheduledStartTimeAsMilli() < System.currentTimeMillis() + 500, is(true));
+        // within 10 seconds (it's excessive, but just in case a massive GC pause occurs during testing)
+        assertThat(operation.scheduledStartTimeAsMilli() >= System.currentTimeMillis() && operation.scheduledStartTimeAsMilli() < System.currentTimeMillis() + 10000, is(true));
 
         state = shortReadGenerator.updateState(state, operation.type());
         assertThat(state, is(initialProbability - probabilityDegradationFactor - probabilityDegradationFactor));
@@ -198,7 +206,8 @@ public class LdbcSnbShortReadGeneratorTest {
                 )
         );
         assertThat(operation.type(), equalTo(LdbcShortQuery3PersonFriends.TYPE));
-        assertThat(operation.scheduledStartTimeAsMilli() >= System.currentTimeMillis() && operation.scheduledStartTimeAsMilli() < System.currentTimeMillis() + 500, is(true));
+        // within 10 seconds (it's excessive, but just in case a massive GC pause occurs during testing)
+        assertThat(operation.scheduledStartTimeAsMilli() >= System.currentTimeMillis() && operation.scheduledStartTimeAsMilli() < System.currentTimeMillis() + 10000, is(true));
 
         state = shortReadGenerator.updateState(state, operation.type());
         assertThat(state, is(initialProbability - probabilityDegradationFactor - probabilityDegradationFactor - probabilityDegradationFactor));
@@ -211,7 +220,8 @@ public class LdbcSnbShortReadGeneratorTest {
                 )
         );
         assertThat(operation.type(), equalTo(LdbcShortQuery4MessageContent.TYPE));
-        assertThat(operation.scheduledStartTimeAsMilli() >= System.currentTimeMillis() && operation.scheduledStartTimeAsMilli() < System.currentTimeMillis() + 500, is(true));
+        // within 10 seconds (it's excessive, but just in case a massive GC pause occurs during testing)
+        assertThat(operation.scheduledStartTimeAsMilli() >= System.currentTimeMillis() && operation.scheduledStartTimeAsMilli() < System.currentTimeMillis() + 10000, is(true));
     }
 
     @Test
@@ -281,7 +291,8 @@ public class LdbcSnbShortReadGeneratorTest {
         // Then
         // round robbin will choose short read 2 before short read 4
         assertThat(operation.type(), equalTo(LdbcShortQuery2PersonPosts.TYPE));
-        assertThat(operation.scheduledStartTimeAsMilli() >= System.currentTimeMillis() && operation.scheduledStartTimeAsMilli() < System.currentTimeMillis() + 500, is(true));
+        // within 10 seconds (it's excessive, but just in case a massive GC pause occurs during testing)
+        assertThat(operation.scheduledStartTimeAsMilli() >= System.currentTimeMillis() && operation.scheduledStartTimeAsMilli() < System.currentTimeMillis() + 10000, is(true));
         assertThat(state, is(initialProbability));
 
         state = shortReadGenerator.updateState(state, operation.type());
@@ -295,7 +306,8 @@ public class LdbcSnbShortReadGeneratorTest {
                 )
         );
         assertThat(operation.type(), equalTo(LdbcShortQuery4MessageContent.TYPE));
-        assertThat(operation.scheduledStartTimeAsMilli() >= System.currentTimeMillis() && operation.scheduledStartTimeAsMilli() < System.currentTimeMillis() + 500, is(true));
+        // within 10 seconds (it's excessive, but just in case a massive GC pause occurs during testing)
+        assertThat(operation.scheduledStartTimeAsMilli() >= System.currentTimeMillis() && operation.scheduledStartTimeAsMilli() < System.currentTimeMillis() + 10000, is(true));
 
         state = shortReadGenerator.updateState(state, operation.type());
         assertThat(state, is(initialProbability - probabilityDegradationFactor));
@@ -308,7 +320,8 @@ public class LdbcSnbShortReadGeneratorTest {
                 )
         );
         assertThat(operation.type(), equalTo(LdbcShortQuery5MessageCreator.TYPE));
-        assertThat(operation.scheduledStartTimeAsMilli() >= System.currentTimeMillis() && operation.scheduledStartTimeAsMilli() < System.currentTimeMillis() + 500, is(true));
+        // within 10 seconds (it's excessive, but just in case a massive GC pause occurs during testing)
+        assertThat(operation.scheduledStartTimeAsMilli() >= System.currentTimeMillis() && operation.scheduledStartTimeAsMilli() < System.currentTimeMillis() + 10000, is(true));
 
         state = shortReadGenerator.updateState(state, operation.type());
         assertThat(state, is(initialProbability - probabilityDegradationFactor));
@@ -318,7 +331,8 @@ public class LdbcSnbShortReadGeneratorTest {
                 DummyLdbcSnbInteractiveOperationResultInstances.short5Result()
         );
         assertThat(operation.type(), equalTo(LdbcShortQuery7MessageReplies.TYPE));
-        assertThat(operation.scheduledStartTimeAsMilli() >= System.currentTimeMillis() && operation.scheduledStartTimeAsMilli() < System.currentTimeMillis() + 500, is(true));
+        // within 10 seconds (it's excessive, but just in case a massive GC pause occurs during testing)
+        assertThat(operation.scheduledStartTimeAsMilli() >= System.currentTimeMillis() && operation.scheduledStartTimeAsMilli() < System.currentTimeMillis() + 10000, is(true));
 
         state = shortReadGenerator.updateState(state, operation.type());
         assertThat(state, is(initialProbability - probabilityDegradationFactor - probabilityDegradationFactor));
@@ -331,7 +345,8 @@ public class LdbcSnbShortReadGeneratorTest {
                 )
         );
         assertThat(operation.type(), equalTo(LdbcShortQuery2PersonPosts.TYPE));
-        assertThat(operation.scheduledStartTimeAsMilli() >= System.currentTimeMillis() && operation.scheduledStartTimeAsMilli() < System.currentTimeMillis() + 500, is(true));
+        // within 10 seconds (it's excessive, but just in case a massive GC pause occurs during testing)
+        assertThat(operation.scheduledStartTimeAsMilli() >= System.currentTimeMillis() && operation.scheduledStartTimeAsMilli() < System.currentTimeMillis() + 10000, is(true));
 
         state = shortReadGenerator.updateState(state, operation.type());
         assertThat(state, is(initialProbability - probabilityDegradationFactor - probabilityDegradationFactor - probabilityDegradationFactor));
@@ -344,7 +359,8 @@ public class LdbcSnbShortReadGeneratorTest {
                 )
         );
         assertThat(operation.type(), equalTo(LdbcShortQuery4MessageContent.TYPE));
-        assertThat(operation.scheduledStartTimeAsMilli() >= System.currentTimeMillis() && operation.scheduledStartTimeAsMilli() < System.currentTimeMillis() + 500, is(true));
+        // within 10 seconds (it's excessive, but just in case a massive GC pause occurs during testing)
+        assertThat(operation.scheduledStartTimeAsMilli() >= System.currentTimeMillis() && operation.scheduledStartTimeAsMilli() < System.currentTimeMillis() + 10000, is(true));
     }
 
     @Test
@@ -413,7 +429,8 @@ public class LdbcSnbShortReadGeneratorTest {
 
         // Then
         assertThat(operation.type(), equalTo(LdbcShortQuery4MessageContent.TYPE));
-        assertThat(operation.scheduledStartTimeAsMilli() >= System.currentTimeMillis() && operation.scheduledStartTimeAsMilli() < System.currentTimeMillis() + 500, is(true));
+        // within 10 seconds (it's excessive, but just in case a massive GC pause occurs during testing)
+        assertThat(operation.scheduledStartTimeAsMilli() >= System.currentTimeMillis() && operation.scheduledStartTimeAsMilli() < System.currentTimeMillis() + 10000, is(true));
         assertThat(state, is(initialProbability));
 
         state = shortReadGenerator.updateState(state, operation.type());
@@ -427,7 +444,8 @@ public class LdbcSnbShortReadGeneratorTest {
                 )
         );
         assertThat(operation.type(), equalTo(LdbcShortQuery5MessageCreator.TYPE));
-        assertThat(operation.scheduledStartTimeAsMilli() >= System.currentTimeMillis() && operation.scheduledStartTimeAsMilli() < System.currentTimeMillis() + 500, is(true));
+        // within 10 seconds (it's excessive, but just in case a massive GC pause occurs during testing)
+        assertThat(operation.scheduledStartTimeAsMilli() >= System.currentTimeMillis() && operation.scheduledStartTimeAsMilli() < System.currentTimeMillis() + 10000, is(true));
 
         state = shortReadGenerator.updateState(state, operation.type());
         assertThat(state, is(initialProbability));
@@ -437,7 +455,8 @@ public class LdbcSnbShortReadGeneratorTest {
                 DummyLdbcSnbInteractiveOperationResultInstances.short5Result()
         );
         assertThat(operation.type(), equalTo(LdbcShortQuery7MessageReplies.TYPE));
-        assertThat(operation.scheduledStartTimeAsMilli() >= System.currentTimeMillis() && operation.scheduledStartTimeAsMilli() < System.currentTimeMillis() + 500, is(true));
+        // within 10 seconds (it's excessive, but just in case a massive GC pause occurs during testing)
+        assertThat(operation.scheduledStartTimeAsMilli() >= System.currentTimeMillis() && operation.scheduledStartTimeAsMilli() < System.currentTimeMillis() + 10000, is(true));
 
         state = shortReadGenerator.updateState(state, operation.type());
         assertThat(state, is(initialProbability - probabilityDegradationFactor));
@@ -450,7 +469,8 @@ public class LdbcSnbShortReadGeneratorTest {
                 )
         );
         assertThat(operation.type(), equalTo(LdbcShortQuery4MessageContent.TYPE));
-        assertThat(operation.scheduledStartTimeAsMilli() >= System.currentTimeMillis() && operation.scheduledStartTimeAsMilli() < System.currentTimeMillis() + 500, is(true));
+        // within 10 seconds (it's excessive, but just in case a massive GC pause occurs during testing)
+        assertThat(operation.scheduledStartTimeAsMilli() >= System.currentTimeMillis() && operation.scheduledStartTimeAsMilli() < System.currentTimeMillis() + 10000, is(true));
 
         state = shortReadGenerator.updateState(state, operation.type());
         assertThat(state, is(initialProbability - probabilityDegradationFactor));
@@ -463,7 +483,8 @@ public class LdbcSnbShortReadGeneratorTest {
                 )
         );
         assertThat(operation.type(), equalTo(LdbcShortQuery5MessageCreator.TYPE));
-        assertThat(operation.scheduledStartTimeAsMilli() >= System.currentTimeMillis() && operation.scheduledStartTimeAsMilli() < System.currentTimeMillis() + 500, is(true));
+        // within 10 seconds (it's excessive, but just in case a massive GC pause occurs during testing)
+        assertThat(operation.scheduledStartTimeAsMilli() >= System.currentTimeMillis() && operation.scheduledStartTimeAsMilli() < System.currentTimeMillis() + 10000, is(true));
     }
 
     @Test
@@ -532,7 +553,8 @@ public class LdbcSnbShortReadGeneratorTest {
 
         // Then
         assertThat(operation.type(), equalTo(LdbcShortQuery7MessageReplies.TYPE));
-        assertThat(operation.scheduledStartTimeAsMilli() >= System.currentTimeMillis() && operation.scheduledStartTimeAsMilli() < System.currentTimeMillis() + 500, is(true));
+        // within 10 seconds (it's excessive, but just in case a massive GC pause occurs during testing)
+        assertThat(operation.scheduledStartTimeAsMilli() >= System.currentTimeMillis() && operation.scheduledStartTimeAsMilli() < System.currentTimeMillis() + 10000, is(true));
         assertThat(state, is(initialProbability));
 
         state = shortReadGenerator.updateState(state, operation.type());
@@ -546,7 +568,8 @@ public class LdbcSnbShortReadGeneratorTest {
                 )
         );
         assertThat(operation.type(), equalTo(LdbcShortQuery7MessageReplies.TYPE));
-        assertThat(operation.scheduledStartTimeAsMilli() >= System.currentTimeMillis() && operation.scheduledStartTimeAsMilli() < System.currentTimeMillis() + 500, is(true));
+        // within 10 seconds (it's excessive, but just in case a massive GC pause occurs during testing)
+        assertThat(operation.scheduledStartTimeAsMilli() >= System.currentTimeMillis() && operation.scheduledStartTimeAsMilli() < System.currentTimeMillis() + 10000, is(true));
 
         state = shortReadGenerator.updateState(state, operation.type());
         assertThat(state, is(initialProbability - probabilityDegradationFactor - probabilityDegradationFactor));
@@ -559,7 +582,8 @@ public class LdbcSnbShortReadGeneratorTest {
                 )
         );
         assertThat(operation.type(), equalTo(LdbcShortQuery7MessageReplies.TYPE));
-        assertThat(operation.scheduledStartTimeAsMilli() >= System.currentTimeMillis() && operation.scheduledStartTimeAsMilli() < System.currentTimeMillis() + 500, is(true));
+        // within 10 seconds (it's excessive, but just in case a massive GC pause occurs during testing)
+        assertThat(operation.scheduledStartTimeAsMilli() >= System.currentTimeMillis() && operation.scheduledStartTimeAsMilli() < System.currentTimeMillis() + 10000, is(true));
 
         state = shortReadGenerator.updateState(state, operation.type());
         assertThat(state, is(initialProbability - probabilityDegradationFactor - probabilityDegradationFactor - probabilityDegradationFactor));
@@ -572,7 +596,8 @@ public class LdbcSnbShortReadGeneratorTest {
                 )
         );
         assertThat(operation.type(), equalTo(LdbcShortQuery7MessageReplies.TYPE));
-        assertThat(operation.scheduledStartTimeAsMilli() >= System.currentTimeMillis() && operation.scheduledStartTimeAsMilli() < System.currentTimeMillis() + 500, is(true));
+        // within 10 seconds (it's excessive, but just in case a massive GC pause occurs during testing)
+        assertThat(operation.scheduledStartTimeAsMilli() >= System.currentTimeMillis() && operation.scheduledStartTimeAsMilli() < System.currentTimeMillis() + 10000, is(true));
 
         state = shortReadGenerator.updateState(state, operation.type());
         assertThat(state, is(initialProbability - probabilityDegradationFactor - probabilityDegradationFactor - probabilityDegradationFactor - probabilityDegradationFactor));
@@ -585,7 +610,8 @@ public class LdbcSnbShortReadGeneratorTest {
                 )
         );
         assertThat(operation.type(), equalTo(LdbcShortQuery7MessageReplies.TYPE));
-        assertThat(operation.scheduledStartTimeAsMilli() >= System.currentTimeMillis() && operation.scheduledStartTimeAsMilli() < System.currentTimeMillis() + 500, is(true));
+        // within 10 seconds (it's excessive, but just in case a massive GC pause occurs during testing)
+        assertThat(operation.scheduledStartTimeAsMilli() >= System.currentTimeMillis() && operation.scheduledStartTimeAsMilli() < System.currentTimeMillis() + 10000, is(true));
     }
 
     @Test
