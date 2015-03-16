@@ -1127,7 +1127,7 @@ public class LdbcSnbInteractiveWorkload extends Workload {
                 LdbcShortQuery7MessageReplies.class,
                 LdbcQuery1.class,
                 LdbcQuery2.class,
-                LdbcQuery3.class,
+//                LdbcQuery3.class,
                 LdbcQuery4.class,
                 LdbcQuery5.class,
                 LdbcQuery6.class,
