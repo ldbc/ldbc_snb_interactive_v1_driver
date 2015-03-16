@@ -31,8 +31,6 @@ public class DbValidator {
                 // Not necessary, but perhaps useful for debugging
                 e.printStackTrace();
                 dbValidationResult.reportMissingHandlerForOperation(operation);
-                // TODO remove
-                System.out.println(String.format("HANDLER: %s %s %s", operation.getClass().getSimpleName(), expectedOperationResult.getClass().getSimpleName()));
                 continue;
             }
 
@@ -52,8 +50,6 @@ public class DbValidator {
                 e.printStackTrace();
                 validationParamsCrashedSoFar++;
                 dbValidationResult.reportUnableToExecuteOperation(operation, ConcurrentErrorReporter.stackTraceToString(e));
-                // TODO remove
-                System.out.println(String.format("CRASHED: %s %s", operation.getClass().getSimpleName(), expectedOperationResult.getClass().getSimpleName()));
                 continue;
             } finally {
                 validationParamsProcessedSoFar++;
@@ -64,8 +60,6 @@ public class DbValidator {
 
             if (false == expectedOperationResult.equals(actualOperationResult)) {
                 validationParamsIncorrectSoFar++;
-                // TODO remove
-                System.out.println(String.format("INCORRECT: %s %s %s", operation.getClass().getSimpleName(), expectedOperationResult.getClass().getSimpleName(), actualOperationResult.getClass().getSimpleName()));
                 dbValidationResult.reportIncorrectResultForOperation(operation, expectedOperationResult, actualOperationResult);
                 continue;
             }

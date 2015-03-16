@@ -182,13 +182,13 @@ public class Client {
                 File resultDir = new File(controlService.configuration().resultDirPath());
                 if (resultDir.exists() && false == resultDir.isDirectory())
                     throw new ClientException("Results directory is not directory: " + resultDir.getAbsolutePath());
-                else if (resultDir.exists() && true == resultDir.isDirectory())
-                    try {
-                        FileUtils.deleteDirectory(resultDir);
-                    } catch (IOException e) {
-                        throw new ClientException("Driver was unable to delete (for recreation) results directory: " + resultDir.getAbsolutePath(), e);
-                    }
-                if (false == resultDir.exists())
+//                else if (resultDir.exists() && true == resultDir.isDirectory())
+//                    try {
+//                        FileUtils.deleteDirectory(resultDir);
+//                    } catch (IOException e) {
+//                        throw new ClientException("Driver was unable to delete (for recreation) results directory: " + resultDir.getAbsolutePath(), e);
+//                    }
+                else if (false == resultDir.exists())
                     resultDir.mkdir();
             }
 
