@@ -10,12 +10,16 @@ import java.util.Map;
 import java.util.Vector;
 
 public class BasicDb extends Db {
+    private static final Object OBJECT_RESULT = "";
+    private static final Map<String, Iterator<Byte>> MAP_RESULT = new HashMap<>();
+    private static final Vector<Map<String, Iterator<Byte>>> VECTOR_RESULT = new Vector<>();
+
     static class BasicClient {
         BasicClient(String connectionUrl) {
         }
 
-        Object execute(String queryString, Map<String, Object> queryParams) {
-            return null;
+        <T> T execute(String queryString, Map<String, Object> queryParams, T defaultResult) {
+            return defaultResult;
         }
     }
 
@@ -66,7 +70,7 @@ public class BasicDb extends Db {
             String queryString = null;
 
             BasicClient client = dbConnectionState.client();
-            Object result = client.execute(queryString, queryParams);
+            Object result = client.execute(queryString, queryParams, OBJECT_RESULT);
 
             // TODO replace with actual result code
             resultReporter.report(0, result, operation);
@@ -85,7 +89,7 @@ public class BasicDb extends Db {
             String queryString = null;
 
             BasicClient client = dbConnectionState.client();
-            Map<String, Iterator<Byte>> result = (Map<String, Iterator<Byte>>) client.execute(queryString, queryParams);
+            Map<String, Iterator<Byte>> result = client.execute(queryString, queryParams, MAP_RESULT);
 
             // TODO replace with actual result code
             resultReporter.report(0, result, operation);
@@ -103,7 +107,7 @@ public class BasicDb extends Db {
             // TODO replace with actual query string
             String queryString = null;
 
-            Map<String, Iterator<Byte>> result = (Map<String, Iterator<Byte>>) dbConnectionState.client().execute(queryString, queryParams);
+            Map<String, Iterator<Byte>> result = dbConnectionState.client().execute(queryString, queryParams, MAP_RESULT);
 
             // TODO replace with actual result code
             resultReporter.report(0, result, operation);
@@ -122,7 +126,7 @@ public class BasicDb extends Db {
             // TODO replace with actual query string
             String queryString = null;
 
-            Vector<Map<String, Iterator<Byte>>> result = (Vector<Map<String, Iterator<Byte>>>) dbConnectionState.client().execute(queryString, queryParams);
+            Vector<Map<String, Iterator<Byte>>> result = dbConnectionState.client().execute(queryString, queryParams, VECTOR_RESULT);
 
             // TODO replace with actual result code
             resultReporter.report(0, result, operation);
@@ -141,7 +145,7 @@ public class BasicDb extends Db {
             // TODO replace with actual query string
             String queryString = null;
 
-            Object result = dbConnectionState.client().execute(queryString, queryParams);
+            Object result = dbConnectionState.client().execute(queryString, queryParams, OBJECT_RESULT);
 
             // TODO replace with actual result code
             resultReporter.report(0, result, operation);

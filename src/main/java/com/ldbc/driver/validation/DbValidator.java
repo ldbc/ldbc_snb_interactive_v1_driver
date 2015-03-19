@@ -20,7 +20,6 @@ public class DbValidator {
         int validationParamsIncorrectSoFar = 0;
 
         while (validationParameters.hasNext()) {
-            resultReporter.report(-1, null, null);
             ValidationParam validationParam = validationParameters.next();
             Operation operation = validationParam.operation();
             Object expectedOperationResult = validationParam.operationResult();
