@@ -322,6 +322,20 @@ public class LdbcSnbInteractiveWorkload extends Workload {
                 } catch (IOException e) {
                     throw new WorkloadException("Unable to open person update stream: " + personUpdateOperationFile.getAbsolutePath(), e);
                 }
+                if (false == personUpdateOperationsParser.hasNext()) {
+                    // Update stream is empty
+                    System.out.println(
+                            String.format(""
+                                            + "***********************************************\n"
+                                            + "  !! WARMING !!\n"
+                                            + "  Update stream is empty: %s\n"
+                                            + "  Check that data generation process completed successfully\n"
+                                            + "***********************************************",
+                                    personUpdateOperationFile.getAbsolutePath()
+                            )
+                    );
+                    continue;
+                }
                 PeekingIterator<Operation<?>> unfilteredPersonUpdateOperations = Iterators.peekingIterator(personUpdateOperationsParser);
 
                 try {
@@ -377,6 +391,20 @@ public class LdbcSnbInteractiveWorkload extends Workload {
                     forumUpdateOperationsFileReaders.add(parserAndCloseable._2());
                 } catch (IOException e) {
                     throw new WorkloadException("Unable to open forum update stream: " + forumUpdateOperationFile.getAbsolutePath(), e);
+                }
+                if (false == forumUpdateOperationsParser.hasNext()) {
+                    // Update stream is empty
+                    System.out.println(
+                            String.format(""
+                                            + "***********************************************\n"
+                                            + "  !! WARMING !!\n"
+                                            + "  Update stream is empty: %s\n"
+                                            + "  Check that data generation process completed successfully\n"
+                                            + "***********************************************",
+                                    forumUpdateOperationFile.getAbsolutePath()
+                            )
+                    );
+                    continue;
                 }
                 PeekingIterator<Operation<?>> unfilteredForumUpdateOperations = Iterators.peekingIterator(forumUpdateOperationsParser);
 
