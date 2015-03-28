@@ -178,7 +178,7 @@ public class WorkloadRunnerTest {
             assertThat(errorReporter.toString(), workloadResults.toJson(), equalTo(workloadResultsFromJson.toJson()));
 
             csvResultsLogWriter.close();
-            SimpleCsvFileReader csvResultsLogReader = new SimpleCsvFileReader(resultsLog, SimpleCsvFileReader.DEFAULT_COLUMN_SEPARATOR_PATTERN);
+            SimpleCsvFileReader csvResultsLogReader = new SimpleCsvFileReader(resultsLog, SimpleCsvFileReader.DEFAULT_COLUMN_SEPARATOR_REGEX_STRING);
             // NOT + 1 because I didn't add csv headers
             // GREATER THAN or equal because number of Short Reads is operation result-dependent
             assertThat((long) Iterators.size(csvResultsLogReader), greaterThanOrEqualTo(configuration.operationCount()));
@@ -333,7 +333,7 @@ public class WorkloadRunnerTest {
             assertThat(errorReporter.toString(), workloadResults.toJson(), equalTo(workloadResultsFromJson.toJson()));
 
             csvResultsLogWriter.close();
-            SimpleCsvFileReader csvResultsLogReader = new SimpleCsvFileReader(resultsLog, SimpleCsvFileReader.DEFAULT_COLUMN_SEPARATOR_PATTERN);
+            SimpleCsvFileReader csvResultsLogReader = new SimpleCsvFileReader(resultsLog, SimpleCsvFileReader.DEFAULT_COLUMN_SEPARATOR_REGEX_STRING);
             // NOT + 1 because I didn't add csv headers
             // GREATER THAN or equal because number of Short Reads is operation result-dependent
             assertThat((long) Iterators.size(csvResultsLogReader), greaterThanOrEqualTo(configuration.operationCount()));
@@ -512,7 +512,7 @@ public class WorkloadRunnerTest {
             assertThat(errorReporter.toString(), workloadResults.toJson(), equalTo(workloadResultsFromJson.toJson()));
 
             csvResultsLogWriter.close();
-            SimpleCsvFileReader csvResultsLogReader = new SimpleCsvFileReader(resultsLog, SimpleCsvFileReader.DEFAULT_COLUMN_SEPARATOR_PATTERN);
+            SimpleCsvFileReader csvResultsLogReader = new SimpleCsvFileReader(resultsLog, SimpleCsvFileReader.DEFAULT_COLUMN_SEPARATOR_REGEX_STRING);
             assertThat((long) Iterators.size(csvResultsLogReader), is(configuration.operationCount())); // NOT + 1 because I didn't add csv headers
             csvResultsLogReader.close();
 

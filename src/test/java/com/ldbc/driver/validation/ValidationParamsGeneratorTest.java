@@ -70,7 +70,7 @@ public class ValidationParamsGeneratorTest {
         simpleCsvFileWriter.writeRows(validationParamsAsCsvRows);
         simpleCsvFileWriter.close();
 
-        SimpleCsvFileReader simpleCsvFileReader = new SimpleCsvFileReader(tempValidationFile, SimpleCsvFileReader.DEFAULT_COLUMN_SEPARATOR_PATTERN);
+        SimpleCsvFileReader simpleCsvFileReader = new SimpleCsvFileReader(tempValidationFile, SimpleCsvFileReader.DEFAULT_COLUMN_SEPARATOR_REGEX_STRING);
         ValidationParamsFromCsvRows validationParamsAfter = new ValidationParamsFromCsvRows(simpleCsvFileReader, workload);
         List<ValidationParam> validationParamsAfterList = Lists.newArrayList(validationParamsAfter);
 

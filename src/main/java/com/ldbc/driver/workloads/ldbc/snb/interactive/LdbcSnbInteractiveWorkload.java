@@ -273,7 +273,7 @@ public class LdbcSnbInteractiveWorkload extends Workload {
     private Tuple.Tuple2<Iterator<Operation<?>>, Closeable> fileToWriteStreamParser(File updateOperationsFile, LdbcSnbInteractiveConfiguration.UpdateStreamParser parser) throws IOException, WorkloadException {
         switch (parser) {
             case REGEX: {
-                SimpleCsvFileReader csvFileReader = new SimpleCsvFileReader(updateOperationsFile, SimpleCsvFileReader.DEFAULT_COLUMN_SEPARATOR_PATTERN);
+                SimpleCsvFileReader csvFileReader = new SimpleCsvFileReader(updateOperationsFile, SimpleCsvFileReader.DEFAULT_COLUMN_SEPARATOR_REGEX_STRING);
                 return Tuple.<Iterator<Operation<?>>, Closeable>tuple2(WriteEventStreamReaderRegex.create(csvFileReader), csvFileReader);
             }
             case CHAR_SEEKER: {
@@ -303,7 +303,7 @@ public class LdbcSnbInteractiveWorkload extends Workload {
                 return Tuple.<Iterator<Operation<?>>, Closeable>tuple2(WriteEventStreamReaderCharSeeker.create(charSeeker, extractors, '|'), charSeeker);
             }
         }
-        SimpleCsvFileReader csvFileReader = new SimpleCsvFileReader(updateOperationsFile, SimpleCsvFileReader.DEFAULT_COLUMN_SEPARATOR_PATTERN);
+        SimpleCsvFileReader csvFileReader = new SimpleCsvFileReader(updateOperationsFile, SimpleCsvFileReader.DEFAULT_COLUMN_SEPARATOR_REGEX_STRING);
         return Tuple.<Iterator<Operation<?>>, Closeable>tuple2(WriteEventStreamReaderRegex.create(csvFileReader), csvFileReader);
     }
 

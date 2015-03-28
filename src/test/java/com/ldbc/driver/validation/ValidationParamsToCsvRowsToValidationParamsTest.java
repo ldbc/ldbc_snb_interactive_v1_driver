@@ -63,7 +63,7 @@ public class ValidationParamsToCsvRowsToValidationParamsTest {
 
         // (4) csv_file->csv_rows
         List<String[]> csvFile1Rows = Lists.newArrayList(
-                new SimpleCsvFileReader(csvFile1, SimpleCsvFileReader.DEFAULT_COLUMN_SEPARATOR_PATTERN)
+                new SimpleCsvFileReader(csvFile1, SimpleCsvFileReader.DEFAULT_COLUMN_SEPARATOR_REGEX_STRING)
         );
 
         // (5) csv_rows->params
@@ -84,7 +84,7 @@ public class ValidationParamsToCsvRowsToValidationParamsTest {
 
         // (8) csv_file->csv_rows
         List<String[]> csvFile2Rows = Lists.newArrayList(
-                new SimpleCsvFileReader(csvFile2, SimpleCsvFileReader.DEFAULT_COLUMN_SEPARATOR_PATTERN)
+                new SimpleCsvFileReader(csvFile2, SimpleCsvFileReader.DEFAULT_COLUMN_SEPARATOR_REGEX_STRING)
         );
 
         // (8) csv_rows->params

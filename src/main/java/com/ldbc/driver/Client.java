@@ -617,10 +617,10 @@ public class Client {
                 int validationParamsCount;
                 SimpleCsvFileReader validationParamsReader;
                 try {
-                    validationParamsReader = new SimpleCsvFileReader(validationParamsFile, SimpleCsvFileReader.DEFAULT_COLUMN_SEPARATOR_PATTERN);
+                    validationParamsReader = new SimpleCsvFileReader(validationParamsFile, SimpleCsvFileReader.DEFAULT_COLUMN_SEPARATOR_REGEX_STRING);
                     validationParamsCount = Iterators.size(validationParamsReader);
                     validationParamsReader.close();
-                    validationParamsReader = new SimpleCsvFileReader(validationParamsFile, SimpleCsvFileReader.DEFAULT_COLUMN_SEPARATOR_PATTERN);
+                    validationParamsReader = new SimpleCsvFileReader(validationParamsFile, SimpleCsvFileReader.DEFAULT_COLUMN_SEPARATOR_REGEX_STRING);
                 } catch (IOException e) {
                     throw new ClientException("Error encountered trying to create CSV file reader", e);
                 }

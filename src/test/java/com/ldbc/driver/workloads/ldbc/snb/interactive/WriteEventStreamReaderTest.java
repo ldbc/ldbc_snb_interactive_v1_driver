@@ -27,7 +27,7 @@ public class WriteEventStreamReaderTest {
     public void shouldParseAllEventTypesWithWriteEventStreamReaderRegex_DATE() throws IOException, ParseException {
         String data = WriteEventStreamReaderTestData.ROWS_FOR_ALL_EVENT_TYPES;
         BufferedReader bufferedReader = new BufferedReader(new StringReader(data));
-        SimpleCsvFileReader csvFileReader = new SimpleCsvFileReader(bufferedReader, SimpleCsvFileReader.DEFAULT_COLUMN_SEPARATOR_PATTERN);
+        SimpleCsvFileReader csvFileReader = new SimpleCsvFileReader(bufferedReader, SimpleCsvFileReader.DEFAULT_COLUMN_SEPARATOR_REGEX_STRING);
         Iterator<Operation<?>> writeEventStreamReader = WriteEventStreamReaderRegex.create(csvFileReader);
         doShouldParseAllEventTypes(writeEventStreamReader);
         csvFileReader.close();
@@ -190,7 +190,7 @@ public class WriteEventStreamReaderTest {
     public void shouldParseUpdate1AddPersonWithWriteEventStreamReaderRegex_DATE() throws IOException, ParseException {
         String data = WriteEventStreamReaderTestData.UPDATE_1_ADD_PERSON_ROW;
         BufferedReader bufferedReader = new BufferedReader(new StringReader(data));
-        SimpleCsvFileReader csvFileReader = new SimpleCsvFileReader(bufferedReader, SimpleCsvFileReader.DEFAULT_COLUMN_SEPARATOR_PATTERN);
+        SimpleCsvFileReader csvFileReader = new SimpleCsvFileReader(bufferedReader, SimpleCsvFileReader.DEFAULT_COLUMN_SEPARATOR_REGEX_STRING);
         Iterator<Operation<?>> writeEventStreamReader = WriteEventStreamReaderRegex.create(csvFileReader);
         doShouldParseUpdate1AddPerson(writeEventStreamReader);
         csvFileReader.close();
@@ -244,7 +244,7 @@ public class WriteEventStreamReaderTest {
     public void shouldParseUpdate1AddPersonWithOneLanguageWithWriteEventStreamReaderRegex_DATE() throws IOException, ParseException {
         String data = WriteEventStreamReaderTestData.UPDATE_1_ADD_PERSON_ROW_ONE_LANGUAGE;
         BufferedReader bufferedReader = new BufferedReader(new StringReader(data));
-        SimpleCsvFileReader csvFileReader = new SimpleCsvFileReader(bufferedReader, SimpleCsvFileReader.DEFAULT_COLUMN_SEPARATOR_PATTERN);
+        SimpleCsvFileReader csvFileReader = new SimpleCsvFileReader(bufferedReader, SimpleCsvFileReader.DEFAULT_COLUMN_SEPARATOR_REGEX_STRING);
         Iterator<Operation<?>> writeEventStreamReader = WriteEventStreamReaderRegex.create(csvFileReader);
         doShouldParseUpdate1AddPersonWithOneLanguage(writeEventStreamReader);
         csvFileReader.close();
@@ -298,7 +298,7 @@ public class WriteEventStreamReaderTest {
     public void shouldParseUpdate1AddPersonWithNoLanguagesWithWriteEventStreamReaderRegex_DATE() throws IOException, ParseException {
         String data = WriteEventStreamReaderTestData.UPDATE_1_ADD_PERSON_ROW_NO_LANGUAGES;
         BufferedReader bufferedReader = new BufferedReader(new StringReader(data));
-        SimpleCsvFileReader csvFileReader = new SimpleCsvFileReader(bufferedReader, SimpleCsvFileReader.DEFAULT_COLUMN_SEPARATOR_PATTERN);
+        SimpleCsvFileReader csvFileReader = new SimpleCsvFileReader(bufferedReader, SimpleCsvFileReader.DEFAULT_COLUMN_SEPARATOR_REGEX_STRING);
         Iterator<Operation<?>> writeEventStreamReader = WriteEventStreamReaderRegex.create(csvFileReader);
         doShouldParseUpdate1AddPersonWithNoLanguages(writeEventStreamReader);
         csvFileReader.close();
@@ -352,7 +352,7 @@ public class WriteEventStreamReaderTest {
     public void shouldParseUpdate1AddPersonWithOneCompanyWithWriteEventStreamReaderRegex_DATE() throws IOException, ParseException {
         String data = WriteEventStreamReaderTestData.UPDATE_1_ADD_PERSON_ROW_ONE_COMPANY;
         BufferedReader bufferedReader = new BufferedReader(new StringReader(data));
-        SimpleCsvFileReader csvFileReader = new SimpleCsvFileReader(bufferedReader, SimpleCsvFileReader.DEFAULT_COLUMN_SEPARATOR_PATTERN);
+        SimpleCsvFileReader csvFileReader = new SimpleCsvFileReader(bufferedReader, SimpleCsvFileReader.DEFAULT_COLUMN_SEPARATOR_REGEX_STRING);
         Iterator<Operation<?>> writeEventStreamReader = WriteEventStreamReaderRegex.create(csvFileReader);
         doShouldParseUpdate1AddPersonWithOneCompany(writeEventStreamReader);
         csvFileReader.close();
@@ -403,7 +403,7 @@ public class WriteEventStreamReaderTest {
     public void shouldParseUpdate1AddPersonWithNoCompaniesWithWriteEventStreamReaderRegex_DATE() throws IOException, ParseException {
         String data = WriteEventStreamReaderTestData.UPDATE_1_ADD_PERSON_ROW_NO_COMPANIES;
         BufferedReader bufferedReader = new BufferedReader(new StringReader(data));
-        SimpleCsvFileReader csvFileReader = new SimpleCsvFileReader(bufferedReader, SimpleCsvFileReader.DEFAULT_COLUMN_SEPARATOR_PATTERN);
+        SimpleCsvFileReader csvFileReader = new SimpleCsvFileReader(bufferedReader, SimpleCsvFileReader.DEFAULT_COLUMN_SEPARATOR_REGEX_STRING);
         Iterator<Operation<?>> writeEventStreamReader = WriteEventStreamReaderRegex.create(csvFileReader);
         doShouldParseUpdate1AddPersonWithNoCompanies(writeEventStreamReader);
         csvFileReader.close();
@@ -452,7 +452,7 @@ public class WriteEventStreamReaderTest {
     public void shouldParseUpdate1AddPersonWithNoUnisWithWriteEventStreamReaderRegex_DATE() throws IOException, ParseException {
         String data = WriteEventStreamReaderTestData.UPDATE_1_ADD_PERSON_ROW_NO_UNIS;
         BufferedReader bufferedReader = new BufferedReader(new StringReader(data));
-        SimpleCsvFileReader csvFileReader = new SimpleCsvFileReader(bufferedReader, SimpleCsvFileReader.DEFAULT_COLUMN_SEPARATOR_PATTERN);
+        SimpleCsvFileReader csvFileReader = new SimpleCsvFileReader(bufferedReader, SimpleCsvFileReader.DEFAULT_COLUMN_SEPARATOR_REGEX_STRING);
         Iterator<Operation<?>> writeEventStreamReader = WriteEventStreamReaderRegex.create(csvFileReader);
         doShouldParseUpdate1AddPersonWithNoUnis(writeEventStreamReader);
         csvFileReader.close();
@@ -506,7 +506,7 @@ public class WriteEventStreamReaderTest {
     public void shouldParseUpdate1AddPersonWithNoEmailsWithWriteEventStreamReaderRegex_DATE() throws IOException, ParseException {
         String data = WriteEventStreamReaderTestData.UPDATE_1_ADD_PERSON_ROW_NO_EMAILS;
         BufferedReader bufferedReader = new BufferedReader(new StringReader(data));
-        SimpleCsvFileReader csvFileReader = new SimpleCsvFileReader(bufferedReader, SimpleCsvFileReader.DEFAULT_COLUMN_SEPARATOR_PATTERN);
+        SimpleCsvFileReader csvFileReader = new SimpleCsvFileReader(bufferedReader, SimpleCsvFileReader.DEFAULT_COLUMN_SEPARATOR_REGEX_STRING);
         Iterator<Operation<?>> writeEventStreamReader = WriteEventStreamReaderRegex.create(csvFileReader);
         doShouldParseUpdate1AddPersonWithNoEmails(writeEventStreamReader);
         csvFileReader.close();
@@ -560,7 +560,7 @@ public class WriteEventStreamReaderTest {
     public void shouldParseUpdate1AddPersonWithNoTagsWithWriteEventStreamReaderRegex_DATE() throws IOException, ParseException {
         String data = WriteEventStreamReaderTestData.UPDATE_1_ADD_PERSON_ROW_NO_TAGS;
         BufferedReader bufferedReader = new BufferedReader(new StringReader(data));
-        SimpleCsvFileReader csvFileReader = new SimpleCsvFileReader(bufferedReader, SimpleCsvFileReader.DEFAULT_COLUMN_SEPARATOR_PATTERN);
+        SimpleCsvFileReader csvFileReader = new SimpleCsvFileReader(bufferedReader, SimpleCsvFileReader.DEFAULT_COLUMN_SEPARATOR_REGEX_STRING);
         Iterator<Operation<?>> writeEventStreamReader = WriteEventStreamReaderRegex.create(csvFileReader);
         doShouldParseUpdate1AddPersonWithNoTags(writeEventStreamReader);
         csvFileReader.close();
@@ -614,7 +614,7 @@ public class WriteEventStreamReaderTest {
     public void shouldParseUpdate2AddLikePostWithWriteEventStreamReaderRegex_DATE() throws IOException, ParseException {
         String data = WriteEventStreamReaderTestData.UPDATE_2_ADD_LIKE_POST_ROW;
         BufferedReader bufferedReader = new BufferedReader(new StringReader(data));
-        SimpleCsvFileReader csvFileReader = new SimpleCsvFileReader(bufferedReader, SimpleCsvFileReader.DEFAULT_COLUMN_SEPARATOR_PATTERN);
+        SimpleCsvFileReader csvFileReader = new SimpleCsvFileReader(bufferedReader, SimpleCsvFileReader.DEFAULT_COLUMN_SEPARATOR_REGEX_STRING);
         Iterator<Operation<?>> writeEventStreamReader = WriteEventStreamReaderRegex.create(csvFileReader);
         doShouldParseUpdate2AddLikePost(writeEventStreamReader);
         csvFileReader.close();
@@ -651,7 +651,7 @@ public class WriteEventStreamReaderTest {
     public void shouldParseUpdate3AddLikeCommentWithWriteEventStreamReaderRegex_DATE() throws IOException, ParseException {
         String data = WriteEventStreamReaderTestData.UPDATE_3_ADD_LIKE_COMMENT;
         BufferedReader bufferedReader = new BufferedReader(new StringReader(data));
-        SimpleCsvFileReader csvFileReader = new SimpleCsvFileReader(bufferedReader, SimpleCsvFileReader.DEFAULT_COLUMN_SEPARATOR_PATTERN);
+        SimpleCsvFileReader csvFileReader = new SimpleCsvFileReader(bufferedReader, SimpleCsvFileReader.DEFAULT_COLUMN_SEPARATOR_REGEX_STRING);
         Iterator<Operation<?>> writeEventStreamReader = WriteEventStreamReaderRegex.create(csvFileReader);
         doShouldParseUpdate3AddLikeComment(writeEventStreamReader);
         csvFileReader.close();
@@ -687,7 +687,7 @@ public class WriteEventStreamReaderTest {
     public void shouldParseUpdate4AddForumWithWriteEventStreamReaderRegex_DATE() throws IOException, ParseException {
         String data = WriteEventStreamReaderTestData.UPDATE_4_ADD_FORUM;
         BufferedReader bufferedReader = new BufferedReader(new StringReader(data));
-        SimpleCsvFileReader csvFileReader = new SimpleCsvFileReader(bufferedReader, SimpleCsvFileReader.DEFAULT_COLUMN_SEPARATOR_PATTERN);
+        SimpleCsvFileReader csvFileReader = new SimpleCsvFileReader(bufferedReader, SimpleCsvFileReader.DEFAULT_COLUMN_SEPARATOR_REGEX_STRING);
         Iterator<Operation<?>> writeEventStreamReader = WriteEventStreamReaderRegex.create(csvFileReader);
         doShouldParseUpdate4AddForum(writeEventStreamReader);
         csvFileReader.close();
@@ -725,7 +725,7 @@ public class WriteEventStreamReaderTest {
     public void shouldParseUpdate5AddForumMembershipWithWriteEventStreamReaderRegex_DATE() throws IOException, ParseException {
         String data = WriteEventStreamReaderTestData.UPDATE_5_ADD_FORUM_MEMBERSHIP;
         BufferedReader bufferedReader = new BufferedReader(new StringReader(data));
-        SimpleCsvFileReader csvFileReader = new SimpleCsvFileReader(bufferedReader, SimpleCsvFileReader.DEFAULT_COLUMN_SEPARATOR_PATTERN);
+        SimpleCsvFileReader csvFileReader = new SimpleCsvFileReader(bufferedReader, SimpleCsvFileReader.DEFAULT_COLUMN_SEPARATOR_REGEX_STRING);
         Iterator<Operation<?>> writeEventStreamReader = WriteEventStreamReaderRegex.create(csvFileReader);
         shouldParseUpdate5AddForumMembership(writeEventStreamReader);
         csvFileReader.close();
@@ -761,7 +761,7 @@ public class WriteEventStreamReaderTest {
     public void shouldParseUpdate6AddPostWithWriteEventStreamReaderRegex_DATE() throws IOException, ParseException {
         String data = WriteEventStreamReaderTestData.UPDATE_6_ADD_POST;
         BufferedReader bufferedReader = new BufferedReader(new StringReader(data));
-        SimpleCsvFileReader csvFileReader = new SimpleCsvFileReader(bufferedReader, SimpleCsvFileReader.DEFAULT_COLUMN_SEPARATOR_PATTERN);
+        SimpleCsvFileReader csvFileReader = new SimpleCsvFileReader(bufferedReader, SimpleCsvFileReader.DEFAULT_COLUMN_SEPARATOR_REGEX_STRING);
         Iterator<Operation<?>> writeEventStreamReader = WriteEventStreamReaderRegex.create(csvFileReader);
         doShouldParseUpdate6AddPost(writeEventStreamReader);
         csvFileReader.close();
@@ -806,7 +806,7 @@ public class WriteEventStreamReaderTest {
     public void shouldParseUpdate6AddPostWithManyTagsWithWriteEventStreamReaderRegex_DATE() throws IOException, ParseException {
         String data = WriteEventStreamReaderTestData.UPDATE_6_ADD_POST_MANY_TAGS;
         BufferedReader bufferedReader = new BufferedReader(new StringReader(data));
-        SimpleCsvFileReader csvFileReader = new SimpleCsvFileReader(bufferedReader, SimpleCsvFileReader.DEFAULT_COLUMN_SEPARATOR_PATTERN);
+        SimpleCsvFileReader csvFileReader = new SimpleCsvFileReader(bufferedReader, SimpleCsvFileReader.DEFAULT_COLUMN_SEPARATOR_REGEX_STRING);
         Iterator<Operation<?>> writeEventStreamReader = WriteEventStreamReaderRegex.create(csvFileReader);
         doShouldParseUpdate6AddPostWithManyTags(writeEventStreamReader);
         csvFileReader.close();
@@ -851,7 +851,7 @@ public class WriteEventStreamReaderTest {
     public void shouldParseUpdate6AddPostWithEmptyTagsWithWriteEventStreamReaderRegex_DATE() throws IOException, ParseException {
         String data = WriteEventStreamReaderTestData.UPDATE_6_ADD_POST_NO_TAGS;
         BufferedReader bufferedReader = new BufferedReader(new StringReader(data));
-        SimpleCsvFileReader csvFileReader = new SimpleCsvFileReader(bufferedReader, SimpleCsvFileReader.DEFAULT_COLUMN_SEPARATOR_PATTERN);
+        SimpleCsvFileReader csvFileReader = new SimpleCsvFileReader(bufferedReader, SimpleCsvFileReader.DEFAULT_COLUMN_SEPARATOR_REGEX_STRING);
         Iterator<Operation<?>> writeEventStreamReader = WriteEventStreamReaderRegex.create(csvFileReader);
         doShouldParseUpdate6AddPostWithEmptyTags(writeEventStreamReader);
         csvFileReader.close();
@@ -896,7 +896,7 @@ public class WriteEventStreamReaderTest {
     public void shouldParseUpdate7AddCommentWithWriteEventStreamReaderRegex_DATE() throws IOException, ParseException {
         String data = WriteEventStreamReaderTestData.UPDATE_7_ADD_COMMENT;
         BufferedReader bufferedReader = new BufferedReader(new StringReader(data));
-        SimpleCsvFileReader csvFileReader = new SimpleCsvFileReader(bufferedReader, SimpleCsvFileReader.DEFAULT_COLUMN_SEPARATOR_PATTERN);
+        SimpleCsvFileReader csvFileReader = new SimpleCsvFileReader(bufferedReader, SimpleCsvFileReader.DEFAULT_COLUMN_SEPARATOR_REGEX_STRING);
         Iterator<Operation<?>> writeEventStreamReader = WriteEventStreamReaderRegex.create(csvFileReader);
         doShouldParseUpdate7AddComment(writeEventStreamReader);
         csvFileReader.close();
@@ -940,7 +940,7 @@ public class WriteEventStreamReaderTest {
     public void shouldParseUpdate7AddCommentWithEmptyTagsWithWriteEventStreamReaderRegex_DATE() throws IOException, ParseException {
         String data = WriteEventStreamReaderTestData.UPDATE_7_ADD_COMMENT_NO_TAGS;
         BufferedReader bufferedReader = new BufferedReader(new StringReader(data));
-        SimpleCsvFileReader csvFileReader = new SimpleCsvFileReader(bufferedReader, SimpleCsvFileReader.DEFAULT_COLUMN_SEPARATOR_PATTERN);
+        SimpleCsvFileReader csvFileReader = new SimpleCsvFileReader(bufferedReader, SimpleCsvFileReader.DEFAULT_COLUMN_SEPARATOR_REGEX_STRING);
         Iterator<Operation<?>> writeEventStreamReader = WriteEventStreamReaderRegex.create(csvFileReader);
         doShouldParseUpdate7AddCommentWithEmptyTags(writeEventStreamReader);
         csvFileReader.close();
@@ -984,7 +984,7 @@ public class WriteEventStreamReaderTest {
     public void shouldParseUpdate8AddFriendshipWithWriteEventStreamReaderRegex_DATE() throws IOException, ParseException {
         String data = WriteEventStreamReaderTestData.UPDATE_8_ADD_FRIENDSHIP;
         BufferedReader bufferedReader = new BufferedReader(new StringReader(data));
-        SimpleCsvFileReader csvFileReader = new SimpleCsvFileReader(bufferedReader, SimpleCsvFileReader.DEFAULT_COLUMN_SEPARATOR_PATTERN);
+        SimpleCsvFileReader csvFileReader = new SimpleCsvFileReader(bufferedReader, SimpleCsvFileReader.DEFAULT_COLUMN_SEPARATOR_REGEX_STRING);
         Iterator<Operation<?>> writeEventStreamReader = WriteEventStreamReaderRegex.create(csvFileReader);
         doShouldParseUpdate8AddFriendship(writeEventStreamReader);
         csvFileReader.close();
