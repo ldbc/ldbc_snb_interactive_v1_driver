@@ -1,5 +1,6 @@
 package com.ldbc.driver.workloads.ldbc.snb.interactive;
 
+import com.google.common.base.Charsets;
 import com.google.common.base.Function;
 import com.google.common.base.Predicate;
 import com.google.common.collect.*;
@@ -277,13 +278,27 @@ public class LdbcSnbInteractiveWorkload extends Workload {
             }
             case CHAR_SEEKER: {
                 int bufferSize = 1 * 1024 * 1024;
-                BufferedCharSeeker charSeeker = new BufferedCharSeeker(Readables.wrap(new FileReader(updateOperationsFile)), bufferSize);
+//                BufferedCharSeeker charSeeker = new BufferedCharSeeker(Readables.wrap(new FileReader(updateOperationsFile)), bufferSize);
+                BufferedCharSeeker charSeeker = new BufferedCharSeeker(
+                        Readables.wrap(
+                                new InputStreamReader(new FileInputStream(updateOperationsFile), Charsets.UTF_8)
+                        ),
+                        bufferSize
+                );
                 Extractors extractors = new Extractors(';', ',');
                 return Tuple.<Iterator<Operation<?>>, Closeable>tuple2(WriteEventStreamReaderCharSeeker.create(charSeeker, extractors, '|'), charSeeker);
             }
             case CHAR_SEEKER_THREAD: {
                 int bufferSize = 1 * 1024 * 1024;
-                BufferedCharSeeker charSeeker = new BufferedCharSeeker(ThreadAheadReadable.threadAhead(Readables.wrap(new FileReader(updateOperationsFile)), bufferSize), bufferSize);
+                BufferedCharSeeker charSeeker = new BufferedCharSeeker(
+                        ThreadAheadReadable.threadAhead(
+                                Readables.wrap(
+                                        new InputStreamReader(new FileInputStream(updateOperationsFile), Charsets.UTF_8)
+                                ),
+                                bufferSize
+                        ),
+                        bufferSize
+                );
                 Extractors extractors = new Extractors(';', ',');
                 return Tuple.<Iterator<Operation<?>>, Closeable>tuple2(WriteEventStreamReaderCharSeeker.create(charSeeker, extractors, '|'), charSeeker);
             }
