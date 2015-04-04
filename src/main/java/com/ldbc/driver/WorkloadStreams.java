@@ -163,19 +163,24 @@ public class WorkloadStreams {
     }
 
     // returns (workload_streams, workload, minimum_timestamp)
-    public static Tuple.Tuple3<WorkloadStreams, Workload, Long> createNewWorkloadWithLimitedWorkloadStreams(DriverConfiguration configuration, GeneratorFactory gf) throws WorkloadException, IOException {
+    public static Tuple.Tuple3<WorkloadStreams, Workload, Long> createNewWorkloadWithLimitedWorkloadStreams(DriverConfiguration configuration,
+                                                                                                            GeneratorFactory gf) throws WorkloadException, IOException {
         ClassNameWorkloadFactory workloadFactory = new ClassNameWorkloadFactory(configuration.workloadClassName());
         return createNewWorkloadWithLimitedWorkloadStreams(workloadFactory, configuration, gf);
     }
 
     // returns (workload_streams, workload, minimum_timestamp)
-    public static Tuple.Tuple3<WorkloadStreams, Workload, Long> createNewWorkloadWithLimitedWorkloadStreams(WorkloadFactory workloadFactory, DriverConfiguration configuration, GeneratorFactory gf) throws WorkloadException, IOException {
+    public static Tuple.Tuple3<WorkloadStreams, Workload, Long> createNewWorkloadWithLimitedWorkloadStreams(WorkloadFactory workloadFactory,
+                                                                                                            DriverConfiguration configuration,
+                                                                                                            GeneratorFactory gf) throws WorkloadException, IOException {
         WorkloadStreams workloadStreams = new WorkloadStreams();
         // get workload
         Workload workload = workloadFactory.createWorkload();
         workload.init(configuration);
         // retrieve unbounded streams
-        WorkloadStreams unlimitedWorkloadStreams = workload.streams(gf);
+//        // TODO check
+        boolean hasDbConnected;
+        WorkloadStreams unlimitedWorkloadStreams = workload.streams(gf, hasDbConnected = false);
         List<Iterator<Operation<?>>> streams = new ArrayList<>();
         streams.add(unlimitedWorkloadStreams.asynchronousStream().dependencyOperations());
         streams.add(unlimitedWorkloadStreams.asynchronousStream().nonDependencyOperations());
@@ -194,7 +199,8 @@ public class WorkloadStreams {
         workload = workloadFactory.createWorkload();
         workload.init(configuration);
         // retrieve unbounded streams
-        unlimitedWorkloadStreams = workload.streams(gf);
+        // TODO check
+        unlimitedWorkloadStreams = workload.streams(gf, hasDbConnected = true);
         // copy unbounded streams to new workload streams instance, applying limits we just computed
         workloadStreams.setAsynchronousStream(
                 unlimitedWorkloadStreams.asynchronousStream().dependentOperationTypes(),
@@ -250,7 +256,7 @@ public class WorkloadStreams {
 
                     if (streamHeadTimeStampAsMilli < minimumTimeStamp)
                         minimumTimeStamp = streamHeadTimeStampAsMilli;
-                    if (-streamHeadDependencyTimeStampAsMilli < minimumDependencyTimeStamp)
+                    if (streamHeadDependencyTimeStampAsMilli < minimumDependencyTimeStamp)
                         minimumDependencyTimeStamp = streamHeadDependencyTimeStampAsMilli;
 
                     if (null != streamHeads[i] && streamHeadTimeStampAsMilli < minAsMilli) {

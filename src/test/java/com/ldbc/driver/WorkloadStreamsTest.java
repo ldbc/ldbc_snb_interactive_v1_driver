@@ -7,7 +7,6 @@ import com.ldbc.driver.control.ConsoleAndFileDriverConfiguration;
 import com.ldbc.driver.control.DriverConfigurationException;
 import com.ldbc.driver.generator.GeneratorFactory;
 import com.ldbc.driver.generator.RandomDataGeneratorFactory;
-import com.ldbc.driver.temporal.TemporalUtil;
 import com.ldbc.driver.util.Tuple;
 import com.ldbc.driver.validation.WorkloadFactory;
 import com.ldbc.driver.workloads.dummy.*;
@@ -21,8 +20,6 @@ import static org.hamcrest.CoreMatchers.*;
 import static org.junit.Assert.assertThat;
 
 public class WorkloadStreamsTest {
-    private static final TemporalUtil TEMPORAL_UTIL = new TemporalUtil();
-
     @Test
     public void shouldReturnSameWorkloadStreamsAsCreatedWith() {
         WorkloadStreams workloadStreamsBefore = getWorkloadStreams();
@@ -443,7 +440,7 @@ public class WorkloadStreamsTest {
         }
 
         @Override
-        protected WorkloadStreams getStreams(GeneratorFactory generators) throws WorkloadException {
+        protected WorkloadStreams getStreams(GeneratorFactory generators, boolean hasDbConnected) throws WorkloadException {
             return getWorkloadStreams();
         }
 

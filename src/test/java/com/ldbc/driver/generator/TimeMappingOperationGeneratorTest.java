@@ -380,7 +380,7 @@ public class TimeMappingOperationGeneratorTest {
         workload.init(configuration);
 
         GeneratorFactory gf = new GeneratorFactory(new RandomDataGeneratorFactory(42L));
-        List<Operation<?>> operations = Lists.newArrayList(gf.limit(workload.streams(gf).mergeSortedByStartTime(gf), configuration.operationCount()));
+        List<Operation<?>> operations = Lists.newArrayList(gf.limit(workload.streams(gf, false).mergeSortedByStartTime(gf), configuration.operationCount()));
         long prevOperationScheduledStartTime = operations.get(0).scheduledStartTimeAsMilli() - 1;
         for (Operation<?> operation : operations) {
             assertThat(operation.scheduledStartTimeAsMilli() >= prevOperationScheduledStartTime, is(true));

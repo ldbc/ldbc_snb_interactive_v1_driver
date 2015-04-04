@@ -51,7 +51,7 @@ public class SimpleWorkload extends Workload {
     }
 
     @Override
-    public WorkloadStreams getStreams(GeneratorFactory gf) throws WorkloadException {
+    public WorkloadStreams getStreams(GeneratorFactory gf, boolean hasDbConnected) throws WorkloadException {
         long workloadStartTimeAsMilli = 0;
 
         /**

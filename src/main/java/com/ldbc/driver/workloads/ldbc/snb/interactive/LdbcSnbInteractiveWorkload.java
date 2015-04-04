@@ -308,7 +308,7 @@ public class LdbcSnbInteractiveWorkload extends Workload {
     }
 
     @Override
-    protected WorkloadStreams getStreams(GeneratorFactory gf) throws WorkloadException {
+    protected WorkloadStreams getStreams(GeneratorFactory gf, boolean hasDbConnected) throws WorkloadException {
         long workloadStartTimeAsMilli = Long.MAX_VALUE;
         WorkloadStreams ldbcSnbInteractiveWorkloadStreams = new WorkloadStreams();
         List<Iterator<?>> asynchronousDependencyStreamsList = new ArrayList<>();
@@ -1128,8 +1128,12 @@ public class LdbcSnbInteractiveWorkload extends Workload {
 
             RandomDataGeneratorFactory randomFactory = new RandomDataGeneratorFactory(42l);
             double initialProbability = 1.0;
-            Queue<Long> personIdBuffer = Queues.synchronizedQueue(EvictingQueue.<Long>create(1024));
-            Queue<Long> messageIdBuffer = Queues.synchronizedQueue(EvictingQueue.<Long>create(1024));
+            Queue<Long> personIdBuffer = (hasDbConnected)
+                    ? LdbcSnbShortReadGenerator.synchronizedCircularQueueBuffer(1024)
+                    : LdbcSnbShortReadGenerator.constantBuffer(1);
+            Queue<Long> messageIdBuffer = (hasDbConnected)
+                    ? LdbcSnbShortReadGenerator.synchronizedCircularQueueBuffer(1024)
+                    : LdbcSnbShortReadGenerator.constantBuffer(1);
             shortReadsChildGenerator = new LdbcSnbShortReadGenerator(
                     initialProbability,
                     shortReadDissipationFactor,

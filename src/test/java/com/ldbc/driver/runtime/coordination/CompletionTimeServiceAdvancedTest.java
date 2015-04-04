@@ -140,7 +140,7 @@ public class CompletionTimeServiceAdvancedTest {
         Workload workload = new SimpleWorkload();
         workload.init(configuration);
         GeneratorFactory gf = new GeneratorFactory(new RandomDataGeneratorFactory(42L));
-        Iterator<Operation<?>> operations = gf.limit(workload.streams(gf).mergeSortedByStartTime(gf), configuration.operationCount());
+        Iterator<Operation<?>> operations = gf.limit(workload.streams(gf, true).mergeSortedByStartTime(gf), configuration.operationCount());
 
         // measure duration of experiment
         long startTimeAsMilli = timeSource.nowAsMilli();

@@ -3,15 +3,15 @@ package com.ldbc.driver.runtime;
 import com.google.common.collect.Iterators;
 import com.google.common.collect.Lists;
 import com.ldbc.driver.*;
-import com.ldbc.driver.control.ControlService;
 import com.ldbc.driver.control.ConsoleAndFileDriverConfiguration;
+import com.ldbc.driver.control.ControlService;
 import com.ldbc.driver.control.DriverConfigurationException;
 import com.ldbc.driver.control.LocalControlService;
 import com.ldbc.driver.generator.GeneratorFactory;
 import com.ldbc.driver.generator.RandomDataGeneratorFactory;
 import com.ldbc.driver.runtime.coordination.CompletionTimeException;
-import com.ldbc.driver.runtime.coordination.CompletionTimeServiceAssistant;
 import com.ldbc.driver.runtime.coordination.CompletionTimeService;
+import com.ldbc.driver.runtime.coordination.CompletionTimeServiceAssistant;
 import com.ldbc.driver.runtime.metrics.*;
 import com.ldbc.driver.temporal.SystemTimeSource;
 import com.ldbc.driver.temporal.TemporalUtil;
@@ -455,7 +455,7 @@ public class WorkloadRunnerTest {
             workload = new LdbcSnbInteractiveWorkload();
             workload.init(configuration);
             GeneratorFactory gf = new GeneratorFactory(new RandomDataGeneratorFactory(42L));
-            Iterator<Operation<?>> operations = gf.limit(workload.streams(gf).mergeSortedByStartTime(gf), configuration.operationCount());
+            Iterator<Operation<?>> operations = gf.limit(workload.streams(gf, true).mergeSortedByStartTime(gf), configuration.operationCount());
             Iterator<Operation<?>> timeMappedOperations = gf.timeOffsetAndCompress(operations, controlService.workloadStartTimeAsMilli(), 1.0);
             WorkloadStreams workloadStreams = new WorkloadStreams();
             workloadStreams.setAsynchronousStream(

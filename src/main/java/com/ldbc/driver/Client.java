@@ -32,6 +32,12 @@ import java.util.concurrent.TimeUnit;
 
 // TODO replace log4j with some interface like StatusReportingService
 
+//the following need work;
+// TODO Validate Workload
+// TODO Calculate Statistics
+// TODO Execute Workload
+// TODO WorkloadStreams
+
 public class Client {
     private static Logger logger = Logger.getLogger(Client.class);
     private static final TemporalUtil TEMPORAL_UTIL = new TemporalUtil();

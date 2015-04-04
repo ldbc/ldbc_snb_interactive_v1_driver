@@ -41,13 +41,13 @@ public abstract class Workload implements Closeable {
 
     protected abstract void onClose() throws IOException;
 
-    public final WorkloadStreams streams(GeneratorFactory gf) throws WorkloadException {
+    public final WorkloadStreams streams(GeneratorFactory gf, boolean hasDbConnected) throws WorkloadException {
         if (false == isInitialized)
             throw new WorkloadException("Workload has not been initialized");
-        return getStreams(gf);
+        return getStreams(gf, hasDbConnected);
     }
 
-    protected abstract WorkloadStreams getStreams(GeneratorFactory generators) throws WorkloadException;
+    protected abstract WorkloadStreams getStreams(GeneratorFactory generators, boolean hasDbConnected) throws WorkloadException;
 
     public DbValidationParametersFilter dbValidationParametersFilter(final Integer requiredValidationParameterCount) {
         return new DbValidationParametersFilter() {
