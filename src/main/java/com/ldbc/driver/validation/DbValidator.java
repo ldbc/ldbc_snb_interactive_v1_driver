@@ -9,7 +9,8 @@ import java.util.Iterator;
 public class DbValidator {
     public DbValidationResult validate(Iterator<ValidationParam> validationParameters,
                                        Db db,
-                                       int validationParamsCount) throws WorkloadException {
+                                       int validationParamsCount,
+                                       Workload workload) throws WorkloadException {
         System.out.println("----");
         DecimalFormat numberFormat = new DecimalFormat("###,###,###,###,###");
         DbValidationResult dbValidationResult = new DbValidationResult(db);
@@ -60,7 +61,7 @@ public class DbValidator {
 
             Object actualOperationResult = resultReporter.result();
 
-            if (false == expectedOperationResult.equals(actualOperationResult)) {
+            if (false == workload.resultsEqual(operation, expectedOperationResult, actualOperationResult)) {
                 validationParamsIncorrectSoFar++;
                 dbValidationResult.reportIncorrectResultForOperation(operation, expectedOperationResult, actualOperationResult);
                 continue;

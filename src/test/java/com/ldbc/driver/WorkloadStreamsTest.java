@@ -456,6 +456,14 @@ public class WorkloadStreamsTest {
         public Operation<?> marshalOperation(String serializedOperation) throws SerializingMarshallingException {
             return null;
         }
+
+        @Override
+        public boolean resultsEqual(Operation operation, Object result1, Object result2) throws WorkloadException {
+            if (null == result1 || null == result2)
+                return false;
+            else
+                return result1.equals(result2);
+        }
     }
 
     private WorkloadStreams getWorkloadStreams() {
