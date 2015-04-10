@@ -179,8 +179,8 @@ public class WorkloadStreams {
         workload.init(configuration);
         // retrieve unbounded streams
 //        // TODO check
-        boolean hasDbConnected;
-        WorkloadStreams unlimitedWorkloadStreams = workload.streams(gf, hasDbConnected = false);
+        boolean hasDbConnected = false;
+        WorkloadStreams unlimitedWorkloadStreams = workload.streams(gf, hasDbConnected);
         List<Iterator<Operation<?>>> streams = new ArrayList<>();
         streams.add(unlimitedWorkloadStreams.asynchronousStream().dependencyOperations());
         streams.add(unlimitedWorkloadStreams.asynchronousStream().nonDependencyOperations());
@@ -200,7 +200,8 @@ public class WorkloadStreams {
         workload.init(configuration);
         // retrieve unbounded streams
         // TODO check
-        unlimitedWorkloadStreams = workload.streams(gf, hasDbConnected = true);
+        hasDbConnected = true;
+        unlimitedWorkloadStreams = workload.streams(gf, hasDbConnected);
         // copy unbounded streams to new workload streams instance, applying limits we just computed
         workloadStreams.setAsynchronousStream(
                 unlimitedWorkloadStreams.asynchronousStream().dependentOperationTypes(),
@@ -223,7 +224,71 @@ public class WorkloadStreams {
     }
 
     // returns (limit_per_stream, minimum_dependency_timestamp, minimum_timestamp)
-    public static Tuple.Tuple3<long[], Long, Long> fromAmongAllRetrieveTopK(List<Iterator<Operation<?>>> streams, long k) throws WorkloadException {
+    public static Tuple.Tuple3<long[], Long, Long> fromAmongAllRetrieveTopK(List<Iterator<Operation<?>>> streams,
+                                                                            long k,
+                                                                            ChildOperationGenerator childOperationGenerator) throws WorkloadException {
+        final DecimalFormat numberFormat = new DecimalFormat("###,###,###,###,###");
+        long minimumDependencyTimeStamp = Long.MAX_VALUE;
+        long minimumTimeStamp = Long.MAX_VALUE;
+        long kSoFar = 0;
+        long[] kForStream = new long[streams.size()];
+
+        for (int i = 0; i < streams.size(); i++) {
+            kForStream[i] = 0;
+        }
+        Operation[] streamHeads = new Operation[streams.size()];
+        for (int i = 0; i < streams.size(); i++) {
+            streamHeads[i] = null;
+        }
+        while (kSoFar < k) {
+            long minAsMilli = Long.MAX_VALUE;
+            int indexOfMin = -1;
+            for (int i = 0; i < streams.size(); i++) {
+                if (null != streamHeads[i] || streams.get(i).hasNext()) {
+                    if (null == streamHeads[i]) {
+                        streamHeads[i] = streams.get(i).next();
+                    }
+
+                    long streamHeadTimeStampAsMilli = streamHeads[i].timeStamp();
+                    long streamHeadDependencyTimeStampAsMilli = streamHeads[i].dependencyTimeStamp();
+
+                    if (-1 == streamHeadTimeStampAsMilli)
+                        throw new WorkloadException(String.format("Operation must have time stamp\n%s", streamHeads[i]));
+                    if (-1 == streamHeadDependencyTimeStampAsMilli)
+                        throw new WorkloadException(String.format("Operation must have dependency time stamp\n%s", streamHeads[i]));
+
+                    if (streamHeadTimeStampAsMilli < minimumTimeStamp)
+                        minimumTimeStamp = streamHeadTimeStampAsMilli;
+                    if (streamHeadDependencyTimeStampAsMilli < minimumDependencyTimeStamp)
+                        minimumDependencyTimeStamp = streamHeadDependencyTimeStampAsMilli;
+
+                    if (null != streamHeads[i] && streamHeadTimeStampAsMilli < minAsMilli) {
+                        minAsMilli = streamHeadTimeStampAsMilli;
+                        indexOfMin = i;
+                    }
+                }
+            }
+            if (-1 == indexOfMin) {
+                // iterators are empty, nothing left to retrieve
+                break;
+            }
+            kForStream[indexOfMin] = kForStream[indexOfMin] + 1;
+            streamHeads[indexOfMin] = null;
+            kSoFar = kSoFar + 1;
+
+            if (kSoFar % 1000000 == 0)
+                System.out.print(String.format("Scanned %s of %s\r", numberFormat.format(kSoFar), numberFormat.format(k)));
+        }
+
+        return Tuple.tuple3(
+                kForStream,
+                minimumDependencyTimeStamp,
+                minimumTimeStamp
+        );
+    }
+
+    // returns (limit_per_stream, minimum_dependency_timestamp, minimum_timestamp)
+    public static Tuple.Tuple3<long[], Long, Long> fromAmongAllRetrieveTopK_OLD(List<Iterator<Operation<?>>> streams, long k) throws WorkloadException {
         final DecimalFormat numberFormat = new DecimalFormat("###,###,###,###,###");
         long minimumDependencyTimeStamp = Long.MAX_VALUE;
         long minimumTimeStamp = Long.MAX_VALUE;

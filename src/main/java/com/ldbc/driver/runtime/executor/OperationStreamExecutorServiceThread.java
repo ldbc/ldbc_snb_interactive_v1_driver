@@ -68,11 +68,10 @@ class OperationStreamExecutorServiceThread extends Thread {
     }
 
     private void awaitAllRunningHandlers() {
-        long pollInterval = POLL_INTERVAL_WHILE_WAITING_FOR_LAST_HANDLER_TO_FINISH_AS_MILLI;
         while (true) {
             if (0 == operationExecutor.uncompletedOperationHandlerCount()) break;
             if (forcedTerminate.get()) break;
-            Spinner.powerNap(pollInterval);
+            Spinner.powerNap(POLL_INTERVAL_WHILE_WAITING_FOR_LAST_HANDLER_TO_FINISH_AS_MILLI);
         }
     }
 }

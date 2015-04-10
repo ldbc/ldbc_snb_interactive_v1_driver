@@ -1134,6 +1134,9 @@ public class LdbcSnbInteractiveWorkload extends Workload {
             Queue<Long> messageIdBuffer = (hasDbConnected)
                     ? LdbcSnbShortReadGenerator.synchronizedCircularQueueBuffer(1024)
                     : LdbcSnbShortReadGenerator.constantBuffer(1);
+            LdbcSnbShortReadGenerator.SCHEDULED_START_TIME_POLICY scheduledStartTimePolicy = (hasDbConnected)
+                    ? LdbcSnbShortReadGenerator.SCHEDULED_START_TIME_POLICY.ACTUAL_NOW
+                    : LdbcSnbShortReadGenerator.SCHEDULED_START_TIME_POLICY.ESTIMATED;
             shortReadsChildGenerator = new LdbcSnbShortReadGenerator(
                     initialProbability,
                     shortReadDissipationFactor,
@@ -1143,7 +1146,8 @@ public class LdbcSnbInteractiveWorkload extends Workload {
                     personIdBuffer,
                     messageIdBuffer,
                     randomFactory,
-                    longReadInterleavesAsMilli
+                    longReadInterleavesAsMilli,
+                    scheduledStartTimePolicy
             );
         }
 
