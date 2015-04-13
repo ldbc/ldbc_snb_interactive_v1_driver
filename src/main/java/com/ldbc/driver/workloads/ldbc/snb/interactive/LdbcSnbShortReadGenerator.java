@@ -11,6 +11,7 @@ import com.ldbc.driver.util.Tuple;
 import org.apache.commons.math3.random.RandomDataGenerator;
 
 import java.util.*;
+import java.util.concurrent.TimeUnit;
 
 public class LdbcSnbShortReadGenerator implements ChildOperationGenerator {
     private final double initialProbability;
@@ -19,9 +20,11 @@ public class LdbcSnbShortReadGenerator implements ChildOperationGenerator {
     private final Queue<Long> personIdBuffer;
     private final Queue<Long> messageIdBuffer;
     private final long[] interleavesAsMilli;
+    private final BufferReplenishFun bufferReplenishFun;
 
     public static enum SCHEDULED_START_TIME_POLICY {
-        ACTUAL_NOW,
+        PREVIOUS_OPERATION_SCHEDULED_START_TIME,
+        PREVIOUS_OPERATION_ACTUAL_FINISH_TIME,
         ESTIMATED
     }
 
@@ -34,10 +37,12 @@ public class LdbcSnbShortReadGenerator implements ChildOperationGenerator {
                                      Queue<Long> messageIdBuffer,
                                      RandomDataGeneratorFactory randomFactory,
                                      Map<Integer, Long> longReadInterleaves,
-                                     SCHEDULED_START_TIME_POLICY scheduledStartTimePolicy) {
+                                     SCHEDULED_START_TIME_POLICY scheduledStartTimePolicy,
+                                     BufferReplenishFun bufferReplenishFun) {
         this.initialProbability = initialProbability;
         this.personIdBuffer = personIdBuffer;
         this.messageIdBuffer = messageIdBuffer;
+        this.bufferReplenishFun = bufferReplenishFun;
 
         int maxReadOperationType = Ordering.<Integer>natural().max(LdbcQuery14.TYPE, LdbcShortQuery7MessageReplies.TYPE) + 1;
         this.interleavesAsMilli = new long[maxReadOperationType];
@@ -362,137 +367,173 @@ public class LdbcSnbShortReadGenerator implements ChildOperationGenerator {
     }
 
     @Override
-    public Operation<?> nextOperation(double state, Operation operation, Object result) throws WorkloadException {
-        switch (operation.type()) {
-            case LdbcQuery1.TYPE: {
-                List<LdbcQuery1Result> typedResults = (List<LdbcQuery1Result>) result;
-                for (int i = 0; i < typedResults.size(); i++) {
-                    personIdBuffer.add(typedResults.get(i).friendId());
-                }
-                break;
-            }
-            case LdbcQuery2.TYPE: {
-                List<LdbcQuery2Result> typedResults = (List<LdbcQuery2Result>) result;
-                for (int i = 0; i < typedResults.size(); i++) {
-                    LdbcQuery2Result typedResult = typedResults.get(i);
-                    personIdBuffer.add(typedResult.personId());
-                    messageIdBuffer.add(typedResult.postOrCommentId());
-                }
-                break;
-            }
-            case LdbcQuery3.TYPE: {
-                List<LdbcQuery3Result> typedResults = (List<LdbcQuery3Result>) result;
-                for (int i = 0; i < typedResults.size(); i++) {
-                    personIdBuffer.add(typedResults.get(i).personId());
-                }
-                break;
-            }
-            case LdbcQuery7.TYPE: {
-                List<LdbcQuery7Result> typedResults = (List<LdbcQuery7Result>) result;
-                for (int i = 0; i < typedResults.size(); i++) {
-                    LdbcQuery7Result typedResult = typedResults.get(i);
-                    personIdBuffer.add(typedResult.personId());
-                    messageIdBuffer.add(typedResult.commentOrPostId());
-                }
-                break;
-            }
-            case LdbcQuery8.TYPE: {
-                List<LdbcQuery8Result> typedResults = (List<LdbcQuery8Result>) result;
-                for (int i = 0; i < typedResults.size(); i++) {
-                    LdbcQuery8Result typedResult = typedResults.get(i);
-                    personIdBuffer.add(typedResult.personId());
-                    messageIdBuffer.add(typedResult.commentId());
-                }
-                break;
-            }
-            case LdbcQuery9.TYPE: {
-                List<LdbcQuery9Result> typedResults = (List<LdbcQuery9Result>) result;
-                for (int i = 0; i < typedResults.size(); i++) {
-                    LdbcQuery9Result typedResult = typedResults.get(i);
-                    personIdBuffer.add(typedResult.personId());
-                    messageIdBuffer.add(typedResult.commentOrPostId());
-                }
-                break;
-            }
-            case LdbcQuery10.TYPE: {
-                List<LdbcQuery10Result> typedResults = (List<LdbcQuery10Result>) result;
-                for (int i = 0; i < typedResults.size(); i++) {
-                    personIdBuffer.add(typedResults.get(i).personId());
-                }
-                break;
-            }
-            case LdbcQuery11.TYPE: {
-                List<LdbcQuery11Result> typedResults = (List<LdbcQuery11Result>) result;
-                for (int i = 0; i < typedResults.size(); i++) {
-                    personIdBuffer.add(typedResults.get(i).personId());
-                }
-                break;
-            }
-            case LdbcQuery12.TYPE: {
-                List<LdbcQuery12Result> typedResults = (List<LdbcQuery12Result>) result;
-                for (int i = 0; i < typedResults.size(); i++) {
-                    personIdBuffer.add(typedResults.get(i).personId());
-                }
-                break;
-            }
-            case LdbcQuery14.TYPE: {
-                List<LdbcQuery14Result> typedResults = (List<LdbcQuery14Result>) result;
-                for (int i = 0; i < typedResults.size(); i++) {
-                    for (Number personId : typedResults.get(i).personsIdsInPath()) {
-                        personIdBuffer.add(personId.longValue());
-                    }
-                }
-                break;
-            }
-            case LdbcShortQuery2PersonPosts.TYPE: {
-                List<LdbcShortQuery2PersonPostsResult> typedResults = (List<LdbcShortQuery2PersonPostsResult>) result;
-                for (int i = 0; i < typedResults.size(); i++) {
-                    LdbcShortQuery2PersonPostsResult typedResult = typedResults.get(i);
-                    personIdBuffer.add(typedResult.originalPostAuthorId());
-                    messageIdBuffer.add(typedResult.messageId());
-                    messageIdBuffer.add(typedResult.originalPostId());
-                }
-                break;
-            }
-            case LdbcShortQuery3PersonFriends.TYPE: {
-                List<LdbcShortQuery3PersonFriendsResult> typedResults = (List<LdbcShortQuery3PersonFriendsResult>) result;
-                for (int i = 0; i < typedResults.size(); i++) {
-                    personIdBuffer.add(typedResults.get(i).personId());
-                }
-                break;
-            }
-            case LdbcShortQuery5MessageCreator.TYPE: {
-                LdbcShortQuery5MessageCreatorResult typedResult = (LdbcShortQuery5MessageCreatorResult) result;
-                personIdBuffer.add(typedResult.personId());
-                break;
-            }
-            case LdbcShortQuery6MessageForum.TYPE: {
-                LdbcShortQuery6MessageForumResult typedResult = (LdbcShortQuery6MessageForumResult) result;
-                personIdBuffer.add(typedResult.moderatorId());
-                break;
-            }
-            case LdbcShortQuery7MessageReplies.TYPE: {
-                List<LdbcShortQuery7MessageRepliesResult> typedResults = (List<LdbcShortQuery7MessageRepliesResult>) result;
-                for (int i = 0; i < typedResults.size(); i++) {
-                    LdbcShortQuery7MessageRepliesResult typedResult = typedResults.get(i);
-                    personIdBuffer.add(typedResult.replyAuthorId());
-                    messageIdBuffer.add(typedResult.commentId());
-                }
-                break;
-            }
-        }
-        return shortReadFactories[operation.type()].create(personIdBuffer, messageIdBuffer, operation, state);
+    public Operation<?> nextOperation(double state, Operation operation, Object result, long actualStartTimeAsMilli, long runDurationAsNano) throws WorkloadException {
+        bufferReplenishFun.replenish(operation, result);
+        return shortReadFactories[operation.type()].create(personIdBuffer, messageIdBuffer, operation, actualStartTimeAsMilli, runDurationAsNano, state);
     }
 
     @Override
-    public double updateState(double previousState, int operationType) {
-        return previousState - probabilityDegradationFactors[operationType];
+    public double updateState(double previousState, int previousOperationType) {
+        double degradeBy = probabilityDegradationFactors[previousOperationType];
+        return previousState - degradeBy;
     }
+
+    /*
+    BufferReplenishFun
+     */
+
+    public static interface BufferReplenishFun {
+        void replenish(Operation operation, Object result);
+    }
+
+    public static class NoOpBufferReplenishFun implements BufferReplenishFun {
+        @Override
+        public void replenish(Operation operation, Object result) {
+        }
+    }
+
+    public static class ResultBufferReplenishFun implements BufferReplenishFun {
+        private final Queue<Long> personIdBuffer;
+        private final Queue<Long> messageIdBuffer;
+
+        public ResultBufferReplenishFun(Queue<Long> personIdBuffer, Queue<Long> messageIdBuffer) {
+            this.personIdBuffer = personIdBuffer;
+            this.messageIdBuffer = messageIdBuffer;
+        }
+
+        @Override
+        public void replenish(Operation operation, Object result) {
+            switch (operation.type()) {
+                case LdbcQuery1.TYPE: {
+                    List<LdbcQuery1Result> typedResults = (List<LdbcQuery1Result>) result;
+                    for (int i = 0; i < typedResults.size(); i++) {
+                        personIdBuffer.add(typedResults.get(i).friendId());
+                    }
+                    break;
+                }
+                case LdbcQuery2.TYPE: {
+                    List<LdbcQuery2Result> typedResults = (List<LdbcQuery2Result>) result;
+                    for (int i = 0; i < typedResults.size(); i++) {
+                        LdbcQuery2Result typedResult = typedResults.get(i);
+                        personIdBuffer.add(typedResult.personId());
+                        messageIdBuffer.add(typedResult.postOrCommentId());
+                    }
+                    break;
+                }
+                case LdbcQuery3.TYPE: {
+                    List<LdbcQuery3Result> typedResults = (List<LdbcQuery3Result>) result;
+                    for (int i = 0; i < typedResults.size(); i++) {
+                        personIdBuffer.add(typedResults.get(i).personId());
+                    }
+                    break;
+                }
+                case LdbcQuery7.TYPE: {
+                    List<LdbcQuery7Result> typedResults = (List<LdbcQuery7Result>) result;
+                    for (int i = 0; i < typedResults.size(); i++) {
+                        LdbcQuery7Result typedResult = typedResults.get(i);
+                        personIdBuffer.add(typedResult.personId());
+                        messageIdBuffer.add(typedResult.commentOrPostId());
+                    }
+                    break;
+                }
+                case LdbcQuery8.TYPE: {
+                    List<LdbcQuery8Result> typedResults = (List<LdbcQuery8Result>) result;
+                    for (int i = 0; i < typedResults.size(); i++) {
+                        LdbcQuery8Result typedResult = typedResults.get(i);
+                        personIdBuffer.add(typedResult.personId());
+                        messageIdBuffer.add(typedResult.commentId());
+                    }
+                    break;
+                }
+                case LdbcQuery9.TYPE: {
+                    List<LdbcQuery9Result> typedResults = (List<LdbcQuery9Result>) result;
+                    for (int i = 0; i < typedResults.size(); i++) {
+                        LdbcQuery9Result typedResult = typedResults.get(i);
+                        personIdBuffer.add(typedResult.personId());
+                        messageIdBuffer.add(typedResult.commentOrPostId());
+                    }
+                    break;
+                }
+                case LdbcQuery10.TYPE: {
+                    List<LdbcQuery10Result> typedResults = (List<LdbcQuery10Result>) result;
+                    for (int i = 0; i < typedResults.size(); i++) {
+                        personIdBuffer.add(typedResults.get(i).personId());
+                    }
+                    break;
+                }
+                case LdbcQuery11.TYPE: {
+                    List<LdbcQuery11Result> typedResults = (List<LdbcQuery11Result>) result;
+                    for (int i = 0; i < typedResults.size(); i++) {
+                        personIdBuffer.add(typedResults.get(i).personId());
+                    }
+                    break;
+                }
+                case LdbcQuery12.TYPE: {
+                    List<LdbcQuery12Result> typedResults = (List<LdbcQuery12Result>) result;
+                    for (int i = 0; i < typedResults.size(); i++) {
+                        personIdBuffer.add(typedResults.get(i).personId());
+                    }
+                    break;
+                }
+                case LdbcQuery14.TYPE: {
+                    List<LdbcQuery14Result> typedResults = (List<LdbcQuery14Result>) result;
+                    for (int i = 0; i < typedResults.size(); i++) {
+                        for (Number personId : typedResults.get(i).personsIdsInPath()) {
+                            personIdBuffer.add(personId.longValue());
+                        }
+                    }
+                    break;
+                }
+                case LdbcShortQuery2PersonPosts.TYPE: {
+                    List<LdbcShortQuery2PersonPostsResult> typedResults = (List<LdbcShortQuery2PersonPostsResult>) result;
+                    for (int i = 0; i < typedResults.size(); i++) {
+                        LdbcShortQuery2PersonPostsResult typedResult = typedResults.get(i);
+                        personIdBuffer.add(typedResult.originalPostAuthorId());
+                        messageIdBuffer.add(typedResult.messageId());
+                        messageIdBuffer.add(typedResult.originalPostId());
+                    }
+                    break;
+                }
+                case LdbcShortQuery3PersonFriends.TYPE: {
+                    List<LdbcShortQuery3PersonFriendsResult> typedResults = (List<LdbcShortQuery3PersonFriendsResult>) result;
+                    for (int i = 0; i < typedResults.size(); i++) {
+                        personIdBuffer.add(typedResults.get(i).personId());
+                    }
+                    break;
+                }
+                case LdbcShortQuery5MessageCreator.TYPE: {
+                    LdbcShortQuery5MessageCreatorResult typedResult = (LdbcShortQuery5MessageCreatorResult) result;
+                    personIdBuffer.add(typedResult.personId());
+                    break;
+                }
+                case LdbcShortQuery6MessageForum.TYPE: {
+                    LdbcShortQuery6MessageForumResult typedResult = (LdbcShortQuery6MessageForumResult) result;
+                    personIdBuffer.add(typedResult.moderatorId());
+                    break;
+                }
+                case LdbcShortQuery7MessageReplies.TYPE: {
+                    List<LdbcShortQuery7MessageRepliesResult> typedResults = (List<LdbcShortQuery7MessageRepliesResult>) result;
+                    for (int i = 0; i < typedResults.size(); i++) {
+                        LdbcShortQuery7MessageRepliesResult typedResult = typedResults.get(i);
+                        personIdBuffer.add(typedResult.replyAuthorId());
+                        messageIdBuffer.add(typedResult.commentId());
+                    }
+                    break;
+                }
+            }
+        }
+    }
+
+    /*
+    LdbcShortQueryFactory
+     */
 
     private interface LdbcShortQueryFactory {
         Operation create(Queue<Long> personIdBuffer,
                          Queue<Long> messageIdBuffer,
                          Operation previousOperation,
+                         long previousOperationActualStartTimeAsMilli,
+                         long previousOperationRunDurationAsNano,
                          double state);
 
         String describe();
@@ -503,6 +544,8 @@ public class LdbcSnbShortReadGenerator implements ChildOperationGenerator {
         public Operation create(Queue<Long> personIdBuffer,
                                 Queue<Long> messageIdBuffer,
                                 Operation previousOperation,
+                                long previousOperationActualStartTimeAsMilli,
+                                long previousOperationRunDurationAsNano,
                                 double state) {
             return null;
         }
@@ -521,7 +564,12 @@ public class LdbcSnbShortReadGenerator implements ChildOperationGenerator {
         }
 
         @Override
-        public Operation create(Queue<Long> personIdBuffer, Queue<Long> messageIdBuffer, Operation previousOperation, double state) {
+        public Operation create(Queue<Long> personIdBuffer,
+                                Queue<Long> messageIdBuffer,
+                                Operation previousOperation,
+                                long previousOperationActualStartTimeAsMilli,
+                                long previousOperationRunDurationAsNano,
+                                double state) {
             throw new RuntimeException(String.format("Encountered disabled short read: %s - it should not have been executed", operationType.getSimpleName()));
         }
 
@@ -551,10 +599,12 @@ public class LdbcSnbShortReadGenerator implements ChildOperationGenerator {
         public Operation create(Queue<Long> personIdBuffer,
                                 Queue<Long> messageIdBuffer,
                                 Operation previousOperation,
+                                long previousOperationActualStartTimeAsMilli,
+                                long previousOperationRunDurationAsNano,
                                 double state) {
             double coinToss = random.nextUniform(min, max);
             if (state > coinToss)
-                return innerFactory.create(personIdBuffer, messageIdBuffer, previousOperation, state);
+                return innerFactory.create(personIdBuffer, messageIdBuffer, previousOperation, previousOperationActualStartTimeAsMilli, previousOperationRunDurationAsNano, state);
             else
                 return null;
         }
@@ -580,9 +630,11 @@ public class LdbcSnbShortReadGenerator implements ChildOperationGenerator {
         public Operation create(Queue<Long> personIdBuffer,
                                 Queue<Long> messageIdBuffer,
                                 Operation previousOperation,
+                                long previousOperationActualStartTimeAsMilli,
+                                long previousOperationRunDurationAsNano,
                                 double state) {
             nextFactoryIndex = (nextFactoryIndex + 1) % innerFactoriesCount;
-            return innerFactories[nextFactoryIndex].create(personIdBuffer, messageIdBuffer, previousOperation, state);
+            return innerFactories[nextFactoryIndex].create(personIdBuffer, messageIdBuffer, previousOperation, previousOperationActualStartTimeAsMilli, previousOperationRunDurationAsNano, state);
         }
 
         @Override
@@ -607,8 +659,12 @@ public class LdbcSnbShortReadGenerator implements ChildOperationGenerator {
                     this.scheduledStartTimeFactory = new EstimatedScheduledStartTimeFactory();
                     break;
                 }
-                case ACTUAL_NOW: {
-                    this.scheduledStartTimeFactory = new ActualNowScheduledStartTimeFactory();
+                case PREVIOUS_OPERATION_ACTUAL_FINISH_TIME: {
+                    this.scheduledStartTimeFactory = new PreviousOperationActualFinishTimeFactory();
+                    break;
+                }
+                case PREVIOUS_OPERATION_SCHEDULED_START_TIME: {
+                    this.scheduledStartTimeFactory = new PreviousOperationScheduledStartTimeFactory();
                     break;
                 }
                 default: {
@@ -623,13 +679,15 @@ public class LdbcSnbShortReadGenerator implements ChildOperationGenerator {
         public Operation create(Queue<Long> personIdBuffer,
                                 Queue<Long> messageIdBuffer,
                                 Operation previousOperation,
+                                long previousOperationActualStartTimeAsMilli,
+                                long previousOperationRunDurationAsNano,
                                 double state) {
             Long id = personIdBuffer.poll();
             if (null == id) {
                 return null;
             } else {
                 Operation operation = new LdbcShortQuery1PersonProfile(id);
-                operation.setScheduledStartTimeAsMilli(scheduledStartTimeFactory.nextScheduledStartTime(previousOperation));
+                operation.setScheduledStartTimeAsMilli(scheduledStartTimeFactory.nextScheduledStartTime(previousOperation, previousOperationActualStartTimeAsMilli, previousOperationRunDurationAsNano));
                 return operation;
             }
         }
@@ -649,8 +707,12 @@ public class LdbcSnbShortReadGenerator implements ChildOperationGenerator {
                     this.scheduledStartTimeFactory = new EstimatedScheduledStartTimeFactory();
                     break;
                 }
-                case ACTUAL_NOW: {
-                    this.scheduledStartTimeFactory = new ActualNowScheduledStartTimeFactory();
+                case PREVIOUS_OPERATION_ACTUAL_FINISH_TIME: {
+                    this.scheduledStartTimeFactory = new PreviousOperationActualFinishTimeFactory();
+                    break;
+                }
+                case PREVIOUS_OPERATION_SCHEDULED_START_TIME: {
+                    this.scheduledStartTimeFactory = new PreviousOperationScheduledStartTimeFactory();
                     break;
                 }
                 default: {
@@ -665,13 +727,15 @@ public class LdbcSnbShortReadGenerator implements ChildOperationGenerator {
         public Operation create(Queue<Long> personIdBuffer,
                                 Queue<Long> messageIdBuffer,
                                 Operation previousOperation,
+                                long previousOperationActualStartTimeAsMilli,
+                                long previousOperationRunDurationAsNano,
                                 double state) {
             Long id = personIdBuffer.poll();
             if (null == id) {
                 return null;
             } else {
                 Operation operation = new LdbcShortQuery2PersonPosts(id, LdbcShortQuery2PersonPosts.DEFAULT_LIMIT);
-                operation.setScheduledStartTimeAsMilli(scheduledStartTimeFactory.nextScheduledStartTime(previousOperation));
+                operation.setScheduledStartTimeAsMilli(scheduledStartTimeFactory.nextScheduledStartTime(previousOperation, previousOperationActualStartTimeAsMilli, previousOperationRunDurationAsNano));
                 return operation;
             }
         }
@@ -691,8 +755,12 @@ public class LdbcSnbShortReadGenerator implements ChildOperationGenerator {
                     this.scheduledStartTimeFactory = new EstimatedScheduledStartTimeFactory();
                     break;
                 }
-                case ACTUAL_NOW: {
-                    this.scheduledStartTimeFactory = new ActualNowScheduledStartTimeFactory();
+                case PREVIOUS_OPERATION_ACTUAL_FINISH_TIME: {
+                    this.scheduledStartTimeFactory = new PreviousOperationActualFinishTimeFactory();
+                    break;
+                }
+                case PREVIOUS_OPERATION_SCHEDULED_START_TIME: {
+                    this.scheduledStartTimeFactory = new PreviousOperationScheduledStartTimeFactory();
                     break;
                 }
                 default: {
@@ -707,13 +775,15 @@ public class LdbcSnbShortReadGenerator implements ChildOperationGenerator {
         public Operation create(Queue<Long> personIdBuffer,
                                 Queue<Long> messageIdBuffer,
                                 Operation previousOperation,
+                                long previousOperationActualStartTimeAsMilli,
+                                long previousOperationRunDurationAsNano,
                                 double state) {
             Long id = personIdBuffer.poll();
             if (null == id) {
                 return null;
             } else {
                 Operation operation = new LdbcShortQuery3PersonFriends(id);
-                operation.setScheduledStartTimeAsMilli(scheduledStartTimeFactory.nextScheduledStartTime(previousOperation));
+                operation.setScheduledStartTimeAsMilli(scheduledStartTimeFactory.nextScheduledStartTime(previousOperation, previousOperationActualStartTimeAsMilli, previousOperationRunDurationAsNano));
                 return operation;
             }
         }
@@ -733,8 +803,12 @@ public class LdbcSnbShortReadGenerator implements ChildOperationGenerator {
                     this.scheduledStartTimeFactory = new EstimatedScheduledStartTimeFactory();
                     break;
                 }
-                case ACTUAL_NOW: {
-                    this.scheduledStartTimeFactory = new ActualNowScheduledStartTimeFactory();
+                case PREVIOUS_OPERATION_ACTUAL_FINISH_TIME: {
+                    this.scheduledStartTimeFactory = new PreviousOperationActualFinishTimeFactory();
+                    break;
+                }
+                case PREVIOUS_OPERATION_SCHEDULED_START_TIME: {
+                    this.scheduledStartTimeFactory = new PreviousOperationScheduledStartTimeFactory();
                     break;
                 }
                 default: {
@@ -749,13 +823,15 @@ public class LdbcSnbShortReadGenerator implements ChildOperationGenerator {
         public Operation create(Queue<Long> personIdBuffer,
                                 Queue<Long> messageIdBuffer,
                                 Operation previousOperation,
+                                long previousOperationActualStartTimeAsMilli,
+                                long previousOperationRunDurationAsNano,
                                 double state) {
             Long id = messageIdBuffer.poll();
             if (null == id) {
                 return null;
             } else {
                 Operation operation = new LdbcShortQuery4MessageContent(id);
-                operation.setScheduledStartTimeAsMilli(scheduledStartTimeFactory.nextScheduledStartTime(previousOperation));
+                operation.setScheduledStartTimeAsMilli(scheduledStartTimeFactory.nextScheduledStartTime(previousOperation, previousOperationActualStartTimeAsMilli, previousOperationRunDurationAsNano));
                 return operation;
             }
         }
@@ -775,8 +851,12 @@ public class LdbcSnbShortReadGenerator implements ChildOperationGenerator {
                     this.scheduledStartTimeFactory = new EstimatedScheduledStartTimeFactory();
                     break;
                 }
-                case ACTUAL_NOW: {
-                    this.scheduledStartTimeFactory = new ActualNowScheduledStartTimeFactory();
+                case PREVIOUS_OPERATION_ACTUAL_FINISH_TIME: {
+                    this.scheduledStartTimeFactory = new PreviousOperationActualFinishTimeFactory();
+                    break;
+                }
+                case PREVIOUS_OPERATION_SCHEDULED_START_TIME: {
+                    this.scheduledStartTimeFactory = new PreviousOperationScheduledStartTimeFactory();
                     break;
                 }
                 default: {
@@ -791,13 +871,15 @@ public class LdbcSnbShortReadGenerator implements ChildOperationGenerator {
         public Operation create(Queue<Long> personIdBuffer,
                                 Queue<Long> messageIdBuffer,
                                 Operation previousOperation,
+                                long previousOperationActualStartTimeAsMilli,
+                                long previousOperationRunDurationAsNano,
                                 double state) {
             Long id = messageIdBuffer.poll();
             if (null == id) {
                 return null;
             } else {
                 Operation operation = new LdbcShortQuery5MessageCreator(id);
-                operation.setScheduledStartTimeAsMilli(scheduledStartTimeFactory.nextScheduledStartTime(previousOperation));
+                operation.setScheduledStartTimeAsMilli(scheduledStartTimeFactory.nextScheduledStartTime(previousOperation, previousOperationActualStartTimeAsMilli, previousOperationRunDurationAsNano));
                 return operation;
             }
         }
@@ -817,8 +899,12 @@ public class LdbcSnbShortReadGenerator implements ChildOperationGenerator {
                     this.scheduledStartTimeFactory = new EstimatedScheduledStartTimeFactory();
                     break;
                 }
-                case ACTUAL_NOW: {
-                    this.scheduledStartTimeFactory = new ActualNowScheduledStartTimeFactory();
+                case PREVIOUS_OPERATION_ACTUAL_FINISH_TIME: {
+                    this.scheduledStartTimeFactory = new PreviousOperationActualFinishTimeFactory();
+                    break;
+                }
+                case PREVIOUS_OPERATION_SCHEDULED_START_TIME: {
+                    this.scheduledStartTimeFactory = new PreviousOperationScheduledStartTimeFactory();
                     break;
                 }
                 default: {
@@ -833,13 +919,15 @@ public class LdbcSnbShortReadGenerator implements ChildOperationGenerator {
         public Operation create(Queue<Long> personIdBuffer,
                                 Queue<Long> messageIdBuffer,
                                 Operation previousOperation,
+                                long previousOperationActualStartTimeAsMilli,
+                                long previousOperationRunDurationAsNano,
                                 double state) {
             Long id = messageIdBuffer.poll();
             if (null == id) {
                 return null;
             } else {
                 Operation operation = new LdbcShortQuery6MessageForum(id);
-                operation.setScheduledStartTimeAsMilli(scheduledStartTimeFactory.nextScheduledStartTime(previousOperation));
+                operation.setScheduledStartTimeAsMilli(scheduledStartTimeFactory.nextScheduledStartTime(previousOperation, previousOperationActualStartTimeAsMilli, previousOperationRunDurationAsNano));
                 return operation;
             }
         }
@@ -859,8 +947,12 @@ public class LdbcSnbShortReadGenerator implements ChildOperationGenerator {
                     this.scheduledStartTimeFactory = new EstimatedScheduledStartTimeFactory();
                     break;
                 }
-                case ACTUAL_NOW: {
-                    this.scheduledStartTimeFactory = new ActualNowScheduledStartTimeFactory();
+                case PREVIOUS_OPERATION_ACTUAL_FINISH_TIME: {
+                    this.scheduledStartTimeFactory = new PreviousOperationActualFinishTimeFactory();
+                    break;
+                }
+                case PREVIOUS_OPERATION_SCHEDULED_START_TIME: {
+                    this.scheduledStartTimeFactory = new PreviousOperationScheduledStartTimeFactory();
                     break;
                 }
                 default: {
@@ -875,13 +967,15 @@ public class LdbcSnbShortReadGenerator implements ChildOperationGenerator {
         public Operation create(Queue<Long> personIdBuffer,
                                 Queue<Long> messageIdBuffer,
                                 Operation previousOperation,
+                                long previousOperationActualStartTimeAsMilli,
+                                long previousOperationRunDurationAsNano,
                                 double state) {
             Long id = messageIdBuffer.poll();
             if (null == id) {
                 return null;
             } else {
                 Operation operation = new LdbcShortQuery7MessageReplies(id);
-                operation.setScheduledStartTimeAsMilli(scheduledStartTimeFactory.nextScheduledStartTime(previousOperation));
+                operation.setScheduledStartTimeAsMilli(scheduledStartTimeFactory.nextScheduledStartTime(previousOperation, previousOperationActualStartTimeAsMilli, previousOperationRunDurationAsNano));
                 return operation;
             }
         }
@@ -892,23 +986,38 @@ public class LdbcSnbShortReadGenerator implements ChildOperationGenerator {
         }
     }
 
+    /*
+    ScheduledStartTimeFactory
+     */
+
     private interface ScheduledStartTimeFactory {
-        long nextScheduledStartTime(Operation previousOperation);
+        long nextScheduledStartTime(Operation previousOperation, long actualStartTimeAsMilli, long previousOperationRunDurationAsNano);
     }
 
     private class EstimatedScheduledStartTimeFactory implements ScheduledStartTimeFactory {
         @Override
-        public long nextScheduledStartTime(Operation previousOperation) {
+        public long nextScheduledStartTime(Operation previousOperation, long actualStartTimeAsMilli, long previousOperationRunDurationAsNano) {
             return previousOperation.scheduledStartTimeAsMilli() + interleavesAsMilli[previousOperation.type()];
         }
     }
 
-    private class ActualNowScheduledStartTimeFactory implements ScheduledStartTimeFactory {
+    private class PreviousOperationActualFinishTimeFactory implements ScheduledStartTimeFactory {
         @Override
-        public long nextScheduledStartTime(Operation previousOperation) {
-            return System.currentTimeMillis();
+        public long nextScheduledStartTime(Operation previousOperation, long actualStartTimeAsMilli, long previousOperationRunDurationAsNano) {
+            return actualStartTimeAsMilli + TimeUnit.NANOSECONDS.toMillis(previousOperationRunDurationAsNano);
         }
     }
+
+    private class PreviousOperationScheduledStartTimeFactory implements ScheduledStartTimeFactory {
+        @Override
+        public long nextScheduledStartTime(Operation previousOperation, long actualStartTimeAsMilli, long previousOperationRunDurationAsNano) {
+            return previousOperation.scheduledStartTimeAsMilli();
+        }
+    }
+
+    /*
+    Buffer
+     */
 
     static Queue<Long> synchronizedCircularQueueBuffer(int bufferSize) {
         return Queues.synchronizedQueue(EvictingQueue.<Long>create(bufferSize));

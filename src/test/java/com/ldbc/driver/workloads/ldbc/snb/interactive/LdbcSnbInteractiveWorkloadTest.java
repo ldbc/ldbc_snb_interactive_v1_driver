@@ -28,6 +28,8 @@ import java.util.*;
 import java.util.concurrent.TimeUnit;
 
 import static org.hamcrest.CoreMatchers.*;
+import static org.hamcrest.Matchers.greaterThanOrEqualTo;
+import static org.hamcrest.Matchers.lessThanOrEqualTo;
 import static org.junit.Assert.assertThat;
 
 public class LdbcSnbInteractiveWorkloadTest {
@@ -986,7 +988,7 @@ public class LdbcSnbInteractiveWorkloadTest {
 
         File resultsLog = new File(new File(resultDirPath), configuration.name() + ThreadedQueuedMetricsService.RESULTS_LOG_FILENAME_SUFFIX);
         SimpleCsvFileReader csvResultsLogReader = new SimpleCsvFileReader(resultsLog, SimpleCsvFileReader.DEFAULT_COLUMN_SEPARATOR_REGEX_STRING);
-        assertThat((long) Iterators.size(csvResultsLogReader) > configuration.operationCount(), is(true));
+        assertThat((long) Iterators.size(csvResultsLogReader), allOf(greaterThanOrEqualTo(percent(operationCount, 0.97)), lessThanOrEqualTo(percent(operationCount, 1.03))));
     }
 
     @Test
@@ -1287,5 +1289,9 @@ public class LdbcSnbInteractiveWorkloadTest {
                 String.format("Validation with following error\n%s", clientForDatabaseValidation.databaseValidationResult().resultMessage()),
                 clientForDatabaseValidation.databaseValidationResult().isSuccessful(),
                 is(true));
+    }
+
+    private long percent(long value, double percentage) {
+        return Math.round(value * percentage);
     }
 }

@@ -178,28 +178,34 @@ public class WorkloadStreams {
         Workload workload = workloadFactory.createWorkload();
         workload.init(configuration);
         // retrieve unbounded streams
-//        // TODO check
         boolean hasDbConnected = false;
         WorkloadStreams unlimitedWorkloadStreams = workload.streams(gf, hasDbConnected);
         List<Iterator<Operation<?>>> streams = new ArrayList<>();
+        List<ChildOperationGenerator> childOperationGenerators = new ArrayList<>();
+
         streams.add(unlimitedWorkloadStreams.asynchronousStream().dependencyOperations());
+        childOperationGenerators.add(unlimitedWorkloadStreams.asynchronousStream().childOperationGenerator());
+
         streams.add(unlimitedWorkloadStreams.asynchronousStream().nonDependencyOperations());
+        childOperationGenerators.add(unlimitedWorkloadStreams.asynchronousStream().childOperationGenerator());
+
         for (WorkloadStreamDefinition stream : unlimitedWorkloadStreams.blockingStreamDefinitions()) {
             streams.add(stream.dependencyOperations());
+            childOperationGenerators.add(stream.childOperationGenerator());
+
             streams.add(stream.nonDependencyOperations());
+            childOperationGenerators.add(stream.childOperationGenerator());
         }
         // stream through streams once, to calculate how many operations are needed from each, to get operation_count in total
-        Tuple.Tuple3<long[], Long, Long> limitsAndMinimumsForStream = WorkloadStreams.fromAmongAllRetrieveTopK(streams, configuration.operationCount());
+        Tuple.Tuple2<long[], Long> limitsAndMinimumsForStream = WorkloadStreams.fromAmongAllRetrieveTopK(streams, configuration.operationCount(), childOperationGenerators);
         long[] limitForStream = limitsAndMinimumsForStream._1();
-        long minimumDependencyTimeStamp = limitsAndMinimumsForStream._2();
-        long minimumTimeStamp = limitsAndMinimumsForStream._3();
+        long minimumTimeStamp = limitsAndMinimumsForStream._2();
 
         workload.close();
         // reinitialize workload, so it can be streamed through from the beginning
         workload = workloadFactory.createWorkload();
         workload.init(configuration);
         // retrieve unbounded streams
-        // TODO check
         hasDbConnected = true;
         unlimitedWorkloadStreams = workload.streams(gf, hasDbConnected);
         // copy unbounded streams to new workload streams instance, applying limits we just computed
@@ -224,11 +230,13 @@ public class WorkloadStreams {
     }
 
     // returns (limit_per_stream, minimum_dependency_timestamp, minimum_timestamp)
-    public static Tuple.Tuple3<long[], Long, Long> fromAmongAllRetrieveTopK(List<Iterator<Operation<?>>> streams,
-                                                                            long k,
-                                                                            ChildOperationGenerator childOperationGenerator) throws WorkloadException {
+    public static Tuple.Tuple2<long[], Long> fromAmongAllRetrieveTopK(List<Iterator<Operation<?>>> streams,
+                                                                      long k,
+                                                                      List<ChildOperationGenerator> childOperationGenerators) throws WorkloadException {
         final DecimalFormat numberFormat = new DecimalFormat("###,###,###,###,###");
-        long minimumDependencyTimeStamp = Long.MAX_VALUE;
+        final Object result = null;
+        Operation operation;
+        ChildOperationGenerator childOperationGenerator;
         long minimumTimeStamp = Long.MAX_VALUE;
         long kSoFar = 0;
         long[] kForStream = new long[streams.size()];
@@ -257,10 +265,9 @@ public class WorkloadStreams {
                     if (-1 == streamHeadDependencyTimeStampAsMilli)
                         throw new WorkloadException(String.format("Operation must have dependency time stamp\n%s", streamHeads[i]));
 
+                    // TODO entries should be in time increasing order, so only first entries in streams needs to be considered for this, no?
                     if (streamHeadTimeStampAsMilli < minimumTimeStamp)
                         minimumTimeStamp = streamHeadTimeStampAsMilli;
-                    if (streamHeadDependencyTimeStampAsMilli < minimumDependencyTimeStamp)
-                        minimumDependencyTimeStamp = streamHeadDependencyTimeStampAsMilli;
 
                     if (null != streamHeads[i] && streamHeadTimeStampAsMilli < minAsMilli) {
                         minAsMilli = streamHeadTimeStampAsMilli;
@@ -273,16 +280,26 @@ public class WorkloadStreams {
                 break;
             }
             kForStream[indexOfMin] = kForStream[indexOfMin] + 1;
-            streamHeads[indexOfMin] = null;
             kSoFar = kSoFar + 1;
+
+            operation = streamHeads[indexOfMin];
+            childOperationGenerator = childOperationGenerators.get(indexOfMin);
+            if (null != childOperationGenerator) {
+                double state = childOperationGenerator.initialState();
+                while (null != (operation = childOperationGenerator.nextOperation(state, operation, result, operation.scheduledStartTimeAsMilli(), 0l))) {
+                    kSoFar = kSoFar + 1;
+                    state = childOperationGenerator.updateState(state, operation.type());
+                }
+            }
+
+            streamHeads[indexOfMin] = null;
 
             if (kSoFar % 1000000 == 0)
                 System.out.print(String.format("Scanned %s of %s\r", numberFormat.format(kSoFar), numberFormat.format(k)));
         }
 
-        return Tuple.tuple3(
+        return Tuple.tuple2(
                 kForStream,
-                minimumDependencyTimeStamp,
                 minimumTimeStamp
         );
     }

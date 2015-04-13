@@ -169,15 +169,26 @@ public class ThreadPoolOperationExecutor implements OperationExecutor {
 
             if (null != childOperationGenerator) {
                 try {
-                    Object result = operationHandlerRunnableContext.resultReporter().result();
                     double state = childOperationGenerator.initialState();
-                    Operation operation = operationHandlerRunnableContext.operation();
-                    while (null != (operation = childOperationGenerator.nextOperation(state, operation, result))) {
+                    Operation operation = childOperationGenerator.nextOperation(
+                            state,
+                            operationHandlerRunnableContext.operation(),
+                            operationHandlerRunnableContext.resultReporter().result(),
+                            operationHandlerRunnableContext.resultReporter().actualStartTimeAsMilli(),
+                            operationHandlerRunnableContext.resultReporter().runDurationAsNano()
+                    );
+                    while (null != operation) {
                         OperationHandlerRunnableContext childOperationHandlerRunnableContext =
                                 operationHandlerRunnableContextInitializer.getInitializedHandlerFor(operation);
                         childOperationHandlerRunnableContext.run();
                         state = childOperationGenerator.updateState(state, operation.type());
-                        result = childOperationHandlerRunnableContext.resultReporter().result();
+                        operation = childOperationGenerator.nextOperation(
+                                state,
+                                childOperationHandlerRunnableContext.operation(),
+                                childOperationHandlerRunnableContext.resultReporter().result(),
+                                childOperationHandlerRunnableContext.resultReporter().actualStartTimeAsMilli(),
+                                childOperationHandlerRunnableContext.resultReporter().runDurationAsNano()
+                        );
                         childOperationHandlerRunnableContext.cleanup();
                     }
                 } catch (Throwable e) {

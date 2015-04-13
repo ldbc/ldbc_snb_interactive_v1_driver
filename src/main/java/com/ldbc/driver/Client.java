@@ -35,8 +35,6 @@ import java.util.concurrent.TimeUnit;
 //the following need work;
 // TODO Validate Workload
 // TODO Calculate Statistics
-// TODO Execute Workload
-// TODO WorkloadStreams
 
 public class Client {
     private static Logger logger = Logger.getLogger(Client.class);

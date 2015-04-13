@@ -13,6 +13,7 @@ import org.junit.Test;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.TimeUnit;
 
 import static org.hamcrest.CoreMatchers.*;
 import static org.junit.Assert.assertThat;
@@ -22,9 +23,6 @@ public class LdbcSnbShortReadGeneratorTest {
     @Test
     public void shouldReturnExpectedOperationsWhenAllEnabled() throws WorkloadException {
         // Given
-        double initialProbability = Double.MAX_VALUE;
-        double probabilityDegradationFactor = 0.1;
-
         long updateInterleaveAsMilli = 100;
         long longReadInterleaveAsMilli = 1000;
         Map<Integer, Long> longReadInterleavesAsMilli = new HashMap<>();
@@ -52,6 +50,8 @@ public class LdbcSnbShortReadGeneratorTest {
                 LdbcShortQuery6MessageForum.class,
                 LdbcShortQuery7MessageReplies.class
         );
+        double initialProbability = Double.MAX_VALUE;
+        double probabilityDegradationFactor = 0.1;
         double compressionRatio = 1.0;
         EvictingQueue<Long> personIdBuffer = EvictingQueue.create(100);
         personIdBuffer.addAll(Lists.newArrayList(1l, 2l, 3l, 4l, 5l));
@@ -67,7 +67,9 @@ public class LdbcSnbShortReadGeneratorTest {
                 personIdBuffer,
                 messageIdBuffer,
                 randomFactory,
-                longReadInterleavesAsMilli
+                longReadInterleavesAsMilli,
+                LdbcSnbShortReadGenerator.SCHEDULED_START_TIME_POLICY.PREVIOUS_OPERATION_ACTUAL_FINISH_TIME,
+                new LdbcSnbShortReadGenerator.ResultBufferReplenishFun(personIdBuffer, messageIdBuffer)
         );
 
         // When
@@ -80,12 +82,15 @@ public class LdbcSnbShortReadGeneratorTest {
                         DummyLdbcSnbInteractiveOperationResultInstances.read1Result(),
                         DummyLdbcSnbInteractiveOperationResultInstances.read1Result(),
                         DummyLdbcSnbInteractiveOperationResultInstances.read1Result()
-                )
+                ),
+                1,
+                TimeUnit.MILLISECONDS.toNanos(1)
         );
 
         // Then
         // round robbin will choose short read 1 before short read 4
         assertThat(operation.type(), equalTo(LdbcShortQuery1PersonProfile.TYPE));
+        assertThat(operation.scheduledStartTimeAsMilli(), equalTo(2l));
 
 
         assertThat(state, is(initialProbability));
@@ -97,10 +102,12 @@ public class LdbcSnbShortReadGeneratorTest {
                 operation,
                 Lists.newArrayList(
                         DummyLdbcSnbInteractiveOperationResultInstances.short1Result()
-                )
+                ),
+                2,
+                TimeUnit.MILLISECONDS.toNanos(1)
         );
         assertThat(operation.type(), equalTo(LdbcShortQuery2PersonPosts.TYPE));
-
+        assertThat(operation.scheduledStartTimeAsMilli(), equalTo(3l));
 
         state = shortReadGenerator.updateState(state, operation.type());
         assertThat(state, is(initialProbability));
@@ -110,10 +117,12 @@ public class LdbcSnbShortReadGeneratorTest {
                 Lists.newArrayList(
                         DummyLdbcSnbInteractiveOperationResultInstances.short2Result(),
                         DummyLdbcSnbInteractiveOperationResultInstances.short2Result()
-                )
+                ),
+                3,
+                TimeUnit.MILLISECONDS.toNanos(1)
         );
         assertThat(operation.type(), equalTo(LdbcShortQuery3PersonFriends.TYPE));
-
+        assertThat(operation.scheduledStartTimeAsMilli(), equalTo(4l));
 
         state = shortReadGenerator.updateState(state, operation.type());
         assertThat(state, is(initialProbability - probabilityDegradationFactor));
@@ -123,10 +132,12 @@ public class LdbcSnbShortReadGeneratorTest {
                 Lists.newArrayList(
                         DummyLdbcSnbInteractiveOperationResultInstances.short3Result(),
                         DummyLdbcSnbInteractiveOperationResultInstances.short3Result()
-                )
+                ),
+                4,
+                TimeUnit.MILLISECONDS.toNanos(1)
         );
         assertThat(operation.type(), equalTo(LdbcShortQuery4MessageContent.TYPE));
-
+        assertThat(operation.scheduledStartTimeAsMilli(), equalTo(5l));
 
         state = shortReadGenerator.updateState(state, operation.type());
         assertThat(state, is(initialProbability - probabilityDegradationFactor));
@@ -136,30 +147,36 @@ public class LdbcSnbShortReadGeneratorTest {
                 Lists.newArrayList(
                         DummyLdbcSnbInteractiveOperationResultInstances.short4Result(),
                         DummyLdbcSnbInteractiveOperationResultInstances.short4Result()
-                )
+                ),
+                5,
+                TimeUnit.MILLISECONDS.toNanos(1)
         );
         assertThat(operation.type(), equalTo(LdbcShortQuery5MessageCreator.TYPE));
-
+        assertThat(operation.scheduledStartTimeAsMilli(), equalTo(6l));
 
         state = shortReadGenerator.updateState(state, operation.type());
         assertThat(state, is(initialProbability - probabilityDegradationFactor));
         operation = shortReadGenerator.nextOperation(
                 state,
                 operation,
-                DummyLdbcSnbInteractiveOperationResultInstances.short5Result()
+                DummyLdbcSnbInteractiveOperationResultInstances.short5Result(),
+                6,
+                TimeUnit.MILLISECONDS.toNanos(1)
         );
         assertThat(operation.type(), equalTo(LdbcShortQuery6MessageForum.TYPE));
-
+        assertThat(operation.scheduledStartTimeAsMilli(), equalTo(7l));
 
         state = shortReadGenerator.updateState(state, operation.type());
         assertThat(state, is(initialProbability - probabilityDegradationFactor));
         operation = shortReadGenerator.nextOperation(
                 state,
                 operation,
-                DummyLdbcSnbInteractiveOperationResultInstances.short6Result()
+                DummyLdbcSnbInteractiveOperationResultInstances.short6Result(),
+                7,
+                TimeUnit.MILLISECONDS.toNanos(1)
         );
         assertThat(operation.type(), equalTo(LdbcShortQuery7MessageReplies.TYPE));
-
+        assertThat(operation.scheduledStartTimeAsMilli(), equalTo(8l));
 
         state = shortReadGenerator.updateState(state, operation.type());
         assertThat(state, is(initialProbability - probabilityDegradationFactor - probabilityDegradationFactor));
@@ -169,10 +186,12 @@ public class LdbcSnbShortReadGeneratorTest {
                 Lists.newArrayList(
                         DummyLdbcSnbInteractiveOperationResultInstances.short7Result(),
                         DummyLdbcSnbInteractiveOperationResultInstances.short7Result()
-                )
+                ),
+                8,
+                TimeUnit.MILLISECONDS.toNanos(1)
         );
         assertThat(operation.type(), equalTo(LdbcShortQuery1PersonProfile.TYPE));
-
+        assertThat(operation.scheduledStartTimeAsMilli(), equalTo(9l));
 
         state = shortReadGenerator.updateState(state, operation.type());
         assertThat(state, is(initialProbability - probabilityDegradationFactor - probabilityDegradationFactor));
@@ -182,10 +201,12 @@ public class LdbcSnbShortReadGeneratorTest {
                 Lists.newArrayList(
                         DummyLdbcSnbInteractiveOperationResultInstances.short1Result(),
                         DummyLdbcSnbInteractiveOperationResultInstances.short1Result()
-                )
+                ),
+                9,
+                TimeUnit.MILLISECONDS.toNanos(1)
         );
         assertThat(operation.type(), equalTo(LdbcShortQuery2PersonPosts.TYPE));
-
+        assertThat(operation.scheduledStartTimeAsMilli(), equalTo(10l));
 
         state = shortReadGenerator.updateState(state, operation.type());
         assertThat(state, is(initialProbability - probabilityDegradationFactor - probabilityDegradationFactor));
@@ -195,10 +216,12 @@ public class LdbcSnbShortReadGeneratorTest {
                 Lists.newArrayList(
                         DummyLdbcSnbInteractiveOperationResultInstances.short2Result(),
                         DummyLdbcSnbInteractiveOperationResultInstances.short2Result()
-                )
+                ),
+                10,
+                TimeUnit.MILLISECONDS.toNanos(1)
         );
         assertThat(operation.type(), equalTo(LdbcShortQuery3PersonFriends.TYPE));
-
+        assertThat(operation.scheduledStartTimeAsMilli(), equalTo(11l));
 
         state = shortReadGenerator.updateState(state, operation.type());
         assertThat(state, is(initialProbability - probabilityDegradationFactor - probabilityDegradationFactor - probabilityDegradationFactor));
@@ -208,11 +231,12 @@ public class LdbcSnbShortReadGeneratorTest {
                 Lists.newArrayList(
                         DummyLdbcSnbInteractiveOperationResultInstances.short3Result(),
                         DummyLdbcSnbInteractiveOperationResultInstances.short3Result()
-                )
+                ),
+                11,
+                TimeUnit.MILLISECONDS.toNanos(1)
         );
         assertThat(operation.type(), equalTo(LdbcShortQuery4MessageContent.TYPE));
-
-
+        assertThat(operation.scheduledStartTimeAsMilli(), equalTo(12l));
     }
 
     @Test
@@ -263,7 +287,9 @@ public class LdbcSnbShortReadGeneratorTest {
                 personIdBuffer,
                 messageIdBuffer,
                 randomFactory,
-                longReadInterleavesAsMilli
+                longReadInterleavesAsMilli,
+                LdbcSnbShortReadGenerator.SCHEDULED_START_TIME_POLICY.PREVIOUS_OPERATION_ACTUAL_FINISH_TIME,
+                new LdbcSnbShortReadGenerator.ResultBufferReplenishFun(personIdBuffer, messageIdBuffer)
         );
 
         // When
@@ -276,13 +302,15 @@ public class LdbcSnbShortReadGeneratorTest {
                         DummyLdbcSnbInteractiveOperationResultInstances.read2Result(),
                         DummyLdbcSnbInteractiveOperationResultInstances.read2Result(),
                         DummyLdbcSnbInteractiveOperationResultInstances.read2Result()
-                )
+                ),
+                1,
+                TimeUnit.MILLISECONDS.toNanos(1)
         );
 
         // Then
         // round robbin will choose short read 2 before short read 4
         assertThat(operation.type(), equalTo(LdbcShortQuery2PersonPosts.TYPE));
-
+        assertThat(operation.scheduledStartTimeAsMilli(), equalTo(2l));
 
         assertThat(state, is(initialProbability));
 
@@ -294,10 +322,12 @@ public class LdbcSnbShortReadGeneratorTest {
                 Lists.newArrayList(
                         DummyLdbcSnbInteractiveOperationResultInstances.short2Result(),
                         DummyLdbcSnbInteractiveOperationResultInstances.short2Result()
-                )
+                ),
+                2,
+                TimeUnit.MILLISECONDS.toNanos(1)
         );
         assertThat(operation.type(), equalTo(LdbcShortQuery4MessageContent.TYPE));
-
+        assertThat(operation.scheduledStartTimeAsMilli(), equalTo(3l));
 
         state = shortReadGenerator.updateState(state, operation.type());
         assertThat(state, is(initialProbability - probabilityDegradationFactor));
@@ -307,20 +337,24 @@ public class LdbcSnbShortReadGeneratorTest {
                 Lists.newArrayList(
                         DummyLdbcSnbInteractiveOperationResultInstances.short4Result(),
                         DummyLdbcSnbInteractiveOperationResultInstances.short4Result()
-                )
+                ),
+                3,
+                TimeUnit.MILLISECONDS.toNanos(1)
         );
         assertThat(operation.type(), equalTo(LdbcShortQuery5MessageCreator.TYPE));
-
+        assertThat(operation.scheduledStartTimeAsMilli(), equalTo(4l));
 
         state = shortReadGenerator.updateState(state, operation.type());
         assertThat(state, is(initialProbability - probabilityDegradationFactor));
         operation = shortReadGenerator.nextOperation(
                 state,
                 operation,
-                DummyLdbcSnbInteractiveOperationResultInstances.short5Result()
+                DummyLdbcSnbInteractiveOperationResultInstances.short5Result(),
+                4,
+                TimeUnit.MILLISECONDS.toNanos(1)
         );
         assertThat(operation.type(), equalTo(LdbcShortQuery7MessageReplies.TYPE));
-
+        assertThat(operation.scheduledStartTimeAsMilli(), equalTo(5l));
 
         state = shortReadGenerator.updateState(state, operation.type());
         assertThat(state, is(initialProbability - probabilityDegradationFactor - probabilityDegradationFactor));
@@ -330,10 +364,12 @@ public class LdbcSnbShortReadGeneratorTest {
                 Lists.newArrayList(
                         DummyLdbcSnbInteractiveOperationResultInstances.short7Result(),
                         DummyLdbcSnbInteractiveOperationResultInstances.short7Result()
-                )
+                ),
+                5,
+                TimeUnit.MILLISECONDS.toNanos(1)
         );
         assertThat(operation.type(), equalTo(LdbcShortQuery2PersonPosts.TYPE));
-
+        assertThat(operation.scheduledStartTimeAsMilli(), equalTo(6l));
 
         state = shortReadGenerator.updateState(state, operation.type());
         assertThat(state, is(initialProbability - probabilityDegradationFactor - probabilityDegradationFactor - probabilityDegradationFactor));
@@ -343,11 +379,12 @@ public class LdbcSnbShortReadGeneratorTest {
                 Lists.newArrayList(
                         DummyLdbcSnbInteractiveOperationResultInstances.short2Result(),
                         DummyLdbcSnbInteractiveOperationResultInstances.short2Result()
-                )
+                ),
+                6,
+                TimeUnit.MILLISECONDS.toNanos(1)
         );
         assertThat(operation.type(), equalTo(LdbcShortQuery4MessageContent.TYPE));
-
-
+        assertThat(operation.scheduledStartTimeAsMilli(), equalTo(7l));
     }
 
     @Test
@@ -398,7 +435,9 @@ public class LdbcSnbShortReadGeneratorTest {
                 personIdBuffer,
                 messageIdBuffer,
                 randomFactory,
-                longReadInterleavesAsMilli
+                longReadInterleavesAsMilli,
+                LdbcSnbShortReadGenerator.SCHEDULED_START_TIME_POLICY.PREVIOUS_OPERATION_ACTUAL_FINISH_TIME,
+                new LdbcSnbShortReadGenerator.ResultBufferReplenishFun(personIdBuffer, messageIdBuffer)
         );
 
         // When
@@ -411,12 +450,14 @@ public class LdbcSnbShortReadGeneratorTest {
                         DummyLdbcSnbInteractiveOperationResultInstances.read3Result(),
                         DummyLdbcSnbInteractiveOperationResultInstances.read3Result(),
                         DummyLdbcSnbInteractiveOperationResultInstances.read3Result()
-                )
+                ),
+                1,
+                TimeUnit.MILLISECONDS.toNanos(1)
         );
 
         // Then
         assertThat(operation.type(), equalTo(LdbcShortQuery4MessageContent.TYPE));
-
+        assertThat(operation.scheduledStartTimeAsMilli(), equalTo(2l));
 
         assertThat(state, is(initialProbability));
 
@@ -428,20 +469,24 @@ public class LdbcSnbShortReadGeneratorTest {
                 Lists.newArrayList(
                         DummyLdbcSnbInteractiveOperationResultInstances.short4Result(),
                         DummyLdbcSnbInteractiveOperationResultInstances.short4Result()
-                )
+                ),
+                2,
+                TimeUnit.MILLISECONDS.toNanos(1)
         );
         assertThat(operation.type(), equalTo(LdbcShortQuery5MessageCreator.TYPE));
-
+        assertThat(operation.scheduledStartTimeAsMilli(), equalTo(3l));
 
         state = shortReadGenerator.updateState(state, operation.type());
         assertThat(state, is(initialProbability));
         operation = shortReadGenerator.nextOperation(
                 state,
                 operation,
-                DummyLdbcSnbInteractiveOperationResultInstances.short5Result()
+                DummyLdbcSnbInteractiveOperationResultInstances.short5Result(),
+                3,
+                TimeUnit.MILLISECONDS.toNanos(1)
         );
         assertThat(operation.type(), equalTo(LdbcShortQuery7MessageReplies.TYPE));
-
+        assertThat(operation.scheduledStartTimeAsMilli(), equalTo(4l));
 
         state = shortReadGenerator.updateState(state, operation.type());
         assertThat(state, is(initialProbability - probabilityDegradationFactor));
@@ -451,10 +496,12 @@ public class LdbcSnbShortReadGeneratorTest {
                 Lists.newArrayList(
                         DummyLdbcSnbInteractiveOperationResultInstances.short7Result(),
                         DummyLdbcSnbInteractiveOperationResultInstances.short7Result()
-                )
+                ),
+                4,
+                TimeUnit.MILLISECONDS.toNanos(1)
         );
         assertThat(operation.type(), equalTo(LdbcShortQuery4MessageContent.TYPE));
-
+        assertThat(operation.scheduledStartTimeAsMilli(), equalTo(5l));
 
         state = shortReadGenerator.updateState(state, operation.type());
         assertThat(state, is(initialProbability - probabilityDegradationFactor));
@@ -464,11 +511,12 @@ public class LdbcSnbShortReadGeneratorTest {
                 Lists.newArrayList(
                         DummyLdbcSnbInteractiveOperationResultInstances.short4Result(),
                         DummyLdbcSnbInteractiveOperationResultInstances.short4Result()
-                )
+                ),
+                5,
+                TimeUnit.MILLISECONDS.toNanos(1)
         );
         assertThat(operation.type(), equalTo(LdbcShortQuery5MessageCreator.TYPE));
-
-
+        assertThat(operation.scheduledStartTimeAsMilli(), equalTo(6l));
     }
 
     @Test
@@ -519,7 +567,9 @@ public class LdbcSnbShortReadGeneratorTest {
                 personIdBuffer,
                 messageIdBuffer,
                 randomFactory,
-                longReadInterleavesAsMilli
+                longReadInterleavesAsMilli,
+                LdbcSnbShortReadGenerator.SCHEDULED_START_TIME_POLICY.PREVIOUS_OPERATION_ACTUAL_FINISH_TIME,
+                new LdbcSnbShortReadGenerator.ResultBufferReplenishFun(personIdBuffer, messageIdBuffer)
         );
 
         // When
@@ -532,12 +582,14 @@ public class LdbcSnbShortReadGeneratorTest {
                         DummyLdbcSnbInteractiveOperationResultInstances.read1Result(),
                         DummyLdbcSnbInteractiveOperationResultInstances.read1Result(),
                         DummyLdbcSnbInteractiveOperationResultInstances.read1Result()
-                )
+                ),
+                1,
+                TimeUnit.MILLISECONDS.toNanos(1)
         );
 
         // Then
         assertThat(operation.type(), equalTo(LdbcShortQuery7MessageReplies.TYPE));
-
+        assertThat(operation.scheduledStartTimeAsMilli(), equalTo(2l));
 
         assertThat(state, is(initialProbability));
 
@@ -549,10 +601,12 @@ public class LdbcSnbShortReadGeneratorTest {
                 Lists.newArrayList(
                         DummyLdbcSnbInteractiveOperationResultInstances.short7Result(),
                         DummyLdbcSnbInteractiveOperationResultInstances.short7Result()
-                )
+                ),
+                2,
+                TimeUnit.MILLISECONDS.toNanos(1)
         );
         assertThat(operation.type(), equalTo(LdbcShortQuery7MessageReplies.TYPE));
-
+        assertThat(operation.scheduledStartTimeAsMilli(), equalTo(3l));
 
         state = shortReadGenerator.updateState(state, operation.type());
         assertThat(state, is(initialProbability - probabilityDegradationFactor - probabilityDegradationFactor));
@@ -562,10 +616,12 @@ public class LdbcSnbShortReadGeneratorTest {
                 Lists.newArrayList(
                         DummyLdbcSnbInteractiveOperationResultInstances.short7Result(),
                         DummyLdbcSnbInteractiveOperationResultInstances.short7Result()
-                )
+                ),
+                3,
+                TimeUnit.MILLISECONDS.toNanos(1)
         );
         assertThat(operation.type(), equalTo(LdbcShortQuery7MessageReplies.TYPE));
-
+        assertThat(operation.scheduledStartTimeAsMilli(), equalTo(4l));
 
         state = shortReadGenerator.updateState(state, operation.type());
         assertThat(state, is(initialProbability - probabilityDegradationFactor - probabilityDegradationFactor - probabilityDegradationFactor));
@@ -575,10 +631,12 @@ public class LdbcSnbShortReadGeneratorTest {
                 Lists.newArrayList(
                         DummyLdbcSnbInteractiveOperationResultInstances.short7Result(),
                         DummyLdbcSnbInteractiveOperationResultInstances.short7Result()
-                )
+                ),
+                4,
+                TimeUnit.MILLISECONDS.toNanos(1)
         );
         assertThat(operation.type(), equalTo(LdbcShortQuery7MessageReplies.TYPE));
-
+        assertThat(operation.scheduledStartTimeAsMilli(), equalTo(5l));
 
         state = shortReadGenerator.updateState(state, operation.type());
         assertThat(state, is(initialProbability - probabilityDegradationFactor - probabilityDegradationFactor - probabilityDegradationFactor - probabilityDegradationFactor));
@@ -588,11 +646,12 @@ public class LdbcSnbShortReadGeneratorTest {
                 Lists.newArrayList(
                         DummyLdbcSnbInteractiveOperationResultInstances.short7Result(),
                         DummyLdbcSnbInteractiveOperationResultInstances.short7Result()
-                )
+                ),
+                5,
+                TimeUnit.MILLISECONDS.toNanos(1)
         );
         assertThat(operation.type(), equalTo(LdbcShortQuery7MessageReplies.TYPE));
-
-
+        assertThat(operation.scheduledStartTimeAsMilli(), equalTo(6l));
     }
 
     @Test
@@ -643,7 +702,9 @@ public class LdbcSnbShortReadGeneratorTest {
                 personIdBuffer,
                 messageIdBuffer,
                 randomFactory,
-                longReadInterleavesAsMilli
+                longReadInterleavesAsMilli,
+                LdbcSnbShortReadGenerator.SCHEDULED_START_TIME_POLICY.PREVIOUS_OPERATION_ACTUAL_FINISH_TIME,
+                new LdbcSnbShortReadGenerator.ResultBufferReplenishFun(personIdBuffer, messageIdBuffer)
         );
 
         // When
@@ -656,7 +717,9 @@ public class LdbcSnbShortReadGeneratorTest {
                         DummyLdbcSnbInteractiveOperationResultInstances.read1Result(),
                         DummyLdbcSnbInteractiveOperationResultInstances.read1Result(),
                         DummyLdbcSnbInteractiveOperationResultInstances.read1Result()
-                )
+                ),
+                1,
+                TimeUnit.MILLISECONDS.toNanos(1)
         );
 
         // Then

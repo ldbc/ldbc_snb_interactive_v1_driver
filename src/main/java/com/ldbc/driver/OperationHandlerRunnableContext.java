@@ -2,9 +2,9 @@ package com.ldbc.driver;
 
 import com.ldbc.driver.runtime.ConcurrentErrorReporter;
 import com.ldbc.driver.runtime.coordination.LocalCompletionTimeWriter;
+import com.ldbc.driver.runtime.metrics.MetricsCollectionException;
 import com.ldbc.driver.runtime.metrics.MetricsService;
 import com.ldbc.driver.runtime.metrics.MetricsService.ConcurrentMetricsServiceWriter;
-import com.ldbc.driver.runtime.metrics.MetricsCollectionException;
 import com.ldbc.driver.runtime.scheduling.Spinner;
 import com.ldbc.driver.runtime.scheduling.SpinnerCheck;
 import com.ldbc.driver.temporal.TimeSource;
@@ -117,17 +117,17 @@ public class OperationHandlerRunnableContext implements Runnable, Poolable {
                 // Spinner result indicates operation should not be processed
                 return;
             }
-            long actualStartTimeAsMilli = timeSource.nowAsMilli();
+            resultReporter.setActualStartTimeAsMilli(timeSource.nowAsMilli());
             long startOfLatencyMeasurementAsNano = timeSource.nanoSnapshot();
             operationHandler.executeOperation(operation, dbConnectionState, resultReporter);
             long endOfLatencyMeasurementAsNano = timeSource.nanoSnapshot();
-            long runDurationAsNano = endOfLatencyMeasurementAsNano - startOfLatencyMeasurementAsNano;
+            resultReporter.setRunDurationAsNano(endOfLatencyMeasurementAsNano - startOfLatencyMeasurementAsNano);
             localCompletionTimeWriter.submitLocalCompletedTime(operation.timeStamp());
             metricsServiceWriter.submitOperationResult(
                     operation.type(),
                     operation.scheduledStartTimeAsMilli(),
-                    actualStartTimeAsMilli,
-                    runDurationAsNano,
+                    resultReporter.actualStartTimeAsMilli(),
+                    resultReporter.runDurationAsNano(),
                     resultReporter.resultCode()
             );
         } catch (Throwable e) {

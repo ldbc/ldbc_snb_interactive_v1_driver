@@ -41,15 +41,27 @@ public class SingleThreadOperationExecutorThread extends Thread {
                         operationHandlerRunnableContextRetriever.getInitializedHandlerFor(operation);
                 operationHandlerRunnableContext.run();
                 if (null != childOperationGenerator) {
-                    Object result = operationHandlerRunnableContext.resultReporter().result();
                     double state = childOperationGenerator.initialState();
-                    while (null != (operation = childOperationGenerator.nextOperation(state, operation, result))) {
+                    operation = childOperationGenerator.nextOperation(
+                            state,
+                            operationHandlerRunnableContext.operation(),
+                            operationHandlerRunnableContext.resultReporter().result(),
+                            operationHandlerRunnableContext.resultReporter().actualStartTimeAsMilli(),
+                            operationHandlerRunnableContext.resultReporter().runDurationAsNano()
+                    );
+                    while (null != operation) {
                         OperationHandlerRunnableContext childOperationHandlerRunnableContext =
                                 operationHandlerRunnableContextRetriever.getInitializedHandlerFor(operation);
                         childOperationHandlerRunnableContext.run();
-                        result = childOperationHandlerRunnableContext.resultReporter().result();
-                        childOperationHandlerRunnableContext.cleanup();
                         state = childOperationGenerator.updateState(state, operation.type());
+                        operation = childOperationGenerator.nextOperation(
+                                state,
+                                childOperationHandlerRunnableContext.operation(),
+                                childOperationHandlerRunnableContext.resultReporter().result(),
+                                childOperationHandlerRunnableContext.resultReporter().actualStartTimeAsMilli(),
+                                childOperationHandlerRunnableContext.resultReporter().runDurationAsNano()
+                        );
+                        childOperationHandlerRunnableContext.cleanup();
                     }
                 }
                 operationHandlerRunnableContext.cleanup();

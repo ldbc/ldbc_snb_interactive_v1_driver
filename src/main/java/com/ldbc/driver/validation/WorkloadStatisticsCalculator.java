@@ -23,7 +23,6 @@ public class WorkloadStatisticsCalculator {
                                         long maxExpectedInterleaveAsMilli) throws MetricsCollectionException {
         Histogram<Class, Long> operationMixHistogram = new Histogram<>(0l);
         GeneratorFactory gf = new GeneratorFactory(new RandomDataGeneratorFactory(42l));
-
         ContinuousMetricManager operationInterleaves = new ContinuousMetricManager(null, null, maxExpectedInterleaveAsMilli, 5);
 
         long previousOperationStartTimeAsMilli = -1;
@@ -39,11 +38,15 @@ public class WorkloadStatisticsCalculator {
         final ContinuousMetricManager interleavesForDependencyOperations = new ContinuousMetricManager(null, null, maxExpectedInterleaveAsMilli, 5);
         final ContinuousMetricManager interleavesForDependentOperations = new ContinuousMetricManager(null, null, maxExpectedInterleaveAsMilli, 5);
 
-        if (workloadStreams.asynchronousStream().dependencyOperations().hasNext() || workloadStreams.asynchronousStream().nonDependencyOperations().hasNext())
+        // If there are no operations in the stream (e.g. they are all disabled) there is no point tracking the depend operations
+        if (workloadStreams.asynchronousStream().dependencyOperations().hasNext() || workloadStreams.asynchronousStream().nonDependencyOperations().hasNext()) {
             dependentOperationTypes.addAll(workloadStreams.asynchronousStream().dependentOperationTypes());
+        }
         for (WorkloadStreams.WorkloadStreamDefinition streamDefinition : workloadStreams.blockingStreamDefinitions()) {
-            if (streamDefinition.dependencyOperations().hasNext() || streamDefinition.nonDependencyOperations().hasNext())
+            // If there are no operations in the stream (e.g. they are all disabled) there is no point tracking the depend operations
+            if (streamDefinition.dependencyOperations().hasNext() || streamDefinition.nonDependencyOperations().hasNext()) {
                 dependentOperationTypes.addAll(streamDefinition.dependentOperationTypes());
+            }
         }
 
         List<Iterator<Operation<?>>> dependencyOperationIterators = new ArrayList<>();
@@ -71,7 +74,7 @@ public class WorkloadStatisticsCalculator {
                     try {
                         interleavesForDependencyOperations.addMeasurement(interleaveAsMilli);
                     } catch (Throwable e) {
-                        throw new RuntimeException("Error collectStatsForDependencyOperations", e);
+                        throw new RuntimeException("Error in collectStatsForDependencyOperations function while collection interleave stats for dependency operations", e);
                     }
                     prevDependencyAsMilli = operation.scheduledStartTimeAsMilli();
                 }
@@ -83,7 +86,7 @@ public class WorkloadStatisticsCalculator {
                         try {
                             interleavesForDependentOperations.addMeasurement(interleaveAsMilli);
                         } catch (Throwable e) {
-                            throw new RuntimeException("Error collectStatsForNonDependentOperations", e);
+                            throw new RuntimeException("Error in collectStatsForDependencyOperations function while collection interleave stats for dependent operations", e);
                         }
                         prevDependentAsMilli = operation.scheduledStartTimeAsMilli();
                     }
@@ -92,7 +95,9 @@ public class WorkloadStatisticsCalculator {
             }
         };
         Iterator<Operation<?>> dependencyOperations = Iterators.transform(
-                gf.mergeSortOperationsByScheduledStartTime(dependencyOperationIterators.toArray(new Iterator[dependencyOperationIterators.size()])),
+                gf.mergeSortOperationsByScheduledStartTime(
+                        dependencyOperationIterators.toArray(new Iterator[dependencyOperationIterators.size()])
+                ),
                 collectStatsForDependencyOperations
         );
 

@@ -34,9 +34,9 @@ import java.text.DecimalFormat;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 
-import static org.hamcrest.CoreMatchers.equalTo;
-import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.CoreMatchers.*;
 import static org.hamcrest.Matchers.greaterThanOrEqualTo;
+import static org.hamcrest.Matchers.lessThanOrEqualTo;
 import static org.junit.Assert.assertThat;
 
 public class WorkloadRunnerTest {
@@ -170,7 +170,10 @@ public class WorkloadRunnerTest {
             assertThat(errorReporter.toString() + "\n" + metricsFormatter.format(workloadResults), errorReporter.errorEncountered(), is(false));
             assertThat(errorReporter.toString() + "\n" + metricsFormatter.format(workloadResults), workloadResults.startTimeAsMilli() >= controlService.workloadStartTimeAsMilli(), is(true));
             assertThat(errorReporter.toString() + "\n" + metricsFormatter.format(workloadResults), workloadResults.latestFinishTimeAsMilli() >= workloadResults.startTimeAsMilli(), is(true));
-            assertThat(errorReporter.toString() + "\n" + metricsFormatter.format(workloadResults), workloadResults.totalOperationCount(), greaterThanOrEqualTo(operationCount));
+            assertThat(errorReporter.toString() + "\n" + metricsFormatter.format(workloadResults),
+                    workloadResults.totalOperationCount(),
+                    allOf(greaterThanOrEqualTo(percent(operationCount, 0.97)), lessThanOrEqualTo(percent(operationCount, 1.03)))
+            );
 
             WorkloadResultsSnapshot workloadResultsFromJson = WorkloadResultsSnapshot.fromJson(workloadResults.toJson());
 
@@ -181,7 +184,10 @@ public class WorkloadRunnerTest {
             SimpleCsvFileReader csvResultsLogReader = new SimpleCsvFileReader(resultsLog, SimpleCsvFileReader.DEFAULT_COLUMN_SEPARATOR_REGEX_STRING);
             // NOT + 1 because I didn't add csv headers
             // GREATER THAN or equal because number of Short Reads is operation result-dependent
-            assertThat((long) Iterators.size(csvResultsLogReader), greaterThanOrEqualTo(configuration.operationCount()));
+            assertThat(
+                    (long) Iterators.size(csvResultsLogReader),
+                    allOf(greaterThanOrEqualTo(percent(configuration.operationCount(), 0.97)), lessThanOrEqualTo(percent(configuration.operationCount(), 1.03)))
+            );
             csvResultsLogReader.close();
 
             operationCount = metricsService.getWriter().results().totalOperationCount();
@@ -325,7 +331,10 @@ public class WorkloadRunnerTest {
             assertThat(errorReporter.toString() + "\n" + metricsFormatter.format(workloadResults), workloadResults.startTimeAsMilli() >= controlService.workloadStartTimeAsMilli(), is(true));
             assertThat(errorReporter.toString() + "\n" + metricsFormatter.format(workloadResults), workloadResults.latestFinishTimeAsMilli() >= workloadResults.startTimeAsMilli(), is(true));
             // GREATER THAN or equal because number of Short Reads is operation result-dependent
-            assertThat(errorReporter.toString() + "\n" + metricsFormatter.format(workloadResults), workloadResults.totalOperationCount(), greaterThanOrEqualTo(operationCount));
+            assertThat(errorReporter.toString() + "\n" + metricsFormatter.format(workloadResults),
+                    workloadResults.totalOperationCount(),
+                    allOf(greaterThanOrEqualTo(percent(operationCount, 0.97)), lessThanOrEqualTo(percent(operationCount, 1.03)))
+            );
 
             WorkloadResultsSnapshot workloadResultsFromJson = WorkloadResultsSnapshot.fromJson(workloadResults.toJson());
 
@@ -336,7 +345,10 @@ public class WorkloadRunnerTest {
             SimpleCsvFileReader csvResultsLogReader = new SimpleCsvFileReader(resultsLog, SimpleCsvFileReader.DEFAULT_COLUMN_SEPARATOR_REGEX_STRING);
             // NOT + 1 because I didn't add csv headers
             // GREATER THAN or equal because number of Short Reads is operation result-dependent
-            assertThat((long) Iterators.size(csvResultsLogReader), greaterThanOrEqualTo(configuration.operationCount()));
+            assertThat(
+                    (long) Iterators.size(csvResultsLogReader),
+                    allOf(greaterThanOrEqualTo(percent(configuration.operationCount(), 0.97)), lessThanOrEqualTo(percent(configuration.operationCount(), 1.03)))
+            );
             csvResultsLogReader.close();
 
             operationCount = metricsService.getWriter().results().totalOperationCount();
@@ -536,5 +548,9 @@ public class WorkloadRunnerTest {
             if (null != metricsService) metricsService.shutdown();
             if (null != completionTimeService) completionTimeService.shutdown();
         }
+    }
+
+    private long percent(long value, double percentage) {
+        return Math.round(value * percentage);
     }
 }

@@ -168,7 +168,7 @@ public class LdbcSnbInteractiveWorkloadPerformanceTest {
         );
 
         for (File streamDir : streamsDirs) {
-            List<Integer> threadCounts = Lists.newArrayList(1);
+            List<Integer> threadCounts = Lists.newArrayList(4);
             long operationCount = 50000000;
             for (int threadCount : threadCounts) {
                 doWithTimesPerformanceTest(
@@ -199,8 +199,8 @@ public class LdbcSnbInteractiveWorkloadPerformanceTest {
         MetricsService metricsService = null;
         try {
 //            Map<String, String> paramsMap = LdbcSnbInteractiveConfiguration.defaultConfig();
-            Map<String, String> paramsMap = LdbcSnbInteractiveConfiguration.defaultWriteOnlyConfig();
-//            Map<String, String> paramsMap = LdbcSnbInteractiveConfiguration.defaultReadOnlyConfig();
+//            Map<String, String> paramsMap = LdbcSnbInteractiveConfiguration.defaultWriteOnlyConfig();
+            Map<String, String> paramsMap = LdbcSnbInteractiveConfiguration.defaultReadOnlyConfig();
             paramsMap.put(LdbcSnbInteractiveConfiguration.PARAMETERS_DIRECTORY, parametersDir);
             paramsMap.put(LdbcSnbInteractiveConfiguration.UPDATES_DIRECTORY, updateStreamsDir);
             paramsMap.put(LdbcSnbInteractiveConfiguration.UPDATE_STREAM_PARSER, LdbcSnbInteractiveConfiguration.UpdateStreamParser.CHAR_SEEKER.name());

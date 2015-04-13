@@ -275,11 +275,18 @@ public class WorkloadStreamsTest {
                 stream4.iterator()
         );
 
+        List<ChildOperationGenerator> childOperationGenerators = Lists.newArrayList(
+                null,
+                null,
+                null,
+                null,
+                null
+        );
+
         long k = 10;
-        Tuple.Tuple3<long[], Long, Long> kForIteratorAndMinimums = WorkloadStreams.fromAmongAllRetrieveTopK(streams, k);
+        Tuple.Tuple2<long[], Long> kForIteratorAndMinimums = WorkloadStreams.fromAmongAllRetrieveTopK(streams, k, childOperationGenerators);
         long[] kForIterator = kForIteratorAndMinimums._1();
-        long minimumDependencyTimeStamp = kForIteratorAndMinimums._2();
-        long minimumTimeStamp = kForIteratorAndMinimums._3();
+        long minimumTimeStamp = kForIteratorAndMinimums._2();
 
         List<Operation<?>> topK = Lists.newArrayList(
                 gf.mergeSortOperationsByTimeStamp(
@@ -307,7 +314,6 @@ public class WorkloadStreamsTest {
         );
 
         assertThat((long) topK.size(), is(k));
-        assertThat(minimumDependencyTimeStamp, is(0l));
         assertThat(minimumTimeStamp, is(0l));
         assertThat(((TimedNamedOperation1) topK.get(0)).name(), anyOf(equalTo("0-1"), equalTo("1-1")));
         assertThat(((TimedNamedOperation1) topK.get(1)).name(), anyOf(equalTo("0-1"), equalTo("1-1")));
@@ -369,11 +375,18 @@ public class WorkloadStreamsTest {
                 stream4.iterator()
         );
 
+        List<ChildOperationGenerator> childOperationGenerators = Lists.newArrayList(
+                null,
+                null,
+                null,
+                null,
+                null
+        );
+
         long k = 10000;
-        Tuple.Tuple3<long[], Long, Long> kForIteratorAndMinimums = WorkloadStreams.fromAmongAllRetrieveTopK(streams, k);
+        Tuple.Tuple2<long[], Long> kForIteratorAndMinimums = WorkloadStreams.fromAmongAllRetrieveTopK(streams, k, childOperationGenerators);
         long[] kForIterator = kForIteratorAndMinimums._1();
-        long minimumDependencyTimeStamp = kForIteratorAndMinimums._2();
-        long minimumTimeStamp = kForIteratorAndMinimums._3();
+        long minimumTimeStamp = kForIteratorAndMinimums._2();
 
         List<Operation<?>> topK = Lists.newArrayList(
                 gf.mergeSortOperationsByTimeStamp(
@@ -401,7 +414,6 @@ public class WorkloadStreamsTest {
         );
 
         assertThat((long) topK.size(), is(k));
-        assertThat(minimumDependencyTimeStamp, is(0l));
         assertThat(minimumTimeStamp, is(0l));
         assertThat(((TimedNamedOperation1) topK.get(0)).name(), anyOf(equalTo("0-1"), equalTo("1-1")));
         assertThat(((TimedNamedOperation1) topK.get(1)).name(), anyOf(equalTo("0-1"), equalTo("1-1")));
