@@ -8,7 +8,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
-class ReadModifyWriteOperationGenerator extends Generator<Operation<?>> {
+class ReadModifyWriteOperationGenerator extends Generator<Operation> {
     private final String table;
     private final Iterator<String> keyGenerator;
     private final Iterator<List<String>> fieldsGenerator;
@@ -23,7 +23,7 @@ class ReadModifyWriteOperationGenerator extends Generator<Operation<?>> {
     }
 
     @Override
-    protected Operation<?> doNext() throws GeneratorException {
+    protected Operation doNext() throws GeneratorException {
         return new ReadModifyWriteOperation(table, keyGenerator.next(), fieldsGenerator.next(), valuedFieldsGenerator.next());
     }
 }

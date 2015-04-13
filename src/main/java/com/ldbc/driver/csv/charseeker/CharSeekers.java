@@ -17,13 +17,12 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package com.ldbc.driver.csv;
+package com.ldbc.driver.csv.charseeker;
 
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 
-import static com.ldbc.driver.csv.BufferedCharSeeker.DEFAULT_BUFFER_SIZE;
-import static com.ldbc.driver.csv.ThreadAheadReadable.threadAhead;
+import static com.ldbc.driver.csv.charseeker.BufferedCharSeeker.DEFAULT_BUFFER_SIZE;
 
 /**
  * Factory for common {@link CharSeeker} implementations.
@@ -42,7 +41,7 @@ public class CharSeekers {
      */
     public static CharSeeker charSeeker(CharReadable reader, int bufferSize, boolean readAhead, char quotationCharacter) {
         if (readAhead) {   // Thread that always has one buffer read ahead
-            reader = threadAhead(reader, bufferSize);
+            reader = ThreadAheadReadable.threadAhead(reader, bufferSize);
         }
 
         // Give the reader to the char seeker

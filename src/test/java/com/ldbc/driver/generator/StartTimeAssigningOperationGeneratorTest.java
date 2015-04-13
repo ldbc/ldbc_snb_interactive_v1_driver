@@ -20,7 +20,7 @@ public class StartTimeAssigningOperationGeneratorTest {
         GeneratorFactory gf = new GeneratorFactory(new RandomDataGeneratorFactory(42l));
 
         // When
-        Iterator<Operation<?>> operations = gf.limit(new NothingOperationFactory(), testIterations);
+        Iterator<Operation> operations = gf.limit(new NothingOperationFactory(), testIterations);
         Function1<Long, Long> timeFromLongFun = new Function1<Long, Long>() {
             @Override
             public Long apply(Long from) {
@@ -30,13 +30,13 @@ public class StartTimeAssigningOperationGeneratorTest {
 
         Iterator<Long> countGenerator = gf.incrementing(firstMilliTime, incrementMilliTimeBy);
         Iterator<Long> counterStartTimeGenerator = gf.map(countGenerator, timeFromLongFun);
-        Iterator<Operation<?>> startTimeOperationGenerator = gf.assignStartTimes(counterStartTimeGenerator, operations);
+        Iterator<Operation> startTimeOperationGenerator = gf.assignStartTimes(counterStartTimeGenerator, operations);
 
         // Then
         int count = 0;
         long lastTime = firstMilliTime - incrementMilliTimeBy;
         while (startTimeOperationGenerator.hasNext()) {
-            Operation<?> operation = startTimeOperationGenerator.next();
+            Operation operation = startTimeOperationGenerator.next();
             assertThat(operation.scheduledStartTimeAsMilli(), is(lastTime + incrementMilliTimeBy));
             assertThat(operation.timeStamp(), is(lastTime + incrementMilliTimeBy));
             lastTime = operation.scheduledStartTimeAsMilli();

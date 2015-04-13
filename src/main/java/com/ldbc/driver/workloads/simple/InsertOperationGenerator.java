@@ -7,7 +7,7 @@ import com.ldbc.driver.generator.GeneratorException;
 import java.util.Iterator;
 import java.util.Map;
 
-class InsertOperationGenerator extends Generator<Operation<?>> {
+class InsertOperationGenerator extends Generator<Operation> {
     private final String table;
     private final Iterator<String> keyGenerator;
     private final Iterator<Map<String, Iterator<Byte>>> valuedFieldsGenerator;
@@ -20,7 +20,7 @@ class InsertOperationGenerator extends Generator<Operation<?>> {
     }
 
     @Override
-    protected Operation<?> doNext() throws GeneratorException {
+    protected Operation doNext() throws GeneratorException {
         return new InsertOperation(table, keyGenerator.next(), valuedFieldsGenerator.next());
     }
 }

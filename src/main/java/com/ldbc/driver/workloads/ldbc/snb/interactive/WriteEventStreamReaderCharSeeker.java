@@ -2,9 +2,9 @@ package com.ldbc.driver.workloads.ldbc.snb.interactive;
 
 import com.google.common.collect.Lists;
 import com.ldbc.driver.Operation;
-import com.ldbc.driver.csv.CharSeeker;
-import com.ldbc.driver.csv.Extractors;
-import com.ldbc.driver.csv.Mark;
+import com.ldbc.driver.csv.charseeker.CharSeeker;
+import com.ldbc.driver.csv.charseeker.Extractors;
+import com.ldbc.driver.csv.charseeker.Mark;
 import com.ldbc.driver.generator.CsvEventStreamReaderTimedTypedCharSeeker;
 import com.ldbc.driver.generator.CsvEventStreamReaderTimedTypedCharSeeker.EventDecoder;
 import com.ldbc.driver.generator.GeneratorException;
@@ -13,8 +13,8 @@ import java.io.IOException;
 import java.util.*;
 
 public class WriteEventStreamReaderCharSeeker {
-    public static Iterator<Operation<?>> create(CharSeeker charSeeker, Extractors extractors, int columnDelimiter) {
-        Map<Integer, EventDecoder<Operation<?>>> decoders = new HashMap<>();
+    public static Iterator<Operation> create(CharSeeker charSeeker, Extractors extractors, int columnDelimiter) {
+        Map<Integer, EventDecoder<Operation>> decoders = new HashMap<>();
         decoders.put(1, new EventDecoderAddPerson());
         decoders.put(2, new EventDecoderAddLikePost());
         decoders.put(3, new EventDecoderAddLikeComment());
@@ -26,10 +26,10 @@ public class WriteEventStreamReaderCharSeeker {
         return new CsvEventStreamReaderTimedTypedCharSeeker<>(charSeeker, extractors, decoders, columnDelimiter);
     }
 
-    public static class EventDecoderAddPerson implements EventDecoder<Operation<?>> {
+    public static class EventDecoderAddPerson implements EventDecoder<Operation> {
 
         @Override
-        public Operation<?> decodeEvent(long scheduledStartTimeAsMilli, long dependencyTimeAsMilli, CharSeeker charSeeker, Extractors extractors, int[] columnDelimiters, Mark mark) {
+        public Operation decodeEvent(long scheduledStartTimeAsMilli, long dependencyTimeAsMilli, CharSeeker charSeeker, Extractors extractors, int[] columnDelimiters, Mark mark) {
             try {
                 long personId;
                 if (charSeeker.seek(mark, columnDelimiters)) {
@@ -155,7 +155,7 @@ public class WriteEventStreamReaderCharSeeker {
                     throw new GeneratorException("Error retrieving companies");
                 }
 
-                Operation<?> operation = new LdbcUpdate1AddPerson(
+                Operation operation = new LdbcUpdate1AddPerson(
                         personId,
                         firstName,
                         lastName,
@@ -180,9 +180,9 @@ public class WriteEventStreamReaderCharSeeker {
         }
     }
 
-    public static class EventDecoderAddLikePost implements EventDecoder<Operation<?>> {
+    public static class EventDecoderAddLikePost implements EventDecoder<Operation> {
         @Override
-        public Operation<?> decodeEvent(long scheduledStartTimeAsMilli, long dependencyTimeAsMilli, CharSeeker charSeeker, Extractors extractors, int[] columnDelimiters, Mark mark) {
+        public Operation decodeEvent(long scheduledStartTimeAsMilli, long dependencyTimeAsMilli, CharSeeker charSeeker, Extractors extractors, int[] columnDelimiters, Mark mark) {
             try {
                 long personId;
                 if (charSeeker.seek(mark, columnDelimiters)) {
@@ -206,7 +206,7 @@ public class WriteEventStreamReaderCharSeeker {
                     throw new GeneratorException("Error retrieving creation date");
                 }
 
-                Operation<?> operation = new LdbcUpdate2AddPostLike(personId, postId, creationDate);
+                Operation operation = new LdbcUpdate2AddPostLike(personId, postId, creationDate);
                 operation.setScheduledStartTimeAsMilli(scheduledStartTimeAsMilli);
                 operation.setTimeStamp(scheduledStartTimeAsMilli);
                 operation.setDependencyTimeStamp(dependencyTimeAsMilli);
@@ -217,9 +217,9 @@ public class WriteEventStreamReaderCharSeeker {
         }
     }
 
-    public static class EventDecoderAddLikeComment implements EventDecoder<Operation<?>> {
+    public static class EventDecoderAddLikeComment implements EventDecoder<Operation> {
         @Override
-        public Operation<?> decodeEvent(long scheduledStartTimeAsMilli, long dependencyTimeAsMilli, CharSeeker charSeeker, Extractors extractors, int[] columnDelimiters, Mark mark) {
+        public Operation decodeEvent(long scheduledStartTimeAsMilli, long dependencyTimeAsMilli, CharSeeker charSeeker, Extractors extractors, int[] columnDelimiters, Mark mark) {
             try {
                 long personId;
                 if (charSeeker.seek(mark, columnDelimiters)) {
@@ -243,7 +243,7 @@ public class WriteEventStreamReaderCharSeeker {
                     throw new GeneratorException("Error retrieving creation date");
                 }
 
-                Operation<?> operation = new LdbcUpdate3AddCommentLike(personId, commentId, creationDate);
+                Operation operation = new LdbcUpdate3AddCommentLike(personId, commentId, creationDate);
                 operation.setScheduledStartTimeAsMilli(scheduledStartTimeAsMilli);
                 operation.setTimeStamp(scheduledStartTimeAsMilli);
                 operation.setDependencyTimeStamp(dependencyTimeAsMilli);
@@ -254,9 +254,9 @@ public class WriteEventStreamReaderCharSeeker {
         }
     }
 
-    public static class EventDecoderAddForum implements EventDecoder<Operation<?>> {
+    public static class EventDecoderAddForum implements EventDecoder<Operation> {
         @Override
-        public Operation<?> decodeEvent(long scheduledStartTimeAsMilli, long dependencyTimeAsMilli, CharSeeker charSeeker, Extractors extractors, int[] columnDelimiters, Mark mark) {
+        public Operation decodeEvent(long scheduledStartTimeAsMilli, long dependencyTimeAsMilli, CharSeeker charSeeker, Extractors extractors, int[] columnDelimiters, Mark mark) {
             try {
                 long forumId;
                 if (charSeeker.seek(mark, columnDelimiters)) {
@@ -299,7 +299,7 @@ public class WriteEventStreamReaderCharSeeker {
                     throw new GeneratorException("Error retrieving tags");
                 }
 
-                Operation<?> operation = new LdbcUpdate4AddForum(forumId, forumTitle, creationDate, moderatorPersonId, tagIds);
+                Operation operation = new LdbcUpdate4AddForum(forumId, forumTitle, creationDate, moderatorPersonId, tagIds);
                 operation.setScheduledStartTimeAsMilli(scheduledStartTimeAsMilli);
                 operation.setTimeStamp(scheduledStartTimeAsMilli);
                 operation.setDependencyTimeStamp(dependencyTimeAsMilli);
@@ -310,9 +310,9 @@ public class WriteEventStreamReaderCharSeeker {
         }
     }
 
-    public static class EventDecoderAddForumMembership implements EventDecoder<Operation<?>> {
+    public static class EventDecoderAddForumMembership implements EventDecoder<Operation> {
         @Override
-        public Operation<?> decodeEvent(long scheduledStartTimeAsMilli, long dependencyTimeAsMilli, CharSeeker charSeeker, Extractors extractors, int[] columnDelimiters, Mark mark) {
+        public Operation decodeEvent(long scheduledStartTimeAsMilli, long dependencyTimeAsMilli, CharSeeker charSeeker, Extractors extractors, int[] columnDelimiters, Mark mark) {
             try {
                 long forumId;
                 if (charSeeker.seek(mark, columnDelimiters)) {
@@ -336,7 +336,7 @@ public class WriteEventStreamReaderCharSeeker {
                     throw new GeneratorException("Error retrieving creation date");
                 }
 
-                Operation<?> operation = new LdbcUpdate5AddForumMembership(forumId, personId, creationDate);
+                Operation operation = new LdbcUpdate5AddForumMembership(forumId, personId, creationDate);
                 operation.setScheduledStartTimeAsMilli(scheduledStartTimeAsMilli);
                 operation.setTimeStamp(scheduledStartTimeAsMilli);
                 operation.setDependencyTimeStamp(dependencyTimeAsMilli);
@@ -347,9 +347,9 @@ public class WriteEventStreamReaderCharSeeker {
         }
     }
 
-    public static class EventDecoderAddPost implements EventDecoder<Operation<?>> {
+    public static class EventDecoderAddPost implements EventDecoder<Operation> {
         @Override
-        public Operation<?> decodeEvent(long scheduledStartTimeAsMilli, long dependencyTimeAsMilli, CharSeeker charSeeker, Extractors extractors, int[] columnDelimiters, Mark mark) {
+        public Operation decodeEvent(long scheduledStartTimeAsMilli, long dependencyTimeAsMilli, CharSeeker charSeeker, Extractors extractors, int[] columnDelimiters, Mark mark) {
             try {
                 long postId;
                 if (charSeeker.seek(mark, columnDelimiters)) {
@@ -445,7 +445,7 @@ public class WriteEventStreamReaderCharSeeker {
                     throw new GeneratorException("Error retrieving tags");
                 }
 
-                Operation<?> operation = new LdbcUpdate6AddPost(
+                Operation operation = new LdbcUpdate6AddPost(
                         postId,
                         imageFile,
                         creationDate,
@@ -468,9 +468,9 @@ public class WriteEventStreamReaderCharSeeker {
         }
     }
 
-    public static class EventDecoderAddComment implements EventDecoder<Operation<?>> {
+    public static class EventDecoderAddComment implements EventDecoder<Operation> {
         @Override
-        public Operation<?> decodeEvent(long scheduledStartTimeAsMilli, long dependencyTimeAsMilli, CharSeeker charSeeker, Extractors extractors, int[] columnDelimiters, Mark mark) {
+        public Operation decodeEvent(long scheduledStartTimeAsMilli, long dependencyTimeAsMilli, CharSeeker charSeeker, Extractors extractors, int[] columnDelimiters, Mark mark) {
             try {
                 long commentId;
                 if (charSeeker.seek(mark, columnDelimiters)) {
@@ -557,7 +557,7 @@ public class WriteEventStreamReaderCharSeeker {
                     throw new GeneratorException("Error retrieving tags");
                 }
 
-                Operation<?> operation = new LdbcUpdate7AddComment(
+                Operation operation = new LdbcUpdate7AddComment(
                         commentId,
                         creationDate,
                         locationIp,
@@ -579,9 +579,9 @@ public class WriteEventStreamReaderCharSeeker {
         }
     }
 
-    public static class EventDecoderAddFriendship implements EventDecoder<Operation<?>> {
+    public static class EventDecoderAddFriendship implements EventDecoder<Operation> {
         @Override
-        public Operation<?> decodeEvent(long scheduledStartTimeAsMilli, long dependencyTimeAsMilli, CharSeeker charSeeker, Extractors extractors, int[] columnDelimiters, Mark mark) {
+        public Operation decodeEvent(long scheduledStartTimeAsMilli, long dependencyTimeAsMilli, CharSeeker charSeeker, Extractors extractors, int[] columnDelimiters, Mark mark) {
             try {
                 long person1Id;
                 if (charSeeker.seek(mark, columnDelimiters)) {
@@ -605,7 +605,7 @@ public class WriteEventStreamReaderCharSeeker {
                     throw new GeneratorException("Error retrieving creation date");
                 }
 
-                Operation<?> operation = new LdbcUpdate8AddFriendship(person1Id, person2Id, creationDate);
+                Operation operation = new LdbcUpdate8AddFriendship(person1Id, person2Id, creationDate);
                 operation.setScheduledStartTimeAsMilli(scheduledStartTimeAsMilli);
                 operation.setTimeStamp(scheduledStartTimeAsMilli);
                 operation.setDependencyTimeStamp(dependencyTimeAsMilli);

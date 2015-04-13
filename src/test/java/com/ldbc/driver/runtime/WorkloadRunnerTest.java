@@ -7,6 +7,8 @@ import com.ldbc.driver.control.ConsoleAndFileDriverConfiguration;
 import com.ldbc.driver.control.ControlService;
 import com.ldbc.driver.control.DriverConfigurationException;
 import com.ldbc.driver.control.LocalControlService;
+import com.ldbc.driver.csv.simple.SimpleCsvFileReader;
+import com.ldbc.driver.csv.simple.SimpleCsvFileWriter;
 import com.ldbc.driver.generator.GeneratorFactory;
 import com.ldbc.driver.generator.RandomDataGeneratorFactory;
 import com.ldbc.driver.runtime.coordination.CompletionTimeException;
@@ -19,8 +21,6 @@ import com.ldbc.driver.temporal.TimeSource;
 import com.ldbc.driver.testutils.TestUtils;
 import com.ldbc.driver.util.MapUtils;
 import com.ldbc.driver.util.Tuple;
-import com.ldbc.driver.util.csv.SimpleCsvFileReader;
-import com.ldbc.driver.util.csv.SimpleCsvFileWriter;
 import com.ldbc.driver.workloads.ldbc.snb.interactive.LdbcSnbInteractiveConfiguration;
 import com.ldbc.driver.workloads.ldbc.snb.interactive.LdbcSnbInteractiveWorkload;
 import com.ldbc.driver.workloads.ldbc.snb.interactive.db.DummyLdbcSnbInteractiveDb;
@@ -120,8 +120,9 @@ public class WorkloadRunnerTest {
             db.init(configuration.asMap());
 
             GeneratorFactory gf = new GeneratorFactory(new RandomDataGeneratorFactory(42L));
+            boolean returnStreamsWithDbConnector = true;
             Tuple.Tuple3<WorkloadStreams, Workload, Long> workloadStreamsAndWorkload =
-                    WorkloadStreams.createNewWorkloadWithLimitedWorkloadStreams(configuration, gf);
+                    WorkloadStreams.createNewWorkloadWithLimitedWorkloadStreams(configuration, gf, returnStreamsWithDbConnector);
 
             workload = workloadStreamsAndWorkload._2();
 
@@ -280,8 +281,9 @@ public class WorkloadRunnerTest {
             db.init(configuration.asMap());
 
             GeneratorFactory gf = new GeneratorFactory(new RandomDataGeneratorFactory(42L));
+            boolean returnStreamsWithDbConnector = true;
             Tuple.Tuple3<WorkloadStreams, Workload, Long> workloadStreamsAndWorkload =
-                    WorkloadStreams.createNewWorkloadWithLimitedWorkloadStreams(configuration, gf);
+                    WorkloadStreams.createNewWorkloadWithLimitedWorkloadStreams(configuration, gf, returnStreamsWithDbConnector);
 
             workload = workloadStreamsAndWorkload._2();
 
@@ -467,13 +469,16 @@ public class WorkloadRunnerTest {
             workload = new LdbcSnbInteractiveWorkload();
             workload.init(configuration);
             GeneratorFactory gf = new GeneratorFactory(new RandomDataGeneratorFactory(42L));
-            Iterator<Operation<?>> operations = gf.limit(workload.streams(gf, true).mergeSortedByStartTime(gf), configuration.operationCount());
-            Iterator<Operation<?>> timeMappedOperations = gf.timeOffsetAndCompress(operations, controlService.workloadStartTimeAsMilli(), 1.0);
+            Iterator<Operation> operations = gf.limit(
+                    WorkloadStreams.mergeSortedByStartTimeExcludingChildOperationGenerators(gf, workload.streams(gf, true)),
+                    configuration.operationCount()
+            );
+            Iterator<Operation> timeMappedOperations = gf.timeOffsetAndCompress(operations, controlService.workloadStartTimeAsMilli(), 1.0);
             WorkloadStreams workloadStreams = new WorkloadStreams();
             workloadStreams.setAsynchronousStream(
-                    new HashSet<Class<? extends Operation<?>>>(),
-                    new HashSet<Class<? extends Operation<?>>>(),
-                    Collections.<Operation<?>>emptyIterator(),
+                    new HashSet<Class<? extends Operation>>(),
+                    new HashSet<Class<? extends Operation>>(),
+                    Collections.<Operation>emptyIterator(),
                     timeMappedOperations,
                     null
             );

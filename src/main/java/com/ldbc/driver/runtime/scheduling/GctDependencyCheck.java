@@ -9,11 +9,11 @@ import com.ldbc.driver.temporal.TemporalUtil;
 public class GctDependencyCheck implements SpinnerCheck {
     private static final TemporalUtil TEMPORAL_UTIL = new TemporalUtil();
     private final GlobalCompletionTimeReader globalCompletionTimeReader;
-    private final Operation<?> operation;
+    private final Operation operation;
     private final ConcurrentErrorReporter errorReporter;
 
     public GctDependencyCheck(GlobalCompletionTimeReader globalCompletionTimeReader,
-                              Operation<?> operation,
+                              Operation operation,
                               ConcurrentErrorReporter errorReporter) {
         this.globalCompletionTimeReader = globalCompletionTimeReader;
         this.operation = operation;
@@ -35,7 +35,7 @@ public class GctDependencyCheck implements SpinnerCheck {
     }
 
     @Override
-    public boolean handleFailedCheck(Operation<?> operation) {
+    public boolean handleFailedCheck(Operation operation) {
         try {
             // Note, GCT printed here may be a little later than GCT that was measured during check
             errorReporter.reportError(this,

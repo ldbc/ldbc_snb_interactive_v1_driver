@@ -8,7 +8,7 @@ import com.ldbc.driver.runtime.metrics.ThreadedQueuedMetricsEvent.Shutdown;
 import com.ldbc.driver.runtime.metrics.ThreadedQueuedMetricsEvent.Status;
 import com.ldbc.driver.runtime.metrics.ThreadedQueuedMetricsEvent.SubmitOperationResult;
 import com.ldbc.driver.temporal.TimeSource;
-import com.ldbc.driver.util.csv.SimpleCsvFileWriter;
+import com.ldbc.driver.csv.simple.SimpleCsvFileWriter;
 
 import java.io.IOException;
 import java.util.Map;
@@ -31,7 +31,7 @@ public class ThreadedQueuedMetricsServiceThread extends Thread {
                                               TimeSource timeSource,
                                               TimeUnit unit,
                                               long maxRuntimeDurationAsNano,
-                                              Map<Integer, Class<? extends Operation<?>>> operationTypeToClassMapping) throws MetricsCollectionException {
+                                              Map<Integer, Class<? extends Operation>> operationTypeToClassMapping) throws MetricsCollectionException {
         this(errorReporter,
                 QueueEventFetcher.queueEventFetcherFor(metricsEventsQueue),
                 csvResultsLogWriter,
@@ -47,7 +47,7 @@ public class ThreadedQueuedMetricsServiceThread extends Thread {
                                                TimeSource timeSource,
                                                TimeUnit unit,
                                                long maxRuntimeDurationAsNano,
-                                               Map<Integer, Class<? extends Operation<?>>> operationTypeToClassMapping) throws MetricsCollectionException {
+                                               Map<Integer, Class<? extends Operation>> operationTypeToClassMapping) throws MetricsCollectionException {
         super(ThreadedQueuedMetricsServiceThread.class.getSimpleName() + "-" + System.currentTimeMillis());
         this.errorReporter = errorReporter;
         this.queueEventFetcher = queueEventFetcher;

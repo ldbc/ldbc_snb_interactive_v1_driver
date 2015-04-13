@@ -6,7 +6,7 @@ import com.ldbc.driver.runtime.ConcurrentErrorReporter;
 import com.ldbc.driver.runtime.metrics.MetricsService.ConcurrentMetricsServiceWriter;
 import com.ldbc.driver.temporal.SystemTimeSource;
 import com.ldbc.driver.temporal.TimeSource;
-import com.ldbc.driver.util.csv.SimpleCsvFileWriter;
+import com.ldbc.driver.csv.simple.SimpleCsvFileWriter;
 import com.ldbc.driver.workloads.ldbc.snb.interactive.LdbcQuery1;
 import com.ldbc.driver.workloads.ldbc.snb.interactive.LdbcQuery2;
 import com.ldbc.driver.workloads.ldbc.snb.interactive.db.DummyLdbcSnbInteractiveOperationInstances;
@@ -27,7 +27,7 @@ public class DisruptorSbeMetricsServiceTest {
     public void shouldNotAcceptOperationResultsAfterShutdown() throws WorkloadException, MetricsCollectionException {
         ConcurrentErrorReporter errorReporter = new ConcurrentErrorReporter();
         SimpleCsvFileWriter csvResultsLogWriter = null;
-        Map<Integer, Class<? extends Operation<?>>> operationTypeToClassMapping = new HashMap<>();
+        Map<Integer, Class<? extends Operation>> operationTypeToClassMapping = new HashMap<>();
         operationTypeToClassMapping.put(LdbcQuery1.TYPE, LdbcQuery1.class);
         operationTypeToClassMapping.put(LdbcQuery2.TYPE, LdbcQuery2.class);
         MetricsService metricsService = new DisruptorSbeMetricsService(
@@ -52,7 +52,7 @@ public class DisruptorSbeMetricsServiceTest {
     public void shouldReturnCorrectMeasurements() throws WorkloadException, MetricsCollectionException {
         ConcurrentErrorReporter errorReporter = new ConcurrentErrorReporter();
         SimpleCsvFileWriter csvResultsLogWriter = null;
-        Map<Integer, Class<? extends Operation<?>>> operationTypeToClassMapping = new HashMap<>();
+        Map<Integer, Class<? extends Operation>> operationTypeToClassMapping = new HashMap<>();
         operationTypeToClassMapping.put(LdbcQuery1.TYPE, LdbcQuery1.class);
         operationTypeToClassMapping.put(LdbcQuery2.TYPE, LdbcQuery2.class);
         MetricsService metricsService = new DisruptorSbeMetricsService(
@@ -76,7 +76,7 @@ public class DisruptorSbeMetricsServiceTest {
         assertThat(metricsServiceWriter.results().latestFinishTimeAsMilli(), is(-1l));
 
         // scheduled: 1, actual: 2, duration: 1
-        Operation<?> operation1 = DummyLdbcSnbInteractiveOperationInstances.read1();
+        Operation operation1 = DummyLdbcSnbInteractiveOperationInstances.read1();
         operation1.setScheduledStartTimeAsMilli(1l);
         operation1.setTimeStamp(1l);
         int operation1ResultCode = 1;
@@ -88,7 +88,7 @@ public class DisruptorSbeMetricsServiceTest {
         assertThat(metricsServiceWriter.results().startTimeAsMilli(), equalTo(2l));
         assertThat(metricsServiceWriter.results().latestFinishTimeAsMilli(), equalTo(3l));
 
-        Operation<?> operation2 = DummyLdbcSnbInteractiveOperationInstances.read1();
+        Operation operation2 = DummyLdbcSnbInteractiveOperationInstances.read1();
         operation2.setScheduledStartTimeAsMilli(1l);
         operation2.setTimeStamp(1l);
         int operation2ResultCode = 2;
@@ -100,7 +100,7 @@ public class DisruptorSbeMetricsServiceTest {
         assertThat(metricsServiceWriter.results().startTimeAsMilli(), equalTo(2l));
         assertThat(metricsServiceWriter.results().latestFinishTimeAsMilli(), equalTo(11l));
 
-        Operation<?> operation3 = DummyLdbcSnbInteractiveOperationInstances.read2();
+        Operation operation3 = DummyLdbcSnbInteractiveOperationInstances.read2();
         operation3.setScheduledStartTimeAsMilli(1l);
         operation3.setTimeStamp(1l);
         int operation3ResultCode = 2;

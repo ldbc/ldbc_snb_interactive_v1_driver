@@ -1,8 +1,8 @@
 package com.ldbc.driver.generator;
 
-import com.ldbc.driver.csv.CharSeeker;
-import com.ldbc.driver.csv.Extractors;
-import com.ldbc.driver.csv.Mark;
+import com.ldbc.driver.csv.charseeker.CharSeeker;
+import com.ldbc.driver.csv.charseeker.Extractors;
+import com.ldbc.driver.csv.charseeker.Mark;
 
 import java.io.IOException;
 import java.util.Iterator;

@@ -23,8 +23,8 @@ class OperationHandlerRunnableContextRetriever {
     private final TimeSource timeSource;
     private final ConcurrentErrorReporter errorReporter;
     private final MetricsService metricsService;
-    private final Set<Class<? extends Operation<?>>> dependencyOperationTypes;
-    private final Set<Class<? extends Operation<?>>> dependentOperationTypes;
+    private final Set<Class<? extends Operation>> dependencyOperationTypes;
+    private final Set<Class<? extends Operation>> dependentOperationTypes;
 
     OperationHandlerRunnableContextRetriever(WorkloadStreams.WorkloadStreamDefinition streamDefinition,
                                              Db db,

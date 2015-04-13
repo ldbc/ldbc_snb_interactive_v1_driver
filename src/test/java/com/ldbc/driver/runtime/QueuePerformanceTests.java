@@ -7,7 +7,6 @@ import com.ldbc.driver.control.DriverConfigurationException;
 import com.ldbc.driver.generator.GeneratorFactory;
 import com.ldbc.driver.generator.RandomDataGeneratorFactory;
 import com.ldbc.driver.temporal.SystemTimeSource;
-import com.ldbc.driver.temporal.TemporalUtil;
 import com.ldbc.driver.temporal.TimeSource;
 import com.ldbc.driver.testutils.TestUtils;
 import com.ldbc.driver.util.Tuple;
@@ -27,9 +26,7 @@ import static org.junit.Assert.assertThat;
 
 @Ignore
 public class QueuePerformanceTests {
-    private static final TemporalUtil TEMPORAL_UTIL = new TemporalUtil();
-
-    final Operation<?> TERMINATE_OPERATION = new Operation<Object>() {
+    final Operation TERMINATE_OPERATION = new Operation<Object>() {
         @Override
         public int type() {
             return -1;
@@ -98,24 +95,25 @@ public class QueuePerformanceTests {
         );
 
         GeneratorFactory gf = new GeneratorFactory(new RandomDataGeneratorFactory(42L));
-        Tuple.Tuple3<WorkloadStreams, Workload, Long> workloadStreamsAndWorkload = WorkloadStreams.createNewWorkloadWithLimitedWorkloadStreams(config, gf);
+        boolean returnStreamsWithDbConnector = false;
+        Tuple.Tuple3<WorkloadStreams, Workload, Long> workloadStreamsAndWorkload = WorkloadStreams.createNewWorkloadWithLimitedWorkloadStreams(config, gf, returnStreamsWithDbConnector);
         WorkloadStreams workloadStreams = workloadStreamsAndWorkload._1();
         Workload workload = workloadStreamsAndWorkload._2();
 
-        Iterator<Operation<?>> operations = workloadStreams.mergeSortedByStartTime(gf);
+        Iterator<Operation> operations = WorkloadStreams.mergeSortedByStartTimeExcludingChildOperationGenerators(gf, workloadStreams);
 
         System.out.println("Benchmarking...");
 
-//        long duration = doOperationQueuePerformanceTest(operations, DefaultQueues.<Operation<?>>newBlockingBounded(1000));
-        long duration = doOperationQueuePerformanceTest(operations, DefaultQueues.<Operation<?>>newBlockingBounded(10000));
+//        long duration = doOperationQueuePerformanceTest(operations, DefaultQueues.<Operation>newBlockingBounded(1000));
+        long duration = doOperationQueuePerformanceTest(operations, DefaultQueues.<Operation>newBlockingBounded(10000));
         long opsPerSecond = Math.round(((double) config.operationCount() / TimeUnit.MILLISECONDS.toNanos(duration)) * 1000000000);
         System.out.println(String.format("%s operations in %s: %s op/sec", config.operationCount(), duration, opsPerSecond));
         workload.close();
     }
 
-    private long doOperationQueuePerformanceTest(final Iterator<Operation<?>> operations, final Queue<Operation<?>> queue) throws InterruptedException {
-        final QueueEventSubmitter<Operation<?>> queueEventSubmitter = QueueEventSubmitter.queueEventSubmitterFor(queue);
-        final QueueEventFetcher<Operation<?>> queueEventFetcher = QueueEventFetcher.queueEventFetcherFor(queue);
+    private long doOperationQueuePerformanceTest(final Iterator<Operation> operations, final Queue<Operation> queue) throws InterruptedException {
+        final QueueEventSubmitter<Operation> queueEventSubmitter = QueueEventSubmitter.queueEventSubmitterFor(queue);
+        final QueueEventFetcher<Operation> queueEventFetcher = QueueEventFetcher.queueEventFetcherFor(queue);
         Thread writeThread = new Thread() {
             @Override
             public void run() {
@@ -138,7 +136,7 @@ public class QueuePerformanceTests {
         Thread readThread = new Thread() {
             @Override
             public void run() {
-                Operation<?> operation = null;
+                Operation operation = null;
                 try {
                     operation = queueEventFetcher.fetchNextEvent();
                 } catch (InterruptedException e) {

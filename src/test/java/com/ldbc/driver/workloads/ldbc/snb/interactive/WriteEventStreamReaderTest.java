@@ -2,11 +2,11 @@ package com.ldbc.driver.workloads.ldbc.snb.interactive;
 
 import com.google.common.collect.Lists;
 import com.ldbc.driver.Operation;
-import com.ldbc.driver.csv.BufferedCharSeeker;
-import com.ldbc.driver.csv.CharSeeker;
-import com.ldbc.driver.csv.Extractors;
-import com.ldbc.driver.csv.Readables;
-import com.ldbc.driver.util.csv.SimpleCsvFileReader;
+import com.ldbc.driver.csv.charseeker.BufferedCharSeeker;
+import com.ldbc.driver.csv.charseeker.CharSeeker;
+import com.ldbc.driver.csv.charseeker.Extractors;
+import com.ldbc.driver.csv.charseeker.Readables;
+import com.ldbc.driver.csv.simple.SimpleCsvFileReader;
 import org.junit.Test;
 
 import java.io.BufferedReader;
@@ -28,7 +28,7 @@ public class WriteEventStreamReaderTest {
         String data = WriteEventStreamReaderTestData.ROWS_FOR_ALL_EVENT_TYPES;
         BufferedReader bufferedReader = new BufferedReader(new StringReader(data));
         SimpleCsvFileReader csvFileReader = new SimpleCsvFileReader(bufferedReader, SimpleCsvFileReader.DEFAULT_COLUMN_SEPARATOR_REGEX_STRING);
-        Iterator<Operation<?>> writeEventStreamReader = WriteEventStreamReaderRegex.create(csvFileReader);
+        Iterator<Operation> writeEventStreamReader = WriteEventStreamReaderRegex.create(csvFileReader);
         doShouldParseAllEventTypes(writeEventStreamReader);
         csvFileReader.close();
     }
@@ -39,12 +39,12 @@ public class WriteEventStreamReaderTest {
         CharSeeker charSeeker = new BufferedCharSeeker(Readables.wrap(new StringReader(data)));
         int columnDelimiter = '|';
         Extractors extractors = new Extractors(';', ',');
-        Iterator<Operation<?>> writeEventStreamReader = WriteEventStreamReaderCharSeeker.create(charSeeker, extractors, columnDelimiter);
+        Iterator<Operation> writeEventStreamReader = WriteEventStreamReaderCharSeeker.create(charSeeker, extractors, columnDelimiter);
         doShouldParseAllEventTypes(writeEventStreamReader);
         charSeeker.close();
     }
 
-    public void doShouldParseAllEventTypes(Iterator<Operation<?>> writeEventStreamReader) throws IOException, ParseException {
+    public void doShouldParseAllEventTypes(Iterator<Operation> writeEventStreamReader) throws IOException, ParseException {
         // Then
         Date birthday;
         Date creationDate;
@@ -191,7 +191,7 @@ public class WriteEventStreamReaderTest {
         String data = WriteEventStreamReaderTestData.UPDATE_1_ADD_PERSON_ROW;
         BufferedReader bufferedReader = new BufferedReader(new StringReader(data));
         SimpleCsvFileReader csvFileReader = new SimpleCsvFileReader(bufferedReader, SimpleCsvFileReader.DEFAULT_COLUMN_SEPARATOR_REGEX_STRING);
-        Iterator<Operation<?>> writeEventStreamReader = WriteEventStreamReaderRegex.create(csvFileReader);
+        Iterator<Operation> writeEventStreamReader = WriteEventStreamReaderRegex.create(csvFileReader);
         doShouldParseUpdate1AddPerson(writeEventStreamReader);
         csvFileReader.close();
     }
@@ -203,12 +203,12 @@ public class WriteEventStreamReaderTest {
         CharSeeker charSeeker = new BufferedCharSeeker(Readables.wrap(new StringReader(data)));
         int columnDelimiter = '|';
         Extractors extractors = new Extractors(';', ',');
-        Iterator<Operation<?>> writeEventStreamReader = WriteEventStreamReaderCharSeeker.create(charSeeker, extractors, columnDelimiter);
+        Iterator<Operation> writeEventStreamReader = WriteEventStreamReaderCharSeeker.create(charSeeker, extractors, columnDelimiter);
         doShouldParseUpdate1AddPerson(writeEventStreamReader);
         charSeeker.close();
     }
 
-    public void doShouldParseUpdate1AddPerson(Iterator<Operation<?>> writeEventStreamReader) throws IOException, ParseException {
+    public void doShouldParseUpdate1AddPerson(Iterator<Operation> writeEventStreamReader) throws IOException, ParseException {
         LdbcUpdate1AddPerson addPerson = (LdbcUpdate1AddPerson) writeEventStreamReader.next();
 
         // Then
@@ -245,7 +245,7 @@ public class WriteEventStreamReaderTest {
         String data = WriteEventStreamReaderTestData.UPDATE_1_ADD_PERSON_ROW_ONE_LANGUAGE;
         BufferedReader bufferedReader = new BufferedReader(new StringReader(data));
         SimpleCsvFileReader csvFileReader = new SimpleCsvFileReader(bufferedReader, SimpleCsvFileReader.DEFAULT_COLUMN_SEPARATOR_REGEX_STRING);
-        Iterator<Operation<?>> writeEventStreamReader = WriteEventStreamReaderRegex.create(csvFileReader);
+        Iterator<Operation> writeEventStreamReader = WriteEventStreamReaderRegex.create(csvFileReader);
         doShouldParseUpdate1AddPersonWithOneLanguage(writeEventStreamReader);
         csvFileReader.close();
     }
@@ -257,12 +257,12 @@ public class WriteEventStreamReaderTest {
         CharSeeker charSeeker = new BufferedCharSeeker(Readables.wrap(new StringReader(data)));
         int columnDelimiter = '|';
         Extractors extractors = new Extractors(';', ',');
-        Iterator<Operation<?>> writeEventStreamReader = WriteEventStreamReaderCharSeeker.create(charSeeker, extractors, columnDelimiter);
+        Iterator<Operation> writeEventStreamReader = WriteEventStreamReaderCharSeeker.create(charSeeker, extractors, columnDelimiter);
         doShouldParseUpdate1AddPersonWithOneLanguage(writeEventStreamReader);
         charSeeker.close();
     }
 
-    public void doShouldParseUpdate1AddPersonWithOneLanguage(Iterator<Operation<?>> writeEventStreamReader) throws IOException, ParseException {
+    public void doShouldParseUpdate1AddPersonWithOneLanguage(Iterator<Operation> writeEventStreamReader) throws IOException, ParseException {
         LdbcUpdate1AddPerson addPerson = (LdbcUpdate1AddPerson) writeEventStreamReader.next();
 
         // Then
@@ -299,7 +299,7 @@ public class WriteEventStreamReaderTest {
         String data = WriteEventStreamReaderTestData.UPDATE_1_ADD_PERSON_ROW_NO_LANGUAGES;
         BufferedReader bufferedReader = new BufferedReader(new StringReader(data));
         SimpleCsvFileReader csvFileReader = new SimpleCsvFileReader(bufferedReader, SimpleCsvFileReader.DEFAULT_COLUMN_SEPARATOR_REGEX_STRING);
-        Iterator<Operation<?>> writeEventStreamReader = WriteEventStreamReaderRegex.create(csvFileReader);
+        Iterator<Operation> writeEventStreamReader = WriteEventStreamReaderRegex.create(csvFileReader);
         doShouldParseUpdate1AddPersonWithNoLanguages(writeEventStreamReader);
         csvFileReader.close();
     }
@@ -311,12 +311,12 @@ public class WriteEventStreamReaderTest {
         CharSeeker charSeeker = new BufferedCharSeeker(Readables.wrap(new StringReader(data)));
         int columnDelimiter = '|';
         Extractors extractors = new Extractors(';', ',');
-        Iterator<Operation<?>> writeEventStreamReader = WriteEventStreamReaderCharSeeker.create(charSeeker, extractors, columnDelimiter);
+        Iterator<Operation> writeEventStreamReader = WriteEventStreamReaderCharSeeker.create(charSeeker, extractors, columnDelimiter);
         doShouldParseUpdate1AddPersonWithNoLanguages(writeEventStreamReader);
         charSeeker.close();
     }
 
-    public void doShouldParseUpdate1AddPersonWithNoLanguages(Iterator<Operation<?>> writeEventStreamReader) throws IOException, ParseException {
+    public void doShouldParseUpdate1AddPersonWithNoLanguages(Iterator<Operation> writeEventStreamReader) throws IOException, ParseException {
         LdbcUpdate1AddPerson addPerson = (LdbcUpdate1AddPerson) writeEventStreamReader.next();
 
         // Then
@@ -353,7 +353,7 @@ public class WriteEventStreamReaderTest {
         String data = WriteEventStreamReaderTestData.UPDATE_1_ADD_PERSON_ROW_ONE_COMPANY;
         BufferedReader bufferedReader = new BufferedReader(new StringReader(data));
         SimpleCsvFileReader csvFileReader = new SimpleCsvFileReader(bufferedReader, SimpleCsvFileReader.DEFAULT_COLUMN_SEPARATOR_REGEX_STRING);
-        Iterator<Operation<?>> writeEventStreamReader = WriteEventStreamReaderRegex.create(csvFileReader);
+        Iterator<Operation> writeEventStreamReader = WriteEventStreamReaderRegex.create(csvFileReader);
         doShouldParseUpdate1AddPersonWithOneCompany(writeEventStreamReader);
         csvFileReader.close();
     }
@@ -365,12 +365,12 @@ public class WriteEventStreamReaderTest {
         CharSeeker charSeeker = new BufferedCharSeeker(Readables.wrap(new StringReader(data)));
         int columnDelimiter = '|';
         Extractors extractors = new Extractors(';', ',');
-        Iterator<Operation<?>> writeEventStreamReader = WriteEventStreamReaderCharSeeker.create(charSeeker, extractors, columnDelimiter);
+        Iterator<Operation> writeEventStreamReader = WriteEventStreamReaderCharSeeker.create(charSeeker, extractors, columnDelimiter);
         doShouldParseUpdate1AddPersonWithOneCompany(writeEventStreamReader);
         charSeeker.close();
     }
 
-    public void doShouldParseUpdate1AddPersonWithOneCompany(Iterator<Operation<?>> writeEventStreamReader) throws IOException, ParseException {
+    public void doShouldParseUpdate1AddPersonWithOneCompany(Iterator<Operation> writeEventStreamReader) throws IOException, ParseException {
         LdbcUpdate1AddPerson addPerson = (LdbcUpdate1AddPerson) writeEventStreamReader.next();
 
         // Then
@@ -404,7 +404,7 @@ public class WriteEventStreamReaderTest {
         String data = WriteEventStreamReaderTestData.UPDATE_1_ADD_PERSON_ROW_NO_COMPANIES;
         BufferedReader bufferedReader = new BufferedReader(new StringReader(data));
         SimpleCsvFileReader csvFileReader = new SimpleCsvFileReader(bufferedReader, SimpleCsvFileReader.DEFAULT_COLUMN_SEPARATOR_REGEX_STRING);
-        Iterator<Operation<?>> writeEventStreamReader = WriteEventStreamReaderRegex.create(csvFileReader);
+        Iterator<Operation> writeEventStreamReader = WriteEventStreamReaderRegex.create(csvFileReader);
         doShouldParseUpdate1AddPersonWithNoCompanies(writeEventStreamReader);
         csvFileReader.close();
     }
@@ -416,12 +416,12 @@ public class WriteEventStreamReaderTest {
         CharSeeker charSeeker = new BufferedCharSeeker(Readables.wrap(new StringReader(data)));
         int columnDelimiter = '|';
         Extractors extractors = new Extractors(';', ',');
-        Iterator<Operation<?>> writeEventStreamReader = WriteEventStreamReaderCharSeeker.create(charSeeker, extractors, columnDelimiter);
+        Iterator<Operation> writeEventStreamReader = WriteEventStreamReaderCharSeeker.create(charSeeker, extractors, columnDelimiter);
         doShouldParseUpdate1AddPersonWithNoCompanies(writeEventStreamReader);
         charSeeker.close();
     }
 
-    public void doShouldParseUpdate1AddPersonWithNoCompanies(Iterator<Operation<?>> writeEventStreamReader) throws IOException, ParseException {
+    public void doShouldParseUpdate1AddPersonWithNoCompanies(Iterator<Operation> writeEventStreamReader) throws IOException, ParseException {
         LdbcUpdate1AddPerson addPerson = (LdbcUpdate1AddPerson) writeEventStreamReader.next();
 
         // Then
@@ -453,7 +453,7 @@ public class WriteEventStreamReaderTest {
         String data = WriteEventStreamReaderTestData.UPDATE_1_ADD_PERSON_ROW_NO_UNIS;
         BufferedReader bufferedReader = new BufferedReader(new StringReader(data));
         SimpleCsvFileReader csvFileReader = new SimpleCsvFileReader(bufferedReader, SimpleCsvFileReader.DEFAULT_COLUMN_SEPARATOR_REGEX_STRING);
-        Iterator<Operation<?>> writeEventStreamReader = WriteEventStreamReaderRegex.create(csvFileReader);
+        Iterator<Operation> writeEventStreamReader = WriteEventStreamReaderRegex.create(csvFileReader);
         doShouldParseUpdate1AddPersonWithNoUnis(writeEventStreamReader);
         csvFileReader.close();
     }
@@ -465,12 +465,12 @@ public class WriteEventStreamReaderTest {
         CharSeeker charSeeker = new BufferedCharSeeker(Readables.wrap(new StringReader(data)));
         int columnDelimiter = '|';
         Extractors extractors = new Extractors(';', ',');
-        Iterator<Operation<?>> writeEventStreamReader = WriteEventStreamReaderCharSeeker.create(charSeeker, extractors, columnDelimiter);
+        Iterator<Operation> writeEventStreamReader = WriteEventStreamReaderCharSeeker.create(charSeeker, extractors, columnDelimiter);
         doShouldParseUpdate1AddPersonWithNoUnis(writeEventStreamReader);
         charSeeker.close();
     }
 
-    public void doShouldParseUpdate1AddPersonWithNoUnis(Iterator<Operation<?>> writeEventStreamReader) throws IOException, ParseException {
+    public void doShouldParseUpdate1AddPersonWithNoUnis(Iterator<Operation> writeEventStreamReader) throws IOException, ParseException {
         LdbcUpdate1AddPerson addPerson = (LdbcUpdate1AddPerson) writeEventStreamReader.next();
 
         // Then
@@ -507,7 +507,7 @@ public class WriteEventStreamReaderTest {
         String data = WriteEventStreamReaderTestData.UPDATE_1_ADD_PERSON_ROW_NO_EMAILS;
         BufferedReader bufferedReader = new BufferedReader(new StringReader(data));
         SimpleCsvFileReader csvFileReader = new SimpleCsvFileReader(bufferedReader, SimpleCsvFileReader.DEFAULT_COLUMN_SEPARATOR_REGEX_STRING);
-        Iterator<Operation<?>> writeEventStreamReader = WriteEventStreamReaderRegex.create(csvFileReader);
+        Iterator<Operation> writeEventStreamReader = WriteEventStreamReaderRegex.create(csvFileReader);
         doShouldParseUpdate1AddPersonWithNoEmails(writeEventStreamReader);
         csvFileReader.close();
     }
@@ -519,12 +519,12 @@ public class WriteEventStreamReaderTest {
         CharSeeker charSeeker = new BufferedCharSeeker(Readables.wrap(new StringReader(data)));
         int columnDelimiter = '|';
         Extractors extractors = new Extractors(';', ',');
-        Iterator<Operation<?>> writeEventStreamReader = WriteEventStreamReaderCharSeeker.create(charSeeker, extractors, columnDelimiter);
+        Iterator<Operation> writeEventStreamReader = WriteEventStreamReaderCharSeeker.create(charSeeker, extractors, columnDelimiter);
         doShouldParseUpdate1AddPersonWithNoEmails(writeEventStreamReader);
         charSeeker.close();
     }
 
-    public void doShouldParseUpdate1AddPersonWithNoEmails(Iterator<Operation<?>> writeEventStreamReader) throws IOException, ParseException {
+    public void doShouldParseUpdate1AddPersonWithNoEmails(Iterator<Operation> writeEventStreamReader) throws IOException, ParseException {
         LdbcUpdate1AddPerson addPerson = (LdbcUpdate1AddPerson) writeEventStreamReader.next();
 
         // Then
@@ -561,7 +561,7 @@ public class WriteEventStreamReaderTest {
         String data = WriteEventStreamReaderTestData.UPDATE_1_ADD_PERSON_ROW_NO_TAGS;
         BufferedReader bufferedReader = new BufferedReader(new StringReader(data));
         SimpleCsvFileReader csvFileReader = new SimpleCsvFileReader(bufferedReader, SimpleCsvFileReader.DEFAULT_COLUMN_SEPARATOR_REGEX_STRING);
-        Iterator<Operation<?>> writeEventStreamReader = WriteEventStreamReaderRegex.create(csvFileReader);
+        Iterator<Operation> writeEventStreamReader = WriteEventStreamReaderRegex.create(csvFileReader);
         doShouldParseUpdate1AddPersonWithNoTags(writeEventStreamReader);
         csvFileReader.close();
     }
@@ -573,12 +573,12 @@ public class WriteEventStreamReaderTest {
         CharSeeker charSeeker = new BufferedCharSeeker(Readables.wrap(new StringReader(data)));
         int columnDelimiter = '|';
         Extractors extractors = new Extractors(';', ',');
-        Iterator<Operation<?>> writeEventStreamReader = WriteEventStreamReaderCharSeeker.create(charSeeker, extractors, columnDelimiter);
+        Iterator<Operation> writeEventStreamReader = WriteEventStreamReaderCharSeeker.create(charSeeker, extractors, columnDelimiter);
         doShouldParseUpdate1AddPersonWithNoTags(writeEventStreamReader);
         charSeeker.close();
     }
 
-    public void doShouldParseUpdate1AddPersonWithNoTags(Iterator<Operation<?>> writeEventStreamReader) throws IOException, ParseException {
+    public void doShouldParseUpdate1AddPersonWithNoTags(Iterator<Operation> writeEventStreamReader) throws IOException, ParseException {
         LdbcUpdate1AddPerson addPerson = (LdbcUpdate1AddPerson) writeEventStreamReader.next();
 
         // Then
@@ -615,7 +615,7 @@ public class WriteEventStreamReaderTest {
         String data = WriteEventStreamReaderTestData.UPDATE_2_ADD_LIKE_POST_ROW;
         BufferedReader bufferedReader = new BufferedReader(new StringReader(data));
         SimpleCsvFileReader csvFileReader = new SimpleCsvFileReader(bufferedReader, SimpleCsvFileReader.DEFAULT_COLUMN_SEPARATOR_REGEX_STRING);
-        Iterator<Operation<?>> writeEventStreamReader = WriteEventStreamReaderRegex.create(csvFileReader);
+        Iterator<Operation> writeEventStreamReader = WriteEventStreamReaderRegex.create(csvFileReader);
         doShouldParseUpdate2AddLikePost(writeEventStreamReader);
         csvFileReader.close();
     }
@@ -627,12 +627,12 @@ public class WriteEventStreamReaderTest {
         CharSeeker charSeeker = new BufferedCharSeeker(Readables.wrap(new StringReader(data)));
         int columnDelimiter = '|';
         Extractors extractors = new Extractors(';', ',');
-        Iterator<Operation<?>> writeEventStreamReader = WriteEventStreamReaderCharSeeker.create(charSeeker, extractors, columnDelimiter);
+        Iterator<Operation> writeEventStreamReader = WriteEventStreamReaderCharSeeker.create(charSeeker, extractors, columnDelimiter);
         doShouldParseUpdate2AddLikePost(writeEventStreamReader);
         charSeeker.close();
     }
 
-    public void doShouldParseUpdate2AddLikePost(Iterator<Operation<?>> writeEventStreamReader) throws IOException, ParseException {
+    public void doShouldParseUpdate2AddLikePost(Iterator<Operation> writeEventStreamReader) throws IOException, ParseException {
         LdbcUpdate2AddPostLike addPostLike = (LdbcUpdate2AddPostLike) writeEventStreamReader.next();
 
         // Then
@@ -652,7 +652,7 @@ public class WriteEventStreamReaderTest {
         String data = WriteEventStreamReaderTestData.UPDATE_3_ADD_LIKE_COMMENT;
         BufferedReader bufferedReader = new BufferedReader(new StringReader(data));
         SimpleCsvFileReader csvFileReader = new SimpleCsvFileReader(bufferedReader, SimpleCsvFileReader.DEFAULT_COLUMN_SEPARATOR_REGEX_STRING);
-        Iterator<Operation<?>> writeEventStreamReader = WriteEventStreamReaderRegex.create(csvFileReader);
+        Iterator<Operation> writeEventStreamReader = WriteEventStreamReaderRegex.create(csvFileReader);
         doShouldParseUpdate3AddLikeComment(writeEventStreamReader);
         csvFileReader.close();
     }
@@ -663,12 +663,12 @@ public class WriteEventStreamReaderTest {
         CharSeeker charSeeker = new BufferedCharSeeker(Readables.wrap(new StringReader(data)));
         int columnDelimiter = '|';
         Extractors extractors = new Extractors(';', ',');
-        Iterator<Operation<?>> writeEventStreamReader = WriteEventStreamReaderCharSeeker.create(charSeeker, extractors, columnDelimiter);
+        Iterator<Operation> writeEventStreamReader = WriteEventStreamReaderCharSeeker.create(charSeeker, extractors, columnDelimiter);
         doShouldParseUpdate3AddLikeComment(writeEventStreamReader);
         charSeeker.close();
     }
 
-    public void doShouldParseUpdate3AddLikeComment(Iterator<Operation<?>> writeEventStreamReader) throws IOException, ParseException {
+    public void doShouldParseUpdate3AddLikeComment(Iterator<Operation> writeEventStreamReader) throws IOException, ParseException {
         LdbcUpdate3AddCommentLike addCommentLike = (LdbcUpdate3AddCommentLike) writeEventStreamReader.next();
 
         // Then
@@ -688,7 +688,7 @@ public class WriteEventStreamReaderTest {
         String data = WriteEventStreamReaderTestData.UPDATE_4_ADD_FORUM;
         BufferedReader bufferedReader = new BufferedReader(new StringReader(data));
         SimpleCsvFileReader csvFileReader = new SimpleCsvFileReader(bufferedReader, SimpleCsvFileReader.DEFAULT_COLUMN_SEPARATOR_REGEX_STRING);
-        Iterator<Operation<?>> writeEventStreamReader = WriteEventStreamReaderRegex.create(csvFileReader);
+        Iterator<Operation> writeEventStreamReader = WriteEventStreamReaderRegex.create(csvFileReader);
         doShouldParseUpdate4AddForum(writeEventStreamReader);
         csvFileReader.close();
     }
@@ -699,12 +699,12 @@ public class WriteEventStreamReaderTest {
         CharSeeker charSeeker = new BufferedCharSeeker(Readables.wrap(new StringReader(data)));
         int columnDelimiter = '|';
         Extractors extractors = new Extractors(';', ',');
-        Iterator<Operation<?>> writeEventStreamReader = WriteEventStreamReaderCharSeeker.create(charSeeker, extractors, columnDelimiter);
+        Iterator<Operation> writeEventStreamReader = WriteEventStreamReaderCharSeeker.create(charSeeker, extractors, columnDelimiter);
         doShouldParseUpdate4AddForum(writeEventStreamReader);
         charSeeker.close();
     }
 
-    public void doShouldParseUpdate4AddForum(Iterator<Operation<?>> writeEventStreamReader) throws IOException, ParseException {
+    public void doShouldParseUpdate4AddForum(Iterator<Operation> writeEventStreamReader) throws IOException, ParseException {
         LdbcUpdate4AddForum addForum = (LdbcUpdate4AddForum) writeEventStreamReader.next();
 
         // Then
@@ -726,7 +726,7 @@ public class WriteEventStreamReaderTest {
         String data = WriteEventStreamReaderTestData.UPDATE_5_ADD_FORUM_MEMBERSHIP;
         BufferedReader bufferedReader = new BufferedReader(new StringReader(data));
         SimpleCsvFileReader csvFileReader = new SimpleCsvFileReader(bufferedReader, SimpleCsvFileReader.DEFAULT_COLUMN_SEPARATOR_REGEX_STRING);
-        Iterator<Operation<?>> writeEventStreamReader = WriteEventStreamReaderRegex.create(csvFileReader);
+        Iterator<Operation> writeEventStreamReader = WriteEventStreamReaderRegex.create(csvFileReader);
         shouldParseUpdate5AddForumMembership(writeEventStreamReader);
         csvFileReader.close();
     }
@@ -737,12 +737,12 @@ public class WriteEventStreamReaderTest {
         CharSeeker charSeeker = new BufferedCharSeeker(Readables.wrap(new StringReader(data)));
         int columnDelimiter = '|';
         Extractors extractors = new Extractors(';', ',');
-        Iterator<Operation<?>> writeEventStreamReader = WriteEventStreamReaderCharSeeker.create(charSeeker, extractors, columnDelimiter);
+        Iterator<Operation> writeEventStreamReader = WriteEventStreamReaderCharSeeker.create(charSeeker, extractors, columnDelimiter);
         shouldParseUpdate5AddForumMembership(writeEventStreamReader);
         charSeeker.close();
     }
 
-    public void shouldParseUpdate5AddForumMembership(Iterator<Operation<?>> writeEventStreamReader) throws IOException, ParseException {
+    public void shouldParseUpdate5AddForumMembership(Iterator<Operation> writeEventStreamReader) throws IOException, ParseException {
         LdbcUpdate5AddForumMembership addForumMembership = (LdbcUpdate5AddForumMembership) writeEventStreamReader.next();
 
         // Then
@@ -762,7 +762,7 @@ public class WriteEventStreamReaderTest {
         String data = WriteEventStreamReaderTestData.UPDATE_6_ADD_POST;
         BufferedReader bufferedReader = new BufferedReader(new StringReader(data));
         SimpleCsvFileReader csvFileReader = new SimpleCsvFileReader(bufferedReader, SimpleCsvFileReader.DEFAULT_COLUMN_SEPARATOR_REGEX_STRING);
-        Iterator<Operation<?>> writeEventStreamReader = WriteEventStreamReaderRegex.create(csvFileReader);
+        Iterator<Operation> writeEventStreamReader = WriteEventStreamReaderRegex.create(csvFileReader);
         doShouldParseUpdate6AddPost(writeEventStreamReader);
         csvFileReader.close();
     }
@@ -773,12 +773,12 @@ public class WriteEventStreamReaderTest {
         CharSeeker charSeeker = new BufferedCharSeeker(Readables.wrap(new StringReader(data)));
         int columnDelimiter = '|';
         Extractors extractors = new Extractors(';', ',');
-        Iterator<Operation<?>> writeEventStreamReader = WriteEventStreamReaderCharSeeker.create(charSeeker, extractors, columnDelimiter);
+        Iterator<Operation> writeEventStreamReader = WriteEventStreamReaderCharSeeker.create(charSeeker, extractors, columnDelimiter);
         doShouldParseUpdate6AddPost(writeEventStreamReader);
         charSeeker.close();
     }
 
-    public void doShouldParseUpdate6AddPost(Iterator<Operation<?>> writeEventStreamReader) throws IOException, ParseException {
+    public void doShouldParseUpdate6AddPost(Iterator<Operation> writeEventStreamReader) throws IOException, ParseException {
         LdbcUpdate6AddPost addPost = (LdbcUpdate6AddPost) writeEventStreamReader.next();
 
         // Then
@@ -807,7 +807,7 @@ public class WriteEventStreamReaderTest {
         String data = WriteEventStreamReaderTestData.UPDATE_6_ADD_POST_MANY_TAGS;
         BufferedReader bufferedReader = new BufferedReader(new StringReader(data));
         SimpleCsvFileReader csvFileReader = new SimpleCsvFileReader(bufferedReader, SimpleCsvFileReader.DEFAULT_COLUMN_SEPARATOR_REGEX_STRING);
-        Iterator<Operation<?>> writeEventStreamReader = WriteEventStreamReaderRegex.create(csvFileReader);
+        Iterator<Operation> writeEventStreamReader = WriteEventStreamReaderRegex.create(csvFileReader);
         doShouldParseUpdate6AddPostWithManyTags(writeEventStreamReader);
         csvFileReader.close();
     }
@@ -818,12 +818,12 @@ public class WriteEventStreamReaderTest {
         CharSeeker charSeeker = new BufferedCharSeeker(Readables.wrap(new StringReader(data)));
         int columnDelimiter = '|';
         Extractors extractors = new Extractors(';', ',');
-        Iterator<Operation<?>> writeEventStreamReader = WriteEventStreamReaderCharSeeker.create(charSeeker, extractors, columnDelimiter);
+        Iterator<Operation> writeEventStreamReader = WriteEventStreamReaderCharSeeker.create(charSeeker, extractors, columnDelimiter);
         doShouldParseUpdate6AddPostWithManyTags(writeEventStreamReader);
         charSeeker.close();
     }
 
-    public void doShouldParseUpdate6AddPostWithManyTags(Iterator<Operation<?>> writeEventStreamReader) throws IOException, ParseException {
+    public void doShouldParseUpdate6AddPostWithManyTags(Iterator<Operation> writeEventStreamReader) throws IOException, ParseException {
         LdbcUpdate6AddPost addPost = (LdbcUpdate6AddPost) writeEventStreamReader.next();
 
         // Then
@@ -852,7 +852,7 @@ public class WriteEventStreamReaderTest {
         String data = WriteEventStreamReaderTestData.UPDATE_6_ADD_POST_NO_TAGS;
         BufferedReader bufferedReader = new BufferedReader(new StringReader(data));
         SimpleCsvFileReader csvFileReader = new SimpleCsvFileReader(bufferedReader, SimpleCsvFileReader.DEFAULT_COLUMN_SEPARATOR_REGEX_STRING);
-        Iterator<Operation<?>> writeEventStreamReader = WriteEventStreamReaderRegex.create(csvFileReader);
+        Iterator<Operation> writeEventStreamReader = WriteEventStreamReaderRegex.create(csvFileReader);
         doShouldParseUpdate6AddPostWithEmptyTags(writeEventStreamReader);
         csvFileReader.close();
     }
@@ -863,12 +863,12 @@ public class WriteEventStreamReaderTest {
         CharSeeker charSeeker = new BufferedCharSeeker(Readables.wrap(new StringReader(data)));
         int columnDelimiter = '|';
         Extractors extractors = new Extractors(';', ',');
-        Iterator<Operation<?>> writeEventStreamReader = WriteEventStreamReaderCharSeeker.create(charSeeker, extractors, columnDelimiter);
+        Iterator<Operation> writeEventStreamReader = WriteEventStreamReaderCharSeeker.create(charSeeker, extractors, columnDelimiter);
         doShouldParseUpdate6AddPostWithEmptyTags(writeEventStreamReader);
         charSeeker.close();
     }
 
-    public void doShouldParseUpdate6AddPostWithEmptyTags(Iterator<Operation<?>> writeEventStreamReader) throws IOException, ParseException {
+    public void doShouldParseUpdate6AddPostWithEmptyTags(Iterator<Operation> writeEventStreamReader) throws IOException, ParseException {
         LdbcUpdate6AddPost addPost = (LdbcUpdate6AddPost) writeEventStreamReader.next();
 
         // Then
@@ -897,7 +897,7 @@ public class WriteEventStreamReaderTest {
         String data = WriteEventStreamReaderTestData.UPDATE_7_ADD_COMMENT;
         BufferedReader bufferedReader = new BufferedReader(new StringReader(data));
         SimpleCsvFileReader csvFileReader = new SimpleCsvFileReader(bufferedReader, SimpleCsvFileReader.DEFAULT_COLUMN_SEPARATOR_REGEX_STRING);
-        Iterator<Operation<?>> writeEventStreamReader = WriteEventStreamReaderRegex.create(csvFileReader);
+        Iterator<Operation> writeEventStreamReader = WriteEventStreamReaderRegex.create(csvFileReader);
         doShouldParseUpdate7AddComment(writeEventStreamReader);
         csvFileReader.close();
     }
@@ -908,12 +908,12 @@ public class WriteEventStreamReaderTest {
         CharSeeker charSeeker = new BufferedCharSeeker(Readables.wrap(new StringReader(data)));
         int columnDelimiter = '|';
         Extractors extractors = new Extractors(';', ',');
-        Iterator<Operation<?>> writeEventStreamReader = WriteEventStreamReaderCharSeeker.create(charSeeker, extractors, columnDelimiter);
+        Iterator<Operation> writeEventStreamReader = WriteEventStreamReaderCharSeeker.create(charSeeker, extractors, columnDelimiter);
         doShouldParseUpdate7AddComment(writeEventStreamReader);
         charSeeker.close();
     }
 
-    public void doShouldParseUpdate7AddComment(Iterator<Operation<?>> writeEventStreamReader) throws IOException, ParseException {
+    public void doShouldParseUpdate7AddComment(Iterator<Operation> writeEventStreamReader) throws IOException, ParseException {
         LdbcUpdate7AddComment addComment = (LdbcUpdate7AddComment) writeEventStreamReader.next();
 
         // Then
@@ -941,7 +941,7 @@ public class WriteEventStreamReaderTest {
         String data = WriteEventStreamReaderTestData.UPDATE_7_ADD_COMMENT_NO_TAGS;
         BufferedReader bufferedReader = new BufferedReader(new StringReader(data));
         SimpleCsvFileReader csvFileReader = new SimpleCsvFileReader(bufferedReader, SimpleCsvFileReader.DEFAULT_COLUMN_SEPARATOR_REGEX_STRING);
-        Iterator<Operation<?>> writeEventStreamReader = WriteEventStreamReaderRegex.create(csvFileReader);
+        Iterator<Operation> writeEventStreamReader = WriteEventStreamReaderRegex.create(csvFileReader);
         doShouldParseUpdate7AddCommentWithEmptyTags(writeEventStreamReader);
         csvFileReader.close();
     }
@@ -952,12 +952,12 @@ public class WriteEventStreamReaderTest {
         CharSeeker charSeeker = new BufferedCharSeeker(Readables.wrap(new StringReader(data)));
         int columnDelimiter = '|';
         Extractors extractors = new Extractors(';', ',');
-        Iterator<Operation<?>> writeEventStreamReader = WriteEventStreamReaderCharSeeker.create(charSeeker, extractors, columnDelimiter);
+        Iterator<Operation> writeEventStreamReader = WriteEventStreamReaderCharSeeker.create(charSeeker, extractors, columnDelimiter);
         doShouldParseUpdate7AddCommentWithEmptyTags(writeEventStreamReader);
         charSeeker.close();
     }
 
-    public void doShouldParseUpdate7AddCommentWithEmptyTags(Iterator<Operation<?>> writeEventStreamReader) throws IOException, ParseException {
+    public void doShouldParseUpdate7AddCommentWithEmptyTags(Iterator<Operation> writeEventStreamReader) throws IOException, ParseException {
         LdbcUpdate7AddComment addComment = (LdbcUpdate7AddComment) writeEventStreamReader.next();
 
         // Then
@@ -985,7 +985,7 @@ public class WriteEventStreamReaderTest {
         String data = WriteEventStreamReaderTestData.UPDATE_8_ADD_FRIENDSHIP;
         BufferedReader bufferedReader = new BufferedReader(new StringReader(data));
         SimpleCsvFileReader csvFileReader = new SimpleCsvFileReader(bufferedReader, SimpleCsvFileReader.DEFAULT_COLUMN_SEPARATOR_REGEX_STRING);
-        Iterator<Operation<?>> writeEventStreamReader = WriteEventStreamReaderRegex.create(csvFileReader);
+        Iterator<Operation> writeEventStreamReader = WriteEventStreamReaderRegex.create(csvFileReader);
         doShouldParseUpdate8AddFriendship(writeEventStreamReader);
         csvFileReader.close();
     }
@@ -996,12 +996,12 @@ public class WriteEventStreamReaderTest {
         CharSeeker charSeeker = new BufferedCharSeeker(Readables.wrap(new StringReader(data)));
         int columnDelimiter = '|';
         Extractors extractors = new Extractors(';', ',');
-        Iterator<Operation<?>> writeEventStreamReader = WriteEventStreamReaderCharSeeker.create(charSeeker, extractors, columnDelimiter);
+        Iterator<Operation> writeEventStreamReader = WriteEventStreamReaderCharSeeker.create(charSeeker, extractors, columnDelimiter);
         doShouldParseUpdate8AddFriendship(writeEventStreamReader);
         charSeeker.close();
     }
 
-    public void doShouldParseUpdate8AddFriendship(Iterator<Operation<?>> writeEventStreamReader) throws IOException, ParseException {
+    public void doShouldParseUpdate8AddFriendship(Iterator<Operation> writeEventStreamReader) throws IOException, ParseException {
         LdbcUpdate8AddFriendship addFriendship = (LdbcUpdate8AddFriendship) writeEventStreamReader.next();
 
         // Then

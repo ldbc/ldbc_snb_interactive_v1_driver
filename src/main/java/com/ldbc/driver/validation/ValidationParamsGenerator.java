@@ -13,7 +13,7 @@ import java.util.List;
 public class ValidationParamsGenerator extends Generator<ValidationParam> {
     private final Db db;
     private final DbValidationParametersFilter dbValidationParametersFilter;
-    private final Iterator<Operation<?>> operations;
+    private final Iterator<Operation> operations;
     private final ResultReporter resultReporter = new ResultReporter.SimpleResultReporter();
     private int entriesWrittenSoFar;
     private boolean needMoreValidationParameters;
@@ -21,7 +21,7 @@ public class ValidationParamsGenerator extends Generator<ValidationParam> {
 
     public ValidationParamsGenerator(Db db,
                                      DbValidationParametersFilter dbValidationParametersFilter,
-                                     Iterator<Operation<?>> operations) {
+                                     Iterator<Operation> operations) {
         this.db = db;
         this.dbValidationParametersFilter = dbValidationParametersFilter;
         this.operations = operations;
@@ -37,7 +37,7 @@ public class ValidationParamsGenerator extends Generator<ValidationParam> {
     @Override
     protected ValidationParam doNext() throws GeneratorException {
         while ((injectedOperations.size() > 0 || operations.hasNext()) && needMoreValidationParameters) {
-            Operation<?> operation;
+            Operation operation;
             if (injectedOperations.isEmpty()) {
                 operation = operations.next();
             } else {

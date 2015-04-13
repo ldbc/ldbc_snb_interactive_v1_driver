@@ -51,7 +51,7 @@ public abstract class Db implements Closeable {
      */
     protected abstract void onClose() throws IOException;
 
-    public final <A extends Operation<?>, H extends OperationHandler<A, ?>> void registerOperationHandler(Class<A> operationType, Class<H> operationHandlerType) throws DbException {
+    public final <A extends Operation, H extends OperationHandler<A, ?>> void registerOperationHandler(Class<A> operationType, Class<H> operationHandlerType) throws DbException {
         if (operationHandlers.containsKey(operationType))
             throw new DbException(String.format("Client already has handler registered for %s", operationType.getClass()));
         try {
@@ -67,7 +67,7 @@ public abstract class Db implements Closeable {
         }
     }
 
-    public final OperationHandlerRunnableContext getOperationHandlerRunnableContext(Operation<?> operation) throws DbException {
+    public final OperationHandlerRunnableContext getOperationHandlerRunnableContext(Operation operation) throws DbException {
         OperationHandler operationHandler = operationHandlers.get(operation.getClass());
         if (null == operationHandler)
             throw new DbException(String.format("No handler registered for %s", operation.getClass()));

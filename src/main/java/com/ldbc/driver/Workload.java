@@ -16,7 +16,7 @@ public abstract class Workload implements Closeable {
     private boolean isInitialized = false;
     private boolean isClosed = false;
 
-    public abstract Map<Integer, Class<? extends Operation<?>>> operationTypeToClassMapping(Map<String, String> params);
+    public abstract Map<Integer, Class<? extends Operation>> operationTypeToClassMapping(Map<String, String> params);
 
     /**
      * Called once to initialize state for workload
@@ -55,12 +55,12 @@ public abstract class Workload implements Closeable {
             int validationParameterCount = 0;
 
             @Override
-            public boolean useOperation(Operation<?> operation) {
+            public boolean useOperation(Operation operation) {
                 return true;
             }
 
             @Override
-            public DbValidationParametersFilterResult useOperationAndResultForValidation(Operation<?> operation, Object operationResult) {
+            public DbValidationParametersFilterResult useOperationAndResultForValidation(Operation operation, Object operationResult) {
                 if (validationParameterCount < requiredValidationParameterCount) {
                     validationParameterCount++;
                     return new DbValidationParametersFilterResult(DbValidationParametersFilterAcceptance.ACCEPT_AND_CONTINUE, injectedOperations);
@@ -74,14 +74,14 @@ public abstract class Workload implements Closeable {
         return DEFAULT_MAXIMUM_EXPECTED_INTERLEAVE_AS_MILLI;
     }
 
-    public abstract String serializeOperation(Operation<?> operation) throws SerializingMarshallingException;
+    public abstract String serializeOperation(Operation operation) throws SerializingMarshallingException;
 
-    public abstract Operation<?> marshalOperation(String serializedOperation) throws SerializingMarshallingException;
+    public abstract Operation marshalOperation(String serializedOperation) throws SerializingMarshallingException;
 
     public static interface DbValidationParametersFilter {
-        boolean useOperation(Operation<?> operation);
+        boolean useOperation(Operation operation);
 
-        DbValidationParametersFilterResult useOperationAndResultForValidation(Operation<?> operation, Object operationResult);
+        DbValidationParametersFilterResult useOperationAndResultForValidation(Operation operation, Object operationResult);
     }
 
     public enum DbValidationParametersFilterAcceptance {

@@ -49,11 +49,12 @@ public class WorkloadValidator {
          * *************************************************************************************************************
          */
         Workload workloadPass1;
-        Iterator<Operation<?>> operationsPass1;
+        Iterator<Operation> operationsPass1;
         try {
+            boolean returnStreamsWithDbConnector = false;
             Tuple.Tuple3<WorkloadStreams, Workload, Long> streamsAndWorkload =
-                    WorkloadStreams.createNewWorkloadWithLimitedWorkloadStreams(workloadFactory, configuration, gf);
-            operationsPass1 = streamsAndWorkload._1().mergeSortedByStartTime(gf);
+                    WorkloadStreams.createNewWorkloadWithLimitedWorkloadStreams(workloadFactory, configuration, gf, returnStreamsWithDbConnector);
+            operationsPass1 = WorkloadStreams.mergeSortedByStartTimeExcludingChildOperationGenerators(gf, streamsAndWorkload._1());
             workloadPass1 = streamsAndWorkload._2();
         } catch (Exception e) {
             return new WorkloadValidationResult(ResultType.UNEXPECTED,
@@ -63,7 +64,7 @@ public class WorkloadValidator {
 
         operationCount = 0;
         while (operationsPass1.hasNext()) {
-            Operation<?> operation = operationsPass1.next();
+            Operation operation = operationsPass1.next();
             operationCount++;
 
             // Operation has start time
@@ -117,13 +118,14 @@ public class WorkloadValidator {
          */
 
         Workload workloadPass2;
-        Iterator<Operation<?>> operationsPass2;
+        Iterator<Operation> operationsPass2;
         try {
+            boolean returnStreamsWithDbConnector = false;
             Tuple.Tuple3<WorkloadStreams, Workload, Long> streamsAndWorkload =
-                    WorkloadStreams.createNewWorkloadWithLimitedWorkloadStreams(workloadFactory, configuration, gf);
+                    WorkloadStreams.createNewWorkloadWithLimitedWorkloadStreams(workloadFactory, configuration, gf, returnStreamsWithDbConnector);
             workloadPass2 = streamsAndWorkload._2();
             operationsPass2 = gf.timeOffsetAndCompress(
-                    streamsAndWorkload._1().mergeSortedByStartTime(gf),
+                    WorkloadStreams.mergeSortedByStartTimeExcludingChildOperationGenerators(gf, streamsAndWorkload._1()),
                     nowAsMilli,
                     configuration.timeCompressionRatio()
             );
@@ -134,7 +136,7 @@ public class WorkloadValidator {
                             ConcurrentErrorReporter.stackTraceToString(e)));
         }
 
-        Operation<?> previousOperation = null;
+        Operation previousOperation = null;
         long previousOperationStartTimeAsMilli = -1;
 
         Map<Class, Long> previousOperationStartTimesAsMilliByOperationType = new HashMap<>();
@@ -142,7 +144,7 @@ public class WorkloadValidator {
 
         operationCount = 0;
         while (operationsPass2.hasNext()) {
-            Operation<?> operation = operationsPass2.next();
+            Operation operation = operationsPass2.next();
             Class operationType = operation.getClass();
             operationCount++;
 
@@ -249,7 +251,7 @@ public class WorkloadValidator {
                                 operationCount,
                                 operation));
             }
-            Operation<?> marshaledOperation;
+            Operation marshaledOperation;
             try {
                 marshaledOperation = workloadPass2.marshalOperation(serializedOperation);
             } catch (SerializingMarshallingException e) {
@@ -292,23 +294,24 @@ public class WorkloadValidator {
          */
         Workload workload1;
         Workload workload2;
-        Iterator<Operation<?>> operationStream1;
-        Iterator<Operation<?>> operationStream2;
+        Iterator<Operation> operationStream1;
+        Iterator<Operation> operationStream2;
         try {
+            boolean returnStreamsWithDbConnector = false;
             Tuple.Tuple3<WorkloadStreams, Workload, Long> streamsAndWorkload1 =
-                    WorkloadStreams.createNewWorkloadWithLimitedWorkloadStreams(workloadFactory, configuration, new GeneratorFactory(new RandomDataGeneratorFactory(42l)));
+                    WorkloadStreams.createNewWorkloadWithLimitedWorkloadStreams(workloadFactory, configuration, new GeneratorFactory(new RandomDataGeneratorFactory(42l)), returnStreamsWithDbConnector);
             workload1 = streamsAndWorkload1._2();
             operationStream1 = gf.timeOffsetAndCompress(
-                    streamsAndWorkload1._1().mergeSortedByStartTime(gf),
+                    WorkloadStreams.mergeSortedByStartTimeExcludingChildOperationGenerators(gf, streamsAndWorkload1._1()),
                     nowAsMilli,
                     configuration.timeCompressionRatio()
             );
 
             Tuple.Tuple3<WorkloadStreams, Workload, Long> streamsAndWorkload2 =
-                    WorkloadStreams.createNewWorkloadWithLimitedWorkloadStreams(workloadFactory, configuration, new GeneratorFactory(new RandomDataGeneratorFactory(42l)));
+                    WorkloadStreams.createNewWorkloadWithLimitedWorkloadStreams(workloadFactory, configuration, new GeneratorFactory(new RandomDataGeneratorFactory(42l)), returnStreamsWithDbConnector);
             workload2 = streamsAndWorkload2._2();
             operationStream2 = gf.timeOffsetAndCompress(
-                    streamsAndWorkload2._1().mergeSortedByStartTime(gf),
+                    WorkloadStreams.mergeSortedByStartTimeExcludingChildOperationGenerators(gf, streamsAndWorkload2._1()),
                     nowAsMilli,
                     configuration.timeCompressionRatio()
             );

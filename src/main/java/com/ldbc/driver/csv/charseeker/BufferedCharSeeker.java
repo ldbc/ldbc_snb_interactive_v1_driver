@@ -17,14 +17,13 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package com.ldbc.driver.csv;
+package com.ldbc.driver.csv.charseeker;
 
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.Reader;
 import java.nio.CharBuffer;
 
-import static com.ldbc.driver.csv.Mark.END_OF_LINE_CHARACTER;
 import static java.lang.Math.max;
 
 /**
@@ -129,7 +128,7 @@ public class BufferedCharSeeker implements CharSeeker {
 
         // We found the last value of the line or stream
         skippedChars += skipEolChars();
-        mark.set(lineNumber, seekStartPos, bufferPos - endOffset - skippedChars, END_OF_LINE_CHARACTER);
+        mark.set(lineNumber, seekStartPos, bufferPos - endOffset - skippedChars, Mark.END_OF_LINE_CHARACTER);
         lineNumber++;
         lineStartPos = bufferPos;
         return true;

@@ -7,8 +7,8 @@ import com.ldbc.driver.control.DriverConfigurationException;
 import com.ldbc.driver.control.DriverConfigurationFileHelper;
 import com.ldbc.driver.testutils.TestUtils;
 import com.ldbc.driver.util.MapUtils;
-import com.ldbc.driver.util.csv.SimpleCsvFileReader;
-import com.ldbc.driver.util.csv.SimpleCsvFileWriter;
+import com.ldbc.driver.csv.simple.SimpleCsvFileReader;
+import com.ldbc.driver.csv.simple.SimpleCsvFileWriter;
 import com.ldbc.driver.workloads.ldbc.snb.interactive.LdbcSnbInteractiveConfiguration;
 import com.ldbc.driver.workloads.ldbc.snb.interactive.LdbcSnbInteractiveWorkload;
 import com.ldbc.driver.workloads.ldbc.snb.interactive.db.DummyLdbcSnbInteractiveDb;
@@ -56,8 +56,8 @@ public class ValidationParamsGeneratorTest {
         Db db = new DummyLdbcSnbInteractiveDb();
         db.init(configuration.asMap());
 
-        List<Operation<?>> operationsList = buildOperations();
-        Iterator<Operation<?>> operations = operationsList.iterator();
+        List<Operation> operationsList = buildOperations();
+        Iterator<Operation> operations = operationsList.iterator();
 
         int validationSetSize = 28;
 
@@ -91,8 +91,8 @@ public class ValidationParamsGeneratorTest {
         System.out.println(tempValidationFile.getAbsolutePath());
     }
 
-    List<Operation<?>> buildOperations() {
-        return Lists.<Operation<?>>newArrayList(
+    List<Operation> buildOperations() {
+        return Lists.<Operation>newArrayList(
                 DummyLdbcSnbInteractiveOperationInstances.read1(),
                 DummyLdbcSnbInteractiveOperationInstances.read2(),
                 DummyLdbcSnbInteractiveOperationInstances.read3(),

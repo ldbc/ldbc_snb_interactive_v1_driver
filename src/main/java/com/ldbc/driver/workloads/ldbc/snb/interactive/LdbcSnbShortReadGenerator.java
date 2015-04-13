@@ -367,7 +367,7 @@ public class LdbcSnbShortReadGenerator implements ChildOperationGenerator {
     }
 
     @Override
-    public Operation<?> nextOperation(double state, Operation operation, Object result, long actualStartTimeAsMilli, long runDurationAsNano) throws WorkloadException {
+    public Operation nextOperation(double state, Operation operation, Object result, long actualStartTimeAsMilli, long runDurationAsNano) throws WorkloadException {
         bufferReplenishFun.replenish(operation, result);
         return shortReadFactories[operation.type()].create(personIdBuffer, messageIdBuffer, operation, actualStartTimeAsMilli, runDurationAsNano, state);
     }

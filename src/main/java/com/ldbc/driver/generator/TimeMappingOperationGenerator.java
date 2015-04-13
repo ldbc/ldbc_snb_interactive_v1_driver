@@ -5,24 +5,24 @@ import com.ldbc.driver.util.Function1;
 
 import java.util.Iterator;
 
-public class TimeMappingOperationGenerator extends Generator<Operation<?>> {
-    private final Iterator<Operation<?>> operations;
+public class TimeMappingOperationGenerator extends Generator<Operation> {
+    private final Iterator<Operation> operations;
     private final long newStartTimeAsMilli;
     private final Double timeCompressionRatio;
 
     private Function1<Long, Long> timeOffsetAsMilliFun = null;
     private Function1<Long, Long> startTimeAsMilliCompressionFun = null;
 
-    TimeMappingOperationGenerator(Iterator<Operation<?>> operations, long newStartTimeAsMilli, Double timeCompressionRatio) {
+    TimeMappingOperationGenerator(Iterator<Operation> operations, long newStartTimeAsMilli, Double timeCompressionRatio) {
         this.operations = operations;
         this.newStartTimeAsMilli = newStartTimeAsMilli;
         this.timeCompressionRatio = timeCompressionRatio;
     }
 
     @Override
-    protected Operation<?> doNext() throws GeneratorException {
+    protected Operation doNext() throws GeneratorException {
         if (false == operations.hasNext()) return null;
-        Operation<?> nextOperation = operations.next();
+        Operation nextOperation = operations.next();
         if (null == timeOffsetAsMilliFun) {
             // Create time offset function
             long firstStartTimeAsMilli = nextOperation.scheduledStartTimeAsMilli();

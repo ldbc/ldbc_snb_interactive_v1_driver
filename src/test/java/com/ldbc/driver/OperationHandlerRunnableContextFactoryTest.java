@@ -14,7 +14,7 @@ import org.junit.Test;
 public class OperationHandlerRunnableContextFactoryTest {
     @Test
     public void shouldRunOperationHandlerTest() throws OperationException, InterruptedException {
-        Operation<?> operation = new NothingOperation();
+        Operation operation = new NothingOperation();
         int count = 100;
         while (count < 10000000) {
             OperationHandlerRunnerFactory instantiatingOperationHandlerRunnerFactory = new InstantiatingOperationHandlerRunnerFactory();
@@ -28,7 +28,7 @@ public class OperationHandlerRunnableContextFactoryTest {
         }
     }
 
-    public long doOperationHandlerTest(int count, OperationHandlerRunnerFactory operationHandlerRunnerFactory, Operation<?> operation) throws OperationException {
+    public long doOperationHandlerTest(int count, OperationHandlerRunnerFactory operationHandlerRunnerFactory, Operation operation) throws OperationException {
         boolean ignoreScheduledStartTime = false;
         TimeSource timeSource = new SystemTimeSource();
         ConcurrentErrorReporter errorReporter = new ConcurrentErrorReporter();

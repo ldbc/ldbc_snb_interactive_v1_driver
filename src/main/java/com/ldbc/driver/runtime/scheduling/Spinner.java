@@ -18,7 +18,7 @@ public class Spinner {
     public static final long DEFAULT_SLEEP_DURATION_10_MILLI = 10;
     public static final SpinnerCheck TRUE_CHECK = new TrueCheck();
 
-    private final Function2<Operation<?>, SpinnerCheck, Boolean> spinFun;
+    private final Function2<Operation, SpinnerCheck, Boolean> spinFun;
 
     public Spinner(TimeSource timeSource,
                    long sleepDurationAsMilli,
@@ -33,7 +33,7 @@ public class Spinner {
                         sleepDurationAsMilli);
     }
 
-    public boolean waitForScheduledStartTime(Operation<?> operation) {
+    public boolean waitForScheduledStartTime(Operation operation) {
         return waitForScheduledStartTime(operation, TRUE_CHECK);
     }
 
@@ -50,7 +50,7 @@ public class Spinner {
      * @param check     checks that must all pass before spinner returns
      * @return operation may be executed
      */
-    public boolean waitForScheduledStartTime(Operation<?> operation, SpinnerCheck check) {
+    public boolean waitForScheduledStartTime(Operation operation, SpinnerCheck check) {
         return spinFun.apply(operation, check);
     }
 
@@ -65,7 +65,7 @@ public class Spinner {
         }
     }
 
-    private static class WaitForChecksAndScheduledStartTimeFun implements Function2<Operation<?>, SpinnerCheck, Boolean> {
+    private static class WaitForChecksAndScheduledStartTimeFun implements Function2<Operation, SpinnerCheck, Boolean> {
         private final TimeSource timeSource;
         private final long sleepDurationAsMilli;
 
@@ -76,7 +76,7 @@ public class Spinner {
         }
 
         @Override
-        public Boolean apply(Operation<?> operation, SpinnerCheck check) {
+        public Boolean apply(Operation operation, SpinnerCheck check) {
             // earliest time at which operation may start
             // wait for checks to have all passed before allowing operation to start
             while (SpinnerCheck.SpinnerCheckResult.STILL_CHECKING == check.doCheck()) {
@@ -92,7 +92,7 @@ public class Spinner {
         }
     }
 
-    private static class WaitForChecksFun implements Function2<Operation<?>, SpinnerCheck, Boolean> {
+    private static class WaitForChecksFun implements Function2<Operation, SpinnerCheck, Boolean> {
         private final long sleepDurationAsMilli;
 
         private WaitForChecksFun(long sleepDurationAsMilli) {
@@ -100,7 +100,7 @@ public class Spinner {
         }
 
         @Override
-        public Boolean apply(Operation<?> operation, SpinnerCheck check) {
+        public Boolean apply(Operation operation, SpinnerCheck check) {
 
             // wait for checks to have all passed before allowing operation to start
             while (SpinnerCheck.SpinnerCheckResult.STILL_CHECKING == check.doCheck()) {
@@ -118,7 +118,7 @@ public class Spinner {
         }
 
         @Override
-        public boolean handleFailedCheck(Operation<?> operation) {
+        public boolean handleFailedCheck(Operation operation) {
             return true;
         }
     }

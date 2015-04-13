@@ -67,7 +67,7 @@ public class OperationStreamExecutorPerformanceTest {
         List<Long> singleThreadExecutorTimes = new ArrayList<>();
         List<Long> sameThreadExecutorTimes = new ArrayList<>();
 
-        List<Operation<?>> operations = Lists.newArrayList(getOperations(operationCount));
+        List<Operation> operations = Lists.newArrayList(getOperations(operationCount));
 
         while (experimentRepetitions-- > 0) {
             // Thread Pool Executor
@@ -88,9 +88,9 @@ public class OperationStreamExecutorPerformanceTest {
                 timeSource.setNowFromMilli(0);
 
                 WorkloadStreams.WorkloadStreamDefinition streamDefinition = new WorkloadStreams.WorkloadStreamDefinition(
-                        new HashSet<Class<? extends Operation<?>>>(),
-                        new HashSet<Class<? extends Operation<?>>>(),
-                        Collections.<Operation<?>>emptyIterator(),
+                        new HashSet<Class<? extends Operation>>(),
+                        new HashSet<Class<? extends Operation>>(),
+                        Collections.<Operation>emptyIterator(),
                         operations.iterator(),
                         null
                 );
@@ -140,9 +140,9 @@ public class OperationStreamExecutorPerformanceTest {
                 timeSource.setNowFromMilli(0);
 
                 WorkloadStreams.WorkloadStreamDefinition streamDefinition = new WorkloadStreams.WorkloadStreamDefinition(
-                        new HashSet<Class<? extends Operation<?>>>(),
-                        new HashSet<Class<? extends Operation<?>>>(),
-                        Collections.<Operation<?>>emptyIterator(),
+                        new HashSet<Class<? extends Operation>>(),
+                        new HashSet<Class<? extends Operation>>(),
+                        Collections.<Operation>emptyIterator(),
                         operations.iterator(),
                         null
                 );
@@ -191,9 +191,9 @@ public class OperationStreamExecutorPerformanceTest {
                 timeSource.setNowFromMilli(0);
 
                 WorkloadStreams.WorkloadStreamDefinition streamDefinition = new WorkloadStreams.WorkloadStreamDefinition(
-                        new HashSet<Class<? extends Operation<?>>>(),
-                        new HashSet<Class<? extends Operation<?>>>(),
-                        Collections.<Operation<?>>emptyIterator(),
+                        new HashSet<Class<? extends Operation>>(),
+                        new HashSet<Class<? extends Operation>>(),
+                        Collections.<Operation>emptyIterator(),
                         operations.iterator(),
                         null
                 );
@@ -268,11 +268,11 @@ public class OperationStreamExecutorPerformanceTest {
         return benchmarkDuration;
     }
 
-    private Iterator<Operation<?>> getOperations(long count) {
+    private Iterator<Operation> getOperations(long count) {
         Iterator<Long> scheduledStartTimes = gf.constant(1l);
         Iterator<Long> dependencyTimes = gf.constant(0l);
         Iterator<String> names = gf.constant("name");
-        Iterator<Operation<?>> operations = gf.limit(new TimedNamedOperation1Factory(scheduledStartTimes, dependencyTimes, names), count);
+        Iterator<Operation> operations = gf.limit(new TimedNamedOperation1Factory(scheduledStartTimes, dependencyTimes, names), count);
         return operations;
     }
 

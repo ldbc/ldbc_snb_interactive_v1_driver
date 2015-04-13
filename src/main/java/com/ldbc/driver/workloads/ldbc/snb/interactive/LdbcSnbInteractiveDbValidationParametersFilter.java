@@ -32,7 +32,7 @@ class LdbcSnbInteractiveDbValidationParametersFilter implements DbValidationPara
     }
 
     @Override
-    public boolean useOperation(Operation<?> operation) {
+    public boolean useOperation(Operation operation) {
         Class operationType = operation.getClass();
 
         if (enabledShortReadOperationTypes.contains(operationType)) {
@@ -50,7 +50,7 @@ class LdbcSnbInteractiveDbValidationParametersFilter implements DbValidationPara
     }
 
     @Override
-    public DbValidationParametersFilterResult useOperationAndResultForValidation(Operation<?> operation,
+    public DbValidationParametersFilterResult useOperationAndResultForValidation(Operation operation,
                                                                                  Object operationResult) {
         Class operationType = operation.getClass();
         List<Operation> injectedOperations = new ArrayList<>();

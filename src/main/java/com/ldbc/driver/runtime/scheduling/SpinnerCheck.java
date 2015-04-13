@@ -24,5 +24,5 @@ public interface SpinnerCheck {
      * @param operation
      * @return operation may still be executed
      */
-    boolean handleFailedCheck(Operation<?> operation);
+    boolean handleFailedCheck(Operation operation);
 }

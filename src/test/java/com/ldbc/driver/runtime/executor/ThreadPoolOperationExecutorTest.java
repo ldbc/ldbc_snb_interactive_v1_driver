@@ -36,10 +36,10 @@ public class ThreadPoolOperationExecutorTest {
         dummyGlobalCompletionTimeReader.setGlobalCompletionTimeAsMilli(Long.MAX_VALUE);
         DummyCountingMetricsService metricsService = new DummyCountingMetricsService();
         WorkloadStreams.WorkloadStreamDefinition streamDefinition = new WorkloadStreams.WorkloadStreamDefinition(
-                new HashSet<Class<? extends Operation<?>>>(),
-                new HashSet<Class<? extends Operation<?>>>(),
-                Collections.<Operation<?>>emptyIterator(),
-                Collections.<Operation<?>>emptyIterator(),
+                new HashSet<Class<? extends Operation>>(),
+                new HashSet<Class<? extends Operation>>(),
+                Collections.<Operation>emptyIterator(),
+                Collections.<Operation>emptyIterator(),
                 null
         );
         Db db = new DummyDb();
@@ -62,7 +62,7 @@ public class ThreadPoolOperationExecutorTest {
                 streamDefinition.childOperationGenerator()
         );
 
-        Operation<?> operation = new NothingOperation();
+        Operation operation = new NothingOperation();
         operation.setScheduledStartTimeAsMilli(timeSource.nowAsMilli() + 200);
         operation.setTimeStamp(timeSource.nowAsMilli() + 200);
         operation.setDependencyTimeStamp(0l);
@@ -94,10 +94,10 @@ public class ThreadPoolOperationExecutorTest {
         dummyGlobalCompletionTimeReader.setGlobalCompletionTimeAsMilli(Long.MAX_VALUE);
         DummyCountingMetricsService metricsService = new DummyCountingMetricsService();
         WorkloadStreams.WorkloadStreamDefinition streamDefinition = new WorkloadStreams.WorkloadStreamDefinition(
-                new HashSet<Class<? extends Operation<?>>>(),
-                new HashSet<Class<? extends Operation<?>>>(),
-                Collections.<Operation<?>>emptyIterator(),
-                Collections.<Operation<?>>emptyIterator(),
+                new HashSet<Class<? extends Operation>>(),
+                new HashSet<Class<? extends Operation>>(),
+                Collections.<Operation>emptyIterator(),
+                Collections.<Operation>emptyIterator(),
                 null
         );
         Db db = new DummyDb();
@@ -120,12 +120,12 @@ public class ThreadPoolOperationExecutorTest {
                 streamDefinition.childOperationGenerator()
         );
 
-        Operation<?> operation1 = new NothingOperation();
+        Operation operation1 = new NothingOperation();
         operation1.setScheduledStartTimeAsMilli(timeSource.nowAsMilli() + 100l);
         operation1.setTimeStamp(operation1.scheduledStartTimeAsMilli());
         operation1.setDependencyTimeStamp(0l);
 
-        Operation<?> operation2 = new NothingOperation();
+        Operation operation2 = new NothingOperation();
         operation2.setScheduledStartTimeAsMilli(operation1.scheduledStartTimeAsMilli() + 100l);
         operation2.setTimeStamp(operation2.scheduledStartTimeAsMilli());
         operation2.setDependencyTimeStamp(0l);
@@ -158,10 +158,10 @@ public class ThreadPoolOperationExecutorTest {
         dummyGlobalCompletionTimeReader.setGlobalCompletionTimeAsMilli(Long.MAX_VALUE);
         DummyCountingMetricsService metricsService = new DummyCountingMetricsService();
         WorkloadStreams.WorkloadStreamDefinition streamDefinition = new WorkloadStreams.WorkloadStreamDefinition(
-                new HashSet<Class<? extends Operation<?>>>(),
-                new HashSet<Class<? extends Operation<?>>>(),
-                Collections.<Operation<?>>emptyIterator(),
-                Collections.<Operation<?>>emptyIterator(),
+                new HashSet<Class<? extends Operation>>(),
+                new HashSet<Class<? extends Operation>>(),
+                Collections.<Operation>emptyIterator(),
+                Collections.<Operation>emptyIterator(),
                 null
         );
         Db db = new DummyDb();
@@ -184,7 +184,7 @@ public class ThreadPoolOperationExecutorTest {
                 streamDefinition.childOperationGenerator()
         );
 
-        Operation<?> operation = new NothingOperation();
+        Operation operation = new NothingOperation();
         operation.setScheduledStartTimeAsMilli(timeSource.nowAsMilli() + 200l);
         operation.setTimeStamp(timeSource.nowAsMilli() + 200l);
         operation.setDependencyTimeStamp(0l);

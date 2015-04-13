@@ -18,8 +18,8 @@ public class DummyWorkload extends Workload {
     }
 
     @Override
-    public Map<Integer, Class<? extends Operation<?>>> operationTypeToClassMapping(Map<String, String> params) {
-        Map<Integer, Class<? extends Operation<?>>> operationTypeToClassMapping = new HashMap<>();
+    public Map<Integer, Class<? extends Operation>> operationTypeToClassMapping(Map<String, String> params) {
+        Map<Integer, Class<? extends Operation>> operationTypeToClassMapping = new HashMap<>();
         operationTypeToClassMapping.put(NothingOperation.TYPE, NothingOperation.class);
         operationTypeToClassMapping.put(TimedNamedOperation1.TYPE, TimedNamedOperation1.class);
         operationTypeToClassMapping.put(TimedNamedOperation2.TYPE, TimedNamedOperation2.class);
@@ -45,7 +45,7 @@ public class DummyWorkload extends Workload {
     }
 
     @Override
-    public String serializeOperation(Operation<?> operation) throws SerializingMarshallingException {
+    public String serializeOperation(Operation operation) throws SerializingMarshallingException {
         if (operation.getClass().equals(NothingOperation.class)) return NothingOperation.class.getName();
         if (operation.getClass().equals(TimedNamedOperation1.class))
             return TimedNamedOperation1.class.getName()
@@ -71,7 +71,7 @@ public class DummyWorkload extends Workload {
     }
 
     @Override
-    public Operation<?> marshalOperation(String serializedOperation) throws SerializingMarshallingException {
+    public Operation marshalOperation(String serializedOperation) throws SerializingMarshallingException {
         if (serializedOperation.startsWith(NothingOperation.class.getName())) return new NothingOperation();
         if (serializedOperation.startsWith(TimedNamedOperation1.class.getName())) {
             String[] serializedOperationTokens = serializedOperation.split("\\|");

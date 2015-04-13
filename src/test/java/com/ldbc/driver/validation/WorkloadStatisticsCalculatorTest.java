@@ -7,7 +7,6 @@ import com.ldbc.driver.generator.GeneratorFactory;
 import com.ldbc.driver.generator.RandomDataGeneratorFactory;
 import com.ldbc.driver.runtime.metrics.ContinuousMetricSnapshot;
 import com.ldbc.driver.runtime.metrics.MetricsCollectionException;
-import com.ldbc.driver.temporal.TemporalUtil;
 import com.ldbc.driver.util.Bucket;
 import com.ldbc.driver.util.Histogram;
 import com.ldbc.driver.workloads.dummy.*;
@@ -25,7 +24,6 @@ import static org.junit.Assert.assertThat;
 
 public class WorkloadStatisticsCalculatorTest {
     private GeneratorFactory gf;
-    private static final TemporalUtil TEMPORAL_UTIL = new TemporalUtil();
 
     @Before
     public void init() {
@@ -39,7 +37,7 @@ public class WorkloadStatisticsCalculatorTest {
         long operationCount = 1000;
         long operationInterleave = 100l;
 
-        Iterator<Operation<?>> operations = gf.limit(
+        Iterator<Operation> operations = gf.limit(
                 new TimedNamedOperation1Factory(
                         gf.incrementing(workloadStartTime, operationInterleave),
                         gf.incrementing(workloadStartTime - operationInterleave, operationInterleave),
@@ -49,9 +47,9 @@ public class WorkloadStatisticsCalculatorTest {
 
         WorkloadStreams workloadStreams = new WorkloadStreams();
         workloadStreams.setAsynchronousStream(
-                Sets.<Class<? extends Operation<?>>>newHashSet(),
-                Sets.<Class<? extends Operation<?>>>newHashSet(),
-                Collections.<Operation<?>>emptyIterator(),
+                Sets.<Class<? extends Operation>>newHashSet(),
+                Sets.<Class<? extends Operation>>newHashSet(),
+                Collections.<Operation>emptyIterator(),
                 operations,
                 null
         );
@@ -95,9 +93,6 @@ public class WorkloadStatisticsCalculatorTest {
         assertThat(operationInterleaves.max(), equalTo(operationInterleave));
         assertThat(operationInterleaves.count(), equalTo(operationCount - 1));
 
-        assertThat(stats.interleavesForDependentOperations().snapshot().count(), is(0l));
-        assertThat(stats.interleavesForDependencyOperations().snapshot().count(), is(0l));
-
         ContinuousMetricSnapshot operation1Interleaves = stats.operationInterleavesByOperationType().get(TimedNamedOperation1.class).snapshot();
         assertThat(operation1Interleaves.min(), is(operationInterleave));
         assertThat(operation1Interleaves.max(), is(operationInterleave));
@@ -129,21 +124,21 @@ public class WorkloadStatisticsCalculatorTest {
         long operation3StartTime = 100l;
         long operation3Interleave = 10000l; // 100,100
 
-        Iterator<Operation<?>> operation1Stream = gf.limit(
+        Iterator<Operation> operation1Stream = gf.limit(
                 new TimedNamedOperation1Factory(
                         gf.incrementing(operation1StartTime, operation1Interleave),
                         gf.incrementing(0l, 0l),
                         gf.constant("name1")
                 ),
                 operation1Count);
-        Iterator<Operation<?>> operation2Stream = gf.limit(
+        Iterator<Operation> operation2Stream = gf.limit(
                 new TimedNamedOperation2Factory(
                         gf.incrementing(operation2StartTime, operation2Interleave),
                         gf.incrementing(0l, operation2Interleave),
                         gf.constant("name2")
                 ),
                 operation2Count);
-        Iterator<Operation<?>> operation3Stream = gf.limit(
+        Iterator<Operation> operation3Stream = gf.limit(
                 new TimedNamedOperation3Factory(
                         gf.incrementing(operation3StartTime, operation3Interleave),
                         gf.incrementing(operation3StartTime - 10l, operation3Interleave),
@@ -152,13 +147,13 @@ public class WorkloadStatisticsCalculatorTest {
                 operation3Count);
 
         WorkloadStreams workloadStreams = new WorkloadStreams();
-        Set<Class<? extends Operation<?>>> dependentOperations = Sets.<Class<? extends Operation<?>>>newHashSet(
+        Set<Class<? extends Operation>> dependentOperations = Sets.<Class<? extends Operation>>newHashSet(
                 TimedNamedOperation2.class,
                 TimedNamedOperation3.class
         );
         workloadStreams.setAsynchronousStream(
                 dependentOperations,
-                Sets.<Class<? extends Operation<?>>>newHashSet(TimedNamedOperation3.class),
+                Sets.<Class<? extends Operation>>newHashSet(TimedNamedOperation3.class),
                 operation3Stream,
                 gf.mergeSortOperationsByTimeStamp(operation1Stream, operation2Stream),
                 null
@@ -207,11 +202,6 @@ public class WorkloadStatisticsCalculatorTest {
                         expectedOperationMix.toPercentageValues(),
                         tolerance),
                 is(true));
-
-        ContinuousMetricSnapshot interleavesForDependencyOperations = stats.interleavesForDependencyOperations().snapshot();
-        assertThat(Math.round(interleavesForDependencyOperations.mean()), is(operation3Interleave));
-//        ContinuousMetricSnapshot interleavesForDependentOperations = stats.interleavesForDependentOperations().snapshot();
-//        assertThat(Duration.fromMilli(Math.round(interleavesForDependentOperations.mean())), is());
 
         Set<Class> dependencyOperationTypes = stats.dependencyOperationTypes();
         assertThat(dependencyOperationTypes, equalTo((Set) Sets.<Class>newHashSet(TimedNamedOperation3.class)));

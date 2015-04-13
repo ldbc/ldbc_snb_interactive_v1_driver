@@ -6,14 +6,14 @@ import com.google.common.base.Predicate;
 import com.google.common.collect.*;
 import com.ldbc.driver.*;
 import com.ldbc.driver.control.ConsoleAndFileDriverConfiguration;
-import com.ldbc.driver.csv.*;
+import com.ldbc.driver.csv.charseeker.*;
 import com.ldbc.driver.generator.CsvEventStreamReaderBasicCharSeeker;
 import com.ldbc.driver.generator.GeneratorFactory;
 import com.ldbc.driver.generator.RandomDataGeneratorFactory;
 import com.ldbc.driver.util.ClassLoaderHelper;
 import com.ldbc.driver.util.ClassLoadingException;
 import com.ldbc.driver.util.Tuple;
-import com.ldbc.driver.util.csv.SimpleCsvFileReader;
+import com.ldbc.driver.csv.simple.SimpleCsvFileReader;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.type.TypeReference;
 
@@ -68,7 +68,7 @@ public class LdbcSnbInteractiveWorkload extends Workload {
     private LdbcSnbInteractiveConfiguration.UpdateStreamParser parser;
 
     @Override
-    public Map<Integer, Class<? extends Operation<?>>> operationTypeToClassMapping(Map<String, String> params) {
+    public Map<Integer, Class<? extends Operation>> operationTypeToClassMapping(Map<String, String> params) {
         return LdbcSnbInteractiveConfiguration.operationTypeToClassMapping();
     }
 
@@ -270,11 +270,11 @@ public class LdbcSnbInteractiveWorkload extends Workload {
         }
     }
 
-    private Tuple.Tuple2<Iterator<Operation<?>>, Closeable> fileToWriteStreamParser(File updateOperationsFile, LdbcSnbInteractiveConfiguration.UpdateStreamParser parser) throws IOException, WorkloadException {
+    private Tuple.Tuple2<Iterator<Operation>, Closeable> fileToWriteStreamParser(File updateOperationsFile, LdbcSnbInteractiveConfiguration.UpdateStreamParser parser) throws IOException, WorkloadException {
         switch (parser) {
             case REGEX: {
                 SimpleCsvFileReader csvFileReader = new SimpleCsvFileReader(updateOperationsFile, SimpleCsvFileReader.DEFAULT_COLUMN_SEPARATOR_REGEX_STRING);
-                return Tuple.<Iterator<Operation<?>>, Closeable>tuple2(WriteEventStreamReaderRegex.create(csvFileReader), csvFileReader);
+                return Tuple.<Iterator<Operation>, Closeable>tuple2(WriteEventStreamReaderRegex.create(csvFileReader), csvFileReader);
             }
             case CHAR_SEEKER: {
                 int bufferSize = 1 * 1024 * 1024;
@@ -286,7 +286,7 @@ public class LdbcSnbInteractiveWorkload extends Workload {
                         bufferSize
                 );
                 Extractors extractors = new Extractors(';', ',');
-                return Tuple.<Iterator<Operation<?>>, Closeable>tuple2(WriteEventStreamReaderCharSeeker.create(charSeeker, extractors, '|'), charSeeker);
+                return Tuple.<Iterator<Operation>, Closeable>tuple2(WriteEventStreamReaderCharSeeker.create(charSeeker, extractors, '|'), charSeeker);
             }
             case CHAR_SEEKER_THREAD: {
                 int bufferSize = 1 * 1024 * 1024;
@@ -300,11 +300,11 @@ public class LdbcSnbInteractiveWorkload extends Workload {
                         bufferSize
                 );
                 Extractors extractors = new Extractors(';', ',');
-                return Tuple.<Iterator<Operation<?>>, Closeable>tuple2(WriteEventStreamReaderCharSeeker.create(charSeeker, extractors, '|'), charSeeker);
+                return Tuple.<Iterator<Operation>, Closeable>tuple2(WriteEventStreamReaderCharSeeker.create(charSeeker, extractors, '|'), charSeeker);
             }
         }
         SimpleCsvFileReader csvFileReader = new SimpleCsvFileReader(updateOperationsFile, SimpleCsvFileReader.DEFAULT_COLUMN_SEPARATOR_REGEX_STRING);
-        return Tuple.<Iterator<Operation<?>>, Closeable>tuple2(WriteEventStreamReaderRegex.create(csvFileReader), csvFileReader);
+        return Tuple.<Iterator<Operation>, Closeable>tuple2(WriteEventStreamReaderRegex.create(csvFileReader), csvFileReader);
     }
 
     @Override
@@ -313,8 +313,8 @@ public class LdbcSnbInteractiveWorkload extends Workload {
         WorkloadStreams ldbcSnbInteractiveWorkloadStreams = new WorkloadStreams();
         List<Iterator<?>> asynchronousDependencyStreamsList = new ArrayList<>();
         List<Iterator<?>> asynchronousNonDependencyStreamsList = new ArrayList<>();
-        Set<Class<? extends Operation<?>>> dependentAsynchronousOperationTypes = Sets.newHashSet();
-        Set<Class<? extends Operation<?>>> dependencyAsynchronousOperationTypes = Sets.newHashSet();
+        Set<Class<? extends Operation>> dependentAsynchronousOperationTypes = Sets.newHashSet();
+        Set<Class<? extends Operation>> dependencyAsynchronousOperationTypes = Sets.newHashSet();
 
         /* *******
          * *******
@@ -329,9 +329,9 @@ public class LdbcSnbInteractiveWorkload extends Workload {
          */
         if (enabledWriteOperationTypes.contains(LdbcUpdate1AddPerson.class)) {
             for (File personUpdateOperationFile : personUpdateOperationFiles) {
-                Iterator<Operation<?>> personUpdateOperationsParser;
+                Iterator<Operation> personUpdateOperationsParser;
                 try {
-                    Tuple.Tuple2<Iterator<Operation<?>>, Closeable> parserAndCloseable = fileToWriteStreamParser(personUpdateOperationFile, parser);
+                    Tuple.Tuple2<Iterator<Operation>, Closeable> parserAndCloseable = fileToWriteStreamParser(personUpdateOperationFile, parser);
                     personUpdateOperationsParser = parserAndCloseable._1();
                     personUpdateOperationsFileReaders.add(parserAndCloseable._2());
                 } catch (IOException e) {
@@ -351,7 +351,7 @@ public class LdbcSnbInteractiveWorkload extends Workload {
                     );
                     continue;
                 }
-                PeekingIterator<Operation<?>> unfilteredPersonUpdateOperations = Iterators.peekingIterator(personUpdateOperationsParser);
+                PeekingIterator<Operation> unfilteredPersonUpdateOperations = Iterators.peekingIterator(personUpdateOperationsParser);
 
                 try {
                     if (unfilteredPersonUpdateOperations.peek().scheduledStartTimeAsMilli() < workloadStartTimeAsMilli) {
@@ -362,16 +362,16 @@ public class LdbcSnbInteractiveWorkload extends Workload {
                 }
 
                 // Filter Write Operations
-                Predicate<Operation<?>> enabledWriteOperationsFilter = new Predicate<Operation<?>>() {
+                Predicate<Operation> enabledWriteOperationsFilter = new Predicate<Operation>() {
                     @Override
-                    public boolean apply(Operation<?> operation) {
+                    public boolean apply(Operation operation) {
                         return enabledWriteOperationTypes.contains(operation.getClass());
                     }
                 };
-                Iterator<Operation<?>> filteredPersonUpdateOperations = Iterators.filter(unfilteredPersonUpdateOperations, enabledWriteOperationsFilter);
+                Iterator<Operation> filteredPersonUpdateOperations = Iterators.filter(unfilteredPersonUpdateOperations, enabledWriteOperationsFilter);
 
-                Set<Class<? extends Operation<?>>> dependentPersonUpdateOperationTypes = Sets.newHashSet();
-                Set<Class<? extends Operation<?>>> dependencyPersonUpdateOperationTypes = Sets.<Class<? extends Operation<?>>>newHashSet(
+                Set<Class<? extends Operation>> dependentPersonUpdateOperationTypes = Sets.newHashSet();
+                Set<Class<? extends Operation>> dependencyPersonUpdateOperationTypes = Sets.<Class<? extends Operation>>newHashSet(
                         LdbcUpdate1AddPerson.class
                 );
 
@@ -381,7 +381,7 @@ public class LdbcSnbInteractiveWorkload extends Workload {
                         dependentPersonUpdateOperationTypes,
                         dependencyPersonUpdateOperationTypes,
                         filteredPersonUpdateOperations,
-                        Collections.<Operation<?>>emptyIterator(),
+                        Collections.<Operation>emptyIterator(),
                         personUpdateChildOperationGenerator
                 );
             }
@@ -399,9 +399,9 @@ public class LdbcSnbInteractiveWorkload extends Workload {
                 enabledWriteOperationTypes.contains(LdbcUpdate8AddFriendship.class)
                 ) {
             for (File forumUpdateOperationFile : forumUpdateOperationFiles) {
-                Iterator<Operation<?>> forumUpdateOperationsParser;
+                Iterator<Operation> forumUpdateOperationsParser;
                 try {
-                    Tuple.Tuple2<Iterator<Operation<?>>, Closeable> parserAndCloseable = fileToWriteStreamParser(forumUpdateOperationFile, parser);
+                    Tuple.Tuple2<Iterator<Operation>, Closeable> parserAndCloseable = fileToWriteStreamParser(forumUpdateOperationFile, parser);
                     forumUpdateOperationsParser = parserAndCloseable._1();
                     forumUpdateOperationsFileReaders.add(parserAndCloseable._2());
                 } catch (IOException e) {
@@ -421,7 +421,7 @@ public class LdbcSnbInteractiveWorkload extends Workload {
                     );
                     continue;
                 }
-                PeekingIterator<Operation<?>> unfilteredForumUpdateOperations = Iterators.peekingIterator(forumUpdateOperationsParser);
+                PeekingIterator<Operation> unfilteredForumUpdateOperations = Iterators.peekingIterator(forumUpdateOperationsParser);
 
                 try {
                     if (unfilteredForumUpdateOperations.peek().scheduledStartTimeAsMilli() < workloadStartTimeAsMilli) {
@@ -432,15 +432,15 @@ public class LdbcSnbInteractiveWorkload extends Workload {
                 }
 
                 // Filter Write Operations
-                Predicate<Operation<?>> enabledWriteOperationsFilter = new Predicate<Operation<?>>() {
+                Predicate<Operation> enabledWriteOperationsFilter = new Predicate<Operation>() {
                     @Override
-                    public boolean apply(Operation<?> operation) {
+                    public boolean apply(Operation operation) {
                         return enabledWriteOperationTypes.contains(operation.getClass());
                     }
                 };
-                Iterator<Operation<?>> filteredForumUpdateOperations = Iterators.filter(unfilteredForumUpdateOperations, enabledWriteOperationsFilter);
+                Iterator<Operation> filteredForumUpdateOperations = Iterators.filter(unfilteredForumUpdateOperations, enabledWriteOperationsFilter);
 
-                Set<Class<? extends Operation<?>>> dependentForumUpdateOperationTypes = Sets.<Class<? extends Operation<?>>>newHashSet(
+                Set<Class<? extends Operation>> dependentForumUpdateOperationTypes = Sets.<Class<? extends Operation>>newHashSet(
                         LdbcUpdate2AddPostLike.class,
                         LdbcUpdate3AddCommentLike.class,
                         LdbcUpdate4AddForum.class,
@@ -449,14 +449,14 @@ public class LdbcSnbInteractiveWorkload extends Workload {
                         LdbcUpdate7AddComment.class,
                         LdbcUpdate8AddFriendship.class
                 );
-                Set<Class<? extends Operation<?>>> dependencyForumUpdateOperationTypes = Sets.newHashSet();
+                Set<Class<? extends Operation>> dependencyForumUpdateOperationTypes = Sets.newHashSet();
 
                 ChildOperationGenerator forumUpdateChildOperationGenerator = null;
 
                 ldbcSnbInteractiveWorkloadStreams.addBlockingStream(
                         dependentForumUpdateOperationTypes,
                         dependencyForumUpdateOperationTypes,
-                        Collections.<Operation<?>>emptyIterator(),
+                        Collections.<Operation>emptyIterator(),
                         filteredForumUpdateOperations,
                         forumUpdateChildOperationGenerator
                 );
@@ -481,7 +481,7 @@ public class LdbcSnbInteractiveWorkload extends Workload {
         char arrayDelimiter = ';';
         char tupleDelimiter = ',';
 
-        Iterator<Operation<?>> readOperation1Stream;
+        Iterator<Operation> readOperation1Stream;
         {
             CsvEventStreamReaderBasicCharSeeker.EventDecoder<Object[]> decoder = new Query1EventStreamReader.Query1Decoder();
             Extractors extractors = new Extractors(arrayDelimiter, tupleDelimiter);
@@ -500,7 +500,7 @@ public class LdbcSnbInteractiveWorkload extends Workload {
                 throw new WorkloadException(String.format("Unable to advance parameters file beyond headers: %s", readOperation1File.getAbsolutePath()), e);
             }
 
-            Iterator<Operation<?>> operation1StreamWithoutTimes = new Query1EventStreamReader(
+            Iterator<Operation> operation1StreamWithoutTimes = new Query1EventStreamReader(
                     gf.repeating(
                             new CsvEventStreamReaderBasicCharSeeker<>(
                                     charSeeker,
@@ -522,7 +522,7 @@ public class LdbcSnbInteractiveWorkload extends Workload {
             readOperationFileReaders.add(charSeeker);
         }
 
-        Iterator<Operation<?>> readOperation2Stream;
+        Iterator<Operation> readOperation2Stream;
         {
             CsvEventStreamReaderBasicCharSeeker.EventDecoder<Object[]> decoder = new Query2EventStreamReader.Query2Decoder();
             Extractors extractors = new Extractors(arrayDelimiter, tupleDelimiter);
@@ -541,7 +541,7 @@ public class LdbcSnbInteractiveWorkload extends Workload {
                 throw new WorkloadException(String.format("Unable to advance parameters file beyond headers: %s", readOperation2File.getAbsolutePath()), e);
             }
 
-            Iterator<Operation<?>> operation2StreamWithoutTimes = new Query2EventStreamReader(
+            Iterator<Operation> operation2StreamWithoutTimes = new Query2EventStreamReader(
                     gf.repeating(
                             new CsvEventStreamReaderBasicCharSeeker<>(
                                     charSeeker,
@@ -563,7 +563,7 @@ public class LdbcSnbInteractiveWorkload extends Workload {
             readOperationFileReaders.add(charSeeker);
         }
 
-        Iterator<Operation<?>> readOperation3Stream;
+        Iterator<Operation> readOperation3Stream;
         {
             CsvEventStreamReaderBasicCharSeeker.EventDecoder<Object[]> decoder = new Query3EventStreamReader.Query3Decoder();
             Extractors extractors = new Extractors(arrayDelimiter, tupleDelimiter);
@@ -585,7 +585,7 @@ public class LdbcSnbInteractiveWorkload extends Workload {
                 throw new WorkloadException(String.format("Unable to advance parameters file beyond headers: %s", readOperation3File.getAbsolutePath()), e);
             }
 
-            Iterator<Operation<?>> operation3StreamWithoutTimes = new Query3EventStreamReader(
+            Iterator<Operation> operation3StreamWithoutTimes = new Query3EventStreamReader(
                     gf.repeating(
                             new CsvEventStreamReaderBasicCharSeeker<>(
                                     charSeeker,
@@ -607,7 +607,7 @@ public class LdbcSnbInteractiveWorkload extends Workload {
             readOperationFileReaders.add(charSeeker);
         }
 
-        Iterator<Operation<?>> readOperation4Stream;
+        Iterator<Operation> readOperation4Stream;
         {
             CsvEventStreamReaderBasicCharSeeker.EventDecoder<Object[]> decoder = new Query4EventStreamReader.Query4Decoder();
             Extractors extractors = new Extractors(arrayDelimiter, tupleDelimiter);
@@ -627,7 +627,7 @@ public class LdbcSnbInteractiveWorkload extends Workload {
                 throw new WorkloadException(String.format("Unable to advance parameters file beyond headers: %s", readOperation4File.getAbsolutePath()), e);
             }
 
-            Iterator<Operation<?>> operation4StreamWithoutTimes = new Query4EventStreamReader(
+            Iterator<Operation> operation4StreamWithoutTimes = new Query4EventStreamReader(
                     gf.repeating(
                             new CsvEventStreamReaderBasicCharSeeker<>(
                                     charSeeker,
@@ -649,7 +649,7 @@ public class LdbcSnbInteractiveWorkload extends Workload {
             readOperationFileReaders.add(charSeeker);
         }
 
-        Iterator<Operation<?>> readOperation5Stream;
+        Iterator<Operation> readOperation5Stream;
         {
             CsvEventStreamReaderBasicCharSeeker.EventDecoder<Object[]> decoder = new Query5EventStreamReader.Query5Decoder();
             Extractors extractors = new Extractors(arrayDelimiter, tupleDelimiter);
@@ -668,7 +668,7 @@ public class LdbcSnbInteractiveWorkload extends Workload {
                 throw new WorkloadException(String.format("Unable to advance parameters file beyond headers: %s", readOperation5File.getAbsolutePath()), e);
             }
 
-            Iterator<Operation<?>> operation5StreamWithoutTimes = new Query5EventStreamReader(
+            Iterator<Operation> operation5StreamWithoutTimes = new Query5EventStreamReader(
                     gf.repeating(
                             new CsvEventStreamReaderBasicCharSeeker<>(
                                     charSeeker,
@@ -690,7 +690,7 @@ public class LdbcSnbInteractiveWorkload extends Workload {
             readOperationFileReaders.add(charSeeker);
         }
 
-        Iterator<Operation<?>> readOperation6Stream;
+        Iterator<Operation> readOperation6Stream;
         {
             CsvEventStreamReaderBasicCharSeeker.EventDecoder<Object[]> decoder = new Query6EventStreamReader.Query6Decoder();
             Extractors extractors = new Extractors(arrayDelimiter, tupleDelimiter);
@@ -709,7 +709,7 @@ public class LdbcSnbInteractiveWorkload extends Workload {
                 throw new WorkloadException(String.format("Unable to advance parameters file beyond headers: %s", readOperation6File.getAbsolutePath()), e);
             }
 
-            Iterator<Operation<?>> operation6StreamWithoutTimes = new Query6EventStreamReader(
+            Iterator<Operation> operation6StreamWithoutTimes = new Query6EventStreamReader(
                     gf.repeating(
                             new CsvEventStreamReaderBasicCharSeeker<>(
                                     charSeeker,
@@ -731,7 +731,7 @@ public class LdbcSnbInteractiveWorkload extends Workload {
             readOperationFileReaders.add(charSeeker);
         }
 
-        Iterator<Operation<?>> readOperation7Stream;
+        Iterator<Operation> readOperation7Stream;
         {
             CsvEventStreamReaderBasicCharSeeker.EventDecoder<Object[]> decoder = new Query7EventStreamReader.Query7Decoder();
             Extractors extractors = new Extractors(arrayDelimiter, tupleDelimiter);
@@ -749,7 +749,7 @@ public class LdbcSnbInteractiveWorkload extends Workload {
                 throw new WorkloadException(String.format("Unable to advance parameters file beyond headers: %s", readOperation7File.getAbsolutePath()), e);
             }
 
-            Iterator<Operation<?>> operation7StreamWithoutTimes = new Query7EventStreamReader(
+            Iterator<Operation> operation7StreamWithoutTimes = new Query7EventStreamReader(
                     gf.repeating(
                             new CsvEventStreamReaderBasicCharSeeker<>(
                                     charSeeker,
@@ -771,7 +771,7 @@ public class LdbcSnbInteractiveWorkload extends Workload {
             readOperationFileReaders.add(charSeeker);
         }
 
-        Iterator<Operation<?>> readOperation8Stream;
+        Iterator<Operation> readOperation8Stream;
         {
             CsvEventStreamReaderBasicCharSeeker.EventDecoder<Object[]> decoder = new Query8EventStreamReader.Query8Decoder();
             Extractors extractors = new Extractors(arrayDelimiter, tupleDelimiter);
@@ -789,7 +789,7 @@ public class LdbcSnbInteractiveWorkload extends Workload {
                 throw new WorkloadException(String.format("Unable to advance parameters file beyond headers: %s", readOperation8File.getAbsolutePath()), e);
             }
 
-            Iterator<Operation<?>> operation8StreamWithoutTimes = new Query8EventStreamReader(
+            Iterator<Operation> operation8StreamWithoutTimes = new Query8EventStreamReader(
                     gf.repeating(
                             new CsvEventStreamReaderBasicCharSeeker<>(
                                     charSeeker,
@@ -811,7 +811,7 @@ public class LdbcSnbInteractiveWorkload extends Workload {
             readOperationFileReaders.add(charSeeker);
         }
 
-        Iterator<Operation<?>> readOperation9Stream;
+        Iterator<Operation> readOperation9Stream;
         {
             CsvEventStreamReaderBasicCharSeeker.EventDecoder<Object[]> decoder = new Query9EventStreamReader.Query9Decoder();
             Extractors extractors = new Extractors(arrayDelimiter, tupleDelimiter);
@@ -830,7 +830,7 @@ public class LdbcSnbInteractiveWorkload extends Workload {
                 throw new WorkloadException(String.format("Unable to advance parameters file beyond headers: %s", readOperation9File.getAbsolutePath()), e);
             }
 
-            Iterator<Operation<?>> operation9StreamWithoutTimes = new Query9EventStreamReader(
+            Iterator<Operation> operation9StreamWithoutTimes = new Query9EventStreamReader(
                     gf.repeating(
                             new CsvEventStreamReaderBasicCharSeeker<>(
                                     charSeeker,
@@ -852,7 +852,7 @@ public class LdbcSnbInteractiveWorkload extends Workload {
             readOperationFileReaders.add(charSeeker);
         }
 
-        Iterator<Operation<?>> readOperation10Stream;
+        Iterator<Operation> readOperation10Stream;
         {
             CsvEventStreamReaderBasicCharSeeker.EventDecoder<Object[]> decoder = new Query10EventStreamReader.Query10Decoder();
             Extractors extractors = new Extractors(arrayDelimiter, tupleDelimiter);
@@ -871,7 +871,7 @@ public class LdbcSnbInteractiveWorkload extends Workload {
                 throw new WorkloadException(String.format("Unable to advance parameters file beyond headers: %s", readOperation10File.getAbsolutePath()), e);
             }
 
-            Iterator<Operation<?>> operation10StreamWithoutTimes = new Query10EventStreamReader(
+            Iterator<Operation> operation10StreamWithoutTimes = new Query10EventStreamReader(
                     gf.repeating(
                             new CsvEventStreamReaderBasicCharSeeker<>(
                                     charSeeker,
@@ -893,7 +893,7 @@ public class LdbcSnbInteractiveWorkload extends Workload {
             readOperationFileReaders.add(charSeeker);
         }
 
-        Iterator<Operation<?>> readOperation11Stream;
+        Iterator<Operation> readOperation11Stream;
         {
             CsvEventStreamReaderBasicCharSeeker.EventDecoder<Object[]> decoder = new Query11EventStreamReader.Query11Decoder();
             Extractors extractors = new Extractors(arrayDelimiter, tupleDelimiter);
@@ -913,7 +913,7 @@ public class LdbcSnbInteractiveWorkload extends Workload {
                 throw new WorkloadException(String.format("Unable to advance parameters file beyond headers: %s", readOperation11File.getAbsolutePath()), e);
             }
 
-            Iterator<Operation<?>> operation11StreamWithoutTimes = new Query11EventStreamReader(
+            Iterator<Operation> operation11StreamWithoutTimes = new Query11EventStreamReader(
                     gf.repeating(
                             new CsvEventStreamReaderBasicCharSeeker<>(
                                     charSeeker,
@@ -935,7 +935,7 @@ public class LdbcSnbInteractiveWorkload extends Workload {
             readOperationFileReaders.add(charSeeker);
         }
 
-        Iterator<Operation<?>> readOperation12Stream;
+        Iterator<Operation> readOperation12Stream;
         {
             CsvEventStreamReaderBasicCharSeeker.EventDecoder<Object[]> decoder = new Query12EventStreamReader.Query12Decoder();
             Extractors extractors = new Extractors(arrayDelimiter, tupleDelimiter);
@@ -954,7 +954,7 @@ public class LdbcSnbInteractiveWorkload extends Workload {
                 throw new WorkloadException(String.format("Unable to advance parameters file beyond headers: %s", readOperation12File.getAbsolutePath()), e);
             }
 
-            Iterator<Operation<?>> operation12StreamWithoutTimes = new Query12EventStreamReader(
+            Iterator<Operation> operation12StreamWithoutTimes = new Query12EventStreamReader(
                     gf.repeating(
                             new CsvEventStreamReaderBasicCharSeeker<>(
                                     charSeeker,
@@ -976,7 +976,7 @@ public class LdbcSnbInteractiveWorkload extends Workload {
             readOperationFileReaders.add(charSeeker);
         }
 
-        Iterator<Operation<?>> readOperation13Stream;
+        Iterator<Operation> readOperation13Stream;
         {
             CsvEventStreamReaderBasicCharSeeker.EventDecoder<Object[]> decoder = new Query13EventStreamReader.Query13Decoder();
             Extractors extractors = new Extractors(arrayDelimiter, tupleDelimiter);
@@ -995,7 +995,7 @@ public class LdbcSnbInteractiveWorkload extends Workload {
                 throw new WorkloadException(String.format("Unable to advance parameters file beyond headers: %s", readOperation13File.getAbsolutePath()), e);
             }
 
-            Iterator<Operation<?>> operation13StreamWithoutTimes = new Query13EventStreamReader(
+            Iterator<Operation> operation13StreamWithoutTimes = new Query13EventStreamReader(
                     gf.repeating(
                             new CsvEventStreamReaderBasicCharSeeker<>(
                                     charSeeker,
@@ -1017,7 +1017,7 @@ public class LdbcSnbInteractiveWorkload extends Workload {
             readOperationFileReaders.add(charSeeker);
         }
 
-        Iterator<Operation<?>> readOperation14Stream;
+        Iterator<Operation> readOperation14Stream;
         {
             CsvEventStreamReaderBasicCharSeeker.EventDecoder<Object[]> decoder = new Query14EventStreamReader.Query14Decoder();
             Extractors extractors = new Extractors(arrayDelimiter, tupleDelimiter);
@@ -1036,7 +1036,7 @@ public class LdbcSnbInteractiveWorkload extends Workload {
                 throw new WorkloadException(String.format("Unable to advance parameters file beyond headers: %s", readOperation14File.getAbsolutePath()), e);
             }
 
-            Iterator<Operation<?>> operation14StreamWithoutTimes = new Query14EventStreamReader(
+            Iterator<Operation> operation14StreamWithoutTimes = new Query14EventStreamReader(
                     gf.repeating(
                             new CsvEventStreamReaderBasicCharSeeker<>(
                                     charSeeker,
@@ -1090,13 +1090,13 @@ public class LdbcSnbInteractiveWorkload extends Workload {
         /*
          * Merge all dependency asynchronous operation streams, ordered by operation start times
          */
-        Iterator<Operation<?>> asynchronousDependencyStreams = gf.mergeSortOperationsByTimeStamp(
+        Iterator<Operation> asynchronousDependencyStreams = gf.mergeSortOperationsByTimeStamp(
                 asynchronousDependencyStreamsList.toArray(new Iterator[asynchronousDependencyStreamsList.size()])
         );
         /*
          * Merge all non dependency asynchronous operation streams, ordered by operation start times
          */
-        Iterator<Operation<?>> asynchronousNonDependencyStreams = gf.mergeSortOperationsByTimeStamp(
+        Iterator<Operation> asynchronousNonDependencyStreams = gf.mergeSortOperationsByTimeStamp(
                 asynchronousNonDependencyStreamsList.toArray(new Iterator[asynchronousNonDependencyStreamsList.size()])
         );
 
@@ -1239,7 +1239,7 @@ public class LdbcSnbInteractiveWorkload extends Workload {
     };
 
     @Override
-    public String serializeOperation(Operation<?> operation) throws SerializingMarshallingException {
+    public String serializeOperation(Operation operation) throws SerializingMarshallingException {
         switch (operation.type()) {
             case LdbcQuery1.TYPE: {
                 LdbcQuery1 ldbcQuery = (LdbcQuery1) operation;
@@ -1665,7 +1665,7 @@ public class LdbcSnbInteractiveWorkload extends Workload {
     }
 
     @Override
-    public Operation<?> marshalOperation(String serializedOperation) throws SerializingMarshallingException {
+    public Operation marshalOperation(String serializedOperation) throws SerializingMarshallingException {
         List<Object> operationAsList;
         try {
             operationAsList = OBJECT_MAPPER.readValue(serializedOperation, TYPE_REFERENCE);

@@ -26,7 +26,7 @@ public class WorkloadStreams {
          * Find earliest scheduled start time from across all streams
          */
 
-        PeekingIterator<Operation<?>> peekingAsyncDependencyOperationStream = Iterators.peekingIterator(originalWorkloadStreams.asynchronousStream().dependencyOperations());
+        PeekingIterator<Operation> peekingAsyncDependencyOperationStream = Iterators.peekingIterator(originalWorkloadStreams.asynchronousStream().dependencyOperations());
         try {
             long firstAsMilli = peekingAsyncDependencyOperationStream.peek().scheduledStartTimeAsMilli();
             if (firstAsMilli < minScheduledStartTimeAsMilli)
@@ -35,7 +35,7 @@ public class WorkloadStreams {
             // do nothing, just means stream was empty
         }
 
-        PeekingIterator<Operation<?>> peekingAsyncNonDependencyOperationStream = Iterators.peekingIterator(originalWorkloadStreams.asynchronousStream().nonDependencyOperations());
+        PeekingIterator<Operation> peekingAsyncNonDependencyOperationStream = Iterators.peekingIterator(originalWorkloadStreams.asynchronousStream().nonDependencyOperations());
         try {
             long firstAsMilli = peekingAsyncNonDependencyOperationStream.peek().scheduledStartTimeAsMilli();
             if (firstAsMilli < minScheduledStartTimeAsMilli)
@@ -45,12 +45,12 @@ public class WorkloadStreams {
         }
 
         List<Long> peekingBlockingDependencyOperationStreamsAheadOfMinByMillis = new ArrayList<>();
-        List<PeekingIterator<Operation<?>>> peekingBlockingDependencyOperationStreams = new ArrayList<>();
+        List<PeekingIterator<Operation>> peekingBlockingDependencyOperationStreams = new ArrayList<>();
         List<Long> peekingBlockingNonDependencyOperationStreamsAheadOfMinByMillis = new ArrayList<>();
-        List<PeekingIterator<Operation<?>>> peekingBlockingNonDependencyOperationStreams = new ArrayList<>();
+        List<PeekingIterator<Operation>> peekingBlockingNonDependencyOperationStreams = new ArrayList<>();
         List<WorkloadStreamDefinition> blockingStreams = originalWorkloadStreams.blockingStreamDefinitions();
         for (int i = 0; i < blockingStreams.size(); i++) {
-            PeekingIterator<Operation<?>> peekingBlockingDependencyOperationStream = Iterators.peekingIterator(blockingStreams.get(i).dependencyOperations());
+            PeekingIterator<Operation> peekingBlockingDependencyOperationStream = Iterators.peekingIterator(blockingStreams.get(i).dependencyOperations());
             try {
                 long firstAsMilli = peekingBlockingDependencyOperationStream.peek().scheduledStartTimeAsMilli();
                 if (firstAsMilli < minScheduledStartTimeAsMilli)
@@ -61,7 +61,7 @@ public class WorkloadStreams {
             peekingBlockingDependencyOperationStreamsAheadOfMinByMillis.add(0l);
             peekingBlockingDependencyOperationStreams.add(peekingBlockingDependencyOperationStream);
 
-            PeekingIterator<Operation<?>> peekingBlockingNonDependencyOperationStream = Iterators.peekingIterator(blockingStreams.get(i).nonDependencyOperations());
+            PeekingIterator<Operation> peekingBlockingNonDependencyOperationStream = Iterators.peekingIterator(blockingStreams.get(i).nonDependencyOperations());
             try {
                 long firstAsMilli = peekingBlockingNonDependencyOperationStream.peek().scheduledStartTimeAsMilli();
                 if (firstAsMilli < minScheduledStartTimeAsMilli)
@@ -164,15 +164,17 @@ public class WorkloadStreams {
 
     // returns (workload_streams, workload, minimum_timestamp)
     public static Tuple.Tuple3<WorkloadStreams, Workload, Long> createNewWorkloadWithLimitedWorkloadStreams(DriverConfiguration configuration,
-                                                                                                            GeneratorFactory gf) throws WorkloadException, IOException {
+                                                                                                            GeneratorFactory gf,
+                                                                                                            boolean returnStreamsWithDbConnector) throws WorkloadException, IOException {
         ClassNameWorkloadFactory workloadFactory = new ClassNameWorkloadFactory(configuration.workloadClassName());
-        return createNewWorkloadWithLimitedWorkloadStreams(workloadFactory, configuration, gf);
+        return createNewWorkloadWithLimitedWorkloadStreams(workloadFactory, configuration, gf,returnStreamsWithDbConnector);
     }
 
     // returns (workload_streams, workload, minimum_timestamp)
     public static Tuple.Tuple3<WorkloadStreams, Workload, Long> createNewWorkloadWithLimitedWorkloadStreams(WorkloadFactory workloadFactory,
                                                                                                             DriverConfiguration configuration,
-                                                                                                            GeneratorFactory gf) throws WorkloadException, IOException {
+                                                                                                            GeneratorFactory gf,
+                                                                                                            boolean returnStreamsWithDbConnector) throws WorkloadException, IOException {
         WorkloadStreams workloadStreams = new WorkloadStreams();
         // get workload
         Workload workload = workloadFactory.createWorkload();
@@ -180,7 +182,7 @@ public class WorkloadStreams {
         // retrieve unbounded streams
         boolean hasDbConnected = false;
         WorkloadStreams unlimitedWorkloadStreams = workload.streams(gf, hasDbConnected);
-        List<Iterator<Operation<?>>> streams = new ArrayList<>();
+        List<Iterator<Operation>> streams = new ArrayList<>();
         List<ChildOperationGenerator> childOperationGenerators = new ArrayList<>();
 
         streams.add(unlimitedWorkloadStreams.asynchronousStream().dependencyOperations());
@@ -206,8 +208,7 @@ public class WorkloadStreams {
         workload = workloadFactory.createWorkload();
         workload.init(configuration);
         // retrieve unbounded streams
-        hasDbConnected = true;
-        unlimitedWorkloadStreams = workload.streams(gf, hasDbConnected);
+        unlimitedWorkloadStreams = workload.streams(gf, returnStreamsWithDbConnector);
         // copy unbounded streams to new workload streams instance, applying limits we just computed
         workloadStreams.setAsynchronousStream(
                 unlimitedWorkloadStreams.asynchronousStream().dependentOperationTypes(),
@@ -230,7 +231,7 @@ public class WorkloadStreams {
     }
 
     // returns (limit_per_stream, minimum_dependency_timestamp, minimum_timestamp)
-    public static Tuple.Tuple2<long[], Long> fromAmongAllRetrieveTopK(List<Iterator<Operation<?>>> streams,
+    public static Tuple.Tuple2<long[], Long> fromAmongAllRetrieveTopK(List<Iterator<Operation>> streams,
                                                                       long k,
                                                                       List<ChildOperationGenerator> childOperationGenerators) throws WorkloadException {
         final DecimalFormat numberFormat = new DecimalFormat("###,###,###,###,###");
@@ -305,7 +306,7 @@ public class WorkloadStreams {
     }
 
     // returns (limit_per_stream, minimum_dependency_timestamp, minimum_timestamp)
-    public static Tuple.Tuple3<long[], Long, Long> fromAmongAllRetrieveTopK_OLD(List<Iterator<Operation<?>>> streams, long k) throws WorkloadException {
+    public static Tuple.Tuple3<long[], Long, Long> fromAmongAllRetrieveTopK_OLD(List<Iterator<Operation>> streams, long k) throws WorkloadException {
         final DecimalFormat numberFormat = new DecimalFormat("###,###,###,###,###");
         long minimumDependencyTimeStamp = Long.MAX_VALUE;
         long minimumTimeStamp = Long.MAX_VALUE;
@@ -371,19 +372,19 @@ public class WorkloadStreams {
             return asynchronousStream;
         } else {
             return new WorkloadStreamDefinition(
-                    new HashSet<Class<? extends Operation<?>>>(),
-                    new HashSet<Class<? extends Operation<?>>>(),
-                    Collections.<Operation<?>>emptyIterator(),
-                    Collections.<Operation<?>>emptyIterator(),
+                    new HashSet<Class<? extends Operation>>(),
+                    new HashSet<Class<? extends Operation>>(),
+                    Collections.<Operation>emptyIterator(),
+                    Collections.<Operation>emptyIterator(),
                     null
             );
         }
     }
 
-    public void setAsynchronousStream(Set<Class<? extends Operation<?>>> dependentOperationTypes,
-                                      Set<Class<? extends Operation<?>>> dependencyOperationTypes,
-                                      Iterator<Operation<?>> dependencyOperations,
-                                      Iterator<Operation<?>> nonDependencyOperations,
+    public void setAsynchronousStream(Set<Class<? extends Operation>> dependentOperationTypes,
+                                      Set<Class<? extends Operation>> dependencyOperationTypes,
+                                      Iterator<Operation> dependencyOperations,
+                                      Iterator<Operation> nonDependencyOperations,
                                       ChildOperationGenerator childOperationGenerator) {
         this.asynchronousStream = new WorkloadStreamDefinition(
                 dependentOperationTypes,
@@ -398,10 +399,10 @@ public class WorkloadStreams {
         return blockingStreams;
     }
 
-    public void addBlockingStream(Set<Class<? extends Operation<?>>> dependentOperationTypes,
-                                  Set<Class<? extends Operation<?>>> dependencyOperationTypes,
-                                  Iterator<Operation<?>> dependencyOperations,
-                                  Iterator<Operation<?>> nonDependencyOperations,
+    public void addBlockingStream(Set<Class<? extends Operation>> dependentOperationTypes,
+                                  Set<Class<? extends Operation>> dependencyOperationTypes,
+                                  Iterator<Operation> dependencyOperations,
+                                  Iterator<Operation> nonDependencyOperations,
                                   ChildOperationGenerator childOperationGenerator) {
         WorkloadStreamDefinition blockingStream = new WorkloadStreamDefinition(
                 dependentOperationTypes,
@@ -413,29 +414,28 @@ public class WorkloadStreams {
         this.blockingStreams.add(blockingStream);
     }
 
-    public Iterator<Operation<?>> mergeSortedByStartTime(GeneratorFactory gf) {
-        // TODO test
-        List<Iterator<Operation<?>>> allStreams = new ArrayList<>();
-        for (WorkloadStreamDefinition streamDefinition : blockingStreamDefinitions()) {
+    public static Iterator<Operation> mergeSortedByStartTimeExcludingChildOperationGenerators(GeneratorFactory gf, WorkloadStreams workloadStreams) {
+        List<Iterator<Operation>> allStreams = new ArrayList<>();
+        for (WorkloadStreamDefinition streamDefinition : workloadStreams.blockingStreamDefinitions()) {
             allStreams.add(streamDefinition.dependencyOperations());
             allStreams.add(streamDefinition.nonDependencyOperations());
         }
-        allStreams.add(asynchronousStream().dependencyOperations());
-        allStreams.add(asynchronousStream().nonDependencyOperations());
+        allStreams.add(workloadStreams.asynchronousStream().dependencyOperations());
+        allStreams.add(workloadStreams.asynchronousStream().nonDependencyOperations());
         return gf.mergeSortOperationsByTimeStamp(allStreams.toArray(new Iterator[allStreams.size()]));
     }
 
     public static class WorkloadStreamDefinition {
-        private final Set<Class<? extends Operation<?>>> dependentOperationTypes;
-        private final Set<Class<? extends Operation<?>>> dependencyOperationTypes;
-        private final Iterator<Operation<?>> dependencyOperations;
-        private final Iterator<Operation<?>> nonDependencyOperations;
+        private final Set<Class<? extends Operation>> dependentOperationTypes;
+        private final Set<Class<? extends Operation>> dependencyOperationTypes;
+        private final Iterator<Operation> dependencyOperations;
+        private final Iterator<Operation> nonDependencyOperations;
         private final ChildOperationGenerator childOperationGenerator;
 
-        public WorkloadStreamDefinition(Set<Class<? extends Operation<?>>> dependentOperationTypes,
-                                        Set<Class<? extends Operation<?>>> dependencyOperationTypes,
-                                        Iterator<Operation<?>> dependencyOperations,
-                                        Iterator<Operation<?>> nonDependencyOperations,
+        public WorkloadStreamDefinition(Set<Class<? extends Operation>> dependentOperationTypes,
+                                        Set<Class<? extends Operation>> dependencyOperationTypes,
+                                        Iterator<Operation> dependencyOperations,
+                                        Iterator<Operation> nonDependencyOperations,
                                         ChildOperationGenerator childOperationGenerator) {
             this.dependentOperationTypes = dependentOperationTypes;
             this.dependencyOperationTypes = dependencyOperationTypes;
@@ -444,20 +444,20 @@ public class WorkloadStreams {
             this.childOperationGenerator = childOperationGenerator;
         }
 
-        public Iterator<Operation<?>> dependencyOperations() {
-            return (null != dependencyOperations) ? dependencyOperations : Collections.<Operation<?>>emptyIterator();
+        public Iterator<Operation> dependencyOperations() {
+            return (null != dependencyOperations) ? dependencyOperations : Collections.<Operation>emptyIterator();
         }
 
-        public Iterator<Operation<?>> nonDependencyOperations() {
-            return (null != nonDependencyOperations) ? nonDependencyOperations : Collections.<Operation<?>>emptyIterator();
+        public Iterator<Operation> nonDependencyOperations() {
+            return (null != nonDependencyOperations) ? nonDependencyOperations : Collections.<Operation>emptyIterator();
         }
 
-        public Set<Class<? extends Operation<?>>> dependentOperationTypes() {
-            return (null != dependentOperationTypes) ? dependentOperationTypes : new HashSet<Class<? extends Operation<?>>>();
+        public Set<Class<? extends Operation>> dependentOperationTypes() {
+            return (null != dependentOperationTypes) ? dependentOperationTypes : new HashSet<Class<? extends Operation>>();
         }
 
-        public Set<Class<? extends Operation<?>>> dependencyOperationTypes() {
-            return (null != dependencyOperationTypes) ? dependencyOperationTypes : new HashSet<Class<? extends Operation<?>>>();
+        public Set<Class<? extends Operation>> dependencyOperationTypes() {
+            return (null != dependencyOperationTypes) ? dependencyOperationTypes : new HashSet<Class<? extends Operation>>();
         }
 
         public ChildOperationGenerator childOperationGenerator() {

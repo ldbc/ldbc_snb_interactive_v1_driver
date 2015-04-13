@@ -346,8 +346,8 @@ public class LdbcSnbInteractiveConfiguration {
         return ConsoleAndFileDriverConfiguration.convertLongKeysToShortKeys(params);
     }
 
-    public static Map<Integer, Class<? extends Operation<?>>> operationTypeToClassMapping() {
-        Map<Integer, Class<? extends Operation<?>>> operationTypeToClassMapping = new HashMap<>();
+    public static Map<Integer, Class<? extends Operation>> operationTypeToClassMapping() {
+        Map<Integer, Class<? extends Operation>> operationTypeToClassMapping = new HashMap<>();
         operationTypeToClassMapping.put(LdbcQuery1.TYPE, LdbcQuery1.class);
         operationTypeToClassMapping.put(LdbcQuery2.TYPE, LdbcQuery2.class);
         operationTypeToClassMapping.put(LdbcQuery3.TYPE, LdbcQuery3.class);

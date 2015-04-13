@@ -3,14 +3,13 @@ package com.ldbc.driver.runtime.metrics;
 import com.ldbc.driver.Operation;
 import com.ldbc.driver.runtime.ConcurrentErrorReporter;
 import com.ldbc.driver.temporal.TimeSource;
-import com.ldbc.driver.util.csv.SimpleCsvFileWriter;
+import com.ldbc.driver.csv.simple.SimpleCsvFileWriter;
 import com.lmax.disruptor.LiteBlockingWaitStrategy;
 import com.lmax.disruptor.RingBuffer;
 import com.lmax.disruptor.TimeoutException;
 import com.lmax.disruptor.dsl.Disruptor;
 import com.lmax.disruptor.dsl.ProducerType;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentLinkedQueue;
@@ -48,7 +47,7 @@ public class DisruptorJavolutionMetricsService implements MetricsService {
                                              TimeUnit timeUnit,
                                              long maxRuntimeDurationAsNano,
                                              SimpleCsvFileWriter csvResultsLogWriter,
-                                             Map<Integer, Class<? extends Operation<?>>> operationTypeToClassMapping) throws MetricsCollectionException {
+                                             Map<Integer, Class<? extends Operation>> operationTypeToClassMapping) throws MetricsCollectionException {
         // Specify the size of the ring buffer, must be power of 2.
         int bufferSize = 1024;
 

@@ -25,7 +25,7 @@ public abstract class Generator<GENERATE_TYPE> implements Iterator<GENERATE_TYPE
 
     @Override
     public final void remove() {
-        throw new UnsupportedOperationException("Iterator.remove() not supported by Generator");
+        throw new UnsupportedOperationException();
     }
 
     @Override

@@ -1,4 +1,4 @@
-package com.ldbc.driver.util.csv;
+package com.ldbc.driver.csv.simple;
 
 import com.google.common.base.Charsets;
 

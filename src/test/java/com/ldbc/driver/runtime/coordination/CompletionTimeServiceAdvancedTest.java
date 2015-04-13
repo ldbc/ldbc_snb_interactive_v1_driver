@@ -4,6 +4,7 @@ import com.google.common.collect.Sets;
 import com.ldbc.driver.Operation;
 import com.ldbc.driver.Workload;
 import com.ldbc.driver.WorkloadException;
+import com.ldbc.driver.WorkloadStreams;
 import com.ldbc.driver.control.ConsoleAndFileDriverConfiguration;
 import com.ldbc.driver.control.DriverConfigurationException;
 import com.ldbc.driver.generator.GeneratorFactory;
@@ -140,7 +141,11 @@ public class CompletionTimeServiceAdvancedTest {
         Workload workload = new SimpleWorkload();
         workload.init(configuration);
         GeneratorFactory gf = new GeneratorFactory(new RandomDataGeneratorFactory(42L));
-        Iterator<Operation<?>> operations = gf.limit(workload.streams(gf, true).mergeSortedByStartTime(gf), configuration.operationCount());
+
+        Iterator<Operation> operations = gf.limit(
+                WorkloadStreams.mergeSortedByStartTimeExcludingChildOperationGenerators(gf, workload.streams(gf, true)),
+                configuration.operationCount()
+        );
 
         // measure duration of experiment
         long startTimeAsMilli = timeSource.nowAsMilli();
@@ -151,7 +156,7 @@ public class CompletionTimeServiceAdvancedTest {
         /*
         CREATE 1st CHECK POINT
          */
-        Operation<?> gctCheckpointOperation1 = operations.next();
+        Operation gctCheckpointOperation1 = operations.next();
         long gctCheckpointOperation1ScheduledStartTimeAsMilli = gctCheckpointOperation1.timeStamp();
         externalCompletionTimeWriter.submitPeerCompletionTime(otherPeerId, gctCheckpointOperation1ScheduledStartTimeAsMilli);
         localCompletionTimeWriter.submitLocalInitiatedTime(gctCheckpointOperation1ScheduledStartTimeAsMilli);
@@ -162,7 +167,7 @@ public class CompletionTimeServiceAdvancedTest {
         long lastScheduledStartTimeAsMilli = gctCheckpointOperation1ScheduledStartTimeAsMilli;
 
         for (int i = completedOperations; i < operationCountCheckPoint1; i++) {
-            Operation<?> operation = operations.next();
+            Operation operation = operations.next();
             assertThat(operation.timeStamp() >= lastScheduledStartTimeAsMilli, is(true));
             lastScheduledStartTimeAsMilli = operation.timeStamp();
             localCompletionTimeWriter.submitLocalInitiatedTime(operation.timeStamp());
@@ -186,7 +191,7 @@ public class CompletionTimeServiceAdvancedTest {
         /*
         CREATE 2nd CHECK POINT
          */
-        Operation<?> gctCheckpointOperation2 = operations.next();
+        Operation gctCheckpointOperation2 = operations.next();
         long gctCheckpointOperation2ScheduledStartTimeAsMilli = gctCheckpointOperation2.timeStamp();
         externalCompletionTimeWriter.submitPeerCompletionTime(otherPeerId, gctCheckpointOperation2ScheduledStartTimeAsMilli);
         localCompletionTimeWriter.submitLocalInitiatedTime(gctCheckpointOperation2ScheduledStartTimeAsMilli);
@@ -194,7 +199,7 @@ public class CompletionTimeServiceAdvancedTest {
         completedOperations++;
 
         for (int i = completedOperations; i < operationCountCheckPoint2; i++) {
-            Operation<?> operation = operations.next();
+            Operation operation = operations.next();
             assertThat(operation.timeStamp() >= lastScheduledStartTimeAsMilli, is(true));
             lastScheduledStartTimeAsMilli = operation.timeStamp();
             localCompletionTimeWriter.submitLocalInitiatedTime(operation.timeStamp());
@@ -216,7 +221,7 @@ public class CompletionTimeServiceAdvancedTest {
         assertThat(future2WaitingForGtcCheckpointOperation2.get(), equalTo(gctCheckpointOperation2ScheduledStartTimeAsMilli));
 
         while (operations.hasNext()) {
-            Operation<?> operation = operations.next();
+            Operation operation = operations.next();
             assertThat(operation.timeStamp() >= lastScheduledStartTimeAsMilli, is(true));
             lastScheduledStartTimeAsMilli = operation.timeStamp();
             localCompletionTimeWriter.submitLocalInitiatedTime(operation.timeStamp());
@@ -254,11 +259,11 @@ public class CompletionTimeServiceAdvancedTest {
     }
 
     class GctAccessingCallable implements Callable<Integer> {
-        private final Operation<?> operation;
+        private final Operation operation;
         private final LocalCompletionTimeWriter localCompletionTimeWriter;
         private final ConcurrentErrorReporter errorReporter;
 
-        public GctAccessingCallable(Operation<?> operation,
+        public GctAccessingCallable(Operation operation,
                                     LocalCompletionTimeWriter localCompletionTimeWriter,
                                     ConcurrentErrorReporter errorReporter) {
             this.operation = operation;

@@ -1,5 +1,6 @@
 package com.ldbc.driver.csv;
 
+import com.ldbc.driver.csv.charseeker.*;
 import org.junit.Test;
 
 import java.io.StringReader;

@@ -8,13 +8,13 @@ import com.ldbc.driver.control.ConsoleAndFileDriverConfiguration;
 import com.ldbc.driver.control.DriverConfigurationException;
 import com.ldbc.driver.control.DriverConfigurationFileHelper;
 import com.ldbc.driver.control.LocalControlService;
+import com.ldbc.driver.csv.simple.SimpleCsvFileReader;
 import com.ldbc.driver.generator.GeneratorFactory;
 import com.ldbc.driver.generator.RandomDataGeneratorFactory;
 import com.ldbc.driver.runtime.metrics.ThreadedQueuedMetricsService;
 import com.ldbc.driver.temporal.SystemTimeSource;
 import com.ldbc.driver.temporal.TimeSource;
 import com.ldbc.driver.testutils.TestUtils;
-import com.ldbc.driver.util.csv.SimpleCsvFileReader;
 import com.ldbc.driver.validation.WorkloadValidationResult;
 import com.ldbc.driver.workloads.simple.db.BasicDb;
 import org.junit.Ignore;
@@ -84,10 +84,13 @@ public class SimpleWorkloadTest {
         Workload workload = new SimpleWorkload();
         workload.init(params);
         GeneratorFactory gf = new GeneratorFactory(new RandomDataGeneratorFactory(42L));
-        Iterator<Operation<?>> operations = gf.limit(workload.streams(gf, true).mergeSortedByStartTime(gf), 1000000);
+        Iterator<Operation> operations = gf.limit(
+                WorkloadStreams.mergeSortedByStartTimeExcludingChildOperationGenerators(gf, workload.streams(gf, true)),
+                1_000_000
+        );
         TimeSource timeSource = new SystemTimeSource();
-        long timeout = timeSource.nowAsMilli() + 30000l;
-        boolean workloadGeneratedOperationsBeforeTimeout = TestUtils.generateBeforeTimeout(operations, timeout, timeSource, 1000000);
+        long timeout = timeSource.nowAsMilli() + 30_000l;
+        boolean workloadGeneratedOperationsBeforeTimeout = TestUtils.generateBeforeTimeout(operations, timeout, timeSource, 1_000_000);
         assertThat(workloadGeneratedOperationsBeforeTimeout, is(true));
     }
 
@@ -139,9 +142,9 @@ public class SimpleWorkloadTest {
         Workload workload = new SimpleWorkload();
         workload.init(params);
 
-        Function<Operation<?>, Class> classFun = new Function<Operation<?>, Class>() {
+        Function<Operation, Class> classFun = new Function<Operation, Class>() {
             @Override
-            public Class apply(Operation<?> operation) {
+            public Class apply(Operation operation) {
                 return operation.getClass();
             }
         };
@@ -149,14 +152,20 @@ public class SimpleWorkloadTest {
         GeneratorFactory gf1 = new GeneratorFactory(new RandomDataGeneratorFactory(42L));
         List<Class> operationsA = ImmutableList.copyOf(
                 Iterators.transform(
-                        gf1.limit(workload.streams(gf1, true).mergeSortedByStartTime(gf1), params.operationCount()),
+                        gf1.limit(
+                                WorkloadStreams.mergeSortedByStartTimeExcludingChildOperationGenerators(gf1, workload.streams(gf1, true)),
+                                params.operationCount()
+                        ),
                         classFun
                 ));
 
         GeneratorFactory gf2 = new GeneratorFactory(new RandomDataGeneratorFactory(42L));
         List<Class> operationsB = ImmutableList.copyOf(
                 Iterators.transform(
-                        gf2.limit(workload.streams(gf2, true).mergeSortedByStartTime(gf2), params.operationCount()),
+                        gf2.limit(
+                                WorkloadStreams.mergeSortedByStartTimeExcludingChildOperationGenerators(gf2, workload.streams(gf2, true)),
+                                params.operationCount()
+                        ),
                         classFun
                 ));
 
@@ -289,10 +298,13 @@ public class SimpleWorkloadTest {
         GeneratorFactory gf1 = new GeneratorFactory(new RandomDataGeneratorFactory(42L));
         List<Class> operationsA = ImmutableList.copyOf(
                 Iterators.transform(
-                        gf1.limit(workloadA.streams(gf1, true).mergeSortedByStartTime(gf1), params.operationCount()),
-                        new Function<Operation<?>, Class>() {
+                        gf1.limit(
+                                WorkloadStreams.mergeSortedByStartTimeExcludingChildOperationGenerators(gf1, workloadA.streams(gf1, true)),
+                                params.operationCount()
+                        ),
+                        new Function<Operation, Class>() {
                             @Override
-                            public Class apply(Operation<?> operation) {
+                            public Class apply(Operation operation) {
                                 return operation.getClass();
                             }
                         }));
@@ -300,10 +312,13 @@ public class SimpleWorkloadTest {
         GeneratorFactory gf2 = new GeneratorFactory(new RandomDataGeneratorFactory(42L));
         List<Class> operationsB = ImmutableList.copyOf(
                 Iterators.transform(
-                        gf2.limit(workloadA.streams(gf2, true).mergeSortedByStartTime(gf2), params.operationCount()),
-                        new Function<Operation<?>, Class>() {
+                        gf2.limit(
+                                WorkloadStreams.mergeSortedByStartTimeExcludingChildOperationGenerators(gf2, workloadB.streams(gf2, true)),
+                                params.operationCount()
+                        ),
+                        new Function<Operation, Class>() {
                             @Override
-                            public Class apply(Operation<?> operation) {
+                            public Class apply(Operation operation) {
                                 return operation.getClass();
                             }
                         }));

@@ -36,8 +36,8 @@ public class SimpleWorkload extends Workload {
     final long INITIAL_INSERT_COUNT = 10;
 
     @Override
-    public Map<Integer, Class<? extends Operation<?>>> operationTypeToClassMapping(Map<String, String> params) {
-        Map<Integer, Class<? extends Operation<?>>> operationTypeToClassMapping = new HashMap<>();
+    public Map<Integer, Class<? extends Operation>> operationTypeToClassMapping(Map<String, String> params) {
+        Map<Integer, Class<? extends Operation>> operationTypeToClassMapping = new HashMap<>();
         operationTypeToClassMapping.put(LdbcQuery1.TYPE, InsertOperation.class);
         operationTypeToClassMapping.put(LdbcQuery2.TYPE, ReadModifyWriteOperation.class);
         operationTypeToClassMapping.put(LdbcQuery3.TYPE, ReadOperation.class);
@@ -73,7 +73,7 @@ public class SimpleWorkload extends Workload {
         }
         Iterator<Map<String, Iterator<Byte>>> insertValuedFieldGenerator = gf.weightedDiscreteMap(valuedFields, NUMBER_OF_FIELDS_IN_RECORD);
 
-        Iterator<Operation<?>> initialInsertOperationGenerator = gf.limit(
+        Iterator<Operation> initialInsertOperationGenerator = gf.limit(
                 new InsertOperationGenerator(TABLE, gf.prefix(insertKeyGenerator, KEY_NAME_PREFIX), insertValuedFieldGenerator),
                 INITIAL_INSERT_COUNT
         );
@@ -169,26 +169,26 @@ public class SimpleWorkload extends Workload {
          * **************************
          */
         // proportion of transactions reads/update/insert/scan/read-modify-write
-        List<Tuple2<Double, Iterator<Operation<?>>>> operations = new ArrayList<>();
-        operations.add(Tuple.tuple2(READ_RATIO, (Iterator<Operation<?>>) readOperationGenerator));
-        operations.add(Tuple.tuple2(UPDATE_RATIO, (Iterator<Operation<?>>) updateOperationGenerator));
-        operations.add(Tuple.tuple2(INSERT_RATIO, (Iterator<Operation<?>>) transactionalInsertOperationGenerator));
-        operations.add(Tuple.tuple2(SCAN_RATIO, (Iterator<Operation<?>>) scanOperationGenerator));
-        operations.add(Tuple.tuple2(READ_MODIFY_WRITE_RATIO, (Iterator<Operation<?>>) readModifyWriteOperationGenerator));
+        List<Tuple2<Double, Iterator<Operation>>> operations = new ArrayList<>();
+        operations.add(Tuple.tuple2(READ_RATIO, (Iterator<Operation>) readOperationGenerator));
+        operations.add(Tuple.tuple2(UPDATE_RATIO, (Iterator<Operation>) updateOperationGenerator));
+        operations.add(Tuple.tuple2(INSERT_RATIO, (Iterator<Operation>) transactionalInsertOperationGenerator));
+        operations.add(Tuple.tuple2(SCAN_RATIO, (Iterator<Operation>) scanOperationGenerator));
+        operations.add(Tuple.tuple2(READ_MODIFY_WRITE_RATIO, (Iterator<Operation>) readModifyWriteOperationGenerator));
 
-        Iterator<Operation<?>> transactionalOperationGenerator = gf.weightedDiscreteDereferencing(operations);
+        Iterator<Operation> transactionalOperationGenerator = gf.weightedDiscreteDereferencing(operations);
 
         // iterates initialInsertOperationGenerator before starting with transactionalInsertOperationGenerator
-        Iterator<Operation<?>> workloadOperations = Iterators.concat(initialInsertOperationGenerator, transactionalOperationGenerator);
+        Iterator<Operation> workloadOperations = Iterators.concat(initialInsertOperationGenerator, transactionalOperationGenerator);
 
         Iterator<Long> startTimesAsMilli = gf.incrementing(workloadStartTimeAsMilli + 1, 100l);
         Iterator<Long> dependencyTimesAsMilli = gf.constant(workloadStartTimeAsMilli);
 
         WorkloadStreams workloadStreams = new WorkloadStreams();
         workloadStreams.setAsynchronousStream(
-                Sets.<Class<? extends Operation<?>>>newHashSet(),
-                Sets.<Class<? extends Operation<?>>>newHashSet(),
-                Collections.<Operation<?>>emptyIterator(),
+                Sets.<Class<? extends Operation>>newHashSet(),
+                Sets.<Class<? extends Operation>>newHashSet(),
+                Collections.<Operation>emptyIterator(),
                 gf.assignDependencyTimes(dependencyTimesAsMilli, gf.assignStartTimes(startTimesAsMilli, workloadOperations)),
                 null
         );
@@ -200,12 +200,12 @@ public class SimpleWorkload extends Workload {
     }
 
     @Override
-    public String serializeOperation(Operation<?> instance) {
+    public String serializeOperation(Operation instance) {
         return null;
     }
 
     @Override
-    public Operation<?> marshalOperation(String serializedInstance) {
+    public Operation marshalOperation(String serializedInstance) {
         return null;
     }
 }

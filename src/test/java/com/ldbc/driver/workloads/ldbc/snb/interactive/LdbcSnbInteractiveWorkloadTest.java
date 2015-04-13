@@ -6,6 +6,7 @@ import com.google.common.collect.Iterators;
 import com.google.common.collect.Lists;
 import com.ldbc.driver.*;
 import com.ldbc.driver.control.*;
+import com.ldbc.driver.csv.simple.SimpleCsvFileReader;
 import com.ldbc.driver.generator.GeneratorFactory;
 import com.ldbc.driver.generator.RandomDataGeneratorFactory;
 import com.ldbc.driver.runtime.metrics.ThreadedQueuedMetricsService;
@@ -15,7 +16,6 @@ import com.ldbc.driver.testutils.TestUtils;
 import com.ldbc.driver.util.Bucket;
 import com.ldbc.driver.util.Histogram;
 import com.ldbc.driver.util.MapUtils;
-import com.ldbc.driver.util.csv.SimpleCsvFileReader;
 import com.ldbc.driver.workloads.ldbc.snb.interactive.db.DummyLdbcSnbInteractiveDb;
 import com.ldbc.driver.workloads.ldbc.snb.interactive.db.DummyLdbcSnbInteractiveOperationInstances;
 import org.junit.Rule;
@@ -265,7 +265,7 @@ public class LdbcSnbInteractiveWorkloadTest {
         workload.init(configuration);
 
         GeneratorFactory gf = new GeneratorFactory(new RandomDataGeneratorFactory(42L));
-        Iterator<Operation<?>> operations = gf.limit(workload.streams(gf, true).mergeSortedByStartTime(gf), operationCount);
+        Iterator<Operation> operations = gf.limit(WorkloadStreams.mergeSortedByStartTimeExcludingChildOperationGenerators(gf, workload.streams(gf, true)), operationCount);
         TimeSource timeSource = new SystemTimeSource();
         long timeout = timeSource.nowAsMilli() + timeoutAsMilli;
         boolean workloadGeneratedOperationsBeforeTimeout = TestUtils.generateBeforeTimeout(operations, timeout, timeSource, operationCount);
@@ -338,10 +338,10 @@ public class LdbcSnbInteractiveWorkloadTest {
         GeneratorFactory gf1 = new GeneratorFactory(new RandomDataGeneratorFactory(42L));
         List<Class> operationsA = ImmutableList.copyOf(
                 Iterators.transform(
-                        gf1.limit(workloadA.streams(gf1, true).mergeSortedByStartTime(gf1), configuration.operationCount()),
-                        new Function<Operation<?>, Class>() {
+                        gf1.limit(WorkloadStreams.mergeSortedByStartTimeExcludingChildOperationGenerators(gf1, workloadA.streams(gf1, true)), configuration.operationCount()),
+                        new Function<Operation, Class>() {
                             @Override
-                            public Class apply(Operation<?> operation) {
+                            public Class apply(Operation operation) {
                                 return operation.getClass();
                             }
                         }));
@@ -349,10 +349,10 @@ public class LdbcSnbInteractiveWorkloadTest {
         GeneratorFactory gf2 = new GeneratorFactory(new RandomDataGeneratorFactory(42L));
         List<Class> operationsB = ImmutableList.copyOf(
                 Iterators.transform(
-                        gf1.limit(workloadB.streams(gf2, true).mergeSortedByStartTime(gf2), configuration.operationCount()),
-                        new Function<Operation<?>, Class>() {
+                        gf1.limit(WorkloadStreams.mergeSortedByStartTimeExcludingChildOperationGenerators(gf2, workloadB.streams(gf2, true)), configuration.operationCount()),
+                        new Function<Operation, Class>() {
                             @Override
-                            public Class apply(Operation<?> operation) {
+                            public Class apply(Operation operation) {
                                 return operation.getClass();
                             }
                         }));
@@ -430,10 +430,10 @@ public class LdbcSnbInteractiveWorkloadTest {
 
         GeneratorFactory gf = new GeneratorFactory(new RandomDataGeneratorFactory(42L));
         Iterator<Class> operationTypes = Iterators.transform(
-                gf.limit(workload.streams(gf, true).mergeSortedByStartTime(gf), params.operationCount()),
-                new Function<Operation<?>, Class>() {
+                gf.limit(WorkloadStreams.mergeSortedByStartTimeExcludingChildOperationGenerators(gf, workload.streams(gf, true)), params.operationCount()),
+                new Function<Operation, Class>() {
                     @Override
-                    public Class apply(Operation<?> operation) {
+                    public Class apply(Operation operation) {
                         return operation.getClass();
                     }
                 });
@@ -861,10 +861,12 @@ public class LdbcSnbInteractiveWorkloadTest {
         GeneratorFactory gf = new GeneratorFactory(new RandomDataGeneratorFactory(42L));
         Workload workload = new LdbcSnbInteractiveWorkload();
         workload.init(configuration);
-        List<Operation<?>> operations = Lists.newArrayList(gf.limit(workload.streams(gf, true).mergeSortedByStartTime(gf), configuration.operationCount()));
+        List<Operation> operations = Lists.newArrayList(
+                gf.limit(WorkloadStreams.mergeSortedByStartTimeExcludingChildOperationGenerators(gf, workload.streams(gf, true)), configuration.operationCount())
+        );
 
         long prevOperationScheduledStartTime = operations.get(0).scheduledStartTimeAsMilli() - 1;
-        for (Operation<?> operation : operations) {
+        for (Operation operation : operations) {
             assertThat(operation.scheduledStartTimeAsMilli() >= prevOperationScheduledStartTime, is(true));
             prevOperationScheduledStartTime = operation.scheduledStartTimeAsMilli();
         }

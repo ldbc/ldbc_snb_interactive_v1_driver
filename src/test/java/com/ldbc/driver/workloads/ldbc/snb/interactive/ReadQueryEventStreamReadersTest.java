@@ -1,7 +1,7 @@
 package com.ldbc.driver.workloads.ldbc.snb.interactive;
 
 import com.ldbc.driver.Operation;
-import com.ldbc.driver.csv.*;
+import com.ldbc.driver.csv.charseeker.*;
 import com.ldbc.driver.generator.CsvEventStreamReaderBasicCharSeeker;
 import org.junit.Test;
 
@@ -27,7 +27,7 @@ public class ReadQueryEventStreamReadersTest {
         Extractors extractors = new Extractors(';', ',');
         CsvEventStreamReaderBasicCharSeeker.EventDecoder<Object[]> decoder = new Query1EventStreamReader.Query1Decoder();
         Mark mark = new Mark();
-        Iterator<Operation<?>> reader = new Query1EventStreamReader(
+        Iterator<Operation> reader = new Query1EventStreamReader(
                 new CsvEventStreamReaderBasicCharSeeker<>(
                         charSeeker,
                         extractors,
@@ -71,7 +71,7 @@ public class ReadQueryEventStreamReadersTest {
         Extractors extractors = new Extractors(';', ',');
         CsvEventStreamReaderBasicCharSeeker.EventDecoder<Object[]> decoder = new Query2EventStreamReader.Query2Decoder();
         Mark mark = new Mark();
-        Iterator<Operation<?>> reader = new Query2EventStreamReader(
+        Iterator<Operation> reader = new Query2EventStreamReader(
                 new CsvEventStreamReaderBasicCharSeeker<>(
                         charSeeker,
                         extractors,
@@ -125,7 +125,7 @@ public class ReadQueryEventStreamReadersTest {
         Extractors extractors = new Extractors(';', ',');
         CsvEventStreamReaderBasicCharSeeker.EventDecoder<Object[]> decoder = new Query3EventStreamReader.Query3Decoder();
         Mark mark = new Mark();
-        Iterator<Operation<?>> reader = new Query3EventStreamReader(
+        Iterator<Operation> reader = new Query3EventStreamReader(
                 new CsvEventStreamReaderBasicCharSeeker<>(
                         charSeeker,
                         extractors,
@@ -191,7 +191,7 @@ public class ReadQueryEventStreamReadersTest {
         Extractors extractors = new Extractors(';', ',');
         CsvEventStreamReaderBasicCharSeeker.EventDecoder<Object[]> decoder = new Query4EventStreamReader.Query4Decoder();
         Mark mark = new Mark();
-        Iterator<Operation<?>> reader = new Query4EventStreamReader(
+        Iterator<Operation> reader = new Query4EventStreamReader(
                 new CsvEventStreamReaderBasicCharSeeker<>(
                         charSeeker,
                         extractors,
@@ -249,7 +249,7 @@ public class ReadQueryEventStreamReadersTest {
         Extractors extractors = new Extractors(';', ',');
         CsvEventStreamReaderBasicCharSeeker.EventDecoder<Object[]> decoder = new Query5EventStreamReader.Query5Decoder();
         Mark mark = new Mark();
-        Iterator<Operation<?>> reader = new Query5EventStreamReader(
+        Iterator<Operation> reader = new Query5EventStreamReader(
                 new CsvEventStreamReaderBasicCharSeeker<>(
                         charSeeker,
                         extractors,
@@ -303,7 +303,7 @@ public class ReadQueryEventStreamReadersTest {
         Extractors extractors = new Extractors(';', ',');
         CsvEventStreamReaderBasicCharSeeker.EventDecoder<Object[]> decoder = new Query6EventStreamReader.Query6Decoder();
         Mark mark = new Mark();
-        Iterator<Operation<?>> reader = new Query6EventStreamReader(
+        Iterator<Operation> reader = new Query6EventStreamReader(
                 new CsvEventStreamReaderBasicCharSeeker<>(
                         charSeeker,
                         extractors,
@@ -347,7 +347,7 @@ public class ReadQueryEventStreamReadersTest {
         Extractors extractors = new Extractors(';', ',');
         CsvEventStreamReaderBasicCharSeeker.EventDecoder<Object[]> decoder = new Query7EventStreamReader.Query7Decoder();
         Mark mark = new Mark();
-        Iterator<Operation<?>> reader = new Query7EventStreamReader(
+        Iterator<Operation> reader = new Query7EventStreamReader(
                 new CsvEventStreamReaderBasicCharSeeker<>(
                         charSeeker,
                         extractors,
@@ -387,7 +387,7 @@ public class ReadQueryEventStreamReadersTest {
         Extractors extractors = new Extractors(';', ',');
         CsvEventStreamReaderBasicCharSeeker.EventDecoder<Object[]> decoder = new Query8EventStreamReader.Query8Decoder();
         Mark mark = new Mark();
-        Iterator<Operation<?>> reader = new Query8EventStreamReader(
+        Iterator<Operation> reader = new Query8EventStreamReader(
                 new CsvEventStreamReaderBasicCharSeeker<>(
                         charSeeker,
                         extractors,
@@ -427,7 +427,7 @@ public class ReadQueryEventStreamReadersTest {
         Extractors extractors = new Extractors(';', ',');
         CsvEventStreamReaderBasicCharSeeker.EventDecoder<Object[]> decoder = new Query9EventStreamReader.Query9Decoder();
         Mark mark = new Mark();
-        Iterator<Operation<?>> reader = new Query9EventStreamReader(
+        Iterator<Operation> reader = new Query9EventStreamReader(
                 new CsvEventStreamReaderBasicCharSeeker<>(
                         charSeeker,
                         extractors,
@@ -481,7 +481,7 @@ public class ReadQueryEventStreamReadersTest {
         Extractors extractors = new Extractors(';', ',');
         CsvEventStreamReaderBasicCharSeeker.EventDecoder<Object[]> decoder = new Query10EventStreamReader.Query10Decoder();
         Mark mark = new Mark();
-        Iterator<Operation<?>> reader = new Query10EventStreamReader(
+        Iterator<Operation> reader = new Query10EventStreamReader(
                 new CsvEventStreamReaderBasicCharSeeker<>(
                         charSeeker,
                         extractors,
@@ -526,7 +526,7 @@ public class ReadQueryEventStreamReadersTest {
         Extractors extractors = new Extractors(';', ',');
         CsvEventStreamReaderBasicCharSeeker.EventDecoder<Object[]> decoder = new Query11EventStreamReader.Query11Decoder();
         Mark mark = new Mark();
-        Iterator<Operation<?>> reader = new Query11EventStreamReader(
+        Iterator<Operation> reader = new Query11EventStreamReader(
                 new CsvEventStreamReaderBasicCharSeeker<>(
                         charSeeker,
                         extractors,
@@ -574,7 +574,7 @@ public class ReadQueryEventStreamReadersTest {
         Extractors extractors = new Extractors(';', ',');
         CsvEventStreamReaderBasicCharSeeker.EventDecoder<Object[]> decoder = new Query12EventStreamReader.Query12Decoder();
         Mark mark = new Mark();
-        Iterator<Operation<?>> reader = new Query12EventStreamReader(
+        Iterator<Operation> reader = new Query12EventStreamReader(
                 new CsvEventStreamReaderBasicCharSeeker<>(
                         charSeeker,
                         extractors,
@@ -618,7 +618,7 @@ public class ReadQueryEventStreamReadersTest {
         Extractors extractors = new Extractors(';', ',');
         CsvEventStreamReaderBasicCharSeeker.EventDecoder<Object[]> decoder = new Query13EventStreamReader.Query13Decoder();
         Mark mark = new Mark();
-        Iterator<Operation<?>> reader = new Query13EventStreamReader(
+        Iterator<Operation> reader = new Query13EventStreamReader(
                 new CsvEventStreamReaderBasicCharSeeker<>(
                         charSeeker,
                         extractors,
@@ -662,7 +662,7 @@ public class ReadQueryEventStreamReadersTest {
         Extractors extractors = new Extractors(';', ',');
         CsvEventStreamReaderBasicCharSeeker.EventDecoder<Object[]> decoder = new Query14EventStreamReader.Query14Decoder();
         Mark mark = new Mark();
-        Iterator<Operation<?>> reader = new Query14EventStreamReader(
+        Iterator<Operation> reader = new Query14EventStreamReader(
                 new CsvEventStreamReaderBasicCharSeeker<>(
                         charSeeker,
                         extractors,

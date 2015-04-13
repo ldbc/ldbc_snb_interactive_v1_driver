@@ -31,7 +31,7 @@ public class MetricsManager {
         }
     }
 
-    public static OperationTypeMetricsManager[] toOperationTypeMetricsManagerArray(Map<Integer, Class<? extends Operation<?>>> operationTypeToClassMapping,
+    public static OperationTypeMetricsManager[] toOperationTypeMetricsManagerArray(Map<Integer, Class<? extends Operation>> operationTypeToClassMapping,
                                                                                    TimeUnit unit,
                                                                                    long highestExpectedRuntimeDurationAsNano) throws MetricsCollectionException {
         if (operationTypeToClassMapping.isEmpty()) {
@@ -45,7 +45,7 @@ public class MetricsManager {
             final int maxOperationType = Ordering.<Integer>natural().max(operationTypeToClassMapping.keySet());
             OperationTypeMetricsManager[] operationTypeMetricsManagers = new OperationTypeMetricsManager[maxOperationType + 1];
             for (int i = 0; i < operationTypeMetricsManagers.length; i++) {
-                Class<? extends Operation<?>> operationClass = operationTypeToClassMapping.get(i);
+                Class<? extends Operation> operationClass = operationTypeToClassMapping.get(i);
                 if (null == operationClass) {
                     operationTypeMetricsManagers[i] = null;
                 } else {
@@ -60,7 +60,7 @@ public class MetricsManager {
         }
     }
 
-    public static String[] toOperationNameArray(Map<Integer, Class<? extends Operation<?>>> operationTypeToClassMapping) throws MetricsCollectionException {
+    public static String[] toOperationNameArray(Map<Integer, Class<? extends Operation>> operationTypeToClassMapping) throws MetricsCollectionException {
         if (operationTypeToClassMapping.isEmpty()) {
             return new String[]{};
         } else {
@@ -71,7 +71,7 @@ public class MetricsManager {
             final int maxOperationType = Ordering.<Integer>natural().max(operationTypeToClassMapping.keySet());
             String[] operationNames = new String[maxOperationType + 1];
             for (int i = 0; i < operationNames.length; i++) {
-                Class<? extends Operation<?>> operationClass = operationTypeToClassMapping.get(i);
+                Class<? extends Operation> operationClass = operationTypeToClassMapping.get(i);
                 if (null == operationClass) {
                     operationNames[i] = null;
                 } else {
@@ -85,7 +85,7 @@ public class MetricsManager {
     MetricsManager(TimeSource timeSource,
                    TimeUnit unit,
                    long highestExpectedRuntimeDurationAsNano,
-                   Map<Integer, Class<? extends Operation<?>>> operationTypeToClassMapping) throws MetricsCollectionException {
+                   Map<Integer, Class<? extends Operation>> operationTypeToClassMapping) throws MetricsCollectionException {
         operationTypeMetricsManagers = toOperationTypeMetricsManagerArray(
                 operationTypeToClassMapping,
                 unit,

@@ -12,7 +12,7 @@ import java.util.List;
 
 public class DummyWorkloadFactory implements WorkloadFactory {
     private final Iterator<WorkloadStreams> streams;
-    private final Iterator<Operation<?>> alternativeLastOperations;
+    private final Iterator<Operation> alternativeLastOperations;
     private final long maxExpectedInterleaveAsMilli;
 
     public DummyWorkloadFactory(Iterator<WorkloadStreams> streams,
@@ -21,7 +21,7 @@ public class DummyWorkloadFactory implements WorkloadFactory {
     }
 
     public DummyWorkloadFactory(Iterator<WorkloadStreams> streams,
-                                Iterator<Operation<?>> alternativeLastOperations,
+                                Iterator<Operation> alternativeLastOperations,
                                 long maxExpectedInterleaveAsMilli) {
         this.streams = streams;
         this.alternativeLastOperations = alternativeLastOperations;
@@ -35,7 +35,7 @@ public class DummyWorkloadFactory implements WorkloadFactory {
             workloadStreams = streams.next();
         } else {
             workloadStreams = streams.next();
-            List<Operation<?>> asynchronousNonDependencyOperationsToReturn = Lists.newArrayList(workloadStreams.asynchronousStream().nonDependencyOperations());
+            List<Operation> asynchronousNonDependencyOperationsToReturn = Lists.newArrayList(workloadStreams.asynchronousStream().nonDependencyOperations());
             asynchronousNonDependencyOperationsToReturn.remove(asynchronousNonDependencyOperationsToReturn.size() - 1);
             asynchronousNonDependencyOperationsToReturn.add(alternativeLastOperations.next());
             workloadStreams.setAsynchronousStream(

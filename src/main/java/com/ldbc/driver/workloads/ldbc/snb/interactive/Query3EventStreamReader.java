@@ -2,9 +2,9 @@ package com.ldbc.driver.workloads.ldbc.snb.interactive;
 
 
 import com.ldbc.driver.Operation;
-import com.ldbc.driver.csv.CharSeeker;
-import com.ldbc.driver.csv.Extractors;
-import com.ldbc.driver.csv.Mark;
+import com.ldbc.driver.csv.charseeker.CharSeeker;
+import com.ldbc.driver.csv.charseeker.Extractors;
+import com.ldbc.driver.csv.charseeker.Mark;
 import com.ldbc.driver.generator.CsvEventStreamReaderBasicCharSeeker;
 import com.ldbc.driver.generator.GeneratorException;
 
@@ -12,7 +12,7 @@ import java.io.IOException;
 import java.util.Date;
 import java.util.Iterator;
 
-public class Query3EventStreamReader implements Iterator<Operation<?>> {
+public class Query3EventStreamReader implements Iterator<Operation> {
     private final Iterator<Object[]> csvRows;
 
     public Query3EventStreamReader(Iterator<Object[]> csvRows) {
@@ -25,9 +25,9 @@ public class Query3EventStreamReader implements Iterator<Operation<?>> {
     }
 
     @Override
-    public Operation<?> next() {
+    public Operation next() {
         Object[] rowAsObjects = csvRows.next();
-        Operation<?> operation = new LdbcQuery3(
+        Operation operation = new LdbcQuery3(
                 (long) rowAsObjects[0],
                 (String) rowAsObjects[3],
                 (String) rowAsObjects[4],

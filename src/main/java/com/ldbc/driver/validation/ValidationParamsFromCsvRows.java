@@ -27,7 +27,7 @@ public class ValidationParamsFromCsvRows implements Iterator<ValidationParam> {
         String serializedOperation = csvRow[0];
         String serializedOperationResult = csvRow[1];
 
-        Operation<?> operation;
+        Operation operation;
         try {
             operation = workload.marshalOperation(serializedOperation);
         } catch (SerializingMarshallingException e) {

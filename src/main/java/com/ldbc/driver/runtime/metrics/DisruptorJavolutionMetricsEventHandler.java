@@ -3,7 +3,7 @@ package com.ldbc.driver.runtime.metrics;
 import com.ldbc.driver.Operation;
 import com.ldbc.driver.runtime.ConcurrentErrorReporter;
 import com.ldbc.driver.temporal.TimeSource;
-import com.ldbc.driver.util.csv.SimpleCsvFileWriter;
+import com.ldbc.driver.csv.simple.SimpleCsvFileWriter;
 import com.lmax.disruptor.EventHandler;
 
 import java.util.Map;
@@ -26,7 +26,7 @@ class DisruptorJavolutionMetricsEventHandler implements EventHandler<DisruptorJa
                                            TimeUnit unit,
                                            TimeSource timeSource,
                                            long maxRuntimeDurationAsNano,
-                                           Map<Integer, Class<? extends Operation<?>>> operationTypeToClassMapping) throws MetricsCollectionException {
+                                           Map<Integer, Class<? extends Operation>> operationTypeToClassMapping) throws MetricsCollectionException {
         this.errorReporter = errorReporter;
         this.csvResultsLogWriter = csvResultsLogWriter;
         this.unit = unit;

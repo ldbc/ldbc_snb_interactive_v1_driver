@@ -3,6 +3,8 @@ package com.ldbc.driver;
 import com.google.common.base.Charsets;
 import com.google.common.collect.Iterators;
 import com.ldbc.driver.control.*;
+import com.ldbc.driver.csv.simple.SimpleCsvFileReader;
+import com.ldbc.driver.csv.simple.SimpleCsvFileWriter;
 import com.ldbc.driver.generator.GeneratorFactory;
 import com.ldbc.driver.generator.RandomDataGeneratorFactory;
 import com.ldbc.driver.runtime.ConcurrentErrorReporter;
@@ -18,8 +20,6 @@ import com.ldbc.driver.temporal.TemporalUtil;
 import com.ldbc.driver.temporal.TimeSource;
 import com.ldbc.driver.util.ClassLoaderHelper;
 import com.ldbc.driver.util.Tuple;
-import com.ldbc.driver.util.csv.SimpleCsvFileReader;
-import com.ldbc.driver.util.csv.SimpleCsvFileWriter;
 import com.ldbc.driver.validation.*;
 import org.apache.commons.io.FileUtils;
 import org.apache.log4j.Logger;
@@ -34,7 +34,6 @@ import java.util.concurrent.TimeUnit;
 
 //the following need work;
 // TODO Validate Workload
-// TODO Calculate Statistics
 
 public class Client {
     private static Logger logger = Logger.getLogger(Client.class);
@@ -245,8 +244,9 @@ public class Client {
             WorkloadStreams workloadStreams;
             long minimumTimeStamp;
             try {
+                boolean returnStreamsWithDbConnector = true;
                 Tuple.Tuple3<WorkloadStreams, Workload, Long> streamsAndWorkloadAndMinimumTimeStamp =
-                        WorkloadStreams.createNewWorkloadWithLimitedWorkloadStreams(controlService.configuration(), gf);
+                        WorkloadStreams.createNewWorkloadWithLimitedWorkloadStreams(controlService.configuration(), gf, returnStreamsWithDbConnector);
                 workload = streamsAndWorkloadAndMinimumTimeStamp._2();
                 workloadStreams = streamsAndWorkloadAndMinimumTimeStamp._1();
                 minimumTimeStamp = streamsAndWorkloadAndMinimumTimeStamp._3();
@@ -440,8 +440,9 @@ public class Client {
             GeneratorFactory gf = new GeneratorFactory(new RandomDataGeneratorFactory(RANDOM_SEED));
             WorkloadStreams workloadStreams;
             try {
+                boolean returnStreamsWithDbConnector = false;
                 Tuple.Tuple3<WorkloadStreams, Workload, Long> workloadStreamsAndWorkload =
-                        WorkloadStreams.createNewWorkloadWithLimitedWorkloadStreams(controlService.configuration(), gf);
+                        WorkloadStreams.createNewWorkloadWithLimitedWorkloadStreams(controlService.configuration(), gf, returnStreamsWithDbConnector);
                 workloadStreams = workloadStreamsAndWorkload._1();
                 workload = workloadStreamsAndWorkload._2();
             } catch (Exception e) {
@@ -491,7 +492,7 @@ public class Client {
 
         private Workload workload = null;
         private Db database = null;
-        private Iterator<Operation<?>> timeMappedOperations = null;
+        private Iterator<Operation> timeMappedOperations = null;
 
         CreateValidationParamsMode(ControlService controlService) throws ClientException {
             this.controlService = controlService;
@@ -519,11 +520,12 @@ public class Client {
 
             logger.info(String.format("Retrieving operation stream for workload: %s", workload.getClass().getSimpleName()));
             try {
+                boolean returnStreamsWithDbConnector = false;
                 Tuple.Tuple3<WorkloadStreams, Workload, Long> streamsAndWorkload =
-                        WorkloadStreams.createNewWorkloadWithLimitedWorkloadStreams(controlService.configuration(), gf);
+                        WorkloadStreams.createNewWorkloadWithLimitedWorkloadStreams(controlService.configuration(), gf, returnStreamsWithDbConnector);
                 workload = streamsAndWorkload._2();
                 WorkloadStreams workloadStreams = streamsAndWorkload._1();
-                timeMappedOperations = workloadStreams.mergeSortedByStartTime(gf);
+                timeMappedOperations = WorkloadStreams.mergeSortedByStartTimeExcludingChildOperationGenerators(gf, workloadStreams);
             } catch (WorkloadException e) {
                 throw new ClientException("Error while retrieving operation stream for workload", e);
             } catch (IOException e) {

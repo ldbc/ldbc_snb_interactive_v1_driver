@@ -198,9 +198,9 @@ public class LdbcSnbInteractiveWorkloadPerformanceTest {
         Workload workload = null;
         MetricsService metricsService = null;
         try {
-//            Map<String, String> paramsMap = LdbcSnbInteractiveConfiguration.defaultConfig();
+            Map<String, String> paramsMap = LdbcSnbInteractiveConfiguration.defaultConfig();
 //            Map<String, String> paramsMap = LdbcSnbInteractiveConfiguration.defaultWriteOnlyConfig();
-            Map<String, String> paramsMap = LdbcSnbInteractiveConfiguration.defaultReadOnlyConfig();
+//            Map<String, String> paramsMap = LdbcSnbInteractiveConfiguration.defaultReadOnlyConfig();
             paramsMap.put(LdbcSnbInteractiveConfiguration.PARAMETERS_DIRECTORY, parametersDir);
             paramsMap.put(LdbcSnbInteractiveConfiguration.UPDATES_DIRECTORY, updateStreamsDir);
             paramsMap.put(LdbcSnbInteractiveConfiguration.UPDATE_STREAM_PARSER, LdbcSnbInteractiveConfiguration.UpdateStreamParser.CHAR_SEEKER.name());
@@ -217,7 +217,8 @@ public class LdbcSnbInteractiveWorkloadPerformanceTest {
             ConsoleAndFileDriverConfiguration.ConsoleAndFileValidationParamOptions validationParams = null;
             String dbValidationFilePath = null;
             boolean validateWorkload = false;
-            boolean calculateWorkloadStatistics = false;
+            // TODO should be false
+            boolean calculateWorkloadStatistics = true;
             long spinnerSleepDuration = 0;
             boolean printHelp = false;
             boolean ignoreScheduledStartTimes = false;

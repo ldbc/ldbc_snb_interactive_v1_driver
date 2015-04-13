@@ -33,7 +33,7 @@ public class SpinnerTests {
         Spinner spinner = new Spinner(timeSource, spinnerSleepDuration, ignoreScheduledStartTime);
 
         long scheduledStartTime = 10l;
-        Operation<?> operation = new TimedNamedOperation1(scheduledStartTime, scheduledStartTime, 0l, "name");
+        Operation operation = new TimedNamedOperation1(scheduledStartTime, scheduledStartTime, 0l, "name");
 
         SpinningThread spinningThread = new SpinningThread(spinner, operation);
 
@@ -66,7 +66,7 @@ public class SpinnerTests {
         Spinner spinner = new Spinner(timeSource, spinnerSleepDuration, ignoreScheduledStartTime);
 
         long scheduledStartTime = 10l;
-        Operation<?> operation = new TimedNamedOperation1(scheduledStartTime, scheduledStartTime, 0l, "name");
+        Operation operation = new TimedNamedOperation1(scheduledStartTime, scheduledStartTime, 0l, "name");
 
         SpinningThread spinningThread = new SpinningThread(spinner, operation, check);
 
@@ -113,7 +113,7 @@ public class SpinnerTests {
         Spinner spinner = new Spinner(timeSource, spinnerSleepDuration, ignoreScheduledStartTime);
 
         long scheduledStartTime = 10l;
-        Operation<?> operation = new TimedNamedOperation1(scheduledStartTime, scheduledStartTime, 0l, "name");
+        Operation operation = new TimedNamedOperation1(scheduledStartTime, scheduledStartTime, 0l, "name");
 
         SpinningThread spinningThread = new SpinningThread(spinner, operation, check);
 
@@ -152,16 +152,16 @@ public class SpinnerTests {
 
     private static class SpinningThread extends Thread {
         private final Spinner spinner;
-        private final Operation<?> operation;
+        private final Operation operation;
         private final AtomicBoolean isFineToExecuteOperation;
         private final AtomicBoolean spinnerHasCompleted;
         private final SpinnerCheck check;
 
-        SpinningThread(Spinner spinner, Operation<?> operation) {
+        SpinningThread(Spinner spinner, Operation operation) {
             this(spinner, operation, null);
         }
 
-        SpinningThread(Spinner spinner, Operation<?> operation, SpinnerCheck check) {
+        SpinningThread(Spinner spinner, Operation operation, SpinnerCheck check) {
             this.spinner = spinner;
             this.operation = operation;
             this.check = check;
@@ -235,8 +235,8 @@ public class SpinnerTests {
                 operationCount, TEMPORAL_UTIL.milliDurationToString(singleCheckWithoutStartTimeCheckTestDuration), integerFormat.format(operationCount / singleCheckWithoutStartTimeCheckTestDuration), TimeUnit.MILLISECONDS.toNanos(singleCheckWithoutStartTimeCheckTestDuration) / operationCount));
     }
 
-    private static class FastSameOperationIterator implements Iterator<Operation<?>> {
-        private final Operation<?> operation;
+    private static class FastSameOperationIterator implements Iterator<Operation> {
+        private final Operation operation;
         private long currentOperationCount = 0;
         private final long operationCount;
 
@@ -253,7 +253,7 @@ public class SpinnerTests {
         }
 
         @Override
-        public Operation<?> next() {
+        public Operation next() {
             currentOperationCount++;
             return operation;
         }

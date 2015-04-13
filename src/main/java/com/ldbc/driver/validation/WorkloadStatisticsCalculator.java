@@ -1,8 +1,8 @@
 package com.ldbc.driver.validation;
 
-import com.google.common.base.Function;
-import com.google.common.collect.Iterators;
+import com.ldbc.driver.ChildOperationGenerator;
 import com.ldbc.driver.Operation;
+import com.ldbc.driver.WorkloadException;
 import com.ldbc.driver.WorkloadStreams;
 import com.ldbc.driver.generator.GeneratorFactory;
 import com.ldbc.driver.generator.RandomDataGeneratorFactory;
@@ -15,7 +15,6 @@ import java.util.*;
 
 public class WorkloadStatisticsCalculator {
     /**
-     * TODO generator that creates an operation stream based on total time, rather than count
      * TODO report how frequently GCT is updated
      */
 
@@ -35,104 +34,44 @@ public class WorkloadStatisticsCalculator {
 
         final Set<Class> dependencyOperationTypes = new HashSet<>();
         final Set<Class> dependentOperationTypes = new HashSet<>();
-        final ContinuousMetricManager interleavesForDependencyOperations = new ContinuousMetricManager(null, null, maxExpectedInterleaveAsMilli, 5);
-        final ContinuousMetricManager interleavesForDependentOperations = new ContinuousMetricManager(null, null, maxExpectedInterleaveAsMilli, 5);
 
         // If there are no operations in the stream (e.g. they are all disabled) there is no point tracking the depend operations
         if (workloadStreams.asynchronousStream().dependencyOperations().hasNext() || workloadStreams.asynchronousStream().nonDependencyOperations().hasNext()) {
             dependentOperationTypes.addAll(workloadStreams.asynchronousStream().dependentOperationTypes());
+            dependencyOperationTypes.addAll(workloadStreams.asynchronousStream().dependencyOperationTypes());
         }
         for (WorkloadStreams.WorkloadStreamDefinition streamDefinition : workloadStreams.blockingStreamDefinitions()) {
             // If there are no operations in the stream (e.g. they are all disabled) there is no point tracking the depend operations
             if (streamDefinition.dependencyOperations().hasNext() || streamDefinition.nonDependencyOperations().hasNext()) {
                 dependentOperationTypes.addAll(streamDefinition.dependentOperationTypes());
+                dependencyOperationTypes.addAll(streamDefinition.dependencyOperationTypes());
             }
         }
 
-        List<Iterator<Operation<?>>> dependencyOperationIterators = new ArrayList<>();
-        dependencyOperationIterators.add(workloadStreams.asynchronousStream().dependencyOperations());
-        for (WorkloadStreams.WorkloadStreamDefinition streamDefinition : workloadStreams.blockingStreamDefinitions()) {
-            dependencyOperationIterators.add(streamDefinition.dependencyOperations());
-        }
-        List<Iterator<Operation<?>>> nonDependencyOperationIterators = new ArrayList<>();
-        nonDependencyOperationIterators.add(workloadStreams.asynchronousStream().nonDependencyOperations());
-        for (WorkloadStreams.WorkloadStreamDefinition streamDefinition : workloadStreams.blockingStreamDefinitions()) {
-            nonDependencyOperationIterators.add(streamDefinition.nonDependencyOperations());
-        }
-
-        Function<Operation<?>, Operation<?>> collectStatsForDependencyOperations = new Function<Operation<?>, Operation<?>>() {
-            long prevDependencyAsMilli = -1;
-            long prevDependentAsMilli = -1;
-
-            @Override
-            public Operation<?> apply(Operation<?> operation) {
-                dependencyOperationTypes.add(operation.getClass());
-                if (-1 == prevDependencyAsMilli) {
-                    prevDependencyAsMilli = operation.scheduledStartTimeAsMilli();
-                } else {
-                    long interleaveAsMilli = operation.scheduledStartTimeAsMilli() - prevDependencyAsMilli;
-                    try {
-                        interleavesForDependencyOperations.addMeasurement(interleaveAsMilli);
-                    } catch (Throwable e) {
-                        throw new RuntimeException("Error in collectStatsForDependencyOperations function while collection interleave stats for dependency operations", e);
-                    }
-                    prevDependencyAsMilli = operation.scheduledStartTimeAsMilli();
-                }
-                if (dependentOperationTypes.contains(operation.getClass())) {
-                    if (-1 == prevDependentAsMilli) {
-                        prevDependentAsMilli = operation.scheduledStartTimeAsMilli();
-                    } else {
-                        long interleaveAsMilli = operation.scheduledStartTimeAsMilli() - prevDependentAsMilli;
-                        try {
-                            interleavesForDependentOperations.addMeasurement(interleaveAsMilli);
-                        } catch (Throwable e) {
-                            throw new RuntimeException("Error in collectStatsForDependencyOperations function while collection interleave stats for dependent operations", e);
-                        }
-                        prevDependentAsMilli = operation.scheduledStartTimeAsMilli();
-                    }
-                }
-                return operation;
-            }
-        };
-        Iterator<Operation<?>> dependencyOperations = Iterators.transform(
-                gf.mergeSortOperationsByScheduledStartTime(
-                        dependencyOperationIterators.toArray(new Iterator[dependencyOperationIterators.size()])
-                ),
-                collectStatsForDependencyOperations
+        List<Iterator<Operation>> operationIterators = new ArrayList<>();
+        operationIterators.add(
+                new StreamWithChildOperationGenerator(workloadStreams.asynchronousStream().dependencyOperations(), workloadStreams.asynchronousStream().childOperationGenerator())
         );
-
-        Function<Operation<?>, Operation<?>> collectStatsForNonDependentOperations = new Function<Operation<?>, Operation<?>>() {
-            long prevDependentAsMilli = -1;
-
-            @Override
-            public Operation<?> apply(Operation<?> operation) {
-                if (dependentOperationTypes.contains(operation.getClass())) {
-                    if (-1 == prevDependentAsMilli) {
-                        prevDependentAsMilli = operation.scheduledStartTimeAsMilli();
-                    } else {
-                        long interleaveAsMilli = operation.scheduledStartTimeAsMilli() - prevDependentAsMilli;
-                        try {
-                            interleavesForDependentOperations.addMeasurement(interleaveAsMilli);
-                        } catch (Throwable e) {
-                            throw new RuntimeException("Error collectStatsForNonDependentOperations", e);
-                        }
-                        prevDependentAsMilli = operation.scheduledStartTimeAsMilli();
-                    }
-                }
-                return operation;
-            }
-        };
-        Iterator<Operation<?>> nonDependencyOperations = Iterators.transform(
-                gf.mergeSortOperationsByScheduledStartTime(nonDependencyOperationIterators.toArray(new Iterator[nonDependencyOperationIterators.size()])),
-                collectStatsForNonDependentOperations
+        operationIterators.add(
+                new StreamWithChildOperationGenerator(workloadStreams.asynchronousStream().nonDependencyOperations(), workloadStreams.asynchronousStream().childOperationGenerator())
         );
+        for (WorkloadStreams.WorkloadStreamDefinition blockingStreamDefinition : workloadStreams.blockingStreamDefinitions()) {
+            operationIterators.add(
+                    new StreamWithChildOperationGenerator(blockingStreamDefinition.dependencyOperations(), blockingStreamDefinition.childOperationGenerator())
+            );
+            operationIterators.add(
+                    new StreamWithChildOperationGenerator(blockingStreamDefinition.nonDependencyOperations(), blockingStreamDefinition.childOperationGenerator())
+            );
+        }
 
-        Iterator<Operation<?>> operations = gf.mergeSortOperationsByScheduledStartTime(dependencyOperations, nonDependencyOperations);
+        Iterator<Operation> operations = gf.mergeSortOperationsByScheduledStartTime(
+                operationIterators.toArray(new Iterator[operationIterators.size()])
+        );
 
         Map<Class, Long> lowestDependencyDurationAsMilliByOperationType = new HashMap<>();
 
         while (operations.hasNext()) {
-            Operation<?> operation = operations.next();
+            Operation operation = operations.next();
             Class operationType = operation.getClass();
             long operationStartTimeAsMilli = operation.scheduledStartTimeAsMilli();
             long operationDependencyTimeAsMilli = operation.dependencyTimeStamp();
@@ -181,11 +120,56 @@ public class WorkloadStatisticsCalculator {
                 lastStartTimesAsMilliByOperationType,
                 operationMixHistogram,
                 operationInterleaves,
-                interleavesForDependencyOperations,
-                interleavesForDependentOperations,
                 operationInterleavesByOperationType,
                 dependencyOperationTypes,
                 dependentOperationTypes,
                 lowestDependencyDurationAsMilliByOperationType);
+    }
+
+    private static class StreamWithChildOperationGenerator implements Iterator<Operation> {
+        private static final Object RESULT = null;
+        private final Iterator<Operation> stream;
+        private final ChildOperationGenerator childOperationGenerator;
+        private double childOperationGeneratorState;
+        private Operation nextChildOperation;
+
+        private StreamWithChildOperationGenerator(Iterator<Operation> stream, ChildOperationGenerator childOperationGenerator) {
+            this.stream = stream;
+            this.childOperationGenerator = childOperationGenerator;
+            if (null != this.childOperationGenerator) {
+                this.childOperationGeneratorState = this.childOperationGenerator.initialState();
+            }
+            this.nextChildOperation = null;
+        }
+
+        @Override
+        public boolean hasNext() {
+            return null != nextChildOperation || stream.hasNext();
+        }
+
+        @Override
+        public Operation next() {
+            Operation next = (null != nextChildOperation)
+                    ? nextChildOperation
+                    : stream.next();
+
+            if (null != this.childOperationGenerator) {
+                try {
+                    nextChildOperation = childOperationGenerator.nextOperation(childOperationGeneratorState, next, RESULT, next.scheduledStartTimeAsMilli(), 0l);
+                } catch (WorkloadException e) {
+                    throw new RuntimeException("Error encountered while retrieving next child operation", e);
+                }
+                childOperationGeneratorState = (null == nextChildOperation)
+                        ? childOperationGenerator.initialState()
+                        : childOperationGenerator.updateState(childOperationGeneratorState, next.type());
+            }
+
+            return next;
+        }
+
+        @Override
+        public void remove() {
+            throw new UnsupportedOperationException();
+        }
     }
 }

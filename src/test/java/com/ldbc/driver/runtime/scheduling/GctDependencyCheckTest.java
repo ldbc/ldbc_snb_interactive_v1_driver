@@ -15,7 +15,7 @@ public class GctDependencyCheckTest {
         // Given
         long dependencyTimeAsMilli = 5;
         long scheduledStartTimeAsMilli = -1;
-        Operation<?> operation = new TimedNamedOperation1(scheduledStartTimeAsMilli, scheduledStartTimeAsMilli, dependencyTimeAsMilli, null);
+        Operation operation = new TimedNamedOperation1(scheduledStartTimeAsMilli, scheduledStartTimeAsMilli, dependencyTimeAsMilli, null);
         DummyGlobalCompletionTimeReader dummyGlobalCompletionTimeReader = new DummyGlobalCompletionTimeReader();
         ConcurrentErrorReporter errorReporter = new ConcurrentErrorReporter();
 

@@ -17,11 +17,11 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package com.ldbc.driver.csv;
+package com.ldbc.driver.csv.charseeker;
 
 /**
- * Extracts a value from a part of a {@code char[]} into any type of value, f.ex. a {@link com.ldbc.driver.csv.Extractors#string()}  string},
- * {@link com.ldbc.driver.csv.Extractors#long_()}  long} or {@link Extractors#intArray()}.
+ * Extracts a value from a part of a {@code char[]} into any type of value, f.ex. a {@link Extractors#string()}  string},
+ * {@link Extractors#long_()}  long} or {@link Extractors#intArray()}.
  * <p/>
  * An {@link Extractor} is mutable for the single purpose of ability to reuse its value instance. Consider extracting
  * a primitive int -

@@ -10,7 +10,7 @@ import java.util.List;
 /**
  * Created by alexaverbuch on 7/11/14.
  */
-class ScanOperationGenerator extends Generator<Operation<?>> {
+class ScanOperationGenerator extends Generator<Operation> {
     private final String table;
     private final Iterator<String> startKeyGenerator;
     private final Iterator<Integer> recordCountGenerator;
@@ -25,7 +25,7 @@ class ScanOperationGenerator extends Generator<Operation<?>> {
     }
 
     @Override
-    protected Operation<?> doNext() throws GeneratorException {
+    protected Operation doNext() throws GeneratorException {
         return new ScanOperation(table, startKeyGenerator.next(), recordCountGenerator.next(), fieldsGenerator.next());
     }
 }

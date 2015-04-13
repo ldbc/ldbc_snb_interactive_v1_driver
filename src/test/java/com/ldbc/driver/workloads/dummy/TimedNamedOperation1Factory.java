@@ -4,7 +4,7 @@ import com.ldbc.driver.Operation;
 
 import java.util.Iterator;
 
-public class TimedNamedOperation1Factory implements Iterator<Operation<?>> {
+public class TimedNamedOperation1Factory implements Iterator<Operation> {
     private final Iterator<Long> startTimesAsMilli;
     private final Iterator<Long> dependencyTimesAsMilli;
     private final Iterator<String> names;

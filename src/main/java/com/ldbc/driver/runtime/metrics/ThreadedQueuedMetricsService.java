@@ -5,10 +5,8 @@ import com.ldbc.driver.runtime.ConcurrentErrorReporter;
 import com.ldbc.driver.runtime.DefaultQueues;
 import com.ldbc.driver.runtime.QueueEventSubmitter;
 import com.ldbc.driver.temporal.TimeSource;
-import com.ldbc.driver.util.csv.SimpleCsvFileWriter;
+import com.ldbc.driver.csv.simple.SimpleCsvFileWriter;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Map;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
@@ -42,7 +40,7 @@ public class ThreadedQueuedMetricsService implements MetricsService {
                                                                                                  TimeUnit unit,
                                                                                                  long maxRuntimeDurationAsNano,
                                                                                                  SimpleCsvFileWriter csvResultsLogWriter,
-                                                                                                 Map<Integer, Class<? extends Operation<?>>> operationTypeToClassMapping) throws MetricsCollectionException {
+                                                                                                 Map<Integer, Class<? extends Operation>> operationTypeToClassMapping) throws MetricsCollectionException {
         Queue<ThreadedQueuedMetricsEvent> queue = DefaultQueues.newNonBlockingBounded(10000);
         return new ThreadedQueuedMetricsService(
                 timeSource,
@@ -59,7 +57,7 @@ public class ThreadedQueuedMetricsService implements MetricsService {
                                                                                               TimeUnit unit,
                                                                                               long maxRuntimeDurationAsNano,
                                                                                               SimpleCsvFileWriter csvResultsLogWriter,
-                                                                                              Map<Integer, Class<? extends Operation<?>>> operationTypeToClassMapping) throws MetricsCollectionException {
+                                                                                              Map<Integer, Class<? extends Operation>> operationTypeToClassMapping) throws MetricsCollectionException {
         Queue<ThreadedQueuedMetricsEvent> queue = DefaultQueues.newBlockingBounded(10000);
         return new ThreadedQueuedMetricsService(
                 timeSource,
@@ -77,7 +75,7 @@ public class ThreadedQueuedMetricsService implements MetricsService {
                                          long maxRuntimeDurationAsNano,
                                          Queue<ThreadedQueuedMetricsEvent> queue,
                                          SimpleCsvFileWriter csvResultsLogWriter,
-                                         Map<Integer, Class<? extends Operation<?>>> operationTypeToClassMapping) throws MetricsCollectionException {
+                                         Map<Integer, Class<? extends Operation>> operationTypeToClassMapping) throws MetricsCollectionException {
         this.timeSource = timeSource;
         queueEventSubmitter = QueueEventSubmitter.queueEventSubmitterFor(queue);
         initiatedEvents = new AtomicLong(0);

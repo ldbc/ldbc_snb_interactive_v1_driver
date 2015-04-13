@@ -19,7 +19,7 @@ public class SettableSpinnerCheck implements SpinnerCheck {
     }
 
     @Override
-    public boolean handleFailedCheck(Operation<?> operation) {
+    public boolean handleFailedCheck(Operation operation) {
         return false;
     }
 }

@@ -4,7 +4,7 @@ import com.ldbc.driver.Operation;
 import com.ldbc.driver.runtime.ConcurrentErrorReporter;
 import com.ldbc.driver.runtime.metrics.sbe.MetricsEvent;
 import com.ldbc.driver.temporal.TimeSource;
-import com.ldbc.driver.util.csv.SimpleCsvFileWriter;
+import com.ldbc.driver.csv.simple.SimpleCsvFileWriter;
 import com.lmax.disruptor.EventHandler;
 import uk.co.real_logic.sbe.codec.java.DirectBuffer;
 
@@ -29,7 +29,7 @@ class DisruptorSbeMetricsEventHandler implements EventHandler<DirectBuffer> {
                                     TimeUnit unit,
                                     TimeSource timeSource,
                                     long maxRuntimeDurationAsNano,
-                                    Map<Integer, Class<? extends Operation<?>>> operationTypeToClassMapping) throws MetricsCollectionException {
+                                    Map<Integer, Class<? extends Operation>> operationTypeToClassMapping) throws MetricsCollectionException {
         this.errorReporter = errorReporter;
         this.csvResultsLogWriter = csvResultsLogWriter;
         this.unit = unit;

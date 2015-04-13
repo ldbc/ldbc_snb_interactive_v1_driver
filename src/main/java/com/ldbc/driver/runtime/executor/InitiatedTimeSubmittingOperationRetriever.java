@@ -9,8 +9,8 @@ import java.util.Iterator;
 
 // TODO test
 class InitiatedTimeSubmittingOperationRetriever {
-    private final Iterator<Operation<?>> nonDependencyOperations;
-    private final Iterator<Operation<?>> dependencyOperations;
+    private final Iterator<Operation> nonDependencyOperations;
+    private final Iterator<Operation> dependencyOperations;
     private final LocalCompletionTimeWriter localCompletionTimeWriter;
     private Operation nextNonDependencyOperation = null;
     private Operation nextDependencyOperation = null;

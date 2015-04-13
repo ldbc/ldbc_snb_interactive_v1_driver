@@ -25,15 +25,15 @@ public class MetricsManagerTest {
                 LdbcSnbInteractiveConfiguration.operationTypeToClassMapping()
         );
 
-        Operation<?> operation1 = DummyLdbcSnbInteractiveOperationInstances.read1();
+        Operation operation1 = DummyLdbcSnbInteractiveOperationInstances.read1();
         long operation1ActualStartTimeAsMilli = 2;
         long operation1RunDurationAsNano = TimeUnit.MILLISECONDS.toNanos(1);
 
-        Operation<?> operation2 = DummyLdbcSnbInteractiveOperationInstances.read1();
+        Operation operation2 = DummyLdbcSnbInteractiveOperationInstances.read1();
         long operation2ActualStartTimeAsMilli = 8;
         long operation2RunDurationAsNano = TimeUnit.MILLISECONDS.toNanos(3);
 
-        Operation<?> operation3 = DummyLdbcSnbInteractiveOperationInstances.read2();
+        Operation operation3 = DummyLdbcSnbInteractiveOperationInstances.read2();
         long operation3ActualStartTimeAsMilli = 11;
         long operation3RunDurationAsNano = TimeUnit.MILLISECONDS.toNanos(5);
 
