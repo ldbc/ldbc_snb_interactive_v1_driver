@@ -78,6 +78,8 @@ public abstract class Workload implements Closeable {
 
     public abstract Operation marshalOperation(String serializedOperation) throws SerializingMarshallingException;
 
+    public abstract boolean resultsEqual(Operation operation, Object result1, Object result2) throws WorkloadException;
+
     public static interface DbValidationParametersFilter {
         boolean useOperation(Operation operation);
 

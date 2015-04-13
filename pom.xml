@@ -21,10 +21,11 @@
         <hamcrest.version>1.3</hamcrest.version>
         <commons.io.version>2.4</commons.io.version>
         <common.math.version>3.2</common.math.version>
+        <commmons.cli.version>1.2</commmons.cli.version>
+        <commmons.collections.version>4.0</commmons.collections.version>
         <log4j.version>1.2.17</log4j.version>
         <hdrhistogram.version>1.2.1</hdrhistogram.version>
         <guava.version>18.0</guava.version>
-        <commmons.cli.version>1.2</commmons.cli.version>
         <stormpot.version>2.3</stormpot.version>
         <maven.compiler.source>1.7</maven.compiler.source>
         <maven.compiler.target>1.7</maven.compiler.target>
@@ -36,6 +37,11 @@
     </properties>
 
     <dependencies>
+        <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-collections4</artifactId>
+            <version>${commmons.collections.version}</version>
+        </dependency>
         <dependency>
             <groupId>uk.co.real-logic</groupId>
             <artifactId>sbe</artifactId>
@@ -57,14 +63,14 @@
             <version>${disruptor-version}</version>
         </dependency>
         <!--<dependency>-->
-            <!--<groupId>it.unimi.dsi</groupId>-->
-            <!--<artifactId>fastutil</artifactId>-->
-            <!--<version>6.5.16</version>-->
+        <!--<groupId>it.unimi.dsi</groupId>-->
+        <!--<artifactId>fastutil</artifactId>-->
+        <!--<version>6.5.16</version>-->
         <!--</dependency>-->
         <!--<dependency>-->
-            <!--<groupId>com.goldmansachs</groupId>-->
-            <!--<artifactId>gs-collections</artifactId>-->
-            <!--<version>${gs-collections-version}</version>-->
+        <!--<groupId>com.goldmansachs</groupId>-->
+        <!--<artifactId>gs-collections</artifactId>-->
+        <!--<version>${gs-collections-version}</version>-->
         <!--</dependency>-->
         <dependency>
             <groupId>org.hamcrest</groupId>

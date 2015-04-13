@@ -637,7 +637,8 @@ public class Client {
                     databaseValidationResult = dbValidator.validate(
                             validationParams,
                             db,
-                            validationParamsCount
+                            validationParamsCount,
+                            w
                     );
                 } catch (WorkloadException e) {
                     throw new ClientException(String.format("Error reading validation parameters file\nFile: %s", validationParamsFile.getAbsolutePath()), e);

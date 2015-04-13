@@ -7,13 +7,15 @@ import com.google.common.collect.*;
 import com.ldbc.driver.*;
 import com.ldbc.driver.control.ConsoleAndFileDriverConfiguration;
 import com.ldbc.driver.csv.charseeker.*;
+import com.ldbc.driver.csv.simple.SimpleCsvFileReader;
 import com.ldbc.driver.generator.CsvEventStreamReaderBasicCharSeeker;
 import com.ldbc.driver.generator.GeneratorFactory;
 import com.ldbc.driver.generator.RandomDataGeneratorFactory;
 import com.ldbc.driver.util.ClassLoaderHelper;
 import com.ldbc.driver.util.ClassLoadingException;
 import com.ldbc.driver.util.Tuple;
-import com.ldbc.driver.csv.simple.SimpleCsvFileReader;
+import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.collections4.Equator;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.type.TypeReference;
 
@@ -1947,5 +1949,77 @@ public class LdbcSnbInteractiveWorkload extends Workload {
                         getClass().getName(),
                         operationTypeName,
                         serializedOperation));
+    }
+
+    private static final Equator<LdbcQuery14Result> LDBC_QUERY_14_RESULT_EQUATOR = new Equator<LdbcQuery14Result>() {
+        @Override
+        public boolean equate(LdbcQuery14Result result1, LdbcQuery14Result result2) {
+            return result1.equals(result2);
+        }
+
+        @Override
+        public int hash(LdbcQuery14Result result) {
+            return 1;
+        }
+    };
+
+    @Override
+    public boolean resultsEqual(Operation operation, Object result1, Object result2) throws WorkloadException {
+        if (null == result1 || null == result2) {
+            return false;
+        } else if (operation.type() == LdbcQuery14.TYPE) {
+            /*
+            Group results by weight, because results with same weight can come in any order
+                Convert
+                   [(weight, [ids...]), ...]
+                To
+                   Map<weight, [(weight, [ids...])]>
+             */
+            List<LdbcQuery14Result> typedResults1 = (List<LdbcQuery14Result>) result1;
+            Map<Double, List<LdbcQuery14Result>> results1ByWeight = new HashMap<>();
+            for (LdbcQuery14Result typedResult : typedResults1) {
+                List<LdbcQuery14Result> resultByWeight = results1ByWeight.get(typedResult.pathWeight());
+                if (null == resultByWeight) {
+                    resultByWeight = new ArrayList<>();
+                }
+                resultByWeight.add(typedResult);
+                results1ByWeight.put(typedResult.pathWeight(), resultByWeight);
+            }
+
+            List<LdbcQuery14Result> typedResults2 = (List<LdbcQuery14Result>) result2;
+            Map<Double, List<LdbcQuery14Result>> results2ByWeight = new HashMap<>();
+            for (LdbcQuery14Result typedResult : typedResults2) {
+                List<LdbcQuery14Result> resultByWeight = results2ByWeight.get(typedResult.pathWeight());
+                if (null == resultByWeight) {
+                    resultByWeight = new ArrayList<>();
+                }
+                resultByWeight.add(typedResult);
+                results2ByWeight.put(typedResult.pathWeight(), resultByWeight);
+            }
+
+            /*
+            Perform equality check
+                - compare set of keys
+                - convert list of lists to set of lists & compare contains all for set of lists for each key
+             */
+            // compare set of keys
+            if (false == results1ByWeight.keySet().equals(results2ByWeight.keySet())) {
+                return false;
+            }
+            // convert list of lists to set of lists & compare contains all for set of lists for each key
+            for (Double weight : results1ByWeight.keySet()) {
+                if (results1ByWeight.get(weight).size() != results2ByWeight.get(weight).size()) {
+                    return false;
+                }
+
+                if (false == CollectionUtils.isEqualCollection(results1ByWeight.get(weight), results2ByWeight.get(weight), LDBC_QUERY_14_RESULT_EQUATOR)) {
+                    return false;
+                }
+            }
+
+            return true;
+        } else {
+            return result1.equals(result2);
+        }
     }
 }

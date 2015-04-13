@@ -94,6 +94,14 @@ public class DummyWorkload extends Workload {
         throw new SerializingMarshallingException("Unsupported Operation: " + serializedOperation);
     }
 
+    @Override
+    public boolean resultsEqual(Operation operation, Object result1, Object result2) throws WorkloadException {
+        if (null == result1 || null == result2)
+            return false;
+        else
+            return result1.equals(result2);
+    }
+
     private String serializeName(String name) {
         return (null == name) ? "null" : name;
     }
