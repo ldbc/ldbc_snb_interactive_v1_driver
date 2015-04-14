@@ -351,6 +351,7 @@ public class TimeMappingOperationGeneratorTest {
         boolean printHelp = false;
         boolean ignoreScheduledStartTimes = false;
         boolean shouldCreateResultsLog = false;
+        long warmupCount = 0;
 
         ConsoleAndFileDriverConfiguration configuration = new ConsoleAndFileDriverConfiguration(
                 paramsMap,
@@ -371,11 +372,12 @@ public class TimeMappingOperationGeneratorTest {
                 spinnerSleepDuration,
                 printHelp,
                 ignoreScheduledStartTimes,
-                shouldCreateResultsLog
+                shouldCreateResultsLog,
+                warmupCount
         );
 
         Map<String, String> updateStreamParams = MapUtils.loadPropertiesToMap(TestUtils.getResource("/updateStream.properties"));
-        configuration = (ConsoleAndFileDriverConfiguration) configuration.applyMap(updateStreamParams);
+        configuration = (ConsoleAndFileDriverConfiguration) configuration.applyArgs(updateStreamParams);
 
         Workload workload = new LdbcSnbInteractiveWorkload();
         workload.init(configuration);

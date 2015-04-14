@@ -52,8 +52,14 @@ public class WorkloadValidator {
         Iterator<Operation> operationsPass1;
         try {
             boolean returnStreamsWithDbConnector = false;
-            Tuple.Tuple3<WorkloadStreams, Workload, Long> streamsAndWorkload =
-                    WorkloadStreams.createNewWorkloadWithLimitedWorkloadStreams(workloadFactory, configuration, gf, returnStreamsWithDbConnector);
+            Tuple.Tuple3<WorkloadStreams, Workload, Long> streamsAndWorkload = WorkloadStreams.createNewWorkloadWithOffsetAndLimitedWorkloadStreams(
+                    workloadFactory,
+                    configuration,
+                    gf,
+                    returnStreamsWithDbConnector,
+                    0,
+                    configuration.operationCount()
+            );
             operationsPass1 = WorkloadStreams.mergeSortedByStartTimeExcludingChildOperationGenerators(gf, streamsAndWorkload._1());
             workloadPass1 = streamsAndWorkload._2();
         } catch (Exception e) {
@@ -122,7 +128,14 @@ public class WorkloadValidator {
         try {
             boolean returnStreamsWithDbConnector = false;
             Tuple.Tuple3<WorkloadStreams, Workload, Long> streamsAndWorkload =
-                    WorkloadStreams.createNewWorkloadWithLimitedWorkloadStreams(workloadFactory, configuration, gf, returnStreamsWithDbConnector);
+                    WorkloadStreams.createNewWorkloadWithOffsetAndLimitedWorkloadStreams(
+                            workloadFactory,
+                            configuration,
+                            gf,
+                            returnStreamsWithDbConnector,
+                            0,
+                            configuration.operationCount()
+                    );
             workloadPass2 = streamsAndWorkload._2();
             operationsPass2 = gf.timeOffsetAndCompress(
                     WorkloadStreams.mergeSortedByStartTimeExcludingChildOperationGenerators(gf, streamsAndWorkload._1()),
@@ -298,8 +311,14 @@ public class WorkloadValidator {
         Iterator<Operation> operationStream2;
         try {
             boolean returnStreamsWithDbConnector = false;
-            Tuple.Tuple3<WorkloadStreams, Workload, Long> streamsAndWorkload1 =
-                    WorkloadStreams.createNewWorkloadWithLimitedWorkloadStreams(workloadFactory, configuration, new GeneratorFactory(new RandomDataGeneratorFactory(42l)), returnStreamsWithDbConnector);
+            Tuple.Tuple3<WorkloadStreams, Workload, Long> streamsAndWorkload1 = WorkloadStreams.createNewWorkloadWithOffsetAndLimitedWorkloadStreams(
+                    workloadFactory,
+                    configuration,
+                    new GeneratorFactory(new RandomDataGeneratorFactory(42l)),
+                    returnStreamsWithDbConnector,
+                    0,
+                    configuration.operationCount()
+            );
             workload1 = streamsAndWorkload1._2();
             operationStream1 = gf.timeOffsetAndCompress(
                     WorkloadStreams.mergeSortedByStartTimeExcludingChildOperationGenerators(gf, streamsAndWorkload1._1()),
@@ -307,8 +326,14 @@ public class WorkloadValidator {
                     configuration.timeCompressionRatio()
             );
 
-            Tuple.Tuple3<WorkloadStreams, Workload, Long> streamsAndWorkload2 =
-                    WorkloadStreams.createNewWorkloadWithLimitedWorkloadStreams(workloadFactory, configuration, new GeneratorFactory(new RandomDataGeneratorFactory(42l)), returnStreamsWithDbConnector);
+            Tuple.Tuple3<WorkloadStreams, Workload, Long> streamsAndWorkload2 = WorkloadStreams.createNewWorkloadWithOffsetAndLimitedWorkloadStreams(
+                    workloadFactory,
+                    configuration,
+                    new GeneratorFactory(new RandomDataGeneratorFactory(42l)),
+                    returnStreamsWithDbConnector,
+                    0,
+                    configuration.operationCount()
+            );
             workload2 = streamsAndWorkload2._2();
             operationStream2 = gf.timeOffsetAndCompress(
                     WorkloadStreams.mergeSortedByStartTimeExcludingChildOperationGenerators(gf, streamsAndWorkload2._1()),

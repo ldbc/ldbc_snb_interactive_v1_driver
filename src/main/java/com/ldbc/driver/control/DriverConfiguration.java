@@ -43,11 +43,15 @@ public interface DriverConfiguration {
 
     boolean shouldCreateResultsLog();
 
+    long warmupCount();
+
     String toPropertiesString() throws DriverConfigurationException;
 
     Map<String, String> asMap();
 
-    DriverConfiguration applyMap(Map<String, String> newMap) throws DriverConfigurationException;
+    DriverConfiguration applyArg(String argument, String newValue) throws DriverConfigurationException;
+
+    DriverConfiguration applyArgs(Map<String, String> newMap) throws DriverConfigurationException;
 
     public interface ValidationParamOptions {
         public String filePath();

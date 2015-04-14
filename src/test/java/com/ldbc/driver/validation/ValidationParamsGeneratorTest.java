@@ -42,12 +42,12 @@ public class ValidationParamsGeneratorTest {
 
         ConsoleAndFileDriverConfiguration configuration = DriverConfigurationFileHelper.readConfigurationFileAt(
                 DriverConfigurationFileHelper.getBaseConfigurationFilePublicLocation());
-        configuration = (ConsoleAndFileDriverConfiguration) configuration.applyMap(LdbcSnbInteractiveConfiguration.defaultConfig());
+        configuration = (ConsoleAndFileDriverConfiguration) configuration.applyArgs(LdbcSnbInteractiveConfiguration.defaultConfig());
         Map<String, String> additionalParamsMap = new HashMap<>();
         additionalParamsMap.put(LdbcSnbInteractiveConfiguration.PARAMETERS_DIRECTORY, TestUtils.getResource("/").getAbsolutePath());
         additionalParamsMap.put(LdbcSnbInteractiveConfiguration.UPDATES_DIRECTORY, TestUtils.getResource("/").getAbsolutePath());
-        configuration = (ConsoleAndFileDriverConfiguration) configuration.applyMap(additionalParamsMap);
-        configuration = (ConsoleAndFileDriverConfiguration) configuration.applyMap(MapUtils.loadPropertiesToMap(TestUtils.getResource("/updateStream.properties")));
+        configuration = (ConsoleAndFileDriverConfiguration) configuration.applyArgs(additionalParamsMap);
+        configuration = (ConsoleAndFileDriverConfiguration) configuration.applyArgs(MapUtils.loadPropertiesToMap(TestUtils.getResource("/updateStream.properties")));
 
 
         Workload workload = new LdbcSnbInteractiveWorkload();

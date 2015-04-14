@@ -2,14 +2,14 @@ package com.ldbc.driver.workloads.ldbc.snb.interactive;
 
 import com.google.common.collect.Lists;
 import com.ldbc.driver.*;
-import com.ldbc.driver.control.ControlService;
 import com.ldbc.driver.control.ConsoleAndFileDriverConfiguration;
+import com.ldbc.driver.control.ControlService;
 import com.ldbc.driver.control.DriverConfigurationException;
 import com.ldbc.driver.control.LocalControlService;
 import com.ldbc.driver.runtime.ConcurrentErrorReporter;
 import com.ldbc.driver.runtime.coordination.CompletionTimeException;
-import com.ldbc.driver.runtime.metrics.MetricsService;
 import com.ldbc.driver.runtime.metrics.MetricsCollectionException;
+import com.ldbc.driver.runtime.metrics.MetricsService;
 import com.ldbc.driver.runtime.metrics.WorkloadResultsSnapshot;
 import com.ldbc.driver.temporal.SystemTimeSource;
 import com.ldbc.driver.temporal.TemporalUtil;
@@ -100,6 +100,7 @@ public class LdbcSnbInteractiveWorkloadPerformanceTest {
             boolean printHelp = false;
             boolean ignoreScheduledStartTimes = true;
             boolean shouldCreateResultsLog = true;
+            long warmupCount = 0;
 
             ConsoleAndFileDriverConfiguration configuration = new ConsoleAndFileDriverConfiguration(
                     paramsMap,
@@ -120,10 +121,11 @@ public class LdbcSnbInteractiveWorkloadPerformanceTest {
                     spinnerSleepDuration,
                     printHelp,
                     ignoreScheduledStartTimes,
-                    shouldCreateResultsLog
+                    shouldCreateResultsLog,
+                    warmupCount
             );
 
-            configuration = (ConsoleAndFileDriverConfiguration) configuration.applyMap(MapUtils.loadPropertiesToMap(new File(updateStreamPropertiesPath)));
+            configuration = (ConsoleAndFileDriverConfiguration) configuration.applyArgs(MapUtils.loadPropertiesToMap(new File(updateStreamPropertiesPath)));
 
             // When
             Client client = new Client(new LocalControlService(timeSource.nowAsMilli() + 3000, configuration), timeSource);
@@ -224,6 +226,7 @@ public class LdbcSnbInteractiveWorkloadPerformanceTest {
             boolean ignoreScheduledStartTimes = false;
             // TODO
             boolean shouldCreateResultsLog = false;
+            long warmupCount = 0;
 
             ConsoleAndFileDriverConfiguration configuration = new ConsoleAndFileDriverConfiguration(
                     paramsMap,
@@ -244,10 +247,11 @@ public class LdbcSnbInteractiveWorkloadPerformanceTest {
                     spinnerSleepDuration,
                     printHelp,
                     ignoreScheduledStartTimes,
-                    shouldCreateResultsLog
+                    shouldCreateResultsLog,
+                    warmupCount
             );
 
-            configuration = (ConsoleAndFileDriverConfiguration) configuration.applyMap(MapUtils.loadPropertiesToMap(new File(updateStreamPropertiesPath)));
+            configuration = (ConsoleAndFileDriverConfiguration) configuration.applyArgs(MapUtils.loadPropertiesToMap(new File(updateStreamPropertiesPath)));
 
             // When
             Client client = new Client(new LocalControlService(timeSource.nowAsMilli(), configuration), timeSource);

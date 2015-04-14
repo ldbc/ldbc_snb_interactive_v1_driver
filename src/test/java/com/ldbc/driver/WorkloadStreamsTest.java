@@ -20,6 +20,7 @@ import static org.hamcrest.CoreMatchers.*;
 import static org.junit.Assert.assertThat;
 
 public class WorkloadStreamsTest {
+
     @Test
     public void shouldReturnSameWorkloadStreamsAsCreatedWith() {
         WorkloadStreams workloadStreamsBefore = getWorkloadStreams();
@@ -220,7 +221,41 @@ public class WorkloadStreamsTest {
         ConsoleAndFileDriverConfiguration configuration = ConsoleAndFileDriverConfiguration.fromDefaults(null, null, 100);
         boolean returnStreamsWithDbConnector = false;
         Tuple.Tuple3<WorkloadStreams, Workload, Long> limitedWorkloadStreamsAndWorkload =
-                WorkloadStreams.createNewWorkloadWithLimitedWorkloadStreams(workloadFactory, configuration, gf, returnStreamsWithDbConnector);
+                WorkloadStreams.createNewWorkloadWithOffsetAndLimitedWorkloadStreams(
+                        workloadFactory,
+                        configuration,
+                        gf,
+                        returnStreamsWithDbConnector,
+                        0,
+                        configuration.operationCount()
+                );
+        WorkloadStreams workloadStreams = limitedWorkloadStreamsAndWorkload._1();
+        Workload workload = limitedWorkloadStreamsAndWorkload._2();
+        assertThat(Iterators.size(WorkloadStreams.mergeSortedByStartTimeExcludingChildOperationGenerators(gf, workloadStreams)), is(100));
+        workload.close();
+    }
+
+    @Test
+    public void shouldLimitWorkloadCorrectly_WITH_OFFSET() throws WorkloadException, DriverConfigurationException, IOException {
+        GeneratorFactory gf = new GeneratorFactory(new RandomDataGeneratorFactory(42l));
+        WorkloadFactory workloadFactory = new WorkloadFactory() {
+            @Override
+            public Workload createWorkload() throws WorkloadException {
+                return new TestWorkload();
+            }
+        };
+        ConsoleAndFileDriverConfiguration configuration = ConsoleAndFileDriverConfiguration.fromDefaults(null, null, 100);
+        configuration = (ConsoleAndFileDriverConfiguration) configuration.applyArg(ConsoleAndFileDriverConfiguration.WARMUP_COUNT_ARG, Long.toString(10));
+        boolean returnStreamsWithDbConnector = false;
+        Tuple.Tuple3<WorkloadStreams, Workload, Long> limitedWorkloadStreamsAndWorkload =
+                WorkloadStreams.createNewWorkloadWithOffsetAndLimitedWorkloadStreams(
+                        workloadFactory,
+                        configuration,
+                        gf,
+                        returnStreamsWithDbConnector,
+                        configuration.warmupCount(),
+                        configuration.operationCount()
+                );
         WorkloadStreams workloadStreams = limitedWorkloadStreamsAndWorkload._1();
         Workload workload = limitedWorkloadStreamsAndWorkload._2();
         assertThat(Iterators.size(WorkloadStreams.mergeSortedByStartTimeExcludingChildOperationGenerators(gf, workloadStreams)), is(100));
@@ -284,37 +319,39 @@ public class WorkloadStreamsTest {
                 null
         );
 
-        long k = 10;
-        Tuple.Tuple2<long[], Long> kForIteratorAndMinimums = WorkloadStreams.fromAmongAllRetrieveTopK(streams, k, childOperationGenerators);
-        long[] kForIterator = kForIteratorAndMinimums._1();
-        long minimumTimeStamp = kForIteratorAndMinimums._2();
+        long offset = 0;
+        long count = 10;
+        Tuple.Tuple3<long[], long[], Long> kForIteratorAndMinimums = WorkloadStreams.fromAmongAllRetrieveTopCountFromOffset(streams, offset, count, childOperationGenerators);
+        long[] startForIterator = kForIteratorAndMinimums._1();
+        long[] countForIterator = kForIteratorAndMinimums._2();
+        long minimumTimeStamp = kForIteratorAndMinimums._3();
 
         List<Operation> topK = Lists.newArrayList(
                 gf.mergeSortOperationsByTimeStamp(
                         gf.limit(
                                 stream0.iterator(),
-                                kForIterator[0]
+                                countForIterator[0]
                         ),
                         gf.limit(
                                 stream1.iterator(),
-                                kForIterator[1]
+                                countForIterator[1]
                         ),
                         gf.limit(
                                 stream2.iterator(),
-                                kForIterator[2]
+                                countForIterator[2]
                         ),
                         gf.limit(
                                 stream3.iterator(),
-                                kForIterator[3]
+                                countForIterator[3]
                         ),
                         gf.limit(
                                 stream4.iterator(),
-                                kForIterator[4]
+                                countForIterator[4]
                         )
                 )
         );
 
-        assertThat((long) topK.size(), is(k));
+        assertThat((long) topK.size(), is(count));
         assertThat(minimumTimeStamp, is(0l));
         assertThat(((TimedNamedOperation1) topK.get(0)).name(), anyOf(equalTo("0-1"), equalTo("1-1")));
         assertThat(((TimedNamedOperation1) topK.get(1)).name(), anyOf(equalTo("0-1"), equalTo("1-1")));
@@ -384,37 +421,39 @@ public class WorkloadStreamsTest {
                 null
         );
 
-        long k = 10000;
-        Tuple.Tuple2<long[], Long> kForIteratorAndMinimums = WorkloadStreams.fromAmongAllRetrieveTopK(streams, k, childOperationGenerators);
-        long[] kForIterator = kForIteratorAndMinimums._1();
-        long minimumTimeStamp = kForIteratorAndMinimums._2();
+        long offset = 0;
+        long count = 10000;
+        Tuple.Tuple3<long[], long[], Long> kForIteratorAndMinimums = WorkloadStreams.fromAmongAllRetrieveTopCountFromOffset(streams, offset, count, childOperationGenerators);
+        long[] startForIterator = kForIteratorAndMinimums._1();
+        long[] countForIterator = kForIteratorAndMinimums._2();
+        long minimumTimeStamp = kForIteratorAndMinimums._3();
 
         List<Operation> topK = Lists.newArrayList(
                 gf.mergeSortOperationsByTimeStamp(
                         gf.limit(
                                 stream0.iterator(),
-                                kForIterator[0]
+                                countForIterator[0]
                         ),
                         gf.limit(
                                 stream1.iterator(),
-                                kForIterator[1]
+                                countForIterator[1]
                         ),
                         gf.limit(
                                 stream2.iterator(),
-                                kForIterator[2]
+                                countForIterator[2]
                         ),
                         gf.limit(
                                 stream3.iterator(),
-                                kForIterator[3]
+                                countForIterator[3]
                         ),
                         gf.limit(
                                 stream4.iterator(),
-                                kForIterator[4]
+                                countForIterator[4]
                         )
                 )
         );
 
-        assertThat((long) topK.size(), is(k));
+        assertThat((long) topK.size(), is(count));
         assertThat(minimumTimeStamp, is(0l));
         assertThat(((TimedNamedOperation1) topK.get(0)).name(), anyOf(equalTo("0-1"), equalTo("1-1")));
         assertThat(((TimedNamedOperation1) topK.get(1)).name(), anyOf(equalTo("0-1"), equalTo("1-1")));
@@ -430,6 +469,287 @@ public class WorkloadStreamsTest {
         assertThat(((TimedNamedOperation1) topK.get(8)).name(), anyOf(equalTo("1-3"), equalTo("2-3")));
         assertThat(((TimedNamedOperation1) topK.get(7)).name(), not(equalTo(((TimedNamedOperation1) topK.get(8)).name())));
         assertThat(((TimedNamedOperation1) topK.get(9)).name(), anyOf(equalTo("0-4")));
+    }
+
+    @Test
+    public void shouldStartAtOffsetAndLimitStreamsCorrectlyWhenLimitIsLowerThanStreamsLength() throws WorkloadException {
+        GeneratorFactory gf = new GeneratorFactory(new RandomDataGeneratorFactory(42l));
+
+        List<Operation> stream0 = Lists.<Operation>newArrayList(
+                new TimedNamedOperation1(0l, 0l, 0l, "0-1--0"),
+                new TimedNamedOperation1(1l, 1l, 0l, "0-2--1"),
+                new TimedNamedOperation1(2l, 2l, 0l, "0-3--2"),
+                new TimedNamedOperation1(6l, 6l, 0l, "0-4--6"),
+                new TimedNamedOperation1(7l, 7l, 0l, "0-5--7")
+        );
+
+        List<Operation> stream1 = Lists.<Operation>newArrayList(
+                new TimedNamedOperation1(0l, 0l, 0l, "1-1--0"),
+                new TimedNamedOperation1(3l, 3l, 0l, "1-2--3"),
+                new TimedNamedOperation1(4l, 4l, 0l, "1-3--4"),
+                new TimedNamedOperation1(9l, 9l, 0l, "1-4--9")
+        );
+
+        List<Operation> stream2 = Lists.<Operation>newArrayList(
+                new TimedNamedOperation1(1l, 1l, 0l, "2-1--1"),
+                new TimedNamedOperation1(3l, 3l, 0l, "2-2--3"),
+                new TimedNamedOperation1(4l, 4l, 0l, "2-3--4"),
+                new TimedNamedOperation1(8l, 8l, 0l, "2-4--8"),
+                new TimedNamedOperation1(8l, 8l, 0l, "2-5--8"),
+                new TimedNamedOperation1(9l, 9l, 0l, "2-6--9")
+        );
+
+        List<Operation> stream3 = Lists.newArrayList(
+        );
+
+        List<Operation> stream4 = Lists.newArrayList(
+                gf.limit(
+                        new TimedNamedOperation1Factory(
+                                gf.incrementing(10l, 1l),
+                                gf.constant(0l),
+                                gf.constant("4-x--y")
+                        ),
+                        1000000
+                )
+        );
+
+        List<Iterator<Operation>> streams = Lists.newArrayList(
+                stream0.iterator(),
+                stream1.iterator(),
+                stream2.iterator(),
+                stream3.iterator(),
+                stream4.iterator()
+        );
+
+        List<ChildOperationGenerator> childOperationGenerators = Lists.newArrayList(
+                null,
+                null,
+                null,
+                null,
+                null
+        );
+
+        long offset = 5;
+        long count = 6;
+        Tuple.Tuple3<long[], long[], Long> kForIteratorAndMinimums = WorkloadStreams.fromAmongAllRetrieveTopCountFromOffset(streams, offset, count, childOperationGenerators);
+        long[] startForIterator = kForIteratorAndMinimums._1();
+        long[] countForIterator = kForIteratorAndMinimums._2();
+        long minimumTimeStamp = kForIteratorAndMinimums._3();
+
+        List<Iterator<Operation>> offsetStreams = Lists.newArrayList(
+                stream0.iterator(),
+                stream1.iterator(),
+                stream2.iterator(),
+                stream3.iterator(),
+                stream4.iterator()
+        );
+
+        for (int i = 0; i < offsetStreams.size(); i++) {
+            Iterator<Operation> offsetStream = offsetStreams.get(i);
+            gf.consume(offsetStream, startForIterator[i]);
+        }
+
+        List<Operation> topK = Lists.newArrayList(
+                gf.mergeSortOperationsByTimeStamp(
+                        gf.limit(
+                                offsetStreams.get(0),
+                                countForIterator[0]
+                        ),
+                        gf.limit(
+                                offsetStreams.get(1),
+                                countForIterator[1]
+                        ),
+                        gf.limit(
+                                offsetStreams.get(2),
+                                countForIterator[2]
+                        ),
+                        gf.limit(
+                                offsetStreams.get(3),
+                                countForIterator[3]
+                        ),
+                        gf.limit(
+                                offsetStreams.get(4),
+                                countForIterator[4]
+                        )
+                )
+        );
+
+        /*
+        offset = 5
+        count = 6
+
+        TimeStamp       Operation
+        0               0-1--0, 1-1--0
+        1               0-2--1, 2-1--1
+        2               0-3--2
+        ----- 5 -----
+        3               1-2--3, 2-2--3
+        4               1-3--4, 2-3--4
+        6               0-4--6
+        ----- 10 ----
+        7               0-5--7
+        8               2-4--8, 2-5--8
+        9               1-4--9, 2-6--9
+        ----- 15 ----
+        10              4-x--y
+        11              4-x--y
+        ...
+        1000000         4-x--y
+         */
+
+        assertThat((long) topK.size(), is(count));
+        assertThat(minimumTimeStamp, is(3l));
+        assertThat(startForIterator.length, is(5));
+        assertThat(countForIterator.length, is(5));
+
+        assertThat(((TimedNamedOperation1) topK.get(0)).name(), anyOf(equalTo("1-2--3"), equalTo("2-2--3")));
+        assertThat(((TimedNamedOperation1) topK.get(1)).name(), anyOf(equalTo("1-2--3"), equalTo("2-2--3")));
+        // does not return the same operation twice, when their time stamps are equal
+        assertThat(((TimedNamedOperation1) topK.get(0)).name(), not(equalTo(((TimedNamedOperation1) topK.get(1)).name())));
+
+        assertThat(((TimedNamedOperation1) topK.get(2)).name(), anyOf(equalTo("1-3--4"), equalTo("2-3--4")));
+        assertThat(((TimedNamedOperation1) topK.get(3)).name(), anyOf(equalTo("1-3--4"), equalTo("2-3--4")));
+        // does not return the same operation twice, when their time stamps are equal
+        assertThat(((TimedNamedOperation1) topK.get(2)).name(), not(equalTo(((TimedNamedOperation1) topK.get(3)).name())));
+
+        assertThat(((TimedNamedOperation1) topK.get(4)).name(), anyOf(equalTo("0-4--6")));
+
+        assertThat(((TimedNamedOperation1) topK.get(5)).name(), anyOf(equalTo("0-5--7")));
+    }
+
+    @Test
+    public void shouldStartAtOffsetAndLimitStreamsCorrectlyWhenLimitIsHigherThanStreamsLength() throws WorkloadException {
+        GeneratorFactory gf = new GeneratorFactory(new RandomDataGeneratorFactory(42l));
+
+        List<Operation> stream0 = Lists.<Operation>newArrayList(
+                new TimedNamedOperation1(0l, 0l, 0l, "0-1--0"),
+                new TimedNamedOperation1(1l, 1l, 0l, "0-2--1"),
+                new TimedNamedOperation1(2l, 2l, 0l, "0-3--2"),
+                new TimedNamedOperation1(6l, 6l, 0l, "0-4--6"),
+                new TimedNamedOperation1(7l, 7l, 0l, "0-5--7")
+        );
+
+        List<Operation> stream1 = Lists.<Operation>newArrayList(
+                new TimedNamedOperation1(0l, 0l, 0l, "1-1--0"),
+                new TimedNamedOperation1(3l, 3l, 0l, "1-2--3"),
+                new TimedNamedOperation1(4l, 4l, 0l, "1-3--4"),
+                new TimedNamedOperation1(9l, 9l, 0l, "1-4--9")
+        );
+
+        List<Operation> stream2 = Lists.<Operation>newArrayList(
+                new TimedNamedOperation1(1l, 1l, 0l, "2-1--1"),
+                new TimedNamedOperation1(3l, 3l, 0l, "2-2--3"),
+                new TimedNamedOperation1(4l, 4l, 0l, "2-3--4"),
+                new TimedNamedOperation1(8l, 8l, 0l, "2-4--8"),
+                new TimedNamedOperation1(8l, 8l, 0l, "2-5--8"),
+                new TimedNamedOperation1(9l, 9l, 0l, "2-6--9")
+        );
+
+        List<Operation> stream3 = Lists.newArrayList(
+        );
+
+        List<Iterator<Operation>> streams = Lists.newArrayList(
+                stream0.iterator(),
+                stream1.iterator(),
+                stream2.iterator(),
+                stream3.iterator()
+        );
+
+        List<ChildOperationGenerator> childOperationGenerators = Lists.newArrayList(
+                null,
+                null,
+                null,
+                null,
+                null
+        );
+
+        long offset = 3;
+        long count = 100;
+        Tuple.Tuple3<long[], long[], Long> kForIteratorAndMinimums = WorkloadStreams.fromAmongAllRetrieveTopCountFromOffset(streams, offset, count, childOperationGenerators);
+        long[] startForIterator = kForIteratorAndMinimums._1();
+        long[] countForIterator = kForIteratorAndMinimums._2();
+        long minimumTimeStamp = kForIteratorAndMinimums._3();
+
+        List<Iterator<Operation>> offsetStreams = Lists.newArrayList(
+                stream0.iterator(),
+                stream1.iterator(),
+                stream2.iterator(),
+                stream3.iterator()
+        );
+
+        for (int i = 0; i < offsetStreams.size(); i++) {
+            Iterator<Operation> offsetStream = offsetStreams.get(i);
+            gf.consume(offsetStream, startForIterator[i]);
+        }
+
+        List<Operation> topK = Lists.newArrayList(
+                gf.mergeSortOperationsByTimeStamp(
+                        gf.limit(
+                                offsetStreams.get(0),
+                                countForIterator[0]
+                        ),
+                        gf.limit(
+                                offsetStreams.get(1),
+                                countForIterator[1]
+                        ),
+                        gf.limit(
+                                offsetStreams.get(2),
+                                countForIterator[2]
+                        ),
+                        gf.limit(
+                                offsetStreams.get(3),
+                                countForIterator[3]
+                        )
+                )
+        );
+
+        /*
+        offset = 3
+        count = 100
+
+        TimeStamp       Operation
+        0               0-1--0, 1-1--0
+        ----- 2 -----
+        1               0-2--1, 2-1--1
+        ----- 4 -----
+        2               0-3--2
+        3               1-2--3, 2-2--3
+        4               1-3--4, 2-3--4
+        6               0-4--6
+        7               0-5--7
+        8               2-4--8, 2-5--8
+        9               1-4--9, 2-6--9
+         */
+
+        assertThat((long) topK.size(), is(12l));
+        assertThat(minimumTimeStamp, is(1l));
+        assertThat(startForIterator.length, is(4));
+        assertThat(countForIterator.length, is(4));
+
+        assertThat(((TimedNamedOperation1) topK.get(0)).name(), anyOf(equalTo("0-2--1"), equalTo("2-1--1")));
+
+        assertThat(((TimedNamedOperation1) topK.get(1)).name(), anyOf(equalTo("0-3--2")));
+
+        assertThat(((TimedNamedOperation1) topK.get(2)).name(), anyOf(equalTo("1-2--3"), equalTo("2-2--3")));
+        assertThat(((TimedNamedOperation1) topK.get(3)).name(), anyOf(equalTo("1-2--3"), equalTo("2-2--3")));
+        assertThat(((TimedNamedOperation1) topK.get(2)).name(), not(equalTo(((TimedNamedOperation1) topK.get(3)).name())));
+
+        assertThat(((TimedNamedOperation1) topK.get(4)).name(), anyOf(equalTo("1-3--4"), equalTo("2-3--4")));
+        assertThat(((TimedNamedOperation1) topK.get(5)).name(), anyOf(equalTo("1-3--4"), equalTo("2-3--4")));
+        assertThat(((TimedNamedOperation1) topK.get(4)).name(), not(equalTo(((TimedNamedOperation1) topK.get(5)).name())));
+
+        assertThat(((TimedNamedOperation1) topK.get(6)).name(), anyOf(equalTo("0-4--6")));
+
+        assertThat(((TimedNamedOperation1) topK.get(7)).name(), anyOf(equalTo("0-5--7")));
+
+        assertThat(((TimedNamedOperation1) topK.get(8)).name(), anyOf(equalTo("2-4--8"), equalTo("2-5--8")));
+        assertThat(((TimedNamedOperation1) topK.get(9)).name(), anyOf(equalTo("2-4--8"), equalTo("2-5--8")));
+        assertThat(((TimedNamedOperation1) topK.get(8)).name(), not(equalTo(((TimedNamedOperation1) topK.get(9)).name())));
+
+
+        assertThat(((TimedNamedOperation1) topK.get(10)).name(), anyOf(equalTo("1-4--9"), equalTo("2-6--9")));
+        assertThat(((TimedNamedOperation1) topK.get(11)).name(), anyOf(equalTo("1-4--9"), equalTo("2-6--9")));
+        assertThat(((TimedNamedOperation1) topK.get(10)).name(), not(equalTo(((TimedNamedOperation1) topK.get(11)).name())));
     }
 
     private class TestWorkload extends Workload {

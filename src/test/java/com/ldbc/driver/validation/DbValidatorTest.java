@@ -45,8 +45,8 @@ public class DbValidatorTest {
         Map<String, String> paramsMap = LdbcSnbInteractiveConfiguration.defaultConfig();
         paramsMap.put(LdbcSnbInteractiveConfiguration.PARAMETERS_DIRECTORY, TestUtils.getResource("/").getAbsolutePath());
         paramsMap.put(LdbcSnbInteractiveConfiguration.UPDATES_DIRECTORY, TestUtils.getResource("/").getAbsolutePath());
-        configuration = (ConsoleAndFileDriverConfiguration) configuration.applyMap(paramsMap);
-        configuration = (ConsoleAndFileDriverConfiguration) configuration.applyMap(
+        configuration = (ConsoleAndFileDriverConfiguration) configuration.applyArgs(paramsMap);
+        configuration = (ConsoleAndFileDriverConfiguration) configuration.applyArgs(
                 MapUtils.loadPropertiesToMap(new File(TestUtils.getResource("/updateStream.properties").getAbsolutePath()))
         );
 
@@ -94,8 +94,8 @@ public class DbValidatorTest {
         Map<String, String> paramsMap = LdbcSnbInteractiveConfiguration.defaultConfig();
         paramsMap.put(LdbcSnbInteractiveConfiguration.PARAMETERS_DIRECTORY, TestUtils.getResource("/").getAbsolutePath());
         paramsMap.put(LdbcSnbInteractiveConfiguration.UPDATES_DIRECTORY, TestUtils.getResource("/").getAbsolutePath());
-        configuration = (ConsoleAndFileDriverConfiguration) configuration.applyMap(paramsMap);
-        configuration = (ConsoleAndFileDriverConfiguration) configuration.applyMap(
+        configuration = (ConsoleAndFileDriverConfiguration) configuration.applyArgs(paramsMap);
+        configuration = (ConsoleAndFileDriverConfiguration) configuration.applyArgs(
                 MapUtils.loadPropertiesToMap(new File(TestUtils.getResource("/updateStream.properties").getAbsolutePath()))
         );
 

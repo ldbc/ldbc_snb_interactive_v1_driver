@@ -246,7 +246,14 @@ public class Client {
             try {
                 boolean returnStreamsWithDbConnector = true;
                 Tuple.Tuple3<WorkloadStreams, Workload, Long> streamsAndWorkloadAndMinimumTimeStamp =
-                        WorkloadStreams.createNewWorkloadWithLimitedWorkloadStreams(controlService.configuration(), gf, returnStreamsWithDbConnector);
+                        WorkloadStreams.createNewWorkloadWithOffsetAndLimitedWorkloadStreams(
+                                controlService.configuration(),
+                                gf,
+                                returnStreamsWithDbConnector,
+                                // TODO warmup
+                                0,
+                                controlService.configuration().operationCount()
+                        );
                 workload = streamsAndWorkloadAndMinimumTimeStamp._2();
                 workloadStreams = streamsAndWorkloadAndMinimumTimeStamp._1();
                 minimumTimeStamp = streamsAndWorkloadAndMinimumTimeStamp._3();
@@ -442,7 +449,13 @@ public class Client {
             try {
                 boolean returnStreamsWithDbConnector = false;
                 Tuple.Tuple3<WorkloadStreams, Workload, Long> workloadStreamsAndWorkload =
-                        WorkloadStreams.createNewWorkloadWithLimitedWorkloadStreams(controlService.configuration(), gf, returnStreamsWithDbConnector);
+                        WorkloadStreams.createNewWorkloadWithOffsetAndLimitedWorkloadStreams(
+                                controlService.configuration(),
+                                gf,
+                                returnStreamsWithDbConnector,
+                                0,
+                                controlService.configuration().operationCount()
+                        );
                 workloadStreams = workloadStreamsAndWorkload._1();
                 workload = workloadStreamsAndWorkload._2();
             } catch (Exception e) {
@@ -522,7 +535,13 @@ public class Client {
             try {
                 boolean returnStreamsWithDbConnector = false;
                 Tuple.Tuple3<WorkloadStreams, Workload, Long> streamsAndWorkload =
-                        WorkloadStreams.createNewWorkloadWithLimitedWorkloadStreams(controlService.configuration(), gf, returnStreamsWithDbConnector);
+                        WorkloadStreams.createNewWorkloadWithOffsetAndLimitedWorkloadStreams(
+                                controlService.configuration(),
+                                gf,
+                                returnStreamsWithDbConnector,
+                                0,
+                                controlService.configuration().operationCount()
+                        );
                 workload = streamsAndWorkload._2();
                 WorkloadStreams workloadStreams = streamsAndWorkload._1();
                 timeMappedOperations = WorkloadStreams.mergeSortedByStartTimeExcludingChildOperationGenerators(gf, workloadStreams);

@@ -57,6 +57,7 @@ public class SimpleWorkloadTest {
         boolean printHelp = false;
         boolean ignoreScheduledStartTimes = false;
         boolean shouldCreateResultsLog = false;
+        long warmupCount = 100;
 
         ConsoleAndFileDriverConfiguration params =
                 new ConsoleAndFileDriverConfiguration(
@@ -78,7 +79,8 @@ public class SimpleWorkloadTest {
                         spinnerSleepDuration,
                         printHelp,
                         ignoreScheduledStartTimes,
-                        shouldCreateResultsLog
+                        shouldCreateResultsLog,
+                        warmupCount
                 );
 
         Workload workload = new SimpleWorkload();
@@ -115,6 +117,7 @@ public class SimpleWorkloadTest {
         boolean printHelp = false;
         boolean ignoreScheduledStartTimes = false;
         boolean shouldCreateResultsLog = false;
+        long warmupCount = 100;
 
         ConsoleAndFileDriverConfiguration params =
                 new ConsoleAndFileDriverConfiguration(
@@ -136,7 +139,8 @@ public class SimpleWorkloadTest {
                         spinnerSleepDuration,
                         printHelp,
                         ignoreScheduledStartTimes,
-                        shouldCreateResultsLog
+                        shouldCreateResultsLog,
+                        warmupCount
                 );
 
         Workload workload = new SimpleWorkload();
@@ -206,6 +210,7 @@ public class SimpleWorkloadTest {
         boolean printHelp = false;
         boolean ignoreScheduledStartTimes = false;
         boolean shouldCreateResultsLog = true;
+        long warmupCount = 100;
 
         ConsoleAndFileDriverConfiguration params = new ConsoleAndFileDriverConfiguration(
                 paramsMap,
@@ -226,7 +231,8 @@ public class SimpleWorkloadTest {
                 spinnerSleepDuration,
                 printHelp,
                 ignoreScheduledStartTimes,
-                shouldCreateResultsLog
+                shouldCreateResultsLog,
+                warmupCount
         );
 
         Workload workload = new SimpleWorkload();
@@ -265,6 +271,7 @@ public class SimpleWorkloadTest {
         boolean printHelp = false;
         boolean ignoreScheduledStartTimes = false;
         boolean shouldCreateResultsLog = false;
+        long warmupCount = 100;
 
         ConsoleAndFileDriverConfiguration params =
                 new ConsoleAndFileDriverConfiguration(
@@ -286,7 +293,8 @@ public class SimpleWorkloadTest {
                         spinnerSleepDuration,
                         printHelp,
                         ignoreScheduledStartTimes,
-                        shouldCreateResultsLog
+                        shouldCreateResultsLog,
+                        warmupCount
                 );
 
         Workload workloadA = new SimpleWorkload();

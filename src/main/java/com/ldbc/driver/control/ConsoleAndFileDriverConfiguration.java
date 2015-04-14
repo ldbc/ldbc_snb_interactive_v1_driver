@@ -133,6 +133,12 @@ public class ConsoleAndFileDriverConfiguration implements DriverConfiguration {
     public static final String SPINNER_SLEEP_DURATION_DEFAULT_STRING = Long.toString(SPINNER_SLEEP_DURATION_DEFAULT);
     private static final String SPINNER_SLEEP_DURATION_DESCRIPTION = "sleep duration (ms) injected into busy wait loops (to reduce CPU consumption)";
 
+    public static final String WARMUP_COUNT_ARG = "wu";
+    private static final String WARMUP_COUNT_ARG_LONG = "warmup";
+    public static final long WARMUP_COUNT_DEFAULT = 0;
+    public static final String WARMUP_COUNT_DEFAULT_STRING = Long.toString(WARMUP_COUNT_DEFAULT);
+    private static final String WARMUP_COUNT_DESCRIPTION = String.format("number of operations to execute during warmup phase (default: %s)", WARMUP_COUNT_DEFAULT_STRING);
+
     public static final String PROPERTY_FILE_ARG = "P";
     private static final String PROPERTY_FILE_DESCRIPTION = "load properties from file(s) - files will be loaded in the order provided\n" +
             "first files are highest priority; later values will not override earlier values";
@@ -167,6 +173,7 @@ public class ConsoleAndFileDriverConfiguration implements DriverConfiguration {
         defaultParamsMap.put(TIME_COMPRESSION_RATIO_ARG, TIME_COMPRESSION_RATIO_DEFAULT_STRING);
         defaultParamsMap.put(PEER_IDS_ARG, PEER_IDS_DEFAULT_STRING);
         defaultParamsMap.put(SPINNER_SLEEP_DURATION_ARG, SPINNER_SLEEP_DURATION_DEFAULT_STRING);
+        defaultParamsMap.put(WARMUP_COUNT_ARG, WARMUP_COUNT_DEFAULT_STRING);
         return defaultParamsMap;
     }
 
@@ -222,6 +229,7 @@ public class ConsoleAndFileDriverConfiguration implements DriverConfiguration {
             boolean validateWorkload = Boolean.parseBoolean(paramsMap.get(VALIDATE_WORKLOAD_ARG));
             boolean calculateWorkloadStatistics = Boolean.parseBoolean(paramsMap.get(CALCULATE_WORKLOAD_STATISTICS_ARG));
             long spinnerSleepDurationAsMilli = Long.parseLong(paramsMap.get(SPINNER_SLEEP_DURATION_ARG));
+            long warmupCount = Long.parseLong(paramsMap.get(WARMUP_COUNT_ARG));
             boolean printHelp = Boolean.parseBoolean(paramsMap.get(HELP_ARG));
             boolean ignoreScheduledStartTimes = Boolean.parseBoolean(paramsMap.get(IGNORE_SCHEDULED_START_TIMES_ARG));
             boolean shouldCreateResultsLog = Boolean.parseBoolean(paramsMap.get(RESULTS_LOG_ARG));
@@ -244,7 +252,9 @@ public class ConsoleAndFileDriverConfiguration implements DriverConfiguration {
                     spinnerSleepDurationAsMilli,
                     printHelp,
                     ignoreScheduledStartTimes,
-                    shouldCreateResultsLog);
+                    shouldCreateResultsLog,
+                    warmupCount
+            );
         } catch (DriverConfigurationException e) {
             throw new DriverConfigurationException(String.format("%s\n%s", e.getMessage(), commandlineHelpString()), e);
         }
@@ -331,6 +341,9 @@ public class ConsoleAndFileDriverConfiguration implements DriverConfiguration {
         if (cmd.hasOption(RESULTS_LOG_ARG))
             cmdParams.put(RESULTS_LOG_ARG, Boolean.toString(true));
 
+        if (cmd.hasOption(WARMUP_COUNT_ARG))
+            cmdParams.put(WARMUP_COUNT_ARG, cmd.getOptionValue(WARMUP_COUNT_ARG));
+
         if (cmd.hasOption(CREATE_VALIDATION_PARAMS_ARG)) {
             String[] validationParams = cmd.getOptionValues(CREATE_VALIDATION_PARAMS_ARG);
             String filePath = validationParams[0];
@@ -388,6 +401,7 @@ public class ConsoleAndFileDriverConfiguration implements DriverConfiguration {
         paramsMap = replaceKey(paramsMap, VALIDATE_WORKLOAD_ARG_LONG, VALIDATE_WORKLOAD_ARG);
         paramsMap = replaceKey(paramsMap, CALCULATE_WORKLOAD_STATISTICS_ARG_LONG, CALCULATE_WORKLOAD_STATISTICS_ARG);
         paramsMap = replaceKey(paramsMap, SPINNER_SLEEP_DURATION_ARG_LONG, SPINNER_SLEEP_DURATION_ARG);
+        paramsMap = replaceKey(paramsMap, WARMUP_COUNT_ARG_LONG, WARMUP_COUNT_ARG);
         return paramsMap;
     }
 
@@ -469,6 +483,10 @@ public class ConsoleAndFileDriverConfiguration implements DriverConfiguration {
                 SPINNER_SLEEP_DURATION_ARG_LONG).create(SPINNER_SLEEP_DURATION_ARG);
         options.addOption(spinnerSleepDurationOption);
 
+        Option warmupCountOption = OptionBuilder.hasArgs(1).withArgName("count").withDescription(WARMUP_COUNT_DESCRIPTION).withLongOpt(
+                WARMUP_COUNT_ARG_LONG).create(WARMUP_COUNT_ARG);
+        options.addOption(warmupCountOption);
+
         Option printHelpOption = OptionBuilder.withDescription(HELP_DESCRIPTION).create(HELP_ARG);
         options.addOption(printHelpOption);
 
@@ -536,7 +554,8 @@ public class ConsoleAndFileDriverConfiguration implements DriverConfiguration {
                 SPINNER_SLEEP_DURATION_ARG,
                 HELP_ARG,
                 IGNORE_SCHEDULED_START_TIMES_ARG,
-                RESULTS_LOG_ARG
+                RESULTS_LOG_ARG,
+                WARMUP_COUNT_ARG
         );
     }
 
@@ -578,6 +597,7 @@ public class ConsoleAndFileDriverConfiguration implements DriverConfiguration {
     private final boolean printHelp;
     private final boolean ignoreScheduledStartTimes;
     private final boolean shouldCreateResultsLog;
+    private final long warmupCount;
 
     public ConsoleAndFileDriverConfiguration(Map<String, String> paramsMap,
                                              String name,
@@ -597,7 +617,8 @@ public class ConsoleAndFileDriverConfiguration implements DriverConfiguration {
                                              long spinnerSleepDurationAsMilli,
                                              boolean printHelp,
                                              boolean ignoreScheduledStartTimes,
-                                             boolean shouldCreateResultsLog) {
+                                             boolean shouldCreateResultsLog,
+                                             long warmupCount) {
         if (null == paramsMap) paramsMap = new HashMap<>();
         this.paramsMap = paramsMap;
         this.name = name;
@@ -618,6 +639,7 @@ public class ConsoleAndFileDriverConfiguration implements DriverConfiguration {
         this.printHelp = printHelp;
         this.ignoreScheduledStartTimes = ignoreScheduledStartTimes;
         this.shouldCreateResultsLog = shouldCreateResultsLog;
+        this.warmupCount = warmupCount;
 
         if (null != name)
             paramsMap.put(NAME_ARG, name);
@@ -643,6 +665,7 @@ public class ConsoleAndFileDriverConfiguration implements DriverConfiguration {
         paramsMap.put(HELP_ARG, Boolean.toString(printHelp));
         paramsMap.put(IGNORE_SCHEDULED_START_TIMES_ARG, Boolean.toString(ignoreScheduledStartTimes));
         paramsMap.put(RESULTS_LOG_ARG, Boolean.toString(shouldCreateResultsLog));
+        paramsMap.put(WARMUP_COUNT_ARG, Long.toString(warmupCount));
     }
 
     @Override
@@ -744,8 +767,30 @@ public class ConsoleAndFileDriverConfiguration implements DriverConfiguration {
     }
 
     @Override
+    public long warmupCount() {
+        return warmupCount;
+    }
+
+    @Override
     public Map<String, String> asMap() {
         return paramsMap;
+    }
+
+    /**
+     * Returns a new DriverConfiguration instance.
+     * New instance has the same values for all fields except the one that was set/changed.
+     * New instance contains all fields that original configuration instance contained.
+     * New instance will contain additional fields if the new parameter introduced one.
+     *
+     * @param argument
+     * @param newValue
+     * @return
+     * @throws DriverConfigurationException
+     */
+    public DriverConfiguration applyArg(String argument, String newValue) throws DriverConfigurationException {
+        Map<String, String> newParamsMap = new HashMap<>();
+        newParamsMap.put(argument, newValue);
+        return applyArgs(newParamsMap);
     }
 
     /**
@@ -759,7 +804,7 @@ public class ConsoleAndFileDriverConfiguration implements DriverConfiguration {
      * @throws DriverConfigurationException
      */
     @Override
-    public DriverConfiguration applyMap(Map<String, String> newParamsMap) throws DriverConfigurationException {
+    public DriverConfiguration applyArgs(Map<String, String> newParamsMap) throws DriverConfigurationException {
         Map<String, String> newParamsMapWithShortKeys = convertLongKeysToShortKeys(newParamsMap);
         Map<String, String> newOtherParams = MapUtils.mergeMaps(this.paramsMap, newParamsMapWithShortKeys, true);
 
@@ -817,6 +862,9 @@ public class ConsoleAndFileDriverConfiguration implements DriverConfiguration {
         boolean newShouldCreateResultsLog = (newParamsMapWithShortKeys.containsKey(RESULTS_LOG_ARG)) ?
                 Boolean.parseBoolean(newParamsMapWithShortKeys.get(RESULTS_LOG_ARG)) :
                 shouldCreateResultsLog;
+        long newWarmupCount = (newParamsMapWithShortKeys.containsKey(WARMUP_COUNT_ARG)) ?
+                Long.parseLong(newParamsMapWithShortKeys.get(WARMUP_COUNT_ARG)) :
+                warmupCount;
 
         return new ConsoleAndFileDriverConfiguration(
                 newOtherParams,
@@ -837,7 +885,9 @@ public class ConsoleAndFileDriverConfiguration implements DriverConfiguration {
                 newSpinnerSleepDurationAsMilli,
                 newPrintHelp,
                 newIgnoreScheduledStartTimes,
-                newShouldCreateResultsLog);
+                newShouldCreateResultsLog,
+                newWarmupCount
+        );
     }
 
     public String[] toArgs() throws DriverConfigurationException {
@@ -851,6 +901,7 @@ public class ConsoleAndFileDriverConfiguration implements DriverConfiguration {
         // optional core parameters
         argsList.addAll(Lists.newArrayList("-" + SHOW_STATUS_ARG, Long.toString(statusDisplayIntervalAsSeconds)));
         argsList.addAll(Lists.newArrayList("-" + THREADS_ARG, Integer.toString(threadCount)));
+        argsList.addAll(Lists.newArrayList("-" + WARMUP_COUNT_ARG, Long.toString(warmupCount)));
         if (null != name)
             argsList.addAll(Lists.newArrayList("-" + NAME_ARG, name));
         if (null != resultDirPath)
@@ -896,14 +947,19 @@ public class ConsoleAndFileDriverConfiguration implements DriverConfiguration {
         sb.append("# ***********************\n");
         sb.append("\n");
         sb.append("# status display interval (intermittently show status during benchmark execution)\n");
-        sb.append("# INTEGER (seconds)\n");
+        sb.append("# INT-32 (seconds)\n");
         sb.append("# COMMAND: ").append("-").append(SHOW_STATUS_ARG).append("/--").append(SHOW_STATUS_ARG_LONG).append("\n");
         sb.append(SHOW_STATUS_ARG_LONG).append("=").append(statusDisplayIntervalAsSeconds).append("\n");
         sb.append("\n");
         sb.append("# thread pool size to use for executing operation handlers\n");
-        sb.append("# INTEGER\n");
+        sb.append("# INT-32\n");
         sb.append("# COMMAND: ").append("-").append(THREADS_ARG).append("/--").append(THREADS_ARG_LONG).append("\n");
         sb.append(THREADS_ARG_LONG).append("=").append(threadCount).append("\n");
+        sb.append("\n");
+        sb.append("# number of operations to execute during warmup phase of workload\n");
+        sb.append("# INT-64\n");
+        sb.append("# COMMAND: ").append("-").append(WARMUP_COUNT_ARG).append("/--").append(WARMUP_COUNT_ARG_LONG).append("\n");
+        sb.append(WARMUP_COUNT_ARG_LONG).append("=").append(warmupCount).append("\n");
         sb.append("\n");
         sb.append("# name of the benchmark run\n");
         sb.append("# STRING\n");
@@ -954,7 +1010,7 @@ public class ConsoleAndFileDriverConfiguration implements DriverConfiguration {
         sb.append("\n");
         sb.append("# generate validation parameters file for validating correctness of database implementations\n");
         sb.append("# parameter values specify: (1) where to create the validation parameters file (2) how many validation parameters to generate\n");
-        sb.append("# STRING|INTEGER (e.g., ").append(new ConsoleAndFileValidationParamOptions("validation_parameters.csv", 1000).toCommandlineString()).append(")\n");
+        sb.append("# STRING|INT-32 (e.g., ").append(new ConsoleAndFileValidationParamOptions("validation_parameters.csv", 1000).toCommandlineString()).append(")\n");
         sb.append("# COMMAND: ").append("-").append(CREATE_VALIDATION_PARAMS_ARG).append("/--").append(CREATE_VALIDATION_PARAMS_ARG_LONG).append("\n");
         if (null == validationCreationParams)
             sb.append("# ").append(CREATE_VALIDATION_PARAMS_ARG_LONG).append("=").append("\n");
@@ -972,7 +1028,7 @@ public class ConsoleAndFileDriverConfiguration implements DriverConfiguration {
         sb.append(CALCULATE_WORKLOAD_STATISTICS_ARG_LONG).append("=").append(calculateWorkloadStatistics).append("\n");
         sb.append("\n");
         sb.append("# sleep duration (ms) injected into busy wait loops (to reduce CPU consumption)\n");
-        sb.append("# LONG (milliseconds)\n");
+        sb.append("# INT-64 (milliseconds)\n");
         sb.append("# COMMAND: ").append("-").append(SPINNER_SLEEP_DURATION_ARG).append("/--").append(SPINNER_SLEEP_DURATION_ARG_LONG).append("\n");
         sb.append(SPINNER_SLEEP_DURATION_ARG_LONG).append("=").append(spinnerSleepDurationAsMilli).append("\n");
         sb.append("\n");
@@ -999,7 +1055,7 @@ public class ConsoleAndFileDriverConfiguration implements DriverConfiguration {
             sb.append(WORKLOAD_ARG_LONG).append("=").append(workloadClassName).append("\n");
         sb.append("\n");
         sb.append("# number of operations to generate during benchmark execution\n");
-        sb.append("# LONG\n");
+        sb.append("# INT-64\n");
         sb.append("# COMMAND: ").append("-").append(OPERATION_COUNT_ARG).append("/--").append(OPERATION_COUNT_ARG_LONG).append("\n");
         if (0 == operationCount)
             sb.append("# ").append(OPERATION_COUNT_ARG_LONG).append("=").append("\n");
@@ -1041,6 +1097,7 @@ public class ConsoleAndFileDriverConfiguration implements DriverConfiguration {
         sb.append("\t").append(String.format("%1$-" + padRightDistance + "s", "DB:")).append(dbClassName).append("\n");
         sb.append("\t").append(String.format("%1$-" + padRightDistance + "s", "Workload:")).append(workloadClassName).append("\n");
         sb.append("\t").append(String.format("%1$-" + padRightDistance + "s", "Operation Count:")).append(INTEGRAL_FORMAT.format(operationCount)).append("\n");
+        sb.append("\t").append(String.format("%1$-" + padRightDistance + "s", "Warmup Count:")).append(INTEGRAL_FORMAT.format(warmupCount)).append("\n");
         sb.append("\t").append(String.format("%1$-" + padRightDistance + "s", "Worker Threads:")).append(threadCount).append("\n");
         sb.append("\t").append(String.format("%1$-" + padRightDistance + "s", "Status Display Interval:")).append(TEMPORAL_UTIL.milliDurationToString(TimeUnit.SECONDS.toMillis(statusDisplayIntervalAsSeconds))).append("\n");
         sb.append("\t").append(String.format("%1$-" + padRightDistance + "s", "Time Unit:")).append(timeUnit).append("\n");
@@ -1079,6 +1136,7 @@ public class ConsoleAndFileDriverConfiguration implements DriverConfiguration {
 
         if (calculateWorkloadStatistics != that.calculateWorkloadStatistics) return false;
         if (operationCount != that.operationCount) return false;
+        if (warmupCount != that.warmupCount) return false;
         if (printHelp != that.printHelp) return false;
         if (ignoreScheduledStartTimes != that.ignoreScheduledStartTimes) return false;
         if (shouldCreateResultsLog != that.shouldCreateResultsLog) return false;
@@ -1112,6 +1170,7 @@ public class ConsoleAndFileDriverConfiguration implements DriverConfiguration {
         result = 31 * result + (dbClassName != null ? dbClassName.hashCode() : 0);
         result = 31 * result + (workloadClassName != null ? workloadClassName.hashCode() : 0);
         result = 31 * result + (int) (operationCount ^ (operationCount >>> 32));
+        result = 31 * result + (int) (warmupCount ^ (warmupCount >>> 32));
         result = 31 * result + threadCount;
         result = 31 * result + statusDisplayIntervalAsSeconds;
         result = 31 * result + (timeUnit != null ? timeUnit.hashCode() : 0);

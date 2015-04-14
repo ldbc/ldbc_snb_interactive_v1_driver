@@ -156,6 +156,11 @@ public class GeneratorFactory {
         return new OperationStreamComparisonResult("", OperationStreamComparisonResultType.PASS);
     }
 
+    public <T> void consume(Iterator<T> generator, long count) {
+        for (long consumed = 0; generator.hasNext() && consumed < count; consumed++) {
+            generator.next();
+        }
+    }
     /*
      * ----------------------------------------------------------------------------------------------------
      * ---------------------------------------- DECORATORS ------------------------------------------------
@@ -279,8 +284,8 @@ public class GeneratorFactory {
      * @return
      */
     public Iterator<Operation> assignConservativeDependencyTimes(Iterator<Operation> operations,
-                                                                    final long initialDependencyTimeAsMilli,
-                                                                    final boolean canOverwriteDependencyTime) {
+                                                                 final long initialDependencyTimeAsMilli,
+                                                                 final boolean canOverwriteDependencyTime) {
         Function1<Operation, Boolean> isDependency = new Function1<Operation, Boolean>() {
             @Override
             public Boolean apply(Operation operation) {
@@ -305,9 +310,9 @@ public class GeneratorFactory {
      * @return
      */
     public Iterator<Operation> assignDependencyTimesEqualToLastEncounteredLowerDependencyTimeStamp(Iterator<Operation> operations,
-                                                                                                      final Function1<Operation, Boolean> isDependency,
-                                                                                                      final long initialDependencyTimeAsMilli,
-                                                                                                      final boolean canOverwriteDependencyTime) {
+                                                                                                   final Function1<Operation, Boolean> isDependency,
+                                                                                                   final long initialDependencyTimeAsMilli,
+                                                                                                   final boolean canOverwriteDependencyTime) {
         Function1<Operation, Operation> dependencyTimeAssigningFun = new Function1<Operation, Operation>() {
             private long secondMostRecentDependencyAsMilli = initialDependencyTimeAsMilli;
             private long mostRecentDependencyAsMilli = initialDependencyTimeAsMilli;
@@ -346,9 +351,9 @@ public class GeneratorFactory {
      * @return
      */
     public Iterator<Operation> assignDependencyTimesEqualToLastEncounteredDependencyTimeStamp(Iterator<Operation> operations,
-                                                                                                 final Function1<Operation, Boolean> isDependency,
-                                                                                                 final long initialDependencyTimeAsMilli,
-                                                                                                 final boolean canOverwriteDependencyTime) {
+                                                                                              final Function1<Operation, Boolean> isDependency,
+                                                                                              final long initialDependencyTimeAsMilli,
+                                                                                              final boolean canOverwriteDependencyTime) {
         Function1<Operation, Operation> dependencyTimeAssigningFun = new Function1<Operation, Operation>() {
             private long mostRecentDependencyAsMilli = initialDependencyTimeAsMilli;
 

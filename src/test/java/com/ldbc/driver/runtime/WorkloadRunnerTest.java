@@ -90,6 +90,7 @@ public class WorkloadRunnerTest {
             boolean printHelp = false;
             boolean ignoreScheduledStartTimes = false;
             boolean shouldCreateResultsLog = true;
+            long warmupCount = 100;
 
             ConsoleAndFileDriverConfiguration configuration = new ConsoleAndFileDriverConfiguration(
                     paramsMap,
@@ -110,10 +111,11 @@ public class WorkloadRunnerTest {
                     spinnerSleepDuration,
                     printHelp,
                     ignoreScheduledStartTimes,
-                    shouldCreateResultsLog
+                    shouldCreateResultsLog,
+                    warmupCount
             );
 
-            configuration = (ConsoleAndFileDriverConfiguration) configuration.applyMap(MapUtils.loadPropertiesToMap(TestUtils.getResource("/updateStream.properties")));
+            configuration = (ConsoleAndFileDriverConfiguration) configuration.applyArgs(MapUtils.loadPropertiesToMap(TestUtils.getResource("/updateStream.properties")));
 
             controlService = new LocalControlService(timeSource.nowAsMilli(), configuration);
             db = new DummyLdbcSnbInteractiveDb();
@@ -122,7 +124,13 @@ public class WorkloadRunnerTest {
             GeneratorFactory gf = new GeneratorFactory(new RandomDataGeneratorFactory(42L));
             boolean returnStreamsWithDbConnector = true;
             Tuple.Tuple3<WorkloadStreams, Workload, Long> workloadStreamsAndWorkload =
-                    WorkloadStreams.createNewWorkloadWithLimitedWorkloadStreams(configuration, gf, returnStreamsWithDbConnector);
+                    WorkloadStreams.createNewWorkloadWithOffsetAndLimitedWorkloadStreams(
+                            configuration,
+                            gf,
+                            returnStreamsWithDbConnector,
+                            configuration.warmupCount(),
+                            configuration.operationCount()
+                    );
 
             workload = workloadStreamsAndWorkload._2();
 
@@ -173,7 +181,7 @@ public class WorkloadRunnerTest {
             assertThat(errorReporter.toString() + "\n" + metricsFormatter.format(workloadResults), workloadResults.latestFinishTimeAsMilli() >= workloadResults.startTimeAsMilli(), is(true));
             assertThat(errorReporter.toString() + "\n" + metricsFormatter.format(workloadResults),
                     workloadResults.totalOperationCount(),
-                    allOf(greaterThanOrEqualTo(percent(operationCount, 0.97)), lessThanOrEqualTo(percent(operationCount, 1.03)))
+                    allOf(greaterThanOrEqualTo(percent(operationCount, 0.95)), lessThanOrEqualTo(percent(operationCount, 1.05)))
             );
 
             WorkloadResultsSnapshot workloadResultsFromJson = WorkloadResultsSnapshot.fromJson(workloadResults.toJson());
@@ -187,7 +195,7 @@ public class WorkloadRunnerTest {
             // GREATER THAN or equal because number of Short Reads is operation result-dependent
             assertThat(
                     (long) Iterators.size(csvResultsLogReader),
-                    allOf(greaterThanOrEqualTo(percent(configuration.operationCount(), 0.97)), lessThanOrEqualTo(percent(configuration.operationCount(), 1.03)))
+                    allOf(greaterThanOrEqualTo(percent(configuration.operationCount(), 0.95)), lessThanOrEqualTo(percent(configuration.operationCount(), 1.05)))
             );
             csvResultsLogReader.close();
 
@@ -251,6 +259,7 @@ public class WorkloadRunnerTest {
             boolean printHelp = false;
             boolean ignoreScheduledStartTimes = false;
             boolean shouldCreateResultsLog = true;
+            long warmupCount = 100;
 
             ConsoleAndFileDriverConfiguration configuration = new ConsoleAndFileDriverConfiguration(
                     paramsMap,
@@ -271,10 +280,11 @@ public class WorkloadRunnerTest {
                     spinnerSleepDuration,
                     printHelp,
                     ignoreScheduledStartTimes,
-                    shouldCreateResultsLog
+                    shouldCreateResultsLog,
+                    warmupCount
             );
 
-            configuration = (ConsoleAndFileDriverConfiguration) configuration.applyMap(MapUtils.loadPropertiesToMap(TestUtils.getResource("/updateStream.properties")));
+            configuration = (ConsoleAndFileDriverConfiguration) configuration.applyArgs(MapUtils.loadPropertiesToMap(TestUtils.getResource("/updateStream.properties")));
 
             controlService = new LocalControlService(timeSource.nowAsMilli(), configuration);
             db = new DummyLdbcSnbInteractiveDb();
@@ -283,7 +293,13 @@ public class WorkloadRunnerTest {
             GeneratorFactory gf = new GeneratorFactory(new RandomDataGeneratorFactory(42L));
             boolean returnStreamsWithDbConnector = true;
             Tuple.Tuple3<WorkloadStreams, Workload, Long> workloadStreamsAndWorkload =
-                    WorkloadStreams.createNewWorkloadWithLimitedWorkloadStreams(configuration, gf, returnStreamsWithDbConnector);
+                    WorkloadStreams.createNewWorkloadWithOffsetAndLimitedWorkloadStreams(
+                            configuration,
+                            gf,
+                            returnStreamsWithDbConnector,
+                            configuration.warmupCount(),
+                            configuration.operationCount()
+                    );
 
             workload = workloadStreamsAndWorkload._2();
 
@@ -335,7 +351,7 @@ public class WorkloadRunnerTest {
             // GREATER THAN or equal because number of Short Reads is operation result-dependent
             assertThat(errorReporter.toString() + "\n" + metricsFormatter.format(workloadResults),
                     workloadResults.totalOperationCount(),
-                    allOf(greaterThanOrEqualTo(percent(operationCount, 0.97)), lessThanOrEqualTo(percent(operationCount, 1.03)))
+                    allOf(greaterThanOrEqualTo(percent(operationCount, 0.95)), lessThanOrEqualTo(percent(operationCount, 1.05)))
             );
 
             WorkloadResultsSnapshot workloadResultsFromJson = WorkloadResultsSnapshot.fromJson(workloadResults.toJson());
@@ -349,7 +365,7 @@ public class WorkloadRunnerTest {
             // GREATER THAN or equal because number of Short Reads is operation result-dependent
             assertThat(
                     (long) Iterators.size(csvResultsLogReader),
-                    allOf(greaterThanOrEqualTo(percent(configuration.operationCount(), 0.97)), lessThanOrEqualTo(percent(configuration.operationCount(), 1.03)))
+                    allOf(greaterThanOrEqualTo(percent(configuration.operationCount(), 0.95)), lessThanOrEqualTo(percent(configuration.operationCount(), 1.05)))
             );
             csvResultsLogReader.close();
 
@@ -438,6 +454,7 @@ public class WorkloadRunnerTest {
             boolean printHelp = false;
             boolean ignoreScheduledStartTimes = true;
             boolean shouldCreateResultsLog = true;
+            long warmupCount = 100;
 
             ConsoleAndFileDriverConfiguration configuration = new ConsoleAndFileDriverConfiguration(
                     paramsMap,
@@ -458,10 +475,11 @@ public class WorkloadRunnerTest {
                     spinnerSleepDuration,
                     printHelp,
                     ignoreScheduledStartTimes,
-                    shouldCreateResultsLog
+                    shouldCreateResultsLog,
+                    warmupCount
             );
 
-            configuration = (ConsoleAndFileDriverConfiguration) configuration.applyMap(MapUtils.loadPropertiesToMap(TestUtils.getResource("/updateStream.properties")));
+            configuration = (ConsoleAndFileDriverConfiguration) configuration.applyArgs(MapUtils.loadPropertiesToMap(TestUtils.getResource("/updateStream.properties")));
 
             controlService = new LocalControlService(timeSource.nowAsMilli() + 1000, configuration);
             db = new DummyLdbcSnbInteractiveDb();
@@ -555,7 +573,7 @@ public class WorkloadRunnerTest {
         }
     }
 
-    private long percent(long value, double percentage) {
-        return Math.round(value * percentage);
+    private long percent(long value, double percent) {
+        return Math.round(value * percent);
     }
 }

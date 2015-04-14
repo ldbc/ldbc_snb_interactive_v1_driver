@@ -71,6 +71,7 @@ public class QueuePerformanceTests {
         boolean printHelp = false;
         boolean ignoreScheduledStartTimes = false;
         boolean shouldCreateResultsLog = false;
+        long warmupCount = 0;
 
         DriverConfiguration config = new ConsoleAndFileDriverConfiguration(
                 paramsMap,
@@ -91,12 +92,19 @@ public class QueuePerformanceTests {
                 spinnerSleepDuration,
                 printHelp,
                 ignoreScheduledStartTimes,
-                shouldCreateResultsLog
+                shouldCreateResultsLog,
+                warmupCount
         );
 
         GeneratorFactory gf = new GeneratorFactory(new RandomDataGeneratorFactory(42L));
         boolean returnStreamsWithDbConnector = false;
-        Tuple.Tuple3<WorkloadStreams, Workload, Long> workloadStreamsAndWorkload = WorkloadStreams.createNewWorkloadWithLimitedWorkloadStreams(config, gf, returnStreamsWithDbConnector);
+        Tuple.Tuple3<WorkloadStreams, Workload, Long> workloadStreamsAndWorkload = WorkloadStreams.createNewWorkloadWithOffsetAndLimitedWorkloadStreams(
+                config,
+                gf,
+                returnStreamsWithDbConnector,
+                0,
+                config.operationCount()
+        );
         WorkloadStreams workloadStreams = workloadStreamsAndWorkload._1();
         Workload workload = workloadStreamsAndWorkload._2();
 

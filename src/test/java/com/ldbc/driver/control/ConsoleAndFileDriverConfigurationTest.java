@@ -2,7 +2,6 @@ package com.ldbc.driver.control;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
-import com.ldbc.driver.testutils.TestUtils;
 import com.ldbc.driver.util.MapUtils;
 import com.ldbc.driver.workloads.ldbc.snb.interactive.LdbcSnbInteractiveWorkload;
 import com.ldbc.driver.workloads.ldbc.snb.interactive.db.DummyLdbcSnbInteractiveDb;
@@ -20,6 +19,24 @@ import static org.junit.Assert.assertThat;
 
 public class ConsoleAndFileDriverConfigurationTest {
     @Test
+    public void applyShouldWork() throws DriverConfigurationException {
+        ConsoleAndFileDriverConfiguration configuration = ConsoleAndFileDriverConfiguration.fromDefaults("db1", "workload1", 1);
+
+        assertThat(configuration.dbClassName(), equalTo("db1"));
+        assertThat(configuration.workloadClassName(), equalTo("workload1"));
+        assertThat(configuration.operationCount(), equalTo(1l));
+
+        configuration = (ConsoleAndFileDriverConfiguration) configuration.applyArg(ConsoleAndFileDriverConfiguration.DB_ARG, "db2");
+        assertThat(configuration.dbClassName(), equalTo("db2"));
+
+        configuration = (ConsoleAndFileDriverConfiguration) configuration.applyArg(ConsoleAndFileDriverConfiguration.WORKLOAD_ARG, "workload2");
+        assertThat(configuration.workloadClassName(), equalTo("workload2"));
+
+        configuration = (ConsoleAndFileDriverConfiguration) configuration.applyArg(ConsoleAndFileDriverConfiguration.OPERATION_COUNT_ARG, "2");
+        assertThat(configuration.operationCount(), equalTo(2l));
+    }
+
+    @Test
     public void applyMapShouldWork() throws DriverConfigurationException {
         ConsoleAndFileDriverConfiguration configuration1 = ConsoleAndFileDriverConfiguration.fromDefaults("db1", "workload1", 1);
 
@@ -32,7 +49,7 @@ public class ConsoleAndFileDriverConfigurationTest {
         configurationUpdate2.put(ConsoleAndFileDriverConfiguration.WORKLOAD_ARG, "workload2");
         configurationUpdate2.put(ConsoleAndFileDriverConfiguration.OPERATION_COUNT_ARG, "2");
 
-        ConsoleAndFileDriverConfiguration configuration2 = (ConsoleAndFileDriverConfiguration) configuration1.applyMap(configurationUpdate2);
+        ConsoleAndFileDriverConfiguration configuration2 = (ConsoleAndFileDriverConfiguration) configuration1.applyArgs(configurationUpdate2);
 
         assertThat(configuration2.dbClassName(), equalTo("db2"));
         assertThat(configuration2.workloadClassName(), equalTo("workload2"));
@@ -71,6 +88,7 @@ public class ConsoleAndFileDriverConfigurationTest {
         boolean shouldCreateResultsLog = true;
         String name = "LDBC-SNB";
         boolean ignoreScheduledStartTimes = true;
+        long warmupCount = 5;
         Map<String, String> paramsMap = new HashMap<>();
 
         ConsoleAndFileDriverConfiguration configurationBefore = new ConsoleAndFileDriverConfiguration(
@@ -92,7 +110,8 @@ public class ConsoleAndFileDriverConfigurationTest {
                 spinnerSleepDuration,
                 printHelp,
                 ignoreScheduledStartTimes,
-                shouldCreateResultsLog
+                shouldCreateResultsLog,
+                warmupCount
         );
 
         DriverConfiguration configurationAfter = ConsoleAndFileDriverConfiguration.fromParamsMap(configurationBefore.asMap());
@@ -174,6 +193,8 @@ public class ConsoleAndFileDriverConfigurationTest {
                 ConsoleAndFileDriverConfiguration.RESULTS_LOG_ARG, ConsoleAndFileDriverConfiguration.RESULTS_LOG_DEFAULT_STRING);
         paramsFromPublicStaticDefaultValuesAsMap.put(
                 ConsoleAndFileDriverConfiguration.SPINNER_SLEEP_DURATION_ARG, ConsoleAndFileDriverConfiguration.SPINNER_SLEEP_DURATION_DEFAULT_STRING);
+        paramsFromPublicStaticDefaultValuesAsMap.put(
+                ConsoleAndFileDriverConfiguration.WARMUP_COUNT_ARG, ConsoleAndFileDriverConfiguration.WARMUP_COUNT_DEFAULT_STRING);
         // required params
         paramsFromPublicStaticDefaultValuesAsMap.put(ConsoleAndFileDriverConfiguration.DB_ARG, databaseClassName);
         paramsFromPublicStaticDefaultValuesAsMap.put(ConsoleAndFileDriverConfiguration.WORKLOAD_ARG, workloadClassName);
@@ -271,6 +292,8 @@ public class ConsoleAndFileDriverConfigurationTest {
                 ConsoleAndFileDriverConfiguration.RESULTS_LOG_ARG, ConsoleAndFileDriverConfiguration.RESULTS_LOG_DEFAULT_STRING);
         paramsFromPublicStaticDefaultValuesAsMap.put(
                 ConsoleAndFileDriverConfiguration.SPINNER_SLEEP_DURATION_ARG, ConsoleAndFileDriverConfiguration.SPINNER_SLEEP_DURATION_DEFAULT_STRING);
+        paramsFromPublicStaticDefaultValuesAsMap.put(
+                ConsoleAndFileDriverConfiguration.WARMUP_COUNT_ARG, ConsoleAndFileDriverConfiguration.WARMUP_COUNT_DEFAULT_STRING);
         // add required params
         paramsFromPublicStaticDefaultValuesAsMap.put(ConsoleAndFileDriverConfiguration.DB_ARG, databaseClassName);
         paramsFromPublicStaticDefaultValuesAsMap.put(ConsoleAndFileDriverConfiguration.WORKLOAD_ARG, workloadClassName);
@@ -324,6 +347,7 @@ public class ConsoleAndFileDriverConfigurationTest {
         optionalParamsMap.put(ConsoleAndFileDriverConfiguration.IGNORE_SCHEDULED_START_TIMES_ARG, ConsoleAndFileDriverConfiguration.IGNORE_SCHEDULED_START_TIMES_DEFAULT_STRING);
         optionalParamsMap.put(ConsoleAndFileDriverConfiguration.RESULTS_LOG_ARG, ConsoleAndFileDriverConfiguration.RESULTS_LOG_DEFAULT_STRING);
         optionalParamsMap.put(ConsoleAndFileDriverConfiguration.SPINNER_SLEEP_DURATION_ARG, ConsoleAndFileDriverConfiguration.SPINNER_SLEEP_DURATION_DEFAULT_STRING);
+        optionalParamsMap.put(ConsoleAndFileDriverConfiguration.WARMUP_COUNT_ARG, ConsoleAndFileDriverConfiguration.WARMUP_COUNT_DEFAULT_STRING);
         // Extra
         optionalParamsMap.put("extra_key", "extra_value");
 
@@ -358,6 +382,7 @@ public class ConsoleAndFileDriverConfigurationTest {
         if (ConsoleAndFileDriverConfiguration.RESULTS_LOG_DEFAULT)
             optionalParamsArgsList.addAll(Lists.newArrayList("-" + ConsoleAndFileDriverConfiguration.RESULTS_LOG_ARG));
         optionalParamsArgsList.addAll(Lists.newArrayList("-" + ConsoleAndFileDriverConfiguration.SPINNER_SLEEP_DURATION_ARG, ConsoleAndFileDriverConfiguration.SPINNER_SLEEP_DURATION_DEFAULT_STRING));
+        optionalParamsArgsList.addAll(Lists.newArrayList("-" + ConsoleAndFileDriverConfiguration.WARMUP_COUNT_ARG, ConsoleAndFileDriverConfiguration.WARMUP_COUNT_DEFAULT_STRING));
         // Extra
         optionalParamsArgsList.addAll(Lists.newArrayList("-p", "extra_key", "extra_value"));
 
@@ -405,6 +430,7 @@ public class ConsoleAndFileDriverConfigurationTest {
         assertThat(configurationFromParams.ignoreScheduledStartTimes(), is(ConsoleAndFileDriverConfiguration.IGNORE_SCHEDULED_START_TIMES_DEFAULT));
         assertThat(configurationFromParams.shouldCreateResultsLog(), is(ConsoleAndFileDriverConfiguration.RESULTS_LOG_DEFAULT));
         assertThat(configurationFromParams.spinnerSleepDurationAsMilli(), is(ConsoleAndFileDriverConfiguration.SPINNER_SLEEP_DURATION_DEFAULT));
+        assertThat(configurationFromParams.warmupCount(), is(ConsoleAndFileDriverConfiguration.WARMUP_COUNT_DEFAULT));
     }
 
     @Test
@@ -428,6 +454,7 @@ public class ConsoleAndFileDriverConfigurationTest {
         boolean printHelp = false;
         boolean ignoreScheduledStartTimes = false;
         boolean shouldCreateResultsLog = true;
+        long warmupCount = 10;
 
         ConsoleAndFileDriverConfiguration params = new ConsoleAndFileDriverConfiguration(
                 paramsMap,
@@ -448,7 +475,8 @@ public class ConsoleAndFileDriverConfigurationTest {
                 spinnerSleepDuration,
                 printHelp,
                 ignoreScheduledStartTimes,
-                shouldCreateResultsLog
+                shouldCreateResultsLog,
+                warmupCount
         );
 
         assertThat(params.asMap(), equalTo(paramsMap));

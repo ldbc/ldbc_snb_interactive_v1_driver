@@ -163,19 +163,26 @@ public class WorkloadStreams {
     }
 
     // returns (workload_streams, workload, minimum_timestamp)
-    public static Tuple.Tuple3<WorkloadStreams, Workload, Long> createNewWorkloadWithLimitedWorkloadStreams(DriverConfiguration configuration,
-                                                                                                            GeneratorFactory gf,
-                                                                                                            boolean returnStreamsWithDbConnector) throws WorkloadException, IOException {
+    public static Tuple.Tuple3<WorkloadStreams, Workload, Long> createNewWorkloadWithOffsetAndLimitedWorkloadStreams(DriverConfiguration configuration,
+                                                                                                                     GeneratorFactory gf,
+                                                                                                                     boolean returnStreamsWithDbConnector,
+                                                                                                                     long offset,
+                                                                                                                     long limit) throws WorkloadException, IOException {
         ClassNameWorkloadFactory workloadFactory = new ClassNameWorkloadFactory(configuration.workloadClassName());
-        return createNewWorkloadWithLimitedWorkloadStreams(workloadFactory, configuration, gf,returnStreamsWithDbConnector);
+        return createNewWorkloadWithOffsetAndLimitedWorkloadStreams(workloadFactory, configuration, gf, returnStreamsWithDbConnector, offset, limit);
     }
 
     // returns (workload_streams, workload, minimum_timestamp)
-    public static Tuple.Tuple3<WorkloadStreams, Workload, Long> createNewWorkloadWithLimitedWorkloadStreams(WorkloadFactory workloadFactory,
-                                                                                                            DriverConfiguration configuration,
-                                                                                                            GeneratorFactory gf,
-                                                                                                            boolean returnStreamsWithDbConnector) throws WorkloadException, IOException {
-        WorkloadStreams workloadStreams = new WorkloadStreams();
+    public static Tuple.Tuple3<WorkloadStreams, Workload, Long> createNewWorkloadWithOffsetAndLimitedWorkloadStreams(WorkloadFactory workloadFactory,
+                                                                                                                     DriverConfiguration configuration,
+                                                                                                                     GeneratorFactory gf,
+                                                                                                                     boolean returnStreamsWithDbConnector,
+                                                                                                                     long offset,
+                                                                                                                     long limit) throws WorkloadException, IOException {
+        // ================================
+        // ====== Calculate Limits ========
+        // ================================
+
         // get workload
         Workload workload = workloadFactory.createWorkload();
         workload.init(configuration);
@@ -198,18 +205,43 @@ public class WorkloadStreams {
             streams.add(stream.nonDependencyOperations());
             childOperationGenerators.add(stream.childOperationGenerator());
         }
+
         // stream through streams once, to calculate how many operations are needed from each, to get operation_count in total
-        Tuple.Tuple2<long[], Long> limitsAndMinimumsForStream = WorkloadStreams.fromAmongAllRetrieveTopK(streams, configuration.operationCount(), childOperationGenerators);
-        long[] limitForStream = limitsAndMinimumsForStream._1();
-        long minimumTimeStamp = limitsAndMinimumsForStream._2();
+        Tuple.Tuple3<long[], long[], Long> limitsAndMinimumsForStream = WorkloadStreams.fromAmongAllRetrieveTopCountFromOffset(
+                streams,
+                offset,
+                limit,
+                childOperationGenerators
+        );
+        long[] startForStream = limitsAndMinimumsForStream._1();
+        long[] limitForStream = limitsAndMinimumsForStream._2();
+        long minimumTimeStamp = limitsAndMinimumsForStream._3();
 
         workload.close();
+
+        // ================================
+        // ====== Create Limited Streams ==
+        // ================================
+
+        WorkloadStreams workloadStreams = new WorkloadStreams();
+
         // reinitialize workload, so it can be streamed through from the beginning
         workload = workloadFactory.createWorkload();
         workload.init(configuration);
+
         // retrieve unbounded streams
         unlimitedWorkloadStreams = workload.streams(gf, returnStreamsWithDbConnector);
-        // copy unbounded streams to new workload streams instance, applying limits we just computed
+        List<WorkloadStreamDefinition> unlimitedBlockingStreams = unlimitedWorkloadStreams.blockingStreamDefinitions();
+
+        // advance to offsets
+        gf.consume(unlimitedWorkloadStreams.asynchronousStream().dependencyOperations(), startForStream[0]);
+        gf.consume(unlimitedWorkloadStreams.asynchronousStream().nonDependencyOperations(), startForStream[1]);
+        for (int i = 0; i < unlimitedBlockingStreams.size(); i++) {
+            gf.consume(unlimitedBlockingStreams.get(i).dependencyOperations(), startForStream[i * 2 + 2]);
+            gf.consume(unlimitedBlockingStreams.get(i).nonDependencyOperations(), startForStream[i * 2 + 3]);
+        }
+
+        // copy unbounded streams to new workload streams instance, from offsets, applying limits
         workloadStreams.setAsynchronousStream(
                 unlimitedWorkloadStreams.asynchronousStream().dependentOperationTypes(),
                 unlimitedWorkloadStreams.asynchronousStream().dependencyOperationTypes(),
@@ -217,39 +249,50 @@ public class WorkloadStreams {
                 gf.limit(unlimitedWorkloadStreams.asynchronousStream().nonDependencyOperations(), limitForStream[1]),
                 unlimitedWorkloadStreams.asynchronousStream().childOperationGenerator()
         );
-        List<WorkloadStreamDefinition> blockingStreams = unlimitedWorkloadStreams.blockingStreamDefinitions();
-        for (int i = 0; i < blockingStreams.size(); i++) {
+        for (int i = 0; i < unlimitedBlockingStreams.size(); i++) {
             workloadStreams.addBlockingStream(
-                    blockingStreams.get(i).dependentOperationTypes(),
-                    blockingStreams.get(i).dependencyOperationTypes(),
-                    gf.limit(blockingStreams.get(i).dependencyOperations(), limitForStream[i * 2 + 2]),
-                    gf.limit(blockingStreams.get(i).nonDependencyOperations(), limitForStream[i * 2 + 3]),
-                    blockingStreams.get(i).childOperationGenerator()
+                    unlimitedBlockingStreams.get(i).dependentOperationTypes(),
+                    unlimitedBlockingStreams.get(i).dependencyOperationTypes(),
+                    gf.limit(unlimitedBlockingStreams.get(i).dependencyOperations(), limitForStream[i * 2 + 2]),
+                    gf.limit(unlimitedBlockingStreams.get(i).nonDependencyOperations(), limitForStream[i * 2 + 3]),
+                    unlimitedBlockingStreams.get(i).childOperationGenerator()
             );
         }
-        return Tuple.tuple3(workloadStreams, workload, minimumTimeStamp);
+
+        return Tuple.tuple3(
+                workloadStreams,
+                workload,
+                minimumTimeStamp
+        );
     }
 
-    // returns (limit_per_stream, minimum_dependency_timestamp, minimum_timestamp)
-    public static Tuple.Tuple2<long[], Long> fromAmongAllRetrieveTopK(List<Iterator<Operation>> streams,
-                                                                      long k,
-                                                                      List<ChildOperationGenerator> childOperationGenerators) throws WorkloadException {
+    // returns (start_per_stream, end_per_stream, minimum_timestamp)
+    public static Tuple.Tuple3<long[], long[], Long> fromAmongAllRetrieveTopCountFromOffset(List<Iterator<Operation>> streams,
+                                                                                            long offset,
+                                                                                            long limit,
+                                                                                            List<ChildOperationGenerator> childOperationGenerators) throws WorkloadException {
         final DecimalFormat numberFormat = new DecimalFormat("###,###,###,###,###");
         final Object result = null;
         Operation operation;
         ChildOperationGenerator childOperationGenerator;
-        long minimumTimeStamp = Long.MAX_VALUE;
-        long kSoFar = 0;
-        long[] kForStream = new long[streams.size()];
-
-        for (int i = 0; i < streams.size(); i++) {
-            kForStream[i] = 0;
-        }
+        // last operation retrieved (which has not yet been counted) from each stream
         Operation[] streamHeads = new Operation[streams.size()];
         for (int i = 0; i < streams.size(); i++) {
             streamHeads[i] = null;
         }
-        while (kSoFar < k) {
+
+        // ================================================
+        // ===== advance to start point of each stream =====
+        // ================================================
+
+        // count of operations to retrieve from that particular stream
+        long[] kForStreamOffset = new long[streams.size()];
+        for (int i = 0; i < streams.size(); i++) {
+            kForStreamOffset[i] = 0;
+        }
+        long kSoFarOffset = 0;
+
+        while (kSoFarOffset < offset) {
             long minAsMilli = Long.MAX_VALUE;
             int indexOfMin = -1;
             for (int i = 0; i < streams.size(); i++) {
@@ -259,16 +302,14 @@ public class WorkloadStreams {
                     }
 
                     long streamHeadTimeStampAsMilli = streamHeads[i].timeStamp();
-                    long streamHeadDependencyTimeStampAsMilli = streamHeads[i].dependencyTimeStamp();
 
-                    if (-1 == streamHeadTimeStampAsMilli)
+                    if (-1 == streamHeadTimeStampAsMilli) {
                         throw new WorkloadException(String.format("Operation must have time stamp\n%s", streamHeads[i]));
-                    if (-1 == streamHeadDependencyTimeStampAsMilli)
-                        throw new WorkloadException(String.format("Operation must have dependency time stamp\n%s", streamHeads[i]));
+                    }
 
-                    // TODO entries should be in time increasing order, so only first entries in streams needs to be considered for this, no?
-                    if (streamHeadTimeStampAsMilli < minimumTimeStamp)
-                        minimumTimeStamp = streamHeadTimeStampAsMilli;
+                    if (-1 == streamHeads[i].dependencyTimeStamp()) {
+                        throw new WorkloadException(String.format("Operation must have dependency time stamp\n%s", streamHeads[i]));
+                    }
 
                     if (null != streamHeads[i] && streamHeadTimeStampAsMilli < minAsMilli) {
                         minAsMilli = streamHeadTimeStampAsMilli;
@@ -280,47 +321,40 @@ public class WorkloadStreams {
                 // iterators are empty, nothing left to retrieve
                 break;
             }
-            kForStream[indexOfMin] = kForStream[indexOfMin] + 1;
-            kSoFar = kSoFar + 1;
+            kForStreamOffset[indexOfMin] = kForStreamOffset[indexOfMin] + 1;
+            kSoFarOffset = kSoFarOffset + 1;
 
             operation = streamHeads[indexOfMin];
             childOperationGenerator = childOperationGenerators.get(indexOfMin);
             if (null != childOperationGenerator) {
                 double state = childOperationGenerator.initialState();
                 while (null != (operation = childOperationGenerator.nextOperation(state, operation, result, operation.scheduledStartTimeAsMilli(), 0l))) {
-                    kSoFar = kSoFar + 1;
+                    kSoFarOffset = kSoFarOffset + 1;
                     state = childOperationGenerator.updateState(state, operation.type());
                 }
             }
 
             streamHeads[indexOfMin] = null;
 
-            if (kSoFar % 1000000 == 0)
-                System.out.print(String.format("Scanned %s of %s\r", numberFormat.format(kSoFar), numberFormat.format(k)));
+            if (kSoFarOffset % 1000000 == 0) {
+                System.out.print(String.format("Scanned %s of %s - OFFSET\r", numberFormat.format(kSoFarOffset), numberFormat.format(offset)));
+            }
         }
+        System.out.print(String.format("Scanned %s of %s - OFFSET\n", numberFormat.format(kSoFarOffset), numberFormat.format(offset)));
 
-        return Tuple.tuple2(
-                kForStream,
-                minimumTimeStamp
-        );
-    }
+        // ================================================
+        // ===== calculate end points for each stream =====
+        // ================================================
 
-    // returns (limit_per_stream, minimum_dependency_timestamp, minimum_timestamp)
-    public static Tuple.Tuple3<long[], Long, Long> fromAmongAllRetrieveTopK_OLD(List<Iterator<Operation>> streams, long k) throws WorkloadException {
-        final DecimalFormat numberFormat = new DecimalFormat("###,###,###,###,###");
-        long minimumDependencyTimeStamp = Long.MAX_VALUE;
         long minimumTimeStamp = Long.MAX_VALUE;
-        long kSoFar = 0;
-        long[] kForStream = new long[streams.size()];
+        // count of operations to retrieve from that particular stream
+        long[] kForStreamRun = new long[streams.size()];
+        for (int i = 0; i < streams.size(); i++) {
+            kForStreamRun[i] = 0;
+        }
+        long kSoFarRun = 0;
 
-        for (int i = 0; i < streams.size(); i++) {
-            kForStream[i] = 0;
-        }
-        Operation[] streamHeads = new Operation[streams.size()];
-        for (int i = 0; i < streams.size(); i++) {
-            streamHeads[i] = null;
-        }
-        while (kSoFar < k) {
+        while (kSoFarRun < limit) {
             long minAsMilli = Long.MAX_VALUE;
             int indexOfMin = -1;
             for (int i = 0; i < streams.size(); i++) {
@@ -332,15 +366,17 @@ public class WorkloadStreams {
                     long streamHeadTimeStampAsMilli = streamHeads[i].timeStamp();
                     long streamHeadDependencyTimeStampAsMilli = streamHeads[i].dependencyTimeStamp();
 
-                    if (-1 == streamHeadTimeStampAsMilli)
+                    if (-1 == streamHeadTimeStampAsMilli) {
                         throw new WorkloadException(String.format("Operation must have time stamp\n%s", streamHeads[i]));
-                    if (-1 == streamHeadDependencyTimeStampAsMilli)
-                        throw new WorkloadException(String.format("Operation must have dependency time stamp\n%s", streamHeads[i]));
+                    }
 
-                    if (streamHeadTimeStampAsMilli < minimumTimeStamp)
+                    if (-1 == streamHeadDependencyTimeStampAsMilli) {
+                        throw new WorkloadException(String.format("Operation must have dependency time stamp\n%s", streamHeads[i]));
+                    }
+
+                    if (streamHeadTimeStampAsMilli < minimumTimeStamp) {
                         minimumTimeStamp = streamHeadTimeStampAsMilli;
-                    if (streamHeadDependencyTimeStampAsMilli < minimumDependencyTimeStamp)
-                        minimumDependencyTimeStamp = streamHeadDependencyTimeStampAsMilli;
+                    }
 
                     if (null != streamHeads[i] && streamHeadTimeStampAsMilli < minAsMilli) {
                         minAsMilli = streamHeadTimeStampAsMilli;
@@ -352,17 +388,30 @@ public class WorkloadStreams {
                 // iterators are empty, nothing left to retrieve
                 break;
             }
-            kForStream[indexOfMin] = kForStream[indexOfMin] + 1;
-            streamHeads[indexOfMin] = null;
-            kSoFar = kSoFar + 1;
+            kForStreamRun[indexOfMin] = kForStreamRun[indexOfMin] + 1;
+            kSoFarRun = kSoFarRun + 1;
 
-            if (kSoFar % 1000000 == 0)
-                System.out.print(String.format("Scanned %s of %s\r", numberFormat.format(kSoFar), numberFormat.format(k)));
+            operation = streamHeads[indexOfMin];
+            childOperationGenerator = childOperationGenerators.get(indexOfMin);
+            if (null != childOperationGenerator) {
+                double state = childOperationGenerator.initialState();
+                while (null != (operation = childOperationGenerator.nextOperation(state, operation, result, operation.scheduledStartTimeAsMilli(), 0l))) {
+                    kSoFarRun = kSoFarRun + 1;
+                    state = childOperationGenerator.updateState(state, operation.type());
+                }
+            }
+
+            streamHeads[indexOfMin] = null;
+
+            if (kSoFarRun % 1000000 == 0) {
+                System.out.print(String.format("Scanned %s of %s - RUN\r", numberFormat.format(kSoFarRun), numberFormat.format(limit)));
+            }
         }
+        System.out.print(String.format("Scanned %s of %s - RUN\n", numberFormat.format(kSoFarRun), numberFormat.format(limit)));
 
         return Tuple.tuple3(
-                kForStream,
-                minimumDependencyTimeStamp,
+                kForStreamOffset,
+                kForStreamRun,
                 minimumTimeStamp
         );
     }

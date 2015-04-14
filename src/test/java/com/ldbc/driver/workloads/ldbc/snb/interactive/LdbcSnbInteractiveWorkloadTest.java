@@ -238,6 +238,7 @@ public class LdbcSnbInteractiveWorkloadTest {
         boolean printHelp = false;
         boolean ignoreScheduledStartTimes = false;
         boolean shouldCreateResultsLog = false;
+        long warmupCount = 100;
 
         DriverConfiguration configuration = new ConsoleAndFileDriverConfiguration(
                 workloadParams,
@@ -258,7 +259,8 @@ public class LdbcSnbInteractiveWorkloadTest {
                 spinnerSleepDuration,
                 printHelp,
                 ignoreScheduledStartTimes,
-                shouldCreateResultsLog
+                shouldCreateResultsLog,
+                warmupCount
         );
 
         Workload workload = new LdbcSnbInteractiveWorkload();
@@ -301,6 +303,7 @@ public class LdbcSnbInteractiveWorkloadTest {
         boolean printHelp = false;
         boolean ignoreScheduledStartTimes = false;
         boolean shouldCreateResultsLog = false;
+        long warmupCount = 100;
 
         assertThat(new File(resultDirPath).listFiles().length > 0, is(false));
 
@@ -323,11 +326,12 @@ public class LdbcSnbInteractiveWorkloadTest {
                 spinnerSleepDuration,
                 printHelp,
                 ignoreScheduledStartTimes,
-                shouldCreateResultsLog
+                shouldCreateResultsLog,
+                warmupCount
         );
 
         Map<String, String> updateStreamParams = MapUtils.loadPropertiesToMap(TestUtils.getResource("/updateStream.properties"));
-        configuration = configuration.applyMap(updateStreamParams);
+        configuration = configuration.applyArgs(updateStreamParams);
 
         Workload workloadA = new LdbcSnbInteractiveWorkload();
         workloadA.init(configuration);
@@ -830,6 +834,7 @@ public class LdbcSnbInteractiveWorkloadTest {
         boolean printHelp = false;
         boolean ignoreScheduledStartTimes = false;
         boolean shouldCreateResultsLog = false;
+        long warmupCount = 100;
 
         assertThat(new File(resultDirPath).listFiles().length > 0, is(false));
 
@@ -852,11 +857,12 @@ public class LdbcSnbInteractiveWorkloadTest {
                 spinnerSleepDuration,
                 printHelp,
                 ignoreScheduledStartTimes,
-                shouldCreateResultsLog
+                shouldCreateResultsLog,
+                warmupCount
         );
 
         Map<String, String> updateStreamParams = MapUtils.loadPropertiesToMap(TestUtils.getResource("/updateStream.properties"));
-        configuration = configuration.applyMap(updateStreamParams);
+        configuration = configuration.applyArgs(updateStreamParams);
 
         GeneratorFactory gf = new GeneratorFactory(new RandomDataGeneratorFactory(42L));
         Workload workload = new LdbcSnbInteractiveWorkload();
@@ -958,6 +964,7 @@ public class LdbcSnbInteractiveWorkloadTest {
         boolean printHelp = false;
         boolean ignoreScheduledStartTimes = false;
         boolean shouldCreateResultsLog = true;
+        long warmupCount = 100;
 
         assertThat(new File(resultDirPath).listFiles().length > 0, is(false));
 
@@ -980,7 +987,8 @@ public class LdbcSnbInteractiveWorkloadTest {
                 spinnerSleepDuration,
                 printHelp,
                 ignoreScheduledStartTimes,
-                shouldCreateResultsLog
+                shouldCreateResultsLog,
+                warmupCount
         );
 
         Client client = new Client(new LocalControlService(timeSource.nowAsMilli() + 3000, configuration), timeSource);
@@ -990,7 +998,7 @@ public class LdbcSnbInteractiveWorkloadTest {
 
         File resultsLog = new File(new File(resultDirPath), configuration.name() + ThreadedQueuedMetricsService.RESULTS_LOG_FILENAME_SUFFIX);
         SimpleCsvFileReader csvResultsLogReader = new SimpleCsvFileReader(resultsLog, SimpleCsvFileReader.DEFAULT_COLUMN_SEPARATOR_REGEX_STRING);
-        assertThat((long) Iterators.size(csvResultsLogReader), allOf(greaterThanOrEqualTo(percent(operationCount, 0.97)), lessThanOrEqualTo(percent(operationCount, 1.03))));
+        assertThat((long) Iterators.size(csvResultsLogReader), allOf(greaterThanOrEqualTo(operationCount - 50), lessThanOrEqualTo(operationCount + 50)));
     }
 
     @Test
@@ -1077,6 +1085,7 @@ public class LdbcSnbInteractiveWorkloadTest {
         boolean printHelp = false;
         boolean ignoreScheduledStartTimes = false;
         boolean shouldCreateResultsLog = false;
+        long warmupCount = 100;
 
         DriverConfiguration configuration = new ConsoleAndFileDriverConfiguration(
                 workloadParams,
@@ -1097,11 +1106,12 @@ public class LdbcSnbInteractiveWorkloadTest {
                 spinnerSleepDuration,
                 printHelp,
                 ignoreScheduledStartTimes,
-                shouldCreateResultsLog
+                shouldCreateResultsLog,
+                warmupCount
         );
 
         Map<String, String> updateStreamParams = MapUtils.loadPropertiesToMap(TestUtils.getResource("/updateStream.properties"));
-        configuration = configuration.applyMap(updateStreamParams);
+        configuration = configuration.applyArgs(updateStreamParams);
 
         // When
         Client client = new Client(new LocalControlService(timeSource.nowAsMilli() + 3000, configuration), timeSource);
@@ -1209,6 +1219,7 @@ public class LdbcSnbInteractiveWorkloadTest {
         boolean printHelp = false;
         boolean ignoreScheduledStartTimes = false;
         boolean shouldCreateResultsLog = false;
+        long warmupCount = 100;
 
         DriverConfiguration params = new ConsoleAndFileDriverConfiguration(
                 workloadParams,
@@ -1229,7 +1240,8 @@ public class LdbcSnbInteractiveWorkloadTest {
                 spinnerSleepDurationAsMilli,
                 printHelp,
                 ignoreScheduledStartTimes,
-                shouldCreateResultsLog
+                shouldCreateResultsLog,
+                warmupCount
         );
 
         // **************************************************
@@ -1271,7 +1283,8 @@ public class LdbcSnbInteractiveWorkloadTest {
                 spinnerSleepDurationAsMilli,
                 printHelp,
                 ignoreScheduledStartTimes,
-                shouldCreateResultsLog
+                shouldCreateResultsLog,
+                warmupCount
         );
 
         // **************************************************
@@ -1291,9 +1304,5 @@ public class LdbcSnbInteractiveWorkloadTest {
                 String.format("Validation with following error\n%s", clientForDatabaseValidation.databaseValidationResult().resultMessage()),
                 clientForDatabaseValidation.databaseValidationResult().isSuccessful(),
                 is(true));
-    }
-
-    private long percent(long value, double percentage) {
-        return Math.round(value * percentage);
     }
 }
