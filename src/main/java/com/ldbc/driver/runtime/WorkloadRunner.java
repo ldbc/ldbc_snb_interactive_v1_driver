@@ -8,8 +8,8 @@ import com.ldbc.driver.runtime.coordination.CompletionTimeService;
 import com.ldbc.driver.runtime.coordination.DummyLocalCompletionTimeWriter;
 import com.ldbc.driver.runtime.coordination.LocalCompletionTimeWriter;
 import com.ldbc.driver.runtime.executor.*;
-import com.ldbc.driver.runtime.metrics.MetricsService;
 import com.ldbc.driver.runtime.metrics.MetricsCollectionException;
+import com.ldbc.driver.runtime.metrics.MetricsService;
 import com.ldbc.driver.runtime.scheduling.Spinner;
 import com.ldbc.driver.temporal.TemporalUtil;
 import com.ldbc.driver.temporal.TimeSource;
@@ -64,7 +64,8 @@ public class WorkloadRunner {
                     metricsService.getWriter(),
                     errorReporter,
                     completionTimeService,
-                    detailedStatus);
+                    detailedStatus
+            );
         }
         // only create a local completion time writer for an executor if it contains at least one READ_WRITE operation
         // otherwise it will cause completion time to stall
@@ -232,8 +233,14 @@ public class WorkloadRunner {
         }
 
         if (statusDisplayIntervalAsMilli > 0) {
+            System.out.println("Shutting down status thread...");
             workloadStatusThread.shutdown();
             workloadStatusThread.interrupt();
+            try {
+                workloadStatusThread.join();
+            } catch (InterruptedException e) {
+                // do nothing
+            }
         }
     }
 }

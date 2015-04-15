@@ -33,7 +33,7 @@ import java.util.concurrent.TimeUnit;
 // TODO replace log4j with some interface like StatusReportingService
 
 //the following need work;
-// TODO Validate Workload
+// TODO Validate Workload to work with short reads
 
 public class Client {
     private static Logger logger = Logger.getLogger(Client.class);
@@ -47,7 +47,7 @@ public class Client {
             TimeSource systemTimeSource = new SystemTimeSource();
             ConsoleAndFileDriverConfiguration configuration = ConsoleAndFileDriverConfiguration.fromArgs(args);
             // TODO this method will not work with multiple processes - should come from controlService
-            long workloadStartTimeAsMilli = systemTimeSource.nowAsMilli() + TimeUnit.SECONDS.toMillis(10);
+            long workloadStartTimeAsMilli = systemTimeSource.nowAsMilli() + TimeUnit.SECONDS.toMillis(5);
             controlService = new LocalControlService(workloadStartTimeAsMilli, configuration);
             Client client = new Client(controlService, systemTimeSource);
             client.start();
@@ -181,22 +181,20 @@ public class Client {
 
         @Override
         public void init() throws ClientException {
+            //  =====================
+            //  ===  Results Dir  ===
+            //  =====================
             if (null != controlService.configuration().resultDirPath()) {
                 File resultDir = new File(controlService.configuration().resultDirPath());
                 if (resultDir.exists() && false == resultDir.isDirectory())
                     throw new ClientException("Results directory is not directory: " + resultDir.getAbsolutePath());
-//                else if (resultDir.exists() && true == resultDir.isDirectory())
-//                    try {
-//                        FileUtils.deleteDirectory(resultDir);
-//                    } catch (IOException e) {
-//                        throw new ClientException("Driver was unable to delete (for recreation) results directory: " + resultDir.getAbsolutePath(), e);
-//                    }
                 else if (false == resultDir.exists())
                     resultDir.mkdir();
             }
 
-            CompletionTimeServiceAssistant completionTimeServiceAssistant = new CompletionTimeServiceAssistant();
-
+            //  ================
+            //  =====  DB  =====
+            //  ================
             try {
                 database = ClassLoaderHelper.loadDb(controlService.configuration().dbClassName());
                 database.init(controlService.configuration().asMap());
@@ -205,23 +203,65 @@ public class Client {
             }
             logger.info(String.format("Loaded DB: %s", database.getClass().getName()));
 
-            ConcurrentErrorReporter errorReporter = new ConcurrentErrorReporter();
+            logger.info("Driver Configuration");
+            logger.info(controlService.toString());
+        }
 
-            try {
-                completionTimeService =
-                        completionTimeServiceAssistant.newThreadedQueuedConcurrentCompletionTimeServiceFromPeerIds(
-                                timeSource,
-                                controlService.configuration().peerIds(),
-                                errorReporter
-                        );
-            } catch (CompletionTimeException e) {
-                throw new ClientException(
-                        String.format("Error while instantiating Completion Time Service with peer IDs %s", controlService.configuration().peerIds().toString()), e);
+        @Override
+        public void execute() throws ClientException {
+            if (controlService.configuration().warmupCount() > 0) {
+                logger.info(" --------------------");
+                logger.info(" --- Warmup Phase ---");
+                logger.info(" --------------------");
+                logger.info("");
+                doInit(true);
+                doExecute(true);
+                try {
+                    database.reInit(controlService.configuration().asMap());
+                } catch (DbException e) {
+                    throw new ClientException(String.format("Error reinitializing DB after warmup: %s", database.getClass().getName()), e);
+                }
+            } else {
+                logger.info(" ---------------------------------");
+                logger.info(" --- No Warmup Phase Requested ---");
+                logger.info(" ---------------------------------");
+                logger.info("");
             }
 
+            logger.info(" -----------------");
+            logger.info(" --- Run Phase ---");
+            logger.info(" -----------------");
+            doInit(false);
+            doExecute(false);
+
+            try {
+                database.close();
+                logger.info("Shutting down database connector...");
+            } catch (IOException e) {
+                throw new ClientException("Error shutting down database", e);
+            }
+        }
+
+        private void doInit(boolean warmup) throws ClientException {
+            //  ==========================
+            //  ====  Error Reporter  ====
+            //  ==========================
+            ConcurrentErrorReporter errorReporter = new ConcurrentErrorReporter();
+
+            //  ===========================
+            //  ===  Generator Factory  ===
+            //  ===========================
+            GeneratorFactory gf = new GeneratorFactory(new RandomDataGeneratorFactory(RANDOM_SEED));
+
+            //  ================================
+            //  ===  Results Log CSV Writer  ===
+            //  ================================
             if (null != controlService.configuration().resultDirPath() && controlService.configuration().shouldCreateResultsLog()) {
                 File resultDir = new File(controlService.configuration().resultDirPath());
-                File resultsLog = new File(resultDir, controlService.configuration().name() + ThreadedQueuedMetricsService.RESULTS_LOG_FILENAME_SUFFIX);
+                String resultsLogFilename = (warmup)
+                        ? controlService.configuration().name() + "-WARMUP-" + ThreadedQueuedMetricsService.RESULTS_LOG_FILENAME_SUFFIX
+                        : controlService.configuration().name() + ThreadedQueuedMetricsService.RESULTS_LOG_FILENAME_SUFFIX;
+                File resultsLog = new File(resultDir, resultsLogFilename);
                 try {
                     csvResultsLogFileWriter = new SimpleCsvFileWriter(resultsLog, SimpleCsvFileWriter.DEFAULT_COLUMN_SEPARATOR);
 
@@ -238,9 +278,18 @@ public class Client {
                 }
             }
 
-            GeneratorFactory gf = new GeneratorFactory(new RandomDataGeneratorFactory(RANDOM_SEED));
-
+            //  ==================
+            //  ===  Workload  ===
+            //  ==================
             logger.info(String.format("Scanning workload streams to calculate their limits..."));
+
+            long offset = (warmup)
+                    ? 0
+                    : controlService.configuration().warmupCount();
+            long limit = (warmup)
+                    ? controlService.configuration().warmupCount()
+                    : controlService.configuration().operationCount();
+
             WorkloadStreams workloadStreams;
             long minimumTimeStamp;
             try {
@@ -250,18 +299,34 @@ public class Client {
                                 controlService.configuration(),
                                 gf,
                                 returnStreamsWithDbConnector,
-                                // TODO warmup
-                                0,
-                                controlService.configuration().operationCount()
+                                offset,
+                                limit
                         );
-                workload = streamsAndWorkloadAndMinimumTimeStamp._2();
                 workloadStreams = streamsAndWorkloadAndMinimumTimeStamp._1();
+                workload = streamsAndWorkloadAndMinimumTimeStamp._2();
                 minimumTimeStamp = streamsAndWorkloadAndMinimumTimeStamp._3();
             } catch (Exception e) {
                 throw new ClientException(String.format("Error loading workload class: %s", controlService.configuration().workloadClassName()), e);
             }
             logger.info(String.format("Loaded workload: %s", workload.getClass().getName()));
 
+            logger.info(String.format("Retrieving operation stream for workload: %s", workload.getClass().getSimpleName()));
+            controlService.setWorkloadStartTimeAsMilli(System.currentTimeMillis() + TimeUnit.SECONDS.toMillis(5));
+            WorkloadStreams timeMappedWorkloadStreams;
+            try {
+                timeMappedWorkloadStreams = WorkloadStreams.timeOffsetAndCompressWorkloadStreams(
+                        workloadStreams,
+                        controlService.workloadStartTimeAsMilli(),
+                        controlService.configuration().timeCompressionRatio(),
+                        gf
+                );
+            } catch (WorkloadException e) {
+                throw new ClientException("Error while retrieving operation stream for workload", e);
+            }
+
+            //  ========================
+            //  ===  Metrics Service  ==
+            //  ========================
             try {
 //                metricsService = ThreadedQueuedMetricsService.newInstanceUsingBlockingBoundedQueue(
 //                        timeSource,
@@ -290,40 +355,22 @@ public class Client {
                 throw new ClientException("Error creating metrics service", e);
             }
 
-            logger.info(String.format("Retrieving operation stream for workload: %s", workload.getClass().getSimpleName()));
-            controlService.setWorkloadStartTimeAsMilli(System.currentTimeMillis() + TimeUnit.SECONDS.toMillis(10));
-            WorkloadStreams timeMappedWorkloadStreams;
+            //  =================================
+            //  ===  Completion Time Service  ===
+            //  =================================
+            CompletionTimeServiceAssistant completionTimeServiceAssistant = new CompletionTimeServiceAssistant();
             try {
-                timeMappedWorkloadStreams = WorkloadStreams.timeOffsetAndCompressWorkloadStreams(
-                        workloadStreams,
-                        controlService.workloadStartTimeAsMilli(),
-                        controlService.configuration().timeCompressionRatio(),
-                        gf
-                );
-            } catch (WorkloadException e) {
-                throw new ClientException("Error while retrieving operation stream for workload", e);
+                completionTimeService =
+                        completionTimeServiceAssistant.newThreadedQueuedConcurrentCompletionTimeServiceFromPeerIds(
+                                timeSource,
+                                controlService.configuration().peerIds(),
+                                errorReporter
+                        );
+            } catch (CompletionTimeException e) {
+                throw new ClientException(
+                        String.format("Error while instantiating Completion Time Service with peer IDs %s", controlService.configuration().peerIds().toString()), e);
             }
 
-            logger.info(String.format("Instantiating %s", WorkloadRunner.class.getSimpleName()));
-            try {
-                int operationHandlerExecutorsBoundedQueueSize = DefaultQueues.DEFAULT_BOUND_1000;
-                workloadRunner = new WorkloadRunner(
-                        timeSource,
-                        database,
-                        timeMappedWorkloadStreams,
-                        metricsService,
-                        errorReporter,
-                        completionTimeService,
-                        controlService.configuration().threadCount(),
-                        controlService.configuration().statusDisplayIntervalAsSeconds(),
-                        controlService.configuration().spinnerSleepDurationAsMilli(),
-                        controlService.configuration().ignoreScheduledStartTimes(),
-                        operationHandlerExecutorsBoundedQueueSize);
-            } catch (Exception e) {
-                throw new ClientException(String.format("Error instantiating %s", WorkloadRunner.class.getSimpleName()), e);
-            }
-
-            logger.info("Initializing driver");
             try {
                 if (completionTimeService.getAllWriters().isEmpty()) {
                     // There are no local completion time writers, GCT would never advance or be non-null, set to max so nothing ever waits on it
@@ -361,24 +408,41 @@ public class Client {
                 throw new ClientException("Error while writing initial initiated and completed times to Completion Time Service", e);
             }
 
-            logger.info("Initialization complete");
-
-            logger.info("Driver Configuration");
-            logger.info(controlService.toString());
+            //  ========================
+            //  ===  Workload Runner  ==
+            //  ========================
+            logger.info(String.format("Instantiating %s", WorkloadRunner.class.getSimpleName()));
+            try {
+                int operationHandlerExecutorsBoundedQueueSize = DefaultQueues.DEFAULT_BOUND_1000;
+                workloadRunner = new WorkloadRunner(
+                        timeSource,
+                        database,
+                        timeMappedWorkloadStreams,
+                        metricsService,
+                        errorReporter,
+                        completionTimeService,
+                        controlService.configuration().threadCount(),
+                        controlService.configuration().statusDisplayIntervalAsSeconds(),
+                        controlService.configuration().spinnerSleepDurationAsMilli(),
+                        controlService.configuration().ignoreScheduledStartTimes(),
+                        operationHandlerExecutorsBoundedQueueSize);
+            } catch (Exception e) {
+                throw new ClientException(String.format("Error instantiating %s", WorkloadRunner.class.getSimpleName()), e);
+            }
         }
 
-        @Override
-        public void execute() throws ClientException {
+        private void doExecute(boolean warmup) throws ClientException {
             // TODO revise if this necessary here, and if not where??
             controlService.waitForCommandToExecuteWorkload();
 
-            try (Workload w = workload; Db db = database) {
+            try {
                 workloadRunner.executeWorkload();
-                logger.info("Shutting down workload & database connector...");
+                logger.info("Shutting down workload...");
+                workload.close();
             } catch (WorkloadException e) {
-                throw new ClientException("Error running Workload", e);
+                throw new ClientException("Error running workload", e);
             } catch (IOException e) {
-                throw new ClientException("Error running Workload", e);
+                throw new ClientException("Error running workload", e);
             }
 
             // TODO revise if this necessary here, and if not where??
@@ -402,12 +466,21 @@ public class Client {
 
             logger.info("Exporting workload metrics...");
             try {
-                MetricsManager.export(workloadResults, new SimpleWorkloadMetricsFormatter(), System.out, Charsets.UTF_8);
+                WorkloadMetricsFormatter metricsFormatter = (warmup)
+                        ? new SimpleSummaryWorkloadMetricsFormatter()
+                        : new SimpleDetailedWorkloadMetricsFormatter();
+                MetricsManager.export(workloadResults, metricsFormatter, System.out, Charsets.UTF_8);
                 if (null != controlService.configuration().resultDirPath()) {
                     File resultDir = new File(controlService.configuration().resultDirPath());
-                    File resultFile = new File(resultDir, controlService.configuration().name() + ThreadedQueuedMetricsService.RESULTS_METRICS_FILENAME_SUFFIX);
+                    String resultsSummaryFilename = (warmup)
+                            ? controlService.configuration().name() + "-WARMUP-" + ThreadedQueuedMetricsService.RESULTS_METRICS_FILENAME_SUFFIX
+                            : controlService.configuration().name() + ThreadedQueuedMetricsService.RESULTS_METRICS_FILENAME_SUFFIX;
+                    File resultFile = new File(resultDir, resultsSummaryFilename);
                     MetricsManager.export(workloadResults, new JsonWorkloadMetricsFormatter(), new FileOutputStream(resultFile), Charsets.UTF_8);
-                    File configurationFile = new File(resultDir, controlService.configuration().name() + ThreadedQueuedMetricsService.RESULTS_CONFIGURATION_FILENAME_SUFFIX);
+                    String configurationFilename = (warmup)
+                            ? controlService.configuration().name() + "-WARMUP-" + ThreadedQueuedMetricsService.RESULTS_CONFIGURATION_FILENAME_SUFFIX
+                            : controlService.configuration().name() + ThreadedQueuedMetricsService.RESULTS_CONFIGURATION_FILENAME_SUFFIX;
+                    File configurationFile = new File(resultDir, configurationFilename);
                     try (PrintStream out = new PrintStream(new FileOutputStream(configurationFile))) {
                         out.print(controlService.configuration().toPropertiesString());
                     } catch (DriverConfigurationException e) {

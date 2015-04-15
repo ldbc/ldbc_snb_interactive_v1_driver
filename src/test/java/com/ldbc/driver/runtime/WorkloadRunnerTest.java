@@ -174,7 +174,7 @@ public class WorkloadRunnerTest {
 
             WorkloadResultsSnapshot workloadResults = metricsService.getWriter().results();
 
-            SimpleWorkloadMetricsFormatter metricsFormatter = new SimpleWorkloadMetricsFormatter();
+            SimpleDetailedWorkloadMetricsFormatter metricsFormatter = new SimpleDetailedWorkloadMetricsFormatter();
 
             assertThat(errorReporter.toString() + "\n" + metricsFormatter.format(workloadResults), errorReporter.errorEncountered(), is(false));
             assertThat(errorReporter.toString() + "\n" + metricsFormatter.format(workloadResults), workloadResults.startTimeAsMilli() >= controlService.workloadStartTimeAsMilli(), is(true));
@@ -343,7 +343,7 @@ public class WorkloadRunnerTest {
 
             WorkloadResultsSnapshot workloadResults = metricsService.getWriter().results();
 
-            SimpleWorkloadMetricsFormatter metricsFormatter = new SimpleWorkloadMetricsFormatter();
+            SimpleDetailedWorkloadMetricsFormatter metricsFormatter = new SimpleDetailedWorkloadMetricsFormatter();
 
             assertThat(errorReporter.toString() + "\n" + metricsFormatter.format(workloadResults), errorReporter.errorEncountered(), is(false));
             assertThat(errorReporter.toString() + "\n" + metricsFormatter.format(workloadResults), workloadResults.startTimeAsMilli() >= controlService.workloadStartTimeAsMilli(), is(true));
@@ -529,7 +529,7 @@ public class WorkloadRunnerTest {
             runner.executeWorkload();
 
             WorkloadResultsSnapshot workloadResults = metricsService.getWriter().results();
-            SimpleWorkloadMetricsFormatter metricsFormatter = new SimpleWorkloadMetricsFormatter();
+            SimpleDetailedWorkloadMetricsFormatter metricsFormatter = new SimpleDetailedWorkloadMetricsFormatter();
 
             assertThat(
                     errorReporter.toString() + "\n" + metricsFormatter.format(workloadResults),

@@ -56,4 +56,33 @@ public class TemporalUtil {
             }
         }
     }
+
+    public String abbreviatedTimeUnit(TimeUnit unit) {
+        switch (unit) {
+            case NANOSECONDS: {
+                return "ns";
+            }
+            case MICROSECONDS: {
+                return "us";
+            }
+            case MILLISECONDS: {
+                return "ms";
+            }
+            case SECONDS: {
+                return "s";
+            }
+            case MINUTES: {
+                return "m";
+            }
+            case HOURS: {
+                return "h";
+            }
+            case DAYS: {
+                return "d";
+            }
+            default: {
+                return unit.name();
+            }
+        }
+    }
 }

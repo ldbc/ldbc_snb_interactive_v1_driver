@@ -42,8 +42,21 @@ public abstract class Db implements Closeable {
         try {
             operationHandlerRunnableContextFactory.shutdown();
         } catch (OperationException e) {
-            throw new IOException(e);
+            throw new IOException("Error shutting down operation handler runnable factory", e);
         }
+    }
+
+    // TODO this is a temporary hack to support warmup more easily, because the runnable contexts need to be cleared
+    // TODO ultimately this would be done in another way
+    synchronized public final void reInit(Map<String, String> properties) throws DbException {
+        try {
+            operationHandlerRunnableContextFactory.shutdown();
+        } catch (OperationException e) {
+            throw new DbException("Error shutting down operation handler runnable factory", e);
+        }
+        operationHandlerRunnableContextFactory = new PoolingOperationHandlerRunnerFactory(
+                new InstantiatingOperationHandlerRunnerFactory()
+        );
     }
 
     /**

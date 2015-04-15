@@ -10,7 +10,7 @@ import java.util.List;
 import java.util.TimeZone;
 import java.util.concurrent.TimeUnit;
 
-public class SimpleWorkloadMetricsFormatter implements WorkloadMetricsFormatter {
+public class SimpleDetailedWorkloadMetricsFormatter implements WorkloadMetricsFormatter {
     private static final String DEFAULT_NAME = "<no name given>";
     private static final String DEFAULT_UNIT = "<no unit given>";
     private static final String OFFSET = "    ";
