@@ -326,7 +326,7 @@ public class MetricsManagerPerformanceTest {
                 )
         );
 
-        final WorkloadMetricsFormatter formatter = new SimpleWorkloadMetricsFormatter();
+        final WorkloadMetricsFormatter formatter = new SimpleDetailedWorkloadMetricsFormatter();
         System.out.println(formatter.format(snapshot));
     }
 
@@ -415,7 +415,7 @@ public class MetricsManagerPerformanceTest {
                 )
         );
 
-        final WorkloadMetricsFormatter formatter = new SimpleWorkloadMetricsFormatter();
+        final WorkloadMetricsFormatter formatter = new SimpleDetailedWorkloadMetricsFormatter();
         System.out.println(formatter.format(snapshot));
     }
 
@@ -535,7 +535,7 @@ public class MetricsManagerPerformanceTest {
                 )
         );
 
-        final WorkloadMetricsFormatter formatter = new SimpleWorkloadMetricsFormatter();
+        final WorkloadMetricsFormatter formatter = new SimpleDetailedWorkloadMetricsFormatter();
         System.out.println(formatter.format(snapshot));
         metricsService.shutdown();
     }
@@ -577,7 +577,7 @@ public class MetricsManagerPerformanceTest {
                 )
         );
 
-        final WorkloadMetricsFormatter formatter = new SimpleWorkloadMetricsFormatter();
+        final WorkloadMetricsFormatter formatter = new SimpleDetailedWorkloadMetricsFormatter();
         System.out.println(formatter.format(snapshot));
         metricsService.shutdown();
     }
@@ -619,7 +619,7 @@ public class MetricsManagerPerformanceTest {
                 )
         );
 
-        final WorkloadMetricsFormatter formatter = new SimpleWorkloadMetricsFormatter();
+        final WorkloadMetricsFormatter formatter = new SimpleDetailedWorkloadMetricsFormatter();
         System.out.println(formatter.format(snapshot));
         metricsService.shutdown();
     }
@@ -735,7 +735,7 @@ public class MetricsManagerPerformanceTest {
                 )
         );
 
-        final WorkloadMetricsFormatter formatter = new SimpleWorkloadMetricsFormatter();
+        final WorkloadMetricsFormatter formatter = new SimpleDetailedWorkloadMetricsFormatter();
         System.out.println(formatter.format(snapshot));
         metricsService.shutdown();
 

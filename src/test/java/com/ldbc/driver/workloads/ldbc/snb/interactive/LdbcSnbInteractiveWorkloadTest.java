@@ -894,7 +894,7 @@ public class LdbcSnbInteractiveWorkloadTest {
                 MapUtils.loadPropertiesToMap(TestUtils.getResource("/updateStream.properties")),
                 true
         );
-        doShouldRunWorkload(workloadParams, 100_000);
+        doShouldRunWorkload(workloadParams, 1_000, 100_000);
     }
 
     @Test
@@ -909,7 +909,7 @@ public class LdbcSnbInteractiveWorkloadTest {
                 MapUtils.loadPropertiesToMap(TestUtils.getResource("/updateStream.properties")),
                 true
         );
-        doShouldRunWorkload(workloadParams, 100_000);
+        doShouldRunWorkload(workloadParams, 100_000, 10_000);
     }
 
     @Test
@@ -926,7 +926,7 @@ public class LdbcSnbInteractiveWorkloadTest {
                 MapUtils.loadPropertiesToMap(TestUtils.getResource("/updateStream.properties")),
                 true
         );
-        doShouldRunWorkload(workloadParams, 50_000);
+        doShouldRunWorkload(workloadParams, 1, 50_000);
     }
 
     @Test
@@ -939,10 +939,10 @@ public class LdbcSnbInteractiveWorkloadTest {
                 MapUtils.loadPropertiesToMap(TestUtils.getResource("/updateStream.properties")),
                 true
         );
-        doShouldRunWorkload(workloadParams, 100_000);
+        doShouldRunWorkload(workloadParams, 0, 100_000);
     }
 
-    private void doShouldRunWorkload(Map<String, String> workloadParams, long operationCount) throws WorkloadException, ClientException, IOException, DriverConfigurationException {
+    private void doShouldRunWorkload(Map<String, String> workloadParams, long warmupCount, long operationCount) throws WorkloadException, ClientException, IOException, DriverConfigurationException {
         // DummyDb-specific parameters
         workloadParams.put(DummyLdbcSnbInteractiveDb.SLEEP_DURATION_NANO_ARG, Long.toString(TimeUnit.MICROSECONDS.toNanos(10)));
         workloadParams.put(DummyLdbcSnbInteractiveDb.SLEEP_TYPE_ARG, DummyLdbcSnbInteractiveDb.SleepType.SPIN.name());
@@ -964,7 +964,6 @@ public class LdbcSnbInteractiveWorkloadTest {
         boolean printHelp = false;
         boolean ignoreScheduledStartTimes = false;
         boolean shouldCreateResultsLog = true;
-        long warmupCount = 100;
 
         assertThat(new File(resultDirPath).listFiles().length > 0, is(false));
 
@@ -994,11 +993,14 @@ public class LdbcSnbInteractiveWorkloadTest {
         Client client = new Client(new LocalControlService(timeSource.nowAsMilli() + 3000, configuration), timeSource);
         client.start();
 
-        assertThat(new File(resultDirPath).listFiles().length > 0, is(true));
+        int expectedFileCount = (0 == warmupCount)
+                ? 3
+                : 6;
+        assertThat(new File(resultDirPath).listFiles().length, is(expectedFileCount));
 
         File resultsLog = new File(new File(resultDirPath), configuration.name() + ThreadedQueuedMetricsService.RESULTS_LOG_FILENAME_SUFFIX);
         SimpleCsvFileReader csvResultsLogReader = new SimpleCsvFileReader(resultsLog, SimpleCsvFileReader.DEFAULT_COLUMN_SEPARATOR_REGEX_STRING);
-        assertThat((long) Iterators.size(csvResultsLogReader), allOf(greaterThanOrEqualTo(operationCount - 50), lessThanOrEqualTo(operationCount + 50)));
+        assertThat((long) Iterators.size(csvResultsLogReader), allOf(greaterThanOrEqualTo(percent(operationCount, 0.95)), lessThanOrEqualTo(percent(operationCount, 1.05))));
     }
 
     @Test
@@ -1304,5 +1306,9 @@ public class LdbcSnbInteractiveWorkloadTest {
                 String.format("Validation with following error\n%s", clientForDatabaseValidation.databaseValidationResult().resultMessage()),
                 clientForDatabaseValidation.databaseValidationResult().isSuccessful(),
                 is(true));
+    }
+
+    private long percent(long value, double percent) {
+        return Math.round(value * percent);
     }
 }

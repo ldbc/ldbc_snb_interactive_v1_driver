@@ -30,7 +30,8 @@ class OperationStreamExecutorServiceThread extends Thread {
         this.forcedTerminate = forcedTerminate;
         this.initiatedTimeSubmittingOperationRetriever = new InitiatedTimeSubmittingOperationRetriever(
                 streamDefinition,
-                localCompletionTimeWriter);
+                localCompletionTimeWriter
+        );
     }
 
     @Override
