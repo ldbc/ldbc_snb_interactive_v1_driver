@@ -996,7 +996,7 @@ public class LdbcSnbInteractiveWorkloadTest {
 
         File resultsLog = new File(new File(resultDirPath), configuration.name() + ThreadedQueuedMetricsService.RESULTS_LOG_FILENAME_SUFFIX);
         SimpleCsvFileReader csvResultsLogReader = new SimpleCsvFileReader(resultsLog, SimpleCsvFileReader.DEFAULT_COLUMN_SEPARATOR_REGEX_STRING);
-        assertThat((long) Iterators.size(csvResultsLogReader), allOf(greaterThanOrEqualTo(percent(operationCount, 0.95)), lessThanOrEqualTo(percent(operationCount, 1.05))));
+        assertThat((long) Iterators.size(csvResultsLogReader), allOf(greaterThanOrEqualTo(percent(operationCount, 0.9)), lessThanOrEqualTo(percent(operationCount, 1.1))));
     }
 
     @Test
