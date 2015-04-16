@@ -270,7 +270,19 @@ public class LdbcSnbInteractiveConfiguration {
     }
 
     public static File defaultConfigFileSF1() throws DriverConfigurationException {
-        return new File(DriverConfigurationFileHelper.getWorkloadsDirectory(), "ldbc/snb/interactive/ldbc_snb_interactive_SF-0001.properties");
+        return defaultConfigFileSF1FromWorkloadsDirectory(
+                DriverConfigurationFileHelper.getWorkloadsDirectory()
+        );
+    }
+
+    public static File defaultConfigFileSF1(File driverRootDirectory) throws DriverConfigurationException {
+        return defaultConfigFileSF1FromWorkloadsDirectory(
+                DriverConfigurationFileHelper.getWorkloadsDirectory(driverRootDirectory)
+        );
+    }
+
+    private static File defaultConfigFileSF1FromWorkloadsDirectory(File workloadsDirectory) throws DriverConfigurationException {
+        return new File(workloadsDirectory, "ldbc/snb/interactive/ldbc_snb_interactive_SF-0001.properties");
     }
 
     public static Map<String, String> defaultConfigSF1() throws DriverConfigurationException, IOException {

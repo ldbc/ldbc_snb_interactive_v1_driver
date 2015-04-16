@@ -80,7 +80,11 @@ public class DriverConfigurationFileHelper {
 
     public static File getWorkloadsDirectory() throws DriverConfigurationException {
         File rootDirectory = getDriverRootDirectory();
-        File workloadsDirectory = new File(rootDirectory, "workloads");
+        return getWorkloadsDirectory(rootDirectory);
+    }
+
+    public static File getWorkloadsDirectory(File driverRootDirectory) throws DriverConfigurationException {
+        File workloadsDirectory = new File(driverRootDirectory, "workloads");
         if (false == workloadsDirectory.exists()) {
             throw new DriverConfigurationException("Directory does not exist: " + workloadsDirectory.getAbsolutePath());
         }
