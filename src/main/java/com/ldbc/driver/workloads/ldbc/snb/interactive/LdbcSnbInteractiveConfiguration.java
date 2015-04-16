@@ -25,8 +25,6 @@ public class LdbcSnbInteractiveConfiguration {
     // Higher values translate to shorter walks and therefore fewer short reads
     public final static String SHORT_READ_DISSIPATION = LDBC_SNB_INTERACTIVE_PARAM_NAME_PREFIX + "short_read_dissipation";
 
-    // minimum duration between any two dependent operations in the update streams
-    public final static String SAFE_T = LDBC_SNB_INTERACTIVE_PARAM_NAME_PREFIX + "gct_delta_duration";
     // Average distance between updates in simulation time
     public final static String UPDATE_INTERLEAVE = LDBC_SNB_INTERACTIVE_PARAM_NAME_PREFIX + "update_interleave";
 
@@ -271,25 +269,29 @@ public class LdbcSnbInteractiveConfiguration {
         return params;
     }
 
-    public static Map<String, String> defaultConfig() throws DriverConfigurationException, IOException {
+    public static File defaultConfigFileSF1() throws DriverConfigurationException {
+        return new File(DriverConfigurationFileHelper.getWorkloadsDirectory(), "ldbc/snb/interactive/ldbc_snb_interactive_SF-0001.properties");
+    }
+
+    public static Map<String, String> defaultConfigSF1() throws DriverConfigurationException, IOException {
         return ConsoleAndFileDriverConfiguration.convertLongKeysToShortKeys(
                 MapUtils.loadPropertiesToMap(
-                        new File(DriverConfigurationFileHelper.getWorkloadsDirectory(), "ldbc/snb/interactive/ldbc_snb_interactive.properties")
+                        defaultConfigFileSF1()
                 )
         );
     }
 
-    public static Map<String, String> defaultReadOnlyConfig() throws DriverConfigurationException, IOException {
+    public static Map<String, String> defaultReadOnlyConfigSF1() throws DriverConfigurationException, IOException {
         Map<String, String> params = withoutWrites(
-                defaultConfig()
+                defaultConfigSF1()
         );
         return ConsoleAndFileDriverConfiguration.convertLongKeysToShortKeys(params);
     }
 
-    public static Map<String, String> defaultWriteOnlyConfig() throws DriverConfigurationException, IOException {
+    public static Map<String, String> defaultWriteOnlyConfigSF1() throws DriverConfigurationException, IOException {
         Map<String, String> params = withoutShortReads(
                 withoutLongReads(
-                        defaultConfig()
+                        defaultConfigSF1()
                 )
         );
         return ConsoleAndFileDriverConfiguration.convertLongKeysToShortKeys(params);

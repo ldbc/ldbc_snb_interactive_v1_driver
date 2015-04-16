@@ -49,7 +49,7 @@ public class QueuePerformanceTests {
     @Test
     public void operationQueuePerformanceTest() throws WorkloadException, InterruptedException, IOException, DriverConfigurationException {
         // Given
-        Map<String, String> paramsMap = LdbcSnbInteractiveConfiguration.defaultReadOnlyConfig();
+        Map<String, String> paramsMap = LdbcSnbInteractiveConfiguration.defaultReadOnlyConfigSF1();
         paramsMap.put(LdbcSnbInteractiveConfiguration.PARAMETERS_DIRECTORY, TestUtils.getResource("/").getAbsolutePath());
         // LDBC Interactive Workload-specific parameters
         // Driver-specific parameters

@@ -32,7 +32,6 @@ import java.util.concurrent.TimeUnit;
 
 // TODO replace log4j with some interface like StatusReportingService
 
-//the following need work;
 // TODO Validate Workload to work with short reads
 
 public class Client {

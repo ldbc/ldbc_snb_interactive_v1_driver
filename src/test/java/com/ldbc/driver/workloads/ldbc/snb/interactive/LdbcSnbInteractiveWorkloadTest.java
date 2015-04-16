@@ -146,7 +146,7 @@ public class LdbcSnbInteractiveWorkloadTest {
     public void shouldGenerateManyOperationsInReasonableTimeForLongReadOnly() throws WorkloadException, IOException, DriverConfigurationException {
         Map<String, String> workloadParams = LdbcSnbInteractiveConfiguration.withoutWrites(
                 LdbcSnbInteractiveConfiguration.withoutShortReads(
-                        LdbcSnbInteractiveConfiguration.defaultConfig()
+                        LdbcSnbInteractiveConfiguration.defaultConfigSF1()
                 )
         );
         workloadParams.put(LdbcSnbInteractiveConfiguration.PARAMETERS_DIRECTORY, TestUtils.getResource("/").getAbsolutePath());
@@ -163,7 +163,7 @@ public class LdbcSnbInteractiveWorkloadTest {
     public void shouldGenerateManyOperationsInReasonableTimeForWriteOnly() throws WorkloadException, IOException, DriverConfigurationException {
         Map<String, String> workloadParams = LdbcSnbInteractiveConfiguration.withoutLongReads(
                 LdbcSnbInteractiveConfiguration.withoutShortReads(
-                        LdbcSnbInteractiveConfiguration.defaultConfig()
+                        LdbcSnbInteractiveConfiguration.defaultConfigSF1()
                 )
         );
         workloadParams.put(LdbcSnbInteractiveConfiguration.PARAMETERS_DIRECTORY, TestUtils.getResource("/").getAbsolutePath());
@@ -179,7 +179,7 @@ public class LdbcSnbInteractiveWorkloadTest {
     @Test
     public void shouldGenerateManyOperationsInReasonableTimeForReadOnly() throws WorkloadException, IOException, DriverConfigurationException {
         Map<String, String> workloadParams = LdbcSnbInteractiveConfiguration.withoutWrites(
-                LdbcSnbInteractiveConfiguration.defaultConfig()
+                LdbcSnbInteractiveConfiguration.defaultConfigSF1()
         );
         workloadParams.put(LdbcSnbInteractiveConfiguration.PARAMETERS_DIRECTORY, TestUtils.getResource("/").getAbsolutePath());
         workloadParams.put(LdbcSnbInteractiveConfiguration.UPDATES_DIRECTORY, TestUtils.getResource("/").getAbsolutePath());
@@ -193,7 +193,7 @@ public class LdbcSnbInteractiveWorkloadTest {
 
     @Test
     public void shouldGenerateManyOperationsInReasonableTimeForFullWorkload() throws WorkloadException, IOException, DriverConfigurationException {
-        Map<String, String> workloadParams = LdbcSnbInteractiveConfiguration.defaultConfig();
+        Map<String, String> workloadParams = LdbcSnbInteractiveConfiguration.defaultConfigSF1();
         workloadParams.put(LdbcSnbInteractiveConfiguration.PARAMETERS_DIRECTORY, TestUtils.getResource("/").getAbsolutePath());
         workloadParams.put(LdbcSnbInteractiveConfiguration.UPDATES_DIRECTORY, TestUtils.getResource("/").getAbsolutePath());
         workloadParams = MapUtils.mergeMaps(
@@ -206,7 +206,7 @@ public class LdbcSnbInteractiveWorkloadTest {
 
     @Test
     public void shouldGenerateManyOperationsInReasonableTimeForOperation1Only() throws WorkloadException, IOException, DriverConfigurationException {
-        Map<String, String> workloadParams = LdbcSnbInteractiveConfiguration.defaultConfig();
+        Map<String, String> workloadParams = LdbcSnbInteractiveConfiguration.defaultConfigSF1();
         workloadParams.put(LdbcSnbInteractiveConfiguration.PARAMETERS_DIRECTORY, TestUtils.getResource("/").getAbsolutePath());
         workloadParams.put(LdbcSnbInteractiveConfiguration.UPDATES_DIRECTORY, TestUtils.getResource("/").getAbsolutePath());
         workloadParams = MapUtils.mergeMaps(
@@ -277,7 +277,7 @@ public class LdbcSnbInteractiveWorkloadTest {
     @Test
     public void shouldBeRepeatableWhenTwoIdenticalWorkloadsAreUsedWithIdenticalGeneratorFactories() throws ClientException, DriverConfigurationException, WorkloadException, IOException {
         // Given
-        Map<String, String> paramsMap = LdbcSnbInteractiveConfiguration.defaultConfig();
+        Map<String, String> paramsMap = LdbcSnbInteractiveConfiguration.defaultConfigSF1();
         // LDBC Interactive Workload-specific parameters
         paramsMap.put(LdbcSnbInteractiveConfiguration.PARAMETERS_DIRECTORY, TestUtils.getResource("/").getAbsolutePath());
         paramsMap.put(LdbcSnbInteractiveConfiguration.UPDATES_DIRECTORY, TestUtils.getResource("/").getAbsolutePath());
@@ -494,10 +494,8 @@ public class LdbcSnbInteractiveWorkloadTest {
 
     @Test
     public void shouldLoadFromConfigFile() throws DriverConfigurationException, ClientException, IOException {
-        String ldbcSnbInteractiveTestPropertiesPath = new File(
-                DriverConfigurationFileHelper.getWorkloadsDirectory(),
-                "ldbc/snb/interactive/ldbc_snb_interactive.properties"
-        ).getAbsolutePath();
+
+        String ldbcSnbInteractiveTestPropertiesPath = LdbcSnbInteractiveConfiguration.defaultConfigFileSF1().getAbsolutePath();
         String ldbcDriverTestPropertiesPath = DriverConfigurationFileHelper.getBaseConfigurationFilePublicLocation().getAbsolutePath();
         String updateStreamPropertiesPath = TestUtils.getResource("/updateStream.properties").getAbsolutePath();
         String resultDirPath = temporaryFolder.newFolder().getAbsolutePath();
@@ -575,7 +573,8 @@ public class LdbcSnbInteractiveWorkloadTest {
                 "-p", LdbcSnbInteractiveConfiguration.WRITE_OPERATION_6_ENABLE_KEY, "true",
                 "-p", LdbcSnbInteractiveConfiguration.WRITE_OPERATION_7_ENABLE_KEY, "true",
                 "-p", LdbcSnbInteractiveConfiguration.WRITE_OPERATION_8_ENABLE_KEY, "true",
-                "-p", LdbcSnbInteractiveConfiguration.SAFE_T, "1",
+                // TOOD remove
+//                "-p", LdbcSnbInteractiveConfiguration.SAFE_T, "1",
                 "-p", LdbcSnbInteractiveConfiguration.UPDATES_DIRECTORY, TestUtils.getResource("/").getAbsolutePath(),
                 "-p", LdbcSnbInteractiveConfiguration.PARAMETERS_DIRECTORY, TestUtils.getResource("/").getAbsolutePath()
         });
@@ -649,7 +648,6 @@ public class LdbcSnbInteractiveWorkloadTest {
                 "-p", LdbcSnbInteractiveConfiguration.WRITE_OPERATION_6_ENABLE_KEY, "false",
                 "-p", LdbcSnbInteractiveConfiguration.WRITE_OPERATION_7_ENABLE_KEY, "false",
                 "-p", LdbcSnbInteractiveConfiguration.WRITE_OPERATION_8_ENABLE_KEY, "false",
-                "-p", LdbcSnbInteractiveConfiguration.SAFE_T, "1",
                 "-p", LdbcSnbInteractiveConfiguration.UPDATES_DIRECTORY, TestUtils.getResource("/").getAbsolutePath(),
                 "-p", LdbcSnbInteractiveConfiguration.PARAMETERS_DIRECTORY, TestUtils.getResource("/").getAbsolutePath()
         });
@@ -730,7 +728,6 @@ public class LdbcSnbInteractiveWorkloadTest {
                 "-p", LdbcSnbInteractiveConfiguration.WRITE_OPERATION_6_ENABLE_KEY, "false",
                 "-p", LdbcSnbInteractiveConfiguration.WRITE_OPERATION_7_ENABLE_KEY, "false",
                 "-p", LdbcSnbInteractiveConfiguration.WRITE_OPERATION_8_ENABLE_KEY, "false",
-                "-p", LdbcSnbInteractiveConfiguration.SAFE_T, "1",
                 "-p", LdbcSnbInteractiveConfiguration.UPDATES_DIRECTORY, TestUtils.getResource("/").getAbsolutePath(),
                 "-p", LdbcSnbInteractiveConfiguration.PARAMETERS_DIRECTORY, TestUtils.getResource("/").getAbsolutePath()
         });
@@ -790,7 +787,6 @@ public class LdbcSnbInteractiveWorkloadTest {
                 "-p", LdbcSnbInteractiveConfiguration.WRITE_OPERATION_6_ENABLE_KEY, "false",
                 "-p", LdbcSnbInteractiveConfiguration.WRITE_OPERATION_7_ENABLE_KEY, "false",
                 "-p", LdbcSnbInteractiveConfiguration.WRITE_OPERATION_8_ENABLE_KEY, "false",
-                "-p", LdbcSnbInteractiveConfiguration.SAFE_T, "1",
                 "-p", LdbcSnbInteractiveConfiguration.UPDATES_DIRECTORY, TestUtils.getResource("/").getAbsolutePath(),
                 "-p", LdbcSnbInteractiveConfiguration.PARAMETERS_DIRECTORY, TestUtils.getResource("/").getAbsolutePath()
         });
@@ -811,7 +807,7 @@ public class LdbcSnbInteractiveWorkloadTest {
 
     @Test
     public void shouldAssignMonotonicallyIncreasingScheduledStartTimesToOperations() throws WorkloadException, IOException, DriverConfigurationException {
-        Map<String, String> paramsMap = LdbcSnbInteractiveConfiguration.defaultConfig();
+        Map<String, String> paramsMap = LdbcSnbInteractiveConfiguration.defaultConfigSF1();
         // LDBC Interactive Workload-specific parameters
         paramsMap.put(LdbcSnbInteractiveConfiguration.PARAMETERS_DIRECTORY, TestUtils.getResource("/").getAbsolutePath());
         paramsMap.put(LdbcSnbInteractiveConfiguration.UPDATES_DIRECTORY, TestUtils.getResource("/").getAbsolutePath());
@@ -884,7 +880,7 @@ public class LdbcSnbInteractiveWorkloadTest {
     public void shouldRunWorkloadForLongReadsOnly() throws WorkloadException, ClientException, IOException, DriverConfigurationException {
         Map<String, String> workloadParams = LdbcSnbInteractiveConfiguration.withoutWrites(
                 LdbcSnbInteractiveConfiguration.withoutShortReads(
-                        LdbcSnbInteractiveConfiguration.defaultConfig()
+                        LdbcSnbInteractiveConfiguration.defaultConfigSF1()
                 )
         );
         workloadParams.put(LdbcSnbInteractiveConfiguration.PARAMETERS_DIRECTORY, TestUtils.getResource("/").getAbsolutePath());
@@ -900,7 +896,7 @@ public class LdbcSnbInteractiveWorkloadTest {
     @Test
     public void shouldRunWorkloadForReadsOnly() throws WorkloadException, ClientException, IOException, DriverConfigurationException {
         Map<String, String> workloadParams = LdbcSnbInteractiveConfiguration.withoutWrites(
-                LdbcSnbInteractiveConfiguration.defaultConfig()
+                LdbcSnbInteractiveConfiguration.defaultConfigSF1()
         );
         workloadParams.put(LdbcSnbInteractiveConfiguration.PARAMETERS_DIRECTORY, TestUtils.getResource("/").getAbsolutePath());
         workloadParams.put(LdbcSnbInteractiveConfiguration.UPDATES_DIRECTORY, TestUtils.getResource("/").getAbsolutePath());
@@ -916,7 +912,7 @@ public class LdbcSnbInteractiveWorkloadTest {
     public void shouldRunWorkloadForWritesOnly() throws WorkloadException, ClientException, IOException, DriverConfigurationException {
         Map<String, String> workloadParams = LdbcSnbInteractiveConfiguration.withoutLongReads(
                 LdbcSnbInteractiveConfiguration.withoutShortReads(
-                        LdbcSnbInteractiveConfiguration.defaultConfig()
+                        LdbcSnbInteractiveConfiguration.defaultConfigSF1()
                 )
         );
         workloadParams.put(LdbcSnbInteractiveConfiguration.PARAMETERS_DIRECTORY, TestUtils.getResource("/").getAbsolutePath());
@@ -931,7 +927,7 @@ public class LdbcSnbInteractiveWorkloadTest {
 
     @Test
     public void shouldRunWorkloadForFullWorkload() throws WorkloadException, ClientException, IOException, DriverConfigurationException {
-        Map<String, String> workloadParams = LdbcSnbInteractiveConfiguration.defaultConfig();
+        Map<String, String> workloadParams = LdbcSnbInteractiveConfiguration.defaultConfigSF1();
         workloadParams.put(LdbcSnbInteractiveConfiguration.PARAMETERS_DIRECTORY, TestUtils.getResource("/").getAbsolutePath());
         workloadParams.put(LdbcSnbInteractiveConfiguration.UPDATES_DIRECTORY, TestUtils.getResource("/").getAbsolutePath());
         workloadParams = MapUtils.mergeMaps(
@@ -1007,7 +1003,7 @@ public class LdbcSnbInteractiveWorkloadTest {
     public void shouldPassWorkloadValidationForLongReadsOnly() throws WorkloadException, ClientException, IOException, DriverConfigurationException {
         Map<String, String> workloadParams = LdbcSnbInteractiveConfiguration.withoutWrites(
                 LdbcSnbInteractiveConfiguration.withoutShortReads(
-                        LdbcSnbInteractiveConfiguration.defaultConfig()
+                        LdbcSnbInteractiveConfiguration.defaultConfigSF1()
                 )
         );
         workloadParams.put(LdbcSnbInteractiveConfiguration.PARAMETERS_DIRECTORY, TestUtils.getResource("/").getAbsolutePath());
@@ -1023,7 +1019,7 @@ public class LdbcSnbInteractiveWorkloadTest {
     @Test
     public void shouldPassWorkloadValidationForReadsOnly() throws WorkloadException, ClientException, IOException, DriverConfigurationException {
         Map<String, String> workloadParams = LdbcSnbInteractiveConfiguration.withoutWrites(
-                LdbcSnbInteractiveConfiguration.defaultConfig()
+                LdbcSnbInteractiveConfiguration.defaultConfigSF1()
         );
         workloadParams.put(LdbcSnbInteractiveConfiguration.PARAMETERS_DIRECTORY, TestUtils.getResource("/").getAbsolutePath());
         workloadParams.put(LdbcSnbInteractiveConfiguration.UPDATES_DIRECTORY, TestUtils.getResource("/").getAbsolutePath());
@@ -1039,7 +1035,7 @@ public class LdbcSnbInteractiveWorkloadTest {
     public void shouldPassWorkloadValidationForWritesOnly() throws WorkloadException, ClientException, IOException, DriverConfigurationException {
         Map<String, String> workloadParams = LdbcSnbInteractiveConfiguration.withoutLongReads(
                 LdbcSnbInteractiveConfiguration.withoutShortReads(
-                        LdbcSnbInteractiveConfiguration.defaultConfig()
+                        LdbcSnbInteractiveConfiguration.defaultConfigSF1()
                 )
         );
         workloadParams.put(LdbcSnbInteractiveConfiguration.PARAMETERS_DIRECTORY, TestUtils.getResource("/").getAbsolutePath());
@@ -1054,7 +1050,7 @@ public class LdbcSnbInteractiveWorkloadTest {
 
     @Test
     public void shouldPassWorkloadValidationForFullWorkload() throws WorkloadException, ClientException, IOException, DriverConfigurationException {
-        Map<String, String> workloadParams = LdbcSnbInteractiveConfiguration.defaultConfig();
+        Map<String, String> workloadParams = LdbcSnbInteractiveConfiguration.defaultConfigSF1();
         workloadParams.put(LdbcSnbInteractiveConfiguration.PARAMETERS_DIRECTORY, TestUtils.getResource("/").getAbsolutePath());
         workloadParams.put(LdbcSnbInteractiveConfiguration.UPDATES_DIRECTORY, TestUtils.getResource("/").getAbsolutePath());
         workloadParams = MapUtils.mergeMaps(
@@ -1130,7 +1126,7 @@ public class LdbcSnbInteractiveWorkloadTest {
     public void shouldCreateValidationParametersThenUseThemToPerformDatabaseValidationThenPassForLongReadsOnly() throws ClientException, IOException, DriverConfigurationException {
         Map<String, String> workloadParams = LdbcSnbInteractiveConfiguration.withoutShortReads(
                 LdbcSnbInteractiveConfiguration.withoutWrites(
-                        LdbcSnbInteractiveConfiguration.defaultConfig()
+                        LdbcSnbInteractiveConfiguration.defaultConfigSF1()
                 )
         );
         workloadParams.put(LdbcSnbInteractiveConfiguration.PARAMETERS_DIRECTORY, TestUtils.getResource("/").getAbsolutePath());
@@ -1146,7 +1142,7 @@ public class LdbcSnbInteractiveWorkloadTest {
     @Test
     public void shouldCreateValidationParametersThenUseThemToPerformDatabaseValidationThenPassForReadsOnly() throws ClientException, IOException, DriverConfigurationException {
         Map<String, String> workloadParams = LdbcSnbInteractiveConfiguration.withoutWrites(
-                LdbcSnbInteractiveConfiguration.defaultConfig()
+                LdbcSnbInteractiveConfiguration.defaultConfigSF1()
         );
         workloadParams.put(LdbcSnbInteractiveConfiguration.PARAMETERS_DIRECTORY, TestUtils.getResource("/").getAbsolutePath());
         workloadParams.put(LdbcSnbInteractiveConfiguration.UPDATES_DIRECTORY, TestUtils.getResource("/").getAbsolutePath());
@@ -1162,7 +1158,7 @@ public class LdbcSnbInteractiveWorkloadTest {
     public void shouldCreateValidationParametersThenUseThemToPerformDatabaseValidationThenPassForWritesOnly() throws ClientException, IOException, DriverConfigurationException {
         Map<String, String> workloadParams = LdbcSnbInteractiveConfiguration.withoutLongReads(
                 LdbcSnbInteractiveConfiguration.withoutShortReads(
-                        LdbcSnbInteractiveConfiguration.defaultConfig()
+                        LdbcSnbInteractiveConfiguration.defaultConfigSF1()
                 )
         );
         workloadParams.put(LdbcSnbInteractiveConfiguration.PARAMETERS_DIRECTORY, TestUtils.getResource("/").getAbsolutePath());
@@ -1177,7 +1173,7 @@ public class LdbcSnbInteractiveWorkloadTest {
 
     @Test
     public void shouldCreateValidationParametersThenUseThemToPerformDatabaseValidationThenPassForFullWorkload() throws ClientException, IOException, DriverConfigurationException {
-        Map<String, String> workloadParams = LdbcSnbInteractiveConfiguration.defaultConfig();
+        Map<String, String> workloadParams = LdbcSnbInteractiveConfiguration.defaultConfigSF1();
         workloadParams.put(LdbcSnbInteractiveConfiguration.PARAMETERS_DIRECTORY, TestUtils.getResource("/").getAbsolutePath());
         workloadParams.put(LdbcSnbInteractiveConfiguration.UPDATES_DIRECTORY, TestUtils.getResource("/").getAbsolutePath());
         workloadParams = MapUtils.mergeMaps(
