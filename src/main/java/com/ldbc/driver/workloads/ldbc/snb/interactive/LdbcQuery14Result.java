@@ -33,7 +33,10 @@ public class LdbcQuery14Result {
         if (Double.compare(that.pathWeight, pathWeight) != 0) {
             return false;
         }
-        if (personIdsInPath != null ? !personIdPathsEqual(personIdsInPath, that.personIdsInPath) : that.personIdsInPath != null) {
+        if (null == personIdsInPath || null == that.personIdsInPath) {
+            return false;
+        }
+        if (false == personIdPathsEqual(personIdsInPath, that.personIdsInPath)) {
             return false;
         }
         return true;
@@ -44,8 +47,11 @@ public class LdbcQuery14Result {
         Iterator<? extends Number> path2Iterator = path2.iterator();
         while (path1Iterator.hasNext()) {
             if (false == path2Iterator.hasNext()) return false;
-            long path1Id = path1Iterator.next().longValue();
-            long path2Id = path2Iterator.next().longValue();
+            Number path1IdNumber = path1Iterator.next();
+            Number path2IdNumber = path2Iterator.next();
+            if (null == path1IdNumber || null == path2IdNumber) return false;
+            long path1Id = path1IdNumber.longValue();
+            long path2Id = path2IdNumber.longValue();
             if (path1Id != path2Id) return false;
         }
         return false == path2Iterator.hasNext();
