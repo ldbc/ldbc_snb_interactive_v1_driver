@@ -17,7 +17,7 @@ public class WorkloadResultsSnapshot {
     private List<OperationMetricsSnapshot> metrics;
 
     @JsonProperty(value = "format_version")
-    private int formatVersion = 2;
+    private int formatVersion = 3;
 
     @JsonProperty(value = "unit")
     private TimeUnit unit;
@@ -33,6 +33,9 @@ public class WorkloadResultsSnapshot {
 
     @JsonProperty(value = "total_count")
     private long operationCount;
+
+    @JsonProperty(value = "throughput")
+    private double throughput;
 
     public static WorkloadResultsSnapshot fromJson(File jsonFile) throws
             IOException {
@@ -56,6 +59,7 @@ public class WorkloadResultsSnapshot {
         this.startTimeAsUnit = unit.convert(startTimeAsMilli, TimeUnit.MILLISECONDS);
         this.latestFinishTimeAsUnit = unit.convert(latestFinishTimeAsMilli, TimeUnit.MILLISECONDS);
         this.totalRunDurationAsUnit = unit.convert(latestFinishTimeAsMilli - startTimeAsMilli, TimeUnit.MILLISECONDS);
+        this.throughput = 1000 * (operationCount / (double) unit.toMillis(totalRunDurationAsUnit));
         this.operationCount = operationCount;
         this.unit = unit;
     }
@@ -87,6 +91,10 @@ public class WorkloadResultsSnapshot {
         return operationCount;
     }
 
+    public double throughput() {
+        return throughput;
+    }
+
     public String toJson() {
         try {
             return new ObjectMapper().writeValueAsString(this);
@@ -105,6 +113,7 @@ public class WorkloadResultsSnapshot {
                 ", latestFinishTimeAsUnit=" + latestFinishTimeAsUnit +
                 ", totalRunDurationAsUnit=" + totalRunDurationAsUnit +
                 ", operationCount=" + operationCount +
+                ", throughput=" + throughput +
                 '}';
     }
 
