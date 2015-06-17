@@ -7,12 +7,15 @@ import com.ldbc.driver.generator.GeneratorFactory;
 import com.ldbc.driver.util.Tuple;
 import com.ldbc.driver.validation.ClassNameWorkloadFactory;
 import com.ldbc.driver.validation.WorkloadFactory;
+import org.apache.log4j.Logger;
 
 import java.io.IOException;
 import java.text.DecimalFormat;
 import java.util.*;
 
 public class WorkloadStreams {
+    private static Logger logger = Logger.getLogger(WorkloadStreams.class);
+
     private WorkloadStreamDefinition asynchronousStream = null;
     private List<WorkloadStreamDefinition> blockingStreams = new ArrayList<>();
 
@@ -337,10 +340,10 @@ public class WorkloadStreams {
             streamHeads[indexOfMin] = null;
 
             if (kSoFarOffset % 1000000 == 0) {
-                System.out.print(String.format("Scanned %s of %s - OFFSET\r", numberFormat.format(kSoFarOffset), numberFormat.format(offset)));
+                logger.info(String.format("Scanned %s of %s - OFFSET\r", numberFormat.format(kSoFarOffset), numberFormat.format(offset)));
             }
         }
-        System.out.print(String.format("Scanned %s of %s - OFFSET\n", numberFormat.format(kSoFarOffset), numberFormat.format(offset)));
+        logger.info(String.format("Scanned %s of %s - OFFSET\n", numberFormat.format(kSoFarOffset), numberFormat.format(offset)));
 
         // ================================================
         // ===== calculate end points for each stream =====
@@ -404,10 +407,10 @@ public class WorkloadStreams {
             streamHeads[indexOfMin] = null;
 
             if (kSoFarRun % 1000000 == 0) {
-                System.out.print(String.format("Scanned %s of %s - RUN\r", numberFormat.format(kSoFarRun), numberFormat.format(limit)));
+                logger.info(String.format("Scanned %s of %s - RUN\r", numberFormat.format(kSoFarRun), numberFormat.format(limit)));
             }
         }
-        System.out.print(String.format("Scanned %s of %s - RUN\n", numberFormat.format(kSoFarRun), numberFormat.format(limit)));
+        logger.info(String.format("Scanned %s of %s - RUN\n", numberFormat.format(kSoFarRun), numberFormat.format(limit)));
 
         return Tuple.tuple3(
                 kForStreamOffset,

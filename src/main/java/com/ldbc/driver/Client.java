@@ -32,7 +32,6 @@ import java.util.concurrent.TimeUnit;
 
 // TODO replace log4j with some interface like StatusReportingService
 
-//the following need work;
 // TODO Validate Workload to work with short reads
 
 public class Client {
@@ -374,6 +373,32 @@ public class Client {
                         String.format("Error while instantiating Completion Time Service with peer IDs %s", controlService.configuration().peerIds().toString()), e);
             }
 
+            //  ========================
+            //  ===  Workload Runner  ==
+            //  ========================
+            logger.info(String.format("Instantiating %s", WorkloadRunner.class.getSimpleName()));
+            try {
+                int operationHandlerExecutorsBoundedQueueSize = DefaultQueues.DEFAULT_BOUND_1000;
+                workloadRunner = new WorkloadRunner(
+                        timeSource,
+                        database,
+                        timeMappedWorkloadStreams,
+                        metricsService,
+                        errorReporter,
+                        completionTimeService,
+                        controlService.configuration().threadCount(),
+                        controlService.configuration().statusDisplayIntervalAsSeconds(),
+                        controlService.configuration().spinnerSleepDurationAsMilli(),
+                        controlService.configuration().ignoreScheduledStartTimes(),
+                        operationHandlerExecutorsBoundedQueueSize);
+            } catch (Exception e) {
+                throw new ClientException(String.format("Error instantiating %s", WorkloadRunner.class.getSimpleName()), e);
+            }
+
+            //  ===========================================
+            //  ===  Initialize Completion Time Service  ==
+            //  ===========================================
+            // TODO note, this MUST be done after creation of Workload Runner because Workload Runner creates the "writers" for completion time service (refactor this mess at some stage)
             try {
                 if (completionTimeService.getAllWriters().isEmpty()) {
                     // There are no local completion time writers, GCT would never advance or be non-null, set to max so nothing ever waits on it
@@ -409,28 +434,6 @@ public class Client {
                 }
             } catch (CompletionTimeException e) {
                 throw new ClientException("Error while writing initial initiated and completed times to Completion Time Service", e);
-            }
-
-            //  ========================
-            //  ===  Workload Runner  ==
-            //  ========================
-            logger.info(String.format("Instantiating %s", WorkloadRunner.class.getSimpleName()));
-            try {
-                int operationHandlerExecutorsBoundedQueueSize = DefaultQueues.DEFAULT_BOUND_1000;
-                workloadRunner = new WorkloadRunner(
-                        timeSource,
-                        database,
-                        timeMappedWorkloadStreams,
-                        metricsService,
-                        errorReporter,
-                        completionTimeService,
-                        controlService.configuration().threadCount(),
-                        controlService.configuration().statusDisplayIntervalAsSeconds(),
-                        controlService.configuration().spinnerSleepDurationAsMilli(),
-                        controlService.configuration().ignoreScheduledStartTimes(),
-                        operationHandlerExecutorsBoundedQueueSize);
-            } catch (Exception e) {
-                throw new ClientException(String.format("Error instantiating %s", WorkloadRunner.class.getSimpleName()), e);
             }
         }
 

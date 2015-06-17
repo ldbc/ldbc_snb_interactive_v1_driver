@@ -67,4 +67,14 @@ public class OperationMetricsSnapshot {
         result = 31 * result + (rutTimeMetric != null ? rutTimeMetric.hashCode() : 0);
         return result;
     }
+
+    @Override
+    public String toString() {
+        return "OperationMetricsSnapshot{" +
+                "name='" + name + '\'' +
+                ", durationUnit=" + durationUnit +
+                ", count=" + count +
+                ", rutTimeMetric=" + rutTimeMetric +
+                '}';
+    }
 }

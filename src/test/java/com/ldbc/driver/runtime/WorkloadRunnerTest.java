@@ -70,7 +70,7 @@ public class WorkloadRunnerTest {
         CompletionTimeService completionTimeService = null;
         ConcurrentErrorReporter errorReporter = new ConcurrentErrorReporter();
         try {
-            Map<String, String> paramsMap = LdbcSnbInteractiveConfiguration.defaultReadOnlyConfig();
+            Map<String, String> paramsMap = LdbcSnbInteractiveConfiguration.defaultReadOnlyConfigSF1();
             paramsMap.put(LdbcSnbInteractiveConfiguration.PARAMETERS_DIRECTORY, TestUtils.getResource("/").getAbsolutePath());
             paramsMap.put(LdbcSnbInteractiveConfiguration.UPDATES_DIRECTORY, TestUtils.getResource("/").getAbsolutePath());
             // Driver-specific parameters
@@ -181,7 +181,7 @@ public class WorkloadRunnerTest {
             assertThat(errorReporter.toString() + "\n" + metricsFormatter.format(workloadResults), workloadResults.latestFinishTimeAsMilli() >= workloadResults.startTimeAsMilli(), is(true));
             assertThat(errorReporter.toString() + "\n" + metricsFormatter.format(workloadResults),
                     workloadResults.totalOperationCount(),
-                    allOf(greaterThanOrEqualTo(percent(operationCount, 0.95)), lessThanOrEqualTo(percent(operationCount, 1.05)))
+                    allOf(greaterThanOrEqualTo(percent(operationCount, 0.9)), lessThanOrEqualTo(percent(operationCount, 1.1)))
             );
 
             WorkloadResultsSnapshot workloadResultsFromJson = WorkloadResultsSnapshot.fromJson(workloadResults.toJson());
@@ -195,7 +195,7 @@ public class WorkloadRunnerTest {
             // GREATER THAN or equal because number of Short Reads is operation result-dependent
             assertThat(
                     (long) Iterators.size(csvResultsLogReader),
-                    allOf(greaterThanOrEqualTo(percent(configuration.operationCount(), 0.95)), lessThanOrEqualTo(percent(configuration.operationCount(), 1.05)))
+                    allOf(greaterThanOrEqualTo(percent(configuration.operationCount(), 0.9)), lessThanOrEqualTo(percent(configuration.operationCount(), 1.1)))
             );
             csvResultsLogReader.close();
 
@@ -239,7 +239,7 @@ public class WorkloadRunnerTest {
         CompletionTimeService completionTimeService = null;
         ConcurrentErrorReporter errorReporter = new ConcurrentErrorReporter();
         try {
-            Map<String, String> paramsMap = LdbcSnbInteractiveConfiguration.defaultConfig();
+            Map<String, String> paramsMap = LdbcSnbInteractiveConfiguration.defaultConfigSF1();
             paramsMap.put(LdbcSnbInteractiveConfiguration.PARAMETERS_DIRECTORY, TestUtils.getResource("/").getAbsolutePath());
             paramsMap.put(LdbcSnbInteractiveConfiguration.UPDATES_DIRECTORY, TestUtils.getResource("/").getAbsolutePath());
             // Driver-specific parameters
@@ -351,7 +351,7 @@ public class WorkloadRunnerTest {
             // GREATER THAN or equal because number of Short Reads is operation result-dependent
             assertThat(errorReporter.toString() + "\n" + metricsFormatter.format(workloadResults),
                     workloadResults.totalOperationCount(),
-                    allOf(greaterThanOrEqualTo(percent(operationCount, 0.95)), lessThanOrEqualTo(percent(operationCount, 1.05)))
+                    allOf(greaterThanOrEqualTo(percent(operationCount, 0.9)), lessThanOrEqualTo(percent(operationCount, 1.1)))
             );
 
             WorkloadResultsSnapshot workloadResultsFromJson = WorkloadResultsSnapshot.fromJson(workloadResults.toJson());
@@ -365,7 +365,7 @@ public class WorkloadRunnerTest {
             // GREATER THAN or equal because number of Short Reads is operation result-dependent
             assertThat(
                     (long) Iterators.size(csvResultsLogReader),
-                    allOf(greaterThanOrEqualTo(percent(configuration.operationCount(), 0.95)), lessThanOrEqualTo(percent(configuration.operationCount(), 1.05)))
+                    allOf(greaterThanOrEqualTo(percent(configuration.operationCount(), 0.9)), lessThanOrEqualTo(percent(configuration.operationCount(), 1.1)))
             );
             csvResultsLogReader.close();
 
@@ -434,7 +434,7 @@ public class WorkloadRunnerTest {
         Workload workload = null;
         MetricsService metricsService = null;
         try {
-            Map<String, String> paramsMap = LdbcSnbInteractiveConfiguration.defaultReadOnlyConfig();
+            Map<String, String> paramsMap = LdbcSnbInteractiveConfiguration.defaultReadOnlyConfigSF1();
             paramsMap.put(LdbcSnbInteractiveConfiguration.PARAMETERS_DIRECTORY, TestUtils.getResource("/").getAbsolutePath());
             paramsMap.put(LdbcSnbInteractiveConfiguration.UPDATES_DIRECTORY, TestUtils.getResource("/").getAbsolutePath());
             // Driver-specific parameters

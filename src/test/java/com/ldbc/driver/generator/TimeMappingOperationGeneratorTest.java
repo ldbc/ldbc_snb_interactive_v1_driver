@@ -329,7 +329,7 @@ public class TimeMappingOperationGeneratorTest {
 
     @Test
     public void shouldNotBreakTheMonotonicallyIncreasingScheduledStartTimesOfOperationsFromLdbcWorkload() throws WorkloadException, IOException, DriverConfigurationException {
-        Map<String, String> paramsMap = LdbcSnbInteractiveConfiguration.defaultConfig();
+        Map<String, String> paramsMap = LdbcSnbInteractiveConfiguration.defaultConfigSF1();
         // LDBC Interactive Workload-specific parameters
         paramsMap.put(LdbcSnbInteractiveConfiguration.PARAMETERS_DIRECTORY, TestUtils.getResource("/").getAbsolutePath());
         // Driver-specific parameters

@@ -78,7 +78,7 @@ public class LdbcSnbInteractiveWorkloadPerformanceTest {
         Workload workload = null;
         MetricsService metricsService = null;
         try {
-            Map<String, String> paramsMap = LdbcSnbInteractiveConfiguration.defaultConfig();
+            Map<String, String> paramsMap = LdbcSnbInteractiveConfiguration.defaultConfigSF1();
             paramsMap.put(LdbcSnbInteractiveConfiguration.PARAMETERS_DIRECTORY, parametersDir);
             paramsMap.put(LdbcSnbInteractiveConfiguration.UPDATES_DIRECTORY, updateStreamsDir);
             paramsMap.put(LdbcSnbInteractiveConfiguration.UPDATE_STREAM_PARSER, LdbcSnbInteractiveConfiguration.UpdateStreamParser.CHAR_SEEKER.name());
@@ -200,7 +200,7 @@ public class LdbcSnbInteractiveWorkloadPerformanceTest {
         Workload workload = null;
         MetricsService metricsService = null;
         try {
-            Map<String, String> paramsMap = LdbcSnbInteractiveConfiguration.defaultConfig();
+            Map<String, String> paramsMap = LdbcSnbInteractiveConfiguration.defaultConfigSF1();
 //            Map<String, String> paramsMap = LdbcSnbInteractiveConfiguration.defaultWriteOnlyConfig();
 //            Map<String, String> paramsMap = LdbcSnbInteractiveConfiguration.defaultReadOnlyConfig();
             paramsMap.put(LdbcSnbInteractiveConfiguration.PARAMETERS_DIRECTORY, parametersDir);

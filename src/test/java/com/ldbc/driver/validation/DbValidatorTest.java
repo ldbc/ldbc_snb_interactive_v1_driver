@@ -42,7 +42,7 @@ public class DbValidatorTest {
         String workloadClassName = LdbcSnbInteractiveWorkload.class.getName();
         ConsoleAndFileDriverConfiguration configuration = ConsoleAndFileDriverConfiguration.fromDefaults(dbClassName, workloadClassName, operationCount);
 
-        Map<String, String> paramsMap = LdbcSnbInteractiveConfiguration.defaultConfig();
+        Map<String, String> paramsMap = LdbcSnbInteractiveConfiguration.defaultConfigSF1();
         paramsMap.put(LdbcSnbInteractiveConfiguration.PARAMETERS_DIRECTORY, TestUtils.getResource("/").getAbsolutePath());
         paramsMap.put(LdbcSnbInteractiveConfiguration.UPDATES_DIRECTORY, TestUtils.getResource("/").getAbsolutePath());
         configuration = (ConsoleAndFileDriverConfiguration) configuration.applyArgs(paramsMap);
@@ -91,7 +91,7 @@ public class DbValidatorTest {
                 operationCount
         );
 
-        Map<String, String> paramsMap = LdbcSnbInteractiveConfiguration.defaultConfig();
+        Map<String, String> paramsMap = LdbcSnbInteractiveConfiguration.defaultConfigSF1();
         paramsMap.put(LdbcSnbInteractiveConfiguration.PARAMETERS_DIRECTORY, TestUtils.getResource("/").getAbsolutePath());
         paramsMap.put(LdbcSnbInteractiveConfiguration.UPDATES_DIRECTORY, TestUtils.getResource("/").getAbsolutePath());
         configuration = (ConsoleAndFileDriverConfiguration) configuration.applyArgs(paramsMap);
