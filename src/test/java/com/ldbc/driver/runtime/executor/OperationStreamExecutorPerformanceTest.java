@@ -257,7 +257,7 @@ public class OperationStreamExecutorPerformanceTest {
         assertThat(errorReporter.toString(), errorReporter.errorEncountered(), is(false));
 
         // wait for all results to get processed by metrics service
-        MetricsService.ConcurrentMetricsServiceWriter metricsServiceWriter = metricsService.getWriter();
+        MetricsService.MetricsServiceWriter metricsServiceWriter = metricsService.getWriter();
         long metricsCollectionTimeoutAsMilli = systemTimeSource.nowAsMilli() + 2000;
         while (systemTimeSource.nowAsMilli() < metricsCollectionTimeoutAsMilli && metricsServiceWriter.results().totalOperationCount() < operationCount) {
             Spinner.powerNap(500);

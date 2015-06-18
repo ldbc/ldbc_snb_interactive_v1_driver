@@ -1,51 +1,80 @@
 package com.ldbc.driver.control;
 
 import com.ldbc.driver.temporal.TemporalUtil;
+import com.ldbc.driver.temporal.TimeSource;
 
-public class LocalControlService implements ControlService {
+public class LocalControlService implements ControlService
+{
     private final TemporalUtil temporalUtil = new TemporalUtil();
     private final DriverConfiguration configuration;
+    private final LoggingServiceFactory loggingServiceFactory;
+    private final TimeSource timeSource;
     private long workloadStartTimeAsMilli;
 
-    public LocalControlService(long workloadStartTimeAsMilli,
-                               DriverConfiguration configuration) {
+    public LocalControlService(
+            long workloadStartTimeAsMilli,
+            DriverConfiguration configuration,
+            LoggingServiceFactory loggingServiceFactory,
+            TimeSource timeSource )
+    {
         this.workloadStartTimeAsMilli = workloadStartTimeAsMilli;
         this.configuration = configuration;
+        this.loggingServiceFactory = loggingServiceFactory;
+        this.timeSource = timeSource;
     }
 
     @Override
-    public DriverConfiguration configuration() {
+    public DriverConfiguration configuration()
+    {
         return configuration;
     }
 
     @Override
-    public void setWorkloadStartTimeAsMilli(long workloadStartTimeAsMilli) {
+    public LoggingServiceFactory loggingServiceFactory()
+    {
+        return loggingServiceFactory;
+    }
+
+    @Override
+    public TimeSource timeSource()
+    {
+        return timeSource;
+    }
+
+    @Override
+    public void setWorkloadStartTimeAsMilli( long workloadStartTimeAsMilli )
+    {
         this.workloadStartTimeAsMilli = workloadStartTimeAsMilli;
     }
 
     @Override
-    public long workloadStartTimeAsMilli() {
+    public long workloadStartTimeAsMilli()
+    {
         return workloadStartTimeAsMilli;
     }
 
     @Override
-    public void waitForCommandToExecuteWorkload() {
+    public void waitForCommandToExecuteWorkload()
+    {
 
     }
 
     @Override
-    public void waitForAllToCompleteExecutingWorkload() {
+    public void waitForAllToCompleteExecutingWorkload()
+    {
 
     }
 
     @Override
-    public void shutdown() {
+    public void shutdown()
+    {
 
     }
 
     @Override
-    public String toString() {
-        return "Workload Start Time:\t" + temporalUtil.milliTimeToDateTimeString(workloadStartTimeAsMilli) + "\n" +
-                configuration.toString();
+    public String toString()
+    {
+        return "Workload Start Time:\t" + temporalUtil.milliTimeToDateTimeString( workloadStartTimeAsMilli ) + "\n" +
+               configuration.toString();
     }
 }

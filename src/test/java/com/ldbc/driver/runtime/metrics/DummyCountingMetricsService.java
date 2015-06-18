@@ -4,7 +4,8 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
-public class DummyCountingMetricsService implements MetricsService, MetricsService.ConcurrentMetricsServiceWriter {
+public class DummyCountingMetricsService implements MetricsService, MetricsService.MetricsServiceWriter
+{
     private long count = 0;
     private final Map<String, OperationMetricsSnapshot> metrics;
 
@@ -42,7 +43,7 @@ public class DummyCountingMetricsService implements MetricsService, MetricsServi
     }
 
     @Override
-    public ConcurrentMetricsServiceWriter getWriter() {
+    public MetricsServiceWriter getWriter() {
         return this;
     }
 }

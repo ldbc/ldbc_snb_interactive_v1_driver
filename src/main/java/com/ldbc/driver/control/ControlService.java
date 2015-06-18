@@ -1,9 +1,16 @@
 package com.ldbc.driver.control;
 
-public interface ControlService {
+import com.ldbc.driver.temporal.TimeSource;
+
+public interface ControlService
+{
     DriverConfiguration configuration();
 
-    void setWorkloadStartTimeAsMilli(long workloadStartTimeAsMilli);
+    LoggingServiceFactory loggingServiceFactory();
+
+    TimeSource timeSource();
+
+    void setWorkloadStartTimeAsMilli( long workloadStartTimeAsMilli );
 
     long workloadStartTimeAsMilli();
 

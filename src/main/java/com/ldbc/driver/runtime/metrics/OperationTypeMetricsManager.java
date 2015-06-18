@@ -1,13 +1,14 @@
 package com.ldbc.driver.runtime.metrics;
 
+import com.ldbc.driver.control.LoggingService;
+import com.ldbc.driver.control.LoggingServiceFactory;
 import com.ldbc.driver.temporal.TemporalUtil;
-import org.apache.log4j.Logger;
 
 import java.util.Comparator;
 import java.util.concurrent.TimeUnit;
 
-public class OperationTypeMetricsManager {
-    private static Logger logger = Logger.getLogger(OperationTypeMetricsManager.class);
+public class OperationTypeMetricsManager
+{
     private static final String METRIC_RUNTIME = "Runtime";
 
     private final TemporalUtil temporalUtil = new TemporalUtil();
@@ -15,49 +16,62 @@ public class OperationTypeMetricsManager {
     private final String name;
     private final TimeUnit unit;
     private final long highestExpectedRuntimeDurationAsNano;
+    private final LoggingService loggingService;
 
-    OperationTypeMetricsManager(String name,
-                                TimeUnit unit,
-                                long highestExpectedRuntimeDurationAsNano) {
+    OperationTypeMetricsManager(
+            String name,
+            TimeUnit unit,
+            long highestExpectedRuntimeDurationAsNano,
+            LoggingServiceFactory loggingServiceFactory )
+    {
         this.name = name;
         this.unit = unit;
         this.highestExpectedRuntimeDurationAsNano = highestExpectedRuntimeDurationAsNano;
+        loggingService = loggingServiceFactory.loggingServiceFor( getClass() );
         this.runTimeMetric = new ContinuousMetricManager(
                 METRIC_RUNTIME,
                 unit,
-                unit.convert(highestExpectedRuntimeDurationAsNano, TimeUnit.NANOSECONDS),
+                unit.convert( highestExpectedRuntimeDurationAsNano, TimeUnit.NANOSECONDS ),
                 4
         );
     }
 
-    void measure(long runDurationAsNano) throws MetricsCollectionException {
+    void measure( long runDurationAsNano ) throws MetricsCollectionException
+    {
         //
         // Measure operation runtime
         //
-        if (runDurationAsNano > highestExpectedRuntimeDurationAsNano) {
-            String errMsg = String.format(""
-                            + "Error recording runtime - reported value exceeds maximum allowed. Time reported as maximum.\n"
-                            + "Reported: %s %s / %s\n"
-                            + "For: %s\n"
-                            + "Maximum: %s %s / %s",
+        if ( runDurationAsNano > highestExpectedRuntimeDurationAsNano )
+        {
+            String errMsg = String.format( ""
+                                           +
+                                           "Error recording runtime - reported value exceeds maximum allowed. Time " +
+                                           "reported as maximum.\n"
+                                           + "Reported: %s %s / %s\n"
+                                           + "For: %s\n"
+                                           + "Maximum: %s %s / %s",
                     runDurationAsNano,
                     TimeUnit.NANOSECONDS.name(),
-                    temporalUtil.nanoDurationToString(runDurationAsNano),
+                    temporalUtil.nanoDurationToString( runDurationAsNano ),
                     name,
                     highestExpectedRuntimeDurationAsNano,
                     TimeUnit.NANOSECONDS.name(),
-                    temporalUtil.nanoDurationToString(highestExpectedRuntimeDurationAsNano)
+                    temporalUtil.nanoDurationToString( highestExpectedRuntimeDurationAsNano )
             );
-            logger.warn(errMsg);
+            loggingService.info( errMsg );
             runDurationAsNano = highestExpectedRuntimeDurationAsNano;
         }
 
-        long runtimeInAppropriateUnit = unit.convert(runDurationAsNano, TimeUnit.NANOSECONDS);
+        long runtimeInAppropriateUnit = unit.convert( runDurationAsNano, TimeUnit.NANOSECONDS );
 
-        try {
-            runTimeMetric.addMeasurement(runtimeInAppropriateUnit);
-        } catch (Throwable e) {
-            String errMsg = String.format("Error encountered adding runtime: %s %s / %s %s\nTo: %s\nHighest expected value: %s %s / %s %s",
+        try
+        {
+            runTimeMetric.addMeasurement( runtimeInAppropriateUnit );
+        }
+        catch ( Throwable e )
+        {
+            String errMsg = String.format(
+                    "Error encountered adding runtime: %s %s / %s %s\nTo: %s\nHighest expected value: %s %s / %s %s",
                     runDurationAsNano,
                     TimeUnit.NANOSECONDS.name(),
                     runtimeInAppropriateUnit,
@@ -65,33 +79,38 @@ public class OperationTypeMetricsManager {
                     name,
                     highestExpectedRuntimeDurationAsNano,
                     TimeUnit.NANOSECONDS.name(),
-                    unit.convert(highestExpectedRuntimeDurationAsNano, TimeUnit.NANOSECONDS),
+                    unit.convert( highestExpectedRuntimeDurationAsNano, TimeUnit.NANOSECONDS ),
                     unit.name()
             );
-            throw new MetricsCollectionException(errMsg, e);
+            throw new MetricsCollectionException( errMsg, e );
         }
     }
 
-    public OperationMetricsSnapshot snapshot() {
-        return new OperationMetricsSnapshot(name, unit, count(), runTimeMetric.snapshot());
+    public OperationMetricsSnapshot snapshot()
+    {
+        return new OperationMetricsSnapshot( name, unit, count(), runTimeMetric.snapshot() );
     }
 
-    public String name() {
+    public String name()
+    {
         return name;
     }
 
-    public long count() {
+    public long count()
+    {
         return runTimeMetric.snapshot().count();
     }
 
-    static class OperationMetricsNameComparator implements Comparator<OperationMetricsSnapshot> {
+    static class OperationMetricsNameComparator implements Comparator<OperationMetricsSnapshot>
+    {
         private static final String EMPTY_STRING = "";
 
         @Override
-        public int compare(OperationMetricsSnapshot metrics1, OperationMetricsSnapshot metrics2) {
+        public int compare( OperationMetricsSnapshot metrics1, OperationMetricsSnapshot metrics2 )
+        {
             String metrics1Name = (metrics1.name() == null) ? EMPTY_STRING : metrics1.name();
             String metrics2Name = (metrics2.name() == null) ? EMPTY_STRING : metrics2.name();
-            return metrics1Name.compareTo(metrics2Name);
+            return metrics1Name.compareTo( metrics2Name );
         }
     }
 }

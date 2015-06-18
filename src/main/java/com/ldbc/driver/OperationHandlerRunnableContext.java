@@ -4,7 +4,6 @@ import com.ldbc.driver.runtime.ConcurrentErrorReporter;
 import com.ldbc.driver.runtime.coordination.LocalCompletionTimeWriter;
 import com.ldbc.driver.runtime.metrics.MetricsCollectionException;
 import com.ldbc.driver.runtime.metrics.MetricsService;
-import com.ldbc.driver.runtime.metrics.MetricsService.ConcurrentMetricsServiceWriter;
 import com.ldbc.driver.runtime.scheduling.Spinner;
 import com.ldbc.driver.runtime.scheduling.SpinnerCheck;
 import com.ldbc.driver.temporal.TimeSource;
@@ -25,7 +24,7 @@ public class OperationHandlerRunnableContext implements Runnable, Poolable {
     private Operation operation = null;
     private LocalCompletionTimeWriter localCompletionTimeWriter = null;
     private ConcurrentErrorReporter errorReporter = null;
-    private ConcurrentMetricsServiceWriter metricsServiceWriter = null;
+    private MetricsService.MetricsServiceWriter metricsServiceWriter = null;
 
     // set by DependencyAndNonDependencyHandlersRetriever
     private SpinnerCheck beforeExecuteCheck = null;

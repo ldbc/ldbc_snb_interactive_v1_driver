@@ -3,9 +3,10 @@ package com.ldbc.driver.runtime.metrics;
 public interface MetricsService {
     void shutdown() throws MetricsCollectionException;
 
-    ConcurrentMetricsServiceWriter getWriter() throws MetricsCollectionException;
+    MetricsServiceWriter getWriter() throws MetricsCollectionException;
 
-    public interface ConcurrentMetricsServiceWriter {
+    public interface MetricsServiceWriter
+    {
         void submitOperationResult(
                 int operationType,
                 long scheduledStartTimeAsMilli,
