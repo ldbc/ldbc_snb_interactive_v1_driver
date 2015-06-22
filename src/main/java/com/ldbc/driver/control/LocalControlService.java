@@ -54,18 +54,6 @@ public class LocalControlService implements ControlService
     }
 
     @Override
-    public void waitForCommandToExecuteWorkload()
-    {
-
-    }
-
-    @Override
-    public void waitForAllToCompleteExecutingWorkload()
-    {
-
-    }
-
-    @Override
     public void shutdown()
     {
 

@@ -41,6 +41,7 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.PrintStream;
+import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 
 public class ExecuteWorkloadMode implements ClientMode<Object>
@@ -56,8 +57,7 @@ public class ExecuteWorkloadMode implements ClientMode<Object>
     private MetricsService metricsService = null;
     private CompletionTimeService completionTimeService = null;
     private WorkloadRunner workloadRunner = null;
-
-    SimpleCsvFileWriter csvResultsLogFileWriter = null;
+    private SimpleCsvFileWriter csvResultsLogFileWriter = null;
 
     public ExecuteWorkloadMode(
             ControlService controlService,
@@ -171,14 +171,7 @@ public class ExecuteWorkloadMode implements ClientMode<Object>
 
     private void doInit( boolean warmup ) throws ClientException
     {
-        //  ==========================
-        //  ====  Error Reporter  ====
-        //  ==========================
         ConcurrentErrorReporter errorReporter = new ConcurrentErrorReporter();
-
-        //  ===========================
-        //  ===  Generator Factory  ===
-        //  ===========================
         GeneratorFactory gf = new GeneratorFactory( new RandomDataGeneratorFactory( randomSeed ) );
 
         //  ================================
@@ -413,26 +406,21 @@ public class ExecuteWorkloadMode implements ClientMode<Object>
 
     private void doExecute( boolean warmup ) throws ClientException
     {
-        // TODO revise if this necessary here, and if not where??
-        controlService.waitForCommandToExecuteWorkload();
-
         try
         {
-            workloadRunner.executeWorkload();
+            Future<ConcurrentErrorReporter> workloadRunnerFuture = workloadRunner.getFuture();
+            ConcurrentErrorReporter errorReporter = workloadRunnerFuture.get();
             loggingService.info( "Shutting down workload..." );
             workload.close();
+            if ( errorReporter.errorEncountered() )
+            {
+                throw new ClientException( "Error running workload\n" + errorReporter.toString() );
+            }
         }
-        catch ( WorkloadException e )
+        catch ( Exception e )
         {
             throw new ClientException( "Error running workload", e );
         }
-        catch ( IOException e )
-        {
-            throw new ClientException( "Error running workload", e );
-        }
-
-        // TODO revise if this necessary here, and if not where??
-        controlService.waitForAllToCompleteExecutingWorkload();
 
         loggingService.info( "Shutting down completion time service..." );
         try

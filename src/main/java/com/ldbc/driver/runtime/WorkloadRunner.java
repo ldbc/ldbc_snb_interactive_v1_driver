@@ -31,7 +31,7 @@ import static com.ldbc.driver.WorkloadStreams.WorkloadStreamDefinition;
 
 public class WorkloadRunner
 {
-    public static final long RUNNER_POLLING_INTERVAL_AS_MILLI = 500;
+    public static final long RUNNER_POLLING_INTERVAL_AS_MILLI = 100;
     private static final LocalCompletionTimeWriter DUMMY_LOCAL_COMPLETION_TIME_WRITER =
             new DummyLocalCompletionTimeWriter();
 
@@ -67,13 +67,13 @@ public class WorkloadRunner
         );
     }
 
-    public Future<WorkloadRunnerResult> executeWorkload()
+    public Future<ConcurrentErrorReporter> getFuture()
     {
         workloadRunnerFuture.startThread();
         return workloadRunnerFuture;
     }
 
-    private static class WorkloadRunnerFuture implements Future<WorkloadRunnerResult>
+    private static class WorkloadRunnerFuture implements Future<ConcurrentErrorReporter>
     {
         private final WorkloadRunnerThread workloadRunnerThread;
         private final TimeSource timeSource;
@@ -115,7 +115,7 @@ public class WorkloadRunner
 
         private void startThread()
         {
-            if ( false == workloadRunnerThread.state().equals( WorkloadRunnerThreadState.NOT_STARTED ) )
+            if ( workloadRunnerThread.state().equals( WorkloadRunnerThreadState.NOT_STARTED ) )
             {
                 workloadRunnerThread.start();
                 while ( workloadRunnerThread.state().equals( WorkloadRunnerThreadState.NOT_STARTED ) )
@@ -159,7 +159,7 @@ public class WorkloadRunner
                     isDone = true;
                     return isCancelled;
                 }
-            case COMPLETED_SUCCESSFULLY:
+            case COMPLETED_SUCCEEDED:
                 // Fail because task has already completed
                 return false;
             case COMPLETED_FAILED:
@@ -187,7 +187,7 @@ public class WorkloadRunner
             if ( false == isDone )
             {
                 if ( workloadRunnerThread.state().equals( WorkloadRunnerThreadState.COMPLETED_FAILED ) ||
-                     workloadRunnerThread.state().equals( WorkloadRunnerThreadState.COMPLETED_SUCCESSFULLY ) )
+                     workloadRunnerThread.state().equals( WorkloadRunnerThreadState.COMPLETED_SUCCEEDED ) )
                 {
                     isDone = true;
                 }
@@ -196,7 +196,7 @@ public class WorkloadRunner
         }
 
         @Override
-        public WorkloadRunnerResult get() throws InterruptedException, ExecutionException
+        public ConcurrentErrorReporter get() throws InterruptedException, ExecutionException
         {
             if ( isCancelled || isDone )
             {
@@ -210,12 +210,12 @@ public class WorkloadRunner
             {
                 // do nothing
             }
-            return workloadRunnerThread.result();
+            return errorReporter;
 
         }
 
         @Override
-        public WorkloadRunnerResult get( long timeout, TimeUnit unit )
+        public ConcurrentErrorReporter get( long timeout, TimeUnit unit )
                 throws InterruptedException, ExecutionException, TimeoutException
         {
             if ( isCancelled || isDone )
@@ -224,7 +224,7 @@ public class WorkloadRunner
             }
             long waitDurationMs = unit.toMillis( timeout );
             waitForCompletion( waitDurationMs );
-            return workloadRunnerThread.result();
+            return errorReporter;
         }
 
         private void waitForCompletion( long waitDurationMs ) throws TimeoutException
@@ -236,14 +236,14 @@ public class WorkloadRunner
                 {
                 case NOT_STARTED:
                     throw new IllegalStateException( String.format(
-                            "%s is in % state, but should have already started",
+                            "%s is in %s state, but should have already started",
                             WorkloadRunnerThread.class.getSimpleName(),
                             WorkloadRunnerThreadState.NOT_STARTED.name()
                     ) );
                 case RUNNING:
                     Spinner.powerNap( RUNNER_POLLING_INTERVAL_AS_MILLI );
                     continue;
-                case COMPLETED_SUCCESSFULLY:
+                case COMPLETED_SUCCEEDED:
                     return;
                 case COMPLETED_FAILED:
                     return;
@@ -263,7 +263,7 @@ public class WorkloadRunner
     {
         NOT_STARTED,
         RUNNING,
-        COMPLETED_SUCCESSFULLY,
+        COMPLETED_SUCCEEDED,
         COMPLETED_FAILED
     }
 
@@ -278,7 +278,12 @@ public class WorkloadRunner
         private final List<OperationStreamExecutorService> blockingStreamExecutorServices = new ArrayList<>();
         private final long statusDisplayIntervalAsMilli;
         private final AtomicReference<WorkloadRunnerThreadState> stateRef;
-        private final AtomicReference<WorkloadRunnerResult> resultRef;
+
+        private enum ShutdownType
+        {
+            NORMAL,
+            FORCED
+        }
 
         public WorkloadRunnerThread( TimeSource timeSource,
                 Db db,
@@ -381,17 +386,11 @@ public class WorkloadRunner
                 );
             }
             this.stateRef = new AtomicReference<>( WorkloadRunnerThreadState.NOT_STARTED );
-            this.resultRef = new AtomicReference<>( null );
         }
 
         private WorkloadRunnerThreadState state()
         {
-            return this.stateRef.get();
-        }
-
-        private WorkloadRunnerResult result()
-        {
-            return this.resultRef.get();
+            return stateRef.get();
         }
 
         @Override
@@ -409,14 +408,16 @@ public class WorkloadRunner
                 executorFinishedFlags[i + 1] = blockingStreamExecutorServices.get( i ).execute();
             }
 
+            stateRef.set( WorkloadRunnerThreadState.RUNNING );
+
             while ( true )
             {
                 // Error encountered in one or more of the worker threads --> terminate run
                 if ( errorReporter.errorEncountered() )
                 {
-                    boolean forced = true;
-                    shutdownEverything( forced, errorReporter );
+                    shutdownEverything( ShutdownType.FORCED, errorReporter );
                     stateRef.set( WorkloadRunnerThreadState.COMPLETED_FAILED );
+                    return;
                 }
 
                 // All executors have completed --> return
@@ -441,32 +442,33 @@ public class WorkloadRunner
             // One last check for errors encountered in any of the worker threads --> terminate run
             if ( errorReporter.errorEncountered() )
             {
-                boolean forced = true;
-                shutdownEverything( forced, errorReporter );
-                stateRef.set( WorkloadRunnerThreadState.COMPLETED_FAILED );
-            }
-
-            boolean forced = false;
-            shutdownEverything( forced, errorReporter );
-
-            if ( errorReporter.errorEncountered() )
-            {
+                shutdownEverything( ShutdownType.FORCED, errorReporter );
                 stateRef.set( WorkloadRunnerThreadState.COMPLETED_FAILED );
             }
             else
             {
-                stateRef.set( WorkloadRunnerThreadState.COMPLETED_SUCCESSFULLY );
+                shutdownEverything( ShutdownType.NORMAL, errorReporter );
+                if ( errorReporter.errorEncountered() )
+                {
+                    stateRef.set( WorkloadRunnerThreadState.COMPLETED_FAILED );
+                }
+                else
+                {
+                    stateRef.set( WorkloadRunnerThreadState.COMPLETED_SUCCEEDED );
+                }
             }
         }
 
-        private void shutdownEverything( boolean forced, ConcurrentErrorReporter errorReporter )
+        private void shutdownEverything( ShutdownType shutdownType, ConcurrentErrorReporter errorReporter )
         {
             // if forced shutdown (error) some handlers likely still running,
             // but for now it does not matter as the process will terminate anyway
             // (though when running test suite it can result in many running threads, making the tests much slower)
             //
             // if normal shutdown all executors have completed by this stage
-            long shutdownWait = (forced) ? 1 : OperationStreamExecutorService.SHUTDOWN_WAIT_TIMEOUT_AS_MILLI;
+            long shutdownWait = (shutdownType.equals( ShutdownType.FORCED ))
+                                ? 1
+                                : OperationStreamExecutorService.SHUTDOWN_WAIT_TIMEOUT_AS_MILLI;
 
             try
             {
@@ -534,10 +536,5 @@ public class WorkloadRunner
                 }
             }
         }
-    }
-
-    public static class WorkloadRunnerResult
-    {
-        // TODO
     }
 }

@@ -435,12 +435,22 @@ public class WorkloadStreams
 
             if ( kSoFarOffset % 1000000 == 0 )
             {
-                loggingService.info( String.format( "Scanned %s of %s - OFFSET\r", numberFormat.format( kSoFarOffset ),
-                        numberFormat.format( offset ) ) );
+                loggingService.info(
+                        String.format(
+                                "Scanned %s of %s - OFFSET\r",
+                                numberFormat.format( kSoFarOffset ),
+                                numberFormat.format( offset )
+                        )
+                );
             }
         }
-        loggingService.info( String.format( "Scanned %s of %s - OFFSET\n", numberFormat.format( kSoFarOffset ),
-                numberFormat.format( offset ) ) );
+        loggingService.info(
+                String.format(
+                        "Scanned %s of %s - OFFSET",
+                        numberFormat.format( kSoFarOffset ),
+                        numberFormat.format( offset )
+                )
+        );
 
         // ================================================
         // ===== calculate end points for each stream =====
@@ -520,12 +530,21 @@ public class WorkloadStreams
 
             if ( kSoFarRun % 1000000 == 0 )
             {
-                loggingService.info( String.format( "Scanned %s of %s - RUN\r", numberFormat.format( kSoFarRun ),
-                        numberFormat.format( limit ) ) );
+                loggingService.info(
+                        String.format( "Scanned %s of %s - RUN\r",
+                                numberFormat.format( kSoFarRun ),
+                                numberFormat.format( limit )
+                        )
+                );
             }
         }
-        loggingService.info( String.format( "Scanned %s of %s - RUN\n", numberFormat.format( kSoFarRun ),
-                numberFormat.format( limit ) ) );
+        loggingService.info(
+                String.format(
+                        "Scanned %s of %s - RUN",
+                        numberFormat.format( kSoFarRun ),
+                        numberFormat.format( limit )
+                )
+        );
 
         return Tuple.tuple3(
                 kForStreamOffset,

@@ -1772,7 +1772,7 @@ public class WorkloadRunnerComplexScenarioTests
         {
             try
             {
-                runner.executeWorkload();
+                runner.getFuture().get();
                 runnerCompletedSuccessfully.set( true );
                 runnerHasCompleted.set( true );
             }

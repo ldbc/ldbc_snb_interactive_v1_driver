@@ -14,9 +14,5 @@ public interface ControlService
 
     long workloadStartTimeAsMilli();
 
-    void waitForCommandToExecuteWorkload();
-
-    void waitForAllToCompleteExecutingWorkload();
-
     void shutdown();
 }

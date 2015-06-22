@@ -48,6 +48,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 
 import static org.hamcrest.CoreMatchers.allOf;
@@ -74,21 +75,23 @@ public class WorkloadRunnerTest
     @Test
     public void shouldRunReadOnlyLdbcWorkloadWithNothingDbAndReturnExpectedMetrics()
             throws InterruptedException, DbException, WorkloadException, IOException, MetricsCollectionException,
-            CompletionTimeException, DriverConfigurationException
+            CompletionTimeException, DriverConfigurationException, ExecutionException
     {
         List<Integer> threadCounts = Lists.newArrayList( 1, 2, 4, 8 );
         long operationCount = 100000;
         for ( int threadCount : threadCounts )
         {
-            doShouldRunReadOnlyLdbcWorkloadWithNothingDbAndReturnExpectedMetricsIncludingResultsLog( threadCount,
-                    operationCount );
+            doShouldRunReadOnlyLdbcWorkloadWithNothingDbAndReturnExpectedMetricsIncludingResultsLog(
+                    threadCount,
+                    operationCount
+            );
         }
     }
 
     public void doShouldRunReadOnlyLdbcWorkloadWithNothingDbAndReturnExpectedMetricsIncludingResultsLog(
             int threadCount, long operationCount )
             throws InterruptedException, DbException, WorkloadException, IOException, MetricsCollectionException,
-            CompletionTimeException, DriverConfigurationException
+            CompletionTimeException, DriverConfigurationException, ExecutionException
     {
         ControlService controlService = null;
         Db db = null;
@@ -210,7 +213,7 @@ public class WorkloadRunnerTest
                     controlService.configuration().ignoreScheduledStartTimes(),
                     boundedQueueSize );
 
-            runner.executeWorkload();
+            runner.getFuture().get();
 
             WorkloadResultsSnapshot workloadResults = metricsService.getWriter().results();
 
@@ -290,21 +293,23 @@ public class WorkloadRunnerTest
     @Test
     public void shouldRunReadWriteLdbcWorkloadWithNothingDbAndReturnExpectedMetrics()
             throws InterruptedException, DbException, WorkloadException, IOException, MetricsCollectionException,
-            CompletionTimeException, DriverConfigurationException
+            CompletionTimeException, DriverConfigurationException, ExecutionException
     {
         List<Integer> threadCounts = Lists.newArrayList( 1, 2, 4, 8 );
         long operationCount = 10000;
         for ( int threadCount : threadCounts )
         {
-            doShouldRunReadWriteLdbcWorkloadWithNothingDbAndReturnExpectedMetricsIncludingResultsLog( threadCount,
-                    operationCount );
+            doShouldRunReadWriteLdbcWorkloadWithNothingDbAndReturnExpectedMetricsIncludingResultsLog(
+                    threadCount,
+                    operationCount
+            );
         }
     }
 
     public void doShouldRunReadWriteLdbcWorkloadWithNothingDbAndReturnExpectedMetricsIncludingResultsLog(
             int threadCount, long operationCount )
             throws InterruptedException, DbException, WorkloadException, IOException, MetricsCollectionException,
-            CompletionTimeException, DriverConfigurationException
+            CompletionTimeException, DriverConfigurationException, ExecutionException
     {
         ControlService controlService = null;
         Db db = null;
@@ -426,7 +431,7 @@ public class WorkloadRunnerTest
                     controlService.configuration().ignoreScheduledStartTimes(),
                     boundedQueueSize );
 
-            runner.executeWorkload();
+            runner.getFuture().get();
 
             WorkloadResultsSnapshot workloadResults = metricsService.getWriter().results();
 
@@ -508,7 +513,7 @@ public class WorkloadRunnerTest
     public void
     shouldRunReadOnlyLdbcWorkloadWithNothingDbWhileIgnoringScheduledStartTimesUsingSynchronizedCompletionTimeServiceAndReturnExpectedMetrics()
             throws InterruptedException, DbException, WorkloadException, IOException, MetricsCollectionException,
-            CompletionTimeException, DriverConfigurationException
+            CompletionTimeException, DriverConfigurationException, ExecutionException
     {
         List<Integer> threadCounts = Lists.newArrayList( 1, 2, 4 );
         long operationCount = 1000000;
@@ -521,7 +526,11 @@ public class WorkloadRunnerTest
             try
             {
                 doShouldRunReadOnlyLdbcWorkloadWithNothingDbWhileIgnoringScheduledStartTimesAndReturnExpectedMetrics(
-                        threadCount, operationCount, completionTimeService, errorReporter );
+                        threadCount,
+                        operationCount,
+                        completionTimeService,
+                        errorReporter
+                );
             }
             finally
             {
@@ -534,7 +543,7 @@ public class WorkloadRunnerTest
     public void
     shouldRunReadOnlyLdbcWorkloadWithNothingDbWhileIgnoringScheduledStartTimesUsingThreadedCompletionTimeServiceAndReturnExpectedMetrics()
             throws InterruptedException, DbException, WorkloadException, IOException, MetricsCollectionException,
-            CompletionTimeException, DriverConfigurationException
+            CompletionTimeException, DriverConfigurationException, ExecutionException
     {
         List<Integer> threadCounts = Lists.newArrayList( 1, 2, 4 );
         long operationCount = 1000000;
@@ -548,7 +557,11 @@ public class WorkloadRunnerTest
             try
             {
                 doShouldRunReadOnlyLdbcWorkloadWithNothingDbWhileIgnoringScheduledStartTimesAndReturnExpectedMetrics(
-                        threadCount, operationCount, completionTimeService, errorReporter );
+                        threadCount,
+                        operationCount,
+                        completionTimeService,
+                        errorReporter
+                );
             }
             finally
             {
@@ -563,7 +576,7 @@ public class WorkloadRunnerTest
             CompletionTimeService completionTimeService,
             ConcurrentErrorReporter errorReporter )
             throws InterruptedException, DbException, WorkloadException, IOException, MetricsCollectionException,
-            CompletionTimeException, DriverConfigurationException
+            CompletionTimeException, DriverConfigurationException, ExecutionException
     {
         ControlService controlService = null;
         Db db = null;
@@ -676,7 +689,7 @@ public class WorkloadRunnerTest
                     controlService.configuration().ignoreScheduledStartTimes(),
                     boundedQueueSize );
 
-            runner.executeWorkload();
+            runner.getFuture().get();
 
             WorkloadResultsSnapshot workloadResults = metricsService.getWriter().results();
             SimpleDetailedWorkloadMetricsFormatter metricsFormatter = new SimpleDetailedWorkloadMetricsFormatter();
