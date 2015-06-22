@@ -3,7 +3,6 @@ package com.ldbc.driver.runtime;
 import com.ldbc.driver.Db;
 import com.ldbc.driver.WorkloadException;
 import com.ldbc.driver.WorkloadStreams;
-import com.ldbc.driver.control.LoggingService;
 import com.ldbc.driver.control.LoggingServiceFactory;
 import com.ldbc.driver.runtime.coordination.CompletionTimeException;
 import com.ldbc.driver.runtime.coordination.CompletionTimeService;
@@ -17,38 +16,29 @@ import com.ldbc.driver.runtime.executor.ThreadPoolOperationExecutor;
 import com.ldbc.driver.runtime.metrics.MetricsCollectionException;
 import com.ldbc.driver.runtime.metrics.MetricsService;
 import com.ldbc.driver.runtime.scheduling.Spinner;
-import com.ldbc.driver.temporal.TemporalUtil;
 import com.ldbc.driver.temporal.TimeSource;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicReference;
 
 import static com.ldbc.driver.WorkloadStreams.WorkloadStreamDefinition;
 
 public class WorkloadRunner
 {
-    public static final long RUNNER_POLLING_INTERVAL_AS_MILLI = 100;
+    public static final long RUNNER_POLLING_INTERVAL_AS_MILLI = 500;
     private static final LocalCompletionTimeWriter DUMMY_LOCAL_COMPLETION_TIME_WRITER =
             new DummyLocalCompletionTimeWriter();
 
-    private final Spinner spinner;
+    private final WorkloadRunnerFuture workloadRunnerFuture;
 
-    private WorkloadStatusThread workloadStatusThread;
-
-    private final ConcurrentErrorReporter errorReporter;
-
-    private final OperationExecutor executorForAsynchronous;
-    private final List<OperationExecutor> executorsForBlocking = new ArrayList<>();
-
-    private final OperationStreamExecutorService asynchronousStreamExecutorService;
-    private final List<OperationStreamExecutorService> blockingStreamExecutorServices = new ArrayList<>();
-
-    private final long statusDisplayIntervalAsMilli;
-
-    public WorkloadRunner( TimeSource timeSource,
+    public WorkloadRunner(
+            TimeSource timeSource,
             Db db,
             WorkloadStreams workloadStreams,
             MetricsService metricsService,
@@ -61,246 +51,493 @@ public class WorkloadRunner
             boolean ignoreScheduleStartTimes,
             int operationHandlerExecutorsBoundedQueueSize ) throws WorkloadException, MetricsCollectionException
     {
-        this.errorReporter = errorReporter;
-        this.statusDisplayIntervalAsMilli = statusDisplayIntervalAsSeconds;
+        this.workloadRunnerFuture = new WorkloadRunnerFuture(
+                timeSource,
+                db,
+                workloadStreams,
+                metricsService,
+                errorReporter,
+                completionTimeService,
+                loggingServiceFactory,
+                threadCount,
+                statusDisplayIntervalAsSeconds,
+                spinnerSleepDurationAsMilli,
+                ignoreScheduleStartTimes,
+                operationHandlerExecutorsBoundedQueueSize
+        );
+    }
 
-        this.spinner = new Spinner( timeSource, spinnerSleepDurationAsMilli, ignoreScheduleStartTimes );
+    public Future<WorkloadRunnerResult> executeWorkload()
+    {
+        workloadRunnerFuture.startThread();
+        return workloadRunnerFuture;
+    }
 
-        if ( statusDisplayIntervalAsSeconds > 0 )
+    private static class WorkloadRunnerFuture implements Future<WorkloadRunnerResult>
+    {
+        private final WorkloadRunnerThread workloadRunnerThread;
+        private final TimeSource timeSource;
+        private final ConcurrentErrorReporter errorReporter;
+        private boolean isCancelled = false;
+        private boolean isDone = false;
+
+        private WorkloadRunnerFuture(
+                TimeSource timeSource,
+                Db db,
+                WorkloadStreams workloadStreams,
+                MetricsService metricsService,
+                ConcurrentErrorReporter errorReporter,
+                CompletionTimeService completionTimeService,
+                LoggingServiceFactory loggingServiceFactory,
+                int threadCount,
+                long statusDisplayIntervalAsSeconds,
+                long spinnerSleepDurationAsMilli,
+                boolean ignoreScheduleStartTimes,
+                int operationHandlerExecutorsBoundedQueueSize ) throws MetricsCollectionException, WorkloadException
         {
-            this.workloadStatusThread = new WorkloadStatusThread(
-                    TimeUnit.SECONDS.toMillis( statusDisplayIntervalAsSeconds ),
-                    metricsService.getWriter(),
+            this.workloadRunnerThread = new WorkloadRunnerThread(
+                    timeSource,
+                    db,
+                    workloadStreams,
+                    metricsService,
                     errorReporter,
                     completionTimeService,
-                    loggingServiceFactory
+                    loggingServiceFactory,
+                    threadCount,
+                    statusDisplayIntervalAsSeconds,
+                    spinnerSleepDurationAsMilli,
+                    ignoreScheduleStartTimes,
+                    operationHandlerExecutorsBoundedQueueSize
             );
+            this.timeSource = timeSource;
+            this.errorReporter = errorReporter;
         }
-        // only create a local completion time writer for an executor if it contains at least one READ_WRITE operation
-        // otherwise it will cause completion time to stall
-        WorkloadStreamDefinition asynchronousStream = workloadStreams.asynchronousStream();
-        LocalCompletionTimeWriter localCompletionTimeWriterForAsynchronous;
-        try
-        {
-            localCompletionTimeWriterForAsynchronous = (asynchronousStream.dependencyOperations().hasNext())
-                                                       ? completionTimeService.newLocalCompletionTimeWriter()
-                                                       : DUMMY_LOCAL_COMPLETION_TIME_WRITER;
-        }
-        catch ( CompletionTimeException e )
-        {
-            throw new WorkloadException( "Error while attempting to create local completion time writer", e );
-        }
-        this.executorForAsynchronous = new ThreadPoolOperationExecutor(
-                threadCount,
-                operationHandlerExecutorsBoundedQueueSize,
-                db,
-                asynchronousStream,
-                localCompletionTimeWriterForAsynchronous,
-                completionTimeService,
-                spinner,
-                timeSource,
-                errorReporter,
-                metricsService,
-                asynchronousStream.childOperationGenerator()
-        );
-        this.asynchronousStreamExecutorService = new OperationStreamExecutorService(
-                errorReporter,
-                asynchronousStream,
-                executorForAsynchronous,
-                localCompletionTimeWriterForAsynchronous
-        );
 
-        for ( WorkloadStreamDefinition blockingStream : workloadStreams.blockingStreamDefinitions() )
+        private void startThread()
         {
+            if ( false == workloadRunnerThread.state().equals( WorkloadRunnerThreadState.NOT_STARTED ) )
+            {
+                workloadRunnerThread.start();
+                while ( workloadRunnerThread.state().equals( WorkloadRunnerThreadState.NOT_STARTED ) )
+                {
+                    Spinner.powerNap( RUNNER_POLLING_INTERVAL_AS_MILLI );
+                }
+            }
+        }
+
+        @Override
+        public boolean cancel( boolean mayInterruptIfRunning )
+        {
+            // After this method returns, subsequent calls to isDone will always return true
+            // Subsequent calls to isCancelled will always return true if this method returned true
+
+            switch ( workloadRunnerThread.state() )
+            {
+            case NOT_STARTED:
+                // Does not make sense to terminate a task that has not yet started
+                // This task should never run
+                isDone = true;
+                return false;
+            case RUNNING:
+                if ( isCancelled )
+                {
+                    // Fail because task has already been cancelled
+                    return false;
+                }
+                else
+                {
+                    isCancelled = true;
+                    errorReporter.reportError( this, "Workload execution was manually terminated" );
+                    try
+                    {
+                        waitForCompletion( Long.MAX_VALUE );
+                    }
+                    catch ( TimeoutException e )
+                    {
+                        // do nothing
+                    }
+                    isDone = true;
+                    return isCancelled;
+                }
+            case COMPLETED_SUCCESSFULLY:
+                // Fail because task has already completed
+                return false;
+            case COMPLETED_FAILED:
+                // Fail because task has already completed
+                return false;
+            default:
+                // Fail because task has already completed
+                throw new IllegalStateException(
+                        String.format( "Unrecognized %s: %s",
+                                workloadRunnerThread.state().getClass().getSimpleName(),
+                                workloadRunnerThread.state() )
+                );
+            }
+        }
+
+        @Override
+        public boolean isCancelled()
+        {
+            return isCancelled;
+        }
+
+        @Override
+        public boolean isDone()
+        {
+            if ( false == isDone )
+            {
+                if ( workloadRunnerThread.state().equals( WorkloadRunnerThreadState.COMPLETED_FAILED ) ||
+                     workloadRunnerThread.state().equals( WorkloadRunnerThreadState.COMPLETED_SUCCESSFULLY ) )
+                {
+                    isDone = true;
+                }
+            }
+            return isDone;
+        }
+
+        @Override
+        public WorkloadRunnerResult get() throws InterruptedException, ExecutionException
+        {
+            if ( isCancelled || isDone )
+            {
+                throw new IllegalStateException( "Can not call method after future has been cancelled or completed" );
+            }
+            try
+            {
+                waitForCompletion( Long.MAX_VALUE );
+            }
+            catch ( TimeoutException e )
+            {
+                // do nothing
+            }
+            return workloadRunnerThread.result();
+
+        }
+
+        @Override
+        public WorkloadRunnerResult get( long timeout, TimeUnit unit )
+                throws InterruptedException, ExecutionException, TimeoutException
+        {
+            if ( isCancelled || isDone )
+            {
+                throw new IllegalStateException( "Can not call method after future has been cancelled or completed" );
+            }
+            long waitDurationMs = unit.toMillis( timeout );
+            waitForCompletion( waitDurationMs );
+            return workloadRunnerThread.result();
+        }
+
+        private void waitForCompletion( long waitDurationMs ) throws TimeoutException
+        {
+            long startTimeMs = timeSource.nowAsMilli();
+            while ( timeSource.nowAsMilli() - startTimeMs < waitDurationMs )
+            {
+                switch ( workloadRunnerThread.state() )
+                {
+                case NOT_STARTED:
+                    throw new IllegalStateException( String.format(
+                            "%s is in % state, but should have already started",
+                            WorkloadRunnerThread.class.getSimpleName(),
+                            WorkloadRunnerThreadState.NOT_STARTED.name()
+                    ) );
+                case RUNNING:
+                    Spinner.powerNap( RUNNER_POLLING_INTERVAL_AS_MILLI );
+                    continue;
+                case COMPLETED_SUCCESSFULLY:
+                    return;
+                case COMPLETED_FAILED:
+                    return;
+                default:
+                    throw new IllegalStateException( String.format(
+                            "Unknown %s: %s",
+                            WorkloadRunnerThreadState.class.getSimpleName(),
+                            WorkloadRunnerThreadState.NOT_STARTED.name()
+                    ) );
+                }
+            }
+            throw new TimeoutException( "Workload execution did not complete in time" );
+        }
+    }
+
+    private static enum WorkloadRunnerThreadState
+    {
+        NOT_STARTED,
+        RUNNING,
+        COMPLETED_SUCCESSFULLY,
+        COMPLETED_FAILED
+    }
+
+    private static class WorkloadRunnerThread extends Thread
+    {
+        private final Spinner spinner;
+        private WorkloadStatusThread workloadStatusThread;
+        private final ConcurrentErrorReporter errorReporter;
+        private final OperationExecutor executorForAsynchronous;
+        private final List<OperationExecutor> executorsForBlocking = new ArrayList<>();
+        private final OperationStreamExecutorService asynchronousStreamExecutorService;
+        private final List<OperationStreamExecutorService> blockingStreamExecutorServices = new ArrayList<>();
+        private final long statusDisplayIntervalAsMilli;
+        private final AtomicReference<WorkloadRunnerThreadState> stateRef;
+        private final AtomicReference<WorkloadRunnerResult> resultRef;
+
+        public WorkloadRunnerThread( TimeSource timeSource,
+                Db db,
+                WorkloadStreams workloadStreams,
+                MetricsService metricsService,
+                ConcurrentErrorReporter errorReporter,
+                CompletionTimeService completionTimeService,
+                LoggingServiceFactory loggingServiceFactory,
+                int threadCount,
+                long statusDisplayIntervalAsSeconds,
+                long spinnerSleepDurationAsMilli,
+                boolean ignoreScheduleStartTimes,
+                int operationHandlerExecutorsBoundedQueueSize ) throws WorkloadException, MetricsCollectionException
+        {
+            this.errorReporter = errorReporter;
+            this.statusDisplayIntervalAsMilli = statusDisplayIntervalAsSeconds;
+
+            this.spinner = new Spinner( timeSource, spinnerSleepDurationAsMilli, ignoreScheduleStartTimes );
+
+            if ( statusDisplayIntervalAsSeconds > 0 )
+            {
+                this.workloadStatusThread = new WorkloadStatusThread(
+                        TimeUnit.SECONDS.toMillis( statusDisplayIntervalAsSeconds ),
+                        metricsService.getWriter(),
+                        errorReporter,
+                        completionTimeService,
+                        loggingServiceFactory
+                );
+            }
             // only create a local completion time writer for an executor if it contains at least one READ_WRITE
             // operation
             // otherwise it will cause completion time to stall
-            LocalCompletionTimeWriter localCompletionTimeWriterForBlocking;
+            WorkloadStreamDefinition asynchronousStream = workloadStreams.asynchronousStream();
+            LocalCompletionTimeWriter localCompletionTimeWriterForAsynchronous;
             try
             {
-                localCompletionTimeWriterForBlocking = (blockingStream.dependencyOperations().hasNext())
-                                                       ? completionTimeService.newLocalCompletionTimeWriter()
-                                                       : DUMMY_LOCAL_COMPLETION_TIME_WRITER;
+                localCompletionTimeWriterForAsynchronous = (asynchronousStream.dependencyOperations().hasNext())
+                                                           ? completionTimeService.newLocalCompletionTimeWriter()
+                                                           : DUMMY_LOCAL_COMPLETION_TIME_WRITER;
             }
             catch ( CompletionTimeException e )
             {
                 throw new WorkloadException( "Error while attempting to create local completion time writer", e );
             }
-            // TODO benchmark more to find out which policy is best Same Thread vs Single Thread
-            OperationExecutor executorForBlocking = new SameThreadOperationExecutor(
+            this.executorForAsynchronous = new ThreadPoolOperationExecutor(
+                    threadCount,
+                    operationHandlerExecutorsBoundedQueueSize,
                     db,
-                    blockingStream,
-                    localCompletionTimeWriterForBlocking,
+                    asynchronousStream,
+                    localCompletionTimeWriterForAsynchronous,
                     completionTimeService,
                     spinner,
                     timeSource,
                     errorReporter,
                     metricsService,
-                    blockingStream.childOperationGenerator()
+                    asynchronousStream.childOperationGenerator()
             );
-            this.executorsForBlocking.add( executorForBlocking );
-            this.blockingStreamExecutorServices.add(
-                    new OperationStreamExecutorService(
-                            errorReporter,
-                            blockingStream,
-                            executorForBlocking,
-                            localCompletionTimeWriterForBlocking
-                    )
+            this.asynchronousStreamExecutorService = new OperationStreamExecutorService(
+                    errorReporter,
+                    asynchronousStream,
+                    executorForAsynchronous,
+                    localCompletionTimeWriterForAsynchronous
             );
-        }
-    }
 
-    // TODO executeWorkload should return a result (e.g., Success/Fail, and ErrorType if Fail)
-    // TODO and then it does not need to throw an exception
-    public Future<WorkloadRunnerResult> executeWorkload() throws WorkloadException
-    {
-        if ( statusDisplayIntervalAsMilli > 0 )
-        {
-            workloadStatusThread.start();
+            for ( WorkloadStreamDefinition blockingStream : workloadStreams.blockingStreamDefinitions() )
+            {
+                // only create a local completion time writer for an executor if it contains at least one READ_WRITE
+                // operation
+                // otherwise it will cause completion time to stall
+                LocalCompletionTimeWriter localCompletionTimeWriterForBlocking;
+                try
+                {
+                    localCompletionTimeWriterForBlocking = (blockingStream.dependencyOperations().hasNext())
+                                                           ? completionTimeService.newLocalCompletionTimeWriter()
+                                                           : DUMMY_LOCAL_COMPLETION_TIME_WRITER;
+                }
+                catch ( CompletionTimeException e )
+                {
+                    throw new WorkloadException( "Error while attempting to create local completion time writer", e );
+                }
+                OperationExecutor executorForBlocking = new SameThreadOperationExecutor(
+                        db,
+                        blockingStream,
+                        localCompletionTimeWriterForBlocking,
+                        completionTimeService,
+                        spinner,
+                        timeSource,
+                        errorReporter,
+                        metricsService,
+                        blockingStream.childOperationGenerator()
+                );
+                this.executorsForBlocking.add( executorForBlocking );
+                this.blockingStreamExecutorServices.add(
+                        new OperationStreamExecutorService(
+                                errorReporter,
+                                blockingStream,
+                                executorForBlocking,
+                                localCompletionTimeWriterForBlocking
+                        )
+                );
+            }
+            this.stateRef = new AtomicReference<>( WorkloadRunnerThreadState.NOT_STARTED );
+            this.resultRef = new AtomicReference<>( null );
         }
 
-        AtomicBoolean[] executorFinishedFlags = new AtomicBoolean[blockingStreamExecutorServices.size() + 1];
-        executorFinishedFlags[0] = asynchronousStreamExecutorService.execute();
-        for ( int i = 0; i < blockingStreamExecutorServices.size(); i++ )
+        private WorkloadRunnerThreadState state()
         {
-            executorFinishedFlags[i + 1] = blockingStreamExecutorServices.get( i ).execute();
+            return this.stateRef.get();
         }
 
-        while ( true )
+        private WorkloadRunnerResult result()
         {
-            // Error encountered in one or more of the worker threads --> terminate run
+            return this.resultRef.get();
+        }
+
+        @Override
+        public void run()
+        {
+            if ( statusDisplayIntervalAsMilli > 0 )
+            {
+                workloadStatusThread.start();
+            }
+
+            AtomicBoolean[] executorFinishedFlags = new AtomicBoolean[blockingStreamExecutorServices.size() + 1];
+            executorFinishedFlags[0] = asynchronousStreamExecutorService.execute();
+            for ( int i = 0; i < blockingStreamExecutorServices.size(); i++ )
+            {
+                executorFinishedFlags[i + 1] = blockingStreamExecutorServices.get( i ).execute();
+            }
+
+            while ( true )
+            {
+                // Error encountered in one or more of the worker threads --> terminate run
+                if ( errorReporter.errorEncountered() )
+                {
+                    boolean forced = true;
+                    shutdownEverything( forced, errorReporter );
+                    stateRef.set( WorkloadRunnerThreadState.COMPLETED_FAILED );
+                }
+
+                // All executors have completed --> return
+                boolean allExecutorsHaveCompleted = true;
+                for ( int i = 0; i < executorFinishedFlags.length; i++ )
+                {
+                    if ( false == executorFinishedFlags[i].get() )
+                    {
+                        allExecutorsHaveCompleted = false;
+                        break;
+                    }
+                }
+                if ( allExecutorsHaveCompleted )
+                {
+                    break;
+                }
+
+                // Take short break between error & completion checks to reduce CPU utilization
+                Spinner.powerNap( RUNNER_POLLING_INTERVAL_AS_MILLI );
+            }
+
+            // One last check for errors encountered in any of the worker threads --> terminate run
             if ( errorReporter.errorEncountered() )
             {
                 boolean forced = true;
                 shutdownEverything( forced, errorReporter );
-                throw new WorkloadException( String.format( "Error encountered while running workload\n%s",
-                        errorReporter.toString() ) );
+                stateRef.set( WorkloadRunnerThreadState.COMPLETED_FAILED );
             }
 
-            // All executors have completed --> return
-            boolean allExecutorsHaveCompleted = true;
-            for ( int i = 0; i < executorFinishedFlags.length; i++ )
-            {
-                if ( false == executorFinishedFlags[i].get() )
-                {
-                    allExecutorsHaveCompleted = false;
-                    break;
-                }
-            }
-            if ( allExecutorsHaveCompleted )
-            {
-                break;
-            }
-
-            // Take short break between error & completion checks to reduce CPU utilization
-            Spinner.powerNap( RUNNER_POLLING_INTERVAL_AS_MILLI );
-        }
-
-        // One last check for errors encountered in any of the worker threads --> terminate run
-        if ( errorReporter.errorEncountered() )
-        {
-            boolean forced = true;
+            boolean forced = false;
             shutdownEverything( forced, errorReporter );
-            throw new WorkloadException(
-                    String.format( "Encountered error while running workload. Driver terminating.\n%s",
-                            errorReporter.toString() ) );
+
+            if ( errorReporter.errorEncountered() )
+            {
+                stateRef.set( WorkloadRunnerThreadState.COMPLETED_FAILED );
+            }
+            else
+            {
+                stateRef.set( WorkloadRunnerThreadState.COMPLETED_SUCCESSFULLY );
+            }
         }
 
-        boolean forced = false;
-        shutdownEverything( forced, errorReporter );
-
-        if ( errorReporter.errorEncountered() )
+        private void shutdownEverything( boolean forced, ConcurrentErrorReporter errorReporter )
         {
-            throw new WorkloadException( errorReporter.toString() );
-        }
-    }
+            // if forced shutdown (error) some handlers likely still running,
+            // but for now it does not matter as the process will terminate anyway
+            // (though when running test suite it can result in many running threads, making the tests much slower)
+            //
+            // if normal shutdown all executors have completed by this stage
+            long shutdownWait = (forced) ? 1 : OperationStreamExecutorService.SHUTDOWN_WAIT_TIMEOUT_AS_MILLI;
 
-    private void shutdownEverything( boolean forced, ConcurrentErrorReporter errorReporter )
-    {
-        // if forced shutdown (error) some handlers likely still running,
-        // but for now it does not matter as the process will terminate anyway
-        // (though when running test suite it can result in many running threads, making the tests much slower)
-        //
-        // if normal shutdown all executors have completed by this stage
-        long shutdownWait = (forced) ? 1 : OperationStreamExecutorService.SHUTDOWN_WAIT_TIMEOUT_AS_MILLI;
-
-        try
-        {
-            asynchronousStreamExecutorService.shutdown( shutdownWait );
-        }
-        catch ( OperationExecutorException e )
-        {
-            errorReporter.reportError(
-                    this,
-                    String.format( "Encountered error while shutting down %s\n%s\n",
-                            asynchronousStreamExecutorService.getClass().getSimpleName(),
-                            ConcurrentErrorReporter.stackTraceToString( e ) )
-            );
-        }
-
-        for ( OperationStreamExecutorService blockingStreamExecutorService : blockingStreamExecutorServices )
-        {
             try
             {
-                blockingStreamExecutorService.shutdown( shutdownWait );
+                asynchronousStreamExecutorService.shutdown( shutdownWait );
             }
             catch ( OperationExecutorException e )
             {
                 errorReporter.reportError(
                         this,
                         String.format( "Encountered error while shutting down %s\n%s\n",
-                                blockingStreamExecutorService.getClass().getSimpleName(),
+                                asynchronousStreamExecutorService.getClass().getSimpleName(),
                                 ConcurrentErrorReporter.stackTraceToString( e ) )
                 );
             }
-        }
 
-        try
-        {
-            // if forced shutdown (error) some handlers likely still running,
-            // but for now it does not matter as the process will terminate anyway
-            // (though when running test suite it can result in many running threads, making the tests much slower)
-            executorForAsynchronous.shutdown( shutdownWait );
-            for ( OperationExecutor executorForBlocking : executorsForBlocking )
+            for ( OperationStreamExecutorService blockingStreamExecutorService : blockingStreamExecutorServices )
             {
-                executorForBlocking.shutdown( shutdownWait );
+                try
+                {
+                    blockingStreamExecutorService.shutdown( shutdownWait );
+                }
+                catch ( OperationExecutorException e )
+                {
+                    errorReporter.reportError(
+                            this,
+                            String.format( "Encountered error while shutting down %s\n%s\n",
+                                    blockingStreamExecutorService.getClass().getSimpleName(),
+                                    ConcurrentErrorReporter.stackTraceToString( e ) )
+                    );
+                }
             }
-        }
-        catch ( OperationExecutorException e )
-        {
-            errorReporter.reportError(
-                    this,
-                    String.format( "Encountered error while shutting down\n%s",
-                            ConcurrentErrorReporter.stackTraceToString( e ) )
-            );
-        }
 
-        if ( statusDisplayIntervalAsMilli > 0 )
-        {
-            System.out.println( "Shutting down status thread..." );
-            workloadStatusThread.shutdown();
-            workloadStatusThread.interrupt();
             try
             {
-                workloadStatusThread.join();
+                // if forced shutdown (error) some handlers likely still running,
+                // but for now it does not matter as the process will terminate anyway
+                // (though when running test suite it can result in many running threads, making the tests much slower)
+                executorForAsynchronous.shutdown( shutdownWait );
+                for ( OperationExecutor executorForBlocking : executorsForBlocking )
+                {
+                    executorForBlocking.shutdown( shutdownWait );
+                }
             }
-            catch ( InterruptedException e )
+            catch ( OperationExecutorException e )
             {
-                // do nothing
+                errorReporter.reportError(
+                        this,
+                        String.format( "Encountered error while shutting down\n%s",
+                                ConcurrentErrorReporter.stackTraceToString( e ) )
+                );
+            }
+
+            if ( statusDisplayIntervalAsMilli > 0 )
+            {
+                System.out.println( "Shutting down status thread..." );
+                workloadStatusThread.shutdown();
+                workloadStatusThread.interrupt();
+                try
+                {
+                    workloadStatusThread.join();
+                }
+                catch ( InterruptedException e )
+                {
+                    // do nothing
+                }
             }
         }
     }
 
-    /*
-    TODO start workload runner
-    TODO poll for completion
-    TODO check status
-    TODO possibly cancel
-    TODO know when execution has completed
-     */
-
-    public static class WorkloadRunnerResult {
-        public enum ResultCode
-
+    public static class WorkloadRunnerResult
+    {
+        // TODO
     }
 }
