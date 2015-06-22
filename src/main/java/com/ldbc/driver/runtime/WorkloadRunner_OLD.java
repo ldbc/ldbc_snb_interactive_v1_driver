@@ -3,7 +3,6 @@ package com.ldbc.driver.runtime;
 import com.ldbc.driver.Db;
 import com.ldbc.driver.WorkloadException;
 import com.ldbc.driver.WorkloadStreams;
-import com.ldbc.driver.control.LoggingService;
 import com.ldbc.driver.control.LoggingServiceFactory;
 import com.ldbc.driver.runtime.coordination.CompletionTimeException;
 import com.ldbc.driver.runtime.coordination.CompletionTimeService;
@@ -17,18 +16,16 @@ import com.ldbc.driver.runtime.executor.ThreadPoolOperationExecutor;
 import com.ldbc.driver.runtime.metrics.MetricsCollectionException;
 import com.ldbc.driver.runtime.metrics.MetricsService;
 import com.ldbc.driver.runtime.scheduling.Spinner;
-import com.ldbc.driver.temporal.TemporalUtil;
 import com.ldbc.driver.temporal.TimeSource;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import static com.ldbc.driver.WorkloadStreams.WorkloadStreamDefinition;
 
-public class WorkloadRunner
+public class WorkloadRunner_OLD
 {
     public static final long RUNNER_POLLING_INTERVAL_AS_MILLI = 100;
     private static final LocalCompletionTimeWriter DUMMY_LOCAL_COMPLETION_TIME_WRITER =
@@ -48,7 +45,7 @@ public class WorkloadRunner
 
     private final long statusDisplayIntervalAsMilli;
 
-    public WorkloadRunner( TimeSource timeSource,
+    public WorkloadRunner_OLD( TimeSource timeSource,
             Db db,
             WorkloadStreams workloadStreams,
             MetricsService metricsService,
@@ -152,7 +149,7 @@ public class WorkloadRunner
 
     // TODO executeWorkload should return a result (e.g., Success/Fail, and ErrorType if Fail)
     // TODO and then it does not need to throw an exception
-    public Future<WorkloadRunnerResult> executeWorkload() throws WorkloadException
+    public void executeWorkload() throws WorkloadException
     {
         if ( statusDisplayIntervalAsMilli > 0 )
         {
@@ -289,18 +286,5 @@ public class WorkloadRunner
                 // do nothing
             }
         }
-    }
-
-    /*
-    TODO start workload runner
-    TODO poll for completion
-    TODO check status
-    TODO possibly cancel
-    TODO know when execution has completed
-     */
-
-    public static class WorkloadRunnerResult {
-        public enum ResultCode
-
     }
 }
