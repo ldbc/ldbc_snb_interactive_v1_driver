@@ -1,5 +1,9 @@
 package com.ldbc.driver.control;
 
+import com.ldbc.driver.runtime.metrics.SimpleDetailedWorkloadMetricsFormatter;
+import com.ldbc.driver.runtime.metrics.SimpleSummaryWorkloadMetricsFormatter;
+import com.ldbc.driver.runtime.metrics.WorkloadMetricsFormatter;
+import com.ldbc.driver.runtime.metrics.WorkloadResultsSnapshot;
 import com.ldbc.driver.runtime.metrics.WorkloadStatusSnapshot;
 import com.ldbc.driver.temporal.TemporalUtil;
 import org.apache.log4j.Logger;
@@ -15,12 +19,16 @@ public class Log4jLoggingService implements LoggingService
     private final Logger logger;
     private final TemporalUtil temporalUtil;
     private final boolean detailedStatus;
+    private final WorkloadMetricsFormatter summaryWorkloadMetricsFormatter;
+    private final WorkloadMetricsFormatter detailedWorkloadMetricsFormatter;
 
     public Log4jLoggingService( Class source, TemporalUtil temporalUtil, boolean detailedStatus )
     {
         this.logger = Logger.getLogger( source );
         this.temporalUtil = temporalUtil;
         this.detailedStatus = detailedStatus;
+        this.summaryWorkloadMetricsFormatter = new SimpleSummaryWorkloadMetricsFormatter();
+        this.detailedWorkloadMetricsFormatter = new SimpleDetailedWorkloadMetricsFormatter();
     }
 
     @Override
@@ -53,6 +61,18 @@ public class Log4jLoggingService implements LoggingService
                                recentThroughputAndDuration.throughput(),
                                recentThroughputAndDuration.duration() );
         logger.info( statusString );
+    }
+
+    @Override
+    public void summaryResult( WorkloadResultsSnapshot workloadResultsSnapshot )
+    {
+        logger.info( summaryWorkloadMetricsFormatter.format( workloadResultsSnapshot ) );
+    }
+
+    @Override
+    public void detailedResult( WorkloadResultsSnapshot workloadResultsSnapshot )
+    {
+        logger.info( detailedWorkloadMetricsFormatter.format( workloadResultsSnapshot ) );
     }
 
     private String formatWithoutGct( long operationCount, long runDurationAsMilli,

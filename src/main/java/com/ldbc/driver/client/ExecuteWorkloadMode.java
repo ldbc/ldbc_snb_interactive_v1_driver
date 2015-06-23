@@ -25,10 +25,7 @@ import com.ldbc.driver.runtime.metrics.JsonWorkloadMetricsFormatter;
 import com.ldbc.driver.runtime.metrics.MetricsCollectionException;
 import com.ldbc.driver.runtime.metrics.MetricsManager;
 import com.ldbc.driver.runtime.metrics.MetricsService;
-import com.ldbc.driver.runtime.metrics.SimpleDetailedWorkloadMetricsFormatter;
-import com.ldbc.driver.runtime.metrics.SimpleSummaryWorkloadMetricsFormatter;
 import com.ldbc.driver.runtime.metrics.ThreadedQueuedMetricsService;
-import com.ldbc.driver.runtime.metrics.WorkloadMetricsFormatter;
 import com.ldbc.driver.runtime.metrics.WorkloadResultsSnapshot;
 import com.ldbc.driver.runtime.metrics.WorkloadStatusSnapshot;
 import com.ldbc.driver.temporal.TemporalUtil;
@@ -447,10 +444,14 @@ public class ExecuteWorkloadMode implements ClientMode<Object>
         loggingService.info( "Exporting workload metrics..." );
         try
         {
-            WorkloadMetricsFormatter metricsFormatter = (warmup)
-                                                        ? new SimpleSummaryWorkloadMetricsFormatter()
-                                                        : new SimpleDetailedWorkloadMetricsFormatter();
-            MetricsManager.export( workloadResults, metricsFormatter, System.out, Charsets.UTF_8 );
+            if ( warmup )
+            {
+                loggingService.summaryResult( workloadResults );
+            }
+            else
+            {
+                loggingService.detailedResult( workloadResults );
+            }
             if ( null != controlService.configuration().resultDirPath() )
             {
                 File resultDir = new File( controlService.configuration().resultDirPath() );
