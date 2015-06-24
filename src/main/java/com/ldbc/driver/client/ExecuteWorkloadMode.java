@@ -34,12 +34,13 @@ import com.ldbc.driver.util.ClassLoaderHelper;
 import com.ldbc.driver.util.Tuple;
 
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
+
+import static java.lang.String.format;
 
 public class ExecuteWorkloadMode implements ClientMode<Object>
 {
@@ -108,9 +109,9 @@ public class ExecuteWorkloadMode implements ClientMode<Object>
         catch ( DbException e )
         {
             throw new ClientException(
-                    String.format( "Error loading DB class: %s", controlService.configuration().dbClassName() ), e );
+                    format( "Error loading DB class: %s", controlService.configuration().dbClassName() ), e );
         }
-        loggingService.info( String.format( "Loaded DB: %s", database.getClass().getName() ) );
+        loggingService.info( format( "Loaded DB: %s", database.getClass().getName() ) );
 
         loggingService.info( "Driver Configuration" );
         loggingService.info( controlService.toString() );
@@ -137,20 +138,19 @@ public class ExecuteWorkloadMode implements ClientMode<Object>
             catch ( DbException e )
             {
                 throw new ClientException(
-                        String.format( "Error reinitializing DB after warmup: %s", database.getClass().getName() ), e );
+                        format( "Error reinitializing DB after warmup: %s", database.getClass().getName() ), e );
             }
         }
         else
         {
-            loggingService.info( " ---------------------------------" );
-            loggingService.info( " --- No Warmup Phase Requested ---" );
-            loggingService.info( " ---------------------------------" );
-            loggingService.info( "" );
+            loggingService.info( " ---------------------------------\n"
+                                 + " --- No Warmup Phase Requested ---\n"
+                                 + " ---------------------------------\n" );
         }
 
-        loggingService.info( " -----------------" );
-        loggingService.info( " --- Run Phase ---" );
-        loggingService.info( " -----------------" );
+        loggingService.info( " -----------------\n"
+                             + " --- Run Phase ---\n"
+                             + " -----------------" );
         doInit( false );
         doExecute( false );
 
@@ -163,6 +163,7 @@ public class ExecuteWorkloadMode implements ClientMode<Object>
         {
             throw new ClientException( "Error shutting down database", e );
         }
+        loggingService.info( "Workload completed successfully" );
         return null;
     }
 
@@ -200,14 +201,14 @@ public class ExecuteWorkloadMode implements ClientMode<Object>
             catch ( IOException e )
             {
                 throw new ClientException(
-                        String.format( "Error while creating results log file: ", resultsLog.getAbsolutePath() ), e );
+                        format( "Error while creating results log file: ", resultsLog.getAbsolutePath() ), e );
             }
         }
 
         //  ==================
         //  ===  Workload  ===
         //  ==================
-        loggingService.info( String.format( "Scanning workload streams to calculate their limits..." ) );
+        loggingService.info( format( "Scanning workload streams to calculate their limits..." ) );
 
         long offset = (warmup)
                       ? 0
@@ -236,13 +237,13 @@ public class ExecuteWorkloadMode implements ClientMode<Object>
         }
         catch ( Exception e )
         {
-            throw new ClientException( String.format( "Error loading workload class: %s",
+            throw new ClientException( format( "Error loading workload class: %s",
                     controlService.configuration().workloadClassName() ), e );
         }
-        loggingService.info( String.format( "Loaded workload: %s", workload.getClass().getName() ) );
+        loggingService.info( format( "Loaded workload: %s", workload.getClass().getName() ) );
 
         loggingService.info(
-                String.format( "Retrieving operation stream for workload: %s", workload.getClass().getSimpleName() ) );
+                format( "Retrieving operation stream for workload: %s", workload.getClass().getSimpleName() ) );
         controlService.setWorkloadStartTimeAsMilli( System.currentTimeMillis() + TimeUnit.SECONDS.toMillis( 5 ) );
         WorkloadStreams timeMappedWorkloadStreams;
         try
@@ -310,14 +311,14 @@ public class ExecuteWorkloadMode implements ClientMode<Object>
         catch ( CompletionTimeException e )
         {
             throw new ClientException(
-                    String.format( "Error while instantiating Completion Time Service with peer IDs %s",
+                    format( "Error while instantiating Completion Time Service with peer IDs %s",
                             controlService.configuration().peerIds().toString() ), e );
         }
 
         //  ========================
         //  ===  Workload Runner  ==
         //  ========================
-        loggingService.info( String.format( "Instantiating %s", WorkloadRunner.class.getSimpleName() ) );
+        loggingService.info( format( "Instantiating %s", WorkloadRunner.class.getSimpleName() ) );
         try
         {
             int operationHandlerExecutorsBoundedQueueSize = DefaultQueues.DEFAULT_BOUND_1000;
@@ -337,7 +338,7 @@ public class ExecuteWorkloadMode implements ClientMode<Object>
         }
         catch ( Exception e )
         {
-            throw new ClientException( String.format( "Error instantiating %s", WorkloadRunner.class.getSimpleName() ),
+            throw new ClientException( format( "Error instantiating %s", WorkloadRunner.class.getSimpleName() ),
                     e );
         }
 
@@ -381,7 +382,7 @@ public class ExecuteWorkloadMode implements ClientMode<Object>
                 if ( false == globalCompletionTimeAdvancedToDesiredTime )
                 {
                     throw new ClientException(
-                            String.format(
+                            format(
                                     "Timed out [%s] while waiting for global completion time to advance to workload " +
                                     "start time\nCurrent GCT: %s\nWaiting For GCT: %s",
                                     globalCompletionTimeWaitTimeoutDurationAsMilli,
@@ -441,28 +442,31 @@ public class ExecuteWorkloadMode implements ClientMode<Object>
             throw new ClientException( "Error during shutdown of metrics collection service", e );
         }
 
-        loggingService.info( "Exporting workload metrics..." );
         try
         {
+            File resultDir = new File( controlService.configuration().resultDirPath() );
+            String resultsSummaryFilename;
             if ( warmup )
             {
                 loggingService.summaryResult( workloadResults );
+                resultsSummaryFilename = controlService.configuration().name() + "-WARMUP-" +
+                                         ThreadedQueuedMetricsService.RESULTS_METRICS_FILENAME_SUFFIX;
             }
             else
             {
                 loggingService.detailedResult( workloadResults );
+                resultsSummaryFilename = controlService.configuration().name() +
+                                         ThreadedQueuedMetricsService.RESULTS_METRICS_FILENAME_SUFFIX;
             }
             if ( null != controlService.configuration().resultDirPath() )
             {
-                File resultDir = new File( controlService.configuration().resultDirPath() );
-                String resultsSummaryFilename = (warmup)
-                                                ? controlService.configuration().name() + "-WARMUP-" +
-                                                  ThreadedQueuedMetricsService.RESULTS_METRICS_FILENAME_SUFFIX
-                                                : controlService.configuration().name() +
-                                                  ThreadedQueuedMetricsService.RESULTS_METRICS_FILENAME_SUFFIX;
                 File resultFile = new File( resultDir, resultsSummaryFilename );
-                MetricsManager.export( workloadResults, new JsonWorkloadMetricsFormatter(),
-                        new FileOutputStream( resultFile ), Charsets.UTF_8 );
+                loggingService.info( format( "Exporting workload metrics to %s...", resultFile.getAbsolutePath() ) );
+                MetricsManager.export( workloadResults,
+                        new JsonWorkloadMetricsFormatter(),
+                        new FileOutputStream( resultFile ),
+                        Charsets.UTF_8
+                );
                 String configurationFilename = (warmup)
                                                ? controlService.configuration().name() + "-WARMUP-" +
                                                  ThreadedQueuedMetricsService.RESULTS_CONFIGURATION_FILENAME_SUFFIX
@@ -476,7 +480,7 @@ public class ExecuteWorkloadMode implements ClientMode<Object>
                 catch ( DriverConfigurationException e )
                 {
                     throw new ClientException(
-                            String.format(
+                            format(
                                     "Encountered error while writing configuration to file.\nResult Dir: %s\nConfig " +
                                     "File: %s",
                                     resultDir.getAbsolutePath(),
@@ -490,17 +494,9 @@ public class ExecuteWorkloadMode implements ClientMode<Object>
                 }
             }
         }
-        catch ( MetricsCollectionException e )
+        catch ( Exception e )
         {
             throw new ClientException( "Could not export workload metrics", e );
-        }
-        catch ( FileNotFoundException e )
-        {
-            throw new ClientException( "Error encountered while trying to write results", e );
-        }
-        catch ( IOException e )
-        {
-            throw new ClientException( "Error encountered while trying to write results", e );
         }
     }
 }
