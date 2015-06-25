@@ -122,10 +122,9 @@ public class ExecuteWorkloadMode implements ClientMode<Object>
     {
         if ( controlService.configuration().warmupCount() > 0 )
         {
-            loggingService.info( " --------------------" );
-            loggingService.info( " --- Warmup Phase ---" );
-            loggingService.info( " --------------------" );
-            loggingService.info( "" );
+            loggingService.info( " --------------------\n"
+                                 + " --- Warmup Phase ---\n"
+                                 + " --------------------\n" );
             doInit( true );
             doExecute( true );
             try
@@ -201,7 +200,9 @@ public class ExecuteWorkloadMode implements ClientMode<Object>
             catch ( IOException e )
             {
                 throw new ClientException(
-                        format( "Error while creating results log file: ", resultsLog.getAbsolutePath() ), e );
+                        format( "Error while creating results log file: ", resultsLog.getAbsolutePath() ),
+                        e
+                );
             }
         }
 
