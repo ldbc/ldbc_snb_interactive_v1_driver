@@ -4,7 +4,8 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
-public interface DriverConfiguration {
+public interface DriverConfiguration
+{
     String name();
 
     String dbClassName();
@@ -47,13 +48,16 @@ public interface DriverConfiguration {
 
     String toPropertiesString() throws DriverConfigurationException;
 
-    Map<String, String> asMap();
+    Map<String,String> asMap();
 
-    DriverConfiguration applyArg(String argument, String newValue) throws DriverConfigurationException;
+    DriverConfiguration applyArgs( DriverConfiguration newConfiguration ) throws DriverConfigurationException;
 
-    DriverConfiguration applyArgs(Map<String, String> newMap) throws DriverConfigurationException;
+    DriverConfiguration applyArg( String argument, String newValue ) throws DriverConfigurationException;
 
-    public interface ValidationParamOptions {
+    DriverConfiguration applyArgs( Map<String,String> newMap ) throws DriverConfigurationException;
+
+    public interface ValidationParamOptions
+    {
         public String filePath();
 
         public int validationSetSize();
