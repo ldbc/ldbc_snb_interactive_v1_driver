@@ -163,7 +163,7 @@ public class ConsoleAndFileDriverConfiguration implements DriverConfiguration
 
     public static final String SPINNER_SLEEP_DURATION_ARG = "sw";
     private static final String SPINNER_SLEEP_DURATION_ARG_LONG = "spinner_wait_duration";
-    public static final long SPINNER_SLEEP_DURATION_DEFAULT = 0;
+    public static final long SPINNER_SLEEP_DURATION_DEFAULT = 1;
     public static final String SPINNER_SLEEP_DURATION_DEFAULT_STRING = Long.toString( SPINNER_SLEEP_DURATION_DEFAULT );
     private static final String SPINNER_SLEEP_DURATION_DESCRIPTION =
             "sleep duration (ms) injected into busy wait loops (to reduce CPU consumption)";
