@@ -90,7 +90,7 @@ public class ConsoleAndFileDriverConfiguration implements DriverConfiguration
 
     public static final String RESULTS_LOG_ARG = "rl";
     public static final String RESULTS_LOG_ARG_LONG = "results_log";
-    public static final boolean RESULTS_LOG_DEFAULT = false;
+    public static final boolean RESULTS_LOG_DEFAULT = true;
     public static final String RESULTS_LOG_DEFAULT_STRING = Boolean.toString( RESULTS_LOG_DEFAULT );
     private static final String RESULTS_LOG_DESCRIPTION =
             "create a csv file containing simple data about the execution of every operation in the workload";
