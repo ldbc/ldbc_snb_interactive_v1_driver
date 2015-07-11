@@ -56,7 +56,7 @@ import static org.hamcrest.Matchers.greaterThanOrEqualTo;
 import static org.hamcrest.Matchers.lessThanOrEqualTo;
 import static org.junit.Assert.assertThat;
 
-public class LdbcSnbInteractiveWorkloadTest
+public class LdbcSnbBiWorkloadTest
 {
     @Rule
     public TemporaryFolder temporaryFolder = new TemporaryFolder();

@@ -36,7 +36,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
-public class LdbcSnbInteractiveWorkloadPerformanceTest
+public class LdbcSnbBiWorkloadPerformanceTest
 {
     private static final TemporalUtil TEMPORAL_UTIL = new TemporalUtil();
     @Rule

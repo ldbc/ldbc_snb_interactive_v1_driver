@@ -1,0 +1,24 @@
+q1 - date
+q2 - date a, date b
+q3 - date a, date b
+q4 - country
+q5 - country
+q6 - tag
+q7 - tag
+q8 - tag
+q9 - tagclass
+q10 - tag a, tag b
+q11 - keyword, country
+q12 - date
+q13 - country
+q14 - date
+q15 - country
+q16 - tag class, country
+q17 - country
+q18 - date
+q19 - tagclass a, tagclass b
+q20 - none currently
+q21 - country
+q22 - country a, country b
+q23 - country
+q24 - tagclass
