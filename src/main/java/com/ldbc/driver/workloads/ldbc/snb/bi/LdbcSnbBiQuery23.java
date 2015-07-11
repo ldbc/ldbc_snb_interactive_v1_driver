@@ -5,15 +5,15 @@ import com.ldbc.driver.SerializingMarshallingException;
 
 import java.util.List;
 
-public class LdbcSnbBiQuery4 extends Operation<List<LdbcSnbBiQuery5Result>>
+public class LdbcSnbBiQuery23 extends Operation<List<LdbcSnbBiQuery23Result>>
 {
-    public static final int TYPE = 4;
+    public static final int TYPE = 23;
     // TODO
     public static final int DEFAULT_LIMIT = 20;
     private final String country;
     private final int limit;
 
-    public LdbcSnbBiQuery4( String country, int limit )
+    public LdbcSnbBiQuery23( String country, int limit )
     {
         this.country = country;
         this.limit = limit;
@@ -32,7 +32,7 @@ public class LdbcSnbBiQuery4 extends Operation<List<LdbcSnbBiQuery5Result>>
     @Override
     public String toString()
     {
-        return "LdbcSnbBiQuery4{" +
+        return "LdbcSnbBiQuery23{" +
                "country='" + country + '\'' +
                ", limit=" + limit +
                '}';
@@ -46,7 +46,7 @@ public class LdbcSnbBiQuery4 extends Operation<List<LdbcSnbBiQuery5Result>>
         if ( o == null || getClass() != o.getClass() )
         { return false; }
 
-        LdbcSnbBiQuery4 that = (LdbcSnbBiQuery4) o;
+        LdbcSnbBiQuery23 that = (LdbcSnbBiQuery23) o;
 
         if ( limit != that.limit )
         { return false; }
@@ -63,7 +63,8 @@ public class LdbcSnbBiQuery4 extends Operation<List<LdbcSnbBiQuery5Result>>
     }
 
     @Override
-    public List<LdbcSnbBiQuery5Result> marshalResult( String serializedResults ) throws SerializingMarshallingException
+    public List<LdbcSnbBiQuery23Result> marshalResult( String serializedResults ) throws
+            SerializingMarshallingException
     {
         // TODO
         throw new UnsupportedOperationException();

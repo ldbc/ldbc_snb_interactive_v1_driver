@@ -2,30 +2,120 @@ package com.ldbc.driver.workloads.ldbc.snb.bi;
 
 public class LdbcSnbBiQuery1Result
 {
-    public LdbcSnbBiQuery1Result()
+    private final int year;
+    private final boolean isReply;
+    private final int size;
+    private final int count;
+    private final int averageLength;
+    private final int total;
+    private final double percent;
+
+    public LdbcSnbBiQuery1Result(
+            int year,
+            boolean isReply,
+            int size,
+            int count,
+            int averageLength,
+            int total,
+            double percent )
     {
-        // TODO
-        throw new UnsupportedOperationException();
+        this.year = year;
+        this.isReply = isReply;
+        this.size = size;
+        this.count = count;
+        this.averageLength = averageLength;
+        this.total = total;
+        this.percent = percent;
     }
 
-    @Override
-    public boolean equals( Object o )
+    public int year()
     {
-        // TODO
-        throw new UnsupportedOperationException();
+        return year;
     }
 
-    @Override
-    public int hashCode()
+    public boolean isReply()
     {
-        // TODO
-        throw new UnsupportedOperationException();
+        return isReply;
+    }
+
+    public int size()
+    {
+        return size;
+    }
+
+    public int count()
+    {
+        return count;
+    }
+
+    public int averageLength()
+    {
+        return averageLength;
+    }
+
+    public int total()
+    {
+        return total;
+    }
+
+    public double percent()
+    {
+        return percent;
     }
 
     @Override
     public String toString()
     {
-        // TODO
-        throw new UnsupportedOperationException();
+        return "LdbcSnbBiQuery1Result{" +
+               "year=" + year +
+               ", isReply=" + isReply +
+               ", size=" + size +
+               ", count=" + count +
+               ", averageLength=" + averageLength +
+               ", total=" + total +
+               ", percent=" + percent +
+               '}';
+    }
+
+    @Override
+    public boolean equals( Object o )
+    {
+        if ( this == o )
+        { return true; }
+        if ( o == null || getClass() != o.getClass() )
+        { return false; }
+
+        LdbcSnbBiQuery1Result that = (LdbcSnbBiQuery1Result) o;
+
+        if ( year != that.year )
+        { return false; }
+        if ( isReply != that.isReply )
+        { return false; }
+        if ( size != that.size )
+        { return false; }
+        if ( count != that.count )
+        { return false; }
+        if ( averageLength != that.averageLength )
+        { return false; }
+        if ( total != that.total )
+        { return false; }
+        return Double.compare( that.percent, percent ) == 0;
+
+    }
+
+    @Override
+    public int hashCode()
+    {
+        int result;
+        long temp;
+        result = year;
+        result = 31 * result + (isReply ? 1 : 0);
+        result = 31 * result + size;
+        result = 31 * result + count;
+        result = 31 * result + averageLength;
+        result = 31 * result + total;
+        temp = Double.doubleToLongBits( percent );
+        result = 31 * result + (int) (temp ^ (temp >>> 32));
+        return result;
     }
 }

@@ -5,23 +5,23 @@ import com.ldbc.driver.SerializingMarshallingException;
 
 import java.util.List;
 
-public class LdbcSnbBiQuery4 extends Operation<List<LdbcSnbBiQuery5Result>>
+public class LdbcSnbBiQuery18 extends Operation<List<LdbcSnbBiQuery18Result>>
 {
-    public static final int TYPE = 4;
+    public static final int TYPE = 18;
     // TODO
     public static final int DEFAULT_LIMIT = 20;
-    private final String country;
+    private final long date;
     private final int limit;
 
-    public LdbcSnbBiQuery4( String country, int limit )
+    public LdbcSnbBiQuery18( long date, int limit )
     {
-        this.country = country;
+        this.date = date;
         this.limit = limit;
     }
 
-    public String country()
+    public long date()
     {
-        return country;
+        return date;
     }
 
     public int limit()
@@ -32,8 +32,8 @@ public class LdbcSnbBiQuery4 extends Operation<List<LdbcSnbBiQuery5Result>>
     @Override
     public String toString()
     {
-        return "LdbcSnbBiQuery4{" +
-               "country='" + country + '\'' +
+        return "LdbcSnbBiQuery18{" +
+               "date=" + date +
                ", limit=" + limit +
                '}';
     }
@@ -46,24 +46,24 @@ public class LdbcSnbBiQuery4 extends Operation<List<LdbcSnbBiQuery5Result>>
         if ( o == null || getClass() != o.getClass() )
         { return false; }
 
-        LdbcSnbBiQuery4 that = (LdbcSnbBiQuery4) o;
+        LdbcSnbBiQuery18 that = (LdbcSnbBiQuery18) o;
 
-        if ( limit != that.limit )
+        if ( date != that.date )
         { return false; }
-        return !(country != null ? !country.equals( that.country ) : that.country != null);
+        return limit == that.limit;
 
     }
 
     @Override
     public int hashCode()
     {
-        int result = country != null ? country.hashCode() : 0;
+        int result = (int) (date ^ (date >>> 32));
         result = 31 * result + limit;
         return result;
     }
 
     @Override
-    public List<LdbcSnbBiQuery5Result> marshalResult( String serializedResults ) throws SerializingMarshallingException
+    public List<LdbcSnbBiQuery18Result> marshalResult( String serializedResults ) throws SerializingMarshallingException
     {
         // TODO
         throw new UnsupportedOperationException();

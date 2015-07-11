@@ -5,23 +5,30 @@ import com.ldbc.driver.SerializingMarshallingException;
 
 import java.util.List;
 
-public class LdbcSnbBiQuery4 extends Operation<List<LdbcSnbBiQuery5Result>>
+public class LdbcSnbBiQuery22 extends Operation<List<LdbcSnbBiQuery22Result>>
 {
-    public static final int TYPE = 4;
+    public static final int TYPE = 22;
     // TODO
     public static final int DEFAULT_LIMIT = 20;
-    private final String country;
+    private final String countryA;
+    private final String countryB;
     private final int limit;
 
-    public LdbcSnbBiQuery4( String country, int limit )
+    public LdbcSnbBiQuery22( String countryA, String countryB, int limit )
     {
-        this.country = country;
+        this.countryA = countryA;
+        this.countryB = countryB;
         this.limit = limit;
     }
 
-    public String country()
+    public String countryA()
     {
-        return country;
+        return countryA;
+    }
+
+    public String countryB()
+    {
+        return countryB;
     }
 
     public int limit()
@@ -32,8 +39,9 @@ public class LdbcSnbBiQuery4 extends Operation<List<LdbcSnbBiQuery5Result>>
     @Override
     public String toString()
     {
-        return "LdbcSnbBiQuery4{" +
-               "country='" + country + '\'' +
+        return "LdbcSnbBiQuery22{" +
+               "countryA='" + countryA + '\'' +
+               ", countryB='" + countryB + '\'' +
                ", limit=" + limit +
                '}';
     }
@@ -46,24 +54,28 @@ public class LdbcSnbBiQuery4 extends Operation<List<LdbcSnbBiQuery5Result>>
         if ( o == null || getClass() != o.getClass() )
         { return false; }
 
-        LdbcSnbBiQuery4 that = (LdbcSnbBiQuery4) o;
+        LdbcSnbBiQuery22 that = (LdbcSnbBiQuery22) o;
 
         if ( limit != that.limit )
         { return false; }
-        return !(country != null ? !country.equals( that.country ) : that.country != null);
+        if ( countryA != null ? !countryA.equals( that.countryA ) : that.countryA != null )
+        { return false; }
+        return !(countryB != null ? !countryB.equals( that.countryB ) : that.countryB != null);
 
     }
 
     @Override
     public int hashCode()
     {
-        int result = country != null ? country.hashCode() : 0;
+        int result = countryA != null ? countryA.hashCode() : 0;
+        result = 31 * result + (countryB != null ? countryB.hashCode() : 0);
         result = 31 * result + limit;
         return result;
     }
 
     @Override
-    public List<LdbcSnbBiQuery5Result> marshalResult( String serializedResults ) throws SerializingMarshallingException
+    public List<LdbcSnbBiQuery22Result> marshalResult( String serializedResults ) throws
+            SerializingMarshallingException
     {
         // TODO
         throw new UnsupportedOperationException();

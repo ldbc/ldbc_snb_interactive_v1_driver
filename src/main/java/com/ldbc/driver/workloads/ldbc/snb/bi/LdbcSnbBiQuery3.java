@@ -37,6 +37,16 @@ public class LdbcSnbBiQuery3 extends Operation<List<LdbcSnbBiQuery3Result>>
     }
 
     @Override
+    public String toString()
+    {
+        return "LdbcSnbBiQuery3{" +
+               "dateA=" + dateA +
+               ", dateB=" + dateB +
+               ", limit=" + limit +
+               '}';
+    }
+
+    @Override
     public boolean equals( Object o )
     {
         if ( this == o )

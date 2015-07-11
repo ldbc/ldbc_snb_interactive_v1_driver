@@ -2,30 +2,93 @@ package com.ldbc.driver.workloads.ldbc.snb.bi;
 
 public class LdbcSnbBiQuery4Result
 {
-    public LdbcSnbBiQuery4Result()
+    private final long forumId;
+    private final String title;
+    private final long creationDate;
+    private final long moderator;
+    private final int count;
+
+    public LdbcSnbBiQuery4Result(
+            long forumId,
+            String title,
+            long creationDate,
+            long moderator,
+            int count )
     {
-        // TODO
-        throw new UnsupportedOperationException();
+        this.forumId = forumId;
+        this.title = title;
+        this.creationDate = creationDate;
+        this.moderator = moderator;
+        this.count = count;
     }
 
-    @Override
-    public boolean equals( Object o )
+    public long forumId()
     {
-        // TODO
-        throw new UnsupportedOperationException();
+        return forumId;
     }
 
-    @Override
-    public int hashCode()
+    public String title()
     {
-        // TODO
-        throw new UnsupportedOperationException();
+        return title;
+    }
+
+    public long creationDate()
+    {
+        return creationDate;
+    }
+
+    public long moderator()
+    {
+        return moderator;
+    }
+
+    public int count()
+    {
+        return count;
     }
 
     @Override
     public String toString()
     {
-        // TODO
-        throw new UnsupportedOperationException();
+        return "LdbcSnbBiQuery4Result{" +
+               "forumId=" + forumId +
+               ", title='" + title + '\'' +
+               ", creationDate=" + creationDate +
+               ", moderator=" + moderator +
+               ", count=" + count +
+               '}';
+    }
+
+    @Override
+    public boolean equals( Object o )
+    {
+        if ( this == o )
+        { return true; }
+        if ( o == null || getClass() != o.getClass() )
+        { return false; }
+
+        LdbcSnbBiQuery4Result that = (LdbcSnbBiQuery4Result) o;
+
+        if ( forumId != that.forumId )
+        { return false; }
+        if ( creationDate != that.creationDate )
+        { return false; }
+        if ( moderator != that.moderator )
+        { return false; }
+        if ( count != that.count )
+        { return false; }
+        return !(title != null ? !title.equals( that.title ) : that.title != null);
+
+    }
+
+    @Override
+    public int hashCode()
+    {
+        int result = (int) (forumId ^ (forumId >>> 32));
+        result = 31 * result + (title != null ? title.hashCode() : 0);
+        result = 31 * result + (int) (creationDate ^ (creationDate >>> 32));
+        result = 31 * result + (int) (moderator ^ (moderator >>> 32));
+        result = 31 * result + count;
+        return result;
     }
 }
