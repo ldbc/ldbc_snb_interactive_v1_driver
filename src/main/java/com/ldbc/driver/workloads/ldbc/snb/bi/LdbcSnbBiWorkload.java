@@ -166,7 +166,7 @@ public class LdbcSnbBiWorkload extends Workload {
                                     longReadOperationEnableKey,
                                     LdbcSnbBiWorkloadConfiguration.ENABLE_SUFFIX
                             ),
-                            LdbcSnbBiWorkloadConfiguration.LDBC_SNB_INTERACTIVE_PARAM_NAME_PREFIX
+                            LdbcSnbBiWorkloadConfiguration.LDBC_SNB_BI_PARAM_NAME_PREFIX
                     );
             try {
                 Class longReadOperationClass = ClassLoaderHelper.loadClass(longReadOperationClassName);
@@ -190,7 +190,7 @@ public class LdbcSnbBiWorkload extends Workload {
                                     shortReadOperationEnableKey,
                                     LdbcSnbBiWorkloadConfiguration.ENABLE_SUFFIX
                             ),
-                            LdbcSnbBiWorkloadConfiguration.LDBC_SNB_INTERACTIVE_PARAM_NAME_PREFIX
+                            LdbcSnbBiWorkloadConfiguration.LDBC_SNB_BI_PARAM_NAME_PREFIX
                     );
             try {
                 Class shortReadOperationClass = ClassLoaderHelper.loadClass(shortReadOperationClassName);
@@ -223,7 +223,7 @@ public class LdbcSnbBiWorkload extends Workload {
                                     writeOperationEnableKey,
                                     LdbcSnbBiWorkloadConfiguration.ENABLE_SUFFIX
                             ),
-                            LdbcSnbBiWorkloadConfiguration.LDBC_SNB_INTERACTIVE_PARAM_NAME_PREFIX
+                            LdbcSnbBiWorkloadConfiguration.LDBC_SNB_BI_PARAM_NAME_PREFIX
                     );
             try {
                 Class writeOperationClass = ClassLoaderHelper.loadClass(writeOperationClassName);
