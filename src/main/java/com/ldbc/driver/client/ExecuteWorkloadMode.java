@@ -186,6 +186,7 @@ public class ExecuteWorkloadMode implements ClientMode<Object>
             File resultsLog = new File( resultDir, resultsLogFilename );
             try
             {
+                resultsLog.createNewFile();
                 csvResultsLogFileWriter =
                         new SimpleCsvFileWriter( resultsLog, SimpleCsvFileWriter.DEFAULT_COLUMN_SEPARATOR );
 
