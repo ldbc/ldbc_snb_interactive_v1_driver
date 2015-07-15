@@ -2,30 +2,28 @@ package com.ldbc.driver.workloads.ldbc.snb.bi;
 
 import com.google.common.collect.Lists;
 import com.ldbc.driver.Operation;
-import com.ldbc.driver.WorkloadException;
 import com.ldbc.driver.control.ConsoleAndFileDriverConfiguration;
 import com.ldbc.driver.control.DriverConfigurationException;
 import com.ldbc.driver.control.DriverConfigurationFileHelper;
 import com.ldbc.driver.util.MapUtils;
-import org.apache.commons.io.FileUtils;
 
 import java.io.File;
-import java.io.FilenameFilter;
 import java.io.IOException;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import static com.ldbc.driver.util.FileUtils.removeSuffix;
+
 public class LdbcSnbBiWorkloadConfiguration
 {
     public final static String LDBC_SNB_BI_PARAM_NAME_PREFIX = "ldbc.snb.bi.";
     // directory that contains the substitution parameters files
     public final static String PARAMETERS_DIRECTORY = LDBC_SNB_BI_PARAM_NAME_PREFIX + "parameters_dir";
-    public final static String LDBC_INTERACTIVE_PACKAGE_PREFIX =
-            removeSuffix( LdbcSnbBiQuery1.class.getName(), LdbcSnbBiQuery1.class.getSimpleName() );
+    public final static String LDBC_SNB_BI_PACKAGE_PREFIX = removeSuffix(
+            LdbcSnbBiQuery1.class.getName(), LdbcSnbBiQuery1.class.getSimpleName() );
 
     /*
      * Operation frequency
@@ -105,6 +103,88 @@ public class LdbcSnbBiWorkloadConfiguration
             READ_OPERATION_23_FREQUENCY_KEY,
             READ_OPERATION_24_FREQUENCY_KEY
     );
+
+    /*
+    * Operation Interleave
+    */
+    public final static String INTERLEAVE_SUFFIX = "_interleave";
+    public final static String READ_OPERATION_1_INTERLEAVE_KEY =
+            LDBC_SNB_BI_PARAM_NAME_PREFIX + LdbcSnbBiQuery1.class.getSimpleName() + INTERLEAVE_SUFFIX;
+    public final static String READ_OPERATION_2_INTERLEAVE_KEY =
+            LDBC_SNB_BI_PARAM_NAME_PREFIX + LdbcSnbBiQuery2.class.getSimpleName() + INTERLEAVE_SUFFIX;
+    public final static String READ_OPERATION_3_INTERLEAVE_KEY =
+            LDBC_SNB_BI_PARAM_NAME_PREFIX + LdbcSnbBiQuery3.class.getSimpleName() + INTERLEAVE_SUFFIX;
+    public final static String READ_OPERATION_4_INTERLEAVE_KEY =
+            LDBC_SNB_BI_PARAM_NAME_PREFIX + LdbcSnbBiQuery4.class.getSimpleName() + INTERLEAVE_SUFFIX;
+    public final static String READ_OPERATION_5_INTERLEAVE_KEY =
+            LDBC_SNB_BI_PARAM_NAME_PREFIX + LdbcSnbBiQuery5.class.getSimpleName() + INTERLEAVE_SUFFIX;
+    public final static String READ_OPERATION_6_INTERLEAVE_KEY =
+            LDBC_SNB_BI_PARAM_NAME_PREFIX + LdbcSnbBiQuery6.class.getSimpleName() + INTERLEAVE_SUFFIX;
+    public final static String READ_OPERATION_7_INTERLEAVE_KEY =
+            LDBC_SNB_BI_PARAM_NAME_PREFIX + LdbcSnbBiQuery7.class.getSimpleName() + INTERLEAVE_SUFFIX;
+    public final static String READ_OPERATION_8_INTERLEAVE_KEY =
+            LDBC_SNB_BI_PARAM_NAME_PREFIX + LdbcSnbBiQuery8.class.getSimpleName() + INTERLEAVE_SUFFIX;
+    public final static String READ_OPERATION_9_INTERLEAVE_KEY =
+            LDBC_SNB_BI_PARAM_NAME_PREFIX + LdbcSnbBiQuery9.class.getSimpleName() + INTERLEAVE_SUFFIX;
+    public final static String READ_OPERATION_10_INTERLEAVE_KEY =
+            LDBC_SNB_BI_PARAM_NAME_PREFIX + LdbcSnbBiQuery10.class.getSimpleName() + INTERLEAVE_SUFFIX;
+    public final static String READ_OPERATION_11_INTERLEAVE_KEY =
+            LDBC_SNB_BI_PARAM_NAME_PREFIX + LdbcSnbBiQuery11.class.getSimpleName() + INTERLEAVE_SUFFIX;
+    public final static String READ_OPERATION_12_INTERLEAVE_KEY =
+            LDBC_SNB_BI_PARAM_NAME_PREFIX + LdbcSnbBiQuery12.class.getSimpleName() + INTERLEAVE_SUFFIX;
+    public final static String READ_OPERATION_13_INTERLEAVE_KEY =
+            LDBC_SNB_BI_PARAM_NAME_PREFIX + LdbcSnbBiQuery13.class.getSimpleName() + INTERLEAVE_SUFFIX;
+    public final static String READ_OPERATION_14_INTERLEAVE_KEY =
+            LDBC_SNB_BI_PARAM_NAME_PREFIX + LdbcSnbBiQuery14.class.getSimpleName() + INTERLEAVE_SUFFIX;
+    public final static String READ_OPERATION_15_INTERLEAVE_KEY =
+            LDBC_SNB_BI_PARAM_NAME_PREFIX + LdbcSnbBiQuery15.class.getSimpleName() + INTERLEAVE_SUFFIX;
+    public final static String READ_OPERATION_16_INTERLEAVE_KEY =
+            LDBC_SNB_BI_PARAM_NAME_PREFIX + LdbcSnbBiQuery16.class.getSimpleName() + INTERLEAVE_SUFFIX;
+    public final static String READ_OPERATION_17_INTERLEAVE_KEY =
+            LDBC_SNB_BI_PARAM_NAME_PREFIX + LdbcSnbBiQuery17.class.getSimpleName() + INTERLEAVE_SUFFIX;
+    public final static String READ_OPERATION_18_INTERLEAVE_KEY =
+            LDBC_SNB_BI_PARAM_NAME_PREFIX + LdbcSnbBiQuery18.class.getSimpleName() + INTERLEAVE_SUFFIX;
+    public final static String READ_OPERATION_19_INTERLEAVE_KEY =
+            LDBC_SNB_BI_PARAM_NAME_PREFIX + LdbcSnbBiQuery19.class.getSimpleName() + INTERLEAVE_SUFFIX;
+    public final static String READ_OPERATION_20_INTERLEAVE_KEY =
+            LDBC_SNB_BI_PARAM_NAME_PREFIX + LdbcSnbBiQuery20.class.getSimpleName() + INTERLEAVE_SUFFIX;
+    public final static String READ_OPERATION_21_INTERLEAVE_KEY =
+            LDBC_SNB_BI_PARAM_NAME_PREFIX + LdbcSnbBiQuery21.class.getSimpleName() + INTERLEAVE_SUFFIX;
+    public final static String READ_OPERATION_22_INTERLEAVE_KEY =
+            LDBC_SNB_BI_PARAM_NAME_PREFIX + LdbcSnbBiQuery22.class.getSimpleName() + INTERLEAVE_SUFFIX;
+    public final static String READ_OPERATION_23_INTERLEAVE_KEY =
+            LDBC_SNB_BI_PARAM_NAME_PREFIX + LdbcSnbBiQuery23.class.getSimpleName() + INTERLEAVE_SUFFIX;
+    public final static String READ_OPERATION_24_INTERLEAVE_KEY =
+            LDBC_SNB_BI_PARAM_NAME_PREFIX + LdbcSnbBiQuery24.class.getSimpleName() + INTERLEAVE_SUFFIX;
+    public final static List<String> READ_OPERATION_INTERLEAVE_KEYS = Lists.newArrayList(
+            READ_OPERATION_1_INTERLEAVE_KEY,
+            READ_OPERATION_2_INTERLEAVE_KEY,
+            READ_OPERATION_3_INTERLEAVE_KEY,
+            READ_OPERATION_4_INTERLEAVE_KEY,
+            READ_OPERATION_5_INTERLEAVE_KEY,
+            READ_OPERATION_6_INTERLEAVE_KEY,
+            READ_OPERATION_7_INTERLEAVE_KEY,
+            READ_OPERATION_8_INTERLEAVE_KEY,
+            READ_OPERATION_9_INTERLEAVE_KEY,
+            READ_OPERATION_10_INTERLEAVE_KEY,
+            READ_OPERATION_11_INTERLEAVE_KEY,
+            READ_OPERATION_12_INTERLEAVE_KEY,
+            READ_OPERATION_13_INTERLEAVE_KEY,
+            READ_OPERATION_14_INTERLEAVE_KEY,
+            READ_OPERATION_15_INTERLEAVE_KEY,
+            READ_OPERATION_16_INTERLEAVE_KEY,
+            READ_OPERATION_17_INTERLEAVE_KEY,
+            READ_OPERATION_18_INTERLEAVE_KEY,
+            READ_OPERATION_19_INTERLEAVE_KEY,
+            READ_OPERATION_20_INTERLEAVE_KEY,
+            READ_OPERATION_21_INTERLEAVE_KEY,
+            READ_OPERATION_22_INTERLEAVE_KEY,
+            READ_OPERATION_23_INTERLEAVE_KEY,
+            READ_OPERATION_24_INTERLEAVE_KEY
+    );
+
+    // Average distance between updates in simulation time
+    private final static String UPDATE_INTERLEAVE = LDBC_SNB_BI_PARAM_NAME_PREFIX + "update_interleave";
 
     /*
      * Operation Enable
@@ -241,7 +321,9 @@ public class LdbcSnbBiWorkloadConfiguration
 
     public static Map<String,String> convertFrequenciesToInterleaves( Map<String,String> params )
     {
-        Integer updateDistance = Integer.parseInt( params.get( UPDATE_INTERLEAVE ) );
+        // TODO revise/replace
+//        Integer updateDistance = Integer.parseInt( params.get( UPDATE_INTERLEAVE ) );
+        Integer updateDistance = 1;
 
         Integer interleave = Integer.parseInt( params.get( READ_OPERATION_1_FREQUENCY_KEY ) ) * updateDistance;
         params.put( READ_OPERATION_1_INTERLEAVE_KEY, interleave.toString() );
@@ -284,6 +366,36 @@ public class LdbcSnbBiWorkloadConfiguration
 
         interleave = Integer.parseInt( params.get( READ_OPERATION_14_FREQUENCY_KEY ) ) * updateDistance;
         params.put( READ_OPERATION_14_INTERLEAVE_KEY, interleave.toString() );
+
+        interleave = Integer.parseInt( params.get( READ_OPERATION_15_FREQUENCY_KEY ) ) * updateDistance;
+        params.put( READ_OPERATION_15_INTERLEAVE_KEY, interleave.toString() );
+
+        interleave = Integer.parseInt( params.get( READ_OPERATION_16_FREQUENCY_KEY ) ) * updateDistance;
+        params.put( READ_OPERATION_16_INTERLEAVE_KEY, interleave.toString() );
+
+        interleave = Integer.parseInt( params.get( READ_OPERATION_17_FREQUENCY_KEY ) ) * updateDistance;
+        params.put( READ_OPERATION_17_INTERLEAVE_KEY, interleave.toString() );
+
+        interleave = Integer.parseInt( params.get( READ_OPERATION_18_FREQUENCY_KEY ) ) * updateDistance;
+        params.put( READ_OPERATION_18_INTERLEAVE_KEY, interleave.toString() );
+
+        interleave = Integer.parseInt( params.get( READ_OPERATION_19_FREQUENCY_KEY ) ) * updateDistance;
+        params.put( READ_OPERATION_19_INTERLEAVE_KEY, interleave.toString() );
+
+        interleave = Integer.parseInt( params.get( READ_OPERATION_20_FREQUENCY_KEY ) ) * updateDistance;
+        params.put( READ_OPERATION_20_INTERLEAVE_KEY, interleave.toString() );
+
+        interleave = Integer.parseInt( params.get( READ_OPERATION_21_FREQUENCY_KEY ) ) * updateDistance;
+        params.put( READ_OPERATION_21_INTERLEAVE_KEY, interleave.toString() );
+
+        interleave = Integer.parseInt( params.get( READ_OPERATION_22_FREQUENCY_KEY ) ) * updateDistance;
+        params.put( READ_OPERATION_22_INTERLEAVE_KEY, interleave.toString() );
+
+        interleave = Integer.parseInt( params.get( READ_OPERATION_23_FREQUENCY_KEY ) ) * updateDistance;
+        params.put( READ_OPERATION_23_INTERLEAVE_KEY, interleave.toString() );
+
+        interleave = Integer.parseInt( params.get( READ_OPERATION_24_FREQUENCY_KEY ) ) * updateDistance;
+        params.put( READ_OPERATION_24_INTERLEAVE_KEY, interleave.toString() );
 
         return params;
     }

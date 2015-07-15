@@ -2038,6 +2038,7 @@ public class LdbcSnbInteractiveWorkload extends Workload {
         if (null == result1 || null == result2) {
             return false;
         } else if (operation.type() == LdbcQuery14.TYPE) {
+            // TODO can this logic not be moved to LdbcQuery14Result class and performed in equals() method?
             /*
             Group results by weight, because results with same weight can come in any order
                 Convert
