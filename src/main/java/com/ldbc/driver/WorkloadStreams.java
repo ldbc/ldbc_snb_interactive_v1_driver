@@ -352,7 +352,8 @@ public class WorkloadStreams
             List<ChildOperationGenerator> childOperationGenerators,
             LoggingServiceFactory loggingServiceFactory ) throws WorkloadException
     {
-        LoggingService loggingService = loggingServiceFactory.loggingServiceFor( WorkloadStreams.class );
+        LoggingService loggingService =
+                loggingServiceFactory.loggingServiceFor( WorkloadStreams.class.getSimpleName() );
         final DecimalFormat numberFormat = new DecimalFormat( "###,###,###,###,###" );
         final Object result = null;
         Operation operation;

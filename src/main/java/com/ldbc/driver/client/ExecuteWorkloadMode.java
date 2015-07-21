@@ -64,7 +64,7 @@ public class ExecuteWorkloadMode implements ClientMode<Object>
     {
         this.controlService = controlService;
         this.timeSource = timeSource;
-        this.loggingService = controlService.loggingServiceFactory().loggingServiceFor( getClass() );
+        this.loggingService = controlService.loggingServiceFactory().loggingServiceFor( getClass().getSimpleName() );
         this.randomSeed = randomSeed;
         this.temporalUtil = new TemporalUtil();
     }
@@ -104,7 +104,10 @@ public class ExecuteWorkloadMode implements ClientMode<Object>
         try
         {
             database = ClassLoaderHelper.loadDb( controlService.configuration().dbClassName() );
-            database.init( controlService.configuration().asMap() );
+            database.init(
+                    controlService.configuration().asMap(),
+                    controlService.loggingServiceFactory().loggingServiceFor( database.getClass().getSimpleName() )
+            );
         }
         catch ( DbException e )
         {

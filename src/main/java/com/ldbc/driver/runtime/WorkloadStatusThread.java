@@ -31,7 +31,7 @@ class WorkloadStatusThread extends Thread
         this.metricsServiceWriter = metricsServiceWriter;
         this.errorReporter = errorReporter;
         this.completionTimeService = completionTimeService;
-        this.loggingService = loggingServiceFactory.loggingServiceFor( getClass() );
+        this.loggingService = loggingServiceFactory.loggingServiceFor( getClass().getSimpleName() );
     }
 
     @Override

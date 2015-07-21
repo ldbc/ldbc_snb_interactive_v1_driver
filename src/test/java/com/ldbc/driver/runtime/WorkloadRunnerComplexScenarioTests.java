@@ -9,6 +9,7 @@ import com.ldbc.driver.WorkloadException;
 import com.ldbc.driver.WorkloadStreams;
 import com.ldbc.driver.control.DriverConfigurationException;
 import com.ldbc.driver.control.Log4jLoggingServiceFactory;
+import com.ldbc.driver.control.LoggingService;
 import com.ldbc.driver.control.LoggingServiceFactory;
 import com.ldbc.driver.csv.simple.SimpleCsvFileWriter;
 import com.ldbc.driver.generator.GeneratorFactory;
@@ -110,6 +111,7 @@ public class WorkloadRunnerComplexScenarioTests
              */
         // @formatter:on
 
+        LoggingService loggingService = new Log4jLoggingServiceFactory( false ).loggingServiceFor( "Test" );
         ConcurrentErrorReporter errorReporter = new ConcurrentErrorReporter();
         SimpleCsvFileWriter csvResultsLogWriter = null;
         Map<Integer,Class<? extends Operation>> operationTypeToClassMapping = new HashMap<>();
@@ -177,7 +179,7 @@ public class WorkloadRunnerComplexScenarioTests
 
         try ( DummyDb db = new DummyDb() )
         {
-            db.init( params );
+            db.init( params, loggingService );
 
             db.setNameAllowedValue( "S(2)D(0)", false );
             db.setNameAllowedValue( "S(3)D(0)", false );
@@ -344,6 +346,7 @@ public class WorkloadRunnerComplexScenarioTests
              this test makes sure they are not
              */
         // @formatter:on
+        LoggingService loggingService = new Log4jLoggingServiceFactory( false ).loggingServiceFor( "Test" );
         ConcurrentErrorReporter errorReporter = new ConcurrentErrorReporter();
 
         SimpleCsvFileWriter csvResultsLogWriter = null;
@@ -423,7 +426,7 @@ public class WorkloadRunnerComplexScenarioTests
 
         try ( DummyDb db = new DummyDb() )
         {
-            db.init( params );
+            db.init( params, loggingService );
 
             WorkloadRunnerThread runnerThread = workloadRunnerThread(
                     timeSource,
@@ -553,6 +556,7 @@ public class WorkloadRunnerComplexScenarioTests
         13  S(13)D(6)                                       9 <~~ S(13)D(6) initialized (READ ONLY)
          */
         // @formatter:on
+        LoggingService loggingService = new Log4jLoggingServiceFactory( false ).loggingServiceFor( "Test" );
         ConcurrentErrorReporter errorReporter = new ConcurrentErrorReporter();
 
         SimpleCsvFileWriter csvResultsLogWriter = null;
@@ -628,7 +632,7 @@ public class WorkloadRunnerComplexScenarioTests
         params.put( DummyDb.ALLOWED_DEFAULT_ARG, "false" );
         try ( DummyDb db = new DummyDb() )
         {
-            db.init( params );
+            db.init( params, loggingService );
 
             WorkloadRunnerThread runnerThread = workloadRunnerThread(
                     timeSource,
@@ -836,6 +840,7 @@ public class WorkloadRunnerComplexScenarioTests
         13  S(13)D(6)                                       6
          */
         // @formatter:on
+        LoggingService loggingService = new Log4jLoggingServiceFactory( false ).loggingServiceFor( "Test" );
         ConcurrentErrorReporter errorReporter = new ConcurrentErrorReporter();
 
         SimpleCsvFileWriter csvResultsLogWriter = null;
@@ -909,7 +914,7 @@ public class WorkloadRunnerComplexScenarioTests
         params.put( DummyDb.ALLOWED_DEFAULT_ARG, "false" );
         try ( DummyDb db = new DummyDb() )
         {
-            db.init( params );
+            db.init( params, loggingService );
 
             WorkloadRunnerThread runnerThread = workloadRunnerThread(
                     timeSource,
@@ -1156,6 +1161,7 @@ public class WorkloadRunnerComplexScenarioTests
         13  S(13)D(6)                                       9
          */
         // @formatter:on
+        LoggingService loggingService = new Log4jLoggingServiceFactory( false ).loggingServiceFor( "Test" );
         ConcurrentErrorReporter errorReporter = new ConcurrentErrorReporter();
 
         SimpleCsvFileWriter csvResultsLogWriter = null;
@@ -1229,7 +1235,7 @@ public class WorkloadRunnerComplexScenarioTests
         params.put( DummyDb.ALLOWED_DEFAULT_ARG, "false" );
         try ( DummyDb db = new DummyDb() )
         {
-            db.init( params );
+            db.init( params, loggingService );
 
             WorkloadRunnerThread runnerThread = workloadRunnerThread(
                     timeSource,
@@ -1437,6 +1443,7 @@ public class WorkloadRunnerComplexScenarioTests
         13  S(13)D(6)                                       6
          */
         // @formatter:on
+        LoggingService loggingService = new Log4jLoggingServiceFactory( false ).loggingServiceFor( "Test" );
         ConcurrentErrorReporter errorReporter = new ConcurrentErrorReporter();
 
         SimpleCsvFileWriter csvResultsLogWriter = null;
@@ -1512,7 +1519,7 @@ public class WorkloadRunnerComplexScenarioTests
         params.put( DummyDb.ALLOWED_DEFAULT_ARG, "false" );
         try ( DummyDb db = new DummyDb() )
         {
-            db.init( params );
+            db.init( params, loggingService );
 
             WorkloadRunnerThread runnerThread = workloadRunnerThread(
                     timeSource,

@@ -22,7 +22,7 @@ public class Log4jLoggingService implements LoggingService
     private final WorkloadMetricsFormatter summaryWorkloadMetricsFormatter;
     private final WorkloadMetricsFormatter detailedWorkloadMetricsFormatter;
 
-    public Log4jLoggingService( Class source, TemporalUtil temporalUtil, boolean detailedStatus )
+    public Log4jLoggingService( String source, TemporalUtil temporalUtil, boolean detailedStatus )
     {
         this.logger = Logger.getLogger( source );
         this.temporalUtil = temporalUtil;

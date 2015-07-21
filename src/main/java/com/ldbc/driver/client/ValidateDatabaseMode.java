@@ -35,7 +35,7 @@ public class ValidateDatabaseMode implements ClientMode<DbValidationResult>
     public ValidateDatabaseMode( ControlService controlService ) throws ClientException
     {
         this.controlService = controlService;
-        this.loggingService = controlService.loggingServiceFactory().loggingServiceFor( getClass() );
+        this.loggingService = controlService.loggingServiceFactory().loggingServiceFor( getClass().getSimpleName() );
     }
 
     @Override
@@ -56,7 +56,10 @@ public class ValidateDatabaseMode implements ClientMode<DbValidationResult>
         try
         {
             database = ClassLoaderHelper.loadDb( controlService.configuration().dbClassName() );
-            database.init( controlService.configuration().asMap() );
+            database.init(
+                    controlService.configuration().asMap(),
+                    controlService.loggingServiceFactory().loggingServiceFor( database.getClass().getSimpleName() )
+            );
         }
         catch ( DbException e )
         {

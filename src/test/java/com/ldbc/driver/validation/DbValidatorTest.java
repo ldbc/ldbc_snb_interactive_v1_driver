@@ -7,11 +7,17 @@ import com.ldbc.driver.Workload;
 import com.ldbc.driver.WorkloadException;
 import com.ldbc.driver.control.ConsoleAndFileDriverConfiguration;
 import com.ldbc.driver.control.DriverConfigurationException;
+import com.ldbc.driver.control.Log4jLoggingServiceFactory;
+import com.ldbc.driver.control.LoggingService;
 import com.ldbc.driver.generator.GeneratorFactory;
 import com.ldbc.driver.generator.RandomDataGeneratorFactory;
 import com.ldbc.driver.testutils.TestUtils;
 import com.ldbc.driver.util.MapUtils;
-import com.ldbc.driver.workloads.ldbc.snb.interactive.*;
+import com.ldbc.driver.workloads.ldbc.snb.interactive.LdbcNoResult;
+import com.ldbc.driver.workloads.ldbc.snb.interactive.LdbcQuery14;
+import com.ldbc.driver.workloads.ldbc.snb.interactive.LdbcQuery14Result;
+import com.ldbc.driver.workloads.ldbc.snb.interactive.LdbcSnbInteractiveConfiguration;
+import com.ldbc.driver.workloads.ldbc.snb.interactive.LdbcSnbInteractiveWorkload;
 import com.ldbc.driver.workloads.ldbc.snb.interactive.db.DummyLdbcSnbInteractiveDb;
 import com.ldbc.driver.workloads.ldbc.snb.interactive.db.DummyLdbcSnbInteractiveOperationInstances;
 import com.ldbc.driver.workloads.ldbc.snb.interactive.db.DummyLdbcSnbInteractiveOperationResultInstances;
@@ -30,42 +36,51 @@ import java.util.Map;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
 
-public class DbValidatorTest {
+public class DbValidatorTest
+{
     @Rule
     public TemporaryFolder temporaryFolder = new TemporaryFolder();
 
     @Test
-    public void shouldFailValidationWhenDbImplementationIsIncorrect() throws DbException, WorkloadException, IOException, DriverConfigurationException {
+    public void shouldFailValidationWhenDbImplementationIsIncorrect()
+            throws DbException, WorkloadException, IOException, DriverConfigurationException
+    {
         // Given
+        LoggingService loggingService = new Log4jLoggingServiceFactory( false ).loggingServiceFor( "Test" );
         long operationCount = 1;
         String dbClassName = DummyLdbcSnbInteractiveDb.class.getName();
         String workloadClassName = LdbcSnbInteractiveWorkload.class.getName();
-        ConsoleAndFileDriverConfiguration configuration = ConsoleAndFileDriverConfiguration.fromDefaults(dbClassName, workloadClassName, operationCount);
+        ConsoleAndFileDriverConfiguration configuration =
+                ConsoleAndFileDriverConfiguration.fromDefaults( dbClassName, workloadClassName, operationCount );
 
-        Map<String, String> paramsMap = LdbcSnbInteractiveConfiguration.defaultConfigSF1();
-        paramsMap.put(LdbcSnbInteractiveConfiguration.PARAMETERS_DIRECTORY, TestUtils.getResource("/").getAbsolutePath());
-        paramsMap.put(LdbcSnbInteractiveConfiguration.UPDATES_DIRECTORY, TestUtils.getResource("/").getAbsolutePath());
-        configuration = (ConsoleAndFileDriverConfiguration) configuration.applyArgs(paramsMap);
+        Map<String,String> paramsMap = LdbcSnbInteractiveConfiguration.defaultConfigSF1();
+        paramsMap.put( LdbcSnbInteractiveConfiguration.PARAMETERS_DIRECTORY,
+                TestUtils.getResource( "/" ).getAbsolutePath() );
+        paramsMap.put( LdbcSnbInteractiveConfiguration.UPDATES_DIRECTORY,
+                TestUtils.getResource( "/" ).getAbsolutePath() );
+        configuration = (ConsoleAndFileDriverConfiguration) configuration.applyArgs( paramsMap );
         configuration = (ConsoleAndFileDriverConfiguration) configuration.applyArgs(
-                MapUtils.loadPropertiesToMap(new File(TestUtils.getResource("/updateStream.properties").getAbsolutePath()))
+                MapUtils.loadPropertiesToMap(
+                        new File( TestUtils.getResource( "/updateStream.properties" ).getAbsolutePath() ) )
         );
 
         Workload workload = new LdbcSnbInteractiveWorkload();
-        workload.init(configuration);
+        workload.init( configuration );
 
-        GeneratorFactory gf = new GeneratorFactory(new RandomDataGeneratorFactory(42l));
-        List<ValidationParam> correctValidationParamsList = Lists.newArrayList(gf.limit(gf.repeating(buildParams().iterator()), 10000));
+        GeneratorFactory gf = new GeneratorFactory( new RandomDataGeneratorFactory( 42l ) );
+        List<ValidationParam> correctValidationParamsList =
+                Lists.newArrayList( gf.limit( gf.repeating( buildParams().iterator() ), 10000 ) );
 
         LdbcQuery14 operation14 = DummyLdbcSnbInteractiveOperationInstances.read14();
         List<LdbcQuery14Result> unexpectedResult14 = DummyLdbcSnbInteractiveOperationResultSets.read14Results();
-        unexpectedResult14.add(DummyLdbcSnbInteractiveOperationResultInstances.read14Result());
+        unexpectedResult14.add( DummyLdbcSnbInteractiveOperationResultInstances.read14Result() );
 
-        ValidationParam unexpectedValidationParam14 = ValidationParam.createTyped(operation14, unexpectedResult14);
-        correctValidationParamsList.add(unexpectedValidationParam14);
+        ValidationParam unexpectedValidationParam14 = ValidationParam.createTyped( operation14, unexpectedResult14 );
+        correctValidationParamsList.add( unexpectedValidationParam14 );
 
         Iterator<ValidationParam> validationParams = correctValidationParamsList.iterator();
         Db db = new DummyLdbcSnbInteractiveDb();
-        db.init(new HashMap<String, String>());
+        db.init( new HashMap<String,String>(), loggingService );
         DbValidator dbValidator = new DbValidator();
 
         // When
@@ -77,13 +92,16 @@ public class DbValidatorTest {
         );
 
         // Then
-        System.out.println(validationResult.resultMessage());
-        assertThat(validationResult.isSuccessful(), is(false));
+        System.out.println( validationResult.resultMessage() );
+        assertThat( validationResult.isSuccessful(), is( false ) );
     }
 
     @Test
-    public void shouldPassValidationWhenDbImplementationIsCorrect() throws WorkloadException, DbException, IOException, DriverConfigurationException {
+    public void shouldPassValidationWhenDbImplementationIsCorrect()
+            throws WorkloadException, DbException, IOException, DriverConfigurationException
+    {
         // Given
+        LoggingService loggingService = new Log4jLoggingServiceFactory( false ).loggingServiceFor( "Test" );
         long operationCount = 1;
         ConsoleAndFileDriverConfiguration configuration = ConsoleAndFileDriverConfiguration.fromDefaults(
                 DummyLdbcSnbInteractiveDb.class.getName(),
@@ -91,25 +109,28 @@ public class DbValidatorTest {
                 operationCount
         );
 
-        Map<String, String> paramsMap = LdbcSnbInteractiveConfiguration.defaultConfigSF1();
-        paramsMap.put(LdbcSnbInteractiveConfiguration.PARAMETERS_DIRECTORY, TestUtils.getResource("/").getAbsolutePath());
-        paramsMap.put(LdbcSnbInteractiveConfiguration.UPDATES_DIRECTORY, TestUtils.getResource("/").getAbsolutePath());
-        configuration = (ConsoleAndFileDriverConfiguration) configuration.applyArgs(paramsMap);
+        Map<String,String> paramsMap = LdbcSnbInteractiveConfiguration.defaultConfigSF1();
+        paramsMap.put( LdbcSnbInteractiveConfiguration.PARAMETERS_DIRECTORY,
+                TestUtils.getResource( "/" ).getAbsolutePath() );
+        paramsMap.put( LdbcSnbInteractiveConfiguration.UPDATES_DIRECTORY,
+                TestUtils.getResource( "/" ).getAbsolutePath() );
+        configuration = (ConsoleAndFileDriverConfiguration) configuration.applyArgs( paramsMap );
         configuration = (ConsoleAndFileDriverConfiguration) configuration.applyArgs(
-                MapUtils.loadPropertiesToMap(new File(TestUtils.getResource("/updateStream.properties").getAbsolutePath()))
+                MapUtils.loadPropertiesToMap(
+                        new File( TestUtils.getResource( "/updateStream.properties" ).getAbsolutePath() ) )
         );
 
         Workload workload = new LdbcSnbInteractiveWorkload();
-        workload.init(configuration);
+        workload.init( configuration );
 
-        GeneratorFactory gf = new GeneratorFactory(new RandomDataGeneratorFactory(42l));
+        GeneratorFactory gf = new GeneratorFactory( new RandomDataGeneratorFactory( 42l ) );
         Iterator<ValidationParam> validationParams = gf.limit(
-                gf.repeating(buildParams().iterator()),
+                gf.repeating( buildParams().iterator() ),
                 10000
         );
 
         Db db = new DummyLdbcSnbInteractiveDb();
-        db.init(new HashMap<String, String>());
+        db.init( new HashMap<String,String>(), loggingService );
 
         DbValidator dbValidator = new DbValidator();
 
@@ -122,12 +143,13 @@ public class DbValidatorTest {
         );
 
         // Then
-        System.out.println(validationResult.resultMessage());
-        assertThat(String.format("Validation Result\n%s", validationResult.resultMessage()),
-                validationResult.isSuccessful(), is(true));
+        System.out.println( validationResult.resultMessage() );
+        assertThat( String.format( "Validation Result\n%s", validationResult.resultMessage() ),
+                validationResult.isSuccessful(), is( true ) );
     }
 
-    List<ValidationParam> buildParams() {
+    List<ValidationParam> buildParams()
+    {
         ValidationParam validationParamLong1 = ValidationParam.createTyped(
                 DummyLdbcSnbInteractiveOperationInstances.read1(),
                 DummyLdbcSnbInteractiveOperationResultSets.read1Results()

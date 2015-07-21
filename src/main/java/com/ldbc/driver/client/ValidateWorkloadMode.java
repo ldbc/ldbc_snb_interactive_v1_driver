@@ -18,7 +18,7 @@ public class ValidateWorkloadMode implements ClientMode<WorkloadValidationResult
     {
         this.controlService = controlService;
         this.workloadFactory = new ClassNameWorkloadFactory( controlService.configuration().workloadClassName() );
-        this.loggingService = controlService.loggingServiceFactory().loggingServiceFor( getClass() );
+        this.loggingService = controlService.loggingServiceFactory().loggingServiceFor( getClass().getSimpleName() );
     }
 
     @Override
