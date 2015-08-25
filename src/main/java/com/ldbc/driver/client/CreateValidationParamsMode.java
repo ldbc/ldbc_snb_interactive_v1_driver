@@ -35,7 +35,7 @@ public class CreateValidationParamsMode implements ClientMode<Object>
     public CreateValidationParamsMode( ControlService controlService, long randomSeed ) throws ClientException
     {
         this.controlService = controlService;
-        this.loggingService = controlService.loggingServiceFactory().loggingServiceFor( getClass() );
+        this.loggingService = controlService.loggingServiceFactory().loggingServiceFor( getClass().getSimpleName() );
         this.randomSeed = randomSeed;
     }
 
@@ -57,7 +57,10 @@ public class CreateValidationParamsMode implements ClientMode<Object>
         try
         {
             database = ClassLoaderHelper.loadDb( controlService.configuration().dbClassName() );
-            database.init( controlService.configuration().asMap() );
+            database.init(
+                    controlService.configuration().asMap(),
+                    controlService.loggingServiceFactory().loggingServiceFor( database.getClass().getSimpleName() )
+            );
         }
         catch ( DbException e )
         {

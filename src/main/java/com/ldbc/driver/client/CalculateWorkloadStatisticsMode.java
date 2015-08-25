@@ -28,7 +28,7 @@ public class CalculateWorkloadStatisticsMode implements ClientMode<WorkloadStati
     public CalculateWorkloadStatisticsMode( ControlService controlService, long randomSeed ) throws ClientException
     {
         this.controlService = controlService;
-        this.loggingService = controlService.loggingServiceFactory().loggingServiceFor( getClass() );
+        this.loggingService = controlService.loggingServiceFactory().loggingServiceFor( getClass().getSimpleName() );
         this.randomSeed = randomSeed;
     }
 

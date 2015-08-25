@@ -27,7 +27,7 @@ public class OperationTypeMetricsManager
         this.name = name;
         this.unit = unit;
         this.highestExpectedRuntimeDurationAsNano = highestExpectedRuntimeDurationAsNano;
-        loggingService = loggingServiceFactory.loggingServiceFor( getClass() );
+        loggingService = loggingServiceFactory.loggingServiceFor( getClass().getSimpleName() );
         this.runTimeMetric = new ContinuousMetricManager(
                 METRIC_RUNTIME,
                 unit,

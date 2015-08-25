@@ -12,7 +12,7 @@ public class PrintHelpMode implements ClientMode<Object>
     public PrintHelpMode( ControlService controlService )
     {
         this.controlService = controlService;
-        this.loggingService = controlService.loggingServiceFactory().loggingServiceFor( getClass() );
+        this.loggingService = controlService.loggingServiceFactory().loggingServiceFor( getClass().getSimpleName() );
     }
 
     @Override

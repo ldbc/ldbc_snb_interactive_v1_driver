@@ -52,12 +52,12 @@ public class Client
         catch ( DriverConfigurationException e )
         {
             String errMsg = String.format( "Error parsing parameters: %s", e.getMessage() );
-            loggingServiceFactory.loggingServiceFor( Client.class ).info( errMsg );
+            loggingServiceFactory.loggingServiceFor( Client.class.getSimpleName() ).info( errMsg );
             System.exit( 1 );
         }
         catch ( Exception e )
         {
-            loggingServiceFactory.loggingServiceFor( Client.class ).info(
+            loggingServiceFactory.loggingServiceFor( Client.class.getSimpleName() ).info(
                     "Client terminated unexpectedly\n" + ConcurrentErrorReporter.stackTraceToString( e )
             );
             System.exit( 1 );

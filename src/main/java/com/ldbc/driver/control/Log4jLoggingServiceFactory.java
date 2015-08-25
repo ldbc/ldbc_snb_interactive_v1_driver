@@ -13,7 +13,7 @@ public class Log4jLoggingServiceFactory implements LoggingServiceFactory
         this.detailedStatus = detailedStatus;
     }
 
-    public LoggingService loggingServiceFor( Class source )
+    public LoggingService loggingServiceFor( String source )
     {
         return new Log4jLoggingService( source, temporalUtil, detailedStatus );
     }

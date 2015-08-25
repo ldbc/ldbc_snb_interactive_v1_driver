@@ -13,6 +13,7 @@ import com.ldbc.driver.control.ControlService;
 import com.ldbc.driver.control.DriverConfigurationException;
 import com.ldbc.driver.control.LocalControlService;
 import com.ldbc.driver.control.Log4jLoggingServiceFactory;
+import com.ldbc.driver.control.LoggingService;
 import com.ldbc.driver.control.LoggingServiceFactory;
 import com.ldbc.driver.csv.simple.SimpleCsvFileReader;
 import com.ldbc.driver.csv.simple.SimpleCsvFileWriter;
@@ -157,8 +158,9 @@ public class WorkloadRunnerTest
                     new Log4jLoggingServiceFactory( false ),
                     timeSource
             );
+            LoggingService loggingService = new Log4jLoggingServiceFactory( false ).loggingServiceFor( "Test" );
             db = new DummyLdbcSnbInteractiveDb();
-            db.init( configuration.asMap() );
+            db.init( configuration.asMap(), loggingService );
 
             GeneratorFactory gf = new GeneratorFactory( new RandomDataGeneratorFactory( 42L ) );
             boolean returnStreamsWithDbConnector = true;
@@ -375,8 +377,9 @@ public class WorkloadRunnerTest
                     new Log4jLoggingServiceFactory( false ),
                     timeSource
             );
+            LoggingService loggingService = new Log4jLoggingServiceFactory( false ).loggingServiceFor( "Test" );
             db = new DummyLdbcSnbInteractiveDb();
-            db.init( configuration.asMap() );
+            db.init( configuration.asMap(), loggingService );
 
             GeneratorFactory gf = new GeneratorFactory( new RandomDataGeneratorFactory( 42L ) );
             boolean returnStreamsWithDbConnector = true;
@@ -640,8 +643,9 @@ public class WorkloadRunnerTest
                     new Log4jLoggingServiceFactory( false ),
                     timeSource
             );
+            LoggingService loggingService = new Log4jLoggingServiceFactory( false ).loggingServiceFor( "Test" );
             db = new DummyLdbcSnbInteractiveDb();
-            db.init( configuration.asMap() );
+            db.init( configuration.asMap(), loggingService );
             workload = new LdbcSnbInteractiveWorkload();
             workload.init( configuration );
             GeneratorFactory gf = new GeneratorFactory( new RandomDataGeneratorFactory( 42L ) );
