@@ -12,11 +12,11 @@ import java.util.Iterator;
 
 import static java.lang.String.format;
 
-public class Query1EventStreamReader implements Iterator<Operation>
+public class Query17EventStreamReader implements Iterator<Operation>
 {
     private final Iterator<Object[]> csvRows;
 
-    public Query1EventStreamReader( Iterator<Object[]> csvRows )
+    public Query17EventStreamReader( Iterator<Object[]> csvRows )
     {
         this.csvRows = csvRows;
     }
@@ -31,8 +31,8 @@ public class Query1EventStreamReader implements Iterator<Operation>
     public Operation next()
     {
         Object[] rowAsObjects = csvRows.next();
-        Operation operation = new LdbcSnbBiQuery1(
-                (long) rowAsObjects[0],
+        Operation operation = new LdbcSnbBiQuery17(
+                (String) rowAsObjects[0],
                 (int) rowAsObjects[1]
         );
         operation.setDependencyTimeStamp( 0 );
@@ -48,17 +48,17 @@ public class Query1EventStreamReader implements Iterator<Operation>
     public static class Decoder implements CsvEventStreamReaderBasicCharSeeker.EventDecoder<Object[]>
     {
         /*
-        Date
-        2199032251700
-         */
+        Country
+        Australia
+        */
         @Override
         public Object[] decodeEvent( CharSeeker charSeeker, Extractors extractors, int[] columnDelimiters, Mark mark )
                 throws IOException
         {
-            long date;
+            String country;
             if ( charSeeker.seek( mark, columnDelimiters ) )
             {
-                date = charSeeker.extract( mark, extractors.long_() ).longValue();
+                country = charSeeker.extract( mark, extractors.string() ).value();
             }
             else
             {
@@ -66,7 +66,7 @@ public class Query1EventStreamReader implements Iterator<Operation>
                 return null;
             }
 
-            return new Object[]{date, LdbcSnbBiQuery1.DEFAULT_LIMIT};
+            return new Object[]{country, LdbcSnbBiQuery17.DEFAULT_LIMIT};
         }
     }
 }

@@ -6,17 +6,18 @@ import com.ldbc.driver.csv.charseeker.CharSeeker;
 import com.ldbc.driver.csv.charseeker.Extractors;
 import com.ldbc.driver.csv.charseeker.Mark;
 import com.ldbc.driver.generator.CsvEventStreamReaderBasicCharSeeker;
+import com.ldbc.driver.generator.GeneratorException;
 
 import java.io.IOException;
 import java.util.Iterator;
 
 import static java.lang.String.format;
 
-public class Query1EventStreamReader implements Iterator<Operation>
+public class Query16EventStreamReader implements Iterator<Operation>
 {
     private final Iterator<Object[]> csvRows;
 
-    public Query1EventStreamReader( Iterator<Object[]> csvRows )
+    public Query16EventStreamReader( Iterator<Object[]> csvRows )
     {
         this.csvRows = csvRows;
     }
@@ -31,9 +32,10 @@ public class Query1EventStreamReader implements Iterator<Operation>
     public Operation next()
     {
         Object[] rowAsObjects = csvRows.next();
-        Operation operation = new LdbcSnbBiQuery1(
-                (long) rowAsObjects[0],
-                (int) rowAsObjects[1]
+        Operation operation = new LdbcSnbBiQuery16(
+                (String) rowAsObjects[0],
+                (String) rowAsObjects[1],
+                (int) rowAsObjects[2]
         );
         operation.setDependencyTimeStamp( 0 );
         return operation;
@@ -48,17 +50,17 @@ public class Query1EventStreamReader implements Iterator<Operation>
     public static class Decoder implements CsvEventStreamReaderBasicCharSeeker.EventDecoder<Object[]>
     {
         /*
-        Date
-        2199032251700
-         */
+        TagClass|Country
+        names|Scotland
+        */
         @Override
         public Object[] decodeEvent( CharSeeker charSeeker, Extractors extractors, int[] columnDelimiters, Mark mark )
                 throws IOException
         {
-            long date;
+            String tagClass;
             if ( charSeeker.seek( mark, columnDelimiters ) )
             {
-                date = charSeeker.extract( mark, extractors.long_() ).longValue();
+                tagClass = charSeeker.extract( mark, extractors.string() ).value();
             }
             else
             {
@@ -66,7 +68,17 @@ public class Query1EventStreamReader implements Iterator<Operation>
                 return null;
             }
 
-            return new Object[]{date, LdbcSnbBiQuery1.DEFAULT_LIMIT};
+            String country;
+            if ( charSeeker.seek( mark, columnDelimiters ) )
+            {
+                country = charSeeker.extract( mark, extractors.string() ).value();
+            }
+            else
+            {
+                throw new GeneratorException( "Error retrieving country name" );
+            }
+
+            return new Object[]{tagClass, country, LdbcSnbBiQuery16.DEFAULT_LIMIT};
         }
     }
 }

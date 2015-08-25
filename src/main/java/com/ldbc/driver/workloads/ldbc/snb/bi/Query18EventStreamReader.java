@@ -12,11 +12,11 @@ import java.util.Iterator;
 
 import static java.lang.String.format;
 
-public class Query1EventStreamReader implements Iterator<Operation>
+public class Query18EventStreamReader implements Iterator<Operation>
 {
     private final Iterator<Object[]> csvRows;
 
-    public Query1EventStreamReader( Iterator<Object[]> csvRows )
+    public Query18EventStreamReader( Iterator<Object[]> csvRows )
     {
         this.csvRows = csvRows;
     }
@@ -31,7 +31,7 @@ public class Query1EventStreamReader implements Iterator<Operation>
     public Operation next()
     {
         Object[] rowAsObjects = csvRows.next();
-        Operation operation = new LdbcSnbBiQuery1(
+        Operation operation = new LdbcSnbBiQuery18(
                 (long) rowAsObjects[0],
                 (int) rowAsObjects[1]
         );
@@ -49,8 +49,8 @@ public class Query1EventStreamReader implements Iterator<Operation>
     {
         /*
         Date
-        2199032251700
-         */
+        15393166495097
+        */
         @Override
         public Object[] decodeEvent( CharSeeker charSeeker, Extractors extractors, int[] columnDelimiters, Mark mark )
                 throws IOException
@@ -66,7 +66,7 @@ public class Query1EventStreamReader implements Iterator<Operation>
                 return null;
             }
 
-            return new Object[]{date, LdbcSnbBiQuery1.DEFAULT_LIMIT};
+            return new Object[]{date, LdbcSnbBiQuery18.DEFAULT_LIMIT};
         }
     }
 }

@@ -1,8 +1,6 @@
 package com.ldbc.driver.workloads.ldbc.snb.bi;
 
 import com.google.common.base.Charsets;
-import com.google.common.base.Function;
-import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import com.ldbc.driver.ChildOperationGenerator;
@@ -21,8 +19,6 @@ import com.ldbc.driver.generator.CsvEventStreamReaderBasicCharSeeker;
 import com.ldbc.driver.generator.GeneratorFactory;
 import com.ldbc.driver.util.ClassLoaderHelper;
 import com.ldbc.driver.util.ClassLoadingException;
-import org.apache.commons.collections4.CollectionUtils;
-import org.apache.commons.collections4.Equator;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.type.TypeReference;
 
@@ -34,8 +30,6 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Date;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
@@ -317,7 +311,7 @@ public class LdbcSnbBiWorkload extends Workload
         Iterator<Operation> readOperation1Stream;
         {
             CsvEventStreamReaderBasicCharSeeker.EventDecoder<Object[]> decoder =
-                    new Query1EventStreamReader.Query1Decoder();
+                    new Query1EventStreamReader.Decoder();
             Extractors extractors = new Extractors( arrayDelimiter, tupleDelimiter );
             CharSeeker charSeeker;
             try
@@ -380,7 +374,7 @@ public class LdbcSnbBiWorkload extends Workload
         Iterator<Operation> readOperation2Stream;
         {
             CsvEventStreamReaderBasicCharSeeker.EventDecoder<Object[]> decoder =
-                    new Query2EventStreamReader.Query2Decoder();
+                    new Query2EventStreamReader.Decoder();
             Extractors extractors = new Extractors( arrayDelimiter, tupleDelimiter );
             CharSeeker charSeeker;
             try
@@ -438,7 +432,7 @@ public class LdbcSnbBiWorkload extends Workload
         Iterator<Operation> readOperation3Stream;
         {
             CsvEventStreamReaderBasicCharSeeker.EventDecoder<Object[]> decoder =
-                    new Query3EventStreamReader.Query3Decoder();
+                    new Query3EventStreamReader.Decoder();
             Extractors extractors = new Extractors( arrayDelimiter, tupleDelimiter );
             CharSeeker charSeeker;
             try
@@ -499,7 +493,7 @@ public class LdbcSnbBiWorkload extends Workload
         Iterator<Operation> readOperation4Stream;
         {
             CsvEventStreamReaderBasicCharSeeker.EventDecoder<Object[]> decoder =
-                    new Query4EventStreamReader.Query4Decoder();
+                    new Query4EventStreamReader.Decoder();
             Extractors extractors = new Extractors( arrayDelimiter, tupleDelimiter );
             CharSeeker charSeeker;
             try
@@ -558,7 +552,7 @@ public class LdbcSnbBiWorkload extends Workload
         Iterator<Operation> readOperation5Stream;
         {
             CsvEventStreamReaderBasicCharSeeker.EventDecoder<Object[]> decoder =
-                    new Query5EventStreamReader.Query5Decoder();
+                    new Query5EventStreamReader.Decoder();
             Extractors extractors = new Extractors( arrayDelimiter, tupleDelimiter );
             CharSeeker charSeeker;
             try
@@ -616,7 +610,7 @@ public class LdbcSnbBiWorkload extends Workload
         Iterator<Operation> readOperation6Stream;
         {
             CsvEventStreamReaderBasicCharSeeker.EventDecoder<Object[]> decoder =
-                    new Query6EventStreamReader.Query6Decoder();
+                    new Query6EventStreamReader.Decoder();
             Extractors extractors = new Extractors( arrayDelimiter, tupleDelimiter );
             CharSeeker charSeeker;
             try
@@ -674,7 +668,7 @@ public class LdbcSnbBiWorkload extends Workload
         Iterator<Operation> readOperation7Stream;
         {
             CsvEventStreamReaderBasicCharSeeker.EventDecoder<Object[]> decoder =
-                    new Query7EventStreamReader.Query7Decoder();
+                    new Query7EventStreamReader.Decoder();
             Extractors extractors = new Extractors( arrayDelimiter, tupleDelimiter );
             CharSeeker charSeeker;
             try
@@ -731,7 +725,7 @@ public class LdbcSnbBiWorkload extends Workload
         Iterator<Operation> readOperation8Stream;
         {
             CsvEventStreamReaderBasicCharSeeker.EventDecoder<Object[]> decoder =
-                    new Query8EventStreamReader.Query8Decoder();
+                    new Query8EventStreamReader.Decoder();
             Extractors extractors = new Extractors( arrayDelimiter, tupleDelimiter );
             CharSeeker charSeeker;
             try
@@ -788,7 +782,7 @@ public class LdbcSnbBiWorkload extends Workload
         Iterator<Operation> readOperation9Stream;
         {
             CsvEventStreamReaderBasicCharSeeker.EventDecoder<Object[]> decoder =
-                    new Query9EventStreamReader.Query9Decoder();
+                    new Query9EventStreamReader.Decoder();
             Extractors extractors = new Extractors( arrayDelimiter, tupleDelimiter );
             CharSeeker charSeeker;
             try
@@ -846,7 +840,7 @@ public class LdbcSnbBiWorkload extends Workload
         Iterator<Operation> readOperation10Stream;
         {
             CsvEventStreamReaderBasicCharSeeker.EventDecoder<Object[]> decoder =
-                    new Query10EventStreamReader.Query10Decoder();
+                    new Query10EventStreamReader.Decoder();
             Extractors extractors = new Extractors( arrayDelimiter, tupleDelimiter );
             CharSeeker charSeeker;
             try
@@ -904,7 +898,7 @@ public class LdbcSnbBiWorkload extends Workload
         Iterator<Operation> readOperation11Stream;
         {
             CsvEventStreamReaderBasicCharSeeker.EventDecoder<Object[]> decoder =
-                    new Query11EventStreamReader.Query11Decoder();
+                    new Query11EventStreamReader.Decoder();
             Extractors extractors = new Extractors( arrayDelimiter, tupleDelimiter );
             CharSeeker charSeeker;
             try
@@ -963,7 +957,7 @@ public class LdbcSnbBiWorkload extends Workload
         Iterator<Operation> readOperation12Stream;
         {
             CsvEventStreamReaderBasicCharSeeker.EventDecoder<Object[]> decoder =
-                    new Query12EventStreamReader.Query12Decoder();
+                    new Query12EventStreamReader.Decoder();
             Extractors extractors = new Extractors( arrayDelimiter, tupleDelimiter );
             CharSeeker charSeeker;
             try
@@ -1021,7 +1015,7 @@ public class LdbcSnbBiWorkload extends Workload
         Iterator<Operation> readOperation13Stream;
         {
             CsvEventStreamReaderBasicCharSeeker.EventDecoder<Object[]> decoder =
-                    new Query13EventStreamReader.Query13Decoder();
+                    new Query13EventStreamReader.Decoder();
             Extractors extractors = new Extractors( arrayDelimiter, tupleDelimiter );
             CharSeeker charSeeker;
             try
@@ -1079,7 +1073,7 @@ public class LdbcSnbBiWorkload extends Workload
         Iterator<Operation> readOperation14Stream;
         {
             CsvEventStreamReaderBasicCharSeeker.EventDecoder<Object[]> decoder =
-                    new Query14EventStreamReader.Query14Decoder();
+                    new Query14EventStreamReader.Decoder();
             Extractors extractors = new Extractors( arrayDelimiter, tupleDelimiter );
             CharSeeker charSeeker;
             try
