@@ -23,381 +23,651 @@ public class LdbcSnbBiWorkloadConfiguration
     // directory that contains the substitution parameters files
     public final static String PARAMETERS_DIRECTORY = LDBC_SNB_BI_PARAM_NAME_PREFIX + "parameters_dir";
     public final static String LDBC_SNB_BI_PACKAGE_PREFIX = removeSuffix(
-            LdbcSnbBiQuery1.class.getName(), LdbcSnbBiQuery1.class.getSimpleName() );
+            LdbcSnbBiWorkloadConfiguration.class.getName(), LdbcSnbBiWorkloadConfiguration.class.getSimpleName()
+    );
 
     /*
      * Operation frequency
      */
     public final static String FREQUENCY_SUFFIX = "_freq";
-    public final static String READ_OPERATION_1_FREQUENCY_KEY =
+    public final static String OPERATION_1_FREQUENCY_KEY =
             LDBC_SNB_BI_PARAM_NAME_PREFIX + LdbcSnbBiQuery1.class.getSimpleName() + FREQUENCY_SUFFIX;
-    public final static String READ_OPERATION_2_FREQUENCY_KEY =
+    public final static String OPERATION_2_FREQUENCY_KEY =
             LDBC_SNB_BI_PARAM_NAME_PREFIX + LdbcSnbBiQuery2.class.getSimpleName() + FREQUENCY_SUFFIX;
-    public final static String READ_OPERATION_3_FREQUENCY_KEY =
+    public final static String OPERATION_3_FREQUENCY_KEY =
             LDBC_SNB_BI_PARAM_NAME_PREFIX + LdbcSnbBiQuery3.class.getSimpleName() + FREQUENCY_SUFFIX;
-    public final static String READ_OPERATION_4_FREQUENCY_KEY =
+    public final static String OPERATION_4_FREQUENCY_KEY =
             LDBC_SNB_BI_PARAM_NAME_PREFIX + LdbcSnbBiQuery4.class.getSimpleName() + FREQUENCY_SUFFIX;
-    public final static String READ_OPERATION_5_FREQUENCY_KEY =
+    public final static String OPERATION_5_FREQUENCY_KEY =
             LDBC_SNB_BI_PARAM_NAME_PREFIX + LdbcSnbBiQuery5.class.getSimpleName() + FREQUENCY_SUFFIX;
-    public final static String READ_OPERATION_6_FREQUENCY_KEY =
+    public final static String OPERATION_6_FREQUENCY_KEY =
             LDBC_SNB_BI_PARAM_NAME_PREFIX + LdbcSnbBiQuery6.class.getSimpleName() + FREQUENCY_SUFFIX;
-    public final static String READ_OPERATION_7_FREQUENCY_KEY =
+    public final static String OPERATION_7_FREQUENCY_KEY =
             LDBC_SNB_BI_PARAM_NAME_PREFIX + LdbcSnbBiQuery7.class.getSimpleName() + FREQUENCY_SUFFIX;
-    public final static String READ_OPERATION_8_FREQUENCY_KEY =
+    public final static String OPERATION_8_FREQUENCY_KEY =
             LDBC_SNB_BI_PARAM_NAME_PREFIX + LdbcSnbBiQuery8.class.getSimpleName() + FREQUENCY_SUFFIX;
-    public final static String READ_OPERATION_9_FREQUENCY_KEY =
+    public final static String OPERATION_9_FREQUENCY_KEY =
             LDBC_SNB_BI_PARAM_NAME_PREFIX + LdbcSnbBiQuery9.class.getSimpleName() + FREQUENCY_SUFFIX;
-    public final static String READ_OPERATION_10_FREQUENCY_KEY =
+    public final static String OPERATION_10_FREQUENCY_KEY =
             LDBC_SNB_BI_PARAM_NAME_PREFIX + LdbcSnbBiQuery10.class.getSimpleName() + FREQUENCY_SUFFIX;
-    public final static String READ_OPERATION_11_FREQUENCY_KEY =
+    public final static String OPERATION_11_FREQUENCY_KEY =
             LDBC_SNB_BI_PARAM_NAME_PREFIX + LdbcSnbBiQuery11.class.getSimpleName() + FREQUENCY_SUFFIX;
-    public final static String READ_OPERATION_12_FREQUENCY_KEY =
+    public final static String OPERATION_12_FREQUENCY_KEY =
             LDBC_SNB_BI_PARAM_NAME_PREFIX + LdbcSnbBiQuery12.class.getSimpleName() + FREQUENCY_SUFFIX;
-    public final static String READ_OPERATION_13_FREQUENCY_KEY =
+    public final static String OPERATION_13_FREQUENCY_KEY =
             LDBC_SNB_BI_PARAM_NAME_PREFIX + LdbcSnbBiQuery13.class.getSimpleName() + FREQUENCY_SUFFIX;
-    public final static String READ_OPERATION_14_FREQUENCY_KEY =
+    public final static String OPERATION_14_FREQUENCY_KEY =
             LDBC_SNB_BI_PARAM_NAME_PREFIX + LdbcSnbBiQuery14.class.getSimpleName() + FREQUENCY_SUFFIX;
-    public final static String READ_OPERATION_15_FREQUENCY_KEY =
+    public final static String OPERATION_15_FREQUENCY_KEY =
             LDBC_SNB_BI_PARAM_NAME_PREFIX + LdbcSnbBiQuery15.class.getSimpleName() + FREQUENCY_SUFFIX;
-    public final static String READ_OPERATION_16_FREQUENCY_KEY =
+    public final static String OPERATION_16_FREQUENCY_KEY =
             LDBC_SNB_BI_PARAM_NAME_PREFIX + LdbcSnbBiQuery16.class.getSimpleName() + FREQUENCY_SUFFIX;
-    public final static String READ_OPERATION_17_FREQUENCY_KEY =
+    public final static String OPERATION_17_FREQUENCY_KEY =
             LDBC_SNB_BI_PARAM_NAME_PREFIX + LdbcSnbBiQuery17.class.getSimpleName() + FREQUENCY_SUFFIX;
-    public final static String READ_OPERATION_18_FREQUENCY_KEY =
+    public final static String OPERATION_18_FREQUENCY_KEY =
             LDBC_SNB_BI_PARAM_NAME_PREFIX + LdbcSnbBiQuery18.class.getSimpleName() + FREQUENCY_SUFFIX;
-    public final static String READ_OPERATION_19_FREQUENCY_KEY =
+    public final static String OPERATION_19_FREQUENCY_KEY =
             LDBC_SNB_BI_PARAM_NAME_PREFIX + LdbcSnbBiQuery19.class.getSimpleName() + FREQUENCY_SUFFIX;
-    public final static String READ_OPERATION_20_FREQUENCY_KEY =
+    public final static String OPERATION_20_FREQUENCY_KEY =
             LDBC_SNB_BI_PARAM_NAME_PREFIX + LdbcSnbBiQuery20.class.getSimpleName() + FREQUENCY_SUFFIX;
-    public final static String READ_OPERATION_21_FREQUENCY_KEY =
+    public final static String OPERATION_21_FREQUENCY_KEY =
             LDBC_SNB_BI_PARAM_NAME_PREFIX + LdbcSnbBiQuery21.class.getSimpleName() + FREQUENCY_SUFFIX;
-    public final static String READ_OPERATION_22_FREQUENCY_KEY =
+    public final static String OPERATION_22_FREQUENCY_KEY =
             LDBC_SNB_BI_PARAM_NAME_PREFIX + LdbcSnbBiQuery22.class.getSimpleName() + FREQUENCY_SUFFIX;
-    public final static String READ_OPERATION_23_FREQUENCY_KEY =
+    public final static String OPERATION_23_FREQUENCY_KEY =
             LDBC_SNB_BI_PARAM_NAME_PREFIX + LdbcSnbBiQuery23.class.getSimpleName() + FREQUENCY_SUFFIX;
-    public final static String READ_OPERATION_24_FREQUENCY_KEY =
+    public final static String OPERATION_24_FREQUENCY_KEY =
             LDBC_SNB_BI_PARAM_NAME_PREFIX + LdbcSnbBiQuery24.class.getSimpleName() + FREQUENCY_SUFFIX;
-    public final static List<String> READ_OPERATION_FREQUENCY_KEYS = Lists.newArrayList(
-            READ_OPERATION_1_FREQUENCY_KEY,
-            READ_OPERATION_2_FREQUENCY_KEY,
-            READ_OPERATION_3_FREQUENCY_KEY,
-            READ_OPERATION_4_FREQUENCY_KEY,
-            READ_OPERATION_5_FREQUENCY_KEY,
-            READ_OPERATION_6_FREQUENCY_KEY,
-            READ_OPERATION_7_FREQUENCY_KEY,
-            READ_OPERATION_8_FREQUENCY_KEY,
-            READ_OPERATION_9_FREQUENCY_KEY,
-            READ_OPERATION_10_FREQUENCY_KEY,
-            READ_OPERATION_11_FREQUENCY_KEY,
-            READ_OPERATION_12_FREQUENCY_KEY,
-            READ_OPERATION_13_FREQUENCY_KEY,
-            READ_OPERATION_14_FREQUENCY_KEY,
-            READ_OPERATION_15_FREQUENCY_KEY,
-            READ_OPERATION_16_FREQUENCY_KEY,
-            READ_OPERATION_17_FREQUENCY_KEY,
-            READ_OPERATION_18_FREQUENCY_KEY,
-            READ_OPERATION_19_FREQUENCY_KEY,
-            READ_OPERATION_20_FREQUENCY_KEY,
-            READ_OPERATION_21_FREQUENCY_KEY,
-            READ_OPERATION_22_FREQUENCY_KEY,
-            READ_OPERATION_23_FREQUENCY_KEY,
-            READ_OPERATION_24_FREQUENCY_KEY
+    public final static List<String> OPERATION_FREQUENCY_KEYS = Lists.newArrayList(
+            OPERATION_1_FREQUENCY_KEY,
+            OPERATION_2_FREQUENCY_KEY,
+            OPERATION_3_FREQUENCY_KEY,
+            OPERATION_4_FREQUENCY_KEY,
+            OPERATION_5_FREQUENCY_KEY,
+            OPERATION_6_FREQUENCY_KEY,
+            OPERATION_7_FREQUENCY_KEY,
+            OPERATION_8_FREQUENCY_KEY,
+            OPERATION_9_FREQUENCY_KEY,
+            OPERATION_10_FREQUENCY_KEY,
+            OPERATION_11_FREQUENCY_KEY,
+            OPERATION_12_FREQUENCY_KEY,
+            OPERATION_13_FREQUENCY_KEY,
+            OPERATION_14_FREQUENCY_KEY,
+            OPERATION_15_FREQUENCY_KEY,
+            OPERATION_16_FREQUENCY_KEY,
+            OPERATION_17_FREQUENCY_KEY,
+            OPERATION_18_FREQUENCY_KEY,
+            OPERATION_19_FREQUENCY_KEY,
+            OPERATION_20_FREQUENCY_KEY,
+            OPERATION_21_FREQUENCY_KEY,
+            OPERATION_22_FREQUENCY_KEY,
+            OPERATION_23_FREQUENCY_KEY,
+            OPERATION_24_FREQUENCY_KEY
     );
 
     /*
     * Operation Interleave
     */
     public final static String INTERLEAVE_SUFFIX = "_interleave";
-    public final static String READ_OPERATION_1_INTERLEAVE_KEY =
+    public final static String OPERATION_1_INTERLEAVE_KEY =
             LDBC_SNB_BI_PARAM_NAME_PREFIX + LdbcSnbBiQuery1.class.getSimpleName() + INTERLEAVE_SUFFIX;
-    public final static String READ_OPERATION_2_INTERLEAVE_KEY =
+    public final static String OPERATION_2_INTERLEAVE_KEY =
             LDBC_SNB_BI_PARAM_NAME_PREFIX + LdbcSnbBiQuery2.class.getSimpleName() + INTERLEAVE_SUFFIX;
-    public final static String READ_OPERATION_3_INTERLEAVE_KEY =
+    public final static String OPERATION_3_INTERLEAVE_KEY =
             LDBC_SNB_BI_PARAM_NAME_PREFIX + LdbcSnbBiQuery3.class.getSimpleName() + INTERLEAVE_SUFFIX;
-    public final static String READ_OPERATION_4_INTERLEAVE_KEY =
+    public final static String OPERATION_4_INTERLEAVE_KEY =
             LDBC_SNB_BI_PARAM_NAME_PREFIX + LdbcSnbBiQuery4.class.getSimpleName() + INTERLEAVE_SUFFIX;
-    public final static String READ_OPERATION_5_INTERLEAVE_KEY =
+    public final static String OPERATION_5_INTERLEAVE_KEY =
             LDBC_SNB_BI_PARAM_NAME_PREFIX + LdbcSnbBiQuery5.class.getSimpleName() + INTERLEAVE_SUFFIX;
-    public final static String READ_OPERATION_6_INTERLEAVE_KEY =
+    public final static String OPERATION_6_INTERLEAVE_KEY =
             LDBC_SNB_BI_PARAM_NAME_PREFIX + LdbcSnbBiQuery6.class.getSimpleName() + INTERLEAVE_SUFFIX;
-    public final static String READ_OPERATION_7_INTERLEAVE_KEY =
+    public final static String OPERATION_7_INTERLEAVE_KEY =
             LDBC_SNB_BI_PARAM_NAME_PREFIX + LdbcSnbBiQuery7.class.getSimpleName() + INTERLEAVE_SUFFIX;
-    public final static String READ_OPERATION_8_INTERLEAVE_KEY =
+    public final static String OPERATION_8_INTERLEAVE_KEY =
             LDBC_SNB_BI_PARAM_NAME_PREFIX + LdbcSnbBiQuery8.class.getSimpleName() + INTERLEAVE_SUFFIX;
-    public final static String READ_OPERATION_9_INTERLEAVE_KEY =
+    public final static String OPERATION_9_INTERLEAVE_KEY =
             LDBC_SNB_BI_PARAM_NAME_PREFIX + LdbcSnbBiQuery9.class.getSimpleName() + INTERLEAVE_SUFFIX;
-    public final static String READ_OPERATION_10_INTERLEAVE_KEY =
+    public final static String OPERATION_10_INTERLEAVE_KEY =
             LDBC_SNB_BI_PARAM_NAME_PREFIX + LdbcSnbBiQuery10.class.getSimpleName() + INTERLEAVE_SUFFIX;
-    public final static String READ_OPERATION_11_INTERLEAVE_KEY =
+    public final static String OPERATION_11_INTERLEAVE_KEY =
             LDBC_SNB_BI_PARAM_NAME_PREFIX + LdbcSnbBiQuery11.class.getSimpleName() + INTERLEAVE_SUFFIX;
-    public final static String READ_OPERATION_12_INTERLEAVE_KEY =
+    public final static String OPERATION_12_INTERLEAVE_KEY =
             LDBC_SNB_BI_PARAM_NAME_PREFIX + LdbcSnbBiQuery12.class.getSimpleName() + INTERLEAVE_SUFFIX;
-    public final static String READ_OPERATION_13_INTERLEAVE_KEY =
+    public final static String OPERATION_13_INTERLEAVE_KEY =
             LDBC_SNB_BI_PARAM_NAME_PREFIX + LdbcSnbBiQuery13.class.getSimpleName() + INTERLEAVE_SUFFIX;
-    public final static String READ_OPERATION_14_INTERLEAVE_KEY =
+    public final static String OPERATION_14_INTERLEAVE_KEY =
             LDBC_SNB_BI_PARAM_NAME_PREFIX + LdbcSnbBiQuery14.class.getSimpleName() + INTERLEAVE_SUFFIX;
-    public final static String READ_OPERATION_15_INTERLEAVE_KEY =
+    public final static String OPERATION_15_INTERLEAVE_KEY =
             LDBC_SNB_BI_PARAM_NAME_PREFIX + LdbcSnbBiQuery15.class.getSimpleName() + INTERLEAVE_SUFFIX;
-    public final static String READ_OPERATION_16_INTERLEAVE_KEY =
+    public final static String OPERATION_16_INTERLEAVE_KEY =
             LDBC_SNB_BI_PARAM_NAME_PREFIX + LdbcSnbBiQuery16.class.getSimpleName() + INTERLEAVE_SUFFIX;
-    public final static String READ_OPERATION_17_INTERLEAVE_KEY =
+    public final static String OPERATION_17_INTERLEAVE_KEY =
             LDBC_SNB_BI_PARAM_NAME_PREFIX + LdbcSnbBiQuery17.class.getSimpleName() + INTERLEAVE_SUFFIX;
-    public final static String READ_OPERATION_18_INTERLEAVE_KEY =
+    public final static String OPERATION_18_INTERLEAVE_KEY =
             LDBC_SNB_BI_PARAM_NAME_PREFIX + LdbcSnbBiQuery18.class.getSimpleName() + INTERLEAVE_SUFFIX;
-    public final static String READ_OPERATION_19_INTERLEAVE_KEY =
+    public final static String OPERATION_19_INTERLEAVE_KEY =
             LDBC_SNB_BI_PARAM_NAME_PREFIX + LdbcSnbBiQuery19.class.getSimpleName() + INTERLEAVE_SUFFIX;
-    public final static String READ_OPERATION_20_INTERLEAVE_KEY =
+    public final static String OPERATION_20_INTERLEAVE_KEY =
             LDBC_SNB_BI_PARAM_NAME_PREFIX + LdbcSnbBiQuery20.class.getSimpleName() + INTERLEAVE_SUFFIX;
-    public final static String READ_OPERATION_21_INTERLEAVE_KEY =
+    public final static String OPERATION_21_INTERLEAVE_KEY =
             LDBC_SNB_BI_PARAM_NAME_PREFIX + LdbcSnbBiQuery21.class.getSimpleName() + INTERLEAVE_SUFFIX;
-    public final static String READ_OPERATION_22_INTERLEAVE_KEY =
+    public final static String OPERATION_22_INTERLEAVE_KEY =
             LDBC_SNB_BI_PARAM_NAME_PREFIX + LdbcSnbBiQuery22.class.getSimpleName() + INTERLEAVE_SUFFIX;
-    public final static String READ_OPERATION_23_INTERLEAVE_KEY =
+    public final static String OPERATION_23_INTERLEAVE_KEY =
             LDBC_SNB_BI_PARAM_NAME_PREFIX + LdbcSnbBiQuery23.class.getSimpleName() + INTERLEAVE_SUFFIX;
-    public final static String READ_OPERATION_24_INTERLEAVE_KEY =
+    public final static String OPERATION_24_INTERLEAVE_KEY =
             LDBC_SNB_BI_PARAM_NAME_PREFIX + LdbcSnbBiQuery24.class.getSimpleName() + INTERLEAVE_SUFFIX;
-    public final static List<String> READ_OPERATION_INTERLEAVE_KEYS = Lists.newArrayList(
-            READ_OPERATION_1_INTERLEAVE_KEY,
-            READ_OPERATION_2_INTERLEAVE_KEY,
-            READ_OPERATION_3_INTERLEAVE_KEY,
-            READ_OPERATION_4_INTERLEAVE_KEY,
-            READ_OPERATION_5_INTERLEAVE_KEY,
-            READ_OPERATION_6_INTERLEAVE_KEY,
-            READ_OPERATION_7_INTERLEAVE_KEY,
-            READ_OPERATION_8_INTERLEAVE_KEY,
-            READ_OPERATION_9_INTERLEAVE_KEY,
-            READ_OPERATION_10_INTERLEAVE_KEY,
-            READ_OPERATION_11_INTERLEAVE_KEY,
-            READ_OPERATION_12_INTERLEAVE_KEY,
-            READ_OPERATION_13_INTERLEAVE_KEY,
-            READ_OPERATION_14_INTERLEAVE_KEY,
-            READ_OPERATION_15_INTERLEAVE_KEY,
-            READ_OPERATION_16_INTERLEAVE_KEY,
-            READ_OPERATION_17_INTERLEAVE_KEY,
-            READ_OPERATION_18_INTERLEAVE_KEY,
-            READ_OPERATION_19_INTERLEAVE_KEY,
-            READ_OPERATION_20_INTERLEAVE_KEY,
-            READ_OPERATION_21_INTERLEAVE_KEY,
-            READ_OPERATION_22_INTERLEAVE_KEY,
-            READ_OPERATION_23_INTERLEAVE_KEY,
-            READ_OPERATION_24_INTERLEAVE_KEY
+    public final static List<String> OPERATION_INTERLEAVE_KEYS = Lists.newArrayList(
+            OPERATION_1_INTERLEAVE_KEY,
+            OPERATION_2_INTERLEAVE_KEY,
+            OPERATION_3_INTERLEAVE_KEY,
+            OPERATION_4_INTERLEAVE_KEY,
+            OPERATION_5_INTERLEAVE_KEY,
+            OPERATION_6_INTERLEAVE_KEY,
+            OPERATION_7_INTERLEAVE_KEY,
+            OPERATION_8_INTERLEAVE_KEY,
+            OPERATION_9_INTERLEAVE_KEY,
+            OPERATION_10_INTERLEAVE_KEY,
+            OPERATION_11_INTERLEAVE_KEY,
+            OPERATION_12_INTERLEAVE_KEY,
+            OPERATION_13_INTERLEAVE_KEY,
+            OPERATION_14_INTERLEAVE_KEY,
+            OPERATION_15_INTERLEAVE_KEY,
+            OPERATION_16_INTERLEAVE_KEY,
+            OPERATION_17_INTERLEAVE_KEY,
+            OPERATION_18_INTERLEAVE_KEY,
+            OPERATION_19_INTERLEAVE_KEY,
+            OPERATION_20_INTERLEAVE_KEY,
+            OPERATION_21_INTERLEAVE_KEY,
+            OPERATION_22_INTERLEAVE_KEY,
+            OPERATION_23_INTERLEAVE_KEY,
+            OPERATION_24_INTERLEAVE_KEY
     );
-
-    // Average distance between updates in simulation time
-    private final static String UPDATE_INTERLEAVE = LDBC_SNB_BI_PARAM_NAME_PREFIX + "update_interleave";
 
     /*
      * Operation Enable
      */
     public final static String ENABLE_SUFFIX = "_enable";
-    public final static String LONG_READ_OPERATION_1_ENABLE_KEY =
+    public final static String OPERATION_1_ENABLE_KEY =
             LDBC_SNB_BI_PARAM_NAME_PREFIX + LdbcSnbBiQuery1.class.getSimpleName() + ENABLE_SUFFIX;
-    public final static String LONG_READ_OPERATION_2_ENABLE_KEY =
+    public final static String OPERATION_2_ENABLE_KEY =
             LDBC_SNB_BI_PARAM_NAME_PREFIX + LdbcSnbBiQuery2.class.getSimpleName() + ENABLE_SUFFIX;
-    public final static String LONG_READ_OPERATION_3_ENABLE_KEY =
+    public final static String OPERATION_3_ENABLE_KEY =
             LDBC_SNB_BI_PARAM_NAME_PREFIX + LdbcSnbBiQuery3.class.getSimpleName() + ENABLE_SUFFIX;
-    public final static String LONG_READ_OPERATION_4_ENABLE_KEY =
+    public final static String OPERATION_4_ENABLE_KEY =
             LDBC_SNB_BI_PARAM_NAME_PREFIX + LdbcSnbBiQuery4.class.getSimpleName() + ENABLE_SUFFIX;
-    public final static String LONG_READ_OPERATION_5_ENABLE_KEY =
+    public final static String OPERATION_5_ENABLE_KEY =
             LDBC_SNB_BI_PARAM_NAME_PREFIX + LdbcSnbBiQuery5.class.getSimpleName() + ENABLE_SUFFIX;
-    public final static String LONG_READ_OPERATION_6_ENABLE_KEY =
+    public final static String OPERATION_6_ENABLE_KEY =
             LDBC_SNB_BI_PARAM_NAME_PREFIX + LdbcSnbBiQuery6.class.getSimpleName() + ENABLE_SUFFIX;
-    public final static String LONG_READ_OPERATION_7_ENABLE_KEY =
+    public final static String OPERATION_7_ENABLE_KEY =
             LDBC_SNB_BI_PARAM_NAME_PREFIX + LdbcSnbBiQuery7.class.getSimpleName() + ENABLE_SUFFIX;
-    public final static String LONG_READ_OPERATION_8_ENABLE_KEY =
+    public final static String OPERATION_8_ENABLE_KEY =
             LDBC_SNB_BI_PARAM_NAME_PREFIX + LdbcSnbBiQuery8.class.getSimpleName() + ENABLE_SUFFIX;
-    public final static String LONG_READ_OPERATION_9_ENABLE_KEY =
+    public final static String OPERATION_9_ENABLE_KEY =
             LDBC_SNB_BI_PARAM_NAME_PREFIX + LdbcSnbBiQuery9.class.getSimpleName() + ENABLE_SUFFIX;
-    public final static String LONG_READ_OPERATION_10_ENABLE_KEY =
+    public final static String OPERATION_10_ENABLE_KEY =
             LDBC_SNB_BI_PARAM_NAME_PREFIX + LdbcSnbBiQuery10.class.getSimpleName() + ENABLE_SUFFIX;
-    public final static String LONG_READ_OPERATION_11_ENABLE_KEY =
+    public final static String OPERATION_11_ENABLE_KEY =
             LDBC_SNB_BI_PARAM_NAME_PREFIX + LdbcSnbBiQuery11.class.getSimpleName() + ENABLE_SUFFIX;
-    public final static String LONG_READ_OPERATION_12_ENABLE_KEY =
+    public final static String OPERATION_12_ENABLE_KEY =
             LDBC_SNB_BI_PARAM_NAME_PREFIX + LdbcSnbBiQuery12.class.getSimpleName() + ENABLE_SUFFIX;
-    public final static String LONG_READ_OPERATION_13_ENABLE_KEY =
+    public final static String OPERATION_13_ENABLE_KEY =
             LDBC_SNB_BI_PARAM_NAME_PREFIX + LdbcSnbBiQuery13.class.getSimpleName() + ENABLE_SUFFIX;
-    public final static String LONG_READ_OPERATION_14_ENABLE_KEY =
+    public final static String OPERATION_14_ENABLE_KEY =
             LDBC_SNB_BI_PARAM_NAME_PREFIX + LdbcSnbBiQuery14.class.getSimpleName() + ENABLE_SUFFIX;
-    public final static String LONG_READ_OPERATION_15_ENABLE_KEY =
+    public final static String OPERATION_15_ENABLE_KEY =
             LDBC_SNB_BI_PARAM_NAME_PREFIX + LdbcSnbBiQuery15.class.getSimpleName() + ENABLE_SUFFIX;
-    public final static String LONG_READ_OPERATION_16_ENABLE_KEY =
+    public final static String OPERATION_16_ENABLE_KEY =
             LDBC_SNB_BI_PARAM_NAME_PREFIX + LdbcSnbBiQuery16.class.getSimpleName() + ENABLE_SUFFIX;
-    public final static String LONG_READ_OPERATION_17_ENABLE_KEY =
+    public final static String OPERATION_17_ENABLE_KEY =
             LDBC_SNB_BI_PARAM_NAME_PREFIX + LdbcSnbBiQuery17.class.getSimpleName() + ENABLE_SUFFIX;
-    public final static String LONG_READ_OPERATION_18_ENABLE_KEY =
+    public final static String OPERATION_18_ENABLE_KEY =
             LDBC_SNB_BI_PARAM_NAME_PREFIX + LdbcSnbBiQuery18.class.getSimpleName() + ENABLE_SUFFIX;
-    public final static String LONG_READ_OPERATION_19_ENABLE_KEY =
+    public final static String OPERATION_19_ENABLE_KEY =
             LDBC_SNB_BI_PARAM_NAME_PREFIX + LdbcSnbBiQuery19.class.getSimpleName() + ENABLE_SUFFIX;
-    public final static String LONG_READ_OPERATION_20_ENABLE_KEY =
+    public final static String OPERATION_20_ENABLE_KEY =
             LDBC_SNB_BI_PARAM_NAME_PREFIX + LdbcSnbBiQuery20.class.getSimpleName() + ENABLE_SUFFIX;
-    public final static String LONG_READ_OPERATION_21_ENABLE_KEY =
+    public final static String OPERATION_21_ENABLE_KEY =
             LDBC_SNB_BI_PARAM_NAME_PREFIX + LdbcSnbBiQuery21.class.getSimpleName() + ENABLE_SUFFIX;
-    public final static String LONG_READ_OPERATION_22_ENABLE_KEY =
+    public final static String OPERATION_22_ENABLE_KEY =
             LDBC_SNB_BI_PARAM_NAME_PREFIX + LdbcSnbBiQuery22.class.getSimpleName() + ENABLE_SUFFIX;
-    public final static String LONG_READ_OPERATION_23_ENABLE_KEY =
+    public final static String OPERATION_23_ENABLE_KEY =
             LDBC_SNB_BI_PARAM_NAME_PREFIX + LdbcSnbBiQuery23.class.getSimpleName() + ENABLE_SUFFIX;
-    public final static String LONG_READ_OPERATION_24_ENABLE_KEY =
+    public final static String OPERATION_24_ENABLE_KEY =
             LDBC_SNB_BI_PARAM_NAME_PREFIX + LdbcSnbBiQuery24.class.getSimpleName() + ENABLE_SUFFIX;
-    public final static List<String> LONG_READ_OPERATION_ENABLE_KEYS = Lists.newArrayList(
-            LONG_READ_OPERATION_1_ENABLE_KEY,
-            LONG_READ_OPERATION_2_ENABLE_KEY,
-            LONG_READ_OPERATION_3_ENABLE_KEY,
-            LONG_READ_OPERATION_4_ENABLE_KEY,
-            LONG_READ_OPERATION_5_ENABLE_KEY,
-            LONG_READ_OPERATION_6_ENABLE_KEY,
-            LONG_READ_OPERATION_7_ENABLE_KEY,
-            LONG_READ_OPERATION_8_ENABLE_KEY,
-            LONG_READ_OPERATION_9_ENABLE_KEY,
-            LONG_READ_OPERATION_10_ENABLE_KEY,
-            LONG_READ_OPERATION_11_ENABLE_KEY,
-            LONG_READ_OPERATION_12_ENABLE_KEY,
-            LONG_READ_OPERATION_13_ENABLE_KEY,
-            LONG_READ_OPERATION_14_ENABLE_KEY,
-            LONG_READ_OPERATION_15_ENABLE_KEY,
-            LONG_READ_OPERATION_16_ENABLE_KEY,
-            LONG_READ_OPERATION_17_ENABLE_KEY,
-            LONG_READ_OPERATION_18_ENABLE_KEY,
-            LONG_READ_OPERATION_19_ENABLE_KEY,
-            LONG_READ_OPERATION_20_ENABLE_KEY,
-            LONG_READ_OPERATION_21_ENABLE_KEY,
-            LONG_READ_OPERATION_22_ENABLE_KEY,
-            LONG_READ_OPERATION_23_ENABLE_KEY,
-            LONG_READ_OPERATION_24_ENABLE_KEY
+    public final static List<String> OPERATION_ENABLE_KEYS = Lists.newArrayList(
+            OPERATION_1_ENABLE_KEY,
+            OPERATION_2_ENABLE_KEY,
+            OPERATION_3_ENABLE_KEY,
+            OPERATION_4_ENABLE_KEY,
+            OPERATION_5_ENABLE_KEY,
+            OPERATION_6_ENABLE_KEY,
+            OPERATION_7_ENABLE_KEY,
+            OPERATION_8_ENABLE_KEY,
+            OPERATION_9_ENABLE_KEY,
+            OPERATION_10_ENABLE_KEY,
+            OPERATION_11_ENABLE_KEY,
+            OPERATION_12_ENABLE_KEY,
+            OPERATION_13_ENABLE_KEY,
+            OPERATION_14_ENABLE_KEY,
+            OPERATION_15_ENABLE_KEY,
+            OPERATION_16_ENABLE_KEY,
+            OPERATION_17_ENABLE_KEY,
+            OPERATION_18_ENABLE_KEY,
+            OPERATION_19_ENABLE_KEY,
+            OPERATION_20_ENABLE_KEY,
+            OPERATION_21_ENABLE_KEY,
+            OPERATION_22_ENABLE_KEY,
+            OPERATION_23_ENABLE_KEY,
+            OPERATION_24_ENABLE_KEY
     );
 
     /*
      * Read Operation Parameters
      */
-    public final static String READ_OPERATION_1_PARAMS_FILENAME = "query_1_param.txt";
-    public final static String READ_OPERATION_2_PARAMS_FILENAME = "query_2_param.txt";
-    public final static String READ_OPERATION_3_PARAMS_FILENAME = "query_3_param.txt";
-    public final static String READ_OPERATION_4_PARAMS_FILENAME = "query_4_param.txt";
-    public final static String READ_OPERATION_5_PARAMS_FILENAME = "query_5_param.txt";
-    public final static String READ_OPERATION_6_PARAMS_FILENAME = "query_6_param.txt";
-    public final static String READ_OPERATION_7_PARAMS_FILENAME = "query_7_param.txt";
-    public final static String READ_OPERATION_8_PARAMS_FILENAME = "query_8_param.txt";
-    public final static String READ_OPERATION_9_PARAMS_FILENAME = "query_9_param.txt";
-    public final static String READ_OPERATION_10_PARAMS_FILENAME = "query_10_param.txt";
-    public final static String READ_OPERATION_11_PARAMS_FILENAME = "query_11_param.txt";
-    public final static String READ_OPERATION_12_PARAMS_FILENAME = "query_12_param.txt";
-    public final static String READ_OPERATION_13_PARAMS_FILENAME = "query_13_param.txt";
-    public final static String READ_OPERATION_14_PARAMS_FILENAME = "query_14_param.txt";
-    public final static String READ_OPERATION_15_PARAMS_FILENAME = "query_15_param.txt";
-    public final static String READ_OPERATION_16_PARAMS_FILENAME = "query_16_param.txt";
-    public final static String READ_OPERATION_17_PARAMS_FILENAME = "query_17_param.txt";
-    public final static String READ_OPERATION_18_PARAMS_FILENAME = "query_18_param.txt";
-    public final static String READ_OPERATION_19_PARAMS_FILENAME = "query_19_param.txt";
-    public final static String READ_OPERATION_20_PARAMS_FILENAME = "query_20_param.txt";
-    public final static String READ_OPERATION_21_PARAMS_FILENAME = "query_21_param.txt";
-    public final static String READ_OPERATION_22_PARAMS_FILENAME = "query_22_param.txt";
-    public final static String READ_OPERATION_23_PARAMS_FILENAME = "query_23_param.txt";
-    public final static String READ_OPERATION_24_PARAMS_FILENAME = "query_24_param.txt";
-    public final static List<String> READ_OPERATION_PARAMS_FILENAMES = Lists.newArrayList(
-            READ_OPERATION_1_PARAMS_FILENAME,
-            READ_OPERATION_2_PARAMS_FILENAME,
-            READ_OPERATION_3_PARAMS_FILENAME,
-            READ_OPERATION_4_PARAMS_FILENAME,
-            READ_OPERATION_5_PARAMS_FILENAME,
-            READ_OPERATION_6_PARAMS_FILENAME,
-            READ_OPERATION_7_PARAMS_FILENAME,
-            READ_OPERATION_8_PARAMS_FILENAME,
-            READ_OPERATION_9_PARAMS_FILENAME,
-            READ_OPERATION_10_PARAMS_FILENAME,
-            READ_OPERATION_11_PARAMS_FILENAME,
-            READ_OPERATION_12_PARAMS_FILENAME,
-            READ_OPERATION_13_PARAMS_FILENAME,
-            READ_OPERATION_14_PARAMS_FILENAME,
-            READ_OPERATION_15_PARAMS_FILENAME,
-            READ_OPERATION_16_PARAMS_FILENAME,
-            READ_OPERATION_17_PARAMS_FILENAME,
-            READ_OPERATION_18_PARAMS_FILENAME,
-            READ_OPERATION_19_PARAMS_FILENAME,
-            READ_OPERATION_20_PARAMS_FILENAME,
-            READ_OPERATION_21_PARAMS_FILENAME,
-            READ_OPERATION_22_PARAMS_FILENAME,
-            READ_OPERATION_23_PARAMS_FILENAME,
-            READ_OPERATION_24_PARAMS_FILENAME
+    public final static String OPERATION_1_PARAMS_FILENAME = "query_1_param.txt";
+    public final static String OPERATION_2_PARAMS_FILENAME = "query_2_param.txt";
+    public final static String OPERATION_3_PARAMS_FILENAME = "query_3_param.txt";
+    public final static String OPERATION_4_PARAMS_FILENAME = "query_4_param.txt";
+    public final static String OPERATION_5_PARAMS_FILENAME = "query_5_param.txt";
+    public final static String OPERATION_6_PARAMS_FILENAME = "query_6_param.txt";
+    public final static String OPERATION_7_PARAMS_FILENAME = "query_7_param.txt";
+    public final static String OPERATION_8_PARAMS_FILENAME = "query_8_param.txt";
+    public final static String OPERATION_9_PARAMS_FILENAME = "query_9_param.txt";
+    public final static String OPERATION_10_PARAMS_FILENAME = "query_10_param.txt";
+    public final static String OPERATION_11_PARAMS_FILENAME = "query_11_param.txt";
+    public final static String OPERATION_12_PARAMS_FILENAME = "query_12_param.txt";
+    public final static String OPERATION_13_PARAMS_FILENAME = "query_13_param.txt";
+    public final static String OPERATION_14_PARAMS_FILENAME = "query_14_param.txt";
+    public final static String OPERATION_15_PARAMS_FILENAME = "query_15_param.txt";
+    public final static String OPERATION_16_PARAMS_FILENAME = "query_16_param.txt";
+    public final static String OPERATION_17_PARAMS_FILENAME = "query_17_param.txt";
+    public final static String OPERATION_18_PARAMS_FILENAME = "query_18_param.txt";
+    public final static String OPERATION_19_PARAMS_FILENAME = "query_19_param.txt";
+    public final static String OPERATION_20_PARAMS_FILENAME = "query_20_param.txt";
+    public final static String OPERATION_21_PARAMS_FILENAME = "query_21_param.txt";
+    public final static String OPERATION_22_PARAMS_FILENAME = "query_22_param.txt";
+    public final static String OPERATION_23_PARAMS_FILENAME = "query_23_param.txt";
+    public final static String OPERATION_24_PARAMS_FILENAME = "query_24_param.txt";
+    public final static List<String> OPERATION_PARAMS_FILENAMES = Lists.newArrayList(
+            OPERATION_1_PARAMS_FILENAME,
+            OPERATION_2_PARAMS_FILENAME,
+            OPERATION_3_PARAMS_FILENAME,
+            OPERATION_4_PARAMS_FILENAME,
+            OPERATION_5_PARAMS_FILENAME,
+            OPERATION_6_PARAMS_FILENAME,
+            OPERATION_7_PARAMS_FILENAME,
+            OPERATION_8_PARAMS_FILENAME,
+            OPERATION_9_PARAMS_FILENAME,
+            OPERATION_10_PARAMS_FILENAME,
+            OPERATION_11_PARAMS_FILENAME,
+            OPERATION_12_PARAMS_FILENAME,
+            OPERATION_13_PARAMS_FILENAME,
+            OPERATION_14_PARAMS_FILENAME,
+            OPERATION_15_PARAMS_FILENAME,
+            OPERATION_16_PARAMS_FILENAME,
+            OPERATION_17_PARAMS_FILENAME,
+            OPERATION_18_PARAMS_FILENAME,
+            OPERATION_19_PARAMS_FILENAME,
+            OPERATION_20_PARAMS_FILENAME,
+            OPERATION_21_PARAMS_FILENAME,
+            OPERATION_22_PARAMS_FILENAME,
+            OPERATION_23_PARAMS_FILENAME,
+            OPERATION_24_PARAMS_FILENAME
     );
 
-    public static Map<String,String> convertFrequenciesToInterleaves( Map<String,String> params )
+    public static Map<String,String> applyInterleaves( Map<String,String> params, LdbcSnbBiInterleaves interleaves )
+    {
+        Map<String,String> newParams = new HashMap<>();
+        for ( String paramKey : params.keySet() )
+        {
+            newParams.put( paramKey, params.get( paramKey ) );
+        }
+        newParams.put( OPERATION_1_INTERLEAVE_KEY, Long.toString( interleaves.operation1Interleave ) );
+        newParams.put( OPERATION_2_INTERLEAVE_KEY, Long.toString( interleaves.operation2Interleave ) );
+        newParams.put( OPERATION_3_INTERLEAVE_KEY, Long.toString( interleaves.operation3Interleave ) );
+        newParams.put( OPERATION_4_INTERLEAVE_KEY, Long.toString( interleaves.operation4Interleave ) );
+        newParams.put( OPERATION_5_INTERLEAVE_KEY, Long.toString( interleaves.operation5Interleave ) );
+        newParams.put( OPERATION_6_INTERLEAVE_KEY, Long.toString( interleaves.operation6Interleave ) );
+        newParams.put( OPERATION_7_INTERLEAVE_KEY, Long.toString( interleaves.operation7Interleave ) );
+        newParams.put( OPERATION_8_INTERLEAVE_KEY, Long.toString( interleaves.operation8Interleave ) );
+        newParams.put( OPERATION_9_INTERLEAVE_KEY, Long.toString( interleaves.operation9Interleave ) );
+        newParams.put( OPERATION_10_INTERLEAVE_KEY, Long.toString( interleaves.operation10Interleave ) );
+        newParams.put( OPERATION_11_INTERLEAVE_KEY, Long.toString( interleaves.operation11Interleave ) );
+        newParams.put( OPERATION_12_INTERLEAVE_KEY, Long.toString( interleaves.operation12Interleave ) );
+        newParams.put( OPERATION_13_INTERLEAVE_KEY, Long.toString( interleaves.operation13Interleave ) );
+        newParams.put( OPERATION_14_INTERLEAVE_KEY, Long.toString( interleaves.operation14Interleave ) );
+        newParams.put( OPERATION_15_INTERLEAVE_KEY, Long.toString( interleaves.operation15Interleave ) );
+        newParams.put( OPERATION_16_INTERLEAVE_KEY, Long.toString( interleaves.operation16Interleave ) );
+        newParams.put( OPERATION_17_INTERLEAVE_KEY, Long.toString( interleaves.operation17Interleave ) );
+        newParams.put( OPERATION_18_INTERLEAVE_KEY, Long.toString( interleaves.operation18Interleave ) );
+        newParams.put( OPERATION_19_INTERLEAVE_KEY, Long.toString( interleaves.operation19Interleave ) );
+        newParams.put( OPERATION_20_INTERLEAVE_KEY, Long.toString( interleaves.operation20Interleave ) );
+        newParams.put( OPERATION_21_INTERLEAVE_KEY, Long.toString( interleaves.operation21Interleave ) );
+        newParams.put( OPERATION_22_INTERLEAVE_KEY, Long.toString( interleaves.operation22Interleave ) );
+        newParams.put( OPERATION_23_INTERLEAVE_KEY, Long.toString( interleaves.operation23Interleave ) );
+        newParams.put( OPERATION_24_INTERLEAVE_KEY, Long.toString( interleaves.operation24Interleave ) );
+        return newParams;
+    }
+
+    public static LdbcSnbBiInterleaves interleavesFromFrequencyParams( Map<String,String> params )
     {
         // TODO revise/replace
-//        Integer updateDistance = Integer.parseInt( params.get( UPDATE_INTERLEAVE ) );
-        Integer updateDistance = 1;
+        Integer minimumDistanceAsMilli = 1;
+        return LdbcSnbBiInterleaves.fromFrequencies(
+                minimumDistanceAsMilli,
+                Long.parseLong( params.get( OPERATION_1_FREQUENCY_KEY ) ),
+                Long.parseLong( params.get( OPERATION_2_FREQUENCY_KEY ) ),
+                Long.parseLong( params.get( OPERATION_3_FREQUENCY_KEY ) ),
+                Long.parseLong( params.get( OPERATION_4_FREQUENCY_KEY ) ),
+                Long.parseLong( params.get( OPERATION_5_FREQUENCY_KEY ) ),
+                Long.parseLong( params.get( OPERATION_6_FREQUENCY_KEY ) ),
+                Long.parseLong( params.get( OPERATION_7_FREQUENCY_KEY ) ),
+                Long.parseLong( params.get( OPERATION_8_FREQUENCY_KEY ) ),
+                Long.parseLong( params.get( OPERATION_9_FREQUENCY_KEY ) ),
+                Long.parseLong( params.get( OPERATION_10_FREQUENCY_KEY ) ),
+                Long.parseLong( params.get( OPERATION_11_FREQUENCY_KEY ) ),
+                Long.parseLong( params.get( OPERATION_12_FREQUENCY_KEY ) ),
+                Long.parseLong( params.get( OPERATION_13_FREQUENCY_KEY ) ),
+                Long.parseLong( params.get( OPERATION_14_FREQUENCY_KEY ) ),
+                Long.parseLong( params.get( OPERATION_15_FREQUENCY_KEY ) ),
+                Long.parseLong( params.get( OPERATION_16_FREQUENCY_KEY ) ),
+                Long.parseLong( params.get( OPERATION_17_FREQUENCY_KEY ) ),
+                Long.parseLong( params.get( OPERATION_18_FREQUENCY_KEY ) ),
+                Long.parseLong( params.get( OPERATION_19_FREQUENCY_KEY ) ),
+                Long.parseLong( params.get( OPERATION_20_FREQUENCY_KEY ) ),
+                Long.parseLong( params.get( OPERATION_21_FREQUENCY_KEY ) ),
+                Long.parseLong( params.get( OPERATION_22_FREQUENCY_KEY ) ),
+                Long.parseLong( params.get( OPERATION_23_FREQUENCY_KEY ) ),
+                Long.parseLong( params.get( OPERATION_24_FREQUENCY_KEY ) )
+        );
+    }
 
-        Integer interleave = Integer.parseInt( params.get( READ_OPERATION_1_FREQUENCY_KEY ) ) * updateDistance;
-        params.put( READ_OPERATION_1_INTERLEAVE_KEY, interleave.toString() );
+    public static LdbcSnbBiInterleaves interleavesFromInterleaveParams(
+            Map<String,String> params )
+    {
+        return new LdbcSnbBiInterleaves(
+                Long.parseLong( params.get( OPERATION_1_INTERLEAVE_KEY ) ),
+                Long.parseLong( params.get( OPERATION_2_INTERLEAVE_KEY ) ),
+                Long.parseLong( params.get( OPERATION_3_INTERLEAVE_KEY ) ),
+                Long.parseLong( params.get( OPERATION_4_INTERLEAVE_KEY ) ),
+                Long.parseLong( params.get( OPERATION_5_INTERLEAVE_KEY ) ),
+                Long.parseLong( params.get( OPERATION_6_INTERLEAVE_KEY ) ),
+                Long.parseLong( params.get( OPERATION_7_INTERLEAVE_KEY ) ),
+                Long.parseLong( params.get( OPERATION_8_INTERLEAVE_KEY ) ),
+                Long.parseLong( params.get( OPERATION_9_INTERLEAVE_KEY ) ),
+                Long.parseLong( params.get( OPERATION_10_INTERLEAVE_KEY ) ),
+                Long.parseLong( params.get( OPERATION_11_INTERLEAVE_KEY ) ),
+                Long.parseLong( params.get( OPERATION_12_INTERLEAVE_KEY ) ),
+                Long.parseLong( params.get( OPERATION_13_INTERLEAVE_KEY ) ),
+                Long.parseLong( params.get( OPERATION_14_INTERLEAVE_KEY ) ),
+                Long.parseLong( params.get( OPERATION_15_INTERLEAVE_KEY ) ),
+                Long.parseLong( params.get( OPERATION_16_INTERLEAVE_KEY ) ),
+                Long.parseLong( params.get( OPERATION_17_INTERLEAVE_KEY ) ),
+                Long.parseLong( params.get( OPERATION_18_INTERLEAVE_KEY ) ),
+                Long.parseLong( params.get( OPERATION_19_INTERLEAVE_KEY ) ),
+                Long.parseLong( params.get( OPERATION_20_INTERLEAVE_KEY ) ),
+                Long.parseLong( params.get( OPERATION_21_INTERLEAVE_KEY ) ),
+                Long.parseLong( params.get( OPERATION_22_INTERLEAVE_KEY ) ),
+                Long.parseLong( params.get( OPERATION_23_INTERLEAVE_KEY ) ),
+                Long.parseLong( params.get( OPERATION_24_INTERLEAVE_KEY ) )
+        );
+    }
 
-        interleave = Integer.parseInt( params.get( READ_OPERATION_2_FREQUENCY_KEY ) ) * updateDistance;
-        params.put( READ_OPERATION_2_INTERLEAVE_KEY, interleave.toString() );
+    public static class LdbcSnbBiInterleaves
+    {
+        private final long operation1Interleave;
+        private final long operation2Interleave;
+        private final long operation3Interleave;
+        private final long operation4Interleave;
+        private final long operation5Interleave;
+        private final long operation6Interleave;
+        private final long operation7Interleave;
+        private final long operation8Interleave;
+        private final long operation9Interleave;
+        private final long operation10Interleave;
+        private final long operation11Interleave;
+        private final long operation12Interleave;
+        private final long operation13Interleave;
+        private final long operation14Interleave;
+        private final long operation15Interleave;
+        private final long operation16Interleave;
+        private final long operation17Interleave;
+        private final long operation18Interleave;
+        private final long operation19Interleave;
+        private final long operation20Interleave;
+        private final long operation21Interleave;
+        private final long operation22Interleave;
+        private final long operation23Interleave;
+        private final long operation24Interleave;
 
-        interleave = Integer.parseInt( params.get( READ_OPERATION_3_FREQUENCY_KEY ) ) * updateDistance;
-        params.put( READ_OPERATION_3_INTERLEAVE_KEY, interleave.toString() );
+        public static LdbcSnbBiInterleaves fromFrequencies(
+                long minimumDistanceAsMilli,
+                long operation1Frequency,
+                long operation2Frequency,
+                long operation3Frequency,
+                long operation4Frequency,
+                long operation5Frequency,
+                long operation6Frequency,
+                long operation7Frequency,
+                long operation8Frequency,
+                long operation9Frequency,
+                long operation10Frequency,
+                long operation11Frequency,
+                long operation12Frequency,
+                long operation13Frequency,
+                long operation14Frequency,
+                long operation15Frequency,
+                long operation16Frequency,
+                long operation17Frequency,
+                long operation18Frequency,
+                long operation19Frequency,
+                long operation20Frequency,
+                long operation21Frequency,
+                long operation22Frequency,
+                long operation23Frequency,
+                long operation24Frequency )
+        {
+            return new LdbcSnbBiInterleaves(
+                    operation1Frequency * minimumDistanceAsMilli,
+                    operation2Frequency * minimumDistanceAsMilli,
+                    operation3Frequency * minimumDistanceAsMilli,
+                    operation4Frequency * minimumDistanceAsMilli,
+                    operation5Frequency * minimumDistanceAsMilli,
+                    operation6Frequency * minimumDistanceAsMilli,
+                    operation7Frequency * minimumDistanceAsMilli,
+                    operation8Frequency * minimumDistanceAsMilli,
+                    operation9Frequency * minimumDistanceAsMilli,
+                    operation10Frequency * minimumDistanceAsMilli,
+                    operation11Frequency * minimumDistanceAsMilli,
+                    operation12Frequency * minimumDistanceAsMilli,
+                    operation13Frequency * minimumDistanceAsMilli,
+                    operation14Frequency * minimumDistanceAsMilli,
+                    operation15Frequency * minimumDistanceAsMilli,
+                    operation16Frequency * minimumDistanceAsMilli,
+                    operation17Frequency * minimumDistanceAsMilli,
+                    operation18Frequency * minimumDistanceAsMilli,
+                    operation19Frequency * minimumDistanceAsMilli,
+                    operation20Frequency * minimumDistanceAsMilli,
+                    operation21Frequency * minimumDistanceAsMilli,
+                    operation22Frequency * minimumDistanceAsMilli,
+                    operation23Frequency * minimumDistanceAsMilli,
+                    operation24Frequency * minimumDistanceAsMilli
+            );
+        }
 
-        interleave = Integer.parseInt( params.get( READ_OPERATION_4_FREQUENCY_KEY ) ) * updateDistance;
-        params.put( READ_OPERATION_4_INTERLEAVE_KEY, interleave.toString() );
+        private LdbcSnbBiInterleaves(
+                long operation1Interleave,
+                long operation2Interleave,
+                long operation3Interleave,
+                long operation4Interleave,
+                long operation5Interleave,
+                long operation6Interleave,
+                long operation7Interleave,
+                long operation8Interleave,
+                long operation9Interleave,
+                long operation10Interleave,
+                long operation11Interleave,
+                long operation12Interleave,
+                long operation13Interleave,
+                long operation14Interleave,
+                long operation15Interleave,
+                long operation16Interleave,
+                long operation17Interleave,
+                long operation18Interleave,
+                long operation19Interleave,
+                long operation20Interleave,
+                long operation21Interleave,
+                long operation22Interleave,
+                long operation23Interleave,
+                long operation24Interleave )
+        {
+            this.operation1Interleave = operation1Interleave;
+            this.operation2Interleave = operation2Interleave;
+            this.operation3Interleave = operation3Interleave;
+            this.operation4Interleave = operation4Interleave;
+            this.operation5Interleave = operation5Interleave;
+            this.operation6Interleave = operation6Interleave;
+            this.operation7Interleave = operation7Interleave;
+            this.operation8Interleave = operation8Interleave;
+            this.operation9Interleave = operation9Interleave;
+            this.operation10Interleave = operation10Interleave;
+            this.operation11Interleave = operation11Interleave;
+            this.operation12Interleave = operation12Interleave;
+            this.operation13Interleave = operation13Interleave;
+            this.operation14Interleave = operation14Interleave;
+            this.operation15Interleave = operation15Interleave;
+            this.operation16Interleave = operation16Interleave;
+            this.operation17Interleave = operation17Interleave;
+            this.operation18Interleave = operation18Interleave;
+            this.operation19Interleave = operation19Interleave;
+            this.operation20Interleave = operation20Interleave;
+            this.operation21Interleave = operation21Interleave;
+            this.operation22Interleave = operation22Interleave;
+            this.operation23Interleave = operation23Interleave;
+            this.operation24Interleave = operation24Interleave;
+        }
 
-        interleave = Integer.parseInt( params.get( READ_OPERATION_5_FREQUENCY_KEY ) ) * updateDistance;
-        params.put( READ_OPERATION_5_INTERLEAVE_KEY, interleave.toString() );
+        public long operation1Interleave()
+        {
+            return operation1Interleave;
+        }
 
-        interleave = Integer.parseInt( params.get( READ_OPERATION_6_FREQUENCY_KEY ) ) * updateDistance;
-        params.put( READ_OPERATION_6_INTERLEAVE_KEY, interleave.toString() );
+        public long operation2Interleave()
+        {
+            return operation2Interleave;
+        }
 
-        interleave = Integer.parseInt( params.get( READ_OPERATION_7_FREQUENCY_KEY ) ) * updateDistance;
-        params.put( READ_OPERATION_7_INTERLEAVE_KEY, interleave.toString() );
+        public long operation3Interleave()
+        {
+            return operation3Interleave;
+        }
 
-        interleave = Integer.parseInt( params.get( READ_OPERATION_8_FREQUENCY_KEY ) ) * updateDistance;
-        params.put( READ_OPERATION_8_INTERLEAVE_KEY, interleave.toString() );
+        public long operation4Interleave()
+        {
+            return operation4Interleave;
+        }
 
-        interleave = Integer.parseInt( params.get( READ_OPERATION_9_FREQUENCY_KEY ) ) * updateDistance;
-        params.put( READ_OPERATION_9_INTERLEAVE_KEY, interleave.toString() );
+        public long operation5Interleave()
+        {
+            return operation5Interleave;
+        }
 
-        interleave = Integer.parseInt( params.get( READ_OPERATION_10_FREQUENCY_KEY ) ) * updateDistance;
-        params.put( READ_OPERATION_10_INTERLEAVE_KEY, interleave.toString() );
+        public long operation6Interleave()
+        {
+            return operation6Interleave;
+        }
 
-        interleave = Integer.parseInt( params.get( READ_OPERATION_11_FREQUENCY_KEY ) ) * updateDistance;
-        params.put( READ_OPERATION_11_INTERLEAVE_KEY, interleave.toString() );
+        public long operation7Interleave()
+        {
+            return operation7Interleave;
+        }
 
-        interleave = Integer.parseInt( params.get( READ_OPERATION_12_FREQUENCY_KEY ) ) * updateDistance;
-        params.put( READ_OPERATION_12_INTERLEAVE_KEY, interleave.toString() );
+        public long operation8Interleave()
+        {
+            return operation8Interleave;
+        }
 
-        interleave = Integer.parseInt( params.get( READ_OPERATION_13_FREQUENCY_KEY ) ) * updateDistance;
-        params.put( READ_OPERATION_13_INTERLEAVE_KEY, interleave.toString() );
+        public long operation9Interleave()
+        {
+            return operation9Interleave;
+        }
 
-        interleave = Integer.parseInt( params.get( READ_OPERATION_14_FREQUENCY_KEY ) ) * updateDistance;
-        params.put( READ_OPERATION_14_INTERLEAVE_KEY, interleave.toString() );
+        public long operation10Interleave()
+        {
+            return operation10Interleave;
+        }
 
-        interleave = Integer.parseInt( params.get( READ_OPERATION_15_FREQUENCY_KEY ) ) * updateDistance;
-        params.put( READ_OPERATION_15_INTERLEAVE_KEY, interleave.toString() );
+        public long operation11Interleave()
+        {
+            return operation11Interleave;
+        }
 
-        interleave = Integer.parseInt( params.get( READ_OPERATION_16_FREQUENCY_KEY ) ) * updateDistance;
-        params.put( READ_OPERATION_16_INTERLEAVE_KEY, interleave.toString() );
+        public long operation12Interleave()
+        {
+            return operation12Interleave;
+        }
 
-        interleave = Integer.parseInt( params.get( READ_OPERATION_17_FREQUENCY_KEY ) ) * updateDistance;
-        params.put( READ_OPERATION_17_INTERLEAVE_KEY, interleave.toString() );
+        public long operation13Interleave()
+        {
+            return operation13Interleave;
+        }
 
-        interleave = Integer.parseInt( params.get( READ_OPERATION_18_FREQUENCY_KEY ) ) * updateDistance;
-        params.put( READ_OPERATION_18_INTERLEAVE_KEY, interleave.toString() );
+        public long operation14Interleave()
+        {
+            return operation14Interleave;
+        }
 
-        interleave = Integer.parseInt( params.get( READ_OPERATION_19_FREQUENCY_KEY ) ) * updateDistance;
-        params.put( READ_OPERATION_19_INTERLEAVE_KEY, interleave.toString() );
+        public long operation15Interleave()
+        {
+            return operation15Interleave;
+        }
 
-        interleave = Integer.parseInt( params.get( READ_OPERATION_20_FREQUENCY_KEY ) ) * updateDistance;
-        params.put( READ_OPERATION_20_INTERLEAVE_KEY, interleave.toString() );
+        public long operation16Interleave()
+        {
+            return operation16Interleave;
+        }
 
-        interleave = Integer.parseInt( params.get( READ_OPERATION_21_FREQUENCY_KEY ) ) * updateDistance;
-        params.put( READ_OPERATION_21_INTERLEAVE_KEY, interleave.toString() );
+        public long operation17Interleave()
+        {
+            return operation17Interleave;
+        }
 
-        interleave = Integer.parseInt( params.get( READ_OPERATION_22_FREQUENCY_KEY ) ) * updateDistance;
-        params.put( READ_OPERATION_22_INTERLEAVE_KEY, interleave.toString() );
+        public long operation18Interleave()
+        {
+            return operation18Interleave;
+        }
 
-        interleave = Integer.parseInt( params.get( READ_OPERATION_23_FREQUENCY_KEY ) ) * updateDistance;
-        params.put( READ_OPERATION_23_INTERLEAVE_KEY, interleave.toString() );
+        public long operation19Interleave()
+        {
+            return operation19Interleave;
+        }
 
-        interleave = Integer.parseInt( params.get( READ_OPERATION_24_FREQUENCY_KEY ) ) * updateDistance;
-        params.put( READ_OPERATION_24_INTERLEAVE_KEY, interleave.toString() );
+        public long operation20Interleave()
+        {
+            return operation20Interleave;
+        }
 
-        return params;
+        public long operation21Interleave()
+        {
+            return operation21Interleave;
+        }
+
+        public long operation22Interleave()
+        {
+            return operation22Interleave;
+        }
+
+        public long operation23Interleave()
+        {
+            return operation23Interleave;
+        }
+
+        public long operation24Interleave()
+        {
+            return operation24Interleave;
+        }
     }
 
     public static File defaultConfigFileSF1() throws DriverConfigurationException
@@ -417,7 +687,7 @@ public class LdbcSnbBiWorkloadConfiguration
     private static File defaultConfigFileSF1FromWorkloadsDirectory( File workloadsDirectory )
             throws DriverConfigurationException
     {
-        return new File( workloadsDirectory, "ldbc/snb/interactive/ldbc_snb_interactive_SF-0001.properties" );
+        return new File( workloadsDirectory, "ldbc/snb/bi/ldbc_snb_bi_SF-0001.properties" );
     }
 
     public static Map<String,String> defaultConfigSF1() throws DriverConfigurationException, IOException
