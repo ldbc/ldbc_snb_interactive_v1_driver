@@ -2,71 +2,69 @@ package com.ldbc.driver.workloads.ldbc.snb.bi;
 
 
 import com.ldbc.driver.Operation;
+import com.ldbc.driver.WorkloadException;
 import com.ldbc.driver.csv.charseeker.CharSeeker;
+import com.ldbc.driver.csv.charseeker.CharSeekerParams;
 import com.ldbc.driver.csv.charseeker.Extractors;
 import com.ldbc.driver.csv.charseeker.Mark;
 import com.ldbc.driver.generator.CsvEventStreamReaderBasicCharSeeker;
+import com.ldbc.driver.generator.GeneratorFactory;
 
+import java.io.File;
 import java.io.IOException;
-import java.util.Iterator;
 
-import static java.lang.String.format;
-
-public class Query1EventStreamReader implements Iterator<Operation>
+public class Query1EventStreamReader extends BaseEventStreamReader
 {
-    private final Iterator<Object[]> csvRows;
-
-    public Query1EventStreamReader( Iterator<Object[]> csvRows )
+    public Query1EventStreamReader(
+            File parametersFile,
+            CharSeekerParams charSeekerParams,
+            GeneratorFactory gf ) throws WorkloadException
     {
-        this.csvRows = csvRows;
+        super( parametersFile, charSeekerParams, gf );
     }
 
     @Override
-    public boolean hasNext()
+    Operation operationFromParameters( Object[] parameters )
     {
-        return csvRows.hasNext();
-    }
-
-    @Override
-    public Operation next()
-    {
-        Object[] rowAsObjects = csvRows.next();
-        Operation operation = new LdbcSnbBiQuery1(
-                (long) rowAsObjects[0],
-                (int) rowAsObjects[1]
+        return new LdbcSnbBiQuery1(
+                (long) parameters[0],
+                (int) parameters[1]
         );
-        operation.setDependencyTimeStamp( 0 );
-        return operation;
     }
 
     @Override
-    public void remove()
+    CsvEventStreamReaderBasicCharSeeker.EventDecoder<Object[]> decoder()
     {
-        throw new UnsupportedOperationException( format( "%s does not support remove()", getClass().getSimpleName() ) );
-    }
-
-    public static class Decoder implements CsvEventStreamReaderBasicCharSeeker.EventDecoder<Object[]>
-    {
-        /*
+        return new CsvEventStreamReaderBasicCharSeeker.EventDecoder<Object[]>()
+        {
+            /*
         Date
         2199032251700
          */
-        @Override
-        public Object[] decodeEvent( CharSeeker charSeeker, Extractors extractors, int[] columnDelimiters, Mark mark )
-                throws IOException
-        {
-            long date;
-            if ( charSeeker.seek( mark, columnDelimiters ) )
+            @Override
+            public Object[] decodeEvent( CharSeeker charSeeker, Extractors extractors, int[] columnDelimiters,
+                    Mark mark )
+                    throws IOException
             {
-                date = charSeeker.extract( mark, extractors.long_() ).longValue();
-            }
-            else
-            {
-                // if first column of next row contains nothing it means the file is finished
-                return null;
-            }
+                long date;
+                if ( charSeeker.seek( mark, columnDelimiters ) )
+                {
+                    date = charSeeker.extract( mark, extractors.long_() ).longValue();
+                }
+                else
+                {
+                    // if first column of next row contains nothing it means the file is finished
+                    return null;
+                }
 
-            return new Object[]{date, LdbcSnbBiQuery1.DEFAULT_LIMIT};
-        }
+                return new Object[]{date, LdbcSnbBiQuery1.DEFAULT_LIMIT};
+            }
+        };
+    }
+
+    @Override
+    int columnCount()
+    {
+        return 1;
     }
 }

@@ -36,9 +36,9 @@ public class ValidationParamsToCsvRowsToValidationParamsTest {
         String workloadClassName = LdbcSnbInteractiveWorkload.class.getName();
         ConsoleAndFileDriverConfiguration configuration = ConsoleAndFileDriverConfiguration.fromDefaults(dbClassName, workloadClassName, operationCount);
 
-        Map<String, String> paramsMap = LdbcSnbInteractiveConfiguration.defaultConfigSF1();
-        paramsMap.put(LdbcSnbInteractiveConfiguration.PARAMETERS_DIRECTORY, TestUtils.getResource("/").getAbsolutePath());
-        paramsMap.put(LdbcSnbInteractiveConfiguration.UPDATES_DIRECTORY, TestUtils.getResource("/").getAbsolutePath());
+        Map<String, String> paramsMap = LdbcSnbInteractiveWorkloadConfiguration.defaultConfigSF1();
+        paramsMap.put( LdbcSnbInteractiveWorkloadConfiguration.PARAMETERS_DIRECTORY, TestUtils.getResource("/").getAbsolutePath());
+        paramsMap.put( LdbcSnbInteractiveWorkloadConfiguration.UPDATES_DIRECTORY, TestUtils.getResource("/").getAbsolutePath());
         configuration = (ConsoleAndFileDriverConfiguration) configuration.applyArgs(paramsMap);
         configuration = (ConsoleAndFileDriverConfiguration) configuration.applyArgs(
                 MapUtils.loadPropertiesToMap(new File(TestUtils.getResource("/updateStream.properties").getAbsolutePath()))

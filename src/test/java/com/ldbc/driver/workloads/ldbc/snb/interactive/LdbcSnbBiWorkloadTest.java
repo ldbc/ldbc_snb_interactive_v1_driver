@@ -172,14 +172,14 @@ public class LdbcSnbBiWorkloadTest
     public void shouldGenerateManyOperationsInReasonableTimeForLongReadOnly()
             throws WorkloadException, IOException, DriverConfigurationException
     {
-        Map<String,String> workloadParams = LdbcSnbInteractiveConfiguration.withoutWrites(
-                LdbcSnbInteractiveConfiguration.withoutShortReads(
-                        LdbcSnbInteractiveConfiguration.defaultConfigSF1()
+        Map<String,String> workloadParams = LdbcSnbInteractiveWorkloadConfiguration.withoutWrites(
+                LdbcSnbInteractiveWorkloadConfiguration.withoutShortReads(
+                        LdbcSnbInteractiveWorkloadConfiguration.defaultConfigSF1()
                 )
         );
-        workloadParams.put( LdbcSnbInteractiveConfiguration.PARAMETERS_DIRECTORY,
+        workloadParams.put( LdbcSnbInteractiveWorkloadConfiguration.PARAMETERS_DIRECTORY,
                 TestUtils.getResource( "/" ).getAbsolutePath() );
-        workloadParams.put( LdbcSnbInteractiveConfiguration.UPDATES_DIRECTORY,
+        workloadParams.put( LdbcSnbInteractiveWorkloadConfiguration.UPDATES_DIRECTORY,
                 TestUtils.getResource( "/" ).getAbsolutePath() );
         workloadParams = MapUtils.mergeMaps(
                 workloadParams,
@@ -193,14 +193,14 @@ public class LdbcSnbBiWorkloadTest
     public void shouldGenerateManyOperationsInReasonableTimeForWriteOnly()
             throws WorkloadException, IOException, DriverConfigurationException
     {
-        Map<String,String> workloadParams = LdbcSnbInteractiveConfiguration.withoutLongReads(
-                LdbcSnbInteractiveConfiguration.withoutShortReads(
-                        LdbcSnbInteractiveConfiguration.defaultConfigSF1()
+        Map<String,String> workloadParams = LdbcSnbInteractiveWorkloadConfiguration.withoutLongReads(
+                LdbcSnbInteractiveWorkloadConfiguration.withoutShortReads(
+                        LdbcSnbInteractiveWorkloadConfiguration.defaultConfigSF1()
                 )
         );
-        workloadParams.put( LdbcSnbInteractiveConfiguration.PARAMETERS_DIRECTORY,
+        workloadParams.put( LdbcSnbInteractiveWorkloadConfiguration.PARAMETERS_DIRECTORY,
                 TestUtils.getResource( "/" ).getAbsolutePath() );
-        workloadParams.put( LdbcSnbInteractiveConfiguration.UPDATES_DIRECTORY,
+        workloadParams.put( LdbcSnbInteractiveWorkloadConfiguration.UPDATES_DIRECTORY,
                 TestUtils.getResource( "/" ).getAbsolutePath() );
         workloadParams = MapUtils.mergeMaps(
                 workloadParams,
@@ -214,12 +214,12 @@ public class LdbcSnbBiWorkloadTest
     public void shouldGenerateManyOperationsInReasonableTimeForReadOnly()
             throws WorkloadException, IOException, DriverConfigurationException
     {
-        Map<String,String> workloadParams = LdbcSnbInteractiveConfiguration.withoutWrites(
-                LdbcSnbInteractiveConfiguration.defaultConfigSF1()
+        Map<String,String> workloadParams = LdbcSnbInteractiveWorkloadConfiguration.withoutWrites(
+                LdbcSnbInteractiveWorkloadConfiguration.defaultConfigSF1()
         );
-        workloadParams.put( LdbcSnbInteractiveConfiguration.PARAMETERS_DIRECTORY,
+        workloadParams.put( LdbcSnbInteractiveWorkloadConfiguration.PARAMETERS_DIRECTORY,
                 TestUtils.getResource( "/" ).getAbsolutePath() );
-        workloadParams.put( LdbcSnbInteractiveConfiguration.UPDATES_DIRECTORY,
+        workloadParams.put( LdbcSnbInteractiveWorkloadConfiguration.UPDATES_DIRECTORY,
                 TestUtils.getResource( "/" ).getAbsolutePath() );
         workloadParams = MapUtils.mergeMaps(
                 workloadParams,
@@ -233,10 +233,10 @@ public class LdbcSnbBiWorkloadTest
     public void shouldGenerateManyOperationsInReasonableTimeForFullWorkload()
             throws WorkloadException, IOException, DriverConfigurationException
     {
-        Map<String,String> workloadParams = LdbcSnbInteractiveConfiguration.defaultConfigSF1();
-        workloadParams.put( LdbcSnbInteractiveConfiguration.PARAMETERS_DIRECTORY,
+        Map<String,String> workloadParams = LdbcSnbInteractiveWorkloadConfiguration.defaultConfigSF1();
+        workloadParams.put( LdbcSnbInteractiveWorkloadConfiguration.PARAMETERS_DIRECTORY,
                 TestUtils.getResource( "/" ).getAbsolutePath() );
-        workloadParams.put( LdbcSnbInteractiveConfiguration.UPDATES_DIRECTORY,
+        workloadParams.put( LdbcSnbInteractiveWorkloadConfiguration.UPDATES_DIRECTORY,
                 TestUtils.getResource( "/" ).getAbsolutePath() );
         workloadParams = MapUtils.mergeMaps(
                 workloadParams,
@@ -250,10 +250,10 @@ public class LdbcSnbBiWorkloadTest
     public void shouldGenerateManyOperationsInReasonableTimeForOperation1Only()
             throws WorkloadException, IOException, DriverConfigurationException
     {
-        Map<String,String> workloadParams = LdbcSnbInteractiveConfiguration.defaultConfigSF1();
-        workloadParams.put( LdbcSnbInteractiveConfiguration.PARAMETERS_DIRECTORY,
+        Map<String,String> workloadParams = LdbcSnbInteractiveWorkloadConfiguration.defaultConfigSF1();
+        workloadParams.put( LdbcSnbInteractiveWorkloadConfiguration.PARAMETERS_DIRECTORY,
                 TestUtils.getResource( "/" ).getAbsolutePath() );
-        workloadParams.put( LdbcSnbInteractiveConfiguration.UPDATES_DIRECTORY,
+        workloadParams.put( LdbcSnbInteractiveWorkloadConfiguration.UPDATES_DIRECTORY,
                 TestUtils.getResource( "/" ).getAbsolutePath() );
         workloadParams = MapUtils.mergeMaps(
                 workloadParams,
@@ -330,11 +330,11 @@ public class LdbcSnbBiWorkloadTest
             throws ClientException, DriverConfigurationException, WorkloadException, IOException
     {
         // Given
-        Map<String,String> paramsMap = LdbcSnbInteractiveConfiguration.defaultConfigSF1();
+        Map<String,String> paramsMap = LdbcSnbInteractiveWorkloadConfiguration.defaultConfigSF1();
         // LDBC Interactive Workload-specific parameters
-        paramsMap.put( LdbcSnbInteractiveConfiguration.PARAMETERS_DIRECTORY,
+        paramsMap.put( LdbcSnbInteractiveWorkloadConfiguration.PARAMETERS_DIRECTORY,
                 TestUtils.getResource( "/" ).getAbsolutePath() );
-        paramsMap.put( LdbcSnbInteractiveConfiguration.UPDATES_DIRECTORY,
+        paramsMap.put( LdbcSnbInteractiveWorkloadConfiguration.UPDATES_DIRECTORY,
                 TestUtils.getResource( "/" ).getAbsolutePath() );
         // DummyDb-specific parameters
         paramsMap.put( DummyLdbcSnbInteractiveDb.SLEEP_DURATION_NANO_ARG,
@@ -454,44 +454,44 @@ public class LdbcSnbBiWorkloadTest
                 // database class is loaded by Client class, which is bypassed in this test
                 "-db", "this will never be used",
                 "-oc", "10000",
-                "-p", LdbcSnbInteractiveConfiguration.READ_OPERATION_1_INTERLEAVE_KEY, "100",
-                "-p", LdbcSnbInteractiveConfiguration.READ_OPERATION_2_INTERLEAVE_KEY, "200",
-                "-p", LdbcSnbInteractiveConfiguration.READ_OPERATION_3_INTERLEAVE_KEY, "400",
-                "-p", LdbcSnbInteractiveConfiguration.READ_OPERATION_4_INTERLEAVE_KEY, "800",
-                "-p", LdbcSnbInteractiveConfiguration.READ_OPERATION_5_INTERLEAVE_KEY, "1600",
-                "-p", LdbcSnbInteractiveConfiguration.READ_OPERATION_6_INTERLEAVE_KEY, "1600",
-                "-p", LdbcSnbInteractiveConfiguration.READ_OPERATION_7_INTERLEAVE_KEY, "800",
-                "-p", LdbcSnbInteractiveConfiguration.READ_OPERATION_8_INTERLEAVE_KEY, "800",
-                "-p", LdbcSnbInteractiveConfiguration.READ_OPERATION_9_INTERLEAVE_KEY, "400",
-                "-p", LdbcSnbInteractiveConfiguration.READ_OPERATION_10_INTERLEAVE_KEY, "200",
-                "-p", LdbcSnbInteractiveConfiguration.READ_OPERATION_11_INTERLEAVE_KEY, "200",
-                "-p", LdbcSnbInteractiveConfiguration.READ_OPERATION_12_INTERLEAVE_KEY, "200",
-                "-p", LdbcSnbInteractiveConfiguration.READ_OPERATION_13_INTERLEAVE_KEY, "100",
-                "-p", LdbcSnbInteractiveConfiguration.READ_OPERATION_14_INTERLEAVE_KEY, "100",
-                "-p", LdbcSnbInteractiveConfiguration.LONG_READ_OPERATION_1_ENABLE_KEY, "true",
-                "-p", LdbcSnbInteractiveConfiguration.LONG_READ_OPERATION_2_ENABLE_KEY, "true",
-                "-p", LdbcSnbInteractiveConfiguration.LONG_READ_OPERATION_3_ENABLE_KEY, "true",
-                "-p", LdbcSnbInteractiveConfiguration.LONG_READ_OPERATION_4_ENABLE_KEY, "true",
-                "-p", LdbcSnbInteractiveConfiguration.LONG_READ_OPERATION_5_ENABLE_KEY, "true",
-                "-p", LdbcSnbInteractiveConfiguration.LONG_READ_OPERATION_6_ENABLE_KEY, "true",
-                "-p", LdbcSnbInteractiveConfiguration.LONG_READ_OPERATION_7_ENABLE_KEY, "true",
-                "-p", LdbcSnbInteractiveConfiguration.LONG_READ_OPERATION_8_ENABLE_KEY, "true",
-                "-p", LdbcSnbInteractiveConfiguration.LONG_READ_OPERATION_9_ENABLE_KEY, "true",
-                "-p", LdbcSnbInteractiveConfiguration.LONG_READ_OPERATION_10_ENABLE_KEY, "true",
-                "-p", LdbcSnbInteractiveConfiguration.LONG_READ_OPERATION_11_ENABLE_KEY, "true",
-                "-p", LdbcSnbInteractiveConfiguration.LONG_READ_OPERATION_12_ENABLE_KEY, "true",
-                "-p", LdbcSnbInteractiveConfiguration.LONG_READ_OPERATION_13_ENABLE_KEY, "true",
-                "-p", LdbcSnbInteractiveConfiguration.LONG_READ_OPERATION_14_ENABLE_KEY, "true",
-                "-p", LdbcSnbInteractiveConfiguration.WRITE_OPERATION_1_ENABLE_KEY, "false",
-                "-p", LdbcSnbInteractiveConfiguration.WRITE_OPERATION_2_ENABLE_KEY, "false",
-                "-p", LdbcSnbInteractiveConfiguration.WRITE_OPERATION_3_ENABLE_KEY, "false",
-                "-p", LdbcSnbInteractiveConfiguration.WRITE_OPERATION_4_ENABLE_KEY, "false",
-                "-p", LdbcSnbInteractiveConfiguration.WRITE_OPERATION_5_ENABLE_KEY, "false",
-                "-p", LdbcSnbInteractiveConfiguration.WRITE_OPERATION_6_ENABLE_KEY, "false",
-                "-p", LdbcSnbInteractiveConfiguration.WRITE_OPERATION_7_ENABLE_KEY, "false",
-                "-p", LdbcSnbInteractiveConfiguration.WRITE_OPERATION_8_ENABLE_KEY, "false",
-                "-p", LdbcSnbInteractiveConfiguration.UPDATES_DIRECTORY, TestUtils.getResource( "/" ).getAbsolutePath(),
-                "-p", LdbcSnbInteractiveConfiguration.PARAMETERS_DIRECTORY,
+                "-p", LdbcSnbInteractiveWorkloadConfiguration.READ_OPERATION_1_INTERLEAVE_KEY, "100",
+                "-p", LdbcSnbInteractiveWorkloadConfiguration.READ_OPERATION_2_INTERLEAVE_KEY, "200",
+                "-p", LdbcSnbInteractiveWorkloadConfiguration.READ_OPERATION_3_INTERLEAVE_KEY, "400",
+                "-p", LdbcSnbInteractiveWorkloadConfiguration.READ_OPERATION_4_INTERLEAVE_KEY, "800",
+                "-p", LdbcSnbInteractiveWorkloadConfiguration.READ_OPERATION_5_INTERLEAVE_KEY, "1600",
+                "-p", LdbcSnbInteractiveWorkloadConfiguration.READ_OPERATION_6_INTERLEAVE_KEY, "1600",
+                "-p", LdbcSnbInteractiveWorkloadConfiguration.READ_OPERATION_7_INTERLEAVE_KEY, "800",
+                "-p", LdbcSnbInteractiveWorkloadConfiguration.READ_OPERATION_8_INTERLEAVE_KEY, "800",
+                "-p", LdbcSnbInteractiveWorkloadConfiguration.READ_OPERATION_9_INTERLEAVE_KEY, "400",
+                "-p", LdbcSnbInteractiveWorkloadConfiguration.READ_OPERATION_10_INTERLEAVE_KEY, "200",
+                "-p", LdbcSnbInteractiveWorkloadConfiguration.READ_OPERATION_11_INTERLEAVE_KEY, "200",
+                "-p", LdbcSnbInteractiveWorkloadConfiguration.READ_OPERATION_12_INTERLEAVE_KEY, "200",
+                "-p", LdbcSnbInteractiveWorkloadConfiguration.READ_OPERATION_13_INTERLEAVE_KEY, "100",
+                "-p", LdbcSnbInteractiveWorkloadConfiguration.READ_OPERATION_14_INTERLEAVE_KEY, "100",
+                "-p", LdbcSnbInteractiveWorkloadConfiguration.LONG_READ_OPERATION_1_ENABLE_KEY, "true",
+                "-p", LdbcSnbInteractiveWorkloadConfiguration.LONG_READ_OPERATION_2_ENABLE_KEY, "true",
+                "-p", LdbcSnbInteractiveWorkloadConfiguration.LONG_READ_OPERATION_3_ENABLE_KEY, "true",
+                "-p", LdbcSnbInteractiveWorkloadConfiguration.LONG_READ_OPERATION_4_ENABLE_KEY, "true",
+                "-p", LdbcSnbInteractiveWorkloadConfiguration.LONG_READ_OPERATION_5_ENABLE_KEY, "true",
+                "-p", LdbcSnbInteractiveWorkloadConfiguration.LONG_READ_OPERATION_6_ENABLE_KEY, "true",
+                "-p", LdbcSnbInteractiveWorkloadConfiguration.LONG_READ_OPERATION_7_ENABLE_KEY, "true",
+                "-p", LdbcSnbInteractiveWorkloadConfiguration.LONG_READ_OPERATION_8_ENABLE_KEY, "true",
+                "-p", LdbcSnbInteractiveWorkloadConfiguration.LONG_READ_OPERATION_9_ENABLE_KEY, "true",
+                "-p", LdbcSnbInteractiveWorkloadConfiguration.LONG_READ_OPERATION_10_ENABLE_KEY, "true",
+                "-p", LdbcSnbInteractiveWorkloadConfiguration.LONG_READ_OPERATION_11_ENABLE_KEY, "true",
+                "-p", LdbcSnbInteractiveWorkloadConfiguration.LONG_READ_OPERATION_12_ENABLE_KEY, "true",
+                "-p", LdbcSnbInteractiveWorkloadConfiguration.LONG_READ_OPERATION_13_ENABLE_KEY, "true",
+                "-p", LdbcSnbInteractiveWorkloadConfiguration.LONG_READ_OPERATION_14_ENABLE_KEY, "true",
+                "-p", LdbcSnbInteractiveWorkloadConfiguration.WRITE_OPERATION_1_ENABLE_KEY, "false",
+                "-p", LdbcSnbInteractiveWorkloadConfiguration.WRITE_OPERATION_2_ENABLE_KEY, "false",
+                "-p", LdbcSnbInteractiveWorkloadConfiguration.WRITE_OPERATION_3_ENABLE_KEY, "false",
+                "-p", LdbcSnbInteractiveWorkloadConfiguration.WRITE_OPERATION_4_ENABLE_KEY, "false",
+                "-p", LdbcSnbInteractiveWorkloadConfiguration.WRITE_OPERATION_5_ENABLE_KEY, "false",
+                "-p", LdbcSnbInteractiveWorkloadConfiguration.WRITE_OPERATION_6_ENABLE_KEY, "false",
+                "-p", LdbcSnbInteractiveWorkloadConfiguration.WRITE_OPERATION_7_ENABLE_KEY, "false",
+                "-p", LdbcSnbInteractiveWorkloadConfiguration.WRITE_OPERATION_8_ENABLE_KEY, "false",
+                "-p", LdbcSnbInteractiveWorkloadConfiguration.UPDATES_DIRECTORY, TestUtils.getResource( "/" ).getAbsolutePath(),
+                "-p", LdbcSnbInteractiveWorkloadConfiguration.PARAMETERS_DIRECTORY,
                 TestUtils.getResource( "/" ).getAbsolutePath()
         } );
 
@@ -570,7 +570,7 @@ public class LdbcSnbBiWorkloadTest
     {
 
         String ldbcSnbInteractiveTestPropertiesPath =
-                LdbcSnbInteractiveConfiguration.defaultConfigFileSF1().getAbsolutePath();
+                LdbcSnbInteractiveWorkloadConfiguration.defaultConfigFileSF1().getAbsolutePath();
         String ldbcDriverTestPropertiesPath =
                 DriverConfigurationFileHelper.getBaseConfigurationFilePublicLocation().getAbsolutePath();
         String updateStreamPropertiesPath = TestUtils.getResource( "/updateStream.properties" ).getAbsolutePath();
@@ -587,9 +587,9 @@ public class LdbcSnbBiWorkloadTest
                 "-" + ConsoleAndFileDriverConfiguration.TIME_UNIT_ARG, TimeUnit.MICROSECONDS.name(),
                 "-p", ConsoleAndFileDriverConfiguration.OPERATION_COUNT_ARG, Long.toString( 10_000 ),
                 "-p", ConsoleAndFileDriverConfiguration.TIME_COMPRESSION_RATIO_ARG, Double.toString( 0.00001 ),
-                "-p", LdbcSnbInteractiveConfiguration.PARAMETERS_DIRECTORY,
+                "-p", LdbcSnbInteractiveWorkloadConfiguration.PARAMETERS_DIRECTORY,
                 TestUtils.getResource( "/" ).getAbsolutePath(),
-                "-p", LdbcSnbInteractiveConfiguration.UPDATES_DIRECTORY, TestUtils.getResource( "/" ).getAbsolutePath(),
+                "-p", LdbcSnbInteractiveWorkloadConfiguration.UPDATES_DIRECTORY, TestUtils.getResource( "/" ).getAbsolutePath(),
                 "-P", ldbcSnbInteractiveTestPropertiesPath,
                 "-P", ldbcDriverTestPropertiesPath,
                 "-P", updateStreamPropertiesPath} );
@@ -624,47 +624,47 @@ public class LdbcSnbBiWorkloadTest
                 // database class is loaded by Client class, which is bypassed in this test
                 "-db", "this will never be used",
                 "-oc", "100",
-                "-p", LdbcSnbInteractiveConfiguration.READ_OPERATION_1_FREQUENCY_KEY, "10",
-                "-p", LdbcSnbInteractiveConfiguration.READ_OPERATION_2_FREQUENCY_KEY, "20",
-                "-p", LdbcSnbInteractiveConfiguration.READ_OPERATION_3_FREQUENCY_KEY, "30",
-                "-p", LdbcSnbInteractiveConfiguration.READ_OPERATION_4_FREQUENCY_KEY, "40",
-                "-p", LdbcSnbInteractiveConfiguration.READ_OPERATION_5_FREQUENCY_KEY, "50",
-                "-p", LdbcSnbInteractiveConfiguration.READ_OPERATION_6_FREQUENCY_KEY, "60",
-                "-p", LdbcSnbInteractiveConfiguration.READ_OPERATION_7_FREQUENCY_KEY, "70",
-                "-p", LdbcSnbInteractiveConfiguration.READ_OPERATION_8_FREQUENCY_KEY, "80",
-                "-p", LdbcSnbInteractiveConfiguration.READ_OPERATION_9_FREQUENCY_KEY, "90",
-                "-p", LdbcSnbInteractiveConfiguration.READ_OPERATION_10_FREQUENCY_KEY, "100",
-                "-p", LdbcSnbInteractiveConfiguration.READ_OPERATION_11_FREQUENCY_KEY, "200",
-                "-p", LdbcSnbInteractiveConfiguration.READ_OPERATION_12_FREQUENCY_KEY, "300",
-                "-p", LdbcSnbInteractiveConfiguration.READ_OPERATION_13_FREQUENCY_KEY, "400",
-                "-p", LdbcSnbInteractiveConfiguration.READ_OPERATION_14_FREQUENCY_KEY, "500",
-                "-p", LdbcSnbInteractiveConfiguration.UPDATE_INTERLEAVE, "10",
-                "-p", LdbcSnbInteractiveConfiguration.LONG_READ_OPERATION_1_ENABLE_KEY, "true",
-                "-p", LdbcSnbInteractiveConfiguration.LONG_READ_OPERATION_2_ENABLE_KEY, "true",
-                "-p", LdbcSnbInteractiveConfiguration.LONG_READ_OPERATION_3_ENABLE_KEY, "true",
-                "-p", LdbcSnbInteractiveConfiguration.LONG_READ_OPERATION_4_ENABLE_KEY, "true",
-                "-p", LdbcSnbInteractiveConfiguration.LONG_READ_OPERATION_5_ENABLE_KEY, "true",
-                "-p", LdbcSnbInteractiveConfiguration.LONG_READ_OPERATION_6_ENABLE_KEY, "true",
-                "-p", LdbcSnbInteractiveConfiguration.LONG_READ_OPERATION_7_ENABLE_KEY, "true",
-                "-p", LdbcSnbInteractiveConfiguration.LONG_READ_OPERATION_8_ENABLE_KEY, "true",
-                "-p", LdbcSnbInteractiveConfiguration.LONG_READ_OPERATION_9_ENABLE_KEY, "true",
-                "-p", LdbcSnbInteractiveConfiguration.LONG_READ_OPERATION_10_ENABLE_KEY, "true",
-                "-p", LdbcSnbInteractiveConfiguration.LONG_READ_OPERATION_11_ENABLE_KEY, "true",
-                "-p", LdbcSnbInteractiveConfiguration.LONG_READ_OPERATION_12_ENABLE_KEY, "true",
-                "-p", LdbcSnbInteractiveConfiguration.LONG_READ_OPERATION_13_ENABLE_KEY, "true",
-                "-p", LdbcSnbInteractiveConfiguration.LONG_READ_OPERATION_14_ENABLE_KEY, "true",
-                "-p", LdbcSnbInteractiveConfiguration.WRITE_OPERATION_1_ENABLE_KEY, "true",
-                "-p", LdbcSnbInteractiveConfiguration.WRITE_OPERATION_2_ENABLE_KEY, "true",
-                "-p", LdbcSnbInteractiveConfiguration.WRITE_OPERATION_3_ENABLE_KEY, "true",
-                "-p", LdbcSnbInteractiveConfiguration.WRITE_OPERATION_4_ENABLE_KEY, "true",
-                "-p", LdbcSnbInteractiveConfiguration.WRITE_OPERATION_5_ENABLE_KEY, "true",
-                "-p", LdbcSnbInteractiveConfiguration.WRITE_OPERATION_6_ENABLE_KEY, "true",
-                "-p", LdbcSnbInteractiveConfiguration.WRITE_OPERATION_7_ENABLE_KEY, "true",
-                "-p", LdbcSnbInteractiveConfiguration.WRITE_OPERATION_8_ENABLE_KEY, "true",
+                "-p", LdbcSnbInteractiveWorkloadConfiguration.READ_OPERATION_1_FREQUENCY_KEY, "10",
+                "-p", LdbcSnbInteractiveWorkloadConfiguration.READ_OPERATION_2_FREQUENCY_KEY, "20",
+                "-p", LdbcSnbInteractiveWorkloadConfiguration.READ_OPERATION_3_FREQUENCY_KEY, "30",
+                "-p", LdbcSnbInteractiveWorkloadConfiguration.READ_OPERATION_4_FREQUENCY_KEY, "40",
+                "-p", LdbcSnbInteractiveWorkloadConfiguration.READ_OPERATION_5_FREQUENCY_KEY, "50",
+                "-p", LdbcSnbInteractiveWorkloadConfiguration.READ_OPERATION_6_FREQUENCY_KEY, "60",
+                "-p", LdbcSnbInteractiveWorkloadConfiguration.READ_OPERATION_7_FREQUENCY_KEY, "70",
+                "-p", LdbcSnbInteractiveWorkloadConfiguration.READ_OPERATION_8_FREQUENCY_KEY, "80",
+                "-p", LdbcSnbInteractiveWorkloadConfiguration.READ_OPERATION_9_FREQUENCY_KEY, "90",
+                "-p", LdbcSnbInteractiveWorkloadConfiguration.READ_OPERATION_10_FREQUENCY_KEY, "100",
+                "-p", LdbcSnbInteractiveWorkloadConfiguration.READ_OPERATION_11_FREQUENCY_KEY, "200",
+                "-p", LdbcSnbInteractiveWorkloadConfiguration.READ_OPERATION_12_FREQUENCY_KEY, "300",
+                "-p", LdbcSnbInteractiveWorkloadConfiguration.READ_OPERATION_13_FREQUENCY_KEY, "400",
+                "-p", LdbcSnbInteractiveWorkloadConfiguration.READ_OPERATION_14_FREQUENCY_KEY, "500",
+                "-p", LdbcSnbInteractiveWorkloadConfiguration.UPDATE_INTERLEAVE, "10",
+                "-p", LdbcSnbInteractiveWorkloadConfiguration.LONG_READ_OPERATION_1_ENABLE_KEY, "true",
+                "-p", LdbcSnbInteractiveWorkloadConfiguration.LONG_READ_OPERATION_2_ENABLE_KEY, "true",
+                "-p", LdbcSnbInteractiveWorkloadConfiguration.LONG_READ_OPERATION_3_ENABLE_KEY, "true",
+                "-p", LdbcSnbInteractiveWorkloadConfiguration.LONG_READ_OPERATION_4_ENABLE_KEY, "true",
+                "-p", LdbcSnbInteractiveWorkloadConfiguration.LONG_READ_OPERATION_5_ENABLE_KEY, "true",
+                "-p", LdbcSnbInteractiveWorkloadConfiguration.LONG_READ_OPERATION_6_ENABLE_KEY, "true",
+                "-p", LdbcSnbInteractiveWorkloadConfiguration.LONG_READ_OPERATION_7_ENABLE_KEY, "true",
+                "-p", LdbcSnbInteractiveWorkloadConfiguration.LONG_READ_OPERATION_8_ENABLE_KEY, "true",
+                "-p", LdbcSnbInteractiveWorkloadConfiguration.LONG_READ_OPERATION_9_ENABLE_KEY, "true",
+                "-p", LdbcSnbInteractiveWorkloadConfiguration.LONG_READ_OPERATION_10_ENABLE_KEY, "true",
+                "-p", LdbcSnbInteractiveWorkloadConfiguration.LONG_READ_OPERATION_11_ENABLE_KEY, "true",
+                "-p", LdbcSnbInteractiveWorkloadConfiguration.LONG_READ_OPERATION_12_ENABLE_KEY, "true",
+                "-p", LdbcSnbInteractiveWorkloadConfiguration.LONG_READ_OPERATION_13_ENABLE_KEY, "true",
+                "-p", LdbcSnbInteractiveWorkloadConfiguration.LONG_READ_OPERATION_14_ENABLE_KEY, "true",
+                "-p", LdbcSnbInteractiveWorkloadConfiguration.WRITE_OPERATION_1_ENABLE_KEY, "true",
+                "-p", LdbcSnbInteractiveWorkloadConfiguration.WRITE_OPERATION_2_ENABLE_KEY, "true",
+                "-p", LdbcSnbInteractiveWorkloadConfiguration.WRITE_OPERATION_3_ENABLE_KEY, "true",
+                "-p", LdbcSnbInteractiveWorkloadConfiguration.WRITE_OPERATION_4_ENABLE_KEY, "true",
+                "-p", LdbcSnbInteractiveWorkloadConfiguration.WRITE_OPERATION_5_ENABLE_KEY, "true",
+                "-p", LdbcSnbInteractiveWorkloadConfiguration.WRITE_OPERATION_6_ENABLE_KEY, "true",
+                "-p", LdbcSnbInteractiveWorkloadConfiguration.WRITE_OPERATION_7_ENABLE_KEY, "true",
+                "-p", LdbcSnbInteractiveWorkloadConfiguration.WRITE_OPERATION_8_ENABLE_KEY, "true",
                 // TOOD remove
 //                "-p", LdbcSnbInteractiveConfiguration.SAFE_T, "1",
-                "-p", LdbcSnbInteractiveConfiguration.UPDATES_DIRECTORY, TestUtils.getResource( "/" ).getAbsolutePath(),
-                "-p", LdbcSnbInteractiveConfiguration.PARAMETERS_DIRECTORY,
+                "-p", LdbcSnbInteractiveWorkloadConfiguration.UPDATES_DIRECTORY, TestUtils.getResource( "/" ).getAbsolutePath(),
+                "-p", LdbcSnbInteractiveWorkloadConfiguration.PARAMETERS_DIRECTORY,
                 TestUtils.getResource( "/" ).getAbsolutePath()
         } );
 
@@ -673,33 +673,33 @@ public class LdbcSnbBiWorkloadTest
         workload.init( params );
 
         // Then
-        assertThat( params.asMap().get( LdbcSnbInteractiveConfiguration.READ_OPERATION_1_INTERLEAVE_KEY ),
+        assertThat( params.asMap().get( LdbcSnbInteractiveWorkloadConfiguration.READ_OPERATION_1_INTERLEAVE_KEY ),
                 equalTo( "100" ) );
-        assertThat( params.asMap().get( LdbcSnbInteractiveConfiguration.READ_OPERATION_2_INTERLEAVE_KEY ),
+        assertThat( params.asMap().get( LdbcSnbInteractiveWorkloadConfiguration.READ_OPERATION_2_INTERLEAVE_KEY ),
                 equalTo( "200" ) );
-        assertThat( params.asMap().get( LdbcSnbInteractiveConfiguration.READ_OPERATION_3_INTERLEAVE_KEY ),
+        assertThat( params.asMap().get( LdbcSnbInteractiveWorkloadConfiguration.READ_OPERATION_3_INTERLEAVE_KEY ),
                 equalTo( "300" ) );
-        assertThat( params.asMap().get( LdbcSnbInteractiveConfiguration.READ_OPERATION_4_INTERLEAVE_KEY ),
+        assertThat( params.asMap().get( LdbcSnbInteractiveWorkloadConfiguration.READ_OPERATION_4_INTERLEAVE_KEY ),
                 equalTo( "400" ) );
-        assertThat( params.asMap().get( LdbcSnbInteractiveConfiguration.READ_OPERATION_5_INTERLEAVE_KEY ),
+        assertThat( params.asMap().get( LdbcSnbInteractiveWorkloadConfiguration.READ_OPERATION_5_INTERLEAVE_KEY ),
                 equalTo( "500" ) );
-        assertThat( params.asMap().get( LdbcSnbInteractiveConfiguration.READ_OPERATION_6_INTERLEAVE_KEY ),
+        assertThat( params.asMap().get( LdbcSnbInteractiveWorkloadConfiguration.READ_OPERATION_6_INTERLEAVE_KEY ),
                 equalTo( "600" ) );
-        assertThat( params.asMap().get( LdbcSnbInteractiveConfiguration.READ_OPERATION_7_INTERLEAVE_KEY ),
+        assertThat( params.asMap().get( LdbcSnbInteractiveWorkloadConfiguration.READ_OPERATION_7_INTERLEAVE_KEY ),
                 equalTo( "700" ) );
-        assertThat( params.asMap().get( LdbcSnbInteractiveConfiguration.READ_OPERATION_8_INTERLEAVE_KEY ),
+        assertThat( params.asMap().get( LdbcSnbInteractiveWorkloadConfiguration.READ_OPERATION_8_INTERLEAVE_KEY ),
                 equalTo( "800" ) );
-        assertThat( params.asMap().get( LdbcSnbInteractiveConfiguration.READ_OPERATION_9_INTERLEAVE_KEY ),
+        assertThat( params.asMap().get( LdbcSnbInteractiveWorkloadConfiguration.READ_OPERATION_9_INTERLEAVE_KEY ),
                 equalTo( "900" ) );
-        assertThat( params.asMap().get( LdbcSnbInteractiveConfiguration.READ_OPERATION_10_INTERLEAVE_KEY ),
+        assertThat( params.asMap().get( LdbcSnbInteractiveWorkloadConfiguration.READ_OPERATION_10_INTERLEAVE_KEY ),
                 equalTo( "1000" ) );
-        assertThat( params.asMap().get( LdbcSnbInteractiveConfiguration.READ_OPERATION_11_INTERLEAVE_KEY ),
+        assertThat( params.asMap().get( LdbcSnbInteractiveWorkloadConfiguration.READ_OPERATION_11_INTERLEAVE_KEY ),
                 equalTo( "2000" ) );
-        assertThat( params.asMap().get( LdbcSnbInteractiveConfiguration.READ_OPERATION_12_INTERLEAVE_KEY ),
+        assertThat( params.asMap().get( LdbcSnbInteractiveWorkloadConfiguration.READ_OPERATION_12_INTERLEAVE_KEY ),
                 equalTo( "3000" ) );
-        assertThat( params.asMap().get( LdbcSnbInteractiveConfiguration.READ_OPERATION_13_INTERLEAVE_KEY ),
+        assertThat( params.asMap().get( LdbcSnbInteractiveWorkloadConfiguration.READ_OPERATION_13_INTERLEAVE_KEY ),
                 equalTo( "4000" ) );
-        assertThat( params.asMap().get( LdbcSnbInteractiveConfiguration.READ_OPERATION_14_INTERLEAVE_KEY ),
+        assertThat( params.asMap().get( LdbcSnbInteractiveWorkloadConfiguration.READ_OPERATION_14_INTERLEAVE_KEY ),
                 equalTo( "5000" ) );
     }
 
@@ -717,45 +717,45 @@ public class LdbcSnbBiWorkloadTest
                 // database class is loaded by Client class, which is bypassed in this test
                 "-db", "this will never be used",
                 "-oc", "100",
-                "-p", LdbcSnbInteractiveConfiguration.READ_OPERATION_1_FREQUENCY_KEY, "10",
-                "-p", LdbcSnbInteractiveConfiguration.READ_OPERATION_2_FREQUENCY_KEY, "20",
-                "-p", LdbcSnbInteractiveConfiguration.READ_OPERATION_3_FREQUENCY_KEY, "30",
-                "-p", LdbcSnbInteractiveConfiguration.READ_OPERATION_4_FREQUENCY_KEY, "40",
-                "-p", LdbcSnbInteractiveConfiguration.READ_OPERATION_5_FREQUENCY_KEY, "50",
-                "-p", LdbcSnbInteractiveConfiguration.READ_OPERATION_6_FREQUENCY_KEY, "60",
-                "-p", LdbcSnbInteractiveConfiguration.READ_OPERATION_7_FREQUENCY_KEY, "70",
-                "-p", LdbcSnbInteractiveConfiguration.READ_OPERATION_8_FREQUENCY_KEY, "80",
-                "-p", LdbcSnbInteractiveConfiguration.READ_OPERATION_9_FREQUENCY_KEY, "90",
-                "-p", LdbcSnbInteractiveConfiguration.READ_OPERATION_10_FREQUENCY_KEY, "100",
-                "-p", LdbcSnbInteractiveConfiguration.READ_OPERATION_11_FREQUENCY_KEY, "200",
-                "-p", LdbcSnbInteractiveConfiguration.READ_OPERATION_12_FREQUENCY_KEY, "300",
-                "-p", LdbcSnbInteractiveConfiguration.READ_OPERATION_13_FREQUENCY_KEY, "400",
-                "-p", LdbcSnbInteractiveConfiguration.READ_OPERATION_14_FREQUENCY_KEY, "500",
-                "-p", LdbcSnbInteractiveConfiguration.UPDATE_INTERLEAVE, "10",
-                "-p", LdbcSnbInteractiveConfiguration.LONG_READ_OPERATION_1_ENABLE_KEY, "true",
-                "-p", LdbcSnbInteractiveConfiguration.LONG_READ_OPERATION_2_ENABLE_KEY, "true",
-                "-p", LdbcSnbInteractiveConfiguration.LONG_READ_OPERATION_3_ENABLE_KEY, "true",
-                "-p", LdbcSnbInteractiveConfiguration.LONG_READ_OPERATION_4_ENABLE_KEY, "true",
-                "-p", LdbcSnbInteractiveConfiguration.LONG_READ_OPERATION_5_ENABLE_KEY, "true",
-                "-p", LdbcSnbInteractiveConfiguration.LONG_READ_OPERATION_6_ENABLE_KEY, "true",
-                "-p", LdbcSnbInteractiveConfiguration.LONG_READ_OPERATION_7_ENABLE_KEY, "true",
-                "-p", LdbcSnbInteractiveConfiguration.LONG_READ_OPERATION_8_ENABLE_KEY, "true",
-                "-p", LdbcSnbInteractiveConfiguration.LONG_READ_OPERATION_9_ENABLE_KEY, "true",
-                "-p", LdbcSnbInteractiveConfiguration.LONG_READ_OPERATION_10_ENABLE_KEY, "true",
-                "-p", LdbcSnbInteractiveConfiguration.LONG_READ_OPERATION_11_ENABLE_KEY, "true",
-                "-p", LdbcSnbInteractiveConfiguration.LONG_READ_OPERATION_12_ENABLE_KEY, "true",
-                "-p", LdbcSnbInteractiveConfiguration.LONG_READ_OPERATION_13_ENABLE_KEY, "true",
-                "-p", LdbcSnbInteractiveConfiguration.LONG_READ_OPERATION_14_ENABLE_KEY, "true",
-                "-p", LdbcSnbInteractiveConfiguration.WRITE_OPERATION_1_ENABLE_KEY, "true",
-                "-p", LdbcSnbInteractiveConfiguration.WRITE_OPERATION_2_ENABLE_KEY, "false",
-                "-p", LdbcSnbInteractiveConfiguration.WRITE_OPERATION_3_ENABLE_KEY, "false",
-                "-p", LdbcSnbInteractiveConfiguration.WRITE_OPERATION_4_ENABLE_KEY, "false",
-                "-p", LdbcSnbInteractiveConfiguration.WRITE_OPERATION_5_ENABLE_KEY, "false",
-                "-p", LdbcSnbInteractiveConfiguration.WRITE_OPERATION_6_ENABLE_KEY, "false",
-                "-p", LdbcSnbInteractiveConfiguration.WRITE_OPERATION_7_ENABLE_KEY, "false",
-                "-p", LdbcSnbInteractiveConfiguration.WRITE_OPERATION_8_ENABLE_KEY, "false",
-                "-p", LdbcSnbInteractiveConfiguration.UPDATES_DIRECTORY, TestUtils.getResource( "/" ).getAbsolutePath(),
-                "-p", LdbcSnbInteractiveConfiguration.PARAMETERS_DIRECTORY,
+                "-p", LdbcSnbInteractiveWorkloadConfiguration.READ_OPERATION_1_FREQUENCY_KEY, "10",
+                "-p", LdbcSnbInteractiveWorkloadConfiguration.READ_OPERATION_2_FREQUENCY_KEY, "20",
+                "-p", LdbcSnbInteractiveWorkloadConfiguration.READ_OPERATION_3_FREQUENCY_KEY, "30",
+                "-p", LdbcSnbInteractiveWorkloadConfiguration.READ_OPERATION_4_FREQUENCY_KEY, "40",
+                "-p", LdbcSnbInteractiveWorkloadConfiguration.READ_OPERATION_5_FREQUENCY_KEY, "50",
+                "-p", LdbcSnbInteractiveWorkloadConfiguration.READ_OPERATION_6_FREQUENCY_KEY, "60",
+                "-p", LdbcSnbInteractiveWorkloadConfiguration.READ_OPERATION_7_FREQUENCY_KEY, "70",
+                "-p", LdbcSnbInteractiveWorkloadConfiguration.READ_OPERATION_8_FREQUENCY_KEY, "80",
+                "-p", LdbcSnbInteractiveWorkloadConfiguration.READ_OPERATION_9_FREQUENCY_KEY, "90",
+                "-p", LdbcSnbInteractiveWorkloadConfiguration.READ_OPERATION_10_FREQUENCY_KEY, "100",
+                "-p", LdbcSnbInteractiveWorkloadConfiguration.READ_OPERATION_11_FREQUENCY_KEY, "200",
+                "-p", LdbcSnbInteractiveWorkloadConfiguration.READ_OPERATION_12_FREQUENCY_KEY, "300",
+                "-p", LdbcSnbInteractiveWorkloadConfiguration.READ_OPERATION_13_FREQUENCY_KEY, "400",
+                "-p", LdbcSnbInteractiveWorkloadConfiguration.READ_OPERATION_14_FREQUENCY_KEY, "500",
+                "-p", LdbcSnbInteractiveWorkloadConfiguration.UPDATE_INTERLEAVE, "10",
+                "-p", LdbcSnbInteractiveWorkloadConfiguration.LONG_READ_OPERATION_1_ENABLE_KEY, "true",
+                "-p", LdbcSnbInteractiveWorkloadConfiguration.LONG_READ_OPERATION_2_ENABLE_KEY, "true",
+                "-p", LdbcSnbInteractiveWorkloadConfiguration.LONG_READ_OPERATION_3_ENABLE_KEY, "true",
+                "-p", LdbcSnbInteractiveWorkloadConfiguration.LONG_READ_OPERATION_4_ENABLE_KEY, "true",
+                "-p", LdbcSnbInteractiveWorkloadConfiguration.LONG_READ_OPERATION_5_ENABLE_KEY, "true",
+                "-p", LdbcSnbInteractiveWorkloadConfiguration.LONG_READ_OPERATION_6_ENABLE_KEY, "true",
+                "-p", LdbcSnbInteractiveWorkloadConfiguration.LONG_READ_OPERATION_7_ENABLE_KEY, "true",
+                "-p", LdbcSnbInteractiveWorkloadConfiguration.LONG_READ_OPERATION_8_ENABLE_KEY, "true",
+                "-p", LdbcSnbInteractiveWorkloadConfiguration.LONG_READ_OPERATION_9_ENABLE_KEY, "true",
+                "-p", LdbcSnbInteractiveWorkloadConfiguration.LONG_READ_OPERATION_10_ENABLE_KEY, "true",
+                "-p", LdbcSnbInteractiveWorkloadConfiguration.LONG_READ_OPERATION_11_ENABLE_KEY, "true",
+                "-p", LdbcSnbInteractiveWorkloadConfiguration.LONG_READ_OPERATION_12_ENABLE_KEY, "true",
+                "-p", LdbcSnbInteractiveWorkloadConfiguration.LONG_READ_OPERATION_13_ENABLE_KEY, "true",
+                "-p", LdbcSnbInteractiveWorkloadConfiguration.LONG_READ_OPERATION_14_ENABLE_KEY, "true",
+                "-p", LdbcSnbInteractiveWorkloadConfiguration.WRITE_OPERATION_1_ENABLE_KEY, "true",
+                "-p", LdbcSnbInteractiveWorkloadConfiguration.WRITE_OPERATION_2_ENABLE_KEY, "false",
+                "-p", LdbcSnbInteractiveWorkloadConfiguration.WRITE_OPERATION_3_ENABLE_KEY, "false",
+                "-p", LdbcSnbInteractiveWorkloadConfiguration.WRITE_OPERATION_4_ENABLE_KEY, "false",
+                "-p", LdbcSnbInteractiveWorkloadConfiguration.WRITE_OPERATION_5_ENABLE_KEY, "false",
+                "-p", LdbcSnbInteractiveWorkloadConfiguration.WRITE_OPERATION_6_ENABLE_KEY, "false",
+                "-p", LdbcSnbInteractiveWorkloadConfiguration.WRITE_OPERATION_7_ENABLE_KEY, "false",
+                "-p", LdbcSnbInteractiveWorkloadConfiguration.WRITE_OPERATION_8_ENABLE_KEY, "false",
+                "-p", LdbcSnbInteractiveWorkloadConfiguration.UPDATES_DIRECTORY, TestUtils.getResource( "/" ).getAbsolutePath(),
+                "-p", LdbcSnbInteractiveWorkloadConfiguration.PARAMETERS_DIRECTORY,
                 TestUtils.getResource( "/" ).getAbsolutePath()
         } );
 
@@ -764,33 +764,33 @@ public class LdbcSnbBiWorkloadTest
         workload.init( params );
 
         // Then
-        assertThat( params.asMap().get( LdbcSnbInteractiveConfiguration.READ_OPERATION_1_INTERLEAVE_KEY ),
+        assertThat( params.asMap().get( LdbcSnbInteractiveWorkloadConfiguration.READ_OPERATION_1_INTERLEAVE_KEY ),
                 equalTo( "100" ) );
-        assertThat( params.asMap().get( LdbcSnbInteractiveConfiguration.READ_OPERATION_2_INTERLEAVE_KEY ),
+        assertThat( params.asMap().get( LdbcSnbInteractiveWorkloadConfiguration.READ_OPERATION_2_INTERLEAVE_KEY ),
                 equalTo( "200" ) );
-        assertThat( params.asMap().get( LdbcSnbInteractiveConfiguration.READ_OPERATION_3_INTERLEAVE_KEY ),
+        assertThat( params.asMap().get( LdbcSnbInteractiveWorkloadConfiguration.READ_OPERATION_3_INTERLEAVE_KEY ),
                 equalTo( "300" ) );
-        assertThat( params.asMap().get( LdbcSnbInteractiveConfiguration.READ_OPERATION_4_INTERLEAVE_KEY ),
+        assertThat( params.asMap().get( LdbcSnbInteractiveWorkloadConfiguration.READ_OPERATION_4_INTERLEAVE_KEY ),
                 equalTo( "400" ) );
-        assertThat( params.asMap().get( LdbcSnbInteractiveConfiguration.READ_OPERATION_5_INTERLEAVE_KEY ),
+        assertThat( params.asMap().get( LdbcSnbInteractiveWorkloadConfiguration.READ_OPERATION_5_INTERLEAVE_KEY ),
                 equalTo( "500" ) );
-        assertThat( params.asMap().get( LdbcSnbInteractiveConfiguration.READ_OPERATION_6_INTERLEAVE_KEY ),
+        assertThat( params.asMap().get( LdbcSnbInteractiveWorkloadConfiguration.READ_OPERATION_6_INTERLEAVE_KEY ),
                 equalTo( "600" ) );
-        assertThat( params.asMap().get( LdbcSnbInteractiveConfiguration.READ_OPERATION_7_INTERLEAVE_KEY ),
+        assertThat( params.asMap().get( LdbcSnbInteractiveWorkloadConfiguration.READ_OPERATION_7_INTERLEAVE_KEY ),
                 equalTo( "700" ) );
-        assertThat( params.asMap().get( LdbcSnbInteractiveConfiguration.READ_OPERATION_8_INTERLEAVE_KEY ),
+        assertThat( params.asMap().get( LdbcSnbInteractiveWorkloadConfiguration.READ_OPERATION_8_INTERLEAVE_KEY ),
                 equalTo( "800" ) );
-        assertThat( params.asMap().get( LdbcSnbInteractiveConfiguration.READ_OPERATION_9_INTERLEAVE_KEY ),
+        assertThat( params.asMap().get( LdbcSnbInteractiveWorkloadConfiguration.READ_OPERATION_9_INTERLEAVE_KEY ),
                 equalTo( "900" ) );
-        assertThat( params.asMap().get( LdbcSnbInteractiveConfiguration.READ_OPERATION_10_INTERLEAVE_KEY ),
+        assertThat( params.asMap().get( LdbcSnbInteractiveWorkloadConfiguration.READ_OPERATION_10_INTERLEAVE_KEY ),
                 equalTo( "1000" ) );
-        assertThat( params.asMap().get( LdbcSnbInteractiveConfiguration.READ_OPERATION_11_INTERLEAVE_KEY ),
+        assertThat( params.asMap().get( LdbcSnbInteractiveWorkloadConfiguration.READ_OPERATION_11_INTERLEAVE_KEY ),
                 equalTo( "2000" ) );
-        assertThat( params.asMap().get( LdbcSnbInteractiveConfiguration.READ_OPERATION_12_INTERLEAVE_KEY ),
+        assertThat( params.asMap().get( LdbcSnbInteractiveWorkloadConfiguration.READ_OPERATION_12_INTERLEAVE_KEY ),
                 equalTo( "3000" ) );
-        assertThat( params.asMap().get( LdbcSnbInteractiveConfiguration.READ_OPERATION_13_INTERLEAVE_KEY ),
+        assertThat( params.asMap().get( LdbcSnbInteractiveWorkloadConfiguration.READ_OPERATION_13_INTERLEAVE_KEY ),
                 equalTo( "4000" ) );
-        assertThat( params.asMap().get( LdbcSnbInteractiveConfiguration.READ_OPERATION_14_INTERLEAVE_KEY ),
+        assertThat( params.asMap().get( LdbcSnbInteractiveWorkloadConfiguration.READ_OPERATION_14_INTERLEAVE_KEY ),
                 equalTo( "5000" ) );
     }
 
@@ -808,52 +808,52 @@ public class LdbcSnbBiWorkloadTest
                 // database class is loaded by Client class, which is bypassed in this test
                 "-db", "this will never be used",
                 "-oc", "100",
-                "-p", LdbcSnbInteractiveConfiguration.READ_OPERATION_1_FREQUENCY_KEY, "10",
-                "-p", LdbcSnbInteractiveConfiguration.READ_OPERATION_2_FREQUENCY_KEY, "20",
-                "-p", LdbcSnbInteractiveConfiguration.READ_OPERATION_3_FREQUENCY_KEY, "30",
-                "-p", LdbcSnbInteractiveConfiguration.READ_OPERATION_4_FREQUENCY_KEY, "40",
-                "-p", LdbcSnbInteractiveConfiguration.READ_OPERATION_5_FREQUENCY_KEY, "50",
-                "-p", LdbcSnbInteractiveConfiguration.READ_OPERATION_6_FREQUENCY_KEY, "60",
-                "-p", LdbcSnbInteractiveConfiguration.READ_OPERATION_7_FREQUENCY_KEY, "70",
-                "-p", LdbcSnbInteractiveConfiguration.READ_OPERATION_8_FREQUENCY_KEY, "80",
-                "-p", LdbcSnbInteractiveConfiguration.READ_OPERATION_9_FREQUENCY_KEY, "90",
-                "-p", LdbcSnbInteractiveConfiguration.READ_OPERATION_10_FREQUENCY_KEY, "100",
-                "-p", LdbcSnbInteractiveConfiguration.READ_OPERATION_11_FREQUENCY_KEY, "200",
-                "-p", LdbcSnbInteractiveConfiguration.READ_OPERATION_12_FREQUENCY_KEY, "300",
-                "-p", LdbcSnbInteractiveConfiguration.READ_OPERATION_13_FREQUENCY_KEY, "400",
-                "-p", LdbcSnbInteractiveConfiguration.READ_OPERATION_14_FREQUENCY_KEY, "500",
-                "-p", LdbcSnbInteractiveConfiguration.UPDATE_INTERLEAVE, "1",
-                "-p", LdbcSnbInteractiveConfiguration.LONG_READ_OPERATION_1_ENABLE_KEY, "true",
-                "-p", LdbcSnbInteractiveConfiguration.LONG_READ_OPERATION_2_ENABLE_KEY, "true",
-                "-p", LdbcSnbInteractiveConfiguration.LONG_READ_OPERATION_3_ENABLE_KEY, "true",
-                "-p", LdbcSnbInteractiveConfiguration.LONG_READ_OPERATION_4_ENABLE_KEY, "true",
-                "-p", LdbcSnbInteractiveConfiguration.LONG_READ_OPERATION_5_ENABLE_KEY, "true",
-                "-p", LdbcSnbInteractiveConfiguration.LONG_READ_OPERATION_6_ENABLE_KEY, "true",
-                "-p", LdbcSnbInteractiveConfiguration.LONG_READ_OPERATION_7_ENABLE_KEY, "true",
-                "-p", LdbcSnbInteractiveConfiguration.LONG_READ_OPERATION_8_ENABLE_KEY, "true",
-                "-p", LdbcSnbInteractiveConfiguration.LONG_READ_OPERATION_9_ENABLE_KEY, "true",
-                "-p", LdbcSnbInteractiveConfiguration.LONG_READ_OPERATION_10_ENABLE_KEY, "true",
-                "-p", LdbcSnbInteractiveConfiguration.LONG_READ_OPERATION_11_ENABLE_KEY, "true",
-                "-p", LdbcSnbInteractiveConfiguration.LONG_READ_OPERATION_12_ENABLE_KEY, "true",
-                "-p", LdbcSnbInteractiveConfiguration.LONG_READ_OPERATION_13_ENABLE_KEY, "true",
-                "-p", LdbcSnbInteractiveConfiguration.LONG_READ_OPERATION_14_ENABLE_KEY, "true",
-                "-p", LdbcSnbInteractiveConfiguration.SHORT_READ_OPERATION_1_ENABLE_KEY, "false",
-                "-p", LdbcSnbInteractiveConfiguration.SHORT_READ_OPERATION_2_ENABLE_KEY, "false",
-                "-p", LdbcSnbInteractiveConfiguration.SHORT_READ_OPERATION_3_ENABLE_KEY, "false",
-                "-p", LdbcSnbInteractiveConfiguration.SHORT_READ_OPERATION_4_ENABLE_KEY, "false",
-                "-p", LdbcSnbInteractiveConfiguration.SHORT_READ_OPERATION_5_ENABLE_KEY, "false",
-                "-p", LdbcSnbInteractiveConfiguration.SHORT_READ_OPERATION_6_ENABLE_KEY, "false",
-                "-p", LdbcSnbInteractiveConfiguration.SHORT_READ_OPERATION_7_ENABLE_KEY, "false",
-                "-p", LdbcSnbInteractiveConfiguration.WRITE_OPERATION_1_ENABLE_KEY, "false",
-                "-p", LdbcSnbInteractiveConfiguration.WRITE_OPERATION_2_ENABLE_KEY, "false",
-                "-p", LdbcSnbInteractiveConfiguration.WRITE_OPERATION_3_ENABLE_KEY, "false",
-                "-p", LdbcSnbInteractiveConfiguration.WRITE_OPERATION_4_ENABLE_KEY, "false",
-                "-p", LdbcSnbInteractiveConfiguration.WRITE_OPERATION_5_ENABLE_KEY, "false",
-                "-p", LdbcSnbInteractiveConfiguration.WRITE_OPERATION_6_ENABLE_KEY, "false",
-                "-p", LdbcSnbInteractiveConfiguration.WRITE_OPERATION_7_ENABLE_KEY, "false",
-                "-p", LdbcSnbInteractiveConfiguration.WRITE_OPERATION_8_ENABLE_KEY, "false",
-                "-p", LdbcSnbInteractiveConfiguration.UPDATES_DIRECTORY, TestUtils.getResource( "/" ).getAbsolutePath(),
-                "-p", LdbcSnbInteractiveConfiguration.PARAMETERS_DIRECTORY,
+                "-p", LdbcSnbInteractiveWorkloadConfiguration.READ_OPERATION_1_FREQUENCY_KEY, "10",
+                "-p", LdbcSnbInteractiveWorkloadConfiguration.READ_OPERATION_2_FREQUENCY_KEY, "20",
+                "-p", LdbcSnbInteractiveWorkloadConfiguration.READ_OPERATION_3_FREQUENCY_KEY, "30",
+                "-p", LdbcSnbInteractiveWorkloadConfiguration.READ_OPERATION_4_FREQUENCY_KEY, "40",
+                "-p", LdbcSnbInteractiveWorkloadConfiguration.READ_OPERATION_5_FREQUENCY_KEY, "50",
+                "-p", LdbcSnbInteractiveWorkloadConfiguration.READ_OPERATION_6_FREQUENCY_KEY, "60",
+                "-p", LdbcSnbInteractiveWorkloadConfiguration.READ_OPERATION_7_FREQUENCY_KEY, "70",
+                "-p", LdbcSnbInteractiveWorkloadConfiguration.READ_OPERATION_8_FREQUENCY_KEY, "80",
+                "-p", LdbcSnbInteractiveWorkloadConfiguration.READ_OPERATION_9_FREQUENCY_KEY, "90",
+                "-p", LdbcSnbInteractiveWorkloadConfiguration.READ_OPERATION_10_FREQUENCY_KEY, "100",
+                "-p", LdbcSnbInteractiveWorkloadConfiguration.READ_OPERATION_11_FREQUENCY_KEY, "200",
+                "-p", LdbcSnbInteractiveWorkloadConfiguration.READ_OPERATION_12_FREQUENCY_KEY, "300",
+                "-p", LdbcSnbInteractiveWorkloadConfiguration.READ_OPERATION_13_FREQUENCY_KEY, "400",
+                "-p", LdbcSnbInteractiveWorkloadConfiguration.READ_OPERATION_14_FREQUENCY_KEY, "500",
+                "-p", LdbcSnbInteractiveWorkloadConfiguration.UPDATE_INTERLEAVE, "1",
+                "-p", LdbcSnbInteractiveWorkloadConfiguration.LONG_READ_OPERATION_1_ENABLE_KEY, "true",
+                "-p", LdbcSnbInteractiveWorkloadConfiguration.LONG_READ_OPERATION_2_ENABLE_KEY, "true",
+                "-p", LdbcSnbInteractiveWorkloadConfiguration.LONG_READ_OPERATION_3_ENABLE_KEY, "true",
+                "-p", LdbcSnbInteractiveWorkloadConfiguration.LONG_READ_OPERATION_4_ENABLE_KEY, "true",
+                "-p", LdbcSnbInteractiveWorkloadConfiguration.LONG_READ_OPERATION_5_ENABLE_KEY, "true",
+                "-p", LdbcSnbInteractiveWorkloadConfiguration.LONG_READ_OPERATION_6_ENABLE_KEY, "true",
+                "-p", LdbcSnbInteractiveWorkloadConfiguration.LONG_READ_OPERATION_7_ENABLE_KEY, "true",
+                "-p", LdbcSnbInteractiveWorkloadConfiguration.LONG_READ_OPERATION_8_ENABLE_KEY, "true",
+                "-p", LdbcSnbInteractiveWorkloadConfiguration.LONG_READ_OPERATION_9_ENABLE_KEY, "true",
+                "-p", LdbcSnbInteractiveWorkloadConfiguration.LONG_READ_OPERATION_10_ENABLE_KEY, "true",
+                "-p", LdbcSnbInteractiveWorkloadConfiguration.LONG_READ_OPERATION_11_ENABLE_KEY, "true",
+                "-p", LdbcSnbInteractiveWorkloadConfiguration.LONG_READ_OPERATION_12_ENABLE_KEY, "true",
+                "-p", LdbcSnbInteractiveWorkloadConfiguration.LONG_READ_OPERATION_13_ENABLE_KEY, "true",
+                "-p", LdbcSnbInteractiveWorkloadConfiguration.LONG_READ_OPERATION_14_ENABLE_KEY, "true",
+                "-p", LdbcSnbInteractiveWorkloadConfiguration.SHORT_READ_OPERATION_1_ENABLE_KEY, "false",
+                "-p", LdbcSnbInteractiveWorkloadConfiguration.SHORT_READ_OPERATION_2_ENABLE_KEY, "false",
+                "-p", LdbcSnbInteractiveWorkloadConfiguration.SHORT_READ_OPERATION_3_ENABLE_KEY, "false",
+                "-p", LdbcSnbInteractiveWorkloadConfiguration.SHORT_READ_OPERATION_4_ENABLE_KEY, "false",
+                "-p", LdbcSnbInteractiveWorkloadConfiguration.SHORT_READ_OPERATION_5_ENABLE_KEY, "false",
+                "-p", LdbcSnbInteractiveWorkloadConfiguration.SHORT_READ_OPERATION_6_ENABLE_KEY, "false",
+                "-p", LdbcSnbInteractiveWorkloadConfiguration.SHORT_READ_OPERATION_7_ENABLE_KEY, "false",
+                "-p", LdbcSnbInteractiveWorkloadConfiguration.WRITE_OPERATION_1_ENABLE_KEY, "false",
+                "-p", LdbcSnbInteractiveWorkloadConfiguration.WRITE_OPERATION_2_ENABLE_KEY, "false",
+                "-p", LdbcSnbInteractiveWorkloadConfiguration.WRITE_OPERATION_3_ENABLE_KEY, "false",
+                "-p", LdbcSnbInteractiveWorkloadConfiguration.WRITE_OPERATION_4_ENABLE_KEY, "false",
+                "-p", LdbcSnbInteractiveWorkloadConfiguration.WRITE_OPERATION_5_ENABLE_KEY, "false",
+                "-p", LdbcSnbInteractiveWorkloadConfiguration.WRITE_OPERATION_6_ENABLE_KEY, "false",
+                "-p", LdbcSnbInteractiveWorkloadConfiguration.WRITE_OPERATION_7_ENABLE_KEY, "false",
+                "-p", LdbcSnbInteractiveWorkloadConfiguration.WRITE_OPERATION_8_ENABLE_KEY, "false",
+                "-p", LdbcSnbInteractiveWorkloadConfiguration.UPDATES_DIRECTORY, TestUtils.getResource( "/" ).getAbsolutePath(),
+                "-p", LdbcSnbInteractiveWorkloadConfiguration.PARAMETERS_DIRECTORY,
                 TestUtils.getResource( "/" ).getAbsolutePath()
         } );
 
@@ -862,34 +862,34 @@ public class LdbcSnbBiWorkloadTest
         workload.init( params );
 
         // Then
-        assertThat( params.asMap().get( LdbcSnbInteractiveConfiguration.READ_OPERATION_1_INTERLEAVE_KEY ), equalTo(
-                Long.toString( Long.parseLong( LdbcSnbInteractiveConfiguration.DEFAULT_UPDATE_INTERLEAVE ) * 10 ) ) );
-        assertThat( params.asMap().get( LdbcSnbInteractiveConfiguration.READ_OPERATION_2_INTERLEAVE_KEY ), equalTo(
-                Long.toString( Long.parseLong( LdbcSnbInteractiveConfiguration.DEFAULT_UPDATE_INTERLEAVE ) * 20 ) ) );
-        assertThat( params.asMap().get( LdbcSnbInteractiveConfiguration.READ_OPERATION_3_INTERLEAVE_KEY ), equalTo(
-                Long.toString( Long.parseLong( LdbcSnbInteractiveConfiguration.DEFAULT_UPDATE_INTERLEAVE ) * 30 ) ) );
-        assertThat( params.asMap().get( LdbcSnbInteractiveConfiguration.READ_OPERATION_4_INTERLEAVE_KEY ), equalTo(
-                Long.toString( Long.parseLong( LdbcSnbInteractiveConfiguration.DEFAULT_UPDATE_INTERLEAVE ) * 40 ) ) );
-        assertThat( params.asMap().get( LdbcSnbInteractiveConfiguration.READ_OPERATION_5_INTERLEAVE_KEY ), equalTo(
-                Long.toString( Long.parseLong( LdbcSnbInteractiveConfiguration.DEFAULT_UPDATE_INTERLEAVE ) * 50 ) ) );
-        assertThat( params.asMap().get( LdbcSnbInteractiveConfiguration.READ_OPERATION_6_INTERLEAVE_KEY ), equalTo(
-                Long.toString( Long.parseLong( LdbcSnbInteractiveConfiguration.DEFAULT_UPDATE_INTERLEAVE ) * 60 ) ) );
-        assertThat( params.asMap().get( LdbcSnbInteractiveConfiguration.READ_OPERATION_7_INTERLEAVE_KEY ), equalTo(
-                Long.toString( Long.parseLong( LdbcSnbInteractiveConfiguration.DEFAULT_UPDATE_INTERLEAVE ) * 70 ) ) );
-        assertThat( params.asMap().get( LdbcSnbInteractiveConfiguration.READ_OPERATION_8_INTERLEAVE_KEY ), equalTo(
-                Long.toString( Long.parseLong( LdbcSnbInteractiveConfiguration.DEFAULT_UPDATE_INTERLEAVE ) * 80 ) ) );
-        assertThat( params.asMap().get( LdbcSnbInteractiveConfiguration.READ_OPERATION_9_INTERLEAVE_KEY ), equalTo(
-                Long.toString( Long.parseLong( LdbcSnbInteractiveConfiguration.DEFAULT_UPDATE_INTERLEAVE ) * 90 ) ) );
-        assertThat( params.asMap().get( LdbcSnbInteractiveConfiguration.READ_OPERATION_10_INTERLEAVE_KEY ), equalTo(
-                Long.toString( Long.parseLong( LdbcSnbInteractiveConfiguration.DEFAULT_UPDATE_INTERLEAVE ) * 100 ) ) );
-        assertThat( params.asMap().get( LdbcSnbInteractiveConfiguration.READ_OPERATION_11_INTERLEAVE_KEY ), equalTo(
-                Long.toString( Long.parseLong( LdbcSnbInteractiveConfiguration.DEFAULT_UPDATE_INTERLEAVE ) * 200 ) ) );
-        assertThat( params.asMap().get( LdbcSnbInteractiveConfiguration.READ_OPERATION_12_INTERLEAVE_KEY ), equalTo(
-                Long.toString( Long.parseLong( LdbcSnbInteractiveConfiguration.DEFAULT_UPDATE_INTERLEAVE ) * 300 ) ) );
-        assertThat( params.asMap().get( LdbcSnbInteractiveConfiguration.READ_OPERATION_13_INTERLEAVE_KEY ), equalTo(
-                Long.toString( Long.parseLong( LdbcSnbInteractiveConfiguration.DEFAULT_UPDATE_INTERLEAVE ) * 400 ) ) );
-        assertThat( params.asMap().get( LdbcSnbInteractiveConfiguration.READ_OPERATION_14_INTERLEAVE_KEY ), equalTo(
-                Long.toString( Long.parseLong( LdbcSnbInteractiveConfiguration.DEFAULT_UPDATE_INTERLEAVE ) * 500 ) ) );
+        assertThat( params.asMap().get( LdbcSnbInteractiveWorkloadConfiguration.READ_OPERATION_1_INTERLEAVE_KEY ), equalTo(
+                Long.toString( Long.parseLong( LdbcSnbInteractiveWorkloadConfiguration.DEFAULT_UPDATE_INTERLEAVE ) * 10 ) ) );
+        assertThat( params.asMap().get( LdbcSnbInteractiveWorkloadConfiguration.READ_OPERATION_2_INTERLEAVE_KEY ), equalTo(
+                Long.toString( Long.parseLong( LdbcSnbInteractiveWorkloadConfiguration.DEFAULT_UPDATE_INTERLEAVE ) * 20 ) ) );
+        assertThat( params.asMap().get( LdbcSnbInteractiveWorkloadConfiguration.READ_OPERATION_3_INTERLEAVE_KEY ), equalTo(
+                Long.toString( Long.parseLong( LdbcSnbInteractiveWorkloadConfiguration.DEFAULT_UPDATE_INTERLEAVE ) * 30 ) ) );
+        assertThat( params.asMap().get( LdbcSnbInteractiveWorkloadConfiguration.READ_OPERATION_4_INTERLEAVE_KEY ), equalTo(
+                Long.toString( Long.parseLong( LdbcSnbInteractiveWorkloadConfiguration.DEFAULT_UPDATE_INTERLEAVE ) * 40 ) ) );
+        assertThat( params.asMap().get( LdbcSnbInteractiveWorkloadConfiguration.READ_OPERATION_5_INTERLEAVE_KEY ), equalTo(
+                Long.toString( Long.parseLong( LdbcSnbInteractiveWorkloadConfiguration.DEFAULT_UPDATE_INTERLEAVE ) * 50 ) ) );
+        assertThat( params.asMap().get( LdbcSnbInteractiveWorkloadConfiguration.READ_OPERATION_6_INTERLEAVE_KEY ), equalTo(
+                Long.toString( Long.parseLong( LdbcSnbInteractiveWorkloadConfiguration.DEFAULT_UPDATE_INTERLEAVE ) * 60 ) ) );
+        assertThat( params.asMap().get( LdbcSnbInteractiveWorkloadConfiguration.READ_OPERATION_7_INTERLEAVE_KEY ), equalTo(
+                Long.toString( Long.parseLong( LdbcSnbInteractiveWorkloadConfiguration.DEFAULT_UPDATE_INTERLEAVE ) * 70 ) ) );
+        assertThat( params.asMap().get( LdbcSnbInteractiveWorkloadConfiguration.READ_OPERATION_8_INTERLEAVE_KEY ), equalTo(
+                Long.toString( Long.parseLong( LdbcSnbInteractiveWorkloadConfiguration.DEFAULT_UPDATE_INTERLEAVE ) * 80 ) ) );
+        assertThat( params.asMap().get( LdbcSnbInteractiveWorkloadConfiguration.READ_OPERATION_9_INTERLEAVE_KEY ), equalTo(
+                Long.toString( Long.parseLong( LdbcSnbInteractiveWorkloadConfiguration.DEFAULT_UPDATE_INTERLEAVE ) * 90 ) ) );
+        assertThat( params.asMap().get( LdbcSnbInteractiveWorkloadConfiguration.READ_OPERATION_10_INTERLEAVE_KEY ), equalTo(
+                Long.toString( Long.parseLong( LdbcSnbInteractiveWorkloadConfiguration.DEFAULT_UPDATE_INTERLEAVE ) * 100 ) ) );
+        assertThat( params.asMap().get( LdbcSnbInteractiveWorkloadConfiguration.READ_OPERATION_11_INTERLEAVE_KEY ), equalTo(
+                Long.toString( Long.parseLong( LdbcSnbInteractiveWorkloadConfiguration.DEFAULT_UPDATE_INTERLEAVE ) * 200 ) ) );
+        assertThat( params.asMap().get( LdbcSnbInteractiveWorkloadConfiguration.READ_OPERATION_12_INTERLEAVE_KEY ), equalTo(
+                Long.toString( Long.parseLong( LdbcSnbInteractiveWorkloadConfiguration.DEFAULT_UPDATE_INTERLEAVE ) * 300 ) ) );
+        assertThat( params.asMap().get( LdbcSnbInteractiveWorkloadConfiguration.READ_OPERATION_13_INTERLEAVE_KEY ), equalTo(
+                Long.toString( Long.parseLong( LdbcSnbInteractiveWorkloadConfiguration.DEFAULT_UPDATE_INTERLEAVE ) * 400 ) ) );
+        assertThat( params.asMap().get( LdbcSnbInteractiveWorkloadConfiguration.READ_OPERATION_14_INTERLEAVE_KEY ), equalTo(
+                Long.toString( Long.parseLong( LdbcSnbInteractiveWorkloadConfiguration.DEFAULT_UPDATE_INTERLEAVE ) * 500 ) ) );
     }
 
     @Test
@@ -906,31 +906,31 @@ public class LdbcSnbBiWorkloadTest
                 // database class is loaded by Client class, which is bypassed in this test
                 "-db", "this will never be used",
                 "-oc", "100",
-                "-p", LdbcSnbInteractiveConfiguration.UPDATE_INTERLEAVE, "10",
-                "-p", LdbcSnbInteractiveConfiguration.LONG_READ_OPERATION_1_ENABLE_KEY, "true",
-                "-p", LdbcSnbInteractiveConfiguration.LONG_READ_OPERATION_2_ENABLE_KEY, "true",
-                "-p", LdbcSnbInteractiveConfiguration.LONG_READ_OPERATION_3_ENABLE_KEY, "true",
-                "-p", LdbcSnbInteractiveConfiguration.LONG_READ_OPERATION_4_ENABLE_KEY, "true",
-                "-p", LdbcSnbInteractiveConfiguration.LONG_READ_OPERATION_5_ENABLE_KEY, "true",
-                "-p", LdbcSnbInteractiveConfiguration.LONG_READ_OPERATION_6_ENABLE_KEY, "true",
-                "-p", LdbcSnbInteractiveConfiguration.LONG_READ_OPERATION_7_ENABLE_KEY, "true",
-                "-p", LdbcSnbInteractiveConfiguration.LONG_READ_OPERATION_8_ENABLE_KEY, "true",
-                "-p", LdbcSnbInteractiveConfiguration.LONG_READ_OPERATION_9_ENABLE_KEY, "true",
-                "-p", LdbcSnbInteractiveConfiguration.LONG_READ_OPERATION_10_ENABLE_KEY, "true",
-                "-p", LdbcSnbInteractiveConfiguration.LONG_READ_OPERATION_11_ENABLE_KEY, "true",
-                "-p", LdbcSnbInteractiveConfiguration.LONG_READ_OPERATION_12_ENABLE_KEY, "true",
-                "-p", LdbcSnbInteractiveConfiguration.LONG_READ_OPERATION_13_ENABLE_KEY, "true",
-                "-p", LdbcSnbInteractiveConfiguration.LONG_READ_OPERATION_14_ENABLE_KEY, "true",
-                "-p", LdbcSnbInteractiveConfiguration.WRITE_OPERATION_1_ENABLE_KEY, "false",
-                "-p", LdbcSnbInteractiveConfiguration.WRITE_OPERATION_2_ENABLE_KEY, "false",
-                "-p", LdbcSnbInteractiveConfiguration.WRITE_OPERATION_3_ENABLE_KEY, "false",
-                "-p", LdbcSnbInteractiveConfiguration.WRITE_OPERATION_4_ENABLE_KEY, "false",
-                "-p", LdbcSnbInteractiveConfiguration.WRITE_OPERATION_5_ENABLE_KEY, "false",
-                "-p", LdbcSnbInteractiveConfiguration.WRITE_OPERATION_6_ENABLE_KEY, "false",
-                "-p", LdbcSnbInteractiveConfiguration.WRITE_OPERATION_7_ENABLE_KEY, "false",
-                "-p", LdbcSnbInteractiveConfiguration.WRITE_OPERATION_8_ENABLE_KEY, "false",
-                "-p", LdbcSnbInteractiveConfiguration.UPDATES_DIRECTORY, TestUtils.getResource( "/" ).getAbsolutePath(),
-                "-p", LdbcSnbInteractiveConfiguration.PARAMETERS_DIRECTORY,
+                "-p", LdbcSnbInteractiveWorkloadConfiguration.UPDATE_INTERLEAVE, "10",
+                "-p", LdbcSnbInteractiveWorkloadConfiguration.LONG_READ_OPERATION_1_ENABLE_KEY, "true",
+                "-p", LdbcSnbInteractiveWorkloadConfiguration.LONG_READ_OPERATION_2_ENABLE_KEY, "true",
+                "-p", LdbcSnbInteractiveWorkloadConfiguration.LONG_READ_OPERATION_3_ENABLE_KEY, "true",
+                "-p", LdbcSnbInteractiveWorkloadConfiguration.LONG_READ_OPERATION_4_ENABLE_KEY, "true",
+                "-p", LdbcSnbInteractiveWorkloadConfiguration.LONG_READ_OPERATION_5_ENABLE_KEY, "true",
+                "-p", LdbcSnbInteractiveWorkloadConfiguration.LONG_READ_OPERATION_6_ENABLE_KEY, "true",
+                "-p", LdbcSnbInteractiveWorkloadConfiguration.LONG_READ_OPERATION_7_ENABLE_KEY, "true",
+                "-p", LdbcSnbInteractiveWorkloadConfiguration.LONG_READ_OPERATION_8_ENABLE_KEY, "true",
+                "-p", LdbcSnbInteractiveWorkloadConfiguration.LONG_READ_OPERATION_9_ENABLE_KEY, "true",
+                "-p", LdbcSnbInteractiveWorkloadConfiguration.LONG_READ_OPERATION_10_ENABLE_KEY, "true",
+                "-p", LdbcSnbInteractiveWorkloadConfiguration.LONG_READ_OPERATION_11_ENABLE_KEY, "true",
+                "-p", LdbcSnbInteractiveWorkloadConfiguration.LONG_READ_OPERATION_12_ENABLE_KEY, "true",
+                "-p", LdbcSnbInteractiveWorkloadConfiguration.LONG_READ_OPERATION_13_ENABLE_KEY, "true",
+                "-p", LdbcSnbInteractiveWorkloadConfiguration.LONG_READ_OPERATION_14_ENABLE_KEY, "true",
+                "-p", LdbcSnbInteractiveWorkloadConfiguration.WRITE_OPERATION_1_ENABLE_KEY, "false",
+                "-p", LdbcSnbInteractiveWorkloadConfiguration.WRITE_OPERATION_2_ENABLE_KEY, "false",
+                "-p", LdbcSnbInteractiveWorkloadConfiguration.WRITE_OPERATION_3_ENABLE_KEY, "false",
+                "-p", LdbcSnbInteractiveWorkloadConfiguration.WRITE_OPERATION_4_ENABLE_KEY, "false",
+                "-p", LdbcSnbInteractiveWorkloadConfiguration.WRITE_OPERATION_5_ENABLE_KEY, "false",
+                "-p", LdbcSnbInteractiveWorkloadConfiguration.WRITE_OPERATION_6_ENABLE_KEY, "false",
+                "-p", LdbcSnbInteractiveWorkloadConfiguration.WRITE_OPERATION_7_ENABLE_KEY, "false",
+                "-p", LdbcSnbInteractiveWorkloadConfiguration.WRITE_OPERATION_8_ENABLE_KEY, "false",
+                "-p", LdbcSnbInteractiveWorkloadConfiguration.UPDATES_DIRECTORY, TestUtils.getResource( "/" ).getAbsolutePath(),
+                "-p", LdbcSnbInteractiveWorkloadConfiguration.PARAMETERS_DIRECTORY,
                 TestUtils.getResource( "/" ).getAbsolutePath()
         } );
 
@@ -955,11 +955,11 @@ public class LdbcSnbBiWorkloadTest
     public void shouldAssignMonotonicallyIncreasingScheduledStartTimesToOperations()
             throws WorkloadException, IOException, DriverConfigurationException
     {
-        Map<String,String> paramsMap = LdbcSnbInteractiveConfiguration.defaultConfigSF1();
+        Map<String,String> paramsMap = LdbcSnbInteractiveWorkloadConfiguration.defaultConfigSF1();
         // LDBC Interactive Workload-specific parameters
-        paramsMap.put( LdbcSnbInteractiveConfiguration.PARAMETERS_DIRECTORY,
+        paramsMap.put( LdbcSnbInteractiveWorkloadConfiguration.PARAMETERS_DIRECTORY,
                 TestUtils.getResource( "/" ).getAbsolutePath() );
-        paramsMap.put( LdbcSnbInteractiveConfiguration.UPDATES_DIRECTORY,
+        paramsMap.put( LdbcSnbInteractiveWorkloadConfiguration.UPDATES_DIRECTORY,
                 TestUtils.getResource( "/" ).getAbsolutePath() );
         // Driver-specific parameters
         String name = "name";
@@ -1035,14 +1035,14 @@ public class LdbcSnbBiWorkloadTest
     public void shouldRunWorkloadForLongReadsOnly()
             throws WorkloadException, ClientException, IOException, DriverConfigurationException
     {
-        Map<String,String> workloadParams = LdbcSnbInteractiveConfiguration.withoutWrites(
-                LdbcSnbInteractiveConfiguration.withoutShortReads(
-                        LdbcSnbInteractiveConfiguration.defaultConfigSF1()
+        Map<String,String> workloadParams = LdbcSnbInteractiveWorkloadConfiguration.withoutWrites(
+                LdbcSnbInteractiveWorkloadConfiguration.withoutShortReads(
+                        LdbcSnbInteractiveWorkloadConfiguration.defaultConfigSF1()
                 )
         );
-        workloadParams.put( LdbcSnbInteractiveConfiguration.PARAMETERS_DIRECTORY,
+        workloadParams.put( LdbcSnbInteractiveWorkloadConfiguration.PARAMETERS_DIRECTORY,
                 TestUtils.getResource( "/" ).getAbsolutePath() );
-        workloadParams.put( LdbcSnbInteractiveConfiguration.UPDATES_DIRECTORY,
+        workloadParams.put( LdbcSnbInteractiveWorkloadConfiguration.UPDATES_DIRECTORY,
                 TestUtils.getResource( "/" ).getAbsolutePath() );
         workloadParams = MapUtils.mergeMaps(
                 workloadParams,
@@ -1056,12 +1056,12 @@ public class LdbcSnbBiWorkloadTest
     public void shouldRunWorkloadForReadsOnly()
             throws WorkloadException, ClientException, IOException, DriverConfigurationException
     {
-        Map<String,String> workloadParams = LdbcSnbInteractiveConfiguration.withoutWrites(
-                LdbcSnbInteractiveConfiguration.defaultConfigSF1()
+        Map<String,String> workloadParams = LdbcSnbInteractiveWorkloadConfiguration.withoutWrites(
+                LdbcSnbInteractiveWorkloadConfiguration.defaultConfigSF1()
         );
-        workloadParams.put( LdbcSnbInteractiveConfiguration.PARAMETERS_DIRECTORY,
+        workloadParams.put( LdbcSnbInteractiveWorkloadConfiguration.PARAMETERS_DIRECTORY,
                 TestUtils.getResource( "/" ).getAbsolutePath() );
-        workloadParams.put( LdbcSnbInteractiveConfiguration.UPDATES_DIRECTORY,
+        workloadParams.put( LdbcSnbInteractiveWorkloadConfiguration.UPDATES_DIRECTORY,
                 TestUtils.getResource( "/" ).getAbsolutePath() );
         workloadParams = MapUtils.mergeMaps(
                 workloadParams,
@@ -1075,14 +1075,14 @@ public class LdbcSnbBiWorkloadTest
     public void shouldRunWorkloadForWritesOnly()
             throws WorkloadException, ClientException, IOException, DriverConfigurationException
     {
-        Map<String,String> workloadParams = LdbcSnbInteractiveConfiguration.withoutLongReads(
-                LdbcSnbInteractiveConfiguration.withoutShortReads(
-                        LdbcSnbInteractiveConfiguration.defaultConfigSF1()
+        Map<String,String> workloadParams = LdbcSnbInteractiveWorkloadConfiguration.withoutLongReads(
+                LdbcSnbInteractiveWorkloadConfiguration.withoutShortReads(
+                        LdbcSnbInteractiveWorkloadConfiguration.defaultConfigSF1()
                 )
         );
-        workloadParams.put( LdbcSnbInteractiveConfiguration.PARAMETERS_DIRECTORY,
+        workloadParams.put( LdbcSnbInteractiveWorkloadConfiguration.PARAMETERS_DIRECTORY,
                 TestUtils.getResource( "/" ).getAbsolutePath() );
-        workloadParams.put( LdbcSnbInteractiveConfiguration.UPDATES_DIRECTORY,
+        workloadParams.put( LdbcSnbInteractiveWorkloadConfiguration.UPDATES_DIRECTORY,
                 TestUtils.getResource( "/" ).getAbsolutePath() );
         workloadParams = MapUtils.mergeMaps(
                 workloadParams,
@@ -1096,10 +1096,10 @@ public class LdbcSnbBiWorkloadTest
     public void shouldRunWorkloadForFullWorkload()
             throws WorkloadException, ClientException, IOException, DriverConfigurationException
     {
-        Map<String,String> workloadParams = LdbcSnbInteractiveConfiguration.defaultConfigSF1();
-        workloadParams.put( LdbcSnbInteractiveConfiguration.PARAMETERS_DIRECTORY,
+        Map<String,String> workloadParams = LdbcSnbInteractiveWorkloadConfiguration.defaultConfigSF1();
+        workloadParams.put( LdbcSnbInteractiveWorkloadConfiguration.PARAMETERS_DIRECTORY,
                 TestUtils.getResource( "/" ).getAbsolutePath() );
-        workloadParams.put( LdbcSnbInteractiveConfiguration.UPDATES_DIRECTORY,
+        workloadParams.put( LdbcSnbInteractiveWorkloadConfiguration.UPDATES_DIRECTORY,
                 TestUtils.getResource( "/" ).getAbsolutePath() );
         workloadParams = MapUtils.mergeMaps(
                 workloadParams,
@@ -1189,14 +1189,14 @@ public class LdbcSnbBiWorkloadTest
     public void shouldPassWorkloadValidationForLongReadsOnly()
             throws WorkloadException, ClientException, IOException, DriverConfigurationException
     {
-        Map<String,String> workloadParams = LdbcSnbInteractiveConfiguration.withoutWrites(
-                LdbcSnbInteractiveConfiguration.withoutShortReads(
-                        LdbcSnbInteractiveConfiguration.defaultConfigSF1()
+        Map<String,String> workloadParams = LdbcSnbInteractiveWorkloadConfiguration.withoutWrites(
+                LdbcSnbInteractiveWorkloadConfiguration.withoutShortReads(
+                        LdbcSnbInteractiveWorkloadConfiguration.defaultConfigSF1()
                 )
         );
-        workloadParams.put( LdbcSnbInteractiveConfiguration.PARAMETERS_DIRECTORY,
+        workloadParams.put( LdbcSnbInteractiveWorkloadConfiguration.PARAMETERS_DIRECTORY,
                 TestUtils.getResource( "/" ).getAbsolutePath() );
-        workloadParams.put( LdbcSnbInteractiveConfiguration.UPDATES_DIRECTORY,
+        workloadParams.put( LdbcSnbInteractiveWorkloadConfiguration.UPDATES_DIRECTORY,
                 TestUtils.getResource( "/" ).getAbsolutePath() );
         workloadParams = MapUtils.mergeMaps(
                 workloadParams,
@@ -1210,12 +1210,12 @@ public class LdbcSnbBiWorkloadTest
     public void shouldPassWorkloadValidationForReadsOnly()
             throws WorkloadException, ClientException, IOException, DriverConfigurationException
     {
-        Map<String,String> workloadParams = LdbcSnbInteractiveConfiguration.withoutWrites(
-                LdbcSnbInteractiveConfiguration.defaultConfigSF1()
+        Map<String,String> workloadParams = LdbcSnbInteractiveWorkloadConfiguration.withoutWrites(
+                LdbcSnbInteractiveWorkloadConfiguration.defaultConfigSF1()
         );
-        workloadParams.put( LdbcSnbInteractiveConfiguration.PARAMETERS_DIRECTORY,
+        workloadParams.put( LdbcSnbInteractiveWorkloadConfiguration.PARAMETERS_DIRECTORY,
                 TestUtils.getResource( "/" ).getAbsolutePath() );
-        workloadParams.put( LdbcSnbInteractiveConfiguration.UPDATES_DIRECTORY,
+        workloadParams.put( LdbcSnbInteractiveWorkloadConfiguration.UPDATES_DIRECTORY,
                 TestUtils.getResource( "/" ).getAbsolutePath() );
         workloadParams = MapUtils.mergeMaps(
                 workloadParams,
@@ -1229,14 +1229,14 @@ public class LdbcSnbBiWorkloadTest
     public void shouldPassWorkloadValidationForWritesOnly()
             throws WorkloadException, ClientException, IOException, DriverConfigurationException
     {
-        Map<String,String> workloadParams = LdbcSnbInteractiveConfiguration.withoutLongReads(
-                LdbcSnbInteractiveConfiguration.withoutShortReads(
-                        LdbcSnbInteractiveConfiguration.defaultConfigSF1()
+        Map<String,String> workloadParams = LdbcSnbInteractiveWorkloadConfiguration.withoutLongReads(
+                LdbcSnbInteractiveWorkloadConfiguration.withoutShortReads(
+                        LdbcSnbInteractiveWorkloadConfiguration.defaultConfigSF1()
                 )
         );
-        workloadParams.put( LdbcSnbInteractiveConfiguration.PARAMETERS_DIRECTORY,
+        workloadParams.put( LdbcSnbInteractiveWorkloadConfiguration.PARAMETERS_DIRECTORY,
                 TestUtils.getResource( "/" ).getAbsolutePath() );
-        workloadParams.put( LdbcSnbInteractiveConfiguration.UPDATES_DIRECTORY,
+        workloadParams.put( LdbcSnbInteractiveWorkloadConfiguration.UPDATES_DIRECTORY,
                 TestUtils.getResource( "/" ).getAbsolutePath() );
         workloadParams = MapUtils.mergeMaps(
                 workloadParams,
@@ -1250,10 +1250,10 @@ public class LdbcSnbBiWorkloadTest
     public void shouldPassWorkloadValidationForFullWorkload()
             throws WorkloadException, ClientException, IOException, DriverConfigurationException
     {
-        Map<String,String> workloadParams = LdbcSnbInteractiveConfiguration.defaultConfigSF1();
-        workloadParams.put( LdbcSnbInteractiveConfiguration.PARAMETERS_DIRECTORY,
+        Map<String,String> workloadParams = LdbcSnbInteractiveWorkloadConfiguration.defaultConfigSF1();
+        workloadParams.put( LdbcSnbInteractiveWorkloadConfiguration.PARAMETERS_DIRECTORY,
                 TestUtils.getResource( "/" ).getAbsolutePath() );
-        workloadParams.put( LdbcSnbInteractiveConfiguration.UPDATES_DIRECTORY,
+        workloadParams.put( LdbcSnbInteractiveWorkloadConfiguration.UPDATES_DIRECTORY,
                 TestUtils.getResource( "/" ).getAbsolutePath() );
         workloadParams = MapUtils.mergeMaps(
                 workloadParams,
@@ -1338,14 +1338,14 @@ public class LdbcSnbBiWorkloadTest
     public void shouldCreateValidationParametersThenUseThemToPerformDatabaseValidationThenPassForLongReadsOnly()
             throws ClientException, IOException, DriverConfigurationException
     {
-        Map<String,String> workloadParams = LdbcSnbInteractiveConfiguration.withoutShortReads(
-                LdbcSnbInteractiveConfiguration.withoutWrites(
-                        LdbcSnbInteractiveConfiguration.defaultConfigSF1()
+        Map<String,String> workloadParams = LdbcSnbInteractiveWorkloadConfiguration.withoutShortReads(
+                LdbcSnbInteractiveWorkloadConfiguration.withoutWrites(
+                        LdbcSnbInteractiveWorkloadConfiguration.defaultConfigSF1()
                 )
         );
-        workloadParams.put( LdbcSnbInteractiveConfiguration.PARAMETERS_DIRECTORY,
+        workloadParams.put( LdbcSnbInteractiveWorkloadConfiguration.PARAMETERS_DIRECTORY,
                 TestUtils.getResource( "/" ).getAbsolutePath() );
-        workloadParams.put( LdbcSnbInteractiveConfiguration.UPDATES_DIRECTORY,
+        workloadParams.put( LdbcSnbInteractiveWorkloadConfiguration.UPDATES_DIRECTORY,
                 TestUtils.getResource( "/" ).getAbsolutePath() );
         workloadParams = MapUtils.mergeMaps(
                 workloadParams,
@@ -1359,12 +1359,12 @@ public class LdbcSnbBiWorkloadTest
     public void shouldCreateValidationParametersThenUseThemToPerformDatabaseValidationThenPassForReadsOnly()
             throws ClientException, IOException, DriverConfigurationException
     {
-        Map<String,String> workloadParams = LdbcSnbInteractiveConfiguration.withoutWrites(
-                LdbcSnbInteractiveConfiguration.defaultConfigSF1()
+        Map<String,String> workloadParams = LdbcSnbInteractiveWorkloadConfiguration.withoutWrites(
+                LdbcSnbInteractiveWorkloadConfiguration.defaultConfigSF1()
         );
-        workloadParams.put( LdbcSnbInteractiveConfiguration.PARAMETERS_DIRECTORY,
+        workloadParams.put( LdbcSnbInteractiveWorkloadConfiguration.PARAMETERS_DIRECTORY,
                 TestUtils.getResource( "/" ).getAbsolutePath() );
-        workloadParams.put( LdbcSnbInteractiveConfiguration.UPDATES_DIRECTORY,
+        workloadParams.put( LdbcSnbInteractiveWorkloadConfiguration.UPDATES_DIRECTORY,
                 TestUtils.getResource( "/" ).getAbsolutePath() );
         workloadParams = MapUtils.mergeMaps(
                 workloadParams,
@@ -1378,14 +1378,14 @@ public class LdbcSnbBiWorkloadTest
     public void shouldCreateValidationParametersThenUseThemToPerformDatabaseValidationThenPassForWritesOnly()
             throws ClientException, IOException, DriverConfigurationException
     {
-        Map<String,String> workloadParams = LdbcSnbInteractiveConfiguration.withoutLongReads(
-                LdbcSnbInteractiveConfiguration.withoutShortReads(
-                        LdbcSnbInteractiveConfiguration.defaultConfigSF1()
+        Map<String,String> workloadParams = LdbcSnbInteractiveWorkloadConfiguration.withoutLongReads(
+                LdbcSnbInteractiveWorkloadConfiguration.withoutShortReads(
+                        LdbcSnbInteractiveWorkloadConfiguration.defaultConfigSF1()
                 )
         );
-        workloadParams.put( LdbcSnbInteractiveConfiguration.PARAMETERS_DIRECTORY,
+        workloadParams.put( LdbcSnbInteractiveWorkloadConfiguration.PARAMETERS_DIRECTORY,
                 TestUtils.getResource( "/" ).getAbsolutePath() );
-        workloadParams.put( LdbcSnbInteractiveConfiguration.UPDATES_DIRECTORY,
+        workloadParams.put( LdbcSnbInteractiveWorkloadConfiguration.UPDATES_DIRECTORY,
                 TestUtils.getResource( "/" ).getAbsolutePath() );
         workloadParams = MapUtils.mergeMaps(
                 workloadParams,
@@ -1399,10 +1399,10 @@ public class LdbcSnbBiWorkloadTest
     public void shouldCreateValidationParametersThenUseThemToPerformDatabaseValidationThenPassForFullWorkload()
             throws ClientException, IOException, DriverConfigurationException
     {
-        Map<String,String> workloadParams = LdbcSnbInteractiveConfiguration.defaultConfigSF1();
-        workloadParams.put( LdbcSnbInteractiveConfiguration.PARAMETERS_DIRECTORY,
+        Map<String,String> workloadParams = LdbcSnbInteractiveWorkloadConfiguration.defaultConfigSF1();
+        workloadParams.put( LdbcSnbInteractiveWorkloadConfiguration.PARAMETERS_DIRECTORY,
                 TestUtils.getResource( "/" ).getAbsolutePath() );
-        workloadParams.put( LdbcSnbInteractiveConfiguration.UPDATES_DIRECTORY,
+        workloadParams.put( LdbcSnbInteractiveWorkloadConfiguration.UPDATES_DIRECTORY,
                 TestUtils.getResource( "/" ).getAbsolutePath() );
         workloadParams = MapUtils.mergeMaps(
                 workloadParams,

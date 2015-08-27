@@ -5,6 +5,7 @@ import com.ldbc.driver.DbConnectionState;
 import com.ldbc.driver.DbException;
 import com.ldbc.driver.OperationHandler;
 import com.ldbc.driver.ResultReporter;
+import com.ldbc.driver.control.LoggingService;
 import com.ldbc.driver.workloads.ldbc.snb.bi.LdbcSnbBiQuery1;
 import com.ldbc.driver.workloads.ldbc.snb.bi.LdbcSnbBiQuery10;
 import com.ldbc.driver.workloads.ldbc.snb.bi.LdbcSnbBiQuery10Result;
@@ -91,7 +92,7 @@ public class DummyLdbcSnbBiDb extends Db
     private static SleepFun sleepFun;
 
     @Override
-    protected void onInit( Map<String,String> properties ) throws DbException
+    protected void onInit( Map<String,String> properties, LoggingService loggingService ) throws DbException
     {
         String sleepDurationAsNanoAsString = properties.get( SLEEP_DURATION_NANO_ARG );
         if ( null == sleepDurationAsNanoAsString )

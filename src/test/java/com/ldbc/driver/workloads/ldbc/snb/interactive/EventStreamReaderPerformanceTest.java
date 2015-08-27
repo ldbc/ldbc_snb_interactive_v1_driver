@@ -149,7 +149,7 @@ public class EventStreamReaderPerformanceTest {
             for (int i = 0; i < repetitions; i++) {
                 SimpleCsvFileReader readOperation1FileReader = new SimpleCsvFileReader(
                         paramsFile,
-                        LdbcSnbInteractiveConfiguration.PIPE_SEPARATOR_REGEX
+                        LdbcSnbInteractiveWorkloadConfiguration.PIPE_SEPARATOR_REGEX
                 );
                 Iterator<String[]> csvStreamReader = gf.limit(
                         gf.repeating(

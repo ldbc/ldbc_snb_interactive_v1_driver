@@ -16,7 +16,7 @@ import com.ldbc.driver.util.MapUtils;
 import com.ldbc.driver.workloads.ldbc.snb.interactive.LdbcNoResult;
 import com.ldbc.driver.workloads.ldbc.snb.interactive.LdbcQuery14;
 import com.ldbc.driver.workloads.ldbc.snb.interactive.LdbcQuery14Result;
-import com.ldbc.driver.workloads.ldbc.snb.interactive.LdbcSnbInteractiveConfiguration;
+import com.ldbc.driver.workloads.ldbc.snb.interactive.LdbcSnbInteractiveWorkloadConfiguration;
 import com.ldbc.driver.workloads.ldbc.snb.interactive.LdbcSnbInteractiveWorkload;
 import com.ldbc.driver.workloads.ldbc.snb.interactive.db.DummyLdbcSnbInteractiveDb;
 import com.ldbc.driver.workloads.ldbc.snb.interactive.db.DummyLdbcSnbInteractiveOperationInstances;
@@ -53,10 +53,10 @@ public class DbValidatorTest
         ConsoleAndFileDriverConfiguration configuration =
                 ConsoleAndFileDriverConfiguration.fromDefaults( dbClassName, workloadClassName, operationCount );
 
-        Map<String,String> paramsMap = LdbcSnbInteractiveConfiguration.defaultConfigSF1();
-        paramsMap.put( LdbcSnbInteractiveConfiguration.PARAMETERS_DIRECTORY,
+        Map<String,String> paramsMap = LdbcSnbInteractiveWorkloadConfiguration.defaultConfigSF1();
+        paramsMap.put( LdbcSnbInteractiveWorkloadConfiguration.PARAMETERS_DIRECTORY,
                 TestUtils.getResource( "/" ).getAbsolutePath() );
-        paramsMap.put( LdbcSnbInteractiveConfiguration.UPDATES_DIRECTORY,
+        paramsMap.put( LdbcSnbInteractiveWorkloadConfiguration.UPDATES_DIRECTORY,
                 TestUtils.getResource( "/" ).getAbsolutePath() );
         configuration = (ConsoleAndFileDriverConfiguration) configuration.applyArgs( paramsMap );
         configuration = (ConsoleAndFileDriverConfiguration) configuration.applyArgs(
@@ -109,10 +109,10 @@ public class DbValidatorTest
                 operationCount
         );
 
-        Map<String,String> paramsMap = LdbcSnbInteractiveConfiguration.defaultConfigSF1();
-        paramsMap.put( LdbcSnbInteractiveConfiguration.PARAMETERS_DIRECTORY,
+        Map<String,String> paramsMap = LdbcSnbInteractiveWorkloadConfiguration.defaultConfigSF1();
+        paramsMap.put( LdbcSnbInteractiveWorkloadConfiguration.PARAMETERS_DIRECTORY,
                 TestUtils.getResource( "/" ).getAbsolutePath() );
-        paramsMap.put( LdbcSnbInteractiveConfiguration.UPDATES_DIRECTORY,
+        paramsMap.put( LdbcSnbInteractiveWorkloadConfiguration.UPDATES_DIRECTORY,
                 TestUtils.getResource( "/" ).getAbsolutePath() );
         configuration = (ConsoleAndFileDriverConfiguration) configuration.applyArgs( paramsMap );
         configuration = (ConsoleAndFileDriverConfiguration) configuration.applyArgs(

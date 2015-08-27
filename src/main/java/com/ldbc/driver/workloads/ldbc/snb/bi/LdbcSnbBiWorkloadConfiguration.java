@@ -415,34 +415,34 @@ public class LdbcSnbBiWorkloadConfiguration
         );
     }
 
-    public static class LdbcSnbBiInterleaves
+    static class LdbcSnbBiInterleaves
     {
-        private final long operation1Interleave;
-        private final long operation2Interleave;
-        private final long operation3Interleave;
-        private final long operation4Interleave;
-        private final long operation5Interleave;
-        private final long operation6Interleave;
-        private final long operation7Interleave;
-        private final long operation8Interleave;
-        private final long operation9Interleave;
-        private final long operation10Interleave;
-        private final long operation11Interleave;
-        private final long operation12Interleave;
-        private final long operation13Interleave;
-        private final long operation14Interleave;
-        private final long operation15Interleave;
-        private final long operation16Interleave;
-        private final long operation17Interleave;
-        private final long operation18Interleave;
-        private final long operation19Interleave;
-        private final long operation20Interleave;
-        private final long operation21Interleave;
-        private final long operation22Interleave;
-        private final long operation23Interleave;
-        private final long operation24Interleave;
+        final long operation1Interleave;
+        final long operation2Interleave;
+        final long operation3Interleave;
+        final long operation4Interleave;
+        final long operation5Interleave;
+        final long operation6Interleave;
+        final long operation7Interleave;
+        final long operation8Interleave;
+        final long operation9Interleave;
+        final long operation10Interleave;
+        final long operation11Interleave;
+        final long operation12Interleave;
+        final long operation13Interleave;
+        final long operation14Interleave;
+        final long operation15Interleave;
+        final long operation16Interleave;
+        final long operation17Interleave;
+        final long operation18Interleave;
+        final long operation19Interleave;
+        final long operation20Interleave;
+        final long operation21Interleave;
+        final long operation22Interleave;
+        final long operation23Interleave;
+        final long operation24Interleave;
 
-        public static LdbcSnbBiInterleaves fromFrequencies(
+        static LdbcSnbBiInterleaves fromFrequencies(
                 long minimumDistanceAsMilli,
                 long operation1Frequency,
                 long operation2Frequency,
@@ -547,126 +547,6 @@ public class LdbcSnbBiWorkloadConfiguration
             this.operation22Interleave = operation22Interleave;
             this.operation23Interleave = operation23Interleave;
             this.operation24Interleave = operation24Interleave;
-        }
-
-        public long operation1Interleave()
-        {
-            return operation1Interleave;
-        }
-
-        public long operation2Interleave()
-        {
-            return operation2Interleave;
-        }
-
-        public long operation3Interleave()
-        {
-            return operation3Interleave;
-        }
-
-        public long operation4Interleave()
-        {
-            return operation4Interleave;
-        }
-
-        public long operation5Interleave()
-        {
-            return operation5Interleave;
-        }
-
-        public long operation6Interleave()
-        {
-            return operation6Interleave;
-        }
-
-        public long operation7Interleave()
-        {
-            return operation7Interleave;
-        }
-
-        public long operation8Interleave()
-        {
-            return operation8Interleave;
-        }
-
-        public long operation9Interleave()
-        {
-            return operation9Interleave;
-        }
-
-        public long operation10Interleave()
-        {
-            return operation10Interleave;
-        }
-
-        public long operation11Interleave()
-        {
-            return operation11Interleave;
-        }
-
-        public long operation12Interleave()
-        {
-            return operation12Interleave;
-        }
-
-        public long operation13Interleave()
-        {
-            return operation13Interleave;
-        }
-
-        public long operation14Interleave()
-        {
-            return operation14Interleave;
-        }
-
-        public long operation15Interleave()
-        {
-            return operation15Interleave;
-        }
-
-        public long operation16Interleave()
-        {
-            return operation16Interleave;
-        }
-
-        public long operation17Interleave()
-        {
-            return operation17Interleave;
-        }
-
-        public long operation18Interleave()
-        {
-            return operation18Interleave;
-        }
-
-        public long operation19Interleave()
-        {
-            return operation19Interleave;
-        }
-
-        public long operation20Interleave()
-        {
-            return operation20Interleave;
-        }
-
-        public long operation21Interleave()
-        {
-            return operation21Interleave;
-        }
-
-        public long operation22Interleave()
-        {
-            return operation22Interleave;
-        }
-
-        public long operation23Interleave()
-        {
-            return operation23Interleave;
-        }
-
-        public long operation24Interleave()
-        {
-            return operation24Interleave;
         }
     }
 

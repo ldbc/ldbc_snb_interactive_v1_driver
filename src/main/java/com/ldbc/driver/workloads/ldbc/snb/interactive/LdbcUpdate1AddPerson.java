@@ -195,7 +195,7 @@ public class LdbcUpdate1AddPerson extends Operation<LdbcNoResult> {
     @Override
     public String serializeResult(Object operationResultInstance) throws SerializingMarshallingException {
         try {
-            return objectMapper.writeValueAsString(LdbcSnbInteractiveConfiguration.WRITE_OPERATION_NO_RESULT_DEFAULT_RESULT);
+            return objectMapper.writeValueAsString( LdbcSnbInteractiveWorkloadConfiguration.WRITE_OPERATION_NO_RESULT_DEFAULT_RESULT);
         } catch (IOException e) {
             throw new SerializingMarshallingException(String.format("Error while trying to serialize result\n%s", operationResultInstance), e);
         }

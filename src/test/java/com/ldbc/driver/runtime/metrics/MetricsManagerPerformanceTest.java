@@ -31,7 +31,7 @@ import com.ldbc.driver.workloads.ldbc.snb.interactive.LdbcShortQuery4MessageCont
 import com.ldbc.driver.workloads.ldbc.snb.interactive.LdbcShortQuery5MessageCreator;
 import com.ldbc.driver.workloads.ldbc.snb.interactive.LdbcShortQuery6MessageForum;
 import com.ldbc.driver.workloads.ldbc.snb.interactive.LdbcShortQuery7MessageReplies;
-import com.ldbc.driver.workloads.ldbc.snb.interactive.LdbcSnbInteractiveConfiguration;
+import com.ldbc.driver.workloads.ldbc.snb.interactive.LdbcSnbInteractiveWorkloadConfiguration;
 import com.ldbc.driver.workloads.ldbc.snb.interactive.LdbcUpdate1AddPerson;
 import com.ldbc.driver.workloads.ldbc.snb.interactive.LdbcUpdate2AddPostLike;
 import com.ldbc.driver.workloads.ldbc.snb.interactive.LdbcUpdate3AddCommentLike;
@@ -352,7 +352,7 @@ public class MetricsManagerPerformanceTest
                 timeSource,
                 timeUnit,
                 highestExpectedRuntimeDurationAsNano,
-                LdbcSnbInteractiveConfiguration.operationTypeToClassMapping(),
+                LdbcSnbInteractiveWorkloadConfiguration.operationTypeToClassMapping(),
                 LOGGING_SERVICE_FACTORY
         );
         final long benchmarkStartTime = System.currentTimeMillis();
@@ -434,7 +434,7 @@ public class MetricsManagerPerformanceTest
                 timeUnit,
                 timeSource,
                 highestExpectedRuntimeDurationAsNano,
-                LdbcSnbInteractiveConfiguration.operationTypeToClassMapping(),
+                LdbcSnbInteractiveWorkloadConfiguration.operationTypeToClassMapping(),
                 LOGGING_SERVICE_FACTORY
         );
         final long benchmarkStartTime = System.currentTimeMillis();
@@ -527,7 +527,7 @@ public class MetricsManagerPerformanceTest
                 timeSource,
                 timeUnit,
                 highestExpectedRuntimeDurationAsNano,
-                LdbcSnbInteractiveConfiguration.operationTypeToClassMapping(),
+                LdbcSnbInteractiveWorkloadConfiguration.operationTypeToClassMapping(),
                 LOGGING_SERVICE_FACTORY
         );
         final long benchmarkStartTime = System.currentTimeMillis();
@@ -574,7 +574,7 @@ public class MetricsManagerPerformanceTest
                 timeUnit,
                 highestExpectedRuntimeDurationAsNano,
                 null,
-                LdbcSnbInteractiveConfiguration.operationTypeToClassMapping(),
+                LdbcSnbInteractiveWorkloadConfiguration.operationTypeToClassMapping(),
                 LOGGING_SERVICE_FACTORY
         );
         MetricsService.MetricsServiceWriter metricsServiceWriter = metricsService.getWriter();
@@ -619,7 +619,7 @@ public class MetricsManagerPerformanceTest
                 timeUnit,
                 highestExpectedRuntimeDurationAsNano,
                 null,
-                LdbcSnbInteractiveConfiguration.operationTypeToClassMapping(),
+                LdbcSnbInteractiveWorkloadConfiguration.operationTypeToClassMapping(),
                 LOGGING_SERVICE_FACTORY
         );
         MetricsService.MetricsServiceWriter metricsServiceWriter = metricsService.getWriter();
@@ -664,7 +664,7 @@ public class MetricsManagerPerformanceTest
                 timeUnit,
                 highestExpectedRuntimeDurationAsNano,
                 null,
-                LdbcSnbInteractiveConfiguration.operationTypeToClassMapping(),
+                LdbcSnbInteractiveWorkloadConfiguration.operationTypeToClassMapping(),
                 LOGGING_SERVICE_FACTORY
         );
         MetricsService.MetricsServiceWriter metricsServiceWriter = metricsService.getWriter();
@@ -789,7 +789,7 @@ public class MetricsManagerPerformanceTest
                 timeUnit,
                 highestExpectedRuntimeDurationAsNano,
                 null,
-                LdbcSnbInteractiveConfiguration.operationTypeToClassMapping(),
+                LdbcSnbInteractiveWorkloadConfiguration.operationTypeToClassMapping(),
                 LOGGING_SERVICE_FACTORY
         );
 

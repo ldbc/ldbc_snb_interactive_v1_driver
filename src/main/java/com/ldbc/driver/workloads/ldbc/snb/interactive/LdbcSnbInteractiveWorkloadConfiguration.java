@@ -18,7 +18,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-public class LdbcSnbInteractiveConfiguration
+public class LdbcSnbInteractiveWorkloadConfiguration
 {
     public static final int WRITE_OPERATION_NO_RESULT_DEFAULT_RESULT = -1;
     public final static String LDBC_SNB_INTERACTIVE_PARAM_NAME_PREFIX = "ldbc.snb.interactive.";
@@ -36,7 +36,7 @@ public class LdbcSnbInteractiveConfiguration
     public final static String UPDATE_INTERLEAVE = LDBC_SNB_INTERACTIVE_PARAM_NAME_PREFIX + "update_interleave";
 
     // The parser implementation to use when reading update events
-    public static enum UpdateStreamParser
+    public enum UpdateStreamParser
     {
         REGEX,
         CHAR_SEEKER,
@@ -289,7 +289,6 @@ public class LdbcSnbInteractiveConfiguration
      * Write Operation Parameters
      */
     public final static String PIPE_SEPARATOR_REGEX = "\\|";
-    public final static String PIPE_SEPARATOR = "|";
 
     public static Map<String,String> convertFrequenciesToInterleaves( Map<String,String> params )
     {
@@ -373,16 +372,6 @@ public class LdbcSnbInteractiveConfiguration
     {
         Map<String,String> params = withoutWrites(
                 defaultConfigSF1()
-        );
-        return ConsoleAndFileDriverConfiguration.convertLongKeysToShortKeys( params );
-    }
-
-    public static Map<String,String> defaultWriteOnlyConfigSF1() throws DriverConfigurationException, IOException
-    {
-        Map<String,String> params = withoutShortReads(
-                withoutLongReads(
-                        defaultConfigSF1()
-                )
         );
         return ConsoleAndFileDriverConfiguration.convertLongKeysToShortKeys( params );
     }

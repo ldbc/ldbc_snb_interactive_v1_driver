@@ -6,7 +6,7 @@ import com.ldbc.driver.control.Log4jLoggingServiceFactory;
 import com.ldbc.driver.control.LoggingServiceFactory;
 import com.ldbc.driver.temporal.SystemTimeSource;
 import com.ldbc.driver.temporal.TimeSource;
-import com.ldbc.driver.workloads.ldbc.snb.interactive.LdbcSnbInteractiveConfiguration;
+import com.ldbc.driver.workloads.ldbc.snb.interactive.LdbcSnbInteractiveWorkloadConfiguration;
 import com.ldbc.driver.workloads.ldbc.snb.interactive.db.DummyLdbcSnbInteractiveOperationInstances;
 import org.junit.Test;
 
@@ -27,7 +27,7 @@ public class MetricsManagerTest
                 timeSource,
                 TimeUnit.MILLISECONDS,
                 ThreadedQueuedMetricsService.DEFAULT_HIGHEST_EXPECTED_RUNTIME_DURATION_AS_NANO,
-                LdbcSnbInteractiveConfiguration.operationTypeToClassMapping(),
+                LdbcSnbInteractiveWorkloadConfiguration.operationTypeToClassMapping(),
                 loggingServiceFactory
         );
 

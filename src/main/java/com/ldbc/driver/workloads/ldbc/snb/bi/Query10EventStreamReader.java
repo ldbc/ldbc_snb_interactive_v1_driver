@@ -2,83 +2,81 @@ package com.ldbc.driver.workloads.ldbc.snb.bi;
 
 
 import com.ldbc.driver.Operation;
+import com.ldbc.driver.WorkloadException;
 import com.ldbc.driver.csv.charseeker.CharSeeker;
+import com.ldbc.driver.csv.charseeker.CharSeekerParams;
 import com.ldbc.driver.csv.charseeker.Extractors;
 import com.ldbc.driver.csv.charseeker.Mark;
 import com.ldbc.driver.generator.CsvEventStreamReaderBasicCharSeeker;
 import com.ldbc.driver.generator.GeneratorException;
+import com.ldbc.driver.generator.GeneratorFactory;
 
+import java.io.File;
 import java.io.IOException;
-import java.util.Iterator;
 
-import static java.lang.String.format;
-
-public class Query10EventStreamReader implements Iterator<Operation>
+public class Query10EventStreamReader extends BaseEventStreamReader
 {
-    private final Iterator<Object[]> csvRows;
-
-    public Query10EventStreamReader( Iterator<Object[]> csvRows )
+    public Query10EventStreamReader(
+            File parametersFile,
+            CharSeekerParams charSeekerParams,
+            GeneratorFactory gf ) throws WorkloadException
     {
-        this.csvRows = csvRows;
+        super( parametersFile, charSeekerParams, gf );
     }
 
     @Override
-    public boolean hasNext()
+    Operation operationFromParameters( Object[] parameters )
     {
-        return csvRows.hasNext();
-    }
-
-    @Override
-    public Operation next()
-    {
-        Object[] rowAsObjects = csvRows.next();
-        Operation operation = new LdbcSnbBiQuery10(
-                (String) rowAsObjects[0],
-                (String) rowAsObjects[1],
-                (int) rowAsObjects[2]
+        return new LdbcSnbBiQuery10(
+                (String) parameters[0],
+                (String) parameters[1],
+                (int) parameters[2]
         );
-        operation.setDependencyTimeStamp( 0 );
-        return operation;
     }
 
     @Override
-    public void remove()
+    CsvEventStreamReaderBasicCharSeeker.EventDecoder<Object[]> decoder()
     {
-        throw new UnsupportedOperationException( format( "%s does not support remove()", getClass().getSimpleName() ) );
+        return new CsvEventStreamReaderBasicCharSeeker.EventDecoder<Object[]>()
+        {
+            /*
+            Tag0|Tag1
+            a_tag,another_tag
+            */
+            @Override
+            public Object[] decodeEvent( CharSeeker charSeeker, Extractors extractors, int[] columnDelimiters,
+                    Mark mark )
+                    throws IOException
+            {
+                String tag0;
+                if ( charSeeker.seek( mark, columnDelimiters ) )
+                {
+                    tag0 = charSeeker.extract( mark, extractors.string() ).value();
+                }
+                else
+                {
+                    // if first column of next row contains nothing it means the file is finished
+                    return null;
+                }
+
+                String tag1;
+                if ( charSeeker.seek( mark, columnDelimiters ) )
+                {
+                    tag1 = charSeeker.extract( mark, extractors.string() ).value();
+                }
+                else
+                {
+                    throw new GeneratorException( "Error retrieving month" );
+                }
+
+                return new Object[]{tag0, tag1, LdbcSnbBiQuery10.DEFAULT_LIMIT};
+            }
+        };
     }
 
-    public static class Decoder implements CsvEventStreamReaderBasicCharSeeker.EventDecoder<Object[]>
+    @Override
+    int columnCount()
     {
-        /*
-        Tag0|Tag1
-        a_tag,another_tag
-        */
-        @Override
-        public Object[] decodeEvent( CharSeeker charSeeker, Extractors extractors, int[] columnDelimiters, Mark mark )
-                throws IOException
-        {
-            String tag0;
-            if ( charSeeker.seek( mark, columnDelimiters ) )
-            {
-                tag0 = charSeeker.extract( mark, extractors.string() ).value();
-            }
-            else
-            {
-                // if first column of next row contains nothing it means the file is finished
-                return null;
-            }
-
-            String tag1;
-            if ( charSeeker.seek( mark, columnDelimiters ) )
-            {
-                tag1 = charSeeker.extract( mark, extractors.string() ).value();
-            }
-            else
-            {
-                throw new GeneratorException( "Error retrieving month" );
-            }
-
-            return new Object[]{tag0, tag1, LdbcSnbBiQuery10.DEFAULT_LIMIT};
-        }
+        return 2;
     }
 }

@@ -16,7 +16,7 @@ import com.ldbc.driver.temporal.SystemTimeSource;
 import com.ldbc.driver.temporal.TimeSource;
 import com.ldbc.driver.testutils.TestUtils;
 import com.ldbc.driver.util.Tuple;
-import com.ldbc.driver.workloads.ldbc.snb.interactive.LdbcSnbInteractiveConfiguration;
+import com.ldbc.driver.workloads.ldbc.snb.interactive.LdbcSnbInteractiveWorkloadConfiguration;
 import com.ldbc.driver.workloads.ldbc.snb.interactive.LdbcSnbInteractiveWorkload;
 import com.ldbc.driver.workloads.ldbc.snb.interactive.db.DummyLdbcSnbInteractiveDb;
 import org.junit.Ignore;
@@ -72,8 +72,8 @@ public class QueuePerformanceTests
             throws WorkloadException, InterruptedException, IOException, DriverConfigurationException
     {
         // Given
-        Map<String,String> paramsMap = LdbcSnbInteractiveConfiguration.defaultReadOnlyConfigSF1();
-        paramsMap.put( LdbcSnbInteractiveConfiguration.PARAMETERS_DIRECTORY,
+        Map<String,String> paramsMap = LdbcSnbInteractiveWorkloadConfiguration.defaultReadOnlyConfigSF1();
+        paramsMap.put( LdbcSnbInteractiveWorkloadConfiguration.PARAMETERS_DIRECTORY,
                 TestUtils.getResource( "/" ).getAbsolutePath() );
         // LDBC Interactive Workload-specific parameters
         // Driver-specific parameters

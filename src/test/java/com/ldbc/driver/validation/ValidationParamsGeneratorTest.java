@@ -16,7 +16,7 @@ import com.ldbc.driver.csv.simple.SimpleCsvFileReader;
 import com.ldbc.driver.csv.simple.SimpleCsvFileWriter;
 import com.ldbc.driver.testutils.TestUtils;
 import com.ldbc.driver.util.MapUtils;
-import com.ldbc.driver.workloads.ldbc.snb.interactive.LdbcSnbInteractiveConfiguration;
+import com.ldbc.driver.workloads.ldbc.snb.interactive.LdbcSnbInteractiveWorkloadConfiguration;
 import com.ldbc.driver.workloads.ldbc.snb.interactive.LdbcSnbInteractiveWorkload;
 import com.ldbc.driver.workloads.ldbc.snb.interactive.db.DummyLdbcSnbInteractiveDb;
 import com.ldbc.driver.workloads.ldbc.snb.interactive.db.DummyLdbcSnbInteractiveOperationInstances;
@@ -56,11 +56,11 @@ public class ValidationParamsGeneratorTest
         ConsoleAndFileDriverConfiguration configuration = DriverConfigurationFileHelper.readConfigurationFileAt(
                 DriverConfigurationFileHelper.getBaseConfigurationFilePublicLocation() );
         configuration = (ConsoleAndFileDriverConfiguration) configuration
-                .applyArgs( LdbcSnbInteractiveConfiguration.defaultConfigSF1() );
+                .applyArgs( LdbcSnbInteractiveWorkloadConfiguration.defaultConfigSF1() );
         Map<String,String> additionalParamsMap = new HashMap<>();
-        additionalParamsMap.put( LdbcSnbInteractiveConfiguration.PARAMETERS_DIRECTORY,
+        additionalParamsMap.put( LdbcSnbInteractiveWorkloadConfiguration.PARAMETERS_DIRECTORY,
                 TestUtils.getResource( "/" ).getAbsolutePath() );
-        additionalParamsMap.put( LdbcSnbInteractiveConfiguration.UPDATES_DIRECTORY,
+        additionalParamsMap.put( LdbcSnbInteractiveWorkloadConfiguration.UPDATES_DIRECTORY,
                 TestUtils.getResource( "/" ).getAbsolutePath() );
         configuration = (ConsoleAndFileDriverConfiguration) configuration.applyArgs( additionalParamsMap );
         configuration = (ConsoleAndFileDriverConfiguration) configuration

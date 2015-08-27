@@ -15,7 +15,7 @@ import com.ldbc.driver.util.MapUtils;
 import com.ldbc.driver.workloads.dummy.TimedNamedOperation1;
 import com.ldbc.driver.workloads.dummy.TimedNamedOperation1Factory;
 import com.ldbc.driver.workloads.dummy.TimedNamedOperation2;
-import com.ldbc.driver.workloads.ldbc.snb.interactive.LdbcSnbInteractiveConfiguration;
+import com.ldbc.driver.workloads.ldbc.snb.interactive.LdbcSnbInteractiveWorkloadConfiguration;
 import com.ldbc.driver.workloads.ldbc.snb.interactive.LdbcSnbInteractiveWorkload;
 import com.ldbc.driver.workloads.ldbc.snb.interactive.db.DummyLdbcSnbInteractiveDb;
 import org.junit.Before;
@@ -329,9 +329,9 @@ public class TimeMappingOperationGeneratorTest {
 
     @Test
     public void shouldNotBreakTheMonotonicallyIncreasingScheduledStartTimesOfOperationsFromLdbcWorkload() throws WorkloadException, IOException, DriverConfigurationException {
-        Map<String, String> paramsMap = LdbcSnbInteractiveConfiguration.defaultConfigSF1();
+        Map<String, String> paramsMap = LdbcSnbInteractiveWorkloadConfiguration.defaultConfigSF1();
         // LDBC Interactive Workload-specific parameters
-        paramsMap.put(LdbcSnbInteractiveConfiguration.PARAMETERS_DIRECTORY, TestUtils.getResource("/").getAbsolutePath());
+        paramsMap.put( LdbcSnbInteractiveWorkloadConfiguration.PARAMETERS_DIRECTORY, TestUtils.getResource("/").getAbsolutePath());
         // Driver-specific parameters
         String name = "name";
         String dbClassName = DummyLdbcSnbInteractiveDb.class.getName();
